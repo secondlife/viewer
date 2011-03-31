@@ -63,6 +63,17 @@ public:
 		bool is_priority = false,
 		bool user_waiting=FALSE,
 		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
+
+protected:
+	using LLAssetStorage::_queueDataRequest;
+
+	// virtual
+	void _queueDataRequest(const LLUUID& uuid,
+						   LLAssetType::EType type,
+						   void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+						   void *user_data,
+						   BOOL duplicate,
+						   BOOL is_priority);
 };
 
 #endif

@@ -50,6 +50,7 @@ LLFloaterHardwareSettings::LLFloaterHardwareSettings(const LLSD& key)
 	  // but init them anyway
 	  mUseVBO(0),
 	  mUseAniso(0),
+	  mUseFBO(0),
 	  mFSAASamples(0),
 	  mGamma(0.0),
 	  mVideoCardMem(0),
@@ -74,6 +75,7 @@ void LLFloaterHardwareSettings::refresh()
 
 	mUseVBO = gSavedSettings.getBOOL("RenderVBOEnable");
 	mUseAniso = gSavedSettings.getBOOL("RenderAnisotropic");
+	mUseFBO = gSavedSettings.getBOOL("RenderUseFBO");
 	mFSAASamples = gSavedSettings.getU32("RenderFSAASamples");
 	mGamma = gSavedSettings.getF32("RenderGamma");
 	mVideoCardMem = gSavedSettings.getS32("TextureMemory");
@@ -101,7 +103,15 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 	getChildView("gamma")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
+	getChildView("fsaa")->setEnabled(gPipeline.canUseAntiAliasing());
+	getChildView("antialiasing restart")->setVisible(!gSavedSettings.getBOOL("RenderUseFBO"));
 
+	/* Enable to reset fsaa value to disabled when feature is not available.
+	if (!gPipeline.canUseAntiAliasing())
+	{
+		getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer) 0);
+	}
+	*/
 }
 
 //============================================================================
@@ -121,30 +131,6 @@ BOOL LLFloaterHardwareSettings::postBuild()
 
 void LLFloaterHardwareSettings::apply()
 {
-	// Anisotropic rendering
-	BOOL old_anisotropic = LLImageGL::sGlobalUseAnisotropic;
-	LLImageGL::sGlobalUseAnisotropic = getChild<LLUICtrl>("ani")->getValue();
-
-	U32 fsaa = (U32) getChild<LLUICtrl>("fsaa")->getValue().asInteger();
-	U32 old_fsaa = gSavedSettings.getU32("RenderFSAASamples");
-
-	BOOL logged_in = (LLStartUp::getStartupState() >= STATE_STARTED);
-
-	if (old_fsaa != fsaa)
-	{
-		gSavedSettings.setU32("RenderFSAASamples", fsaa);
-		LLWindow* window = gViewerWindow->getWindow();
-		LLCoordScreen size;
-		window->getSize(&size);
-		gViewerWindow->changeDisplaySettings(size,
-											gSavedSettings.getBOOL("DisableVerticalSync"),
-											logged_in);
-	}
-	else if (old_anisotropic != LLImageGL::sGlobalUseAnisotropic)
-	{
-		gViewerWindow->restartDisplay(logged_in);
-	}
-
 	refresh();
 }
 
@@ -153,6 +139,7 @@ void LLFloaterHardwareSettings::cancel()
 {
 	gSavedSettings.setBOOL("RenderVBOEnable", mUseVBO);
 	gSavedSettings.setBOOL("RenderAnisotropic", mUseAniso);
+	gSavedSettings.setBOOL("RenderUseFBO", mUseFBO);
 	gSavedSettings.setU32("RenderFSAASamples", mFSAASamples);
 	gSavedSettings.setF32("RenderGamma", mGamma);
 	gSavedSettings.setS32("TextureMemory", mVideoCardMem);

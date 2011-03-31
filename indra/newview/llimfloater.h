@@ -32,6 +32,7 @@
 #include "lltooldraganddrop.h"
 #include "lltransientdockablefloater.h"
 
+class LLAvatarName;
 class LLLineEditor;
 class LLPanelChatControlPanel;
 class LLChatHistory;
@@ -124,6 +125,12 @@ private:
 	/* virtual */ void onFocusLost();
 	/* virtual */ void onFocusReceived();
 
+	// Update the window title, input field help text, etc.
+	void updateSessionName(const std::string& ui_title, const std::string& ui_label);
+	
+	// For display name lookups for IM window titles
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+	
 	BOOL dropCallingCard(LLInventoryItem* item, BOOL drop);
 	BOOL dropCategory(LLInventoryCategory* category, BOOL drop);
 
@@ -149,7 +156,7 @@ private:
 
 	static void closeHiddenIMToasts();
 
-	static bool resetAllowedRectPadding(const LLSD& newvalue);
+	static bool resetAllowedRectPadding();
 	//need to keep this static for performance issues
 	static S32 sAllowedRectRightPadding;
 

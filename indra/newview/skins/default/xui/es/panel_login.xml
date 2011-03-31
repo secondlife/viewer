@@ -11,12 +11,19 @@
 			<text name="username_text">
 				Nombre de usuario:
 			</text>
-			<line_editor label="Nombre de usuario" name="username_edit" tool_tip="Nombre de usuario de [SECOND_LIFE]"/>
+			<combo_box name="username_combo" tool_tip="El nombre de usuario que elegiste al registrarte, como bobsmith12 o Steller Sunshine"/>
 			<text name="password_text">
 				Contraseña:
 			</text>
 			<check_box label="Recordar la contraseña" name="remember_check"/>
 			<button label="Iniciar sesión" name="connect_btn"/>
+			<text name="mode_selection_text">
+				Modo:
+			</text>
+			<combo_box name="mode_combo" tool_tip="Selecciona el modo. Elige Básico para una exploración rápida y fácil y para chatear. Elige Avanzado para tener acceso a más funciones.">
+				<combo_box.item label="Básico" name="Basic"/>
+				<combo_box.item label="Avanzado" name="Advanced"/>
+			</combo_box>
 			<text name="start_location_text">
 				Empezar en:
 			</text>
@@ -30,7 +37,7 @@
 				Registrarme
 			</text>
 			<text name="forgot_password_text">
-				¿Olvidaste el nombre o la contraseña?
+				¿Olvidaste el nombre de usuario o la contraseña?
 			</text>
 			<text name="login_help">
 				¿Necesitas ayuda para conectarte?

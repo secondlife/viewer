@@ -27,7 +27,8 @@
      left="10"
      tab_stop="false"
      top="2"
-     width="30" />
+     width="30"
+     use_draw_context_alpha="false" />
    <text
      type="string"
      length="1"
@@ -104,7 +105,7 @@
          layout="topleft"
          left="10"
          top_pad="2"
-         max_length="63"
+         max_length_bytes="63"
          name="pick_name"
          text_color="black"
          width="273" />
@@ -182,17 +183,17 @@
      left="8"
      name="bottom_panel"
      top_pad="5"
-     width="303">
+     width="315">
      
      	 <layout_stack
 		  follows="bottom|left|right"
 		  height="23"
 		  layout="topleft"
 		  name="layout_stack1"
-		  left="2"
+		  left="0"
 		  orientation="horizontal"
 		  top_pad="0"
-		  width="303">
+		  width="313">
 		  	 
 		  	 <layout_panel
 			  follows="bottom|left|right"
@@ -222,7 +223,7 @@
 			  name="layout_panel1"
 		      user_resize="false" 
 		      auto_resize="true"
-			  width="150">
+			  width="146">
 		        <button
 		         follows="bottom|left|right"
 		         height="23"
@@ -231,7 +232,7 @@
 		         name="cancel_btn"
 		         top="0"
 		         left="1"
-		        width="149" />
+		        width="145" />
 			  </layout_panel>
 	</layout_stack>
 		  

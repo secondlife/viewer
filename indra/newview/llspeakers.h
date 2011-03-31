@@ -60,7 +60,7 @@ public:
 	~LLSpeaker() {};
 	void lookupName();
 
-	void onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
+	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
 
 	bool isInVoiceChannel();
 

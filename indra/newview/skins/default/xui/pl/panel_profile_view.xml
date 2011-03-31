@@ -6,8 +6,12 @@
 	<string name="status_offline">
 		Nieaktywny
 	</string>
-	<text_editor name="user_name" value="(Ładowanie...)"/>
+	<text name="display_name_label" value="Wyświetlana nazwa:"/>
+	<text name="solo_username_label" value="Nazwa użytkownika:"/>
 	<text name="status" value="Obecnie w SL"/>
+	<text name="user_name_small" value="Jack oh look at me this is a super duper long name"/>
+	<button name="copy_to_clipboard" tool_tip="Kopiuj do schowka"/>
+	<text name="user_label" value="Nazwa użytkownika:"/>
 	<tab_container name="tabs">
 		<panel label="PROFIL" name="panel_profile"/>
 		<panel label="ULUBIONE" name="panel_picks"/>

@@ -25,31 +25,26 @@
 		<text name="ShadersText">
 			Effets :
 		</text>
+		<check_box initial_value="true" label="Eau transparente" name="TransparentWater"/>
 		<check_box initial_value="true" label="Placage de relief et brillance" name="BumpShiny"/>
 		<check_box initial_value="true" label="Effets de base" name="BasicShaders" tool_tip="La désactivation de cette option peut éviter le plantage de certains pilotes de cartes graphiques"/>
 		<check_box initial_value="true" label="Effets atmosphériques" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="Reflets dans l&apos;eau" name="Reflections"/>
-		<text name="ReflectionDetailText">
-			Objets reflétés :
+		<text name="reflection_label">
+			Reflets dans l&apos;eau :
 		</text>
-		<radio_group name="ReflectionDetailRadio">
-			<radio_item label="Terrain et arbres" name="0"/>
-			<radio_item label="Tous les objets statiques" name="1"/>
-			<radio_item label="Tous les objets et avatars" name="2"/>
-			<radio_item label="Tout" name="3"/>
-		</radio_group>
-		<text name="AvatarRenderingText">
-			Rendu de l&apos;avatar :
-		</text>
-		<check_box initial_value="true" label="Avatars éloignés en 2D" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="Accélération du rendu" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="Mouvement des habits" name="AvatarCloth"/>
+		<combo_box initial_value="true" label="Reflets dans l&apos;eau" name="Reflections">
+			<combo_box.item label="Minimes" name="0"/>
+			<combo_box.item label="Terrain et arbres" name="1"/>
+			<combo_box.item label="Tous les objets statiques" name="2"/>
+			<combo_box.item label="Tous les objets et avatars" name="3"/>
+			<combo_box.item label="Tout" name="4"/>
+		</combo_box>
 		<slider label="Limite d&apos;affichage :" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
 		</text>
-		<slider label="Nombre de particules max. :" label_width="147" name="MaxParticleCount"/>
-		<slider label="Nb max d&apos;avatars non éloignés en 2D :" name="MaxNumberAvatarDrawn"/>
+		<slider label="Nb max. de particules :" label_width="147" name="MaxParticleCount"/>
+		<slider label="Avatars max. non éloignés en 2D :" name="MaxNumberAvatarDrawn"/>
 		<slider label="Qualité post-traitement :" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Détails des rendus :
@@ -81,13 +76,12 @@
 		<text name="SkyMeshDetailText">
 			Faible
 		</text>
-		<text name="LightingDetailText">
-			Sources lumineuses :
+		<text name="AvatarRenderingText">
+			Rendu de l&apos;avatar :
 		</text>
-		<radio_group name="LightingDetailRadio">
-			<radio_item label="Soleil et lune uniquement" name="SunMoon" value="0"/>
-			<radio_item label="Lumières à proximité" name="LocalLights" value="1"/>
-		</radio_group>
+		<check_box initial_value="true" label="Avatars éloignés en 2D" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Accélération du rendu" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Mouvement des habits" name="AvatarCloth"/>
 		<text left="380" name="TerrainDetailText">
 			Rendu du terrain :
 		</text>
@@ -95,6 +89,7 @@
 			<radio_item label="Bas" name="0"/>
 			<radio_item label="Haut" name="2"/>
 		</radio_group>
+		--&gt;
 	</panel>
 	<button label="Appliquer" label_selected="Appliquer" name="Apply"/>
 	<button label="Réinitialiser" name="Defaults"/>

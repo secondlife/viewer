@@ -94,7 +94,6 @@
 			<menu_item_call label="Imposta script come non in esecuzione" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Opzioni" name="Options">
-			<menu_item_call label="Definisci diritti di caricamento predefiniti" name="perm prefs"/>
 			<menu_item_check label="Mostra autorizzazioni avanzate" name="DebugPermissions"/>
 			<menu_item_check label="Seleziona solo i miei oggetti" name="Select Only My Objects"/>
 			<menu_item_check label="Seleziona solo gli oggetti spostabili" name="Select Only Movable Objects"/>
@@ -121,7 +120,6 @@
 		<menu_item_call label="Informazioni su [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanzate" name="Advanced">
-		<menu_item_check label="Mostra menu Avanzato" name="Show Advanced Menu"/>
 		<menu_item_call label="Ferma animazione" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Ridisegna le texture" name="Rebake Texture"/>
 		<menu_item_call label="Imposta dimensioni dell&apos;interfaccia sui valori predefiniti" name="Set UI Size to Default"/>
@@ -168,7 +166,6 @@
 			<menu_item_check label="Nebbia" name="Fog"/>
 			<menu_item_check label="Oggetti flessibili" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="Esegui thread multipli" name="Run Multiple Threads"/>
 		<menu_item_check label="Usa thread lettura plugin" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Pulisci cache di gruppo" name="ClearGroupCache"/>
 		<menu_item_check label="Fluidità mouse" name="Mouse Smoothing"/>
@@ -177,7 +174,6 @@
 			<menu_item_check label="Cerca" name="Search"/>
 			<menu_item_call label="Rilascia tasti" name="Release Keys"/>
 			<menu_item_call label="Imposta dimensioni dell&apos;interfaccia sui valori predefiniti" name="Set UI Size to Default"/>
-			<menu_item_check label="Mostra menu Avanzato - tasti di scelta rapida esistenti" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Corri sempre" name="Always Run"/>
 			<menu_item_check label="Vola" name="Fly"/>
 			<menu_item_call label="Chiudi finestra" name="Close Window"/>
@@ -197,6 +193,7 @@
 			<menu_item_call label="Zoom avanti" name="Zoom In"/>
 			<menu_item_call label="Zoom predefinito" name="Zoom Default"/>
 			<menu_item_call label="Zoom indietro" name="Zoom Out"/>
+			<menu_item_check label="Mostra menu Avanzato" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Mostra impostazioni di debug" name="Debug Settings"/>
 		<menu_item_check label="Mostra menu sviluppo" name="Debug Mode"/>
@@ -239,9 +236,15 @@
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Assi" name="Axes"/>
 			<menu_item_check label="Wireframe" name="Wireframe"/>
-			<menu_item_check label="Illuminazione globale" name="Global Illumination"/>
+			<menu_item_check label="Luci e ombre" name="Lighting and Shadows"/>
+			<menu_item_check label="Ombra dal sole, dalla luna e dai proiettori" name="Shadows from Sun/Moon/Projectors"/>
+			<menu_item_check label="SSAO e ombre fluide" name="SSAO and Shadow Smoothing"/>
+			<menu_item_check label="Illuminazione globale (sperimentale)" name="Global Illumination"/>
+			<menu_item_check label="Maschera alfa automatica (differita)" name="Automatic Alpha Masks (deferred)"/>
+			<menu_item_check label="Maschera alfa automatica (non differita)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Texture delle animazioni" name="Animation Textures"/>
 			<menu_item_check label="Disabilita texture" name="Disable Textures"/>
+			<menu_item_check label="Atlante tessitura (sperimentale)" name="Texture Atlas"/>
 			<menu_item_check label="Rendering delle luci unite" name="Render Attached Lights"/>
 			<menu_item_check label="Rendering particelle unite" name="Render Attached Particles"/>
 			<menu_item_check label="Gli oggetti brillano quando sono sotto il cursore" name="Hover Glow Objects"/>
@@ -261,7 +264,8 @@
 			<menu_item_call label="Test browser Web" name="Web Browser Test"/>
 			<menu_item_call label="Stampa informazioni oggetto selezionato" name="Print Selected Object Info"/>
 			<menu_item_call label="Statistiche memoria" name="Memory Stats"/>
-			<menu_item_check label="Doppio clic pilota automatico" name="Double-ClickAuto-Pilot"/>
+			<menu_item_check label="Doppio clic pilota automatico" name="Double-Click Auto-Pilot"/>
+			<menu_item_check label="Doppio clic per teleport" name="DoubleClick Teleport"/>
 			<menu_item_check label="Debug clic" name="Debug Clicks"/>
 			<menu_item_check label="Debug eventi mouse" name="Debug Mouse Events"/>
 		</menu>

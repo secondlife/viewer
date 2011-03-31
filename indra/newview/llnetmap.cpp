@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2001-2010, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,6 +31,7 @@
 
 // Library includes (should move below)
 #include "indra_constants.h"
+#include "llavatarnamecache.h"
 #include "llmath.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
@@ -46,6 +47,7 @@
 #include "llagentcamera.h"
 #include "llappviewer.h" // for gDisconnected
 #include "llcallingcard.h" // LLAvatarTracker
+#include "llfloaterworldmap.h"
 #include "lltracker.h"
 #include "llsurface.h"
 #include "llviewercamera.h"
@@ -90,13 +92,27 @@ LLNetMap::LLNetMap (const Params & p)
 	mObjectImagep(),
 	mClosestAgentToCursor(),
 	mClosestAgentAtLastRightClick(),
-	mToolTipMsg()
+	mToolTipMsg(),
+	mPopupMenu(NULL)
 {
 	mDotRadius = llmax(DOT_SCALE * mPixelsPerMeter, MIN_DOT_RADIUS);
+	setScale(gSavedSettings.getF32("MiniMapScale"));
 }
 
 LLNetMap::~LLNetMap()
 {
+	gSavedSettings.setF32("MiniMapScale", mScale);
+}
+
+BOOL LLNetMap::postBuild()
+{
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	
+	registrar.add("Minimap.Zoom", boost::bind(&LLNetMap::handleZoom, this, _2));
+	registrar.add("Minimap.Tracker", boost::bind(&LLNetMap::handleStopTracking, this, _2));
+
+	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	return TRUE;
 }
 
 void LLNetMap::setScale( F32 scale )
@@ -351,15 +367,48 @@ void LLNetMap::draw()
 
 				pos_map = globalPosToView(pos_global);
 
+				LLUUID uuid(NULL);
 				BOOL show_as_friend = FALSE;
 				if( i < regionp->mMapAvatarIDs.count())
 				{
-					show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(regionp->mMapAvatarIDs.get(i)) != NULL);
+					uuid = regionp->mMapAvatarIDs.get(i);
+					show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
 				}
+
+				LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
 				LLWorldMapView::drawAvatar(
 					pos_map.mV[VX], pos_map.mV[VY], 
-					show_as_friend ? map_avatar_friend_color : map_avatar_color, 
+					color, 
 					pos_map.mV[VZ], mDotRadius);
+
+				if(uuid.notNull())
+				{
+					bool selected = false;
+					uuid_vec_t::iterator sel_iter = gmSelected.begin();
+					for (; sel_iter != gmSelected.end(); sel_iter++)
+					{
+						if(*sel_iter == uuid)
+						{
+							selected = true;
+							break;
+						}
+					}
+					if(selected)
+					{
+						if( (pos_map.mV[VX] < 0) ||
+							(pos_map.mV[VY] < 0) ||
+							(pos_map.mV[VX] >= getRect().getWidth()) ||
+							(pos_map.mV[VY] >= getRect().getHeight()) )
+						{
+							S32 x = llround( pos_map.mV[VX] );
+							S32 y = llround( pos_map.mV[VY] );
+							LLWorldMapView::drawTrackingCircle( getRect(), x, y, color, 1, 10);
+						} else
+						{
+							LLWorldMapView::drawTrackingDot(pos_map.mV[VX],pos_map.mV[VY],color,0.f);
+						}
+					}
+				}
 
 				F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
 											  LLVector2(local_mouse_x,local_mouse_y));
@@ -568,60 +617,68 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 		return FALSE;
 	}
 
-	std::string avatar_name;
-	if(mClosestAgentToCursor.notNull() && gCacheName->getFullName(mClosestAgentToCursor, avatar_name))
+	// If the cursor is near an avatar on the minimap, a mini-inspector will be
+	// shown for the avatar, instead of the normal map tooltip.
+	if (handleToolTipAgent(mClosestAgentToCursor))
 	{
-		// only show tooltip if same inspector not already open
-		LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_avatar");
-		if (!existing_inspector 
-			|| !existing_inspector->getVisible()
-			|| existing_inspector->getKey()["avatar_id"].asUUID() != mClosestAgentToCursor)
-		{
-			LLInspector::Params p;
-			p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
-			p.message(avatar_name);
-			p.image.name("Inspector_I");
-			p.click_callback(boost::bind(showAvatarInspector, mClosestAgentToCursor));
-			p.visible_time_near(6.f);
-			p.visible_time_far(3.f);
-			p.delay_time(0.35f);
-			p.wrap(false);
-
-			LLToolTipMgr::instance().show(p);
-		}
 		return TRUE;
 	}
 
-	LLStringUtil::format_map_t args;
-	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
-	if( region )
-	{
-		args["[REGION]"] = region->getName() + "\n";
-	}
-	else
-	{
-		args["[REGION]"] = "";
-	}
-
-	std::string msg = mToolTipMsg;
-	LLStringUtil::format(msg, args);
-
 	LLRect sticky_rect;
-	// set sticky_rect
-	if (region)
+	std::string region_name;
+	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
+	if(region)
 	{
+		// set sticky_rect
 		S32 SLOP = 4;
-		localPointToScreen( 
-			x - SLOP, y - SLOP, 
-			&(sticky_rect.mLeft), &(sticky_rect.mBottom) );
+		localPointToScreen(x - SLOP, y - SLOP, &(sticky_rect.mLeft), &(sticky_rect.mBottom));
 		sticky_rect.mRight = sticky_rect.mLeft + 2 * SLOP;
 		sticky_rect.mTop = sticky_rect.mBottom + 2 * SLOP;
+
+		region_name = region->getName();
+		if (!region_name.empty())
+		{
+			region_name += "\n";
+		}
 	}
 
+	LLStringUtil::format_map_t args;
+	args["[REGION]"] = region_name;
+	std::string msg = mToolTipMsg;
+	LLStringUtil::format(msg, args);
 	LLToolTipMgr::instance().show(LLToolTip::Params()
 		.message(msg)
 		.sticky_rect(sticky_rect));
 		
+	return TRUE;
+}
+
+BOOL LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)
+{
+	LLAvatarName av_name;
+	if (avatar_id.isNull() || !LLAvatarNameCache::get(avatar_id, &av_name))
+	{
+		return FALSE;
+	}
+
+	// only show tooltip if same inspector not already open
+	LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_avatar");
+	if (!existing_inspector
+		|| !existing_inspector->getVisible()
+		|| existing_inspector->getKey()["avatar_id"].asUUID() != avatar_id)
+	{
+		LLInspector::Params p;
+		p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+		p.message(av_name.getCompleteName());
+		p.image.name("Inspector_I");
+		p.click_callback(boost::bind(showAvatarInspector, avatar_id));
+		p.visible_time_near(6.f);
+		p.visible_time_far(3.f);
+		p.delay_time(0.35f);
+		p.wrap(false);
+
+		LLToolTipMgr::instance().show(p);
+	}
 	return TRUE;
 }
 
@@ -781,6 +838,9 @@ BOOL LLNetMap::handleMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLNetMap::handleMouseUp( S32 x, S32 y, MASK mask )
 {
+	if(abs(mMouseDown.mX-x)<3 && abs(mMouseDown.mY-y)<3)
+		handleClick(x,y,mask);
+
 	if (hasMouseCapture())
 	{
 		if (mPanning)
@@ -807,6 +867,60 @@ BOOL LLNetMap::handleMouseUp( S32 x, S32 y, MASK mask )
 		return TRUE;
 	}
 	return FALSE;
+}
+
+BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	if (mPopupMenu)
+	{
+		mPopupMenu->buildDrawLabels();
+		mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
+		mPopupMenu->setItemEnabled("Stop Tracking", LLTracker::isTracking(0));
+		LLMenuGL::showPopup(this, mPopupMenu, x, y);
+	}
+	return TRUE;
+}
+
+BOOL LLNetMap::handleClick(S32 x, S32 y, MASK mask)
+{
+	// TODO: allow clicking an avatar on minimap to select avatar in the nearby avatar list
+	// if(mClosestAgentToCursor.notNull())
+	//     mNearbyList->selectUser(mClosestAgentToCursor);
+	// Needs a registered observer i guess to accomplish this without using
+	// globals to tell the mNearbyList in llpeoplepanel to select the user
+	return TRUE;
+}
+
+BOOL LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	LLVector3d pos_global = viewPosToGlobal(x, y);
+
+	bool double_click_teleport = gSavedSettings.getBOOL("DoubleClickTeleport");
+	bool double_click_show_world_map = gSavedSettings.getBOOL("DoubleClickShowWorldMap");
+
+	if (double_click_teleport || double_click_show_world_map)
+	{
+		// If we're not tracking a beacon already, double-click will set one 
+		if (!LLTracker::isTracking(NULL))
+		{
+			LLFloaterWorldMap* world_map = LLFloaterWorldMap::getInstance();
+			if (world_map)
+			{
+				world_map->trackLocation(pos_global);
+			}
+		}
+	}
+
+	if (double_click_teleport)
+	{
+		// If DoubleClickTeleport is on, double clicking the minimap will teleport there
+		gAgent.teleportViaLocationLookAt(pos_global);
+	}
+	else if (double_click_show_world_map)
+	{
+		LLFloaterReg::showInstance("world_map");
+	}
+	return TRUE;
 }
 
 // static
@@ -858,4 +972,39 @@ BOOL LLNetMap::handleHover( S32 x, S32 y, MASK mask )
 	}
 
 	return TRUE;
+}
+
+void LLNetMap::handleZoom(const LLSD& userdata)
+{
+	std::string level = userdata.asString();
+	
+	F32 scale = 0.0f;
+	if (level == std::string("default"))
+	{
+		LLControlVariable *pvar = gSavedSettings.getControl("MiniMapScale");
+		if(pvar)
+		{
+			pvar->resetToDefault();
+			scale = gSavedSettings.getF32("MiniMapScale");
+		}
+	}
+	else if (level == std::string("close"))
+		scale = LLNetMap::MAP_SCALE_MAX;
+	else if (level == std::string("medium"))
+		scale = LLNetMap::MAP_SCALE_MID;
+	else if (level == std::string("far"))
+		scale = LLNetMap::MAP_SCALE_MIN;
+	if (scale != 0.0f)
+	{
+		setScale(scale);
+	}
+}
+
+void LLNetMap::handleStopTracking (const LLSD& userdata)
+{
+	if (mPopupMenu)
+	{
+		mPopupMenu->setItemEnabled ("Stop Tracking", false);
+		LLTracker::stopTracking ((void*)LLTracker::isTracking(NULL));
+	}
 }

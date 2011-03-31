@@ -206,6 +206,9 @@
 	<string name="TooltipAgentUrl">
 		Cliquez pour afficher le profil de ce résident
 	</string>
+	<string name="TooltipAgentInspect">
+		En savoir plus sur ce résident
+	</string>
 	<string name="TooltipAgentMute">
 		Cliquer pour ignorer ce résident
 	</string>
@@ -246,7 +249,7 @@
 		Cliquez pour voir cet emplacement sur la carte
 	</string>
 	<string name="TooltipSLAPP">
-		Cliquez pour exécuter la commande secondlife:// command
+		Cliquez pour exécuter la commande secondlife://
 	</string>
 	<string name="CurrentURL" value=" URL actuelle : [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
@@ -762,6 +765,12 @@
 	<string name="Estate / Full Region">
 		Domaine / Région entière
 	</string>
+	<string name="Estate / Homestead">
+		Domaine / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Continent / Homestead
+	</string>
 	<string name="Mainland / Full Region">
 		Continent / Région entière
 	</string>
@@ -798,7 +807,7 @@
 	<string name="xml_file">
 		Fichier XML
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		Fichier RAW
 	</string>
 	<string name="compressed_image_files">
@@ -1027,10 +1036,10 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/Rechercher [SEARCH_TERM]].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/[SEARCH_TERM] Rechercher].
 	</string>
 	<string name="PlacesNoMatchingItems">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/Rechercher [SEARCH_TERM]].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/places/[SEARCH_TERM] Rechercher].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
@@ -1058,7 +1067,7 @@
 	<string name="PermNo">
 		Non
 	</string>
-	<string name="Chat" value=" Chat :"/>
+	<string name="Chat Message" value="Chat :"/>
 	<string name="Sound" value=" Son :"/>
 	<string name="Wait" value=" --- Attendre :"/>
 	<string name="AnimFlagStop" value=" Arrêter l&apos;animation :"/>
@@ -1080,7 +1089,7 @@
 	<string name="Textures" value=" Textures,"/>
 	<string name="Snapshots" value=" Photos,"/>
 	<string name="No Filters" value="Non "/>
-	<string name="Since Logoff" value=" - Depuis la déconnexion"/>
+	<string name="Since Logoff" value="depuis la déconnexion"/>
 	<string name="InvFolder My Inventory">
 		Mon inventaire
 	</string>
@@ -1294,6 +1303,9 @@
 	<string name="Right Pec">
 		Pectoral droit
 	</string>
+	<string name="Invalid Attachment">
+		Point d&apos;attache non valide
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS]
 	</string>
@@ -1385,7 +1397,7 @@
 		Personne dont l&apos;âge n&apos;a pas été vérifié
 	</string>
 	<string name="Center 2">
-		Centrer 2
+		Centre 2
 	</string>
 	<string name="Top Right">
 		En haut à droite
@@ -1397,7 +1409,7 @@
 		En haut à gauche
 	</string>
 	<string name="Center">
-		Centrer
+		Centre
 	</string>
 	<string name="Bottom Left">
 		En bas à gauche
@@ -1671,9 +1683,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD en bas à droite
 	</string>
-	<string name="Bad attachment point">
-		Point d&apos;attache non valide
-	</string>
 	<string name="CursorPos">
 		Ligne [LINE], colonne [COLUMN]
 	</string>
@@ -1694,12 +1703,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		Le résident auquel vous avez envoyé un message est en mode Occupé, ce qui signifie qu&apos;il a demandé à ne pas être dérangé.  Votre message restera affiché dans son panneau IM afin qu&apos;il puisse le lire ultérieurement.
-	</string>
-	<string name="NoOutfits">
-		Aucune tenue n&apos;est actuellement en votre possession. Essayez [secondlife:///app/search/all Rechercher].
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/all/Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="MuteByName">
 		(par nom)
@@ -1741,7 +1744,7 @@
 		Vous n&apos;avez pas créé de favoris ni de petites annonces Cliquez sur le bouton Plus pour créer un favori ou une petite annonce.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		L&apos;utilisateur n&apos;a ni favoris ni petites annonces
+		L&apos;utilisateur n&apos;a ni favoris ni petites annonces.
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Chargement...
@@ -1770,11 +1773,8 @@
 	<string name="InvOfferGaveYou">
 		vous a donné
 	</string>
-	<string name="InvOfferYouDecline">
-		Vous avez refusé
-	</string>
-	<string name="InvOfferFrom">
-		de la part de
+	<string name="InvOfferDecline">
+		Vous refusez l&apos;offre [DESC] de &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</string>
 	<string name="GroupMoneyTotal">
 		Total
@@ -1882,34 +1882,34 @@
 	<string name="PDT">
 		PDT
 	</string>
-	<string name="Forward">
-		Vers l&apos;avant
+	<string name="Direction_Forward">
+		Avant
 	</string>
-	<string name="Left">
+	<string name="Direction_Left">
 		Gauche
 	</string>
-	<string name="Right">
+	<string name="Direction_Right">
 		Droite
 	</string>
-	<string name="Back">
+	<string name="Direction_Back">
 		Arrière
 	</string>
-	<string name="North">
+	<string name="Direction_North">
 		Nord
 	</string>
-	<string name="South">
+	<string name="Direction_South">
 		Sud
 	</string>
-	<string name="West">
+	<string name="Direction_West">
 		Ouest
 	</string>
-	<string name="East">
+	<string name="Direction_East">
 		Est
 	</string>
-	<string name="Up">
+	<string name="Direction_Up">
 		Haut
 	</string>
-	<string name="Down">
+	<string name="Direction_Down">
 		Bas
 	</string>
 	<string name="Any Category">
@@ -1980,6 +1980,9 @@
 	</string>
 	<string name="Other">
 		Autre
+	</string>
+	<string name="Rental">
+		Location
 	</string>
 	<string name="Any">
 		Aucun
@@ -3528,6 +3531,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Modérateur)
 	</string>
+	<string name="Saved_message">
+		(Enregistrement : [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Votre appel a fait l&apos;objet d&apos;une réponse
 	</string>
@@ -3555,17 +3561,23 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="conference-title">
 		Conférence ad-hoc
 	</string>
+	<string name="conference-title-incoming">
+		Conférence avec [AGENT_NAME]
+	</string>
 	<string name="inventory_item_offered-im">
 		Objet de l&apos;inventaire offert
 	</string>
 	<string name="share_alert">
 		Faire glisser les objets de l&apos;inventaire ici
 	</string>
+	<string name="no_session_message">
+		(Session IM inexistante)
+	</string>
 	<string name="only_user_message">
 		Vous êtes le seul participant à cette session.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] est déconnecté(e).
+		[NAME] est hors ligne.
 	</string>
 	<string name="invite_message">
 		Pour accepter ce chat vocal/vous connecter, cliquez sur le bouton [BUTTON NAME].
@@ -3634,7 +3646,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] vous a payé [AMOUNT] L$
+		[NAME] vous a payé [AMOUNT] L$ [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
+		[NAME] vous a payé [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars">
 		Vous avez payé à [AMOUNT] L$ [REASON].
@@ -3647,6 +3662,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="for item">
+		pour l&apos;article suivant : [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		pour une parcelle de terrain
@@ -3665,6 +3683,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		pour charger
+	</string>
+	<string name="to publish a classified ad">
+		pour publier une petite annonce
 	</string>
 	<string name="giving">
 		Donner [AMOUNT] L$
@@ -3942,7 +3963,360 @@ de l&apos;infraction signalée
 	<string name="Notices">
 		Notices
 	</string>
-	<string name="Chat">
+	<string name="Chat" value=" Chat :">
 		Chat
+	</string>
+	<string name="DeleteItems">
+		Supprimer les articles sélectionnés ?
+	</string>
+	<string name="DeleteItem">
+		Supprimer l&apos;article sélectionné ?
+	</string>
+	<string name="EmptyOutfitText">
+		Cette tenue ne contient aucun article.
+	</string>
+	<string name="ExternalEditorNotSet">
+		Sélectionnez un éditeur à l&apos;aide du paramètre ExternalEditor.
+	</string>
+	<string name="ExternalEditorNotFound">
+		Éditeur externe spécifié introuvable.
+Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
+(par ex. : &quot;/chemin_accès/editor&quot; &quot;%s&quot;).
+	</string>
+	<string name="ExternalEditorCommandParseError">
+		Erreur lors de l&apos;analyse de la commande d&apos;éditeur externe.
+	</string>
+	<string name="ExternalEditorFailedToRun">
+		Échec d&apos;exécution de l&apos;éditeur externe.
+	</string>
+	<string name="Esc">
+		Échap
+	</string>
+	<string name="Space">
+		Space
+	</string>
+	<string name="Enter">
+		Enter
+	</string>
+	<string name="Tab">
+		Tab
+	</string>
+	<string name="Ins">
+		Ins
+	</string>
+	<string name="Del">
+		Del
+	</string>
+	<string name="Backsp">
+		Backsp
+	</string>
+	<string name="Shift">
+		Shift
+	</string>
+	<string name="Ctrl">
+		Ctrl
+	</string>
+	<string name="Alt">
+		Alt
+	</string>
+	<string name="CapsLock">
+		CapsLock
+	</string>
+	<string name="Home">
+		Début
+	</string>
+	<string name="End">
+		End
+	</string>
+	<string name="PgUp">
+		PgUp
+	</string>
+	<string name="PgDn">
+		PgDn
+	</string>
+	<string name="F1">
+		F1
+	</string>
+	<string name="F2">
+		F2
+	</string>
+	<string name="F3">
+		F3
+	</string>
+	<string name="F4">
+		F4
+	</string>
+	<string name="F5">
+		F5
+	</string>
+	<string name="F6">
+		F6
+	</string>
+	<string name="F7">
+		F7
+	</string>
+	<string name="F8">
+		F8
+	</string>
+	<string name="F9">
+		F9
+	</string>
+	<string name="F10">
+		F10
+	</string>
+	<string name="F11">
+		F11
+	</string>
+	<string name="F12">
+		F12
+	</string>
+	<string name="Add">
+		Ajouter
+	</string>
+	<string name="Subtract">
+		Soustraire
+	</string>
+	<string name="Multiply">
+		Multiplier
+	</string>
+	<string name="Divide">
+		Diviser
+	</string>
+	<string name="PAD_DIVIDE">
+		PAD_DIVIDE
+	</string>
+	<string name="PAD_LEFT">
+		PAD_LEFT
+	</string>
+	<string name="PAD_RIGHT">
+		PAD_RIGHT
+	</string>
+	<string name="PAD_DOWN">
+		PAD_DOWN
+	</string>
+	<string name="PAD_UP">
+		PAD_UP
+	</string>
+	<string name="PAD_HOME">
+		PAD_HOME
+	</string>
+	<string name="PAD_END">
+		PAD_END
+	</string>
+	<string name="PAD_PGUP">
+		PAD_PGUP
+	</string>
+	<string name="PAD_PGDN">
+		PAD_PGDN
+	</string>
+	<string name="PAD_CENTER">
+		PAD_CENTER
+	</string>
+	<string name="PAD_INS">
+		PAD_INS
+	</string>
+	<string name="PAD_DEL">
+		PAD_DEL
+	</string>
+	<string name="PAD_Enter">
+		PAD_Enter
+	</string>
+	<string name="PAD_BUTTON0">
+		PAD_BUTTON0
+	</string>
+	<string name="PAD_BUTTON1">
+		PAD_BUTTON1
+	</string>
+	<string name="PAD_BUTTON2">
+		PAD_BUTTON2
+	</string>
+	<string name="PAD_BUTTON3">
+		PAD_BUTTON3
+	</string>
+	<string name="PAD_BUTTON4">
+		PAD_BUTTON4
+	</string>
+	<string name="PAD_BUTTON5">
+		PAD_BUTTON5
+	</string>
+	<string name="PAD_BUTTON6">
+		PAD_BUTTON6
+	</string>
+	<string name="PAD_BUTTON7">
+		PAD_BUTTON7
+	</string>
+	<string name="PAD_BUTTON8">
+		PAD_BUTTON8
+	</string>
+	<string name="PAD_BUTTON9">
+		PAD_BUTTON9
+	</string>
+	<string name="PAD_BUTTON10">
+		PAD_BUTTON10
+	</string>
+	<string name="PAD_BUTTON11">
+		PAD_BUTTON11
+	</string>
+	<string name="PAD_BUTTON12">
+		PAD_BUTTON12
+	</string>
+	<string name="PAD_BUTTON13">
+		PAD_BUTTON13
+	</string>
+	<string name="PAD_BUTTON14">
+		PAD_BUTTON14
+	</string>
+	<string name="PAD_BUTTON15">
+		PAD_BUTTON15
+	</string>
+	<string name="-">
+		-
+	</string>
+	<string name="=">
+		=
+	</string>
+	<string name="`">
+		`
+	</string>
+	<string name=";">
+		;
+	</string>
+	<string name="[">
+		[
+	</string>
+	<string name="]">
+		]
+	</string>
+	<string name="\">
+		\
+	</string>
+	<string name="0">
+		0
+	</string>
+	<string name="1">
+		1
+	</string>
+	<string name="2">
+		2
+	</string>
+	<string name="3">
+		3
+	</string>
+	<string name="4">
+		4
+	</string>
+	<string name="5">
+		5
+	</string>
+	<string name="6">
+		6
+	</string>
+	<string name="7">
+		7
+	</string>
+	<string name="8">
+		8
+	</string>
+	<string name="9">
+		9
+	</string>
+	<string name="A">
+		A
+	</string>
+	<string name="B">
+		B
+	</string>
+	<string name="C">
+		C
+	</string>
+	<string name="D">
+		D
+	</string>
+	<string name="E">
+		E
+	</string>
+	<string name="F">
+		F
+	</string>
+	<string name="G">
+		G
+	</string>
+	<string name="H">
+		H
+	</string>
+	<string name="I">
+		I
+	</string>
+	<string name="J">
+		J
+	</string>
+	<string name="K">
+		K
+	</string>
+	<string name="L">
+		L
+	</string>
+	<string name="M">
+		M
+	</string>
+	<string name="N">
+		N
+	</string>
+	<string name="O">
+		O
+	</string>
+	<string name="P">
+		P
+	</string>
+	<string name="Q">
+		Q
+	</string>
+	<string name="R">
+		R
+	</string>
+	<string name="S">
+		S
+	</string>
+	<string name="T">
+		T
+	</string>
+	<string name="U">
+		U
+	</string>
+	<string name="V">
+		V
+	</string>
+	<string name="W">
+		W
+	</string>
+	<string name="X">
+		X
+	</string>
+	<string name="Y">
+		Y
+	</string>
+	<string name="Z">
+		Z
+	</string>
+	<string name="BeaconParticle">
+		Affichage des balises de particule (bleu)
+	</string>
+	<string name="BeaconPhysical">
+		Affichage des balises d&apos;objet physique (vert)
+	</string>
+	<string name="BeaconScripted">
+		Affichage des balises d&apos;objet scripté (rouge)
+	</string>
+	<string name="BeaconScriptedTouch">
+		Affichage des balises d&apos;objet scripté avec fonction de toucher (rouge)
+	</string>
+	<string name="BeaconSound">
+		Affichage des balises de son (jaune)
+	</string>
+	<string name="BeaconMedia">
+		Affichage des balises de média (blanc)
+	</string>
+	<string name="ParticleHiding">
+		Masquage des particules
 	</string>
 </strings>

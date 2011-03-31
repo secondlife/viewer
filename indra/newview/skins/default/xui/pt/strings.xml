@@ -194,6 +194,9 @@
 	<string name="TooltipAgentUrl">
 		Clique para ver o perfil deste residente
 	</string>
+	<string name="TooltipAgentInspect">
+		Saiba mais sobre este residente
+	</string>
 	<string name="TooltipAgentMute">
 		Clique para silenciar este residente
 	</string>
@@ -741,6 +744,12 @@
 	<string name="Estate / Full Region">
 		Propriedadade / Região inteira:
 	</string>
+	<string name="Estate / Homestead">
+		Imóvel / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Continente / Homestead
+	</string>
 	<string name="Mainland / Full Region">
 		Continente / Região inteira:
 	</string>
@@ -777,7 +786,7 @@
 	<string name="xml_file">
 		Arquivo XML
 	</string>
-	<string name="dot_raw_file">
+	<string name="raw_file">
 		Arquivo RAW
 	</string>
 	<string name="compressed_image_files">
@@ -1267,6 +1276,9 @@
 	<string name="Right Pec">
 		Peitoral D
 	</string>
+	<string name="Invalid Attachment">
+		Ponto de encaixe inválido
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS] de idade
 	</string>
@@ -1388,10 +1400,10 @@
 		Script não encontrado no servidor.
 	</string>
 	<string name="CompileQueueProblemDownloading">
-		Problema no download
+		Problema no  download
 	</string>
 	<string name="CompileQueueInsufficientPermDownload">
-		Permissões insuficientes para fazer o download do script.
+		Permissões insuficientes para  fazer o download do script.
 	</string>
 	<string name="CompileQueueInsufficientPermFor">
 		Permissões insuficientes para
@@ -1644,9 +1656,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD direito inferior
 	</string>
-	<string name="Bad attachment point">
-		Ponto de encaixe inválido
-	</string>
 	<string name="CursorPos">
 		Linha [LINE], Coluna [COLUMN]
 	</string>
@@ -1661,12 +1670,6 @@
 	</string>
 	<string name="BusyModeResponseDefault">
 		O residente para o qual escreveu está no modo &apos;ocupado&apos;, ou seja, ele prefere não receber nada no momento. Sua mensagem será exibida como uma MI mais tarde.
-	</string>
-	<string name="NoOutfits">
-		Você ainda não tem nenhum look. Tente encontrar um na [secondlife:///app/search/groups Busca].
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Não encontrou o que procura? Tente fazer uma [secondlife:///app/search/people/[SEARCH_TERM] Busca].
 	</string>
 	<string name="MuteByName">
 		(por nome)
@@ -1705,7 +1708,7 @@
 		(vai atualizar depois de publicado)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Você não criou nenhum Destaque ou Anúncio. Clique no botão &quot;+&quot; para criar um Destaque ou Anúncio.
+		Você não criou nenhum Destaque ou Anúncio.  Clique no botão &quot;+&quot; para criar um Destaque ou Anúncio.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		O usuário não tem nenhum destaque ou anúncio
@@ -1737,11 +1740,8 @@
 	<string name="InvOfferGaveYou">
 		deu a você
 	</string>
-	<string name="InvOfferYouDecline">
-		Você recusa
-	</string>
-	<string name="InvOfferFrom">
-		de
+	<string name="InvOfferDecline">
+		Você recusou um(a) [DESC] de &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</string>
 	<string name="GroupMoneyTotal">
 		Total
@@ -1822,6 +1822,12 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="accel-win-shift">
 		Shift+
 	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Home">
+		Início
+	</string>
 	<string name="FileSaved">
 		Arquivo salvo
 	</string>
@@ -1840,34 +1846,34 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="PDT">
 		PDT
 	</string>
-	<string name="Forward">
+	<string name="Direction_Forward">
 		Avante
 	</string>
-	<string name="Left">
+	<string name="Direction_Left">
 		Esquerda
 	</string>
-	<string name="Right">
+	<string name="Direction_Right">
 		Direita
 	</string>
-	<string name="Back">
+	<string name="Direction_Back">
 		Atrás
 	</string>
-	<string name="North">
+	<string name="Direction_North">
 		Norte
 	</string>
-	<string name="South">
+	<string name="Direction_South">
 		Sul
 	</string>
-	<string name="West">
+	<string name="Direction_West">
 		Oeste
 	</string>
-	<string name="East">
+	<string name="Direction_East">
 		Leste
 	</string>
-	<string name="Up">
+	<string name="Direction_Up">
 		Acima
 	</string>
-	<string name="Down">
+	<string name="Direction_Down">
 		Abaixo
 	</string>
 	<string name="Any Category">
@@ -3437,6 +3443,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderador)
 	</string>
+	<string name="Saved_message">
+		(Salvo em [LONG_TIMESTAMP])
+	</string>
 	<string name="answered_call">
 		Ligação atendida
 	</string>
@@ -3458,11 +3467,17 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="hang_up-im">
 		Saiu da ligação de voz
 	</string>
+	<string name="conference-title-incoming">
+		Conversa com [AGENT_NAME]
+	</string>
+	<string name="no_session_message">
+		(Sessão de MI inexistente)
+	</string>
 	<string name="only_user_message">
 		Você é o único usuário desta sessão.
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST] está offline.
+		[NAME] está offline.
 	</string>
 	<string name="invite_message">
 		Clique no botão [BUTTON NAME] para aceitar/ conectar a este bate-papo em voz.
@@ -3531,6 +3546,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
+		[NAME] lhe pagou L$ [AMOUNT] [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
 		[NAME] lhe pagou L$ [AMOUNT]
 	</string>
 	<string name="you_paid_ldollars">
@@ -3544,6 +3562,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		You pagou L$[AMOUNT] por [REASON].
+	</string>
+	<string name="for item">
+		por [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		por uma parcela
@@ -3562,6 +3583,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		para carregar
+	</string>
+	<string name="to publish a classified ad">
+		para publicar um anúncio
 	</string>
 	<string name="giving">
 		Dando L$ [AMOUNT]
@@ -3841,5 +3865,14 @@ Denunciar abuso
 	</string>
 	<string name="Chat">
 		Bate-papo
+	</string>
+	<string name="DeleteItems">
+		Excluir itens selecionados?
+	</string>
+	<string name="DeleteItem">
+		Excluir item selecionado?
+	</string>
+	<string name="EmptyOutfitText">
+		Este look não possui nenhuma peça
 	</string>
 </strings>

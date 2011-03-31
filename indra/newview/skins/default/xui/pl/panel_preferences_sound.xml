@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Dźwięki" name="Preference Media panel">
+	<panel.string name="middle_mouse">
+		Środkowy przycisk myszy
+	</panel.string>
 	<slider label="Główny" name="System Volume"/>
 	<check_box initial_value="true" label="Wycisz podczas minimalizacji" name="mute_when_minimized"/>
 	<slider label="Interfejs" name="UI Volume"/>
 	<slider label="Otoczenie" name="Wind Volume"/>
 	<slider label="Efekty dźwiękowe" name="SFX Volume"/>
 	<slider label="Muzyka strumieniowa" name="Music Volume"/>
-	<check_box label="Odtwarzaj media audio" name="music_enabled"/>
+	<check_box label="Odtwarzaj media audio" name="enable_music"/>
 	<slider label="Media" name="Media Volume"/>
 	<check_box label="Odtwarzaj media" name="enable_media"/>
 	<slider label="Komunikacja głosowa" name="Voice Volume"/>
@@ -23,6 +26,11 @@
 		<radio_item label="pozycji kamery" name="0"/>
 		<radio_item label="pozycji awatara" name="1"/>
 	</radio_group>
+	<check_box label="Poruszaj ustami awatara podczas mówienia" name="enable_lip_sync"/>
+	<check_box label="Włącz/wyłącz mikrofon kiedy naciskam:" name="push_to_talk_toggle_check" tool_tip="Kiedy aktywny jest tryb przełączania wciśnij i zwolnij przełącznik RAZ aby włączyć lub wyłączyć mikrofon. Kiedy tryb przełączania nie jest aktywny mikrofon nadaje głos tylko kiedy przełącznik jest wciśnięty."/>
+	<line_editor label="Przełącznik kliknij-aby-mówić" name="modifier_combo"/>
+	<button label="Ustaw klawisz" name="set_voice_hotkey_button"/>
+	<button name="set_voice_middlemouse_button" tool_tip="Zresetuj do środkowego przycisku myszy"/>
 	<button label="Wejściowe/Wyjściowe urządzenia" name="device_settings_btn"/>
 	<panel label="Ustawienia sprzętowe" name="device_settings_panel">
 		<panel.string name="default_text">

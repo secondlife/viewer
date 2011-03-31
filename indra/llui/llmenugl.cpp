@@ -1462,7 +1462,7 @@ BOOL LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	BOOL branch_visible = getBranch()->getVisible();
 	BOOL handled = getBranch()->handleAcceleratorKey(key, mask);
-	if (handled && !branch_visible && getVisible())
+	if (handled && !branch_visible && isInVisibleChain())
 	{
 		// flash this menu entry because we triggered an invisible menu item
 		LLMenuHolderGL::setActivatedItem(this);
@@ -1637,6 +1637,10 @@ LLMenuScrollItem::LLMenuScrollItem(const Params& p)
 	}
 
 	LLButton::Params bparams;
+
+	// Disabled the Return key handling by LLMenuScrollItem instead of
+	// passing the key press to the currently selected menu item. See STORM-385.
+	bparams.commit_on_return(false);
 	bparams.mouse_opaque(true);
 	bparams.scale_image(false);
 	bparams.click_callback(p.scroll_callback);
@@ -1848,89 +1852,110 @@ BOOL LLMenuGL::isOpen()
 	}
 }
 
-void LLMenuGL::scrollItemsUp()
+
+
+bool LLMenuGL::scrollItems(EScrollingDirection direction)
 {
-	// Slowing down the items scrolling when arrow button is held 
+	// Slowing down items scrolling when arrow button is held
 	if (mScrollItemsTimer.hasExpired() && NULL != mFirstVisibleItem)
 	{
 		mScrollItemsTimer.setTimerExpirySec(.033f);
 	}
 	else
 	{
-		return;
+		return false;
 	}
 
-	item_list_t::iterator cur_item_iter;
-	item_list_t::iterator prev_item_iter;
-	for (cur_item_iter = mItems.begin(), prev_item_iter = mItems.begin(); cur_item_iter != mItems.end(); cur_item_iter++)
+	switch (direction)
 	{
-		if( (*cur_item_iter) == mFirstVisibleItem)
+	case SD_UP:
+	{
+		item_list_t::iterator cur_item_iter;
+		item_list_t::iterator prev_item_iter;
+		for (cur_item_iter = mItems.begin(), prev_item_iter = mItems.begin(); cur_item_iter != mItems.end(); cur_item_iter++)
 		{
-			break;
+			if( (*cur_item_iter) == mFirstVisibleItem)
+			{
+				break;
+			}
+			if ((*cur_item_iter)->getVisible())
+			{
+				prev_item_iter = cur_item_iter;
+			}
 		}
-		if ((*cur_item_iter)->getVisible())
+
+		if ((*prev_item_iter)->getVisible())
 		{
-			prev_item_iter = cur_item_iter;
+			mFirstVisibleItem = *prev_item_iter;
 		}
+		break;
 	}
-
-	if ((*prev_item_iter)->getVisible())
+	case SD_DOWN:
 	{
-		mFirstVisibleItem = *prev_item_iter;
-	}
-	
-	mNeedsArrange = TRUE;
-	arrangeAndClear();
-}
-
-void LLMenuGL::scrollItemsDown()
-{
-	// Slowing down the items scrolling when arrow button is held 
-	if (mScrollItemsTimer.hasExpired())
-	{
-		mScrollItemsTimer.setTimerExpirySec(.033f);
-	}
-	else
-	{
-		return;
-	}
-	
-	if (NULL == mFirstVisibleItem)
-	{
-		mFirstVisibleItem = *mItems.begin();
-	}
-
-	item_list_t::iterator cur_item_iter;
-	
-	for (cur_item_iter = mItems.begin(); cur_item_iter != mItems.end(); cur_item_iter++)
-	{
-		if( (*cur_item_iter) == mFirstVisibleItem)
+		if (NULL == mFirstVisibleItem)
 		{
-			break;
+			mFirstVisibleItem = *mItems.begin();
 		}
-	}
 
-	item_list_t::iterator next_item_iter;
+		item_list_t::iterator cur_item_iter;
 
-	if (cur_item_iter != mItems.end())
-	{
-		for (next_item_iter = ++cur_item_iter; next_item_iter != mItems.end(); next_item_iter++)
+		for (cur_item_iter = mItems.begin(); cur_item_iter != mItems.end(); cur_item_iter++)
 		{
-			if( (*next_item_iter)->getVisible())
+			if( (*cur_item_iter) == mFirstVisibleItem)
 			{
 				break;
 			}
 		}
-		
-		if (next_item_iter != mItems.end() &&
-		    (*next_item_iter)->getVisible())
+
+		item_list_t::iterator next_item_iter;
+
+		if (cur_item_iter != mItems.end())
 		{
-			mFirstVisibleItem = *next_item_iter;
+			for (next_item_iter = ++cur_item_iter; next_item_iter != mItems.end(); next_item_iter++)
+			{
+				if( (*next_item_iter)->getVisible())
+				{
+					break;
+				}
+			}
+
+			if (next_item_iter != mItems.end() &&
+				(*next_item_iter)->getVisible())
+			{
+				mFirstVisibleItem = *next_item_iter;
+			}
 		}
+		break;
 	}
-	
+	case SD_BEGIN:
+	{
+		mFirstVisibleItem = *mItems.begin();
+		break;
+	}
+	case SD_END:
+	{
+		item_list_t::reverse_iterator first_visible_item_iter = mItems.rend();
+
+		// Need to scroll through number of actual existing items in menu.
+		// Otherwise viewer will hang for a time needed to scroll U32_MAX
+		// times in std::advance(). STORM-659.
+		size_t nitems = mItems.size();
+		U32 scrollable_items = nitems < mMaxScrollableItems ? nitems : mMaxScrollableItems;
+
+		// Advance by mMaxScrollableItems back from the end of the list
+		// to make the last item visible.
+		std::advance(first_visible_item_iter, scrollable_items);
+		mFirstVisibleItem = *first_visible_item_iter;
+		break;
+	}
+	default:
+		llwarns << "Unknown scrolling direction: " << direction << llendl;
+	}
+
 	mNeedsArrange = TRUE;
 	arrangeAndClear();
+
+	return true;
 }
 
 // rearrange the child rects so they fit the shape of the menu.
@@ -2162,7 +2187,7 @@ void LLMenuGL::arrange( void )
 					LLMenuScrollItem::Params item_params;
 					item_params.name(ARROW_UP);
 					item_params.arrow_type(LLMenuScrollItem::ARROW_UP);
-					item_params.scroll_callback.function(boost::bind(&LLMenuGL::scrollItemsUp, this));
+					item_params.scroll_callback.function(boost::bind(&LLMenuGL::scrollItems, this, SD_UP));
 
 					mArrowUpItem = LLUICtrlFactory::create<LLMenuScrollItem>(item_params);
 					LLUICtrl::addChild(mArrowUpItem);
@@ -2173,7 +2198,7 @@ void LLMenuGL::arrange( void )
 					LLMenuScrollItem::Params item_params;
 					item_params.name(ARROW_DOWN);
 					item_params.arrow_type(LLMenuScrollItem::ARROW_DOWN);
-					item_params.scroll_callback.function(boost::bind(&LLMenuGL::scrollItemsDown, this));
+					item_params.scroll_callback.function(boost::bind(&LLMenuGL::scrollItems, this, SD_DOWN));
 
 					mArrowDownItem = LLUICtrlFactory::create<LLMenuScrollItem>(item_params);
 					LLUICtrl::addChild(mArrowDownItem);				
@@ -2596,6 +2621,7 @@ LLMenuItemGL* LLMenuGL::getHighlightedItem()
 
 LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disabled)
 {
+	if (mItems.empty()) return NULL;
 	// highlighting first item on a torn off menu is the
 	// same as giving focus to it
 	if (!cur_item && getTornOff())
@@ -2603,14 +2629,8 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 		((LLFloater*)getParent())->setFocus(TRUE);
 	}
 
-	item_list_t::iterator cur_item_iter;
-	for (cur_item_iter = mItems.begin(); cur_item_iter != mItems.end(); ++cur_item_iter)
-	{
-		if( (*cur_item_iter) == cur_item)
-		{
-			break;
-		}
-	}
+	// Current item position in the items list
+	item_list_t::iterator cur_item_iter = std::find(mItems.begin(), mItems.end(), cur_item);
 
 	item_list_t::iterator next_item_iter;
 	if (cur_item_iter == mItems.end())
@@ -2621,9 +2641,37 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 	{
 		next_item_iter = cur_item_iter;
 		next_item_iter++;
+
+		// First visible item position in the items list
+		item_list_t::iterator first_visible_item_iter = std::find(mItems.begin(), mItems.end(), mFirstVisibleItem);
+
 		if (next_item_iter == mItems.end())
 		{
 			next_item_iter = mItems.begin();
+
+			// If current item is the last in the list, the menu is scrolled to the beginning
+			// and the first item is highlighted.
+			if (mScrollable && !scrollItems(SD_BEGIN))
+			{
+				return NULL;
+			}
+		}
+		// If current item is the last visible, the menu is scrolled one item down
+		// and the next item is highlighted.
+		else if (mScrollable &&
+				 (U32)std::abs(std::distance(first_visible_item_iter, next_item_iter)) >= mMaxScrollableItems)
+		{
+			// Call highlightNextItem() recursively only if the menu was successfully scrolled down.
+			// If scroll timer hasn't expired yet the menu won't be scrolled and calling
+			// highlightNextItem() will result in an endless recursion.
+			if (scrollItems(SD_DOWN))
+			{
+				return highlightNextItem(cur_item, skip_disabled);
+			}
+			else
+			{
+				return NULL;
+			}
 		}
 	}
 
@@ -2674,6 +2722,8 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 
 LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disabled)
 {
+	if (mItems.empty()) return NULL;
+
 	// highlighting first item on a torn off menu is the
 	// same as giving focus to it
 	if (!cur_item && getTornOff())
@@ -2681,14 +2731,8 @@ LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disa
 		((LLFloater*)getParent())->setFocus(TRUE);
 	}
 
-	item_list_t::reverse_iterator cur_item_iter;
-	for (cur_item_iter = mItems.rbegin(); cur_item_iter != mItems.rend(); ++cur_item_iter)
-	{
-		if( (*cur_item_iter) == cur_item)
-		{
-			break;
-		}
-	}
+	// Current item reverse position from the end of the list
+	item_list_t::reverse_iterator cur_item_iter = std::find(mItems.rbegin(), mItems.rend(), cur_item);
 
 	item_list_t::reverse_iterator prev_item_iter;
 	if (cur_item_iter == mItems.rend())
@@ -2699,9 +2743,37 @@ LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disa
 	{
 		prev_item_iter = cur_item_iter;
 		prev_item_iter++;
+
+		// First visible item reverse position in the items list
+		item_list_t::reverse_iterator first_visible_item_iter = std::find(mItems.rbegin(), mItems.rend(), mFirstVisibleItem);
+
 		if (prev_item_iter == mItems.rend())
 		{
 			prev_item_iter = mItems.rbegin();
+
+			// If current item is the first in the list, the menu is scrolled to the end
+			// and the last item is highlighted.
+			if (mScrollable && !scrollItems(SD_END))
+			{
+				return NULL;
+			}
+		}
+		// If current item is the first visible, the menu is scrolled one item up
+		// and the previous item is highlighted.
+		else if (mScrollable &&
+				 std::distance(first_visible_item_iter, cur_item_iter) <= 0)
+		{
+			// Call highlightNextItem() only if the menu was successfully scrolled up.
+			// If scroll timer hasn't expired yet the menu won't be scrolled and calling
+			// highlightNextItem() will result in an endless recursion.
+			if (scrollItems(SD_UP))
+			{
+				return highlightPrevItem(cur_item, skip_disabled);
+			}
+			else
+			{
+				return NULL;
+			}
 		}
 	}
 
@@ -2872,12 +2944,12 @@ BOOL LLMenuGL::handleScrollWheel( S32 x, S32 y, S32 clicks )
 	if( clicks > 0 )
 	{
 		while( clicks-- )
-			scrollItemsDown();
+			scrollItems(SD_DOWN);
 	}
 	else
 	{
 		while( clicks++ )
-			scrollItemsUp();
+			scrollItems(SD_UP);
 	}
 
 	return TRUE;
@@ -2986,6 +3058,11 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	const S32 CURSOR_HEIGHT = 22;		// Approximate "normal" cursor size
 	const S32 CURSOR_WIDTH = 12;
 
+	if(menu->getChildList()->empty())
+	{
+		return;
+	}
+
 	// Save click point for detecting cursor moves before mouse-up.
 	// Must be in local coords to compare with mouseUp events.
 	// If the mouse doesn't move, the menu will stay open ala the Mac.
@@ -3066,7 +3143,10 @@ BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 		mAltKeyTrigger = FALSE;
 	}
 
-	if(!result && (key == KEY_F10 && mask == MASK_CONTROL) && !gKeyboard->getKeyRepeated(key))
+	if(!result 
+		&& (key == KEY_F10 && mask == MASK_CONTROL) 
+		&& !gKeyboard->getKeyRepeated(key)
+		&& isInVisibleChain())
 	{
 		if (getHighlightedItem())
 		{
@@ -3449,8 +3529,10 @@ BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			else
 			{
 				//highlight first enabled one
-				pMenu->highlightNextItem(NULL);
-				handled = true;
+				if(pMenu->highlightNextItem(NULL))
+				{
+					handled = true;
+				}
 			}
 		}
 	}
@@ -3683,9 +3765,7 @@ public:
 	LLContextMenuBranch(const Params&);
 
 	virtual ~LLContextMenuBranch()
-	{
-		delete mBranch;
-	}
+	{}
 
 	// called to rebuild the draw label
 	virtual void	buildDrawLabel( void );
@@ -3693,21 +3773,21 @@ public:
 	// onCommit() - do the primary funcationality of the menu item.
 	virtual void	onCommit( void );
 
-	LLContextMenu*	getBranch() { return mBranch; }
+	LLContextMenu*	getBranch() { return mBranch.get(); }
 	void			setHighlight( BOOL highlight );
 
 protected:
 	void	showSubMenu();
 
-	LLContextMenu* mBranch;
+	LLHandle<LLContextMenu> mBranch;
 };
 
 LLContextMenuBranch::LLContextMenuBranch(const LLContextMenuBranch::Params& p) 
 :	LLMenuItemGL(p),
-	mBranch( p.branch )
+	mBranch( p.branch()->getHandle() )
 {
-	mBranch->hide();
-	mBranch->setParentMenuItem(this);
+	mBranch.get()->hide();
+	mBranch.get()->setParentMenuItem(this);
 }
 
 // called to rebuild the draw label
@@ -3716,12 +3796,12 @@ void LLContextMenuBranch::buildDrawLabel( void )
 	{
 		// default enablement is this -- if any of the subitems are
 		// enabled, this item is enabled. JC
-		U32 sub_count = mBranch->getItemCount();
+		U32 sub_count = mBranch.get()->getItemCount();
 		U32 i;
 		BOOL any_enabled = FALSE;
 		for (i = 0; i < sub_count; i++)
 		{
-			LLMenuItemGL* item = mBranch->getItem(i);
+			LLMenuItemGL* item = mBranch.get()->getItem(i);
 			item->buildDrawLabel();
 			if (item->getEnabled() && !item->getDrawTextDisabled() )
 			{
@@ -3743,13 +3823,13 @@ void LLContextMenuBranch::buildDrawLabel( void )
 
 void	LLContextMenuBranch::showSubMenu()
 {
-	LLMenuItemGL* menu_item = mBranch->getParentMenuItem();
+	LLMenuItemGL* menu_item = mBranch.get()->getParentMenuItem();
 	if (menu_item != NULL && menu_item->getVisible())
 	{
 		S32 center_x;
 		S32 center_y;
 		localPointToScreen(getRect().getWidth(), getRect().getHeight() , &center_x, &center_y);
-		mBranch->show(center_x, center_y);
+		mBranch.get()->show(center_x, center_y);
 	}
 }
 
@@ -3769,7 +3849,7 @@ void LLContextMenuBranch::setHighlight( BOOL highlight )
 	}
 	else
 	{
-		mBranch->hide();
+		mBranch.get()->hide();
 	}
 }
 
@@ -3800,6 +3880,11 @@ void LLContextMenu::setVisible(BOOL visible)
 // Takes cursor position in screen space?
 void LLContextMenu::show(S32 x, S32 y)
 {
+	if (getChildList()->empty())
+	{
+		// nothing to show, so abort
+		return;
+	}
 	// Save click point for detecting cursor moves before mouse-up.
 	// Must be in local coords to compare with mouseUp events.
 	// If the mouse doesn't move, the menu will stay open ala the Mac.

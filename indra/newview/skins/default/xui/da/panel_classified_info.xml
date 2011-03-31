@@ -40,14 +40,22 @@
 				</layout_panel>
 				<layout_panel name="descr_layout_panel">
 					<text name="classified_desc_label" value="Beskrivelse:"/>
-					<text_editor name="classified_desc" value="[description]"/>
+			<text_editor name="classified_desc" value="[description]"/>
 				</layout_panel>
 			</layout_stack>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">
-		<button label="Teleport" name="teleport_btn"/>
-		<button label="Kort" name="show_on_map_btn"/>
-		<button label="Redigér" name="edit_btn"/>
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Teleportér" name="teleport_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Kort" name="show_on_map_btn"/>
+			</layout_panel>
+			<layout_panel name="edit_btn_lp">
+				<button label="Redigér" name="edit_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

@@ -23,6 +23,10 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="data_panel">
+				<text name="display_name_label" value="Visningsnavn:"/>
+				<text name="solo_username_label" value="Bugernavn:"/>
+				<button name="set_name" tool_tip="Sæt visningsnavn"/>
+				<text name="user_label" value="Brugernavn:"/>
 				<panel name="lifes_images_panel">
 					<icon label="" name="2nd_life_edit_icon" tool_tip="Klik for at vælge et billede"/>
 				</panel>
@@ -39,14 +43,20 @@
 				<text name="my_account_link" value="[[URL] Go to My Dashboard]"/>
 				<text name="title_partner_text" value="Min partner:"/>
 				<panel name="partner_data_panel">
-					<name_box initial_value="(henter)" name="partner_text"/>
+					<text initial_value="(henter)" name="partner_text"/>
 				</panel>
 				<text name="partner_edit_link" value="[[URL] Edit]"/>
 			</panel>
 		</panel>
 	</scroll_container>
 	<panel name="profile_me_buttons_panel">
-		<button label="Gem ændringer" name="save_btn"/>
-		<button label="Annullér" name="cancel_btn"/>
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_changes_btn_lp">
+				<button label="Gem ændringer" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Annullér" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

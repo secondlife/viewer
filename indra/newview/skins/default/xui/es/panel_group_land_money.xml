@@ -24,6 +24,7 @@
 			<scroll_list.columns label="Región" name="location"/>
 			<scroll_list.columns label="Tipo" name="type"/>
 			<scroll_list.columns label="Área" name="area"/>
+			<scroll_list.columns label="Oculto" name="hidden"/>
 		</scroll_list>
 		<text name="total_contributed_land_label">
 			Contribución total:

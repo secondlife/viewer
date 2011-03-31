@@ -25,12 +25,12 @@
  * $/LicenseInfo$
  */
 
-// Precompiled header: almost always required for newview cpp files
-#include "../llviewerprecompiledheaders.h"
+// Dependencies
+#include "linden_common.h"
+#include "../llviewertexture.h"
+#include "../llviewercontrol.h"
 // Class to test
 #include "../llworldmipmap.h"
-// Dependencies
-#include "../llviewerimagelist.h"
 // Tut header
 #include "../test/lltut.h"
 
@@ -42,19 +42,14 @@
 // * Do not make any assumption as to how those classes or methods work (i.e. don't copy/paste code)
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
-LLViewerImageList::LLViewerImageList() { }
-LLViewerImageList::~LLViewerImageList() { }
+void LLViewerTexture::setBoostLevel(S32 ) { }
+LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const std::string&, BOOL, LLViewerTexture::EBoostLevel, S8, 
+																		 LLGLint, LLGLenum, const LLUUID& ) { return NULL; }
 
-LLViewerImageList gImageList;
-
-LLViewerImage* LLViewerImageList::getImageFromUrl(const std::string& url,
-												   BOOL usemipmaps,
-												   BOOL level_immediate,
-												   LLGLint internal_format,
-												   LLGLenum primary_format, 
-												   const LLUUID& force_id)
-{ return NULL; }
-void LLViewerImage::setBoostLevel(S32 level) { }
+LLControlGroup::LLControlGroup(const std::string& name) : LLInstanceTracker<LLControlGroup, std::string>(name) { }
+LLControlGroup::~LLControlGroup() { }
+std::string LLControlGroup::getString(const std::string& ) { return std::string("test_url"); }
+LLControlGroup gSavedSettings("test_settings");
 
 // End Stubbing
 // -------------------------------------------------------------------------------------------

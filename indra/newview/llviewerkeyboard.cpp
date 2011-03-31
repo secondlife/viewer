@@ -40,6 +40,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llfloatercamera.h"
+#include "llinitparam.h"
 
 //
 // Constants
@@ -52,6 +53,11 @@ const F32 NUDGE_TIME = 0.25f;  // in seconds
 const S32 NUDGE_FRAMES = 2;
 const F32 ORBIT_NUDGE_RATE = 0.05f;  // fraction of normal speed
 const F32 YAW_NUDGE_RATE = 0.05f;  // fraction of normal speed
+
+struct LLKeyboardActionRegistry 
+:	public LLRegistrySingleton<std::string, boost::function<void (EKeystate keystate)>, LLKeyboardActionRegistry>
+{
+};
 
 LLViewerKeyboard gViewerKeyboard;
 
@@ -550,52 +556,50 @@ void start_gesture( EKeystate s )
 	}
 }
 
-void bind_keyboard_functions()
-{
-	gViewerKeyboard.bindNamedFunction("jump", agent_jump);
-	gViewerKeyboard.bindNamedFunction("push_down", agent_push_down);
-	gViewerKeyboard.bindNamedFunction("push_forward", agent_push_forward);
-	gViewerKeyboard.bindNamedFunction("push_backward", agent_push_backward);
-	gViewerKeyboard.bindNamedFunction("look_up", agent_look_up);
-	gViewerKeyboard.bindNamedFunction("look_down", agent_look_down);
-	gViewerKeyboard.bindNamedFunction("toggle_fly", agent_toggle_fly);
-	gViewerKeyboard.bindNamedFunction("turn_left", agent_turn_left);
-	gViewerKeyboard.bindNamedFunction("turn_right", agent_turn_right);
-	gViewerKeyboard.bindNamedFunction("slide_left", agent_slide_left);
-	gViewerKeyboard.bindNamedFunction("slide_right", agent_slide_right);
-	gViewerKeyboard.bindNamedFunction("spin_around_ccw", camera_spin_around_ccw);
-	gViewerKeyboard.bindNamedFunction("spin_around_cw", camera_spin_around_cw);
-	gViewerKeyboard.bindNamedFunction("spin_around_ccw_sitting", camera_spin_around_ccw_sitting);
-	gViewerKeyboard.bindNamedFunction("spin_around_cw_sitting", camera_spin_around_cw_sitting);
-	gViewerKeyboard.bindNamedFunction("spin_over", camera_spin_over);
-	gViewerKeyboard.bindNamedFunction("spin_under", camera_spin_under);
-	gViewerKeyboard.bindNamedFunction("spin_over_sitting", camera_spin_over_sitting);
-	gViewerKeyboard.bindNamedFunction("spin_under_sitting", camera_spin_under_sitting);
-	gViewerKeyboard.bindNamedFunction("move_forward", camera_move_forward);
-	gViewerKeyboard.bindNamedFunction("move_backward", camera_move_backward);
-	gViewerKeyboard.bindNamedFunction("move_forward_sitting", camera_move_forward_sitting);
-	gViewerKeyboard.bindNamedFunction("move_backward_sitting", camera_move_backward_sitting);
-	gViewerKeyboard.bindNamedFunction("pan_up", camera_pan_up);
-	gViewerKeyboard.bindNamedFunction("pan_down", camera_pan_down);
-	gViewerKeyboard.bindNamedFunction("pan_left", camera_pan_left);
-	gViewerKeyboard.bindNamedFunction("pan_right", camera_pan_right);
-	gViewerKeyboard.bindNamedFunction("pan_in", camera_pan_in);
-	gViewerKeyboard.bindNamedFunction("pan_out", camera_pan_out);
-	gViewerKeyboard.bindNamedFunction("move_forward_fast", camera_move_forward_fast);
-	gViewerKeyboard.bindNamedFunction("move_backward_fast", camera_move_backward_fast);
-	gViewerKeyboard.bindNamedFunction("edit_avatar_spin_ccw", edit_avatar_spin_ccw);
-	gViewerKeyboard.bindNamedFunction("edit_avatar_spin_cw", edit_avatar_spin_cw);
-	gViewerKeyboard.bindNamedFunction("edit_avatar_spin_over", edit_avatar_spin_over);
-	gViewerKeyboard.bindNamedFunction("edit_avatar_spin_under", edit_avatar_spin_under);
-	gViewerKeyboard.bindNamedFunction("edit_avatar_move_forward", edit_avatar_move_forward);
-	gViewerKeyboard.bindNamedFunction("edit_avatar_move_backward", edit_avatar_move_backward);
-	gViewerKeyboard.bindNamedFunction("stop_moving", stop_moving);
-	gViewerKeyboard.bindNamedFunction("start_chat", start_chat);
-	gViewerKeyboard.bindNamedFunction("start_gesture", start_gesture);
-}
+#define REGISTER_KEYBOARD_ACTION(KEY, ACTION) LLREGISTER_STATIC(LLKeyboardActionRegistry, KEY, ACTION);
+REGISTER_KEYBOARD_ACTION("jump", agent_jump);
+REGISTER_KEYBOARD_ACTION("push_down", agent_push_down);
+REGISTER_KEYBOARD_ACTION("push_forward", agent_push_forward);
+REGISTER_KEYBOARD_ACTION("push_backward", agent_push_backward);
+REGISTER_KEYBOARD_ACTION("look_up", agent_look_up);
+REGISTER_KEYBOARD_ACTION("look_down", agent_look_down);
+REGISTER_KEYBOARD_ACTION("toggle_fly", agent_toggle_fly);
+REGISTER_KEYBOARD_ACTION("turn_left", agent_turn_left);
+REGISTER_KEYBOARD_ACTION("turn_right", agent_turn_right);
+REGISTER_KEYBOARD_ACTION("slide_left", agent_slide_left);
+REGISTER_KEYBOARD_ACTION("slide_right", agent_slide_right);
+REGISTER_KEYBOARD_ACTION("spin_around_ccw", camera_spin_around_ccw);
+REGISTER_KEYBOARD_ACTION("spin_around_cw", camera_spin_around_cw);
+REGISTER_KEYBOARD_ACTION("spin_around_ccw_sitting", camera_spin_around_ccw_sitting);
+REGISTER_KEYBOARD_ACTION("spin_around_cw_sitting", camera_spin_around_cw_sitting);
+REGISTER_KEYBOARD_ACTION("spin_over", camera_spin_over);
+REGISTER_KEYBOARD_ACTION("spin_under", camera_spin_under);
+REGISTER_KEYBOARD_ACTION("spin_over_sitting", camera_spin_over_sitting);
+REGISTER_KEYBOARD_ACTION("spin_under_sitting", camera_spin_under_sitting);
+REGISTER_KEYBOARD_ACTION("move_forward", camera_move_forward);
+REGISTER_KEYBOARD_ACTION("move_backward", camera_move_backward);
+REGISTER_KEYBOARD_ACTION("move_forward_sitting", camera_move_forward_sitting);
+REGISTER_KEYBOARD_ACTION("move_backward_sitting", camera_move_backward_sitting);
+REGISTER_KEYBOARD_ACTION("pan_up", camera_pan_up);
+REGISTER_KEYBOARD_ACTION("pan_down", camera_pan_down);
+REGISTER_KEYBOARD_ACTION("pan_left", camera_pan_left);
+REGISTER_KEYBOARD_ACTION("pan_right", camera_pan_right);
+REGISTER_KEYBOARD_ACTION("pan_in", camera_pan_in);
+REGISTER_KEYBOARD_ACTION("pan_out", camera_pan_out);
+REGISTER_KEYBOARD_ACTION("move_forward_fast", camera_move_forward_fast);
+REGISTER_KEYBOARD_ACTION("move_backward_fast", camera_move_backward_fast);
+REGISTER_KEYBOARD_ACTION("edit_avatar_spin_ccw", edit_avatar_spin_ccw);
+REGISTER_KEYBOARD_ACTION("edit_avatar_spin_cw", edit_avatar_spin_cw);
+REGISTER_KEYBOARD_ACTION("edit_avatar_spin_over", edit_avatar_spin_over);
+REGISTER_KEYBOARD_ACTION("edit_avatar_spin_under", edit_avatar_spin_under);
+REGISTER_KEYBOARD_ACTION("edit_avatar_move_forward", edit_avatar_move_forward);
+REGISTER_KEYBOARD_ACTION("edit_avatar_move_backward", edit_avatar_move_backward);
+REGISTER_KEYBOARD_ACTION("stop_moving", stop_moving);
+REGISTER_KEYBOARD_ACTION("start_chat", start_chat);
+REGISTER_KEYBOARD_ACTION("start_gesture", start_gesture);
+#undef REGISTER_KEYBOARD_ACTION
 
-LLViewerKeyboard::LLViewerKeyboard() :
-	mNamedFunctionCount(0)
+LLViewerKeyboard::LLViewerKeyboard()
 {
 	for (S32 i = 0; i < MODE_COUNT; i++)
 	{
@@ -612,16 +616,6 @@ LLViewerKeyboard::LLViewerKeyboard() :
 		mKeysSkippedByUI.insert(k);	
 	}
 }
-
-
-void LLViewerKeyboard::bindNamedFunction(const std::string& name, LLKeyFunc func)
-{
-	S32 i = mNamedFunctionCount;
-	mNamedFunctions[i].mName = name;
-	mNamedFunctions[i].mFunction = func;
-	mNamedFunctionCount++;
-}
-
 
 BOOL LLViewerKeyboard::modeFromString(const std::string& string, S32 *mode)
 {
@@ -695,8 +689,9 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 
 BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name)
 {
-	S32 i,index;
-	void (*function)(EKeystate keystate) = NULL;
+	S32 index;
+	typedef boost::function<void(EKeystate)> function_t;
+	function_t function = NULL;
 	std::string name;
 
 	// Allow remapping of F2-F12
@@ -719,13 +714,11 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 	}
 
 	// Not remapped, look for a function
-	for (i = 0; i < mNamedFunctionCount; i++)
+	
+	function_t* result = LLKeyboardActionRegistry::getValue(function_name);
+	if (result)
 	{
-		if (function_name == mNamedFunctions[i].mName)
-		{
-			function = mNamedFunctions[i].mFunction;
-			name = mNamedFunctions[i].mName;
-		}
+		function = *result;
 	}
 
 	if (!function)
@@ -755,7 +748,6 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 
 	mBindings[mode][index].mKey = key;
 	mBindings[mode][index].mMask = mask;
-// 	mBindings[mode][index].mName = name;
 	mBindings[mode][index].mFunction = function;
 
 	if (index == mBindingCount[mode])
@@ -764,6 +756,61 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 	return TRUE;
 }
 
+LLViewerKeyboard::KeyBinding::KeyBinding()
+:	key("key"),
+	mask("mask"),
+	command("command")
+{}
+
+LLViewerKeyboard::KeyMode::KeyMode(EKeyboardMode _mode)
+:	bindings("binding"),
+	mode(_mode)
+{}
+
+LLViewerKeyboard::Keys::Keys()
+:	first_person("first_person", KeyMode(MODE_FIRST_PERSON)),
+	third_person("third_person", KeyMode(MODE_THIRD_PERSON)),
+	edit("edit", KeyMode(MODE_EDIT)),
+	sitting("sitting", KeyMode(MODE_SITTING)),
+	edit_avatar("edit_avatar", KeyMode(MODE_EDIT_AVATAR))
+{}
+
+S32 LLViewerKeyboard::loadBindingsXML(const std::string& filename)
+{
+	S32 binding_count = 0;
+	Keys keys;
+	LLSimpleXUIParser parser;
+
+	if (parser.readXUI(filename, keys) 
+		&& keys.validateBlock())
+	{
+		binding_count += loadBindingMode(keys.first_person);
+		binding_count += loadBindingMode(keys.third_person);
+		binding_count += loadBindingMode(keys.edit);
+		binding_count += loadBindingMode(keys.sitting);
+		binding_count += loadBindingMode(keys.edit_avatar);
+	}
+	return binding_count;
+}
+
+S32 LLViewerKeyboard::loadBindingMode(const LLViewerKeyboard::KeyMode& keymode)
+{
+	S32 binding_count = 0;
+	for (LLInitParam::ParamIterator<KeyBinding>::const_iterator it = keymode.bindings.begin(), 
+			end_it = keymode.bindings.end();
+		it != end_it;
+		++it)
+	{
+		KEY key;
+		MASK mask;
+		LLKeyboard::keyFromString(it->key, &key);
+		LLKeyboard::maskFromString(it->mask, &mask);
+		bindKey(keymode.mode, key, mask, it->command);
+		binding_count++;
+	}
+
+	return binding_count;
+}
 
 S32 LLViewerKeyboard::loadBindings(const std::string& filename)
 {
@@ -912,18 +959,18 @@ void LLViewerKeyboard::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_lev
 				if (key_down && !repeat)
 				{
 					// ...key went down this frame, call function
-					(*binding[i].mFunction)( KEYSTATE_DOWN );
+					binding[i].mFunction( KEYSTATE_DOWN );
 				}
 				else if (key_up)
 				{
 					// ...key went down this frame, call function
-					(*binding[i].mFunction)( KEYSTATE_UP );
+					binding[i].mFunction( KEYSTATE_UP );
 				}
 				else if (key_level)
 				{
 					// ...key held down from previous frame
 					// Not windows, just call the function.
-					(*binding[i].mFunction)( KEYSTATE_LEVEL );
+					binding[i].mFunction( KEYSTATE_LEVEL );
 				}//if
 			}//if
 		}//for

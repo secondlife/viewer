@@ -98,8 +98,8 @@
 #include "llinitparam.h"
 #include "llnotificationslistener.h"
 #include "llnotificationptr.h"
-#include "llcachename.h"
 
+class LLAvatarName;
 typedef enum e_notification_priority
 {
 	NOTIFICATION_PRIORITY_UNSPECIFIED,
@@ -194,7 +194,10 @@ public:
 	{
 		Mandatory<std::string>	type;
 		Optional<S32>			width;
+		Optional<S32>			max_length_chars;
+		Optional<std::string>	text;
 
+		Optional<std::string>	value;
 		FormInput();
 	};
 
@@ -267,6 +270,11 @@ struct LLNotificationTemplate;
 // we want to keep a map of these by name, and it's best to manage them
 // with smart pointers
 typedef boost::shared_ptr<LLNotificationTemplate> LLNotificationTemplatePtr;
+
+
+struct LLNotificationVisibilityRule;
+
+typedef boost::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibilityRulePtr;
 
 /**
  * @class LLNotification
@@ -504,7 +512,7 @@ public:
 	std::string getLabel() const;
 	std::string getURL() const;
 	S32 getURLOption() const;
-	S32 getURLOpenExternally() const;
+    S32 getURLOpenExternally() const;
 	
 	const LLNotificationFormPtr getForm();
 
@@ -575,6 +583,8 @@ public:
 	std::string summarize() const;
 
 	bool hasUniquenessConstraints() const;
+
+	bool matchesTag(const std::string& tag);
 
 	virtual ~LLNotification() {}
 };
@@ -853,9 +863,14 @@ class LLNotifications :
 
 	friend class LLSingleton<LLNotifications>;
 public:
-	// load notification descriptions from file; 
+	// load all notification descriptions from file
+	// calling more than once will overwrite existing templates
+	// but never delete a template
+	bool loadTemplates();
+
+	// load visibility rules from file; 
 	// OK to call more than once because it will reload
-	bool loadTemplates();  
+	bool loadVisibilityRules();  
 	
 	// Add a simple notification (from XUI)
 	void addFromCallback(const LLSD& name);
@@ -902,6 +917,8 @@ public:
 	// test for existence
 	bool templateExists(const std::string& name);
 
+	typedef std::list<LLNotificationVisibilityRulePtr> VisibilityRuleList;
+	
 	void forceResponse(const LLNotification::Params& params, S32 option);
 
 	void createDefaultChannels();
@@ -917,6 +934,8 @@ public:
 	void setIgnoreAllNotifications(bool ignore);
 	bool getIgnoreAllNotifications();
 
+	bool isVisibleByRules(LLNotificationPtr pNotification);
+	
 private:
 	// we're a singleton, so we don't have a public constructor
 	LLNotifications();
@@ -932,9 +951,9 @@ private:
 	LLNotificationChannelPtr pHistoryChannel;
 	LLNotificationChannelPtr pExpirationChannel;
 	
-	// put your template in
-	bool addTemplate(const std::string& name, LLNotificationTemplatePtr theTemplate);
 	TemplateMap mTemplates;
+
+	VisibilityRuleList mVisibilityRules;
 
 	std::string mFileName;
 	
@@ -973,17 +992,20 @@ public:
 	{
 		// upcast T to the base type to restrict T derivation from LLPostponedNotification
 		LLPostponedNotification* thiz = new T();
-
 		thiz->mParams = params;
 
-		gCacheName->get(id, is_group, boost::bind(
-				&LLPostponedNotification::onCachedNameReceived, thiz, _1, _2,
-				_3, _4));
+		// Avoid header file dependency on llcachename.h
+		lookupName(thiz, id, is_group);
 	}
 
 private:
-	void onCachedNameReceived(const LLUUID& id, const std::string& first,
-			const std::string& last, bool is_group);
+	static void lookupName(LLPostponedNotification* thiz, const LLUUID& id, bool is_group);
+	// only used for groups
+	void onGroupNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
+	// only used for avatars
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+	// used for both group and avatar names
+	void finalizeName(const std::string& name);
 
 	void cleanup()
 	{

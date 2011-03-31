@@ -29,6 +29,7 @@
 
 #include "llpanel.h"
 #include "llviewermedia.h"
+#include "llnotificationptr.h"
 
 class LLButton;
 class LLCoordWindow;
@@ -37,6 +38,7 @@ class LLLayoutStack;
 class LLProgressBar;
 class LLSliderCtrl;
 class LLViewerMediaImpl;
+class LLWindowShade;
 
 class LLPanelPrimMediaControls : public LLPanel
 {
@@ -54,6 +56,10 @@ public:
 	void updateShape();
 	bool isMouseOver();
 	
+	void showNotification(LLNotificationPtr notify);
+	void hideNotification();
+
+
 	enum EZoomLevel
 	{
 		ZOOM_NONE = 0,
@@ -131,7 +137,11 @@ private:
 	LLPluginClassMedia* getTargetMediaPlugin();
 	
 private:
-	
+
+	void clearFaceOnFade();
+
+	void onMouselookModeIn();
+
 	LLView *mMediaRegion;
 	LLUICtrl *mBackCtrl;
 	LLUICtrl *mFwdCtrl;
@@ -162,6 +172,7 @@ private:
 	LLUICtrl *mRightBookend;
 	LLUIImage* mBackgroundImage;
 	LLUIImage* mVolumeSliderBackgroundImage;
+	LLWindowShade* mWindowShade;
 	F32 mSkipStep;
 	S32 mMinWidth;
 	S32 mMinHeight;
@@ -179,6 +190,7 @@ private:
 	bool mPauseFadeout;
 	bool mUpdateSlider;
 	bool mClearFaceOnFade;
+	bool mHideImmediately;
 
 	LLMatrix4 mLastCameraMat;
 	EZoomLevel mCurrentZoom;
@@ -204,6 +216,8 @@ private:
 	S32 mZoomObjectFace;
 	
 	S32 mVolumeSliderVisible;
+
+	LLNotificationPtr mActiveNotification;
 };
 
 #endif // LL_PANELPRIMMEDIACONTROLS_H

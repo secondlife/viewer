@@ -36,6 +36,9 @@
 
 static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 
+F32 LLUICtrl::sActiveControlTransparency = 1.0f;
+F32 LLUICtrl::sInactiveControlTransparency = 1.0f;
+
 // Compiler optimization, generate extern template
 template class LLUICtrl* LLView::getChild<class LLUICtrl>(
 	const std::string& name, BOOL recurse) const;
@@ -110,7 +113,8 @@ LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
 	mMouseUpSignal(NULL),
 	mRightMouseDownSignal(NULL),
 	mRightMouseUpSignal(NULL),
-	mDoubleClickSignal(NULL)
+	mDoubleClickSignal(NULL),
+	mTransparencyType(TT_DEFAULT)
 {
 	mUICtrlHandle.bind(this);
 }
@@ -823,7 +827,7 @@ LLUICtrl* LLUICtrl::findRootMostFocusRoot()
 {
 	LLUICtrl* focus_root = NULL;
 	LLUICtrl* next_view = this;
-	while(next_view)
+	while(next_view && next_view->hasTabStop())
 	{
 		if (next_view->isFocusRoot())
 		{
@@ -922,6 +926,37 @@ BOOL LLUICtrl::getTentative() const
 // virtual
 void LLUICtrl::setColor(const LLColor4& color)							
 { }
+
+F32 LLUICtrl::getCurrentTransparency()
+{
+	F32 alpha = 0;
+
+	switch(mTransparencyType)
+	{
+	case TT_DEFAULT:
+		alpha = getDrawContext().mAlpha;
+		break;
+
+	case TT_ACTIVE:
+		alpha = sActiveControlTransparency;
+		break;
+
+	case TT_INACTIVE:
+		alpha = sInactiveControlTransparency;
+		break;
+
+	case TT_FADING:
+		alpha = sInactiveControlTransparency / 2;
+		break;
+	}
+
+	return alpha;
+}
+
+void LLUICtrl::setTransparencyType(ETypeTransparency type)
+{
+	mTransparencyType = type;
+}
 
 boost::signals2::connection LLUICtrl::setCommitCallback( const commit_signal_t::slot_type& cb ) 
 { 

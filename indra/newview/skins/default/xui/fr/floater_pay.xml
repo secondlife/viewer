@@ -11,7 +11,7 @@
 	</text>
 	<icon name="icon_person" tool_tip="Résident"/>
 	<text name="payee_name">
-		[FIRST] [LAST]
+		Test Name That Is Extremely Long To Check Clipping
 	</text>
 	<button label="1 L$" label_selected="1 L$" name="fastpay 1"/>
 	<button label="5 L$" label_selected="5 L$" name="fastpay 5"/>

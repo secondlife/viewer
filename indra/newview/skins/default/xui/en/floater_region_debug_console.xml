@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+  name="region_debug_console"
+  title="Region Debug"
+  can_resize="true"
+  layout="topleft"
+  min_height="300"
+  min_width="300"
+  height="400"
+  width="600"
+  default_tab_group="1">
+  <text_editor
+  left="10"
+   type="string"
+   length="1"
+   follows="left|right|bottom"
+   font="Monospace"
+   height="366"
+   width="576"
+   ignore_tab="false"
+   layout="topleft"
+   max_length="65536"
+   name="region_debug_console_output"
+   show_line_numbers="false" 
+   word_wrap="true"
+   track_end="true"
+   read_only="true">
+  </text_editor>
+  <line_editor
+   border_style="line"
+   border_thickness="1"
+   tab_group="1" 
+   follows="left|top|right"
+   font="SansSerif"
+   height="19"
+   layout="topleft"
+   bottom_delta="20"
+   max_length="127"
+   name="region_debug_console_input"
+   top_delta="0"
+   width="576" />
+</floater>

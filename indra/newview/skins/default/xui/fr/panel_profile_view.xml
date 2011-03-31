@@ -6,8 +6,12 @@
 	<string name="status_offline">
 		Hors ligne
 	</string>
-	<text_editor name="user_name" value="(en cours de chargement...)"/>
+	<text name="display_name_label" value="Nom d&apos;affichage :"/>
+	<text name="solo_username_label" value="Nom d&apos;utilisateur :"/>
 	<text name="status" value="En ligne"/>
+	<text name="user_name_small" value="Jack oh look at me this is a super duper long name"/>
+	<button name="copy_to_clipboard" tool_tip="Copier dans le presse-papiers"/>
+	<text name="user_label" value="Nom d&apos;utilisateur :"/>
 	<tab_container name="tabs">
 		<panel label="PROFIL" name="panel_profile"/>
 		<panel label="FAVORIS" name="panel_picks"/>

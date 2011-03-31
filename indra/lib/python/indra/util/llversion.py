@@ -1,7 +1,9 @@
-"""@file llversion.py
-@brief Utility for parsing llcommon/llversion${server}.h
-       for the version string and channel string
-       Utility that parses hg or svn info for branch and revision
+#!/usr/bin/env python
+"""\
+@file  llversion.py
+@brief Parses llcommon/llversionserver.h and llcommon/llversionviewer.h
+       for the version string and channel string.
+       Parses hg info for branch and revision.
 
 $LicenseInfo:firstyear=2006&license=mit$
 
@@ -27,7 +29,7 @@ THE SOFTWARE.
 $/LicenseInfo$
 """
 
-import re, sys, os, commands
+import re, sys, os, subprocess
 
 # Methods for gathering version information from
 # llversionviewer.h and llversionserver.h
@@ -73,29 +75,13 @@ def get_viewer_channel():
 def get_server_channel():
     return get_channel('server')
 
-# Methods for gathering subversion information
-def get_svn_status_matching(regular_expression):
-    # Get the subversion info from the working source tree
-    status, output = commands.getstatusoutput('svn info %s' % get_src_root())
-    m = regular_expression.search(output)
-    if not m:
-        print >> sys.stderr, "Failed to parse svn info output, result follows:"
-        print >> sys.stderr, output
-        raise Exception, "No matching svn status in "+src_root
-    return m.group(1)
-
-def get_svn_branch():
-    branch_re = re.compile('URL: (\S+)')
-    return get_svn_status_matching(branch_re)
-
-def get_svn_revision():
-    last_rev_re = re.compile('Last Changed Rev: (\d+)')
-    return get_svn_status_matching(last_rev_re)
-
+# Methods for gathering hg information
 def get_hg_repo():
-    status, output = commands.getstatusoutput('hg showconfig paths.default')
+    child = subprocess.Popen(["hg","showconfig","paths.default"], stdout=subprocess.PIPE)
+    output, error = child.communicate()
+    status = child.returncode
     if status:
-        print >> sys.stderr, output
+        print >> sys.stderr, error
         sys.exit(1)
     if not output:
         print >> sys.stderr, 'ERROR: cannot find repo we cloned from'
@@ -103,24 +89,19 @@ def get_hg_repo():
     return output
 
 def get_hg_changeset():
-    # The right thing to do:
-    # status, output = commands.getstatusoutput('hg id -i')
-    # if status:
-    #     print >> sys.stderr, output
-    #    sys.exit(1)
-
-    # The temporary hack:
-    status, output = commands.getstatusoutput('hg parents --template "{rev}"')
+    # The right thing to do would be to use the *global* revision id:
+    #     "hg id -i"
+    # For the moment though, we use the parent revision:
+    child = subprocess.Popen(["hg","parents","--template","{rev}"], stdout=subprocess.PIPE)
+    output, error = child.communicate()
+    status = child.returncode
     if status:
-        print >> sys.stderr, output
+        print >> sys.stderr, error
         sys.exit(1)
     lines = output.splitlines()
     if len(lines) > 1:
         print >> sys.stderr, 'ERROR: working directory has %d parents' % len(lines)
     return lines[0]
-
-def using_svn():
-    return os.path.isdir(os.path.join(get_src_root(), '.svn'))
 
 def using_hg():
     return os.path.isdir(os.path.join(get_src_root(), '.hg'))

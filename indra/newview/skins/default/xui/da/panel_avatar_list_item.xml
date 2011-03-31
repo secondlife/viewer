@@ -21,6 +21,10 @@
 	<string name="FormatYears">
 		[COUNT]å
 	</string>
-	<text name="avatar_name" value="Ukendt"/>
+	<text name="avatar_name" value="(henter)"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="Du kan redigere denne vens objekter"/>
+	<icon name="permission_edit_mine_icon" tool_tip="Denne ven kan redigere, slette eller tage dine objekter"/>
+	<icon name="permission_map_icon" tool_tip="Denne ven kan finde dig på kortet"/>
+	<icon name="permission_online_icon" tool_tip="Denne ven kan se når du er online"/>
 	<button name="profile_btn" tool_tip="Vis profil"/>
 </panel>

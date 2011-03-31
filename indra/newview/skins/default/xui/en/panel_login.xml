@@ -5,17 +5,14 @@ height="600"
 layout="topleft"
 left="0"
 name="panel_login"
+focus_root="true" 
 top="600"
  width="996">
 <panel.string
      name="create_account_url">
        http://join.secondlife.com/
 </panel.string>
-<panel.string
-     name="real_url" translate="false">
-       http://secondlife.com/app/login/
-</panel.string>
-    <string name="reg_in_client_url" translate="false">
+<string name="reg_in_client_url" translate="false">
      http://secondlife.eniac15.lindenlab.com/reg-in-client/
 </string>
 <panel.string
@@ -50,8 +47,8 @@ auto_resize="false"
 follows="left|bottom"
 name="login"
 layout="topleft"
-width="695"
-min_width="695"
+width="705"
+min_width="705"
 user_resize="false"
 height="80">
 <text
@@ -64,22 +61,27 @@ left="20"
 width="150">
 Username:
 </text>
-<line_editor
+<combo_box
+allow_text_entry="true"
 follows="left|bottom"
 height="22"
-label="Username"
 left_delta="0"
-max_length="31"
-name="username_edit"
-select_on_focus="true"
-tool_tip="[SECOND_LIFE] Username"
+max_chars="128"
+combo_editor.prevalidate_callback="ascii"
+tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
 top_pad="0"
-width="150" />
+name="username_combo"
+width="178">
+  <combo_box.combo_button
+   visible ="false"/>
+  <combo_box.drop_down_button
+   visible ="false"/>
+</combo_box>
 <text
 follows="left|bottom"
 font="SansSerifSmall"
 height="15"
-left_pad="8"
+left_pad="-19"
 name="password_text"
 top="20"
     width="150">
@@ -88,8 +90,9 @@ top="20"
 <line_editor
 follows="left|bottom"
   height="22"
-  max_length="16"
+  max_length_bytes="16"
 name="password_edit"
+is_password="true" 
 select_on_focus="true"
   top_pad="0"
   width="135" />
@@ -114,25 +117,53 @@ label="Remember password"
   name="connect_btn"
   top="35"
   width="90" />
+ <text
+  follows="left|bottom"
+  font="SansSerifSmall"
+  height="15"
+  left_pad="10"
+  name="mode_selection_text"
+  top="20"
+  width="130">
+       Mode:
+ </text>
+<combo_box
+  follows="left|bottom"
+  height="23"
+  max_chars="128"
+  tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
+  top_pad="0"
+  control_name="SessionSettingsFile"
+  name="mode_combo"
+  width="110">
+<combo_box.item
+  label="Basic"
+  name="Basic"
+  value="settings_minimal.xml" />
+<combo_box.item
+  label="Advanced"
+  name="Advanced"
+  value="" />
+</combo_box>
   <text
   follows="left|bottom"
   font="SansSerifSmall"
   height="15"
-  left_pad="18"
+  left_pad="8"
   name="start_location_text"
-top="20"
+  top="20"
   width="130">
        Start at:
  </text>
 <combo_box
 allow_text_entry="true"
-control_name="LoginLocation"
+control_name="NextLoginLocation"
   follows="left|bottom"
   height="23"
 max_chars="128"
 top_pad="0"
 name="start_location_combo"
-     width="170">
+     width="165">
 <combo_box.item
 label="My last location"
 name="MyLastLocation"
@@ -161,8 +192,8 @@ width="135"
 tab_stop="false"
 follows="right|bottom"
 name="links"
-width="200"
-min_width="200"
+width="205"
+min_width="205"
 user_resize="false"
 height="80">
    <text
@@ -174,7 +205,7 @@ height="16"
 top="12"
 right="-10"
 name="create_new_account_text"
-  width="180">
+  width="200">
        Sign up
  </text>
 <text
@@ -186,8 +217,8 @@ height="16"
 name="forgot_password_text"
 top_pad="12"
 right="-10"
-  width="180">
-       Forgot your name or password?
+  width="200">
+       Forgot your username or password?
 </text>
 <text
 follows="right|bottom"
@@ -198,7 +229,7 @@ height="16"
 name="login_help"
 top_pad="2"
 right="-10"
-    width="180">
+    width="200">
        Need help logging in?   </text>
 <!--  <text
     follows="right|bottom"

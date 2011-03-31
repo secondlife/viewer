@@ -89,6 +89,7 @@
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>
 	<string name="TooltipAgentUrl">Click to view this Resident's profile</string>
+  <string name="TooltipAgentInspect">Learn more about this Resident</string>
 	<string name="TooltipAgentMute">Click to mute this Resident</string>
 	<string name="TooltipAgentUnmute">Click to unmute this Resident</string>
 	<string name="TooltipAgentIM">Click to IM this Resident</string>
@@ -337,7 +338,7 @@
 	<string name="avi_movie_file">AVI Movie File</string>
 	<string name="xaf_animation_file">XAF Anim File</string>
 	<string name="xml_file">XML File</string>
-	<string name="dot_raw_file">RAW File</string>
+	<string name="raw_file">RAW File</string>
 	<string name="compressed_image_files">Compressed Images</string>
 	<string name="load_files">Load Files</string>
 	<string name="choose_the_directory">Choose Directory</string>
@@ -1715,8 +1716,8 @@ integer llGetRegionAgentCount()
 Returns the number of avatars in the region
 	</string>
 	<string name="LSLTipText_llTextBox" translate="false">
-llTextBox(key avatar, string message, integer chat_channel
-Shows a dialog box on the avatar&apos;s screen with the message.
+llTextBox(key avatar, string message, integer chat_channel)
+Shows a window on the avatar&apos;s screen with the message.
 It contains a text box for input, and if entered that text is chatted on chat_channel.
 	</string>
 	<string name="LSLTipText_llGetAgentLanguage" translate="false">
@@ -1792,6 +1793,43 @@ Returns the media params for a particular face on an object, given the desired l
 llClearPrimMedia(integer face)
 Clears (deletes) the media and all params from the given face.
   </string>
+<string name="LSLTipText_llSetLinkPrimitiveParamsFast" translate="false">
+llSetLinkPrimitiveParamsFast(integer linknumber,list rules)
+Set primitive parameters for linknumber based on rules.
+</string>
+<string name="LSLTipText_llGetLinkPrimitiveParams" translate="false">
+llGetLinkPrimitiveParams(integer linknumber,list rules)
+Get primitive parameters for linknumber based on rules.
+</string>
+<string name="LSLTipText_llLinkParticleSystem" translate="false">
+llLinkParticleSystem(integer linknumber,list rules)
+Creates a particle system based on rules.  Empty list removes particle system from object.
+List format is [ rule1, data1, rule2, data2 . . . rulen, datan ].
+</string>
+<string name="LSLTipText_llSetLinkTextureAnim" translate="false">
+llSetLinkTextureAnim(integer link, integer mode, integer face, integer sizex, integer sizey, float start, float length, float rate)
+Animate the texture on the specified prim's face/faces.
+</string>
+<string name="LSLTipText_llGetLinkNumberOfSides" translate="false">
+integer llGetLinkNumberOfSides(integer link)
+Returns the number of sides of the specified linked prim.
+</string>
+<string name="LSLTipText_llGetUsername" translate="false">
+string llGetUsername(key id)
+Returns the single-word username of an avatar, iff the avatar is in the current region, otherwise the empty string.
+</string>
+<string name="LSLTipText_llRequestUsername" translate="false">
+key llRequestUsername(key id)
+Requests single-word username of an avatar.  When data is available the dataserver event will be raised.
+</string>
+<string name="LSLTipText_llGetDisplayName" translate="false">
+  string llGetDisplayName(key id)
+  Returns the name of an avatar, iff the avatar is in the current simulator, and the name has been cached, otherwise the same as llGetUsername.  Use llRequestDisplayName if you absolutely must have the display name.
+</string>
+<string name="LSLTipText_llRequestDisplayName" translate="false">
+key llRequestDisplayName(key id)
+Requests name of an avatar.  When data is available the dataserver event will be raised.
+</string>
 
   <!-- Avatar busy/away mode -->
 	<string name="AvatarSetNotAway">Not Away</string>
@@ -1910,7 +1948,7 @@ Clears (deletes) the media and all params from the given face.
 
 	<!-- Gestures labels -->
     <!-- use value="" because they have preceding spaces -->
-    <string name="Chat"          value=" Chat : " />
+    <string name="Chat Message"  value=" Chat : " />
     <string name="Sound"         value=" Sound : " />
 	<string name="Wait"          value=" --- Wait : " />
 	<string name="AnimFlagStop"  value=" Stop Animation :    " />
@@ -2241,8 +2279,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="InvOfferOwnedBy">owned by</string>
 	<string name="InvOfferOwnedByUnknownUser">owned by an unknown user</string>
 	<string name="InvOfferGaveYou">gave you</string>
-	<string name="InvOfferYouDecline">You decline</string>
-	<string name="InvOfferFrom">from</string>
+	<string name="InvOfferDecline">You decline [DESC] from &lt;nolink&gt;[NAME]&lt;/nolink&gt;.</string>
 
 	<!-- group money -->
 	<string name="GroupMoneyTotal">Total</string>
@@ -2284,9 +2321,6 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="accel-win-alt">Alt+</string>
 	<string name="accel-win-shift">Shift+</string>
 
-	<string name="Esc">Esc</string>
-	<string name="Home">Home</string>
-
 	<!-- Previews -->
 	<string name="FileSaved">File Saved</string>
 	<string name="Receiving">Receiving</string>
@@ -2298,16 +2332,16 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="PDT">PDT</string>
 
 	<!-- Directions, HUD -->
-	<string name="Forward">Forward</string>
-	<string name="Left">Left</string>
-	<string name="Right">Right</string>
-	<string name="Back">Back</string>
-	<string name="North">North</string>
-	<string name="South">South</string>
-	<string name="West">West</string>
-	<string name="East">East</string>
-	<string name="Up">Up</string>
-	<string name="Down">Down</string>
+	<string name="Direction_Forward">Forward</string>
+	<string name="Direction_Left">Left</string>
+	<string name="Direction_Right">Right</string>
+	<string name="Direction_Back">Back</string>
+	<string name="Direction_North">North</string>
+	<string name="Direction_South">South</string>
+	<string name="Direction_West">West</string>
+	<string name="Direction_East">East</string>
+	<string name="Direction_Up">Up</string>
+	<string name="Direction_Down">Down</string>
 
     <!-- Search Category Strings -->
 	<string name="Any Category">Any Category</string>
@@ -2336,6 +2370,7 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<!--<string name="Shopping">Shopping</string>	-->
 	<string name="Stage">Stage</string>
 	<string name="Other">Other</string>
+	<string name="Rental">Rental</string>
 	<string name="Any">Any</string>
 	<string name="You">You</string>
 
@@ -3048,7 +3083,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     You are the only user in this session.
   </string>
   <string name="offline_message">
-    [FIRST] [LAST] is offline.
+    [NAME] is offline.
   </string>
   <string name="invite_message">
     Click the [BUTTON NAME] button to accept/connect to this voice chat.
@@ -3134,17 +3169,20 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="voice_morphing_url">http://secondlife.com/landing/voicemorphing</string>
 
   <!-- Financial operations strings -->
-  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
+  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>
+  <string name="paid_you_ldollars_no_reason">[NAME] paid you L$[AMOUNT].</string>
   <string name="you_paid_ldollars">You paid [NAME] L$[AMOUNT] [REASON].</string>
   <string name="you_paid_ldollars_no_info">You paid L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_reason">You paid [NAME] L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_name">You paid L$[AMOUNT] [REASON].</string>
+  <string name="for item">for [ITEM]</string>
   <string name="for a parcel of land">for a parcel of land</string>
   <string name="for a land access pass">for a land access pass</string>
   <string name="for deeding land">for deeding land</string>
   <string name="to create a group">to create a group</string>
   <string name="to join a group">to join a group</string>
   <string name="to upload">to upload</string>
+  <string name="to publish a classified ad">to publish a classified ad</string>
   
   <string name="giving">Giving L$ [AMOUNT]</string>
   <string name="uploading_costs">Uploading costs L$ [AMOUNT]</string>
@@ -3272,5 +3310,137 @@ Abuse Report</string>
   <string name="DeleteItem">Delete selected item?</string>
 
   <string name="EmptyOutfitText">There are no items in this outfit</string>
+ 
+ <!-- External editor status codes -->
+ <string name="ExternalEditorNotSet">Select an editor using the ExternalEditor setting.</string>
+ <string name="ExternalEditorNotFound">Cannot find the external editor you specified.
+Try enclosing path to the editor with double quotes.
+(e.g. "/path to my/editor" "%s")</string>
+ <string name="ExternalEditorCommandParseError">Error parsing the external editor command.</string>
+ <string name="ExternalEditorFailedToRun">External editor failed to run.</string>
+
+  <!-- Key names begin -->
+  <string name="Esc">Esc</string>
+  <string name="Space">Space</string>
+  <string name="Enter">Enter</string>
+  <string name="Tab">Tab</string>
+  <string name="Ins">Ins</string>
+  <string name="Del">Del</string>
+  <string name="Backsp">Backsp</string>
+  <string name="Shift">Shift</string>
+  <string name="Ctrl">Ctrl</string>
+  <string name="Alt">Alt</string>
+  <string name="CapsLock">CapsLock</string>
+  <string name="Left">Left</string>
+  <string name="Right">Right</string>
+  <string name="Up">Up</string>
+  <string name="Down">Down</string>
+  <string name="Home">Home</string>
+  <string name="End">End</string>
+  <string name="PgUp">PgUp</string>
+  <string name="PgDn">PgDn</string>
+
+  <string name="F1">F1</string>
+  <string name="F2">F2</string>
+  <string name="F3">F3</string>
+  <string name="F4">F4</string>
+  <string name="F5">F5</string>
+  <string name="F6">F6</string>
+  <string name="F7">F7</string>
+  <string name="F8">F8</string>
+  <string name="F9">F9</string>
+  <string name="F10">F10</string>
+  <string name="F11">F11</string>
+  <string name="F12">F12</string>
+
+  <string name="Add">Add</string>
+  <string name="Subtract">Subtract</string>
+  <string name="Multiply">Multiply</string>
+  <string name="Divide">Divide</string>
+  <string name="PAD_DIVIDE">PAD_DIVIDE</string>
+  <string name="PAD_LEFT">PAD_LEFT</string>
+  <string name="PAD_RIGHT">PAD_RIGHT</string>
+  <string name="PAD_DOWN">PAD_DOWN</string>
+  <string name="PAD_UP">PAD_UP</string>
+  <string name="PAD_HOME">PAD_HOME</string>
+  <string name="PAD_END">PAD_END</string>
+  <string name="PAD_PGUP">PAD_PGUP</string>
+  <string name="PAD_PGDN">PAD_PGDN</string>
+  <string name="PAD_CENTER">PAD_CENTER</string>
+  <string name="PAD_INS">PAD_INS</string>
+  <string name="PAD_DEL">PAD_DEL</string>
+  <string name="PAD_Enter">PAD_Enter</string>
+  <string name="PAD_BUTTON0">PAD_BUTTON0</string>
+  <string name="PAD_BUTTON1">PAD_BUTTON1</string>
+  <string name="PAD_BUTTON2">PAD_BUTTON2</string>
+  <string name="PAD_BUTTON3">PAD_BUTTON3</string>
+  <string name="PAD_BUTTON4">PAD_BUTTON4</string>
+  <string name="PAD_BUTTON5">PAD_BUTTON5</string>
+  <string name="PAD_BUTTON6">PAD_BUTTON6</string>
+  <string name="PAD_BUTTON7">PAD_BUTTON7</string>
+  <string name="PAD_BUTTON8">PAD_BUTTON8</string>
+  <string name="PAD_BUTTON9">PAD_BUTTON9</string>
+  <string name="PAD_BUTTON10">PAD_BUTTON10</string>
+  <string name="PAD_BUTTON11">PAD_BUTTON11</string>
+  <string name="PAD_BUTTON12">PAD_BUTTON12</string>
+  <string name="PAD_BUTTON13">PAD_BUTTON13</string>
+  <string name="PAD_BUTTON14">PAD_BUTTON14</string>
+  <string name="PAD_BUTTON15">PAD_BUTTON15</string>
+
+  <string name="-">-</string>
+  <string name="=">=</string>
+  <string name="`">`</string>
+  <string name=";">;</string>
+  <string name="[">[</string>
+  <string name="]">]</string>
+  <string name="\">\</string>
+
+  <string name="0">0</string>
+  <string name="1">1</string>
+  <string name="2">2</string>
+  <string name="3">3</string>
+  <string name="4">4</string>
+  <string name="5">5</string>
+  <string name="6">6</string>
+  <string name="7">7</string>
+  <string name="8">8</string>
+  <string name="9">9</string>
+
+  <string name="A">A</string>
+  <string name="B">B</string>
+  <string name="C">C</string>
+  <string name="D">D</string>
+  <string name="E">E</string>
+  <string name="F">F</string>
+  <string name="G">G</string>
+  <string name="H">H</string>
+  <string name="I">I</string>
+  <string name="J">J</string>
+  <string name="K">K</string>
+  <string name="L">L</string>
+  <string name="M">M</string>
+  <string name="N">N</string>
+  <string name="O">O</string>
+  <string name="P">P</string>
+  <string name="Q">Q</string>
+  <string name="R">R</string>
+  <string name="S">S</string>
+  <string name="T">T</string>
+  <string name="U">U</string>
+  <string name="V">V</string>
+  <string name="W">W</string>
+  <string name="X">X</string>
+  <string name="Y">Y</string>
+  <string name="Z">Z</string>
+  <!-- Key names end -->
+
+  <!-- llviewerwindow -->
+  <string name="BeaconParticle">Viewing particle beacons (blue)</string>
+  <string name="BeaconPhysical">Viewing physical object beacons (green)</string>
+  <string name="BeaconScripted">Viewing scripted object beacons (red)</string>
+  <string name="BeaconScriptedTouch">Viewing scripted object with touch function beacons (red)</string>
+  <string name="BeaconSound">Viewing sound beacons (yellow)</string>
+  <string name="BeaconMedia">Viewing media beacons (white)</string>
+  <string name="ParticleHiding">Hiding Particles</string>
 
   </strings>

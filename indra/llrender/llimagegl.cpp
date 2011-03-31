@@ -368,6 +368,18 @@ void LLImageGL::restoreGL()
 	}
 }
 
+//static 
+void LLImageGL::dirtyTexOptions()
+{
+	for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
+		 iter != sImageList.end(); iter++)
+	{
+		LLImageGL* glimage = *iter;
+		glimage->mTexOptionsDirty = true;
+		stop_glerror();
+	}
+	
+}
 //----------------------------------------------------------------------------
 
 //for server side use only.
@@ -1051,14 +1063,6 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 {
 	if (gGL.getTexUnit(0)->bind(this, false, true))
 	{
-		if(gGLManager.mDebugGPU)
-		{
-			llinfos << "Calling glCopyTexSubImage2D(...)" << llendl ;
-			checkTexSize(true) ;
-			llcallstacks << fb_x << " : " << fb_y << " : " << x_pos << " : " << y_pos << " : " << width << " : " << height <<
-				" : " << (S32)mComponents << llcallstacksendl ;
-		}
-
 		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, fb_x, fb_y, x_pos, y_pos, width, height);
 		mGLTextureCreated = true;
 		stop_glerror();

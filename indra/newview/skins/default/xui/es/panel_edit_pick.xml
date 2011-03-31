@@ -25,7 +25,13 @@
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button label="Guardar" name="save_changes_btn"/>
-		<button label="Cancelar" name="cancel_btn"/>
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Guardar" name="save_changes_btn"/>
+			</layout_panel>
+			<layout_panel name="layout_panel1">
+				<button label="Cancelar" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

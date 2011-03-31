@@ -28,7 +28,9 @@
 
 #include "llviewerregion.h"
 
+// linden libraries
 #include "indra_constants.h"
+#include "llavatarnamecache.h"		// name lookup cap url
 #include "llfloaterreg.h"
 #include "llmath.h"
 #include "llhttpclient.h"
@@ -57,6 +59,7 @@
 #include "llurldispatcher.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparceloverlay.h"
+#include "llviewerstatsrecorder.h"
 #include "llvlmanager.h"
 #include "llvlcomposition.h"
 #include "llvocache.h"
@@ -64,6 +67,7 @@
 #include "llworld.h"
 #include "llspatialpartition.h"
 #include "stringize.h"
+#include "llviewercontrol.h"
 
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
@@ -163,7 +167,9 @@ public:
 				mRegion->showReleaseNotes();
 			}
 		}
-		
+
+		mRegion->setCapabilitiesReceived(true);
+
 		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 		{
 			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
@@ -221,7 +227,8 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
     // LLCapabilityListener binds all the globals it expects to need at
     // construction time.
     mCapabilityListener(host.getString(), gMessageSystem, *this,
-                        gAgent.getID(), gAgent.getSessionID())
+                        gAgent.getID(), gAgent.getSessionID()),
+	mCapabilitiesReceived(false)
 {
 	mWidth = region_width_meters;
 	mOriginGlobal = from_region_handle(handle); 
@@ -261,6 +268,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	//MUST MATCH declaration of eObjectPartitions
 	mObjectPartition.push_back(new LLHUDPartition());		//PARTITION_HUD
 	mObjectPartition.push_back(new LLTerrainPartition());	//PARTITION_TERRAIN
+	mObjectPartition.push_back(new LLVoidWaterPartition());	//PARTITION_VOIDWATER
 	mObjectPartition.push_back(new LLWaterPartition());		//PARTITION_WATER
 	mObjectPartition.push_back(new LLTreePartition());		//PARTITION_TREE
 	mObjectPartition.push_back(new LLParticlePartition());	//PARTITION_PARTICLE
@@ -313,6 +321,12 @@ LLViewerRegion::~LLViewerRegion()
 	saveObjectCache();
 
 	std::for_each(mObjectPartition.begin(), mObjectPartition.end(), DeletePointer());
+}
+
+/*virtual*/ 
+const LLHost&	LLViewerRegion::getHost() const				
+{ 
+	return mHost; 
 }
 
 void LLViewerRegion::loadObjectCache()
@@ -1026,7 +1040,7 @@ void LLViewerRegion::getInfo(LLSD& info)
 	info["Region"]["Handle"]["y"] = (LLSD::Integer)y;
 }
 
-void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp)
+LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp)
 {
 	U32 local_id = objectp->getLocalID();
 	U32 crc = objectp->getCRC();
@@ -1040,35 +1054,36 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 		{
 			// Record a hit
 			entry->recordDupe();
+			return CACHE_UPDATE_DUPE;
 		}
-		else
-		{
-			// Update the cache entry
-			mCacheMap.erase(local_id);
-			delete entry;
-			entry = new LLVOCacheEntry(local_id, crc, dp);
-			mCacheMap[local_id] = entry;
-		}
-	}
-	else
-	{
-		// we haven't seen this object before
 
-		// Create new entry and add to map
-		if (mCacheMap.size() > MAX_OBJECT_CACHE_ENTRIES)
-		{
-			mCacheMap.erase(mCacheMap.begin());
-		}
+		// Update the cache entry
+		mCacheMap.erase(local_id);
+		delete entry;
 		entry = new LLVOCacheEntry(local_id, crc, dp);
-
 		mCacheMap[local_id] = entry;
+		return CACHE_UPDATE_CHANGED;
 	}
-	return ;
+
+	// we haven't seen this object before
+
+	// Create new entry and add to map
+	eCacheUpdateResult result = CACHE_UPDATE_ADDED;
+	if (mCacheMap.size() > MAX_OBJECT_CACHE_ENTRIES)
+	{
+		mCacheMap.erase(mCacheMap.begin());
+		result = CACHE_UPDATE_REPLACED;
+		
+	}
+	entry = new LLVOCacheEntry(local_id, crc, dp);
+
+	mCacheMap[local_id] = entry;
+	return result;
 }
 
 // Get data packer for this object, if we have cached data
 // AND the CRC matches. JC
-LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc)
+LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc, U8 &cache_miss_type)
 {
 	llassert(mCacheLoaded);
 
@@ -1081,17 +1096,20 @@ LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc)
 		{
 			// Record a hit
 			entry->recordHit();
+			cache_miss_type = CACHE_MISS_TYPE_NONE;
 			return entry->getDP(crc);
 		}
 		else
 		{
 			// llinfos << "CRC miss for " << local_id << llendl;
+			cache_miss_type = CACHE_MISS_TYPE_CRC;
 			mCacheMissCRC.put(local_id);
 		}
 	}
 	else
 	{
 		// llinfos << "Cache miss for " << local_id << llendl;
+		cache_miss_type = CACHE_MISS_TYPE_FULL;
 		mCacheMissFull.put(local_id);
 	}
 	return NULL;
@@ -1112,9 +1130,6 @@ void LLViewerRegion::requestCacheMisses()
 	BOOL start_new_message = TRUE;
 	S32 blocks = 0;
 	S32 i;
-
-	const U8 CACHE_MISS_TYPE_FULL = 0;
-	const U8 CACHE_MISS_TYPE_CRC  = 1;
 
 	// Send full cache miss updates.  For these, we KNOW we don't
 	// have a viewer object.
@@ -1178,6 +1193,11 @@ void LLViewerRegion::requestCacheMisses()
 
 	mCacheDirty = TRUE ;
 	// llinfos << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << llendl;
+	#if LL_RECORD_VIEWER_STATS
+	LLViewerStatsRecorder::instance()->beginObjectUpdateEvents(this);
+	LLViewerStatsRecorder::instance()->recordRequestCacheMissesEvent(full_count + crc_count);
+	LLViewerStatsRecorder::instance()->endObjectUpdateEvents();
+	#endif
 }
 
 void LLViewerRegion::dumpCache()
@@ -1360,16 +1380,24 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	LLSD capabilityNames = LLSD::emptyArray();
 	
 	capabilityNames.append("AttachmentResources");
+	capabilityNames.append("AvatarPickerSearch");
 	capabilityNames.append("ChatSessionRequest");
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("DispatchRegionInfo");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
-	capabilityNames.append("FetchInventory");
 	capabilityNames.append("ObjectMedia");
 	capabilityNames.append("ObjectMediaNavigate");
-	capabilityNames.append("FetchLib");
-	capabilityNames.append("FetchLibDescendents");
+
+	if (gSavedSettings.getBOOL("UseHTTPInventory"))
+	{
+		capabilityNames.append("FetchLib2");
+		capabilityNames.append("FetchLibDescendents2");
+		capabilityNames.append("FetchInventory2");
+		capabilityNames.append("FetchInventoryDescendents2");
+	}
+
+	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetTexture");
 	capabilityNames.append("GroupProposalBallot");
 	capabilityNames.append("HomeLocation");
@@ -1391,6 +1419,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("SendUserReport");
 	capabilityNames.append("SendUserReportWithScreenshot");
 	capabilityNames.append("ServerReleaseNotes");
+	capabilityNames.append("SetDisplayName");
+	capabilityNames.append("SimConsoleAsync");
 	capabilityNames.append("StartGroupProposal");
 	capabilityNames.append("TextureStats");
 	capabilityNames.append("UntrustedSimulatorMessage");
@@ -1403,9 +1433,9 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("UpdateNotecardTaskInventory");
 	capabilityNames.append("UpdateScriptTask");
 	capabilityNames.append("UploadBakedTexture");
+	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
-	capabilityNames.append("WebFetchInventoryDescendents");
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.
 
@@ -1452,6 +1482,16 @@ std::string LLViewerRegion::getCapability(const std::string& name) const
 	return iter->second;
 }
 
+bool LLViewerRegion::capabilitiesReceived() const
+{
+	return mCapabilitiesReceived;
+}
+
+void LLViewerRegion::setCapabilitiesReceived(bool received)
+{
+	mCapabilitiesReceived = received;
+}
+
 void LLViewerRegion::logActiveCapabilities() const
 {
 	int count = 0;
@@ -1473,6 +1513,20 @@ LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
 		return mObjectPartition[type];
 	}
 	return NULL;
+}
+
+// the viewer can not yet distinquish between normal- and estate-owned objects
+// so we collapse these two bits and enable the UI if either are set
+const U32 ALLOW_RETURN_ENCROACHING_OBJECT = REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT
+											| REGION_FLAGS_ALLOW_RETURN_ENCROACHING_ESTATE_OBJECT;
+
+bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const
+{
+	return (mParcelOverlay != NULL)
+		&& (mParcelOverlay->isOwnedSelf(pos)
+			|| mParcelOverlay->isOwnedGroup(pos)
+			|| ((mRegionFlags & ALLOW_RETURN_ENCROACHING_OBJECT)
+				&& mParcelOverlay->encroachesOwned(boxes)) );
 }
 
 void LLViewerRegion::showReleaseNotes()

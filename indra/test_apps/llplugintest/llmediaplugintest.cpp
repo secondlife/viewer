@@ -1620,7 +1620,7 @@ mediaPanel* LLMediaPluginTest::addMediaPanel( std::string url )
 	std::string user_data_path = std::string( cwd ) + "/";
 #endif
 	media_source->setUserDataPath(user_data_path);
-	media_source->init( launcher_name, plugin_name, false );
+	media_source->init( launcher_name, user_data_path, plugin_name, false );
 	media_source->setDisableTimeout(mDisableTimeout);
 
 	// make a new panel and save parameters
@@ -1860,7 +1860,7 @@ mediaPanel* LLMediaPluginTest::replaceMediaPanel( mediaPanel* panel, std::string
 #endif
 
 	media_source->setUserDataPath(user_data_path);
-	media_source->init( launcher_name, plugin_name, false );
+	media_source->init( launcher_name, user_data_path, plugin_name, false );
 	media_source->setDisableTimeout(mDisableTimeout);
 
 	// make a new panel and save parameters
@@ -2219,6 +2219,21 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 				<< ", width = " << self->getGeometryWidth() 
 				<< ", height = " << self->getGeometryHeight() 
 				<< std::endl;
+		break;
+
+		case MEDIA_EVENT_AUTH_REQUEST:
+		{
+			//std::cerr <<  "Media event:  MEDIA_EVENT_AUTH_REQUEST, url " << self->getAuthURL() ", realm " << self->getAuthRealm() << std::endl;
+
+			// TODO: display an auth dialog
+			self->sendAuthResponse(false, "", "");
+		}
+		break;
+
+		case MEDIA_EVENT_LINK_HOVERED:
+		{
+			std::cerr <<  "Media event:  MEDIA_EVENT_LINK_HOVERED, hover text is: " << self->getHoverText() << std::endl;
+		};
 		break;
 	}
 }

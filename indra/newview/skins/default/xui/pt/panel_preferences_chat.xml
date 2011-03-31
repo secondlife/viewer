@@ -8,44 +8,10 @@
 		<radio_item label="Médio" name="radio2" value="1"/>
 		<radio_item label="Grande" name="radio3" value="2"/>
 	</radio_group>
-	<text name="font_colors">
-		Cor da fonte:
-	</text>
-	<color_swatch label="Você" name="user"/>
-	<text name="text_box1">
-		Eu
-	</text>
-	<color_swatch label="Outros" name="agent"/>
-	<text name="text_box2">
-		Outros
-	</text>
-	<color_swatch label="MI" name="im"/>
-	<text name="text_box3">
-		MI
-	</text>
-	<color_swatch label="Sistema" name="system"/>
-	<text name="text_box4">
-		Sistema
-	</text>
-	<color_swatch label="Erros" name="script_error"/>
-	<text name="text_box5">
-		Erros
-	</text>
-	<color_swatch label="Objetos" name="objects"/>
-	<text name="text_box6">
-		Objetos
-	</text>
-	<color_swatch label="Dono" name="owner"/>
-	<text name="text_box7">
-		Dono
-	</text>
-	<color_swatch label="URLs" name="links"/>
-	<text name="text_box9">
-		URLs
-	</text>
 	<check_box initial_value="true" label="Executar animação digitada quando estiver conversando" name="play_typing_animation"/>
 	<check_box label="Enviar MIs por email se estiver desconectado" name="send_im_to_email"/>
 	<check_box label="Ativar MIs e bate-papos de texto simples" name="plain_text_chat_history"/>
+	<check_box label="Balão de bate-papo" name="bubble_text_chat"/>
 	<text name="show_ims_in_label">
 		Mostrar MIs em:
 	</text>
@@ -56,27 +22,34 @@
 		<radio_item label="Janelas separadas" name="radio" value="0"/>
 		<radio_item label="Guias" name="radio2" value="1"/>
 	</radio_group>
-	<check_box label="Traduzir Chat" name="translate_chat_checkbox" />
+	<text name="disable_toast_label">
+		Ativar pop-ups de novos bate-papos:
+	</text>
+	<check_box label="Bate-papo de grupo" name="EnableGroupChatPopups" tool_tip="Exibir pop-up de bate-papos novos de grupos"/>
+	<check_box label="Bate-papos de MI" name="EnableIMChatPopups" tool_tip="Exibir pop-up de mensagens instantâneas novas"/>
+	<spinner label="Transição de avisos de bate-papos por perto:" name="nearby_toasts_lifetime"/>
+	<spinner label="Transição de avisos de bate-papos por perto:" name="nearby_toasts_fadingtime"/>
+	<check_box label="Traduzir bate-papo automaticamente (via Google)" name="translate_chat_checkbox"/>
 	<text name="translate_language_text">
-		Chat Língua:
+		Traduzir bate-papo para:
 	</text>
 	<combo_box name="translate_language_combobox">
-		<combo_box.item name="System Default Language" label="Padrão do Sistema" />
-		<combo_box.item name="English" label="English (Inglês)" />
-		<combo_box.item name="Danish" label="Dansk (Dinamarquês)" />
-		<combo_box.item name="German" label="Deutsch (Alemão)" />
-		<combo_box.item name="Spanish" label="Español (Espanhol)" />
-		<combo_box.item name="French" label="Français (Francês)" />
-		<combo_box.item name="Italian" label="Italiano" />
-		<combo_box.item name="Hungarian" label="Magyar (Húngaro)" />
-		<combo_box.item name="Dutch" label="Nederlands (Holandês)" />
-		<combo_box.item name="Polish" label="Polski (Polonês)" />
-		<combo_box.item name="Portugese" label="Português" />
-		<combo_box.item name="Russian" label="Русский (Russo)" />
-		<combo_box.item name="Turkish" label="Türkçe (Turco)" />
-		<combo_box.item name="Ukrainian" label="Українська (Ucraniano)" />
-		<combo_box.item name="Chinese" label="中文 (简体) (Chinês)" />
-		<combo_box.item name="Japanese" label="日本語 (Japonês)" />
-		<combo_box.item name="Korean" label="한국어 (Coreano)" />
+		<combo_box.item label="Padrão" name="System Default Language"/>
+		<combo_box.item label="English (Inglês)" name="English"/>
+		<combo_box.item label="Dansk (Dinamarquês)" name="Danish"/>
+		<combo_box.item label="Deutsch (Alemão)" name="German"/>
+		<combo_box.item label="Español (Espanhol)" name="Spanish"/>
+		<combo_box.item label="Français (Francês)" name="French"/>
+		<combo_box.item label="Italiano (Italiano)" name="Italian"/>
+		<combo_box.item label="Magyar (Húngaro)" name="Hungarian"/>
+		<combo_box.item label="Nederlands (Holandês)" name="Dutch"/>
+		<combo_box.item label="Polski (Polonês)" name="Polish"/>
+		<combo_box.item label="Português (Português)" name="Portugese"/>
+		<combo_box.item label="Русский (Russo)" name="Russian"/>
+		<combo_box.item label="Türkçe (Turco)" name="Turkish"/>
+		<combo_box.item label="Українська (Ucraniano)" name="Ukrainian"/>
+		<combo_box.item label="中文 (简体) (Chinês)" name="Chinese"/>
+		<combo_box.item label="日本語 (Japonês)" name="Japanese"/>
+		<combo_box.item label="한국어 (Coreano)" name="Korean"/>
 	</combo_box>
 </panel>

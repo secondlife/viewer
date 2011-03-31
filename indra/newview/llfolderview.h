@@ -114,7 +114,7 @@ public:
 	const std::string getFilterSubString(BOOL trim = FALSE);
 	U32 getFilterObjectTypes() const;
 	PermissionMask getFilterPermissions() const;
-	// JAMESDEBUG use getFilter()->getShowFolderState();
+	// *NOTE: use getFilter()->getShowFolderState();
 	//LLInventoryFilter::EFolderShow getShowFolderState();
 	U32 getSortOrder() const;
 	BOOL isFilterModified();
@@ -269,7 +269,10 @@ public:
 	virtual S32	notify(const LLSD& info) ;
 	
 	bool useLabelSuffix() { return mUseLabelSuffix; }
+	void updateMenu();
+
 private:
+	void updateMenuOptions(LLMenuGL* menu);
 	void updateRenamerPosition();
 
 protected:

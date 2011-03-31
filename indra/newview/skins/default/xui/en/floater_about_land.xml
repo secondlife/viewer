@@ -128,7 +128,7 @@
              height="23"
              layout="topleft"
              left_pad="2"
-             max_length="63"
+             max_length_bytes="63"
              name="Name"
              top_delta="0"
              width="365" />
@@ -220,8 +220,10 @@
              layout="topleft"
              left_pad="2"
              name="OwnerText"
-             width="240">
-                Leyla Linden
+             translate="false"
+             use_ellipses="true" 
+             width="360">
+                TestString PleaseIgnore
             </text>
              <button
      follows="right"
@@ -254,14 +256,15 @@
             </text>
    <!--TODO: HOOK UP GROUP ICON-->
             <text
-             enabled="false"
              follows="left|top"
              height="16"
              left_pad="2"
              layout="topleft"
              name="GroupText"
+             translate="false"
              width="240">
-Leyla Linden               </text>
+                TestString PleaseIgnore
+            </text>
                  <button
      follows="right"
      height="23"
@@ -374,7 +377,8 @@ Leyla Linden               </text>
              left_delta="-199"
              name="For sale to"
              top_delta="20"
-             width="186">
+             use_ellipses="true" 
+             width="340">
                 For sale to: [BUYER]
             </text>
             <text
@@ -410,7 +414,7 @@ Leyla Linden               </text>
              right="-10"
              name="Cancel Land Sale"
              left_pad="5"
-             top_pad="-25"
+             top_pad="-15"
              width="180" />
             <text
              type="string"
@@ -541,7 +545,7 @@ Leyla Linden               </text>
              layout="topleft"
              left_delta="0"
              name="Reclaim Land..."
-             top_delta="-61"
+             top_delta="-50"
              width="180" />
             <button
              enabled="false"
@@ -1079,7 +1083,7 @@ Leyla Linden               </text>
              follows="left|top"
              height="23"
              layout="topleft"
-             max_length="6"
+             max_length_bytes="6"
              name="clean other time"
              left_pad="0"
              width="46"
@@ -1404,6 +1408,10 @@ Only large parcels can be listed in search.
                  name="item11"
                  value="shopping" />
                 <combo_box.item
+                 label="Rental"
+                 name="item13"
+                 value="rental" />
+                <combo_box.item
                  label="Other"
                  name="item12"
                  value="other" />
@@ -1460,6 +1468,10 @@ Only large parcels can be listed in search.
                  label="Shopping"
                  name="item11"
                  value="shopping" />
+                <combo_box.item
+                 label="Rental"
+                 name="item13"
+                 value="rental" />
                 <combo_box.item
                  label="Other"
                  name="item12"
@@ -1623,7 +1635,7 @@ Only large parcels can be listed in search.
              height="23"
              layout="topleft"
              left_pad="0"
-             max_length="255"
+             max_length_bytes="255"
              name="media_url"
              select_on_focus="true"
              width="300"
@@ -1637,16 +1649,6 @@ Only large parcels can be listed in search.
              name="set_media_url"
              width="70"
              top_delta="0"/>
-            <check_box
-             follows="top|left"
-             height="16"
-             label="Hide URL"
-             layout="topleft"
-             left="110"
-             name="hide_media_url"
-             tool_tip="Checking this option will hide the media url to any non-authorized viewers of this parcel information. Note this is not available for HTML types."
-             width="50"
-             top_pad="5"/>
             <text
              type="string"
              length="1"
@@ -1664,7 +1666,7 @@ Only large parcels can be listed in search.
              height="20"
              layout="topleft"
              left="110"
-             max_length="255"
+             max_length_bytes="255"
              name="url_description"
              select_on_focus="true"
              tool_tip="Text displayed next to play/load button"
@@ -1819,20 +1821,11 @@ Only large parcels can be listed in search.
              height="23"
              layout="topleft"
              left="100"
-             max_length="255"
+             max_length_bytes="255"
              name="music_url"
              top_delta="0"
              right="-15"
              select_on_focus="true" />
-			<check_box
-             height="16"
-             label="Hide URL"
-             layout="topleft"
-             name="hide_music_url"
-			 tool_tip="Checking this option will hide the music url to any non-authorized viewers of this parcel information."
-			 left_delta="10"
-             top_pad="5"
-             width="292" /> 
             <text
              type="string"
              length="1"
@@ -1904,7 +1897,7 @@ Only large parcels can be listed in search.
 			</panel.string>
       <panel.string
        name="allow_public_access">
-        Allow Public Access ([MATURITY])
+        Allow Public Access ([MATURITY]) (Note: Unchecking this will create ban lines)
       </panel.string>
             <panel.string
              name="estate_override">
@@ -1931,7 +1924,7 @@ Only large parcels can be listed in search.
              name="public_access"
              top_pad="5"
              label_text.valign="center"
-             label_text.v_pad="-7" 
+             label_text.v_pad="-2" 
              width="278" />
             <text
              type="string"
@@ -2077,7 +2070,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="10"
              name="remove_allowed"
-             right="-1"
+             right="-10"
              width="100" />
              </panel>
             <panel
@@ -2127,7 +2120,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="10"
              name="remove_banned"
-             right="-1"
+             right="-10"
              width="100" />
              </panel>
         </panel>

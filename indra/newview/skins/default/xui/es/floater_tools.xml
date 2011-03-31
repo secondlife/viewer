@@ -64,6 +64,8 @@
 		<radio_item label="Elegir la cara" name="radio select face"/>
 	</radio_group>
 	<check_box label="Editar las partes enlazadas" name="checkbox edit linked parts"/>
+	<button label="Enlazar" name="link_btn"/>
+	<button label="Desenlazar" name="unlink_btn"/>
 	<text name="RenderingCost" tool_tip="Muestra cuánto se calcula que cuesta renderizar este objeto">
 		þ: [COUNT]
 	</text>
@@ -170,26 +172,20 @@
 			<text name="Creator:">
 				Creador:
 			</text>
-			<text name="Creator Name">
-				Thrax Linden
-			</text>
 			<text name="Owner:">
 				Propietario:
-			</text>
-			<text name="Owner Name">
-				Thrax Linden
 			</text>
 			<text name="Group:">
 				Grupo:
 			</text>
-			<button label="Configurar..." label_selected="Configurar..." name="button set group" tool_tip="Elige un grupo con el que compartir los permisos de este objeto"/>
 			<name_box initial_value="Cargando..." name="Group Name Proxy"/>
-			<button label="Transferir" label_selected="Transferir" name="button deed" tool_tip="La transferencia entrega este objeto con los permisos del próximo propietario. Los objetos compartidos por el grupo pueden ser transferidos por un oficial del grupo."/>
+			<button label="Configurar..." label_selected="Configurar..." name="button set group" tool_tip="Elige un grupo con el que compartir los permisos de este objeto"/>
 			<check_box label="Compartir" name="checkbox share with group" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
-			<text name="label click action" width="180">
+			<button label="Transferir" label_selected="Transferir" name="button deed" tool_tip="La transferencia entrega este objeto con los permisos del próximo propietario. Los objetos compartidos por el grupo pueden ser transferidos por un oficial del grupo."/>
+			<text name="label click action">
 				Al tocarlo:
 			</text>
-			<combo_box name="clickaction" width="192">
+			<combo_box name="clickaction">
 				<combo_box.item label="Tocarlo (por defecto)" name="Touch/grab(default)"/>
 				<combo_box.item label="Sentarse en el objeto" name="Sitonobject"/>
 				<combo_box.item label="Comprar el objeto" name="Buyobject"/>
@@ -437,7 +433,8 @@
 				<combo_box.item label="succión" name="suction"/>
 				<combo_box.item label="tejido" name="weave"/>
 			</combo_box>
-			<text name="tex scale">
+			<check_box initial_value="falso" label="Alinear caras del plano" name="checkbox planar align" tool_tip="Alinear texturas en todas las caras seleccionadas con la última cara seleccionada. Requiere la representación de texturas en el plano."/>
+			<text name="rpt">
 				Repeticiones por cara
 			</text>
 			<spinner label="Horizontal (U)" name="TexScaleU"/>

@@ -36,6 +36,7 @@
 
 // Internal utility
 #include "lleventtimer.h"
+#include "llexternaleditor.h"
 #include "llrender.h"
 #include "llsdutil.h"
 #include "llxmltree.h"
@@ -160,6 +161,8 @@ public:
 	DiffMap mDiffsMap;							// map, of filename to pair of list of changed element paths and list of errors
 
 private:
+	LLExternalEditor mExternalEditor;
+
 	// XUI elements for this floater
 	LLScrollListCtrl*			mFileList;							// scroll list control for file list
 	LLLineEditor*				mEditorPathTextBox;					// text field for path to editor executable
@@ -185,7 +188,7 @@ private:
 	std::string					mSavedDiffPath;						// stored diff file path so closing this floater doesn't reset it
 
 	// Internal functionality
-	static void popupAndPrintWarning(std::string& warning);			// pop up a warning
+	static void popupAndPrintWarning(const std::string& warning);	// pop up a warning
 	std::string getLocalizedDirectory();							// build and return the path to the XUI directory for the currently-selected localization
 	void scanDiffFile(LLXmlTreeNode* file_node);					// scan a given XML node for diff entries and highlight them in its associated file
 	void highlightChangedElements();								// look up the list of elements to highlight and highlight them in the current floater
@@ -480,7 +483,7 @@ BOOL LLFloaterUIPreview::postBuild()
 	mLanguageSelection->removeall();																				// clear out anything temporarily in list from XML
 	while(found)																									// for every directory
 	{
-		if((found = gDirUtilp->getNextFileInDir(xui_dir, "*", language_directory, FALSE)))							// get next directory
+		if((found = gDirUtilp->getNextFileInDir(xui_dir, "*", language_directory)))							// get next directory
 		{
 			std::string full_path = xui_dir + language_directory;
 			if(LLFile::isfile(full_path.c_str()))																	// if it's not a directory, skip it
@@ -597,7 +600,7 @@ void LLFloaterUIPreview::onClose(bool app_quitting)
 
 // Error handling (to avoid code repetition)
 // *TODO: this is currently unlocalized.  Add to alerts/notifications.xml, someday, maybe.
-void LLFloaterUIPreview::popupAndPrintWarning(std::string& warning)
+void LLFloaterUIPreview::popupAndPrintWarning(const std::string& warning)
 {
 	llwarns << warning << llendl;
 	LLSD args;
@@ -634,7 +637,7 @@ void LLFloaterUIPreview::refreshList()
 	BOOL found = TRUE;
 	while(found)				// for every floater file that matches the pattern
 	{
-		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "floater_*.xml", name, FALSE)))	// get next file matching pattern
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "floater_*.xml", name)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}
@@ -642,7 +645,7 @@ void LLFloaterUIPreview::refreshList()
 	found = TRUE;
 	while(found)				// for every inspector file that matches the pattern
 	{
-		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "inspect_*.xml", name, FALSE)))	// get next file matching pattern
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "inspect_*.xml", name)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}
@@ -650,7 +653,7 @@ void LLFloaterUIPreview::refreshList()
 	found = TRUE;
 	while(found)				// for every menu file that matches the pattern
 	{
-		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "menu_*.xml", name, FALSE)))	// get next file matching pattern
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "menu_*.xml", name)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}
@@ -658,7 +661,7 @@ void LLFloaterUIPreview::refreshList()
 	found = TRUE;
 	while(found)				// for every panel file that matches the pattern
 	{
-		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "panel_*.xml", name, FALSE)))	// get next file matching pattern
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "panel_*.xml", name)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}
@@ -667,7 +670,7 @@ void LLFloaterUIPreview::refreshList()
 	found = TRUE;
 	while(found)				// for every sidepanel file that matches the pattern
 	{
-		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "sidepanel_*.xml", name, FALSE)))	// get next file matching pattern
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "sidepanel_*.xml", name)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}
@@ -998,190 +1001,66 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 // Respond to button click to edit currently-selected floater
 void LLFloaterUIPreview::onClickEditFloater()
 {
-	std::string file_name = mFileList->getSelectedItemLabel(1);	// get the file name of the currently-selected floater
-	if(std::string("") == file_name)										// if no item is selected
+	// Determine file to edit.
+	std::string file_path;
 	{
-		return;															// ignore click
-	}
-	std::string path = getLocalizedDirectory() + file_name;
-
-	// stat file to see if it exists (some localized versions may not have it there are no diffs, and then we try to open an nonexistent file)
-	llstat dummy;
-	if(LLFile::stat(path.c_str(), &dummy))								// if the file does not exist
-	{
-		std::string warning = "No file for this floater exists in the selected localization.  Opening the EN version instead.";
-		popupAndPrintWarning(warning);
-
-		path = get_xui_dir() + mDelim + "en" + mDelim + file_name; // open the en version instead, by default
-	}
-
-	// get executable path
-	const char* exe_path_char;
-	std::string path_in_textfield = mEditorPathTextBox->getText();
-	if(std::string("") != path_in_textfield)	// if the text field is not emtpy, use its path
-	{
-		exe_path_char = path_in_textfield.c_str();
-	}
-	else if (!LLUI::sSettingGroups["config"]->getString("XUIEditor").empty())
-	{
-		exe_path_char = LLUI::sSettingGroups["config"]->getString("XUIEditor").c_str();
-	}
-	else									// otherwise use the path specified by the environment variable
-	{
-		exe_path_char = getenv("LL_XUI_EDITOR");
-	}
-
-	// error check executable path
-	if(NULL == exe_path_char)
-	{
-		std::string warning = "Select an editor by setting the environment variable LL_XUI_EDITOR or specifying its path in the \"Editor Path\" field.";
-		popupAndPrintWarning(warning);
-		return;
-	}
-	std::string exe_path = exe_path_char;	// do this after error check, otherwise internal strlen call fails on bad char*
-
-	// remove any quotes; they're added back in later where necessary
-	int found_at;
-	while((found_at = exe_path.find("\"")) != -1 || (found_at = exe_path.find("'")) != -1)
-	{
-		exe_path.erase(found_at,1);
-	}
-
-	llstat s;
-	if(!LLFile::stat(exe_path.c_str(), &s)) // If the executable exists
-	{
-		// build paths and arguments
-		std::string quote = std::string("\"");
-		std::string args;
-		std::string custom_args = mEditorArgsTextBox->getText();
-		int position_of_file = custom_args.find(std::string("%FILE%"), 0);	// prepare to replace %FILE% with actual file path
-		std::string first_part_of_args = "";
-		std::string second_part_of_args = "";
-		if(-1 == position_of_file)	// default: Executable.exe File.xml
+		std::string file_name = mFileList->getSelectedItemLabel(1);	// get the file name of the currently-selected floater
+		if (file_name.empty())					// if no item is selected
 		{
-			args = quote + path + quote;			// execute the command Program.exe "File.xml"
+			llwarns << "No file selected" << llendl;
+			return;															// ignore click
 		}
-		else						// use advanced command-line arguments, e.g. "Program.exe -safe File.xml" -windowed for "-safe %FILE% -windowed"
+		file_path = getLocalizedDirectory() + file_name;
+
+		// stat file to see if it exists (some localized versions may not have it there are no diffs, and then we try to open an nonexistent file)
+		llstat dummy;
+		if(LLFile::stat(file_path.c_str(), &dummy))								// if the file does not exist
 		{
-			first_part_of_args = custom_args.substr(0,position_of_file);											// get part of args before file name
-			second_part_of_args = custom_args.substr(position_of_file+6,custom_args.length());						// get part of args after file name
-			custom_args = first_part_of_args + std::string("\"") + path + std::string("\"") + second_part_of_args;	// replace %FILE% with "<file path>" and put back together
-			args = custom_args;																						// and save in the variable that is actually used
+			popupAndPrintWarning("No file for this floater exists in the selected localization.  Opening the EN version instead.");
+			file_path = get_xui_dir() + mDelim + "en" + mDelim + file_name; // open the en version instead, by default
 		}
+	}
 
-		// find directory in which executable resides by taking everything after last slash
-		int last_slash_position = exe_path.find_last_of(mDelim);
-		if(-1 == last_slash_position)
+	// Set the editor command.
+	std::string cmd_override;
+	{
+		std::string bin = mEditorPathTextBox->getText();
+		if (!bin.empty())
 		{
-			std::string warning = std::string("Unable to find a valid path to the specified executable for XUI XML editing: ") + exe_path;
-			popupAndPrintWarning(warning);
-			return;
+			// surround command with double quotes for the case if the path contains spaces
+			if (bin.find("\"") == std::string::npos)
+			{
+				bin = "\"" + bin + "\"";
+			}
+
+			std::string args = mEditorArgsTextBox->getText();
+			cmd_override = bin + " " + args;
 		}
-        std::string exe_dir = exe_path.substr(0,last_slash_position); // strip executable off, e.g. get "C:\Program Files\TextPad 5" (with or without trailing slash)
+	}
 
-#if LL_WINDOWS
-		PROCESS_INFORMATION pinfo;
-		STARTUPINFOA sinfo;
-		memset(&sinfo, 0, sizeof(sinfo));
-		memset(&pinfo, 0, sizeof(pinfo));
+	LLExternalEditor::EErrorCode status = mExternalEditor.setCommand("LL_XUI_EDITOR", cmd_override);
+	if (status != LLExternalEditor::EC_SUCCESS)
+	{
+		std::string warning;
 
-		std::string exe_name = exe_path.substr(last_slash_position+1);
-		args = quote + exe_name + quote + std::string(" ") + args;				// and prepend the executable name, so we get 'Program.exe "Arg1"'
-
-		char *args2 = new char[args.size() + 1];	// Windows requires that the second parameter to CreateProcessA be a writable (non-const) string...
-		strcpy(args2, args.c_str());
-
-		// we don't want the current directory to be the executable directory, since the file path is now relative. By using
-		// NULL for the current directory instead of exe_dir.c_str(), the path to the target file will work. 
-		if(!CreateProcessA(exe_path.c_str(), args2, NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo))
+		if (status == LLExternalEditor::EC_NOT_SPECIFIED) // Use custom message for this error.
 		{
-			// DWORD dwErr = GetLastError();
-			std::string warning = "Creating editor process failed!";
-			popupAndPrintWarning(warning);
+			warning = getString("ExternalEditorNotSet");
 		}
 		else
 		{
-			// foo = pinfo.dwProcessId; // get your pid here if you want to use it later on
-			// sGatewayHandle = pinfo.hProcess;
-			CloseHandle(pinfo.hThread); // stops leaks - nothing else
+			warning = LLExternalEditor::getErrorMessage(status);
 		}
 
-		delete[] args2;
-#else	// if !LL_WINDOWS
-		// This code was copied from the code to run SLVoice, with some modification; should work in UNIX (Mac/Darwin or Linux)
-		{
-			std::vector<std::string> arglist;
-			arglist.push_back(exe_path.c_str());
-
-			// Split the argument string into separate strings for each argument
-			typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
-			boost::char_separator<char> sep("","\" ", boost::drop_empty_tokens);
-
-			tokenizer tokens(args, sep);
-			tokenizer::iterator token_iter;
-			BOOL inside_quotes = FALSE;
-			BOOL last_was_space = FALSE;
-			for(token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
-			{
-				if(!strncmp("\"",(*token_iter).c_str(),2))
-				{
-					inside_quotes = !inside_quotes;
-				}
-				else if(!strncmp(" ",(*token_iter).c_str(),2))
-				{
-					if(inside_quotes)
-					{
-						arglist.back().append(std::string(" "));
-						last_was_space = TRUE;
-					}
-				}
-				else
-				{
-					std::string to_push = *token_iter;
-					if(last_was_space)
-					{
-						arglist.back().append(to_push);
-						last_was_space = FALSE;
-					}
-					else
-					{
-						arglist.push_back(to_push);
-					}
-				}
-			}
-			
-			// create an argv vector for the child process
-			char **fakeargv = new char*[arglist.size() + 1];
-			int i;
-			for(i=0; i < arglist.size(); i++)
-				fakeargv[i] = const_cast<char*>(arglist[i].c_str());
-
-			fakeargv[i] = NULL;
-
-			fflush(NULL); // flush all buffers before the child inherits them
-			pid_t id = vfork();
-			if(id == 0)
-			{
-				// child
-				execv(exe_path.c_str(), fakeargv);
-
-				// If we reach this point, the exec failed.
-				// Use _exit() instead of exit() per the vfork man page.
-				std::string warning = "Creating editor process failed (vfork/execv)!";
-				popupAndPrintWarning(warning);
-				_exit(0);
-			}
-
-			// parent
-			delete[] fakeargv;
-			// sGatewayPID = id;
-		}
-#endif	// LL_WINDOWS
-	}
-	else
-	{
-		std::string warning = "Unable to find path to external XML editor for XUI preview tool";
 		popupAndPrintWarning(warning);
+		return;
+	}
+
+	// Run the editor.
+	if (mExternalEditor.run(file_path) != LLExternalEditor::EC_SUCCESS)
+	{
+		popupAndPrintWarning(LLExternalEditor::getErrorMessage(status));
+		return;
 	}
 }
 

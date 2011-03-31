@@ -170,22 +170,16 @@
 			<text name="Creator:">
 				制作者：
 			</text>
-			<text name="Creator Name">
-				Esbee Linden
-			</text>
 			<text name="Owner:">
 				所有者：
-			</text>
-			<text name="Owner Name">
-				Erica Linden
 			</text>
 			<text name="Group:">
 				グループ：
 			</text>
-			<button label="設定..." label_selected="設定..." name="button set group" tool_tip="このオブジェクト権限を共有するグループを選択します"/>
 			<name_box initial_value="ローディング..." name="Group Name Proxy"/>
-			<button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。 グループ共有オブジェクトは、グループのオフィサーが譲渡できます"/>
+			<button label="設定..." label_selected="設定..." name="button set group" tool_tip="このオブジェクト権限を共有するグループを選択します"/>
 			<check_box label="共有" name="checkbox share with group" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません"/>
+			<button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。 グループ共有オブジェクトは、グループのオフィサーが譲渡できます"/>
 			<text name="label click action">
 				クリックで：
 			</text>
@@ -437,7 +431,8 @@
 				<combo_box.item label="吸い込み" name="suction"/>
 				<combo_box.item label="織目" name="weave"/>
 			</combo_box>
-			<text name="tex scale">
+			<check_box initial_value="false" label="平面を揃える" name="checkbox planar align" tool_tip="選択面全てのテクスチャを、最後に選択された面に揃えます。 平面テクスチャのマッピングが必要です。"/>
+			<text name="rpt">
 				反復 / 面
 			</text>
 			<spinner label="水平（U）" name="TexScaleU"/>

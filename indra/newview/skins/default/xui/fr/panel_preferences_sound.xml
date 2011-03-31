@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sons" name="Preference Media panel">
+	<panel.string name="middle_mouse">
+		Bouton central de la souris
+	</panel.string>
 	<slider label="Volume principal" name="System Volume"/>
 	<check_box initial_value="true" label="Couper quand minimisé" name="mute_when_minimized"/>
 	<slider label="Boutons" name="UI Volume"/>
 	<slider label="Ambiant" name="Wind Volume"/>
 	<slider label="Effets sonores" name="SFX Volume"/>
 	<slider label="Flux musical" name="Music Volume"/>
-	<check_box label="Activé" name="music_enabled"/>
+	<check_box label="Activé" name="enable_music"/>
 	<slider label="Média" name="Media Volume"/>
 	<check_box label="Activé" name="enable_media"/>
 	<slider label="Chat vocal" name="Voice Volume"/>
 	<check_box label="Activé" name="enable_voice_check"/>
 	<check_box label="Autoriser la lecture automatique du média" name="media_auto_play_btn" tool_tip="Cochez pour autoriser la lecture automatique du média" value="true"/>
-	<check_box label="Jouer le média aux autres avatars" name="media_show_on_others_btn" tool_tip="Décochez pour masquer le média aux autres avatars près de vous" value="true"/>
+	<check_box label="Lecture du média aux autres avatars" name="media_show_on_others_btn" tool_tip="Décochez pour masquer le média aux autres avatars près de vous" value="true"/>
 	<text name="voice_chat_settings">
 		Paramètres du chat vocal
 	</text>
@@ -23,6 +26,11 @@
 		<radio_item label="Position de la caméra" name="0"/>
 		<radio_item label="Position de l&apos;avatar" name="1"/>
 	</radio_group>
+	<check_box label="Faire bouger les lèvres de l&apos;avatar lorsqu&apos;il parle" name="enable_lip_sync"/>
+	<check_box label="Activer/désactiver la fonction Parler quand j&apos;appuie sur :" name="push_to_talk_toggle_check" tool_tip="En mode bascule, appuyez une fois sur la touche de contrôle de la fonction, puis relâchez-la pour activer/désactiver votre micro. Si vous n&apos;êtes pas en mode bascule, le micro ne diffuse votre voix que lorsque vous maintenez la touche de contrôle de la fonction enfoncée."/>
+	<line_editor label="Touche de contrôle de la fonction Appuyer pour parler" name="modifier_combo"/>
+	<button label="Définir la touche" name="set_voice_hotkey_button"/>
+	<button name="set_voice_middlemouse_button" tool_tip="Réinitialiser sur le bouton central de la souris"/>
 	<button label="Périphériques d&apos;entrée/de sortie" name="device_settings_btn"/>
 	<panel label="Paramètres du matériel" name="device_settings_panel">
 		<panel.string name="default_text">

@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Configuration" name="Input panel">
-	<button label="Autres accessoires" name="joystick_setup_button" width="175"/>
-	<text name="Mouselook:">
-		Vue subjective :
-	</text>
-	<text name=" Mouse Sensitivity">
-		Sensibilité de la souris
-	</text>
-	<check_box label="Inverser" name="invert_mouse"/>
 	<text name="Network:">
 		Réseau :
 	</text>
@@ -40,10 +32,18 @@
 	<check_box initial_value="true" label="Activer les plugins" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Accepter les cookies" name="cookies_enabled"/>
 	<check_box initial_value="true" label="Activer Javascript" name="browser_javascript_enabled"/>
+	<check_box initial_value="false" label="Activer les fenêtres popup de navigateur de médias" name="media_popup_enabled"/>
 	<check_box initial_value="false" label="Activer le proxy Web" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Emplacement du proxy :
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="Le nom ou adresse IP du proxy que vous souhaitez utiliser"/>
 	<spinner label="Numéro de port :" label_width="95" name="web_proxy_port" width="170"/>
+	<text name="Software updates:">
+		Mises à jour logicielles :
+	</text>
+	<combo_box name="updater_service_combobox">
+		<combo_box.item label="Installation automatique" name="Install_automatically"/>
+		<combo_box.item label="Téléchargement et installation manuels" name="Install_manual"/>
+	</combo_box>
 </panel>

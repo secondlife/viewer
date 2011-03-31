@@ -13,7 +13,7 @@
 		<combo_box.item label="Italiano - Beta" name="Italian"/>
 		<combo_box.item label="Nederlands (Neerlandés) - Beta" name="Dutch"/>
 		<combo_box.item label="Polski (Polaco) - Beta" name="Polish"/>
-		<combo_box.item label="Português (Portugués) - Beta" name="Portugese"/>
+		<combo_box.item label="Português (portugués) - Beta" name="Portugese"/>
 		<combo_box.item label="日本語 (Japonés) - Beta" name="(Japanese)"/>
 	</combo_box>
 	<text name="language_textbox2">
@@ -44,16 +44,22 @@
 		<radio_item label="On" name="radio2" value="1"/>
 		<radio_item label="Mostrar brevemente" name="radio3" value="2"/>
 	</radio_group>
-	<check_box label="Ver yo mi nombre" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Etiquetas de los avatares en pequeño" name="small_avatar_names_checkbox"/>
-	<check_box label="Mostrar las etiquetas de grupo" name="show_all_title_checkbox1"/>
-	<text name="effects_color_textbox">
-		Mis efectos:
+	<check_box label="Mi nombre" name="show_my_name_checkbox1"/>
+	<check_box label="Nombre de usuario" name="show_slids" tool_tip="Mostrar el nombre de usuario, como bobsmith123"/>
+	<check_box label="Títulos de grupos" name="show_all_title_checkbox1" tool_tip="Mostrar títulos de grupos, como Jefe o Miembro"/>
+	<check_box label="Realzar amigos" name="show_friends" tool_tip="Realzar las etiquetas de los nombres de tus amigos"/>
+	<check_box label="Ver nombres mostrados" name="display_names_check" tool_tip="Comprobar para utilizar nombres mostrados en chat, MI, etiquetas de nombres, etc."/>
+	<check_box label="Permitir los consejos de la IU del visor" name="viewer_hints_check"/>
+	<text name="inworld_typing_rg_label">
+		Si pulsas las teclas de letras:
 	</text>
+	<radio_group name="inworld_typing_preference">
+		<radio_item label="Inicia el chat local" name="radio_start_chat" value="1"/>
+		<radio_item label="Afecta al movimiento (por ejemplo, en las teclas WASD)" name="radio_move" value="0"/>
+	</radio_group>
 	<text name="title_afk_text">
 		Ausente tras:
 	</text>
-	<color_swatch label="" name="effect_color_swatch" tool_tip="Pulse para abrir el selector de color"/>
 	<combo_box label="Ausente tras:" name="afk">
 		<combo_box.item label="2 minutos" name="item0"/>
 		<combo_box.item label="5 minutos" name="item1"/>

@@ -10,6 +10,9 @@
 	<string name="Details">
 		[SL_PROFILE]
 	</string>
+	<text name="user_details">
+		To jest mój opis w Second Life.
+	</text>
 	<slider name="volume_slider" tool_tip="Poziom głośności" value="0.5"/>
 	<button label="Dodaj znajomość" name="add_friend_btn"/>
 	<button label="IM" name="im_btn"/>

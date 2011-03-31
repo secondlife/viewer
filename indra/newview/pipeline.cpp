@@ -64,6 +64,8 @@
 #include "llfloaterreg.h"
 #include "llgldbg.h"
 #include "llhudmanager.h"
+#include "llhudnametag.h"
+#include "llhudtext.h"
 #include "lllightconstants.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -127,8 +129,6 @@ extern BOOL gDebugGL;
 static S32 sDelayedVBOEnable = 0;
 
 BOOL	gAvatarBacklight = FALSE;
-
-BOOL	gRenderForSelect = FALSE;
 
 BOOL	gDebugPipeline = FALSE;
 LLPipeline gPipeline;
@@ -253,6 +253,7 @@ S32		LLPipeline::sCompiles = 0;
 BOOL	LLPipeline::sPickAvatar = TRUE;
 BOOL	LLPipeline::sDynamicLOD = TRUE;
 BOOL	LLPipeline::sShowHUDAttachments = TRUE;
+BOOL	LLPipeline::sRenderMOAPBeacons = FALSE;
 BOOL	LLPipeline::sRenderPhysicalBeacons = TRUE;
 BOOL	LLPipeline::sRenderScriptedBeacons = FALSE;
 BOOL	LLPipeline::sRenderScriptedTouchBeacons = TRUE;
@@ -531,7 +532,8 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	mScreenWidth = resX;
 	mScreenHeight = resY;
 	
-	U32 samples = gSavedSettings.getU32("RenderFSAASamples");
+	//never use more than 4 samples for render targets
+	U32 samples = llmin(gSavedSettings.getU32("RenderFSAASamples"), (U32) 4);
 	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
 
 	if (res_mod > 1 && res_mod < resX && res_mod < resY)
@@ -552,8 +554,6 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 		addDeferredAttachments(mDeferredScreen);
 	
-		// always set viewport to desired size, since allocate resets the viewport
-
 		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
 		mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 
@@ -596,7 +596,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	}
 	
 
-	if (gGLManager.mHasFramebufferMultisample && samples > 1)
+	if (LLRenderTarget::sUseFBO && gGLManager.mHasFramebufferMultisample && samples > 1)
 	{
 		mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
 		if (LLPipeline::sRenderDeferred)
@@ -628,14 +628,14 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 //static
 void LLPipeline::updateRenderDeferred()
 {
-	BOOL deferred = (gSavedSettings.getBOOL("RenderDeferred") && 
-		LLRenderTarget::sUseFBO &&
-			 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-		gSavedSettings.getBOOL("VertexShaderEnable") && 
-		gSavedSettings.getBOOL("RenderAvatarVP") &&
-			 (gSavedSettings.getBOOL("WindLightUseAtmosShaders")) ? TRUE : FALSE) &&
-		!gUseWireframe;
-	
+	BOOL deferred = ((gSavedSettings.getBOOL("RenderDeferred") && 
+					 LLRenderTarget::sUseFBO &&
+					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+					 gSavedSettings.getBOOL("VertexShaderEnable") && 
+					 gSavedSettings.getBOOL("RenderAvatarVP") &&
+					 gSavedSettings.getBOOL("WindLightUseAtmosShaders")) ? TRUE : FALSE) &&
+					!gUseWireframe;
+
 	sRenderDeferred = deferred;			
 }
 
@@ -868,6 +868,11 @@ BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 {
 	return (canUseWindLightShaders() 
 		&& LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0);
+}
+
+BOOL LLPipeline::canUseAntiAliasing() const
+{
+	return TRUE; //(gSavedSettings.getBOOL("RenderUseFBO"));
 }
 
 void LLPipeline::unloadShaders()
@@ -1632,20 +1637,14 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	camera.disableUserClipPlane();
 
-	if (gSky.mVOSkyp.notNull() && gSky.mVOSkyp->mDrawable.notNull())
+	if (hasRenderType(LLPipeline::RENDER_TYPE_SKY) && 
+		gSky.mVOSkyp.notNull() && 
+		gSky.mVOSkyp->mDrawable.notNull())
 	{
-		// Hack for sky - always visible.
-		if (hasRenderType(LLPipeline::RENDER_TYPE_SKY)) 
-		{
-			gSky.mVOSkyp->mDrawable->setVisible(camera);
-			sCull->pushDrawable(gSky.mVOSkyp->mDrawable);
-			gSky.updateCull();
-			stop_glerror();
-		}
-	}
-	else
-	{
-		llinfos << "No sky drawable!" << llendl;
+		gSky.mVOSkyp->mDrawable->setVisible(camera);
+		sCull->pushDrawable(gSky.mVOSkyp->mDrawable);
+		gSky.updateCull();
+		stop_glerror();
 	}
 
 	if (hasRenderType(LLPipeline::RENDER_TYPE_GROUND) && 
@@ -1969,12 +1968,12 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 
 	if(drawablep && !drawablep->isDead())
 	{
-	if (drawablep->isSpatialBridge())
-	{
+		if (drawablep->isSpatialBridge())
+		{
 			const LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 			llassert(root); // trying to catch a bad assumption
 			if (root && //  // this test may not be needed, see above
-			    root->getVObj()->isAttachment())
+					root->getVObj()->isAttachment())
 			{
 				LLDrawable* rootparent = root->getParent();
 				if (rootparent) // this IS sometimes NULL
@@ -1982,24 +1981,24 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 					LLViewerObject *vobj = rootparent->getVObj();
 					llassert(vobj); // trying to catch a bad assumption
 					if (vobj) // this test may not be needed, see above
-		{
+					{
 						const LLVOAvatar* av = vobj->asAvatar();
-			if (av && av->isImpostor())
-			{
-				return;
-			}
-		}
+						if (av && av->isImpostor())
+						{
+							return;
+						}
+					}
 				}
 			}
-		sCull->pushBridge((LLSpatialBridge*) drawablep);
-	}
-	else
-	{
-		sCull->pushDrawable(drawablep);
-	}
+			sCull->pushBridge((LLSpatialBridge*) drawablep);
+		}
+		else
+		{
+			sCull->pushDrawable(drawablep);
+		}
 
-	drawablep->setVisible(camera);
-}
+		drawablep->setVisible(camera);
+	}
 }
 
 void LLPipeline::markMoved(LLDrawable *drawablep, BOOL damped_motion)
@@ -2108,6 +2107,7 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 	}
 
 	LLHUDText::shiftAll(offset);
+	LLHUDNameTag::shiftAll(offset);
 	display_update_camera();
 }
 
@@ -2214,6 +2214,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 					  LLPipeline::RENDER_TYPE_TERRAIN,
 					  LLPipeline::RENDER_TYPE_TREE,
 					  LLPipeline::RENDER_TYPE_SKY,
+					  LLPipeline::RENDER_TYPE_VOIDWATER,
 					  LLPipeline::RENDER_TYPE_WATER,
 					  LLPipeline::END_RENDER_TYPES))
 	{
@@ -2510,6 +2511,42 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 	}
 }
 
+void renderMOAPBeacons(LLDrawable* drawablep)
+{
+	LLViewerObject *vobj = drawablep->getVObj();
+
+	if(!vobj || vobj->isAvatar())
+		return;
+
+	BOOL beacon=FALSE;
+	U8 tecount=vobj->getNumTEs();
+	for(int x=0;x<tecount;x++)
+	{
+		if(vobj->getTE(x)->hasMedia())
+		{
+			beacon=TRUE;
+			break;
+		}
+	}
+	if(beacon==TRUE)
+	{
+		if (gPipeline.sRenderBeacons)
+		{
+			gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(1.f, 1.f, 1.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
+		}
+
+		if (gPipeline.sRenderHighlight)
+		{
+			S32 face_id;
+			S32 count = drawablep->getNumFaces();
+			for (face_id = 0; face_id < count; face_id++)
+			{
+				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+			}
+		}
+	}
+}
+
 void renderParticleBeacons(LLDrawable* drawablep)
 {
 	// Look for attachments, objects, etc.
@@ -2713,6 +2750,11 @@ void LLPipeline::postSort(LLCamera& camera)
 		{
 			// Only show the beacon on the root object.
 			forAllVisibleDrawables(renderPhysicalBeacons);
+		}
+
+		if(sRenderMOAPBeacons)
+		{
+			forAllVisibleDrawables(renderMOAPBeacons);
 		}
 
 		if (sRenderParticleBeacons)
@@ -3805,185 +3847,6 @@ void LLPipeline::renderDebug()
 	gGL.flush();
 }
 
-void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render_transparent, const LLRect& screen_rect)
-{
-	assertInitialized();
-
-	gGL.setColorMask(true, false);
-	gPipeline.resetDrawOrders();
-
-	LLViewerCamera* camera = LLViewerCamera::getInstance();
-	for (std::set<LLViewerObject*>::iterator iter = objects.begin(); iter != objects.end(); ++iter)
-	{
-		stateSort((*iter)->mDrawable, *camera);
-	}
-
-	LLMemType mt(LLMemType::MTYPE_PIPELINE_RENDER_SELECT);
-	
-	
-	
-	glMatrixMode(GL_MODELVIEW);
-
-	LLGLSDefault gls_default;
-	LLGLSObjectSelect gls_object_select;
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	LLGLDepthTest gls_depth(GL_TRUE,GL_TRUE);
-	disableLights();
-	
-	LLVertexBuffer::unbind();
-
-	//for each drawpool
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
-	U32 last_type = 0;
-	
-	// If we don't do this, we crash something on changing graphics settings
-	// from Medium -> Low, because we unload all the shaders and the 
-	// draw pools aren't aware.  I don't know if this has to be a separate
-	// loop before actual rendering. JC
-	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
-	{
-		LLDrawPool *poolp = *iter;
-		if (poolp->isFacePool() && hasRenderType(poolp->getType()))
-		{
-			poolp->prerender();
-		}
-	}
-	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
-	{
-		LLDrawPool *poolp = *iter;
-		if (poolp->isFacePool() && hasRenderType(poolp->getType()))
-		{
-			LLFacePool* face_pool = (LLFacePool*) poolp;
-			face_pool->renderForSelect();
-			LLVertexBuffer::unbind();
-			gGLLastMatrix = NULL;
-			glLoadMatrixd(gGLModelView);
-
-			if (poolp->getType() != last_type)
-			{
-				last_type = poolp->getType();
-				LLGLState::checkStates();
-				LLGLState::checkTextureChannels();
-				LLGLState::checkClientArrays();
-			}
-		}
-	}	
-
-	LLGLEnable alpha_test(GL_ALPHA_TEST);
-	if (render_transparent)
-	{
-		gGL.setAlphaRejectSettings(LLRender::CF_GREATER_EQUAL, 0.f);
-	}
-	else
-	{
-		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.2f);
-	}
-
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_VERT_COLOR);
-	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
-
-	U32 prim_mask = LLVertexBuffer::MAP_VERTEX | 
-					LLVertexBuffer::MAP_TEXCOORD0;
-
-	for (std::set<LLViewerObject*>::iterator i = objects.begin(); i != objects.end(); ++i)
-	{
-		LLViewerObject* vobj = *i;
-		LLDrawable* drawable = vobj->mDrawable;
-		if (vobj->isDead() || 
-			vobj->isHUDAttachment() ||
-			(LLSelectMgr::getInstance()->mHideSelectedObjects && vobj->isSelected()) ||
-			drawable->isDead() || 
-			!hasRenderType(drawable->getRenderType()))
-		{
-			continue;
-		}
-
-		for (S32 j = 0; j < drawable->getNumFaces(); ++j)
-		{
-			LLFace* facep = drawable->getFace(j);
-			if (!facep->getPool())
-			{
-				facep->renderForSelect(prim_mask);
-			}
-		}
-	}
-
-	// pick HUD objects
-	if (isAgentAvatarValid() && sShowHUDAttachments)
-	{
-		glh::matrix4f save_proj(glh_get_current_projection());
-		glh::matrix4f save_model(glh_get_current_modelview());
-
-		setup_hud_matrices(screen_rect);
-		for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
-			 iter != gAgentAvatarp->mAttachmentPoints.end(); )
-		{
-			LLVOAvatar::attachment_map_t::iterator curiter = iter++;
-			LLViewerJointAttachment* attachment = curiter->second;
-			if (attachment->getIsHUDAttachment())
-			{
-				for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-					 attachment_iter != attachment->mAttachedObjects.end();
-					 ++attachment_iter)
-				{
-					if (LLViewerObject* attached_object = (*attachment_iter))
-					{
-						LLDrawable* drawable = attached_object->mDrawable;
-						if (drawable->isDead())
-						{
-							continue;
-						}
-							
-						for (S32 j = 0; j < drawable->getNumFaces(); ++j)
-						{
-							LLFace* facep = drawable->getFace(j);
-							if (!facep->getPool())
-							{
-								facep->renderForSelect(prim_mask);
-							}
-						}
-							
-						//render child faces
-						LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
-						for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-							 iter != child_list.end(); iter++)
-						{
-							LLViewerObject* child = *iter;
-							LLDrawable* child_drawable = child->mDrawable;
-							for (S32 l = 0; l < child_drawable->getNumFaces(); ++l)
-							{
-								LLFace* facep = child_drawable->getFace(l);
-								if (!facep->getPool())
-								{
-									facep->renderForSelect(prim_mask);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadMatrixf(save_proj.m);
-		glh_set_current_projection(save_proj);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixf(save_model.m);
-		glh_set_current_modelview(save_model);
-
-	
-	}
-
-	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-	
-	LLVertexBuffer::unbind();
-	
-	gGL.setColorMask(true, true);
-}
-
 void LLPipeline::rebuildPools()
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_REBUILD_POOLS);
@@ -4814,7 +4677,7 @@ void LLPipeline::enableLightsFullbright(const LLColor4& color)
 void LLPipeline::disableLights()
 {
 	enableLights(0); // no lighting (full bright)
-	//glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
+	glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
 }
 
 //============================================================================
@@ -5005,6 +4868,10 @@ void LLPipeline::setLight(LLDrawable *drawablep, BOOL is_light)
 void LLPipeline::toggleRenderType(U32 type)
 {
 	gPipeline.mRenderTypeEnabled[type] = !gPipeline.mRenderTypeEnabled[type];
+	if (type == LLPipeline::RENDER_TYPE_WATER)
+	{
+		gPipeline.mRenderTypeEnabled[LLPipeline::RENDER_TYPE_VOIDWATER] = !gPipeline.mRenderTypeEnabled[LLPipeline::RENDER_TYPE_VOIDWATER];
+	}
 }
 
 //static
@@ -5110,6 +4977,24 @@ void LLPipeline::toggleRenderScriptedTouchBeacons(void*)
 BOOL LLPipeline::getRenderScriptedTouchBeacons(void*)
 {
 	return sRenderScriptedTouchBeacons;
+}
+
+// static
+void LLPipeline::setRenderMOAPBeacons(BOOL val)
+{
+	sRenderMOAPBeacons = val;
+}
+
+// static
+void LLPipeline::toggleRenderMOAPBeacons(void*)
+{
+	sRenderMOAPBeacons = !sRenderMOAPBeacons;
+}
+
+// static
+BOOL LLPipeline::getRenderMOAPBeacons(void*)
+{
+	return sRenderMOAPBeacons;
 }
 
 // static
@@ -5327,7 +5212,8 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 		++iter)
 	{
 		LLVOAvatar* av = (LLVOAvatar*) *iter;
-		if (av->mNameText.notNull() && av->mNameText->lineSegmentIntersect(start, local_end, position))
+		if (av->mNameText.notNull()
+			&& av->mNameText->lineSegmentIntersect(start, local_end, position))
 		{
 			drawable = av->mDrawable;
 			local_end = position;
@@ -5487,7 +5373,25 @@ void LLPipeline::setUseVBO(BOOL use_vbo)
 		}
 		
 		resetVertexBuffers();
-		LLVertexBuffer::initClass(use_vbo);
+		LLVertexBuffer::initClass(use_vbo, gSavedSettings.getBOOL("RenderVBOMappingDisable"));
+	}
+}
+
+void LLPipeline::setDisableVBOMapping(BOOL no_vbo_mapping)
+{
+	if (LLVertexBuffer::sEnableVBOs && no_vbo_mapping != LLVertexBuffer::sDisableVBOMapping)
+	{
+		if (no_vbo_mapping)
+		{
+			llinfos << "Disabling VBO glMapBufferARB." << llendl;
+		}
+		else
+		{ 
+			llinfos << "Enabling VBO glMapBufferARB." << llendl;
+		}
+		
+		resetVertexBuffers();
+		LLVertexBuffer::initClass(true, no_vbo_mapping);
 	}
 }
 
@@ -5606,7 +5510,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	gGL.setColorMask(true, true);
 	glClearColor(0,0,0,0);
 
-	if (for_snapshot)
+	/*if (for_snapshot)
 	{
 		gGL.getTexUnit(0)->bind(&mGlow[1]);
 		{
@@ -5617,14 +5521,21 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 			// If the snapshot is constructed from tiles, calculate which
 			// tile we're in.
-			const S32 num_horizontal_tiles = llceil(zoom_factor);
-			const LLVector2 tile(subfield % num_horizontal_tiles,
-								 (S32)(subfield / num_horizontal_tiles));
-			llassert(zoom_factor > 0.0); // Non-zero, non-negative.
-			const F32 tile_size = 1.0/zoom_factor;
-			
-			tc1 = tile*tile_size; // Top left texture coordinates
-			tc2 = (tile+LLVector2(1,1))*tile_size; // Bottom right texture coordinates
+
+			//from LLViewerCamera::setPerpsective
+			if (zoom_factor > 1.f)
+			{
+				int pos_y = subfield / llceil(zoom_factor);
+				int pos_x = subfield - (pos_y*llceil(zoom_factor));
+				F32 size = 1.f/zoom_factor;
+
+				tc1.set(pos_x*size, pos_y*size);
+				tc2 = tc1 + LLVector2(size,size);
+			}
+			else
+			{
+				tc2.set(1,1);
+			}
 			
 			LLGLEnable blend(GL_BLEND);
 			gGL.setSceneBlendType(LLRender::BT_ADD);
@@ -5657,7 +5568,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		glPopMatrix();
 
 		return;
-	}
+	}*/
 	
 	{
 		{
@@ -7000,7 +6911,6 @@ void LLPipeline::renderDeferredLighting()
 		{
 			// Render debugging beacons.
 			gObjectList.renderObjectBeacons();
-			LLHUDObject::renderAll();
 			gObjectList.resetObjectBeacons();
 		}
 	}
@@ -7331,6 +7241,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				gPipeline.pushRenderTypeMask();
 
 				clearRenderTypeMask(LLPipeline::RENDER_TYPE_WATER,
+									LLPipeline::RENDER_TYPE_VOIDWATER,
 									LLPipeline::RENDER_TYPE_GROUND,
 									LLPipeline::RENDER_TYPE_SKY,
 									LLPipeline::RENDER_TYPE_CLOUDS,
@@ -7383,6 +7294,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		{
 			camera.setFar(camera_in.getFar());
 			clearRenderTypeMask(LLPipeline::RENDER_TYPE_WATER,
+								LLPipeline::RENDER_TYPE_VOIDWATER,
 								LLPipeline::RENDER_TYPE_GROUND,
 								END_RENDER_TYPES);	
 			stop_glerror();
@@ -7899,6 +7811,7 @@ void LLPipeline::generateGI(LLCamera& camera, LLVector3& lightDir, std::vector<L
 								 LLPipeline::RENDER_TYPE_TREE, 
 								 LLPipeline::RENDER_TYPE_TERRAIN,
 								 LLPipeline::RENDER_TYPE_WATER,
+								 LLPipeline::RENDER_TYPE_VOIDWATER,
 								 LLPipeline::RENDER_TYPE_PASS_ALPHA_SHADOW,
 								 LLPipeline::RENDER_TYPE_AVATAR,
 								 LLPipeline::RENDER_TYPE_PASS_SIMPLE,
@@ -8082,6 +7995,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 					LLPipeline::RENDER_TYPE_TREE, 
 					LLPipeline::RENDER_TYPE_TERRAIN,
 					LLPipeline::RENDER_TYPE_WATER,
+					LLPipeline::RENDER_TYPE_VOIDWATER,
 					LLPipeline::RENDER_TYPE_PASS_ALPHA_SHADOW,
 					LLPipeline::RENDER_TYPE_PASS_SIMPLE,
 					LLPipeline::RENDER_TYPE_PASS_BUMP,
@@ -9049,7 +8963,10 @@ LLCullResult::sg_list_t::iterator LLPipeline::endAlphaGroups()
 
 BOOL LLPipeline::hasRenderType(const U32 type) const
 {
-	return mRenderTypeEnabled[type];
+    // STORM-365 : LLViewerJointAttachment::setAttachmentVisibility() is setting type to 0 to actually mean "do not render"
+    // We then need to test that value here and return FALSE to prevent attachment to render (in mouselook for instance)
+    // TODO: reintroduce RENDER_TYPE_NONE in LLRenderTypeMask and initialize its mRenderTypeEnabled[RENDER_TYPE_NONE] to FALSE explicitely
+	return (type == 0 ? FALSE : mRenderTypeEnabled[type]);
 }
 
 void LLPipeline::setRenderTypeMask(U32 type, ...)

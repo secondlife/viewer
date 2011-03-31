@@ -30,6 +30,7 @@
 #include "lluuid.h"
 #include "lldatapacker.h"
 #include "lldlinked.h"
+#include "lldir.h"
 
 
 //---------------------------------------------------------------------------
@@ -94,7 +95,12 @@ private:
 	{
 		bool operator()(const HeaderEntryInfo* lhs, const HeaderEntryInfo* rhs) const
 		{
-			return lhs->mTime < rhs->mTime; // older entry in front of queue (set)
+			if(lhs->mTime == rhs->mTime) 
+			{
+				return lhs < rhs ;
+			}
+			
+			return lhs->mTime < rhs->mTime ; // older entry in front of queue (set)
 		}
 	};
 	typedef std::set<HeaderEntryInfo*, header_entry_less> header_entry_queue_t;
@@ -110,6 +116,7 @@ public:
 
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
 	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache) ;
+	void removeEntry(U64 handle) ;
 
 	void setReadOnly(BOOL read_only) {mReadOnly = read_only;} 
 
@@ -117,17 +124,17 @@ private:
 	void setDirNames(ELLPath location);	
 	// determine the cache filename for the region from the region handle	
 	void getObjectCacheFilename(U64 handle, std::string& filename);
-	void removeFromCache(U64 handle);
+	void removeFromCache(HeaderEntryInfo* entry);
 	void readCacheHeader();
 	void writeCacheHeader();
 	void clearCacheInMemory();
 	void removeCache() ;
-	void purgeEntries();
+	void removeEntry(HeaderEntryInfo* entry) ;
+	void purgeEntries(U32 size);
 	BOOL updateEntry(const HeaderEntryInfo* entry);
-	BOOL checkRead(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
-	BOOL checkWrite(LLAPRFile* apr_file, void* src, S32 n_bytes) ;
 	
 private:
+	BOOL                 mEnabled;
 	BOOL                 mInitialized ;
 	BOOL                 mReadOnly ;
 	HeaderMetaInfo       mMetaInfo;
@@ -142,7 +149,7 @@ private:
 	static LLVOCache* sInstance ;
 public:
 	static LLVOCache* getInstance() ;
-	static BOOL       hasInstance() ;
+	static BOOL       hasInstance() ;	
 	static void       destroyClass() ;
 };
 

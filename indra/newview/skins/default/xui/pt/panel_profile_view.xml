@@ -6,8 +6,12 @@
 	<string name="status_offline">
 		Desconectado
 	</string>
-	<text_editor name="user_name" value="Carregando..."/>
+	<text name="display_name_label" value="Nome de tela:"/>
+	<text name="solo_username_label" value="Nome de usuário:"/>
 	<text name="status" value="Conectado"/>
+	<text name="user_name_small" value="Jack oh look at me this is a super duper long name"/>
+	<button name="copy_to_clipboard" tool_tip="Copiar para área de transferência"/>
+	<text name="user_label" value="Nome de usuário:"/>
 	<tab_container name="tabs">
 		<panel label="PERFIL" name="panel_profile"/>
 		<panel label="DESTAQUES" name="panel_picks"/>

@@ -35,6 +35,13 @@
 
 using namespace LLNotificationsUI;
 
+//--------------------------------------------------------------------------
+LLToastLifeTimer::LLToastLifeTimer(LLToast* toast, F32 period)
+	: mToast(toast),
+	  LLEventTimer(period)
+{
+}
+
 /*virtual*/
 BOOL LLToastLifeTimer::tick()
 {
@@ -43,6 +50,38 @@ BOOL LLToastLifeTimer::tick()
 		mToast->expire();
 	}
 	return FALSE;
+}
+
+void LLToastLifeTimer::stop()
+{
+	mEventTimer.stop();
+}
+
+void LLToastLifeTimer::start()
+{
+	mEventTimer.start();
+}
+
+void LLToastLifeTimer::restart()
+{
+	mEventTimer.reset();
+}
+
+BOOL LLToastLifeTimer::getStarted()
+{
+	return mEventTimer.getStarted();
+}
+
+void LLToastLifeTimer::setPeriod(F32 period)
+{
+	mPeriod = period;
+}
+
+F32 LLToastLifeTimer::getRemainingTimeF32()
+{
+	F32 et = mEventTimer.getElapsedTimeF32();
+	if (!getStarted() || et > mPeriod) return 0.0f;
+	return mPeriod - et;
 }
 
 //--------------------------------------------------------------------------
@@ -60,7 +99,6 @@ LLToast::Params::Params()
 
 LLToast::LLToast(const LLToast::Params& p) 
 :	LLModalDialog(LLSD(), p.is_modal),
-	mPanel(p.panel), 
 	mToastLifetime(p.lifetime_secs),
 	mToastFadingTime(p.fading_time_secs),
 	mNotificationID(p.notif_id),  
@@ -69,11 +107,13 @@ LLToast::LLToast(const LLToast::Params& p)
 	mCanBeStored(p.can_be_stored),
 	mHideBtnEnabled(p.enable_hide_btn),
 	mHideBtn(NULL),
+	mPanel(NULL),
 	mNotification(p.notification),
 	mIsHidden(false),
 	mHideBtnPressed(false),
 	mIsTip(p.is_tip),
-	mWrapperPanel(NULL)
+	mWrapperPanel(NULL),
+	mIsFading(false)
 {
 	mTimer.reset(new LLToastLifeTimer(this, p.lifetime_secs));
 
@@ -85,9 +125,12 @@ LLToast::LLToast(const LLToast::Params& p)
 	mWrapperPanel->setMouseEnterCallback(boost::bind(&LLToast::onToastMouseEnter, this));
 	mWrapperPanel->setMouseLeaveCallback(boost::bind(&LLToast::onToastMouseLeave, this));
 
-	if(mPanel)
+	setBackgroundOpaque(TRUE); // *TODO: obsolete
+	updateTransparency();
+
+	if(p.panel())
 	{
-		insertPanel(mPanel);
+		insertPanel(p.panel);
 	}
 
 	if(mHideBtnEnabled)
@@ -101,9 +144,6 @@ LLToast::LLToast(const LLToast::Params& p)
 	// init callbacks if present
 	if(!p.on_delete_toast().empty())
 		mOnDeleteToastSignal.connect(p.on_delete_toast());
-
-	if(!p.on_mouse_enter().empty())
-		mOnMouseEnterSignal.connect(p.on_mouse_enter());
 }
 
 void LLToast::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -142,6 +182,7 @@ LLToast::~LLToast()
 void LLToast::hide()
 {
 	setVisible(FALSE);
+	setFading(false);
 	mTimer->stop();
 	mIsHidden = true;
 	mOnFadeSignal(this); 
@@ -152,7 +193,7 @@ void LLToast::onFocusLost()
 	if(mWrapperPanel && !isBackgroundVisible())
 	{
 		// Lets make wrapper panel behave like a floater
-		setBackgroundOpaque(FALSE);
+		updateTransparency();
 	}
 }
 
@@ -161,8 +202,18 @@ void LLToast::onFocusReceived()
 	if(mWrapperPanel && !isBackgroundVisible())
 	{
 		// Lets make wrapper panel behave like a floater
-		setBackgroundOpaque(TRUE);
+		updateTransparency();
 	}
+}
+
+void LLToast::setLifetime(S32 seconds)
+{
+	mToastLifetime = seconds;
+}
+
+void LLToast::setFadingTime(S32 seconds)
+{
+	mToastFadingTime = seconds;
 }
 
 S32 LLToast::getTopPad()
@@ -194,13 +245,48 @@ void LLToast::setCanFade(bool can_fade)
 //--------------------------------------------------------------------------
 void LLToast::expire()
 {
-	// if toast has fade property - hide it
-	if(mCanFade)
+	if (mCanFade)
 	{
-		hide();
+		if (mIsFading)
+		{
+			// Fade timer expired. Time to hide.
+			hide();
+		}
+		else
+		{
+			// "Life" time has ended. Time to fade.
+			setFading(true);
+			mTimer->restart();
+		}
 	}
 }
 
+void LLToast::setFading(bool transparent)
+{
+	mIsFading = transparent;
+	updateTransparency();
+
+	if (transparent)
+	{
+		mTimer->setPeriod(mToastFadingTime);
+	}
+	else
+	{
+		mTimer->setPeriod(mToastLifetime);
+	}
+}
+
+F32 LLToast::getTimeLeftToLive()
+{
+	F32 time_to_live = mTimer->getRemainingTimeF32();
+
+	if (!mIsFading)
+	{
+		time_to_live += mToastFadingTime;
+	}
+
+	return time_to_live;
+}
 //--------------------------------------------------------------------------
 
 void LLToast::reshapeToPanel()
@@ -223,6 +309,7 @@ void LLToast::reshapeToPanel()
 
 void LLToast::insertPanel(LLPanel* panel)
 {
+	mPanel = panel;
 	mWrapperPanel->addChild(panel);	
 	reshapeToPanel();
 }
@@ -244,13 +331,6 @@ void LLToast::draw()
 			drawChild(mHideBtn);
 		}
 	}
-
-	// if timer started and remaining time <= fading time
-	if (mTimer->getStarted() && (mToastLifetime
-			- mTimer->getEventTimer().getElapsedTimeF32()) <= mToastFadingTime)
-	{
-		setBackgroundOpaque(FALSE);
-	}
 }
 
 //--------------------------------------------------------------------------
@@ -266,9 +346,13 @@ void LLToast::setVisible(BOOL show)
 		return;
 	}
 
+	if (show && getVisible())
+	{
+		return;
+	}
+
 	if(show)
 	{
-		setBackgroundOpaque(TRUE);
 		if(!mTimer->getStarted() && mCanFade)
 		{
 			mTimer->start();
@@ -310,7 +394,7 @@ void LLToast::onToastMouseEnter()
 	{
 		mOnToastHoverSignal(this, MOUSE_ENTER);
 
-		setBackgroundOpaque(TRUE);
+		updateTransparency();
 
 		//toasts fading is management by Screen Channel
 
@@ -319,7 +403,6 @@ void LLToast::onToastMouseEnter()
 		{
 			mHideBtn->setVisible(TRUE);
 		}
-		mOnMouseEnterSignal(this);
 		mToastMouseEnterSignal(this, getValue());
 	}
 }
@@ -339,6 +422,8 @@ void LLToast::onToastMouseLeave()
 	if( !panel_rc.pointInRect(x, y) && !button_rc.pointInRect(x, y))
 	{
 		mOnToastHoverSignal(this, MOUSE_LEAVE);
+
+		updateTransparency();
 
 		//toasts fading is management by Screen Channel
 
@@ -367,19 +452,46 @@ void LLToast::setBackgroundOpaque(BOOL b)
 	}
 }
 
-void LLNotificationsUI::LLToast::stopFading()
+void LLToast::updateTransparency()
+{
+	ETypeTransparency transparency_type;
+
+	if (mCanFade)
+	{
+		// Notification toasts (including IM/chat toasts) change their transparency on hover.
+		if (isHovered())
+		{
+			transparency_type = TT_ACTIVE;
+		}
+		else
+		{
+			transparency_type = mIsFading ? TT_FADING : TT_INACTIVE;
+		}
+	}
+	else
+	{
+		// Transparency of alert toasts depends on focus.
+		transparency_type = hasFocus() ? TT_ACTIVE : TT_INACTIVE;
+	}
+
+	LLFloater::updateTransparency(transparency_type);
+}
+
+void LLNotificationsUI::LLToast::stopTimer()
 {
 	if(mCanFade)
 	{
-		stopTimer();
+		setFading(false);
+		mTimer->stop();
 	}
 }
 
-void LLNotificationsUI::LLToast::startFading()
+void LLNotificationsUI::LLToast::startTimer()
 {
 	if(mCanFade)
 	{
-		resetTimer();
+		setFading(false);
+		mTimer->start();
 	}
 }
 

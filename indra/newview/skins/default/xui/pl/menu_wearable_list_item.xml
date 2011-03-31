@@ -9,6 +9,6 @@
 	<context_menu label="Dołącz do załączników HUD" name="wearable_attach_to_hud"/>
 	<menu_item_call label="Zdejmij" name="take_off"/>
 	<menu_item_call label="Edytuj" name="edit"/>
-	<menu_item_call label="Profil obiekty" name="object_profile"/>
+	<menu_item_call label="Profil obiektu" name="object_profile"/>
 	<menu_item_call label="Pokaż oryginalny" name="show_original"/>
 </context_menu>

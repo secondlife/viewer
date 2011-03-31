@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sounds" name="Preference Media panel">
+	<panel.string name="middle_mouse">
+		Mittlere Maustaste
+	</panel.string>
 	<slider label="Master-Lautstärke" name="System Volume"/>
 	<check_box initial_value="true" label="Stummschalten, wenn minimiert" name="mute_when_minimized"/>
 	<slider label="Schaltflächen" name="UI Volume"/>
 	<slider label="Umgebung" name="Wind Volume"/>
 	<slider label="Soundeffekte" name="SFX Volume"/>
 	<slider label="Musik wird gestreamt" name="Music Volume"/>
-	<check_box label="Aktiviert" name="music_enabled"/>
+	<check_box label="Aktiviert" name="enable_music"/>
 	<slider label="Medien" name="Media Volume"/>
 	<check_box label="Aktiviert" name="enable_media"/>
 	<slider label="Voice-Chat" name="Voice Volume"/>
@@ -23,6 +26,11 @@
 		<radio_item label="Kameraposition" name="0"/>
 		<radio_item label="Avatarposition" name="1"/>
 	</radio_group>
+	<check_box label="Avatarlippen beim Sprechen bewegen" name="enable_lip_sync"/>
+	<check_box label="Sprachfunktion beim Drücken folgender Taste(n) ein-/ausschalten:" name="push_to_talk_toggle_check" tool_tip="Wenn der Umschaltmodus aktiviert ist, drücken Sie die Auslöse-Taste EINMAL, um Ihr Mikrofon ein- oder auszuschalten. Wenn der Umschaltmodus nicht aktiviert ist, ist das Mikrofon nur dann eingeschaltet, wenn Sie die Auslösetaste gedrückt halten."/>
+	<line_editor label="Auslöser für Zum-Sprechen-drücken:" name="modifier_combo"/>
+	<button label="Taste festlegen" name="set_voice_hotkey_button"/>
+	<button name="set_voice_middlemouse_button" tool_tip="Auf mittlere Maustaste zurücksetzen"/>
 	<button label="Eingabe-/Ausgabegeräte" name="device_settings_btn"/>
 	<panel label="Geräte-Einstellungen" name="device_settings_panel">
 		<panel.string name="default_text">

@@ -11,12 +11,19 @@
 			<text name="username_text">
 				Benutzername:
 			</text>
-			<line_editor label="Benutzername" name="username_edit" tool_tip="[SECOND_LIFE]-Benutzername"/>
+			<combo_box name="username_combo" tool_tip="Bei der Registrierung gewählter Benutzername wie „berndschmidt12“ oder „Liebe Sonne“"/>
 			<text name="password_text">
 				Kennwort:
 			</text>
 			<check_box label="Kennwort merken" name="remember_check"/>
 			<button label="Anmelden" name="connect_btn"/>
+			<text name="mode_selection_text">
+				Modus:
+			</text>
+			<combo_box name="mode_combo" tool_tip="Wählen Sie den gewünschten Modus aus. Basis: Second Life schnell und einfach erkunden und chatten. Erweitert: Zugriff auf zusätzliche Funktionen.">
+				<combo_box.item label="Basis" name="Basic"/>
+				<combo_box.item label="Erweitert" name="Advanced"/>
+			</combo_box>
 			<text name="start_location_text">
 				Hier anfangen:
 			</text>
@@ -31,7 +38,7 @@
 				Registrieren
 			</text>
 			<text name="forgot_password_text">
-				Namen oder Kennwort vergessen?
+				Benutzernamen oder Kennwort vergessen?
 			</text>
 			<text name="login_help">
 				Sie brauchen Hilfe?

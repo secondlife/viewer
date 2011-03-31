@@ -194,6 +194,8 @@ void LLPanel::draw()
 	// draw background
 	if( mBgVisible )
 	{
+		alpha = getCurrentTransparency();
+
 		LLRect local_rect = getLocalRect();
 		if (mBgOpaque )
 		{
@@ -434,7 +436,7 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
     //and LLView::initFromParams will use them to set visible and enabled  
 	setVisible(p.visible);
 	setEnabled(p.enabled);
-
+	setFocusRoot(p.focus_root);
 	setSoundFlags(p.sound_flags);
 
 	 // control_name, tab_stop, focus_lost_callback, initial_value, rect, enabled, visible
@@ -904,7 +906,7 @@ LLPanel *LLPanel::childGetVisiblePanelWithHelp()
 		child = *it;
 		// do we have a panel with a help topic?
 		LLPanel *panel = dynamic_cast<LLPanel *>(child);
-		if (panel && panel->getVisible() && !panel->getHelpTopic().empty())
+		if (panel && panel->isInVisibleChain() && !panel->getHelpTopic().empty())
 		{
 			return panel;
 		}

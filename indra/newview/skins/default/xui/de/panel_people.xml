@@ -18,11 +18,13 @@ Sie suchen nach Leuten? Verwenden Sie die [secondlife:///app/worldmap Karte].
 	<string name="groups_filter_label" value="Nach Gruppen filtern"/>
 	<string name="no_filtered_groups_msg" value="Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/groups/[SEARCH_TERM] Suche]."/>
 	<string name="no_groups_msg" value="Suchen Sie nach Gruppen? Versuchen Sie es mit der [secondlife:///app/search/groups Suche]."/>
+	<string name="MiniMapToolTipMsg" value="[REGION](Doppelklicken, um Karte zu öffnen; Umschalttaste gedrückt halten und ziehen, um zu schwenken)"/>
+	<string name="AltMiniMapToolTipMsg" value="[REGION](Doppelklicken, um zu teleportieren; Umschalttaste gedrückt halten und ziehen, um zu schwenken)"/>
 	<filter_editor label="Filter" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="IN DER NÄHE" name="nearby_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="nearby_view_sort_btn" tool_tip="Optionen"/>
+				<menu_button name="nearby_view_sort_btn" tool_tip="Optionen"/>
 				<button name="add_friend_btn" tool_tip="Ausgewählten Einwohner zur Freundeliste hinzufügen"/>
 			</panel>
 		</panel>
@@ -32,33 +34,61 @@ Sie suchen nach Leuten? Verwenden Sie die [secondlife:///app/worldmap Karte].
 				<accordion_tab name="tab_all" title="Alle"/>
 			</accordion>
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="friends_viewsort_btn" tool_tip="Optionen"/>
-				<button name="add_btn" tool_tip="Bieten Sie einem Einwohner die Freundschaft an"/>
-				<button name="del_btn" tool_tip="Ausgewählte Person von Ihrer Freundesliste entfernen"/>
+				<layout_stack name="bottom_panel">
+					<layout_panel name="options_gear_btn_panel">
+						<menu_button name="friends_viewsort_btn" tool_tip="Zusätzliche Optionen anzeigen"/>
+					</layout_panel>
+					<layout_panel name="add_btn_panel">
+						<button name="add_btn" tool_tip="Bieten Sie einem Einwohner die Freundschaft an"/>
+					</layout_panel>
+					<layout_panel name="trash_btn_panel">
+						<dnd_button name="del_btn" tool_tip="Ausgewählte Person aus Ihrer Freundesliste entfernen"/>
+					</layout_panel>
+				</layout_stack>
 			</panel>
 		</panel>
 		<panel label="MEINE GRUPPEN" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="groups_viewsort_btn" tool_tip="Optionen"/>
+				<menu_button name="groups_viewsort_btn" tool_tip="Optionen"/>
 				<button name="plus_btn" tool_tip="Gruppe beitreten/Neue Gruppe erstellen"/>
 				<button name="activate_btn" tool_tip="Ausgewählte Gruppe aktivieren"/>
 			</panel>
 		</panel>
 		<panel label="AKTUELL" name="recent_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="recent_viewsort_btn" tool_tip="Optionen"/>
+				<menu_button name="recent_viewsort_btn" tool_tip="Optionen"/>
 				<button name="add_friend_btn" tool_tip="Ausgewählten Einwohner zur Freundeliste hinzufügen"/>
 			</panel>
 		</panel>
 	</tab_container>
 	<panel name="button_bar">
-		<button label="Profil" name="view_profile_btn" tool_tip="Bilder, Gruppen und andere Einwohner-Informationen anzeigen"/>
-		<button label="IM" name="im_btn" tool_tip="Instant Messenger öffnen"/>
-		<button label="Anrufen" name="call_btn" tool_tip="Diesen Einwohner anrufen"/>
-		<button label="Teilen" name="share_btn" tool_tip="Inventarobjekt teilen"/>
-		<button label="Teleport" name="teleport_btn" tool_tip="Teleport anbieten"/>
-		<button label="Gruppenprofil" name="group_info_btn" tool_tip="Gruppeninformationen anzeigen"/>
-		<button label="Gruppen-Chat" name="chat_btn" tool_tip="Chat öffnen"/>
-		<button label="Gruppe anrufen" name="group_call_btn" tool_tip="Diese Gruppe anrufen"/>
+		<layout_stack name="bottom_bar_ls">
+			<layout_panel name="view_profile_btn_lp">
+				<button label="Profil" name="view_profile_btn" tool_tip="Bilder, Gruppen und andere Einwohner-Informationen anzeigen"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="IM" name="im_btn" tool_tip="Instant Messenger öffnen"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Anrufen" name="call_btn" tool_tip="Diesen Einwohner anrufen"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Teilen" name="share_btn" tool_tip="Inventarobjekt teilen"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Teleportieren" name="teleport_btn" tool_tip="Teleport anbieten"/>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls1">
+			<layout_panel name="group_info_btn_lp">
+				<button label="Gruppenprofil" name="group_info_btn" tool_tip="Gruppeninformationen anzeigen"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Gruppen-Chat" name="chat_btn" tool_tip="Chat öffnen"/>
+			</layout_panel>
+			<layout_panel name="group_call_btn_lp">
+				<button label="Gruppe anrufen" name="group_call_btn" tool_tip="Diese Gruppe anrufen"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

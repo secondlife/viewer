@@ -34,6 +34,14 @@
 	 name="RegisterDateFormat">
 	 [REG_DATE] ([AGE])
 	</string>
+  <string
+  name="name_text_args">
+    [NAME]
+  </string>
+  <string
+    name="display_name_text_args">
+    [DISPLAY_NAME]
+  </string>
     <layout_stack
      name="layout"
      orientation="vertical"
@@ -59,7 +67,7 @@
          left="0"
          name="profile_scroll"
          opaque="true"
-         height="527"
+         height="400"
          width="317"
          top="0">
           <panel
@@ -263,7 +271,7 @@
              name="partner_data_panel"
              top_pad="0"
              width="300">
-              <name_box
+              <text
                follows="left|top"
                height="10"
                initial_value="(retrieving)"
@@ -272,8 +280,8 @@
                link="true"
                name="partner_text"
                top="0"
-           width="300"
-               word_wrap="true" />
+               use_ellipses="true"
+           width="300" />
             </panel>
             <text
              follows="left|top"
@@ -432,7 +440,7 @@
 			    user_resize="false" 
 			    auto_resize="false"
 				width="24">
-					<button
+					<menu_button
 			         follows="bottom|left|right"
 			         height="23"
 			         label="▼"

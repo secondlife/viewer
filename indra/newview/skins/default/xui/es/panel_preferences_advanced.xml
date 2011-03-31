@@ -3,35 +3,16 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<panel.string name="middle_mouse">
-		Botón medio del ratón
-	</panel.string>
-	<slider label="Ángulo de visión" name="camera_fov"/>
-	<slider label="Distancia" name="camera_offset_scale"/>
-	<text name="heading2">
-		Posición automática para:
-	</text>
-	<check_box label="Construir/Editar" name="edit_camera_movement" tool_tip="Usar el posicionamiento automático de la cámara al entrar en o salir del modo de edición"/>
-	<check_box label="Apariencia" name="appearance_camera_movement" tool_tip="Usar el posicionamiento automático de la cámara mientras se está editando"/>
-	<check_box initial_value="true" label="Barra lateral" name="appearance_sidebar_positioning" tool_tip="Usar el posicionamiento automático de la cámara para la barra lateral"/>
-	<check_box label="Verme en vista subjetiva" name="first_person_avatar_visible"/>
-	<check_box label="Las teclas del cursor siempre para moverme" name="arrow_keys_move_avatar_check"/>
-	<check_box label="Correr siempre: atajo de teclado" name="tap_tap_hold_to_run"/>
-	<check_box label="Al hablar, mover los labios del avatar" name="enable_lip_sync"/>
-	<check_box label="Chat en bocadillos" name="bubble_text_chat"/>
-	<slider label="Opacidad" name="bubble_chat_opacity"/>
-	<color_swatch name="background" tool_tip="Elegir el color de los bocadillos del chat"/>
 	<text name="UI Size:">
-		Tamaño de la UI
+		Tamaño de la UI:
 	</text>
 	<check_box label="Mostrar los errores de los scripts en:" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Chat" name="0"/>
 		<radio_item label="Ventanas distintas" name="1"/>
 	</radio_group>
-	<check_box label="Cambiar entre hablar on/off cuando pulse:" name="push_to_talk_toggle_check" tool_tip="En el modo &apos;un toque&apos;, pulsa y suelta el botón UNA VEZ para activar o desactivar el micrófono. Si no estás en el modo &apos;un toque&apos;, el micrófono sólo recogerá tu voz mientras mantengas pulsado el botón."/>
-	<line_editor label="Botón de Apretar para Hablar" name="modifier_combo"/>
-	<button label="Elegir la tecla" name="set_voice_hotkey_button"/>
-	<button label="Botón de en medio del ratón" name="set_voice_middlemouse_button" tool_tip="Reconfigurarlo al botón medio del ratón"/>
-	<button label="Otros dispositivos" name="joystick_setup_button"/>
+	<check_box label="Permitir el acceso de varios usuarios" name="allow_multiple_viewer_check"/>
+	<check_box label="Mostrar la selección de cuadrícula al iniciar sesión" name="show_grid_selection_check"/>
+	<check_box label="Mostrar el menú Avanzado" name="show_advanced_menu_check"/>
+	<check_box label="Mostrar el menú Desarrollador" name="show_develop_menu_check"/>
 </panel>

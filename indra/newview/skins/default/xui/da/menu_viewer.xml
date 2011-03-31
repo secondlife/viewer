@@ -10,6 +10,12 @@
 		<menu_item_check label="Min beholdning" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mine bevægelser" name="Gestures"/>
 		<menu_item_check label="Min stemme" name="ShowVoice"/>
+		<menu label="Bevægelser" name="Movement">
+			<menu_item_call label="Sid ned" name="Sit Down Here"/>
+			<menu_item_check label="Flyv" name="Fly"/>
+			<menu_item_check label="Løb altid" name="Always Run"/>
+			<menu_item_call label="Stop animering" name="Stop Animating My Avatar"/>
+		</menu>
 		<menu label="Min status" name="Status">
 			<menu_item_call label="Væk" name="Set Away"/>
 			<menu_item_call label="Optaget" name="Set Busy"/>
@@ -45,6 +51,7 @@
 			<menu_item_check label="Grundejere" name="Land Owners"/>
 			<menu_item_check label="Koordinater" name="Coordinates"/>
 			<menu_item_check label="Parcel egenskaber" name="Parcel Properties"/>
+			<menu_item_check label="Avanceret menu" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Teleport hjem" name="Teleport Home"/>
 		<menu_item_call label="Sæt dette sted som &apos;Hjem&apos;" name="Set Home to Here"/>
@@ -83,6 +90,7 @@
 			<menu_item_call label="Tag kopi" name="Take Copy"/>
 			<menu_item_call label="Opdatér ændringer til beholdning" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Opdater ændringer i indhold til objekt" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="Returnér objekt" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
 			<menu_item_call label="Genoversæt scripts (Mono)" name="Mono"/>
@@ -92,11 +100,11 @@
 			<menu_item_call label="Sæt scripts til &quot;Not Running&quot;" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Valg" name="Options">
-			<menu_item_call label="Sæt standard rettigher for upload" name="perm prefs"/>
 			<menu_item_check label="Vis avancerede rettigheder" name="DebugPermissions"/>
 			<menu_item_check label="Vælg kun egne objekter" name="Select Only My Objects"/>
 			<menu_item_check label="Vis kun flytbare objekter" name="Select Only Movable Objects"/>
 			<menu_item_check label="Vælg ved at omkrandse" name="Select By Surrounding"/>
+			<menu_item_check label="Vis selektions afgrænsning" name="Show Selection Outlines"/>
 			<menu_item_check label="Vis skjulte objekter" name="Show Hidden Selection"/>
 			<menu_item_check label="Vis lys-radius for valgte" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Vis pejlelys for valgte" name="Show Selection Beam"/>
@@ -111,16 +119,17 @@
 			<menu_item_call label="Animation (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Mange (L$[COST] pr. fil)..." name="Bulk Upload"/>
 		</menu>
+		<menu_item_call label="Fortyd" name="Undo"/>
+		<menu_item_call label="Gendan" name="Redo"/>
 	</menu>
 	<menu label="Hjælp" name="Help">
 		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
+		<menu_item_check label="Aktiver tips" name="Enable Hints"/>
 		<menu_item_call label="Rapporter misbrug" name="Report Abuse"/>
 		<menu_item_call label="Rapportér fejl" name="Report Bug"/>
 		<menu_item_call label="Om [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanceret" name="Advanced">
-		<menu_item_check label="Vis avanceret menu" name="Show Advanced Menu"/>
-		<menu_item_call label="Stop animering af min avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Gendan teksturer" name="Rebake Texture"/>
 		<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
 		<menu_item_call label="Vælg vinduesstørrelse..." name="Set Window Size..."/>
@@ -166,7 +175,6 @@
 			<menu_item_check label="Tåge" name="Fog"/>
 			<menu_item_check label="Fleksible objekter" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="Kør flere &apos;threats&apos;" name="Run Multiple Threads"/>
 		<menu_item_check label="Benyt &quot;Plugin Read Thread&quot;" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Tøm gruppe cache" name="ClearGroupCache"/>
 		<menu_item_check label="Muse udjævning" name="Mouse Smoothing"/>
@@ -175,9 +183,7 @@
 			<menu_item_check label="Søg" name="Search"/>
 			<menu_item_call label="Frigør taster" name="Release Keys"/>
 			<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
-			<menu_item_check label="Vis avanceret menu" name="Show Advanced Menu - legacy shortcut"/>
-			<menu_item_check label="Løb altid" name="Always Run"/>
-			<menu_item_check label="Flyv" name="Fly"/>
+			<menu_item_check label="Vis avanceret menu (gammel genvej)" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Luk vindue" name="Close Window"/>
 			<menu_item_call label="Luk alle vinduer" name="Close All Windows"/>
 			<menu_item_call label="Foto til disk" name="Snapshot to Disk"/>
@@ -237,9 +243,15 @@
 		<menu label="Gengivelse" name="Rendering">
 			<menu_item_check label="Akser" name="Axes"/>
 			<menu_item_check label="Wireframe" name="Wireframe"/>
-			<menu_item_check label="Global oplysning" name="Global Illumination"/>
+			<menu_item_check label="Lys og skygger" name="Lighting and Shadows"/>
+			<menu_item_check label="Skygger fra sol/måne/andre lyskilder" name="Shadows from Sun/Moon/Projectors"/>
+			<menu_item_check label="SSAO og skygge udjævning" name="SSAO and Shadow Smoothing"/>
+			<menu_item_check label="Globalt lys (eksperimentiel)" name="Global Illumination"/>
+			<menu_item_check label="Automatisk alpha-masker (udskudte)" name="Automatic Alpha Masks (deferred)"/>
+			<menu_item_check label="Automatiske alpha-masker (ikke udskudt)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Animationsteksturer" name="Animation Textures"/>
 			<menu_item_check label="Slå teksturer fra" name="Disable Textures"/>
+			<menu_item_check label="Tekstur atlas (eksperimentiel)" name="Texture Atlas"/>
 			<menu_item_check label="Gengiv vedhæftede lys" name="Render Attached Lights"/>
 			<menu_item_check label="Gengiv vedhæftede partikler" name="Render Attached Particles"/>
 			<menu_item_check label="Hover Glow Objects" name="Hover Glow Objects"/>
@@ -256,20 +268,20 @@
 			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI (brugerflade)" name="UI">
-			<menu_item_call label="Test web browser" name="Web Browser Test"/>
+			<menu_item_call label="Media browser test" name="Web Browser Test"/>
+			<menu_item_call label="Browser med webindhold" name="Web Content Browser"/>
 			<menu_item_call label="Print info om valgt objekt" name="Print Selected Object Info"/>
 			<menu_item_call label="Hukommelse statistik" name="Memory Stats"/>
-			<menu_item_check label="Dobbelt-klik auto-pilot" name="Double-ClickAuto-Pilot"/>
+			<menu_item_check label="Debug konsol for region" name="Region Debug Console"/>
 			<menu_item_check label="Debug klik" name="Debug Clicks"/>
 			<menu_item_check label="Debug muse-hændelser" name="Debug Mouse Events"/>
 		</menu>
 		<menu label="XUI" name="XUI">
 			<menu_item_call label="Genindlæs farveopsætning" name="Reload Color Settings"/>
 			<menu_item_call label="Vis font test" name="Show Font Test"/>
-			<menu_item_call label="Hent fra XML" name="Load from XML"/>
-			<menu_item_call label="Gem til XML" name="Save to XML"/>
 			<menu_item_check label="Vis XUI navne" name="Show XUI Names"/>
 			<menu_item_call label="Send testbeskeder (IM)" name="Send Test IMs"/>
+			<menu_item_call label="Skriv navne-cache til disk" name="Flush Names Caches"/>
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
@@ -293,9 +305,9 @@
 		</menu>
 		<menu_item_check label="HTTP teksturer" name="HTTP Textures"/>
 		<menu_item_check label="Benyt consol vindue ved næste opstart" name="Console Window"/>
-		<menu_item_check label="Vis administrationsmenu" name="View Admin Options"/>
 		<menu_item_call label="Anmod om administrator status" name="Request Admin Options"/>
 		<menu_item_call label="Forlad administrationsstatus" name="Leave Admin Options"/>
+		<menu_item_check label="Vis administrationsmenu" name="View Admin Options"/>
 	</menu>
 	<menu label="Administrér" name="Admin">
 		<menu label="Object">

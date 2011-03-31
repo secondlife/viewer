@@ -67,19 +67,23 @@
         <scroll_list.columns
          label="Parcel"
          name="name"
-         width="78" />
+         relative_width="0.2" />
         <scroll_list.columns
          label="Region"
          name="location"
-         width="78" />
+         relative_width="0.2" />
         <scroll_list.columns
          label="Type"
          name="type"
-         width="70" />
+         relative_width="0.2" />
         <scroll_list.columns
          label="Area"
          name="area"
-         width="50" />
+         relative_width="0.2" />
+        <scroll_list.columns
+         label="Hidden"
+         name="hidden"
+         relative_width="0.2" />
     </scroll_list>
     <text
      type="string"
@@ -113,7 +117,7 @@
      name="map_button"
      top_delta="-4"
      left_pad="0"
-     width="60"
+     width="57"
      enabled="false" />
     <text
      type="string"
@@ -180,7 +184,7 @@
      height="19"
      layout="topleft"
      left_pad="5"
-     max_length="10"
+     max_length_bytes="10"
      name="your_contribution_line_editor"
      top_delta="0"
      width="80" />

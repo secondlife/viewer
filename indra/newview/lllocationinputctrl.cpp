@@ -211,7 +211,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 {
 	// Lets replace default LLLineEditor with LLLocationLineEditor
 	// to make needed escaping while copying and cutting url
-	this->removeChild(mTextEntry);
 	delete mTextEntry;
 
 	// Can't access old mTextEntry fields as they are protected, so lets build new params
@@ -224,7 +223,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	LLLineEditor::Params params = p.combo_editor;
 	params.rect(text_entry_rect);
 	params.default_text(LLStringUtil::null);
-	params.max_length_bytes(p.max_chars);
+	params.max_length.bytes(p.max_chars);
 	params.keystroke_callback(boost::bind(&LLLocationInputCtrl::onTextEntry, this, _1));
 	params.commit_on_focus_lost(false);
 	params.follows.flags(FOLLOWS_ALL);
@@ -547,6 +546,10 @@ void LLLocationInputCtrl::onFocusLost()
 {
 	LLUICtrl::onFocusLost();
 	refreshLocation();
+
+	// Setting cursor to 0  to show the left edge of the text. See STORM-370.
+	mTextEntry->setCursor(0);
+
 	if(mTextEntry->hasSelection()){
 		mTextEntry->deselect();
 	}

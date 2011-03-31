@@ -1,29 +1,31 @@
 #!/usr/bin/env python
-# @file generate_breakpad_symbols.py
-# @author Brad Kittenbrink <brad@lindenlab.com>
-# @brief Simple tool for generating google_breakpad symbol information
-#        for the crash reporter.
-#
-# $LicenseInfo:firstyear=2010&license=viewerlgpl$
-# Second Life Viewer Source Code
-# Copyright (C) 2010, Linden Research, Inc.
-# 
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation;
-# version 2.1 of the License only.
-# 
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-# 
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-# 
-# Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
-# $/LicenseInfo$
+"""\
+@file generate_breakpad_symbols.py
+@author Brad Kittenbrink <brad@lindenlab.com>
+@brief Simple tool for generating google_breakpad symbol information
+       for the crash reporter.
+
+$LicenseInfo:firstyear=2010&license=viewerlgpl$
+Second Life Viewer Source Code
+Copyright (C) 2010-2011, Linden Research, Inc.
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation;
+version 2.1 of the License only.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+$/LicenseInfo$
+"""
 
 
 import collections
@@ -31,6 +33,7 @@ import fnmatch
 import itertools
 import operator
 import os
+import re
 import sys
 import shlex
 import subprocess
@@ -45,8 +48,12 @@ class MissingModuleError(Exception):
         Exception.__init__(self, "Failed to find required modules: %r" % modules)
         self.modules = modules
 
-def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file):
-    print "generate_breakpad_symbols run with args: %s" % str((viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
+def main(configuration, viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file):
+    print "generate_breakpad_symbols run with args: %s" % str((configuration, viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
+
+    if not re.match("release", configuration, re.IGNORECASE):
+        print "skipping breakpad symbol generation for non-release build."
+        return 0
 
     # split up list of viewer_exes
     # "'Second Life' SLPlugin" becomes ['Second Life', 'SLPlugin']
@@ -122,7 +129,7 @@ def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_fil
     return 0
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
+    if len(sys.argv) != 7:
         usage()
         sys.exit(1)
     sys.exit(main(*sys.argv[1:]))

@@ -51,6 +51,8 @@
 #include "llwindow.h"//for SetCursor
 #include "lltransientfloatermgr.h"
 
+#include "llsidepanelappearance.h"
+
 //#include "llscrollcontainer.h"
 
 using namespace std;
@@ -58,6 +60,8 @@ using namespace LLNotificationsUI;
 
 static LLRootViewRegistry::Register<LLSideTray>	t1("side_tray");
 static LLDefaultChildRegistry::Register<LLSideTrayTab>	t2("sidetray_tab");
+
+static const S32 BOTTOM_BAR_PAD = 5;
 
 static const std::string COLLAPSED_NAME = "<<";
 static const std::string EXPANDED_NAME  = ">>";
@@ -92,6 +96,7 @@ bool	LLSideTray::instanceCreated	()
 
 class LLSideTrayTab: public LLPanel
 {
+	LOG_CLASS(LLSideTrayTab);
 	friend class LLUICtrlFactory;
 	friend class LLSideTray;
 public:
@@ -114,10 +119,12 @@ public:
 protected:
 	LLSideTrayTab(const Params& params);
 	
-	void			dock();
+	void			dock(LLFloater* floater_tab);
 	void			undock(LLFloater* floater_tab);
 
 	LLSideTray*		getSideTray();
+
+	void			onFloaterClose(LLSD::Boolean app_quitting);
 	
 public:
 	virtual ~LLSideTrayTab();
@@ -136,6 +143,10 @@ public:
 	void			onOpen		(const LLSD& key);
 	
 	void			toggleTabDocked();
+	void			setDocked(bool dock);
+	bool			isDocked() const;
+
+	BOOL			handleScrollWheel(S32 x, S32 y, S32 clicks);
 
 	LLPanel *getPanel();
 private:
@@ -145,6 +156,7 @@ private:
 	std::string	mDescription;
 	
 	LLView*	mMainPanel;
+	boost::signals2::connection mFloaterCloseConn;
 };
 
 LLSideTrayTab::LLSideTrayTab(const Params& p)
@@ -155,8 +167,6 @@ LLSideTrayTab::LLSideTrayTab(const Params& p)
 	mDescription(p.description),
 	mMainPanel(NULL)
 {
-	// Necessary for focus movement among child controls
-	setFocusRoot(TRUE);
 }
 
 LLSideTrayTab::~LLSideTrayTab()
@@ -255,7 +265,7 @@ void LLSideTrayTab::toggleTabDocked()
 
 	if (docking)
 	{
-		dock();
+		dock(floater_tab);
 	}
 	else
 	{
@@ -267,10 +277,51 @@ void LLSideTrayTab::toggleTabDocked()
 	LLFloaterReg::toggleInstance("side_bar_tab", tab_name);
 }
 
-void LLSideTrayTab::dock()
+// Same as toggleTabDocked() apart from making sure that we do exactly what we want.
+void LLSideTrayTab::setDocked(bool dock)
+{
+	if (isDocked() == dock)
+	{
+		llwarns << "Tab " << getName() << " is already " << (dock ? "docked" : "undocked") << llendl;
+		return;
+	}
+
+	toggleTabDocked();
+}
+
+bool LLSideTrayTab::isDocked() const
+{
+	return dynamic_cast<LLSideTray*>(getParent()) != NULL;
+}
+
+void LLSideTrayTab::onFloaterClose(LLSD::Boolean app_quitting)
+{
+	// If user presses Ctrl-Shift-W, handle that gracefully by docking all
+	// undocked tabs before their floaters get destroyed (STORM-1016).
+
+	// Don't dock on quit for the current dock state to be correctly saved.
+	if (app_quitting) return;
+
+	lldebugs << "Forcibly docking tab " << getName() << llendl;
+	setDocked(true);
+}
+
+BOOL LLSideTrayTab::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+	// Let children handle the event
+	LLUICtrl::handleScrollWheel(x, y, clicks);
+
+	// and then eat it to prevent in-world scrolling (STORM-351).
+	return TRUE;
+}
+
+void LLSideTrayTab::dock(LLFloater* floater_tab)
 {
 	LLSideTray* side_tray = getSideTray();
 	if (!side_tray) return;
+
+	// Before docking the tab, reset its (and its children's) transparency to default (STORM-688).
+	floater_tab->updateTransparency(TT_DEFAULT);
 
 	if (!side_tray->addTab(this))
 	{
@@ -278,6 +329,7 @@ void LLSideTrayTab::dock()
 		return;
 	}
 
+	mFloaterCloseConn.disconnect();
 	setRect(side_tray->getLocalRect());
 	reshape(getRect().getWidth(), getRect().getHeight());
 
@@ -288,6 +340,17 @@ void LLSideTrayTab::dock()
 	{
 		side_tray->expandSideBar(false);
 	}
+}
+
+static void on_minimize(LLSidepanelAppearance* panel, LLSD minimized)
+{
+	if (!panel) return;
+	bool visible = !minimized.asBoolean();
+	LLSD visibility;
+	visibility["visible"] = visible;
+	// Do not reset accordion state on minimize (STORM-375)
+	visibility["reset_accordion"] = false;
+	panel->updateToVisibility(visibility);
 }
 
 void LLSideTrayTab::undock(LLFloater* floater_tab)
@@ -315,8 +378,12 @@ void LLSideTrayTab::undock(LLFloater* floater_tab)
 	}
 
 	floater_tab->addChild(this);
+	mFloaterCloseConn = floater_tab->setCloseCallback(boost::bind(&LLSideTrayTab::onFloaterClose, this, _2));
 	floater_tab->setTitle(mTabTitle);
 	floater_tab->setName(getName());
+
+	// Resize handles get obscured by added panel so move them to front.
+	floater_tab->moveResizeHandlesToFront();
 
 	// Reshape the floater if needed.
 	LLRect floater_rect;
@@ -329,19 +396,35 @@ void LLSideTrayTab::undock(LLFloater* floater_tab)
 	{
 		// Detaching for the first time. Reshape the floater.
 		floater_rect = side_tray->getLocalRect();
+
+		// Reduce detached floater height by small BOTTOM_BAR_PAD not to make it flush with the bottom bar.
+		floater_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight() + BOTTOM_BAR_PAD;
+		floater_rect.makeValid();
 		floater_tab->reshape(floater_rect.getWidth(), floater_rect.getHeight());
 	}
 
 	// Reshape the panel.
 	{
-		LLRect panel_rect = floater_rect;
+		LLRect panel_rect = floater_tab->getLocalRect();
 		panel_rect.mTop -= floater_tab->getHeaderHeight();
+		panel_rect.makeValid();
 		setRect(panel_rect);
 		reshape(panel_rect.getWidth(), panel_rect.getHeight());
 	}
 
 	// Set FOLLOWS_ALL flag for the tab to follow floater dimensions upon resizing.
 	setFollowsAll();
+
+	// Camera view may need to be changed for appearance panel(STORM-301) on minimize of floater,
+	// so setting callback here. 
+	if (getName() == "sidebar_appearance")
+	{
+		LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel());
+		if(panel_appearance)
+		{
+			floater_tab->setMinimizeCallback(boost::bind(&on_minimize, panel_appearance, _2));
+		}
+	}
 
 	if (!side_tray->getCollapsed())
 	{
@@ -463,8 +546,8 @@ private:
 
 LLSideTray::Params::Params()
 :	collapsed("collapsed",false),
-	tab_btn_image_normal("tab_btn_image",LLUI::getUIImage("sidebar_tab_left.tga")),
-	tab_btn_image_selected("tab_btn_image_selected",LLUI::getUIImage("button_enabled_selected_32x128.tga")),
+	tab_btn_image_normal("tab_btn_image",LLUI::getUIImage("taskpanel/TaskPanel_Tab_Off.png")),
+	tab_btn_image_selected("tab_btn_image_selected",LLUI::getUIImage("taskpanel/TaskPanel_Tab_Selected.png")),
 	default_button_width("tab_btn_width",32),
 	default_button_height("tab_btn_height",32),
 	default_button_margin("tab_btn_margin",0)
@@ -526,7 +609,7 @@ BOOL LLSideTray::postBuild()
 	{
 		if ((*it).channel)
 		{
-			getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, (*it).channel, _2));
+			setVisibleWidthChangeCallback(boost::bind(&LLScreenChannelBase::resetPositionAndSize, (*it).channel));
 		}
 	}
 
@@ -583,8 +666,16 @@ LLPanel* LLSideTray::openChildPanel(LLSideTrayTab* tab, const std::string& panel
 
 	std::string tab_name = tab->getName();
 
+	bool tab_attached = isTabAttached(tab_name);
+
+	if (tab_attached && LLUI::sSettingGroups["config"]->getBOOL("OpenSidePanelsInFloaters"))
+	{
+		tab->toggleTabDocked();
+		tab_attached = false;
+	}
+
 	// Select tab and expand Side Tray only when a tab is attached.
-	if (isTabAttached(tab_name))
+	if (tab_attached)
 	{
 		selectTabByName(tab_name);
 		if (mCollapsed)
@@ -595,14 +686,7 @@ LLPanel* LLSideTray::openChildPanel(LLSideTrayTab* tab, const std::string& panel
 		LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab_name);
 		if (!floater_tab) return NULL;
 
-		// Restore the floater if it was minimized.
-		if (floater_tab->isMinimized())
-		{
-			floater_tab->setMinimized(FALSE);
-		}
-
-		// Send the floater to the front.
-		floater_tab->setFrontmost();
+		floater_tab->openFloater(tab_name);
 	}
 
 	LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
@@ -880,7 +964,6 @@ void	LLSideTray::createButtons	()
 		}
 	}
 	LLHints::registerHintTarget("inventory_btn", mTabButtons["sidebar_inventory"]->getHandle());
-	LLHints::registerHintTarget("dest_guide_btn", mTabButtons["sidebar_places"]->getHandle());
 }
 
 void		LLSideTray::processTriState ()
@@ -934,21 +1017,9 @@ void LLSideTray::reflectCollapseChange()
 {
 	updateSidetrayVisibility();
 
-	if(mCollapsed)
-	{
-		gFloaterView->setSnapOffsetRight(0);
-		setFocus(FALSE);
-	}
-	else
-	{
-		gFloaterView->setSnapOffsetRight(getRect().getWidth());
-		setFocus(TRUE);
-	}
+	setFocus(!mCollapsed);
 
 	gFloaterView->refresh();
-	
-	LLSD new_value = mCollapsed;
-	mCollapseSignal(this,new_value);
 }
 
 void LLSideTray::arrange()
@@ -998,7 +1069,8 @@ void LLSideTray::arrange()
 	}
 
 	// The tab buttons should be shown only if there is at least one non-detached tab.
-	mButtonsPanel->setVisible(hasTabs());
+	// Also hide them in mouse-look mode.
+	mButtonsPanel->setVisible(hasTabs() && !gAgentCamera.cameraMouselook());
 }
 
 // Detach those tabs that were detached when the viewer exited last time.
@@ -1118,22 +1190,42 @@ void LLSideTray::reshape(S32 width, S32 height, BOOL called_from_parent)
  */
 LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& params)
 {
+	LLPanel* new_panel = NULL;
+
 	// Look up the tab in the list of detached tabs.
 	child_vector_const_iter_t child_it;
 	for ( child_it = mDetachedTabs.begin(); child_it != mDetachedTabs.end(); ++child_it)
 	{
-		LLPanel* panel = openChildPanel(*child_it, panel_name, params);
-		if (panel) return panel;
-			}
+		new_panel = openChildPanel(*child_it, panel_name, params);
+		if (new_panel) break;
+	}
 
 	// Look up the tab in the list of attached tabs.
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
-			{
-		LLPanel* panel = openChildPanel(*child_it, panel_name, params);
-		if (panel) return panel;
+	{
+		new_panel = openChildPanel(*child_it, panel_name, params);
+		if (new_panel) break;
 	}
-	return NULL;
+
+	return new_panel;
 }
+
+void LLSideTray::hidePanel(const std::string& panel_name)
+{
+	LLPanel* panelp = getPanel(panel_name);
+	if (panelp)
+	{
+		if(isTabAttached(panel_name))
+		{
+			collapseSideBar();
+		}
+		else
+		{
+			LLFloaterReg::hideInstance("side_bar_tab", panel_name);
+		}
+	}
+}
+
 
 void LLSideTray::togglePanel(LLPanel* &sub_panel, const std::string& panel_name, const LLSD& params)
 {
@@ -1224,12 +1316,68 @@ bool		LLSideTray::isPanelActive(const std::string& panel_name)
 	return (panel->getName() == panel_name);
 }
 
-void	LLSideTray::updateSidetrayVisibility()
+void LLSideTray::setTabDocked(const std::string& tab_name, bool dock)
 {
-	// set visibility of parent container based on collapsed state
-	if (getParent())
+	LLSideTrayTab* tab = getTab(tab_name);
+	if (!tab)
+	{	// not a docked tab, look through detached tabs
+		for(child_vector_iter_t tab_it = mDetachedTabs.begin(), tab_end_it = mDetachedTabs.end();
+			tab_it != tab_end_it;
+			++tab_it)
+		{
+			if ((*tab_it)->getName() == tab_name)
+			{
+				tab = *tab_it;
+				break;
+			}
+		}
+
+	}
+
+	if (tab)
 	{
-		getParent()->setVisible(!mCollapsed && !gAgentCamera.cameraMouselook());
+		bool tab_attached = isTabAttached(tab_name);
+		LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab_name);
+		if (!floater_tab) return;
+
+		if (dock && !tab_attached)
+		{
+			tab->dock(floater_tab);
+		}
+		else if (!dock && tab_attached)
+		{
+			tab->undock(floater_tab);
+		}
 	}
 }
 
+
+void	LLSideTray::updateSidetrayVisibility()
+{
+	// set visibility of parent container based on collapsed state
+	LLView* parent = getParent();
+	if (parent)
+	{
+		bool old_visibility = parent->getVisible();
+		bool new_visibility = !mCollapsed && !gAgentCamera.cameraMouselook();
+
+		if (old_visibility != new_visibility)
+		{
+			parent->setVisible(new_visibility);
+
+			// Signal change of visible width.
+			llinfos << "Visible: " << new_visibility << llendl;
+			mVisibleWidthChangeSignal(this, new_visibility);
+		}
+	}
+}
+
+S32 LLSideTray::getVisibleWidth()
+{
+	return (isInVisibleChain() && !mCollapsed) ? getRect().getWidth() : 0;
+}
+
+void LLSideTray::setVisibleWidthChangeCallback(const commit_signal_t::slot_type& cb)
+{
+	mVisibleWidthChangeSignal.connect(cb);
+}

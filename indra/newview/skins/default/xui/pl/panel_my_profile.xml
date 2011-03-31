@@ -5,31 +5,27 @@
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
+	<string name="name_text_args">
+		[NAME]
+	</string>
+	<string name="display_name_text_args">
+		[DISPLAY_NAME]
+	</string>
 	<layout_stack name="layout">
 		<layout_panel name="profile_stack">
 			<scroll_container name="profile_scroll">
 				<panel name="scroll_content_panel">
 					<panel name="second_life_image_panel">
-						<icon label="" name="2nd_life_edit_icon" tool_tip="Kliknij przycisk Edytuj profil by zmienić zdjęcie"/>
-						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+						<text name="display_name_descr_text">
+							Nazwa użytkownika
+						</text>
+						<text name="name_descr_text">
+							Wyświetlana nazwa
+						</text>
+						<button label="Profil" name="see_profile_btn" tool_tip="Zobacz profil tego awatara"/>
 					</panel>
-					<panel name="first_life_image_panel">
-						<icon label="" name="real_world_edit_icon" tool_tip="Kliknij przycisk Edytuj profil by zmienić zdjęcie"/>
-						<text name="title_rw_descr_text" value="Życie#1:"/>
-					</panel>
-					<text name="title_member_text" value="Urodziny:"/>
-					<text name="title_acc_status_text" value="Konto:"/>
-					<text name="title_partner_text" value="Partner:"/>
-					<panel name="partner_data_panel">
-						<name_box initial_value="(przetwarzanie)" name="partner_text"/>
-					</panel>
-					<text name="title_groups_text" value="Grupy:"/>
 				</panel>
 			</scroll_container>
-		</layout_panel>
-		<layout_panel name="profile_me_buttons_panel">
-			<button label="Edytuj profil" name="edit_profile_btn" tool_tip="Edytuj swoje dane"/>
-			<button label="Edytuj wygląd" name="edit_appearance_btn" tool_tip="Stwórz/edytuj swój wygląd: dane fizyczne, ubrania itp."/>
 		</layout_panel>
 	</layout_stack>
 </panel>

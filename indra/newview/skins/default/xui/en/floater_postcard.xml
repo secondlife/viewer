@@ -78,7 +78,7 @@
      height="20"
      layout="topleft"
      left_delta="108"
-     max_length="100"
+     max_length_bytes="100"
      name="name_form"
      top_delta="-4"
      width="150" />
@@ -99,7 +99,7 @@
      label="Type your subject here."
      layout="topleft"
      left_delta="108"
-     max_length="100"
+     max_length_bytes="100"
      name="subject_form"
      top_delta="-4"
      width="150" />

@@ -26,12 +26,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llfriendcard.h"
+
+#include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "lltrans.h"
-
-#include "llfriendcard.h"
 
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llviewerinventory.h"
@@ -91,6 +93,36 @@ const LLUUID& get_folder_uuid(const LLUUID& parentFolderUUID, LLInventoryCollect
 	}
 
 	return (cats_count >= 1) ? cats.get(0)->getUUID() : LLUUID::null;
+}
+
+/**
+ * Class LLFindAgentCallingCard
+ *
+ * An inventory collector functor for checking that agent's own calling card
+ * exists within the Calling Cards category and its sub-folders.
+ */
+class LLFindAgentCallingCard : public LLInventoryCollectFunctor
+{
+public:
+	LLFindAgentCallingCard() : mIsAgentCallingCardFound(false) {}
+	virtual ~LLFindAgentCallingCard() {}
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+	bool isAgentCallingCardFound() { return mIsAgentCallingCardFound; }
+
+private:
+	bool mIsAgentCallingCardFound;
+};
+
+bool LLFindAgentCallingCard::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if (mIsAgentCallingCardFound) return true;
+
+	if (item && item->getType() == LLAssetType::AT_CALLINGCARD && item->getCreatorUUID() == gAgentID)
+	{
+		mIsAgentCallingCardFound = true;
+	}
+
+	return mIsAgentCallingCardFound;
 }
 
 /**
@@ -289,58 +321,6 @@ void LLFriendCardsManager::syncFriendCardsFolders()
 			boost::bind(&LLFriendCardsManager::ensureFriendsFolderExists, this));
 }
 
-void LLFriendCardsManager::collectFriendsLists(folderid_buddies_map_t& folderBuddiesMap) const
-{
-	folderBuddiesMap.clear();
-
-	static bool syncronize_friends_folders = true;
-	if (syncronize_friends_folders)
-	{
-		// Checks whether "Friends" and "Friends/All" folders exist in "Calling Cards" folder,
-		// fetches their contents if needed and synchronizes it with buddies list.
-		// If the folders are not found they are created.
-		LLFriendCardsManager::instance().syncFriendCardsFolders();
-		syncronize_friends_folders = false;
-	}
-
-
-	LLInventoryModel::cat_array_t* listFolders;
-	LLInventoryModel::item_array_t* items;
-
-	// get folders in the Friend folder. Items should be NULL due to Cards should be in lists.
-	gInventory.getDirectDescendentsOf(findFriendFolderUUIDImpl(), listFolders, items);
-
-	if (NULL == listFolders)
-		return;
-
-	LLInventoryModel::cat_array_t::const_iterator itCats;	// to iterate Friend Lists (categories)
-	LLInventoryModel::item_array_t::const_iterator itBuddy;	// to iterate Buddies in each List
-	LLInventoryModel::cat_array_t* fakeCatsArg;
-	for (itCats = listFolders->begin(); itCats != listFolders->end(); ++itCats)
-	{
-		if (items)
-			items->clear();
-
-		// *HACK: Only Friends/All content will be shown for now
-		// *TODO: Remove this hack, implement sorting if it will be needded by spec.
-		if ((*itCats)->getUUID() != findFriendAllSubfolderUUIDImpl())
-			continue;
-
-		gInventory.getDirectDescendentsOf((*itCats)->getUUID(), fakeCatsArg, items);
-
-		if (NULL == items)
-			continue;
-
-		uuid_vec_t buddyUUIDs;
-		for (itBuddy = items->begin(); itBuddy != items->end(); ++itBuddy)
-		{
-			buddyUUIDs.push_back((*itBuddy)->getCreatorUUID());
-		}
-
-		folderBuddiesMap.insert(make_pair((*itCats)->getUUID(), buddyUUIDs));
-	}
-}
-
 
 /************************************************************************/
 /*		Private Methods                                                 */
@@ -498,21 +478,31 @@ void LLFriendCardsManager::syncFriendsFolder()
 	LLAvatarTracker::buddy_map_t all_buddies;
 	LLAvatarTracker::instance().copyBuddyList(all_buddies);
 
-	// 1. Remove Friend Cards for non-friends
+	// 1. Check if own calling card exists
+	const LLUUID calling_cards_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
+
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
+	LLFindAgentCallingCard collector;
+	gInventory.collectDescendentsIf(calling_cards_folder_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, collector);
 
-	gInventory.collectDescendents(findFriendAllSubfolderUUIDImpl(), cats, items, LLInventoryModel::EXCLUDE_TRASH);
-
-	LLInventoryModel::item_array_t::const_iterator it;
-	for (it = items.begin(); it != items.end(); ++it)
+	// Create own calling card if it was not found in Friends/All folder
+	if (!collector.isAgentCallingCardFound())
 	{
-		lldebugs << "Check if buddy is in list: " << (*it)->getName() << " " << (*it)->getCreatorUUID() << llendl;
-		if (NULL == get_ptr_in_map(all_buddies, (*it)->getCreatorUUID()))
-		{
-			lldebugs << "NONEXISTS, so remove it" << llendl;
-			removeFriendCardFromInventory((*it)->getCreatorUUID());
-		}
+		LLAvatarName av_name;
+		LLAvatarNameCache::get( gAgentID, &av_name );
+
+		create_inventory_item(gAgentID,
+							  gAgent.getSessionID(),
+							  calling_cards_folder_id,
+							  LLTransactionID::tnull,
+							  av_name.getCompleteName(),
+							  gAgentID.asString(),
+							  LLAssetType::AT_CALLINGCARD,
+							  LLInventoryType::IT_CALLINGCARD,
+							  NOT_WEARABLE,
+							  PERM_MOVE | PERM_TRANSFER,
+							  NULL);
 	}
 
 	// 2. Add missing Friend Cards for friends
@@ -541,8 +531,9 @@ void LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 {
 
 	bool shouldBeAdded = true;
-	std::string name;
-	gCacheName->getFullName(avatarID, name);
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(avatarID, &av_name);
+	const std::string& name = av_name.mUsername;
 
 	lldebugs << "Processing buddy name: " << name 
 		<< ", id: " << avatarID

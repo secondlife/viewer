@@ -44,6 +44,7 @@
      left="85"
      name="EnvDayCycle"
      top="30"
+     use_draw_context_alpha="false"
      width="200" />
     <slider
      control_name="EnvTimeSlider"

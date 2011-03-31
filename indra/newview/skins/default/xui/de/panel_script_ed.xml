@@ -15,11 +15,9 @@
 	<panel.string name="Title">
 		Skript: [NAME]
 	</panel.string>
-	<text_editor name="Script Editor">
-		Wird geladen...
-	</text_editor>
-	<button label="Speichern" label_selected="Speichern" name="Save_btn"/>
-	<combo_box label="Einfügen..." name="Insert..."/>
+	<panel.string name="external_editor_not_set">
+		Wählen Sie über die Umgebungsvariable „LL_SCRIPT_EDITOR“ oder die Einstellung „ExternalEditor“ einen Editor aus.
+	</panel.string>
 	<menu_bar name="script_menu">
 		<menu label="Datei" name="File">
 			<menu_item_call label="Speichern" name="Save"/>
@@ -40,4 +38,10 @@
 			<menu_item_call label="Schlüsselwort-Hilfe" name="Keyword Help..."/>
 		</menu>
 	</menu_bar>
+	<text_editor name="Script Editor">
+		Wird geladen...
+	</text_editor>
+	<combo_box label="Einfügen..." name="Insert..."/>
+	<button label="Speichern" label_selected="Speichern" name="Save_btn"/>
+	<button label="Bearbeiten..." name="Edit_btn"/>
 </panel>

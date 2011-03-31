@@ -95,6 +95,7 @@ BOOL gForceRenderLandFence = FALSE;
 BOOL gDisplaySwapBuffers = FALSE;
 BOOL gDepthDirty = FALSE;
 BOOL gResizeScreenTexture = FALSE;
+BOOL gWindowResized = FALSE;
 BOOL gSnapshot = FALSE;
 
 U32 gRecentFrameCount = 0; // number of 'recent' frames
@@ -218,6 +219,22 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLMemType mt_render(LLMemType::MTYPE_RENDER);
 	LLFastTimer t(FTM_RENDER);
 
+	if (gWindowResized)
+	{ //skip render on frames where window has been resized
+		gGL.flush();
+		glClear(GL_COLOR_BUFFER_BIT);
+		gViewerWindow->mWindow->swapBuffers();
+		gPipeline.resizeScreenTexture();
+		gResizeScreenTexture = FALSE;
+		gWindowResized = FALSE;
+		return;
+	}
+
+	if (LLPipeline::sRenderDeferred)
+	{ //hack to make sky show up in deferred snapshots
+		for_snapshot = FALSE;
+	}
+
 	if (LLPipeline::sRenderFrameTest)
 	{
 		send_agent_pause();
@@ -318,7 +335,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLImageGL::updateStats(gFrameTimeSeconds);
 	
 	LLVOAvatar::sRenderName = gSavedSettings.getS32("AvatarNameTagMode");
-	LLVOAvatar::sRenderGroupTitles = (gSavedSettings.getBOOL("RenderShowGroupTitleAll") && gSavedSettings.getS32("AvatarNameTagMode"));
+	LLVOAvatar::sRenderGroupTitles = (gSavedSettings.getBOOL("NameTagShowGroupTitles") && gSavedSettings.getS32("AvatarNameTagMode"));
 	
 	gPipeline.mBackfaceCull = TRUE;
 	gFrameCount++;
@@ -531,6 +548,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	gViewerWindow->setup3DViewport();
 
 	gPipeline.resetFrameStats();	// Reset per-frame statistics.
+	
 	if (!gDisconnected)
 	{
 		LLMemType mt_du(LLMemType::MTYPE_DISPLAY_UPDATE);
@@ -573,7 +591,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		S32 water_clip = 0;
 		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT) > 1) &&
-			 gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER))
+			 (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER) || 
+			  gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER)))
 		{
 			if (LLViewerCamera::getInstance()->cameraUnderWater())
 			{
@@ -628,8 +647,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLGLState::checkTextureChannels();
 		LLGLState::checkClientArrays();
 
-		BOOL to_texture = !for_snapshot &&
-						gPipeline.canUseVertexShaders() &&
+		BOOL to_texture = gPipeline.canUseVertexShaders() &&
 						LLPipeline::sRenderGlow;
 
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Swap");
@@ -690,7 +708,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		}
 
-		if (!for_snapshot)
+		//if (!for_snapshot)
 		{
 			LLMemType mt_gw(LLMemType::MTYPE_DISPLAY_GEN_REFLECTION);
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
@@ -706,7 +724,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//
 		// Doing this here gives hardware occlusion queries extra time to complete
 		LLAppViewer::instance()->pingMainloopTimeout("Display:UpdateImages");
-		LLError::LLCallStacks::clear() ;
 		
 		{
 			LLMemType mt_iu(LLMemType::MTYPE_DISPLAY_IMAGE_UPDATE);
@@ -1025,8 +1042,7 @@ LLRect get_whole_screen_region()
 		S32 tile_height = llround((F32)gViewerWindow->getWorldViewHeightScaled() / zoom_factor);
 		int tile_y = sub_region / num_horizontal_tiles;
 		int tile_x = sub_region - (tile_y * num_horizontal_tiles);
-		glh::matrix4f mat;
-		
+			
 		whole_screen.setLeftTopAndSize(tile_x * tile_width, gViewerWindow->getWorldViewHeightScaled() - (tile_y * tile_height), tile_width, tile_height);
 	}
 	return whole_screen;
@@ -1106,10 +1122,14 @@ void render_ui(F32 zoom_factor, int subfield)
 	LLMemType mt_ru(LLMemType::MTYPE_DISPLAY_RENDER_UI);
 	LLGLState::checkStates();
 	
-	glPushMatrix();
-	glLoadMatrixd(gGLLastModelView);
 	glh::matrix4f saved_view = glh_get_current_modelview();
-	glh_set_current_modelview(glh_copy_matrix(gGLLastModelView));
+
+	if (!gSnapshot)
+	{
+		glPushMatrix();
+		glLoadMatrixd(gGLLastModelView);
+		glh_set_current_modelview(glh_copy_matrix(gGLLastModelView));
+	}
 	
 	{
 		BOOL to_texture = gPipeline.canUseVertexShaders() &&
@@ -1160,8 +1180,11 @@ void render_ui(F32 zoom_factor, int subfield)
 		LLVertexBuffer::unbind();
 	}
 
-	glh_set_current_modelview(saved_view);
-	glPopMatrix();
+	if (!gSnapshot)
+	{
+		glh_set_current_modelview(saved_view);
+		glPopMatrix();
+	}
 
 	if (gDisplaySwapBuffers)
 	{
@@ -1303,7 +1326,7 @@ void render_ui_2d()
 	// render outline for HUD
 	if (isAgentAvatarValid() && gAgentCamera.mHUDCurZoom < 0.98f)
 	{
-		glPushMatrix();
+		gGL.pushMatrix();
 		S32 half_width = (gViewerWindow->getWorldViewWidthScaled() / 2);
 		S32 half_height = (gViewerWindow->getWorldViewHeightScaled() / 2);
 		glScalef(LLUI::sGLScaleFactor.mV[0], LLUI::sGLScaleFactor.mV[1], 1.f);
@@ -1312,7 +1335,7 @@ void render_ui_2d()
 		glScalef(zoom,zoom,1.f);
 		gGL.color4fv(LLColor4::white.mV);
 		gl_rect_2d(-half_width, half_height, half_width, -half_height, FALSE);
-		glPopMatrix();
+		gGL.popMatrix();
 		stop_glerror();
 	}
 	
@@ -1360,8 +1383,7 @@ void render_ui_2d()
 			gGL.setColorMask(true, false);
 
 			LLUI::sDirtyRect = t_rect;
-			
-	}
+		}
 
 		LLGLDisable cull(GL_CULL_FACE);
 		LLGLDisable blend(GL_BLEND);

@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="290"
+ height="310"
  layout="topleft"
  min_height="150"
  min_width="225"
@@ -84,16 +84,34 @@
      length="1"
      follows="left|right|bottom"
      font="SansSerif"
-     height="16"
+     height="15"
      layout="topleft"
      left_delta="0"
+	 line_spacing.pixels="7"
      name="buy_text"
      text_color="white"
      top_pad="5"
      use_ellipses="true"
-     width="260">
-        Buy for L$[AMOUNT] from [NAME]?
+     width="260"
+	 word_wrap="true">
+Buy for L$[AMOUNT] from:
     </text>
+  <text
+     type="string"
+     length="1"
+     follows="left|right|bottom"
+     font="SansSerif"
+     height="15"
+     layout="topleft"
+     left_delta="0"
+	 line_spacing.pixels="7"
+     name="buy_name_text"
+     text_color="white"
+     top_pad="5"
+     use_ellipses="true"
+     width="260">
+    [NAME]?
+  </text>
     <button
      follows="right|bottom"
      height="23"

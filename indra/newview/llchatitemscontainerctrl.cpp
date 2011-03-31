@@ -31,6 +31,7 @@
 
 #include "llchatmsgbox.h"
 #include "llavatariconctrl.h"
+#include "llcommandhandler.h"
 #include "llfloaterreg.h"
 #include "lllocalcliprect.h"
 #include "lltrans.h"
@@ -43,6 +44,40 @@
 static const S32 msg_left_offset = 10;
 static const S32 msg_right_offset = 10;
 static const S32 msg_height_pad = 5;
+
+//*******************************************************************************************************************
+// LLObjectHandler
+//*******************************************************************************************************************
+
+// handle secondlife:///app/object/<ID>/inspect SLURLs
+class LLObjectHandler : public LLCommandHandler
+{
+public:
+	LLObjectHandler() : LLCommandHandler("object", UNTRUSTED_BLOCK) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		if (params.size() < 2) return false;
+
+		LLUUID object_id;
+		if (!object_id.set(params[0], FALSE))
+		{
+			return false;
+		}
+
+		const std::string verb = params[1].asString();
+
+		if (verb == "inspect")
+		{
+			LLFloaterReg::showInstance("inspect_object", LLSD().with("object_id", object_id));
+			return true;
+		}
+
+		return false;
+	}
+};
+
+LLObjectHandler gObjectHandler;
 
 //*******************************************************************************************************************
 //LLNearbyChatToastPanel
@@ -173,23 +208,28 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 
 		str_sender+=" ";
 
-		//append user name
+		//append sender name
+		if (mSourceType == CHAT_SOURCE_AGENT || mSourceType == CHAT_SOURCE_OBJECT)
 		{
 			LLStyle::Params style_params_name;
 
-			LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatToastAgentNameColor");
-
-			style_params_name.color(userNameColor);
+			LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+			style_params_name.color(user_name_color);
 
 			std::string font_name = LLFontGL::nameFromFont(messageFont);
 			std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
 			style_params_name.font.name(font_name);
 			style_params_name.font.size(font_style_size);
 
-			style_params_name.link_href = LLSLURL("agent",mFromID,"about").getSLURLString();
+			style_params_name.link_href = notification["sender_slurl"].asString();
+			style_params_name.is_link = true;
 
 			msg_text->appendText(str_sender, FALSE, style_params_name);
 
+		}
+		else
+		{
+			msg_text->appendText(str_sender, false);
 		}
 	}
 

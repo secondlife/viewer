@@ -74,11 +74,13 @@ struct LLNotificationTemplate
 
 	struct UniquenessContext : public LLInitParam::Block<UniquenessContext>
 	{
-		Mandatory<std::string>	key;
+		Mandatory<std::string>	value;
 
 		UniquenessContext()
-		:	key("key")
-		{}
+		:	value("value")
+		{
+			addSynonym(value, "key");
+		}
 		
 	};
 
@@ -88,7 +90,7 @@ struct LLNotificationTemplate
 		// this idiom allows 
 		// <notification unique="true">
 		// as well as
-		// <notification> <unique> <context key=""/> </unique>...
+		// <notification> <unique> <context></context> </unique>...
 		Optional<bool>			dummy_val;
 	public:
 		Multiple<UniquenessContext>	contexts;
@@ -156,6 +158,15 @@ struct LLNotificationTemplate
 		{}
 	};
 
+	struct Tag : public LLInitParam::Block<Tag>
+	{
+		Mandatory<std::string>	value;
+
+		Tag()
+		:	value("value")
+		{}
+	};
+
 	struct Params : public LLInitParam::Block<Params>
 	{
 		Mandatory<std::string>			name;
@@ -173,6 +184,7 @@ struct LLNotificationTemplate
 		Optional<FormRef>				form_ref;
 		Optional<ENotificationPriority, 
 			NotificationPriorityValues> priority;
+		Multiple<Tag>		tags;
 
 
 		Params()
@@ -189,7 +201,8 @@ struct LLNotificationTemplate
 			expire_option("expireOption", -1),
 			url("url"),
 			unique("unique"),
-			form_ref("")
+			form_ref(""),
+			tags("tag")
 		{}
 
 	};
@@ -232,8 +245,8 @@ struct LLNotificationTemplate
     // (used for things like progress indications, or repeating warnings
     // like "the grid is going down in N minutes")
     bool mUnique;
-    // if we want to be unique only if a certain part of the payload is constant
-    // specify the field names for the payload. The notification will only be
+    // if we want to be unique only if a certain part of the payload or substitutions args
+	// are constant specify the field names for the payload. The notification will only be
     // combined if all of the fields named in the context are identical in the
     // new and the old notification; otherwise, the notification will be
     // duplicated. This is to support suppressing duplicate offers from the same
@@ -276,6 +289,8 @@ struct LLNotificationTemplate
 	// this is loaded as a name, but looked up to get the UUID upon template load.
 	// If null, it wasn't specified.
 	LLUUID mSoundEffect;
+	// List of tags that rules can match against.
+	std::list<std::string> mTags;
 };
 
 #endif //LL_LLNOTIFICATION_TEMPLATE_H

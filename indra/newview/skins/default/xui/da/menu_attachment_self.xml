@@ -3,6 +3,7 @@
 	<menu_item_call label="Berør" name="Attachment Object Touch"/>
 	<menu_item_call label="Redigér" name="Edit..."/>
 	<menu_item_call label="Tag af" name="Detach"/>
+	<menu_item_call label="Sid ned" name="Sit Down Here"/>
 	<menu_item_call label="Stå op" name="Stand Up"/>
 	<menu_item_call label="Skift sæt" name="Change Outfit"/>
 	<menu_item_call label="Redigér mit sæt" name="Edit Outfit"/>

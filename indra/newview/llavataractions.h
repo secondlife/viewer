@@ -93,6 +93,8 @@ public:
 	 * Show avatar profile.
 	 */
 	static void showProfile(const LLUUID& id);
+	static void hideProfile(const LLUUID& id);
+	static bool profileVisible(const LLUUID& id);
 
 	/**
 	 * Show avatar on world map.
@@ -195,7 +197,6 @@ public:
 	static bool canShareSelectedItems(LLInventoryPanel* inv_panel = NULL);
 
 private:
-	static bool callbackAddFriend(const LLSD& notification, const LLSD& response);
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
 	static bool handleRemove(const LLSD& notification, const LLSD& response);
 	static bool handlePay(const LLSD& notification, const LLSD& response, LLUUID avatar_id);

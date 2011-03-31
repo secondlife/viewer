@@ -112,9 +112,8 @@ LLMute::LLMute(const LLUUID& id, const std::string& name, EType type, U32 flags)
 		LLNameValue* lastname = mute_object->getNVPair("LastName");
 		if (firstname && lastname)
 		{
-			mName.assign( firstname->getString() );
-			mName.append(" ");
-			mName.append( lastname->getString() );
+			mName = LLCacheName::buildFullName(
+				firstname->getString(), lastname->getString());
 		}
 		mType = mute_object->isAvatar() ? AGENT : OBJECT;
 	}
@@ -374,17 +373,19 @@ BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
 		// Must be after erase.
 		setLoaded();  // why is this here? -MG
 	}
-
-	// Clean up any legacy mutes
-	string_set_t::iterator legacy_it = mLegacyMutes.find(mute.mName);
-	if (legacy_it != mLegacyMutes.end())
+	else
 	{
-		// Database representation of legacy mute is UUID null.
-		LLMute mute(LLUUID::null, *legacy_it, LLMute::BY_NAME);
-		updateRemove(mute);
-		mLegacyMutes.erase(legacy_it);
-		// Must be after erase.
-		setLoaded(); // why is this here? -MG
+		// Clean up any legacy mutes
+		string_set_t::iterator legacy_it = mLegacyMutes.find(mute.mName);
+		if (legacy_it != mLegacyMutes.end())
+		{
+			// Database representation of legacy mute is UUID null.
+			LLMute mute(LLUUID::null, *legacy_it, LLMute::BY_NAME);
+			updateRemove(mute);
+			mLegacyMutes.erase(legacy_it);
+			// Must be after erase.
+			setLoaded(); // why is this here? -MG
+		}
 	}
 	
 	return found;
@@ -410,7 +411,7 @@ void LLMuteList::updateRemove(const LLMute& mute)
 	gAgent.sendReliableMessage();
 }
 
-void notify_automute_callback(const LLUUID& agent_id, const std::string& first_name, const std::string& last_name, BOOL is_group, LLMuteList::EAutoReason reason)
+void notify_automute_callback(const LLUUID& agent_id, const std::string& full_name, bool is_group, LLMuteList::EAutoReason reason)
 {
 	std::string notif_name;
 	switch (reason)
@@ -428,8 +429,7 @@ void notify_automute_callback(const LLUUID& agent_id, const std::string& first_n
 	}
 
 	LLSD args;
-	args["FIRST"] = first_name;
-	args["LAST"] = last_name;
+	args["NAME"] = full_name;
     
 	LLNotificationPtr notif_ptr = LLNotifications::instance().add(notif_name, args, LLSD());
 	if (notif_ptr)
@@ -444,7 +444,7 @@ void notify_automute_callback(const LLUUID& agent_id, const std::string& first_n
 }
 
 
-BOOL LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason, const std::string& first_name, const std::string& last_name)
+BOOL LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason)
 {
 	BOOL removed = FALSE;
 
@@ -454,24 +454,17 @@ BOOL LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason, co
 		removed = TRUE;
 		remove(automute);
 
-		if (first_name.empty() && last_name.empty())
-		{
-			std::string cache_first, cache_last;
-			if (gCacheName->getName(agent_id, cache_first, cache_last))
+		std::string full_name;
+		if (gCacheName->getFullName(agent_id, full_name))
 			{
 				// name in cache, call callback directly
-				notify_automute_callback(agent_id, cache_first, cache_last, FALSE, reason);
+			notify_automute_callback(agent_id, full_name, false, reason);
 			}
 			else
 			{
 				// not in cache, lookup name from cache
-				gCacheName->get(agent_id, FALSE, boost::bind(&notify_automute_callback, _1, _2, _3, _4, reason));
-			}
-		}
-		else
-		{
-			// call callback directly
-			notify_automute_callback(agent_id, first_name, last_name, FALSE, reason);
+			gCacheName->get(agent_id, false,
+				boost::bind(&notify_automute_callback, _1, _2, _3, reason));
 		}
 	}
 
@@ -616,7 +609,8 @@ BOOL LLMuteList::isMuted(const LLUUID& id, const std::string& name, U32 flags) c
 	}
 
 	// empty names can't be legacy-muted
-	if (name.empty()) return FALSE;
+	bool avatar = mute_object && mute_object->isAvatar();
+	if (name.empty() || avatar) return FALSE;
 
 	// Look in legacy pile
 	string_set_t::const_iterator legacy_it = mLegacyMutes.find(name);

@@ -143,6 +143,9 @@ public:
 	static void setupParamsForExport(Params& p, LLView* parent);
 	bool buildFromFile(const std::string &filename, LLXMLNodePtr output_node = NULL);
 
+	boost::signals2::connection setMinimizeCallback( const commit_signal_t::slot_type& cb );
+	boost::signals2::connection setCloseCallback( const commit_signal_t::slot_type& cb );
+
 	void initFromParams(const LLFloater::Params& p);
 	bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = NULL);
 
@@ -282,6 +285,8 @@ public:
 
 	static void		setFloaterHost(LLMultiFloater* hostp) {sHostp = hostp; }
 	static LLMultiFloater* getFloaterHost() {return sHostp; }
+
+	void			updateTransparency(ETypeTransparency transparency_type);
 		
 protected:
 
@@ -339,6 +344,10 @@ private:
 	void 			addDragHandle();
 	void			layoutDragHandle();		// repair layout
 
+	static void		updateActiveFloaterTransparency();
+	static void		updateInactiveFloaterTransparency();
+	void			updateTransparency(LLView* view, ETypeTransparency transparency_type);
+
 public:
 	// Called when floater is opened, passes mKey
 	// Public so external views or floaters can watch for this floater opening
@@ -347,6 +356,8 @@ public:
 	// Called when floater is closed, passes app_qitting as LLSD()
 	// Public so external views or floaters can watch for this floater closing
 	commit_signal_t mCloseSignal;		
+
+	commit_signal_t* mMinimizeSignal;
 
 protected:
 	std::string		mRectControl;
@@ -485,10 +496,10 @@ public:
 	// value is not defined.
 	S32 getZOrder(LLFloater* child);
 
-	void setSnapOffsetBottom(S32 offset) { mSnapOffsetBottom = offset; }
-	void setSnapOffsetRight(S32 offset) { mSnapOffsetRight = offset; }
+	void setFloaterSnapView(LLHandle<LLView> snap_view) {mSnapView = snap_view; }
 
 private:
+	LLHandle<LLView>	mSnapView;
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
 	S32				mSnapOffsetRight;

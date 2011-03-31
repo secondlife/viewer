@@ -94,8 +94,6 @@ public:
 
 	/*virtual*/ bool isActionEnabled(const LLSD& userdata);
 
-	/*virtual*/ void showGearMenu(LLView* spawning_view);
-
 	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
 
 	/*virtual*/ void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
@@ -111,6 +109,8 @@ public:
 	bool hasItemSelected();
 
 private:
+
+	void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);
 
 	/**
 	 * Wrapper for LLCommonUtils::computeDifference. @see LLCommonUtils::computeDifference

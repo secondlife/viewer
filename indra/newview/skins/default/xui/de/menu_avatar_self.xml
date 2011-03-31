@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Self Pie">
+	<menu_item_call label="Hinsetzen" name="Sit Down Here"/>
 	<menu_item_call label="Aufstehen" name="Stand Up"/>
 	<context_menu label="Ausziehen" name="Take Off &gt;">
 		<context_menu label="Kleidung" name="Clothes &gt;">
@@ -20,7 +21,7 @@
 		<context_menu label="Abnehmen" name="Object Detach"/>
 		<menu_item_call label="Alles abnehmen" name="Detach All"/>
 	</context_menu>
-	<menu_item_call label="Outfit ändern" name="Chenge Outfit"/>
+	<menu_item_call label="Mein Aussehen" name="Chenge Outfit"/>
 	<menu_item_call label="Mein Outfit bearbeiten" name="Edit Outfit"/>
 	<menu_item_call label="Meine Form bearbeiten" name="Edit My Shape"/>
 	<menu_item_call label="Meine Freunde" name="Friends..."/>

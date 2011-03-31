@@ -28,6 +28,10 @@
      name="Title">
         Script: [NAME]
     </panel.string>
+    <panel.string
+     name="external_editor_not_set">
+        Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.
+    </panel.string>
     <menu_bar
      bg_visible="false"
      follows="left|top"
@@ -141,6 +145,7 @@
      layout="topleft"
      max_length="65536"
      name="Script Editor"
+     text_readonly_color="DkGray"
      width="487"
      show_line_numbers="true" 
      word_wrap="true">
@@ -177,5 +182,15 @@
      top_pad="-35"
      right="487"
      name="Save_btn"
+     width="81" />
+    <button
+     enabled="false"
+     follows="right|bottom"
+     height="23"
+     label="Edit..."
+     layout="topleft"
+     top_pad="-23"
+     right="400"
+     name="Edit_btn"
      width="81" />
 </panel>

@@ -26,10 +26,12 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llchathistory.h"
+
+#include "llavatarnamecache.h"
 #include "llinstantmessage.h"
 
 #include "llimview.h"
-#include "llchathistory.h"
 #include "llcommandhandler.h"
 #include "llpanel.h"
 #include "lluictrlfactory.h"
@@ -52,7 +54,9 @@
 #include "llviewertexteditor.h"
 #include "llworld.h"
 #include "lluiconstants.h"
+#include "llstring.h"
 
+#include "llviewercontrol.h"
 
 #include "llsidetray.h"//for blocked objects panel
 
@@ -98,6 +102,18 @@ LLObjectIMHandler gObjectIMHandler;
 class LLChatHistoryHeader: public LLPanel
 {
 public:
+	LLChatHistoryHeader()
+	:	LLPanel(),
+		mPopupMenuHandleAvatar(),
+		mPopupMenuHandleObject(),
+		mAvatarID(),
+		mSourceType(CHAT_SOURCE_UNKNOWN),
+		mFrom(),
+		mSessionID(),
+		mMinUserNameWidth(0),
+		mUserNameFont(NULL)
+	{}
+
 	static LLChatHistoryHeader* createInstance(const std::string& file_name)
 	{
 		LLChatHistoryHeader* pInstance = new LLChatHistoryHeader;
@@ -122,10 +138,7 @@ public:
 
 		if (level == "profile")
 		{
-			LLSD params;
-			params["object_id"] = getAvatarId();
-
-			LLFloaterReg::showInstance("inspect_object", params);
+			LLFloaterReg::showInstance("inspect_remote_object", mObjectData);
 		}
 		else if (level == "block")
 		{
@@ -213,7 +226,7 @@ public:
 		
 		if (mSourceType == CHAT_SOURCE_OBJECT)
 		{
-			LLFloaterReg::showInstance("inspect_object", LLSD().with("object_id", mAvatarID));
+			LLFloaterReg::showInstance("inspect_remote_object", mObjectData);
 		}
 		else if (mSourceType == CHAT_SOURCE_AGENT)
 		{
@@ -235,40 +248,92 @@ public:
 
 	const LLUUID&		getAvatarId () const { return mAvatarID;}
 
-	void setup(const LLChat& chat,const LLStyle::Params& style_params) 
+	void setup(const LLChat& chat, const LLStyle::Params& style_params, const LLSD& args)
 	{
 		mAvatarID = chat.mFromID;
 		mSessionID = chat.mSessionID;
 		mSourceType = chat.mSourceType;
-		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
 
 		//*TODO overly defensive thing, source type should be maintained out there
 		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM && chat.mFromID.isNull())
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
-		}
+		}  
 
-		LLTextBox* userName = getChild<LLTextBox>("user_name");
+		mUserNameFont = style_params.font();
+		LLTextBox* user_name = getChild<LLTextBox>("user_name");
+		user_name->setReadOnlyColor(style_params.readonly_color());
+		user_name->setColor(style_params.color());
 
-		userName->setReadOnlyColor(style_params.readonly_color());
-		userName->setColor(style_params.color());
-		
-		userName->setValue(chat.mFromName);
-		mFrom = chat.mFromName;
-		if (chat.mFromName.empty() || CHAT_SOURCE_SYSTEM == mSourceType)
+		if (chat.mFromName.empty()
+			|| mSourceType == CHAT_SOURCE_SYSTEM)
 		{
 			mFrom = LLTrans::getString("SECOND_LIFE");
-			userName->setValue(mFrom);
+			user_name->setValue(mFrom);
+			updateMinUserNameWidth();
+		}
+		else if (mSourceType == CHAT_SOURCE_AGENT
+				 && !mAvatarID.isNull()
+				 && chat.mChatStyle != CHAT_STYLE_HISTORY)
+		{
+			// ...from a normal user, lookup the name and fill in later.
+			// *NOTE: Do not do this for chat history logs, otherwise the viewer
+			// will flood the People API with lookup requests on startup
+
+			// Start with blank so sample data from XUI XML doesn't
+			// flash on the screen
+			user_name->setValue( LLSD() );
+			LLAvatarNameCache::get(mAvatarID,
+				boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
+		}
+		else if (chat.mChatStyle == CHAT_STYLE_HISTORY ||
+				 mSourceType == CHAT_SOURCE_AGENT)
+		{
+			//if it's an avatar name with a username add formatting
+			S32 username_start = chat.mFromName.rfind(" (");
+			S32 username_end = chat.mFromName.rfind(')');
+			
+			if (username_start != std::string::npos &&
+				username_end == (chat.mFromName.length() - 1))
+			{
+				mFrom = chat.mFromName.substr(0, username_start);
+				user_name->setValue(mFrom);
+
+				if (gSavedSettings.getBOOL("NameTagShowUsernames"))
+				{
+					std::string username = chat.mFromName.substr(username_start + 2);
+					username = username.substr(0, username.length() - 1);
+					LLStyle::Params style_params_name;
+					LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
+					style_params_name.color(userNameColor);
+					style_params_name.font.name("SansSerifSmall");
+					style_params_name.font.style("NORMAL");
+					style_params_name.readonly_color(userNameColor);
+					user_name->appendText("  - " + username, FALSE, style_params_name);
+				}
+			}
+			else
+			{
+				mFrom = chat.mFromName;
+				user_name->setValue(mFrom);
+				updateMinUserNameWidth();
+			}
+		}
+		else
+		{
+			// ...from an object, just use name as given
+			mFrom = chat.mFromName;
+			user_name->setValue(mFrom);
+			updateMinUserNameWidth();
 		}
 
 
-		mMinUserNameWidth = style_params.font()->getWidth(userName->getWText().c_str()) + PADDING;
-
 		setTimeField(chat);
-		
+
+		// Set up the icon.
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
-		if(mSourceType != CHAT_SOURCE_AGENT)
+		if(mSourceType != CHAT_SOURCE_AGENT ||	mAvatarID.isNull())
 			icon->setDrawTooltip(false);
 
 		switch (mSourceType)
@@ -284,6 +349,30 @@ public:
 				break;
 			case CHAT_SOURCE_UNKNOWN: 
 				icon->setValue(LLSD("Unknown_Icon"));
+		}
+
+		// In case the message came from an object, save the object info
+		// to be able properly show its profile.
+		if ( chat.mSourceType == CHAT_SOURCE_OBJECT)
+		{
+			std::string slurl = args["slurl"].asString();
+			if (slurl.empty())
+			{
+				LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
+				if(region)
+				{
+					LLSLURL region_slurl(region->getName(), chat.mPosAgent);
+					slurl = region_slurl.getLocationString();
+				}
+			}
+
+			LLSD payload;
+			payload["object_id"]	= chat.mFromID;
+			payload["name"]			= chat.mFromName;
+			payload["owner_id"]		= chat.mOwnerID;
+			payload["slurl"]		= LLWeb::escapeURL(slurl);
+
+			mObjectData = payload;
 		}
 	}
 
@@ -317,12 +406,41 @@ public:
 		LLPanel::draw();
 	}
 
-	void nameUpdatedCallback(const LLUUID& id,const std::string& first,const std::string& last,BOOL is_group)
+	void updateMinUserNameWidth()
 	{
-		if (id != mAvatarID)
-			return;
-		mFrom = first + " " + last;
+		if (mUserNameFont)
+		{
+			LLTextBox* user_name = getChild<LLTextBox>("user_name");
+			const LLWString& text = user_name->getWText();
+			mMinUserNameWidth = mUserNameFont->getWidth(text.c_str()) + PADDING;
+		}
 	}
+
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
+	{
+		mFrom = av_name.mDisplayName;
+
+		LLTextBox* user_name = getChild<LLTextBox>("user_name");
+		user_name->setValue( LLSD(av_name.mDisplayName ) );
+		user_name->setToolTip( av_name.mUsername );
+
+		if (gSavedSettings.getBOOL("NameTagShowUsernames") && 
+			LLAvatarNameCache::useDisplayNames() &&
+			!av_name.mIsDisplayNameDefault)
+		{
+			LLStyle::Params style_params_name;
+			LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
+			style_params_name.color(userNameColor);
+			style_params_name.font.name("SansSerifSmall");
+			style_params_name.font.style("NORMAL");
+			style_params_name.readonly_color(userNameColor);
+			user_name->appendText("  - " + av_name.mUsername, FALSE, style_params_name);
+		}
+		setToolTip( av_name.mUsername );
+		// name might have changed, update width
+		updateMinUserNameWidth();
+	}
+
 protected:
 	static const S32 PADDING = 20;
 
@@ -444,11 +562,13 @@ protected:
 	static LLUICtrl*	sInfoCtrl;
 
 	LLUUID			    mAvatarID;
+	LLSD				mObjectData;
 	EChatSourceType		mSourceType;
 	std::string			mFrom;
 	LLUUID				mSessionID;
 
 	S32					mMinUserNameWidth;
+	const LLFontGL*		mUserNameFont;
 };
 
 LLUICtrl* LLChatHistoryHeader::sInfoCtrl = NULL;
@@ -489,7 +609,7 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 	LLLayoutStack::Params layout_p;
 	layout_p.rect = stack_rect;
 	layout_p.follows.flags = FOLLOWS_ALL;
-	layout_p.orientation = "vertical";
+	layout_p.orientation = LLLayoutStack::VERTICAL;
 	layout_p.mouse_opaque = false;
 	
 	LLLayoutStack* stackp = LLUICtrlFactory::create<LLLayoutStack>(layout_p, this);
@@ -552,10 +672,10 @@ LLView* LLChatHistory::getSeparator()
 	return separator;
 }
 
-LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style_params)
+LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style_params, const LLSD& args)
 {
 	LLChatHistoryHeader* header = LLChatHistoryHeader::createInstance(mMessageHeaderFilename);
-	header->setup(chat,style_params);
+	header->setup(chat, style_params, args);
 	return header;
 }
 
@@ -673,41 +793,31 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			if ( chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
 			{
 				// for object IMs, create a secondlife:///app/objectim SLapp
-				std::string url = LLSLURL("objectim", chat.mFromID, "").getSLURLString();
-				url += "?name=" + chat.mFromName;
-				url += "&owner=" + chat.mOwnerID.asString();
-
-				std::string slurl = args["slurl"].asString();
-				if (slurl.empty())
-				{
-				    LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
-				    if(region)
-				      {
-					LLSLURL region_slurl(region->getName(), chat.mPosAgent);
-					slurl = region_slurl.getLocationString();
-				      }
-				}
-				url += "&slurl=" + LLURI::escape(slurl);
+				std::string url = LLViewerChat::getSenderSLURL(chat, args);
 
 				// set the link for the object name to be the objectim SLapp
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(style_params);
-				link_params.color.control = "HTMLLinkColor";
+				LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+				link_params.color = link_color;
+				link_params.readonly_color = link_color;
+				link_params.is_link = true;
 				link_params.link_href = url;
-				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>"  + delimiter,
+
+				mEditor->appendText(chat.mFromName + delimiter,
 									false, link_params);
 			}
 			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
 				LLStyle::Params link_params(style_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+
 				// Add link to avatar's inspector and delimiter to message.
-				mEditor->appendText(link_params.link_href, false, style_params);
-				mEditor->appendText(delimiter, false, style_params);
+				mEditor->appendText(std::string(link_params.link_href) + delimiter, false, link_params);
 			}
 			else
 			{
-				mEditor->appendText(chat.mFromName + delimiter, false, style_params);
+				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>" + delimiter, false, style_params);
 			}
 		}
 	}
@@ -733,7 +843,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		}
 		else
 		{
-			view = getHeader(chat, style_params);
+			view = getHeader(chat, style_params, args);
 			if (mEditor->getText().size() == 0)
 				p.top_pad = 0;
 			else
@@ -798,30 +908,13 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				}
 			}
 
-			LLTextEditor* text_editor = notify_box->getChild<LLTextEditor>("text_editor_box", TRUE);
-			S32 text_heigth = 0;
-			if(text_editor != NULL)
-			{
-				text_heigth = text_editor->getTextBoundingRect().getHeight();
-			}
-
 			//Prepare the rect for the view
 			LLRect target_rect = mEditor->getDocumentView()->getRect();
 			// squeeze down the widget by subtracting padding off left and right
 			target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
 			target_rect.mRight -= mRightWidgetPad;
-			notify_box->reshape(target_rect.getWidth(),
-					notify_box->getRect().getHeight());
+			notify_box->reshape(target_rect.getWidth(),	notify_box->getRect().getHeight());
 			notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
-
-			if (text_editor != NULL)
-			{
-				S32 text_heigth_delta =
-						text_editor->getTextBoundingRect().getHeight()
-								- text_heigth;
-				notify_box->reshape(target_rect.getWidth(),
-								notify_box->getRect().getHeight() + text_heigth_delta);
-			}
 
 			LLInlineViewSegment::Params params;
 			params.view = notify_box;

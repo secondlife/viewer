@@ -34,6 +34,7 @@
 #define LL_LLFLOATERPREFERENCE_H
 
 #include "llfloater.h"
+#include "llavatarpropertiesprocessor.h"
 
 class LLPanelPreference;
 class LLPanelLCD;
@@ -55,7 +56,7 @@ typedef enum
 
 
 // Floater to control preferences (display, audio, bandwidth, general.
-class LLFloaterPreference : public LLFloater
+class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver
 {
 public: 
 	LLFloaterPreference(const LLSD& key);
@@ -77,12 +78,19 @@ public:
 	// translate user's busy response message according to current locale if message is default, otherwise do nothing
 	static void initBusyResponse();
 
+	void processProperties( void* pData, EAvatarProcessorType type );
+	void processProfileProperties(const LLAvatarData* pAvatarData );
+	void storeAvatarProperties( const LLAvatarData* pAvatarData );
+	void saveAvatarProperties( void );
+
 protected:	
 	void		onBtnOK();
 	void		onBtnCancel();
 	void		onBtnApply();
 
 	void		onClickBrowserClearCache();
+	void		onLanguageChange();
+	void		onNameTagOpacityChange(const LLSD& newvalue);
 
 	// set value of "BusyResponseChanged" in account settings depending on whether busy response
 	// string differs from default after user changes.
@@ -95,6 +103,14 @@ protected:
 	void setHardwareDefaults();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
+	// callback for changing double click action checkbox
+	void onDoubleClickCheckBox(LLUICtrl* ctrl);
+	// callback for selecting double click action radio-button
+	void onDoubleClickRadio();
+	// updates double-click action settings depending on controls from preferences
+	void updateDoubleClickSettings();
+	// updates double-click action controls depending on values from settings.xml
+	void updateDoubleClickControls();
 	
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.	
@@ -143,13 +159,23 @@ public:
 	
 	void buildPopupLists();
 	static void refreshSkin(void* data);
+	// Remove record of current user's favorites from file on disk.
+	void removeFavoritesRecordOfUser();
 private:
 	static std::string sSkin;
+	// set true if state of double-click action checkbox or radio-group was changed by user
+	// (reset back to false on apply or cancel)
+	bool mDoubleClickActionDirty;
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
+	bool mLanguageChanged;
 	
 	bool mOriginalHideOnlineStatus;
+	// Record of current user's favorites may be stored in file on disk.
+	bool mFavoritesRecordMayExist;
 	std::string mDirectoryVisibility;
+	
+	LLAvatarData mAvatarProperties;
 };
 
 class LLPanelPreference : public LLPanel
@@ -163,6 +189,10 @@ public:
 	void setControlFalse(const LLSD& user_data);
 	virtual void setHardwareDefaults(){};
 
+	// Disables "Allow Media to auto play" check box only when both
+	// "Streaming Music" and "Media" are unchecked. Otherwise enables it.
+	void updateMediaAutoPlayCheckbox(LLUICtrl* ctrl);
+
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.
 	virtual void saveSettings();
@@ -170,6 +200,8 @@ public:
 private:
 	//for "Only friends and groups can call or IM me"
 	static void showFriendsOnlyWarning(LLUICtrl*, const LLSD&);
+	//for "Show my Favorite Landmarks at Login"
+	static void showFavoritesOnLoginWarning(LLUICtrl* checkbox, const LLSD& value);
 
 	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
 	control_values_map_t mSavedValues;

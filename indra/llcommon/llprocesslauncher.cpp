@@ -58,6 +58,11 @@ void LLProcessLauncher::setWorkingDirectory(const std::string &dir)
 	mWorkingDir = dir;
 }
 
+const std::string& LLProcessLauncher::getExecutable() const
+{
+	return mExecutable;
+}
+
 void LLProcessLauncher::clearArguments()
 {
 	mLaunchArguments.clear();
@@ -98,10 +103,30 @@ int LLProcessLauncher::launch(void)
 	char *args2 = new char[args.size() + 1];
 	strcpy(args2, args.c_str());
 
-	if( ! CreateProcessA( NULL, args2, NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo ) )
+	const char * working_directory = 0;
+	if(!mWorkingDir.empty()) working_directory = mWorkingDir.c_str();
+	if( ! CreateProcessA( NULL, args2, NULL, NULL, FALSE, 0, NULL, working_directory, &sinfo, &pinfo ) )
 	{
-		// TODO: do better than returning the OS-specific error code on failure...
 		result = GetLastError();
+
+		LPTSTR error_str = 0;
+		if(
+			FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+				NULL,
+				result,
+				0,
+				(LPTSTR)&error_str,
+				0,
+				NULL) 
+			!= 0) 
+		{
+			char message[256];
+			wcstombs(message, error_str, 256);
+			message[255] = 0;
+			llwarns << "CreateProcessA failed: " << message << llendl;
+			LocalFree(error_str);
+		}
+
 		if(result == 0)
 		{
 			// Make absolutely certain we return a non-zero value on failure.
@@ -260,14 +285,7 @@ int LLProcessLauncher::launch(void)
 	delete[] fake_argv;
 	
 	mProcessID = id;
-	
-	// At this point, the child process will have been created (since that's how vfork works -- the child borrowed our execution context until it forked)
-	// If the process doesn't exist at this point, the exec failed.
-	if(!isRunning())
-	{
-		result = -1;
-	}
-	
+
 	return result;
 }
 

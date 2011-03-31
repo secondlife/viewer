@@ -22,6 +22,10 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="data_panel">
+				<text name="display_name_label" value="Wyświetlana nazwa:"/>
+				<text name="solo_username_label" value="Nazwa użytkownika:"/>
+				<button name="set_name" tool_tip="Ustaw wyświetlanią nazwę."/>
+				<text name="user_label" value="Nazwa użytkownika:"/>
 				<panel name="lifes_images_panel">
 					<icon label="" name="2nd_life_edit_icon" tool_tip="Kliknij aby wybrać teksturę"/>
 				</panel>
@@ -34,18 +38,24 @@
 				</text>
 				<check_box label="Pokaż w wyszukiwarce" name="show_in_search_checkbox"/>
 				<text name="title_acc_status_text" value="Moje konto:"/>
+				<text_editor name="acc_status_text" value="Rezydent. Brak danych konta."/>
 				<text name="my_account_link" value="[[URL] idź do dashboard]"/>
-				<text name="acc_status_text" value="Rezydent. Brak danych konta."/>
 				<text name="title_partner_text" value="Partner:"/>
-				<text name="partner_edit_link" value="[[URL] Edytuj]"/>
 				<panel name="partner_data_panel">
-					<text initial_value="(wyszukiwanie)" name="partner_text" value="[FIRST] [LAST]"/>
+					<text initial_value="(wyszukiwanie)" name="partner_text"/>
 				</panel>
+				<text name="partner_edit_link" value="[[URL] Edytuj]"/>
 			</panel>
 		</panel>
 	</scroll_container>
 	<panel name="profile_me_buttons_panel">
-		<button label="Zapisz zmiany" name="save_btn"/>
-		<button label="Anuluj" name="cancel_btn"/>
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_changes_btn_lp">
+				<button label="Zapisz zmiany" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Cofnij" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
 	</panel>
 </panel>

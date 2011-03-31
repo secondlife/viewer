@@ -77,6 +77,7 @@ width="333">
       font="SansSerifLargeBold"
       height="20"
       left="35"
+      parse_urls="false"
       text_color="White"
       top="15"
       use_ellipses="true"

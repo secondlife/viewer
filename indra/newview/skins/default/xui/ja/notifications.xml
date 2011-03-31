@@ -1861,6 +1861,10 @@ Adult 専用リージョンに入るには、住人のアカウントが年齢�
 		終了しようとしています。続けますか？
 		<usetemplate ignoretext="終了時の確認" name="okcancelignore" notext="終了しない" yestext="終了"/>
 	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="アイテムを削除する前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		このツールを利用して [http://secondlife.com/corporate/tos.php 利用規約] や [http://jp.secondlife.com/corporate/cs.php コミュニティスタンダード] の違反を報告してください。
 
@@ -2078,10 +2082,10 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		件名： [SUBJECT]、メッセージ： [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[FIRST] [LAST] はオンラインです
+		[NAME] はオンラインです
 	</notification>
 	<notification name="FriendOffline">
-		[FIRST] [LAST] はオフラインです
+		[NAME] はオフラインです
 	</notification>
 	<notification name="AddSelfFriend">
 		残念ながら自分自身をフレンド登録することはできません。
@@ -2148,9 +2152,6 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="CannotRemoveProtectedCategories">
 		保護されたカテゴリは削除できません。
-	</notification>
-	<notification name="OfferedCard">
-		[FIRST] [LAST] にコーリングカードを送りました。
 	</notification>
 	<notification name="UnableToBuyWhileDownloading">
 		オブジェクトデータのダウンロード中は購入できません。
@@ -2231,8 +2232,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Teleport" text="テレポート"/>
-			<button name="Description" text="説明"/>
+			<button name="Details" text="説明"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>
@@ -2270,7 +2270,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="OtherObjectsReturned">
 		選択した土地の区画上にあった
- [FIRST] [LAST]
+ [NAME]
  が所有するオブジェクトは、すべて所有者の「持ち物」に返却されました。
 	</notification>
 	<notification name="OtherObjectsReturned2">
@@ -2485,7 +2485,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		フレンドの登録依頼が拒否されました。
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] がコーリングカードを渡そうとしています。
+		[NAME] がコーリングカードを渡そうとしています。
 あなたの「持ち物」にブックマークが追加され、この住人に素早く IM を送ることができます。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
@@ -2545,7 +2545,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
-		[FIRST] [LAST] の「 [TITLE] 」
+		[NAME] の「 &lt;nolink&gt;[TITLE]&lt;/nolink&gt; 」
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="無視する"/>
@@ -2589,13 +2589,13 @@ M キーを押して変更します。
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		[FIRST] [LAST] はインスタントメッセージを受け取り、自動的にブロックが解除されました。
+		[NAME] はインスタントメッセージを受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		[FIRST] [LAST] はお金を受け取り、自動的にブロックが解除されました。
+		[NAME] はお金を受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[FIRST] [LAST] はアイテムを受け取り、自動的にブロックが解除されました。
+		[NAME] はアイテムを受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] は [GROUP] のボイスチャットコールに参加しました。
@@ -2675,9 +2675,6 @@ M キーを押して変更します。
 	<notification name="VoiceCallGenericError">
 		[VOICE_CHANNEL_NAME] のボイスチャットに接続中に、エラーが発生しました。後でもう一度お試しください。
 	</notification>
-	<notification name="ServerVersionChanged">
-		サーバーのバージョンが異なるリージョンに来ました。パフォーマンスに影響することがあります。 [[URL] リリースノートを確認]
-	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		クリックした SLurl はサポートされていません。
 	</notification>
@@ -2731,7 +2728,7 @@ M キーを押して変更します。
 	<notification name="ShareItemsConfirmation">
 		次のアイテムを共有しますか：
 
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 次の住人と共有しますか：
 
@@ -2799,9 +2796,13 @@ M キーを押して変更します。
 		（ [EXISTENCE] 秒）
 アバター「 NAME 」が完全に読み込まれました。
 	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
 		( 作成後[EXISTENCE]秒経過）
-&apos;[BODYREGION]&apos; の[RESOLUTION]のベークドテクスチャは[TIME]秒後に[ACTION]されました。
+&apos;[BODYREGION]&apos;の[RESOLUTION]のベークドテクスチャは[TIME]秒後にアップロードされました。
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( 作成後[EXISTENCE]秒経過）
+&apos;[BODYREGION]&apos;の[RESOLUTION]のベークドテクスチャは[TIME]秒後にローカルに更新されました。
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		このコールから抜けますか？

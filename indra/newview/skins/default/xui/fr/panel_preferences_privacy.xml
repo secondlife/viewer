@@ -7,20 +7,25 @@
 	<text name="cache_size_label_l">
 		(Endroits, images, web, historique des recherches)
 	</text>
+	<check_box label="M&apos;afficher dans les résultats de recherche" name="online_searchresults"/>
 	<check_box label="Seuls mes amis et groupes voient quand je suis en ligne" name="online_visibility"/>
 	<check_box label="Seuls mes amis et groupes peuvent m&apos;appeler ou m&apos;envoyer un IM" name="voice_call_friends_only_check"/>
 	<check_box label="Fermer le micro à la fin d&apos;un appel" name="auto_disengage_mic_check"/>
-	<check_box label="Accepter les cookies" name="cookies_enabled"/>
+	<check_box label="Afficher mes repères favoris à la connexion (liste déroulante Lieu de départ)" name="favorites_on_login_check"/>
 	<text name="Logs:">
-		Journaux :
+		Journaux de chat :
 	</text>
 	<check_box label="Sauvegarder les chats près de moi sur mon ordinateur" name="log_nearby_chat"/>
 	<check_box label="Sauvegarder les IM sur mon ordinateur" name="log_instant_messages"/>
-	<check_box label="Inclure les dates et heures" name="show_timestamps_check_im"/>
+	<check_box label="Inclure la date et l&apos;heure pour chaque ligne du journal de chat" name="show_timestamps_check_im"/>
+	<check_box label="Inclure la date dans le nom du fichier journal" name="logfile_name_datestamp"/>
 	<text name="log_path_desc">
 		Emplacement :
 	</text>
 	<line_editor left="308" name="log_path_string" right="-20"/>
 	<button label="Parcourir" label_selected="Parcourir" name="log_path_button" width="150"/>
 	<button label="Liste des ignorés" name="block_list"/>
+	<text name="block_list_label">
+		(personnes et/ou objets que vous avez ignorés)
+	</text>
 </panel>

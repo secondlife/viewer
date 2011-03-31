@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_gear_default">
+<toggleable_menu name="menu_gear_default">
 	<menu_item_call label="Neues Inventar-Fenster" name="new_window"/>
-	<menu_item_call label="Nach Name sortieren" name="sort_by_name"/>
-	<menu_item_call label="Nach aktuellesten Objekten sortieren" name="sort_by_recent"/>
+	<menu_item_check label="Nach Name sortieren" name="sort_by_name"/>
+	<menu_item_check label="Nach aktuellesten Objekten sortieren" name="sort_by_recent"/>
+	<menu_item_check label="Ordner immer nach Namen sortieren" name="sort_folders_by_name"/>
+	<menu_item_check label="Systemordner nach oben" name="sort_system_folders_to_top"/>
 	<menu_item_call label="Filter anzeigen" name="show_filters"/>
 	<menu_item_call label="Filter zurücksetzen" name="reset_filters"/>
 	<menu_item_call label="Alle Ordner schließen" name="close_folders"/>
@@ -12,4 +14,4 @@
 	<menu_item_call label="Original suchen" name="Find Original"/>
 	<menu_item_call label="Alle Links suchen" name="Find All Links"/>
 	<menu_item_call label="Papierkorb ausleeren" name="empty_trash"/>
-</menu>
+</toggleable_menu>

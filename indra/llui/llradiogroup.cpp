@@ -69,7 +69,7 @@ protected:
 static LLWidgetNameRegistry::StaticRegistrar register_radio_item(&typeid(LLRadioGroup::ItemParams), "radio_item");
 
 LLRadioGroup::Params::Params()
-:	has_border("draw_border"),
+:	allow_deselect("allow_deselect"),
 	items("item") 
 {
 	addSynonym(items, "radio_item");
@@ -85,18 +85,8 @@ LLRadioGroup::LLRadioGroup(const LLRadioGroup::Params& p)
 :	LLUICtrl(p),
 	mFont(p.font.isProvided() ? p.font() : LLFontGL::getFontSansSerifSmall()),
 	mSelectedIndex(-1),
-	mHasBorder(p.has_border)
-{	
-	if (mHasBorder)
-	{
-		LLViewBorder::Params params;
-		params.name("radio group border");
-		params.rect(LLRect(0, getRect().getHeight(), getRect().getWidth(), 0));
-		params.bevel_style(LLViewBorder::BEVEL_NONE);
-		LLViewBorder * vb = LLUICtrlFactory::create<LLViewBorder> (params);
-		addChild (vb);
-	}
-}
+	mAllowDeselect(p.allow_deselect)
+{}
 
 void LLRadioGroup::initFromParams(const Params& p)
 {
@@ -184,7 +174,7 @@ void LLRadioGroup::setIndexEnabled(S32 index, BOOL enabled)
 
 BOOL LLRadioGroup::setSelectedIndex(S32 index, BOOL from_event)
 {
-	if (index < 0 || (S32)mRadioButtons.size() <= index )
+	if ((S32)mRadioButtons.size() <= index )
 	{
 		return FALSE;
 	}
@@ -202,13 +192,16 @@ BOOL LLRadioGroup::setSelectedIndex(S32 index, BOOL from_event)
 
 	mSelectedIndex = index;
 
-	LLRadioCtrl* radio_item = mRadioButtons[mSelectedIndex];
-	radio_item->setTabStop(true);
-	radio_item->setValue( TRUE );
-
-	if (hasFocus())
+	if (mSelectedIndex >= 0)
 	{
-		mRadioButtons[mSelectedIndex]->focusFirstItem(FALSE, FALSE);
+		LLRadioCtrl* radio_item = mRadioButtons[mSelectedIndex];
+		radio_item->setTabStop(true);
+		radio_item->setValue( TRUE );
+
+		if (hasFocus())
+		{
+			radio_item->focusFirstItem(FALSE, FALSE);
+		}
 	}
 
 	if (!from_event)
@@ -307,8 +300,15 @@ void LLRadioGroup::onClickButton(LLUICtrl* ctrl)
 		LLRadioCtrl* radio = *iter;
 		if (radio == clicked_radio)
 		{
-			// llinfos << "clicked button " << index << llendl;
-			setSelectedIndex(index);
+			if (index == mSelectedIndex && mAllowDeselect)
+			{
+				// don't select anything
+				setSelectedIndex(-1);
+			}
+			else
+			{
+				setSelectedIndex(index);
+			}
 			
 			// BUG: Calls click callback even if button didn't actually change
 			onCommit();
@@ -346,7 +346,7 @@ void LLRadioGroup::setValue( const LLSD& value )
 		}
 		else
 		{
-			llwarns << "LLRadioGroup::setValue: value not found: " << value.asString() << llendl;
+			setSelectedIndex(-1, TRUE);
 		}
 	}
 }

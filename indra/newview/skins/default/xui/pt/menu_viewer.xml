@@ -12,6 +12,12 @@
 		<menu_item_check label="Meu inventário" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Meus gestos" name="Gestures"/>
 		<menu_item_check label="Minha voz" name="ShowVoice"/>
+		<menu label="Movimentos" name="Movement">
+			<menu_item_call label="Sentar" name="Sit Down Here"/>
+			<menu_item_check label="Voar" name="Fly"/>
+			<menu_item_check label="Correr sempre" name="Always Run"/>
+			<menu_item_call label="Parar minha animação" name="Stop Animating My Avatar"/>
+		</menu>
 		<menu label="Meu status" name="Status">
 			<menu_item_call label="Ausente" name="Set Away"/>
 			<menu_item_call label="Ocupado" name="Set Busy"/>
@@ -47,6 +53,7 @@
 			<menu_item_check label="Proprietários" name="Land Owners"/>
 			<menu_item_check label="Coordenadas" name="Coordinates"/>
 			<menu_item_check label="Propriedades do lote" name="Parcel Properties"/>
+			<menu_item_check label="Menu avançado" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Teletransportar para meu início" name="Teleport Home"/>
 		<menu_item_call label="Definir como Início" name="Set Home to Here"/>
@@ -85,6 +92,7 @@
 			<menu_item_call label="Pegar uma cópia" name="Take Copy"/>
 			<menu_item_call label="Salvar no meu inventário" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Save Back to Object Contents" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="Devolver objeto" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
 			<menu_item_call label="Recompilar scripts (LSL)" name="Mono"/>
@@ -94,11 +102,11 @@
 			<menu_item_call label="Scripts em modo não execução" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Opções" name="Options">
-			<menu_item_call label="Autorizações de upload padrão" name="perm prefs"/>
 			<menu_item_check label="Mostrar permissões avançadas" name="DebugPermissions"/>
 			<menu_item_check label="Só selecionar meus objetos" name="Select Only My Objects"/>
 			<menu_item_check label="Só selecionar objetos móveis" name="Select Only Movable Objects"/>
 			<menu_item_check label="Selecionar contornando" name="Select By Surrounding"/>
+			<menu_item_check label="Mostrar contornos da seleção" name="Show Selection Outlines"/>
 			<menu_item_check label="Mostrar seleção oculta" name="Show Hidden Selection"/>
 			<menu_item_check label="Mostrar alcance de luz da seleção" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Mostrar raio de seleção" name="Show Selection Beam"/>
@@ -113,16 +121,17 @@
 			<menu_item_call label="Animação (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Volume (L$[COST] por arquivo)..." name="Bulk Upload"/>
 		</menu>
+		<menu_item_call label="Desfazer" name="Undo"/>
+		<menu_item_call label="Repetir" name="Redo"/>
 	</menu>
 	<menu label="Ajuda" name="Help">
 		<menu_item_call label="[SECOND_LIFE] Ajuda" name="Second Life Help"/>
+		<menu_item_check label="Ativar dicas" name="Enable Hints"/>
 		<menu_item_call label="Denunciar abuso" name="Report Abuse"/>
 		<menu_item_call label="Relatar bug" name="Report Bug"/>
 		<menu_item_call label="Sobre [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avançado" name="Advanced">
-		<menu_item_check label="Exibir menu avançado" name="Show Advanced Menu"/>
-		<menu_item_call label="Parar minha animação" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Recarregar texturas" name="Rebake Texture"/>
 		<menu_item_call label="Interface tamanho padrão" name="Set UI Size to Default"/>
 		<menu_item_call label="Definir tamanho da janela:" name="Set Window Size..."/>
@@ -168,7 +177,6 @@
 			<menu_item_check label="Neblina" name="Fog"/>
 			<menu_item_check label="Objetos flexíveis" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="Executar diversas instâncias" name="Run Multiple Threads"/>
 		<menu_item_check label="Usar plugin de leitura de threads" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Limpar cache de grupo" name="ClearGroupCache"/>
 		<menu_item_check label="Smoothing de mouse" name="Mouse Smoothing"/>
@@ -178,8 +186,6 @@
 			<menu_item_call label="Soltar objeto" name="Release Keys"/>
 			<menu_item_call label="Interface tamanho padrão" name="Set UI Size to Default"/>
 			<menu_item_check label="Mostrar menu avançado - atalho antigo" name="Show Advanced Menu - legacy shortcut"/>
-			<menu_item_check label="Correr sempre" name="Always Run"/>
-			<menu_item_check label="Voar" name="Fly"/>
 			<menu_item_call label="Fechar janela" name="Close Window"/>
 			<menu_item_call label="Fechar todas as janelas" name="Close All Windows"/>
 			<menu_item_call label="Gravar fotos no HD" name="Snapshot to Disk"/>
@@ -239,9 +245,15 @@
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
 			<menu_item_check label="Wireframe" name="Wireframe"/>
-			<menu_item_check label="Global Illumination" name="Global Illumination"/>
+			<menu_item_check label="Iluminação e sombras" name="Lighting and Shadows"/>
+			<menu_item_check label="Sombras da projeção do sol/lua" name="Shadows from Sun/Moon/Projectors"/>
+			<menu_item_check label="SSAO e sombra suave" name="SSAO and Shadow Smoothing"/>
+			<menu_item_check label="Iluminação global (fase experimental)" name="Global Illumination"/>
+			<menu_item_check label="Máscaras alpha automáticas (adiadas)" name="Automatic Alpha Masks (deferred)"/>
+			<menu_item_check label="Máscaras alpha automáticas (sem adiar)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Texturas de animação" name="Animation Textures"/>
 			<menu_item_check label="Desativar texturas" name="Disable Textures"/>
+			<menu_item_check label="Atlas texturizado (fase experimental)" name="Texture Atlas"/>
 			<menu_item_check label="Render Attached Lights" name="Render Attached Lights"/>
 			<menu_item_check label="Render Attached Particles" name="Render Attached Particles"/>
 			<menu_item_check label="Objetos iridescentes" name="Hover Glow Objects"/>
@@ -258,20 +270,20 @@
 			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="Interface" name="UI">
-			<menu_item_call label="Teste de navegador web" name="Web Browser Test"/>
+			<menu_item_call label="Teste de mídia do navegador" name="Web Browser Test"/>
+			<menu_item_call label="Navegador de conteúdo web" name="Web Content Browser"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
 			<menu_item_call label="Dados de memória" name="Memory Stats"/>
-			<menu_item_check label="Double-Click Auto-Pilot" name="Double-ClickAuto-Pilot"/>
+			<menu_item_check label="Console de depuração de região" name="Region Debug Console"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>
 		</menu>
 		<menu label="XUI" name="XUI">
 			<menu_item_call label="Recarregar cores" name="Reload Color Settings"/>
 			<menu_item_call label="Teste de fonte" name="Show Font Test"/>
-			<menu_item_call label="Carregar de XML" name="Load from XML"/>
-			<menu_item_call label="Salvar para XML" name="Save to XML"/>
 			<menu_item_check label="Mostrar nomes XUI" name="Show XUI Names"/>
 			<menu_item_call label="Enviar MIs de teste" name="Send Test IMs"/>
+			<menu_item_call label="Limpar cache de nomes" name="Flush Names Caches"/>
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
@@ -295,9 +307,9 @@
 		</menu>
 		<menu_item_check label="Texturas HTTP" name="HTTP Textures"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
-		<menu_item_check label="Mostrar menu admin" name="View Admin Options"/>
 		<menu_item_call label="Request Admin Status" name="Request Admin Options"/>
 		<menu_item_call label="Sair do modo admin" name="Leave Admin Options"/>
+		<menu_item_check label="Mostrar menu admin" name="View Admin Options"/>
 	</menu>
 	<menu label="Admin" name="Admin">
 		<menu label="Object">

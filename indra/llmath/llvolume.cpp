@@ -4406,19 +4406,54 @@ std::ostream& operator<<(std::ostream &s, const LLVolume *volumep)
 
 BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 {
+	BOOL ret = FALSE ;
 	if (mTypeMask & CAP_MASK)
 	{
-		return createCap(volume, partial_build);
+		ret = createCap(volume, partial_build);
 	}
 	else if ((mTypeMask & END_MASK) || (mTypeMask & SIDE_MASK))
 	{
-		return createSide(volume, partial_build);
+		ret = createSide(volume, partial_build);
 	}
 	else
 	{
 		llerrs << "Unknown/uninitialized face type!" << llendl;
-		return FALSE;
 	}
+
+	//update the range of the texture coordinates
+	if(ret)
+	{
+		mTexCoordExtents[0].setVec(1.f, 1.f) ;
+		mTexCoordExtents[1].setVec(0.f, 0.f) ;
+
+		U32 end = mVertices.size() ;
+		for(U32 i = 0 ; i < end ; i++)
+		{
+			if(mTexCoordExtents[0].mV[0] > mVertices[i].mTexCoord.mV[0])
+			{
+				mTexCoordExtents[0].mV[0] = mVertices[i].mTexCoord.mV[0] ;
+			}
+			if(mTexCoordExtents[1].mV[0] < mVertices[i].mTexCoord.mV[0])
+			{
+				mTexCoordExtents[1].mV[0] = mVertices[i].mTexCoord.mV[0] ;
+			}
+
+			if(mTexCoordExtents[0].mV[1] > mVertices[i].mTexCoord.mV[1])
+			{
+				mTexCoordExtents[0].mV[1] = mVertices[i].mTexCoord.mV[1] ;
+			}
+			if(mTexCoordExtents[1].mV[1] < mVertices[i].mTexCoord.mV[1])
+			{
+				mTexCoordExtents[1].mV[1] = mVertices[i].mTexCoord.mV[1] ;
+			}			
+		}
+		mTexCoordExtents[0].mV[0] = llmax(0.f, mTexCoordExtents[0].mV[0]) ;
+		mTexCoordExtents[0].mV[1] = llmax(0.f, mTexCoordExtents[0].mV[1]) ;
+		mTexCoordExtents[1].mV[0] = llmin(1.f, mTexCoordExtents[1].mV[0]) ;
+		mTexCoordExtents[1].mV[1] = llmin(1.f, mTexCoordExtents[1].mV[1]) ;
+	}
+
+	return ret ;
 }
 
 void	LerpPlanarVertex(LLVolumeFace::VertexData& v0,

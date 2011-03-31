@@ -85,6 +85,8 @@ public:
 private:
 	friend class LLPanelLoginListener;
 	void reshapeBrowser();
+	void addFavoritesToStartLocation();
+	void addUsersWithFavoritesToUsername();
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
 //	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);
@@ -96,6 +98,8 @@ private:
 	static void onServerComboLostFocus(LLFocusableElement*);
 	static void updateServerCombo();
 	static void updateStartSLURL();
+	static void onModeChange();
+	static void onModeChangeConfirm(const LLSD& notification, const LLSD& response);
 	
 	static void updateLoginPanelLinks();
 

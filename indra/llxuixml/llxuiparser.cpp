@@ -29,7 +29,13 @@
 #include "llxuiparser.h"
 
 #include "llxmlnode.h"
+
+#ifdef LL_STANDALONE
+#include <expat.h>
+#else
 #include "expat/expat.h"
+#endif
+
 #include <fstream>
 #include <boost/tokenizer.hpp>
 //#include <boost/spirit/include/qi.hpp>
@@ -382,6 +388,7 @@ LLXUIParser::LLXUIParser()
 {
 	if (sXUIReadFuncs.empty())
 	{
+		registerParserFuncs<LLInitParam::NoParamValue>(readNoValue, writeNoValue);
 		registerParserFuncs<bool>(readBoolValue, writeBoolValue);
 		registerParserFuncs<std::string>(readStringValue, writeStringValue);
 		registerParserFuncs<U8>(readU8Value, writeU8Value);
@@ -400,6 +407,7 @@ LLXUIParser::LLXUIParser()
 }
 
 static LLFastTimer::DeclareTimer FTM_PARSE_XUI("XUI Parsing");
+const LLXMLNodePtr DUMMY_NODE = new LLXMLNode();
 
 void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename, bool silent)
 {
@@ -426,6 +434,17 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
 	boost::char_separator<char> sep(".");
 
 	bool values_parsed = false;
+	bool silent = mCurReadDepth > 0;
+
+	if (nodep->getFirstChild().isNull() 
+		&& nodep->mAttributes.empty() 
+		&& nodep->getSanitizedValue().empty())
+	{
+		// empty node, just parse as NoValue
+		mCurReadNode = DUMMY_NODE;
+		return block.submitValue(mNameStack, *this, silent);
+	}
+
 
 	// submit attributes for current node
 	values_parsed |= readAttributes(nodep, block);
@@ -438,7 +457,6 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
 		mNameStack.push_back(std::make_pair(std::string("value"), newParseGeneration()));
 		// child nodes are not necessarily valid parameters (could be a child widget)
 		// so don't complain once we've recursed
-		bool silent = mCurReadDepth > 0;
 		if (!block.submitValue(mNameStack, *this, true))
 		{
 			mNameStack.pop_back();
@@ -543,6 +561,7 @@ bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& blo
 	boost::char_separator<char> sep(".");
 
 	bool any_parsed = false;
+	bool silent = mCurReadDepth > 0;
 
 	for(LLXMLAttribList::const_iterator attribute_it = nodep->mAttributes.begin(); 
 		attribute_it != nodep->mAttributes.end(); 
@@ -561,7 +580,6 @@ bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& blo
 		}
 
 		// child nodes are not necessarily valid attributes, so don't complain once we've recursed
-		bool silent = mCurReadDepth > 0;
 		any_parsed |= block.submitValue(mNameStack, *this, silent);
 		
 		while(num_tokens_pushed-- > 0)
@@ -628,6 +646,19 @@ LLXMLNodePtr LLXUIParser::getNode(const name_stack_t& stack)
 	return (out_node == mWriteRootNode ? LLXMLNodePtr(NULL) : out_node);
 }
 
+bool LLXUIParser::readNoValue(Parser& parser, void* val_ptr)
+{
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	return self.mCurReadNode == DUMMY_NODE;
+}
+
+bool LLXUIParser::writeNoValue(Parser& parser, const void* val_ptr, const name_stack_t& stack)
+{
+	// just create node
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
+	return node.notNull();
+}
 
 bool LLXUIParser::readBoolValue(Parser& parser, void* val_ptr)
 {
@@ -1043,6 +1074,8 @@ static 	LLInitParam::Parser::parser_read_func_map_t sSimpleXUIReadFuncs;
 static 	LLInitParam::Parser::parser_write_func_map_t sSimpleXUIWriteFuncs;
 static 	LLInitParam::Parser::parser_inspect_func_map_t sSimpleXUIInspectFuncs;
 
+const char* NO_VALUE_MARKER = "no_value";
+
 LLSimpleXUIParser::LLSimpleXUIParser(LLSimpleXUIParser::element_start_callback_t element_cb)
 :	Parser(sSimpleXUIReadFuncs, sSimpleXUIWriteFuncs, sSimpleXUIInspectFuncs),
 	mLastWriteGeneration(-1),
@@ -1051,6 +1084,7 @@ LLSimpleXUIParser::LLSimpleXUIParser(LLSimpleXUIParser::element_start_callback_t
 {
 	if (sSimpleXUIReadFuncs.empty())
 	{
+		registerParserFuncs<LLInitParam::NoParamValue>(readNoValue);
 		registerParserFuncs<bool>(readBoolValue);
 		registerParserFuncs<std::string>(readStringValue);
 		registerParserFuncs<U8>(readU8Value);
@@ -1114,12 +1148,16 @@ bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBl
 		return false;
 	}
 	
+	mEmptyLeafNode.push_back(false);
+
 	if( !XML_ParseBuffer(mParser, bytes_read, TRUE ) )
 	{
 		LL_WARNS("ReadXUI") << "Error while parsing file  " << filename << LL_ENDL;
 		XML_ParserFree( mParser );
 		return false;
 	}
+
+	mEmptyLeafNode.pop_back();
 
 	XML_ParserFree( mParser );
 	return true;
@@ -1205,8 +1243,14 @@ void LLSimpleXUIParser::startElement(const char *name, const char **atts)
 		}
 	}
 
+	// parent node is not empty
+	mEmptyLeafNode.back() = false;
+	// we are empty if we have no attributes
+	mEmptyLeafNode.push_back(atts[0] == NULL);
+
 	mTokenSizeStack.push_back(num_tokens_pushed);
 	readAttributes(atts);
+
 }
 
 bool LLSimpleXUIParser::readAttributes(const char **atts)
@@ -1240,7 +1284,7 @@ bool LLSimpleXUIParser::readAttributes(const char **atts)
 	return any_parsed;
 }
 
-void LLSimpleXUIParser::processText()
+bool LLSimpleXUIParser::processText()
 {
 	if (!mTextContents.empty())
 	{
@@ -1253,12 +1297,22 @@ void LLSimpleXUIParser::processText()
 			mNameStack.pop_back();
 		}
 		mTextContents.clear();
+		return true;
 	}
+	return false;
 }
 
 void LLSimpleXUIParser::endElement(const char *name)
 {
-	processText();
+	bool has_text = processText();
+
+	// no text, attributes, or children
+	if (!has_text && mEmptyLeafNode.back())
+	{
+		// submit this as a valueless name (even though there might be text contents we haven't seen yet)
+		mCurAttributeValueBegin = NO_VALUE_MARKER;
+		mOutputStack.back().first->submitValue(mNameStack, *this, mParseSilently);
+	}
 
 	if (--mOutputStack.back().second == 0)
 	{
@@ -1276,6 +1330,7 @@ void LLSimpleXUIParser::endElement(const char *name)
 		mNameStack.pop_back();
 	}
 	mScope.pop_back();
+	mEmptyLeafNode.pop_back();
 }
 
 void LLSimpleXUIParser::characterData(const char *s, int len)
@@ -1320,6 +1375,12 @@ void LLSimpleXUIParser::parserError(const std::string& message)
 #else
 	Parser::parserError(message);
 #endif
+}
+
+bool LLSimpleXUIParser::readNoValue(Parser& parser, void* val_ptr)
+{
+	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+	return self.mCurAttributeValueBegin == NO_VALUE_MARKER;
 }
 
 bool LLSimpleXUIParser::readBoolValue(Parser& parser, void* val_ptr)

@@ -167,22 +167,16 @@
 			<text name="Creator:">
 				Skaber:
 			</text>
-			<text name="Creator Name">
-				Thrax Linden
-			</text>
 			<text name="Owner:">
 				Ejer:
-			</text>
-			<text name="Owner Name">
-				Thrax Linden
 			</text>
 			<text name="Group:">
 				Gruppe:
 			</text>
-			<button label="Sæt..." label_selected="Sæt..." name="button set group" tool_tip="Vælg en gruppe der skal dele dette objekts rettigheder"/>
 			<name_box initial_value="Henter..." name="Group Name Proxy"/>
-			<button label="Dedikér" label_selected="Dedikér" name="button deed" tool_tip="Dedikering giver denne genstand væk med rettighederne for &apos;næste ejer&apos;. Gruppe-delte objekter kan dedikeres af gruppe-administrator."/>
+			<button label="Sæt..." label_selected="Sæt..." name="button set group" tool_tip="Vælg en gruppe der skal dele dette objekts rettigheder"/>
 			<check_box label="Del" name="checkbox share with group" tool_tip="Tillad alle medlemmer fra den valgte gruppe at dele dine &apos;redigere&apos; rettigheder for dette objekt. Du skal dedikere for åbne for rolle begrænsninger."/>
+			<button label="Dedikér" label_selected="Dedikér" name="button deed" tool_tip="Dedikering giver denne genstand væk med rettighederne for &apos;næste ejer&apos;. Gruppe-delte objekter kan dedikeres af gruppe-administrator."/>
 			<text name="label click action">
 				Klik for at:
 			</text>
@@ -436,8 +430,9 @@
 				<combo_box.item label="Rør" name="suction"/>
 				<combo_box.item label="Væv" name="weave"/>
 			</combo_box>
-			<text name="tex scale">
-				Gentagelser på overflade
+			<check_box initial_value="falsk" label="Flugt planare overflader" name="checkbox planar align" tool_tip="Flugt teksuter på alle valgte overflader med den sidst valgte overflade. Kræver at planar tekstur-mapning er valgt."/>
+			<text name="rpt">
+				Gentagelser / overflade
 			</text>
 			<spinner label="Vandret (U)" name="TexScaleU"/>
 			<check_box label="Vend" name="checkbox flip s"/>

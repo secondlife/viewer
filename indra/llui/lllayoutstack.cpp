@@ -38,6 +38,12 @@
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
 static LLLayoutStack::LayoutStackRegistry::Register<LLLayoutPanel> register_layout_panel("layout_panel");
 
+void LLLayoutStack::OrientationNames::declareValues()
+{
+	declare("horizontal", HORIZONTAL);
+	declare("vertical", VERTICAL);
+}
+
 //
 // LLLayoutPanel
 //
@@ -47,47 +53,47 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
  	mMaxDim(p.max_dim), 
  	mAutoResize(p.auto_resize),
  	mUserResize(p.user_resize),
-		mCollapsed(FALSE),
-		mCollapseAmt(0.f),
-		mVisibleAmt(1.f), // default to fully visible
-		mResizeBar(NULL) 
-	{
+	mCollapsed(FALSE),
+	mCollapseAmt(0.f),
+	mVisibleAmt(1.f), // default to fully visible
+	mResizeBar(NULL) 
+{
 	// panels initialized as hidden should not start out partially visible
 	if (!getVisible())
-		{
+	{
 		mVisibleAmt = 0.f;
-		}
-		}
+	}
+}
 
 void LLLayoutPanel::initFromParams(const Params& p)
-		{
+{
 	LLPanel::initFromParams(p);
 	setFollowsNone();
-	}
+}
 
 
 LLLayoutPanel::~LLLayoutPanel()
-	{
-		// probably not necessary, but...
-		delete mResizeBar;
-		mResizeBar = NULL;
-	}
+{
+	// probably not necessary, but...
+	delete mResizeBar;
+	mResizeBar = NULL;
+}
 	
 F32 LLLayoutPanel::getCollapseFactor(LLLayoutStack::ELayoutOrientation orientation)
-	{
+{
 	if (orientation == LLLayoutStack::HORIZONTAL)
-		{
-			F32 collapse_amt = 
-			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, (F32)mMinDim / (F32)llmax(1, getRect().getWidth()));
-			return mVisibleAmt * collapse_amt;
-		}
-		else
+	{
+		F32 collapse_amt = 
+		clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, (F32)mMinDim / (F32)llmax(1, getRect().getWidth()));
+		return mVisibleAmt * collapse_amt;
+	}
+	else
 	{
 			F32 collapse_amt = 
 			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, llmin(1.f, (F32)mMinDim / (F32)llmax(1, getRect().getHeight())));
 			return mVisibleAmt * collapse_amt;
-		}
 	}
+}
 
 //
 // LLLayoutStack
@@ -97,6 +103,8 @@ LLLayoutStack::Params::Params()
 :	orientation("orientation"),
 	animate("animate", true),
 	clip("clip", true),
+	open_time_constant("open_time_constant", 0.02f),
+	close_time_constant("close_time_constant", 0.03f),
 	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0))
 {
 	name="stack";
@@ -107,10 +115,12 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mMinWidth(0),
 	mMinHeight(0),
 	mPanelSpacing(p.border_size),
-	mOrientation((p.orientation() == "vertical") ? VERTICAL : HORIZONTAL),
+	mOrientation(p.orientation),
 	mAnimate(p.animate),
 	mAnimatedThisFrame(false),
-	mClip(p.clip)
+	mClip(p.clip),
+	mOpenTimeConstant(p.open_time_constant),
+	mCloseTimeConstant(p.close_time_constant)
 {}
 
 LLLayoutStack::~LLLayoutStack()
@@ -303,9 +313,6 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	S32 total_width = 0;
 	S32 total_height = 0;
 
-	const F32 ANIM_OPEN_TIME = 0.02f;
-	const F32 ANIM_CLOSE_TIME = 0.03f;
-
 	e_panel_list_t::iterator panel_it;
 	for (panel_it = mPanels.begin(); panel_it != mPanels.end();	++panel_it)
 	{
@@ -316,7 +323,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 			{
 				if (!mAnimatedThisFrame)
 				{
-					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(ANIM_OPEN_TIME));
+					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(mOpenTimeConstant));
 					if ((*panel_it)->mVisibleAmt > 0.99f)
 					{
 						(*panel_it)->mVisibleAmt = 1.f;
@@ -334,7 +341,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 			{
 				if (!mAnimatedThisFrame)
 				{
-					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(ANIM_CLOSE_TIME));
+					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
 					if ((*panel_it)->mVisibleAmt < 0.001f)
 					{
 						(*panel_it)->mVisibleAmt = 0.f;
@@ -349,11 +356,11 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 
 		if ((*panel_it)->mCollapsed)
 		{
-			(*panel_it)->mCollapseAmt = lerp((*panel_it)->mCollapseAmt, 1.f, LLCriticalDamp::getInterpolant(ANIM_CLOSE_TIME));
+			(*panel_it)->mCollapseAmt = lerp((*panel_it)->mCollapseAmt, 1.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
 		}
 		else
 		{
-			(*panel_it)->mCollapseAmt = lerp((*panel_it)->mCollapseAmt, 0.f, LLCriticalDamp::getInterpolant(ANIM_CLOSE_TIME));
+			(*panel_it)->mCollapseAmt = lerp((*panel_it)->mCollapseAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
 		}
 
 		if (mOrientation == HORIZONTAL)
@@ -556,7 +563,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	}
 
 	// update resize bars with new limits
-	LLResizeBar* last_resize_bar = NULL;
+	LLLayoutPanel* last_resizeable_panel = NULL;
 	for (panel_it = mPanels.begin(); panel_it != mPanels.end(); ++panel_it)
 	{
 		LLPanel* panelp = (*panel_it);
@@ -578,17 +585,17 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		BOOL resize_bar_enabled = panelp->getVisible() && (*panel_it)->mUserResize;
 		(*panel_it)->mResizeBar->setVisible(resize_bar_enabled);
 
-		if (resize_bar_enabled)
+		if ((*panel_it)->mUserResize || (*panel_it)->mAutoResize)
 		{
-			last_resize_bar = (*panel_it)->mResizeBar;
+			last_resizeable_panel = (*panel_it);
 		}
 	}
 
 	// hide last resize bar as there is nothing past it
 	// resize bars need to be in between two resizable panels
-	if (last_resize_bar)
+	if (last_resizeable_panel)
 	{
-		last_resize_bar->setVisible(FALSE);
+		last_resizeable_panel->mResizeBar->setVisible(FALSE);
 	}
 
 	// not enough room to fit existing contents

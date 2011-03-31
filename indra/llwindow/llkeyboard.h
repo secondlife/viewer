@@ -40,7 +40,7 @@ enum EKeystate
 	KEYSTATE_UP 
 };
 
-typedef void (*LLKeyFunc)(EKeystate keystate);
+typedef boost::function<void(EKeystate keystate)> LLKeyFunc;
 typedef std::string (LLKeyStringTranslatorFunc)(const char *label);
 	
 enum EKeyboardInsertMode

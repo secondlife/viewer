@@ -243,8 +243,7 @@ U32 LLDir_Linux::countFilesInDir(const std::string &dirname, const std::string &
 }
 
 // get the next file in the directory
-// automatically wrap if we've hit the end
-BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap)
+BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
 	glob_t g;
 	BOOL result = FALSE;
@@ -276,11 +275,6 @@ BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string
 	
 			mCurrentDirIndex++;
 	
-			if((mCurrentDirIndex >= (int)g.gl_pathc) && wrap)
-			{
-				mCurrentDirIndex = 0;
-			}
-			
 			if(mCurrentDirIndex < (int)g.gl_pathc)
 			{
 //				llinfos << "getNextFileInDir: returning number " << mCurrentDirIndex << ", path is " << g.gl_pathv[mCurrentDirIndex] << llendl;
@@ -308,47 +302,7 @@ BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string
 }
 
 
-// get a random file in the directory
-// automatically wrap if we've hit the end
-void LLDir_Linux::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
-{
-	S32 num_files;
-	S32 which_file;
-	DIR *dirp;
-	dirent *entryp = NULL;
 
-	fname = "";
-
-	num_files = countFilesInDir(dirname,mask);
-	if (!num_files)
-	{
-		return;
-	}
-
-	which_file = ll_rand(num_files);
-
-//	llinfos << "Random select file #" << which_file << llendl;
-
-    // which_file now indicates the (zero-based) index to which file to play
-	
-	if (!((dirp = opendir(dirname.c_str()))))
-	{
-		while (which_file--)
-		{
-			if (!((entryp = readdir(dirp))))
-			{
-				return;
-			}
-		}		   
-
-		if ((!which_file) && entryp)
-		{
-			fname = entryp->d_name;
-		}
-		
-		closedir(dirp);
-	}
-}
 
 std::string LLDir_Linux::getCurPath()
 {

@@ -28,7 +28,6 @@
 #define LL_LLAVATARLIST_H
 
 #include "llflatlistview.h"
-
 #include "llavatarlistitem.h"
 
 class LLTimer;
@@ -96,6 +95,7 @@ public:
 	virtual S32 notifyParent(const LLSD& info);
 
 	void addAvalineItem(const LLUUID& item_id, const LLUUID& session_id, const std::string& item_name);
+	void handleDisplayNamesOptionChanged();
 
 protected:
 	void refresh();
@@ -105,14 +105,19 @@ protected:
 		const uuid_vec_t& vnew,
 		uuid_vec_t& vadded,
 		uuid_vec_t& vremoved);
-	void updateLastInteractionTimes();
+	void updateLastInteractionTimes();	
+	void rebuildNames();
 	void onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask);
+	void updateAvatarNames();
 
 private:
+
+	bool isAvalineItemSelected();
 
 	bool mIgnoreOnlineStatus;
 	bool mShowLastInteractionTime;
 	bool mDirty;
+	bool mNeedUpdateNames;
 	bool mShowIcons;
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;

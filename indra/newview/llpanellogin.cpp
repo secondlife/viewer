@@ -35,6 +35,7 @@
 #include "llsecondlifeurls.h"
 #include "v4color.h"
 
+#include "llappviewer.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcommandhandler.h"		// for secondlife:///app/login/
@@ -73,7 +74,6 @@
 #endif  // LL_WINDOWS
 
 #include "llsdserialize.h"
-#define USE_VIEWER_AUTH 0
 
 const S32 BLACK_BORDER_HEIGHT = 160;
 const S32 MAX_PASSWORD = 16;
@@ -163,8 +163,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mHtmlAvailable( TRUE ),
 	mListener(new LLPanelLoginListener(this))
 {
-	setFocusRoot(TRUE);
-
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
 
@@ -181,18 +179,17 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mPasswordModified = FALSE;
 	LLPanelLogin::sInstance = this;
 
-	// add to front so we are the bottom-most child
-	gViewerWindow->getRootView()->addChildInBack(this);
+	LLView* login_holder = gViewerWindow->getLoginPanelHolder();
+	if (login_holder)
+	{
+		login_holder->addChild(this);
+	}
 
 	// Logo
 	mLogoImage = LLUI::getUIImage("startup_logo");
 
 	buildFromFile( "panel_login.xml");
 	
-#if USE_VIEWER_AUTH
-	//leave room for the login menu bar
-	setRect(LLRect(0, rect.getHeight()-18, rect.getWidth(), 0)); 
-#endif
 	// Legacy login web page is hidden under the menu bar.
 	// Adjust reg-in-client web browser widget to not be hidden.
 	if (gSavedSettings.getBOOL("RegInClient"))
@@ -204,16 +201,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		reshape(rect.getWidth(), rect.getHeight());
 	}
 
-#if !USE_VIEWER_AUTH
-	getChild<LLLineEditor>("username_edit")->setPrevalidate(LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
 
 	// change z sort of clickable text to be behind buttons
 	//sendChildToBack(getChildView("channel_text"));
 	sendChildToBack(getChildView("forgot_password_text"));
-
-	LLLineEditor* edit = getChild<LLLineEditor>("password_edit");
-	if (edit) edit->setDrawAsterixes(TRUE);
 
 	if(LLStartUp::getStartSLURL().getType() != LLSLURL::LOCATION)
 	{
@@ -221,6 +213,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		LLStartUp::setStartSLURL(slurl);
 	}
 	updateLocationCombo(false);
+
+	gSavedSettings.getControl("SessionSettingsFile")->getSignal()->connect(boost::bind(&onModeChange));
 
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(onSelectServer, NULL);
@@ -231,7 +225,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	getChild<LLPanel>("login")->setDefaultBtn("connect_btn");
 
-	std::string channel = gSavedSettings.getString("VersionChannelName");
+	std::string channel = LLVersionInfo::getChannel();
 	std::string version = llformat("%s (%d)",
 								   LLVersionInfo::getShortVersion().c_str(),
 								   LLVersionInfo::getBuild());
@@ -248,7 +242,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLTextBox* need_help_text = getChild<LLTextBox>("login_help");
 	need_help_text->setClickedCallback(onClickHelp, NULL);
-#endif    
 	
 	// get the web browser control
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
@@ -263,9 +256,65 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	gResponsePtr = LLIamHereLogin::build( this );
 
 	LLHTTPClient::head( LLGridManager::getInstance()->getLoginPage(), gResponsePtr );
-	
+
+	// Show last logged in user favorites in "Start at" combo.
+	addUsersWithFavoritesToUsername();
+	getChild<LLComboBox>("username_combo")->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
+
 	updateLocationCombo(false);
 
+}
+
+void LLPanelLogin::addUsersWithFavoritesToUsername()
+{
+	LLComboBox* combo = getChild<LLComboBox>("username_combo");
+	if (!combo) return;
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	LLSD fav_llsd;
+	llifstream file;
+	file.open(filename);
+	if (!file.is_open()) return;
+	LLSDSerialize::fromXML(fav_llsd, file);
+	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
+		iter != fav_llsd.endMap(); ++iter)
+	{
+		combo->add(iter->first);
+	}
+}
+
+void LLPanelLogin::addFavoritesToStartLocation()
+{
+	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
+	if (!combo) return;
+	int num_items = combo->getItemCount();
+	for (int i = num_items - 1; i > 2; i--)
+	{
+		combo->remove(i);
+	}
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	LLSD fav_llsd;
+	llifstream file;
+	file.open(filename);
+	if (!file.is_open()) return;
+	LLSDSerialize::fromXML(fav_llsd, file);
+	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
+		iter != fav_llsd.endMap(); ++iter)
+	{
+		if(iter->first != getChild<LLComboBox>("username_combo")->getSimple()) continue;
+		combo->addSeparator();
+		LLSD user_llsd = iter->second;
+		for (LLSD::array_const_iterator iter1 = user_llsd.beginArray();
+			iter1 != user_llsd.endArray(); ++iter1)
+		{
+			std::string label = (*iter1)["name"].asString();
+			std::string value = (*iter1)["slurl"].asString();
+			if(label != "" && value != "")
+			{
+				combo->add(label, value);
+			}
+		}
+		break;
+	}
 }
 
 // force the size to be correct (XML doesn't seem to be sufficient to do this)
@@ -275,15 +324,9 @@ void LLPanelLogin::reshapeBrowser()
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	LLRect rect = gViewerWindow->getWindowRectScaled();
 	LLRect html_rect;
-#if USE_VIEWER_AUTH
-	html_rect.setCenterAndSize( 
-		rect.getCenterX() - 2, rect.getCenterY(), 
-		rect.getWidth() + 6, rect.getHeight());
-#else
 	html_rect.setCenterAndSize(
 		rect.getCenterX() - 2, rect.getCenterY() + 40,
 		rect.getWidth() + 6, rect.getHeight() - 78 );
-#endif
 	web_browser->setRect( html_rect );
 	web_browser->reshape( html_rect.getWidth(), html_rect.getHeight(), TRUE );
 	reshape( rect.getWidth(), rect.getHeight(), 1 );
@@ -306,7 +349,6 @@ void LLPanelLogin::setSiteIsAlive( bool alive )
 	else
 	// the site is not available (missing page, server down, other badness)
 	{
-#if !USE_VIEWER_AUTH
 		if ( web_browser )
 		{
 			// hide browser control (revealing default one)
@@ -315,16 +357,6 @@ void LLPanelLogin::setSiteIsAlive( bool alive )
 			// mark as unavailable
 			mHtmlAvailable = FALSE;
 		}
-#else
-
-		if ( web_browser )
-		{	
-			web_browser->navigateToLocalPage( "loading-error" , "index.html" );
-
-			// mark as available
-			mHtmlAvailable = TRUE;
-		}
-#endif
 	}
 }
 
@@ -364,7 +396,6 @@ void LLPanelLogin::draw()
 
 		if ( mHtmlAvailable )
 		{
-#if !USE_VIEWER_AUTH
 			if (getChild<LLView>("login_widgets")->getVisible())
 			{
 				// draw a background box in black
@@ -373,7 +404,6 @@ void LLPanelLogin::draw()
 				// just the blue background to the native client UI
 				mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
 			}
-#endif
 		}
 		else
 		{
@@ -419,22 +449,17 @@ void LLPanelLogin::setFocus(BOOL b)
 // static
 void LLPanelLogin::giveFocus()
 {
-#if USE_VIEWER_AUTH
-	if (sInstance)
-	{
-		sInstance->setFocus(TRUE);
-	}
-#else
 	if( sInstance )
 	{
 		// Grab focus and move cursor to first blank input field
-		std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+		std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 		std::string pass = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 
 		BOOL have_username = !username.empty();
 		BOOL have_pass = !pass.empty();
 
 		LLLineEditor* edit = NULL;
+		LLComboBox* combo = NULL;
 		if (have_username && !have_pass)
 		{
 			// User saved his name but not his password.  Move
@@ -444,7 +469,7 @@ void LLPanelLogin::giveFocus()
 		else
 		{
 			// User doesn't have a name, so start there.
-			edit = sInstance->getChild<LLLineEditor>("username_edit");
+			combo = sInstance->getChild<LLComboBox>("username_combo");
 		}
 
 		if (edit)
@@ -452,21 +477,26 @@ void LLPanelLogin::giveFocus()
 			edit->setFocus(TRUE);
 			edit->selectAll();
 		}
+		else if (combo)
+		{
+			combo->setFocus(TRUE);
+		}
 	}
-#endif
 }
 
 // static
 void LLPanelLogin::showLoginWidgets()
 {
+	// *NOTE: Mani - This may or may not be obselete code.
+	// It seems to be part of the defunct? reg-in-client project.
 	sInstance->getChildView("login_widgets")->setVisible( true);
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
 	sInstance->reshapeBrowser();
 	// *TODO: Append all the usual login parameters, like first_login=Y etc.
-	std::string splash_screen_url = sInstance->getString("real_url");
+	std::string splash_screen_url = LLGridManager::getInstance()->getLoginPage();
 	web_browser->navigateTo( splash_screen_url, "text/html" );
-	LLUICtrl* username_edit = sInstance->getChild<LLUICtrl>("username_edit");
-	username_edit->setFocus(TRUE);
+	LLUICtrl* username_combo = sInstance->getChild<LLUICtrl>("username_combo");
+	username_combo->setFocus(TRUE);
 }
 
 // static
@@ -501,17 +531,26 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 	LLSD identifier = credential->getIdentifier();
 	if((std::string)identifier["type"] == "agent") 
 	{
-		sInstance->getChild<LLUICtrl>("username_edit")->setValue((std::string)identifier["first_name"] + " " + 
-								(std::string)identifier["last_name"]);	
+		std::string firstname = identifier["first_name"].asString();
+		std::string lastname = identifier["last_name"].asString();
+	    std::string login_id = firstname;
+	    if (!lastname.empty() && lastname != "Resident")
+	    {
+		    // support traditional First Last name SLURLs
+		    login_id += " ";
+		    login_id += lastname;
+	    }
+		sInstance->getChild<LLComboBox>("username_combo")->setLabel(login_id);	
 	}
 	else if((std::string)identifier["type"] == "account")
 	{
-		sInstance->getChild<LLUICtrl>("username_edit")->setValue((std::string)identifier["account_name"]);		
+		sInstance->getChild<LLComboBox>("username_combo")->setLabel((std::string)identifier["account_name"]);		
 	}
 	else
 	{
-	  sInstance->getChild<LLUICtrl>("username_edit")->setValue(std::string());	
+	  sInstance->getChild<LLComboBox>("username_combo")->setLabel(std::string());	
 	}
+	sInstance->addFavoritesToStartLocation();
 	// if the password exists in the credential, set the password field with
 	// a filler to get some stars
 	LLSD authenticator = credential->getAuthenticator();
@@ -559,14 +598,15 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 		authenticator = credential->getAuthenticator();
 	}
 
-	std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+	std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 	LLStringUtil::trim(username);
 	std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 
 	LL_INFOS2("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
 	// determine if the username is a first/last form or not.
 	size_t separator_index = username.find_first_of(' ');
-	if (separator_index == username.npos)
+	if (separator_index == username.npos
+		&& !LLGridManager::getInstance()->isSystemGrid())
 	{
 		LL_INFOS2("Credentials", "Authentication") << "account: " << username << LL_ENDL;
 		// single username, so this is a 'clear' identifier
@@ -583,9 +623,23 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	}
 	else
 	{
+		// Be lenient in terms of what separators we allow for two-word names
+		// and allow legacy users to login with firstname.lastname
+		separator_index = username.find_first_of(" ._");
 		std::string first = username.substr(0, separator_index);
-		std::string last = username.substr(separator_index, username.npos);
+		std::string last;
+		if (separator_index != username.npos)
+		{
+			last = username.substr(separator_index+1, username.npos);
 		LLStringUtil::trim(last);
+		}
+		else
+		{
+			// ...on Linden grids, single username users as considered to have
+			// last name "Resident"
+			// *TODO: Make login.cgi support "account_name" like above
+			last = "Resident";
+		}
 		
 		if (last.find_first_of(' ') == last.npos)
 		{
@@ -636,15 +690,15 @@ BOOL LLPanelLogin::areCredentialFieldsDirty()
 	}
 	else
 	{
-		std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+		std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 		LLStringUtil::trim(username);
 		std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
-		LLLineEditor* ctrl = sInstance->getChild<LLLineEditor>("username_edit");
-		if(ctrl && ctrl->isDirty())
+		LLComboBox* combo = sInstance->getChild<LLComboBox>("username_combo");
+		if(combo && combo->isDirty())
 		{
 			return true;
 		}
-		ctrl = sInstance->getChild<LLLineEditor>("password_edit");
+		LLLineEditor* ctrl = sInstance->getChild<LLLineEditor>("password_edit");
 		if(ctrl && ctrl->isDirty()) 
 		{
 			return true;
@@ -739,7 +793,7 @@ void LLPanelLogin::closePanel()
 {
 	if (sInstance)
 	{
-		gViewerWindow->getRootView()->removeChild( LLPanelLogin::sInstance );
+		LLPanelLogin::sInstance->getParent()->removeChild( LLPanelLogin::sInstance );
 
 		delete sInstance;
 		sInstance = NULL;
@@ -795,7 +849,7 @@ void LLPanelLogin::loadLoginPage()
 								   LLVersionInfo::getShortVersion().c_str(),
 								   LLVersionInfo::getBuild());
 
-	char* curl_channel = curl_escape(gSavedSettings.getString("VersionChannelName").c_str(), 0);
+	char* curl_channel = curl_escape(LLVersionInfo::getChannel().c_str(), 0);
 	char* curl_version = curl_escape(version.c_str(), 0);
 
 	oStr << "&channel=" << curl_channel;
@@ -805,78 +859,18 @@ void LLPanelLogin::loadLoginPage()
 	curl_free(curl_version);
 
 	// Grid
-	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridLoginID().c_str(), 0);
+	char* curl_grid = curl_escape(LLGridManager::getInstance()->getGridLabel().c_str(), 0);
 	oStr << "&grid=" << curl_grid;
 	curl_free(curl_grid);
+	
+	// add OS info
+	char * os_info = curl_escape(LLAppViewer::instance()->getOSInfo().getOSStringSimple().c_str(), 0);
+	oStr << "&os=" << os_info;
+	curl_free(os_info);
+	
+	
 	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
 	gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());
-
-
-#if USE_VIEWER_AUTH
-	LLURLSimString::sInstance.parse();
-
-	std::string location;
-	std::string region;
-	std::string password;
-	
-	if (LLURLSimString::parse())
-	{
-		std::ostringstream oRegionStr;
-		location = "specify";
-		oRegionStr << LLURLSimString::sInstance.mSimName << "/" << LLURLSimString::sInstance.mX << "/"
-			 << LLURLSimString::sInstance.mY << "/"
-			 << LLURLSimString::sInstance.mZ;
-		region = oRegionStr.str();
-	}
-	else
-	{
-		location = gSavedSettings.getString("LoginLocation");
-	}
-	
-	std::string username;
-
-    if(gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
-    {
-        LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
-		username = cmd_line_login[0].asString() + " " + cmd_line_login[1];
-        password = cmd_line_login[2].asString();
-    }
-    	
-	
-	char* curl_region = curl_escape(region.c_str(), 0);
-
-	oStr <<"username=" << username <<
-		 "&location=" << location <<	"&region=" << curl_region;
-	
-	curl_free(curl_region);
-
-	if (!password.empty())
-	{
-		oStr << "&password=" << password;
-	}
-	else if (!(password = load_password_from_disk()).empty())
-	{
-		oStr << "&password=$1$" << password;
-	}
-	if (gAutoLogin)
-	{
-		oStr << "&auto_login=TRUE";
-	}
-	if (gSavedSettings.getBOOL("ShowStartLocation"))
-	{
-		oStr << "&show_start_location=TRUE";
-	}	
-	if (gSavedSettings.getBOOL("RememberPassword"))
-	{
-		oStr << "&remember_password=TRUE";
-	}	
-#ifndef	LL_RELEASE_FOR_DOWNLOAD
-	oStr << "&show_grid=TRUE";
-#else
-	if (gSavedSettings.getBOOL("ForceShowGrid"))
-		oStr << "&show_grid=TRUE";
-#endif
-#endif
 	
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
 
@@ -951,7 +945,7 @@ void LLPanelLogin::onClickConnect(void *)
 			return;
 		}
 		updateStartSLURL();
-		std::string username = sInstance->getChild<LLUICtrl>("username_edit")->getValue().asString();
+		std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 
 		
 		if(username.empty())
@@ -1163,4 +1157,27 @@ void LLPanelLogin::updateLoginPanelLinks()
 	// is static.
 	sInstance->getChildView("create_new_account_text")->setVisible( system_grid);
 	sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
+}
+
+//static
+void LLPanelLogin::onModeChange()
+{
+	LLNotificationsUtil::add("ModeChange", LLSD(), LLSD(), boost::bind(&onModeChangeConfirm, _1, _2));
+}
+
+//static
+void LLPanelLogin::onModeChangeConfirm(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	switch (option)
+	{
+	case 0:
+		LLAppViewer::instance()->requestQuit();
+		break;
+	case 1:
+		// do nothing
+		break;
+	default:
+		break;
+	}
 }

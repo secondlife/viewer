@@ -34,6 +34,7 @@
 
 class LLAvatarList;
 class LLAvatarListItem;
+class LLAvatarName;
 class LLNonAvatarCaller;
 class LLOutputMonitorCtrl;
 class LLParticipantList;
@@ -63,6 +64,7 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
+	/*virtual*/ void setFocus( BOOL b );
 
 	/**
 	 * Is called by LLVoiceClient::notifyParticipantObservers when voice participant list is changed.
@@ -116,11 +118,16 @@ private:
 	 */
 	void onAvatarListRefreshed();
 
+	/**
+	 * Updates window title with an avatar name
+	 */
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 	
 	void updateTitle();
 	void initAgentData();
 	void setModeratorMutedVoice(bool moderator_muted);
 	void updateAgentModeratorState();
+	void onModeratorNameCache(const LLAvatarName& av_name);
 
 	/**
 	 * Sets initial participants voice states in avatar list (Invited, Joined, Has Left).

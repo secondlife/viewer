@@ -3,35 +3,16 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<panel.string name="middle_mouse">
-		Mittlere Maustaste
-	</panel.string>
-	<slider label="Sichtwinkel" name="camera_fov"/>
-	<slider label="Abstand" name="camera_offset_scale"/>
-	<text name="heading2">
-		Automatische Position für:
-	</text>
-	<check_box label="Bauen/Bearbeiten" name="edit_camera_movement" tool_tip="Automatische Kamerapositionierung bei Wechsel in und aus dem Bearbeitungsmodus verwenden"/>
-	<check_box label="Aussehen" name="appearance_camera_movement" tool_tip="Automatische Kamerapositionierung im Bearbeitenmodus verwenden"/>
-	<check_box initial_value="true" label="Seitenleiste" name="appearance_sidebar_positioning" tool_tip="Automatische Kameraposition für Seitenleiste verwenden"/>
-	<check_box label="Mich im Mouselook anzeigen" name="first_person_avatar_visible"/>
-	<check_box label="Mit Pfeiltasten bewegen" name="arrow_keys_move_avatar_check"/>
-	<check_box label="2-mal-drücken-halten, um zu rennen" name="tap_tap_hold_to_run"/>
-	<check_box label="Avatarlippen beim Sprechen bewegen" name="enable_lip_sync"/>
-	<check_box label="Blasen-Chat" name="bubble_text_chat"/>
-	<slider label="Deckkraft" label_width="66" name="bubble_chat_opacity"/>
-	<color_swatch left_pad="35" name="background" tool_tip="Farbe für Blasen-Chat auswählen"/>
 	<text name="UI Size:">
-		UI-Größe
+		UI-Größe:
 	</text>
 	<check_box label="Skript-Fehler anzeigen:" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Chat in der Nähe" name="0"/>
 		<radio_item label="Getrenntes Fenster" name="1"/>
 	</radio_group>
-	<check_box label="Sprachfunktion ein-/ausschalten, wenn gedrückt wird:" name="push_to_talk_toggle_check" tool_tip="Wenn der Umschaltmodus aktiviert ist, drücken Sie die Auslöse-Taste EINMAL, um Ihr Mikrofon an oder aus zu stellen. Wenn der Umschaltmodus nicht motiviert ist, ist das Mikro nur dann eingeschaltet, wenn Sie die Auslösetaste gedrückt halten."/>
-	<line_editor label="Auslöser für Zum-Sprechen-drücken:" name="modifier_combo"/>
-	<button label="Taste festlegen" name="set_voice_hotkey_button"/>
-	<button label="Mittlere Maustaste" name="set_voice_middlemouse_button" tool_tip="Auf mittlere Maustaste zurücksetzen"/>
-	<button label="Andere Geräte" name="joystick_setup_button"/>
+	<check_box label="Mehrere Viewer zulassen" name="allow_multiple_viewer_check"/>
+	<check_box label="Bei Anmeldung Rasterauswahl anzeigen" name="show_grid_selection_check"/>
+	<check_box label="Menü „Erweitert“ anzeigen" name="show_advanced_menu_check"/>
+	<check_box label="Menü „Entwickler“ anzeigen" name="show_develop_menu_check"/>
 </panel>

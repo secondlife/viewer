@@ -65,7 +65,8 @@
      name="back_btn"
      tab_stop="false"
      top="0"
-     width="30" />
+     width="30"
+     use_draw_context_alpha="false" />
         <text
      follows="top|left|right"
      font="SansSerifHuge"
@@ -118,7 +119,7 @@
 		     height="20"
 		     layout="topleft"
 	    	 left_delta="78"
-		     max_length="63"
+		     max_length_bytes="63"
              name="Object Name"
 	    	 top_delta="0"
 		     width="225" />
@@ -143,7 +144,7 @@
              name="Object Description"
              select_on_focus="true"
     		 left_delta="78"
-		     max_length="127"
+		     max_length_bytes="127"
 	    	 top_delta="-5"
 	    	 width="225"/>
 	    <text
@@ -167,8 +168,10 @@
      left_pad="0"
              name="Creator Name"
 		     top_delta="0"
-		     width="140">
-	        Erica Linden
+		     translate="false"
+         use_ellipses="true" 
+		     width="225">
+	        TestString PleaseIgnore
 	     </text>
 	    <text
 			 type="string"
@@ -191,8 +194,10 @@
 			    left_pad="0"
 			    name="Owner Name"
 			    top_delta="0"
-			    width="140">
-			    Erica Linden
+			    translate="false"
+          use_ellipses="true" 
+			    width="225">
+			    TestString PleaseIgnore
 	     </text>
 	    	    <text
 			 type="string"
@@ -530,7 +535,7 @@
 		     left="5"
 		     name="open_btn"
 		     top="0"
-		     width="100" />
+		     width="73" />
 	    <button
 		     follows="bottom|left"
 		     height="23"
@@ -539,7 +544,7 @@
 		     left_pad="5"
 		     name="pay_btn"
 		     top="0"
-		     width="100" />
+		     width="73" />
 	    <button
 		     follows="bottom|left"
 		     height="23"
@@ -548,17 +553,16 @@
 		     left_pad="5"
 		     name="buy_btn"
 		     top="0"
-		     width="100" />
+		     width="73" />
         <button
 		     follows="bottom|left"
 		     height="23"
 		     label="Details"
 		     layout="topleft"
-		     left="5"
+		     left_pad="5"
 		     name="details_btn"
 		     top="0"
-		     width="100"
-			 visible="false" />
+		     width="74" />
 
 	</panel>
 </panel>

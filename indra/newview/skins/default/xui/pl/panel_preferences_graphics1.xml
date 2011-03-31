@@ -26,25 +26,20 @@
 		<text name="ShadersText">
 			Cieniowanie pixeli (shadery):
 		</text>
+		<check_box initial_value="prawda" label="Przeźroczystość wody" name="TransparentWater"/>
 		<check_box initial_value="true" label="Mapowanie wypukłości i połysk" name="BumpShiny"/>
 		<check_box initial_value="true" label="Podstawowe shadery" name="BasicShaders" tool_tip="Wyłączenie tej opcji może naprawić błędy niektórych sterowników graficznych."/>
 		<check_box initial_value="true" label="Shadery atmosfery" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="Refleksy w wodzie" name="Reflections"/>
-		<text name="ReflectionDetailText">
-			Ustawienia refleksów:
+		<text name="reflection_label">
+			Refleksy w wodzie:
 		</text>
-		<radio_group name="ReflectionDetailRadio">
-			<radio_item label="Teren i drzewa" name="0"/>
-			<radio_item label="Obiekty statyczne" name="1"/>
-			<radio_item label="Awatary i obiekty" name="2"/>
-			<radio_item label="Wszystko" name="3"/>
-		</radio_group>
-		<text name="AvatarRenderingText">
-			Rendering awatarów
-		</text>
-		<check_box initial_value="true" label="Impostoryzacja awatarowa" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="Rendering awatara przez GPU" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="Oddzielne warstwy ubrań" name="AvatarCloth"/>
+		<combo_box initial_value="true" label="Refleksy w wodzie" name="Reflections">
+			<combo_box.item label="Mało" name="0"/>
+			<combo_box.item label="Teren i drzewa" name="1"/>
+			<combo_box.item label="Obiekty statyczne" name="2"/>
+			<combo_box.item label="Awatary i obiekty" name="3"/>
+			<combo_box.item label="Wszystko" name="4"/>
+		</combo_box>
 		<slider label="Pole widzenia:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -82,13 +77,12 @@
 		<text name="SkyMeshDetailText">
 			Mało
 		</text>
-		<text name="LightingDetailText">
-			Ustawienia świateł:
+		<text name="AvatarRenderingText">
+			Rendering awatarów
 		</text>
-		<radio_group name="LightingDetailRadio">
-			<radio_item label="Tylko Słońce i Księżyc" name="SunMoon" value="0"/>
-			<radio_item label="Tylko bliskie światła" name="LocalLights" value="1"/>
-		</radio_group>
+		<check_box initial_value="true" label="Impostoryzacja awatarowa" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Rendering awatara przez GPU" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Oddzielne warstwy ubrań" name="AvatarCloth"/>
 		<text name="TerrainDetailText">
 			Szczegóły terenu:
 		</text>
@@ -96,6 +90,7 @@
 			<radio_item label="Niska" name="0"/>
 			<radio_item label="Wysoka" name="2"/>
 		</radio_group>
+		--&gt;
 	</panel>
 	<button label="Zastosuj" label_selected="Zastosuj" name="Apply"/>
 	<button label="Zresetuj" name="Defaults"/>

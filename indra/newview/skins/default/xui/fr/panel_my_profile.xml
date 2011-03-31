@@ -16,35 +16,27 @@
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
+	<string name="name_text_args">
+		[NAME]
+	</string>
+	<string name="display_name_text_args">
+		[DISPLAY_NAME]
+	</string>
 	<layout_stack name="layout">
 		<layout_panel name="profile_stack">
 			<scroll_container name="profile_scroll">
 				<panel name="scroll_content_panel">
 					<panel name="second_life_image_panel">
-						<icon label="" name="2nd_life_edit_icon" tool_tip="Cliquez sur le bouton Modifier le profil ci-dessous pour changer d&apos;image"/>
-						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+						<text name="display_name_descr_text">
+							Nom d&apos;utilisateur
+						</text>
+						<text name="name_descr_text">
+							Nom d&apos;affichage
+						</text>
+						<button label="Profil" name="see_profile_btn" tool_tip="Afficher le profil de cet avatar."/>
 					</panel>
-					<panel name="first_life_image_panel">
-						<icon label="" name="real_world_edit_icon" tool_tip="Cliquez sur le bouton Modifier le profil ci-dessous pour changer d&apos;image"/>
-						<text name="title_rw_descr_text" value="Vie réelle :"/>
-					</panel>
-					<text name="title_member_text" value="Résident depuis :"/>
-					<text name="title_acc_status_text" value="Statut du compte :"/>
-					<text_editor name="acc_status_text">
-						Résident. Aucune info de paiement enregistrée.
-              Linden.
-					</text_editor>
-					<text name="title_partner_text" value="Partenaire :"/>
-					<panel name="partner_data_panel">
-						<name_box initial_value="(récupération en cours)" name="partner_text"/>
-					</panel>
-					<text name="title_groups_text" value="Groupes :"/>
 				</panel>
 			</scroll_container>
-		</layout_panel>
-		<layout_panel name="profile_me_buttons_panel">
-			<button label="Modifier le profil" name="edit_profile_btn" tool_tip="Modifier vos informations personnelles"/>
-			<button label="Changer d&apos;apparence" name="edit_appearance_btn" tool_tip="Créer/modifier votre apparence : données physiques, habits, etc."/>
 		</layout_panel>
 	</layout_stack>
 </panel>
