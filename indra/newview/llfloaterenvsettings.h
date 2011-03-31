@@ -33,50 +33,57 @@
 
 #include "llfloater.h"
 
-struct WaterColorControl;
-struct WaterExpFloatControl;
 
 /// Menuing system for all of windlight's functionality
 class LLFloaterEnvSettings : public LLFloater
 {
+	LOG_CLASS(LLFloaterEnvSettings);
 public:
 
-	LLFloaterEnvSettings(const LLSD& key);
+	LLFloaterEnvSettings(const LLSD &key);
 	/*virtual*/ ~LLFloaterEnvSettings();
 	/*virtual*/	BOOL	postBuild();	
+
 	/// initialize all the callbacks for the menu
 	void initCallbacks(void);
 
+	/// one and one instance only
+	LLFloaterEnvSettings* instance();
+		
 	/// handle if time of day is changed
-	void onChangeDayTime(LLUICtrl* ctrl);
+	static void onChangeDayTime(LLUICtrl* ctrl, void* userData);
 
 	/// handle if cloud coverage is changed
-	void onChangeCloudCoverage(LLUICtrl* ctrl);
+	static void onChangeCloudCoverage(LLUICtrl* ctrl, void* userData);
 
 	/// handle change in water fog density
-	void onChangeWaterFogDensity(LLUICtrl* ctrl, WaterExpFloatControl* expFloatControl);
+	static void onChangeWaterFogDensity(LLUICtrl* ctrl, void* expFloatControl);
 
 	/// handle change in water fog color
-	void onChangeWaterColor(LLUICtrl* ctrl, WaterColorControl* colorControl);
+	static void onChangeWaterColor(LLUICtrl* ctrl, void* colorControl);
 
 	/// open the advanced sky settings menu
-	void onOpenAdvancedSky();
+	static void onOpenAdvancedSky(void* userData1, void* userData2);
 
 	/// open the advanced water settings menu
-	void onOpenAdvancedWater();
+	static void onOpenAdvancedWater(void* userData1, void* userData2);
 
 	/// sync time with the server
-	void onUseEstateTime();
+	static void onUseEstateTime(void* userData1, void* userData2);
+
+	// opt-in for region Windlight settings
+	//static void onUseRegionEnvironment(LLUICtrl* ctrl, void* userData);
+	static void onUseRegionEnvironment(LLUICtrl*, void*);
 
 	//// menu management
 
 	/// sync up sliders with parameters
 	void syncMenu();
 
-	/// convert the present time to a digital clock time
-	std::string timeToString(F32 curTime);
-
 private:
+	// one instance on the inside
+
+	static void setOptIn(bool opt_in);
 };
 
 

@@ -57,8 +57,6 @@
 
 #include "curl/curl.h"
 
-LLWaterParamManager * LLWaterParamManager::sInstance = NULL;
-
 LLWaterParamManager::LLWaterParamManager() :
 	mFogColor(22.f/255.f, 43.f/255.f, 54.f/255.f, 0.0f, 0.0f, "waterFogColor", "WaterFogColor"),
 	mFogDensity(4, "waterFogDensity", 2),
@@ -246,7 +244,7 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 {
 	if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
 	{
-		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLWLParamManager::instance()->getRotatedLightDir().mV);
+		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLWLParamManager::getInstance()->getRotatedLightDir().mV);
 		shader->uniform3fv("camPosLocal", 1, LLViewerCamera::getInstance()->getOrigin().mV);
 		shader->uniform4fv("waterFogColor", 1, LLDrawPoolWater::sWaterFogColor.mV);
 		shader->uniform4fv("waterPlane", 1, mWaterPlane.mV);
@@ -256,11 +254,11 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_WLPARAM("Update Windlight Params");
+static LLFastTimer::DeclareTimer FTM_UPDATE_WATERPARAM("Update Water Params");
 
 void LLWaterParamManager::update(LLViewerCamera * cam)
 {
-	LLFastTimer ftm(FTM_UPDATE_WLPARAM);
+	LLFastTimer ftm(FTM_UPDATE_WATERPARAM);
 	
 	// update the shaders and the menu
 	propagateParameters();
@@ -318,19 +316,6 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 			}
 		}
 	}
-}
-
-// static
-void LLWaterParamManager::initClass(void)
-{
-	instance();
-}
-
-// static
-void LLWaterParamManager::cleanupClass(void)
-{
-	delete sInstance;
-	sInstance = NULL;
 }
 
 bool LLWaterParamManager::addParamSet(const std::string& name, LLWaterParamSet& param)
@@ -439,17 +424,9 @@ F32 LLWaterParamManager::getFogDensity(void)
 	return fogDensity;
 }
 
-// static
-LLWaterParamManager * LLWaterParamManager::instance()
+// virtual static
+void LLWaterParamManager::initSingleton()
 {
-	if(NULL == sInstance)
-	{
-		sInstance = new LLWaterParamManager();
-
-		sInstance->loadAllPresets(LLStringUtil::null);
-
-		sInstance->getParamSet("Default", sInstance->mCurParams);
-	}
-
-	return sInstance;
+	loadAllPresets(LLStringUtil::null);
+	getParamSet("Default", mCurParams);
 }

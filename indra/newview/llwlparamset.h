@@ -32,10 +32,10 @@
 
 #include "v4math.h"
 #include "v4color.h"
-#include "llviewershadermgr.h"
 
 class LLFloaterWindLight;
 class LLWLParamSet;
+class LLGLSLShader;
 
 /// A class representing a set of parameter values for the WindLight shaders.
 class LLWLParamSet {

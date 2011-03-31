@@ -568,7 +568,7 @@ void LLVOWLSky::buildFanBuffer(LLStrider<LLVector3> & vertices,
 							   LLStrider<LLVector2> & texCoords,
 							   LLStrider<U16> & indices)
 {
-	const F32 RADIUS = LLWLParamManager::instance()->getDomeRadius();
+	const F32 RADIUS = LLWLParamManager::getInstance()->getDomeRadius();
 
 	U32 i, num_slices;
 	F32 phi0, theta, x0, y0, z0;
@@ -629,7 +629,7 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack, U32 end_stack,
 								  LLStrider<LLVector2> & texCoords,
 								  LLStrider<U16> & indices)
 {
-	const F32 RADIUS = LLWLParamManager::instance()->getDomeRadius();
+	const F32 RADIUS = LLWLParamManager::getInstance()->getDomeRadius();
 
 	U32 i, j, num_slices, num_stacks;
 	F32 phi0, theta, x0, y0, z0;
