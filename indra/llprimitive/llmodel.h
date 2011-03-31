@@ -71,38 +71,53 @@ public:
 	
 	//convex_hull_decomposition is a vector of convex hulls
 	//each convex hull is a set of points
-	typedef  std::vector<std::vector<LLVector3> > convex_hull_decomposition;
+	typedef std::vector<std::vector<LLVector3> > convex_hull_decomposition;
 	typedef std::vector<LLVector3> hull;
 	
+	class PhysicsMesh
+	{
+	public:
+		std::vector<LLVector3> mPositions;
+		std::vector<LLVector3> mNormals;
+
+		void clear()
+		{
+			mPositions.clear();
+			mNormals.clear();
+		}
+
+		bool empty() const
+		{
+			return mPositions.empty();
+		}
+	};
+
+	class Decomposition
+	{
+	public:
+		Decomposition() { }
+		Decomposition(LLSD& data);
+		void fromLLSD(LLSD& data);
+		LLSD asLLSD() const;
+
+		void merge(const Decomposition* rhs);
+
+		LLUUID mMeshID;
+		LLModel::convex_hull_decomposition mHull;
+		LLModel::hull mBaseHull;
+
+		std::vector<LLModel::PhysicsMesh> mMesh;
+		LLModel::PhysicsMesh mBaseHullMesh;
+		LLModel::PhysicsMesh mPhysicsShapeMesh;
+	};
+
 	LLModel(LLVolumeParams& params, F32 detail);
 	~LLModel();
 
 	bool loadModel(std::istream& is);
 	bool loadSkinInfo(LLSD& header, std::istream& is);
 	bool loadDecomposition(LLSD& header, std::istream& is);
-	static LLSD writeModel(
-		std::string filename,
-		LLModel* physics,
-		LLModel* high,
-		LLModel* medium,
-		LLModel* low,
-		LLModel* imposotr,
-		const LLModel::convex_hull_decomposition& convex_hull_decomposition,
-		const LLModel::hull& base_hull,
-		BOOL upload_skin,
-		BOOL upload_joints,
-		BOOL nowrite = FALSE);
-	static LLSD writeModel(
-		std::string filename,
-		LLModel* physics,
-		LLModel* high,
-		LLModel* medium,
-		LLModel* low,
-		LLModel* imposotr,
-		const LLModel::convex_hull_decomposition& convex_hull_decomposition,
-		BOOL upload_skin,
-		BOOL upload_joints,
-		BOOL nowrite = FALSE);
+	
 	static LLSD writeModel(
 		std::ostream& ostr,
 		LLModel* physics,
@@ -110,11 +125,11 @@ public:
 		LLModel* medium,
 		LLModel* low,
 		LLModel* imposotr,
-		const LLModel::convex_hull_decomposition& convex_hull_decomposition,
-		const LLModel::hull& base_hull,
+		const LLModel::Decomposition& decomp,
 		BOOL upload_skin,
 		BOOL upload_joints,
 		BOOL nowrite = FALSE);
+
 	static LLSD writeModelToStream(
 		std::ostream& ostr,
 		LLSD& mdl,
@@ -219,42 +234,6 @@ public:
 
 	//ID for storing this model in a .slm file
 	S32 mLocalID;
-
-	class PhysicsMesh
-	{
-	public:
-		std::vector<LLVector3> mPositions;
-		std::vector<LLVector3> mNormals;
-
-		void clear()
-		{
-			mPositions.clear();
-			mNormals.clear();
-		}
-
-		bool empty() const
-		{
-			return mPositions.empty();
-		}
-	};
-
-	class Decomposition
-	{
-	public:
-		Decomposition() { }
-		Decomposition(LLSD& data);
-		void fromLLSD(LLSD& data);
-		
-		void merge(const Decomposition* rhs);
-
-		LLUUID mMeshID;
-		LLModel::convex_hull_decomposition mHull;
-		LLModel::hull mBaseHull;
-
-		std::vector<LLModel::PhysicsMesh> mMesh;
-		LLModel::PhysicsMesh mBaseHullMesh;
-		LLModel::PhysicsMesh mPhysicsShapeMesh;
-	};
 
 	Decomposition mPhysics;
 

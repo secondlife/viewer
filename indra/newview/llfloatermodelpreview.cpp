@@ -1096,7 +1096,7 @@ LLModelLoader::LLModelLoader(std::string filename, S32 lod, LLModelPreview* prev
 	{
 		//only try to load from slm if viewer is configured to do so and this is the 
 		//initial model load (not an LoD or physics shape)
-		mTrySLM = gSavedSettings.getBOOL("MeshImportUseSLM") && mPreview->mBaseModel.empty();
+		mTrySLM = gSavedSettings.getBOOL("MeshImportUseSLM") && mPreview->mUploadData.empty();
 		mPreview->setLoadState(STARTING);
 	}
 	else
@@ -1892,6 +1892,14 @@ void LLModelLoader::loadModelCallback()
 	{ //wait until this thread is stopped before deleting self
 		apr_sleep(100);
 	}
+
+	//cleanup model loader
+	if (mPreview)
+	{
+		mPreview->mModelLoader = NULL;
+	}
+
+	delete this;
 }
 
 void LLModelLoader::handlePivotPoint( daeElement* pRoot )
@@ -2533,10 +2541,10 @@ U32 LLModelPreview::calcResourceCost()
 		{
 			accounted.insert(instance.mModel);
 
-			LLModel::convex_hull_decomposition& decomp =
+			LLModel::Decomposition& decomp =
 			instance.mLOD[LLModel::LOD_PHYSICS] ?
-			instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics.mHull :
-			instance.mModel->mPhysics.mHull;
+			instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics :
+			instance.mModel->mPhysics;
 			
 			//update instance skin info for each lods pelvisZoffset 
 			for ( int j=0; j<LLModel::NUM_LODS; ++j )
@@ -2547,23 +2555,23 @@ U32 LLModelPreview::calcResourceCost()
 				}
 			}
 
-			LLSD ret = LLModel::writeModel(
-										   "",
-										   instance.mLOD[4],
-										   instance.mLOD[3],
-										   instance.mLOD[2],
-										   instance.mLOD[1],
-										   instance.mLOD[0],
-										   decomp,
-										   mFMP->childGetValue("upload_skin").asBoolean(),
-										   mFMP->childGetValue("upload_joints").asBoolean(),
-										   TRUE);
+			std::stringstream ostr;
+			LLSD ret = LLModel::writeModel(ostr,
+					   instance.mLOD[4],
+					   instance.mLOD[3],
+					   instance.mLOD[2],
+					   instance.mLOD[1],
+					   instance.mLOD[0],
+					   decomp,
+					   mFMP->childGetValue("upload_skin").asBoolean(),
+					   mFMP->childGetValue("upload_joints").asBoolean(),
+					   TRUE);
 			cost += gMeshRepo.calcResourceCost(ret);
 
-			num_hulls += decomp.size();
-			for (U32 i = 0; i < decomp.size(); ++i)
+			num_hulls += decomp.mHull.size();
+			for (U32 i = 0; i < decomp.mHull.size(); ++i)
 			{
-				num_points += decomp[i].size();
+				num_points += decomp.mHull[i].size();
 			}
 
 			//calculate streaming cost
@@ -2766,10 +2774,10 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 
 			std::stringstream str;
 
-			LLModel::convex_hull_decomposition& decomp =
+			LLModel::Decomposition& decomp =
 				instance.mLOD[LLModel::LOD_PHYSICS].notNull() ? 
-				instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics.mHull : 
-				instance.mModel->mPhysics.mHull;
+				instance.mLOD[LLModel::LOD_PHYSICS]->mPhysics : 
+				instance.mModel->mPhysics;
 
 			LLModel::writeModel(str, 
 				instance.mLOD[LLModel::LOD_PHYSICS], 
@@ -2778,7 +2786,7 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 				instance.mLOD[LLModel::LOD_LOW], 
 				instance.mLOD[LLModel::LOD_IMPOSTOR], 
 				decomp, 
-				empty_hull, save_skinweights, save_joint_positions);
+				save_skinweights, save_joint_positions);
 
 			
 			data["mesh"][instance.mModel->mLocalID] = str.str();

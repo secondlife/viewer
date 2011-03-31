@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu name="Gear Menu">
+<toggleable_menu name="Gear Menu">
 	<menu_item_call label="Ver el perfil" name="view_profile"/>
 	<menu_item_call label="Añadir como amigo" name="add_friend"/>
 	<menu_item_call label="MI" name="im"/>
@@ -11,9 +11,11 @@
 	<menu_item_call label="Denunciar" name="report"/>
 	<menu_item_call label="Congelar" name="freeze"/>
 	<menu_item_call label="Expulsar" name="eject"/>
+	<menu_item_call label="Expulsar" name="kick"/>
+	<menu_item_call label="CSR" name="csr"/>
 	<menu_item_call label="Depurar las texturas" name="debug"/>
 	<menu_item_call label="Encontrar en el mapa" name="find_on_map"/>
 	<menu_item_call label="Acercar el zoom" name="zoom_in"/>
 	<menu_item_call label="Pagar" name="pay"/>
 	<menu_item_call label="Compartir" name="share"/>
-</menu>
+</toggleable_menu>

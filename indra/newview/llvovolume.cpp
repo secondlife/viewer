@@ -3082,15 +3082,15 @@ U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 
 }
 
-F32 LLVOVolume::getStreamingCost()
+F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes)
 {
 	if (isMesh())
 	{	
-		const LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
+		LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
 
 		F32 radius = getScale().length();
 		
-		return LLMeshRepository::getStreamingCost(header, radius);
+		return LLMeshRepository::getStreamingCost(header, radius, bytes, visible_bytes, mLOD);
 	}
 		
 	return 0.f;
