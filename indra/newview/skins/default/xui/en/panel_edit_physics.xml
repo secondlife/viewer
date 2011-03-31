@@ -27,8 +27,8 @@
         height ="300"
         layout="topleft"
         left="0"
-        name="wearable_accordion"
-        single_expansion="true"
+		single_expansion="true"
+        name="physics_accordion"
         top="0"
         width="313">
 		<accordion_tab

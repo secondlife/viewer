@@ -204,6 +204,8 @@ void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 				llwarns << "Visibility change to invalid wearable" << llendl;
 				return;
 			}
+			// Disable camera switch is currently just for WT_PHYSICS type since we don't want to freeze the avatar
+			// when editing its physics.
 			const BOOL disable_camera_motion = LLWearableType::getDisableCameraSwitch(wearable_ptr->getType());
 			if (!gAgentCamera.cameraCustomizeAvatar() && 
 				!disable_camera_motion &&
@@ -311,6 +313,15 @@ void LLSidepanelAppearance::showOutfitEditPanel()
 	if (mEditWearable != NULL && !mEditWearable->getVisible() && mOutfitEdit != NULL)
 	{
 		mOutfitEdit->resetAccordionState();
+	}
+
+	// If we're exiting the edit wearable view, and the camera was not focused on the avatar
+	// (e.g. such as if we were editing a physics param), then skip the outfits edit mode since
+	// otherwise this would trigger the camera focus mode.
+	if (mEditWearable != NULL && mEditWearable->getVisible() && !gAgentCamera.cameraCustomizeAvatar())
+	{
+		showOutfitsInventoryPanel();
+		return;
 	}
 
 	toggleMyOutfitsPanel(FALSE);
