@@ -210,6 +210,7 @@ public:
 /// WindLight parameter manager class - what controls all the wind light shaders
 class LLWLParamManager : public LLSingleton<LLWLParamManager>
 {
+	LOG_CLASS(LLWLParamManager);
 public:
 	/// load a preset file
 	void loadPresets(const std::string & fileName);

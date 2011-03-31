@@ -58,9 +58,11 @@ public:
 /// Menuing system for adjusting the atmospheric settings of the world.
 class LLFloaterDayCycle : public LLFloater
 {
+	LOG_CLASS(LLFloaterDayCycle);
 public:
 	LLFloaterDayCycle(const LLSD &key);
 	virtual ~LLFloaterDayCycle();
+	/*virtual*/ BOOL postBuild();
 
 	// map of sliders to parameters
 	static std::map<std::string, LLWLCycleSliderKey> sSliderToKey;

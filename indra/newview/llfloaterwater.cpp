@@ -59,8 +59,6 @@
 
 #undef max
 
-LLFloaterWater* LLFloaterWater::sWater = NULL;
-
 std::set<std::string> LLFloaterWater::sDefaultPresets;
 LLEnvKey::EScope LLFloaterWater::sScope;
 std::string LLFloaterWater::sOriginalTitle;
@@ -108,19 +106,11 @@ BOOL LLFloaterWater::postBuild()
 	return TRUE;
 }
 
-//static 
-LLFloaterWater* LLFloaterWater::instance()
-{
-	if (!sWater)
-	{
-		sWater = new LLFloaterWater(LLSD());
-	}
-	return sWater;
-}
-
+// static
 void LLFloaterWater::show(LLEnvKey::EScope scope)
 {
-	LLFloaterWater* water = instance();
+	LLFloaterWater* water = LLFloaterReg::getTypedInstance<LLFloaterWater>("env_water");
+	llassert(water);
 
 	if(scope != sScope && ((LLView*)water)->getVisible())
 	{

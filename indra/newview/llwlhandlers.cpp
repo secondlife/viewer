@@ -37,7 +37,7 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llenvmanager.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 
 /****
  * LLEnvironmentRequestResponder
@@ -82,6 +82,7 @@ LLEnvironmentRequestResponder::LLEnvironmentRequestResponder()
 		return;
 	}
 
+	LL_DEBUGS("WindlightCaps") << "content: " << unvalidated_content << LL_ENDL;
 	LLEnvManager::getInstance()->processIncomingMessage(unvalidated_content, LLEnvKey::SCOPE_REGION);
 }
 /*virtual*/ void LLEnvironmentRequestResponder::error(U32 status, const std::string& reason)
@@ -109,7 +110,7 @@ bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
 	{
 		LLSD args(LLSD::emptyMap());
 		args["WAIT"] = (F64)UPDATE_WAIT_SECONDS;
-		LLNotifications::instance().add("EnvUpdateRate", LLSD(), args);
+		LLNotificationsUtil::add("EnvUpdateRate", args);
 		return false;
 	}
 
@@ -117,8 +118,13 @@ bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
 	if (!url.empty())
 	{
 		LL_INFOS("WindlightCaps") << "Sending windlight settings to " << url << LL_ENDL;
+		LL_DEBUGS("WindlightCaps") << "content: " << content << LL_ENDL;
 		LLHTTPClient::post(url, content, new LLEnvironmentApplyResponder());
 		return true;
+	}
+	else
+	{
+		LL_WARNS("WindlightCaps") << "Applying windlight settings not supported" << LL_ENDL;
 	}
 	return false;
 }
@@ -140,7 +146,7 @@ bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
 		LL_WARNS("WindlightCaps") << "Region couldn't apply windlight settings!  Reason from sim: " << content["fail_reason"].asString() << LL_ENDL;
 		LLSD args(LLSD::emptyMap());
 		args["FAIL_REASON"] = content["fail_reason"].asString();
-		LLNotifications::instance().add("WLRegionApplyFail", LLSD(), args);
+		LLNotificationsUtil::add("WLRegionApplyFail", args);
 	}
 
 	LLEnvManager::getInstance()->commitSettingsFinished(LLEnvKey::SCOPE_REGION);
@@ -154,7 +160,7 @@ bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
 
 	LLSD args(LLSD::emptyMap());
 	args["FAIL_REASON"] = msg.str();
-	LLNotifications::instance().add("WLRegionApplyFail", LLSD(), args);
+	LLNotificationsUtil::add("WLRegionApplyFail", args);
 
 	LLEnvManager::getInstance()->commitSettingsFinished(LLEnvKey::SCOPE_REGION);
 }

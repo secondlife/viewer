@@ -33,8 +33,10 @@
 
 #include "llfloater.h"
 
+#if 0
 #include <vector>
 #include "llwlparamset.h"
+#endif
 #include "llenvmanager.h"
 
 struct WaterVector2Control;
@@ -54,10 +56,7 @@ public:
 	/// initialize all
 	void initCallbacks(void);
 
-	// one instance only
-	static LLFloaterWater* instance();
-
-	void show(LLEnvKey::EScope scope);
+	static void show(LLEnvKey::EScope scope = LLEnvKey::SCOPE_LOCAL);
 
 	bool newPromptCallback(const LLSD& notification, const LLSD& response);
 
@@ -109,8 +108,6 @@ private:
 	static std::set<std::string> sDefaultPresets;
 	static LLEnvKey::EScope sScope;
 	static std::string sOriginalTitle;
-
-	static LLFloaterWater* sWater;
 };
 
 

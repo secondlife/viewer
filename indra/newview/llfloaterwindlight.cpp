@@ -37,6 +37,7 @@
 #include "pipeline.h"
 #include "llsky.h"
 
+#include "llfloaterreg.h"
 #include "llsliderctrl.h"
 #include "llmultislider.h"
 #include "llmultisliderctrl.h"
@@ -75,6 +76,7 @@ LLFloaterWindLight::LLFloaterWindLight(const LLSD &key) : LLFloater(key)
 
 BOOL LLFloaterWindLight::postBuild()
 {
+	sWindLight = this;
 	sOriginalTitle = getTitle();
 	
 	// add the combo boxes
@@ -211,21 +213,9 @@ void LLFloaterWindLight::initCallbacks(void)
 	childSetCommitCallback("WLStarAlpha", onStarAlphaMoved, NULL);
 }
 
-#if 0
-void LLFloaterWindLight::onClickHelp(void* data)
-{
-	const std::string xml_alert = *(std::string*)data;
-	LLNotifications::instance().add(xml_alert, LLSD(), LLSD());
-}
-
-void LLFloaterWindLight::initHelpBtn(const std::string& name, const std::string& xml_alert)
-{
-	childSetAction(name, onClickHelp, new std::string(xml_alert));
-}
-#endif
-
 bool LLFloaterWindLight::newPromptCallback(const LLSD& notification, const LLSD& response)
 {
+	llassert(sWindLight);
 	std::string text = response["message"].asString();
 	LLWLParamKey newKey(text, LLEnvKey::SCOPE_LOCAL);
 	S32 option = LLNotification::getSelectedOption(notification, response);
@@ -420,17 +410,19 @@ void LLFloaterWindLight::syncMenu()
 }
 
 
-#if 0
 // static
 LLFloaterWindLight* LLFloaterWindLight::instance()
 {
 	if (!sWindLight)
 	{
-		sWindLight = new LLFloaterWindLight("WindLight floater");
+		lldebugs << "Creating WL floater" << llendl;
+		sWindLight = LLFloaterReg::getTypedInstance<LLFloaterWindLight>("env_windlight");
+		llassert(sWindLight);
 	}
 	return sWindLight;
 }
 
+// static
 void LLFloaterWindLight::show(LLEnvKey::EScope scope)
 {
 	LLFloaterWindLight* windLight = instance();
@@ -465,25 +457,20 @@ void LLFloaterWindLight::show(LLEnvKey::EScope scope)
 
 bool LLFloaterWindLight::isOpen()
 {
-	if (sWindLight != NULL) {
-		return true;
-	}
-	return false;
+	return LLFloater::isShown(sWindLight);
 }
 
 // virtual
 void LLFloaterWindLight::onClose(bool app_quitting)
 {
-	if (sWindLight)
-	{
-		sWindLight->setVisible(FALSE);
-	}
+	lldebugs << "Destroying WL floater" << llendl;
+	sWindLight = NULL;
 }
-#endif
 
 // color control callbacks
 void LLFloaterWindLight::onColorControlRMoved(LLUICtrl* ctrl, void* userData)
 {
+	llassert(sWindLight);
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
@@ -520,6 +507,7 @@ void LLFloaterWindLight::onColorControlRMoved(LLUICtrl* ctrl, void* userData)
 
 void LLFloaterWindLight::onColorControlGMoved(LLUICtrl* ctrl, void* userData)
 {
+	llassert(sWindLight);
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
@@ -592,6 +580,7 @@ void LLFloaterWindLight::onColorControlBMoved(LLUICtrl* ctrl, void* userData)
 
 void LLFloaterWindLight::onColorControlIMoved(LLUICtrl* ctrl, void* userData)
 {
+	llassert(sWindLight);
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
@@ -737,6 +726,7 @@ void LLFloaterWindLight::onBoolToggle(LLUICtrl* ctrl, void* userData)
 // time of day
 void LLFloaterWindLight::onSunMoved(LLUICtrl* ctrl, void* userData)
 {
+	llassert(sWindLight);
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sunSldr = sWindLight->getChild<LLSliderCtrl>("WLSunAngle");
@@ -789,6 +779,7 @@ void LLFloaterWindLight::onNewPreset(void* userData)
 
 void LLFloaterWindLight::onSavePreset(void* userData)
 {
+	llassert(sWindLight);
 	// get the name
 	LLComboBox* comboBox = sWindLight->getChild<LLComboBox>( 
 		"WLPresetsCombo");
@@ -835,6 +826,7 @@ bool LLFloaterWindLight::saveAlertCallback(const LLSD& notification, const LLSD&
 
 void LLFloaterWindLight::onDeletePreset(void* userData)
 {
+	llassert(sWindLight);
 	LLComboBox* combo_box = sWindLight->getChild<LLComboBox>( 
 		"WLPresetsCombo");
 
@@ -911,6 +903,7 @@ bool LLFloaterWindLight::deleteAlertCallback(const LLSD& notification, const LLS
 
 void LLFloaterWindLight::onChangePresetName(LLUICtrl* ctrl, void * userData)
 {
+	llassert(sWindLight);
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLComboBox * combo_box = static_cast<LLComboBox*>(ctrl);
@@ -951,6 +944,7 @@ void LLFloaterWindLight::onCloudScrollYMoved(LLUICtrl* ctrl, void* userData)
 
 void LLFloaterWindLight::onCloudScrollXToggled(LLUICtrl* ctrl, void* userData)
 {
+	llassert(sWindLight);
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLCheckBoxCtrl* cbCtrl = static_cast<LLCheckBoxCtrl*>(ctrl);
@@ -974,6 +968,7 @@ void LLFloaterWindLight::onCloudScrollXToggled(LLUICtrl* ctrl, void* userData)
 
 void LLFloaterWindLight::onCloudScrollYToggled(LLUICtrl* ctrl, void* userData)
 {
+	llassert(sWindLight);
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLCheckBoxCtrl* cbCtrl = static_cast<LLCheckBoxCtrl*>(ctrl);

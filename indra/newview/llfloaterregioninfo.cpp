@@ -408,6 +408,23 @@ LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 	return panel;
 }
 
+// static
+LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
+{
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
+	if (!floater)
+	{
+		llassert(floater);
+		return NULL;
+	}
+
+	LLTabContainer* tab_container = floater->getChild<LLTabContainer>("region_panels");
+	LLPanelRegionTerrainInfo* panel =
+		dynamic_cast<LLPanelRegionTerrainInfo*>(tab_container->getChild<LLPanel>("Terrain"));
+	llassert(panel);
+	return panel;
+}
+
 void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
 {
 	if (!region)
@@ -1158,20 +1175,23 @@ void LLPanelRegionTextureInfo::onClickDump(void* data)
 // Initialize statics
 LLPanelRegionTerrainInfo* LLPanelRegionTerrainInfo::sPanelRegionTerrainInfo = NULL;
 
+// static
 LLPanelRegionTerrainInfo* LLPanelRegionTerrainInfo::instance()
 {
        if (!sPanelRegionTerrainInfo)
        {
-               sPanelRegionTerrainInfo = new LLPanelRegionTerrainInfo();
+               sPanelRegionTerrainInfo = LLFloaterRegionInfo::getPanelRegionTerrain();
+               lldebugs << llformat("Instantiating sPanelRegionTerrainInfo: %p", sPanelRegionTerrainInfo) << llendl;
        }
        return sPanelRegionTerrainInfo;
 }
 
-// virtual
-void LLPanelRegionTerrainInfo::closeFloater(bool app_quitting)
+// static
+void LLPanelRegionTerrainInfo::onFloaterClose(bool app_quitting)
 {
        if (sPanelRegionTerrainInfo)
        {
+    	       lldebugs << "Setting LLPanelRegionTerrainInfo to NULL" << llendl;
                sPanelRegionTerrainInfo = NULL;
        }
 }
@@ -1181,6 +1201,7 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	LLPanelRegionInfo::postBuild();
 	
 	sPanelRegionTerrainInfo = this; // singleton instance pointer
+	lldebugs << llformat("Setting sPanelRegionTerrainInfo to: %p", sPanelRegionTerrainInfo) << llendl;
 
 	initCtrl("water_height_spin");
 	initCtrl("terrain_raise_spin");
@@ -1403,18 +1424,17 @@ bool LLPanelRegionTerrainInfo::callbackBakeTerrain(const LLSD& notification, con
 
 void LLPanelRegionTerrainInfo::onOpenAdvancedSky(void* userData)
 {
-//	LLFloaterWindLight::show(LLEnvKey::SCOPE_REGION);
+	LLFloaterWindLight::show(LLEnvKey::SCOPE_REGION);
 }
 
 void LLPanelRegionTerrainInfo::onOpenAdvancedWater(void* userData)
 {
-//	LLFloaterWater::instance()->show(LLEnvKey::SCOPE_REGION);
+	LLFloaterWater::show(LLEnvKey::SCOPE_REGION);
 }
 
 
 void LLPanelRegionTerrainInfo::onUseEstateTime(void* userData)
 {
-#if 0
 	if(LLFloaterWindLight::isOpen())
 	{
 		// select the blank value in
@@ -1424,7 +1444,6 @@ void LLPanelRegionTerrainInfo::onUseEstateTime(void* userData)
 	}
 
 	LLWLParamManager::getInstance()->mAnimator.activate(LLWLAnimator::TIME_LINDEN);
-#endif
 }
 
 ///////////////////////////////////////////////////////
@@ -1433,36 +1452,29 @@ void LLPanelRegionTerrainInfo::onUseEstateTime(void* userData)
 // Handle commit of WL settings to region
 void LLPanelRegionTerrainInfo::onCommitRegionWL(void* userData)
 {
-#if 0	
 	LLEnvManager::getInstance()->commitSettings(LLEnvKey::SCOPE_REGION);
 	LLEnvManager::getInstance()->maybeClearEditingScope(LLEnvKey::SCOPE_REGION, true, false);
-#endif
 }
 
 // Handle cancel of WL settings for region
 void LLPanelRegionTerrainInfo::onCancelRegionWL(void* userData)
 {
-#if 0
 	LLEnvManager::getInstance()->maybeClearEditingScope(LLEnvKey::SCOPE_REGION, true, false);
-#endif
 }
 
 // Handle reversion of region WL settings to default
 void LLPanelRegionTerrainInfo::onSetRegionToDefaultWL(void* userData)
 {
-#if 0
 	LLEnvManager::instance().resetInternalsToDefault(LLEnvKey::SCOPE_REGION);
 	LLEnvManager::instance().startEditingScope(LLEnvKey::SCOPE_REGION);
-#endif
 }
 
 void LLPanelRegionTerrainInfo::cancelChanges()
 {
-#if 0
-	LLFloaterWindLight::instance().closeFloater();
-	LLFloaterWater::instance().closeFloater();
-	LLFloaterDayCycle::instance().closeFloater();
-#endif
+	LLFloaterReg::hideInstance("env_windlight");
+	LLFloaterReg::hideInstance("env_water");
+	LLFloaterReg::hideInstance("env_day_cycle");
+
 	// disable commmit and cancel
 	LLPanelRegionTerrainInfo::instance()->setCommitControls(false);
 }
@@ -2140,14 +2152,14 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
 	return rv;
 }
 
-void LLFloaterRegionInfo::closeFloater(bool app_quitting)
+// virtual
+void LLFloaterRegionInfo::onClose(bool app_quitting)
 {
 	if(!app_quitting)
 	{
 		LLEnvManager::getInstance()->maybeClearEditingScope(true, false);
-		LLPanelRegionTerrainInfo::closeFloater(app_quitting);
+		LLPanelRegionTerrainInfo::onFloaterClose(app_quitting);
 	}
-	LLFloater::closeFloater(app_quitting);
 }
 
 void LLPanelEstateInfo::updateChild(LLUICtrl* child_ctrl)

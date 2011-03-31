@@ -49,6 +49,7 @@ struct WLFloatControl;
 /// Menuing system for all of windlight's functionality
 class LLFloaterWindLight : public LLFloater
 {
+	LOG_CLASS(LLFloaterWindLight);
 public:
 	LLFloaterWindLight(const LLSD &key);
 	virtual ~LLFloaterWindLight();
@@ -57,14 +58,9 @@ public:
 	/// initialize all
 	void initCallbacks(void);
 
-#if 0
 	/// one and one instance only
 	static LLFloaterWindLight* instance();
 
-	// help button stuff
-	static void onClickHelp(void* data);
-	void initHelpBtn(const std::string& name, const std::string& xml_alert);
-#endif
 	static bool newPromptCallback(const LLSD& notification, const LLSD& response);
 
 	/// general purpose callbacks for dealing with color controllers
@@ -118,7 +114,6 @@ public:
 
 	//// menu management
 
-#if 0
 	/// show off our menu
 	static void show(LLEnvKey::EScope scope = LLEnvKey::SCOPE_LOCAL);
 
@@ -127,7 +122,7 @@ public:
 
 	/// stuff to do on exit
 	virtual void onClose(bool app_quitting);
-#endif
+
 	/// sync up sliders with parameters
 	void syncMenu();
 

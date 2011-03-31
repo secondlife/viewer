@@ -39,6 +39,7 @@ struct LLWLParamKey;
 
 class LLWLDayCycle
 {
+	LOG_CLASS(LLWLDayCycle);
 public:
 
 	// lists what param sets are used when during the day

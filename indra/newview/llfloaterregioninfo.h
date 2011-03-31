@@ -73,7 +73,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/void closeFloater(bool app_quitting);
+	/*virtual*/ void onClose(bool app_quitting);
 
 	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
 
@@ -87,6 +87,7 @@ public:
 
 	static LLPanelEstateInfo* getPanelEstate();
 	static LLPanelEstateCovenant* getPanelCovenant();
+	static LLPanelRegionTerrainInfo* getPanelRegionTerrain();
 
 	// from LLPanel
 	virtual void refresh();
@@ -232,13 +233,15 @@ protected:
 /////////////////////////////////////////////////////////////////////////////
 class LLPanelRegionTerrainInfo : public LLPanelRegionInfo
 {
+	LOG_CLASS(LLPanelRegionTerrainInfo);
+
 public:
 	LLPanelRegionTerrainInfo() : LLPanelRegionInfo() {}
 	~LLPanelRegionTerrainInfo() {}
 	
 	static LLPanelRegionTerrainInfo* instance();
 	virtual BOOL postBuild();												// LLPanel
-	static void closeFloater(bool app_quitting);
+	static void onFloaterClose(bool app_quitting);
 	
 	F32 getSunHour();
 	virtual bool refreshFromRegion(LLViewerRegion* region);					// refresh local settings from region update from simulator

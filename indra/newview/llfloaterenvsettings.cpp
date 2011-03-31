@@ -63,6 +63,7 @@
 
 LLFloaterEnvSettings::LLFloaterEnvSettings(const LLSD &key) : LLFloater(key)
 {	
+	lldebugs << "Creating env settings floater" << llendl;
 }
 
 LLFloaterEnvSettings::~LLFloaterEnvSettings()
@@ -75,6 +76,10 @@ BOOL LLFloaterEnvSettings::postBuild()
 	// load it up
 	initCallbacks();
 	syncMenu();
+
+	LLEnvKey::EScope cur_scope = LLEnvManager::getInstance()->getNormallyDisplayedScope();
+	childSetValue("RegionWLOptIn", cur_scope == LLEnvKey::SCOPE_REGION);
+
 	return TRUE;
 }
 
@@ -258,11 +263,13 @@ void LLFloaterEnvSettings::onChangeWaterColor(LLUICtrl* ctrl, void* userData)
 
 void LLFloaterEnvSettings::onOpenAdvancedSky(void* userData1, void* userData2)
 {
+	// *TODO: make sure title is displayed correctly.
 	LLFloaterReg::showInstance("env_windlight");
 }
 
 void LLFloaterEnvSettings::onOpenAdvancedWater(void* userData1, void* userData2)
 {
+	// *TODO: make sure title is displayed correctly.
 	LLFloaterReg::showInstance("env_water");
 }
 

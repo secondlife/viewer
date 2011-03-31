@@ -136,6 +136,15 @@ void LLWLParamManager::clearParamSetsOfScope(LLWLParamKey::EScope scope)
 // side effect: applies changes to all internal structures!
 std::map<LLWLParamKey, LLWLParamSet> LLWLParamManager::finalizeFromDayCycle(LLWLParamKey::EScope scope)
 {
+	lldebugs << "mDay before finalizing:" << llendl;
+	{
+		for (std::map<F32, LLWLParamKey>::iterator iter = mDay.mTimeMap.begin(); iter != mDay.mTimeMap.end(); ++iter)
+		{
+			LLWLParamKey& key = iter->second;
+			lldebugs << iter->first << "->" << key.name << llendl;
+		}
+	}
+
 	std::map<LLWLParamKey, LLWLParamSet> final_references;
 
 	// Move all referenced to desired scope, renaming if necessary
@@ -216,6 +225,15 @@ std::map<LLWLParamKey, LLWLParamSet> LLWLParamManager::finalizeFromDayCycle(LLWL
 		}
 
 		final_references[new_key] = iter->second;
+	}
+
+	lldebugs << "mDay after finalizing:" << llendl;
+	{
+		for (std::map<F32, LLWLParamKey>::iterator iter = mDay.mTimeMap.begin(); iter != mDay.mTimeMap.end(); ++iter)
+		{
+			LLWLParamKey& key = iter->second;
+			lldebugs << iter->first << "->" << key.name << llendl;
+		}
 	}
 
 	return final_references;

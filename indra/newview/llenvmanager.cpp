@@ -80,7 +80,7 @@ void LLEnvManager::changedRegion(bool interp)
 	mInterpNextChangeMessage = interp;
 	mPendingOutgoingMessage = false;
 
-	// TIGGGS LLFloaterEnvSettings::instance()->closeFloater();
+	LLFloaterReg::hideInstance("env_settings");
 
 	resetInternalsToDefault(LLEnvKey::SCOPE_REGION);
 
@@ -93,6 +93,8 @@ void LLEnvManager::changedRegion(bool interp)
 
 void LLEnvManager::startEditingScope(LLEnvKey::EScope scope)
 {
+	LL_DEBUGS("Windlight") << "Starting editing scope " << scope << LL_ENDL;
+
 	if (mIsEditing)
 	{
 		LL_WARNS("Windlight") << "Tried to start editing windlight settings while already editing some settings (possibly others)!  Ignoring..." << LL_ENDL;
@@ -158,6 +160,8 @@ void LLEnvManager::maybeClearEditingScope(bool user_initiated, bool was_commit)
 
 void LLEnvManager::clearEditingScope(const LLSD& notification, const LLSD& response)
 {
+	LL_DEBUGS("Windlight") << "Clearing editing scope " << mCurNormalScope << LL_ENDL;
+
 	if(notification.isDefined() && response.isDefined() && LLNotification::getSelectedOption(notification, response) != 0)
 	{
 		// *TODO: select terrain panel here
@@ -284,6 +288,8 @@ bool LLEnvManager::processIncomingMessage(const LLSD& unvalidated_content, const
 
 	if (valid)
 	{
+		LL_DEBUGS("Windlight Sync") << "windlight_llsd: " << windlight_llsd << LL_ENDL;
+
 		F32 sun_hour = LLPanelRegionTerrainInfo::instance()->getSunHour();	// this slider is kept up to date
 		LLWLParamManager::getInstance()->addAllSkies(scope, windlight_llsd[2]);
 		LLEnvironmentSettings newSettings(windlight_llsd[1], windlight_llsd[2], windlight_llsd[3], sun_hour);
@@ -302,6 +308,10 @@ bool LLEnvManager::processIncomingMessage(const LLSD& unvalidated_content, const
 	{
 		loadSettingsIntoManagers(scope, mInterpNextChangeMessage);
 	}
+	else
+	{
+		LL_DEBUGS("Windlight Sync") << "Not loading settings (mCurNormalScope=" << mCurNormalScope << ", scope=" << scope << ", mIsEditing=" << mIsEditing << ")" << LL_ENDL;
+	}
 
 	mInterpNextChangeMessage = true; // reset flag
 
@@ -315,6 +325,8 @@ bool LLEnvManager::processIncomingMessage(const LLSD& unvalidated_content, const
 
 void LLEnvManager::commitSettings(LLEnvKey::EScope scope)
 {
+	LL_DEBUGS("Windlight Sync") << "commitSettings(scope = " << scope << ")" << LL_ENDL;
+
 	bool success = true;
 	switch (scope)
 	{
@@ -407,6 +419,8 @@ const LLEnvironmentSettings& LLEnvManager::lindenDefaults()
 
 void LLEnvManager::loadSettingsIntoManagers(LLEnvKey::EScope scope, bool interpolate)
 {
+	LL_DEBUGS("Windlight Sync") << "Loading settings (scope = " << scope << ")" << LL_ENDL;
+
 	LLEnvironmentSettings settings = mOrigSettingStore[scope];
 
 	if(interpolate)
@@ -423,6 +437,7 @@ void LLEnvManager::loadSettingsIntoManagers(LLEnvKey::EScope scope, bool interpo
 
 void LLEnvManager::saveSettingsFromManagers(LLEnvKey::EScope scope)
 {
+	LL_DEBUGS("Windlight Sync") << "Saving settings (scope = " << scope << ")" << LL_ENDL;
 	switch (scope)
 	{
 	case LLEnvKey::SCOPE_LOCAL:
@@ -437,6 +452,9 @@ void LLEnvManager::saveSettingsFromManagers(LLEnvKey::EScope scope)
 			// ensure only referenced region-scope skies are saved, resolve naming collisions, etc.
 			std::map<LLWLParamKey, LLWLParamSet> final_references = LLWLParamManager::getInstance()->finalizeFromDayCycle(scope);
 			LLSD referenced_skies = LLWLParamManager::getInstance()->createSkyMap(final_references);
+
+			LL_DEBUGS("Windlight Sync") << "Dumping referenced skies (" << final_references.size() << ") to LLSD: " << referenced_skies << LL_ENDL;
+
 			mOrigSettingStore[scope].saveParams(
 								LLWLParamManager::getInstance()->mDay.asLLSD(),
 								referenced_skies,
@@ -461,9 +479,15 @@ void LLEnvManager::setNormallyDisplayedScope(LLEnvKey::EScope new_scope)
 
 	if (mCurNormalScope != new_scope)
 	{
+		LL_INFOS("Windlight") << "Switching to scope " << new_scope << LL_ENDL;
 		mCurNormalScope = new_scope;
 		notifyOptInChange();
 	}
+}
+
+LLEnvKey::EScope LLEnvManager::getNormallyDisplayedScope() const
+{
+	return mCurNormalScope;
 }
 
 void LLEnvManager::notifyOptInChange()

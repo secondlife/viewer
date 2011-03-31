@@ -174,6 +174,8 @@ public:
 	// sets which scope is to be displayed
 	// fix me if/when adding more levels of scope
 	void setNormallyDisplayedScope(LLEnvKey::EScope scope);
+	// gets normally displayed scope
+	LLEnvKey::EScope getNormallyDisplayedScope() const;
 
 private:
 	// overriden initializer

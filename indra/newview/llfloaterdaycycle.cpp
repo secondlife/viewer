@@ -48,6 +48,7 @@
 #include "lllineeditor.h"
 #include "llwlanimator.h"
 #include "llnotifications.h"
+#include "llnotificationsutil.h"
 
 #include "v4math.h"
 #include "llviewerdisplay.h"
@@ -71,6 +72,11 @@ LLWLAnimator::ETime LLFloaterDayCycle::sPreviousTimeType = LLWLAnimator::TIME_LI
 
 LLFloaterDayCycle::LLFloaterDayCycle(const LLSD &key) : LLFloater(key)
 {
+}
+
+// virtual
+BOOL LLFloaterDayCycle::postBuild()
+{
 	sOriginalTitle = getTitle();
 
 	// *HACK commented out since this code isn't released (yet)
@@ -84,6 +90,8 @@ LLFloaterDayCycle::LLFloaterDayCycle(const LLSD &key) : LLFloater(key)
 
 	// load it up
 	initCallbacks();
+
+	return TRUE;
 }
 
 LLFloaterDayCycle::~LLFloaterDayCycle()
@@ -173,6 +181,9 @@ void LLFloaterDayCycle::syncSliderTrack()
 	sSliderToKey.clear();
 
 	// add sliders
+
+	lldebugs << "Adding " << LLWLParamManager::getInstance()->mDay.mTimeMap.size() << " keys to slider" << llendl;
+
 	std::map<F32, LLWLParamKey>::iterator mIt = 
 		LLWLParamManager::getInstance()->mDay.mTimeMap.begin();
 	for(; mIt != LLWLParamManager::getInstance()->mDay.mTimeMap.end(); mIt++) 
@@ -183,9 +194,12 @@ void LLFloaterDayCycle::syncSliderTrack()
 
 void LLFloaterDayCycle::syncTrack()
 {
+	lldebugs << "Syncing track (" << sSliderToKey.size() << ")" << llendl;
+
 	// if no keys, do nothing
 	if(sSliderToKey.size() == 0) 
 	{
+		lldebugs << "No keys, not syncing" << llendl;
 		return;
 	}
 	
@@ -244,7 +258,9 @@ LLFloaterDayCycle* LLFloaterDayCycle::instance()
 {
 	if (!sDayCycle)
 	{
-		sDayCycle = new LLFloaterDayCycle("Day Cycle Floater");
+		lldebugs << "Instantiating Day Cycle floater" << llendl;
+		sDayCycle = LLFloaterReg::getTypedInstance<LLFloaterDayCycle>("env_day_cycle");
+		llassert(sDayCycle);
 		// sDayCycle->open();
 		// sDayCycle->setFocus(TRUE);
 	}
@@ -294,7 +310,8 @@ void LLFloaterDayCycle::onClose(bool app_quitting)
 {
 	if (sDayCycle)
 	{
-		sDayCycle->setVisible(FALSE);
+		lldebugs << "Destorying Day Cycle floater" << llendl;
+		sDayCycle = NULL;
 	}
 }
 
@@ -548,7 +565,7 @@ void LLFloaterDayCycle::onAddKey(void* userData)
 		LLSD args;
 		args["SCOPE"] = LLEnvManager::getScopeString(sScope);
 		args["MAX"] = max_sliders;
-		LLNotifications::instance().add("DayCycleTooManyKeyframes", LLSD(), args);
+		LLNotificationsUtil::add("DayCycleTooManyKeyframes", args);
 		return;
 	}
 

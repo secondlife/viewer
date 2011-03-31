@@ -43,6 +43,7 @@
 /// Menuing system for all of windlight's functionality
 class LLFloaterEnvSettings : public LLFloater
 {
+	LOG_CLASS(LLFloaterEnvSettings);
 public:
 
 	LLFloaterEnvSettings(const LLSD &key);
