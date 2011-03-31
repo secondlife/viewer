@@ -22,9 +22,8 @@
          top_pad="10"
          width="313">
      <accordion
-        fit_parent="true"
         follows="all"
-        height ="300"
+        height ="388"
         layout="topleft"
         left="0"
 		single_expansion="true"
@@ -35,13 +34,27 @@
 			layout="topleft"
             fit_panel="false"
 			min_height="50"
-			name="physics_breasts_tab"
-			title="Breasts">
+			name="physics_breasts_updown_tab"
+			title="Breasts Bounce">
 			<scrolling_panel_list
 				follows="all"
                 layout="topleft"
 				left="0"
-				name="physics_breasts_param_list"
+				name="physics_breasts_updown_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+            fit_panel="false"
+			min_height="50"
+			name="physics_breasts_inout_tab"
+			title="Breasts Cleavage">
+			<scrolling_panel_list
+				follows="all"
+                layout="topleft"
+				left="0"
+				name="physics_breasts_inout_param_list"
 				top="0"
 				width="303" />
 		</accordion_tab>
@@ -50,12 +63,12 @@
             fit_panel="false"
 			min_height="50"
 			name="physics_belly_tab"
-			title="Belly">
+			title="Belly Bounce">
 			<scrolling_panel_list
 				follows="all"
                 layout="topleft"
 				left="0"
-				name="physics_belly_param_list"
+				name="physics_belly_updown_param_list"
 				top="0"
 				width="303" />
 		</accordion_tab>
@@ -65,12 +78,27 @@
             fit_panel="false"
 			min_height="50"
 			name="physics_butt_tab"
-			title="Butt">
+			title="Butt Bounce">
 			<scrolling_panel_list
 				follows="all"
                 layout="topleft"
 				left="0"
-				name="physics_butt_param_list"
+				name="physics_butt_updown_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+
+		<accordion_tab
+			layout="topleft"
+            fit_panel="false"
+			min_height="50"
+			name="physics_butt_leftright_tab"
+			title="Butt Sway">
+			<scrolling_panel_list
+				follows="all"
+                layout="topleft"
+				left="0"
+				name="physics_butt_leftright_param_list"
 				top="0"
 				width="303" />
 		</accordion_tab>

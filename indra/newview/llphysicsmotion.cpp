@@ -244,12 +244,12 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
 		controller["Mass"] = "Breast_Physics_Mass";
 		controller["Smoothing"] = "Breast_Physics_Smoothing";
 		controller["Gravity"] = "Breast_Physics_Gravity";
-		controller["Damping"] = "Breast_Physics_Side_Damping";
-		controller["Drag"] = "Breast_Physics_Side_Drag";
-		controller["MaxSpeed"] = "Breast_Physics_Side_Max_Velocity";
-		controller["Spring"] = "Breast_Physics_Side_Spring";
-		controller["Gain"] = "Breast_Physics_Side_Gain";
-		LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_Side_Controller",
+		controller["Damping"] = "Breast_Physics_InOut_Damping";
+		controller["Drag"] = "Breast_Physics_InOut_Drag";
+		controller["MaxSpeed"] = "Breast_Physics_InOut_Max_Velocity";
+		controller["Spring"] = "Breast_Physics_InOut_Spring";
+		controller["Gain"] = "Breast_Physics_InOut_Gain";
+		LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_InOut_Controller",
 													  "",
 													  "mChest",
 													  character,
@@ -630,7 +630,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	if ((pixel_area > area_for_this_setting) || is_self)
 	{
 		const F32 position_diff_local = llabs(mPositionLastUpdate_local-position_new_local_clamped);
-		const F32 min_delta = (1.01f-lod_factor)*0.75f; // 75% is just an experimental magic number.
+		const F32 min_delta = (1.01f-lod_factor)*0.5f; // 75% is just an experimental magic number.
 		if (llabs(position_diff_local) > min_delta)
 		{
 			update_visuals = TRUE;
