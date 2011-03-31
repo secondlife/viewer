@@ -482,12 +482,13 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	F32 behavior_maxspeed = getParamValue("MaxSpeed");
 	if (physics_test)
 		behavior_maxspeed = 100.0f;
-	/*
+
 	if (behavior_maxspeed == 0)
 		return FALSE;
-	*/
 
-	F32 position_current_local = mPosition_local; // Normalized [0,1] range
+	F32 position_current_local = llclamp(mPosition_local,
+					     0.0f,
+					     1.0f); // Normalized [0,1] range
 
 	// Normalize the param position to be from [0,1].
 	// We have to use normalized values because there may be more than one driven param,
