@@ -331,16 +331,16 @@
         control_name="RenderAvatarPhysicsLODFactor"
         follows="left|top"
         height="16"
-        increment="0.125"
-        initial_value="160"
+        initial_value="100"
+	increment=".05"
         label="  Avatar Physics:"
         label_width="85"
         layout="topleft"
-        left_delta="-6"
+        left_delta="-16"
         name="AvatarPhysicsDetail"
         show_text="false"
         top_pad="12"
-        width="154">
+        width="160">
            <slider.commit_callback
             function="Pref.UpdateSliderText"
             parameter="AvatarPhysicsDetailText" />
@@ -351,7 +351,7 @@
         follows="left|top"
         height="12"
         layout="topleft"
-        left_delta="160"
+        left_delta="165"
         name="AvatarPhysicsDetailText"
         top_pad="-16"
         width="128">
