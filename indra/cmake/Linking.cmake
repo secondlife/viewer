@@ -1,32 +1,43 @@
 # -*- cmake -*-
 
+include(Variables)
+
+
 if (NOT STANDALONE)
+  set(ARCH_PREBUILT_DIRS ${AUTOBUILD_INSTALL_DIR}/lib)
+  set(ARCH_PREBUILT_DIRS_RELEASE ${AUTOBUILD_INSTALL_DIR}/lib/release)
+  set(ARCH_PREBUILT_DIRS_DEBUG ${AUTOBUILD_INSTALL_DIR}/lib/debug)
   if (WINDOWS)
-    set(ARCH_PREBUILT_DIRS ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib)
-    set(ARCH_PREBUILT_DIRS_RELEASE ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib/release)
-    set(ARCH_PREBUILT_DIRS_DEBUG ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib/debug)
-    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs CACHE FILEPATH "Location of staged DLLs")
-    set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs CACHE FILEPATH "Location of staged executables")
+    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
+    set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
   elseif (LINUX)
-    if (VIEWER)
-      set(ARCH_PREBUILT_DIRS ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib_release_client)
-    else (VIEWER)
-      set(ARCH_PREBUILT_DIRS ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib_release)
-    endif (VIEWER)
-    set(ARCH_PREBUILT_DIRS_RELEASE ${ARCH_PREBUILT_DIRS})
-    set(ARCH_PREBUILT_DIRS_DEBUG ${ARCH_PREBUILT_DIRS})
-    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/lib CACHE FILEPATH "Location of staged .sos")
-    set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/bin CACHE FILEPATH "Location of staged executables")
+    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/lib)
+    set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/bin)
   elseif (DARWIN)
-    set(ARCH_PREBUILT_DIRS_RELEASE ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib_release)
-    set(ARCH_PREBUILT_DIRS ${ARCH_PREBUILT_DIRS_RELEASE})
-    set(ARCH_PREBUILT_DIRS_DEBUG ${ARCH_PREBUILT_DIRS_RELEASE})
-    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs CACHE FILEPATH "Location of staged DLLs")
-    set(EXE_STAGING_DIR "${CMAKE_BINARY_DIR}/sharedlibs/\$(CONFIGURATION)" CACHE FILEPATH "Location of staged executables")
+    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
+    set(EXE_STAGING_DIR "${CMAKE_BINARY_DIR}/sharedlibs/\$(CONFIGURATION)")
   endif (WINDOWS)
 endif (NOT STANDALONE)
 
-link_directories(${ARCH_PREBUILT_DIRS})
+# Autobuild packages must provide 'release' versions of libraries, but may provide versions for
+# specific build types.  AUTOBUILD_LIBS_INSTALL_DIRS lists first the build type directory and then
+# the 'release' directory (as a default fallback).
+# *NOTE - we have to take special care to use CMAKE_CFG_INTDIR on IDE generators (like mac and
+# windows) and CMAKE_BUILD_TYPE on Makefile based generators (like linux).  The reason for this is
+# that CMAKE_BUILD_TYPE is essentially meaningless at configuration time for IDE generators and
+# CMAKE_CFG_INTDIR is meaningless at build time for Makefile generators
+if(WINDOWS OR DARWIN)
+  # the cmake xcode and VS generators implicitly append ${CMAKE_CFG_INTDIR} to the library paths for us
+  # fortunately both windows and darwin are case insensitive filesystems so this works.
+  set(AUTOBUILD_LIBS_INSTALL_DIRS "${AUTOBUILD_INSTALL_DIR}/lib/")
+else(WINDOWS OR DARWIN)
+  # else block is for linux and any other makefile based generators
+  string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
+  set(AUTOBUILD_LIBS_INSTALL_DIRS ${AUTOBUILD_INSTALL_DIR}/lib/${CMAKE_BUILD_TYPE_LOWER})
+endif(WINDOWS OR DARWIN)
+
+list(APPEND AUTOBUILD_LIBS_INSTALL_DIRS ${ARCH_PREBUILT_DIRS_RELEASE})
+link_directories(${AUTOBUILD_LIBS_INSTALL_DIRS})
 
 if (LINUX)
   set(DL_LIBRARY dl)

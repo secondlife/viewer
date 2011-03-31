@@ -749,8 +749,6 @@ bool idle_startup()
 			}     
 			LLPanelLogin::giveFocus();
 
-			gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
-
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
 		else
@@ -1704,9 +1702,6 @@ bool idle_startup()
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
-			
-			LLSideTray::getInstance()->showPanel("panel_home", LLSD());
-
 		}
 
 		// We're successfully logged in.
