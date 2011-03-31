@@ -226,6 +226,7 @@ with the same filename but different name
   <texture name="Inv_SysClosed" file_name="icons/Inv_SysClosed.png" preload="false" />
   <texture name="Inv_SysOpen" file_name="icons/Inv_SysOpen.png" preload="false" />
   <texture name="Inv_Tattoo" file_name="icons/Inv_Tattoo.png" preload="false" />
+  <texture name="Inv_Physics" file_name="icons/Inv_Physics.png" preload="false" />
   <texture name="Inv_Texture" file_name="icons/Inv_Texture.png" preload="false" />
   <texture name="Inv_TrashClosed" file_name="icons/Inv_TrashClosed.png" preload="false" />
   <texture name="Inv_TrashOpen" file_name="icons/Inv_TrashOpen.png" preload="false" />

@@ -94,7 +94,10 @@ enum ESubpart {
 	SUBPART_UNDERPANTS,
 	SUBPART_SKIRT,
 	SUBPART_ALPHA,
-	SUBPART_TATTOO
+	SUBPART_TATTOO,
+	SUBPART_PHYSICS_BREASTS,
+	SUBPART_PHYSICS_BELLY,
+	SUBPART_PHYSICS_BUTT
  };
 
 using namespace LLVOAvatarDefines;
@@ -218,7 +221,7 @@ LLEditWearableDictionary::Wearables::Wearables()
 	// note the subpart that is listed first is treated as "default", regardless of what order is in enum.
 	// Please match the order presented in XUI. -Nyx
 	// this will affect what camera angle is shown when first editing a wearable
-	addEntry(LLWearableType::WT_SHAPE, 		new WearableEntry(LLWearableType::WT_SHAPE,"edit_shape_title","shape_desc_text",0,0,9,	SUBPART_SHAPE_WHOLE, SUBPART_SHAPE_HEAD,	SUBPART_SHAPE_EYES,	SUBPART_SHAPE_EARS,	SUBPART_SHAPE_NOSE,	SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS ));
+	addEntry(LLWearableType::WT_SHAPE, 		new WearableEntry(LLWearableType::WT_SHAPE,"edit_shape_title","shape_desc_text",0,0,9,	SUBPART_SHAPE_WHOLE, SUBPART_SHAPE_HEAD,	SUBPART_SHAPE_EYES,	SUBPART_SHAPE_EARS,	SUBPART_SHAPE_NOSE,	SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS));
 	addEntry(LLWearableType::WT_SKIN, 		new WearableEntry(LLWearableType::WT_SKIN,"edit_skin_title","skin_desc_text",0,3,4, TEX_HEAD_BODYPAINT, TEX_UPPER_BODYPAINT, TEX_LOWER_BODYPAINT, SUBPART_SKIN_COLOR, SUBPART_SKIN_FACEDETAIL, SUBPART_SKIN_MAKEUP, SUBPART_SKIN_BODYDETAIL));
 	addEntry(LLWearableType::WT_HAIR, 		new WearableEntry(LLWearableType::WT_HAIR,"edit_hair_title","hair_desc_text",0,1,4, TEX_HAIR, SUBPART_HAIR_COLOR,	SUBPART_HAIR_STYLE,	SUBPART_HAIR_EYEBROWS, SUBPART_HAIR_FACIAL));
 	addEntry(LLWearableType::WT_EYES, 		new WearableEntry(LLWearableType::WT_EYES,"edit_eyes_title","eyes_desc_text",0,1,1, TEX_EYES_IRIS, SUBPART_EYES));
@@ -233,6 +236,7 @@ LLEditWearableDictionary::Wearables::Wearables()
 	addEntry(LLWearableType::WT_SKIRT, 		new WearableEntry(LLWearableType::WT_SKIRT,"edit_skirt_title","skirt_desc_text",1,1,1, TEX_SKIRT, TEX_SKIRT, SUBPART_SKIRT));
 	addEntry(LLWearableType::WT_ALPHA, 		new WearableEntry(LLWearableType::WT_ALPHA,"edit_alpha_title","alpha_desc_text",0,5,1, TEX_LOWER_ALPHA, TEX_UPPER_ALPHA, TEX_HEAD_ALPHA, TEX_EYES_ALPHA, TEX_HAIR_ALPHA, SUBPART_ALPHA));
 	addEntry(LLWearableType::WT_TATTOO, 	new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title","tattoo_desc_text",1,3,1, TEX_HEAD_TATTOO, TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO, SUBPART_TATTOO));
+	addEntry(LLWearableType::WT_PHYSICS, 	new WearableEntry(LLWearableType::WT_PHYSICS,"edit_physics_title","physics_desc_text",0,0,3, SUBPART_PHYSICS_BREASTS, SUBPART_PHYSICS_BELLY, SUBPART_PHYSICS_BUTT));
 }
 
 LLEditWearableDictionary::WearableEntry::WearableEntry(LLWearableType::EType type,
@@ -303,6 +307,9 @@ LLEditWearableDictionary::Subparts::Subparts()
 	addEntry(SUBPART_UNDERPANTS, new SubpartEntry(SUBPART_UNDERPANTS, "mPelvis", "underpants", "underpants_main_param_list", "underpants_main_tab", LLVector3d(0.f, 0.f, -0.5f), LLVector3d(-1.6f, 0.15f, -0.5f),SEX_BOTH));
 	addEntry(SUBPART_ALPHA, new SubpartEntry(SUBPART_ALPHA, "mPelvis", "alpha", "alpha_main_param_list", "alpha_main_tab", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
 	addEntry(SUBPART_TATTOO, new SubpartEntry(SUBPART_TATTOO, "mPelvis", "tattoo", "tattoo_main_param_list", "tattoo_main_tab", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
+	addEntry(SUBPART_PHYSICS_BREASTS, new SubpartEntry(SUBPART_PHYSICS_BREASTS, "mTorso", "physics_breasts", "physics_breasts_param_list", "physics_breasts_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_FEMALE));
+	addEntry(SUBPART_PHYSICS_BELLY, new SubpartEntry(SUBPART_PHYSICS_BELLY, "mTorso", "physics_belly", "physics_belly_param_list", "physics_belly_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
+	addEntry(SUBPART_PHYSICS_BUTT, new SubpartEntry(SUBPART_PHYSICS_BUTT, "mTorso", "physics_butt", "physics_butt_param_list", "physics_butt_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
 }
 
 LLEditWearableDictionary::SubpartEntry::SubpartEntry(ESubpart part,
@@ -740,6 +747,7 @@ BOOL LLPanelEditWearable::postBuild()
 	mPanelSkirt = getChild<LLPanel>("edit_skirt_panel");
 	mPanelAlpha = getChild<LLPanel>("edit_alpha_panel");
 	mPanelTattoo = getChild<LLPanel>("edit_tattoo_panel");
+	mPanelPhysics = getChild<LLPanel>("edit_physics_panel");
 
 	mTxtAvatarHeight = mPanelShape->getChild<LLTextBox>("avatar_height");
 
@@ -848,11 +856,11 @@ void LLPanelEditWearable::setVisible(BOOL visible)
 	LLPanel::setVisible(visible);
 }
 
-void LLPanelEditWearable::setWearable(LLWearable *wearable)
+void LLPanelEditWearable::setWearable(LLWearable *wearable, BOOL disable_camera_switch)
 {
-	showWearable(mWearablePtr, FALSE);
+	showWearable(mWearablePtr, FALSE, disable_camera_switch);
 	mWearablePtr = wearable;
-	showWearable(mWearablePtr, TRUE);
+	showWearable(mWearablePtr, TRUE, disable_camera_switch);
 }
 
 
@@ -1052,7 +1060,7 @@ void LLPanelEditWearable::revertChanges()
 	gAgentAvatarp->wearableUpdated(mWearablePtr->getType(), FALSE);
 }
 
-void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
+void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show, BOOL disable_camera_switch)
 {
 	if (!wearable)
 	{
@@ -1147,7 +1155,10 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 	
 			updateScrollingPanelUI();
 		}
-		showDefaultSubpart();
+		if (!disable_camera_switch)
+		{
+			showDefaultSubpart();
+		}
 
 		updateVerbs();
 	}
@@ -1155,7 +1166,7 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 
 void LLPanelEditWearable::showDefaultSubpart()
 {
-	changeCamera(0);
+	changeCamera(3);
 }
 
 void LLPanelEditWearable::onTabExpandedCollapsed(const LLSD& param, U8 index)
@@ -1356,6 +1367,11 @@ LLPanel* LLPanelEditWearable::getPanel(LLWearableType::EType type)
 		case LLWearableType::WT_TATTOO:
 			return mPanelTattoo;
 			break;
+
+		case LLWearableType::WT_PHYSICS:
+			return mPanelPhysics;
+			break;
+
 		default:
 			break;
 	}
@@ -1403,7 +1419,16 @@ void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value
 		{
 			LLPanel::Params p;
 			p.name("LLScrollingPanelParam");
-			LLScrollingPanelParam* panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable(), jointp);
+			LLWearable *wearable = this->getWearable();
+			LLScrollingPanelParamBase *panel_param = NULL;
+			if (wearable && wearable->getType() == LLWearableType::WT_PHYSICS) // Hack to show a different panel for physics.  Should generalize this later.
+			{
+				panel_param = new LLScrollingPanelParamBase( p, NULL, (*it).second, TRUE, this->getWearable(), jointp);
+			}
+			else
+			{
+				panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable(), jointp);
+			}
 			height = panel_list->addPanel( panel_param );
 		}
 	}

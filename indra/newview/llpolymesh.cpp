@@ -46,6 +46,10 @@
 
 extern LLControlGroup gSavedSettings;				// read only
 
+LLPolyMorphData *clone_morph_param(const LLPolyMorphData *src_data,
+				   const LLVector3 &direction,
+				   const std::string &name);
+
 //-----------------------------------------------------------------------------
 // Global table of loaded LLPolyMeshes
 //-----------------------------------------------------------------------------
@@ -602,6 +606,40 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 				}
 
 				mMorphData.insert(morph_data);
+
+				if (!strcmp(morphName, "Big_Belly_Torso"))
+				{
+					mMorphData.insert(clone_morph_param(morph_data,
+									    LLVector3(0,0,0.05f),
+									    "Belly_Torso_Physics_UpDown_Driven"));
+				}
+
+				if (!strcmp(morphName, "Big_Belly_Legs"))
+				{
+					mMorphData.insert(clone_morph_param(morph_data,
+									    LLVector3(0,0,0.05f),
+									    "Belly_Legs_Physics_UpDown_Driven"));
+				}
+
+				if (!strcmp(morphName, "skirt_belly"))
+				{
+					mMorphData.insert(clone_morph_param(morph_data,
+									    LLVector3(0,0,0.05f),
+									    "Belly_Skirt_Physics_UpDown_Driven"));
+				}
+
+				if (!strcmp(morphName, "Small_Butt"))
+				{
+					mMorphData.insert(clone_morph_param(morph_data,
+									    LLVector3(0,0,0.01f),
+									    "Butt_Physics_UpDown_Driven"));
+				}
+				if (!strcmp(morphName, "Small_Butt"))
+				{
+					mMorphData.insert(clone_morph_param(morph_data,
+									    LLVector3(0,0.01f,0),
+									    "Butt_Physics_LeftRight_Driven"));
+				}
 			}
 
 			S32 numRemaps;
@@ -1156,6 +1194,22 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 		mAvatar->setSkeletonSerialNum(mAvatar->getSkeletonSerialNum() + 1);
 	}
 	mLastWeight = mCurWeight;
+}
+
+
+LLPolyMorphData *clone_morph_param(const LLPolyMorphData *src_data,
+				   const LLVector3 &direction,
+				   const std::string &name)
+{
+	LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*src_data);
+	cloned_morph_data->mName = name;
+	for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
+	{
+		cloned_morph_data->mCoords[v] = direction;
+		cloned_morph_data->mNormals[v] = LLVector3(0,0,0);
+		cloned_morph_data->mBinormals[v] = LLVector3(0,0,0);
+	}
+	return cloned_morph_data;
 }
 
 // End

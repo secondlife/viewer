@@ -59,6 +59,37 @@ LLPolyMorphData::LLPolyMorphData(const std::string& morph_name)
 	mMesh = NULL;
 }
 
+LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
+	mName(rhs.mName),
+	mNumIndices(rhs.mNumIndices),
+	mTotalDistortion(rhs.mTotalDistortion),
+	mAvgDistortion(rhs.mAvgDistortion),
+	mMaxDistortion(rhs.mMaxDistortion),
+	mVertexIndices(NULL),
+	mCoords(NULL),
+	mNormals(NULL),
+	mBinormals(NULL),
+	mTexCoords(NULL)
+{
+	const S32 numVertices = mNumIndices;
+
+	mCoords = new LLVector3[numVertices];
+	mNormals = new LLVector3[numVertices];
+	mBinormals = new LLVector3[numVertices];
+	mTexCoords = new LLVector2[numVertices];
+	mVertexIndices = new U32[numVertices];
+	
+	for (S32 v=0; v < numVertices; v++)
+	{
+		mCoords[v] = rhs.mCoords[v];
+		mNormals[v] = rhs.mNormals[v];
+		mBinormals[v] = rhs.mBinormals[v];
+		mTexCoords[v] = rhs.mTexCoords[v];
+		mVertexIndices[v] = rhs.mVertexIndices[v];
+	}
+}
+
+
 //-----------------------------------------------------------------------------
 // ~LLPolyMorphData()
 //-----------------------------------------------------------------------------
@@ -287,10 +318,22 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 		}
 	}
 
-	mMorphData = mMesh->getMorphData(getInfo()->mMorphName);
+	std::string morph_param_name = getInfo()->mMorphName;
+	
+	mMorphData = mMesh->getMorphData(morph_param_name);
 	if (!mMorphData)
 	{
-		llwarns << "No morph target named " << getInfo()->mMorphName << " found in mesh." << llendl;
+		const std::string driven_tag = "_Driven";
+		U32 pos = morph_param_name.find(driven_tag);
+		if (pos > 0)
+		{
+			morph_param_name = morph_param_name.substr(0,pos);
+			mMorphData = mMesh->getMorphData(morph_param_name);
+		}
+	}
+	if (!mMorphData)
+	{
+		llwarns << "No morph target named " << morph_param_name << " found in mesh." << llendl;
 		return FALSE;  // Continue, ignoring this tag
 	}
 	return TRUE;
