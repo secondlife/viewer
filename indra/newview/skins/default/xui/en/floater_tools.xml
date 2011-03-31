@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  follows="left|top|right"
- height="780"
+ height="580"
  layout="topleft"
  bg_opaque_image="Window_NoTitle_Foreground"
  bg_alpha_image="Window_NoTitle_Background"
@@ -860,7 +860,7 @@
     <!-- </text> -->
     <tab_container
      follows="left|top"
-     height="610"
+     height="410"
      halign="center"
      left="0"
      name="Object Info Tabs"
@@ -2413,20 +2413,18 @@ even though the user gets a free copy.
              follows="left|top"
              height="10"
              layout="topleft"
-             left="0"
              name="label physicsshapetype"
-             top_pad="50"
+             top="38"
              width="121">
                 Physics Shape Type:
             </text>
 			<combo_box
-			   height="23"
-			   top_delta="-5" 
+			   height="19"
+			   top_delta="15" 
 			   layout="topleft"
 			   follows="left|top"
 			   name="Physics Shape Type Combo Ctrl"
 			   tool_tip="Choose the physics shape type"
-			   left_pad="5"
 			   width="108"/>
 
             <spinner
@@ -2437,7 +2435,6 @@ even though the user gets a free copy.
              label="Gravity"
              label_width="70"
              layout="topleft"
-             left="10"
              min_val="-1"
              max_val="28"
              name="Physics Gravity"
