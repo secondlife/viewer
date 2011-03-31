@@ -1952,7 +1952,6 @@ set_source_files_properties(
   PROPERTIES
     LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
   )
-LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
 endif (LL_TESTS)
 
