@@ -1469,9 +1469,13 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 				if(dist_vec(pos_global, relative_to) <= radius)
 				{
 					if(positions != NULL)
+					{
 						positions->push_back(pos_global);
+					}
 					if(avatar_ids !=NULL)
+					{
 						avatar_ids->push_back(uuid);
+					}
 				}
 			}
 		}
