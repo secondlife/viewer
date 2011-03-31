@@ -374,6 +374,12 @@ void LLEnvManager::commitSettingsFinished(LLEnvKey::EScope scope)
 	updateUIFromEditability();
 }
 
+void LLEnvManager::applyLocalSettingsToRegion()
+{
+	// Immediately apply current environment settings to region.
+	LLEnvManager::instance().commitSettings(LLEnvKey::SCOPE_REGION);
+}
+
 /*******
  * Loading defaults
  *******/

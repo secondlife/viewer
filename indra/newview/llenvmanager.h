@@ -145,6 +145,8 @@ public:
 	void commitSettings(LLEnvKey::EScope scope);
 	// called back when the commit finishes
 	void commitSettingsFinished(LLEnvKey::EScope scope);
+	// Immediately apply current settings from managers to region.
+	void applyLocalSettingsToRegion();
 
 	/* 
 	 * notify of changes in god/not-god mode, estate ownership, etc.

@@ -206,7 +206,7 @@ void LLFloaterWindLight::initCallbacks(void)
 	childSetAction("WLSavePreset", onSavePreset, comboBox);
 	childSetAction("WLDeletePreset", onDeletePreset, comboBox);
 
-	//childSetAction("WLPresetsCombo", onChangePresetName, comboBox);
+	comboBox->setCommitCallback(boost::bind(&LLFloaterWindLight::onChangePresetName, _1));
 
 	// Dome
 	childSetCommitCallback("WLGamma", onFloatControlMoved, &param_mgr->mWLGamma);
@@ -901,7 +901,7 @@ bool LLFloaterWindLight::deleteAlertCallback(const LLSD& notification, const LLS
 }
 
 
-void LLFloaterWindLight::onChangePresetName(LLUICtrl* ctrl, void * userData)
+void LLFloaterWindLight::onChangePresetName(LLUICtrl* ctrl)
 {
 	llassert(sWindLight);
 	LLWLParamManager::getInstance()->mAnimator.deactivate();

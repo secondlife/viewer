@@ -1225,6 +1225,7 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
        childSetAction("WLRegionApply", onCommitRegionWL, this);
        childSetAction("WLRegionCancel", onCancelRegionWL, this);
        childSetAction("WLRegionDefault", onSetRegionToDefaultWL, this);
+       childSetAction("WLCurrentApply", onApplyCurrentWL, this);
 
 	return TRUE;
 }
@@ -1467,6 +1468,13 @@ void LLPanelRegionTerrainInfo::onSetRegionToDefaultWL(void* userData)
 {
 	LLEnvManager::instance().resetInternalsToDefault(LLEnvKey::SCOPE_REGION);
 	LLEnvManager::instance().startEditingScope(LLEnvKey::SCOPE_REGION);
+}
+
+// static
+void LLPanelRegionTerrainInfo::onApplyCurrentWL(void* userData)
+{
+	// Immediately apply current environment settings to region.
+	LLEnvManager::instance().applyLocalSettingsToRegion();
 }
 
 void LLPanelRegionTerrainInfo::cancelChanges()

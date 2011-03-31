@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="top|left"
- height="320"
+ height="400"
  help_topic="panel_region_terrain_tab"
  label="Terrain"
  layout="topleft"
@@ -196,6 +196,15 @@ See &apos;?&apos; for details.
      top_pad="3"
      width="160" />
     <button
+     enabled="false"
+     follows="left|top"
+     height="20"
+     label="Apply Local to Region"
+     left_delta="0"
+     top_pad="3"
+     name="WLCurrentApply"
+     width="160" />
+    <button
      follows="left|top"
      height="20"
      label="Download RAW terrain..."
@@ -203,7 +212,7 @@ See &apos;?&apos; for details.
      left="10"
      name="download_raw_btn"
      tool_tip="Available only to estate owners, not managers"
-     top="240"
+     top="330"
      width="170" />
     <button
      follows="left|top"
@@ -223,6 +232,6 @@ See &apos;?&apos; for details.
      left="10"
      name="bake_terrain_btn"
      tool_tip="Set current terrain as mid-point for raise/lower limits"
-     top="283"
+     top_pad="3"
      width="100" />
 </panel>

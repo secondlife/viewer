@@ -271,6 +271,7 @@ protected:
 	static void onCommitRegionWL(void* userData);							// commit region information to server
 	static void onCancelRegionWL(void* userData);							// cancel changes to region
 	static void onSetRegionToDefaultWL(void* userData);						// revert region WL settings to default
+	static void onApplyCurrentWL(void* userData);							// apply current settings to region
 };
 
 /////////////////////////////////////////////////////////////////////////////
