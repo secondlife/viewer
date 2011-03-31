@@ -229,7 +229,7 @@ http://wiki.secondlife.com/wiki/Template_verifier.py
 """)
     parser.add_option(
         '-u', '--master_url', type='string', dest='master_url',
-        default='http://secondlife.com/app/message_template/master_message_template.msg',
+        default='http://bitbucket.org/lindenlab/master-message-template/raw/tip/message_template.msg',
         help="""The url of the master message template.""")
     parser.add_option(
         '-c', '--cache_master', action='store_true', dest='cache_master',
