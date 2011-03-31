@@ -109,6 +109,12 @@ void LLEnvManager::startEditingScope(LLEnvKey::EScope scope)
 	mIsEditing = true;
 	mCurEditingScope = scope;
 
+	// Back up local settings so that we can switch back to them later.
+	if (scope != LLEnvKey::SCOPE_LOCAL)
+	{
+		backUpLocalSettingsIfNeeded();
+	}
+
 	// show scope being edited
 	loadSettingsIntoManagers(scope, false);
 	
@@ -160,16 +166,17 @@ void LLEnvManager::maybeClearEditingScope(bool user_initiated, bool was_commit)
 
 void LLEnvManager::clearEditingScope(const LLSD& notification, const LLSD& response)
 {
-	LL_DEBUGS("Windlight") << "Clearing editing scope " << mCurNormalScope << LL_ENDL;
-
 	if(notification.isDefined() && response.isDefined() && LLNotification::getSelectedOption(notification, response) != 0)
 	{
+#if 0
 		// *TODO: select terrain panel here
 		mIsEditing = false;
 		LLFloaterReg::showTypedInstance<LLFloaterRegionInfo>("regioninfo");
+#endif
 		return;
 	}
 
+	LL_DEBUGS("Windlight") << "Clearing editing scope " << mCurNormalScope << LL_ENDL;
 	mIsEditing = false;
 
 	updateUIFromEditability();
@@ -244,6 +251,12 @@ bool LLEnvManager::canEdit(LLEnvKey::EScope scope)
 
 void LLEnvManager::refreshFromStorage(LLEnvKey::EScope scope)
 {
+	// Back up local env. settings so that we can switch to them later.
+	if (scope != LLEnvKey::SCOPE_LOCAL)
+	{
+		backUpLocalSettingsIfNeeded();
+	}
+
 	switch (scope)
 	{
 	case LLEnvKey::SCOPE_LOCAL:
@@ -470,6 +483,20 @@ void LLEnvManager::saveSettingsFromManagers(LLEnvKey::EScope scope)
 		break;
 	default:
 		return;
+	}
+}
+
+void LLEnvManager::backUpLocalSettingsIfNeeded()
+{
+	// *HACK: Back up local env. settings so that we can switch to them later.
+	// Otherwise local day cycle is likely to be reset.
+	static bool sSavedLocalSettings = false;
+
+	if (!sSavedLocalSettings)
+	{
+		LL_DEBUGS("Windlight") << "Backing up local environment settings" << LL_ENDL;
+		saveSettingsFromManagers(LLEnvKey::SCOPE_LOCAL);
+		sSavedLocalSettings = true;
 	}
 }
 

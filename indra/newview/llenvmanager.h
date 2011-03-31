@@ -189,6 +189,8 @@ private:
 	void loadSettingsIntoManagers(LLEnvKey::EScope scope, bool interpolate);
 	// save from current display and UI into memory (mOrigSettingStore)
 	void saveSettingsFromManagers(LLEnvKey::EScope scope);
+	// If not done already, save current local environment settings, so that we can switch to them later.
+	void backUpLocalSettingsIfNeeded();
 
 	// Save copy of settings from the current ones in the param managers
 	LLEnvironmentSettings collateFromParamManagers();

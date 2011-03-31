@@ -790,9 +790,22 @@ void LLFloaterWindLight::onSavePreset(void* userData)
 		return;
 	}
 
+	// If region scope, save immediately.
+	// We don't actually save to file in this case, but just update the preset
+	// so that the changes can be uploaded to server.
+	LLWLParamKey key(comboBox->getSelectedValue());
+	if (key.scope == LLEnvKey::SCOPE_REGION)
+	{
+		// *TODO: Eliminate code duplication.
+		LL_DEBUGS("Windlight") << "Saving region sky preset: " << key.name  << llendl;
+		LLWLParamManager * param_mgr = LLWLParamManager::getInstance();
+		param_mgr->mCurParams.mName = key.name;
+		param_mgr->setParamSet(key, param_mgr->mCurParams);
+		return;
+	}
+
 	// check to see if it's a default and shouldn't be overwritten
-	std::set<LLWLParamKey>::iterator sIt = sDefaultPresets.find(
-		LLWLParamKey(comboBox->getSelectedValue()));
+	std::set<LLWLParamKey>::iterator sIt = sDefaultPresets.find(LLWLParamKey(key));
 	if(sIt != sDefaultPresets.end() && !gSavedSettings.getBOOL("SkyEditPresets")) 
 	{
 		LLNotifications::instance().add("WLNoEditDefault", LLSD(), LLSD());
