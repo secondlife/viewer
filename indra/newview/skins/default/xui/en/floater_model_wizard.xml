@@ -422,11 +422,11 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				<combo_item name="medium">
 					Medium
 				</combo_item>
-				<combo_item name="lowest">
-					Lowest
-				</combo_item>
 				<combo_item name="low">
 					Low
+				</combo_item>
+				<combo_item name="lowest">
+					Lowest
 				</combo_item>
 			</combo_box>
 			<panel
@@ -449,12 +449,12 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 			<slider
 		   follows="left|top"
 		   height="20"
-		   increment="1"
+		   increment="0.5"
 		   layout="topleft"
 		   left="204"
-		   max_val="2"
-		   initial_value="1"
-		   min_val="0"
+		   max_val="4"
+		   initial_value="3"
+		   min_val="2"
 		   name="accuracy_slider"
 		   show_text="false"
 		   top="120"
@@ -674,11 +674,11 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				<combo_item name="medium">
 					Medium
 				</combo_item>
-				<combo_item name="lowest">
-					Lowest
-				</combo_item>
 				<combo_item name="low">
 					Low
+				</combo_item>
+				<combo_item name="lowest">
+					Lowest
 				</combo_item>
 			</combo_box>
 			<panel
@@ -807,11 +807,11 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
         <combo_item name="medium">
           Medium
         </combo_item>
-        <combo_item name="lowest">
-          Lowest
-        </combo_item>
         <combo_item name="low">
           Low
+        </combo_item>
+        <combo_item name="lowest">
+          Lowest
         </combo_item>
       </combo_box>
       <panel
