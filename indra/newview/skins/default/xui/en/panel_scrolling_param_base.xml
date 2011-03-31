@@ -3,21 +3,22 @@
  layout="topleft"
  left="0"
  name="LLScrollingPanelParamBase"
- height="20"
+ height="16"
  width="290">
     <slider
      can_edit_text="true"
      decimal_digits="0"
      enabled="false"
-     height="16"
+     height="12"
      increment="1"
      initial_value="0"
      label="[DESC]"
+     label_width="125"
      layout="bottom|left"
-     left="6"
+     left="16"
      max_val="100"
      name="param slider"
-     bottom="1"
-     width="274" 
-     slider_label.font.style="BOLD" />
+     bottom="0"
+     width="264"
+     />
 </panel>
