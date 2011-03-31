@@ -1,72 +1,163 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater bottom="-130" can_close="true" can_drag_on_left="false" can_minimize="true"
-     can_resize="false" height="175" left="50" min_height="175"
-     min_width="600" mouse_opaque="true" name="Environment Editor Floater"
-     rect_control="FloaterEnvRect" title="Environment Editor" width="600">
-	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="-48" drop_shadow_visible="true" follows="left|top|right"
-	     font="SansSerif" h_pad="0" halign="left" height="16" 
-	     left="10" mouse_opaque="true" name="EnvTimeText" v_pad="0" width="140">
-		Time of Day
-	</text>
-	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom_delta="-30" drop_shadow_visible="true" follows="left|top|right"
-	     font="SansSerifSmall" h_pad="0" halign="left" height="16" 
-	     left="15" mouse_opaque="true" name="EnvTimeText2" v_pad="0" width="140">
-		12:00 PM
-	</text>
-	<icon bottom="-55" follows="left|top" height="25" image_name="icon_diurnal.tga"
-	     left="85" name="EnvDayCycle" width="200" />
-	<slider bottom_delta="-20" can_edit_text="false" control_name="EnvTimeSlider"
-	     decimal_digits="2" follows="left" height="10" increment="0.0069444"
-	     initial_val="0.7" label="" left_delta="0" max_val="0.99" min_val="0"
-	     mouse_opaque="true" name="EnvTimeSlider" show_text="false" value="0.0"
-	     width="200" />
-	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="-102" drop_shadow_visible="true" follows="left|top|right"
-	     font="SansSerif" h_pad="0" halign="left" height="16" 
-	     left="10" mouse_opaque="true" name="EnvCloudText" v_pad="0" width="140">
-		Cloud Cover
-	</text>
-	<slider bottom="-100" can_edit_text="false" control_name="EnvCloudSlider"
-	     decimal_digits="2" follows="left" height="10" increment="0.01"
-	     initial_val="0.7" label="" left="85" max_val="1" min_val="0"
-	     mouse_opaque="true" name="EnvCloudSlider" show_text="true" value="0.7"
-	     width="210" />
-	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="-55" drop_shadow_visible="true" follows="left|top|right"
-	     font="SansSerif" h_pad="0" halign="left" height="16" 
-	     left="310" mouse_opaque="true" name="EnvWaterColorText" v_pad="0"
-	     width="140">
-		Water Color
-	</text>
-	<color_swatch border_color="0.45098, 0.517647, 0.607843, 1" bottom="-80"
-	     can_apply_immediately="true" color="0.5, 0.5, 0.5, 1" follows="left|top"
-	     height="50" label="" left="390" mouse_opaque="true"
-	     name="EnvWaterColor" tool_tip="Click to open Color Picker" width="40" />
-	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="-102" drop_shadow_visible="true" follows="left|top|right"
-	     font="SansSerif" h_pad="0" halign="left" height="16" 
-	     left="310" mouse_opaque="true" name="EnvWaterFogText" v_pad="0" width="140">
-		Water Fog
-	</text>
-	<slider bottom="-100" can_edit_text="false" control_name="EnvWaterFogSlider"
-	     decimal_digits="2" follows="left" height="10" increment="0.1"
-	     initial_val="0" label="" left="385" max_val="10" min_val="0"
-	     mouse_opaque="true" name="EnvWaterFogSlider" show_text="true" value="0"
-	     width="210" />
-	<button bottom="-140" follows="left|top" font="SansSerifSmall" height="20"
-	     label="Use Estate Time" left="8" name="EnvUseEstateTimeButton" width="137" />
-  <button bottom_delta="0" follows="left|top" font="SansSerifSmall" height="20"
-	     label="Use Local Time" left_delta="147" name="EnvUseLocalTimeButton" width="137" />
-	<button bottom_delta="0" follows="left|top" font="SansSerifSmall" height="20"
-	     label="Advanced Sky" left_delta="147" name="EnvAdvancedSkyButton" width="137" />
-	<button bottom_delta="0" follows="left|top" font="SansSerifSmall" height="20"
-	     label="Advanced Water" left_delta="147" name="EnvAdvancedWaterButton" width="137" />
-	<check_box bottom_delta="-30" follows="left|top" left="8" name="RegionWLOptIn" label="Use Region Environment Settings"/>
-	<string name="region_environment_tooltip">
-		Check this box to use the region's environment settings.  Uncheck this box to set your own custom environment settings.  You cannot view the region's environment settings if this box is checked.
-	</string>
-	<button bottom="-40" follows="left|top" font="SansSerif" height="18" label="?" left="570" name="EnvSettingsHelpButton"
-		width="18" />
+<floater
+ legacy_header_height="18"
+ height="150"
+ layout="topleft"
+ name="Environment Editor Floater"
+ help_topic="environment_editor_floater"
+ save_rect="true"
+ title="ENVIRONMENT EDITOR"
+ width="600">
+    <floater.string
+     name="timeStr">
+        [hour12,datetime,utc]:[min,datetime,utc] [ampm,datetime,utc]
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="EnvTimeText"
+     top="32"
+     width="140">
+        Time of Day
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     height="16"
+     layout="topleft"
+     left="15"
+     name="EnvTimeText2"
+     top="62"
+     width="140">
+        12:00 PM
+    </text>
+    <icon
+     height="25"
+     image_name="icon_diurnal.tga"
+     layout="topleft"
+     left="85"
+     name="EnvDayCycle"
+     top="30"
+     width="200" />
+    <slider
+     control_name="EnvTimeSlider"
+     decimal_digits="2"
+     follows="left"
+     height="10"
+     increment="0.0069444"
+     initial_value="0.7"
+     layout="topleft"
+     left_delta="0"
+     max_val="0.99"
+     name="EnvTimeSlider"
+     show_text="false"
+     top_pad="10"
+     width="200" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="EnvCloudText"
+     top="86"
+     width="140">
+        Cloud Cover
+    </text>
+    <slider
+     control_name="EnvCloudSlider"
+     decimal_digits="2"
+     follows="left"
+     height="10"
+     increment="0.01"
+     initial_value="0.7"
+     layout="topleft"
+     left_delta="75"
+     name="EnvCloudSlider"
+     top_delta="4"
+     width="210" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="310"
+     name="EnvWaterColorText"
+     top="39"
+     width="140">
+        Water Color
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     color="0.5 0.5 0.5 1"
+     follows="left|top"
+     height="50"
+     layout="topleft"
+     left="390"
+     name="EnvWaterColor"
+     tool_tip="Click to open color picker"
+     top="30"
+     width="40" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="310"
+     name="EnvWaterFogText"
+     top="86"
+     width="140">
+        Water Fog
+    </text>
+    <slider
+     control_name="EnvWaterFogSlider"
+     decimal_digits="2"
+     follows="left"
+     height="10"
+     initial_value="0"
+     layout="topleft"
+     left_delta="75"
+     max_val="10"
+     name="EnvWaterFogSlider"
+     top_delta="4"
+     width="210" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Use Estate Time"
+     layout="topleft"
+     left="10"
+     name="EnvUseEstateTimeButton"
+     top="120"
+     width="137" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Advanced Sky"
+     layout="topleft"
+     left_pad="3"
+     name="EnvAdvancedSkyButton"
+     top_delta="0"
+     width="137" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Advanced Water"
+     layout="topleft"
+     left_pad="3"
+     name="EnvAdvancedWaterButton"
+     top_delta="0"
+     width="137" />
 </floater>
