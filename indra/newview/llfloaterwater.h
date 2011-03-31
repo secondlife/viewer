@@ -33,10 +33,6 @@
 
 #include "llfloater.h"
 
-#if 0
-#include <vector>
-#include "llwlparamset.h"
-#endif
 #include "llenvmanager.h"
 
 struct WaterVector2Control;
