@@ -9,5 +9,5 @@
 	<menu_item_call label="Partager" name="Share"/>
 	<menu_item_call label="Payer" name="Pay"/>
 	<menu_item_check label="Ignorer/Ne plus ignorer" name="Block/Unblock"/>
-	<menu_item_call label="Proposer une téléportation" name="teleport"/>
+	<menu_item_call label="Téléporter" name="teleport"/>
 </context_menu>

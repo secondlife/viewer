@@ -21,7 +21,7 @@
 		<context_menu label="Détacher" name="Object Detach"/>
 		<menu_item_call label="Tout détacher" name="Detach All"/>
 	</context_menu>
-	<menu_item_call label="Changer de tenue" name="Chenge Outfit"/>
+	<menu_item_call label="Mon apparence" name="Chenge Outfit"/>
 	<menu_item_call label="Modifier ma tenue" name="Edit Outfit"/>
 	<menu_item_call label="Modifier ma silhouette" name="Edit My Shape"/>
 	<menu_item_call label="Mes amis" name="Friends..."/>
