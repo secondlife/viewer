@@ -384,8 +384,6 @@ BOOL LLFloaterModelPreview::postBuild()
 LLFloaterModelPreview::~LLFloaterModelPreview()
 {
 	sInstance = NULL;
-
-	const LLModelLoader *model_loader = mModelPreview->mModelLoader;
 	
 	if ( mModelPreview && mModelPreview->getResetJointFlag() )
 	{
