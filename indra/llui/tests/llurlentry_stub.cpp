@@ -193,8 +193,8 @@ LLFontGL* LLFontGL::getFontDefault()
 	return NULL; 
 }
 
-char const* const _PREHASH_AgentData = 0; // never dereferenced during this test
-char const* const _PREHASH_AgentID = 0;   // never dereferenced during this test
+char* _PREHASH_AgentData = (char *)"AgentData";
+char* _PREHASH_AgentID = (char *)"AgentID";
 
 LLHost LLHost::invalid(INVALID_PORT,INVALID_HOST_IP_ADDRESS);
 
