@@ -6,6 +6,7 @@
   <string name="status_idle">Idle</string>
   <string name="status_reading_file">Loading...</string>
   <string name="status_generating_meshes">Generating Meshes...</string>
+  <string name="status_vertex_number_overflow">Error: Vertex number is more than 65534, aborted!</string>
   <string name="high">High</string>
   <string name="medium">Medium</string>
   <string name="low">Low</string>

@@ -57,7 +57,7 @@ const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 
 LLModel::LLModel(LLVolumeParams& params, F32 detail)
 	: LLVolume(params, detail), mNormalizedScale(1,1,1), mNormalizedTranslation(0,0,0)
-	, mPelvisOffset( 0.0f )
+	, mPelvisOffset( 0.0f ), mStatus(NO_ERRORS)
 {
 	mDecompID = -1;
 	mLocalID = -1;
@@ -209,7 +209,7 @@ void get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S
 	idx_stride += 1;
 }
 
-void load_face_from_dom_triangles(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domTrianglesRef& tri)
+LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domTrianglesRef& tri)
 {
 	LLVolumeFace face;
 	std::vector<LLVolumeFace::VertexData> verts;
@@ -304,7 +304,8 @@ void load_face_from_dom_triangles(std::vector<LLVolumeFace>& face_list, std::vec
 			verts.push_back(cv);
 			if (verts.size() >= 65535)
 			{
-				llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+				//llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+				return LLModel::VERTEX_NUMBER_OVERFLOW ;
 			}
 			U16 index = (U16) (verts.size()-1);
 			indices.push_back(index);
@@ -349,16 +350,17 @@ void load_face_from_dom_triangles(std::vector<LLVolumeFace>& face_list, std::vec
 		face_list.rbegin()->fillFromLegacyData(verts, indices);
 	}
 
+	return LLModel::NO_ERRORS ;
 }
 
-void load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolylistRef& poly)
+LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolylistRef& poly)
 {
 	domPRef p = poly->getP();
 	domListOfUInts& idx = p->getValue();
 
 	if (idx.getCount() == 0)
 	{
-		return;
+		return LLModel::NO_ERRORS ;
 	}
 
 	const domInputLocalOffset_Array& inputs = poly->getInput_array();
@@ -479,7 +481,8 @@ void load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vect
 				verts.push_back(cv);
 				if (verts.size() >= 65535)
 				{
-					llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+					//llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+					return LLModel::VERTEX_NUMBER_OVERFLOW ;
 				}
 				U16 index = (U16) (verts.size()-1);
 			
@@ -539,9 +542,11 @@ void load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vect
 		face_list.push_back(face);
 		face_list.rbegin()->fillFromLegacyData(verts, indices);
 	}
+
+	return LLModel::NO_ERRORS ;
 }
 
-void load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolygonsRef& poly)
+LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolygonsRef& poly)
 {
 	LLVolumeFace face;
 	std::vector<U16> indices;
@@ -654,7 +659,7 @@ void load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vect
 
 	if (verts.empty())
 	{
-		return;
+		return LLModel::NO_ERRORS;
 	}
 
 	face.mExtents[0] = verts[0].getPosition();
@@ -716,6 +721,27 @@ void load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vect
 		face_list.push_back(face);
 		face_list.rbegin()->fillFromLegacyData(new_verts, indices);
 	}
+
+	return LLModel::NO_ERRORS ;
+}
+
+//static
+std::string LLModel::getStatusString(U32 status)
+{
+	const static std::string status_strings[(S32)INVALID_STATUS] = {"status_no_error", "status_vertex_number_overflow"};
+
+	if(status < INVALID_STATUS)
+	{
+		if(status_strings[status] == std::string())
+		{
+			llerrs << "No valid status string for this status: " << (U32)status << llendl ;
+		}
+		return status_strings[status] ;
+	}
+
+	llerrs << "Invalid model status: " << (U32)status << llendl ;
+
+	return std::string() ;
 }
 
 void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
@@ -726,7 +752,14 @@ void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
 	{
 		domTrianglesRef& tri = tris.get(i);
 
-		load_face_from_dom_triangles(mVolumeFaces, mMaterialList, tri);
+		mStatus = load_face_from_dom_triangles(mVolumeFaces, mMaterialList, tri);
+		
+		if(mStatus != NO_ERRORS)
+		{
+			mVolumeFaces.clear() ;
+			mMaterialList.clear() ;
+			return ; //abort
+		}
 	}
 
 	domPolylist_Array& polys = mesh->getPolylist_array();
@@ -734,7 +767,14 @@ void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
 	{
 		domPolylistRef& poly = polys.get(i);
 
-		load_face_from_dom_polylist(mVolumeFaces, mMaterialList, poly);
+		mStatus = load_face_from_dom_polylist(mVolumeFaces, mMaterialList, poly);
+
+		if(mStatus != NO_ERRORS)
+		{
+			mVolumeFaces.clear() ;
+			mMaterialList.clear() ;
+			return ; //abort
+		}
 	}
 
 	domPolygons_Array& polygons = mesh->getPolygons_array();
@@ -742,7 +782,14 @@ void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
 	{
 		domPolygonsRef& poly = polygons.get(i);
 
-		load_face_from_dom_polygons(mVolumeFaces, mMaterialList, poly);
+		mStatus = load_face_from_dom_polygons(mVolumeFaces, mMaterialList, poly);
+
+		if(mStatus != NO_ERRORS)
+		{
+			mVolumeFaces.clear() ;
+			mMaterialList.clear() ;
+			return ; //abort
+		}
 	}
 
 }
@@ -755,7 +802,7 @@ BOOL LLModel::createVolumeFacesFromDomMesh(domMesh* mesh)
 		mMaterialList.clear();
 
 		addVolumeFacesFromDomMesh(mesh);
-
+		
 		if (getNumVolumeFaces() > 0)
 		{
 			optimizeVolumeFaces();
