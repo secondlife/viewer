@@ -162,6 +162,8 @@ public:
 	
 	static void onBrowseLOD(void* data);
 	
+	static void onReset(void* data);
+
 	static void onUpload(void* data);
 	
 	static void onClearMaterials(void* data);

@@ -279,11 +279,6 @@ BOOL LLFloaterModelPreview::postBuild()
 		return FALSE;
 	}
 
-
-
-
-
-
 	childSetAction("lod_browse", onBrowseLOD, this);
 
 	childSetCommitCallback("cancel_btn", onCancel, this);
@@ -305,6 +300,8 @@ BOOL LLFloaterModelPreview::postBuild()
 	//childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d",sUploadAmount));
 	childSetAction("ok_btn", onUpload, this);
 	childDisable("ok_btn");
+
+	childSetAction("reset_btn", onReset, this);
 
 	childSetAction("clear_materials", onClearMaterials, this);
 
@@ -4616,6 +4613,17 @@ void LLFloaterModelPreview::onBrowseLOD(void* data)
 
 	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) data;
 	mp->loadModel(mp->mModelPreview->mPreviewLOD);
+}
+
+//static
+void LLFloaterModelPreview::onReset(void* user_data)
+{
+	assert_main_thread();
+
+	LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) user_data;
+	LLModelPreview* mp = fmp->mModelPreview;
+	std::string filename = mp->mLODFile[3]; 
+	mp->loadModel(filename,3);
 }
 
 //static
