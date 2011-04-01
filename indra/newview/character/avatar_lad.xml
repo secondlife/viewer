@@ -612,7 +612,7 @@
      id="36"
      group="0"
      name="Shoulders"
-   label="Shoulders"
+     label="Shoulders"
      wearable="shape"
      edit_group="shape_torso"
      edit_group_order="4"
@@ -4040,26 +4040,6 @@
           scale="0.0 0.0 0.01"
           pos="0 0 -0.01"/>
       </param_morph>
-
-    </param>
-
-    <param
-     id="507"
-     group="0"
-     sex="female"
-     name="Breast_Gravity"
-     label="Breast Buoyancy"
-     wearable="shape"
-     edit_group="shape_torso"
-     edit_group_order="7"
-     label_min="Less Gravity"
-     label_max="More Gravity"
-     value_default="0"
-     value_min="-1.5"
-     value_max="2"
-     camera_elevation=".3"
-     camera_distance=".8">
-      <param_morph />
     </param>
 
     <param
@@ -4110,25 +4090,6 @@
           name="BELLY"
           scale="0.0 0.02 0.0"/>
       </param_morph>
-    </param>
-
-    <param
-     id="684"
-     group="0"
-     sex="female"
-     name="Breast_Female_Cleavage"
-     label="Breast Cleavage"
-     wearable="shape"
-     edit_group="shape_torso"
-     edit_group_order="8"
-     label_min="Separate"
-     label_max="Join"
-     value_default="0"
-     value_min="-.3"
-     value_max="1.3"
-     camera_elevation=".3"
-     camera_distance=".8">
-      <param_morph />
     </param>
 
     <param
@@ -4328,8 +4289,52 @@
     </param>
 
     <!--
+            #############
+            # physics morphs (not user controlled)
+            #############
+            -->
+    <param
+     id="1200"
+     group="1"
+     sex="female"
+     name="Breast_Gravity"
+     wearable="shape"
+     edit_group="driven"
+     value_default="0"
+     value_min="-1.5"
+     value_max="2">
+      <param_morph />
+    </param>
+
+    <param
+     id="1201"
+     group="1"
+     sex="female"
+     name="Breast_Female_Cleavage"
+     wearable="shape"
+     edit_group="driven"
+     value_default="0"
+     value_min="-.3"
+     value_max="1.3">
+      <param_morph />
+    </param>
+
+    <param
+     id="1204"
+     group="1"
+     name="Belly_Physics_Torso_UpDown_Driven"
+     wearable="physics"
+     edit_group="driven"
+     value_default="0"
+     value_min="-1"
+     value_max="1">
+      <param_morph />
+    </param>
+
+    <!--
          #end morph targets
           -->
+
   </mesh>
 
   <mesh
@@ -4389,6 +4394,7 @@
      value_max="1">
       <param_morph />
     </param>
+
 
     <param
      id="151"
@@ -4829,8 +4835,49 @@
     </param>
 
     <!--
+            #############
+            # physics morphs (not user controlled)
+            #############
+            -->
+    <param
+     id="1202"
+     group="1"
+     name="Belly_Physics_Legs_UpDown_Driven"
+     wearable="physics"
+     edit_group="driven"
+     value_min="-1"
+     value_max="1">
+      <param_morph />
+    </param>
+
+
+    <param
+     id="1205"
+     group="1"
+     name="Butt_Physics_UpDown_Driven"
+     wearable="physics"
+     edit_group="driven"
+     value_default="0">
+      <param_morph />
+    </param>
+
+    <param
+     id="1206"
+     group="1"
+     name="Butt_Physics_LeftRight_Driven"
+     wearable="physics"
+     edit_group="driven"
+     value_default="0"
+     value_min="-2"
+     value_max="2">
+      <param_morph />
+    </param>
+
+
+    <!--
             #end morph targets
             -->
+
   </mesh>
 
   <mesh
@@ -9074,12 +9121,13 @@ render_pass="bump">
 
   <!-- =========================================================== -->
   <driver_parameters>
+
     <param
      id="828"
      group="0"
      name="Loose Upper Clothing"
      label="Shirt Fit"
-   show_simple="true"
+	 show_simple="true"
      wearable="shirt"
      edit_group="shirt"
      edit_group_order="4"
@@ -11629,6 +11677,524 @@ render_pass="bump">
          min2="1" />
 
       </param_driver>
+    </param>
+
+  <!-- ==PHYSICS PARAMETERS======================================= -->
+
+   <param
+     id="507"
+     group="0"
+     sex="female"
+     name="Breast_Physics_UpDown_Controller"
+     label="Breast Physics UpDown Controller"
+     wearable="shape"
+     edit_group="shape_torso"
+     edit_group_order="7"
+     value_default="0"
+     value_min="-1.5"
+     value_max="2"
+     camera_elevation=".3"
+     camera_distance=".8">
+      <param_driver>
+        <driven
+         id="1200" />
+	</param_driver>
+    </param>
+
+   <param
+     id="684"
+     group="0"
+     sex="female"
+     name="Breast_Physics_InOut_Controller"
+     label="Breast Physics InOut Controller"
+     wearable="shape"
+     edit_group="shape_torso"
+     edit_group_order="8"
+     value_default="0"
+     value_min="-.3"
+     value_max="1.3">
+      <param_driver>
+        <driven
+         id="1201" />
+	</param_driver>
+    </param>
+
+    <param
+     id="1120"
+     group="1"
+     wearable="physics"
+     name="Belly_Physics_UpDown_Controller"
+     label="Belly Physics UpDown Controller"
+     value_min="-1"
+     value_max="1"
+     value_default="0">
+      <param_driver>
+        <driven
+         id="1202" />
+        <driven
+         id="1203" />
+        <driven
+         id="1204" />
+      </param_driver>
+    </param>
+
+    <param
+     id="1100"
+     group="1"
+     wearable="shape"
+     name="Butt_Physics_UpDown_Controller"
+     label="Butt Physics UpDown Controller"
+     value_min="-1"
+     value_max="1"
+     value_default="0">
+      <param_driver>
+        <driven
+         id="1205" />
+      </param_driver>
+    </param>
+
+    <param
+     id="1101"
+     group="1"
+     wearable="shape"
+     name="Butt_Physics_LeftRight_Controller"
+     label="Butt Physics LeftRight Controller"
+     value_min="-1"
+     value_max="1"
+     value_default="0">
+      <param_driver>
+        <driven
+         id="1206" />
+      </param_driver>
+    </param>
+
+    <param
+     id="1110"
+     group="0"
+     sex="female"
+     name="Breast_Physics_Mass"
+     label="Breast Physics Mass"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default=".1"
+     value_min=".1"
+     value_max="1">
+	 <param_driver />
+    </param>
+    <param
+     id="1111"
+     group="0"
+     sex="female"
+     name="Breast_Physics_Smoothing"
+     label="Breast Physics Smoothing"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default="2"
+     value_min="1"
+     value_max="10">
+	 <param_driver />
+    </param>
+    <param
+     id="1112"
+     group="0"
+     sex="female"
+     name="Breast_Physics_Gravity"
+     label="Breast Physics Gravity"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default="0"
+     value_min="0"
+     value_max=".1">
+	 <param_driver />
+    </param>
+
+   <param
+     id="1113"
+     group="0"
+     sex="female"
+     name="Breast_Physics_UpDown_Max_Velocity"
+     label="Breast Physics UpDown Max Speed"
+     wearable="physics"
+     edit_group="physics_breasts_updown"
+     value_default="0"
+     value_min="0"
+     value_max="10">
+	 <param_driver />
+    </param>
+    <param
+     id="1114"
+     group="0"
+     sex="female"
+     name="Breast_Physics_UpDown_Spring"
+     label="Breast Physics UpDown Spring"
+     wearable="physics"
+     edit_group="physics_breasts_updown"
+     value_default=".1"
+     value_min="0"
+     value_max="1">
+	 <param_driver />
+    </param>
+    <param
+     id="1115"
+     group="0"
+     sex="female"
+     name="Breast_Physics_UpDown_Gain"
+     label="Breast Physics UpDown Gain"
+     wearable="physics"
+     edit_group="physics_breasts_updown"
+     value_default="10"
+     value_min="1"
+     value_max="100">
+	 <param_driver />
+    </param>
+    <param
+     id="1116"
+     group="0"
+     sex="female"
+     name="Breast_Physics_UpDown_Damping"
+     label="Breast Physics UpDown Damping"
+     wearable="physics"
+     edit_group="physics_breasts_updown"
+     value_default=".05"
+     value_min="0"
+     value_max=".1"
+     camera_elevation=".3"
+     camera_distance=".8">
+	 <param_driver />
+    </param>
+   <param
+     id="1117"
+     group="0"
+     sex="female"
+     name="Breast_Physics_UpDown_Drag"
+     label="Breast Physics UpDown Drag"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default=".15"
+     value_min="0"
+     value_max=".5">
+	 <param_driver />
+    </param>
+
+   <param
+     id="1118"
+     group="0"
+     sex="female"
+     name="Breast_Physics_InOut_Max_Velocity"
+     label="Breast Physics InOut Max Speed"
+     wearable="physics"
+     edit_group="physics_breasts_inout"
+     value_default="0"
+     value_min="0"
+     value_max="10">
+	 <param_driver />
+    </param>
+    <param
+     id="1119"
+     group="0"
+     sex="female"
+     name="Breast_Physics_InOut_Spring"
+     label="Breast Physics InOut Spring"
+     wearable="physics"
+     edit_group="physics_breasts_inout"
+     value_default=".1"
+     value_min="0"
+     value_max="1">
+	 <param_driver />
+    </param>
+    <param
+     id="1120"
+     group="0"
+     sex="female"
+     name="Breast_Physics_InOut_Gain"
+     label="Breast Physics InOut Gain"
+     wearable="physics"
+     edit_group="physics_breasts_inout"
+     value_default="10"
+     value_min="1"
+     value_max="100">
+	 <param_driver />
+    </param>
+    <param
+     id="1121"
+     group="0"
+     sex="female"
+     name="Breast_Physics_InOut_Damping"
+     label="Breast Physics InOut Damping"
+     wearable="physics"
+     edit_group="physics_breasts_inout"
+     value_default=".05"
+     value_min="0"
+     value_max=".1">
+	 <param_driver />
+    </param>
+   <param
+     id="1122"
+     group="0"
+     sex="female"
+     name="Breast_Physics_InOut_Drag"
+     label="Breast Physics InOut Drag"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default=".15"
+     value_min="0"
+     value_max=".5">
+	 <param_driver />
+    </param>
+
+    <param
+     id="1130"
+     group="0"
+     name="Belly_Physics_Mass"
+     label="Belly Physics Mass"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default=".1"
+     value_min=".1"
+     value_max="1">
+	 <param_driver />
+    </param>
+    <param
+     id="1131"
+     group="0"
+     name="Belly_Physics_Smoothing"
+     label="Belly Physics Smoothing"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default="2"
+     value_min="1"
+     value_max="10">
+	 <param_driver />
+    </param>
+    <param
+     id="1132"
+     group="0"
+     name="Belly_Physics_Gravity"
+     label="Belly Physics Gravity"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default="0"
+     value_min="0"
+     value_max=".1">
+	 <param_driver />
+    </param>
+   <param
+     id="1133"
+     group="0"
+     name="Belly_Physics_UpDown_Max_Velocity"
+     label="Belly Physics UpDown Max Speed"
+     wearable="physics"
+     edit_group="physics_belly_updown"
+     value_default="0"
+     value_min="0"
+     value_max="10">
+	 <param_driver />
+    </param>
+    <param
+     id="1134"
+     group="0"
+     name="Belly_Physics_UpDown_Spring"
+     label="Belly Physics UpDown Spring"
+     wearable="physics"
+     edit_group="physics_belly_updown"
+     value_default=".1"
+     value_min="0"
+     value_max="1">
+	 <param_driver />
+    </param>
+    <param
+     id="1135"
+     group="0"
+     name="Belly_Physics_UpDown_Gain"
+     label="Belly Physics UpDown Gain"
+     wearable="physics"
+     edit_group="physics_belly_updown"
+     value_default="10"
+     value_min="1"
+     value_max="100">
+	 <param_driver />
+    </param>
+    <param
+     id="1136"
+     group="0"
+     name="Belly_Physics_UpDown_Damping"
+     label="Belly Physics UpDown Damping"
+     wearable="physics"
+     edit_group="physics_belly_updown"
+     value_default=".05"
+     value_min="0"
+     value_max=".1">
+	 <param_driver />
+    </param>
+   <param
+     id="1137"
+     group="0"
+     name="Belly_Physics_UpDown_Drag"
+     label="Belly Physics UpDown Drag"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default=".15"
+     value_min="0"
+     value_max=".5">
+	 <param_driver />
+    </param>
+
+    <param
+     id="1140"
+     group="0"
+     name="Butt_Physics_Mass"
+     label="Butt Physics Mass"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default=".1"
+     value_min=".1"
+     value_max="1">
+	 <param_driver />
+    </param>
+    <param
+     id="1141"
+     group="0"
+     name="Butt_Physics_Smoothing"
+     label="Butt Physics Smoothing"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default="2"
+     value_min="1"
+     value_max="10">
+	 <param_driver />
+    </param>
+    <param
+     id="1142"
+     group="0"
+     name="Butt_Physics_Gravity"
+     label="Butt Physics Gravity"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default="0"
+     value_min="0"
+     value_max=".1">
+	 <param_driver />
+    </param>
+   <param
+     id="1143"
+     group="0"
+     name="Butt_Physics_UpDown_Max_Velocity"
+     label="Butt Physics UpDown Max Speed"
+     wearable="physics"
+     edit_group="physics_butt_updown"
+     value_default="0"
+     value_min="0"
+     value_max="10">
+	 <param_driver />
+    </param>
+    <param
+     id="1144"
+     group="0"
+     name="Butt_Physics_UpDown_Spring"
+     label="Butt Physics UpDown Spring"
+     wearable="physics"
+     edit_group="physics_butt_updown"
+     value_default=".1"
+     value_min="0"
+     value_max="1">
+	 <param_driver />
+    </param>
+    <param
+     id="1145"
+     group="0"
+     name="Butt_Physics_UpDown_Gain"
+     label="Butt Physics UpDown Gain"
+     wearable="physics"
+     edit_group="physics_butt_updown"
+     value_default="10"
+     value_min="1"
+     value_max="100">
+	 <param_driver />
+    </param>
+    <param
+     id="1146"
+     group="0"
+     name="Butt_Physics_UpDown_Damping"
+     label="Butt Physics UpDown Damping"
+     wearable="physics"
+     edit_group="physics_butt_updown"
+     value_default=".05"
+     value_min="0"
+     value_max=".1">
+	 <param_driver />
+    </param>
+   <param
+     id="1147"
+     group="0"
+     name="Butt_Physics_UpDown_Drag"
+     label="Butt Physics UpDown Drag"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default=".15"
+     value_min="0"
+     value_max=".5">
+	 <param_driver />
+    </param>
+
+   <param
+     id="1148"
+     group="0"
+     name="Butt_Physics_LeftRight_Max_Velocity"
+     label="Butt Physics LeftRight Max Speed"
+     wearable="physics"
+     edit_group="physics_butt_leftright"
+     value_default="0"
+     value_min="0"
+     value_max="10">
+	 <param_driver />
+    </param>
+    <param
+     id="1149"
+     group="0"
+     name="Butt_Physics_LeftRight_Spring"
+     label="Butt Physics LeftRight Spring"
+     wearable="physics"
+     edit_group="physics_butt_leftright"
+     value_default=".1"
+     value_min="0"
+     value_max="1">
+	 <param_driver />
+    </param>
+    <param
+     id="1150"
+     group="0"
+     name="Butt_Physics_LeftRight_Gain"
+     label="Butt Physics LeftRight Gain"
+     wearable="physics"
+     edit_group="physics_butt_leftright"
+     value_default="10"
+     value_min="1"
+     value_max="100">
+	 <param_driver />
+    </param>
+    <param
+     id="1151"
+     group="0"
+     name="Butt_Physics_LeftRight_Damping"
+     label="Butt Physics LeftRight Damping"
+     wearable="physics"
+     edit_group="physics_butt_leftright"
+     value_default=".05"
+     value_min="0"
+     value_max=".1">
+	 <param_driver />
+    </param>
+   <param
+     id="1152"
+     group="0"
+     name="Butt_Physics_LeftRight_Drag"
+     label="Butt Physics LeftRight Drag"
+     wearable="physics"
+     edit_group="physics_advanced"
+     value_default=".15"
+     value_min="0"
+     value_max=".5">
+	 <param_driver />
     </param>
 
 
