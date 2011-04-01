@@ -1,31 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Map" title="">
-	<floater.string name="mini_map_north">
-		N
-	</floater.string>
-	<floater.string name="mini_map_east">
-		O
-	</floater.string>
-	<floater.string name="mini_map_west">
-		W
-	</floater.string>
-	<floater.string name="mini_map_south">
-		S
-	</floater.string>
-	<floater.string name="mini_map_southeast">
-		SO
-	</floater.string>
-	<floater.string name="mini_map_northeast">
-		NO
-	</floater.string>
-	<floater.string name="mini_map_southwest">
-		SW
-	</floater.string>
-	<floater.string name="mini_map_northwest">
-		NW
-	</floater.string>
 	<floater.string name="ToolTipMsg">
 		[REGION](Doppelklicken, um Karte zu öffnen; Umschalt-Taste gedrückt halten und ziehen, um zu schwenken)
+	</floater.string>
+	<floater.string name="AltToolTipMsg">
+		[REGION](Doppelklicken, um zu teleportieren; Umschalttaste gedrückt halten und ziehen, um zu schwenken)
 	</floater.string>
 	<floater.string name="mini_map_caption">
 		MINI-KARTE

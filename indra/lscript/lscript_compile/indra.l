@@ -8,8 +8,11 @@ FS			(f|F)
 %n 4000
 %p 5000
 
+%top {
+	#include "linden_common.h"
+}
+
 %{
-#include "linden_common.h"
 // Deal with the fact that lex/yacc generates unreachable code
 #ifdef LL_WINDOWS
 #pragma warning (disable : 4018) // warning C4018: signed/unsigned mismatch

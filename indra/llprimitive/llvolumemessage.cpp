@@ -94,7 +94,7 @@ bool LLVolumeMessage::packProfileParams(
 bool LLVolumeMessage::unpackProfileParams(
 	LLProfileParams* params,
 	LLMessageSystem* mesgsys,
-	char* block_name,
+	char const* block_name,
 	S32 block_num)
 {
 	bool ok = true;
@@ -322,7 +322,7 @@ bool LLVolumeMessage::packPathParams(
 bool LLVolumeMessage::unpackPathParams(
 	LLPathParams* params,
 	LLMessageSystem* mesgsys,
-	char* block_name,
+	char const* block_name,
 	S32 block_num)
 {
 	U8 curve;
@@ -522,7 +522,7 @@ bool LLVolumeMessage::packVolumeParams(const LLVolumeParams* params, LLDataPacke
 bool LLVolumeMessage::unpackVolumeParams(
 	LLVolumeParams* params,
 	LLMessageSystem* mesgsys,
-	char* block_name,
+	char const* block_name,
 	S32 block_num)
 {
 	bool ok = true;

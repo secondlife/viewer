@@ -40,6 +40,10 @@ public:
 	static LLFontGL* getChatFont();
 	static S32 getChatFontSize();
 	static void formatChatMsg(const LLChat& chat, std::string& formated_msg);
+	static std::string getSenderSLURL(const LLChat& chat, const LLSD& args);
+
+private:
+	static std::string getObjectImSLURL(const LLChat& chat, const LLSD& args);
 
 };
 
