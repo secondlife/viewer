@@ -69,6 +69,13 @@ public:
 		NUM_LODS
 	};
 	
+	enum EModelStatus
+	{
+		NO_ERRORS = 0,
+		VERTEX_NUMBER_OVERFLOW, //vertex number is >= 65535.
+		INVALID_STATUS
+	} ;
+
 	//convex_hull_decomposition is a vector of convex hulls
 	//each convex hull is a set of points
 	typedef std::vector<std::vector<LLVector3> > convex_hull_decomposition;
@@ -138,6 +145,8 @@ public:
 	static LLModel* loadModelFromDomMesh(domMesh* mesh);
 	static std::string getElementLabel(daeElement* element);
 	std::string getName() const;
+	EModelStatus getStatus() const {return mStatus;}
+	static std::string getStatusString(U32 status) ;
 
 	void appendFaces(LLModel* model, LLMatrix4& transform, LLMatrix4& normal_transform);
 	void appendFace(const LLVolumeFace& src_face, std::string src_material, LLMatrix4& mat, LLMatrix4& norm_mat);
@@ -237,6 +246,7 @@ public:
 
 	Decomposition mPhysics;
 
+	EModelStatus mStatus ;
 protected:
 	void addVolumeFacesFromDomMesh(domMesh* mesh);
 	virtual BOOL createVolumeFacesFromDomMesh(domMesh *mesh);
