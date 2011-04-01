@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="hide_camera_move_controls_menu">
+	<menu_item_check label="Voix activée" name="EnableVoiceChat"/>
 	<menu_item_check label="Bouton Geste" name="ShowGestureButton"/>
 	<menu_item_check label="Bouton Bouger" name="ShowMoveButton"/>
 	<menu_item_check label="Bouton Affichage" name="ShowCameraButton"/>
 	<menu_item_check label="Bouton Photo" name="ShowSnapshotButton"/>
-	<menu_item_check label="Bouton Panneau latéral" name="ShowSidebarButton"/>
 	<menu_item_check label="Bouton Construire" name="ShowBuildButton"/>
 	<menu_item_check label="Bouton Rechercher" name="ShowSearchButton"/>
 	<menu_item_check label="Bouton Carte" name="ShowWorldMapButton"/>
