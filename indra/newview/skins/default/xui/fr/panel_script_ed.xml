@@ -15,6 +15,9 @@
 	<panel.string name="Title">
 		Script : [NAME]
 	</panel.string>
+	<panel.string name="external_editor_not_set">
+		Sélectionnez un éditeur en définissant la variable d&apos;environnement LL_SCRIPT_EDITOR ou le paramètre ExternalEditor.
+	</panel.string>
 	<menu_bar name="script_menu">
 		<menu label="Fichier" name="File">
 			<menu_item_call label="Enregistrer" name="Save"/>
