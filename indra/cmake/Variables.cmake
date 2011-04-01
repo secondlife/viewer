@@ -17,6 +17,10 @@
 
 # Relative and absolute paths to subtrees.
 
+if(NOT DEFINED COMMON_CMAKE_DIR)
+    set(COMMON_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
+endif(NOT DEFINED COMMON_CMAKE_DIR)
+
 set(LIBS_CLOSED_PREFIX)
 set(LIBS_OPEN_PREFIX)
 set(LIBS_SERVER_PREFIX)
@@ -26,23 +30,39 @@ set(VIEWER_PREFIX)
 set(INTEGRATION_TESTS_PREFIX)
 set(LL_TESTS ON CACHE BOOL "Build and run unit and integration tests (disable for build timing runs to reduce variation")
 
-set(LIBS_CLOSED_DIR ${CMAKE_SOURCE_DIR}/${LIBS_CLOSED_PREFIX})
-set(LIBS_OPEN_DIR ${CMAKE_SOURCE_DIR}/${LIBS_OPEN_PREFIX})
+if(LIBS_CLOSED_DIR)
+  file(TO_CMAKE_PATH "${LIBS_CLOSED_DIR}" LIBS_CLOSED_DIR)
+else(LIBS_CLOSED_DIR)
+  set(LIBS_CLOSED_DIR ${CMAKE_SOURCE_DIR}/${LIBS_CLOSED_PREFIX})
+endif(LIBS_CLOSED_DIR)
+if(LIBS_COMMON_DIR)
+  file(TO_CMAKE_PATH "${LIBS_COMMON_DIR}" LIBS_COMMON_DIR)
+else(LIBS_COMMON_DIR)
+  set(LIBS_COMMON_DIR ${CMAKE_SOURCE_DIR}/${LIBS_OPEN_PREFIX})
+endif(LIBS_COMMON_DIR)
+set(LIBS_OPEN_DIR ${LIBS_COMMON_DIR})
+
 set(LIBS_SERVER_DIR ${CMAKE_SOURCE_DIR}/${LIBS_SERVER_PREFIX})
 set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/${SCRIPTS_PREFIX})
 set(SERVER_DIR ${CMAKE_SOURCE_DIR}/${SERVER_PREFIX})
 set(VIEWER_DIR ${CMAKE_SOURCE_DIR}/${VIEWER_PREFIX})
 
-set(LIBS_PREBUILT_DIR ${CMAKE_SOURCE_DIR}/../libraries CACHE PATH
+set(AUTOBUILD_INSTALL_DIR ${CMAKE_BINARY_DIR}/packages)
+
+set(LIBS_PREBUILT_DIR ${AUTOBUILD_INSTALL_DIR} CACHE PATH
     "Location of prebuilt libraries.")
 
 if (EXISTS ${CMAKE_SOURCE_DIR}/Server.cmake)
   # We use this as a marker that you can try to use the proprietary libraries.
   set(INSTALL_PROPRIETARY ON CACHE BOOL "Install proprietary binaries")
 endif (EXISTS ${CMAKE_SOURCE_DIR}/Server.cmake)
-
 set(TEMPLATE_VERIFIER_OPTIONS "" CACHE STRING "Options for scripts/template_verifier.py")
 set(TEMPLATE_VERIFIER_MASTER_URL "http://bitbucket.org/lindenlab/master-message-template/raw/tip/message_template.msg" CACHE STRING "Location of the master message template")
+
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+      "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
+endif (NOT CMAKE_BUILD_TYPE)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS ON BOOL FORCE)
@@ -56,20 +76,19 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LINUX ON BOOl FORCE)
 
   # If someone has specified a word size, use that to determine the
-  # architecture.  Otherwise, let the compiler specify the word size.
-  # Using uname will break under chroots and other cross arch compiles. RC
+  # architecture.  Otherwise, let the architecture specify the word size.
   if (WORD_SIZE EQUAL 32)
     set(ARCH i686)
   elseif (WORD_SIZE EQUAL 64)
     set(ARCH x86_64)
   else (WORD_SIZE EQUAL 32)
-    if(CMAKE_SIZEOF_VOID_P MATCHES 4)
-      set(ARCH i686)
-      set(WORD_SIZE 32)
-    else(CMAKE_SIZEOF_VOID_P MATCHES 4)
-      set(ARCH x86_64)
+    execute_process(COMMAND uname -m COMMAND sed s/i.86/i686/
+                    OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if (ARCH STREQUAL x86_64)
       set(WORD_SIZE 64)
-    endif(CMAKE_SIZEOF_VOID_P MATCHES 4)
+    else (ARCH STREQUAL x86_64)
+      set(WORD_SIZE 32)
+    endif (ARCH STREQUAL x86_64)
   endif (WORD_SIZE EQUAL 32)
 
   set(LL_ARCH ${ARCH}_linux)
@@ -78,25 +97,12 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN 1)
-
-  # NOTE: If specifying a different SDK with CMAKE_OSX_SYSROOT at configure
-  # time you should also specify CMAKE_OSX_DEPLOYMENT_TARGET explicitly,
-  # otherwise CMAKE_OSX_SYSROOT will be overridden here. We can't just check
-  # for it being unset, as it gets set to the system default :(
-
-  # Default to building against the 10.4 SDK if no deployment target is
-  # specified.
-  if (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
-    # NOTE: setting -isysroot is NOT adequate: http://lists.apple.com/archives/Xcode-users/2007/Oct/msg00696.html
-    # see http://public.kitware.com/Bug/view.php?id=9959 + poppy
-    set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.5.sdk)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.4)
-  endif (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
-
-  # GCC 4.2 is incompatible with the MacOSX 10.4 SDK
-  if (${CMAKE_OSX_SYSROOT} MATCHES "10.4u")
-    set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "4.0")
-  endif (${CMAKE_OSX_SYSROOT} MATCHES "10.4u")
+  
+  # To support a different SDK update these Xcode settings:
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.5)
+  set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.5.sdk)
+  set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "4.2")
+  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "DWARF with dSYM File")
 
   # NOTE: To attempt an i386/PPC Universal build, add this on the configure line:
   # -DCMAKE_OSX_ARCHITECTURES:STRING='i386;ppc'
@@ -127,6 +133,7 @@ set(VIEWER ON CACHE BOOL "Build Second Life viewer.")
 set(VIEWER_CHANNEL "LindenDeveloper" CACHE STRING "Viewer Channel Name")
 set(VIEWER_LOGIN_CHANNEL ${VIEWER_CHANNEL} CACHE STRING "Fake login channel for A/B Testing")
 
+set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
 set(STANDALONE OFF CACHE BOOL "Do not use Linden-supplied prebuilt libraries.")
 
 if (NOT STANDALONE AND EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
@@ -143,6 +150,7 @@ For more information, please see JIRA DEV-14943 - Cmake Linux cannot build both 
 endif (LINUX AND SERVER AND VIEWER)
 
 
-set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")
+set(USE_PRECOMPILED_HEADERS OFF CACHE BOOL "Enable use of precompiled header directives where supported.")
 
 source_group("CMake Rules" FILES CMakeLists.txt)
+
