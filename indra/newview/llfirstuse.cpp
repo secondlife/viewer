@@ -78,6 +78,12 @@ void LLFirstUse::otherAvatarChatFirst(bool enable)
 }
 
 // static
+void LLFirstUse::speak(bool enable)
+{
+	firstUseNotification("FirstSpeak", enable, "HintSpeak", LLSD(), LLSD().with("target", "speak_btn").with("direction", "top"));
+}
+
+// static
 void LLFirstUse::sit(bool enable)
 {
 	firstUseNotification("FirstSit", enable, "HintSit", LLSD(), LLSD().with("target", "stand_btn").with("direction", "top"));
