@@ -223,7 +223,8 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		columns[3]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
 		columns[3]["font"] = "SANSSERIF";
 		columns[4]["column"] = "time";
-		columns[4]["value"] = formatted_time((time_t)time_stamp);
+		columns[4]["type"] = "date";
+		columns[4]["value"] = LLDate((time_t)time_stamp);
 		columns[4]["font"] = "SANSSERIF";
 
 		if (mCurrentMode == STAT_REPORT_TOP_SCRIPTS
