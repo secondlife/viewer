@@ -1885,6 +1885,8 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 		mScene[cur_instance.mTransform].push_back(cur_instance);
 		stretch_extents(cur_instance.mModel, cur_instance.mTransform, mExtents[0], mExtents[1], mFirstTransform);
 	}
+	
+	setLoadState( DONE );
 
 	return true;
 }
