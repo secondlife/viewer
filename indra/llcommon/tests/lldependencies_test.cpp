@@ -258,10 +258,10 @@ namespace tut
         ++const_iterator;
         ensure_equals(const_iterator->first, "def");
         ensure_equals(const_iterator->second, 2);
-        NameIndexDeps::node_range node_range(nideps.get_node_range());
-        ensure_equals(instance_from_range<std::vector<int> >(node_range), make< std::vector<int> >(list_of(1)(2)(3)));
-        *node_range.begin() = 0;
-        *node_range.begin() = 1;
+//        NameIndexDeps::node_range node_range(nideps.get_node_range());
+//        ensure_equals(instance_from_range<std::vector<int> >(node_range), make< std::vector<int> >(list_of(1)(2)(3)));
+//        *node_range.begin() = 0;
+//        *node_range.begin() = 1;
         NameIndexDeps::const_node_range const_node_range(const_nideps.get_node_range());
         ensure_equals(instance_from_range<std::vector<int> >(const_node_range), make< std::vector<int> >(list_of(1)(2)(3)));
         NameIndexDeps::const_key_range const_key_range(const_nideps.get_key_range());
@@ -278,8 +278,8 @@ namespace tut
                       def);
         ensure_equals(instance_from_range<StringList>(const_nideps.get_after_range(const_nideps.get_range().begin())),
                       def);
-        ensure_equals(instance_from_range<StringList>(nideps.get_after_range(nideps.get_node_range().begin())),
-                      def);
+//        ensure_equals(instance_from_range<StringList>(nideps.get_after_range(nideps.get_node_range().begin())),
+//                      def);
         ensure_equals(instance_from_range<StringList>(const_nideps.get_after_range(const_nideps.get_node_range().begin())),
                       def);
         ensure_equals(instance_from_range<StringList>(nideps.get_after_range(nideps.get_key_range().begin())),
