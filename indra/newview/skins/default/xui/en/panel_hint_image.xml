@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  width="305"
- height="140"
+ height="40"
  layout="topleft">
   <text name="hint_title"
         font="SansSerifMedium" 
@@ -16,7 +16,7 @@
                 top="25"
                 width="305"
                 height="0"
-                follows="all"
+                follows="left|top|right"
                 orientation="horizontal">
     <layout_panel auto_resize="true" width="100"/>
     <layout_panel auto_resize="true" width="0">
@@ -32,8 +32,8 @@
   <text name="hint_text"
         left="8"
         right="297"
-        top_pad="5"
-        bottom="120"
+        top="30"
+        bottom="30"
         follows="left|right|bottom" 
         text_color="Black"
         wrap="true"/>
