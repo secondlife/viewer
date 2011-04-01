@@ -121,7 +121,11 @@ void LLFirstUse::notMoving(bool enable)
 {
 	// fire off 2 notifications and rely on filtering to select the relevant one
 	firstUseNotification("FirstNotMoving", enable, "HintMove", LLSD(), LLSD().with("target", "move_btn").with("direction", "top"));
-	firstUseNotification("FirstNotMoving", enable, "HintMoveArrows", LLSD(), LLSD().with("target", "bottom_tray").with("direction", "top").with("hint_image", "arrow_keys.png").with("down_arrow", ""));
+	firstUseNotification("FirstNotMoving", enable, "HintMoveClick", LLSD(), LLSD()
+		.with("target", "nav_bar")
+		.with("direction", "bottom")
+		.with("hint_image", "click_to_move.png")
+		.with("up_arrow", ""));
 }
 
 // static

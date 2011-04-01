@@ -191,6 +191,8 @@ BOOL LLHintPopup::postBuild()
 	LLRect text_bounds = hint_text.getTextBoundingRect();
 	S32 delta_height = text_bounds.getHeight() - hint_text.getRect().getHeight();
 	reshape(getRect().getWidth(), getRect().getHeight() + delta_height);
+	hint_text.reshape(hint_text.getRect().getWidth(), hint_text.getRect().getHeight() + delta_height);
+//	hint_text.translate(0, -delta_height);
 	return TRUE;
 }
 
@@ -211,6 +213,20 @@ void LLHintPopup::draw()
 		alpha = clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, mFadeInTime, 0.f, 1.f);
 	}
 	
+	LLIconCtrl& hint_icon = getChildRef<LLIconCtrl>("hint_image");
+
+	LLUIImagePtr hint_image = hint_icon.getImage();
+	S32 image_height = hint_image.isNull() ? 0 : hint_image->getHeight();
+	S32 image_width = hint_image.isNull() ? 0 : hint_image->getWidth();
+
+	S32 delta_height = image_height - hint_icon.getParent()->getParent()->getRect().getHeight();
+	hint_icon.getParent()->reshape(image_width, hint_icon.getParent()->getRect().getHeight());
+	hint_icon.getParent()->getParent()->reshape(hint_icon.getParent()->getParent()->getRect().getWidth(), image_height);
+	hint_icon.getParent()->getParent()->translate(0, -delta_height);
+
+	LLRect hint_rect = getLocalRect();
+	reshape(hint_rect.getWidth(), hint_rect.getHeight() + delta_height);
+
 	{	LLViewDrawContext context(alpha); 
 
 		if (mTarget.empty())
