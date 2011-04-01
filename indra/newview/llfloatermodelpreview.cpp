@@ -579,7 +579,14 @@ void LLFloaterModelPreview::draw()
 
 	if (!mModelPreview->mLoading)
 	{
-		childSetTextArg("status", "[STATUS]", getString("status_idle"));
+		if ( mModelPreview->getLoadState() > LLModelLoader::ERROR_PARSING )
+		{		
+			childSetTextArg("status", "[STATUS]", getString(LLModel::getStatusString(mModelPreview->getLoadState() - LLModelLoader::ERROR_PARSING)));
+		}
+		else
+		{
+			childSetTextArg("status", "[STATUS]", getString("status_idle"));
+		}
 	}
 
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
@@ -1285,6 +1292,12 @@ bool LLModelLoader::doLoadModel()
 		{
 			LLPointer<LLModel> model = LLModel::loadModelFromDomMesh(mesh);
 			
+			if(model->getStatus() != LLModel::NO_ERRORS)
+			{
+				setLoadState(ERROR_PARSING + model->getStatus()) ;
+				return true ; //abort
+			}
+
 			if (model.notNull() && validate_model(model))
 			{
 				mModelList.push_back(model);
@@ -2502,7 +2515,7 @@ U32 LLModelPreview::calcResourceCost()
 
 	if (mFMP && mModelLoader)
 	{
-		if ( getLoadState() != LLModelLoader::ERROR_PARSING )
+		if ( getLoadState() < LLModelLoader::ERROR_PARSING )
 		{
 			mFMP->childEnable("ok_btn");
 		}
@@ -2856,7 +2869,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 
 	setPreviewLOD(lod);
 
-	if ( getLoadState() == LLModelLoader::ERROR_PARSING )
+	if ( getLoadState() >= LLModelLoader::ERROR_PARSING )
 	{
 		mFMP->childDisable("ok_btn");
 	}
@@ -2938,7 +2951,13 @@ void LLModelPreview::loadModelCallback(S32 lod)
 	LLMutexLock lock(this);
 	if (!mModelLoader)
 	{
+		mLoading = false ;
 		return;
+	}
+	if(getLoadState() >= LLModelLoader::ERROR_PARSING)
+	{
+		mLoading = false ;
+		return ;
 	}
 
 	mModelLoader->loadTextures() ;
@@ -3675,7 +3694,7 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
-	bool errorStateFromLoader = getLoadState() == LLModelLoader::ERROR_PARSING ? true : false;
+	bool errorStateFromLoader = getLoadState() >= LLModelLoader::ERROR_PARSING ? true : false;
 
 	bool skinAndRigOk = true;
 	bool uploadingSkin = mFMP->childGetValue("upload_skin").asBoolean();
