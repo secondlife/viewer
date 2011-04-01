@@ -9,7 +9,10 @@ if (STANDALONE)
 else (STANDALONE)
     use_prebuilt_binary(xmlrpc-epi)
     if (WINDOWS)
-        set(XMLRPCEPI_LIBRARIES xmlrpcepi)
+        set(XMLRPCEPI_LIBRARIES 
+            debug xmlrpc-epid
+            optimized xmlrpc-epi
+        )
     else (WINDOWS)
         set(XMLRPCEPI_LIBRARIES xmlrpc-epi)
     endif (WINDOWS)
