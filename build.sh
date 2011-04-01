@@ -53,6 +53,8 @@ pre_build()
   local build_dir="$2"
   begin_section "Pre$variant"
   #export PATH="/cygdrive/c/Program Files/Microsoft Visual Studio 8/Common7/IDE/:$PATH"
+  [ -n "$master_message_template_checkout" ] && [ -r "$master_message_template_checkout/message_template.msg" ]\
+   && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
   python develop.py \
     --incredibuild \
     --unattended \
@@ -67,7 +69,8 @@ pre_build()
     -DLOCALIZESETUP:BOOL=ON \
     -DPACKAGE:BOOL=ON \
     -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE \
-    -DLL_TESTS:BOOL="$run_tests"
+    -DLL_TESTS:BOOL="$run_tests" \
+    -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
   end_section "Pre$variant"
 }
 

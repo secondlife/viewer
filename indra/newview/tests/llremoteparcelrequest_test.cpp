@@ -61,8 +61,8 @@ void LLMessageSystem::addUUIDFast(char const *,LLUUID const &) { }
 void LLMessageSystem::nextBlockFast(char const *) { }
 void LLMessageSystem::newMessage(char const *) { }
 LLMessageSystem * gMessageSystem;
-char * _PREHASH_AgentID;
-char * _PREHASH_AgentData;
+char const* const _PREHASH_AgentID = 0;   // never dereferenced during this test
+char const* const _PREHASH_AgentData = 0; // never dereferenced during this test
 LLAgent gAgent;
 LLAgent::LLAgent() : mAgentAccess(s_saved_settings) { }
 LLAgent::~LLAgent() { }
