@@ -5246,6 +5246,24 @@
      value_max="1"> 
       <param_morph />
     </param>
+
+    <!--
+            #############
+            # physics morphs (not user controlled)
+            #############
+            -->
+    <param
+     id="1203"
+     group="1"
+     name="Belly_Physics_Skirt_UpDown_Driven"
+     wearable="physics"
+     edit_group="driven"
+     value_default="0"
+     value_min="-1"
+     value_max="1">
+      <param_morph />
+    </param>
+
   </mesh>
 
   <mesh
@@ -11720,7 +11738,7 @@ render_pass="bump">
     </param>
 
     <param
-     id="1120"
+     id="1102"
      group="1"
      wearable="physics"
      name="Belly_Physics_UpDown_Controller"
