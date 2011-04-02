@@ -217,14 +217,15 @@ void LLHintPopup::draw()
 
 	if (hint_icon)
 	{
-		LLUIImagePtr hint_image = hint_icon.getImage();
+		LLUIImagePtr hint_image = hint_icon->getImage();
 		S32 image_height = hint_image.isNull() ? 0 : hint_image->getHeight();
 		S32 image_width = hint_image.isNull() ? 0 : hint_image->getWidth();
 
-		S32 delta_height = image_height - hint_icon.getParent()->getParent()->getRect().getHeight();
-		hint_icon.getParent()->reshape(image_width, hint_icon.getParent()->getRect().getHeight());
-		hint_icon.getParent()->getParent()->reshape(hint_icon.getParent()->getParent()->getRect().getWidth(), image_height);
-		hint_icon.getParent()->getParent()->translate(0, -delta_height);
+		LLView* layout_stack = hint_icon->getParent()->getParent();
+		S32 delta_height = image_height - layout_stack->getRect().getHeight();
+		hint_icon->getParent()->reshape(image_width, hint_icon->getParent()->getRect().getHeight());
+		layout_stack->reshape(layout_stack->getRect().getWidth(), image_height);
+		layout_stack->translate(0, -delta_height);
 
 		LLRect hint_rect = getLocalRect();
 		reshape(hint_rect.getWidth(), hint_rect.getHeight() + delta_height);
