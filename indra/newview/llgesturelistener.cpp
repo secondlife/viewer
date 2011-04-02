@@ -39,8 +39,8 @@ LLGestureListener::LLGestureListener()
 {
     add("getActiveGestures",
         "Return information about the agent's available gestures [\"reply\"]:\n"
-        "[\"gestures\"]: list of gestures.  This is a dictionary with UUID strings as keys\n"
-		"  and the following values:\n"
+        "[\"gestures\"]: a dictionary with UUID strings as keys\n"
+		"  and the following dict values for each entry:\n"
 		"     [\"name\"]: name of the gesture, may be empty\n"
 		"     [\"trigger\"]: trigger string used to invoke via user chat, may be empty\n"
 		"     [\"playing\"]: true or false indicating the playing state",
@@ -50,7 +50,7 @@ LLGestureListener::LLGestureListener()
 		"[\"id\"]: UUID of the gesture to query.  Returns True or False in [\"playing\"] value of the result",
         &LLGestureListener::isGesturePlaying);
 	add("startGesture",
-		"[\"id\"]: UUID of the gesture to start play",
+		"[\"id\"]: UUID of the gesture to start playing",
         &LLGestureListener::startGesture);
 	add("stopGesture",
 		"[\"id\"]: UUID of the gesture to stop",
