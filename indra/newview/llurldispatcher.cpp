@@ -53,6 +53,7 @@ class LLURLDispatcherImpl
 {
 public:
 	static bool dispatch(const LLSLURL& slurl,
+						 const std::string& nav_type,
 						 LLMediaCtrl* web,
 						 bool trusted_browser);
 		// returns true if handled or explicitly blocked.
@@ -61,6 +62,7 @@ public:
 
 private:
 	static bool dispatchCore(const LLSLURL& slurl, 
+							 const std::string& nav_type,
 							 bool right_mouse,
 							 LLMediaCtrl* web,
 							 bool trusted_browser);
@@ -71,6 +73,7 @@ private:
 		// Returns true if handled.
 
 	static bool dispatchApp(const LLSLURL& slurl,
+							const std::string& nav_type,
 							bool right_mouse,
 							LLMediaCtrl* web,
 							bool trusted_browser);
@@ -78,7 +81,7 @@ private:
 		// by showing panel in Search floater.
 		// Returns true if handled or explicitly blocked.
 
-	static bool dispatchRegion(const LLSLURL& slurl, bool right_mouse);
+	static bool dispatchRegion(const LLSLURL& slurl, const std::string& nav_type, bool right_mouse);
 		// handles secondlife://Ahern/123/45/67/
 		// Returns true if handled.
 
@@ -97,6 +100,7 @@ private:
 
 // static
 bool LLURLDispatcherImpl::dispatchCore(const LLSLURL& slurl,
+									   const std::string& nav_type,
 									   bool right_mouse,
 									   LLMediaCtrl* web,
 									   bool trusted_browser)
@@ -105,9 +109,9 @@ bool LLURLDispatcherImpl::dispatchCore(const LLSLURL& slurl,
 	switch(slurl.getType())
 	{
 		case LLSLURL::APP: 
-			return dispatchApp(slurl, right_mouse, web, trusted_browser);
+			return dispatchApp(slurl, nav_type, right_mouse, web, trusted_browser);
 		case LLSLURL::LOCATION:
-			return dispatchRegion(slurl, right_mouse);
+			return dispatchRegion(slurl, nav_type, right_mouse);
 		default:
 			return false;
 	}
@@ -122,11 +126,12 @@ bool LLURLDispatcherImpl::dispatchCore(const LLSLURL& slurl,
 
 // static
 bool LLURLDispatcherImpl::dispatch(const LLSLURL& slurl,
+								   const std::string& nav_type,
 								   LLMediaCtrl* web,
 								   bool trusted_browser)
 {
 	const bool right_click = false;
-	return dispatchCore(slurl, right_click, web, trusted_browser);
+	return dispatchCore(slurl, nav_type, right_click, web, trusted_browser);
 }
 
 // static
@@ -135,11 +140,12 @@ bool LLURLDispatcherImpl::dispatchRightClick(const LLSLURL& slurl)
 	const bool right_click = true;
 	LLMediaCtrl* web = NULL;
 	const bool trusted_browser = false;
-	return dispatchCore(slurl, right_click, web, trusted_browser);
+	return dispatchCore(slurl, "clicked", right_click, web, trusted_browser);
 }
 
 // static
 bool LLURLDispatcherImpl::dispatchApp(const LLSLURL& slurl, 
+									  const std::string& nav_type,
 									  bool right_mouse,
 									  LLMediaCtrl* web,
 									  bool trusted_browser)
@@ -147,7 +153,7 @@ bool LLURLDispatcherImpl::dispatchApp(const LLSLURL& slurl,
 	llinfos << "cmd: " << slurl.getAppCmd() << " path: " << slurl.getAppPath() << " query: " << slurl.getAppQuery() << llendl;
 	const LLSD& query_map = LLURI::queryMap(slurl.getAppQuery());
 	bool handled = LLCommandDispatcher::dispatch(
-			slurl.getAppCmd(), slurl.getAppPath(), query_map, web, trusted_browser);
+			slurl.getAppCmd(), slurl.getAppPath(), query_map, web, nav_type, trusted_browser);
 
 	// alert if we didn't handle this secondlife:///app/ SLURL
 	// (but still return true because it is a valid app SLURL)
@@ -159,7 +165,7 @@ bool LLURLDispatcherImpl::dispatchApp(const LLSLURL& slurl,
 }
 
 // static
-bool LLURLDispatcherImpl::dispatchRegion(const LLSLURL& slurl, bool right_mouse)
+bool LLURLDispatcherImpl::dispatchRegion(const LLSLURL& slurl, const std::string& nav_type, bool right_mouse)
 {
   if(slurl.getType() != LLSLURL::LOCATION)
     {
@@ -287,10 +293,11 @@ LLTeleportHandler gTeleportHandler;
 
 // static
 bool LLURLDispatcher::dispatch(const std::string& slurl,
+							   const std::string& nav_type,
 							   LLMediaCtrl* web,
 							   bool trusted_browser)
 {
-	return LLURLDispatcherImpl::dispatch(LLSLURL(slurl), web, trusted_browser);
+	return LLURLDispatcherImpl::dispatch(LLSLURL(slurl), nav_type, web, trusted_browser);
 }
 
 // static
@@ -310,7 +317,7 @@ bool LLURLDispatcher::dispatchFromTextEditor(const std::string& slurl)
 	// *TODO: Make this trust model more refined.  JC
 	const bool trusted_browser = true;
 	LLMediaCtrl* web = NULL;
-	return LLURLDispatcherImpl::dispatch(LLSLURL(slurl), web, trusted_browser);
+	return LLURLDispatcherImpl::dispatch(LLSLURL(slurl), "clicked", web, trusted_browser);
 }
 
 

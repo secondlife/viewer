@@ -111,7 +111,7 @@ public:
 		}
 
 		// Process the SLapp as if it was a secondlife://{PLACE} SLurl
-		LLURLDispatcher::dispatch(url, web, true);
+		LLURLDispatcher::dispatch(url, "clicked", web, true);
 		return true;
 	}
 };

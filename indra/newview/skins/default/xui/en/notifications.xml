@@ -7030,11 +7030,15 @@ Hiding the Speak button will disable the voice feature.
   </notification>
 
   <notification
-  name="HintMoveArrows"
+  name="HintMoveClick"
   label="Move"
   type="hint"
   unique="true">
-    To walk, use the directional keys on your keyboard. You can run by pressing the Up arrow twice.
+Click to Walk
+Click anywhere on the ground to walk to that spot.
+
+Click and Drag to Rotate View
+Click and drag anywhere on the world to rotate your view
     <tag>custom_skin</tag>
   </notification>
 

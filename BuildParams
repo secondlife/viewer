@@ -66,7 +66,8 @@ viewer-pre-release.viewer_channel = "Second Life Release"
 viewer-pre-release.login_channel = "Second Life Release"
 viewer-pre-release.build_debug_release_separately = true
 viewer-pre-release.build_viewer_update_version_manager = true
-viewer-pre-release.release-viewer.jira = DRTVWR-39
+#viewer-pre-release.release-viewer.jira = DRTVWR-13
+
 # =======================================
 # brad
 # ========================================
@@ -154,12 +155,7 @@ media.build_viewer_update_version_manager = false
 # oz
 # ================
 
-oz-viewer-devreview.build_debug_release_separately = true
-viewer-devreview.build_debug_release_separately = true
-oz_viewer-poreview.build_debug_release_separately = true
-oz-project-1.build_debug_release_separately = true
-oz-project-2.build_debug_release_separately = true
-oz-project-3.build_debug_release_separately = true
+oz_viewer-devreview.build_debug_release_separately = true
 
 # ========================================
 # enus
