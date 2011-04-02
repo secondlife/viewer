@@ -94,6 +94,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mMaxChars(p.max_chars),
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
+	mTextChangedCallback(p.text_changed_callback()),
 	mListPosition(p.list_position),
 	mLastSelectedIndex(-1),
 	mLabel(p.label)
@@ -315,7 +316,7 @@ void LLComboBox::setValue(const LLSD& value)
 		LLScrollListItem* item = mList->getFirstSelected();
 		if (item)
 		{
-			setLabel(getSelectedItemLabel());
+			updateLabel();
 		}
 		mLastSelectedIndex = mList->getFirstSelectedIndex();
 	}
@@ -383,6 +384,23 @@ void LLComboBox::setLabel(const LLStringExplicit& name)
 	}
 }
 
+void LLComboBox::updateLabel()
+{
+	// Update the combo editor with the selected
+	// item label.
+	if (mTextEntry)
+	{
+		mTextEntry->setText(getSelectedItemLabel());
+		mTextEntry->setTentative(FALSE);
+	}
+
+	// If combo box doesn't allow text entry update
+	// the combo button label.
+	if (!mAllowTextEntry)
+	{
+		mButton->setLabel(getSelectedItemLabel());
+	}
+}
 
 BOOL LLComboBox::remove(const std::string& name)
 {
@@ -700,13 +718,13 @@ void LLComboBox::onItemSelected(const LLSD& data)
 	mLastSelectedIndex = getCurrentIndex();
 	if (mLastSelectedIndex != -1)
 	{
-		setLabel(getSelectedItemLabel());
+		updateLabel();
 
 		if (mAllowTextEntry)
-	{
-		gFocusMgr.setKeyboardFocus(mTextEntry);
-		mTextEntry->selectAll();
-	}
+		{
+			gFocusMgr.setKeyboardFocus(mTextEntry);
+			mTextEntry->selectAll();
+		}
 	}
 	// hiding the list reasserts the old value stored in the text editor/dropdown button
 	hideList();
@@ -769,7 +787,8 @@ BOOL LLComboBox::handleKeyHere(KEY key, MASK mask)
 			return FALSE;
 		}
 		// if selection has changed, pop open list
-		else if (mList->getLastSelectedItem() != last_selected_item)
+		else if (mList->getLastSelectedItem() != last_selected_item ||
+				(key == KEY_DOWN || key == KEY_UP) && !mList->isEmpty())
 		{
 			showList();
 		}
@@ -833,6 +852,10 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 			mList->deselectAllItems();
 			mLastSelectedIndex = -1;
 		}
+		if (mTextChangedCallback != NULL)
+		{
+			(mTextChangedCallback)(line_editor, LLSD());
+		}
 		return;
 	}
 
@@ -876,6 +899,10 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 	{
 		// RN: presumably text entry
 		updateSelection();
+	}
+	if (mTextChangedCallback != NULL)
+	{
+		(mTextChangedCallback)(line_editor, LLSD());
 	}
 }
 

@@ -81,10 +81,11 @@ LLDir_Win32::LLDir_Win32()
 
 //	fprintf(stderr, "mTempDir = <%s>",mTempDir);
 
-#if 1
-	// Don't use the real app path for now, as we'll have to add parsing to detect if
-	// we're in a developer tree, which has a different structure from the installed product.
+	// Set working directory, for LLDir::getWorkingDir()
+	GetCurrentDirectory(MAX_PATH, w_str);
+	mWorkingDir = utf16str_to_utf8str(llutf16string(w_str));
 
+	// Set the executable directory
 	S32 size = GetModuleFileName(NULL, w_str, MAX_PATH);
 	if (size)
 	{
@@ -100,32 +101,35 @@ LLDir_Win32::LLDir_Win32()
 		{
 			mExecutableFilename = mExecutablePathAndName;
 		}
-		GetCurrentDirectory(MAX_PATH, w_str);
-		mWorkingDir = utf16str_to_utf8str(llutf16string(w_str));
 
 	}
 	else
 	{
 		fprintf(stderr, "Couldn't get APP path, assuming current directory!");
-		GetCurrentDirectory(MAX_PATH, w_str);
-		mExecutableDir = utf16str_to_utf8str(llutf16string(w_str));
+		mExecutableDir = mWorkingDir;
 		// Assume it's the current directory
 	}
-#else
-	GetCurrentDirectory(MAX_PATH, w_str);
-	mExecutableDir = utf16str_to_utf8str(llutf16string(w_str));
-#endif
 
-	if (mExecutableDir.find("indra") == std::string::npos)
-	{
-		// Running from installed directory.  Make sure current
-		// directory isn't something crazy (e.g. if invoking from
-		// command line).
-		SetCurrentDirectory(utf8str_to_utf16str(mExecutableDir).c_str());
-		GetCurrentDirectory(MAX_PATH, w_str);
-		mWorkingDir = utf16str_to_utf8str(llutf16string(w_str));
-	}
+	// mAppRODataDir = ".";	
+
+	// Determine the location of the App-Read-Only-Data
+	// Try the working directory then the exe's dir.
 	mAppRODataDir = mWorkingDir;	
+
+
+//	if (mExecutableDir.find("indra") == std::string::npos)
+	
+	// *NOTE:Mani - It is a mistake to put viewer specific code in
+	// the LLDir implementation. The references to 'skins' and 
+	// 'llplugin' need to go somewhere else.
+	// alas... this also gets called during static initialization 
+	// time due to the construction of gDirUtil in lldir.cpp.
+	if(! LLFile::isdir(mAppRODataDir + mDirDelimiter + "skins"))
+	{
+		// What? No skins in the working dir?
+		// Try the executable's directory.
+		mAppRODataDir = mExecutableDir;
+	}
 
 	llinfos << "mAppRODataDir = " << mAppRODataDir << llendl;
 
@@ -206,14 +210,6 @@ void LLDir_Win32::initAppDirs(const std::string &app_name,
 		}
 	}
 	
-	res = LLFile::mkdir(getExpandedFilename(LL_PATH_USER_SKIN,""));
-	if (res == -1)
-	{
-		if (errno != EEXIST)
-		{
-			llwarns << "Couldn't create LL_PATH_SKINS dir " << getExpandedFilename(LL_PATH_USER_SKIN,"") << llendl;
-		}
-	}
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
 }
 
@@ -246,26 +242,18 @@ U32 LLDir_Win32::countFilesInDir(const std::string &dirname, const std::string &
 
 
 // get the next file in the directory
-// automatically wrap if we've hit the end
-BOOL LLDir_Win32::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap)
+BOOL LLDir_Win32::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
-	llutf16string dirnamew = utf8str_to_utf16str(dirname);
-	return getNextFileInDir(dirnamew, mask, fname, wrap);
-
-}
-
-BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::string &mask, std::string &fname, BOOL wrap)
-{
-	WIN32_FIND_DATAW FileData;
-
+    BOOL fileFound = FALSE;
 	fname = "";
-	llutf16string pathname = dirname;
-	pathname += utf8str_to_utf16str(mask);
+
+	WIN32_FIND_DATAW FileData;
+    llutf16string pathname = utf8str_to_utf16str(dirname) + utf8str_to_utf16str(mask);
 
 	if (pathname != mCurrentDir)
 	{
 		// different dir specified, close old search
-		if (mCurrentDir[0])
+		if (!mCurrentDir.empty())
 		{
 			FindClose(mDirSearch_h);
 		}
@@ -273,91 +261,44 @@ BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::stri
 
 		// and open new one
 		// Check error opening Directory structure
-		if ((mDirSearch_h = FindFirstFile(pathname.c_str(), &FileData)) == INVALID_HANDLE_VALUE)   
+		if ((mDirSearch_h = FindFirstFile(pathname.c_str(), &FileData)) != INVALID_HANDLE_VALUE)   
 		{
-//			llinfos << "Unable to locate first file" << llendl;
-			return(FALSE);
-		}
-	}
-	else // get next file in list
-	{
-		// Find next entry
-		if (!FindNextFile(mDirSearch_h, &FileData))
-		{
-			if (GetLastError() == ERROR_NO_MORE_FILES)
-			{
-                // No more files, so reset to beginning of directory
-				FindClose(mDirSearch_h);
-				mCurrentDir[0] = NULL;
-
-				if (wrap)
-				{
-					return(getNextFileInDir(pathname,"",fname,TRUE));
-				}
-				else
-				{
-					fname[0] = 0;
-					return(FALSE);
-				}
-			}
-			else
-			{
-				// Error
-//				llinfos << "Unable to locate next file" << llendl;
-				return(FALSE);
-			}
+           fileFound = TRUE;
 		}
 	}
 
-	// convert from TCHAR to char
-	fname = utf16str_to_utf8str(FileData.cFileName);
-	
-	// fname now first name in list
-	return(TRUE);
-}
+    // Loop to skip over the current (.) and parent (..) directory entries
+    // (apparently returned in Win7 but not XP)
+    do
+    {
+       if (   fileFound
+           && (  (lstrcmp(FileData.cFileName, (LPCTSTR)TEXT(".")) == 0)
+               ||(lstrcmp(FileData.cFileName, (LPCTSTR)TEXT("..")) == 0)
+               )
+           )
+       {
+          fileFound = FALSE;
+       }
+    } while (   mDirSearch_h != INVALID_HANDLE_VALUE
+             && !fileFound
+             && (fileFound = FindNextFile(mDirSearch_h, &FileData)
+                 )
+             );
 
+    if (!fileFound && GetLastError() == ERROR_NO_MORE_FILES)
+    {
+       // No more files, so reset to beginning of directory
+       FindClose(mDirSearch_h);
+       mCurrentDir[0] = '\000';
+    }
 
-// get a random file in the directory
-// automatically wrap if we've hit the end
-void LLDir_Win32::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
-{
-	S32 num_files;
-	S32 which_file;
-	HANDLE random_search_h;
-
-	fname = "";
-
-	llutf16string pathname = utf8str_to_utf16str(dirname);
-	pathname += utf8str_to_utf16str(mask);
-
-	WIN32_FIND_DATA FileData;
-	fname[0] = NULL;
-
-	num_files = countFilesInDir(dirname,mask);
-	if (!num_files)
-	{
-		return;
+    if (fileFound)
+    {
+        // convert from TCHAR to char
+        fname = utf16str_to_utf8str(FileData.cFileName);
 	}
-
-	which_file = ll_rand(num_files);
-
-//	llinfos << "Random select mp3 #" << which_file << llendl;
-
-    // which_file now indicates the (zero-based) index to which file to play
-
-	if ((random_search_h = FindFirstFile(pathname.c_str(), &FileData)) != INVALID_HANDLE_VALUE)   
-	{
-		while (which_file--)
-		{
-			if (!FindNextFile(random_search_h, &FileData))
-			{
-				return;
-			}
-		}		   
-		FindClose(random_search_h);
-
-		fname = utf16str_to_utf8str(llutf16string(FileData.cFileName));
-	}
+    
+	return fileFound;
 }
 
 std::string LLDir_Win32::getCurPath()

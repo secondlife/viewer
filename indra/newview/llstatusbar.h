@@ -94,6 +94,7 @@ private:
 	void onClickScreen(S32 x, S32 y);
 
 	static void onClickMediaToggle(void* data);
+	static void onClickBalance(void* data);
 
 private:
 	LLTextBox	*mTextTime;
@@ -102,6 +103,7 @@ private:
 	LLStatGraph *mSGPacketLoss;
 
 	LLButton	*mBtnVolume;
+	LLTextBox	*mBoxBalance;
 	LLButton	*mMediaToggle;
 	LLView*		mScriptOut;
 	LLFrameTimer	mClockUpdateTimer;

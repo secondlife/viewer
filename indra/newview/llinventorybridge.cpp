@@ -104,6 +104,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, LLMoveInv*);
 bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
+static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
 
 // +=================================================+
 // |        LLInvFVBridge                            |
@@ -1643,16 +1644,19 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	const BOOL is_agent_inventory = (model->getCategory(inv_cat->getUUID()) != NULL)
 		&& (LLToolDragAndDrop::SOURCE_AGENT == source);
 
+	const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+	const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+
 	BOOL accept = FALSE;
 	if (is_agent_inventory)
 	{
 		const LLUUID &cat_id = inv_cat->getUUID();
 		const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
-		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		const LLUUID &landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false);
 		
 		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
 		const BOOL move_is_into_outfit = getCategory() && (getCategory()->getPreferredType() == LLFolderType::FT_OUTFIT);
-		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+		const BOOL move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
 
 		//--------------------------------------------------------------------------------
 		// Determine if folder can be moved.
@@ -1687,6 +1691,21 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				{
 					is_movable = FALSE;
 					break; // It's generally movable, but not into the trash.
+				}
+			}
+		}
+		if (move_is_into_landmarks)
+		{
+			for (S32 i=0; i < descendent_items.count(); ++i)
+			{
+				LLViewerInventoryItem* item = descendent_items[i];
+
+				// Don't move anything except landmarks and categories into Landmarks folder.
+				// We use getType() instead of getActua;Type() to allow links to landmarks and folders.
+				if (LLAssetType::AT_LANDMARK != item->getType() && LLAssetType::AT_CATEGORY != item->getType())
+				{
+					is_movable = FALSE;
+					break; // It's generally movable, but not into Landmarks.
 				}
 			}
 		}
@@ -1777,6 +1796,17 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		LLUUID category_id = mUUID;
 		accept = move_inv_category_world_to_agent(object_id, category_id, drop);
 	}
+	else if (LLToolDragAndDrop::SOURCE_LIBRARY == source)
+	{
+		// Accept folders that contain complete outfits.
+		accept = move_is_into_current_outfit && LLAppearanceMgr::instance().getCanMakeFolderIntoOutfit(inv_cat->getUUID());
+
+		if (accept && drop)
+		{
+			LLAppearanceMgr::instance().wearInventoryCategory(inv_cat, true, false);
+		}
+	}
+
 	return accept;
 }
 
@@ -2312,6 +2342,10 @@ void LLFolderBridge::pasteFromClipboard()
 	LLInventoryModel* model = getInventoryModel();
 	if(model && isClipboardPasteable())
 	{
+		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+
 		const LLUUID parent_id(mUUID);
 
 		LLDynamicArray<LLUUID> objects;
@@ -2324,7 +2358,14 @@ void LLFolderBridge::pasteFromClipboard()
 			LLInventoryItem *item = model->getItem(item_id);
 			if (item)
 			{
-				if(LLInventoryClipboard::instance().isCutMode())
+				if (move_is_into_current_outfit || move_is_into_outfit)
+				{
+					if (can_move_to_outfit(item, move_is_into_current_outfit))
+					{
+						dropToOutfit(item, move_is_into_current_outfit);
+					}
+				}
+				else if(LLInventoryClipboard::instance().isCutMode())
 				{
 					// move_inventory_item() is not enough,
 					//we have to update inventory locally too
@@ -2352,9 +2393,13 @@ void LLFolderBridge::pasteFromClipboard()
 
 void LLFolderBridge::pasteLinkFromClipboard()
 {
-	const LLInventoryModel* model = getInventoryModel();
+	LLInventoryModel* model = getInventoryModel();
 	if(model)
 	{
+		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+
 		const LLUUID parent_id(mUUID);
 
 		LLDynamicArray<LLUUID> objects;
@@ -2364,7 +2409,15 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			 ++iter)
 		{
 			const LLUUID &object_id = (*iter);
-			if (LLInventoryCategory *cat = model->getCategory(object_id))
+			if (move_is_into_current_outfit || move_is_into_outfit)
+			{
+				LLInventoryItem *item = model->getItem(object_id);
+				if (item && can_move_to_outfit(item, move_is_into_current_outfit))
+				{
+					dropToOutfit(item, move_is_into_current_outfit);
+				}
+			}
+			else if (LLInventoryCategory *cat = model->getCategory(object_id))
 			{
 				const std::string empty_description = "";
 				link_inventory_item(
@@ -2661,6 +2714,8 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 								EDragAndDropType cargo_type,
 								void* cargo_data)
 {
+	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
+
 	//llinfos << "LLFolderBridge::dragOrDrop()" << llendl;
 	BOOL accept = FALSE;
 	switch(cargo_type)
@@ -2676,9 +2731,24 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_BODYPART:
 		case DAD_ANIMATION:
 		case DAD_GESTURE:
+			accept = dragItemIntoFolder(inv_item, drop);
+			break;
 		case DAD_LINK:
-			accept = dragItemIntoFolder((LLInventoryItem*)cargo_data,
-										drop);
+			// DAD_LINK type might mean one of two asset types: AT_LINK or AT_LINK_FOLDER.
+			// If we have an item of AT_LINK_FOLDER type we should process the linked
+			// category being dragged or dropped into folder.
+			if (inv_item && LLAssetType::AT_LINK_FOLDER == inv_item->getActualType())
+			{
+				LLInventoryCategory* linked_category = gInventory.getCategory(inv_item->getLinkedUUID());
+				if (linked_category)
+				{
+					accept = dragCategoryIntoFolder((LLInventoryCategory*)linked_category, drop);
+				}
+			}
+			else
+			{
+				accept = dragItemIntoFolder(inv_item, drop);
+			}
 			break;
 		case DAD_CATEGORY:
 			if (LLFriendCardsManager::instance().isAnyFriendCategory(mUUID))
@@ -2862,6 +2932,7 @@ static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_curr
 {
 	if ((inv_item->getInventoryType() != LLInventoryType::IT_WEARABLE) &&
 		(inv_item->getInventoryType() != LLInventoryType::IT_GESTURE) &&
+		(inv_item->getInventoryType() != LLInventoryType::IT_ATTACHMENT) &&
 		(inv_item->getInventoryType() != LLInventoryType::IT_OBJECT))
 	{
 		return FALSE;
@@ -2873,6 +2944,24 @@ static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_curr
 	}
 
 	return TRUE;
+}
+
+// Returns TRUE if item is a landmark or a link to a landmark
+// and can be moved to Favorites or Landmarks folder.
+static BOOL can_move_to_landmarks(LLInventoryItem* inv_item)
+{
+	// Need to get the linked item to know its type because LLInventoryItem::getType()
+	// returns actual type AT_LINK for links, not the asset type of a linked item.
+	if (LLAssetType::AT_LINK == inv_item->getType())
+	{
+		LLInventoryItem* linked_item = gInventory.getItem(inv_item->getLinkedUUID());
+		if (linked_item)
+		{
+			return LLAssetType::AT_LANDMARK == linked_item->getType();
+		}
+	}
+
+	return LLAssetType::AT_LANDMARK == inv_item->getType();
 }
 
 void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item)
@@ -2931,9 +3020,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 	const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 	const LLUUID &favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE, false);
+	const LLUUID &landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false);
 
 	const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+	const BOOL move_is_into_favorites = (mUUID == favorites_id);
 	const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+	const BOOL move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
@@ -2944,7 +3036,6 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
 		const BOOL move_is_outof_current_outfit = LLAppearanceMgr::instance().getIsInCOF(inv_item->getUUID());
-		const BOOL folder_allows_reorder = (mUUID == favorites_id);
 
 		//--------------------------------------------------------------------------------
 		// Determine if item can be moved.
@@ -2990,11 +3081,15 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 		if (!is_movable) 
 			accept = FALSE;
-		if ((mUUID == inv_item->getParentUUID()) && !folder_allows_reorder)
+		if ((mUUID == inv_item->getParentUUID()) && !move_is_into_favorites)
 			accept = FALSE;
 		if (move_is_into_current_outfit || move_is_into_outfit)
 		{
 			accept = can_move_to_outfit(inv_item, move_is_into_current_outfit);
+		}
+		else if (move_is_into_favorites || move_is_into_landmarks)
+		{
+			accept = can_move_to_landmarks(inv_item);
 		}
 
 		if(accept && drop)
@@ -3021,8 +3116,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// 
 
 			// REORDER
-			// (only reorder the item)
-			if ((mUUID == inv_item->getParentUUID()) && folder_allows_reorder)
+			// (only reorder the item in Favorites folder)
+			if ((mUUID == inv_item->getParentUUID()) && move_is_into_favorites)
 			{
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 				LLFolderViewItem* itemp = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
@@ -3036,7 +3131,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 			// FAVORITES folder
 			// (copy the item)
-			else if (favorites_id == mUUID)
+			else if (move_is_into_favorites)
 			{
 				dropToFavorites(inv_item);
 			}
@@ -3101,6 +3196,13 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		{
 			accept = FALSE;
 		}
+		// Don't allow to move a single item to Favorites or Landmarks
+		// if it is not a landmark or a link to a landmark.
+		else if ((move_is_into_favorites || move_is_into_landmarks)
+				 && !can_move_to_landmarks(inv_item))
+		{
+			accept = FALSE;
+		}
 
 		if(drop && accept)
 		{
@@ -3128,7 +3230,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	}
 	else if(LLToolDragAndDrop::SOURCE_NOTECARD == source)
 	{
-		accept = TRUE;
+		// Don't allow placing an original item from a notecard to Current Outfit or an outfit folder
+		// because they must contain only links to wearable items.
+		accept = !(move_is_into_current_outfit || move_is_into_outfit);
+
 		if(drop)
 		{
 			copy_inventory_from_notecard(LLToolDragAndDrop::getInstance()->getObjectID(),
@@ -3146,12 +3251,18 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			{
 				accept = can_move_to_outfit(inv_item, move_is_into_current_outfit);
 			}
+			// Don't allow to move a single item to Favorites or Landmarks
+			// if it is not a landmark or a link to a landmark.
+			else if (move_is_into_favorites || move_is_into_landmarks)
+			{
+				accept = can_move_to_landmarks(inv_item);
+			}
 
 			if (accept && drop)
 			{
 				// FAVORITES folder
 				// (copy the item)
-				if (favorites_id == mUUID)
+				if (move_is_into_favorites)
 				{
 					dropToFavorites(inv_item);
 				}
@@ -4563,9 +4674,17 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 					else
 					{
 						items.push_back(std::string("Wearable And Object Wear"));
-						items.push_back(std::string("Wearable Add"));
 						disabled_items.push_back(std::string("Take Off"));
 						disabled_items.push_back(std::string("Wearable Edit"));
+					}
+
+					if (LLWearableType::getAllowMultiwear(mWearableType))
+					{
+						items.push_back(std::string("Wearable Add"));
+						if (gAgentWearables.getWearableCount(mWearableType) > 0)
+						{
+							disabled_items.push_back(std::string("Wearable Add"));
+						}
 					}
 					break;
 				default:
@@ -5236,11 +5355,6 @@ void LLRecentItemsFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 	menuentry_vec_t disabled_items, items = getMenuItems();
 
-	items.erase(std::remove(items.begin(), items.end(), std::string("New Body Parts")), items.end());
-	items.erase(std::remove(items.begin(), items.end(), std::string("New Clothes")), items.end());
-	items.erase(std::remove(items.begin(), items.end(), std::string("New Note")), items.end());
-	items.erase(std::remove(items.begin(), items.end(), std::string("New Gesture")), items.end());
-	items.erase(std::remove(items.begin(), items.end(), std::string("New Script")), items.end());
 	items.erase(std::remove(items.begin(), items.end(), std::string("New Folder")), items.end());
 
 	hide_context_entries(menu, items, disabled_items);

@@ -491,7 +491,7 @@ private:
 
 	mutable bool	mSorted;
 	
-	typedef std::map<std::string, LLScrollListColumn> column_map_t;
+	typedef std::map<std::string, LLScrollListColumn*> column_map_t;
 	column_map_t mColumns;
 
 	BOOL			mDirty;

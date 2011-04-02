@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="COF Clothing">
+	<menu_item_call label="Ausziehen" name="take_off"/>
+	<menu_item_call label="Ersetzen" name="replace"/>
+	<menu_item_call label="Eine Kategorie nach oben" name="move_up"/>
+	<menu_item_call label="Eine Kategorie nach unten" name="move_down"/>
+	<menu_item_call label="Bearbeiten" name="edit"/>
+</context_menu>

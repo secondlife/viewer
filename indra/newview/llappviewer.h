@@ -39,7 +39,7 @@ class LLTextureCache;
 class LLImageDecodeThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
-class LLCommandLineParser;
+class LLUpdaterService;
 
 struct apr_dso_handle_t;
 
@@ -65,12 +65,14 @@ public:
 	virtual bool mainLoop(); // Override for the application main loop.  Needs to at least gracefully notice the QUITTING state and exit.
 
 	// Application control
+	void flushVFSIO(); // waits for vfs transfers to complete
 	void forceQuit(); // Puts the viewer into 'shutting down without error' mode.
+	void fastQuit(S32 error_code = 0); // Shuts down the viewer immediately after sending a logout message
 	void requestQuit(); // Request a quit. A kinder, gentler quit.
 	void userQuit(); // The users asks to quit. Confirm, then requestQuit()
     void earlyExit(const std::string& name, 
 				   const LLSD& substitutions = LLSD()); // Display an error dialog and forcibly quit.
-    void forceExit(S32 arg); // exit() immediately (after some cleanup).
+	void earlyExitNoNotify(); // Do not display error dialog then forcibly quit.
     void abortQuit();  // Called to abort a quit request.
 
     bool quitRequested() { return mQuitRequested; }
@@ -167,6 +169,10 @@ public:
 	// mute/unmute the system's master audio
 	virtual void setMasterSystemAudioMute(bool mute);
 	virtual bool getMasterSystemAudioMute();
+
+	// Metrics policy helper statics.
+	static void metricsUpdateRegion(U64 region_handle);
+	static void metricsSend(bool enable_reporting);
 	
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
@@ -186,7 +192,7 @@ private:
 
 	bool initThreads(); // Initialize viewer threads, return false on failure.
 	bool initConfiguration(); // Initialize settings from the command line/config file.
-
+	void initUpdater(); // Initialize the updater service.
 	bool initCache(); // Initialize local client cache.
 
 
@@ -247,11 +253,13 @@ private:
     bool mQuitRequested;				// User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.
     S32 mYieldTime;
-	LLSD mSettingsLocationList;
+	struct SettingsFiles* mSettingsLocationList;
 
 	LLWatchdogTimeout* mMainloopTimeout;
 
+	// For performance and metric gathering
 	LLThread*	mFastTimerLogThread;
+
 	// for tracking viewer<->region circuit death
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;
@@ -260,7 +268,16 @@ private:
 
 	std::set<struct apr_dso_handle_t*> mPlugins;
 
+	U32 mAvailPhysicalMemInKB ;
+	U32 mAvailVirtualMemInKB ;
+	
+	boost::scoped_ptr<LLUpdaterService> mUpdater;
+
+	//---------------------------------------------
+	//*NOTE: Mani - legacy updater stuff
+	// Still useable?
 public:
+
 	//some information for updater
 	typedef struct
 	{
@@ -270,6 +287,7 @@ public:
 	static LLUpdaterInfo *sUpdaterInfo ;
 
 	void launchUpdater();
+	//---------------------------------------------
 };
 
 // consts from viewer.h

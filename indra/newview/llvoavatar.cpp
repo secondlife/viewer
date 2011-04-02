@@ -48,6 +48,7 @@
 #include "llanimationstates.h"
 #include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llphysicsmotion.h"
 #include "llviewercontrol.h"
 #include "llcallingcard.h"		// IDEVO for LLAvatarTracker
 #include "lldrawpoolavatar.h"
@@ -108,6 +109,8 @@ extern F32 ANIM_SPEED_MIN;
 
 #include <boost/lexical_cast.hpp>
 
+// #define OUTPUT_BREAST_DATA
+
 using namespace LLVOAvatarDefines;
 
 //-----------------------------------------------------------------------------
@@ -123,6 +126,7 @@ const LLUUID ANIM_AGENT_HEAD_ROT = LLUUID("e6e8d1dd-e643-fff7-b238-c6b4b056a68d"
 const LLUUID ANIM_AGENT_PELVIS_FIX = LLUUID("0c5dd2a2-514d-8893-d44d-05beffad208b");  //"pelvis_fix"
 const LLUUID ANIM_AGENT_TARGET = LLUUID("0e4896cb-fba4-926c-f355-8720189d5b55");  //"target"
 const LLUUID ANIM_AGENT_WALK_ADJUST	= LLUUID("829bc85b-02fc-ec41-be2e-74cc6dd7215d");  //"walk_adjust"
+const LLUUID ANIM_AGENT_PHYSICS_MOTION = LLUUID("7360e029-3cb8-ebc4-863e-212df440d987");  //"physics_motion"
 
 
 //-----------------------------------------------------------------------------
@@ -599,16 +603,16 @@ F32 LLVOAvatar::sRenderDistance = 256.f;
 S32	LLVOAvatar::sNumVisibleAvatars = 0;
 S32	LLVOAvatar::sNumLODChangesThisFrame = 0;
 
-const LLUUID LLVOAvatar::sStepSoundOnLand = LLUUID("e8af4a28-aa83-4310-a7c4-c047e15ea0df");
+const LLUUID LLVOAvatar::sStepSoundOnLand("e8af4a28-aa83-4310-a7c4-c047e15ea0df");
 const LLUUID LLVOAvatar::sStepSounds[LL_MCODE_END] =
 {
-	LLUUID(SND_STONE_RUBBER),
-	LLUUID(SND_METAL_RUBBER),
-	LLUUID(SND_GLASS_RUBBER),
-	LLUUID(SND_WOOD_RUBBER),
-	LLUUID(SND_FLESH_RUBBER),
-	LLUUID(SND_RUBBER_PLASTIC),
-	LLUUID(SND_RUBBER_RUBBER)
+	SND_STONE_RUBBER,
+	SND_METAL_RUBBER,
+	SND_GLASS_RUBBER,
+	SND_WOOD_RUBBER,
+	SND_FLESH_RUBBER,
+	SND_RUBBER_PLASTIC,
+	SND_RUBBER_RUBBER
 };
 
 S32 LLVOAvatar::sRenderName = RENDER_NAME_ALWAYS;
@@ -620,6 +624,7 @@ BOOL LLVOAvatar::sShowAnimationDebug = FALSE;
 BOOL LLVOAvatar::sShowFootPlane = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
+F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
 BOOL LLVOAvatar::sUseImpostors = FALSE;
 BOOL LLVOAvatar::sJointDebug = FALSE;
 
@@ -1144,6 +1149,7 @@ void LLVOAvatar::initClass()
 
 	gAnimLibrary.animStateSetString(ANIM_AGENT_BODY_NOISE,"body_noise");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_BREATHE_ROT,"breathe_rot");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_PHYSICS_MOTION,"physics_motion");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_EDITING,"editing");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_EYE,"eye");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_FLY_ADJUST,"fly_adjust");
@@ -1282,6 +1288,7 @@ void LLVOAvatar::initInstance(void)
 		// motions without a start/stop bit
 		registerMotion( ANIM_AGENT_BODY_NOISE,				LLBodyNoiseMotion::create );
 		registerMotion( ANIM_AGENT_BREATHE_ROT,				LLBreatheMotionRot::create );
+		registerMotion( ANIM_AGENT_PHYSICS_MOTION,			LLPhysicsMotionController::create );
 		registerMotion( ANIM_AGENT_EDITING,					LLEditingMotion::create	);
 		registerMotion( ANIM_AGENT_EYE,						LLEyeMotion::create	);
 		registerMotion( ANIM_AGENT_FEMALE_WALK,				LLKeyframeWalkMotion::create );
@@ -1695,6 +1702,7 @@ void LLVOAvatar::startDefaultMotions()
 	startMotion( ANIM_AGENT_EYE );
 	startMotion( ANIM_AGENT_BODY_NOISE );
 	startMotion( ANIM_AGENT_BREATHE_ROT );
+	startMotion( ANIM_AGENT_PHYSICS_MOTION );
 	startMotion( ANIM_AGENT_HAND_MOTION );
 	startMotion( ANIM_AGENT_PELVIS_FIX );
 
@@ -2106,31 +2114,6 @@ void LLVOAvatar::computeBodySize()
 			gAgent.sendAgentSetAppearance();
 		}
 	}
-
-/* debug spam
-	std::cout << "skull = " << skull << std::endl;				// adebug
-	std::cout << "head = " << head << std::endl;				// adebug
-	std::cout << "head_scale = " << head_scale << std::endl;	// adebug
-	std::cout << "neck = " << neck << std::endl;				// adebug
-	std::cout << "neck_scale = " << neck_scale << std::endl;	// adebug
-	std::cout << "chest = " << chest << std::endl;				// adebug
-	std::cout << "chest_scale = " << chest_scale << std::endl;	// adebug
-	std::cout << "torso = " << torso << std::endl;				// adebug
-	std::cout << "torso_scale = " << torso_scale << std::endl;	// adebug
-	std::cout << std::endl;	// adebug
-
-	std::cout << "pelvis_scale = " << pelvis_scale << std::endl;// adebug
-	std::cout << std::endl;	// adebug
-
-	std::cout << "hip = " << hip << std::endl;					// adebug
-	std::cout << "hip_scale = " << hip_scale << std::endl;		// adebug
-	std::cout << "ankle = " << ankle << std::endl;				// adebug
-	std::cout << "ankle_scale = " << ankle_scale << std::endl;	// adebug
-	std::cout << "foot = " << foot << std::endl;				// adebug
-	std::cout << "mBodySize = " << mBodySize << std::endl;		// adebug
-	std::cout << "mPelvisToFoot = " << mPelvisToFoot << std::endl;	// adebug
-	std::cout << std::endl;		// adebug
-*/
 }
 
 //------------------------------------------------------------------------
@@ -2333,8 +2316,19 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 {
-	// disable voice visualizer when in mouselook
-	mVoiceVisualizer->setVoiceEnabled( voice_enabled && !(isSelf() && gAgentCamera.cameraMouselook()) );
+	bool render_visualizer = voice_enabled;
+	
+	// Don't render the user's own voice visualizer when in mouselook, or when opening the mic is disabled.
+	if(isSelf())
+	{
+		if(gAgentCamera.cameraMouselook() || gSavedSettings.getBOOL("VoiceDisableMic"))
+		{
+			render_visualizer = false;
+		}
+	}
+	
+	mVoiceVisualizer->setVoiceEnabled(render_visualizer);
+	
 	if ( voice_enabled )
 	{		
 		//----------------------------------------------------------------
@@ -3024,7 +3018,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				std::deque<LLChat>::iterator chat_iter = mChats.begin();
 				mNameText->clearString();
 
-		LLColor4 new_chat = LLUIColorTable::instance().getColor( "NameTagChat" );
+				LLColor4 new_chat = LLUIColorTable::instance().getColor( isSelf() ? "UserChatColor" : "AgentChatColor" );
 				LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
 				LLColor4 old_chat = lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
 				if (mTyping && mChats.size() >= MAX_BUBBLE_CHAT_UTTERANCES) 
@@ -3992,7 +3986,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	// *NOTE: this is disabled (there is no UI for enabling sShowFootPlane) due
 	// to DEV-14477.  the code is left here to aid in tracking down the cause
 	// of the crash in the future. -brad
-	if (!gRenderForSelect && sShowFootPlane && mDrawable.notNull())
+	if (sShowFootPlane && mDrawable.notNull())
 	{
 		LLVector3 slaved_pos = mDrawable->getPositionAgent();
 		LLVector3 foot_plane_normal(mFootPlane.mV[VX], mFootPlane.mV[VY], mFootPlane.mV[VZ]);
@@ -6225,11 +6219,9 @@ void LLVOAvatar::updateMeshTextures()
 			// When an avatar is changing clothes and not in Appearance mode,
 			// use the last-known good baked texture until it finish the first
 			// render of the new layerset.
-
 			const BOOL layerset_invalid = mBakedTextureDatas[i].mTexLayerSet 
 										  && ( !mBakedTextureDatas[i].mTexLayerSet->getComposite()->isInitialized()
 										  || !mBakedTextureDatas[i].mTexLayerSet->isLocalTextureDataAvailable() );
-
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
 									  && (mBakedTextureDatas[i].mLastTextureIndex != IMG_DEFAULT_AVATAR) 
 									  && layerset_invalid);
@@ -7864,6 +7856,7 @@ BOOL LLVOAvatar::LLVOAvatarXmlInfo::parseXmlMorphNodes(LLXmlTreeNode* root)
 //virtual
 void LLVOAvatar::updateRegion(LLViewerRegion *regionp)
 {
+	LLViewerObject::updateRegion(regionp);
 }
 
 std::string LLVOAvatar::getFullname() const

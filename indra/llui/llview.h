@@ -116,7 +116,8 @@ public:
 									visible,
 									mouse_opaque,
 									use_bounding_rect,
-									from_xui;
+									from_xui,
+									focus_root;
 
 		Optional<S32>				tab_group,
 									default_tab_group;
@@ -405,21 +406,16 @@ public:
 	BOOL blockMouseEvent(S32 x, S32 y) const;
 
 	// See LLMouseHandler virtuals for screenPointToLocal and localPointToScreen
-	BOOL localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, LLView* other_view) const;
-	BOOL localRectToOtherView( const LLRect& local, LLRect* other, LLView* other_view ) const;
+	BOOL localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, const LLView* other_view) const;
+	BOOL localRectToOtherView( const LLRect& local, LLRect* other, const LLView* other_view ) const;
 	void screenRectToLocal( const LLRect& screen, LLRect* local ) const;
 	void localRectToScreen( const LLRect& local, LLRect* screen ) const;
 	
 	LLControlVariable *findControl(const std::string& name);
 
-    // Moved setValue(), getValue(), setControlValue(), setControlName(),
-    // controlListener() to LLUICtrl because an LLView is NOT assumed to
-    // contain a value. If that's what you want, use LLUICtrl instead.
-//	virtual bool	handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
-
 	const child_list_t*	getChildList() const { return &mChildList; }
-	const child_list_const_iter_t	beginChild()  { return mChildList.begin(); }
-	const child_list_const_iter_t	endChild()  { return mChildList.end(); }
+	child_list_const_iter_t	beginChild() const { return mChildList.begin(); }
+	child_list_const_iter_t	endChild() const { return mChildList.end(); }
 
 	// LLMouseHandler functions
 	//  Default behavior is to pass events to children
@@ -466,12 +462,8 @@ public:
 
 	template <class T> T* getDefaultWidget(const std::string& name) const
 	{
-		default_widget_map_t::const_iterator found_it = getDefaultWidgetMap().find(name);
-		if (found_it == getDefaultWidgetMap().end())
-		{
-			return NULL;
-		}
-		return dynamic_cast<T*>(found_it->second);
+		LLView* widgetp = getDefaultWidgetContainer().findChildView(name);
+		return dynamic_cast<T*>(widgetp);
 	}
 
 	//////////////////////////////////////////////
@@ -585,9 +577,9 @@ private:
 
 	typedef std::map<std::string, LLView*> default_widget_map_t;
 	// allocate this map no demand, as it is rarely needed
-	mutable default_widget_map_t* mDefaultWidgets;
+	mutable LLView* mDefaultWidgets;
 
-	default_widget_map_t& getDefaultWidgetMap() const;
+	LLView& getDefaultWidgetContainer() const;
 
 public:
 	// Depth in view hierarchy during rendering
@@ -654,7 +646,7 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 				return NULL;
 			}
 
-			getDefaultWidgetMap()[name] = result;
+			getDefaultWidgetContainer().addChild(result);
 		}
 	}
 	return result;

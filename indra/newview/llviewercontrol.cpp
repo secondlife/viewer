@@ -70,6 +70,7 @@
 #include "llpaneloutfitsinventory.h"
 #include "llpanellogin.h"
 #include "llpaneltopinfobar.h"
+#include "llupdaterservice.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -82,7 +83,6 @@ LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session
 LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warnings
 
 std::string gLastRunVersion;
-std::string gCurrentVersion;
 
 extern BOOL gResizeScreenTexture;
 extern BOOL gDebugGL;
@@ -117,7 +117,20 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	gBumpImageList.destroyGL();
 	gBumpImageList.restoreGL();
 
+	// Changing shader also changes the terrain detail to high, reflect that change here
+	if (newvalue.asBoolean())
+	{
+		// shaders enabled, set terrain detail to high
+		gSavedSettings.setS32("RenderTerrainDetail", 1);
+	}
+	// else, leave terrain detail as is
 	LLViewerShaderMgr::instance()->setShaders();
+	return true;
+}
+
+bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
+{
+	LLWorld::getInstance()->updateWaterObjects();
 	return true;
 }
 
@@ -148,6 +161,12 @@ static bool handleVolumeLODChanged(const LLSD& newvalue)
 static bool handleAvatarLODChanged(const LLSD& newvalue)
 {
 	LLVOAvatar::sLODFactor = (F32) newvalue.asReal();
+	return true;
+}
+
+static bool handleAvatarPhysicsLODChanged(const LLSD& newvalue)
+{
+	LLVOAvatar::sPhysicsLODFactor = (F32) newvalue.asReal();
 	return true;
 }
 
@@ -292,6 +311,15 @@ static bool handleRenderUseVBOChanged(const LLSD& newvalue)
 	if (gPipeline.isInit())
 	{
 		gPipeline.setUseVBO(newvalue.asBoolean());
+	}
+	return true;
+}
+
+static bool handleRenderUseVBOMappingChanged(const LLSD& newvalue)
+{
+	if (gPipeline.isInit())
+	{
+		gPipeline.setDisableVBOMapping(newvalue.asBoolean());
 	}
 	return true;
 }
@@ -489,6 +517,19 @@ bool toggle_show_object_render_cost(const LLSD& newvalue)
 	return true;
 }
 
+void toggle_updater_service_active(LLControlVariable* control, const LLSD& new_value)
+{
+    if(new_value.asInteger())
+    {
+		LLUpdaterService update_service;
+		if(!update_service.isChecking()) update_service.startChecking();
+    }
+    else
+    {
+        LLUpdaterService().stopChecking();
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -517,6 +558,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderAvatarMaxVisible")->getSignal()->connect(boost::bind(&handleAvatarMaxVisibleChanged, _2));
 	gSavedSettings.getControl("RenderVolumeLODFactor")->getSignal()->connect(boost::bind(&handleVolumeLODChanged, _2));
 	gSavedSettings.getControl("RenderAvatarLODFactor")->getSignal()->connect(boost::bind(&handleAvatarLODChanged, _2));
+	gSavedSettings.getControl("RenderAvatarPhysicsLODFactor")->getSignal()->connect(boost::bind(&handleAvatarPhysicsLODChanged, _2));
 	gSavedSettings.getControl("RenderTerrainLODFactor")->getSignal()->connect(boost::bind(&handleTerrainLODChanged, _2));
 	gSavedSettings.getControl("RenderTreeLODFactor")->getSignal()->connect(boost::bind(&handleTreeLODChanged, _2));
 	gSavedSettings.getControl("RenderFlexTimeFactor")->getSignal()->connect(boost::bind(&handleFlexLODChanged, _2));
@@ -563,6 +605,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("MuteAmbient")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteUI")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("RenderVBOEnable")->getSignal()->connect(boost::bind(&handleRenderUseVBOChanged, _2));
+	gSavedSettings.getControl("RenderVBOMappingDisable")->getSignal()->connect(boost::bind(&handleRenderUseVBOMappingChanged, _2));
 	gSavedSettings.getControl("RenderUseStreamVBO")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("WLSkyDetail")->getSignal()->connect(boost::bind(&handleWLSkyDetailChanged, _2));
 	gSavedSettings.getControl("NumpadControl")->getSignal()->connect(boost::bind(&handleNumpadControlChanged, _2));
@@ -636,7 +679,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
 	gSavedSettings.getControl("ShowMiniLocationPanel")->getSignal()->connect(boost::bind(&toggle_show_mini_location_panel, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
+	gSavedSettings.getControl("UpdaterServiceSetting")->getSignal()->connect(&toggle_updater_service_active);
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
+	gSavedSettings.getControl("RenderTransparentWater")->getSignal()->connect(boost::bind(&handleRenderTransparentWaterChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL

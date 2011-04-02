@@ -48,6 +48,7 @@
 #include "llinventorybridge.h"
 #include "llinventorypanel.h"
 #include "llfloaterinventory.h"
+#include "lllandmarkactions.h"
 
 #include "llviewerassettype.h"
 #include "llviewerregion.h"
@@ -59,6 +60,9 @@
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
 #include "llsidepanelappearance.h"
+#include "llavatarnamecache.h"
+#include "llavataractions.h"
+#include "lllogininstance.h"
 
 ///----------------------------------------------------------------------------
 /// Helper class to store special inventory item names and their localized values.
@@ -85,6 +89,7 @@ public:
 		mInventoryItemsDict["New Skirt"]		= LLTrans::getString("New Skirt");
 		mInventoryItemsDict["New Alpha"]		= LLTrans::getString("New Alpha");
 		mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
+		mInventoryItemsDict["New Physics"]		= LLTrans::getString("New Physics");
 		mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
 
 		mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
@@ -210,6 +215,7 @@ public:
 	}
 };
 LLInventoryHandler gInventoryHandler;
+
 
 ///----------------------------------------------------------------------------
 /// Class LLViewerInventoryItem
@@ -361,11 +367,11 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 		{
 		  if(gAgent.getID() != mPermissions.getOwner())
 		    {
-		      url = region->getCapability("FetchLib");
+		      url = region->getCapability("FetchLib2");
 		    }
 		  else
 		    {	
-		      url = region->getCapability("FetchInventory");
+		      url = region->getCapability("FetchInventory2");
 		    }
 		}
 		else
@@ -643,7 +649,7 @@ bool LLViewerInventoryCategory::fetch()
 		std::string url;
 		if (gAgent.getRegion())
 		{
-			url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
+			url = gAgent.getRegion()->getCapability("FetchInventoryDescendents2");
 		}
 		else
 		{
@@ -655,7 +661,7 @@ bool LLViewerInventoryCategory::fetch()
 		}
 		else
 		{	//Deprecated, but if we don't have a capability, use the old system.
-			llinfos << "WebFetchInventoryDescendents capability not found.  Using deprecated UDP message." << llendl;
+			llinfos << "FetchInventoryDescendents2 capability not found.  Using deprecated UDP message." << llendl;
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessage("FetchInventoryDescendents");
 			msg->nextBlock("AgentData");
@@ -1414,6 +1420,8 @@ public:
 	S32 getSortIndex(const LLUUID& inv_item_id);
 	void removeSortIndex(const LLUUID& inv_item_id);
 
+	void getSLURL(const LLUUID& asset_id);
+
 	/**
 	 * Implementation of LLDestroyClass. Calls cleanup() instance method.
 	 *
@@ -1440,8 +1448,16 @@ private:
 	void load();
 	void save();
 
+	void saveFavoritesSLURLs();
+
+	void onLandmarkLoaded(const LLUUID& asset_id, LLLandmark* landmark);
+	void storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl);
+
 	typedef std::map<LLUUID, S32> sort_index_map_t;
 	sort_index_map_t mSortIndexes;
+
+	typedef std::map<LLUUID, std::string> slurls_map_t;
+	slurls_map_t mSLURLs;
 
 	bool mIsDirty;
 
@@ -1497,10 +1513,27 @@ void LLFavoritesOrderStorage::removeSortIndex(const LLUUID& inv_item_id)
 	mIsDirty = true;
 }
 
+void LLFavoritesOrderStorage::getSLURL(const LLUUID& asset_id)
+{
+	slurls_map_t::iterator slurl_iter = mSLURLs.find(asset_id);
+	if (slurl_iter != mSLURLs.end()) return; // SLURL for current landmark is already cached
+
+	LLLandmark* lm = gLandmarkList.getAsset(asset_id,
+			boost::bind(&LLFavoritesOrderStorage::onLandmarkLoaded, this, asset_id, _1));
+	if (lm)
+	{
+		onLandmarkLoaded(asset_id, lm);
+	}
+}
+
 // static
 void LLFavoritesOrderStorage::destroyClass()
 {
 	LLFavoritesOrderStorage::instance().cleanup();
+	if (gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin"))
+	{
+		LLFavoritesOrderStorage::instance().saveFavoritesSLURLs();
+	}
 }
 
 void LLFavoritesOrderStorage::load()
@@ -1521,6 +1554,76 @@ void LLFavoritesOrderStorage::load()
 	{
 		mSortIndexes.insert(std::make_pair(LLUUID(iter->first), (S32)iter->second.asInteger()));
 	}
+}
+
+void LLFavoritesOrderStorage::saveFavoritesSLURLs()
+{
+	// Do not change the file if we are not logged in yet.
+	if (!LLLoginInstance::getInstance()->authSuccess()) return;
+	
+	std::string user_dir = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "");
+	if (user_dir.empty()) return;
+
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	llifstream in_file;
+	in_file.open(filename);
+	LLSD fav_llsd;
+	if (in_file.is_open())
+	{
+		LLSDSerialize::fromXML(fav_llsd, in_file);
+	}
+
+	const LLUUID fav_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	gInventory.collectDescendents(fav_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
+
+	LLSD user_llsd;
+	for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); it++)
+	{
+		LLSD value;
+		value["name"] = (*it)->getName();
+		value["asset_id"] = (*it)->getAssetUUID();
+
+		slurls_map_t::iterator slurl_iter = mSLURLs.find(value["asset_id"]);
+		if (slurl_iter != mSLURLs.end())
+		{
+			value["slurl"] = slurl_iter->second;
+			user_llsd[(*it)->getSortField()] = value;
+		}
+	}
+
+	LLAvatarName av_name;
+	LLAvatarNameCache::get( gAgentID, &av_name );
+	fav_llsd[av_name.getLegacyName()] = user_llsd;
+
+	llofstream file;
+	file.open(filename);
+	LLSDSerialize::toPrettyXML(fav_llsd, file);
+}
+
+void LLFavoritesOrderStorage::onLandmarkLoaded(const LLUUID& asset_id, LLLandmark* landmark)
+{
+	if (!landmark) return;
+
+	LLVector3d pos_global;
+	if (!landmark->getGlobalPos(pos_global))
+	{
+		// If global position was unknown on first getGlobalPos() call
+		// it should be set for the subsequent calls.
+		landmark->getGlobalPos(pos_global);
+	}
+
+	if (!pos_global.isExactlyZero())
+	{
+		LLLandmarkActions::getSLURLfromPosGlobal(pos_global,
+				boost::bind(&LLFavoritesOrderStorage::storeFavoriteSLURL, this, asset_id, _1));
+	}
+}
+
+void LLFavoritesOrderStorage::storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl)
+{
+	mSLURLs[asset_id] = slurl;
 }
 
 void LLFavoritesOrderStorage::save()
@@ -1579,6 +1682,12 @@ S32 LLViewerInventoryItem::getSortField() const
 void LLViewerInventoryItem::setSortField(S32 sortField)
 {
 	LLFavoritesOrderStorage::instance().setSortIndex(mUUID, sortField);
+	getSLURL();
+}
+
+void LLViewerInventoryItem::getSLURL()
+{
+	LLFavoritesOrderStorage::instance().getSLURL(mAssetUUID);
 }
 
 const LLPermissions& LLViewerInventoryItem::getPermissions() const

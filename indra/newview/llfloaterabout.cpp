@@ -213,7 +213,7 @@ LLSD LLFloaterAbout::getInfo()
 	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
 	info["BUILD_DATE"] = __DATE__;
 	info["BUILD_TIME"] = __TIME__;
-	info["CHANNEL"] = gSavedSettings.getString("VersionChannelName");
+	info["CHANNEL"] = LLVersionInfo::getChannel();
 
 	info["VIEWER_RELEASE_NOTES_URL"] = get_viewer_release_notes_url();
 
@@ -272,7 +272,7 @@ LLSD LLFloaterAbout::getInfo()
 	}
 	
 	// TODO: Implement media plugin version query
-	info["QT_WEBKIT_VERSION"] = "4.6 (version number hard-coded)";
+	info["QT_WEBKIT_VERSION"] = "4.7.1 (version number hard-coded)";
 
 	if (gPacketsIn > 0)
 	{
@@ -291,7 +291,7 @@ static std::string get_viewer_release_notes_url()
 	std::string url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
 	if (! LLStringUtil::endsWith(url, "/"))
 		url += "/";
-	url += gSavedSettings.getString("VersionChannelName") + "/";
+	url += LLVersionInfo::getChannel() + "/";
 	url += LLVersionInfo::getShortVersion();
 	return LLWeb::escapeURL(url);
 }

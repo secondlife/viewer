@@ -27,6 +27,7 @@ include_directories(
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
+    ${LLQTWEBKIT_INCLUDE_DIR}
 )
 
 
@@ -120,8 +121,8 @@ if (DARWIN)
   add_custom_command(
     TARGET media_plugin_webkit POST_BUILD
 #    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/libllqtwebkit.dylib
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
-    DEPENDS media_plugin_webkit ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib
+    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+    DEPENDS media_plugin_webkit ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
     )
     
 endif (DARWIN)

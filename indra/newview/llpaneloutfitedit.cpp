@@ -56,11 +56,13 @@
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llloadingindicator.h"
+#include "llmenubutton.h"
 #include "llpaneloutfitsinventory.h"
 #include "lluiconstants.h"
 #include "llsaveoutfitcombobtn.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
+#include "lltoggleablemenu.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llsdutil.h"
@@ -151,13 +153,13 @@ std::string LLShopURLDispatcher::resolveURL(LLAssetType::EType asset_type, ESex 
 class LLPanelOutfitEditGearMenu
 {
 public:
-	static LLMenuGL* create()
+	static LLToggleableMenu* create()
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
 		registrar.add("Wearable.Create", boost::bind(onCreate, _2));
 
-		LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+		LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_cof_gear.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 		llassert(menu);
 		if (menu)
@@ -184,14 +186,8 @@ private:
 	// Populate the menu with items like "New Skin", "New Pants", etc.
 	static void populateCreateWearableSubmenus(LLMenuGL* menu)
 	{
-		LLView* menu_clothes	= gMenuHolder->findChildView("COF.Gear.New_Clothes", FALSE);
-		LLView* menu_bp			= gMenuHolder->findChildView("COF.Geear.New_Body_Parts", FALSE);
-
-		if (!menu_clothes || !menu_bp)
-		{
-			llassert(menu_clothes && menu_bp);
-			return;
-		}
+		LLView* menu_clothes	= gMenuHolder->getChildView("COF.Gear.New_Clothes", FALSE);
+		LLView* menu_bp			= gMenuHolder->getChildView("COF.Geear.New_Body_Parts", FALSE);
 
 		for (U8 i = LLWearableType::WT_SHAPE; i != (U8) LLWearableType::WT_COUNT; ++i)
 		{
@@ -218,7 +214,7 @@ private:
 class LLAddWearablesGearMenu : public LLInitClass<LLAddWearablesGearMenu>
 {
 public:
-	static LLMenuGL* create(LLWearableItemsList* flat_list, LLInventoryPanel* inventory_panel)
+	static LLToggleableMenu* create(LLWearableItemsList* flat_list, LLInventoryPanel* inventory_panel)
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
@@ -233,7 +229,7 @@ public:
 		enable_registrar.add("AddWearable.Gear.Check", boost::bind(onCheck, flat_list_handle, inventory_panel_handle, _2));
 		enable_registrar.add("AddWearable.Gear.Visible", boost::bind(onVisible, inventory_panel_handle, _2));
 
-		LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+		LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_add_wearable_gear.xml",
 			LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 
@@ -404,7 +400,9 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mFolderViewFilterCmbBox(NULL),
 	mListViewFilterCmbBox(NULL),
 	mWearableListManager(NULL),
-	mPlusBtn(NULL)
+	mPlusBtn(NULL),
+	mWearablesGearMenuBtn(NULL),
+	mGearMenuBtn(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -468,6 +466,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("skirt"), new LLFindActualWearablesOfType(LLWearableType::WT_SKIRT)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("alpha"), new LLFindActualWearablesOfType(LLWearableType::WT_ALPHA)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("tattoo"), new LLFindActualWearablesOfType(LLWearableType::WT_TATTOO)));
+	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("physics"), new LLFindActualWearablesOfType(LLWearableType::WT_PHYSICS)));
 
 	mCurrentOutfitName = getChild<LLTextBox>("curr_outfit_name"); 
 	mStatus = getChild<LLTextBox>("status");
@@ -480,12 +479,13 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesListView, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
-	childSetCommitCallback("wearables_gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
-	childSetCommitCallback("gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 	childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 	childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 
 	setVisibleCallback(boost::bind(&LLPanelOutfitEdit::onVisibilityChange, this, _2));
+
+	mWearablesGearMenuBtn = getChild<LLMenuButton>("wearables_gear_menu_btn");
+	mGearMenuBtn = getChild<LLMenuButton>("gear_menu_btn");
 
 	mCOFWearables = findChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::filterWearablesBySelectedItem, this));
@@ -558,6 +558,13 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearableItemsList->setDoubleClickCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 
 	mWearableItemsList->setComparator(mWearableListViewItemsComparator);
+
+	// Creating "Add Wearables" panel gear menu after initialization of mWearableItemsList and mInventoryItemsPanel.
+	mAddWearablesGearMenu = LLAddWearablesGearMenu::create(mWearableItemsList, mInventoryItemsPanel);
+	mWearablesGearMenuBtn->setMenu(mAddWearablesGearMenu);
+
+	mGearMenu = LLPanelOutfitEditGearMenu::create();
+	mGearMenuBtn->setMenu(mGearMenu);
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
 	return TRUE;
@@ -1258,37 +1265,6 @@ void LLPanelOutfitEdit::resetAccordionState()
 	}
 }
 
-void LLPanelOutfitEdit::onGearButtonClick(LLUICtrl* clicked_button)
-{
-	LLMenuGL* menu = NULL;
-
-	if (mAddWearablesPanel->getVisible())
-	{
-		if (!mAddWearablesGearMenu)
-		{
-			mAddWearablesGearMenu = LLAddWearablesGearMenu::create(mWearableItemsList, mInventoryItemsPanel);
-		}
-
-		menu = mAddWearablesGearMenu;
-	}
-	else
-	{
-		if (!mGearMenu)
-		{
-			mGearMenu = LLPanelOutfitEditGearMenu::create();
-		}
-
-		menu = mGearMenu;
-	}
-
-	if (!menu) return;
-
-	menu->arrangeAndClear(); // update menu height
-	S32 menu_y = menu->getRect().getHeight() + clicked_button->getRect().getHeight();
-	menu->buildDrawLabels();
-	LLMenuGL::showPopup(clicked_button, menu, 0, menu_y);
-}
-
 void LLPanelOutfitEdit::onAddMoreButtonClicked()
 {
 	toggleAddWearablesPanel();
@@ -1348,19 +1324,19 @@ void LLPanelOutfitEdit::getCurrentItemUUID(LLUUID& selected_id)
 
 void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
 {
+	void (uuid_vec_t::* tmp)(LLUUID const &) = &uuid_vec_t::push_back;
 	if (mInventoryItemsPanel->getVisible())
 	{
 		std::set<LLUUID> item_set = mInventoryItemsPanel->getRootFolder()->getSelectionList();
 
-		std::for_each(item_set.begin(), item_set.end(), boost::bind( &uuid_vec_t::push_back, &uuid_list, _1));
+		std::for_each(item_set.begin(), item_set.end(), boost::bind( tmp, &uuid_list, _1));
 	}
 	else if (mWearablesListViewPanel->getVisible())
 	{
 		std::vector<LLSD> item_set;
 		mWearableItemsList->getSelectedValues(item_set);
 
-		std::for_each(item_set.begin(), item_set.end(), boost::bind( &uuid_vec_t::push_back, &uuid_list, boost::bind(&LLSD::asUUID, _1 )));
-
+		std::for_each(item_set.begin(), item_set.end(), boost::bind( tmp, &uuid_list, boost::bind(&LLSD::asUUID, _1 )));
 	}
 
 //	return selected_id;

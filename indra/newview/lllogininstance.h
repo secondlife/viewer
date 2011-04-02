@@ -34,12 +34,15 @@
 class LLLogin;
 class LLEventStream;
 class LLNotificationsInterface;
+class LLUpdaterService;
 
 // This class hosts the login module and is used to 
 // negotiate user authentication attempts.
 class LLLoginInstance : public LLSingleton<LLLoginInstance>
 {
 public:
+	class Disposable;
+
 	LLLoginInstance();
 	~LLLoginInstance();
 
@@ -58,12 +61,6 @@ public:
 	// Only valid when authSuccess == true.
 	const F64 getLastTransferRateBPS() { return mTransferRate; }
 
-		// Set whether this class will drive user interaction.
-	// If not, login failures like 'need tos agreement' will 
-	// end the login attempt.
-	void setUserInteraction(bool state) { mUserInteraction = state; } 
-	bool getUserInteraction() { return mUserInteraction; }
-
 	// Whether to tell login to skip optional update request.
 	// False by default.
 	void setSkipOptionalUpdate(bool state) { mSkipOptionalUpdate = state; }
@@ -75,6 +72,7 @@ public:
 	typedef boost::function<void()> UpdaterLauncherCallback;
 	void setUpdaterLauncher(const UpdaterLauncherCallback& ulc) { mUpdaterLauncher = ulc; }
 
+	void setUpdaterService(LLUpdaterService * updaterService) { mUpdaterService = updaterService; }
 private:
 	void constructAuthParams(LLPointer<LLCredential> user_credentials);
 	void updateApp(bool mandatory, const std::string& message);
@@ -96,7 +94,6 @@ private:
 	std::string mLoginState;
 	LLSD mRequestData;
 	LLSD mResponseData;
-	bool mUserInteraction; 
 	bool mSkipOptionalUpdate;
 	bool mAttemptComplete;
 	F64 mTransferRate;
@@ -104,6 +101,8 @@ private:
 	int mLastExecEvent;
 	UpdaterLauncherCallback mUpdaterLauncher;
 	LLEventDispatcher mDispatcher;
+	LLUpdaterService * mUpdaterService;	
+	boost::scoped_ptr<Disposable> mUpdateStateMachine;
 };
 
 #endif

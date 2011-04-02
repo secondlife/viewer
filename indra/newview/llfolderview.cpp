@@ -1854,31 +1854,9 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 	{
 		if (mCallbackRegistrar)
 			mCallbackRegistrar->pushScope();
-		//menu->empty();
-		const LLView::child_list_t *list = menu->getChildList();
 
-		LLView::child_list_t::const_iterator menu_itor;
-		for (menu_itor = list->begin(); menu_itor != list->end(); ++menu_itor)
-		{
-			(*menu_itor)->setVisible(FALSE);
-			(*menu_itor)->pushVisible(TRUE);
-			(*menu_itor)->setEnabled(TRUE);
-		}
-		
-		// Successively filter out invalid options
-
-		U32 flags = FIRST_SELECTED_ITEM;
-		for (selected_items_t::iterator item_itor = mSelectedItems.begin(); 
-			 item_itor != mSelectedItems.end(); 
-			 ++item_itor)
-		{
-			LLFolderViewItem* selected_item = (*item_itor);
-			selected_item->buildContextMenu(*menu, flags);
-			flags = 0x0;
-		}
+		updateMenuOptions(menu);
 	   
-		addNoOptions(menu);
-
 		menu->updateParent(LLMenuGL::sMenuContainer);
 		LLMenuGL::showPopup(this, menu, x, y);
 		if (mCallbackRegistrar)
@@ -2365,6 +2343,45 @@ void LLFolderView::updateRenamerPosition()
 	}
 }
 
+// Update visibility and availability (i.e. enabled/disabled) of context menu items.
+void LLFolderView::updateMenuOptions(LLMenuGL* menu)
+{
+	const LLView::child_list_t *list = menu->getChildList();
+
+	LLView::child_list_t::const_iterator menu_itor;
+	for (menu_itor = list->begin(); menu_itor != list->end(); ++menu_itor)
+	{
+		(*menu_itor)->setVisible(FALSE);
+		(*menu_itor)->pushVisible(TRUE);
+		(*menu_itor)->setEnabled(TRUE);
+	}
+
+	// Successively filter out invalid options
+
+	U32 flags = FIRST_SELECTED_ITEM;
+	for (selected_items_t::iterator item_itor = mSelectedItems.begin();
+			item_itor != mSelectedItems.end();
+			++item_itor)
+	{
+		LLFolderViewItem* selected_item = (*item_itor);
+		selected_item->buildContextMenu(*menu, flags);
+		flags = 0x0;
+	}
+
+	addNoOptions(menu);
+}
+
+// Refresh the context menu (that is already shown).
+void LLFolderView::updateMenu()
+{
+	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
+	if (menu && menu->getVisible())
+	{
+		updateMenuOptions(menu);
+		menu->needsArrange(); // update menu height if needed
+	}
+}
+
 bool LLFolderView::selectFirstItem()
 {
 	for (folders_t::iterator iter = mFolders.begin();
@@ -2429,6 +2446,7 @@ S32	LLFolderView::notify(const LLSD& info)
 		{
 			setFocus(true);
 			selectFirstItem();
+			scrollToShowSelection();
 			return 1;
 
 		}
@@ -2436,6 +2454,7 @@ S32	LLFolderView::notify(const LLSD& info)
 		{
 			setFocus(true);
 			selectLastItem();
+			scrollToShowSelection();
 			return 1;
 		}
 	}

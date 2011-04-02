@@ -32,6 +32,7 @@
 #include "llhudtext.h"
 #include "llhudicon.h"
 #include "llhudeffectbeam.h"
+#include "llhudeffectblob.h"
 #include "llhudeffecttrail.h"
 #include "llhudeffectlookat.h"
 #include "llhudeffectpointat.h"
@@ -237,6 +238,9 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
 	case LL_HUD_EFFECT_POINTAT:
 		hud_objectp = new LLHUDEffectPointAt(type);
 		break;
+	case LL_HUD_EFFECT_BLOB:
+		hud_objectp = new LLHUDEffectBlob(type);
+		break;
 	default:
 		llwarns << "Unknown type of hud effect:" << (U32) type << llendl;
 	}
@@ -281,27 +285,6 @@ void LLHUDObject::renderAll()
 	}
 
 	LLVertexBuffer::unbind();
-}
-
-// static
-void LLHUDObject::renderAllForSelect()
-{
-	LLHUDObject *hud_objp;
-	
-	hud_object_list_t::iterator object_it;
-	for (object_it = sHUDObjects.begin(); object_it != sHUDObjects.end(); )
-	{
-		hud_object_list_t::iterator cur_it = object_it++;
-		hud_objp = (*cur_it);
-		if (hud_objp->getNumRefs() == 1)
-		{
-			sHUDObjects.erase(cur_it);
-		}
-		else if (hud_objp->isVisible())
-		{
-			hud_objp->renderForSelect();
-		}
-	}
 }
 
 // static

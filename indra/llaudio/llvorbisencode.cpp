@@ -120,6 +120,13 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
 			+ ((U32) wav_header[5] << 8) 
 			+ wav_header[4];
 
+		if (chunk_length > physical_file_size - file_pos - 4)
+		{
+			infile.close();
+			error_msg = "SoundFileInvalidChunkSize";
+			return(LLVORBISENC_CHUNK_SIZE_ERR);
+		}
+
 //		llinfos << "chunk found: '" << wav_header[0] << wav_header[1] << wav_header[2] << wav_header[3] << "'" << llendl;
 
 		if (!(strncmp((char *)&(wav_header[0]),"fmt ",4)))

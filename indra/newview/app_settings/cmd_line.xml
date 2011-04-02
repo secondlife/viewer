@@ -118,6 +118,8 @@
     <map>
       <key>desc</key>
       <string>Log metrics for benchmarking</string>
+      <key>count</key>
+      <integer>1</integer>
       <key>map-to</key>
       <string>LogMetrics</string>
     </map>
@@ -259,6 +261,24 @@
       <!-- Special case. Mapped to settings procedurally. -->
     </map>
 
+    <key>sessionsettings</key>
+    <map>
+      <key>desc</key>
+      <string>Specify the filename of a configuration file that contains temporary per-session configuration overrides.</string>
+      <key>count</key>
+      <integer>1</integer>
+      <!-- Special case. Mapped to settings procedurally. -->
+    </map>
+
+    <key>usersessionsettings</key>
+    <map>
+      <key>desc</key>
+      <string>Specify the filename of a configuration file that contains temporary per-session configuration user overrides.</string>
+      <key>count</key>
+      <integer>1</integer>
+      <!-- Special case. Mapped to settings procedurally. -->
+    </map>
+    
     <key>login</key>
     <map>
       <key>desc</key>
@@ -361,8 +381,7 @@
     <map>
       <key>count</key>
       <integer>1</integer>
-      <key>map-to</key>
-      <string>VersionChannelName</string>
+      <!-- Special case. Not mapped to a setting. -->
     </map>
 
     <key>loginpage</key>
@@ -391,5 +410,12 @@
       <string>CrashOnStartup</string>
     </map>
 
+    <key>disablecrashlogger</key>
+    <map>
+      <key>desc</key>
+      <string>Disables the crash logger and lets the OS handle crashes</string>
+      <key>map-to</key>
+      <string>DisableCrashLogger</string>
+    </map>
   </map>
 </llsd>

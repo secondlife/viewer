@@ -62,7 +62,7 @@ class LLIMModel :  public LLSingleton<LLIMModel>
 {
 public:
 
-	struct LLIMSession
+	struct LLIMSession : public boost::signals2::trackable
 	{
 		typedef enum e_session_type
 		{   // for now we have 4 predefined types for a session
@@ -542,6 +542,7 @@ public:
 	static void onReject(void* user_data);
 	static void onStartIM(void* user_data);
 
+	static void processCallResponse(S32 response, const LLSD& payload);
 private:
 	void setCallerName(const std::string& ui_title,
 		const std::string& ui_label,
@@ -551,7 +552,6 @@ private:
 		const std::string& call_type);
 
 	/*virtual*/ void onLifetimeExpired();
-	void processCallResponse(S32 response);
 };
 
 class LLOutgoingCallDialog : public LLCallDialog

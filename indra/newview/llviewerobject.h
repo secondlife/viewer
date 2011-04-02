@@ -77,6 +77,7 @@ typedef enum e_object_update_type
 	OUT_TERSE_IMPROVED,
 	OUT_FULL_COMPRESSED,
 	OUT_FULL_CACHED,
+	OUT_UNKNOWN,
 } EObjectUpdateType;
 
 
@@ -131,7 +132,7 @@ public:
 
 	typedef const child_list_t const_child_list_t;
 
-	LLViewerObject(const LLUUID &id, const LLPCode type, LLViewerRegion *regionp, BOOL is_global = FALSE);
+	LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, BOOL is_global = FALSE);
 	MEM_TYPE_NEW(LLMemType::MTYPE_OBJECT);
 
 	virtual void markDead();				// Mark this object as dead, and clean up its references
@@ -226,12 +227,9 @@ public:
 	virtual BOOL hasLightTexture() const			{ return FALSE; }
 
 	// This method returns true if the object is over land owned by
-	// the agent.
-	BOOL isOverAgentOwnedLand() const;
-
-	// True if over land owned by group of which the agent is
-	// either officer or member.
-	BOOL isOverGroupOwnedLand() const;
+	// the agent, one of its groups, or it encroaches and 
+	// anti-encroachment is enabled
+	bool isReturnable();
 
 	/*
 	// This method will scan through this object, and then query the
@@ -464,7 +462,7 @@ public:
 	bool specialHoverCursor() const;	// does it have a special hover cursor?
 
 	void			setRegion(LLViewerRegion *regionp);
-	virtual void	updateRegion(LLViewerRegion *regionp) {}
+	virtual void	updateRegion(LLViewerRegion *regionp);
 
 	void updateFlags();
 	BOOL setFlags(U32 flag, BOOL state);
@@ -510,6 +508,9 @@ private:
     // and the update wasn't due to this agent's last action.
     U32 checkMediaURL(const std::string &media_url);
 	
+	// Motion prediction between updates
+	void interpolateLinearMotion(const F64 & time, const F32 & dt);
+
 public:
 	//
 	// Viewer-side only types - use the LL_PCODE_APP mask.
@@ -518,14 +519,14 @@ public:
 	{
 		LL_VO_CLOUDS =				LL_PCODE_APP | 0x20,
 		LL_VO_SURFACE_PATCH =		LL_PCODE_APP | 0x30,
-		//LL_VO_STARS =				LL_PCODE_APP | 0x40,
+		LL_VO_WL_SKY =				LL_PCODE_APP | 0x40,
 		LL_VO_SQUARE_TORUS =		LL_PCODE_APP | 0x50,
 		LL_VO_SKY =					LL_PCODE_APP | 0x60,
-		LL_VO_WATER =				LL_PCODE_APP | 0x70,
-		LL_VO_GROUND =				LL_PCODE_APP | 0x80,
-		LL_VO_PART_GROUP =			LL_PCODE_APP | 0x90,
-		LL_VO_TRIANGLE_TORUS =		LL_PCODE_APP | 0xa0,
-		LL_VO_WL_SKY =				LL_PCODE_APP | 0xb0, // should this be moved to 0x40?
+		LL_VO_VOID_WATER =			LL_PCODE_APP | 0x70,
+		LL_VO_WATER =				LL_PCODE_APP | 0x80,
+		LL_VO_GROUND =				LL_PCODE_APP | 0x90,
+		LL_VO_PART_GROUP =			LL_PCODE_APP | 0xa0,
+		LL_VO_TRIANGLE_TORUS =		LL_PCODE_APP | 0xb0,
 		LL_VO_HUD_PART_GROUP =		LL_PCODE_APP | 0xc0,
 	} EVOType;
 
@@ -612,6 +613,7 @@ protected:
 	F64				mLastInterpUpdateSecs;			// Last update for purposes of interpolation
 	F64				mLastMessageUpdateSecs;			// Last update from a message from the simulator
 	TPACKETID		mLatestRecvPacketID;			// Latest time stamp on message from simulator
+
 	// extra data sent from the sim...currently only used for tree species info
 	U8* mData;
 
@@ -669,8 +671,20 @@ protected:
 	mutable LLVector3		mPositionRegion;
 	mutable LLVector3		mPositionAgent;
 
+	static void setPhaseOutUpdateInterpolationTime(F32 value)	{ sPhaseOutUpdateInterpolationTime = (F64) value;	}
+	static void setMaxUpdateInterpolationTime(F32 value)		{ sMaxUpdateInterpolationTime = (F64) value;	}
+
+	static void	setVelocityInterpolate(BOOL value)		{ sVelocityInterpolate = value;	}
+	static void	setPingInterpolate(BOOL value)			{ sPingInterpolate = value;	}
+
 private:	
 	static S32 sNumObjects;
+
+	static F64 sPhaseOutUpdateInterpolationTime;	// For motion interpolation
+	static F64 sMaxUpdateInterpolationTime;			// For motion interpolation
+
+	static BOOL sVelocityInterpolate;
+	static BOOL sPingInterpolate;
 
 	//--------------------------------------------------------------------
 	// For objects that are attachments
@@ -679,8 +693,15 @@ public:
 	const LLUUID &getAttachmentItemID() const;
 	void setAttachmentItemID(const LLUUID &id);
 	const LLUUID &extractAttachmentItemID(); // find&set the inventory item ID of the attached object
+	EObjectUpdateType getLastUpdateType() const;
+	void setLastUpdateType(EObjectUpdateType last_update_type);
+	BOOL getLastUpdateCached() const;
+	void setLastUpdateCached(BOOL last_update_cached);
+
 private:
 	LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
+	EObjectUpdateType	mLastUpdateType;
+	BOOL	mLastUpdateCached;
 };
 
 ///////////////////
@@ -717,8 +738,8 @@ public:
 class LLAlphaObject : public LLViewerObject
 {
 public:
-	LLAlphaObject(const LLUUID &id, const LLPCode type, LLViewerRegion *regionp)
-	: LLViewerObject(id,type,regionp) 
+	LLAlphaObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
+	: LLViewerObject(id,pcode,regionp) 
 	{ mDepth = 0.f; }
 
 	virtual F32 getPartSize(S32 idx);
@@ -735,14 +756,12 @@ public:
 class LLStaticViewerObject : public LLViewerObject
 {
 public:
-	LLStaticViewerObject(const LLUUID& id, const LLPCode type, LLViewerRegion* regionp, BOOL is_global = FALSE)
-		: LLViewerObject(id,type,regionp, is_global)
+	LLStaticViewerObject(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp, BOOL is_global = FALSE)
+		: LLViewerObject(id,pcode,regionp, is_global)
 	{ }
 
 	virtual void updateDrawable(BOOL force_damped);
 };
 
-extern BOOL gVelocityInterpolate;
-extern BOOL gPingInterpolate;
 
 #endif

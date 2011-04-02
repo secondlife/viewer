@@ -20,7 +20,6 @@ set(cmake_SOURCE_FILES
     CSharpMacros.cmake
     DBusGlib.cmake
     DirectX.cmake
-    ELFIO.cmake
     EXPAT.cmake
     FindAPR.cmake
     FindBerkeleyDB.cmake
@@ -29,10 +28,10 @@ set(cmake_SOURCE_FILES
     FindFMOD.cmake
     FindGooglePerfTools.cmake
     FindMono.cmake
-    FindMT.cmake
     FindMySQL.cmake
     FindOpenJPEG.cmake
     FindXmlRpcEpi.cmake
+    FindZLIB.cmake
     FMOD.cmake
     FreeType.cmake
     GStreamer010Plugin.cmake
@@ -84,7 +83,6 @@ source_group("Shared Rules" FILES ${cmake_SOURCE_FILES})
 
 set(master_SOURCE_FILES
     ../CMakeLists.txt
-    ../develop.py
     )
 
 if (SERVER)

@@ -45,10 +45,12 @@
 #include "llspeakers.h"
 #include "lltextutil.h"
 #include "lltransientfloatermgr.h"
+#include "llviewercontrol.h"
 #include "llviewerdisplayname.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
 #include "llviewerparcelmgr.h"
+#include "llfirstuse.h"
 
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids);
 void reshape_floater(LLCallFloater* floater, S32 delta_height);
@@ -166,15 +168,16 @@ BOOL LLCallFloater::postBuild()
 	//chrome="true" hides floater caption 
 	if (mDragHandle)
 		mDragHandle->setTitleVisible(TRUE);
+	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 	
 	updateSession();
-
 	return TRUE;
 }
 
 // virtual
 void LLCallFloater::onOpen(const LLSD& /*key*/)
 {
+	LLFirstUse::speak(false);
 }
 
 // virtual
@@ -202,6 +205,17 @@ void LLCallFloater::draw()
 		mParticipants->updateRecentSpeakersOrder();
 
 	LLTransientDockableFloater::draw();
+}
+
+// virtual
+void LLCallFloater::setFocus( BOOL b )
+{
+	LLTransientDockableFloater::setFocus(b);
+
+	// Force using active floater transparency (STORM-730).
+	// We have to override setFocus() for LLCallFloater because selecting an item
+	// of the voice morphing combobox causes the floater to lose focus and thus become transparent.
+	updateTransparency(TT_ACTIVE);
 }
 
 // virtual
@@ -335,8 +349,9 @@ void LLCallFloater::refreshParticipantList()
 	{
 		mParticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT, false);
 		mParticipants->setValidateSpeakerCallback(boost::bind(&LLCallFloater::validateSpeaker, this, _1));
-		mParticipants->setSortOrder(LLParticipantList::E_SORT_BY_RECENT_SPEAKERS);
-
+		const U32 speaker_sort_order = gSavedSettings.getU32("SpeakerParticipantDefaultOrder");
+		mParticipants->setSortOrder(LLParticipantList::EParticipantSortOrder(speaker_sort_order));
+		
 		if (LLLocalSpeakerMgr::getInstance() == mSpeakerManager)
 		{
 			mAvatarList->setNoItemsCommentText(getString("no_one_near"));

@@ -47,12 +47,14 @@
 #include "llvoiceclient.h"
 #include "llviewerobjectlist.h"
 #include "lltransientfloatermgr.h"
+#include "llnotificationsutil.h"
 
 // Linden libraries
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
 #include "lltextbox.h"
+#include "lltoggleablemenu.h"
 #include "lltooltip.h"	// positionViewNearMouse()
 #include "lltrans.h"
 #include "lluictrl.h"
@@ -125,16 +127,20 @@ private:
 	void onClickReport();
 	void onClickFreeze();
 	void onClickEject();
+	void onClickKick();
+	void onClickCSR();
 	void onClickZoomIn();  
 	void onClickFindOnMap();
 	bool onVisibleFindOnMap();
-	bool onVisibleFreezeEject();
+	bool onVisibleEject();
+	bool onVisibleFreeze();
 	bool onVisibleZoomIn();
 	void onClickMuteVolume();
 	void onVolumeChange(const LLSD& data);
 	bool enableMute();
 	bool enableUnmute();
 	bool enableTeleportOffer();
+	bool godModeEnabled();
 
 	// Is used to determine if "Add friend" option should be enabled in gear menu
 	bool isNotFriend();
@@ -213,20 +219,21 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Share",	boost::bind(&LLInspectAvatar::onClickShare, this));
 	mCommitCallbackRegistrar.add("InspectAvatar.ToggleMute",	boost::bind(&LLInspectAvatar::onToggleMute, this));	
-	mCommitCallbackRegistrar.add("InspectAvatar.Freeze",
-		boost::bind(&LLInspectAvatar::onClickFreeze, this));	
-	mCommitCallbackRegistrar.add("InspectAvatar.Eject",
-		boost::bind(&LLInspectAvatar::onClickEject, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Freeze", boost::bind(&LLInspectAvatar::onClickFreeze, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Eject", boost::bind(&LLInspectAvatar::onClickEject, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Kick", boost::bind(&LLInspectAvatar::onClickKick, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.CSR", boost::bind(&LLInspectAvatar::onClickCSR, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Report",	boost::bind(&LLInspectAvatar::onClickReport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.FindOnMap",	boost::bind(&LLInspectAvatar::onClickFindOnMap, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.ZoomIn", boost::bind(&LLInspectAvatar::onClickZoomIn, this));
 	mCommitCallbackRegistrar.add("InspectAvatar.DisableVoice", boost::bind(&LLInspectAvatar::toggleSelectedVoice, this, false));
 	mCommitCallbackRegistrar.add("InspectAvatar.EnableVoice", boost::bind(&LLInspectAvatar::toggleSelectedVoice, this, true));
+
+	mEnableCallbackRegistrar.add("InspectAvatar.EnableGod",	boost::bind(&LLInspectAvatar::godModeEnabled, this));	
 	mEnableCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
-	mEnableCallbackRegistrar.add("InspectAvatar.VisibleFreezeEject",	
-		boost::bind(&LLInspectAvatar::onVisibleFreezeEject, this));	
-	mEnableCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
-		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
+	mEnableCallbackRegistrar.add("InspectAvatar.VisibleEject",	boost::bind(&LLInspectAvatar::onVisibleEject, this));	
+	mEnableCallbackRegistrar.add("InspectAvatar.VisibleFreeze",	boost::bind(&LLInspectAvatar::onVisibleFreeze, this));	
+	mEnableCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.Enable", boost::bind(&LLInspectAvatar::isNotFriend, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.EnableCall", boost::bind(&LLAvatarActions::canCall));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.EnableTeleportOffer", boost::bind(&LLInspectAvatar::enableTeleportOffer, this));
@@ -402,8 +409,8 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 // if neither the gear menu or self gear menu are open
 void LLInspectAvatar::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	LLMenuGL* gear_menu = getChild<LLMenuButton>("gear_btn")->getMenu();
-	LLMenuGL* gear_menu_self = getChild<LLMenuButton>("gear_self_btn")->getMenu();
+	LLToggleableMenu* gear_menu = getChild<LLMenuButton>("gear_btn")->getMenu();
+	LLToggleableMenu* gear_menu_self = getChild<LLMenuButton>("gear_self_btn")->getMenu();
 	if ( gear_menu && gear_menu->getVisible() &&
 		 gear_menu_self && gear_menu_self->getVisible() )
 	{
@@ -655,9 +662,16 @@ bool LLInspectAvatar::onVisibleFindOnMap()
 	return gAgent.isGodlike() || is_agent_mappable(mAvatarID);
 }
 
-bool LLInspectAvatar::onVisibleFreezeEject()
+bool LLInspectAvatar::onVisibleEject()
 {
 	return enable_freeze_eject( LLSD(mAvatarID) );
+}
+
+bool LLInspectAvatar::onVisibleFreeze()
+{
+	// either user is a god and can do long distance freeze
+	// or check for target proximity and permissions
+	return gAgent.isGodlike() || enable_freeze_eject(LLSD(mAvatarID));
 }
 
 bool LLInspectAvatar::onVisibleZoomIn()
@@ -703,7 +717,7 @@ void LLInspectAvatar::onClickShare()
 
 void LLInspectAvatar::onToggleMute()
 {
-	LLMute mute(mAvatarID, mAvatarName.getLegacyName(), LLMute::AGENT);
+	LLMute mute(mAvatarID, mAvatarName.mDisplayName, LLMute::AGENT);
 
 	if (LLMuteList::getInstance()->isMuted(mute.mID, mute.mName))
 	{
@@ -724,15 +738,61 @@ void LLInspectAvatar::onClickReport()
 	closeFloater();
 }
 
+bool godlike_freeze(const LLSD& notification, const LLSD& response)
+{
+	LLUUID avatar_id = notification["payload"]["avatar_id"].asUUID();
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+	switch (option)
+	{
+	case 0:
+		LLAvatarActions::freeze(avatar_id);
+		break;
+	case 1:
+		LLAvatarActions::unfreeze(avatar_id);
+		break;
+	default:
+		break;
+	}
+
+	return false;
+}
+
 void LLInspectAvatar::onClickFreeze()
 {
-	handle_avatar_freeze( LLSD(mAvatarID) );
+	if (gAgent.isGodlike())
+	{
+		// use godlike freeze-at-a-distance, with confirmation
+		LLNotificationsUtil::add("FreezeAvatar",
+			LLSD(),
+			LLSD().with("avatar_id", mAvatarID),
+			godlike_freeze);
+	}
+	else
+	{
+		// use default "local" version of freezing that requires avatar to be in range
+		handle_avatar_freeze( LLSD(mAvatarID) );
+	}
 	closeFloater();
 }
 
 void LLInspectAvatar::onClickEject()
 {
 	handle_avatar_eject( LLSD(mAvatarID) );
+	closeFloater();
+}
+
+void LLInspectAvatar::onClickKick()
+{
+	LLAvatarActions::kick(mAvatarID);
+	closeFloater();
+}
+
+void LLInspectAvatar::onClickCSR()
+{
+	std::string name;
+	gCacheName->getFullName(mAvatarID, name);
+	LLAvatarActions::csr(mAvatarID, name);
 	closeFloater();
 }
 
@@ -782,6 +842,11 @@ bool LLInspectAvatar::enableUnmute()
 bool LLInspectAvatar::enableTeleportOffer()
 {
 	return LLAvatarActions::canOfferTeleport(mAvatarID);
+}
+
+bool LLInspectAvatar::godModeEnabled()
+{
+	return gAgent.isGodlike();
 }
 
 //////////////////////////////////////////////////////////////////////////////

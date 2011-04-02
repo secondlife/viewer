@@ -12,6 +12,7 @@ include(LLSharedLibs)
 include(GoogleBreakpad)
 include(GooglePerfTools)
 include(Copy3rdPartyLibs)
+include(ZLIB)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
@@ -70,6 +71,7 @@ set(llcommon_SOURCE_FILES
     llmemorystream.cpp
     llmemtype.cpp
     llmetrics.cpp
+    llmetricperformancetester.cpp
     llmortician.cpp
     lloptioninterface.cpp
     llptrto.cpp 
@@ -92,6 +94,7 @@ set(llcommon_SOURCE_FILES
     llstringtable.cpp
     llsys.cpp
     llthread.cpp
+    llthreadsafequeue.cpp
     lltimer.cpp
     lluri.cpp
     lluuid.cpp
@@ -186,6 +189,7 @@ set(llcommon_HEADER_FILES
     llmemorystream.h
     llmemtype.h
     llmetrics.h
+    llmetricperformancetester.h
     llmortician.h
     llnametable.h
     lloptioninterface.h
@@ -223,6 +227,7 @@ set(llcommon_HEADER_FILES
     llstringtable.h
     llsys.h
     llthread.h
+    llthreadsafequeue.h
     lltimer.h
     lltreeiterators.h
     lluri.h

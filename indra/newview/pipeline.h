@@ -111,6 +111,7 @@ public:
 
 	void resetVertexBuffers(LLDrawable* drawable);
 	void setUseVBO(BOOL use_vbo);
+	void setDisableVBOMapping(BOOL no_vbo_mapping);
 	void generateImpostor(LLVOAvatar* avatar);
 	void bindScreenToTexture();
 	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
@@ -245,7 +246,6 @@ public:
 	void renderHighlights();
 	void renderDebug();
 
-	void renderForSelect(std::set<LLViewerObject*>& objects, BOOL render_transparent, const LLRect& screen_rect);
 	void rebuildPools(); // Rebuild pools
 
 	void findReferences(LLDrawable *drawablep);	// Find the lists which have references to this object
@@ -312,6 +312,10 @@ public:
 	static void toggleRenderSoundBeacons(void* data);
 	static BOOL getRenderSoundBeacons(void* data);
 
+	static void setRenderMOAPBeacons(BOOL val);
+	static void toggleRenderMOAPBeacons(void * data);
+	static BOOL getRenderMOAPBeacons(void * data);
+
 	static void setRenderPhysicalBeacons(BOOL val);
 	static void toggleRenderPhysicalBeacons(void* data);
 	static BOOL getRenderPhysicalBeacons(void* data);
@@ -359,6 +363,7 @@ public:
 		RENDER_TYPE_AVATAR						= LLDrawPool::POOL_AVATAR,
 		RENDER_TYPE_TREE						= LLDrawPool::POOL_TREE,
 		RENDER_TYPE_INVISIBLE					= LLDrawPool::POOL_INVISIBLE,
+		RENDER_TYPE_VOIDWATER					= LLDrawPool::POOL_VOIDWATER,
 		RENDER_TYPE_WATER						= LLDrawPool::POOL_WATER,
  		RENDER_TYPE_ALPHA						= LLDrawPool::POOL_ALPHA,
 		RENDER_TYPE_GLOW						= LLDrawPool::POOL_GLOW,
@@ -424,6 +429,7 @@ public:
 		RENDER_DEBUG_AVATAR_VOLUME      = 0x0100000,
 		RENDER_DEBUG_BUILD_QUEUE		= 0x0200000,
 		RENDER_DEBUG_AGENT_TARGET       = 0x0400000,
+		RENDER_DEBUG_UPDATE_TYPE		= 0x0800000,
 	};
 
 public:
@@ -696,6 +702,7 @@ protected:
 	S32						mLightingDetail;
 		
 	static BOOL				sRenderPhysicalBeacons;
+	static BOOL				sRenderMOAPBeacons;
 	static BOOL				sRenderScriptedTouchBeacons;
 	static BOOL				sRenderScriptedBeacons;
 	static BOOL				sRenderParticleBeacons;
@@ -712,7 +719,6 @@ void render_bbox(const LLVector3 &min, const LLVector3 &max);
 void render_hud_elements();
 
 extern LLPipeline gPipeline;
-extern BOOL gRenderForSelect;
 extern BOOL gDebugPipeline;
 extern const LLMatrix4* gGLLastMatrix;
 

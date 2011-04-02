@@ -94,6 +94,7 @@ BOOL LLFloaterMove::postBuild()
 {
 	setIsChrome(TRUE);
 	setTitleVisible(TRUE); // restore title visibility after chrome applying
+	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 	
 	LLDockableFloater::postBuild();
 	
@@ -448,17 +449,20 @@ void LLFloaterMove::updatePosition()
 	LLBottomTray* tray = LLBottomTray::getInstance();
 	if (!tray) return;
 
-	LLButton* movement_btn = tray->getChild<LLButton>(BOTTOM_TRAY_BUTTON_NAME);
+	LLButton* movement_btn = tray->findChild<LLButton>(BOTTOM_TRAY_BUTTON_NAME);
 
-	//align centers of a button and a floater
-	S32 x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;
-
-	S32 y = 0;
-	if (!mModeActionsPanel->getVisible())
+	if (movement_btn)
 	{
-		y = mModeActionsPanel->getRect().getHeight();
+		//align centers of a button and a floater
+		S32 x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;
+
+		S32 y = 0;
+		if (!mModeActionsPanel->getVisible())
+		{
+			y = mModeActionsPanel->getRect().getHeight();
+		}
+		setOrigin(x, y);
 	}
-	setOrigin(x, y);
 }
 
 //static
@@ -552,7 +556,7 @@ LLPanelStandStopFlying::LLPanelStandStopFlying() :
 }
 
 // static
-inline LLPanelStandStopFlying* LLPanelStandStopFlying::getInstance()
+LLPanelStandStopFlying* LLPanelStandStopFlying::getInstance()
 {
 	static LLPanelStandStopFlying* panel = getStandStopFlyingPanel();
 	return panel;
@@ -735,10 +739,18 @@ void LLPanelStandStopFlying::updatePosition()
 	LLBottomTray* tray = LLBottomTray::getInstance();
 	if (!tray || mAttached) return;
 
-	LLButton* movement_btn = tray->getChild<LLButton>(BOTTOM_TRAY_BUTTON_NAME);
+	LLButton* movement_btn = tray->findChild<LLButton>(BOTTOM_TRAY_BUTTON_NAME);
 
-	// Align centers of the button and the panel.
-	S32 x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;
+	S32 x = 0;
+	if (movement_btn)
+	{
+		// Align centers of the button and the panel.
+		x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;
+	}
+	else
+	{
+		x = tray->calcScreenRect().getCenterX() - getRect().getWidth()/2;
+	}
 	setOrigin(x, 0);
 }
 

@@ -37,12 +37,11 @@ public:
 	
 	static BOOL sAnalyzePerformance;
 
+	static void outputAllMetrics();
 	static void doAnalysis(std::string baseline, std::string target, std::string output);
 
 private:
 	static void doAnalysisDefault(std::string baseline, std::string target, std::string output) ;
-	static void doAnalysisMetrics(std::string baseline, std::string target, std::string output) ;
-	static LLSD analyzeMetricPerformanceLog(std::istream& is) ;
 	static LLSD analyzePerformanceLogDefault(std::istream& is) ;
 
 public:

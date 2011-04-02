@@ -41,6 +41,7 @@
 #include <boost/regex/v4/match_results.hpp>
 
 #if LL_MSVC
+#pragma warning(push)  
 // disable warning about boost::lexical_cast unreachable code
 // when it fails to parse the string
 #pragma warning (disable:4702)
@@ -88,6 +89,16 @@ const static boost::regex TIMESTAMP_AND_STUFF("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+
  *  "You", "Second Life", "Igor ProductEngine", "Object", "Mega House"
  */
 const static boost::regex NAME_AND_TEXT("([^:]+[:]{1})?(\\s*)(.*)");
+
+/**
+ * These are recognizers for matching the names of ad-hoc conferences when generating the log file name
+ * On invited side, an ad-hoc is named like "<first name> <last name> Conference 2010/11/19 03:43 f0f4"
+ * On initiating side, an ad-hoc is named like Ad-hoc Conference hash<hash>"
+ * If the naming system for ad-hoc conferences are change in LLIMModel::LLIMSession::buildHistoryFileName()
+ * then these definition need to be adjusted as well.
+ */
+const static boost::regex INBOUND_CONFERENCE("^[a-zA-Z]{1,31} [a-zA-Z]{1,31} Conference [0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2} [0-9a-f]{4}");
+const static boost::regex OUTBOUND_CONFERENCE("^Ad-hoc Conference hash[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
 
 //is used to parse complex object names like "Xstreet SL Terminal v2.2.5 st"
 const static std::string NAME_TEXT_DIVIDER(": ");
@@ -182,15 +193,43 @@ private:
 //static
 std::string LLLogChat::makeLogFileName(std::string filename)
 {
+	/**
+	* Testing for in bound and out bound ad-hoc file names
+	* if it is then skip date stamping.
+	**/
+	//LL_INFOS("") << "Befor:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+    boost::match_results<std::string::const_iterator> matches;
+	bool inboundConf = boost::regex_match(filename, matches, INBOUND_CONFERENCE);
+	bool outboundConf = boost::regex_match(filename, matches, OUTBOUND_CONFERENCE);
+	if (!(inboundConf || outboundConf))
+	{
+		if( gSavedPerAccountSettings.getBOOL("LogFileNamewithDate") )
+		{
+			time_t now;
+			time(&now);
+			char dbuffer[20];		/* Flawfinder: ignore */
+			if (filename == "chat")
+			{
+				strftime(dbuffer, 20, "-%Y-%m-%d", localtime(&now));
+			}
+			else
+			{
+				strftime(dbuffer, 20, "-%Y-%m", localtime(&now));
+			}
+			filename += dbuffer;
+		}
+	}
+	//LL_INFOS("") << "After:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	filename = cleanFileName(filename);
 	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
 	filename += ".txt";
+	//LL_INFOS("") << "Full:" << filename << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	return filename;
 }
 
 std::string LLLogChat::cleanFileName(std::string filename)
 {
-	std::string invalidChars = "\"\'\\/?*:<>|";
+	std::string invalidChars = "\"\'\\/?*:.<>|";
 	std::string::size_type position = filename.find_first_of(invalidChars);
 	while (position != filename.npos)
 	{
@@ -354,10 +393,19 @@ void LLLogChat::loadAllHistory(const std::string& file_name, std::list<LLSD>& me
 		llwarns << "Session name is Empty!" << llendl;
 		return ;
 	}
-
-	LLFILE* fptr = LLFile::fopen(makeLogFileName(file_name), "r");		/*Flawfinder: ignore*/
-	if (!fptr) return;	//No previous conversation with this name.
-
+	//LL_INFOS("") << "Loading:" << file_name << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	//LL_INFOS("") << "Current:" << makeLogFileName(file_name) << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	LLFILE* fptr = LLFile::fopen(makeLogFileName(file_name), "r");/*Flawfinder: ignore*/
+	if (!fptr)
+    {
+		fptr = LLFile::fopen(oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+        if (!fptr)
+        {
+			if (!fptr) return;      //No previous conversation with this name.
+        }
+	}
+ 
+    //LL_INFOS("") << "Reading:" << file_name << LL_ENDL;
 	char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/
 	char *bptr;
 	S32 len;
@@ -543,4 +591,33 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im)
 
 	im[IM_TEXT] = name_and_text[IDX_TEXT];
 	return true;  //parsed name and message text, maybe have a timestamp too
+}
+std::string LLLogChat::oldLogFileName(std::string filename)
+{
+    std::string scanResult;
+	std::string directory = gDirUtilp->getPerAccountChatLogsDir();/* get Users log directory */
+	directory += gDirUtilp->getDirDelimiter();/* add final OS dependent delimiter */
+	filename=cleanFileName(filename);/* lest make shure the file name has no invalad charecters befor making the pattern */
+	std::string pattern = (filename+(( filename == "chat" ) ? "-???\?-?\?-??.txt" : "-???\?-??.txt"));/* create search pattern*/
+	//LL_INFOS("") << "Checking:" << directory << " for " << pattern << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+	std::vector<std::string> allfiles;
+
+    while (gDirUtilp->getNextFileInDir(directory, pattern, scanResult))
+    {
+		//LL_INFOS("") << "Found   :" << scanResult << LL_ENDL;
+        allfiles.push_back(scanResult);
+    }
+
+    if (allfiles.size() == 0)  // if no result from date search, return generic filename
+    {
+        scanResult = directory + filename + ".txt";
+    }
+    else 
+    {
+        std::sort(allfiles.begin(), allfiles.end());
+        scanResult = directory + allfiles.back();
+        // thisfile is now the most recent version of the file.
+    }
+	//LL_INFOS("") << "Reading:" << scanResult << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
+    return scanResult;
 }
