@@ -4331,6 +4331,18 @@
       <param_morph />
     </param>
 
+    <param
+     id="1207"
+     group="1"
+     name="Breast_Physics_LeftRight_Driven"
+     wearable="physics"
+     edit_group="driven"
+     value_default="0"
+     value_min="-2"
+     value_max="2">
+      <param_morph />
+    </param>
+
     <!--
          #end morph targets
           -->
@@ -4872,7 +4884,6 @@
      value_max="2">
       <param_morph />
     </param>
-
 
     <!--
             #end morph targets
@@ -11787,6 +11798,21 @@ render_pass="bump">
     </param>
 
     <param
+     id="1105"
+     group="1"
+     wearable="shape"
+     name="Breast_Physics_LeftRight_Controller"
+     label="Breast Physics LeftRight Controller"
+     value_min="-1"
+     value_max="1"
+     value_default="0">
+      <param_driver>
+        <driven
+         id="1207" />
+      </param_driver>
+    </param>
+
+    <param
      id="10000"
      group="0"
      sex="female"
@@ -12186,6 +12212,55 @@ render_pass="bump">
      label="Butt Physics LeftRight Damping"
      wearable="physics"
      edit_group="physics_butt_leftright"
+     value_default=".05"
+     value_min="0"
+     value_max=".1">
+	 <param_driver />
+    </param>
+
+   <param
+     id="10032"
+     group="0"
+     name="Breast_Physics_LeftRight_Max_Velocity"
+     label="Breast Physics LeftRight Max Speed"
+     wearable="physics"
+     edit_group="physics_breasts_leftright"
+     value_default="0"
+     value_min="0"
+     value_max="10">
+	 <param_driver />
+    </param>
+    <param
+     id="10033"
+     group="0"
+     name="Breast_Physics_LeftRight_Spring"
+     label="Breast Physics LeftRight Spring"
+     wearable="physics"
+     edit_group="physics_breasts_leftright"
+     value_default=".1"
+     value_min="0"
+     value_max="1">
+	 <param_driver />
+    </param>
+    <param
+     id="10034"
+     group="0"
+     name="Breast_Physics_LeftRight_Gain"
+     label="Breast Physics LeftRight Gain"
+     wearable="physics"
+     edit_group="physics_breasts_leftright"
+     value_default="10"
+     value_min="1"
+     value_max="100">
+	 <param_driver />
+    </param>
+    <param
+     id="10035"
+     group="0"
+     name="Breast_Physics_LeftRight_Damping"
+     label="Breast Physics LeftRight Damping"
+     wearable="physics"
+     edit_group="physics_breasts_leftright"
      value_default=".05"
      value_min="0"
      value_max=".1">

@@ -287,6 +287,31 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 }
                 addMotion(motion);
         }
+
+        // Breast Sway
+        {
+                controller_map_t controller;
+                controller["Mass"] = "Breast_Physics_Mass";
+                controller["Smoothing"] = "Breast_Physics_Smoothing";
+                controller["Gravity"] = "Breast_Physics_Gravity";
+                controller["Drag"] = "Breast_Physics_Drag";
+                controller["Damping"] = "Breast_Physics_LeftRight_Damping";
+                controller["MaxSpeed"] = "Breast_Physics_LeftRight_Max_Velocity";
+                controller["Spring"] = "Breast_Physics_LeftRight_Spring";
+                controller["Gain"] = "Breast_Physics_LeftRight_Gain";
+                LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_LeftRight_Controller",
+                                                                                                          "",
+                                                                                                          "mChest",
+                                                                                                          character,
+                                                                                                          LLVector3(0,-1,0),
+                                                                                                          controller);
+                if (!motion->initialize())
+                {
+                        llassert_always(FALSE);
+                        return STATUS_FAILURE;
+                }
+                addMotion(motion);
+        }
         
         // Butt Bounce
         {

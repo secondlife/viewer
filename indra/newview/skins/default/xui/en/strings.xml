@@ -2526,6 +2526,11 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Breast Physics UpDown Gain">Gain</string>
 <string name="Breast Physics UpDown Damping">Damping</string>
 
+<string name="Breast Physics LeftRight Max Speed">Max Effect</string>
+<string name="Breast Physics LeftRight Spring">Spring</string>
+<string name="Breast Physics LeftRight Gain">Gain</string>
+<string name="Breast Physics LeftRight Damping">Damping</string>
+
 <string name="Belly Physics Mass">Belly Mass</string>
 <string name="Belly Physics Smoothing">Belly Smoothing</string>
 <string name="Belly Physics Gravity">Belly Gravity</string>

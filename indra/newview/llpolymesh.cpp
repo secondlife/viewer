@@ -49,6 +49,9 @@ extern LLControlGroup gSavedSettings;				// read only
 LLPolyMorphData *clone_morph_param(const LLPolyMorphData *src_data,
 				   const LLVector3 &direction,
 				   const std::string &name);
+LLPolyMorphData *clone_morph_param_cleavage(const LLPolyMorphData *src_data,
+                                            F32 scale,
+                                            const std::string &name);
 
 //-----------------------------------------------------------------------------
 // Global table of loaded LLPolyMeshes
@@ -606,6 +609,13 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 				}
 
 				mMorphData.insert(morph_data);
+
+				if (!strcmp(morphName, "Breast_Female_Cleavage"))
+				{
+                                    mMorphData.insert(clone_morph_param_cleavage(morph_data,
+                                                                                 0.5f,
+                                                                                 "Breast_Physics_LeftRight_Driven"));
+				}
 
 				if (!strcmp(morphName, "Big_Belly_Torso"))
 				{
@@ -1208,6 +1218,27 @@ LLPolyMorphData *clone_morph_param(const LLPolyMorphData *src_data,
 		cloned_morph_data->mCoords[v] = direction;
 		cloned_morph_data->mNormals[v] = LLVector3(0,0,0);
 		cloned_morph_data->mBinormals[v] = LLVector3(0,0,0);
+	}
+	return cloned_morph_data;
+}
+
+LLPolyMorphData *clone_morph_param_cleavage(const LLPolyMorphData *src_data,
+                                            F32 scale,
+                                            const std::string &name)
+{
+	LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*src_data);
+	cloned_morph_data->mName = name;
+	for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
+	{
+            cloned_morph_data->mCoords[v] = src_data->mCoords[v]*scale;
+            cloned_morph_data->mNormals[v] = src_data->mNormals[v]*scale;
+            cloned_morph_data->mBinormals[v] = src_data->mBinormals[v]*scale;
+            if (cloned_morph_data->mCoords[v][1] < 0)
+            {
+                cloned_morph_data->mCoords[v][1] *= -1;
+                cloned_morph_data->mNormals[v][1] *= -1;
+                cloned_morph_data->mBinormals[v][1] *= -1;
+            }
 	}
 	return cloned_morph_data;
 }
