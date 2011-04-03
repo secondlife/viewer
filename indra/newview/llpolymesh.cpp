@@ -647,7 +647,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 if (!strcmp(morphName, "Small_Butt"))
                                 {
                                         mMorphData.insert(clone_morph_param(morph_data,
-                                                                            LLVector3(0,0.02f,0),
+                                                                            LLVector3(0,0.03f,0),
                                                                             "Butt_Physics_LeftRight_Driven"));
                                 }
                         }

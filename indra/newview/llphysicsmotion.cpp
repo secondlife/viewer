@@ -346,7 +346,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           "",
                                                                                                           "mPelvis",
                                                                                                           character,
-                                                                                                          LLVector3(0,1,0),
+                                                                                                          LLVector3(0,-1,0),
                                                                                                           controller);
                 if (!motion->initialize())
                 {
@@ -420,7 +420,7 @@ F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local,
                                                  const F32 time_delta)
 {
 //        const F32 smoothing = getParamValue("Smoothing");
-	static const F32 smoothing = 3.0f; // Removed smoothing param since it's probably not necessary
+        static const F32 smoothing = 3.0f; // Removed smoothing param since it's probably not necessary
         const F32 acceleration_local = velocity_local - mVelocityJoint_local;
         
         const F32 smoothed_acceleration_local = 
@@ -624,15 +624,15 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
                 llassert_always(driver_param);
                 if (driver_param)
                 {
-			// If this is one of our "hidden" driver params, then make sure it's
-			// the default value.
-			if ((driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) &&
-			    (driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT))
-			{
-				mCharacter->setVisualParamWeight(driver_param,
-								 0,
-								 FALSE);
-			}
+                        // If this is one of our "hidden" driver params, then make sure it's
+                        // the default value.
+                        if ((driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) &&
+                            (driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT))
+                        {
+                                mCharacter->setVisualParamWeight(driver_param,
+                                                                 0,
+                                                                 FALSE);
+                        }
                         for (LLDriverParam::entry_list_t::iterator iter = driver_param->mDriven.begin();
                              iter != driver_param->mDriven.end();
                              ++iter)
