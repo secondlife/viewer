@@ -176,11 +176,10 @@ default_controller_map_t initDefaultController()
 {
         default_controller_map_t controller;
         controller["Mass"] = 0.2f;
-        controller["Smoothing"] = 2.0f;
         controller["Gravity"] = 0.0f;
         controller["Damping"] = .05f;
         controller["Drag"] = 0.15f;
-        controller["MaxSpeed"] = 0.1f;
+        controller["MaxEffect"] = 0.1f;
         controller["Spring"] = 0.1f;
         controller["Gain"] = 10.0f;
         return controller;
@@ -242,11 +241,10 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
         {
                 controller_map_t controller;
                 controller["Mass"] = "Breast_Physics_Mass";
-                controller["Smoothing"] = "Breast_Physics_Smoothing";
                 controller["Gravity"] = "Breast_Physics_Gravity";
                 controller["Drag"] = "Breast_Physics_Drag";
                 controller["Damping"] = "Breast_Physics_InOut_Damping";
-                controller["MaxSpeed"] = "Breast_Physics_InOut_Max_Effect";
+                controller["MaxEffect"] = "Breast_Physics_InOut_Max_Effect";
                 controller["Spring"] = "Breast_Physics_InOut_Spring";
                 controller["Gain"] = "Breast_Physics_InOut_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_InOut_Controller",
@@ -267,11 +265,10 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
         {
                 controller_map_t controller;
                 controller["Mass"] = "Breast_Physics_Mass";
-                controller["Smoothing"] = "Breast_Physics_Smoothing";
                 controller["Gravity"] = "Breast_Physics_Gravity";
                 controller["Drag"] = "Breast_Physics_Drag";
                 controller["Damping"] = "Breast_Physics_UpDown_Damping";
-                controller["MaxSpeed"] = "Breast_Physics_UpDown_Max_Effect";
+                controller["MaxEffect"] = "Breast_Physics_UpDown_Max_Effect";
                 controller["Spring"] = "Breast_Physics_UpDown_Spring";
                 controller["Gain"] = "Breast_Physics_UpDown_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_UpDown_Controller",
@@ -292,11 +289,10 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
         {
                 controller_map_t controller;
                 controller["Mass"] = "Breast_Physics_Mass";
-                controller["Smoothing"] = "Breast_Physics_Smoothing";
                 controller["Gravity"] = "Breast_Physics_Gravity";
                 controller["Drag"] = "Breast_Physics_Drag";
                 controller["Damping"] = "Breast_Physics_LeftRight_Damping";
-                controller["MaxSpeed"] = "Breast_Physics_LeftRight_Max_Effect";
+                controller["MaxEffect"] = "Breast_Physics_LeftRight_Max_Effect";
                 controller["Spring"] = "Breast_Physics_LeftRight_Spring";
                 controller["Gain"] = "Breast_Physics_LeftRight_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_LeftRight_Controller",
@@ -312,23 +308,21 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 }
                 addMotion(motion);
         }
-        
         // Butt Bounce
         {
                 controller_map_t controller;
                 controller["Mass"] = "Butt_Physics_Mass";
-                controller["Smoothing"] = "Butt_Physics_Smoothing";
                 controller["Gravity"] = "Butt_Physics_Gravity";
                 controller["Drag"] = "Butt_Physics_Drag";
                 controller["Damping"] = "Butt_Physics_UpDown_Damping";
-                controller["MaxSpeed"] = "Butt_Physics_UpDown_Max_Effect";
+                controller["MaxEffect"] = "Butt_Physics_UpDown_Max_Effect";
                 controller["Spring"] = "Butt_Physics_UpDown_Spring";
                 controller["Gain"] = "Butt_Physics_UpDown_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Butt_Physics_UpDown_Controller",
                                                                                                           "",
                                                                                                           "mPelvis",
                                                                                                           character,
-                                                                                                          LLVector3(0,0,1),
+                                                                                                          LLVector3(0,0,-1),
                                                                                                           controller);
                 if (!motion->initialize())
                 {
@@ -342,11 +336,10 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
         {
                 controller_map_t controller;
                 controller["Mass"] = "Butt_Physics_Mass";
-                controller["Smoothing"] = "Butt_Physics_Smoothing";
                 controller["Gravity"] = "Butt_Physics_Gravity";
                 controller["Drag"] = "Butt_Physics_Drag";
                 controller["Damping"] = "Butt_Physics_LeftRight_Damping";
-                controller["MaxSpeed"] = "Butt_Physics_LeftRight_Max_Effect";
+                controller["MaxEffect"] = "Butt_Physics_LeftRight_Max_Effect";
                 controller["Spring"] = "Butt_Physics_LeftRight_Spring";
                 controller["Gain"] = "Butt_Physics_LeftRight_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Butt_Physics_LeftRight_Controller",
@@ -367,11 +360,10 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
         {
                 controller_map_t controller;
                 controller["Mass"] = "Belly_Physics_Mass";
-                controller["Smoothing"] = "Belly_Physics_Smoothing";
                 controller["Gravity"] = "Belly_Physics_Gravity";
                 controller["Drag"] = "Belly_Physics_Drag";
                 controller["Damping"] = "Belly_Physics_UpDown_Damping";
-                controller["MaxSpeed"] = "Belly_Physics_UpDown_Max_Effect";
+                controller["MaxEffect"] = "Belly_Physics_UpDown_Max_Effect";
                 controller["Spring"] = "Belly_Physics_UpDown_Spring";
                 controller["Gain"] = "Belly_Physics_UpDown_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Belly_Physics_UpDown_Controller",
@@ -427,7 +419,8 @@ F32 LLPhysicsMotion::calculateVelocity_local(const F32 time_delta)
 F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local,
                                                  const F32 time_delta)
 {
-        const F32 smoothing = getParamValue("Smoothing");
+//        const F32 smoothing = getParamValue("Smoothing");
+    static const F32 smoothing = 3.0f; // Removed smoothing param since it's probably not necessary
         const F32 acceleration_local = velocity_local - mVelocityJoint_local;
         
         const F32 smoothed_acceleration_local = 
@@ -504,16 +497,17 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         const F32 behavior_drag = getParamValue("Drag");
         const BOOL physics_test = gSavedSettings.getBOOL("AvatarPhysicsTest");
         
-        F32 behavior_maxspeed = getParamValue("MaxSpeed");
+        F32 behavior_maxeffect = getParamValue("MaxEffect");
         if (physics_test)
-                behavior_maxspeed = 100.0f;
+                behavior_maxeffect = 1.0f;
+        // Maximum effect is [0,1] range.
+        const F32 min_val = 0.5f-behavior_maxeffect/2.0;
+        const F32 max_val = 0.5f+behavior_maxeffect/2.0;
 
-        if (behavior_maxspeed == 0)
-                return FALSE;
-
+        // mPositon_local should be in normalized 0,1 range already.  Just making sure...
         F32 position_current_local = llclamp(mPosition_local,
                                              0.0f,
-                                             1.0f); // Normalized [0,1] range
+                                             1.0f);
 
         // Normalize the param position to be from [0,1].
         // We have to use normalized values because there may be more than one driven param,
@@ -521,6 +515,13 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         // This means we'll do all our calculations in normalized [0,1] local coordinates.
         F32 position_user_local = mParamUser->getWeight();
         position_user_local = (position_user_local - mParamUser->getMinWeight()) / (mParamUser->getMaxWeight() - mParamUser->getMinWeight());
+
+        // If the effect is turned off then don't process unless we need one more update
+        // to set the position to the default (i.e. user) position.
+        if ((behavior_maxeffect == 0) && (position_current_local == position_user_local))
+        {
+            return FALSE;
+        }
 
         //
         // End parameters and settings
@@ -583,9 +584,10 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         // Calculate the new acceleration based on the net force.
         // a = F/m
         const F32 acceleration_new_local = force_net / behavior_mass;
+        const F32 max_acceleration = 10.0f; // magic number, used to be customizable.
         F32 velocity_new_local = mVelocity_local + acceleration_new_local;
         velocity_new_local = llclamp(velocity_new_local, 
-                                     -behavior_maxspeed, behavior_maxspeed);
+                                     -max_acceleration, max_acceleration);
         
         // Temporary debugging setting to cause all avatars to move, for profiling purposes.
         if (physics_test)
@@ -593,19 +595,20 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
                 velocity_new_local = sin(time*4.0);
         }
         // Calculate the new parameters, or remain unchanged if max speed is 0.
-        const F32 position_new_local = (behavior_maxspeed != 0) ? 
-                (position_current_local + velocity_new_local*time_delta) :
-                position_user_local;
+        F32 position_new_local = position_current_local + velocity_new_local*time_delta;
+        if (behavior_maxeffect == 0)
+            position_new_local = position_user_local;
 
         // Zero out the velocity if the param is being pushed beyond its limits.
-        if (position_new_local < 0 || position_new_local > 1)
+        if ((position_new_local < min_val && velocity_new_local < 0) || 
+            (position_new_local > max_val && velocity_new_local > 0))
         {
                 velocity_new_local = 0;
         }
 
         const F32 position_new_local_clamped = llclamp(position_new_local,
-                                                       0.0f,
-                                                       1.0f);
+                                                       min_val,
+                                                       max_val);
 
         // Set the new param.
         // If a specific param has been declared, then set that one.
@@ -621,6 +624,16 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
                 llassert_always(driver_param);
                 if (driver_param)
                 {
+			// If this is one of our "hidden" driver params, then make sure it's
+			// the default value.
+			if ((driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) &&
+			    (driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT) &&
+			    (driver_param->getVisualParamWeight() != 0))
+			{
+				mCharacter->setVisualParamWeight(driver_param,
+								 0,
+								 FALSE);
+			}
                         for (LLDriverParam::entry_list_t::iterator iter = driver_param->mDriven.begin();
                              iter != driver_param->mDriven.end();
                              ++iter)
