@@ -420,7 +420,7 @@ F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local,
                                                  const F32 time_delta)
 {
 //        const F32 smoothing = getParamValue("Smoothing");
-    static const F32 smoothing = 3.0f; // Removed smoothing param since it's probably not necessary
+	static const F32 smoothing = 3.0f; // Removed smoothing param since it's probably not necessary
         const F32 acceleration_local = velocity_local - mVelocityJoint_local;
         
         const F32 smoothed_acceleration_local = 
@@ -584,7 +584,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         // Calculate the new acceleration based on the net force.
         // a = F/m
         const F32 acceleration_new_local = force_net / behavior_mass;
-        const F32 max_acceleration = 10.0f; // magic number, used to be customizable.
+        static const F32 max_acceleration = 10.0f; // magic number, used to be customizable.
         F32 velocity_new_local = mVelocity_local + acceleration_new_local;
         velocity_new_local = llclamp(velocity_new_local, 
                                      -max_acceleration, max_acceleration);
