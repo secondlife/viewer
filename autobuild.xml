@@ -834,9 +834,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fa1073ef1181f27e6bc01d571366070b</string>
+              <string>dcca1db348831cdb7c6b26dc4076c597</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-8c-linux-20110307.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jpeglib/rev/224895/arch/Linux/installer/jpeglib-8c-linux-20110323.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1062,9 +1062,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0326cb770c7ff995cf822fb330ae9d0c</string>
+              <string>76c1015eafcba5ca9932c3009533b51c</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-darwin-20110308.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/225273/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1074,9 +1074,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f53e2a255d4c4039203de3e4640a2d41</string>
+              <string>c05a33ee8b6f253b5a744596dfc3707d</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-linux-20110314.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-qt4.6-20101013.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1086,9 +1086,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7865b9c3a5d9f9424af56d5d05b82de9</string>
+              <string>1b1b8e104e39c542d69eb37b5ee81818</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.7.1-windows-20110210.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/225249/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1278,11 +1278,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>30b9b33fb9320d9b6634e0dbb013b4e7</string>
+              <string>fccdca18a950ac9363c6fb39118b80e1</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-1.12.854-1.1.0-linux-20110315.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-3ad86a1c-linux-20110114.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2478,7 +2478,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=FALSE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2546,7 +2546,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=FALSE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2588,7 +2588,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=TRUE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2622,7 +2622,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=TRUE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2656,7 +2656,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=TRUE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2774,7 +2774,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 8 2005"</string>
+                  <string>"Visual Studio 10"</string>
                   <string>-DSTANDALONE:BOOL=FALSE</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DFMOD=FALSE</string>

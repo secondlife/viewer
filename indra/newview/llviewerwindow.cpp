@@ -572,21 +572,30 @@ public:
 		// only display these messages if we are actually rendering beacons at this moment
 		if (LLPipeline::getRenderBeacons(NULL) && LLFloaterReg::instanceVisible("beacons"))
 		{
-			if (LLPipeline::getRenderParticleBeacons(NULL))
+			if (LLPipeline::getRenderMOAPBeacons(NULL))
 			{
-				addText(xpos, ypos, beacon_particle);
+				addText(xpos, ypos, "Viewing media beacons (white)");
 				ypos += y_inc;
 			}
+
 			if (LLPipeline::toggleRenderTypeControlNegated((void*)LLPipeline::RENDER_TYPE_PARTICLES))
 			{
 				addText(xpos, ypos, particle_hiding);
 				ypos += y_inc;
 			}
-			if (LLPipeline::getRenderPhysicalBeacons(NULL))
+
+			if (LLPipeline::getRenderParticleBeacons(NULL))
 			{
-				addText(xpos, ypos, beacon_physical);
+				addText(xpos, ypos, "Viewing particle beacons (blue)");
 				ypos += y_inc;
 			}
+
+			if (LLPipeline::getRenderSoundBeacons(NULL))
+			{
+				addText(xpos, ypos, "Viewing sound beacons (yellow)");
+				ypos += y_inc;
+			}
+
 			if (LLPipeline::getRenderScriptedBeacons(NULL))
 			{
 				addText(xpos, ypos, beacon_scripted);
@@ -598,9 +607,10 @@ public:
 					addText(xpos, ypos, beacon_scripted_touch);
 					ypos += y_inc;
 				}
-			if (LLPipeline::getRenderSoundBeacons(NULL))
+
+			if (LLPipeline::getRenderPhysicalBeacons(NULL))
 			{
-				addText(xpos, ypos, beacon_sound);
+				addText(xpos, ypos, "Viewing physical object beacons (green)");
 				ypos += y_inc;
 			}
 		}
@@ -1799,6 +1809,11 @@ void LLViewerWindow::initWorldUI()
 		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
 	}
 
+	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+	{
+		toggle_destination_and_avatar_picker(0);
+		gSavedSettings.setBOOL("FirstLoginThisInstall", FALSE);
+	}
 }
 
 // Destroy the UI

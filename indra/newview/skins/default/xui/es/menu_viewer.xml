@@ -7,7 +7,7 @@
 		</menu_item_call>
 		<menu_item_call label="Comprar L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Mi perfil" name="Profile"/>
-		<menu_item_call label="Cambiar vestuario" name="ChangeOutfit"/>
+		<menu_item_call label="Mi apariencia" name="ChangeOutfit"/>
 		<menu_item_check label="Mi Inventario" name="Inventory"/>
 		<menu_item_check label="Mi Inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mis gestos" name="Gestures"/>
@@ -35,6 +35,7 @@
 	<menu label="Mundo" name="World">
 		<menu_item_check label="Minimapa" name="Mini-Map"/>
 		<menu_item_check label="Mapa del mundo" name="World Map"/>
+		<menu_item_check label="Buscar" name="Search"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Crear un hito de este sitio" name="Create Landmark Here"/>
 		<menu label="Perfil del lugar" name="Land">
@@ -224,7 +225,9 @@
 		<menu label="Show Info" name="Display Info">
 			<menu_item_check label="Show Time" name="Show Time"/>
 			<menu_item_check label="Show Render Info" name="Show Render Info"/>
+			<menu_item_check label="Mostrar información de textura" name="Show Texture Info"/>
 			<menu_item_check label="Show Color Under Cursor" name="Show Color Under Cursor"/>
+			<menu_item_check label="Mostrar la memoria" name="Show Memory"/>
 			<menu_item_check label="Show Updates to Objects" name="Show Updates"/>
 		</menu>
 		<menu label="Force an Error" name="Force Errors">
@@ -241,6 +244,9 @@
 			<menu_item_check label="Camera Offset" name="Camera Offset"/>
 			<menu_item_check label="Randomize Framerate" name="Randomize Framerate"/>
 			<menu_item_check label="Frame Test" name="Frame Test"/>
+		</menu>
+		<menu label="Render Metadata" name="Render Metadata">
+			<menu_item_check label="Actualizar el tipo" name="Update Type"/>
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>

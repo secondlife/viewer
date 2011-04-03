@@ -30,13 +30,14 @@
 
 #include "llagent.h"
 #include "llviewercamera.h"
-#include "llrendersphere.h"
+#include "llui.h"
 
 LLHUDEffectBlob::LLHUDEffectBlob(const U8 type) 
 :	LLHUDEffect(type), 
 	mPixelSize(10)
 {
 	mTimer.start();
+	mImage = LLUI::getUIImage("Camera_Drag_Dot");
 }
 
 LLHUDEffectBlob::~LLHUDEffectBlob()
@@ -58,18 +59,29 @@ void LLHUDEffectBlob::render()
 	LLViewerCamera::instance().getPixelVectors(pos_agent, pixel_up, pixel_right);
 
 	LLGLSPipelineAlpha gls_pipeline_alpha;
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(0)->bind(mImage->getImage());
 
 	LLColor4U color = mColor;
 	color.mV[VALPHA] = (U8)clamp_rescale(time, 0.f, mDuration, 255.f, 0.f);
-	glColor4ubv(color.mV);
+	gGL.color4ubv(color.mV);
 
-	glPushMatrix();
-	glTranslatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
-	F32 scale = pixel_up.magVec() * (F32)mPixelSize;
-	glScalef(scale, scale, scale);
-	gSphere.render(0);
-	glPopMatrix();
+	{ gGL.pushMatrix();
+		gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
+		LLVector3 u_scale = pixel_right * (F32)mPixelSize;
+		LLVector3 v_scale = pixel_up * (F32)mPixelSize;
+		
+		{ gGL.begin(LLRender::QUADS);
+			gGL.texCoord2f(0.f, 1.f);
+			gGL.vertex3fv((v_scale - u_scale).mV);
+			gGL.texCoord2f(0.f, 0.f);
+			gGL.vertex3fv((-v_scale - u_scale).mV);
+			gGL.texCoord2f(1.f, 0.f);
+			gGL.vertex3fv((-v_scale + u_scale).mV);
+			gGL.texCoord2f(1.f, 1.f);
+			gGL.vertex3fv((v_scale + u_scale).mV);
+		} gGL.end();
+
+	} gGL.popMatrix();
 }
 
 void LLHUDEffectBlob::renderForTimer()
