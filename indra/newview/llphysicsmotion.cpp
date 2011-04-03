@@ -627,8 +627,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 			// If this is one of our "hidden" driver params, then make sure it's
 			// the default value.
 			if ((driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) &&
-			    (driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT) &&
-			    (driver_param->getVisualParamWeight() != 0))
+			    (driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT))
 			{
 				mCharacter->setVisualParamWeight(driver_param,
 								 0,
