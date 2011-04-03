@@ -246,7 +246,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Gravity"] = "Breast_Physics_Gravity";
                 controller["Drag"] = "Breast_Physics_Drag";
                 controller["Damping"] = "Breast_Physics_InOut_Damping";
-                controller["MaxSpeed"] = "Breast_Physics_InOut_Max_Velocity";
+                controller["MaxSpeed"] = "Breast_Physics_InOut_Max_Effect";
                 controller["Spring"] = "Breast_Physics_InOut_Spring";
                 controller["Gain"] = "Breast_Physics_InOut_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_InOut_Controller",
@@ -271,7 +271,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Gravity"] = "Breast_Physics_Gravity";
                 controller["Drag"] = "Breast_Physics_Drag";
                 controller["Damping"] = "Breast_Physics_UpDown_Damping";
-                controller["MaxSpeed"] = "Breast_Physics_UpDown_Max_Velocity";
+                controller["MaxSpeed"] = "Breast_Physics_UpDown_Max_Effect";
                 controller["Spring"] = "Breast_Physics_UpDown_Spring";
                 controller["Gain"] = "Breast_Physics_UpDown_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_UpDown_Controller",
@@ -296,7 +296,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Gravity"] = "Breast_Physics_Gravity";
                 controller["Drag"] = "Breast_Physics_Drag";
                 controller["Damping"] = "Breast_Physics_LeftRight_Damping";
-                controller["MaxSpeed"] = "Breast_Physics_LeftRight_Max_Velocity";
+                controller["MaxSpeed"] = "Breast_Physics_LeftRight_Max_Effect";
                 controller["Spring"] = "Breast_Physics_LeftRight_Spring";
                 controller["Gain"] = "Breast_Physics_LeftRight_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_LeftRight_Controller",
@@ -321,7 +321,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Gravity"] = "Butt_Physics_Gravity";
                 controller["Drag"] = "Butt_Physics_Drag";
                 controller["Damping"] = "Butt_Physics_UpDown_Damping";
-                controller["MaxSpeed"] = "Butt_Physics_UpDown_Max_Velocity";
+                controller["MaxSpeed"] = "Butt_Physics_UpDown_Max_Effect";
                 controller["Spring"] = "Butt_Physics_UpDown_Spring";
                 controller["Gain"] = "Butt_Physics_UpDown_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Butt_Physics_UpDown_Controller",
@@ -346,7 +346,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Gravity"] = "Butt_Physics_Gravity";
                 controller["Drag"] = "Butt_Physics_Drag";
                 controller["Damping"] = "Butt_Physics_LeftRight_Damping";
-                controller["MaxSpeed"] = "Butt_Physics_LeftRight_Max_Velocity";
+                controller["MaxSpeed"] = "Butt_Physics_LeftRight_Max_Effect";
                 controller["Spring"] = "Butt_Physics_LeftRight_Spring";
                 controller["Gain"] = "Butt_Physics_LeftRight_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Butt_Physics_LeftRight_Controller",
@@ -371,7 +371,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Gravity"] = "Belly_Physics_Gravity";
                 controller["Drag"] = "Belly_Physics_Drag";
                 controller["Damping"] = "Belly_Physics_UpDown_Damping";
-                controller["MaxSpeed"] = "Belly_Physics_UpDown_Max_Velocity";
+                controller["MaxSpeed"] = "Belly_Physics_UpDown_Max_Effect";
                 controller["Spring"] = "Belly_Physics_UpDown_Spring";
                 controller["Gain"] = "Belly_Physics_UpDown_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Belly_Physics_UpDown_Controller",
