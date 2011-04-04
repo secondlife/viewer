@@ -328,6 +328,7 @@ public:
 
 	virtual F32 getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL);
 	virtual U32 getTriangleCount();
+	virtual U32 getHighLODTriangleCount();
 
 	void setObjectCost(F32 cost);
 	F32 getObjectCost();

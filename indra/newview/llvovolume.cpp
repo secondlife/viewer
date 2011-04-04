@@ -3108,6 +3108,36 @@ U32 LLVOVolume::getTriangleCount()
 	return count;
 }
 
+U32 LLVOVolume::getHighLODTriangleCount()
+{
+	U32 ret = 0;
+
+	LLVolume* volume = getVolume();
+
+	if (!isSculpted())
+	{
+		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+		ret = ref->getNumTriangles();
+		LLPrimitive::getVolumeManager()->unrefVolume(ref);
+	}
+	else if (isMesh())
+	{
+		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+		if (ref->isTetrahedron() || ref->getNumVolumeFaces() == 0)
+		{
+			gMeshRepo.loadMesh(this, volume->getParams(), LLModel::LOD_HIGH);
+		}
+		ret = ref->getNumTriangles();
+		LLPrimitive::getVolumeManager()->unrefVolume(ref);
+	}
+	else
+	{ //default sculpts have a constant number of triangles
+		ret = 31*2*31;  //31 rows of 31 columns of quads for a 32x32 vertex patch
+	}
+
+	return ret;
+}
+
 //static
 void LLVOVolume::preUpdateGeom()
 {

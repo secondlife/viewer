@@ -3144,6 +3144,11 @@ U32 LLViewerObject::getTriangleCount()
 	return 0;
 }
 
+U32 LLViewerObject::getHighLODTriangleCount()
+{
+	return 0;
+}
+
 void LLViewerObject::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
 	LLVector4a center;
