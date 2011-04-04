@@ -8725,7 +8725,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		near_clip = -max.mV[2];
 		F32 far_clip = -min.mV[2]*2.f;
 
-		far_clip = llmin(far_clip, 128.f);
+		//far_clip = llmin(far_clip, 128.f);
 		far_clip = llmin(far_clip, camera.getFar());
 
 		F32 range = far_clip-near_clip;
@@ -9075,7 +9075,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			}
 		}
 
-		shadow_cam.setFar(128.f);
+		//shadow_cam.setFar(128.f);
 		shadow_cam.setOriginAndLookAt(eye, up, center);
 
 		shadow_cam.setOrigin(0,0,0);
