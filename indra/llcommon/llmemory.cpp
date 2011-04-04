@@ -140,10 +140,10 @@ void* LLMemory::tryToAlloc(void* address, U32 size)
 			llerrs << "error happens when free some memory reservation." << llendl ;
 		}
 	}
-#else
-#endif
-
 	return address ;
+#else
+	return 0x01 ; //skip checking
+#endif	
 }
 
 //static 
