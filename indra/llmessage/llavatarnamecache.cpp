@@ -561,7 +561,7 @@ void LLAvatarNameCache::eraseUnrefreshed()
             const LLAvatarName& av_name = cur->second;
             if (av_name.mExpires < max_unrefreshed)
             {
-                const LLUUID& agent_id = it->first;
+                const LLUUID& agent_id = cur->first;
                 LL_DEBUGS("AvNameCache") << agent_id 
                                          << " user '" << av_name.mUsername << "' "
                                          << "expired " << now - av_name.mExpires << " secs ago"
