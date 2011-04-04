@@ -1024,6 +1024,13 @@ void LLVOAvatarSelf::wearableUpdated( LLWearableType::EType type, BOOL upload_re
 			}
 		}
 	}
+	
+	// Physics type has no associated baked textures, but change of params needs to be sent to
+	// other avatars.
+	if (type == LLWearableType::WT_PHYSICS)
+	  {
+	    gAgent.sendAgentSetAppearance();
+	  }
 }
 
 //-----------------------------------------------------------------------------

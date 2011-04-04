@@ -4,6 +4,8 @@
 	<RenderAvatarCloth value="TRUE"/>
 	<!--Default for now-->
 	<RenderAvatarLODFactor value="1.0"/>
+  <!--Default for now-->
+  <RenderAvatarPhysicsLODFactor value="1.0"/>
 	<!--NO SHADERS-->
 	<RenderAvatarVP value="TRUE"/>
 	<!--Short Range-->

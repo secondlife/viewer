@@ -72,6 +72,10 @@
         Editing Tattoo
     </string>
     <string
+     name="edit_physics_title">
+        Editing Physics
+    </string>
+    <string
      name="shape_desc_text">
         Shape:
     </string>
@@ -130,6 +134,10 @@
     <string
      name="tattoo_desc_text">
         Tattoo:
+    </string>
+    <string
+     name="physics_desc_text">
+        Physics:
     </string>
     <!-- Default width of the button should be to show it without label.
      Button will be extedned in code to show whole label when wearable is being changed.
@@ -407,6 +415,16 @@
          layout="topleft"
          left="0"
          name="edit_tattoo_panel"
+         top="8"
+         visible="false"
+         width="333" />
+        <panel
+         filename="panel_edit_physics.xml"
+         follows="all"
+         height="425"
+         layout="topleft"
+         left="0"
+         name="edit_physics_panel"
          top="8"
          visible="false"
          width="333" />
