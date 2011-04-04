@@ -34,7 +34,7 @@
 
 
 #define ANGLE                (3.14159265f / 2.0f)
-#define APPROX_EQUAL(a, b)   dist_vec_squared((a),(b)) < 1e-10
+#define APPROX_EQUAL(a, b)   (dist_vec_squared((a),(b)) < 1e-10)
 
 namespace tut
 {
