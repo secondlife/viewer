@@ -142,7 +142,7 @@ void* LLMemory::tryToAlloc(void* address, U32 size)
 	}
 	return address ;
 #else
-	return 0x01 ; //skip checking
+	return (void*)0x01 ; //skip checking
 #endif	
 }
 
@@ -1079,6 +1079,8 @@ LLPrivateMemoryPool::LLMemoryBlock* LLPrivateMemoryPool::LLMemoryChunk::createNe
 	if(new_free_blk_size > 0) //blk still has free space
 	{
 		LLMemoryBlock* next_blk = blk + (buffer_size / mMinBlockSize) ;
+		next_blk->mPrev = NULL ;
+		next_blk->mNext = NULL ;
 		next_blk->setBuffer(blk->getBuffer() + buffer_size, new_free_blk_size) ;
 		addToFreeSpace(next_blk) ;
 	}
