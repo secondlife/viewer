@@ -2500,8 +2500,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Body Thin">Body Thin</string>
 
 <string name="Bow Legged">Bow Legged</string>
-<string name="Breast Physics UpDown Controller">Breast Buoyancy</string>
-<string name="Breast Physics InOut Controller">Breast Cleavage</string>
+<string name="Breast Buoyancy">Breast Buoyancy</string>
+<string name="Breast Cleavage">Breast Cleavage</string>
 <string name="Breast Size">Breast Size</string>
 <string name="Bridge Width">Bridge Width</string>
 <string name="Broad">Broad</string>
@@ -2514,44 +2514,47 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Breast Physics Mass">Breast Mass</string>
 <string name="Breast Physics Smoothing">Breast Smoothing</string>
 <string name="Breast Physics Gravity">Breast Gravity</string>
+<string name="Breast Physics Drag">Breast Drag</string>
 
-<string name="Breast Physics InOut Max Speed">Max Effect</string>
+<string name="Breast Physics InOut Max Effect">Max Effect</string>
 <string name="Breast Physics InOut Spring">Spring</string>
 <string name="Breast Physics InOut Gain">Gain</string>
 <string name="Breast Physics InOut Damping">Damping</string>
-<string name="Breast Physics InOut Drag">Breast Cleavage Drag</string>
 
-<string name="Breast Physics UpDown Max Speed">Max Effect</string>
+<string name="Breast Physics UpDown Max Effect">Max Effect</string>
 <string name="Breast Physics UpDown Spring">Spring</string>
 <string name="Breast Physics UpDown Gain">Gain</string>
 <string name="Breast Physics UpDown Damping">Damping</string>
-<string name="Breast Physics UpDown Drag">Breast Bounce Drag</string>
+
+<string name="Breast Physics LeftRight Max Effect">Max Effect</string>
+<string name="Breast Physics LeftRight Spring">Spring</string>
+<string name="Breast Physics LeftRight Gain">Gain</string>
+<string name="Breast Physics LeftRight Damping">Damping</string>
 
 <string name="Belly Physics Mass">Belly Mass</string>
 <string name="Belly Physics Smoothing">Belly Smoothing</string>
 <string name="Belly Physics Gravity">Belly Gravity</string>
+<string name="Belly Physics Drag">Belly Drag</string>
 
-<string name="Belly Physics UpDown Max Speed">Max Effect</string>
+<string name="Belly Physics UpDown Max Effect">Max Effect</string>
 <string name="Belly Physics UpDown Spring">Spring</string>
 <string name="Belly Physics UpDown Gain">Gain</string>
 <string name="Belly Physics UpDown Damping">Damping</string>
-<string name="Belly Physics UpDown Drag">Belly Bounce Drag</string>
 
 <string name="Butt Physics Mass">Butt Mass</string>
 <string name="Butt Physics Smoothing">Butt Smoothing</string>
 <string name="Butt Physics Gravity">Butt Gravity</string>
+<string name="Butt Physics Drag">Butt Drag</string>
 
-<string name="Butt Physics UpDown Max Speed">Max Effect</string>
+<string name="Butt Physics UpDown Max Effect">Max Effect</string>
 <string name="Butt Physics UpDown Spring">Spring</string>
 <string name="Butt Physics UpDown Gain">Gain</string>
 <string name="Butt Physics UpDown Damping">Damping</string>
-<string name="Butt Physics UpDown Drag">Butt Bounce Drag</string>
 
-<string name="Butt Physics LeftRight Max Speed">Max Effect</string>
+<string name="Butt Physics LeftRight Max Effect">Max Effect</string>
 <string name="Butt Physics LeftRight Spring">Spring</string>
 <string name="Butt Physics LeftRight Gain">Gain</string>
 <string name="Butt Physics LeftRight Damping">Damping</string>
-<string name="Butt Physics LeftRight Drag">Butt Sway Drag</string>
 
 <string name="Bushy Eyebrows">Bushy Eyebrows</string>
 <string name="Bushy Hair">Bushy Hair</string>
