@@ -12224,6 +12224,7 @@ render_pass="bump">
    <param
      id="10029"
      group="0"
+     sex="female"
      name="Breast_Physics_LeftRight_Max_Effect"
      label="Breast Physics LeftRight Max Effect"
      wearable="physics"
@@ -12236,6 +12237,7 @@ render_pass="bump">
     <param
      id="10030"
      group="0"
+     sex="female"
      name="Breast_Physics_LeftRight_Spring"
      label="Breast Physics LeftRight Spring"
      wearable="physics"
@@ -12248,6 +12250,7 @@ render_pass="bump">
     <param
      id="10031"
      group="0"
+     sex="female"
      name="Breast_Physics_LeftRight_Gain"
      label="Breast Physics LeftRight Gain"
      wearable="physics"
@@ -12260,6 +12263,7 @@ render_pass="bump">
     <param
      id="10032"
      group="0"
+     sex="female"
      name="Breast_Physics_LeftRight_Damping"
      label="Breast Physics LeftRight Damping"
      wearable="physics"
