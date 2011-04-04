@@ -72,17 +72,7 @@ class LLPhysicsMotion
 {
 public:
         /*
-          param_user_name: The param (if any) that the user sees and controls.  This is what
-          the particular property would look like without physics.  For example, it may be
-          the breast gravity.  This param's value should will not be altered, and is only
-          used as a reference point for the rest position of the body party.  This is usually
-          a driver param and the param(s) that physics is altering are the driven params.
-
-          param_driven_name: The param whose value is actually set by the physics.  If you
-          leave this blank (which should suffice normally), the physics will assume that
-          param_user_name is a driver param and will set the params that the driver is
-          in charge of (i.e. the "driven" params).
-
+          param_driver_name: The param that controls the params that are being affected by the physics.
           joint_name: The joint that the body part is attached to.  The joint is
           used to determine the orientation (rotation) of the body part.
 
@@ -95,19 +85,15 @@ public:
           controllers: The various settings (e.g. spring force, mass) that determine how
           the body part behaves.
         */
-        LLPhysicsMotion(const std::string &param_user_name, 
-                        const std::string &param_driven_name,
+        LLPhysicsMotion(const std::string &param_driver_name, 
                         const std::string &joint_name,
                         LLCharacter *character,
                         const LLVector3 &motion_direction_vec,
                         const controller_map_t &controllers) :
-                mParamUserName(param_user_name),
-                mParamDrivenName(param_driven_name),
+                mParamDriverName(param_driver_name),
                 mJointName(joint_name),
                 mMotionDirectionVec(motion_direction_vec),
-                mParamUser(NULL),
-                mParamDriven(NULL),
-
+                mParamDriver(NULL),
                 mParamControllers(controllers),
                 mCharacter(character),
                 mLastTime(0),
@@ -147,8 +133,8 @@ protected:
         F32 calculateAcceleration_local(F32 velocity_local,
                                         const F32 time_delta);
 private:
-        const std::string mParamDrivenName;
-        const std::string mParamUserName;
+        const std::string mParamDriverName;
+        const std::string mParamControllerName;
         const LLVector3 mMotionDirectionVec;
         const std::string mJointName;
 
@@ -160,8 +146,7 @@ private:
         F32 mPositionLastUpdate_local;
         LLVector3 mPosition_world;
 
-        LLViewerVisualParam *mParamUser;
-        LLViewerVisualParam *mParamDriven;
+        LLViewerVisualParam *mParamDriver;
         const controller_map_t mParamControllers;
         
         LLPointer<LLJointState> mJointState;
@@ -193,12 +178,10 @@ BOOL LLPhysicsMotion::initialize()
                 return FALSE;
         mJointState->setUsage(LLJointState::ROT);
 
-        mParamUser = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamUserName.c_str());
-        if (mParamDrivenName != "")
-                mParamDriven = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamDrivenName.c_str());
-        if (mParamUser == NULL)
+        mParamDriver = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamDriverName.c_str());
+        if (mParamDriver == NULL)
         {
-                llinfos << "Failure reading in  [ " << mParamUserName << " ]" << llendl;
+                llinfos << "Failure reading in  [ " << mParamDriverName << " ]" << llendl;
                 return FALSE;
         }
 
@@ -248,7 +231,6 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Spring"] = "Breast_Physics_InOut_Spring";
                 controller["Gain"] = "Breast_Physics_InOut_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_InOut_Controller",
-                                                                                                          "",
                                                                                                           "mChest",
                                                                                                           character,
                                                                                                           LLVector3(-1,0,0),
@@ -272,7 +254,6 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Spring"] = "Breast_Physics_UpDown_Spring";
                 controller["Gain"] = "Breast_Physics_UpDown_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_UpDown_Controller",
-                                                                                                          "",
                                                                                                           "mChest",
                                                                                                           character,
                                                                                                           LLVector3(0,0,1),
@@ -296,7 +277,6 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Spring"] = "Breast_Physics_LeftRight_Spring";
                 controller["Gain"] = "Breast_Physics_LeftRight_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Breast_Physics_LeftRight_Controller",
-                                                                                                          "",
                                                                                                           "mChest",
                                                                                                           character,
                                                                                                           LLVector3(0,-1,0),
@@ -319,7 +299,6 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Spring"] = "Butt_Physics_UpDown_Spring";
                 controller["Gain"] = "Butt_Physics_UpDown_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Butt_Physics_UpDown_Controller",
-                                                                                                          "",
                                                                                                           "mPelvis",
                                                                                                           character,
                                                                                                           LLVector3(0,0,-1),
@@ -343,7 +322,6 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Spring"] = "Butt_Physics_LeftRight_Spring";
                 controller["Gain"] = "Butt_Physics_LeftRight_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Butt_Physics_LeftRight_Controller",
-                                                                                                          "",
                                                                                                           "mPelvis",
                                                                                                           character,
                                                                                                           LLVector3(0,-1,0),
@@ -367,7 +345,6 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 controller["Spring"] = "Belly_Physics_UpDown_Spring";
                 controller["Gain"] = "Belly_Physics_UpDown_Gain";
                 LLPhysicsMotion *motion = new LLPhysicsMotion("Belly_Physics_UpDown_Controller",
-                                                                                                          "",
                                                                                                           "mPelvis",
                                                                                                           character,
                                                                                                           LLVector3(0,0,-1),
@@ -459,7 +436,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 {
         // static FILE *mFileWrite = fopen("c:\\temp\\avatar_data.txt","w");
         
-        if (!mParamUser)
+        if (!mParamDriver)
                 return FALSE;
 
         if (!mLastTime)
@@ -513,8 +490,8 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         // We have to use normalized values because there may be more than one driven param,
         // and each of these driven params may have its own range.
         // This means we'll do all our calculations in normalized [0,1] local coordinates.
-        F32 position_user_local = mParamUser->getWeight();
-        position_user_local = (position_user_local - mParamUser->getMinWeight()) / (mParamUser->getMaxWeight() - mParamUser->getMinWeight());
+        F32 position_user_local = mParamDriver->getWeight();
+        position_user_local = (position_user_local - mParamDriver->getMinWeight()) / (mParamDriver->getMaxWeight() - mParamDriver->getMinWeight());
 
         // If the effect is turned off then don't process unless we need one more update
         // to set the position to the default (i.e. user) position.
@@ -610,37 +587,26 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
                                                        min_val,
                                                        max_val);
 
-        // Set the new param.
-        // If a specific param has been declared, then set that one.
-        // Otherwise, assume that the param is a driver param, and
-        // set the params that it drives.
-        if (mParamDriven)
+        LLDriverParam *driver_param = dynamic_cast<LLDriverParam *>(mParamDriver);
+        llassert_always(driver_param);
+        if (driver_param)
         {
-                setParamValue(mParamDriven,position_new_local_clamped);
-        }
-        else
-        {
-                LLDriverParam *driver_param = dynamic_cast<LLDriverParam *>(mParamUser);
-                llassert_always(driver_param);
-                if (driver_param)
+                // If this is one of our "hidden" driver params, then make sure it's
+                // the default value.
+                if ((driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) &&
+                    (driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT))
                 {
-                        // If this is one of our "hidden" driver params, then make sure it's
-                        // the default value.
-                        if ((driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) &&
-                            (driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT))
-                        {
-                                mCharacter->setVisualParamWeight(driver_param,
-                                                                 0,
-                                                                 FALSE);
-                        }
-                        for (LLDriverParam::entry_list_t::iterator iter = driver_param->mDriven.begin();
-                             iter != driver_param->mDriven.end();
-                             ++iter)
-                        {
-                                LLDrivenEntry &entry = (*iter);
-                                LLViewerVisualParam *driven_param = entry.mParam;
-                                setParamValue(driven_param,position_new_local_clamped);
-                        }
+                        mCharacter->setVisualParamWeight(driver_param,
+                                                         0,
+                                                         FALSE);
+                }
+                for (LLDriverParam::entry_list_t::iterator iter = driver_param->mDriven.begin();
+                     iter != driver_param->mDriven.end();
+                     ++iter)
+                {
+                        LLDrivenEntry &entry = (*iter);
+                        LLViewerVisualParam *driven_param = entry.mParam;
+                        setParamValue(driven_param,position_new_local_clamped);
                 }
         }
         

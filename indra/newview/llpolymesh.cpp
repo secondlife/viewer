@@ -46,9 +46,11 @@
 
 extern LLControlGroup gSavedSettings;                           // read only
 
-LLPolyMorphData *clone_morph_param(const LLPolyMorphData *src_data,
-                                   const LLVector3 &direction,
-                                   const std::string &name);
+LLPolyMorphData *clone_morph_param_duplicate(const LLPolyMorphData *src_data,
+					     const std::string &name);
+LLPolyMorphData *clone_morph_param_direction(const LLPolyMorphData *src_data,
+					     const LLVector3 &direction,
+					     const std::string &name);
 LLPolyMorphData *clone_morph_param_cleavage(const LLPolyMorphData *src_data,
                                             F32 scale,
                                             const std::string &name);
@@ -617,38 +619,49 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                                                                      "Breast_Physics_LeftRight_Driven"));
                                 }
 
+                                if (!strcmp(morphName, "Breast_Female_Cleavage"))
+                                {
+                                        mMorphData.insert(clone_morph_param_duplicate(morph_data,
+										      "Breast_Physics_InOut_Driven"));
+                                }
+                                if (!strcmp(morphName, "Breast_Gravity"))
+                                {
+                                        mMorphData.insert(clone_morph_param_duplicate(morph_data,
+										      "Breast_Physics_UpDown_Driven"));
+                                }
+
                                 if (!strcmp(morphName, "Big_Belly_Torso"))
                                 {
-                                        mMorphData.insert(clone_morph_param(morph_data,
-                                                                            LLVector3(0,0,0.05f),
-                                                                            "Belly_Physics_Torso_UpDown_Driven"));
+                                        mMorphData.insert(clone_morph_param_direction(morph_data,
+										      LLVector3(0,0,0.05f),
+										      "Belly_Physics_Torso_UpDown_Driven"));
                                 }
 
                                 if (!strcmp(morphName, "Big_Belly_Legs"))
                                 {
-                                        mMorphData.insert(clone_morph_param(morph_data,
-                                                                            LLVector3(0,0,0.05f),
-                                                                            "Belly_Physics_Legs_UpDown_Driven"));
+                                        mMorphData.insert(clone_morph_param_direction(morph_data,
+										      LLVector3(0,0,0.05f),
+										      "Belly_Physics_Legs_UpDown_Driven"));
                                 }
 
                                 if (!strcmp(morphName, "skirt_belly"))
                                 {
-                                        mMorphData.insert(clone_morph_param(morph_data,
-                                                                            LLVector3(0,0,0.05f),
-                                                                            "Belly_Physics_Skirt_UpDown_Driven"));
+                                        mMorphData.insert(clone_morph_param_direction(morph_data,
+										      LLVector3(0,0,0.05f),
+										      "Belly_Physics_Skirt_UpDown_Driven"));
                                 }
 
                                 if (!strcmp(morphName, "Small_Butt"))
                                 {
-                                        mMorphData.insert(clone_morph_param(morph_data,
-                                                                            LLVector3(0,0,0.05f),
-                                                                            "Butt_Physics_UpDown_Driven"));
+                                        mMorphData.insert(clone_morph_param_direction(morph_data,
+										      LLVector3(0,0,0.05f),
+										      "Butt_Physics_UpDown_Driven"));
                                 }
                                 if (!strcmp(morphName, "Small_Butt"))
                                 {
-                                        mMorphData.insert(clone_morph_param(morph_data,
-                                                                            LLVector3(0,0.03f,0),
-                                                                            "Butt_Physics_LeftRight_Driven"));
+                                        mMorphData.insert(clone_morph_param_direction(morph_data,
+										      LLVector3(0,0.03f,0),
+										      "Butt_Physics_LeftRight_Driven"));
                                 }
                         }
 
@@ -1207,9 +1220,23 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 }
 
 
-LLPolyMorphData *clone_morph_param(const LLPolyMorphData *src_data,
-                                   const LLVector3 &direction,
-                                   const std::string &name)
+LLPolyMorphData *clone_morph_param_duplicate(const LLPolyMorphData *src_data,
+					     const std::string &name)
+{
+        LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*src_data);
+        cloned_morph_data->mName = name;
+        for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
+        {
+                cloned_morph_data->mCoords[v] = src_data->mCoords[v];
+                cloned_morph_data->mNormals[v] = src_data->mNormals[v];
+                cloned_morph_data->mBinormals[v] = src_data->mBinormals[v];
+        }
+        return cloned_morph_data;
+}
+
+LLPolyMorphData *clone_morph_param_direction(const LLPolyMorphData *src_data,
+					     const LLVector3 &direction,
+					     const std::string &name)
 {
         LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*src_data);
         cloned_morph_data->mName = name;

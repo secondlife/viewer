@@ -4043,6 +4043,25 @@
     </param>
 
     <param
+     id="507"
+     group="0"
+     sex="female"
+     name="Breast_Gravity"
+     label="Breast Buoyancy"
+     wearable="shape"
+     edit_group="shape_torso"
+     edit_group_order="7"
+     label_min="Less Gravity"
+     label_max="More Gravity"
+     value_default="0"
+     value_min="-1.5"
+     value_max="2"
+     camera_elevation=".3"
+     camera_distance=".8">
+      <param_morph />
+    </param>
+    
+    <param
      id="628"
      group="1"
      name="Displace_Loose_Upperbody"
@@ -4092,6 +4111,25 @@
       </param_morph>
     </param>
 
+    <param
+     id="684"
+     group="0"
+     sex="female"
+     name="Breast_Female_Cleavage"
+     label="Breast Cleavage"
+     wearable="shape"
+     edit_group="shape_torso"
+     edit_group_order="8"
+     label_min="Separate"
+     label_max="Join"
+     value_default="0"
+     value_min="-.3"
+     value_max="1.3"
+     camera_elevation=".3"
+     camera_distance=".8">
+      <param_morph />
+    </param>
+    
     <param
      id="685"
      group="0"
@@ -4297,11 +4335,11 @@
      id="1200"
      group="1"
      sex="female"
-     name="Breast_Gravity"
+     name="Breast_Physics_UpDown_Driven"
      wearable="shape"
      edit_group="driven"
      value_default="0"
-     value_min="-1.5"
+     value_min="-2"
      value_max="2">
       <param_morph />
     </param>
@@ -4310,12 +4348,12 @@
      id="1201"
      group="1"
      sex="female"
-     name="Breast_Female_Cleavage"
+     name="Breast_Physics_InOut_Driven"
      wearable="shape"
      edit_group="driven"
      value_default="0"
-     value_min="-.3"
-     value_max="1.3">
+     value_min="-1"
+     value_max="1">
       <param_morph />
     </param>
 
@@ -11719,19 +11757,15 @@ render_pass="bump">
   <!-- ==PHYSICS PARAMETERS======================================= -->
 
    <param
-     id="507"
-     group="0"
+     id="1100"
+     group="1"
      sex="female"
+     wearable="physics"
      name="Breast_Physics_UpDown_Controller"
      label="Breast Physics UpDown Controller"
-     wearable="shape"
-     edit_group="shape_torso"
-     edit_group_order="7"
-     value_default="0"
-     value_min="-1.5"
-     value_max="2"
-     camera_elevation=".3"
-     camera_distance=".8">
+     value_min="-1"
+     value_max="1"
+     value_default="0">
       <param_driver>
         <driven
          id="1200" />
@@ -11739,17 +11773,15 @@ render_pass="bump">
     </param>
 
    <param
-     id="684"
-     group="0"
+     id="1101"
+     group="1"
      sex="female"
+     wearable="physics"
      name="Breast_Physics_InOut_Controller"
      label="Breast Physics InOut Controller"
-     wearable="shape"
-     edit_group="shape_torso"
-     edit_group_order="8"
-     value_default="0"
-     value_min="-.3"
-     value_max="1.3">
+     value_min="-1"
+     value_max="1"
+     value_default="0">
       <param_driver>
         <driven
          id="1201" />

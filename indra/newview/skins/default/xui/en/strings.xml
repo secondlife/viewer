@@ -2500,8 +2500,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Body Thin">Body Thin</string>
 
 <string name="Bow Legged">Bow Legged</string>
-<string name="Breast Physics UpDown Controller">Breast Buoyancy</string>
-<string name="Breast Physics InOut Controller">Breast Cleavage</string>
+<string name="Breast Buoyancy">Breast Buoyancy</string>
+<string name="Breast Cleavage">Breast Cleavage</string>
 <string name="Breast Size">Breast Size</string>
 <string name="Bridge Width">Bridge Width</string>
 <string name="Broad">Broad</string>
