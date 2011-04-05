@@ -912,15 +912,14 @@ void LLBottomTray::log(LLView* panel, const std::string& descr)
 {
 	if (NULL == panel) return;
 	LLView* layout = panel->getParent();
-	lldebugs << descr << ": "
+	LL_DEBUGS("Bottom Tray Rects") << descr << ": "
 		<< "panel: " << panel->getName()
 		<< ", rect: " << panel->getRect()
  
  
 		<< " layout: " << layout->getName()
 		<< ", rect: " << layout->getRect()
-		<< llendl
-		; 
+		<< LL_ENDL;
 }
 
 void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -1141,15 +1140,16 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	lldebugs << "Distributing (" << getChicletPanelShrinkHeadroom()
 		<< " + " << delta_width << ") = " << available_width << " px" << llendl;
 
+	// 1. Try showing buttons that have been auto-hidden.
 	S32 processed_width = processShowButtons(available_width);
 	lldebugs << "processed_width = " << processed_width << ", delta_width = " << delta_width << llendl;
 
 	lldebugs << "Available_width after showing buttons: " << available_width << llendl;
 
-	// if we have to show/extend some buttons but resized delta width is not enough...
+	// If the newly shown buttons have consumed more than delta_width pixels,
+	// shrink the chiclet panel.
 	if (processed_width > delta_width)
 	{
-		// ... let's shrink nearby chat & chiclet panels
 		// 1. use delta width of resizing
 		S32 shrink_by = processed_width - delta_width;
 
@@ -1161,12 +1161,12 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 			log(mChicletPanel, "after applying compensative width for chiclets: ");
 			lldebugs << shrink_by << llendl;
 		}
+
+		// shown buttons take some space, rest should be processed by nearby chatbar & chiclet panels
+		delta_width -= processed_width;
 	}
 
-	// shown buttons take some space, rest should be processed by nearby chatbar & chiclet panels
-	delta_width -= processed_width;
-
-	// how much space can nearby chatbar take?
+	// 2. Expand the nearby chat bar if needed.
 	S32 chatbar_panel_width = mChatBarContainer->getRect().getWidth();
 	lldebugs << "delta_width = " << delta_width
 		<< ", chatbar_panel_width = " << chatbar_panel_width
@@ -1186,9 +1186,12 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 		log(mNearbyChatBar, "applied unprocessed delta width");
 	}
 
+	// 3. Expand buttons that have been auto-shrunk,
+	// if we haven't yet consumed all the available headroom.
 	if (delta_width > 0)
 	{
-		processExtendButtons(delta_width);
+		S32 available_width = delta_width + getChicletPanelShrinkHeadroom();
+		processExtendButtons(available_width);
 	}
 }
 
