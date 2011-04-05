@@ -109,7 +109,13 @@ LLImageJ2COJ::~LLImageJ2COJ()
 
 BOOL LLImageJ2COJ::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
 {
-	// No specific implementaion for this method in the OpenJpeg case
+	// No specific implementation for this method in the OpenJpeg case
+	return FALSE;
+}
+
+BOOL LLImageJ2COJ::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size)
+{
+	// No specific implementation for this method in the OpenJpeg case
 	return FALSE;
 }
 

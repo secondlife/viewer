@@ -126,7 +126,7 @@ void output_image_stats(LLPointer<LLImageFormatted> image, const std::string &fi
 }
 
 // Load an image from file and return a raw (decompressed) instance of its data
-LLPointer<LLImageRaw> load_image(const std::string &src_filename, bool output_stats, bool use_discard_level, int discard_level, bool use_region, int* region)
+LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_level, int* region, bool output_stats)
 {
 	LLPointer<LLImageFormatted> image = create_image(src_filename);
 	
@@ -150,13 +150,11 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, bool output_st
 	LLPointer<LLImageRaw> raw_image = new LLImageRaw;
 	
 	// Set the image restriction on load in the case of a j2c image
-	if ((image->getCodec() == IMG_CODEC_J2C) && (use_discard_level || use_region))
+	if ((image->getCodec() == IMG_CODEC_J2C) && ((discard_level != -1) || (region != NULL)))
 	{
-		int discard = (use_discard_level ? discard_level : -1);
-		int* reg = (use_region ? region : NULL);
 		// That method doesn't exist (and likely, doesn't make sense) for any other image file format
 		// hence the required cryptic cast.
-		((LLImageJ2C*)(image.get()))->initDecode(*raw_image, discard, reg);
+		((LLImageJ2C*)(image.get()))->initDecode(*raw_image, discard_level, region);
 	}
 	
 	if (!image->decode(raw_image, 0.0f))
@@ -168,9 +166,17 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, bool output_st
 }
 
 // Save a raw image instance into a file
-bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image, bool output_stats)
+bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image, int blocks_size, int precincts_size, bool output_stats)
 {
 	LLPointer<LLImageFormatted> image = create_image(dest_filename);
+	
+	// Set the image restriction on load in the case of a j2c image
+	if ((image->getCodec() == IMG_CODEC_J2C) && ((blocks_size != -1) || (precincts_size != -1)))
+	{
+		// That method doesn't exist (and likely, doesn't make sense) for any other image file format
+		// hence the required cryptic cast.
+		((LLImageJ2C*)(image.get()))->initEncode(*raw_image, blocks_size, precincts_size);
+	}
 	
 	if (!image->encode(raw_image, 0.0f))
 	{
@@ -311,14 +317,10 @@ int main(int argc, char** argv)
 	// Other optional parsed arguments
 	bool analyze_performance = false;
 	bool image_stats = false;
-	bool use_region = false;
-	int region[4];
-	bool use_discard_level = false;
-	int discard_level = 0;
-	bool use_precincts = false;
-	int precincts_size;
-	bool use_blocks = false;
-	int blocks_size;
+	int* region = NULL;
+	int discard_level = -1;
+	int precincts_size = -1;
+	int blocks_size = -1;
 
 	// Init whatever is necessary
 	ll_init_apr();
@@ -364,6 +366,7 @@ int main(int argc, char** argv)
 		{
 			std::string value_str = argv[arg+1];
 			int index = 0;
+			region = new int[4];
 			while (value_str[0] != '-')		// if arg starts with '-', it's the next option
 			{
 				int value = atoi(value_str.c_str());
@@ -375,13 +378,11 @@ int main(int argc, char** argv)
 					break;
 				value_str = argv[arg+1];	// Next argument and loop over
 			}
-			if (index == 4)
-			{
-				use_region = true;
-			}
-			else
+			if (index != 4)
 			{
 				std::cout << "--region arguments invalid" << std::endl;
+				delete [] region;
+				region = NULL;
 			}
 		}
 		else if (!strcmp(argv[arg], "--discard_level") || !strcmp(argv[arg], "-d"))
@@ -397,8 +398,9 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				use_discard_level = true;
 				discard_level = atoi(value_str.c_str());
+				// Clamp to the values accepted by the viewer
+				discard_level = llclamp(discard_level,0,5);
 			}
 		}
 		else if (!strcmp(argv[arg], "--precincts") || !strcmp(argv[arg], "-p"))
@@ -414,8 +416,8 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				use_precincts = true;
 				precincts_size = atoi(value_str.c_str());
+				// *TODO: make sure precincts_size is a power of 2
 			}
 		}
 		else if (!strcmp(argv[arg], "--blocks") || !strcmp(argv[arg], "-b"))
@@ -431,8 +433,8 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				use_blocks = true;
 				blocks_size = atoi(value_str.c_str());
+				// *TODO: make sure blocks_size is a power of 2
 			}
 		}
 		else if (!strcmp(argv[arg], "--logmetrics") || !strcmp(argv[arg], "-log"))
@@ -497,7 +499,7 @@ int main(int argc, char** argv)
 	for (; in_file != in_end; ++in_file)
 	{
 		// Load file
-		LLPointer<LLImageRaw> raw_image = load_image(*in_file, image_stats, use_discard_level, discard_level, use_region, region);
+		LLPointer<LLImageRaw> raw_image = load_image(*in_file, discard_level, region, image_stats);
 		if (!raw_image)
 		{
 			std::cout << "Error: Image " << *in_file << " could not be loaded" << std::endl;
@@ -507,7 +509,7 @@ int main(int argc, char** argv)
 		// Save file
 		if (out_file != out_end)
 		{
-			if (!save_image(*out_file, raw_image, image_stats))
+			if (!save_image(*out_file, raw_image, blocks_size, precincts_size, image_stats))
 			{
 				std::cout << "Error: Image " << *out_file << " could not be saved" << std::endl;
 			}

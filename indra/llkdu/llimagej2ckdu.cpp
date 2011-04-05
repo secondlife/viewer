@@ -190,7 +190,9 @@ mCodeStreamp(NULL),
 mTPosp(NULL),
 mTileIndicesp(NULL),
 mRawImagep(NULL),
-mDecodeState(NULL)
+mDecodeState(NULL),
+mBlocksSize(-1),
+mPrecinctsSize(-1)
 {
 }
 
@@ -324,6 +326,13 @@ void LLImageJ2CKDU::cleanupCodeStream()
 BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
 {
 	return initDecode(base,raw_image,0.0f,MODE_FAST,0,4,discard_level,region);
+}
+
+BOOL LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size)
+{
+	mBlocksSize = blocks_size;
+	mPrecinctsSize = precincts_size;
+	return TRUE;
 }
 
 BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level, int* region)
@@ -623,9 +632,26 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			}
 		}
 		
-		// *TODO : Add precinct specification here
-		//std::string precincts_string = llformat("Cprecincts={128,128}");
-		//codestream.access_siz()->parse_string(precincts_string.c_str());
+		// Set up data ordering, markers, etc... if precincts or blocks specified
+		if ((mBlocksSize != -1) || (mPrecinctsSize != -1))
+		{
+			if (mPrecinctsSize != -1)
+			{
+				std::string precincts_string = llformat("Cprecincts={%d,%d}",mPrecinctsSize,mPrecinctsSize);
+				codestream.access_siz()->parse_string(precincts_string.c_str());
+			}
+			if (mBlocksSize != -1)
+			{
+				std::string blocks_string = llformat("Cblk={%d,%d}",mBlocksSize,mBlocksSize);
+				codestream.access_siz()->parse_string(blocks_string.c_str());
+			}
+			std::string ordering_string = llformat("Corder=RPCL");
+			codestream.access_siz()->parse_string(ordering_string.c_str());
+			std::string PLT_string = llformat("ORGgen_plt=yes");
+			codestream.access_siz()->parse_string(PLT_string.c_str());
+			std::string Parts_string = llformat("ORGtparts=R");
+			codestream.access_siz()->parse_string(Parts_string.c_str());
+		}
 		
 		codestream.access_siz()->finalize_all();
 		codestream.change_appearance(transpose,vflip,hflip);

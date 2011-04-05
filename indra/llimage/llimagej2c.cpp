@@ -144,6 +144,11 @@ BOOL LLImageJ2C::initDecode(LLImageRaw &raw_image, int discard_level, int* regio
 	return mImpl->initDecode(*this,raw_image,discard_level,region);
 }
 
+BOOL LLImageJ2C::initEncode(LLImageRaw &raw_image, int blocks_size, int precincts_size)
+{
+	return mImpl->initEncode(*this,raw_image,blocks_size,precincts_size);
+}
+
 BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
 {
 	return decodeChannels(raw_imagep, decode_time, 0, 4);
