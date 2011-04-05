@@ -525,6 +525,10 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 		&& chat_msg.mFromID != gAgentID)
 	{
  		LLFirstUse::otherAvatarChatFirst();
+
+ 		// Add sender to the recent people list.
+ 		LLRecentPeople::instance().add(chat_msg.mFromID);
+
 	}
 
 	// Build data and send event on to LLEventStream
@@ -536,6 +540,9 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 	notification["source"] = (S32)chat_msg.mSourceType;
 	notification["chat_type"] = (S32)chat_msg.mChatType;
 	notification["chat_style"] = (S32)chat_msg.mChatStyle;
+	// Pass sender info so that it can be rendered properly (STORM-1021).
+	notification["sender_slurl"] = LLViewerChat::getSenderSLURL(chat_msg, args);
+
 	
 	sChatWatcher->post(notification);
 
@@ -577,6 +584,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 
 	if(channel)
 	{
+		// Add a nearby chat toast.
 		LLUUID id;
 		id.generate();
 		notification["id"] = id;

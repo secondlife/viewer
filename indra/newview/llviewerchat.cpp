@@ -31,6 +31,8 @@
 #include "llagent.h" 	// gAgent		
 #include "lluicolortable.h"
 #include "llviewercontrol.h" // gSavedSettings
+#include "llviewerregion.h"
+#include "llworld.h"
 #include "llinstantmessage.h" //SYSTEM_FROM
 
 // LLViewerChat
@@ -222,3 +224,43 @@ void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
 
 }
 
+//static
+std::string LLViewerChat::getSenderSLURL(const LLChat& chat, const LLSD& args)
+{
+	switch (chat.mSourceType)
+	{
+	case CHAT_SOURCE_AGENT:
+		return LLSLURL("agent", chat.mFromID, "about").getSLURLString();
+
+	case CHAT_SOURCE_OBJECT:
+		return getObjectImSLURL(chat, args);
+
+	default:
+		llwarns << "Getting SLURL for an unsupported sender type: " << chat.mSourceType << llendl;
+	}
+
+	return LLStringUtil::null;
+}
+
+//static
+std::string LLViewerChat::getObjectImSLURL(const LLChat& chat, const LLSD& args)
+{
+	std::string url = LLSLURL("objectim", chat.mFromID, "").getSLURLString();
+	url += "?name=" + chat.mFromName;
+	url += "&owner=" + chat.mOwnerID.asString();
+
+	std::string slurl = args["slurl"].asString();
+	if (slurl.empty())
+	{
+		LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
+		if(region)
+		{
+			LLSLURL region_slurl(region->getName(), chat.mPosAgent);
+			slurl = region_slurl.getLocationString();
+		}
+	}
+
+	url += "&slurl=" + LLURI::escape(slurl);
+
+	return url;
+}
