@@ -1215,44 +1215,14 @@ S32 LLBottomTray::processShowButtons(S32& available_width)
 
 bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32& available_width)
 {
-	LLPanel* panel = getButtonPanel(shown_object_type);
-	if (NULL == panel)
+	// Check if the button was previously auto-hidden (due to lack of space).
+	if ((mResizeState & shown_object_type) == 0)
 	{
 		return false;
 	}
 
-	if (panel->getVisible())
-	{
-		return false;
-	}
-
-	// We can only show a button if it was previously hidden due to lack of space
-	// and all buttons to the left of it are not auto-hidden
-	// (we auto-show the buttons left to right).
-	bool can_be_shown = canButtonBeShown(shown_object_type);
-	if (can_be_shown)
-	{
-		// Make sure we have enough room to show this button.
-		const S32 required_width = panel->getRect().getWidth();
-		can_be_shown = available_width >= required_width;
-		if (can_be_shown)
-		{
-			available_width -= required_width;
-
-			setTrayButtonVisible(shown_object_type, true);
-
-			lldebugs << "Showing button " << resizeStateToString(shown_object_type)
-				<< ", remaining available width: " << available_width
-				<< llendl;
-			mResizeState &= ~shown_object_type;
-		}
-		else
-		{
-			lldebugs << "Need " << (required_width - available_width) << " more px to show "
-				<< resizeStateToString(shown_object_type) << llendl;
-		}
-	}
-	return can_be_shown;
+	// Ok. Try showing the button.
+	return showButton(shown_object_type, available_width);
 }
 
 void LLBottomTray::processHideButtons(S32& required_width, S32& buttons_freed_width)
@@ -1512,46 +1482,33 @@ void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32& 
 
 bool LLBottomTray::canButtonBeShown(EResizeState processed_object_type) const
 {
-	// 0. Check if passed button was previously hidden on resize
-	bool can_be_shown = mResizeState & processed_object_type;
+	// 1. Let's check that all buttons (that can be hidden on resize) before the given one are already shown.
+
+	// process buttons in direct order (from left to right)
+	resize_state_vec_t::const_iterator it = mButtonsProcessOrder.begin();
+	const resize_state_vec_t::const_iterator it_end = mButtonsProcessOrder.end();
+
+	// 1. Find and accumulate all buttons types before one passed into the method.
+	MASK buttons_before_mask = RS_NORESIZE;
+	for (; it != it_end; ++it)
+	{
+		const EResizeState button_type = *it;
+		if (button_type == processed_object_type) break;
+
+		buttons_before_mask |= button_type;
+	}
+
+	// 2. Check if some previous buttons are still hidden on resize
+	bool can_be_shown = !(buttons_before_mask & mResizeState);
 #if 0
 	if (!can_be_shown)
 	{
-		lldebugs << "Button " << resizeStateToString(processed_object_type) << " was not auto-hidden" << llendl;
+		lldebugs << llformat("mResizeState = 0x%4x, buttons_before_mask = 0x%4x", mResizeState,  buttons_before_mask) << llendl;
+		lldebugs << "Auto-hidden: " << resizeStateMaskToString(mResizeState) << llendl;
+		lldebugs << "Must show the following buttons to the left of " << resizeStateToString(processed_object_type) << " first:" << llendl;
+		lldebugs << resizeStateMaskToString(buttons_before_mask & mResizeState) << llendl;
 	}
 #endif
-
-	if (can_be_shown)
-	{
-		// Yes, it was. Lets now check that all buttons before it (that can be hidden on resize)
-		// are already shown
-
-		// process buttons in direct order (from left to right)
-		resize_state_vec_t::const_iterator it = mButtonsProcessOrder.begin();
-		const resize_state_vec_t::const_iterator it_end = mButtonsProcessOrder.end();
-
-		// 1. Find and accumulate all buttons types before one passed into the method.
-		MASK buttons_before_mask = RS_NORESIZE;
-		for (; it != it_end; ++it)
-		{
-			const EResizeState button_type = *it;
-			if (button_type == processed_object_type) break;
-
-			buttons_before_mask |= button_type;
-		}
-
-		// 2. Check if some previous buttons are still hidden on resize
-		can_be_shown = !(buttons_before_mask & mResizeState);
-#if 0
-		if (!can_be_shown)
-		{
-			lldebugs << llformat("mResizeState = 0x%4x, buttons_before_mask = 0x%4x", mResizeState,  buttons_before_mask) << llendl;
-			lldebugs << "Auto-hidden: " << resizeStateMaskToString(mResizeState) << llendl;
-			lldebugs << "Must show the following buttons to the left of " << resizeStateToString(processed_object_type) << " first:" << llendl;
-			lldebugs << resizeStateMaskToString(buttons_before_mask & mResizeState) << llendl;
-		}
-#endif
-	}
 	return can_be_shown;
 }
 
@@ -1644,6 +1601,48 @@ bool LLBottomTray::toggleShowButton(LLBottomTray::EResizeState button_type, cons
 	{
 		LLBottomTray::getInstance()->setTrayButtonVisibleIfPossible(button_type, new_visibility.asBoolean());
 	}
+	return true;
+}
+
+bool LLBottomTray::showButton(EResizeState button_type, S32& available_width)
+{
+	LLPanel* panel = getButtonPanel(button_type);
+	if (NULL == panel)
+	{
+		return false;
+	}
+
+	if (panel->getVisible())
+	{
+		return false;
+	}
+
+	// Check if none of the buttons to the left of the given one was auto-hidden.
+	// (we auto-show the buttons left to right).
+	if (!canButtonBeShown(button_type))
+	{
+		return false;
+	}
+
+	// Make sure we have enough room to show this button.
+	const S32 required_width = panel->getRect().getWidth();
+	if (available_width < required_width)
+	{
+		lldebugs << "Need " << (required_width - available_width) << " more px to show " << resizeStateToString(button_type) << llendl;
+		return false;
+	}
+
+	// All good. Show the button.
+	setTrayButtonVisible(button_type, true);
+
+	// Let the caller know that there is now less available space.
+	available_width -= required_width;
+
+	lldebugs << "Showing button " << resizeStateToString(button_type)
+		<< ", remaining available width: " << available_width
+		<< llendl;
+	mResizeState &= ~button_type;
+
 	return true;
 }
 
@@ -1757,7 +1756,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 			current_width = result_width;
 		}
 
-		is_set = processShowButton(object_type, current_width);
+		is_set = showButton(object_type, current_width);
 
 		// Shrink buttons if needed
 		if (is_set && decrease_width)

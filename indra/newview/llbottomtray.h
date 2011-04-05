@@ -380,6 +380,16 @@ private:
 	static bool toggleShowButton(EResizeState button_type, const LLSD& new_visibility);
 
 	/**
+	 * Show the button if there is enough space.
+	 *
+	 * @param[in]      button_type -    type of button to be shown.
+	 * @param[in, out] available_width  amount of available space on the bottom bar.
+	 *
+	 * @return true if button was shown, false that's not possible (not enough space, etc)
+	 */
+	bool showButton(EResizeState button_type, S32& available_width);
+
+	/**
 	 * Sets passed visibility to object specified by resize type.
 	 */
 	void setTrayButtonVisible(EResizeState shown_object_type, bool visible);
