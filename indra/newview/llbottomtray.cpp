@@ -1392,53 +1392,80 @@ void LLBottomTray::processExtendButtons(S32& available_width)
 	// do not allow extending any buttons if we have some buttons hidden via resize
 	if (mResizeState & RS_BUTTONS_CAN_BE_HIDDEN) return;
 
-	// process buttons from left to right
-	resize_state_vec_t::const_iterator it = mButtonsProcessOrder.begin();
-	const resize_state_vec_t::const_iterator it_end = mButtonsProcessOrder.end();
+	lldebugs << "Distributing " << available_width << " px" << llendl;
 
-	// iterate through buttons in the mButtonsProcessOrder first
-	for (; it != it_end; ++it)
+	// First try extending the Speak button.
+	if (available_width > 0)
 	{
-		// is there available space?
-		if (available_width <= 0) break;
-
-		// try to extend next button
-		processExtendButton(*it, available_width);
-	}
-
-	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
-	static const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
-	const S32 available_width_chiclet = chiclet_panel_width - chiclet_panel_min_width;
-
-	// then try to extend Speak button
-	if (available_width > 0 || available_width_chiclet > 0)
-	{
-		S32 panel_max_width = mObjectDefaultWidthMap[RS_BUTTON_SPEAK];
-		S32 panel_width = mSpeakPanel->getRect().getWidth();
-		S32 possible_extend_width = panel_max_width - panel_width;
-
-		if (possible_extend_width >= 0 && possible_extend_width <= available_width + available_width_chiclet)  // HACK: this button doesn't change size so possible_extend_width will be 0
+		if (!processExtendSpeakButton(available_width))
 		{
-			mSpeakBtn->setLabelVisible(true);
-			mSpeakPanel->reshape(panel_max_width, mSpeakPanel->getRect().getHeight());
-			log(mSpeakBtn, "speak button is extended");
-
-			if( available_width > possible_extend_width)
-			{
-				available_width -= possible_extend_width;
-			}
-			else
-			{
-				S32 required_width = possible_extend_width - available_width;
-				available_width = 0;
-				mChicletPanel->getParent()->reshape(mChicletPanel->getParent()->getRect().getWidth() - required_width, mChicletPanel->getParent()->getRect().getHeight());
-			}
-			lldebugs << "Extending Speak button panel: " << mSpeakPanel->getName()
-				<< ", extended width: " << possible_extend_width
-				<< ", rest width to process: " << available_width
-				<< llendl;
+			// The Speak button needs extension but lacks some space.
+			// Don't extend other buttons in this case: the Speak button
+			// should consume the available headroom first.
+			return;
 		}
 	}
+
+	// Then process the other buttons from left to right.
+	if (available_width > 0)
+	{
+		resize_state_vec_t::const_iterator it = mButtonsProcessOrder.begin();
+		const resize_state_vec_t::const_iterator it_end = mButtonsProcessOrder.end();
+
+		// iterate through buttons in the mButtonsProcessOrder first
+		for (; it != it_end; ++it)
+		{
+			// is there available space?
+			if (available_width <= 0) break;
+
+			// try to extend next button
+			processExtendButton(*it, available_width);
+		}
+	}
+}
+
+bool LLBottomTray::processExtendSpeakButton(S32& available_width)
+{
+	if (available_width <= 0)
+	{
+		llassert(available_width > 0);
+		return true;
+	}
+
+	const S32 panel_max_width = mObjectDefaultWidthMap[RS_BUTTON_SPEAK];
+	const S32 panel_width = mSpeakPanel->getRect().getWidth();
+	const S32 required_headroom = panel_max_width - panel_width;
+
+#if 0
+	lldebugs << "required_extend_width = (panel_max_width - panel_width) = "
+		<< "(" << panel_max_width << " - " << panel_width << ") = " << required_headroom << llendl;
+#endif
+
+	if (panel_width < panel_max_width) // if the button isn't extended already
+	{
+		if (available_width < required_headroom) // not enough space
+		{
+			lldebugs << "Need (" << required_headroom << " - " << available_width << ") = "
+				<< (required_headroom - available_width) << " more px"
+				<< " to extend the Speak button"<< llendl;
+
+			return false; // Don't extend other buttons until we extend Speak.
+		}
+
+		// Reshape the Speak button to its maximum width.
+		mSpeakBtn->setLabelVisible(true);
+		mSpeakPanel->reshape(panel_max_width, mSpeakPanel->getRect().getHeight());
+
+		available_width -= required_headroom;
+		llassert(available_width >= 0);
+
+		lldebugs << "Extending Speak button panel: " << mSpeakPanel->getName()
+			<< ", extended width: " << required_headroom
+			<< ", rest width to process: " << available_width
+			<< llendl;
+	}
+
+	return true;
 }
 
 void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32& available_width)
@@ -1727,6 +1754,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 		setTrayButtonVisible(object_type, false);
 
 		// Mark button NOT to show while future bottom tray extending
+		lldebugs << "Removing " << resizeStateToString(object_type) << " from mResizeState" << llendl;
 		mResizeState &= ~object_type;
 
 		// Extend other buttons if need
@@ -1786,10 +1814,7 @@ void LLBottomTray::processChatbarCustomization(S32 new_width)
 
 	mDesiredNearbyChatWidth = new_width;
 
-	LLView * chiclet_layout_panel = mChicletPanel->getParent();
-	const S32 chiclet_min_width = get_panel_min_width(mToolbarStack, chiclet_layout_panel);
-	const S32 chiclet_panel_width = chiclet_layout_panel->getRect().getWidth();
-	const S32 available_chiclet_shrink_width = chiclet_panel_width - chiclet_min_width;
+	const S32 available_chiclet_shrink_width = getChicletPanelShrinkHeadroom();
 	llassert(available_chiclet_shrink_width >= 0);
 
 	if (delta_width > 0) // panel gets narrowly
@@ -1806,6 +1831,16 @@ void LLBottomTray::processChatbarCustomization(S32 new_width)
 		processShrinkButtons(required_width, buttons_freed_width);
 		processHideButtons(required_width, buttons_freed_width);
 	}
+}
+
+S32 LLBottomTray::getChicletPanelShrinkHeadroom() const
+{
+	static const S32 min_width = mChicletPanel->getMinWidth();
+	const S32 cur_width = mChicletPanel->getParent()->getRect().getWidth();
+
+	S32 shrink_headroom = cur_width - min_width;
+	llassert(shrink_headroom >= 0); // the panel cannot get narrower than the minimum
+	return shrink_headroom;
 }
 
 // static
@@ -1831,6 +1866,39 @@ std::string LLBottomTray::resizeStateToString(EResizeState state)
 	// No default to track additions.
 	}
 	return "UNKNOWN_BUTTON";
+}
+
+// static
+std::string LLBottomTray::resizeStateMaskToString(MASK mask)
+{
+	std::string res;
+
+	bool add_delimiter = false;
+    for (U32 i = 0; i < 16; i++)
+    {
+    	EResizeState state = (EResizeState) (1 << i);
+    	if (mask & state)
+    	{
+    		if (!add_delimiter)
+    		{
+    			add_delimiter = true;
+    		}
+    		else
+    		{
+    			res += ", ";
+    		}
+
+			res += resizeStateToString(state);
+    	}
+    }
+
+    if (res.empty())
+    {
+    	res = resizeStateToString(RS_NORESIZE);
+    }
+
+    res += llformat(" (0x%X)", mask);
+    return res;
 }
 
 //EOF
