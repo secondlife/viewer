@@ -107,6 +107,11 @@ LLImageJ2COJ::~LLImageJ2COJ()
 {
 }
 
+BOOL LLImageJ2COJ::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
+{
+	// No specific implementaion for this method in the OpenJpeg case
+	return FALSE;
+}
 
 BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count)
 {

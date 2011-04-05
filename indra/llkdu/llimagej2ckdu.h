@@ -58,11 +58,12 @@ protected:
 	/*virtual*/ BOOL decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count);
 	/*virtual*/ BOOL encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0,
 								BOOL reversible=FALSE);
+	/*virtual*/ BOOL initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level = -1, int* region = NULL);
 
 private:
+	BOOL initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level = -1, int* region = NULL);
 	void setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECodeStreamMode mode);
 	void cleanupCodeStream();
-	BOOL initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count );
 
 	// Encode variable
 	LLKDUMemSource *mInputp;

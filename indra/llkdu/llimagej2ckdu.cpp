@@ -106,7 +106,11 @@ const char* fallbackEngineInfoLLImageJ2CImpl()
 class LLKDUDecodeState
 {
 public:
+	LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap);
+	~LLKDUDecodeState();
+	BOOL processTileDecode(F32 decode_time, BOOL limit_time = TRUE);
 
+private:
 	S32 mNumComponents;
 	BOOL mUseYCC;
 	kdu_dims mDims;
@@ -116,20 +120,10 @@ public:
 	kdu_pull_ifc mEngines[4];
 	bool mReversible[4]; // Some components may be reversible and others not
 	int mBitDepths[4];   // Original bit-depth may be quite different from 8
-
+	
 	kdu_tile mTile;
 	kdu_byte *mBuf;
 	S32 mRowGap;
-
-	LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap);
-	~LLKDUDecodeState();
-	BOOL processTileDecode(F32 decode_time, BOOL limit_time = TRUE);
-
-public:
-	int *AssignLayerBytes(siz_params *siz, int &num_specs);
-
-	void setupCodeStream(BOOL keep_codestream, LLImageJ2CKDU::ECodeStreamMode mode);
-	BOOL initDecode(LLImageRaw &raw_image, F32 decode_time, LLImageJ2CKDU::ECodeStreamMode mode, S32 first_channel, S32 max_channel_count );
 };
 
 void ll_kdu_error( void )
@@ -327,7 +321,12 @@ void LLImageJ2CKDU::cleanupCodeStream()
 	mTileIndicesp = NULL;
 }
 
-BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count )
+BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
+{
+	return initDecode(base,raw_image,0.0f,MODE_FAST,0,4,discard_level,region);
+}
+
+BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level, int* region)
 {
 	base.resetLastError();
 
@@ -340,7 +339,20 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 
 		mRawImagep = &raw_image;
 		mCodeStreamp->change_appearance(false, true, false);
-		mCodeStreamp->apply_input_restrictions(first_channel,max_channel_count,base.getRawDiscardLevel(),0,NULL);
+
+		// Apply loading discard level and cropping if required
+		kdu_dims* region_kdu = NULL;
+		if (region != NULL)
+		{
+			region_kdu = new kdu_dims;
+			region_kdu->pos.x  = region[0];
+			region_kdu->pos.y  = region[1];
+			region_kdu->size.x = region[2] - region[0];
+			region_kdu->size.y = region[3] - region[1];
+		}
+		int discard = (discard_level != -1 ? discard_level : base.getRawDiscardLevel());
+		
+		mCodeStreamp->apply_input_restrictions( first_channel, max_channel_count, discard, 0, region_kdu);
 
 		kdu_dims dims; mCodeStreamp->get_dims(0,dims);
 		S32 channels = base.getComponents() - first_channel;
