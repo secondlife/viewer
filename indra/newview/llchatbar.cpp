@@ -694,7 +694,7 @@ public:
 		{
 		S32 channel = tokens[0].asInteger();
 			// VWR-19499 Restrict function to chat channels greater than 0.
-			if ((channel > 0) && (channel < 2147483647))
+			if ((channel > 0) && (channel < CHAT_CHANNEL_DEBUG))
 			{
 				retval = true;
 				// Say mesg on channel
