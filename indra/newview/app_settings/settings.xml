@@ -617,7 +617,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://interest.secondlife.com/viewer/avatar</string>
+      <string></string>
     </map>
     <key>AvatarBakedTextureUploadTimeout</key>
     <map>
@@ -641,7 +641,28 @@
       <key>Value</key>
       <integer>10</integer>
     </map>
-
+    <key>AvatarPhysics</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable avatar physics.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+  <key>AvatarPhysicsTest</key>
+  <map>
+    <key>Comment</key>
+    <string>Simulate continuous physics behavior on all nearby avatars.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>AvatarSex</key>
     <map>
       <key>Comment</key>
@@ -653,6 +674,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+
     <key>BackgroundYieldTime</key>
     <map>
       <key>Comment</key>
@@ -2566,7 +2588,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://www.secondlife.com</string>
+      <string></string>
     </map>
   <key>DisableCameraConstraints</key>
     <map>
@@ -2809,6 +2831,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>DoubleClickShowWorldMap</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable double-click to show world map from mini map</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>DragAndDropToolTipDelay</key>
     <map>
@@ -3187,7 +3220,7 @@
     <key>FirstRunThisInstall</key>
     <map>
       <key>Comment</key>
-      <string>Specifies that you have not run the viewer since you installed the latest update</string>
+      <string>Specifies that you have not run the viewer since you performed a clean install</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3195,7 +3228,18 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>FirstSelectedDisabledPopups</key>
+  <key>FirstLoginThisInstall</key>
+  <map>
+    <key>Comment</key>
+    <string>Specifies that you have not logged in with the viewer since you performed a clean install</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>FirstSelectedDisabledPopups</key>
     <map>
       <key>Comment</key>
       <string>Return false if there is not disabled popup selected in the list of floater preferences popups</string>
@@ -3888,6 +3932,17 @@
       <key>Value</key>
       <string>https://my.secondlife.com/[AGENT_NAME]</string>
     </map>
+	<key>WebProfileNonProductionURL</key>
+	<map>
+		<key>Comment</key>
+		<string>URL for Web Profiles on Non-Production grids</string>
+		<key>Persist</key>
+		<integer>0</integer>
+		<key>Type</key>
+		<string>String</string>
+		<key>Value</key>
+		<string>https://my-demo.secondlife.com/[AGENT_NAME]</string>
+	</map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>
@@ -6766,6 +6821,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>12</integer>
+    </map>
+    <key>RenderAvatarPhysicsLODFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls level of detail of avatar physics (such as breast physics).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>1.0</integer>
     </map>
     <key>RenderAvatarVP</key>
     <map>
@@ -11484,7 +11550,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>3.0</integer>
+      <integer>3</integer>
     </map>
     <key>InterpolationPhaseOut</key>
     <map>
@@ -11495,7 +11561,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>1.0</integer>
+      <integer>1</integer>
     </map>
     <key>VerboseLogs</key>
     <map>
@@ -12069,6 +12135,17 @@
       <key>Value</key>
       <real>0.40000000596</real>
     </map>
+	<key>moapbeacon</key>
+	<map>
+		<key>Comment</key>
+		<string>Beacon / Highlight media on a prim sources</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
     <key>particlesbeacon</key>
     <map>
       <key>Comment</key>
@@ -12344,17 +12421,6 @@
       <key>Value</key>
       <real>1200.0</real>
     </map>
-    <key>AvatarPickerHintTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of seconds to wait before telling resident about avatar picker.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>600.0</real>
-    </map>
     <key>SidePanelHintTimeout</key>
     <map>
       <key>Comment</key>
@@ -12376,6 +12442,204 @@
       <string>String</string>
       <key>Value</key>
       <string>name</string>
+    </map>
+    <key>SessionSettingsFile</key>
+    <map>
+      <key>Comment</key>
+      <string>Settings that are a applied per session (not saved).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
+    <key>UserSessionSettingsFile</key>
+    <map>
+      <key>Comment</key>
+      <string>User settings that are a applied per session (not saved).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
+    <key>OpenSidePanelsInFloaters</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, will always open side panel contents in a floater.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>AvatarInspectorTooltipDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds before displaying avatar inspector tooltip</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.35</real>
+    </map>
+    <key>ObjectInspectorTooltipDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds before displaying object inspector tooltip</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.35</real>
+    </map>
+    <key>SLURLTeleportDirectly</key>
+    <map>
+      <key>Comment</key>
+      <string>Clicking on a slurl will teleport you directly instead of opening places panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableClassifieds</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable creation of new classified ads from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EnableGroupInfo</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable viewing and editing of group info from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EnablePicks</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable editing of picks from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EnableWorldMap</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable opening world map from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+  <key>EnableAvatarPay</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable paying other avatars from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>EnableVoiceCall</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable voice calls from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>EnableAvatarShare</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable sharing from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+    <key>SearchFromAddressBar</key>
+    <map>
+      <key>Comment</key>
+      <string>Can enter search queries into navigation address bar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>LogInventoryDecline</key>
+    <map>
+      <key>Comment</key>
+      <string>Log in system chat whenever an inventory offer is declined</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>UseHTTPInventory</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow use of http inventory transfers instead of UDP</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ClickToWalk</key>
+    <map>
+      <key>Comment</key>
+      <string>Click in world to walk to location</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowOfferedInventory</key>
+    <map>
+      <key>Comment</key>
+      <string>Show inventory window with last inventory offer selected when receiving inventory from other users.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
 </map>
 </llsd>

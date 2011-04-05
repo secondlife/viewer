@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="save_outfit_menu">
+	<menu_item_call label="Guardar" name="save_outfit"/>
+	<menu_item_call label="Guardar como" name="save_as_new_outfit"/>
+</toggleable_menu>

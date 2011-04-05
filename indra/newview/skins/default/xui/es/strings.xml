@@ -1040,7 +1040,7 @@
 	</string>
 	<string name="WornOnAttachmentPoint" value="(lo llevas en: [ATTACHMENT_POINT])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (activo)"/>
-	<string name="Chat" value="Chat :"/>
+	<string name="Chat Message" value="Chat:"/>
 	<string name="Sound" value="Sonido :"/>
 	<string name="Wait" value="--- Espera :"/>
 	<string name="AnimFlagStop" value="Parar la animación:"/>
@@ -1692,7 +1692,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		No se ha aportado un contrato para este estado. El terreno de este estado lo vende el propietario del estado, no Linden Lab.  Por favor, contacta con ese propietario para informarte sobre la venta.
 	</string>
-	<string name="covenant_last_modified" value="Última modificación:"/>
+	<string name="covenant_last_modified" value="Última modificación: "/>
 	<string name="none_text" value="(no hay)"/>
 	<string name="never_text" value=" (nunca)"/>
 	<string name="GroupOwned">
@@ -1822,12 +1822,6 @@ Se esperaba .wav, .tga, .bmp, .jpg, .jpeg, o .bvh
 	<string name="accel-win-shift">
 		Mayús+
 	</string>
-	<string name="Esc">
-		Esc
-	</string>
-	<string name="Home">
-		Base
-	</string>
 	<string name="FileSaved">
 		Archivo guardado
 	</string>
@@ -1944,6 +1938,9 @@ Se esperaba .wav, .tga, .bmp, .jpg, .jpeg, o .bvh
 	</string>
 	<string name="Other">
 		Otra
+	</string>
+	<string name="Rental">
+		Terreno en alquiler
 	</string>
 	<string name="Any">
 		Cualquiera
@@ -3864,7 +3861,7 @@ Denuncia de infracción
 	<string name="Notices">
 		Avisos
 	</string>
-	<string name="Chat">
+	<string name="Chat" value="Chat :">
 		Chat
 	</string>
 	<string name="DeleteItems">
@@ -3875,5 +3872,349 @@ Denuncia de infracción
 	</string>
 	<string name="EmptyOutfitText">
 		No hay elementos en este vestuario
+	</string>
+	<string name="ExternalEditorNotSet">
+		Selecciona un editor mediante la configuración de ExternalEditor.
+	</string>
+	<string name="ExternalEditorNotFound">
+		No se encuentra el editor externo especificado.
+Inténtalo incluyendo la ruta de acceso al editor entre comillas
+(por ejemplo, &quot;/ruta a mi/editor&quot; &quot;%s&quot;).
+	</string>
+	<string name="ExternalEditorCommandParseError">
+		Error al analizar el comando de editor externo.
+	</string>
+	<string name="ExternalEditorFailedToRun">
+		Error al ejecutar el editor externo.
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Space">
+		Space
+	</string>
+	<string name="Enter">
+		Enter
+	</string>
+	<string name="Tab">
+		Tab
+	</string>
+	<string name="Ins">
+		Ins
+	</string>
+	<string name="Del">
+		Del
+	</string>
+	<string name="Backsp">
+		Backsp
+	</string>
+	<string name="Shift">
+		Shift
+	</string>
+	<string name="Ctrl">
+		Ctrl
+	</string>
+	<string name="Alt">
+		Alt
+	</string>
+	<string name="CapsLock">
+		CapsLock
+	</string>
+	<string name="Home">
+		Base
+	</string>
+	<string name="End">
+		End
+	</string>
+	<string name="PgUp">
+		PgUp
+	</string>
+	<string name="PgDn">
+		PgDn
+	</string>
+	<string name="F1">
+		F1
+	</string>
+	<string name="F2">
+		F2
+	</string>
+	<string name="F3">
+		F3
+	</string>
+	<string name="F4">
+		F4
+	</string>
+	<string name="F5">
+		F5
+	</string>
+	<string name="F6">
+		F6
+	</string>
+	<string name="F7">
+		F7
+	</string>
+	<string name="F8">
+		F8
+	</string>
+	<string name="F9">
+		F9
+	</string>
+	<string name="F10">
+		F10
+	</string>
+	<string name="F11">
+		F11
+	</string>
+	<string name="F12">
+		F12
+	</string>
+	<string name="Add">
+		Añadir
+	</string>
+	<string name="Subtract">
+		Restar
+	</string>
+	<string name="Multiply">
+		Multiplicar
+	</string>
+	<string name="Divide">
+		Dividir
+	</string>
+	<string name="PAD_DIVIDE">
+		PAD_DIVIDE
+	</string>
+	<string name="PAD_LEFT">
+		PAD_LEFT
+	</string>
+	<string name="PAD_RIGHT">
+		PAD_RIGHT
+	</string>
+	<string name="PAD_DOWN">
+		PAD_DOWN
+	</string>
+	<string name="PAD_UP">
+		PAD_UP
+	</string>
+	<string name="PAD_HOME">
+		PAD_HOME
+	</string>
+	<string name="PAD_END">
+		PAD_END
+	</string>
+	<string name="PAD_PGUP">
+		PAD_PGUP
+	</string>
+	<string name="PAD_PGDN">
+		PAD_PGDN
+	</string>
+	<string name="PAD_CENTER">
+		PAD_CENTER
+	</string>
+	<string name="PAD_INS">
+		PAD_INS
+	</string>
+	<string name="PAD_DEL">
+		PAD_DEL
+	</string>
+	<string name="PAD_Enter">
+		PAD_Enter
+	</string>
+	<string name="PAD_BUTTON0">
+		PAD_BUTTON0
+	</string>
+	<string name="PAD_BUTTON1">
+		PAD_BUTTON1
+	</string>
+	<string name="PAD_BUTTON2">
+		PAD_BUTTON2
+	</string>
+	<string name="PAD_BUTTON3">
+		PAD_BUTTON3
+	</string>
+	<string name="PAD_BUTTON4">
+		PAD_BUTTON4
+	</string>
+	<string name="PAD_BUTTON5">
+		PAD_BUTTON5
+	</string>
+	<string name="PAD_BUTTON6">
+		PAD_BUTTON6
+	</string>
+	<string name="PAD_BUTTON7">
+		PAD_BUTTON7
+	</string>
+	<string name="PAD_BUTTON8">
+		PAD_BUTTON8
+	</string>
+	<string name="PAD_BUTTON9">
+		PAD_BUTTON9
+	</string>
+	<string name="PAD_BUTTON10">
+		PAD_BUTTON10
+	</string>
+	<string name="PAD_BUTTON11">
+		PAD_BUTTON11
+	</string>
+	<string name="PAD_BUTTON12">
+		PAD_BUTTON12
+	</string>
+	<string name="PAD_BUTTON13">
+		PAD_BUTTON13
+	</string>
+	<string name="PAD_BUTTON14">
+		PAD_BUTTON14
+	</string>
+	<string name="PAD_BUTTON15">
+		PAD_BUTTON15
+	</string>
+	<string name="-">
+		-
+	</string>
+	<string name="=">
+		=
+	</string>
+	<string name="`">
+		`
+	</string>
+	<string name=";">
+		;
+	</string>
+	<string name="[">
+		[
+	</string>
+	<string name="]">
+		]
+	</string>
+	<string name="\">
+		\
+	</string>
+	<string name="0">
+		0
+	</string>
+	<string name="1">
+		1
+	</string>
+	<string name="2">
+		2
+	</string>
+	<string name="3">
+		3
+	</string>
+	<string name="4">
+		4
+	</string>
+	<string name="5">
+		5
+	</string>
+	<string name="6">
+		6
+	</string>
+	<string name="7">
+		7
+	</string>
+	<string name="8">
+		8
+	</string>
+	<string name="9">
+		9
+	</string>
+	<string name="A">
+		A
+	</string>
+	<string name="B">
+		B
+	</string>
+	<string name="C">
+		C
+	</string>
+	<string name="D">
+		D
+	</string>
+	<string name="E">
+		E
+	</string>
+	<string name="F">
+		F
+	</string>
+	<string name="G">
+		G
+	</string>
+	<string name="H">
+		H
+	</string>
+	<string name="I">
+		I
+	</string>
+	<string name="J">
+		J
+	</string>
+	<string name="K">
+		K
+	</string>
+	<string name="L">
+		L
+	</string>
+	<string name="M">
+		M
+	</string>
+	<string name="N">
+		N
+	</string>
+	<string name="O">
+		O
+	</string>
+	<string name="P">
+		P
+	</string>
+	<string name="Q">
+		Q
+	</string>
+	<string name="R">
+		R
+	</string>
+	<string name="S">
+		S
+	</string>
+	<string name="T">
+		T
+	</string>
+	<string name="U">
+		U
+	</string>
+	<string name="V">
+		V
+	</string>
+	<string name="W">
+		W
+	</string>
+	<string name="X">
+		X
+	</string>
+	<string name="Y">
+		Y
+	</string>
+	<string name="Z">
+		Z
+	</string>
+	<string name="BeaconParticle">
+		Viendo balizas de partículas (azules)
+	</string>
+	<string name="BeaconPhysical">
+		Viendo balizas de objetos materiales (verdes)
+	</string>
+	<string name="BeaconScripted">
+		Viendo balizas de objetos con script (rojas)
+	</string>
+	<string name="BeaconScriptedTouch">
+		Viendo el objeto con script con balizas de función táctil (rojas)
+	</string>
+	<string name="BeaconSound">
+		Viendo balizas de sonido (amarillas)
+	</string>
+	<string name="BeaconMedia">
+		Viendo balizas de medios (blancas)
+	</string>
+	<string name="ParticleHiding">
+		Ocultando las partículas
 	</string>
 </strings>

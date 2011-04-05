@@ -32,6 +32,8 @@
 #include "lllistener_openal.h"
 
 
+const float LLAudioEngine_OpenAL::WIND_BUFFER_SIZE_SEC = 0.05f;
+
 LLAudioEngine_OpenAL::LLAudioEngine_OpenAL()
 	:
 	mWindGen(NULL),

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toggleable_menu name="Gear Menu">
+	<menu_item_call label="Ver perfil" name="view_profile"/>
+	<menu_item_call label="Adicionar amigo..." name="add_friend"/>
+	<menu_item_call label="MI" name="im"/>
+	<menu_item_call label="Teletransportar" name="teleport"/>
+	<menu_item_call label="Bloquear" name="block"/>
+	<menu_item_call label="Desbloquear" name="unblock"/>
+	<menu_item_call label="Denunciar" name="report"/>
+	<menu_item_call label="Congelar" name="freeze"/>
+	<menu_item_call label="Ejetar" name="eject"/>
+	<menu_item_call label="Chutar" name="kick"/>
+	<menu_item_call label="CSR" name="csr"/>
+	<menu_item_call label="Depurar texturas" name="debug"/>
+	<menu_item_call label="Localizar no mapa" name="find_on_map"/>
+	<menu_item_call label="Mais zoom" name="zoom_in"/>
+</toggleable_menu>

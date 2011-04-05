@@ -152,7 +152,27 @@ static LLFastTimer::DeclareTimer FTM_XML_PARSE("XML Reading/Parsing");
 bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root)
 {
 	LLFastTimer timer(FTM_XML_PARSE);
-	return LLXMLNode::getLayeredXMLNode(xui_filename, root, LLUI::getXUIPaths());
+	
+	std::vector<std::string> paths;
+	std::string path = gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), xui_filename);
+	if (!path.empty())
+	{
+		paths.push_back(path);
+	}
+
+	std::string localize_path = gDirUtilp->findSkinnedFilename(LLUI::getLocalizedSkinPath(), xui_filename);
+	if (!localize_path.empty() && localize_path != path)
+	{
+		paths.push_back(localize_path);
+	}
+
+	if (paths.empty())
+	{
+		// sometimes whole path is passed in as filename
+		paths.push_back(xui_filename);
+	}
+
+	return LLXMLNode::getLayeredXMLNode(root, paths);
 }
 
 
@@ -214,7 +234,7 @@ LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const 
 
 std::string LLUICtrlFactory::getCurFileName() 
 { 
-	return mFileNames.empty() ? "" : gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + mFileNames.back(); 
+	return mFileNames.empty() ? "" : mFileNames.back(); 
 }
 
 

@@ -24,6 +24,10 @@
  * $/LicenseInfo$
  */
 
+#if !LL_DARWIN
+#error This header must not be included when compiling for any target other than Mac OS. Consider including lldir.h instead.
+#endif // !LL_DARWIN
+
 #ifndef LL_LLDIR_MAC_H
 #define LL_LLDIR_MAC_H
 
@@ -39,7 +43,7 @@ public:
 
 	/*virtual*/ void initAppDirs(const std::string &app_name,
 		const std::string& app_read_only_data_dir);
-public:	
+
 	virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
 	virtual std::string getCurPath();
 	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);

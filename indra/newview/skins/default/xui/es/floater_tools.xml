@@ -64,6 +64,8 @@
 		<radio_item label="Elegir la cara" name="radio select face"/>
 	</radio_group>
 	<check_box label="Editar las partes enlazadas" name="checkbox edit linked parts"/>
+	<button label="Enlazar" name="link_btn"/>
+	<button label="Desenlazar" name="unlink_btn"/>
 	<text name="RenderingCost" tool_tip="Muestra cuánto se calcula que cuesta renderizar este objeto">
 		þ: [COUNT]
 	</text>
@@ -170,14 +172,8 @@
 			<text name="Creator:">
 				Creador:
 			</text>
-			<text name="Creator Name">
-				Dª Esbee Linden (esbee.linden)
-			</text>
 			<text name="Owner:">
 				Propietario:
-			</text>
-			<text name="Owner Name">
-				Dª Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Grupo:

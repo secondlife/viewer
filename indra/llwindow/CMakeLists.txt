@@ -30,6 +30,7 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
+    ${DIRECTX_INCLUDE_DIR}
     )
 
 set(llwindow_SOURCE_FILES

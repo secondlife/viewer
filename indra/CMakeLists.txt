@@ -72,9 +72,9 @@ if (VIEWER)
   add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
 
   # llplugin testbed code (is this the right way to include it?)
-  if (NOT LINUX)
+  if (LL_TESTS AND NOT LINUX)
     add_subdirectory(${VIEWER_PREFIX}test_apps/llplugintest)
-  endif (NOT LINUX)
+  endif (LL_TESTS AND NOT LINUX)
 
   if (LINUX)
     add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)
@@ -103,7 +103,7 @@ if (VIEWER)
 endif (VIEWER)
 
 # Linux builds the viewer and server in 2 separate projects
-# In order for ./develop.py build server to work on linux, 
+# In order for build server to work on linux, 
 # the viewer project needs a server target.
 # This is not true for mac and windows.
 if (LINUX) 

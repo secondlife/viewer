@@ -87,14 +87,8 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text name="Owner:">
 				Propietario:
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				Grupo:
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="Configurar" name="Set..."/>
 			<check_box label="Permitir transferir al grupo" name="check deed" tool_tip="Un oficial del grupo puede transferir este terreno al grupo. El terreno será apoyado por el grupo en sus asignaciones de terreno."/>
@@ -221,7 +215,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text name="Simulator primitive usage:">
 				Uso de primitivas:
 			</text>
-			<text  name="objects_available">
+			<text name="objects_available">
 				[COUNT] de un máx. de [MAX] ([AVAILABLE] disponibles)
 			</text>
 			<text name="Primitives parcel supports:">
@@ -353,6 +347,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				<combo_box.item label="Parques y Naturaleza" name="item9"/>
 				<combo_box.item label="Residencial" name="item10"/>
 				<combo_box.item label="Compras" name="item11"/>
+				<combo_box.item label="Terreno en alquiler" name="item13"/>
 				<combo_box.item label="Otra" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -367,6 +362,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				<combo_box.item label="Parques y Naturaleza" name="item9"/>
 				<combo_box.item label="Residencial" name="item10"/>
 				<combo_box.item label="Compras" name="item11"/>
+				<combo_box.item label="Terreno en alquiler" name="item13"/>
 				<combo_box.item label="Otra" name="item12"/>
 			</combo_box>
 			<check_box label="Contenido &apos;Mature&apos;" name="MatureCheck" tool_tip=""/>
@@ -398,7 +394,6 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			</text>
 			<line_editor left="97" name="media_url"/>
 			<button label="Definir" name="set_media_url"/>
-			<check_box label="Ocultar la URL del media" left="97" name="hide_media_url" tool_tip="Marcando esta opción esconderá en la información de esta parcela -a quien no esté autorizado a verla- la URL del media. Note que esto no está disponible para HTML."/>
 			<text name="Description:">
 				Descripción:
 			</text>
@@ -430,7 +425,6 @@ los media:
 			<text name="MusicURL:">
 				URL de música:
 			</text>
-			<check_box label="Ocultar la URL" name="hide_music_url" tool_tip="Al marcar esta opción se ocultará la URL de la música a quien no esté autorizado a ver la información de esta parcela."/>
 			<text name="Sound:">
 				Sonido:
 			</text>
@@ -447,7 +441,7 @@ los media:
 				(Definido por el Estado)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Permitir el acceso público ([MATURITY])
+				Permitir el acceso público ([MATURITY]) (Nota: Si no seleccionas esta opción, se crearán líneas de prohibición)
 			</panel.string>
 			<panel.string name="estate_override">
 				Una o más de esta opciones está configurada a nivel del estado

@@ -67,6 +67,7 @@
 #include "llworld.h"
 #include "llspatialpartition.h"
 #include "stringize.h"
+#include "llviewercontrol.h"
 
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
@@ -1376,10 +1377,15 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("EventQueueGet");
 	capabilityNames.append("ObjectMedia");
 	capabilityNames.append("ObjectMediaNavigate");
-	capabilityNames.append("FetchLib2");
-	capabilityNames.append("FetchLibDescendents2");
-	capabilityNames.append("FetchInventory2");
-	capabilityNames.append("FetchInventoryDescendents2");
+
+	if (gSavedSettings.getBOOL("UseHTTPInventory"))
+	{
+		capabilityNames.append("FetchLib2");
+		capabilityNames.append("FetchLibDescendents2");
+		capabilityNames.append("FetchInventory2");
+		capabilityNames.append("FetchInventoryDescendents2");
+	}
+
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetTexture");
 	capabilityNames.append("GroupProposalBallot");

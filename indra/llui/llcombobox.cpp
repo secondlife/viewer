@@ -316,7 +316,7 @@ void LLComboBox::setValue(const LLSD& value)
 		LLScrollListItem* item = mList->getFirstSelected();
 		if (item)
 		{
-			setLabel(getSelectedItemLabel());
+			updateLabel();
 		}
 		mLastSelectedIndex = mList->getFirstSelectedIndex();
 	}
@@ -384,6 +384,23 @@ void LLComboBox::setLabel(const LLStringExplicit& name)
 	}
 }
 
+void LLComboBox::updateLabel()
+{
+	// Update the combo editor with the selected
+	// item label.
+	if (mTextEntry)
+	{
+		mTextEntry->setText(getSelectedItemLabel());
+		mTextEntry->setTentative(FALSE);
+	}
+
+	// If combo box doesn't allow text entry update
+	// the combo button label.
+	if (!mAllowTextEntry)
+	{
+		mButton->setLabel(getSelectedItemLabel());
+	}
+}
 
 BOOL LLComboBox::remove(const std::string& name)
 {
@@ -701,13 +718,13 @@ void LLComboBox::onItemSelected(const LLSD& data)
 	mLastSelectedIndex = getCurrentIndex();
 	if (mLastSelectedIndex != -1)
 	{
-		setLabel(getSelectedItemLabel());
+		updateLabel();
 
 		if (mAllowTextEntry)
-	{
-		gFocusMgr.setKeyboardFocus(mTextEntry);
-		mTextEntry->selectAll();
-	}
+		{
+			gFocusMgr.setKeyboardFocus(mTextEntry);
+			mTextEntry->selectAll();
+		}
 	}
 	// hiding the list reasserts the old value stored in the text editor/dropdown button
 	hideList();

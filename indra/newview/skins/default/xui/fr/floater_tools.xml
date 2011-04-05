@@ -64,6 +64,8 @@
 		<radio_item label="Choisir une face" name="radio select face"/>
 	</radio_group>
 	<check_box label="Modification liée" name="checkbox edit linked parts"/>
+	<button label="Lien" name="link_btn"/>
+	<button label="Annuler le lien" name="unlink_btn"/>
 	<text name="RenderingCost" tool_tip="Affiche le coût du rendu calculé pour cet objet">
 		þ : [COUNT]
 	</text>
@@ -170,14 +172,8 @@
 			<text name="Creator:">
 				Créateur :
 			</text>
-			<text name="Creator Name">
-				Mrs. Esbee Linden (esbee.linden)
-			</text>
 			<text name="Owner:">
 				Propriétaire :
-			</text>
-			<text name="Owner Name">
-				Mrs. Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Groupe :

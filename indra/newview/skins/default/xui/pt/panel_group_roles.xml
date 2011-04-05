@@ -6,8 +6,8 @@
 	<panel.string name="want_apply_text">
 		Deseja salvar essas mudanças?
 	</panel.string>
-	<tab_container height="164" name="roles_tab_container">
-		<panel height="148" label="MEMBROS" name="members_sub_tab" tool_tip="Membros">
+	<tab_container name="roles_tab_container">
+		<panel label="MEMBROS" name="members_sub_tab" tool_tip="Membros">
 			<panel.string name="help_text">
 				Você pode adicionar ou remover as funções designadas aos membros. Selecione vários membros, segurando a tecla Ctrl e clicando em seus nomes.
 			</panel.string>
@@ -15,15 +15,15 @@
 				[AREA] m²
 			</panel.string>
 			<filter_editor label="Filtrar por membro" name="filter_input"/>
-			<name_list bottom_delta="-105" height="104" name="member_list">
+			<name_list name="member_list">
 				<name_list.columns label="Membro" name="name"/>
 				<name_list.columns label="Doações" name="donated"/>
 				<name_list.columns label="Status" name="online"/>
 			</name_list>
-			<button label="Convidar" name="member_invite" width="165"/>
+			<button label="Convidar" name="member_invite" />
 			<button label="Ejetar" name="member_eject"/>
 		</panel>
-		<panel height="148" label="CARGOS" name="roles_sub_tab">
+		<panel label="CARGOS" name="roles_sub_tab">
 			<panel.string name="help_text">
 				Cada cargo tem um nome e uma lista das funções que membros designados podem desempenhar.
  Os membros podem ter um ou mais cargos.
@@ -36,7 +36,7 @@
 				Inv_FolderClosed
 			</panel.string>
 			<filter_editor label="Filtrar por cargo" name="filter_input"/>
-			<scroll_list bottom_delta="-104" height="104" name="role_list">
+			<scroll_list name="role_list">
 				<scroll_list.columns label="Cargo" name="name"/>
 				<scroll_list.columns label="Título" name="title"/>
 				<scroll_list.columns label="#" name="members"/>
