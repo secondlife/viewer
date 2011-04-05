@@ -341,7 +341,7 @@ Disabled for now.
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="52"
+         min_width="62"
          mouse_opaque="false"
          name="mini_map_btn_panel"
          user_resize="false"

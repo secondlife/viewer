@@ -240,8 +240,9 @@ private:
 	 *
 	 * @params[in, out] available_width - reference to available width to be used to show buttons.
 	 * @see processShowButton()
+	 * @return consumed pixels (difference in available width).
 	 */
-	void processShowButtons(S32& available_width);
+	S32 processShowButtons(S32& available_width);
 
 	/**
 	 * Tries to show panel with specified button using available width.
@@ -317,6 +318,20 @@ private:
 	void processExtendButtons(S32& available_width);
 
 	/**
+	 * Extends the Speak button if there is anough headroom.
+	 *
+	 * Unlike other buttons, the Speak buttons has only two possible widths:
+	 * the minimal one (without label) and the maximal (default) one.
+	 *
+	 * If the button is at its minimum width there is not enough headroom to
+	 * reshape it to the maximum width, the method does nothing.
+	 *
+	 * @param available_width Available headroom.
+	 * @return false if the button requires extension but there's not enough headroom, true otherwise.
+	 */
+	bool processExtendSpeakButton(S32& available_width);
+
+	/**
 	 * Extends shown button to increase total taken space.
 	 *
 	 * @params[in] processed_object_type - type of button to be extended.
@@ -363,6 +378,16 @@ private:
 	 * @see setButtonsControlsAndListeners()
 	 */
 	static bool toggleShowButton(EResizeState button_type, const LLSD& new_visibility);
+
+	/**
+	 * Show the button if there is enough space.
+	 *
+	 * @param[in]      button_type -    type of button to be shown.
+	 * @param[in, out] available_width  amount of available space on the bottom bar.
+	 *
+	 * @return true if button was shown, false that's not possible (not enough space, etc)
+	 */
+	bool showButton(EResizeState button_type, S32& available_width);
 
 	/**
 	 * Sets passed visibility to object specified by resize type.
@@ -417,8 +442,16 @@ private:
 	 */
 	void processChatbarCustomization(S32 new_width);
 
+	/**
+	 * @return difference between current chiclet panel width and the minimum.
+	 */
+	S32 getChicletPanelShrinkHeadroom() const;
+
 	/// Get button name for debugging.
 	static std::string resizeStateToString(EResizeState state);
+
+	/// Dump a mask for debugging
+	static std::string resizeStateMaskToString(MASK mask);
 
 	/// Buttons automatically hidden due to lack of space.
 	MASK mResizeState;
