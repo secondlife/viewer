@@ -1172,8 +1172,6 @@ bool idle_startup()
 
 		// init the shader managers
 		LLPostProcess::initClass();
-		LLWLParamManager::initClass();
-		LLWaterParamManager::initClass();
 
 		LLViewerObject::initVOClasses();
 

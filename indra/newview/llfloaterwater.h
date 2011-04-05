@@ -33,8 +33,7 @@
 
 #include "llfloater.h"
 
-#include <vector>
-#include "llwlparamset.h"
+#include "llenvmanager.h"
 
 struct WaterVector2Control;
 struct WaterVector3Control;
@@ -52,6 +51,8 @@ public:
 	/*virtual*/	BOOL	postBuild();
 	/// initialize all
 	void initCallbacks(void);
+
+	static void show(LLEnvKey::EScope scope = LLEnvKey::SCOPE_LOCAL);
 
 	bool newPromptCallback(const LLSD& notification, const LLSD& response);
 
@@ -101,6 +102,8 @@ public:
 
 private:
 	static std::set<std::string> sDefaultPresets;
+	static LLEnvKey::EScope sScope;
+	static std::string sOriginalTitle;
 };
 
 

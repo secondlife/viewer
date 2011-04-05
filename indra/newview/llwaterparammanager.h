@@ -212,12 +212,9 @@ struct WaterExpFloatControl
 
 
 /// WindLight parameter manager class - what controls all the wind light shaders
-class LLWaterParamManager
+class LLWaterParamManager : public LLSingleton<LLWaterParamManager>
 {
 public:
-
-	LLWaterParamManager();
-	~LLWaterParamManager();
 
 	/// load a preset file
 	void loadAllPresets(const std::string & fileName);
@@ -237,12 +234,6 @@ public:
 
 	/// Update shader uniforms that have changed.
 	void updateShaderUniforms(LLGLSLShader * shader);
-
-	/// Perform global initialization for this class.
-	static void initClass(void);
-
-	// Cleanup of global data that's only inited once per class.
-	static void cleanupClass();
 
 	/// add a param to the list
 	bool addParamSet(const std::string& name, LLWaterParamSet& param);
@@ -281,9 +272,6 @@ public:
 	F32 getFogDensity(void);
 	LLColor4 getFogColor(void);
 
-	// singleton pattern implementation
-	static LLWaterParamManager * instance();
-
 public:
 
 	LLWaterParamSet mCurParams;
@@ -311,11 +299,13 @@ public:
 	F32 mDensitySliderValue;
 
 private:
+	friend class LLSingleton<LLWaterParamManager>;
+	/*virtual*/ void initSingleton();
+	LLWaterParamManager();
+	~LLWaterParamManager();
+
 	LLVector4 mWaterPlane;
 	F32 mWaterFogKS;
-
-	// our parameter manager singleton instance
-	static LLWaterParamManager * sInstance;
 };
 
 inline void LLWaterParamManager::setDensitySliderValue(F32 val)

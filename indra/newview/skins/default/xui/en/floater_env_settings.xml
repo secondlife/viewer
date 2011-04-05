@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="150"
+ height="165"
  layout="topleft"
  name="Environment Editor Floater"
  help_topic="environment_editor_floater"
@@ -134,6 +134,12 @@
      name="EnvWaterFogSlider"
      top_delta="4"
      width="210" />
+    <check_box
+     follows="left|top"
+     label="Use Region Environment Settings"
+     left="8"
+     name="RegionWLOptIn"
+     top_pad="20" />
     <button
      follows="left|top"
      height="23"
@@ -141,7 +147,15 @@
      layout="topleft"
      left="10"
      name="EnvUseEstateTimeButton"
-     top="120"
+     top_pad="6"
+     width="137" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Use Local Time"
+     left_pad="5"
+     name="EnvUseLocalTimeButton"
+     top_delta="0"
      width="137" />
     <button
      follows="left|top"

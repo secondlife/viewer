@@ -36,8 +36,10 @@
 #include "llanimationstates.h"
 #include "llbottomtray.h"
 #include "llcallingcard.h"
+#include "llcapabilitylistener.h"
 #include "llchannelmanager.h"
 #include "llconsole.h"
+#include "llenvmanager.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloaterreg.h"
@@ -77,6 +79,7 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
+#include "stringize.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -627,6 +630,16 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 				gSky.mVOGroundp->setRegion(regionp);
 			}
 
+			// Notify windlight managers
+			bool teleport = (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE);
+			if (teleport)
+			{
+				LLEnvManager::getInstance()->notifyTP();
+			}
+			else
+			{
+				LLEnvManager::getInstance()->notifyCrossing();
+			}
 		}
 		else
 		{
@@ -643,6 +656,9 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
 			// Update all of the regions.
 			LLWorld::getInstance()->updateAgentOffset(mAgentOriginGlobal);
+
+			// Notify windlight managers about login
+			LLEnvManager::getInstance()->notifyLogin();
 		}
 
 		// Pass new region along to metrics components that care about this level of detail.
@@ -667,6 +683,9 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	LLSelectMgr::getInstance()->updateSelectionCenter();
 
 	LLFloaterMove::sUpdateFlyingStatus();
+
+       // notify EnvManager that a refresh is needed
+       LLEnvManager::instance().refreshFromStorage(LLEnvKey::SCOPE_REGION);
 }
 
 
