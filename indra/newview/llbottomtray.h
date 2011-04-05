@@ -240,8 +240,9 @@ private:
 	 *
 	 * @params[in, out] available_width - reference to available width to be used to show buttons.
 	 * @see processShowButton()
+	 * @return consumed pixels (difference in available width).
 	 */
-	void processShowButtons(S32& available_width);
+	S32 processShowButtons(S32& available_width);
 
 	/**
 	 * Tries to show panel with specified button using available width.
@@ -431,8 +432,16 @@ private:
 	 */
 	void processChatbarCustomization(S32 new_width);
 
+	/**
+	 * @return difference between current chiclet panel width and the minimum.
+	 */
+	S32 getChicletPanelShrinkHeadroom() const;
+
 	/// Get button name for debugging.
 	static std::string resizeStateToString(EResizeState state);
+
+	/// Dump a mask for debugging
+	static std::string resizeStateMaskToString(MASK mask);
 
 	/// Buttons automatically hidden due to lack of space.
 	MASK mResizeState;
