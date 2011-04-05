@@ -1652,8 +1652,11 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 		S32 result_width = 0;
 		bool decrease_width = false;
 
+#if 0
 		// Mark this button to be shown
+		lldebugs << "Adding " << resizeStateToString(object_type) << " to mResizeState" << llendl;
 		mResizeState |= object_type;
+#endif
 
 		if (preferred_width > 0 && available_width >= preferred_width)
 		{
