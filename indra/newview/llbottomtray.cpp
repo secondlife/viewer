@@ -1419,11 +1419,6 @@ bool LLBottomTray::processExtendSpeakButton(S32& available_width)
 	const S32 panel_width = mSpeakPanel->getRect().getWidth();
 	const S32 required_headroom = panel_max_width - panel_width;
 
-#if 0
-	lldebugs << "required_extend_width = (panel_max_width - panel_width) = "
-		<< "(" << panel_max_width << " - " << panel_width << ") = " << required_headroom << llendl;
-#endif
-
 	if (panel_width < panel_max_width) // if the button isn't extended already
 	{
 		if (available_width < required_headroom) // not enough space
@@ -1485,13 +1480,13 @@ void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32& 
 
 bool LLBottomTray::canButtonBeShown(EResizeState processed_object_type) const
 {
-	// 1. Let's check that all buttons (that can be hidden on resize) before the given one are already shown.
+	// Check that all buttons (that can be hidden on resize)
+	// to the left of the given one are already shown.
 
 	// process buttons in direct order (from left to right)
 	resize_state_vec_t::const_iterator it = mButtonsProcessOrder.begin();
 	const resize_state_vec_t::const_iterator it_end = mButtonsProcessOrder.end();
 
-	// 1. Find and accumulate all buttons types before one passed into the method.
 	MASK buttons_before_mask = RS_NORESIZE;
 	for (; it != it_end; ++it)
 	{
@@ -1501,18 +1496,7 @@ bool LLBottomTray::canButtonBeShown(EResizeState processed_object_type) const
 		buttons_before_mask |= button_type;
 	}
 
-	// 2. Check if some previous buttons are still hidden on resize
-	bool can_be_shown = !(buttons_before_mask & mResizeState);
-#if 0
-	if (!can_be_shown)
-	{
-		lldebugs << llformat("mResizeState = 0x%4x, buttons_before_mask = 0x%4x", mResizeState,  buttons_before_mask) << llendl;
-		lldebugs << "Auto-hidden: " << resizeStateMaskToString(mResizeState) << llendl;
-		lldebugs << "Must show the following buttons to the left of " << resizeStateToString(processed_object_type) << " first:" << llendl;
-		lldebugs << resizeStateMaskToString(buttons_before_mask & mResizeState) << llendl;
-	}
-#endif
-	return can_be_shown;
+	return !(buttons_before_mask & mResizeState);
 }
 
 void LLBottomTray::initResizeStateContainers()
@@ -1698,12 +1682,6 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 		S32 current_width = cur_panel->getRect().getWidth();
 		S32 result_width = 0;
 		bool decrease_width = false;
-
-#if 0
-		// Mark this button to be shown
-		lldebugs << "Adding " << resizeStateToString(object_type) << " to mResizeState" << llendl;
-		mResizeState |= object_type;
-#endif
 
 		if (preferred_width > 0 && available_width >= preferred_width)
 		{
