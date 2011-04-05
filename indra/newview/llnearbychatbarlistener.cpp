@@ -60,8 +60,8 @@ void LLNearbyChatBarListener::sendChat(LLSD const & chat_data) const
 	if (chat_data.has("channel"))
 	{
 		channel = chat_data["channel"].asInteger();
-		if (channel < 0 || channel >= 2147483647)
-		{	// Use 0 up to (but not including) DEBUG_CHANNEL (wtf isn't that defined??)
+		if (channel < 0 || channel >= CHAT_CHANNEL_DEBUG)
+		{	// Use 0 up to (but not including) CHAT_CHANNEL_DEBUG
 			channel = 0;
 		}
 	}

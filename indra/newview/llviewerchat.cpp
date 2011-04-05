@@ -75,6 +75,10 @@ void LLViewerChat::getChatColor(const LLChat& chat, LLColor4& r_color)
 				{
 					r_color = LLUIColorTable::instance().getColor("llOwnerSayChatColor");
 				}
+				else if ( chat.mChatType == CHAT_TYPE_DIRECT )
+				{
+					r_color = LLUIColorTable::instance().getColor("DirectChatColor");
+				}
 				else
 				{
 					r_color = LLUIColorTable::instance().getColor("ObjectChatColor");
@@ -139,6 +143,10 @@ void LLViewerChat::getChatColor(const LLChat& chat, std::string& r_color_name, F
 				else if ( chat.mChatType == CHAT_TYPE_OWNER )
 				{
 					r_color_name = "llOwnerSayChatColor";
+				}
+				else if ( chat.mChatType == CHAT_TYPE_DIRECT )
+				{
+					r_color_name = "DirectChatColor";
 				}
 				else
 				{
