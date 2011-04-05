@@ -51,6 +51,54 @@
           </map>
         </map>
       </map>
+      <key>GLOD</key>
+      <map>
+        <key>license</key>
+        <string>GLOD</string>
+        <key>license_file</key>
+        <string>LICENSES/glod.txt</string>
+        <key>name</key>
+        <string>GLOD</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3a7263246813ecf9aff5a240892f9641</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-darwin-20101007a.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ca7368e9a1baf266b82d910fa8f821bd</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-linux-20100920a.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e40e1eac81dc57d8724f96fd977a3d58</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-windows-20110330.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
       <key>SDL</key>
       <map>
         <key>license</key>
@@ -213,6 +261,54 @@
               <string>98be22c8833aa2bca184b9fa09fbb82b</string>
               <key>url</key>
               <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.45.0-windows-20110124.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>colladadom</key>
+      <map>
+        <key>license</key>
+        <string>scea</string>
+        <key>license_file</key>
+        <string>LICENSES/scea.txt</string>
+        <key>name</key>
+        <string>colladadom</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>86de85fa85aa58b5ee550a6a3c77a7d3</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-darwin-20101117.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e515afc3fa4dcb00d9fb06fbb6343669</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1-linux-20101102.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c1e79c9d3084727be35ce140db87717e</string>
+              <key>url</key>
+              <string>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/colladadom-2.1-windows-20110223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -615,42 +711,6 @@
           </map>
         </map>
       </map>
-      <key>google-perftools</key>
-      <map>
-        <key>license</key>
-        <string>bsd</string>
-        <key>license_file</key>
-        <string>LICENSES/google-perftools.txt</string>
-        <key>name</key>
-        <string>google-perftools</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>cf513fc2eec4a414cc804cf408932a45</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_perftools-1.7-linux-20110315.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>8108bffe1c814be9d035b47dac3d4541</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-perftools-1.0-windows-20101001b.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
       <key>google_breakpad</key>
       <map>
         <key>license</key>
@@ -1047,6 +1107,102 @@
           </map>
         </map>
       </map>
+      <key>llconvexdecomposition</key>
+      <map>
+        <key>license</key>
+        <string>havok</string>
+        <key>license_file</key>
+        <string>on_file</string>
+        <key>name</key>
+        <string>llconvexdecomposition</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>47ef880db4aea1a9561194c54fc28433</string>
+              <key>url</key>
+              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.3-darwin-20101222.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>f63424076d4fadd133950af0cf9c3564</string>
+              <key>url</key>
+              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.3-linux-20101222.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5ae8bab01189c5dbbc6f383c751e031a</string>
+              <key>url</key>
+              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.3-windows-20101222.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>llconvexdecompositionstub</key>
+      <map>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>license_file</key>
+        <string>LICENSES/lgpl.txt</string>
+        <key>name</key>
+        <string>llconvexdecompositionstub</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>349fa0e287fb275bbee43ced194a1db1</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-darwin-20101015.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>dbf4b15e74ce9042e8500720dffc461a</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-linux-20101015a.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>bba9a4dd04fda1b263f34448a044783b</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-windows-20101015.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
       <key>llqtwebkit</key>
       <map>
         <key>license</key>
@@ -1351,6 +1507,42 @@
           </map>
         </map>
       </map>
+      <key>pcre</key>
+      <map>
+        <key>license</key>
+        <string>bsd</string>
+        <key>license_file</key>
+        <string>LICENSES/bsd.txt</string>
+        <key>name</key>
+        <string>pcre</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ef430ae3b9cdba518ad9952e99b12367</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pcre-7.6-darwin-20101102.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>86195b0680604fe86cfbbfb921c31dff</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pcre-7.6-linux-20101029.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
+      </map>
       <key>pth</key>
       <map>
         <key>license</key>
@@ -1441,6 +1633,42 @@
               <string>44f84b3b45f7067a104a7c34d50d62f0</string>
               <key>url</key>
               <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-windows-20110120.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>tcmalloc</key>
+      <map>
+        <key>license</key>
+        <string>bsd</string>
+        <key>license_file</key>
+        <string>LICENSES/google-perftools.txt</string>
+        <key>name</key>
+        <string>google-perftools</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>cf513fc2eec4a414cc804cf408932a45</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_perftools-1.7-linux-20110315.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8108bffe1c814be9d035b47dac3d4541</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-perftools-1.0-windows-20101001b.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1740,30 +1968,6 @@
               <key>name</key>
               <string>Release</string>
             </map>
-            <!-- OPEN-1 WORKAROUND begin - to be removed when VC express is detected correctly -->
-            <key>VCexpressRelWithDebInfo</key>
-            <map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>VCexpressRelWithDebInfo</string>
-            </map>
-            <!-- OPEN-1 WORKAROUND end -->
-            <!-- OPEN-1a WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
             <key>VC10msbuildRelWithDebInfo</key>
             <map>
               <key>configure</key>
@@ -1785,8 +1989,6 @@
               <key>name</key>
               <string>VC10msbuildRelWithDebInfo</string>
             </map>
-            <!-- OPEN-1a WORKAROUND end -->
-            <!-- OPEN-1a Release WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
             <key>VC10msbuildRelease</key>
             <map>
               <key>configure</key>
@@ -1808,7 +2010,27 @@
               <key>name</key>
               <string>VC10msbuildRelease</string>
             </map>
-            <!-- OPEN-1a Release WORKAROUND end -->            
+            <key>VCexpressRelWithDebInfo</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
+                  <string>-DUNATTENDED:BOOL=OFF</string>
+                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VCexpressRelWithDebInfo</string>
+            </map>
           </map>
           <key>name</key>
           <string>common</string>
@@ -2752,7 +2974,67 @@
               <key>name</key>
               <string>Release</string>
             </map>
-            <!-- OPEN-1 WORKAROUND begin - to be removed when VC express is detected correctly -->
+            <key>VC10msbuildRelWithDebInfo</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>msbuild.exe</string>
+                <key>options</key>
+                <array>
+                  <string>SecondLife.sln</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/t:build</string>
+                  <string>/p:Configuration=RelWithDebInfo</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/p:"VCBuildAdditionalOptions= /useenv"</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>"Visual Studio 10"</string>
+                  <string>-DSTANDALONE:BOOL=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DFMOD=FALSE</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VC10msbuildRelWithDebInfo</string>
+            </map>
+            <key>VC10msbuildRelease</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>msbuild.exe</string>
+                <key>options</key>
+                <array>
+                  <string>SecondLife.sln</string>
+                  <string>/t:build</string>
+                  <string>/p:Configuration=Release</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/p:"VCBuildAdditionalOptions= /useenv"</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>"Visual Studio 10"</string>
+                  <string>-DSTANDALONE:BOOL=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DFMOD=FALSE</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>VC10msbuildRelease</string>
+            </map>
             <key>VCexpressRelWithDebInfo</key>
             <map>
               <key>build</key>
@@ -2783,72 +3065,6 @@
               <key>name</key>
               <string>VCexpressRelWithDebInfo</string>
             </map>
-            <!-- OPEN-1 WORKAROUND end -->
-            <!-- OPEN-1a WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
-           <key>VC10msbuildRelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>msbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/t:build</string>
-                  <string>/p:Configuration=RelWithDebInfo</string>
-                  <string>/p:Platform=Win32</string>
-                  <string>/p:"VCBuildAdditionalOptions= /useenv"</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
-                  </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>VC10msbuildRelWithDebInfo</string>
-            </map>
-           <!-- OPEN-1a WORKAROUND end -->
-            <!-- OPEN-1a Release WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
-           <key>VC10msbuildRelease</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>msbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                  <string>/t:build</string>
-                  <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=Win32</string>
-                  <string>/p:"VCBuildAdditionalOptions= /useenv"</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
-                  </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>VC10msbuildRelease</string>
-            </map>
-           <!-- OPEN-1a WORKAROUND end -->
           </map>
           <key>name</key>
           <string>windows</string>

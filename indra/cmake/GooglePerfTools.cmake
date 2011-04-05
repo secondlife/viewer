@@ -12,7 +12,7 @@ else (STANDALONE)
     set(GOOGLE_PERFTOOLS_FOUND "YES")
   endif (WINDOWS)
   if (LINUX)
-    use_prebuilt_binary(google-perftools)
+    use_prebuilt_binary(tcmalloc)
     set(TCMALLOC_LIBRARIES 
 	tcmalloc_minimal)
     set(PROFILER_LIBRARIES profiler)
