@@ -73,6 +73,7 @@ LLWaterParamManager::LLWaterParamManager() :
 	mWave2Dir(.5f, .5f, "wave2Dir"),
 	mDensitySliderValue(1.0f),
 	mPrevFogDensity(16.0f), // 2^4
+	mPrevFogColor(22.f/255.f, 43.f/255.f, 54.f/255.f, 0.0f),
 	mWaterFogKS(1.0f)
 {
 }
@@ -474,10 +475,14 @@ void LLWaterParamManager::initOverrides()
 {
 	// Override fog color from the current preset with the saved setting.
 	LLColor4 fog_color_override = gSavedSettings.getColor4("WaterFogColor");
-	mCurParams.set("waterFogColor", mPrevFogColor = mFogColor = fog_color_override);
+	mFogColor = fog_color_override;
+	mPrevFogColor = fog_color_override;
+	mCurParams.set("waterFogColor", fog_color_override);
 
 	// Do the same with fog density.
 	F32 fog_density = gSavedSettings.getF32("WaterFogDensity");
-	mCurParams.set("waterFogDensity", mPrevFogDensity = mFogDensity = fog_density);
+	mPrevFogDensity = fog_density;
+	mFogDensity = fog_density;
+	mCurParams.set("waterFogDensity", fog_density);
 	setDensitySliderValue(mFogDensity.mExp);
 }
