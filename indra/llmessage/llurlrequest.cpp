@@ -440,6 +440,9 @@ bool LLURLRequest::configure()
 	case HTTP_GET:
 		mDetail->mCurlRequest->setopt(CURLOPT_HTTPGET, 1);
 		mDetail->mCurlRequest->setopt(CURLOPT_FOLLOWLOCATION, 1);
+
+		// Set Accept-Encoding to allow response compression
+		mDetail->mCurlRequest->setoptString(CURLOPT_ENCODING, "");
 		rv = true;
 		break;
 
@@ -464,6 +467,9 @@ bool LLURLRequest::configure()
 
 		// Set the handle for an http post
 		mDetail->mCurlRequest->setPost(NULL, bytes);
+
+		// Set Accept-Encoding to allow response compression
+		mDetail->mCurlRequest->setoptString(CURLOPT_ENCODING, "");
 		rv = true;
 		break;
 

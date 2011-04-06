@@ -37,6 +37,8 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llsdutil.h"
+#include "llsdutil_math.h"
 
 LLAgentListener::LLAgentListener(LLAgent &agent)
   : LLEventAPI("LLAgent",
@@ -53,6 +55,15 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
 	add("requestStand",
         "Ask to stand up",
         &LLAgentListener::requestStand);
+    add("resetAxes",
+        "Set the agent to a fixed orientation (optionally specify [\"lookat\"] = array of [x, y, z])",
+        &LLAgentListener::resetAxes);
+    add("getAxes",
+        "Send information about the agent's orientation on [\"reply\"]:\n"
+        "[\"euler\"]: map of {roll, pitch, yaw}\n"
+        "[\"quat\"]:  array of [x, y, z, w] quaternion values",
+        &LLAgentListener::getAxes,
+        LLSDMap("reply", LLSD()));
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
@@ -104,3 +115,28 @@ void LLAgentListener::requestStand(LLSD const & event_data) const
 	mAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 }
 
+void LLAgentListener::resetAxes(const LLSD& event) const
+{
+    if (event.has("lookat"))
+    {
+        mAgent.resetAxes(ll_vector3_from_sd(event["lookat"]));
+    }
+    else
+    {
+        // no "lookat", default call
+        mAgent.resetAxes();
+    }
+}
+
+void LLAgentListener::getAxes(const LLSD& event) const
+{
+    LLQuaternion quat(mAgent.getQuat());
+    F32 roll, pitch, yaw;
+    quat.getEulerAngles(&roll, &pitch, &yaw);
+    // The official query API for LLQuaternion's [x, y, z, w] values is its
+    // public member mQ...
+    sendReply(LLSDMap
+              ("quat", llsd_copy_array(boost::begin(quat.mQ), boost::end(quat.mQ)))
+              ("euler", LLSDMap("roll", roll)("pitch", pitch)("yaw", yaw)),
+              event);
+}

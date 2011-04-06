@@ -17,6 +17,13 @@
 			</text>
 			<check_box label="Lembrar senha" name="remember_check"/>
 			<button label="conectar" name="connect_btn"/>
+			<text name="mode_selection_text">
+				Modo:
+			</text>
+			<combo_box name="mode_combo" tool_tip="Selecione o modo. O modo Básico é mais rápido e ideal para explorar e conversar. Use o modo Avançado para acessar mais recursos.">
+				<combo_box.item label="Básico" name="Basic"/>
+				<combo_box.item label="Avançado" name="Advanced"/>
+			</combo_box>
 			<text name="start_location_text">
 				Começar em:
 			</text>
