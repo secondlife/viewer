@@ -1122,9 +1122,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>47ef880db4aea1a9561194c54fc28433</string>
+              <string>3057f3978dff2b8e1216a19c2fa56604</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.3-darwin-20101222.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition-vir/rev/225838/arch/Darwin/installer/llconvexdecomposition-0.1-darwin-20110406.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1134,9 +1134,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f63424076d4fadd133950af0cf9c3564</string>
+              <string>e92c9d621b034b1bf312c60df48fc798</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.3-linux-20101222.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition-vir/rev/225838/arch/Linux/installer/llconvexdecomposition-0.1-linux-20110406.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1146,9 +1146,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5ae8bab01189c5dbbc6f383c751e031a</string>
+              <string>d8ecfc647df41d546b1e8c697571e0ea</string>
               <key>url</key>
-              <string>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.3-windows-20101222.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition-vir/rev/225838/arch/CYGWIN/installer/llconvexdecomposition-0.1-windows-20110406.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
