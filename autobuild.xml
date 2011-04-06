@@ -1646,7 +1646,7 @@
         <key>license_file</key>
         <string>LICENSES/google-perftools.txt</string>
         <key>name</key>
-        <string>google-perftools</string>
+        <string>tcmalloc</string>
         <key>platforms</key>
         <map>
           <key>linux</key>
