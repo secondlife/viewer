@@ -2121,26 +2121,23 @@
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>devenv.com</string>
+                <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>Debug</string>
+                  <string>/p:Configuration=Debug</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/toolsversion:4.0</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
                 </array>
               </map>
               <key>configure</key>
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
                   <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>Debug</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -2201,11 +2198,16 @@
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>devenv.com</string>
+                <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>RelWithDebInfo</string>
+                  <string>/p:Configuration=RelWithDebInfo</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/toolsversion:4.0</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2272,11 +2274,16 @@
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>devenv.com</string>
+                <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>Release</string>
+                  <string>/p:Configuration=Release</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/toolsversion:4.0</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
                 </array>
               </map>
               <key>configure</key>
