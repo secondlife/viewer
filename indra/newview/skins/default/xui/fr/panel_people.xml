@@ -18,6 +18,8 @@ Pour rechercher des résidents avec qui passer du temps, utilisez [secondlife://
 	<string name="groups_filter_label" value="Filtrer les groupes"/>
 	<string name="no_filtered_groups_msg" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/groups/[SEARCH_TERM] Rechercher]."/>
 	<string name="no_groups_msg" value="Vous souhaitez trouver des groupes à rejoindre ? Utilisez [secondlife:///app/search/groups Rechercher]."/>
+	<string name="MiniMapToolTipMsg" value="[REGION](Carte : double-clic ; Panoramique : Maj + faire glisser)"/>
+	<string name="AltMiniMapToolTipMsg" value="[REGION](Téléportation : double-clic ; Panoramique : Maj + faire glisser)"/>
 	<filter_editor label="Filtre" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="PRÈS DE VOUS" name="nearby_panel">

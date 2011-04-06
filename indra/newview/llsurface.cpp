@@ -340,11 +340,6 @@ void LLSurface::connectNeighbor(LLSurface *neighborp, U32 direction)
 	S32 i;
 	LLSurfacePatch *patchp, *neighbor_patchp;
 
-	if (gNoRender)
-	{
-		return;
-	}
-
 	mNeighbors[direction] = neighborp;
 	neighborp->mNeighbors[gDirOpposite[direction]] = this;
 

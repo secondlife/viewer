@@ -588,3 +588,16 @@ void LLReqID::stamp(LLSD& response) const
     }
     response["reqid"] = mReqid;
 }
+
+bool sendReply(const LLSD& reply, const LLSD& request, const std::string& replyKey)
+{
+    // Copy 'reply' to modify it.
+    LLSD newreply(reply);
+    // Get the ["reqid"] element from request
+    LLReqID reqID(request);
+    // and copy it to 'newreply'.
+    reqID.stamp(newreply);
+    // Send reply on LLEventPump named in request[replyKey]. Don't forget to
+    // send the modified 'newreply' instead of the original 'reply'.
+    return LLEventPumps::instance().obtain(request[replyKey]).post(newreply);
+}

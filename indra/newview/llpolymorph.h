@@ -46,6 +46,7 @@ class LLPolyMorphData
 public:
 	LLPolyMorphData(const std::string& morph_name);
 	~LLPolyMorphData();
+	LLPolyMorphData(const LLPolyMorphData &rhs);
 
 	BOOL			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
 	const std::string& getName() { return mName; }

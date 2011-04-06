@@ -81,10 +81,11 @@ LLDir_Win32::LLDir_Win32()
 
 //	fprintf(stderr, "mTempDir = <%s>",mTempDir);
 
-#if 1
-	// Don't use the real app path for now, as we'll have to add parsing to detect if
-	// we're in a developer tree, which has a different structure from the installed product.
+	// Set working directory, for LLDir::getWorkingDir()
+	GetCurrentDirectory(MAX_PATH, w_str);
+	mWorkingDir = utf16str_to_utf8str(llutf16string(w_str));
 
+	// Set the executable directory
 	S32 size = GetModuleFileName(NULL, w_str, MAX_PATH);
 	if (size)
 	{
@@ -100,32 +101,35 @@ LLDir_Win32::LLDir_Win32()
 		{
 			mExecutableFilename = mExecutablePathAndName;
 		}
-		GetCurrentDirectory(MAX_PATH, w_str);
-		mWorkingDir = utf16str_to_utf8str(llutf16string(w_str));
 
 	}
 	else
 	{
 		fprintf(stderr, "Couldn't get APP path, assuming current directory!");
-		GetCurrentDirectory(MAX_PATH, w_str);
-		mExecutableDir = utf16str_to_utf8str(llutf16string(w_str));
+		mExecutableDir = mWorkingDir;
 		// Assume it's the current directory
 	}
-#else
-	GetCurrentDirectory(MAX_PATH, w_str);
-	mExecutableDir = utf16str_to_utf8str(llutf16string(w_str));
-#endif
 
-	if (mExecutableDir.find("indra") == std::string::npos)
-	{
-		// Running from installed directory.  Make sure current
-		// directory isn't something crazy (e.g. if invoking from
-		// command line).
-		SetCurrentDirectory(utf8str_to_utf16str(mExecutableDir).c_str());
-		GetCurrentDirectory(MAX_PATH, w_str);
-		mWorkingDir = utf16str_to_utf8str(llutf16string(w_str));
-	}
+	// mAppRODataDir = ".";	
+
+	// Determine the location of the App-Read-Only-Data
+	// Try the working directory then the exe's dir.
 	mAppRODataDir = mWorkingDir;	
+
+
+//	if (mExecutableDir.find("indra") == std::string::npos)
+	
+	// *NOTE:Mani - It is a mistake to put viewer specific code in
+	// the LLDir implementation. The references to 'skins' and 
+	// 'llplugin' need to go somewhere else.
+	// alas... this also gets called during static initialization 
+	// time due to the construction of gDirUtil in lldir.cpp.
+	if(! LLFile::isdir(mAppRODataDir + mDirDelimiter + "skins"))
+	{
+		// What? No skins in the working dir?
+		// Try the executable's directory.
+		mAppRODataDir = mExecutableDir;
+	}
 
 	llinfos << "mAppRODataDir = " << mAppRODataDir << llendl;
 
@@ -249,7 +253,7 @@ BOOL LLDir_Win32::getNextFileInDir(const std::string &dirname, const std::string
 	if (pathname != mCurrentDir)
 	{
 		// different dir specified, close old search
-		if (mCurrentDir[0])
+		if (!mCurrentDir.empty())
 		{
 			FindClose(mDirSearch_h);
 		}
