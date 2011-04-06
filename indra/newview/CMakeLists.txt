@@ -1455,20 +1455,6 @@ set(PACKAGE ON CACHE BOOL
     "Add a package target that builds an installer package.")
 
 if (WINDOWS)
-    if (INCREMENTAL_LINK)
-		set_target_properties(${VIEWER_BINARY_NAME}
-			PROPERTIES
-			LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCREMENTAL /INCLUDE:__tcmalloc"
-			LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
-			LINK_FLAGS_RELEASE ${release_flags}
-			)
-		set_target_properties(${VIEWER_BINARY_NAME}
-			PROPERTIES
-			LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCREMENTAL:NO /INCLUDE:__tcmalloc"
-			LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
-			)
-	endif(INCREMENTAL_LINK)
-	
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
             ${VIEWER_BINARY_NAME}
