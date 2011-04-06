@@ -1590,7 +1590,6 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Debug</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                 </array>
@@ -1607,9 +1606,11 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Debug</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
+                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1627,7 +1628,6 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                 </array>
@@ -1644,9 +1644,11 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
+                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1664,7 +1666,6 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                 </array>
@@ -1681,9 +1682,11 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
+                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1728,9 +1731,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1758,9 +1758,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1795,9 +1792,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>default</key>
@@ -1827,9 +1821,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1864,9 +1855,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1894,9 +1882,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1933,9 +1918,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1962,9 +1944,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1991,9 +1970,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>default</key>
@@ -2022,9 +1998,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2051,9 +2024,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2080,9 +2050,6 @@
                 <array>
                   <string>-G</string>
                   <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2140,9 +2107,6 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2182,9 +2146,6 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2224,9 +2185,6 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>default</key>
@@ -2260,9 +2218,6 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2303,9 +2258,6 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2337,9 +2289,6 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
