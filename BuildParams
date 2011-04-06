@@ -61,7 +61,6 @@ viewer-release.viewer_channel = "Second Life Release"
 viewer-release.login_channel = "Second Life Release"
 viewer-release.build_debug_release_separately = true
 viewer-release.build_viewer_update_version_manager = true
-viewer-release.release-viewer.jira = DRTVWR-13
 
 viewer-pre-release.viewer_channel = "Second Life Release"
 viewer-pre-release.login_channel = "Second Life Release"
