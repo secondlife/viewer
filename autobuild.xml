@@ -3,48 +3,24 @@
 <map>
     <key>installables</key>
     <map>
-      <key>GL</key>
+      <key>glext</key>
       <map>
         <key>license</key>
-        <string>GL</string>
+        <string>glext</string>
         <key>license_file</key>
-        <string>LICENSES/GL.txt</string>
+        <string>LICENSES/glext.txt</string>
         <key>name</key>
-        <string>GL</string>
+        <string>glext</string>
         <key>platforms</key>
         <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>0b7c1d43dc2b39301fef6c05948fb826</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-darwin-20101004.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>d85d88088360aee5b67105ad93b5ad16</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-linux-20100929.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f8d98cbe78d5aafbc7aaabf840325aaf</string>
+              <string>5de58ca0fe19abf68b25956762ee0d29</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-0.0.0-windows-20110303.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glext-68-windows-20110406.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
