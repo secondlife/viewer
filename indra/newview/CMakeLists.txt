@@ -191,7 +191,6 @@ set(viewer_SOURCE_FILES
     llfloaterhelpbrowser.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
-    llfloaterimportcollada.cpp
     llfloaterinspect.cpp
     llfloaterinventory.cpp
     llfloaterjoystick.cpp
@@ -308,7 +307,6 @@ set(viewer_SOURCE_FILES
     llmemoryview.cpp
     llmenucommands.cpp
     llmeshrepository.cpp
-    llmeshreduction.cpp
     llmimetypes.cpp
     llmorphview.cpp
     llmoveview.cpp
@@ -740,7 +738,6 @@ set(viewer_HEADER_FILES
     llfloaterhelpbrowser.h
     llfloaterhud.h
     llfloaterimagepreview.h
-    llfloaterimportcollada.h
     llfloaterinspect.h
     llfloaterinventory.h
     llfloaterjoystick.h
@@ -857,7 +854,6 @@ set(viewer_HEADER_FILES
     llmemoryview.h
     llmenucommands.h
     llmeshrepository.h
-    llmeshreduction.h
     llmimetypes.h
     llmorphview.h
     llmoveview.h
