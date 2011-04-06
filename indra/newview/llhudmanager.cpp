@@ -38,8 +38,6 @@
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 
-extern BOOL gNoRender;
-
 // These are loaded from saved settings.
 LLColor4 LLHUDManager::sParentColor;
 LLColor4 LLHUDManager::sChildColor;
@@ -150,11 +148,6 @@ LLHUDEffect *LLHUDManager::createViewerEffect(const U8 type, BOOL send_to_sim, B
 //static
 void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_data)
 {
-	if (gNoRender)
-	{
-		return;
-	}
-
 	LLHUDEffect *effectp = NULL;
 	LLUUID effect_id;
 	U8 effect_type = 0;

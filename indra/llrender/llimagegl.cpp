@@ -967,12 +967,14 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 	}
 	if (mTexName == 0)
 	{
-		llwarns << "Setting subimage on image without GL texture" << llendl;
+		// *TODO: Re-enable warning?  Ran into thread locking issues? DK 2011-02-18
+		//llwarns << "Setting subimage on image without GL texture" << llendl;
 		return FALSE;
 	}
 	if (datap == NULL)
 	{
-		llwarns << "Setting subimage on image with NULL datap" << llendl;
+		// *TODO: Re-enable warning?  Ran into thread locking issues? DK 2011-02-18
+		//llwarns << "Setting subimage on image with NULL datap" << llendl;
 		return FALSE;
 	}
 	
@@ -1100,6 +1102,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 //the texture is assiciate with some image by calling glTexImage outside LLImageGL
 BOOL LLImageGL::createGLTexture()
 {
+	if (gHeadlessClient) return FALSE;
 	if (gGLManager.mIsDisabled)
 	{
 		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
@@ -1128,6 +1131,7 @@ BOOL LLImageGL::createGLTexture()
 
 BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename/*=0*/, BOOL to_create, S32 category)
 {
+	if (gHeadlessClient) return FALSE;
 	if (gGLManager.mIsDisabled)
 	{
 		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
