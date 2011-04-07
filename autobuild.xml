@@ -2143,6 +2143,7 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
+                  <string>-DUNATTENDED:BOOL=ON</string>
                 </array>
               </map>
               <key>name</key>
@@ -2220,6 +2221,7 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
+                  <string>-DUNATTENDED:BOOL=ON</string>
                 </array>
               </map>
               <key>name</key>
@@ -2296,6 +2298,7 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
+                  <string>-DUNATTENDED:BOOL=ON</string>
                 </array>
               </map>
               <key>name</key>
