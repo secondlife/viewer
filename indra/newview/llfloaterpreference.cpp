@@ -344,7 +344,7 @@ void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType t
 	if ( APT_PROPERTIES == type )
 	{
 		const LLAvatarData* pAvatarData = static_cast<const LLAvatarData*>( pData );
-		if( pAvatarData && gAgent.getID() == pAvatarData->avatar_id )
+		if (pAvatarData && (gAgent.getID() == pAvatarData->avatar_id) && (pAvatarData->avatar_id != LLUUID::null))
 		{
 			storeAvatarProperties( pAvatarData );
 			processProfileProperties( pAvatarData );
@@ -354,9 +354,9 @@ void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType t
 
 void LLFloaterPreference::storeAvatarProperties( const LLAvatarData* pAvatarData )
 {
-	if (gAgent.isInitialized() && (gAgent.getID() != LLUUID::null))
+	if (LLStartUp::getStartupState() == STATE_STARTED)
 	{
-		mAvatarProperties.avatar_id		= gAgent.getID();
+		mAvatarProperties.avatar_id		= pAvatarData->avatar_id;
 		mAvatarProperties.image_id		= pAvatarData->image_id;
 		mAvatarProperties.fl_image_id   = pAvatarData->fl_image_id;
 		mAvatarProperties.about_text	= pAvatarData->about_text;
@@ -376,18 +376,31 @@ void LLFloaterPreference::processProfileProperties(const LLAvatarData* pAvatarDa
 
 void LLFloaterPreference::saveAvatarProperties( void )
 {
-	mAvatarProperties.allow_publish = getChild<LLUICtrl>("online_searchresults")->getValue();
-	if (mAvatarProperties.allow_publish)
+	const BOOL allowPublish = getChild<LLUICtrl>("online_searchresults")->getValue();
+
+	if (allowPublish)
 	{
 		mAvatarProperties.flags |= AVATAR_ALLOW_PUBLISH;
 	}
 
-	if (mAvatarDataInitialized)
+	//
+	// NOTE: We really don't want to send the avatar properties unless we absolutely
+	//       need to so we can avoid the accidental profile reset bug, so, if we're
+	//       logged in, the avatar data has been initialized and we have a state change
+	//       for the "allow publish" flag, then set the flag to its new value and send
+	//       the properties update.
+	//
+	// NOTE: The only reason we can not remove this update altogether is because of the
+	//       "allow publish" flag, the last remaining profile setting in the viewer
+	//       that doesn't exist in the web profile.
+	//
+	if ((LLStartUp::getStartupState() == STATE_STARTED) && mAvatarDataInitialized && (allowPublish != mAvatarProperties.allow_publish))
 	{
+		mAvatarProperties.allow_publish = allowPublish;
+
 		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate( &mAvatarProperties );
 	}
 }
-
 
 BOOL LLFloaterPreference::postBuild()
 {
@@ -1364,6 +1377,8 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 		mOriginalHideOnlineStatus = true;
 	}
 	
+	getChild<LLUICtrl>("online_searchresults")->setEnabled(TRUE);
+
 	getChildView("include_im_in_chat_history")->setEnabled(TRUE);
 	getChildView("show_timestamps_check_im")->setEnabled(TRUE);
 	getChildView("friends_online_notify_checkbox")->setEnabled(TRUE);
@@ -1743,7 +1758,6 @@ void LLPanelPreferenceGraphics::draw()
 		bool enable = hasDirtyChilds();
 
 		button_apply->setEnabled(enable);
-
 	}
 }
 bool LLPanelPreferenceGraphics::hasDirtyChilds()
