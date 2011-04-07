@@ -36,6 +36,11 @@
 
 LLSceneView* gSceneView = NULL;
 
+//borrow this helper function from llfasttimerview.cpp
+template <class VEC_TYPE>
+void removeOutliers(std::vector<VEC_TYPE>& data, F32 k);
+
+
 LLSceneView::LLSceneView(const LLRect& rect)
 	:	LLFloater(LLSD())
 {
@@ -72,8 +77,11 @@ void LLSceneView::draw()
 	//object sizes
 	std::vector<F32> size[2];
 
-	std::vector<U32> triangles[2]; 
-	std::vector<U32> visible_triangles[2];
+	std::vector<S32> triangles[2]; 
+	std::vector<S32> visible_triangles[2];
+
+	S32 total_visible_triangles[] = {0, 0};
+	S32 total_triangles[] = {0, 0};
 
 	
 	U32 object_count = 0;
@@ -97,9 +105,14 @@ void LLSceneView::draw()
 				F32 radius = object->getScale().magVec();
 				size[idx].push_back(radius);
 
-				visible_triangles[idx].push_back(volume->getNumTriangles());
-				
-				triangles[idx].push_back(object->getHighLODTriangleCount());
+				S32 visible = volume->getNumTriangles();
+				S32 high_triangles = object->getHighLODTriangleCount();
+
+				total_visible_triangles[idx] += visible;
+				total_triangles[idx] += high_triangles;
+
+				visible_triangles[idx].push_back(visible);
+				triangles[idx].push_back(high_triangles);
 			}
 		}
 	}
@@ -115,6 +128,8 @@ void LLSceneView::draw()
 		if (!size[idx].empty())
 		{ //display graph of object sizes
 			std::sort(size[idx].begin(), size[idx].end());
+
+			ll_remove_outliers(size[idx], 1.f);
 
 			LLRect size_rect;
 			
@@ -180,8 +195,9 @@ void LLSceneView::draw()
 		if (!triangles[idx].empty())
 		{ //plot graph of visible/total triangles
 			std::sort(triangles[idx].begin(), triangles[idx].end());
-			std::sort(visible_triangles[idx].begin(), visible_triangles[idx].end());
-
+			
+			ll_remove_outliers(triangles[idx], 1.f);
+			
 			LLRect tri_rect;
 			if (idx == 0)
 			{
@@ -194,19 +210,17 @@ void LLSceneView::draw()
 
 			gl_rect_2d(tri_rect, LLColor4::white, false);
 
-			U32 tri_domain[] = { 65536, 0 };
-			
-			llassert(triangles[idx].size() == visible_triangles[idx].size());
-
-			//get domain of sizes
+			S32 tri_domain[] = { 65536, 0 };
+						
+			//get domain of triangle counts
 			for (U32 i = 0; i < triangles[idx].size(); ++i)
 			{
-				tri_domain[0] = llmin(visible_triangles[idx][i], llmin(tri_domain[0], triangles[idx][i]));
-				tri_domain[1] = llmax(visible_triangles[idx][i], llmax(tri_domain[1], triangles[idx][i]));		
+				tri_domain[0] = llmin(tri_domain[0], triangles[idx][i]);
+				tri_domain[1] = llmax(tri_domain[1], triangles[idx][i]);		
 			}
 
 			U32 triangle_range = tri_domain[1]-tri_domain[0];
-			
+
 			U32 count = triangles[idx].size();
 
 			U32 total = 0;
@@ -234,31 +248,16 @@ void LLSceneView::draw()
 			gGL.flush();
 
 			U32 total_visible = 0;
-			gGL.begin(LLRender::LINE_STRIP);
-			//plot visible triangles
+			count = visible_triangles[idx].size();
+
 			for (U32 i = 0; i < count; ++i)
 			{
 				U32 tri_count = visible_triangles[idx][i];
 				total_visible += tri_count;	
-				F32 y = (F32) (tri_count-tri_domain[0])/triangle_range*tri_rect.getHeight()+tri_rect.mBottom;
-				F32 x = (F32) i / count * tri_rect.getWidth() + tri_rect.mLeft;
-
-				gGL.vertex2f(x,y);
-
-				if (i%4096 == 0)
-				{
-					gGL.end();
-					gGL.flush();
-					gGL.begin(LLRender::LINE_STRIP);
-				}
 			}
 
-			gGL.end();
-			gGL.flush();
-
-
 			std::string label = llformat("%s Object Triangle Counts (Ktris) -- Min: %.2f   Max: %.2f   Mean: %.2f   Median: %.2f   (%.2f/%.2f visible) -- %d samples",
-											category[idx], tri_domain[0]/1024.f, tri_domain[1]/1024.f, (total/count)/1024.f, triangles[idx][count/2]/1024.f, total_visible/1024.f, total/1024.f, count);
+											category[idx], tri_domain[0]/1024.f, tri_domain[1]/1024.f, (total/count)/1024.f, triangles[idx][count/2]/1024.f, total_visible_triangles[idx]/1024.f, total_triangles[idx]/1024.f, count);
 
 			LLFontGL::getFontMonospace()->renderUTF8(label,
 											0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
