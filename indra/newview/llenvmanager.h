@@ -179,6 +179,9 @@ public:
 	// gets normally displayed scope
 	LLEnvKey::EScope getNormallyDisplayedScope() const;
 
+	// for debugging purposes
+	void dumpScopes();
+
 private:
 	// overriden initializer
 	friend class LLSingleton<LLEnvManager>;

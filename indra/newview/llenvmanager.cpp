@@ -176,7 +176,6 @@ void LLEnvManager::clearEditingScope(const LLSD& notification, const LLSD& respo
 		return;
 	}
 
-	LL_DEBUGS("Windlight") << "Clearing editing scope " << mCurNormalScope << LL_ENDL;
 	mIsEditing = false;
 
 	updateUIFromEditability();
@@ -535,4 +534,15 @@ void LLEnvManager::notifyOptInChange()
 	}
 
 	maybeClearEditingScope(true, false);
+}
+
+void LLEnvManager::dumpScopes()
+{
+	LLSD scope_dump;
+
+	scope_dump = makePacket(LLEnvKey::SCOPE_LOCAL, LLSD());
+	LL_DEBUGS("Windlight") << "Local scope:" << scope_dump << LL_ENDL;
+
+	scope_dump = makePacket(LLEnvKey::SCOPE_REGION, LLSD());
+	LL_DEBUGS("Windlight") << "Region scope:" << scope_dump << LL_ENDL;
 }

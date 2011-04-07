@@ -142,7 +142,7 @@ LLSD LLWLDayCycle::asLLSD()
 		day_data.append(key);
 	}
 
-	LL_DEBUGS("Windlight Sync") << "Dumping day cycle (" << mTimeMap.size() << ") to LLSD: " << day_data << LL_ENDL;
+	lldebugs << "Dumping day cycle (" << mTimeMap.size() << ") to LLSD: " << day_data << llendl;
 	return day_data;
 }
 

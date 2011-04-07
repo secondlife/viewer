@@ -113,6 +113,7 @@ void LLFloaterEnvSettings::initCallbacks(void)
 	getChild<LLUICtrl>("EnvUseLocalTimeButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onUseLocalTime));
 
 	childSetCommitCallback("RegionWLOptIn", &LLFloaterEnvSettings::onUseRegionEnvironment, NULL);
+	getChild<LLUICtrl>("RegionWLOptIn")->setRightMouseDownCallback(boost::bind(&LLEnvManager::dumpScopes, &LLEnvManager::instance()));
 }
 
 
