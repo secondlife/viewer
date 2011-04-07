@@ -472,7 +472,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         const F32 behavior_gain = getParamValue("Gain");
         const F32 behavior_damping = getParamValue("Damping");
         const F32 behavior_drag = getParamValue("Drag");
-        const BOOL physics_test = gSavedSettings.getBOOL("AvatarPhysicsTest");
+        const BOOL physics_test = gSavedSettings.getBOOL("AvatarPhysicsTest") && gAgent.isGodlike();
         
         F32 behavior_maxeffect = getParamValue("MaxEffect");
         if (physics_test)
@@ -583,9 +583,25 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
                 velocity_new_local = 0;
         }
 
+	// Check for NaN values.  A NaN value is detected if the variables doesn't equal itself.  
+	// If NaN, then reset everything.
+	if ((mPosition_local != mPosition_local) ||
+	    (mVelocity_local != mVelocity_local) ||
+	    (position_new_local != position_new_local))
+	{
+		position_new_local = 0;
+		position_current_local = 0;
+		position_user_local = 0;
+		mVelocity_local = 0;
+		mVelocityJoint_local = 0;
+		mAccelerationJoint_local = 0;
+		mPosition_local = 0;
+		mPosition_world = LLVector3(0,0,0);
+	}
+
         const F32 position_new_local_clamped = llclamp(position_new_local,
-                                                       min_val,
-                                                       max_val);
+						       min_val,
+						       max_val);
 
         LLDriverParam *driver_param = dynamic_cast<LLDriverParam *>(mParamDriver);
         llassert_always(driver_param);
@@ -613,7 +629,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         //
         // End calculate new params
         ////////////////////////////////////////////////////////////////////////////////
-        
+
         ////////////////////////////////////////////////////////////////////////////////
         // Conditionally update the visual params
         //
