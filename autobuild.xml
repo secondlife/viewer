@@ -1612,6 +1612,10 @@
                   <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                   <string>-DFMOD=FALSE</string>
                 </array>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
               </map>
               <key>name</key>
               <string>DebugOS</string>
@@ -1650,6 +1654,10 @@
                   <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                   <string>-DFMOD=FALSE</string>
                 </array>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -1687,6 +1695,10 @@
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                   <string>-DFMOD=FALSE</string>
+                </array>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
                 </array>
               </map>
               <key>name</key>
@@ -1750,10 +1762,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -1813,10 +1821,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -1874,10 +1878,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -1936,10 +1936,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -1990,10 +1986,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2042,10 +2034,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2135,10 +2123,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2213,10 +2197,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2290,10 +2270,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
