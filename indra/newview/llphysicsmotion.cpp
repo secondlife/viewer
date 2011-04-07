@@ -40,6 +40,7 @@
 #include "v3dmath.h"
 
 #include "llphysicsmotion.h"
+#include "llagent.h"
 #include "llcharacter.h"
 #include "llviewercontrol.h"
 #include "llviewervisualparam.h"
