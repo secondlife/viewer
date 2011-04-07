@@ -521,23 +521,23 @@ int main(int argc, char** argv)
 		}
 	}
 
+	// Output perf data if requested by user
+	if (analyze_performance)
+	{
+		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
+		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
+		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
+		
+		std::cout << "Analyzing performance, check report in : " << report_name << std::endl;
+
+		LLMetricPerformanceTesterBasic::doAnalysisMetrics(baseline_name, current_name, report_name);
+	}
+	
 	// Stop the perf gathering system if needed
 	if (LLFastTimer::sMetricLog)
 	{
 		LLMetricPerformanceTesterBasic::deleteTester(LLFastTimer::sLogName);
 		sAllDone = true;
-	}
-	
-	// Output perf data if requested by user
-	if (analyze_performance)
-	{
-		std::cout << "Analyzing performance" << std::endl;
-		
-		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
-		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
-		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
-		
-		LLMetricPerformanceTesterBasic::doAnalysisMetrics(baseline_name, current_name, report_name);
 	}
 	
 	// Cleanup and exit
