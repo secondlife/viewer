@@ -1931,7 +1931,7 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 12</string>
+                  <string>-j 2</string>
                 </array>
               </map>
               <key>configure</key>
@@ -1981,7 +1981,7 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 12</string>
+                  <string>-j 2</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2029,7 +2029,7 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 12</string>
+                  <string>-j 2</string>
                 </array>
               </map>
               <key>configure</key>
