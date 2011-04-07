@@ -71,6 +71,9 @@ public:
 	/// sync time with the server
 	static void onUseEstateTime(void* userData1, void* userData2);
 
+	/// sync time with local clock
+	static void onUseLocalTime();
+
 	// opt-in for region Windlight settings
 	//static void onUseRegionEnvironment(LLUICtrl* ctrl, void* userData);
 	static void onUseRegionEnvironment(LLUICtrl*, void*);

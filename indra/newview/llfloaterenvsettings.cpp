@@ -110,6 +110,7 @@ void LLFloaterEnvSettings::initCallbacks(void)
 	childSetCommitCallback("EnvAdvancedSkyButton", &LLFloaterEnvSettings::onOpenAdvancedSky, NULL);
  	childSetCommitCallback("EnvAdvancedWaterButton", &LLFloaterEnvSettings::onOpenAdvancedWater, NULL);
 	childSetCommitCallback("EnvUseEstateTimeButton", &LLFloaterEnvSettings::onUseEstateTime, NULL);
+	getChild<LLUICtrl>("EnvUseLocalTimeButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onUseLocalTime));
 
 	childSetCommitCallback("RegionWLOptIn", &LLFloaterEnvSettings::onUseRegionEnvironment, NULL);
 }
@@ -155,23 +156,9 @@ void LLFloaterEnvSettings::syncMenu()
 
 	// turn off Use Estate/Local Time buttons if already being used
 
-	if(LLWLParamManager::getInstance()->mAnimator.getUseLindenTime())
-	{
-		childDisable("EnvUseEstateTimeButton");
-	}
-	else
-	{
-		childEnable("EnvUseEstateTimeButton");
-	}
-
-	if(LLWLParamManager::getInstance()->mAnimator.getUseLocalTime())
-	{
-		childDisable("EnvUseLocalTimeButton");
-	}
-	else
-	{
-		childEnable("EnvUseLocalTimeButton");
-	}
+	LLWLAnimator& anim = LLWLParamManager::getInstance()->mAnimator;
+	childSetEnabled("EnvUseEstateTimeButton", !anim.getIsRunning() || !anim.getUseLindenTime());
+	childSetEnabled("EnvUseLocalTimeButton",  !anim.getIsRunning() || !anim.getUseLocalTime());
 
 	if(!gPipeline.canUseVertexShaders())
 	{
@@ -278,4 +265,11 @@ void LLFloaterEnvSettings::onUseEstateTime(void* userData1, void* userData2)
 	}
 
 	LLWLParamManager::instance().mAnimator.activate(LLWLAnimator::TIME_LINDEN);
+}
+
+// static
+void LLFloaterEnvSettings::onUseLocalTime()
+{
+	LLWLParamManager::getInstance()->mAnimator.setDayTime(LLWLAnimator::getLocalTime());
+	LLWLParamManager::getInstance()->mAnimator.activate(LLWLAnimator::TIME_LOCAL);
 }
