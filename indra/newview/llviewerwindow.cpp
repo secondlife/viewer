@@ -1317,7 +1317,8 @@ void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 		std::string url = (const char*)data;
 		LLMediaCtrl* web = NULL;
 		const bool trusted_browser = false;
-		if (LLURLDispatcher::dispatch(url, "clicked", web, trusted_browser))
+		// don't treat slapps coming from external browsers as "clicks" as this would bypass throttling
+		if (LLURLDispatcher::dispatch(url, "", web, trusted_browser))
 		{
 			// bring window to foreground, as it has just been "launched" from a URL
 			mWindow->bringToFront();
