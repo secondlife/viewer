@@ -37,14 +37,21 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 
+class LL_COMMON_API LLInstanceTrackerBase : public boost::noncopyable
+{
+	protected:
+		static void * & getInstances(std::type_info const & info);
+};
+
 /// This mix-in class adds support for tracking all instances of the specified class parameter T
 /// The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
 /// If KEY is not provided, then instances are stored in a simple set
 /// @NOTE: see explicit specialization below for default KEY==T* case
 template<typename T, typename KEY = T*>
-class LLInstanceTracker : boost::noncopyable
+class LLInstanceTracker : public LLInstanceTrackerBase
 {
 	typedef typename std::map<KEY, T*> InstanceMap;
+	typedef LLInstanceTracker<T, KEY> MyT;
 	typedef boost::function<const KEY&(typename InstanceMap::value_type&)> KeyGetter;
 	typedef boost::function<T*(typename InstanceMap::value_type&)> InstancePtrGetter;
 public:
@@ -99,25 +106,26 @@ private:
 
     static InstanceMap& getMap_()
     {
-        if (! sInstances)
+		void * & instances = getInstances(typeid(MyT));
+        if (! instances)
         {
-            sInstances = new InstanceMap;
+            instances = new InstanceMap;
         }
-        return *sInstances;
+        return * static_cast<InstanceMap*>(instances);
     }
 
 private:
 
 	KEY mKey;
-	static InstanceMap* sInstances;
 };
 
 /// explicit specialization for default case where KEY is T*
 /// use a simple std::set<T*>
 template<typename T>
-class LLInstanceTracker<T, T*>
+class LLInstanceTracker<T, T*> : public LLInstanceTrackerBase
 {
 	typedef typename std::set<T*> InstanceSet;
+	typedef LLInstanceTracker<T, T*> MyT;
 public:
 	/// Dereferencing key_iter gives you a T* (since T* is the key)
 	typedef typename InstanceSet::iterator key_iter;
@@ -172,19 +180,17 @@ protected:
 
 	static InstanceSet& getSet_()
 	{
-		if (! sInstances)
+		void * & instances = getInstances(typeid(MyT));
+		if (! instances)
 		{
-			sInstances = new InstanceSet;
+			instances = new InstanceSet;
 		}
-		return *sInstances;
+		return * static_cast<InstanceSet *>(instances);
 	}
 
-	static InstanceSet* sInstances;
 	static S32 sIterationNestDepth;
 };
 
-template <typename T, typename KEY> typename LLInstanceTracker<T, KEY>::InstanceMap* LLInstanceTracker<T, KEY>::sInstances = NULL;
-template <typename T> typename LLInstanceTracker<T, T*>::InstanceSet* LLInstanceTracker<T, T*>::sInstances = NULL;
 template <typename T> S32 LLInstanceTracker<T, T*>::sIterationNestDepth = 0;
 
 #endif

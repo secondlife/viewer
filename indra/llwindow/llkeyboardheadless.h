@@ -1,10 +1,8 @@
-/**
- * @file   lluilistener.h
- * @author Nat Goodspeed
- * @date   2009-08-18
- * @brief  Engage named functions as specified by XUI
- * 
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+/** 
+ * @file llkeyboardheadless.h
+ * @brief Handler for assignable key bindings
+ *
+ * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -26,22 +24,22 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_LLUILISTENER_H)
-#define LL_LLUILISTENER_H
+#ifndef LL_LLKEYBOARDHEADLESS_H
+#define LL_LLKEYBOARDHEADLESS_H
 
-#include "lleventapi.h"
-#include <string>
+#include "llkeyboard.h"
 
-class LLSD;
-
-class LLUIListener: public LLEventAPI
+class LLKeyboardHeadless : public LLKeyboard
 {
 public:
-    LLUIListener();
+	LLKeyboardHeadless();
+	/*virtual*/ ~LLKeyboardHeadless() {};
 
-private:
-    void call(const LLSD& event) const;
-    void getValue(const LLSD&event) const;
+	/*virtual*/ BOOL	handleKeyUp(const U16 key, MASK mask);
+	/*virtual*/ BOOL	handleKeyDown(const U16 key, MASK mask);
+	/*virtual*/ void	resetMaskKeys();
+	/*virtual*/ MASK	currentMask(BOOL for_mouse_event);
+	/*virtual*/ void	scanKeyboard();
 };
 
-#endif /* ! defined(LL_LLUILISTENER_H) */
+#endif
