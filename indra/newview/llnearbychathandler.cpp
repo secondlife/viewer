@@ -489,6 +489,27 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 		//	tmp_chat.mFromName = tmp_chat.mFromID.asString();
 	}
 
+	// Build notification data 
+	LLSD notification;
+	notification["message"] = chat_msg.mText;
+	notification["from"] = chat_msg.mFromName;
+	notification["from_id"] = chat_msg.mFromID;
+	notification["time"] = chat_msg.mTime;
+	notification["source"] = (S32)chat_msg.mSourceType;
+	notification["chat_type"] = (S32)chat_msg.mChatType;
+	notification["chat_style"] = (S32)chat_msg.mChatStyle;
+	// Pass sender info so that it can be rendered properly (STORM-1021).
+	notification["sender_slurl"] = LLViewerChat::getSenderSLURL(chat_msg, args);
+
+	if (chat_msg.mChatType == CHAT_TYPE_DIRECT &&
+		chat_msg.mText.length() > 0 &&
+		chat_msg.mText[0] == '@')
+	{
+		// Send event on to LLEventStream and exit
+		sChatWatcher->post(notification);
+		return;
+	}
+
 	// don't show toast and add message to chat history on receive debug message
 	// with disabled setting showing script errors or enabled setting to show script
 	// errors in separate window.
@@ -531,19 +552,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 
 	}
 
-	// Build data and send event on to LLEventStream
-	LLSD notification;
-	notification["message"] = chat_msg.mText;
-	notification["from"] = chat_msg.mFromName;
-	notification["from_id"] = chat_msg.mFromID;
-	notification["time"] = chat_msg.mTime;
-	notification["source"] = (S32)chat_msg.mSourceType;
-	notification["chat_type"] = (S32)chat_msg.mChatType;
-	notification["chat_style"] = (S32)chat_msg.mChatStyle;
-	// Pass sender info so that it can be rendered properly (STORM-1021).
-	notification["sender_slurl"] = LLViewerChat::getSenderSLURL(chat_msg, args);
-
-	
+	// Send event on to LLEventStream
 	sChatWatcher->post(notification);
 
 

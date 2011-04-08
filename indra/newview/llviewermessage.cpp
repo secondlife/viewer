@@ -3202,7 +3202,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	if (is_audible)
 	{
 		BOOL visible_in_chat_bubble = FALSE;
-		std::string verb;
 
 		color.setVec(1.f,1.f,1.f,1.f);
 		msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, mesg);
@@ -3251,18 +3250,19 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		}
 		else
 		{
+			chat.mText = "";
 			switch(chat.mChatType)
 			{
 			case CHAT_TYPE_WHISPER:
-				verb = LLTrans::getString("whisper") + " ";
+				chat.mText = LLTrans::getString("whisper") + " ";
 				break;
 			case CHAT_TYPE_DEBUG_MSG:
 			case CHAT_TYPE_OWNER:
 			case CHAT_TYPE_NORMAL:
-				verb = "";
+			case CHAT_TYPE_DIRECT:
 				break;
 			case CHAT_TYPE_SHOUT:
-				verb = LLTrans::getString("shout") + " ";
+				chat.mText = LLTrans::getString("shout") + " ";
 				break;
 			case CHAT_TYPE_START:
 			case CHAT_TYPE_STOP:
@@ -3270,13 +3270,9 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				break;
 			default:
 				LL_WARNS("Messaging") << "Unknown type " << chat.mChatType << " in chat!" << LL_ENDL;
-				verb = "";
 				break;
 			}
 
-
-			chat.mText = "";
-			chat.mText += verb;
 			chat.mText += mesg;
 		}
 		
