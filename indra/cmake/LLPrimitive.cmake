@@ -14,8 +14,8 @@ if (WINDOWS)
 	set(LLPRIMITIVE_LIBRARIES 
         debug llprimitive
         optimized llprimitive
-        debug libcollada14dom21-d
-        optimized libcollada14dom21
+        debug libcollada14dom22-d
+        optimized libcollada14dom22
         debug libboost_filesystem-d
         optimized libboost_filesystem
         debug libboost_system-d

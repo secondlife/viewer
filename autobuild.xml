@@ -3,30 +3,6 @@
 <map>
     <key>installables</key>
     <map>
-      <key>glext</key>
-      <map>
-        <key>license</key>
-        <string>glext</string>
-        <key>license_file</key>
-        <string>LICENSES/glext.txt</string>
-        <key>name</key>
-        <string>glext</string>
-        <key>platforms</key>
-        <map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>5de58ca0fe19abf68b25956762ee0d29</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glext-68-windows-20110406.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
       <key>GLOD</key>
       <map>
         <key>license</key>
@@ -282,9 +258,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c1e79c9d3084727be35ce140db87717e</string>
+              <string>9667a5cde31fd8957e07b61f643d8404</string>
               <key>url</key>
-              <string>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/colladadom-2.1-windows-20110223.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226086/arch/CYGWIN/installer/colladadom-2.2-windows-20110408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -597,6 +573,30 @@
               <string>271349827b939406162ce42e42cd18e0</string>
               <key>url</key>
               <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.4.4-windows-20110218.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>glext</key>
+      <map>
+        <key>license</key>
+        <string>glext</string>
+        <key>license_file</key>
+        <string>LICENSES/glext.txt</string>
+        <key>name</key>
+        <string>glext</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5de58ca0fe19abf68b25956762ee0d29</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glext-68-windows-20110406.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

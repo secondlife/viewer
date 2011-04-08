@@ -39,7 +39,7 @@ if(WINDOWS)
         libapriconv-1.dll
         ssleay32.dll
         libeay32.dll
-        libcollada14dom21-d.dll
+        libcollada14dom22-d.dll
         glod.dll	
         )
 
@@ -51,7 +51,7 @@ if(WINDOWS)
         libapriconv-1.dll
         ssleay32.dll
         libeay32.dll
-        libcollada14dom21.dll
+        libcollada14dom22.dll
         glod.dll
         )
 
