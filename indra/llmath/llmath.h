@@ -510,8 +510,8 @@ inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
 	VEC_TYPE Q1 = data[data.size()/4];
 	VEC_TYPE Q3 = data[data.size()-data.size()/4-1];
 
-	VEC_TYPE min = Q1-k*(Q3-Q1);
-	VEC_TYPE max = Q3+k*(Q3-Q1);
+	VEC_TYPE min = (VEC_TYPE) ((F32) Q1-k * (F32) (Q3-Q1));
+	VEC_TYPE max = (VEC_TYPE) ((F32) Q3+k * (F32) (Q3-Q1));
 
 	U32 i = 0;
 	while (i < data.size() && data[i] < min)
