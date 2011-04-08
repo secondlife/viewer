@@ -54,20 +54,21 @@ static const char USAGE[] = "\n"
 "        List of image files to create (assumes same order as for input files)\n"
 "        OR 3 letters file type extension to convert each input file into.\n"
 " -r, --region <x0, y0, x1, y1>\n"
-"        Crop region on the input file in pixel.\n"
+"        Crop region applied to the input files in pixels.\n"
 "        Only used for j2c images. Default is no region cropping.\n"
 " -d, --discard_level <n>\n"
-"        Discard level max used on input. 0 is high resolution. Max discard level is 5.\n"
+"        Discard level max used on input. 0 is highest resolution. Max discard level is 5.\n"
 "        This allows the input image to be clamped in resolution when loading.\n"
 "        Only valid for j2c images. Default is no discard.\n"
 " -p, --precincts <n>\n"
 "        Dimension of precincts in pixels. Precincts are assumed square and identical for\n"
-"        all levels. Note that this oprion also uses PLT and tile markers, \n"
-"        as well as RPCL order. Power of 2 must be used.\n"
+"        all levels. Note that this option also add PLT and tile markers to the codestream, \n"
+"        and uses RPCL order. Power of 2 must be used.\n"
 "        Only valid for output j2c images. Default is no precincts used.\n"
 " -b, --blocks <n>\n"
 "        Dimension of coding blocks in pixels. Blocks are assumed square. Power of 2 must\n"
-"        be used. Blocks must be smaller than precincts.\n"
+"        be used. Blocks must be smaller than precincts. Like precincts, this option adds\n"
+"        PLT, tile markers and uses RPCL.\n"
 "        Only valid for output j2c images. Default is 64.\n"
 " -log, --logmetrics <metric>\n"
 "        Log performance data for <metric>. Results in <metric>.slp\n"
@@ -130,7 +131,7 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_le
 {
 	LLPointer<LLImageFormatted> image = create_image(src_filename);
 	
-	// This just load the image file stream into a buffer. No decoding done.
+	// This just loads the image file stream into a buffer. No decoding done.
 	if (!image->load(src_filename))
 	{
 		return NULL;
@@ -170,7 +171,7 @@ bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_imag
 {
 	LLPointer<LLImageFormatted> image = create_image(dest_filename);
 	
-	// Set the image restriction on load in the case of a j2c image
+	// Set the image codestream parameters on output in the case of a j2c image
 	if ((image->getCodec() == IMG_CODEC_J2C) && ((blocks_size != -1) || (precincts_size != -1)))
 	{
 		// That method doesn't exist (and likely, doesn't make sense) for any other image file format
