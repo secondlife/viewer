@@ -3746,7 +3746,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	LLVector3 mouse_world_start = mouse_point_global;
 	LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
-	//gDebugRaycastIntersection = mouse_world_end;
+	gDebugRaycastIntersection = mouse_world_end;
 
 	if (start)
 	{
