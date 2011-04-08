@@ -61,6 +61,8 @@
 // for XUIParse
 #include "llquaternion.h"
 #include <boost/tokenizer.hpp>
+#include <boost/algorithm/string/find_iterator.hpp>
+#include <boost/algorithm/string/finder.hpp>
 
 //
 // Globals
@@ -2018,6 +2020,53 @@ void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
 	view->setOrigin( local_x, local_y - view->getRect().getHeight());
 	// Make sure we're onscreen and not overlapping the mouse
 	view->translateIntoRectWithExclusion( virtual_window_rect, mouse_rect, FALSE );
+}
+
+LLView* LLUI::resolvePath(LLView* context, const std::string& path)
+{
+	// Nothing about resolvePath() should require non-const LLView*. If caller
+	// wants non-const, call the const flavor and then cast away const-ness.
+	return const_cast<LLView*>(resolvePath(const_cast<const LLView*>(context), path));
+}
+
+const LLView* LLUI::resolvePath(const LLView* context, const std::string& path)
+{
+	// Create an iterator over slash-separated parts of 'path'. Dereferencing
+	// this iterator returns an iterator_range over the substring. Unlike
+	// LLStringUtil::getTokens(), this split_iterator doesn't combine adjacent
+	// delimiters: leading/trailing slash produces an empty substring, double
+	// slash produces an empty substring. That's what we need.
+	boost::split_iterator<std::string::const_iterator> ti(path, boost::first_finder("/")), tend;
+
+	if (ti == tend)
+	{
+		// 'path' is completely empty, no navigation
+		return context;
+	}
+
+	// leading / means "start at root"
+	if (ti->empty())
+	{
+		context = getRootView();
+		++ti;
+	}
+
+	bool recurse = false;
+	for (; ti != tend && context; ++ti)
+	{
+		if (ti->empty()) 
+		{
+			recurse = true;
+		}
+		else
+		{
+			std::string part(ti->begin(), ti->end());
+			context = context->findChildView(part, recurse);
+			recurse = false;
+		}
+	}
+
+	return context;
 }
 
 
