@@ -215,7 +215,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text name="Simulator primitive usage:">
 				Uso de primitivas:
 			</text>
-			<text  name="objects_available">
+			<text name="objects_available">
 				[COUNT] de un máx. de [MAX] ([AVAILABLE] disponibles)
 			</text>
 			<text name="Primitives parcel supports:">
@@ -347,6 +347,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				<combo_box.item label="Parques y Naturaleza" name="item9"/>
 				<combo_box.item label="Residencial" name="item10"/>
 				<combo_box.item label="Compras" name="item11"/>
+				<combo_box.item label="Terreno en alquiler" name="item13"/>
 				<combo_box.item label="Otra" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -361,6 +362,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				<combo_box.item label="Parques y Naturaleza" name="item9"/>
 				<combo_box.item label="Residencial" name="item10"/>
 				<combo_box.item label="Compras" name="item11"/>
+				<combo_box.item label="Terreno en alquiler" name="item13"/>
 				<combo_box.item label="Otra" name="item12"/>
 			</combo_box>
 			<check_box label="Contenido &apos;Mature&apos;" name="MatureCheck" tool_tip=""/>
@@ -439,7 +441,7 @@ los media:
 				(Definido por el Estado)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Permitir el acceso público ([MATURITY])
+				Permitir el acceso público ([MATURITY]) (Nota: Si no seleccionas esta opción, se crearán líneas de prohibición)
 			</panel.string>
 			<panel.string name="estate_override">
 				Una o más de esta opciones está configurada a nivel del estado

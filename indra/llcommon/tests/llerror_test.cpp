@@ -48,7 +48,10 @@ namespace
 {
 	static bool fatalWasCalled;
 	void fatalCall(const std::string&) { fatalWasCalled = true; }
+}
 	
+namespace tut
+{
 	class TestRecorder : public LLError::Recorder
 	{
 	public:
@@ -56,7 +59,7 @@ namespace
 		~TestRecorder() { LLError::removeRecorder(this); }
 		
 		void recordMessage(LLError::ELevel level,
-							const std::string& message)
+						   const std::string& message)
 		{
 			mMessages.push_back(message);
 		}
@@ -66,12 +69,12 @@ namespace
 		
 		void setWantsTime(bool t)	{ mWantsTime = t; }
 		bool wantsTime()			{ return mWantsTime; }
-
+		
 		std::string message(int n)
 		{
 			std::ostringstream test_name;
 			test_name << "testing message " << n << ", not enough messages";
-
+			
 			tut::ensure(test_name.str(), n < countMessages());
 			return mMessages[n];
 		}
@@ -82,10 +85,7 @@ namespace
 		
 		bool mWantsTime;
 	};
-}
-	
-namespace tut
-{
+
 	struct ErrorTestData
 	{
 		TestRecorder mRecorder;
@@ -381,7 +381,7 @@ namespace
 	}
 	
 	typedef std::string (*LogFromFunction)(bool);
-	void testLogName(TestRecorder& recorder, LogFromFunction f,
+	void testLogName(tut::TestRecorder& recorder, LogFromFunction f,
 		const std::string& class_name = "")
 	{
 		recorder.clearMessages();

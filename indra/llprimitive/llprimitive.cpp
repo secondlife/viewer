@@ -1216,12 +1216,12 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 	return FALSE;
 }
 
-S32 LLPrimitive::unpackTEMessage(LLMessageSystem *mesgsys, char *block_name)
+S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name)
 {
 	return(unpackTEMessage(mesgsys,block_name,-1));
 }
 
-S32 LLPrimitive::unpackTEMessage(LLMessageSystem *mesgsys, char *block_name, const S32 block_num)
+S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num)
 {
 	// use a negative block_num to indicate a single-block read (a non-variable block)
 	S32 retval = 0;
