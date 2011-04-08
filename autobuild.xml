@@ -18,9 +18,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a7263246813ecf9aff5a240892f9641</string>
+              <string>1eea55da1625518390af4c315a0d43c3</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-darwin-20101007a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226145/arch/Darwin/installer/glod-1.0pre4-darwin-20110408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -30,9 +30,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ca7368e9a1baf266b82d910fa8f821bd</string>
+              <string>5aeb923a0a50023d0b3a6a8a81cc3d06</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-linux-20100920a.tar.bz2</string>
+              <string>https://viewer-source-downloads.s3.amazonaws.com/install_pkgs/glod-1.0pre4-linux-20110408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -42,9 +42,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e40e1eac81dc57d8724f96fd977a3d58</string>
+              <string>7fd216bdcf9be961a78bfaef31a617f1</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-windows-20110330.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226145/arch/CYGWIN/installer/glod-1.0pre4-windows-20110408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
