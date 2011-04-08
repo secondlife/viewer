@@ -1383,11 +1383,6 @@ void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 // static
 void LLViewerParcelMgr::processParcelOverlay(LLMessageSystem *msg, void **user)
 {
-	if (gNoRender)
-	{
-		return;
-	}
-
 	// Extract the packed overlay information
 	S32 packed_overlay_size = msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_Data);
 

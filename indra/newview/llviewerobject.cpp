@@ -469,11 +469,6 @@ void LLViewerObject::initVOClasses()
 	// Initialized shared class stuff first.
 	LLVOAvatar::initClass();
 	LLVOTree::initClass();
-	if (gNoRender)
-	{
-		// Don't init anything else in drone mode
-		return;
-	}
 	llinfos << "Viewer Object size: " << sizeof(LLViewerObject) << llendl;
 	LLVOGrass::initClass();
 	LLVOWater::initClass();
@@ -2148,12 +2143,6 @@ BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		{	// Move object based on it's velocity and rotation
 			interpolateLinearMotion(time, dt);
 		}
-	}
-
-	if (gNoRender)
-	{
-		// Skip drawable stuff if not rendering.
-		return TRUE;
 	}
 
 	updateDrawable(FALSE);
