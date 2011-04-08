@@ -301,12 +301,14 @@ class LLGLUserClipPlane
 {
 public:
 	
-	LLGLUserClipPlane(const LLPlane& plane, const glh::matrix4f& modelview, const glh::matrix4f& projection);
+	LLGLUserClipPlane(const LLPlane& plane, const glh::matrix4f& modelview, const glh::matrix4f& projection, bool apply = true);
 	~LLGLUserClipPlane();
 
 	void setPlane(F32 a, F32 b, F32 c, F32 d);
 
 private:
+	bool mApply;
+
 	glh::matrix4f mProjection;
 	glh::matrix4f mModelview;
 };
