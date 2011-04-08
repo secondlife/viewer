@@ -77,13 +77,21 @@ void LLSceneView::draw()
 	//object sizes
 	std::vector<F32> size[2];
 
+	//triangle counts
 	std::vector<S32> triangles[2]; 
 	std::vector<S32> visible_triangles[2];
-
 	S32 total_visible_triangles[] = {0, 0};
 	S32 total_triangles[] = {0, 0};
-
 	
+	//streaming cost
+	std::vector<F32> streaming_cost[2];
+	F32 total_streaming[] = { 0.f, 0.f };
+
+	//physics cost
+	std::vector<F32> physics_cost[2];
+	F32 total_physics[] = { 0.f, 0.f };
+	
+
 	U32 object_count = 0;
 
 	LLViewerRegion* region = gAgent.getRegion();
@@ -113,6 +121,14 @@ void LLSceneView::draw()
 
 				visible_triangles[idx].push_back(visible);
 				triangles[idx].push_back(high_triangles);
+
+				F32 streaming = object->getStreamingCost();
+				total_streaming[idx] += streaming;
+				streaming_cost[idx].push_back(streaming);
+
+				F32 physics = object->getPhysicsCost();
+				total_physics[idx] += physics;
+				physics_cost[idx].push_back(physics);
 			}
 		}
 	}
@@ -122,6 +138,13 @@ void LLSceneView::draw()
 		"Region",
 		"Attachment"
 	};
+
+	S32 graph_pos[4];
+
+	for (U32 i = 0; i < 4; ++i)
+	{
+		graph_pos[i] = new_rect.getHeight()/4*(i+1);
+	}
 
 	for (U32 idx = 0; idx < 2; idx++)
 	{
@@ -135,11 +158,11 @@ void LLSceneView::draw()
 			
 			if (idx == 0)
 			{
-				size_rect = LLRect(margin, new_rect.getHeight()/2-margin*2, new_rect.getWidth()/2-margin, margin*2);
+				size_rect = LLRect(margin, graph_pos[0]-margin, new_rect.getWidth()/2-margin, margin*2);
 			}
 			else
 			{
-				size_rect = LLRect(margin+new_rect.getWidth()/2, new_rect.getHeight()/2-margin*2, new_rect.getWidth()-margin, margin*2);
+				size_rect = LLRect(margin+new_rect.getWidth()/2, graph_pos[0]-margin, new_rect.getWidth()-margin, margin*2);
 			}
 
 			gl_rect_2d(size_rect, LLColor4::white, false);
@@ -181,7 +204,7 @@ void LLSceneView::draw()
 			gGL.end();
 			gGL.flush();
 
-			std::string label = llformat("%s Object Sizes (m) -- Min: %.1f   Max: %.1f   Mean: %.1f   Median: %.1f -- %d samples",
+			std::string label = llformat("%s Object Sizes (m) -- [%.1f, %.1f] Mean: %.1f  Median: %.1f -- %d samples",
 											category[idx], size_domain[0], size_domain[1], total/count, size[idx][count/2], count);
 
 			LLFontGL::getFontMonospace()->renderUTF8(label,
@@ -201,11 +224,11 @@ void LLSceneView::draw()
 			LLRect tri_rect;
 			if (idx == 0)
 			{
-				tri_rect = LLRect(margin, new_rect.getHeight()-margin*2, new_rect.getWidth()/2-margin, new_rect.getHeight()/2 + margin);
+				tri_rect = LLRect(margin, graph_pos[1]-margin, new_rect.getWidth()/2-margin, graph_pos[0]+margin);
 			}
 			else
 			{
-				tri_rect = LLRect(new_rect.getWidth()/2+margin, new_rect.getHeight()-margin*2, new_rect.getWidth()-margin, new_rect.getHeight()/2 + margin);
+				tri_rect = LLRect(new_rect.getWidth()/2+margin, graph_pos[1]-margin, new_rect.getWidth()-margin, graph_pos[0]+margin);
 			}
 
 			gl_rect_2d(tri_rect, LLColor4::white, false);
@@ -256,8 +279,8 @@ void LLSceneView::draw()
 				total_visible += tri_count;	
 			}
 
-			std::string label = llformat("%s Object Triangle Counts (Ktris) -- Min: %.2f   Max: %.2f   Mean: %.2f   Median: %.2f   (%.2f/%.2f visible) -- %d samples",
-											category[idx], tri_domain[0]/1024.f, tri_domain[1]/1024.f, (total/count)/1024.f, triangles[idx][count/2]/1024.f, total_visible_triangles[idx]/1024.f, total_triangles[idx]/1024.f, count);
+			std::string label = llformat("%s Object Triangle Counts (Ktris) -- [%.2f, %.2f] Mean: %.2f  Median: %.2f  Visible: %.2f/%.2f",
+											category[idx], tri_domain[0]/1024.f, tri_domain[1]/1024.f, (total/count)/1024.f, triangles[idx][count/2]/1024.f, total_visible_triangles[idx]/1024.f, total_triangles[idx]/1024.f);
 
 			LLFontGL::getFontMonospace()->renderUTF8(label,
 											0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
@@ -265,6 +288,140 @@ void LLSceneView::draw()
 		}
 	}
 
+	for (U32 idx = 0; idx < 2; ++idx)
+	{
+		if (!streaming_cost[idx].empty())
+		{ //plot graph of streaming cost
+			std::sort(streaming_cost[idx].begin(), streaming_cost[idx].end());
+			
+			ll_remove_outliers(streaming_cost[idx], 1.f);
+			
+			LLRect tri_rect;
+			if (idx == 0)
+			{
+				tri_rect = LLRect(margin, graph_pos[2]-margin, new_rect.getWidth()/2-margin, graph_pos[1]+margin);
+			}
+			else
+			{
+				tri_rect = LLRect(new_rect.getWidth()/2+margin, graph_pos[2]-margin, new_rect.getWidth()-margin, graph_pos[1]+margin);
+			}
+
+			gl_rect_2d(tri_rect, LLColor4::white, false);
+
+			F32 streaming_domain[] = { 65536, 0 };
+						
+			//get domain of triangle counts
+			for (U32 i = 0; i < streaming_cost[idx].size(); ++i)
+			{
+				streaming_domain[0] = llmin(streaming_domain[0], streaming_cost[idx][i]);
+				streaming_domain[1] = llmax(streaming_domain[1], streaming_cost[idx][i]);		
+			}
+
+			F32 cost_range = streaming_domain[1]-streaming_domain[0];
+
+			U32 count = streaming_cost[idx].size();
+
+			F32 total = 0;
+
+			gGL.begin(LLRender::LINE_STRIP);
+			//plot triangles
+			for (U32 i = 0; i < count; ++i)
+			{
+				F32 sc = streaming_cost[idx][i];
+				total += sc;	
+				F32 y = (F32) (sc-streaming_domain[0])/cost_range*tri_rect.getHeight()+tri_rect.mBottom;
+				F32 x = (F32) i / count * tri_rect.getWidth() + tri_rect.mLeft;
+
+				gGL.vertex2f(x,y);
+
+				if (i%4096 == 0)
+				{
+					gGL.end();
+					gGL.flush();
+					gGL.begin(LLRender::LINE_STRIP);
+				}
+			}
+
+			gGL.end();
+			gGL.flush();
+
+			std::string label = llformat("%s Object Streaming Cost -- [%.2f, %.2f] Mean: %.2f  Total: %.2f",
+											category[idx], streaming_domain[0], streaming_domain[1], total/count, total_streaming[idx]);
+
+			LLFontGL::getFontMonospace()->renderUTF8(label,
+											0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+
+		}
+	}
+
+	for (U32 idx = 0; idx < 2; ++idx)
+	{
+		if (!physics_cost[idx].empty())
+		{ //plot graph of physics cost
+			std::sort(physics_cost[idx].begin(), physics_cost[idx].end());
+			
+			ll_remove_outliers(physics_cost[idx], 1.f);
+			
+			LLRect tri_rect;
+			if (idx == 0)
+			{
+				tri_rect = LLRect(margin, graph_pos[3]-margin, new_rect.getWidth()/2-margin, graph_pos[2]+margin);
+			}
+			else
+			{
+				tri_rect = LLRect(new_rect.getWidth()/2+margin, graph_pos[3]-margin, new_rect.getWidth()-margin, graph_pos[2]+margin);
+			}
+
+			gl_rect_2d(tri_rect, LLColor4::white, false);
+
+			F32 physics_domain[] = { 65536, 0 };
+						
+			//get domain of triangle counts
+			for (U32 i = 0; i < physics_cost[idx].size(); ++i)
+			{
+				physics_domain[0] = llmin(physics_domain[0], physics_cost[idx][i]);
+				physics_domain[1] = llmax(physics_domain[1], physics_cost[idx][i]);		
+			}
+
+			F32 cost_range = physics_domain[1]-physics_domain[0];
+
+			U32 count = physics_cost[idx].size();
+
+			F32 total = 0;
+
+			gGL.begin(LLRender::LINE_STRIP);
+			//plot triangles
+			for (U32 i = 0; i < count; ++i)
+			{
+				F32 pc = physics_cost[idx][i];
+				total += pc;	
+				F32 y = (F32) (pc-physics_domain[0])/cost_range*tri_rect.getHeight()+tri_rect.mBottom;
+				F32 x = (F32) i / count * tri_rect.getWidth() + tri_rect.mLeft;
+
+				gGL.vertex2f(x,y);
+
+				if (i%4096 == 0)
+				{
+					gGL.end();
+					gGL.flush();
+					gGL.begin(LLRender::LINE_STRIP);
+				}
+			}
+
+			gGL.end();
+			gGL.flush();
+
+			std::string label = llformat("%s Object Physics Cost -- [%.2f, %.2f] Mean: %.2f  Total: %.2f",
+											category[idx], physics_domain[0], physics_domain[1], total/count, total_physics[idx]);
+
+			LLFontGL::getFontMonospace()->renderUTF8(label,
+											0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+
+		}
+	}
+
+	
+	
 
 	LLView::draw();
 }
