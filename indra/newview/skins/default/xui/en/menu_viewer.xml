@@ -41,7 +41,7 @@
              parameter="agent" />
         </menu_item_call>
         <menu_item_call
-         label="Change Outfit"
+         label="My Appearance"
          name="ChangeOutfit">
             <menu_item_call.on_click
              function="CustomizeAvatar" />
@@ -3427,6 +3427,16 @@
                 <menu_item_call.on_enable
                  function="Edit.EnableTakeOff"
                  parameter="tattoo" />
+            </menu_item_call>
+            <menu_item_call
+             label="Physics"
+             name="Physics">
+                <menu_item_call.on_click
+                 function="Edit.TakeOff"
+                 parameter="physics" />
+                <menu_item_call.on_enable
+                 function="Edit.EnableTakeOff"
+                 parameter="physics" />
             </menu_item_call>
             <menu_item_call
              label="All Clothes"

@@ -34,7 +34,6 @@
 
 #include "boost/tokenizer.hpp"
 
-#include "dbghelp.h"
 #include "indra_constants.h"	// CRASH_BEHAVIOR_ASK, CRASH_SETTING_NAME
 #include "llerror.h"
 #include "llfile.h"
