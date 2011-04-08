@@ -266,13 +266,13 @@ public:
 	// subclasses must return a prefered file extension (lowercase without a leading dot)
 	virtual std::string getExtension() = 0;
 	// calcHeaderSize() returns the maximum size of header;
-	//   0 indicates we don't know have a header and have to lead the entire file
+	//   0 indicates we don't have a header and have to read the entire file
 	virtual S32 calcHeaderSize() { return 0; };
 	// calcDataSize() returns how many bytes to read to load discard_level (including header)
 	virtual S32 calcDataSize(S32 discard_level);
 	// calcDiscardLevelBytes() returns the smallest valid discard level based on the number of input bytes
 	virtual S32 calcDiscardLevelBytes(S32 bytes);
-	// getRawDiscardLevel()by default returns mDiscardLevel, but may be overridden (LLImageJ2C)
+	// getRawDiscardLevel() by default returns mDiscardLevel, but may be overridden (LLImageJ2C)
 	virtual S8  getRawDiscardLevel() { return mDiscardLevel; }
 	
 	BOOL load(const std::string& filename);

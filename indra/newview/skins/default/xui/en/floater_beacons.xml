@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="225"
+ height="245"
  layout="topleft"
  name="beacons"
  help_topic="beacons"
@@ -12,7 +12,7 @@
  width="240">
     <panel
      follows="left|top|right|bottom"
-     height="200"
+     height="240"
      layout="topleft"
      left="10"
      name="beacons_panel"
@@ -130,6 +130,16 @@
          label="Particle sources"
          layout="topleft"
          name="particles" >
+          <check_box.commit_callback
+           function="Beacons.UICheck" />
+        </check_box>
+         <check_box
+         control_name="moapbeacon"
+         height="16"
+         left="0"
+         label="Media sources"
+         layout="topleft"
+         name="moapbeacon" >
           <check_box.commit_callback
            function="Beacons.UICheck" />
         </check_box>

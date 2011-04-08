@@ -73,7 +73,7 @@ Detalles del error: la notificación de nombre &apos;[_NAME]&apos; no se ha enco
 	</notification>
 	<notification name="LoginFailedNoNetwork">
 		No se puede conectar con [SECOND_LIFE_GRID].
-&apos;[DIAGNOSTIC]&apos;
+    &apos;[DIAGNOSTIC]&apos;
 Asegúrate de que tu conexión a Internet está funcionando adecuadamente.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -329,13 +329,6 @@ Necesitas una cuenta para acceder a [SECOND_LIFE]. ¿Te gustaría crear una ahor
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		Escribe el nombre de usuario o el nombre y el apellido de tu avatar en el campo Nombre de usuario e inicia sesión otra vez.
-	</notification>
-	<notification name="AddClassified">
-		Los anuncios clasificados aparecen durante una semana en la sección &apos;Clasificados&apos; de la búsqueda y en [http://secondlife.com/community/classifieds secondlife.com].
-Rellena tu anuncio y pulsa &apos;Publicar...&apos; para añadirlo al directorio.
-Cuando pulses Publicar, se te preguntará por un precio a pagar.
-El pagar más hará que tu anuncio aparezca más arriba en la lista, y que también aparezca más arriba en la lista cuando la gente busque por palabras clave.
-		<usetemplate ignoretext="Cómo crear un anuncio clasificado nuevo." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="DeleteClassified">
 		¿Borrar el clasificado &apos;[NAME]&apos;?
@@ -2851,9 +2844,6 @@ Si lo haces, todos los residentes que se unan posteriormente a la llamada tambi�
 	<notification label="Explora el mundo" name="HintDestinationGuide">
 		La Guía de destinos contiene miles de nuevos lugares por descubrir. Selecciona una ubicación y elige Teleportarme para iniciar la exploración.
 	</notification>
-	<notification label="Cambiar de apariencia" name="HintAvatarPicker">
-		¿Te gustaría cambiar de apariencia? Haz clic en el botón que aparece a continuación para ver más avatares.
-	</notification>
 	<notification label="Panel lateral" name="HintSidePanel">
 		Accede de manera rápida a tu inventario, así como a tu ropa, los perfiles y el resto de la información disponible en el panel lateral.
 	</notification>
@@ -2890,6 +2880,38 @@ Si lo haces, todos los residentes que se unan posteriormente a la llamada tambi�
 			<button name="ok" text="Enviar"/>
 			<button name="cancel" text="Cancelar"/>
 		</form>
+	</notification>
+	<notification label="" name="ModeChange">
+		Para cambiar de modo tienes que salir y reiniciar.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoClassifieds">
+		La creación y edición de clasificados sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoGroupInfo">
+		La creación y edición de grupos sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoPicks">
+		La creación y edición de Destacados sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoWorldMap">
+		La visualización del mapa del mundo sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoVoiceCall">
+		Las llamadas de voz sólo están disponibles en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoAvatarShare">
+		Compartir sólo está disponible en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoAvatarPay">
+		El pago a otros residentes sólo está disponible en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- La velocidad de tu CPU no cumple los requerimientos mínimos.

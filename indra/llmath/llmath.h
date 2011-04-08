@@ -29,6 +29,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <vector>
 #include "lldefs.h"
 //#include "llstl.h" // *TODO: Remove when LLString is gone
 //#include "llstring.h" // *TODO: Remove when LLString is gone
@@ -495,6 +496,44 @@ inline U32 get_next_power_two(U32 val, U32 max_power_two)
 inline F32 llgaussian(F32 x, F32 o)
 {
 	return 1.f/(F_SQRT_TWO_PI*o)*powf(F_E, -(x*x)/(2*o*o));
+}
+
+//helper function for removing outliers
+template <class VEC_TYPE>
+inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
+{
+	if (data.size() < 100)
+	{ //not enough samples
+		return;
+	}
+
+	VEC_TYPE Q1 = data[data.size()/4];
+	VEC_TYPE Q3 = data[data.size()-data.size()/4-1];
+
+	VEC_TYPE min = (VEC_TYPE) ((F32) Q1-k * (F32) (Q3-Q1));
+	VEC_TYPE max = (VEC_TYPE) ((F32) Q3+k * (F32) (Q3-Q1));
+
+	U32 i = 0;
+	while (i < data.size() && data[i] < min)
+	{
+		i++;
+	}
+
+	S32 j = data.size()-1;
+	while (j > 0 && data[j] > max)
+	{
+		j--;
+	}
+
+	if (j < data.size()-1)
+	{
+		data.erase(data.begin()+j, data.end());
+	}
+
+	if (i > 0)
+	{
+		data.erase(data.begin(), data.begin()+i);
+	}
 }
 
 // Include simd math header

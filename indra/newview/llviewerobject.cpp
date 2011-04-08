@@ -240,6 +240,9 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mState(0),
 	mMedia(NULL),
 	mClickAction(0),
+	mObjectCost(0),
+	mLinksetCost(0),
+	mPhysicsCost(0),
 	mLinksetPhysicsCost(0.f),
 	mCostStale(true),
 	mPhysicsShapeUnknown(true),
@@ -3134,12 +3137,17 @@ F32 LLViewerObject::getLinksetPhysicsCost()
 	return mLinksetPhysicsCost;
 }
 
-F32 LLViewerObject::getStreamingCost()
+F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes)
 {
 	return 0.f;
 }
 
 U32 LLViewerObject::getTriangleCount()
+{
+	return 0;
+}
+
+U32 LLViewerObject::getHighLODTriangleCount()
 {
 	return 0;
 }

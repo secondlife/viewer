@@ -76,6 +76,7 @@
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
+#include "llsceneview.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
 #include "llstatusbar.h"
@@ -515,6 +516,11 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)gDebugView->mFastTimerView );
 		}
+		else if ("scene view" == console_type)
+		{
+			toggle_visibility( (void*)gSceneView);
+		}
+
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
 		{
@@ -549,6 +555,10 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("fast timers" == console_type)
 		{
 			new_value = get_visibility( (void*)gDebugView->mFastTimerView );
+		}
+		else if ("scene view" == console_type)
+		{
+			new_value = get_visibility( (void*) gSceneView);
 		}
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
@@ -7359,6 +7369,11 @@ class LLViewToggleBeacon : public view_listener_t
 			LLPipeline::toggleRenderPhysicalBeacons(NULL);
 			gSavedSettings.setBOOL( "physicalbeacon", LLPipeline::getRenderPhysicalBeacons(NULL) );
 		}
+		else if (beacon == "moapbeacon")
+		{
+			LLPipeline::toggleRenderMOAPBeacons(NULL);
+			gSavedSettings.setBOOL( "moapbeacon", LLPipeline::getRenderMOAPBeacons(NULL) );
+		}
 		else if (beacon == "soundsbeacon")
 		{
 			LLPipeline::toggleRenderSoundBeacons(NULL);
@@ -7417,6 +7432,11 @@ class LLViewCheckBeaconEnabled : public view_listener_t
 		{
 			new_value = gSavedSettings.getBOOL( "scriptsbeacon");
 			LLPipeline::setRenderScriptedBeacons(new_value);
+		}
+		else if (beacon == "moapbeacon")
+		{
+			new_value = gSavedSettings.getBOOL( "moapbeacon");
+			LLPipeline::setRenderMOAPBeacons(new_value);
 		}
 		else if (beacon == "physicalbeacon")
 		{

@@ -6374,7 +6374,7 @@ BOOL LLObjectSelection::isEmpty() const
 //-----------------------------------------------------------------------------
 // getObjectCount() - returns number of non null objects
 //-----------------------------------------------------------------------------
-S32 LLObjectSelection::getObjectCount(BOOL mesh_adjust)
+S32 LLObjectSelection::getObjectCount()
 {
 	cleanupNodes();
 	S32 count = mList.size();
@@ -6478,7 +6478,7 @@ F32 LLObjectSelection::getSelectedLinksetPhysicsCost()
 	return cost;
 }
 
-F32 LLObjectSelection::getSelectedObjectStreamingCost()
+F32 LLObjectSelection::getSelectedObjectStreamingCost(S32* total_bytes, S32* visible_bytes)
 {
 	F32 cost = 0.f;
 	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
@@ -6488,7 +6488,19 @@ F32 LLObjectSelection::getSelectedObjectStreamingCost()
 		
 		if (object)
 		{
-			cost += object->getStreamingCost();
+			S32 bytes = 0;
+			S32 visible = 0;
+			cost += object->getStreamingCost(&bytes, &visible);
+
+			if (total_bytes)
+			{
+				*total_bytes += bytes;
+			}
+
+			if (visible_bytes)
+			{
+				*visible_bytes += visible;
+			}
 		}
 	}
 

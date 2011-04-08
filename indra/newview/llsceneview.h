@@ -1,8 +1,8 @@
 /** 
- * @file llviewerchat.h
- * @brief wrapper of LLChat in viewer
+ * @file llsceneview.h
+ * @brief LLSceneView class header file
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,27 +24,25 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERCHAT_H
-#define LL_LLVIEWERCHAT_H
+#ifndef LL_LLSCENEVIEW_H
+#define LL_LLSCENEVIEW_H
 
-#include "llchat.h"
-#include "llfontgl.h"
-#include "v4color.h"
+#include "llfloater.h"
 
 
-class LLViewerChat 
+class LLSceneView : public LLFloater
 {
 public:
-	static void getChatColor(const LLChat& chat, LLColor4& r_color);
-	static void getChatColor(const LLChat& chat, std::string& r_color_name, F32& r_color_alpha);
-	static LLFontGL* getChatFont();
-	static S32 getChatFontSize();
-	static void formatChatMsg(const LLChat& chat, std::string& formated_msg);
-	static std::string getSenderSLURL(const LLChat& chat, const LLSD& args);
+	LLSceneView(const LLRect& rect);
 
-private:
-	static std::string getObjectImSLURL(const LLChat& chat, const LLSD& args);
+	virtual void draw();
+	
+protected:
+	virtual void onClickCloseBtn();
+
 
 };
 
-#endif
+extern LLSceneView* gSceneView;
+
+#endif // LL_LLSCENEVIEW_H

@@ -762,6 +762,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mPelvisOffset = LLVector3(0.0f,0.0f,0.0f);
 	mLastPelvisToFoot = 0.0f;
 	mPelvisFixup = 0.0f;
+	mLastPelvisFixup = 0.0f;
 }
 
 //------------------------------------------------------------------------
@@ -3808,6 +3809,7 @@ void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount,
 		//Store off last pelvis to foot value
 		mLastPelvisToFoot = mPelvisToFoot;
 		mPelvisOffset	  = offsetAmount;
+		mLastPelvisFixup  = mPelvisFixup;
 		mPelvisFixup	  = pelvisFixup;
 	}
 }
@@ -3828,6 +3830,7 @@ void LLVOAvatar::postPelvisSetRecalc( void )
 void LLVOAvatar::setPelvisOffset( F32 pelvisFixupAmount )
 {	
 	mHasPelvisOffset  = true;
+	mLastPelvisFixup  = mPelvisFixup;	
 	mPelvisFixup	  = pelvisFixupAmount;	
 }
 //------------------------------------------------------------------------
@@ -4968,6 +4971,7 @@ void LLVOAvatar::resetJointPositions( void )
 		mSkeleton[i].setId( LLUUID::null );
 	}
 	mHasPelvisOffset = false;
+	mPelvisFixup	 = mLastPelvisFixup;
 }
 //-----------------------------------------------------------------------------
 // resetSpecificJointPosition
@@ -5027,6 +5031,7 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 	}
 	//make sure we don't apply the joint offset
 	mHasPelvisOffset = false;
+	mPelvisFixup	 = mLastPelvisFixup;
 	postPelvisSetRecalc();
 }
 //-----------------------------------------------------------------------------

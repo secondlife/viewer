@@ -303,6 +303,7 @@ public:
 	LLVector3			mPelvisOffset;
 	F32					mLastPelvisToFoot;
 	F32					mPelvisFixup;
+	F32					mLastPelvisFixup;
 
 	LLVector3			mHeadOffset; // current head position
 	LLViewerJoint		mRoot;

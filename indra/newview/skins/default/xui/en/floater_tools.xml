@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  follows="left|top|right"
- height="780"
+ height="580"
  layout="topleft"
  bg_opaque_image="Window_NoTitle_Foreground"
  bg_alpha_image="Window_NoTitle_Background"
@@ -860,7 +860,7 @@
     <!-- </text> -->
     <tab_container
      follows="left|top"
-     height="610"
+     height="410"
      halign="center"
      left="0"
      name="Object Info Tabs"
@@ -1350,9 +1350,6 @@ even though the user gets a free copy.
          name="Object"
          top="16"
          width="295">
-	<panel.string name="None">None</panel.string>
-	<panel.string name="Prim">Prim</panel.string>
-	<panel.string name="Convex Hull">Convex Hull</panel.string>
             <check_box
              height="19"
              label="Locked"
@@ -1559,100 +1556,6 @@ even though the user gets a free copy.
              text_enabled_color="1 1 1 1"
              top_pad="3"
              width="87" />
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="10"
-             layout="topleft"
-             left_delta="0"
-             name="label physicsshapetype"
-             top_pad="50"
-             width="121">
-                Physics Shape Type:
-            </text>
-			<combo_box
-			   height="23"
-			   top_delta="-5" 
-			   layout="topleft"
-			   follows="left|top"
-			   name="Physics Shape Type Combo Ctrl"
-			   tool_tip="Choose the physics shape type"
-			   left_pad="5"
-			   width="108"/>
-
-            <spinner
-             follows="left|top"
-             height="19"
-             increment="1"
-             initial_value="1"
-             label="Gravity"
-             label_width="70"
-             layout="topleft"
-             left="10"
-             min_val="-1"
-             max_val="28"
-             name="Physics Gravity"
-             top_pad="10"
-             width="132" />
-
-            <check_box
-             height="19"
-             label="Override material"
-             layout="topleft"
-             left_delta="0"
-             name="Physics Material Override"
-             tool_tip="Override Material"
-             top_pad="10"
-             width="132" />
-
-            <spinner
-             follows="left|top"
-             height="19"
-             increment="0.1"
-             initial_value="0"
-             label="Friction"
-             label_width="70"
-             layout="topleft"
-             left_delta="0"
-             max_val="255"
-             min_val="0"
-             name="Physics Friction"
-             top_pad="4"
-             width="132" />
-
-            <spinner
-             follows="left|top"
-             height="19"
-             increment="0.1"
-             initial_value="0"
-             label="Density"
-             label_width="70"
-             layout="topleft"
-             left_delta="0"
-             max_val="22587"
-             min_val="1"
-             name="Physics Density"
-             top_pad="4"
-             width="132" />
-
-            <spinner
-             follows="left|top"
-             height="19"
-             increment="0.01"
-             initial_value="0"
-             label="Restitution"
-             label_width="70"
-             layout="topleft"
-             left_delta="0"
-             max_val="1"
-             min_val="0"
-             name="Physics Restitution"
-             top_pad="4"
-             width="132" />
-
-
-
  <!--           <text
              type="string"
              length="1"
@@ -2248,6 +2151,9 @@ even though the user gets a free copy.
          name="Features"
          top_delta="0"
          width="295">
+	<panel.string name="None">None</panel.string>
+	<panel.string name="Prim">Prim</panel.string>
+	<panel.string name="Convex Hull">Convex Hull</panel.string>
             <text
              type="string"
              length="1"
@@ -2390,6 +2296,7 @@ even though the user gets a free copy.
              name="FlexForceZ"
              top_pad="4"
              width="128" />
+
             <check_box
              height="16"
              label="Light"
@@ -2500,6 +2407,94 @@ even though the user gets a free copy.
                    mouse_opaque="true"
                    name="Light Ambiance"
                    width="120" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             name="label physicsshapetype"
+             top="38"
+             width="121">
+                Physics Shape Type:
+            </text>
+			<combo_box
+			   height="19"
+			   top_delta="15" 
+			   layout="topleft"
+			   follows="left|top"
+			   name="Physics Shape Type Combo Ctrl"
+			   tool_tip="Choose the physics shape type"
+			   width="108"/>
+
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="1"
+             initial_value="1"
+             label="Gravity"
+             label_width="70"
+             layout="topleft"
+             min_val="-1"
+             max_val="28"
+             name="Physics Gravity"
+             top_pad="10"
+             width="132" />
+
+            <check_box
+             height="19"
+             label="Override material"
+             layout="topleft"
+             left_delta="0"
+             name="Physics Material Override"
+             tool_tip="Override Material"
+             top_pad="10"
+             width="132" />
+
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.1"
+             initial_value="0"
+             label="Friction"
+             label_width="70"
+             layout="topleft"
+             left_delta="0"
+             max_val="255"
+             min_val="0"
+             name="Physics Friction"
+             top_pad="4"
+             width="132" />
+
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.1"
+             initial_value="0"
+             label="Density"
+             label_width="70"
+             layout="topleft"
+             left_delta="0"
+             max_val="22587"
+             min_val="1"
+             name="Physics Density"
+             top_pad="4"
+             width="132" />
+
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.01"
+             initial_value="0"
+             label="Restitution"
+             label_width="70"
+             layout="topleft"
+             left_delta="0"
+             max_val="1"
+             min_val="0"
+             name="Physics Restitution"
+             top_pad="4"
+             width="132" />
         </panel>
          <panel
          border="false"
