@@ -347,6 +347,7 @@ Apenas lotes maiores podem ser listados na busca.
 				<combo_box.item label="Parques &amp; Natureza" name="item9"/>
 				<combo_box.item label="Residencial" name="item10"/>
 				<combo_box.item label="Compras" name="item11"/>
+				<combo_box.item label="Aluguel" name="item13"/>
 				<combo_box.item label="Outros" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -361,6 +362,7 @@ Apenas lotes maiores podem ser listados na busca.
 				<combo_box.item label="Parques e Natureza" name="item9"/>
 				<combo_box.item label="Residencial" name="item10"/>
 				<combo_box.item label="Compras" name="item11"/>
+				<combo_box.item label="Aluguel" name="item13"/>
 				<combo_box.item label="Outros" name="item12"/>
 			</combo_box>
 			<check_box label="Conteúdo adulto" name="MatureCheck" tool_tip=""/>
@@ -439,7 +441,7 @@ Mídia:
 				(Definições do terreno)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Acesso para público: [MATURITY]
+				Acesso para público: [MATURITY]) (Desmarcar esse item cria limites)
 			</panel.string>
 			<panel.string name="estate_override">
 				Uma ou mais destas opções está definida no nível de propriedade.

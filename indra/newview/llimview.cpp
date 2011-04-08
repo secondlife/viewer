@@ -3183,10 +3183,6 @@ public:
 			//just like a normal IM
 			//this is just replicated code from process_improved_im
 			//and should really go in it's own function -jwolk
-			if (gNoRender)
-			{
-				return;
-			}
 			LLChat chat;
 
 			std::string message = message_params["message"].asString();
@@ -3263,11 +3259,6 @@ public:
 		} //end if invitation has instant message
 		else if ( input["body"].has("voice") )
 		{
-			if (gNoRender)
-			{
-				return;
-			}
-			
 			if(!LLVoiceClient::getInstance()->voiceEnabled() || !LLVoiceClient::getInstance()->isVoiceWorking())
 			{
 				// Don't display voice invites unless the user has voice enabled.

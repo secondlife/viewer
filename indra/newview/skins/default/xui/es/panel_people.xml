@@ -18,6 +18,8 @@
 	<string name="groups_filter_label" value="Filtrar a los grupos"/>
 	<string name="no_filtered_groups_msg" value="¿No encuentras lo que buscas? Prueba con [secondlife:///app/search/groups/[SEARCH_TERM] Buscar]."/>
 	<string name="no_groups_msg" value="¿Buscas grupos en que participar? Prueba la [secondlife:///app/search/groups Búsqueda]."/>
+	<string name="MiniMapToolTipMsg" value="[REGION](Pulsa dos veces para abrir el mapa, pulsa mayús y arrastra para obtener una panorámica)"/>
+	<string name="AltMiniMapToolTipMsg" value="[REGION](Pulsa dos veces para teleportarte, pulsa mayús y arrastra para obtener una panorámica)"/>
 	<filter_editor label="Filtrar" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="CERCANA" name="nearby_panel">

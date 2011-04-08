@@ -50,6 +50,7 @@
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
 #include "llviewerparcelmgr.h"
+#include "llfirstuse.h"
 
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids);
 void reshape_floater(LLCallFloater* floater, S32 delta_height);
@@ -170,13 +171,13 @@ BOOL LLCallFloater::postBuild()
 	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 	
 	updateSession();
-
 	return TRUE;
 }
 
 // virtual
 void LLCallFloater::onOpen(const LLSD& /*key*/)
 {
+	LLFirstUse::speak(false);
 }
 
 // virtual

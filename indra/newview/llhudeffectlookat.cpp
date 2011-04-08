@@ -587,11 +587,6 @@ void LLHUDEffectLookAt::update()
  */
 bool LLHUDEffectLookAt::calcTargetPosition()
 {
-	if (gNoRender)
-	{
-		return false;
-	}
-
 	LLViewerObject *target_obj = (LLViewerObject *)mTargetObject;
 	LLVector3 local_offset;
 	
