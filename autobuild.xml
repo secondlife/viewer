@@ -234,9 +234,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1bc84a4f4299365120914e3e4dcc5602</string>
+              <string>d2b666a8eec1cadc81152ae94cad249f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226114/arch/Darwin/installer/colladadom-2.2-darwin-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226180/arch/Darwin/installer/colladadom-2.2-darwin-20110408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -246,9 +246,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>07343df2fcfd6ae73c62bb4099061eb6</string>
+              <string>414a7db51edbbb9e5fabb2dbea4c19a0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226114/arch/Linux/installer/colladadom-2.2-linux-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226180/arch/Linux/installer/colladadom-2.2-linux-20110409.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -258,9 +258,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>10614d1b7857277ccf6d79e076e22f4c</string>
+              <string>7d8819dd334ccccc2b82747565fa6077</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226114/arch/CYGWIN/installer/colladadom-2.2-windows-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226180/arch/CYGWIN/installer/colladadom-2.2-windows-20110408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
