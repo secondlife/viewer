@@ -7,14 +7,14 @@ else (STANDALONE)
   if (WINDOWS)
     use_prebuilt_binary(tcmalloc)
     set(TCMALLOC_LIBRARIES 
-        debug libtcmalloc_minimal-debug
-        optimized libtcmalloc_minimal)
+        debug libtcmalloc-debug
+        optimized libtcmalloc)
     set(GOOGLE_PERFTOOLS_FOUND "YES")
   endif (WINDOWS)
   if (LINUX)
     use_prebuilt_binary(tcmalloc)
     set(TCMALLOC_LIBRARIES 
-	tcmalloc_minimal)
+	tcmalloc)
     set(PROFILER_LIBRARIES profiler)
     set(GOOGLE_PERFTOOLS_INCLUDE_DIR
         ${LIBS_PREBUILT_DIR}/include)
