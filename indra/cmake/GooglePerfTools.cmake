@@ -7,8 +7,8 @@ else (STANDALONE)
   if (WINDOWS)
     use_prebuilt_binary(tcmalloc)
     set(TCMALLOC_LIBRARIES 
-        debug libtcmalloc-debug
-        optimized libtcmalloc)
+        debug libtcmalloc_minimal-debug
+        optimized libtcmalloc_minimal)
     set(GOOGLE_PERFTOOLS_FOUND "YES")
   endif (WINDOWS)
   if (LINUX)

@@ -56,8 +56,8 @@ if(WINDOWS)
         )
 
     if(USE_GOOGLE_PERFTOOLS)
-      set(debug_files ${debug_files} libtcmalloc-debug.dll)
-      set(release_files ${release_files} libtcmalloc.dll)
+      set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
+      set(release_files ${release_files} libtcmalloc_minimal.dll)
     endif(USE_GOOGLE_PERFTOOLS)
 
     if (FMOD)
@@ -262,7 +262,7 @@ elseif(LINUX)
         libopenal.so
         libopenjpeg.so
         libssl.so
-        libtcmalloc.so
+        libtcmalloc_minimal.so
         libuuid.so.16
         libuuid.so.16.0.22
         libssl.so.0.9.8
