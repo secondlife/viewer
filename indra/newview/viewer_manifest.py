@@ -946,34 +946,6 @@ class Linux_i686Manifest(LinuxManifest):
 
         if self.prefix("../packages/lib/release", dst="lib"):
             self.path("libapr-1.so")
-            try:
-                self.path(self.find_existing_file(os.path.join(os.pardir, lib, libfile),
-                    '../../libraries/i686-linux/lib_release_client/%s' % libfile), 
-                      dst=os.path.join(destdir, libfile))
-                # keep this one to preserve syntax, open source mangling removes previous lines
-                pass
-            except RuntimeError:
-                print "Skipping %s - not found" % libfile
-                pass
-
-        self.path("secondlife-bin","bin/do-not-directly-run-secondlife-bin")
-
-        self.path("../linux_crash_logger/linux-crash-logger","bin/linux-crash-logger.bin")
-        self.path("../linux_updater/linux-updater", "bin/linux-updater.bin")
-        self.path("../llplugin/slplugin/SLPlugin", "bin/SLPlugin")
-        if self.prefix("res-sdl"):
-            self.path("*")
-            # recurse
-            self.end_prefix("res-sdl")
-
-        # plugins
-        if self.prefix(src="", dst="bin/llplugin"):
-            self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
-            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
-            self.end_prefix("bin/llplugin")
-
-        self.path("featuretable_linux.txt")
-        #self.path("secondlife-i686.supp")
             self.path("libapr-1.so.0")
             self.path("libapr-1.so.0.4.2")
             self.path("libaprutil-1.so")
