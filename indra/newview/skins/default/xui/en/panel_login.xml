@@ -133,7 +133,6 @@ label="Remember password"
   max_chars="128"
   tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
   top_pad="0"
-  control_name="SessionSettingsFile"
   name="mode_combo"
   width="110">
 <combo_box.item

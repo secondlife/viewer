@@ -307,17 +307,6 @@
 	 tool_tip="Check to use display names in chat, IM, name tags, etc."
 	 top_pad="3"/>
 	 
-	<check_box
-	 control_name="EnableUIHints"
-	 follows="top|left"
-	 height="16"
-	 label="Enable Viewer UI Hints"
-	 layout="topleft"
-	 left="27"
-	 name="viewer_hints_check"
-	 top_pad="5"
-	 width="237"/>
-	 
 	<text
 	 type="string"
 	 length="1"
