@@ -1,0 +1,1898 @@
+<?xml version="1.0" ?>
+<llsd>
+<map>
+    <key>installables</key>
+    <map>
+      <key>GL</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1991-2000 Silicon Graphics, Inc.</string>
+        <key>description</key>
+        <string>A standard for 3D Graphics rendering engine.</string>
+        <key>license</key>
+        <string>GL</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>0bd2795a2afe09f6c563f2f888f24cc9</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-darwin-20080613.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>2ab29212a7f3acdaebf10059af816be0</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-linux-20080812.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>9c3dff3817f1105f9054401fdef1fe50</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-linux64-20080909.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>91155239b02f576384603795d41eb971</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-windows-20090505.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>SDL</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002  Sam Lantinga</string>
+        <key>description</key>
+        <string>The Simple DirectMedia Layer libraries are used for handling input and basic window/GL setup on the Linux client.  Packages also include cursors.</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>fce0ff7d2cdf0f36c1647e6a3916e29e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.12-linux-20090218.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>apr_suite</key>
+      <map>
+        <key>license</key>
+        <string>apache 2.0</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>115d8ac44a91efdb173e9b3e478c46b6</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.7-darwin-20090805.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>7b84cd6a3c601a104d9c09e58ef2f50c</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-linux-20080812.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>1a7e1186855d48d8316ce86803095f70</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-linux64-20080909a.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>a02619c1e30a3db02d3883bf1ad7a1e6</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.8-windows-20090911.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>ares</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 1998 by the Massachusetts Institute of Technology.</string>
+        <key>description</key>
+        <string>Performs DNS requests and name resolves asynchronously. Used with libcurl to keep all HTTP operations async.</string>
+        <key>license</key>
+        <string>c-ares</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>cdb2f5c4a5a1f9ecd75bc1dbdd4db8e9</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-darwin-20100606.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>91694429e391efeea1de974df26032a2</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-linux-20100527.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>c4242416e0b2e642c0bf062a19a250e4</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-linux64-20080909.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>4b84738eec2e21b0c096d53b79ee2681</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-windows-20100611a.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>artwork-common</key>
+      <map>
+        <key>copyright</key>
+        <string>(C) 2008 Linden Research, Inc.</string>
+        <key>description</key>
+        <string>Second Life(TM) Viewer Artwork</string>
+        <key>license</key>
+        <string>artwork</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>5e047437d73d1017bf270a6c6e936f23</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/artwork-common-20090415.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>5e047437d73d1017bf270a6c6e936f23</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/artwork-common-20090415.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>5e047437d73d1017bf270a6c6e936f23</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/artwork-common-20090415.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>berkeley</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1990-1999 Sleepycat Software. All rights reserved.</string>
+        <key>description</key>
+        <string>a high-performance, embedded database library</string>
+        <key>license</key>
+        <string>sleepycat</string>
+      </map>
+      <key>boost</key>
+      <map>
+        <key>copyright</key>
+        <string>various</string>
+        <key>description</key>
+        <string>A set of portable C++ libraries which provide a wide set of functionality. </string>
+        <key>license</key>
+        <string>boost</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>71defd179827bf172b76d6020023e0e8</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-darwin-20100222a.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>4db3d74e40d149eeec06f4d97a609bb1</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux-20100624.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>af4badd6b2c10bc4db82ff1256695892</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux64-20100119.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>72e6e2eff5d146a107f3059b6c31fb95</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20100630.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>curl</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1996 - 2008, Daniel Stenberg, &lt;daniel@haxx.se&gt;.</string>
+        <key>description</key>
+        <string>Client-side URL transfer library. Handles moving data across the net in many different protocols. Used to GET/POST/PUT/DELETE web resources. </string>
+        <key>license</key>
+        <string>curl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>ca8f0134fa5ab6f34a6eeb8d0896c9b0</string>
+            <key>url</key>
+            <uri>https://s3.amazonaws.com/automated-builds-secondlife-com/hg/repo/brad_curl-autobuild/rev/216961/arch/Darwin/installer/curl-7.21.1-darwin-20101214.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>9c9b629b62bf874d550c430ad678dc04</string>
+            <key>url</key>
+            <uri>https://s3.amazonaws.com/automated-builds-secondlife-com/hg/repo/brad_curl-autobuild/rev/216961/arch/Linux/installer/curl-7.21.1-linux-20101215.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>6994192cea7ab2d885a158a3de474273</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4a-linux64-20090303.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>48691883065a82d53691d73aae81d4c1</string>
+            <key>url</key>
+            <uri>https://s3.amazonaws.com/automated-builds-secondlife-com/hg/repo/brad_curl-autobuild/rev/216961/arch/CYGWIN/installer/curl-7.21.1-windows-20101214.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>dbghelp</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright Microsoft Corporation</string>
+        <key>description</key>
+        <string>dbghelp: Debug helper from Microsoft Debugging Tools For Windows</string>
+        <key>license</key>
+        <string>MSDTW</string>
+        <key>packages</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>b7563064037e032143ca2d610aae5153</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbghelp-6.11.1.404-windows-20090520.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>dbusglib</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2002, 2003 CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.</string>
+        <key>description</key>
+        <string>dbus/dbus-glib: headers only</string>
+        <key>license</key>
+        <string>AFL2.1</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>eb25444142d4102b0ce1b7ffaadb071e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbusglib-linux-20080707.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>elfio</key>
+      <map>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>82ea408af2f968cfe5f013ab241323ef</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/elfio-1.0.3-linux-20080812.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>expat</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd</string>
+        <key>description</key>
+        <string>An XML parser library written in C. It is a stream-oriented parser in which an application registers handlers for things the parser might find in the XML document (like start tags).</string>
+        <key>license</key>
+        <string>mit</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>c457a0a041ac4946265889a503d26c3d</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-darwin-20090805.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>67b470fd446b08c9831d1039674eae4e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-linux-20080812.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>278c61871419b9a4d50a4f88b7922403</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-linux64-20080909.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>5dbbdb4a9b5bec86d180ef20a5f8ccfb</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-windows-20090917.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>fmod</key>
+      <map>
+        <key>copyright</key>
+        <string>FMOD Sound System, copyright (C) Firelight Technologies Pty, Ltd., 1994-2006.</string>
+        <key>description</key>
+        <string>Audio engine and mp3 stream decoder .</string>
+        <key>license</key>
+        <string>fmod</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>261bcd3387066cf0a1d46549400052b5</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-darwin-20101007.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>8490d97430c12c2e1ac19ff80a8d4db4</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-20101007.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>bab1babcb01ff9849b7f072d352e1ecd</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-windows-20101007.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>fontconfig</key>
+      <map>
+        <key>license</key>
+        <string>mit</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>9af6a1ed39fa540bfcaa402b0ea22f78</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/fontconfig-2.2.3-linux-20080613.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>freeglut</key>
+      <map>
+        <key>license</key>
+        <string>mit</string>
+        <key>packages</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>fcbb695ff203775fad96d184bf5f34fc</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freeglut-2.4.0-windows-20090608.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>freetype</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright</string>
+        <key>description</key>
+        <string>Font</string>
+        <key>license</key>
+        <string>freetype</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>f00144dfb597140f328774c3244f0c3e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-darwin-20090922.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>9de3f44be65645c7f6af236139596942</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-linux-2010-02-19a-nommap.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>35f6fa557ba90f9cda0a18d1af2055a4</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-linux64-20080909.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>88980fd6d91ac541b62dea877ebe6ba6</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-windows-20090917.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>glh_linear</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2000 Cass Everitt; Copyright (c) 2000 NVIDIA Corporation; All rights reserved.</string>
+        <key>description</key>
+        <string>nVidia NVParse SDK: platform-indepenedent C++ Apple OpenGL helper library</string>
+        <key>license</key>
+        <string>glh_linear</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>23bd9a75e5a2365a827461e6c324f52b</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-darwin-20080613.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>23bd9a75e5a2365a827461e6c324f52b</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-linux-20080812.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>2965646aea1d2a6aec1fbc431c02733f</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-linux-20080613.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>38b9ddfe8dceff55ee4351016a937d1b</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-windows-20080613.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>glib</key>
+      <map>
+        <key>description</key>
+        <string>GLib is a library containing many useful C routines for things such as trees, hashes, and lists.</string>
+        <key>license</key>
+        <string>gpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>6cc5ce1fafd10299fdb890b3d4c3cf53</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glib-2.0-darwin-20080817.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>2f1a9e14f9213c2c9564c1c1cfdd6d47</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glib-2.0-linux-20080817.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>3d5e29d444dde4815b36082eedfc775a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glib-2.0-windows-20080817.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>glui</key>
+      <map>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>84f792a860691d0fad6d1de6eeb31baa</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.36-darwin-20090623a.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>5b8631fe510d4ebaeb965c673937e1e7</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.3.6-windows-freeglut-20090608.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>google</key>
+      <map>
+        <key>license</key>
+        <string>mit</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>40db900872612615e849f17cbdfd2c27</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-linux-20080812.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>google-perftools</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2005, Google Inc.</string>
+        <key>description</key>
+        <string>Heap performance and validity checking tools from google. Includes TCMalloc, heap-checker, heap-profiler and cpu-profiler.</string>
+        <key>license</key>
+        <string>bsd</string>
+        <key>packages</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>32dba32ddd460a08e082898ebba6315c</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-perftools-1.0-windows-20090406.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>google_breakpad</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2006, Google Inc.</string>
+        <key>description</key>
+        <string>An open-source multi-platform crash reporting system </string>
+        <key>license</key>
+        <string>bsd</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>ced4010b59f1a579caa7fe3c18512499</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20100528a.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>29c3e7dad60bbf02c811786436d99523</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-linux-20100521b.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>0859d47242990125f17eaab30bece2ff</string>
+            <key>url</key>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/google_breakpad-0.0.0-rev599-windows-20100524.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>googlemock</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2008, Google Inc.</string>
+        <key>description</key>
+        <string>Google C++ Mocking Framework (or Google Mock for short) is a library for writing and using C++ mock classes.</string>
+        <key>license</key>
+        <string>bsd</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>4863e9fea433d0a4be761ea5d3e8346a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-darwin-20090626.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>877dabecf84339690191c6115c76366e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-linux32-20090527.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>f601a82ea91030974072da8924cae41e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-windows-20090921.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>gstreamer</key>
+      <map>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>c829b638b6eef71ca63418cb9aea46a2</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gstreamer-linux-20080613.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>befc7520fe01250f39458f65c29bc584</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gstreamer-linux64-20080909.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>gtk-atk-pango-glib</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald</string>
+        <key>description</key>
+        <string>Libraries associated with GTK for gui features. atk: interfaces for accessibility; glib: low-level core functionality for using GTK+ and GNOME; pango: layout/rendering of text w/ emphasis on internationalization.</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>21c16a74f8fc9a62e3ab944a6eb7403d</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-linux-20080616.tar.bz</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>d963750bcd333a108b3697d220c87d09</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-windows-20080613.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>havok</key>
+      <map>
+        <key>copyright</key>
+        <string>on file</string>
+        <key>description</key>
+        <string>Physics engine for the simulator</string>
+        <key>license</key>
+        <string>havok</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>f64c08771a4fc456db2a55b47302078b</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6-darwin-20080812.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>af7b1fc9072443009f19e43fb3c8342f</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-linux-20081029.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>cd4076d6caf5fabff36bf48bd01e4ba8</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-linux64-20081030.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>f25fbb29c2275267233c79f0c68ca37f</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-windows-20081030.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>jpeglib</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2003, Yves Piguet.</string>
+        <key>description</key>
+        <string>An open-source JPEG (JFIF) library</string>
+        <key>license</key>
+        <string>jpeglib</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>8d38d74c481e9aab4518c8f2a7d52800</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-darwin-20080812.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>8aa8e01e0c21f60f0ede0ffb04e9214f</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-linux-20081218.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>0e7facf7d48531d20c0cd6a3c3f04021</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-linux64-20080909.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>6a6bb0143a2561e3276dab4bcfa425ef</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-windows-20090917a.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>jsoncpp</key>
+      <map>
+        <key>copyright</key>
+        <string>json-cpp library released to Public Domain by Baptiste Lepilleur &lt;blep@users.sourceforge.net&gt;</string>
+        <key>description</key>
+        <string>jsoncpp is an implementation of a JSON (http://json.org) reader and writer in C++.</string>
+        <key>license</key>
+        <string>jsoncpp</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>4c6b949778099a63550898f00f3e6a5e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-darwin-20090923.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>a2a94b8ca1d32f23e3e668d64023514e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-linux-20090922.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>a06ab38628ab7b53b8f3326cd942a6a8</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-linux64-20090922.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>caf152cfc730737c124f7612cf68fbd3</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-windows-20090922.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>kdu</key>
+      <map>
+        <key>copyright</key>
+        <string>on file</string>
+        <key>description</key>
+        <string>Kakadu (KDU) JPEG-2000 decoder library. </string>
+        <key>license</key>
+        <string>kdu</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>8261994de5af6581e08c26fefe1b2810</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-darwin-20101123.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>ed3e58899a424684dad49c94ba3813e7</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-linux-20101124.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>066e089a5d9faeaf131e1f4e4860a163</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-6.4.1-windows-20101123.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>libmono</key>
+      <map>
+        <key>copyright</key>
+        <string>(C) 2005 Novell, Inc. http://www.novell.com</string>
+        <key>description</key>
+        <string>An open source implementation of the ECMA/ISO ECMA-334 Common L\
+anguage Infrstructure (CLI) international standard</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>39a803fcbe6f11b72358fc78b7777b6c</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-darwin-20080724.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>9bc0f8b7d5e0ff194b6d5635daf9ae3a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-1.2.6-linux-20080816a.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>451521b4cb57c35caf3efb8dcf99b99e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-1.2.6-linux64-20080926.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>6712a09311a914752f47d5d62562a239</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-1.2.6-windows-20080903.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>libpng</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2004, 2006-2008 Glenn Randers-Pehrson</string>
+        <key>description</key>
+        <string>An open, extensible image format with lossless compression. PNG Reference Library </string>
+        <key>license</key>
+        <string>libpng</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>82659b48831cbf58bf04b86602939e0b</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-darwin-20090304.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>f5e84c991f6e3caacb26db259593cbea</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-linux-20090304.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>5ee1e62bde38520c7f134c4afb9ac9b1</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-linux64-20090304.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>c781cd9846cf20afb90ac40ad1a0ce9d</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-windows-20090917.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>libuuid</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;</string>
+        <key>description</key>
+        <string>Generates UUIDs under Linux. Originally a part of the ext2fs filesystem. Also see lluuid.cpp for all platforms. Part of the e2fsprogs package.</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>91b194aed4b38bc23493b198009a8c6a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-20090417.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>libxml</key>
+      <map>
+        <key>license</key>
+        <string>mit</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>4b5d2dcfe8a49b73fb69f10aab441092</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libxml-2.6.24-linux-20080613.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>921d7f980519101afb74623e29e9d175</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libxml-2.6.24-linux64-20080909.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>llqtwebkit</key>
+      <map>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>f07b063cdc207479b111576dc74127f0</string>
+            <key>url</key>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-darwin-qt4.7.1-20110322.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>5d743c93b970abe685b185de83001a6e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-qt4.6-20100923.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>1e66b1ecab911a60ba50b59361ef62e1</string>
+            <key>url</key>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-windows-qt4.7.1-20110317.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>mesa</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1999-2007  Brian Paul All Rights Reserved.</string>
+        <key>description</key>
+        <string>Mesa 3-D graphics library. Provides the required Apple OpenGL headers under Linux.</string>
+        <key>license</key>
+        <string>mesa</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>70d0bbe1145fff29a0131349c898260e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20080812.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>56630977f9261bd82039b0da08a0685c</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-6.2.1-linux64-20081016.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>82cdcdcb2d0615389a7480485ea35f4c</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-windows-20080613.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>mysql</key>
+      <map>
+        <key>license</key>
+        <string>gpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>df27f2db244ea2762759a06cd75ada4e</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/mysql-darwin-20080812.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>cc86b4cc858655e23704d1168325d7b9</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/mysqlclient-linux-20090320.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>98bac06680dca907e783d8dd4aa9edde</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/mysql-windows-20080804.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>ndofdev</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2007, 3Dconnexion, Inc. - All rights reserved.</string>
+        <key>description</key>
+        <string>in use on windows and darwin for joystick support.</string>
+        <key>license</key>
+        <string>linden</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>17999c47e17f2dd9e12a22372ce8ff14</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-darwin-20080812.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>9469c3732a33a154fa0a2807b9f36ccc</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-linux-0.2-20080828.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>f0df8a1e60991095e3adca1450b8c9c0</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-windows-20090917.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>ogg-vorbis</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2008 Xiph.org Foundation</string>
+        <key>description</key>
+        <string>Ogg: container format Vorbis: audio compression scheme</string>
+        <key>license</key>
+        <string>ogg-vorbis</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>a6843398b780645c4897c9776c688926</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-darwin-20080812.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>6dc0536329a0aadf76e3054ffd4da61c</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.2.0-linux-20081201.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>964c71e6ee22be1bcaf6d480e74cdd14</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.2.0-linux64-20080909.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>9bf1fea65e66b2cd3075e6ffd7eb57ad</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.1.3-1.2.0-windows-20080723.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>openSSL</key>
+      <map>
+        <key>license</key>
+        <string>openSSL</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>11d2be4f2b172430747b7d4a6739e3d8</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8l-darwin-20100428.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>f219ef07b02e2abb9282345c3a8f2b39</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-linux-20080812.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>00b23f28a2457d9dabbaff0b29ee7323</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8g-linux64-20080909.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>dd85209081b832e836de6e1538541d89</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8j-windows-20090129.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>openal-soft</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2008 by authors.</string>
+        <key>description</key>
+        <string>3D Audio library</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>a0757244e3e6688fde2ffeea35cc1f96</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-darwin-20080924.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>75a7004ab14bea46594b1c652f1a6040</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-linux-20100120-3ad86a1c.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>5ad0a3ab623356c1ad61394ba238f99f</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-soft-1.6.372-linux64-20081219.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>a0757244e3e6688fde2ffeea35cc1f96</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-windows-20080924.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>openjpeg</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2002-2007, Communications and Remote Sensing Laboratory, Universite catholique de Louvain (UCL), Belgium</string>
+        <key>description</key>
+        <string>An open-source JPEG-2000 library; a slower alternative to Kadaku. Used in the open source release </string>
+        <key>license</key>
+        <string>openjpeg</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>23313fda213a2496945435db2a0ee78b</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3.0-darwin-20090501.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>02af0dad64803e0d821bc09e6038682c</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3-linux-20081124b.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>44f1bc9d47e4a54fc274c213f2cb565f</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.2.0-linux64-20080909.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>41541a98106894e28a6bf585010fea65</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3-windows-20090407.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>pth</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1999-2006 Ralf S. Engelschall &lt;rse@gnu.org&gt;</string>
+        <key>description</key>
+        <string>Portable cooperative threads package, used to support Boost.Coroutine on Mac OS X 10.4</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>216cb6217a06c64dfae30a55ab8b975c</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-darwin-20090923.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>c5c2f73847c126e679d925beab48c7d4</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-linux-20090427.tar.bz2</uri>
+          </map>
+          <key>linux32</key>
+          <map>
+            <key>md5sum</key>
+            <string>c5c2f73847c126e679d925beab48c7d4</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-linux32-20090427.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>c5c2f73847c126e679d925beab48c7d4</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-linux64-20090427.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>c5c2f73847c126e679d925beab48c7d4</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-windows-20090427.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>pulseaudio</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2004-2006 Lennart Poettering, Copyright 2006 Pierre Ossman (ossman@cendio.se) for Cendio AB</string>
+        <key>description</key>
+        <string>pulseaudio: headers only</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>30cb00069fe2a545fbf7be1070386236</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/linux-pulse-headers-0.9.14.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>quicktime</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1990-2007 by Apple Computer, Inc., all rights reserved.</string>
+        <key>description</key>
+        <string>Separate download. Used to play in-world video clips on a prim. </string>
+        <key>license</key>
+        <string>quicktime</string>
+        <key>packages</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>be45825cc14ede53790ac93c58307dcb</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/quicktime-sdk-windows-7.3-20091110.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>smartheap</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1991-2000 Compuware Corporation. All Rights Reserved.</string>
+        <key>description</key>
+        <string>Memory Management Library</string>
+        <key>license</key>
+        <string>smartheap</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>f54131b5f228e805c64c2e4e6c96579a</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/smartheap-6.0.2-darwin-20080610.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>499208522bf7d7843e1d014d64214e06</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/smartheap-6.0.2-linux-20080610.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>78fd47017f21d11eae43bca3e38a3e1e</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/smartheap-6.0.2-windows-20080611.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>tut</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2002-2006 Vladimir Dyuzhev, Copyright 2007 Denis Kononenko, Copyright 2008 Michal Rzechonek</string>
+        <key>description</key>
+        <string>C++ Template Unit Test</string>
+        <key>license</key>
+        <string>bsd</string>
+        <key>packages</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>md5sum</key>
+            <string>a1b8a118ba9df1f2a73f6aafa7980e83</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/tut-2008-11-30-common-20081208.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>unistd</key>
+      <map>
+        <key>copyright</key>
+        <string>(c) 2008 Linden Lab.</string>
+        <key>description</key>
+        <string>Placeholder file to make flex happy on windows.</string>
+        <key>license</key>
+        <string>linden</string>
+        <key>packages</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>6353aff33d7d03b22055aec76f53a866</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/unistd-windows-20080611.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>slvoice</key>
+      <map>
+        <key>copyright</key>
+        <string> </string>
+        <key>license</key>
+        <string>vivox</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>2f9b3528d4b5f858fb8dcee4b6dd5188</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-darwin-20101117a.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>cde4728b8a75a76c72a8785815cb769f</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-linux-20101117a.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>940ac55a6d0141c958bf2b14939d8474</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-windows-20101117a.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>xmlrpc-epi</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2000 Epinions, Inc.</string>
+        <key>description</key>
+        <string>Implementation of the xmlrpc protocol in C that provides an API for developers to serialize RPC requests to and from XML. </string>
+        <key>license</key>
+        <string>xmlrpc-epi</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>2d3a918c88d756422c1a8139ebe15f56</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-darwin-20080812.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>84a219199240ea70f54439c02acef0cd</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-linux-20080812.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>dc67b896c56116df8e18f2d1bbd07031</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-linux64-20080909.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>262629bcaa39dcf7266caa50da01a599</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-windows-20091016.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>zlib</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1995-2003 Jean-loup Gailly and Mark Adler</string>
+        <key>description</key>
+        <string>A Massively Spiffy Yet Delicately Unobtrusive Compression Library (Also Free, Not to Mention Unencumbered by Patents)</string>
+        <key>license</key>
+        <string>zlib</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>c844e1b05723ce078dbbd5aea9cdd3ad</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.1.4-darwin-20080818.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>26fe88213c213dc6153690ab142c25ca</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3dfsg-linux-20091208.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>4bddfb2c6dd7b1470a3ed675ac14bd9a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-linux64-20080909.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>73baf52a740d151fddbc2a008369c462</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-windows-20090921.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+    </map>
+    <key>licenses</key>
+    <map>
+      <key>AFL2.1</key>
+      <map>
+        <key>url</key>
+        <string>http://opensource-definition.org/licenses/afl-2.1.html</string>
+      </map>
+      <key>GL</key>
+      <map>
+        <key>url</key>
+        <string>http://www.xfree86.org/4.4.0/LICENSE9.html#sgi</string>
+      </map>
+      <key>MSDTW</key>
+      <map>
+        <key>text</key>
+        <string>MICROSOFT SOFTWARE LICENSE TERMS 
+MICROSOFT DEBUGGING TOOLS FOR WINDOWS 
+These license terms are an agreement between Microsoft Corporation (or based on where you live, one of 
+its affiliates) and you.  Please read them.  They apply to the software named above, which includes the 
+media on which you received it, if any.  The terms also apply to any Microsoft
+*	updates,
+*	supplements,
+*	Internet-based services 
+*	support services, and
+*	Debugging symbol files that you may access over the internet 
+for this software, unless other terms accompany those items.  If so, those terms apply.
+By using the software, you accept these terms.  If you do not accept them, do not use the 
+software.
+If you comply with these license terms, you have the rights below.
+1.	INSTALLATION AND USE RIGHTS.  One user may install and use any number of copies of the 
+software on your devices to design, develop, debug and test your programs.
+2.	ADDITIONAL LICENSING REQUIREMENTS AND/OR USE RIGHTS.
+a.	Distributable Code.  The software contains code that you are permitted to distribute in programs 
+you develop if you comply with the terms below.
+i.	Right to Use and Distribute.  The code and text files listed below are Distributable Code.
+*	REDIST.TXT Files.  You may copy and distribute the object code form of code listed in 
+REDIST.TXT files.
+*	Sample Code.  You may modify, copy, and distribute the source and object code form of 
+code marked as sample.
+*	Third Party Distribution.  You may permit distributors of your programs to copy and 
+distribute the Distributable Code as part of those programs.
+ii.	Distribution Requirements.  For any Distributable Code you distribute, you must
+*	add significant primary functionality to it in your programs;
+*	require distributors and external end users to agree to terms that protect it at least as much 
+as this agreement; 
+*	display your valid copyright notice on your programs; and
+*	indemnify, defend, and hold harmless Microsoft from any claims, including attorneys fees, 
+related to the distribution or use of your programs.
+iii.	Distribution Restrictions.  You may not
+*	alter any copyright, trademark or patent notice in the Distributable Code; 
+*	distribute any symbol files which you may access or use under these license terms for the 
+software;
+*	use Microsofts trademarks in your programs names or in a way that suggests your 
+programs come from or are endorsed by Microsoft; 
+*	distribute Distributable Code to run on a platform other than the Windows platform;
+*	include Distributable Code in malicious, deceptive or unlawful programs; or
+*	modify or distribute the source code of any Distributable Code so that any part of it 
+becomes subject to an Excluded License.  An Excluded License is one that requires, as a 
+condition of use, modification or distribution, that
+*	the code be disclosed or distributed in source code form; or 
+*	others have the right to modify it.
+3.	SCOPE OF LICENSE.  The software is licensed, not sold. This agreement only gives you some rights 
+to use the software.  Microsoft reserves all other rights.  Unless applicable law gives you more rights 
+despite this limitation, you may use the software only as expressly permitted in this agreement.  In 
+doing so, you must comply with any technical limitations in the software that only allow you to use it in 
+certain ways.    You may not
+*	work around any technical limitations in the software;
+*	reverse engineer, decompile or disassemble the software, except and only to the extent that 
+applicable law expressly permits, despite this limitation;
+*	make more copies of the software than specified in this agreement or allowed by applicable law, 
+despite this limitation;
+*	publish the software for others to copy;
+*	rent, lease or lend the software;
+*	transfer the software or this agreement to any third party; or
+*	use the software for commercial software hosting services.   
+4.	INTERNET-BASED SERVICES.  Microsoft provides Internet-based services with the software.  It may 
+change or cancel them at any time.
+a.	Consent for Internet-Based Services.  The software contains features which may connect to 
+Microsoft or service provider computer systems over the Internet.  In some cases, you will not 
+receive a separate notice when they connect.  You may switch these features on or you may 
+choose not to use them.  For more information about these features, see 
+http://www.microsoft.com/info/privacy/default.mspx.  By using these features, you consent to the transmission of 
+this information.  Microsoft does not use the information to identify or contact you.
+b.	Misuse of Internet-based Services.  You may not use these services in any way that could 
+harm them or impair anyone elses use of them.  You may not use the services to try to gain 
+unauthorized access to any service, data, account or network by any means.     
+  
+5.	BACKUP COPY.  You may make one backup copy of the software.  You may use it only to reinstall the 
+software.
+6.	DOCUMENTATION.  Any person that has valid access to your computer or internal network may copy 
+and use the documentation for your internal, reference purposes.
+7.	EXPORT RESTRICTIONS.  The software is subject to United States export laws and regulations.  You 
+must comply with all domestic and international export laws and regulations that apply to the software.  
+These laws include restrictions on destinations, end users and end use.  For additional information, see 
+www.microsoft.com/exporting.
+8.	SUPPORT SERVICES. Because this software is as is, we may not provide support services for it.
+9.	ENTIRE AGREEMENT.  This agreement, and the terms for supplements, updates, Internet-based 
+services and support services that you use, are the entire agreement for the software and support 
+services.
+10.	APPLICABLE LAW.
+a.	United States.  If you acquired the software in the United States, Washington state law governs 
+the interpretation of this agreement and applies to claims for breach of it, regardless of conflict of 
+laws principles.  The laws of the state where you live govern all other claims, including claims under 
+state consumer protection laws, unfair competition laws, and in tort.
+b.	Outside the United States.  If you acquired the software in any other country, the laws of that 
+country apply.
+11.	LEGAL EFFECT.  This agreement describes certain legal rights.  You may have other rights under the 
+laws of your country.  You may also have rights with respect to the party from whom you acquired the 
+software.  This agreement does not change your rights under the laws of your country if the laws of 
+your country do not permit it to do so.
+12.	DISCLAIMER OF WARRANTY.   The software is licensed as-is.  You bear the risk of using 
+it.  Microsoft gives no express warranties, guarantees or conditions.  You may have 
+additional consumer rights under your local laws which this agreement cannot change.  To 
+the extent permitted under your local laws, Microsoft excludes the implied warranties of 
+merchantability, fitness for a particular purpose and non-infringement.
+13.	LIMITATION ON AND EXCLUSION OF REMEDIES AND DAMAGES.   You can recover from 
+Microsoft and its suppliers only direct damages up to U.S. $5.00.  You cannot recover any 
+other damages, including consequential, lost profits, special, indirect or incidental 
+damages.
+This limitation applies to
+*	anything related to the software, services, content (including code) on third party Internet sites, or 
+third party programs; and
+*	claims for breach of contract, breach of warranty, guarantee or condition, strict liability, negligence, 
+or other tort to the extent permitted by applicable law.
+It also applies even if Microsoft knew or should have known about the possibility of the damages.  The 
+above limitation or exclusion may not apply to you because your country may not allow the exclusion or 
+limitation of incidental, consequential or other damages.
+	</string>
+      </map>
+      <key>apache 2.0</key>
+      <map>
+        <key>url</key>
+        <string>http://www.apache.org/licenses/LICENSE-2.0</string>
+      </map>
+      <key>artwork</key>
+      <map>
+        <key>text</key>
+        <string>COPYRIGHT AND PERMISSION NOTICE
+
+Second Life(TM) Viewer Artwork.  Copyright (C) 2008 Linden Research, Inc.
+
+Linden Research, Inc. ("Linden Lab") licenses the Second Life viewer
+artwork and other works in the files distributed with this Notice under
+the Creative Commons Attribution-Share Alike 3.0 License, available at 
+http://creativecommons.org/licenses/by-sa/3.0/legalcode.  For the license
+summary, see http://creativecommons.org/licenses/by-sa/3.0/.
+
+Notwithstanding the foregoing, all of Linden Lab's trademarks, including
+but not limited to the Second Life brand name and Second Life Eye-in-Hand
+logo, are subject to our trademark policy at
+http://secondlife.com/corporate/trademark/.
+
+If you distribute any copies or adaptations of the Second Life viewer
+artwork or any other works in these files, you must include this Notice
+and clearly identify any changes made to the original works.  Include
+this Notice and information where copyright notices are usually included,
+for example, after your own copyright notice acknowledging your use of
+the Second Life viewer artwork, in a text file distributed with your
+program, in your application's About window, or on a credits page for
+your work.
+</string>
+        <key>url</key>
+        <string>http://svn.secondlife.com/svn/linden/trunk/doc/LICENSE-logos.txt</string>
+      </map>
+      <key>boost</key>
+      <map>
+        <key>url</key>
+        <string>http://www.boost.org/LICENSE_1_0.txt</string>
+      </map>
+      <key>bsd</key>
+      <map>
+        <key>url</key>
+        <string>http://www.opensource.org/licenses/bsd-license.php</string>
+      </map>
+      <key>c-ares</key>
+      <map>
+        <key>text</key>
+        <string>http://daniel.haxx.se/projects/c-ares/license.html</string>
+      </map>
+      <key>curl</key>
+      <map>
+        <key>url</key>
+        <string>http://curl.haxx.se/docs/copyright.html</string>
+      </map>
+      <key>fmod</key>
+      <map>
+        <key>url</key>
+        <string>http://www.fmod.org/ifmodlicense.html</string>
+      </map>
+      <key>freetype</key>
+      <map>
+        <key>url</key>
+        <string>http://freetype.sourceforge.net/FTL.TXT</string>
+      </map>
+      <key>glh_linear</key>
+      <map>
+        <key>text</key>
+        <string>glh - is a platform-indepenedent C++ OpenGL helper library
+
+Copyright (c) 2000 Cass Everitt
+Copyright (c) 2000 NVIDIA Corporation
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following
+conditions are met:
+
+Redistributions of source code must retain the above
+copyright notice, this list of conditions and the following
+disclaimer.
+Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials
+provided with the distribution.
+The names of contributors to this software may not be used
+to endorse or promote products derived from this software
+without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+Cass Everitt - cass@r3.nu
+
+</string>
+      </map>
+      <key>glut</key>
+      <map>
+        <key>url</key>
+        <string>http://www.xmission.com/~nate/glut/README-win32.txt</string>
+      </map>
+      <key>gpl</key>
+      <map>
+        <key>url</key>
+        <string>http://www.gnu.org/licenses/gpl.html</string>
+      </map>
+      <key>havok</key>
+      <map>
+        <key>text</key>
+        <string>on file</string>
+      </map>
+      <key>intel</key>
+      <map>
+        <key>text</key>
+        <string>Haven't yet found.
+</string>
+      </map>
+      <key>jpeglib</key>
+      <map>
+        <key>text</key>
+        <string>http://nyctergatis.com/jpeglib/</string>
+      </map>
+      <key>jsoncpp</key>
+      <map>
+        <key>text</key>
+        <string>The json-cpp library and this documentation are in Public Domain.  Retrieved from http://jsoncpp.sourceforge.net/ on 2009-09-04.</string>
+        <key>url</key>
+        <string>http://jsoncpp.sourceforge.net</string>
+      </map>
+      <key>kdu</key>
+      <map>
+        <key>text</key>
+        <string>jpeg2000 license #00024 (on file)</string>
+      </map>
+      <key>lgpl</key>
+      <map>
+        <key>url</key>
+        <string>http://www.gnu.org/copyleft/lgpl.html</string>
+      </map>
+      <key>libpng</key>
+      <map>
+        <key>text</key>
+        <string>http://www.libpng.org/pub/png/src/libpng-LICENSE.txt</string>
+      </map>
+      <key>linden</key>
+      <map>
+        <key>text</key>
+        <string>Using this license for Linden Lab owned library files</string>
+      </map>
+      <key>mesa</key>
+      <map>
+        <key>url</key>
+        <string>http://www.mesa3d.org/license.html</string>
+      </map>
+      <key>mit</key>
+      <map>
+        <key>text</key>
+        <string>http://www.jclark.com/xml/copying.txt</string>
+      </map>
+      <key>ogg-vorbis</key>
+      <map>
+        <key>url</key>
+        <string>http://www.xiph.org/licenses/bsd/</string>
+      </map>
+      <key>openSSL</key>
+      <map>
+        <key>url</key>
+        <string>http://www.openssl.org/source/license.html</string>
+      </map>
+      <key>openjpeg</key>
+      <map>
+        <key>url</key>
+        <string>http://www.openjpeg.org/BSDlicense.txt</string>
+      </map>
+      <key>quicktime</key>
+      <map>
+        <key>text</key>
+        <string>ENGLISH
+
+Apple Computer, Inc.
+QuickTime 7 Software Developer Kit (SDK)
+Software License Agreement
+
+PLEASE READ THIS SOFTWARE LICENSE AGREEMENT ("LICENSE") BEFORE USING THE SOFTWARE.  BY USING THE SOFTWARE, YOU ARE AGREEING TO BE BOUND BY THE TERMS OF THIS LICENSE.  IF YOU ARE ACCESSING THE SOFTWARE ELECTRONICALLY, SIGNIFY YOUR AGREEMENT TO BE BOUND BY THE TERMS OF THIS LICENSE BY CLICKING THE "AGREE/ACCEPT" BUTTON. IF YOU DO NOT AGREE TO THE TERMS OF THIS LICENSE, RETURN THE APPLE SOFTWARE TO THE PLACE WHERE YOU OBTAINED IT FOR A REFUND OR, IF THE SOFTWARE WAS ACCESSED ELECTRONICALLY, CLICK "DISAGREE/DECLINE".
+
+IMPORTANT NOTE: To the extent this software may be used to reproduce materials, it is licensed to you only for reproduction of materials you are authorized or legally permitted to reproduce.
+
+1. License.  Any software, tools, utilities, sample code, documentation, fonts, API?s, header files and other materials accompanying this License, whether on disk, print or electronic documentation, in read only memory, or any other media, (collectively, the "Apple Software") are licensed, not sold, to you by Apple Computer, Inc. ("Apple") for use only under the terms of this License, and Apple reserves all rights not expressly granted to you.  The rights granted herein are limited to Apple's and its licensors' intellectual property rights in the Apple Software and do not include any other patents or intellectual property rights.   You own the media on which the Apple Software is recorded but Apple and/or Apple's licensor(s) retain ownership of the Apple Software itself.  The Apple Software in this package and any copies, modifications and derivative works that this License authorizes you to make are subject to this License.
+
+2. Permitted Uses and Restrictions.  You may use the Apple Software to develop application software that is compatible with, and runs only on Mac OS X and/or Windows platforms with QuickTime installed.  Except for compiling header files and linking libraries as necessary to build your application software, you have no right to modify, incorporate into or include in combination with your own programs, license or otherwise redistribute any portion of the Apple Software. Your software application may not interfere with the functionality of QuickTime Player or the QuickTime Plug-in, including but not limited to file type or MIME type associations that are registered to QuickTime. You may make only as many internal use copies of the Apple Software as reasonably necessary to use the Apple Software as permitted in this paragraph and distribute such copies only to your employees whose job duties require them to so use the Apple Software. You must reproduce on each copy of the Apple Software or portion thereof, the Apple copyright notice and any other proprietary legends that were on the original copy of the Apple Software.  Except as expressly permitted in this License, you may not decompile, reverse engineer, disassemble, modify, rent, lease, loan, sublicense, distribute or create derivative works based upon the Apple Software in whole or part.  Your rights under this License will terminate automatically without notice from Apple if you fail to comply with any term(s) of this License. In addition, Apple reserves the right to terminate this License if a new version of Apple's operating system software or the Apple Software is released which is incompatible with the Apple Software.
+
+3. Disclaimer Of Warranty.  The Apple Software may be "alpha", "beta", "development", pre-release, untested, and/or not fully tested and may contain errors that could cause failures or loss of data, be incomplete or contain inaccuracies.  YOU EXPRESSLY ACKNOWLEDGE AND AGREE THAT USE OF THE APPLE SOFTWARE IS AT YOUR SOLE RISK AND THAT THE ENTIRE RISK AS TO SATISFACTORY QUALITY, PERFORMANCE, ACCURACY AND EFFORT IS WITH YOU. EXCEPT FOR THE LIMITED WARRANTY ON MEDIA SET FORTH ABOVE AND TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE APPLE SOFTWARE IS PROVIDED "AS IS", WITH ALL FAULTS AND WITHOUT WARRANTY OF ANY KIND, AND APPLE AND APPLE'S LICENSORS (COLLECTIVELY REFERRED TO AS "APPLE" FOR THE PURPOSES OF SECTIONS 4 AND 5) HEREBY DISCLAIM ALL WARRANTIES AND CONDITIONS WITH RESPECT TO THE APPLE SOFTWARE, EITHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES AND/OR CONDITIONS OF MERCHANTABILITY, OF SATISFACTORY QUALITY, OF FITNESS FOR A PARTICULAR PURPOSE, OF ACCURACY, OF QUIET ENJOYMENT, AND NON-INFRINGEMENT OF THIRD PARTY RIGHTS.  APPLE DOES NOT WARRANT AGAINST INTERFERENCE WITH YOUR ENJOYMENT OF THE APPLE SOFTWARE, THAT THE FUNCTIONS CONTAINED IN THE APPLE SOFTWARE WILL MEET YOUR REQUIREMENTS, THAT THE OPERATION OF THE APPLE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT DEFECTS IN THE APPLE SOFTWARE WILL BE CORRECTED. NO ORAL OR WRITTEN INFORMATION OR ADVICE GIVEN BY APPLE OR AN APPLE AUTHORIZED REPRESENTATIVE SHALL CREATE A WARRANTY.  SHOULD THE APPLE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE ENTIRE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.  SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES OR LIMITATIONS ON APPLICABLE STATUTORY RIGHTS OF A CONSUMER, SO THE ABOVE EXCLUSION AND LIMITATIONS MAY NOT APPLY TO YOU.
+
+4. Limitation Of Liability. TO THE EXTENT NOT PROHIBITED BY LAW, IN NO EVENT SHALL APPLE BE LIABLE FOR PERSONAL INJURY, OR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES WHATSOEVER, INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF PROFITS, LOSS OF DATA, BUSINESS INTERRUPTION OR ANY OTHER COMMERCIAL DAMAGES OR LOSSES, ARISING OUT OF OR RELATED TO YOUR USE OR INABILITY TO USE THE APPLE SOFTWARE, HOWEVER CAUSED, REGARDLESS OF THE THEORY OF LIABILITY (CONTRACT, TORT OR OTHERWISE) AND EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. SOME JURISDICTIONS DO NOT ALLOW THE LIMITATION OF LIABILITY FOR PERSONAL INJURY, OR OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THIS LIMITATION MAY NOT APPLY TO YOU.  In no event shall Apple's total liability to you for all damages (other than as may be required by applicable law in cases involving personal injury) exceed the amount of fifty dollars ($50.00).  The foregoing limitations will apply even if the above stated remedy fails of its essential purpose.
+
+5. Export Control. You may not use or otherwise export or reexport the Apple Product except as authorized by United States law and the laws of the jurisdiction in which the Apple Product was obtained. In particular, but without limitation, the Apple Product may not be exported or re-exported (a) into any U.S. embargoed countries or (b) to anyone on the U.S. Treasury Department's list of Specially Designated Nationals or the U.S. Department of Commerce Denied Person?s List or Entity List.  By using the Apple Product, you represent and warrant that you are not located in any such country or on any such list.
+
+6. Government End Users.  The Apple Software and related documentation are "Commercial Items", as that term is defined at 48 C.F.R. ?2.101, consisting of "Commercial Computer Software" and "Commercial Computer Software Documentation", as such terms are used in 48 C.F.R. ?12.212 or 48 C.F.R. ?227.7202, as applicable.  Consistent with 48 C.F.R. ?12.212 or 48 C.F.R. ?227.7202-1through 227.7202-4, as applicable, the Commercial Computer Software and Commercial Computer Software Documentation are being licensed to U.S. Government end users (a) only as Commercial Items and (b) with only those rights as are granted to all other end users pursuant to the terms and conditions herein.  Unpublished-rights reserved under the copyright laws of the United States.
+
+7. Controlling Law and Severability.  This License will be governed by and construed in accordance with the laws of the State of California, as applied to agreements entered into and to be performed entirely within California between California residents. This License shall not be governed by the United Nations Convention on Contracts for the International Sale of Goods, the application of which is expressly excluded. If for any reason a court of competent jurisdiction finds any provision, or portion thereof, to be unenforceable, the remainder of this License shall continue in full force and effect.
+
+8. Complete Agreement.  This License constitutes the entire agreement between the parties with respect to the use of the Apple Software licensed hereunder and supersedes all prior or contemporaneous understandings regarding such subject matter.  No amendment to or modification of this License will be binding unless in writing and signed by Apple. Any translation of this License is done for local requirements and in the event of a dispute between the English and any non-English versions, the English version of this License shall govern.
+
+EA0300
+</string>
+      </map>
+      <key>sleepycat</key>
+      <map>
+        <key>url</key>
+        <string>http://opensource.org/licenses/sleepycat.php</string>
+      </map>
+      <key>smartheap</key>
+      <map>
+        <key>text</key>
+        <string>on file
+</string>
+      </map>
+      <key>things</key>
+      <map>
+      </map>
+      <key>vivox</key>
+      <map>
+        <key>text</key>
+        <string>on file</string>
+      </map>
+      <key>xmlrpc-epi</key>
+      <map>
+        <key>url</key>
+        <string>http://xmlrpc-epi.sourceforge.net/main.php?t=license</string>
+      </map>
+      <key>zlib</key>
+      <map>
+        <key>url</key>
+        <string>http://www.gzip.org/zlib/zlib_license.html</string>
+      </map>
+    </map>
+  </map>
+</llsd>

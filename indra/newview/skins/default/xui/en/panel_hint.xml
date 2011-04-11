@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  width="205"
- height="100">
+ height="34">
   <text name="hint_title"
         font="SansSerifMedium" 
         left="8"
@@ -15,8 +15,8 @@
         left="8"
         right="197"
         top="26"
-        bottom="92"
-        follows="all" 
+        bottom="26"
+        follows="left|right|bottom" 
         text_color="Black"
         wrap="true"/>
   <button right="197" 

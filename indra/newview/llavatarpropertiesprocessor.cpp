@@ -160,6 +160,12 @@ void LLAvatarPropertiesProcessor::sendAvatarClassifiedsRequest(const LLUUID& ava
 
 void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const LLAvatarData* avatar_props)
 {
+	if (!gAgent.isInitialized() || (gAgent.getID() == LLUUID::null))
+	{
+		llwarns << "Sending avatarinfo update DENIED - invalid agent" << llendl;
+		return;
+	}
+
 	llinfos << "Sending avatarinfo update" << llendl;
 
 	// This value is required by sendAvatarPropertiesUpdate method.
@@ -168,20 +174,21 @@ void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const LLAvatarData*
 
 	LLMessageSystem *msg = gMessageSystem;
 
-	msg->newMessageFast(_PREHASH_AvatarPropertiesUpdate);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(	_PREHASH_AgentID,		gAgent.getID() );
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
-	msg->nextBlockFast(_PREHASH_PropertiesData);
+	msg->newMessageFast	(_PREHASH_AvatarPropertiesUpdate);
+	msg->nextBlockFast	(_PREHASH_AgentData);
+	msg->addUUIDFast		(_PREHASH_AgentID,		gAgent.getID() );
+	msg->addUUIDFast		(_PREHASH_SessionID,	gAgent.getSessionID() );
+	msg->nextBlockFast	(_PREHASH_PropertiesData);
 
-	msg->addUUIDFast(	_PREHASH_ImageID,	avatar_props->image_id);
-	msg->addUUIDFast(	_PREHASH_FLImageID,		avatar_props->fl_image_id);
-	msg->addStringFast(	_PREHASH_AboutText,		avatar_props->about_text);
-	msg->addStringFast(	_PREHASH_FLAboutText,	avatar_props->fl_about_text);
+	msg->addUUIDFast		(_PREHASH_ImageID,		avatar_props->image_id);
+	msg->addUUIDFast		(_PREHASH_FLImageID,	avatar_props->fl_image_id);
+	msg->addStringFast	(_PREHASH_AboutText,	avatar_props->about_text);
+	msg->addStringFast	(_PREHASH_FLAboutText,	avatar_props->fl_about_text);
 
 	msg->addBOOL(_PREHASH_AllowPublish, avatar_props->allow_publish);
 	msg->addBOOL(_PREHASH_MaturePublish, mature);
 	msg->addString(_PREHASH_ProfileURL, avatar_props->profile_url);
+
 	gAgent.sendReliableMessage();
 }
 
