@@ -449,6 +449,16 @@ private:
 	/// Dump a mask for debugging
 	static std::string resizeStateMaskToString(MASK mask);
 
+	/// @return true if any of the the passed buttons have been auto-hidden due to lack of available space.
+	bool isAutoHidden(MASK button_types) const;
+
+	/**
+	 * (Un)Mark the buttons as hidden.
+	 *
+	 * Auto-hidden buttons are those that re-appear as soon as we have enough available space.
+	 */
+	void setAutoHidden(MASK button_types, bool hide);
+
 	/// Buttons automatically hidden due to lack of space.
 	MASK mResizeState;
 

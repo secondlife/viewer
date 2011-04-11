@@ -1223,7 +1223,7 @@ S32 LLBottomTray::processShowButtons(S32& available_width)
 bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32& available_width)
 {
 	// Check if the button was previously auto-hidden (due to lack of space).
-	if ((mResizeState & shown_object_type) == 0)
+	if (!isAutoHidden(shown_object_type))
 	{
 		return false;
 	}
@@ -1268,7 +1268,7 @@ void LLBottomTray::processHideButton(EResizeState processed_object_type, S32& re
 
 		setTrayButtonVisible(processed_object_type, false);
 
-		mResizeState |= processed_object_type;
+		setAutoHidden(processed_object_type, true);
 
 		lldebugs << "processing object type: " << processed_object_type
 			<< ", buttons_freed_width: " << buttons_freed_width
@@ -1377,7 +1377,7 @@ void LLBottomTray::processShrinkButton(EResizeState processed_object_type, S32& 
 void LLBottomTray::processExtendButtons(S32& available_width)
 {
 	// do not allow extending any buttons if we have some buttons hidden via resize
-	if (mResizeState & RS_BUTTONS_CAN_BE_HIDDEN) return;
+	if (isAutoHidden(RS_BUTTONS_CAN_BE_HIDDEN)) return;
 
 	lldebugs << "Distributing " << available_width << " px" << llendl;
 
@@ -1500,7 +1500,7 @@ bool LLBottomTray::canButtonBeShown(EResizeState processed_object_type) const
 		buttons_before_mask |= button_type;
 	}
 
-	return !(buttons_before_mask & mResizeState);
+	return !isAutoHidden(buttons_before_mask);
 }
 
 void LLBottomTray::initResizeStateContainers()
@@ -1632,7 +1632,7 @@ bool LLBottomTray::showButton(EResizeState button_type, S32& available_width)
 	lldebugs << "Showing button " << resizeStateToString(button_type)
 		<< ", remaining available width: " << available_width
 		<< llendl;
-	mResizeState &= ~button_type;
+	setAutoHidden(button_type, false);
 
 	return true;
 }
@@ -1730,7 +1730,11 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 			}
 			else
 			{
-				// Nothing can be done, give up...
+				lldebugs << "Need " << (minimal_width - available_width - possible_shrunk_width)
+					<< " more px to show " << resizeStateToString(object_type) << llendl;
+
+				// Make the button uppear when we have more available space.
+				setAutoHidden(object_type, true);
 				return false;
 			}
 		}
@@ -1757,7 +1761,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 
 		// Mark button NOT to show while future bottom tray extending
 		lldebugs << "Removing " << resizeStateToString(object_type) << " from mResizeState" << llendl;
-		mResizeState &= ~object_type;
+		setAutoHidden(object_type, false);
 
 		// Extend other buttons if need
 		if (delta_width)
@@ -1906,6 +1910,23 @@ std::string LLBottomTray::resizeStateMaskToString(MASK mask)
 
     res += llformat(" (0x%X)", mask);
     return res;
+}
+
+bool LLBottomTray::isAutoHidden(MASK button_types) const
+{
+	return (mResizeState & button_types) != 0;
+}
+
+void LLBottomTray::setAutoHidden(MASK button_types, bool hide)
+{
+	if (hide)
+	{
+		mResizeState |= button_types;
+	}
+	else
+	{
+		mResizeState &= ~button_types;
+	}
 }
 
 //EOF
