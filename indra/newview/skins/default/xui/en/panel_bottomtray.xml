@@ -47,13 +47,13 @@
          mouse_opaque="false"
          name="chat_bar_layout_panel"
          user_resize="true"
-         width="310" >
+         width="250" >
           <panel
             name="chat_bar"
             filename="panel_nearby_chat_bar.xml"
             left="0"
             height="28"
-            width="308"
+            width="248"
             top="0"
             mouse_opaque="false"
             follows="left|right"
