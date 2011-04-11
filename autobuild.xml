@@ -1609,7 +1609,6 @@
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                   <string>-DFMOD=FALSE</string>
                 </array>
                 <key>arguments</key>
@@ -1651,7 +1650,6 @@
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                   <string>-DFMOD=FALSE</string>
                 </array>
                 <key>arguments</key>
@@ -1696,7 +1694,6 @@
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                   <string>-DFMOD=FALSE</string>
                 </array>
                 <key>arguments</key>
@@ -2131,6 +2128,7 @@
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
+                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                 </array>
               </map>
               <key>name</key>
@@ -2205,6 +2203,7 @@
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
+                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                 </array>
               </map>
               <key>name</key>
@@ -2278,6 +2277,7 @@
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
+                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                 </array>
               </map>
               <key>name</key>
