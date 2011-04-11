@@ -69,6 +69,7 @@ public:
 
 	void			setColor(const LLColor4& color) { mColor = color; }
 	void			setImage(LLPointer<LLUIImage> image) { mImagep = image; }
+	const LLPointer<LLUIImage> getImage() { return mImagep; }
 	
 private:
 	void setIconImageDrawSize() ;

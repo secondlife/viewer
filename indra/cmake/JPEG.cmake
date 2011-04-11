@@ -12,10 +12,7 @@ else (STANDALONE)
   if (LINUX)
     set(JPEG_LIBRARIES jpeg)
   elseif (DARWIN)
-    set(JPEG_LIBRARIES
-      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/liblljpeg.a
-      debug ${ARCH_PREBUILT_DIRS_DEBUG}/liblljpeg.a
-      )
+    set(JPEG_LIBRARIES jpeg)
   elseif (WINDOWS)
     set(JPEG_LIBRARIES jpeglib)
   endif (LINUX)

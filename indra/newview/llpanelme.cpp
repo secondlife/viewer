@@ -67,8 +67,6 @@ BOOL LLPanelMe::postBuild()
 {
 	LLPanelProfile::postBuild();
 
-	getTabContainer()[PANEL_PROFILE]->childSetAction("edit_profile_btn", boost::bind(&LLPanelMe::onEditProfileClicked, this), this);
-
 	return TRUE;
 }
 
@@ -135,7 +133,11 @@ void LLPanelMe::buildEditPanel()
 	if (NULL == mEditPanel)
 	{
 		mEditPanel = new LLPanelMyProfileEdit();
-		mEditPanel->childSetAction("save_btn", boost::bind(&LLPanelMe::onSaveChangesClicked, this), this);
+
+		// Note: Remove support for editing profile through this method.
+		//       All profile editing should go through the web.
+		//mEditPanel->childSetAction("save_btn", boost::bind(&LLPanelMe::onSaveChangesClicked, this), this);
+
 		mEditPanel->childSetAction("cancel_btn", boost::bind(&LLPanelMe::onCancelClicked, this), this);
 	}
 }
@@ -145,22 +147,6 @@ void LLPanelMe::onEditProfileClicked()
 {
 	buildEditPanel();
 	togglePanel(mEditPanel, getAvatarId()); // open
-}
-
-void LLPanelMe::onSaveChangesClicked()
-{
-	LLAvatarData data = LLAvatarData();
-	data.avatar_id = gAgent.getID();
-	data.image_id = mEditPanel->getChild<LLTextureCtrl>(PICKER_SECOND_LIFE)->getImageAssetID();
-	data.fl_image_id = mEditPanel->getChild<LLTextureCtrl>(PICKER_FIRST_LIFE)->getImageAssetID();
-	data.about_text = mEditPanel->getChild<LLUICtrl>("sl_description_edit")->getValue().asString();
-	data.fl_about_text = mEditPanel->getChild<LLUICtrl>("fl_description_edit")->getValue().asString();
-	data.profile_url = mEditPanel->getChild<LLUICtrl>("homepage_edit")->getValue().asString();
-	data.allow_publish = mEditPanel->getChild<LLUICtrl>("show_in_search_checkbox")->getValue();
-
-	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate(&data);
-	togglePanel(mEditPanel); // close
-	onOpen(getAvatarId());
 }
 
 void LLPanelMe::onCancelClicked()

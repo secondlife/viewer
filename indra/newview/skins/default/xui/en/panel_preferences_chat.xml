@@ -208,15 +208,27 @@
     <check_box
      control_name="TranslateChat"
      enabled="true"
-     height="16"
-     label="Use machine translation while chatting (powered by Google)"
+     height="16"     
      layout="topleft"
      left="30"
      name="translate_chat_checkbox"
-     bottom_delta="30"
+     top_pad="5"
      width="400" />
+     <!-- *HACK 
+     	After storm-1109 will be fixed: instead of using this text_box, word_wrap should be applied for "translate_chat_checkbox" check_box's label.-->
+     <text
+      follows="top|left"
+      height="15"
+      layout="topleft"
+      left="50"
+      name="translate_chb_label"
+      top_delta="1"
+      width="450"
+      wrap="true">
+      Use machine translation while chatting (powered by Google)
+     </text>
     <text
-     bottom_delta="30"
+     top_pad="20"
      name="translate_language_text"
      follows="left|top"
      layout="topleft"
