@@ -42,9 +42,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7fd216bdcf9be961a78bfaef31a617f1</string>
+              <string>c4ae6cddc04e0b2908a301726a53922c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226145/arch/CYGWIN/installer/glod-1.0pre4-windows-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226194/arch/CYGWIN/installer/glod-1.0pre4-windows-20110408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1642,9 +1642,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8108bffe1c814be9d035b47dac3d4541</string>
+              <string>8308f7bd68bb7083655753b7abe7225f</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-perftools-1.0-windows-20101001b.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/226287/arch/CYGWIN/installer/google_perftools-1.7-windows-20110411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
