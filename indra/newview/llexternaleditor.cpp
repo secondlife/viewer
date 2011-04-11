@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llexternaleditor.h"
 
+#include "lltrans.h"
 #include "llui.h"
 
 // static
@@ -35,13 +36,13 @@ const std::string LLExternalEditor::sFilenameMarker = "%s";
 // static
 const std::string LLExternalEditor::sSetting = "ExternalEditor";
 
-bool LLExternalEditor::setCommand(const std::string& env_var, const std::string& override)
+LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env_var, const std::string& override)
 {
 	std::string cmd = findCommand(env_var, override);
 	if (cmd.empty())
 	{
-		llwarns << "Empty editor command" << llendl;
-		return false;
+		llwarns << "Editor command is empty or not set" << llendl;
+		return EC_NOT_SPECIFIED;
 	}
 
 	// Add the filename marker if missing.
@@ -55,7 +56,7 @@ bool LLExternalEditor::setCommand(const std::string& env_var, const std::string&
 	if (tokenize(tokens, cmd) < 2) // 2 = bin + at least one arg (%s)
 	{
 		llwarns << "Error parsing editor command" << llendl;
-		return false;
+		return EC_PARSE_ERROR;
 	}
 
 	// Check executable for existence.
@@ -63,7 +64,7 @@ bool LLExternalEditor::setCommand(const std::string& env_var, const std::string&
 	if (!LLFile::isfile(bin_path))
 	{
 		llwarns << "Editor binary [" << bin_path << "] not found" << llendl;
-		return false;
+		return EC_BINARY_NOT_FOUND;
 	}
 
 	// Save command.
@@ -76,16 +77,16 @@ bool LLExternalEditor::setCommand(const std::string& env_var, const std::string&
 	}
 	llinfos << "Setting command [" << bin_path << " " << mArgs << "]" << llendl;
 
-	return true;
+	return EC_SUCCESS;
 }
 
-bool LLExternalEditor::run(const std::string& file_path)
+LLExternalEditor::EErrorCode LLExternalEditor::run(const std::string& file_path)
 {
 	std::string args = mArgs;
 	if (mProcess.getExecutable().empty() || args.empty())
 	{
 		llwarns << "Editor command not set" << llendl;
-		return false;
+		return EC_NOT_SPECIFIED;
 	}
 
 	// Substitute the filename marker in the command with the actual passed file name.
@@ -111,7 +112,22 @@ bool LLExternalEditor::run(const std::string& file_path)
 		mProcess.orphan();
 	}
 
-	return result == 0;
+	return result == 0 ? EC_SUCCESS : EC_FAILED_TO_RUN;
+}
+
+// static
+std::string LLExternalEditor::getErrorMessage(EErrorCode code)
+{
+	switch (code)
+	{
+	case EC_SUCCESS: 			return LLTrans::getString("ok");
+	case EC_NOT_SPECIFIED: 		return LLTrans::getString("ExternalEditorNotSet");
+	case EC_PARSE_ERROR:		return LLTrans::getString("ExternalEditorCommandParseError");
+	case EC_BINARY_NOT_FOUND:	return LLTrans::getString("ExternalEditorNotFound");
+	case EC_FAILED_TO_RUN:		return LLTrans::getString("ExternalEditorFailedToRun");
+	}
+
+	return LLTrans::getString("Unknown");
 }
 
 // static

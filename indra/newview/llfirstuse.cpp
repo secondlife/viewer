@@ -41,41 +41,46 @@
 
 
 // static
-//std::set<std::string> LLFirstUse::sConfigVariables;
-std::set<std::string> LLFirstUse::sConfigVariablesEnabled;
+std::set<std::string> LLFirstUse::sConfigVariables;
 
 // static
-//void LLFirstUse::addConfigVariable(const std::string& var)
-//{
-//	sConfigVariables.insert(var);
-//}
+void LLFirstUse::addConfigVariable(const std::string& var)
+{
+	sConfigVariables.insert(var);
+}
 
 // static
-//void LLFirstUse::disableFirstUse()
-//{
-//	// Set all first-use warnings to disabled
-//	for (std::set<std::string>::iterator iter = sConfigVariables.begin();
-//		 iter != sConfigVariables.end(); ++iter)
-//	{
-//		gWarningSettings.setBOOL(*iter, FALSE);
-//	}
-//}
+void LLFirstUse::disableFirstUse()
+{
+	// Set all first-use warnings to disabled
+	for (std::set<std::string>::iterator iter = sConfigVariables.begin();
+		 iter != sConfigVariables.end(); ++iter)
+	{
+		gWarningSettings.setBOOL(*iter, FALSE);
+	}
+}
 
 // static
-//void LLFirstUse::resetFirstUse()
-//{
-//	// Set all first-use warnings to disabled
-//	for (std::set<std::string>::iterator iter = sConfigVariables.begin();
-//		 iter != sConfigVariables.end(); ++iter)
-//	{
-//		gWarningSettings.setBOOL(*iter, TRUE);
-//	}
-//}
+void LLFirstUse::resetFirstUse()
+{
+	// Set all first-use warnings to disabled
+	for (std::set<std::string>::iterator iter = sConfigVariables.begin();
+		 iter != sConfigVariables.end(); ++iter)
+	{
+		gWarningSettings.setBOOL(*iter, TRUE);
+	}
+}
 
 // static
 void LLFirstUse::otherAvatarChatFirst(bool enable)
 {
 	firstUseNotification("FirstOtherChatBeforeUser", enable, "HintChat", LLSD(), LLSD().with("target", "chat_bar").with("direction", "top_right").with("distance", 24));
+}
+
+// static
+void LLFirstUse::speak(bool enable)
+{
+	firstUseNotification("FirstSpeak", enable, "HintSpeak", LLSD(), LLSD().with("target", "speak_btn").with("direction", "top"));
 }
 
 // static
@@ -104,13 +109,6 @@ void LLFirstUse::notUsingDestinationGuide(bool enable)
 	firstUseNotification("FirstNotUseDestinationGuide", enable, "HintDestinationGuide", LLSD(), LLSD().with("target", "dest_guide_btn").with("direction", "top"));
 }
 
-void LLFirstUse::notUsingAvatarPicker(bool enable)
-{
-	// not doing this yet
-	firstUseNotification("FirstNotUseAvatarPicker", enable, "HintAvatarPicker", LLSD(), LLSD().with("target", "avatar_picker_btn").with("direction", "top"));
-}
-
-
 // static
 void LLFirstUse::notUsingSidePanel(bool enable)
 {
@@ -123,7 +121,11 @@ void LLFirstUse::notMoving(bool enable)
 {
 	// fire off 2 notifications and rely on filtering to select the relevant one
 	firstUseNotification("FirstNotMoving", enable, "HintMove", LLSD(), LLSD().with("target", "move_btn").with("direction", "top"));
-	firstUseNotification("FirstNotMoving", enable, "HintMoveArrows", LLSD(), LLSD().with("target", "bottom_tray").with("direction", "top").with("hint_image", "arrow_keys.png").with("down_arrow", ""));
+	firstUseNotification("FirstNotMoving", enable, "HintMoveClick", LLSD(), LLSD()
+		.with("target", "nav_bar")
+		.with("direction", "bottom")
+		.with("hint_image", "click_to_move.png")
+		.with("up_arrow", ""));
 }
 
 // static
@@ -152,21 +154,13 @@ void LLFirstUse::firstUseNotification(const std::string& control_var, bool enabl
 
 	if (enable)
 	{
-		if(sConfigVariablesEnabled.find(control_var) != sConfigVariablesEnabled.end())
-		{
-			return ; //already added
-		}
-
 		if (gSavedSettings.getBOOL("EnableUIHints"))
 		{
 			LL_DEBUGS("LLFirstUse") << "Trigger first use notification " << notification_name << LL_ENDL;
 
 			// if notification doesn't already exist and this notification hasn't been disabled...
 			if (gWarningSettings.getBOOL(control_var))
-			{ 
-				sConfigVariablesEnabled.insert(control_var) ;
-
-				// create new notification
+			{ // create new notification
 				LLNotifications::instance().add(LLNotification::Params().name(notification_name).substitutions(args).payload(payload.with("control_var", control_var)));
 			}
 		}
@@ -178,6 +172,7 @@ void LLFirstUse::firstUseNotification(const std::string& control_var, bool enabl
 		// redundantly clear settings var here, in case there are no notifications to cancel
 		gWarningSettings.setBOOL(control_var, FALSE);
 	}
+
 }
 
 // static

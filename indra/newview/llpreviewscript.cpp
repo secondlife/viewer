@@ -956,16 +956,31 @@ void LLScriptEdCore::openInExternalEditor()
 	// Open it in external editor.
 	{
 		LLExternalEditor ed;
+		LLExternalEditor::EErrorCode status;
+		std::string msg;
 
-		if (!ed.setCommand("LL_SCRIPT_EDITOR"))
+		status = ed.setCommand("LL_SCRIPT_EDITOR");
+		if (status != LLExternalEditor::EC_SUCCESS)
 		{
-			std::string msg = "Select an editor by setting the environment variable LL_SCRIPT_EDITOR "
-				"or the ExternalEditor setting"; // *TODO: localize
+			if (status == LLExternalEditor::EC_NOT_SPECIFIED) // Use custom message for this error.
+			{
+				msg = getString("external_editor_not_set");
+			}
+			else
+			{
+				msg = LLExternalEditor::getErrorMessage(status);
+			}
+
 			LLNotificationsUtil::add("GenericAlert", LLSD().with("MESSAGE", msg));
 			return;
 		}
 
-		ed.run(filename);
+		status = ed.run(filename);
+		if (status != LLExternalEditor::EC_SUCCESS)
+		{
+			msg = LLExternalEditor::getErrorMessage(status);
+			LLNotificationsUtil::add("GenericAlert", LLSD().with("MESSAGE", msg));
+		}
 	}
 }
 

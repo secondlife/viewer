@@ -492,6 +492,15 @@ private:
 
 	////////////////////////////////////////////////////////////////////////////////
 	// virtual
+	void onNavigateErrorPage(const EventType& event)
+	{
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_error_page");
+		message.setValueS32("status_code", event.getIntValue());
+		sendMessage(message);
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
 	void onLocationChange(const EventType& event)
 	{
 		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
@@ -519,6 +528,11 @@ private:
 	{
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_nofollow");
 		message.setValue("uri", event.getEventUri());
+#if LLQTWEBKIT_API_VERSION >= 7
+		message.setValue("nav_type", event.getNavigationType());
+#else
+		message.setValue("nav_type", "clicked");
+#endif
 		sendMessage(message);
 	}
 	
@@ -1231,7 +1245,9 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				std::string url = message_in.getValue("url");
 				if ( 404 == code )	// browser lib only supports 404 right now
 				{
-					LLQtWebKit::getInstance()->set404RedirectUrl( mBrowserWindowId, url );
+#if LLQTWEBKIT_API_VERSION < 8
+				 	LLQtWebKit::getInstance()->set404RedirectUrl( mBrowserWindowId, url );
+#endif
 				};
 			}
 			else if(message_name == "set_user_agent")

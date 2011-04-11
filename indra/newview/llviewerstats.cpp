@@ -711,7 +711,7 @@ void send_stats()
 	// but that day is not today.
 
 	// Only send stats if the agent is connected to a region.
-	if (!gAgent.getRegion() || gNoRender)
+	if (!gAgent.getRegion())
 	{
 		return;
 	}
@@ -851,6 +851,8 @@ void send_stats()
 
 	body["DisplayNamesEnabled"] = gSavedSettings.getBOOL("UseDisplayNames");
 	body["DisplayNamesShowUsername"] = gSavedSettings.getBOOL("NameTagShowUsernames");
+	
+	body["MinimalSkin"] = !gSavedSettings.getString("SessionSettingsFile").empty();
 	
 	LLViewerStats::getInstance()->addToMessage(body);
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());

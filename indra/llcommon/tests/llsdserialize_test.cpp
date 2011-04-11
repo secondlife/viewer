@@ -452,7 +452,7 @@ namespace tut
 		checkRoundTrip(msg + " nested arrays", v);
 
 		v = LLSD::emptyMap();
-		fillmap(v, 10, 6); // 10^6 maps
+		fillmap(v, 10, 3); // 10^6 maps
 		checkRoundTrip(msg + " many nested maps", v);
 	}
 	

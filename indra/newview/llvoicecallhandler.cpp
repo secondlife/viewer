@@ -27,6 +27,8 @@
 #include "llviewerprecompiledheaders.h"
 #include "llcommandhandler.h" 
 #include "llavataractions.h"
+#include "llnotificationsutil.h"
+#include "llui.h"
 
 class LLVoiceCallAvatarHandler : public LLCommandHandler
 {
@@ -38,6 +40,12 @@ public:
 	
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
 	{
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableVoiceCall"))
+		{
+			LLNotificationsUtil::add("NoVoiceCall", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+			return true;
+		}
+
 		//Make sure we have some parameters
 		if (params.size() == 0)
 		{

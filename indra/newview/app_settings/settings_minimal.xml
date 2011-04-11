@@ -1,0 +1,406 @@
+<llsd>
+  <map>
+    <key>ChannelBottomPanelMargin</key>
+        <map>
+        <key>Comment</key>
+            <string>Space from a lower toast to the Bottom Tray</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>2</integer>
+        </map>
+    <key>ClickActionBuyEnabled</key>
+        <map>
+        <key>Comment</key>
+            <string>Enable click to buy actions in tool pie menu</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>ClickActionPayEnabled</key>
+        <map>
+        <key>Comment</key>
+            <string>Enable click to pay actions in tool pie menu</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>EnableGrab</key>
+        <map>
+        <key>Comment</key>
+            <string>Use Ctrl+mouse to grab and manipulate objects</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>EnableMouselook</key>
+        <map>
+        <key>Comment</key>
+            <string>Allow first person perspective and mouse control of camera</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>EnableVoiceChat</key>
+        <map>
+        <key>Comment</key>
+            <string>Enable talking to other residents with a microphone</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>HelpURLFormat</key>
+        <map>
+        <key>Comment</key>
+            <string>URL pattern for help page; arguments will be encoded; see llviewerhelp.cpp:buildHelpURL for arguments</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/howto/index.html?topic=[TOPIC]</string>
+        </map>
+    <key>PreferredMaturity</key>
+        <map>
+        <key>Comment</key>
+            <string>Setting for the user&apos;s preferred maturity level (consts in indra_constants.h)</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>21</integer>
+        </map>
+    <key>RenderTrackerBeacon</key>
+        <map>
+        <key>Comment</key>
+            <string>Display tracking arrow and beacon to target avatar, teleport destination</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>ShowScriptErrors</key>
+        <map>
+        <key>Comment</key>
+            <string>Show script errors</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>ShowScriptErrorsLocation</key>
+        <map>
+        <key>Comment</key>
+            <string>Show script error in chat or window</string>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>SkinCurrent</key>
+        <map>
+        <key>Comment</key>
+            <string>The currently selected skin.</string>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>minimal</string>
+        </map>
+    <key>UseExternalBrowser</key>
+        <map>
+        <key>Comment</key>
+            <string>Use default browser when opening web pages instead of in-world browser.</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>VoiceCallsRejectAll</key>
+        <map>
+        <key>Comment</key>
+            <string>Silently reject all incoming voice calls.</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>VoiceDisableMic</key>
+        <map>
+        <key>Comment</key>
+            <string>Completely disable the ability to open the mic.</string>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+      <key>ScriptsCanShowUI</key>
+      <map>
+        <key>Comment</key>
+        <string>Allow LSL calls (such as LLMapDestination) to spawn viewer UI</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+      </map>
+      <key>ChatFontSize</key>
+      <map>
+        <key>Comment</key>
+        <string>Size of chat text in chat console (0 = small, 1 = big, 2 = extra large)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>1</integer>
+      </map>
+      <key>AvatarPickerHintTimeout</key>
+      <map>
+        <key>Comment</key>
+        <string>Number of seconds to wait before telling resident about avatar picker.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>0.0</real>
+      </map>
+    <key>RenderShowGroupTitleAll</key>
+    <map>
+      <key>Comment</key>
+      <string>Show group titles in name labels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>OpenSidePanelsInFloaters</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, will always open side panel contents in a floater.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>AvatarInspectorTooltipDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds before displaying avatar inspector tooltip</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.1</real>
+    </map>
+    <key>AFKTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>
+        Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
+        Valid values are: 0, 120, 300, 600, 1800
+      </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>0</real>
+    </map>
+    <key>SLURLTeleportDirectly</key>
+    <map>
+      <key>Comment</key>
+      <string>Clicking on a slurl will teleport you directly instead of opening places panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EnableClassifieds</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable creation of new classified ads</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableGroupInfo</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable viewing and editing of group info.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnablePicks</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable editing of picks</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableWorldMap</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable opening world map from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableAvatarPay</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable paying other avatars from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableVoiceCall</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable voice calls from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableAvatarShare</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable sharing from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DoubleClickShowWorldMap</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable double-click to show world map from mini map</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableGroupChatPopups</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable Incoming Group Chat Popups</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>SearchFromAddressBar</key>
+    <map>
+      <key>Comment</key>
+      <string>Can enter search queries into navigation address bar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DestinationGuideURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Destination guide contents</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/guide.html</string>
+    </map>
+    <key>AvatarPickerURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Avatar picker contents</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/avatars.html</string>
+    </map>
+    <key>LogInventoryDecline</key>
+    <map>
+      <key>Comment</key>
+      <string>Log in system chat whenever an inventory offer is declined</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>UseHTTPInventory</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow use of http inventory transfers instead of UDP</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ClickToWalk</key>
+    <map>
+      <key>Comment</key>
+      <string>Click in world to walk to location</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ShowOfferedInventory</key>
+    <map>
+      <key>Comment</key>
+      <string>Show inventory window with last inventory offer selected when receiving inventory from other users.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+  </map>
+</llsd>

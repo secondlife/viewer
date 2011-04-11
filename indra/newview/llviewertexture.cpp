@@ -1415,63 +1415,61 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 // 						mRawImage->getWidth(), mRawImage->getHeight(),mRawImage->getDataSize())
 // 			<< mID.getString() << llendl;
 	BOOL res = TRUE;
-	if (!gNoRender)
+
+	// store original size only for locally-sourced images
+	if (mUrl.compare(0, 7, "file://") == 0)
 	{
-		// store original size only for locally-sourced images
-		if (mUrl.compare(0, 7, "file://") == 0)
-		{
-			mOrigWidth = mRawImage->getWidth();
-			mOrigHeight = mRawImage->getHeight();
+		mOrigWidth = mRawImage->getWidth();
+		mOrigHeight = mRawImage->getHeight();
 
-			// leave black border, do not scale image content
-			mRawImage->expandToPowerOfTwo(MAX_IMAGE_SIZE, FALSE);
-			
-			mFullWidth = mRawImage->getWidth();
-			mFullHeight = mRawImage->getHeight();
-			setTexelsPerImage();
-		}
-		else
-		{
-			mOrigWidth = mFullWidth;
-			mOrigHeight = mFullHeight;
-		}
-
-		bool size_okay = true;
+		// leave black border, do not scale image content
+		mRawImage->expandToPowerOfTwo(MAX_IMAGE_SIZE, FALSE);
 		
-		U32 raw_width = mRawImage->getWidth() << mRawDiscardLevel;
-		U32 raw_height = mRawImage->getHeight() << mRawDiscardLevel;
-		if( raw_width > MAX_IMAGE_SIZE || raw_height > MAX_IMAGE_SIZE )
-		{
-			llinfos << "Width or height is greater than " << MAX_IMAGE_SIZE << ": (" << raw_width << "," << raw_height << ")" << llendl;
-			size_okay = false;
-		}
-		
-		if (!LLImageGL::checkSize(mRawImage->getWidth(), mRawImage->getHeight()))
-		{
-			// A non power-of-two image was uploaded (through a non standard client)
-			llinfos << "Non power of two width or height: (" << mRawImage->getWidth() << "," << mRawImage->getHeight() << ")" << llendl;
-			size_okay = false;
-		}
-		
-		if( !size_okay )
-		{
-			// An inappropriately-sized image was uploaded (through a non standard client)
-			// We treat these images as missing assets which causes them to
-			// be renderd as 'missing image' and to stop requesting data
-			setIsMissingAsset();
-			destroyRawImage();
-			return FALSE;
-		}
-		
-		if(!(res = insertToAtlas()))
-		{
-			res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, TRUE, mBoostLevel);
-			resetFaceAtlas() ;
-		}
-		setActive() ;
+		mFullWidth = mRawImage->getWidth();
+		mFullHeight = mRawImage->getHeight();
+		setTexelsPerImage();
+	}
+	else
+	{
+		mOrigWidth = mFullWidth;
+		mOrigHeight = mFullHeight;
 	}
 
-	if (!mForceToSaveRawImage)
+	bool size_okay = true;
+	
+	U32 raw_width = mRawImage->getWidth() << mRawDiscardLevel;
+	U32 raw_height = mRawImage->getHeight() << mRawDiscardLevel;
+	if( raw_width > MAX_IMAGE_SIZE || raw_height > MAX_IMAGE_SIZE )
+	{
+		llinfos << "Width or height is greater than " << MAX_IMAGE_SIZE << ": (" << raw_width << "," << raw_height << ")" << llendl;
+		size_okay = false;
+	}
+	
+	if (!LLImageGL::checkSize(mRawImage->getWidth(), mRawImage->getHeight()))
+	{
+		// A non power-of-two image was uploaded (through a non standard client)
+		llinfos << "Non power of two width or height: (" << mRawImage->getWidth() << "," << mRawImage->getHeight() << ")" << llendl;
+		size_okay = false;
+	}
+	
+	if( !size_okay )
+	{
+		// An inappropriately-sized image was uploaded (through a non standard client)
+		// We treat these images as missing assets which causes them to
+		// be renderd as 'missing image' and to stop requesting data
+		setIsMissingAsset();
+		destroyRawImage();
+		return FALSE;
+	}
+	
+	if(!(res = insertToAtlas()))
+	{
+		res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, TRUE, mBoostLevel);
+		resetFaceAtlas() ;
+	}
+	setActive() ;
+
+	if (!needsToSaveRawImage())
 	{
 		mNeedsAux = FALSE;
 		destroyRawImage();
