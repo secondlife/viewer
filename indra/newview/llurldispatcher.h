@@ -33,6 +33,7 @@ class LLURLDispatcher
 public:
 	
 	static bool dispatch(const std::string& slurl,
+						 const std::string& nav_type,
 						 LLMediaCtrl* web,
 						 bool trusted_browser);	
 		// At startup time and on clicks in internal web browsers,
@@ -41,6 +42,8 @@ public:
 		//   secondlife://RegionName/123/45/67/
 		//   secondlife:///app/agent/3d6181b0-6a4b-97ef-18d8-722652995cf1/show
 		//   sl://app/foo/bar
+		// @param nav_type
+		//   type of navigation type (see LLQtWebKit::LLWebPage::acceptNavigationRequest)
 		// @param web
 		//	 Pointer to LLMediaCtrl sending URL, can be NULL
 		// @param trusted_browser

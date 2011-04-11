@@ -7,7 +7,7 @@
 		</menu_item_call>
 		<menu_item_call label="L$ kaufen" name="Buy and Sell L$"/>
 		<menu_item_call label="Mein Profil" name="Profile"/>
-		<menu_item_call label="Outfit ändern" name="ChangeOutfit"/>
+		<menu_item_call label="Mein Aussehen" name="ChangeOutfit"/>
 		<menu_item_check label="Mein Inventar" name="Inventory"/>
 		<menu_item_check label="Mein Inventar" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Meine Gesten" name="Gestures"/>
@@ -35,6 +35,7 @@
 	<menu label="Welt" name="World">
 		<menu_item_check label="Minikarte" name="Mini-Map"/>
 		<menu_item_check label="Karte" name="World Map"/>
+		<menu_item_check label="Suchen" name="Search"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Landmarke für diesen Ort setzen" name="Create Landmark Here"/>
 		<menu label="Ortsprofil" name="Land">
@@ -228,8 +229,10 @@
 		<menu label="Info anzeigen" name="Display Info">
 			<menu_item_check label="Zeit anzeigen" name="Show Time"/>
 			<menu_item_check label="Render-Info anzeigen" name="Show Render Info"/>
+			<menu_item_check label="Texturinfos anzeigen" name="Show Texture Info"/>
 			<menu_item_check label="Matrizen anzeigen" name="Show Matrices"/>
 			<menu_item_check label="Farbe unter Cursor anzeigen" name="Show Color Under Cursor"/>
+			<menu_item_check label="Speicher anzeigen" name="Show Memory"/>
 			<menu_item_check label="Akutalisierungen an Objekten anzeigen" name="Show Updates"/>
 		</menu>
 		<menu label="Fehler erzwingen" name="Force Errors">
@@ -254,6 +257,7 @@
 			<menu_item_check label="Shadow Frusta" name="Shadow Frusta"/>
 			<menu_item_check label="Okklusion" name="Occlusion"/>
 			<menu_item_check label="Bündel rendern" name="Render Batches"/>
+			<menu_item_check label="Typ aktualisieren" name="Update Type"/>
 			<menu_item_check label="Texture-Anim" name="Texture Anim"/>
 			<menu_item_check label="Textur-Priorität" name="Texture Priority"/>
 			<menu_item_check label="Texturbereich" name="Texture Area"/>

@@ -144,6 +144,7 @@ public:
 	bool buildFromFile(const std::string &filename, LLXMLNodePtr output_node = NULL);
 
 	boost::signals2::connection setMinimizeCallback( const commit_signal_t::slot_type& cb );
+	boost::signals2::connection setCloseCallback( const commit_signal_t::slot_type& cb );
 
 	void initFromParams(const LLFloater::Params& p);
 	bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = NULL);

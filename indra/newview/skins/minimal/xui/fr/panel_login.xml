@@ -20,8 +20,8 @@
 			<text name="mode_selection_text">
 				Mode :
 			</text>
-			<combo_box name="mode_combo">
-				<combo_box.item label="Basique (par défaut)" name="Basic"/>
+			<combo_box name="mode_combo" tool_tip="Sélectionnez un mode. Pour une exploration facile et rapide avec chat, choisissez Basique. Pour accéder à plus de fonctionnalités, choisissez Avancé.">
+				<combo_box.item label="Basique" name="Basic"/>
 				<combo_box.item label="Avancé" name="Advanced"/>
 			</combo_box>
 		</layout_panel>

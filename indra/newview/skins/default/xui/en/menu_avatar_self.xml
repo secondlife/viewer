@@ -152,6 +152,18 @@
                 </menu_item_call>
                <menu_item_call
                  enabled="false"
+                 label="Physics"
+                 layout="topleft"
+                 name="Self Physics">
+                    <menu_item_call.on_click
+                     function="Edit.TakeOff"
+                     parameter="physics" />
+                    <menu_item_call.on_enable
+                     function="Edit.EnableTakeOff"
+                     parameter="physics" />
+                </menu_item_call>
+               <menu_item_call
+                 enabled="false"
                  label="Alpha"
                  layout="topleft"
                  name="Self Alpha">
@@ -193,7 +205,7 @@
         </menu_item_call>
     </context_menu>
      <menu_item_call
-     label="Change Outfit"
+     label="My Appearance"
      layout="topleft"
      name="Chenge Outfit">
         <menu_item_call.on_click

@@ -53,6 +53,8 @@
 
 #include "llsidepanelappearance.h"
 
+#include "llsidetraylistener.h"
+
 //#include "llscrollcontainer.h"
 
 using namespace std;
@@ -70,6 +72,8 @@ static const std::string TAB_PANEL_CAPTION_NAME = "sidetray_tab_panel";
 static const std::string TAB_PANEL_CAPTION_TITLE_BOX = "sidetray_tab_title";
 
 LLSideTray* LLSideTray::sInstance = 0;
+
+static LLSideTrayListener sSideTrayListener(LLSideTray::getInstance);
 
 // static
 LLSideTray* LLSideTray::getInstance()
@@ -96,6 +100,7 @@ bool	LLSideTray::instanceCreated	()
 
 class LLSideTrayTab: public LLPanel
 {
+	LOG_CLASS(LLSideTrayTab);
 	friend class LLUICtrlFactory;
 	friend class LLSideTray;
 public:
@@ -122,6 +127,8 @@ protected:
 	void			undock(LLFloater* floater_tab);
 
 	LLSideTray*		getSideTray();
+
+	void			onFloaterClose(LLSD::Boolean app_quitting);
 	
 public:
 	virtual ~LLSideTrayTab();
@@ -140,6 +147,8 @@ public:
 	void			onOpen		(const LLSD& key);
 	
 	void			toggleTabDocked();
+	void			setDocked(bool dock);
+	bool			isDocked() const;
 
 	BOOL			handleScrollWheel(S32 x, S32 y, S32 clicks);
 
@@ -151,6 +160,7 @@ private:
 	std::string	mDescription;
 	
 	LLView*	mMainPanel;
+	boost::signals2::connection mFloaterCloseConn;
 };
 
 LLSideTrayTab::LLSideTrayTab(const Params& p)
@@ -271,6 +281,35 @@ void LLSideTrayTab::toggleTabDocked()
 	LLFloaterReg::toggleInstance("side_bar_tab", tab_name);
 }
 
+// Same as toggleTabDocked() apart from making sure that we do exactly what we want.
+void LLSideTrayTab::setDocked(bool dock)
+{
+	if (isDocked() == dock)
+	{
+		llwarns << "Tab " << getName() << " is already " << (dock ? "docked" : "undocked") << llendl;
+		return;
+	}
+
+	toggleTabDocked();
+}
+
+bool LLSideTrayTab::isDocked() const
+{
+	return dynamic_cast<LLSideTray*>(getParent()) != NULL;
+}
+
+void LLSideTrayTab::onFloaterClose(LLSD::Boolean app_quitting)
+{
+	// If user presses Ctrl-Shift-W, handle that gracefully by docking all
+	// undocked tabs before their floaters get destroyed (STORM-1016).
+
+	// Don't dock on quit for the current dock state to be correctly saved.
+	if (app_quitting) return;
+
+	lldebugs << "Forcibly docking tab " << getName() << llendl;
+	setDocked(true);
+}
+
 BOOL LLSideTrayTab::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	// Let children handle the event
@@ -294,6 +333,7 @@ void LLSideTrayTab::dock(LLFloater* floater_tab)
 		return;
 	}
 
+	mFloaterCloseConn.disconnect();
 	setRect(side_tray->getLocalRect());
 	reshape(getRect().getWidth(), getRect().getHeight());
 
@@ -342,6 +382,7 @@ void LLSideTrayTab::undock(LLFloater* floater_tab)
 	}
 
 	floater_tab->addChild(this);
+	mFloaterCloseConn = floater_tab->setCloseCallback(boost::bind(&LLSideTrayTab::onFloaterClose, this, _2));
 	floater_tab->setTitle(mTabTitle);
 	floater_tab->setName(getName());
 
@@ -416,6 +457,11 @@ LLSideTrayTab*  LLSideTrayTab::createInstance	()
 	LLSideTrayTab* tab = LLUICtrlFactory::create<LLSideTrayTab>(tab_params);
 	return tab;
 }
+
+// Now that we know the definition of LLSideTrayTab, we can implement
+// tab_cast.
+template <>
+LLPanel* tab_cast<LLPanel*>(LLSideTrayTab* tab) { return tab; }
 
 //////////////////////////////////////////////////////////////////////////////
 // LLSideTrayButton
@@ -530,6 +576,8 @@ LLSideTray::LLSideTray(const Params& params)
 	// register handler function to process data from the xml. 
 	// panel_name should be specified via "parameter" attribute.
 	commit.add("SideTray.ShowPanel", boost::bind(&LLSideTray::showPanel, this, _2, LLUUID::null));
+	commit.add("SideTray.Toggle", boost::bind(&LLSideTray::onToggleCollapse, this));
+	commit.add("SideTray.Collapse", boost::bind(&LLSideTray::collapseSideBar, this));
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
 	LLView* side_bar_tabs  = gViewerWindow->getRootView()->getChildView("side_bar_tabs");
 	if (side_bar_tabs != NULL)
@@ -649,7 +697,7 @@ LLPanel* LLSideTray::openChildPanel(LLSideTrayTab* tab, const std::string& panel
 		LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab_name);
 		if (!floater_tab) return NULL;
 
-		floater_tab->openFloater(panel_name);
+		floater_tab->openFloater(tab_name);
 	}
 
 	LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
