@@ -1038,23 +1038,23 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 {
 	bool still_should_be_processed = true;
 
-	const S32 chiclet_panel_shrink_headrom = getChicletPanelShrinkHeadroom();
+	const S32 chiclet_panel_shrink_headroom = getChicletPanelShrinkHeadroom();
 
 	// There are four steps of processing width decrease. If in one of them required width was reached,
 	// further are not needed.
 	// 1. Decreasing width of chiclet panel.
-	if (chiclet_panel_shrink_headrom > 0)
+	if (chiclet_panel_shrink_headroom > 0)
 	{
 		// we have some space to decrease chiclet panel
-		S32 shrink_by = llmin(-delta_width, chiclet_panel_shrink_headrom);
+		S32 shrink_by = llmin(-delta_width, chiclet_panel_shrink_headroom);
 
 		lldebugs << "delta_width: " << delta_width
-			<< ", panel_delta_min: " << chiclet_panel_shrink_headrom
+			<< ", panel_delta_min: " << chiclet_panel_shrink_headroom
 			<< ", shrink_by: " << shrink_by
 			<< llendl;
 
 		// is chiclet panel wide enough to process resizing?
-		delta_width += chiclet_panel_shrink_headrom;
+		delta_width += chiclet_panel_shrink_headroom;
 
 		still_should_be_processed = delta_width < 0;
 
