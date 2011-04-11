@@ -134,7 +134,6 @@ top="20"
   max_chars="128"
   top_pad="0"
   tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
-  control_name="SessionSettingsFile"
   name="mode_combo"
   width="120">
 <combo_box.item

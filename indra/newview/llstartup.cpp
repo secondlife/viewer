@@ -2691,7 +2691,7 @@ bool LLStartUp::dispatchURL()
 			|| (dx*dx > SLOP*SLOP)
 			|| (dy*dy > SLOP*SLOP) )
 		{
-			LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), 
+			LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), "clicked",
 						  NULL, false);
 		}
 		return true;
