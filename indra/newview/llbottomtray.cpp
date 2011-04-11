@@ -492,26 +492,6 @@ void LLBottomTray::updateContextMenu(S32 x, S32 y, MASK mask)
 	mBottomTrayContextMenu->setItemVisible("NearbyChatBar_Select_All", in_edit_box);
 }
 
-void LLBottomTray::showGestureButton(BOOL visible)
-{
-	setTrayButtonVisibleIfPossible(RS_BUTTON_GESTURES, visible);
-}
-
-void LLBottomTray::showMoveButton(BOOL visible)
-{
-	setTrayButtonVisibleIfPossible(RS_BUTTON_MOVEMENT, visible);
-}
-
-void LLBottomTray::showCameraButton(BOOL visible)
-{
-	setTrayButtonVisibleIfPossible(RS_BUTTON_CAMERA, visible);
-}
-
-void LLBottomTray::showSnapshotButton(BOOL visible)
-{
-	setTrayButtonVisibleIfPossible(RS_BUTTON_SNAPSHOT, visible);
-}
-
 void LLBottomTray::showSpeakButton(bool visible)
 {
 	// Show/hide the button
