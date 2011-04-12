@@ -275,9 +275,9 @@ class WindowsManifest(ViewerManifest):
             # Mesh 3rd party libs needed for auto LOD and collada reading
             try:
                 if self.args['configuration'].lower() == 'debug':
-                    self.path("libcollada14dom21-d.dll")
+                    self.path("libcollada14dom22-d.dll")
                 else:
-                    self.path("libcollada14dom21.dll")
+                    self.path("libcollada14dom22.dll")
                     
                 self.path("glod.dll")
             except RuntimeError, err:
