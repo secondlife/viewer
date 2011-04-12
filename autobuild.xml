@@ -234,9 +234,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d2b666a8eec1cadc81152ae94cad249f</string>
+              <string>cb307f03a17941333bee13495450107c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226180/arch/Darwin/installer/colladadom-2.2-darwin-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226422/arch/Darwin/installer/colladadom-2.2-darwin-20110412.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1498,9 +1498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ef430ae3b9cdba518ad9952e99b12367</string>
+              <string>cb04654cdfe93e3c8d16fef0c475e2bb</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pcre-7.6-darwin-20101102.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-pcre/rev/226370/arch/Darwin/installer/pcre-7.6-darwin-20110411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
