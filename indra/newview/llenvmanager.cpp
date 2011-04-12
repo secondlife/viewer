@@ -261,7 +261,7 @@ void LLEnvManager::refreshFromStorage(LLEnvKey::EScope scope)
 	case LLEnvKey::SCOPE_LOCAL:
 		break;
 	case LLEnvKey::SCOPE_REGION:
-		if (!LLEnvironmentRequestResponder::initiateRequest())
+		if (!LLEnvironmentRequest::initiate())
 		{
 			// don't have a cap for this, presume invalid response
 			processIncomingMessage(LLSD(), scope);
@@ -297,11 +297,11 @@ bool LLEnvManager::processIncomingMessage(const LLSD& unvalidated_content, const
 	// end HACK
 
 	mLastReceivedID = unvalidated_content[0]["messageID"].asUUID();		// if the message was valid, grab the UUID from it and save it for next outbound update message
+	LL_DEBUGS("Windlight Sync") << "mLastReceivedID: " << mLastReceivedID << LL_ENDL;
+	LL_DEBUGS("Windlight Sync") << "windlight_llsd: " << windlight_llsd << LL_ENDL;
 
 	if (valid)
 	{
-		LL_DEBUGS("Windlight Sync") << "windlight_llsd: " << windlight_llsd << LL_ENDL;
-
 		F32 sun_hour = LLPanelRegionTerrainInfo::instance()->getSunHour();	// this slider is kept up to date
 		LLWLParamManager::getInstance()->addAllSkies(scope, windlight_llsd[2]);
 		LLEnvironmentSettings newSettings(windlight_llsd[1], windlight_llsd[2], windlight_llsd[3], sun_hour);

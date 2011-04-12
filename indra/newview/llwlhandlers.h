@@ -38,6 +38,17 @@
 
 class LLEnvManager;
 
+class LLEnvironmentRequest
+{
+public:
+	/// @return true if request was successfully sent
+	static bool initiate();
+
+private:
+	static void onRegionCapsReceived(const LLUUID& region_id);
+	static bool doRequest();
+};
+
 class LLEnvironmentRequestResponder: public LLHTTPClient::Responder
 {
 public:
@@ -45,9 +56,8 @@ public:
 	virtual void error(U32 status, const std::string& reason);
 
 private:
+	friend class LLEnvironmentRequest;
 	friend class LLEnvManager;
-	// returns true if request was sucessfully sent
-	static bool initiateRequest();
 
 	LLEnvironmentRequestResponder();
 	static int sCount;

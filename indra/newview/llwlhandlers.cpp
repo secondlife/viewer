@@ -40,11 +40,38 @@
 #include "llnotificationsutil.h"
 
 /****
- * LLEnvironmentRequestResponder
+ * LLEnvironmentRequest
  ****/
-int LLEnvironmentRequestResponder::sCount = 0; // init to 0
+// static
+bool LLEnvironmentRequest::initiate()
+{
+	LLViewerRegion* cur_region = gAgent.getRegion();
 
-/*static*/ bool LLEnvironmentRequestResponder::initiateRequest()
+	if (!cur_region->capabilitiesReceived())
+	{
+		LL_INFOS("WindlightCaps") << "Deferring windlight settings request until we've got region caps" << LL_ENDL;
+		cur_region->setCapabilitiesReceivedCallback(boost::bind(&LLEnvironmentRequest::onRegionCapsReceived, _1));
+		return false;
+	}
+
+	return doRequest();
+}
+
+// static
+void LLEnvironmentRequest::onRegionCapsReceived(const LLUUID& region_id)
+{
+	if (region_id != gAgent.getRegion()->getRegionID())
+	{
+		LL_INFOS("WindlightCaps") << "Got caps for a non-current region" << LL_ENDL;
+		return;
+	}
+
+	LL_DEBUGS("WindlightCaps") << "Received region capabilities" << LL_ENDL;
+	doRequest();
+}
+
+// static
+bool LLEnvironmentRequest::doRequest()
 {
 	std::string url = gAgent.getRegion()->getCapability("EnvironmentSettings");
 	if (url.empty())
@@ -53,20 +80,24 @@ int LLEnvironmentRequestResponder::sCount = 0; // init to 0
 		// region is apparently not capable of this; don't respond at all
 		return false;
 	}
-	else
-	{
-		LL_DEBUGS("WindlightCaps") << "Requesting windlight settings via " << url << LL_ENDL;
-		LLHTTPClient::get(url, new LLEnvironmentRequestResponder());
-		return true;
-	}
+
+	LL_INFOS("WindlightCaps") << "Requesting region windlight settings via " << url << LL_ENDL;
+	LLHTTPClient::get(url, new LLEnvironmentRequestResponder());
+	return true;
 }
+
+/****
+ * LLEnvironmentRequestResponder
+ ****/
+int LLEnvironmentRequestResponder::sCount = 0; // init to 0
+
 LLEnvironmentRequestResponder::LLEnvironmentRequestResponder()
 {
 	mID = ++sCount;
 }
 /*virtual*/ void LLEnvironmentRequestResponder::result(const LLSD& unvalidated_content)
 {
-	LL_DEBUGS("WindlightCaps") << "Receiving windlight settings..." << LL_ENDL;
+	LL_INFOS("WindlightCaps") << "Received region windlight settings" << LL_ENDL;
 
 	if (mID != sCount)
 	{
@@ -82,7 +113,6 @@ LLEnvironmentRequestResponder::LLEnvironmentRequestResponder()
 		return;
 	}
 
-	LL_DEBUGS("WindlightCaps") << "content: " << unvalidated_content << LL_ENDL;
 	LLEnvManager::getInstance()->processIncomingMessage(unvalidated_content, LLEnvKey::SCOPE_REGION);
 }
 /*virtual*/ void LLEnvironmentRequestResponder::error(U32 status, const std::string& reason)
