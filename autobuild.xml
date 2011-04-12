@@ -1630,9 +1630,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cf513fc2eec4a414cc804cf408932a45</string>
+              <string>e2e260409cbd9ac95bfbce929d88accb</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_perftools-1.7-linux-20110315.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/226424/arch/Linux/installer/google_perftools-1.7-linux-20110412.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1642,9 +1642,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8308f7bd68bb7083655753b7abe7225f</string>
+              <string>f68604547012e92db912b324c69fbeac</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/226287/arch/CYGWIN/installer/google_perftools-1.7-windows-20110411.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/226424/arch/CYGWIN/installer/google_perftools-1.7-windows-20110412.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

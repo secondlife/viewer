@@ -580,19 +580,11 @@ public:
 	}
 
 protected:	
-	typedef enum
-	{
-		CENTER = 0,
-		SIZE = 1,
-		MAX = 2,
-		MIN = 3
-	} eDName;
-
 	LLVector4a mCenter;
 	LLVector4a mSize;
 	LLVector4a mMax;
 	LLVector4a mMin;
-	
+
 	oct_node* mParent;
 	U8 mOctant;
 
