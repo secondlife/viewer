@@ -40,10 +40,12 @@
 #include "llsidetray.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "llimfloater.h"
+#include "groupchatlistener.h"
 
 //
 // Globals
 //
+static GroupChatListener sGroupChatListener;
 
 class LLGroupHandler : public LLCommandHandler
 {
