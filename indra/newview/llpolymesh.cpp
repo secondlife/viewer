@@ -768,9 +768,9 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
 		// Allocate memory without initializing every vector
 		// NOTE: This makes asusmptions about the size of LLVector[234]
 		int nverts = mSharedData->mNumVertices;
-		int nfloats = nverts * (3*5 + 2 + 4);
+		int nfloats = nverts * (2*4 + 3*3 + 2 + 4);
 		//use 16 byte aligned vertex data to make LLPolyMesh SSE friendly
-		mVertexData = new F32[nfloats];
+		mVertexData = (F32*) malloc(nfloats*4);
 		int offset = 0;
 		mCoords				= 	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
 		mNormals			=	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
@@ -799,7 +799,7 @@ LLPolyMesh::~LLPolyMesh()
                 mJointRenderData[i] = NULL;
         }
 
-		delete [] mVertexData;
+		free(mVertexData);
 
 }
 
