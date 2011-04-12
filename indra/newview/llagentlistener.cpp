@@ -64,6 +64,12 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "[\"quat\"]:  array of [x, y, z, w] quaternion values",
         &LLAgentListener::getAxes,
         LLSDMap("reply", LLSD()));
+    add("getGroups",
+        "Send on [\"reply\"], in [\"groups\"], an array describing agent's groups:\n"
+        "[\"id\"]: UUID of group\n"
+        "[\"name\"]: name of group",
+        &LLAgentListener::getGroups,
+        LLSDMap("reply", LLSD()));
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
@@ -139,4 +145,22 @@ void LLAgentListener::getAxes(const LLSD& event) const
               ("quat", llsd_copy_array(boost::begin(quat.mQ), boost::end(quat.mQ)))
               ("euler", LLSDMap("roll", roll)("pitch", pitch)("yaw", yaw)),
               event);
+}
+
+void LLAgentListener::getGroups(const LLSD& event) const
+{
+    LLSD reply(LLSD::emptyArray());
+    for (LLDynamicArray<LLGroupData>::const_iterator
+             gi(mAgent.mGroups.begin()), gend(mAgent.mGroups.end());
+         gi != gend; ++gi)
+    {
+        reply.append(LLSDMap
+                     ("id", gi->mID)
+                     ("name", gi->mName)
+                     ("insignia", gi->mInsigniaID)
+                     ("notices", bool(gi->mAcceptNotices))
+                     ("display", bool(gi->mListInProfile))
+                     ("contrib", gi->mContribution));
+    }
+    sendReply(LLSDMap("groups", reply), event);
 }
