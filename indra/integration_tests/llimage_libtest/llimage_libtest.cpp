@@ -69,31 +69,8 @@ static bool sAllDone = false;
 // Create an empty formatted image instance of the correct type from the filename
 LLPointer<LLImageFormatted> create_image(const std::string &filename)
 {
-	std::string exten = gDirUtilp->getExtension(filename);
-	U32 codec = LLImageBase::getCodecFromExtension(exten);
-	
-	LLPointer<LLImageFormatted> image;
-	switch (codec)
-	{
-		case IMG_CODEC_BMP:
-			image = new LLImageBMP();
-			break;
-		case IMG_CODEC_TGA:
-			image = new LLImageTGA();
-			break;
-		case IMG_CODEC_JPEG:
-			image = new LLImageJPEG();
-			break;
-		case IMG_CODEC_J2C:
-			image = new LLImageJ2C();
-			break;
-		case IMG_CODEC_PNG:
-			image = new LLImagePNG();
-			break;
-		default:
-			return NULL;
-	}
-	
+	std::string exten = gDirUtilp->getExtension(filename);	
+	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromExtension(exten);
 	return image;
 }
 
