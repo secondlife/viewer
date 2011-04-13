@@ -127,7 +127,8 @@ protected:
                 return mCharacter->getVisualParamWeight(param_name.c_str());
         }
         void setParamValue(LLViewerVisualParam *param,
-                           const F32 new_value_local);
+                           const F32 new_value_local,
+						   F32 behavior_maxeffect);
 
         F32 toLocal(const LLVector3 &world);
         F32 calculateVelocity_local(const F32 time_delta);
@@ -485,9 +486,6 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         F32 behavior_maxeffect = getParamValue("MaxEffect");
         if (physics_test)
                 behavior_maxeffect = 1.0f;
-        // Maximum effect is [0,1] range.
-        const F32 min_val = 0.5f-behavior_maxeffect/2.0;
-        const F32 max_val = 0.5f+behavior_maxeffect/2.0;
 
         // mPositon_local should be in normalized 0,1 range already.  Just making sure...
         F32 position_current_local = llclamp(mPosition_local,
@@ -585,12 +583,12 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
             position_new_local = position_user_local;
 
         // Zero out the velocity if the param is being pushed beyond its limits.
-        if ((position_new_local < min_val && velocity_new_local < 0) || 
-            (position_new_local > max_val && velocity_new_local > 0))
+        if ((position_new_local < 0 && velocity_new_local < 0) || 
+            (position_new_local > 1 && velocity_new_local > 0))
         {
                 velocity_new_local = 0;
         }
-
+	
 	// Check for NaN values.  A NaN value is detected if the variables doesn't equal itself.  
 	// If NaN, then reset everything.
 	if ((mPosition_local != mPosition_local) ||
@@ -608,8 +606,8 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	}
 
         const F32 position_new_local_clamped = llclamp(position_new_local,
-						       min_val,
-						       max_val);
+						       0.0f,
+						       1.0f);
 
         LLDriverParam *driver_param = dynamic_cast<LLDriverParam *>(mParamDriver);
         llassert_always(driver_param);
@@ -630,7 +628,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
                 {
                         LLDrivenEntry &entry = (*iter);
                         LLViewerVisualParam *driven_param = entry.mParam;
-                        setParamValue(driven_param,position_new_local_clamped);
+                        setParamValue(driven_param,position_new_local_clamped, behavior_maxeffect);
                 }
         }
         
@@ -712,12 +710,19 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 
 // Range of new_value_local is assumed to be [0 , 1] normalized.
 void LLPhysicsMotion::setParamValue(LLViewerVisualParam *param,
-                                    F32 new_value_normalized)
+                                    F32 new_value_normalized,
+				    F32 behavior_maxeffect)
 {
         const F32 value_min_local = param->getMinWeight();
         const F32 value_max_local = param->getMaxWeight();
+        const F32 min_val = 0.5f-behavior_maxeffect/2.0;
+        const F32 max_val = 0.5f+behavior_maxeffect/2.0;
 
-        const F32 new_value_local = value_min_local + (value_max_local-value_min_local) * new_value_normalized;
+	// Scale from [0,1] to [min_val,max_val]
+	const F32 new_value_rescaled = min_val + (max_val-min_val) * new_value_normalized;
+	
+	// Scale from [0,1] to [value_min_local,value_max_local]
+        const F32 new_value_local = value_min_local + (value_max_local-value_min_local) * new_value_rescaled;
 
         mCharacter->setVisualParamWeight(param,
                                          new_value_local,
