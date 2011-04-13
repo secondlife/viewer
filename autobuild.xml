@@ -956,7 +956,7 @@
               <key>hash</key>
               <string>d91e1f483209cd3eba04135c6a59e829</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-6.4.1-darwin-20110218.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/Darwin/installer/kdu-6.4.1-darwin-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -968,7 +968,7 @@
               <key>hash</key>
               <string>fbf8a4f78dff986d7c16b3a0437e033e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-6.4.1-linux-20110311.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/223538/arch/Linux/installer/kdu-6.4.1-linux-20110311.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -980,7 +980,7 @@
               <key>hash</key>
               <string>6cd9f36465ef73a3df34bf2b3bba2ced</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-6.4.1-windows-20110218.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/CYGWIN/installer/kdu-6.4.1-windows-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
