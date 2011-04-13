@@ -1138,12 +1138,6 @@ void LLAgent::resetControlFlags()
 //-----------------------------------------------------------------------------
 void LLAgent::setAFK()
 {
-	// Drones can't go AFK
-	if (gNoRender)
-	{
-		return;
-	}
-
 	if (!gAgent.getRegion())
 	{
 		// Don't set AFK if we're not talking to a region yet.
@@ -1703,11 +1697,6 @@ void LLAgent::clearRenderState(U8 clearstate)
 //-----------------------------------------------------------------------------
 U8 LLAgent::getRenderState()
 {
-	if (gNoRender || gKeyboard == NULL)
-	{
-		return 0;
-	}
-
 	// *FIX: don't do stuff in a getter!  This is infinite loop city!
 	if ((mTypingTimer.getElapsedTimeF32() > TYPING_TIMEOUT_SECS) 
 		&& (mRenderState & AGENT_STATE_TYPING))
