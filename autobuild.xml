@@ -234,9 +234,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cb307f03a17941333bee13495450107c</string>
+              <string>4d07ad210dbf4532e145206bd8e89a18</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226422/arch/Darwin/installer/colladadom-2.2-darwin-20110412.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226539/arch/Darwin/installer/colladadom-2.2-darwin-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
