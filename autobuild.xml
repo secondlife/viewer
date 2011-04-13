@@ -1026,9 +1026,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>735a955e6442733e2342ab12c1087488</string>
+              <string>f194ba857ca8dd86483a3ef24535d0db</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.5.1-windows-20110221.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng/rev/226532/arch/CYGWIN/installer/libpng-1.5.1-windows-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
