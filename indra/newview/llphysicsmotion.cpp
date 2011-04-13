@@ -451,7 +451,14 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         //
 
         const F32 time_delta = time - mLastTime;
-        if (time_delta > 3.0 || time_delta <= 0.01)
+
+	// Don't update too frequently, to avoid precision errors from small time slices.
+	if (time_delta <= .01)
+	{
+		return FALSE;
+	}
+	
+        if (time_delta > 3.0)
         {
                 mLastTime = time;
                 return FALSE;
