@@ -18,9 +18,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1eea55da1625518390af4c315a0d43c3</string>
+              <string>7c546f54f6ed654f713c778af3925dd4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226145/arch/Darwin/installer/glod-1.0pre4-darwin-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226566/arch/Darwin/installer/glod-1.0pre4-darwin-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -234,9 +234,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4d07ad210dbf4532e145206bd8e89a18</string>
+              <string>cff08178fc9720ab37646e142edeaa6d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226539/arch/Darwin/installer/colladadom-2.2-darwin-20110413.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226567/arch/Darwin/installer/colladadom-2.2-darwin-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
