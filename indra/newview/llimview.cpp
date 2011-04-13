@@ -195,7 +195,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	// set P2P type by default
 	mSessionType = P2P_SESSION;
 
-	if (IM_NOTHING_SPECIAL == type || IM_SESSION_P2P_INVITE == type)
+	if (IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType)
 	{
 		mVoiceChannel  = new LLVoiceChannelP2P(session_id, name, other_participant_id);
 		mOtherParticipantIsAvatar = LLVoiceClient::getInstance()->isParticipantAvatar(mSessionID);
@@ -249,7 +249,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		new LLSessionTimeoutTimer(mSessionID, SESSION_INITIALIZATION_TIMEOUT);
 	}
 
-	if (IM_NOTHING_SPECIAL == type)
+	if (IM_NOTHING_SPECIAL == mType)
 	{
 		mCallBackEnabled = LLVoiceClient::getInstance()->isSessionCallBackPossible(mSessionID);
 		mTextIMPossible = LLVoiceClient::getInstance()->isSessionTextIMPossible(mSessionID);
@@ -269,10 +269,10 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	// Localizing name of ad-hoc session. STORM-153
 	// Changing name should happen here- after the history file was created, so that
 	// history files have consistent (English) names in different locales.
-	if (isAdHocSessionType() && IM_SESSION_INVITE == type)
+	if (isAdHocSessionType() && IM_SESSION_INVITE == mType)
 	{
-		LLAvatarNameCache::get(mOtherParticipantID, 
-							   boost::bind(&LLIMModel::LLIMSession::onAdHocNameCache, 
+		LLAvatarNameCache::get(mOtherParticipantID,
+							   boost::bind(&LLIMModel::LLIMSession::onAdHocNameCache,
 							   this, _2));
 	}
 }
@@ -553,23 +553,10 @@ bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
 	return !mOtherParticipantIsAvatar;
 }
 
-void LLIMModel::LLIMSession::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)
-{
-	if (av_name.mUsername.empty())
-	{
-		// display names is off, use mDisplayName which will be the legacy name
-		mHistoryFileName = LLCacheName::buildUsername(av_name.mDisplayName);
-	}
-	else
-	{  
-		mHistoryFileName = av_name.mUsername;
-	}
-}
-
 void LLIMModel::LLIMSession::buildHistoryFileName()
 {
 	mHistoryFileName = mName;
-	
+
 	//ad-hoc requires sophisticated chat history saving schemes
 	if (isAdHoc())
 	{
@@ -583,17 +570,35 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 		{
 			std::set<LLUUID> sorted_uuids(mInitialTargetIDs.begin(), mInitialTargetIDs.end());
 			mHistoryFileName = mName + " hash" + generateHash(sorted_uuids);
-			return;
 		}
-		
-		//in case of incoming ad-hoc sessions
-		mHistoryFileName = mName + " " + LLLogChat::timestamp(true) + " " + mSessionID.asString().substr(0, 4);
+		else
+		{
+			//in case of incoming ad-hoc sessions
+			mHistoryFileName = mName + " " + LLLogChat::timestamp(true) + " " + mSessionID.asString().substr(0, 4);
+		}
 	}
-
-	// look up username to use as the log name
-	if (isP2P())
+	else if (isP2P()) // look up username to use as the log name
 	{
-		LLAvatarNameCache::get(mOtherParticipantID, boost::bind(&LLIMModel::LLIMSession::onAvatarNameCache, this, _1, _2));
+		LLAvatarName av_name;
+		// For outgoing sessions we already have a cached name
+		// so no need for a callback in LLAvatarNameCache::get()
+		if (LLAvatarNameCache::get(mOtherParticipantID, &av_name))
+		{
+			if (av_name.mUsername.empty())
+			{
+				// Display names are off, use mDisplayName which will be the legacy name
+				mHistoryFileName = LLCacheName::buildUsername(av_name.mDisplayName);
+			}
+			else
+			{
+				mHistoryFileName =  av_name.mUsername;
+			}
+		}
+		else
+		{
+			// Incoming P2P sessions include a name that we can use to build a history file name
+			mHistoryFileName = LLCacheName::buildUsername(mName);
+		}
 	}
 }
 
@@ -614,7 +619,6 @@ std::string LLIMModel::LLIMSession::generateHash(const std::set<LLUUID>& sorted_
 	md5_uuid.raw_digest((unsigned char*) participants_md5_hash.mData);
 	return participants_md5_hash.asString();
 }
-
 
 void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
@@ -798,11 +802,6 @@ bool LLIMModel::logToFile(const std::string& file_name, const std::string& from,
 	}
 }
 
-bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
-{
-	return logToFile(LLIMModel::getInstance()->getHistoryFileName(session_id), from, from_id, utf8_text);
-}
-
 bool LLIMModel::proccessOnlineOfflineNotification(
 	const LLUUID& session_id, 
 	const std::string& utf8_text)
@@ -856,8 +855,11 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
 	}
 
 	addToHistory(session_id, from_name, from_id, utf8_text);
-	if (log2file) logToFile(session_id, from_name, from_id, utf8_text);
-
+	if (log2file)
+	{
+		logToFile(getHistoryFileName(session_id), from_name, from_id, utf8_text);
+	}
+	
 	session->mNumUnread++;
 
 	//update count of unread messages from real participant
@@ -2468,6 +2470,7 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 			std::string session_name;
 			// since we select user to share item with - his name is already in cache
 			gCacheName->getFullName(args["user_id"], session_name);
+			session_name = LLCacheName::buildUsername(session_name);
 			LLIMModel::instance().logToFile(session_name, SYSTEM_FROM, LLUUID::null, message.getString());
 		}
 	}
