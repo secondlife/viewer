@@ -4339,8 +4339,8 @@
      wearable="shape"
      edit_group="driven"
      value_default="0"
-     value_min="-2"
-     value_max="2">
+     value_min="-3"
+     value_max="3">
       <param_morph />
     </param>
 
@@ -4352,8 +4352,8 @@
      wearable="shape"
      edit_group="driven"
      value_default="0"
-     value_min="-1"
-     value_max="1">
+     value_min="-1.5"
+     value_max="1.5">
       <param_morph />
     </param>
 
