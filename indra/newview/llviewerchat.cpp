@@ -36,6 +36,7 @@
 #include "llinstantmessage.h" //SYSTEM_FROM
 
 // LLViewerChat
+LLViewerChat::font_change_signal_t LLViewerChat::sChatFontChangedSignal;
 
 //static 
 void LLViewerChat::getChatColor(const LLChat& chat, LLColor4& r_color)
@@ -255,4 +256,17 @@ std::string LLViewerChat::getObjectImSLURL(const LLChat& chat, const LLSD& args)
 	url += "&slurl=" + LLURI::escape(slurl);
 
 	return url;
+}
+
+//static 
+boost::signals2::connection LLViewerChat::setFontChangedCallback(const font_change_signal_t::slot_type& cb)
+{
+	return sChatFontChangedSignal.connect(cb);
+}
+
+//static
+void LLViewerChat::signalChatFontChanged()
+{
+	// Notify all observers that our font has changed
+	sChatFontChangedSignal(getChatFont());
 }
