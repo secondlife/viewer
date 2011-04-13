@@ -9557,7 +9557,7 @@
     <key>ShowNetStats</key>
     <map>
       <key>Comment</key>
-      <string>Show the Search Bar in the Status Overlay</string>
+      <string>Show the Status Indicators for the Viewer and Network Usage in the Status Overlay</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
