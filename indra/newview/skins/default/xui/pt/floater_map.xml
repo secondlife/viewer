@@ -3,6 +3,9 @@
 	<floater.string name="ToolTipMsg">
 		[REGION](Clique duas vezes para abrir o mapa, shift+arraste para a visão pan)
 	</floater.string>
+	<floater.string name="AltToolTipMsg">
+		[REGION](Clique duas vezes para teletransportar, shift+arraste para a visão pan)
+	</floater.string>
 	<floater.string name="mini_map_caption">
 		MINIMAPA
 	</floater.string>

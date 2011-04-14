@@ -52,12 +52,13 @@ public:
 		MEDIA_EVENT_STATUS_TEXT_CHANGED,	// browser has updated the status text
 		MEDIA_EVENT_NAME_CHANGED,			// browser has updated the name of the media (typically <title> tag)
 		MEDIA_EVENT_LOCATION_CHANGED,		// browser location (URL) has changed (maybe due to internal navagation/frames/etc)
+		MEDIA_EVENT_NAVIGATE_ERROR_PAGE,	// browser navigated to a page that resulted in an HTTP error
 		MEDIA_EVENT_CLICK_LINK_HREF,		// I'm not entirely sure what the semantics of these two are
 		MEDIA_EVENT_CLICK_LINK_NOFOLLOW,
 		MEDIA_EVENT_CLOSE_REQUEST,			// The plugin requested its window be closed (currently hooked up to javascript window.close in webkit)
 		MEDIA_EVENT_PICK_FILE_REQUEST,		// The plugin wants the user to pick a file
 		MEDIA_EVENT_GEOMETRY_CHANGE,		// The plugin requested its window geometry be changed (per the javascript window interface)
-		
+	
 		MEDIA_EVENT_PLUGIN_FAILED_LAUNCH,	// The plugin failed to launch 
 		MEDIA_EVENT_PLUGIN_FAILED,			// The plugin died unexpectedly
 

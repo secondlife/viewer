@@ -72,7 +72,7 @@ Detalhes do erro: O aviso &apos;[_NAME]&apos; não foi localizado no arquivo not
 	</notification>
 	<notification name="LoginFailedNoNetwork">
 		Falha de conexão com o [SECOND_LIFE_GRID].
-&apos;[DIAGNOSTIC]&apos;
+    &apos;[DIAGNOSTIC]&apos;
 Verifique se a conexão à internet está funcionando.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -329,13 +329,6 @@ Digite o nome de usuário de seu avatar.
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		Digite o nome de usuário ou o nome e sobrenome do seu avatar no campo Nome de usuário, depois entre em sua conta novamente.
-	</notification>
-	<notification name="AddClassified">
-		Os anúncios serão publicados na seção &apos;Classificados&apos; das buscas e em [http://secondlife.com/community/classifieds secondlife.com] durante uma semana.
-Escreva seu anúncio e clique em &apos;Publicar...&apos; 
-Depois, decida quanto deseja pagar pelo anúncio. 
-Quanto mais você pagar, mais alto será o posicionamento do seu anúncio nos classficados e nos resultados de busca das suas palavras-chave.
-		<usetemplate ignoretext="Como colocar um anúncio" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="DeleteClassified">
 		Apagar classificado&apos;[NAME]&apos;?
@@ -2832,9 +2825,6 @@ Silenciar todos?
 	<notification label="Explore o mundo" name="HintDestinationGuide">
 		O Guia de Destinos traz milhares de lugares novos para você explorar e conhecer. Selecione um lugar, clique em Teletransportar e comece suas descobertas.
 	</notification>
-	<notification label="Troque o visual" name="HintAvatarPicker">
-		Que tal mudar o visual? Clique o botão abaixo para ver Avatares diferentes.
-	</notification>
 	<notification label="Painel lateral" name="HintSidePanel">
 		Acesse rapidamente seu inventário, roupas, looks, perfis e mais no painel lateral.
 	</notification>
@@ -2871,6 +2861,38 @@ Silenciar todos?
 			<button name="ok" text="Enviar"/>
 			<button name="cancel" text="Cancelar"/>
 		</form>
+	</notification>
+	<notification label="" name="ModeChange">
+		Para alterar o modo, é preciso fechar e reiniciar.
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="NoClassifieds">
+		É preciso usar o modo Avançado para criar e editar anúncios classificados.  Desejar sair para mudar o modo? Selecione o modo na tela de login.
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="NoGroupInfo">
+		É preciso usar o modo Avançado para criar e editar grupos.  Desejar sair para mudar o modo? Selecione o modo na tela de login.
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="NoPicks">
+		É preciso usar o modo Avançado para criar e editar Destaques.  Desejar sair para mudar o modo? Selecione o modo na tela de login.
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="NoWorldMap">
+		É preciso usar o modo Avançado para ver o mapa-múndi.  Desejar sair para mudar o modo? Selecione o modo na tela de login.
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="NoVoiceCall">
+		Ligações de voz devem ser feitas no modo Avançado. Desejar sair para mudar o modo?
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="NoAvatarShare">
+		É preciso estar no modo Avançado para compartilhar.  Desejar sair para mudar o modo?
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="NoAvatarPay">
+		É preciso usar o modo Avançado para fazer pagamentos a outros residentes.  Desejar sair para mudar o modo?
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- A velocidade da sua CPU não suporta os requisitos mínimos exigidos.
