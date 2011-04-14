@@ -361,17 +361,23 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 		}
 		int discard = (discard_level != -1 ? discard_level : base.getRawDiscardLevel());
 		
+		// Apply loading restrictions
 		mCodeStreamp->apply_input_restrictions( first_channel, max_channel_count, discard, 0, region_kdu);
+		
+		// Clean-up
+		if (region_kdu)
+		{
+			delete region_kdu;
+			region_kdu = NULL;
+		}
 
+		// Resize raw_image according to the image to be decoded
 		kdu_dims dims; mCodeStreamp->get_dims(0,dims);
 		S32 channels = base.getComponents() - first_channel;
-		if (channels > max_channel_count)
-		{
-			channels = max_channel_count;
-		}
+		channels = llmin(channels,max_channel_count);
 		raw_image.resize(dims.size.x, dims.size.y, channels);
+		//	llinfos << "Resizing raw_image to " << dims.size.x << ":" << dims.size.y << llendl;
 
-		//	llinfos << "Resizing to " << dims.size.x << ":" << dims.size.y << llendl;
 		if (!mTileIndicesp)
 		{
 			mTileIndicesp = new kdu_dims;
