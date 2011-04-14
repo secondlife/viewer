@@ -11903,7 +11903,7 @@ render_pass="bump">
      edit_group="physics_breasts_updown"
      value_default="0"
      value_min="0"
-     value_max="1">
+     value_max="3">
 	 <param_driver />
     </param>
     <param
@@ -11958,7 +11958,7 @@ render_pass="bump">
      edit_group="physics_breasts_inout"
      value_default="0"
      value_min="0"
-     value_max="1">
+     value_max="3">
 	 <param_driver />
     </param>
     <param
@@ -12046,7 +12046,7 @@ render_pass="bump">
      edit_group="physics_belly_updown"
      value_default="0"
      value_min="0"
-     value_max="1">
+     value_max="3">
 	 <param_driver />
     </param>
     <param
@@ -12132,7 +12132,7 @@ render_pass="bump">
      edit_group="physics_butt_updown"
      value_default="0"
      value_min="0"
-     value_max="1">
+     value_max="3">
 	 <param_driver />
     </param>
     <param
@@ -12181,7 +12181,7 @@ render_pass="bump">
      edit_group="physics_butt_leftright"
      value_default="0"
      value_min="0"
-     value_max="1">
+     value_max="3">
 	 <param_driver />
     </param>
     <param
@@ -12231,7 +12231,7 @@ render_pass="bump">
      edit_group="physics_breasts_leftright"
      value_default="0"
      value_min="0"
-     value_max="1">
+     value_max="3">
 	 <param_driver />
     </param>
     <param
