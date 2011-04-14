@@ -1133,7 +1133,7 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show, BOOL dis
         
                         LLScrollingPanelList *panel_list = getChild<LLScrollingPanelList>(scrolling_panel);
                         LLAccordionCtrlTab *tab = getChild<LLAccordionCtrlTab>(accordion_tab);
-        
+			
                         if (!panel_list)
                         {
                                 llwarns << "could not get scrolling panel list: " << scrolling_panel << llendl;
@@ -1145,7 +1145,18 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show, BOOL dis
                                 llwarns << "could not get llaccordionctrltab from UI with name: " << accordion_tab << llendl;
                                 continue;
                         }
-        
+
+			// Don't show female subparts if you're not female, etc.
+			if (!(gAgentAvatarp->getSex() & subpart_entry->mSex))
+			{
+				tab->setVisible(FALSE);
+				continue;
+			}
+			else
+			{
+				tab->setVisible(TRUE);
+			}
+			
                         // what edit group do we want to extract params for?
                         const std::string edit_group = subpart_entry->mEditGroup;
         
