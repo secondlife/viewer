@@ -291,7 +291,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 height="388"
 		 top_delta="0"
 		 name="optimize_panel"
-		 visible="true"
+		 visible="false"
 		 width="535"
 		 left="0">
 		<panel
@@ -441,10 +441,10 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				 follows="all"
 				 width="185">
 			</panel>
-			<text top="45" left="224" text_color="White" font="SansSerifSmallBold" width="300" height="4">Performance</text>
-			<text top="65" left="204" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">Faster rendering but less detailed; lowers Resource (prim) cost.</text>
-			<text top="45" left="384" text_color="White" font="SansSerifSmallBold" width="300" height="4">Accuracy</text>
-			<text top="65" left="364" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">More detailed model but slower; increases Resource (prim) cost.</text>
+			<text top="45" left="214" text_color="White" font="SansSerifSmallBold" halign="center" width="110" height="30" wrap="true">Higher Performance</text>
+			<text top="75" left="204" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">Faster rendering but less detailed; lowers Resource (prim) cost.</text>
+			<text top="45" left="378" text_color="White" font="SansSerifSmallBold" halign="center" width="90" height="30" wrap="true">Higher Accuracy</text>
+			<text top="75" left="364" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">More detailed model but slower; increases Resource (prim) cost.</text>
 
 			<slider
 		   follows="left|top"
@@ -457,7 +457,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		   min_val="2"
 		   name="accuracy_slider"
 		   show_text="false"
-		   top="120"
+		   top="130"
 		   width="290" />
 			<text 
 			font="SansSerifSmall" 
@@ -475,9 +475,8 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				 image_name="model_wizard\divider_line.png"/>
 	
 			<text top_delta="20" width="200" text_color="White" left_delta="50" name="streaming cost"  height="20">Resource Cost:    [COST]</text>
-			<text top_delta="24" width="100" text_color="White" left_delta="0"  height="20">Upload Fee:</text>
 			<text
-						 top_pad="5"
+						 top_pad="15"
 						 width="130"
 						 height="14"
 						 left="10"
@@ -572,10 +571,10 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
 		 background_opaque="true">
-      <text top="15" left="30" text_color="White" font="SansSerifSmallBold" width="300" height="4">Performance</text>
-      <text top="35" left="10" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">Faster rendering but less detailed; lowers Resource (prim) cost.</text>
-      <text top="15" left="390" text_color="White" font="SansSerifSmallBold" width="300" height="4">Accuracy</text>
-      <text top="35" left="360" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">More detailed model but slower; increases Resource (prim) cost.</text>
+      <text top="25" left="30" text_color="White" font="SansSerifSmallBold" width="300" height="4">Performance</text>
+      <text top="45" left="10" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">Faster rendering but less detailed; lowers Resource (prim) cost.</text>
+      <text top="25" left="390" text_color="White" font="SansSerifSmallBold" width="300" height="4">Accuracy</text>
+      <text top="45" left="360" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">More detailed model but slower; increases Resource (prim) cost.</text>
 
       <slider
 		   follows="left|top"
@@ -588,7 +587,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		   min_val="0"
 		   name="physics_slider"
 		   show_text="false"
-		   top="80"
+		   top="90"
 		   width="440" />
       <text
 			font="SansSerifSmall"
@@ -608,9 +607,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 			 height="2"
 			 image_name="model_wizard\divider_line.png"/>
 		
-	<text top_delta="20" width="180" text_color="White" left="160" name="streaming cost"  height="20">Resource Cost:       [COST]</text>
-      <text top_delta="26" width="180" text_color="White" left_delta="0" name="physics cost"  height="20">Physics Cost:           [COST]</text>
-      <text top_delta="26" width="180" text_color="White" left_delta="0"  height="20">Upload Fee:</text>
+	<text top_delta="30" width="180" text_color="White" left="160" name="streaming cost"  height="20">Resource Cost:       [COST]</text>
  
     </panel>
 	</panel>
@@ -619,7 +616,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 height="388"
 		 top_delta="0"
 		 name="physics2_panel"
-		 visible="false"
+		 visible="true"
 		 width="535"
 		 left="0">
 		<panel
@@ -738,10 +735,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 			 height="15"
 			 name="dimension_z"
 			 left_delta="46"/>
-			<text top="40" width="180" text_color="White" left="225" name="streaming cost"  height="20">Resource Cost:       [COST]</text>
-			<text top_delta="26" width="180" text_color="White" left_delta="0" name="physics cost"  height="20">Physics Cost:           [COST]</text>
-			<text top_delta="26" width="180" text_color="White" left_delta="0"  height="20">Upload Fee:</text>
-
+			<text top="60" width="180" text_color="White" left="225" name="streaming cost"  height="20">Resource Cost:       [COST]</text>
 		</panel>
 	</panel>
 
