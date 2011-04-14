@@ -120,12 +120,13 @@
    type="string"
    length="1"
    follows="left|top"
-   height="10"
+   height="15"
    layout="topleft"
    left_delta="3"
    name=" Mouse Sensitivity"
    top_pad="10"
-   width="160">
+   width="160"
+   wrap="true">
     Mouselook mouse sensitivity:
   </text>
   <slider
@@ -139,7 +140,7 @@
    max_val="15"
    name="mouse_sensitivity"
    top_delta="-1"
-   width="145" />
+   width="115" />
   <check_box
    control_name="InvertMouse"
    height="16"
@@ -158,7 +159,7 @@
    left="78"
    name="arrow_keys_move_avatar_check"
    width="237"
-   top_pad="1"/>
+   top_pad="10"/>
   <check_box
    control_name="AllowTapTapHoldRun"
    follows="left|top"
