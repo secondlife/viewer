@@ -94,6 +94,7 @@ mesh-development.viewer_channel = "Project Viewer - Mesh"
 mesh-development.login_channel = "Project Viewer - Mesh"
 mesh-development.viewer_grid = aditi
 mesh-development.build_debug_release_separately = true
+mesh-development.build_CYGWIN_Debug = false
 mesh-development.build_viewer_update_version_manager = false
 
 # ========================================
