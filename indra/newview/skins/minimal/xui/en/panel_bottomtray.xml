@@ -163,7 +163,7 @@
 			layout="topleft"
 			left="0"
 			name="destination_btn"
-			tool_tip="Shows people window"
+			tool_tip="Shows destinations"
 			top="5"
 			is_toggle="true"
 			use_ellipses="true"
