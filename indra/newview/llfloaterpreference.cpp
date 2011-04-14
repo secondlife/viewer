@@ -111,6 +111,7 @@
 
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
+const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 
 //control value for middle mouse as talk2push button
 const static std::string MIDDLE_MOUSE_CV = "MiddleMouse";
@@ -1682,7 +1683,7 @@ BOOL LLPanelPreference::postBuild()
 	//////////////////////PanelSetup ///////////////////
 	if (hasChild("max_bandwidth"))
 	{
-		mBandWidthUpdater = new LLPanelPreference::Updater(boost::bind(&handleBandwidthChanged, _1), 0.3);
+		mBandWidthUpdater = new LLPanelPreference::Updater(boost::bind(&handleBandwidthChanged, _1), BANDWIDTH_UPDATER_TIMEOUT);
 		gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->connect(boost::bind(&LLPanelPreference::Updater::update, mBandWidthUpdater, _2));
 	}
 
