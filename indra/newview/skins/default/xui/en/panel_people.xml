@@ -99,28 +99,35 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          name="nearby_panel"
          top="0"
          width="313">
-			<net_map
-			 bg_color="NetMapBackgroundColor"
-			 follows="top|left|right"
-			 layout="topleft"
-			 left="3"
-			 mouse_opaque="false"
-			 name="Net Map"
-			 width="305"
-			 height="140"
-			 top="5"/>
-			<avatar_list
-             allow_select="true"
-             follows="top|left|bottom|right"
-             height="211"
-             ignore_online_status="true"
-             layout="topleft"
-             left="3"
-             multi_select="true"
-             name="avatar_list"
-             top="145"
-             width="306" />
-            <panel
+        <layout_stack orientation="vertical" clip="false" follows="all" layout="topleft" top="0" left="0" height="355" width="313" mouse_opaque="false">
+          <layout_panel layout="topleft" top="0" left="0" height="142" width="313" user_resize="false" mouse_opaque="false" visibility_control="NearbyListShowMap">
+          <net_map
+            bg_color="NetMapBackgroundColor"
+            follows="all"
+            layout="topleft"
+            left="3"
+            mouse_opaque="false"
+            name="Net Map"
+            width="305"
+            height="140"
+            top="4"/>
+          </layout_panel>
+          <layout_panel layout="topleft" height="213" min_height="100" width="313" user_resize="false" mouse_opaque="false">
+          <avatar_list
+            allow_select="true"
+            follows="all"
+            height="211"
+            ignore_online_status="true"
+            layout="topleft"
+            left="3"
+            multi_select="true"
+            keep_one_selected="false"
+            name="avatar_list"
+            top="2"
+            width="306" />
+          </layout_panel>
+        </layout_stack>
+        <panel
              background_visible="true"
              follows="left|right|bottom"
              height="27"
