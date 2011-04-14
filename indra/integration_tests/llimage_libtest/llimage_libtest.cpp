@@ -53,12 +53,29 @@ static const char USAGE[] = "\n"
 " -o, --output <file1 .. file2> OR <type>\n"
 "        List of image files to create (assumes same order as for input files)\n"
 "        OR 3 letters file type extension to convert each input file into.\n"
+" -r, --region <x0, y0, x1, y1>\n"
+"        Crop region applied to the input files in pixels.\n"
+"        Only used for j2c images. Default is no region cropping.\n"
+" -d, --discard_level <n>\n"
+"        Discard level max used on input. 0 is highest resolution. Max discard level is 5.\n"
+"        This allows the input image to be clamped in resolution when loading.\n"
+"        Only valid for j2c images. Default is no discard.\n"
+" -p, --precincts <n>\n"
+"        Dimension of precincts in pixels. Precincts are assumed square and identical for\n"
+"        all levels. Note that this option also add PLT and tile markers to the codestream, \n"
+"        and uses RPCL order. Power of 2 must be used.\n"
+"        Only valid for output j2c images. Default is no precincts used.\n"
+" -b, --blocks <n>\n"
+"        Dimension of coding blocks in pixels. Blocks are assumed square. Power of 2 must\n"
+"        be used. Blocks must be smaller than precincts. Like precincts, this option adds\n"
+"        PLT, tile markers and uses RPCL.\n"
+"        Only valid for output j2c images. Default is 64.\n"
 " -log, --logmetrics <metric>\n"
 "        Log performance data for <metric>. Results in <metric>.slp\n"
 "        Note: so far, only ImageCompressionTester has been tested.\n"
-" -r, --analyzeperformance\n"
+" -a, --analyzeperformance\n"
 "        Create a report comparing <metric>_baseline.slp with current <metric>.slp\n"
-"        Results in <metric>_report.csv"
+"        Results in <metric>_report.csv\n"
 " -s, --image-stats\n"
 "        Output stats for each input and output image.\n"
 "\n";
@@ -87,10 +104,11 @@ void output_image_stats(LLPointer<LLImageFormatted> image, const std::string &fi
 }
 
 // Load an image from file and return a raw (decompressed) instance of its data
-LLPointer<LLImageRaw> load_image(const std::string &src_filename, bool output_stats)
+LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_level, int* region, bool output_stats)
 {
 	LLPointer<LLImageFormatted> image = create_image(src_filename);
-
+	
+	// This just loads the image file stream into a buffer. No decoding done.
 	if (!image->load(src_filename))
 	{
 		return NULL;
@@ -108,6 +126,15 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, bool output_st
 	}
 	
 	LLPointer<LLImageRaw> raw_image = new LLImageRaw;
+	
+	// Set the image restriction on load in the case of a j2c image
+	if ((image->getCodec() == IMG_CODEC_J2C) && ((discard_level != -1) || (region != NULL)))
+	{
+		// That method doesn't exist (and likely, doesn't make sense) for any other image file format
+		// hence the required cryptic cast.
+		((LLImageJ2C*)(image.get()))->initDecode(*raw_image, discard_level, region);
+	}
+	
 	if (!image->decode(raw_image, 0.0f))
 	{
 		return NULL;
@@ -117,9 +144,17 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, bool output_st
 }
 
 // Save a raw image instance into a file
-bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image, bool output_stats)
+bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image, int blocks_size, int precincts_size, bool output_stats)
 {
 	LLPointer<LLImageFormatted> image = create_image(dest_filename);
+	
+	// Set the image codestream parameters on output in the case of a j2c image
+	if ((image->getCodec() == IMG_CODEC_J2C) && ((blocks_size != -1) || (precincts_size != -1)))
+	{
+		// That method doesn't exist (and likely, doesn't make sense) for any other image file format
+		// hence the required cryptic cast.
+		((LLImageJ2C*)(image.get()))->initEncode(*raw_image, blocks_size, precincts_size);
+	}
 	
 	if (!image->encode(raw_image, 0.0f))
 	{
@@ -257,8 +292,13 @@ int main(int argc, char** argv)
 	// List of input and output files
 	std::list<std::string> input_filenames;
 	std::list<std::string> output_filenames;
+	// Other optional parsed arguments
 	bool analyze_performance = false;
 	bool image_stats = false;
+	int* region = NULL;
+	int discard_level = -1;
+	int precincts_size = -1;
+	int blocks_size = -1;
 
 	// Init whatever is necessary
 	ll_init_apr();
@@ -300,6 +340,81 @@ int main(int argc, char** argv)
 				file_name = argv[arg+1];	// Next argument and loop over
 			}
 		}
+		else if ((!strcmp(argv[arg], "--region") || !strcmp(argv[arg], "-r")) && arg < argc-1)
+		{
+			std::string value_str = argv[arg+1];
+			int index = 0;
+			region = new int[4];
+			while (value_str[0] != '-')		// if arg starts with '-', it's the next option
+			{
+				int value = atoi(value_str.c_str());
+				region[index++] = value;
+				arg += 1;					// Definitely skip that arg now we know it's a number
+				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
+					break;
+				if (index == 4)				// Break out of the loop if we captured 4 values already
+					break;
+				value_str = argv[arg+1];	// Next argument and loop over
+			}
+			if (index != 4)
+			{
+				std::cout << "--region arguments invalid" << std::endl;
+				delete [] region;
+				region = NULL;
+			}
+		}
+		else if (!strcmp(argv[arg], "--discard_level") || !strcmp(argv[arg], "-d"))
+		{
+			std::string value_str;
+			if ((arg + 1) < argc)
+			{
+				value_str = argv[arg+1];
+			}
+			if (((arg + 1) >= argc) || (value_str[0] == '-'))
+			{
+				std::cout << "No valid --discard_level argument given, discard_level ignored" << std::endl;
+			}
+			else
+			{
+				discard_level = atoi(value_str.c_str());
+				// Clamp to the values accepted by the viewer
+				discard_level = llclamp(discard_level,0,5);
+			}
+		}
+		else if (!strcmp(argv[arg], "--precincts") || !strcmp(argv[arg], "-p"))
+		{
+			std::string value_str;
+			if ((arg + 1) < argc)
+			{
+				value_str = argv[arg+1];
+			}
+			if (((arg + 1) >= argc) || (value_str[0] == '-'))
+			{
+				std::cout << "No valid --precincts argument given, precincts ignored" << std::endl;
+			}
+			else
+			{
+				precincts_size = atoi(value_str.c_str());
+				// *TODO: make sure precincts_size is a power of 2
+			}
+		}
+		else if (!strcmp(argv[arg], "--blocks") || !strcmp(argv[arg], "-b"))
+		{
+			std::string value_str;
+			if ((arg + 1) < argc)
+			{
+				value_str = argv[arg+1];
+			}
+			if (((arg + 1) >= argc) || (value_str[0] == '-'))
+			{
+				std::cout << "No valid --blocks argument given, blocks ignored" << std::endl;
+			}
+			else
+			{
+				blocks_size = atoi(value_str.c_str());
+				// *TODO: make sure blocks_size is a power of 2
+			}
+		}
 		else if (!strcmp(argv[arg], "--logmetrics") || !strcmp(argv[arg], "-log"))
 		{
 			// '--logmetrics' needs to be specified with a named test metric argument
@@ -323,7 +438,7 @@ int main(int argc, char** argv)
 					break;
 			}
 		}
-		else if (!strcmp(argv[arg], "--analyzeperformance") || !strcmp(argv[arg], "-r"))
+		else if (!strcmp(argv[arg], "--analyzeperformance") || !strcmp(argv[arg], "-a"))
 		{
 			analyze_performance = true;
 		}
@@ -341,7 +456,7 @@ int main(int argc, char** argv)
 	}
 	if (analyze_performance && !LLFastTimer::sMetricLog)
 	{
-		std::cout << "Cannot create perf report if no perf gathered (i.e. use argument -log <perf> with -r) -> exit" << std::endl;
+		std::cout << "Cannot create perf report if no perf gathered (i.e. use argument -log <perf> with -a) -> exit" << std::endl;
 		return 0;
 	}
 	
@@ -362,7 +477,7 @@ int main(int argc, char** argv)
 	for (; in_file != in_end; ++in_file)
 	{
 		// Load file
-		LLPointer<LLImageRaw> raw_image = load_image(*in_file, image_stats);
+		LLPointer<LLImageRaw> raw_image = load_image(*in_file, discard_level, region, image_stats);
 		if (!raw_image)
 		{
 			std::cout << "Error: Image " << *in_file << " could not be loaded" << std::endl;
@@ -372,7 +487,7 @@ int main(int argc, char** argv)
 		// Save file
 		if (out_file != out_end)
 		{
-			if (!save_image(*out_file, raw_image, image_stats))
+			if (!save_image(*out_file, raw_image, blocks_size, precincts_size, image_stats))
 			{
 				std::cout << "Error: Image " << *out_file << " could not be saved" << std::endl;
 			}
@@ -384,23 +499,23 @@ int main(int argc, char** argv)
 		}
 	}
 
+	// Output perf data if requested by user
+	if (analyze_performance)
+	{
+		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
+		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
+		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
+		
+		std::cout << "Analyzing performance, check report in : " << report_name << std::endl;
+
+		LLMetricPerformanceTesterBasic::doAnalysisMetrics(baseline_name, current_name, report_name);
+	}
+	
 	// Stop the perf gathering system if needed
 	if (LLFastTimer::sMetricLog)
 	{
 		LLMetricPerformanceTesterBasic::deleteTester(LLFastTimer::sLogName);
 		sAllDone = true;
-	}
-	
-	// Output perf data if requested by user
-	if (analyze_performance)
-	{
-		std::cout << "Analyzing performance" << std::endl;
-		
-		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
-		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
-		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
-		
-		LLMetricPerformanceTesterBasic::doAnalysisMetrics(baseline_name, current_name, report_name);
 	}
 	
 	// Cleanup and exit

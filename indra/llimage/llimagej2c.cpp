@@ -139,6 +139,15 @@ BOOL LLImageJ2C::updateData()
 	return res;
 }
 
+BOOL LLImageJ2C::initDecode(LLImageRaw &raw_image, int discard_level, int* region)
+{
+	return mImpl->initDecode(*this,raw_image,discard_level,region);
+}
+
+BOOL LLImageJ2C::initEncode(LLImageRaw &raw_image, int blocks_size, int precincts_size)
+{
+	return mImpl->initEncode(*this,raw_image,blocks_size,precincts_size);
+}
 
 BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
 {
@@ -251,6 +260,9 @@ S32 LLImageJ2C::calcHeaderSizeJ2C()
 //static
 S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate)
 {
+	// Note: this only provides an *estimate* of the size in bytes of an image level
+	// *TODO: find a way to read the true size (when available) and convey the fact
+	// that the result is an estimate in the other cases
 	if (rate <= 0.f) rate = .125f;
 	while (discard_level > 0)
 	{
