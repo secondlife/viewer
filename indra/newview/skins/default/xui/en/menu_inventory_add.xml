@@ -188,6 +188,14 @@
                      function="Inventory.DoCreate"
                      parameter="tattoo" />
                 </menu_item_call>
+                <menu_item_call
+                 label="New Physics"
+                 layout="topleft"
+                 name="New Physics">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="physics" />
+                </menu_item_call>
             </menu>
             <menu
              height="85"

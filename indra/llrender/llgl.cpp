@@ -57,9 +57,12 @@
 BOOL gDebugSession = FALSE;
 BOOL gDebugGL = FALSE;
 BOOL gClothRipple = FALSE;
-BOOL gNoRender = FALSE;
+BOOL gHeadlessClient = FALSE;
 BOOL gGLActive = FALSE;
 
+static const std::string HEADLESS_VENDOR_STRING("Linden Lab");
+static const std::string HEADLESS_RENDERER_STRING("Headless");
+static const std::string HEADLESS_VERSION_STRING("1.0");
 
 std::ofstream gFailLog;
 
@@ -538,9 +541,19 @@ void LLGLManager::setToDebugGPU()
 
 void LLGLManager::getGLInfo(LLSD& info)
 {
-	info["GLInfo"]["GLVendor"] = std::string((const char *)glGetString(GL_VENDOR));
-	info["GLInfo"]["GLRenderer"] = std::string((const char *)glGetString(GL_RENDERER));
-	info["GLInfo"]["GLVersion"] = std::string((const char *)glGetString(GL_VERSION));
+	if (gHeadlessClient)
+	{
+		info["GLInfo"]["GLVendor"] = HEADLESS_VENDOR_STRING;
+		info["GLInfo"]["GLRenderer"] = HEADLESS_RENDERER_STRING;
+		info["GLInfo"]["GLVersion"] = HEADLESS_VERSION_STRING;
+		return;
+	}
+	else
+	{
+		info["GLInfo"]["GLVendor"] = std::string((const char *)glGetString(GL_VENDOR));
+		info["GLInfo"]["GLRenderer"] = std::string((const char *)glGetString(GL_RENDERER));
+		info["GLInfo"]["GLVersion"] = std::string((const char *)glGetString(GL_VERSION));
+	}
 
 #if !LL_MESA_HEADLESS
 	std::string all_exts = ll_safe_string((const char *)gGLHExts.mSysExts);
@@ -556,14 +569,22 @@ void LLGLManager::getGLInfo(LLSD& info)
 std::string LLGLManager::getGLInfoString()
 {
 	std::string info_str;
-	std::string all_exts, line;
 
-	info_str += std::string("GL_VENDOR      ") + ll_safe_string((const char *)glGetString(GL_VENDOR)) + std::string("\n");
-	info_str += std::string("GL_RENDERER    ") + ll_safe_string((const char *)glGetString(GL_RENDERER)) + std::string("\n");
-	info_str += std::string("GL_VERSION     ") + ll_safe_string((const char *)glGetString(GL_VERSION)) + std::string("\n");
+	if (gHeadlessClient)
+	{
+		info_str += std::string("GL_VENDOR      ") + HEADLESS_VENDOR_STRING + std::string("\n");
+		info_str += std::string("GL_RENDERER    ") + HEADLESS_RENDERER_STRING + std::string("\n");
+		info_str += std::string("GL_VERSION     ") + HEADLESS_VERSION_STRING + std::string("\n");
+	}
+	else
+	{
+		info_str += std::string("GL_VENDOR      ") + ll_safe_string((const char *)glGetString(GL_VENDOR)) + std::string("\n");
+		info_str += std::string("GL_RENDERER    ") + ll_safe_string((const char *)glGetString(GL_RENDERER)) + std::string("\n");
+		info_str += std::string("GL_VERSION     ") + ll_safe_string((const char *)glGetString(GL_VERSION)) + std::string("\n");
+	}
 
 #if !LL_MESA_HEADLESS 
-	all_exts = (const char *)gGLHExts.mSysExts;
+	std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
 	LLStringUtil::replaceChar(all_exts, ' ', '\n');
 	info_str += std::string("GL_EXTENSIONS:\n") + all_exts + std::string("\n");
 #endif
@@ -573,15 +594,21 @@ std::string LLGLManager::getGLInfoString()
 
 void LLGLManager::printGLInfoString()
 {
-	std::string info_str;
-	std::string all_exts, line;
-	
-	LL_INFOS("RenderInit") << "GL_VENDOR:     " << ((const char *)glGetString(GL_VENDOR)) << LL_ENDL;
-	LL_INFOS("RenderInit") << "GL_RENDERER:   " << ((const char *)glGetString(GL_RENDERER)) << LL_ENDL;
-	LL_INFOS("RenderInit") << "GL_VERSION:    " << ((const char *)glGetString(GL_VERSION)) << LL_ENDL;
+	if (gHeadlessClient)
+	{
+		LL_INFOS("RenderInit") << "GL_VENDOR:     " << HEADLESS_VENDOR_STRING << LL_ENDL;
+		LL_INFOS("RenderInit") << "GL_RENDERER:   " << HEADLESS_RENDERER_STRING << LL_ENDL;
+		LL_INFOS("RenderInit") << "GL_VERSION:    " << HEADLESS_VERSION_STRING << LL_ENDL;
+	}
+	else
+	{
+		LL_INFOS("RenderInit") << "GL_VENDOR:     " << ((const char *)glGetString(GL_VENDOR)) << LL_ENDL;
+		LL_INFOS("RenderInit") << "GL_RENDERER:   " << ((const char *)glGetString(GL_RENDERER)) << LL_ENDL;
+		LL_INFOS("RenderInit") << "GL_VERSION:    " << ((const char *)glGetString(GL_VERSION)) << LL_ENDL;
+	}
 
 #if !LL_MESA_HEADLESS
-	all_exts = std::string(gGLHExts.mSysExts);
+	std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
 	LLStringUtil::replaceChar(all_exts, ' ', '\n');
 	LL_DEBUGS("RenderInit") << "GL_EXTENSIONS:\n" << all_exts << LL_ENDL;
 #endif
@@ -590,7 +617,14 @@ void LLGLManager::printGLInfoString()
 std::string LLGLManager::getRawGLString()
 {
 	std::string gl_string;
-	gl_string = ll_safe_string((char*)glGetString(GL_VENDOR)) + " " + ll_safe_string((char*)glGetString(GL_RENDERER));
+	if (gHeadlessClient)
+	{
+		gl_string = HEADLESS_VENDOR_STRING + " " + HEADLESS_RENDERER_STRING;
+	}
+	else
+	{
+		gl_string = ll_safe_string((char*)glGetString(GL_VENDOR)) + " " + ll_safe_string((char*)glGetString(GL_RENDERER));
+	}
 	return gl_string;
 }
 
@@ -614,47 +648,47 @@ void LLGLManager::initExtensions()
 	mHasMultitexture = TRUE;
 # else
 	mHasMultitexture = FALSE;
-# endif
+# endif // GL_ARB_multitexture
 # ifdef GL_ARB_texture_env_combine
 	mHasARBEnvCombine = TRUE;	
 # else
 	mHasARBEnvCombine = FALSE;
-# endif
+# endif // GL_ARB_texture_env_combine
 # ifdef GL_ARB_texture_compression
 	mHasCompressedTextures = TRUE;
 # else
 	mHasCompressedTextures = FALSE;
-# endif
+# endif // GL_ARB_texture_compression
 # ifdef GL_ARB_vertex_buffer_object
 	mHasVertexBufferObject = TRUE;
 # else
 	mHasVertexBufferObject = FALSE;
-# endif
+# endif // GL_ARB_vertex_buffer_object
 # ifdef GL_EXT_framebuffer_object
 	mHasFramebufferObject = TRUE;
 # else
 	mHasFramebufferObject = FALSE;
-# endif
+# endif // GL_EXT_framebuffer_object
 # ifdef GL_EXT_framebuffer_multisample
 	mHasFramebufferMultisample = TRUE;
 # else
 	mHasFramebufferMultisample = FALSE;
-# endif
+# endif // GL_EXT_framebuffer_multisample
 # ifdef GL_ARB_draw_buffers
 	mHasDrawBuffers = TRUE;
 #else
 	mHasDrawBuffers = FALSE;
-# endif
+# endif // GL_ARB_draw_buffers
 # if defined(GL_NV_depth_clamp) || defined(GL_ARB_depth_clamp)
 	mHasDepthClamp = TRUE;
 #else
 	mHasDepthClamp = FALSE;
-#endif
+#endif // defined(GL_NV_depth_clamp) || defined(GL_ARB_depth_clamp)
 # if GL_EXT_blend_func_separate
 	mHasBlendFuncSeparate = TRUE;
 #else
 	mHasBlendFuncSeparate = FALSE;
-# endif
+# endif // GL_EXT_blend_func_separate
 	mHasMipMapGeneration = FALSE;
 	mHasSeparateSpecularColor = FALSE;
 	mHasAnisotropic = FALSE;
@@ -1145,7 +1179,7 @@ void assert_glerror()
 		}
 	}
 
-	if (!gNoRender && gDebugGL) 
+	if (gDebugGL) 
 	{
 		do_assert_glerror();
 	}

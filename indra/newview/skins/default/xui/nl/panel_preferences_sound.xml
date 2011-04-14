@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Geluid" name="Preference Media panel">
 	<slider label="Hoofd volume" name="System Volume"/>
-	<check_box initial_value="true" label="Dempen indien geminimaliseerd" name="mute_when_minimized"/>
+	<check_box initial_value="true" name="mute_when_minimized"/>
+	<text name="mute_chb_label">Dempen indien geminimaliseerd</text>
 	<slider label="Omliggend" name="Wind Volume"/>
 	<slider label="Knoppen" name="UI Volume"/>
 	<slider label="Media" name="Media Volume"/>

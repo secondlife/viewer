@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ layout="topleft"
+ left="0"
+ name="LLScrollingPanelParamBase"
+ height="16"
+ width="290">
+    <slider
+     can_edit_text="true"
+     decimal_digits="0"
+     enabled="false"
+     height="12"
+     increment="1"
+     initial_value="0"
+     label="[DESC]"
+     label_width="125"
+     layout="bottom|left"
+     left="16"
+     max_val="100"
+     name="param slider"
+     bottom="0"
+     width="264"
+     />
+</panel>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+ <panel
+     background_visible="true"
+	 follows="all"
+	 height="400"
+	 layout="topleft"
+	 left="0"
+	 name="edit_physics_panel"
+	 top_pad="10"
+	 width="333" >
+     <panel
+         border="false"
+         bg_alpha_color="DkGray2"
+         bg_opaque_color="DkGray2"
+         background_visible="true"
+         background_opaque="true"
+         follows="all"
+         height="388"
+         label=""
+         layout="topleft"
+		 left="10"
+         name="accordion_panel"
+		 top_pad="0"
+         width="313">
+     <accordion
+        follows="all"
+        height ="388"
+        layout="topleft"
+        left="0"
+	single_expansion="true"
+        fit_parent="true"
+        name="physics_accordion"
+        top="0"
+        width="313">
+		<accordion_tab
+			layout="topleft"
+			fit_panel="false"
+			min_height="50"
+			name="physics_breasts_updown_tab"
+			title="Breasts Bounce">
+			<scrolling_panel_list
+				follows="all"
+				layout="topleft"
+				left="10"
+				name="physics_breasts_updown_param_list"
+				top="10"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			fit_panel="false"
+			min_height="50"
+			name="physics_breasts_inout_tab"
+			title="Breasts Cleavage">
+			<scrolling_panel_list
+				follows="all"
+				layout="topleft"
+				left="0"
+				name="physics_breasts_inout_param_list"
+				top_pad="50"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			fit_panel="false"
+			min_height="50"
+			name="physics_breasts_leftright_tab"
+			title="Breasts Sway">
+			<scrolling_panel_list
+				follows="all"
+				layout="topleft"
+				left="0"
+				name="physics_breasts_leftright_param_list"
+				top_pad="50"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			fit_panel="false"
+			min_height="50"
+			name="physics_belly_tab"
+			title="Belly Bounce">
+			<scrolling_panel_list
+				follows="all"
+				layout="topleft"
+				left="0"
+				name="physics_belly_updown_param_list"
+				top_pad="40"
+				width="303" />
+		</accordion_tab>
+
+		<accordion_tab
+			layout="topleft"
+			fit_panel="false"
+			min_height="50"
+			name="physics_butt_tab"
+			title="Butt Bounce">
+			<scrolling_panel_list
+				follows="all"
+				layout="topleft"
+				left="0"
+				name="physics_butt_updown_param_list"
+				top_pad="30"
+				width="303" />
+		</accordion_tab>
+
+		<accordion_tab
+			layout="topleft"
+			fit_panel="false"
+			min_height="50"
+			name="physics_butt_leftright_tab"
+			title="Butt Sway">
+			<scrolling_panel_list
+				follows="all"
+				layout="topleft"
+				left="0"
+				name="physics_butt_leftright_param_list"
+				top_pad="20"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			fit_panel="false"
+			min_height="50"
+			name="physics_advanced_tab"
+			title="Advanced Parameters">
+			<scrolling_panel_list
+				follows="all"
+				layout="topleft"
+				left="0"
+				name="physics_advanced_param_list"
+				top_pad="10"
+				width="303" />
+		</accordion_tab>
+	</accordion>
+    </panel>
+</panel>
+

@@ -47,6 +47,7 @@ private:
     void showInstance(const LLSD& event) const;
     void hideInstance(const LLSD& event) const;
     void toggleInstance(const LLSD& event) const;
+    void instanceVisible(const LLSD& event) const;
     void clickButton(const LLSD& event) const;
 };
 

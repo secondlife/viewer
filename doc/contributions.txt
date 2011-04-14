@@ -1,8 +1,7 @@
 Linden Lab would like to acknowledge source code contributions from the
 following residents. The Second Life resident name is given below,
 along with the issue identifier corresponding to the patches we've
-received from them. To see more about these contributions, visit the
-browsable version: http://wiki.secondlife.com/wiki/Source_contributions
+received from them.
 
 Able Whitman
 	VWR-650
@@ -156,6 +155,8 @@ Angus Boyd
 	VWR-592
 Ann Congrejo
 	CT-193
+Ansariel Hiller
+	STORM-1101
 Ardy Lay
 	VWR-19499
 	VWR-24917
@@ -194,6 +195,7 @@ blino Nakamura
 	VWR-17
 Boroondas Gupte
 	OPEN-29
+	OPEN-39
 	SNOW-278
 	SNOW-503
 	SNOW-510
@@ -206,6 +208,7 @@ Boroondas Gupte
 	VWR-20583
 	VWR-20891
 	VWR-23455
+	VWR-24487
 	WEB-262
 Bulli Schumann
 	CT-218
@@ -410,9 +413,17 @@ Jonathan Yap
 	VWR-17801
 	VWR-24347
 	STORM-975
-	STORM-990
+	STORM-1019
+	STORM-844
+	STORM-643
 	STORM-1020
 	STORM-1064
+	STORM-960
+	STORM-1101
+	STORM-1108
+	STORM-1094
+	STORM-1077
+	STORM-953
 Kage Pixel
 	VWR-11
 Ken March
@@ -434,6 +445,8 @@ Kitty Barnett
 Kunnis Basiat
 	VWR-82
 	VWR-102
+Lance Corrimal
+	VWR-25269
 Latif Khalifa
 	VWR-5370
 Lisa Lowe
@@ -573,6 +586,10 @@ Nicholaz Beresford
 	VWR-2412
 	VWR-2682
 	VWR-2684
+Nicky Perian
+	OPEN-1
+	OPEN-1087
+	STORM-1090
 Nounouch Hapmouche
 	VWR-238
 Patric Mills
@@ -642,6 +659,7 @@ Robin Cornelius
 	SNOW-747
 	STORM-422
 	STORM-960
+	STORM-1019
 	VWR-2488
 	VWR-9557
 	VWR-10579
@@ -778,6 +796,7 @@ Thickbrick Sleaford
 	VWR-13483
 	VWR-13947
 	VWR-24420
+	STORM-1147
 Thraxis Epsilon
 	SVC-371
 	VWR-383
@@ -836,6 +855,8 @@ Whoops Babii
 Wilton Lundquist
 	VWR-7682
 WolfPup Lowenhar
+	OPEN-1
+	OPEN-37
 	SNOW-622
 	SNOW-772
 	STORM-102
@@ -851,6 +872,7 @@ WolfPup Lowenhar
 	STORM-674
 	STORM-776
 	STORM-825
+	STORM-1098
 	VWR-20741
 	VWR-20933
 Zai Lynch

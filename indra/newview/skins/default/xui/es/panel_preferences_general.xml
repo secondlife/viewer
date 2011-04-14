@@ -55,7 +55,7 @@
 	</text>
 	<radio_group name="inworld_typing_preference">
 		<radio_item label="Inicia el chat local" name="radio_start_chat" value="1"/>
-		<radio_item label="Se verá afectado el movimiento (por ejemplo, mediante las teclas WASD)" name="radio_move" value="0"/>
+		<radio_item label="Afecta al movimiento (por ejemplo, en las teclas WASD)" name="radio_move" value="0"/>
 	</radio_group>
 	<text name="title_afk_text">
 		Ausente tras:

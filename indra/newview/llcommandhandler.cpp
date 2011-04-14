@@ -35,7 +35,7 @@
 // system includes
 #include <boost/tokenizer.hpp>
 
-#define THROTTLE_PERIOD    5    // required secs between throttled commands
+#define THROTTLE_PERIOD    5    // required seconds between throttled commands
 
 static LLCommandDispatcherListener sCommandDispatcherListener;
 
@@ -59,6 +59,7 @@ public:
 				  const LLSD& params,
 				  const LLSD& query_map,
 				  LLMediaCtrl* web,
+				  const std::string& nav_type,
 				  bool trusted_browser);
 
 private:
@@ -91,6 +92,7 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 										const LLSD& params,
 										const LLSD& query_map,
 										LLMediaCtrl* web,
+										const std::string& nav_type,
 										bool trusted_browser)
 {
 	static bool slurl_blocked = false;
@@ -120,11 +122,19 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 			return true;
 
 		case LLCommandHandler::UNTRUSTED_THROTTLE:
+			// if users actually click on a link, we don't need to throttle it
+			// (throttling mechanism is used to prevent an avalanche of clicks via
+			// javascript
+			if ( nav_type == "clicked" )
+			{
+				break;
+			}
+
 			cur_time = LLTimer::getElapsedSeconds();
 			if (cur_time < last_throttle_time + THROTTLE_PERIOD)
 			{
 				// block request from external browser if it happened
-				// within THROTTLE_PERIOD secs of the last command
+				// within THROTTLE_PERIOD seconds of the last command
 				LL_WARNS_ONCE("SLURL") << "Throttled SLURL command from untrusted browser" << LL_ENDL;
 				if (! slurl_throttled)
 				{
@@ -166,10 +176,11 @@ bool LLCommandDispatcher::dispatch(const std::string& cmd,
 								   const LLSD& params,
 								   const LLSD& query_map,
 								   LLMediaCtrl* web,
+								   const std::string& nav_type,
 								   bool trusted_browser)
 {
 	return LLCommandHandlerRegistry::instance().dispatch(
-		cmd, params, query_map, web, trusted_browser);
+		cmd, params, query_map, web, nav_type, trusted_browser);
 }
 
 static std::string lookup(LLCommandHandler::EUntrustedAccess value);

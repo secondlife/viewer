@@ -55,6 +55,7 @@
 
 #include "llviewerwindow.h"
 #include "llsdserialize.h"
+#include "llfirstuse.h"
 
 // Distance from mouse down on which drag'n'drop should be started.
 #define DRAG_START_DISTANCE 3
@@ -381,7 +382,12 @@ void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, b
 	// skipped to avoid button blinking
 	if (status != STATUS_JOINING && status!= STATUS_LEFT_CHANNEL)
 	{
-		mSpeakBtn->setFlyoutBtnEnabled(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking());
+		bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+		mSpeakBtn->setFlyoutBtnEnabled(voice_status);
+		if (voice_status)
+		{
+			LLFirstUse::speak(true);
+		}
 	}
 }
 
@@ -561,6 +567,7 @@ BOOL LLBottomTray::postBuild()
 
 	mSpeakPanel = getChild<LLPanel>("speak_panel");
 	mSpeakBtn = getChild<LLSpeakButton>("talk");
+	LLHints::registerHintTarget("speak_btn", mSpeakBtn->getHandle());
 
 	// Both parts of speak button should be initially disabled because
 	// it takes some time between logging in to world and connecting to voice channel.

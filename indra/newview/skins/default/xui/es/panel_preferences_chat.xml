@@ -27,9 +27,10 @@
 	</text>
 	<check_box label="Chats de grupo" name="EnableGroupChatPopups" tool_tip="Activa esta casilla para ver una ventana emergente cada vez que recibas un mensaje de un grupo de chat"/>
 	<check_box label="Chats de MI" name="EnableIMChatPopups" tool_tip="Activa esta casilla para ver una ventana emergente cada vez que recibas un mensaje instantáneo"/>
-	<spinner label="Duración de los interlocutores favoritos en los chats:" name="nearby_toasts_lifetime"/>
-	<spinner label="Tiempo restante de los interlocutores favoritos en los chats:" name="nearby_toasts_fadingtime"/>
-	<check_box label="Utiliza la herramienta de traducción automática mientras utilizas el chat (mediante Google)" name="translate_chat_checkbox"/>
+	<spinner label="Duración de los interlocutores favoritos:" name="nearby_toasts_lifetime"/>
+	<spinner label="Tiempo de los otros interlocutores:" name="nearby_toasts_fadingtime"/>
+	<check_box name="translate_chat_checkbox"/>
+	<text name="translate_chb_label" >Usar la traducción automática (con Google) en el chat</text>
 	<text name="translate_language_text">
 		Traducir el chat al:
 	</text>

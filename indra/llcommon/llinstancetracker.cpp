@@ -32,6 +32,17 @@
 // external library headers
 // other Linden headers
 
-// llinstancetracker.h is presently header-only. This file exists only because our CMake
-// test macro ADD_BUILD_TEST requires it.
-int dummy = 0;
+//static 
+void * & LLInstanceTrackerBase::getInstances(std::type_info const & info)
+{
+	static std::map<std::string, void *> instances;
+
+	std::string k = info.name();
+	if(instances.find(k) == instances.end())
+	{
+		instances[k] = NULL;
+	}
+
+	return instances[k];
+}
+

@@ -53,6 +53,8 @@
 
 #include "llsidepanelappearance.h"
 
+#include "llsidetraylistener.h"
+
 //#include "llscrollcontainer.h"
 
 using namespace std;
@@ -70,6 +72,8 @@ static const std::string TAB_PANEL_CAPTION_NAME = "sidetray_tab_panel";
 static const std::string TAB_PANEL_CAPTION_TITLE_BOX = "sidetray_tab_title";
 
 LLSideTray* LLSideTray::sInstance = 0;
+
+static LLSideTrayListener sSideTrayListener(LLSideTray::getInstance);
 
 // static
 LLSideTray* LLSideTray::getInstance()
@@ -454,6 +458,11 @@ LLSideTrayTab*  LLSideTrayTab::createInstance	()
 	return tab;
 }
 
+// Now that we know the definition of LLSideTrayTab, we can implement
+// tab_cast.
+template <>
+LLPanel* tab_cast<LLPanel*>(LLSideTrayTab* tab) { return tab; }
+
 //////////////////////////////////////////////////////////////////////////////
 // LLSideTrayButton
 // Side Tray tab button with "tear off" handling.
@@ -567,6 +576,8 @@ LLSideTray::LLSideTray(const Params& params)
 	// register handler function to process data from the xml. 
 	// panel_name should be specified via "parameter" attribute.
 	commit.add("SideTray.ShowPanel", boost::bind(&LLSideTray::showPanel, this, _2, LLUUID::null));
+	commit.add("SideTray.Toggle", boost::bind(&LLSideTray::onToggleCollapse, this));
+	commit.add("SideTray.Collapse", boost::bind(&LLSideTray::collapseSideBar, this));
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
 	LLView* side_bar_tabs  = gViewerWindow->getRootView()->getChildView("side_bar_tabs");
 	if (side_bar_tabs != NULL)
