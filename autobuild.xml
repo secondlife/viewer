@@ -30,9 +30,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f09061c7eabcf701b79c883027376ef2</string>
+              <string>18c708163d2a669bc3c030b05b4ebe61</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226566/arch/Linux/installer/glod-1.0pre4-linux-20110413.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226657/arch/Linux/installer/glod-1.0pre4-linux-20110414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
