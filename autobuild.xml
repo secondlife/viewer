@@ -601,6 +601,18 @@
             <key>name</key>
             <string>windows</string>
           </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5de58ca0fe19abf68b25956762ee0d29</string>
+              <key>url</key> <!-- Just use the windows pakcage for linux since these are cross platform headers -->
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glext-68-windows-20110406.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
         </map>
       </map>
       <key>glh_linear</key>
