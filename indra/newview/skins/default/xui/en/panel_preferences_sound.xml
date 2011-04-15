@@ -50,12 +50,24 @@
      control_name="MuteWhenMinimized"
      height="15"
      initial_value="true"
-     label="Mute when minimized"
      layout="topleft"
      name="mute_when_minimized"
 	   top_delta="3"
      left_pad="5"
-     width="235" />
+     width="20" />
+     <!-- *HACK 
+     	After storm-1109 will be fixed: instead of using this text_box, word_wrap should be applied for "mute_when_minimized" check_box's label.-->
+     <text
+      follows="top|left"
+      height="15"
+      layout="topleft"
+      left_pad="0"
+      name="mute_chb_label"
+      top_delta="0"
+      width="150"
+      wrap="true">
+      Mute when minimized
+     </text>
 	<slider
 		control_name="AudioLevelUI"
 		disabled_control="MuteAudio"

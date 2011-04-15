@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- width="205"
- height="140"
+ width="305"
+ height="40"
  layout="topleft">
   <text name="hint_title"
         font="SansSerifMedium" 
         left="8"
-        right="180"
+        right="290"
         top="8"
         bottom="20"
         follows="left|right|top"
         text_color="Black"
         wrap="false"/>
-  <icon name="hint_image"
-        left="42"
-        top="25"
-        width="115"
-        height="86"
-        image_name="arrow_keys.png"
-        />
+  <layout_stack left="0"
+                top="25"
+                width="305"
+                height="0"
+                follows="left|top|right"
+                orientation="horizontal">
+    <layout_panel auto_resize="true" width="100"/>
+    <layout_panel auto_resize="true" width="0">
+      <icon name="hint_image"
+       top="0"
+       left="0"
+       height="0"
+       width="0"
+       follows="all"/>
+    </layout_panel>
+      <layout_panel auto_resize="true" width="100"/>
+    </layout_stack>
   <text name="hint_text"
         left="8"
-        right="197"
-        top_pad="5"
-        bottom="120"
-        follows="all" 
+        right="297"
+        top="30"
+        bottom="30"
+        follows="left|right|bottom" 
         text_color="Black"
         wrap="true"/>
-  <button right="197" 
+  <button right="297" 
           top="8"
           width="16" 
           height="16"

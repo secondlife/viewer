@@ -7036,6 +7036,19 @@ Hiding the Speak button will disable the voice feature.
   </notification>
 
   <notification
+  name="HintMoveClick"
+  label=""
+  type="hint"
+  unique="true">
+1. Click to Walk
+Click anywhere on the ground to walk to that spot.
+
+2. Click and Drag to Rotate View
+Click and drag anywhere on the world to rotate your view
+    <tag>custom_skin</tag>
+  </notification>
+
+  <notification
   name="HintDisplayName"
   label="Display Name"
   type="hint"
@@ -7043,14 +7056,6 @@ Hiding the Speak button will disable the voice feature.
     Set your customizable display name here. This is in addition to your unique username, which can't be changed. You can change how you see other people's names in your preferences.
   </notification>
 
-  <notification
-  name="HintMoveArrows"
-  label="Move"
-  type="hint"
-  unique="true">
-    To walk, use the directional keys on your keyboard. You can run by pressing the Up arrow twice.
-    <tag>custom_skin</tag>
-  </notification>
 
   <notification
   name="HintView"

@@ -279,7 +279,7 @@ bool LLAvatarActions::isCalling(const LLUUID &id)
 //static
 bool LLAvatarActions::canCall()
 {
-		return LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+	return LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 }
 
 // static
@@ -300,40 +300,21 @@ void LLAvatarActions::startConference(const uuid_vec_t& ids)
 	make_ui_sound("UISndStartIM");
 }
 
+static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarName& av_name)
+{
+	llinfos << "opening web profile for " << av_name.mUsername << llendl;		
+	std::string url = getProfileURL(av_name.mUsername);
+
+	// PROFILES: open in webkit window
+	LLWeb::loadWebURLInternal(url, "", agent_id.asString());
+}
+
 // static
 void LLAvatarActions::showProfile(const LLUUID& id)
 {
 	if (id.notNull())
 	{
-		LLSD params;
-		params["id"] = id;
-		params["open_tab_name"] = "panel_profile";
-
-		// PROFILES: open in webkit window
-		std::string full_name;
-		if (gCacheName->getFullName(id,full_name))
-		{
-			std::string agent_name = LLCacheName::buildUsername(full_name);
-			llinfos << "opening web profile for " << agent_name << llendl;		
-			std::string url = getProfileURL(agent_name);
-			LLWeb::loadWebURLInternal(url, "", id.asString());
-		}
-		else
-		{
-			llwarns << "no name info for agent id " << id << llendl;
-		}
-#if 0
-		//Show own profile
-		if(gAgent.getID() == id)
-		{
-			LLSideTray::getInstance()->showPanel("panel_me", params);
-		}
-		//Show other user profile
-		else
-		{
-			LLSideTray::getInstance()->showPanel("panel_profile_view", params);
-		}
-#endif
+		LLAvatarNameCache::get(id, boost::bind(&on_avatar_name_show_profile, _1, _2));
 	}
 }
 

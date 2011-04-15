@@ -137,7 +137,7 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
         params.append(event_data["x"]);
         params.append(event_data["y"]);
         params.append(event_data["z"]);
-        LLCommandDispatcher::dispatch("teleport", params, LLSD(), NULL, true);
+        LLCommandDispatcher::dispatch("teleport", params, LLSD(), NULL, "clicked", true);
         // *TODO - lookup other LLCommandHandlers for "agent", "classified", "event", "group", "floater", "parcel", "login", login_refresh", "balance", "chat"
         // should we just compose LLCommandHandler and LLDispatchListener?
     }
@@ -147,7 +147,7 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
                                   LLVector3(event_data["x"].asReal(), 
                                             event_data["y"].asReal(), 
                                             event_data["z"].asReal())).getSLURLString();
-        LLURLDispatcher::dispatch(url, NULL, false);
+        LLURLDispatcher::dispatch(url, "clicked", NULL, false);
     }
 }
 
@@ -299,7 +299,6 @@ void LLAgentListener::getAxes(const LLSD& event_data) const
 	reply["euler"]["yaw"] = yaw;
     sendReply(reply, event_data);
 }
-
 
 void LLAgentListener::getPosition(const LLSD& event_data) const
 {

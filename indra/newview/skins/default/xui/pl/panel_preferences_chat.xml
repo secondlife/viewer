@@ -29,7 +29,8 @@
 	<check_box label="Czat IM" name="EnableIMChatPopups" tool_tip="Zaznacz aby widzieć wyskakujące okienka kiedy IM się pojawia"/>
 	<spinner label="Czas widoczności czatu w pobliżu:" name="nearby_toasts_lifetime"/>
 	<spinner label="Czas znikania czatu w pobliżu:" name="nearby_toasts_fadingtime"/>
-	<check_box label="Używaj translatora podczas rozmowy (wspierany przez Google)" name="translate_chat_checkbox"/>
+	<check_box name="translate_chat_checkbox"/>
+	<text name="translate_chb_label" >Używaj translatora podczas rozmowy (wspierany przez Google)</text>
 	<text name="translate_language_text">
 		Przetłumacz czat na:
 	</text>

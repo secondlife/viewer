@@ -29,7 +29,8 @@
 	<check_box label="IM chats" name="EnableIMChatPopups" tool_tip="Vælg for at se popup vindue når personlige beskeder (IM) modtages"/>
 	<spinner label="Tid før chatvisning forsvinder:" name="nearby_toasts_lifetime"/>
 	<spinner label="Tid før chatvisning forsvinder:" name="nearby_toasts_fadingtime"/>
-	<check_box label="Benyt maskin-oversættelse ved chat (håndteret af Google)" name="translate_chat_checkbox"/>
+	<check_box name="translate_chat_checkbox"/>
+	<text name="translate_chb_label" >Benyt maskin-oversættelse ved chat (håndteret af Google)</text>
 	<text name="translate_language_text" width="110">
 		Oversæt chat til :
 	</text>

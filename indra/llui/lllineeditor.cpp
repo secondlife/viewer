@@ -2290,3 +2290,8 @@ void LLLineEditor::setContextMenu(LLContextMenu* new_context_menu)
 	else
 		mContextMenuHandle.markDead();
 }
+
+void LLLineEditor::setFont(const LLFontGL* font)
+{
+	mGLFont = font;
+}
