@@ -787,7 +787,9 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 		getChildView("Strength:")->setVisible( land_visible);
 	}
 
-	bool show_mesh_cost = !gAgent.getRegion()->getCapability("GetMesh").empty() && gSavedSettings.getBOOL("MeshEnabled");
+	bool show_mesh_cost = gAgent.getRegion() && 
+		                  !gAgent.getRegion()->getCapability("GetMesh").empty() && 
+						  gSavedSettings.getBOOL("MeshEnabled");
 
 	getChildView("obj_count")->setVisible( !land_visible && !show_mesh_cost);
 	getChildView("prim_count")->setVisible( !land_visible && !show_mesh_cost);

@@ -76,6 +76,7 @@
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
+#include "llsceneview.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
 #include "llstatusbar.h"
@@ -515,6 +516,11 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)gDebugView->mFastTimerView );
 		}
+		else if ("scene view" == console_type)
+		{
+			toggle_visibility( (void*)gSceneView);
+		}
+
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
 		{
@@ -549,6 +555,10 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("fast timers" == console_type)
 		{
 			new_value = get_visibility( (void*)gDebugView->mFastTimerView );
+		}
+		else if ("scene view" == console_type)
+		{
+			new_value = get_visibility( (void*) gSceneView);
 		}
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
@@ -845,37 +855,50 @@ class LLAdvancedCheckFeature : public view_listener_t
 void toggle_destination_and_avatar_picker(const LLSD& show)
 {
 	S32 panel_idx = show.isDefined() ? show.asInteger() : -1;
-	LLView* container = gViewerWindow->getRootView()->getChildView("avatar_picker_and_destination_guide_container");
+	LLView* container = gViewerWindow->getRootView()->findChildView("avatar_picker_and_destination_guide_container");
+	if (!container) return;
+
 	LLMediaCtrl* destinations = container->findChild<LLMediaCtrl>("destination_guide_contents");
 	LLMediaCtrl* avatar_picker = container->findChild<LLMediaCtrl>("avatar_picker_contents");
+	if (!destinations || !avatar_picker) return;
+
 	LLButton* avatar_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("avatar_btn");
 	LLButton* destination_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("destination_btn");
 
 	switch(panel_idx)
 	{
 	case 0:
-		container->setVisible(true);
-		destinations->setVisible(true);
-		avatar_picker->setVisible(false);
-		LLFirstUse::notUsingDestinationGuide(false);
-		avatar_btn->setToggleState(false);
-		destination_btn->setToggleState(true);
+		if (!destinations->getVisible())
+		{
+			container->setVisible(true);
+			destinations->setVisible(true);
+			avatar_picker->setVisible(false);
+			LLFirstUse::notUsingDestinationGuide(false);
+			avatar_btn->setToggleState(false);
+			destination_btn->setToggleState(true);
+			return;
+		}
 		break;
 	case 1:
-		container->setVisible(true);
-		destinations->setVisible(false);
-		avatar_picker->setVisible(true);
-		avatar_btn->setToggleState(true);
-		destination_btn->setToggleState(false);
+		if (!avatar_picker->getVisible())
+		{	
+			container->setVisible(true);
+			destinations->setVisible(false);
+			avatar_picker->setVisible(true);
+			avatar_btn->setToggleState(true);
+			destination_btn->setToggleState(false);
+			return;
+		}
 		break;
 	default:
-		container->setVisible(false);
-		destinations->setVisible(false);
-		avatar_picker->setVisible(false);
-		avatar_btn->setToggleState(false);
-		destination_btn->setToggleState(false);
 		break;
 	}
+
+	container->setVisible(false);
+	destinations->setVisible(false);
+	avatar_picker->setVisible(false);
+	avatar_btn->setToggleState(false);
+	destination_btn->setToggleState(false);
 };
 
 
@@ -7166,7 +7189,13 @@ LLViewerMenuHolderGL::LLViewerMenuHolderGL(const LLViewerMenuHolderGL::Params& p
 
 BOOL LLViewerMenuHolderGL::hideMenus()
 {
-	BOOL handled = LLMenuHolderGL::hideMenus();
+	BOOL handled = FALSE;
+	
+	if (LLMenuHolderGL::hideMenus())
+	{
+		LLToolPie::instance().blockClickToWalk();
+		handled = TRUE;
+	}
 
 	// drop pie menu selection
 	mParcelSelection = NULL;
@@ -7336,6 +7365,11 @@ class LLViewToggleBeacon : public view_listener_t
 			LLPipeline::toggleRenderPhysicalBeacons(NULL);
 			gSavedSettings.setBOOL( "physicalbeacon", LLPipeline::getRenderPhysicalBeacons(NULL) );
 		}
+		else if (beacon == "moapbeacon")
+		{
+			LLPipeline::toggleRenderMOAPBeacons(NULL);
+			gSavedSettings.setBOOL( "moapbeacon", LLPipeline::getRenderMOAPBeacons(NULL) );
+		}
 		else if (beacon == "soundsbeacon")
 		{
 			LLPipeline::toggleRenderSoundBeacons(NULL);
@@ -7394,6 +7428,11 @@ class LLViewCheckBeaconEnabled : public view_listener_t
 		{
 			new_value = gSavedSettings.getBOOL( "scriptsbeacon");
 			LLPipeline::setRenderScriptedBeacons(new_value);
+		}
+		else if (beacon == "moapbeacon")
+		{
+			new_value = gSavedSettings.getBOOL( "moapbeacon");
+			LLPipeline::setRenderMOAPBeacons(new_value);
 		}
 		else if (beacon == "physicalbeacon")
 		{

@@ -80,6 +80,7 @@ private:
 		CHOOSE_FILE = 0,
 		OPTIMIZE,
 		PHYSICS,
+		PHYSICS2,
 		REVIEW,
 		UPLOAD
 	};

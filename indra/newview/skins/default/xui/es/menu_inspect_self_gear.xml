@@ -1,10 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu name="Gear Menu">
-	<menu_item_call label="Sentarte" name="sit_down_here"/>
-	<menu_item_call label="Levantarme" name="stand_up"/>
-	<menu_item_call label="Cambiar vestuario" name="change_outfit"/>
-	<menu_item_call label="Mi perfil" name="my_profile"/>
-	<menu_item_call label="Mis amigos" name="my_friends"/>
-	<menu_item_call label="Mis grupos" name="my_groups"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Gear Menu">
+	<menu_item_call label="Sentarme" name="Sit Down Here"/>
+	<menu_item_call label="Levantarme" name="Stand Up"/>
+	<context_menu label="Quitarme" name="Take Off &gt;">
+		<context_menu label="Ropas" name="Clothes &gt;">
+			<menu_item_call label="Camisa" name="Shirt"/>
+			<menu_item_call label="Pantalones" name="Pants"/>
+			<menu_item_call label="Falda" name="Skirt"/>
+			<menu_item_call label="Zapatos" name="Shoes"/>
+			<menu_item_call label="Calcetines" name="Socks"/>
+			<menu_item_call label="Chaqueta" name="Jacket"/>
+			<menu_item_call label="Guantes" name="Gloves"/>
+			<menu_item_call label="Camiseta" name="Self Undershirt"/>
+			<menu_item_call label="Ropa interior" name="Self Underpants"/>
+			<menu_item_call label="Tatuaje" name="Self Tattoo"/>
+			<menu_item_call label="Alfa" name="Self Alpha"/>
+			<menu_item_call label="Toda la ropa" name="All Clothes"/>
+		</context_menu>
+		<context_menu label="HUD" name="Object Detach HUD"/>
+		<context_menu label="Quitar" name="Object Detach"/>
+		<menu_item_call label="Quitarse todo" name="Detach All"/>
+	</context_menu>
+	<menu_item_call label="Cambiar vestuario" name="Chenge Outfit"/>
+	<menu_item_call label="Editar mi vestuario" name="Edit Outfit"/>
+	<menu_item_call label="Editar mi anatomía" name="Edit My Shape"/>
+	<menu_item_call label="Mis amigos" name="Friends..."/>
+	<menu_item_call label="Mis grupos" name="Groups..."/>
+	<menu_item_call label="Mi perfil" name="Profile..."/>
 	<menu_item_call label="Depurar las texturas" name="Debug..."/>
-</menu>
+</toggleable_menu>

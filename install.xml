@@ -70,9 +70,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>5f993f8092ddf4424ec3133dae9424dd</string>
+            <string>e40e1eac81dc57d8724f96fd977a3d58</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-windows-20100908a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glod-1.0pre4-windows-20110330.tar.bz2</uri>
           </map>
         </map>
       </map>

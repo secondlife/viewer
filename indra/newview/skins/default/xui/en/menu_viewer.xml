@@ -41,7 +41,7 @@
              parameter="agent" />
         </menu_item_call>
         <menu_item_call
-         label="Change Outfit"
+         label="My Appearance"
          name="ChangeOutfit">
             <menu_item_call.on_click
              function="CustomizeAvatar" />
@@ -261,6 +261,17 @@
              function="Floater.Toggle"
              parameter="world_map" />
         </menu_item_check>
+        <menu_item_check
+        label="Search"
+        name="Search"
+        shortcut="control|F">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="search" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="search" />
+            </menu_item_check>
         <menu_item_call
          label="Snapshot"
          name="Take Snapshot"
@@ -1889,6 +1900,16 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleConsole"
                  parameter="memory view" />
+            </menu_item_check>
+            <menu_item_check
+               label="Scene Statistics"
+               name="Scene Statistics">
+              <menu_item_check.on_check
+               function="Advanced.CheckConsole"
+               parameter="scene view" />
+              <menu_item_check.on_click
+               function="Advanced.ToggleConsole"
+               parameter="scene view" />
             </menu_item_check>
 
             <menu_item_separator/>

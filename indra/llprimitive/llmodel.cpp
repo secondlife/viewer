@@ -57,9 +57,10 @@ const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 
 LLModel::LLModel(LLVolumeParams& params, F32 detail)
 	: LLVolume(params, detail), mNormalizedScale(1,1,1), mNormalizedTranslation(0,0,0)
-	, mPelvisOffset( 0.0f )
+	, mPelvisOffset( 0.0f ), mStatus(NO_ERRORS)
 {
 	mDecompID = -1;
+	mLocalID = -1;
 }
 
 LLModel::~LLModel()
@@ -208,7 +209,7 @@ void get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S
 	idx_stride += 1;
 }
 
-void load_face_from_dom_triangles(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domTrianglesRef& tri)
+LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domTrianglesRef& tri)
 {
 	LLVolumeFace face;
 	std::vector<LLVolumeFace::VertexData> verts;
@@ -303,7 +304,8 @@ void load_face_from_dom_triangles(std::vector<LLVolumeFace>& face_list, std::vec
 			verts.push_back(cv);
 			if (verts.size() >= 65535)
 			{
-				llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+				//llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+				return LLModel::VERTEX_NUMBER_OVERFLOW ;
 			}
 			U16 index = (U16) (verts.size()-1);
 			indices.push_back(index);
@@ -348,16 +350,17 @@ void load_face_from_dom_triangles(std::vector<LLVolumeFace>& face_list, std::vec
 		face_list.rbegin()->fillFromLegacyData(verts, indices);
 	}
 
+	return LLModel::NO_ERRORS ;
 }
 
-void load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolylistRef& poly)
+LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolylistRef& poly)
 {
 	domPRef p = poly->getP();
 	domListOfUInts& idx = p->getValue();
 
 	if (idx.getCount() == 0)
 	{
-		return;
+		return LLModel::NO_ERRORS ;
 	}
 
 	const domInputLocalOffset_Array& inputs = poly->getInput_array();
@@ -478,7 +481,8 @@ void load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vect
 				verts.push_back(cv);
 				if (verts.size() >= 65535)
 				{
-					llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+					//llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+					return LLModel::VERTEX_NUMBER_OVERFLOW ;
 				}
 				U16 index = (U16) (verts.size()-1);
 			
@@ -538,9 +542,11 @@ void load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vect
 		face_list.push_back(face);
 		face_list.rbegin()->fillFromLegacyData(verts, indices);
 	}
+
+	return LLModel::NO_ERRORS ;
 }
 
-void load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolygonsRef& poly)
+LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolygonsRef& poly)
 {
 	LLVolumeFace face;
 	std::vector<U16> indices;
@@ -653,7 +659,7 @@ void load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vect
 
 	if (verts.empty())
 	{
-		return;
+		return LLModel::NO_ERRORS;
 	}
 
 	face.mExtents[0] = verts[0].getPosition();
@@ -715,6 +721,27 @@ void load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vect
 		face_list.push_back(face);
 		face_list.rbegin()->fillFromLegacyData(new_verts, indices);
 	}
+
+	return LLModel::NO_ERRORS ;
+}
+
+//static
+std::string LLModel::getStatusString(U32 status)
+{
+	const static std::string status_strings[(S32)INVALID_STATUS] = {"status_no_error", "status_vertex_number_overflow"};
+
+	if(status < INVALID_STATUS)
+	{
+		if(status_strings[status] == std::string())
+		{
+			llerrs << "No valid status string for this status: " << (U32)status << llendl ;
+		}
+		return status_strings[status] ;
+	}
+
+	llerrs << "Invalid model status: " << (U32)status << llendl ;
+
+	return std::string() ;
 }
 
 void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
@@ -725,7 +752,14 @@ void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
 	{
 		domTrianglesRef& tri = tris.get(i);
 
-		load_face_from_dom_triangles(mVolumeFaces, mMaterialList, tri);
+		mStatus = load_face_from_dom_triangles(mVolumeFaces, mMaterialList, tri);
+		
+		if(mStatus != NO_ERRORS)
+		{
+			mVolumeFaces.clear() ;
+			mMaterialList.clear() ;
+			return ; //abort
+		}
 	}
 
 	domPolylist_Array& polys = mesh->getPolylist_array();
@@ -733,7 +767,14 @@ void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
 	{
 		domPolylistRef& poly = polys.get(i);
 
-		load_face_from_dom_polylist(mVolumeFaces, mMaterialList, poly);
+		mStatus = load_face_from_dom_polylist(mVolumeFaces, mMaterialList, poly);
+
+		if(mStatus != NO_ERRORS)
+		{
+			mVolumeFaces.clear() ;
+			mMaterialList.clear() ;
+			return ; //abort
+		}
 	}
 
 	domPolygons_Array& polygons = mesh->getPolygons_array();
@@ -741,7 +782,14 @@ void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
 	{
 		domPolygonsRef& poly = polygons.get(i);
 
-		load_face_from_dom_polygons(mVolumeFaces, mMaterialList, poly);
+		mStatus = load_face_from_dom_polygons(mVolumeFaces, mMaterialList, poly);
+
+		if(mStatus != NO_ERRORS)
+		{
+			mVolumeFaces.clear() ;
+			mMaterialList.clear() ;
+			return ; //abort
+		}
 	}
 
 }
@@ -754,7 +802,7 @@ BOOL LLModel::createVolumeFacesFromDomMesh(domMesh* mesh)
 		mMaterialList.clear();
 
 		addVolumeFacesFromDomMesh(mesh);
-
+		
 		if (getNumVolumeFaces() > 0)
 		{
 			optimizeVolumeFaces();
@@ -771,43 +819,6 @@ BOOL LLModel::createVolumeFacesFromDomMesh(domMesh* mesh)
 		llwarns << "no mesh found" << llendl;
 	}
 	
-	return FALSE;
-}
-
-
-BOOL LLModel::createVolumeFacesFromFile(const std::string& file_name)
-{
-	DAE dae;
-	domCOLLADA* dom = dae.open(file_name);
-	if (dom)
-	{
-		daeDatabase* db = dae.getDatabase();
-
-		daeInt count = db->getElementCount(NULL, COLLADA_TYPE_MESH);
-		
-		mVolumeFaces.clear();
-		mMaterialList.clear();
-
-		for (daeInt idx = 0; idx < count; ++idx)
-		{
-			domMesh* mesh = NULL;
-
-			db->getElement((daeElement**) &mesh, idx, NULL, COLLADA_TYPE_MESH);
-			
-			if (mesh)
-			{
-				addVolumeFacesFromDomMesh(mesh);
-			}
-		}
-
-		if (getNumVolumeFaces() > 0)
-		{
-			optimizeVolumeFaces();
-			normalizeVolumeFaces();
-			return TRUE;
-		}
-	}
-
 	return FALSE;
 }
 
@@ -1351,16 +1362,6 @@ std::string LLModel::getElementLabel(daeElement *element)
 }
 
 //static 
-LLModel* LLModel::loadModelFromDae(std::string filename)
-{
-	LLVolumeParams volume_params;
-	volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
-	LLModel* ret = new LLModel(volume_params, 0.f); 
-	ret->createVolumeFacesFromFile(filename);
-	return ret;
-}
-
-//static 
 LLModel* LLModel::loadModelFromDomMesh(domMesh *mesh)
 {
 	LLVolumeParams volume_params;
@@ -1379,70 +1380,6 @@ std::string LLModel::getName() const
 		return mLabel;
 }
 
-//static 
-LLSD LLModel::writeModel(
-	std::string filename,
-	LLModel* physics,
-	LLModel* high,
-	LLModel* medium,
-	LLModel* low,
-	LLModel* impostor,
-	const convex_hull_decomposition& decomp,
-	BOOL upload_skin,
-	BOOL upload_joints,
-	BOOL nowrite)
-{
-	LLModel::hull dummy_hull;
-	return writeModel(
-		filename,
-		physics,
-		high,
-		medium,
-		low,
-		impostor,
-		decomp,
-		dummy_hull,
-		upload_skin,
-		upload_joints,
-		nowrite);
-}
-
-//static 
-LLSD LLModel::writeModel(
-	std::string filename,
-	LLModel* physics,
-	LLModel* high,
-	LLModel* medium,
-	LLModel* low,
-	LLModel* impostor,
-	const convex_hull_decomposition& decomp,
-	const hull& base_hull,
-	BOOL upload_skin,
-	BOOL upload_joints,
-	BOOL nowrite)
-{
-	std::ofstream os(
-		filename.c_str(),
-		std::ofstream::out | std::ofstream::binary);
-
-	LLSD header = writeModel(
-		os,
-		physics,
-		high,
-		medium,
-		low,
-		impostor,
-		decomp,
-		base_hull,
-		upload_skin,
-		upload_joints,
-		nowrite);
-
-	os.close();
-
-	return header;
-}
-
 //static
 LLSD LLModel::writeModel(
 	std::ostream& ostr,
@@ -1451,8 +1388,7 @@ LLSD LLModel::writeModel(
 	LLModel* medium,
 	LLModel* low,
 	LLModel* impostor,
-	const convex_hull_decomposition& decomp,
-	const hull& base_hull,
+	const LLModel::Decomposition& decomp,
 	BOOL upload_skin,
 	BOOL upload_joints,
 	BOOL nowrite)
@@ -1472,164 +1408,13 @@ LLSD LLModel::writeModel(
 
 	if (skinning)
 	{ //write skinning block
-		if (high->mJointList.size() != high->mInvBindMatrix.size())
-		{
-			llerrs << "WTF?" << llendl;
-		}
-
-		for (U32 i = 0; i < high->mJointList.size(); ++i)
-		{
-			mdl["skin"]["joint_names"][i] = high->mJointList[i];
-
-			for (U32 j = 0; j < 4; j++)
-			{
-				for (U32 k = 0; k < 4; k++)
-				{
-					mdl["skin"]["inverse_bind_matrix"][i][j*4+k] = high->mInvBindMatrix[i].mMatrix[j][k]; 
-				}
-			}
-		}
-
-		for (U32 i = 0; i < 4; i++)
-		{
-			for (U32 j = 0; j < 4; j++)
-			{
-				mdl["skin"]["bind_shape_matrix"][i*4+j] = high->mBindShapeMatrix.mMatrix[i][j];
-			}
-		}
-		
-		
-		if ( upload_joints && high->mAlternateBindMatrix.size() > 0 )
-		{
-			for (U32 i = 0; i < high->mJointList.size(); ++i)
-			{
-				for (U32 j = 0; j < 4; j++)
-				{
-					for (U32 k = 0; k < 4; k++)
-					{
-						mdl["skin"]["alt_inverse_bind_matrix"][i][j*4+k] = high->mAlternateBindMatrix[i].mMatrix[j][k]; 
-					}
-				}
-			}
-
-			mdl["skin"]["pelvis_offset"] = high->mPelvisOffset;
-		}
-		
+		mdl["skin"] = high->mSkinInfo.asLLSD(upload_joints);
 	}
 
-	if (!decomp.empty() || !base_hull.empty())
+	if (!decomp.mBaseHull.empty() ||
+		!decomp.mHull.empty())		
 	{
-		//write decomposition block
-		// ["decomposition"]["HullList"] -- list of 8 bit integers, each entry represents a hull with specified number of points
-		// ["decomposition"]["PositionDomain"]["Min"/"Max"]
-		// ["decomposition"]["Position"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points
-		// ["decomposition"]["Hull"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points representing a single hull approximation of given shape
-		
-		
-		//get minimum and maximum
-		LLVector3 min;
-		
-		if (decomp.empty())
-		{
-			min = base_hull[0];
-		}
-		else
-		{
-			min = decomp[0][0];
-		}
-
-		LLVector3 max = min;
-
-		LLSD::Binary hulls(decomp.size());
-
-		U32 total = 0;
-
-		for (U32 i = 0; i < decomp.size(); ++i)
-		{
-			U32 size = decomp[i].size();
-			total += size;
-			hulls[i] = (U8) (size);
-
-			for (U32 j = 0; j < decomp[i].size(); ++j)
-			{
-				update_min_max(min, max, decomp[i][j]);
-			}
-
-		}
-
-		for (U32 i = 0; i < base_hull.size(); ++i)
-		{
-			update_min_max(min, max, base_hull[i]);	
-		}
-
-		mdl["decomposition"]["Min"] = min.getValue();
-		mdl["decomposition"]["Max"] = max.getValue();
-
-		if (!hulls.empty())
-		{
-			mdl["decomposition"]["HullList"] = hulls;
-		}
-
-		if (total > 0)
-		{
-			LLSD::Binary p(total*3*2);
-
-			LLVector3 range = max-min;
-
-			U32 vert_idx = 0;
-			for (U32 i = 0; i < decomp.size(); ++i)
-			{
-				for (U32 j = 0; j < decomp[i].size(); ++j)
-				{
-					for (U32 k = 0; k < 3; k++)
-					{
-						//convert to 16-bit normalized across domain
-						U16 val = (U16) (((decomp[i][j].mV[k]-min.mV[k])/range.mV[k])*65535);
-
-						U8* buff = (U8*) &val;
-						//write to binary buffer
-						p[vert_idx++] = buff[0];
-						p[vert_idx++] = buff[1];
-
-						if (vert_idx > p.size())
-						{
-							llerrs << "WTF?" << llendl;
-						}
-					}
-				}
-			}
-
-			mdl["decomposition"]["Position"] = p;
-		}
-
-		if (!base_hull.empty())
-		{
-			LLSD::Binary p(base_hull.size()*3*2);
-
-			LLVector3 range = max-min;
-
-			U32 vert_idx = 0;
-			for (U32 j = 0; j < base_hull.size(); ++j)
-			{
-				for (U32 k = 0; k < 3; k++)
-				{
-					//convert to 16-bit normalized across domain
-					U16 val = (U16) (((base_hull[j].mV[k]-min.mV[k])/range.mV[k])*65535);
-
-					U8* buff = (U8*) &val;
-					//write to binary buffer
-					p[vert_idx++] = buff[0];
-					p[vert_idx++] = buff[1];
-
-					if (vert_idx > p.size())
-					{
-						llerrs << "WTF?" << llendl;
-					}
-				}
-			}
-			
-			mdl["decomposition"]["Hull"] = p;
-		}
+		mdl["decomposition"] = decomp.asLLSD();
 	}
 
 	for (U32 idx = 0; idx < MODEL_NAMES_LENGTH; ++idx)
@@ -1896,12 +1681,6 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite)
 	return header;
 }
 
-//static 
-LLModel* LLModel::loadModelFromAsset(std::string filename, S32 lod)
-{
-	return NULL;
-}
-
 LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 {
 	weight_map::iterator iter = mSkinWeights.find(pos);
@@ -1975,27 +1754,550 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 void LLModel::setConvexHullDecomposition(
 	const LLModel::convex_hull_decomposition& decomp)
 {
-	mConvexHullDecomp = decomp;
+	mPhysics.mHull = decomp;
+	mPhysics.mMesh.clear();
+	updateHullCenters();
+}
 
-	mHullCenter.resize(mConvexHullDecomp.size());
+void LLModel::updateHullCenters()
+{
+	mHullCenter.resize(mPhysics.mHull.size());
 	mHullPoints = 0;
 	mCenterOfHullCenters.clear();
 
-	for (U32 i = 0; i < decomp.size(); ++i)
+	for (U32 i = 0; i < mPhysics.mHull.size(); ++i)
 	{
 		LLVector3 cur_center;
 
-		for (U32 j = 0; j < decomp[i].size(); ++j)
+		for (U32 j = 0; j < mPhysics.mHull[i].size(); ++j)
 		{
-			cur_center += decomp[i][j];
+			cur_center += mPhysics.mHull[i][j];
 		}
 		mCenterOfHullCenters += cur_center;
-		cur_center *= 1.f/decomp[i].size();
+		cur_center *= 1.f/mPhysics.mHull[i].size();
 		mHullCenter[i] = cur_center;
-		mHullPoints += decomp[i].size();
+		mHullPoints += mPhysics.mHull[i].size();
 	}
 
-	mCenterOfHullCenters *= 1.f / mHullPoints;
+	if (mHullPoints > 0)
+	{
+		mCenterOfHullCenters *= 1.f / mHullPoints;
+		llassert(mPhysics.asLLSD().has("HullList"));
+	}
 }
 
+bool LLModel::loadModel(std::istream& is)
+{
+	mSculptLevel = -1;  // default is an error occured
+
+	LLSD header;
+	{
+		if (!LLSDSerialize::fromBinary(header, is, 1024*1024*1024))
+		{
+			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
+			return false;
+		}
+	}
+	
+	std::string nm[] = 
+	{
+		"lowest_lod",
+		"low_lod",
+		"medium_lod",
+		"high_lod",
+		"physics_shape",
+	};
+
+	const S32 MODEL_LODS = 5;
+
+	S32 lod = llclamp((S32) mDetail, 0, MODEL_LODS);
+
+	if (header[nm[lod]]["offset"].asInteger() == -1 || 
+		header[nm[lod]]["size"].asInteger() == 0 )
+	{ //cannot load requested LOD
+		return false;
+	}
+
+	bool has_skin = header["skin"]["offset"].asInteger() >=0 &&
+					header["skin"]["size"].asInteger() > 0;
+
+	if (lod == LLModel::LOD_HIGH)
+	{ //try to load skin info and decomp info
+		std::ios::pos_type cur_pos = is.tellg();
+		loadSkinInfo(header, is);
+		is.seekg(cur_pos);
+	}
+
+	if (lod == LLModel::LOD_PHYSICS)
+	{
+		std::ios::pos_type cur_pos = is.tellg();
+		loadDecomposition(header, is);
+		is.seekg(cur_pos);
+	}
+
+	is.seekg(header[nm[lod]]["offset"].asInteger(), std::ios_base::cur);
+
+	if (unpackVolumeFaces(is, header[nm[lod]]["size"].asInteger()))
+	{
+		if (has_skin)
+		{ 
+			//build out mSkinWeight from face info
+			for (S32 i = 0; i < getNumVolumeFaces(); ++i)
+			{
+				const LLVolumeFace& face = getVolumeFace(i);
+
+				if (face.mWeights)
+				{
+					for (S32 j = 0; j < face.mNumVertices; ++j)
+					{
+						LLVector4a& w = face.mWeights[j];
+
+						std::vector<JointWeight> wght;
+
+						for (S32 k = 0; k < 4; ++k)
+						{
+							S32 idx = (S32) w[k];
+							F32 f = w[k] - idx;
+							if (f > 0.f)
+							{
+								wght.push_back(JointWeight(idx, f));
+							}
+						}
+
+						if (!wght.empty())
+						{
+							LLVector3 pos(face.mPositions[j].getF32ptr());
+							mSkinWeights[pos] = wght;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	return false;
+
+}
+
+
+bool LLModel::loadSkinInfo(LLSD& header, std::istream &is)
+{
+	S32 offset = header["skin"]["offset"].asInteger();
+	S32 size = header["skin"]["size"].asInteger();
+
+	if (offset >= 0 && size > 0)
+	{
+		is.seekg(offset, std::ios_base::cur);
+
+		LLSD skin_data;
+
+		if (unzip_llsd(skin_data, is, size))
+		{
+			mSkinInfo.fromLLSD(skin_data);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool LLModel::loadDecomposition(LLSD& header, std::istream& is)
+{
+	S32 offset = header["decomposition"]["offset"].asInteger();
+	S32 size = header["decomposition"]["size"].asInteger();
+
+	if (offset >= 0 && size > 0)
+	{
+		is.seekg(offset, std::ios_base::cur);
+
+		LLSD data;
+
+		if (unzip_llsd(data, is, size))
+		{
+			mPhysics.fromLLSD(data);
+			updateHullCenters();
+		}
+	}
+
+	return true;
+}
+
+
+LLMeshSkinInfo::LLMeshSkinInfo(LLSD& skin)
+{
+	fromLLSD(skin);
+}
+
+void LLMeshSkinInfo::fromLLSD(LLSD& skin)
+{
+	if (skin.has("joint_names"))
+	{
+		for (U32 i = 0; i < skin["joint_names"].size(); ++i)
+		{
+			mJointNames.push_back(skin["joint_names"][i]);
+		}
+	}
+
+	if (skin.has("inverse_bind_matrix"))
+	{
+		for (U32 i = 0; i < skin["inverse_bind_matrix"].size(); ++i)
+		{
+			LLMatrix4 mat;
+			for (U32 j = 0; j < 4; j++)
+			{
+				for (U32 k = 0; k < 4; k++)
+				{
+					mat.mMatrix[j][k] = skin["inverse_bind_matrix"][i][j*4+k].asReal();
+				}
+			}
+
+			mInvBindMatrix.push_back(mat);
+		}
+	}
+
+	if (skin.has("bind_shape_matrix"))
+	{
+		for (U32 j = 0; j < 4; j++)
+		{
+			for (U32 k = 0; k < 4; k++)
+			{
+				mBindShapeMatrix.mMatrix[j][k] = skin["bind_shape_matrix"][j*4+k].asReal();
+			}
+		}
+	}
+
+	if (skin.has("alt_inverse_bind_matrix"))
+	{
+		for (U32 i = 0; i < skin["alt_inverse_bind_matrix"].size(); ++i)
+		{
+			LLMatrix4 mat;
+			for (U32 j = 0; j < 4; j++)
+			{
+				for (U32 k = 0; k < 4; k++)
+				{
+					mat.mMatrix[j][k] = skin["alt_inverse_bind_matrix"][i][j*4+k].asReal();
+				}
+			}
+			
+			mAlternateBindMatrix.push_back(mat);
+		}
+	}
+
+	if (skin.has("pelvis_offset"))
+	{
+		mPelvisOffset = skin["pelvis_offset"].asReal();
+	}
+}
+
+LLSD LLMeshSkinInfo::asLLSD(bool include_joints) const
+{
+	LLSD ret;
+
+	for (U32 i = 0; i < mJointNames.size(); ++i)
+	{
+		ret["joint_names"][i] = mJointNames[i];
+
+		for (U32 j = 0; j < 4; j++)
+		{
+			for (U32 k = 0; k < 4; k++)
+			{
+				ret["inverse_bind_matrix"][i][j*4+k] = mInvBindMatrix[i].mMatrix[j][k]; 
+			}
+		}
+	}
+
+	for (U32 i = 0; i < 4; i++)
+	{
+		for (U32 j = 0; j < 4; j++)
+		{
+			ret["bind_shape_matrix"][i*4+j] = mBindShapeMatrix.mMatrix[i][j];
+		}
+	}
+		
+	if ( include_joints && mAlternateBindMatrix.size() > 0 )
+	{
+		for (U32 i = 0; i < mJointNames.size(); ++i)
+		{
+			for (U32 j = 0; j < 4; j++)
+			{
+				for (U32 k = 0; k < 4; k++)
+				{
+					ret["alt_inverse_bind_matrix"][i][j*4+k] = mAlternateBindMatrix[i].mMatrix[j][k]; 
+				}
+			}
+		}
+
+		ret["pelvis_offset"] = mPelvisOffset;
+	}
+
+	return ret;
+}
+
+LLModel::Decomposition::Decomposition(LLSD& data)
+{
+	fromLLSD(data);
+}
+
+void LLModel::Decomposition::fromLLSD(LLSD& decomp)
+{
+	if (decomp.has("HullList"))
+	{
+		// updated for const-correctness. gcc is picky about this type of thing - Nyx
+		const LLSD::Binary& hulls = decomp["HullList"].asBinary();
+		const LLSD::Binary& position = decomp["Position"].asBinary();
+
+		U16* p = (U16*) &position[0];
+
+		mHull.resize(hulls.size());
+
+		LLVector3 min;
+		LLVector3 max;
+		LLVector3 range;
+
+		min.setValue(decomp["Min"]);
+		max.setValue(decomp["Max"]);
+		range = max-min;
+
+		
+		for (U32 i = 0; i < hulls.size(); ++i)
+		{
+			U16 count = (hulls[i] == 0) ? 256 : hulls[i];
+			
+			std::set<U64> valid;
+
+			//must have at least 4 points
+			//llassert(count > 3);
+
+			for (U32 j = 0; j < count; ++j)
+			{
+				U64 test = (U64) p[0] | ((U64) p[1] << 16) | ((U64) p[2] << 32);
+				//point must be unique
+				//llassert(valid.find(test) == valid.end());
+				valid.insert(test);
+				mHull[i].push_back(LLVector3(
+					(F32) p[0]/65535.f*range.mV[0]+min.mV[0],
+					(F32) p[1]/65535.f*range.mV[1]+min.mV[1],
+					(F32) p[2]/65535.f*range.mV[2]+min.mV[2]));
+				p += 3;
+
+
+			}
+
+			//each hull must contain at least 4 unique points
+			//llassert(valid.size() > 3);
+		}
+	}
+
+	if (decomp.has("Hull"))
+	{
+		const LLSD::Binary& position = decomp["Hull"].asBinary();
+
+		U16* p = (U16*) &position[0];
+
+		LLVector3 min;
+		LLVector3 max;
+		LLVector3 range;
+
+		if (decomp.has("Min"))
+		{
+			min.setValue(decomp["Min"]);
+			max.setValue(decomp["Max"]);
+		}
+		else
+		{
+			min.set(-0.5f, -0.5f, -0.5f);
+			max.set(0.5f, 0.5f, 0.5f);
+		}
+
+		range = max-min;
+
+		U16 count = position.size()/6;
+		
+		for (U32 j = 0; j < count; ++j)
+		{
+			mBaseHull.push_back(LLVector3(
+				(F32) p[0]/65535.f*range.mV[0]+min.mV[0],
+				(F32) p[1]/65535.f*range.mV[1]+min.mV[1],
+				(F32) p[2]/65535.f*range.mV[2]+min.mV[2]));
+			p += 3;
+		}		 
+	}
+	else
+	{
+		//empty base hull mesh to indicate decomposition has been loaded
+		//but contains no base hull
+		mBaseHullMesh.clear();;
+	}
+}
+
+LLSD LLModel::Decomposition::asLLSD() const
+{
+	LLSD ret;
+	
+	if (mBaseHull.empty() && mHull.empty())
+	{ //nothing to write
+		return ret;
+	}
+
+	//write decomposition block
+	// ["decomposition"]["HullList"] -- list of 8 bit integers, each entry represents a hull with specified number of points
+	// ["decomposition"]["PositionDomain"]["Min"/"Max"]
+	// ["decomposition"]["Position"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points
+	// ["decomposition"]["Hull"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points representing a single hull approximation of given shape
+	
+	
+	//get minimum and maximum
+	LLVector3 min;
+	
+	if (mHull.empty())
+	{  
+		min = mBaseHull[0];
+	}
+	else
+	{
+		min = mHull[0][0];
+	}
+
+	LLVector3 max = min;
+
+	LLSD::Binary hulls(mHull.size());
+
+	U32 total = 0;
+
+	for (U32 i = 0; i < mHull.size(); ++i)
+	{
+		U32 size = mHull[i].size();
+		total += size;
+		hulls[i] = (U8) (size);
+
+		for (U32 j = 0; j < mHull[i].size(); ++j)
+		{
+			update_min_max(min, max, mHull[i][j]);
+		}
+	}
+
+	for (U32 i = 0; i < mBaseHull.size(); ++i)
+	{
+		update_min_max(min, max, mBaseHull[i]);	
+	}
+
+	ret["Min"] = min.getValue();
+	ret["Max"] = max.getValue();
+
+	if (!hulls.empty())
+	{
+		ret["HullList"] = hulls;
+	}
+
+	if (total > 0)
+	{
+		LLSD::Binary p(total*3*2);
+
+		LLVector3 range = max-min;
+
+		U32 vert_idx = 0;
+		
+		for (U32 i = 0; i < mHull.size(); ++i)
+		{
+			std::set<U64> valid;
+
+			llassert(!mHull[i].empty());
+
+			for (U32 j = 0; j < mHull[i].size(); ++j)
+			{
+				U64 test = 0;
+				for (U32 k = 0; k < 3; k++)
+				{
+					//convert to 16-bit normalized across domain
+					U16 val = (U16) (((mHull[i][j].mV[k]-min.mV[k])/range.mV[k])*65535);
+
+					switch (k)
+					{
+						case 0: test = test | (U64) val; break;
+						case 1: test = test | ((U64) val << 16); break;
+						case 2: test = test | ((U64) val << 32); break;
+					};
+
+					valid.insert(test);
+					
+					U8* buff = (U8*) &val;
+					//write to binary buffer
+					p[vert_idx++] = buff[0];
+					p[vert_idx++] = buff[1];
+
+					//makes sure we haven't run off the end of the array
+					llassert(vert_idx <= p.size());
+				}
+			}
+
+			//must have at least 4 unique points
+			llassert(valid.size() > 3);
+		}
+
+		ret["Position"] = p;
+	}
+
+	if (!mBaseHull.empty())
+	{
+		LLSD::Binary p(mBaseHull.size()*3*2);
+
+		LLVector3 range = max-min;
+
+		U32 vert_idx = 0;
+		for (U32 j = 0; j < mBaseHull.size(); ++j)
+		{
+			for (U32 k = 0; k < 3; k++)
+			{
+				//convert to 16-bit normalized across domain
+				U16 val = (U16) (((mBaseHull[j].mV[k]-min.mV[k])/range.mV[k])*65535);
+
+				U8* buff = (U8*) &val;
+				//write to binary buffer
+				p[vert_idx++] = buff[0];
+				p[vert_idx++] = buff[1];
+
+				if (vert_idx > p.size())
+				{
+					llerrs << "WTF?" << llendl;
+				}
+			}
+		}
+		
+		ret["Hull"] = p;
+	}
+
+	return ret;
+}
+
+void LLModel::Decomposition::merge(const LLModel::Decomposition* rhs)
+{
+	if (!rhs)
+	{
+		return;
+	}
+
+	if (mMeshID != rhs->mMeshID)
+	{
+		llerrs << "Attempted to merge with decomposition of some other mesh." << llendl;
+	}
+
+	if (mBaseHull.empty())
+	{ //take base hull and decomposition from rhs
+		mHull = rhs->mHull;
+		mBaseHull = rhs->mBaseHull;
+		mMesh = rhs->mMesh;
+		mBaseHullMesh = rhs->mBaseHullMesh;
+	}
+
+	if (mPhysicsShapeMesh.empty())
+	{ //take physics shape mesh from rhs
+		mPhysicsShapeMesh = rhs->mPhysicsShapeMesh;
+	}
+
+	if (!mHull.empty())
+	{ //verify
+		llassert(asLLSD().has("HullList"));
+	}
+}
 

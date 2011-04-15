@@ -73,7 +73,7 @@ Détails de l&apos;erreur : La notification, appelée &apos;[_NAME]&apos;, est i
 	</notification>
 	<notification name="LoginFailedNoNetwork">
 		Connexion à [SECOND_LIFE_GRID] impossible.
-&apos;[DIAGNOSTIC]&apos;
+    &apos;[DIAGNOSTIC]&apos;
 Veuillez vérifier votre connexion Internet.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -331,13 +331,6 @@ Pour entrer dans [SECOND_LIFE], vous devez disposer d&apos;un compte. Voulez-vou
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		Saisissez soit le nom d&apos;utilisateur soit à la fois le prénom et le nom de votre avatar dans le champ Nom d&apos;utilisateur, puis connectez-vous.
-	</notification>
-	<notification name="AddClassified">
-		Les petites annonces sont publiées à l&apos;onglet Petites annonces de la section Recherche et sur [http://secondlife.com/community/classifieds secondlife.com] pendant une semaine.
-Rédigez votre annonce, puis cliquez sur Publier pour l&apos;ajouter à la liste des annonces.
-Au moment de cliquer sur Publier, vous serez invité à payer des frais.
-Plus vous payez cher, plus votre annonce est visible dans la liste ainsi que dans les résultats de recherche de mots-clés.
-		<usetemplate ignoretext="Comment ajouter une nouvelle petite annonce" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="DeleteClassified">
 		Supprimer l&apos;annonce [NAME] ?
@@ -2848,9 +2841,6 @@ Ignorer les autres ?
 	<notification label="Explorer le monde" name="HintDestinationGuide">
 		Le Guide des destinations comprend des milliers d&apos;endroits nouveaux à découvrir. Sélectionnez-en un, puis cliquez sur Téléporter pour commencer à l&apos;explorer.
 	</notification>
-	<notification label="Changer d&apos;apparence" name="HintAvatarPicker">
-		Vous souhaitez changer de look ? Cliquez sur le bouton ci-dessous pour voir plus d&apos;avatars.
-	</notification>
 	<notification label="Panneau latéral" name="HintSidePanel">
 		Obtenir un accès rapide à votre inventaire, à vos habits, à vos profils et bien plus encore dans le panneau latéral.
 	</notification>
@@ -2887,6 +2877,38 @@ Ignorer les autres ?
 			<button name="ok" text="Soumettre"/>
 			<button name="cancel" text="Annuler"/>
 		</form>
+	</notification>
+	<notification label="" name="ModeChange">
+		Vous devez quitter et redémarrer l&apos;application afin de changer de mode.
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="NoClassifieds">
+		Pour créer et modifier des petites annonces, vous devez utiliser le mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ? Le sélecteur de mode se trouve sur l&apos;écran de connexion.
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="NoGroupInfo">
+		Pour créer et modifier des groupes, vous devez utiliser le mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ? Le sélecteur de mode se trouve sur l&apos;écran de connexion.
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="NoPicks">
+		Pour créer et modifier des favoris, vous devez utiliser le mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ? Le sélecteur de mode se trouve sur l&apos;écran de connexion.
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="NoWorldMap">
+		Pour afficher la carte du monde, vous devez utiliser le mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ? Le sélecteur de mode se trouve sur l&apos;écran de connexion.
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="NoVoiceCall">
+		Les appels vocaux sont uniquement disponibles en mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ?
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="NoAvatarShare">
+		Le partage est uniquement disponible en mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ?
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="NoAvatarPay">
+		Pour pouvoir payer d&apos;autres résidents, vous devez utiliser le mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ?
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- Votre processeur ne remplit pas les conditions minimum requises.

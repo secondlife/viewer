@@ -1024,7 +1024,7 @@ void render_hud_attachments()
 		gPipeline.renderGeom(hud_cam);
 
 		LLSpatialGroup::sNoDelete = FALSE;
-		gPipeline.clearReferences();
+		//gPipeline.clearReferences();
 
 		render_hud_elements();
 

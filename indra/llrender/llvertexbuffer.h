@@ -56,13 +56,17 @@ protected:
 	virtual GLuint allocateName()
 	{
 		GLuint name;
+		stop_glerror();
 		glGenBuffersARB(1, &name);
+		stop_glerror();
 		return name;
 	}
 
 	virtual void releaseName(GLuint name)
 	{
+		stop_glerror();
 		glDeleteBuffersARB(1, &name);
+		stop_glerror();
 	}
 };
 
@@ -97,6 +101,8 @@ public:
 	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
 	static void setupClientArrays(U32 data_mask);
+	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm);
+
  	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
 	static void unbind(); //unbind any bound vertex buffer
 

@@ -258,6 +258,19 @@
          	<check_box.commit_callback
 			 function="Pref.VertexShaderEnable" />
     	</check_box>
+      <check_box
+		 control_name="RenderDepthOfField"
+		 height="16"
+		 initial_value="true"
+		 label="Depth of Field"
+		 layout="topleft"
+		 left_delta="0"
+		 name="UseDoF"
+		 top_pad="1"
+		 width="256">
+        <check_box.commit_callback
+     function="Pref.VertexShaderEnable" />
+      </check_box>
 
         <text
          type="string"

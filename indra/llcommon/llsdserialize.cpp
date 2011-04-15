@@ -2095,11 +2095,6 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 
 	S32 ret = inflateInit(&strm);
 
-	if (ret != Z_OK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
-	
 	do
 	{
 		strm.avail_out = CHUNK;

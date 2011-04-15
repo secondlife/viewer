@@ -130,8 +130,9 @@ public:
 	const LLMatrix3&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
 				U32 	getRenderCost(std::set<LLUUID> &textures) const;
-	/*virtual*/	F32		getStreamingCost();
+	/*virtual*/	F32		getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL);
 	/*virtual*/ U32		getTriangleCount();
+	/*virtual*/ U32		getHighLODTriangleCount();
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,

@@ -762,6 +762,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mPelvisOffset = LLVector3(0.0f,0.0f,0.0f);
 	mLastPelvisToFoot = 0.0f;
 	mPelvisFixup = 0.0f;
+	mLastPelvisFixup = 0.0f;
 }
 
 //------------------------------------------------------------------------
@@ -1333,7 +1334,17 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	}
 	else if (isRoot())
 	{
-		return mDrawable->getPositionAgent();
+		if ( !mHasPelvisOffset )
+		{
+			return mDrawable->getPositionAgent();
+		}
+		else
+		{
+			//Apply a pelvis fixup (as defined by the avs skin)
+			LLVector3 pos = mDrawable->getPositionAgent();
+			pos[VZ] += mPelvisFixup;
+			return pos;
+		}
 	}
 	else
 	{
@@ -3795,6 +3806,7 @@ void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount,
 		//Store off last pelvis to foot value
 		mLastPelvisToFoot = mPelvisToFoot;
 		mPelvisOffset	  = offsetAmount;
+		mLastPelvisFixup  = mPelvisFixup;
 		mPelvisFixup	  = pelvisFixup;
 	}
 }
@@ -3808,6 +3820,15 @@ void LLVOAvatar::postPelvisSetRecalc( void )
 	mRoot.updateWorldMatrixChildren();	
 	dirtyMesh();
 	updateHeadOffset();
+}
+//------------------------------------------------------------------------
+// pelisPoke
+//------------------------------------------------------------------------
+void LLVOAvatar::setPelvisOffset( F32 pelvisFixupAmount )
+{	
+	mHasPelvisOffset  = true;
+	mLastPelvisFixup  = mPelvisFixup;	
+	mPelvisFixup	  = pelvisFixupAmount;	
 }
 //------------------------------------------------------------------------
 // updateVisibility()
@@ -4947,6 +4968,7 @@ void LLVOAvatar::resetJointPositions( void )
 		mSkeleton[i].setId( LLUUID::null );
 	}
 	mHasPelvisOffset = false;
+	mPelvisFixup	 = mLastPelvisFixup;
 }
 //-----------------------------------------------------------------------------
 // resetSpecificJointPosition
@@ -5006,6 +5028,7 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 	}
 	//make sure we don't apply the joint offset
 	mHasPelvisOffset = false;
+	mPelvisFixup	 = mLastPelvisFixup;
 	postPelvisSetRecalc();
 }
 //-----------------------------------------------------------------------------

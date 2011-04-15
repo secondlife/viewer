@@ -27,6 +27,7 @@
 #ifndef LL_LLMODEL_H
 #define LL_LLMODEL_H
 
+#include "llpointer.h"
 #include "llvolume.h"
 #include "v4math.h"
 #include "m4math.h"
@@ -35,6 +36,24 @@ class daeElement;
 class domMesh;
 
 #define MAX_MODEL_FACES 8
+
+
+class LLMeshSkinInfo 
+{
+public:
+	LLUUID mMeshID;
+	std::vector<std::string> mJointNames;
+	std::vector<LLMatrix4> mInvBindMatrix;
+	std::vector<LLMatrix4> mAlternateBindMatrix;
+	std::map<std::string, U32> mJointMap;
+
+	LLMeshSkinInfo() { }
+	LLMeshSkinInfo(LLSD& data);
+	void fromLLSD(LLSD& data);
+	LLSD asLLSD(bool include_joints) const;
+	LLMatrix4 mBindShapeMatrix;
+	float mPelvisOffset;
+};
 
 class LLModel : public LLVolume
 {
@@ -50,37 +69,62 @@ public:
 		NUM_LODS
 	};
 	
+	enum EModelStatus
+	{
+		NO_ERRORS = 0,
+		VERTEX_NUMBER_OVERFLOW, //vertex number is >= 65535.
+		INVALID_STATUS
+	} ;
+
 	//convex_hull_decomposition is a vector of convex hulls
 	//each convex hull is a set of points
-	typedef  std::vector<std::vector<LLVector3> > convex_hull_decomposition;
+	typedef std::vector<std::vector<LLVector3> > convex_hull_decomposition;
 	typedef std::vector<LLVector3> hull;
 	
+	class PhysicsMesh
+	{
+	public:
+		std::vector<LLVector3> mPositions;
+		std::vector<LLVector3> mNormals;
+
+		void clear()
+		{
+			mPositions.clear();
+			mNormals.clear();
+		}
+
+		bool empty() const
+		{
+			return mPositions.empty();
+		}
+	};
+
+	class Decomposition
+	{
+	public:
+		Decomposition() { }
+		Decomposition(LLSD& data);
+		void fromLLSD(LLSD& data);
+		LLSD asLLSD() const;
+
+		void merge(const Decomposition* rhs);
+
+		LLUUID mMeshID;
+		LLModel::convex_hull_decomposition mHull;
+		LLModel::hull mBaseHull;
+
+		std::vector<LLModel::PhysicsMesh> mMesh;
+		LLModel::PhysicsMesh mBaseHullMesh;
+		LLModel::PhysicsMesh mPhysicsShapeMesh;
+	};
+
 	LLModel(LLVolumeParams& params, F32 detail);
 	~LLModel();
 
-	static LLSD writeModel(
-		std::string filename,
-		LLModel* physics,
-		LLModel* high,
-		LLModel* medium,
-		LLModel* low,
-		LLModel* imposotr,
-		const LLModel::convex_hull_decomposition& convex_hull_decomposition,
-		const LLModel::hull& base_hull,
-		BOOL upload_skin,
-		BOOL upload_joints,
-		BOOL nowrite = FALSE);
-	static LLSD writeModel(
-		std::string filename,
-		LLModel* physics,
-		LLModel* high,
-		LLModel* medium,
-		LLModel* low,
-		LLModel* imposotr,
-		const LLModel::convex_hull_decomposition& convex_hull_decomposition,
-		BOOL upload_skin,
-		BOOL upload_joints,
-		BOOL nowrite = FALSE);
+	bool loadModel(std::istream& is);
+	bool loadSkinInfo(LLSD& header, std::istream& is);
+	bool loadDecomposition(LLSD& header, std::istream& is);
+	
 	static LLSD writeModel(
 		std::ostream& ostr,
 		LLModel* physics,
@@ -88,21 +132,21 @@ public:
 		LLModel* medium,
 		LLModel* low,
 		LLModel* imposotr,
-		const LLModel::convex_hull_decomposition& convex_hull_decomposition,
-		const LLModel::hull& base_hull,
+		const LLModel::Decomposition& decomp,
 		BOOL upload_skin,
 		BOOL upload_joints,
 		BOOL nowrite = FALSE);
+
 	static LLSD writeModelToStream(
 		std::ostream& ostr,
 		LLSD& mdl,
 		BOOL nowrite = FALSE);
 
-	static LLModel* loadModelFromAsset(std::string filename, S32 lod);
-	static LLModel* loadModelFromDae(std::string filename);
 	static LLModel* loadModelFromDomMesh(domMesh* mesh);
 	static std::string getElementLabel(daeElement* element);
 	std::string getName() const;
+	EModelStatus getStatus() const {return mStatus;}
+	static std::string getStatusString(U32 status) ;
 
 	void appendFaces(LLModel* model, LLMatrix4& transform, LLMatrix4& normal_transform);
 	void appendFace(const LLVolumeFace& src_face, std::string src_material, LLMatrix4& mat, LLMatrix4& norm_mat);
@@ -177,17 +221,8 @@ public:
 	//get list of weight influences closest to given position
 	weight_list& getJointInfluences(const LLVector3& pos);
 
-	//should always be true that mJointList[mJointMap["foo"]] == "foo"
-
-	//map of joint names to joint index
-	std::map<std::string, U32> mJointMap;
-
-	//list of joint names
-	std::vector<std::string> mJointList;
-
-	LLMatrix4 mBindShapeMatrix;
-	std::vector<LLMatrix4> mInvBindMatrix;
-	std::vector<LLMatrix4> mAlternateBindMatrix;
+	LLMeshSkinInfo mSkinInfo;
+	
 	std::string mRequestedLabel; // name requested in UI, if any.
 	std::string mLabel; // name computed from dae.
 
@@ -197,17 +232,23 @@ public:
 	float	mPelvisOffset;
 	// convex hull decomposition
 	S32 mDecompID;
-	convex_hull_decomposition mConvexHullDecomp;
+	
 	void setConvexHullDecomposition(
 		const convex_hull_decomposition& decomp);
+	void updateHullCenters();
 
 	LLVector3 mCenterOfHullCenters;
 	std::vector<LLVector3> mHullCenter;
 	U32 mHullPoints;
 
+	//ID for storing this model in a .slm file
+	S32 mLocalID;
+
+	Decomposition mPhysics;
+
+	EModelStatus mStatus ;
 protected:
 	void addVolumeFacesFromDomMesh(domMesh* mesh);
-	virtual BOOL createVolumeFacesFromFile(const std::string& file_name);
 	virtual BOOL createVolumeFacesFromDomMesh(domMesh *mesh);
 };
 

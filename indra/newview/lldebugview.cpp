@@ -39,7 +39,9 @@
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "llmemoryview.h"
+#include "llsceneview.h"
 #include "llviewertexture.h"
+
 //
 // Globals
 //
@@ -83,6 +85,13 @@ void LLDebugView::init()
 	addChild(mFastTimerView);
 	mFastTimerView->setRect(rect);
 
+	gSceneView = new LLSceneView(r);
+	gSceneView->setFollowsTop();
+	gSceneView->setFollowsLeft();
+	gSceneView->setVisible(FALSE);
+	addChild(gSceneView);
+	gSceneView->setRect(rect);
+	
 	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
 									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
 	LLMemoryView::Params mp;
@@ -102,6 +111,9 @@ void LLDebugView::init()
 	gTextureView = LLUICtrlFactory::create<LLTextureView>(tvp);
 	addChild(gTextureView);
 	//gTextureView->reshape(r.getWidth(), r.getHeight(), TRUE);
+
+	
+
 
 	if(gAuditTexture)
 	{
@@ -133,6 +145,7 @@ LLDebugView::~LLDebugView()
 	// These have already been deleted.  Fix the globals appropriately.
 	gDebugView = NULL;
 	gTextureView = NULL;
+	gSceneView = NULL;
 	gTextureSizeView = NULL;
 	gTextureCategoryView = NULL;
 }

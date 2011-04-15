@@ -3082,15 +3082,15 @@ U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 
 }
 
-F32 LLVOVolume::getStreamingCost()
+F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes)
 {
 	if (isMesh())
 	{	
-		const LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
+		LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
 
 		F32 radius = getScale().length();
 		
-		return LLMeshRepository::getStreamingCost(header, radius);
+		return LLMeshRepository::getStreamingCost(header, radius, bytes, visible_bytes, mLOD);
 	}
 		
 	return 0.f;
@@ -3106,6 +3106,36 @@ U32 LLVOVolume::getTriangleCount()
 	}
 
 	return count;
+}
+
+U32 LLVOVolume::getHighLODTriangleCount()
+{
+	U32 ret = 0;
+
+	LLVolume* volume = getVolume();
+
+	if (!isSculpted())
+	{
+		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+		ret = ref->getNumTriangles();
+		LLPrimitive::getVolumeManager()->unrefVolume(ref);
+	}
+	else if (isMesh())
+	{
+		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+		if (ref->isTetrahedron() || ref->getNumVolumeFaces() == 0)
+		{
+			gMeshRepo.loadMesh(this, volume->getParams(), LLModel::LOD_HIGH);
+		}
+		ret = ref->getNumTriangles();
+		LLPrimitive::getVolumeManager()->unrefVolume(ref);
+	}
+	else
+	{ //default sculpts have a constant number of triangles
+		ret = 31*2*31;  //31 rows of 31 columns of quads for a 32x32 vertex patch
+	}
+
+	return ret;
 }
 
 //static
@@ -3941,7 +3971,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if ( bindCnt > 0 )
 						{					
 							const int jointCnt = pSkinData->mJointNames.size();
-							const int pelvisZOffset = pSkinData->mPelvisOffset;
+							const F32 pelvisZOffset = pSkinData->mPelvisOffset;
 							bool fullRig = (jointCnt>=20) ? true : false;
 							if ( fullRig )
 							{

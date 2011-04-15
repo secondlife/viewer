@@ -119,6 +119,8 @@ public:
 
 	~LLMatrix4(void);										// Destructor
 
+	LLSD getValue() const;
+	void setValue(const LLSD&);
 
 	//////////////////////////////
 	//

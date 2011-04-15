@@ -493,6 +493,10 @@ public:
 			{
 				F32 cost = 0.f;
 				S32 count = 0;
+				S32 object_count = 0;
+				S32 total_bytes = 0;
+				S32 visible_bytes = 0;
+
 				const char* label = "Region";
 				if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 0)
 				{ //region
@@ -506,8 +510,13 @@ public:
 								object->getRegion() == region &&
 								object->getVolume())
 							{
-								cost += object->getStreamingCost();
+								object_count++;
+								S32 bytes = 0;	
+								S32 visible = 0;
+								cost += object->getStreamingCost(&bytes, &visible);
 								count += object->getTriangleCount();
+								total_bytes += bytes;
+								visible_bytes += visible;
 							}
 						}
 					}
@@ -515,12 +524,16 @@ public:
 				else
 				{
 					label = "Selection";
-					cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectStreamingCost();
+					cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectStreamingCost(&total_bytes, &visible_bytes);
 					count = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount();
+					object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 				}
 					
-				addText(xpos,ypos, llformat("%s streaming cost: %.1f (%.1f KTris)",
-							label, cost, count/1000.f));
+				addText(xpos,ypos, llformat("%s streaming cost: %.1f", label, cost));
+				ypos += y_inc;
+
+				addText(xpos, ypos, llformat("    %.1f KTris, %.1f/%.1f KB, %d objects",
+										count/1024.f, visible_bytes/1024.f, total_bytes/1024.f, object_count));
 				ypos += y_inc;
 			
 			}
@@ -656,21 +669,30 @@ public:
 		// only display these messages if we are actually rendering beacons at this moment
 		if (LLPipeline::getRenderBeacons(NULL) && LLFloaterReg::instanceVisible("beacons"))
 		{
-			if (LLPipeline::getRenderParticleBeacons(NULL))
+			if (LLPipeline::getRenderMOAPBeacons(NULL))
 			{
-				addText(xpos, ypos, beacon_particle);
+				addText(xpos, ypos, "Viewing media beacons (white)");
 				ypos += y_inc;
 			}
+
 			if (LLPipeline::toggleRenderTypeControlNegated((void*)LLPipeline::RENDER_TYPE_PARTICLES))
 			{
 				addText(xpos, ypos, particle_hiding);
 				ypos += y_inc;
 			}
-			if (LLPipeline::getRenderPhysicalBeacons(NULL))
+
+			if (LLPipeline::getRenderParticleBeacons(NULL))
 			{
-				addText(xpos, ypos, beacon_physical);
+				addText(xpos, ypos, "Viewing particle beacons (blue)");
 				ypos += y_inc;
 			}
+
+			if (LLPipeline::getRenderSoundBeacons(NULL))
+			{
+				addText(xpos, ypos, "Viewing sound beacons (yellow)");
+				ypos += y_inc;
+			}
+
 			if (LLPipeline::getRenderScriptedBeacons(NULL))
 			{
 				addText(xpos, ypos, beacon_scripted);
@@ -682,9 +704,10 @@ public:
 					addText(xpos, ypos, beacon_scripted_touch);
 					ypos += y_inc;
 				}
-			if (LLPipeline::getRenderSoundBeacons(NULL))
+
+			if (LLPipeline::getRenderPhysicalBeacons(NULL))
 			{
-				addText(xpos, ypos, beacon_sound);
+				addText(xpos, ypos, "Viewing physical object beacons (green)");
 				ypos += y_inc;
 			}
 		}
@@ -1930,6 +1953,11 @@ void LLViewerWindow::initWorldUI()
 		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
 	}
 
+	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+	{
+		toggle_destination_and_avatar_picker(0);
+		gSavedSettings.setBOOL("FirstLoginThisInstall", FALSE);
+	}
 }
 
 // Destroy the UI
@@ -3718,7 +3746,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	LLVector3 mouse_world_start = mouse_point_global;
 	LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
-	//gDebugRaycastIntersection = mouse_world_end;
+	gDebugRaycastIntersection = mouse_world_end;
 
 	if (start)
 	{

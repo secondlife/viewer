@@ -3270,7 +3270,7 @@
     <key>FirstRunThisInstall</key>
     <map>
       <key>Comment</key>
-      <string>Specifies that you have not run the viewer since you installed the latest update</string>
+      <string>Specifies that you have not run the viewer since you performed a clean install</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3278,7 +3278,18 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>FirstSelectedDisabledPopups</key>
+  <key>FirstLoginThisInstall</key>
+  <map>
+    <key>Comment</key>
+    <string>Specifies that you have not logged in with the viewer since you performed a clean install</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>FirstSelectedDisabledPopups</key>
     <map>
       <key>Comment</key>
       <string>Return false if there is not disabled popup selected in the list of floater preferences popups</string>
@@ -5512,6 +5523,17 @@
     <key>Value</key>
     <real>1</real>
   </map>
+  <key>MeshImportUseSLM</key>
+  <map>
+    <key>Comment</key>
+    <string>Use cached copy of last upload for a dae if available instead of loading dae file from scratch.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
   <key>MigrateCacheDirectory</key>
     <map>
       <key>Comment</key>
@@ -7695,6 +7717,18 @@
     <key>Value</key>
     <real>0</real>
   </map>
+
+  <key>RenderDepthOfField</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether to use depth of field effect when lighting and shadows are enabled</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   
   <key>RenderSpotLightsInNondeferred</key>
   <map>
@@ -8952,7 +8986,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>2.0</real>
+    <real>3.0</real>
   </map>
   <key>MeshThreadCount</key>
   <map>
@@ -12517,6 +12551,17 @@
       <key>Value</key>
       <real>0.40000000596</real>
     </map>
+	<key>moapbeacon</key>
+	<map>
+		<key>Comment</key>
+		<string>Beacon / Highlight media on a prim sources</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
     <key>particlesbeacon</key>
     <map>
       <key>Comment</key>
