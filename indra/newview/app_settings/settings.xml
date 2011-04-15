@@ -9180,7 +9180,7 @@
     <key>NearbyListShowMap</key>
     <map>
       <key>Comment</key>
-      <string>Show/hide map in nearby list</string>
+      <string>Show/hide map above nearby people list</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
