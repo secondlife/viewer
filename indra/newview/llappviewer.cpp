@@ -2467,6 +2467,14 @@ bool LLAppViewer::initConfiguration()
 		}
 	}
 
+	// If automatic login from command line with --login switch
+	// init StartSLURL location. In interactive login, LLPanelLogin
+	// will take care of it.
+	if ((clp.hasOption("login") || clp.hasOption("autologin")) && !clp.hasOption("url") && !clp.hasOption("slurl"))
+	{
+		LLStartUp::setStartSLURL(LLSLURL(gSavedSettings.getString("LoginLocation")));
+	}
+
 	if (!gSavedSettings.getBOOL("AllowMultipleViewers"))
 	{
 	    //
