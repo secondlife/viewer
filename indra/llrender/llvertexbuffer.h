@@ -56,13 +56,17 @@ protected:
 	virtual GLuint allocateName()
 	{
 		GLuint name;
+		stop_glerror();
 		glGenBuffersARB(1, &name);
+		stop_glerror();
 		return name;
 	}
 
 	virtual void releaseName(GLuint name)
 	{
+		stop_glerror();
 		glDeleteBuffersARB(1, &name);
+		stop_glerror();
 	}
 };
 
