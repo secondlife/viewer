@@ -589,18 +589,6 @@
         <string>glext</string>
         <key>platforms</key>
         <map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>5de58ca0fe19abf68b25956762ee0d29</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glext-68-windows-20110406.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
           <key>linux</key>
           <map>
             <key>archive</key>
@@ -612,6 +600,18 @@
             </map>
             <key>name</key>
             <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5de58ca0fe19abf68b25956762ee0d29</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glext-68-windows-20110406.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
           </map>
         </map>
       </map>
@@ -1134,9 +1134,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d8ecfc647df41d546b1e8c697571e0ea</string>
+              <string>1447d72644ad74e74a057483b33dc0d2</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition-vir/rev/225838/arch/CYGWIN/installer/llconvexdecomposition-0.1-windows-20110406.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition-vir/rev/226659/arch/CYGWIN/installer/llconvexdecomposition-0.1-windows-20110414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
