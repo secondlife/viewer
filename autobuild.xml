@@ -1143,54 +1143,6 @@
           </map>
         </map>
       </map>
-      <key>llconvexdecompositionstub</key>
-      <map>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>license_file</key>
-        <string>LICENSES/lgpl.txt</string>
-        <key>name</key>
-        <string>llconvexdecompositionstub</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>349fa0e287fb275bbee43ced194a1db1</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-darwin-20101015.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>dbf4b15e74ce9042e8500720dffc461a</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-linux-20101015a.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>bba9a4dd04fda1b263f34448a044783b</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-windows-20101015.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
       <key>llqtwebkit</key>
       <map>
         <key>license</key>
