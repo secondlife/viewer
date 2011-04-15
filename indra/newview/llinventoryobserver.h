@@ -63,7 +63,6 @@ public:
 	LLInventoryObserver();
 	virtual ~LLInventoryObserver();
 	virtual void changed(U32 mask) = 0;
-	std::string mMessageName; // used by Agent Inventory Service only. [DEV-20328]
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
