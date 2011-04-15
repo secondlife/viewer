@@ -18,9 +18,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1eea55da1625518390af4c315a0d43c3</string>
+              <string>7c546f54f6ed654f713c778af3925dd4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226145/arch/Darwin/installer/glod-1.0pre4-darwin-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226566/arch/Darwin/installer/glod-1.0pre4-darwin-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -30,9 +30,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5aeb923a0a50023d0b3a6a8a81cc3d06</string>
+              <string>18c708163d2a669bc3c030b05b4ebe61</string>
               <key>url</key>
-              <string>https://viewer-source-downloads.s3.amazonaws.com/install_pkgs/glod-1.0pre4-linux-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226657/arch/Linux/installer/glod-1.0pre4-linux-20110414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -234,9 +234,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d2b666a8eec1cadc81152ae94cad249f</string>
+              <string>2222b901f310c1806847293789d69ac7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226180/arch/Darwin/installer/colladadom-2.2-darwin-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226584/arch/Darwin/installer/colladadom-2.2-darwin-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -246,9 +246,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>414a7db51edbbb9e5fabb2dbea4c19a0</string>
+              <string>fb9765a9774b80e57f841dfad3438b1e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226180/arch/Linux/installer/colladadom-2.2-linux-20110409.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226584/arch/Linux/installer/colladadom-2.2-linux-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -258,9 +258,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7d8819dd334ccccc2b82747565fa6077</string>
+              <string>a9f548eb6f9aaf292508a8b09c7f2f73</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226180/arch/CYGWIN/installer/colladadom-2.2-windows-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226584/arch/CYGWIN/installer/colladadom-2.2-windows-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -452,7 +452,7 @@
               <key>hash</key>
               <string>61ead113e6479452e6b690c84b4e9d30</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/fmod-3.75-darwin-20110222.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/Darwin/installer/fmod-3.75-darwin-20110222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -464,7 +464,7 @@
               <key>hash</key>
               <string>0c61d643db54d2e5999be8254569d8b3</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/fmod-3.75-linux-20110223.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/Linux/installer/fmod-3.75-linux-20110223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -476,7 +476,7 @@
               <key>hash</key>
               <string>d9a9a6ad86895353bcd63374a4c1a91d</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/fmod-3.75-windows-20110222.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/CYGWIN/installer/fmod-3.75-windows-20110222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -589,6 +589,18 @@
         <string>glext</string>
         <key>platforms</key>
         <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5de58ca0fe19abf68b25956762ee0d29</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glext-68-windows-20110406.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
@@ -956,7 +968,7 @@
               <key>hash</key>
               <string>d91e1f483209cd3eba04135c6a59e829</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-6.4.1-darwin-20110218.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/Darwin/installer/kdu-6.4.1-darwin-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -968,7 +980,7 @@
               <key>hash</key>
               <string>fbf8a4f78dff986d7c16b3a0437e033e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-6.4.1-linux-20110311.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/223538/arch/Linux/installer/kdu-6.4.1-linux-20110311.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -980,7 +992,7 @@
               <key>hash</key>
               <string>6cd9f36465ef73a3df34bf2b3bba2ced</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-6.4.1-windows-20110218.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/CYGWIN/installer/kdu-6.4.1-windows-20110218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1026,9 +1038,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>735a955e6442733e2342ab12c1087488</string>
+              <string>f194ba857ca8dd86483a3ef24535d0db</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.5.1-windows-20110221.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng/rev/226532/arch/CYGWIN/installer/libpng-1.5.1-windows-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1122,9 +1134,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d8ecfc647df41d546b1e8c697571e0ea</string>
+              <string>1447d72644ad74e74a057483b33dc0d2</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition-vir/rev/225838/arch/CYGWIN/installer/llconvexdecomposition-0.1-windows-20110406.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition-vir/rev/226659/arch/CYGWIN/installer/llconvexdecomposition-0.1-windows-20110414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1498,9 +1510,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ef430ae3b9cdba518ad9952e99b12367</string>
+              <string>cb04654cdfe93e3c8d16fef0c475e2bb</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pcre-7.6-darwin-20101102.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-pcre/rev/226370/arch/Darwin/installer/pcre-7.6-darwin-20110411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1510,9 +1522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>86195b0680604fe86cfbbfb921c31dff</string>
+              <string>18854c815c6f960e22add25cf1ff93d4</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pcre-7.6-linux-20101029.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-pcre/rev/226572/arch/Linux/installer/pcre-7.6-linux-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1630,9 +1642,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cf513fc2eec4a414cc804cf408932a45</string>
+              <string>dde928cb24d22a267004a8c17669ba65</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_perftools-1.7-linux-20110315.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/226426/arch/Linux/installer/google_perftools-1.7-linux-20110412.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

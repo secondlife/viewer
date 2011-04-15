@@ -9,17 +9,16 @@ use_prebuilt_binary(libxml)
 set(LLPRIMITIVE_INCLUDE_DIRS
     ${LIBS_OPEN_DIR}/llprimitive
     )
-
 if (WINDOWS)
 	set(LLPRIMITIVE_LIBRARIES 
         debug llprimitive
         optimized llprimitive
         debug libcollada14dom22-d
         optimized libcollada14dom22
-        debug libboost_filesystem-d
-        optimized libboost_filesystem
-        debug libboost_system-d
-        optimized libboost_system
+        debug libboost_filesystem-vc100-mt-gd-1_45
+        optimized libboost_filesystem-vc100-mt-1_45
+        debug libboost_system-vc100-mt-gd-1_45
+        optimized libboost_system-vc100-mt-1_45
         )
 else (WINDOWS)
     set(LLPRIMITIVE_LIBRARIES 

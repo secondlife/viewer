@@ -11,6 +11,9 @@ Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 # Use Public Upload Locations
 public_build = true
 
+# skip windows debug build until we can get a fix in.
+build_CYGWIN_Debug = false
+
 # Update Public Inworld Build Status Indicators
 email_status_this_is_os = false
 
@@ -94,6 +97,7 @@ mesh-development.viewer_channel = "Project Viewer - Mesh"
 mesh-development.login_channel = "Project Viewer - Mesh"
 mesh-development.viewer_grid = aditi
 mesh-development.build_debug_release_separately = true
+mesh-development.build_CYGWIN_Debug = false
 mesh-development.build_viewer_update_version_manager = false
 
 # ========================================
