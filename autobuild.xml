@@ -224,7 +224,7 @@
         <key>license</key>
         <string>scea</string>
         <key>license_file</key>
-        <string>LICENSES/scea.txt</string>
+        <string>LICENSES/collada.txt</string>
         <key>name</key>
         <string>colladadom</string>
         <key>platforms</key>
@@ -740,7 +740,7 @@
         <key>license</key>
         <string>bsd</string>
         <key>license_file</key>
-        <string>LICENSES/gmock.txt</string>
+        <string>LICENSES/googlemock.txt</string>
         <key>name</key>
         <string>googlemock</string>
         <key>platforms</key>
@@ -1488,7 +1488,7 @@
         <key>license</key>
         <string>bsd</string>
         <key>license_file</key>
-        <string>LICENSES/bsd.txt</string>
+        <string>LICENSES/pcre-license.txt</string>
         <key>name</key>
         <string>pcre</string>
         <key>platforms</key>
