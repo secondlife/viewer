@@ -96,14 +96,6 @@ enum EPanDirection
 // Values in pixels per region
 static const F32 ZOOM_MAX = 128.f;
 
-struct SortRegionNames
-{
-	inline bool operator ()(std::pair <U64, LLSimInfo*>& _left, std::pair <U64, LLSimInfo*>& _right)
-	{
-		return(LLStringUtil::compareInsensitive(_left.second->getName(),_right.second->getName()) < 0);
-	}
-};
-
 //---------------------------------------------------------------------------
 // Globals
 //---------------------------------------------------------------------------
@@ -1494,11 +1486,18 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 
 	S32 num_results = 0;
 
-	std::vector<std::pair <U64, LLSimInfo*>> simInfoVec(LLWorldMap::getInstance()->getRegionMap().begin(), LLWorldMap::getInstance()->getRegionMap().end());
-	std::sort(simInfoVec.begin(), simInfoVec.end(), SortRegionNames());
+	struct SortRegionNames
+	{
+		inline bool operator ()(std::pair <U64, LLSimInfo*>& _left, std::pair <U64, LLSimInfo*>& _right)
+		{
+			return(LLStringUtil::compareInsensitive(_left.second->getName(),_right.second->getName()) < 0);
+		}
+	};
 
-	std::vector<std::pair <U64, LLSimInfo*>>::const_iterator it;
-	for (it = simInfoVec.begin(); it != simInfoVec.end(); ++it)
+	std::vector<std::pair <U64, LLSimInfo*>> sim_info_vec(LLWorldMap::getInstance()->getRegionMap().begin(), LLWorldMap::getInstance()->getRegionMap().end());
+	std::sort(sim_info_vec.begin(), sim_info_vec.end(), SortRegionNames());
+
+	for (std::vector<std::pair <U64, LLSimInfo*>>::const_iterator it = sim_info_vec.begin(); it != sim_info_vec.end(); ++it)
 	{
 		LLSimInfo* info = it->second;
 		std::string sim_name_lower = info->getName();
