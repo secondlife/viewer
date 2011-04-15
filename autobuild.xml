@@ -30,9 +30,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5aeb923a0a50023d0b3a6a8a81cc3d06</string>
+              <string>18c708163d2a669bc3c030b05b4ebe61</string>
               <key>url</key>
-              <string>https://viewer-source-downloads.s3.amazonaws.com/install_pkgs/glod-1.0pre4-linux-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226657/arch/Linux/installer/glod-1.0pre4-linux-20110414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1522,9 +1522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>86195b0680604fe86cfbbfb921c31dff</string>
+              <string>18854c815c6f960e22add25cf1ff93d4</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pcre-7.6-linux-20101029.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-pcre/rev/226572/arch/Linux/installer/pcre-7.6-linux-20110413.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1642,9 +1642,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cf513fc2eec4a414cc804cf408932a45</string>
+              <string>dde928cb24d22a267004a8c17669ba65</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_perftools-1.7-linux-20110315.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/226426/arch/Linux/installer/google_perftools-1.7-linux-20110412.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
