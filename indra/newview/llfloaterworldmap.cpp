@@ -73,6 +73,7 @@
 #include "llslider.h"
 #include "message.h"
 #include "llwindow.h"			// copyTextToClipboard()
+#include <algorithm>
 
 //---------------------------------------------------------------------------
 // Constants
@@ -85,11 +86,11 @@ static const F32 MAP_ZOOM_TIME = 0.2f;
 // Currently (01/26/09), this value allows the whole grid to be visible in a 1024x1024 window.
 static const S32 MAX_VISIBLE_REGIONS = 512;
 
-// It would be more logical to have this inside the method where it is used but to compile under gcc this 
+// It would be more logical to have this inside the method where it is used but to compile under gcc this
 // struct has to be here.
 struct SortRegionNames
 {
-	inline bool operator ()(const std::pair <U64, LLSimInfo*>& _left, const std::pair <U64, LLSimInfo*>& _right)
+	inline bool operator ()(std::pair <U64, LLSimInfo*> const& _left, std::pair <U64, LLSimInfo*> const& _right)
 	{
 		return(LLStringUtil::compareInsensitive(_left.second->getName(),_right.second->getName()) < 0);
 	}
