@@ -85,6 +85,16 @@ static const F32 MAP_ZOOM_TIME = 0.2f;
 // Currently (01/26/09), this value allows the whole grid to be visible in a 1024x1024 window.
 static const S32 MAX_VISIBLE_REGIONS = 512;
 
+// It would be more logical to have this inside the method where it is used but to compile under gcc this 
+// struct has to be here.
+struct SortRegionNames
+{
+	inline bool operator ()(const std::pair <U64, LLSimInfo*>& _left, const std::pair <U64, LLSimInfo*>& _right)
+	{
+		return(LLStringUtil::compareInsensitive(_left.second->getName(),_right.second->getName()) < 0);
+	}
+};
+
 enum EPanDirection
 {
 	PAN_UP,
@@ -1486,18 +1496,10 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 
 	S32 num_results = 0;
 
-	struct SortRegionNames
-	{
-		inline bool operator ()(std::pair <U64, LLSimInfo*>& _left, std::pair <U64, LLSimInfo*>& _right)
-		{
-			return(LLStringUtil::compareInsensitive(_left.second->getName(),_right.second->getName()) < 0);
-		}
-	};
-
-	std::vector<std::pair <U64, LLSimInfo*>> sim_info_vec(LLWorldMap::getInstance()->getRegionMap().begin(), LLWorldMap::getInstance()->getRegionMap().end());
+	std::vector<std::pair <U64, LLSimInfo*> > sim_info_vec(LLWorldMap::getInstance()->getRegionMap().begin(), LLWorldMap::getInstance()->getRegionMap().end());
 	std::sort(sim_info_vec.begin(), sim_info_vec.end(), SortRegionNames());
 
-	for (std::vector<std::pair <U64, LLSimInfo*>>::const_iterator it = sim_info_vec.begin(); it != sim_info_vec.end(); ++it)
+	for (std::vector<std::pair <U64, LLSimInfo*> >::const_iterator it = sim_info_vec.begin(); it != sim_info_vec.end(); ++it)
 	{
 		LLSimInfo* info = it->second;
 		std::string sim_name_lower = info->getName();
