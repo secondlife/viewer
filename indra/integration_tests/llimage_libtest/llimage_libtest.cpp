@@ -70,6 +70,9 @@ static const char USAGE[] = "\n"
 "        be used. Blocks must be smaller than precincts. Like precincts, this option adds\n"
 "        PLT, tile markers and uses RPCL.\n"
 "        Only valid for output j2c images. Default is 64.\n"
+" -rev, --reversible\n"
+"        Set the compression to be lossless (reversible in j2c parlance).\n"
+"        Only valid for output j2c images.\n"
 " -log, --logmetrics <metric>\n"
 "        Log performance data for <metric>. Results in <metric>.slp\n"
 "        Note: so far, only ImageCompressionTester has been tested.\n"
@@ -144,16 +147,20 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_le
 }
 
 // Save a raw image instance into a file
-bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image, int blocks_size, int precincts_size, bool output_stats)
+bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image, int blocks_size, int precincts_size, bool reversible, bool output_stats)
 {
 	LLPointer<LLImageFormatted> image = create_image(dest_filename);
 	
 	// Set the image codestream parameters on output in the case of a j2c image
-	if ((image->getCodec() == IMG_CODEC_J2C) && ((blocks_size != -1) || (precincts_size != -1)))
+	if (image->getCodec() == IMG_CODEC_J2C)
 	{
 		// That method doesn't exist (and likely, doesn't make sense) for any other image file format
 		// hence the required cryptic cast.
-		((LLImageJ2C*)(image.get()))->initEncode(*raw_image, blocks_size, precincts_size);
+		if ((blocks_size != -1) || (precincts_size != -1))
+		{
+			((LLImageJ2C*)(image.get()))->initEncode(*raw_image, blocks_size, precincts_size);
+		}
+		((LLImageJ2C*)(image.get()))->setReversible(reversible);
 	}
 	
 	if (!image->encode(raw_image, 0.0f))
@@ -299,6 +306,7 @@ int main(int argc, char** argv)
 	int discard_level = -1;
 	int precincts_size = -1;
 	int blocks_size = -1;
+	bool reversible = false;
 
 	// Init whatever is necessary
 	ll_init_apr();
@@ -415,6 +423,10 @@ int main(int argc, char** argv)
 				// *TODO: make sure blocks_size is a power of 2
 			}
 		}
+		else if (!strcmp(argv[arg], "--reversible") || !strcmp(argv[arg], "-rev"))
+		{
+			reversible = true;
+		}
 		else if (!strcmp(argv[arg], "--logmetrics") || !strcmp(argv[arg], "-log"))
 		{
 			// '--logmetrics' needs to be specified with a named test metric argument
@@ -474,7 +486,7 @@ int main(int argc, char** argv)
 	std::list<std::string>::iterator out_file = output_filenames.begin();
 	std::list<std::string>::iterator in_end = input_filenames.end();
 	std::list<std::string>::iterator out_end = output_filenames.end();
-	for (; in_file != in_end; ++in_file)
+	for (; in_file != in_end; ++in_file, ++out_file)
 	{
 		// Load file
 		LLPointer<LLImageRaw> raw_image = load_image(*in_file, discard_level, region, image_stats);
@@ -487,7 +499,7 @@ int main(int argc, char** argv)
 		// Save file
 		if (out_file != out_end)
 		{
-			if (!save_image(*out_file, raw_image, blocks_size, precincts_size, image_stats))
+			if (!save_image(*out_file, raw_image, blocks_size, precincts_size, reversible, image_stats))
 			{
 				std::cout << "Error: Image " << *out_file << " could not be saved" << std::endl;
 			}
@@ -495,7 +507,6 @@ int main(int argc, char** argv)
 			{
 				std::cout << *in_file << " -> " << *out_file << std::endl;
 			}
-			++out_file;
 		}
 	}
 
