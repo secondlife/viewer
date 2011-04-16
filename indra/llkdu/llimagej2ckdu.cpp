@@ -545,18 +545,10 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 
 		// Construct the `kdu_codestream' object and parse all remaining arguments
 		U32 max_output_size = base.getWidth()*base.getHeight()*base.getComponents();
-		if (max_output_size < 1000)
-		{
-			max_output_size = 1000;
-		}
+		max_output_size = (max_output_size < 1000 ? 1000 : max_output_size);
 		U8 *output_buffer = new U8[max_output_size];
-
-		U32 output_size = max_output_size; // gets modified
-		LLKDUMemTarget output(output_buffer, output_size, base.getWidth()*base.getHeight()*base.getComponents());
-		if (output_size > max_output_size)
-		{
-			llerrs << llformat("LLImageJ2C::encode output_size(%d) > max_output_size(%d)", output_size,max_output_size) << llendl;
-		}
+		U32 output_size = 0; // Address updated by LLKDUMemTarget to give the final compressed buffer size
+		LLKDUMemTarget output(output_buffer, output_size, max_output_size);
 
 		kdu_codestream codestream;
 		codestream.create(&transformed_siz,&output);
@@ -583,10 +575,13 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 
 		if (reversible)
 		{
-			// If we're doing reversible (i.e. lossless compression), assumes we're not using quality layers.
-			// Yes, I know this is incorrect!
-			// *TODO: Indeed, this is incorrect and unecessary... Try using the regular layer setting...
 			codestream.access_siz()->parse_string("Creversible=yes");
+			// *TODO: we should use yuv in reversible mode and one level since those images are small. 
+			// Don't turn this on now though as both create problems on decoding for the moment
+			//codestream.access_siz()->parse_string("Clevels=1");
+			//codestream.access_siz()->parse_string("Cycc=no");
+			// If we're doing reversible (i.e. lossless compression), assumes we're not using quality layers.
+			// *TODO: this is incorrect and unecessary. Try using the regular layer setting.
 			codestream.access_siz()->parse_string("Clayers=1");
 			num_layer_specs = 1;
 			layer_bytes[0] = 0;
