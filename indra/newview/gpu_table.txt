@@ -268,9 +268,8 @@ NVIDIA GT 540M					.*NVIDIA.*GeForce *GT *540M.*		3		1
 NVIDIA GT 540					.*NVIDIA.*GeForce *GT *54.*			3		1
 NVIDIA GT 550M					.*NVIDIA.*GeForce *GT *550M.*		3		1
 NVIDIA GT 555M					.*NVIDIA.*GeForce *GT *555M.*		3		1
-NVIDIA GTS 150					.*NVIDIA.*GeForce *GTS *15.*			3		1
-NVIDIA GTS 205					.*NVIDIA.*GeForce *GTS *10.*			3		1
-NVIDIA GTS 240					.*NVIDIA.*GeForce *GTS *24.*			3		1
+NVIDIA GTS 150					.*NVIDIA.*GeForce *GTS *15.*		3		1
+NVIDIA GTS 205					.*NVIDIA.*GeForce *GTS *205.*		3		1
 NVIDIA GTS 240					.*NVIDIA.*GeForce *GTS *24.*		3		1
 NVIDIA GTS 250					.*NVIDIA.*GeForce *GTS *25.*		3		1
 NVIDIA GTS 260M					.*NVIDIA.*GeForce *GTS *260M.*		3		1
@@ -282,9 +281,9 @@ NVIDIA GTS 450					.*NVIDIA.*GeForce *GTS *45.*		3		1
 NVIDIA GTX 260					.*NVIDIA.*GeForce *GTX *26.*		3		1
 NVIDIA GTX 275					.*NVIDIA.*GeForce *GTX *275.*		3		1
 NVIDIA GTX 270					.*NVIDIA.*GeForce *GTX *27.*		3		1
+NVIDIA GTX 285					.*NVIDIA.*GeForce *GTX *285.*		3		1
 NVIDIA GTX 280					.*NVIDIA.*GeForce *GTX *28.*		3		1
 NVIDIA GTX 295					.*NVIDIA.*GeForce *GTX *295.*		3		1
-NVIDIA GTX 290					.*NVIDIA.*GeForce *GTX *29.*		3		1
 NVIDIA GTX 460M					.*NVIDIA.*GeForce *GTX *460M.*		3		1
 NVIDIA GTX 465					.*NVIDIA.*GeForce *GTX *465.*		3		1
 NVIDIA GTX 460					.*NVIDIA.*GeForce *GTX *46.*		3		1
@@ -378,8 +377,8 @@ NVIDIA GeForce Go 6600			.*NVIDIA.*GeForce Go 66.*			1		1
 NVIDIA GeForce Go 6700			.*NVIDIA.*GeForce Go 67.*			1		1
 NVIDIA GeForce Go 6800			.*NVIDIA.*GeForce Go 68.*			1		1
 NVIDIA GeForce Go 7200			.*NVIDIA.*GeForce Go 72.*			1		1
-NVIDIA GeForce Go 7300			.*NVIDIA.*GeForce Go 73.*			1		1
 NVIDIA GeForce Go 7300 LE		.*NVIDIA.*GeForce Go 73.*LE.*		0		1
+NVIDIA GeForce Go 7300			.*NVIDIA.*GeForce Go 73.*			1		1
 NVIDIA GeForce Go 7400			.*NVIDIA.*GeForce Go 74.*			1		1
 NVIDIA GeForce Go 7600			.*NVIDIA.*GeForce Go 76.*			2		1
 NVIDIA GeForce Go 7700			.*NVIDIA.*GeForce Go 77.*			2		1
