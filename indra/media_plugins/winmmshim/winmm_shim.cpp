@@ -39,7 +39,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                        LPVOID lpReserved
 					 )
 {
-	InitializeCriticalSectionAndSpinCount(&sCriticalSection, 0x00000400);
+	InitializeCriticalSection(&sCriticalSection);
 	return TRUE;
 }
 
@@ -62,11 +62,12 @@ void ll_winmm_shim_initialize(){
 			initialized = true;
 			init_function_pointers(winmm_handle);
 			::OutputDebugStringA("WINMM_SHIM.DLL: real winmm.dll initialized successfully\n");
-			return;
 		}
-
-		// failed to initialize real winmm.dll
-		::OutputDebugStringA("WINMM_SHIM.DLL: Failed to initialize real winmm.dll\n");
+		else
+		{
+			// failed to initialize real winmm.dll
+			::OutputDebugStringA("WINMM_SHIM.DLL: Failed to initialize real winmm.dll\n");
+		}
 	}
 	LeaveCriticalSection(&sCriticalSection);
 }
