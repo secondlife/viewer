@@ -61,7 +61,7 @@ void LLURLDispatcherListener::dispatch(const LLSD& params) const
         // But for testing, allow a caller to specify untrusted.
         trusted_browser = params["trusted"].asBoolean();
     }
-    LLURLDispatcher::dispatch(params["url"], NULL, trusted_browser);
+    LLURLDispatcher::dispatch(params["url"], "clicked", NULL, trusted_browser);
 }
 
 void LLURLDispatcherListener::dispatchRightClick(const LLSD& params) const

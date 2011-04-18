@@ -113,6 +113,11 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 
 		media_impl->focus(true);
 		gFocusMgr.setKeyboardFocus(this);
+		LLViewerMediaImpl* impl = getFocusedMediaImpl();
+		if (impl)
+		{
+			LLEditMenuHandler::gEditMenuHandler = impl;
+		}
 		
 		// We must do this before  processing the media HUD zoom, or it may zoom to the wrong face. 
 		update();
@@ -139,6 +144,13 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 		{
 			gFocusMgr.setKeyboardFocus(NULL);
 		}
+
+		LLViewerMediaImpl* impl = getFocusedMediaImpl();
+		if (LLEditMenuHandler::gEditMenuHandler == impl)
+		{
+			LLEditMenuHandler::gEditMenuHandler = NULL;
+		}
+
 		
 		mFocusedImplID = LLUUID::null;
 		if (objectp.notNull())

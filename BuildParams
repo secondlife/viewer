@@ -68,10 +68,10 @@ viewer-pre-release.build_debug_release_separately = true
 viewer-pre-release.build_viewer_update_version_manager = true
 viewer-pre-release.release-viewer.jira = DRTVWR-42
 
+
 # =======================================
 # brad
 # ========================================
-
 debug-halting.email = cg@lindenlab.com
 debug-halting.build_server = false
 debug-halting.build_server_tests = false
@@ -156,10 +156,10 @@ media.build_viewer_update_version_manager = false
 # ================
 
 oz_viewer-devreview.build_debug_release_separately = true
-oz_viewer-poreview.build_debug_release_separately = true
 oz-project-1.build_debug_release_separately = true
 oz-project-2.build_debug_release_separately = true
 oz-project-3.build_debug_release_separately = true
+
 
 # ========================================
 # enus

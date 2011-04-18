@@ -41,6 +41,7 @@ public:
 
 private:
     void call(const LLSD& event) const;
+    void getValue(const LLSD&event) const;
 };
 
 #endif /* ! defined(LL_LLUILISTENER_H) */
