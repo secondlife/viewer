@@ -362,7 +362,7 @@
              label_width="35"
              layout="topleft"
              left_delta="20"
-             max_val="100"
+             max_val="23"
              name="WLCurKeyHour"
              top_pad="4"
              width="74" />
@@ -420,31 +420,8 @@
              height="16"
              layout="topleft"
              left_pad="15"
-             name="DayCycleText"
-             top="114"
-             width="120">
-                Snap:
-            </text>
-            <combo_box
-             enabled="false"
-             height="18"
-             label="5 min"
-             layout="topleft"
-             left_delta="0"
-             name="WLSnapOptions"
-             top_pad="7"
-             width="70" />
-            <text
-             type="string"
-             length="1"
-             border_visible="true"
-             follows="left|top|right"
-             font="SansSerif"
-             height="16"
-             layout="topleft"
-             left_delta="0"
              name="DayCycleText2"
-             top_pad="17"
+             top_delta="71"
              width="120">
                 Length of Cycle:
             </text>

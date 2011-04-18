@@ -302,7 +302,18 @@ bool LLEnvManager::processIncomingMessage(const LLSD& unvalidated_content, const
 
 	if (valid)
 	{
-		F32 sun_hour = LLPanelRegionTerrainInfo::instance()->getSunHour();	// this slider is kept up to date
+		F32 sun_hour = 0;
+		LLPanelRegionTerrainInfo* terrain_panel = LLPanelRegionTerrainInfo::instance();
+
+		if (terrain_panel)
+		{
+			sun_hour = terrain_panel->getSunHour();	// this slider is kept up to date
+		}
+		else
+		{
+			llwarns << "Cannot instantiate the terrain panel (exiting?)" << llendl;
+		}
+
 		LLWLParamManager::getInstance()->addAllSkies(scope, windlight_llsd[2]);
 		LLEnvironmentSettings newSettings(windlight_llsd[1], windlight_llsd[2], windlight_llsd[3], sun_hour);
 		mOrigSettingStore[scope] = newSettings;
