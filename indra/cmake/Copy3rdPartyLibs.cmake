@@ -249,6 +249,7 @@ elseif(LINUX)
         libaprutil-1.so.0
         libatk-1.0.so
         libbreakpad_client.so.0
+	libcollada14dom.so
         libcrypto.so.0.9.8
         libdb-5.1.so
         libexpat.so
@@ -259,6 +260,7 @@ elseif(LINUX)
         libgobject-2.0.so
         libgtest_main.so
         libgtest.so.0
+	libminizip.so
         libopenal.so
         libopenjpeg.so
         libssl.so
