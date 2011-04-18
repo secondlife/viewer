@@ -254,6 +254,7 @@ elseif(LINUX)
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
+	libglod.so
         libgmock_main.so
         libgmock.so.0
         libgmodule-2.0.so

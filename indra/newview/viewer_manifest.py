@@ -960,6 +960,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libdb.so")
             self.path("libcrypto.so.0.9.8")
             self.path("libexpat.so.1.5.2")
+	    self.path("libglod.so")
 	    self.path("libminizip.so")
             self.path("libssl.so.0.9.8")
             self.path("libuuid.so")
