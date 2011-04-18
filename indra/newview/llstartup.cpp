@@ -720,6 +720,8 @@ bool idle_startup()
 
 		timeout_count = 0;
 
+		initialize_edit_menu();
+
 		if (show_connect_box)
 		{
 			// Load all the name information out of the login view
@@ -735,8 +737,6 @@ bool idle_startup()
 			}
 			// Make sure the process dialog doesn't hide things
 			gViewerWindow->setShowProgress(FALSE);
-
-			initialize_edit_menu();
 
 			// Show the login dialog
 			login_show();

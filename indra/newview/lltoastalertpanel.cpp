@@ -220,7 +220,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	}
 
 	static LLUIColor alert_caution_text_color = LLUIColorTable::instance().getColor("AlertCautionTextColor");
-	static LLUIColor alert_text_color = LLUIColorTable::instance().getColor("AlertTextColor");
 	if (mCaution)
 	{
 		LLIconCtrl* icon = LLUICtrlFactory::getInstance()->createFromFile<LLIconCtrl>("alert_icon.xml", this, LLPanel::child_registry_t::instance());
@@ -232,10 +231,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 		
 		msg_x += 32 + HPAD;
 		msg_box->setColor( alert_caution_text_color );
-	}
-	else
-	{
-		msg_box->setColor( alert_text_color );
 	}
 
 	LLRect rect;

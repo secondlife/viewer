@@ -56,7 +56,8 @@
 		<radio_item label="Finestre separate" name="radio" value="0"/>
 		<radio_item label="Schede" name="radio2" value="1"/>
 	</radio_group>
-	<check_box label="Usa la traduzione meccanica durante le chat (tecnologia Google)" name="translate_chat_checkbox"/>
+	<check_box name="translate_chat_checkbox"/>
+	<text name="translate_chb_label" >Usa la traduzione meccanica durante le chat (tecnologia Google)</text>
 	<text name="translate_language_text" width="110">
 		Traduci chat in:
 	</text>
