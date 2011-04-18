@@ -92,6 +92,8 @@
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
 
+#define TMP_DISABLE_WLES // STORM-1180
+
 ///----------------------------------------------------------------------------
 /// Local class declaration
 ///----------------------------------------------------------------------------
@@ -1217,6 +1219,7 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	childSetAction("upload_raw_btn", onClickUploadRaw, this);
 	childSetAction("bake_terrain_btn", onClickBakeTerrain, this);
 
+#ifdef TMP_DISABLE_WLES
        // WL advanced buttons
        childSetAction("EnvAdvancedSkyButton", onOpenAdvancedSky, this);
        childSetAction("EnvAdvancedWaterButton", onOpenAdvancedWater, this);
@@ -1227,6 +1230,7 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
        childSetAction("WLRegionCancel", onCancelRegionWL, this);
        childSetAction("WLRegionDefault", onSetRegionToDefaultWL, this);
        childSetAction("WLCurrentApply", onApplyCurrentWL, this);
+#endif
 
 	return TRUE;
 }
@@ -1264,17 +1268,27 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 
 void LLPanelRegionTerrainInfo::setEnvControls(bool available)
 {
+#ifdef TMP_DISABLE_WLES
+	available = false;
+	getChild<LLUICtrl>("wl_settings_unavailable")->setValue("Temporarily disabled.");
+#endif
+
 	getChildView("EnvUseEstateTimeButton")->setVisible(available);
 	getChildView("EnvAdvancedSkyButton")->setVisible(available);
 	getChildView("EnvAdvancedWaterButton")->setVisible(available);
 	getChildView("WLRegionApply")->setVisible(available);
 	getChildView("WLRegionCancel")->setVisible(available);
 	getChildView("WLRegionDefault")->setVisible(available);
+	getChildView("WLCurrentApply")->setVisible(available);
 	getChildView("wl_settings_unavailable")->setVisible(!available);
 }
 
 void LLPanelRegionTerrainInfo::setCommitControls(bool available)
 {
+#ifdef TMP_DISABLE_WLES
+	available = false;
+#endif
+
 	getChildView("WLRegionApply")->setEnabled(available);
 	getChildView("WLRegionCancel")->setEnabled(available);
 	refresh();
