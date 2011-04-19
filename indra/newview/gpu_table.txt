@@ -54,7 +54,6 @@ ATI ASUS EAH57xx				.*ATI.*ASUS.*EAH57.*				3		1
 ATI ASUS EAH58xx				.*ATI.*ASUS.*EAH58.*				3		1
 ATI Radeon X1xxx				.*ATI.*ASUS.*X1.*					3		1
 ATI Radeon X7xx					.*ATI.*ASUS.*X7.*					1		1
-ATI Radeon X500					.*ATI.*Diamond X5.*					1		1
 ATI Radeon X13xx				.*ATI.*Diamond X13.*				1		1
 ATI Radeon X16xx				.*ATI.*Diamond X16.*				1		1
 ATI Radeon X19xx				.*ATI.*Diamond X19.*				1		1
@@ -179,7 +178,6 @@ ATI Radeon X800					.*ATI.*Radeon X8.*					2		1
 ATI Radeon X900					.*ATI.*Radeon X9.*					2		1
 ATI Radeon Xpress				.*ATI.*Radeon Xpress.*				0		0
 ATI Rage 128					.*ATI.*Rage 128.*					0		1
-ATI RV250						.*ATI.*RV250.*						0		1
 ATI RV380						.*ATI.*RV380.*						0		1
 ATI RV530						.*ATI.*RV530.*						1		1
 ATI RX700						.*ATI.*RX700.*						1		1
@@ -301,7 +299,7 @@ NVIDIA GTX 590					.*NVIDIA.*GeForce *GTX *59.*		3		1
 NVIDIA C51						.*NVIDIA *C51.*						0		1
 NVIDIA G72						.*NVIDIA *G72.*						1		1
 NVIDIA G73						.*NVIDIA *G73.*						1		1
-NVIDIA G84						.*NVIDIA *G84.*						3		1
+NVIDIA G84						.*NVIDIA *G84.*						2		1
 NVIDIA G86						.*NVIDIA *G86.*						3		1
 NVIDIA G92						.*NVIDIA *G92.*						3		1
 NVIDIA GeForce					.*GeForce 256.*						0		0
@@ -384,10 +382,8 @@ NVIDIA GeForce Go 7600			.*NVIDIA.*GeForce Go 76.*			2		1
 NVIDIA GeForce Go 7700			.*NVIDIA.*GeForce Go 77.*			2		1
 NVIDIA GeForce Go 7800			.*NVIDIA.*GeForce Go 78.*			2		1
 NVIDIA GeForce Go 7900			.*NVIDIA.*GeForce Go 79.*			2		1
-NVIDIA D9M						.*D9M.*								1		1
-NVIDIA G84						.*G84.*								1		1
-NVIDIA G92						.*G92.*								3		1
-NVIDIA G94						.*G94.*								3		1
+NVIDIA D9M						.*NVIDIA.*D9M.*						1		1
+NVIDIA G94						.*NVIDIA.*G94.*						3		1
 NVIDIA GeForce Go 6				.*GeForce Go 6.*					1		1
 NVIDIA ION 2					.*NVIDIA ION 2.*					2		1
 NVIDIA ION						.*NVIDIA ION.*						2		1
