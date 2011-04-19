@@ -35,7 +35,7 @@
 // system includes
 #include <boost/tokenizer.hpp>
 
-#define THROTTLE_PERIOD    20    // required secs between throttled commands
+#define THROTTLE_PERIOD    5    // required seconds between throttled commands
 
 static LLCommandDispatcherListener sCommandDispatcherListener;
 
@@ -134,7 +134,7 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 			if (cur_time < last_throttle_time + THROTTLE_PERIOD)
 			{
 				// block request from external browser if it happened
-				// within THROTTLE_PERIOD secs of the last command
+				// within THROTTLE_PERIOD seconds of the last command
 				LL_WARNS_ONCE("SLURL") << "Throttled SLURL command from untrusted browser" << LL_ENDL;
 				if (! slurl_throttled)
 				{
