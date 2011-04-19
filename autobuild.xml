@@ -1590,7 +1590,6 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Debug</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                 </array>
@@ -1598,7 +1597,7 @@
               <key>name</key>
               <string>Debug</string>
             </map>
-            <key>OpenSourceDebug</key>
+            <key>DebugOS</key>
             <map>
               <key>configure</key>
               <map>
@@ -1607,98 +1606,17 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Debug</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceDebug</string>
-            </map>
-            <key>OpenSourceRelWithDebInfo</key>
-            <map>
-              <key>configure</key>
-              <map>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
+                <key>arguments</key>
                 <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>../indra</string>
                 </array>
               </map>
               <key>name</key>
-              <string>OpenSourceRelWithDebInfo</string>
-            </map>
-            <key>OpenSourceRelease</key>
-            <map>
-              <key>configure</key>
-              <map>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceRelease</string>
-            </map>
-            <key>OpenSourceStandAloneDebug</key>
-            <map>
-              <key>configure</key>
-              <map>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=Debug</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneDebug</string>
-            </map>
-            <key>OpenSourceStandAloneRelWithDebInfo</key>
-            <map>
-              <key>configure</key>
-              <map>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneRelWithDebInfo</string>
-            </map>
-            <key>OpenSourceStandAloneRelease</key>
-            <map>
-              <key>configure</key>
-              <map>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneRelease</string>
+              <string>DebugOS</string>
             </map>
             <key>RelWithDebInfo</key>
             <map>
@@ -1712,13 +1630,33 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                 </array>
               </map>
               <key>name</key>
               <string>RelWithDebInfo</string>
+            </map>
+            <key>RelWithDebInfoOS</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
+                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                </array>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>RelWithDebInfoOS</string>
             </map>
             <key>Release</key>
             <map>
@@ -1732,83 +1670,38 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
+                  <string>-DLL_RELEASE_FOR_DOWNLOAD:BOOL=TRUE</string>
                 </array>
               </map>
               <key>name</key>
               <string>Release</string>
             </map>
-            <!-- OPEN-1 WORKAROUND begin - to be removed when VC express is detected correctly -->
-            <key>VCexpressRelWithDebInfo</key>
+            <key>ReleaseOS</key>
             <map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>VCexpressRelWithDebInfo</string>
-            </map>
-            <!-- OPEN-1 WORKAROUND end -->
-            <!-- OPEN-1a WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
-            <key>VC10msbuildRelWithDebInfo</key>
-            <map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>VC10msbuildRelWithDebInfo</string>
-            </map>
-            <!-- OPEN-1a WORKAROUND end -->
-            <!-- OPEN-1a Release WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
-            <key>VC10msbuildRelease</key>
-            <map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DUNATTENDED:BOOL=OFF</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DLL_RELEASE_FOR_DOWNLOAD:BOOL=YES</string>
+                </array>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
                 </array>
               </map>
               <key>name</key>
-              <string>VC10msbuildRelease</string>
+              <string>ReleaseOS</string>
             </map>
-            <!-- OPEN-1a Release WORKAROUND end -->            
           </map>
           <key>name</key>
           <string>common</string>
@@ -1848,15 +1741,12 @@
                 <array>
                   <string>-G</string>
                   <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
               <string>Debug</string>
             </map>
-            <key>OpenSourceDebug</key>
+            <key>DebugOS</key>
             <map>
               <key>build</key>
               <map>
@@ -1870,171 +1760,14 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
                   <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
-              <string>OpenSourceDebug</string>
-            </map>
-            <key>OpenSourceRelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>xcodebuild</string>
-                <key>options</key>
-                <array>
-                  <string>-configuration RelWithDebInfo</string>
-                  <string>-project SecondLife.xcodeproj</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceRelWithDebInfo</string>
-            </map>
-            <key>OpenSourceRelease</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>xcodebuild</string>
-                <key>options</key>
-                <array>
-                  <string>-configuration Release</string>
-                  <string>-project SecondLife.xcodeproj</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceRelease</string>
-            </map>
-            <key>OpenSourceStandAloneDebug</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>xcodebuild</string>
-                <key>options</key>
-                <array>
-                  <string>-configuration Debug</string>
-                  <string>-project SecondLife.xcodeproj</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=TRUE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneDebug</string>
-            </map>
-            <key>OpenSourceStandAloneRelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>xcodebuild</string>
-                <key>options</key>
-                <array>
-                  <string>-configuration RelWithDebInfo</string>
-                  <string>-project SecondLife.xcodeproj</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=TRUE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneRelWithDebInfo</string>
-            </map>
-            <key>OpenSourceStandAloneRelease</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>xcodebuild</string>
-                <key>options</key>
-                <array>
-                  <string>-configuration Release</string>
-                  <string>-project SecondLife.xcodeproj</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=TRUE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneRelease</string>
+              <string>DebugOS</string>
             </map>
             <key>RelWithDebInfo</key>
             <map>
@@ -2065,15 +1798,35 @@
                 <array>
                   <string>-G</string>
                   <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>default</key>
               <string>True</string>
               <key>name</key>
               <string>RelWithDebInfo</string>
+            </map>
+            <key>RelWithDebInfoOS</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>xcodebuild</string>
+                <key>options</key>
+                <array>
+                  <string>-configuration RelWithDebInfo</string>
+                  <string>-project SecondLife.xcodeproj</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>'Xcode'</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>RelWithDebInfoOS</string>
             </map>
             <key>Release</key>
             <map>
@@ -2104,13 +1857,33 @@
                 <array>
                   <string>-G</string>
                   <string>'Xcode'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
               <string>Release</string>
+            </map>
+            <key>ReleaseOS</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>xcodebuild</string>
+                <key>options</key>
+                <array>
+                  <string>-configuration Release</string>
+                  <string>-project SecondLife.xcodeproj</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>'Xcode'</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>ReleaseOS</string>
             </map>
           </map>
           <key>name</key>
@@ -2143,15 +1916,12 @@
                 <array>
                   <string>-G</string>
                   <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
               <string>Debug</string>
             </map>
-            <key>OpenSourceDebug</key>
+            <key>DebugOS</key>
             <map>
               <key>build</key>
               <map>
@@ -2159,171 +1929,19 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 12</string>
+                  <string>-j 2</string>
                 </array>
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
                   <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
-              <string>OpenSourceDebug</string>
-            </map>
-            <key>OpenSourceRelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>make</string>
-                <key>options</key>
-                <array>
-                  <string>-j 12</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceRelWithDebInfo</string>
-            </map>
-            <key>OpenSourceRelease</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>make</string>
-                <key>options</key>
-                <array>
-                  <string>-j 12</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceRelease</string>
-            </map>
-            <key>OpenSourceStandAloneDebug</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>make</string>
-                <key>options</key>
-                <array>
-                  <string>-j 12</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=TRUE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneDebug</string>
-            </map>
-            <key>OpenSourceStandAloneRelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>make</string>
-                <key>options</key>
-                <array>
-                  <string>-j 12</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=TRUE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneRelWithDebInfo</string>
-            </map>
-            <key>OpenSourceStandAloneRelease</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>make</string>
-                <key>options</key>
-                <array>
-                  <string>-j 12</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=TRUE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneRelease</string>
+              <string>DebugOS</string>
             </map>
             <key>RelWithDebInfo</key>
             <map>
@@ -2346,15 +1964,34 @@
                 <array>
                   <string>-G</string>
                   <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>default</key>
               <string>True</string>
               <key>name</key>
               <string>RelWithDebInfo</string>
+            </map>
+            <key>RelWithDebInfoOS</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>make</string>
+                <key>options</key>
+                <array>
+                  <string>-j 2</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>'Unix Makefiles'</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>RelWithDebInfoOS</string>
             </map>
             <key>Release</key>
             <map>
@@ -2377,13 +2014,32 @@
                 <array>
                   <string>-G</string>
                   <string>'Unix Makefiles'</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
               <string>Release</string>
+            </map>
+            <key>ReleaseOS</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>make</string>
+                <key>options</key>
+                <array>
+                  <string>-j 2</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>'Unix Makefiles'</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>ReleaseOS</string>
             </map>
             <key>default</key>
             <map>
@@ -2437,15 +2093,12 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
               <string>Debug</string>
             </map>
-            <key>OpenSourceDebug</key>
+            <key>DebugOS</key>
             <map>
               <key>build</key>
               <map>
@@ -2454,216 +2107,33 @@
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>devenv.com</string>
+                <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>Debug</string>
+                  <string>/p:Configuration=Debug</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/toolsversion:4.0</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
                 </array>
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>Debug</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DUNATTENDED:BOOL=ON</string>
+                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
+                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
+                  <string>-DUSE_KDU=FALSE</string>
                   <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
-              <string>OpenSourceDebug</string>
-            </map>
-            <key>OpenSourceRelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>devenv.com</string>
-                <key>options</key>
-                <array>
-                  <string>/build</string>
-                  <string>RelWithDebInfo</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceRelWithDebInfo</string>
-            </map>
-            <key>OpenSourceRelease</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>devenv.com</string>
-                <key>options</key>
-                <array>
-                  <string>/build</string>
-                  <string>Release</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceRelease</string>
-            </map>
-            <key>OpenSourceStandAloneDebug</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>devenv.com</string>
-                <key>options</key>
-                <array>
-                  <string>/build</string>
-                  <string>Debug</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=TRUE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneDebug</string>
-            </map>
-            <key>OpenSourceStandAloneRelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>devenv.com</string>
-                <key>options</key>
-                <array>
-                  <string>/build</string>
-                  <string>RelWithDebInfo</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=TRUE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneRelWithDebInfo</string>
-            </map>
-            <key>OpenSourceStandAloneRelease</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>devenv.com</string>
-                <key>options</key>
-                <array>
-                  <string>/build</string>
-                  <string>Release</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=TRUE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>OpenSourceStandAloneRelease</string>
+              <string>DebugOS</string>
             </map>
             <key>RelWithDebInfo</key>
             <map>
@@ -2699,15 +2169,49 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>default</key>
               <string>True</string>
               <key>name</key>
               <string>RelWithDebInfo</string>
+            </map>
+            <key>RelWithDebInfoOS</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>SecondLife.sln</string>
+                </array>
+                <key>command</key>
+                <string>msbuild.exe</string>
+                <key>options</key>
+                <array>
+                  <string>/p:Configuration=RelWithDebInfo</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/toolsversion:4.0</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>"Visual Studio 10"</string>
+                  <string>-DUNATTENDED:BOOL=ON</string>
+                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
+                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
+                  <string>-DUSE_KDU=FALSE</string>
+                  <string>-DFMOD=FALSE</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>RelWithDebInfoOS</string>
             </map>
             <key>Release</key>
             <map>
@@ -2744,95 +2248,31 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=OFF</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DFMOD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
               <string>Release</string>
             </map>
-            <!-- OPEN-1 WORKAROUND begin - to be removed when VC express is detected correctly -->
-            <key>VCexpressRelWithDebInfo</key>
+            <key>ReleaseOS</key>
             <map>
               <key>build</key>
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>"RelWithDebInfo|Win32"</string>
-                </array>
-                <key>command</key>
-                <string>vcbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>/u</string>
                   <string>SecondLife.sln</string>
                 </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>VCexpressRelWithDebInfo</string>
-            </map>
-            <!-- OPEN-1 WORKAROUND end -->
-            <!-- OPEN-1a WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
-           <key>VC10msbuildRelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
                 <key>command</key>
                 <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>SecondLife.sln</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/t:build</string>
-                  <string>/p:Configuration=RelWithDebInfo</string>
-                  <string>/p:Platform=Win32</string>
-                  <string>/p:"VCBuildAdditionalOptions= /useenv"</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
-                  </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>VC10msbuildRelWithDebInfo</string>
-            </map>
-           <!-- OPEN-1a WORKAROUND end -->
-            <!-- OPEN-1a Release WORKAROUND begin - to be removed when VC 2010 is detected correctly -->
-           <key>VC10msbuildRelease</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>msbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                  <string>/t:build</string>
                   <string>/p:Configuration=Release</string>
                   <string>/p:Platform=Win32</string>
-                  <string>/p:"VCBuildAdditionalOptions= /useenv"</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/toolsversion:4.0</string>
                   <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
-                  </array>
+                </array>
               </map>
               <key>configure</key>
               <map>
@@ -2840,15 +2280,16 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
-                  <string>-DSTANDALONE:BOOL=FALSE</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DUNATTENDED:BOOL=ON</string>
+                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
+                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
+                  <string>-DUSE_KDU=FALSE</string>
                   <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
-              <string>VC10msbuildRelease</string>
+              <string>ReleaseOS</string>
             </map>
-           <!-- OPEN-1a WORKAROUND end -->
           </map>
           <key>name</key>
           <string>windows</string>
