@@ -340,7 +340,7 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	mPreviewRect = preview_panel->getRect();
 
-	mModelPreview = new LLModelPreview(512, 512, this);
+	mModelPreview = new LLModelPreview(512, 512, this );
 	mModelPreview->setPreviewTarget(16.f);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
 
@@ -383,7 +383,7 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 	sInstance = NULL;
 	
 	if ( mModelPreview && mModelPreview->getResetJointFlag() )
-	{
+	{		
 		gAgentAvatarp->resetJointPositions();
 	}
 
@@ -994,8 +994,11 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 //-----------------------------------------------------------------------------
 // LLModelLoader
 //-----------------------------------------------------------------------------
-LLModelLoader::LLModelLoader(std::string filename, S32 lod, LLModelPreview* preview)
-: LLThread("Model Loader"), mFilename(filename), mLod(lod), mPreview(preview), mFirstTransform(TRUE)
+LLModelLoader::LLModelLoader( std::string filename, S32 lod, LLModelPreview* preview, JointTransformMap& jointMap, 
+							  std::deque<std::string>& jointsFromNodes )
+: mJointList( jointMap )
+, mJointsFromNode( jointsFromNodes )
+, LLThread("Model Loader"), mFilename(filename), mLod(lod), mPreview(preview), mFirstTransform(TRUE)
 {
 	mJointMap["mPelvis"] = "mPelvis";
 	mJointMap["mTorso"] = "mTorso";
@@ -1072,27 +1075,6 @@ LLModelLoader::LLModelLoader(std::string filename, S32 lod, LLModelPreview* prev
 	mJointMap["lThigh"] = "mHipLeft";
 	mJointMap["lShin"] = "mKneeLeft";
 	mJointMap["lFoot"] = "mFootLeft";
-
-	//move into joint mapper class
-	mMasterJointList.push_front("mPelvis");
-	mMasterJointList.push_front("mTorso");
-	mMasterJointList.push_front("mChest");
-	mMasterJointList.push_front("mNeck");
-	mMasterJointList.push_front("mHead");
-	mMasterJointList.push_front("mCollarLeft");
-	mMasterJointList.push_front("mShoulderLeft");
-	mMasterJointList.push_front("mElbowLeft");
-	mMasterJointList.push_front("mWristLeft");
-	mMasterJointList.push_front("mCollarRight");
-	mMasterJointList.push_front("mShoulderRight");
-	mMasterJointList.push_front("mElbowRight");
-	mMasterJointList.push_front("mWristRight");
-	mMasterJointList.push_front("mHipRight");
-	mMasterJointList.push_front("mKneeRight");
-	mMasterJointList.push_front("mFootRight");
-	mMasterJointList.push_front("mHipLeft");
-	mMasterJointList.push_front("mKneeLeft");
-	mMasterJointList.push_front("mFootLeft");
 
 	if (mPreview)
 	{
@@ -1356,12 +1338,8 @@ bool LLModelLoader::doLoadModel()
 							skin_info.mBindShapeMatrix = trans;
 							
 						}
-						
-						
-						//The joint transfom map that we'll populate below
-						std::map<std::string,LLMatrix4> jointTransforms;
-						jointTransforms.clear();
-						
+										
+											
 						//Some collada setup for accessing the skeleton
 						daeElement* pElement = 0;
 						dae.getDatabase()->getElement( &pElement, 0, 0, "skeleton" );
@@ -1410,7 +1388,7 @@ bool LLModelLoader::doLoadModel()
 									domNode* pNode = daeSafeCast<domNode>(children[i]);
 									if ( isNodeAJoint( pNode ) )
 									{
-										processJointNode( pNode, jointTransforms );
+										processJointNode( pNode, mJointList );
 									}
 								}
 							}
@@ -1468,7 +1446,7 @@ bool LLModelLoader::doLoadModel()
 										}
 										
 										//Store the joint transform w/respect to it's name.
-										jointTransforms[(*jointIt).second.c_str()] = workingTransform;
+										mJointList[(*jointIt).second.c_str()] = workingTransform;
                                     }
 								}
 								
@@ -1571,13 +1549,10 @@ bool LLModelLoader::doLoadModel()
 						//Now that we've parsed the joint array, let's determine if we have a full rig
 						//(which means we have all the joints that are required for an avatar versus
 						//a skinned asset attached to a node in a file that contains an entire skeleton,
-						//but does not use the skeleton).
-						mPreview->setRigValid( doesJointArrayContainACompleteRig( model->mSkinInfo.mJointNames ) );
-						if ( !skeletonWithNoRootNode && !model->mSkinInfo.mJointNames.empty() && mPreview->isRigValid() ) 
-						{
-							mPreview->setResetJointFlag( true );
-						}
+						//but does not use the skeleton).						
 						
+						mPreview->critiqueRigForUploadApplicability( model->mSkinInfo.mJointNames );
+										
 						if ( !missingSkeletonOrScene )
 						{
 							//Set the joint translations on the avatar - if it's a full mapping
@@ -1590,10 +1565,10 @@ bool LLModelLoader::doLoadModel()
 								{
 									std::string lookingForJoint = (*masterJointIt).first.c_str();
 									
-									if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
+									if ( mJointList.find( lookingForJoint ) != mJointList.end() )
 									{
 										//llinfos<<"joint "<<lookingForJoint.c_str()<<llendl;
-										LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
+										LLMatrix4 jointTransform = mJointList[lookingForJoint];
 										LLJoint* pJoint = gAgentAvatarp->getJoint( lookingForJoint );
 										if ( pJoint )
 										{   
@@ -1609,6 +1584,7 @@ bool LLModelLoader::doLoadModel()
 							}
 						} //missingSkeletonOrScene
 						
+						
 						//We need to construct the alternate bind matrix (which contains the new joint positions)
 						//in the same order as they were stored in the joint buffer. The joints associated
 						//with the skeleton are not stored in the same order as they are in the exported joint buffer.
@@ -1620,11 +1596,11 @@ bool LLModelLoader::doLoadModel()
 							std::string lookingForJoint = (*jointIt).c_str();
 							//Look for the joint xform that we extracted from the skeleton, using the jointIt as the key
 							//and store it in the alternate bind matrix
-							if ( jointTransforms.find( lookingForJoint ) != jointTransforms.end() )
+							if ( mJointList.find( lookingForJoint ) != mJointList.end() )
 							{
-								LLMatrix4 jointTransform = jointTransforms[lookingForJoint];
+								LLMatrix4 jointTransform = mJointList[lookingForJoint];
 								LLMatrix4 newInverse = model->mSkinInfo.mInvBindMatrix[i];
-								newInverse.setTranslation( jointTransforms[lookingForJoint].getTranslation() );
+								newInverse.setTranslation( mJointList[lookingForJoint].getTranslation() );
 								model->mSkinInfo.mAlternateBindMatrix.push_back( newInverse );
 							}
 							else
@@ -1787,7 +1763,11 @@ bool LLModelLoader::doLoadModel()
 	processElement(scene);
 	
 	handlePivotPoint( root );
+
+	buildJointToNodeMappingFromScene( root );
 	
+	mPreview->critiqueJointToNodeMappingFromScene();
+
 	return true;
 }
 
@@ -1836,8 +1816,9 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 				model[lod].push_back(loaded_model);
 
 				if (lod == LLModel::LOD_HIGH && !loaded_model->mSkinInfo.mJointNames.empty())
-				{ //check to see if rig is valid
-					mPreview->setRigValid( doesJointArrayContainACompleteRig( loaded_model->mSkinInfo.mJointNames ) );
+				{ 
+					//check to see if rig is valid					
+					mPreview->critiqueRigForUploadApplicability( loaded_model->mSkinInfo.mJointNames );					
 				}
 			}
 			else
@@ -1911,7 +1892,52 @@ void LLModelLoader::loadModelCallback()
 
 	delete this;
 }
-
+//-----------------------------------------------------------------------------
+// buildJointToNodeMappingFromScene()
+//-----------------------------------------------------------------------------
+void LLModelLoader::buildJointToNodeMappingFromScene( daeElement* pRoot )
+{
+	daeElement* pScene = pRoot->getDescendant("visual_scene");
+	if ( pScene )
+	{
+		daeTArray< daeSmartRef<daeElement> > children = pScene->getChildren();
+		S32 childCount = children.getCount();
+		for (S32 i = 0; i < childCount; ++i)
+		{
+			domNode* pNode = daeSafeCast<domNode>(children[i]);
+			processJointToNodeMapping( pNode );			
+		}
+	}
+}
+//-----------------------------------------------------------------------------
+// processJointToNodeMapping()
+//-----------------------------------------------------------------------------
+void LLModelLoader::processJointToNodeMapping( domNode* pNode )
+{
+	if ( isNodeAJoint( pNode ) )
+	{
+		//1.Store the parent
+		std::string nodeName = pNode->getName();
+		if ( !nodeName.empty() )
+		{
+			mJointsFromNode.push_front( pNode->getName() );
+		}
+		//2. Handle the kiddo's
+		daeTArray< daeSmartRef<daeElement> > childOfChild = pNode->getChildren();
+		S32 childOfChildCount = childOfChild.getCount();
+		for (S32 i = 0; i < childOfChildCount; ++i)
+		{
+			domNode* pChildNode = daeSafeCast<domNode>( childOfChild[i] );
+			if ( pChildNode )
+			{
+				processJointToNodeMapping( pChildNode );
+			}
+		}
+	}
+}
+//-----------------------------------------------------------------------------
+// handlePivotPoint()
+//-----------------------------------------------------------------------------
 void LLModelLoader::handlePivotPoint( daeElement* pRoot )
 {
 	//Import an optional pivot point - a pivot point is just a node in the visual scene named "AssetPivot"
@@ -1953,36 +1979,156 @@ void LLModelLoader::handlePivotPoint( daeElement* pRoot )
 	} 
 }
 
-bool LLModelLoader::doesJointArrayContainACompleteRig( const std::vector<std::string> &jointListFromModel )
+//-----------------------------------------------------------------------------
+// critiqueRigForUploadApplicability()
+//-----------------------------------------------------------------------------
+void LLModelPreview::critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset )
 {
-	std::deque<std::string> :: const_iterator masterJointIt = mMasterJointList.begin();	
-	std::deque<std::string> :: const_iterator masterJointEndIt = mMasterJointList.end();
+	//Determines the following use cases for a rig:
+	//1. It is suitable for upload with skin weights & joint positions, or
+	//2. It is suitable for upload as standard av with just skin weights
 	
-	std::vector<std::string> :: const_iterator modelJointIt = jointListFromModel.begin();	
-	std::vector<std::string> :: const_iterator modelJointItEnd = jointListFromModel.end();
+	bool isJointPositionUploadOK = isRigSuitableForJointPositionUpload( jointListFromAsset );
+	bool isRigLegacyOK			 = isRigLegacy( jointListFromAsset );
+
+	//It's OK that both could end up being true, both default to false
+	if ( isJointPositionUploadOK )
+	{
+		setRigValidForJointPositionUpload( true );
+	}
+
+	if ( isRigLegacyOK )
+	{
+		setLegacyRigValid( true );
+	}
+
+	if ( isJointPositionUploadOK )
+	{
+		setResetJointFlag( true );
+	}
+}
+//-----------------------------------------------------------------------------
+// critiqueJointToNodeMappingFromScene()
+//-----------------------------------------------------------------------------
+void LLModelPreview::critiqueJointToNodeMappingFromScene( void  )
+{
+	//Do the actual nodes back the joint listing from the dae?
+	//if yes then this is a fully rigged asset, otherwise it's just a partial rig
 	
-	bool found = false;
+	std::deque<std::string>::iterator jointsFromNodeIt = mJointsFromNode.begin();
+	std::deque<std::string>::iterator jointsFromNodeEndIt = mJointsFromNode.end();
+	bool result = true;
+
+	if ( !mJointsFromNode.empty() )
+	{
+		for ( ;jointsFromNodeIt!=jointsFromNodeEndIt;++jointsFromNodeIt )
+		{
+			std::string name = *jointsFromNodeIt;
+			if ( mJointTransformMap.find( name ) != mJointTransformMap.end() )
+			{
+				continue;
+			}
+			else
+			{
+				llinfos<<"critiqueJointToNodeMappingFromScene is missing a: "<<name<<llendl;
+				result = false;				
+			}
+		}
+	}
+	else
+	{
+		result = false;
+	}
+
+	//Determines the following use cases for a rig:
+	//1. Full av rig  w/1-1 mapping from the scene and joint array
+	//2. Partial rig but w/o parity between the scene and joint array
+	if ( result )
+	{		
+		setResetJointFlag( true );
+		//llinfos<<"Full"<<llendl;
+	}
+	else
+	{
+		setResetJointFlag( false );
+		//llinfos<<"Partial"<<llendl;
+	}	
+}
+//-----------------------------------------------------------------------------
+// isRigLegacy()
+//-----------------------------------------------------------------------------
+bool LLModelPreview::isRigLegacy( const std::vector<std::string> &jointListFromAsset )
+{
+	//No joints in asset
+	if ( jointListFromAsset.size() == 0 )
+	{
+		return false;
+	}
+
+	bool result = false;
+
+	std::deque<std::string> :: const_iterator masterJointIt = mMasterLegacyJointList.begin();	
+	std::deque<std::string> :: const_iterator masterJointEndIt = mMasterLegacyJointList.end();
+	
+	std::vector<std::string> :: const_iterator modelJointIt = jointListFromAsset.begin();	
+	std::vector<std::string> :: const_iterator modelJointItEnd = jointListFromAsset.end();
+	
 	for ( ;masterJointIt!=masterJointEndIt;++masterJointIt )
 	{
-		found = false;
-		modelJointIt = jointListFromModel.begin();
+		result = false;
+		modelJointIt = jointListFromAsset.begin();
+
 		for ( ;modelJointIt!=modelJointItEnd; ++modelJointIt )
 		{
 			if ( *masterJointIt == *modelJointIt )
 			{
-				found = true;
+				result = true;
 				break;
 			}			
 		}		
-		if ( !found )
+		if ( !result )
 		{
-			llinfos<<" Asset did not contain the joint (if you're u/l a fully rigged asset - it is required)." << *masterJointIt<< llendl;
+			llinfos<<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< llendl;
 			break;
 		}
-	}
-	
-	return found;
+	}	
+	return result;
 }
+//-----------------------------------------------------------------------------
+// isRigSuitableForJointPositionUpload()
+//-----------------------------------------------------------------------------
+bool LLModelPreview::isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset )
+{
+	bool result = false;
+
+	std::deque<std::string> :: const_iterator masterJointIt = mMasterJointList.begin();	
+	std::deque<std::string> :: const_iterator masterJointEndIt = mMasterJointList.end();
+	
+	std::vector<std::string> :: const_iterator modelJointIt = jointListFromAsset.begin();	
+	std::vector<std::string> :: const_iterator modelJointItEnd = jointListFromAsset.end();
+	
+	for ( ;masterJointIt!=masterJointEndIt;++masterJointIt )
+	{
+		result = false;
+		modelJointIt = jointListFromAsset.begin();
+
+		for ( ;modelJointIt!=modelJointItEnd; ++modelJointIt )
+		{
+			if ( *masterJointIt == *modelJointIt )
+			{
+				result = true;
+				break;
+			}			
+		}		
+		if ( !result )
+		{
+			llinfos<<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< llendl;
+			break;
+		}
+	}	
+	return result;
+}
+
 
 //called in the main thread
 void LLModelLoader::loadTextures()
@@ -2013,6 +2159,9 @@ void LLModelLoader::loadTextures()
 	}
 }
 
+//-----------------------------------------------------------------------------
+// isNodeAJoint()
+//-----------------------------------------------------------------------------
 bool LLModelLoader::isNodeAJoint( domNode* pNode )
 {
 	if ( pNode->getName() == NULL)
@@ -2027,7 +2176,9 @@ bool LLModelLoader::isNodeAJoint( domNode* pNode )
 
 	return false;
 }
-
+//-----------------------------------------------------------------------------
+// isNodeAPivotPoint()
+//-----------------------------------------------------------------------------
 bool LLModelLoader::isNodeAPivotPoint( domNode* pNode )
 {
 	bool result = false;
@@ -2046,14 +2197,18 @@ bool LLModelLoader::isNodeAPivotPoint( domNode* pNode )
 	}	
 	return result;
 }
-
+//-----------------------------------------------------------------------------
+// extractTranslation()
+//-----------------------------------------------------------------------------
 void LLModelLoader::extractTranslation( domTranslate* pTranslate, LLMatrix4& transform )
 {
 	domFloat3 jointTrans = pTranslate->getValue();
 	LLVector3 singleJointTranslation( jointTrans[0], jointTrans[1], jointTrans[2] );
 	transform.setTranslation( singleJointTranslation );
 }
-
+//-----------------------------------------------------------------------------
+// extractTranslationViaElement()
+//-----------------------------------------------------------------------------
 void LLModelLoader::extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform )
 {
 	domTranslate* pTranslateChild = dynamic_cast<domTranslate*>( pTranslateElement );
@@ -2061,8 +2216,10 @@ void LLModelLoader::extractTranslationViaElement( daeElement* pTranslateElement,
 	LLVector3 singleJointTranslation( translateChild[0], translateChild[1], translateChild[2] );
 	transform.setTranslation( singleJointTranslation );
 }
-
-void LLModelLoader::processJointNode( domNode* pNode, std::map<std::string,LLMatrix4>& jointTransforms )
+//-----------------------------------------------------------------------------
+// processJointNode()
+//-----------------------------------------------------------------------------
+void LLModelLoader::processJointNode( domNode* pNode, JointTransformMap& jointTransforms )
 {
 	if (pNode->getName() == NULL)
 	{
@@ -2135,7 +2292,9 @@ void LLModelLoader::processJointNode( domNode* pNode, std::map<std::string,LLMat
 		}
 	}
 }
-
+//-----------------------------------------------------------------------------
+// getChildFromElement()
+//-----------------------------------------------------------------------------
 daeElement* LLModelLoader::getChildFromElement( daeElement* pElement, std::string const & name )
 {
     daeElement* pChildOfElement = pElement->getChild( name.c_str() );
@@ -2456,8 +2615,10 @@ LLColor4 LLModelLoader::getDaeColor(daeElement* element)
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
 , mPelvisZOffset( 0.0f )
-, mRigValid( false )
+, mLegacyRigValid( false )
+, mRigValidJointUpload( false )
 , mResetJoints( false )
+, mLastJointUpdate( false )
 {
 	mNeedsUpdate = TRUE;
 	mCameraDistance = 0.f;
@@ -2491,6 +2652,40 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mModelPivot = LLVector3( 0.0f, 0.0f, 0.0f );
 	
 	glodInit();
+
+	//move into joint mapper class
+	//1. joints for joint offset verification
+	mMasterJointList.push_front("mPelvis");
+	mMasterJointList.push_front("mTorso");
+	mMasterJointList.push_front("mChest");
+	mMasterJointList.push_front("mNeck");
+	mMasterJointList.push_front("mHead");
+	mMasterJointList.push_front("mCollarLeft");
+	mMasterJointList.push_front("mShoulderLeft");
+	mMasterJointList.push_front("mElbowLeft");
+	mMasterJointList.push_front("mWristLeft");
+	mMasterJointList.push_front("mCollarRight");
+	mMasterJointList.push_front("mShoulderRight");
+	mMasterJointList.push_front("mElbowRight");
+	mMasterJointList.push_front("mWristRight");
+	mMasterJointList.push_front("mHipRight");
+	mMasterJointList.push_front("mKneeRight");
+	mMasterJointList.push_front("mFootRight");
+	mMasterJointList.push_front("mHipLeft");
+	mMasterJointList.push_front("mKneeLeft");
+	mMasterJointList.push_front("mFootLeft");
+	//2. legacy joint list - used to verify rigs that will not be using joint offsets
+	mMasterLegacyJointList.push_front("mPelvis");
+	mMasterLegacyJointList.push_front("mTorso");
+	mMasterLegacyJointList.push_front("mChest");
+	mMasterLegacyJointList.push_front("mNeck");
+	mMasterLegacyJointList.push_front("mHead");
+	mMasterLegacyJointList.push_front("mHipRight");
+	mMasterLegacyJointList.push_front("mKneeRight");
+	mMasterLegacyJointList.push_front("mFootRight");
+	mMasterLegacyJointList.push_front("mHipLeft");
+	mMasterLegacyJointList.push_front("mKneeLeft");
+	mMasterLegacyJointList.push_front("mFootLeft");
 }
 
 LLModelPreview::~LLModelPreview()
@@ -2518,14 +2713,20 @@ U32 LLModelPreview::calcResourceCost()
 		}
 	}
 
-	//Upload skin is selected BUT the joints coming in from the asset
-	//were malformed.
+	//Upload skin is selected BUT check to see if the joints coming in from the asset were malformed.
 	if ( mFMP && mFMP->childGetValue("upload_skin").asBoolean() )
 	{
-		if ( !isRigValid() )
+		bool uploadingJointPositions = mFMP->childGetValue("upload_joints").asBoolean();
+		if ( uploadingJointPositions && !isRigValidForJointPositionUpload() )
+		{
+			mFMP->childDisable("ok_btn");		
+		}
+		else
+		if ( !isLegacyRigValid() )
 		{
 			mFMP->childDisable("ok_btn");
 		}
+		//ok_btn should not have been changed unless something was wrong with joint list
 	}
 	
 	U32 cost = 0;
@@ -2858,7 +3059,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 		clearGLODGroup();
 	}
 
-	mModelLoader = new LLModelLoader(filename, lod, this);
+	mModelLoader = new LLModelLoader(filename, lod, this, mJointTransformMap, mJointsFromNode );
 
 	mModelLoader->start();
 
@@ -3694,12 +3895,22 @@ void LLModelPreview::updateStatusMessages()
 	bool errorStateFromLoader = getLoadState() >= LLModelLoader::ERROR_PARSING ? true : false;
 
 	bool skinAndRigOk = true;
-	bool uploadingSkin = mFMP->childGetValue("upload_skin").asBoolean();
-	if ( uploadingSkin && !isRigValid() )
-	{
-		skinAndRigOk = false;
-	}
+	bool uploadingSkin		     = mFMP->childGetValue("upload_skin").asBoolean();
+	bool uploadingJointPositions = mFMP->childGetValue("upload_joints").asBoolean();
 
+	if ( uploadingSkin )
+	{
+		if ( uploadingJointPositions && !isRigValidForJointPositionUpload() )
+		{
+			skinAndRigOk = false;
+		}
+		else
+		if ( !isLegacyRigValid() )
+		{
+			skinAndRigOk = false;
+		}
+	}
+	
 	if ( upload_ok && !errorStateFromLoader && skinAndRigOk )
 	{
 		mFMP->childEnable("ok_btn");
@@ -4089,7 +4300,55 @@ void LLModelPreview::update()
 	}
 
 }
+//-----------------------------------------------------------------------------
+// changeAvatarsJointPositions()
+//-----------------------------------------------------------------------------
+void LLModelPreview::changeAvatarsJointPositions( LLModel* pModel )
+{
+	if ( mMasterJointList.empty() )
+	{
+		return;
+	}
 
+	std::vector<std::string> :: const_iterator jointListItBegin = pModel->mSkinInfo.mJointNames.begin();
+	std::vector<std::string> :: const_iterator jointListItEnd = pModel->mSkinInfo.mJointNames.end();
+
+	S32 index = 0;
+	for ( ; jointListItBegin!=jointListItEnd; ++jointListItBegin, ++index )
+	{	
+		std::string elem = *jointListItBegin;
+		//llinfos<<"joint "<<elem<<llendl;
+
+		S32 matrixCnt = pModel->mSkinInfo.mAlternateBindMatrix.size();
+		if ( matrixCnt < 1 )
+		{
+			llinfos<<"Total WTF moment :"<<matrixCnt<<llendl;
+		}
+		else
+		{
+			LLMatrix4 jointTransform = pModel->mSkinInfo.mAlternateBindMatrix[index];
+
+			LLJoint* pJoint = gAgentAvatarp->getJoint( elem );
+			if ( pJoint )
+			{   
+				pJoint->storeCurrentXform( jointTransform.getTranslation() );												
+			}	
+		}
+	}
+}
+//-----------------------------------------------------------------------------
+// getTranslationForJointOffset()
+//-----------------------------------------------------------------------------
+LLVector3 LLModelPreview::getTranslationForJointOffset( std::string joint )
+{
+	LLMatrix4 jointTransform;
+	if ( mJointTransformMap.find( joint ) != mJointTransformMap.end() )
+	{
+		jointTransform = mJointTransformMap[joint];
+		return jointTransform.getTranslation();
+	}
+	return LLVector3(0.0f,0.0f,0.0f);								
+}
 //-----------------------------------------------------------------------------
 // render()
 //-----------------------------------------------------------------------------
@@ -4140,8 +4399,20 @@ BOOL LLModelPreview::render()
 	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
 	
 	bool has_skin_weights = false;
-	bool upload_skin = mFMP->childGetValue("upload_skin").asBoolean();
+	bool upload_skin = mFMP->childGetValue("upload_skin").asBoolean();	
 	bool upload_joints = mFMP->childGetValue("upload_joints").asBoolean();
+
+	bool resetJoints = false;
+	if ( upload_joints != mLastJointUpdate )
+	{
+		if ( mLastJointUpdate )
+		{
+			resetJoints = true;
+		}
+
+		mLastJointUpdate = upload_joints;
+
+	}
 
 	for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
 	{
@@ -4187,11 +4458,30 @@ BOOL LLModelPreview::render()
 	if (!upload_skin && upload_joints)
 	{ //can't upload joints if not uploading skin weights
 		mFMP->childSetValue("upload_joints", false);
-		upload_joints = false;
-	}
-
+		upload_joints = false;		
+	}	
+	
 	mFMP->childSetEnabled("upload_joints", upload_skin);
 
+	//poke at avatar when we upload custom joints
+	/*	
+	if ( upload_joints )
+	{
+		for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
+		{
+			for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
+			{
+				LLModelInstance& instance = *model_iter;
+				LLModel* model = instance.mModel;
+				if ( !model->mSkinWeights.empty() )
+				{
+					changeAvatarsJointPositions( model );
+				}
+			}
+		}
+	}
+	*/
+	
 	F32 explode = mFMP->childGetValue("physics_explode").asReal();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -4468,6 +4758,7 @@ BOOL LLModelPreview::render()
 							//quick 'n dirty software vertex skinning
 
 							//build matrix palette
+							
 							LLMatrix4 mat[64];
 							for (U32 j = 0; j < model->mSkinInfo.mJointNames.size(); ++j)
 							{

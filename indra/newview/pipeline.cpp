@@ -240,6 +240,16 @@ glh::matrix4f glh_get_current_projection()
 	return glh_copy_matrix(gGLProjection);
 }
 
+glh::matrix4f glh_get_last_modelview()
+{
+	return glh_copy_matrix(gGLLastModelView);
+}
+
+glh::matrix4f glh_get_last_projection()
+{
+	return glh_copy_matrix(gGLLastProjection);
+}
+
 void glh_copy_matrix(const glh::matrix4f& src, GLdouble* dst)
 {
 	for (U32 i = 0; i < 16; i++)
@@ -1910,7 +1920,7 @@ BOOL LLPipeline::getVisibleExtents(LLCamera& camera, LLVector3& min, LLVector3& 
 
 static LLFastTimer::DeclareTimer FTM_CULL("Object Culling");
 
-void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip)
+void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip, LLPlane* planep)
 {
 	LLFastTimer t(FTM_CULL);
 	LLMemType mt_uc(LLMemType::MTYPE_PIPELINE_UPDATE_CULL);
@@ -1930,6 +1940,11 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		mScreen.bindTarget();
 	}
 
+	if (sUseOcclusion > 1)
+	{
+		gGL.setColorMask(false, false);
+	}
+
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadMatrixd(gGLLastProjection);
@@ -1944,10 +1959,37 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	LLGLDisable test(GL_ALPHA_TEST);
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-	if (sUseOcclusion > 1)
+
+	//setup a clip plane in projection matrix for reflection renders (prevents flickering from occlusion culling)
+	LLViewerRegion* region = gAgent.getRegion();
+	LLPlane plane;
+
+	if (planep)
 	{
-		gGL.setColorMask(false, false);
+		plane = *planep;
 	}
+	else 
+	{
+		if (region)
+		{
+			LLVector3 pnorm;
+			F32 height = region->getWaterHeight();
+			if (water_clip < 0)
+			{ //camera is above water, clip plane points up
+				pnorm.setVec(0,0,1);
+				plane.setVec(pnorm, -height);
+			}
+			else if (water_clip > 0)
+			{	//camera is below water, clip plane points down
+				pnorm = LLVector3(0,0,-1);
+				plane.setVec(pnorm, height);
+			}
+		}
+	}
+	
+	glh::matrix4f modelview = glh_get_last_modelview();
+	glh::matrix4f proj = glh_get_last_projection();
+	LLGLUserClipPlane clip(plane, modelview, proj, water_clip != 0 && LLPipeline::sReflectionRender);
 
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
@@ -6314,8 +6356,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		F32 fnumber = gSavedSettings.getF32("CameraFNumber");
 		F32 default_focal_length = gSavedSettings.getF32("CameraFocalLength");
 
-		if (LLToolMgr::getInstance()->inBuildMode())
-		{ //squish focal length when in build mode so DoF doesn't make editing objects difficult
+		if (LLToolMgr::getInstance()->inBuildMode() || !gSavedSettings.getBOOL("RenderDepthOfField"))
+		{ //squish focal length when in build mode (or if DoF is disabled) so DoF doesn't make editing objects difficult
 			default_focal_length = 5.f;
 		}
 
@@ -7887,18 +7929,13 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					gPipeline.pushRenderTypeMask();
 					gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
 						LLPipeline::RENDER_TYPE_WL_SKY,
+						LLPipeline::RENDER_TYPE_CLOUDS,
 						LLPipeline::END_RENDER_TYPES);
 
 					static LLCullResult result;
 					updateCull(camera, result);
 					stateSort(camera, result);
 
-					andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
-						LLPipeline::RENDER_TYPE_CLOUDS,
-						LLPipeline::RENDER_TYPE_WL_SKY,
-						LLPipeline::END_RENDER_TYPES);
-
-					//bad pop here 
 					renderGeom(camera, TRUE);
 
 					gPipeline.popRenderTypeMask();
@@ -7931,7 +7968,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 					LLGLUserClipPlane clip_plane(plane, mat, projection);
 					LLGLDisable cull(GL_CULL_FACE);
-					updateCull(camera, ref_result, 1);
+					updateCull(camera, ref_result, -water_clip, &plane);
 					stateSort(camera, ref_result);
 				}	
 
@@ -7988,9 +8025,11 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			{
 				//clip out geometry on the same side of water as the camera
 				mat = glh_get_current_modelview();
-				LLGLUserClipPlane clip_plane(LLPlane(-pnorm, -(pd+pad)), mat, projection);
+				LLPlane plane(-pnorm, -(pd+pad));
+
+				LLGLUserClipPlane clip_plane(plane, mat, projection);
 				static LLCullResult result;
-				updateCull(camera, result, water_clip);
+				updateCull(camera, result, water_clip, &plane);
 				stateSort(camera, result);
 
 				gGL.setColorMask(true, true);
@@ -8785,7 +8824,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		near_clip = -max.mV[2];
 		F32 far_clip = -min.mV[2]*2.f;
 
-		far_clip = llmin(far_clip, 128.f);
+		//far_clip = llmin(far_clip, 128.f);
 		far_clip = llmin(far_clip, camera.getFar());
 
 		F32 range = far_clip-near_clip;
@@ -9135,7 +9174,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			}
 		}
 
-		shadow_cam.setFar(128.f);
+		//shadow_cam.setFar(128.f);
 		shadow_cam.setOriginAndLookAt(eye, up, center);
 
 		shadow_cam.setOrigin(0,0,0);

@@ -36,86 +36,97 @@ float getDepth(vec2 pos_screen)
 	return p.z/p.w;
 }
 
-void dofSample(inout vec4 diff, inout float w, float fd, float x, float y)
+float calc_cof(float depth)
 {
-	vec2 tc = vary_fragcoord.xy+vec2(x,y);
+	float sc = abs(depth-focal_distance)/-depth*blur_constant;
+		
+	sc /= magnification;
+	
+	// tan_pixel_angle = pixel_length/-depth;
+	float pixel_length =  tan_pixel_angle*-focal_distance;
+	
+	sc = sc/pixel_length;
+	sc *= 1.414;
+	
+	return sc;
+}
+
+void dofSampleNear(inout vec4 diff, inout float w, float cur_sc, vec2 tc)
+{
 	float d = getDepth(tc);
 	
-	float wg = 1.0;
-	//if (d < fd)
-	//{
-	//	diff += texture2DRect(diffuseRect, tc);
-	//	w = 1.0;
-	//}
-	if (d > fd)
-	{
-		wg = max(d/fd, 0.1);
-	}
+	float sc = calc_cof(d);
 	
-	diff += texture2DRect(diffuseRect, tc+vec2(0.5,0.5))*wg*0.25;
-	diff += texture2DRect(diffuseRect, tc+vec2(-0.5,0.5))*wg*0.25;
-	diff += texture2DRect(diffuseRect, tc+vec2(0.5,-0.5))*wg*0.25;
-	diff += texture2DRect(diffuseRect, tc+vec2(-0.5,-0.5))*wg*0.25;
+	float wg = 1.0;
+		
+	vec4 s = texture2DRect(diffuseRect, tc);
+	// de-weight dull areas to make highlights 'pop'
+	wg *= s.r+s.g+s.b;
+	
+	diff += wg*s;
+	
 	w += wg;
 }
 
-void dofSampleNear(inout vec4 diff, inout float w, float x, float y)
+void dofSample(inout vec4 diff, inout float w, float min_sc, float cur_depth, vec2 tc)
 {
-	vec2 tc = vary_fragcoord.xy+vec2(x,y);
+	float d = getDepth(tc);
+	
+	float sc = calc_cof(d);
+	
+	if (sc > min_sc //sampled pixel is more "out of focus" than current sample radius
+	   || d < cur_depth) //sampled pixel is further away than current pixel
+	{
+		float wg = 1.0;
 		
-	diff += texture2DRect(diffuseRect, tc);
-	w += 1.0;
+		vec4 s = texture2DRect(diffuseRect, tc);
+		// de-weight dull areas to make highlights 'pop'
+		wg *= s.r+s.g+s.b;
+	
+		diff += wg*s;
+		
+		w += wg;
+	}
 }
+
 
 void main() 
 {
 	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz;
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
-	
-	
+		
 	vec2 tc = vary_fragcoord.xy;
 	
-	float sc = 0.75;
+	float depth = getDepth(tc);
 	
-	float depth;
-	depth = getDepth(tc);
-		
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
 	
-	{ //pixel is behind far focal plane
+	{ 
 		float w = 1.0;
 		
-		sc = (abs(depth-focal_distance)/-depth)*blur_constant;
-		
-		sc /= magnification;
-		
-		// tan_pixel_angle = pixel_length/-depth;
-		float pixel_length =  tan_pixel_angle*-focal_distance;
-		
-		sc = sc/pixel_length;
-		
-		//diff.r = sc;
-		
-		sc = min(abs(sc), 8.0);
-		
-		//sc = 4.0;
+		float sc = calc_cof(depth);
+		sc = min(abs(sc), 10.0);
 		
 		float fd = depth*0.5f;
 		
-		while (sc > 0.5)
+		float PI = 3.14159265358979323846264;
+
+		// sample quite uniformly spaced points within a circle, for a circular 'bokeh'		
+		//if (depth < focal_distance)
 		{
-			dofSample(diff,w, fd, sc,sc);
-			dofSample(diff,w, fd, -sc,sc);
-			dofSample(diff,w, fd, sc,-sc);
-			dofSample(diff,w, fd, -sc,-sc);
-			
-			sc -= 0.5;
-			float sc2 = sc*1.414;
-			dofSample(diff,w, fd, 0,sc2);
-			dofSample(diff,w, fd, 0,-sc2);
-			dofSample(diff,w, fd, -sc2,0);
-			dofSample(diff,w, fd, sc2,0);
-			sc -= 0.5;
+			while (sc > 0.5)
+			{
+				int its = int(max(1.0,(sc*3.7)));
+				for (int i=0; i<its; ++i)
+				{
+					float ang = sc+i*2*PI/its; // sc is added for rotary perturbance
+					float samp_x = sc*sin(ang);
+					float samp_y = sc*cos(ang);
+					// you could test sample coords against an interesting non-circular aperture shape here, if desired.
+					dofSample(diff, w, sc, depth, vary_fragcoord.xy + vec2(samp_x,samp_y));
+				}
+				sc -= 1.0;
+			}
 		}
 		
 		diff /= w;
@@ -123,5 +134,4 @@ void main()
 		
 	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
 	gl_FragColor = diff + bloom;
-	
 }

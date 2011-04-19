@@ -1040,43 +1040,6 @@ void saveChart(const std::string& label, const char* suffix, LLImageRaw* scratch
 	result->save(out_file);
 }
 
-template <class VEC_TYPE>
-void removeOutliers(std::vector<VEC_TYPE>& data, F32 k)
-{
-	if (data.size() < 100)
-	{ //not enough samples
-		return;
-	}
-
-	VEC_TYPE Q1 = data[data.size()/4];
-	VEC_TYPE Q3 = data[data.size()-data.size()/4-1];
-
-	VEC_TYPE min = Q1-k*(Q3-Q1);
-	VEC_TYPE max = Q3+k*(Q3-Q1);
-
-	U32 i = 0;
-	while (i < data.size() && data[i] < min)
-	{
-		i++;
-	}
-
-	S32 j = data.size()-1;
-	while (j > 0 && data[j] > max)
-	{
-		j--;
-	}
-
-	if (j < data.size()-1)
-	{
-		data.erase(data.begin()+j, data.end());
-	}
-
-	if (i > 0)
-	{
-		data.erase(data.begin(), data.begin()+i);
-	}
-}
-
 //static
 void LLFastTimerView::exportCharts(const std::string& base, const std::string& target)
 {
@@ -1206,22 +1169,22 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 		const U32 OUTLIER_CUTOFF = 512;
 		if (base_times.size() > OUTLIER_CUTOFF)
 		{ 
-			removeOutliers(base_times, 1.f);
+			ll_remove_outliers(base_times, 1.f);
 		}
 
 		if (base_execution.size() > OUTLIER_CUTOFF)
 		{ 
-			removeOutliers(base_execution, 1.f);
+			ll_remove_outliers(base_execution, 1.f);
 		}
 
 		if (cur_times.size() > OUTLIER_CUTOFF)
 		{ 
-			removeOutliers(cur_times, 1.f);
+			ll_remove_outliers(cur_times, 1.f);
 		}
 
 		if (cur_execution.size() > OUTLIER_CUTOFF)
 		{ 
-			removeOutliers(cur_execution, 1.f);
+			ll_remove_outliers(cur_execution, 1.f);
 		}
 
 
