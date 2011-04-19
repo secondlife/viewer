@@ -183,6 +183,12 @@ public:
 			return false;
 		}
 
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableInventory"))
+		{
+				LLNotificationsUtil::add("NoInventory", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+				return true;
+		}
+
 		// support secondlife:///app/inventory/show
 		if (params[0].asString() == "show")
 		{
