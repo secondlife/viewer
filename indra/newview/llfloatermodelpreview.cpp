@@ -2164,7 +2164,7 @@ void LLModelLoader::loadTextures()
 //-----------------------------------------------------------------------------
 bool LLModelLoader::isNodeAJoint( domNode* pNode )
 {
-	if ( pNode->getName() == NULL)
+	if ( !pNode || pNode->getName() == NULL)
 	{
 		return false;
 	}
