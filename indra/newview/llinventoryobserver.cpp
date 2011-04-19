@@ -572,16 +572,7 @@ void LLInventoryAddedObserver::changed(U32 mask)
 	// the network, figure out which item was updated.
 	LLMessageSystem* msg = gMessageSystem;
 
-	std::string msg_name;
-	if (mMessageName.empty())
-	{
-		msg_name = msg->getMessageName();
-	}
-	else
-	{
-		msg_name = mMessageName;
-	}
-
+	std::string msg_name = msg->getMessageName();
 	if (msg_name.empty())
 	{
 		return;
