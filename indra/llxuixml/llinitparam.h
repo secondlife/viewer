@@ -1,5 +1,5 @@
 /** 
-f * @file llinitparam.h
+ * @file llinitparam.h
  * @brief parameter block abstraction for creating complex objects and 
  * parsing construction parameters from xml and LLSD
  *
@@ -29,18 +29,14 @@ f * @file llinitparam.h
 #define LL_LLPARAM_H
 
 #include <vector>
-
-#include <stddef.h>
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/unordered_map.hpp>
-#include "llregistry.h"
-#include "llmemory.h"
-
+#include <boost/shared_ptr.hpp>
 
 namespace LLInitParam
 {
+	template<typename T> const T& defaultValue() { static T value; return value; }
 
 	template <typename T, bool IS_BOOST_FUNCTION = boost::is_convertible<T, boost::function_base>::value >
     struct ParamCompare 
@@ -61,122 +57,119 @@ namespace LLInitParam
 		}
 	};
 
-	// default constructor adaptor for InitParam Values
-	// constructs default instances of the given type, returned by const reference
-	template <typename T>
-	struct DefaultInitializer
+	template<> 
+	struct ParamCompare<LLSD, false>
 	{
-		typedef const T&			T_const_ref;
-		// return reference to a single default instance of T
-		// built-in types will be initialized to zero, default constructor otherwise
-		static T_const_ref get() { static T t = T(); return t; } 
+		static bool equals(const LLSD &a, const LLSD &b) { return false; }
 	};
 
 	// helper functions and classes
 	typedef ptrdiff_t param_handle_t;
 
+	// empty default implementation of key cache
+	// leverages empty base class optimization
 	template <typename T>
 	class TypeValues
 	{
 	public:
-		// empty default implemenation of key cache
-		class KeyCache
-		{
-		public:
-			void setKey(const std::string& key) {}
-			std::string getKey() const { return ""; }
-			void clearKey(){}
-		};
+		typedef std::map<std::string, T> value_name_map_t;
 
-		static bool get(const std::string& name, T& value)
+		void setValueName(const std::string& key) {}
+		std::string getValueName() const { return ""; }
+		void clearValueName() const {}
+
+		static bool getValueFromName(const std::string& name, T& value)
 		{
 			return false;
 		}
 
-		static bool empty()
+		static bool valueNamesExist()
 		{
-			return true;
+			return false;
 		}
 
-		static std::vector<std::string>* getPossibleValues() { return NULL; }
+		static std::vector<std::string>* getPossibleValues()
+		{
+			return NULL;
+		}
+
+		static value_name_map_t* getValueNames() {return NULL;}
 	};
 
 	template <typename T, typename DERIVED_TYPE = TypeValues<T> >
 	class TypeValuesHelper
-	:	public LLRegistrySingleton<std::string, T, DERIVED_TYPE >
 	{
-		typedef LLRegistrySingleton<std::string, T, DERIVED_TYPE>	super_t;
-		typedef LLSingleton<DERIVED_TYPE>							singleton_t;
 	public:
+		typedef std::map<std::string, T> value_name_map_t;
 
 		//TODO: cache key by index to save on param block size
-		class KeyCache
+		void setValueName(const std::string& value_name) 
 		{
-		public:
-			void setKey(const std::string& key) 
-			{
-				mKey = key; 
-			}
+			mValueName = value_name; 
+		}
 
-			void clearKey()
-			{
-				mKey = "";
-			}
+		std::string getValueName() const
+		{ 
+			return mValueName; 
+		}
 
-			std::string getKey() const
-			{ 
-				return mKey; 
-			}
-
-		private:
-			std::string mKey;
-		};
-
-		static bool get(const std::string& name, T& value)
+		void clearValueName() const
 		{
-			if (!singleton_t::instance().exists(name)) return false;
+			mValueName.clear();
+		}
 
-			value = *singleton_t::instance().getValue(name);
+		static bool getValueFromName(const std::string& name, T& value)
+		{
+			value_name_map_t* map = getValueNames();
+			value_name_map_t::iterator found_it = map->find(name);
+			if (found_it == map->end()) return false;
+
+			value = found_it->second;
 			return true;
 		}
 
-		static bool empty()
+		static bool valueNamesExist()
 		{
-			return singleton_t::instance().LLRegistry<std::string, T>::empty();
+			return !getValueNames()->empty();
 		}
 	
-		//override this to add name value pairs
-		static void declareValues() {}
-	
-		void initSingleton()
+		static value_name_map_t* getValueNames()
 		{
-			DERIVED_TYPE::declareValues();
-		}
+			static value_name_map_t sMap;
+			static bool sInitialized = false;
 
-		static const std::vector<std::string>* getPossibleValues() 
-		{ 
-			// in order to return a pointer to a member, we lazily
-			// evaluate the result and store it in mValues here
-			if (singleton_t::instance().mValues.empty())
+			if (!sInitialized)
 			{
-				typename super_t::Registrar::registry_map_t::const_iterator it;
-				for (it = super_t::defaultRegistrar().beginItems(); it != super_t::defaultRegistrar().endItems(); ++it)
-				{
-					singleton_t::instance().mValues.push_back(it->first);
-				}
+				sInitialized = true;
+				DERIVED_TYPE::declareValues();
 			}
-			return &singleton_t::instance().mValues; 
+			return &sMap;
 		}
 
+		static std::vector<std::string>* getPossibleValues()
+		{
+			static std::vector<std::string> sValues;
 
-	protected:
+			value_name_map_t* map = getValueNames();
+			for (value_name_map_t::iterator it = map->begin(), end_it = map->end();
+				 it != end_it;
+				 ++it)
+			{
+				sValues.push_back(it->first);
+			}
+			return &sValues;
+		}
+
 		static void declare(const std::string& name, const T& value)
 		{
-			super_t::defaultRegistrar().add(name, value);
+			(*getValueNames())[name] = value;
 		}
 
-	private:
-		std::vector<std::string> mValues;
+	protected:
+		static void getName(const std::string& name, const T& value)
+		{}
+
+		mutable std::string	mValueName;
 	};
 
 	class Parser
@@ -193,9 +186,9 @@ namespace LLInitParam
 			}
 		};
 
-		typedef std::vector<std::pair<std::string, S32> >			name_stack_t;
+		typedef std::vector<std::pair<std::string, S32> >								name_stack_t;
 		typedef std::pair<name_stack_t::const_iterator, name_stack_t::const_iterator>	name_stack_range_t;
-		typedef std::vector<std::string>							possible_values_t;
+		typedef std::vector<std::string>												possible_values_t;
 
 		typedef bool (*parser_read_func_t)(Parser& parser, void* output);
 		typedef bool (*parser_write_func_t)(Parser& parser, const void*, const name_stack_t&);
@@ -207,7 +200,7 @@ namespace LLInitParam
 
 		Parser(parser_read_func_map_t& read_map, parser_write_func_map_t& write_map, parser_inspect_func_map_t& inspect_map)
 		:	mParseSilently(false),
-			mParseGeneration(0),
+			mParseGeneration(sNextParseGeneration),
 			mParserReadFuncs(&read_map),
 			mParserWriteFuncs(&write_map),
 			mParserInspectFuncs(&inspect_map)
@@ -252,7 +245,7 @@ namespace LLInitParam
 		void setParseSilently(bool silent) { mParseSilently = silent; }
 
 		S32 getParseGeneration() { return mParseGeneration; }
-		S32 newParseGeneration() { return ++mParseGeneration; }
+		S32 newParseGeneration() { return mParseGeneration = ++sNextParseGeneration; }
 
 
 	protected:
@@ -276,6 +269,8 @@ namespace LLInitParam
 		parser_write_func_map_t*	mParserWriteFuncs;
 		parser_inspect_func_map_t*	mParserInspectFuncs;
 		S32	mParseGeneration;
+
+		static S32					sNextParseGeneration;
 	};
 
 	// used to indicate no matching value to a given name when parsing
@@ -295,12 +290,13 @@ namespace LLInitParam
 		Param(class BaseBlock* enclosing_block);
 
 		// store pointer to enclosing block as offset to reduce space and allow for quick copying
-		BaseBlock& enclosingBlock() const
+		class BaseBlock& enclosingBlock() const
 		{ 
 			const U8* my_addr = reinterpret_cast<const U8*>(this);
 			// get address of enclosing BLOCK class using stored offset to enclosing BaseBlock class
-			return *const_cast<BaseBlock*>(
-							reinterpret_cast<const BaseBlock*>(my_addr - (ptrdiff_t)(S32)mEnclosingBlockOffset));
+			return *const_cast<class BaseBlock*>
+				(reinterpret_cast<const class BaseBlock*>
+					(my_addr - (ptrdiff_t)(S32)mEnclosingBlockOffset));
 		}
 
 	private:
@@ -313,7 +309,11 @@ namespace LLInitParam
 	// various callbacks and constraints associated with an individual param
 	struct ParamDescriptor
 	{
-	public:
+		struct UserData
+		{
+			virtual ~UserData() {}
+		};
+
 		typedef bool(*merge_func_t)(Param&, const Param&, bool);
 		typedef bool(*deserialize_func_t)(Param&, Parser&, const Parser::name_stack_range_t&, S32);
 		typedef void(*serialize_func_t)(const Param&, Parser&, Parser::name_stack_t&, const Param* diff_param);
@@ -321,40 +321,18 @@ namespace LLInitParam
 		typedef bool(*validation_func_t)(const Param*);
 
 		ParamDescriptor(param_handle_t p, 
-				merge_func_t merge_func, 
-				deserialize_func_t deserialize_func, 
-				serialize_func_t serialize_func,
-				validation_func_t validation_func,
-				inspect_func_t inspect_func,
-				S32 min_count,
-				S32 max_count)
-		:	mParamHandle(p),
-			mMergeFunc(merge_func),
-			mDeserializeFunc(deserialize_func),
-			mSerializeFunc(serialize_func),
-			mValidationFunc(validation_func),
-			mInspectFunc(inspect_func),
-			mMinCount(min_count),
-			mMaxCount(max_count),
-			mGeneration(0),
-			mNumRefs(0)
-		{}
+						merge_func_t merge_func, 
+						deserialize_func_t deserialize_func, 
+						serialize_func_t serialize_func,
+						validation_func_t validation_func,
+						inspect_func_t inspect_func,
+						S32 min_count,
+						S32 max_count);
 
-		ParamDescriptor()
-		:	mParamHandle(0),
-			mMergeFunc(NULL),
-			mDeserializeFunc(NULL),
-			mSerializeFunc(NULL),
-			mValidationFunc(NULL),
-			mInspectFunc(NULL),
-			mMinCount(0),
-			mMaxCount(0),
-			mGeneration(0),
-			mNumRefs(0)
-		{}
+		ParamDescriptor();
+		~ParamDescriptor();
 
 		param_handle_t		mParamHandle;
-	
 		merge_func_t		mMergeFunc;
 		deserialize_func_t	mDeserializeFunc;
 		serialize_func_t	mSerializeFunc;
@@ -364,17 +342,16 @@ namespace LLInitParam
 		S32					mMaxCount;
 		S32					mGeneration;
 		S32					mNumRefs;
+		UserData*			mUserData;
 	};
+
+	typedef boost::shared_ptr<ParamDescriptor> ParamDescriptorPtr;
 
 	// each derived Block class keeps a static data structure maintaining offsets to various params
 	class BlockDescriptor
 	{
 	public:
-		BlockDescriptor()
-		:	mMaxParamOffset(0),
-			mInitializationState(UNINITIALIZED),
-			mCurrentBlockPtr(NULL)
-		{}
+		BlockDescriptor();
 
 		typedef enum e_initialization_state
 		{
@@ -385,12 +362,10 @@ namespace LLInitParam
 
 		void aggregateBlockData(BlockDescriptor& src_block_data);
 
-	public:
-		typedef boost::unordered_map<const std::string, ParamDescriptor*> param_map_t; // references param descriptors stored in mAllParams
-		typedef std::vector<ParamDescriptor*> param_list_t; 
-
-		typedef std::list<ParamDescriptor> all_params_list_t;// references param descriptors stored in mAllParams
-		typedef std::vector<std::pair<param_handle_t, ParamDescriptor::validation_func_t> > param_validation_list_t;
+		typedef boost::unordered_map<const std::string, ParamDescriptorPtr>						param_map_t; 
+		typedef std::vector<ParamDescriptorPtr>													param_list_t; 
+		typedef std::list<ParamDescriptorPtr>														all_params_list_t;
+		typedef std::vector<std::pair<param_handle_t, ParamDescriptor::validation_func_t> >		param_validation_list_t;
 
 		param_map_t						mNamedParams;			// parameters with associated names
 		param_list_t					mUnnamedParams;			// parameters with_out_ associated names
@@ -456,6 +431,7 @@ namespace LLInitParam
 		Param* getParamFromHandle(const param_handle_t param_handle)
 		{
 			if (param_handle == 0) return NULL;
+
 			U8* baseblock_address = reinterpret_cast<U8*>(this);
 			return reinterpret_cast<Param*>(baseblock_address + param_handle);
 		}
@@ -469,14 +445,13 @@ namespace LLInitParam
 		void addSynonym(Param& param, const std::string& synonym);
 
 		// Blocks can override this to do custom tracking of changes
-		virtual void setLastChangedParam(const Param& last_param, bool user_provided);
+		virtual void paramChanged(const Param& changed_param, bool user_provided);
 
 		S32 getLastChangeVersion() const { return mChangeVersion; }
-		bool isDefault() const { return mChangeVersion == 0; }
 
-		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack);
-		bool serializeBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), const BaseBlock* diff_block = NULL) const;
-		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t()) const;
+		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, S32 generation);
+		void serializeBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), const BaseBlock* diff_block = NULL) const;
+		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const;
 
 		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
 		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return selfBlockDescriptor(); }
@@ -493,7 +468,10 @@ namespace LLInitParam
 			return false;
 		}
 
-		static void addParam(BlockDescriptor& block_data, const ParamDescriptor& param, const char* name);
+		static void addParam(BlockDescriptor& block_data, ParamDescriptorPtr param, const char* name);
+
+		ParamDescriptorPtr findParamDescriptor(const Param& param);
+
 	protected:
 		void init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size);
 
@@ -512,30 +490,98 @@ namespace LLInitParam
 
 	private:
 		const std::string& getParamName(const BlockDescriptor& block_data, const Param* paramp) const;
-		ParamDescriptor* findParamDescriptor(param_handle_t handle);
-	};
-
-
-	template<typename T>
-	struct ParamIterator
-	{
-		typedef typename std::vector<T>::const_iterator		const_iterator;
-		typedef typename std::vector<T>::iterator			iterator;
 	};
 
 	// these templates allow us to distinguish between template parameters
 	// that derive from BaseBlock and those that don't
-	// this is supposedly faster than boost::is_convertible and its ilk
 	template<typename T, typename Void = void>
-	struct IsBaseBlock
+	struct IsBlock
 	{
 		static const bool value = false;
 	};
 
 	template<typename T>
-	struct IsBaseBlock<T, typename T::baseblock_base_class_t>
+	struct IsBlock<T, typename T::baseblock_base_class_t>
 	{
 		static const bool value = true;
+	};
+
+	template<typename T, typename NAME_VALUE_LOOKUP, bool VALUE_IS_BLOCK = IsBlock<T>::value>
+	class ParamValue : public NAME_VALUE_LOOKUP
+	{
+	public:
+		typedef const T&							value_assignment_t;
+
+		ParamValue(): mValue() {}
+		ParamValue(const T& other) : mValue(other) {}
+
+		void setValue(value_assignment_t val)
+		{
+			mValue = val;
+		}
+
+		value_assignment_t getValue() const
+		{
+			return mValue;
+		}
+
+		T& getValue()
+		{
+			return mValue;
+		}
+
+	private:
+		T mValue;
+	};
+
+	template<typename T, typename NAME_VALUE_LOOKUP>
+	class ParamValue<T, NAME_VALUE_LOOKUP, true> 
+	:	public T,
+		public NAME_VALUE_LOOKUP
+	{
+	public:
+		typedef const T&							value_assignment_t;
+
+		S32 			mKeyVersion;
+		mutable S32 	mValidatedVersion;
+		mutable bool 	mValidated; // lazy validation flag
+
+		ParamValue() 
+		:	T(),
+			mKeyVersion(0),
+			mValidatedVersion(-1),
+			mValidated(false)
+		{}
+
+		ParamValue(const T& other)
+		:	T(other),
+			mKeyVersion(0),
+			mValidatedVersion(-1),
+			mValidated(false)
+		{
+		}
+
+		void setValue(value_assignment_t val)
+		{
+			*this = val;
+		}
+
+		value_assignment_t getValue() const
+		{
+			return *this;
+		}
+
+		T& getValue()
+		{
+			return *this;
+		}
+	};
+
+	template<typename T, typename NAME_VALUE_LOOKUP = TypeValues<T> >
+	struct ParamIterator
+	{
+		typedef typename std::vector<ParamValue<T, NAME_VALUE_LOOKUP> >::const_iterator		const_iterator;
+		typedef typename std::vector<ParamValue<T, NAME_VALUE_LOOKUP> >::iterator			iterator;
 	};
 
 	// specialize for custom parsing/decomposition of specific classes
@@ -543,32 +589,33 @@ namespace LLInitParam
 	template<typename	T,
 			typename	NAME_VALUE_LOOKUP = TypeValues<T>,
 			bool		HAS_MULTIPLE_VALUES = false,
-			bool		VALUE_IS_BLOCK = IsBaseBlock<T>::value>
+			bool		VALUE_IS_BLOCK = IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>
 	class TypedParam 
-	:	public Param
+	:	public Param, 
+		public ParamValue<T, NAME_VALUE_LOOKUP>
 	{
 	public:
-		typedef const T&																	value_const_ref_t;
-		typedef value_const_ref_t															value_assignment_t;
-		typedef typename NAME_VALUE_LOOKUP::KeyCache										key_cache_t;
+		typedef const T&																	value_assignment_t;
 		typedef	TypedParam<T, NAME_VALUE_LOOKUP, HAS_MULTIPLE_VALUES, VALUE_IS_BLOCK>		self_t;
+		typedef NAME_VALUE_LOOKUP															name_value_lookup_t;
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
 		:	Param(block_descriptor.mCurrentBlockPtr)
 		{
 			if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
 			{
-				ParamDescriptor param_descriptor(block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
+ 				ParamDescriptorPtr param_descriptor = ParamDescriptorPtr(new ParamDescriptor(
+												block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
 												&mergeWith,
 												&deserializeParam,
 												&serializeParam,
 												validate_func,
 												&inspectParam,
-												min_count, max_count);
+												min_count, max_count));
 				BaseBlock::addParam(block_descriptor, param_descriptor, name);
 			}
 
-			mData.mValue = value;
+			setValue(value);
 		} 
 
 		bool isProvided() const { return Param::anyProvided(); }
@@ -579,27 +626,27 @@ namespace LLInitParam
 			// no further names in stack, attempt to parse value now
 			if (name_stack.first == name_stack.second)
 			{
-				if (parser.readValue(typed_param.mData.mValue))
+				if (parser.readValue(typed_param.getValue()))
 				{
-					typed_param.mData.clearKey();
+					typed_param.clearValueName();
 					typed_param.setProvided(true);
-					typed_param.enclosingBlock().setLastChangedParam(param, true);
+					typed_param.enclosingBlock().paramChanged(param, true);
 					return true;
 				}
 				
 				// try to parse a known named value
-				if(!NAME_VALUE_LOOKUP::empty())
+				if(name_value_lookup_t::valueNamesExist())
 				{
 					// try to parse a known named value
 					std::string name;
 					if (parser.readValue(name))
 					{
 						// try to parse a per type named value
-						if (NAME_VALUE_LOOKUP::get(name, typed_param.mData.mValue))
+						if (name_value_lookup_t::getValueFromName(name, typed_param.getValue()))
 						{
-							typed_param.mData.setKey(name);
+							typed_param.setValueName(name);
 							typed_param.setProvided(true);
-							typed_param.enclosingBlock().setLastChangedParam(param, true);
+							typed_param.enclosingBlock().paramChanged(param, true);
 							return true;
 						}
 
@@ -619,13 +666,13 @@ namespace LLInitParam
 				name_stack.back().second = parser.newParseGeneration();
 			}
 
-			std::string key = typed_param.mData.getKey();
+			std::string key = typed_param.getValueName();
 
 			// first try to write out name of name/value pair
 
 			if (!key.empty())
 			{
-				if (!diff_param || !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->mData.getKey(), key))
+				if (!diff_param || !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->getValueName(), key))
 				{
 					if (!parser.writeValue(key, name_stack))
 					{
@@ -634,8 +681,9 @@ namespace LLInitParam
 				}
 			}
 			// then try to serialize value directly
-			else if (!diff_param || !ParamCompare<T>::equals(typed_param.get(), static_cast<const self_t*>(diff_param)->get()))					{
-				if (!parser.writeValue(typed_param.mData.mValue, name_stack)) 
+			else if (!diff_param || !ParamCompare<T>::equals(typed_param.getValue(), static_cast<const self_t*>(diff_param)->getValue()))
+			{
+				if (!parser.writeValue(typed_param.getValue(), name_stack)) 
 				{
 					return;
 				}
@@ -647,18 +695,18 @@ namespace LLInitParam
 			// tell parser about our actual type
 			parser.inspectValue<T>(name_stack, min_count, max_count, NULL);
 			// then tell it about string-based alternatives ("red", "blue", etc. for LLColor4)
-			if (NAME_VALUE_LOOKUP::getPossibleValues())
+			if (name_value_lookup_t::getPossibleValues())
 			{
-				parser.inspectValue<std::string>(name_stack, min_count, max_count, NAME_VALUE_LOOKUP::getPossibleValues());
+				parser.inspectValue<std::string>(name_stack, min_count, max_count, name_value_lookup_t::getPossibleValues());
 			}
 		}
 
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
-			mData.mValue = val;
-			mData.clearKey();
+			setValue(val);
+			clearValueName();
 			setProvided(flag_as_provided);
-			Param::enclosingBlock().setLastChangedParam(*this, flag_as_provided);
+			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
 		}
 
 		void setIfNotProvided(value_assignment_t val, bool flag_as_provided = true)
@@ -670,65 +718,55 @@ namespace LLInitParam
 		}
 
 		// implicit conversion
-		operator value_assignment_t() const { return get(); } 
+		operator value_assignment_t() const { return getValue(); } 
 		// explicit conversion
-		value_assignment_t operator()() const { return get(); } 
+		value_assignment_t operator()() const { return getValue(); } 
 
 	protected:
-		value_assignment_t get() const
-		{
-			return mData.mValue;
-		}
 
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
 			self_t& dst_typed_param = static_cast<self_t&>(dst);
+
 			if (src_typed_param.isProvided()
 				&& (overwrite || !dst_typed_param.isProvided()))
 			{
-				dst_typed_param.mData.clearKey();
-				dst_typed_param.set(src_typed_param.get());
+				dst_typed_param.clearValueName();
+				dst_typed_param.set(src_typed_param.getValue());
 				return true;
 			}
 			return false;
 		}
-
-		struct Data : public key_cache_t
-		{
-			T mValue;
-		};
-
-		Data		mData;
 	};
 
 	// parameter that is a block
 	template <typename T, typename NAME_VALUE_LOOKUP>
 	class TypedParam<T, NAME_VALUE_LOOKUP, false, true> 
-	:	public T,
-		public Param
+	:	public Param,
+		public ParamValue<T, NAME_VALUE_LOOKUP>
 	{
 	public:
 		typedef const T											value_const_t;
 		typedef T												value_t;
-		typedef value_const_t&									value_const_ref_t;
-		typedef value_const_ref_t								value_assignment_t;
-		typedef typename NAME_VALUE_LOOKUP::KeyCache			key_cache_t;
+		typedef value_const_t&									value_assignment_t;
 		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, true>	self_t;
+		typedef NAME_VALUE_LOOKUP								name_value_lookup_t;
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr),
-			T(value)
+			ParamValue(value)
 		{
 			if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
 			{
-				ParamDescriptor param_descriptor(block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
+				ParamDescriptorPtr param_descriptor = ParamDescriptorPtr(new ParamDescriptor(
+												block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
 												&mergeWith,
 												&deserializeParam,
 												&serializeParam,
 												validate_func, 
 												&inspectParam,
-												min_count, max_count);
+												min_count, max_count));
 				BaseBlock::addParam(block_descriptor, param_descriptor, name);
 			}
 		}
@@ -737,25 +775,27 @@ namespace LLInitParam
 		{ 
 			self_t& typed_param = static_cast<self_t&>(param);
 			// attempt to parse block...
-			if(typed_param.deserializeBlock(parser, name_stack))
+			if(typed_param.deserializeBlock(parser, name_stack, generation))
 			{
-				typed_param.mData.clearKey();
-				typed_param.enclosingBlock().setLastChangedParam(param, true);
+				typed_param.clearValueName();
+				typed_param.enclosingBlock().paramChanged(param, true);
+				typed_param.setProvided(true);
 				return true;
 			}
 
-			if(!NAME_VALUE_LOOKUP::empty())
+			if(name_value_lookup_t::valueNamesExist())
 			{
 				// try to parse a known named value
 				std::string name;
 				if (parser.readValue(name))
 				{
 					// try to parse a per type named value
-					if (NAME_VALUE_LOOKUP::get(name, typed_param))
+					if (name_value_lookup_t::getValueFromName(name, typed_param.getValue()))
 					{
-						typed_param.enclosingBlock().setLastChangedParam(param, true);
-						typed_param.mData.setKey(name);
-						typed_param.mData.mKeyVersion = typed_param.getLastChangeVersion();
+						typed_param.enclosingBlock().paramChanged(param, true);
+						typed_param.setValueName(name);
+						typed_param.setProvided(true);
+						typed_param.mKeyVersion = typed_param.getLastChangeVersion();
 						return true;
 					}
 
@@ -767,13 +807,15 @@ namespace LLInitParam
 		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const Param* diff_param)
 		{
 			const self_t& typed_param = static_cast<const self_t&>(param);
+			if (!typed_param.isProvided()) return;
+
 			if (!name_stack.empty())
 			{
 				name_stack.back().second = parser.newParseGeneration();
 			}
 
-			std::string key = typed_param.mData.getKey();
-			if (!key.empty() && typed_param.mData.mKeyVersion == typed_param.getLastChangeVersion())
+			std::string key = typed_param.getValueName();
+			if (!key.empty() && typed_param.mKeyVersion == typed_param.getLastChangeVersion())
 			{
 				if (!parser.writeValue(key, name_stack))
 				{
@@ -790,33 +832,33 @@ namespace LLInitParam
 		{
 			// I am a param that is also a block, so just recurse into my contents
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			typed_param.inspectBlock(parser, name_stack);
+			typed_param.inspectBlock(parser, name_stack, min_count, max_count);
 		}
 
 		// a param-that-is-a-block is provided when the user has set one of its child params
 		// *and* the block as a whole validates
 		bool isProvided() const 
 		{ 
-			// only validate block when it hasn't already passed validation and user has supplied *some* value
-			if (Param::anyProvided() && mData.mValidatedVersion < T::getLastChangeVersion())
+			// only validate block when it hasn't already passed validation with current data
+			if (Param::anyProvided() && mValidatedVersion < getLastChangeVersion())
 			{
 				// a sub-block is "provided" when it has been filled in enough to be valid
-				mData.mValidated = T::validateBlock(false);
-				mData.mValidatedVersion = T::getLastChangeVersion();
+				mValidated = validateBlock(false);
+				mValidatedVersion = getLastChangeVersion();
 			}
-			return Param::anyProvided() && mData.mValidated;
+			return Param::anyProvided() && mValidated;
 		}
 
 		// assign block contents to this param-that-is-a-block
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
-			value_t::operator=(val);
-			mData.clearKey();
+			setValue(val);
+			clearValueName();
 			// force revalidation of block by clearing known provided version
 			// next call to isProvided() will update provision status based on validity
-			mData.mValidatedVersion = 0;
+			mValidatedVersion = -1;
 			setProvided(flag_as_provided);
-			Param::enclosingBlock().setLastChangedParam(*this, flag_as_provided);
+			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
 		}
 
 		void setIfNotProvided(value_assignment_t val, bool flag_as_provided = true)
@@ -828,10 +870,10 @@ namespace LLInitParam
 		}
 
 		// propagate changed status up to enclosing block
-		/*virtual*/ void setLastChangedParam(const Param& last_param, bool user_provided)
+		/*virtual*/ void paramChanged(const Param& changed_param, bool user_provided)
 		{ 
-			T::setLastChangedParam(last_param, user_provided);
-			Param::enclosingBlock().setLastChangedParam(*this, user_provided);
+			ParamValue<T, NAME_VALUE_LOOKUP>::paramChanged(changed_param, user_provided);
+			Param::enclosingBlock().paramChanged(*this, user_provided);
 			if (user_provided)
 			{
 				// a child param has been explicitly changed
@@ -841,41 +883,28 @@ namespace LLInitParam
 		}
 
 		// implicit conversion
-		operator value_assignment_t() const { return get(); } 
+		operator value_assignment_t() const { return getValue(); } 
 		// explicit conversion
-		value_assignment_t operator()() const { return get(); } 
+		value_assignment_t operator()() const { return getValue(); } 
 
 	protected:
-		value_assignment_t get() const
-		{
-			return *this;
-		}
 
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
 			self_t& dst_typed_param = static_cast<self_t&>(dst);
-			if (dst_typed_param.T::merge(T::selfBlockDescriptor(), src_typed_param, overwrite))
+
+			if (src_typed_param.isProvided()
+				&& (overwrite || !dst_typed_param.isProvided()))
 			{
-				dst_typed_param.mData.clearKey();
-				return true;
+				if (dst_typed_param.merge(selfBlockDescriptor(), src_typed_param, overwrite))
+				{
+					dst_typed_param.clearValueName();
+					return true;
+				}
 			}
 			return false;
 		}
-
-		struct Data : public key_cache_t
-		{
-			S32 			mKeyVersion;
-			mutable S32 	mValidatedVersion;
-			mutable bool 	mValidated; // lazy validation flag
-
-			Data() 
-			:	mKeyVersion(0),
-				mValidatedVersion(0),
-				mValidated(false)
-			{}
-		};
-		Data	mData;
 	};
 
 	// container of non-block parameters
@@ -885,29 +914,27 @@ namespace LLInitParam
 	{
 	public:
 		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, false>		self_t;
-		typedef typename std::vector<VALUE_TYPE>							container_t;
+		typedef typename std::vector<ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP> >	container_t;
 		typedef const container_t&											value_assignment_t;
 
 		typedef VALUE_TYPE													value_t;
-		typedef value_t&													value_ref_t;
-		typedef const value_t&												value_const_ref_t;
+		typedef NAME_VALUE_LOOKUP											name_value_lookup_t;
 		
-		typedef typename NAME_VALUE_LOOKUP::KeyCache						key_cache_t;
-
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
 		:	Param(block_descriptor.mCurrentBlockPtr),
-			mValues(value)
 		{
-			mCachedKeys.resize(mValues.size());
+			std::copy(value.begin(), value.end(), std::back_inserter(mValues));
+
 			if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
 			{
-				ParamDescriptor param_descriptor(block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
+				ParamDescriptorPtr param_descriptor = ParamDescriptorPtr(new ParamDescriptor(
+												block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
 												&mergeWith,
 												&deserializeParam,
 												&serializeParam,
 												validate_func,
 												&inspectParam,
-												min_count, max_count);
+												min_count, max_count));
 				BaseBlock::addParam(block_descriptor, param_descriptor, name);
 			}
 		} 
@@ -924,29 +951,22 @@ namespace LLInitParam
 				// attempt to read value directly
 				if (parser.readValue(value))
 				{
-					typed_param.mValues.push_back(value);
-					// save an empty name/value key as a placeholder
-					typed_param.mCachedKeys.push_back(key_cache_t());
-					typed_param.enclosingBlock().setLastChangedParam(param, true);
-					typed_param.setProvided(true);
+					typed_param.add(value);
 					return true;
 				}
 				
 				// try to parse a known named value
-				if(!NAME_VALUE_LOOKUP::empty())
+				if(name_value_lookup_t::valueNamesExist())
 				{
 					// try to parse a known named value
 					std::string name;
 					if (parser.readValue(name))
 					{
 						// try to parse a per type named value
-						if (NAME_VALUE_LOOKUP::get(name, typed_param.mValues))
+						if (name_value_lookup_t::getValueFromName(name, typed_param.mValues))
 						{
-							typed_param.mValues.push_back(value);
-							typed_param.mCachedKeys.push_back(key_cache_t());
-							typed_param.mCachedKeys.back().setKey(name);
-							typed_param.enclosingBlock().setLastChangedParam(param, true);
-							typed_param.setProvided(true);
+							typed_param.add(value);
+							typed_param.mValues.back().setValueName(name);
 							return true;
 						}
 
@@ -961,25 +981,27 @@ namespace LLInitParam
 			const self_t& typed_param = static_cast<const self_t&>(param);
 			if (!typed_param.isProvided() || name_stack.empty()) return;
 
-			const_iterator it = typed_param.mValues.begin();
-			for (typename std::vector<key_cache_t>::const_iterator key_it = typed_param.mCachedKeys.begin();
-				it != typed_param.mValues.end();
-				++key_it, ++it)
+			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
+				it != end_it;
+				++it)
 			{
-				std::string key = key_it->get();
+				std::string key = it->getValue();
 				name_stack.back().second = parser.newParseGeneration();
 
-				if(!key.empty())
+				if(key.empty())
+				// not parsed via name values, write out value directly
+				{
+					if (!parser.writeValue(*it, name_stack))
+					{
+						break;
+					}
+				}
+				else 
 				{
 					if(!parser.writeValue(key, name_stack))
 					{
-						return;
+						break;
 					}
-				}
-				// not parse via name values, write out value directly
-				else if (!parser.writeValue(*it, name_stack))
-				{
-					return;
 				}
 			}
 		}
@@ -987,19 +1009,17 @@ namespace LLInitParam
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
 		{
 			parser.inspectValue<VALUE_TYPE>(name_stack, min_count, max_count, NULL);
-			if (NAME_VALUE_LOOKUP::getPossibleValues())
+			if (name_value_lookup_t::getPossibleValues())
 			{
-				parser.inspectValue<std::string>(name_stack, min_count, max_count, NAME_VALUE_LOOKUP::getPossibleValues());
+				parser.inspectValue<std::string>(name_stack, min_count, max_count, name_value_lookup_t::getPossibleValues());
 			}
 		}
 
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
 			mValues = val;
-			mCachedKeys.clear();
-			mCachedKeys.resize(mValues.size());
 			setProvided(flag_as_provided);
-			Param::enclosingBlock().setLastChangedParam(*this, flag_as_provided);
+			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
 		}
 
 
@@ -1011,23 +1031,23 @@ namespace LLInitParam
 			}
 		}
 
-		value_ref_t add()
+		value_t& add()
 		{
-			mValues.push_back(value_t());
-			mCachedKeys.push_back(key_cache_t());
+			mValues.push_back(ParamValue(value_t()));
 			setProvided(true);
+			Param::enclosingBlock().paramChanged(*this, true);
 			return mValues.back();
 		}
 
-		void add(value_const_ref_t item)
+		void add(const value_t& item)
 		{
-			mValues.push_back(item);
-			mCachedKeys.push_back(key_cache_t());
+			mValues.push_back(ParamValue(item));
 			setProvided(true);
+			Param::enclosingBlock().paramChanged(*this, true);
 		}
 
 		// implicit conversion
-		operator value_assignment_t() const { return self_t::get(); } 
+		operator value_assignment_t() const { return mValues; } 
 
 		typedef typename container_t::iterator iterator;
 		typedef typename container_t::const_iterator const_iterator;
@@ -1044,27 +1064,25 @@ namespace LLInitParam
 		}
 
 	protected:
-		value_assignment_t get() const
-		{
-			return mValues;
-		}
-
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
 			self_t& dst_typed_param = static_cast<self_t&>(dst);
 
-			if (src_typed_param.isProvided()
-				&& (overwrite || !dst_typed_param.isProvided()))
+			if (overwrite)
 			{
-				dst_typed_param.set(src_typed_param.get());
-				return true;
+				std::copy(src_typed_param.begin(), src_typed_param.end(), std::back_inserter(dst_typed_param.mValues));
 			}
-			return false;
+			else
+			{
+				container_t new_values(src_typed_param.mValues);
+				std::copy(dst_typed_param.begin(), dst_typed_param.end(), std::back_inserter(new_values));
+				std::swap(dst_typed_param.mValues, new_values);
+			}
+			return true;
 		}
 
 		container_t		mValues;
-		std::vector<key_cache_t>	mCachedKeys;
 	};
 
 	// container of block parameters
@@ -1074,80 +1092,76 @@ namespace LLInitParam
 	{
 	public:
 		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, true>	self_t;
-		typedef typename std::vector<VALUE_TYPE>						container_t;
+		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>				param_value_t;
+		typedef typename std::vector<param_value_t>						container_t;
 		typedef const container_t&										value_assignment_t;
-
 		typedef VALUE_TYPE												value_t;
-		typedef value_t&												value_ref_t;
-		typedef const value_t&											value_const_ref_t;
-
-		typedef typename NAME_VALUE_LOOKUP::KeyCache					key_cache_t;
+		typedef NAME_VALUE_LOOKUP										name_value_lookup_t;
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
 		:	Param(block_descriptor.mCurrentBlockPtr),
-			mValues(value),
-			mLastParamGeneration(0)
+			mLastParseGeneration(0)
 		{
-			mCachedKeys.resize(mValues.size());
+			std::copy(value.begin(), value.end(), back_inserter(mValues));
+
 			if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
 			{
-				ParamDescriptor param_descriptor(block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
+				ParamDescriptorPtr param_descriptor = ParamDescriptorPtr(new ParamDescriptor(
+												block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
 												&mergeWith,
 												&deserializeParam,
 												&serializeParam,
 												validate_func,
 												&inspectParam,
-												min_count, max_count);
+												min_count, max_count));
 				BaseBlock::addParam(block_descriptor, param_descriptor, name);
 			}
 		} 
 
 		bool isProvided() const { return Param::anyProvided(); }
 
-		value_ref_t operator[](S32 index) { return mValues[index]; }
-		value_const_ref_t operator[](S32 index) const { return mValues[index]; }
-
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, S32 generation) 
 		{ 
 			self_t& typed_param = static_cast<self_t&>(param);
 			bool new_value = false;
-			if (generation != typed_param.mLastParamGeneration || typed_param.mValues.empty())
+
+			if (generation != typed_param.mLastParseGeneration 
+				|| typed_param.mValues.empty())
 			{
 				new_value = true;
 				typed_param.mValues.push_back(value_t());
-				typed_param.mCachedKeys.push_back(Data());
 			}
 
-			value_ref_t value = typed_param.mValues.back();
+			param_value_t& value = typed_param.mValues.back();
 
 			// attempt to parse block...
-			if(value.deserializeBlock(parser, name_stack))
+			if(value.deserializeBlock(parser, name_stack, generation))
 			{
 				if (new_value)
 				{	// successfully parsed new value, let's keep it
-					typed_param.mLastParamGeneration = generation;
+					typed_param.mLastParseGeneration = generation;
 				}
-				typed_param.enclosingBlock().setLastChangedParam(param, true);
+				typed_param.enclosingBlock().paramChanged(param, true);
 				typed_param.setProvided(true);
 				return true;
 			}
-			else if(!NAME_VALUE_LOOKUP::empty())
+			else if(name_value_lookup_t::valueNamesExist())
 			{
 				// try to parse a known named value
 				std::string name;
 				if (parser.readValue(name))
 				{
 					// try to parse a per type named value
-					if (NAME_VALUE_LOOKUP::get(name, value))
+					if (name_value_lookup_t::getValueFromName(name, value.getValue()))
 					{
 						if (new_value)
 						{	// successfully parsed new value, let's keep it
-							typed_param.mLastParamGeneration = generation;
+							typed_param.mLastParseGeneration = generation;
 						}
 
-						typed_param.mCachedKeys.back().setKey(name);
-						typed_param.mCachedKeys.back().mKeyVersion = value.getLastChangeVersion();
-						typed_param.enclosingBlock().setLastChangedParam(param, true);
+						typed_param.mValues.back().setValueName(name);
+						typed_param.mValues.back().mKeyVersion = value.getLastChangeVersion();
+						typed_param.enclosingBlock().paramChanged(param, true);
 						typed_param.setProvided(true);
 						return true;
 					}
@@ -1158,7 +1172,6 @@ namespace LLInitParam
 			if (new_value)
 			{	// failed to parse new value, pop it off
 				typed_param.mValues.pop_back();
-				typed_param.mCachedKeys.pop_back();
 			}
 
 			return false;
@@ -1169,26 +1182,22 @@ namespace LLInitParam
 			const self_t& typed_param = static_cast<const self_t&>(param);
 			if (!typed_param.isProvided() || name_stack.empty()) return;
 
-			const_iterator it = typed_param.mValues.begin();
-			for (typename std::vector<Data>::const_iterator key_it = typed_param.mCachedKeys.begin();
-				it != typed_param.mValues.end();
-				++key_it, ++it)
+			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
+				it != end_it;
+				++it)
 			{
 				name_stack.back().second = parser.newParseGeneration();
 
-				std::string key = key_it->getKey();
-				if (!key.empty() && key_it->mKeyVersion == it->getLastChangeVersion())
+				std::string key = it->getValueName();
+				if (!key.empty() && it->mKeyVersion == it->getLastChangeVersion())
 				{
-					if(!parser.writeValue(key, name_stack))
-					{
-						return;
-					}
+					parser.writeValue(key, name_stack);
 				}
 				// Not parsed via named values, write out value directly
 				// NOTE: currently we don't worry about removing default values in Multiple
-				else if (!it->serializeBlock(parser, name_stack, NULL))
+				else 
 				{
-					return;
+					it->serializeBlock(parser, name_stack, NULL);
 				}
 			}
 		}
@@ -1196,16 +1205,14 @@ namespace LLInitParam
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
 		{
 			// I am a vector of blocks, so describe my contents recursively
-			value_t().inspectBlock(parser, name_stack);
+			param_value_t(value_t()).inspectBlock(parser, name_stack, min_count, max_count);
 		}
 
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
 			mValues = val;
-			mCachedKeys.clear();
-			mCachedKeys.resize(mValues.size());
 			setProvided(flag_as_provided);
-			Param::enclosingBlock().setLastChangedParam(*this, flag_as_provided);
+			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
 		}
 
 		void setIfNotProvided(value_assignment_t val, bool flag_as_provided = true)
@@ -1216,23 +1223,23 @@ namespace LLInitParam
 			}
 		}
 
-		value_ref_t add()
+		value_t& add()
 		{
 			mValues.push_back(value_t());
-			mCachedKeys.push_back(Data());
 			setProvided(true);
+			Param::enclosingBlock().paramChanged(*this, true);
 			return mValues.back();
 		}
 
-		void add(value_const_ref_t item)
+		void add(const value_t& item)
 		{
 			mValues.push_back(item);
-			mCachedKeys.push_back(Data());
 			setProvided(true);
+			Param::enclosingBlock().paramChanged(*this, true);
 		}
 
 		// implicit conversion
-		operator value_assignment_t() const { return self_t::get(); } 
+		operator value_assignment_t() const { return mValues; } 
 
 		typedef typename container_t::iterator iterator;
 		typedef typename container_t::const_iterator const_iterator;
@@ -1246,8 +1253,8 @@ namespace LLInitParam
 		U32 numValidElements() const
 		{
 			U32 count = 0;
-			for (const_iterator it = mValues.begin();
-				it != mValues.end();
+			for (const_iterator it = mValues.begin(), end_it = mValues.end();
+				it != end_it;
 				++it)
 			{
 				if(it->validateBlock(false)) count++;
@@ -1256,43 +1263,35 @@ namespace LLInitParam
 		}
 
 	protected:
-		value_assignment_t get() const
-		{
-			return mValues;
-		}
 
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
 			self_t& dst_typed_param = static_cast<self_t&>(dst);
 
-			if (src_typed_param.isProvided()
-				&& (overwrite || !dst_typed_param.isProvided()))
+			if (overwrite)
 			{
-				dst_typed_param.set(src_typed_param.get());
-				return true;
+				std::copy(src_typed_param.begin(), src_typed_param.end(), std::back_inserter(dst_typed_param.mValues));
 			}
-			return false;
+			else
+			{
+				container_t new_values(src_typed_param.mValues);
+				std::copy(dst_typed_param.begin(), dst_typed_param.end(), std::back_inserter(new_values));
+				std::swap(dst_typed_param.mValues, new_values);
+			}
+			return true;
 		}
 
-		struct Data : public key_cache_t
-		{
-			S32 mKeyVersion;	// version of block for which key was last valid
-
-			Data() : mKeyVersion(0) {}
-		};
-
 		container_t			mValues;
-		std::vector<Data>	mCachedKeys;
 
-		S32			mLastParamGeneration;
+		S32			mLastParseGeneration;
 	};
 
 	template <typename DERIVED_BLOCK>
 	class Choice : public BaseBlock
 	{
-		typedef Choice<DERIVED_BLOCK> self_t;
-		typedef Choice<DERIVED_BLOCK> enclosing_block_t;
+		typedef Choice<DERIVED_BLOCK>	self_t;
+		typedef Choice<DERIVED_BLOCK>	enclosing_block_t;
 		
 		LOG_CLASS(self_t);
 	public:
@@ -1321,9 +1320,9 @@ namespace LLInitParam
 		}
 
 		// clear out old choice when param has changed
-		/*virtual*/ void setLastChangedParam(const Param& last_param, bool user_provided)
+		/*virtual*/ void paramChanged(const Param& changed_param, bool user_provided)
 		{ 
-			param_handle_t changed_param_handle = BaseBlock::getHandleFromParam(&last_param);
+			param_handle_t changed_param_handle = BaseBlock::getHandleFromParam(&changed_param);
 			// if we have a new choice...
 			if (changed_param_handle != mCurChoice)
 			{
@@ -1335,7 +1334,7 @@ namespace LLInitParam
 				}
 				mCurChoice = changed_param_handle;
 			}
-			BaseBlock::setLastChangedParam(last_param, user_provided);
+			BaseBlock::paramChanged(changed_param, user_provided);
 		}
 
 		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
@@ -1358,20 +1357,21 @@ namespace LLInitParam
 			friend class Choice<DERIVED_BLOCK>;
 
 			typedef Alternative<T, NAME_VALUE_LOOKUP>									self_t;
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBaseBlock<T>::value>		super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>		super_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
-			explicit Alternative(const char* name, value_assignment_t val = DefaultInitializer<T>::get())
+			explicit Alternative(const char* name, value_assignment_t val = defaultValue<T>())
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1),
 				mOriginalValue(val)
 			{
 				// assign initial choice to first declared option
 				DERIVED_BLOCK* blockp = ((DERIVED_BLOCK*)DERIVED_BLOCK::selfBlockDescriptor().mCurrentBlockPtr);
-				if (LL_UNLIKELY(
-						DERIVED_BLOCK::selfBlockDescriptor().mInitializationState == BlockDescriptor::INITIALIZING
-							&& blockp->mCurChoice == 0))
+				if (LL_UNLIKELY(DERIVED_BLOCK::selfBlockDescriptor().mInitializationState == BlockDescriptor::INITIALIZING))
 				{
-					blockp->mCurChoice = Param::enclosingBlock().getHandleFromParam(this);
+					if(blockp->mCurChoice == 0)
+					{
+						blockp->mCurChoice = Param::enclosingBlock().getHandleFromParam(this);
+					}
 				}
 			}
 
@@ -1390,7 +1390,7 @@ namespace LLInitParam
 			{ 
 				if (static_cast<enclosing_block_t&>(Param::enclosingBlock()).getCurrentChoice() == this)
 				{
-					return super_t::get(); 
+					return super_t::getValue(); 
 				}
 				return mOriginalValue;
 			} 
@@ -1399,7 +1399,7 @@ namespace LLInitParam
 			{ 
 				if (static_cast<enclosing_block_t&>(Param::enclosingBlock()).getCurrentChoice() == this)
 				{
-					return super_t::get(); 
+					return super_t::getValue(); 
 				}
 				return mOriginalValue;
 			} 
@@ -1433,8 +1433,8 @@ namespace LLInitParam
 	class Block 
 	:	public BASE_BLOCK
 	{
-		typedef Block<DERIVED_BLOCK, BASE_BLOCK> self_t;
-		typedef Block<DERIVED_BLOCK, BASE_BLOCK> block_t;
+		typedef Block<DERIVED_BLOCK, BASE_BLOCK>	self_t;
+		typedef Block<DERIVED_BLOCK, BASE_BLOCK>	block_t;
 
 	public:
 		typedef BASE_BLOCK base_block_t;
@@ -1442,13 +1442,13 @@ namespace LLInitParam
 		// take all provided params from other and apply to self
 		bool overwriteFrom(const self_t& other)
 		{
-			return BaseBlock::merge(selfBlockDescriptor(), other, true);
+			return static_cast<DERIVED_BLOCK*>(this)->merge(selfBlockDescriptor(), other, true);
 		}
 
 		// take all provided params that are not already provided, and apply to self
 		bool fillFrom(const self_t& other)
 		{
-			return BaseBlock::merge(selfBlockDescriptor(), other, false);
+			return static_cast<DERIVED_BLOCK*>(this)->merge(selfBlockDescriptor(), other, false);
 		}
 
 		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
@@ -1468,10 +1468,10 @@ namespace LLInitParam
 		class Optional : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBaseBlock<T>::value>		super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>		super_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
-			explicit Optional(const char* name = "", value_assignment_t val = DefaultInitializer<T>::get())
+			explicit Optional(const char* name = "", value_assignment_t val = defaultValue<T>())
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1)
 			{
 				//#pragma message("Parsing LLInitParam::Block::Optional")
@@ -1483,7 +1483,7 @@ namespace LLInitParam
 				return *this;
 			}
 
-			DERIVED_BLOCK& operator()(typename super_t::value_assignment_t val)
+			DERIVED_BLOCK& operator()(value_assignment_t val)
 			{
 				super_t::set(val);
 				return static_cast<DERIVED_BLOCK&>(Param::enclosingBlock());
@@ -1495,12 +1495,12 @@ namespace LLInitParam
 		class Mandatory : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBaseBlock<T>::value>		super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>		super_t;
 			typedef Mandatory<T, NAME_VALUE_LOOKUP>										self_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			// mandatory parameters require a name to be parseable
-			explicit Mandatory(const char* name = "", value_assignment_t val = DefaultInitializer<T>::get())
+			explicit Mandatory(const char* name = "", value_assignment_t val = defaultValue<T>())
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, &validate, 1, 1)
 			{}
 
@@ -1529,15 +1529,15 @@ namespace LLInitParam
 		class Multiple : public TypedParam<T, NAME_VALUE_LOOKUP, true>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, true, IsBaseBlock<T>::value>	super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, true, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>	super_t;
 			typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>							self_t;
 			typedef typename super_t::container_t									container_t;
 			typedef typename super_t::value_assignment_t							value_assignment_t;
 			typedef typename super_t::iterator										iterator;
 			typedef typename super_t::const_iterator								const_iterator;
 
-			explicit Multiple(const char* name = "", value_assignment_t val = DefaultInitializer<container_t>::get())
-			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, &validate, RANGE::minCount(), RANGE::maxCount())
+			explicit Multiple(const char* name = "")
+			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, container_t(), &validate, RANGE::minCount(), RANGE::maxCount())
 			{}
 
 			Multiple& operator=(value_assignment_t val)
@@ -1545,7 +1545,7 @@ namespace LLInitParam
 				set(val);
 				return *this;
 			}
-			
+
 			DERIVED_BLOCK& operator()(typename super_t::value_assignment_t val)
 			{
 				super_t::set(val);
@@ -1559,6 +1559,95 @@ namespace LLInitParam
 			}
 		};
 
+		template <typename T, typename RANGE = BaseBlock::AnyAmount, typename NAME_VALUE_LOOKUP = TypeValues<T> >
+		class Batch : private TypedParam<T, NAME_VALUE_LOOKUP, false>
+		{
+		public:
+			typedef ParamValue<T, NAME_VALUE_LOOKUP>										param_value_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<param_value_t>::value>	super_t;
+			typedef Batch<T, RANGE, NAME_VALUE_LOOKUP>										self_t;
+			typedef typename super_t::value_assignment_t									value_assignment_t;
+
+			struct BatchDefaultValue : public ParamDescriptor::UserData
+			{
+				BatchDefaultValue(const T& value)
+				:	mValue(value)
+				{}
+
+				T mValue;
+			};
+
+			explicit Batch(const char* name, value_assignment_t val)
+			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1),
+				mLastParseGeneration(-1)
+			{
+				BlockDescriptor& block_descriptor = DERIVED_BLOCK::selfBlockDescriptor();
+				if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
+				{
+					ParamDescriptorPtr param_descriptorp = block_descriptor.mCurrentBlockPtr->findParamDescriptor(*this);
+
+					if (param_descriptorp)
+					{
+						param_descriptorp->mDeserializeFunc = &deserializeParam;
+						param_descriptorp->mUserData = new BatchDefaultValue(new _value_t(val));
+					}
+				}
+			}
+
+			explicit Batch(const char* name = "")
+			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, defaultValue<T>(), NULL, 0, 1),
+				mLastParseGeneration(-1)
+			{
+				BlockDescriptor& block_descriptor = DERIVED_BLOCK::selfBlockDescriptor();
+				if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
+				{
+					ParamDescriptorPtr param_descriptorp = block_descriptor.mCurrentBlockPtr->findParamDescriptor(*this);
+
+					if (param_descriptorp)
+					{
+						param_descriptorp->mDeserializeFunc = &deserializeParam;
+					}
+				}
+			}
+
+			Batch& operator=(value_assignment_t val)
+			{
+				set(val);
+				return *this;
+			}
+
+			DERIVED_BLOCK& operator()(value_assignment_t val)
+			{
+				super_t::set(val);
+				return static_cast<DERIVED_BLOCK&>(Param::enclosingBlock());
+			}
+
+			using super_t::operator();
+
+		private:
+			static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, S32 generation) 
+			{
+				self_t& typed_param = static_cast<self_t&>(param);
+
+				if (generation != typed_param.mLastParseGeneration)
+				{
+					ParamDescriptorPtr descriptor = typed_param.enclosingBlock().findParamDescriptor(param);
+					if (descriptor && static_cast<BatchDefaultValue*>(descriptor->mUserData))
+					{
+						static_cast<param_value_t&>(typed_param) = (static_cast<BatchDefaultValue*>(descriptor->mUserData))->mValue;
+					}
+					else
+					{
+						static_cast<param_value_t&>(typed_param) = param_value_t(value_t());
+					}
+					typed_param.mLastParseGeneration = generation;
+				}
+				return super_t::deserializeParam(param, parser, name_stack, generation);
+			}
+
+			S32 mLastParseGeneration;
+		};
+
 		class Deprecated : public Param
 		{
 		public:
@@ -1568,13 +1657,14 @@ namespace LLInitParam
 				BlockDescriptor& block_descriptor = DERIVED_BLOCK::selfBlockDescriptor();
 				if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
 				{
-					ParamDescriptor param_descriptor(block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
+					ParamDescriptorPtr param_descriptor = ParamDescriptorPtr(new ParamDescriptor(
+													block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
 													NULL,
 													&deserializeParam,
 													NULL,
 													NULL,
 													NULL, 
-													0, S32_MAX);
+													0, S32_MAX));
 					BaseBlock::addParam(block_descriptor, param_descriptor, name);
 				}
 			}
@@ -1602,137 +1692,91 @@ namespace LLInitParam
 		}
 	};
 	
-	template<typename T, typename DERIVED = TypedParam<T> >
-	class BlockValue
-	:	public Block<TypedParam<T, TypeValues<T>, false> >,
-		public Param
+	template<typename T>
+	class CustomParamValue
+	:	public Block<ParamValue<T, TypeValues<T> > >,
+		public TypeValues<T>
 	{
 	public:
 		typedef enum e_value_age
 		{	
-			OLDER_THAN_BLOCK,	// mData.mValue needs to be refreshed from the block parameters
-			NEWER_THAN_BLOCK,	// mData.mValue holds the authoritative value (which has been replicated to the block parameters via setBlockFromValue)
-			SAME_AS_BLOCK		// mData.mValue is derived from the block parameters, which are authoritative
+			VALUE_NEEDS_UPDATE,		// mValue needs to be refreshed from the block parameters
+			VALUE_AUTHORITATIVE,	// mValue holds the authoritative value (which has been replicated to the block parameters via updateBlockFromValue)
+			BLOCK_AUTHORITATIVE		// mValue is derived from the block parameters, which are authoritative
 		} EValueAge;
 
-		typedef BlockValue<T>										self_t;
-		typedef Block<TypedParam<T, TypeValues<T>, false> >			block_t;
-		typedef const T&											value_const_ref_t;
-		typedef value_const_ref_t									value_assignment_t;
-		typedef typename TypeValues<T>::KeyCache					key_cache_t;
+		typedef ParamValue<T, TypeValues<T> >	derived_t;
+		typedef CustomParamValue<T>				self_t;
+		typedef Block<typename derived_t>		block_t;
+		typedef const T&						value_assignment_t;
 
-		BlockValue(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
-		:	Param(block_descriptor.mCurrentBlockPtr),
-			mData(value, NEWER_THAN_BLOCK)
+		CustomParamValue(const T& value = T())
+		:	mValue(value),
+			mValueAge(VALUE_AUTHORITATIVE),
+			mKeyVersion(0),
+			mValidatedVersion(-1)
+		{}
+
+		bool deserializeBlock(Parser& parser, Parser::name_stack_range_t name_stack, S32 generation)
 		{
-			if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
-			{
-				ParamDescriptor param_descriptor(block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
-												&mergeWith,
-												&deserializeParam,
-												&serializeParam,
-												validate_func,
-												&inspectParam,
-												min_count, max_count);
-				BaseBlock::addParam(block_descriptor, param_descriptor, name);
-			}
-		}
-
-		// implicit conversion
-		operator value_assignment_t() const { return get(); } 
-		// explicit conversion
-		value_assignment_t operator()() const { return get(); } 
-
-		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, S32 generation)
-		{
-			DERIVED& typed_param = static_cast<DERIVED&>(param);
+			derived_t& typed_param = static_cast<derived_t&>(*this);
 			// type to apply parse direct value T
 			if (name_stack.first == name_stack.second)
 			{
-				if(parser.readValue(typed_param.mData.mValue))
+				if(parser.readValue(typed_param.mValue))
 				{
-					typed_param.enclosingBlock().setLastChangedParam(param, true);
-					typed_param.setProvided(true);
-					typed_param.mData.clearKey();
-					typed_param.mData.mValueAge = NEWER_THAN_BLOCK;
-					typed_param.setBlockFromValue();
+					typed_param.clearValueName();
+					typed_param.mValueAge = VALUE_AUTHORITATIVE;
+					typed_param.updateBlockFromValue();
 
 					return true;
-				}
-
-				if(!TypeValues<T>::empty())
-				{
-					// try to parse a known named value
-					std::string name;
-					if (parser.readValue(name))
-					{
-						// try to parse a per type named value
-						if (TypeValues<T>::get(name, typed_param.mData.mValue))
-						{
-							typed_param.mData.setKey(name);
-							typed_param.enclosingBlock().setLastChangedParam(param, true);
-							typed_param.setProvided(true);
-							typed_param.mData.mValueAge = NEWER_THAN_BLOCK;
-							typed_param.setBlockFromValue();
-
-							return true;
-						}
-					}
 				}
 			}
 
 			// fall back on parsing block components for T
 			// if we deserialized at least one component...
-			if (typed_param.BaseBlock::deserializeBlock(parser, name_stack))
+			if (typed_param.BaseBlock::deserializeBlock(parser, name_stack, generation))
 			{
-				// ...our block is provided, and considered changed
-				typed_param.enclosingBlock().setLastChangedParam(param, true);
-				typed_param.setProvided(true);
 				return true;
 			}
+
 			return false;
 		}
 
-		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const Param* diff_param)
+		void serializeBlock(Parser& parser, Parser::name_stack_t name_stack = Parser::name_stack_t(), const BaseBlock* diff_block = NULL) const
 		{
-			const self_t& typed_param = static_cast<const self_t&>(param);
+			const self_t& typed_param = static_cast<const self_t&>(*this);
+			const self_t* diff_param = static_cast<const self_t*>(diff_block);
 			
-			if (!typed_param.isProvided()) return;
-			
-			std::string key = typed_param.mData.getKey();
+			std::string key = typed_param.getValueName();
 
 			// first try to write out name of name/value pair
 			if (!key.empty())
 			{
-				if (!diff_param || !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->mData.getKey(), key))
+				if (!diff_param || !ParamCompare<std::string>::equals(diff_param->getValueName(), key))
 				{
-					if (!parser.writeValue(key, name_stack))
-					{
-						return;
-					}
+					parser.writeValue(key, name_stack);
 				}
 			}
 			// then try to serialize value directly
-			else if (!diff_param || !ParamCompare<T>::equals(typed_param.get(), (static_cast<const self_t*>(diff_param))->get()))	
+			else if (!diff_param || !ParamCompare<T>::equals(typed_param.getValue(), diff_param->getValue()))
             {
 				
-				if (parser.writeValue(typed_param.mData.mValue, name_stack)) 
+				if (!parser.writeValue(typed_param.getValue(), name_stack)) 
 				{
-					return;
+					//RN: *always* serialize provided components of BlockValue (don't pass diff_param on),
+					// since these tend to be viewed as the constructor arguments for the value T.  It seems
+					// cleaner to treat the uniqueness of a BlockValue according to the generated value, and
+					// not the individual components.  This way <color red="0" green="1" blue="0"/> will not
+					// be exported as <color green="1"/>, since it was probably the intent of the user to 
+					// be specific about the RGB color values.  This also fixes an issue where we distinguish
+					// between rect.left not being provided and rect.left being explicitly set to 0 (same as default)
+					block_t::serializeBlock(parser, name_stack, NULL);
 				}
-
-				//RN: *always* serialize provided components of BlockValue (don't pass diff_param on),
-				// since these tend to be viewed as the constructor arguments for the value T.  It seems
-				// cleaner to treat the uniqueness of a BlockValue according to the generated value, and
-				// not the individual components.  This way <color red="0" green="1" blue="0"/> will not
-				// be exported as <color green="1"/>, since it was probably the intent of the user to 
-				// be specific about the RGB color values.  This also fixes an issue where we distinguish
-				// between rect.left not being provided and rect.left being explicitly set to 0 (same as default)
-				typed_param.BaseBlock::serializeBlock(parser, name_stack, NULL);
 			}
 		}
 
-		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
+		bool inspectBlock(Parser& parser, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
 		{
 			// first, inspect with actual type...
 			parser.inspectValue<T>(name_stack, min_count, max_count, NULL);
@@ -1742,25 +1786,19 @@ namespace LLInitParam
 				parser.inspectValue<std::string>(name_stack, min_count, max_count, TypeValues<T>::getPossibleValues());
 			}
 			// then recursively inspect contents...
-			const self_t& typed_param = static_cast<const self_t&>(param);
-			typed_param.inspectBlock(parser, name_stack);
+			return block_t::inspectBlock(parser, name_stack, min_count, max_count);
 		}
 
-
-		bool isProvided() const 
+		bool validateBlock(bool emit_errors = true) const
 		{
-			if (!Param::anyProvided()) return false;
-
-			// block has an updated parameter
-			// if cached value is stale, regenerate from params
-			if (mData.mValueAge == OLDER_THAN_BLOCK)
+			if (mValueAge == VALUE_NEEDS_UPDATE)
 			{
-				if (block_t::validateBlock(false))
+				if (block_t::validateBlock(emit_errors))
 				{
-					static_cast<const DERIVED*>(this)->setValueFromBlock();
 					// clear stale keyword associated with old value
-					mData.clearKey();
-					mData.mValueAge = SAME_AS_BLOCK;
+					clearValueName();
+					mValueAge = BLOCK_AUTHORITATIVE;
+					static_cast<derived_t*>(const_cast<self_t*>(this))->updateValueFromBlock();
 					return true;
 				}
 				else
@@ -1777,104 +1815,74 @@ namespace LLInitParam
 			}
 		}
 
-		void set(value_assignment_t val, bool flag_as_provided = true)
-		{
-			Param::enclosingBlock().setLastChangedParam(*this, flag_as_provided);
-			
-			// set param version number to be up to date, so we ignore block contents
-			mData.mValueAge = NEWER_THAN_BLOCK;
-
-			mData.mValue = val;
-			mData.clearKey();
-			setProvided(flag_as_provided);
-			static_cast<DERIVED*>(this)->setBlockFromValue();
-		}
-
-		void setIfNotProvided(value_assignment_t val, bool flag_as_provided = true)
-		{
-			// don't override any user provided value
-			if (!isProvided())
-			{
-				set(val, flag_as_provided);
-			}
-		}
-
  		// propagate change status up to enclosing block
-		/*virtual*/ void setLastChangedParam(const Param& last_param, bool user_provided)
+		/*virtual*/ void paramChanged(const Param& changed_param, bool user_provided)
 		{ 
-			BaseBlock::setLastChangedParam(last_param, user_provided);
-			Param::enclosingBlock().setLastChangedParam(*this, user_provided);
+			BaseBlock::paramChanged(changed_param, user_provided);
 			if (user_provided)
-			{
-				setProvided(true);  // some component provided
+		{
 				// a parameter changed, so our value is out of date
-				mData.mValueAge = OLDER_THAN_BLOCK;
+				mValueAge = VALUE_NEEDS_UPDATE;
 			}
 		}
+			
+		void setValue(value_assignment_t val)
+		{
+			// set param version number to be up to date, so we ignore block contents
+			mValueAge = VALUE_AUTHORITATIVE;
+			mValue = val;
+			clearValueName();
+			static_cast<derived_t*>(const_cast<self_t*>(this))->updateBlockFromValue();
+		}
+
+		value_assignment_t getValue() const
+		{
+			validateBlock(true);
+			return mValue;
+		}
+
+		T& getValue() 
+		{
+			validateBlock(true);
+			return mValue;
+		}
+
+		S32 				mKeyVersion;
 
 	protected:
-		value_assignment_t get() const
-		{
-			// if some parameters were provided, issue warnings on invalid blocks
-			if (Param::anyProvided() && (mData.mValueAge == OLDER_THAN_BLOCK))
-			{
-				// go ahead and issue warnings at this point if any param is invalid
-				if(block_t::validateBlock(true))
-				{
-					static_cast<const DERIVED*>(this)->setValueFromBlock();
-					mData.clearKey();
-					mData.mValueAge = SAME_AS_BLOCK;
-				}
-			}
 
-			return mData.mValue;
+		// use this from within updateValueFromBlock() to set the value without making it authoritative
+		void updateValue(value_assignment_t value)
+		{
+			mValue = value;
 		}
 
-
-		struct Data : public key_cache_t
+		bool merge(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
 		{
-			Data(const T& value, EValueAge age) 
-			:	mValue(value),
-				mValueAge(age)
-			{}
+			const derived_t& src_typed_param = static_cast<const derived_t&>(other);
 
-			T			mValue;
-			EValueAge	mValueAge;
-		};
-
-		// mutable to allow lazy updates on get
-		mutable Data		mData;
-
-	private:
-		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
-		{
-			const DERIVED& src_typed_param = static_cast<const DERIVED&>(src);
-			DERIVED& dst_typed_param = static_cast<DERIVED&>(dst);
-
-			if (src_typed_param.isProvided()
-				&& (overwrite || !dst_typed_param.isProvided()))
+			if (src_typed_param.mValueAge == VALUE_AUTHORITATIVE)
 			{
-				if (src_typed_param.mData.mValueAge == NEWER_THAN_BLOCK)
-				{
-					// copy value over
-					dst_typed_param.set(src_typed_param.get());
-				}
-				else
-				{
-					// merge individual parameters into destination
-					dst_typed_param.merge(block_t::selfBlockDescriptor(), src_typed_param, overwrite);
-				}
+				// copy value over
+				setValue(src_typed_param.getValue());
 				return true;
 			}
-			return false;
+			else
+			{
+				// merge individual parameters into destination
+				return block_t::merge(block_t::selfBlockDescriptor(), src_typed_param, overwrite);
+			}
 		}
-	};
 
-	template<> 
-	struct ParamCompare<LLSD, false>
-	{
-		static bool equals(const LLSD &a, const LLSD &b);
+		mutable S32			mValidatedVersion;
+		mutable bool 		mValidated; // lazy validation flag
+
+	private:
+
+		mutable T			mValue;
+		mutable EValueAge	mValueAge;
 	};
 }
+
 
 #endif // LL_LLPARAM_H
