@@ -2543,23 +2543,7 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 		// Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
 		if( MASK_CONTROL & mask )
 		{
-			if( 'C' == key )
-			{
-				mMediaSource->copy();
-				result = true;
-			}
-			else
-			if( 'V' == key )
-			{
-				mMediaSource->paste();
-				result = true;
-			}
-			else
-			if( 'X' == key )
-			{
-				mMediaSource->cut();
-				result = true;
-			}
+			result = true;
 		}
 		
 		if(!result)
@@ -3000,7 +2984,8 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is: " << plugin->getClickURL() << LL_ENDL; 
 			std::string url = plugin->getClickURL();
-			LLURLDispatcher::dispatch(url, NULL, mTrustedBrowser);
+			std::string nav_type = plugin->getClickNavType();
+			LLURLDispatcher::dispatch(url, nav_type, NULL, mTrustedBrowser);
 		}
 		break;
 		case MEDIA_EVENT_CLICK_LINK_HREF:

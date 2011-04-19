@@ -637,19 +637,16 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	}
 
 
-	if (!gNoRender)
+	// Slam priorities for textures that we care about (hovered, selected, and focused)
+	// Hovered
+	// Assumes only one level deep of parenting
+	LLSelectNode* nodep = LLSelectMgr::instance().getHoverNode();
+	if (nodep)
 	{
-		// Slam priorities for textures that we care about (hovered, selected, and focused)
-		// Hovered
-		// Assumes only one level deep of parenting
-		LLSelectNode* nodep = LLSelectMgr::instance().getHoverNode();
-		if (nodep)
+		objectp = nodep->getObject();
+		if (objectp)
 		{
-			objectp = nodep->getObject();
-			if (objectp)
-			{
-				objectp->boostTexturePriority();
-			}
+			objectp->boostTexturePriority();
 		}
 	}
 
@@ -1466,7 +1463,7 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 	// We need to update many object caches, I'll document this more as I dig through the code
 	// cleaning things out...
 
-	if (gNoRender || 0 == offset.magVecSquared())
+	if (0 == offset.magVecSquared())
 	{
 		return;
 	}
@@ -1934,11 +1931,6 @@ void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip
 
 void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 {
-	if (gNoRender)
-	{
-		return;
-	}
-
 	if (objectp->isDead())
 	{
 		llwarns << "Trying to find orphans for dead obj " << objectp->mID 

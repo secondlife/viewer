@@ -419,7 +419,7 @@ void set_binormals(const S32 index, const U32 stride, const LLVector3 *binormals
 void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific );
 
 extern BOOL gClothRipple;
-extern BOOL gNoRender;
+extern BOOL gHeadlessClient;
 extern BOOL gGLActive;
 
 // Deal with changing glext.h definitions for newer SDK versions, specifically

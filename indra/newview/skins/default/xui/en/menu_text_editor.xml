@@ -4,8 +4,7 @@
   <menu_item_call
    label="Cut"
    layout="topleft"
-   name="Cut"
-   shortcut="control|X">
+   name="Cut">
     <menu_item_call.on_click
      function="Edit.Cut" />
     <menu_item_call.on_enable
@@ -14,8 +13,7 @@
   <menu_item_call
    label="Copy"
    layout="topleft"
-   name="Copy"
-   shortcut="control|C">
+   name="Copy">
     <menu_item_call.on_click
      function="Edit.Copy" />
     <menu_item_call.on_enable
@@ -24,8 +22,7 @@
   <menu_item_call
    label="Paste"
    layout="topleft"
-   name="Paste"
-   shortcut="control|V">
+   name="Paste">
     <menu_item_call.on_click
      function="Edit.Paste" />
     <menu_item_call.on_enable
@@ -34,8 +31,7 @@
   <menu_item_call
    label="Delete"
    layout="topleft"
-   name="Delete"
-   shortcut="Del">
+   name="Delete">
     <menu_item_call.on_click
      function="Edit.Delete" />
     <menu_item_call.on_enable
@@ -44,8 +40,7 @@
   <menu_item_call
    label="Select All"
    layout="topleft"
-   name="Select All"
-   shortcut="control|A">
+   name="Select All">
     <menu_item_call.on_click
      function="Edit.SelectAll" />
     <menu_item_call.on_enable

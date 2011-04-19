@@ -33,6 +33,13 @@
 class LLAccordionCtrl;
 class LLSideTrayTab;
 
+// Deal with LLSideTrayTab being opaque. Generic do-nothing cast...
+template <class T>
+T tab_cast(LLSideTrayTab* tab) { return tab; }
+// specialized for implementation in presence of LLSideTrayTab definition
+template <>
+LLPanel* tab_cast<LLPanel*>(LLSideTrayTab* tab);
+
 // added inheritance from LLDestroyClass<LLSideTray> to enable Side Tray perform necessary actions 
 // while disconnecting viewer in LLAppViewer::disconnectViewer().
 // LLDestroyClassList::instance().fireCallbacks() calls destroyClass method. See EXT-245.
@@ -221,6 +228,9 @@ private:
 	}
 
 private:
+	// Since we provide no public way to query mTabs and mDetachedTabs, give
+	// LLSideTrayListener friend access.
+	friend class LLSideTrayListener;
 	LLPanel*						mButtonsPanel;
 	typedef std::map<std::string,LLButton*> button_map_t;
 	button_map_t					mTabButtons;

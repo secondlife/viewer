@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+ name="media ctrl context menu">
+  <menu_item_call
+   label="Cut"
+   layout="topleft"
+   name="Cut">
+    <menu_item_call.on_click
+     function="Edit.Cut" />
+    <menu_item_call.on_enable
+     function="Edit.EnableCut" />
+  </menu_item_call>
+  <menu_item_call
+   label="Copy"
+   layout="topleft"
+   name="Copy">
+    <menu_item_call.on_click
+     function="Edit.Copy" />
+    <menu_item_call.on_enable
+     function="Edit.EnableCopy" />
+  </menu_item_call>
+  <menu_item_call
+   label="Paste"
+   layout="topleft"
+   name="Paste">
+    <menu_item_call.on_click
+     function="Edit.Paste" />
+    <menu_item_call.on_enable
+     function="Edit.EnablePaste" />
+  </menu_item_call>
+</context_menu>

@@ -490,6 +490,16 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 
 	mLastSex = avatar_sex;
 
+	// Check for NaN condition (NaN is detected if a variable doesn't equal itself.
+	if (mCurWeight != mCurWeight)
+	{
+		mCurWeight = 0.0;
+	}
+	if (mLastWeight != mLastWeight)
+	{
+		mLastWeight = mCurWeight+.001;
+	}
+
 	// perform differential update of morph
 	F32 delta_weight = ( getSex() & avatar_sex ) ? (mCurWeight - mLastWeight) : (getDefaultWeight() - mLastWeight);
 	// store last weight

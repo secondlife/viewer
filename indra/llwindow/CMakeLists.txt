@@ -35,16 +35,20 @@ include_directories(
 
 set(llwindow_SOURCE_FILES
     llkeyboard.cpp
+    llkeyboardheadless.cpp
     llwindowheadless.cpp
     llwindowcallbacks.cpp
+    llwindowlistener.cpp
     )
 
 set(llwindow_HEADER_FILES
     CMakeLists.txt
 
     llkeyboard.h
+    llkeyboardheadless.h
     llwindowheadless.h
     llwindowcallbacks.h
+    llwindowlistener.h
     )
 
 set(viewer_SOURCE_FILES

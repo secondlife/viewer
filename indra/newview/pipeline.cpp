@@ -1378,10 +1378,6 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 U32 LLPipeline::addObject(LLViewerObject *vobj)
 {
 	LLMemType mt_ao(LLMemType::MTYPE_PIPELINE_ADD_OBJECT);
-	if (gNoRender)
-	{
-		return 0;
-	}
 
 	if (gSavedSettings.getBOOL("RenderDelayCreation"))
 	{
