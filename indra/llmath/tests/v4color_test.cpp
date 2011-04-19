@@ -155,7 +155,7 @@ namespace tut
 		F32 r = 0x20, g = 0xFFFF, b = 0xFF;
 		LLColor4 llcolor4(r,g,b);
 		ensure("magVecSquared:Fail ", is_approx_equal(llcolor4.magVecSquared(), (r*r + g*g + b*b)));
-		ensure("magVec:Fail ", is_approx_equal(llcolor4.magVec(), fsqrtf(r*r + g*g + b*b)));
+		ensure("magVec:Fail ", is_approx_equal(llcolor4.magVec(), (F32) sqrt(r*r + g*g + b*b)));
 	}
 
 	template<> template<>
@@ -164,7 +164,7 @@ namespace tut
 		F32 r = 0x20, g = 0xFFFF, b = 0xFF;
 		LLColor4 llcolor4(r,g,b);
 		F32 vecMag = llcolor4.normVec();
-		F32 mag = fsqrtf(r*r + g*g + b*b);
+		F32 mag = (F32) sqrt(r*r + g*g + b*b);
 		F32 oomag = 1.f / mag;
 		F32 val1 = r * oomag, val2 = g * oomag,	val3 = b * oomag;
 		ensure("1:normVec failed ", (is_approx_equal(val1, llcolor4.mV[0]) && is_approx_equal(val2, llcolor4.mV[1]) && is_approx_equal(val3, llcolor4.mV[2]) && is_approx_equal(vecMag, mag)));

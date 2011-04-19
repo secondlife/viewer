@@ -131,7 +131,8 @@ BOOL	LLPanelObject::postBuild()
 	// Phantom checkbox
 	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
-	
+       
+
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
 	mCtrlPosX = getChild<LLSpinCtrl>("Pos X");
@@ -519,6 +520,7 @@ void LLPanelObject::getState( )
 	mCheckPhantom->set( mIsPhantom );
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
 
+       
 #if 0 // 1.9.2
 	mCastShadows = root_objectp->flagCastShadows();
 	mCheckCastShadows->set( mCastShadows );
@@ -569,6 +571,7 @@ void LLPanelObject::getState( )
 	BOOL enabled = FALSE;
 	BOOL hole_enabled = FALSE;
 	F32 scale_x=1.f, scale_y=1.f;
+	BOOL isMesh = FALSE;
 	
 	if( !objectp || !objectp->getVolume() || !editable || !single_volume)
 	{
@@ -599,10 +602,9 @@ void LLPanelObject::getState( )
 		// Only allowed to change these parameters for objects
 		// that you have permissions on AND are not attachments.
 		enabled = root_objectp->permModify();
-
-		const LLVolumeParams &volume_params = objectp->getVolume()->getParams();
-
+		
 		// Volume type
+		const LLVolumeParams &volume_params = objectp->getVolume()->getParams();
 		U8 path = volume_params.getPathParams().getCurveType();
 		U8 profile_and_hole = volume_params.getProfileParams().getCurveType();
 		U8 profile	= profile_and_hole & LL_PCODE_PROFILE_MASK;
@@ -833,7 +835,7 @@ void LLPanelObject::getState( )
 		}
 		mSpinSkew->set( skew );
 	}
-
+	
 	// Compute control visibility, label names, and twist range.
 	// Start with defaults.
 	BOOL cut_visible                = TRUE;
@@ -1101,7 +1103,9 @@ void LLPanelObject::getState( )
 
 	if (selected_item == MI_SCULPT)
 	{
-        LLUUID id;
+
+
+		LLUUID id;
 		LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 
 		
@@ -1113,26 +1117,29 @@ void LLPanelObject::getState( )
 				mSculptTypeRevert    = sculpt_params->getSculptType();
 			}
 		
+			U8 sculpt_type = sculpt_params->getSculptType();
+			U8 sculpt_stitching = sculpt_type & LL_SCULPT_TYPE_MASK;
+			BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
+			BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
+			isMesh = (sculpt_stitching == LL_SCULPT_TYPE_MESH);
+
 			LLTextureCtrl*  mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
 			if(mTextureCtrl)
 			{
 				mTextureCtrl->setTentative(FALSE);
-				mTextureCtrl->setEnabled(editable);
+				mTextureCtrl->setEnabled(editable && !isMesh);
 				if (editable)
 					mTextureCtrl->setImageAssetID(sculpt_params->getSculptTexture());
 				else
 					mTextureCtrl->setImageAssetID(LLUUID::null);
 			}
 
-			U8 sculpt_type = sculpt_params->getSculptType();
-			U8 sculpt_stitching = sculpt_type & LL_SCULPT_TYPE_MASK;
-			BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
-			BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
+			mComboBaseType->setEnabled(!isMesh);
 			
 			if (mCtrlSculptType)
 			{
 				mCtrlSculptType->setCurrentByIndex(sculpt_stitching);
-				mCtrlSculptType->setEnabled(editable);
+				mCtrlSculptType->setEnabled(editable && !isMesh);
 			}
 
 			if (mCtrlSculptMirror)
@@ -1151,14 +1158,14 @@ void LLPanelObject::getState( )
 			{
 				mLabelSculptType->setEnabled(TRUE);
 			}
+			
 		}
 	}
 	else
 	{
-		mSculptTextureRevert = LLUUID::null;
+		mSculptTextureRevert = LLUUID::null;		
 	}
 
-	
 	//----------------------------------------------------------------------------
 
 	mObject = objectp;
@@ -1786,6 +1793,17 @@ void LLPanelObject::sendSculpt()
 	if (mCtrlSculptType)
 		sculpt_type |= mCtrlSculptType->getCurrentIndex();
 
+	bool enabled = sculpt_type != LL_SCULPT_TYPE_MESH;
+
+	if (mCtrlSculptMirror)
+	{
+		mCtrlSculptMirror->setEnabled(enabled ? TRUE : FALSE);
+	}
+	if (mCtrlSculptInvert)
+	{
+		mCtrlSculptInvert->setEnabled(enabled ? TRUE : FALSE);
+	}
+	
 	if ((mCtrlSculptMirror) && (mCtrlSculptMirror->get()))
 		sculpt_type |= LL_SCULPT_FLAG_MIRROR;
 
@@ -1807,6 +1825,26 @@ void LLPanelObject::refresh()
 	if (mRootObject.notNull() && mRootObject->isDead())
 	{
 		mRootObject = NULL;
+	}
+	
+	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
+					   gAgent.getRegion() &&
+					   !gAgent.getRegion()->getCapability("GetMesh").empty();
+
+	F32 max_scale = get_default_max_prim_scale(LLPickInfo::isFlora(mObject));
+
+	getChild<LLSpinCtrl>("Scale X")->setMaxValue(max_scale);
+	getChild<LLSpinCtrl>("Scale Y")->setMaxValue(max_scale);
+	getChild<LLSpinCtrl>("Scale Z")->setMaxValue(max_scale);
+
+	BOOL found = mCtrlSculptType->itemExists("Mesh");
+	if (enable_mesh && !found)
+	{
+		mCtrlSculptType->add("Mesh");
+	}
+	else if (!enable_mesh && found)
+	{
+		mCtrlSculptType->remove("Mesh");
 	}
 }
 
@@ -1894,6 +1932,7 @@ void LLPanelObject::clearCtrls()
 	mCheckTemporary	->setEnabled( FALSE );
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
+	
 #if 0 // 1.9.2
 	mCheckCastShadows->set(FALSE);
 	mCheckCastShadows->setEnabled( FALSE );

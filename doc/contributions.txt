@@ -196,6 +196,7 @@ blino Nakamura
 Boroondas Gupte
 	OPEN-29
 	OPEN-39
+	OPEN-39
 	SNOW-278
 	SNOW-503
 	SNOW-510
@@ -413,6 +414,7 @@ Jonathan Yap
 	VWR-17801
 	VWR-24347
 	STORM-975
+	STORM-990
 	STORM-1019
 	STORM-844
 	STORM-643
@@ -803,7 +805,9 @@ Thraxis Epsilon
 tiamat bingyi
 	CT-246
 Tofu Buzzard
+	CTS-411
 	STORM-546
+	VWR-24509
 TraductoresAnonimos Alter
 	CT-324
 Tue Torok

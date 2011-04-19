@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+#version 120
 
 float calcDirectionalLight(vec3 n, vec3 l);
 float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_pointlight);

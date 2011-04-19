@@ -46,6 +46,7 @@
 // static
 void LLViewerJointMesh::updateGeometryVectorized(LLFace *face, LLPolyMesh *mesh)
 {
+#if 0
 	static LLV4Matrix4	sJointMat[32];
 	LLDynamicArray<LLJointRenderData*>& joint_data = mesh->getReferenceMesh()->mJointRenderData;
 	S32 j, joint_num, joint_end = joint_data.count();
@@ -92,4 +93,5 @@ void LLViewerJointMesh::updateGeometryVectorized(LLFace *face, LLPolyMesh *mesh)
 	}
 
 	buffer->setBuffer(0);
+#endif
 }

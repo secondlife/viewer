@@ -271,7 +271,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		}
 	}
 
-
 	const LLFontGlyphInfo* next_glyph = NULL;
 
 	const S32 GLYPH_BATCH_SIZE = 30;

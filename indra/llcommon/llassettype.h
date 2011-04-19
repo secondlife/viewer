@@ -108,8 +108,10 @@ public:
 
 		AT_LINK_FOLDER = 25,
 			// Inventory folder link
-		
-		AT_COUNT = 26,
+		AT_MESH = 49,
+		    // Mesh data in our proprietary SLM format
+
+		AT_COUNT = 50,
 
 			// +*********************************************************+
 			// |  TO ADD AN ELEMENT TO THIS ENUM:                        |

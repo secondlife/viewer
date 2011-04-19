@@ -544,7 +544,7 @@ void LLAssetStorage::_queueDataRequest(const LLUUID& uuid, LLAssetType::EType at
 			tpvf.setAsset(uuid, atype);
 			tpvf.setCallback(downloadCompleteCallback, req);
 
-			llinfos << "Starting transfer for " << uuid << llendl;
+			//llinfos << "Starting transfer for " << uuid << llendl;
 			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
 			ttcp->requestTransfer(spa, tpvf, 100.f + (is_priority ? 1.f : 0.f));
 		}

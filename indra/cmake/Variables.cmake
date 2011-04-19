@@ -29,6 +29,7 @@ set(SERVER_PREFIX)
 set(VIEWER_PREFIX)
 set(INTEGRATION_TESTS_PREFIX)
 set(LL_TESTS ON CACHE BOOL "Build and run unit and integration tests (disable for build timing runs to reduce variation")
+set(INCREMENTAL_LINK OFF CACHE BOOL "Use incremental linking on win32 builds (enable for faster links on some machines)")
 
 if(LIBS_CLOSED_DIR)
   file(TO_CMAKE_PATH "${LIBS_CLOSED_DIR}" LIBS_CLOSED_DIR)

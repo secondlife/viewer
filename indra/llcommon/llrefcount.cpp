@@ -29,9 +29,25 @@
 
 #include "llerror.h"
 
+#if LL_REF_COUNT_DEBUG
+#include "llthread.h"
+#include "llapr.h"
+#endif
+
 LLRefCount::LLRefCount(const LLRefCount& other)
 :	mRef(0)
 {
+#if LL_REF_COUNT_DEBUG
+	if(gAPRPoolp)
+	{
+		mMutexp = new LLMutex(gAPRPoolp) ;
+	}
+	else
+	{
+		mMutexp = NULL ;
+	}
+	mCrashAtUnlock = FALSE ;
+#endif
 }
 
 LLRefCount& LLRefCount::operator=(const LLRefCount&)
@@ -43,6 +59,17 @@ LLRefCount& LLRefCount::operator=(const LLRefCount&)
 LLRefCount::LLRefCount() :
 	mRef(0)
 {
+#if LL_REF_COUNT_DEBUG
+	if(gAPRPoolp)
+	{
+		mMutexp = new LLMutex(gAPRPoolp) ;
+	}
+	else
+	{
+		mMutexp = NULL ;
+	}
+	mCrashAtUnlock = FALSE ;
+#endif
 }
 
 LLRefCount::~LLRefCount()
@@ -51,4 +78,87 @@ LLRefCount::~LLRefCount()
 	{
 		llerrs << "deleting non-zero reference" << llendl;
 	}
+
+#if LL_REF_COUNT_DEBUG
+	if(gAPRPoolp)
+	{
+		delete mMutexp ;
+	}
+#endif
 }
+
+#if LL_REF_COUNT_DEBUG
+void LLRefCount::ref() const
+{ 
+	if(mMutexp)
+	{
+		if(mMutexp->isLocked()) 
+		{
+			mCrashAtUnlock = TRUE ;
+			llerrs << "the mutex is locked by the thread: " << mLockedThreadID 
+				<< " Current thread: " << LLThread::currentID() << llendl ;
+		}
+
+		mMutexp->lock() ;
+		mLockedThreadID = LLThread::currentID() ;
+
+		mRef++; 
+
+		if(mCrashAtUnlock)
+		{
+			while(1); //crash here.
+		}
+		mMutexp->unlock() ;
+	}
+	else
+	{
+		mRef++; 
+	}
+} 
+
+S32 LLRefCount::unref() const
+{
+	if(mMutexp)
+	{
+		if(mMutexp->isLocked()) 
+		{
+			mCrashAtUnlock = TRUE ;
+			llerrs << "the mutex is locked by the thread: " << mLockedThreadID 
+				<< " Current thread: " << LLThread::currentID() << llendl ;
+		}
+
+		mMutexp->lock() ;
+		mLockedThreadID = LLThread::currentID() ;
+		
+		llassert(mRef >= 1);
+		if (0 == --mRef) 
+		{
+			if(mCrashAtUnlock)
+			{
+				while(1); //crash here.
+			}
+			mMutexp->unlock() ;
+
+			delete this; 
+			return 0;
+		}
+
+		if(mCrashAtUnlock)
+		{
+			while(1); //crash here.
+		}
+		mMutexp->unlock() ;
+		return mRef;
+	}
+	else
+	{
+		llassert(mRef >= 1);
+		if (0 == --mRef) 
+		{
+			delete this; 
+			return 0;
+		}
+		return mRef;
+	}
+}	
+#endif
