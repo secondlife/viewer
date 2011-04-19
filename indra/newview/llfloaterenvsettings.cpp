@@ -71,29 +71,7 @@ BOOL LLFloaterEnvSettings::postBuild()
 	initCallbacks();
 	syncMenu();
 
-	LLEnvKey::EScope cur_scope = LLEnvManager::getInstance()->getNormallyDisplayedScope();
-	childSetValue("RegionWLOptIn", cur_scope == LLEnvKey::SCOPE_REGION);
-
 	return TRUE;
-}
-
-void LLFloaterEnvSettings::onUseRegionEnvironment(LLUICtrl* ctrl, void* data)
-{
-	//LLFloaterEnvSettings* self = (LLFloaterEnvSettings*)data;
-	LLCheckBoxCtrl* checkbox = static_cast<LLCheckBoxCtrl*>(ctrl); //self->getChildView("RegionWLOptIn");
-	setOptIn(checkbox->getValue().asBoolean());
-}
-
-void LLFloaterEnvSettings::setOptIn(bool opt_in)
-{
-	if (opt_in)
-	{
-		LLEnvManager::getInstance()->setNormallyDisplayedScope(LLEnvKey::SCOPE_REGION);
-	}
-	else
-	{
-		LLEnvManager::getInstance()->setNormallyDisplayedScope(LLEnvKey::SCOPE_LOCAL);
-	}
 }
 
 void LLFloaterEnvSettings::initCallbacks(void) 
@@ -112,8 +90,7 @@ void LLFloaterEnvSettings::initCallbacks(void)
 	childSetCommitCallback("EnvUseEstateTimeButton", &LLFloaterEnvSettings::onUseEstateTime, NULL);
 	getChild<LLUICtrl>("EnvUseLocalTimeButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onUseLocalTime));
 
-	childSetCommitCallback("RegionWLOptIn", &LLFloaterEnvSettings::onUseRegionEnvironment, NULL);
-	getChild<LLUICtrl>("RegionWLOptIn")->setRightMouseDownCallback(boost::bind(&LLEnvManager::dumpScopes, &LLEnvManager::instance()));
+	getChild<LLUICtrl>("EnvUseEstateTimeButton")->setRightMouseDownCallback(boost::bind(&LLEnvManager::dumpScopes, &LLEnvManager::instance()));
 }
 
 

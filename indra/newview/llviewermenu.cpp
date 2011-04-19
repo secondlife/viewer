@@ -44,6 +44,7 @@
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
+#include "llenvmanager.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloaterbuy.h"
@@ -7633,6 +7634,42 @@ class LLWorldEnvSettings : public view_listener_t
 	}
 };
 
+class LLWorldCheckEnvironment : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		const std::string& item = userdata.asString();
+
+		if (item == "use_region_settings")
+		{
+			// Check whether we're using region environment settings.
+			LLEnvKey::EScope cur_scope = LLEnvManager::getInstance()->getNormallyDisplayedScope();
+			return cur_scope == LLEnvKey::SCOPE_REGION;
+		}
+
+		return true;
+	}
+};
+
+class LLWorldEnvironment : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		const std::string& item = userdata.asString();
+
+		if (item == "use_region_settings")
+		{
+			// Toggle using region environment settings.
+			LLEnvManager* env_mgr = LLEnvManager::getInstance();
+			LLEnvKey::EScope cur_scope = env_mgr->getNormallyDisplayedScope();
+			LLEnvKey::EScope new_scope = (cur_scope == LLEnvKey::SCOPE_LOCAL ? LLEnvKey::SCOPE_REGION : LLEnvKey::SCOPE_LOCAL);
+			env_mgr->setNormallyDisplayedScope(new_scope);
+		}
+
+		return true;
+	}
+};
+
 /// Post-Process callbacks
 class LLWorldPostProcess : public view_listener_t
 {
@@ -7881,6 +7918,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldCheckAlwaysRun(), "World.CheckAlwaysRun");
 	
 	view_listener_t::addMenu(new LLWorldEnvSettings(), "World.EnvSettings");
+	view_listener_t::addEnable(new LLWorldCheckEnvironment(), "World.CheckEnvironment");
+	view_listener_t::addMenu(new LLWorldEnvironment(), "World.Environment");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
 	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
 

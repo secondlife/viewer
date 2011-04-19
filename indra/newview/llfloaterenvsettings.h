@@ -74,9 +74,6 @@ public:
 	/// sync time with local clock
 	static void onUseLocalTime();
 
-	// opt-in for region Windlight settings
-	//static void onUseRegionEnvironment(LLUICtrl* ctrl, void* userData);
-	static void onUseRegionEnvironment(LLUICtrl*, void*);
 
 	//// menu management
 
@@ -86,7 +83,6 @@ public:
 private:
 	// one instance on the inside
 
-	static void setOptIn(bool opt_in);
 };
 
 
