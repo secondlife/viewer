@@ -1,0 +1,165 @@
+#!/usr/bin/perl
+## Checks entries in the indra/newview/gpu_table.txt file against sample data
+##
+## Copyright (c) 2011, Linden Research, Inc.
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy
+## of this software and associated documentation files (the "Software"), to deal
+## in the Software without restriction, including without limitation the rights
+## to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+## copies of the Software, and to permit persons to whom the Software is
+## furnished to do so, subject to the following conditions:
+##
+## The above copyright notice and this permission notice shall be included in
+## all copies or substantial portions of the Software.
+##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+## IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+## AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+## THE SOFTWARE.
+
+use English;
+use Getopt::Long;
+
+( $MyName = $0 ) =~ s|.*/||;
+my $mini_HELP = "
+  $MyName --gpu-table <gpu_table.txt> 
+          [ --unrecognized-only ]
+          [ --table-only ]
+          [ <gpu-strings-file> ...]
+  
+  Checks for duplicates and invalid lines in the gpu_table.txt file.
+
+  Unless the '--table-only' option is specified, it also tests the recognition of 
+  values in the gpu-strings-files (or standard input if no files are given).  
+
+  If the --unrecognized-only option is specified, then no output is produced for
+  values that are matched, otherwise a line is output for each input line that
+  describes the results of attempting to match the value on that line.
+";
+
+&GetOptions("help"              => \$Help,
+            "gpu-table=s"       => \$GpuTable,
+            "unrecognized-only" => \$UnrecognizedOnly,
+            "table-only"        => \$TableOnly
+    )
+    || die "$mini_HELP";
+
+if ($Help)
+{
+    print $mini_HELP;
+    exit 0;
+}
+
+$ErrorsSeen = 0;
+
+die "Must specify a --gpu-table <gpu_table.txt> value"
+    unless $GpuTable;
+
+open(GPUS, "<$GpuTable")
+    || die "Failed to open gpu table '$GpuTable':\n\t$!\n";
+
+# Parse the GPU table into these table, indexed by the name
+my %NameLine;       # name -> line number on which a given name was found (catches duplicate names)
+my %RecognizerLine; # name -> line number on which a given name was found (catches duplicate names)
+my %Name;           # recognizer -> name
+my %Class;          # recognizer -> class
+my %Supported;      # recognizer -> supported
+my @InOrder;        # records the order of the recognizers
+
+$Name{'UNRECOGNIZED'}      = 'UNRECOGNIZED';
+$NameLine{'UNRECOGNIZED'}  = '(hard-coded)'; # use this for error messages in table parsing
+$Class{'UNRECOGNIZED'}     = '';
+$Supported{'UNRECOGNIZED'} = '';
+
+while (<GPUS>)
+{
+    next if m|^//|;    # skip comments
+    next if m|^\s*$|;  # skip blank lines
+
+    chomp;
+    my ($name, $regex, $class, $supported, $extra) = split('\t+');
+    my $errsOnLine = $ErrorsSeen;
+    if (!$name)
+    {
+        print STDERR "No name found on $GpuTable line $INPUT_LINE_NUMBER\n";
+        $ErrorsSeen++;
+    }
+    elsif ( defined $NameLine{$name} )
+    {
+        print STDERR "Duplicate name ($name) found on $GpuTable lines $NameLine{$name} and $INPUT_LINE_NUMBER (ignored)\n";
+        $ErrorsSeen++;
+    }
+    if (!$regex)
+    {
+        print STDERR "No recognizer found on $GpuTable line $INPUT_LINE_NUMBER\n";
+        $ErrorsSeen++;
+    }
+    elsif ( defined $RecognizerLine{$regex} )
+    {
+        print STDERR "Duplicate recognizer '$regex' found on $GpuTable lines $RecognizerLine{$regex} and $INPUT_LINE_NUMBER (ignored)\n";
+        $ErrorsSeen++;
+    }
+    if ($class !~ m/[0123]/)
+    {
+        print STDERR "Invalid class value '$class' on $GpuTable line $INPUT_LINE_NUMBER\n";
+        $ErrorsSeen++;
+    }
+    if ($supported !~ m/[0123]/)
+    {
+        print STDERR "Invalid supported value '$supported' on $GpuTable line $INPUT_LINE_NUMBER\n";
+        $ErrorsSeen++;
+    }
+    if ($extra)
+    {
+        print STDERR "Extra data '$extra' on $GpuTable line $INPUT_LINE_NUMBER\n";
+        $ErrorsSeen++;
+    }
+    
+    if ($errsOnLine == $ErrorsSeen) # no errors found on this line
+    {
+        push @InOrder,$regex;
+        $NameLine{$name} = $INPUT_LINE_NUMBER;
+        $RecognizerLine{$regex} = $INPUT_LINE_NUMBER;
+        $Name{$regex} = $name;
+        $Class{$regex} = $class;
+        $Supported{$regex} = $supported ? "supported" : "unsupported";
+    }
+}
+
+close GPUS;
+
+exit $ErrorsSeen if $TableOnly;
+
+my %RecognizedBy;
+while (<>)
+{
+    chomp;
+    my $recognizer;
+    $RecognizedBy{$_} = 'UNRECOGNIZED';
+    foreach $recognizer ( @InOrder ) # note early exit if recognized
+    {
+        if ( m/$recognizer/ )
+        {
+            $RecognizedBy{$_} = $recognizer;
+            last; # exit recognizer loop
+        }
+    }
+}
+
+## Print results. 
+## For each input, show supported or unsupported, the class, and the recognizer name
+format =
+@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...   @<<<<<<<<<< @>  @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
+$_, $Supported{$RecognizedBy{$_}},$Class{$RecognizedBy{$_}},$Name{$RecognizedBy{$_}}
+.
+
+foreach ( sort keys %RecognizedBy )
+{
+    write if ! $UnrecognizedOnly || $Name{$RecognizedBy{$_}} eq 'UNRECOGNIZED';
+}
+
+exit $ErrorsSeen;
