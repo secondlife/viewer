@@ -92,7 +92,7 @@ struct SortRegionNames
 {
 	inline bool operator ()(std::pair <U64, LLSimInfo*> const& _left, std::pair <U64, LLSimInfo*> const& _right)
 	{
-		return(LLStringUtil::compareInsensitive(_left.second->getName(),_right.second->getName()) < 0);
+		return(LLStringUtil::compareInsensitive(_left.second->getName(), _right.second->getName()) < 0);
 	}
 };
 
