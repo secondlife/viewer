@@ -9110,11 +9110,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 					fovx = acos(fovx);
 					fovz = acos(fovz);
 
-					if (fovx > cutoff || llround(fovz, 0.01f) > cutoff)
-					{
-					//	llerrs << "WTF?" << llendl;
-					}
-
 					mShadowFOV.mV[j] = cutoff;
 				}
 
