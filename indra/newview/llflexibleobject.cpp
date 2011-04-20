@@ -366,18 +366,13 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	LLFastTimer ftm(FTM_DO_FLEXIBLE_UPDATE);
 	LLVolume* volume = mVO->getVolume();
 	LLPath *path = &volume->getPath();
-	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible())
+	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) // if its uninitialized but not visible, what then? - Nyx
 	{
 		mVO->markForUpdate(TRUE);
 		if (!doIdleUpdate(gAgent, *LLWorld::getInstance(), 0.0))
 		{
 			return;	// we did not get updated or initialized, proceeding without can be dangerous
 		}
-	}
-
-	if (!mVO->mDrawable->isVisible())
-	{
-		return;
 	}
 
 	llassert_always(mInitialized);
