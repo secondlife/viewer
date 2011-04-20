@@ -66,11 +66,25 @@ namespace LLInitParam
 	BaseBlock::BaseBlock() {}
 	BaseBlock::~BaseBlock() {}
 
-	void BaseBlock::setLastChangedParam(const Param& last_param, bool user_provided) {}
+	S32 Parser::sNextParseGeneration = 0;
 
-	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptor& in_param, const char* char_name){}
+	BlockDescriptor::BlockDescriptor() {}
+	ParamDescriptor::ParamDescriptor(param_handle_t p, 
+						merge_func_t merge_func, 
+						deserialize_func_t deserialize_func, 
+						serialize_func_t serialize_func,
+						validation_func_t validation_func,
+						inspect_func_t inspect_func,
+						S32 min_count,
+						S32 max_count){}
+	ParamDescriptor::~ParamDescriptor() {}
+
+	void BaseBlock::paramChanged(const Param& last_param, bool user_provided) {}
+
+	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name){}
 	param_handle_t BaseBlock::getHandleFromParam(const Param* param) const {return 0;}
-	
+	void BaseBlock::addSynonym(Param& param, const std::string& synonym) {}
+
 	void BaseBlock::init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size)
 	{
 		descriptor.mCurrentBlockPtr = this;
@@ -84,23 +98,20 @@ namespace LLInitParam
 		mEnclosingBlockOffset = (U16)(my_addr - block_addr);
 	}
 
-	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack){ return true; }
-	bool BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t name_stack, const LLInitParam::BaseBlock* diff_block) const { return true; }
-	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack) const { return true; }
+	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, S32 generation){ return true; }
+	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t name_stack, const LLInitParam::BaseBlock* diff_block) const {}
+	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack, S32 min_count, S32 max_count) const { return true; }
 	bool BaseBlock::merge(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite) { return true; }
 	bool BaseBlock::validateBlock(bool emit_errors) const { return true; }
 
-	TypedParam<LLUIColor >::TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
-	:	super_t(descriptor, name, value, func, min_count, max_count)
+	ParamValue<LLUIColor, TypeValues<LLUIColor> >::ParamValue(const LLUIColor& color)
+	:	super_t(color)
 	{}
 
-	void TypedParam<LLUIColor>::setValueFromBlock() const
+	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateValueFromBlock()
 	{}
 	
-	void TypedParam<LLUIColor>::setBlockFromValue()
-	{}
-
-	void TypeValues<LLUIColor>::declareValues()
+	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue()
 	{}
 
 	bool ParamCompare<const LLFontGL*, false>::equals(const LLFontGL* a, const LLFontGL* b)
@@ -108,14 +119,15 @@ namespace LLInitParam
 		return false;
 	}
 
-	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* _name, const LLFontGL*const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
-	:	super_t(descriptor, _name, value, func, min_count, max_count)
+
+	ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::ParamValue(const LLFontGL* fontp)
+	:	super_t(fontp)
 	{}
 
-	void TypedParam<const LLFontGL*>::setValueFromBlock() const
+	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateValueFromBlock()
 	{}
 	
-	void TypedParam<const LLFontGL*>::setBlockFromValue()
+	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue()
 	{}
 
 	void TypeValues<LLFontGL::HAlign>::declareValues()
@@ -127,10 +139,10 @@ namespace LLInitParam
 	void TypeValues<LLFontGL::ShadowType>::declareValues()
 	{}
 
-	void TypedParam<LLUIImage*>::setValueFromBlock() const
+	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateValueFromBlock()
 	{}
 	
-	void TypedParam<LLUIImage*>::setBlockFromValue()
+	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateBlockFromValue()
 	{}
 	
 	bool ParamCompare<LLUIImage*, false>::equals(

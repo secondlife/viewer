@@ -36,8 +36,8 @@
 /**
  * Perpetual loading indicator (a la MacOSX or YouTube)
  * 
- * Number of rotations per second can be overriden
- * with the "roations_per_sec" parameter.
+ * Number of rotations per second can be overridden
+ * with the "images_per_sec" parameter.
  * 
  * Can start/stop spinning.
  * 
@@ -49,11 +49,24 @@ class LLLoadingIndicator
 {
 	LOG_CLASS(LLLoadingIndicator);
 public:
+
+	struct Images : public LLInitParam::Block<Images>
+	{
+		Multiple<LLUIImage*>	image;
+
+		Images()
+		:	image("image")
+		{}
+	};
+
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<F32>	rotations_per_sec;
+		Optional<F32>			images_per_sec;
+		Batch<Images>			images;
+
 		Params()
-		:	rotations_per_sec("rotations_per_sec", 1.0f)
+		:	images_per_sec("images_per_sec", 1.0f),
+			images("images")
 		{}
 	};
 
@@ -74,14 +87,15 @@ public:
 
 private:
 	LLLoadingIndicator(const Params&);
+	void initFromParams(const Params&);
+
 	friend class LLUICtrlFactory;
 
-	class Data;
-
-	F32						mRotationsPerSec;
+	F32						mImagesPerSec;
 	S8						mCurImageIdx;
-	LLPointer<LLUIImage>	mCurImagep;
 	LLFrameTimer			mImageSwitchTimer;
+
+	std::vector<LLUIImagePtr> mImages;
 };
 
 #endif // LL_LLLOADINGINDICATOR_H
