@@ -49,7 +49,7 @@
 typedef std::map<std::string, std::string> controller_map_t;
 typedef std::map<std::string, F32> default_controller_map_t;
 
-#define MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION 0.f;
+#define MIN_REQUIRED_PIXEL_AREA_AVATAR_PHYSICS_MOTION 0.f;
 
 inline F64 llsgn(const F64 a)
 {
@@ -370,7 +370,7 @@ void LLPhysicsMotionController::addMotion(LLPhysicsMotion *motion)
 
 F32 LLPhysicsMotionController::getMinPixelArea() 
 {
-        return MIN_REQUIRED_PIXEL_AREA_BREAST_MOTION;
+        return MIN_REQUIRED_PIXEL_AREA_AVATAR_PHYSICS_MOTION;
 }
 
 // Local space means "parameter space".
