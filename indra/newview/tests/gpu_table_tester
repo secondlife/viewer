@@ -152,14 +152,19 @@ while (<>)
 
 ## Print results. 
 ## For each input, show supported or unsupported, the class, and the recognizer name
-format =
-@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...   @<<<<<<<<<< @>  @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
+format STDOUT_TOP =
+GPU String                                                                                               Supported?  Class  Recognizer
+------------------------------------------------------------------------------------------------------   ----------- -----  ------------------------------------
+.
+format STDOUT =
+@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...   @<<<<<<<<<<   @>   @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
 $_, $Supported{$RecognizedBy{$_}},$Class{$RecognizedBy{$_}},$Name{$RecognizedBy{$_}}
 .
 
 foreach ( sort keys %RecognizedBy )
 {
     write if ! $UnrecognizedOnly || $Name{$RecognizedBy{$_}} eq 'UNRECOGNIZED';
+    $-++; # suppresses pagination
 }
 
 exit $ErrorsSeen;
