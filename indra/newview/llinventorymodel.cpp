@@ -1059,12 +1059,11 @@ void LLInventoryModel::idleNotifyObservers()
 	{
 		return;
 	}
-	notifyObservers("");
+	notifyObservers();
 }
 
 // Call this method when it's time to update everyone on a new state.
-// The optional argument 'service_name' is used by Agent Inventory Service [DEV-20328]
-void LLInventoryModel::notifyObservers(const std::string service_name)
+void LLInventoryModel::notifyObservers()
 {
 	if (mIsNotifyObservers)
 	{
@@ -1081,15 +1080,7 @@ void LLInventoryModel::notifyObservers(const std::string service_name)
 	{
 		LLInventoryObserver* observer = *iter;
 		
-		if (service_name.empty())
-		{
-			observer->changed(mModifyMask);
-		}
-		else
-		{
-			observer->mMessageName = service_name;
-			observer->changed(mModifyMask);
-		}
+		observer->changed(mModifyMask);
 
 		// safe way to increment since changed may delete entries! (@!##%@!@&*!)
 		iter = mObservers.upper_bound(observer); 
@@ -1187,7 +1178,7 @@ void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
 	{
 		changes |= gInventory.updateItem(*it);
 	}
-	gInventory.notifyObservers("fetchinventory");
+	gInventory.notifyObservers();
 	gViewerWindow->getWindow()->decBusyCount();
 }
 
@@ -1196,7 +1187,7 @@ void LLInventoryModel::fetchInventoryResponder::error(U32 status, const std::str
 {
 	llinfos << "fetchInventory::error "
 		<< status << ": " << reason << llendl;
-	gInventory.notifyObservers("fetchinventory");
+	gInventory.notifyObservers();
 }
 
 bool LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id) const

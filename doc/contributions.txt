@@ -155,6 +155,8 @@ Angus Boyd
 	VWR-592
 Ann Congrejo
 	CT-193
+Ansariel Hiller
+	STORM-1101
 Ardy Lay
 	VWR-19499
 	VWR-24917
@@ -417,6 +419,9 @@ Jonathan Yap
 	STORM-1020
 	STORM-1064
 	STORM-960
+	STORM-1101
+	STORM-1108
+	STORM-1094
 	STORM-1077
 	STORM-953
 Kage Pixel
@@ -440,6 +445,8 @@ Kitty Barnett
 Kunnis Basiat
 	VWR-82
 	VWR-102
+Lance Corrimal
+	VWR-25269
 Latif Khalifa
 	VWR-5370
 Lisa Lowe
@@ -789,6 +796,7 @@ Thickbrick Sleaford
 	VWR-13483
 	VWR-13947
 	VWR-24420
+	STORM-1147
 Thraxis Epsilon
 	SVC-371
 	VWR-383
@@ -864,6 +872,7 @@ WolfPup Lowenhar
 	STORM-674
 	STORM-776
 	STORM-825
+	STORM-1098
 	VWR-20741
 	VWR-20933
 Zai Lynch
