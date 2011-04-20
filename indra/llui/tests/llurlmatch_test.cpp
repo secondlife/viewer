@@ -114,9 +114,6 @@ namespace LLInitParam
 	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue()
 	{}
 
-	void TypeValues<LLUIColor>::declareValues()
-	{}
-
 	bool ParamCompare<const LLFontGL*, false>::equals(const LLFontGL* a, const LLFontGL* b)
 	{
 		return false;
