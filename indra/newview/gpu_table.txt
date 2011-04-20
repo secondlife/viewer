@@ -202,7 +202,7 @@ Intel Brookdale					.*Intel.*Brookdale.*				0		0
 Intel Cantiga					.*Intel.*Cantiga.*					0		0
 Intel Eaglelake					.*Intel.*Eaglelake.*				0		1
 Intel Graphics Media HD			.*Intel.*Graphics Media.*HD.*		0		1
-Intel HD Graphics				.*Intel.*HD Graphics.*				0		1
+Intel HD Graphics				.*Intel.*HD Graphics.*				2		1
 Intel Mobile 4 Series			.*Intel.*Mobile *4 Series.*			0		1
 Intel Media Graphics HD			.*Intel.*Media Graphics HD.*		0		1
 Intel Montara					.*Intel.*Montara.*					0		0
@@ -227,7 +227,7 @@ NVIDIA G 110M					.*NVIDIA.*GeForce *G *110M.*		0		1
 NVIDIA G 120M					.*NVIDIA.*GeForce *G *120M.*		1		1
 NVIDIA G210M					.*NVIDIA.*GeForce *G *210M.*		1		1
 NVIDIA GT 120M					.*NVIDIA.*GeForce *GT *120M.*		2		1
-NVIDIA GT 120					.*NVIDIA.*GeForce *GT *12.*			2		1
+NVIDIA GT 120					.*NVIDIA.*GT.*120					2		1
 NVIDIA GT 130M					.*NVIDIA.*GeForce *GT *130M.*		2		1
 NVIDIA GT 130					.*NVIDIA.*GeForce *GT *13.*		    2		1
 NVIDIA GT 140M					.*NVIDIA.*GeForce *GT *140M.*		2		1
@@ -243,10 +243,10 @@ NVIDIA GT 240M					.*NVIDIA.*GeForce *GT *240M.*		2		1
 NVIDIA GT 240					.*NVIDIA.*GeForce *GT *24.*			1		1
 NVIDIA GT 250M					.*NVIDIA.*GeForce *GT *250M.*		2		1
 NVIDIA GT 260M					.*NVIDIA.*GeForce *GT *260M.*		2		1
-NVIDIA GT 320M					.*NVIDIA.*GeForce *GT *320M.*		0		1
+NVIDIA GT 320M					.*NVIDIA.*GeForce *GT *320M.*		2		1
 NVIDIA GT 325M					.*NVIDIA.*GeForce *GT *325M.*		0		1
-NVIDIA GT 320					.*NVIDIA.*GeForce *GT *32.*			0		1
-NVIDIA GT 330M					.*NVIDIA.*GeForce *GT *330M.*		1		1
+NVIDIA GT 320					.*NVIDIA.*GT *320.*					2		1
+NVIDIA GT 330M					.*NVIDIA.*GT *330M.*				3		1
 NVIDIA GT 335M					.*NVIDIA.*GeForce *GT *335M.*		1		1
 NVIDIA GT 330					.*NVIDIA.*GeForce *GT *33.*			1		1
 NVIDIA GT 340					.*NVIDIA.*GeForce *GT *34.*			1		1
@@ -279,8 +279,8 @@ NVIDIA GTS 450					.*NVIDIA.*GeForce *GTS *45.*		3		1
 NVIDIA GTX 260					.*NVIDIA.*GeForce *GTX *26.*		3		1
 NVIDIA GTX 275					.*NVIDIA.*GeForce *GTX *275.*		3		1
 NVIDIA GTX 270					.*NVIDIA.*GeForce *GTX *27.*		3		1
-NVIDIA GTX 285					.*NVIDIA.*GeForce *GTX *285.*		3		1
-NVIDIA GTX 280					.*NVIDIA.*GeForce *GTX *28.*		3		1
+NVIDIA GTX 285					.*NVIDIA.*GTX *285.*				3		1
+NVIDIA GTX 280					.*NVIDIA.*GTX *280.*				3		1
 NVIDIA GTX 295					.*NVIDIA.*GeForce *GTX *295.*		3		1
 NVIDIA GTX 460M					.*NVIDIA.*GeForce *GTX *460M.*		3		1
 NVIDIA GTX 465					.*NVIDIA.*GeForce *GTX *465.*		3		1
@@ -405,6 +405,7 @@ NVIDIA Quadro4					.*Quadro4.*							0		1
 NVIDIA Quadro DCC				.*Quadro DCC.*						0		1
 NVIDIA Quadro FX 4500			.*Quadro.*FX *45.*					3		1
 NVIDIA Quadro FX 880M			.*Quadro.*FX *880M.*				3		1
+NVIDIA Quadro FX 4800			.*NVIDIA.*Quadro *FX *4800.*		3		1
 NVIDIA Quadro FX				.*Quadro FX.*						1		1
 NVIDIA Quadro NVS				.*Quadro NVS.*						0		1
 NVIDIA RIVA TNT					.*RIVA TNT.*						0		0
