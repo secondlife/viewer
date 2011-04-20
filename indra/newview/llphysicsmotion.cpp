@@ -475,7 +475,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         const F32 behavior_gain = getParamValue("Gain");
         const F32 behavior_damping = getParamValue("Damping");
         const F32 behavior_drag = getParamValue("Drag");
-        const BOOL physics_test = gSavedSettings.getBOOL("AvatarPhysicsTest") && gAgent.isGodlike();
+        const BOOL physics_test = FALSE; // Enable this to simulate bouncing on all parts.
         
         F32 behavior_maxeffect = getParamValue("MaxEffect");
         if (physics_test)
