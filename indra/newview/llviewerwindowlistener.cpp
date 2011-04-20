@@ -65,7 +65,6 @@ LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
 
 void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
 {
-    LLReqID reqid(event);
     typedef std::map<LLSD::String, LLViewerWindow::ESnapshotType> TypeMap;
     TypeMap types;
 #define tp(name) types[#name] = LLViewerWindow::SNAPSHOT_TYPE_##name
@@ -98,9 +97,7 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
         type = found->second;
     }
     bool ok = mViewerWindow->saveSnapshot(event["filename"], width, height, showui, rebuild, type);
-    LLSD response(reqid.makeResponse());
-    response["ok"] = ok;
-    LLEventPumps::instance().obtain(event["reply"]).post(response);
+    sendReply(LLSDMap("ok", ok), event);
 }
 
 void LLViewerWindowListener::requestReshape(LLSD const & event_data) const

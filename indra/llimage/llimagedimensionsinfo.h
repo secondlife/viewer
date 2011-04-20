@@ -119,6 +119,9 @@ protected:
 		return read_byte() << 8 | read_byte();
 	}
 
+	/// Check if the file is not shorter than min_len bytes.
+	bool checkFileLength(S32 min_len);
+
 protected:
 	LLAPRFile mInfile ;
 	std::string mSrcFilename;

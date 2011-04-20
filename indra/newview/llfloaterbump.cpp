@@ -38,13 +38,11 @@
 ///----------------------------------------------------------------------------
 /// Class LLFloaterBump
 ///----------------------------------------------------------------------------
-extern BOOL gNoRender;
 
 // Default constructor
 LLFloaterBump::LLFloaterBump(const LLSD& key) 
 :	LLFloater(key)
 {
-	if(gNoRender) return;
 }
 
 

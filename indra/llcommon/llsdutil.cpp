@@ -41,6 +41,7 @@
 
 #include "llsdserialize.h"
 #include "stringize.h"
+#include "is_approx_equal_fraction.h"
 
 #include <map>
 #include <set>
@@ -571,7 +572,7 @@ std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::str
     return match_types(prototype.type(), TypeVector(), data.type(), pfx);
 }
 
-bool llsd_equals(const LLSD& lhs, const LLSD& rhs)
+bool llsd_equals(const LLSD& lhs, const LLSD& rhs, unsigned bits)
 {
     // We're comparing strict equality of LLSD representation rather than
     // performing any conversions. So if the types aren't equal, the LLSD
@@ -588,6 +589,20 @@ bool llsd_equals(const LLSD& lhs, const LLSD& rhs)
         // Both are TypeUndefined. There's nothing more to know.
         return true;
 
+    case LLSD::TypeReal:
+        // This is where the 'bits' argument comes in handy. If passed
+        // explicitly, it means to use is_approx_equal_fraction() to compare.
+        if (bits >= 0)
+        {
+            return is_approx_equal_fraction(lhs.asReal(), rhs.asReal(), bits);
+        }
+        // Otherwise we compare bit representations, and the usual caveats
+        // about comparing floating-point numbers apply. Omitting 'bits' when
+        // comparing Real values is only useful when we expect identical bit
+        // representation for a given Real value, e.g. for integer-valued
+        // Reals.
+        return (lhs.asReal() == rhs.asReal());
+
 #define COMPARE_SCALAR(type)                                    \
     case LLSD::Type##type:                                      \
         /* LLSD::URI has operator!=() but not operator==() */   \
@@ -596,10 +611,6 @@ bool llsd_equals(const LLSD& lhs, const LLSD& rhs)
 
     COMPARE_SCALAR(Boolean);
     COMPARE_SCALAR(Integer);
-    // The usual caveats about comparing floating-point numbers apply. This is
-    // only useful when we expect identical bit representation for a given
-    // Real value, e.g. for integer-valued Reals.
-    COMPARE_SCALAR(Real);
     COMPARE_SCALAR(String);
     COMPARE_SCALAR(UUID);
     COMPARE_SCALAR(Date);
@@ -617,7 +628,7 @@ bool llsd_equals(const LLSD& lhs, const LLSD& rhs)
         for ( ; lai != laend && rai != raend; ++lai, ++rai)
         {
             // If any one array element is unequal, the arrays are unequal.
-            if (! llsd_equals(*lai, *rai))
+            if (! llsd_equals(*lai, *rai, bits))
                 return false;
         }
         // Here we've reached the end of one or the other array. They're equal
@@ -644,7 +655,7 @@ bool llsd_equals(const LLSD& lhs, const LLSD& rhs)
             if (rhskeys.erase(lmi->first) != 1)
                 return false;
             // Both maps have the current key. Compare values.
-            if (! llsd_equals(lmi->second, rhs[lmi->first]))
+            if (! llsd_equals(lmi->second, rhs[lmi->first], bits))
                 return false;
         }
         // We've now established that all the lhs keys have equal values in
@@ -657,7 +668,7 @@ bool llsd_equals(const LLSD& lhs, const LLSD& rhs)
         // We expect that every possible type() value is specifically handled
         // above. Failing to extend this switch to support a new LLSD type is
         // an error that must be brought to the coder's attention.
-        LL_ERRS("llsd_equals") << "llsd_equals(" << lhs << ", " << rhs << "): "
+        LL_ERRS("llsd_equals") << "llsd_equals(" << lhs << ", " << rhs << ", " << bits << "): "
             "unknown type " << lhs.type() << LL_ENDL;
         return false;               // pacify the compiler
     }
