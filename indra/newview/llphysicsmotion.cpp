@@ -126,9 +126,8 @@ protected:
                                                    F32 behavior_maxeffect);
 
         F32 toLocal(const LLVector3 &world);
-        F32 calculateVelocity_local(const F32 time_delta);
-        F32 calculateAcceleration_local(F32 velocity_local,
-                                        const F32 time_delta);
+        F32 calculateVelocity_local();
+        F32 calculateAcceleration_local(F32 velocity_local);
 private:
         const std::string mParamDriverName;
         const std::string mParamControllerName;
@@ -379,19 +378,20 @@ F32 LLPhysicsMotion::toLocal(const LLVector3 &world)
         return world * dir_world;
 }
 
-F32 LLPhysicsMotion::calculateVelocity_local(const F32 time_delta)
+F32 LLPhysicsMotion::calculateVelocity_local()
 {
+	const F32 world_to_model_scale = 10.0f;
         LLJoint *joint = mJointState->getJoint();
         const LLVector3 position_world = joint->getWorldPosition();
         const LLQuaternion rotation_world = joint->getWorldRotation();
         const LLVector3 last_position_world = mPosition_world;
-        const LLVector3 velocity_world = (position_world-last_position_world) / time_delta;
+	const LLVector3 positionchange_world = (position_world-last_position_world) * world_to_model_scale;
+        const LLVector3 velocity_world = positionchange_world;
         const F32 velocity_local = toLocal(velocity_world);
         return velocity_local;
 }
 
-F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local,
-                                                 const F32 time_delta)
+F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local)
 {
 //        const F32 smoothing = getParamValue("Smoothing");
         static const F32 smoothing = 3.0f; // Removed smoothing param since it's probably not necessary
@@ -483,7 +483,31 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         if (physics_test)
                 behavior_maxeffect = 1.0f;
 
-	BOOL update_visuals = FALSE; 
+	// Normalize the param position to be from [0,1].
+	// We have to use normalized values because there may be more than one driven param,
+	// and each of these driven params may have its own range.
+	// This means we'll do all our calculations in normalized [0,1] local coordinates.
+	const F32 position_user_local = (mParamDriver->getWeight() - mParamDriver->getMinWeight()) / (mParamDriver->getMaxWeight() - mParamDriver->getMinWeight());
+       	
+	//
+	// End parameters and settings
+	////////////////////////////////////////////////////////////////////////////////
+	
+	
+	////////////////////////////////////////////////////////////////////////////////
+	// Calculate velocity and acceleration in parameter space.
+	//
+        
+	//const F32 velocity_joint_local = calculateVelocity_local(time_iteration_step);
+	const F32 velocity_joint_local = calculateVelocity_local();
+	const F32 acceleration_joint_local = calculateAcceleration_local(velocity_joint_local);
+	
+	//
+	// End velocity and acceleration
+	////////////////////////////////////////////////////////////////////////////////
+	
+	BOOL update_visuals = FALSE;
+	
 	// Break up the physics into a bunch of iterations so that differing framerates will show
 	// roughly the same behavior.
 	for (F32 time_iteration = 0; time_iteration <= time_delta; time_iteration += TIME_ITERATION_STEP)
@@ -491,45 +515,19 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		F32 time_iteration_step = TIME_ITERATION_STEP;
 		if (time_iteration + TIME_ITERATION_STEP > time_delta)
 		{
-			time_iteration_step = time_delta;
+			time_iteration_step = time_delta-time_iteration;
 		}
 		
-
 		// mPositon_local should be in normalized 0,1 range already.  Just making sure...
-		F32 position_current_local = llclamp(mPosition_local,
-						     0.0f,
-						     1.0f);
-
-		// Normalize the param position to be from [0,1].
-		// We have to use normalized values because there may be more than one driven param,
-		// and each of these driven params may have its own range.
-		// This means we'll do all our calculations in normalized [0,1] local coordinates.
-		F32 position_user_local = mParamDriver->getWeight();
-		position_user_local = (position_user_local - mParamDriver->getMinWeight()) / (mParamDriver->getMaxWeight() - mParamDriver->getMinWeight());
-
+		const F32 position_current_local = llclamp(mPosition_local,
+							   0.0f,
+							   1.0f);
 		// If the effect is turned off then don't process unless we need one more update
 		// to set the position to the default (i.e. user) position.
 		if ((behavior_maxeffect == 0) && (position_current_local == position_user_local))
 		{
-			return FALSE;
+			return update_visuals;
 		}
-
-		//
-		// End parameters and settings
-		////////////////////////////////////////////////////////////////////////////////
-
-
-		////////////////////////////////////////////////////////////////////////////////
-		// Calculate velocity and acceleration in parameter space.
-		//
-        
-		const F32 velocity_joint_local = calculateVelocity_local(time_iteration_step);
-		const F32 acceleration_joint_local = calculateAcceleration_local(velocity_joint_local, time_iteration_step);
-
-		//
-		// End velocity and acceleration
-		////////////////////////////////////////////////////////////////////////////////
-
 
 		////////////////////////////////////////////////////////////////////////////////
 		// Calculate the total force 
@@ -547,7 +545,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		// Gravity always points downward in world space.
 		// F = mg
 		const LLVector3 gravity_world(0,0,1);
-		const F32 force_gravity = behavior_gain * (toLocal(gravity_world) * behavior_gravity * behavior_mass);
+		const F32 force_gravity = (toLocal(gravity_world) * behavior_gravity * behavior_mass);
                 
 		// Damping is a restoring force that opposes the current velocity.
 		// F = -kv
@@ -575,10 +573,10 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		// Calculate the new acceleration based on the net force.
 		// a = F/m
 		const F32 acceleration_new_local = force_net / behavior_mass;
-		static const F32 max_acceleration = 10.0f; // magic number, used to be customizable.
-		F32 velocity_new_local = mVelocity_local + acceleration_new_local;
+		static const F32 max_velocity = 100.0f; // magic number, used to be customizable.
+		F32 velocity_new_local = mVelocity_local + acceleration_new_local*time_iteration_step;
 		velocity_new_local = llclamp(velocity_new_local, 
-					     -max_acceleration, max_acceleration);
+					     -max_velocity, max_velocity);
         
 		// Temporary debugging setting to cause all avatars to move, for profiling purposes.
 		if (physics_test)
@@ -604,8 +602,6 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		    (position_new_local != position_new_local))
 		{
 			position_new_local = 0;
-			position_current_local = 0;
-			position_user_local = 0;
 			mVelocity_local = 0;
 			mVelocityJoint_local = 0;
 			mAccelerationJoint_local = 0;
@@ -674,16 +670,14 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		// End update visual params
 		////////////////////////////////////////////////////////////////////////////////
 
-		mVelocityJoint_local = velocity_joint_local;
-
 		mVelocity_local = velocity_new_local;
 		mAccelerationJoint_local = acceleration_joint_local;
 		mPosition_local = position_new_local;
-
-		mPosition_world = joint->getWorldPosition();
-
 	}
 	mLastTime = time;
+	mPosition_world = joint->getWorldPosition();
+	mVelocityJoint_local = velocity_joint_local;
+
 
         /*
           // Write out debugging info into a spreadsheet.
