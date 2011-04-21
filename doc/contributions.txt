@@ -361,6 +361,8 @@ Ian Kas
 	[NO JIRA] (Ukranian localization)
 	CT-322
 	CT-325
+Ima Mechanique
+	OPEN-61
 Irene Muni
 	CT-324
 	CT-352
