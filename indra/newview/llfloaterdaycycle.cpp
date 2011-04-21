@@ -554,7 +554,7 @@ void LLFloaterDayCycle::onAddKey(void* userData)
 			break;
 	}
 
-	if (sSliderToKey.size() >= max_sliders)
+	if ((S32)sSliderToKey.size() >= max_sliders)
 	{
 		LLSD args;
 		args["SCOPE"] = LLEnvManager::getScopeString(sScope);
