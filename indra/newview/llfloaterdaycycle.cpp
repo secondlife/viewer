@@ -554,12 +554,12 @@ void LLFloaterDayCycle::onAddKey(void* userData)
 			break;
 	}
 
-	if(kSldr->getValue().asInteger() >= max_sliders)
+	if (sSliderToKey.size() >= max_sliders)
 	{
 		LLSD args;
 		args["SCOPE"] = LLEnvManager::getScopeString(sScope);
 		args["MAX"] = max_sliders;
-		LLNotificationsUtil::add("DayCycleTooManyKeyframes", args);
+		LLNotificationsUtil::add("DayCycleTooManyKeyframes", args, LLSD(), LLNotificationFunctorRegistry::instance().DONOTHING);
 		return;
 	}
 
