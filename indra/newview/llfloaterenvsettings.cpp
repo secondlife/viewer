@@ -31,54 +31,68 @@
 #include "llfloaterreg.h"
 #include "llfloaterwindlight.h"
 #include "llfloaterwater.h"
+#include "llfloaterdaycycle.h"
+#include "llfloaterregioninfo.h"
 #include "lluictrlfactory.h"
 #include "llsliderctrl.h"
 #include "llcombobox.h"
 #include "llcolorswatch.h"
 #include "llwlanimator.h"
+#include "llnotifications.h"
 
 #include "llwlparamset.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llmath.h"
 #include "llviewerwindow.h"
+#include "llviewercontrol.h"
+
+#include "llcheckboxctrl.h"
 
 #include "pipeline.h"
 
 #include <sstream>
 
-LLFloaterEnvSettings::LLFloaterEnvSettings(const LLSD& key)
-  : LLFloater(key)
-{
+// LLFloaterEnvSettings* LLFloaterEnvSettings::sEnvSettings = NULL;
+
+LLFloaterEnvSettings::LLFloaterEnvSettings(const LLSD &key) : LLFloater(key)
+{	
+	lldebugs << "Creating env settings floater" << llendl;
 }
-// virtual
+
 LLFloaterEnvSettings::~LLFloaterEnvSettings()
 {
 }
+
 // virtual
 BOOL LLFloaterEnvSettings::postBuild()
 {	
 	// load it up
 	initCallbacks();
 	syncMenu();
+
 	return TRUE;
 }
 
 void LLFloaterEnvSettings::initCallbacks(void) 
 {
 	// our three sliders
-	getChild<LLUICtrl>("EnvTimeSlider")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onChangeDayTime, this, _1));
-	getChild<LLUICtrl>("EnvCloudSlider")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onChangeCloudCoverage, this, _1));
-	getChild<LLUICtrl>("EnvWaterFogSlider")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onChangeWaterFogDensity, this, _1, &LLWaterParamManager::instance()->mFogDensity));	
+	childSetCommitCallback("EnvTimeSlider", &LLFloaterEnvSettings::onChangeDayTime, NULL);
+	childSetCommitCallback("EnvCloudSlider", &LLFloaterEnvSettings::onChangeCloudCoverage, NULL);
+	childSetCommitCallback("EnvWaterFogSlider", &LLFloaterEnvSettings::onChangeWaterFogDensity, &LLWaterParamManager::instance().mFogDensity);	
 
 	// color picker
-	getChild<LLUICtrl>("EnvWaterColor")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onChangeWaterColor, this, _1, &LLWaterParamManager::instance()->mFogColor));
+	childSetCommitCallback("EnvWaterColor", &LLFloaterEnvSettings::onChangeWaterColor, &LLWaterParamManager::instance().mFogColor);
 
 	// WL Top
-	getChild<LLUICtrl>("EnvAdvancedSkyButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onOpenAdvancedSky, this));
- 	getChild<LLUICtrl>("EnvAdvancedWaterButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onOpenAdvancedWater, this));
-	getChild<LLUICtrl>("EnvUseEstateTimeButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onUseEstateTime, this));
+	childSetCommitCallback("EnvAdvancedSkyButton", &LLFloaterEnvSettings::onOpenAdvancedSky, NULL);
+ 	childSetCommitCallback("EnvAdvancedWaterButton", &LLFloaterEnvSettings::onOpenAdvancedWater, NULL);
+	childSetCommitCallback("EnvUseEstateTimeButton", &LLFloaterEnvSettings::onUseEstateTime, NULL);
+	getChild<LLUICtrl>("EnvUseLocalTimeButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onUseLocalTime));
+
+	getChild<LLUICtrl>("EnvUseEstateTimeButton")->setRightMouseDownCallback(boost::bind(&LLEnvManager::dumpScopes, &LLEnvManager::instance()));
 }
+
 
 // menu maintenance functions
 
@@ -88,8 +102,8 @@ void LLFloaterEnvSettings::syncMenu()
 	sldr = getChild<LLSliderCtrl>("EnvTimeSlider");
 
 	// sync the clock
-	F32 val = (F32)LLWLParamManager::instance()->mAnimator.getDayTime();
-	std::string timeStr = timeToString(val);
+	F32 val = (F32)LLWLParamManager::getInstance()->mAnimator.getDayTime();
+	std::string timeStr = LLWLAnimator::timeToString(val);
 
 	LLTextBox* textBox;
 	textBox = getChild<LLTextBox>("EnvTimeText");
@@ -106,62 +120,59 @@ void LLFloaterEnvSettings::syncMenu()
 
 	// sync cloud coverage
 	bool err;
-	getChild<LLUICtrl>("EnvCloudSlider")->setValue(LLWLParamManager::instance()->mCurParams.getFloat("cloud_shadow", err));
+	childSetValue("EnvCloudSlider", LLWLParamManager::getInstance()->mCurParams.getFloat("cloud_shadow", err));
 
-	LLWaterParamManager * param_mgr = LLWaterParamManager::instance();
+	LLWaterParamManager * param_mgr = LLWaterParamManager::getInstance();
 	// sync water params
 	LLColor4 col = param_mgr->getFogColor();
 	LLColorSwatchCtrl* colCtrl = getChild<LLColorSwatchCtrl>("EnvWaterColor");
 	col.mV[3] = 1.0f;
 	colCtrl->set(col);
 
-	getChild<LLUICtrl>("EnvWaterFogSlider")->setValue(param_mgr->mFogDensity.mExp);
+	childSetValue("EnvWaterFogSlider", param_mgr->mFogDensity.mExp);
 	param_mgr->setDensitySliderValue(param_mgr->mFogDensity.mExp);
 
-	// turn off Use Estate Time button if it's already being used
-	if(LLWLParamManager::instance()->mAnimator.mUseLindenTime)
-	{
-		getChildView("EnvUseEstateTimeButton")->setEnabled(FALSE);
-	} else {
-		getChildView("EnvUseEstateTimeButton")->setEnabled(TRUE);
-	}
+	// turn off Use Estate/Local Time buttons if already being used
+
+	LLWLAnimator& anim = LLWLParamManager::getInstance()->mAnimator;
+	childSetEnabled("EnvUseEstateTimeButton", !anim.getIsRunning() || !anim.getUseLindenTime());
+	childSetEnabled("EnvUseLocalTimeButton",  !anim.getIsRunning() || !anim.getUseLocalTime());
 
 	if(!gPipeline.canUseVertexShaders())
 	{
-		getChildView("EnvWaterColor")->setEnabled(FALSE);
-		getChildView("EnvWaterColorText")->setEnabled(FALSE);
-		//getChildView("EnvAdvancedWaterButton")->setEnabled(FALSE);		
+		childDisable("EnvWaterColor");
+		childDisable("EnvWaterColorText");
+		//childDisable("EnvAdvancedWaterButton");		
 	}
 	else
 	{
-		getChildView("EnvWaterColor")->setEnabled(TRUE);
-		getChildView("EnvWaterColorText")->setEnabled(TRUE);
-		//getChildView("EnvAdvancedWaterButton")->setEnabled(TRUE);		
+		childEnable("EnvWaterColor");
+		childEnable("EnvWaterColorText");
+		//childEnable("EnvAdvancedWaterButton");		
 	}
 
 	// only allow access to these if they are using windlight
 	if(!gPipeline.canUseWindLightShaders())
 	{
 
-		getChildView("EnvCloudSlider")->setEnabled(FALSE);
-		getChildView("EnvCloudText")->setEnabled(FALSE);
-		//getChildView("EnvAdvancedSkyButton")->setEnabled(FALSE);
+		childDisable("EnvCloudSlider");
+		childDisable("EnvCloudText");
+		//childDisable("EnvAdvancedSkyButton");
 	}
 	else
 	{
-		getChildView("EnvCloudSlider")->setEnabled(TRUE);
-		getChildView("EnvCloudText")->setEnabled(TRUE);
-		//getChildView("EnvAdvancedSkyButton")->setEnabled(TRUE);
+		childEnable("EnvCloudSlider");
+		childEnable("EnvCloudText");
+		//childEnable("EnvAdvancedSkyButton");
 	}
 }
 
-void LLFloaterEnvSettings::onChangeDayTime(LLUICtrl* ctrl)
+void LLFloaterEnvSettings::onChangeDayTime(LLUICtrl* ctrl, void* userData)
 {
 	LLSliderCtrl* sldr = static_cast<LLSliderCtrl*>(ctrl);
 
 	// deactivate animator
-	LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-	LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+	LLWLParamManager::instance().mAnimator.deactivate();
 
 	F32 val = sldr->getValueF32() + 0.25f;
 	if(val > 1.0) 
@@ -169,12 +180,12 @@ void LLFloaterEnvSettings::onChangeDayTime(LLUICtrl* ctrl)
 		val--;
 	}
 
-	LLWLParamManager::instance()->mAnimator.setDayTime((F64)val);
-	LLWLParamManager::instance()->mAnimator.update(
-		LLWLParamManager::instance()->mCurParams);
+	LLWLParamManager::instance().mAnimator.setDayTime((F64)val);
+	LLWLParamManager::instance().mAnimator.update(
+		LLWLParamManager::instance().mCurParams);
 }
 
-void LLFloaterEnvSettings::onChangeCloudCoverage(LLUICtrl* ctrl)
+void LLFloaterEnvSettings::onChangeCloudCoverage(LLUICtrl* ctrl, void* userData)
 {
 	LLSliderCtrl* sldr = static_cast<LLSliderCtrl*>(ctrl);
 	
@@ -183,44 +194,46 @@ void LLFloaterEnvSettings::onChangeCloudCoverage(LLUICtrl* ctrl)
 	//LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
 
 	F32 val = sldr->getValueF32();
-	LLWLParamManager::instance()->mCurParams.set("cloud_shadow", val);
+	LLWLParamManager::instance().mCurParams.set("cloud_shadow", val);
 }
 
-void LLFloaterEnvSettings::onChangeWaterFogDensity(LLUICtrl* ctrl, WaterExpFloatControl* expFloatControl)
+void LLFloaterEnvSettings::onChangeWaterFogDensity(LLUICtrl* ctrl, void* userData)
 {
-	LLSliderCtrl* sldr;
-	sldr = getChild<LLSliderCtrl>("EnvWaterFogSlider");
-	
+	LLSliderCtrl* sldr = static_cast<LLSliderCtrl*>(ctrl);
 	F32 val = sldr->getValueF32();
-	expFloatControl->mExp = val;
-	LLWaterParamManager::instance()->setDensitySliderValue(val);
 
-	expFloatControl->update(LLWaterParamManager::instance()->mCurParams);
-	LLWaterParamManager::instance()->propagateParameters();
+	WaterExpFloatControl* expFloatControl = static_cast<WaterExpFloatControl*>(userData);
+	expFloatControl->mExp = val;
+	LLWaterParamManager::instance().setDensitySliderValue(val);
+
+	expFloatControl->update(LLWaterParamManager::instance().mCurParams);
+	LLWaterParamManager::instance().propagateParameters();
 }
 
-void LLFloaterEnvSettings::onChangeWaterColor(LLUICtrl* ctrl, WaterColorControl* colorControl)
+void LLFloaterEnvSettings::onChangeWaterColor(LLUICtrl* ctrl, void* userData)
 {
 	LLColorSwatchCtrl* swatch = static_cast<LLColorSwatchCtrl*>(ctrl);
+	WaterColorControl* colorControl = static_cast<WaterColorControl*>(userData);
 	*colorControl = swatch->get();
 
-	colorControl->update(LLWaterParamManager::instance()->mCurParams);
-	LLWaterParamManager::instance()->propagateParameters();
+	colorControl->update(LLWaterParamManager::instance().mCurParams);
+	LLWaterParamManager::instance().propagateParameters();
 }
 
-
-void LLFloaterEnvSettings::onOpenAdvancedSky()
+void LLFloaterEnvSettings::onOpenAdvancedSky(void* userData1, void* userData2)
 {
+	// *TODO: make sure title is displayed correctly.
 	LLFloaterReg::showInstance("env_windlight");
 }
 
-void LLFloaterEnvSettings::onOpenAdvancedWater()
+void LLFloaterEnvSettings::onOpenAdvancedWater(void* userData1, void* userData2)
 {
+	// *TODO: make sure title is displayed correctly.
 	LLFloaterReg::showInstance("env_water");
 }
 
 
-void LLFloaterEnvSettings::onUseEstateTime()
+void LLFloaterEnvSettings::onUseEstateTime(void* userData1, void* userData2)
 {
 	LLFloaterWindLight* wl = LLFloaterReg::findTypedInstance<LLFloaterWindLight>("env_windlight");
 	if(wl)
@@ -229,40 +242,12 @@ void LLFloaterEnvSettings::onUseEstateTime()
 		box->selectByValue("");
 	}
 
-	LLWLParamManager::instance()->mAnimator.mIsRunning = true;
-	LLWLParamManager::instance()->mAnimator.mUseLindenTime = true;
+	LLWLParamManager::instance().mAnimator.activate(LLWLAnimator::TIME_LINDEN);
 }
 
-std::string LLFloaterEnvSettings::timeToString(F32 curTime)
+// static
+void LLFloaterEnvSettings::onUseLocalTime()
 {
-	S32 hours;
-	S32 min;
-
-	// get hours and minutes
-	hours = (S32) (24.0 * curTime);
-	curTime -= ((F32) hours / 24.0f);
-	min = llround(24.0f * 60.0f * curTime);
-
-	// handle case where it's 60
-	if(min == 60) 
-	{
-		hours++;
-		min = 0;
-	}
-
-	std::string newTime = getString("timeStr");
-	struct tm * timeT;
-	time_t secT = time(0);
-	timeT = gmtime (&secT);
-
-	timeT->tm_hour = hours;
-	timeT->tm_min = min;
-	secT = mktime (timeT);
-	secT -= LLStringOps::getLocalTimeOffset ();
-
-	LLSD substitution;
-	substitution["datetime"] = (S32) secT;
-
-	LLStringUtil::format (newTime, substitution);
-	return newTime;
+	LLWLParamManager::getInstance()->mAnimator.setDayTime(LLWLAnimator::getLocalTime());
+	LLWLParamManager::getInstance()->mAnimator.activate(LLWLAnimator::TIME_LOCAL);
 }

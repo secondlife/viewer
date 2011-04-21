@@ -35,77 +35,96 @@
 
 #include <vector>
 #include "llwlparamset.h"
+#include "llwlparammanager.h"
 
 struct WLColorControl;
 struct WLFloatControl;
 
-
 /// Menuing system for all of windlight's functionality
 class LLFloaterWindLight : public LLFloater
 {
+	LOG_CLASS(LLFloaterWindLight);
 public:
-
-	LLFloaterWindLight(const LLSD& key);
+	LLFloaterWindLight(const LLSD &key);
 	virtual ~LLFloaterWindLight();
-	/*virtual*/	BOOL	postBuild();	
+	BOOL postBuild();
+
 	/// initialize all
 	void initCallbacks(void);
 
-	bool newPromptCallback(const LLSD& notification, const LLSD& response);
+	/// one and one instance only
+	static LLFloaterWindLight* instance();
+
+	static bool newPromptCallback(const LLSD& notification, const LLSD& response);
 
 	/// general purpose callbacks for dealing with color controllers
-	void onColorControlRMoved(LLUICtrl* ctrl, WLColorControl* userData);
-	void onColorControlGMoved(LLUICtrl* ctrl, WLColorControl* userData);
-	void onColorControlBMoved(LLUICtrl* ctrl, WLColorControl* userData);
-	void onColorControlIMoved(LLUICtrl* ctrl, WLColorControl* userData);
-	void onFloatControlMoved(LLUICtrl* ctrl, WLFloatControl* userData);
+	static void onColorControlRMoved(LLUICtrl* ctrl, void* userData);
+	static void onColorControlGMoved(LLUICtrl* ctrl, void* userData);
+	static void onColorControlBMoved(LLUICtrl* ctrl, void* userData);
+	static void onColorControlIMoved(LLUICtrl* ctrl, void* userData);
+	static void onFloatControlMoved(LLUICtrl* ctrl, void* userData);
+	static void onBoolToggle(LLUICtrl* ctrl, void* userData);
 
 	/// lighting callbacks for glow
-	void onGlowRMoved(LLUICtrl* ctrl, WLColorControl* userData);
+	static void onGlowRMoved(LLUICtrl* ctrl, void* userData);
 	//static void onGlowGMoved(LLUICtrl* ctrl, void* userData);
-	void onGlowBMoved(LLUICtrl* ctrl, WLColorControl* userData);
+	static void onGlowBMoved(LLUICtrl* ctrl, void* userData);
 
 	/// lighting callbacks for sun
-	void onSunMoved(LLUICtrl* ctrl, WLColorControl* userData);
+	static void onSunMoved(LLUICtrl* ctrl, void* userData);
+
+	/// handle if float is changed
+	static void onFloatTweakMoved(LLUICtrl* ctrl, void* userData);
 
 	/// for handling when the star slider is moved to adjust the alpha
-	void onStarAlphaMoved(LLUICtrl* ctrl);
+	static void onStarAlphaMoved(LLUICtrl* ctrl, void* userData);
 
 	/// when user hits the load preset button
-	void onNewPreset();
+	static void onNewPreset(void* userData);
 
 	/// when user hits the save preset button
-	void onSavePreset();
+	static void onSavePreset(void* userData);
 
 	/// prompts a user when overwriting a preset
-	bool saveAlertCallback(const LLSD& notification, const LLSD& response);
+	static bool saveAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// when user hits the save preset button
-	void onDeletePreset();
+	static void onDeletePreset(void* userData);
 
 	/// prompts a user when overwriting a preset
 	bool deleteAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// what to do when you change the preset name
-	void onChangePresetName(LLUICtrl* ctrl);
+	static void onChangePresetName(LLUICtrl* ctrl);
 
 	/// when user hits the save preset button
-	void onOpenDayCycle();
+	static void onOpenDayCycle(void* userData);
 
 	/// handle cloud scrolling
-	void onCloudScrollXMoved(LLUICtrl* ctrl);
-	void onCloudScrollYMoved(LLUICtrl* ctrl);
-	void onCloudScrollXToggled(LLUICtrl* ctrl);
-	void onCloudScrollYToggled(LLUICtrl* ctrl);
+	static void onCloudScrollXMoved(LLUICtrl* ctrl, void* userData);
+	static void onCloudScrollYMoved(LLUICtrl* ctrl, void* userData);
+	static void onCloudScrollXToggled(LLUICtrl* ctrl, void* userData);
+	static void onCloudScrollYToggled(LLUICtrl* ctrl, void* userData);
+
+	//// menu management
+
+	/// show off our menu
+	static void show(LLEnvKey::EScope scope = LLEnvKey::SCOPE_LOCAL);
+
+	/// return if the menu exists or not
+	static bool isOpen();
+
+	/// stuff to do on exit
+	virtual void onClose(bool app_quitting);
 
 	/// sync up sliders with parameters
 	void syncMenu();
 
-	/// turn off animated skies
-	static void deactivateAnimator();
-
 private:
-	static std::set<std::string> sDefaultPresets;
+	static LLFloaterWindLight* sWindLight;	// one instance on the inside
+	static std::set<LLWLParamKey> sDefaultPresets;
+	static LLEnvKey::EScope sScope;
+	static std::string sOriginalTitle;
 };
 
 

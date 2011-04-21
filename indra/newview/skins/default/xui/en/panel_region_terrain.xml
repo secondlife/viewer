@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="top|left"
- height="320"
+ height="400"
  help_topic="panel_region_terrain_tab"
  label="Terrain"
  layout="topleft"
@@ -123,15 +123,96 @@
      left="8"
      top="30"
      width="460" />
+    <text
+     follows="left|top"
+     height="20"
+     left="190"
+     name="wl_settings_label"
+     top_pad="10"
+     width="280">
+     WindLight environment settings for region:
+    </text>
+    <text
+     follows="left|top"
+     height="60"
+     left="190"
+     name="wl_settings_unavailable"
+     top_pad="0"
+     visible="false"
+     width="400">
+Not supported by this region, or you do not
+have permission to change the region's settings.
+See &apos;?&apos; for details.
+    </text>
+    <button
+     follows="left|top"
+     height="20"
+     label="Use Estate Time"
+     left="190"
+     name="EnvUseEstateTimeButton"
+     top_delta="0"
+     width="110" />
+    <button
+     follows="left|top"
+     height="20"
+     label="Advanced Sky"
+     left_delta="0"
+     name="EnvAdvancedSkyButton"
+     top_pad="3"
+     width="110" />
+    <button
+     follows="left|top"
+     height="20"
+     label="Advanced Water"
+     left_delta="0"
+     name="EnvAdvancedWaterButton"
+     top_pad="3"
+     width="110" />
+    <button
+     enabled="false"
+     follows="left|top"
+     height="20"
+     label="Apply Changes to Region"
+     left="-170"
+     top_delta="-46"
+     name="WLRegionApply"
+     width="160" />
+    <button
+     enabled="false"
+     follows="left|top"
+     height="20"
+     label="Cancel Changes"
+     left_delta="0"
+     name="WLRegionCancel"
+     top_pad="3"
+     width="160" />
+    <button
+     enabled="false"
+     follows="left|top"
+     height="20"
+     label="Revert Region to Default"
+     left_delta="0"
+     name="WLRegionDefault"
+     top_pad="3"
+     width="160" />
+    <button
+     enabled="false"
+     follows="left|top"
+     height="20"
+     label="Apply Local to Region"
+     left_delta="0"
+     top_pad="3"
+     name="WLCurrentApply"
+     width="160" />
     <button
      follows="left|top"
      height="20"
      label="Download RAW terrain..."
      layout="topleft"
-     left_delta="2"
+     left="10"
      name="download_raw_btn"
      tool_tip="Available only to estate owners, not managers"
-     top_pad="60"
+     top="330"
      width="170" />
     <button
      follows="left|top"
@@ -141,7 +222,7 @@
      left="10"
      name="upload_raw_btn"
      tool_tip="Available only to estate owners, not managers"
-     top="243"
+     top_pad="0"
      width="170" />
     <button
      follows="left|top"
@@ -151,6 +232,6 @@
      left="10"
      name="bake_terrain_btn"
      tool_tip="Set current terrain as mid-point for raise/lower limits"
-     top="283"
+     top_pad="3"
      width="100" />
 </panel>
