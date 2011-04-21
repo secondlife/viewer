@@ -135,6 +135,7 @@ set(VIEWER_LOGIN_CHANNEL ${VIEWER_CHANNEL} CACHE STRING "Fake login channel for 
 
 set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
 set(STANDALONE OFF CACHE BOOL "Do not use Linden-supplied prebuilt libraries.")
+set(UNATTENDED OFF CACHE BOOL "Should be set to ON for building with VC Express editions.")
 
 if (NOT STANDALONE AND EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
     set(SERVER ON CACHE BOOL "Build Second Life server software.")
