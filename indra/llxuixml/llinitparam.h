@@ -100,7 +100,7 @@ namespace LLInitParam
 	class TypeValuesHelper
 	{
 	public:
-		typedef std::map<std::string, T> value_name_map_t;
+		typedef typename std::map<std::string, T> value_name_map_t;
 
 		//TODO: cache key by index to save on param block size
 		void setValueName(const std::string& value_name) 
@@ -121,7 +121,7 @@ namespace LLInitParam
 		static bool getValueFromName(const std::string& name, T& value)
 		{
 			value_name_map_t* map = getValueNames();
-			value_name_map_t::iterator found_it = map->find(name);
+			typename value_name_map_t::iterator found_it = map->find(name);
 			if (found_it == map->end()) return false;
 
 			value = found_it->second;
@@ -151,7 +151,7 @@ namespace LLInitParam
 			static std::vector<std::string> sValues;
 
 			value_name_map_t* map = getValueNames();
-			for (value_name_map_t::iterator it = map->begin(), end_it = map->end();
+			for (typename value_name_map_t::iterator it = map->begin(), end_it = map->end();
 				 it != end_it;
 				 ++it)
 			{
@@ -598,6 +598,7 @@ namespace LLInitParam
 		typedef const T&																	value_assignment_t;
 		typedef	TypedParam<T, NAME_VALUE_LOOKUP, HAS_MULTIPLE_VALUES, VALUE_IS_BLOCK>		self_t;
 		typedef NAME_VALUE_LOOKUP															name_value_lookup_t;
+		typedef ParamValue<T, NAME_VALUE_LOOKUP>											param_value_t;
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
 		:	Param(block_descriptor.mCurrentBlockPtr)
@@ -704,7 +705,7 @@ namespace LLInitParam
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
 			setValue(val);
-			clearValueName();
+			param_value_t::clearValueName();
 			setProvided(flag_as_provided);
 			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
 		}
@@ -718,9 +719,9 @@ namespace LLInitParam
 		}
 
 		// implicit conversion
-		operator value_assignment_t() const { return getValue(); } 
+		operator value_assignment_t() const { return param_value_t::getValue(); } 
 		// explicit conversion
-		value_assignment_t operator()() const { return getValue(); } 
+		value_assignment_t operator()() const { return param_value_t::getValue(); } 
 
 	protected:
 
@@ -752,10 +753,11 @@ namespace LLInitParam
 		typedef value_const_t&									value_assignment_t;
 		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, true>	self_t;
 		typedef NAME_VALUE_LOOKUP								name_value_lookup_t;
+		typedef ParamValue<T, NAME_VALUE_LOOKUP>				param_value_t;
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr),
-			ParamValue(value)
+			param_value_t(value)
 		{
 			if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
 			{
@@ -840,23 +842,23 @@ namespace LLInitParam
 		bool isProvided() const 
 		{ 
 			// only validate block when it hasn't already passed validation with current data
-			if (Param::anyProvided() && mValidatedVersion < getLastChangeVersion())
+			if (Param::anyProvided() && param_value_t::mValidatedVersion < param_value_t::getLastChangeVersion())
 			{
 				// a sub-block is "provided" when it has been filled in enough to be valid
-				mValidated = validateBlock(false);
-				mValidatedVersion = getLastChangeVersion();
+				param_value_t::mValidated = param_value_t::validateBlock(false);
+				param_value_t::mValidatedVersion = param_value_t::getLastChangeVersion();
 			}
-			return Param::anyProvided() && mValidated;
+			return Param::anyProvided() && param_value_t::mValidated;
 		}
 
 		// assign block contents to this param-that-is-a-block
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
 			setValue(val);
-			clearValueName();
+			param_value_t::clearValueName();
 			// force revalidation of block by clearing known provided version
 			// next call to isProvided() will update provision status based on validity
-			mValidatedVersion = -1;
+			param_value_t::mValidatedVersion = -1;
 			setProvided(flag_as_provided);
 			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
 		}
@@ -883,9 +885,9 @@ namespace LLInitParam
 		}
 
 		// implicit conversion
-		operator value_assignment_t() const { return getValue(); } 
+		operator value_assignment_t() const { return param_value_t::getValue(); } 
 		// explicit conversion
-		value_assignment_t operator()() const { return getValue(); } 
+		value_assignment_t operator()() const { return param_value_t::getValue(); } 
 
 	protected:
 
@@ -897,7 +899,7 @@ namespace LLInitParam
 			if (src_typed_param.isProvided()
 				&& (overwrite || !dst_typed_param.isProvided()))
 			{
-				if (dst_typed_param.merge(selfBlockDescriptor(), src_typed_param, overwrite))
+				if (dst_typed_param.merge(param_value_t::selfBlockDescriptor(), src_typed_param, overwrite))
 				{
 					dst_typed_param.clearValueName();
 					return true;
@@ -914,14 +916,15 @@ namespace LLInitParam
 	{
 	public:
 		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, false>		self_t;
-		typedef typename std::vector<ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP> >	container_t;
+		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>			param_value_t;
+		typedef typename std::vector<param_value_t>							container_t;
 		typedef const container_t&											value_assignment_t;
 
 		typedef VALUE_TYPE													value_t;
 		typedef NAME_VALUE_LOOKUP											name_value_lookup_t;
 		
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
-		:	Param(block_descriptor.mCurrentBlockPtr),
+		:	Param(block_descriptor.mCurrentBlockPtr)
 		{
 			std::copy(value.begin(), value.end(), std::back_inserter(mValues));
 
@@ -1033,7 +1036,7 @@ namespace LLInitParam
 
 		value_t& add()
 		{
-			mValues.push_back(ParamValue(value_t()));
+			mValues.push_back(param_value_t(value_t()));
 			setProvided(true);
 			Param::enclosingBlock().paramChanged(*this, true);
 			return mValues.back();
@@ -1041,7 +1044,7 @@ namespace LLInitParam
 
 		void add(const value_t& item)
 		{
-			mValues.push_back(ParamValue(item));
+			mValues.push_back(param_value_t(item));
 			setProvided(true);
 			Param::enclosingBlock().paramChanged(*this, true);
 		}
@@ -1567,6 +1570,7 @@ namespace LLInitParam
 			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<param_value_t>::value>	super_t;
 			typedef Batch<T, RANGE, NAME_VALUE_LOOKUP>										self_t;
 			typedef typename super_t::value_assignment_t									value_assignment_t;
+			typedef typename super_t::value_t												value_t;
 
 			struct BatchDefaultValue : public ParamDescriptor::UserData
 			{
@@ -1589,7 +1593,7 @@ namespace LLInitParam
 					if (param_descriptorp)
 					{
 						param_descriptorp->mDeserializeFunc = &deserializeParam;
-						param_descriptorp->mUserData = new BatchDefaultValue(new _value_t(val));
+						param_descriptorp->mUserData = new BatchDefaultValue(new param_value_t(val));
 					}
 				}
 			}
@@ -1707,7 +1711,7 @@ namespace LLInitParam
 
 		typedef ParamValue<T, TypeValues<T> >	derived_t;
 		typedef CustomParamValue<T>				self_t;
-		typedef Block<typename derived_t>		block_t;
+		typedef Block<derived_t>		block_t;
 		typedef const T&						value_assignment_t;
 
 		CustomParamValue(const T& value = T())
@@ -1796,7 +1800,7 @@ namespace LLInitParam
 				if (block_t::validateBlock(emit_errors))
 				{
 					// clear stale keyword associated with old value
-					clearValueName();
+					TypeValues<T>::clearValueName();
 					mValueAge = BLOCK_AUTHORITATIVE;
 					static_cast<derived_t*>(const_cast<self_t*>(this))->updateValueFromBlock();
 					return true;
@@ -1828,10 +1832,11 @@ namespace LLInitParam
 			
 		void setValue(value_assignment_t val)
 		{
+			derived_t& typed_param = static_cast<derived_t&>(*this);
 			// set param version number to be up to date, so we ignore block contents
 			mValueAge = VALUE_AUTHORITATIVE;
 			mValue = val;
-			clearValueName();
+			typed_param.clearValueName();
 			static_cast<derived_t*>(const_cast<self_t*>(this))->updateBlockFromValue();
 		}
 
