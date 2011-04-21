@@ -537,6 +537,7 @@ LLUIImagePtr LLEmbeddedItems::getItemImage(llwchar ext_char) const
 			case LLAssetType::AT_BODYPART:		img_name = "Inv_Skin";		break;
 			case LLAssetType::AT_ANIMATION:		img_name = "Inv_Animation";	break;
 			case LLAssetType::AT_GESTURE:		img_name = "Inv_Gesture";	break;
+			case LLAssetType::AT_MESH:          img_name = "Inv_Mesh";	    break;
 			default: llassert(0);
 		}
 
@@ -846,17 +847,18 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	{
 		switch( cargo_type )
 		{
-		case DAD_CALLINGCARD:
-		case DAD_TEXTURE:
-		case DAD_SOUND:
-		case DAD_LANDMARK:
-		case DAD_SCRIPT:
-		case DAD_CLOTHING:
-		case DAD_OBJECT:
-		case DAD_NOTECARD:
-		case DAD_BODYPART:
-		case DAD_ANIMATION:
-		case DAD_GESTURE:
+			case DAD_CALLINGCARD:
+			case DAD_TEXTURE:
+			case DAD_SOUND:
+			case DAD_LANDMARK:
+			case DAD_SCRIPT:
+			case DAD_CLOTHING:
+			case DAD_OBJECT:
+			case DAD_NOTECARD:
+			case DAD_BODYPART:
+			case DAD_ANIMATION:
+			case DAD_GESTURE:
+			case DAD_MESH:
 			{
 				LLInventoryItem *item = (LLInventoryItem *)cargo_data;
 				if( item && allowsEmbeddedItems() )

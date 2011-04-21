@@ -253,24 +253,37 @@ class WindowsManifest(ViewerManifest):
         #self.disable_manifest_check()
 
         self.path(src="../viewer_components/updater/scripts/windows/update_install.bat", dst="update_install.bat")
-
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
             #self.enable_crt_manifest_check()
-
+            
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
                 self.path('llcommon.dll')
                 self.path('libapr-1.dll')
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
+                
             except RuntimeError, err:
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
             #self.disable_manifest_check()
+
+            # Mesh 3rd party libs needed for auto LOD and collada reading
+            try:
+                if self.args['configuration'].lower() == 'debug':
+                    self.path("libcollada14dom22-d.dll")
+                else:
+                    self.path("libcollada14dom22.dll")
+                    
+                self.path("glod.dll")
+            except RuntimeError, err:
+                print err.message
+                print "Skipping COLLADA and GLOD libraries (assumming linked statically)"
+
 
             # Get fmod dll, continue if missing
             try:
@@ -322,7 +335,7 @@ class WindowsManifest(ViewerManifest):
         self.path("featuretable_xp.txt")
 
         #self.enable_no_crt_manifest_check()
-        
+
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_quicktime.dll")
@@ -636,6 +649,8 @@ class DarwinManifest(ViewerManifest):
                                     "libaprutil-1.0.dylib",
                                     "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
+                                    "libGLOD.dylib",
+                                    "libcollada14dom.dylib"
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
 
@@ -667,6 +682,8 @@ class DarwinManifest(ViewerManifest):
                                     "libaprutil-1.0.dylib",
                                     "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
+                                    "libGLOD.dylib",
+				    "libcollada14dom.dylib"
                                     ):
                         target_lib = os.path.join('../../..', libfile)
                         self.run_command("ln -sf %(target)r %(link)r" % 
@@ -705,6 +722,7 @@ class DarwinManifest(ViewerManifest):
             "unpacked" in self.args['actions']):
             self.run_command('strip -S %(viewer_binary)r' %
                              { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
+
 
     def copy_finish(self):
         # Force executable permissions to be set for scripts
@@ -936,12 +954,15 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libbreakpad_client.so.0.0.0")
             self.path("libbreakpad_client.so.0")
             self.path("libbreakpad_client.so")
+	    self.path("libcollada14dom.so")
             self.path("libdb-5.1.so")
             self.path("libdb-5.so")
             self.path("libdb.so")
             self.path("libcrypto.so.1.0.0")
             self.path("libexpat.so.1.5.2")
             self.path("libssl.so.1.0.0")
+	    self.path("libglod.so")
+	    self.path("libminizip.so")
             self.path("libuuid.so")
             self.path("libuuid.so.16")
             self.path("libuuid.so.16.0.22")
@@ -956,6 +977,8 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
             self.path("libfontconfig.so.1.4.4")
+            self.path("libtcmalloc_minimal.so", "libtcmalloc_minimal.so") #formerly called google perf tools
+            self.path("libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.0") #formerly called google perf tools
             try:
                     self.path("libfmod-3.75.so")
                     pass
@@ -975,6 +998,11 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxsdk.so")
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
+
+            if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
+                    print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
+                    self.run_command("find %(d)r/bin %(d)r/lib -type f \\! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+
 
 class Linux_x86_64Manifest(LinuxManifest):
     def construct(self):
