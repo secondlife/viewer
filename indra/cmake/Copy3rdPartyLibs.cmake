@@ -207,10 +207,12 @@ elseif(DARWIN)
         libapr-1.dylib
         libaprutil-1.0.dylib
         libaprutil-1.dylib
+        libcollada14dom.dylib
         libexpat.1.5.2.dylib
         libexpat.dylib
         libGLOD.dylib
-	libllqtwebkit.dylib
+		libllqtwebkit.dylib
+		libminizip.a
         libndofdev.dylib
         libexception_handler.dylib
 	libcollada14dom.dylib
