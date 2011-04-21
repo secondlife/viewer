@@ -207,12 +207,11 @@ elseif(DARWIN)
         libapr-1.dylib
         libaprutil-1.0.dylib
         libaprutil-1.dylib
-        libcollada14dom.dylib
         libexpat.1.5.2.dylib
         libexpat.dylib
         libGLOD.dylib
-		libllqtwebkit.dylib
-		libminizip.a
+	libllqtwebkit.dylib
+	libminizip.a
         libndofdev.dylib
         libexception_handler.dylib
 	libcollada14dom.dylib
@@ -251,8 +250,8 @@ elseif(LINUX)
         libaprutil-1.so.0
         libatk-1.0.so
         libbreakpad_client.so.0
-	libcollada14dom.so
-        libcrypto.so.0.9.8
+       	libcollada14dom.so
+        libcrypto.so.1.0.0
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
@@ -270,7 +269,7 @@ elseif(LINUX)
         libtcmalloc_minimal.so
         libuuid.so.16
         libuuid.so.16.0.22
-        libssl.so.0.9.8
+        libssl.so.1.0.0
         libfontconfig.so.1.4.4
        )
 

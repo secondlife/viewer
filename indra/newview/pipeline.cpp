@@ -7884,6 +7884,10 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{	//generate planar reflection map
+
+			//disable occlusion culling for reflection map for now
+			S32 occlusion = LLPipeline::sUseOcclusion;
+			LLPipeline::sUseOcclusion = 0;
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			glClearColor(0,0,0,0);
 			mWaterRef.bindTarget();
@@ -7987,6 +7991,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			glPopMatrix();
 			mWaterRef.flush();
 			glh_set_current_modelview(current);
+			LLPipeline::sUseOcclusion = occlusion;
 		}
 
 		camera.setOrigin(camera_in.getOrigin());
@@ -9112,11 +9117,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 					fovx = acos(fovx);
 					fovz = acos(fovz);
-
-					if (fovx > cutoff || llround(fovz, 0.01f) > cutoff)
-					{
-					//	llerrs << "WTF?" << llendl;
-					}
 
 					mShadowFOV.mV[j] = cutoff;
 				}

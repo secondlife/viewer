@@ -590,7 +590,7 @@ Nicholaz Beresford
 	VWR-2684
 Nicky Perian
 	OPEN-1
-	OPEN-1087
+	STORM-1087
 	STORM-1090
 Nounouch Hapmouche
 	VWR-238
@@ -712,6 +712,7 @@ Shawn Kaufmat
 	SNOW-240
 Siana Gearz
 	STORM-960
+	STORM-1088
 SignpostMarv Martin
 	VWR-153
 	VWR-154
