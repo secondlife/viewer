@@ -32,14 +32,21 @@ using std::wstring;
 
 static float sVolumeLevel = 1.f;
 static bool sMute = false;
+static CRITICAL_SECTION sCriticalSection;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
 					 )
 {
+	InitializeCriticalSection(&sCriticalSection);
+	return TRUE;
+}
+
+void ll_winmm_shim_initialize(){
 	static bool initialized = false;
 	// do this only once
+	EnterCriticalSection(&sCriticalSection);
 	if (!initialized)
 	{	// bind to original winmm.dll
 		TCHAR system_path[MAX_PATH];
@@ -54,13 +61,15 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 		{	// we have a dll, let's get out pointers!
 			initialized = true;
 			init_function_pointers(winmm_handle);
-			return true;
+			::OutputDebugStringA("WINMM_SHIM.DLL: real winmm.dll initialized successfully\n");
 		}
-
-		// failed to initialize real winmm.dll
-		return false;
+		else
+		{
+			// failed to initialize real winmm.dll
+			::OutputDebugStringA("WINMM_SHIM.DLL: Failed to initialize real winmm.dll\n");
+		}
 	}
-	return true;
+	LeaveCriticalSection(&sCriticalSection);
 }
 
 
@@ -79,6 +88,7 @@ extern "C"
 
 	MMRESULT WINAPI waveOutOpen( LPHWAVEOUT phwo, UINT uDeviceID, LPCWAVEFORMATEX pwfx, DWORD_PTR dwCallback, DWORD_PTR dwInstance, DWORD fdwOpen)
 	{
+		ll_winmm_shim_initialize();
 		if (pwfx->wFormatTag != WAVE_FORMAT_PCM
 			|| (pwfx->wBitsPerSample != 8 && pwfx->wBitsPerSample != 16))
 		{ // uncompressed 8 and 16 bit sound are the only types we support
@@ -97,6 +107,7 @@ extern "C"
 
 	MMRESULT WINAPI waveOutClose( HWAVEOUT hwo)
 	{
+		ll_winmm_shim_initialize();
 		wave_out_map_t::iterator found_it = sWaveOuts.find(hwo);
 		if (found_it != sWaveOuts.end())
 		{	// forget what we know about this handle
@@ -108,6 +119,7 @@ extern "C"
 
 	MMRESULT WINAPI waveOutWrite( HWAVEOUT hwo, LPWAVEHDR pwh, UINT cbwh)
 	{
+		ll_winmm_shim_initialize();
 		MMRESULT result = MMSYSERR_NOERROR;
 
 		if (sMute)
