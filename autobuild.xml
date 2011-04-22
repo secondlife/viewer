@@ -1158,9 +1158,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>506779a74c527c1a2bf93addb58c3e48</string>
+              <string>bc1388fc28dbb3bba1fe7cb8d09f49b4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/227397/arch/Darwin/installer/llconvexdecompositionstub-0.3-darwin-20110421.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/227399/arch/Darwin/installer/llconvexdecompositionstub-0.3-darwin-20110421.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1170,9 +1170,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>be40b4d5ce1303f8818d294584b8c6a3</string>
+              <string>3295bd4a0514b7c15dda9044f40c175e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/227397/arch/Linux/installer/llconvexdecompositionstub-0.3-linux-20110422.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/227399/arch/Linux/installer/llconvexdecompositionstub-0.3-linux-20110422.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1182,9 +1182,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6f65d135e16e64dec91323bad0710406</string>
+              <string>92f1dff3249024c1534b55343ed79ea3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/227397/arch/CYGWIN/installer/llconvexdecompositionstub-0.3-windows-20110421.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/227399/arch/CYGWIN/installer/llconvexdecompositionstub-0.3-windows-20110421.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
