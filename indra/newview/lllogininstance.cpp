@@ -558,6 +558,18 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	requested_options.append("buddy-list");
 	requested_options.append("newuser-config");
 	requested_options.append("ui-config");
+
+	//send this info to login.cgi for stats gathering 
+	//since viewerstats isn't reliable enough
+	if (gSavedSettings.getString("SessionSettingsFile").empty())
+	{
+		requested_options.append("advanced-mode");
+	}
+	else
+	{
+		requested_options.append("basic-mode");
+	}
+
 #endif
 	requested_options.append("max-agent-groups");	
 	requested_options.append("map-server-url");	

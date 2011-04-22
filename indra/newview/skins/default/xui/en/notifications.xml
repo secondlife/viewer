@@ -7214,7 +7214,49 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    yestext="Quit"
    notext="Don't Quit"/>
   </notification>
-  
+
+  <notification
+ name="NoInventory"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    Viewing inventory is only available in Advanced mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+
+  <notification
+ name="NoAppearance"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    The appearance editor is only available in Advanced mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+
+  <notification
+ name="NoSearch"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    Search is only available in Advanced mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>
