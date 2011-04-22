@@ -159,8 +159,6 @@ public:
 	
 	void buildPopupLists();
 	static void refreshSkin(void* data);
-	// Remove record of current user's favorites from file on disk.
-	void removeFavoritesRecordOfUser();
 private:
 	static std::string sSkin;
 	// set true if state of double-click action checkbox or radio-group was changed by user
@@ -172,8 +170,6 @@ private:
 	bool mAvatarDataInitialized;
 	
 	bool mOriginalHideOnlineStatus;
-	// Record of current user's favorites may be stored in file on disk.
-	bool mFavoritesRecordMayExist;
 	std::string mDirectoryVisibility;
 	
 	LLAvatarData mAvatarProperties;
