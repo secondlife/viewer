@@ -89,7 +89,6 @@ private:
 	void addUsersWithFavoritesToUsername();
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
-//	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);
 	static void onClickVersion(void*);
 	static void onClickForgotPassword(void*);
 	static void onClickHelp(void*);
@@ -114,7 +113,6 @@ private:
 
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;
-	BOOL			mHtmlAvailable;
 };
 
 std::string load_password_from_disk(void);
