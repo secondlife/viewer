@@ -652,17 +652,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  <key>AvatarPhysicsTest</key>
-  <map>
-    <key>Comment</key>
-    <string>Simulate continuous physics behavior on all nearby avatars.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
     <key>AvatarSex</key>
     <map>
       <key>Comment</key>
