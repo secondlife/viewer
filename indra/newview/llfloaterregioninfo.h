@@ -58,6 +58,13 @@ class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
 
+class LLEventTimer;
+class LLEnvironmentSettings;
+class LLWLParamManager;
+class LLWaterParamManager;
+class LLWLParamSet;
+class LLWaterParamSet;
+
 class LLFloaterRegionInfo : public LLFloater
 {
 	friend class LLFloaterReg;
@@ -66,6 +73,8 @@ public:
 
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ BOOL postBuild();
+
+	/*virtual*/ void onClose(bool app_quitting);
 
 	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
 
@@ -79,6 +88,7 @@ public:
 
 	static LLPanelEstateInfo* getPanelEstate();
 	static LLPanelEstateCovenant* getPanelCovenant();
+	static LLPanelRegionTerrainInfo* getPanelRegionTerrain();
 
 	// from LLPanel
 	virtual void refresh();
@@ -222,19 +232,29 @@ protected:
 };
 
 /////////////////////////////////////////////////////////////////////////////
-
 class LLPanelRegionTerrainInfo : public LLPanelRegionInfo
 {
+	LOG_CLASS(LLPanelRegionTerrainInfo);
+
 public:
-	LLPanelRegionTerrainInfo()
-		:	LLPanelRegionInfo() {}
+	LLPanelRegionTerrainInfo() : LLPanelRegionInfo() {}
 	~LLPanelRegionTerrainInfo() {}
-	// LLPanel
-	virtual BOOL postBuild();
 	
-	virtual bool refreshFromRegion(LLViewerRegion* region);
+	static LLPanelRegionTerrainInfo* instance();
+	virtual BOOL postBuild();												// LLPanel
+	static void onFloaterClose(bool app_quitting);
+	
+	F32 getSunHour();
+	virtual bool refreshFromRegion(LLViewerRegion* region);					// refresh local settings from region update from simulator
+	void setEnvControls(bool available);									// Whether environment settings are available for this region
+	void setCommitControls(bool available);									// Whether user can currently commit (whether they changed anything)
+	void cancelChanges();													// cancels changes, reverts local settings, and resyncs UI
+
+	//static void onChangeAnything(LLUICtrl* ctrl, void* userData);			// callback for any change, to enable commit button
 	
 protected:
+	static LLPanelRegionTerrainInfo* sPanelRegionTerrainInfo;				// static instance pointer for singleton
+
 	virtual BOOL sendUpdate();
 
 	void onChangeUseEstateTime();
@@ -245,6 +265,14 @@ protected:
 	static void onClickUploadRaw(void*);
 	static void onClickBakeTerrain(void*);
 	bool callbackBakeTerrain(const LLSD& notification, const LLSD& response);
+
+	static void onOpenAdvancedSky(void* userData);							// open the advanced sky settings menu
+	static void onOpenAdvancedWater(void* userData);						// open the advanced water settings menu
+	static void onUseEstateTime(void* userData);							// sync time with the server
+	static void onCommitRegionWL(void* userData);							// commit region information to server
+	static void onCancelRegionWL(void* userData);							// cancel changes to region
+	static void onSetRegionToDefaultWL(void* userData);						// revert region WL settings to default
+	static void onApplyCurrentWL(void* userData);							// apply current settings to region
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -332,7 +360,6 @@ public:
 	// If visible from mainland, allowed agent and allowed groups
 	// are ignored, so must disable UI.
 	void setAccessAllowedEnabled(bool enable_agent, bool enable_group, bool enable_ban);
-
 protected:
 	virtual BOOL sendUpdate();
 	// confirmation dialog callback
