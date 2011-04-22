@@ -411,6 +411,8 @@ BOOL LLFloaterPreference::postBuild()
 
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate, _2));
 
+	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
+
 	gSavedSettings.getControl("ChatBubbleOpacity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onNameTagOpacityChange, this, _2));
 
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
