@@ -1158,9 +1158,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>349fa0e287fb275bbee43ced194a1db1</string>
+              <string>506779a74c527c1a2bf93addb58c3e48</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-darwin-20101015.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/227397/arch/Darwin/installer/llconvexdecompositionstub-0.3-darwin-20110421.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1170,9 +1170,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dbf4b15e74ce9042e8500720dffc461a</string>
+              <string>be40b4d5ce1303f8818d294584b8c6a3</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-linux-20101015a.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/227397/arch/Linux/installer/llconvexdecompositionstub-0.3-linux-20110422.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1182,9 +1182,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bba9a4dd04fda1b263f34448a044783b</string>
+              <string>6f65d135e16e64dec91323bad0710406</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llconvexdecompositionstub-0.3-windows-20101015.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/227397/arch/CYGWIN/installer/llconvexdecompositionstub-0.3-windows-20110421.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
