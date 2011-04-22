@@ -790,4 +790,8 @@ public:
 	}
 };
 
+//dirty little zip functions -- yell at davep
+LL_COMMON_API std::string zip_llsd(LLSD& data);
+LL_COMMON_API bool unzip_llsd(LLSD& data, std::istream& is, S32 size);
+
 #endif // LL_LLSDSERIALIZE_H

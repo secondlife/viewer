@@ -1710,6 +1710,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 				sample[asum/(16*4)] += 4;
 			}
 			
+			
 			rowstart += 2 * w * mAlphaStride;
 		}
 		length *= 2; // we sampled everything twice, essentially

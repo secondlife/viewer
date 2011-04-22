@@ -51,7 +51,7 @@ public:
 	BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 
 	virtual F32 getBinRadius();
-	virtual void updateSpatialExtents(LLVector3& newMin, LLVector3& newMax);
+	virtual void updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
 	virtual U32 getPartitionType() const;
 	
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent);

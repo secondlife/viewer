@@ -53,6 +53,7 @@
 #include "llfloatertopobjects.h" // added to fix SL-32336
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
+#include "llfloaterregiondebugconsole.h"
 #include "llfloatertelehub.h"
 #include "llfloaterwindlight.h"
 #include "llinventorymodel.h"
@@ -159,9 +160,30 @@ bool estate_dispatch_initialized = false;
 //S32 LLFloaterRegionInfo::sRequestSerial = 0;
 LLUUID LLFloaterRegionInfo::sRequestInvoice;
 
+
+void LLFloaterRegionInfo::onConsoleReplyReceived(const std::string& output)
+{
+	llwarns << "here is what they're giving us:  " << output << llendl;
+
+	if (output.find("FALSE") != std::string::npos)
+	{
+		getChild<LLUICtrl>("mesh_rez_enabled_check")->setValue(FALSE);
+	}
+	else
+	{
+		getChild<LLUICtrl>("mesh_rez_enabled_check")->setValue(TRUE);
+	}
+}
+
+
 LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
 	: LLFloater(seed)
 {
+	mConsoleReplySignalConnection = LLFloaterRegionDebugConsole::setConsoleReplyCallback(
+	boost::bind(
+		&LLFloaterRegionInfo::onConsoleReplyReceived,
+		this,
+		_1));
 }
 
 BOOL LLFloaterRegionInfo::postBuild()
@@ -211,12 +233,14 @@ BOOL LLFloaterRegionInfo::postBuild()
 
 LLFloaterRegionInfo::~LLFloaterRegionInfo()
 {
+	mConsoleReplySignalConnection.disconnect();
 }
 
 void LLFloaterRegionInfo::onOpen(const LLSD& key)
 {
 	refreshFromRegion(gAgent.getRegion());
 	requestRegionInfo();
+	requestMeshRezInfo();
 }
 
 // static
@@ -584,6 +608,7 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	initCtrl("access_combo");
 	initCtrl("restrict_pushobject");
 	initCtrl("block_parcel_search_check");
+	initCtrl("mesh_rez_enabled_check");
 
 	childSetAction("kick_btn", boost::bind(&LLPanelRegionGeneralInfo::onClickKick, this));
 	childSetAction("kick_all_btn", onClickKickAll, this);
@@ -691,7 +716,42 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 	return false;
 }
 
+class ConsoleRequestResponder : public LLHTTPClient::Responder
+{
+public:
+	/*virtual*/
+	void error(U32 status, const std::string& reason)
+	{
+		llwarns << "requesting mesh_rez_enabled failed" << llendl;
+	}
+};
 
+
+// called if this request times out.
+class ConsoleUpdateResponder : public LLHTTPClient::Responder
+{
+public:
+	/* virtual */
+	void error(U32 status, const std::string& reason)
+	{
+		llwarns << "Updating mesh enabled region setting failed" << llendl;
+	}
+};
+
+void LLFloaterRegionInfo::requestMeshRezInfo()
+{
+	std::string sim_console_url = gAgent.getRegion()->getCapability("SimConsoleAsync");
+
+	if (!sim_console_url.empty())
+	{
+		std::string request_str = "get mesh_rez_enabled";
+		
+		LLHTTPClient::post(
+			sim_console_url,
+			LLSD(request_str),
+			new ConsoleRequestResponder);
+	}
+}
 
 // setregioninfo
 // strings[0] = 'Y' - block terraform, 'N' - not
@@ -763,6 +823,27 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 		sendEstateOwnerMessage(gMessageSystem, "setregioninfo", invoice, strings);
 	}
+
+	std::string sim_console_url = gAgent.getRegion()->getCapability("SimConsoleAsync");
+
+	if (!sim_console_url.empty())
+	{
+		std::string update_str = "set mesh_rez_enabled ";
+		if (getChild<LLUICtrl>("mesh_rez_enabled_check")->getValue().asBoolean())
+		{
+			update_str += "true";
+		}
+		else
+		{
+			update_str += "false";
+		}
+
+		LLHTTPClient::post(
+			sim_console_url,
+			LLSD(update_str),
+			new ConsoleUpdateResponder);
+	}
+
 
 	// if we changed access levels, tell user about it
 	LLViewerRegion* region = gAgent.getRegion();

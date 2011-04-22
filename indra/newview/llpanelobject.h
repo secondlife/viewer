@@ -62,14 +62,14 @@ public:
 	static void 	onCommitPosition(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitScale(			LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitRotation(		LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitPhysics(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitTemporary(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitPhantom(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitCastShadows(	LLUICtrl* ctrl, void* userdata);
+	static void 	onCommitPhysics(		LLUICtrl* ctrl, void* userdata);
+	static void 	onCommitMaterial(		LLUICtrl* ctrl, void* userdata);
 
 	static void 	onCommitParametric(LLUICtrl* ctrl, void* userdata);
 
-	static void 	onCommitMaterial(		LLUICtrl* ctrl, void* userdata);
 
 	void     		onCommitSculpt(const LLSD& data);
 	void     		onCancelSculpt(const LLSD& data);
@@ -87,6 +87,7 @@ protected:
 	void			sendIsPhysical();
 	void			sendIsTemporary();
 	void			sendIsPhantom();
+
 	void			sendCastShadows();
 	void            sendSculpt();
 	

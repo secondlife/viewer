@@ -11,8 +11,11 @@ Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 # Use Public Upload Locations
 public_build = true
 
+# skip windows debug build until we can get a fix in.
+build_CYGWIN_Debug = false
+
 # Update Public Inworld Build Status Indicators
-email_status_this_is_os = true
+email_status_this_is_os = false
 
 # Limit extent of codeticket updates to revisions after...
 codeticket_since = 2.2.0-release
@@ -89,6 +92,33 @@ debug-halting.build_CYGWIN_RelWithDebInfo = false
 brad-parabuild.email = brad@lindenlab.com
 brad-parabuild.build_server = false
 brad-parabuild.build_server_tests = false
+
+# ========================================
+# mesh-development
+# ========================================
+mesh-development.viewer_channel = "Project Viewer - Mesh"
+mesh-development.login_channel = "Project Viewer - Mesh"
+mesh-development.viewer_grid = aditi
+mesh-development.build_debug_release_separately = true
+mesh-development.build_CYGWIN_Debug = false
+mesh-development.build_viewer_update_version_manager = false
+
+# ========================================
+# viewer-mesh
+# ========================================
+
+viewer-mesh.build_viewer = true
+viewer-mesh.build_server = false
+viewer-mesh.build_Linux = true
+viewer-mesh.build_hg_bundle = true
+viewer-mesh.build_viewer_update_version_manager = false
+viewer-mesh.build_Debug = false
+viewer-mesh.build_RelWithDebInfo = false
+viewer-mesh.viewer_channel = "Project Viewer - Mesh"
+viewer-mesh.login_channel = "Project Viewer - Mesh"
+viewer-mesh.viewer_grid = aditi
+viewer-mesh.email = shining@lists.lindenlab.com
+
 
 # ========================================
 # CG

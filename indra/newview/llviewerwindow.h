@@ -346,7 +346,9 @@ public:
 									LLVector3 *intersection = NULL,
 									LLVector2 *uv = NULL,
 									LLVector3 *normal = NULL,
-									LLVector3 *binormal = NULL);
+									LLVector3 *binormal = NULL,
+									LLVector3* start = NULL,
+									LLVector3* end = NULL);
 	
 	
 	// Returns a pointer to the last object hit
@@ -486,6 +488,8 @@ extern LLVector2        gDebugRaycastTexCoord;
 extern LLVector3        gDebugRaycastNormal;
 extern LLVector3        gDebugRaycastBinormal;
 extern S32				gDebugRaycastFaceHit;
+extern LLVector3		gDebugRaycastStart;
+extern LLVector3		gDebugRaycastEnd;
 
 extern S32 CHAT_BAR_HEIGHT; 
 
