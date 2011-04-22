@@ -61,44 +61,6 @@
 		</layout_panel>
     <layout_panel
         auto_resize="false"
-        follows="left|right"
-        height="28"
-        layout="topleft"
-        min_height="28"
-        min_width="59"
-        mouse_opaque="false"
-        name="speak_panel"
-        top_delta="0"
-        user_resize="false"
-        width="108">
-      <talk_button
-       follows="left|right"
-       height="23"
-       layout="topleft"
-       left="0"
-       name="talk"
-       top="5"
-       width="105">
-        <show_button
-         tab_stop="true">
-          <init_callback
-           function="Button.SetDockableFloaterToggle"
-           parameter="voice_controls" />
-        </show_button>
-        <!-- do not remove halign attribute with default value. otherwise it can't be overridden in other locales.
-                 & pad_right is default value for long label which can be right aligned. See EXT-6318 -->
-        <speak_button
-         halign="center"
-         label="Speak"
-         label_selected="Speak"
-         name="speak_btn"
-         pad_right="20"
-         tab_stop="true"
-         use_ellipses="true" />
-      </talk_button>
-    </layout_panel>
-		<layout_panel
-         auto_resize="false"
          follows="right"
          height="28"
          layout="topleft"
