@@ -6585,16 +6585,12 @@ bool LLSelectMgr::selectionMove(const LLVector3& displ,
 			}
 		}
 		
-		// get the non-squared edition for use below
-		// note the use of fsqrtf, this was used in the definition of dist_vec() and is therefore re-used here
-		F32 min_dist = fsqrtf(min_dist_squared);
-		
 		// factor the distance into the displacement vector. This will get us
 		// equally visible movements for both close and far away selections.
-		F32 min_dist_factored = sqrt(min_dist) / 2; // FIXME: this variable name doesn't state its true meaning.
-		displ_global.setVec(displ.mV[0]*min_dist_factored,
-							displ.mV[1]*min_dist_factored,
-							displ.mV[2]*min_dist_factored);
+		F32 min_dist = sqrt(fsqrtf(min_dist_squared)) / 2;
+		displ_global.setVec(displ.mV[0] * min_dist,
+							displ.mV[1] * min_dist,
+							displ.mV[2] * min_dist);
 
 		// equates to: Displ_global = Displ * M_cam_axes_in_global_frame
 		displ_global = LLViewerCamera::getInstance()->rotateToAbsolute(displ_global);
