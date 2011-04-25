@@ -150,11 +150,11 @@ LLDir_Mac::LLDir_Mac()
 		CFURLRef resourcesURLRef = CFBundleCopyResourcesDirectoryURL(mainBundleRef);
 		CFURLRefToLLString(resourcesURLRef, mAppRODataDir, true);
 		
-		U32 indra_pos = mExecutableDir.find("/indra");
-		if (indra_pos != std::string::npos)
+		U32 build_dir_pos = mExecutableDir.find("/build-darwin-");
+		if (build_dir_pos != std::string::npos)
 		{
 			// ...we're in a dev checkout
-			mSkinBaseDir = mExecutableDir.substr(0, indra_pos)
+			mSkinBaseDir = mExecutableDir.substr(0, build_dir_pos)
 				+ "/indra/newview/skins";
 			llinfos << "Running in dev checkout with mSkinBaseDir "
 				<< mSkinBaseDir << llendl;
