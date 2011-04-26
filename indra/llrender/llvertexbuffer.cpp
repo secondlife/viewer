@@ -323,10 +323,6 @@ void LLVertexBuffer::initClass(bool use_vbo, bool no_vbo_mapping)
 	}
 
 	sDisableVBOMapping = sEnableVBOs && no_vbo_mapping ;
-	LLGLNamePool::registerPool(&sDynamicVBOPool);
-	LLGLNamePool::registerPool(&sDynamicIBOPool);
-	LLGLNamePool::registerPool(&sStreamVBOPool);
-	LLGLNamePool::registerPool(&sStreamIBOPool);
 }
 
 //static 
