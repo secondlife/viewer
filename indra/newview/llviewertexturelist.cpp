@@ -932,16 +932,19 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
 	if (image.isNull())
 	{
+		image->setLastError("Couldn't open the image to be uploaded.");
 		return FALSE;
 	}	
 	if (!image->load(filename))
 	{
+		image->setLastError("Couldn't load the image to be uploaded.");
 		return FALSE;
 	}
 	// Decompress or expand it in a raw image structure
 	LLPointer<LLImageRaw> raw_image = new LLImageRaw;
 	if (!image->decode(raw_image, 0.0f))
 	{
+		image->setLastError("Couldn't decode the image to be uploaded.");
 		return FALSE;
 	}
 	// Check the image constraints
@@ -952,8 +955,15 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 	}
 	// Convert to j2c (JPEG2000) and save the file locally
 	LLPointer<LLImageJ2C> compressedImage = convertToUploadFile(raw_image);	
+	if (compressedImage.isNull())
+	{
+		image->setLastError("Couldn't convert the image to jpeg2000.");
+		llinfos << "Couldn't convert to j2c, file : " << filename << llendl;
+		return FALSE;
+	}
 	if (!compressedImage->save(out_filename))
 	{
+		image->setLastError("Couldn't create the jpeg2000 image for upload.");
 		llinfos << "Couldn't create output file : " << out_filename << llendl;
 		return FALSE;
 	}
@@ -961,6 +971,7 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 	LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
 	if (!integrity_test->loadAndValidate( out_filename ))
 	{
+		image->setLastError("The created jpeg2000 image is corrupt.");
 		llinfos << "Image file : " << out_filename << " is corrupt" << llendl;
 		return FALSE;
 	}
@@ -978,7 +989,25 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 		(raw_image->getWidth() * raw_image->getHeight() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF))
 		compressedImage->setReversible(TRUE);
 	
-	compressedImage->encode(raw_image, 0.0f);
+
+	if (gSavedSettings.getBOOL("Jpeg2000AdvancedCompression"))
+	{
+		// This test option will create jpeg2000 images with precincts for each level, RPCL ordering
+		// and PLT markers. The block size is also optionally modifiable.
+		// Note: the images hence created are compatible with older versions of the viewer.
+		// Read the blocks and precincts size settings
+		S32 block_size = gSavedSettings.getS32("Jpeg2000BlocksSize");
+		S32 precinct_size = gSavedSettings.getS32("Jpeg2000PrecinctsSize");
+		llinfos << "Advanced JPEG2000 Compression: precinct = " << precinct_size << ", block = " << block_size << llendl;
+		compressedImage->initEncode(*raw_image, block_size, precinct_size);
+	}
+	
+	if (!compressedImage->encode(raw_image, 0.0f))
+	{
+		llinfos << "convertToUploadFile : encode returns with error!!" << llendl;
+		// Clear up the pointer so we don't leak that one
+		compressedImage = NULL;
+	}
 	
 	return compressedImage;
 }
