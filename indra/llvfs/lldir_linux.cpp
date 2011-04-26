@@ -93,7 +93,7 @@ LLDir_Linux::LLDir_Linux()
 #else
 	mAppRODataDir = tmp_str;
 #endif
-    std::string::size_type build_dir_pos = mExecutableDir.find("/build-linux-");
+    std::string::size_type build_dir_pos = mExecutableDir.rfind("/build-linux-");
     if (build_dir_pos != std::string::npos)
     {
 		// ...we're in a dev checkout

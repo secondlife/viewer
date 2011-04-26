@@ -150,7 +150,7 @@ LLDir_Mac::LLDir_Mac()
 		CFURLRef resourcesURLRef = CFBundleCopyResourcesDirectoryURL(mainBundleRef);
 		CFURLRefToLLString(resourcesURLRef, mAppRODataDir, true);
 		
-		U32 build_dir_pos = mExecutableDir.find("/build-darwin-");
+		U32 build_dir_pos = mExecutableDir.rfind("/build-darwin-");
 		if (build_dir_pos != std::string::npos)
 		{
 			// ...we're in a dev checkout
