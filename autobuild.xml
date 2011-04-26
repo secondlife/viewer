@@ -510,9 +510,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9b58d1a9c15807a1301e42a313641010</string>
+              <string>9f8a9dc39fd7c3da0fb3533782d1fddf</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.4.4-linux-20110310.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/226814/arch/Linux/installer/freetype-2.3.9-linux-20110418.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1242,9 +1242,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cc159598ef3fcd34fd33a8a0ef846165</string>
+              <string>3d40be8566fa4b9df9a38e2a0f9ea467</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/223711/arch/Linux/installer/openssl-0.9.8q-linux-20110314.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/226882/arch/Linux/installer/openssl-1.0.0d-linux-20110418.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1592,6 +1592,7 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=Debug</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1632,6 +1633,7 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
               </map>
               <key>name</key>
@@ -1672,9 +1674,9 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                   <string>-DLL_RELEASE_FOR_DOWNLOAD:BOOL=TRUE</string>
+                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
               </map>
               <key>name</key>

@@ -30,6 +30,7 @@
 #include <mmsystem.h>
 
 void init_function_pointers(HMODULE winmm_handle);
+void ll_winmm_shim_initialize();
 
 typedef VOID (*LPTASKCALLBACK)(DWORD_PTR dwInst);
 

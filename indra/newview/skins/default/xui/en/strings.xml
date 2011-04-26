@@ -3223,6 +3223,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		The session initialization is timed out
 	</string>
   
+  <string name="Home position set.">Home position set.</string>
+  
   <string name="voice_morphing_url">http://secondlife.com/landing/voicemorphing</string>
 
   <!-- Financial operations strings -->

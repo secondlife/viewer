@@ -5519,7 +5519,11 @@ void process_alert_core(const std::string& message, BOOL modal)
 	{
 		LLSD args;
 		std::string new_msg =LLNotifications::instance().getGlobalString(message);
-		args["MESSAGE"] = new_msg;
+
+		std::string localized_msg;
+		bool is_message_localized = LLTrans::findString(localized_msg, new_msg);
+
+		args["MESSAGE"] = is_message_localized ? localized_msg : new_msg;
 		LLNotificationsUtil::add("SystemMessageTip", args);
 	}
 }
