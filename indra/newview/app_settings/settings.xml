@@ -641,7 +641,17 @@
       <key>Value</key>
       <integer>10</integer>
     </map>
-
+    <key>AvatarPhysics</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable avatar physics.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>AvatarSex</key>
     <map>
       <key>Comment</key>
@@ -653,6 +663,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+
     <key>BackgroundYieldTime</key>
     <map>
       <key>Comment</key>
@@ -6800,6 +6811,17 @@
       <key>Value</key>
       <integer>12</integer>
     </map>
+    <key>RenderAvatarPhysicsLODFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls level of detail of avatar physics (such as breast physics).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>1.0</integer>
+    </map>
     <key>RenderAvatarVP</key>
     <map>
       <key>Comment</key>
@@ -12102,6 +12124,17 @@
       <key>Value</key>
       <real>0.40000000596</real>
     </map>
+	<key>moapbeacon</key>
+	<map>
+		<key>Comment</key>
+		<string>Beacon / Highlight media on a prim sources</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
     <key>particlesbeacon</key>
     <map>
       <key>Comment</key>

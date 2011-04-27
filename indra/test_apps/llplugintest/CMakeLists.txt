@@ -378,8 +378,8 @@ endif (DARWIN OR WINDOWS)
 
 if (DARWIN)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib
+    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib ${PLUGINS_DESTINATION_DIR}
+    DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
   )
 endif (DARWIN)
 
@@ -388,7 +388,7 @@ if(WINDOWS)
   # Plugin test library deploy
   #
   # Debug config runtime files required for the plugin test mule
-  set(plugintest_debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
+  set(plugintest_debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
   set(plugintest_debug_files
     libeay32.dll
     libglib-2.0-0.dll
@@ -411,7 +411,7 @@ if(WINDOWS)
   set(plugin_test_targets ${plugin_test_targets} ${out_targets})
   
   # Debug config runtime files required for the plugin test mule (Qt image format plugins)
-  set(plugintest_debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug/imageformats")
+  set(plugintest_debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}/imageformats")
   set(plugintest_debug_files
     qgifd4.dll
     qicod4.dll
@@ -429,7 +429,7 @@ if(WINDOWS)
   set(plugin_test_targets ${plugin_test_targets} ${out_targets})
 
   # Debug config runtime files required for the plugin test mule (Qt codec plugins)
-  set(plugintest_debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug/codecs")
+  set(plugintest_debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}/codecs")
   set(plugintest_debug_files
     qcncodecsd4.dll
     qjpcodecsd4.dll
@@ -445,7 +445,7 @@ if(WINDOWS)
   set(plugin_test_targets ${plugin_test_targets} ${out_targets})
  
   # Release & ReleaseDebInfo config runtime files required for the plugin test mule
-  set(plugintest_release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
+  set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
   set(plugintest_release_files
     libeay32.dll
     libglib-2.0-0.dll
@@ -477,7 +477,7 @@ if(WINDOWS)
   set(plugin_test_targets ${plugin_test_targets} ${out_targets})
 
   # Release & ReleaseDebInfo config runtime files required for the plugin test mule (Qt image format plugins)
-  set(plugintest_release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release/imageformats")
+  set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}/imageformats")
   set(plugintest_release_files
     qgif4.dll
     qico4.dll
@@ -503,7 +503,7 @@ if(WINDOWS)
   set(plugin_test_targets ${plugin_test_targets} ${out_targets})
 
   # Release & ReleaseDebInfo config runtime files required for the plugin test mule (Qt codec plugins)
-  set(plugintest_release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release/codecs")
+  set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}/codecs")
   set(plugintest_release_files
     qcncodecs4.dll  
     qjpcodecs4.dll  
