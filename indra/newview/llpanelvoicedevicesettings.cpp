@@ -316,6 +316,6 @@ void LLPanelVoiceDeviceSettings::onCommitOutputDevice()
 	if(LLVoiceClient::getInstance())
 	{
 		LLVoiceClient::getInstance()->setRenderDevice(
-			getChild<LLComboBox>("voice_input_device")->getValue().asString());
+			getChild<LLComboBox>("voice_output_device")->getValue().asString());
 	}
 }
