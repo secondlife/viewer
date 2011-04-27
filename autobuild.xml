@@ -1674,9 +1674,6 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
-                  <string>-DLL_RELEASE_FOR_DOWNLOAD:BOOL=TRUE</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
               </map>
               <key>name</key>
