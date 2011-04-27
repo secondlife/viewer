@@ -1712,7 +1712,7 @@ void LLVFS::audit()
 	BOOL vfs_corrupt = FALSE;
 	
 	// since we take the address of element 0, we need to have at least one element.
-	std::vector<U8> buffer(llmax(index_size,1U));
+	std::vector<U8> buffer(llmax<size_t>(index_size,1U));
 
 	if (fread(&buffer[0], 1, index_size, mIndexFP) != index_size)
 	{
