@@ -210,7 +210,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 		gGL.setColorMask(true, true);
 	}
 
-	if (LLPipeline::sAutoMaskAlphaNonDeferred && !deferred_render)
+	if (LLPipeline::sAutoMaskAlphaNonDeferred)
 	{
 		mColorSFactor = LLRender::BF_ONE;  // }
 		mColorDFactor = LLRender::BF_ZERO; // } these are like disabling blend on the color channels, but we're still blending on the alpha channel so that we can suppress glow
@@ -226,7 +226,10 @@ void LLDrawPoolAlpha::render(S32 pass)
 				simple_shader->bind();
 				pushBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask());
 			}
-			fullbright_shader->bind();
+			if (fullbright_shader)
+			{
+				fullbright_shader->bind();
+			}
 			pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask());
 			LLGLSLShader::bindNoShader();
 		}
@@ -273,6 +276,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 	if (deferred_render && pass == 1)
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	}
 
 	if (deferred_render && current_shader != NULL)
