@@ -78,7 +78,7 @@
        label="Speak"
        left="0"
        name="speak_btn"
-       
+       tool_tip="Turn your microphone on and off"
        pad_right="30"
        halign="center"
        use_ellipses="true"
@@ -118,6 +118,7 @@
      name="speak_flyout_btn"
      label=""
      tab_stop="false"
+     tool_tip="Change your sound preferences"
      is_toggle="true"
      image_disabled="ComboButton_UpOff"
      image_unselected="ComboButton_UpOff"
@@ -152,7 +153,7 @@
              view_all="false"
              left="3"
              name="Gesture"
-             tool_tip="Shows/hides gestures"
+             tool_tip="Make your avatar do things"
              top="5"
              width="82">
         <combo_button
@@ -186,7 +187,7 @@
              layout="topleft"
              left="0"
              name="camera_btn"
-             tool_tip="Shows/hides camera controls"
+             tool_tip="Control your camera angle"
              top="5"
              use_ellipses="true"
              width="80">
@@ -235,7 +236,7 @@
 			layout="topleft"
 			left="0"
 			name="destination_btn"
-			tool_tip="Shows destinations window"
+			tool_tip="Travel through Second Life"
 			top="5"
 			is_toggle="true"
 			use_ellipses="true"
@@ -268,6 +269,7 @@
 			name="avatar_btn"
 			top="5"
 			is_toggle="true"
+			tool_tip="Change your appearance"
 			use_ellipses="true"
 			width="100">
         <bottomtray_button.commit_callback
@@ -315,7 +317,7 @@
 			  layout="topleft"
 			  left="0"
 			  name="show_people_button"
-			  tool_tip="Shows people window"
+			  tool_tip="Find people in Second Life"
 			  top="5"
 			  is_toggle="true"
 			  use_ellipses="true"
@@ -348,7 +350,7 @@
 			  layout="topleft"
 			  left="0"
 			  name="show_profile_btn"
-			  tool_tip="Shows profile window"
+			  tool_tip="View and edit your Profile"
 			  is_toggle="true"
 			  top="5"
 			  use_ellipses="true"
@@ -381,7 +383,7 @@
 			  layout="topleft"
 			  left="0"
 			  name="show_help_btn"
-			  tool_tip="Open Second Life How To topics"
+			  tool_tip="View Second Life help info"
 			  is_toggle="true"
 			  top="5"
 			  use_ellipses="true"
