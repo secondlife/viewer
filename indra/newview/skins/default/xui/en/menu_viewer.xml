@@ -3113,6 +3113,16 @@
              function="ToggleControl"
              parameter="ImagePipelineUseHTTP" />
         </menu_item_check>
+        <menu_item_check
+         label="HTTP Inventory"
+         name="HTTP Inventory">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="UseHTTPInventory" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="UseHTTPInventory" />
+        </menu_item_check>
         <menu_item_call
          label="Compress Images"
          name="Compress Images">
@@ -3427,6 +3437,16 @@
                 <menu_item_call.on_enable
                  function="Edit.EnableTakeOff"
                  parameter="tattoo" />
+            </menu_item_call>
+            <menu_item_call
+             label="Physics"
+             name="Physics">
+                <menu_item_call.on_click
+                 function="Edit.TakeOff"
+                 parameter="physics" />
+                <menu_item_call.on_enable
+                 function="Edit.EnableTakeOff"
+                 parameter="physics" />
             </menu_item_call>
             <menu_item_call
              label="All Clothes"

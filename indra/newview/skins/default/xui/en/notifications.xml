@@ -7022,6 +7022,19 @@ Hiding the Speak button will disable the voice feature.
   </notification>
 
   <notification
+  name="HintMoveClick"
+  label=""
+  type="hint"
+  unique="true">
+1. Click to Walk
+Click anywhere on the ground to walk to that spot.
+
+2. Click and Drag to Rotate View
+Click and drag anywhere on the world to rotate your view
+    <tag>custom_skin</tag>
+  </notification>
+
+  <notification
   name="HintDisplayName"
   label="Display Name"
   type="hint"
@@ -7029,14 +7042,6 @@ Hiding the Speak button will disable the voice feature.
     Set your customizable display name here. This is in addition to your unique username, which can't be changed. You can change how you see other people's names in your preferences.
   </notification>
 
-  <notification
-  name="HintMoveArrows"
-  label="Move"
-  type="hint"
-  unique="true">
-    To walk, use the directional keys on your keyboard. You can run by pressing the Up arrow twice.
-    <tag>custom_skin</tag>
-  </notification>
 
   <notification
   name="HintView"
@@ -7209,7 +7214,49 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    yestext="Quit"
    notext="Don't Quit"/>
   </notification>
-  
+
+  <notification
+ name="NoInventory"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    Viewing inventory is only available in Advanced mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+
+  <notification
+ name="NoAppearance"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    The appearance editor is only available in Advanced mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+
+  <notification
+ name="NoSearch"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    Search is only available in Advanced mode. Would you like to logout and change modes?
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>
