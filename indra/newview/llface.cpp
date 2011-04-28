@@ -979,19 +979,29 @@ bool LLFace::canRenderAsMask()
 	}
 
 	const LLTextureEntry* te = getTextureEntry();
-	return (
-		(
-		 (LLPipeline::sRenderDeferred && LLPipeline::sAutoMaskAlphaDeferred) ||
-		 
-		 (!LLPipeline::sRenderDeferred && LLPipeline::sAutoMaskAlphaNonDeferred)		 
-		 ) // do we want masks at all?
-		&&
-		(te->getColor().mV[3] == 1.0f) && // can't treat as mask if we have face alpha
-		!(LLPipeline::sRenderDeferred && te->getFullbright()) && // hack: alpha masking renders fullbright faces invisible in deferred rendering mode, need to figure out why - for now, avoid
-		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
 
-		getTexture()->getIsAlphaMask() // texture actually qualifies for masking (lazily recalculated but expensive)
-		);
+	if ((te->getColor().mV[3] == 1.0f) && // can't treat as mask if we have face alpha
+		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
+		getTexture()->getIsAlphaMask()) // texture actually qualifies for masking (lazily recalculated but expensive)
+	{
+		if (LLPipeline::sRenderDeferred)
+		{
+			if (getViewerObject()->isHUDAttachment() || te->getFullbright())
+			{ //hud attachments and fullbright objects are NOT subject to the deferred rendering pipe
+				return LLPipeline::sAutoMaskAlphaNonDeferred;
+			}
+			else
+			{
+				return LLPipeline::sAutoMaskAlphaDeferred;
+			}
+		}
+		else
+		{
+			return LLPipeline::sAutoMaskAlphaNonDeferred;
+		}
+	}
+
+	return false;
 }
 
 
