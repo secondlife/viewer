@@ -478,7 +478,7 @@ namespace LLInitParam
 
 		bool mergeBlockParam(bool param_provided, BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
 		{
-			mergeBlock(block_data, other, overwrite);
+			return mergeBlock(block_data, other, overwrite);
 		}
 		// take all provided params from other and apply to self
 		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite);
@@ -1333,8 +1333,9 @@ namespace LLInitParam
 		{
 			if (param_provided)
 			{
-				mergeBlock(block_data, other, overwrite);
+				return mergeBlock(block_data, other, overwrite);
 			}
+			return false;
 		}
 
 		// merge with other block
@@ -1889,8 +1890,9 @@ namespace LLInitParam
 		{
 			if (param_provided)
 			{
-				mergeBlock(block_data, other, overwrite);
+				return mergeBlock(block_data, other, overwrite);
 			}
+			return false;
 		}
 
 		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
