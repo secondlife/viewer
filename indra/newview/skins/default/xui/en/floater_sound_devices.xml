@@ -14,7 +14,7 @@
  height="140"
  layout="topleft"
  name="floater_sound_devices"
- title="Sound Devicess"
+ title="Sound Devices"
  width="315">
   <panel
     layout="topleft"
