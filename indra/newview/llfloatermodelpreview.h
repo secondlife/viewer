@@ -331,8 +331,8 @@ public:
 	
 	void setLoadState( U32 state ) { mLoadState = state; }
 	U32 getLoadState() { return mLoadState; }
-		
-	void setResetJointFlag( bool state ) { mResetJoints = state; }
+	//setRestJointFlag: If an asset comes through that changes the joints, we want the reset to persist
+	void setResetJointFlag( bool state ) { if ( !mResetJoints ) mResetJoints = state; }
 	bool getResetJointFlag( void ) { return mResetJoints; }
 
 	LLVector3 getTranslationForJointOffset( std::string joint );
