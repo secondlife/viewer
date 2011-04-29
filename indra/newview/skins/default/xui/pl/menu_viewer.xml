@@ -5,7 +5,7 @@
 		<menu_item_call label="Dashboard" name="Manage My Account"/>
 		<menu_item_call label="Kup L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Mój Profil" name="Profile"/>
-		<menu_item_call label="Zmień strój" name="ChangeOutfit"/>
+		<menu_item_call label="Mój wygląd" name="ChangeOutfit"/>
 		<menu_item_check label="Moja Szafa" name="Inventory"/>
 		<menu_item_check label="Moja Szafa" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Moje gesturki" name="Gestures"/>
@@ -33,6 +33,7 @@
 	<menu label="Świat" name="World">
 		<menu_item_check label="Mini-Mapa" name="Mini-Map"/>
 		<menu_item_check label="Mapa Świata" name="World Map"/>
+		<menu_item_check label="Szukaj" name="Search"/>
 		<menu_item_call label="Zrób zdjęcie" name="Take Snapshot"/>
 		<menu_item_call label="Zapamiętaj to miejsce (LM)" name="Create Landmark Here"/>
 		<menu label="Miejsce" name="Land">
@@ -222,7 +223,9 @@
 		<menu label="Pokaż informacje" name="Display Info">
 			<menu_item_check label="Pokaż czas" name="Show Time"/>
 			<menu_item_check label="Pokaż informacje o renderowaniu" name="Show Render Info"/>
+			<menu_item_check label="Pokaż informację o teksturze" name="Show Texture Info"/>
 			<menu_item_check label="Pokaż kolor pod kursorem" name="Show Color Under Cursor"/>
+			<menu_item_check label="Pokaż pamięć" name="Show Memory"/>
 			<menu_item_check label="Pokaż aktualizacje obiektów" name="Show Updates"/>
 		</menu>
 		<menu label="Reset błędu" name="Force Errors">
@@ -239,6 +242,9 @@
 			<menu_item_check label="Kamera poza zasiegiem" name="Camera Offset"/>
 			<menu_item_check label="Losowa ilość klatek" name="Randomize Framerate"/>
 			<menu_item_check label="Test klatki obrazu" name="Frame Test"/>
+		</menu>
+		<menu label="Render Metadata" name="Render Metadata">
+			<menu_item_check label="Aktualizuj typ" name="Update Type"/>
 		</menu>
 		<menu label="Renderowanie" name="Rendering">
 			<menu_item_check label="Osie" name="Axes"/>

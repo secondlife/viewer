@@ -5,7 +5,7 @@
 	<menu_item_call label="Odłącz" name="Detach"/>
 	<menu_item_call label="Usiądź tutaj" name="Sit Down Here"/>
 	<menu_item_call label="Wstań" name="Stand Up"/>
-	<menu_item_call label="Zmień strój" name="Change Outfit"/>
+	<menu_item_call label="Mój wygląd" name="Change Outfit"/>
 	<menu_item_call label="Edytuj mój strój" name="Edit Outfit"/>
 	<menu_item_call label="Edytuj mój kształt" name="Edit My Shape"/>
 	<menu_item_call label="Moi znajomi" name="Friends..."/>

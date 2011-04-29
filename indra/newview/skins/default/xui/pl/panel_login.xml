@@ -14,6 +14,13 @@
 			</text>
 			<check_box label="Zapamiętaj hasło" name="remember_check"/>
 			<button label="Połącz" name="connect_btn"/>
+			<text name="mode_selection_text">
+				Tryb życia:
+			</text>
+			<combo_box name="mode_combo" tool_tip="Wybierz tryb życia. Wybierz tryb turystyczny dla łatwego zwiedzania i czatowania. Wybierz tryb zaawansowany aby mieć dostęp do większej ilości opcji.">
+				<combo_box.item label="Turystyczny" name="Basic"/>
+				<combo_box.item label="Zaawansowany" name="Advanced"/>
+			</combo_box>
 			<text name="start_location_text">
 				Rozpocznij w:
 			</text>

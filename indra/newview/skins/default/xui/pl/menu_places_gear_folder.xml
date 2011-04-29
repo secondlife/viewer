@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_folder_gear">
+<toggleable_menu name="menu_folder_gear">
 	<menu_item_call label="Dodaj do landmarków" name="add_landmark"/>
 	<menu_item_call label="Dodaj folder" name="add_folder"/>
+	<menu_item_call label="Przywróć obiekt" name="restore_item"/>
 	<menu_item_call label="Wytnij" name="cut"/>
 	<menu_item_call label="Kopiuj" name="copy_folder"/>
 	<menu_item_call label="Wklej" name="paste"/>
@@ -12,4 +13,4 @@
 	<menu_item_call label="Rozwiń wszystkie foldery" name="expand_all"/>
 	<menu_item_call label="Schowaj wszystkie foldery" name="collapse_all"/>
 	<menu_item_check label="Sortuj według daty" name="sort_by_date"/>
-</menu>
+</toggleable_menu>

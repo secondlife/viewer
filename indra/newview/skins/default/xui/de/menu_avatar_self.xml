@@ -14,6 +14,7 @@
 			<menu_item_call label="Unterhemd" name="Self Undershirt"/>
 			<menu_item_call label="Unterhose" name="Self Underpants"/>
 			<menu_item_call label="Tätowierung" name="Self Tattoo"/>
+			<menu_item_call label="Physik" name="Self Physics"/>
 			<menu_item_call label="Alpha" name="Self Alpha"/>
 			<menu_item_call label="Alle Kleider" name="All Clothes"/>
 		</context_menu>
