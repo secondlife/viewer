@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="Gear Outfit">
+<toggleable_menu name="Gear Outfit">
 	<menu_item_call label="Załóż - Zastąp obecny strój" name="wear"/>
 	<menu_item_call label="Załóż - Dodaj do bieżącego stroju" name="wear_add"/>
 	<menu_item_call label="Zdejmij - Usuń z obecnego stroju" name="take_off"/>
@@ -14,6 +14,7 @@
 		<menu_item_call label="Nowa podkoszulka" name="New Undershirt"/>
 		<menu_item_call label="Nowa bielizna" name="New Underpants"/>
 		<menu_item_call label="Nowa maska alpha" name="New Alpha"/>
+		<menu_item_call label="Nowa fizyka" name="New Physics"/>
 		<menu_item_call label="Nowy tatuaż" name="New Tattoo"/>
 	</menu>
 	<menu label="Nowe części ciała" name="New Body Parts">
@@ -24,4 +25,4 @@
 	</menu>
 	<menu_item_call label="Zmień nazwę stroju" name="rename"/>
 	<menu_item_call label="Usuń strój" name="delete_outfit"/>
-</menu>
+</toggleable_menu>

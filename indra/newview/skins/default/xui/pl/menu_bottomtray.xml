@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="hide_camera_move_controls_menu">
-	<menu_item_check label="Rozmowy głosowe aktywne" name="EnableVoiceChat"/>
+	<menu_item_check label="Rozpocznij rozmowę głosową" name="EnableVoiceChat"/>
 	<menu_item_check label="Przycisk gesturki" name="ShowGestureButton"/>
 	<menu_item_check label="Przycisk ruchu" name="ShowMoveButton"/>
 	<menu_item_check label="Przycisk widoku" name="ShowCameraButton"/>

@@ -2807,6 +2807,13 @@ Wyciszyć wszystkich?
 	<notification label="Wstań" name="HintSit">
 		Aby wstać i opuścić pozycję siedzącą, kliknij przycisk Wstań.
 	</notification>
+	<notification label="Mów" name="HintSpeak">
+		Kliknij przycisk &quot;Mów&quot; aby włączyć i wyłączyć Twój mikrofon.
+
+Kliknij w strzałkę aby zobaczyć panel kontroli głosu.
+
+Ukrycie przycisku &quot;Mów&quot; zdezaktywuje głos.
+	</notification>
 	<notification label="Odkrywaj Świat" name="HintDestinationGuide">
 		Destination Guide zawiera tysiące nowych miejsc do odkrycia. Wybierz lokalizację i teleportuj się aby rozpocząć zwiedzanie.
 	</notification>
@@ -2816,11 +2823,15 @@ Wyciszyć wszystkich?
 	<notification label="Ruch" name="HintMove">
 		Aby chodzić lub biegać, otwórz panel ruchu i użyj strzałek do nawigacji. Możesz także używać strzałek z klawiatury.
 	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Kliknij aby chodzić.
+Kliknij gdziekolwiek na ziemi aby przejść do wskazanego miejsca.
+
+2. Kliknij i przeciągnij aby zmienić widok.
+Kliknij i przeciągnij gdziekolwiek aby obrócić widok.
+	</notification>
 	<notification label="Wyświetlana nazwa" name="HintDisplayName">
 		Ustaw wyświetlaną nazwę, którą możesz zmieniać tutaj. Jest ona dodatkiem do unikatowej nazwy użytkownika, która nie może być zmieniona. Możesz zmienić sposób w jaki widzisz nazwy innych osób w Twoich Ustawieniach.
-	</notification>
-	<notification label="Ruch" name="HintMoveArrows">
-		Użyj przycisków ze strzałkami z klawiatury aby chodzić. Jeśli wciśniesz strzałkę &apos;do góry&apos; podwójnie, zaczniesz biec.
 	</notification>
 	<notification label="Widok" name="HintView">
 		To change your camera view, use the Orbit and Pan controls. Zresetuj widok poprzez wciśnięcie klawisza Esc lub chodzenie.
