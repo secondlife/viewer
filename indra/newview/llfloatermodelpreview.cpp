@@ -104,6 +104,7 @@
 //static
 S32 LLFloaterModelPreview::sUploadAmount = 10;
 LLFloaterModelPreview* LLFloaterModelPreview::sInstance = NULL;
+std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
 
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
@@ -1087,6 +1088,15 @@ LLModelLoader::LLModelLoader( std::string filename, S32 lod, LLModelPreview* pre
 	{
 		mTrySLM = false;
 	}
+
+	assert_main_thread();
+	sActiveLoaderList.push_back(this) ;
+}
+
+LLModelLoader::~LLModelLoader()
+{
+	assert_main_thread();
+	sActiveLoaderList.remove(this);
 }
 
 void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, BOOL& first_transform)
@@ -1872,8 +1882,24 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 	return true;
 }
 
+//static
+bool LLModelLoader::isAlive(LLModelLoader* loader)
+{
+	if(!loader)
+	{
+		return false ;
+	}
+
+	std::list<LLModelLoader*>::iterator iter = sActiveLoaderList.begin() ;
+	for(; iter != sActiveLoaderList.end() && (*iter) != loader; ++iter) ;
+	
+	return *iter == loader ;
+}
+
 void LLModelLoader::loadModelCallback()
 {
+	assert_main_thread();
+
 	if (mPreview)
 	{
 		mPreview->loadModelCallback(mLod);	
@@ -1882,6 +1908,12 @@ void LLModelLoader::loadModelCallback()
 	while (!isStopped())
 	{ //wait until this thread is stopped before deleting self
 		apr_sleep(100);
+	}
+
+	//doubel check if "this" is valid before deleting it, in case it is aborted during running.
+	if(!isAlive(this))
+	{
+		return ;
 	}
 
 	//cleanup model loader
@@ -2693,7 +2725,7 @@ LLModelPreview::~LLModelPreview()
 	if (mModelLoader)
 	{
 		delete mModelLoader;
-		mModelLoader->mPreview = NULL;
+		mModelLoader = NULL;
 	}
 	//*HACK : *TODO : turn this back on when we understand why this crashes
 	//glodShutdown();
