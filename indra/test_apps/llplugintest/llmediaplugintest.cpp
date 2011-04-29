@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -2154,6 +2154,10 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 		}
 		break;
 
+		case MEDIA_EVENT_NAVIGATE_ERROR_PAGE:
+			std::cerr <<  "Media event:  MEDIA_EVENT_NAVIGATE_ERROR_PAGE, uri is: " << self->getClickURL() << std::endl;
+		break;
+			
 		case MEDIA_EVENT_CLICK_LINK_HREF:
 		{
 			std::cerr <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, uri is " << self->getClickURL() << ", target is " << self->getClickTarget() << std::endl;
@@ -2233,7 +2237,13 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 		case MEDIA_EVENT_LINK_HOVERED:
 		{
 			std::cerr <<  "Media event:  MEDIA_EVENT_LINK_HOVERED, hover text is: " << self->getHoverText() << std::endl;
-		};
+		}
+		break;
+
+		default:
+		{
+			std::cerr <<  "Media event:  <unknown>, code is: " << int(event) << std::endl;
+		}
 		break;
 	}
 }

@@ -187,6 +187,7 @@ protected:
 
 	virtual std::string generateSerialNumber() = 0; // Platforms specific classes generate this.
 
+	virtual bool meetsRequirementsForMaximizedStart(); // Used on first login to decide to launch maximized
 
 private:
 
@@ -253,7 +254,7 @@ private:
     bool mQuitRequested;				// User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.
     S32 mYieldTime;
-	LLSD mSettingsLocationList;
+	struct SettingsFiles* mSettingsLocationList;
 
 	LLWatchdogTimeout* mMainloopTimeout;
 

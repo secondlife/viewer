@@ -344,12 +344,6 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLViewerRegion *regionp = LLWorld::getInstance()->getRegion(mesgsys->getSender());
 
-	if (!regionp || gNoRender)
-	{
-		return;
-	}
-
-
 	S32 size;
 	S8 type;
 
@@ -1200,7 +1194,6 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		// Highlight item
 		const BOOL auto_open = 
 			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
-			!(asset_type == LLAssetType::AT_CALLINGCARD) && // don't open if it's a calling card
 			!from_name.empty(); // don't open if it's not from anyone.
 		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 		if(active_panel)
@@ -1464,15 +1457,18 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				// This is an offer from an agent. In this case, the back
 				// end has already copied the items into your inventory,
 				// so we can fetch it out of our inventory.
-				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(mObjectID, from_string);
-				open_agent_offer->startFetch();
-				if(catp || (itemp && itemp->isFinished()))
+				if (gSavedSettings.getBOOL("ShowOfferedInventory"))
 				{
-					open_agent_offer->done();
-				}
-				else
-				{
-					opener = open_agent_offer;
+					LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(mObjectID, from_string);
+					open_agent_offer->startFetch();
+					if(catp || (itemp && itemp->isFinished()))
+					{
+						open_agent_offer->done();
+					}
+					else
+					{
+						opener = open_agent_offer;
+					}
 				}
 			}
 			break;
@@ -1716,15 +1712,18 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			msg->addBinaryDataFast(_PREHASH_BinaryBucket, EMPTY_BINARY_BUCKET, EMPTY_BINARY_BUCKET_SIZE);
 			// send the message
 			msg->sendReliable(mHost);
+
+			if (gSavedSettings.getBOOL("LogInventoryDecline"))
 			{
 				LLStringUtil::format_map_t log_message_args;
 				log_message_args["DESC"] = mDesc;
 				log_message_args["NAME"] = mFromName;
 				log_message = LLTrans::getString("InvOfferDecline", log_message_args);
+
+				LLSD args;
+				args["MESSAGE"] = log_message;
+				LLNotificationsUtil::add("SystemMessage", args);
 			}
-			LLSD args;
-			args["MESSAGE"] = log_message;
-			LLNotificationsUtil::add("SystemMessage", args);
 			
 			if (busy &&	(!mFromGroup && !mFromObject))
 			{
@@ -2164,10 +2163,6 @@ void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::string m
 
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
-	if (gNoRender)
-	{
-		return;
-	}
 	LLUUID from_id;
 	BOOL from_group;
 	LLUUID to_id;
@@ -3956,7 +3951,9 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// LBUTTON and ML_LBUTTON so that using the camera (alt-key) doesn't
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
+
 	MASK	key_mask = gKeyboard->currentMask(TRUE);
+
 	if (key_mask & MASK_ALT || key_mask & MASK_CONTROL)
 	{
 		control_flags &= ~(	AGENT_CONTROL_LBUTTON_DOWN |
@@ -4275,7 +4272,7 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 	gSky.setSunPhase(phase);
 	gSky.setSunTargetDirection(sun_direction, sun_ang_velocity);
-	if (!gNoRender && !(gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || gSky.getOverrideSun()))
+	if ( !(gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || gSky.getOverrideSun()) )
 	{
 		gSky.setSunDirection(sun_direction, sun_ang_velocity);
 	}
@@ -5527,7 +5524,11 @@ void process_alert_core(const std::string& message, BOOL modal)
 	{
 		LLSD args;
 		std::string new_msg =LLNotifications::instance().getGlobalString(message);
-		args["MESSAGE"] = new_msg;
+
+		std::string localized_msg;
+		bool is_message_localized = LLTrans::findString(localized_msg, new_msg);
+
+		args["MESSAGE"] = is_message_localized ? localized_msg : new_msg;
 		LLNotificationsUtil::add("SystemMessageTip", args);
 	}
 }
@@ -5537,21 +5538,12 @@ time_t								gLastDisplayedTime = 0;
 
 void handle_show_mean_events(void *)
 {
-	if (gNoRender)
-	{
-		return;
-	}
 	LLFloaterReg::showInstance("bumps");
 	//LLFloaterBump::showInstance();
 }
 
 void mean_name_callback(const LLUUID &id, const std::string& full_name, bool is_group)
 {
-	if (gNoRender)
-	{
-		return;
-	}
-
 	static const U32 max_collision_list_size = 20;
 	if (gMeanCollisionList.size() > max_collision_list_size)
 	{

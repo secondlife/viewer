@@ -95,6 +95,7 @@ public:
 						 const LLSD& params,
 						 const LLSD& query_map,
 						 LLMediaCtrl* web,
+						 const std::string& nav_type,
 						 bool trusted_browser);
 		// Execute a command registered via the above mechanism,
 		// passing string parameters.

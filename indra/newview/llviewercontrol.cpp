@@ -164,6 +164,12 @@ static bool handleAvatarLODChanged(const LLSD& newvalue)
 	return true;
 }
 
+static bool handleAvatarPhysicsLODChanged(const LLSD& newvalue)
+{
+	LLVOAvatar::sPhysicsLODFactor = (F32) newvalue.asReal();
+	return true;
+}
+
 static bool handleAvatarMaxVisibleChanged(const LLSD& newvalue)
 {
 	LLVOAvatar::sMaxVisible = (U32) newvalue.asInteger();
@@ -230,12 +236,6 @@ static bool handleMaxPartCountChanged(const LLSD& newvalue)
 static bool handleVideoMemoryChanged(const LLSD& newvalue)
 {
 	gTextureList.updateMaxResidentTexMem(newvalue.asInteger());
-	return true;
-}
-
-static bool handleBandwidthChanged(const LLSD& newvalue)
-{
-	gViewerThrottle.setMaxBandwidth((F32) newvalue.asReal());
 	return true;
 }
 
@@ -552,10 +552,10 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderAvatarMaxVisible")->getSignal()->connect(boost::bind(&handleAvatarMaxVisibleChanged, _2));
 	gSavedSettings.getControl("RenderVolumeLODFactor")->getSignal()->connect(boost::bind(&handleVolumeLODChanged, _2));
 	gSavedSettings.getControl("RenderAvatarLODFactor")->getSignal()->connect(boost::bind(&handleAvatarLODChanged, _2));
+	gSavedSettings.getControl("RenderAvatarPhysicsLODFactor")->getSignal()->connect(boost::bind(&handleAvatarPhysicsLODChanged, _2));
 	gSavedSettings.getControl("RenderTerrainLODFactor")->getSignal()->connect(boost::bind(&handleTerrainLODChanged, _2));
 	gSavedSettings.getControl("RenderTreeLODFactor")->getSignal()->connect(boost::bind(&handleTreeLODChanged, _2));
 	gSavedSettings.getControl("RenderFlexTimeFactor")->getSignal()->connect(boost::bind(&handleFlexLODChanged, _2));
-	gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->connect(boost::bind(&handleBandwidthChanged, _2));
 	gSavedSettings.getControl("RenderGamma")->getSignal()->connect(boost::bind(&handleGammaChanged, _2));
 	gSavedSettings.getControl("RenderFogRatio")->getSignal()->connect(boost::bind(&handleFogRatioChanged, _2));
 	gSavedSettings.getControl("RenderMaxPartCount")->getSignal()->connect(boost::bind(&handleMaxPartCountChanged, _2));

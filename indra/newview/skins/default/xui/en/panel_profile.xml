@@ -453,23 +453,6 @@
 				</layout_panel>
 		</layout_stack>
       </layout_panel>
-      <layout_panel
-         follows="bottom|left"
-         height="30"
-         layout="topleft"
-         name="profile_me_buttons_panel"
-         visible="false"
-	       width="313">
-        <button
-         follows="bottom|right"
-         height="23"
-         left="20"
-         top="0"
-         label="Edit Profile"
-         name="edit_profile_btn"
-         tool_tip="Edit your personal information"
-         width="130" />
-        </layout_panel>
      </layout_stack>
 
 </panel>

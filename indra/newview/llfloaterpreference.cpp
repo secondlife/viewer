@@ -43,6 +43,7 @@
 #include "llcombobox.h"
 #include "llcommandhandler.h"
 #include "lldirpicker.h"
+#include "lleventtimer.h"
 #include "llfeaturemanager.h"
 #include "llfocusmgr.h"
 //#include "llfirstuse.h"
@@ -73,6 +74,7 @@
 #include "llviewerwindow.h"
 #include "llviewermessage.h"
 #include "llviewershadermgr.h"
+#include "llviewerthrottle.h"
 #include "llvotree.h"
 #include "llvosky.h"
 
@@ -109,6 +111,7 @@
 
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
+const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 
 //control value for middle mouse as talk2push button
 const static std::string MIDDLE_MOUSE_CV = "MiddleMouse";
@@ -285,8 +288,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mGotPersonalInfo(false),
 	mOriginalIMViaEmail(false),
 	mLanguageChanged(false),
-	mDoubleClickActionDirty(false),
-	mFavoritesRecordMayExist(false)
+	mAvatarDataInitialized(false),
+	mDoubleClickActionDirty(false)
 {
 	
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
@@ -343,7 +346,7 @@ void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType t
 	if ( APT_PROPERTIES == type )
 	{
 		const LLAvatarData* pAvatarData = static_cast<const LLAvatarData*>( pData );
-		if( pAvatarData && gAgent.getID() == pAvatarData->avatar_id )
+		if (pAvatarData && (gAgent.getID() == pAvatarData->avatar_id) && (pAvatarData->avatar_id != LLUUID::null))
 		{
 			storeAvatarProperties( pAvatarData );
 			processProfileProperties( pAvatarData );
@@ -353,14 +356,19 @@ void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType t
 
 void LLFloaterPreference::storeAvatarProperties( const LLAvatarData* pAvatarData )
 {
-	mAvatarProperties.avatar_id		= gAgent.getID();
-	mAvatarProperties.image_id		= pAvatarData->image_id;
-	mAvatarProperties.fl_image_id   = pAvatarData->fl_image_id;
-	mAvatarProperties.about_text	= pAvatarData->about_text;
-	mAvatarProperties.fl_about_text = pAvatarData->fl_about_text;
-	mAvatarProperties.profile_url   = pAvatarData->profile_url;
-	mAvatarProperties.flags		    = pAvatarData->flags;
-	mAvatarProperties.allow_publish	= pAvatarData->flags & AVATAR_ALLOW_PUBLISH;
+	if (LLStartUp::getStartupState() == STATE_STARTED)
+	{
+		mAvatarProperties.avatar_id		= pAvatarData->avatar_id;
+		mAvatarProperties.image_id		= pAvatarData->image_id;
+		mAvatarProperties.fl_image_id   = pAvatarData->fl_image_id;
+		mAvatarProperties.about_text	= pAvatarData->about_text;
+		mAvatarProperties.fl_about_text = pAvatarData->fl_about_text;
+		mAvatarProperties.profile_url   = pAvatarData->profile_url;
+		mAvatarProperties.flags		    = pAvatarData->flags;
+		mAvatarProperties.allow_publish	= pAvatarData->flags & AVATAR_ALLOW_PUBLISH;
+
+		mAvatarDataInitialized = true;
+	}
 }
 
 void LLFloaterPreference::processProfileProperties(const LLAvatarData* pAvatarData )
@@ -370,15 +378,31 @@ void LLFloaterPreference::processProfileProperties(const LLAvatarData* pAvatarDa
 
 void LLFloaterPreference::saveAvatarProperties( void )
 {
-	mAvatarProperties.allow_publish = getChild<LLUICtrl>("online_searchresults")->getValue();
-	if ( mAvatarProperties.allow_publish )
+	const BOOL allowPublish = getChild<LLUICtrl>("online_searchresults")->getValue();
+
+	if (allowPublish)
 	{
 		mAvatarProperties.flags |= AVATAR_ALLOW_PUBLISH;
 	}
-	
-	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate( &mAvatarProperties );
-}
 
+	//
+	// NOTE: We really don't want to send the avatar properties unless we absolutely
+	//       need to so we can avoid the accidental profile reset bug, so, if we're
+	//       logged in, the avatar data has been initialized and we have a state change
+	//       for the "allow publish" flag, then set the flag to its new value and send
+	//       the properties update.
+	//
+	// NOTE: The only reason we can not remove this update altogether is because of the
+	//       "allow publish" flag, the last remaining profile setting in the viewer
+	//       that doesn't exist in the web profile.
+	//
+	if ((LLStartUp::getStartupState() == STATE_STARTED) && mAvatarDataInitialized && (allowPublish != mAvatarProperties.allow_publish))
+	{
+		mAvatarProperties.allow_publish = allowPublish;
+
+		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate( &mAvatarProperties );
+	}
+}
 
 BOOL LLFloaterPreference::postBuild()
 {
@@ -389,6 +413,8 @@ BOOL LLFloaterPreference::postBuild()
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
 
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate, _2));
+
+	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
 
 	gSavedSettings.getControl("ChatBubbleOpacity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onNameTagOpacityChange, this, _2));
 
@@ -543,34 +569,6 @@ void LLFloaterPreference::apply()
 		updateDoubleClickSettings();
 		mDoubleClickActionDirty = false;
 	}
-
-	if (mFavoritesRecordMayExist && !gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin"))
-	{
-		removeFavoritesRecordOfUser();		
-	}
-}
-
-void LLFloaterPreference::removeFavoritesRecordOfUser()
-{
-	mFavoritesRecordMayExist = false;
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
-	LLSD fav_llsd;
-	llifstream file;
-	file.open(filename);
-	if (!file.is_open()) return;
-	LLSDSerialize::fromXML(fav_llsd, file);
-	
-	LLAvatarName av_name;
-	LLAvatarNameCache::get( gAgentID, &av_name );
-	if (fav_llsd.has(av_name.getLegacyName()))
-	{
-		fav_llsd.erase(av_name.getLegacyName());
-	}
-	
-	llofstream out_file;
-	out_file.open(filename);
-	LLSDSerialize::toPrettyXML(fav_llsd, out_file);
-
 }
 
 void LLFloaterPreference::cancel()
@@ -654,11 +652,6 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	{
 		getChild<LLUICtrl>("maturity_desired_textbox")->setValue(maturity_combo->getSelectedItemLabel());
 		getChildView("maturity_desired_combobox")->setVisible( false);
-	}
-
-	if (LLStartUp::getStartupState() == STATE_STARTED)
-	{
-		mFavoritesRecordMayExist = gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin");
 	}
 
 	// Forget previous language changes.
@@ -1200,6 +1193,7 @@ void LLFloaterPreference::refresh()
 	updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail",	true), getChild<LLTextBox>("FlexibleMeshDetailText",	true));
 	updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail",		true), getChild<LLTextBox>("TreeMeshDetailText",		true));
 	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail",		true), getChild<LLTextBox>("AvatarMeshDetailText",		true));
+	updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail",	true), getChild<LLTextBox>("AvatarPhysicsDetailText",		true));
 	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",	true), getChild<LLTextBox>("TerrainMeshDetailText",		true));
 	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
@@ -1354,6 +1348,8 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 		mOriginalHideOnlineStatus = true;
 	}
 	
+	getChild<LLUICtrl>("online_searchresults")->setEnabled(TRUE);
+
 	getChildView("include_im_in_chat_history")->setEnabled(TRUE);
 	getChildView("show_timestamps_check_im")->setEnabled(TRUE);
 	getChildView("friends_online_notify_checkbox")->setEnabled(TRUE);
@@ -1533,10 +1529,56 @@ void LLFloaterPreference::setCacheLocation(const LLStringExplicit& location)
 	cache_location_editor->setToolTip(location);
 }
 
+//------------------------------Updater---------------------------------------
+
+static bool handleBandwidthChanged(const LLSD& newvalue)
+{
+	gViewerThrottle.setMaxBandwidth((F32) newvalue.asReal());
+	return true;
+}
+
+class LLPanelPreference::Updater : public LLEventTimer
+{
+
+public:
+
+	typedef boost::function<bool(const LLSD&)> callback_t;
+
+	Updater(callback_t cb, F32 period)
+	:LLEventTimer(period),
+	 mCallback(cb)
+	{
+		mEventTimer.stop();
+	}
+
+	virtual ~Updater(){}
+
+	void update(const LLSD& new_value)
+	{
+		mNewValue = new_value;
+		mEventTimer.start();
+	}
+
+protected:
+
+	BOOL tick()
+	{
+		mCallback(mNewValue);
+		mEventTimer.stop();
+
+		return FALSE;
+	}
+
+private:
+
+	LLSD mNewValue;
+	callback_t mCallback;
+};
 //----------------------------------------------------------------------------
 static LLRegisterPanelClassWrapper<LLPanelPreference> t_places("panel_preference");
 LLPanelPreference::LLPanelPreference()
-: LLPanel()
+: LLPanel(),
+  mBandWidthUpdater(NULL)
 {
 	mCommitCallbackRegistrar.add("Pref.setControlFalse",	boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 	mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",	boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
@@ -1606,10 +1648,24 @@ BOOL LLPanelPreference::postBuild()
 		}
 	}
 
+	//////////////////////PanelSetup ///////////////////
+	if (hasChild("max_bandwidth"))
+	{
+		mBandWidthUpdater = new LLPanelPreference::Updater(boost::bind(&handleBandwidthChanged, _1), BANDWIDTH_UPDATER_TIMEOUT);
+		gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->connect(boost::bind(&LLPanelPreference::Updater::update, mBandWidthUpdater, _2));
+	}
+
 	apply();
 	return true;
 }
 
+LLPanelPreference::~LLPanelPreference()
+{
+	if (mBandWidthUpdater)
+	{
+		delete mBandWidthUpdater;
+	}
+}
 void LLPanelPreference::apply()
 {
 	// no-op
@@ -1733,7 +1789,6 @@ void LLPanelPreferenceGraphics::draw()
 		bool enable = hasDirtyChilds();
 
 		button_apply->setEnabled(enable);
-
 	}
 }
 bool LLPanelPreferenceGraphics::hasDirtyChilds()

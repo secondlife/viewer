@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Gear Outfit">
+	<menu_item_call label="Ponerme - Reemplazar el vestuario actual" name="wear"/>
+	<menu_item_call label="Ponerme - Añadir al vestuario actual" name="wear_add"/>
+	<menu_item_call label="Quitarme - Quitar del vestuario actual" name="take_off"/>
+	<menu label="Ropas nuevas" name="New Clothes">
+		<menu_item_call label="Camisa nueva" name="New Shirt"/>
+		<menu_item_call label="Pantalón nuevo" name="New Pants"/>
+		<menu_item_call label="Zapatos nuevos" name="New Shoes"/>
+		<menu_item_call label="Calcetines nuevos" name="New Socks"/>
+		<menu_item_call label="Chaqueta nueva" name="New Jacket"/>
+		<menu_item_call label="Falda nueva" name="New Skirt"/>
+		<menu_item_call label="Guantes nuevos" name="New Gloves"/>
+		<menu_item_call label="Camiseta nueva" name="New Undershirt"/>
+		<menu_item_call label="Ropa interior nueva" name="New Underpants"/>
+		<menu_item_call label="Nueva Alfa" name="New Alpha"/>
+		<menu_item_call label="Tatuaje nuevo" name="New Tattoo"/>
+	</menu>
+	<menu label="Nuevas partes del cuerpo" name="New Body Parts">
+		<menu_item_call label="Anatomía nueva" name="New Shape"/>
+		<menu_item_call label="Piel nueva" name="New Skin"/>
+		<menu_item_call label="Pelo nuevo" name="New Hair"/>
+		<menu_item_call label="Ojos nuevos" name="New Eyes"/>
+	</menu>
+	<menu_item_call label="Renombrar el vestuario" name="rename"/>
+	<menu_item_call label="Borrar el vestuario" name="delete_outfit"/>
+</menu>

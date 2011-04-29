@@ -480,10 +480,12 @@ LLLoginInstance::LLLoginInstance() :
 {
 	mLoginModule->getEventPump().listen("lllogininstance", 
 		boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
-	mDispatcher.add("fail.login", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
-	mDispatcher.add("connect",    boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
-	mDispatcher.add("disconnect", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
-	mDispatcher.add("indeterminate", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
+	// This internal use of LLEventDispatcher doesn't really need
+	// per-function descriptions.
+	mDispatcher.add("fail.login", "", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
+	mDispatcher.add("connect",    "", boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
+	mDispatcher.add("disconnect", "", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
+	mDispatcher.add("indeterminate", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
 }
 
 LLLoginInstance::~LLLoginInstance()
@@ -556,6 +558,18 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	requested_options.append("buddy-list");
 	requested_options.append("newuser-config");
 	requested_options.append("ui-config");
+
+	//send this info to login.cgi for stats gathering 
+	//since viewerstats isn't reliable enough
+	if (gSavedSettings.getString("SessionSettingsFile").empty())
+	{
+		requested_options.append("advanced-mode");
+	}
+	else
+	{
+		requested_options.append("basic-mode");
+	}
+
 #endif
 	requested_options.append("max-agent-groups");	
 	requested_options.append("map-server-url");	
@@ -625,11 +639,7 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 
 	// Call the method registered in constructor, if any, for more specific
 	// handling
-	LLEventDispatcher::Callable method(mDispatcher.get(event["change"]));
-	if (! method.empty())
-	{
-		method(event);
-	}
+	mDispatcher.try_call(event);
 	return false;
 }
 

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="false"
+ height="300"
+ name="panel_im_control_panel"
+ width="150">
+    <avatar_icon
+     follows="left|top"
+     height="105"
+     left_delta="20"
+     name="avatar_icon"
+     top="-5"
+     width="114"/>
+    <layout_stack
+     mouse_opaque="false"
+     border_size="0"
+     clip="false"
+     follows="all"
+     height="183"
+     layout="topleft"
+     left="5"
+     name="button_stack"
+     orientation="vertical"
+     top_pad="5"
+     width="145">
+      <layout_panel
+       auto_resize="false"
+       follows="top|left|right"
+       height="20"
+       layout="topleft"
+       left="2"
+       min_height="20"
+       width="140"
+       name="view_profile_btn_panel"
+       top="0"
+       user_resize="false">
+        <button
+         follows="left|top|right"
+         height="23"
+         label="Profile"
+         name="view_profile_btn"
+         top="0"
+         width="140" />
+      </layout_panel>
+      <layout_panel
+       auto_resize="false"
+       follows="top|left|right"
+       height="25"
+       layout="topleft"
+       min_height="25"
+       width="140"
+       name="add_friend_btn_panel"
+       user_resize="false">
+        <button
+         follows="left|top|right"
+         height="23"
+         label="Add Friend"
+         name="add_friend_btn"
+         top="5"
+         width="140" />
+      </layout_panel>
+      <layout_panel
+       auto_resize="false"
+       follows="top|left|right"
+       height="25"
+       layout="topleft"
+       min_height="25"
+       width="140"
+       name="teleport_btn_panel"
+       user_resize="false">
+        <button
+             auto_resize="false"
+             follows="left|top|right"
+             height="23"
+             label="Teleport"
+             name="teleport_btn"
+             tool_tip = "Offer to teleport this person"
+             width="140" />
+      </layout_panel>
+      <layout_panel
+       mouse_opaque="false"
+       auto_resize="true"
+       follows="top|left"
+       height="0"
+       layout="topleft"
+       min_height="0"
+       width="140"
+       name="spacer"
+       user_resize="false" />
+    </layout_stack>
+</panel>

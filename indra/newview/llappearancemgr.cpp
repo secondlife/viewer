@@ -110,6 +110,12 @@ public:
 	{
 		// support secondlife:///app/appearance/show, but for now we just
 		// make all secondlife:///app/appearance SLapps behave this way
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableAppearance"))
+		{
+			LLNotificationsUtil::add("NoAppearance", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+			return true;
+		}
+
 		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD());
 		return true;
 	}
@@ -2978,6 +2984,9 @@ public:
 			// *TODOw: This may not be necessary if initial outfit is chosen already -- josh
 			gAgent.setGenderChosen(TRUE);
 		}
+
+		// release avatar picker keyboard focus
+		gFocusMgr.setKeyboardFocus( NULL );
 
 		return true;
 	}

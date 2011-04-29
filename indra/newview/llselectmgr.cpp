@@ -517,17 +517,15 @@ BOOL LLSelectMgr::removeObjectFromSelections(const LLUUID &id)
 {
 	BOOL object_found = FALSE;
 	LLTool *tool = NULL;
-	if (!gNoRender)
-	{
-		tool = LLToolMgr::getInstance()->getCurrentTool();
 
-		// It's possible that the tool is editing an object that is not selected
-		LLViewerObject* tool_editing_object = tool->getEditingObject();
-		if( tool_editing_object && tool_editing_object->mID == id)
-		{
-			tool->stopEditing();
-			object_found = TRUE;
-		}
+	tool = LLToolMgr::getInstance()->getCurrentTool();
+
+	// It's possible that the tool is editing an object that is not selected
+	LLViewerObject* tool_editing_object = tool->getEditingObject();
+	if( tool_editing_object && tool_editing_object->mID == id)
+	{
+		tool->stopEditing();
+		object_found = TRUE;
 	}
 
 	// Iterate through selected objects list and kill the object

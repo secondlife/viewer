@@ -1,4 +1,4 @@
-/** 
+	/** 
  * @file llappviewer.cpp
  * @brief The LLAppViewer class definitions
  *
@@ -78,7 +78,6 @@
 #include "llvoicechannel.h"
 #include "llvoavatarself.h"
 #include "llsidetray.h"
-#include "llfeaturemanager.h"
 #include "llurlmatch.h"
 #include "lltextutil.h"
 #include "lllogininstance.h"
@@ -337,6 +336,46 @@ void init_default_trans_args()
 const char *VFS_DATA_FILE_BASE = "data.db2.x.";
 const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
 
+
+struct SettingsFile : public LLInitParam::Block<SettingsFile>
+{
+	Mandatory<std::string>	name;
+	Optional<std::string>	file_name;
+	Optional<bool>			required,
+							persistent;
+	Optional<std::string>	file_name_setting;
+
+	SettingsFile()
+	:	name("name"),
+		file_name("file_name"),
+		required("required", false),
+		persistent("persistent", true),
+		file_name_setting("file_name_setting")
+	{}
+};
+
+struct SettingsGroup : public LLInitParam::Block<SettingsGroup>
+{
+	Mandatory<std::string>	name;
+	Mandatory<S32>			path_index;
+	Multiple<SettingsFile>	files;
+
+	SettingsGroup()
+	:	name("name"),
+		path_index("path_index"),
+		files("file")
+	{}
+};
+
+struct SettingsFiles : public LLInitParam::Block<SettingsFiles>
+{
+	Multiple<SettingsGroup>	groups;
+
+	SettingsFiles()
+	: groups("group")
+	{}
+};
+
 static std::string gWindowTitle;
 
 LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
@@ -458,6 +497,7 @@ static void settings_to_globals()
 	LLVolumeImplFlexible::sUpdateFactor = gSavedSettings.getF32("RenderFlexTimeFactor");
 	LLVOTree::sTreeFactor				= gSavedSettings.getF32("RenderTreeLODFactor");
 	LLVOAvatar::sLODFactor				= gSavedSettings.getF32("RenderAvatarLODFactor");
+	LLVOAvatar::sPhysicsLODFactor		= gSavedSettings.getF32("RenderAvatarPhysicsLODFactor");
 	LLVOAvatar::sMaxVisible				= (U32)gSavedSettings.getS32("RenderAvatarMaxVisible");
 	LLVOAvatar::sVisibleInFirstPerson	= gSavedSettings.getBOOL("FirstPersonAvatarVisible");
 	// clamp auto-open time to some minimum usable value
@@ -594,7 +634,8 @@ LLAppViewer::LLAppViewer() :
 	mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", FALSE)),
 	mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", FALSE)),
 	mFastTimerLogThread(NULL),
-	mUpdater(new LLUpdaterService())
+	mUpdater(new LLUpdaterService()),
+	mSettingsLocationList(NULL)
 {
 	if(NULL != sInstance)
 	{
@@ -610,6 +651,8 @@ LLAppViewer::LLAppViewer() :
 
 LLAppViewer::~LLAppViewer()
 {
+	delete mSettingsLocationList;
+
 	LLLoginInstance::instance().setUpdaterService(0);
 	
 	destroyMainloopTimeout();
@@ -712,7 +755,7 @@ bool LLAppViewer::init()
 	
 	//
 	// Various introspection concerning the libs we're using - particularly
-        // the libs involved in getting to a full login screen.
+	// the libs involved in getting to a full login screen.
 	//
 	LL_INFOS("InitInfo") << "J2C Engine is: " << LLImageJ2C::getEngineInfo() << LL_ENDL;
 	LL_INFOS("InitInfo") << "libcurl version is: " << LLCurl::getVersionString() << LL_ENDL;
@@ -881,7 +924,7 @@ bool LLAppViewer::init()
 	}
 
 	// If we don't have the right GL requirements, exit.
-	if (!gGLManager.mHasRequirements && !gNoRender)
+	if (!gGLManager.mHasRequirements)
 	{	
 		// can't use an alert here since we're exiting and
 		// all hell breaks lose.
@@ -1171,7 +1214,8 @@ bool LLAppViewer::mainLoop()
 				}
 
 				// Render scene.
-				if (!LLApp::isExiting())
+				// *TODO: Should we run display() even during gHeadlessClient?  DK 2011-02-18
+				if (!LLApp::isExiting() && !gHeadlessClient)
 				{
 					pingMainloopTimeout("Main:Display");
 					gGLActive = TRUE;
@@ -1199,8 +1243,7 @@ bool LLAppViewer::mainLoop()
 				}
 
 				// yield cooperatively when not running as foreground window
-				if (   gNoRender
-					   || (gViewerWindow && !gViewerWindow->mWindow->getVisible())
+				if (   (gViewerWindow && !gViewerWindow->mWindow->getVisible())
 						|| !gFocusMgr.getAppHasFocus())
 				{
 					// Sleep if we're not rendering, or the window is minimized.
@@ -1879,85 +1922,80 @@ bool LLAppViewer::initLogging()
 bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 					    bool set_defaults)
 {	
-	// Find and vet the location key.
-	if(!mSettingsLocationList.has(location_key))
+	if (!mSettingsLocationList)
 	{
-		llerrs << "Requested unknown location: " << location_key << llendl;
-		return false;
+		llerrs << "Invalid settings location list" << llendl;
 	}
 
-	LLSD location = mSettingsLocationList.get(location_key);
+	LLControlGroup* global_settings = LLControlGroup::getInstance(sGlobalSettingsName);  
+	for(LLInitParam::ParamIterator<SettingsGroup>::const_iterator it = mSettingsLocationList->groups.begin(), end_it = mSettingsLocationList->groups.end();
+		it != end_it;
+		++it)
+	{
+		// skip settings groups that aren't the one we requested
+		if (it->name() != location_key) continue;
 
-	if(!location.has("PathIndex"))
-	{
-		llerrs << "Settings location is missing PathIndex value. Settings cannot be loaded." << llendl;
-		return false;
-	}
-	ELLPath path_index = (ELLPath)(location.get("PathIndex").asInteger());
-	if(path_index <= LL_PATH_NONE || path_index >= LL_PATH_LAST)
-	{
-		llerrs << "Out of range path index in app_settings/settings_files.xml" << llendl;
-		return false;
-	}
+		ELLPath path_index = (ELLPath)it->path_index();
+		if(path_index <= LL_PATH_NONE || path_index >= LL_PATH_LAST)
+		{
+			llerrs << "Out of range path index in app_settings/settings_files.xml" << llendl;
+			return false;
+		}
 
-	// Iterate through the locations list of files.
-	LLSD files = location.get("Files");
-	for(LLSD::map_iterator itr = files.beginMap(); itr != files.endMap(); ++itr)
-	{
-		std::string settings_group = (*itr).first;
-		llinfos << "Attempting to load settings for the group " << settings_group 
+		LLInitParam::ParamIterator<SettingsFile>::const_iterator file_it, end_file_it;
+		for (file_it = it->files.begin(), end_file_it = it->files.end();
+			file_it != end_file_it;
+			++file_it)
+		{
+			llinfos << "Attempting to load settings for the group " << file_it->name()
 			    << " - from location " << location_key << llendl;
 
-		if(!LLControlGroup::getInstance(settings_group))
-		{
-			llwarns << "No matching settings group for name " << settings_group << llendl;
-			continue;
-		}
-
-		LLSD file = (*itr).second;
-
-		std::string full_settings_path;
-		if(file.has("NameFromSetting"))
-		{
-			std::string custom_name_setting = file.get("NameFromSetting");
-			// *NOTE: Regardless of the group currently being lodaed,
-			// this setting is always read from the Global settings.
-			if(LLControlGroup::getInstance(sGlobalSettingsName)->controlExists(custom_name_setting))
+			LLControlGroup* settings_group = LLControlGroup::getInstance(file_it->name);
+			if(!settings_group)
 			{
-				std::string file_name = 
-					LLControlGroup::getInstance(sGlobalSettingsName)->getString(custom_name_setting);
-				full_settings_path = file_name;
+				llwarns << "No matching settings group for name " << file_it->name() << llendl;
+				continue;
 			}
-		}
 
-		if(full_settings_path.empty())
-		{
-			std::string file_name = file.get("Name");
-			full_settings_path = gDirUtilp->getExpandedFilename(path_index, file_name);
-		}
+			std::string full_settings_path;
 
-		int requirement = 0;
-		if(file.has("Requirement"))
-		{
-			requirement = file.get("Requirement").asInteger();
-		}
-		
-		if(!LLControlGroup::getInstance(settings_group)->loadFromFile(full_settings_path, set_defaults))
-		{
-			if(requirement == 1)
+			if (file_it->file_name_setting.isProvided() 
+				&& global_settings->controlExists(file_it->file_name_setting))
 			{
-				llwarns << "Error: Cannot load required settings file from: " 
-						<< full_settings_path << llendl;
-				return false;
+				// try to find filename stored in file_name_setting control
+				full_settings_path = global_settings->getString(file_it->file_name_setting);
+				if (!gDirUtilp->fileExists(full_settings_path))
+				{
+					// search in default path
+					full_settings_path = gDirUtilp->getExpandedFilename((ELLPath)path_index, full_settings_path);
+				}
 			}
 			else
 			{
-				llinfos << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+				// by default, use specified file name
+				full_settings_path = gDirUtilp->getExpandedFilename((ELLPath)path_index, file_it->file_name());
 			}
-		}
-		else
-		{
-			llinfos << "Loaded settings file " << full_settings_path << llendl;
+
+			if(settings_group->loadFromFile(full_settings_path, set_defaults, file_it->persistent))
+			{	// success!
+				llinfos << "Loaded settings file " << full_settings_path << llendl;
+			}
+			else
+			{	// failed to load
+				if(file_it->required)
+				{
+					llerrs << "Error: Cannot load required settings file from: " << full_settings_path << llendl;
+					return false;
+				}
+				else
+				{
+					// only complain if we actually have a filename at this point
+					if (!full_settings_path.empty())
+					{
+						llinfos << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+					}
+				}
+			}
 		}
 	}
 
@@ -1967,18 +2005,25 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 std::string LLAppViewer::getSettingsFilename(const std::string& location_key,
 											 const std::string& file)
 {
-	if(mSettingsLocationList.has(location_key))
+	for(LLInitParam::ParamIterator<SettingsGroup>::const_iterator it = mSettingsLocationList->groups.begin(), end_it = mSettingsLocationList->groups.end();
+		it != end_it;
+		++it)
 	{
-		LLSD location = mSettingsLocationList.get(location_key);
-		if(location.has("Files"))
+		if (it->name() == location_key)
 		{
-			LLSD files = location.get("Files");
-			if(files.has(file) && files[file].has("Name"))
+			LLInitParam::ParamIterator<SettingsFile>::const_iterator file_it, end_file_it;
+			for (file_it = it->files.begin(), end_file_it = it->files.end();
+				file_it != end_file_it;
+				++file_it)
 			{
-				return files.get(file).get("Name").asString();
+				if (file_it->name() == file)
+				{
+					return file_it->file_name;
+				}
 			}
 		}
 	}
+
 	return std::string();
 }
 
@@ -1991,14 +2036,29 @@ bool LLAppViewer::initConfiguration()
 {	
 	//Load settings files list
 	std::string settings_file_list = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_files.xml");
-	LLControlGroup settings_control("SettingsFiles");
-	llinfos << "Loading settings file list " << settings_file_list << llendl;
-	if (0 == settings_control.loadFromFile(settings_file_list))
+	//LLControlGroup settings_control("SettingsFiles");
+	//llinfos << "Loading settings file list " << settings_file_list << llendl;
+	//if (0 == settings_control.loadFromFile(settings_file_list))
+	//{
+ //       llerrs << "Cannot load default configuration file " << settings_file_list << llendl;
+	//}
+
+	LLXMLNodePtr root;
+	BOOL success  = LLXMLNode::parseFile(settings_file_list, root, NULL);
+	if (!success)
 	{
         llerrs << "Cannot load default configuration file " << settings_file_list << llendl;
 	}
 
-	mSettingsLocationList = settings_control.getLLSD("Locations");
+	mSettingsLocationList = new SettingsFiles();
+
+	LLXUIParser parser;
+	parser.readXUI(root, *mSettingsLocationList, settings_file_list);
+
+	if (!mSettingsLocationList->validateBlock())
+	{
+        llerrs << "Invalid settings file list " << settings_file_list << llendl;
+	}
 		
 	// The settings and command line parsing have a fragile
 	// order-of-operation:
@@ -2107,6 +2167,32 @@ bool LLAppViewer::initConfiguration()
 
 	// - load overrides from user_settings 
 	loadSettingsFromDirectory("User");
+
+	if (gSavedSettings.getBOOL("FirstRunThisInstall"))
+	{
+		gSavedSettings.setString("SessionSettingsFile", "settings_minimal.xml");
+		gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
+	}
+
+	if (clp.hasOption("sessionsettings"))
+	{
+		std::string session_settings_filename = clp.getOption("sessionsettings")[0];		
+		gSavedSettings.setString("SessionSettingsFile", session_settings_filename);
+		llinfos	<< "Using session settings filename: " 
+			<< session_settings_filename << llendl;
+	}
+	loadSettingsFromDirectory("Session");
+
+	if (clp.hasOption("usersessionsettings"))
+	{
+		std::string user_session_settings_filename = clp.getOption("usersessionsettings")[0];		
+		gSavedSettings.setString("UserSessionSettingsFile", user_session_settings_filename);
+		llinfos	<< "Using user session settings filename: " 
+			<< user_session_settings_filename << llendl;
+
+	}
+	loadSettingsFromDirectory("UserSession");
+
 	// - apply command line settings 
 	clp.notify(); 
 
@@ -2381,6 +2467,14 @@ bool LLAppViewer::initConfiguration()
 		}
 	}
 
+	// If automatic login from command line with --login switch
+	// init StartSLURL location. In interactive login, LLPanelLogin
+	// will take care of it.
+	if ((clp.hasOption("login") || clp.hasOption("autologin")) && !clp.hasOption("url") && !clp.hasOption("slurl"))
+	{
+		LLStartUp::setStartSLURL(LLSLURL(gSavedSettings.getString("LoginLocation")));
+	}
+
 	if (!gSavedSettings.getBOOL("AllowMultipleViewers"))
 	{
 	    //
@@ -2645,12 +2739,26 @@ void LLAppViewer::checkForCrash(void)
     
 }
 
+//
+// This function decides whether the client machine meets the minimum requirements to
+// run in a maximized window, per the consensus of davep, boa and nyx on 3/30/2011.
+//
+bool LLAppViewer::meetsRequirementsForMaximizedStart()
+{
+	bool maximizedOk = (LLFeatureManager::getInstance()->getGPUClass() >= GPU_CLASS_2);
+
+	const U32 one_gigabyte_kb = 1024 * 1024;
+	maximizedOk &= (gSysMemory.getPhysicalMemoryKB() >= one_gigabyte_kb);
+
+	return maximizedOk;
+}
+
 bool LLAppViewer::initWindow()
 {
 	LL_INFOS("AppInit") << "Initializing window..." << LL_ENDL;
 
 	// store setting in a global for easy access and modification
-	gNoRender = gSavedSettings.getBOOL("DisableRendering");
+	gHeadlessClient = gSavedSettings.getBOOL("HeadlessClient");
 
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
@@ -2664,7 +2772,8 @@ bool LLAppViewer::initWindow()
 	const S32 NEVER_SUBMIT_REPORT = 2;
 	bool use_watchdog = false;
 	int watchdog_enabled_setting = gSavedSettings.getS32("WatchdogEnabled");
-	if(watchdog_enabled_setting == -1){
+	if(watchdog_enabled_setting == -1)
+	{
 		use_watchdog = !LLFeatureManager::getInstance()->isFeatureAvailable("WatchdogDisabled");
 	}
 	else
@@ -2686,33 +2795,45 @@ bool LLAppViewer::initWindow()
 		gViewerWindow->mWindow->maximize();
 	}
 
-	if (!gNoRender)
+	//
+	// Initialize GL stuff
+	//
+
+	if (mForceGraphicsDetail)
 	{
-		//
-		// Initialize GL stuff
-		//
-
-		if (mForceGraphicsDetail)
-		{
-			LLFeatureManager::getInstance()->setGraphicsLevel(gSavedSettings.getU32("RenderQualityPerformance"), false);
-		}
-				
-		// Set this flag in case we crash while initializing GL
-		gSavedSettings.setBOOL("RenderInitError", TRUE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
-	
-		gPipeline.init();
-		stop_glerror();
-		gViewerWindow->initGLDefaults();
-
-		gSavedSettings.setBOOL("RenderInitError", FALSE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+		LLFeatureManager::getInstance()->setGraphicsLevel(gSavedSettings.getU32("RenderQualityPerformance"), false);
 	}
+			
+	// Set this flag in case we crash while initializing GL
+	gSavedSettings.setBOOL("RenderInitError", TRUE);
+	gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+
+	gPipeline.init();
+	stop_glerror();
+	gViewerWindow->initGLDefaults();
+
+	gSavedSettings.setBOOL("RenderInitError", FALSE);
+	gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 
 	//If we have a startup crash, it's usually near GL initialization, so simulate that.
 	if(gCrashOnStartup)
 	{
 		LLAppViewer::instance()->forceErrorLLError();
+	}
+
+	//
+	// Determine if the window should start maximized on initial run based
+	// on graphics capability
+	//
+	if (gSavedSettings.getBOOL("FirstLoginThisInstall") && meetsRequirementsForMaximizedStart())
+	{
+		LL_INFOS("AppInit") << "This client met the requirements for a maximized initial screen." << LL_ENDL;
+		gSavedSettings.setBOOL("WindowMaximized", TRUE);
+	}
+
+	if (gSavedSettings.getBOOL("WindowMaximized"))
+	{
+		gViewerWindow->mWindow->maximize();
 	}
 
 	LLUI::sWindow = gViewerWindow->getWindow();
@@ -2749,12 +2870,9 @@ void LLAppViewer::cleanupSavedSettings()
 		
 	gSavedSettings.setBOOL("ShowObjectUpdates", gShowObjectUpdates);
 	
-	if (!gNoRender)
+	if (gDebugView)
 	{
-		if (gDebugView)
-		{
-			gSavedSettings.setBOOL("ShowDebugConsole", gDebugView->mDebugConsolep->getVisible());
-		}
+		gSavedSettings.setBOOL("ShowDebugConsole", gDebugView->mDebugConsolep->getVisible());
 	}
 
 	// save window position if not maximized
@@ -3226,6 +3344,20 @@ static bool finish_quit(const LLSD& notification, const LLSD& response)
 }
 static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_quit);
 
+static bool switch_standard_skin_and_quit(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+	if (option == 0)
+	{
+		gSavedSettings.setString("SessionSettingsFile", "");
+		LLAppViewer::instance()->requestQuit();
+	}
+	return false;
+}
+
+static LLNotificationFunctorRegistration standard_skin_quit_reg("SwitchToStandardSkinAndQuit", switch_standard_skin_and_quit);
+
 void LLAppViewer::userQuit()
 {
 	if (gDisconnected || gViewerWindow->getProgressView()->getVisible())
@@ -3399,10 +3531,10 @@ bool LLAppViewer::initCache()
 	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
 	LLVOCache::getInstance()->setReadOnly(read_only);
 
-	BOOL texture_cache_mismatch = FALSE ;
+	bool texture_cache_mismatch = false;
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion()) 
 	{
-		texture_cache_mismatch = TRUE ;
+		texture_cache_mismatch = true;
 		if(!read_only) 
 		{
 			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getTextureCacheVersion());
@@ -3416,7 +3548,9 @@ bool LLAppViewer::initCache()
 			gSavedSettings.getBOOL("PurgeCacheOnNextStartup"))
 		{
 			gSavedSettings.setBOOL("PurgeCacheOnNextStartup", false);
-		mPurgeCache = true;
+			mPurgeCache = true;
+			// STORM-1141 force purgeAllTextures to get called to prevent a crash here. -brad
+			texture_cache_mismatch = true;
 		}
 	
 		// We have moved the location of the cache directory over time.
@@ -3721,7 +3855,7 @@ void LLAppViewer::badNetworkHandler()
 // is destroyed.
 void LLAppViewer::saveFinalSnapshot()
 {
-	if (!mSavedFinalSnapshot && !gNoRender)
+	if (!mSavedFinalSnapshot)
 	{
 		gSavedSettings.setVector3d("FocusPosOnLogout", gAgentCamera.calcFocusPositionTargetGlobal());
 		gSavedSettings.setVector3d("CameraPosOnLogout", gAgentCamera.calcCameraPositionTargetGlobal());
@@ -4125,34 +4259,31 @@ void LLAppViewer::idle()
 	//
 	// Update weather effects
 	//
-	if (!gNoRender)
+	LLWorld::getInstance()->updateClouds(gFrameDTClamped);
+	gSky.propagateHeavenlyBodies(gFrameDTClamped);				// moves sun, moon, and planets
+
+	// Update wind vector 
+	LLVector3 wind_position_region;
+	static LLVector3 average_wind;
+
+	LLViewerRegion *regionp;
+	regionp = LLWorld::getInstance()->resolveRegionGlobal(wind_position_region, gAgent.getPositionGlobal());	// puts agent's local coords into wind_position	
+	if (regionp)
 	{
-		LLWorld::getInstance()->updateClouds(gFrameDTClamped);
-		gSky.propagateHeavenlyBodies(gFrameDTClamped);				// moves sun, moon, and planets
+		gWindVec = regionp->mWind.getVelocity(wind_position_region);
 
-		// Update wind vector 
-		LLVector3 wind_position_region;
-		static LLVector3 average_wind;
-
-		LLViewerRegion *regionp;
-		regionp = LLWorld::getInstance()->resolveRegionGlobal(wind_position_region, gAgent.getPositionGlobal());	// puts agent's local coords into wind_position	
-		if (regionp)
-		{
-			gWindVec = regionp->mWind.getVelocity(wind_position_region);
-
-			// Compute average wind and use to drive motion of water
-			
-			average_wind = regionp->mWind.getAverage();
-			F32 cloud_density = regionp->mCloudLayer.getDensityRegion(wind_position_region);
-			
-			gSky.setCloudDensityAtAgent(cloud_density);
-			gSky.setWind(average_wind);
-			//LLVOWater::setWind(average_wind);
-		}
-		else
-		{
-			gWindVec.setVec(0.0f, 0.0f, 0.0f);
-		}
+		// Compute average wind and use to drive motion of water
+		
+		average_wind = regionp->mWind.getAverage();
+		F32 cloud_density = regionp->mCloudLayer.getDensityRegion(wind_position_region);
+		
+		gSky.setCloudDensityAtAgent(cloud_density);
+		gSky.setWind(average_wind);
+		//LLVOWater::setWind(average_wind);
+	}
+	else
+	{
+		gWindVec.setVec(0.0f, 0.0f, 0.0f);
 	}
 	
 	//////////////////////////////////////
@@ -4161,13 +4292,10 @@ void LLAppViewer::idle()
 	// Here, particles are updated and drawables are moved.
 	//
 	
-	if (!gNoRender)
-	{
-		LLFastTimer t(FTM_WORLD_UPDATE);
-		gPipeline.updateMove();
+	LLFastTimer t(FTM_WORLD_UPDATE);
+	gPipeline.updateMove();
 
-		LLWorld::getInstance()->updateParticles();
-	}
+	LLWorld::getInstance()->updateParticles();
 
 	if (LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
@@ -4533,12 +4661,9 @@ void LLAppViewer::disconnectViewer()
 	gSavedSettings.setBOOL("FlyingAtExit", gAgent.getFlying() );
 
 	// Un-minimize all windows so they don't get saved minimized
-	if (!gNoRender)
+	if (gFloaterView)
 	{
-		if (gFloaterView)
-		{
-			gFloaterView->restoreAll();
-		}
+		gFloaterView->restoreAll();
 	}
 
 	if (LLSelectMgr::getInstance())

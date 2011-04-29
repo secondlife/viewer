@@ -37,7 +37,7 @@ void send_texture_stats_to_sim(const LLSD &texture_stats)
 {
 	LLSD texture_stats_report;
 	// Only send stats if the agent is connected to a region.
-	if (!gAgent.getRegion() || gNoRender)
+	if (!gAgent.getRegion())
 	{
 		return;
 	}

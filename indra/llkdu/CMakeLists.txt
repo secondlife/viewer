@@ -19,6 +19,7 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
     ${KDU_INCLUDE_DIR}
+    ${LLKDU_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     )
 
@@ -49,6 +50,15 @@ if (USE_KDU)
     SET(llkdu_TEST_SOURCE_FILES
       llimagej2ckdu.cpp
       )
+    SET(llkdu_test_additional_HEADER_FILES
+      llimagej2ckdu.h
+      llkdumem.h
+      lltut.h
+      )
+    SET(llkdu_test_additional_INCLUDE_DIRS
+      ${KDU_INCLUDE_DIR}
+      ${LLKDU_INCLUDE_DIRS}
+    )
     LL_ADD_PROJECT_UNIT_TESTS(llkdu "${llkdu_TEST_SOURCE_FILES}")
   endif (LL_TESTS)
 

@@ -72,6 +72,8 @@ public:
 	virtual void	hideList();
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 
+	virtual void	draw();
+
 	S32				getCurrentIndex() const;
 	void			onItemSelected(const LLSD& data);
 	void			sortByName(bool ascending = true);
@@ -125,6 +127,7 @@ protected:
 
 	void sendChat( EChatType type );
 	void onChatBoxCommit();
+	void onChatFontChange(LLFontGL* fontp);
 
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 	EChatType processChatTypeTriggers(EChatType type, std::string &str);

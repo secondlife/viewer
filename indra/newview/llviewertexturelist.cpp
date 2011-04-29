@@ -91,11 +91,6 @@ void LLViewerTextureList::init()
 	sNumImages = 0;
 	mMaxResidentTexMemInMegaBytes = 0;
 	mMaxTotalTextureMemInMegaBytes = 0 ;
-	if (gNoRender)
-	{
-		// Don't initialize GL stuff if we're not rendering.
-		return;
-	}
 	
 	mUpdateStats = TRUE;
 	
@@ -345,13 +340,6 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 												   LLGLenum primary_format, 
 												   const LLUUID& force_id)
 {
-	if (gNoRender)
-	{
-		// Never mind that this ignores image_set_id;
-		// getImage() will handle that later.
-		return LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, TRUE, LLViewerTexture::BOOST_UI);
-	}
-
 	// generate UUID based on hash of filename
 	LLUUID new_id;
 	if (force_id.notNull())
@@ -741,7 +729,7 @@ static LLFastTimer::DeclareTimer FTM_IMAGE_CREATE("Create Images");
 
 F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 {
-	if (gNoRender || gGLManager.mIsDisabled) return 0.0f;
+	if (gGLManager.mIsDisabled) return 0.0f;
 	
 	//
 	// Create GL textures for all textures that need them (images which have been
@@ -876,7 +864,6 @@ void LLViewerTextureList::updateImagesUpdateStats()
 void LLViewerTextureList::decodeAllImages(F32 max_time)
 {
 	LLTimer timer;
-	if(gNoRender) return;
 	
 	// Update texture stats and priorities
 	std::vector<LLPointer<LLViewerFetchedTexture> > image_list;
@@ -940,99 +927,43 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 										 const std::string& out_filename,
 										 const U8 codec)
-{
-	// First, load the image.
+{	
+	// Load the image
+	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
+	if (image.isNull())
+	{
+		return FALSE;
+	}	
+	if (!image->load(filename))
+	{
+		return FALSE;
+	}
+	// Decompress or expand it in a raw image structure
 	LLPointer<LLImageRaw> raw_image = new LLImageRaw;
-	
-	switch (codec)
+	if (!image->decode(raw_image, 0.0f))
 	{
-		case IMG_CODEC_BMP:
-		{
-			LLPointer<LLImageBMP> bmp_image = new LLImageBMP;
-			
-			if (!bmp_image->load(filename))
-			{
-				return FALSE;
-			}
-			
-			if (!bmp_image->decode(raw_image, 0.0f))
-			{
-				return FALSE;
-			}
-		}
-			break;
-		case IMG_CODEC_TGA:
-		{
-			LLPointer<LLImageTGA> tga_image = new LLImageTGA;
-			
-			if (!tga_image->load(filename))
-			{
-				return FALSE;
-			}
-			
-			if (!tga_image->decode(raw_image))
-			{
-				return FALSE;
-			}
-			
-			if(	(tga_image->getComponents() != 3) &&
-			   (tga_image->getComponents() != 4) )
-			{
-				tga_image->setLastError( "Image files with less than 3 or more than 4 components are not supported." );
-				return FALSE;
-			}
-		}
-			break;
-		case IMG_CODEC_JPEG:
-		{
-			LLPointer<LLImageJPEG> jpeg_image = new LLImageJPEG;
-			
-			if (!jpeg_image->load(filename))
-			{
-				return FALSE;
-			}
-			
-			if (!jpeg_image->decode(raw_image, 0.0f))
-			{
-				return FALSE;
-			}
-		}
-			break;
-		case IMG_CODEC_PNG:
-		{
-			LLPointer<LLImagePNG> png_image = new LLImagePNG;
-			
-			if (!png_image->load(filename))
-			{
-				return FALSE;
-			}
-			
-			if (!png_image->decode(raw_image, 0.0f))
-			{
-				return FALSE;
-			}
-		}
-			break;
-		default:
-			return FALSE;
-	}
-	
-	LLPointer<LLImageJ2C> compressedImage = convertToUploadFile(raw_image);
-	
-	if( !compressedImage->save(out_filename) )
-	{
-		llinfos << "Couldn't create output file " << out_filename << llendl;
 		return FALSE;
 	}
-	
-	// test to see if the encode and save worked.
+	// Check the image constraints
+	if ((image->getComponents() != 3) && (image->getComponents() != 4))
+	{
+		image->setLastError("Image files with less than 3 or more than 4 components are not supported.");
+		return FALSE;
+	}
+	// Convert to j2c (JPEG2000) and save the file locally
+	LLPointer<LLImageJ2C> compressedImage = convertToUploadFile(raw_image);	
+	if (!compressedImage->save(out_filename))
+	{
+		llinfos << "Couldn't create output file : " << out_filename << llendl;
+		return FALSE;
+	}
+	// Test to see if the encode and save worked
 	LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
-	if( !integrity_test->loadAndValidate( out_filename ) )
+	if (!integrity_test->loadAndValidate( out_filename ))
 	{
-		llinfos << "Image: " << out_filename << " is corrupt." << llendl;
+		llinfos << "Image file : " << out_filename << " is corrupt" << llendl;
 		return FALSE;
 	}
-	
 	return TRUE;
 }
 

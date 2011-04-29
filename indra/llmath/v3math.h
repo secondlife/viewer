@@ -69,6 +69,7 @@ class LLVector3
 
 		inline BOOL isFinite() const;									// checks to see if all values of LLVector3 are finite
 		BOOL		clamp(F32 min, F32 max);		// Clamps all values to (min,max), returns TRUE if data changed
+		BOOL		clamp(const LLVector3 &min_vec, const LLVector3 &max_vec); // Scales vector by another vector
 		BOOL		clampLength( F32 length_limit );					// Scales vector to limit length to a value
 
 		void		quantize16(F32 lowerxy, F32 upperxy, F32 lowerz, F32 upperz);	// changes the vector to reflect quatization
@@ -156,6 +157,8 @@ F32	dist_vec(const LLVector3 &a, const LLVector3 &b);		// Returns distance betwe
 F32	dist_vec_squared(const LLVector3 &a, const LLVector3 &b);// Returns distance squared between a and b
 F32	dist_vec_squared2D(const LLVector3 &a, const LLVector3 &b);// Returns distance squared between a and b ignoring Z component
 LLVector3 projected_vec(const LLVector3 &a, const LLVector3 &b); // Returns vector a projected on vector b
+LLVector3 parallel_component(const LLVector3 &a, const LLVector3 &b); // Returns vector a projected on vector b (same as projected_vec)
+LLVector3 orthogonal_component(const LLVector3 &a, const LLVector3 &b); // Returns component of vector a not parallel to vector b (same as projected_vec)
 LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
 
 inline LLVector3::LLVector3(void)
@@ -489,6 +492,17 @@ inline LLVector3 projected_vec(const LLVector3 &a, const LLVector3 &b)
 	project_axis.normalize();
 	return project_axis * (a * project_axis);
 }
+
+inline LLVector3 parallel_component(const LLVector3 &a, const LLVector3 &b)
+{
+	return projected_vec(a, b);
+}
+
+inline LLVector3 orthogonal_component(const LLVector3 &a, const LLVector3 &b)
+{
+	return a - projected_vec(a, b);
+}
+
 
 inline LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u)
 {

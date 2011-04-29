@@ -4,12 +4,13 @@
 		Botón medio del ratón
 	</panel.string>
 	<slider label="Volumen general" name="System Volume"/>
-	<check_box initial_value="true" label="Silenciar cuando minimice" name="mute_when_minimized"/>
+	<check_box initial_value="true" name="mute_when_minimized"/>
+	<text name="mute_chb_label">Silenciar cuando minimice</text>
 	<slider label="Botones" name="UI Volume"/>
 	<slider label="Ambiental" name="Wind Volume"/>
 	<slider label="Efectos de sonido" name="SFX Volume"/>
 	<slider label="Música en streaming" name="Music Volume"/>
-	<check_box label="Activada" name="enable_music"/>
+	<check_box label="Activados" name="enable_music"/>
 	<slider label="Multimedia" name="Media Volume"/>
 	<check_box label="Activada" name="enable_media"/>
 	<slider label="Chat de voz" name="Voice Volume"/>

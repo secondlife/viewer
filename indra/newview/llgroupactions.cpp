@@ -53,6 +53,12 @@ public:
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableGroupInfo"))
+		{
+			LLNotificationsUtil::add("NoGroupInfo", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+			return true;
+		}
+
 		if (tokens.size() < 1)
 		{
 			return false;

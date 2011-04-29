@@ -48,6 +48,7 @@
 #include "llanimationstates.h"
 #include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llphysicsmotion.h"
 #include "llviewercontrol.h"
 #include "llcallingcard.h"		// IDEVO for LLAvatarTracker
 #include "lldrawpoolavatar.h"
@@ -108,6 +109,8 @@ extern F32 ANIM_SPEED_MIN;
 
 #include <boost/lexical_cast.hpp>
 
+// #define OUTPUT_BREAST_DATA
+
 using namespace LLVOAvatarDefines;
 
 //-----------------------------------------------------------------------------
@@ -123,6 +126,7 @@ const LLUUID ANIM_AGENT_HEAD_ROT = LLUUID("e6e8d1dd-e643-fff7-b238-c6b4b056a68d"
 const LLUUID ANIM_AGENT_PELVIS_FIX = LLUUID("0c5dd2a2-514d-8893-d44d-05beffad208b");  //"pelvis_fix"
 const LLUUID ANIM_AGENT_TARGET = LLUUID("0e4896cb-fba4-926c-f355-8720189d5b55");  //"target"
 const LLUUID ANIM_AGENT_WALK_ADJUST	= LLUUID("829bc85b-02fc-ec41-be2e-74cc6dd7215d");  //"walk_adjust"
+const LLUUID ANIM_AGENT_PHYSICS_MOTION = LLUUID("7360e029-3cb8-ebc4-863e-212df440d987");  //"physics_motion"
 
 
 //-----------------------------------------------------------------------------
@@ -620,6 +624,7 @@ BOOL LLVOAvatar::sShowAnimationDebug = FALSE;
 BOOL LLVOAvatar::sShowFootPlane = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
+F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
 BOOL LLVOAvatar::sUseImpostors = FALSE;
 BOOL LLVOAvatar::sJointDebug = FALSE;
 
@@ -1144,6 +1149,7 @@ void LLVOAvatar::initClass()
 
 	gAnimLibrary.animStateSetString(ANIM_AGENT_BODY_NOISE,"body_noise");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_BREATHE_ROT,"breathe_rot");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_PHYSICS_MOTION,"physics_motion");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_EDITING,"editing");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_EYE,"eye");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_FLY_ADJUST,"fly_adjust");
@@ -1282,6 +1288,7 @@ void LLVOAvatar::initInstance(void)
 		// motions without a start/stop bit
 		registerMotion( ANIM_AGENT_BODY_NOISE,				LLBodyNoiseMotion::create );
 		registerMotion( ANIM_AGENT_BREATHE_ROT,				LLBreatheMotionRot::create );
+		registerMotion( ANIM_AGENT_PHYSICS_MOTION,			LLPhysicsMotionController::create );
 		registerMotion( ANIM_AGENT_EDITING,					LLEditingMotion::create	);
 		registerMotion( ANIM_AGENT_EYE,						LLEyeMotion::create	);
 		registerMotion( ANIM_AGENT_FEMALE_WALK,				LLKeyframeWalkMotion::create );
@@ -1295,17 +1302,7 @@ void LLVOAvatar::initInstance(void)
 		
 	}
 	
-	if (gNoRender)
-	{
-		return;
-	}
-	
 	buildCharacter();
-	
-	if (gNoRender)
-	{
-		return;
-	}
 	
 	// preload specific motions here
 	createMotion( ANIM_AGENT_CUSTOMIZE);
@@ -1695,6 +1692,7 @@ void LLVOAvatar::startDefaultMotions()
 	startMotion( ANIM_AGENT_EYE );
 	startMotion( ANIM_AGENT_BODY_NOISE );
 	startMotion( ANIM_AGENT_BREATHE_ROT );
+	startMotion( ANIM_AGENT_PHYSICS_MOTION );
 	startMotion( ANIM_AGENT_HAND_MOTION );
 	startMotion( ANIM_AGENT_PELVIS_FIX );
 
@@ -1746,12 +1744,6 @@ void LLVOAvatar::buildCharacter()
 
 	BOOL status = loadAvatar();
 	stop_glerror();
-
-	if (gNoRender)
-	{
-		// Still want to load the avatar skeleton so visual parameters work.
-		return;
-	}
 
 // 	gPrintMessagesThisFrame = TRUE;
 	lldebugs << "Avatar load took " << timer.getElapsedTimeF32() << " seconds." << llendl;
@@ -2223,7 +2215,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	setPixelAreaAndAngle(gAgent);
 
 	// force asynchronous drawable update
-	if(mDrawable.notNull() && !gNoRender)
+	if(mDrawable.notNull())
 	{	
 		LLFastTimer t(FTM_JOINT_UPDATE);
 	
@@ -2279,11 +2271,6 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	// store off last frame's root position to be consistent with camera position
 	LLVector3 root_pos_last = mRoot.getWorldPosition();
 	BOOL detailed_update = updateCharacter(agent);
-
-	if (gNoRender)
-	{
-		return TRUE;
-	}
 
 	static LLUICachedControl<bool> visualizers_in_calls("ShowVoiceVisualizersInCalls", false);
 	bool voice_enabled = (visualizers_in_calls || LLVoiceClient::getInstance()->inProximalChannel()) &&
@@ -3257,17 +3244,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		}
 	}
 
-	if (gNoRender)
-	{
-		// Hack if we're running drones...
-		if (isSelf())
-		{
-			gAgent.setPositionAgent(getPositionAgent());
-		}
-		return FALSE;
-	}
-
-
 	LLVector3d root_pos_global;
 
 	if (!mIsBuilt)
@@ -4194,7 +4170,7 @@ void LLVOAvatar::updateTextures()
 {
 	BOOL render_avatar = TRUE;
 
-	if (mIsDummy || gNoRender)
+	if (mIsDummy)
 	{
 		return;
 	}
@@ -4468,11 +4444,6 @@ void LLVOAvatar::processAnimationStateChanges()
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	
-	if (gNoRender)
-	{
-		return;
-	}
-
 	if ( isAnyAnimationSignaled(AGENT_WALK_ANIMS, NUM_AGENT_WALK_ANIMS) )
 	{
 		startMotion(ANIM_AGENT_WALK_ADJUST);
@@ -4867,7 +4838,7 @@ void LLVOAvatar::getGround(const LLVector3 &in_pos_agent, LLVector3 &out_pos_age
 	LLVector3d z_vec(0.0f, 0.0f, 1.0f);
 	LLVector3d p0_global, p1_global;
 
-	if (gNoRender || mIsDummy)
+	if (mIsDummy)
 	{
 		outNorm.setVec(z_vec);
 		out_pos_agent = in_pos_agent;
@@ -5439,11 +5410,6 @@ BOOL LLVOAvatar::loadLayersets()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::updateVisualParams()
 {
-	if (gNoRender)
-	{
-		return;
-	}
-
 	setSex( (getVisualParamWeight( "male" ) > 0.5f) ? SEX_MALE : SEX_FEMALE );
 
 	LLCharacter::updateVisualParams();
@@ -6174,8 +6140,6 @@ LLMotion* LLVOAvatar::findMotion(const LLUUID& id) const
 void LLVOAvatar::updateMeshTextures()
 {
     // llinfos << "updateMeshTextures" << llendl;
-	if (gNoRender) return;
-
 	// if user has never specified a texture, assign the default
 	for (U32 i=0; i < getNumTEs(); i++)
 	{
@@ -6211,11 +6175,9 @@ void LLVOAvatar::updateMeshTextures()
 			// When an avatar is changing clothes and not in Appearance mode,
 			// use the last-known good baked texture until it finish the first
 			// render of the new layerset.
-
 			const BOOL layerset_invalid = mBakedTextureDatas[i].mTexLayerSet 
 										  && ( !mBakedTextureDatas[i].mTexLayerSet->getComposite()->isInitialized()
 										  || !mBakedTextureDatas[i].mTexLayerSet->isLocalTextureDataAvailable() );
-
 			use_lkg_baked_layer[i] = (!is_layer_baked[i] 
 									  && (mBakedTextureDatas[i].mLastTextureIndex != IMG_DEFAULT_AVATAR) 
 									  && layerset_invalid);
@@ -6829,11 +6791,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 //			llinfos << "processAvatarAppearance end  " << mID << llendl;
 			return;
 		}
-	}
-
-	if (gNoRender)
-	{
-		return;
 	}
 
 	ESex old_sex = getSex();

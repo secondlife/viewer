@@ -48,6 +48,12 @@ viewer-beta.login_channel = "Second Life Beta Viewer"
 viewer-beta.build_debug_release_separately = true
 viewer-beta.build_viewer_update_version_manager = true
 
+viewer-pre-beta.viewer_channel = "Second Life Beta Viewer"
+viewer-pre-beta.login_channel = "Second Life Beta Viewer"
+viewer-pre-beta.build_debug_release_separately = true
+viewer-pre-beta.build_viewer_update_version_manager = true
+
+
 # ========================================
 # Viewer Release
 # ========================================
@@ -55,20 +61,18 @@ viewer-release.viewer_channel = "Second Life Release"
 viewer-release.login_channel = "Second Life Release"
 viewer-release.build_debug_release_separately = true
 viewer-release.build_viewer_update_version_manager = true
-viewer-release.release-viewer.jira = DRTVWR-13
 
-# ========================================
-# aimee
-# ========================================
+viewer-pre-release.viewer_channel = "Second Life Release"
+viewer-pre-release.login_channel = "Second Life Release"
+viewer-pre-release.build_debug_release_separately = true
+viewer-pre-release.build_viewer_update_version_manager = true
+#viewer-pre-release.release-viewer.jira = DRTVWR-13
+viewer-pre-release.release-viewer.jira = DRTVWR-46
 
-viewer-development-import.build_debug_release_separately = true
-viewer-development-fixes.build_debug_release_separately = true
-viewer-development-tweaks.build_debug_release_separately = true
 
 # =======================================
 # brad
 # ========================================
-
 debug-halting.email = cg@lindenlab.com
 debug-halting.build_server = false
 debug-halting.build_server_tests = false
@@ -152,56 +156,13 @@ media.build_viewer_update_version_manager = false
 # oz
 # ================
 
-oz_viewer-review1_coverity.coverity_product = viewer
+oz_viewer-devreview.build_debug_release_separately = true
+oz_project-1.build_debug_release_separately = true
+oz_project-2.build_debug_release_separately = true
+oz-project-3.build_debug_release_separately = true
 
-oz_viewer-review1.build_Linux = true
-oz_viewer-review1_debug.build_Linux = false
-oz_viewer-review1_coverity.build_Linux = false
 
-oz_viewer-review1.build_Darwin = true
-oz_viewer-review1_debug.build_Darwin = false
-oz_viewer-review1_coverity.build_Darwin = false
-
-oz_viewer-review1.build_CYGWIN = true
-oz_viewer-review1.build_CYGWIN_Debug = false
-oz_viewer-review1.build_CYGWIN_RelWithDebInfo = false
-oz_viewer-review1.build_CYGWIN_Release = true
-oz_viewer-review1_debug.build_CYGWIN_Debug = true
-oz_viewer-review1_debug.build_CYGWIN_RelWithDebInfo = true
-oz_viewer-review1_debug.build_CYGWIN_Release = false
-oz_viewer-review1_coverity.build_coverity = true
-oz_viewer-review1_coverity.build_CYGWIN_Debug = false
-oz_viewer-review1_coverity.build_CYGWIN_RelWithDebInfo = false
-oz_viewer-review1_coverity.build_CYGWIN_Release = false
-
-oz_viewer-review2_coverity.coverity_product = viewer
-
-oz_viewer-review2.build_Linux = true
-oz_viewer-review2_debug.build_Linux = false
-oz_viewer-review2_coverity.build_Linux = false
-
-oz_viewer-review2.build_Darwin = true
-oz_viewer-review2_debug.build_Darwin = false
-oz_viewer-review2_coverity.build_Darwin = false
-
-oz_viewer-review2.build_CYGWIN = true
-oz_viewer-review2.build_CYGWIN_Debug = false
-oz_viewer-review2.build_CYGWIN_RelWithDebInfo = false
-oz_viewer-review2.build_CYGWIN_Release = true
-oz_viewer-review2_debug.build_CYGWIN_Debug = true
-oz_viewer-review2_debug.build_CYGWIN_RelWithDebInfo = true
-oz_viewer-review2_debug.build_CYGWIN_Release = false
-oz_viewer-review2_coverity.build_coverity = true
-oz_viewer-review2_coverity.build_CYGWIN_Debug = false
-oz_viewer-review2_coverity.build_CYGWIN_RelWithDebInfo = false
-oz_viewer-review2_coverity.build_CYGWIN_Release = false
-
-# ========================================
-# tofu
-# ========================================
-
-tofu_viewer-development-staging.email = tofu.linden@lindenlab.com
-
+oz_viewer-beta-review.build_debug_release_separately = true
 # ========================================
 # enus
 # ========================================
@@ -234,5 +195,23 @@ viewer-asset-delivery-metrics.email = monty@lindenlab.com
 viewer-asset-delivery-metrics.build_server = false
 viewer-asset-delivery-metrics.build_server_tests = false
 
+#==============================================================================
+# autobuild viewers
+#==============================================================================
+viewer-autobuild2010.build_debug_release_separately = true
+viewer-autobuild2010.viewer_channel = "Project Viewer - VS2010"
+viewer-autobuild2010.login_channel = "Project Viewer - VS2010"
+viewer-autobuild2010.viewer_grid = agni
+viewer-autobuild2010.build_link_parallel = false
+
+#======================================== 
+# VS2010 
+#======================================== 
+viewer-vs2010.viewer_channel = "Project Viewer - VS2010"
+viewer-vs2010.login_channel = "Project Viewer - VS2010"
+viewer-vs2010.viewer_grid = agni
+viewer-vs2010.build_debug_release_separately = true
+viewer-vs2010.build_viewer_update_version_manager = false
+viewer-vs2010.build_link_parallel = false
 
 # eof

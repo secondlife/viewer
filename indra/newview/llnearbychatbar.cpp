@@ -47,6 +47,7 @@
 #include "llwindow.h"
 #include "llviewerwindow.h"
 #include "llrootview.h"
+#include "llviewerchat.h"
 
 S32 LLNearbyChatBar::sLastSpecialChatChannel = 0;
 
@@ -157,6 +158,16 @@ BOOL LLGestureComboList::handleKeyHere(KEY key, MASK mask)
 	return handled; 		
 }
 
+void LLGestureComboList::draw()
+{
+	LLUICtrl::draw();
+
+	if(mButton->getToggleState())
+	{
+		showList();
+	}
+}
+
 void LLGestureComboList::showList()
 {
 	LLRect rect = mList->getRect();
@@ -180,6 +191,7 @@ void LLGestureComboList::showList()
 	// Show the list and push the button down
 	mButton->setToggleState(TRUE);
 	mList->setVisible(TRUE);
+	sendChildToFront(mList);
 	LLUI::addPopup(mList);
 }
 
@@ -422,11 +434,24 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setPassDelete(TRUE);
 	mChatBox->setReplaceNewlinesWithSpaces(FALSE);
 	mChatBox->setEnableLineHistory(TRUE);
+	mChatBox->setFont(LLViewerChat::getChatFont());
 
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 	mOutputMonitor->setVisible(FALSE);
 
+	// Register for font change notifications
+	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
+
 	return TRUE;
+}
+
+void LLNearbyChatBar::onChatFontChange(LLFontGL* fontp)
+{
+	// Update things with the new font whohoo
+	if (mChatBox)
+	{
+		mChatBox->setFont(fontp);
+	}
 }
 
 //static
