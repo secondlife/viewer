@@ -11662,10 +11662,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>VoiceCallsRejectAll</key>
+    <key>VoiceCallsRejectGroup</key>
     <map>
       <key>Comment</key>
-      <string>Silently reject all incoming voice calls.</string>
+      <string>Silently reject all incoming group voice calls.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -11673,7 +11673,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>VoiceDisableMic</key>
+  <key>VoiceDisableMic</key>
     <map>
       <key>Comment</key>
       <string>Completely disable the ability to open the mic.</string>

@@ -117,14 +117,14 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-    <key>VoiceCallsRejectAll</key>
+    <key>VoiceCallsRejectGroup</key>
         <map>
         <key>Comment</key>
-            <string>Silently reject all incoming voice calls.</string>
+            <string>Silently reject all incoming group voice calls.</string>
         <key>Type</key>
             <string>Boolean</string>
         <key>Value</key>
-            <integer>0</integer>
+            <integer>1</integer>
         </map>
     <key>VoiceDisableMic</key>
         <map>
