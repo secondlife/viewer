@@ -1343,7 +1343,6 @@ namespace LLInitParam
 		{
 			mCurChoice = other.mCurChoice;
 			return BaseBlock::mergeBlock(selfBlockDescriptor(), other, overwrite);
-			return false;
 		}
 
 		// clear out old choice when param has changed
