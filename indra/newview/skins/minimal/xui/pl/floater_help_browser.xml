@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_help_browser" title="POMOC">
+	<floater.string name="loading_text">
+		Ładowanie...
+	</floater.string>
+	<layout_stack name="stack1">
+		<layout_panel name="external_controls"/>
+	</layout_stack>
+</floater>
