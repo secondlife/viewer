@@ -566,6 +566,10 @@ void LLAvatarNameCache::eraseUnrefreshed()
                                          << LL_ENDL;
                 sCache.erase(it++);
             }
+			else
+			{
+				++it;
+			}
         }
         LL_INFOS("AvNameCache") << sCache.size() << " cached avatar names" << LL_ENDL;
 	}
