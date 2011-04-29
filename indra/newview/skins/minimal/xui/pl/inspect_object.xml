@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_object">
+	<string name="Creator">
+		Przez [CREATOR]
+	</string>
+	<string name="CreatorAndOwner">
+		Twórca [CREATOR]
+Właściciel [OWNER]
+	</string>
+	<string name="Price">
+		L$[AMOUNT]
+	</string>
+	<string name="PriceFree">
+		Darmowe!
+	</string>
+	<string name="Touch">
+		Dotknij
+	</string>
+	<string name="Sit">
+		Usiądź tutaj
+	</string>
+	<text name="object_name" value="Test Object Name That Is actually two lines and Really Long"/>
+	<text name="price_text">
+		L$30,000
+	</text>
+	<text name="object_description">
+		This is a really long description for an object being as how it is at least 80 characters in length and so but maybe more like 120 at this point. Who knows, really?
+	</text>
+	<button label="Kup" name="buy_btn"/>
+	<button label="Zapłać" name="pay_btn"/>
+	<button label="Weź kopię" name="take_free_copy_btn"/>
+	<button label="Dotknij" name="touch_btn"/>
+	<button label="Usiądź tutaj" name="sit_btn"/>
+	<button label="Otwórz" name="open_btn"/>
+	<icon name="secure_browsing" tool_tip="Zabezpiecz przeglądanie"/>
+	<button label="Więcej" name="more_info_btn"/>
+</floater>
