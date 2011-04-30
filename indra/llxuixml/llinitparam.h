@@ -476,8 +476,12 @@ namespace LLInitParam
 		void init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size);
 
 
+		bool mergeBlockParam(bool param_provided, BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
+		{
+			return mergeBlock(block_data, other, overwrite);
+		}
 		// take all provided params from other and apply to self
-		bool merge(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite);
+		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite);
 
 		// can be updated in getters
 		mutable S32				mChangeVersion;
@@ -896,12 +900,14 @@ namespace LLInitParam
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
 			self_t& dst_typed_param = static_cast<self_t&>(dst);
 
-			if (src_typed_param.isProvided()
-				&& (overwrite || !dst_typed_param.isProvided()))
+			if (src_typed_param.anyProvided())
 			{
-				if (dst_typed_param.merge(param_value_t::selfBlockDescriptor(), src_typed_param, overwrite))
+				bool param_provided = src_typed_param.isProvided() && (overwrite || !dst_typed_param.isProvided());
+				if (dst_typed_param.mergeBlockParam(param_provided, param_value_t::selfBlockDescriptor(), src_typed_param, overwrite))
 				{
 					dst_typed_param.clearValueName();
+					dst_typed_param.setProvided(true);
+					dst_typed_param.enclosingBlock().paramChanged(dst_typed_param, true);
 					return true;
 				}
 			}
@@ -1081,6 +1087,12 @@ namespace LLInitParam
 				container_t new_values(src_typed_param.mValues);
 				std::copy(dst_typed_param.begin(), dst_typed_param.end(), std::back_inserter(new_values));
 				std::swap(dst_typed_param.mValues, new_values);
+			}
+
+			if (src_typed_param.begin() != src_typed_param.end())
+			{
+				dst_typed_param.setProvided(true);
+				dst_typed_param.enclosingBlock().paramChanged(dst_typed_param, true);
 			}
 			return true;
 		}
@@ -1282,6 +1294,13 @@ namespace LLInitParam
 				std::copy(dst_typed_param.begin(), dst_typed_param.end(), std::back_inserter(new_values));
 				std::swap(dst_typed_param.mValues, new_values);
 			}
+
+			if (src_typed_param.begin() != src_typed_param.end())
+			{
+				dst_typed_param.setProvided(true);
+				dst_typed_param.enclosingBlock().paramChanged(dst_typed_param, true);
+			}
+
 			return true;
 		}
 
@@ -1301,25 +1320,29 @@ namespace LLInitParam
 		// take all provided params from other and apply to self
 		bool overwriteFrom(const self_t& other)
 		{
-			return merge(selfBlockDescriptor(), other, true);
+			return mergeBlock(selfBlockDescriptor(), other, true);
 		}
 
 		// take all provided params that are not already provided, and apply to self
 		bool fillFrom(const self_t& other)
 		{
-			return merge(selfBlockDescriptor(), other, false);
+			return mergeBlock(selfBlockDescriptor(), other, false);
+		}
+
+		bool mergeBlockParam(bool param_provided, BlockDescriptor& block_data, const self_t& other, bool overwrite)
+		{
+			if (param_provided)
+			{
+				return mergeBlock(block_data, other, overwrite);
+			}
+			return false;
 		}
 
 		// merge with other block
-		bool merge(BlockDescriptor& block_data, const self_t& other, bool overwrite)
+		bool mergeBlock(BlockDescriptor& block_data, const self_t& other, bool overwrite)
 		{
-			// only merge a choice if we are overwriting with other's contents
-			if (overwrite)
-			{
-				mCurChoice = other.mCurChoice;
-				return BaseBlock::merge(selfBlockDescriptor(), other, overwrite);
-			}
-			return false;
+			mCurChoice = other.mCurChoice;
+			return BaseBlock::mergeBlock(selfBlockDescriptor(), other, overwrite);
 		}
 
 		// clear out old choice when param has changed
@@ -1445,13 +1468,13 @@ namespace LLInitParam
 		// take all provided params from other and apply to self
 		bool overwriteFrom(const self_t& other)
 		{
-			return static_cast<DERIVED_BLOCK*>(this)->merge(selfBlockDescriptor(), other, true);
+			return static_cast<DERIVED_BLOCK*>(this)->mergeBlock(selfBlockDescriptor(), other, true);
 		}
 
 		// take all provided params that are not already provided, and apply to self
 		bool fillFrom(const self_t& other)
 		{
-			return static_cast<DERIVED_BLOCK*>(this)->merge(selfBlockDescriptor(), other, false);
+			return static_cast<DERIVED_BLOCK*>(this)->mergeBlock(selfBlockDescriptor(), other, false);
 		}
 
 		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
@@ -1862,7 +1885,16 @@ namespace LLInitParam
 			mValue = value;
 		}
 
-		bool merge(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
+		bool mergeBlockParam(bool param_provided, BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
+		{
+			if (param_provided)
+			{
+				return mergeBlock(block_data, other, overwrite);
+			}
+			return false;
+		}
+
+		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
 		{
 			const derived_t& src_typed_param = static_cast<const derived_t&>(other);
 
@@ -1875,7 +1907,7 @@ namespace LLInitParam
 			else
 			{
 				// merge individual parameters into destination
-				return block_t::merge(block_t::selfBlockDescriptor(), src_typed_param, overwrite);
+				return block_t::mergeBlock(block_t::selfBlockDescriptor(), src_typed_param, overwrite);
 			}
 		}
 
