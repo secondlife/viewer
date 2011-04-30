@@ -80,7 +80,7 @@ public:
 	BOOL mFirstTransform;
 	LLVector3 mExtents[2];
 	bool mTrySLM;
-
+	
 	std::map<daeElement*, LLPointer<LLModel> > mModel;
 	
 	typedef std::vector<LLPointer<LLModel> > model_list;
@@ -99,6 +99,8 @@ public:
 
 	LLModelLoader( std::string filename, S32 lod, LLModelPreview* preview, JointTransformMap& jointMap, 
 				   std::deque<std::string>& jointsFromNodes );
+	~LLModelLoader() ;
+
 	virtual void run();
 	bool doLoadModel();
 	bool loadFromSLM(const std::string& filename);
@@ -131,6 +133,10 @@ public:
 	std::map<std::string, std::string> mJointMap;
 	JointTransformMap& mJointList;	
 	std::deque<std::string>& mJointsFromNode;
+
+private:
+	static std::list<LLModelLoader*> sActiveLoaderList;
+	static bool isAlive(LLModelLoader* loader) ;
 };
 
 class LLFloaterModelPreview : public LLFloater
