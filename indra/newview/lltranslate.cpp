@@ -34,6 +34,8 @@
 
 #include "lltranslate.h"
 
+#include <curl/curl.h>
+
 #include "llbufferstream.h"
 #include "llui.h"
 #include "llversionviewer.h"
