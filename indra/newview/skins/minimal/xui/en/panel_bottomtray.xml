@@ -105,7 +105,7 @@
           min_height="28"
           min_width="20"
           mouse_opaque="false"
-          name="flyout_panel"
+          name="speak_flyout_panel"
           top_delta="0"
           user_resize="false"
           width="20">

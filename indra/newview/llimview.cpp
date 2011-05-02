@@ -2696,10 +2696,10 @@ void LLIMMgr::inviteToSession(
 
 	if (voice_invite)
 	{
-		if	(	// if we're rejecting all incoming call requests
-				gSavedSettings.getBOOL("VoiceCallsRejectAll")	
+		if	(	// if we are rejecting group calls 
+				(gSavedSettings.getBOOL("VoiceCallsRejectGroup") && notify_box_type == "VoiceInviteGroup") ||
 				// or we're rejecting non-friend voice calls and this isn't a friend	
-				|| (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL))
+				(gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL))
 			)
 		{
 			// silently decline the call
