@@ -1375,3 +1375,4 @@ char const* const _PREHASH_VCoord = LLMessageStringTable::getInstance()->getStri
 char const* const _PREHASH_FaceIndex = LLMessageStringTable::getInstance()->getString("FaceIndex");
 char const* const _PREHASH_StatusData = LLMessageStringTable::getInstance()->getString("StatusData");
 char const* const _PREHASH_ProductSKU = LLMessageStringTable::getInstance()->getString("ProductSKU");
+char const* const _PREHASH_Privacy = LLMessageStringTable::getInstance()->getString("Privacy");

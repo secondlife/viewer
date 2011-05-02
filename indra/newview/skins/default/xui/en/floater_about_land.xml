@@ -1204,6 +1204,10 @@ Only large parcels can be listed in search.
              name="push_restrict_region_text">
                 No Pushing (Region Override)
             </panel.string>
+            <panel.string
+             name="private_parcel_text">
+                Private Parcel
+            </panel.string>
             <text
              type="string"
              length="1"
@@ -1333,7 +1337,7 @@ Only large parcels can be listed in search.
              name="check safe"
              tool_tip="If checked, sets the land to Safe, disabling damage combat. If cleared, damage combat is enabled."
              top_pad="5"
-             width="200" />
+             width="280" />
             <check_box
              height="16"
              label="No Pushing"
@@ -1350,7 +1354,16 @@ Only large parcels can be listed in search.
              left="14"
              name="ShowDirectoryCheck"
              tool_tip="Let people see this parcel in search results"
-             width="430" />
+             width="280" />
+            <check_box
+             height="16"
+             label="Private Parcel"
+             layout="topleft"
+             left_pad="5"
+             name="PrivateParcelCheck"
+             tool_tip="Prevents avatars from seeing into or out of the parcel."
+             top_delta="0"
+             width="119" />
             <combo_box
              enabled="false"
              height="23"

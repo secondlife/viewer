@@ -347,6 +347,7 @@ private:
 
 	LLCheckBoxCtrl		*mMatureCtrl;
 	LLCheckBoxCtrl		*mPushRestrictionCtrl;
+	LLCheckBoxCtrl		*mPrivateParcelCtrl;
 
 	LLSafeHandle<LLParcelSelection>&	mParcel;
 };

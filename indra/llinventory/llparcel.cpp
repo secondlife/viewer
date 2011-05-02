@@ -702,7 +702,7 @@ void LLParcel::packMessage(LLSD& msg)
 	msg["user_location"] = ll_sd_from_vector3(mUserLocation);
 	msg["user_look_at"] = ll_sd_from_vector3(mUserLookAt);
 	msg["landing_type"] = (U8)mLandingType;
-
+	msg["privacy"] = (LLSD::Boolean) getPrivacy();
 }
 
 
@@ -721,6 +721,14 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
     msg->getStringFast( _PREHASH_ParcelData,_PREHASH_MediaURL, buffer );
     setMediaURL(buffer);
     
+	BOOL private_parcel = FALSE;
+	bool have_privacy_data = (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_Privacy) > 0);
+	if (have_privacy_data)
+	{
+		msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_Privacy, private_parcel);
+	}
+	setPrivacy((bool) private_parcel);
+
     // non-optimized version
     msg->getU8 ( "ParcelData", "MediaAutoScale", mMediaAutoScale );
     
