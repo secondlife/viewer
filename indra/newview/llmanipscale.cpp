@@ -259,7 +259,7 @@ void LLManipScale::render()
 				// range != zero
 				F32 fraction_of_fov = BOX_HANDLE_BASE_SIZE / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
 				F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
-				mBoxHandleSize = fsqrtf(range_squared) * tan(apparent_angle) * BOX_HANDLE_BASE_FACTOR;
+				mBoxHandleSize = (F32) sqrtf(range_squared) * tan(apparent_angle) * BOX_HANDLE_BASE_FACTOR;
 			}
 			else
 			{

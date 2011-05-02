@@ -6983,7 +6983,7 @@ bool LLSelectMgr::selectionMove(const LLVector3& displ,
 		
 		// factor the distance into the displacement vector. This will get us
 		// equally visible movements for both close and far away selections.
-		F32 min_dist = sqrt(fsqrtf(min_dist_squared)) / 2;
+		F32 min_dist = sqrt((F32) sqrtf(min_dist_squared)) / 2;
 		displ_global.setVec(displ.mV[0] * min_dist,
 							displ.mV[1] * min_dist,
 							displ.mV[2] * min_dist);
