@@ -6465,9 +6465,12 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	LLSD payload;
 
 	LLUUID object_id;
-	msg->getUUID("Data", "ObjectID", object_id);
+    LLUUID owner_id;
 
-	if (LLMuteList::getInstance()->isMuted(object_id))
+	msg->getUUID("Data", "ObjectID", object_id);
+    msg->getUUID("OwnerData", "OwnerID", owner_id);
+
+	if (LLMuteList::getInstance()->isMuted(object_id) || LLMuteList::getInstance()->isMuted(owner_id))
 	{
 		return;
 	}
