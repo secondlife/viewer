@@ -32,19 +32,19 @@ build_dir_CYGWIN()
 
 installer_Darwin()
 {
-  ls -1td "$(build_dir_Darwin ${last_built_variant:-Release})/newview/"*.dmg 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Darwin Release)/newview/"*.dmg 2>/dev/null | sed 1q
 }
 
 installer_Linux()
 {
-  ls -1td "$(build_dir_Linux ${last_built_variant:-Release})/newview/"*.tar.bz2 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Linux Release)/newview/"*.tar.bz2 2>/dev/null | sed 1q
 }
 
 installer_CYGWIN()
 {
-  d=$(build_dir_CYGWIN ${last_built_variant:-Release})
-  p=$(sed 's:.*=::' "$d/newview/${last_built_variant:-Release}/touched.bat")
-  echo "$d/newview/${last_built_variant:-Release}/$p"
+  d=$(build_dir_CYGWIN Release)
+  p=$(sed 's:.*=::' "$d/newview/Release/touched.bat")
+  echo "$d/newview/Release/$p"
 }
 
 pre_build()

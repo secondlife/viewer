@@ -206,6 +206,28 @@ const LLVector3&	LLVector3::rotVec(const LLQuaternion &q)
 	return *this;
 }
 
+const LLVector3& LLVector3::transVec(const LLMatrix4& mat)
+{
+	setVec(
+			mV[VX] * mat.mMatrix[VX][VX] + 
+			mV[VY] * mat.mMatrix[VX][VY] + 
+			mV[VZ] * mat.mMatrix[VX][VZ] +
+			mat.mMatrix[VX][VW],
+			 
+			mV[VX] * mat.mMatrix[VY][VX] + 
+			mV[VY] * mat.mMatrix[VY][VY] + 
+			mV[VZ] * mat.mMatrix[VY][VZ] +
+			mat.mMatrix[VY][VW],
+
+			mV[VX] * mat.mMatrix[VZ][VX] + 
+			mV[VY] * mat.mMatrix[VZ][VY] + 
+			mV[VZ] * mat.mMatrix[VZ][VZ] +
+			mat.mMatrix[VZ][VW]);
+
+	return *this;
+}
+
+
 const LLVector3&	LLVector3::rotVec(F32 angle, const LLVector3 &vec)
 {
 	if ( !vec.isExactlyZero() && angle )

@@ -1,3 +1,4 @@
+include(Python)
 MACRO(LL_TEST_COMMAND OUTVAR LD_LIBRARY_PATH)
   # nat wonders how Kitware can use the term 'function' for a construct that
   # cannot return a value. And yet, variables you set inside a FUNCTION are

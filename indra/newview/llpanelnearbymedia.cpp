@@ -356,7 +356,7 @@ void LLPanelNearByMedia::updateListItem(LLScrollListItem* item, LLViewerMediaImp
 		debug_str += llformat("%g/", (float)impl->getInterest());
 		
 		// proximity distance is actually distance squared -- display it as straight distance.
-		debug_str += llformat("%g/", fsqrtf(impl->getProximityDistance()));
+		debug_str += llformat("%g/", (F32) sqrt(impl->getProximityDistance()));
 		
 		//			s += llformat("%g/", (float)impl->getCPUUsage());
 		//			s += llformat("%g/", (float)impl->getApproximateTextureInterest());

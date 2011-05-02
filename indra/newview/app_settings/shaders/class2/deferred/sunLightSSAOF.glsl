@@ -4,6 +4,8 @@
  * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
  * $License$
  */
+ 
+#version 120
 
 #extension GL_ARB_texture_rectangle : enable
 
@@ -60,58 +62,50 @@ vec4 getPosition(vec2 pos_screen)
 float calcAmbientOcclusion(vec4 pos, vec3 norm)
 {
 	float ret = 1.0;
-	
-	float dist = dot(pos.xyz,pos.xyz);
-	
-	if (dist < 64.0*64.0)
-	{
-		vec2 kern[8];
-		// exponentially (^2) distant occlusion samples spread around origin
-		kern[0] = vec2(-1.0, 0.0) * 0.125*0.125;
-		kern[1] = vec2(1.0, 0.0) * 0.250*0.250;
-		kern[2] = vec2(0.0, 1.0) * 0.375*0.375;
-		kern[3] = vec2(0.0, -1.0) * 0.500*0.500;
-		kern[4] = vec2(0.7071, 0.7071) * 0.625*0.625;
-		kern[5] = vec2(-0.7071, -0.7071) * 0.750*0.750;
-		kern[6] = vec2(-0.7071, 0.7071) * 0.875*0.875;
-		kern[7] = vec2(0.7071, -0.7071) * 1.000*1.000;
 
-		vec2 pos_screen = vary_fragcoord.xy;
-		vec3 pos_world = pos.xyz;
-		vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy/128.0).xy;
+	vec2 kern[8];
+	// exponentially (^2) distant occlusion samples spread around origin
+	kern[0] = vec2(-1.0, 0.0) * 0.125*0.125;
+	kern[1] = vec2(1.0, 0.0) * 0.250*0.250;
+	kern[2] = vec2(0.0, 1.0) * 0.375*0.375;
+	kern[3] = vec2(0.0, -1.0) * 0.500*0.500;
+	kern[4] = vec2(0.7071, 0.7071) * 0.625*0.625;
+	kern[5] = vec2(-0.7071, -0.7071) * 0.750*0.750;
+	kern[6] = vec2(-0.7071, 0.7071) * 0.875*0.875;
+	kern[7] = vec2(0.7071, -0.7071) * 1.000*1.000;
+
+	vec2 pos_screen = vary_fragcoord.xy;
+	vec3 pos_world = pos.xyz;
+	vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy/128.0).xy;
 		
-		float angle_hidden = 0.0;
-		int points = 0;
+	float angle_hidden = 0.0;
+	int points = 0;
 		
-		float scale = min(ssao_radius / -pos_world.z, ssao_max_radius);
+	float scale = min(ssao_radius / -pos_world.z, ssao_max_radius);
 		
-		// it was found that keeping # of samples a constant was the fastest, probably due to compiler optimizations (unrolling?)
-		for (int i = 0; i < 8; i++)
-		{
-			vec2 samppos_screen = pos_screen + scale * reflect(kern[i], noise_reflect);
-			vec3 samppos_world = getPosition(samppos_screen).xyz; 
+	// it was found that keeping # of samples a constant was the fastest, probably due to compiler optimizations (unrolling?)
+	for (int i = 0; i < 8; i++)
+	{
+		vec2 samppos_screen = pos_screen + scale * reflect(kern[i], noise_reflect);
+		vec3 samppos_world = getPosition(samppos_screen).xyz; 
 			
-			vec3 diff = pos_world - samppos_world;
-			float dist2 = dot(diff, diff);
+		vec3 diff = pos_world - samppos_world;
+		float dist2 = dot(diff, diff);
 			
-			// assume each sample corresponds to an occluding sphere with constant radius, constant x-sectional area
-			// --> solid angle shrinking by the square of distance
-			//radius is somewhat arbitrary, can approx with just some constant k * 1 / dist^2
-			//(k should vary inversely with # of samples, but this is taken care of later)
+		// assume each sample corresponds to an occluding sphere with constant radius, constant x-sectional area
+		// --> solid angle shrinking by the square of distance
+		//radius is somewhat arbitrary, can approx with just some constant k * 1 / dist^2
+		//(k should vary inversely with # of samples, but this is taken care of later)
 			
-			//if (dot((samppos_world - 0.05*norm - pos_world), norm) > 0.0)  // -0.05*norm to shift sample point back slightly for flat surfaces
-			//	angle_hidden += min(1.0/dist2, ssao_factor_inv); // dist != 0 follows from conditional.  max of 1.0 (= ssao_factor_inv * ssao_factor)
-			angle_hidden = angle_hidden + float(dot((samppos_world - 0.05*norm - pos_world), norm) > 0.0) * min(1.0/dist2, ssao_factor_inv);
+		angle_hidden = angle_hidden + float(dot((samppos_world - 0.05*norm - pos_world), norm) > 0.0) * min(1.0/dist2, ssao_factor_inv);
 			
-			// 'blocked' samples (significantly closer to camera relative to pos_world) are "no data", not "no occlusion" 
-			points = points + int(diff.z > -1.0);
-		}
-		
-		angle_hidden = min(ssao_factor*angle_hidden/float(points), 1.0);
-		
-		ret = (1.0 - (float(points != 0) * angle_hidden));
-		ret += max((dist-32.0*32.0)/(32.0*32.0), 0.0);
+		// 'blocked' samples (significantly closer to camera relative to pos_world) are "no data", not "no occlusion" 
+		points = points + int(diff.z > -1.0);
 	}
+		
+	angle_hidden = min(ssao_factor*angle_hidden/float(points), 1.0);
+		
+	ret = (1.0 - (float(points != 0) * angle_hidden));
 	
 	return min(ret, 1.0);
 }

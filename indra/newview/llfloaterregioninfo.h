@@ -84,11 +84,16 @@ public:
 	virtual void refresh();
 	
 	void requestRegionInfo();
+	void requestMeshRezInfo();
 
 private:
 	
 	LLFloaterRegionInfo(const LLSD& seed);
 	~LLFloaterRegionInfo();
+
+	void onConsoleReplyReceived(const std::string& output);
+
+	boost::signals2::connection mConsoleReplySignalConnection;;
 	
 protected:
 	void refreshFromRegion(LLViewerRegion* region);

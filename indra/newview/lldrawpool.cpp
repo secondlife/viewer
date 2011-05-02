@@ -243,11 +243,6 @@ void LLFacePool::dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures
 {
 }
 
-BOOL LLFacePool::moveFace(LLFace *face, LLDrawPool *poolp, BOOL copy_data)
-{
-	return TRUE;
-}
-
 // static
 S32 LLFacePool::drawLoop(face_array_t& face_list)
 {

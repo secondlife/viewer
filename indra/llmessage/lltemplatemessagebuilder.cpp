@@ -29,6 +29,7 @@
 #include "lltemplatemessagebuilder.h"
 
 #include "llmessagetemplate.h"
+#include "llmath.h"
 #include "llquaternion.h"
 #include "u64.h"
 #include "v3dmath.h"
