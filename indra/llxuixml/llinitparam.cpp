@@ -44,8 +44,51 @@ namespace LLInitParam
 	}
 
 	//
+	// ParamDescriptor
+	//
+	ParamDescriptor::ParamDescriptor(param_handle_t p, 
+									merge_func_t merge_func, 
+									deserialize_func_t deserialize_func, 
+									serialize_func_t serialize_func,
+									validation_func_t validation_func,
+									inspect_func_t inspect_func,
+									S32 min_count,
+									S32 max_count)
+	:	mParamHandle(p),
+		mMergeFunc(merge_func),
+		mDeserializeFunc(deserialize_func),
+		mSerializeFunc(serialize_func),
+		mValidationFunc(validation_func),
+		mInspectFunc(inspect_func),
+		mMinCount(min_count),
+		mMaxCount(max_count),
+		mGeneration(0),
+		mUserData(NULL)
+	{}
+
+	ParamDescriptor::ParamDescriptor()
+	:	mParamHandle(0),
+		mMergeFunc(NULL),
+		mDeserializeFunc(NULL),
+		mSerializeFunc(NULL),
+		mValidationFunc(NULL),
+		mInspectFunc(NULL),
+		mMinCount(0),
+		mMaxCount(0),
+		mGeneration(0),
+		mUserData(NULL)
+	{}
+
+	ParamDescriptor::~ParamDescriptor()
+	{
+		delete mUserData;
+	}
+
+	//
 	// Parser
 	//
+	S32 Parser::sNextParseGeneration = 0;
+
 	Parser::~Parser()
 	{}
 
@@ -72,6 +115,12 @@ namespace LLInitParam
 		std::copy(src_block_data.mValidationList.begin(), src_block_data.mValidationList.end(), std::back_inserter(mValidationList));
 		std::copy(src_block_data.mAllParams.begin(), src_block_data.mAllParams.end(), std::back_inserter(mAllParams));
 	}
+
+	BlockDescriptor::BlockDescriptor()
+	:	mMaxParamOffset(0),
+		mInitializationState(UNINITIALIZED),
+		mCurrentBlockPtr(NULL)
+	{}
 
 	//
 	// BaseBlock
@@ -115,7 +164,7 @@ namespace LLInitParam
 
 	bool BaseBlock::submitValue(const Parser::name_stack_t& name_stack, Parser& p, bool silent)
 	{
-		if (!deserializeBlock(p, std::make_pair(name_stack.begin(), name_stack.end())))
+		if (!deserializeBlock(p, std::make_pair(name_stack.begin(), name_stack.end()), -1))
 		{
 			if (!silent)
 			{
@@ -145,7 +194,7 @@ namespace LLInitParam
 		return true;
 	}
 
-	bool BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t name_stack, const LLInitParam::BaseBlock* diff_block) const
+	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t name_stack, const LLInitParam::BaseBlock* diff_block) const
 	{
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit
@@ -212,11 +261,9 @@ namespace LLInitParam
 				name_stack.pop_back();
 			}
 		}
-
-		return true;
 	}
 
-	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack) const
+	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack, S32 min_count, S32 max_count) const
 	{
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit
@@ -273,10 +320,12 @@ namespace LLInitParam
 		return true;
 	}
 
-	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack)
+	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, S32 parent_generation)
 	{
 		BlockDescriptor& block_data = mostDerivedBlockDescriptor();
 		bool names_left = name_stack.first != name_stack.second;
+
+		S32 parse_generation = name_stack.first == name_stack.second ? -1 : name_stack.first->second;
 
 		if (names_left)
 		{
@@ -294,7 +343,7 @@ namespace LLInitParam
 					
 				Parser::name_stack_range_t new_name_stack(name_stack.first, name_stack.second);
 				++new_name_stack.first;
-				return deserialize_func(*paramp, p, new_name_stack, name_stack.first == name_stack.second ? -1 : name_stack.first->second);
+				return deserialize_func(*paramp, p, new_name_stack, parse_generation);
 			}
 		}
 
@@ -306,7 +355,7 @@ namespace LLInitParam
 			Param* paramp = getParamFromHandle((*it)->mParamHandle);
 			ParamDescriptor::deserialize_func_t deserialize_func = (*it)->mDeserializeFunc;
 
-			if (deserialize_func && deserialize_func(*paramp, p, name_stack, name_stack.first == name_stack.second ? -1 : name_stack.first->second))
+			if (deserialize_func && deserialize_func(*paramp, p, name_stack, parse_generation))
 			{
 				return true;
 			}
@@ -324,32 +373,32 @@ namespace LLInitParam
 	}
 
 	//static 
-	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptor& in_param, const char* char_name)
+	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name)
 	{
-		// create a copy of the paramdescriptor in allparams
+		// create a copy of the param descriptor in mAllParams
 		// so other data structures can store a pointer to it
 		block_data.mAllParams.push_back(in_param);
-		ParamDescriptor& param(block_data.mAllParams.back());
+		ParamDescriptorPtr param(block_data.mAllParams.back());
 
 		std::string name(char_name);
-		if ((size_t)param.mParamHandle > block_data.mMaxParamOffset)
+		if ((size_t)param->mParamHandle > block_data.mMaxParamOffset)
 		{
 			llerrs << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << llendl;
 		}
 
 		if (name.empty())
 		{
-			block_data.mUnnamedParams.push_back(&param);
+			block_data.mUnnamedParams.push_back(param);
 		}
 		else
 		{
 			// don't use insert, since we want to overwrite existing entries
-			block_data.mNamedParams[name] = &param;
+			block_data.mNamedParams[name] = param;
 		}
 
-		if (param.mValidationFunc)
+		if (param->mValidationFunc)
 		{
-			block_data.mValidationList.push_back(std::make_pair(param.mParamHandle, param.mValidationFunc));
+			block_data.mValidationList.push_back(std::make_pair(param->mParamHandle, param->mValidationFunc));
 		}
 	}
 
@@ -367,7 +416,7 @@ namespace LLInitParam
 				llerrs << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << llendl;
 			}
 
-			ParamDescriptor* param_descriptor = findParamDescriptor(handle);
+			ParamDescriptorPtr param_descriptor = findParamDescriptor(param);
 			if (param_descriptor)
 			{
 				if (synonym.empty())
@@ -382,7 +431,7 @@ namespace LLInitParam
 		}
 	}
 
-	void BaseBlock::setLastChangedParam(const Param& last_param, bool user_provided)
+	void BaseBlock::paramChanged(const Param& changed_param, bool user_provided)
 	{ 
 		if (user_provided)
 		{
@@ -404,22 +453,23 @@ namespace LLInitParam
 		return LLStringUtil::null;
 	}
 
-	ParamDescriptor* BaseBlock::findParamDescriptor(param_handle_t handle)
+	ParamDescriptorPtr BaseBlock::findParamDescriptor(const Param& param)
 	{
+		param_handle_t handle = getHandleFromParam(&param);
 		BlockDescriptor& descriptor = mostDerivedBlockDescriptor();
 		BlockDescriptor::all_params_list_t::iterator end_it = descriptor.mAllParams.end();
 		for (BlockDescriptor::all_params_list_t::iterator it = descriptor.mAllParams.begin();
 			it != end_it;
 			++it)
 		{
-			if (it->mParamHandle == handle) return &(*it);
+			if ((*it)->mParamHandle == handle) return *it;
 		}
-		return NULL;
+		return ParamDescriptorPtr();
 	}
 
 	// take all provided params from other and apply to self
 	// NOTE: this requires that "other" is of the same derived type as this
-	bool BaseBlock::merge(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
+	bool BaseBlock::mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
 	{
 		bool some_param_changed = false;
 		BlockDescriptor::all_params_list_t::const_iterator end_it = block_data.mAllParams.end();
@@ -427,19 +477,14 @@ namespace LLInitParam
 			it != end_it;
 			++it)
 		{
-			const Param* other_paramp = other.getParamFromHandle(it->mParamHandle);
-			ParamDescriptor::merge_func_t merge_func = it->mMergeFunc;
+			const Param* other_paramp = other.getParamFromHandle((*it)->mParamHandle);
+			ParamDescriptor::merge_func_t merge_func = (*it)->mMergeFunc;
 			if (merge_func)
 			{
-				Param* paramp = getParamFromHandle(it->mParamHandle);
+				Param* paramp = getParamFromHandle((*it)->mParamHandle);
 				some_param_changed |= merge_func(*paramp, *other_paramp, overwrite);
 			}
 		}
 		return some_param_changed;
-	}
-
-	bool ParamCompare<LLSD, false>::equals(const LLSD &a, const LLSD &b)
-	{
-		return false;
 	}
 }

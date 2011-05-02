@@ -4,7 +4,10 @@
 		Mittlere Maustaste
 	</panel.string>
 	<slider label="Master-Lautstärke" name="System Volume"/>
-	<check_box initial_value="true" label="Stummschalten, wenn minimiert" name="mute_when_minimized"/>
+	<check_box initial_value="true" name="mute_when_minimized"/>
+	<text name="mute_chb_label">
+		Stummschalten, wenn minimiert
+	</text>
 	<slider label="Schaltflächen" name="UI Volume"/>
 	<slider label="Umgebung" name="Wind Volume"/>
 	<slider label="Soundeffekte" name="SFX Volume"/>

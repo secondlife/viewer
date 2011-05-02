@@ -60,6 +60,11 @@ LLFloaterRegListener::LLFloaterRegListener():
         "Ask to toggle the state of the floater specified in [\"name\"]",
         &LLFloaterRegListener::toggleInstance,
         requiredName);
+    add("instanceVisible",
+        "Return on [\"reply\"] an event whose [\"visible\"] indicates the visibility "
+        "of the floater specified in [\"name\"]",
+        &LLFloaterRegListener::instanceVisible,
+        requiredName);
     LLSD requiredNameButton;
     requiredNameButton["name"] = LLSD();
     requiredNameButton["button"] = LLSD();
@@ -71,9 +76,7 @@ LLFloaterRegListener::LLFloaterRegListener():
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const
 {
-    // Honor the "reqid" convention by echoing event["reqid"] in our reply packet.
-    LLReqID reqID(event);
-    LLSD reply(reqID.makeResponse());
+    LLSD reply;
     // Build an LLSD map that mirrors sBuildMap. Since we have no good way to
     // represent a C++ callable in LLSD, the only part of BuildData we can
     // store is the filename. For each LLSD map entry, it would be more
@@ -86,7 +89,7 @@ void LLFloaterRegListener::getBuildMap(const LLSD& event) const
         reply[mi->first] = mi->second.mFile;
     }
     // Send the reply to the LLEventPump named in event["reply"].
-    LLEventPumps::instance().obtain(event["reply"]).post(reply);
+    sendReply(reply, event);
 }
 
 void LLFloaterRegListener::showInstance(const LLSD& event) const
@@ -102,6 +105,12 @@ void LLFloaterRegListener::hideInstance(const LLSD& event) const
 void LLFloaterRegListener::toggleInstance(const LLSD& event) const
 {
     LLFloaterReg::toggleInstance(event["name"], event["key"]);
+}
+
+void LLFloaterRegListener::instanceVisible(const LLSD& event) const
+{
+    sendReply(LLSDMap("visible", LLFloaterReg::instanceVisible(event["name"], event["key"])),
+              event);
 }
 
 void LLFloaterRegListener::clickButton(const LLSD& event) const

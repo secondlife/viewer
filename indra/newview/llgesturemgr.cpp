@@ -33,8 +33,10 @@
 #include <algorithm>
 
 // library
+#include "llaudioengine.h"
 #include "lldatapacker.h"
 #include "llinventory.h"
+#include "llkeyframemotion.h"
 #include "llmultigesture.h"
 #include "llnotificationsutil.h"
 #include "llstl.h"
@@ -526,6 +528,66 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture)
 	gesture->mPlaying = TRUE;
 	mPlaying.push_back(gesture);
 
+	// Load all needed assets to minimize the delays
+	// when gesture is playing.
+	for (std::vector<LLGestureStep*>::iterator steps_it = gesture->mSteps.begin();
+		 steps_it != gesture->mSteps.end();
+		 ++steps_it)
+	{
+		LLGestureStep* step = *steps_it;
+		switch(step->getType())
+		{
+		case STEP_ANIMATION:
+			{
+				LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
+				const LLUUID& anim_id = anim_step->mAnimAssetID;
+
+				// Don't request the animation if this step stops it or if it is already in Static VFS
+				if (!(anim_id.isNull()
+					  || anim_step->mFlags & ANIM_FLAG_STOP
+					  || gAssetStorage->hasLocalAsset(anim_id, LLAssetType::AT_ANIMATION)))
+				{
+					mLoadingAssets.insert(anim_id);
+
+					LLUUID* id = new LLUUID(gAgentID);
+					gAssetStorage->getAssetData(anim_id,
+									LLAssetType::AT_ANIMATION,
+									onAssetLoadComplete,
+									(void *)id,
+									TRUE);
+				}
+				break;
+			}
+		case STEP_SOUND:
+			{
+				LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
+				const LLUUID& sound_id = sound_step->mSoundAssetID;
+				if (!(sound_id.isNull()
+					  || gAssetStorage->hasLocalAsset(sound_id, LLAssetType::AT_SOUND)))
+				{
+					mLoadingAssets.insert(sound_id);
+
+					gAssetStorage->getAssetData(sound_id,
+									LLAssetType::AT_SOUND,
+									onAssetLoadComplete,
+									NULL,
+									TRUE);
+				}
+				break;
+			}
+		case STEP_CHAT:
+		case STEP_WAIT:
+		case STEP_EOF:
+			{
+				break;
+			}
+		default:
+			{
+				llwarns << "Unknown gesture step type: " << step->getType() << llendl;
+			}
+		}
+	}
+
 	// And get it going
 	stepGesture(gesture);
 
@@ -741,7 +803,7 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 	{
 		return;
 	}
-	if (!isAgentAvatarValid()) return;
+	if (!isAgentAvatarValid() || hasLoadingAssets(gesture)) return;
 
 	// Of the ones that started playing, have any stopped?
 
@@ -1091,6 +1153,98 @@ void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 	}
 }
 
+// static
+void LLGestureMgr::onAssetLoadComplete(LLVFS *vfs,
+									   const LLUUID& asset_uuid,
+									   LLAssetType::EType type,
+									   void* user_data, S32 status, LLExtStat ext_status)
+{
+	LLGestureMgr& self = LLGestureMgr::instance();
+
+	// Complete the asset loading process depending on the type and
+	// remove the asset id from pending downloads list.
+	switch(type)
+	{
+	case LLAssetType::AT_ANIMATION:
+		{
+			LLKeyframeMotion::onLoadComplete(vfs, asset_uuid, type, user_data, status, ext_status);
+
+			self.mLoadingAssets.erase(asset_uuid);
+
+			break;
+		}
+	case LLAssetType::AT_SOUND:
+		{
+			LLAudioEngine::assetCallback(vfs, asset_uuid, type, user_data, status, ext_status);
+
+			self.mLoadingAssets.erase(asset_uuid);
+
+			break;
+		}
+	default:
+		{
+			llwarns << "Unexpected asset type: " << type << llendl;
+
+			// We don't want to return from this callback without
+			// an animation or sound callback being fired
+			// and *user_data handled to avoid memory leaks.
+			llassert(type == LLAssetType::AT_ANIMATION || type == LLAssetType::AT_SOUND);
+		}
+	}
+}
+
+// static
+bool LLGestureMgr::hasLoadingAssets(LLMultiGesture* gesture)
+{
+	LLGestureMgr& self = LLGestureMgr::instance();
+
+	for (std::vector<LLGestureStep*>::iterator steps_it = gesture->mSteps.begin();
+		 steps_it != gesture->mSteps.end();
+		 ++steps_it)
+	{
+		LLGestureStep* step = *steps_it;
+		switch(step->getType())
+		{
+		case STEP_ANIMATION:
+			{
+				LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
+				const LLUUID& anim_id = anim_step->mAnimAssetID;
+
+				if (!(anim_id.isNull()
+					  || anim_step->mFlags & ANIM_FLAG_STOP
+					  || self.mLoadingAssets.find(anim_id) == self.mLoadingAssets.end()))
+				{
+					return true;
+				}
+				break;
+			}
+		case STEP_SOUND:
+			{
+				LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
+				const LLUUID& sound_id = sound_step->mSoundAssetID;
+
+				if (!(sound_id.isNull()
+					  || self.mLoadingAssets.find(sound_id) == self.mLoadingAssets.end()))
+				{
+					return true;
+				}
+				break;
+			}
+		case STEP_CHAT:
+		case STEP_WAIT:
+		case STEP_EOF:
+			{
+				break;
+			}
+		default:
+			{
+				llwarns << "Unknown gesture step type: " << step->getType() << llendl;
+			}
+		}
+	}
+
+	return false;
+}
 
 void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
 {

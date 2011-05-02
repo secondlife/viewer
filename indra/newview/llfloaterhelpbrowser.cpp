@@ -50,6 +50,7 @@ BOOL LLFloaterHelpBrowser::postBuild()
 {
 	mBrowser = getChild<LLMediaCtrl>("browser");
 	mBrowser->addObserver(this);
+	mBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
 
 	childSetAction("open_browser", onClickOpenWebBrowser, this);
 

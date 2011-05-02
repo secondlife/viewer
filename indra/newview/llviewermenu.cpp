@@ -856,40 +856,36 @@ void toggle_destination_and_avatar_picker(const LLSD& show)
 	LLButton* avatar_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("avatar_btn");
 	LLButton* destination_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("destination_btn");
 
-	switch(panel_idx)
-	{
-	case 0:
-		if (!destinations->getVisible())
-		{
-			container->setVisible(true);
-			destinations->setVisible(true);
-			avatar_picker->setVisible(false);
-			LLFirstUse::notUsingDestinationGuide(false);
-			avatar_btn->setToggleState(false);
-			destination_btn->setToggleState(true);
-			return;
-		}
-		break;
-	case 1:
-		if (!avatar_picker->getVisible())
-		{	
-			container->setVisible(true);
-			destinations->setVisible(false);
-			avatar_picker->setVisible(true);
-			avatar_btn->setToggleState(true);
-			destination_btn->setToggleState(false);
-			return;
-		}
-		break;
-	default:
-		break;
+	if (panel_idx == 0
+		&& !destinations->getVisible())
+	{	// opening destinations guide
+		container->setVisible(true);
+		destinations->setVisible(true);
+		avatar_picker->setVisible(false);
+		LLFirstUse::notUsingDestinationGuide(false);
+		avatar_btn->setToggleState(false);
+		destination_btn->setToggleState(true);
+		gSavedSettings.setS32("DestinationsAndAvatarsVisibility", 0);
 	}
-
-	container->setVisible(false);
-	destinations->setVisible(false);
-	avatar_picker->setVisible(false);
-	avatar_btn->setToggleState(false);
-	destination_btn->setToggleState(false);
+	else if (panel_idx == 1 
+		&& !avatar_picker->getVisible())
+	{	// opening avatar picker
+		container->setVisible(true);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(true);
+		avatar_btn->setToggleState(true);
+		destination_btn->setToggleState(false);
+		gSavedSettings.setS32("DestinationsAndAvatarsVisibility", 1);
+	}
+	else
+	{	// toggling off dest guide or avatar picker
+		container->setVisible(false);
+		destinations->setVisible(false);
+		avatar_picker->setVisible(false);
+		avatar_btn->setToggleState(false);
+		destination_btn->setToggleState(false);
+		gSavedSettings.setS32("DestinationsAndAvatarsVisibility", -1);
+	}
 };
 
 
@@ -3640,6 +3636,15 @@ class LLEnableEditShape : public view_listener_t
 	}
 };
 
+class LLEnableEditPhysics : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		//return gAgentWearables.isWearableModifiable(LLWearableType::WT_SHAPE, 0);
+		return TRUE;
+	}
+};
+
 bool is_object_sittable()
 {
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
@@ -5526,6 +5531,11 @@ void handle_edit_shape()
 	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_shape"));
 }
 
+void handle_edit_physics()
+{
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_physics"));
+}
+
 void handle_report_abuse()
 {
 	// Prevent menu from appearing in screen shot.
@@ -6402,12 +6412,12 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		else if (action == "start")
 		{
 			name = "start_queue";
-			msg = "Running";
+			msg = "SetRunning";
 		}
 		else if (action == "stop")
 		{
 			name = "stop_queue";
-			msg = "RunningNot";
+			msg = "SetRunningNot";
 		}
 		LLUUID id; id.generate();
 		
@@ -7338,6 +7348,11 @@ class LLViewToggleBeacon : public view_listener_t
 			LLPipeline::toggleRenderPhysicalBeacons(NULL);
 			gSavedSettings.setBOOL( "physicalbeacon", LLPipeline::getRenderPhysicalBeacons(NULL) );
 		}
+		else if (beacon == "moapbeacon")
+		{
+			LLPipeline::toggleRenderMOAPBeacons(NULL);
+			gSavedSettings.setBOOL( "moapbeacon", LLPipeline::getRenderMOAPBeacons(NULL) );
+		}
 		else if (beacon == "soundsbeacon")
 		{
 			LLPipeline::toggleRenderSoundBeacons(NULL);
@@ -7396,6 +7411,11 @@ class LLViewCheckBeaconEnabled : public view_listener_t
 		{
 			new_value = gSavedSettings.getBOOL( "scriptsbeacon");
 			LLPipeline::setRenderScriptedBeacons(new_value);
+		}
+		else if (beacon == "moapbeacon")
+		{
+			new_value = gSavedSettings.getBOOL( "moapbeacon");
+			LLPipeline::setRenderMOAPBeacons(new_value);
 		}
 		else if (beacon == "physicalbeacon")
 		{
@@ -7817,9 +7837,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditEnableTakeOff(), "Edit.EnableTakeOff");
 	view_listener_t::addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
 	view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
+	view_listener_t::addMenu(new LLEnableEditPhysics(), "Edit.EnableEditPhysics");
 	commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
 	commit.add("EditOutfit", boost::bind(&handle_edit_outfit));
 	commit.add("EditShape", boost::bind(&handle_edit_shape));
+	commit.add("EditPhysics", boost::bind(&handle_edit_physics));
 
 	// View menu
 	view_listener_t::addMenu(new LLViewMouselook(), "View.Mouselook");

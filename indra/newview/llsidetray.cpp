@@ -53,6 +53,8 @@
 
 #include "llsidepanelappearance.h"
 
+#include "llsidetraylistener.h"
+
 //#include "llscrollcontainer.h"
 
 using namespace std;
@@ -70,6 +72,8 @@ static const std::string TAB_PANEL_CAPTION_NAME = "sidetray_tab_panel";
 static const std::string TAB_PANEL_CAPTION_TITLE_BOX = "sidetray_tab_title";
 
 LLSideTray* LLSideTray::sInstance = 0;
+
+static LLSideTrayListener sSideTrayListener(LLSideTray::getInstance);
 
 // static
 LLSideTray* LLSideTray::getInstance()
@@ -454,6 +458,11 @@ LLSideTrayTab*  LLSideTrayTab::createInstance	()
 	return tab;
 }
 
+// Now that we know the definition of LLSideTrayTab, we can implement
+// tab_cast.
+template <>
+LLPanel* tab_cast<LLPanel*>(LLSideTrayTab* tab) { return tab; }
+
 //////////////////////////////////////////////////////////////////////////////
 // LLSideTrayButton
 // Side Tray tab button with "tear off" handling.
@@ -567,6 +576,8 @@ LLSideTray::LLSideTray(const Params& params)
 	// register handler function to process data from the xml. 
 	// panel_name should be specified via "parameter" attribute.
 	commit.add("SideTray.ShowPanel", boost::bind(&LLSideTray::showPanel, this, _2, LLUUID::null));
+	commit.add("SideTray.Toggle", boost::bind(&LLSideTray::onToggleCollapse, this));
+	commit.add("SideTray.Collapse", boost::bind(&LLSideTray::collapseSideBar, this));
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
 	LLView* side_bar_tabs  = gViewerWindow->getRootView()->getChildView("side_bar_tabs");
 	if (side_bar_tabs != NULL)
@@ -686,7 +697,7 @@ LLPanel* LLSideTray::openChildPanel(LLSideTrayTab* tab, const std::string& panel
 		LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab_name);
 		if (!floater_tab) return NULL;
 
-		floater_tab->openFloater(panel_name);
+		floater_tab->openFloater(tab_name);
 	}
 
 	LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
@@ -1181,69 +1192,6 @@ void LLSideTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 	arrange();
 }
 
-/**
- * Activate tab with "panel_name" panel
- * if no such tab - return false, otherwise true.
- * TODO* In some cases a pointer to a panel of
- * a specific class may be needed so this method
- * would need to use templates.
- */
-LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& params)
-{
-	LLPanel* new_panel = NULL;
-
-	// Look up the tab in the list of detached tabs.
-	child_vector_const_iter_t child_it;
-	for ( child_it = mDetachedTabs.begin(); child_it != mDetachedTabs.end(); ++child_it)
-	{
-		new_panel = openChildPanel(*child_it, panel_name, params);
-		if (new_panel) break;
-	}
-
-	// Look up the tab in the list of attached tabs.
-	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
-	{
-		new_panel = openChildPanel(*child_it, panel_name, params);
-		if (new_panel) break;
-	}
-
-	return new_panel;
-}
-
-void LLSideTray::hidePanel(const std::string& panel_name)
-{
-	LLPanel* panelp = getPanel(panel_name);
-	if (panelp)
-	{
-		if(isTabAttached(panel_name))
-		{
-			collapseSideBar();
-		}
-		else
-		{
-			LLFloaterReg::hideInstance("side_bar_tab", panel_name);
-		}
-	}
-}
-
-
-void LLSideTray::togglePanel(LLPanel* &sub_panel, const std::string& panel_name, const LLSD& params)
-{
-	if(!sub_panel)
-		return;
-
-	// If a panel is visible and attached to Side Tray (has LLSideTray among its ancestors)
-	// it should be toggled off by collapsing Side Tray.
-	if (sub_panel->isInVisibleChain() && sub_panel->hasAncestor(this))
-	{
-		LLSideTray::getInstance()->collapseSideBar();
-	}
-	else
-	{
-		LLSideTray::getInstance()->showPanel(panel_name, params);
-	}
-}
-
 // This is just LLView::findChildView specialized to restrict the search to LLPanels.
 // Optimization for EXT-4068 to avoid searching down to the individual item level
 // when inventories are large.
@@ -1274,6 +1222,96 @@ LLPanel *findChildPanel(LLPanel *panel, const std::string& name, bool recurse)
 		}
 	}
 	return NULL;
+}
+
+/**
+ * Activate tab with "panel_name" panel
+ * if no such tab - return false, otherwise true.
+ * TODO* In some cases a pointer to a panel of
+ * a specific class may be needed so this method
+ * would need to use templates.
+ */
+LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& params)
+{
+	LLPanel* new_panel = NULL;
+
+	// Look up the tab in the list of detached tabs.
+	child_vector_const_iter_t child_it;
+	for ( child_it = mDetachedTabs.begin(); child_it != mDetachedTabs.end(); ++child_it)
+	{
+		new_panel = openChildPanel(*child_it, panel_name, params);
+		if (new_panel) break;
+	}
+
+	// Look up the tab in the list of attached tabs.
+	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
+	{
+		new_panel = openChildPanel(*child_it, panel_name, params);
+		if (new_panel) break;
+	}
+
+	return new_panel;
+}
+
+bool LLSideTray::hidePanel(const std::string& panel_name)
+{
+	bool panelHidden = false;
+	
+	LLPanel* panelp = getPanel(panel_name);
+
+	if (panelp)
+	{
+		LLView* parentp = panelp->getParent();
+		
+		// Collapse the side bar if the panel or the panel's parent is an attached tab
+		if (isTabAttached(panel_name) || (parentp && isTabAttached(parentp->getName())))
+		{
+			collapseSideBar();
+			panelHidden = true;
+		}
+		else
+		{
+			panelHidden = LLFloaterReg::hideInstance("side_bar_tab", panel_name);
+			
+			if (!panelHidden)
+			{
+				// Look up the panel in the list of detached tabs.
+				for (child_vector_const_iter_t child_it = mDetachedTabs.begin(); child_it != mDetachedTabs.end(); ++child_it)
+				{
+					LLPanel *detached_panel = dynamic_cast<LLPanel*>(*child_it);
+					
+					if (detached_panel)
+					{
+						// Hide this detached panel if it is a parent of our panel
+						if (findChildPanel(detached_panel, panel_name, true) != NULL)
+						{
+							panelHidden = LLFloaterReg::hideInstance("side_bar_tab", detached_panel->getName());
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return panelHidden;
+}
+
+void LLSideTray::togglePanel(LLPanel* &sub_panel, const std::string& panel_name, const LLSD& params)
+{
+	if(!sub_panel)
+		return;
+
+	// If a panel is visible and attached to Side Tray (has LLSideTray among its ancestors)
+	// it should be toggled off by collapsing Side Tray.
+	if (sub_panel->isInVisibleChain() && sub_panel->hasAncestor(this))
+	{
+		LLSideTray::getInstance()->collapseSideBar();
+	}
+	else
+	{
+		LLSideTray::getInstance()->showPanel(panel_name, params);
+	}
 }
 
 LLPanel* LLSideTray::getPanel(const std::string& panel_name)

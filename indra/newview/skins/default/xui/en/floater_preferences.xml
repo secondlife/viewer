@@ -45,7 +45,7 @@
      name="pref core"
      tab_group="1"
      tab_position="left"
-     tab_width="115"
+     tab_width="140"
      tab_padding_right="0"
      top="21"
      width="658">
@@ -96,7 +96,7 @@
          filename="panel_preferences_colors.xml"
          label="Colors"
          layout="topleft"
-         help_topic="preferences_im_tab"
+         help_topic="preferences_colors_tab"
          name="colors" />
         <panel
 		 class="panel_preference"

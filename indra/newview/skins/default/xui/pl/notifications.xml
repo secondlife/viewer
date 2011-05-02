@@ -72,9 +72,9 @@ Szczegóły błędu: Błąd o nazwie &apos;[_NAME]&apos; nie został odnaleziony
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
-		Brak połączenia z [SECOND_LIFE_GRID].
-&apos;[DIAGNOSTIC]&apos;
-Sprawdź stan swojego połączenia sieciowego.
+		Nie można połączyć z [SECOND_LIFE_GRID].
+    &apos;[DIAGNOSTIC]&apos;
+Upewnij się, że Twoje połączenie z internetem działa.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MessageTemplateNotFound">
@@ -330,13 +330,6 @@ Potrzebujesz konta aby się zalogować do [SECOND_LIFE]. Czy chcesz utworzyć je
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		Należy wprowadzić nazwę użytkownika lub imię oraz nazwisko Twojego awatara w pole nazwy użytkownika a następnie ponownie się zalogować.
-	</notification>
-	<notification name="AddClassified">
-		Ogłoszenia reklamowe ukazują się w zakładce Reklama w wyszukiwarce (Szukaj) oraz na [http://secondlife.com/community/classifieds secondlife.com] przez tydzień.
-Napisz treść swojej reklamy, kliknij Zamieść by dodać katalogu ogłoszeń.
-Po zamieszczeniu reklamy zostaniesz poproszony o sprecyzowanie opłaty za Reklamę.
-Im wyższa opłata tym wyżej Twoja reklama wyświetla się w katalogu i wyszukiwarce po wpisaniu słów kluczowych.
-		<usetemplate ignoretext="Jak stworzyć nową reklamę?" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="DeleteClassified">
 		Usunąć reklamę &apos;[NAME]&apos;?
@@ -2723,7 +2716,7 @@ Przycisk zostanie wyświetlony w przypadku dostatecznej ilości przestrzeni.
 		Zaznacz Rezydentów, z którymi chcesz się podzielić.
 	</notification>
 	<notification name="ShareItemsConfirmation">
-		Jesteś pewien/pewna, że chcesz udostępnić następujące obiekty:
+		Czy na pewno chcesz udostępnić następujące obiekty:
 
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
@@ -2814,11 +2807,15 @@ Wyciszyć wszystkich?
 	<notification label="Wstań" name="HintSit">
 		Aby wstać i opuścić pozycję siedzącą, kliknij przycisk Wstań.
 	</notification>
+	<notification label="Mów" name="HintSpeak">
+		Kliknij przycisk &quot;Mów&quot; aby włączyć i wyłączyć Twój mikrofon.
+
+Kliknij w strzałkę aby zobaczyć panel kontroli głosu.
+
+Ukrycie przycisku &quot;Mów&quot; zdezaktywuje głos.
+	</notification>
 	<notification label="Odkrywaj Świat" name="HintDestinationGuide">
 		Destination Guide zawiera tysiące nowych miejsc do odkrycia. Wybierz lokalizację i teleportuj się aby rozpocząć zwiedzanie.
-	</notification>
-	<notification label="Zmień wygląd swojego awatara" name="HintAvatarPicker">
-		Czy chcesz inaczej wyglądać? Kliknij poniższy przycisk aby zobaczyć więcej przykładów awatarów.
 	</notification>
 	<notification label="Schowek" name="HintSidePanel">
 		Schowek umożliwia szybki dostęp do Twojej Szafy, ubrań, profili i innych w panelu bocznym.
@@ -2826,11 +2823,15 @@ Wyciszyć wszystkich?
 	<notification label="Ruch" name="HintMove">
 		Aby chodzić lub biegać, otwórz panel ruchu i użyj strzałek do nawigacji. Możesz także używać strzałek z klawiatury.
 	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Kliknij aby chodzić.
+Kliknij gdziekolwiek na ziemi aby przejść do wskazanego miejsca.
+
+2. Kliknij i przeciągnij aby zmienić widok.
+Kliknij i przeciągnij gdziekolwiek aby obrócić widok.
+	</notification>
 	<notification label="Wyświetlana nazwa" name="HintDisplayName">
 		Ustaw wyświetlaną nazwę, którą możesz zmieniać tutaj. Jest ona dodatkiem do unikatowej nazwy użytkownika, która nie może być zmieniona. Możesz zmienić sposób w jaki widzisz nazwy innych osób w Twoich Ustawieniach.
-	</notification>
-	<notification label="Ruch" name="HintMoveArrows">
-		Użyj przycisków ze strzałkami z klawiatury aby chodzić. Jeśli wciśniesz strzałkę &apos;do góry&apos; podwójnie, zaczniesz biec.
 	</notification>
 	<notification label="Widok" name="HintView">
 		To change your camera view, use the Orbit and Pan controls. Zresetuj widok poprzez wciśnięcie klawisza Esc lub chodzenie.
@@ -2856,6 +2857,38 @@ Wyciszyć wszystkich?
 			<button name="ok" text="Wyślij"/>
 			<button name="cancel" text="Anuluj"/>
 		</form>
+	</notification>
+	<notification label="" name="ModeChange">
+		Zmiana trybu wymaga restartu.
+		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
+	</notification>
+	<notification label="" name="NoClassifieds">
+		Tworzenie i edycja reklam jest możliwa tylko w trybie zaawansowanym. Czy chcesz wylogować się i zmienić tryb? Opcja wyboru trybu życia jest widoczna na ekranie logowania.
+		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
+	</notification>
+	<notification label="" name="NoGroupInfo">
+		Tworzenie i edycja grup jest możliwa tylko w trybie zaawansowanym. Czy chcesz wylogować się i zmienić tryb? Opcja wyboru trybu życia jest widoczna na ekranie logowania.
+		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
+	</notification>
+	<notification label="" name="NoPicks">
+		Tworzenie i edycja Ulubionych jest możliwa jedynie w trybie zaawansowanym. Czy chcesz się wylogować i zmienić tryb? Opcja wyboru trybu życia jest widoczna na ekranie logowania.
+		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
+	</notification>
+	<notification label="" name="NoWorldMap">
+		Oglądanie mapy świata jest możliwe tylko w trybie zaawansowanym. Czy chcesz się wylogować i zmienić tryb? Opcja wyboru trybu życia jest widoczna na ekranie logowania.
+		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
+	</notification>
+	<notification label="" name="NoVoiceCall">
+		Rozmowy głosowe są możliwe tylko w trybie zaawansowanym. Czy chcesz wylogować się i zmienić tryb?
+		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
+	</notification>
+	<notification label="" name="NoAvatarShare">
+		Udostępnienie jest możliwe tylko w trybie zaawansowanym. Czy chcesz wylogować się i zmienić tryb? Opcja wyboru trybu życia jest widoczna na ekranie logowania.
+		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
+	</notification>
+	<notification label="" name="NoAvatarPay">
+		Płacenie innym Rezydentom jest możliwe tylko w trybie zaawansowanym. Czy chcesz się wylogować i zmienić tryb? Opcja wyboru trybu życia jest widoczna na ekranie logowania.
+		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- Prędkość Twojego CPU nie spełnia minimalnych wymagań.

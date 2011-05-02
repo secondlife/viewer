@@ -122,6 +122,7 @@
 //
 const F32 BIRD_AUDIBLE_RADIUS = 32.0f;
 const F32 SIT_DISTANCE_FROM_TARGET = 0.25f;
+const F32 CAMERA_POSITION_THRESHOLD_SQUARED = 0.001f * 0.001f;
 static const F32 LOGOUT_REPLY_TIME = 3.f;	// Wait this long after LogoutReply before quitting.
 
 // Determine how quickly residents' scripts can issue question dialogs
@@ -342,12 +343,6 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLViewerRegion *regionp = LLWorld::getInstance()->getRegion(mesgsys->getSender());
-
-	if (!regionp || gNoRender)
-	{
-		return;
-	}
-
 
 	S32 size;
 	S8 type;
@@ -2168,10 +2163,6 @@ void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::string m
 
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
-	if (gNoRender)
-	{
-		return;
-	}
 	LLUUID from_id;
 	BOOL from_group;
 	LLUUID to_id;
@@ -3960,7 +3951,9 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// LBUTTON and ML_LBUTTON so that using the camera (alt-key) doesn't
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
+
 	MASK	key_mask = gKeyboard->currentMask(TRUE);
+
 	if (key_mask & MASK_ALT || key_mask & MASK_CONTROL)
 	{
 		control_flags &= ~(	AGENT_CONTROL_LBUTTON_DOWN |
@@ -4279,7 +4272,7 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 	gSky.setSunPhase(phase);
 	gSky.setSunTargetDirection(sun_direction, sun_ang_velocity);
-	if (!gNoRender && !(gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || gSky.getOverrideSun()))
+	if ( !(gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || gSky.getOverrideSun()) )
 	{
 		gSky.setSunDirection(sun_direction, sun_ang_velocity);
 	}
@@ -4753,7 +4746,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	BOOL force_mouselook;
 	mesgsys->getBOOLFast(_PREHASH_SitTransform, _PREHASH_ForceMouselook, force_mouselook);
 
-	if (isAgentAvatarValid() && dist_vec_squared(camera_eye, camera_at) > 0.0001f)
+	if (isAgentAvatarValid() && dist_vec_squared(camera_eye, camera_at) > CAMERA_POSITION_THRESHOLD_SQUARED)
 	{
 		gAgentCamera.setSitCamera(sitObjectID, camera_eye, camera_at);
 	}
@@ -5531,7 +5524,11 @@ void process_alert_core(const std::string& message, BOOL modal)
 	{
 		LLSD args;
 		std::string new_msg =LLNotifications::instance().getGlobalString(message);
-		args["MESSAGE"] = new_msg;
+
+		std::string localized_msg;
+		bool is_message_localized = LLTrans::findString(localized_msg, new_msg);
+
+		args["MESSAGE"] = is_message_localized ? localized_msg : new_msg;
 		LLNotificationsUtil::add("SystemMessageTip", args);
 	}
 }
@@ -5541,21 +5538,12 @@ time_t								gLastDisplayedTime = 0;
 
 void handle_show_mean_events(void *)
 {
-	if (gNoRender)
-	{
-		return;
-	}
 	LLFloaterReg::showInstance("bumps");
 	//LLFloaterBump::showInstance();
 }
 
 void mean_name_callback(const LLUUID &id, const std::string& full_name, bool is_group)
 {
-	if (gNoRender)
-	{
-		return;
-	}
-
 	static const U32 max_collision_list_size = 20;
 	if (gMeanCollisionList.size() > max_collision_list_size)
 	{
@@ -6478,9 +6466,12 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	LLSD payload;
 
 	LLUUID object_id;
-	msg->getUUID("Data", "ObjectID", object_id);
+    LLUUID owner_id;
 
-	if (LLMuteList::getInstance()->isMuted(object_id))
+	msg->getUUID("Data", "ObjectID", object_id);
+    msg->getUUID("OwnerData", "OwnerID", owner_id);
+
+	if (LLMuteList::getInstance()->isMuted(object_id) || LLMuteList::getInstance()->isMuted(owner_id))
 	{
 		return;
 	}

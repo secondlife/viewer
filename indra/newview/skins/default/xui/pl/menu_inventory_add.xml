@@ -23,6 +23,7 @@
 		<menu_item_call label="Nowa bielizna" name="New Underpants"/>
 		<menu_item_call label="Nowa maska alpha" name="New Alpha"/>
 		<menu_item_call label="Nowy tatuaż" name="New Tattoo"/>
+		<menu_item_call label="Nowa fizyka" name="New Physics"/>
 	</menu>
 	<menu label="Nowa Część Ciała" name="New Body Parts">
 		<menu_item_call label="Nowy kształt" name="New Shape"/>

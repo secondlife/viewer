@@ -4,7 +4,10 @@
 		Botão do meio do mouse
 	</panel.string>
 	<slider label="Volume principal" name="System Volume"/>
-	<check_box initial_value="true" label="Silenciar ao minimizar" name="mute_when_minimized"/>
+	<check_box initial_value="true" name="mute_when_minimized"/>
+	<text name="mute_chb_label">
+		Silenciar ao minimizar
+	</text>
 	<slider label="Botões" name="UI Volume"/>
 	<slider label="Ambiente" name="Wind Volume"/>
 	<slider label="Efeitos sonoros" name="SFX Volume"/>

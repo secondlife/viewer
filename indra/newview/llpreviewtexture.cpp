@@ -143,10 +143,7 @@ void LLPreviewTexture::onSaveAsBtn(void* data)
 
 void LLPreviewTexture::draw()
 {
-	if (mUpdateDimensions)
-	{
-		updateDimensions();
-	}
+	updateDimensions();
 	
 	LLPreview::draw();
 
@@ -396,27 +393,32 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 void LLPreviewTexture::updateDimensions()
 {
 	if (!mImage)
+	{
 		return;
-
-	if(mImage->getFullWidth() == 0 || mImage->getFullHeight() == 0)
+	}
+	if ((mImage->getFullWidth() * mImage->getFullHeight()) == 0)
 	{
 		return;
 	}
 	
-	mUpdateDimensions = FALSE;
-
-	getChild<LLUICtrl>("dimensions")->setTextArg("[WIDTH]", llformat("%d", mImage->getFullWidth()));
+	// Update the width/height display every time
+	getChild<LLUICtrl>("dimensions")->setTextArg("[WIDTH]",  llformat("%d", mImage->getFullWidth()));
 	getChild<LLUICtrl>("dimensions")->setTextArg("[HEIGHT]", llformat("%d", mImage->getFullHeight()));
 
-	
-	//reshape floater
-	reshape(getRect().getWidth(), getRect().getHeight());
+	// Reshape the floater only when required
+	if (mUpdateDimensions)
+	{
+		mUpdateDimensions = FALSE;
+		
+		//reshape floater
+		reshape(getRect().getWidth(), getRect().getHeight());
 
-	gFloaterView->adjustToFitScreen(this, FALSE);
+		gFloaterView->adjustToFitScreen(this, FALSE);
 
-	LLRect dim_rect(getChildView("dimensions")->getRect());
-	LLRect aspect_label_rect(getChildView("aspect_ratio")->getRect());
-	getChildView("aspect_ratio")->setVisible( dim_rect.mRight < aspect_label_rect.mLeft);
+		LLRect dim_rect(getChildView("dimensions")->getRect());
+		LLRect aspect_label_rect(getChildView("aspect_ratio")->getRect());
+		getChildView("aspect_ratio")->setVisible( dim_rect.mRight < aspect_label_rect.mLeft);
+	}
 }
 
 

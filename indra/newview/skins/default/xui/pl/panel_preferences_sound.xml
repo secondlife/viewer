@@ -4,12 +4,15 @@
 		Środkowy przycisk myszy
 	</panel.string>
 	<slider label="Główny" name="System Volume"/>
-	<check_box initial_value="true" label="Wycisz podczas minimalizacji" name="mute_when_minimized"/>
+	<check_box initial_value="true" name="mute_when_minimized"/>
+	<text name="mute_chb_label">
+		Wycisz podczas minimalizacji
+	</text>
 	<slider label="Interfejs" name="UI Volume"/>
 	<slider label="Otoczenie" name="Wind Volume"/>
 	<slider label="Efekty dźwiękowe" name="SFX Volume"/>
 	<slider label="Muzyka strumieniowa" name="Music Volume"/>
-	<check_box label="Odtwarzaj media audio" name="enable_music"/>
+	<check_box label="Aktywny" name="enable_music"/>
 	<slider label="Media" name="Media Volume"/>
 	<check_box label="Odtwarzaj media" name="enable_media"/>
 	<slider label="Komunikacja głosowa" name="Voice Volume"/>
