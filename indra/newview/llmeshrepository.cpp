@@ -454,6 +454,29 @@ public:
 
 };
 
+class LLModelObjectUploadResponder: public LLCurl::Responder
+{
+	LLSD mObjectAsset;
+	LLMeshUploadThread* mThread;
+
+public:
+	LLModelObjectUploadResponder(LLMeshUploadThread* thread, const LLSD& object_asset):
+		mThread(thread),
+		mObjectAsset(object_asset)
+	{
+	}
+
+	virtual void completedRaw(U32 status, const std::string& reason,
+							  const LLChannelDescriptors& channels,
+							  const LLIOPipe::buffer_ptr_t& buffer)
+	{
+		assert_main_thread();
+		
+		llinfos << "completed" << llendl;
+		mThread->mPendingUploads--;
+		mThread->mFinished = true;
+	}
+};
 
 LLMeshRepoThread::LLMeshRepoThread()
 : LLThread("mesh repo", NULL) 
@@ -1467,10 +1490,13 @@ void LLMeshUploadThread::run()
 
 	if(!isDiscarded())
 	{
-		LLHTTPClient::post(url, object_asset, new LLHTTPClient::Responder());
+		mPendingUploads++;
+		LLHTTPClient::post(url, object_asset, new LLModelObjectUploadResponder(this,object_asset));
 	}
-
-	mFinished = true;
+	else
+	{
+		mFinished = true;
+	}
 }
 
 void LLMeshUploadThread::uploadModel(LLMeshUploadData& data)
