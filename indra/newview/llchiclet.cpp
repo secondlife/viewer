@@ -483,8 +483,9 @@ void LLIMChiclet::setShowSpeaker(bool show)
 	if(needs_resize)
 	{		
 		mShowSpeaker = show;
-		toggleSpeakerControl();
 	}
+
+	toggleSpeakerControl();
 }
 
 void LLIMChiclet::enableCounterControl(bool enable) 
