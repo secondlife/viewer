@@ -378,12 +378,13 @@ void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, b
 	}
 
 	// We have to enable/disable right and left parts of speak button separately (EXT-4648)
-	mSpeakBtn->setSpeakBtnEnabled(enable);
+	getChild<LLButton>("speak_btn")->setEnabled(enable);
+
 	// skipped to avoid button blinking
 	if (status != STATUS_JOINING && status!= STATUS_LEFT_CHANNEL)
 	{
 		bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
-		mSpeakBtn->setFlyoutBtnEnabled(voice_status);
+		getChild<LLButton>("speak_flyout_btn")->setEnabled(voice_status);
 		if (voice_status)
 		{
 			LLFirstUse::speak(true);
@@ -546,17 +547,21 @@ BOOL LLBottomTray::postBuild()
 	setRightMouseDownCallback(boost::bind(&LLBottomTray::showBottomTrayContextMenu,this, _2, _3,_4));
 
 	mSpeakPanel = getChild<LLPanel>("speak_panel");
-	mSpeakBtn = getChild<LLSpeakButton>("talk");
-	LLHints::registerHintTarget("speak_btn", mSpeakBtn->getHandle());
+	mSpeakBtn = findChild<LLSpeakButton>("talk");
+	if (mSpeakBtn)
+	{
+		LLHints::registerHintTarget("speak_btn", mSpeakBtn->getHandle());
+
+		// Localization tool doesn't understand custom buttons like <talk_button>
+		mSpeakBtn->setSpeakToolTip( getString("SpeakBtnToolTip") );
+		mSpeakBtn->setShowToolTip( getString("VoiceControlBtnToolTip") );
+	}
 
 	// Both parts of speak button should be initially disabled because
 	// it takes some time between logging in to world and connecting to voice channel.
-	mSpeakBtn->setSpeakBtnEnabled(false);
-	mSpeakBtn->setFlyoutBtnEnabled(false);
+	getChild<LLButton>("speak_btn")->setEnabled(false);
+	getChild<LLButton>("speak_flyout_btn")->setEnabled(false);
 
-	// Localization tool doesn't understand custom buttons like <talk_button>
-	mSpeakBtn->setSpeakToolTip( getString("SpeakBtnToolTip") );
-	mSpeakBtn->setShowToolTip( getString("VoiceControlBtnToolTip") );
 
 	// Registering Chat Bar to receive Voice client status change notifications.
 	LLVoiceClient::getInstance()->addObserver(this);
@@ -852,6 +857,10 @@ void LLBottomTray::draw()
 
 	getChild<LLButton>("show_help_btn")->setToggleState(help_floater_visible);
 
+	bool openmic = LLVoiceClient::getInstance()->getUserPTTState();
+	bool voiceenabled = LLVoiceClient::getInstance()->voiceEnabled();
+	getChild<LLButton>("speak_btn")->setToggleState(openmic && voiceenabled);
+	getChild<LLOutputMonitorCtrl>("chat_zone_indicator")->setIsMuted(!voiceenabled);
 
 }
 
@@ -1309,7 +1318,11 @@ void LLBottomTray::processShrinkButtons(S32& required_width, S32& buttons_freed_
 
 			if (possible_shrink_width > 0)
 			{
-				mSpeakBtn->setLabelVisible(false);
+				if (mSpeakBtn)
+				{	
+					mSpeakBtn->setLabelVisible(false);
+				}
+
 				mSpeakPanel->reshape(panel_width - possible_shrink_width, mSpeakPanel->getRect().getHeight());
 
 				required_width += possible_shrink_width;
@@ -1435,7 +1448,7 @@ bool LLBottomTray::processExtendSpeakButton(S32& available_width)
 		}
 
 		// Reshape the Speak button to its maximum width.
-		mSpeakBtn->setLabelVisible(true);
+		if (mSpeakBtn) mSpeakBtn->setLabelVisible(true);
 		mSpeakPanel->reshape(panel_max_width, mSpeakPanel->getRect().getHeight());
 
 		available_width -= required_headroom;
