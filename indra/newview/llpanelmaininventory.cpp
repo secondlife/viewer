@@ -192,6 +192,16 @@ BOOL LLPanelMainInventory::postBuild()
 	mMenuAdd->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", upload_cost);
 	mMenuAdd->getChild<LLMenuItemGL>("Bulk Upload")->setLabelArg("[COST]", upload_cost);
 
+	// EXP-756: Force resorting of the list: in the case of date sorting, one didn't have enough information at
+	// the beginning to correctly sort the folders. Later resort didn't do anything as the order value was 
+	// set correctly. The workaround is to reset the order to alphabetical (or anything) then to the correct order.
+	if (mActivePanel)
+	{
+		U32 order = mActivePanel->getSortOrder();
+		mActivePanel->setSortOrder(LLInventoryFilter::SO_NAME);
+		mActivePanel->setSortOrder(order);
+	}
+
 	return TRUE;
 }
 
