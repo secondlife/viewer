@@ -73,9 +73,28 @@ bool LLImageDimensionsInfo::load(const std::string& src_filename,U32 codec)
 
 bool LLImageDimensionsInfo::getImageDimensionsBmp()
 {
-	const S32 BMP_FILE_HEADER_SIZE = 14;
+	// Make sure the file is long enough.
+	const S32 DATA_LEN = 26; // BMP header (14) + DIB header size (4) + width (4) + height (4)
+	if (!checkFileLength(DATA_LEN))
+	{
+		llwarns << "Premature end of file" << llendl;
+		return false;
+	}
 
-	mInfile.seek(APR_CUR,BMP_FILE_HEADER_SIZE+4);
+	// Read BMP signature.
+	U8 signature[2];
+	mInfile.read((void*)signature, sizeof(signature)/sizeof(signature[0]));
+
+	// Make sure this is actually a BMP file.
+	// We only support Windows bitmaps (BM), according to LLImageBMP::updateData().
+	if (signature[0] != 'B' || signature[1] != 'M')
+	{
+		llwarns << "Not a BMP" << llendl;
+		return false;
+	}
+
+	// Read image dimensions.
+	mInfile.seek(APR_CUR, 16);
 	mWidth = read_reverse_s32();
 	mHeight = read_reverse_s32();
 
@@ -86,6 +105,14 @@ bool LLImageDimensionsInfo::getImageDimensionsTga()
 {
 	const S32 TGA_FILE_HEADER_SIZE = 12;
 
+	// Make sure the file is long enough.
+	if (!checkFileLength(TGA_FILE_HEADER_SIZE + 1 /* width */ + 1 /* height */))
+	{
+		llwarns << "Premature end of file" << llendl;
+		return false;
+	}
+
+	// *TODO: Detect non-TGA files somehow.
 	mInfile.seek(APR_CUR,TGA_FILE_HEADER_SIZE);
 	mWidth = read_byte() | read_byte() << 8;
 	mHeight = read_byte() | read_byte() << 8;
@@ -95,9 +122,29 @@ bool LLImageDimensionsInfo::getImageDimensionsTga()
 
 bool LLImageDimensionsInfo::getImageDimensionsPng()
 {
-	const S32 PNG_FILE_MARKER_SIZE = 8;
+	const S32 PNG_MAGIC_SIZE = 8;
 
-	mInfile.seek(APR_CUR,PNG_FILE_MARKER_SIZE + 8/*header offset+chunk length+chunk type*/);
+	// Make sure the file is long enough.
+	if (!checkFileLength(PNG_MAGIC_SIZE + 8 + sizeof(S32) * 2 /* width, height */))
+	{
+		llwarns << "Premature end of file" << llendl;
+		return false;
+	}
+
+	// Read PNG signature.
+	const U8 png_magic[PNG_MAGIC_SIZE] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+	U8 signature[PNG_MAGIC_SIZE];
+	mInfile.read((void*)signature, PNG_MAGIC_SIZE);
+
+	// Make sure it's a PNG file.
+	if (memcmp(signature, png_magic, PNG_MAGIC_SIZE) != 0)
+	{
+		llwarns << "Not a PNG" << llendl;
+		return false;
+	}
+
+	// Read image dimensions.
+	mInfile.seek(APR_CUR, 8 /* chunk length + chunk type */);
 	mWidth = read_s32();
 	mHeight = read_s32();
 
@@ -122,6 +169,24 @@ bool LLImageDimensionsInfo::getImageDimensionsJpeg()
 		setLastError("Unable to open file for reading", mSrcFilename);
 		return false;
 	}
+
+	/* Make sure this is a JPEG file. */
+	const size_t JPEG_MAGIC_SIZE = 2;
+	const uint8_t jpeg_magic[JPEG_MAGIC_SIZE] = {0xFF, 0xD8};
+	uint8_t signature[JPEG_MAGIC_SIZE];
+
+	if (fread(signature, sizeof(signature), 1, fp) != 1)
+	{
+		llwarns << "Premature end of file" << llendl;
+		return false;
+	}
+	if (memcmp(signature, jpeg_magic, JPEG_MAGIC_SIZE) != 0)
+	{
+		llwarns << "Not a JPEG" << llendl;
+		return false;
+	}
+	fseek(fp, 0, SEEK_SET); // go back to start of the file
+
 	/* Init jpeg */
 	jpeg_error_mgr jerr;
 	jpeg_decompress_struct cinfo;
@@ -145,3 +210,13 @@ bool LLImageDimensionsInfo::getImageDimensionsJpeg()
 	return !sJpegErrorEncountered;
 }
 
+bool LLImageDimensionsInfo::checkFileLength(S32 min_len)
+{
+	// Make sure the file is not shorter than min_len bytes.
+	// so that we don't have to check value returned by each read() or seek().
+	char* buf = new char[min_len];
+	int nread = mInfile.read(buf, min_len);
+	delete[] buf;
+	mInfile.seek(APR_SET, 0);
+	return nread == min_len;
+}

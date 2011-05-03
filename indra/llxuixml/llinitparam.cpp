@@ -375,7 +375,7 @@ namespace LLInitParam
 	//static 
 	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name)
 	{
-		// create a copy of the paramdescriptor in allparams
+		// create a copy of the param descriptor in mAllParams
 		// so other data structures can store a pointer to it
 		block_data.mAllParams.push_back(in_param);
 		ParamDescriptorPtr param(block_data.mAllParams.back());
@@ -469,7 +469,7 @@ namespace LLInitParam
 
 	// take all provided params from other and apply to self
 	// NOTE: this requires that "other" is of the same derived type as this
-	bool BaseBlock::merge(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
+	bool BaseBlock::mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
 	{
 		bool some_param_changed = false;
 		BlockDescriptor::all_params_list_t::const_iterator end_it = block_data.mAllParams.end();

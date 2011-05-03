@@ -80,7 +80,7 @@ LLWearableDictionary::LLWearableDictionary()
 	addEntry(LLWearableType::WT_ALPHA,        new WearableEntry("alpha",       "New Alpha",			LLAssetType::AT_CLOTHING, 	LLInventoryIcon::ICONNAME_CLOTHING_ALPHA, FALSE, TRUE));
 	addEntry(LLWearableType::WT_TATTOO,       new WearableEntry("tattoo",      "New Tattoo",		LLAssetType::AT_CLOTHING, 	LLInventoryIcon::ICONNAME_CLOTHING_TATTOO, FALSE, TRUE));
 
-	addEntry(LLWearableType::WT_PHYSICS,      new WearableEntry("physics",     "New Physics",		LLAssetType::AT_CLOTHING, 	LLInventoryIcon::ICONNAME_CLOTHING_PHYSICS, TRUE, FALSE));
+	addEntry(LLWearableType::WT_PHYSICS,      new WearableEntry("physics",     "New Physics",		LLAssetType::AT_CLOTHING, 	LLInventoryIcon::ICONNAME_CLOTHING_PHYSICS, TRUE, TRUE));
 
 	addEntry(LLWearableType::WT_INVALID,      new WearableEntry("invalid",     "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryIcon::ICONNAME_NONE, FALSE, FALSE));
 	addEntry(LLWearableType::WT_NONE,      	  new WearableEntry("none",        "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryIcon::ICONNAME_NONE, FALSE, FALSE));
@@ -144,6 +144,7 @@ BOOL LLWearableType::getDisableCameraSwitch(LLWearableType::EType type)
 {
 	const LLWearableDictionary *dict = LLWearableDictionary::getInstance();
 	const WearableEntry *entry = dict->lookup(type);
+	if (!entry) return FALSE;
 	return entry->mDisableCameraSwitch;
 }
 
@@ -152,6 +153,7 @@ BOOL LLWearableType::getAllowMultiwear(LLWearableType::EType type)
 {
 	const LLWearableDictionary *dict = LLWearableDictionary::getInstance();
 	const WearableEntry *entry = dict->lookup(type);
+	if (!entry) return FALSE;
 	return entry->mAllowMultiwear;
 }
 

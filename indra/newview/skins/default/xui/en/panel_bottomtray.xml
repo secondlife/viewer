@@ -13,50 +13,50 @@
  top="28"
  width="1310">
   <string
-   name="DragIndicationImageName"
-   value="Accordion_ArrowOpened_Off" />
+     name="DragIndicationImageName"
+     value="Accordion_ArrowOpened_Off" />
   <string
-   name="SpeakBtnToolTip"
-   value="Turns microphone on/off" />
+     name="SpeakBtnToolTip"
+     value="Turns microphone on/off" />
   <string
-   name="VoiceControlBtnToolTip"
-   value="Shows/hides voice control panel" />
+     name="VoiceControlBtnToolTip"
+     value="Shows/hides voice control panel" />
   <layout_stack
-   border_size="0"
-   clip="false"
-   follows="all"
-   height="28"
+     border_size="0"
+     clip="false"
+     follows="all"
+     height="28"
    layout="topleft"
    left="0"
-   mouse_opaque="false"
-   name="toolbar_stack"
-   orientation="horizontal"
-   top="0"
-   width="1310">
-    <layout_panel
-     auto_resize="false"
-     user_resize="false"
-     min_width="2"
-     width="2" />
-    <layout_panel
-     auto_resize="false"
-     layout="topleft"
-     max_width="320"
-     min_width="214"
-     height="28"
      mouse_opaque="false"
-     name="chat_bar_layout_panel"
-     user_resize="true"
-     width="310" >
-      <panel
-        name="chat_bar"
-        filename="panel_nearby_chat_bar.xml"
-        left="0"
-        height="28"
-        width="308"
-        top="0"
-        mouse_opaque="false"
-        follows="left|right"
+     name="toolbar_stack"
+     orientation="horizontal"
+     top="0"
+     width="1310">
+    <layout_panel
+         auto_resize="false"
+         user_resize="false"
+         min_width="2"
+         width="2" />
+    <layout_panel
+         auto_resize="false"
+         layout="topleft"
+         max_width="320"
+         min_width="214"
+         height="28"
+         mouse_opaque="false"
+		 name="chat_bar_layout_panel"
+         user_resize="true"
+         width="250" >
+          <panel
+            name="chat_bar"
+            filename="panel_nearby_chat_bar.xml"
+            left="0"
+            height="28"
+            width="248"
+            top="0"
+            mouse_opaque="false"
+            follows="left|right"
           />
     </layout_panel>
     <!--
@@ -82,17 +82,17 @@
        width="5" />
     </layout_panel>
     <layout_panel
-     auto_resize="false"
-     follows="left|right"
-     height="28"
-     layout="topleft"
-     min_height="28"
-     min_width="59"
-     mouse_opaque="false"
-     name="speak_panel"
-     top_delta="0"
-     user_resize="false"
-     width="108">
+        auto_resize="false"
+        follows="left|right"
+        height="28"
+        layout="topleft"
+        min_height="28"
+        min_width="59"
+        mouse_opaque="false"
+        name="speak_panel"
+        top_delta="0"
+        user_resize="false"
+        width="108">
       <talk_button
        follows="left|right"
        height="23"
@@ -120,36 +120,36 @@
       </talk_button>
     </layout_panel>
     <layout_panel
-     auto_resize="false"
-     follows="right"
-     height="28"
-     layout="topleft"
-     min_height="28"
-     min_width="65"
-     mouse_opaque="false"
-     name="gesture_panel"
-     top_delta="0"
-     user_resize="false"
-     width="85">
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="65"
+         mouse_opaque="false"
+         name="gesture_panel"
+         top_delta="0"
+         user_resize="false"
+         width="85">
       <gesture_combo_list
-       follows="left|right"
-       height="23"
-       label="Gesture"
-       layout="topleft"
-       left="0"
-       name="Gesture"
-       tool_tip="Shows/hides gestures"
-       top="5"
-       width="82">
+             follows="left|right"
+             height="23"
+             label="Gesture"
+             layout="topleft"
+             left="0"
+             name="Gesture"
+             tool_tip="Shows/hides gestures"
+             top="5"
+             width="82">
         <combo_button
-         pad_right="10"
-         use_ellipses="true" />
+                 pad_right="10"
+                 use_ellipses="true" />
         <combo_list
-         page_lines="17" />
+                 page_lines="17" />
       </gesture_combo_list>
     </layout_panel>
     <layout_panel
-     auto_resize="false"
+         auto_resize="false"
      follows="right"
      height="28"
      layout="topleft"
@@ -181,58 +181,58 @@
     </layout_panel>
     <layout_panel
      auto_resize="false"
-     follows="left|right"
-     height="28"
-     layout="topleft"
-     min_height="28"
-     min_width="52"
-     mouse_opaque="false"
-     name="cam_panel"
-     user_resize="false"
-     width="83">
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="52"
+         mouse_opaque="false"
+         name="cam_panel"
+         user_resize="false"
+         width="83">
       <bottomtray_button
-       follows="left|right"
-       height="23"
-       image_pressed="PushButton_Press"
-       image_pressed_selected="PushButton_Selected_Press"
-       image_selected="PushButton_Selected_Press"
-       is_toggle="true"
-       label="View"
-       layout="topleft"
-       left="0"
-       name="camera_btn"
-       tool_tip="Shows/hides camera controls"
-       top="5"
-       use_ellipses="true"
-       width="80">
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="View"
+             layout="topleft"
+             left="0"
+             name="camera_btn"
+             tool_tip="Shows/hides camera controls"
+             top="5"
+             use_ellipses="true"
+             width="80">
         <init_callback
-         function="Button.SetDockableFloaterToggle"
-         parameter="camera" />
+                 function="Button.SetDockableFloaterToggle"
+                 parameter="camera" />
       </bottomtray_button>
     </layout_panel>
     <layout_panel
-     auto_resize="false"
-     follows="left|right"
-     height="28"
-     layout="topleft"
+         auto_resize="false"
+         follows="left|right"
+         height="28"
+         layout="topleft"
      min_width="40"
-     mouse_opaque="false"
+		  mouse_opaque="false"
      name="snapshot_panel"
-     user_resize="false"
+		  user_resize="false"
      width="39">
       <bottomtray_button
-       follows="left|right"
-       height="23"
+			follows="left|right"
+			height="23"
        image_overlay="Snapshot_Off"
-       image_pressed="PushButton_Press"
-       image_pressed_selected="PushButton_Selected_Press"
-       image_selected="PushButton_Selected_Press"
+			image_pressed="PushButton_Press"
+			image_pressed_selected="PushButton_Selected_Press"
+			image_selected="PushButton_Selected_Press"
        is_toggle="true"
-       layout="topleft"
-       left="0"
+			layout="topleft"
+			left="0"
        name="snapshots"
        tool_tip="Take snapshot"
-       top="5"
+			top="5"
        width="36">
         <init_callback
          function="Button.SetFloaterToggle"
@@ -240,33 +240,33 @@
       </bottomtray_button>
     </layout_panel>
     <layout_panel
-     auto_resize="false"
-     follows="left|right"
-     height="28"
-     layout="topleft"
-     min_height="28"
+		  auto_resize="false"
+		  follows="left|right"
+		  height="28"
+		  layout="topleft"
+		  min_height="28"
      min_width="52"
-     mouse_opaque="false"
+		  mouse_opaque="false"
      name="build_btn_panel"
-     user_resize="false"
+		  user_resize="false"
      width="83">
       <!--*FIX: Build Floater is not opened with default registration. Will be fixed soon.
 Disabled for now.
 -->
       <bottomtray_button
-       follows="left|right"
-       height="23"
-       image_pressed="PushButton_Press"
-       image_pressed_selected="PushButton_Selected_Press"
-       image_selected="PushButton_Selected_Press"
+			follows="left|right"
+			height="23"
+			image_pressed="PushButton_Press"
+			image_pressed_selected="PushButton_Selected_Press"
+			image_selected="PushButton_Selected_Press"
        is_toggle="true"
        label="Build"
-       layout="topleft"
-       left="0"
+			layout="topleft"
+			left="0"
        name="build_btn"
        tool_tip="Shows/hides Build Tools"
-       top="5"
-       use_ellipses="true"
+			top="5"
+			use_ellipses="true"
        width="80">
         <commit_callback
          function="Build.Toggle"
@@ -274,181 +274,181 @@ Disabled for now.
       </bottomtray_button>
     </layout_panel>
     <layout_panel
-     auto_resize="false"
-     follows="left|right"
-     height="28"
-     layout="topleft"
-     min_height="28"
+		  auto_resize="false"
+		  follows="left|right"
+		  height="28"
+		  layout="topleft"
+         min_height="28"
      min_width="52"
-     mouse_opaque="false"
+         mouse_opaque="false"
      name="search_btn_panel"
-     user_resize="false"
-     width="83">
-      <bottomtray_button
-       follows="left|right"
-       height="23"
-       image_pressed="PushButton_Press"
-       image_pressed_selected="PushButton_Selected_Press"
-       image_selected="PushButton_Selected_Press"
-       is_toggle="true"
-       label="Search"
-       layout="topleft"
-       left="0"
-       name="search_btn"
-       tool_tip="Shows/hides Search"
-       top="5"
-       use_ellipses="true"
-       width="80">
-        <init_callback
-         function="Button.SetFloaterToggle"
-         parameter="search" />
-      </bottomtray_button>
-    </layout_panel>
-    <layout_panel
-     auto_resize="false"
-     follows="left|right"
-     height="28"
-     layout="topleft"
-     min_height="28"
-     min_width="52"
-     mouse_opaque="false"
-     name="world_map_btn_panel"
-     user_resize="false"
-     width="83">
-      <bottomtray_button
-       follows="left|right"
-       height="23"
-       image_pressed="PushButton_Press"
-       image_pressed_selected="PushButton_Selected_Press"
-       image_selected="PushButton_Selected_Press"
-       is_toggle="true"
-       label="Map"
-       layout="topleft"
-       left="0"
-       name="world_map_btn"
-       tool_tip="Shows/hides World Map"
-       top="5"
-       use_ellipses="true"
-       width="80">
-        <init_callback
-         function="Button.SetFloaterToggle"
-         parameter="world_map" />
-      </bottomtray_button>
-    </layout_panel>
-    <layout_panel
-     auto_resize="false"
-     follows="left|right"
-     height="28"
-     layout="topleft"
-     min_height="28"
-     min_width="52"
-     mouse_opaque="false"
-     name="mini_map_btn_panel"
-     user_resize="false"
-     width="83">
-      <bottomtray_button
-       follows="left|right"
-       height="23"
-       image_pressed="PushButton_Press"
-       image_pressed_selected="PushButton_Selected_Press"
-       image_selected="PushButton_Selected_Press"
-       is_toggle="true"
-       label="Mini-Map"
-       layout="topleft"
-       left="0"
-       name="mini_map_btn"
-       tool_tip="Shows/hides Mini-Map"
-       top="5"
-       use_ellipses="true"
-       width="80">
-        <init_callback
-         function="Button.SetFloaterToggle"
-         parameter="mini_map" />
-      </bottomtray_button>
-    </layout_panel>
-    <layout_panel
-     follows="left|right"
-     height="30"
-     layout="topleft"
-     min_width="95"
-     mouse_opaque="false"
-     name="chiclet_list_panel"
-     top="0"
-     user_resize="false"
-     width="189">
-      <!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same
+         user_resize="false"
+         width="83">
+            <bottomtray_button
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Search"
+             layout="topleft"
+             left="0"
+             name="search_btn"
+             tool_tip="Shows/hides Search"
+             top="5"
+             use_ellipses="true"
+             width="80">
+                <init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="search" />
+            </bottomtray_button>
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="52"
+         mouse_opaque="false"
+         name="world_map_btn_panel"
+         user_resize="false"
+         width="83">
+            <bottomtray_button
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Map"
+             layout="topleft"
+             left="0"
+             name="world_map_btn"
+             tool_tip="Shows/hides World Map"
+             top="5"
+             use_ellipses="true"
+             width="80">
+                <init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="world_map" />
+            </bottomtray_button>
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="62"
+         mouse_opaque="false"
+         name="mini_map_btn_panel"
+         user_resize="false"
+         width="83">
+            <bottomtray_button
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Mini-Map"
+             layout="topleft"
+             left="0"
+             name="mini_map_btn"
+             tool_tip="Shows/hides Mini-Map"
+             top="5"
+             use_ellipses="true"
+             width="80">
+                <init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="mini_map" />
+            </bottomtray_button>
+        </layout_panel>
+        <layout_panel
+         follows="left|right"
+         height="30"
+         layout="topleft"
+         min_width="95"
+         mouse_opaque="false"
+         name="chiclet_list_panel"
+         top="0"
+         user_resize="false"
+         width="189">
+<!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same
 as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. EXT-991-->
       <chiclet_panel
-       chiclet_padding="4"
-       follows="left|right"
-       height="24"
-       layout="topleft"
-       left="1"
-       min_width="95"
-       mouse_opaque="false"
-       name="chiclet_list"
-       top="7"
-       width="189">
+             chiclet_padding="4"
+             follows="left|right"
+             height="24"
+             layout="topleft"
+             left="1"
+             min_width="95"
+             mouse_opaque="false"
+             name="chiclet_list"
+             top="7"
+             width="189">
         <button
-         auto_resize="true"
-         follows="right"
-         height="29"
-         image_hover_selected="SegmentedBtn_Left_Over"
-         image_hover_unselected="SegmentedBtn_Left_Over"
-         image_overlay="Arrow_Small_Left"
-         image_pressed="SegmentedBtn_Left_Press"
-         image_pressed_selected="SegmentedBtn_Left_Press"
-         image_selected="SegmentedBtn_Left_Off"
-         image_unselected="SegmentedBtn_Left_Off"
-         layout="topleft"
-         name="chicklet_left_scroll_button"
-         tab_stop="false"
-         top="-28"
-         visible="false"
-         width="7" />
+                 auto_resize="true"
+                 follows="right"
+                 height="29"
+                 image_hover_selected="SegmentedBtn_Left_Over"
+                 image_hover_unselected="SegmentedBtn_Left_Over"
+                 image_overlay="Arrow_Small_Left"
+                 image_pressed="SegmentedBtn_Left_Press"
+                 image_pressed_selected="SegmentedBtn_Left_Press"
+                 image_selected="SegmentedBtn_Left_Off"
+                 image_unselected="SegmentedBtn_Left_Off"
+                 layout="topleft"
+                 name="chicklet_left_scroll_button"
+                 tab_stop="false"
+                 top="-28"
+                 visible="false"
+                 width="7" />
         <button
-         auto_resize="true"
-         follows="right"
-         height="29"
-         image_hover_selected="SegmentedBtn_Right_Over"
-         image_hover_unselected="SegmentedBtn_Right_Over"
-         image_overlay="Arrow_Small_Right"
-         image_pressed="SegmentedBtn_Right_Press"
-         image_pressed_selected="SegmentedBtn_Right_Press"
-         image_selected="SegmentedBtn_Right_Off"
-         image_unselected="SegmentedBtn_Right_Off"
-         layout="topleft"
-         name="chicklet_right_scroll_button"
-         tab_stop="false"
-         top="-28"
-         visible="false"
-         width="7" />
+                 auto_resize="true"
+                 follows="right"
+                 height="29"
+                 image_hover_selected="SegmentedBtn_Right_Over"
+                 image_hover_unselected="SegmentedBtn_Right_Over"
+                 image_overlay="Arrow_Small_Right"
+                 image_pressed="SegmentedBtn_Right_Press"
+                 image_pressed_selected="SegmentedBtn_Right_Press"
+                 image_selected="SegmentedBtn_Right_Off"
+                 image_unselected="SegmentedBtn_Right_Off"
+                 layout="topleft"
+                 name="chicklet_right_scroll_button"
+                 tab_stop="false"
+                 top="-28"
+                 visible="false"
+                 width="7" />
       </chiclet_panel>
     </layout_panel>
     <layout_panel auto_resize="false"
-                  user_resize="false"
-                  width="4"
-                  min_width="4"/>
+                      user_resize="false"
+                      width="4"
+                      min_width="4"/>
     <layout_panel
-     auto_resize="false"
-     follows="right"
-     height="28"
-     layout="topleft"
-     min_height="28"
-     min_width="37"
-     name="im_well_panel"
-     top="0"
-     user_resize="false"
-     width="37">
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="37"
+         name="im_well_panel"
+         top="0"
+         user_resize="false"
+         width="37">
       <chiclet_im_well
-       follows="right"
-       height="28"
-       layout="topleft"
-       left="0"
-       max_displayed_count="99"
-       name="im_well"
-       top="0"
-       width="35">
+             follows="right"
+             height="28"
+             layout="topleft"
+             left="0"
+             max_displayed_count="99"
+             name="im_well"
+             top="0"
+             width="35">
         <!--
 Emulate 4 states of button by background images, see details in EXT-3147. The same should be for notification_well button
 xml attribute           Description
@@ -458,73 +458,73 @@ image_pressed           "Lit" - there are new messages
 image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
              -->
         <button
-         auto_resize="true"
-         follows="right"
-         halign="center"
-         height="23"
-         image_overlay="Unread_IM"
-         image_overlay_alignment="center"
-         image_pressed="WellButton_Lit"
-         image_pressed_selected="WellButton_Lit_Selected"
-         image_selected="PushButton_Press"
-         label_color="Black"
-         left="0"
-         name="Unread IM messages"
-         tool_tip="Conversations"
-         width="34">
+                 auto_resize="true"
+                 follows="right"
+                 halign="center"
+                 height="23"
+                 image_overlay="Unread_IM"
+                 image_overlay_alignment="center"
+                 image_pressed="WellButton_Lit"
+                 image_pressed_selected="WellButton_Lit_Selected"
+                 image_selected="PushButton_Press"
+                 label_color="Black"
+                 left="0"
+                 name="Unread IM messages"
+                 tool_tip="Conversations"
+                 width="34">
           <init_callback
-           function="Button.SetDockableFloaterToggle"
-           parameter="im_well_window" />
+                     function="Button.SetDockableFloaterToggle"
+                     parameter="im_well_window" />
         </button>
       </chiclet_im_well>
     </layout_panel>
     <layout_panel
-     auto_resize="false"
-     follows="right"
-     height="28"
-     layout="topleft"
-     min_height="28"
-     min_width="37"
-     name="notification_well_panel"
-     top="0"
-     user_resize="false"
-     width="37">
-      <chiclet_notification
-       follows="right"
-       height="23"
-       layout="topleft"
-       left="0"
-       max_displayed_count="99"
-       name="notification_well"
-       top="5"
-       width="35">
-        <button
-         auto_resize="true"
-         bottom_pad="3"
+         auto_resize="false"
          follows="right"
-         halign="center"
-         height="23"
-         image_overlay="Notices_Unread"
-         image_overlay_alignment="center"
-         image_pressed="WellButton_Lit"
-         image_pressed_selected="WellButton_Lit_Selected"
-         image_selected="PushButton_Press"
-         label_color="Black"
-         left="0"
-         name="Unread"
-         tool_tip="Notifications"
-         width="34">
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="37"
+         name="notification_well_panel"
+         top="0"
+         user_resize="false"
+         width="37">
+      <chiclet_notification
+             follows="right"
+             height="23"
+             layout="topleft"
+             left="0"
+             max_displayed_count="99"
+             name="notification_well"
+             top="5"
+             width="35">
+        <button
+                 auto_resize="true"
+                 bottom_pad="3"
+                 follows="right"
+                 halign="center"
+                 height="23"
+                 image_overlay="Notices_Unread"
+                 image_overlay_alignment="center"
+                 image_pressed="WellButton_Lit"
+                 image_pressed_selected="WellButton_Lit_Selected"
+                 image_selected="PushButton_Press"
+                 label_color="Black"
+                 left="0"
+                 name="Unread"
+                 tool_tip="Notifications"
+                 width="34">
           <init_callback
-           function="Button.SetDockableFloaterToggle"
-           parameter="notification_well_window" />
+                     function="Button.SetDockableFloaterToggle"
+                     parameter="notification_well_window" />
         </button>
       </chiclet_notification>
     </layout_panel>
     <layout_panel
-       auto_resize="false"
-       user_resize="false"
-       min_width="4"
-       name="DUMMY2"
-       width="8" />
+		   auto_resize="false"
+		   user_resize="false"
+		   min_width="4"
+		   name="DUMMY2"
+		   width="8" />
   </layout_stack>
 </panel>
