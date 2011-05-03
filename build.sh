@@ -125,6 +125,7 @@ if test -f scripts/update_version_files.py ; then
                 --verbose \
          | sed -n -e "s,Setting viewer channel/version: '\([^']*\)' / '\([^']*\)',VIEWER_CHANNEL='\1';VIEWER_VERSION='\2',p")\
   || fail update_version_files.py
+  echo "{\"Type\":\"viewer\",\"Version\":\"${VIEWER_VERSION}\"}" > summary.json
   end_section UpdateVer
 fi
 
@@ -262,9 +263,7 @@ then
     else
       upload_item installer "$package" binary/octet-stream
       upload_item quicklink "$package" binary/octet-stream
-
-      echo "{\"Type\":\"viewer\",\"Version\":\"${VIEWER_VERSION}\"}" > summary.json
-      upload_item installer summary.json text/plain
+      [ -f summary.json ] && upload_item installer summary.json text/plain
 
       # Upload crash reporter files.
       case "$last_built_variant" in
