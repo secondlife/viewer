@@ -34,6 +34,7 @@
 #include "llmd5.h"
 #include "llsecondlifeurls.h"
 #include "v4color.h"
+#include "llversionviewer.h"
 
 #include "llappviewer.h"
 #include "llbutton.h"
@@ -861,12 +862,20 @@ void LLPanelLogin::loadLoginPage()
 								   LLVersionInfo::getShortVersion().c_str(),
 								   LLVersionInfo::getBuild());
 
-	char* curl_channel = curl_escape(LLVersionInfo::getChannel().c_str(), 0);
+	char* curl_channel ;
 	char* curl_version = curl_escape(version.c_str(), 0);
 
+	if(strcmp(LLVersionInfo::getChannel().c_str(), LL_CHANNEL))
+	{
+		curl_channel = curl_escape(LLVersionInfo::getChannel().c_str(), 0);
+	}
+	else //if LL_CHANNEL, direct it to "Second Life Beta Viewer".
+	{
+		curl_channel = curl_escape("Second Life Beta Viewer", 0);		
+	}
 	oStr << "&channel=" << curl_channel;
 	oStr << "&version=" << curl_version;
-
+	
 	curl_free(curl_channel);
 	curl_free(curl_version);
 
