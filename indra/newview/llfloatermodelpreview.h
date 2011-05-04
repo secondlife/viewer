@@ -339,8 +339,10 @@ public:
 	U32 getLoadState() { return mLoadState; }
 	//setRestJointFlag: If an asset comes through that changes the joints, we want the reset to persist
 	void setResetJointFlag( bool state ) { if ( !mResetJoints ) mResetJoints = state; }
-	bool getResetJointFlag( void ) { return mResetJoints; }
-
+	const bool getResetJointFlag( void ) const { return mResetJoints; }
+	void setRigWithSceneParity( bool state ) { mRigParityWithScene = state; }
+	const bool getRigWithSceneParity( void ) const { return mRigParityWithScene; }
+	
 	LLVector3 getTranslationForJointOffset( std::string joint );
 
  protected:
@@ -370,6 +372,8 @@ public:
 	bool		mLoading;
 	U32			mLoadState;
 	bool		mResetJoints;
+	bool		mRigParityWithScene;
+	
 	std::map<std::string, bool> mViewOption;
 
 	//GLOD object parameters (must rebuild object if these change)

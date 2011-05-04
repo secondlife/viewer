@@ -1560,14 +1560,14 @@ bool LLModelLoader::doLoadModel()
 						//(which means we have all the joints that are required for an avatar versus
 						//a skinned asset attached to a node in a file that contains an entire skeleton,
 						//but does not use the skeleton).						
-						
+						buildJointToNodeMappingFromScene( root );
 						mPreview->critiqueRigForUploadApplicability( model->mSkinInfo.mJointNames );
 										
 						if ( !missingSkeletonOrScene )
 						{
 							//Set the joint translations on the avatar - if it's a full mapping
 							//The joints are reset in the dtor
-							if ( mPreview->getResetJointFlag() )
+							if ( mPreview->getRigWithSceneParity() )
 							{	
 								std::map<std::string, std::string> :: const_iterator masterJointIt = mJointMap.begin();
 								std::map<std::string, std::string> :: const_iterator masterJointItEnd = mJointMap.end();
@@ -1773,10 +1773,6 @@ bool LLModelLoader::doLoadModel()
 	processElement(scene);
 	
 	handlePivotPoint( root );
-
-	buildJointToNodeMappingFromScene( root );
-	
-	mPreview->critiqueJointToNodeMappingFromScene();
 
 	return true;
 }
@@ -2016,6 +2012,8 @@ void LLModelLoader::handlePivotPoint( daeElement* pRoot )
 //-----------------------------------------------------------------------------
 void LLModelPreview::critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset )
 {
+	critiqueJointToNodeMappingFromScene();
+	
 	//Determines the following use cases for a rig:
 	//1. It is suitable for upload with skin weights & joint positions, or
 	//2. It is suitable for upload as standard av with just skin weights
@@ -2034,7 +2032,7 @@ void LLModelPreview::critiqueRigForUploadApplicability( const std::vector<std::s
 		setLegacyRigValid( true );
 	}
 
-	if ( isJointPositionUploadOK )
+	if ( getRigWithSceneParity() && isJointPositionUploadOK )
 	{
 		setResetJointFlag( true );
 	}
@@ -2078,12 +2076,11 @@ void LLModelPreview::critiqueJointToNodeMappingFromScene( void  )
 	if ( result )
 	{		
 		setResetJointFlag( true );
-		//llinfos<<"Full"<<llendl;
+		setRigWithSceneParity( true );
 	}
 	else
 	{
 		setResetJointFlag( false );
-		//llinfos<<"Partial"<<llendl;
 	}	
 }
 //-----------------------------------------------------------------------------
@@ -2650,6 +2647,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 , mLegacyRigValid( false )
 , mRigValidJointUpload( false )
 , mResetJoints( false )
+, mRigParityWithScene( false )
 , mLastJointUpdate( false )
 {
 	mNeedsUpdate = TRUE;
