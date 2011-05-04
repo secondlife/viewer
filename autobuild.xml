@@ -1510,9 +1510,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0566e5ea38e2ba2362fe8e0a695d67e4</string>
+              <string>a8e74694a0f4248228c13c845ed0a6f8</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-pcre/rev/228816/arch/Darwin/installer/pcre-7.6-darwin-20110504.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-pcre/rev/228822/arch/Darwin/installer/pcre-7.6-darwin-20110504.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1522,9 +1522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6e390bc796ee2381b414e6d599b37690</string>
+              <string>bb0abe962b3b8208ed2dab0424aab33d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-pcre/rev/228816/arch/Linux/installer/pcre-7.6-linux-20110504.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-pcre/rev/228822/arch/Linux/installer/pcre-7.6-linux-20110504.tar.bz2</string>              
             </map>
             <key>name</key>
             <string>linux</string>
