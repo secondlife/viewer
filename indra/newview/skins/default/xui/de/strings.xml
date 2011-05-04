@@ -876,6 +876,9 @@
 	<string name="tattoo">
 		Tätowierung
 	</string>
+	<string name="physics">
+		Physik
+	</string>
 	<string name="invalid">
 		ungültig
 	</string>
@@ -914,6 +917,9 @@
 	</string>
 	<string name="tattoo_not_worn">
 		Tätowierung nicht getragen
+	</string>
+	<string name="physics_not_worn">
+		Physik nicht getragen
 	</string>
 	<string name="invalid_not_worn">
 		ungültig
@@ -962,6 +968,9 @@
 	</string>
 	<string name="create_new_tattoo">
 		Neue Tätowierung erstellen
+	</string>
+	<string name="create_new_physics">
+		Neue Physik erstellen
 	</string>
 	<string name="create_new_invalid">
 		ungültig
@@ -2247,6 +2256,114 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Bulbous Nose">
 		Knollennase
 	</string>
+	<string name="Breast Physics Mass">
+		Brust – Masse
+	</string>
+	<string name="Breast Physics Smoothing">
+		Brust – Glättung
+	</string>
+	<string name="Breast Physics Gravity">
+		Brust – Schwerkraft
+	</string>
+	<string name="Breast Physics Drag">
+		Brust – Luftwiderstand
+	</string>
+	<string name="Breast Physics InOut Max Effect">
+		Max. Effekt
+	</string>
+	<string name="Breast Physics InOut Spring">
+		Federn
+	</string>
+	<string name="Breast Physics InOut Gain">
+		Verstärkung
+	</string>
+	<string name="Breast Physics InOut Damping">
+		Dämpfung
+	</string>
+	<string name="Breast Physics UpDown Max Effect">
+		Max. Effekt
+	</string>
+	<string name="Breast Physics UpDown Spring">
+		Federn
+	</string>
+	<string name="Breast Physics UpDown Gain">
+		Verstärkung
+	</string>
+	<string name="Breast Physics UpDown Damping">
+		Dämpfung
+	</string>
+	<string name="Breast Physics LeftRight Max Effect">
+		Max. Effekt
+	</string>
+	<string name="Breast Physics LeftRight Spring">
+		Federn
+	</string>
+	<string name="Breast Physics LeftRight Gain">
+		Verstärkung
+	</string>
+	<string name="Breast Physics LeftRight Damping">
+		Dämpfung
+	</string>
+	<string name="Belly Physics Mass">
+		Bauch – Masse
+	</string>
+	<string name="Belly Physics Smoothing">
+		Bauch – Glättung
+	</string>
+	<string name="Belly Physics Gravity">
+		Bauch – Schwerkraft
+	</string>
+	<string name="Belly Physics Drag">
+		Bauch – Luftwiderstand
+	</string>
+	<string name="Belly Physics UpDown Max Effect">
+		Max. Effekt
+	</string>
+	<string name="Belly Physics UpDown Spring">
+		Federn
+	</string>
+	<string name="Belly Physics UpDown Gain">
+		Verstärkung
+	</string>
+	<string name="Belly Physics UpDown Damping">
+		Dämpfung
+	</string>
+	<string name="Butt Physics Mass">
+		Po – Masse
+	</string>
+	<string name="Butt Physics Smoothing">
+		Po – Glättung
+	</string>
+	<string name="Butt Physics Gravity">
+		Po – Schwerkraft
+	</string>
+	<string name="Butt Physics Drag">
+		Po – Luftwiderstand
+	</string>
+	<string name="Butt Physics UpDown Max Effect">
+		Max. Effekt
+	</string>
+	<string name="Butt Physics UpDown Spring">
+		Federn
+	</string>
+	<string name="Butt Physics UpDown Gain">
+		Verstärkung
+	</string>
+	<string name="Butt Physics UpDown Damping">
+		Dämpfung
+	</string>
+	<string name="Butt Physics LeftRight Max Effect">
+		Max. Effekt
+	</string>
+	<string name="Butt Physics LeftRight Spring">
+		Federn
+	</string>
+	<string name="Butt Physics LeftRight Gain">
+		Verstärkung
+	</string>
+	<string name="Butt Physics LeftRight Damping">
+		Dämpfung
+	</string>
 	<string name="Bushy Eyebrows">
 		Buschige Augenbrauen
 	</string>
@@ -2255,6 +2372,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Butt Size">
 		Hintern, Größe
+	</string>
+	<string name="Butt Gravity">
+		Po – Schwerkraft
 	</string>
 	<string name="bustle skirt">
 		Tournürenrock
@@ -3763,6 +3883,9 @@ Missbrauchsbericht
 	</string>
 	<string name="New Tattoo">
 		Neue Tätowierung
+	</string>
+	<string name="New Physics">
+		Neue Physik
 	</string>
 	<string name="Invalid Wearable">
 		Ungültiges Objekt

@@ -5088,7 +5088,7 @@ void LLVivoxVoiceClient::enforceTether(void)
 		}
 	}
 	
-	if(dist_vec(mCameraPosition, tethered) > 0.1)
+	if(dist_vec_squared(mCameraPosition, tethered) > 0.01)
 	{
 		mCameraPosition = tethered;
 		mSpatialCoordsDirty = true;
@@ -5150,7 +5150,7 @@ void LLVivoxVoiceClient::setCameraPosition(const LLVector3d &position, const LLV
 
 void LLVivoxVoiceClient::setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLMatrix3 &rot)
 {
-	if(dist_vec(mAvatarPosition, position) > 0.1)
+	if(dist_vec_squared(mAvatarPosition, position) > 0.01)
 	{
 		mAvatarPosition = position;
 		mSpatialCoordsDirty = true;

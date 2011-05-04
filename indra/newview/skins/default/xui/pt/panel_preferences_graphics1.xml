@@ -40,6 +40,10 @@ rápido
 			<combo_box.item label="Avatares e objetos" name="3"/>
 			<combo_box.item label="Tudo" name="4"/>
 		</combo_box>
+		<slider label="Físico do avatar:" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			Baixo
+		</text>
 		<slider label="Distancia de desenho:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -78,7 +82,7 @@ rápido
 			Baixo
 		</text>
 		<text name="AvatarRenderingText">
-			Renderização de Avatar:
+			Renderização do avatar:
 		</text>
 		<check_box initial_value="true" label="Atributos do Avatar" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Melhoria de Hardware" name="AvatarVertexProgram"/>

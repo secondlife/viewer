@@ -412,6 +412,7 @@
 			<menu_item_call label="Jupe" name="Skirt"/>
 			<menu_item_call label="Alpha" name="Alpha"/>
 			<menu_item_call label="Tatouage" name="Tattoo"/>
+			<menu_item_call label="Propriétés physiques" name="Physics"/>
 			<menu_item_call label="Tous les habits" name="All Clothes"/>
 		</menu>
 		<menu label="Aide" name="Help">

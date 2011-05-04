@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_physics_panel">
+	<panel label="" name="accordion_panel">
+		<accordion name="physics_accordion">
+			<accordion_tab name="physics_breasts_updown_tab" title="Rebond des seins"/>
+			<accordion_tab name="physics_breasts_inout_tab" title="Décolleté"/>
+			<accordion_tab name="physics_breasts_leftright_tab" title="Balancement des seins"/>
+			<accordion_tab name="physics_belly_tab" title="Rebond du ventre"/>
+			<accordion_tab name="physics_butt_tab" title="Rebond des fesses"/>
+			<accordion_tab name="physics_butt_leftright_tab" title="Balancement des fesses"/>
+			<accordion_tab name="physics_advanced_tab" title="Paramètres avancés"/>
+		</accordion>
+	</panel>
+</panel>

@@ -154,9 +154,20 @@ protected:
 
 	// Used by loadGesture
 	static void onLoadComplete(LLVFS *vfs,
-						   const LLUUID& asset_uuid,
-						   LLAssetType::EType type,
-						   void* user_data, S32 status, LLExtStat ext_status);
+							   const LLUUID& asset_uuid,
+							   LLAssetType::EType type,
+							   void* user_data, S32 status, LLExtStat ext_status);
+
+	// Used by playGesture to load an asset file
+	// required to play a gesture step
+	static void onAssetLoadComplete(LLVFS *vfs,
+									const LLUUID& asset_uuid,
+									LLAssetType::EType type,
+									void* user_data, S32 status, LLExtStat ext_status);
+
+	// Checks whether all animation and sound assets
+	// needed to play a gesture are loaded.
+	static bool hasLoadingAssets(LLMultiGesture* gesture);
 
 private:
 	// Active gestures.
@@ -172,6 +183,8 @@ private:
 	callback_map_t mCallbackMap;
 	std::vector<LLMultiGesture*> mPlaying;	
 	BOOL mValid;
+
+	std::set<LLUUID> mLoadingAssets;
 };
 
 #endif
