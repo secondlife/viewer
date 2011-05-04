@@ -443,7 +443,7 @@ Looking for people to hang out with? Try the Destinations button below.
 		         top="0"
 		         width="40" />			
 			</layout_panel>
-			
+		
 			<layout_panel
 			follows="bottom|left|right"
 			height="23"

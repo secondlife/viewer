@@ -7144,7 +7144,7 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    yestext="Quit"
    notext="Don't Quit"/>
   </notification>
-  
+
   <notification
  name="NoPlaceInfo"
  label=""

@@ -478,13 +478,13 @@
    name="device_settings_btn"
    width="190">
   </button>
-  <panel
+    <panel
     layout="topleft"
     filename="panel_sound_devices.xml"
-    visiblity_control="ShowDeviceSettings"
-    name="device_settings_panel"
+     visiblity_control="ShowDeviceSettings"
+     name="device_settings_panel"
     top="314"
     width="345"
     left="18"
     class="panel_voice_device_settings"/>
-</panel>
+    </panel>
