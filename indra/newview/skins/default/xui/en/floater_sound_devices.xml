@@ -21,7 +21,7 @@
     follows="all"
     filename="panel_sound_devices.xml"
     name="device_settings_panel"
-    width="300"
+    width="400"
     left="2"
     top="26"
     class="panel_voice_device_settings"/>

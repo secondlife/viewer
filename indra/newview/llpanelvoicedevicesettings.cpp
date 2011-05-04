@@ -51,6 +51,7 @@ LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
 	mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
 	mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 	mDevicesUpdated = FALSE;
+	mUseTuningMode = true;
 
 	// grab "live" mic volume level
 	mMicVolume = gSavedSettings.getF32("AudioLevelMic");
@@ -96,7 +97,7 @@ void LLPanelVoiceDeviceSettings::draw()
 
 	// let user know that volume indicator is not yet available
 	bool is_in_tuning_mode = LLVoiceClient::getInstance()->inTuningMode();
-	getChildView("wait_text")->setVisible( !is_in_tuning_mode);
+	getChildView("wait_text")->setVisible( !is_in_tuning_mode && mUseTuningMode);
 
 	LLPanel::draw();
 
@@ -292,14 +293,20 @@ void LLPanelVoiceDeviceSettings::initialize()
 	LLVoiceClient::getInstance()->refreshDeviceLists();
 
 	// put voice client in "tuning" mode
-	LLVoiceClient::getInstance()->tuningStart();
-	LLVoiceChannel::suspend();
+	if (mUseTuningMode)
+	{
+		LLVoiceClient::getInstance()->tuningStart();
+		LLVoiceChannel::suspend();
+	}
 }
 
 void LLPanelVoiceDeviceSettings::cleanup()
 {
-	LLVoiceClient::getInstance()->tuningStop();
-	LLVoiceChannel::resume();
+	if (mUseTuningMode)
+	{
+		LLVoiceClient::getInstance()->tuningStop();
+		LLVoiceChannel::resume();
+	}
 }
 
 void LLPanelVoiceDeviceSettings::onCommitInputDevice()

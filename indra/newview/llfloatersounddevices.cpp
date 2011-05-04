@@ -63,7 +63,12 @@ BOOL LLFloaterSoundDevices::postBuild()
 	if (mDragHandle)
 		mDragHandle->setTitleVisible(TRUE);
 	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
-	
+
+	LLPanelVoiceDeviceSettings* panel = findChild<LLPanelVoiceDeviceSettings>("device_settings_panel");
+	if (panel)
+	{
+		panel->setUseTuningMode(false);
+	}
 	return TRUE;
 }
 
