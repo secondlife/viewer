@@ -139,6 +139,7 @@ BOOL LLPanelMainInventory::postBuild()
 		mActivePanel->getFilter()->markDefault();
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 		mActivePanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mActivePanel, _1, _2));
+		mResortActivePanel = true;
 	}
 	LLInventoryPanel* recent_items_panel = getChild<LLInventoryPanel>("Recent Items");
 	if (recent_items_panel)
@@ -191,16 +192,6 @@ BOOL LLPanelMainInventory::postBuild()
 	mMenuAdd->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", upload_cost);
 	mMenuAdd->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", upload_cost);
 	mMenuAdd->getChild<LLMenuItemGL>("Bulk Upload")->setLabelArg("[COST]", upload_cost);
-
-	// EXP-756: Force resorting of the list: in the case of date sorting, one didn't have enough information at
-	// the beginning to correctly sort the folders. Later resort didn't do anything as the order value was 
-	// set correctly. The workaround is to reset the order to alphabetical (or anything) then to the correct order.
-	if (mActivePanel)
-	{
-		U32 order = mActivePanel->getSortOrder();
-		mActivePanel->setSortOrder(LLInventoryFilter::SO_NAME);
-		mActivePanel->setSortOrder(order);
-	}
 
 	return TRUE;
 }
@@ -538,6 +529,17 @@ void LLPanelMainInventory::draw()
 	{
 		mFilterEditor->setText(mFilterSubString);
 	}	
+	if (mActivePanel && mResortActivePanel)
+	{
+		// EXP-756: Force resorting of the list the first time we draw the list: 
+		// In the case of date sorting, we don't have enough information at initialization time
+		// to correctly sort the folders. Later manual resort doesn't do anything as the order value is 
+		// set correctly. The workaround is to reset the order to alphabetical (or anything) then to the correct order.
+		U32 order = mActivePanel->getSortOrder();
+		mActivePanel->setSortOrder(LLInventoryFilter::SO_NAME);
+		mActivePanel->setSortOrder(order);
+		mResortActivePanel = false;
+	}
 	LLPanel::draw();
 	updateItemcountText();
 }
