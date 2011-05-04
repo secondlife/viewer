@@ -1635,8 +1635,6 @@ LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 
 	mSlopRatio = 0.25f;
 	mInfiniteFarClip = FALSE;
 
-	LLGLNamePool::registerPool(&sQueryPool);
-
 	mOctree = new LLSpatialGroup::OctreeRoot(LLVector3d(0,0,0), 
 											LLVector3d(1,1,1), 
 											NULL);
