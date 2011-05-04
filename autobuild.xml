@@ -2125,7 +2125,6 @@
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
-                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2203,7 +2202,6 @@
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
-                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DFMOD=FALSE</string>
@@ -2280,7 +2278,6 @@
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
-                  <string>-DUSE_PRECOMPILED_HEADERS=ON</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DFMOD=FALSE</string>

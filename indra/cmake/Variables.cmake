@@ -151,7 +151,7 @@ For more information, please see JIRA DEV-14943 - Cmake Linux cannot build both 
 endif (LINUX AND SERVER AND VIEWER)
 
 
-set(USE_PRECOMPILED_HEADERS OFF CACHE BOOL "Enable use of precompiled header directives where supported.")
+set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")
 
 source_group("CMake Rules" FILES CMakeLists.txt)
 
