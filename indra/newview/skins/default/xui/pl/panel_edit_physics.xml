@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_physics_panel">
+	<panel label="" name="accordion_panel">
+		<accordion name="physics_accordion">
+			<accordion_tab name="physics_breasts_updown_tab" title="Podskakiwanie piersi"/>
+			<accordion_tab name="physics_breasts_inout_tab" title="Rowek między piersiami"/>
+			<accordion_tab name="physics_breasts_leftright_tab" title="Kołysanie piersi"/>
+			<accordion_tab name="physics_belly_tab" title="Poskakiwanie brzucha"/>
+			<accordion_tab name="physics_butt_tab" title="Podksakiwanie pośladków"/>
+			<accordion_tab name="physics_butt_leftright_tab" title="Kołysanie pośladków"/>
+			<accordion_tab name="physics_advanced_tab" title="Zaawansowane parametry"/>
+		</accordion>
+	</panel>
+</panel>

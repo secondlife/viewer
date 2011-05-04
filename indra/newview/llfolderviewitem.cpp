@@ -1835,7 +1835,7 @@ void LLFolderViewFolder::sortBy(U32 order)
 		return;
 	}
 
-	// Propegate this change to sub folders
+	// Propagate this change to sub folders
 	for (folders_t::iterator iter = mFolders.begin();
 		iter != mFolders.end();)
 	{
