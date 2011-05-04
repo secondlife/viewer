@@ -6275,128 +6275,135 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	if (LLPipeline::sRenderDeferred && !LLViewerCamera::getInstance()->cameraUnderWater())
 	{
+		bool dof_enabled = true;
+
 		LLGLSLShader* shader = &gDeferredPostProgram;
 		if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 2)
 		{
 			shader = &gDeferredGIFinalProgram;
+			dof_enabled = false;
 		}
+		else if (LLToolMgr::getInstance()->inBuildMode() || !gSavedSettings.getBOOL("RenderDepthOfField"))
+		{ //squish focal length when in build mode (or if DoF is disabled) so DoF doesn't make editing objects difficult
+			shader = &gDeferredPostNoDoFProgram;
+			dof_enabled = false;
+		}
+		
 		
 		LLGLDisable blend(GL_BLEND);
 		bindDeferredShader(*shader);
 
-		//depth of field focal plane calculations
-
-		static F32 current_distance = 16.f;
-		static F32 start_distance = 16.f;
-		static F32 transition_time = 1.f;
-
-		LLVector3 focus_point;
-
-		LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
-		if (obj && obj->mDrawable && obj->isSelected())
+		if (dof_enabled)
 		{
-			S32 face_idx = LLViewerMediaFocus::getInstance()->getFocusedFace();
-			if (obj && obj->mDrawable)
+			//depth of field focal plane calculations
+
+			static F32 current_distance = 16.f;
+			static F32 start_distance = 16.f;
+			static F32 transition_time = 1.f;
+
+			LLVector3 focus_point;
+
+			LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
+			if (obj && obj->mDrawable && obj->isSelected())
 			{
-				LLFace* face = obj->mDrawable->getFace(face_idx);
-				if (face)
+				S32 face_idx = LLViewerMediaFocus::getInstance()->getFocusedFace();
+				if (obj && obj->mDrawable)
 				{
-					focus_point = face->getPositionAgent();
+					LLFace* face = obj->mDrawable->getFace(face_idx);
+					if (face)
+					{
+						focus_point = face->getPositionAgent();
+					}
 				}
 			}
-		}
 		
-		if (focus_point.isExactlyZero())
-		{
-			if (LLViewerJoystick::getInstance()->getOverrideCamera())
+			if (focus_point.isExactlyZero())
 			{
-				focus_point = gDebugRaycastIntersection;
-			}
-			else if (gAgentCamera.cameraMouselook())
-			{
-				gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
-											  NULL,
-											  &focus_point);
-			}
-			else
-			{
-				LLViewerObject* obj = gAgentCamera.getFocusObject();
-				if (obj)
-				{
-					focus_point = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
-				}
-				else
+				if (LLViewerJoystick::getInstance()->getOverrideCamera())
 				{
 					focus_point = gDebugRaycastIntersection;
 				}
+				else if (gAgentCamera.cameraMouselook())
+				{
+					gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
+												  NULL,
+												  &focus_point);
+				}
+				else
+				{
+					LLViewerObject* obj = gAgentCamera.getFocusObject();
+					if (obj)
+					{
+						focus_point = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
+					}
+					else
+					{
+						focus_point = gDebugRaycastIntersection;
+					}
+				}
 			}
-		}
 
-		LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
-		F32 target_distance = 16.f;
-		if (!focus_point.isExactlyZero())
-		{
-			target_distance = LLViewerCamera::getInstance()->getAtAxis() * (focus_point-eye);
-		}
+			LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
+			F32 target_distance = 16.f;
+			if (!focus_point.isExactlyZero())
+			{
+				target_distance = LLViewerCamera::getInstance()->getAtAxis() * (focus_point-eye);
+			}
 
-		if (transition_time >= 1.f &&
-			fabsf(current_distance-target_distance)/current_distance > 0.01f)
-		{ //large shift happened, interpolate smoothly to new target distance
-			transition_time = 0.f;
-			start_distance = current_distance;
-		}
-		else if (transition_time < 1.f)
-		{ //currently in a transition, continue interpolating
-			transition_time += 1.f/gSavedSettings.getF32("CameraFocusTransitionTime")*gFrameIntervalSeconds;
-			transition_time = llmin(transition_time, 1.f);
+			if (transition_time >= 1.f &&
+				fabsf(current_distance-target_distance)/current_distance > 0.01f)
+			{ //large shift happened, interpolate smoothly to new target distance
+				transition_time = 0.f;
+				start_distance = current_distance;
+			}
+			else if (transition_time < 1.f)
+			{ //currently in a transition, continue interpolating
+				transition_time += 1.f/gSavedSettings.getF32("CameraFocusTransitionTime")*gFrameIntervalSeconds;
+				transition_time = llmin(transition_time, 1.f);
 
-			F32 t = cosf(transition_time*F_PI+F_PI)*0.5f+0.5f;
-			current_distance = start_distance + (target_distance-start_distance)*t;
-		}
-		else
-		{ //small or no change, just snap to target distance
-			current_distance = target_distance;
-		}
+				F32 t = cosf(transition_time*F_PI+F_PI)*0.5f+0.5f;
+				current_distance = start_distance + (target_distance-start_distance)*t;
+			}
+			else
+			{ //small or no change, just snap to target distance
+				current_distance = target_distance;
+			}
 
-		//convert to mm
-		F32 subject_distance = current_distance*1000.f;
-		F32 fnumber = gSavedSettings.getF32("CameraFNumber");
-		F32 default_focal_length = gSavedSettings.getF32("CameraFocalLength");
+			//convert to mm
+			F32 subject_distance = current_distance*1000.f;
+			F32 fnumber = gSavedSettings.getF32("CameraFNumber");
+			F32 default_focal_length = gSavedSettings.getF32("CameraFocalLength");
 
-		if (LLToolMgr::getInstance()->inBuildMode() || !gSavedSettings.getBOOL("RenderDepthOfField"))
-		{ //squish focal length when in build mode (or if DoF is disabled) so DoF doesn't make editing objects difficult
-			default_focal_length = 5.f;
-		}
-
-		F32 fov = LLViewerCamera::getInstance()->getView();
+			F32 fov = LLViewerCamera::getInstance()->getView();
 		
-		const F32 default_fov = gSavedSettings.getF32("CameraFieldOfView") * F_PI/180.f;
-		//const F32 default_aspect_ratio = gSavedSettings.getF32("CameraAspectRatio");
+			const F32 default_fov = gSavedSettings.getF32("CameraFieldOfView") * F_PI/180.f;
+			//const F32 default_aspect_ratio = gSavedSettings.getF32("CameraAspectRatio");
 		
-		//F32 aspect_ratio = (F32) mScreen.getWidth()/(F32)mScreen.getHeight();
+			//F32 aspect_ratio = (F32) mScreen.getWidth()/(F32)mScreen.getHeight();
 		
-		F32 dv = 2.f*default_focal_length * tanf(default_fov/2.f);
-		//F32 dh = 2.f*default_focal_length * tanf(default_fov*default_aspect_ratio/2.f);
+			F32 dv = 2.f*default_focal_length * tanf(default_fov/2.f);
+			//F32 dh = 2.f*default_focal_length * tanf(default_fov*default_aspect_ratio/2.f);
 
-		F32 focal_length = dv/(2*tanf(fov/2.f));
+			F32 focal_length = dv/(2*tanf(fov/2.f));
 		 
-		//F32 tan_pixel_angle = tanf(LLDrawable::sCurPixelAngle);
+			//F32 tan_pixel_angle = tanf(LLDrawable::sCurPixelAngle);
 	
-		// from wikipedia -- c = |s2-s1|/s2 * f^2/(N(S1-f))
-		// where	 N = fnumber
-		//			 s2 = dot distance
-		//			 s1 = subject distance
-		//			 f = focal length
-		//	
+			// from wikipedia -- c = |s2-s1|/s2 * f^2/(N(S1-f))
+			// where	 N = fnumber
+			//			 s2 = dot distance
+			//			 s1 = subject distance
+			//			 f = focal length
+			//	
 
-		F32 blur_constant = focal_length*focal_length/(fnumber*(subject_distance-focal_length));
-		blur_constant /= 1000.f; //convert to meters for shader
-		F32 magnification = focal_length/(subject_distance-focal_length);
+			F32 blur_constant = focal_length*focal_length/(fnumber*(subject_distance-focal_length));
+			blur_constant /= 1000.f; //convert to meters for shader
+			F32 magnification = focal_length/(subject_distance-focal_length);
 
-		shader->uniform1f("focal_distance", -subject_distance/1000.f);
-		shader->uniform1f("blur_constant", blur_constant);
-		shader->uniform1f("tan_pixel_angle", tanf(1.f/LLDrawable::sCurPixelAngle));
-		shader->uniform1f("magnification", magnification);
+			shader->uniform1f("focal_distance", -subject_distance/1000.f);
+			shader->uniform1f("blur_constant", blur_constant);
+			shader->uniform1f("tan_pixel_angle", tanf(1.f/LLDrawable::sCurPixelAngle));
+			shader->uniform1f("magnification", magnification);
+		}
 
 		S32 channel = shader->enableTexture(LLViewerShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_RECT_TEXTURE);
 		if (channel > -1)

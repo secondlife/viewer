@@ -137,6 +137,7 @@ LLGLSLShader			gDeferredGIProgram;
 LLGLSLShader			gDeferredGIFinalProgram;
 LLGLSLShader			gDeferredPostGIProgram;
 LLGLSLShader			gDeferredPostProgram;
+LLGLSLShader			gDeferredPostNoDoFProgram;
 
 LLGLSLShader			gLuminanceGatherProgram;
 
@@ -1244,6 +1245,16 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredPostProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredPostProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredPostProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredPostNoDoFProgram.mName = "Deferred Post Shader";
+		gDeferredPostNoDoFProgram.mShaderFiles.clear();
+		gDeferredPostNoDoFProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredPostNoDoFProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoDoFF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredPostNoDoFProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gDeferredPostNoDoFProgram.createShader(NULL, NULL);
 	}
 
 	if (mVertexShaderLevel[SHADER_DEFERRED] > 1)
