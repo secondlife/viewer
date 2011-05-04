@@ -6305,7 +6305,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 			LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
 			if (obj && obj->mDrawable && obj->isSelected())
-			{
+			{ //focus on selected media object
 				S32 face_idx = LLViewerMediaFocus::getInstance()->getFocusedFace();
 				if (obj && obj->mDrawable)
 				{
@@ -6320,11 +6320,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			if (focus_point.isExactlyZero())
 			{
 				if (LLViewerJoystick::getInstance()->getOverrideCamera())
-				{
+				{ //focus on point under cursor
 					focus_point = gDebugRaycastIntersection;
 				}
 				else if (gAgentCamera.cameraMouselook())
-				{
+				{ //focus on point under mouselook crosshairs
 					gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
 												  NULL,
 												  &focus_point);
@@ -6333,12 +6333,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				{
 					LLViewerObject* obj = gAgentCamera.getFocusObject();
 					if (obj)
-					{
+					{ //focus on alt-zoom target
 						focus_point = LLVector3(gAgentCamera.getFocusGlobal()-gAgent.getRegion()->getOriginGlobal());
 					}
 					else
-					{
-						focus_point = gDebugRaycastIntersection;
+					{ //focus on your avatar
+						focus_point = gAgent.getPositionAgent();
 					}
 				}
 			}
