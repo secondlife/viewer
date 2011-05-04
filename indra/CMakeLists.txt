@@ -35,8 +35,10 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 # For the library installation process;
 # see cmake/Prebuild.cmake for the counterpart code.
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/temp)
-file(WRITE ${CMAKE_BINARY_DIR}/temp/sentinel_installed "0")
+if ("${CMAKE_SOURCE_DIR}/../autobuild.xml" IS_NEWER_THAN "${CMAKE_BINARY_DIR}/temp/sentinel_installed")
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/temp)
+  file(WRITE ${CMAKE_BINARY_DIR}/temp/sentinel_installed "0")
+endif ("${CMAKE_SOURCE_DIR}/../autobuild.xml" IS_NEWER_THAN "${CMAKE_BINARY_DIR}/temp/sentinel_installed")
 add_subdirectory(cmake)
 
 add_subdirectory(${LIBS_OPEN_PREFIX}llaudio)
