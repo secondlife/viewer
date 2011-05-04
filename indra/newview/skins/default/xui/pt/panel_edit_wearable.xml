@@ -45,6 +45,9 @@
 	<string name="edit_tattoo_title">
 		Editando tatuagem
 	</string>
+	<string name="edit_physics_title">
+		Editando o físico
+	</string>
 	<string name="shape_desc_text">
 		Forma:
 	</string>
@@ -89,6 +92,9 @@
 	</string>
 	<string name="tattoo_desc_text">
 		Tatuagem:
+	</string>
+	<string name="physics_desc_text">
+		Físico:
 	</string>
 	<labeled_back_button label="Salvar" name="back_btn" tool_tip="Voltar à edição de look"/>
 	<text name="edit_wearable_title" value="Editando forma"/>

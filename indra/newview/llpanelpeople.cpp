@@ -158,9 +158,8 @@ protected:
 		const LLVector3d& me_pos = gAgent.getPositionGlobal();
 		const LLVector3d& item1_pos = mAvatarsPositions.find(item1->getAvatarId())->second;
 		const LLVector3d& item2_pos = mAvatarsPositions.find(item2->getAvatarId())->second;
-		F32 dist1 = dist_vec(item1_pos, me_pos);
-		F32 dist2 = dist_vec(item2_pos, me_pos);
-		return dist1 < dist2;
+		
+		return dist_vec_squared(item1_pos, me_pos) < dist_vec_squared(item2_pos, me_pos);
 	}
 private:
 	id_to_pos_map_t mAvatarsPositions;

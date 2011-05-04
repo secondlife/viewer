@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_avatar">
+	<string name="Subtitle">
+		[AGE]
+	</string>
+	<string name="Details">
+		[SL_PROFILE]
+	</string>
+	<text name="user_details">
+		To jest mój opis w Second Life.
+	</text>
+	<slider name="volume_slider" tool_tip="Poziom głośności" value="0.5"/>
+	<button label="Dodaj znajomość" name="add_friend_btn"/>
+	<button label="IM" name="im_btn"/>
+	<button label="Profil" name="view_profile_btn"/>
+	<panel name="moderator_panel">
+		<button label="Wyłącz komunikację głosową" name="disable_voice"/>
+		<button label="Włącz komunikację głosową" name="enable_voice"/>
+	</panel>
+</floater>

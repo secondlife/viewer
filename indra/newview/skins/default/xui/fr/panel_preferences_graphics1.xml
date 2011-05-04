@@ -39,6 +39,10 @@
 			<combo_box.item label="Tous les objets et avatars" name="3"/>
 			<combo_box.item label="Tout" name="4"/>
 		</combo_box>
+		<slider label="Propriétés physiques de l&apos;avatar :" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			Faible
+		</text>
 		<slider label="Limite d&apos;affichage :" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -77,7 +81,7 @@
 			Faible
 		</text>
 		<text name="AvatarRenderingText">
-			Rendu de l&apos;avatar :
+			Rendu de l&apos;avatar :
 		</text>
 		<check_box initial_value="true" label="Avatars éloignés en 2D" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Accélération du rendu" name="AvatarVertexProgram"/>

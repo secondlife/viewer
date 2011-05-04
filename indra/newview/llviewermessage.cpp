@@ -122,6 +122,7 @@
 //
 const F32 BIRD_AUDIBLE_RADIUS = 32.0f;
 const F32 SIT_DISTANCE_FROM_TARGET = 0.25f;
+const F32 CAMERA_POSITION_THRESHOLD_SQUARED = 0.001f * 0.001f;
 static const F32 LOGOUT_REPLY_TIME = 3.f;	// Wait this long after LogoutReply before quitting.
 
 // Determine how quickly residents' scripts can issue question dialogs
@@ -4745,7 +4746,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	BOOL force_mouselook;
 	mesgsys->getBOOLFast(_PREHASH_SitTransform, _PREHASH_ForceMouselook, force_mouselook);
 
-	if (isAgentAvatarValid() && dist_vec_squared(camera_eye, camera_at) > 0.0001f)
+	if (isAgentAvatarValid() && dist_vec_squared(camera_eye, camera_at) > CAMERA_POSITION_THRESHOLD_SQUARED)
 	{
 		gAgentCamera.setSitCamera(sitObjectID, camera_eye, camera_at);
 	}
@@ -5523,7 +5524,11 @@ void process_alert_core(const std::string& message, BOOL modal)
 	{
 		LLSD args;
 		std::string new_msg =LLNotifications::instance().getGlobalString(message);
-		args["MESSAGE"] = new_msg;
+
+		std::string localized_msg;
+		bool is_message_localized = LLTrans::findString(localized_msg, new_msg);
+
+		args["MESSAGE"] = is_message_localized ? localized_msg : new_msg;
 		LLNotificationsUtil::add("SystemMessageTip", args);
 	}
 }
@@ -6461,9 +6466,12 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	LLSD payload;
 
 	LLUUID object_id;
-	msg->getUUID("Data", "ObjectID", object_id);
+    LLUUID owner_id;
 
-	if (LLMuteList::getInstance()->isMuted(object_id))
+	msg->getUUID("Data", "ObjectID", object_id);
+    msg->getUUID("OwnerData", "OwnerID", owner_id);
+
+	if (LLMuteList::getInstance()->isMuted(object_id) || LLMuteList::getInstance()->isMuted(owner_id))
 	{
 		return;
 	}

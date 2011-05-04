@@ -81,7 +81,6 @@ public:
 	BOOL getCheckSinceLogoff();
 
 	static void onTimeAgo(LLUICtrl*, void *);
-	static void onCheckSinceLogoff(LLUICtrl*, void *);
 	static void onCloseBtn(void* user_data);
 	static void selectAllTypes(void* user_data);
 	static void selectNoTypes(void* user_data);
@@ -619,20 +618,6 @@ LLFloaterInventoryFinder::LLFloaterInventoryFinder(LLPanelMainInventory* invento
 	updateElementsFromFilter();
 }
 
-
-void LLFloaterInventoryFinder::onCheckSinceLogoff(LLUICtrl *ctrl, void *user_data)
-{
-	LLFloaterInventoryFinder *self = (LLFloaterInventoryFinder *)user_data;
-	if (!self) return;
-
-	bool since_logoff= self->getChild<LLUICtrl>("check_since_logoff")->getValue();
-	
-	if (!since_logoff && 
-	    !(  self->mSpinSinceDays->get() ||  self->mSpinSinceHours->get() ) )
-	{
-		self->mSpinSinceHours->set(1.0f);
-	}	
-}
 BOOL LLFloaterInventoryFinder::postBuild()
 {
 	const LLRect& viewrect = mPanelMainInventory->getRect();
@@ -647,9 +632,6 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	mSpinSinceDays = getChild<LLSpinCtrl>("spin_days_ago");
 	childSetCommitCallback("spin_days_ago", onTimeAgo, this);
 
-	//	mCheckSinceLogoff   = getChild<LLSpinCtrl>("check_since_logoff");
-	childSetCommitCallback("check_since_logoff", onCheckSinceLogoff, this);
-
 	childSetAction("Close", onCloseBtn, this);
 
 	updateElementsFromFilter();
@@ -660,12 +642,10 @@ void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)
 	LLFloaterInventoryFinder *self = (LLFloaterInventoryFinder *)user_data;
 	if (!self) return;
 	
-	bool since_logoff=true;
 	if ( self->mSpinSinceDays->get() ||  self->mSpinSinceHours->get() )
 	{
-		since_logoff = false;
+		self->getChild<LLUICtrl>("check_since_logoff")->setValue(false);
 	}
-	self->getChild<LLUICtrl>("check_since_logoff")->setValue(since_logoff);
 }
 
 void LLFloaterInventoryFinder::changeFilter(LLInventoryFilter* filter)

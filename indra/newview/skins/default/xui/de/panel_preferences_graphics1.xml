@@ -39,6 +39,10 @@
 			<combo_box.item label="Alle Avatare und Objekte" name="3"/>
 			<combo_box.item label="Alles" name="4"/>
 		</combo_box>
+		<slider label="Avatar-Physik:" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			Niedrig
+		</text>
 		<slider label="Sichtweite:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m

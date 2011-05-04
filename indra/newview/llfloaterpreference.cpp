@@ -43,6 +43,7 @@
 #include "llcombobox.h"
 #include "llcommandhandler.h"
 #include "lldirpicker.h"
+#include "lleventtimer.h"
 #include "llfeaturemanager.h"
 #include "llfocusmgr.h"
 //#include "llfirstuse.h"
@@ -73,6 +74,7 @@
 #include "llviewerwindow.h"
 #include "llviewermessage.h"
 #include "llviewershadermgr.h"
+#include "llviewerthrottle.h"
 #include "llvotree.h"
 #include "llvosky.h"
 
@@ -109,6 +111,7 @@
 
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
+const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 
 //control value for middle mouse as talk2push button
 const static std::string MIDDLE_MOUSE_CV = "MiddleMouse";
@@ -1526,10 +1529,56 @@ void LLFloaterPreference::setCacheLocation(const LLStringExplicit& location)
 	cache_location_editor->setToolTip(location);
 }
 
+//------------------------------Updater---------------------------------------
+
+static bool handleBandwidthChanged(const LLSD& newvalue)
+{
+	gViewerThrottle.setMaxBandwidth((F32) newvalue.asReal());
+	return true;
+}
+
+class LLPanelPreference::Updater : public LLEventTimer
+{
+
+public:
+
+	typedef boost::function<bool(const LLSD&)> callback_t;
+
+	Updater(callback_t cb, F32 period)
+	:LLEventTimer(period),
+	 mCallback(cb)
+	{
+		mEventTimer.stop();
+	}
+
+	virtual ~Updater(){}
+
+	void update(const LLSD& new_value)
+	{
+		mNewValue = new_value;
+		mEventTimer.start();
+	}
+
+protected:
+
+	BOOL tick()
+	{
+		mCallback(mNewValue);
+		mEventTimer.stop();
+
+		return FALSE;
+	}
+
+private:
+
+	LLSD mNewValue;
+	callback_t mCallback;
+};
 //----------------------------------------------------------------------------
 static LLRegisterPanelClassWrapper<LLPanelPreference> t_places("panel_preference");
 LLPanelPreference::LLPanelPreference()
-: LLPanel()
+: LLPanel(),
+  mBandWidthUpdater(NULL)
 {
 	mCommitCallbackRegistrar.add("Pref.setControlFalse",	boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 	mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",	boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
@@ -1599,10 +1648,24 @@ BOOL LLPanelPreference::postBuild()
 		}
 	}
 
+	//////////////////////PanelSetup ///////////////////
+	if (hasChild("max_bandwidth"))
+	{
+		mBandWidthUpdater = new LLPanelPreference::Updater(boost::bind(&handleBandwidthChanged, _1), BANDWIDTH_UPDATER_TIMEOUT);
+		gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->connect(boost::bind(&LLPanelPreference::Updater::update, mBandWidthUpdater, _2));
+	}
+
 	apply();
 	return true;
 }
 
+LLPanelPreference::~LLPanelPreference()
+{
+	if (mBandWidthUpdater)
+	{
+		delete mBandWidthUpdater;
+	}
+}
 void LLPanelPreference::apply()
 {
 	// no-op

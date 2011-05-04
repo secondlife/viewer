@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu name="Gear Menu">
+	<menu_item_call label="Dotknij" name="touch"/>
+	<menu_item_call label="Usiądź" name="sit"/>
+	<menu_item_call label="Zapłać" name="pay"/>
+	<menu_item_call label="Kup" name="buy"/>
+	<menu_item_call label="Weź" name="take"/>
+	<menu_item_call label="Weź kopię" name="take_copy"/>
+	<menu_item_call label="Otwórz" name="open"/>
+	<menu_item_call label="Edytuj" name="edit"/>
+	<menu_item_call label="Ubierz" name="wear"/>
+	<menu_item_call label="Dodaj" name="add"/>
+	<menu_item_call label="Raport" name="report"/>
+	<menu_item_call label="Zablokuj" name="block"/>
+	<menu_item_call label="Przybliż" name="zoom_in"/>
+	<menu_item_call label="Usuń" name="remove"/>
+	<menu_item_call label="Więcej informacji" name="more_info"/>
+</menu>
