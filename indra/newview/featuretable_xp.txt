@@ -26,6 +26,7 @@ list all
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
+RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxVisible      1   12
 RenderAvatarVP				1	1
 RenderCubeMap				1	1
@@ -71,6 +72,7 @@ list Low
 RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
+RenderAvatarPhysicsLODFactor 1	0
 RenderAvatarMaxVisible      1   3
 RenderAvatarVP				1	0
 RenderFarClip				1	64
@@ -101,6 +103,7 @@ list Mid
 RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0.5
+RenderAvatarPhysicsLODFactor 1	0.75
 RenderAvatarVP				1	1
 RenderFarClip				1	96
 RenderFlexTimeFactor		1	1.0
@@ -129,6 +132,7 @@ list High
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
+RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
@@ -157,6 +161,7 @@ list Ultra
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
+RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
 RenderFarClip				1	256
 RenderFlexTimeFactor		1	1.0

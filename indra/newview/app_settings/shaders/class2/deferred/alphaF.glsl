@@ -29,6 +29,7 @@ varying vec3 vary_directional;
 varying vec3 vary_fragcoord;
 varying vec3 vary_position;
 varying vec3 vary_light;
+varying vec3 vary_pointlight_col;
 
 uniform float shadow_bias;
 
@@ -105,15 +106,20 @@ void main()
 		}
 	}
 	
+	vec4 diff= texture2D(diffuseMap, gl_TexCoord[0].xy);
+
 	vec4 col = vec4(vary_ambient + vary_directional.rgb*shadow, gl_Color.a);
-	vec4 color = texture2D(diffuseMap, gl_TexCoord[0].xy) * col;
+	vec4 color = diff * col;
 	
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);
 
+	color.rgb += diff.rgb * vary_pointlight_col.rgb;
+
 	//gl_FragColor = gl_Color;
 	gl_FragColor = color;
+	//gl_FragColor.r = 0.0;
 	//gl_FragColor = vec4(1,shadow,1,1);
 	
 }

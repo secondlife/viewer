@@ -19,7 +19,7 @@
 		<button label="Zatrzymaj" name="all_nearby_media_disable_btn" tool_tip="Wyłącz wszystkie media w pobliżu"/>
 		<button label="Włącz" name="all_nearby_media_enable_btn" tool_tip="Włącz wszystkie media w pobliżu"/>
 		<button name="open_prefs_btn" tool_tip="Uruchom preferencje medialne"/>
-		<button label="Więcej &gt;&gt;" label_selected="Mniej &lt;&lt;" name="more_btn" tool_tip="Zaawansowane"/>
+		<button label="Więcej &gt;&gt;" label_selected="&lt;&lt; Mniej" name="more_btn" tool_tip="Zaawansowane"/>
 		<button label="Więcej &gt;&gt;" label_selected="Mniej &lt;&lt;" name="less_btn" tool_tip="Zaawansowane"/>
 	</panel>
 	<panel name="nearby_media_panel">

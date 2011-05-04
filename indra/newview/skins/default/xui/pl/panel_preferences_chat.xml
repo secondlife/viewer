@@ -30,7 +30,9 @@
 	<spinner label="Czas widoczności czatu w pobliżu:" name="nearby_toasts_lifetime"/>
 	<spinner label="Czas znikania czatu w pobliżu:" name="nearby_toasts_fadingtime"/>
 	<check_box name="translate_chat_checkbox"/>
-	<text name="translate_chb_label" >Używaj translatora podczas rozmowy (wspierany przez Google)</text>
+	<text name="translate_chb_label">
+		Użyj translatora podczas rozmowy (wspierany przez Google)
+	</text>
 	<text name="translate_language_text">
 		Przetłumacz czat na:
 	</text>

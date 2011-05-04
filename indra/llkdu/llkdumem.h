@@ -39,7 +39,7 @@
 
 class LLKDUMemSource: public kdu_compressed_source
 {
-public: // Member functions
+public:
 	LLKDUMemSource(U8 *input_buffer, U32 size)
 	{
 		mData = input_buffer;
@@ -47,11 +47,11 @@ public: // Member functions
 		mCurPos = 0;
 	}
 
-    ~LLKDUMemSource()
+	~LLKDUMemSource()
 	{
 	}
 
-    int read(kdu_byte *buf, int num_bytes)
+	int read(kdu_byte *buf, int num_bytes)
 	{
 		U32 num_out;
 		num_out = num_bytes;
@@ -70,7 +70,7 @@ public: // Member functions
 		mCurPos = 0;
 	}
 
-private: // Data
+private:
 	U8 *mData;
 	U32 mSize;
 	U32 mCurPos;
@@ -78,7 +78,7 @@ private: // Data
 
 class LLKDUMemTarget: public kdu_compressed_target
 {
-public: // Member functions
+public:
 	LLKDUMemTarget(U8 *output_buffer, U32 &output_size, const U32 buffer_size)
 	{
 		mData = output_buffer;
@@ -87,11 +87,11 @@ public: // Member functions
 		mOutputSize = &output_size;
 	}
 
-    ~LLKDUMemTarget()
-    {
+	~LLKDUMemTarget()
+	{
 	}
 
-    bool write(const kdu_byte *buf, int num_bytes)
+	bool write(const kdu_byte *buf, int num_bytes)
 	{
 		U32 num_out;
 		num_out = num_bytes;
@@ -108,7 +108,7 @@ public: // Member functions
 		return true;
 	}
 	
-private: // Data
+private:
 	U8 *mData;
 	U32 mSize;
 	U32 mCurPos;
@@ -117,27 +117,27 @@ private: // Data
 
 class LLKDUMemIn : public kdu_image_in_base
 {
-public: // Member functions
-    LLKDUMemIn(const U8 *data,
+public:
+	LLKDUMemIn(const U8 *data,
 				const U32 size,
 				const U16 rows,
 				const U16 cols,
 				U8 in_num_components,
 				siz_params *siz);
-    ~LLKDUMemIn();
+	~LLKDUMemIn();
 
-    bool get(int comp_idx, kdu_line_buf &line, int x_tnum);
+	bool get(int comp_idx, kdu_line_buf &line, int x_tnum);
 
-private: // Data
+private:
 	const U8 *mData;
-    int first_comp_idx;
-    int num_components;
-    int rows, cols;
-    int alignment_bytes; // Number of 0's at end of each line.
-    int precision[3];
-    image_line_buf *incomplete_lines; // Each "sample" represents a full pixel
-    image_line_buf *free_lines;
-    int num_unread_rows;
+	int first_comp_idx;
+	int num_components;
+	int rows, cols;
+	int alignment_bytes; // Number of 0's at end of each line.
+	int precision[3];
+	image_line_buf *incomplete_lines; // Each "sample" represents a full pixel
+	image_line_buf *free_lines;
+	int num_unread_rows;
 
 	U32 mCurPos;
 	U32 mDataSize;

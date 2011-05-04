@@ -5,7 +5,9 @@
 	</panel.string>
 	<slider label="Volume principal" name="System Volume"/>
 	<check_box initial_value="true" name="mute_when_minimized"/>
-	<text name="mute_chb_label">Couper quand minimisé</text>
+	<text name="mute_chb_label">
+		Couper lorsque minimisé
+	</text>
 	<slider label="Boutons" name="UI Volume"/>
 	<slider label="Ambiant" name="Wind Volume"/>
 	<slider label="Effets sonores" name="SFX Volume"/>

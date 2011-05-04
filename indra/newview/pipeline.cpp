@@ -5019,9 +5019,17 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			light_state->setDiffuse(light_color);
 			light_state->setAmbient(LLColor4::black);
 			light_state->setConstantAttenuation(0.f);
-			light_state->setLinearAttenuation(linatten);
-			light_state->setQuadraticAttenuation(0.f);
-
+			if (sRenderDeferred)
+			{
+				light_state->setLinearAttenuation(light_radius*1.5f);
+				light_state->setQuadraticAttenuation(light->getLightFalloff()*0.5f+1.f);
+			}
+			else
+			{
+				light_state->setLinearAttenuation(linatten);
+				light_state->setQuadraticAttenuation(0.f);
+			}
+			
 			if (light->isLightSpotlight() // directional (spot-)light
 			    && (LLPipeline::sRenderDeferred || gSavedSettings.getBOOL("RenderSpotLightsInNondeferred"))) // these are only rendered as GL spotlights if we're in deferred rendering mode *or* the setting forces them on
 			{

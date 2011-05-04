@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="hide_camera_move_controls_menu">
+	<menu_item_check label="Rozmowy głosowe aktywne" name="EnableVoiceChat"/>
+	<menu_item_check label="Przycisk gesturki" name="ShowGestureButton"/>
+	<menu_item_check label="Przycisk ruchu" name="ShowMoveButton"/>
+	<menu_item_check label="Przycisk widoku" name="ShowCameraButton"/>
+	<menu_item_check label="Przycisk zdjęć" name="ShowSnapshotButton"/>
+	<menu_item_check label="Buduj" name="ShowBuildButton"/>
+	<menu_item_check label="Szukaj" name="ShowSearchButton"/>
+	<menu_item_check label="Mapa" name="ShowWorldMapButton"/>
+	<menu_item_check label="Mini-Mapa" name="ShowMiniMapButton"/>
+	<menu_item_call label="Wytnij" name="NearbyChatBar_Cut"/>
+	<menu_item_call label="Kopiuj" name="NearbyChatBar_Copy"/>
+	<menu_item_call label="Wklej" name="NearbyChatBar_Paste"/>
+	<menu_item_call label="Usuń" name="NearbyChatBar_Delete"/>
+	<menu_item_call label="Zaznacz wszystko" name="NearbyChatBar_Select_All"/>
+</menu>

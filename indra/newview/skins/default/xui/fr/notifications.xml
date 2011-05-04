@@ -2838,6 +2838,13 @@ Ignorer les autres ?
 	<notification label="Se lever" name="HintSit">
 		Pour passer d&apos;une position assise à une position debout, cliquez sur le bouton Me lever.
 	</notification>
+	<notification label="Parler" name="HintSpeak">
+		Cliquez sur le bouton Parler pour activer/désactiver le micro.
+
+Cliquez sur la flèche vers le haut pour afficher le panneau de contrôle de la voix.
+
+Si vous masquez le bouton Parler, la fonction Voix sera désactivée.
+	</notification>
 	<notification label="Explorer le monde" name="HintDestinationGuide">
 		Le Guide des destinations comprend des milliers d&apos;endroits nouveaux à découvrir. Sélectionnez-en un, puis cliquez sur Téléporter pour commencer à l&apos;explorer.
 	</notification>
@@ -2847,11 +2854,15 @@ Ignorer les autres ?
 	<notification label="Bouger" name="HintMove">
 		Pour marcher ou courir, cliquez sur le bouton Bouger, puis naviguez à l&apos;aide des flèches directionnelles. Vous pouvez également utiliser les touches fléchées de votre clavier.
 	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Cliquer pour marcher
+Cliquez n&apos;importe où sur le sol pour vous diriger vers ce point en marchant.
+
+2. Cliquer et faire glisser pour faire pivoter la vue
+Cliquez sur un point dans le monde et faites glisser votre souris pour faire tourner la caméra.
+	</notification>
 	<notification label="Nom d&apos;affichage" name="HintDisplayName">
 		Définissez ici votre nom d&apos;affichage personnalisable. Cette fonctionnalité vous est fournie en plus de votre nom d&apos;utilisateur unique qui, lui, ne peut être changé. Vous pouvez modifier l&apos;apparence des noms des autres résidents dans vos préférences.
-	</notification>
-	<notification label="Bouger" name="HintMoveArrows">
-		Pour marcher, utilisez les touches fléchées de votre clavier. Pour courir, appuyez deux fois sur la flèche vers le haut.
 	</notification>
 	<notification label="Affichage" name="HintView">
 		Pour changer d&apos;angle de vision, utilisez les contrôles Faire tourner et Faire un panoramique. Pour réinitialiser la vue, appuyez sur Échap ou marchez.

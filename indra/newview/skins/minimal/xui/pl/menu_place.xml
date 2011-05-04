@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="place_overflow_menu">
+	<menu_item_call label="Zapisz landmark" name="landmark"/>
+	<menu_item_call label="Utwórz" name="pick"/>
+	<menu_item_call label="Kup przepustkę" name="pass"/>
+	<menu_item_call label="Edytuj" name="edit"/>
+</toggleable_menu>

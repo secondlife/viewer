@@ -14,6 +14,7 @@
 			<menu_item_call label="Camiseta" name="Self Undershirt"/>
 			<menu_item_call label="Ropa interior" name="Self Underpants"/>
 			<menu_item_call label="Tatuaje" name="Self Tattoo"/>
+			<menu_item_call label="Física" name="Self Physics"/>
 			<menu_item_call label="Alfa" name="Self Alpha"/>
 			<menu_item_call label="Toda la ropa" name="All Clothes"/>
 		</context_menu>
