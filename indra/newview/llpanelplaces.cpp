@@ -91,11 +91,18 @@ public:
 	LLParcelHandler() : LLCommandHandler("parcel", UNTRUSTED_THROTTLE) { }
 	bool handle(const LLSD& params, const LLSD& query_map,
 				LLMediaCtrl* web)
-	{
+	{		
 		if (params.size() < 2)
 		{
 			return false;
 		}
+
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnablePlaceProfile"))
+		{
+			LLNotificationsUtil::add("NoPlaceInfo", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+			return true;
+		}
+
 		LLUUID parcel_id;
 		if (!parcel_id.set(params[0], FALSE))
 		{
