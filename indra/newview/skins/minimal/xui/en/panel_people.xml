@@ -443,7 +443,28 @@ Looking for people to hang out with? Try the Destinations button below.
 		         top="0"
 		         width="40" />			
 			</layout_panel>
-		
+			
+			<layout_panel
+			follows="bottom|left|right"
+			height="23"
+			layout="bottomleft"
+			left_pad="3"
+			name="chat_btn_lp"
+		    user_resize="false" 
+		    auto_resize="true"
+			width="52">
+				<button
+		         follows="bottom|left|right"
+		         left="1"
+		         height="23"
+		         label="Call"
+		         layout="topleft"
+		         name="call_btn"
+		         tool_tip="Call this Resident"
+		         top="0"
+		         width="51" />		
+			</layout_panel>
+						
 			<layout_panel
 			follows="bottom|left|right"
 			height="23"

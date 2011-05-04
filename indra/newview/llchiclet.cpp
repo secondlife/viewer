@@ -1184,6 +1184,10 @@ void LLChicletPanel::onCurrentVoiceChannelChanged(const LLUUID& session_id)
 		if(chiclet)
 		{
 			chiclet->setShowSpeaker(true);
+			if (gSavedSettings.getBOOL("OpenIMOnVoice"))
+			{
+				LLIMFloater::show(chiclet->getSessionId());
+			}
 		}
 	}
 

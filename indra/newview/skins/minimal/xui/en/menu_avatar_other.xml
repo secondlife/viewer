@@ -25,6 +25,14 @@
         <menu_item_call.on_click
          function="Avatar.SendIM" />
     </menu_item_call>
+  <menu_item_call
+     label="Call"
+     name="Call">
+    <menu_item_call.on_click
+     function="Avatar.Call" />
+    <menu_item_call.on_enable
+     function="Avatar.EnableCall" />
+  </menu_item_call>
    <menu_item_separator />
     <menu_item_call
      enabled="false"
