@@ -29,6 +29,7 @@
 
 #include "lltimer.h"
 #include "llpointer.h"
+#include "llmath.h"
 #include "llkdumem.h"
 
 
@@ -192,7 +193,8 @@ mTileIndicesp(NULL),
 mRawImagep(NULL),
 mDecodeState(NULL),
 mBlocksSize(-1),
-mPrecinctsSize(-1)
+mPrecinctsSize(-1),
+mLevels(0)
 {
 }
 
@@ -328,10 +330,30 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int disc
 	return initDecode(base,raw_image,0.0f,MODE_FAST,0,4,discard_level,region);
 }
 
-BOOL LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size)
+BOOL LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels)
 {
-	mBlocksSize = blocks_size;
 	mPrecinctsSize = precincts_size;
+	if (mPrecinctsSize != -1)
+	{
+		mPrecinctsSize = get_lower_power_two(mPrecinctsSize,MAX_PRECINCT_SIZE);
+		mPrecinctsSize = llmax(mPrecinctsSize,MIN_PRECINCT_SIZE);
+	}
+	mBlocksSize = blocks_size;
+	if (mBlocksSize != -1)
+	{
+		mBlocksSize = get_lower_power_two(mBlocksSize,MAX_BLOCK_SIZE);
+		mBlocksSize = llmax(mBlocksSize,MIN_BLOCK_SIZE);
+		if (mPrecinctsSize != -1)
+		{
+			mBlocksSize = llmin(mBlocksSize,mPrecinctsSize);	// blocks *must* be smaller than precincts
+		}
+	}
+	mLevels = levels;
+	if (mLevels != 0)
+	{
+		mLevels = llmin(mLevels,MAX_DECOMPOSITION_LEVELS);
+		mLevels = llmax(MIN_DECOMPOSITION_LEVELS,mLevels);
+	}
 	return TRUE;
 }
 
@@ -373,10 +395,12 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 
 		// Resize raw_image according to the image to be decoded
 		kdu_dims dims; mCodeStreamp->get_dims(0,dims);
+		// *TODO: Use the real number of levels read from the file throughout the code instead of relying on an infered value from dimensions
+		//S32 levels = mCodeStreamp->get_min_dwt_levels();
 		S32 channels = base.getComponents() - first_channel;
 		channels = llmin(channels,max_channel_count);
 		raw_image.resize(dims.size.x, dims.size.y, channels);
-		//	llinfos << "Resizing raw_image to " << dims.size.x << ":" << dims.size.y << llendl;
+		//llinfos << "j2c image dimension: width = " << dims.size.x << ", height = " << dims.size.y << ", channels = " << channels << ", levels = " << levels << llendl;
 
 		if (!mTileIndicesp)
 		{
@@ -652,6 +676,11 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			codestream.access_siz()->parse_string(PLT_string.c_str());
 			std::string Parts_string = llformat("ORGtparts=R");
 			codestream.access_siz()->parse_string(Parts_string.c_str());
+		}
+		if (mLevels != 0)
+		{
+			std::string levels_string = llformat("Clevels=%d",mLevels);
+			codestream.access_siz()->parse_string(levels_string.c_str());
 		}
 		
 		codestream.access_siz()->finalize_all();
