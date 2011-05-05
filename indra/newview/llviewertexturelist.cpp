@@ -999,7 +999,7 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 		S32 block_size = gSavedSettings.getS32("Jpeg2000BlocksSize");
 		S32 precinct_size = gSavedSettings.getS32("Jpeg2000PrecinctsSize");
 		llinfos << "Advanced JPEG2000 Compression: precinct = " << precinct_size << ", block = " << block_size << llendl;
-		compressedImage->initEncode(*raw_image, block_size, precinct_size);
+		compressedImage->initEncode(*raw_image, block_size, precinct_size, 0);
 	}
 	
 	if (!compressedImage->encode(raw_image, 0.0f))
