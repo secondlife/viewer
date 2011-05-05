@@ -449,12 +449,12 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 			<slider
 		   follows="left|top"
 		   height="20"
-		   increment="0.5"
+		   increment="1"
 		   layout="topleft"
 		   left="204"
-		   max_val="4"
-		   initial_value="3"
-		   min_val="2"
+		   max_val="3"
+		   initial_value="2"
+		   min_val="0"
 		   name="accuracy_slider"
 		   show_text="false"
 		   top="130"
@@ -464,7 +464,8 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 			top_pad="0"  
 			width="300" 
 			left_delta="6" 
-			height="4">'                                             '                                             '</text>
+			height="4">'  
+      </text>
 
 
 			<icon

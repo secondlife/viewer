@@ -3643,21 +3643,19 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		glodGroupParameterf(mGroup, GLOD_OBJECT_SPACE_ERROR_THRESHOLD, lod_error_threshold);
 		stop_gloderror();
 
-		glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, 0);
-		stop_gloderror();
-
-		glodAdaptGroup(mGroup);
-		stop_gloderror();
-
-		if (lod_mode == GLOD_TRIANGLE_BUDGET)
-		{ //SH-632 Always adapt to 0 before adapting to actual desired amount, and always
-			//add 1 to desired amount to avoid decimating below desired amount
-			glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, triangle_count+1);
-			stop_gloderror();
-
-			glodAdaptGroup(mGroup);
-			stop_gloderror();
+		if (lod_mode != GLOD_TRIANGLE_BUDGET)
+		{ 			
+			glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, 0);
 		}
+		else
+		{
+			//SH-632: always add 1 to desired amount to avoid decimating below desired amount
+			glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, triangle_count+1);
+		}
+			
+		stop_gloderror();
+		glodAdaptGroup(mGroup);
+		stop_gloderror();		
 
 		for (U32 mdl_idx = 0; mdl_idx < mBaseModel.size(); ++mdl_idx)
 		{
