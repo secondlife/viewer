@@ -2017,7 +2017,7 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 	{
 		// updated for const-correctness. gcc is picky about this type of thing - Nyx
 		const LLSD::Binary& hulls = decomp["HullList"].asBinary();
-		const LLSD::Binary& position = decomp["Position"].asBinary();
+		const LLSD::Binary& position = decomp["Positions"].asBinary();
 
 		U16* p = (U16*) &position[0];
 
@@ -2166,7 +2166,7 @@ LLSD LLModel::Decomposition::asLLSD() const
 			llassert(valid.size() > 3);
 		}
 
-		ret["Position"] = p;
+		ret["Positions"] = p;
 	}
 
 	if (!mBaseHull.empty())
