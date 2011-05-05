@@ -5545,6 +5545,17 @@
     <key>Value</key>
     <real>0</real>
   </map>
+  <key>MeshUseWholeModelUpload</key>
+  <map>
+    <key>Comment</key>
+    <string>Upload model in its entirety instead of mesh-by-mesh (new caps)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
   <key>MigrateCacheDirectory</key>
     <map>
       <key>Comment</key>

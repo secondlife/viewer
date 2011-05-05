@@ -1239,6 +1239,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	
 	mUploadObjectAssetCapability = gAgent.getRegion()->getCapability("UploadObjectAsset");
 	mNewInventoryCapability = gAgent.getRegion()->getCapability("NewFileAgentInventoryVariablePrice");
+	mWholeModelUploadCapability = gAgent.getRegion()->getCapability("NewFileAgentInventory");
 
 	mOrigin += gAgent.getAtAxis() * scale.magVec();
 }
@@ -1329,6 +1330,70 @@ BOOL LLMeshUploadThread::isDiscarded()
 }
 
 void LLMeshUploadThread::run()
+{
+	if (gSavedSettings.getBOOL("MeshUseWholeModelUpload"))
+	{
+		doWholeModelUpload();
+	}
+	else
+	{
+		doIterativeUpload();
+	}
+}
+
+void LLMeshUploadThread::doWholeModelUpload()
+{
+	// Queue up models for hull generation (viewer-side)
+	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
+	{
+		LLMeshUploadData data;
+		data.mBaseModel = iter->first;
+
+		LLModelInstance& instance = *(iter->second.begin());
+
+		for (S32 i = 0; i < 5; i++)
+		{
+			data.mModel[i] = instance.mLOD[i];
+		}
+
+		//queue up models for hull generation
+		LLModel* physics = NULL;
+
+		if (data.mModel[LLModel::LOD_PHYSICS].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_PHYSICS];
+		}
+		else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_MEDIUM];
+		}
+		else
+		{
+			physics = data.mModel[LLModel::LOD_HIGH];
+		}
+
+		if (!physics)
+		{
+			llerrs << "WTF?" << llendl;
+		}
+
+		DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
+		gMeshRepo.mDecompThread->submitRequest(request);
+	}
+
+	while (!mPhysicsComplete)
+	{
+		apr_sleep(100);
+	}
+
+	bool do_include_textures = false; // not needed for initial cost/validation check.
+	LLSD model_data = wholeModelToLLSD(do_include_textures);
+	
+	// Currently a no-op.
+	mFinished = true;
+}
+
+void LLMeshUploadThread::doIterativeUpload()
 {
 	if(isDiscarded())
 	{
