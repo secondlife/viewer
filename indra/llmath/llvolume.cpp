@@ -2239,13 +2239,12 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 					
 			}
 
-			LLVector3 minp;
-			LLVector3 maxp;
+			LLVector3 minp(-0.5f, -0.5f, -0.5f);
+			LLVector3 maxp(0.5f, 0.5f, 0.5f);
 			LLVector2 min_tc; 
 			LLVector2 max_tc; 
 		
-			minp.setValue(mdl[i]["PositionDomain"]["Min"]);
-			maxp.setValue(mdl[i]["PositionDomain"]["Max"]);
+			
 			LLVector4a min_pos, max_pos;
 			min_pos.load3(minp.mV);
 			max_pos.load3(maxp.mV);
