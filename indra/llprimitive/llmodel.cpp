@@ -1404,6 +1404,10 @@ LLSD LLModel::writeModel(
 		!decomp.mHull.empty())		
 	{
 		mdl["physics_convex"] = decomp.asLLSD();
+		if (!decomp.mHull.empty())
+		{ //convex decomposition exists, physics mesh will not be used
+			model[LLModel::LOD_PHYSICS] = NULL;
+		}
 	}
 
 	for (U32 idx = 0; idx < MODEL_NAMES_LENGTH; ++idx)
@@ -2138,10 +2142,12 @@ LLSD LLModel::Decomposition::asLLSD() const
 				U64 test = 0;
 				for (U32 k = 0; k < 3; k++)
 				{
-					llassert(mHull[i][j].mV[k] <= 0.50001f && mHull[i][j].mV[k] >= -0.50001f);
+					F32* src = (F32*) (mHull[i][j].mV);
+
+					llassert(src[k] <= 0.501f && src[k] >= -0.501f);
 
 					//convert to 16-bit normalized across domain
-					U16 val = (U16) (((mHull[i][j].mV[k]-min.mV[k])/range.mV[k])*65535);
+					U16 val = (U16) (((src[k]-min.mV[k])/range.mV[k])*65535);
 
 					switch (k)
 					{
