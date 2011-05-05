@@ -1884,26 +1884,36 @@ S32 LLBottomTray::getChicletPanelShrinkHeadroom() const
 // static
 std::string LLBottomTray::resizeStateToString(EResizeState state)
 {
+	const char *rs_string = "UNKNOWN_BUTTON";
+	
 	switch (state)
 	{
-	case RS_NORESIZE:				return "RS_NORESIZE";
-	case RS_CHICLET_PANEL:			return "RS_CHICLET_PANEL";
-	case RS_CHATBAR_INPUT:			return "RS_CHATBAR_INPUT";
-	case RS_BUTTON_SNAPSHOT:		return "RS_BUTTON_SNAPSHOT";
-	case RS_BUTTON_CAMERA:			return "RS_BUTTON_CAMERA";
-	case RS_BUTTON_MOVEMENT:		return "RS_BUTTON_MOVEMENT";
-	case RS_BUTTON_GESTURES:		return "RS_BUTTON_GESTURES";
-	case RS_BUTTON_SPEAK:			return "RS_BUTTON_SPEAK";
-	case RS_IM_WELL:				return "RS_IM_WELL";
-	case RS_NOTIFICATION_WELL:		return "RS_NOTIFICATION_WELL";
-	case RS_BUTTON_BUILD:			return "RS_BUTTON_BUILD";
-	case RS_BUTTON_SEARCH:			return "RS_BUTTON_SEARCH";
-	case RS_BUTTON_WORLD_MAP:		return "RS_BUTTON_WORLD_MAP";
-	case RS_BUTTON_MINI_MAP:		return "RS_BUTTON_MINI_MAP";
-	case RS_BUTTONS_CAN_BE_HIDDEN:	return "RS_BUTTONS_CAN_BE_HIDDEN";
-	// No default to track additions.
+		case RS_NORESIZE:               rs_string = "RS_NORESIZE";              break;
+		case RS_CHICLET_PANEL:          rs_string = "RS_CHICLET_PANEL";         break;
+		case RS_CHATBAR_INPUT:          rs_string = "RS_CHATBAR_INPUT";         break;
+		case RS_BUTTON_SNAPSHOT:        rs_string = "RS_BUTTON_SNAPSHOT";       break;
+		case RS_BUTTON_CAMERA:          rs_string = "RS_BUTTON_CAMERA";         break;
+		case RS_BUTTON_MOVEMENT:        rs_string = "RS_BUTTON_MOVEMENT";       break;
+		case RS_BUTTON_GESTURES:        rs_string = "RS_BUTTON_GESTURES";       break;
+		case RS_BUTTON_SPEAK:           rs_string = "RS_BUTTON_SPEAK";          break;
+		case RS_IM_WELL:                rs_string = "RS_IM_WELL";               break;
+		case RS_NOTIFICATION_WELL:      rs_string = "RS_NOTIFICATION_WELL";     break;
+		case RS_BUTTON_BUILD:           rs_string = "RS_BUTTON_BUILD";          break;
+		case RS_BUTTON_SEARCH:          rs_string = "RS_BUTTON_SEARCH";         break;
+		case RS_BUTTON_WORLD_MAP:       rs_string = "RS_BUTTON_WORLD_MAP";      break;
+		case RS_BUTTON_MINI_MAP:        rs_string = "RS_BUTTON_MINI_MAP";       break;
+		case RS_BUTTON_DESTINATIONS:    rs_string = "RS_BUTTON_DESTINATIONS";   break;
+		case RS_BUTTON_AVATARS:         rs_string = "RS_BUTTON_AVATARS";        break;
+		case RS_BUTTON_PEOPLE:          rs_string = "RS_BUTTON_PEOPLE";         break;
+		case RS_BUTTON_PROFILE:         rs_string = "RS_BUTTON_PROFILE";        break;
+		case RS_BUTTON_HOWTO:           rs_string = "RS_BUTTON_HOWTO";          break;
+		case RS_BUTTON_SPLITTER_1:      rs_string = "RS_BUTTON_SPLITTER_1";     break;
+		case RS_BUTTON_SPLITTER_2:      rs_string = "RS_BUTTON_SPLITTER_2";     break;
+		case RS_BUTTONS_CAN_BE_HIDDEN:  rs_string = "RS_BUTTONS_CAN_BE_HIDDEN"; break;
+		// No default to track additions.
 	}
-	return "UNKNOWN_BUTTON";
+
+	return rs_string;
 }
 
 // static
