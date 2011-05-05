@@ -512,16 +512,6 @@
                  function="World.EnvSettings"
                  parameter="default" />
             </menu_item_call>
-
-            <menu_item_separator/>
-
-            <menu_item_call
-             label="Environment Editor"
-             name="Environment Editor">
-                <menu_item_call.on_click
-                 function="World.EnvSettings"
-                 parameter="editor" />
-            </menu_item_call>
         </menu>
 	    <menu
 	     create_jump_keys="true"
@@ -539,6 +529,104 @@
                  parameter="use_region_settings" />
             </menu_item_check>
 	    </menu>
+	    
+   
+	    <menu
+	     create_jump_keys="true"
+	     label="Enviroment Editor"
+	     name="Enviroment Editor"
+	     tear_off="true">
+	     	
+	     	<menu_item_call
+	     	 label="Enviroment Settings..."
+	     	 name="Enviroment Settings">
+	     	 	<menu_item_call.on_click
+	     	 	 function="World.EnvSettings"
+                 parameter="editor"/>
+	     	</menu_item_call>
+	     	
+	     	<menu_item_separator/>
+	     	
+	     	<menu
+	     	 name="Water Presets"
+	     	 label="Water Presets">
+	     	 	<menu_item_call
+	     	 	 label="New preset..."
+	     	 	 name="new_water_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="stub"
+	     	 	 	parameter="stub"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Edit preset..."
+	     	 	 name="edit_water_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="stub"
+	     	 	 	parameter="stub"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Delete preset..."
+	     	 	 name="delete_water_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="stub"
+	     	 	 	parameter="stub"/>
+	     	 	</menu_item_call>
+	     	</menu>
+	     	
+	     	<menu
+	     	 name="Sky Presets"
+	     	 label="Sky Presets">
+	     	 	<menu_item_call
+	     	 	 label="New preset..."
+	     	 	 name="new_sky_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="stub"
+	     	 	 	parameter="stub"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Edit preset..."
+	     	 	 name="edit_sky_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="stub"
+	     	 	 	parameter="stub"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Delete preset..."
+	     	 	 name="delete_sky_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="stub"
+	     	 	 	parameter="stub"/>
+	     	 	</menu_item_call>
+	     	</menu>
+	     	
+	     	<menu
+	     	 name="Day Presets"
+	     	 label="Day Presets">
+	     	 	<menu_item_call
+	     	 	 label="New preset..."
+	     	 	 name="new_day_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="stub"
+	     	 	 	parameter="stub"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Edit preset..."
+	     	 	 name="edit_day_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="stub"
+	     	 	 	parameter="stub"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Delete preset..."
+	     	 	 name="delete_day_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="stub"
+	     	 	 	parameter="stub"/>
+	     	 	</menu_item_call>
+	     	</menu>
+	    </menu>
+    
+    
     </menu>
     <menu
      create_jump_keys="true"
