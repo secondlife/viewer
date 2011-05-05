@@ -218,7 +218,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mLandingTab(NULL),
 	mCheckForDrag(false)
 {
-	// Firstly add ourself to IMSession observers, so we catch session events
+	// Firstly add our self to IMSession observers, so we catch session events
 	// before chiclets do that.
 	LLIMMgr::getInstance()->addSessionObserver(this);
 
@@ -1523,21 +1523,35 @@ void LLBottomTray::initResizeStateContainers()
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_GESTURES, getChild<LLPanel>("gesture_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, getChild<LLPanel>("movement_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_CAMERA, getChild<LLPanel>("cam_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_DESTINATIONS, getChild<LLPanel>("destinations_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_AVATARS, getChild<LLPanel>("avatar_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, getChild<LLPanel>("snapshot_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_BUILD, getChild<LLPanel>("build_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SEARCH, getChild<LLPanel>("search_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_WORLD_MAP, getChild<LLPanel>("world_map_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MINI_MAP, getChild<LLPanel>("mini_map_btn_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SPLITTER_1, getChild<LLPanel>("splitter_panel_1")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_PEOPLE, getChild<LLPanel>("people_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_PROFILE, getChild<LLPanel>("profile_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SPLITTER_2, getChild<LLPanel>("splitter_panel_2")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_HOWTO, getChild<LLPanel>("howto_panel")));
 
 	// init an order of processed buttons
 	mButtonsProcessOrder.push_back(RS_BUTTON_GESTURES);
 	mButtonsProcessOrder.push_back(RS_BUTTON_MOVEMENT);
 	mButtonsProcessOrder.push_back(RS_BUTTON_CAMERA);
+	mButtonsProcessOrder.push_back(RS_BUTTON_DESTINATIONS);
+	mButtonsProcessOrder.push_back(RS_BUTTON_AVATARS);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SNAPSHOT);
 	mButtonsProcessOrder.push_back(RS_BUTTON_BUILD);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SEARCH);
 	mButtonsProcessOrder.push_back(RS_BUTTON_WORLD_MAP);
 	mButtonsProcessOrder.push_back(RS_BUTTON_MINI_MAP);
+	mButtonsProcessOrder.push_back(RS_BUTTON_SPLITTER_1);
+	mButtonsProcessOrder.push_back(RS_BUTTON_PEOPLE);
+	mButtonsProcessOrder.push_back(RS_BUTTON_PROFILE);
+	mButtonsProcessOrder.push_back(RS_BUTTON_SPLITTER_2);
+	mButtonsProcessOrder.push_back(RS_BUTTON_HOWTO);
 
 	mButtonsOrder.push_back(RS_BUTTON_SPEAK);
 	mButtonsOrder.insert(mButtonsOrder.end(), mButtonsProcessOrder.begin(), mButtonsProcessOrder.end());
