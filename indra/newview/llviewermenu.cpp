@@ -44,6 +44,7 @@
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
+#include "llenvmanager.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloaterbuy.h"
@@ -7573,69 +7574,98 @@ class LLWorldEnvSettings : public view_listener_t
 		if (tod == "editor")
 		{
 			// if not there or is hidden, show it
+			// *TODO replace with LLFloaterWindLight::show(LLEnvKey::SCOPE_LOCAL) to make sure we're using the right scope?
 			LLFloaterReg::toggleInstance("env_settings");
 			return true;
 		}
-		
+
+		if (gSavedSettings.getBOOL("UseEnvironmentFromRegion"))
+		{
+			LLNotifications::instance().add("EnvLockedUsingRegion", LLSD(), LLSD());
+			return true;
+		}
+
 		if (tod == "sunrise")
 		{
 			// set the value, turn off animation
-			LLWLParamManager::instance()->mAnimator.setDayTime(0.25);
-			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+			LLWLParamManager::getInstance()->mAnimator.setDayTime(0.25);
+			LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 			// then call update once
-			LLWLParamManager::instance()->mAnimator.update(
-				LLWLParamManager::instance()->mCurParams);
+			LLWLParamManager::getInstance()->mAnimator.update(
+				LLWLParamManager::getInstance()->mCurParams);
 		}
 		else if (tod == "noon")
 		{
 			// set the value, turn off animation
-			LLWLParamManager::instance()->mAnimator.setDayTime(0.567);
-			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+			LLWLParamManager::getInstance()->mAnimator.setDayTime(0.567);
+			LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 			// then call update once
-			LLWLParamManager::instance()->mAnimator.update(
-				LLWLParamManager::instance()->mCurParams);
+			LLWLParamManager::getInstance()->mAnimator.update(
+				LLWLParamManager::getInstance()->mCurParams);
 		}
 		else if (tod == "sunset")
 		{
 			// set the value, turn off animation
-			LLWLParamManager::instance()->mAnimator.setDayTime(0.75);
-			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+			LLWLParamManager::getInstance()->mAnimator.setDayTime(0.75);
+			LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 			// then call update once
-			LLWLParamManager::instance()->mAnimator.update(
-				LLWLParamManager::instance()->mCurParams);
+			LLWLParamManager::getInstance()->mAnimator.update(
+				LLWLParamManager::getInstance()->mCurParams);
 		}
 		else if (tod == "midnight")
 		{
 			// set the value, turn off animation
-			LLWLParamManager::instance()->mAnimator.setDayTime(0.0);
-			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+			LLWLParamManager::getInstance()->mAnimator.setDayTime(0.0);
+			LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 			// then call update once
-			LLWLParamManager::instance()->mAnimator.update(
-				LLWLParamManager::instance()->mCurParams);
+			LLWLParamManager::getInstance()->mAnimator.update(
+				LLWLParamManager::getInstance()->mCurParams);
 		}
 		else
 		{
-			LLWLParamManager::instance()->mAnimator.mIsRunning = true;
-			LLWLParamManager::instance()->mAnimator.mUseLindenTime = true;	
+			LLWLParamManager::getInstance()->mAnimator.activate(LLWLAnimator::TIME_LINDEN);
 		}
+
 		return true;
 	}
 };
 
-/// Water Menu callbacks
-class LLWorldWaterSettings : public view_listener_t
-{	
+class LLWorldCheckEnvironment : public view_listener_t
+{
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::toggleInstance("env_water");
+		const std::string& item = userdata.asString();
+
+		if (item == "use_region_settings")
+		{
+			// Check whether we're using region environment settings.
+			LLEnvKey::EScope cur_scope = LLEnvManager::getInstance()->getNormallyDisplayedScope();
+			return cur_scope == LLEnvKey::SCOPE_REGION;
+		}
+
+		return true;
+	}
+};
+
+class LLWorldEnvironment : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		const std::string& item = userdata.asString();
+
+		if (item == "use_region_settings")
+		{
+			// Toggle using region environment settings.
+			LLEnvManager* env_mgr = LLEnvManager::getInstance();
+			LLEnvKey::EScope cur_scope = env_mgr->getNormallyDisplayedScope();
+			LLEnvKey::EScope new_scope = (cur_scope == LLEnvKey::SCOPE_LOCAL ? LLEnvKey::SCOPE_REGION : LLEnvKey::SCOPE_LOCAL);
+			env_mgr->setNormallyDisplayedScope(new_scope);
+		}
+
 		return true;
 	}
 };
@@ -7888,7 +7918,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldCheckAlwaysRun(), "World.CheckAlwaysRun");
 	
 	view_listener_t::addMenu(new LLWorldEnvSettings(), "World.EnvSettings");
-	view_listener_t::addMenu(new LLWorldWaterSettings(), "World.WaterSettings");
+	view_listener_t::addEnable(new LLWorldCheckEnvironment(), "World.CheckEnvironment");
+	view_listener_t::addMenu(new LLWorldEnvironment(), "World.Environment");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
 	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
 

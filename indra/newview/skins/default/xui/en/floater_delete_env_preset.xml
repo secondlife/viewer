@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<floater
+ legacy_header_height="18"
+ height="130"
+ help_topic="environment_editor_floater"
+ layout="topleft"
+ name="Environment Editor Floater"
+ save_rect="true"
+ title="DELETE PRESETS"
+ width="550">
+    <text
+     follows="top|left|right"
+     font="SansSerif"
+     height="10"
+     layout="topleft"
+     left="50"
+     name="delete_preset"
+     top="60"
+     width="60">
+     Setting:
+    </text>
+    <combo_box
+     follows="top|left"
+     layout="topleft"
+     left_pad="10"
+     name="preset_combo"
+     top_delta="-5"
+     width="200">
+        <combo_box.item
+         label="-Select a preset-"
+         name="item0"
+         value="any" />
+    </combo_box>
+    <button
+     follows="bottom|right"
+     height="23"
+     label="Delete"
+     layout="topleft"
+     left_pad="15"
+     name="delete"
+     width="70"/>
+    <button
+     follows="bottom|right"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="cancel"
+     width="70"/>
+</floater>

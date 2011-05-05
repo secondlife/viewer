@@ -41,6 +41,8 @@
 #include "llcombobox.h"
 #include "lllineeditor.h"
 #include "llwlanimator.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 
 #include "v4math.h"
 #include "llviewerdisplay.h"
@@ -51,34 +53,29 @@
 #include "llwlparammanager.h"
 #include "llpostprocess.h"
 #include "llfloaterwindlight.h"
+//#include "llwindlightscrubbers.h" // *HACK commented out since this code isn't released (yet)
+#include "llenvmanager.h"
+#include "llfloaterreg.h"
 
-
-std::map<std::string, LLWLSkyKey> LLFloaterDayCycle::sSliderToKey;
+LLFloaterDayCycle* LLFloaterDayCycle::sDayCycle = NULL;
 const F32 LLFloaterDayCycle::sHoursPerDay = 24.0f;
+std::map<std::string, LLWLCycleSliderKey> LLFloaterDayCycle::sSliderToKey;
+LLEnvKey::EScope LLFloaterDayCycle::sScope;
+std::string LLFloaterDayCycle::sOriginalTitle;
+LLWLAnimator::ETime LLFloaterDayCycle::sPreviousTimeType = LLWLAnimator::TIME_LINDEN;
 
-LLFloaterDayCycle::LLFloaterDayCycle(const LLSD& key)	
-: LLFloater(key)
+LLFloaterDayCycle::LLFloaterDayCycle(const LLSD &key) : LLFloater(key)
 {
 }
 
+// virtual
 BOOL LLFloaterDayCycle::postBuild()
 {
-	// add the combo boxes
-	LLComboBox* keyCombo = getChild<LLComboBox>("WLKeyPresets");
+	sOriginalTitle = getTitle();
 
-	if(keyCombo != NULL) 
-	{
-		keyCombo->removeall();
-		std::map<std::string, LLWLParamSet>::iterator mIt = 
-			LLWLParamManager::instance()->mParamList.begin();
-		for(; mIt != LLWLParamManager::instance()->mParamList.end(); mIt++) 
-		{
-			keyCombo->add(std::string(mIt->first));
-		}
-
-		// set defaults on combo boxes
-		keyCombo->selectFirstItem();
-	}
+	// *HACK commented out since this code isn't released (yet)
+	//llassert(LLWLPacketScrubber::MAX_LOCAL_KEY_FRAMES <= getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getMaxValue() &&
+	//	     LLWLPacketScrubber::MAX_REGION_KEY_FRAMES <= getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getMaxValue());
 
 	// add the time slider
 	LLMultiSliderCtrl* sldr = getChild<LLMultiSliderCtrl>("WLTimeSlider");
@@ -88,9 +85,6 @@ BOOL LLFloaterDayCycle::postBuild()
 	// load it up
 	initCallbacks();
 
-	syncMenu();
-	syncSliderTrack();
-	
 	return TRUE;
 }
 
@@ -98,46 +92,59 @@ LLFloaterDayCycle::~LLFloaterDayCycle()
 {
 }
 
+void LLFloaterDayCycle::onClickHelp(void* data)
+{
+	std::string xml_alert = *(std::string *) data;
+	LLNotifications::instance().add(xml_alert, LLSD(), LLSD());
+}
+
+void LLFloaterDayCycle::initHelpBtn(const std::string& name, const std::string& xml_alert)
+{
+	childSetAction(name, onClickHelp, new std::string(xml_alert));
+}
+
 void LLFloaterDayCycle::initCallbacks(void) 
 {
+	initHelpBtn("WLDayCycleHelp", "HelpDayCycle");
+
 	// WL Day Cycle
-	getChild<LLUICtrl>("WLTimeSlider")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onTimeSliderMoved, this, _1));
-	getChild<LLUICtrl>("WLDayCycleKeys")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onKeyTimeMoved, this, _1));
-	getChild<LLUICtrl>("WLCurKeyHour")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onKeyTimeChanged, this, _1));
-	getChild<LLUICtrl>("WLCurKeyMin")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onKeyTimeChanged, this, _1));
-	getChild<LLUICtrl>("WLKeyPresets")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onKeyPresetChanged, this, _1));
+	childSetCommitCallback("WLTimeSlider", onTimeSliderMoved, NULL);
+	childSetCommitCallback("WLDayCycleKeys", onKeyTimeMoved, NULL);
+	childSetCommitCallback("WLCurKeyHour", onKeyTimeChanged, NULL);
+	childSetCommitCallback("WLCurKeyMin", onKeyTimeChanged, NULL);
+	childSetCommitCallback("WLKeyPresets", onKeyPresetChanged, NULL);
 
-	getChild<LLUICtrl>("WLLengthOfDayHour")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onTimeRateChanged, this, _1));
-	getChild<LLUICtrl>("WLLengthOfDayMin")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onTimeRateChanged, this, _1));
-	getChild<LLUICtrl>("WLLengthOfDaySec")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onTimeRateChanged, this, _1));
-	getChild<LLUICtrl>("WLUseLindenTime")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onUseLindenTime, this, _1));
-	getChild<LLUICtrl>("WLAnimSky")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onRunAnimSky, this, _1));
-	getChild<LLUICtrl>("WLStopAnimSky")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onStopAnimSky, this, _1));
+	childSetCommitCallback("WLLengthOfDayHour", onTimeRateChanged, NULL);
+	childSetCommitCallback("WLLengthOfDayMin", onTimeRateChanged, NULL);
+	childSetCommitCallback("WLLengthOfDaySec", onTimeRateChanged, NULL);
+	childSetAction("WLUseLindenTime", onUseLindenTime, NULL);
+	childSetAction("WLAnimSky", onRunAnimSky, NULL);
+	childSetAction("WLStopAnimSky", onStopAnimSky, NULL);
 
-	getChild<LLUICtrl>("WLLoadDayCycle")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onLoadDayCycle, this, _1));
-	getChild<LLUICtrl>("WLSaveDayCycle")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onSaveDayCycle, this, _1));
+	childSetAction("WLLoadDayCycle", onLoadDayCycle, NULL);
+	childSetAction("WLSaveDayCycle", onSaveDayCycle, NULL);
 
-	getChild<LLUICtrl>("WLAddKey")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onAddKey, this, _1));
-	getChild<LLUICtrl>("WLDeleteKey")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onDeleteKey, this, _1));
+	childSetAction("WLAddKey", onAddKey, NULL);
+	childSetAction("WLDeleteKey", onDeleteKey, NULL);
 }
 
 void LLFloaterDayCycle::syncMenu()
 {
-//	std::map<std::string, LLVector4> & currentParams = LLWLParamManager::instance()->mCurParams.mParamValues;
+//	std::map<std::string, LLVector4> & currentParams = LLWLParamManager::getInstance()->mCurParams.mParamValues;
 	
 	// set time
-	LLMultiSliderCtrl* sldr = getChild<LLMultiSliderCtrl>("WLTimeSlider");
-	sldr->setCurSliderValue((F32)LLWLParamManager::instance()->mAnimator.getDayTime() * sHoursPerDay);
+	LLMultiSliderCtrl* sldr = LLFloaterDayCycle::sDayCycle->getChild<LLMultiSliderCtrl>("WLTimeSlider");
+	sldr->setCurSliderValue((F32)LLWLParamManager::getInstance()->mAnimator.getDayTime() * sHoursPerDay);
 
-	LLSpinCtrl* secSpin = getChild<LLSpinCtrl>("WLLengthOfDaySec");
-	LLSpinCtrl* minSpin = getChild<LLSpinCtrl>("WLLengthOfDayMin");
-	LLSpinCtrl* hourSpin = getChild<LLSpinCtrl>("WLLengthOfDayHour");
+	LLSpinCtrl* secSpin = sDayCycle->getChild<LLSpinCtrl>("WLLengthOfDaySec");
+	LLSpinCtrl* minSpin = sDayCycle->getChild<LLSpinCtrl>("WLLengthOfDayMin");
+	LLSpinCtrl* hourSpin = sDayCycle->getChild<LLSpinCtrl>("WLLengthOfDayHour");
 
 	F32 curRate;
 	F32 hours, min, sec;
 
 	// get the current rate
-	curRate = LLWLParamManager::instance()->mDay.mDayRate;
+	curRate = LLWLParamManager::getInstance()->mDay.mDayRate;
 	hours = (F32)((int)(curRate / 60 / 60));
 	curRate -= (hours * 60 * 60);
 	min = (F32)((int)(curRate / 60));
@@ -149,28 +156,31 @@ void LLFloaterDayCycle::syncMenu()
 	secSpin->setValue(sec);
 
 	// turn off Use Estate Time button if it's already being used
-	if(	LLWLParamManager::instance()->mAnimator.mUseLindenTime == true)
+	if(	LLWLParamManager::getInstance()->mAnimator.getUseLindenTime())
 	{
-		getChildView("WLUseLindenTime")->setEnabled(FALSE);
+		LLFloaterDayCycle::sDayCycle->childDisable("WLUseLindenTime");
 	} 
 	else 
 	{
-		getChildView("WLUseLindenTime")->setEnabled(TRUE);
+		LLFloaterDayCycle::sDayCycle->childEnable("WLUseLindenTime");
 	}
 }
 
 void LLFloaterDayCycle::syncSliderTrack()
 {
 	// clear the slider
-	LLMultiSliderCtrl* kSldr = getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
+	LLMultiSliderCtrl* kSldr = sDayCycle->getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
 
 	kSldr->clear();
 	sSliderToKey.clear();
 
 	// add sliders
-	std::map<F32, std::string>::iterator mIt = 
-		LLWLParamManager::instance()->mDay.mTimeMap.begin();
-	for(; mIt != LLWLParamManager::instance()->mDay.mTimeMap.end(); mIt++) 
+
+	lldebugs << "Adding " << LLWLParamManager::getInstance()->mDay.mTimeMap.size() << " keys to slider" << llendl;
+
+	std::map<F32, LLWLParamKey>::iterator mIt = 
+		LLWLParamManager::getInstance()->mDay.mTimeMap.begin();
+	for(; mIt != LLWLParamManager::getInstance()->mDay.mTimeMap.end(); mIt++) 
 	{
 		addSliderKey(mIt->first * sHoursPerDay, mIt->second);
 	}
@@ -178,41 +188,128 @@ void LLFloaterDayCycle::syncSliderTrack()
 
 void LLFloaterDayCycle::syncTrack()
 {
+	lldebugs << "Syncing track (" << sSliderToKey.size() << ")" << llendl;
+
 	// if no keys, do nothing
 	if(sSliderToKey.size() == 0) 
 	{
+		lldebugs << "No keys, not syncing" << llendl;
 		return;
 	}
 	
 	LLMultiSliderCtrl* sldr;
-	sldr = getChild<LLMultiSliderCtrl>( 
+	sldr = sDayCycle->getChild<LLMultiSliderCtrl>( 
 		"WLDayCycleKeys");
 	llassert_always(sSliderToKey.size() == sldr->getValue().size());
 	
 	LLMultiSliderCtrl* tSldr;
-	tSldr = getChild<LLMultiSliderCtrl>( 
+	tSldr = sDayCycle->getChild<LLMultiSliderCtrl>( 
 		"WLTimeSlider");
 
 	// create a new animation track
-	LLWLParamManager::instance()->mDay.clearKeys();
+	LLWLParamManager::getInstance()->mDay.clearKeyframes();
 	
 	// add the keys one by one
-	std::map<std::string, LLWLSkyKey>::iterator mIt = sSliderToKey.begin();
+	std::map<std::string, LLWLCycleSliderKey>::iterator mIt = sSliderToKey.begin();
 	for(; mIt != sSliderToKey.end(); mIt++) 
 	{
-		LLWLParamManager::instance()->mDay.addKey(mIt->second.time / sHoursPerDay, 
-			mIt->second.presetName);
+		LLWLParamManager::getInstance()->mDay.addKeyframe(mIt->second.time / sHoursPerDay, 
+			mIt->second.keyframe);
 	}
 	
 	// set the param manager's track to the new one
-	LLWLParamManager::instance()->resetAnimator(
+	LLWLParamManager::getInstance()->resetAnimator(
 		tSldr->getCurSliderValue() / sHoursPerDay, false);
 
-	LLWLParamManager::instance()->mAnimator.update(
-		LLWLParamManager::instance()->mCurParams);
+	LLWLParamManager::getInstance()->mAnimator.update(
+		LLWLParamManager::getInstance()->mCurParams);
 }
 
-void LLFloaterDayCycle::onRunAnimSky(LLUICtrl* ctrl)
+void LLFloaterDayCycle::refreshPresetsFromParamManager()
+{
+	LLComboBox* keyCombo = sDayCycle->getChild<LLComboBox>("WLKeyPresets");
+
+	if(keyCombo != NULL) 
+	{
+		std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = 
+			LLWLParamManager::getInstance()->mParamList.begin();
+		for(; mIt != LLWLParamManager::getInstance()->mParamList.end(); mIt++) 
+		{
+			if(mIt->first.scope <= sScope)
+			{
+				llinfos << "Adding key: " << mIt->first.toString() << llendl;
+				keyCombo->add(mIt->first.toString(), LLSD(mIt->first.toStringVal()));
+			}
+		}
+
+		// set defaults on combo boxes
+		keyCombo->selectFirstItem();
+	}
+}
+
+// static
+LLFloaterDayCycle* LLFloaterDayCycle::instance()
+{
+	if (!sDayCycle)
+	{
+		lldebugs << "Instantiating Day Cycle floater" << llendl;
+		sDayCycle = LLFloaterReg::getTypedInstance<LLFloaterDayCycle>("env_day_cycle");
+		llassert(sDayCycle);
+		// sDayCycle->open();
+		// sDayCycle->setFocus(TRUE);
+	}
+	return sDayCycle;
+}
+
+bool LLFloaterDayCycle::isOpen()
+{
+	if (sDayCycle != NULL) 
+	{
+		return true;
+	}
+	return false;
+}
+
+void LLFloaterDayCycle::show(LLEnvKey::EScope scope)
+{
+	LLFloaterDayCycle* dayCycle = instance();
+	if(scope != sScope && ((LLView*)dayCycle)->getVisible())
+	{
+		LLNotifications::instance().add("EnvOtherScopeAlreadyOpen", LLSD(), LLSD());
+		return;
+	}
+	sScope = scope;
+	std::string title = sOriginalTitle + " (" + LLEnvManager::getScopeString(sScope) + ")";
+	dayCycle->setTitle(title);
+	refreshPresetsFromParamManager();
+	dayCycle->syncMenu();
+	syncSliderTrack();
+
+	// set drop-down menu to match preset of currently-selected keyframe (one is automatically selected initially)
+	const std::string& curSldr = sDayCycle->getChild<LLMultiSliderCtrl>("WLDayCycleKeys")->getCurSlider();
+	if(strlen(curSldr.c_str()) > 0)	// only do this if there is a curSldr, otherwise we put an invalid entry into the map
+	{	
+		sDayCycle->getChild<LLComboBox>("WLKeyPresets")->selectByValue(sSliderToKey[curSldr].keyframe.toStringVal());
+	}
+
+	// comment in if you want the menu to rebuild each time
+	//LLUICtrlFactory::getInstance()->buildFloater(dayCycle, "floater_day_cycle_options.xml");
+	//dayCycle->initCallbacks();
+
+	dayCycle->openFloater();
+}
+
+// virtual
+void LLFloaterDayCycle::onClose(bool app_quitting)
+{
+	if (sDayCycle)
+	{
+		lldebugs << "Destorying Day Cycle floater" << llendl;
+		sDayCycle = NULL;
+	}
+}
+
+void LLFloaterDayCycle::onRunAnimSky(void* userData)
 {
 	// if no keys, do nothing
 	if(sSliderToKey.size() == 0) 
@@ -221,46 +318,49 @@ void LLFloaterDayCycle::onRunAnimSky(LLUICtrl* ctrl)
 	}
 	
 	LLMultiSliderCtrl* sldr;
-	sldr = getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
+	sldr = sDayCycle->getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
 	llassert_always(sSliderToKey.size() == sldr->getValue().size());
 
-	LLMultiSliderCtrl* tSldr;
-	tSldr = getChild<LLMultiSliderCtrl>("WLTimeSlider");
+	LLMultiSliderCtrl* tSldr = sDayCycle->getChild<LLMultiSliderCtrl>("WLTimeSlider");
+
+	sPreviousTimeType = LLWLParamManager::getInstance()->mAnimator.getTimeType();
 
 	// turn off linden time
-	LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+	LLWLParamManager::getInstance()->mAnimator.setTimeType(LLWLAnimator::TIME_CUSTOM);
 
 	// set the param manager's track to the new one
-	LLWLParamManager::instance()->resetAnimator(
-		tSldr->getCurSliderValue() / sHoursPerDay, true);
+	LLWLParamManager::getInstance()->resetAnimator(tSldr->getCurSliderValue() / sHoursPerDay, true);
 
-	llassert_always(LLWLParamManager::instance()->mAnimator.mTimeTrack.size() == sldr->getValue().size());
+	llassert_always(LLWLParamManager::getInstance()->mAnimator.mTimeTrack.size() == sldr->getValue().size());
 }
 
-void LLFloaterDayCycle::onStopAnimSky(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onStopAnimSky(void* userData)
 {
 	// if no keys, do nothing
 	if(sSliderToKey.size() == 0) {
 		return;
 	}
 
-	// turn off animation and using linden time
-	LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-	LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+	LLWLParamManager::getInstance()->mAnimator.deactivate();	// turn off animation and using linden time
+	LLMultiSliderCtrl* tSldr = sDayCycle->getChild<LLMultiSliderCtrl>("WLTimeSlider");
+	LLWLParamManager::getInstance()->resetAnimator(tSldr->getCurSliderValue() / sHoursPerDay, false);
+	LLWLParamManager::getInstance()->mAnimator.setTimeType(sPreviousTimeType);
 }
 
-void LLFloaterDayCycle::onUseLindenTime(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onUseLindenTime(void* userData)
 {
-	LLComboBox* box = getChild<LLComboBox>("WLPresetsCombo");
-	box->selectByValue("");	
-
-	LLWLParamManager::instance()->mAnimator.mIsRunning = true;
-	LLWLParamManager::instance()->mAnimator.mUseLindenTime = true;	
+	LLFloaterWindLight* wlfloater = LLFloaterReg::findTypedInstance<LLFloaterWindLight>("env_windlight");
+	if (wlfloater)
+	{
+		LLComboBox* box = wlfloater->getChild<LLComboBox>("WLPresetsCombo");
+		box->selectByValue("");	
+	}
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 }
 
-void LLFloaterDayCycle::onLoadDayCycle(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onLoadDayCycle(void* userData)
 {
-	LLWLParamManager::instance()->mDay.loadDayCycle("Default.xml");
+	LLWLParamManager::getInstance()->mDay.loadDayCycleFromFile("Default.xml");
 	
 	// sync it all up
 	syncSliderTrack();
@@ -268,46 +368,45 @@ void LLFloaterDayCycle::onLoadDayCycle(LLUICtrl* ctrl)
 
 	// set the param manager's track to the new one
 	LLMultiSliderCtrl* tSldr;
-	tSldr = getChild<LLMultiSliderCtrl>( 
+	tSldr = sDayCycle->getChild<LLMultiSliderCtrl>( 
 		"WLTimeSlider");
-	LLWLParamManager::instance()->resetAnimator(
+	LLWLParamManager::getInstance()->resetAnimator(
 		tSldr->getCurSliderValue() / sHoursPerDay, false);
 
 	// and draw it
-	LLWLParamManager::instance()->mAnimator.update(
-		LLWLParamManager::instance()->mCurParams);
+	LLWLParamManager::getInstance()->mAnimator.update(
+		LLWLParamManager::getInstance()->mCurParams);
 }
 
-void LLFloaterDayCycle::onSaveDayCycle(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onSaveDayCycle(void* userData)
 {
-	LLWLParamManager::instance()->mDay.saveDayCycle("Default.xml");
+	LLWLParamManager::getInstance()->mDay.saveDayCycle("Default.xml");
 }
 
 
-void LLFloaterDayCycle::onTimeSliderMoved(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onTimeSliderMoved(LLUICtrl* ctrl, void* userData)
 {
-	LLMultiSliderCtrl* sldr = getChild<LLMultiSliderCtrl>( 
+	LLMultiSliderCtrl* sldr = sDayCycle->getChild<LLMultiSliderCtrl>( 
 		"WLTimeSlider");
 
 	/// get the slider value
 	F32 val = sldr->getCurSliderValue() / sHoursPerDay;
 	
 	// set the value, turn off animation
-	LLWLParamManager::instance()->mAnimator.setDayTime((F64)val);
-	LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-	LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+	LLWLParamManager::getInstance()->mAnimator.setDayTime((F64)val);
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	// then call update once
-	LLWLParamManager::instance()->mAnimator.update(
-		LLWLParamManager::instance()->mCurParams);
+	LLWLParamManager::getInstance()->mAnimator.update(
+		LLWLParamManager::getInstance()->mCurParams);
 }
 
-void LLFloaterDayCycle::onKeyTimeMoved(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onKeyTimeMoved(LLUICtrl* ctrl, void* userData)
 {
-	LLComboBox* comboBox = getChild<LLComboBox>("WLKeyPresets");
-	LLMultiSliderCtrl* sldr = getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
-	LLSpinCtrl* hourSpin = getChild<LLSpinCtrl>("WLCurKeyHour");
-	LLSpinCtrl* minSpin = getChild<LLSpinCtrl>("WLCurKeyMin");
+	LLComboBox* comboBox = sDayCycle->getChild<LLComboBox>("WLKeyPresets");
+	LLMultiSliderCtrl* sldr = sDayCycle->getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
+	LLSpinCtrl* hourSpin = sDayCycle->getChild<LLSpinCtrl>("WLCurKeyHour");
+	LLSpinCtrl* minSpin = sDayCycle->getChild<LLSpinCtrl>("WLCurKeyMin");
 
 	if(sldr->getValue().size() == 0) {
 		return;
@@ -322,11 +421,11 @@ void LLFloaterDayCycle::onKeyTimeMoved(LLUICtrl* ctrl)
 	F32 time = sldr->getCurSliderValue();
 
 	// check to see if a key exists
-	std::string presetName = sSliderToKey[curSldr].presetName;
+	LLWLParamKey key = sSliderToKey[curSldr].keyframe;
 	sSliderToKey[curSldr].time = time;
 
 	// if it exists, turn on check box
-	comboBox->selectByValue(presetName);
+	comboBox->selectByValue(key.toStringVal());
 
 	// now set the spinners
 	F32 hour = (F32)((S32)time);
@@ -345,18 +444,18 @@ void LLFloaterDayCycle::onKeyTimeMoved(LLUICtrl* ctrl)
 
 }
 
-void LLFloaterDayCycle::onKeyTimeChanged(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onKeyTimeChanged(LLUICtrl* ctrl, void* userData)
 {
 	// if no keys, skipped
 	if(sSliderToKey.size() == 0) {
 		return;
 	}
 
-	LLMultiSliderCtrl* sldr = getChild<LLMultiSliderCtrl>( 
+	LLMultiSliderCtrl* sldr = sDayCycle->getChild<LLMultiSliderCtrl>( 
 		"WLDayCycleKeys");
-	LLSpinCtrl* hourSpin = getChild<LLSpinCtrl>( 
+	LLSpinCtrl* hourSpin = sDayCycle->getChild<LLSpinCtrl>( 
 		"WLCurKeyHour");
-	LLSpinCtrl* minSpin = getChild<LLSpinCtrl>( 
+	LLSpinCtrl* minSpin = sDayCycle->getChild<LLSpinCtrl>( 
 		"WLCurKeyMin");
 
 	F32 hour = hourSpin->get();
@@ -368,18 +467,17 @@ void LLFloaterDayCycle::onKeyTimeChanged(LLUICtrl* ctrl)
 	F32 time = sldr->getCurSliderValue() / sHoursPerDay;
 
 	// now set the key's time in the sliderToKey map
-	std::string presetName = sSliderToKey[curSldr].presetName;
 	sSliderToKey[curSldr].time = time;
 
 	syncTrack();
 }
 
-void LLFloaterDayCycle::onKeyPresetChanged(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onKeyPresetChanged(LLUICtrl* ctrl, void* userData)
 {
 	// get the time
-	LLComboBox* comboBox = getChild<LLComboBox>( 
+	LLComboBox* comboBox = sDayCycle->getChild<LLComboBox>( 
 		"WLKeyPresets");
-	LLMultiSliderCtrl* sldr = getChild<LLMultiSliderCtrl>( 
+	LLMultiSliderCtrl* sldr = sDayCycle->getChild<LLMultiSliderCtrl>( 
 		"WLDayCycleKeys");
 
 	// do nothing if no sliders
@@ -388,7 +486,9 @@ void LLFloaterDayCycle::onKeyPresetChanged(LLUICtrl* ctrl)
 	}
 
 	// change the map
-	std::string newPreset(comboBox->getSelectedValue().asString());
+
+	std::string stringVal = comboBox->getSelectedValue().asString();
+	LLWLParamKey newKey(stringVal);
 	const std::string& curSldr = sldr->getCurSlider();
 
 	// if null, don't use
@@ -396,21 +496,21 @@ void LLFloaterDayCycle::onKeyPresetChanged(LLUICtrl* ctrl)
 		return;
 	}
 
-	sSliderToKey[curSldr].presetName = newPreset;
+	sSliderToKey[curSldr].keyframe = newKey;
 
 	syncTrack();
 }
 
-void LLFloaterDayCycle::onTimeRateChanged(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onTimeRateChanged(LLUICtrl* ctrl, void* userData)
 {
 	// get the time
-	LLSpinCtrl* secSpin = getChild<LLSpinCtrl>( 
+	LLSpinCtrl* secSpin = sDayCycle->getChild<LLSpinCtrl>( 
 		"WLLengthOfDaySec");
 
-	LLSpinCtrl* minSpin = getChild<LLSpinCtrl>( 
+	LLSpinCtrl* minSpin = sDayCycle->getChild<LLSpinCtrl>( 
 		"WLLengthOfDayMin");
 
-	LLSpinCtrl* hourSpin = getChild<LLSpinCtrl>( 
+	LLSpinCtrl* hourSpin = sDayCycle->getChild<LLSpinCtrl>( 
 		"WLLengthOfDayHour");
 
 	F32 hour;
@@ -424,34 +524,57 @@ void LLFloaterDayCycle::onTimeRateChanged(LLUICtrl* ctrl)
 	if(time <= 0) {
 		time = 1;
 	}
-	LLWLParamManager::instance()->mDay.mDayRate = time;
+	LLWLParamManager::getInstance()->mDay.mDayRate = time;
 
 	syncTrack();
 }
 
-void LLFloaterDayCycle::onAddKey(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onAddKey(void* userData)
 {
-	LLComboBox* comboBox = getChild<LLComboBox>( 
+	LLComboBox* comboBox = sDayCycle->getChild<LLComboBox>( 
 		"WLKeyPresets");
-	LLMultiSliderCtrl* kSldr = getChild<LLMultiSliderCtrl>( 
+	LLMultiSliderCtrl* kSldr = sDayCycle->getChild<LLMultiSliderCtrl>( 
 		"WLDayCycleKeys");
-	LLMultiSliderCtrl* tSldr = getChild<LLMultiSliderCtrl>( 
+	LLMultiSliderCtrl* tSldr = sDayCycle->getChild<LLMultiSliderCtrl>( 
 		"WLTimeSlider");
 	
 	llassert_always(sSliderToKey.size() == kSldr->getValue().size());
 
+	S32 max_sliders;
+	switch(sScope)
+	{
+		case LLEnvKey::SCOPE_LOCAL:
+			max_sliders = 20; // *HACK this should be LLWLPacketScrubber::MAX_LOCAL_KEY_FRAMES;
+			break;
+		case LLEnvKey::SCOPE_REGION:
+			max_sliders = 12; // *HACK this should be LLWLPacketScrubber::MAX_REGION_KEY_FRAMES;
+			break;
+		default:
+			max_sliders = (S32)kSldr->getMaxValue();
+			break;
+	}
+
+	if ((S32)sSliderToKey.size() >= max_sliders)
+	{
+		LLSD args;
+		args["SCOPE"] = LLEnvManager::getScopeString(sScope);
+		args["MAX"] = max_sliders;
+		LLNotificationsUtil::add("DayCycleTooManyKeyframes", args, LLSD(), LLNotificationFunctorRegistry::instance().DONOTHING);
+		return;
+	}
+
 	// get the values
-	std::string newPreset(comboBox->getSelectedValue().asString());
+	LLWLParamKey newKeyframe(comboBox->getSelectedValue());
 
 	// add the slider key
-	addSliderKey(tSldr->getCurSliderValue(), newPreset);
+	addSliderKey(tSldr->getCurSliderValue(), newKeyframe);
 
 	syncTrack();
 }
 
-void LLFloaterDayCycle::addSliderKey(F32 time, const std::string & presetName)
+void LLFloaterDayCycle::addSliderKey(F32 time, LLWLParamKey keyframe)
 {
-	LLMultiSliderCtrl* kSldr = getChild<LLMultiSliderCtrl>( 
+	LLMultiSliderCtrl* kSldr = sDayCycle->getChild<LLMultiSliderCtrl>( 
 		"WLDayCycleKeys");
 
 	// make a slider
@@ -461,30 +584,28 @@ void LLFloaterDayCycle::addSliderKey(F32 time, const std::string & presetName)
 	}
 
 	// set the key
-	LLWLSkyKey newKey;
-	newKey.presetName = presetName;
-	newKey.time = kSldr->getCurSliderValue();
+	LLWLCycleSliderKey newKey(keyframe, kSldr->getCurSliderValue());
 
 	llassert_always(sldrName != LLStringUtil::null);
 
 	// add to map
-	sSliderToKey.insert(std::pair<std::string, LLWLSkyKey>(sldrName, newKey));
+	sSliderToKey.insert(std::pair<std::string, LLWLCycleSliderKey>(sldrName, newKey));
 
 	llassert_always(sSliderToKey.size() == kSldr->getValue().size());
 
 }
 
-void LLFloaterDayCycle::deletePreset(std::string& presetName)
+void LLFloaterDayCycle::deletePreset(LLWLParamKey keyframe)
 {
-	LLMultiSliderCtrl* sldr = getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
+	LLMultiSliderCtrl* sldr = sDayCycle->getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
 
 	/// delete any reference
-	std::map<std::string, LLWLSkyKey>::iterator curr_preset, next_preset;
+	std::map<std::string, LLWLCycleSliderKey>::iterator curr_preset, next_preset;
 	for(curr_preset = sSliderToKey.begin(); curr_preset != sSliderToKey.end(); curr_preset = next_preset)
 	{
 		next_preset = curr_preset;
 		++next_preset;
-		if (curr_preset->second.presetName == presetName)
+		if (curr_preset->second.keyframe == keyframe)
 		{
 			sldr->deleteSlider(curr_preset->first);
 			sSliderToKey.erase(curr_preset);
@@ -492,19 +613,25 @@ void LLFloaterDayCycle::deletePreset(std::string& presetName)
 	}
 }
 
-void LLFloaterDayCycle::onDeleteKey(LLUICtrl* ctrl)
+void LLFloaterDayCycle::onDeleteKey(void* userData)
 {
-	if(sSliderToKey.size() == 0) {
+	if(sSliderToKey.size() == 0)
+	{
+		return;
+	}
+	else if(sSliderToKey.size() == 1)
+	{
+		LLNotifications::instance().add("EnvCannotDeleteLastDayCycleKey", LLSD(), LLSD());
 		return;
 	}
 
-	LLComboBox* comboBox = getChild<LLComboBox>( 
+	LLComboBox* comboBox = sDayCycle->getChild<LLComboBox>( 
 		"WLKeyPresets");
-	LLMultiSliderCtrl* sldr = getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
+	LLMultiSliderCtrl* sldr = sDayCycle->getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
 
 	// delete from map
 	const std::string& sldrName = sldr->getCurSlider();
-	std::map<std::string, LLWLSkyKey>::iterator mIt = sSliderToKey.find(sldrName);
+	std::map<std::string, LLWLCycleSliderKey>::iterator mIt = sSliderToKey.find(sldrName);
 	sSliderToKey.erase(mIt);
 
 	sldr->deleteCurSlider();
@@ -514,11 +641,11 @@ void LLFloaterDayCycle::onDeleteKey(LLUICtrl* ctrl)
 	}
 
 	const std::string& name = sldr->getCurSlider();
-	comboBox->selectByValue(sSliderToKey[name].presetName);
+	comboBox->selectByValue(sSliderToKey[name].keyframe.toLLSD());
 	F32 time = sSliderToKey[name].time;
 
-	LLSpinCtrl* hourSpin = getChild<LLSpinCtrl>("WLCurKeyHour");
-	LLSpinCtrl* minSpin = getChild<LLSpinCtrl>("WLCurKeyMin");
+	LLSpinCtrl* hourSpin = sDayCycle->getChild<LLSpinCtrl>("WLCurKeyHour");
+	LLSpinCtrl* minSpin = sDayCycle->getChild<LLSpinCtrl>("WLCurKeyMin");
 
 	// now set the spinners
 	F32 hour = (F32)((S32)time);

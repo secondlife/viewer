@@ -29,10 +29,12 @@
 
 #include <vector>
 #include <map>
+#include "llenvmanager.h"
 #include "llwlparamset.h"
 #include "llwlanimator.h"
 #include "llwldaycycle.h"
 #include "llviewercamera.h"
+#include "lltrans.h"
 
 class LLGLSLShader;
  
@@ -72,7 +74,7 @@ struct WLColorControl {
 		r = val.mV[0];
 		g = val.mV[1];
 		b = val.mV[2];
-		i = val.mV[3];		
+		i = val.mV[3];
 		return *this;
 	}
 
@@ -115,25 +117,111 @@ struct WLFloatControl {
 	}
 };
 
-/// WindLight parameter manager class - what controls all the wind light shaders
-class LLWLParamManager
+struct LLWLParamKey : LLEnvKey
 {
 public:
+	// scope and source of a param set (WL sky preset)
+	std::string name;
+	EScope scope;
 
-	LLWLParamManager();
-	~LLWLParamManager();
+	// for conversion from LLSD
+	static const int NAME_IDX = 0;
+	static const int SCOPE_IDX = 1;
 
+	inline LLWLParamKey(const std::string& n, EScope s)
+		: name(n), scope(s)
+	{
+	}
+
+	inline LLWLParamKey(LLSD llsd)
+		: name(llsd[NAME_IDX].asString()), scope(EScope(llsd[SCOPE_IDX].asInteger()))
+	{
+	}
+
+	inline LLWLParamKey() // NOT really valid, just so std::maps can return a default of some sort
+		: name(NULL), scope(SCOPE_LOCAL)
+	{
+	}
+
+	inline LLWLParamKey(std::string& stringVal)
+		: name(stringVal.substr(0, stringVal.length()-1)),
+		  scope((EScope)atoi(stringVal.substr(stringVal.length()-1, stringVal.length()).c_str()))
+	{
+	}
+
+	inline std::string toStringVal() const
+	{
+		std::stringstream str;
+		str << name << scope;
+		return str.str();
+	}
+
+	inline LLSD toLLSD() const
+	{
+		LLSD llsd = LLSD::emptyArray();
+		llsd.append(LLSD(name));
+		llsd.append(LLSD(scope));
+		return llsd;
+	}
+
+	inline bool operator <(const LLWLParamKey other) const
+	{
+		if (name < other.name)
+		{	
+			return true;
+		}
+		else if (name > other.name)
+		{
+			return false;
+		}
+		else
+		{
+			return scope < other.scope;
+		}
+	}
+
+	inline bool operator ==(const LLWLParamKey other) const
+	{
+		return (name == other.name) && (scope == other.scope);
+	}
+
+	inline std::string toString() const
+	{
+		switch (scope)
+		{
+		case SCOPE_LOCAL:
+			return name + std::string(" (") + LLTrans::getString("Local") + std::string(")");
+			break;
+		case SCOPE_REGION:
+			return name + std::string(" (") + LLTrans::getString("Region") + std::string(")");
+			break;
+		default:
+			return name + " (?)";
+		}
+	}
+};
+
+/// WindLight parameter manager class - what controls all the wind light shaders
+class LLWLParamManager : public LLSingleton<LLWLParamManager>
+{
+	LOG_CLASS(LLWLParamManager);
+public:
 	/// load a preset file
 	void loadPresets(const std::string & fileName);
 
 	/// save the preset file
+	// the implementation of this method was unmaintained and is commented out
+	// *NOTE test and sanity-check before uncommenting and using!
 	void savePresets(const std::string & fileName);
 
 	/// load an individual preset into the sky
-	void loadPreset(const std::string & name,bool propogate=true);
+	void loadPreset(const LLWLParamKey key, bool propogate=true);
+
+	/// load an individual preset from a stream of XML
+	void loadPresetFromXML(const LLWLParamKey key, std::istream & presetXML);
 
 	/// save the parameter presets to file
-	void savePreset(const std::string & name);
+	void savePreset(const LLWLParamKey key);
 
 	/// Set shader uniforms dirty, so they'll update automatically.
 	void propagateParameters(void);
@@ -161,36 +249,38 @@ public:
 
 	/// get the radius of the dome
 	inline F32 getDomeRadius(void) const;
-
-	/// Perform global initialization for this class.
-	static void initClass(void);
-
-	// Cleanup of global data that's only inited once per class.
-	static void cleanupClass();
 	
-	/// add a param to the list
-	bool addParamSet(const std::string& name, LLWLParamSet& param);
+	/// add a param set (preset) to the list
+	bool addParamSet(const LLWLParamKey& key, LLWLParamSet& param);
 
-	/// add a param to the list
-	BOOL addParamSet(const std::string& name, LLSD const & param);
+	/// add a param set (preset) to the list
+	BOOL addParamSet(const LLWLParamKey& key, LLSD const & param);
 
-	/// get a param from the list
-	bool getParamSet(const std::string& name, LLWLParamSet& param);
+	/// get a param set (preset) from the list
+	bool getParamSet(const LLWLParamKey& key, LLWLParamSet& param);
 
 	/// set the param in the list with a new param
-	bool setParamSet(const std::string& name, LLWLParamSet& param);
+	bool setParamSet(const LLWLParamKey& key, LLWLParamSet& param);
 	
 	/// set the param in the list with a new param
-	bool setParamSet(const std::string& name, LLSD const & param);	
-
+	bool setParamSet(const LLWLParamKey& key, LLSD const & param);
+	
 	/// gets rid of a parameter and any references to it
-	/// returns true if successful
-	bool removeParamSet(const std::string& name, bool delete_from_disk);
+	/// ignores "delete_from_disk" if the scope is not local
+	void removeParamSet(const LLWLParamKey& key, bool delete_from_disk);
 
-	// singleton pattern implementation
-	static LLWLParamManager * instance();
+	/// clear parameter mapping of a given scope
+	void clearParamSetsOfScope(LLEnvKey::EScope scope);
 
-public:
+	/// add all skies in LLSD using the given scope
+	void addAllSkies(LLEnvKey::EScope scope, const LLSD& preset_map);
+
+	// returns all skies referenced by the current day cycle (in mDay), with their final names
+	// side effect: applies changes to all internal structures!  (trashes all unreferenced skies in scope, keys in day cycle rescoped to scope, etc.)
+	std::map<LLWLParamKey, LLWLParamSet> finalizeFromDayCycle(LLWLParamKey::EScope scope);
+
+	// returns all skies in map (intended to be called with output from a finalize)
+	LLSD createSkyMap(std::map<LLWLParamKey, LLWLParamSet> map);
 
 	// helper variables
 	LLWLAnimator mAnimator;
@@ -244,13 +334,13 @@ public:
 	F32 mDomeRadius;
 	
 	// list of all the parameters, listed by name
-	std::map<std::string, LLWLParamSet> mParamList;
-	
+	std::map<LLWLParamKey, LLWLParamSet> mParamList;
 	
 private:
-	// our parameter manager singleton instance
-	static LLWLParamManager * sInstance;
-
+	friend class LLSingleton<LLWLParamManager>;
+	/*virtual*/ void initSingleton();
+	LLWLParamManager();
+	~LLWLParamManager();
 };
 
 inline F32 LLWLParamManager::getDomeOffset(void) const
