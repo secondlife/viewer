@@ -62,6 +62,10 @@ Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 SkyUseClassicClouds			1	1
 WatchdogDisabled				1	1
+RenderDeferred				1	1
+RenderDeferredSSAO			1	1
+RenderShadowDetail			1	2
+
 
 //
 // Low Graphics Settings
@@ -91,6 +95,10 @@ VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
 SkyUseClassicClouds			1	0
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
+RenderShadowDetail			1	2
+
 
 //
 // Mid Graphics Settings
@@ -118,6 +126,10 @@ RenderWaterReflections		1	0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
+RenderShadowDetail			1	2
+
 
 //
 // High Graphics Settings (purty)
@@ -145,6 +157,10 @@ RenderWaterReflections		1	0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	48
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
+RenderShadowDetail			1	2
+
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -172,6 +188,10 @@ RenderWaterReflections		1	1
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
+RenderShadowDetail			1	2
+
 
 //
 // Class Unknown Hardware (unknown)
