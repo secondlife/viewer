@@ -202,7 +202,7 @@
          height="28"
          layout="topleft"
          min_width="17"
-         name="splitter_panel"
+         name="splitter_panel_1"
          user_resize="false"
          width="17">
 			<icon
@@ -222,7 +222,7 @@
 		  min_height="28"
 		  min_width="83"
 		  mouse_opaque="false"
-		  name="avatar_and_destinations_panel"
+		  name="destinations_panel"
 		  user_resize="false"
 		  width="103">
 			<bottomtray_button
@@ -253,7 +253,7 @@
 		  min_height="28"
 		  min_width="73"
 		  mouse_opaque="false"
-		  name="avatar_and_destinations_panel"
+		  name="avatar_panel"
 		  user_resize="false"
 		  width="103">
 			<bottomtray_button
@@ -282,7 +282,7 @@
 		  height="28"
 		  layout="topleft"
 		  min_width="17"
-		  name="splitter_panel"
+		  name="splitter_panel_2"
 		  user_resize="false"
 		  width="17">
 			<icon

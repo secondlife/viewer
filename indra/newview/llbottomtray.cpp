@@ -218,7 +218,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mLandingTab(NULL),
 	mCheckForDrag(false)
 {
-	// Firstly add ourself to IMSession observers, so we catch session events
+	// Firstly add our self to IMSession observers, so we catch session events
 	// before chiclets do that.
 	LLIMMgr::getInstance()->addSessionObserver(this);
 
@@ -1523,21 +1523,35 @@ void LLBottomTray::initResizeStateContainers()
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_GESTURES, getChild<LLPanel>("gesture_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, getChild<LLPanel>("movement_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_CAMERA, getChild<LLPanel>("cam_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_DESTINATIONS, getChild<LLPanel>("destinations_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_AVATARS, getChild<LLPanel>("avatar_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, getChild<LLPanel>("snapshot_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_BUILD, getChild<LLPanel>("build_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SEARCH, getChild<LLPanel>("search_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_WORLD_MAP, getChild<LLPanel>("world_map_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MINI_MAP, getChild<LLPanel>("mini_map_btn_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SPLITTER_1, getChild<LLPanel>("splitter_panel_1")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_PEOPLE, getChild<LLPanel>("people_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_PROFILE, getChild<LLPanel>("profile_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SPLITTER_2, getChild<LLPanel>("splitter_panel_2")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_HOWTO, getChild<LLPanel>("howto_panel")));
 
 	// init an order of processed buttons
 	mButtonsProcessOrder.push_back(RS_BUTTON_GESTURES);
 	mButtonsProcessOrder.push_back(RS_BUTTON_MOVEMENT);
 	mButtonsProcessOrder.push_back(RS_BUTTON_CAMERA);
+	mButtonsProcessOrder.push_back(RS_BUTTON_DESTINATIONS);
+	mButtonsProcessOrder.push_back(RS_BUTTON_AVATARS);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SNAPSHOT);
 	mButtonsProcessOrder.push_back(RS_BUTTON_BUILD);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SEARCH);
 	mButtonsProcessOrder.push_back(RS_BUTTON_WORLD_MAP);
 	mButtonsProcessOrder.push_back(RS_BUTTON_MINI_MAP);
+	mButtonsProcessOrder.push_back(RS_BUTTON_SPLITTER_1);
+	mButtonsProcessOrder.push_back(RS_BUTTON_PEOPLE);
+	mButtonsProcessOrder.push_back(RS_BUTTON_PROFILE);
+	mButtonsProcessOrder.push_back(RS_BUTTON_SPLITTER_2);
+	mButtonsProcessOrder.push_back(RS_BUTTON_HOWTO);
 
 	mButtonsOrder.push_back(RS_BUTTON_SPEAK);
 	mButtonsOrder.insert(mButtonsOrder.end(), mButtonsProcessOrder.begin(), mButtonsProcessOrder.end());
@@ -1870,26 +1884,36 @@ S32 LLBottomTray::getChicletPanelShrinkHeadroom() const
 // static
 std::string LLBottomTray::resizeStateToString(EResizeState state)
 {
+	const char *rs_string = "UNKNOWN_BUTTON";
+	
 	switch (state)
 	{
-	case RS_NORESIZE:				return "RS_NORESIZE";
-	case RS_CHICLET_PANEL:			return "RS_CHICLET_PANEL";
-	case RS_CHATBAR_INPUT:			return "RS_CHATBAR_INPUT";
-	case RS_BUTTON_SNAPSHOT:		return "RS_BUTTON_SNAPSHOT";
-	case RS_BUTTON_CAMERA:			return "RS_BUTTON_CAMERA";
-	case RS_BUTTON_MOVEMENT:		return "RS_BUTTON_MOVEMENT";
-	case RS_BUTTON_GESTURES:		return "RS_BUTTON_GESTURES";
-	case RS_BUTTON_SPEAK:			return "RS_BUTTON_SPEAK";
-	case RS_IM_WELL:				return "RS_IM_WELL";
-	case RS_NOTIFICATION_WELL:		return "RS_NOTIFICATION_WELL";
-	case RS_BUTTON_BUILD:			return "RS_BUTTON_BUILD";
-	case RS_BUTTON_SEARCH:			return "RS_BUTTON_SEARCH";
-	case RS_BUTTON_WORLD_MAP:		return "RS_BUTTON_WORLD_MAP";
-	case RS_BUTTON_MINI_MAP:		return "RS_BUTTON_MINI_MAP";
-	case RS_BUTTONS_CAN_BE_HIDDEN:	return "RS_BUTTONS_CAN_BE_HIDDEN";
-	// No default to track additions.
+		case RS_NORESIZE:               rs_string = "RS_NORESIZE";              break;
+		case RS_CHICLET_PANEL:          rs_string = "RS_CHICLET_PANEL";         break;
+		case RS_CHATBAR_INPUT:          rs_string = "RS_CHATBAR_INPUT";         break;
+		case RS_BUTTON_SNAPSHOT:        rs_string = "RS_BUTTON_SNAPSHOT";       break;
+		case RS_BUTTON_CAMERA:          rs_string = "RS_BUTTON_CAMERA";         break;
+		case RS_BUTTON_MOVEMENT:        rs_string = "RS_BUTTON_MOVEMENT";       break;
+		case RS_BUTTON_GESTURES:        rs_string = "RS_BUTTON_GESTURES";       break;
+		case RS_BUTTON_SPEAK:           rs_string = "RS_BUTTON_SPEAK";          break;
+		case RS_IM_WELL:                rs_string = "RS_IM_WELL";               break;
+		case RS_NOTIFICATION_WELL:      rs_string = "RS_NOTIFICATION_WELL";     break;
+		case RS_BUTTON_BUILD:           rs_string = "RS_BUTTON_BUILD";          break;
+		case RS_BUTTON_SEARCH:          rs_string = "RS_BUTTON_SEARCH";         break;
+		case RS_BUTTON_WORLD_MAP:       rs_string = "RS_BUTTON_WORLD_MAP";      break;
+		case RS_BUTTON_MINI_MAP:        rs_string = "RS_BUTTON_MINI_MAP";       break;
+		case RS_BUTTON_DESTINATIONS:    rs_string = "RS_BUTTON_DESTINATIONS";   break;
+		case RS_BUTTON_AVATARS:         rs_string = "RS_BUTTON_AVATARS";        break;
+		case RS_BUTTON_PEOPLE:          rs_string = "RS_BUTTON_PEOPLE";         break;
+		case RS_BUTTON_PROFILE:         rs_string = "RS_BUTTON_PROFILE";        break;
+		case RS_BUTTON_HOWTO:           rs_string = "RS_BUTTON_HOWTO";          break;
+		case RS_BUTTON_SPLITTER_1:      rs_string = "RS_BUTTON_SPLITTER_1";     break;
+		case RS_BUTTON_SPLITTER_2:      rs_string = "RS_BUTTON_SPLITTER_2";     break;
+		case RS_BUTTONS_CAN_BE_HIDDEN:  rs_string = "RS_BUTTONS_CAN_BE_HIDDEN"; break;
+		// No default to track additions.
 	}
-	return "UNKNOWN_BUTTON";
+
+	return rs_string;
 }
 
 // static
