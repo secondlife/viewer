@@ -949,7 +949,7 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL texture_cache
 	max_size -= sCacheMaxTexturesSize;
 	
 	LL_INFOS("TextureCache") << "Headers: " << sCacheMaxEntries
-			<< " Textures size: " << sCacheMaxTexturesSize/(1024*1024) << " MB" << LL_ENDL;
+			<< " Textures size: " << sCacheMaxTexturesSize / (1024 * 1024) << " MB" << LL_ENDL;
 
 	setDirNames(location);
 	
@@ -1655,7 +1655,7 @@ void LLTextureCache::purgeTextures(bool validate)
 	LL_INFOS("TextureCache") << "TEXTURE CACHE:"
 			<< " PURGED: " << purge_count
 			<< " ENTRIES: " << num_entries
-			<< " CACHE SIZE: " << mTexturesSizeTotal / 1024*1024 << " MB"
+			<< " CACHE SIZE: " << mTexturesSizeTotal / (1024 * 1024) << " MB"
 			<< llendl;
 }
 
