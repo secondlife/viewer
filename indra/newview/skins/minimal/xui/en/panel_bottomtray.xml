@@ -47,7 +47,7 @@
          mouse_opaque="false"
 		 name="chat_bar_layout_panel"
          user_resize="true"
-         width="308" >
+         width="312" >
 			<panel
 		   name="chat_bar"
 			  filename="panel_nearby_chat_bar.xml"
@@ -108,7 +108,7 @@
           name="speak_flyout_panel"
           top_delta="0"
           user_resize="false"
-          width="20">
+          width="26">
       <button
      follows="left|right"
      width="20"
@@ -151,7 +151,7 @@
              layout="topleft"
              get_more="false"
              view_all="false"
-             left="3"
+             left="0"
              name="Gesture"
              tool_tip="Make your avatar do things"
              top="5"
@@ -174,7 +174,7 @@
          mouse_opaque="false"
          name="cam_panel"
          user_resize="false"
-         width="83">
+         width="86">
 			<bottomtray_button
               can_drag="false"
              follows="left|right"
@@ -201,15 +201,15 @@
          follows="left|right"
          height="28"
          layout="topleft"
-         min_width="17"
+         min_width="8"
          name="splitter_panel_1"
          user_resize="false"
-         width="17">
+         width="8">
 			<icon
              follows="left|bottom"
              height="18"
              width="2"
-             left="6"
+             left="0"
              image_name="Button_Separator"
              name="separator"
              top="7"/>
@@ -224,7 +224,7 @@
 		  mouse_opaque="false"
 		  name="destinations_panel"
 		  user_resize="false"
-		  width="103">
+		  width="106">
 			<bottomtray_button
 			 can_drag="false"
 			follows="left|right"
@@ -255,7 +255,7 @@
 		  mouse_opaque="false"
 		  name="avatar_panel"
 		  user_resize="false"
-		  width="103">
+		  width="106">
 			<bottomtray_button
 			 can_drag="false"
 			follows="left|right"
@@ -281,15 +281,15 @@
 		  follows="left|right"
 		  height="28"
 		  layout="topleft"
-		  min_width="17"
+		  min_width="8"
 		  name="splitter_panel_2"
 		  user_resize="false"
-		  width="17">
+		  width="8">
 			<icon
              follows="left|bottom"
              height="18"
              width="2"
-             left="6"
+             left="0"
              image_name="Button_Separator"
              name="separator"
              top="7"/>
@@ -305,7 +305,7 @@
          name="people_panel"
          top_delta="0"
          user_resize="false"
-         width="105">
+         width="106">
 			<bottomtray_button
 			   can_drag="false"
 			  follows="left|right"
@@ -338,7 +338,7 @@
 		   name="profile_panel"
 		   top_delta="0"
 		   user_resize="false"
-		   width="105">
+		   width="106">
 			<bottomtray_button
 			   can_drag="false"
 			  follows="left|right"
@@ -371,7 +371,7 @@
 		   name="howto_panel"
 		   top_delta="0"
 		   user_resize="false"
-		   width="105">
+		   width="106">
 			<bottomtray_button
 			   can_drag="false"
 			  follows="left|right"
