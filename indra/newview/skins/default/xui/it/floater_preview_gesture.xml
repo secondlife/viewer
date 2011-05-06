@@ -34,10 +34,10 @@
 		Sostituisci con:
 	</text>
 	<line_editor name="replace_editor" tool_tip="Sostituisci le parole chiave con questi termini. Per esempio, sostituire la parola chiave &apos;salve&apos; con &apos;ciao&apos; modificherà la chat &apos;Volevo solo dire salve&apos; in &apos;Volevo solo dire ciao&apos; e avvierà la gesture!"/>
-	<text name="key_label">
+	<text name="key_label" width="147">
 		Scorciatoia da tastiera:
 	</text>
-	<combo_box label="Nessuno" name="modifier_combo" />
+	<combo_box left_delta="150" label="Nessuno" name="modifier_combo" />
 	<combo_box label="Nessuno" name="key_combo" />
 	<text name="library_label">
 		Libreria:
