@@ -29,6 +29,8 @@
 
 // newview includes
 #include "llagent.h" 	// gAgent		
+#include "llslurl.h"
+#include "lluicolor.h"
 #include "lluicolortable.h"
 #include "llviewercontrol.h" // gSavedSettings
 #include "llviewerregion.h"

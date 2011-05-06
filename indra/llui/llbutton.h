@@ -27,7 +27,6 @@
 #ifndef LL_LLBUTTON_H
 #define LL_LLBUTTON_H
 
-#include "lluuid.h"
 #include "llcontrol.h"
 #include "lluictrl.h"
 #include "v4color.h"
@@ -53,6 +52,8 @@ S32 round_up(S32 grid, S32 value);
 
 
 class LLUICtrlFactory;
+class LLUIImage;
+class LLUUID;
 
 //
 // Classes

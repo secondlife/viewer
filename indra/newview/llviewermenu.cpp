@@ -37,6 +37,7 @@
 
 // newview includes
 #include "llagent.h"
+#include "llagentaccess.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
