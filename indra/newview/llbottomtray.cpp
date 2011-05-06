@@ -559,7 +559,7 @@ BOOL LLBottomTray::postBuild()
 	else
 	{
 		LLTransientFloaterMgr::getInstance()->addControlView(getChild<LLButton>("speak_btn"));
-		LLTransientFloaterMgr::getInstance()->addControlView(getChild<LLButton>("flyout_btn"));
+		LLTransientFloaterMgr::getInstance()->addControlView(getChild<LLButton>("speak_flyout_btn"));
 	}
 
 
