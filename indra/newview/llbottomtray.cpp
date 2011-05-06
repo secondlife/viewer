@@ -555,7 +555,13 @@ BOOL LLBottomTray::postBuild()
 		// Localization tool doesn't understand custom buttons like <talk_button>
 		mSpeakBtn->setSpeakToolTip( getString("SpeakBtnToolTip") );
 		mSpeakBtn->setShowToolTip( getString("VoiceControlBtnToolTip") );
+	}	
+	else
+	{
+		LLTransientFloaterMgr::getInstance()->addControlView(getChild<LLButton>("speak_btn"));
+		LLTransientFloaterMgr::getInstance()->addControlView(getChild<LLButton>("speak_flyout_btn"));
 	}
+
 
 	// Both parts of speak button should be initially disabled because
 	// it takes some time between logging in to world and connecting to voice channel.
