@@ -349,6 +349,7 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 				<combo_box.item label="Park i natura" name="item9"/>
 				<combo_box.item label="Mieszkalna" name="item10"/>
 				<combo_box.item label="Zakupy" name="item11"/>
+				<combo_box.item label="Opłata za wynajęcie" name="item13"/>
 				<combo_box.item label="Inna" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -363,6 +364,7 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 				<combo_box.item label="Parki i natura" name="item9"/>
 				<combo_box.item label="Mieszkalna" name="item10"/>
 				<combo_box.item label="Zakupy" name="item11"/>
+				<combo_box.item label="Opłata za wynajęcie" name="item13"/>
 				<combo_box.item label="Inna" name="item12"/>
 			</combo_box>
 			<check_box label="Treść &apos;Mature&apos;" name="MatureCheck" tool_tip=""/>
@@ -430,7 +432,7 @@ Mediów:
 				(Zdefiniowane przez Majątek)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Udostępnij publicznie ([MATURITY])
+				Udostępniaj publicznie ([MATURITY]) (Pamiętaj: w przypadku braku zaznaczenia tej opcji widoczne będą linie bana.)
 			</panel.string>
 			<panel.string name="estate_override">
 				Jedna lub więcej z tych opcji ustawiona jest z poziomu Posiadłości

@@ -302,8 +302,14 @@ void LLAvatarActions::startConference(const uuid_vec_t& ids)
 
 static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
-	llinfos << "opening web profile for " << av_name.mUsername << llendl;		
-	std::string url = getProfileURL(av_name.mUsername);
+	std::string username = av_name.mUsername;
+	if (username.empty())
+	{
+		username = LLCacheName::buildUsername(av_name.mDisplayName);
+	}
+	
+	llinfos << "opening web profile for " << username << llendl;		
+	std::string url = getProfileURL(username);
 
 	// PROFILES: open in webkit window
 	LLWeb::loadWebURLInternal(url, "", agent_id.asString());

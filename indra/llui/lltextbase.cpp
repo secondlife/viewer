@@ -2022,11 +2022,10 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 			pos = segment_line_start + offset;
 			break;
 		}
-		else if (hit_past_end_of_line && segmentp->getEnd() > line_iter->mDocIndexEnd - 1)	
+		else if (hit_past_end_of_line && segmentp->getEnd() >= line_iter->mDocIndexEnd)
 		{
 			// segment wraps to next line, so just set doc pos to the end of the line
-			// segment wraps to next line, so just set doc pos to start of next line (represented by mDocIndexEnd)
-			pos = llmin(getLength(), line_iter->mDocIndexEnd);
+			pos = llclamp(line_iter->mDocIndexEnd - 1, 0, getLength());
 			break;
 		}
 		start_x += text_width;

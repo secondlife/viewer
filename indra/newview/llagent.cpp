@@ -1337,7 +1337,7 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		//NB: auto pilot can terminate for a reason other than reaching the destination
 		if (mAutoPilotFinishedCallback)
 		{
-			mAutoPilotFinishedCallback(!user_cancel && dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal) < mAutoPilotStopDistance, mAutoPilotCallbackData);
+			mAutoPilotFinishedCallback(!user_cancel && dist_vec_squared(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal) < (mAutoPilotStopDistance * mAutoPilotStopDistance), mAutoPilotCallbackData);
 		}
 		mLeaderID = LLUUID::null;
 

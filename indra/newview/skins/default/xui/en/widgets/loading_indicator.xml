@@ -3,6 +3,20 @@
     follows="left|top"
     mouse_opaque="false"
     name="loading_indicator"
-    rotations_per_sec="1.0"
-    tab_stop="false"
-/>
+    images_per_sec="1.0"
+    tab_stop="false">
+  <images>
+    <image name="Progress_1"/>
+    <image name="Progress_2"/>
+    <image name="Progress_3"/>
+    <image name="Progress_4"/>
+    <image name="Progress_5"/>
+    <image name="Progress_6"/>
+    <image name="Progress_7"/>
+    <image name="Progress_8"/>
+    <image name="Progress_9"/>
+    <image name="Progress_10"/>
+    <image name="Progress_11"/>
+    <image name="Progress_12"/>
+  </images>
+</loading_indicator>

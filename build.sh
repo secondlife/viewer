@@ -118,12 +118,14 @@ eval '$build_'"$arch" || pass
 # File no longer exists in code-sep branch, so let's make sure it exists in order to use it.
 if test -f scripts/update_version_files.py ; then
   begin_section UpdateVer
-  python scripts/update_version_files.py \
-          --channel="$viewer_channel" \
-          --server_channel="$server_channel" \
-          --revision=$revision \
-            --verbose \
+  eval $(python scripts/update_version_files.py \
+                --channel="$viewer_channel" \
+                --server_channel="$server_channel" \
+                --revision=$revision \
+                --verbose \
+         | sed -n -e "s,Setting viewer channel/version: '\([^']*\)' / '\([^']*\)',VIEWER_CHANNEL='\1';VIEWER_VERSION='\2',p")\
   || fail update_version_files.py
+  echo "{\"Type\":\"viewer\",\"Version\":\"${VIEWER_VERSION}\"}" > summary.json
   end_section UpdateVer
 fi
 
@@ -261,6 +263,7 @@ then
     else
       upload_item installer "$package" binary/octet-stream
       upload_item quicklink "$package" binary/octet-stream
+      [ -f summary.json ] && upload_item installer summary.json text/plain
 
       # Upload crash reporter files.
       case "$last_built_variant" in

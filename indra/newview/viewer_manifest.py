@@ -114,6 +114,16 @@ class ViewerManifest(LLManifest):
             # Files in the newview/ directory
             self.path("gpu_table.txt")
 
+            # The summary.json file gets left in the base checkout dir by
+            # build.sh. It's only created for a build.sh build, therefore we
+            # have to check whether it exists.  :-P
+            summary_json = "summary.json"
+            summary_json_path = os.path.join(os.pardir, os.pardir, summary_json)
+            if os.path.exists(os.path.join(self.get_src_prefix(), summary_json_path)):
+                self.path(summary_json_path, summary_json)
+            else:
+                print "No %s" % os.path.join(self.get_src_prefix(), summary_json_path)
+
     def login_channel(self):
         """Channel reported for login and upgrade purposes ONLY;
         used for A/B testing"""
@@ -939,9 +949,9 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libdb-5.1.so")
             self.path("libdb-5.so")
             self.path("libdb.so")
-            self.path("libcrypto.so.0.9.8")
+            self.path("libcrypto.so.1.0.0")
             self.path("libexpat.so.1.5.2")
-            self.path("libssl.so.0.9.8")
+            self.path("libssl.so.1.0.0")
             self.path("libuuid.so")
             self.path("libuuid.so.16")
             self.path("libuuid.so.16.0.22")

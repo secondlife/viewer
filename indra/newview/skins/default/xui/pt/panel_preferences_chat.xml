@@ -30,7 +30,9 @@
 	<spinner label="Transição de avisos de bate-papos por perto:" name="nearby_toasts_lifetime"/>
 	<spinner label="Transição de avisos de bate-papos por perto:" name="nearby_toasts_fadingtime"/>
 	<check_box name="translate_chat_checkbox"/>
-	<text name="translate_chb_label" >Traduzir bate-papo automaticamente (via Google)</text>
+	<text name="translate_chb_label">
+		Traduzir bate-papo automaticamente (via Google)
+	</text>
 	<text name="translate_language_text">
 		Traduzir bate-papo para:
 	</text>

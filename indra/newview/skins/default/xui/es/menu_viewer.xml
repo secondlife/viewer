@@ -336,4 +336,9 @@
 		</menu>
 		<menu_item_call label="God Tools" name="God Tools"/>
 	</menu>
+	<menu label="Admin" name="Deprecated">
+		<menu label="Take Off Clothing" name="Take Off Clothing">
+			<menu_item_call label="Física" name="Physics"/>
+		</menu>
+	</menu>
 </menu_bar>

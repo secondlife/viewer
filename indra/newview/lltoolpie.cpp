@@ -639,6 +639,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	if (click_action == CLICK_ACTION_NONE				// not doing 1-click action
 		&& gSavedSettings.getBOOL("ClickToWalk")		// click to walk enabled
 		&& !gAgent.getFlying()							// don't auto-navigate while flying until that works
+		&& !gAgentAvatarp->isSitting()
 		&& !mBlockClickToWalk							// another behavior hasn't cancelled click to walk
 		&& !mPick.mPosGlobal.isExactlyZero()			// valid coordinates for pick
 		&& (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
