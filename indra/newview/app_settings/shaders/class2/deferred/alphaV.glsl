@@ -21,7 +21,6 @@ varying vec3 vary_ambient;
 varying vec3 vary_directional;
 varying vec3 vary_fragcoord;
 varying vec3 vary_position;
-varying vec3 vary_light;
 varying vec3 vary_pointlight_col;
 
 uniform float near_clip;
@@ -85,8 +84,6 @@ void main()
 
 	// Add windlight lights
 	col.rgb = atmosAmbient(vec3(0.));
-	
-	vary_light = gl_LightSource[0].position.xyz;
 	
 	vary_ambient = col.rgb*gl_Color.rgb;
 	vary_directional.rgb = gl_Color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, gl_LightSource[0].position.xyz), (1.0-gl_Color.a)*(1.0-gl_Color.a)));

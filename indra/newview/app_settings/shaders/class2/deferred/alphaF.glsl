@@ -28,7 +28,6 @@ varying vec3 vary_ambient;
 varying vec3 vary_directional;
 varying vec3 vary_fragcoord;
 varying vec3 vary_position;
-varying vec3 vary_light;
 varying vec3 vary_pointlight_col;
 
 uniform float shadow_bias;
