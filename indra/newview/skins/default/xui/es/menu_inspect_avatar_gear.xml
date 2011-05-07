@@ -4,7 +4,7 @@
 	<menu_item_call label="Añadir como amigo" name="add_friend"/>
 	<menu_item_call label="MI" name="im"/>
 	<menu_item_call label="Llamada" name="call"/>
-	<menu_item_call label="Teleportarse" name="teleport"/>
+	<menu_item_call label="Teleportar" name="teleport"/>
 	<menu_item_call label="Invitar al grupo" name="invite_to_group"/>
 	<menu_item_call label="Ignorar" name="block"/>
 	<menu_item_call label="Designorar" name="unblock"/>
