@@ -1,0 +1,163 @@
+<panel
+ background_visible="false"
+ bg_alpha_color="DkGray"
+ follows="all"
+ height="200"
+ label="Device Settings"
+ layout="topleft"
+ name="device_settings_panel"
+ width="360">
+	<panel.string
+	  name="default_text">
+		Default
+	</panel.string>
+	<panel.string
+	  name="default system device">
+		Default system device
+	</panel.string>
+	<panel.string
+	  name="no device">
+		No device
+	</panel.string>
+	<icon
+		   height="18"
+		   image_name="Microphone_On"
+		   left_delta="4"
+		   name="microphone_icon"
+		   mouse_opaque="false"
+		   top="7"
+       layout="topleft"
+		   visible="true"
+		   width="18" />
+	<text
+     type="string"
+     length="1"
+      font.style="BOLD"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="3"
+     name="Input"
+     width="70">
+		Input
+	</text>
+	<combo_box
+     height="23"
+     control_name="VoiceInputAudioDevice"
+     follows="left|top"
+     layout="topleft"
+     left_pad="0"
+     max_chars="128"
+     name="voice_input_device"
+     top_delta="-5"
+     width="200" />
+	<text
+	  type="string"
+	  length="1"
+	  follows="left|top"
+	  height="16"
+	  layout="topleft"
+	  left_delta="-70"
+	  name="My volume label"
+	  top_pad="4"
+	  width="200">
+		My volume:
+	</text>
+	<slider_bar
+	  control_name="AudioLevelMic"
+   follows="top|right|left"
+   height="17"
+   increment="0.025"
+   initial_value="1.0"
+   layout="topleft"
+   left_delta="-6"
+   max_val="2"
+   name="mic_volume_slider"
+   tool_tip="Change the volume using this slider"
+   top_pad="-1"
+   width="220" />
+	<text
+     type="string"
+     text_color="EmphasisColor"
+     length="1"
+     follows="right|top"
+     height="18"
+     layout="topleft"
+     left_pad="5"
+     name="wait_text"
+     top_delta="-1"
+     width="110">
+		Please wait
+	</text>
+  <locate
+     follows="right|top"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     name="bar0"
+     top_delta="-2"
+     width="20" />
+  <locate
+     follows="right|top"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     name="bar1"
+     top_delta="0"
+     width="20" />
+  <locate
+     follows="right|top"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     name="bar2"
+     top_delta="0"
+     width="20" />
+  <locate
+     follows="right|top"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     name="bar3"
+     top_delta="0"
+     width="20" />
+  <locate
+     follows="right|top"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     name="bar4"
+     top_delta="0"
+     width="20" />
+	<icon
+	   height="18"
+	   image_name="Parcel_Voice_Light"
+	   left="5"
+	   name="speaker_icon"
+	   mouse_opaque="false"
+	   top_pad="3"
+	   visible="true"
+	   width="22" />
+	<text
+     font.style="BOLD"
+     type="string"
+     length="1"
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left_pad="0"
+     name="Output"
+     width="70">
+		Output
+	</text>
+	<combo_box
+     control_name="VoiceOutputAudioDevice"
+     height="23"
+     follows="left|top"
+     layout="topleft"
+     left_pad="0"
+     max_chars="128"
+     name="voice_output_device"
+     top_delta="-3"
+     width="200" />
+</panel>

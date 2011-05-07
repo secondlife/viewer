@@ -40,6 +40,10 @@
 			<combo_box.item label="Awatary i obiekty" name="3"/>
 			<combo_box.item label="Wszystko" name="4"/>
 		</combo_box>
+		<slider label="Fizyka awatara:" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			Niska
+		</text>
 		<slider label="Pole widzenia:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -78,7 +82,7 @@
 			Mało
 		</text>
 		<text name="AvatarRenderingText">
-			Rendering awatarów
+			Rendering awatara:
 		</text>
 		<check_box initial_value="true" label="Impostoryzacja awatarowa" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Rendering awatara przez GPU" name="AvatarVertexProgram"/>

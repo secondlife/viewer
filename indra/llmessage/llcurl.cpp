@@ -674,15 +674,7 @@ void LLCurl::Multi::removeEasy(Easy* easy)
 //static
 std::string LLCurl::strerror(CURLcode errorcode)
 {
-#if LL_DARWIN
-	// curl_easy_strerror was added in libcurl 7.12.0.  Unfortunately, the version in the Mac OS X 10.3.9 SDK is 7.10.2...
-	// There's a problem with the custom curl headers in our build that keeps me from #ifdefing this on the libcurl version number
-	// (the correct check would be #if LIBCURL_VERSION_NUM >= 0x070c00).  We'll fix the header problem soon, but for now
-	// just punt and print the numeric error code on the Mac.
-	return llformat("%d", errorcode);
-#else // LL_DARWIN
 	return std::string(curl_easy_strerror(errorcode));
-#endif // LL_DARWIN
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -243,7 +243,7 @@ elseif(LINUX)
         libaprutil-1.so.0
         libatk-1.0.so
         libbreakpad_client.so.0
-        libcrypto.so.0.9.8
+        libcrypto.so.1.0.0
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
@@ -259,7 +259,7 @@ elseif(LINUX)
         libtcmalloc.so
         libuuid.so.16
         libuuid.so.16.0.22
-        libssl.so.0.9.8
+        libssl.so.1.0.0
         libfontconfig.so.1.4.4
        )
 

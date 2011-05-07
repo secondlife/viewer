@@ -123,10 +123,7 @@ void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL calle
 {
 	LLTextEditor::reshape(width, height, called_from_parent);
 
-	if (getTextPixelHeight() > getRect().getHeight())
-	{
-		showExpandText();
-	}
+	hideOrShowExpandTextAsNeeded();
 }
 
 void LLExpandableTextBox::LLTextBoxEx::setText(const LLStringExplicit& text,const LLStyle::Params& input_params)
@@ -136,17 +133,7 @@ void LLExpandableTextBox::LLTextBoxEx::setText(const LLStringExplicit& text,cons
 	mExpanderVisible = false;
 	LLTextEditor::setText(text, input_params);
 
-	// text contents have changed, segments are cleared out
-	// so hide the expander and determine if we need it
-	//mExpanderVisible = false;
-	if (getTextPixelHeight() > getRect().getHeight())
-	{
-		showExpandText();
-	}
-	else
-	{
-		hideExpandText();
-	}
+	hideOrShowExpandTextAsNeeded();
 }
 
 
@@ -198,6 +185,22 @@ S32 LLExpandableTextBox::LLTextBoxEx::getVerticalTextDelta()
 S32 LLExpandableTextBox::LLTextBoxEx::getTextPixelHeight()
 {
 	return getTextBoundingRect().getHeight();
+}
+
+void LLExpandableTextBox::LLTextBoxEx::hideOrShowExpandTextAsNeeded()
+{
+	// Restore the text box contents to calculate the text height properly,
+	// otherwise if a part of the text is hidden under "More" link
+	// getTextPixelHeight() returns only the height of currently visible text
+	// including the "More" link. See STORM-250.
+	hideExpandText();
+
+	// Show the expander a.k.a. "More" link if we need it, depending on text
+	// contents height. If not, keep it hidden.
+	if (getTextPixelHeight() > getRect().getHeight())
+	{
+		showExpandText();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

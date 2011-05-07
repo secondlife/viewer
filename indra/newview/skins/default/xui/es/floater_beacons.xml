@@ -17,5 +17,6 @@
 		<check_box label="Sólo tocar" name="touch_only"/>
 		<check_box label="Origen de sonidos" name="sounds"/>
 		<check_box label="Origen de partículas" name="particles"/>
+		<check_box label="Fuentes de media" name="moapbeacon"/>
 	</panel>
 </floater>

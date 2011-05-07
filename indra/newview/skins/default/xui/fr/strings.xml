@@ -876,6 +876,9 @@
 	<string name="tattoo">
 		Tatouage
 	</string>
+	<string name="physics">
+		Propriétés physiques
+	</string>
 	<string name="invalid">
 		non valide
 	</string>
@@ -914,6 +917,9 @@
 	</string>
 	<string name="tattoo_not_worn">
 		Tatouage non porté
+	</string>
+	<string name="physics_not_worn">
+		Propriétés physiques non portées
 	</string>
 	<string name="invalid_not_worn">
 		non valide
@@ -962,6 +968,9 @@
 	</string>
 	<string name="create_new_tattoo">
 		Créer un nouveau tatouage
+	</string>
+	<string name="create_new_physics">
+		Créer de nouvelles propriétés physiques
 	</string>
 	<string name="create_new_invalid">
 		non valide
@@ -2247,6 +2256,114 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Bulbous Nose">
 		Nez en bulbe
 	</string>
+	<string name="Breast Physics Mass">
+		Masse des seins
+	</string>
+	<string name="Breast Physics Smoothing">
+		Lissage des seins
+	</string>
+	<string name="Breast Physics Gravity">
+		Gravité des seins
+	</string>
+	<string name="Breast Physics Drag">
+		Résistance de l&apos;air sur les seins
+	</string>
+	<string name="Breast Physics InOut Max Effect">
+		Effet max.
+	</string>
+	<string name="Breast Physics InOut Spring">
+		Vibration
+	</string>
+	<string name="Breast Physics InOut Gain">
+		Amplification
+	</string>
+	<string name="Breast Physics InOut Damping">
+		Amortissement
+	</string>
+	<string name="Breast Physics UpDown Max Effect">
+		Effet max.
+	</string>
+	<string name="Breast Physics UpDown Spring">
+		Vibration
+	</string>
+	<string name="Breast Physics UpDown Gain">
+		Amplification
+	</string>
+	<string name="Breast Physics UpDown Damping">
+		Amortissement
+	</string>
+	<string name="Breast Physics LeftRight Max Effect">
+		Effet max.
+	</string>
+	<string name="Breast Physics LeftRight Spring">
+		Vibration
+	</string>
+	<string name="Breast Physics LeftRight Gain">
+		Amplification
+	</string>
+	<string name="Breast Physics LeftRight Damping">
+		Amortissement
+	</string>
+	<string name="Belly Physics Mass">
+		Masse du ventre
+	</string>
+	<string name="Belly Physics Smoothing">
+		Lissage du ventre
+	</string>
+	<string name="Belly Physics Gravity">
+		Gravité du ventre
+	</string>
+	<string name="Belly Physics Drag">
+		Résistance de l&apos;air sur le ventre
+	</string>
+	<string name="Belly Physics UpDown Max Effect">
+		Effet max.
+	</string>
+	<string name="Belly Physics UpDown Spring">
+		Vibration
+	</string>
+	<string name="Belly Physics UpDown Gain">
+		Amplification
+	</string>
+	<string name="Belly Physics UpDown Damping">
+		Amortissement
+	</string>
+	<string name="Butt Physics Mass">
+		Masse des fesses
+	</string>
+	<string name="Butt Physics Smoothing">
+		Lissage des fesses
+	</string>
+	<string name="Butt Physics Gravity">
+		Gravité des fesses
+	</string>
+	<string name="Butt Physics Drag">
+		Résistance de l&apos;air sur les fesses
+	</string>
+	<string name="Butt Physics UpDown Max Effect">
+		Effet max.
+	</string>
+	<string name="Butt Physics UpDown Spring">
+		Vibration
+	</string>
+	<string name="Butt Physics UpDown Gain">
+		Amplification
+	</string>
+	<string name="Butt Physics UpDown Damping">
+		Amortissement
+	</string>
+	<string name="Butt Physics LeftRight Max Effect">
+		Effet max.
+	</string>
+	<string name="Butt Physics LeftRight Spring">
+		Vibration
+	</string>
+	<string name="Butt Physics LeftRight Gain">
+		Amplification
+	</string>
+	<string name="Butt Physics LeftRight Damping">
+		Amortissement
+	</string>
 	<string name="Bushy Eyebrows">
 		Sourcils touffus
 	</string>
@@ -2255,6 +2372,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="Butt Size">
 		Taille des fesses
+	</string>
+	<string name="Butt Gravity">
+		Gravité des fesses
 	</string>
 	<string name="bustle skirt">
 		Jupe gonflante
@@ -3763,6 +3883,9 @@ de l&apos;infraction signalée
 	</string>
 	<string name="New Tattoo">
 		Nouveau tatouage
+	</string>
+	<string name="New Physics">
+		Nouvelles propriétés physiques
 	</string>
 	<string name="Invalid Wearable">
 		Objet à porter non valide

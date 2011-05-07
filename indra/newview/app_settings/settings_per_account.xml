@@ -44,6 +44,17 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
+    <key>LastPostcardRecipient</key>
+      <map>
+        <key>Comment</key>
+          <string>Last recipient of postcard</string>
+        <key>Persist</key>
+          <integer>1</integer>
+        <key>Type</key>
+          <string>String</string>
+        <key>Value</key>
+          <string />
+      </map>
     <key>LogNearbyChat</key>
         <map>
         <key>Comment</key>

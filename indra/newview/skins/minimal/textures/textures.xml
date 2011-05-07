@@ -6,4 +6,6 @@
   <texture name="bottomtray_close_off" file_name="bottomtray/close_off.png" preload="true" />
   <texture name="bottomtray_close_over" file_name="bottomtray/close_over.png" preload="true" />
   <texture name="bottomtray_close_press" file_name="bottomtray/close_press.png" preload="true" />
-</textures>
+  <texture name="Speak_Btn_Off" file_name="bottomtray/Speak_Btn_Off.png" preload="true" scale.left="4" scale.top="16" scale.right="8" scale.bottom="4" />
+  <texture name="Speak_Btn_Selected_Press" file_name="bottomtray/Speak_Btn_Selected_Press.png" preload="true" scale.left="4" scale.top="16" scale.right="8" scale.bottom="4" />
+ </textures>

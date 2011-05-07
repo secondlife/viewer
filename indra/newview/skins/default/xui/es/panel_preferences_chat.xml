@@ -29,7 +29,10 @@
 	<check_box label="Chats de MI" name="EnableIMChatPopups" tool_tip="Activa esta casilla para ver una ventana emergente cada vez que recibas un mensaje instantáneo"/>
 	<spinner label="Duración de los interlocutores favoritos:" name="nearby_toasts_lifetime"/>
 	<spinner label="Tiempo de los otros interlocutores:" name="nearby_toasts_fadingtime"/>
-	<check_box label="Usar la traducción automática (con Google) en el chat" name="translate_chat_checkbox"/>
+	<check_box name="translate_chat_checkbox"/>
+	<text name="translate_chb_label">
+		Utiliza la herramienta de traducción automática mientras utilizas el chat (mediante Google)
+	</text>
 	<text name="translate_language_text">
 		Traducir el chat al:
 	</text>

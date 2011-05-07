@@ -413,8 +413,9 @@ LLColor4 get_text_color(const LLChat& chat)
 		if (!chat.mPosAgent.isExactlyZero())
 		{
 			LLVector3 pos_agent = gAgent.getPositionAgent();
-			F32 distance = dist_vec(pos_agent, chat.mPosAgent);
-			if (distance > gAgent.getNearChatRadius())
+			F32 distance_squared = dist_vec_squared(pos_agent, chat.mPosAgent);
+			F32 dist_near_chat = gAgent.getNearChatRadius();
+			if (distance_squared > dist_near_chat * dist_near_chat)
 			{
 				// diminish far-off chat
 				text_color.mV[VALPHA] = 0.8f;

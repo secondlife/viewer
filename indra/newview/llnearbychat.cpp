@@ -250,9 +250,13 @@ void LLNearbyChat::getAllowedRect(LLRect& rect)
 void LLNearbyChat::updateChatHistoryStyle()
 {
 	mChatHistory->clear();
+
+	LLSD do_not_log;
+	do_not_log["do_not_log"] = true;
 	for(std::vector<LLChat>::iterator it = mMessageArchive.begin();it!=mMessageArchive.end();++it)
 	{
-		addMessage(*it,false);
+		// Update the messages without re-writing them to a log file.
+		addMessage(*it,false, do_not_log);
 	}
 }
 
