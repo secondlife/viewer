@@ -555,7 +555,13 @@ BOOL LLBottomTray::postBuild()
 		// Localization tool doesn't understand custom buttons like <talk_button>
 		mSpeakBtn->setSpeakToolTip( getString("SpeakBtnToolTip") );
 		mSpeakBtn->setShowToolTip( getString("VoiceControlBtnToolTip") );
+	}	
+	else
+	{
+		LLTransientFloaterMgr::getInstance()->addControlView(getChild<LLButton>("speak_btn"));
+		LLTransientFloaterMgr::getInstance()->addControlView(getChild<LLButton>("speak_flyout_btn"));
 	}
+
 
 	// Both parts of speak button should be initially disabled because
 	// it takes some time between logging in to world and connecting to voice channel.
@@ -745,6 +751,8 @@ void LLBottomTray::updateButtonsOrdersAfterDnD()
 
 void LLBottomTray::saveButtonsOrder()
 {
+	if (!gSavedSettings.getBOOL("AllowBottomTrayButtonReordering")) return;
+
 	std::string user_dir = gDirUtilp->getLindenUserDir();
 	if (user_dir.empty()) return;
 	
@@ -765,6 +773,8 @@ void LLBottomTray::saveButtonsOrder()
 
 void LLBottomTray::loadButtonsOrder()
 {
+	if (!gSavedSettings.getBOOL("AllowBottomTrayButtonReordering")) return;
+
 	// load per-resident sorting information
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME);
 
@@ -1537,9 +1547,6 @@ void LLBottomTray::initResizeStateContainers()
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_HOWTO, getChild<LLPanel>("howto_panel")));
 
 	// init an order of processed buttons
-	mButtonsProcessOrder.push_back(RS_BUTTON_GESTURES);
-	mButtonsProcessOrder.push_back(RS_BUTTON_MOVEMENT);
-	mButtonsProcessOrder.push_back(RS_BUTTON_CAMERA);
 	mButtonsProcessOrder.push_back(RS_BUTTON_DESTINATIONS);
 	mButtonsProcessOrder.push_back(RS_BUTTON_AVATARS);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SNAPSHOT);
@@ -1552,6 +1559,9 @@ void LLBottomTray::initResizeStateContainers()
 	mButtonsProcessOrder.push_back(RS_BUTTON_PROFILE);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SPLITTER_2);
 	mButtonsProcessOrder.push_back(RS_BUTTON_HOWTO);
+	mButtonsProcessOrder.push_back(RS_BUTTON_MOVEMENT);
+	mButtonsProcessOrder.push_back(RS_BUTTON_CAMERA);
+	mButtonsProcessOrder.push_back(RS_BUTTON_GESTURES);
 
 	mButtonsOrder.push_back(RS_BUTTON_SPEAK);
 	mButtonsOrder.insert(mButtonsOrder.end(), mButtonsProcessOrder.begin(), mButtonsProcessOrder.end());
