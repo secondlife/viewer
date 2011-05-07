@@ -5628,6 +5628,17 @@ This area has building disabled. You can&apos;t build or rez objects here.
   </notification>
 
   <notification
+   icon="privacy.tga"
+   name="PrivateParcel"
+   persist="true"
+   type="notify"
+   unique="true">
+This is a private parcel.   You can&apos;t see 
+others outside the parcel, and those 
+outside are not able to see you.
+  </notification>
+
+  <notification
    icon="notify.tga"
    name="ScriptsStopped"
    persist="true"

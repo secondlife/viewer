@@ -70,6 +70,8 @@ static std::string icon_scripts;
 static std::string icon_scripts_no;
 static std::string icon_damage;
 static std::string icon_damage_no;
+static std::string icon_privacy_on;
+static std::string icon_privacy_off;
 
 LLPanelPlaceProfile::LLPanelPlaceProfile()
 :	LLPanelPlaceInfo(),
@@ -114,6 +116,8 @@ BOOL LLPanelPlaceProfile::postBuild()
 	mScriptsText = getChild<LLTextBox>("scripts_value");
 	mDamageIcon = getChild<LLIconCtrl>("damage_icon");
 	mDamageText = getChild<LLTextBox>("damage_value");
+	mPrivacyIcon = getChild<LLIconCtrl>("privacy_icon");
+	mPrivacyText = getChild<LLTextBox>("privacy_value");
 
 	mRegionNameText = getChild<LLTextBox>("region_name");
 	mRegionTypeText = getChild<LLTextBox>("region_type");
@@ -153,6 +157,8 @@ BOOL LLPanelPlaceProfile::postBuild()
 	icon_scripts_no = getString("icon_ScriptsNo");
 	icon_damage = getString("icon_Damage");
 	icon_damage_no = getString("icon_DamageNo");
+	icon_privacy_on = getString("icon_PrivacyOn");
+	icon_privacy_off = getString("icon_PrivacyOff");
 
 	return TRUE;
 }
@@ -182,6 +188,8 @@ void LLPanelPlaceProfile::resetLocation()
 	mScriptsText->setText(loading);
 	mDamageIcon->setValue(loading);
 	mDamageText->setText(loading);
+	mPrivacyIcon->setValue(loading);
+	mPrivacyText->setText(loading);
 
 	mRegionNameText->setValue(loading);
 	mRegionTypeText->setValue(loading);
@@ -412,6 +420,17 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	{
 		mDamageIcon->setValue(icon_damage_no);
 		mDamageText->setText(off);
+	}
+
+	if (parcel->getPrivacy())
+	{
+		mPrivacyIcon->setValue(icon_privacy_on);
+		mPrivacyText->setText(on);
+	}
+	else
+	{
+		mPrivacyIcon->setValue(icon_privacy_off);
+		mPrivacyText->setText(off);
 	}
 
 	mRegionNameText->setText(region->getName());

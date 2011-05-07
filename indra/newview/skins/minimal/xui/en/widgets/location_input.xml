@@ -113,6 +113,15 @@
 	  font="SansSerifSmall"
 	  text_color="TextFgColor"
 	/>
+  <privacy_icon
+    name="privacy_icon"
+    width="14"
+    height="13"
+    top="19"
+    left="2"
+    follows="right|top"
+    image_name="Parcel_PrivacyOn_Dark"
+    />
   <combo_button
 		name="Location History"
                 label=""
