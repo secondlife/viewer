@@ -351,8 +351,7 @@ BOOL LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int bloc
 	mLevels = levels;
 	if (mLevels != 0)
 	{
-		mLevels = llmin(mLevels,MAX_DECOMPOSITION_LEVELS);
-		mLevels = llmax(MIN_DECOMPOSITION_LEVELS,mLevels);
+		mLevels = llclamp(mLevels,MIN_DECOMPOSITION_LEVELS,MIN_DECOMPOSITION_LEVELS);		
 	}
 	return TRUE;
 }
