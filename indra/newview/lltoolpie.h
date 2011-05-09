@@ -67,6 +67,7 @@ public:
 	LLObjectSelection*	getLeftClickSelection() { return (LLObjectSelection*)mLeftClickSelection; }
 	void 				resetSelection();
 	void				blockClickToWalk() { mBlockClickToWalk = true; }
+	void				stopClickToWalk();
 	
 	static void			selectionPropertiesReceived();
 

@@ -8,13 +8,6 @@
  tab_stop="false" 
  name="main_view"
  width="1024">
-  <panel top="0"
-   follows="all"
-   height="768"
-   mouse_opaque="false"
-   name="login_panel_holder"
-   width="1024"/>
- 
   <layout_stack border_size="0"
                 follows="all"
                 mouse_opaque="false"
@@ -96,6 +89,14 @@
                      name="stand_stop_flying_container"
                      visible="false"
                      width="500"/>
+              
+              <panel top="0"
+               follows="all"
+               height="500"
+               mouse_opaque="false"
+               name="login_panel_holder"
+               width="1024"/>
+
               <panel follows="all"
 										 height="500"
 										 left="0"

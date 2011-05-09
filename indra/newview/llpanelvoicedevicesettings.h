@@ -45,6 +45,8 @@ public:
 	void cleanup();
 
 	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility );
+
+	void setUseTuningMode(bool use) { mUseTuningMode = use; };
 	
 protected:
 	void onCommitInputDevice();
@@ -56,6 +58,7 @@ protected:
 	class LLComboBox		*mCtrlInputDevices;
 	class LLComboBox		*mCtrlOutputDevices;
 	BOOL mDevicesUpdated;
+	bool mUseTuningMode;
 };
 
 #endif // LL_LLPANELVOICEDEVICESETTINGS_H

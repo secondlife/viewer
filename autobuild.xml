@@ -1351,30 +1351,6 @@
           </map>
         </map>
       </map>
-      <key>pth</key>
-      <map>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>license_file</key>
-        <string>LICENSES/pth.txt</string>
-        <key>name</key>
-        <string>pth</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2172379794217d0ffba0db09b2ac17bf</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-darwin-20110303.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-        </map>
-      </map>
       <key>quicktime</key>
       <map>
         <key>license</key>
