@@ -748,6 +748,7 @@ Prøv venligst igen senere.
 		[OLD_NAME] ([SLID]) er nu kendt som [NEW_NAME].
 	</notification>
 	<notification name="OfferTeleport">
+		Tilbyd en teleport til din position med følgende besked?
 		<form name="form">
 			<input name="message">
 				Mød mig i [REGION]

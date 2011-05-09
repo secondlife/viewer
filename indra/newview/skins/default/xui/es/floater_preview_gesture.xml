@@ -30,15 +30,15 @@
 	<text name="trigger_label">
 		Palabra clave:
 	</text>
-	<text left="208" name="replace_text" tool_tip="Reemplaza la/s palabra/s clave con estas palabras. Por ejemplo, si cambia la palabra clave &apos;hola&apos; por &apos;qué tal&apos;, se cambiará en el chat &apos;Quise decir hola&apos; por &apos;Quise decir qué tal&apos; en cuanto realice el gesto.">
+	<text name="replace_text" tool_tip="Reemplaza la/s palabra/s clave con estas palabras. Por ejemplo, si cambia la palabra clave &apos;hola&apos; por &apos;qué tal&apos;, se cambiará en el chat &apos;Quise decir hola&apos; por &apos;Quise decir qué tal&apos; en cuanto realice el gesto.">
 		Reemplazar por:
 	</text>
 	<line_editor name="replace_editor" tool_tip="Reemplaza la/s palabra/s clave con estas palabras. Por ejemplo, si cambia la palabra clave &apos;hola&apos; por &apos;qué tal&apos;, se cambiará en el chat &apos;Quise decir hola&apos; por &apos;Quise decir qué tal&apos; en cuanto realice el gesto."/>
 	<text name="key_label">
 		Atajo de teclado:
 	</text>
-	<combo_box label="Ninguno" left="116" name="modifier_combo" width="76"/>
-	<combo_box label="Ninguno" left_delta="80" name="key_combo" width="76"/>
+	<combo_box label="Ninguno" name="modifier_combo" width="76"/>
+	<combo_box label="Ninguno" name="key_combo" width="50"/>
 	<text name="library_label">
 		Biblioteca:
 	</text>
@@ -55,20 +55,20 @@
 	<button label="Arriba" name="up_btn"/>
 	<button label="Abajo" name="down_btn"/>
 	<button label="Quitar" name="delete_btn"/>
-	<text left="230" name="options_text" width="200">
+	<text name="options_text" width="200">
 		(opciones)
 	</text>
 	<radio_group name="animation_trigger_type">
 		<radio_item label="Empezar" name="start"/>
 		<radio_item label="Parar" name="stop"/>
 	</radio_group>
-	<check_box bottom_delta="34" label="hasta que las animaciones  estén hechas" name="wait_anim_check"/>
-	<check_box bottom_delta="-30" label="tiempo en segundos:" name="wait_time_check"/>
-	<line_editor left_delta="130" name="wait_time_editor"/>
+	<check_box label="hasta que las animaciones  estén hechas" name="wait_anim_check"/>
+	<check_box label="tiempo en segundos:" name="wait_time_check"/>
+	<line_editor name="wait_time_editor"/>
 	<text name="help_label">
 		Todos los pasos suceden a la vez, a menos que añadas pasos de espera.
 	</text>
-	<check_box label="Disponible" left="130" name="active_check" tool_tip="Los gestos disponibles pueden realizarse escribiendo en el chat su frase clave o pulsando su tecla de acceso rápido. Generalmente, los gestos pasan a no disponibles cuando hay un conflicto de teclas."/>
-	<button label="Vista previa" name="preview_btn" width="85"/>
+	<check_box label="Disponible" name="active_check" tool_tip="Los gestos disponibles pueden realizarse escribiendo en el chat su frase clave o pulsando su tecla de acceso rápido. Generalmente, los gestos pasan a no disponibles cuando hay un conflicto de teclas."/>
+	<button label="Vista previa" name="preview_btn" width="82"/>
 	<button label="Guardar" name="save_btn"/>
 </floater>

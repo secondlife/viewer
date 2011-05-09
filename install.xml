@@ -1252,53 +1252,6 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
-      <key>pth</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 1999-2006 Ralf S. Engelschall &lt;rse@gnu.org&gt;</string>
-        <key>description</key>
-        <string>Portable cooperative threads package, used to support Boost.Coroutine on Mac OS X 10.4</string>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>packages</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>md5sum</key>
-            <string>216cb6217a06c64dfae30a55ab8b975c</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-darwin-20090923.tar.bz2</uri>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>md5sum</key>
-            <string>c5c2f73847c126e679d925beab48c7d4</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-linux-20090427.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>c5c2f73847c126e679d925beab48c7d4</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-linux32-20090427.tar.bz2</uri>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>md5sum</key>
-            <string>c5c2f73847c126e679d925beab48c7d4</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-linux64-20090427.tar.bz2</uri>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>md5sum</key>
-            <string>c5c2f73847c126e679d925beab48c7d4</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-windows-20090427.tar.bz2</uri>
-          </map>
-        </map>
-      </map>
       <key>pulseaudio</key>
       <map>
         <key>copyright</key>

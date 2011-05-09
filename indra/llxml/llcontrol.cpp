@@ -837,9 +837,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 
 U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_values, bool save_values)
 {
-	std::string name;
 	LLSD settings;
-	LLSD control_map;
 	llifstream infile;
 	infile.open(filename);
 	if(!infile.is_open())
@@ -863,8 +861,8 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 	for(LLSD::map_const_iterator itr = settings.beginMap(); itr != settings.endMap(); ++itr)
 	{
 		bool persist = true;
-		name = (*itr).first;
-		control_map = (*itr).second;
+		std::string const & name = itr->first;
+		LLSD const & control_map = itr->second;
 		
 		if(control_map.has("Persist")) 
 		{
