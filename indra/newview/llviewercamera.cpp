@@ -756,6 +756,10 @@ LLVector3 LLViewerCamera::roundToPixel(const LLVector3 &pos_agent)
 
 BOOL LLViewerCamera::cameraUnderWater() const
 {
+	if(!gAgent.getRegion())
+	{
+		return FALSE ;
+	}
 	return getOrigin().mV[VZ] < gAgent.getRegion()->getWaterHeight();
 }
 
