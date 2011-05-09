@@ -1362,6 +1362,12 @@ void LLMeshUploadThread::run()
 	}
 }
 
+void dumpLLSDToFile(LLSD& content, std::string& filename)
+{
+	std::ofstream of(filename);
+	LLSDSerialize::toXML(content,of);
+}
+
 LLSD LLMeshUploadThread::wholeModelToLLSD(bool include_textures)
 {
 	// TODO where do textures go?
@@ -1376,8 +1382,12 @@ LLSD LLMeshUploadThread::wholeModelToLLSD(bool include_textures)
 
 	LLSD res;
 	res["mesh_list"] = LLSD::emptyArray();
+	res["texture_list"] = LLSD::emptyArray();
 	S32 mesh_num = 0;
+	S32 texture_num = 0;
 	
+	std::set<LLViewerTexture* > textures;
+
 	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
 	{
 		LLMeshUploadData data;
@@ -1425,11 +1435,44 @@ LLSD LLMeshUploadThread::wholeModelToLLSD(bool include_textures)
 
 		res["mesh_list"][mesh_num] = mesh_entry;
 		
+		if (mUploadTextures)
+		{
+			for (std::vector<LLImportMaterial>::iterator material_iter = instance.mMaterial.begin();
+				material_iter != instance.mMaterial.end(); ++material_iter)
+			{
+
+				if (textures.find(material_iter->mDiffuseMap.get()) == textures.end())
+				{
+					textures.insert(material_iter->mDiffuseMap.get());
+
+					std::stringstream ostr;
+					if (include_textures) // otherwise data is blank.
+					{
+						LLTextureUploadData data(material_iter->mDiffuseMap.get(), material_iter->mDiffuseMapLabel);
+						if (!data.mTexture->isRawImageValid())
+						{
+							data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
+						}
+						
+						LLPointer<LLImageJ2C> upload_file =
+							LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
+						ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
+					}
+					LLSD texture_entry;
+					texture_entry["texture_data"] = ostr.str();
+					res["texture_list"][texture_num] = texture_entry;
+					texture_num++;
+				}
+			}
+		}
+
 		mesh_num++;
 	}
 
 	result["asset_resources"] = res;
 
+	dumpLLSDToFile(result,std::string("whole_model.xml"));
+	
 	return result;
 }
 
