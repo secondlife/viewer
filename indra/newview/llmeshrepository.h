@@ -424,6 +424,8 @@ public:
 
 	void doWholeModelUpload();
 	void doIterativeUpload();
+
+	LLSD wholeModelToLLSD(bool include_textures);
 };
 
 class LLMeshRepository
