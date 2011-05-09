@@ -356,6 +356,7 @@ public:
 	static BOOL getRenderHighlights(void* data);
 
 	static void updateRenderDeferred();
+	static void refreshRenderDeferred();
 
 private:
 	void unloadShaders();
