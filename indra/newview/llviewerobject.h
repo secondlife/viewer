@@ -488,7 +488,7 @@ public:
 	void			setRegion(LLViewerRegion *regionp);
 	virtual void	updateRegion(LLViewerRegion *regionp);
 
-	void updateFlags();
+	void updateFlags(BOOL physics_changed = FALSE);
 	BOOL setFlags(U32 flag, BOOL state);
 	void setPhysicsShapeType(U8 type);
 	void setPhysicsGravity(F32 gravity);
