@@ -32,9 +32,9 @@
 #include "llui.h"
 
 static S32 DAYS_PER_MONTH_NOLEAP[] =
-	{ 31, 28, 21, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+	{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 static S32 DAYS_PER_MONTH_LEAP[] =
-	{ 31, 29, 21, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+	{ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 static S32 days_from_month(S32 year, S32 month)
 {

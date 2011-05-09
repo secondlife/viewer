@@ -424,6 +424,7 @@ Jonathan Yap
 	STORM-1094
 	STORM-1077
 	STORM-953
+	STORM-1095
 Kage Pixel
 	VWR-11
 Ken March
@@ -588,7 +589,7 @@ Nicholaz Beresford
 	VWR-2684
 Nicky Perian
 	OPEN-1
-	OPEN-1087
+	STORM-1087
 	STORM-1090
 Nounouch Hapmouche
 	VWR-238
@@ -660,6 +661,7 @@ Robin Cornelius
 	STORM-422
 	STORM-960
 	STORM-1019
+	STORM-1095
 	VWR-2488
 	VWR-9557
 	VWR-10579

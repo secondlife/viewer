@@ -159,8 +159,6 @@ public:
 	
 	void buildPopupLists();
 	static void refreshSkin(void* data);
-	// Remove record of current user's favorites from file on disk.
-	void removeFavoritesRecordOfUser();
 private:
 	static std::string sSkin;
 	// set true if state of double-click action checkbox or radio-group was changed by user
@@ -172,8 +170,6 @@ private:
 	bool mAvatarDataInitialized;
 	
 	bool mOriginalHideOnlineStatus;
-	// Record of current user's favorites may be stored in file on disk.
-	bool mFavoritesRecordMayExist;
 	std::string mDirectoryVisibility;
 	
 	LLAvatarData mAvatarProperties;
@@ -185,6 +181,8 @@ public:
 	LLPanelPreference();
 	/*virtual*/ BOOL postBuild();
 	
+	virtual ~LLPanelPreference();
+
 	virtual void apply();
 	virtual void cancel();
 	void setControlFalse(const LLSD& user_data);
@@ -198,6 +196,7 @@ public:
 	// cancel() can restore them.
 	virtual void saveSettings();
 	
+	class Updater;
 private:
 	//for "Only friends and groups can call or IM me"
 	static void showFriendsOnlyWarning(LLUICtrl*, const LLSD&);
@@ -209,6 +208,8 @@ private:
 
 	typedef std::map<std::string, LLColor4> string_color_map_t;
 	string_color_map_t mSavedColors;
+
+	Updater* mBandWidthUpdater;
 };
 
 class LLPanelPreferenceGraphics : public LLPanelPreference

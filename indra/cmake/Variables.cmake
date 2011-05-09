@@ -102,7 +102,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_OSX_DEPLOYMENT_TARGET 10.5)
   set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.5.sdk)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "4.2")
-  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "DWARF with dSYM File")
+  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym)
 
   # NOTE: To attempt an i386/PPC Universal build, add this on the configure line:
   # -DCMAKE_OSX_ARCHITECTURES:STRING='i386;ppc'
@@ -135,6 +135,7 @@ set(VIEWER_LOGIN_CHANNEL ${VIEWER_CHANNEL} CACHE STRING "Fake login channel for 
 
 set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
 set(STANDALONE OFF CACHE BOOL "Do not use Linden-supplied prebuilt libraries.")
+set(UNATTENDED OFF CACHE BOOL "Should be set to ON for building with VC Express editions.")
 
 if (NOT STANDALONE AND EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
     set(SERVER ON CACHE BOOL "Build Second Life server software.")

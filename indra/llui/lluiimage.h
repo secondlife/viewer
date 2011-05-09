@@ -92,22 +92,23 @@ protected:
 namespace LLInitParam
 {
 	template<>
-	class TypedParam<LLUIImage*, TypeValues<LLUIImage*>, false> 
-	:	public BlockValue<LLUIImage*>
+	class ParamValue<LLUIImage*, TypeValues<LLUIImage*> > 
+	:	public CustomParamValue<LLUIImage*>
 	{
 		typedef boost::add_reference<boost::add_const<LLUIImage*>::type>::type	T_const_ref;
-		typedef BlockValue<LLUIImage*> super_t;
+		typedef CustomParamValue<LLUIImage*> super_t;
 	public:
 		Optional<std::string> name;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, super_t::value_assignment_t value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
-		:	super_t(descriptor, name, value, func, min_count, max_count)
+		ParamValue(LLUIImage* const& image)
+		:	super_t(image)
 		{
-			setBlockFromValue();
+			updateBlockFromValue();
+			addSynonym(name, "name");
 		}
 
-		void setValueFromBlock() const;
-		void setBlockFromValue();
+		void updateValueFromBlock();
+		void updateBlockFromValue();
 	};
 
 	// Need custom comparison function for our test app, which only loads
