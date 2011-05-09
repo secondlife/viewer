@@ -1365,7 +1365,7 @@ void LLMeshUploadThread::run()
 void dumpLLSDToFile(LLSD& content, std::string& filename)
 {
 	std::ofstream of(filename);
-	LLSDSerialize::toXML(content,of);
+	LLSDSerialize::toPrettyXML(content,of);
 }
 
 LLSD LLMeshUploadThread::wholeModelToLLSD(bool include_textures)
@@ -1431,7 +1431,7 @@ LLSD LLMeshUploadThread::wholeModelToLLSD(bool include_textures)
 		mesh_entry["coords"]["rot_x"] = 1.0;
 		mesh_entry["coords"]["rot_y"] = 1.0;
 		mesh_entry["coords"]["rot_z"] = 1.0;
-		mesh_entry["mesh_data"] = ostr.str();
+		mesh_entry["mesh_data"] = "RESTORE_ME"; //ostr.str();
 
 		res["mesh_list"][mesh_num] = mesh_entry;
 		
