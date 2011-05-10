@@ -541,20 +541,20 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 				GLint fullscreenAttrib[] =
 				{
 					AGL_RGBA,
-						AGL_FULLSCREEN,
-						//			AGL_NO_RECOVERY,	// MBW -- XXX -- Not sure if we want this attribute
-						AGL_SAMPLE_BUFFERS_ARB, mFSAASamples > 0 ? 1 : 0,
-						AGL_SAMPLES_ARB, mFSAASamples,
-						AGL_DOUBLEBUFFER,
-						AGL_CLOSEST_POLICY,
-						AGL_ACCELERATED,
-						AGL_RED_SIZE, 8,
-						AGL_GREEN_SIZE, 8,
-						AGL_BLUE_SIZE, 8,
-						AGL_ALPHA_SIZE, 8,
-						AGL_DEPTH_SIZE, 24,
-						AGL_STENCIL_SIZE, 8,
-						AGL_NONE
+					AGL_FULLSCREEN,
+					AGL_NO_RECOVERY,
+					AGL_SAMPLE_BUFFERS_ARB, mFSAASamples > 0 ? 1 : 0,
+					AGL_SAMPLES_ARB, mFSAASamples,
+					AGL_DOUBLEBUFFER,
+					AGL_CLOSEST_POLICY,
+					AGL_ACCELERATED,
+					AGL_RED_SIZE, 8,
+					AGL_GREEN_SIZE, 8,
+					AGL_BLUE_SIZE, 8,
+					AGL_ALPHA_SIZE, 8,
+					AGL_DEPTH_SIZE, 24,
+					AGL_STENCIL_SIZE, 8,
+					AGL_NONE
 				};
 
 				LL_DEBUGS("Window") << "createContext: creating fullscreen pixelformat" << LL_ENDL;
@@ -567,21 +567,28 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 			}
 			else
 			{
+				// NOTE from Leslie:
+				//
+				// AGL_NO_RECOVERY, when combined with AGL_ACCELERATED prevents software rendering
+				// fallback which means we won't hvae shaders that compile and link but then don't
+				// work.  The drawback is that our shader compilation will be a bit more finicky though.
+
 				GLint windowedAttrib[] =
 				{
 					AGL_RGBA,
-						AGL_DOUBLEBUFFER,
-						AGL_CLOSEST_POLICY,
-						AGL_ACCELERATED,
-						AGL_SAMPLE_BUFFERS_ARB, mFSAASamples > 0 ? 1 : 0,
-						AGL_SAMPLES_ARB, mFSAASamples,
-						AGL_RED_SIZE, 8,
-						AGL_GREEN_SIZE, 8,
-						AGL_BLUE_SIZE, 8,
-						AGL_ALPHA_SIZE, 8,
-						AGL_DEPTH_SIZE, 24,
-						AGL_STENCIL_SIZE, 8,
-						AGL_NONE
+					AGL_NO_RECOVERY,
+					AGL_DOUBLEBUFFER,
+					AGL_CLOSEST_POLICY,
+					AGL_ACCELERATED,
+					AGL_SAMPLE_BUFFERS_ARB, mFSAASamples > 0 ? 1 : 0,
+					AGL_SAMPLES_ARB, mFSAASamples,
+					AGL_RED_SIZE, 8,
+					AGL_GREEN_SIZE, 8,
+					AGL_BLUE_SIZE, 8,
+					AGL_ALPHA_SIZE, 8,
+					AGL_DEPTH_SIZE, 24,
+					AGL_STENCIL_SIZE, 8,
+					AGL_NONE
 				};
 
 				LL_DEBUGS("Window") << "createContext: creating windowed pixelformat" << LL_ENDL;
