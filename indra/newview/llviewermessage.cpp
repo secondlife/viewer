@@ -344,6 +344,11 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLViewerRegion *regionp = LLWorld::getInstance()->getRegion(mesgsys->getSender());
 
+	if(!regionp)
+	{
+		llwarns << "Invalid region for layer data." << llendl;
+		return;
+	}
 	S32 size;
 	S8 type;
 
