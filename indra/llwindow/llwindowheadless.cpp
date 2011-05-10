@@ -28,6 +28,7 @@
 #include "indra_constants.h"
 
 #include "llwindowheadless.h"
+#include "llkeyboardheadless.h"
 
 //
 // LLWindowHeadless
@@ -37,6 +38,9 @@ LLWindowHeadless::LLWindowHeadless(LLWindowCallbacks* callbacks, const std::stri
 							 BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth)
 	: LLWindow(callbacks, fullscreen, flags)
 {
+	// Initialize a headless keyboard.
+	gKeyboard = new LLKeyboardHeadless();
+	gKeyboard->setCallbacks(callbacks);
 }
 
 

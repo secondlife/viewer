@@ -1,10 +1,8 @@
-/**
- * @file   lluilistener.h
- * @author Nat Goodspeed
- * @date   2009-08-18
- * @brief  Engage named functions as specified by XUI
- * 
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+/** 
+ * @file llwindowlistener.h
+ * @brief EventAPI interface for injecting input into LLWindow
+ *
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -26,22 +24,32 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_LLUILISTENER_H)
-#define LL_LLUILISTENER_H
+#ifndef LL_LLWINDOWLISTENER_H
+#define LL_LLWINDOWLISTENER_H
 
 #include "lleventapi.h"
-#include <string>
+#include <boost/function.hpp>
 
-class LLSD;
+class LLKeyboard;
+class LLWindowCallbacks;
 
-class LLUIListener: public LLEventAPI
+class LLWindowListener : public LLEventAPI
 {
 public:
-    LLUIListener();
+	typedef boost::function<LLKeyboard*()> KeyboardGetter;
+	LLWindowListener(LLWindowCallbacks * window, const KeyboardGetter& kbgetter);
+
+	void keyDown(LLSD const & evt);
+	void keyUp(LLSD const & evt);
+	void mouseDown(LLSD const & evt);
+	void mouseUp(LLSD const & evt);
+	void mouseMove(LLSD const & evt);
+	void mouseScroll(LLSD const & evt);
 
 private:
-    void call(const LLSD& event) const;
-    void getValue(const LLSD&event) const;
+	LLWindowCallbacks * mWindow;
+	KeyboardGetter mKbGetter;
 };
 
-#endif /* ! defined(LL_LLUILISTENER_H) */
+
+#endif // LL_LLWINDOWLISTENER_H
