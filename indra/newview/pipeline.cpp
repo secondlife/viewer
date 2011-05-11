@@ -784,6 +784,21 @@ void LLPipeline::updateRenderDeferred()
 	}
 }
 
+//static
+void LLPipeline::refreshRenderDeferred()
+{
+	if(gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
+	{
+		//turn the deferred rendering and glow off when draw physics shapes.
+		sRenderDeferred = FALSE ;
+		sRenderGlow = FALSE ;
+	}
+	else
+	{
+		updateRenderDeferred() ;
+	}
+}
+
 void LLPipeline::releaseGLBuffers()
 {
 	assertInitialized();

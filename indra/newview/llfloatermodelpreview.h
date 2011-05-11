@@ -120,9 +120,6 @@ public:
 	void extractTranslation( domTranslate* pTranslate, LLMatrix4& transform );
 	void extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform );
 	
-	void handlePivotPoint( daeElement* pRoot );
-	bool isNodeAPivotPoint( domNode* pNode );
-	
 	void setLoadState(U32 state);
 
 	void buildJointToNodeMappingFromScene( daeElement* pRoot );
@@ -298,7 +295,6 @@ public:
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
-	void alterModelsPivot( void );
 	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();

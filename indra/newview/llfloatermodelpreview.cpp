@@ -112,8 +112,6 @@ const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
 
-const F32 MAXIMUM_PIVOT_OFFSET = 64.0f;
-
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
 
@@ -1772,8 +1770,6 @@ bool LLModelLoader::doLoadModel()
 
 	processElement(scene);
 	
-	handlePivotPoint( root );
-
 	return true;
 }
 
@@ -1962,49 +1958,6 @@ void LLModelLoader::processJointToNodeMapping( domNode* pNode )
 			}
 		}
 	}
-}
-//-----------------------------------------------------------------------------
-// handlePivotPoint()
-//-----------------------------------------------------------------------------
-void LLModelLoader::handlePivotPoint( daeElement* pRoot )
-{
-	//Import an optional pivot point - a pivot point is just a node in the visual scene named "AssetPivot"
-	//If no assetpivot is found then the asset will use the SL default
-	daeElement* pScene = pRoot->getDescendant("visual_scene");
-	if ( pScene )
-	{
-		daeTArray< daeSmartRef<daeElement> > children = pScene->getChildren();
-		S32 childCount = children.getCount();
-		for (S32 i = 0; i < childCount; ++i)
-		{
-			domNode* pNode = daeSafeCast<domNode>(children[i]);
-			if ( pNode && isNodeAPivotPoint( pNode ) )
-			{
-				LLMatrix4 workingTransform;
-				daeSIDResolver nodeResolver( pNode, "./translate" );
-				domTranslate* pTranslate = daeSafeCast<domTranslate>( nodeResolver.getElement() );
-				//Translation via SID was successful
-				//todo#extract via element as well
-				if ( pTranslate )
-				{
-					extractTranslation( pTranslate, workingTransform );
-					LLVector3 pivotTrans = workingTransform.getTranslation();
-					if ( pivotTrans[VX] > MAXIMUM_PIVOT_OFFSET || pivotTrans[VX] < -MAXIMUM_PIVOT_OFFSET || 
-						 pivotTrans[VY] > MAXIMUM_PIVOT_OFFSET || pivotTrans[VY] < -MAXIMUM_PIVOT_OFFSET || 
-						 pivotTrans[VZ] > MAXIMUM_PIVOT_OFFSET || pivotTrans[VZ] < -MAXIMUM_PIVOT_OFFSET ) 
-					{
-						llwarns<<"Asset Pivot Node contains an offset that is too large - values should be within (-"<<MAXIMUM_PIVOT_OFFSET<<","<<MAXIMUM_PIVOT_OFFSET<<")."<<llendl;
-						mPreview->setHasPivot( false );
-					}
-					else
-					{
-						mPreview->setModelPivot( pivotTrans );
-						mPreview->setHasPivot( true );					
-					}
-				}					
-			}
-		}
-	} 
 }
 
 //-----------------------------------------------------------------------------
@@ -2205,27 +2158,7 @@ bool LLModelLoader::isNodeAJoint( domNode* pNode )
 
 	return false;
 }
-//-----------------------------------------------------------------------------
-// isNodeAPivotPoint()
-//-----------------------------------------------------------------------------
-bool LLModelLoader::isNodeAPivotPoint( domNode* pNode )
-{
-	bool result = false;
-	
-	if ( pNode && pNode->getName() )
-	{
-		std::string name = pNode->getName();
-		if ( name == "AssetPivot" )
-		{
-			result = true;
-		}
-		else
-		{
-			result = false;
-		}
-	}	
-	return result;
-}
+
 //-----------------------------------------------------------------------------
 // extractTranslation()
 //-----------------------------------------------------------------------------
@@ -2852,27 +2785,6 @@ void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, 
 	childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 }
 
-void LLModelPreview::alterModelsPivot( void )
-{
-	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
-	{
-		if ( *iter )
-		{
-			(*iter)->offsetMesh( mModelPivot );
-		}
-	}
-	
-	for ( int i=0;i<LLModel::NUM_LODS;++i )
-	{
-		for (LLModelLoader::model_list::iterator iter = mModel[i].begin(); iter != mModel[i].end(); ++iter)
-		{
-			if ( *iter )
-			{
-				(*iter)->offsetMesh( mModelPivot );
-			}
-		}
-	}
-}
 
 void LLModelPreview::rebuildUploadData()
 {
@@ -3643,21 +3555,19 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		glodGroupParameterf(mGroup, GLOD_OBJECT_SPACE_ERROR_THRESHOLD, lod_error_threshold);
 		stop_gloderror();
 
-		glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, 0);
-		stop_gloderror();
-
-		glodAdaptGroup(mGroup);
-		stop_gloderror();
-
-		if (lod_mode == GLOD_TRIANGLE_BUDGET)
-		{ //SH-632 Always adapt to 0 before adapting to actual desired amount, and always
-			//add 1 to desired amount to avoid decimating below desired amount
-			glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, triangle_count+1);
-			stop_gloderror();
-
-			glodAdaptGroup(mGroup);
-			stop_gloderror();
+		if (lod_mode != GLOD_TRIANGLE_BUDGET)
+		{ 			
+			glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, 0);
 		}
+		else
+		{
+			//SH-632: always add 1 to desired amount to avoid decimating below desired amount
+			glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, triangle_count+1);
+		}
+			
+		stop_gloderror();
+		glodAdaptGroup(mGroup);
+		stop_gloderror();		
 
 		for (U32 mdl_idx = 0; mdl_idx < mBaseModel.size(); ++mdl_idx)
 		{
@@ -4973,11 +4883,6 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 
 	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
 
-	if ( mp && mp->mModelPreview->mHasPivot )
-	{
-		mp->mModelPreview->alterModelsPivot();
-	}
-	
 	mp->mModelPreview->rebuildUploadData();
 
 	bool upload_skinweights = mp->childGetValue("upload_skin").asBoolean();
