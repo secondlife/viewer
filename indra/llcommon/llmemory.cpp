@@ -1629,6 +1629,10 @@ void LLPrivateMemoryPool::addToHashTable(LLMemoryChunk* chunk)
 	{
 		mChunkHashList[start_key] = chunk ;
 	}
+	if(start_key == end_key)
+	{
+		return ; //done
+	}
 
 	if(!need_rehash)
 	{
