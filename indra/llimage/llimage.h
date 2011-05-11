@@ -140,8 +140,7 @@ public:
 	
 	static void createPrivatePool() ;
 	static void destroyPrivatePool() ;
-	static char* allocateMemory(S32 size) ;
-	static void  deleteMemory(void* p) ;	
+	static LLPrivateMemoryPool* getPrivatePool() {return sPrivatePoolp;}
 
 private:
 	U8 *mData;

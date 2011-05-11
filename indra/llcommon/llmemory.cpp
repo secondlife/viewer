@@ -57,6 +57,10 @@ U32 LLMemory::sAllocatedPageSizeInKB = 0 ;
 U32 LLMemory::sMaxHeapSizeInKB = U32_MAX ;
 BOOL LLMemory::sEnableMemoryFailurePrevention = FALSE;
 
+#if __DEBUG_PRIVATE_MEM__
+LLPrivateMemoryPoolManager::mem_allocation_info_t LLPrivateMemoryPoolManager::sMemAllocationTracker;
+#endif
+
 //static
 void LLMemory::initClass()
 {
@@ -1431,8 +1435,14 @@ S32  LLPrivateMemoryPool::getChunkIndex(U32 size)
 void  LLPrivateMemoryPool::destroyPool()
 {
 	lock() ;
-	if(mNumOfChunks > 0)
+
+#if 0
+	if(mNumOfChunks > 0) 
 	{
+		//Warn:
+		//should crash here because there is memory leaking if reach here.
+		//
+
 		for(U32 i = 0 ; i < mHashFactor; i++)
 		{
 			while(mChunkHashList[i])
@@ -1441,11 +1451,19 @@ void  LLPrivateMemoryPool::destroyPool()
 			}
 		}
 	}
-	mChunkHashList.clear() ;
-	mHashFactor = 1 ;
+	
 	llassert_always(mNumOfChunks == 0) ;
 	llassert_always(mReservedPoolSize == 0) ;
+#endif
 
+	if(mNumOfChunks > 0)
+	{
+		llwarns << "There is some memory not freed when destroy the memory pool!" << llendl ;
+	}
+
+	mNumOfChunks = 0 ;
+	mChunkHashList.clear() ;
+	mHashFactor = 1 ;
 	for(S32 i = 0 ; i < SUPER_ALLOCATION ; i++)
 	{
 		mChunkList[i] = NULL ;
@@ -1750,6 +1768,21 @@ LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager()
 
 LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager() 
 {
+
+#if __DEBUG_PRIVATE_MEM__
+	if(!sMemAllocationTracker.empty())
+	{
+		llwarns << "there is potential memory leaking here. The list of not freed memory blocks are from: " <<llendl ;
+
+		S32 k = 0 ;
+		for(mem_allocation_info_t::iterator iter = sMemAllocationTracker.begin() ; iter != sMemAllocationTracker.end() ; ++iter)
+		{
+			llinfos << k++ << ", " << iter->second << llendl ;
+		}
+		sMemAllocationTracker.clear() ;
+	}
+#endif
+
 #if 0
 	//all private pools should be released by their owners before reaching here.
 	for(S32 i = 0 ; i < LLPrivateMemoryPool::MAX_TYPES; i++)
@@ -1824,6 +1857,70 @@ void LLPrivateMemoryPoolManager::updateStatistics()
 			mTotalReservedSize += mPoolList[i]->getTotalReservedSize() ;
 			mTotalAllocatedSize += mPoolList[i]->getTotalAllocatedSize() ;
 		}
+	}
+}
+
+#if __DEBUG_PRIVATE_MEM__
+//static 
+char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size, const char* function, const int line) 
+{
+	char* p ;
+
+	if(!poolp)
+	{
+		p = new char[size] ;
+	}
+	else
+	{
+		p = poolp->allocate(size) ;
+	}
+
+	if(p)
+	{
+		char num[16] ;
+		sprintf(num, " line: %d ", line) ;
+		std::string str(function) ;
+		str += num; 
+
+		sMemAllocationTracker[p] = str ;
+	}
+
+	return p ;
+}	
+#else
+//static 
+char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size) 
+{
+	if(!poolp)
+	{
+		return new char[size] ;
+	}
+	else
+	{
+		return poolp->allocate(size) ;
+	}
+}
+#endif
+
+//static 
+void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr) 
+{
+	if(!addr)
+	{
+		return ;
+	}
+
+#if __DEBUG_PRIVATE_MEM__
+	sMemAllocationTracker.erase((char*)addr) ;
+#endif
+
+	if(poolp)
+	{
+		poolp->freeMem(addr) ;
+	}
+	else
+	{
+		delete[] addr ;
 	}
 }
 
@@ -1915,7 +2012,7 @@ void LLPrivateMemoryPoolTester::test(U32 min_size, U32 max_size, U32 stride, U32
 		for(j = 0 ; j < levels; j++) 
 		{
 			size = min_size + j * stride ;
-			p[i][j] = sPool->allocate(size) ;
+			p[i][j] = ALLOCATE_MEM(sPool, size) ;
 
 			total_allocated_size+= size ;
 
@@ -1931,7 +2028,7 @@ void LLPrivateMemoryPoolTester::test(U32 min_size, U32 max_size, U32 stride, U32
 				if(p[i][k])
 				{
 					llassert_always(*(U32*)p[i][k] == i && *((U32*)p[i][k] + 1) == k) ;
-					sPool->freeMem(p[i][k]) ;
+					FREE_MEM(sPool, p[i][k]) ;
 					total_allocated_size -= min_size + k * stride ;
 					p[i][k] = NULL ;
 				}
@@ -1952,7 +2049,7 @@ void LLPrivateMemoryPoolTester::test(U32 min_size, U32 max_size, U32 stride, U32
 			if(p[i][j])
 			{
 				llassert_always(*(U32*)p[i][j] == i && *((U32*)p[i][j] + 1) == j) ;
-				sPool->freeMem(p[i][j]) ;
+				FREE_MEM(sPool, p[i][j]) ;
 				total_allocated_size -= min_size + j * stride ;
 				p[i][j] = NULL ;
 			}
@@ -1977,7 +2074,7 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 	//allocation
 	for(U32 i = 0 ; i < times; i++)
 	{
-		p[i] = sPool->allocate(size) ;
+		p[i] = ALLOCATE_MEM(sPool, size) ;
 		if(!p[i])
 		{
 			llerrs << "allocation failed" << llendl ;
@@ -1986,7 +2083,7 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 	//de-allocation
 	for(U32 i = 0 ; i < times; i++)
 	{
-		sPool->freeMem(p[i]) ;
+		FREE_MEM(sPool, p[i]) ;
 		p[i] = NULL ;
 	}
 	llinfos << "time spent using customized memory pool: " << timer.getElapsedTimeF32() << llendl ;
@@ -2020,8 +2117,8 @@ void LLPrivateMemoryPoolTester::correctnessTest()
 	//to see if allocation is right.
 	
 	//edge case
-	char* p = sPool->allocate(0) ;
-	sPool->freeMem(p) ;
+	char* p = ALLOCATE_MEM(sPool, 0) ;
+	FREE_MEM(sPool, p) ;
 
 	//small sized
 	// [8 bytes, 2KB), each asks for 256 allocations and deallocations

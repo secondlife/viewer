@@ -34,6 +34,10 @@ extern S32 gDACount;
 extern void* ll_allocate (size_t size);
 extern void ll_release (void *p);
 
+#ifndef __DEBUG_PRIVATE_MEM__
+#define __DEBUG_PRIVATE_MEM__  0
+#endif
+
 class LL_COMMON_API LLMemory
 {
 public:
@@ -234,7 +238,6 @@ private:
 	LLPrivateMemoryPool(S32 type) ;
 	~LLPrivateMemoryPool() ;
 
-public:
 	char *allocate(U32 size) ;
 	void  freeMem(void* addr) ;
 	
@@ -314,8 +317,27 @@ public:
 
 	U32 mTotalReservedSize ;
 	U32 mTotalAllocatedSize ;
+
+public:
+#if __DEBUG_PRIVATE_MEM__
+	static char* allocate(LLPrivateMemoryPool* poolp, U32 size, const char* function, const int line) ;	
+	
+	typedef std::map<char*, std::string> mem_allocation_info_t ;
+	static mem_allocation_info_t sMemAllocationTracker;
+#else
+	static char* allocate(LLPrivateMemoryPool* poolp, U32 size) ;	
+#endif
+	static void  freeMem(LLPrivateMemoryPool* poolp, void* addr) ;
 };
 
+//-------------------------------------------------------------------------------------
+#if __DEBUG_PRIVATE_MEM__
+#define ALLOCATE_MEM(poolp, size) LLPrivateMemoryPoolManager::allocate((poolp), (size), __FUNCTION__, __LINE__)
+#else
+#define ALLOCATE_MEM(poolp, size) LLPrivateMemoryPoolManager::allocate((poolp), (size))
+#endif
+#define FREE_MEM(poolp, addr) LLPrivateMemoryPoolManager::freeMem((poolp), (addr))
+//-------------------------------------------------------------------------------------
 //
 //the below singleton is used to test the private memory pool.
 //

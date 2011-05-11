@@ -122,32 +122,6 @@ void LLImageBase::destroyPrivatePool()
 	}
 }
 
-//static
-char* LLImageBase::allocateMemory(S32 size) 
-{
-	if(sPrivatePoolp)
-	{
-		return sPrivatePoolp->allocate(size) ;
-	}
-	else
-	{
-		return new char[size];
-	}
-}
-
-//static
-void  LLImageBase::deleteMemory(void* p) 
-{
-	if(sPrivatePoolp)
-	{
-		sPrivatePoolp->freeMem(p) ;
-	}
-	else
-	{
-		delete[] (char*)p ;
-	}
-}
-
 // virtual
 void LLImageBase::dump()
 {
@@ -181,7 +155,7 @@ void LLImageBase::sanityCheck()
 // virtual
 void LLImageBase::deleteData()
 {
-	deleteMemory(mData) ;
+	FREE_MEM(sPrivatePoolp, mData) ;
 	mData = NULL;
 	mDataSize = 0;
 }
@@ -218,7 +192,7 @@ U8* LLImageBase::allocateData(S32 size)
 	{
 		deleteData(); // virtual
 		mBadBufferAllocation = false ;
-		mData = (U8*)allocateMemory(size);
+		mData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 		if (!mData)
 		{
 			llwarns << "allocate image data: " << size << llendl;
@@ -236,7 +210,7 @@ U8* LLImageBase::allocateData(S32 size)
 U8* LLImageBase::reallocateData(S32 size)
 {
 	LLMemType mt1(mMemType);
-	U8 *new_datap = (U8*)allocateMemory(size);
+	U8 *new_datap = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 	if (!new_datap)
 	{
 		llwarns << "Out of memory in LLImageBase::reallocateData" << llendl;
@@ -246,7 +220,7 @@ U8* LLImageBase::reallocateData(S32 size)
 	{
 		S32 bytes = llmin(mDataSize, size);
 		memcpy(new_datap, mData, bytes);	/* Flawfinder: ignore */
-		deleteMemory(mData) ;
+		FREE_MEM(sPrivatePoolp, mData) ;
 	}
 	mData = new_datap;
 	mDataSize = size;
@@ -1601,7 +1575,7 @@ void LLImageFormatted::appendData(U8 *data, S32 size)
 			S32 newsize = cursize + size;
 			reallocateData(newsize);
 			memcpy(getData() + cursize, data, size);
-			deleteMemory(data);
+			FREE_MEM(LLImageBase::getPrivatePool(), data);
 		}
 	}
 }
