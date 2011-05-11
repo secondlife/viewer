@@ -6,18 +6,18 @@
 	<string name="payee_resident">
 		Pagar residente
 	</string>
-	<text left="5" name="payee_label" width="110">
+	<text left="5" name="payee_label">
 		Pagar:
 	</text>
 	<icon name="icon_person" tool_tip="Pessoa"/>
-	<text left="115" name="payee_name">
+	<text name="payee_name">
 		Test Name That Is Extremely Long To Check Clipping
 	</text>
-	<button label="L$1" label_selected="L$1" left="112" name="fastpay 1"/>
+	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
 	<button label="L$5" label_selected="L$5" name="fastpay 5"/>
-	<button label="L$10" label_selected="L$10" left="112" name="fastpay 10"/>
+	<button label="L$10" label_selected="L$10" name="fastpay 10"/>
 	<button label="L$20" label_selected="L$20" name="fastpay 20"/>
-	<text left="4" name="amount text">
+	<text name="amount text">
 		Outro valor:
 	</text>
 	<button label="Pagar" label_selected="Pagar" name="pay btn"/>

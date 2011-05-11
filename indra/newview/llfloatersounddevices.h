@@ -1,8 +1,9 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file llfloatersounddevices.h
+ * @author Leyla Farazha
+ * @brief Sound Preferences used for minimal skin
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+* $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,18 +25,25 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+#ifndef LL_LLFLOATERSOUNDDEVICES_H
+#define LL_LLFLOATERSOUNDDEVICES_H
 
-const S32 LL_VERSION_MAJOR = 2;
-const S32 LL_VERSION_MINOR = 6;
-const S32 LL_VERSION_PATCH = 9;
-const S32 LL_VERSION_BUILD = 0;
+#include "lltransientdockablefloater.h"
 
-const char * const LL_CHANNEL = "Second Life Developer";
+class LLFloaterSoundDevices : public LLTransientDockableFloater
+{
+public:
 
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
-#endif
+	LOG_CLASS(LLFloaterSoundDevices);
 
-#endif
+	LLFloaterSoundDevices(const LLSD& key);
+	~LLFloaterSoundDevices();
+
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
+	/*virtual*/ void setFocus( BOOL b );
+};
+
+
+#endif //LL_LLFLOATERSOUNDDEVICES_H
+

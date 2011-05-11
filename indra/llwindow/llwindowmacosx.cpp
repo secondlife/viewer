@@ -108,9 +108,6 @@ static long getDictLong (CFDictionaryRef refDict, CFStringRef key);
 static EventTypeSpec WindowHandlerEventList[] =
 {
 	// Window-related events
-	//	{ kEventClassWindow, kEventWindowCollapsing },
-	//	{ kEventClassWindow, kEventWindowCollapsed },
-	//	{ kEventClassWindow, kEventWindowShown },
 	{ kEventClassWindow, kEventWindowActivated },
 	{ kEventClassWindow, kEventWindowDeactivated },
 	{ kEventClassWindow, kEventWindowShown },
@@ -121,8 +118,7 @@ static EventTypeSpec WindowHandlerEventList[] =
 	{ kEventClassWindow, kEventWindowClose },
 	{ kEventClassWindow, kEventWindowBoundsChanging },
 	{ kEventClassWindow, kEventWindowBoundsChanged },
-	//	{ kEventClassWindow, kEventWindowZoomed },
-	//	{ kEventClassWindow, kEventWindowDrawContent },
+	{ kEventClassWindow, kEventWindowGetIdealSize },
 
 	// Mouse events
 	{ kEventClassMouse, kEventMouseDown },
@@ -248,6 +244,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 	mCursorIgnoreNextDelta = FALSE;
 	mNeedsResize = FALSE;
 	mOverrideAspectRatio = 0.f;
+	mMaximized = FALSE;
 	mMinimized = FALSE;
 	mTSMDocument = NULL; // Just in case.
 	mLanguageTextInputAllowed = FALSE;
@@ -455,24 +452,23 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 	if(!mFullscreen && (mWindow == NULL))
 	{
-		Rect			window_rect;
 		//int				displayWidth = CGDisplayPixelsWide(mDisplay);
 		//int				displayHeight = CGDisplayPixelsHigh(mDisplay);
 		//const int		menuBarPlusTitleBar = 44;   // Ugly magic number.
 
 		LL_DEBUGS("Window") << "createContext: creating window" << LL_ENDL;
 
-		window_rect.left = (long) x;
-		window_rect.right = (long) x + width;
-		window_rect.top = (long) y;
-		window_rect.bottom = (long) y + height;
+		mPreviousWindowRect.left = (long) x;
+		mPreviousWindowRect.right = (long) x + width;
+		mPreviousWindowRect.top = (long) y;
+		mPreviousWindowRect.bottom = (long) y + height;
 
 		//-----------------------------------------------------------------------
 		// Create the window
 		//-----------------------------------------------------------------------
 		mWindow = NewCWindow(
 			NULL,
-			&window_rect,
+			&mPreviousWindowRect,
 			mWindowTitle,
 			false,				// Create the window invisible.  Whoever calls createContext() should show it after any moving/resizing.
 			//		noGrowDocProc,		// Window with no grow box and no zoom box
@@ -481,8 +477,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 			kFirstWindowOfClass,
 			true,
 			(long)this);
-
-
+		
 		if (!mWindow)
 		{
 			setupFailure("Window creation error", "Error", OSMB_OK);
@@ -1093,31 +1088,22 @@ BOOL LLWindowMacOSX::getVisible()
 
 BOOL LLWindowMacOSX::getMinimized()
 {
-	BOOL result = FALSE;
-	
-	// Since the set of states where we want to act "minimized" is non-trivial, it's easier to
-	// track things locally than to try and retrieve the state from the window manager.
-	result = mMinimized;
-
-	return(result);
+	return mMinimized;
 }
 
 BOOL LLWindowMacOSX::getMaximized()
 {
-	BOOL result = FALSE;
-
-	if (mWindow)
-	{
-		// TODO
-	}
-
-	return(result);
+	return mMaximized;
 }
 
 BOOL LLWindowMacOSX::maximize()
 {
-	// TODO
-	return FALSE;
+	if (mWindow && !mMaximized)
+	{
+		ZoomWindow(mWindow, inContent, true);
+	}
+	
+	return mMaximized;
 }
 
 BOOL LLWindowMacOSX::getFullscreen()
@@ -2559,7 +2545,24 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 
 				GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, NULL, sizeof(Rect), NULL, &currentBounds);
 				GetEventParameter(event, kEventParamPreviousBounds, typeQDRectangle, NULL, sizeof(Rect), NULL, &previousBounds);
-
+				
+				// Put an offset into window un-maximize operation since the kEventWindowGetIdealSize
+				// event only allows the specification of size and not position.
+				if (mMaximized)
+				{
+					short leftOffset = mPreviousWindowRect.left - currentBounds.left;
+					currentBounds.left += leftOffset;
+					currentBounds.right += leftOffset;
+					
+					short topOffset = mPreviousWindowRect.top - currentBounds.top;
+					currentBounds.top += topOffset;
+					currentBounds.bottom += topOffset;
+				}
+				else
+				{
+					// Store off the size for future un-maximize operations
+					mPreviousWindowRect = previousBounds;
+				}
 
 				if ((currentBounds.right - currentBounds.left) < MIN_WIDTH)
 				{
@@ -2578,13 +2581,43 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 
 		case kEventWindowBoundsChanged:
 			{
+				// Get new window bounds
 				Rect newBounds;
-
 				GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, NULL, sizeof(Rect), NULL, &newBounds);
+				
+				// Get previous window bounds
+				Rect oldBounds;
+				GetEventParameter(event, kEventParamPreviousBounds, typeQDRectangle, NULL, sizeof(Rect), NULL, &oldBounds);
+				
+				// Determine if the new size is larger than the old
+				bool newBoundsLarger = ((newBounds.right - newBounds.left) >= (oldBounds.right - oldBounds.left));
+				newBoundsLarger &= ((newBounds.bottom - newBounds.top) >= (oldBounds.bottom - oldBounds.top));
+				
+				// Check to see if this is a zoom event (+ button on window pane)
+				unsigned int eventParams;
+				GetEventParameter(event, kEventParamAttributes, typeUInt32, NULL, sizeof(int), NULL, &eventParams);
+				bool isZoomEvent = ((eventParams & kWindowBoundsChangeZoom) != 0);
+				
+				// Maximized flag is if zoom event and increasing window size
+				mMaximized = (isZoomEvent && newBoundsLarger);
+				
 				aglUpdateContext(mContext);
+				
 				mCallbacks->handleResize(this, newBounds.right - newBounds.left, newBounds.bottom - newBounds.top);
-
-
+			}
+			break;
+			
+		case kEventWindowGetIdealSize:
+			// Only recommend a new ideal size when un-maximizing
+			if (mMaximized == TRUE)
+			{
+				Point nonMaximizedSize;
+				
+				nonMaximizedSize.v = mPreviousWindowRect.bottom - mPreviousWindowRect.top;
+				nonMaximizedSize.h = mPreviousWindowRect.right - mPreviousWindowRect.left;
+				
+				SetEventParameter(event, kEventParamDimensions, typeQDPoint, sizeof(Point), &nonMaximizedSize);
+				result = noErr;
 			}
 			break;
 

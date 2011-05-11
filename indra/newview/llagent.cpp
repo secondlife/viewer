@@ -64,6 +64,7 @@
 #include "llstatusbar.h"
 #include "llteleportflags.h"
 #include "lltool.h"
+#include "lltoolpie.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"
 #include "llurlentry.h"
@@ -562,6 +563,8 @@ void LLAgent::setFlying(BOOL fly)
 // static
 void LLAgent::toggleFlying()
 {
+	LLToolPie::instance().stopClickToWalk();
+
 	BOOL fly = !gAgent.getFlying();
 
 	gAgent.mMoveTimer.reset();
