@@ -1687,6 +1687,10 @@ void LLPrivateMemoryPool::removeFromHashTable(LLMemoryChunk* chunk)
 	
 	mChunkHashList[start_key] = chunk->mHashNext ;
 	chunk->mHashNext = NULL ;
+	if(start_key == end_key)
+	{
+		return ; //done
+	}
 
 	if(mChunkHashList[end_key] != chunk)
 	{
