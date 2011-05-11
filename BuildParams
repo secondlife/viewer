@@ -157,8 +157,8 @@ media.build_viewer_update_version_manager = false
 # ================
 
 snowstorm_project-windlight.build_debug_release_separately = true
-snowstorm_project-windlight.viewer_channel = "Second Life Project Windlight Estate"
-snowstorm_project-windlight.login_channel  = "Second Life Project Windlight Estate"
+snowstorm_project-windlight.viewer_channel = "Second Life Project Windlight Region"
+snowstorm_project-windlight.login_channel  = "Second Life Project Windlight Region"
 
 oz_viewer-devreview.build_debug_release_separately = true
 
