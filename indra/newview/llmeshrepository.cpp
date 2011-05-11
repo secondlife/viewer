@@ -1470,8 +1470,9 @@ LLSD LLMeshUploadThread::wholeModelToLLSD(bool include_textures)
 	}
 
 	result["asset_resources"] = res;
-
+#if 0	
 	dumpLLSDToFile(result,std::string("whole_model.xml"));
+#endif
 	
 	return result;
 }
