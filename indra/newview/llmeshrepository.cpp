@@ -772,8 +772,8 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 
 	if (header_size > 0)
 	{
-		S32 offset = header_size + mMeshHeader[mesh_id]["decomposition"]["offset"].asInteger();
-		S32 size = mMeshHeader[mesh_id]["decomposition"]["size"].asInteger();
+		S32 offset = header_size + mMeshHeader[mesh_id]["physics_convex"]["offset"].asInteger();
+		S32 size = mMeshHeader[mesh_id]["physics_convex"]["size"].asInteger();
 
 		mHeaderMutex->unlock();
 
@@ -844,8 +844,8 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 
 	if (header_size > 0)
 	{
-		S32 offset = header_size + mMeshHeader[mesh_id]["physics_shape"]["offset"].asInteger();
-		S32 size = mMeshHeader[mesh_id]["physics_shape"]["size"].asInteger();
+		S32 offset = header_size + mMeshHeader[mesh_id]["physics_mesh"]["offset"].asInteger();
+		S32 size = mMeshHeader[mesh_id]["physics_mesh"]["size"].asInteger();
 
 		mHeaderMutex->unlock();
 
@@ -1907,7 +1907,7 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		
 		//just in case skin info or decomposition is at the end of the file (which it shouldn't be)
 		lod_bytes = llmax(lod_bytes, header["skin"]["offset"].asInteger() + header["skin"]["size"].asInteger());
-		lod_bytes = llmax(lod_bytes, header["decomposition"]["offset"].asInteger() + header["decomposition"]["size"].asInteger());
+		lod_bytes = llmax(lod_bytes, header["physics_convex"]["offset"].asInteger() + header["physics_convex"]["size"].asInteger());
 
 		S32 header_bytes = (S32) gMeshRepo.mThread->mMeshHeaderSize[mesh_id];
 		S32 bytes = lod_bytes + header_bytes; 
@@ -2523,7 +2523,7 @@ void LLMeshRepository::buildHull(const LLVolumeParams& params, S32 detail)
 bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
 {
 	LLSD mesh = mThread->getMeshHeader(mesh_id);
-	return mesh.has("physics_shape") && mesh["physics_shape"].has("size") && (mesh["physics_shape"]["size"].asInteger() > 0);
+	return mesh.has("physics_mesh") && mesh["physics_mesh"].has("size") && (mesh["physics_mesh"]["size"].asInteger() > 0);
 }
 
 LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)

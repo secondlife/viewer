@@ -50,7 +50,7 @@ std::string model_names[] =
 	"low_lod",
 	"medium_lod",
 	"high_lod",
-	"physics_shape"
+	"physics_mesh"
 };
 
 const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
@@ -1403,25 +1403,19 @@ LLSD LLModel::writeModel(
 	if (!decomp.mBaseHull.empty() ||
 		!decomp.mHull.empty())		
 	{
-		mdl["decomposition"] = decomp.asLLSD();
+		mdl["physics_convex"] = decomp.asLLSD();
+		if (!decomp.mHull.empty())
+		{ //convex decomposition exists, physics mesh will not be used
+			model[LLModel::LOD_PHYSICS] = NULL;
+		}
 	}
 
 	for (U32 idx = 0; idx < MODEL_NAMES_LENGTH; ++idx)
 	{
 		if (model[idx] && model[idx]->getNumVolumeFaces() > 0)
 		{
-			LLVector3 min_pos = LLVector3(model[idx]->getVolumeFace(0).mPositions[0].getF32ptr());
-			LLVector3 max_pos = min_pos;
-
-			//find position domain
-			for (S32 i = 0; i < model[idx]->getNumVolumeFaces(); ++i)
-			{ //for each face
-				const LLVolumeFace& face = model[idx]->getVolumeFace(i);
-				for (U32 j = 0; j < face.mNumVertices; ++j)
-				{
-					update_min_max(min_pos, max_pos, face.mPositions[j].getF32ptr());
-				}
-			}
+			LLVector3 min_pos(-0.5f, -0.5f, -0.5f);
+			LLVector3 max_pos(0.5f, 0.5f, 0.5f);
 
 			LLVector3 pos_range = max_pos - min_pos;
 
@@ -1462,6 +1456,7 @@ LLSD LLModel::writeModel(
 					//position + normal
 					for (U32 k = 0; k < 3; ++k)
 					{ //for each component
+						llassert(pos[k] <= 0.5001f && pos[k] >= -0.5001f);
 
 						//convert to 16-bit normalized across domain
 						U16 val = (U16) (((pos[k]-min_pos.mV[k])/pos_range.mV[k])*65535);
@@ -1504,9 +1499,6 @@ LLSD LLModel::writeModel(
 				}
 
 				//write out face data
-				mdl[model_names[idx]][i]["PositionDomain"]["Min"] = min_pos.getValue();
-				mdl[model_names[idx]][i]["PositionDomain"]["Max"] = max_pos.getValue();
-
 				mdl[model_names[idx]][i]["TexCoord0Domain"]["Min"] = min_tc.getValue();
 				mdl[model_names[idx]][i]["TexCoord0Domain"]["Max"] = max_tc.getValue();
 
@@ -1608,15 +1600,15 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite)
 
 	std::string decomposition;
 
-	if (mdl.has("decomposition"))
+	if (mdl.has("physics_convex"))
 	{ //write out convex decomposition
-		decomposition = zip_llsd(mdl["decomposition"]);
+		decomposition = zip_llsd(mdl["physics_convex"]);
 
 		U32 size = decomposition.size();
 		if (size > 0)
 		{
-			header["decomposition"]["offset"] = (LLSD::Integer) cur_offset;
-			header["decomposition"]["size"] = (LLSD::Integer) size;
+			header["physics_convex"]["offset"] = (LLSD::Integer) cur_offset;
+			header["physics_convex"]["size"] = (LLSD::Integer) size;
 			cur_offset += size;
 			bytes += size;
 		}
@@ -1637,11 +1629,6 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite)
 			cur_offset += size;
 			bytes += size;
 		}
-		else
-		{
-			header[model_names[i]]["offset"] = -1;
-			header[model_names[i]]["size"] = 0;
-		}
 	}
 
 	if (!nowrite)
@@ -1655,7 +1642,7 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite)
 
 		if (!decomposition.empty())
 		{ //write decomposition block
-			ostr.write((const char*) decomposition.data(), header["decomposition"]["size"].asInteger());
+			ostr.write((const char*) decomposition.data(), header["physics_convex"]["size"].asInteger());
 		}
 
 		for (S32 i = 0; i < MODEL_NAMES_LENGTH; i++)
@@ -1794,7 +1781,7 @@ bool LLModel::loadModel(std::istream& is)
 		"low_lod",
 		"medium_lod",
 		"high_lod",
-		"physics_shape",
+		"physics_mesh",
 	};
 
 	const S32 MODEL_LODS = 5;
@@ -1893,8 +1880,8 @@ bool LLModel::loadSkinInfo(LLSD& header, std::istream &is)
 
 bool LLModel::loadDecomposition(LLSD& header, std::istream& is)
 {
-	S32 offset = header["decomposition"]["offset"].asInteger();
-	S32 size = header["decomposition"]["size"].asInteger();
+	S32 offset = header["physics_convex"]["offset"].asInteger();
+	S32 size = header["physics_convex"]["size"].asInteger();
 
 	if (offset >= 0 && size > 0)
 	{
@@ -2034,21 +2021,16 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 	{
 		// updated for const-correctness. gcc is picky about this type of thing - Nyx
 		const LLSD::Binary& hulls = decomp["HullList"].asBinary();
-		const LLSD::Binary& position = decomp["Position"].asBinary();
+		const LLSD::Binary& position = decomp["Positions"].asBinary();
 
 		U16* p = (U16*) &position[0];
 
 		mHull.resize(hulls.size());
 
-		LLVector3 min;
-		LLVector3 max;
-		LLVector3 range;
+		LLVector3 min(-0.5f,-0.5f,-0.5f);
+		LLVector3 max(0.5f,0.5f,0.5f);
+		LLVector3 range = max-min;
 
-		min.setValue(decomp["Min"]);
-		max.setValue(decomp["Max"]);
-		range = max-min;
-
-		
 		for (U32 i = 0; i < hulls.size(); ++i)
 		{
 			U16 count = (hulls[i] == 0) ? 256 : hulls[i];
@@ -2064,6 +2046,7 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 				//point must be unique
 				//llassert(valid.find(test) == valid.end());
 				valid.insert(test);
+
 				mHull[i].push_back(LLVector3(
 					(F32) p[0]/65535.f*range.mV[0]+min.mV[0],
 					(F32) p[1]/65535.f*range.mV[1]+min.mV[1],
@@ -2078,28 +2061,15 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 		}
 	}
 
-	if (decomp.has("Hull"))
+	if (decomp.has("BoundingVerts"))
 	{
-		const LLSD::Binary& position = decomp["Hull"].asBinary();
+		const LLSD::Binary& position = decomp["BundingVerts"].asBinary();
 
 		U16* p = (U16*) &position[0];
 
-		LLVector3 min;
-		LLVector3 max;
-		LLVector3 range;
-
-		if (decomp.has("Min"))
-		{
-			min.setValue(decomp["Min"]);
-			max.setValue(decomp["Max"]);
-		}
-		else
-		{
-			min.set(-0.5f, -0.5f, -0.5f);
-			max.set(0.5f, 0.5f, 0.5f);
-		}
-
-		range = max-min;
+		LLVector3 min(-0.5f,-0.5f,-0.5f);
+		LLVector3 max(0.5f,0.5f,0.5f);
+		LLVector3 range = max-min;
 
 		U16 count = position.size()/6;
 		
@@ -2130,26 +2100,11 @@ LLSD LLModel::Decomposition::asLLSD() const
 	}
 
 	//write decomposition block
-	// ["decomposition"]["HullList"] -- list of 8 bit integers, each entry represents a hull with specified number of points
-	// ["decomposition"]["PositionDomain"]["Min"/"Max"]
-	// ["decomposition"]["Position"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points
-	// ["decomposition"]["Hull"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points representing a single hull approximation of given shape
+	// ["physics_convex"]["HullList"] -- list of 8 bit integers, each entry represents a hull with specified number of points
+	// ["physics_convex"]["Position"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points
+	// ["physics_convex"]["BoundingVerts"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points representing a single hull approximation of given shape
 	
 	
-	//get minimum and maximum
-	LLVector3 min;
-	
-	if (mHull.empty())
-	{  
-		min = mBaseHull[0];
-	}
-	else
-	{
-		min = mHull[0][0];
-	}
-
-	LLVector3 max = min;
-
 	LLSD::Binary hulls(mHull.size());
 
 	U32 total = 0;
@@ -2159,20 +2114,7 @@ LLSD LLModel::Decomposition::asLLSD() const
 		U32 size = mHull[i].size();
 		total += size;
 		hulls[i] = (U8) (size);
-
-		for (U32 j = 0; j < mHull[i].size(); ++j)
-		{
-			update_min_max(min, max, mHull[i][j]);
-		}
 	}
-
-	for (U32 i = 0; i < mBaseHull.size(); ++i)
-	{
-		update_min_max(min, max, mBaseHull[i]);	
-	}
-
-	ret["Min"] = min.getValue();
-	ret["Max"] = max.getValue();
 
 	if (!hulls.empty())
 	{
@@ -2183,6 +2125,8 @@ LLSD LLModel::Decomposition::asLLSD() const
 	{
 		LLSD::Binary p(total*3*2);
 
+		LLVector3 min(-0.5f, -0.5f, -0.5f);
+		LLVector3 max(0.5f, 0.5f, 0.5f);
 		LLVector3 range = max-min;
 
 		U32 vert_idx = 0;
@@ -2198,8 +2142,12 @@ LLSD LLModel::Decomposition::asLLSD() const
 				U64 test = 0;
 				for (U32 k = 0; k < 3; k++)
 				{
+					F32* src = (F32*) (mHull[i][j].mV);
+
+					llassert(src[k] <= 0.501f && src[k] >= -0.501f);
+
 					//convert to 16-bit normalized across domain
-					U16 val = (U16) (((mHull[i][j].mV[k]-min.mV[k])/range.mV[k])*65535);
+					U16 val = (U16) (((src[k]-min.mV[k])/range.mV[k])*65535);
 
 					switch (k)
 					{
@@ -2224,13 +2172,15 @@ LLSD LLModel::Decomposition::asLLSD() const
 			llassert(valid.size() > 3);
 		}
 
-		ret["Position"] = p;
+		ret["Positions"] = p;
 	}
 
 	if (!mBaseHull.empty())
 	{
 		LLSD::Binary p(mBaseHull.size()*3*2);
 
+		LLVector3 min(-0.5f, -0.5f, -0.5f);
+		LLVector3 max(0.5f, 0.5f, 0.5f);
 		LLVector3 range = max-min;
 
 		U32 vert_idx = 0;
@@ -2238,6 +2188,8 @@ LLSD LLModel::Decomposition::asLLSD() const
 		{
 			for (U32 k = 0; k < 3; k++)
 			{
+				llassert(mBaseHull[j].mV[k] <= 0.50001f && mBaseHull[j].mV[k] >= -0.50001f);
+
 				//convert to 16-bit normalized across domain
 				U16 val = (U16) (((mBaseHull[j].mV[k]-min.mV[k])/range.mV[k])*65535);
 
@@ -2253,7 +2205,7 @@ LLSD LLModel::Decomposition::asLLSD() const
 			}
 		}
 		
-		ret["Hull"] = p;
+		ret["BoundingVerts"] = p;
 	}
 
 	return ret;
