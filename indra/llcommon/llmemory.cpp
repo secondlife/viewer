@@ -1920,7 +1920,7 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	}
 	else
 	{
-		delete[] addr ;
+		delete[] (char*)addr ;
 	}
 }
 
