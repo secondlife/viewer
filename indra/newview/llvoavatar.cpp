@@ -5414,18 +5414,6 @@ BOOL LLVOAvatar::loadAvatar()
 		}
 	}
 
-	// Uncomment to enable avatar_lad.xml debugging. 
-	std::ofstream file;
-	file.open("avatar_lad.log");
-	for( LLViewerVisualParam* param = (LLViewerVisualParam*) getFirstVisualParam(); 
-	param;
-	param = (LLViewerVisualParam*) getNextVisualParam() )
-	{
-		param->getInfo()->toStream(file);
-		file << std::endl;
-	}
-
-	file.close();
 	
 	return TRUE;
 }
