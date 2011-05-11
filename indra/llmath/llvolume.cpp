@@ -51,6 +51,7 @@
 #include "llsdserialize.h"
 #include "llvector4a.h"
 #include "llmatrix4a.h"
+#include "lltimer.h"
 
 #define DEBUG_SILHOUETTE_BINORMALS 0
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
@@ -2183,7 +2184,8 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			}
 
 			U16* indices = (U16*) &(idx[0]);
-			for (U32 j = 0; j < idx.size()/2; ++j)
+			U32 count = idx.size()/2;
+			for (U32 j = 0; j < count; ++j)
 			{
 				face.mIndices[j] = indices[j];
 			}
@@ -2191,6 +2193,81 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			//copy out vertices
 			U32 num_verts = pos.size()/(3*2);
 			face.resizeVertices(num_verts);
+
+			LLVector3 minp;
+			LLVector3 maxp;
+			LLVector2 min_tc; 
+			LLVector2 max_tc; 
+		
+			minp.setValue(mdl[i]["PositionDomain"]["Min"]);
+			maxp.setValue(mdl[i]["PositionDomain"]["Max"]);
+			LLVector4a min_pos, max_pos;
+			min_pos.load3(minp.mV);
+			max_pos.load3(maxp.mV);
+
+			min_tc.setValue(mdl[i]["TexCoord0Domain"]["Min"]);
+			max_tc.setValue(mdl[i]["TexCoord0Domain"]["Max"]);
+
+			LLVector4a pos_range;
+			pos_range.setSub(max_pos, min_pos);
+			LLVector2 tc_range2 = max_tc - min_tc;
+			LLVector4a tc_range;
+			tc_range.set(tc_range2[0], tc_range2[1], tc_range2[0], tc_range2[1]);
+			LLVector4a min_tc4(min_tc[0], min_tc[1], min_tc[0], min_tc[1]);
+
+			LLVector4a* pos_out = face.mPositions;
+			LLVector4a* norm_out = face.mNormals;
+			LLVector4a* tc_out = (LLVector4a*) face.mTexCoords;
+
+			{
+				U16* v = (U16*) &(pos[0]);
+				for (U32 j = 0; j < num_verts; ++j)
+				{
+					pos_out->set((F32) v[0], (F32) v[1], (F32) v[2]);
+					pos_out->div(65535.f);
+					pos_out->mul(pos_range);
+					pos_out->add(min_pos);
+					pos_out++;
+					v += 3;
+				}
+
+			}
+
+			{
+				U16* n = (U16*) &(norm[0]);
+				for (U32 j = 0; j < num_verts; ++j)
+				{
+					norm_out->set((F32) n[0], (F32) n[1], (F32) n[2]);
+					norm_out->div(65535.f);
+					norm_out->mul(2.f);
+					norm_out->sub(1.f);
+					norm_out++;
+					n += 3;
+				}
+			}
+
+			{
+				U16* t = (U16*) &(tc[0]);
+				for (U32 j = 0; j < num_verts; j+=2)
+				{
+					if (j < num_verts-1)
+					{
+						tc_out->set((F32) t[0], (F32) t[1], (F32) t[2], (F32) t[3]);
+					}
+					else
+					{
+						tc_out->set((F32) t[0], (F32) t[1], 0.f, 0.f);
+					}
+
+					t += 4;
+
+					tc_out->div(65535.f);
+					tc_out->mul(tc_range);
+					tc_out->add(min_tc4);
+
+					tc_out++;
+				}
+			}
 
 			if (mdl[i].has("Weights"))
 			{
@@ -2239,56 +2316,6 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 					
 			}
 
-			LLVector3 minp;
-			LLVector3 maxp;
-			LLVector2 min_tc; 
-			LLVector2 max_tc; 
-		
-			minp.setValue(mdl[i]["PositionDomain"]["Min"]);
-			maxp.setValue(mdl[i]["PositionDomain"]["Max"]);
-			LLVector4a min_pos, max_pos;
-			min_pos.load3(minp.mV);
-			max_pos.load3(maxp.mV);
-
-			min_tc.setValue(mdl[i]["TexCoord0Domain"]["Min"]);
-			max_tc.setValue(mdl[i]["TexCoord0Domain"]["Max"]);
-
-			LLVector4a pos_range;
-			pos_range.setSub(max_pos, min_pos);
-			LLVector2 tc_range = max_tc - min_tc;
-
-			LLVector4a* pos_out = face.mPositions;
-			LLVector4a* norm_out = face.mNormals;
-			LLVector2* tc_out = face.mTexCoords;
-
-			for (U32 j = 0; j < num_verts; ++j)
-			{
-				U16* v = (U16*) &(pos[j*3*2]);
-
-				pos_out->set((F32) v[0], (F32) v[1], (F32) v[2]);
-				pos_out->div(65535.f);
-				pos_out->mul(pos_range);
-				pos_out->add(min_pos);
-
-				pos_out++;
-
-				U16* n = (U16*) &(norm[j*3*2]);
-
-				norm_out->set((F32) n[0], (F32) n[1], (F32) n[2]);
-				norm_out->div(65535.f);
-				norm_out->mul(2.f);
-				norm_out->sub(1.f);
-				norm_out++;
-
-				U16* t = (U16*) &(tc[j*2*2]);
-
-				tc_out->mV[0] = (F32) t[0] / 65535.f * tc_range.mV[0] + min_tc.mV[0];
-				tc_out->mV[1] =	(F32) t[1] / 65535.f * tc_range.mV[1] + min_tc.mV[1];
-
-				tc_out++;
-			}
-
-			
 			// modifier flags?
 			bool do_mirror = (mParams.getSculptType() & LL_SCULPT_FLAG_MIRROR);
 			bool do_invert = (mParams.getSculptType() &LL_SCULPT_FLAG_INVERT);
@@ -2361,7 +2388,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			}
 		}
 	}
-
+	
 	mSculptLevel = 0;  // success!
 
 	cacheOptimize();
