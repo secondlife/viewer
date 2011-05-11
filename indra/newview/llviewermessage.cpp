@@ -265,7 +265,7 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 		msg->newMessageFast(_PREHASH_MoneyTransferRequest);
 		msg->nextBlockFast(_PREHASH_AgentData);
 		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		msg->nextBlockFast(_PREHASH_MoneyData);
 		msg->addUUIDFast(_PREHASH_SourceID, gAgent.getID() );
 		msg->addUUIDFast(_PREHASH_DestID, uuid);
@@ -337,7 +337,7 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 			LL_INFOS("Messaging") << "process_logout_reply item not found: " << item_id << LL_ENDL;
 		}
 	}
-    LLAppViewer::instance()->forceQuit();
+	LLAppViewer::instance()->forceQuit();
 }
 
 void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
@@ -1868,7 +1868,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 		info->mPersist = true;
 		p.name = "ObjectGiveItem";
 		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
-	    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, info->mFromGroup == TRUE);
+		LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, info->mFromGroup == TRUE);
 	}
 	else // Agent -> Agent Inventory Offer
 	{
@@ -1899,8 +1899,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Inform user that there is a script floater via toast system
 		{
 			payload["give_inventory_notification"] = TRUE;
-		    p.payload = payload;
-		    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
+			p.payload = payload;
+			LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
 		}
 	}
 
@@ -2198,11 +2198,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	binary_bucket_size = msg->getSizeFast(_PREHASH_MessageBlock, _PREHASH_BinaryBucket);
 	EInstantMessage dialog = (EInstantMessage)d;
 
-    // make sure that we don't have an empty or all-whitespace name
+	// make sure that we don't have an empty or all-whitespace name
 	LLStringUtil::trim(name);
 	if (name.empty())
 	{
-        name = LLTrans::getString("Unnamed");
+		name = LLTrans::getString("Unnamed");
 	}
 	// IDEVO convert new-style "Resident" names for display
 	name = clean_name_from_im(name, dialog);
@@ -2240,7 +2240,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		params.name = "IMSystemMessageTip";
 		params.substitutions = args;
 		params.payload = payload;
-	    LLPostponedNotification::add<LLPostponedIMSystemTipNotification>(params, from_id, false);
+		LLPostponedNotification::add<LLPostponedIMSystemTipNotification>(params, from_id, false);
 		break;
 
 	case IM_NOTHING_SPECIAL: 
@@ -2817,10 +2817,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				payload["lure_id"] = session_id;
 				payload["godlike"] = FALSE;
 
-			    LLNotification::Params params("TeleportOffered");
-			    params.substitutions = args;
-			    params.payload = payload;
-			    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+				LLNotification::Params params("TeleportOffered");
+				params.substitutions = args;
+				params.payload = payload;
+				LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
 			}
 		}
 		break;
@@ -2884,15 +2884,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				if(message.empty())
 				{
 					//support for frienship offers from clients before July 2008
-				        LLNotificationsUtil::add("OfferFriendshipNoMessage", args, payload);
+						LLNotificationsUtil::add("OfferFriendshipNoMessage", args, payload);
 				}
 				else
 				{
 					args["[MESSAGE]"] = message;
-				    LLNotification::Params params("OfferFriendship");
-				    params.substitutions = args;
-				    params.payload = payload;
-				    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+					LLNotification::Params params("OfferFriendship");
+					params.substitutions = args;
+					params.payload = payload;
+					LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
 				}
 			}
 		}
@@ -4252,8 +4252,8 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 	F32 phase;
 	U64	space_time_usec;
 
-    U32 seconds_per_day;
-    U32 seconds_per_year;
+	U32 seconds_per_day;
+	U32 seconds_per_year;
 
 	// "SimulatorViewerTimeMessage"
 	mesgsys->getU64Fast(_PREHASH_TimeInfo, _PREHASH_UsecSinceStart, space_time_usec);
@@ -4420,7 +4420,7 @@ void process_attached_sound_gain_change(LLMessageSystem *mesgsys, void **user_da
 		return;
 	}
 
- 	mesgsys->getF32Fast(_PREHASH_DataBlock, _PREHASH_Gain, gain);
+	mesgsys->getF32Fast(_PREHASH_DataBlock, _PREHASH_Gain, gain);
 
 	objectp->adjustAudioGain(gain);
 }
@@ -4548,7 +4548,7 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 			break;
 		default:
 			// Used to be a commented out warning.
- 			LL_DEBUGS("Messaging") << "Unknown stat id" << stat_id << LL_ENDL;
+			LL_DEBUGS("Messaging") << "Unknown stat id" << stat_id << LL_ENDL;
 		  break;
 		}
 	}
@@ -5035,7 +5035,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_Description, desc);
 	LL_INFOS("Messaging") << "L$, credit, committed: " << balance << " " << credit << " "
 			<< committed << LL_ENDL;
-    
+	
 	if (gStatusBar)
 	{
 		gStatusBar->setBalance(balance);
@@ -5149,9 +5149,9 @@ static void money_balance_group_notify(const LLUUID& group_id,
 
 static void money_balance_avatar_notify(const LLUUID& agent_id,
 										const LLAvatarName& av_name,
-									   	std::string notification,
-									   	LLSD args,
-									   	LLSD payload)
+										std::string notification,
+										LLSD args,
+										LLSD payload)
 {
 	// Message uses name SLURLs, don't actually have to substitute in
 	// the name.  We're just making sure it's available.
@@ -5161,24 +5161,24 @@ static void money_balance_avatar_notify(const LLUUID& agent_id,
 
 static void process_money_balance_reply_extended(LLMessageSystem* msg)
 {
-    // Added in server 1.40 and viewer 2.1, support for localization
-    // and agent ids for name lookup.
-    S32 transaction_type = 0;
-    LLUUID source_id;
+	// Added in server 1.40 and viewer 2.1, support for localization
+	// and agent ids for name lookup.
+	S32 transaction_type = 0;
+	LLUUID source_id;
 	BOOL is_source_group = FALSE;
-    LLUUID dest_id;
+	LLUUID dest_id;
 	BOOL is_dest_group = FALSE;
-    S32 amount = 0;
-    std::string item_description;
+	S32 amount = 0;
+	std::string item_description;
 
-    msg->getS32("TransactionInfo", "TransactionType", transaction_type);
-    msg->getUUID("TransactionInfo", "SourceID", source_id);
+	msg->getS32("TransactionInfo", "TransactionType", transaction_type);
+	msg->getUUID("TransactionInfo", "SourceID", source_id);
 	msg->getBOOL("TransactionInfo", "IsSourceGroup", is_source_group);
-    msg->getUUID("TransactionInfo", "DestID", dest_id);
+	msg->getUUID("TransactionInfo", "DestID", dest_id);
 	msg->getBOOL("TransactionInfo", "IsDestGroup", is_dest_group);
-    msg->getS32("TransactionInfo", "Amount", amount);
-    msg->getString("TransactionInfo", "ItemDescription", item_description);
-    LL_INFOS("Money") << "MoneyBalanceReply source " << source_id 
+	msg->getS32("TransactionInfo", "Amount", amount);
+	msg->getString("TransactionInfo", "ItemDescription", item_description);
+	LL_INFOS("Money") << "MoneyBalanceReply source " << source_id 
 		<< " dest " << dest_id
 		<< " type " << transaction_type
 		<< " item " << item_description << LL_ENDL;
@@ -6477,10 +6477,10 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	LLSD payload;
 
 	LLUUID object_id;
-    LLUUID owner_id;
+	LLUUID owner_id;
 
 	msg->getUUID("Data", "ObjectID", object_id);
-    msg->getUUID("OwnerData", "OwnerID", owner_id);
+	msg->getUUID("OwnerData", "OwnerID", owner_id);
 
 	if (LLMuteList::getInstance()->isMuted(object_id) || LLMuteList::getInstance()->isMuted(owner_id))
 	{
@@ -6630,7 +6630,7 @@ void process_load_url(LLMessageSystem* msg, void**)
 
 	// Check if object or owner is muted
 	if (LLMuteList::getInstance()->isMuted(object_id, object_name) ||
-	    LLMuteList::getInstance()->isMuted(owner_id))
+		LLMuteList::getInstance()->isMuted(owner_id))
 	{
 		LL_INFOS("Messaging")<<"Ignoring load_url from muted object/owner."<<LL_ENDL;
 		return;
@@ -6772,9 +6772,9 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 									gAgent.getID(),
 									gAgent.getSessionID(),
 									covenant_id,
-                                    LLAssetType::AT_NOTECARD,
+									LLAssetType::AT_NOTECARD,
 									ET_Covenant,
-                                    onCovenantLoadComplete,
+									onCovenantLoadComplete,
 									NULL,
 									high_priority);
 	}
@@ -6847,7 +6847,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 		
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
-		    LL_ERR_FILE_EMPTY == status)
+			LL_ERR_FILE_EMPTY == status)
 		{
 			covenant_text = "Estate covenant notecard is missing from database.";
 		}
@@ -6895,7 +6895,7 @@ void invalid_message_callback(LLMessageSystem* msg,
 								   void*,
 								   EMessageException exception)
 {
-    LLAppViewer::instance()->badNetworkHandler();
+	LLAppViewer::instance()->badNetworkHandler();
 }
 
 // Please do not add more message handlers here. This file is huge.
