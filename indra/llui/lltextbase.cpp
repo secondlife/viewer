@@ -1164,7 +1164,7 @@ void LLTextBase::reflow()
 	S32 first_line = getFirstVisibleLine();
 
 	// if scroll anchor not on first line, update it to first character of first line
-	if (!mLineInfoList.empty()
+	if ((first_line < mLineInfoList.size())
 		&&	(mScrollIndex <  mLineInfoList[first_line].mDocIndexStart
 			||	mScrollIndex >= mLineInfoList[first_line].mDocIndexEnd))
 	{
