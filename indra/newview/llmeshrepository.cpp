@@ -1380,6 +1380,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	result["name"] = "your name here";
 	result["description"] = "your description here";
 
+	// TODO "optional" fields from the spec
+	
 	LLSD res;
 	res["mesh_list"] = LLSD::emptyArray();
 	res["texture_list"] = LLSD::emptyArray();
@@ -1409,7 +1411,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 		decomp.mBaseHull = mHullMap[data.mBaseModel];
 
-		LLModel::writeModel(
+		LLSD mesh_header = LLModel::writeModel(
 			ostr,  
 			data.mModel[LLModel::LOD_PHYSICS],
 			data.mModel[LLModel::LOD_HIGH],
@@ -1424,17 +1426,22 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 		LLSD mesh_entry;
 
-		// TODO - correct coords based on instance.mTransform.
-		mesh_entry["coords"]["x"] = 1.0;
-		mesh_entry["coords"]["y"] = 1.0;
-		mesh_entry["coords"]["z"] = 1.0;
-		mesh_entry["coords"]["rot_x"] = 1.0;
-		mesh_entry["coords"]["rot_y"] = 1.0;
-		mesh_entry["coords"]["rot_z"] = 1.0;
-		mesh_entry["mesh_data"] = "RESTORE_ME"; //ostr.str();
+		LLVector3 pos, scale;
+		LLQuaternion rot;
+		LLMatrix4 transformation = instance.mTransform;
+		decomposeMeshMatrix(transformation,pos,rot,scale);
+		
+		mesh_entry["childpos"] = ll_sd_from_vector3(pos);
+		mesh_entry["childrot"] = ll_sd_from_quaternion(rot);
+		mesh_entry["scale"] = ll_sd_from_vector3(scale);
+
+		// TODO should be binary.
+		std::string str = ostr.str();
+		mesh_entry["mesh_data"] = LLSD::Binary(str.begin(),str.end()); 
 
 		res["mesh_list"][mesh_num] = mesh_entry;
-		
+
+		// TODO how do textures in the list map to textures in the meshes?
 		if (mUploadTextures)
 		{
 			for (std::vector<LLImportMaterial>::iterator material_iter = instance.mMaterial.begin();
@@ -2976,6 +2983,47 @@ void LLMeshUploadThread::createObjects(LLMeshUploadData& data)
 	}
 }
 
+void LLMeshUploadThread::decomposeMeshMatrix(LLMatrix4& transformation,
+											 LLVector3& result_pos,
+											 LLQuaternion& result_rot,
+											 LLVector3& result_scale)
+{
+	// check for reflection
+	BOOL reflected = (transformation.determinant() < 0);
+
+	// compute position
+	LLVector3 position = LLVector3(0, 0, 0) * transformation;
+
+	// compute scale
+	LLVector3 x_transformed = LLVector3(1, 0, 0) * transformation - position;
+	LLVector3 y_transformed = LLVector3(0, 1, 0) * transformation - position;
+	LLVector3 z_transformed = LLVector3(0, 0, 1) * transformation - position;
+	F32 x_length = x_transformed.normalize();
+	F32 y_length = y_transformed.normalize();
+	F32 z_length = z_transformed.normalize();
+	LLVector3 scale = LLVector3(x_length, y_length, z_length);
+
+    // adjust for "reflected" geometry
+	LLVector3 x_transformed_reflected = x_transformed;
+	if (reflected)
+	{
+		x_transformed_reflected *= -1.0;
+	}
+	
+	// compute rotation
+	LLMatrix3 rotation_matrix;
+	rotation_matrix.setRows(x_transformed_reflected, y_transformed, z_transformed);
+	LLQuaternion quat_rotation = rotation_matrix.quaternion();
+	quat_rotation.normalize(); // the rotation_matrix might not have been orthoginal.  make it so here.
+	LLVector3 euler_rotation;
+	quat_rotation.getEulerAngles(&euler_rotation.mV[VX], &euler_rotation.mV[VY], &euler_rotation.mV[VZ]);
+
+	result_pos = position + mOrigin;
+	result_scale = scale;
+	result_rot = quat_rotation; 
+}
+
+										 
 LLSD LLMeshUploadThread::createObject(LLModelInstance& instance)
 {
 	LLMatrix4 transformation = instance.mTransform;

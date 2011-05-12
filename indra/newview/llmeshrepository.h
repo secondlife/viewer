@@ -426,6 +426,11 @@ public:
 	void doIterativeUpload();
 
 	void wholeModelToLLSD(LLSD& dest, bool include_textures);
+
+	void decomposeMeshMatrix(LLMatrix4& transformation,
+							 LLVector3& result_pos,
+							 LLQuaternion& result_rot,
+							 LLVector3& result_scale);
 };
 
 class LLMeshRepository
