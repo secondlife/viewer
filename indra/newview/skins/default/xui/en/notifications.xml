@@ -6820,7 +6820,7 @@ Deed to group failed.
    name="ReleaseLandThrottled"
    type="notifytip">
 The parcel [PARCEL_NAME] can not be abandoned at this time.
-   tag>fail</tag>
+   <tag>fail</tag>
   </notification>
 	
   <notification
