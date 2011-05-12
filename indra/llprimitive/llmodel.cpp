@@ -1414,8 +1414,18 @@ LLSD LLModel::writeModel(
 	{
 		if (model[idx] && model[idx]->getNumVolumeFaces() > 0)
 		{
-			LLVector3 min_pos(-0.5f, -0.5f, -0.5f);
-			LLVector3 max_pos(0.5f, 0.5f, 0.5f);
+			LLVector3 min_pos = LLVector3(model[idx]->getVolumeFace(0).mPositions[0].getF32ptr());
+			LLVector3 max_pos = min_pos;
+
+			//find position domain
+			for (S32 i = 0; i < model[idx]->getNumVolumeFaces(); ++i)
+			{ //for each face
+				const LLVolumeFace& face = model[idx]->getVolumeFace(i);
+				for (U32 j = 0; j < face.mNumVertices; ++j)
+				{
+					update_min_max(min_pos, max_pos, face.mPositions[j].getF32ptr());
+				}
+			}
 
 			LLVector3 pos_range = max_pos - min_pos;
 
@@ -1456,8 +1466,6 @@ LLSD LLModel::writeModel(
 					//position + normal
 					for (U32 k = 0; k < 3; ++k)
 					{ //for each component
-						llassert(pos[k] <= 0.5001f && pos[k] >= -0.5001f);
-
 						//convert to 16-bit normalized across domain
 						U16 val = (U16) (((pos[k]-min_pos.mV[k])/pos_range.mV[k])*65535);
 
@@ -1499,6 +1507,8 @@ LLSD LLModel::writeModel(
 				}
 
 				//write out face data
+				mdl[model_names[idx]][i]["PositionDomain"]["Min"] = min_pos.getValue();
+				mdl[model_names[idx]][i]["PositionDomain"]["Max"] = max_pos.getValue();
 				mdl[model_names[idx]][i]["TexCoord0Domain"]["Min"] = min_tc.getValue();
 				mdl[model_names[idx]][i]["TexCoord0Domain"]["Max"] = max_tc.getValue();
 
@@ -2027,9 +2037,22 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 
 		mHull.resize(hulls.size());
 
-		LLVector3 min(-0.5f,-0.5f,-0.5f);
-		LLVector3 max(0.5f,0.5f,0.5f);
-		LLVector3 range = max-min;
+		LLVector3 min;
+		LLVector3 max;
+		LLVector3 range;
+
+		if (decomp.has("Min"))
+		{
+			min.setValue(decomp["Min"]);
+			max.setValue(decomp["Max"]);
+		}
+		else
+		{
+			min.set(-0.5f, -0.5f, -0.5f);
+			max.set(0.5f, 0.5f, 0.5f);
+		}
+
+		range = max-min;
 
 		for (U32 i = 0; i < hulls.size(); ++i)
 		{
@@ -2067,9 +2090,22 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 
 		U16* p = (U16*) &position[0];
 
-		LLVector3 min(-0.5f,-0.5f,-0.5f);
-		LLVector3 max(0.5f,0.5f,0.5f);
-		LLVector3 range = max-min;
+		LLVector3 min;
+		LLVector3 max;
+		LLVector3 range;
+
+		if (decomp.has("Min"))
+		{
+			min.setValue(decomp["Min"]);
+			max.setValue(decomp["Max"]);
+		}
+		else
+		{
+			min.set(-0.5f, -0.5f, -0.5f);
+			max.set(0.5f, 0.5f, 0.5f);
+		}
+
+		range = max-min;
 
 		U16 count = position.size()/6;
 		
@@ -2104,7 +2140,20 @@ LLSD LLModel::Decomposition::asLLSD() const
 	// ["physics_convex"]["Position"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points
 	// ["physics_convex"]["BoundingVerts"] -- list of 16-bit integers to be decoded to given domain, encoded 3D points representing a single hull approximation of given shape
 	
+	//get minimum and maximum
+	LLVector3 min;
 	
+	if (mHull.empty())
+	{  
+		min = mBaseHull[0];
+	}
+	else
+	{
+		min = mHull[0][0];
+	}
+
+	LLVector3 max = min;
+
 	LLSD::Binary hulls(mHull.size());
 
 	U32 total = 0;
@@ -2114,7 +2163,20 @@ LLSD LLModel::Decomposition::asLLSD() const
 		U32 size = mHull[i].size();
 		total += size;
 		hulls[i] = (U8) (size);
+
+		for (U32 j = 0; j < mHull[i].size(); ++j)
+		{
+			update_min_max(min, max, mHull[i][j]);
+		}
 	}
+
+	for (U32 i = 0; i < mBaseHull.size(); ++i)
+	{
+		update_min_max(min, max, mBaseHull[i]);	
+	}
+
+	ret["Min"] = min.getValue();
+	ret["Max"] = max.getValue();
 
 	if (!hulls.empty())
 	{
