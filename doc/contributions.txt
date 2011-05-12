@@ -364,6 +364,7 @@ Ian Kas
 	CT-322
 	CT-325
 Ima Mechanique
+	OPEN-50
 	OPEN-61
 Irene Muni
 	CT-324
