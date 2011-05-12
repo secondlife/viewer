@@ -63,7 +63,7 @@ class LLRenderTarget
 {
 public:
 	//whether or not to use FBO implementation
-	static BOOL sUseFBO; 
+	static bool sUseFBO; 
 
 	LLRenderTarget();
 	virtual ~LLRenderTarget();
@@ -71,7 +71,7 @@ public:
 	//allocate resources for rendering
 	//must be called before use
 	//multiple calls will release previously allocated resources
-	void allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, BOOL stencil, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, BOOL use_fbo = FALSE);
+	void allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, bool use_fbo = FALSE);
 
 	//provide this render target with a multisample resource.
 	void setSampleBuffer(LLMultisampleBuffer* buffer);
@@ -88,7 +88,7 @@ public:
 
 	//free any allocated resources
 	//safe to call redundantly
-	void release();
+	virtual void release();
 
 	//bind target for rendering
 	//applies appropriate viewport
@@ -115,7 +115,7 @@ public:
 	U32 getTexture(U32 attachment = 0) const;
 
 	U32 getDepth(void) const { return mDepth; }
-	BOOL hasStencil() const { return mStencil; }
+	bool hasStencil() const { return mStencil; }
 
 	void bindTexture(U32 index, S32 channel);
 
@@ -125,7 +125,7 @@ public:
 	// call bindTarget once, do all your rendering, call flush once
 	// if fetch_depth is TRUE, every effort will be made to copy the depth buffer into 
 	// the current depth texture.  A depth texture will be allocated if needed.
-	void flush(BOOL fetch_depth = FALSE);
+	void flush(bool fetch_depth = FALSE);
 
 	void copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, S32 srcX1, S32 srcY1,
 						S32 dstX0, S32 dstY0, S32 dstX1, S32 dstY1, U32 mask, U32 filter);
@@ -136,7 +136,7 @@ public:
 	//Returns TRUE if target is ready to be rendered into.
 	//That is, if the target has been allocated with at least
 	//one renderable attachment (i.e. color buffer, depth buffer).
-	BOOL isComplete() const;
+	bool isComplete() const;
 
 	static LLRenderTarget* getCurrentBoundTarget() { return sBoundTarget; }
 
@@ -147,9 +147,9 @@ protected:
 	std::vector<U32> mTex;
 	U32 mFBO;
 	U32 mDepth;
-	BOOL mStencil;
-	BOOL mUseDepth;
-	BOOL mRenderDepth;
+	bool mStencil;
+	bool mUseDepth;
+	bool mRenderDepth;
 	LLTexUnit::eTextureType mUsage;
 	U32 mSamples;
 	LLMultisampleBuffer* mSampleBuffer;
@@ -164,12 +164,12 @@ public:
 	LLMultisampleBuffer();
 	virtual ~LLMultisampleBuffer();
 
-	void releaseSampleBuffer();
+	virtual void release();
 
 	virtual void bindTarget();
 	void bindTarget(LLRenderTarget* ref);
-	virtual void allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, BOOL stencil, LLTexUnit::eTextureType usage, BOOL use_fbo);
-	void allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, BOOL stencil, LLTexUnit::eTextureType usage, BOOL use_fbo, U32 samples);
+	virtual void allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo);
+	void allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo, U32 samples);
 	virtual void addColorAttachment(U32 color_fmt);
 	virtual void allocateDepth();
 };

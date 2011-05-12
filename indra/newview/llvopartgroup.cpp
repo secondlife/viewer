@@ -73,12 +73,14 @@ F32 LLVOPartGroup::getBinRadius()
 	return mScale.mV[0]*2.f;
 }
 
-void LLVOPartGroup::updateSpatialExtents(LLVector3& newMin, LLVector3& newMax)
+void LLVOPartGroup::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {		
 	const LLVector3& pos_agent = getPositionAgent();
-	newMin = pos_agent - mScale;
-	newMax = pos_agent + mScale;
-	mDrawable->setPositionGroup(pos_agent);
+	newMin.load3( (pos_agent - mScale).mV);
+	newMax.load3( (pos_agent + mScale).mV);
+	LLVector4a pos;
+	pos.load3(pos_agent.mV);
+	mDrawable->setPositionGroup(pos);
 }
 
 BOOL LLVOPartGroup::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
@@ -358,7 +360,7 @@ U32 LLVOPartGroup::getPartitionType() const
 }
 
 LLParticlePartition::LLParticlePartition()
-: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK, TRUE, GL_DYNAMIC_DRAW_ARB)
+: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK, TRUE, GL_STREAM_DRAW_ARB)
 {
 	mRenderPass = LLRenderPass::PASS_ALPHA;
 	mDrawableType = LLPipeline::RENDER_TYPE_PARTICLES;
@@ -461,7 +463,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		LLAlphaObject* object = (LLAlphaObject*) facep->getViewerObject();
 		facep->setGeomIndex(vertex_count);
 		facep->setIndicesIndex(index_count);
-		facep->mVertexBuffer = buffer;
+		facep->setVertexBuffer(buffer);
 		facep->setPoolType(LLDrawPool::POOL_ALPHA);
 		object->getGeometry(facep->getTEOffset(), verticesp, normalsp, texcoordsp, colorsp, indicesp);
 		

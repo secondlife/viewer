@@ -835,7 +835,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	for (entries_list_t::iterator iter3 = entries.begin();
 		 iter3 != entries.end(); )
 	{
-		LLPointer<LLViewerFetchedTexture> imagep = *iter3++;
+		LLViewerFetchedTexture* imagep = *iter3++;
 		
 		bool fetching = imagep->updateFetch();
 		if (fetching)

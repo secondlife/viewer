@@ -59,6 +59,7 @@
 #include "llworld.h"
 #include "llfeaturemanager.h"
 #include "llviewernetwork.h"
+#include "llmeshrepository.h" //for LLMeshRepository::sBytesReceived
 
 
 class StatAttributes
@@ -794,6 +795,7 @@ void send_stats()
 	download["world_kbytes"] = gTotalWorldBytes / 1024.0;
 	download["object_kbytes"] = gTotalObjectBytes / 1024.0;
 	download["texture_kbytes"] = gTotalTextureBytes / 1024.0;
+	download["mesh_kbytes"] = LLMeshRepository::sBytesReceived/1024.0;
 
 	LLSD &in = body["stats"]["net"]["in"];
 

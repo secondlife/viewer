@@ -29,14 +29,11 @@
 
 #include "lltreenode.h"
 #include "v3math.h"
+#include "llvector4a.h"
 #include <vector>
 #include <set>
 
-#if LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
-#define OCT_ERRS LL_ERRS("OctreeErrors")
-#else
 #define OCT_ERRS LL_WARNS("OctreeErrors")
-#endif
 
 #define LL_OCTREE_PARANOIA_CHECK 0
 #if LL_DARWIN
@@ -67,6 +64,13 @@ public:
 };
 
 template <class T>
+class LLOctreeTravelerDepthFirst : public LLOctreeTraveler<T>
+{
+public:
+	virtual void traverse(const LLOctreeNode<T>* node);
+};
+
+template <class T>
 class LLOctreeNode : public LLTreeNode<T>
 {
 public:
@@ -81,23 +85,30 @@ public:
 	typedef LLOctreeNode<T>		oct_node;
 	typedef LLOctreeListener<T>	oct_listener;
 
-	static const U8 OCTANT_POSITIVE_X = 0x01;
-	static const U8 OCTANT_POSITIVE_Y = 0x02;
-	static const U8 OCTANT_POSITIVE_Z = 0x04;
-		
-	LLOctreeNode(	LLVector3d center, 
-					LLVector3d size, 
+	/*void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}*/
+
+	LLOctreeNode(	const LLVector4a& center, 
+					const LLVector4a& size, 
 					BaseType* parent, 
 					U8 octant = 255)
 	:	mParent((oct_node*)parent), 
-		mCenter(center), 
-		mSize(size), 
 		mOctant(octant) 
 	{ 
+		mCenter = center;
+		mSize = size;
+
 		updateMinMax();
 		if ((mOctant == 255) && mParent)
 		{
-			mOctant = ((oct_node*) mParent)->getOctant(mCenter.mdV);
+			mOctant = ((oct_node*) mParent)->getOctant(mCenter);
 		}
 
 		clearChildren();
@@ -114,40 +125,24 @@ public:
 	}
 
 	inline const BaseType* getParent()	const			{ return mParent; }
-	inline void setParent(BaseType* parent)			{ mParent = (oct_node*) parent; }
-	inline const LLVector3d& getCenter() const			{ return mCenter; }
-	inline const LLVector3d& getSize() const			{ return mSize; }
-	inline void setCenter(LLVector3d center)			{ mCenter = center; }
-	inline void setSize(LLVector3d size)				{ mSize = size; }
-    inline oct_node* getNodeAt(T* data)				{ return getNodeAt(data->getPositionGroup(), data->getBinRadius()); }
-	inline U8 getOctant() const						{ return mOctant; }
-	inline void setOctant(U8 octant)					{ mOctant = octant; }
+	inline void setParent(BaseType* parent)				{ mParent = (oct_node*) parent; }
+	inline const LLVector4a& getCenter() const			{ return mCenter; }
+	inline const LLVector4a& getSize() const			{ return mSize; }
+	inline void setCenter(const LLVector4a& center)		{ mCenter = center; }
+	inline void setSize(const LLVector4a& size)			{ mSize = size; }
+    inline oct_node* getNodeAt(T* data)					{ return getNodeAt(data->getPositionGroup(), data->getBinRadius()); }
+	inline U8 getOctant() const							{ return mOctant; }
 	inline const oct_node*	getOctParent() const		{ return (const oct_node*) getParent(); }
 	inline oct_node* getOctParent() 					{ return (oct_node*) getParent(); }
 	
-	U8 getOctant(const F64 pos[]) const	//get the octant pos is in
+	U8 getOctant(const LLVector4a& pos) const			//get the octant pos is in
 	{
-		U8 ret = 0;
-
-		if (pos[0] > mCenter.mdV[0])
-		{
-			ret |= OCTANT_POSITIVE_X;
-		}
-		if (pos[1] > mCenter.mdV[1])
-		{
-			ret |= OCTANT_POSITIVE_Y;
-		}
-		if (pos[2] > mCenter.mdV[2])
-		{
-			ret |= OCTANT_POSITIVE_Z;
-		}
-
-		return ret;
+		return (U8) (pos.greaterThan(mCenter).getGatheredBits() & 0x7);
 	}
 	
-	inline bool isInside(const LLVector3d& pos, const F64& rad) const
+	inline bool isInside(const LLVector4a& pos, const F32& rad) const
 	{
-		return rad <= mSize.mdV[0]*2.0 && isInside(pos); 
+		return rad <= mSize[0]*2.f && isInside(pos); 
 	}
 
 	inline bool isInside(T* data) const			
@@ -155,29 +150,27 @@ public:
 		return isInside(data->getPositionGroup(), data->getBinRadius());
 	}
 
-	bool isInside(const LLVector3d& pos) const
+	bool isInside(const LLVector4a& pos) const
 	{
-		const F64& x = pos.mdV[0];
-		const F64& y = pos.mdV[1];
-		const F64& z = pos.mdV[2];
-			
-		if (x > mMax.mdV[0] || x <= mMin.mdV[0] ||
-			y > mMax.mdV[1] || y <= mMin.mdV[1] ||
-			z > mMax.mdV[2] || z <= mMin.mdV[2])
+		S32 gt = pos.greaterThan(mMax).getGatheredBits() & 0x7;
+		if (gt)
 		{
 			return false;
 		}
-		
+
+		S32 lt = pos.lessEqual(mMin).getGatheredBits() & 0x7;
+		if (lt)
+		{
+			return false;
+		}
+				
 		return true;
 	}
 	
 	void updateMinMax()
 	{
-		for (U32 i = 0; i < 3; i++)
-		{
-			mMax.mdV[i] = mCenter.mdV[i] + mSize.mdV[i];
-			mMin.mdV[i] = mCenter.mdV[i] - mSize.mdV[i];
-		}
+		mMax.setAdd(mCenter, mSize);
+		mMin.setSub(mCenter, mSize);
 	}
 
 	inline oct_listener* getOctListener(U32 index) 
@@ -190,34 +183,34 @@ public:
 		return contains(xform->getBinRadius());
 	}
 
-	bool contains(F64 radius)
+	bool contains(F32 radius)
 	{
 		if (mParent == NULL)
 		{	//root node contains nothing
 			return false;
 		}
 
-		F64 size = mSize.mdV[0];
-		F64 p_size = size * 2.0;
+		F32 size = mSize[0];
+		F32 p_size = size * 2.f;
 
-		return (radius <= 0.001 && size <= 0.001) ||
+		return (radius <= 0.001f && size <= 0.001f) ||
 				(radius <= p_size && radius > size);
 	}
 
-	static void pushCenter(LLVector3d &center, const LLVector3d &size, const T* data)
+	static void pushCenter(LLVector4a &center, const LLVector4a &size, const T* data)
 	{
-		const LLVector3d& pos = data->getPositionGroup();
-		for (U32 i = 0; i < 3; i++)
-		{
-			if (pos.mdV[i] > center.mdV[i])
-			{
-				center.mdV[i] += size.mdV[i];
-			}
-			else 
-			{
-				center.mdV[i] -= size.mdV[i];
-			}
-		}
+		const LLVector4a& pos = data->getPositionGroup();
+
+		LLVector4Logical gt = pos.greaterThan(center);
+
+		LLVector4a up;
+		up = _mm_and_ps(size, gt);
+
+		LLVector4a down;
+		down = _mm_andnot_ps(gt, size);
+
+		center.add(up);
+		center.sub(down);
 	}
 
 	void accept(oct_traveler* visitor)				{ visitor->visit(this); }
@@ -236,32 +229,49 @@ public:
 	void accept(tree_traveler* visitor) const		{ visitor->visit(this); }
 	void accept(oct_traveler* visitor) const		{ visitor->visit(this); }
 	
-	oct_node* getNodeAt(const LLVector3d& pos, const F64& rad)
+	void validateChildMap()
+	{
+		for (U32 i = 0; i < 8; i++)
+		{
+			U8 idx = mChildMap[i];
+			if (idx != 255)
+			{
+				LLOctreeNode<T>* child = mChild[idx];
+
+				if (child->getOctant() != i)
+				{
+					llerrs << "Invalid child map, bad octant data." << llendl;
+				}
+
+				if (getOctant(child->getCenter()) != child->getOctant())
+				{
+					llerrs << "Invalid child octant compared to position data." << llendl;
+				}
+			}
+		}
+	}
+
+
+	oct_node* getNodeAt(const LLVector4a& pos, const F32& rad)
 	{ 
 		LLOctreeNode<T>* node = this;
 
 		if (node->isInside(pos, rad))
 		{		
 			//do a quick search by octant
-			U8 octant = node->getOctant(pos.mdV);
-			BOOL keep_going = TRUE;
-
+			U8 octant = node->getOctant(pos);
+			
 			//traverse the tree until we find a node that has no node
 			//at the appropriate octant or is smaller than the object.  
 			//by definition, that node is the smallest node that contains 
 			// the data
-			while (keep_going && node->getSize().mdV[0] >= rad)
+			U8 next_node = node->mChildMap[octant];
+			
+			while (next_node != 255 && node->getSize()[0] >= rad)
 			{	
-				keep_going = FALSE;
-				for (U32 i = 0; i < node->getChildCount() && !keep_going; i++)
-				{
-					if (node->getChild(i)->getOctant() == octant)
-					{
-						node = node->getChild(i);
-						octant = node->getOctant(pos.mdV);
-						keep_going = TRUE;
-					}
-				}
+				node = node->getChild(next_node);
+				octant = node->getOctant(pos);
+				next_node = node->mChildMap[octant];
 			}
 		}
 		else if (!node->contains(rad) && node->getParent())
@@ -276,7 +286,7 @@ public:
 	{
 		if (data == NULL)
 		{
-			//OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE BRANCH !!!" << llendl;
+			OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE BRANCH !!!" << llendl;
 			return false;
 		}
 		LLOctreeNode<T>* parent = getOctParent();
@@ -284,10 +294,8 @@ public:
 		//is it here?
 		if (isInside(data->getPositionGroup()))
 		{
-			if (getElementCount() < LL_OCTREE_MAX_CAPACITY &&
-				(contains(data->getBinRadius()) ||
-				(data->getBinRadius() > getSize().mdV[0] &&
-				parent && parent->getElementCount() >= LL_OCTREE_MAX_CAPACITY))) 
+			if ((getElementCount() < LL_OCTREE_MAX_CAPACITY && contains(data->getBinRadius()) ||
+				(data->getBinRadius() > getSize()[0] &&	parent && parent->getElementCount() >= LL_OCTREE_MAX_CAPACITY))) 
 			{ //it belongs here
 #if LL_OCTREE_PARANOIA_CHECK
 				//if this is a redundant insertion, error out (should never happen)
@@ -317,16 +325,21 @@ public:
 				}
 				
 				//it's here, but no kids are in the right place, make a new kid
-				LLVector3d center(getCenter());
-				LLVector3d size(getSize()*0.5);
+				LLVector4a center = getCenter();
+				LLVector4a size = getSize();
+				size.mul(0.5f);
 		        		
 				//push center in direction of data
 				LLOctreeNode<T>::pushCenter(center, size, data);
 
 				// handle case where floating point number gets too small
-				if( llabs(center.mdV[0] - getCenter().mdV[0]) < F_APPROXIMATELY_ZERO &&
-					llabs(center.mdV[1] - getCenter().mdV[1]) < F_APPROXIMATELY_ZERO &&
-					llabs(center.mdV[2] - getCenter().mdV[2]) < F_APPROXIMATELY_ZERO)
+				LLVector4a val;
+				val.setSub(center, getCenter());
+				val.setAbs(val);
+								
+				S32 lt = val.lessThan(LLVector4a::getEpsilon()).getGatheredBits() & 0x7;
+
+				if( lt == 0x7 )
 				{
 					mData.insert(data);
 					BaseType::insert(data);
@@ -344,7 +357,7 @@ public:
 				//make sure no existing node matches this position
 				for (U32 i = 0; i < getChildCount(); i++)
 				{
-					if (mChild[i]->getCenter() == center)
+					if (mChild[i]->getCenter().equals3(center))
 					{
 						OCT_ERRS << "Octree detected duplicate child center and gave up." << llendl;
 						return false;
@@ -362,7 +375,7 @@ public:
 		else 
 		{
 			//it's not in here, give it to the root
-			//OCT_ERRS << "Octree insertion failed, starting over from root!" << llendl;
+			OCT_ERRS << "Octree insertion failed, starting over from root!" << llendl;
 
 			oct_node* node = this;
 
@@ -436,6 +449,9 @@ public:
 	void clearChildren()
 	{
 		mChild.clear();
+
+		U32* foo = (U32*) mChildMap;
+		foo[0] = foo[1] = 0xFFFFFFFF;
 	}
 
 	void validate()
@@ -469,13 +485,19 @@ public:
 	void addChild(oct_node* child, BOOL silent = FALSE) 
 	{
 #if LL_OCTREE_PARANOIA_CHECK
+
+		if (child->getSize().equals3(getSize()))
+		{
+			OCT_ERRS << "Child size is same as parent size!" << llendl;
+		}
+
 		for (U32 i = 0; i < getChildCount(); i++)
 		{
-			if(mChild[i]->getSize() != child->getSize()) 
+			if(!mChild[i]->getSize().equals3(child->getSize())) 
 			{
 				OCT_ERRS <<"Invalid octree child size." << llendl;
 			}
-			if (mChild[i]->getCenter() == child->getCenter())
+			if (mChild[i]->getCenter().equals3(child->getCenter()))
 			{
 				OCT_ERRS <<"Duplicate octree child position." << llendl;
 			}
@@ -486,6 +508,8 @@ public:
 			OCT_ERRS <<"Octree node has too many children... why?" << llendl;
 		}
 #endif
+
+		mChildMap[child->getOctant()] = (U8) mChild.size();
 
 		mChild.push_back(child);
 		child->setParent(this);
@@ -500,7 +524,7 @@ public:
 		}
 	}
 
-	void removeChild(U8 index, BOOL destroy = FALSE)
+	void removeChild(S32 index, BOOL destroy = FALSE)
 	{
 		for (U32 i = 0; i < this->getListenerCount(); i++)
 		{
@@ -508,12 +532,23 @@ public:
 			listener->handleChildRemoval(this, getChild(index));
 		}
 
+		
+
 		if (destroy)
 		{
 			mChild[index]->destroy();
 			delete mChild[index];
 		}
 		mChild.erase(mChild.begin() + index);
+
+		//rebuild child map
+		U32* foo = (U32*) mChildMap;
+		foo[0] = foo[1] = 0xFFFFFFFF;
+
+		for (U32 i = 0; i < mChild.size(); ++i)
+		{
+			mChildMap[mChild[i]->getOctant()] = i;
+		}
 
 		checkAlive();
 	}
@@ -541,19 +576,32 @@ public:
 			}
 		}
 
-		//OCT_ERRS << "Octree failed to delete requested child." << llendl;
+		OCT_ERRS << "Octree failed to delete requested child." << llendl;
 	}
 
 protected:	
-	child_list mChild;
-	element_list mData;
+	typedef enum
+	{
+		CENTER = 0,
+		SIZE = 1,
+		MAX = 2,
+		MIN = 3
+	} eDName;
+
+	LLVector4a mCenter;
+	LLVector4a mSize;
+	LLVector4a mMax;
+	LLVector4a mMin;
+	
 	oct_node* mParent;
-	LLVector3d mCenter;
-	LLVector3d mSize;
-	LLVector3d mMax;
-	LLVector3d mMin;
 	U8 mOctant;
-};
+
+	child_list mChild;
+	U8 mChildMap[8];
+
+	element_list mData;
+		
+}; 
 
 //just like a regular node, except it might expand on insert and compress on balance
 template <class T>
@@ -563,9 +611,9 @@ public:
 	typedef LLOctreeNode<T>	BaseType;
 	typedef LLOctreeNode<T>		oct_node;
 
-	LLOctreeRoot(	LLVector3d center, 
-					LLVector3d size, 
-					BaseType* parent)
+	LLOctreeRoot(const LLVector4a& center, 
+				 const LLVector4a& size, 
+				 BaseType* parent)
 	:	BaseType(center, size, parent)
 	{
 	}
@@ -596,6 +644,8 @@ public:
 			//destroy child
 			child->clearChildren();
 			delete child;
+
+			return false;
 		}
 		
 		return true;
@@ -606,28 +656,33 @@ public:
 	{
 		if (data == NULL) 
 		{
-			//OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE ROOT !!!" << llendl;
+			OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE ROOT !!!" << llendl;
 			return false;
 		}
 		
 		if (data->getBinRadius() > 4096.0)
 		{
-			//OCT_ERRS << "!!! ELEMENT EXCEEDS MAXIMUM SIZE IN OCTREE ROOT !!!" << llendl;
+			OCT_ERRS << "!!! ELEMENT EXCEEDS MAXIMUM SIZE IN OCTREE ROOT !!!" << llendl;
 			return false;
 		}
 		
-		const F64 MAX_MAG = 1024.0*1024.0;
+		LLVector4a MAX_MAG;
+		MAX_MAG.splat(1024.f*1024.f);
 
-		const LLVector3d& v = data->getPositionGroup();
-		if (!(fabs(v.mdV[0]-this->mCenter.mdV[0]) < MAX_MAG &&
-		      fabs(v.mdV[1]-this->mCenter.mdV[1]) < MAX_MAG &&
-		      fabs(v.mdV[2]-this->mCenter.mdV[2]) < MAX_MAG))
+		const LLVector4a& v = data->getPositionGroup();
+
+		LLVector4a val;
+		val.setSub(v, BaseType::mCenter);
+		val.setAbs(val);
+		S32 lt = val.lessThan(MAX_MAG).getGatheredBits() & 0x7;
+
+		if (lt != 0x7)
 		{
-			//OCT_ERRS << "!!! ELEMENT EXCEEDS RANGE OF SPATIAL PARTITION !!!" << llendl;
+			OCT_ERRS << "!!! ELEMENT EXCEEDS RANGE OF SPATIAL PARTITION !!!" << llendl;
 			return false;
 		}
 
-		if (this->getSize().mdV[0] > data->getBinRadius() && isInside(data->getPositionGroup()))
+		if (this->getSize()[0] > data->getBinRadius() && isInside(data->getPositionGroup()))
 		{
 			//we got it, just act like a branch
 			oct_node* node = getNodeAt(data);
@@ -643,31 +698,34 @@ public:
 		else if (this->getChildCount() == 0)
 		{
 			//first object being added, just wrap it up
-			while (!(this->getSize().mdV[0] > data->getBinRadius() && isInside(data->getPositionGroup())))
+			while (!(this->getSize()[0] > data->getBinRadius() && isInside(data->getPositionGroup())))
 			{
-				LLVector3d center, size;
+				LLVector4a center, size;
 				center = this->getCenter();
 				size = this->getSize();
 				LLOctreeNode<T>::pushCenter(center, size, data);
 				this->setCenter(center);
-				this->setSize(size*2);
+				size.mul(2.f);
+				this->setSize(size);
 				this->updateMinMax();
 			}
 			LLOctreeNode<T>::insert(data);
 		}
 		else
 		{
-			while (!(this->getSize().mdV[0] > data->getBinRadius() && isInside(data->getPositionGroup())))
+			while (!(this->getSize()[0] > data->getBinRadius() && isInside(data->getPositionGroup())))
 			{
 				//the data is outside the root node, we need to grow
-				LLVector3d center(this->getCenter());
-				LLVector3d size(this->getSize());
+				LLVector4a center(this->getCenter());
+				LLVector4a size(this->getSize());
 
 				//expand this node
-				LLVector3d newcenter(center);
+				LLVector4a newcenter(center);
 				LLOctreeNode<T>::pushCenter(newcenter, size, data);
 				this->setCenter(newcenter);
-				this->setSize(size*2);
+				LLVector4a size2 = size;
+				size2.mul(2.f);
+				this->setSize(size2);
 				this->updateMinMax();
 
 				//copy our children to a new branch
@@ -704,4 +762,15 @@ void LLOctreeTraveler<T>::traverse(const LLOctreeNode<T>* node)
 		traverse(node->getChild(i));
 	}
 }
+
+template <class T>
+void LLOctreeTravelerDepthFirst<T>::traverse(const LLOctreeNode<T>* node)
+{
+	for (U32 i = 0; i < node->getChildCount(); i++)
+	{
+		traverse(node->getChild(i));
+	}
+	node->accept(this);
+}
+
 #endif

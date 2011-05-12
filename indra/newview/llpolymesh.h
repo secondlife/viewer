@@ -217,15 +217,15 @@ public:
 	}
 
 	// Get coords
-	const LLVector3	*getCoords() const{
+	const LLVector4	*getCoords() const{
 		return mCoords;
 	}
 
 	// non const version
-	LLVector3 *getWritableCoords();
+	LLVector4 *getWritableCoords();
 
 	// Get normals
-	const LLVector3	*getNormals() const{ 
+	const LLVector4	*getNormals() const{ 
 		return mNormals; 
 	}
 
@@ -247,7 +247,7 @@ public:
 	}
 
 	// intermediate morphed normals and output normals
-	LLVector3 *getWritableNormals();
+	LLVector4 *getWritableNormals();
 	LLVector3 *getScaledNormals();
 
 	LLVector3 *getWritableBinormals();
@@ -341,11 +341,11 @@ protected:
 	// Single array of floats for allocation / deletion
 	F32						*mVertexData;
 	// deformed vertices (resulting from application of morph targets)
-	LLVector3				*mCoords;
+	LLVector4				*mCoords;
 	// deformed normals (resulting from application of morph targets)
 	LLVector3				*mScaledNormals;
 	// output normals (after normalization)
-	LLVector3				*mNormals;
+	LLVector4				*mNormals;
 	// deformed binormals (resulting from application of morph targets)
 	LLVector3				*mScaledBinormals;
 	// output binormals (after normalization)
