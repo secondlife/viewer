@@ -633,7 +633,7 @@ void LLVertexBuffer::createGLBuffer()
 	{
 		static int gl_buffer_idx = 0;
 		mGLBuffer = ++gl_buffer_idx;
-		mMappedData = (U8*) malloc(size);
+		mMappedData = (U8*) ll_aligned_malloc_16(size);
 	}
 }
 
@@ -667,7 +667,7 @@ void LLVertexBuffer::createGLIndices()
 	}
 	else
 	{
-		mMappedIndexData = (U8*) malloc(size);
+		mMappedIndexData = (U8*) ll_aligned_malloc_16(size);
 		static int gl_buffer_idx = 0;
 		mGLIndices = ++gl_buffer_idx;
 	}
@@ -690,7 +690,7 @@ void LLVertexBuffer::destroyGLBuffer()
 		}
 		else
 		{
-			free(mMappedData);
+			ll_aligned_free_16(mMappedData);
 			mMappedData = NULL;
 			mEmpty = TRUE;
 		}
@@ -719,7 +719,7 @@ void LLVertexBuffer::destroyGLIndices()
 		}
 		else
 		{
-			free(mMappedIndexData);
+			ll_aligned_free_16(mMappedIndexData);
 			mMappedIndexData = NULL;
 			mEmpty = TRUE;
 		}
@@ -852,8 +852,8 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 			{
 				if (!useVBOs())
 				{
-					free(mMappedData);
-					mMappedData = (U8*) malloc(newsize);
+					ll_aligned_free_16(mMappedData);
+					mMappedData = (U8*) ll_aligned_malloc_16(newsize);
 				}
 				mResized = TRUE;
 			}
@@ -873,8 +873,8 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 			{
 				if (!useVBOs())
 				{
-					free(mMappedIndexData);
-					mMappedIndexData = (U8*) malloc(new_index_size);
+					ll_aligned_free_16(mMappedIndexData);
+					mMappedIndexData = (U8*) ll_aligned_malloc_16(new_index_size);
 				}
 				mResized = TRUE;
 			}
@@ -915,8 +915,8 @@ void LLVertexBuffer::freeClientBuffer()
 {
 	if(useVBOs() && sDisableVBOMapping && (mMappedData || mMappedIndexData))
 	{
-		free(mMappedData) ;
-		free(mMappedIndexData) ;
+		ll_aligned_free_16(mMappedData) ;
+		ll_aligned_free_16(mMappedIndexData) ;
 		mMappedData = NULL ;
 		mMappedIndexData = NULL ;
 	}
@@ -926,7 +926,7 @@ void LLVertexBuffer::allocateClientVertexBuffer()
 {
 	if(!mMappedData)
 	{
-		mMappedData = (U8*)malloc(getSize());
+		mMappedData = (U8*)ll_aligned_malloc_16(getSize());
 	}
 }
 
@@ -934,7 +934,7 @@ void LLVertexBuffer::allocateClientIndexBuffer()
 {
 	if(!mMappedIndexData)
 	{
-		mMappedIndexData = (U8*)malloc(getIndicesSize());
+		mMappedIndexData = (U8*)ll_aligned_malloc_16(getIndicesSize());
 	}
 }
 
