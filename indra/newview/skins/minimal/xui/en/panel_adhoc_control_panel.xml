@@ -42,5 +42,40 @@
              show_speaking_indicator="false"
              width="147" />
         </layout_panel>
+      <layout_panel
+         auto_resize="false"
+         follows="top|left|right"
+         height="25"
+         layout="topleft"
+         min_height="25"
+         width="130"
+         name="call_btn_panel"
+         user_resize="false"
+         visible="false">
+        <button
+         follows="all"
+         height="20"
+         label="Call"
+         name="call_btn"
+         width="130"
+         top="5" />
+      </layout_panel>
+      <layout_panel
+       auto_resize="false"
+       follows="top|left|right"
+       height="25"
+       layout="topleft"
+       min_height="25"
+       width="130"
+       name="end_call_btn_panel"
+       user_resize="false"
+       visible="false">
+        <button
+         follows="all"
+         height="20"
+         label="Leave Call"
+         name="end_call_btn"
+         top="5"/>
+      </layout_panel>
     </layout_stack>
 </panel>

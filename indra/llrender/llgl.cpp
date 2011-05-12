@@ -105,7 +105,6 @@ LLMatrix4 gGLObliqueProjectionInverse;
 
 #define LL_GL_NAME_POOLING 0
 
-LLGLNamePool::pool_list_t LLGLNamePool::sInstances;
 std::list<LLGLUpdate*> LLGLUpdate::sGLQ;
 
 #if (LL_WINDOWS || LL_LINUX || LL_SOLARIS)  && !LL_MESA_HEADLESS
@@ -1920,22 +1919,8 @@ LLGLNamePool::LLGLNamePool()
 {
 }
 
-void LLGLNamePool::registerPool(LLGLNamePool* pool)
-{
-	pool_list_t::iterator iter = std::find(sInstances.begin(), sInstances.end(), pool);
-	if (iter == sInstances.end())
-	{
-		sInstances.push_back(pool);
-	}
-}
-
 LLGLNamePool::~LLGLNamePool()
 {
-	pool_list_t::iterator iter = std::find(sInstances.begin(), sInstances.end(), this);
-	if (iter != sInstances.end())
-	{
-		sInstances.erase(iter);
-	}
 }
 
 void LLGLNamePool::upkeep()
@@ -2004,20 +1989,22 @@ void LLGLNamePool::release(GLuint name)
 void LLGLNamePool::upkeepPools()
 {
 	LLMemType mt(LLMemType::MTYPE_UPKEEP_POOLS);
-	for (pool_list_t::iterator iter = sInstances.begin(); iter != sInstances.end(); ++iter)
+	tracker_t::LLInstanceTrackerScopedGuard guard;
+	for (tracker_t::instance_iter iter = guard.beginInstances(); iter != guard.endInstances(); ++iter)
 	{
-		LLGLNamePool* pool = *iter;
-		pool->upkeep();
+		LLGLNamePool & pool = *iter;
+		pool.upkeep();
 	}
 }
 
 //static
 void LLGLNamePool::cleanupPools()
 {
-	for (pool_list_t::iterator iter = sInstances.begin(); iter != sInstances.end(); ++iter)
+	tracker_t::LLInstanceTrackerScopedGuard guard;
+	for (tracker_t::instance_iter iter = guard.beginInstances(); iter != guard.endInstances(); ++iter)
 	{
-		LLGLNamePool* pool = *iter;
-		pool->cleanup();
+		LLGLNamePool & pool = *iter;
+		pool.cleanup();
 	}
 }
 
