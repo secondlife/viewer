@@ -1368,7 +1368,7 @@ void dumpLLSDToFile(LLSD& content, std::string& filename)
 	LLSDSerialize::toPrettyXML(content,of);
 }
 
-LLSD LLMeshUploadThread::wholeModelToLLSD(bool include_textures)
+void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 {
 	// TODO where do textures go?
 	
@@ -1470,11 +1470,11 @@ LLSD LLMeshUploadThread::wholeModelToLLSD(bool include_textures)
 	}
 
 	result["asset_resources"] = res;
-#if 0	
+#if 1	
 	dumpLLSDToFile(result,std::string("whole_model.xml"));
 #endif
-	
-	return result;
+
+	dest = result;
 }
 
 void LLMeshUploadThread::doWholeModelUpload()
@@ -1525,7 +1525,8 @@ void LLMeshUploadThread::doWholeModelUpload()
 	}
 
 	bool do_include_textures = false; // not needed for initial cost/validation check.
-	LLSD model_data = wholeModelToLLSD(do_include_textures);
+	LLSD model_data;
+	wholeModelToLLSD(model_data, do_include_textures);
 
 	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
