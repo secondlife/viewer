@@ -365,6 +365,7 @@ Ian Kas
 	CT-325
 Ima Mechanique
 	OPEN-61
+	STORM-1175
 Irene Muni
 	CT-324
 	CT-352
@@ -448,6 +449,7 @@ Kitty Barnett
 	STORM-799
 	STORM-800
 	STORM-1001
+	STORM-1175
     VWR-24217
 Kunnis Basiat
 	VWR-82
