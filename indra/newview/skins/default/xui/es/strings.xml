@@ -3588,6 +3588,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="conference-title-incoming">
 		Conferencia con [AGENT_NAME]
 	</string>
+	<string name="inventory_item_offered-im">
+		Ofrecido el item del inventario
+	</string>
 	<string name="no_session_message">
 		(La sesión de MI no existe)
 	</string>

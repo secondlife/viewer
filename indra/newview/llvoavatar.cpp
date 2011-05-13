@@ -38,9 +38,9 @@
 #include <ctype.h>
 
 #include "llaudioengine.h"
-#include "llcachename.h"
 #include "noise.h"
 #include "sound_ids.h"
+#include "raytrace.h"
 
 #include "llagent.h" //  Get state values from here
 #include "llagentcamera.h"

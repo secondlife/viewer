@@ -34,6 +34,7 @@
 #include "stdtypes.h"
 #include "llcoord.h"
 #include "llfontgl.h"
+#include "llhandle.h"
 #include "llmortician.h"
 #include "llmousehandler.h"
 #include "llstring.h"
