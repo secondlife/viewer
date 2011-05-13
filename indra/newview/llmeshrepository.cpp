@@ -1362,11 +1362,13 @@ void LLMeshUploadThread::run()
 	}
 }
 
+#if 0
 void dumpLLSDToFile(LLSD& content, std::string& filename)
 {
 	std::ofstream of(filename);
 	LLSDSerialize::toPrettyXML(content,of);
 }
+#endif
 
 void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 {
@@ -1478,7 +1480,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	result["asset_resources"] = res;
 #if 0	
-	dumpLLSDToFile(result,std::string("whole_model.xml"));
+	std::string name("whole_model.xml");
+	dumpLLSDToFile(result,name);
 #endif
 
 	dest = result;
