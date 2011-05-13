@@ -339,10 +339,7 @@ void LLAgentListener::startAutoPilot(LLSD const & event_data)
 	if (event_data.has("allow_flying"))
 	{
 		allow_flying = (BOOL) event_data["allow_flying"].asBoolean();
-		if (!allow_flying)
-		{
-			mAgent.setFlying(FALSE);
-		}
+		mAgent.setFlying(allow_flying);
 	}
 
 	F32 stop_distance = 0.f;
@@ -442,10 +439,7 @@ void LLAgentListener::startFollowPilot(LLSD const & event_data)
 
 	if (target_id.notNull())
 	{
-		if (!allow_flying)
-		{
-			mAgent.setFlying(FALSE);
-		}
+		mAgent.setFlying(allow_flying);
 		mFollowTarget = target_id;	// Save follow target so we can report distance later
 
 	    mAgent.startFollowPilot(target_id, allow_flying, stop_distance);
