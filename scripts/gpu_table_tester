@@ -66,6 +66,7 @@ open(GPUS, "<$GpuTable")
 my %NameLine;       # name -> line number on which a given name was found (catches duplicate names)
 my %RecognizerLine; # name -> line number on which a given name was found (catches duplicate names)
 my %Name;           # recognizer -> name
+my %Recognizer;     # name -> recognizer
 my %Class;          # recognizer -> class
 my %Supported;      # recognizer -> supported
 my @InOrder;        # records the order of the recognizers
@@ -90,7 +91,9 @@ while (<GPUS>)
     }
     elsif ( defined $NameLine{$name} )
     {
-        print STDERR "Duplicate name ($name) found on $GpuTable lines $NameLine{$name} and $INPUT_LINE_NUMBER (ignored)\n";
+        print STDERR "Duplicate name '$name' on $GpuTable lines $NameLine{$name} and $INPUT_LINE_NUMBER:\n";
+        print STDERR "     $NameLine{$name}: /$Recognizer{$name}/  $Supported{$Recognizer{$name}}  class $Class{$Recognizer{$name}}\n";
+        print STDERR "     $INPUT_LINE_NUMBER: /$regex/  " . ($supported ? "supported" : "unsupported") .  " class $class - ignored\n";
         $ErrorsSeen++;
     }
     if (!$regex)
@@ -100,7 +103,9 @@ while (<GPUS>)
     }
     elsif ( defined $RecognizerLine{$regex} )
     {
-        print STDERR "Duplicate recognizer '$regex' found on $GpuTable lines $RecognizerLine{$regex} and $INPUT_LINE_NUMBER (ignored)\n";
+        print STDERR "Duplicate recognizer /$regex/ found on $GpuTable lines $RecognizerLine{$regex} and $INPUT_LINE_NUMBER (ignored)\n";
+        print STDERR "     $RecognizerLine{$regex}: name '$Name{$regex}'  $Supported{$regex}  class $Class{$regex}\n";
+        print STDERR "     $INPUT_LINE_NUMBER: name '$name'  " . ($supported ? "supported" : "unsupported") .  "  class $class - ignored\n";
         $ErrorsSeen++;
     }
     if ($class !~ m/[0123]/)
@@ -125,12 +130,15 @@ while (<GPUS>)
         $NameLine{$name} = $INPUT_LINE_NUMBER;
         $RecognizerLine{$regex} = $INPUT_LINE_NUMBER;
         $Name{$regex} = $name;
+        $Recognizer{$name} = $regex;
         $Class{$regex} = $class;
         $Supported{$regex} = $supported ? "supported" : "unsupported";
     }
 }
 
 close GPUS;
+
+print STDERR "\n" if $ErrorsSeen;
 
 exit $ErrorsSeen if $TableOnly;
 
