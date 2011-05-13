@@ -26,10 +26,11 @@
 
 #include "linden_common.h"
 
+#include "lltransutil.h"
+
 #include "lltrans.h"
 #include "lluictrlfactory.h"
-
-#include "lltransutil.h"
+#include "llxmlnode.h"
 
 
 bool LLTransUtil::parseStrings(const std::string& xml_filename, const std::set<std::string>& default_args)

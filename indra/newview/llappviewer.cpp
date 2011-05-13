@@ -82,7 +82,7 @@
 #include "lltextutil.h"
 #include "lllogininstance.h"
 #include "llprogressview.h"
-
+#include "llvocache.h"
 #include "llweb.h"
 #include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
@@ -133,7 +133,6 @@
 #include "lltoolmgr.h"
 #include "llassetstorage.h"
 #include "llpolymesh.h"
-#include "llcachename.h"
 #include "llaudioengine.h"
 #include "llstreamingaudio.h"
 #include "llviewermenu.h"
