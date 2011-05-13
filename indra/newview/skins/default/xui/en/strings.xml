@@ -1683,7 +1683,7 @@ Returns the maximum number of prims allowed on the parcel at pos
 	<string name="LSLTipText_llGetParcelDetails" translate="false">
 list llGetParcelDetails(vector pos, list params)
 Returns the parcel details specified in params for the parcel at pos.
-Params is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA
+Params is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _PRIVACY
 	</string>
 	<string name="LSLTipText_llSetLinkPrimitiveParams" translate="false">
 llSetLinkPrimitiveParams(integer linknumber, list rules)
