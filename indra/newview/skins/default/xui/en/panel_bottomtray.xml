@@ -47,13 +47,13 @@
          mouse_opaque="false"
 		 name="chat_bar_layout_panel"
          user_resize="true"
-         width="250" >
+     width="310" >
           <panel
             name="chat_bar"
             filename="panel_nearby_chat_bar.xml"
             left="0"
             height="28"
-            width="248"
+        width="308"
             top="0"
             mouse_opaque="false"
             follows="left|right"
@@ -341,7 +341,7 @@ Disabled for now.
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="62"
+     min_width="52"
          mouse_opaque="false"
          name="mini_map_btn_panel"
          user_resize="false"

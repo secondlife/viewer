@@ -6817,6 +6817,34 @@ Deed to group failed.
 
   <notification
    icon="notifytip.tga"
+   name="ReleaseLandThrottled"
+   type="notifytip">
+The parcel [PARCEL_NAME] can not be abandoned at this time.
+   tag>fail</tag>
+  </notification>
+	
+  <notification
+   icon="notifytip.tga"
+   name="ReleasedLandWithReclaim"
+   type="notifytip">
+The [AREA] m² parcel &apos;[PARCEL_NAME]&apos; has been released.
+
+You will have [RECLAIM_PERIOD] hours to reclaim for L$0 before it is set for sale to anyone.
+   <tag>fail</tag>
+  </notification>
+	
+  <notification
+   icon="notifytip.tga"
+   name="ReleasedLandNoReclaim"
+   type="notifytip">
+The [AREA] m² parcel &apos;[PARCEL_NAME]&apos; has been released.
+
+It is now available for purchase by anyone.
+   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
    name="AvatarRezNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
@@ -7145,6 +7173,20 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    notext="Don't Quit"/>
   </notification>
 
+  <notification
+ name="NoPlaceInfo"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    Viewing place profile is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+  
   <notification
  name="NoPicks"
  label=""
