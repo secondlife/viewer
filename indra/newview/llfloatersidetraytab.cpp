@@ -47,5 +47,6 @@ LLFloaterSideTrayTab::~LLFloaterSideTrayTab()
 
 void LLFloaterSideTrayTab::onClose(bool app_quitting)
 {
-	LLSideTray::getInstance()->setTabDocked(getName(), true);
+	// The floater is already being closed, so don't toggle it once more (that may crash viewer).
+	LLSideTray::getInstance()->setTabDocked(getName(), /* dock = */ true, /* toggle_floater = */ false);
 }

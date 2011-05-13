@@ -364,6 +364,9 @@ Ian Kas
 	[NO JIRA] (Ukranian localization)
 	CT-322
 	CT-325
+Ima Mechanique
+	OPEN-50
+	OPEN-61
 Irene Muni
 	CT-324
 	CT-352
@@ -431,6 +434,7 @@ Jonathan Yap
 	STORM-1128
 	STORM-956
 	STORM-1095
+	STORM-1236
 Kage Pixel
 	VWR-11
 Ken March

@@ -1326,9 +1326,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>57f32a1a670f06a4dc036eb1164ad9d7</string>
+              <string>e849bc2b779fb7cc5e81aeb021a542c0</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg_vorbis-1.1.3-1.2.0-darwin-20110222.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/229529/arch/Darwin/installer/ogg_vorbis-1.2.2-1.3.2-darwin-20110510.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1338,9 +1338,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>17c000ceef32c0623d038b4c73791bee</string>
+              <string>71eaa462eb0bf8842277a3436483a354</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg_vorbis-1.1.3-1.2.0-linux-20110307.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/229529/arch/Linux/installer/ogg_vorbis-1.2.2-1.3.2-linux-20110511.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1350,9 +1350,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c8fccf7eeb25fd45cb7e04399c0b83ee</string>
+              <string>291dbba89dd8162b76f2c2d82e908c6f</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg_vorbis-1.1.3-1.2.0-windows-20110222.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/229529/arch/CYGWIN/installer/ogg_vorbis-1.2.2-1.3.2-windows-20110510.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1528,30 +1528,6 @@
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-        </map>
-      </map>
-      <key>pth</key>
-      <map>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>license_file</key>
-        <string>LICENSES/pth.txt</string>
-        <key>name</key>
-        <string>pth</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2172379794217d0ffba0db09b2ac17bf</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-darwin-20110303.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
           </map>
         </map>
       </map>

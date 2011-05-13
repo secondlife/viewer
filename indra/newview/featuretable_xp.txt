@@ -152,7 +152,7 @@ WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
+RenderShadowDetail			1	2
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -181,7 +181,7 @@ WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
+RenderShadowDetail			1	2
 
 //
 // Class Unknown Hardware (unknown)

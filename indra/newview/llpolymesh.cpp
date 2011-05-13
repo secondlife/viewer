@@ -770,7 +770,7 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
 		int nverts = mSharedData->mNumVertices;
 		int nfloats = nverts * (2*4 + 3*3 + 2 + 4);
 		//use 16 byte aligned vertex data to make LLPolyMesh SSE friendly
-		mVertexData = (F32*) malloc(nfloats*4);
+		mVertexData = (F32*) ll_aligned_malloc_16(nfloats*4);
 		int offset = 0;
 		mCoords				= 	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
 		mNormals			=	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
@@ -799,7 +799,7 @@ LLPolyMesh::~LLPolyMesh()
                 mJointRenderData[i] = NULL;
         }
 
-		free(mVertexData);
+		ll_aligned_free_16(mVertexData);
 
 }
 

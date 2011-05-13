@@ -2768,7 +2768,7 @@
           <menu_item_call
            label="Web Content Browser"
            name="Web Content Browser"
-           shortcut="control|alt|W">
+           shortcut="control|shift|Z">
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
              parameter="http://google.com"/>

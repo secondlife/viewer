@@ -688,6 +688,15 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	return LLTool::handleMouseUp(x, y, mask);
 }
 
+void LLToolPie::stopClickToWalk()
+{
+	mPick.mPosGlobal = gAgent.getPositionGlobal();
+	handle_go_to();
+	if(mAutoPilotDestination) 
+	{ 
+		mAutoPilotDestination->markDead(); 
+	}
+}
 
 BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 {

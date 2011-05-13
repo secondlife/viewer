@@ -21,8 +21,6 @@ uniform sampler2DShadow shadowMap4;
 uniform sampler2DShadow shadowMap5;
 uniform sampler2D noiseMap;
 
-uniform sampler2D		lightFunc;
-
 // Inputs
 uniform mat4 shadow_matrix[6];
 uniform vec4 shadow_clip;

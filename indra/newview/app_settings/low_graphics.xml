@@ -4,17 +4,17 @@
 	<RenderAvatarCloth value="FALSE"/>
 	<!--Default for now-->
 	<RenderAvatarLODFactor value="0.5"/>
-  <!--Default for now-->
-  <RenderAvatarPhysicsLODFactor value="0.0"/>
-  <!--Default for now-->
-  <RenderAvatarMaxVisible value="3"/>
+	<!--Default for now-->
+	<RenderAvatarPhysicsLODFactor value="0.0"/>
+	<!--Default for now-->
+	<RenderAvatarMaxVisible value="3"/>
 	<!--NO SHADERS-->
 	<RenderAvatarVP value="FALSE"/>
 	<!--Short Range-->
 	<RenderFarClip value="64"/>
 	<!--Default for now-->
 	<RenderFlexTimeFactor value="0.5"/>
-	<!--256... but they don't use this-->
+	<!--256... but they do not use this-->
 	<RenderGlowResolutionPow value="8"/>
 	<!--Low number-->
 	<RenderMaxPartCount value="1024"/>
@@ -36,11 +36,10 @@
 	<VertexShaderEnable value="FALSE"/>
 	<!--NO SHADERS-->
 	<WindLightUseAtmosShaders value="FALSE"/>
-  <!--No Deferred Shading-->
-  <RenderDeferred value="FALSE"/>
-  <!--SSAO Disabled-->
-  <RenderDeferredSSAO value="FALSE"/>
-  <!--No Shadows-->
-  <RenderShadowDetail value="0"/>
-
+	<!--No Deferred Shading-->
+	<RenderDeferred value="FALSE"/>
+	<!--SSAO Disabled-->
+	<RenderDeferredSSAO value="FALSE"/>
+	<!--No Shadows-->
+	<RenderShadowDetail value="0"/>
 </settings>

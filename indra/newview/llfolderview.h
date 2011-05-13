@@ -101,7 +101,6 @@ public:
 	// FolderViews default to sort by name.  This will change that,
 	// and resort the items if necessary.
 	void setSortOrder(U32 order);
-	void checkTreeResortForModelChanged();
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	void setAllowMultiSelect(BOOL allow) { mAllowMultiSelect = allow; }
 	
