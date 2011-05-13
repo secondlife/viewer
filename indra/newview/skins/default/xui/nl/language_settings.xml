@@ -4,6 +4,7 @@
 
 	<!-- Locale Information -->
 	<string name="MicrosoftLocale">dutch</string>
+	<string name="MacLocale">nl_NL.UTF-8</string>
 	<string name="DarwinLocale">nl_NL.UTF-8</string>
 	<string name="LinuxLocale">nl_NL.UTF-8</string>
 	
