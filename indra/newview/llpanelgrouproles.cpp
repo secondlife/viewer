@@ -42,6 +42,7 @@
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
+#include "llslurl.h"
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"

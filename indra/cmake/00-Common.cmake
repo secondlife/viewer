@@ -36,6 +36,13 @@ if (WINDOWS)
   # Don't build DLLs.
   set(BUILD_SHARED_LIBS OFF)
 
+  # for "backwards compatibility", cmake sneaks in the Zm1000 option which royally
+  # screws incredibuild. this hack disables it.
+  # for details see: http://connect.microsoft.com/VisualStudio/feedback/details/368107/clxx-fatal-error-c1027-inconsistent-values-for-ym-between-creation-and-use-of-precompiled-headers
+  # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015
+  # http://www.cmake.org/pipermail/cmake/2009-September/032143.html
+  string(REPLACE "/Zm1000" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi /MDd /MP -D_SCL_SECURE_NO_WARNINGS=1"
       CACHE STRING "C++ compiler debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 

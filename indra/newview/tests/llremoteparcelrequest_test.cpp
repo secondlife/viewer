@@ -35,7 +35,6 @@
 #include "llurlentry.h"
 
 namespace {
-	LLControlGroup s_saved_settings("dummy_settings");
 	const LLUUID TEST_PARCEL_ID("11111111-1111-1111-1111-111111111111");
 }
 
@@ -64,13 +63,12 @@ LLMessageSystem * gMessageSystem;
 char const* const _PREHASH_AgentID = 0;   // never dereferenced during this test
 char const* const _PREHASH_AgentData = 0; // never dereferenced during this test
 LLAgent gAgent;
-LLAgent::LLAgent() : mAgentAccess(s_saved_settings) { }
+LLAgent::LLAgent() : mAgentAccess(NULL) { }
 LLAgent::~LLAgent() { }
 void LLAgent::sendReliableMessage(void) { }
 LLUUID gAgentSessionID;
 LLUUID gAgentID;
 LLUIColor::LLUIColor(void) { }
-LLAgentAccess::LLAgentAccess(LLControlGroup & settings) : mSavedSettings(settings) { }
 LLControlGroup::LLControlGroup(std::string const & name) : LLInstanceTracker<LLControlGroup, std::string>(name) { }
 LLControlGroup::~LLControlGroup(void) { }
 void LLUrlEntryParcel::processParcelInfo(const LLUrlEntryParcel::LLParcelData& parcel_data) { }

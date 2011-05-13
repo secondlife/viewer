@@ -28,7 +28,6 @@
 #define LLXUIPARSER_H
 
 #include "llinitparam.h"
-#include "llfasttimer.h"
 #include "llregistry.h"
 #include "llpointer.h"
 
@@ -95,6 +94,7 @@ public:
 };
 
 
+class LLXUIParserImpl;
 
 class LLXUIParser : public LLInitParam::Parser
 {
@@ -176,6 +176,7 @@ private:
 // ordering of child elements from base file to localized diff file.  Then we can use a pair
 // of coroutines to perform matching of xml nodes during parsing.  Not sure if the overhead
 // of coroutines would offset the gain from SAX parsing
+class LLSimpleXUIParserImpl;
 
 class LLSimpleXUIParser : public LLInitParam::Parser
 {

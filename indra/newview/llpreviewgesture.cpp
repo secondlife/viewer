@@ -34,6 +34,7 @@
 #include "llassetuploadresponders.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "lldatapacker.h"
 #include "lldelayedgestureerror.h"
 #include "llfloaterreg.h"
 #include "llgesturemgr.h"

@@ -38,13 +38,12 @@
 
 #include "v3dmath.h"
 #include "v2math.h"
+#include "llcursortypes.h"
 #include "llwindowcallbacks.h"
 #include "lltimer.h"
 #include "llstat.h"
 #include "llmousehandler.h"
-#include "llcursortypes.h"
 #include "llhandle.h"
-#include "llimage.h"
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -59,6 +58,7 @@ class LLTool;
 class LLVelocityBar;
 class LLPanel;
 class LLImageRaw;
+class LLImageFormatted;
 class LLHUDIcon;
 class LLWindow;
 class LLRootView;
@@ -465,12 +465,6 @@ private:
 	LLPointer<LLViewerObject>	mDragHoveredObject;
 };
 
-void toggle_flying(void*);
-void toggle_first_person();
-void toggle_build(void*);
-void reset_viewer_state_on_sim(void);
-void update_saved_window_size(const std::string& control,S32 delta_width, S32 delta_height);
-
 //
 // Globals
 //
@@ -486,8 +480,6 @@ extern LLVector2        gDebugRaycastTexCoord;
 extern LLVector3        gDebugRaycastNormal;
 extern LLVector3        gDebugRaycastBinormal;
 extern S32				gDebugRaycastFaceHit;
-
-extern S32 CHAT_BAR_HEIGHT; 
 
 extern BOOL			gDisplayCameraPos;
 extern BOOL			gDisplayWindInfo;

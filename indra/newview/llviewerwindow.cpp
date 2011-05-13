@@ -79,6 +79,7 @@
 #include "lltooltip.h"
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
+#include "raytrace.h"
 
 // newview includes
 #include "llagent.h"
@@ -234,17 +235,12 @@ BOOL				gDisplayCameraPos = FALSE;
 BOOL				gDisplayFOV = FALSE;
 BOOL				gDisplayBadge = FALSE;
 
-S32 CHAT_BAR_HEIGHT = 28; 
-S32 OVERLAY_BAR_HEIGHT = 20;
-
-const U8 NO_FACE = 255;
+static const U8 NO_FACE = 255;
 BOOL gQuietSnapshot = FALSE;
 
 const F32 MIN_AFK_TIME = 2.f; // minimum time after setting away state before coming back
-const F32 MAX_FAST_FRAME_TIME = 0.5f;
-const F32 FAST_FRAME_INCREMENT = 0.1f;
 
-const F32 MIN_DISPLAY_SCALE = 0.75f;
+static const F32 MIN_DISPLAY_SCALE = 0.75f;
 
 std::string	LLViewerWindow::sSnapshotBaseName;
 std::string	LLViewerWindow::sSnapshotDir;

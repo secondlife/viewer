@@ -36,6 +36,7 @@
 #include "llimview.h"
 #include "llmenubutton.h"
 #include "llnotificationsutil.h"
+#include "llslurl.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
