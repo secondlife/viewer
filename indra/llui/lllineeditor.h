@@ -75,6 +75,7 @@ public:
 		Optional<keystroke_callback_t>	keystroke_callback;
 
 		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_callback;
+		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_input_callback;
 		
 		Optional<LLViewBorder::Params>	border;
 
@@ -231,6 +232,7 @@ public:
 
 	// Prevalidation controls which keystrokes can affect the editor
 	void			setPrevalidate( LLTextValidate::validate_func_t func );
+	void			setPrevalidateInputText( LLTextValidate::validate_func_t func );
 	static BOOL		postvalidateFloat(const std::string &str);
 
 	// line history support:
@@ -250,6 +252,7 @@ private:
 	void			addChar(const llwchar c);
 	void			setCursorAtLocalPos(S32 local_mouse_x);
 	S32				findPixelNearestPos(S32 cursor_offset = 0) const;
+	S32				calcCursorPos(S32 mouse_x);
 	BOOL			handleSpecialKey(KEY key, MASK mask);
 	BOOL			handleSelectionKey(KEY key, MASK mask);
 	BOOL			handleControlKey(KEY key, MASK mask);
@@ -311,6 +314,7 @@ protected:
 	S32			mLastSelectionEnd;
 
 	LLTextValidate::validate_func_t mPrevalidateFunc;
+	LLTextValidate::validate_func_t mPrevalidateInputFunc;
 
 	LLFrameTimer mKeystrokeTimer;
 	LLTimer		mTripleClickTimer;
