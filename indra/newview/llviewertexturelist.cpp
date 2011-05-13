@@ -76,18 +76,23 @@ LLStat LLViewerTextureList::sFormattedMemStat(32, TRUE);
 LLViewerTextureList gTextureList;
 static LLFastTimer::DeclareTimer FTM_PROCESS_IMAGES("Process Images");
 
+U32 LLViewerTextureList::sRenderThreadID = 0 ;
 ///////////////////////////////////////////////////////////////////////////////
 
 LLViewerTextureList::LLViewerTextureList() 
 	: mForceResetTextureStats(FALSE),
 	mUpdateStats(FALSE),
 	mMaxResidentTexMemInMegaBytes(0),
-	mMaxTotalTextureMemInMegaBytes(0)
+	mMaxTotalTextureMemInMegaBytes(0),
+	mInitialized(FALSE)
 {
 }
 
 void LLViewerTextureList::init()
 {
+	sRenderThreadID = LLThread::currentID() ;
+
+	mInitialized = TRUE ;
 	sNumImages = 0;
 	mMaxResidentTexMemInMegaBytes = 0;
 	mMaxTotalTextureMemInMegaBytes = 0 ;
@@ -105,6 +110,10 @@ void LLViewerTextureList::doPreloadImages()
 {
 	LL_DEBUGS("ViewerImages") << "Preloading images..." << LL_ENDL;
 	
+	llassert_always(mInitialized) ;
+	llassert_always(mImageList.empty()) ;
+	llassert_always(mUUIDMap.empty()) ;
+
 	// Set the "missing asset" image
 	LLViewerFetchedTexture::sMissingAssetImagep = LLViewerTextureManager::getFetchedTextureFromFile("missing_asset.tga", MIPMAP_NO, LLViewerFetchedTexture::BOOST_UI);
 	
@@ -300,6 +309,7 @@ void LLViewerTextureList::destroyGL(BOOL save_state)
 
 void LLViewerTextureList::restoreGL()
 {
+	llassert_always(mInitialized) ;
 	LLImageGL::restoreGL();
 }
 
@@ -477,8 +487,10 @@ LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id)
 	return iter->second;
 }
 
-void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
+void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image, U32 thread_id)
 {
+	llassert_always(mInitialized) ;
+	llassert_always(sRenderThreadID == thread_id);
 	llassert(image);
 	if (image->isInImageList())
 	{
@@ -492,8 +504,10 @@ void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 	image->setInImageList(TRUE) ;
 }
 
-void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
+void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image, U32 thread_id)
 {
+	llassert_always(mInitialized) ;
+	llassert_always(sRenderThreadID == thread_id);
 	llassert(image);
 	if (!image->isInImageList())
 	{
@@ -690,9 +704,9 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			if ((decode_priority_test < old_priority_test * .8f) ||
 				(decode_priority_test > old_priority_test * 1.25f))
 			{
-				removeImageFromList(imagep);
+				removeImageFromList(imagep, sRenderThreadID);
 				imagep->setDecodePriority(decode_priority);
-				addImageToList(imagep);
+				addImageToList(imagep, sRenderThreadID);
 			}
 			update_counter--;
 		}
@@ -769,9 +783,8 @@ void LLViewerTextureList::forceImmediateUpdate(LLViewerFetchedTexture* imagep)
 	imagep->processTextureStats();
 	F32 decode_priority = LLViewerFetchedTexture::maxDecodePriority() ;
 	imagep->setDecodePriority(decode_priority);
-	mImageList.insert(imagep);
-	imagep->setInImageList(TRUE) ;
-
+	addImageToList(imagep);
+	
 	return ;
 }
 
@@ -864,7 +877,9 @@ void LLViewerTextureList::updateImagesUpdateStats()
 void LLViewerTextureList::decodeAllImages(F32 max_time)
 {
 	LLTimer timer;
-	
+
+	llassert_always(sRenderThreadID == LLThread::currentID());
+
 	// Update texture stats and priorities
 	std::vector<LLPointer<LLViewerFetchedTexture> > image_list;
 	for (image_priority_list_t::iterator iter = mImageList.begin();
@@ -882,8 +897,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		imagep->processTextureStats();
 		F32 decode_priority = imagep->calcDecodePriority();
 		imagep->setDecodePriority(decode_priority);
-		mImageList.insert(imagep);
-		imagep->setInImageList(TRUE) ;
+		addImageToList(imagep);
 	}
 	image_list.clear();
 	

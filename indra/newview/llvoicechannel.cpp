@@ -849,6 +849,8 @@ void LLVoiceChannelP2P::activate()
 		{
 			if (!LLVoiceClient::getInstance()->answerInvite(mSessionHandle))
 			{
+				mCallEndedByAgent = false;
+				mSessionHandle.clear();
 				handleError(ERROR_UNKNOWN);
 				return;
 			}
