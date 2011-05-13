@@ -2730,7 +2730,7 @@ O botão será exibido quando houver espaço suficente.
 		Selecione os residentes com quem compartilhar.
 	</notification>
 	<notification name="ShareItemsConfirmation">
-		Tem certeza de que quer compartilhar os items abaixo?
+		Tem certeza de que quer compartilhar os itens abaixo?
 
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
@@ -2822,6 +2822,13 @@ Silenciar todos?
 	<notification label="Levantar-se" name="HintSit">
 		Para se levantar quando estiver sentado, clique em Levantar-se
 	</notification>
+	<notification label="Falar" name="HintSpeak">
+		Clique no botão Falar para ligar ou desligar o microfone.
+
+Clique na seta para cima para ver o painel de controles de voz.
+
+Se o botão Falar for ocultado, o recurso de voz será desabilitado.
+	</notification>
 	<notification label="Explore o mundo" name="HintDestinationGuide">
 		O Guia de Destinos traz milhares de lugares novos para você explorar e conhecer. Selecione um lugar, clique em Teletransportar e comece suas descobertas.
 	</notification>
@@ -2831,11 +2838,13 @@ Silenciar todos?
 	<notification label="Movimentar" name="HintMove">
 		Para andar ou correr, clique no botão Movimentar e use as setas para controlar a direção.  Ou use as setas do teclado.
 	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Clique para andar Clique em qualquer lugar no solo para andar até o local.
+
+2. Clique e arraste para girar a exibição Clique e arraste em qualquer lugar no mundo para girar a exibição
+	</notification>
 	<notification label="Nome de tela" name="HintDisplayName">
 		Defina seu nome de tela personalizável. O nome de tele é separado do seu nome de usuário, que não pode ser modificado. Você pode mudar a visualização dos nomes de outras pessoas nas suas preferências.
-	</notification>
-	<notification label="Movimentar" name="HintMoveArrows">
-		Para andar, use as setas do teclado. Para correr, pressione a seta para cima duas vezes.
 	</notification>
 	<notification label="Exibir" name="HintView">
 		Para mudar o ângulo de visualização, use os controles Órbita e Pan. Volte à visualização normal pressionando a tecla Escape ou começando a andar.

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="media ctrl context menu">
+	<menu_item_call label="Couper" name="Cut"/>
+	<menu_item_call label="Copier" name="Copy"/>
+	<menu_item_call label="Coller" name="Paste"/>
+</context_menu>

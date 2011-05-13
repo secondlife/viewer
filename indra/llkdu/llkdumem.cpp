@@ -47,12 +47,12 @@ LLKDUMemIn::LLKDUMemIn(const U8 *data,
 	num_components = in_num_components;
 	alignment_bytes = 0;
 
-	for (n=0; n<3; ++n)
+	for (n = 0; n < 3; ++n)
 	{
 		precision[n] = 0;
 	}
 
-	for (n=0; n < num_components; ++n)
+	for (n = 0; n < num_components; ++n)
 	{
 		siz->set(Sdims,n,0,rows);
 		siz->set(Sdims,n,1,cols);
@@ -80,12 +80,12 @@ LLKDUMemIn::~LLKDUMemIn()
 	}
 	image_line_buf *tmp;
 	while ((tmp=incomplete_lines) != NULL)
-    {
+	{
 		incomplete_lines = tmp->next;
 		delete tmp; 
 	}
 	while ((tmp=free_lines) != NULL)
-    {
+	{
 		free_lines = tmp->next;
 		delete tmp;
 	}
@@ -98,16 +98,16 @@ bool LLKDUMemIn::get(int comp_idx, kdu_line_buf &line, int x_tnum)
 	assert((idx >= 0) && (idx < num_components));
 	x_tnum = x_tnum*num_components+idx;
 	image_line_buf *scan, *prev=NULL;
-	for (scan=incomplete_lines; scan != NULL; prev=scan, scan=scan->next)
-    {
+	for (scan = incomplete_lines; scan != NULL; prev = scan, scan = scan->next)
+	{
 		assert(scan->next_x_tnum >= x_tnum);
 		if (scan->next_x_tnum == x_tnum)
 		{
 			break;
 		}
-    }
+	}
 	if (scan == NULL)
-    { // Need to read a new image line.
+	{ // Need to read a new image line.
 		assert(x_tnum == 0); // Must consume in very specific order.
 		if (num_unread_rows == 0)
 		{
@@ -134,7 +134,7 @@ bool LLKDUMemIn::get(int comp_idx, kdu_line_buf &line, int x_tnum)
 		num_unread_rows--;
 		scan->accessed_samples = 0;
 		scan->next_x_tnum = 0;
-    }
+	}
 
 	assert((cols-scan->accessed_samples) >= line.get_width());
 
@@ -161,7 +161,7 @@ bool LLKDUMemIn::get(int comp_idx, kdu_line_buf &line, int x_tnum)
 		}
 	}
 	else
-    {
+	{
 		kdu_sample16 *dp = line.get_buf16();
 		if (line.is_absolute())
 		{ // 16-bit absolute integers
@@ -177,7 +177,7 @@ bool LLKDUMemIn::get(int comp_idx, kdu_line_buf &line, int x_tnum)
 				dp->ival = (((kdu_int16)(*sp)) - 128) << (KDU_FIX_POINT-8);
 			}
 		}
-    }
+	}
 
 	scan->next_x_tnum++;
 	if (idx == (num_components-1))

@@ -104,7 +104,7 @@ public:
 	 */
 	LLPanel*	showPanel		(const std::string& panel_name, const LLSD& params = LLSD());
 
-	void		hidePanel		(const std::string& panel_name);
+	bool		hidePanel		(const std::string& panel_name);
 
 	/**
 	 * Toggling Side Tray tab which contains "sub_panel" child of "panel_name" panel.
@@ -121,7 +121,7 @@ public:
     LLPanel*	getActivePanel	();
     bool		isPanelActive	(const std::string& panel_name);
 
-	void		setTabDocked(const std::string& tab_name, bool dock);
+	void		setTabDocked(const std::string& tab_name, bool dock, bool toggle_floater = true);
 
 	/*
 	 * get the panel of given type T (don't show it or do anything else with it)

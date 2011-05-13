@@ -66,10 +66,13 @@ public:
 		FILTERLINK_ONLY_LINKS		// only show links
 	};
 
-	// REFACTOR: Change this to an enum.
-	static const U32 SO_DATE = 1;
-	static const U32 SO_FOLDERS_BY_NAME = 2;
-	static const U32 SO_SYSTEM_FOLDERS_TO_TOP = 4;
+	enum ESortOrderType
+	{
+		SO_NAME = 0,						// Sort inventory by name
+		SO_DATE = 0x1,						// Sort inventory by date
+		SO_FOLDERS_BY_NAME = 0x1 << 1,		// Force folder sort by name
+		SO_SYSTEM_FOLDERS_TO_TOP = 0x1 << 2	// Force system folders to be on top
+	};
 
 	LLInventoryFilter(const std::string& name);
 	virtual ~LLInventoryFilter();

@@ -592,6 +592,10 @@ void LLTextEditor::indentSelectedLines( S32 spaces )
 			}
 		}
 
+		// Disabling parsing on the fly to avoid updating text segments
+		// until all indentation commands are executed.
+		mParseOnTheFly = FALSE;
+
 		// Find each start-of-line and indent it
 		do
 		{
@@ -616,6 +620,8 @@ void LLTextEditor::indentSelectedLines( S32 spaces )
 			}
 		}
 		while( cur < right );
+
+		mParseOnTheFly = TRUE;
 
 		if( (right < getLength()) && (text[right] == '\n') )
 		{

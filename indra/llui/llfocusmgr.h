@@ -74,7 +74,7 @@ class LLFocusMgr
 {
 public:
 	LLFocusMgr();
-	~LLFocusMgr() { mFocusHistory.clear(); }
+	~LLFocusMgr();
 
 	// Mouse Captor
 	void			setMouseCapture(LLMouseHandler* new_captor);	// new_captor = NULL to release the mouse.
@@ -120,6 +120,8 @@ public:
 
 	bool			keyboardFocusHasAccelerators() const;
 
+	struct Impl;
+
 private:
 	LLUICtrl*			mLockedView;
 
@@ -132,10 +134,6 @@ private:
 	LLFocusableElement*	mDefaultKeyboardFocus;
 	BOOL				mKeystrokesOnly;
 	
-	// caching list of keyboard focus ancestors for calling onFocusReceived and onFocusLost
-	typedef std::list<LLHandle<LLView> > view_handle_list_t;
-	view_handle_list_t mCachedKeyboardFocusList;
-
 	// Top View
 	LLUICtrl*			mTopCtrl;
 
@@ -143,8 +141,7 @@ private:
 
 	BOOL				mAppHasFocus;
 
-	typedef std::map<LLHandle<LLView>, LLHandle<LLView> > focus_history_map_t;
-	focus_history_map_t mFocusHistory;
+	Impl * mImpl;
 };
 
 extern LLFocusMgr gFocusMgr;

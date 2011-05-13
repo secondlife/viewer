@@ -50,6 +50,7 @@
 #include "llviewerstats.h"
 #include "llvlcomposition.h"
 #include "llvoavatar.h"
+#include "llvocache.h"
 #include "llvowater.h"
 #include "message.h"
 #include "pipeline.h"
@@ -1438,6 +1439,8 @@ static LLVector3d unpackLocalToGlobalPosition(U32 compact_local, const LLVector3
 
 void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positions, const LLVector3d& relative_to, F32 radius) const
 {
+	F32 radius_squared = radius * radius;
+	
 	if(avatar_ids != NULL)
 	{
 		avatar_ids->clear();
@@ -1458,7 +1461,7 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 			if(!uuid.isNull())
 			{
 				LLVector3d pos_global = pVOAvatar->getPositionGlobal();
-				if(dist_vec(pos_global, relative_to) <= radius)
+				if(dist_vec_squared(pos_global, relative_to) <= radius_squared)
 				{
 					if(positions != NULL)
 					{
@@ -1482,7 +1485,7 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 		for (S32 i = 0; i < count; i++)
 		{
 			LLVector3d pos_global = unpackLocalToGlobalPosition(regionp->mMapAvatars.get(i), origin_global);
-			if(dist_vec(pos_global, relative_to) <= radius)
+			if(dist_vec_squared(pos_global, relative_to) <= radius_squared)
 			{
 				LLUUID uuid = regionp->mMapAvatarIDs.get(i);
 				// if this avatar doesn't already exist in the list, add it

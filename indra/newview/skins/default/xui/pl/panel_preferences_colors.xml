@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Kolory" name="colors_panel">
 	<text name="effects_color_textbox">
-		Moje efekty (selection beam):
+		Moje efekty (opcje wyboru):
 	</text>
 	<color_swatch name="effect_color_swatch" tool_tip="Kliknij aby wybrać kolor"/>
 	<text name="font_colors">
-		Kolor czcionki czatu:
+		Kolory czcionki czatu:
 	</text>
 	<text name="text_box1">
 		Ja
@@ -34,8 +34,8 @@
 	<color_swatch name="background" tool_tip="Wybierz kolor taga"/>
 	<slider label="Przeźroczystość:" name="bubble_chat_opacity" tool_tip="Wybierz przeźroczystość taga"/>
 	<text name="floater_opacity">
-		Przeźroczystość:
+		Floater Opacity:
 	</text>
-	<slider label="Aktywny:" name="active"/>
-	<slider label="Niekatywny:" name="inactive"/>
+	<slider label="Aktywne:" name="active"/>
+	<slider label="Nieaktywne:" name="inactive"/>
 </panel>

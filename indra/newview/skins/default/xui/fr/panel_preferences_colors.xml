@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Couleurs" name="colors_panel">
 	<text name="effects_color_textbox">
-		Mes effets (faisceau de sélection lumineux) :
+		Mes effets (faisceau de sélection) :
 	</text>
 	<color_swatch name="effect_color_swatch" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs."/>
 	<text name="font_colors">
-		Couleurs de la police du chat :
+		Couleurs pour le chat :
 	</text>
 	<text name="text_box1">
 		Moi

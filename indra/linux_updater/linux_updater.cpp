@@ -33,6 +33,7 @@
 #include "llerrorcontrol.h"
 #include "llfile.h"
 #include "lldir.h"
+#include "lldiriterator.h"
 #include "llxmlnode.h"
 #include "lltrans.h"
 
@@ -54,6 +55,8 @@ typedef struct _updater_app_state {
 	std::string dest_dir;
 	std::string strings_dirs;
 	std::string strings_file;
+
+	LLDirIterator *image_dir_iter;
 
 	GtkWidget *window;
 	GtkWidget *progress_bar;
@@ -115,7 +118,7 @@ bool translate_init(std::string comma_delim_path_list,
 void updater_app_ui_init(void);
 void updater_app_quit(UpdaterAppState *app_state);
 void parse_args_and_init(int argc, char **argv, UpdaterAppState *app_state);
-std::string next_image_filename(std::string& image_path);
+std::string next_image_filename(std::string& image_path, LLDirIterator& iter);
 void display_error(GtkWidget *parent, std::string title, std::string message);
 BOOL install_package(std::string package_file, std::string destination);
 BOOL spawn_viewer(UpdaterAppState *app_state);
@@ -181,7 +184,7 @@ void updater_app_ui_init(UpdaterAppState *app_state)
 
 		// load the first image
 		app_state->image = gtk_image_new_from_file
-			(next_image_filename(app_state->image_dir).c_str());
+			(next_image_filename(app_state->image_dir, *app_state->image_dir_iter).c_str());
 		gtk_widget_set_size_request(app_state->image, 340, 310);
 		gtk_container_add(GTK_CONTAINER(frame), app_state->image);
 
@@ -212,7 +215,7 @@ gboolean rotate_image_cb(gpointer data)
 	llassert(data != NULL);
 	app_state = (UpdaterAppState *) data;
 
-	filename = next_image_filename(app_state->image_dir);
+	filename = next_image_filename(app_state->image_dir, *app_state->image_dir_iter);
 
 	gdk_threads_enter();
 	gtk_image_set_from_file(GTK_IMAGE(app_state->image), filename.c_str());
@@ -221,10 +224,10 @@ gboolean rotate_image_cb(gpointer data)
 	return TRUE;
 }
 
-std::string next_image_filename(std::string& image_path)
+std::string next_image_filename(std::string& image_path, LLDirIterator& iter)
 {
 	std::string image_filename;
-	gDirUtilp->getNextFileInDir(image_path, "/*.jpg", image_filename);
+	iter.next(image_filename);
 	return image_path + "/" + image_filename;
 }
 
@@ -748,6 +751,7 @@ void parse_args_and_init(int argc, char **argv, UpdaterAppState *app_state)
 		else if ((!strcmp(argv[i], "--image-dir")) && (++i < argc))
 		{
 			app_state->image_dir = argv[i];
+			app_state->image_dir_iter = new LLDirIterator(argv[i], "/*.jpg");
 		}
 		else if ((!strcmp(argv[i], "--dest")) && (++i < argc))
 		{
@@ -832,6 +836,7 @@ int main(int argc, char **argv)
 	}
 
 	bool success = !app_state->failure;
+	delete app_state->image_dir_iter;
 	delete app_state;
 	return success ? 0 : 1;
 }

@@ -33,20 +33,16 @@
 
 #include "lldarray.h"
 #include "llwind.h"
-#include "llbbox.h"
 #include "llcloud.h"
 #include "llstat.h"
 #include "v3dmath.h"
-#include "llhost.h"
 #include "llstring.h"
 #include "llregionflags.h"
 #include "lluuid.h"
-#include "lldatapacker.h"
-#include "llvocache.h"
 #include "llweb.h"
 #include "llcapabilityprovider.h"
-#include "llcapabilitylistener.h"
 #include "m4math.h"					// LLMatrix4
+#include "llhttpclient.h"
 
 // Surface id's
 #define LAND  1
@@ -65,6 +61,13 @@ class LLVOCache;
 class LLVOCacheEntry;
 class LLSpatialPartition;
 class LLEventPump;
+class LLCapabilityListener;
+class LLDataPacker;
+class LLDataPackerBinaryBuffer;
+class LLHost;
+class LLBBox;
+
+class LLViewerRegionImpl;
 
 class LLViewerRegion: public LLCapabilityProvider // implements this interface
 {
@@ -159,19 +162,19 @@ public:
 	F32  getTimeDilation() const				{ return mTimeDilation; }
 
 	// Origin height is at zero.
-	const LLVector3d &getOriginGlobal() const	{ return mOriginGlobal; }
+	const LLVector3d &getOriginGlobal() const;
 	LLVector3 getOriginAgent() const;
 
 	// Center is at the height of the water table.
-	const LLVector3d &getCenterGlobal() const	{ return mCenterGlobal; }
+	const LLVector3d &getCenterGlobal() const;
 	LLVector3 getCenterAgent() const;
 
 	void setRegionNameAndZone(const std::string& name_and_zone);
 	const std::string& getName() const				{ return mName; }
 	const std::string& getZoning() const			{ return mZoning; }
 
-	void setOwner(const LLUUID& owner_id) { mOwnerID = owner_id; }
-	const LLUUID& getOwner() const { return mOwnerID; }
+	void setOwner(const LLUUID& owner_id);
+	const LLUUID& getOwner() const;
 
 	// Is the current agent on the estate manager list for this region?
 	void setIsEstateManager(BOOL b) { mIsEstateManager = b; }
@@ -206,7 +209,7 @@ public:
 	// can process the message.
 	static void processRegionInfo(LLMessageSystem* msg, void**);
 
-	void setCacheID(const LLUUID& id)			{ mCacheID = id; }
+	void setCacheID(const LLUUID& id);
 
 	F32	getWidth() const						{ return mWidth; }
 
@@ -222,8 +225,8 @@ public:
 
 	U32	getPacketsLost() const;
 
-	void setHttpResponderPtrNULL() {mHttpResponderPtr = NULL ;}
-	const LLHTTPClient::ResponderPtr getHttpResponderPtr() const {return mHttpResponderPtr ;}
+	void setHttpResponderPtrNULL();
+	const LLHTTPClient::ResponderPtr getHttpResponderPtr() const;
 
 	// Get/set named capability URLs for this region.
 	void setSeedCapability(const std::string& url);
@@ -238,21 +241,19 @@ public:
 	static bool isSpecialCapabilityName(const std::string &name);
 	void logActiveCapabilities() const;
 
-    /// Capability-request exception
-    typedef LLCapabilityListener::ArgError ArgError;
     /// Get LLEventPump on which we listen for capability requests
     /// (https://wiki.lindenlab.com/wiki/Viewer:Messaging/Messaging_Notes#Capabilities)
-    LLEventPump& getCapAPI() { return mCapabilityListener.getCapAPI(); }
+    LLEventPump& getCapAPI() const;
 
     /// implements LLCapabilityProvider
 	/*virtual*/ const LLHost& getHost() const;
 	const U64 		&getHandle() const 			{ return mHandle; }
 
-	LLSurface		&getLand() const			{ return *mLandp; }
+	LLSurface		&getLand() const;
 
 	// set and get the region id
-	const LLUUID& getRegionID() const { return mRegionID; }
-	void setRegionID(const LLUUID& region_id) { mRegionID = region_id; }
+	const LLUUID& getRegionID() const;
+	void setRegionID(const LLUUID& region_id);
 
 	BOOL pointInRegionGlobal(const LLVector3d &point_global) const;
 	LLVector3	getPosRegionFromGlobal(const LLVector3d &point_global) const;
@@ -260,7 +261,7 @@ public:
 	LLVector3	getPosAgentFromRegion(const LLVector3 &region_pos) const;
 	LLVector3d	getPosGlobalFromRegion(const LLVector3 &offset) const;
 
-	LLVLComposition *getComposition() const		{ return mCompositionp; }
+	LLVLComposition *getComposition() const;
 	F32 getCompositionXY(const S32 x, const S32 y) const;
 
 	BOOL isOwnedSelf(const LLVector3& pos);
@@ -347,34 +348,19 @@ public:
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
 private:
-	// The surfaces and other layers
-	LLSurface*	mLandp;
+	LLViewerRegionImpl * mImpl;
 
-	// Region geometry data
-	LLVector3d	mOriginGlobal;	// Location of southwest corner of region (meters)
-	LLVector3d	mCenterGlobal;	// Location of center in world space (meters)
 	F32			mWidth;			// Width of region on a side (meters)
-
 	U64			mHandle;
-	LLHost		mHost;
-
-	// The unique ID for this region.
-	LLUUID mRegionID;
-
 	F32			mTimeDilation;	// time dilation of physics simulation on simulator
 
 	// simulator name
 	std::string mName;
 	std::string mZoning;
 
-	// region/estate owner - usually null.
-	LLUUID mOwnerID;
-
 	// Is this agent on the estate managers list for this region?
 	BOOL mIsEstateManager;
 
-	// Network statistics for the region's circuit...
-	LLTimer mLastNetUpdate;
 	U32		mPacketsIn;
 	U32		mBitsIn;
 	U32		mLastBitsIn;
@@ -386,9 +372,6 @@ private:
 	U32		mPingDelay;
 	F32		mDeltaTime;				// Time since last measurement of lastPackets, Bits, etc
 
-	// Misc
-	LLVLComposition *mCompositionp;		// Composition layer for the surface
-
 	U32		mRegionFlags;			// includes damage flags
 	U8		mSimAccess;
 	F32 	mBillableFactor;
@@ -398,45 +381,23 @@ private:
 	// Information for Homestead / CR-53
 	S32 mClassID;
 	S32 mCPURatio;
+
 	std::string mColoName;
 	std::string mProductSKU;
 	std::string mProductName;
 	std::string mHttpUrl ;
-	
 	
 	// Maps local ids to cache entries.
 	// Regions can have order 10,000 objects, so assume
 	// a structure of size 2^14 = 16,000
 	BOOL									mCacheLoaded;
 	BOOL                                    mCacheDirty;
-	LLVOCacheEntry::vocache_entry_map_t		mCacheMap;
+
 	LLDynamicArray<U32>						mCacheMissFull;
 	LLDynamicArray<U32>						mCacheMissCRC;
-	// time?
-	// LRU info?
 
-	// Cache ID is unique per-region, across renames, moving locations,
-	// etc.
-	LLUUID mCacheID;
-
-	typedef std::map<std::string, std::string> CapabilityMap;
-	CapabilityMap mCapabilities;
-	
-	LLEventPoll* mEventPoll;
-
-    /// Post an event to this LLCapabilityListener to invoke a capability message on
-    /// this LLViewerRegion's server
-    /// (https://wiki.lindenlab.com/wiki/Viewer:Messaging/Messaging_Notes#Capabilities)
-    LLCapabilityListener mCapabilityListener;
-
-private:
 	bool	mAlive;					// can become false if circuit disconnects
 	bool	mCapabilitiesReceived;
-
-	//spatial partitions for objects in this region
-	std::vector<LLSpatialPartition*> mObjectPartition;
-
-	LLHTTPClient::ResponderPtr  mHttpResponderPtr ;
 
 	BOOL mReleaseNotesRequested;
 };

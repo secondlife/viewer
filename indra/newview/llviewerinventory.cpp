@@ -183,6 +183,12 @@ public:
 			return false;
 		}
 
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableInventory"))
+		{
+				LLNotificationsUtil::add("NoInventory", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+				return true;
+		}
+
 		// support secondlife:///app/inventory/show
 		if (params[0].asString() == "show")
 		{
@@ -1450,6 +1456,9 @@ private:
 
 	void saveFavoritesSLURLs();
 
+	// Remove record of current user's favorites from file on disk.
+	void removeFavoritesRecordOfUser();
+
 	void onLandmarkLoaded(const LLUUID& asset_id, LLLandmark* landmark);
 	void storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl);
 
@@ -1534,6 +1543,10 @@ void LLFavoritesOrderStorage::destroyClass()
 	{
 		LLFavoritesOrderStorage::instance().saveFavoritesSLURLs();
 	}
+	else
+	{
+		LLFavoritesOrderStorage::instance().removeFavoritesRecordOfUser();
+	}
 }
 
 void LLFavoritesOrderStorage::load()
@@ -1600,6 +1613,28 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
 	llofstream file;
 	file.open(filename);
 	LLSDSerialize::toPrettyXML(fav_llsd, file);
+}
+
+void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
+{
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	LLSD fav_llsd;
+	llifstream file;
+	file.open(filename);
+	if (!file.is_open()) return;
+	LLSDSerialize::fromXML(fav_llsd, file);
+
+	LLAvatarName av_name;
+	LLAvatarNameCache::get( gAgentID, &av_name );
+	if (fav_llsd.has(av_name.getLegacyName()))
+	{
+		fav_llsd.erase(av_name.getLegacyName());
+	}
+
+	llofstream out_file;
+	out_file.open(filename);
+	LLSDSerialize::toPrettyXML(fav_llsd, out_file);
+
 }
 
 void LLFavoritesOrderStorage::onLandmarkLoaded(const LLUUID& asset_id, LLLandmark* landmark)

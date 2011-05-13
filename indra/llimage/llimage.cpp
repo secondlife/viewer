@@ -1254,28 +1254,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 		return false;
 	}
 	
-	LLPointer<LLImageFormatted> image;
-	switch(codec)
-	{
-	  //case IMG_CODEC_RGB:
-	  case IMG_CODEC_BMP:
-		image = new LLImageBMP();
-		break;
-	  case IMG_CODEC_TGA:
-		image = new LLImageTGA();
-		break;
-	  case IMG_CODEC_JPEG:
-		image = new LLImageJPEG();
-		break;
-	  case IMG_CODEC_J2C:
-		image = new LLImageJ2C();
-		break;
-	  case IMG_CODEC_DXT:
-		image = new LLImageDXT();
-		break;
-	  default:
-		return false;
-	}
+	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
 	llassert(image.notNull());
 
 	U8 *buffer = image->allocateData(length);

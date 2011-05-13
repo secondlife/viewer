@@ -33,6 +33,7 @@
 #include "pipeline.h"
 #include "llsky.h"
 
+#include "lldiriterator.h"
 #include "llfloaterreg.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
@@ -87,11 +88,12 @@ void LLWaterParamManager::loadAllPresets(const std::string& file_name)
 	std::string path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/water", ""));
 	LL_DEBUGS2("AppInit", "Shaders") << "Loading Default water settings from " << path_name << LL_ENDL;
 			
-	bool found = true;			
+	bool found = true;
+	LLDirIterator app_settings_iter(path_name, "*.xml");
 	while(found) 
 	{
 		std::string name;
-		found = gDirUtilp->getNextFileInDir(path_name, "*.xml", name);
+		found = app_settings_iter.next(name);
 		if(found)
 		{
 
@@ -113,11 +115,12 @@ void LLWaterParamManager::loadAllPresets(const std::string& file_name)
 	std::string path_name2(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/water", ""));
 	LL_DEBUGS2("AppInit", "Shaders") << "Loading User water settings from " << path_name2 << LL_ENDL;
 			
-	found = true;			
+	found = true;
+	LLDirIterator user_settings_iter(path_name2, "*.xml");
 	while(found) 
 	{
 		std::string name;
-		found = gDirUtilp->getNextFileInDir(path_name2, "*.xml", name);
+		found = user_settings_iter.next(name);
 		if(found)
 		{
 			name=name.erase(name.length()-4);

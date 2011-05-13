@@ -2853,6 +2853,13 @@ Alle stummschalten?
 	<notification label="Stehen" name="HintSit">
 		Um aufzustehen, klicken Sie auf die Schaltfläche „Stehen“.
 	</notification>
+	<notification label="Sprechen" name="HintSpeak">
+		Auf Schaltfläche „Sprechen“ klicken, um das Mikrofon ein- und auszuschalten.
+
+Auf den Pfeil nach oben klicken, um die Sprachsteuerung zu sehen.
+
+Durch Ausblenden der Schaltfläche „Sprechen“ wird die Sprechfunktion deaktiviert.
+	</notification>
 	<notification label="Welt erkunden" name="HintDestinationGuide">
 		Im Reiseführer finden Sie Tausende von interessanten Orten. Wählen Sie einfach einen Ort aus und klicken Sie auf „Teleportieren“.
 	</notification>
@@ -2862,11 +2869,13 @@ Alle stummschalten?
 	<notification label="Bewegen" name="HintMove">
 		Um zu gehen oder zu rennen, öffnen Sie das Bedienfeld „Bewegen“ und klicken Sie auf die Pfeile. Sie können auch die Pfeiltasten auf Ihrer Tastatur verwenden.
 	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Zum Gehen klicken: Auf beliebige Stelle am Boden klicken, um zu dieser Stelle zu gehen.
+
+2. Zum Drehen der Anzeige klicken und ziehen: Auf beliebige Stelle in der Welt klicken und ziehen, um Ihre Ansicht zu ändern.
+	</notification>
 	<notification label="Anzeigename" name="HintDisplayName">
 		Hier können Sie Ihren anpassbaren Anzeigenamen festlegen. Der Anzeigename unterscheidet sich von Ihrem eindeutigen Benutzernamen, der nicht geändert werden kann. In den Einstellungen können Sie festlegen, welcher Name von anderen Einwohnern angezeigt wird.
-	</notification>
-	<notification label="Bewegen" name="HintMoveArrows">
-		Verwenden Sie zum Gehen die Pfeiltasten auf Ihrer Tastatur. Drücken Sie die Nach-oben-Taste zweimal, um zu rennen.
 	</notification>
 	<notification label="Ansicht" name="HintView">
 		Um die Kameraansicht zu ändern, verwenden Sie die Schwenk- und Kreissteuerungen. Um die Ansicht zurückzusetzen, drücken Sie die Esc-Taste oder laufen Sie einfach.

@@ -27,8 +27,9 @@
 #ifndef LL_LLPROGRESSBAR_H
 #define LL_LLPROGRESSBAR_H
 
-#include "lluictrl.h"
 #include "llframetimer.h"
+#include "lluictrl.h"
+#include "lluiimage.h"
 
 class LLProgressBar
 	: public LLUICtrl

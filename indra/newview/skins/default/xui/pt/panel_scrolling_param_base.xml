@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="LLScrollingPanelParamBase">
+	<slider label="[DESC]:" name="param slider"/>
+</panel>

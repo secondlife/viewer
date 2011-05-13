@@ -853,6 +853,11 @@ void LLBumpImageList::destroyGL()
 
 void LLBumpImageList::restoreGL()
 {
+	if(!gTextureList.isInitialized())
+	{
+		return ;
+	}
+
 	LLStandardBumpmap::restoreGL();
 	// Images will be recreated as they are needed.
 }

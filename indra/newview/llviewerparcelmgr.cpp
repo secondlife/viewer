@@ -42,6 +42,7 @@
 
 // Viewer includes
 #include "llagent.h"
+#include "llagentaccess.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 //#include "llfirstuse.h"
@@ -54,6 +55,7 @@
 #include "llresmgr.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
+#include "llslurl.h"
 #include "llstatusbar.h"
 #include "llui.h"
 #include "llviewertexture.h"
@@ -2200,7 +2202,10 @@ bool LLViewerParcelMgr::canAgentBuyParcel(LLParcel* parcel, bool forGroup) const
 		= parcelOwner == (forGroup ? gAgent.getGroupID() : gAgent.getID());
 	
 	bool isAuthorized
-		= (authorizeBuyer.isNull() || (gAgent.getID() == authorizeBuyer));
+			= (authorizeBuyer.isNull()
+				|| (gAgent.getID() == authorizeBuyer)
+				|| (gAgent.hasPowerInGroup(authorizeBuyer,GP_LAND_DEED)
+					&& gAgent.hasPowerInGroup(authorizeBuyer,GP_LAND_SET_SALE_INFO)));
 	
 	return isForSale && !isOwner && isAuthorized  && isEmpowered;
 }

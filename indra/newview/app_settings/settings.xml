@@ -652,17 +652,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  <key>AvatarPhysicsTest</key>
-  <map>
-    <key>Comment</key>
-    <string>Simulate continuous physics behavior on all nearby avatars.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
     <key>AvatarSex</key>
     <map>
       <key>Comment</key>
@@ -11662,10 +11651,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>VoiceCallsRejectAll</key>
+    <key>VoiceCallsRejectGroup</key>
     <map>
       <key>Comment</key>
-      <string>Silently reject all incoming voice calls.</string>
+      <string>Silently reject all incoming group voice calls.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12557,6 +12546,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>    
+    <key>EnablePlaceProfile</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable viewing of place profile from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>EnablePicks</key>
     <map>
@@ -12606,6 +12606,39 @@
   <map>
     <key>Comment</key>
     <string>Enable sharing from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>EnableInventory</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable opening inventory from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>EnableSearch</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable opening search from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>EnableAppearance</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable opening appearance from web link</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -12689,6 +12722,28 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>OpenIMOnVoice</key>
+    <map>
+      <key>Comment</key>
+      <string>Open the corresponding IM window when connecting to a voice call.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+     <key>AllowBottomTrayButtonReordering</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow user to move and hide bottom tray buttons</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
 </map>
 </llsd>

@@ -52,7 +52,7 @@
         <key>Type</key>
             <string>Boolean</string>
         <key>Value</key>
-            <integer>0</integer>
+            <integer>1</integer>
         </map>
     <key>HelpURLFormat</key>
         <map>
@@ -117,10 +117,10 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-    <key>VoiceCallsRejectAll</key>
+    <key>VoiceCallsRejectGroup</key>
         <map>
         <key>Comment</key>
-            <string>Silently reject all incoming voice calls.</string>
+            <string>Silently reject all incoming group voice calls.</string>
         <key>Type</key>
             <string>Boolean</string>
         <key>Value</key>
@@ -133,7 +133,7 @@
         <key>Type</key>
             <string>Boolean</string>
         <key>Value</key>
-            <integer>1</integer>
+            <integer>0</integer>
         </map>
       <key>ScriptsCanShowUI</key>
       <map>
@@ -248,6 +248,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EnablePlaceProfile</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable viewing of place profile from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>EnablePicks</key>
     <map>
       <key>Comment</key>
@@ -290,12 +301,45 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>EnableAvatarShare</key>
     <map>
       <key>Comment</key>
       <string>Enable sharing from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableInventory</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable opening inventory from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableSearch</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable opening search from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableAppearance</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable opening appearance from web link</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -395,6 +439,28 @@
     <map>
       <key>Comment</key>
       <string>Show inventory window with last inventory offer selected when receiving inventory from other users.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>OpenIMOnVoice</key>
+    <map>
+      <key>Comment</key>
+      <string>Open the corresponding IM window when connecting to a voice call.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>AllowBottomTrayButtonReordering</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow user to move and hide bottom tray buttons</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
