@@ -33,15 +33,12 @@
 #include "llrect.h"
 #include "llcontrol.h"
 #include "llcoord.h"
-#include "lluiimage.h"		// *TODO: break this dependency, need to add #include "lluiimage.h" to all widgets that hold an Optional<LLUIImage*> in their paramblocks
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "lluicolor.h"
 #include "lluicolortable.h"
 #include <boost/signals2.hpp>
 #include "lllazyvalue.h"
-#include "llhandle.h"		// *TODO: remove this dependency, added as a 
-							// convenience when LLHandle moved to llhandle.h
 #include "llframetimer.h"
 
 // LLUIFactory
@@ -264,8 +261,6 @@ private:
 
 
 // Moved LLLocalClipRect to lllocalcliprect.h
-
-// Moved all LLHandle-related code to llhandle.h
 
 //RN: maybe this needs to moved elsewhere?
 class LLImageProviderInterface

@@ -54,6 +54,7 @@
 #include "llfilepicker.h"
 #include "llnotifications.h"
 #include "lldir.h"
+#include "lldiriterator.h"
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
 #include "lluuid.h"
@@ -1155,7 +1156,8 @@ void LLViewerMedia::clearAllCookies()
 	}
 	
 	// the hard part: iterate over all user directories and delete the cookie file from each one
-	while(gDirUtilp->getNextFileInDir(base_dir, "*_*", filename))
+	LLDirIterator dir_iter(base_dir, "*_*");
+	while (dir_iter.next(filename))
 	{
 		target = base_dir;
 		target += filename;
