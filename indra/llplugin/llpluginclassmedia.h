@@ -117,7 +117,15 @@ public:
 	bool keyEvent(EKeyEventType type, int key_code, MASK modifiers, LLSD native_key_data);
 
 	void scrollEvent(int x, int y, MASK modifiers);
-	
+
+	// Javascript <-> viewer events
+	void jsExposeObjectEvent( bool expose );
+	void jsValuesValidEvent( bool valid );
+	void jsAgentLocationEvent( double x, double y, double z );
+	void jsAgentLanguageEvent( const std::string& language );
+	void jsAgentRegionEvent( const std::string& region_name );
+	void jsAgentMaturityEvent( const std::string& maturity );
+		
 	// Text may be unicode (utf8 encoded)
 	bool textInput(const std::string &text, MASK modifiers, LLSD native_key_data);
 	

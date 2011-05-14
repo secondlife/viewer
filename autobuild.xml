@@ -1062,9 +1062,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>76c1015eafcba5ca9932c3009533b51c</string>
+              <string>1aec55e90d510ffa3beb83c427af8312</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/225273/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/229944/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110513.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1074,9 +1074,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c05a33ee8b6f253b5a744596dfc3707d</string>
+              <string>834215a2a004efb983e318d9c458d112</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-qt4.6-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/229944/arch/Linux/installer/llqtwebkit-4.7.1-linux-20110513.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1086,9 +1086,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1b1b8e104e39c542d69eb37b5ee81818</string>
+              <string>4442288be66754063f7dbc53b9b4a9a9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/225249/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/229944/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110513.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

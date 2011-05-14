@@ -61,6 +61,7 @@
 #include "llmutelist.h"
 #include "llpanelprofile.h"
 #include "llappviewer.h"
+#include "lllogininstance.h" 
 //#include "llfirstuse.h"
 #include "llwindow.h"
 
@@ -2341,6 +2342,52 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::updateJavascriptObject()
+{
+	if ( mMediaSource )
+	{
+		// flag to expose this information to internal browser or not.
+		bool expose_javascript_object = gSavedSettings.getBOOL("BrowserEnableJSObject");
+		mMediaSource->jsExposeObjectEvent( expose_javascript_object );
+
+		// indicate if the values we have are valid (currently do this blanket-fashion for
+		// everything depending on whether you are logged in or not - this may require a 
+		// more granular approach once variables are added that ARE valid before login
+		bool logged_in = LLLoginInstance::getInstance()->authSuccess();
+		mMediaSource->jsValuesValidEvent( logged_in );
+
+		// current location within a region
+		LLVector3 agent_pos = gAgent.getPositionAgent();
+		double x = agent_pos.mV[ VX ];
+		double y = agent_pos.mV[ VY ];
+		double z = agent_pos.mV[ VZ ];
+		mMediaSource->jsAgentLocationEvent( x, y, z );
+
+		// current region agent is in
+		std::string region_name("");
+		LLViewerRegion* region = gAgent.getRegion();
+		if ( region )
+		{
+			region_name = region->getName();
+		};
+		mMediaSource->jsAgentRegionEvent( region_name );
+
+		// language code the viewer is set to
+		mMediaSource->jsAgentLanguageEvent( LLUI::getLanguage() );
+
+		// maturity setting the agent has selected
+		if ( gAgent.prefersAdult() )
+			mMediaSource->jsAgentMaturityEvent( "GMA" );	// Adult means see adult, mature and general content
+		else
+		if ( gAgent.prefersMature() )
+			mMediaSource->jsAgentMaturityEvent( "GM" );	// Mature means see mature and general content
+		else
+		if ( gAgent.prefersPG() )
+			mMediaSource->jsAgentMaturityEvent( "G" );	// PG means only see General content
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 std::string LLViewerMediaImpl::getName() const 
 { 
 	if (mMediaSource)
@@ -2637,6 +2684,9 @@ void LLViewerMediaImpl::update()
 	else
 	{
 		updateVolume();
+
+		// TODO: this is updated every frame - is this bad?
+		updateJavascriptObject();
 
 		// If we didn't just create the impl, it may need to get cookie updates.
 		if(!sUpdatedCookies.empty())
