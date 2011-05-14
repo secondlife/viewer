@@ -36,6 +36,7 @@
         Recipient&apos;s Email:
     </text>
     <line_editor
+     control_name="LastPostcardRecipient"
      follows="left|top"
      height="20"
      layout="topleft"

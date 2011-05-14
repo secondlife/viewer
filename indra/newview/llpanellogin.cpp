@@ -769,7 +769,10 @@ void LLPanelLogin::loadLoginPage()
 	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
 	
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-	web_browser->navigateTo( oStr.str(), "text/html" );
+	if (web_browser->getCurrentNavUrl() != oStr.str())
+	{
+		web_browser->navigateTo( oStr.str(), "text/html" );
+	}
 }
 
 void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent event)
