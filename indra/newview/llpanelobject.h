@@ -66,7 +66,6 @@ public:
 	static void 	onCommitPhantom(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitCastShadows(	LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitPhysics(		LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitMaterial(		LLUICtrl* ctrl, void* userdata);
 
 	static void 	onCommitParametric(LLUICtrl* ctrl, void* userdata);
 
@@ -94,10 +93,6 @@ protected:
 	void 			getVolumeParams(LLVolumeParams& volume_params);
 	
 protected:
-	S32				mComboMaterialItemCount;
-
-	LLComboBox*		mComboMaterial;
-	
 	// Per-object options
 	LLComboBox*		mComboBaseType;
 
