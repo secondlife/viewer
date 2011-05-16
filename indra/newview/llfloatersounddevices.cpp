@@ -68,6 +68,9 @@ BOOL LLFloaterSoundDevices::postBuild()
 	if (panel)
 	{
 		panel->setUseTuningMode(false);
+		getChild<LLUICtrl>("voice_input_device")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
+		getChild<LLUICtrl>("voice_output_device")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
+		getChild<LLUICtrl>("mic_volume_slider")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
 	}
 	return TRUE;
 }
