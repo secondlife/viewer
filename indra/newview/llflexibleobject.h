@@ -84,7 +84,7 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		void onSetVolume(const LLVolumeParams &volume_params, const S32 detail);
 		void onSetScale(const LLVector3 &scale, BOOL damped);
 		void onParameterChanged(U16 param_type, LLNetworkData *data, BOOL in_use, bool local_origin);
-		void onShift(const LLVector3 &shift_vector);
+		void onShift(const LLVector4a &shift_vector);
 		bool isVolumeUnique() const { return true; }
 		bool isVolumeGlobal() const { return true; }
 		bool isActive() const { return true; }

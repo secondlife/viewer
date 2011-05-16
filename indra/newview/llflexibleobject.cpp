@@ -91,11 +91,13 @@ void LLVolumeImplFlexible::onParameterChanged(U16 param_type, LLNetworkData *dat
 	}
 }
 
-void LLVolumeImplFlexible::onShift(const LLVector3 &shift_vector)
+void LLVolumeImplFlexible::onShift(const LLVector4a &shift_vector)
 {	
+	//VECTORIZE THIS
+	LLVector3 shift(shift_vector.getF32ptr());
 	for (int section = 0; section < (1<<FLEXIBLE_OBJECT_MAX_SECTIONS)+1; ++section)
 	{
-		mSection[section].mPosition += shift_vector;	
+		mSection[section].mPosition += shift;	
 	}
 }
 
@@ -314,11 +316,13 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 		return FALSE; // (we are not initialized or updated)
 	}
 
-	if (force_update)
+	bool visible = mVO->mDrawable->isVisible();
+
+	if (force_update && visible)
 	{
 		gPipeline.markRebuild(mVO->mDrawable, LLDrawable::REBUILD_POSITION, FALSE);
 	}
-	else if	(mVO->mDrawable->isVisible() &&
+	else if	(visible &&
 		!mVO->mDrawable->isState(LLDrawable::IN_REBUILD_Q1) &&
 		mVO->getPixelArea() > 256.f)
 	{
@@ -362,7 +366,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	LLFastTimer ftm(FTM_DO_FLEXIBLE_UPDATE);
 	LLVolume* volume = mVO->getVolume();
 	LLPath *path = &volume->getPath();
-	if (mSimulateRes == 0)
+	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) // if its uninitialized but not visible, what then? - Nyx
 	{
 		mVO->markForUpdate(TRUE);
 		if (!doIdleUpdate(gAgent, *LLWorld::getInstance(), 0.0))
@@ -690,6 +694,8 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 	}
 
 	volume->updateRelativeXform();
+
+	if (mRenderRes > -1)
 	{
 		LLFastTimer t(FTM_DO_FLEXIBLE_UPDATE);
 		doFlexibleUpdate();

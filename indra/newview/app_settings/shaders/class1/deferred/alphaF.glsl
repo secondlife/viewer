@@ -4,11 +4,12 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+#version 120
 
 #extension GL_ARB_texture_rectangle : enable
 
 uniform sampler2D diffuseMap;
-uniform sampler2D noiseMap;
 uniform sampler2DRect depthMap;
 
 uniform mat4 shadow_matrix[6];
@@ -22,7 +23,7 @@ varying vec3 vary_ambient;
 varying vec3 vary_directional;
 varying vec3 vary_fragcoord;
 varying vec3 vary_position;
-varying vec3 vary_light;
+varying vec3 vary_pointlight_col;
 
 uniform mat4 inv_proj;
 
@@ -44,18 +45,19 @@ void main()
 	vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
 	frag *= screen_res;
 	
-	vec3 samp_pos = getPosition(frag).xyz;
-	
 	vec4 pos = vec4(vary_position, 1.0);
 	
+	vec4 diff= texture2D(diffuseMap, gl_TexCoord[0].xy);
+
 	vec4 col = vec4(vary_ambient + vary_directional.rgb, gl_Color.a);
-	vec4 color = texture2D(diffuseMap, gl_TexCoord[0].xy) * col;
+	vec4 color = diff * col;
 	
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);
 
-	//gl_FragColor = gl_Color;
+	color.rgb += diff.rgb * vary_pointlight_col.rgb;
+
 	gl_FragColor = color;
 	//gl_FragColor = vec4(1,0,1,1);
 	//gl_FragColor = vec4(1,0,1,1)*shadow;

@@ -155,8 +155,8 @@ LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 bo
 
 	if (group != NULL)
 	{
-		LLVector3 center(group->mOctreeNode->getCenter());
-		LLVector3 size(group->mOctreeNode->getSize());
+		LLVector3 center(group->mOctreeNode->getCenter().getF32ptr());
+		LLVector3 size(group->mOctreeNode->getSize().getF32ptr());
 		size += LLVector3(0.01f, 0.01f, 0.01f);
 		mMinObjPos = center - size;
 		mMaxObjPos = center + size;

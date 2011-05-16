@@ -198,6 +198,7 @@
 	<string name="favorite">favorite</string>
 	<string name="symbolic link">link</string>
 	<string name="symbolic folder link">folder link</string>
+  <string name="mesh">mesh</string>
 
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
@@ -2008,6 +2009,7 @@ Requests name of an avatar.  When data is available the dataserver event will be
 	<string name="InvFolder Initial Outfits">Initial Outfits</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
 	<string name="InvFolder Accessories">Accessories</string>
+	<string name="InvFolder Meshes">Meshes</string>
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
 	<string name="InvFolder Friends">Friends</string>

@@ -27,7 +27,11 @@
 #ifndef LLQUATERNION_H
 #define LLQUATERNION_H
 
-#include "llmath.h"
+#include <iostream>
+
+#ifndef LLMATH_H //enforce specific include order to avoid tangling inline dependencies
+#error "Please include llmath.h first."
+#endif
 
 class LLVector4;
 class LLVector3;

@@ -56,6 +56,8 @@
 #include "llviewerstats.h"
 #include "llviewerregion.h"
 #include "llappearancemgr.h"
+#include "llmeshrepository.h"
+#include "llvovolume.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -623,6 +625,7 @@ BOOL LLVOAvatarSelf::updateCharacter(LLAgent &agent)
 		mScreenp->updateWorldMatrixChildren();
 		resetHUDAttachments();
 	}
+	
 	return LLVOAvatar::updateCharacter(agent);
 }
 
@@ -648,7 +651,11 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 	}
 	return LLVOAvatar::getJoint(name);
 }
-
+//virtual
+void LLVOAvatarSelf::resetJointPositions( void )
+{
+	return LLVOAvatar::resetJointPositions();
+}
 // virtual
 BOOL LLVOAvatarSelf::setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL upload_bake )
 {
@@ -1139,6 +1146,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 		LLAppearanceMgr::instance().registerAttachment(attachment_id);
 		// Clear any pending requests once the attachment arrives.
 		removeAttachmentRequest(attachment_id);
+		updateLODRiggedAttachments();		
 	}
 
 	return attachment;
@@ -1148,8 +1156,10 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 {
 	const LLUUID attachment_id = viewer_object->getAttachmentItemID();
-	if (LLVOAvatar::detachObject(viewer_object))
+	if ( LLVOAvatar::detachObject(viewer_object) )
 	{
+		LLVOAvatar::cleanupAttachedMesh( viewer_object );
+		
 		// the simulator should automatically handle permission revocation
 		
 		stopMotionFromSource(attachment_id);

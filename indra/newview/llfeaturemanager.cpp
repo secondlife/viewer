@@ -729,6 +729,10 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("ATI");
 	}
+	if (gGLManager.mHasATIMemInfo && gGLManager.mVRAM < 256)
+	{
+		maskFeatures("ATIVramLT256");
+	}
 	if (gGLManager.mATIOldDriver)
 	{
 		maskFeatures("ATIOldDriver");
@@ -744,6 +748,14 @@ void LLFeatureManager::applyBaseMasks()
 	if (gGLManager.mGLVersion < 1.5f)
 	{
 		maskFeatures("OpenGLPre15");
+	}
+	if (gGLManager.mGLVersion < 3.f)
+	{
+		maskFeatures("OpenGLPre30");
+	}
+	if (gGLManager.mNumTextureUnits <= 8)
+	{
+		maskFeatures("TexUnit8orLess");
 	}
 
 	// now mask by gpu string

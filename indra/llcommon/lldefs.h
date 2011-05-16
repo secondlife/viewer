@@ -236,5 +236,13 @@ inline LLDATATYPE llclampb(const LLDATATYPE& a)
 	return llmin(llmax(a, (LLDATATYPE)0), (LLDATATYPE)255);
 }
 
+template <class LLDATATYPE> 
+inline void llswap(LLDATATYPE& lhs, LLDATATYPE& rhs)
+{
+	LLDATATYPE tmp = lhs;
+	lhs = rhs;
+	rhs = tmp;
+}
+
 #endif // LL_LLDEFS_H
 

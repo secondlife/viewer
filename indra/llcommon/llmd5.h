@@ -103,7 +103,7 @@ public:
   void				raw_digest(unsigned char *array) const;	// provide 16-byte array for binary data
   void				hex_digest(char *string) const;			// provide 33-byte array for ascii-hex string
 
-  friend std::ostream&   operator<< (std::ostream&, LLMD5 context);
+  friend LL_COMMON_API std::ostream&   operator<< (std::ostream&, LLMD5 context);
 
 private:
 
