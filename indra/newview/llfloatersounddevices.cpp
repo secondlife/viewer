@@ -56,7 +56,7 @@ BOOL LLFloaterSoundDevices::postBuild()
 {
 	LLTransientDockableFloater::postBuild();
 		
-	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_flyout_btn");
+	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("flyout_btn");
 	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(), LLDockControl::TOP));
 
 	setIsChrome(TRUE);

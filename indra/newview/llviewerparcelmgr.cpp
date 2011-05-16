@@ -42,6 +42,7 @@
 
 // Viewer includes
 #include "llagent.h"
+#include "llagentaccess.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 //#include "llfirstuse.h"
@@ -54,6 +55,7 @@
 #include "llresmgr.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
+#include "llslurl.h"
 #include "llstatusbar.h"
 #include "llui.h"
 #include "llviewertexture.h"

@@ -45,15 +45,6 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-    <key>EnableVoiceChat</key>
-        <map>
-        <key>Comment</key>
-            <string>Enable talking to other residents with a microphone</string>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>1</integer>
-        </map>
     <key>HelpURLFormat</key>
         <map>
         <key>Comment</key>

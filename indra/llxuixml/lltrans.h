@@ -29,8 +29,10 @@
 
 #include <map>
 
+#include "llpointer.h"
 #include "llstring.h"
-#include "llxmlnode.h"
+
+class LLXMLNode;
 
 class LLSD;
 
@@ -63,9 +65,9 @@ public:
 	 * @param default_args Set of strings (expected to be in the file) to use as default replacement args, e.g. "SECOND_LIFE"
 	 * @returns true if the file was parsed successfully, true if something went wrong
 	 */
-	static bool parseStrings(LLXMLNodePtr& root, const std::set<std::string>& default_args);
+	static bool parseStrings(LLPointer<LLXMLNode> & root, const std::set<std::string>& default_args);
 
-	static bool parseLanguageStrings(LLXMLNodePtr &root);
+	static bool parseLanguageStrings(LLPointer<LLXMLNode> & root);
 
 	/**
 	 * @brief Returns a translated string

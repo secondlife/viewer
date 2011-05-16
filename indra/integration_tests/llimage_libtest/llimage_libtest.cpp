@@ -70,6 +70,10 @@ static const char USAGE[] = "\n"
 "        be used. Blocks must be smaller than precincts. Like precincts, this option adds\n"
 "        PLT, tile markers and uses RPCL.\n"
 "        Only valid for output j2c images. Default is 64.\n"
+" -l, --levels <n>\n"
+"        Number of decomposition levels (aka discard levels) in the output image.\n"
+"        The maximum number of levels authorized is 32.\n"
+"        Only valid for output j2c images. Default is 5.\n"
 " -rev, --reversible\n"
 "        Set the compression to be lossless (reversible in j2c parlance).\n"
 "        Only valid for output j2c images.\n"
@@ -147,7 +151,7 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_le
 }
 
 // Save a raw image instance into a file
-bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image, int blocks_size, int precincts_size, bool reversible, bool output_stats)
+bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_image, int blocks_size, int precincts_size, int levels, bool reversible, bool output_stats)
 {
 	LLPointer<LLImageFormatted> image = create_image(dest_filename);
 	
@@ -156,9 +160,9 @@ bool save_image(const std::string &dest_filename, LLPointer<LLImageRaw> raw_imag
 	{
 		// That method doesn't exist (and likely, doesn't make sense) for any other image file format
 		// hence the required cryptic cast.
-		if ((blocks_size != -1) || (precincts_size != -1))
+		if ((blocks_size != -1) || (precincts_size != -1) || (levels != 0))
 		{
-			((LLImageJ2C*)(image.get()))->initEncode(*raw_image, blocks_size, precincts_size);
+			((LLImageJ2C*)(image.get()))->initEncode(*raw_image, blocks_size, precincts_size, levels);
 		}
 		((LLImageJ2C*)(image.get()))->setReversible(reversible);
 	}
@@ -306,6 +310,7 @@ int main(int argc, char** argv)
 	int discard_level = -1;
 	int precincts_size = -1;
 	int blocks_size = -1;
+	int levels = 0;
 	bool reversible = false;
 
 	// Init whatever is necessary
@@ -403,7 +408,6 @@ int main(int argc, char** argv)
 			else
 			{
 				precincts_size = atoi(value_str.c_str());
-				// *TODO: make sure precincts_size is a power of 2
 			}
 		}
 		else if (!strcmp(argv[arg], "--blocks") || !strcmp(argv[arg], "-b"))
@@ -420,7 +424,22 @@ int main(int argc, char** argv)
 			else
 			{
 				blocks_size = atoi(value_str.c_str());
-				// *TODO: make sure blocks_size is a power of 2
+			}
+		}
+		else if (!strcmp(argv[arg], "--levels") || !strcmp(argv[arg], "-l"))
+		{
+			std::string value_str;
+			if ((arg + 1) < argc)
+			{
+				value_str = argv[arg+1];
+			}
+			if (((arg + 1) >= argc) || (value_str[0] == '-'))
+			{
+				std::cout << "No valid --levels argument given, default (5) will be used" << std::endl;
+			}
+			else
+			{
+				levels = atoi(value_str.c_str());
 			}
 		}
 		else if (!strcmp(argv[arg], "--reversible") || !strcmp(argv[arg], "-rev"))
@@ -499,7 +518,7 @@ int main(int argc, char** argv)
 		// Save file
 		if (out_file != out_end)
 		{
-			if (!save_image(*out_file, raw_image, blocks_size, precincts_size, reversible, image_stats))
+			if (!save_image(*out_file, raw_image, blocks_size, precincts_size, levels, reversible, image_stats))
 			{
 				std::cout << "Error: Image " << *out_file << " could not be saved" << std::endl;
 			}

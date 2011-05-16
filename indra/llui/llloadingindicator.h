@@ -28,6 +28,7 @@
 #define LL_LLLOADINGINDICATOR_H
 
 #include "lluictrl.h"
+#include "lluiimage.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // class LLLoadingIndicator

@@ -25,10 +25,12 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
 #include "llagent.h" 
 
 #include "pipeline.h"
 
+#include "llagentaccess.h"
 #include "llagentcamera.h"
 #include "llagentlistener.h"
 #include "llagentwearables.h"
@@ -36,6 +38,7 @@
 #include "llanimationstates.h"
 #include "llbottomtray.h"
 #include "llcallingcard.h"
+#include "llcapabilitylistener.h"
 #include "llchannelmanager.h"
 #include "llconsole.h"
 #include "llfirstuse.h"
@@ -55,8 +58,10 @@
 #include "llpaneltopinfobar.h"
 #include "llparcel.h"
 #include "llrendersphere.h"
+#include "llsdmessage.h"
 #include "llsdutil.h"
 #include "llsky.h"
+#include "llslurl.h"
 #include "llsmoothstep.h"
 #include "llstartup.h"
 #include "llstatusbar.h"
@@ -74,6 +79,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
+#include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwindow.h"
 #include "llworld.h"
@@ -172,7 +178,8 @@ LLAgent::LLAgent() :
 	mbRunning(false),
 	mbTeleportKeepsLookAt(false),
 
-	mAgentAccess(gSavedSettings),
+	mAgentAccess(new LLAgentAccess(gSavedSettings)),
+	mTeleportSourceSLURL(new LLSLURL),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
 
@@ -209,7 +216,7 @@ LLAgent::LLAgent() :
 	mAutoPilotFinishedCallback(NULL),
 	mAutoPilotCallbackData(NULL),
 	
-	mEffectColor(LLColor4(0.f, 1.f, 1.f, 1.f)),
+	mEffectColor(new LLUIColor(LLColor4(0.f, 1.f, 1.f, 1.f))),
 
 	mHaveHomePosition(FALSE),
 	mHomeRegionHandle( 0 ),
@@ -251,7 +258,7 @@ void LLAgent::init()
 
 	setFlying( gSavedSettings.getBOOL("FlyingAtExit") );
 
-	mEffectColor = LLUIColorTable::instance().getColor("EffectColor");
+	*mEffectColor = LLUIColorTable::instance().getColor("EffectColor");
 
 	gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2));
@@ -275,9 +282,16 @@ LLAgent::~LLAgent()
 	cleanup();
 
 	delete mMouselookModeInSignal;
+	mMouselookModeInSignal = NULL;
 	delete mMouselookModeOutSignal;
+	mMouselookModeOutSignal = NULL;
 
-	// *Note: this is where LLViewerCamera::getInstance() used to be deleted.
+	delete mAgentAccess;
+	mAgentAccess = NULL;
+	delete mEffectColor;
+	mEffectColor = NULL;
+	delete mTeleportSourceSLURL;
+	mTeleportSourceSLURL = NULL;
 }
 
 // Handle any actions that need to be performed when the main app gains focus
@@ -2142,32 +2156,32 @@ void LLAgent::onAnimStop(const LLUUID& id)
 
 bool LLAgent::isGodlike() const
 {
-	return mAgentAccess.isGodlike();
+	return mAgentAccess->isGodlike();
 }
 
 bool LLAgent::isGodlikeWithoutAdminMenuFakery() const
 {
-	return mAgentAccess.isGodlikeWithoutAdminMenuFakery();
+	return mAgentAccess->isGodlikeWithoutAdminMenuFakery();
 }
 
 U8 LLAgent::getGodLevel() const
 {
-	return mAgentAccess.getGodLevel();
+	return mAgentAccess->getGodLevel();
 }
 
 bool LLAgent::wantsPGOnly() const
 {
-	return mAgentAccess.wantsPGOnly();
+	return mAgentAccess->wantsPGOnly();
 }
 
 bool LLAgent::canAccessMature() const
 {
-	return mAgentAccess.canAccessMature();
+	return mAgentAccess->canAccessMature();
 }
 
 bool LLAgent::canAccessAdult() const
 {
-	return mAgentAccess.canAccessAdult();
+	return mAgentAccess->canAccessAdult();
 }
 
 bool LLAgent::canAccessMaturityInRegion( U64 region_handle ) const
@@ -2202,37 +2216,37 @@ bool LLAgent::canAccessMaturityAtGlobal( LLVector3d pos_global ) const
 
 bool LLAgent::prefersPG() const
 {
-	return mAgentAccess.prefersPG();
+	return mAgentAccess->prefersPG();
 }
 
 bool LLAgent::prefersMature() const
 {
-	return mAgentAccess.prefersMature();
+	return mAgentAccess->prefersMature();
 }
 	
 bool LLAgent::prefersAdult() const
 {
-	return mAgentAccess.prefersAdult();
+	return mAgentAccess->prefersAdult();
 }
 
 bool LLAgent::isTeen() const
 {
-	return mAgentAccess.isTeen();
+	return mAgentAccess->isTeen();
 }
 
 bool LLAgent::isMature() const
 {
-	return mAgentAccess.isMature();
+	return mAgentAccess->isMature();
 }
 
 bool LLAgent::isAdult() const
 {
-	return mAgentAccess.isAdult();
+	return mAgentAccess->isAdult();
 }
 
 void LLAgent::setTeen(bool teen)
 {
-	mAgentAccess.setTeen(teen);
+	mAgentAccess->setTeen(teen);
 }
 
 //static 
@@ -2277,37 +2291,37 @@ bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity)
 
 BOOL LLAgent::getAdminOverride() const	
 { 
-	return mAgentAccess.getAdminOverride(); 
+	return mAgentAccess->getAdminOverride(); 
 }
 
 void LLAgent::setMaturity(char text)
 {
-	mAgentAccess.setMaturity(text);
+	mAgentAccess->setMaturity(text);
 }
 
 void LLAgent::setAdminOverride(BOOL b)	
 { 
-	mAgentAccess.setAdminOverride(b);
+	mAgentAccess->setAdminOverride(b);
 }
 
 void LLAgent::setGodLevel(U8 god_level)	
 { 
-	mAgentAccess.setGodLevel(god_level);
+	mAgentAccess->setGodLevel(god_level);
 }
 
 void LLAgent::setAOTransition()
 {
-	mAgentAccess.setTransition();
+	mAgentAccess->setTransition();
 }
 
 const LLAgentAccess& LLAgent::getAgentAccess()
 {
-	return mAgentAccess;
+	return *mAgentAccess;
 }
 
 bool LLAgent::validateMaturity(const LLSD& newvalue)
 {
-	return mAgentAccess.canSetMaturity(newvalue.asInteger());
+	return mAgentAccess->canSetMaturity(newvalue.asInteger());
 }
 
 void LLAgent::handleMaturity(const LLSD& newvalue)
@@ -2639,12 +2653,12 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 
 const LLColor4 &LLAgent::getEffectColor()
 {
-	return mEffectColor;
+	return *mEffectColor;
 }
 
 void LLAgent::setEffectColor(const LLColor4 &color)
 {
-	mEffectColor = color;
+	*mEffectColor = color;
 }
 
 void LLAgent::initOriginGlobal(const LLVector3d &origin_global)
@@ -3472,7 +3486,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 
 		case TELEPORT_MOVING:
 		// We're outa here. Save "back" slurl.
-		LLAgentUI::buildSLURL(mTeleportSourceSLURL);
+		LLAgentUI::buildSLURL(*mTeleportSourceSLURL);
 			break;
 
 		case TELEPORT_ARRIVING:
@@ -3803,6 +3817,11 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 			} //end if ( message exists and has a name)
 		} //end for (all message in set)
 	}//end for (all message sets in xml file)
+}
+
+const void LLAgent::getTeleportSourceSLURL(LLSLURL& slurl) const
+{
+	slurl = *mTeleportSourceSLURL;
 }
 
 void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& directory_visibility )

@@ -2213,7 +2213,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	name = clean_name_from_im(name, dialog);
 
 	BOOL is_busy = gAgent.getBusy();
-	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat);
+	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat)
+		// object IMs contain sender object id in session_id (STORM-1209)
+		|| dialog == IM_FROM_TASK && LLMuteList::getInstance()->isMuted(session_id);
 	BOOL is_linden = LLMuteList::getInstance()->isLinden(name);
 	BOOL is_owned_by_me = FALSE;
 	BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
@@ -5371,6 +5373,12 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 	{
 		// notification was specified using the new mechanism, so we can just handle it here
 		std::string notificationID;
+		msgsystem->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, notificationID);
+		if (!LLNotifications::getInstance()->templateExists(notificationID))
+		{
+			return false;
+		}
+
 		std::string llsdRaw;
 		LLSD llsdBlock;
 		msgsystem->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, notificationID);

@@ -44,6 +44,7 @@
 #include "llnotificationsutil.h"
 #include "llscrolllistitem.h"
 #include "llspinctrl.h"
+#include "llslurl.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"

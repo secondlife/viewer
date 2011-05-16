@@ -31,6 +31,7 @@
 #include "llfasttimer.h"	// for call count statistics
 #include "llxuiparser.h"
 #include "llsd.h"
+#include "llxmlnode.h"
 
 #include <map>
 
