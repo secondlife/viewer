@@ -106,7 +106,7 @@ LLTimeCtrl::LLTimeCtrl(const LLTimeCtrl::Params& p)
 	params.max_length.chars(8);
 	params.keystroke_callback(boost::bind(&LLTimeCtrl::onTextEntry, this, _1));
 	mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
-	mEditor->setPrevalidateInputText(LLTextValidate::validateNonNegativeS32NoSpace);
+	mEditor->setPrevalidateInput(LLTextValidate::validateNonNegativeS32NoSpace);
 	mEditor->setPrevalidate(boost::bind(&LLTimeCtrl::isTimeStringValid, this, _1));
 	mEditor->setText(LLStringExplicit("0:00 AM"));
 	addChild(mEditor);

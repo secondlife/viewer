@@ -232,8 +232,14 @@ public:
 
 	// Prevalidation controls which keystrokes can affect the editor
 	void			setPrevalidate( LLTextValidate::validate_func_t func );
-	void			setPrevalidateInputText( LLTextValidate::validate_func_t func );
+	// This method sets callback that prevents from:
+	// - deleting, selecting, typing, cutting, pasting characters that are not valid.
+	// Also callback that this method sets differs from setPrevalidate in a way that it validates just inputed
+	// symbols, before existing text is modified, but setPrevalidate validates line after it was modified.
+	void			setPrevalidateInput(LLTextValidate::validate_func_t func);
 	static BOOL		postvalidateFloat(const std::string &str);
+
+	bool			prevalidateInput(const LLWString& wstr);
 
 	// line history support:
 	void			setEnableLineHistory( BOOL enabled ) { mHaveHistory = enabled; } // switches line history on or off 
