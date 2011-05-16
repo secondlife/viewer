@@ -4044,7 +4044,7 @@ void LLModelPreview::updateStatusMessages()
 				LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit");
 
 				limit->setMaxValue(mMaxTriangleLimit);
-				limit->setValue(mRequestedTriangleCount[mPreviewLOD]);
+				limit->forceSetValue(mRequestedTriangleCount[mPreviewLOD]);
 
 				if (lod_mode == 0)
 				{
