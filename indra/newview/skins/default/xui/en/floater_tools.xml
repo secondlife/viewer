@@ -2441,16 +2441,6 @@ even though the user gets a free copy.
              top_pad="10"
              width="132" />
 
-            <check_box
-             height="19"
-             label="Override material"
-             layout="topleft"
-             left_delta="0"
-             name="Physics Material Override"
-             tool_tip="Override Material"
-             top_pad="10"
-             width="132" />
-
             <spinner
              follows="left|top"
              height="19"
