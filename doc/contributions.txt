@@ -158,6 +158,7 @@ Ann Congrejo
 Ansariel Hiller
 	STORM-1101
 Ardy Lay
+	STORM-859
 	VWR-19499
 	VWR-24917
 Argent Stonecutter
@@ -885,6 +886,7 @@ WolfPup Lowenhar
 	STORM-674
 	STORM-776
 	STORM-825
+	STORM-859
 	STORM-1098
 	VWR-20741
 	VWR-20933
