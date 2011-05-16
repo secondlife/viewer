@@ -258,9 +258,20 @@ static LLFastTimer::DeclareTimer FTM_UPDATE_WATERPARAM("Update Water Params");
 
 void LLWaterParamManager::applyUserPrefs()
 {
-	std::string water = LLEnvManagerNew::instance().getWaterPresetName();
-	LL_DEBUGS("Windlight") << "Loading water preset [" << water << "]" << LL_ENDL;
-	loadPreset(water, true);
+	if (LLEnvManagerNew::instance().getUseRegionSettings())
+	{
+		// *TODO: interpolate?
+		// *TODO: make sure whether region settings belong to the current region?
+		LL_DEBUGS("Windlight") << "Applying region water" << LL_ENDL;
+		const LLEnvironmentSettings& region_settings = LLEnvManagerNew::instance().getRegionSettings();
+		LLWaterParamManager::getInstance()->mCurParams.setAll(region_settings.getWaterParams());
+	}
+	else
+	{
+		std::string water = LLEnvManagerNew::instance().getWaterPresetName();
+		LL_DEBUGS("Windlight") << "Loading water preset [" << water << "]" << LL_ENDL;
+		loadPreset(water, true);
+	}
 }
 
 void LLWaterParamManager::update(LLViewerCamera * cam)

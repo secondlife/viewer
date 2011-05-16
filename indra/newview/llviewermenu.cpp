@@ -7605,7 +7605,7 @@ class LLWorldEnvSettings : public view_listener_t
 		}
 		else
 		{
-			LLWLParamManager::getInstance()->mAnimator.activate(LLWLAnimator::TIME_LINDEN);
+			LLEnvManagerNew::instance().setUseDayCycle(LLEnvManagerNew::instance().getDayCycleName());
 		}
 
 		return true;
@@ -7621,8 +7621,7 @@ class LLWorldCheckEnvironment : public view_listener_t
 		if (item == "use_region_settings")
 		{
 			// Check whether we're using region environment settings.
-			LLEnvKey::EScope cur_scope = LLEnvManager::getInstance()->getNormallyDisplayedScope();
-			return cur_scope == LLEnvKey::SCOPE_REGION;
+			return LLEnvManagerNew::instance().getUseRegionSettings();
 		}
 
 		return true;
@@ -7637,11 +7636,8 @@ class LLWorldEnvironment : public view_listener_t
 
 		if (item == "use_region_settings")
 		{
-			// Toggle using region environment settings.
-			LLEnvManager* env_mgr = LLEnvManager::getInstance();
-			LLEnvKey::EScope cur_scope = env_mgr->getNormallyDisplayedScope();
-			LLEnvKey::EScope new_scope = (cur_scope == LLEnvKey::SCOPE_LOCAL ? LLEnvKey::SCOPE_REGION : LLEnvKey::SCOPE_LOCAL);
-			env_mgr->setNormallyDisplayedScope(new_scope);
+			bool cur_val = LLEnvManagerNew::instance().getUseRegionSettings();
+			LLEnvManagerNew::instance().setUseRegionSettings(!cur_val);
 		}
 
 		return true;

@@ -217,7 +217,7 @@ void LLWLAnimator::setTrack(std::map<F32, LLWLParamKey>& curTrack,
 	mIsRunning = run;
 }
 
-void LLWLAnimator::startInterpolation(LLSD& targetWater)
+void LLWLAnimator::startInterpolation(const LLSD& targetWater)
 {
 	mInterpBeginWL->setAll(LLWLParamManager::getInstance()->mCurParams.getAll());
 	mInterpBeginWater->setAll(LLWaterParamManager::getInstance()->mCurParams.getAll());

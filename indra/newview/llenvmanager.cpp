@@ -661,6 +661,11 @@ std::string LLEnvManagerNew::getDayCycleName() const
 	return mUserPrefs.getDayCycleName();
 }
 
+const LLEnvironmentSettings& LLEnvManagerNew::getRegionSettings() const
+{
+	return mCachedRegionPrefs;
+}
+
 void LLEnvManagerNew::setUseRegionSettings(bool val)
 {
 	mUserPrefs.setUseDefaults(val);
@@ -728,6 +733,16 @@ void LLEnvManagerNew::saveUserPrefs()
 	gSavedSettings.setBOOL("UseDayCycle",				getUseDayCycle());
 }
 
+void LLEnvManagerNew::dumpUserPrefs()
+{
+	LL_DEBUGS("Windlight") << "WaterPresetName: "	<< gSavedSettings.getString("WaterPresetName") << LL_ENDL;
+	LL_DEBUGS("Windlight") << "SkyPresetName: "		<< gSavedSettings.getString("SkyPresetName") << LL_ENDL;
+	LL_DEBUGS("Windlight") << "DayCycleName: "		<< gSavedSettings.getString("DayCycleName") << LL_ENDL;
+
+	LL_DEBUGS("Windlight") << "UseEnvironmentFromRegion: "	<< gSavedSettings.getBOOL("UseEnvironmentFromRegion") << LL_ENDL;
+	LL_DEBUGS("Windlight") << "UseDayCycle: "				<< gSavedSettings.getBOOL("UseDayCycle") << LL_ENDL;
+}
+
 void LLEnvManagerNew::onRegionCrossing()
 {
 	LL_DEBUGS("Windlight") << "Crossed region" << LL_ENDL;
@@ -769,6 +784,8 @@ void LLEnvManagerNew::updateManagersFromPrefs()
 
 void LLEnvManagerNew::sendRegionSettingsRequest()
 {
+	LLEnvironmentRequest::initiate();
+	// *TODO: Indicate that current cached region settings have been invalidated?
 }
 
 void LLEnvManagerNew::onRegionChange(bool interpolate)
@@ -777,13 +794,16 @@ void LLEnvManagerNew::onRegionChange(bool interpolate)
 	sendRegionSettingsRequest();
 }
 
-void LLEnvManagerNew::onRegionSettingsResponse()
+void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 {
 	// 1. Refresh cached region settings.
-	// ...
+	LL_DEBUGS("Windlight") << "Caching region environment settings" << LL_ENDL;
+	F32 sun_hour = 0; // *TODO
+	LLEnvironmentSettings new_settings(content[1], content[2], content[3], sun_hour);
+	mCachedRegionPrefs = new_settings;
 
 	// 2. If using server settings, update managers.
-	if (mUserPrefs.getUseDefaults())
+	if (getUseRegionSettings())
 	{
 		updateManagersFromPrefs();
 	}

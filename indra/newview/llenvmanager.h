@@ -79,22 +79,22 @@ public:
 		mDayTime = dayTime;
 	}
 
-	LLSD& getWLDayCycle()
+	const LLSD& getWLDayCycle() const
 	{
 		return mWLDayCycle;
 	}
 
-	LLSD& getWaterParams()
+	const LLSD& getWaterParams() const
 	{
 		return mWaterParams;
 	}
 
-	LLSD& getSkyMap()
+	const LLSD& getSkyMap() const
 	{
 		return mSkyMap;
 	}
 
-	F64 getDayTime()
+	F64 getDayTime() const
 	{
 		return mDayTime;
 	}
@@ -221,10 +221,9 @@ private:
 };
 
 /**
- * User or region preferences.
+ * User environment preferences.
  *
- * Region defaults :- use SL defaults
- * User defaults   :- use region defaults
+ * defaults = use region settings
  */
 class LLEnvPrefs
 {
@@ -251,11 +250,6 @@ public:
 	std::string		mDayCycleName;
 };
 
-class LLRegionEnvPrefs : public LLEnvPrefs
-{
-	LLSD mDayCycle;
-};
-
 /**
  * Setting:
  * 1. Use region settings.
@@ -273,6 +267,7 @@ public:
 	std::string getWaterPresetName() const;
 	std::string getSkyPresetName() const;
 	std::string getDayCycleName() const;
+	const LLEnvironmentSettings& getRegionSettings() const;
 
 	void setUseRegionSettings(bool val);
 	void setUseWaterPreset(const std::string& name);
@@ -281,10 +276,12 @@ public:
 
 	void loadUserPrefs();
 	void saveUserPrefs();
+	void dumpUserPrefs();
 
 	void onLogin();
 	void onRegionCrossing();
 	void onTeleport();
+	void onRegionSettingsResponse(const LLSD& content);
 
 private:
 	friend class LLSingleton<LLEnvManagerNew>;
@@ -294,11 +291,10 @@ private:
 	void sendRegionSettingsRequest();
 
 	void onRegionChange(bool interpolate);
-	void onRegionSettingsResponse();
 
-	LLEnvPrefs			mUserPrefs;
-	LLRegionEnvPrefs	mCachedRegionPrefs;
-	bool				mInterpNextChangeMessage;
+	LLEnvPrefs				mUserPrefs;
+	LLEnvironmentSettings	mCachedRegionPrefs;
+	bool					mInterpNextChangeMessage;
 };
 
 #endif // LL_LLENVMANAGER_H

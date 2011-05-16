@@ -88,7 +88,7 @@ public:
 		mTimeType = time;
 	}
 
-	void startInterpolation(LLSD& targetWater);
+	void startInterpolation(const LLSD& targetWater);
 
 	bool getIsRunning()
 	{

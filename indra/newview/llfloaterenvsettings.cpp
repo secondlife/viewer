@@ -90,7 +90,8 @@ void LLFloaterEnvSettings::initCallbacks(void)
 	childSetCommitCallback("EnvUseEstateTimeButton", &LLFloaterEnvSettings::onUseEstateTime, NULL);
 	getChild<LLUICtrl>("EnvUseLocalTimeButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onUseLocalTime));
 
-	getChild<LLUICtrl>("EnvUseEstateTimeButton")->setRightMouseDownCallback(boost::bind(&LLEnvManager::dumpScopes, &LLEnvManager::instance()));
+	getChild<LLUICtrl>("EnvUseLocalTimeButton")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, &LLEnvManagerNew::instance()));
+	getChild<LLUICtrl>("EnvUseEstateTimeButton")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, &LLEnvManagerNew::instance()));
 }
 
 

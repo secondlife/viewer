@@ -583,23 +583,33 @@ void LLWLParamManager::update(LLViewerCamera * cam)
 void LLWLParamManager::applyUserPrefs()
 {
 	LL_DEBUGS("Windlight") << "Applying sky prefs" << LL_ENDL;
+	clearParamSetsOfScope(LLEnvKey::SCOPE_REGION);
 
 	if (LLEnvManagerNew::instance().getUseRegionSettings()) // apply region-wide settings
 	{
-		llwarns << "Using region settings has not been implemented" << llendl;
+		// *TODO: Support fixed sky from region.
+		LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
+
+		const LLEnvironmentSettings& region_settings = LLEnvManagerNew::instance().getRegionSettings();
+
+		if (0) // *TODO: interpolate?
+		{
+			mAnimator.startInterpolation(region_settings.getWaterParams());
+		}
+
+		addAllSkies(LLEnvKey::SCOPE_REGION, region_settings.getSkyMap());
+		mDay.loadDayCycle(region_settings.getWLDayCycle(), LLEnvKey::SCOPE_REGION);
+		resetAnimator(region_settings.getDayTime(), true);
 	}
 	else // apply user-specified settings
 	{
-		bool use_day_cycle = LLEnvManagerNew::instance().getUseDayCycle();
+		// Load day cycle anyway so that we can switch to it from a fixed sky.
+		LL_DEBUGS("Windlight") << "Loading day cycle " << LLEnvManagerNew::instance().getDayCycleName() << LL_ENDL;
+		mDay.loadDayCycleFromFile(LLEnvManagerNew::instance().getDayCycleName() + ".xml");
 
-		if (use_day_cycle)
+		bool use_day_cycle = LLEnvManagerNew::instance().getUseDayCycle();
+		if (!use_day_cycle) // if we should use fixed sky
 		{
-			LL_DEBUGS("Windlight") << "Loading day cycle " << LLEnvManagerNew::instance().getDayCycleName() << LL_ENDL;
-			mDay.loadDayCycleFromFile(LLEnvManagerNew::instance().getDayCycleName() + ".xml");
-		}
-		else
-		{
-			// *HACK - sets cloud scrolling to what we want... fix this better in the future
 			std::string sky = LLEnvManagerNew::instance().getSkyPresetName();
 			LL_DEBUGS("Windlight") << "Loading fixed sky " << sky << LL_ENDL;
 			getParamSet(LLWLParamKey(sky, LLWLParamKey::SCOPE_LOCAL), mCurParams);
