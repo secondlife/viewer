@@ -84,7 +84,7 @@ U32 LLMeshRepository::sPeakKbps = 0;
 
 const U32 MAX_TEXTURE_UPLOAD_RETRIES = 5;
 
-void dumpLLSDToFile(LLSD& content, std::string filename);
+void dumpLLSDToFile(const LLSD& content, std::string filename);
 
 std::string header_lod[] = 
 {
@@ -490,20 +490,13 @@ public:
 		mThread(thread)
 	{
 	}
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
+	virtual void completed(U32 status,
+						   const std::string& reason,
+						   const LLSD& content)
 	{
 		//assert_main_thread();
 		llinfos << "completed" << llendl;
 		mThread->mPendingUploads--;
-
-		LLSD content;
-		LLBufferStream istr(channels, buffer.get());
-		if (!LLSDSerialize::fromXML(content, istr))
-		{
-			llinfos << "Failed to deserialize LLSD. " << " [" << status << "]: " << reason << llendl;
-		}
 		dumpLLSDToFile(content,"whole_model_response.xml");
 	}
 };
@@ -1372,7 +1365,7 @@ void LLMeshUploadThread::run()
 }
 
 #if 1
-void dumpLLSDToFile(LLSD& content, std::string filename)
+void dumpLLSDToFile(const LLSD& content, std::string filename)
 {
 	std::ofstream of(filename);
 	LLSDSerialize::toPrettyXML(content,of);
@@ -1561,6 +1554,9 @@ void LLMeshUploadThread::doWholeModelUpload()
 	{
 		mCurlRequest->process();
 	} while (mCurlRequest->getQueued() > 0);
+
+	delete mCurlRequest;
+	mCurlRequest = NULL;
 
 	// Currently a no-op.
 	mFinished = true;
