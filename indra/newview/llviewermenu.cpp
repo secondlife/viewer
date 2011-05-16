@@ -7587,51 +7587,21 @@ class LLWorldEnvSettings : public view_listener_t
 			return true;
 		}
 
-		if (gSavedSettings.getBOOL("UseEnvironmentFromRegion"))
-		{
-			LLNotifications::instance().add("EnvLockedUsingRegion", LLSD(), LLSD());
-			return true;
-		}
-
 		if (tod == "sunrise")
 		{
-			// set the value, turn off animation
-			LLWLParamManager::getInstance()->mAnimator.setDayTime(0.25);
-			LLWLParamManager::getInstance()->mAnimator.deactivate();
-
-			// then call update once
-			LLWLParamManager::getInstance()->mAnimator.update(
-				LLWLParamManager::getInstance()->mCurParams);
+			LLEnvManagerNew::instance().setUseSkyPreset("Sunrise");
 		}
 		else if (tod == "noon")
 		{
-			// set the value, turn off animation
-			LLWLParamManager::getInstance()->mAnimator.setDayTime(0.567);
-			LLWLParamManager::getInstance()->mAnimator.deactivate();
-
-			// then call update once
-			LLWLParamManager::getInstance()->mAnimator.update(
-				LLWLParamManager::getInstance()->mCurParams);
+			LLEnvManagerNew::instance().setUseSkyPreset("Midday");
 		}
 		else if (tod == "sunset")
 		{
-			// set the value, turn off animation
-			LLWLParamManager::getInstance()->mAnimator.setDayTime(0.75);
-			LLWLParamManager::getInstance()->mAnimator.deactivate();
-
-			// then call update once
-			LLWLParamManager::getInstance()->mAnimator.update(
-				LLWLParamManager::getInstance()->mCurParams);
+			LLEnvManagerNew::instance().setUseSkyPreset("Sunset");
 		}
 		else if (tod == "midnight")
 		{
-			// set the value, turn off animation
-			LLWLParamManager::getInstance()->mAnimator.setDayTime(0.0);
-			LLWLParamManager::getInstance()->mAnimator.deactivate();
-
-			// then call update once
-			LLWLParamManager::getInstance()->mAnimator.update(
-				LLWLParamManager::getInstance()->mCurParams);
+			LLEnvManagerNew::instance().setUseSkyPreset("Midnight");
 		}
 		else
 		{

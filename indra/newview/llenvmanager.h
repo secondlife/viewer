@@ -126,6 +126,7 @@ private:
 // not thread-safe
 class LLEnvManager : public LLSingleton<LLEnvManager>
 {
+	LOG_CLASS(LLEnvManager);
 public:
 	// sets scopes (currently, only region-scope) to startup states
 	// delay calling these until as close as possible to knowing whether the remote service is capable of holding windlight settings
@@ -217,6 +218,87 @@ private:
 	LLEnvKey::EScope mCurNormalScope; // scope being displayed when not editing (i.e. most of the time)
 	LLEnvKey::EScope mCurEditingScope;
 	LLUUID mLastReceivedID;
+};
+
+/**
+ * User or region preferences.
+ *
+ * Region defaults :- use SL defaults
+ * User defaults   :- use region defaults
+ */
+class LLEnvPrefs
+{
+public:
+	LLEnvPrefs() : mUseDefaults(true), mUseDayCycle(true) {}
+
+	bool getUseDefaults() const { return mUseDefaults; }
+	bool getUseDayCycle() const { return mUseDayCycle; }
+	bool getUseFixedSky() const { return !getUseDayCycle(); }
+
+	std::string getWaterPresetName() const;
+	std::string getSkyPresetName() const;
+	std::string getDayCycleName() const;
+
+	void setUseDefaults(bool val);
+	void setUseWaterPreset(const std::string& name);
+	void setUseSkyPreset(const std::string& name);
+	void setUseDayCycle(const std::string& name);
+
+	bool			mUseDefaults;
+	bool			mUseDayCycle;
+	std::string		mWaterPresetName;
+	std::string		mSkyPresetName;
+	std::string		mDayCycleName;
+};
+
+class LLRegionEnvPrefs : public LLEnvPrefs
+{
+	LLSD mDayCycle;
+};
+
+/**
+ * Setting:
+ * 1. Use region settings.
+ * 2. Use my setting: <water preset> + <fixed_sky>|<day_cycle>
+ */
+class LLEnvManagerNew : public LLSingleton<LLEnvManagerNew>
+{
+	LOG_CLASS(LLEnvManagerNew);
+public:
+	LLEnvManagerNew();
+
+	bool getUseRegionSettings() const;
+	bool getUseDayCycle() const;
+	bool getUseFixedSky() const;
+	std::string getWaterPresetName() const;
+	std::string getSkyPresetName() const;
+	std::string getDayCycleName() const;
+
+	void setUseRegionSettings(bool val);
+	void setUseWaterPreset(const std::string& name);
+	void setUseSkyPreset(const std::string& name);
+	void setUseDayCycle(const std::string& name);
+
+	void loadUserPrefs();
+	void saveUserPrefs();
+
+	void onLogin();
+	void onRegionCrossing();
+	void onTeleport();
+
+private:
+	friend class LLSingleton<LLEnvManagerNew>;
+	/*virtual*/ void initSingleton();
+
+	void updateManagersFromPrefs();
+	void sendRegionSettingsRequest();
+
+	void onRegionChange(bool interpolate);
+	void onRegionSettingsResponse();
+
+	LLEnvPrefs			mUserPrefs;
+	LLRegionEnvPrefs	mCachedRegionPrefs;
+	bool				mInterpNextChangeMessage;
 };
 
 #endif // LL_LLENVMANAGER_H

@@ -98,7 +98,7 @@ BOOL LLFloaterWater::postBuild()
 		}
 
 		// set defaults on combo boxes
-		comboBox->selectByValue(LLSD("Default"));
+		comboBox->selectByValue(LLEnvManagerNew::instance().getWaterPresetName());
 	}
 	// load it up
 	initCallbacks();
@@ -654,7 +654,11 @@ void LLFloaterWater::onChangePresetName(LLUICtrl* ctrl)
 	std::string data = ctrl->getValue().asString();
 	if(!data.empty())
 	{
+#if 0
 		LLWaterParamManager::instance().loadPreset(data);
+#else
+		LLEnvManagerNew::instance().setUseWaterPreset(data);
+#endif
 		syncMenu();
 	}
 }

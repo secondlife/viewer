@@ -256,6 +256,13 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 
 static LLFastTimer::DeclareTimer FTM_UPDATE_WATERPARAM("Update Water Params");
 
+void LLWaterParamManager::applyUserPrefs()
+{
+	std::string water = LLEnvManagerNew::instance().getWaterPresetName();
+	LL_DEBUGS("Windlight") << "Loading water preset [" << water << "]" << LL_ENDL;
+	loadPreset(water, true);
+}
+
 void LLWaterParamManager::update(LLViewerCamera * cam)
 {
 	LLFastTimer ftm(FTM_UPDATE_WATERPARAM);
@@ -427,6 +434,7 @@ F32 LLWaterParamManager::getFogDensity(void)
 // virtual static
 void LLWaterParamManager::initSingleton()
 {
+	LL_DEBUGS("Windlight") << "Initializing water" << LL_ENDL;
 	loadAllPresets(LLStringUtil::null);
-	getParamSet("Default", mCurParams);
+	applyUserPrefs();
 }

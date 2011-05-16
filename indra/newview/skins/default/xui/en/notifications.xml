@@ -4865,17 +4865,6 @@ Sorry, the settings couldn't be applied to the region.  Leaving the region and t
   <notification
    functor="GenericAcknowledge"
    icon="alertmodal.tga"
-   name="EnvLockedUsingRegion"
-   type="alertmodal">
-You cannot load environment presets while you are using the region's environment settings.  To manually configure your environment setings, select the Environment Editor and uncheck "Use Region Environment Settings."
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-
-  <notification
-   functor="GenericAcknowledge"
-   icon="alertmodal.tga"
    name="EnvEditExternalCancel"
    type="alertmodal">
 Warning: an update to the environment settings you were just editing was received, either because settings you recently committed have just been applied or because someone else with editing permissions updated the region's environment settings.  In order to avoid overwriting this update, your changes have been cancelled; concurrent edits are not permitted.  Please try again.

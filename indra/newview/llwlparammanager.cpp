@@ -580,6 +580,49 @@ void LLWLParamManager::update(LLViewerCamera * cam)
 	}
 }
 
+void LLWLParamManager::applyUserPrefs()
+{
+	LL_DEBUGS("Windlight") << "Applying sky prefs" << LL_ENDL;
+
+	if (LLEnvManagerNew::instance().getUseRegionSettings()) // apply region-wide settings
+	{
+		llwarns << "Using region settings has not been implemented" << llendl;
+	}
+	else // apply user-specified settings
+	{
+		bool use_day_cycle = LLEnvManagerNew::instance().getUseDayCycle();
+
+		if (use_day_cycle)
+		{
+			LL_DEBUGS("Windlight") << "Loading day cycle " << LLEnvManagerNew::instance().getDayCycleName() << LL_ENDL;
+			mDay.loadDayCycleFromFile(LLEnvManagerNew::instance().getDayCycleName() + ".xml");
+		}
+		else
+		{
+			// *HACK - sets cloud scrolling to what we want... fix this better in the future
+			std::string sky = LLEnvManagerNew::instance().getSkyPresetName();
+			LL_DEBUGS("Windlight") << "Loading fixed sky " << sky << LL_ENDL;
+			getParamSet(LLWLParamKey(sky, LLWLParamKey::SCOPE_LOCAL), mCurParams);
+		}
+
+		// Animator should be running if we're using a day cycle
+		// and be stopped if we want fixed sky.
+		if (use_day_cycle != mAnimator.getIsRunning())
+		{
+			if (use_day_cycle)
+			{
+				LL_DEBUGS("Windlight") << "Activating animator" << LL_ENDL;
+				mAnimator.activate(mAnimator.getTimeType());
+			}
+			else
+			{
+				LL_DEBUGS("Windlight") << "Deactivating animator" << LL_ENDL;
+				mAnimator.deactivate();
+			}
+		}
+	}
+}
+
 void LLWLParamManager::resetAnimator(F32 curTime, bool run)
 {
 	mAnimator.setTrack(mDay.mTimeMap, mDay.mDayRate, 
@@ -687,16 +730,19 @@ void LLWLParamManager::removeParamSet(const LLWLParamKey& key, bool delete_from_
 // virtual static
 void LLWLParamManager::initSingleton()
 {
+	LL_DEBUGS("Windlight") << "Initializing sky" << LL_ENDL;
+
 	loadPresets(LLStringUtil::null);
 
 	// load the day
-	mDay.loadDayCycleFromFile(std::string("Default.xml"));
+	mDay.loadDayCycleFromFile(LLEnvManagerNew::instance().getDayCycleName() + ".xml");
 
 	// *HACK - sets cloud scrolling to what we want... fix this better in the future
-	getParamSet(LLWLParamKey("Default", LLWLParamKey::SCOPE_LOCAL), mCurParams);
+	std::string sky = LLEnvManagerNew::instance().getSkyPresetName();
+	getParamSet(LLWLParamKey(sky, LLWLParamKey::SCOPE_LOCAL), mCurParams);
 
 	// set it to noon
-	resetAnimator(0.5, true);
+	resetAnimator(0.5, LLEnvManagerNew::instance().getUseDayCycle());
 
 	// but use linden time sets it to what the estate is
 	mAnimator.setTimeType(LLWLAnimator::TIME_LINDEN);

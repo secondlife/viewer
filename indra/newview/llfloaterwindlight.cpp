@@ -89,7 +89,8 @@ BOOL LLFloaterWindLight::postBuild()
 		comboBox->add(LLStringUtil::null);
 
 		// set defaults on combo boxes
-		comboBox->selectByValue(LLSD("Default"));
+		LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
+		comboBox->selectByValue(env_mgr.getUseFixedSky() ? env_mgr.getSkyPresetName() : LLStringUtil::null);
 	}
 
 	// add the list of presets
@@ -920,7 +921,11 @@ void LLFloaterWindLight::onChangePresetName(LLUICtrl* ctrl)
 		return;
 	}
 	
+#if 0
 	LLWLParamManager::getInstance()->loadPreset(LLWLParamKey(combo_box->getSelectedValue()));
+#else
+	LLEnvManagerNew::instance().setUseSkyPreset(LLWLParamKey(combo_box->getSelectedValue()).name);
+#endif
 	sWindLight->syncMenu();
 }
 

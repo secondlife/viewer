@@ -235,6 +235,9 @@ public:
 	/// update information camera dependent parameters
 	void update(LLViewerCamera * cam);
 
+	/// apply specified params
+	void applyUserPrefs();
+
 	// get where the light is pointing
 	inline LLVector4 getLightDir(void) const;
 

@@ -113,13 +113,21 @@ LLEnvironmentRequestResponder::LLEnvironmentRequestResponder()
 		return;
 	}
 
+#if 0
 	LLEnvManager::getInstance()->processIncomingMessage(unvalidated_content, LLEnvKey::SCOPE_REGION);
+#else
+	LL_INFOS("WindlightCaps") << "Temprarily ignoring region settings" << LL_ENDL;
+#endif
 }
 /*virtual*/ void LLEnvironmentRequestResponder::error(U32 status, const std::string& reason)
 {
 	LL_INFOS("WindlightCaps") << "Got an error, not using region windlight..." << LL_ENDL;
+#if 0
 	// notify manager that region settings are undefined
 	LLEnvManager::getInstance()->processIncomingMessage(LLSD(), LLEnvKey::SCOPE_REGION);
+#else
+	LL_INFOS("WindlightCaps") << "Temprarily ignoring region settings" << LL_ENDL;
+#endif
 }
 
 

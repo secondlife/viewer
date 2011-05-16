@@ -52,6 +52,8 @@ extern LLControlGroup gSavedSettings;
 
 /*virtual*/ void LLEnvManager::initSingleton()
 {
+	LL_DEBUGS("Windlight") << "Initializing LLEnvManager" << LL_ENDL;
+
 	mOrigSettingStore[LLEnvKey::SCOPE_LOCAL] = lindenDefaults();
 	mCurNormalScope = (gSavedSettings.getBOOL("UseEnvironmentFromRegion") ? LLEnvKey::SCOPE_REGION : LLEnvKey::SCOPE_LOCAL);
 	mInterpNextChangeMessage = true;
@@ -556,4 +558,233 @@ void LLEnvManager::dumpScopes()
 
 	scope_dump = makePacket(LLEnvKey::SCOPE_REGION, LLSD());
 	LL_DEBUGS("Windlight") << "Region scope:" << scope_dump << LL_ENDL;
+}
+
+
+//=============================================================================
+
+std::string LLEnvPrefs::getWaterPresetName() const
+{
+	if (mWaterPresetName.empty())
+	{
+		llwarns << "Water preset name is empty" << llendl;
+	}
+
+	return mWaterPresetName;
+}
+
+std::string LLEnvPrefs::getSkyPresetName() const
+{
+	if (mSkyPresetName.empty())
+	{
+		llwarns << "Sky preset name is empty" << llendl;
+	}
+
+	return mSkyPresetName;
+}
+
+std::string LLEnvPrefs::getDayCycleName() const
+{
+	if (mDayCycleName.empty())
+	{
+		llwarns << "Day cycle name is empty" << llendl;
+	}
+
+	return mDayCycleName;
+}
+
+void LLEnvPrefs::setUseDefaults(bool val)
+{
+	mUseDefaults = val;
+}
+
+void LLEnvPrefs::setUseWaterPreset(const std::string& name)
+{
+	setUseDefaults(false);
+	mWaterPresetName = name;
+}
+
+void LLEnvPrefs::setUseSkyPreset(const std::string& name)
+{
+	setUseDefaults(false);
+	mUseDayCycle = false;
+	mSkyPresetName = name;
+}
+
+void LLEnvPrefs::setUseDayCycle(const std::string& name)
+{
+	setUseDefaults(false);
+	mUseDayCycle = true;
+	mDayCycleName = name;
+}
+
+//=============================================================================
+LLEnvManagerNew::LLEnvManagerNew()
+{
+	mInterpNextChangeMessage = true;
+
+	// Set default environment settings.
+	mUserPrefs.mUseDefaults = true;
+	mUserPrefs.mUseDayCycle = true;
+	mUserPrefs.mWaterPresetName = "Default";
+	mUserPrefs.mSkyPresetName = "Default";
+	mUserPrefs.mDayCycleName = "Default";
+}
+
+bool LLEnvManagerNew::getUseRegionSettings() const
+{
+	return mUserPrefs.getUseDefaults();
+}
+
+bool LLEnvManagerNew::getUseDayCycle() const
+{
+	return mUserPrefs.getUseDayCycle();
+}
+
+bool LLEnvManagerNew::getUseFixedSky() const
+{
+	return mUserPrefs.getUseFixedSky();
+}
+
+std::string LLEnvManagerNew::getWaterPresetName() const
+{
+	return mUserPrefs.getWaterPresetName();
+}
+
+std::string LLEnvManagerNew::getSkyPresetName() const
+{
+	return mUserPrefs.getSkyPresetName();
+}
+
+std::string LLEnvManagerNew::getDayCycleName() const
+{
+	return mUserPrefs.getDayCycleName();
+}
+
+void LLEnvManagerNew::setUseRegionSettings(bool val)
+{
+	mUserPrefs.setUseDefaults(val);
+	saveUserPrefs();
+	updateManagersFromPrefs();
+}
+
+void LLEnvManagerNew::setUseWaterPreset(const std::string& name)
+{
+	if (name.empty())
+	{
+		llwarns << "Empty water preset name passed" << llendl;
+		return;
+	}
+
+	mUserPrefs.setUseWaterPreset(name);
+	saveUserPrefs();
+	updateManagersFromPrefs();
+}
+
+void LLEnvManagerNew::setUseSkyPreset(const std::string& name)
+{
+	if (name.empty())
+	{
+		llwarns << "Empty sky preset name passed" << llendl;
+		return;
+	}
+
+	mUserPrefs.setUseSkyPreset(name);
+	saveUserPrefs();
+	updateManagersFromPrefs();
+}
+
+void LLEnvManagerNew::setUseDayCycle(const std::string& name)
+{
+	if (name.empty())
+	{
+		llwarns << "Empty day cycle name passed" << llendl;
+		return;
+	}
+
+	mUserPrefs.setUseDayCycle(name);
+	saveUserPrefs();
+	updateManagersFromPrefs();
+}
+
+void LLEnvManagerNew::loadUserPrefs()
+{
+	// operate on members directly to avoid side effects
+	mUserPrefs.mWaterPresetName	= gSavedSettings.getString("WaterPresetName");
+	mUserPrefs.mSkyPresetName	= gSavedSettings.getString("SkyPresetName");
+	mUserPrefs.mDayCycleName	= gSavedSettings.getString("DayCycleName");
+
+	mUserPrefs.mUseDefaults		= gSavedSettings.getBOOL("UseEnvironmentFromRegion");
+	mUserPrefs.mUseDayCycle		= gSavedSettings.getBOOL("UseDayCycle");
+}
+
+void LLEnvManagerNew::saveUserPrefs()
+{
+	gSavedSettings.setString("WaterPresetName",			getWaterPresetName());
+	gSavedSettings.setString("SkyPresetName",			getSkyPresetName());
+	gSavedSettings.setString("DayCycleName",			getDayCycleName());
+
+	gSavedSettings.setBOOL("UseEnvironmentFromRegion",	getUseRegionSettings());
+	gSavedSettings.setBOOL("UseDayCycle",				getUseDayCycle());
+}
+
+void LLEnvManagerNew::onRegionCrossing()
+{
+	LL_DEBUGS("Windlight") << "Crossed region" << LL_ENDL;
+	onRegionChange(true);
+}
+
+void LLEnvManagerNew::onLogin()
+{
+	LL_DEBUGS("Windlight") << "Logged in" << LL_ENDL;
+	onRegionChange(false);
+}
+
+void LLEnvManagerNew::onTeleport()
+{
+	LL_DEBUGS("Windlight") << "Teleported" << LL_ENDL;
+	onRegionChange(false);
+}
+
+//-- private methods ----------------------------------------------------------
+
+// virtual
+void LLEnvManagerNew::initSingleton()
+{
+	LL_DEBUGS("Windlight") << "Initializing LLEnvManagerNew" << LL_ENDL;
+
+	loadUserPrefs();
+}
+
+void LLEnvManagerNew::updateManagersFromPrefs()
+{
+	// *TODO: apply region settings if user preferences say to do so.
+
+	// Apply water settings.
+	LLWaterParamManager::instance().applyUserPrefs();
+
+	// Apply sky settings.
+	LLWLParamManager::instance().applyUserPrefs();
+}
+
+void LLEnvManagerNew::sendRegionSettingsRequest()
+{
+}
+
+void LLEnvManagerNew::onRegionChange(bool interpolate)
+{
+	mInterpNextChangeMessage = interpolate;
+	sendRegionSettingsRequest();
+}
+
+void LLEnvManagerNew::onRegionSettingsResponse()
+{
+	// 1. Refresh cached region settings.
+	// ...
+
+	// 2. If using server settings, update managers.
+	if (mUserPrefs.getUseDefaults())
+	{
+		updateManagersFromPrefs();
+	}
 }
