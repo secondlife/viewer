@@ -4284,6 +4284,39 @@
       <key>Value</key>
         <real>0.25</real>
       </map>
+	<key>Jpeg2000AdvancedCompression</key>
+	  <map>
+      <key>Comment</key>
+        <string>Use advanced Jpeg2000 compression options (precincts, blocks, ordering, markers)</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>Boolean</string>
+      <key>Value</key>
+        <integer>0</integer>
+	  </map>
+	<key>Jpeg2000PrecinctsSize</key>
+	  <map>
+      <key>Comment</key>
+        <string>Size of image precincts. Assumed square and same for all levels. Must be power of 2.</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>S32</string>
+      <key>Value</key>
+        <integer>256</integer>
+	  </map>
+	<key>Jpeg2000BlocksSize</key>
+	  <map>
+      <key>Comment</key>
+        <string>Size of encoding blocks. Assumed square and same for all levels. Must be power of 2. Max 64, Min 4.</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>S32</string>
+      <key>Value</key>
+        <integer>64</integer>
+	  </map>
     <key>KeepAspectForSnapshot</key>
     <map>
       <key>Comment</key>
