@@ -1012,7 +1012,7 @@ bool idle_startup()
 
 			if(!message_id.empty() && LLTrans::findString(message, message_id, response["message_args"]))
 			{
-				// message will be populated with the templated string
+				// message will be filled in with the template and arguments
 			}
 			else if(!message_response.empty())
 			{
