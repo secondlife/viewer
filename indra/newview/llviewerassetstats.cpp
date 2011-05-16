@@ -525,7 +525,7 @@ asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool i
 	//  - gestures
 	//  - everything else.
 	//
-	llassert_always(26 == LLViewerAssetType::AT_COUNT);
+	llassert_always(50 == LLViewerAssetType::AT_COUNT);
 
 	// Multiple asset definitions are floating around so this requires some
 	// maintenance and attention.
@@ -557,9 +557,7 @@ asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool i
 			LLViewerAssetStats::EVACOtherGet,					// AT_FAVORITE
 			LLViewerAssetStats::EVACOtherGet,					// AT_LINK
 			LLViewerAssetStats::EVACOtherGet,					// AT_LINK_FOLDER
-#if 0
-			// When LLViewerAssetType::AT_COUNT == 49
-			LLViewerAssetStats::EVACOtherGet,					// AT_FOLDER_ENSEMBLE_START
+			LLViewerAssetStats::EVACOtherGet,					// 
 			LLViewerAssetStats::EVACOtherGet,					// 
 			LLViewerAssetStats::EVACOtherGet,					// 
 			LLViewerAssetStats::EVACOtherGet,					// 
@@ -578,11 +576,12 @@ asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool i
 			LLViewerAssetStats::EVACOtherGet,					// 
 			LLViewerAssetStats::EVACOtherGet,					// 
 			LLViewerAssetStats::EVACOtherGet,					// 
-			LLViewerAssetStats::EVACOtherGet,					// AT_FOLDER_ENSEMBLE_END
-			LLViewerAssetStats::EVACOtherGet,					// AT_CURRENT_OUTFIT
-			LLViewerAssetStats::EVACOtherGet,					// AT_OUTFIT
-			LLViewerAssetStats::EVACOtherGet					// AT_MY_OUTFITS
-#endif
+			LLViewerAssetStats::EVACOtherGet,					//
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// 
+			LLViewerAssetStats::EVACOtherGet,					// AT_MESH
+																// (50)
 		};
 	
 	if (at < 0 || at >= LLViewerAssetType::AT_COUNT)

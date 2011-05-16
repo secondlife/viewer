@@ -294,7 +294,7 @@ inline const LLColor4U&	LLColor4U::setAlpha(U8 a)
 
 inline F32		LLColor4U::length(void) const
 {
-	return fsqrtf( ((F32)mV[VX]) * mV[VX] + ((F32)mV[VY]) * mV[VY] + ((F32)mV[VZ]) * mV[VZ] );
+	return (F32) sqrt( ((F32)mV[VX]) * mV[VX] + ((F32)mV[VY]) * mV[VY] + ((F32)mV[VZ]) * mV[VZ] );
 }
 
 inline F32		LLColor4U::lengthSquared(void) const
@@ -305,7 +305,7 @@ inline F32		LLColor4U::lengthSquared(void) const
 // deprecated
 inline F32		LLColor4U::magVec(void) const
 {
-	return fsqrtf( ((F32)mV[VX]) * mV[VX] + ((F32)mV[VY]) * mV[VY] + ((F32)mV[VZ]) * mV[VZ] );
+	return (F32) sqrt( ((F32)mV[VX]) * mV[VX] + ((F32)mV[VY]) * mV[VY] + ((F32)mV[VZ]) * mV[VZ] );
 }
 
 // deprecated

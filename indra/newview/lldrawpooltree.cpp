@@ -107,11 +107,12 @@ void LLDrawPoolTree::render(S32 pass)
 			 iter != mDrawFace.end(); iter++)
 		{
 			LLFace *face = *iter;
-			if(face->mVertexBuffer.notNull())
+			LLVertexBuffer* buff = face->getVertexBuffer();
+			if(buff)
 			{
-				face->mVertexBuffer->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
-				face->mVertexBuffer->drawRange(LLRender::TRIANGLES, 0, face->mVertexBuffer->getRequestedVerts()-1, face->mVertexBuffer->getRequestedIndices(), 0); 
-				gPipeline.addTrianglesDrawn(face->mVertexBuffer->getRequestedIndices());
+				buff->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
+				buff->drawRange(LLRender::TRIANGLES, 0, buff->getRequestedVerts()-1, buff->getRequestedIndices(), 0); 
+				gPipeline.addTrianglesDrawn(buff->getRequestedIndices());
 			}
 		}
 	}
@@ -200,13 +201,13 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 		LLFace *face = *iter;
 		LLDrawable *drawablep = face->getDrawable();
 
-		if (drawablep->isDead() || face->mVertexBuffer.isNull())
+		if (drawablep->isDead() || !face->getVertexBuffer())
 		{
 			continue;
 		}
 
-		face->mVertexBuffer->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
-		U16* indicesp = (U16*) face->mVertexBuffer->getIndicesPointer();
+		face->getVertexBuffer()->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
+		U16* indicesp = (U16*) face->getVertexBuffer()->getIndicesPointer();
 
 		// Render each of the trees
 		LLVOTree *treep = (LLVOTree *)drawablep->getVObj().get();
