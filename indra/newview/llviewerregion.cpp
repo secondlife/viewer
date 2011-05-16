@@ -1187,34 +1187,32 @@ LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc, U8 &cache_miss_type)
 {
 	//llassert(mCacheLoaded);  This assert failes often, changing to early-out -- davep, 2010/10/18
 
-	if (mCacheLoaded)
-	{
-		LLVOCacheEntry* entry = get_if_there(mCacheMap, local_id, (LLVOCacheEntry*)NULL);
+	LLVOCacheEntry* entry = get_if_there(mImpl->mCacheMap, local_id, (LLVOCacheEntry*)NULL);
 
-		if (entry)
+	if (entry)
+	{
+		// we've seen this object before
+		if (entry->getCRC() == crc)
 		{
-			// we've seen this object before
-			if (entry->getCRC() == crc)
-			{
-				// Record a hit
-				entry->recordHit();
-			cache_miss_type = CACHE_MISS_TYPE_NONE;
-				return entry->getDP(crc);
-			}
-			else
-			{
-				// llinfos << "CRC miss for " << local_id << llendl;
-			cache_miss_type = CACHE_MISS_TYPE_CRC;
-				mCacheMissCRC.put(local_id);
-			}
+			// Record a hit
+			entry->recordHit();
+		cache_miss_type = CACHE_MISS_TYPE_NONE;
+			return entry->getDP(crc);
 		}
 		else
 		{
-			// llinfos << "Cache miss for " << local_id << llendl;
-		cache_miss_type = CACHE_MISS_TYPE_FULL;
-			mCacheMissFull.put(local_id);
+			// llinfos << "CRC miss for " << local_id << llendl;
+		cache_miss_type = CACHE_MISS_TYPE_CRC;
+			mCacheMissCRC.put(local_id);
 		}
 	}
+	else
+	{
+		// llinfos << "Cache miss for " << local_id << llendl;
+	cache_miss_type = CACHE_MISS_TYPE_FULL;
+		mCacheMissFull.put(local_id);
+	}
+
 	return NULL;
 }
 
