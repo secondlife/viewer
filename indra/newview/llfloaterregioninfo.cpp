@@ -201,6 +201,11 @@ BOOL LLFloaterRegionInfo::postBuild()
 	panel->buildFromFile("panel_region_terrain.xml");
 	mTab->addTabPanel(panel);
 
+	panel = new LLPanelEnvironmentInfo;
+	mInfoPanels.push_back(panel);
+	panel->buildFromFile("panel_region_environment.xml");
+	mTab->addTabPanel(panel);
+
 	panel = new LLPanelEstateInfo;
 	mInfoPanels.push_back(panel);
 	panel->buildFromFile("panel_region_estate.xml");

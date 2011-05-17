@@ -439,4 +439,10 @@ protected:
 	EAssetStatus			mAssetStatus;
 };
 
+/////////////////////////////////////////////////////////////////////////////
+
+class LLPanelEnvironmentInfo : public LLPanelRegionInfo
+{
+};
+
 #endif
