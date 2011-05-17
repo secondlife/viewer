@@ -1,5 +1,5 @@
 /** 
- * @file llpanelmarketplaces.h
+ * @file llpanelmarketplaceinventory.h
  * @brief Panel for marketplace inbox and outbox
  *
 * $LicenseInfo:firstyear=2011&license=viewerlgpl$
@@ -24,23 +24,23 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELMARKETPLACE_H
-#define LL_LLPANELMARKETPLACE_H
+#ifndef LL_LLPANELMARKETPLACEINVENTORY_H
+#define LL_LLPANELMARKETPLACEINVENTORY_H
 
 #include "llpanel.h"
 
-class LLPanelMarketplace : public LLPanel
+class LLPanelMarketplaceInventory : public LLPanel
 {
 public:
 
-	LOG_CLASS(LLPanelMarketplace);
+	LOG_CLASS(LLPanelMarketplaceInventory);
 
-	LLPanelMarketplace();
-	~LLPanelMarketplace();
+	LLPanelMarketplaceInventory();
+	~LLPanelMarketplaceInventory();
 
 	/*virtual*/ BOOL postBuild();
 };
 
 
-#endif //LL_LLPANELMARKETPLACE_H
+#endif //LL_LLPANELMARKETPLACEINVENTORY_H
 

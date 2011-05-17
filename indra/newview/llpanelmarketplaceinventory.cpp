@@ -1,7 +1,6 @@
 /** 
- * @file llfloatersounddevices.cpp
- * @author Leyla Farazha
- * @brief Sound Preferences used for minimal skin
+ * @file llpanelmarketplaceinventory.cpp
+ * @brief Panel for marketplace inbox and outbox
  *
 * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -26,21 +25,21 @@
  */
 #include "llviewerprecompiledheaders.h"
 
-#include "llpanelmarketplace.h"
+#include "llpanelmarketplaceinventory.h"
 
 
 // protected
-LLPanelMarketplace::LLPanelMarketplace()
+LLPanelMarketplaceInventory::LLPanelMarketplaceInventory()
 :	LLPanel()
 {
 }
 
-LLPanelMarketplace::~LLPanelMarketplace()
+LLPanelMarketplaceInventory::~LLPanelMarketplaceInventory()
 {
 }
 
 // virtual
-BOOL LLPanelMarketplace::postBuild()
+BOOL LLPanelMarketplaceInventory::postBuild()
 {
 	return TRUE;
 }
