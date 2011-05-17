@@ -2841,6 +2841,13 @@ Si lo haces, todos los residentes que se unan posteriormente a la llamada tambi�
 	<notification label="Levantarme" name="HintSit">
 		Para levantarte y salir de la posición de sentado, haz clic en el botón Levantarme.
 	</notification>
+	<notification label="Hablar" name="HintSpeak">
+		Pulsa en el botón: Hablar para conectar y desconectar el micrófono.
+
+Pulsa en el cursor arriba para ver el panel de control de voz.
+
+Al ocultar el botón Hablar se desactiva la función de voz.
+	</notification>
 	<notification label="Explora el mundo" name="HintDestinationGuide">
 		La Guía de destinos contiene miles de nuevos lugares por descubrir. Selecciona una ubicación y elige Teleportarme para iniciar la exploración.
 	</notification>
@@ -2850,11 +2857,13 @@ Si lo haces, todos los residentes que se unan posteriormente a la llamada tambi�
 	<notification label="Mover" name="HintMove">
 		Si deseas caminar o correr, abre el panel Mover y utiliza las flechas de dirección para navegar. También puedes utilizar las flechas de dirección del teclado.
 	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Pulsa para caminar: Pulsa en cualquier punto del terreno para ir a él.
+
+2. Pulsa y arrastra para girar la vista: Pulsa y arrastra el cursor a cualquier parte del mundo para girar la vista.
+	</notification>
 	<notification label="Nombre mostrado" name="HintDisplayName">
 		Configura y personaliza aquí tu nombre mostrado. Esto se añadirá a tu nombre de usuario personal, que no puedes modificar. Puedes cambiar la manera en que ves los nombres de otras personas en tus preferencias.
-	</notification>
-	<notification label="Mover" name="HintMoveArrows">
-		Para caminar, utiliza las flechas de dirección del teclado. Para correr, pulsa dos veces la flecha hacia arriba.
 	</notification>
 	<notification label="Visión" name="HintView">
 		Para cambiar la vista de la cámara, utiliza los controles Orbital y Panorámica. Para restablecer tu vista, pulsa Esc o camina.

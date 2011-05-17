@@ -18,6 +18,8 @@ Chcesz spotkać ludzi? Spróbuj [secondlife:///app/worldmap Mapa Świata].
 	<string name="groups_filter_label" value="Filtruj grupy"/>
 	<string name="no_filtered_groups_msg" value="Nie znaleziono tego czego szukasz? Spróbuj [secondlife:///app/search/groups/[SEARCH_TERM] Szukaj]."/>
 	<string name="no_groups_msg" value="Chcesz dołączyć do grup? Spróbuj [secondlife:///app/search/groups Szukaj]."/>
+	<string name="MiniMapToolTipMsg" value="[REGION](Podwójne kliknięcie otwiera mapę, wciśnij Shift i przeciągnij aby przesunąć)"/>
+	<string name="AltMiniMapToolTipMsg" value="[REGION](Podwójne kliknięcie aktywuje teleport, wciśnij Shift i przeciągnij aby przesunąć)"/>
 	<filter_editor label="Filtr" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="W POBLIŻU" name="nearby_panel">

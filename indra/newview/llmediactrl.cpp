@@ -44,6 +44,7 @@
 #include "llslurl.h"
 #include "lluictrlfactory.h"	// LLDefaultChildRegistry
 #include "llkeyboard.h"
+#include "llviewermenu.h"
 
 // linden library includes
 #include "llfocusmgr.h"
@@ -67,12 +68,12 @@ LLMediaCtrl::Params::Params()
 :	start_url("start_url"),
 	border_visible("border_visible", true),
 	ignore_ui_scale("ignore_ui_scale", true),
-	hide_loading("hide_loading", false),
 	decouple_texture_size("decouple_texture_size", false),
 	texture_width("texture_width", 1024),
 	texture_height("texture_height", 1024),
 	caret_color("caret_color"),
 	initial_mime_type("initial_mime_type"),
+	error_page_url("error_page_url"),
 	media_id("media_id"),
 	trusted_content("trusted_content", false),
 	focus_on_click("focus_on_click", true)
@@ -95,16 +96,16 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mCurrentNavUrl( "" ),
 	mStretchToFill( true ),
 	mMaintainAspectRatio ( true ),
-	mHideLoading (false),
-	mHidingInitialLoad (false),
 	mDecoupleTextureSize ( false ),
 	mTextureWidth ( 1024 ),
 	mTextureHeight ( 1024 ),
 	mClearCache(false),
 	mHomePageMimeType(p.initial_mime_type),
+	mErrorPageURL(p.error_page_url),
 	mTrusted(p.trusted_content),
 	mWindowShade(NULL),
-	mHoverTextChanged(false)
+	mHoverTextChanged(false),
+	mContextMenu(NULL)
 {
 	{
 		LLColor4 color = p.caret_color().get();
@@ -116,8 +117,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	setHomePageUrl(p.start_url, p.initial_mime_type);
 	
 	setBorderVisible(p.border_visible);
-	
-	mHideLoading = p.hide_loading;
 	
 	setDecoupleTextureSize(p.decouple_texture_size);
 	
@@ -149,7 +148,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 
 LLMediaCtrl::~LLMediaCtrl()
 {
-
 	if (mMediaSource)
 	{
 		mMediaSource->remObserver( this );
@@ -304,16 +302,24 @@ BOOL LLMediaCtrl::handleRightMouseUp( S32 x, S32 y, MASK mask )
 BOOL LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
 	if (LLPanel::handleRightMouseDown(x, y, mask)) return TRUE;
-	convertInputCoords(x, y);
+
+	S32 media_x = x, media_y = y;
+	convertInputCoords(media_x, media_y);
 
 	if (mMediaSource)
-		mMediaSource->mouseDown(x, y, mask, 1);
+		mMediaSource->mouseDown(media_x, media_y, mask, 1);
 	
 	gFocusMgr.setMouseCapture( this );
 
 	if (mTakeFocusOnClick)
 	{
 		setFocus( TRUE );
+	}
+
+	if (mContextMenu)
+	{
+		mContextMenu->show(x, y);
+		LLMenuGL::showPopup(this, mContextMenu, x, y);
 	}
 
 	return TRUE;
@@ -378,6 +384,8 @@ void LLMediaCtrl::onFocusLost()
 //
 BOOL LLMediaCtrl::postBuild ()
 {
+	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+		"menu_media_ctrl.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChange, this, _2));
 	return TRUE;
 }
@@ -503,22 +511,6 @@ bool LLMediaCtrl::canNavigateForward()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaCtrl::set404RedirectUrl( std::string redirect_url )
-{
-	if(mMediaSource && mMediaSource->hasMedia())
-		mMediaSource->getMediaPlugin()->set_status_redirect( 404, redirect_url );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLMediaCtrl::clr404RedirectUrl()
-{
-	if(mMediaSource && mMediaSource->hasMedia())
-		mMediaSource->getMediaPlugin()->set_status_redirect(404, "");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
 void LLMediaCtrl::clearCache()
 {
 	if(mMediaSource)
@@ -626,6 +618,16 @@ void LLMediaCtrl::setTarget(const std::string& target)
 	}
 }
 
+void LLMediaCtrl::setErrorPageURL(const std::string& url)
+{
+	mErrorPageURL = url;
+}
+
+const std::string& LLMediaCtrl::getErrorPageURL()
+{
+	return mErrorPageURL;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 bool LLMediaCtrl::setCaretColor(unsigned int red, unsigned int green, unsigned int blue)
@@ -676,11 +678,6 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			{
 				mMediaSource->clearCache();
 				mClearCache = false;
-			}
-			
-			if(mHideLoading)
-			{
-				mHidingInitialLoad = true;
 			}
 		}
 		else
@@ -749,11 +746,11 @@ void LLMediaCtrl::draw()
 		}
 	}
 	
-	if(mHidingInitialLoad)
-	{
-		// If we're hiding loading, don't draw at all.
-		draw_media = false;
-	}
+//	if(mHidingInitialLoad)
+//	{
+//		// If we're hiding loading, don't draw at all.
+//		draw_media = false;
+//	}
 	
 	bool background_visible = isBackgroundVisible();
 	bool background_opaque = isBackgroundOpaque();
@@ -973,6 +970,16 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_LOCATION_CHANGED:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << LL_ENDL;
+		};
+		break;
+
+		case MEDIA_EVENT_NAVIGATE_ERROR_PAGE:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_ERROR_PAGE" << LL_ENDL;
+			if ( mErrorPageURL.length() > 0 )
+			{
+				navigateTo(mErrorPageURL, "text/html");
+			};
 		};
 		break;
 

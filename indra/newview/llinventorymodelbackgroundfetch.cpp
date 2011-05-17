@@ -388,7 +388,7 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
                         titem->setParent(lost_uuid);
                         titem->updateParentOnServer(FALSE);
                         gInventory.updateItem(titem);
-                        gInventory.notifyObservers("fetchDescendents");
+                        gInventory.notifyObservers();
                         
                     }
                 }
@@ -464,7 +464,7 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 		fetcher->setAllFoldersFetched();
 	}
 	
-	gInventory.notifyObservers("fetchDescendents");
+	gInventory.notifyObservers();
 }
 
 // If we get back an error (not found, etc...), handle it here.
@@ -496,7 +496,7 @@ void LLInventoryModelFetchDescendentsResponder::error(U32 status, const std::str
 			fetcher->setAllFoldersFetched();
 		}
 	}
-	gInventory.notifyObservers("fetchDescendents");
+	gInventory.notifyObservers();
 }
 
 BOOL LLInventoryModelFetchDescendentsResponder::getIsRecursive(const LLUUID& cat_id) const

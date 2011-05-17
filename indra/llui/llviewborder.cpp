@@ -28,6 +28,7 @@
 #include "llrender.h"
 #include "llfocusmgr.h"
 #include "lluictrlfactory.h"
+#include "lluiimage.h"
 
 static LLDefaultChildRegistry::Register<LLViewBorder> r("view_border");
 

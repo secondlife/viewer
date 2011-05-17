@@ -2975,7 +2975,7 @@ version 2.0
 		{	BillableFactor		F32			}
 		{	ObjectBonusFactor 	F32			}
 		{	WaterHeight			F32			}
-		{   TerrainRaiseLimit	F32 		}
+		{	TerrainRaiseLimit	F32 		}
 		{	TerrainLowerLimit	F32 		}
 		{	PricePerMeter 		S32			}
 		{	RedirectGridX 		S32			}
@@ -4250,6 +4250,10 @@ version 2.0
 	{
 		Buttons	Variable
 		{	ButtonLabel		Variable	1	}
+	}
+	{
+		OwnerData Variable
+		{	OwnerID		LLUUID	}
 	}
 }
 
@@ -6771,6 +6775,8 @@ version 2.0
 }
 
 // And, the money transfer
+// *NOTE: Unused as of 2010-04-06, because all back-end money transactions
+// are done with web services via L$ API.  JC
 {
 	MoneyTransferBackend Low 312 Trusted Zerocoded
 	{

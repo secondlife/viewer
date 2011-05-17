@@ -1117,23 +1117,23 @@ void LLPanelObject::getState( )
 				mSculptTypeRevert    = sculpt_params->getSculptType();
 			}
 		
+			U8 sculpt_type = sculpt_params->getSculptType();
+			U8 sculpt_stitching = sculpt_type & LL_SCULPT_TYPE_MASK;
+			BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
+			BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
+			isMesh = (sculpt_stitching == LL_SCULPT_TYPE_MESH);
+
 			LLTextureCtrl*  mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
 			if(mTextureCtrl)
 			{
 				mTextureCtrl->setTentative(FALSE);
-				mTextureCtrl->setEnabled(editable);
+				mTextureCtrl->setEnabled(editable && !isMesh);
 				if (editable)
 					mTextureCtrl->setImageAssetID(sculpt_params->getSculptTexture());
 				else
 					mTextureCtrl->setImageAssetID(LLUUID::null);
 			}
 
-			U8 sculpt_type = sculpt_params->getSculptType();
-			U8 sculpt_stitching = sculpt_type & LL_SCULPT_TYPE_MASK;
-			BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
-			BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
-			isMesh = (sculpt_stitching == LL_SCULPT_TYPE_MESH);
-			
 			mComboBaseType->setEnabled(!isMesh);
 			
 			if (mCtrlSculptType)

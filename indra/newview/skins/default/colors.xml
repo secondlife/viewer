@@ -115,9 +115,6 @@
      name="AlertCautionTextColor"
      reference="LtYellow" />
     <color
-     name="AlertTextColor"
-     value="0.58 0.66 0.84 1" />
-    <color
      name="AvatarListItemIconDefaultColor"
      reference="White" />
     <color
@@ -763,10 +760,29 @@
     <color
      name="MenuBarProjectBgColor"
      reference="MdBlue" />
+     
     <color
       name="MeshImportTableNormalColor"
       value="1 1 1 1"/>
     <color
       name="MeshImportTableHighlightColor"
       value="0.2 0.8 1 1"/>
+
+  
+    <!-- Generic color names (legacy) -->
+  <color
+    name="white"
+    value="1 1 1 1"/>
+  <color
+    name="black"
+    value="0 0 0 1"/>
+  <color
+    name="red"
+    value="1 0 0 1"/>
+  <color
+    name="green"
+    value="0 1 0 1"/>
+  <color
+    name="blue"
+    value="0 0 1 1"/>
 </colors>

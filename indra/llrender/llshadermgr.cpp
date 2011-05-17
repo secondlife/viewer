@@ -315,7 +315,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 		}
 		else
 		{
-			LL_DEBUGS("ShaderLoading") << log << LL_ENDL;
+			LL_INFOS("ShaderLoading") << log << LL_ENDL;
 		}
 	}
 }

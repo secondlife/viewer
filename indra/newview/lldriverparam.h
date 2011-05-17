@@ -30,6 +30,7 @@
 #include "llviewervisualparam.h"
 #include "llwearabletype.h"
 
+class LLPhysicsMotion;
 class LLVOAvatar;
 class LLWearable;
 
@@ -76,6 +77,7 @@ protected:
 
 class LLDriverParam : public LLViewerVisualParam
 {
+	friend class LLPhysicsMotion; // physics motion needs to access driven params directly.
 public:
 	LLDriverParam(LLVOAvatar *avatarp);
 	LLDriverParam(LLWearable *wearablep);

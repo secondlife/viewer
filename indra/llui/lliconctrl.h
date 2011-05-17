@@ -30,6 +30,7 @@
 #include "lluuid.h"
 #include "v4color.h"
 #include "lluictrl.h"
+#include "lluiimage.h"
 #include "stdenums.h"
 
 class LLTextBox;
@@ -69,6 +70,7 @@ public:
 
 	void			setColor(const LLColor4& color) { mColor = color; }
 	void			setImage(LLPointer<LLUIImage> image) { mImagep = image; }
+	const LLPointer<LLUIImage> getImage() { return mImagep; }
 	
 private:
 	void setIconImageDrawSize() ;

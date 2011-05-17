@@ -620,6 +620,7 @@ LLUUID upload_new_resource(
 	LLSD args;
 
 	std::string exten = gDirUtilp->getExtension(src_filename);
+	U32 codec = LLImageBase::getCodecFromExtension(exten);
 	LLAssetType::EType asset_type = LLAssetType::AT_NONE;
 	std::string error_message;
 
@@ -637,66 +638,20 @@ LLUUID upload_new_resource(
  		upload_error(error_message, "NoFileExtension", filename, args);
 		return LLUUID();
 	}
-	else if( exten == "bmp")
+	else if (codec != IMG_CODEC_INVALID)
 	{
+		// It's an image file, the upload procedure is the same for all
 		asset_type = LLAssetType::AT_TEXTURE;
-		if (!LLViewerTextureList::createUploadFile(src_filename,
-												 filename,
-												 IMG_CODEC_BMP ))
+		if (!LLViewerTextureList::createUploadFile(src_filename, filename, codec ))
 		{
 			error_message = llformat( "Problem with file %s:\n\n%s\n",
-					src_filename.c_str(), LLImage::getLastError().c_str());
+									 src_filename.c_str(), LLImage::getLastError().c_str());
 			args["FILE"] = src_filename;
 			args["ERROR"] = LLImage::getLastError();
 			upload_error(error_message, "ProblemWithFile", filename, args);
 			return LLUUID();
 		}
 	}
-	else if( exten == "tga")
-	{
-		asset_type = LLAssetType::AT_TEXTURE;
-		if (!LLViewerTextureList::createUploadFile(src_filename,
-												 filename,
-												 IMG_CODEC_TGA ))
-		{
-			error_message = llformat("Problem with file %s:\n\n%s\n",
-					src_filename.c_str(), LLImage::getLastError().c_str());
-			args["FILE"] = src_filename;
-			args["ERROR"] = LLImage::getLastError();
-			upload_error(error_message, "ProblemWithFile", filename, args);
-			return LLUUID();
-		}
-	}
-	else if( exten == "jpg" || exten == "jpeg")
-	{
-		asset_type = LLAssetType::AT_TEXTURE;
-		if (!LLViewerTextureList::createUploadFile(src_filename,
-												 filename,
-												 IMG_CODEC_JPEG ))
-		{
-			error_message = llformat("Problem with file %s:\n\n%s\n",
-					src_filename.c_str(), LLImage::getLastError().c_str());
-			args["FILE"] = src_filename;
-			args["ERROR"] = LLImage::getLastError();
-			upload_error(error_message, "ProblemWithFile", filename, args);
-			return LLUUID();
-		}
-	}
- 	else if( exten == "png")
- 	{
- 		asset_type = LLAssetType::AT_TEXTURE;
- 		if (!LLViewerTextureList::createUploadFile(src_filename,
- 												 filename,
- 												 IMG_CODEC_PNG ))
- 		{
- 			error_message = llformat("Problem with file %s:\n\n%s\n",
- 					src_filename.c_str(), LLImage::getLastError().c_str());
- 			args["FILE"] = src_filename;
- 			args["ERROR"] = LLImage::getLastError();
- 			upload_error(error_message, "ProblemWithFile", filename, args);
- 			return LLUUID();
- 		}
- 	}
 	else if(exten == "wav")
 	{
 		asset_type = LLAssetType::AT_SOUND;  // tag it as audio

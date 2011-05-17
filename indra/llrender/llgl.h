@@ -40,6 +40,7 @@
 #include "v4math.h"
 #include "llplane.h"
 #include "llgltypes.h"
+#include "llinstancetracker.h"
 
 #include "llglheaders.h"
 #include "glh/glh_linear.h"
@@ -332,9 +333,11 @@ public:
 	Generic pooling scheme for things which use GL names (used for occlusion queries and vertex buffer objects).
 	Prevents thrashing of GL name caches by avoiding calls to glGenFoo and glDeleteFoo.
 */
-class LLGLNamePool
+class LLGLNamePool : public LLInstanceTracker<LLGLNamePool>
 {
 public:
+	typedef LLInstanceTracker<LLGLNamePool> tracker_t;
+
 	struct NameEntry
 	{
 		GLuint name;
@@ -361,13 +364,11 @@ public:
 	GLuint allocate();
 	void release(GLuint name);
 	
-	static void registerPool(LLGLNamePool* pool);
 	static void upkeepPools();
 	static void cleanupPools();
 
 protected:
 	typedef std::vector<LLGLNamePool*> pool_list_t;
-	static pool_list_t sInstances;
 	
 	virtual GLuint allocateName() = 0;
 	virtual void releaseName(GLuint name) = 0;
@@ -419,7 +420,7 @@ void set_binormals(const S32 index, const U32 stride, const LLVector3 *binormals
 void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific );
 
 extern BOOL gClothRipple;
-extern BOOL gNoRender;
+extern BOOL gHeadlessClient;
 extern BOOL gGLActive;
 
 // Deal with changing glext.h definitions for newer SDK versions, specifically

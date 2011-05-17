@@ -127,6 +127,7 @@ protected:
 
 	void sendChat( EChatType type );
 	void onChatBoxCommit();
+	void onChatFontChange(LLFontGL* fontp);
 
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 	EChatType processChatTypeTriggers(EChatType type, std::string &str);

@@ -35,7 +35,6 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "lldictionary.h"
-//#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llgesturemgr.h"
@@ -1414,6 +1413,10 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 			worn = TRUE;
 		}
 		break;
+	case LLAssetType::AT_CALLINGCARD:
+		// Calling Cards in object are disabled for now
+		// because of incomplete LSL support. See STORM-1117.
+		return ACCEPT_NO;
 	default:
 			break;
 	}

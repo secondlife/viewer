@@ -425,9 +425,8 @@ public:
 	// has been indicated.
 	void idleNotifyObservers();
 
-	// Call to explicitly update everyone on a new state.  The optional argument
-	// 'service_name' is used by Agent Inventory Service [DEV-20328]
-	void notifyObservers(const std::string service_name="");
+	// Call to explicitly update everyone on a new state.
+	void notifyObservers();
 
 	// Allows outsiders to tell the inventory if something has
 	// been changed 'under the hood', but outside the control of the

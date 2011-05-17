@@ -5,11 +5,10 @@ include(Python)
 macro (check_message_template _target)
   add_custom_command(
       TARGET ${_target}
-      POST_BUILD
+      PRE_LINK
       COMMAND ${PYTHON_EXECUTABLE}
-      ARGS ${SCRIPTS_DIR}/md5check.py
-           0441fea513458ade4b81607acf481692
-           ${SCRIPTS_DIR}/messages/message_template.msg
+      ARGS ${SCRIPTS_DIR}/template_verifier.py
+           --mode=development --cache_master --master_url=${TEMPLATE_VERIFIER_MASTER_URL} ${TEMPLATE_VERIFIER_OPTIONS}
       COMMENT "Verifying message template - See http://wiki.secondlife.com/wiki/Template_verifier.py"
       )
 endmacro (check_message_template)

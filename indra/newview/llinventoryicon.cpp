@@ -82,6 +82,8 @@ LLIconDictionary::LLIconDictionary()
 	addEntry(LLInventoryIcon::ICONNAME_ANIMATION, 				new IconEntry("Inv_Animation"));
 	addEntry(LLInventoryIcon::ICONNAME_GESTURE, 				new IconEntry("Inv_Gesture"));
 
+	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_PHYSICS, 		new IconEntry("Inv_Physics"));
+
 	addEntry(LLInventoryIcon::ICONNAME_LINKITEM, 				new IconEntry("Inv_LinkItem"));
 	addEntry(LLInventoryIcon::ICONNAME_LINKFOLDER, 				new IconEntry("Inv_LinkFolder"));
 	addEntry(LLInventoryIcon::ICONNAME_MESH,	 				new IconEntry("Inv_Mesh"));

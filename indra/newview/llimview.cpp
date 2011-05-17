@@ -2696,10 +2696,10 @@ void LLIMMgr::inviteToSession(
 
 	if (voice_invite)
 	{
-		if	(	// if we're rejecting all incoming call requests
-				gSavedSettings.getBOOL("VoiceCallsRejectAll")	
+		if	(	// if we are rejecting group calls 
+				(gSavedSettings.getBOOL("VoiceCallsRejectGroup") && notify_box_type == "VoiceInviteGroup") ||
 				// or we're rejecting non-friend voice calls and this isn't a friend	
-				|| (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL))
+				(gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL))
 			)
 		{
 			// silently decline the call
@@ -3183,10 +3183,6 @@ public:
 			//just like a normal IM
 			//this is just replicated code from process_improved_im
 			//and should really go in it's own function -jwolk
-			if (gNoRender)
-			{
-				return;
-			}
 			LLChat chat;
 
 			std::string message = message_params["message"].asString();
@@ -3263,11 +3259,6 @@ public:
 		} //end if invitation has instant message
 		else if ( input["body"].has("voice") )
 		{
-			if (gNoRender)
-			{
-				return;
-			}
-			
 			if(!LLVoiceClient::getInstance()->voiceEnabled() || !LLVoiceClient::getInstance()->isVoiceWorking())
 			{
 				// Don't display voice invites unless the user has voice enabled.

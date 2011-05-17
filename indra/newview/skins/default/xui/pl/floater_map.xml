@@ -3,6 +3,9 @@
 	<floater.string name="ToolTipMsg">
 		[REGION](Podwójne kliknięcie otwiera Mapę, Shift i przeciągnięcie kursorem zmienia skalę)
 	</floater.string>
+	<floater.string name="AltToolTipMsg">
+		[REGION](Podwójne kliknięcie aktywuje teleportację, wciśnij Shift i przeciągnij aby przesunąć)
+	</floater.string>
 	<floater.string name="mini_map_caption">
 		MINIMAPA
 	</floater.string>

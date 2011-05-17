@@ -64,6 +64,8 @@
 		<radio_item label="Wybierz teksturę" name="radio select face"/>
 	</radio_group>
 	<check_box label="Edytuj połączone części" name="checkbox edit linked parts"/>
+	<button label="Linkuj" name="link_btn"/>
+	<button label="Rozlinkuj" name="unlink_btn"/>
 	<text name="RenderingCost" tool_tip="Pokazuje koszt renderowania tego obiektu">
 		þ: [COUNT]
 	</text>
@@ -301,7 +303,7 @@
 				<combo_box.item label="Kwadrat" name="Square"/>
 				<combo_box.item label="Trójkąt" name="Triangle"/>
 			</combo_box>
-			<text name="text twist" left_delta="-5" width="160">
+			<text left_delta="-5" name="text twist" width="160">
 				Skręcenie (początek/koniec)
 			</text>
 			<spinner label="P" name="Twist Begin"/>

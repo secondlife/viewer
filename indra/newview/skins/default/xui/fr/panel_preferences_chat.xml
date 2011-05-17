@@ -29,7 +29,10 @@
 	<check_box label="Chats IM" name="EnableIMChatPopups" tool_tip="Cocher cette case pour qu&apos;un popup s&apos;affiche à réception d&apos;un message instantané."/>
 	<spinner label="Durée de vie du popup Chat près de moi :" name="nearby_toasts_lifetime"/>
 	<spinner label="Disparition progressive du popup Chat près de moi :" name="nearby_toasts_fadingtime"/>
-	<check_box label="Utiliser la traduction automatique lors des chats (fournie par Google)" name="translate_chat_checkbox"/>
+	<check_box name="translate_chat_checkbox"/>
+	<text name="translate_chb_label">
+		Utiliser la traduction automatique lors des chats (fournie par Google)
+	</text>
 	<text name="translate_language_text">
 		Traduire le chat en :
 	</text>

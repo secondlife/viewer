@@ -24,6 +24,7 @@ include_directories(
     ${VORBIS_INCLUDE_DIRS}
     ${OPENAL_LIB_INCLUDE_DIRS}
     ${FREEAULT_LIB_INCLUDE_DIRS}
+    ${FMOD_INCLUDE_DIR}
     )
 
 set(llaudio_SOURCE_FILES

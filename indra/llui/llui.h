@@ -33,15 +33,12 @@
 #include "llrect.h"
 #include "llcontrol.h"
 #include "llcoord.h"
-#include "lluiimage.h"		// *TODO: break this dependency, need to add #include "lluiimage.h" to all widgets that hold an Optional<LLUIImage*> in their paramblocks
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "lluicolor.h"
 #include "lluicolortable.h"
 #include <boost/signals2.hpp>
 #include "lllazyvalue.h"
-#include "llhandle.h"		// *TODO: remove this dependency, added as a 
-							// convenience when LLHandle moved to llhandle.h
 #include "llframetimer.h"
 
 // LLUIFactory
@@ -185,6 +182,33 @@ public:
 	//helper functions (should probably move free standing rendering helper functions here)
 	static LLView* getRootView() { return sRootView; }
 	static void setRootView(LLView* view) { sRootView = view; }
+	/**
+	 * Walk the LLView tree to resolve a path
+	 * Paths can be discovered using Develop > XUI > Show XUI Paths
+	 *
+	 * A leading "/" indicates the root of the tree is the starting
+	 * position of the search, (otherwise the context node is used)
+	 *
+	 * Adjacent "//" mean that the next level of the search is done
+	 * recursively ("descendant" rather than "child").
+	 *
+	 * Return values: If no match is found, NULL is returned,
+	 * otherwise the matching LLView* is returned.
+	 *
+	 * Examples:
+	 *
+	 * "/" -> return the root view
+	 * "/foo" -> find "foo" as a direct child of the root
+	 * "foo" -> find "foo" as a direct child of the context node
+	 * "//foo" -> find the first "foo" child anywhere in the tree
+	 * "/foo/bar" -> find "foo" as direct child of the root, and
+	 *      "bar" as a direct child of "foo"
+	 * "//foo//bar/baz" -> find the first "foo" anywhere in the
+	 *      tree, the first "bar" anywhere under it, and "baz"
+	 *      as a direct child of that
+	 */
+	static const LLView* resolvePath(const LLView* context, const std::string& path);
+	static LLView* resolvePath(LLView* context, const std::string& path);
 	static std::string locateSkin(const std::string& filename);
 	static void setMousePositionScreen(S32 x, S32 y);
 	static void getMousePositionScreen(S32 *x, S32 *y);
@@ -237,8 +261,6 @@ private:
 
 
 // Moved LLLocalClipRect to lllocalcliprect.h
-
-// Moved all LLHandle-related code to llhandle.h
 
 //RN: maybe this needs to moved elsewhere?
 class LLImageProviderInterface
@@ -371,10 +393,10 @@ public:
 namespace LLInitParam
 {
 	template<>
-	class TypedParam<LLRect> 
-	:	public BlockValue<LLRect>
+	class ParamValue<LLRect, TypeValues<LLRect> > 
+	:	public CustomParamValue<LLRect>
 	{
-        typedef BlockValue<LLRect> super_t;
+        typedef CustomParamValue<LLRect> super_t;
 	public:
 		Optional<S32>	left,
 						top,
@@ -383,62 +405,43 @@ namespace LLInitParam
 						width,
 						height;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
+		ParamValue(const LLRect& value);
 
-		void setValueFromBlock() const;
-		void setBlockFromValue();
+		void updateValueFromBlock();
+		void updateBlockFromValue();
 	};
 
 	template<>
-	struct TypeValues<LLUIColor> : public TypeValuesHelper<LLUIColor>
+	class ParamValue<LLUIColor, TypeValues<LLUIColor> > 
+	:	public CustomParamValue<LLUIColor>
 	{
-		static void declareValues();
-	};
+        typedef CustomParamValue<LLUIColor> super_t;
 
-	template<>
-	class TypedParam<LLUIColor> 
-	:	public BlockValue<LLUIColor>
-	{
-        typedef BlockValue<LLUIColor> super_t;
 	public:
-		Optional<F32>	red,
-						green,
-						blue,
-						alpha;
-		Optional<std::string> control;
+		Optional<F32>			red,
+								green,
+								blue,
+								alpha;
+		Optional<std::string>	control;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
-		void setValueFromBlock() const;
-		void setBlockFromValue();
+		ParamValue(const LLUIColor& color);
+		void updateValueFromBlock();
+		void updateBlockFromValue();
 	};
-
-	// provide a better default for Optional<const LLFontGL*> than NULL
-	template <>
-	struct DefaultInitializer<const LLFontGL*>
-	{
-		// return reference to a single default instance of T
-		// built-in types will be initialized to zero, default constructor otherwise
-		static const LLFontGL* get() 
-		{ 
-			static const LLFontGL* sDefaultFont = LLFontGL::getFontDefault();  
-			return sDefaultFont;
-		} 
-	};
-
 
 	template<>
-	class TypedParam<const LLFontGL*> 
-	:	public BlockValue<const LLFontGL*>
+	class ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> > 
+	:	public CustomParamValue<const LLFontGL* >
 	{
-        typedef BlockValue<const LLFontGL*> super_t;
+        typedef CustomParamValue<const LLFontGL*> super_t;
 	public:
 		Optional<std::string>	name,
 								size,
 								style;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL* const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
-		void setValueFromBlock() const;
-		void setBlockFromValue();
+		ParamValue(const LLFontGL* value);
+		void updateValueFromBlock();
+		void updateBlockFromValue();
 	};
 
 	template<>
@@ -467,17 +470,17 @@ namespace LLInitParam
 
 
 	template<>
-	class TypedParam<LLCoordGL>
-	:	public BlockValue<LLCoordGL>
+	class ParamValue<LLCoordGL, TypeValues<LLCoordGL> >
+	:	public CustomParamValue<LLCoordGL>
 	{
-		typedef BlockValue<LLCoordGL> super_t;
+		typedef CustomParamValue<LLCoordGL> super_t;
 	public:
 		Optional<S32>	x,
 						y;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, LLCoordGL value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
-		void setValueFromBlock() const;
-		void setBlockFromValue();
+		ParamValue(const LLCoordGL& val);
+		void updateValueFromBlock();
+		void updateBlockFromValue();
 	};
 }
 

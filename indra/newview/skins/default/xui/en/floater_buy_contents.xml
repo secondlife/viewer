@@ -34,7 +34,7 @@
      layout="topleft"
      name="contains_text"
      width="276">
-        [NAME] contains:
+        &lt;nolink&gt;[NAME]&lt;/nolink&gt; contains:
     </text>
     <scroll_list
      background_visible="true"

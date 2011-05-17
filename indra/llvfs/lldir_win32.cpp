@@ -81,10 +81,11 @@ LLDir_Win32::LLDir_Win32()
 
 //	fprintf(stderr, "mTempDir = <%s>",mTempDir);
 
-#if 1
-	// Don't use the real app path for now, as we'll have to add parsing to detect if
-	// we're in a developer tree, which has a different structure from the installed product.
+	// Set working directory, for LLDir::getWorkingDir()
+	GetCurrentDirectory(MAX_PATH, w_str);
+	mWorkingDir = utf16str_to_utf8str(llutf16string(w_str));
 
+	// Set the executable directory
 	S32 size = GetModuleFileName(NULL, w_str, MAX_PATH);
 	if (size)
 	{
@@ -100,32 +101,35 @@ LLDir_Win32::LLDir_Win32()
 		{
 			mExecutableFilename = mExecutablePathAndName;
 		}
-		GetCurrentDirectory(MAX_PATH, w_str);
-		mWorkingDir = utf16str_to_utf8str(llutf16string(w_str));
 
 	}
 	else
 	{
 		fprintf(stderr, "Couldn't get APP path, assuming current directory!");
-		GetCurrentDirectory(MAX_PATH, w_str);
-		mExecutableDir = utf16str_to_utf8str(llutf16string(w_str));
+		mExecutableDir = mWorkingDir;
 		// Assume it's the current directory
 	}
-#else
-	GetCurrentDirectory(MAX_PATH, w_str);
-	mExecutableDir = utf16str_to_utf8str(llutf16string(w_str));
-#endif
 
-	if (mExecutableDir.find("indra") == std::string::npos)
-	{
-		// Running from installed directory.  Make sure current
-		// directory isn't something crazy (e.g. if invoking from
-		// command line).
-		SetCurrentDirectory(utf8str_to_utf16str(mExecutableDir).c_str());
-		GetCurrentDirectory(MAX_PATH, w_str);
-		mWorkingDir = utf16str_to_utf8str(llutf16string(w_str));
-	}
+	// mAppRODataDir = ".";	
+
+	// Determine the location of the App-Read-Only-Data
+	// Try the working directory then the exe's dir.
 	mAppRODataDir = mWorkingDir;	
+
+
+//	if (mExecutableDir.find("indra") == std::string::npos)
+	
+	// *NOTE:Mani - It is a mistake to put viewer specific code in
+	// the LLDir implementation. The references to 'skins' and 
+	// 'llplugin' need to go somewhere else.
+	// alas... this also gets called during static initialization 
+	// time due to the construction of gDirUtil in lldir.cpp.
+	if(! LLFile::isdir(mAppRODataDir + mDirDelimiter + "skins"))
+	{
+		// What? No skins in the working dir?
+		// Try the executable's directory.
+		mAppRODataDir = mExecutableDir;
+	}
 
 	llinfos << "mAppRODataDir = " << mAppRODataDir << llendl;
 
@@ -234,67 +238,6 @@ U32 LLDir_Win32::countFilesInDir(const std::string &dirname, const std::string &
 	}
 
 	return (file_count);
-}
-
-
-// get the next file in the directory
-BOOL LLDir_Win32::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
-{
-    BOOL fileFound = FALSE;
-	fname = "";
-
-	WIN32_FIND_DATAW FileData;
-    llutf16string pathname = utf8str_to_utf16str(dirname) + utf8str_to_utf16str(mask);
-
-	if (pathname != mCurrentDir)
-	{
-		// different dir specified, close old search
-		if (mCurrentDir[0])
-		{
-			FindClose(mDirSearch_h);
-		}
-		mCurrentDir = pathname;
-
-		// and open new one
-		// Check error opening Directory structure
-		if ((mDirSearch_h = FindFirstFile(pathname.c_str(), &FileData)) != INVALID_HANDLE_VALUE)   
-		{
-           fileFound = TRUE;
-		}
-	}
-
-    // Loop to skip over the current (.) and parent (..) directory entries
-    // (apparently returned in Win7 but not XP)
-    do
-    {
-       if (   fileFound
-           && (  (lstrcmp(FileData.cFileName, (LPCTSTR)TEXT(".")) == 0)
-               ||(lstrcmp(FileData.cFileName, (LPCTSTR)TEXT("..")) == 0)
-               )
-           )
-       {
-          fileFound = FALSE;
-       }
-    } while (   mDirSearch_h != INVALID_HANDLE_VALUE
-             && !fileFound
-             && (fileFound = FindNextFile(mDirSearch_h, &FileData)
-                 )
-             );
-
-    if (!fileFound && GetLastError() == ERROR_NO_MORE_FILES)
-    {
-       // No more files, so reset to beginning of directory
-       FindClose(mDirSearch_h);
-       mCurrentDir[0] = '\000';
-    }
-
-    if (fileFound)
-    {
-        // convert from TCHAR to char
-        fname = utf16str_to_utf8str(FileData.cFileName);
-	}
-    
-	return fileFound;
 }
 
 std::string LLDir_Win32::getCurPath()

@@ -39,56 +39,24 @@
 //static LLDefaultChildRegistry::Register<LLLoadingIndicator> r("loading_indicator");
 
 ///////////////////////////////////////////////////////////////////////////////
-// LLLoadingIndicator::Data class
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- * Pre-loaded images shared by all instances of the widget
- */
-class LLLoadingIndicator::Data: public LLSingleton<LLLoadingIndicator::Data>
-{
-public:
-	/*virtual*/ void		initSingleton(); // from LLSingleton
-
-	LLPointer<LLUIImage>	getNextImage(S8& idx) const;
-	U8						getImagesCount() const	{ return NIMAGES; }
-private:
-
-	static const U8			NIMAGES = 12;
-	LLPointer<LLUIImage>	mImages[NIMAGES];
-};
-
-// virtual
-// Called right after the instance gets constructed.
-void LLLoadingIndicator::Data::initSingleton()
-{
-	// Load images.
-	for (U8 i = 0; i < NIMAGES; ++i)
-	{
-		std::string img_name = llformat("Progress_%d", i+1);
-		mImages[i] = LLUI::getUIImage(img_name, 0);
-		llassert(mImages[i]);
-	}
-}
-
-LLPointer<LLUIImage> LLLoadingIndicator::Data::getNextImage(S8& idx) const
-{
-	// Calculate next index, performing array bounds checking.
-	idx = (idx >= NIMAGES || idx < 0) ? 0 : (idx + 1) % NIMAGES; 
-	return mImages[idx];
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // LLLoadingIndicator class
 ///////////////////////////////////////////////////////////////////////////////
 
 LLLoadingIndicator::LLLoadingIndicator(const Params& p)
-:	LLUICtrl(p)
-	, mRotationsPerSec(p.rotations_per_sec > 0 ? p.rotations_per_sec : 1.0f)
-	, mCurImageIdx(-1)
+:	LLUICtrl(p), 
+	mImagesPerSec(p.images_per_sec > 0 ? p.images_per_sec : 1.0f), 
+	mCurImageIdx(0)
 {
-	// Select initial image.
-	mCurImagep = Data::instance().getNextImage(mCurImageIdx);
+}
+
+void LLLoadingIndicator::initFromParams(const Params& p)
+{
+	for (LLInitParam::ParamIterator<LLUIImage*>::const_iterator it = p.images().image.begin(), end_it = p.images().image.end();
+		it != end_it;
+		++it)
+	{
+		mImages.push_back(it->getValue());
+	}
 
 	// Start timer for switching images.
 	start();
@@ -100,16 +68,21 @@ void LLLoadingIndicator::draw()
 	if (mImageSwitchTimer.getStarted() && mImageSwitchTimer.hasExpired())
 	{
 		// Switch to the next image.
-		mCurImagep = Data::instance().getNextImage(mCurImageIdx);
+		if (!mImages.empty())
+		{
+			mCurImageIdx = (mCurImageIdx + 1) % mImages.size();
+		}
 
 		// Restart timer.
 		start();
 	}
 
+	LLUIImagePtr cur_image = mImages.empty() ? LLUIImagePtr(NULL) : mImages[mCurImageIdx];
+
 	// Draw current image.
-	if( mCurImagep.notNull() )
+	if( cur_image.notNull() )
 	{
-		mCurImagep->draw(getLocalRect(), LLColor4::white % getDrawContext().mAlpha);
+		cur_image->draw(getLocalRect(), LLColor4::white % getDrawContext().mAlpha);
 	}
 
 	LLUICtrl::draw();
@@ -123,6 +96,6 @@ void LLLoadingIndicator::stop()
 void LLLoadingIndicator::start()
 {
 	mImageSwitchTimer.start();
-	F32 period = 1.0f / (Data::instance().getImagesCount() * mRotationsPerSec);
+	F32 period = 1.0f / (mImages.size() * mImagesPerSec);
 	mImageSwitchTimer.setTimerExpirySec(period);
 }

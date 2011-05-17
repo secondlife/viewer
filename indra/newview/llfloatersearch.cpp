@@ -31,12 +31,14 @@
 #include "llfloaterreg.h"
 #include "llfloatersearch.h"
 #include "llmediactrl.h"
+#include "llnotificationsutil.h"
 #include "lllogininstance.h"
 #include "lluri.h"
 #include "llagent.h"
 #include "llui.h"
 #include "llviewercontrol.h"
 #include "llweb.h"
+#include "llversioninfo.h"
 
 // support secondlife:///app/search/{CATEGORY}/{QUERY} SLapps
 class LLSearchHandler : public LLCommandHandler
@@ -46,6 +48,12 @@ public:
 	LLSearchHandler() : LLCommandHandler("search", UNTRUSTED_THROTTLE) { }
 	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
 	{
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableSearch"))
+		{
+			LLNotificationsUtil::add("NoSearch", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+			return true;
+		}
+
 		const size_t parts = tokens.size();
 
 		// get the (optional) category for the search
@@ -196,7 +204,15 @@ void LLFloaterSearch::search(const LLSD &key)
 
 	// get the search URL and expand all of the substitutions
 	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
-	std::string url = gSavedSettings.getString("SearchURL");
+	std::string url;
+	if (LLVersionInfo::getChannel().find("Beta") != std::string::npos)
+	{
+		url = gSavedSettings.getString("SearchURLBeta");
+	}
+	else
+	{
+		url = gSavedSettings.getString("SearchURL");
+	}
 	url = LLWeb::expandURLSubstitutions(url, subs);
 
 	// and load the URL in the web view

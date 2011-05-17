@@ -77,6 +77,12 @@ protected:
 		 */
 		void hideExpandText();
 
+		/**
+		 * Shows the "More" link if the text is too high to be completely
+		 * visible without expanding the text box. Hides that link otherwise.
+		 */
+		void hideOrShowExpandTextAsNeeded();
+
 	protected:
 
 		LLTextBoxEx(const Params& p);

@@ -41,6 +41,7 @@
 
 #include "lleditmenuhandler.h"
 #include "lluictrl.h"
+#include "lluiimage.h"
 #include "lluistring.h"
 #include "llviewborder.h"
 
@@ -201,6 +202,7 @@ public:
 	const LLColor4& getTentativeFgColor() const { return mTentativeFgColor.get(); }
 
 	const LLFontGL* getFont() const { return mGLFont; }
+	void setFont(const LLFontGL* font);
 
 	void			setIgnoreArrowKeys(BOOL b)		{ mIgnoreArrowKeys = b; }
 	void			setIgnoreTab(BOOL b)			{ mIgnoreTab = b; }

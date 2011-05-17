@@ -358,8 +358,8 @@ public:
 	S32 unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 data_size, U8 face_count, EMsgVariableType type);
 	BOOL packTEMessage(LLMessageSystem *mesgsys) const;
 	BOOL packTEMessage(LLDataPacker &dp) const;
-	S32 unpackTEMessage(LLMessageSystem *mesgsys, char *block_name);
-	S32 unpackTEMessage(LLMessageSystem *mesgsys, char *block_name, const S32 block_num); // Variable num of blocks
+	S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name);
+	S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num); // Variable num of blocks
 	BOOL unpackTEMessage(LLDataPacker &dp);
 	
 #ifdef CHECK_FOR_FINITE

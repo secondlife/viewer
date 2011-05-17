@@ -120,14 +120,14 @@
      font.style="BOLD"
      name="key_label"
      top_pad="10"
-     width="150">
+     width="130">
         Shortcut Key:
     </text>
     <combo_box
      height="20"
      label="None"
      layout="topleft"
-     left_delta="154"
+     left_delta="135"
      name="modifier_combo"
      top_delta="-4"
      width="55" />

@@ -11,7 +11,7 @@
  save_rect="true"
  save_visibility="true"
  title="SNAPSHOT PREVIEW"
- width="215">
+ width="245">
     <floater.string
      name="unknown">
         unknown

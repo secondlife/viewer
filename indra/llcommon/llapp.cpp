@@ -24,6 +24,10 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
+#include "llapp.h"
+
 #include <cstdlib>
 
 #ifdef LL_DARWIN
@@ -31,9 +35,6 @@
 #include <unistd.h>
 #include <sys/sysctl.h>
 #endif
-
-#include "linden_common.h"
-#include "llapp.h"
 
 #include "llcommon.h"
 #include "llapr.h"

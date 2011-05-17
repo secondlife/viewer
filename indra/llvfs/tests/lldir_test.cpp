@@ -28,6 +28,7 @@
 #include "linden_common.h"
 
 #include "../lldir.h"
+#include "../lldiriterator.h"
 
 #include "../test/lltut.h"
 
@@ -259,13 +260,12 @@ namespace tut
 
    std::string makeTestFile( const std::string& dir, const std::string& file )
    {
-      std::string delim = gDirUtilp->getDirDelimiter();
-      std::string path = dir + delim + file;
+      std::string path = dir + file;
       LLFILE* handle = LLFile::fopen( path, "w" );
       ensure("failed to open test file '"+path+"'", handle != NULL );
       // Harbison & Steele, 4th ed., p. 366: "If an error occurs, fputs
       // returns EOF; otherwise, it returns some other, nonnegative value."
-      ensure("failed to write to test file '"+path+"'", fputs("test file", handle) >= 0);
+      ensure("failed to write to test file '"+path+"'", EOF != fputs("test file", handle) );
       fclose(handle);
       return path;
    }
@@ -290,7 +290,7 @@ namespace tut
    }
 
    static const char* DirScanFilename[5] = { "file1.abc", "file2.abc", "file1.xyz", "file2.xyz", "file1.mno" };
-   
+
    void scanTest(const std::string& directory, const std::string& pattern, bool correctResult[5])
    {
 
@@ -300,7 +300,8 @@ namespace tut
       bool  filesFound[5] = { false, false, false, false, false };
       //std::cerr << "searching '"+directory+"' for '"+pattern+"'\n";
 
-      while ( found <= 5 && gDirUtilp->getNextFileInDir(directory, pattern, scanResult) )
+      LLDirIterator iter(directory, pattern);
+      while ( found <= 5 && iter.next(scanResult) )
       {
          found++;
          //std::cerr << "  found '"+scanResult+"'\n";
@@ -334,15 +335,15 @@ namespace tut
    
    template<> template<>
    void LLDirTest_object_t::test<5>()
-      // getNextFileInDir
+      // LLDirIterator::next
    {
       std::string delim = gDirUtilp->getDirDelimiter();
       std::string dirTemp = LLFile::tmpdir();
 
       // Create the same 5 file names of the two directories
 
-      std::string dir1 = makeTestDir(dirTemp + "getNextFileInDir");
-      std::string dir2 = makeTestDir(dirTemp + "getNextFileInDir");
+      std::string dir1 = makeTestDir(dirTemp + "LLDirIterator");
+      std::string dir2 = makeTestDir(dirTemp + "LLDirIterator");
       std::string dir1files[5];
       std::string dir2files[5];
       for (int i=0; i<5; i++)
@@ -380,19 +381,17 @@ namespace tut
       scanTest(dir2, "file?.x?z", expected7);
 
       // Scan dir2 and see if any file?.??c files are found
-      // THESE FAIL ON Mac and Windows, SO ARE COMMENTED OUT FOR NOW
-      //      bool  expected8[5] = { true, true, false, false, false };
-      //      scanTest(dir2, "file?.??c", expected8);
-      //      scanTest(dir2, "*.??c", expected8);
+      bool  expected8[5] = { true, true, false, false, false };
+      scanTest(dir2, "file?.??c", expected8);
+      scanTest(dir2, "*.??c", expected8);
 
       // Scan dir1 and see if any *.?n? files are found
       bool  expected9[5] = { false, false, false, false, true };
       scanTest(dir1, "*.?n?", expected9);
 
       // Scan dir1 and see if any *.???? files are found
-      // THIS ONE FAILS ON WINDOWS (returns three charater suffixes) SO IS COMMENTED OUT FOR NOW
-      // bool  expected10[5] = { false, false, false, false, false };
-      // scanTest(dir1, "*.????", expected10);
+      bool  expected10[5] = { false, false, false, false, false };
+      scanTest(dir1, "*.????", expected10);
 
       // Scan dir1 and see if any ?????.* files are found
       bool  expected11[5] = { true, true, true, true, true };
@@ -401,6 +400,15 @@ namespace tut
       // Scan dir1 and see if any ??l??.xyz files are found
       bool  expected12[5] = { false, false, true, true, false };
       scanTest(dir1, "??l??.xyz", expected12);
+
+      bool expected13[5] = { true, false, true, false, false };
+      scanTest(dir1, "file1.{abc,xyz}", expected13);
+
+      bool expected14[5] = { true, true, false, false, false };
+      scanTest(dir1, "file[0-9].abc", expected14);
+
+      bool expected15[5] = { true, true, false, false, false };
+      scanTest(dir1, "file[!a-z].abc", expected15);
 
       // clean up all test files and directories
       for (int i=0; i<5; i++)

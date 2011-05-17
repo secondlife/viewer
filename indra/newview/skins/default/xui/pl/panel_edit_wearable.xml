@@ -45,6 +45,9 @@
 	<string name="edit_tattoo_title">
 		Edycja tatuażu
 	</string>
+	<string name="edit_physics_title">
+		Edycja fizyki
+	</string>
 	<string name="shape_desc_text">
 		Kształt:
 	</string>
@@ -89,6 +92,9 @@
 	</string>
 	<string name="tattoo_desc_text">
 		Tatuaż:
+	</string>
+	<string name="physics_desc_text">
+		Fizyka:
 	</string>
 	<labeled_back_button label="Zapisz" name="back_btn" tool_tip="Powrót do edycji stroju"/>
 	<text name="edit_wearable_title" value="Edycja kształtu"/>

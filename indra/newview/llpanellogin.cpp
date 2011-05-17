@@ -34,6 +34,7 @@
 #include "llmd5.h"
 #include "llsecondlifeurls.h"
 #include "v4color.h"
+#include "llversionviewer.h"
 
 #include "llappviewer.h"
 #include "llbutton.h"
@@ -81,6 +82,9 @@ const S32 MAX_PASSWORD = 16;
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
 
+// Helper for converting a user name into the canonical "Firstname Lastname" form.
+// For new accounts without a last name "Resident" is added as a last name.
+static std::string canonicalize_username(const std::string& name);
 
 class LLLoginRefreshHandler : public LLCommandHandler
 {
@@ -97,58 +101,6 @@ public:
 	}
 };
 
-LLLoginRefreshHandler gLoginRefreshHandler;
-
-
-// helper class that trys to download a URL from a web site and calls a method 
-// on parent class indicating if the web server is working or not
-class LLIamHereLogin : public LLHTTPClient::Responder
-{
-	private:
-		LLIamHereLogin( LLPanelLogin* parent ) :
-		   mParent( parent )
-		{}
-
-		LLPanelLogin* mParent;
-
-	public:
-		static boost::intrusive_ptr< LLIamHereLogin > build( LLPanelLogin* parent )
-		{
-			return boost::intrusive_ptr< LLIamHereLogin >( new LLIamHereLogin( parent ) );
-		};
-
-		virtual void  setParent( LLPanelLogin* parentIn )
-		{
-			mParent = parentIn;
-		};
-
-		// We don't actually expect LLSD back, so need to override completedRaw
-		virtual void completedRaw(U32 status, const std::string& reason,
-								  const LLChannelDescriptors& channels,
-								  const LLIOPipe::buffer_ptr_t& buffer)
-		{
-			completed(status, reason, LLSD()); // will call result() or error()
-		}
-	
-		virtual void result( const LLSD& content )
-		{
-			if ( mParent )
-				mParent->setSiteIsAlive( true );
-		};
-
-		virtual void error( U32 status, const std::string& reason )
-		{
-			if ( mParent )
-				mParent->setSiteIsAlive( false );
-		};
-};
-
-// this is global and not a class member to keep crud out of the header file
-namespace {
-	boost::intrusive_ptr< LLIamHereLogin > gResponsePtr = 0;
-};
-
-
 //---------------------------------------------------------------------------
 // Public methods
 //---------------------------------------------------------------------------
@@ -160,7 +112,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mLogoImage(),
 	mCallback(callback),
 	mCallbackData(cb_data),
-	mHtmlAvailable( TRUE ),
 	mListener(new LLPanelLoginListener(this))
 {
 	setBackgroundVisible(FALSE);
@@ -190,21 +141,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	buildFromFile( "panel_login.xml");
 	
-	// Legacy login web page is hidden under the menu bar.
-	// Adjust reg-in-client web browser widget to not be hidden.
-	if (gSavedSettings.getBOOL("RegInClient"))
-	{
-		reshape(rect.getWidth(), rect.getHeight() - MENU_BAR_HEIGHT);
-	}
-	else
-	{
-		reshape(rect.getWidth(), rect.getHeight());
-	}
+	reshape(rect.getWidth(), rect.getHeight());
 
 	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
 
 	// change z sort of clickable text to be behind buttons
-	//sendChildToBack(getChildView("channel_text"));
 	sendChildToBack(getChildView("forgot_password_text"));
 
 	if(LLStartUp::getStartSLURL().getType() != LLSLURL::LOCATION)
@@ -214,7 +155,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 	updateLocationCombo(false);
 
-	gSavedSettings.getControl("SessionSettingsFile")->getSignal()->connect(boost::bind(&onModeChange));
+	LLUICtrl& mode_combo = getChildRef<LLUICtrl>("mode_combo");
+	mode_combo.setValue(gSavedSettings.getString("SessionSettingsFile"));
+	mode_combo.setCommitCallback(boost::bind(&LLPanelLogin::onModeChange, this, getChild<LLUICtrl>("mode_combo")->getValue(), _2));
 
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(onSelectServer, NULL);
@@ -247,16 +190,10 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	web_browser->addObserver(this);
 	
-	// Clear the browser's cache to avoid any potential for the cache messing up the login screen.
-	web_browser->clearCache();
-
 	reshapeBrowser();
 
-	// kick off a request to grab the url manually
-	gResponsePtr = LLIamHereLogin::build( this );
-
-	LLHTTPClient::head( LLGridManager::getInstance()->getLoginPage(), gResponsePtr );
-
+	loadLoginPage();
+			
 	// Show last logged in user favorites in "Start at" combo.
 	addUsersWithFavoritesToUsername();
 	getChild<LLComboBox>("username_combo")->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
@@ -300,7 +237,14 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
 		iter != fav_llsd.endMap(); ++iter)
 	{
-		if(iter->first != getChild<LLComboBox>("username_combo")->getSimple()) continue;
+		std::string user_defined_name = getChild<LLComboBox>("username_combo")->getSimple();
+
+		// The account name in stored_favorites.xml has Resident last name even if user has
+		// a single word account name, so it can be compared case-insensitive with the
+		// user defined "firstname lastname".
+		S32 res = LLStringUtil::compareInsensitive(canonicalize_username(user_defined_name), iter->first);
+		if (res != 0) continue;
+
 		combo->addSeparator();
 		LLSD user_llsd = iter->second;
 		for (LLSD::array_const_iterator iter1 = user_llsd.beginArray();
@@ -332,45 +276,9 @@ void LLPanelLogin::reshapeBrowser()
 	reshape( rect.getWidth(), rect.getHeight(), 1 );
 }
 
-void LLPanelLogin::setSiteIsAlive( bool alive )
-{
-	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
-	// if the contents of the site was retrieved
-	if ( alive )
-	{
-		if ( web_browser )
-		{
-			loadLoginPage();
-			
-			// mark as available
-			mHtmlAvailable = TRUE;
-		}
-	}
-	else
-	// the site is not available (missing page, server down, other badness)
-	{
-		if ( web_browser )
-		{
-			// hide browser control (revealing default one)
-			web_browser->setVisible( FALSE );
-
-			// mark as unavailable
-			mHtmlAvailable = FALSE;
-		}
-	}
-}
-
-
 LLPanelLogin::~LLPanelLogin()
 {
 	LLPanelLogin::sInstance = NULL;
-
-	// tell the responder we're not here anymore
-	if ( gResponsePtr )
-		gResponsePtr->setParent( 0 );
-
-	//// We know we're done with the image, so be rid of it.
-	//gTextureList.deleteImage( mLogoImage );
 
 	// Controls having keyboard focus by default
 	// must reset it on destroy. (EXT-2748)
@@ -394,22 +302,13 @@ void LLPanelLogin::draw()
 		S32 width = getRect().getWidth();
 		S32 height = getRect().getHeight();
 
-		if ( mHtmlAvailable )
+		if (getChild<LLView>("login_widgets")->getVisible())
 		{
-			if (getChild<LLView>("login_widgets")->getVisible())
-			{
-				// draw a background box in black
-				gl_rect_2d( 0, height - 264, width, 264, LLColor4::black );
-				// draw the bottom part of the background image
-				// just the blue background to the native client UI
-				mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
-			}
-		}
-		else
-		{
-			// the HTML login page is not available so default to the original screen
-			S32 offscreen_part = height / 3;
-			mLogoImage->draw(0, -offscreen_part, width, height+offscreen_part);
+			// draw a background box in black
+			gl_rect_2d( 0, height - 264, width, 264, LLColor4::black );
+			// draw the bottom part of the background image
+			// just the blue background to the native client UI
+			mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
 		};
 	}
 	glPopMatrix();
@@ -849,12 +748,20 @@ void LLPanelLogin::loadLoginPage()
 								   LLVersionInfo::getShortVersion().c_str(),
 								   LLVersionInfo::getBuild());
 
-	char* curl_channel = curl_escape(LLVersionInfo::getChannel().c_str(), 0);
+	char* curl_channel ;
 	char* curl_version = curl_escape(version.c_str(), 0);
 
+	if(strcmp(LLVersionInfo::getChannel().c_str(), LL_CHANNEL))
+	{
+		curl_channel = curl_escape(LLVersionInfo::getChannel().c_str(), 0);
+	}
+	else //if LL_CHANNEL, direct it to "Second Life Beta Viewer".
+	{
+		curl_channel = curl_escape("Second Life Beta Viewer", 0);		
+	}
 	oStr << "&channel=" << curl_channel;
 	oStr << "&version=" << curl_version;
-
+	
 	curl_free(curl_channel);
 	curl_free(curl_version);
 
@@ -868,20 +775,10 @@ void LLPanelLogin::loadLoginPage()
 	oStr << "&os=" << os_info;
 	curl_free(os_info);
 	
-	
 	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
-	gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());
 	
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-
-	// navigate to the "real" page
-	if (gSavedSettings.getBOOL("RegInClient"))
-	{
-		web_browser->setFocus(TRUE);
-		login_page = sInstance->getString("reg_in_client_url");
-		web_browser->navigateTo(login_page, "text/html");
-	}
-	else
+	if (web_browser->getCurrentNavUrl() != oStr.str())
 	{
 		web_browser->navigateTo( oStr.str(), "text/html" );
 	}
@@ -915,10 +812,6 @@ void LLPanelLogin::onClickConnect(void *)
 {
 	if (sInstance && sInstance->mCallback)
 	{
-		// tell the responder we're not here anymore
-		if ( gResponsePtr )
-			gResponsePtr->setParent( 0 );
-
 		// JC - Make sure the fields all get committed.
 		sInstance->setFocus(FALSE);
 
@@ -985,24 +878,6 @@ void LLPanelLogin::onClickConnect(void *)
 		}
 	}
 }
-
-/*
-// static
-bool LLPanelLogin::newAccountAlertCallback(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (0 == option)
-	{
-		llinfos << "Going to account creation URL" << llendl;
-		LLWeb::loadURLExternal( LLNotifications::instance().getGlobalString("CREATE_ACCOUNT_URL")); 
-	}
-	else
-	{
-		sInstance->setFocus(TRUE);
-	}
-	return false;
-}
-*/
 
 // static
 void LLPanelLogin::onClickNewAccount(void*)
@@ -1159,25 +1034,53 @@ void LLPanelLogin::updateLoginPanelLinks()
 	sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
 }
 
-//static
-void LLPanelLogin::onModeChange()
+void LLPanelLogin::onModeChange(const LLSD& original_value, const LLSD& new_value)
 {
-	LLNotificationsUtil::add("ModeChange", LLSD(), LLSD(), boost::bind(&onModeChangeConfirm, _1, _2));
+	if (original_value.asString() != new_value.asString())
+	{
+		LLNotificationsUtil::add("ModeChange", LLSD(), LLSD(), boost::bind(&LLPanelLogin::onModeChangeConfirm, this, original_value, new_value, _1, _2));
+	}
 }
 
-//static
-void LLPanelLogin::onModeChangeConfirm(const LLSD& notification, const LLSD& response)
+void LLPanelLogin::onModeChangeConfirm(const LLSD& original_value, const LLSD& new_value, const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch (option)
 	{
 	case 0:
-		LLAppViewer::instance()->requestQuit();
+		gSavedSettings.getControl("SessionSettingsFile")->set(new_value);
+		LLAppViewer::instance()->forceQuit();
 		break;
 	case 1:
-		// do nothing
+		// revert to original value
+		getChild<LLUICtrl>("mode_combo")->setValue(original_value);
 		break;
 	default:
 		break;
 	}
+}
+
+std::string canonicalize_username(const std::string& name)
+{
+	std::string cname = name;
+	LLStringUtil::trim(cname);
+
+	// determine if the username is a first/last form or not.
+	size_t separator_index = cname.find_first_of(" ._");
+	std::string first = cname.substr(0, separator_index);
+	std::string last;
+	if (separator_index != cname.npos)
+	{
+		last = cname.substr(separator_index+1, cname.npos);
+		LLStringUtil::trim(last);
+	}
+	else
+	{
+		// ...on Linden grids, single username users as considered to have
+		// last name "Resident"
+		last = "Resident";
+	}
+
+	// Username in traditional "firstname lastname" form.
+	return first + ' ' + last;
 }

@@ -753,6 +753,10 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("OpenGLPre30");
 	}
+	if (gGLManager.mNumTextureUnits <= 8)
+	{
+		maskFeatures("TexUnit8orLess");
+	}
 
 	// now mask by gpu string
 	// Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces

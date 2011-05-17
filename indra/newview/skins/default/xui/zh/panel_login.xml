@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_login">	
+	<layout_stack name="login_widgets">
+		<layout_panel name="login">
+			<text name="username_text">
+				使用者名稱：
+			</text>			
+			<text name="password_text">
+				密碼：
+			</text>
+			<check_box label="記住密碼" name="remember_check"/>
+			<button label="登入" name="connect_btn"/>
+			<text name="mode_selection_text">
+				模式：
+			</text>
+			<combo_box name="mode_combo" tool_tip="選擇一個登入模式">
+				<combo_box.item label="基礎" name="Basic"/>
+				<combo_box.item label="進階" name="Advanced"/>
+			</combo_box>
+			<text name="start_location_text">
+				開始地點：
+			</text>
+			<combo_box name="start_location_combo">
+				<combo_box.item label="上一次的地點" name="MyLastLocation"/>
+				<combo_box.item label="我的家" name="MyHome"/>
+				<combo_box.item label="&lt;輸入區域名&gt;" name="Typeregionname"/>
+			</combo_box>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_new_account_text">
+				註冊
+			</text>
+			<text name="forgot_password_text">
+				忘記使用者名稱或密碼？
+			</text>
+			<text name="login_help">
+				如何登入？
+			</text>
+		</layout_panel>
+	</layout_stack>
+</panel>

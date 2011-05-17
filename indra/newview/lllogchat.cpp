@@ -32,6 +32,7 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 
+#include "lldiriterator.h"
 #include "llinstantmessage.h"
 #include "llsingleton.h" // for LLSingleton
 
@@ -41,6 +42,7 @@
 #include <boost/regex/v4/match_results.hpp>
 
 #if LL_MSVC
+#pragma warning(push)  
 // disable warning about boost::lexical_cast unreachable code
 // when it fails to parse the string
 #pragma warning (disable:4702)
@@ -601,7 +603,8 @@ std::string LLLogChat::oldLogFileName(std::string filename)
 	//LL_INFOS("") << "Checking:" << directory << " for " << pattern << LL_ENDL;/* uncomment if you want to verify step, delete on commit */
 	std::vector<std::string> allfiles;
 
-    while (gDirUtilp->getNextFileInDir(directory, pattern, scanResult))
+	LLDirIterator iter(directory, pattern);
+	while (iter.next(scanResult))
     {
 		//LL_INFOS("") << "Found   :" << scanResult << LL_ENDL;
         allfiles.push_back(scanResult);

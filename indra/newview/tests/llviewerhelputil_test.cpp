@@ -73,11 +73,9 @@ static void substitute_string(std::string &input, const std::string &search, con
 }
 
 #include "../llagent.h"
-LLAgent::LLAgent() : mAgentAccess(gSavedSettings) { }
+LLAgent::LLAgent() : mAgentAccess(NULL) { }
 LLAgent::~LLAgent() { }
 bool LLAgent::isGodlike() const { return FALSE; }
-LLAgentAccess::LLAgentAccess(LLControlGroup& settings) : mSavedSettings(settings) { }
-LLUIColor::LLUIColor() {}
 
 LLAgent gAgent;
 

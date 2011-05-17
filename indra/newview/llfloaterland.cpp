@@ -38,6 +38,7 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "llagentaccess.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
@@ -2871,7 +2872,10 @@ void LLPanelLandCovenant::refresh()
 	LLTextBox* region_landtype = getChild<LLTextBox>("region_landtype_text");
 	if (region_landtype)
 	{
-		region_landtype->setText(region->getSimProductName());
+		std::string land_type;
+		bool is_land_type_localized = LLTrans::findString(land_type, region->getSimProductName());
+
+		region_landtype->setText(is_land_type_localized ? land_type : region->getSimProductName());
 	}
 	
 	LLTextBox* region_maturity = getChild<LLTextBox>("region_maturity_text");

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="サウンド" name="Preference Media panel">
 	<slider label="全体の音量" name="System Volume"/>
-	<check_box initial_value="true" label="最小化でミュート" name="mute_when_minimized"/>
+	<check_box initial_value="true" name="mute_when_minimized"/>
+	<text name="mute_chb_label">最小化でミュート</text>
 	<slider label="ボタン" name="UI Volume"/>
 	<slider label="風" name="Wind Volume"/>
 	<slider label="効果音" name="SFX Volume"/>

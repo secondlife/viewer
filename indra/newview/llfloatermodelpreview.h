@@ -53,6 +53,9 @@ class domTranslate;
 class LLMenuButton;
 class LLToggleableMenu;
 
+typedef std::map<std::string, LLMatrix4> JointTransformMap;
+typedef std::map<std::string, LLMatrix4>:: iterator JointTransformMapIt;
+
 const S32 NUM_LOD = 4;
 
 class LLModelLoader : public LLThread
@@ -77,7 +80,7 @@ public:
 	BOOL mFirstTransform;
 	LLVector3 mExtents[2];
 	bool mTrySLM;
-
+	
 	std::map<daeElement*, LLPointer<LLModel> > mModel;
 	
 	typedef std::vector<LLPointer<LLModel> > model_list;
@@ -94,7 +97,9 @@ public:
 	//queue of models that need a physics rep
 	model_queue mPhysicsQ;
 
-	LLModelLoader(std::string filename, S32 lod, LLModelPreview* preview);
+	LLModelLoader( std::string filename, S32 lod, LLModelPreview* preview, JointTransformMap& jointMap, 
+				   std::deque<std::string>& jointsFromNodes );
+	~LLModelLoader() ;
 
 	virtual void run();
 	bool doLoadModel();
@@ -115,17 +120,20 @@ public:
 	void extractTranslation( domTranslate* pTranslate, LLMatrix4& transform );
 	void extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform );
 	
-	bool doesJointArrayContainACompleteRig( const std::vector<std::string> &modelJointList );
-	bool checkForCompleteRig(  const std::vector<std::string> &jointListFromModel );
-	
-	void handlePivotPoint( daeElement* pRoot );
-	bool isNodeAPivotPoint( domNode* pNode );
-	
 	void setLoadState(U32 state);
+
+	void buildJointToNodeMappingFromScene( daeElement* pRoot );
+	void processJointToNodeMapping( domNode* pNode );
+
 
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	std::map<std::string, std::string> mJointMap;
-	std::deque<std::string> mMasterJointList;
+	JointTransformMap& mJointList;	
+	std::deque<std::string>& mJointsFromNode;
+
+private:
+	static std::list<LLModelLoader*> sActiveLoaderList;
+	static bool isAlive(LLModelLoader* loader) ;
 };
 
 class LLFloaterModelPreview : public LLFloater
@@ -287,7 +295,6 @@ public:
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
-	void alterModelsPivot( void );
 	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();
@@ -297,12 +304,28 @@ public:
 	void updateStatusMessages();
 	void clearGLODGroup();
 	void onLODParamCommit(bool enforce_tri_limit);
+
 	const bool getModelPivot( void ) const { return mHasPivot; }
 	void setHasPivot( bool val ) { mHasPivot = val; }
 	void setModelPivot( const LLVector3& pivot ) { mModelPivot = pivot; }
-	const bool isRigValid( void ) const { return mRigValid; }
-	void setRigValid( bool rigValid ) { mRigValid = rigValid; }
-	
+
+	//Sets the current avatars joints to new positions
+	//Makes in world go to shit, however
+	void changeAvatarsJointPositions( LLModel* pModel );
+	//Determines the viability of an asset to be used as an avatar rig (w or w/o joint upload caps)
+	void critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset );
+	void critiqueJointToNodeMappingFromScene( void  );
+	//Is a rig valid so that it can be used as a criteria for allowing for uploading of joint positions
+	//Accessors for joint position upload friendly rigs
+	const bool isRigValidForJointPositionUpload( void ) const { return mRigValidJointUpload; }
+	void setRigValidForJointPositionUpload( bool rigValid ) { mRigValidJointUpload = rigValid; }
+	bool isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset );
+	//Determines if a rig is a legacy from the joint list
+	bool isRigLegacy( const std::vector<std::string> &jointListFromAsset );	
+	//Accessors for the legacy rigs
+	const bool isLegacyRigValid( void ) const { return mLegacyRigValid; }
+	void setLegacyRigValid( bool rigValid ) { mLegacyRigValid = rigValid; }	
+
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 	
 	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }
@@ -310,9 +333,13 @@ public:
 	
 	void setLoadState( U32 state ) { mLoadState = state; }
 	U32 getLoadState() { return mLoadState; }
-		
-	void setResetJointFlag( bool state ) { mResetJoints = state; }
-	bool getResetJointFlag( void ) { return mResetJoints; }
+	//setRestJointFlag: If an asset comes through that changes the joints, we want the reset to persist
+	void setResetJointFlag( bool state ) { if ( !mResetJoints ) mResetJoints = state; }
+	const bool getResetJointFlag( void ) const { return mResetJoints; }
+	void setRigWithSceneParity( bool state ) { mRigParityWithScene = state; }
+	const bool getRigWithSceneParity( void ) const { return mRigParityWithScene; }
+	
+	LLVector3 getTranslationForJointOffset( std::string joint );
 
  protected:
 	friend class LLModelLoader;
@@ -341,16 +368,25 @@ public:
 	bool		mLoading;
 	U32			mLoadState;
 	bool		mResetJoints;
+	bool		mRigParityWithScene;
+	
 	std::map<std::string, bool> mViewOption;
 
 	//GLOD object parameters (must rebuild object if these change)
+	bool mLODFrozen;
 	F32 mBuildShareTolerance;
 	U32 mBuildQueueMode;
 	U32 mBuildOperator;
 	U32 mBuildBorderMode;
+	U32 mRequestedLoDMode[LLModel::NUM_LODS];
 	S32 mRequestedTriangleCount[LLModel::NUM_LODS];
+	F32 mRequestedErrorThreshold[LLModel::NUM_LODS];
+	U32 mRequestedBuildOperator[LLModel::NUM_LODS];
+	U32 mRequestedQueueMode[LLModel::NUM_LODS];
+	U32 mRequestedBorderMode[LLModel::NUM_LODS];
+	F32 mRequestedShareTolerance[LLModel::NUM_LODS];
+	F32 mRequestedCreaseAngle[LLModel::NUM_LODS];
 
-	
 	LLModelLoader* mModelLoader;
 
 	LLModelLoader::scene mScene[LLModel::NUM_LODS];
@@ -377,8 +413,15 @@ public:
 	
 	float		mPelvisZOffset;
 	
-	bool		mRigValid;
-};
+	bool		mRigValidJointUpload;
+	bool		mLegacyRigValid;
 
+	bool		mLastJointUpdate;
+
+	std::deque<std::string> mMasterJointList;
+	std::deque<std::string> mMasterLegacyJointList;
+	std::deque<std::string> mJointsFromNode;
+	JointTransformMap		mJointTransformMap;
+};
 
 #endif  // LL_LLFLOATERMODELPREVIEW_H

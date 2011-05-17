@@ -51,6 +51,7 @@
 #include "llsdserialize.h"
 #include "llvector4a.h"
 #include "llmatrix4a.h"
+#include "lltimer.h"
 
 #define DEBUG_SILHOUETTE_BINORMALS 0
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
@@ -1883,9 +1884,9 @@ LLVolume::~LLVolume()
 	mProfilep = NULL;
 	mVolumeFaces.clear();
 
-	free(mHullPoints);
+	ll_aligned_free_16(mHullPoints);
 	mHullPoints = NULL;
-	free(mHullIndices);
+	ll_aligned_free_16(mHullIndices);
 	mHullIndices = NULL;
 }
 
@@ -2007,7 +2008,7 @@ void LLVolumeFace::VertexData::init()
 {
 	if (!mData)
 	{
-		mData = (LLVector4a*) malloc(sizeof(LLVector4a)*2);
+		mData = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*2);
 	}
 }
 
@@ -2036,7 +2037,7 @@ const LLVolumeFace::VertexData& LLVolumeFace::VertexData::operator=(const LLVolu
 
 LLVolumeFace::VertexData::~VertexData()
 {
-	free(mData);
+	ll_aligned_free_16(mData);
 	mData = NULL;
 }
 
@@ -2183,7 +2184,8 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			}
 
 			U16* indices = (U16*) &(idx[0]);
-			for (U32 j = 0; j < idx.size()/2; ++j)
+			U32 count = idx.size()/2;
+			for (U32 j = 0; j < count; ++j)
 			{
 				face.mIndices[j] = indices[j];
 			}
@@ -2191,6 +2193,81 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			//copy out vertices
 			U32 num_verts = pos.size()/(3*2);
 			face.resizeVertices(num_verts);
+
+			LLVector3 minp;
+			LLVector3 maxp;
+			LLVector2 min_tc; 
+			LLVector2 max_tc; 
+		
+			minp.setValue(mdl[i]["PositionDomain"]["Min"]);
+			maxp.setValue(mdl[i]["PositionDomain"]["Max"]);
+			LLVector4a min_pos, max_pos;
+			min_pos.load3(minp.mV);
+			max_pos.load3(maxp.mV);
+
+			min_tc.setValue(mdl[i]["TexCoord0Domain"]["Min"]);
+			max_tc.setValue(mdl[i]["TexCoord0Domain"]["Max"]);
+
+			LLVector4a pos_range;
+			pos_range.setSub(max_pos, min_pos);
+			LLVector2 tc_range2 = max_tc - min_tc;
+			LLVector4a tc_range;
+			tc_range.set(tc_range2[0], tc_range2[1], tc_range2[0], tc_range2[1]);
+			LLVector4a min_tc4(min_tc[0], min_tc[1], min_tc[0], min_tc[1]);
+
+			LLVector4a* pos_out = face.mPositions;
+			LLVector4a* norm_out = face.mNormals;
+			LLVector4a* tc_out = (LLVector4a*) face.mTexCoords;
+
+			{
+				U16* v = (U16*) &(pos[0]);
+				for (U32 j = 0; j < num_verts; ++j)
+				{
+					pos_out->set((F32) v[0], (F32) v[1], (F32) v[2]);
+					pos_out->div(65535.f);
+					pos_out->mul(pos_range);
+					pos_out->add(min_pos);
+					pos_out++;
+					v += 3;
+				}
+
+			}
+
+			{
+				U16* n = (U16*) &(norm[0]);
+				for (U32 j = 0; j < num_verts; ++j)
+				{
+					norm_out->set((F32) n[0], (F32) n[1], (F32) n[2]);
+					norm_out->div(65535.f);
+					norm_out->mul(2.f);
+					norm_out->sub(1.f);
+					norm_out++;
+					n += 3;
+				}
+			}
+
+			{
+				U16* t = (U16*) &(tc[0]);
+				for (U32 j = 0; j < num_verts; j+=2)
+				{
+					if (j < num_verts-1)
+					{
+						tc_out->set((F32) t[0], (F32) t[1], (F32) t[2], (F32) t[3]);
+					}
+					else
+					{
+						tc_out->set((F32) t[0], (F32) t[1], 0.f, 0.f);
+					}
+
+					t += 4;
+
+					tc_out->div(65535.f);
+					tc_out->mul(tc_range);
+					tc_out->add(min_tc4);
+
+					tc_out++;
+				}
+			}
 
 			if (mdl[i].has("Weights"))
 			{
@@ -2239,56 +2316,6 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 					
 			}
 
-			LLVector3 minp;
-			LLVector3 maxp;
-			LLVector2 min_tc; 
-			LLVector2 max_tc; 
-		
-			minp.setValue(mdl[i]["PositionDomain"]["Min"]);
-			maxp.setValue(mdl[i]["PositionDomain"]["Max"]);
-			LLVector4a min_pos, max_pos;
-			min_pos.load3(minp.mV);
-			max_pos.load3(maxp.mV);
-
-			min_tc.setValue(mdl[i]["TexCoord0Domain"]["Min"]);
-			max_tc.setValue(mdl[i]["TexCoord0Domain"]["Max"]);
-
-			LLVector4a pos_range;
-			pos_range.setSub(max_pos, min_pos);
-			LLVector2 tc_range = max_tc - min_tc;
-
-			LLVector4a* pos_out = face.mPositions;
-			LLVector4a* norm_out = face.mNormals;
-			LLVector2* tc_out = face.mTexCoords;
-
-			for (U32 j = 0; j < num_verts; ++j)
-			{
-				U16* v = (U16*) &(pos[j*3*2]);
-
-				pos_out->set((F32) v[0], (F32) v[1], (F32) v[2]);
-				pos_out->div(65535.f);
-				pos_out->mul(pos_range);
-				pos_out->add(min_pos);
-
-				pos_out++;
-
-				U16* n = (U16*) &(norm[j*3*2]);
-
-				norm_out->set((F32) n[0], (F32) n[1], (F32) n[2]);
-				norm_out->div(65535.f);
-				norm_out->mul(2.f);
-				norm_out->sub(1.f);
-				norm_out++;
-
-				U16* t = (U16*) &(tc[j*2*2]);
-
-				tc_out->mV[0] = (F32) t[0] / 65535.f * tc_range.mV[0] + min_tc.mV[0];
-				tc_out->mV[1] =	(F32) t[1] / 65535.f * tc_range.mV[1] + min_tc.mV[1];
-
-				tc_out++;
-			}
-
-			
 			// modifier flags?
 			bool do_mirror = (mParams.getSculptType() & LL_SCULPT_FLAG_MIRROR);
 			bool do_invert = (mParams.getSculptType() &LL_SCULPT_FLAG_INVERT);
@@ -2361,7 +2388,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			}
 		}
 	}
-
+	
 	mSculptLevel = 0;  // success!
 
 	cacheOptimize();
@@ -5192,7 +5219,7 @@ LLVolumeFace::LLVolumeFace() :
 	mWeights(NULL),
 	mOctree(NULL)
 {
-	mExtents = (LLVector4a*) malloc(sizeof(LLVector4a)*3);
+	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*3);
 	mCenter = mExtents+2;
 }
 
@@ -5213,7 +5240,7 @@ LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
 	mWeights(NULL),
 	mOctree(NULL)
 { 
-	mExtents = (LLVector4a*) malloc(sizeof(LLVector4a)*3);
+	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*3);
 	mCenter = mExtents+2;
 	*this = src;
 }
@@ -5263,7 +5290,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		}
 		else
 		{
-			free(mBinormals);
+			ll_aligned_free_16(mBinormals);
 			mBinormals = NULL;
 		}
 
@@ -5274,7 +5301,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		}
 		else
 		{
-			free(mWeights);
+			ll_aligned_free_16(mWeights);
 			mWeights = NULL;
 		}
 	}
@@ -5292,7 +5319,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 
 LLVolumeFace::~LLVolumeFace()
 {
-	free(mExtents);
+	ll_aligned_free_16(mExtents);
 	mExtents = NULL;
 
 	freeData();
@@ -5300,17 +5327,17 @@ LLVolumeFace::~LLVolumeFace()
 
 void LLVolumeFace::freeData()
 {
-	free(mPositions);
+	ll_aligned_free_16(mPositions);
 	mPositions = NULL;
-	free( mNormals);
+	ll_aligned_free_16( mNormals);
 	mNormals = NULL;
-	free(mTexCoords);
+	ll_aligned_free_16(mTexCoords);
 	mTexCoords = NULL;
-	free(mIndices);
+	ll_aligned_free_16(mIndices);
 	mIndices = NULL;
-	free(mBinormals);
+	ll_aligned_free_16(mBinormals);
 	mBinormals = NULL;
-	free(mWeights);
+	ll_aligned_free_16(mWeights);
 	mWeights = NULL;
 
 	delete mOctree;
@@ -5827,21 +5854,21 @@ void LLVolumeFace::cacheOptimize()
 	
 	//allocate space for new buffer
 	S32 num_verts = mNumVertices;
-	LLVector4a* pos = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
-	LLVector4a* norm = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+	LLVector4a* pos = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
+	LLVector4a* norm = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 	S32 size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
-	LLVector2* tc = (LLVector2*) malloc(size);
+	LLVector2* tc = (LLVector2*) ll_aligned_malloc_16(size);
 
 	LLVector4a* wght = NULL;
 	if (mWeights)
 	{
-		wght = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+		wght = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 	}
 
 	LLVector4a* binorm = NULL;
 	if (mBinormals)
 	{
-		binorm = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+		binorm = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 	}
 
 	//allocate mapping of old indices to new indices
@@ -5878,11 +5905,11 @@ void LLVolumeFace::cacheOptimize()
 		mIndices[i] = new_idx[mIndices[i]];
 	}
 	
-	free(mPositions);
-	free(mNormals);
-	free(mTexCoords);
-	free(mWeights);
-	free(mBinormals);
+	ll_aligned_free_16(mPositions);
+	ll_aligned_free_16(mNormals);
+	ll_aligned_free_16(mTexCoords);
+	ll_aligned_free_16(mWeights);
+	ll_aligned_free_16(mBinormals);
 
 	mPositions = pos;
 	mNormals = norm;
@@ -6603,23 +6630,23 @@ void LLVolumeFace::createBinormals()
 
 void LLVolumeFace::resizeVertices(S32 num_verts)
 {
-	free(mPositions);
-	free(mNormals);
-	free(mBinormals);
-	free(mTexCoords);
+	ll_aligned_free_16(mPositions);
+	ll_aligned_free_16(mNormals);
+	ll_aligned_free_16(mBinormals);
+	ll_aligned_free_16(mTexCoords);
 
 	mBinormals = NULL;
 
 	if (num_verts)
 	{
-		mPositions = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+		mPositions = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 		assert_aligned(mPositions, 16);
-		mNormals = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+		mNormals = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 		assert_aligned(mNormals, 16);
 
 		//pad texture coordinate block end to allow for QWORD reads
 		S32 size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
-		mTexCoords = (LLVector2*) malloc(size);
+		mTexCoords = (LLVector2*) ll_aligned_malloc_16(size);
 		assert_aligned(mTexCoords, 16);
 	}
 	else
@@ -6655,7 +6682,7 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 	
 
 	//just clear binormals
-	free(mBinormals);
+	ll_aligned_free_16(mBinormals);
 	mBinormals = NULL;
 
 	mPositions[mNumVertices] = pos;
@@ -6667,26 +6694,26 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 
 void LLVolumeFace::allocateBinormals(S32 num_verts)
 {
-	free(mBinormals);
-	mBinormals = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+	ll_aligned_free_16(mBinormals);
+	mBinormals = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 }
 
 void LLVolumeFace::allocateWeights(S32 num_verts)
 {
-	free(mWeights);
-	mWeights = (LLVector4a*) malloc(sizeof(LLVector4a)*num_verts);
+	ll_aligned_free_16(mWeights);
+	mWeights = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 }
 
 void LLVolumeFace::resizeIndices(S32 num_indices)
 {
-	free(mIndices);
+	ll_aligned_free_16(mIndices);
 	
 	if (num_indices)
 	{
 		//pad index block end to allow for QWORD reads
 		S32 size = ((num_indices*sizeof(U16)) + 0xF) & ~0xF;
 		
-		mIndices = (U16*) malloc(size);
+		mIndices = (U16*) ll_aligned_malloc_16(size);
 	}
 	else
 	{

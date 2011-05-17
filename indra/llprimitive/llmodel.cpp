@@ -232,27 +232,16 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 	domPRef p = tri->getP();
 	domListOfUInts& idx = p->getValue();
 	
-	domListOfFloats v;
-	domListOfFloats tc;
-	domListOfFloats n;
+	domListOfFloats  dummy ;
+	domListOfFloats& v = pos_source ? pos_source->getFloat_array()->getValue() : dummy ;
+	domListOfFloats& tc = tc_source ? tc_source->getFloat_array()->getValue() : dummy ;
+	domListOfFloats& n = norm_source ? norm_source->getFloat_array()->getValue() : dummy ;
 
 	if (pos_source)
 	{
-		v = pos_source->getFloat_array()->getValue();
 		face.mExtents[0].set(v[0], v[1], v[2]);
 		face.mExtents[1].set(v[0], v[1], v[2]);
 	}
-
-	if (tc_source)
-	{
-		tc = tc_source->getFloat_array()->getValue();
-	}
-
-	if (norm_source)
-	{
-		n = norm_source->getFloat_array()->getValue();
-	}
-
 	
 	LLVolumeFace::VertexMapData::PointMap point_map;
 	
@@ -2067,7 +2056,7 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 			std::set<U64> valid;
 
 			//must have at least 4 points
-			llassert(count > 3);
+			//llassert(count > 3);
 
 			for (U32 j = 0; j < count; ++j)
 			{
@@ -2085,7 +2074,7 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 			}
 
 			//each hull must contain at least 4 unique points
-			llassert(valid.size() > 3);
+			//llassert(valid.size() > 3);
 		}
 	}
 

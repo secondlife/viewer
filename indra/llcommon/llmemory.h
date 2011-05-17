@@ -28,7 +28,7 @@
 
 #include "llmemtype.h"
 
-#if 0  //DON'T use ll_aligned_foo now that we use tcmalloc everywhere (tcmalloc aligns automatically at appropriate intervals)
+#if LL_DEBUG
 inline void* ll_aligned_malloc( size_t size, int align )
 {
 	void* mem = malloc( size + (align - 1) + sizeof(void*) );
@@ -95,7 +95,15 @@ inline void ll_aligned_free_32(void *p)
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif
 }
-#endif
+#else // LL_DEBUG
+// ll_aligned_foo are noops now that we use tcmalloc everywhere (tcmalloc aligns automatically at appropriate intervals)
+#define ll_aligned_malloc( size, align ) malloc(size)
+#define ll_aligned_free( ptr ) free(ptr)
+#define ll_aligned_malloc_16 malloc
+#define ll_aligned_free_16 free
+#define ll_aligned_malloc_32 malloc
+#define ll_aligned_free_32 free
+#endif // LL_DEBUG
 
 class LL_COMMON_API LLMemory
 {

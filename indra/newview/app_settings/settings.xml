@@ -641,7 +641,17 @@
       <key>Value</key>
       <integer>10</integer>
     </map>
-
+    <key>AvatarPhysics</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable avatar physics.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>AvatarSex</key>
     <map>
       <key>Comment</key>
@@ -653,6 +663,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+
     <key>BackgroundYieldTime</key>
     <map>
       <key>Comment</key>
@@ -2673,10 +2684,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DisableRendering</key>
+    <key>HeadlessClient</key>
     <map>
       <key>Comment</key>
-      <string>Disable GL rendering and GUI (load testing)</string>
+      <string>Run in headless mode by disabling GL rendering, keyboard, etc</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3282,14 +3293,14 @@
   <map>
     <key>Comment</key>
     <string>Specifies that you have not logged in with the viewer since you performed a clean install</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-  <key>FirstSelectedDisabledPopups</key>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstSelectedDisabledPopups</key>
     <map>
       <key>Comment</key>
       <string>Return false if there is not disabled popup selected in the list of floater preferences popups</string>
@@ -3971,6 +3982,17 @@
       <key>Value</key>
       <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
+    <key>SearchURLBeta</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for Search website, displayed in the Find floater</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://beta.search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
+    </map>
     <key>WebProfileURL</key>
     <map>
       <key>Comment</key>
@@ -4345,6 +4367,39 @@
       <key>Value</key>
         <real>0.25</real>
       </map>
+	<key>Jpeg2000AdvancedCompression</key>
+	  <map>
+      <key>Comment</key>
+        <string>Use advanced Jpeg2000 compression options (precincts, blocks, ordering, markers)</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>Boolean</string>
+      <key>Value</key>
+        <integer>0</integer>
+	  </map>
+	<key>Jpeg2000PrecinctsSize</key>
+	  <map>
+      <key>Comment</key>
+        <string>Size of image precincts. Assumed square and same for all levels. Must be power of 2.</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>S32</string>
+      <key>Value</key>
+        <integer>256</integer>
+	  </map>
+	<key>Jpeg2000BlocksSize</key>
+	  <map>
+      <key>Comment</key>
+        <string>Size of encoding blocks. Assumed square and same for all levels. Must be power of 2. Max 64, Min 4.</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>S32</string>
+      <key>Value</key>
+        <integer>64</integer>
+	  </map>
     <key>KeepAspectForSnapshot</key>
     <map>
       <key>Comment</key>
@@ -5527,6 +5582,17 @@
   <map>
     <key>Comment</key>
     <string>Use cached copy of last upload for a dae if available instead of loading dae file from scratch.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  <key>MeshUseWholeModelUpload</key>
+  <map>
+    <key>Comment</key>
+    <string>Upload model in its entirety instead of mesh-by-mesh (new caps)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -7206,6 +7272,17 @@
       <key>Value</key>
       <integer>12</integer>
     </map>
+    <key>RenderAvatarPhysicsLODFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls level of detail of avatar physics (such as breast physics).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>1.0</integer>
+    </map>
     <key>RenderAvatarVP</key>
     <map>
       <key>Comment</key>
@@ -7378,7 +7455,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.40</real>
+      <real>0.80</real>
       <real>1.00</real>
       <real>0.00</real>
     </array>
@@ -8097,7 +8174,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.1</real>
+    <real>0.8</real>
   </map>
 
   <key>RenderShadowGaussian</key>
@@ -8147,7 +8224,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.1</real>
+    <real>0</real>
   </map>
 
   <key>RenderGIAmbiance</key>
@@ -8367,9 +8444,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>0.299</real>
-        <real>0.587</real>
-        <real>0.114</real>
+        <real>1</real>
+        <real>0</real>
+        <real>0</real>
       </array>
     </map>
     <key>RenderGlowMaxExtractAlpha</key>
@@ -8381,7 +8458,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.065</real>
+      <real>0.25</real>
     </map>
     <key>RenderGlowMinLuminance</key>
     <map>
@@ -8392,7 +8469,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>2.5</real>
+      <real>9999</real>
     </map>
     <key>RenderGlowResolutionPow</key>
     <map>
@@ -10044,7 +10121,7 @@
     <key>ShowNetStats</key>
     <map>
       <key>Comment</key>
-      <string>Show the Search Bar in the Status Overlay</string>
+      <string>Show the Status Indicators for the Viewer and Network Usage in the Status Overlay</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12160,10 +12237,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>VoiceCallsRejectAll</key>
+    <key>VoiceCallsRejectGroup</key>
     <map>
       <key>Comment</key>
-      <string>Silently reject all incoming voice calls.</string>
+      <string>Silently reject all incoming group voice calls.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12423,6 +12500,33 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>WaterFogColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Water fog color</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.0863</real>
+        <real>0.168</real>
+        <real>0.212</real>
+        <real>0</real>
+      </array>
+    </map>
+    <key>WaterFogDensity</key>
+    <map>
+      <key>Comment</key>
+      <string>Water fog density</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>16.0</real>
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>
@@ -13028,6 +13132,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>    
+    <key>EnablePlaceProfile</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable viewing of place profile from web link</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>EnablePicks</key>
     <map>
@@ -13084,6 +13199,39 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+  <key>EnableInventory</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable opening inventory from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>EnableSearch</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable opening search from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>EnableAppearance</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable opening appearance from web link</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>SearchFromAddressBar</key>
     <map>
       <key>Comment</key>
@@ -13132,6 +13280,50 @@
     <map>
       <key>Comment</key>
       <string>Show inventory window with last inventory offer selected when receiving inventory from other users.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>GenericErrorPageURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to set as a property on LLMediaControl to navigate to if the a page completes with a 400-499 HTTP status code</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/404.html</string>
+    </map>
+    <key>DestinationsAndAvatarsVisibility</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether destination panel or avatar picker are open (0=destination guide, 1=avatar picker, default=nothing)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>OpenIMOnVoice</key>
+    <map>
+      <key>Comment</key>
+      <string>Open the corresponding IM window when connecting to a voice call.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+     <key>AllowBottomTrayButtonReordering</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow user to move and hide bottom tray buttons</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

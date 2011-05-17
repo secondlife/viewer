@@ -60,21 +60,18 @@ elseif (LINUX)
     set(WEBKIT_PLUGIN_LIBRARIES ${LLQTWEBKIT_LIBRARY} ${QT_LIBRARIES} ${QT_PLUGIN_LIBRARIES})
     set(WEBKIT_PLUGIN_LIBRARIES
         llqtwebkit
-
-        qgif
 #        qico
-        qjpeg
 #        qpng
 #        qtiff
 #        qsvg
-
 #        QtSvg
         QtWebKit
         QtOpenGL
         QtNetwork
         QtGui
         QtCore
-
+        qgif
+        qjpeg
         jpeg
         fontconfig
         X11

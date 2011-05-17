@@ -115,8 +115,7 @@ void display_startup()
 {
 	if (   !gViewerWindow->getActive()
 		|| !gViewerWindow->mWindow->getVisible() 
-		|| gViewerWindow->mWindow->getMinimized()
-		|| gNoRender )
+		|| gViewerWindow->mWindow->getMinimized() )
 	{
 		return; 
 	}
@@ -294,7 +293,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Logic for forcing window updates if we're in drone mode.
 	//
 
-	if (gNoRender) 
+	// *TODO: Investigate running display() during gHeadlessClient.  See if this early exit is needed DK 2011-02-18
+	if (gHeadlessClient) 
 	{
 #if LL_WINDOWS
 		static F32 last_update_time = 0.f;
@@ -825,7 +825,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//}
 
 		LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? TRUE : FALSE;
-		LLPipeline::updateRenderDeferred();
+		LLPipeline::refreshRenderDeferred();
 		
 		stop_glerror();
 
@@ -1024,7 +1024,7 @@ void render_hud_attachments()
 		gPipeline.renderGeom(hud_cam);
 
 		LLSpatialGroup::sNoDelete = FALSE;
-		gPipeline.clearReferences();
+		//gPipeline.clearReferences();
 
 		render_hud_elements();
 
@@ -1085,8 +1085,8 @@ bool get_hud_matrices(const LLRect& screen_region, glh::matrix4f &proj, glh::mat
 		F32 scale_y = (F32)gViewerWindow->getWorldViewHeightScaled() / (F32)screen_region.getHeight();
 		mat.set_scale(glh::vec3f(scale_x, scale_y, 1.f));
 		mat.set_translate(
-			glh::vec3f(clamp_rescale((F32)screen_region.getCenterX(), 0.f, (F32)gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
-					   clamp_rescale((F32)screen_region.getCenterY(), 0.f, (F32)gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
+			glh::vec3f(clamp_rescale((F32)(screen_region.getCenterX() - screen_region.mLeft), 0.f, (F32)gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
+					   clamp_rescale((F32)(screen_region.getCenterY() - screen_region.mBottom), 0.f, (F32)gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
 					   0.f));
 		proj *= mat;
 		
