@@ -670,7 +670,7 @@ void LLEnvManagerNew::setUseRegionSettings(bool val)
 {
 	mUserPrefs.setUseDefaults(val);
 	saveUserPrefs();
-	updateManagersFromPrefs();
+	updateManagersFromPrefs(false);
 }
 
 void LLEnvManagerNew::setUseWaterPreset(const std::string& name)
@@ -683,7 +683,7 @@ void LLEnvManagerNew::setUseWaterPreset(const std::string& name)
 
 	mUserPrefs.setUseWaterPreset(name);
 	saveUserPrefs();
-	updateManagersFromPrefs();
+	updateManagersFromPrefs(false);
 }
 
 void LLEnvManagerNew::setUseSkyPreset(const std::string& name)
@@ -696,7 +696,7 @@ void LLEnvManagerNew::setUseSkyPreset(const std::string& name)
 
 	mUserPrefs.setUseSkyPreset(name);
 	saveUserPrefs();
-	updateManagersFromPrefs();
+	updateManagersFromPrefs(false);
 }
 
 void LLEnvManagerNew::setUseDayCycle(const std::string& name)
@@ -709,7 +709,7 @@ void LLEnvManagerNew::setUseDayCycle(const std::string& name)
 
 	mUserPrefs.setUseDayCycle(name);
 	saveUserPrefs();
-	updateManagersFromPrefs();
+	updateManagersFromPrefs(true);
 }
 
 void LLEnvManagerNew::loadUserPrefs()
@@ -749,12 +749,6 @@ void LLEnvManagerNew::onRegionCrossing()
 	onRegionChange(true);
 }
 
-void LLEnvManagerNew::onLogin()
-{
-	LL_DEBUGS("Windlight") << "Logged in" << LL_ENDL;
-	onRegionChange(false);
-}
-
 void LLEnvManagerNew::onTeleport()
 {
 	LL_DEBUGS("Windlight") << "Teleported" << LL_ENDL;
@@ -771,15 +765,13 @@ void LLEnvManagerNew::initSingleton()
 	loadUserPrefs();
 }
 
-void LLEnvManagerNew::updateManagersFromPrefs()
+void LLEnvManagerNew::updateManagersFromPrefs(bool interpolate)
 {
-	// *TODO: apply region settings if user preferences say to do so.
-
 	// Apply water settings.
-	LLWaterParamManager::instance().applyUserPrefs();
+	LLWaterParamManager::instance().applyUserPrefs(interpolate);
 
 	// Apply sky settings.
-	LLWLParamManager::instance().applyUserPrefs();
+	LLWLParamManager::instance().applyUserPrefs(interpolate);
 }
 
 void LLEnvManagerNew::sendRegionSettingsRequest()
@@ -790,6 +782,18 @@ void LLEnvManagerNew::sendRegionSettingsRequest()
 
 void LLEnvManagerNew::onRegionChange(bool interpolate)
 {
+	// Avoid duplicating region setting requests
+	// by checking whether the region is actually changing.
+	LLViewerRegion* regionp = gAgent.getRegion();
+	LLUUID region_uuid = regionp ? regionp->getRegionID() : LLUUID::null;
+	if (region_uuid == mCurRegionUUID)
+	{
+		return;
+	}
+
+	// Request environment settings of the new region.
+	LL_DEBUGS("Windlight") << "New viewer region: " << region_uuid << LL_ENDL;
+	mCurRegionUUID = region_uuid;
 	mInterpNextChangeMessage = interpolate;
 	sendRegionSettingsRequest();
 }
@@ -805,6 +809,8 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	// 2. If using server settings, update managers.
 	if (getUseRegionSettings())
 	{
-		updateManagersFromPrefs();
+		updateManagersFromPrefs(mInterpNextChangeMessage);
 	}
+
+	mInterpNextChangeMessage = false;
 }

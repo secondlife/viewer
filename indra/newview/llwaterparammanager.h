@@ -230,7 +230,7 @@ public:
 	void propagateParameters(void);
 
 	/// apply user water preferences
-	void applyUserPrefs();
+	void applyUserPrefs(bool interpolate);
 
 	/// update information for the shader
 	void update(LLViewerCamera * cam);

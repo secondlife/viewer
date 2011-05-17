@@ -596,6 +596,8 @@ void LLAgent::standUp()
 //-----------------------------------------------------------------------------
 void LLAgent::setRegion(LLViewerRegion *regionp)
 {
+	bool teleport = true;
+
 	llassert(regionp);
 	if (mRegionp != regionp)
 	{
@@ -634,15 +636,7 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 			}
 
 			// Notify windlight managers
-			bool teleport = (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE);
-			if (teleport)
-			{
-				LLEnvManagerNew::instance().onTeleport();
-			}
-			else
-			{
-				LLEnvManagerNew::instance().onRegionCrossing();
-			}
+			teleport = (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE);
 		}
 		else
 		{
@@ -659,9 +653,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
 			// Update all of the regions.
 			LLWorld::getInstance()->updateAgentOffset(mAgentOriginGlobal);
-
-			// Notify windlight managers about login
-			LLEnvManagerNew::instance().onLogin();
 		}
 
 		// Pass new region along to metrics components that care about this level of detail.
@@ -687,7 +678,14 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
 	LLFloaterMove::sUpdateFlyingStatus();
 
-	LLEnvManagerNew::instance().onTeleport();
+	if (teleport)
+	{
+		LLEnvManagerNew::instance().onTeleport();
+	}
+	else
+	{
+		LLEnvManagerNew::instance().onRegionCrossing();
+	}
 }
 
 

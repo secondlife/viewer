@@ -278,7 +278,6 @@ public:
 	void saveUserPrefs();
 	void dumpUserPrefs();
 
-	void onLogin();
 	void onRegionCrossing();
 	void onTeleport();
 	void onRegionSettingsResponse(const LLSD& content);
@@ -287,14 +286,15 @@ private:
 	friend class LLSingleton<LLEnvManagerNew>;
 	/*virtual*/ void initSingleton();
 
-	void updateManagersFromPrefs();
+	void updateManagersFromPrefs(bool interpolate);
 	void sendRegionSettingsRequest();
 
 	void onRegionChange(bool interpolate);
 
-	LLEnvPrefs				mUserPrefs;
-	LLEnvironmentSettings	mCachedRegionPrefs;
-	bool					mInterpNextChangeMessage;
+	LLEnvPrefs				mUserPrefs;					/// User environment preferences.
+	LLEnvironmentSettings	mCachedRegionPrefs;			/// Cached region environment settings.
+	bool					mInterpNextChangeMessage;	/// Interpolate env. settings on next region change.
+	LLUUID					mCurRegionUUID;				/// To avoid duplicated region env. settings requests.
 };
 
 #endif // LL_LLENVMANAGER_H

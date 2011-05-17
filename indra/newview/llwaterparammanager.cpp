@@ -256,21 +256,40 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 
 static LLFastTimer::DeclareTimer FTM_UPDATE_WATERPARAM("Update Water Params");
 
-void LLWaterParamManager::applyUserPrefs()
+void LLWaterParamManager::applyUserPrefs(bool interpolate)
 {
+	LLSD target_water_params;
+
+	// Determine new water settings based on user prefs.
 	if (LLEnvManagerNew::instance().getUseRegionSettings())
 	{
-		// *TODO: interpolate?
 		// *TODO: make sure whether region settings belong to the current region?
 		LL_DEBUGS("Windlight") << "Applying region water" << LL_ENDL;
-		const LLEnvironmentSettings& region_settings = LLEnvManagerNew::instance().getRegionSettings();
-		LLWaterParamManager::getInstance()->mCurParams.setAll(region_settings.getWaterParams());
+		target_water_params = LLEnvManagerNew::instance().getRegionSettings().getWaterParams();
 	}
 	else
 	{
 		std::string water = LLEnvManagerNew::instance().getWaterPresetName();
-		LL_DEBUGS("Windlight") << "Loading water preset [" << water << "]" << LL_ENDL;
-		loadPreset(water, true);
+		LL_DEBUGS("Windlight") << "Applying water preset [" << water << "]" << LL_ENDL;
+		LLWaterParamSet params;
+		getParamSet(water, params);
+		target_water_params = params.getAll();
+	}
+
+	// Apply them with or without interpolation.
+	if (target_water_params.isUndefined())
+	{
+		llwarns << "Undefined target water params" << llendl;
+		return;
+	}
+
+	if (interpolate)
+	{
+		LLWLParamManager::getInstance()->mAnimator.startInterpolation(target_water_params);
+	}
+	else
+	{
+		LLWaterParamManager::getInstance()->mCurParams.setAll(target_water_params);
 	}
 }
 
@@ -447,5 +466,5 @@ void LLWaterParamManager::initSingleton()
 {
 	LL_DEBUGS("Windlight") << "Initializing water" << LL_ENDL;
 	loadAllPresets(LLStringUtil::null);
-	applyUserPrefs();
+	applyUserPrefs(false);
 }

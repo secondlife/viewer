@@ -580,7 +580,7 @@ void LLWLParamManager::update(LLViewerCamera * cam)
 	}
 }
 
-void LLWLParamManager::applyUserPrefs()
+void LLWLParamManager::applyUserPrefs(bool interpolate)
 {
 	LL_DEBUGS("Windlight") << "Applying sky prefs" << LL_ENDL;
 	clearParamSetsOfScope(LLEnvKey::SCOPE_REGION);
@@ -592,13 +592,10 @@ void LLWLParamManager::applyUserPrefs()
 
 		const LLEnvironmentSettings& region_settings = LLEnvManagerNew::instance().getRegionSettings();
 
-		if (0) // *TODO: interpolate?
-		{
-			mAnimator.startInterpolation(region_settings.getWaterParams());
-		}
-
 		addAllSkies(LLEnvKey::SCOPE_REGION, region_settings.getSkyMap());
 		mDay.loadDayCycle(region_settings.getWLDayCycle(), LLEnvKey::SCOPE_REGION);
+		LL_DEBUGS("Windlight") << "Applying region time: " << region_settings.getDayTime()
+			<< " = " << region_settings.getDayTime() * 24.0f << " h" << LL_ENDL;
 		resetAnimator(region_settings.getDayTime(), true);
 	}
 	else // apply user-specified settings

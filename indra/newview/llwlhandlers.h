@@ -40,6 +40,7 @@ class LLEnvManager;
 
 class LLEnvironmentRequest
 {
+	LOG_CLASS(LLEnvironmentRequest);
 public:
 	/// @return true if request was successfully sent
 	static bool initiate();
@@ -51,6 +52,7 @@ private:
 
 class LLEnvironmentRequestResponder: public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLEnvironmentRequestResponder);
 public:
 	virtual void result(const LLSD& content);
 	virtual void error(U32 status, const std::string& reason);
@@ -66,6 +68,7 @@ private:
 
 class LLEnvironmentApplyResponder: public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLEnvironmentApplyResponder);
 public:
 	/*
 	 * Expecting reply from sim in form of:

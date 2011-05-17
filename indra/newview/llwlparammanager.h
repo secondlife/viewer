@@ -236,7 +236,7 @@ public:
 	void update(LLViewerCamera * cam);
 
 	/// apply specified params
-	void applyUserPrefs();
+	void applyUserPrefs(bool interpolate);
 
 	// get where the light is pointing
 	inline LLVector4 getLightDir(void) const;
