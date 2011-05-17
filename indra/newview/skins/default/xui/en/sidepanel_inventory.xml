@@ -75,12 +75,35 @@
                       min_height="150"
                       fit_panel="false"
                       title="MARKETPLACE INBOX">
-                        <view
-                            follows="all"
-                            left="0"
-                            height="40"
-                            top="0"
-                           />
+                         <panel
+                             follows="all"
+                             left="0"
+                             height="40"
+                             width="250"
+                             top="0"
+                           >
+                             <text
+                                 left ="40"
+                                 top="15"
+                                 height="14"
+                                 width="100"
+                                 >Just a panel</text>    
+                         </panel>
+                         <panel
+                     follows="all"
+                     left="0"
+                     height="40"
+                             visible="false"
+                     width="250"
+                     top="0"
+                           >
+                             <text
+                                 left ="40"
+                                 top="15"
+                                 height="14"
+                                 width="100"
+                                 >Just a panel 2</text>
+                         </panel>
                      </accordion_tab>
                      <accordion_tab
                       name="tab_attachments"
