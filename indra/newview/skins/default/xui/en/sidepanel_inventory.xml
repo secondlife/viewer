@@ -28,7 +28,10 @@
               name="inventory_layout_stack"
               height="545"
               width="330">
-             <layout_panel>
+             <layout_panel
+                 width="330"
+                  follows="bottom|left|right"
+                 height="445">
                  <panel
                       class="panel_main_inventory"
                       filename="panel_main_inventory.xml"
@@ -45,6 +48,16 @@
                  width="330"
                   follows="bottom|left|right"
                  height="100">
+                 <panel
+                      class="panel_marketplace_inventory"
+                      follows="all"
+                      layout="topleft"
+                      left="0"
+                      name="panel_marketplace"
+                      top="0"
+                      label=""
+                      height="100"
+                      width="330">
                  <accordion
                    follows="all"
                    fit_parent="true"
@@ -58,41 +71,30 @@
                    width="311">
                      <accordion_tab
                       name="tab_clothing"
-                      height="35"
+                      height="35" 
+                      min_height="150"
+                      fit_panel="false"
                       title="MARKETPLACE INBOX">
-                         <flat_list_view
-                          allow_select="true"
-                          follows="all"
-                          height="30"
-                          item_pad="3"
-                          keep_selection_visible_on_reshape="false"
-                          layout="topleft"
-                          left="0"
-                          multi_select="true"
-                          name="list_clothing"
-                          top="0"
-                          width="311" />
+                        <view
+                            follows="all"
+                            left="0"
+                            height="40"
+                            top="0"
+                           />
                      </accordion_tab>
                      <accordion_tab
                       name="tab_attachments"
+                      fit_panel="false"
                       title="MARKETPLACE OUTBOX">
-                         <flat_list_view
-                          allow_select="true"
-                          follows="all"
-                          height="30"
-                          item_pad="3"
-                          layout="topleft"
-                          left="0"
-                          keep_selection_visible_on_reshape="false"
-                          multi_select="true"
-                          name="list_attachments"
-                          top="0"
-                          width="311">
-                             <flat_list_view.no_items_text
-                              value="No attachments worn" />
-                         </flat_list_view>
+                         <view
+                           follows="all"
+                           height="35"
+                           left="0"
+                           top="0"
+                           />
                      </accordion_tab>
                  </accordion>
+                 </panel>
              </layout_panel>
          </layout_stack>
 		<panel

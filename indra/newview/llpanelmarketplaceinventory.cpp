@@ -27,6 +27,7 @@
 
 #include "llpanelmarketplaceinventory.h"
 
+static LLRegisterPanelClassWrapper<LLPanelMarketplaceInventory> t_panel_marketplace_inventory("panel_marketplace_inventory");
 
 // protected
 LLPanelMarketplaceInventory::LLPanelMarketplaceInventory()
