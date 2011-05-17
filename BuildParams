@@ -116,8 +116,8 @@ gooey.build_viewer_update_version_manager = false
 # ========================================
 
 search_project-viewer.build_debug_release_separately = true
-search_project-viewer.viewer_channel = "Project Viewer Search"
-search_project-viewer.login_channel = "Project Viewer Search"
+search_project-viewer.viewer_channel = "Second Life Project Viewer - Search"
+search_project-viewer.login_channel = "Second Life Project Viewer - Search"
 
 # ========================================
 # palange
