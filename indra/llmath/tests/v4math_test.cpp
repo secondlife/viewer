@@ -30,9 +30,9 @@
 #include "../test/lltut.h"
 #include "llsd.h"
 
-#include "../llquaternion.h"
 #include "../m4math.h"
 #include "../v4math.h"
+#include "../llquaternion.h"
 
 namespace tut
 {
@@ -96,7 +96,7 @@ namespace tut
 	{
 		F32 x = 10.f, y = -2.3f, z = -.023f;
 		LLVector4 vec4(x,y,z);
-		ensure("magVec:Fail ", is_approx_equal(vec4.magVec(), fsqrtf(x*x + y*y + z*z)));
+		ensure("magVec:Fail ", is_approx_equal(vec4.magVec(), (F32) sqrt(x*x + y*y + z*z)));
 		ensure("magVecSquared:Fail ", is_approx_equal(vec4.magVecSquared(), (x*x + y*y + z*z)));
 	}
 
@@ -337,7 +337,7 @@ namespace tut
 		F32 val1,val2;
 		LLVector4 vec4(x1,y1,z1),vec4a(x2,y2,z2);
 		val1 = dist_vec(vec4,vec4a);
-		val2 = fsqrtf((x1 - x2)*(x1 - x2) + (y1 - y2)* (y1 - y2) + (z1 - z2)* (z1 -z2));
+		val2 = (F32) sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)* (y1 - y2) + (z1 - z2)* (z1 -z2));
 		ensure_equals("dist_vec: Fail ",val2, val1);
 		val1 = dist_vec_squared(vec4,vec4a);
 		val2 =((x1 - x2)*(x1 - x2) + (y1 - y2)* (y1 - y2) + (z1 - z2)* (z1 -z2));

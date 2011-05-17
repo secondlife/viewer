@@ -174,8 +174,8 @@ LLSD LLHTTPAssetRequest::getFullDetails() const
 		double curl_total_time = -1.0f;
 		double curl_size_upload = -1.0f;
 		double curl_size_download = -1.0f;
-		long curl_content_length_upload = -1;
-		long curl_content_length_download = -1;
+		double curl_content_length_upload = -1.0f;
+		double curl_content_length_download = -1.0f;
 		long curl_request_size = -1;
 		const char* curl_content_type = NULL;
 
@@ -194,8 +194,8 @@ LLSD LLHTTPAssetRequest::getFullDetails() const
 		sd["curl_total_time"] = curl_total_time;
 		sd["curl_size_upload"]   = curl_size_upload;
 		sd["curl_size_download"] = curl_size_download;
-		sd["curl_content_length_upload"]   = (int) curl_content_length_upload;
-		sd["curl_content_length_download"] = (int) curl_content_length_download;
+		sd["curl_content_length_upload"]   =  curl_content_length_upload;
+		sd["curl_content_length_download"] =  curl_content_length_download;
 		sd["curl_request_size"] = (int) curl_request_size;
 		if (curl_content_type)
 		{

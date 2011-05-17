@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+#version 120
 
 #extension GL_ARB_texture_rectangle : enable
 
@@ -17,9 +19,6 @@ uniform sampler2DRectShadow shadowMap2;
 uniform sampler2DRectShadow shadowMap3;
 uniform sampler2DShadow shadowMap4;
 uniform sampler2DShadow shadowMap5;
-uniform sampler2D noiseMap;
-
-uniform sampler2D		lightFunc;
 
 
 // Inputs

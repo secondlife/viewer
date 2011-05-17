@@ -234,7 +234,7 @@ inline const LLVector3d&	LLVector3d::setVec(const F64 *vec)
 
 inline F64 LLVector3d::normVec(void)
 {
-	F64 mag = fsqrtf(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
+	F64 mag = (F32) sqrt(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
 	F64 oomag;
 
 	if (mag > FP_MAG_THRESHOLD)
@@ -256,7 +256,7 @@ inline F64 LLVector3d::normVec(void)
 
 inline F64 LLVector3d::normalize(void)
 {
-	F64 mag = fsqrtf(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
+	F64 mag = (F32) sqrt(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
 	F64 oomag;
 
 	if (mag > FP_MAG_THRESHOLD)
@@ -280,7 +280,7 @@ inline F64 LLVector3d::normalize(void)
 
 inline F64	LLVector3d::magVec(void) const
 {
-	return fsqrtf(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
+	return (F32) sqrt(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
 }
 
 inline F64	LLVector3d::magVecSquared(void) const
@@ -290,7 +290,7 @@ inline F64	LLVector3d::magVecSquared(void) const
 
 inline F64	LLVector3d::length(void) const
 {
-	return fsqrtf(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
+	return (F32) sqrt(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
 }
 
 inline F64	LLVector3d::lengthSquared(void) const
@@ -400,7 +400,7 @@ inline F64	dist_vec(const LLVector3d &a, const LLVector3d &b)
 	F64 x = a.mdV[0] - b.mdV[0];
 	F64 y = a.mdV[1] - b.mdV[1];
 	F64 z = a.mdV[2] - b.mdV[2];
-	return fsqrtf( x*x + y*y + z*z );
+	return (F32) sqrt( x*x + y*y + z*z );
 }
 
 inline F64	dist_vec_squared(const LLVector3d &a, const LLVector3d &b)

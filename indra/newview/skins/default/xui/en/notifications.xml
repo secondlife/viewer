@@ -6735,7 +6735,7 @@ Unable to find the help topic for this element.
   <tag>fail</tag>
   </notification>
 
-    <notification
+     <notification
  icon="alertmodal.tga"
  name="ObjectMediaFailure"
  type="alertmodal">
@@ -6767,6 +6767,17 @@ Your voice has been muted by moderator.
          name="okbutton"
          yestext="OK"/>
     </notification>
+  
+   <notification
+    icon="alertmodal.tga"
+    name="UploadCostConfirmation"
+    type="alertmodal">
+This upload will cost L$[PRICE], do you wish to continue with the upload?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Upload"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -6795,6 +6806,14 @@ The button will be shown when there is enough space for it.
    type="notifytip">
 Select residents to share with.
   </notification>
+
+  <notification
+    name="MeshUploadError"
+    icon="alert.tga"
+    type="alert">
+    [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+  </notification>
+   
   <notification
    icon="notifytip.tga"
    name="ShareItemsConfirmation"
@@ -7009,7 +7028,6 @@ Mute everyone?
      notext="Cancel"
      unique="true"/>
   </notification>
-
   <notification
   name="HintChat"
   label="Chat"
@@ -7313,8 +7331,6 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    notext="Don't Quit"/>
   </notification>
 
-  <global name="UnsupportedCPU">
-- Your CPU speed does not meet the minimum requirements.
   </global>
 
   <global name="UnsupportedGLRequirements">

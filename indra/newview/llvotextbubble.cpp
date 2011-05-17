@@ -39,6 +39,7 @@
 #include "llviewertexturelist.h"
 #include "llvolume.h"
 #include "pipeline.h"
+#include "llvector4a.h"
 #include "llviewerregion.h"
 
 LLVOTextBubble::LLVOTextBubble(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
@@ -211,7 +212,7 @@ void LLVOTextBubble::updateFaceSize(S32 idx)
 	else
 	{
 		const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
-		face->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
+		face->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
 	}
 }
 
@@ -229,19 +230,37 @@ void LLVOTextBubble::getGeometry(S32 idx,
 
 	const LLVolumeFace& face = getVolume()->getVolumeFace(idx);
 	
-	LLVector3 pos = getPositionAgent();
+	LLVector4a pos;
+	pos.load3(getPositionAgent().mV);
+
+	LLVector4a scale;
+	scale.load3(getScale().mV);
+
 	LLColor4U color = LLColor4U(getTE(idx)->getColor());
 	U32 offset = mDrawable->getFace(idx)->getGeomIndex();
 	
-	for (U32 i = 0; i < face.mVertices.size(); i++)
+	LLVector4a* dst_pos = (LLVector4a*) verticesp.get();
+	LLVector4a* src_pos = (LLVector4a*) face.mPositions;
+	
+	LLVector4a* dst_norm = (LLVector4a*) normalsp.get();
+	LLVector4a* src_norm  = (LLVector4a*) face.mNormals;
+	
+	LLVector2* dst_tc = (LLVector2*) texcoordsp.get();
+	LLVector2* src_tc = (LLVector2*) face.mTexCoords;
+
+	LLVector4a::memcpyNonAliased16((F32*) dst_norm, (F32*) src_norm, face.mNumVertices*4*sizeof(F32));
+	LLVector4a::memcpyNonAliased16((F32*) dst_tc, (F32*) src_tc, face.mNumVertices*2*sizeof(F32));
+	
+	
+	for (U32 i = 0; i < face.mNumVertices; i++)
 	{
-		*verticesp++ = face.mVertices[i].mPosition.scaledVec(getScale()) + pos;
-		*normalsp++ = face.mVertices[i].mNormal;
-		*texcoordsp++ = face.mVertices[i].mTexCoord;
+		LLVector4a t;
+		t.setMul(src_pos[i], scale);
+		dst_pos[i].setAdd(t, pos);
 		*colorsp++ = color;
 	}
 	
-	for (U32 i = 0; i < face.mIndices.size(); i++)
+	for (U32 i = 0; i < face.mNumIndices; i++)
 	{
 		*indicesp++ = face.mIndices[i] + offset;
 	}

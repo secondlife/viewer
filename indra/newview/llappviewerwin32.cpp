@@ -26,12 +26,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#if defined(_DEBUG)
-# if _MSC_VER >= 1400 // Visual C++ 2005 or later
-#	define WINDOWS_CRT_MEM_CHECKS 1
-# endif
-#endif
-
 #include "llappviewerwin32.h"
 
 #include "llmemtype.h"
@@ -461,7 +455,11 @@ bool LLAppViewerWin32::initHardwareTest()
 		LL_WARNS("AppInit") << " Someone took over my exception handler (post hardware probe)!" << LL_ENDL;
 	}
 
-	gGLManager.mVRAM = gDXHardware.getVRAM();
+	if (gGLManager.mVRAM == 0)
+	{
+		gGLManager.mVRAM = gDXHardware.getVRAM();
+	}
+
 	LL_INFOS("AppInit") << "Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
 
 	return true;

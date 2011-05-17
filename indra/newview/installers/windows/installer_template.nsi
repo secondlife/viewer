@@ -211,6 +211,25 @@ continue_install:
 FunctionEnd
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Checks for CPU valid (must have SSE2 support)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function CheckCPUFlags
+    Call GetWindowsVersion
+    Pop $R0
+    StrCmp $R0 "2000" OK_SSE  ; sse check not available on win2k.
+
+    Push $1
+    System::Call 'kernel32::IsProcessorFeaturePresent(i) i(10) .r1'
+    IntCmp $1 1 OK_SSE
+    MessageBox MB_OKCANCEL $(MissingSSE2) /SD IDOK IDOK OK_SSE
+    Quit
+
+  OK_SSE:
+    Pop $1
+    Return
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Close the program, if running. Modifies no variables.
 ; Allows user to bail out of install process.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -744,6 +763,7 @@ StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
 
 Call CheckWindowsVersion		; warn if on Windows 98/ME
+Call CheckCPUFlags			; Make sure we have SSE2 support
 Call CheckIfAdministrator		; Make sure the user can install/uninstall
 Call CheckIfAlreadyCurrent		; Make sure that we haven't already installed this version
 Call CloseSecondLife			; Make sure we're not running
