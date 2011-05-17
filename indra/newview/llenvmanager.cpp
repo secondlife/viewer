@@ -82,6 +82,7 @@ void LLEnvManager::changedRegion(bool interp)
 	mInterpNextChangeMessage = interp;
 	mPendingOutgoingMessage = false;
 
+	LLFloaterReg::hideInstance("old_env_settings");
 	LLFloaterReg::hideInstance("env_settings");
 
 	resetInternalsToDefault(LLEnvKey::SCOPE_REGION);
@@ -731,6 +732,25 @@ void LLEnvManagerNew::saveUserPrefs()
 
 	gSavedSettings.setBOOL("UseEnvironmentFromRegion",	getUseRegionSettings());
 	gSavedSettings.setBOOL("UseDayCycle",				getUseDayCycle());
+}
+
+void LLEnvManagerNew::setUserPrefs(
+	const std::string& water_preset,
+	const std::string& sky_preset,
+	const std::string& day_cycle_preset,
+	bool use_fixed_sky,
+	bool use_region_settings)
+{
+	// operate on members directly to avoid side effects
+	mUserPrefs.mWaterPresetName	= water_preset;
+	mUserPrefs.mSkyPresetName	= sky_preset;
+	mUserPrefs.mDayCycleName	= day_cycle_preset;
+
+	mUserPrefs.mUseDefaults		= use_region_settings;
+	mUserPrefs.mUseDayCycle		= !use_fixed_sky;
+
+	saveUserPrefs();
+	updateManagersFromPrefs(false);
 }
 
 void LLEnvManagerNew::dumpUserPrefs()

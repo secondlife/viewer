@@ -175,6 +175,7 @@ set(viewer_SOURCE_FILES
     llfloaterdaycycle.cpp
     llfloaterdisplayname.cpp
     llfloaterenvsettings.cpp
+    llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
@@ -722,6 +723,7 @@ set(viewer_HEADER_FILES
     llfloaterdaycycle.h
     llfloaterdisplayname.h
     llfloaterenvsettings.h
+    llfloaterenvironmentsettings.h
     llfloaterevent.h
     llfloaterfonttest.h
     llfloatergesture.h

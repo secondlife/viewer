@@ -547,7 +547,7 @@ void LLWLParamManager::update(LLViewerCamera * cam)
 	{
 		dlfloater->syncMenu();
 	}
-	LLFloaterEnvSettings* envfloater = LLFloaterReg::findTypedInstance<LLFloaterEnvSettings>("env_settings");
+	LLFloaterEnvSettings* envfloater = LLFloaterReg::findTypedInstance<LLFloaterEnvSettings>("old_env_settings");
 	if (envfloater)
 	{
 		envfloater->syncMenu();

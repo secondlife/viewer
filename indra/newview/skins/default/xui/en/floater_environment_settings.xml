@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="400"
+ height="350"
  layout="topleft"
  name="Environment Editor Floater"
  help_topic="environment_editor_floater"
@@ -9,100 +9,80 @@
  title="ENVIRONMENT EDITOR"
  width="600">
  
- <!-- Water Settings -->
  <view_border
   bevel_style="none"  
   follows="top|left"
-  height="100"
+  height="237"
   layout="topleft"
   left="50"
-  name="water_panel"
+  name="border"
   top="50"
-  width="500"/> 
+  width="500"/>  
+ <radio_group
+  follows="top|left"
+  height="45"
+  layout="topleft"
+  left_delta="10"
+  name="region_settings_radio_group"
+  top_delta="20"
+  width="200">
+    <radio_item
+  	 label="Use region settings"
+  	 layout="topleft"
+  	 name="use_region_settings"/>
+    <radio_item
+  	 label="Use my settings"
+  	 layout="topleft"
+  	 name="use_my_settings"
+  	 top_pad="20"/>
+  </radio_group>
+
+ <panel
+  height="170"
+  layout="topleft"
+  left="50"
+  name="user_environment_settings"
+  top_pad="0"
+  width="500">
+
+ <!-- Water Setting -->
  <text
   name="water_settings_title"
   follows="top|left"
   height="16"
   layout="topleft"
-  left_delta="5"
-  top_delta="5"
-  width="35">
-  		Water
+  left="50"
+  top_pad="30"
+  width="200">
+  		Water Setting
   </text>
-  
-  <radio_group
-   follows="top|left"
-   height="45"
-   layout="topleft"
-   name="water_settings_radio_group"   
-   top_pad="20"
-   width="200">
-  	<radio_item  	 
-  	 label="Use region settings"
-  	 layout="topleft"
-  	 name="region_water_settings"/>
-  	<radio_item  	 
-  	 label="Use my settings"
-  	 layout="topleft"
-  	 name="my_water_settings"
-  	 top_pad="20"/>  	
-  </radio_group>
   <combo_box
    follows="top|left"
    left_pad="2"
    name="water_settings_preset_combo"
-   top_delta="24"
+   top_delta="-7"
    width="200">
       <combo_box.item
        label="-Select a preset-"
-       name="item0"
-       value="any" />
+       name="item0"/>
   </combo_box>
  
- 
+
  <!-- Sky/Day Cycle Settings -->  
- <view_border
-  bevel_style="none"  
-  follows="top|left"
-  height="180"
-  layout="topleft"
-  left="50"
-  name="sky_dayc_panel"
-  top="175"
-  width="500"/> 
  <text
   name="sky_dayc_settings_title"
   follows="top|left"
   height="16"
   layout="topleft"
-  left="55"
-  top_delta="5"
+  left="50"
+  top_pad="30"
   width="100">
   		Sky / Day Cycle
   </text>
-  
-  <radio_group
-   follows="top|left"
-   height="45"
-   layout="topleft"
-   name="sky_dayc_settings_radio_group1"
-   top_pad="20"
-   width="200">
-  	<radio_item
-  	 layout="topleft"
-  	 label="Use region settings"
-  	 name="region_sky_dayc_settings"/>
-  	<radio_item
-  	 layout="topleft"
-  	 label="Use my settings"
-  	 name="my_sky_dayc_settings"
-  	 top_pad="20"/>  	
-  </radio_group>
-  
   <radio_group
    layout="topleft"
    left_delta="50"
-   name="sky_dayc_settings_radio_group2"
+   name="sky_dayc_settings_radio_group"
    top_pad="10"
    height="50"
    width="150">
@@ -124,17 +104,34 @@
    width="200">
       <combo_box.item
        label="-Select a preset-"
-       name="item0"
-       value="any" />
+       name="item0"/>
   </combo_box>
-    <combo_box
+  <combo_box
    follows="top|left"
    name="dayc_settings_preset_combo"
    top_delta="36"
    width="200">
       <combo_box.item
        label="-Select a preset-"
-       name="item0"
-       value="any" />
-  </combo_box>		
+       name="item0"/>
+  </combo_box>
+  </panel>
+
+  <button
+   follows="left|top"
+   height="23"
+   label="OK"
+   layout="topleft"
+   right="-160"
+   name="ok_btn"
+   top_pad="20"
+   width="100" />
+  <button
+   follows="left|top"
+   height="23"
+   label="Cancel"
+   layout="topleft"
+   left_pad="10"
+   name="cancel_btn"
+   width="100" />	
 </floater>

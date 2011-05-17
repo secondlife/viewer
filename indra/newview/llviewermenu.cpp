@@ -7579,10 +7579,16 @@ class LLWorldEnvSettings : public view_listener_t
 		std::string tod = userdata.asString();
 		LLVector3 sun_direction;
 		
-		if (tod == "editor")
+		if (tod == "old_editor")
 		{
 			// if not there or is hidden, show it
 			// *TODO replace with LLFloaterWindLight::show(LLEnvKey::SCOPE_LOCAL) to make sure we're using the right scope?
+			LLFloaterReg::toggleInstance("old_env_settings");
+			return true;
+		}
+
+		if (tod == "editor")
+		{
 			LLFloaterReg::toggleInstance("env_settings");
 			return true;
 		}
@@ -7606,38 +7612,6 @@ class LLWorldEnvSettings : public view_listener_t
 		else
 		{
 			LLEnvManagerNew::instance().setUseDayCycle(LLEnvManagerNew::instance().getDayCycleName());
-		}
-
-		return true;
-	}
-};
-
-class LLWorldCheckEnvironment : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		const std::string& item = userdata.asString();
-
-		if (item == "use_region_settings")
-		{
-			// Check whether we're using region environment settings.
-			return LLEnvManagerNew::instance().getUseRegionSettings();
-		}
-
-		return true;
-	}
-};
-
-class LLWorldEnvironment : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		const std::string& item = userdata.asString();
-
-		if (item == "use_region_settings")
-		{
-			bool cur_val = LLEnvManagerNew::instance().getUseRegionSettings();
-			LLEnvManagerNew::instance().setUseRegionSettings(!cur_val);
 		}
 
 		return true;
@@ -7892,8 +7866,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldCheckAlwaysRun(), "World.CheckAlwaysRun");
 	
 	view_listener_t::addMenu(new LLWorldEnvSettings(), "World.EnvSettings");
-	view_listener_t::addEnable(new LLWorldCheckEnvironment(), "World.CheckEnvironment");
-	view_listener_t::addMenu(new LLWorldEnvironment(), "World.Environment");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
 	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
 

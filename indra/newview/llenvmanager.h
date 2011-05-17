@@ -276,6 +276,12 @@ public:
 
 	void loadUserPrefs();
 	void saveUserPrefs();
+	void setUserPrefs(
+		const std::string& water_preset,
+		const std::string& sky_preset,
+		const std::string& day_cycle_preset,
+		bool use_fixed_sky,
+		bool use_region_settings);
 	void dumpUserPrefs();
 
 	void onRegionCrossing();
