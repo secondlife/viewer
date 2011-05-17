@@ -537,7 +537,6 @@ void LLPanelVolume::refresh()
 	getChildView("label physicsshapetype")->setVisible(enable_mesh);
 	getChildView("Physics Shape Type Combo Ctrl")->setVisible(enable_mesh);
 	getChildView("Physics Gravity")->setVisible(enable_mesh);
-	getChildView("Physics Material Override")->setVisible(enable_mesh);
 	getChildView("Physics Friction")->setVisible(enable_mesh);
 	getChildView("Physics Density")->setVisible(enable_mesh);
 	getChildView("Physics Restitution")->setVisible(enable_mesh);
