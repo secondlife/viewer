@@ -788,7 +788,20 @@
      name="linked_set_count"
      top="144"
      width="80">
-        Linked Sets: [COUNT]
+        L: [COUNT]
+    </text>
+    <text
+    text_color="LtGray_50"
+     type="string"
+     length="1"
+     follows="left|top"
+     halign="right"
+     layout="topleft"
+     top_delta="0"
+     right="-100"
+     name="object_count"
+     width="80">
+        O: [COUNT]
     </text>
     <text
     text_color="LtGray_50"
@@ -812,20 +825,7 @@
      follows="left|top"
      halign="right"
      layout="topleft"
-     top_pad="5"
-     right="-120"
-     name="object_count"
-     width="80">
-        Objects: [COUNT]
-    </text>
-    <text
-    text_color="LtGray_50"
-     type="string"
-     length="1"
-     follows="left|top"
-     halign="right"
-     layout="topleft"
-	 top_delta="0"
+	 top_pad="5"
      right="-8"
      name="object_cost"
      tool_tip="Cost of currently selected objects as [prims] / [physics complexity]"

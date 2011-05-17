@@ -8282,6 +8282,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 			const LLViewerObject* attached_object = (*attachment_iter);
 			if (attached_object && !attached_object->isHUDAttachment())
 			{
+				textures.clear();
 				const LLDrawable* drawable = attached_object->mDrawable;
 				if (drawable)
 				{
@@ -8289,6 +8290,25 @@ void LLVOAvatar::idleUpdateRenderCost()
 					if (volume)
 					{
 						cost += volume->getRenderCost(textures);
+
+						const_child_list_t children = volume->getChildren();
+						for (const_child_list_t::const_iterator child_iter = children.begin();
+							  child_iter != children.end();
+							  ++child_iter)
+						{
+							LLViewerObject* child_obj = *child_iter;
+							LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
+							if (child)
+							{
+								cost += volume->getRenderCost(textures);
+							}
+						}
+
+						for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
+						{
+							// add the cost of each individual texture in the linkset
+							cost += iter->second;
+						}
 					}
 				}
 			}
@@ -8296,11 +8316,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 
 	}
 
-	for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
-	{
-		// add the cost of each individual texture in the linkset
-		cost += iter->second;
-	}
+
 
 	// Diagnostic output to identify all avatar-related textures.
 	// Does not affect rendering cost calculation.
