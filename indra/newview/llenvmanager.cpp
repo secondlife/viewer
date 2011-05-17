@@ -709,7 +709,7 @@ void LLEnvManagerNew::setUseDayCycle(const std::string& name)
 
 	mUserPrefs.setUseDayCycle(name);
 	saveUserPrefs();
-	updateManagersFromPrefs(true);
+	updateManagersFromPrefs(false);
 }
 
 void LLEnvManagerNew::loadUserPrefs()
