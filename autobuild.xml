@@ -2393,7 +2393,7 @@
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DFMOD=FALSE</string>
                 </array>
@@ -2469,7 +2469,7 @@
                   <string>-G</string>
                   <string>"Visual Studio 10"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DFMOD=FALSE</string>
                 </array>
