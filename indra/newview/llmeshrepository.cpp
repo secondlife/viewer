@@ -85,6 +85,8 @@ U32 LLMeshRepository::sPeakKbps = 0;
 
 const U32 MAX_TEXTURE_UPLOAD_RETRIES = 5;
 
+void dumpLLSDToFile(const LLSD& content, std::string filename);
+
 std::string header_lod[] = 
 {
 	"lowest_lod",
@@ -489,15 +491,15 @@ public:
 		mThread(thread)
 	{
 	}
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
+	virtual void completed(U32 status,
+						   const std::string& reason,
+						   const LLSD& content)
 	{
-		assert_main_thread();
+		//assert_main_thread();
 		llinfos << "completed" << llendl;
 		mThread->mPendingUploads--;
+		dumpLLSDToFile(content,"whole_model_response.xml");
 	}
-	
 };
 
 LLMeshRepoThread::LLMeshRepoThread()
@@ -1363,8 +1365,8 @@ void LLMeshUploadThread::run()
 	}
 }
 
-#if 0
-void dumpLLSDToFile(LLSD& content, std::string& filename)
+#if 1
+void dumpLLSDToFile(const LLSD& content, std::string filename)
 {
 	std::ofstream of(filename);
 	LLSDSerialize::toPrettyXML(content,of);
@@ -1374,9 +1376,10 @@ void dumpLLSDToFile(LLSD& content, std::string& filename)
 void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 {
 	// TODO where do textures go?
-	
+
 	LLSD result;
 
+	LLSD res;
 	result["folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	result["asset_type"] = "mesh";
 	result["inventory_type"] = "object";
@@ -1385,9 +1388,9 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	// TODO "optional" fields from the spec
 	
-	LLSD res;
 	res["mesh_list"] = LLSD::emptyArray();
-	res["texture_list"] = LLSD::emptyArray();
+// TODO Textures
+	//res["texture_list"] = LLSD::emptyArray();
 	S32 mesh_num = 0;
 	S32 texture_num = 0;
 	
@@ -1433,9 +1436,14 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		LLQuaternion rot;
 		LLMatrix4 transformation = instance.mTransform;
 		decomposeMeshMatrix(transformation,pos,rot,scale);
-		
+
+#if 0
 		mesh_entry["childpos"] = ll_sd_from_vector3(pos);
 		mesh_entry["childrot"] = ll_sd_from_quaternion(rot);
+		mesh_entry["scale"] = ll_sd_from_vector3(scale);
+#endif
+		mesh_entry["position"] = ll_sd_from_vector3(LLVector3());
+		mesh_entry["rotation"] = ll_sd_from_quaternion(rot);
 		mesh_entry["scale"] = ll_sd_from_vector3(scale);
 
 		// TODO should be binary.
@@ -1480,9 +1488,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	}
 
 	result["asset_resources"] = res;
-#if 0	
-	std::string name("whole_model.xml");
-	dumpLLSDToFile(result,name);
+#if 1	
+	dumpLLSDToFile(result,"whole_model.xml");
 #endif
 
 	dest = result;
@@ -1541,8 +1548,16 @@ void LLMeshUploadThread::doWholeModelUpload()
 
 	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
-	mCurlRequest->post(mWholeModelUploadCapability, headers, model_data.asString(),
+	mCurlRequest->post(mWholeModelUploadCapability, headers, model_data,
 					   new LLWholeModelFeeResponder(this));
+
+	do
+	{
+		mCurlRequest->process();
+	} while (mCurlRequest->getQueued() > 0);
+
+	delete mCurlRequest;
+	mCurlRequest = NULL;
 
 	// Currently a no-op.
 	mFinished = true;
