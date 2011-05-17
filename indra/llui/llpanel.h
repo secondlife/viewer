@@ -32,6 +32,7 @@
 #include "llcallbackmap.h"
 #include "lluictrl.h"
 #include "llviewborder.h"
+#include "lluiimage.h"
 #include "lluistring.h"
 #include "v4color.h"
 #include <list>

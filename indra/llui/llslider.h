@@ -29,6 +29,7 @@
 
 #include "llf32uictrl.h"
 #include "v4color.h"
+#include "lluiimage.h"
 
 class LLSlider : public LLF32UICtrl
 {

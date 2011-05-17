@@ -28,6 +28,7 @@
 #define LL_LLVIEWERKEYBOARD_H
 
 #include "llkeyboard.h" // For EKeystate
+#include "llinitparam.h"
 
 const S32 MAX_NAMED_FUNCTIONS = 100;
 const S32 MAX_KEY_BINDINGS = 128; // was 60

@@ -47,7 +47,6 @@ public:
 	virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
 	virtual std::string getCurPath();
 	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
-	virtual BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname);
 	virtual BOOL fileExists(const std::string &filename) const;
 
 	/*virtual*/ std::string getLLPluginLauncher();

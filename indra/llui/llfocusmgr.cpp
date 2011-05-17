@@ -113,6 +113,16 @@ boost::signals2::connection	LLFocusableElement::setTopLostCallback(const focus_s
 
 
 
+typedef std::list<LLHandle<LLView> > view_handle_list_t;
+typedef std::map<LLHandle<LLView>, LLHandle<LLView> > focus_history_map_t;
+struct LLFocusMgr::Impl
+{
+	// caching list of keyboard focus ancestors for calling onFocusReceived and onFocusLost
+	view_handle_list_t mCachedKeyboardFocusList;
+
+	focus_history_map_t mFocusHistory;
+};
+
 LLFocusMgr gFocusMgr;
 
 LLFocusMgr::LLFocusMgr()
@@ -123,10 +133,17 @@ LLFocusMgr::LLFocusMgr()
 	mDefaultKeyboardFocus( NULL ),
 	mKeystrokesOnly(FALSE),
 	mTopCtrl( NULL ),
-	mAppHasFocus(TRUE)   // Macs don't seem to notify us that we've gotten focus, so default to true
+	mAppHasFocus(TRUE),   // Macs don't seem to notify us that we've gotten focus, so default to true
+	mImpl(new LLFocusMgr::Impl)
 {
 }
 
+LLFocusMgr::~LLFocusMgr()
+{
+	mImpl->mFocusHistory.clear();
+	delete mImpl;
+	mImpl = NULL;
+}
 
 void LLFocusMgr::releaseFocusIfNeeded( LLView* view )
 {
@@ -179,7 +196,7 @@ void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL
 		mKeyboardFocus = new_focus;
 
 		// list of the focus and it's ancestors
-		view_handle_list_t old_focus_list = mCachedKeyboardFocusList;
+		view_handle_list_t old_focus_list = mImpl->mCachedKeyboardFocusList;
 		view_handle_list_t new_focus_list;
 
 		// walk up the tree to root and add all views to the new_focus_list
@@ -206,7 +223,7 @@ void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL
 			LLView* old_focus_view = old_focus_iter->get();
 			if (old_focus_view)
 			{
-				mCachedKeyboardFocusList.pop_front();
+				mImpl->mCachedKeyboardFocusList.pop_front();
 				old_focus_view->onFocusLost();
 			}
 		}
@@ -219,7 +236,7 @@ void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL
 			LLView* new_focus_view = new_focus_riter->get();
 			if (new_focus_view)
 			{
-                mCachedKeyboardFocusList.push_front(new_focus_view->getHandle());
+                mImpl->mCachedKeyboardFocusList.push_front(new_focus_view->getHandle());
 				new_focus_view->onFocusReceived();
 			}
 		}
@@ -254,7 +271,7 @@ void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL
 		if (focus_subtree)
 		{
 			LLView* focused_view = dynamic_cast<LLView*>(mKeyboardFocus);
-			mFocusHistory[focus_subtree->getHandle()] = focused_view ? focused_view->getHandle() : LLHandle<LLView>(); 
+			mImpl->mFocusHistory[focus_subtree->getHandle()] = focused_view ? focused_view->getHandle() : LLHandle<LLView>(); 
 		}
 	}
 	
@@ -456,8 +473,8 @@ LLUICtrl* LLFocusMgr::getLastFocusForGroup(LLView* subtree_root) const
 {
 	if (subtree_root)
 	{
-		focus_history_map_t::const_iterator found_it = mFocusHistory.find(subtree_root->getHandle());
-		if (found_it != mFocusHistory.end())
+		focus_history_map_t::const_iterator found_it = mImpl->mFocusHistory.find(subtree_root->getHandle());
+		if (found_it != mImpl->mFocusHistory.end())
 		{
 			// found last focus for this subtree
 			return static_cast<LLUICtrl*>(found_it->second.get());
@@ -470,6 +487,6 @@ void LLFocusMgr::clearLastFocusForGroup(LLView* subtree_root)
 {
 	if (subtree_root)
 	{
-		mFocusHistory.erase(subtree_root->getHandle());
+		mImpl->mFocusHistory.erase(subtree_root->getHandle());
 	}
 }

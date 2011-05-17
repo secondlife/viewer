@@ -29,6 +29,7 @@
 
 #include "lluictrl.h"
 #include "llnotifications.h"
+#include "lluiimage.h"
 
 class LLWindowShade : public LLUICtrl
 {

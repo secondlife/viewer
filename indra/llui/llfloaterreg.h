@@ -27,13 +27,8 @@
 #define LLFLOATERREG_H
 
 /// llcommon
-#include "llboost.h"
 #include "llrect.h"
-#include "llstl.h"
 #include "llsd.h"
-
-/// llui
-#include "lluictrl.h"
 
 #include <boost/function.hpp>
 
@@ -43,6 +38,7 @@
 //
 
 class LLFloater;
+class LLUICtrl;
 
 typedef boost::function<LLFloater* (const LLSD& key)> LLFloaterBuildFunc;
 

@@ -50,6 +50,7 @@
 #include "llviewerstats.h"
 #include "llvlcomposition.h"
 #include "llvoavatar.h"
+#include "llvocache.h"
 #include "llvowater.h"
 #include "message.h"
 #include "pipeline.h"
