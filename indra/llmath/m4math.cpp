@@ -215,8 +215,33 @@ const LLMatrix4&	LLMatrix4::transpose()
 
 F32 LLMatrix4::determinant() const
 {
-	llerrs << "Not implemented!" << llendl;
-	return 0.f;
+	F32 value =
+	    mMatrix[0][3] * mMatrix[1][2] * mMatrix[2][1] * mMatrix[3][0] -
+	    mMatrix[0][2] * mMatrix[1][3] * mMatrix[2][1] * mMatrix[3][0] -
+	    mMatrix[0][3] * mMatrix[1][1] * mMatrix[2][2] * mMatrix[3][0] +
+	    mMatrix[0][1] * mMatrix[1][3] * mMatrix[2][2] * mMatrix[3][0] +
+	    mMatrix[0][2] * mMatrix[1][1] * mMatrix[2][3] * mMatrix[3][0] -
+	    mMatrix[0][1] * mMatrix[1][2] * mMatrix[2][3] * mMatrix[3][0] -
+	    mMatrix[0][3] * mMatrix[1][2] * mMatrix[2][0] * mMatrix[3][1] +
+	    mMatrix[0][2] * mMatrix[1][3] * mMatrix[2][0] * mMatrix[3][1] +
+	    mMatrix[0][3] * mMatrix[1][0] * mMatrix[2][2] * mMatrix[3][1] -
+	    mMatrix[0][0] * mMatrix[1][3] * mMatrix[2][2] * mMatrix[3][1] -
+	    mMatrix[0][2] * mMatrix[1][0] * mMatrix[2][3] * mMatrix[3][1] +
+	    mMatrix[0][0] * mMatrix[1][2] * mMatrix[2][3] * mMatrix[3][1] +
+	    mMatrix[0][3] * mMatrix[1][1] * mMatrix[2][0] * mMatrix[3][2] -
+	    mMatrix[0][1] * mMatrix[1][3] * mMatrix[2][0] * mMatrix[3][2] -
+	    mMatrix[0][3] * mMatrix[1][0] * mMatrix[2][1] * mMatrix[3][2] +
+	    mMatrix[0][0] * mMatrix[1][3] * mMatrix[2][1] * mMatrix[3][2] +
+	    mMatrix[0][1] * mMatrix[1][0] * mMatrix[2][3] * mMatrix[3][2] -
+	    mMatrix[0][0] * mMatrix[1][1] * mMatrix[2][3] * mMatrix[3][2] -
+	    mMatrix[0][2] * mMatrix[1][1] * mMatrix[2][0] * mMatrix[3][3] +
+	    mMatrix[0][1] * mMatrix[1][2] * mMatrix[2][0] * mMatrix[3][3] +
+	    mMatrix[0][2] * mMatrix[1][0] * mMatrix[2][1] * mMatrix[3][3] -
+	    mMatrix[0][0] * mMatrix[1][2] * mMatrix[2][1] * mMatrix[3][3] -
+	    mMatrix[0][1] * mMatrix[1][0] * mMatrix[2][2] * mMatrix[3][3] +
+		mMatrix[0][0] * mMatrix[1][1] * mMatrix[2][2] * mMatrix[3][3];
+
+	return value;
 }
 
 // Only works for pure orthonormal, homogeneous transform matrices.
@@ -419,6 +444,17 @@ const LLMatrix4&  	LLMatrix4::initRotTrans(const LLQuaternion &q, const LLVector
 	LLMatrix3	mat(q);
 	initMatrix(mat);
 	setTranslation(translation);
+	return (*this);
+}
+
+const LLMatrix4& LLMatrix4::initScale(const LLVector3 &scale)
+{
+	setIdentity();
+
+	mMatrix[VX][VX] = scale.mV[VX];
+	mMatrix[VY][VY] = scale.mV[VY];
+	mMatrix[VZ][VZ] = scale.mV[VZ];
+	
 	return (*this);
 }
 
@@ -642,37 +678,6 @@ const LLMatrix4&  	LLMatrix4::initMatrix(const LLMatrix3 &mat, const LLVector4 &
 
 // LLMatrix4 Operators
 
-
-/* Not implemented to help enforce code consistency with the syntax of
-   row-major notation.  This is a Good Thing.
-LLVector4 operator*(const LLMatrix4 &a, const LLVector4 &b)
-{
-	// Operate "to the right" on column-vector b
-	LLVector4	vec;
-	vec.mV[VX] = a.mMatrix[VX][VX] * b.mV[VX] + 
-				 a.mMatrix[VY][VX] * b.mV[VY] + 
- 				 a.mMatrix[VZ][VX] * b.mV[VZ] +
-				 a.mMatrix[VW][VX] * b.mV[VW];
-
-	vec.mV[VY] = a.mMatrix[VX][VY] * b.mV[VX] + 
-				 a.mMatrix[VY][VY] * b.mV[VY] + 
-				 a.mMatrix[VZ][VY] * b.mV[VZ] +
-				 a.mMatrix[VW][VY] * b.mV[VW];
-
-	vec.mV[VZ] = a.mMatrix[VX][VZ] * b.mV[VX] + 
-			  	 a.mMatrix[VY][VZ] * b.mV[VY] + 
-				 a.mMatrix[VZ][VZ] * b.mV[VZ] +
-				 a.mMatrix[VW][VZ] * b.mV[VW];
-
-	vec.mV[VW] = a.mMatrix[VX][VW] * b.mV[VX] + 
-				 a.mMatrix[VY][VW] * b.mV[VY] + 
-				 a.mMatrix[VZ][VW] * b.mV[VZ] +
-				 a.mMatrix[VW][VW] * b.mV[VW];
-	return vec;
-}
-*/
-
-
 LLVector4 operator*(const LLVector4 &a, const LLMatrix4 &b)
 {
 	// Operate "to the left" on row-vector a
@@ -768,6 +773,23 @@ bool operator!=(const LLMatrix4 &a, const LLMatrix4 &b)
 	return FALSE;
 }
 
+bool operator<(const LLMatrix4& a, const LLMatrix4 &b)
+{
+	U32		i, j;
+	for (i = 0; i < NUM_VALUES_IN_MAT4; i++)
+	{
+		for (j = 0; j < NUM_VALUES_IN_MAT4; j++)
+		{
+			if (a.mMatrix[i][j] != b.mMatrix[i][j])
+			{
+				return a.mMatrix[i][j] < b.mMatrix[i][j];
+			}
+		}
+	}
+
+	return false;
+}
+
 const LLMatrix4& operator*=(LLMatrix4 &a, F32 k)
 {
 	U32		i, j;
@@ -805,6 +827,56 @@ std::ostream& operator<<(std::ostream& s, const LLMatrix4 &a)
 		<< a.mMatrix[VW][VW] 
 	  << " }";
 	return s;
+}
+
+LLSD LLMatrix4::getValue() const
+{
+	LLSD ret;
+	
+	ret[0] = mMatrix[0][0];
+	ret[1] = mMatrix[0][1];
+	ret[2] = mMatrix[0][2];
+	ret[3] = mMatrix[0][3];
+
+	ret[4] = mMatrix[1][0];
+	ret[5] = mMatrix[1][1];
+	ret[6] = mMatrix[1][2];
+	ret[7] = mMatrix[1][3];
+
+	ret[8] = mMatrix[2][0];
+	ret[9] = mMatrix[2][1];
+	ret[10] = mMatrix[2][2];
+	ret[11] = mMatrix[2][3];
+
+	ret[12] = mMatrix[3][0];
+	ret[13] = mMatrix[3][1];
+	ret[14] = mMatrix[3][2];
+	ret[15] = mMatrix[3][3];
+
+	return ret;
+}
+
+void LLMatrix4::setValue(const LLSD& data) 
+{
+	mMatrix[0][0] = data[0].asReal();
+	mMatrix[0][1] = data[1].asReal();
+	mMatrix[0][2] = data[2].asReal();
+	mMatrix[0][3] = data[3].asReal();
+
+	mMatrix[1][0] = data[4].asReal();
+	mMatrix[1][1] = data[5].asReal();
+	mMatrix[1][2] = data[6].asReal();
+	mMatrix[1][3] = data[7].asReal();
+
+	mMatrix[2][0] = data[8].asReal();
+	mMatrix[2][1] = data[9].asReal();
+	mMatrix[2][2] = data[10].asReal();
+	mMatrix[2][3] = data[11].asReal();
+
+	mMatrix[3][0] = data[12].asReal();
+	mMatrix[3][1] = data[13].asReal();
+	mMatrix[3][2] = data[14].asReal();
+	mMatrix[3][3] = data[15].asReal();
 }
 
 

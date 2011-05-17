@@ -338,7 +338,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 		}
 	}
 
-	llinfos << "Receiving " << transfer_id << ", size " << size << " bytes" << llendl;
+	//llinfos << "Receiving " << transfer_id << ", size " << size << " bytes" << llendl;
 	ttp->setSize(size);
 	ttp->setGotInfo(TRUE);
 

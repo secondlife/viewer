@@ -166,16 +166,18 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 	face->setSize(vertices_per_quad * num_quads,
 				  indices_per_quad * num_quads);
 	
-	if (face->mVertexBuffer.isNull())
+	LLVertexBuffer* buff = face->getVertexBuffer();
+	if (!buff)
 	{
-		face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_DYNAMIC_DRAW_ARB);
-		face->mVertexBuffer->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
+		buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_DYNAMIC_DRAW_ARB);
+		buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
 		face->setIndicesIndex(0);
 		face->setGeomIndex(0);
+		face->setVertexBuffer(buff);
 	}
 	else
 	{
-		face->mVertexBuffer->resizeBuffer(face->getGeomCount(), face->getIndicesCount());
+		buff->resizeBuffer(face->getGeomCount(), face->getIndicesCount());
 	}
 		
 	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
@@ -229,7 +231,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 		}
 	}
 	
-	face->mVertexBuffer->setBuffer(0);
+	buff->setBuffer(0);
 
 	mDrawable->movePartition();
 	LLPipeline::sCompiles++;
@@ -261,15 +263,21 @@ void LLVOWater::setIsEdgePatch(const BOOL edge_patch)
 	mIsEdgePatch = edge_patch;
 }
 
-void LLVOWater::updateSpatialExtents(LLVector3 &newMin, LLVector3& newMax)
+void LLVOWater::updateSpatialExtents(LLVector4a &newMin, LLVector4a& newMax)
 {
-	LLVector3 pos = getPositionAgent();
-	LLVector3 scale = getScale();
+	LLVector4a pos;
+	pos.load3(getPositionAgent().mV);
+	LLVector4a scale;
+	scale.load3(getScale().mV);
+	scale.mul(0.5f);
 
-	newMin = pos - scale * 0.5f;
-	newMax = pos + scale * 0.5f;
+	newMin.setSub(pos, scale);
+	newMax.setAdd(pos, scale);
+	
+	pos.setAdd(newMin,newMax);
+	pos.mul(0.5f);
 
-	mDrawable->setPositionGroup((newMin + newMax) * 0.5f);
+	mDrawable->setPositionGroup(pos);
 }
 
 U32 LLVOWater::getPartitionType() const
@@ -283,7 +291,7 @@ U32 LLVOVoidWater::getPartitionType() const
 }
 
 LLWaterPartition::LLWaterPartition()
-: LLSpatialPartition(0, FALSE, 0)
+: LLSpatialPartition(0, FALSE, GL_DYNAMIC_DRAW_ARB)
 {
 	mInfiniteFarClip = TRUE;
 	mDrawableType = LLPipeline::RENDER_TYPE_WATER;

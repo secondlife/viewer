@@ -9,6 +9,7 @@ syntax: glob
 .*.swp
 #OSX image cache file
 *.DS_Store
+*.orig
 LICENSES
 indra/.distcc
 build-linux-*

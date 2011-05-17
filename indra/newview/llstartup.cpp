@@ -421,7 +421,7 @@ bool idle_startup()
 		//
 
 		// Load autopilot and stats stuff
-		gAgentPilot.load(gSavedSettings.getString("StatsPilotFile"));
+		gAgentPilot.load();
 
 		//gErrorStream.setTime(gSavedSettings.getBOOL("LogTimestamps"));
 
@@ -1959,7 +1959,7 @@ bool idle_startup()
 		}
 		
 		// Start automatic replay if the flag is set.
-		if (gSavedSettings.getBOOL("StatsAutoRun") || LLAgentPilot::sReplaySession)
+		if (gSavedSettings.getBOOL("StatsAutoRun") || gAgentPilot.getReplaySession())
 		{
 			LLUUID id;
 			LL_DEBUGS("AppInit") << "Starting automatic playback" << LL_ENDL;
@@ -3070,6 +3070,11 @@ bool process_login_success_response()
 	}
 
 	// Request the map server url
+	// Non-agni grids have a different default location.
+	if (!LLGridManager::getInstance()->isInProductionGrid())
+	{
+		gSavedSettings.setString("MapServerURL", "http://test.map.secondlife.com.s3.amazonaws.com/");
+	}
 	std::string map_server_url = response["map-server-url"];
 	if(!map_server_url.empty())
 	{

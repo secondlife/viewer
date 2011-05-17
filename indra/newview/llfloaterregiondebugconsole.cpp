@@ -58,8 +58,6 @@ namespace
 {
 	// Signal used to notify the floater of responses from the asynchronous
 	// API.
-	typedef boost::signals2::signal<
-		void (const std::string& output)> console_reply_signal_t;
 	console_reply_signal_t sConsoleReplySignal;
 
 	const std::string PROMPT("\n\n> ");
@@ -130,6 +128,11 @@ namespace
 			sConsoleReplySignal(input["body"].asString());
 		}
 	};
+}
+
+boost::signals2::connection LLFloaterRegionDebugConsole::setConsoleReplyCallback(const console_reply_signal_t::slot_type& cb)
+{
+	return sConsoleReplySignal.connect(cb);
 }
 
 LLFloaterRegionDebugConsole::LLFloaterRegionDebugConsole(LLSD const & key)

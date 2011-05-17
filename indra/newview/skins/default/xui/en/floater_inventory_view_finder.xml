@@ -95,6 +95,23 @@
      width="126" />
     <icon
      height="16"
+     image_name="Inv_Mesh"
+     layout="topleft"
+     left="8"
+     mouse_opaque="true"
+     name="icon_mesh"
+     top="142"
+     width="16" />
+    <check_box
+     height="16"
+     label="Meshes"
+     layout="topleft"
+     left_pad="2"
+     name="check_mesh"
+     top_delta="0"
+     width="126" />
+    <icon
+     height="16"
      image_name="Inv_Notecard"
      layout="topleft"
      left="8"
@@ -117,7 +134,7 @@
      left="8"
      mouse_opaque="true"
      name="icon_object"
-     top="142"
+     top="162"
      width="16" />
     <check_box
      height="16"
@@ -134,7 +151,7 @@
      left="8"
      mouse_opaque="true"
      name="icon_script"
-     top="162"
+     top="182"
      width="16" />
     <check_box
      height="16"
@@ -151,7 +168,7 @@
      left="8"
      mouse_opaque="true"
      name="icon_sound"
-     top="182"
+     top="202"
      width="16" />
     <check_box
      height="16"
@@ -168,7 +185,7 @@
      left="8"
      mouse_opaque="true"
      name="icon_texture"
-     top="202"
+     top="222"
      width="16" />
     <check_box
      height="16"
@@ -185,7 +202,7 @@
      left="8"
      mouse_opaque="true"
      name="icon_snapshot"
-     top="222"
+     top="242"
      width="16" />
     <check_box
      height="16"
@@ -203,7 +220,7 @@
      layout="topleft"
      left="8"
      name="All"
-     top="242"
+     top="262"
      width="100" />
     <button
      follows="left|top"

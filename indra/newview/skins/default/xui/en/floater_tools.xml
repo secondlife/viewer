@@ -295,22 +295,24 @@
 	   width="100">
 	   þ: [COUNT]
 	   </text>
-	<check_box
+    <check_box
      control_name="ScaleUniform"
      height="19"
      label=""
      layout="topleft"
      left="143"
      name="checkbox uniform"
-	 top="50"
+     top="50"
      width="20" />
     <text
      height="19"
      label="Stretch Both Sides"
-     left="163"
+     left_delta="20"
      name="checkbox uniform label"
-     top="55"
+     top_delta="2"
      width="120"
+     layout="topleft"
+     follows="top|left"
      wrap="true">
      	Stretch Both Sides
     </text>
@@ -323,6 +325,7 @@
      left="143"
      name="checkbox stretch textures"
      top_pad="-6"
+     follows="left|top"
      width="134" />
    <check_box
      control_name="SnapEnabled"
@@ -361,9 +364,10 @@
      image_selected="ForwardArrow_Press"
      image_unselected="ForwardArrow_Off"
      layout="topleft"
+     follows="top|left"
      name="Options..."
      tool_tip="See more grid options"
-     top_delta="0"
+     top_pad="-22"
      right="-10"
      width="18"
      height="23" >
@@ -745,6 +749,33 @@
 	  <button.commit_callback
 	     function="BuildTool.applyToSelection"/>
     </button>
+	<text
+	 text_color="LtGray_50"
+	  type="string"
+	  length="1"
+	  height="10"
+	  follows="left|top"
+	  halign="right"
+	  layout="topleft"
+	  right="-10"
+	  name="obj_count"
+	  top_pad="5"
+	  width="143">
+		Objects: [COUNT]
+	</text>
+	<text
+    text_color="LtGray_50"
+     type="string"
+     length="1"
+	height="10" 
+     follows="left|top"
+     halign="right"
+     layout="topleft"
+     right="-10"
+     name="prim_count"
+     width="143">
+		Prims: [COUNT]
+	</text>
     <text
     text_color="LtGray_50"
      type="string"
@@ -753,10 +784,38 @@
      follows="left|top"
      halign="right"
      layout="topleft"
-     right="-10"
-     name="obj_count"
-     top_pad="7"
-     width="143">
+     right="-120"
+     name="linked_set_count"
+     top="144"
+     width="80">
+        Linked Sets: [COUNT]
+    </text>
+    <text
+    text_color="LtGray_50"
+     type="string"
+     length="1"
+     height="10"
+     follows="left|top"
+     halign="right"
+     layout="topleft"
+     top_delta="0"
+     right="-8"
+     name="linked_set_cost"
+     tool_tip="Cost of currently selected linked sets as [prims],[physics complexity]" 
+     width="80">
+        Cost: [COST] / [PHYSICS]
+    </text>
+    <text
+    text_color="LtGray_50"
+     type="string"
+     length="1"
+     follows="left|top"
+     halign="right"
+     layout="topleft"
+     top_pad="5"
+     right="-120"
+     name="object_count"
+     width="80">
         Objects: [COUNT]
     </text>
     <text
@@ -766,11 +825,39 @@
      follows="left|top"
      halign="right"
      layout="topleft"
-     right="-10"
-     name="prim_count"
-     width="143">
-        Prims: [COUNT]
+	 top_delta="0"
+     right="-8"
+     name="object_cost"
+     tool_tip="Cost of currently selected objects as [prims] / [physics complexity]"
+     width="80">
+        Cost: [COST] / [PHYSICS]
     </text>
+    <!-- <text -->
+    <!-- text_color="LtGray_50" -->
+    <!--  type="string" -->
+    <!--  length="1" -->
+    <!--  height="10" -->
+    <!--  follows="left|top" -->
+    <!--  halign="right" -->
+    <!--  layout="topleft" -->
+    <!--  right="-10" -->
+    <!--  name="obj_count" -->
+    <!--  top_pad="5" -->
+    <!--  width="143"> -->
+    <!--     Objects: [COUNT] -->
+    <!-- </text> -->
+    <!-- <text -->
+    <!-- text_color="LtGray_50" -->
+    <!--  type="string" -->
+    <!--  length="1" -->
+    <!--  follows="left|top" -->
+    <!--  halign="right" -->
+    <!--  layout="topleft" -->
+    <!--  right="-10" -->
+    <!--  name="prim_count" -->
+    <!--  width="143"> -->
+    <!--     Prims: [COUNT] -->
+    <!-- </text> -->
     <tab_container
      follows="left|top"
      height="410"
@@ -783,7 +870,8 @@
      tab_height="25"
      top="173"
      width="295">
-	<panel
+	
+<panel
 	 border="false"
 	 follows="all"
 	 label="General"
@@ -1253,7 +1341,7 @@ even though the user gets a free copy.
       <panel
          border="false"
          follows="all"
-         height="367"
+         height="567"
          label="Object"
          layout="topleft"
          left_delta="0"
@@ -1372,7 +1460,7 @@ even though the user gets a free copy.
              label_width="10"
              layout="topleft"
              left_delta="0"
-             max_val="10"
+             max_val="64"
              min_val="0.01"
              name="Scale X"
              text_enabled_color="1 1 1 1"
@@ -1387,7 +1475,7 @@ even though the user gets a free copy.
              label_width="10"
              layout="topleft"
              left_delta="0"
-             max_val="10"
+             max_val="64"
              min_val="0.01"
              name="Scale Y"
              text_enabled_color="1 1 1 1"
@@ -1402,7 +1490,7 @@ even though the user gets a free copy.
              label_width="10"
              layout="topleft"
              left_delta="0"
-             max_val="10"
+             max_val="64"
              min_val="0.01"
              name="Scale Z"
              text_enabled_color="1 1 1 1"
@@ -1468,7 +1556,6 @@ even though the user gets a free copy.
              text_enabled_color="1 1 1 1"
              top_pad="3"
              width="87" />
-
  <!--           <text
              type="string"
              length="1"
@@ -2046,6 +2133,10 @@ even though the user gets a free copy.
                  label="Cylinder"
                  name="Cylinder"
                  value="Cylinder" />
+              <combo_box.item
+                 label="Mesh"
+                 name="Mesh"
+                 value="Mesh" />
             </combo_box>
         </panel>
         <panel
@@ -2060,6 +2151,9 @@ even though the user gets a free copy.
          name="Features"
          top_delta="0"
          width="295">
+	<panel.string name="None">None</panel.string>
+	<panel.string name="Prim">Prim</panel.string>
+	<panel.string name="Convex Hull">Convex Hull</panel.string>
             <text
              type="string"
              length="1"
@@ -2202,6 +2296,7 @@ even though the user gets a free copy.
              name="FlexForceZ"
              top_pad="4"
              width="128" />
+
             <check_box
              height="16"
              label="Light"
@@ -2312,6 +2407,94 @@ even though the user gets a free copy.
                    mouse_opaque="true"
                    name="Light Ambiance"
                    width="120" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             name="label physicsshapetype"
+             top="38"
+             width="121">
+                Physics Shape Type:
+            </text>
+			<combo_box
+			   height="19"
+			   top_delta="15" 
+			   layout="topleft"
+			   follows="left|top"
+			   name="Physics Shape Type Combo Ctrl"
+			   tool_tip="Choose the physics shape type"
+			   width="108"/>
+
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="1"
+             initial_value="1"
+             label="Gravity"
+             label_width="70"
+             layout="topleft"
+             min_val="-1"
+             max_val="28"
+             name="Physics Gravity"
+             top_pad="10"
+             width="132" />
+
+            <check_box
+             height="19"
+             label="Override material"
+             layout="topleft"
+             left_delta="0"
+             name="Physics Material Override"
+             tool_tip="Override Material"
+             top_pad="10"
+             width="132" />
+
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.1"
+             initial_value="0"
+             label="Friction"
+             label_width="70"
+             layout="topleft"
+             left_delta="0"
+             max_val="255"
+             min_val="0"
+             name="Physics Friction"
+             top_pad="4"
+             width="132" />
+
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.1"
+             initial_value="0"
+             label="Density"
+             label_width="70"
+             layout="topleft"
+             left_delta="0"
+             max_val="22587"
+             min_val="1"
+             name="Physics Density"
+             top_pad="4"
+             width="132" />
+
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.01"
+             initial_value="0"
+             label="Restitution"
+             label_width="70"
+             layout="topleft"
+             left_delta="0"
+             max_val="1"
+             min_val="0"
+             name="Physics Restitution"
+             top_pad="4"
+             width="132" />
         </panel>
          <panel
          border="false"
@@ -2378,7 +2561,7 @@ even though the user gets a free copy.
              initial_value="0"
              layout="topleft"
              left_delta="0"
-             max_val="90"
+             max_val="100"
              name="ColorTrans"
              top_pad="4"
              width="80" />

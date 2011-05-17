@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ bottom="806"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="model_menu_gear_default"
+ visible="false">
+  <menu_item_check
+   label="Show edges"
+   layout="topleft"
+   name="show_edges">
+    <on_click
+       function="ModelImport.ViewOption.Action"
+       parameter="show_edges" />
+    <on_check
+       function="ModelImport.ViewOption.Check"
+       parameter="show_edges" />
+    <on_enable
+			 function="ModelImport.ViewOption.Enabled"
+			 parameter="show_edges" />
+  </menu_item_check>
+  <menu_item_check
+   label="Show physics"
+   layout="topleft"
+   name="show_physics">
+    <on_click
+       function="ModelImport.ViewOption.Action"
+       parameter="show_physics" />
+    <on_check
+       function="ModelImport.ViewOption.Check"
+       parameter="show_physics" />
+    <on_enable
+			 function="ModelImport.ViewOption.Enabled"
+			 parameter="show_physics" />
+  </menu_item_check>
+  <menu_item_check
+  label="Show textures"
+  layout="topleft"
+  name="show_textures">
+    <on_click
+       function="ModelImport.ViewOption.Action"
+       parameter="show_textures" />
+    <on_check
+       function="ModelImport.ViewOption.Check"
+       parameter="show_textures" />
+    <on_enable
+			 function="ModelImport.ViewOption.Enabled"
+			 parameter="show_textures" />
+  </menu_item_check>
+  <menu_item_check
+  label="Show skin weight"
+  layout="topleft"
+  name="show_skin_weight">
+    <on_click
+       function="ModelImport.ViewOption.Action"
+       parameter="show_skin_weight" />
+    <on_check
+       function="ModelImport.ViewOption.Check"
+       parameter="show_skin_weight" />
+    <on_enable
+			 function="ModelImport.ViewOption.Enabled"
+			 parameter="show_skin_weight" />
+  </menu_item_check>
+  <menu_item_check
+  label="Show joint positions"
+  layout="topleft"
+  name="show_joint_positions">
+    <on_click
+       function="ModelImport.ViewOption.Action"
+       parameter="show_joint_positions" />
+    <on_check
+       function="ModelImport.ViewOption.Check"
+       parameter="show_joint_positions" />
+    <on_enable
+			 function="ModelImport.ViewOption.Enabled"
+			 parameter="show_joint_positions" />
+  </menu_item_check>
+</toggleable_menu>
