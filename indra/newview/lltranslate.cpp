@@ -85,7 +85,7 @@ void LLTranslate::translateMessage(LLHTTPClient::ResponderPtr &result, const std
 void LLTranslate::getTranslateUrl(std::string &translate_url, const std::string &from_lang, const std::string &to_lang, const std::string &mesg)
 {
 	char * curl_str = curl_escape(mesg.c_str(), mesg.size());
-	std::string escaped_mesg(curl_str);
+	std::string const escaped_mesg(curl_str);
 	curl_free(curl_str);
 
 	translate_url = m_GoogleURL
