@@ -1062,9 +1062,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1aec55e90d510ffa3beb83c427af8312</string>
+              <string>f13dd42b97d11b138625d5d08c141f63</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/229944/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110513.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/230056/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110516.tar.bz</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1074,9 +1074,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>834215a2a004efb983e318d9c458d112</string>
+              <string>9f4d1203d2138398d3b17b78021ed536</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/229944/arch/Linux/installer/llqtwebkit-4.7.1-linux-20110513.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/230056/arch/Linux/installer/llqtwebkit-4.7.1-linux-20110517.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1086,9 +1086,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4442288be66754063f7dbc53b9b4a9a9</string>
+              <string>2cacfcffe0e019fd22d6efe57840775f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/229944/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110513.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/230056/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110516.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
