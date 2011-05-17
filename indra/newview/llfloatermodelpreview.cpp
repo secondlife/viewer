@@ -2597,6 +2597,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mLoading = false;
 	mLoadState = LLModelLoader::STARTING;
 	mGroup = 0;
+	mLODFrozen = false;
 	mBuildShareTolerance = 0.f;
 	mBuildQueueMode = GLOD_QUEUE_GREEDY;
 	mBuildBorderMode = GLOD_BORDER_UNLOCK;
@@ -2605,6 +2606,13 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	for (U32 i = 0; i < LLModel::NUM_LODS; ++i)
 	{
 		mRequestedTriangleCount[i] = 0;
+		mRequestedCreaseAngle[i] = -1.f;
+		mRequestedLoDMode[i] = 0;
+		mRequestedErrorThreshold[i] = 0.f;
+		mRequestedBuildOperator[i] = 0;
+		mRequestedQueueMode[i] = 0;
+		mRequestedBorderMode[i] = 0;
+		mRequestedShareTolerance[i] = 0.f;
 	}
 
 	mViewOption["show_textures"] = false;
@@ -3247,6 +3255,8 @@ void LLModelPreview::generateNormals()
 
 	F32 angle_cutoff = mFMP->childGetValue("crease_angle").asReal();
 
+	mRequestedCreaseAngle[which_lod] = angle_cutoff;
+
 	angle_cutoff *= DEG_TO_RAD;
 
 	if (which_lod == 3 && !mBaseModel.empty())
@@ -3266,7 +3276,7 @@ void LLModelPreview::generateNormals()
 
 	mVertexBuffer[which_lod].clear();
 	refresh();
-
+	updateStatusMessages();
 }
 
 void LLModelPreview::clearMaterials()
@@ -3342,6 +3352,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		lod_mode = iface->getFirstSelectedIndex();
 	}
+	mRequestedLoDMode[mPreviewLOD] = lod_mode;
 
 	F32 lod_error_threshold = mFMP->childGetValue("lod_error_threshold").asReal();
 
@@ -3365,6 +3376,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		build_operator = iface->getFirstSelectedIndex();
 	}
+	mRequestedBuildOperator[mPreviewLOD] = build_operator; 
 
 	if (build_operator == 0)
 	{
@@ -3381,6 +3393,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		queue_mode = iface->getFirstSelectedIndex();
 	}
+	mRequestedQueueMode[mPreviewLOD] = queue_mode;
 
 	if (queue_mode == 0)
 	{
@@ -3402,6 +3415,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		border_mode = iface->getFirstSelectedIndex();
 	}
+	mRequestedBorderMode[mPreviewLOD] = border_mode;
 
 	if (border_mode == 0)
 	{
@@ -3437,6 +3451,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		mBuildShareTolerance = share_tolerance;
 		object_dirty = true;
 	}
+	mRequestedShareTolerance[mPreviewLOD] = share_tolerance;
 
 	if (mGroup == 0)
 	{
@@ -3545,6 +3560,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		U32 submeshes = 0;
 
 		mRequestedTriangleCount[lod] = triangle_count;
+		mRequestedErrorThreshold[lod] = lod_error_threshold;
 
 		glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
 		stop_gloderror();
@@ -4021,6 +4037,9 @@ void LLModelPreview::updateStatusMessages()
 		{	// auto generate, also the default case for wizard which has no radio selection
 			fmp->mLODMode[mPreviewLOD] = 1;
 
+			//don't actually regenerate lod when refreshing UI
+			mLODFrozen = true;
+
 			for (U32 i = 0; i < num_file_controls; ++i)
 			{
 				mFMP->childDisable(file_controls[i]);
@@ -4033,20 +4052,21 @@ void LLModelPreview::updateStatusMessages()
 
 			//if (threshold)
 			{	
-				U32 lod_mode = 0;
-				LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode");
-				if (iface)
-				{
-					lod_mode = iface->getFirstSelectedIndex();
-				}
-
 				LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold");
 				LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit");
 
 				limit->setMaxValue(mMaxTriangleLimit);
 				limit->forceSetValue(mRequestedTriangleCount[mPreviewLOD]);
 
-				if (lod_mode == 0)
+				threshold->forceSetValue(mRequestedErrorThreshold[mPreviewLOD]);
+
+				mFMP->getChild<LLComboBox>("lod_mode")->selectNthItem(mRequestedLoDMode[mPreviewLOD]);
+				mFMP->getChild<LLComboBox>("build_operator")->selectNthItem(mRequestedBuildOperator[mPreviewLOD]);
+				mFMP->getChild<LLComboBox>("queue_mode")->selectNthItem(mRequestedQueueMode[mPreviewLOD]);
+				mFMP->getChild<LLComboBox>("border_mode")->selectNthItem(mRequestedBorderMode[mPreviewLOD]);
+				mFMP->getChild<LLSpinCtrl>("share_tolerance")->setValue(mRequestedShareTolerance[mPreviewLOD]);
+
+				if (mRequestedLoDMode[mPreviewLOD] == 0)
 				{
 					limit->setVisible(true);
 					threshold->setVisible(false);
@@ -4060,6 +4080,8 @@ void LLModelPreview::updateStatusMessages()
 					threshold->setVisible(true);
 				}
 			}
+
+			mLODFrozen = false;
 		}
 	}
 
@@ -4075,6 +4097,20 @@ void LLModelPreview::updateStatusMessages()
 		mFMP->childDisable("physics_file");
 		mFMP->childDisable("physics_browse");
 	}
+
+	LLSpinCtrl* crease = mFMP->getChild<LLSpinCtrl>("crease_angle");
+	
+	if (mRequestedCreaseAngle[mPreviewLOD] == -1.f)
+	{
+		mFMP->childSetColor("crease_label", LLColor4::grey);
+		crease->forceSetValue(75.f);
+	}
+	else
+	{
+		mFMP->childSetColor("crease_label", LLColor4::white);
+		crease->forceSetValue(mRequestedCreaseAngle[mPreviewLOD]);
+	}
+
 }
 
 void LLModelPreview::setPreviewTarget(F32 distance)
@@ -4925,9 +4961,12 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 
 void LLModelPreview::onLODParamCommit(bool enforce_tri_limit)
 {
-	genLODs(mPreviewLOD, 3, enforce_tri_limit);
-	updateStatusMessages();
-	refresh();
+	if (!mLODFrozen)
+	{
+		genLODs(mPreviewLOD, 3, enforce_tri_limit);
+		updateStatusMessages();
+		refresh();
+	}
 }
 
 LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LLModel* mdl)
