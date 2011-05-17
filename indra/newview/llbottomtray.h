@@ -113,10 +113,6 @@ public:
 
 	void showBottomTrayContextMenu(S32 x, S32 y, MASK mask);
 
-	void showGestureButton(BOOL visible);
-	void showMoveButton(BOOL visible);
-	void showCameraButton(BOOL visible);
-	void showSnapshotButton(BOOL visible);
 	void showSpeakButton(bool visible);
 
 	void toggleMovementControls();
@@ -145,22 +141,29 @@ public:
 
 
 private:
-	typedef enum e_resize_status_type
+	typedef enum e_resize_state
 	{
-		  RS_NORESIZE			= 0x0000
-		, RS_CHICLET_PANEL		= 0x0001
-		, RS_CHATBAR_INPUT		= 0x0002
-		, RS_BUTTON_SNAPSHOT	= 0x0004
-		, RS_BUTTON_CAMERA		= 0x0008
-		, RS_BUTTON_MOVEMENT	= 0x0010
-		, RS_BUTTON_GESTURES	= 0x0020
-		, RS_BUTTON_SPEAK		= 0x0040
-		, RS_IM_WELL			= 0x0080
-		, RS_NOTIFICATION_WELL	= 0x0100
-		, RS_BUTTON_BUILD		= 0x0200
-		, RS_BUTTON_SEARCH		= 0x0400
-		, RS_BUTTON_WORLD_MAP	= 0x0800
-		, RS_BUTTON_MINI_MAP	= 0x1000
+		RS_NORESIZE				= 0x0000,
+		RS_CHICLET_PANEL		= 0x0001,
+		RS_CHATBAR_INPUT		= 0x0002,
+		RS_BUTTON_SNAPSHOT		= 0x0004,
+		RS_BUTTON_CAMERA		= 0x0008,
+		RS_BUTTON_MOVEMENT		= 0x0010,
+		RS_BUTTON_GESTURES		= 0x0020,
+		RS_BUTTON_SPEAK			= 0x0040,
+		RS_IM_WELL				= 0x0080,
+		RS_NOTIFICATION_WELL	= 0x0100,
+		RS_BUTTON_BUILD			= 0x0200,
+		RS_BUTTON_SEARCH		= 0x0400,
+		RS_BUTTON_WORLD_MAP		= 0x0800,
+		RS_BUTTON_MINI_MAP		= 0x1000,
+		RS_BUTTON_DESTINATIONS	= 0x2000,
+		RS_BUTTON_AVATARS		= 0x4000,
+		RS_BUTTON_PEOPLE		= 0x8000,
+		RS_BUTTON_PROFILE		= 0x10000,
+		RS_BUTTON_HOWTO			= 0x20000,
+		RS_BUTTON_SPLITTER_1	= 0x40000,
+		RS_BUTTON_SPLITTER_2	= 0x80000,
 
 		/*
 		Once new button that can be hidden on resize is added don't forget to update related places:
@@ -171,10 +174,11 @@ private:
 		/**
 		 * Specifies buttons which can be hidden when bottom tray is shrunk.
 		 * They are: Gestures, Movement (Move), Camera (View), Snapshot
-		 *		new: Build, Search, Map, World Map, Mini-Map.
+		 *		new: Build, Search, Map, World Map, Mini-Map, destinations, avatars
 		 */
-		, RS_BUTTONS_CAN_BE_HIDDEN = RS_BUTTON_SNAPSHOT | RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
+		RS_BUTTONS_CAN_BE_HIDDEN = RS_BUTTON_SNAPSHOT | RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
 									| RS_BUTTON_BUILD | RS_BUTTON_SEARCH | RS_BUTTON_WORLD_MAP | RS_BUTTON_MINI_MAP
+									| RS_BUTTON_DESTINATIONS | RS_BUTTON_AVATARS
 	}EResizeState;
 
 	// Below are three methods that were introduced to handle drag'n'drop
@@ -241,8 +245,9 @@ private:
 	 *
 	 * @params[in, out] available_width - reference to available width to be used to show buttons.
 	 * @see processShowButton()
+	 * @return consumed pixels (difference in available width).
 	 */
-	void processShowButtons(S32& available_width);
+	S32 processShowButtons(S32& available_width);
 
 	/**
 	 * Tries to show panel with specified button using available width.
@@ -318,6 +323,20 @@ private:
 	void processExtendButtons(S32& available_width);
 
 	/**
+	 * Extends the Speak button if there is anough headroom.
+	 *
+	 * Unlike other buttons, the Speak buttons has only two possible widths:
+	 * the minimal one (without label) and the maximal (default) one.
+	 *
+	 * If the button is at its minimum width there is not enough headroom to
+	 * reshape it to the maximum width, the method does nothing.
+	 *
+	 * @param available_width Available headroom.
+	 * @return false if the button requires extension but there's not enough headroom, true otherwise.
+	 */
+	bool processExtendSpeakButton(S32& available_width);
+
+	/**
 	 * Extends shown button to increase total taken space.
 	 *
 	 * @params[in] processed_object_type - type of button to be extended.
@@ -364,6 +383,16 @@ private:
 	 * @see setButtonsControlsAndListeners()
 	 */
 	static bool toggleShowButton(EResizeState button_type, const LLSD& new_visibility);
+
+	/**
+	 * Show the button if there is enough space.
+	 *
+	 * @param[in]      button_type -    type of button to be shown.
+	 * @param[in, out] available_width  amount of available space on the bottom bar.
+	 *
+	 * @return true if button was shown, false that's not possible (not enough space, etc)
+	 */
+	bool showButton(EResizeState button_type, S32& available_width);
 
 	/**
 	 * Sets passed visibility to object specified by resize type.
@@ -418,8 +447,26 @@ private:
 	 */
 	void processChatbarCustomization(S32 new_width);
 
+	/**
+	 * @return difference between current chiclet panel width and the minimum.
+	 */
+	S32 getChicletPanelShrinkHeadroom() const;
+
 	/// Get button name for debugging.
 	static std::string resizeStateToString(EResizeState state);
+
+	/// Dump a mask for debugging
+	static std::string resizeStateMaskToString(MASK mask);
+
+	/// @return true if any of the the passed buttons have been auto-hidden due to lack of available space.
+	bool isAutoHidden(MASK button_types) const;
+
+	/**
+	 * (Un)Mark the buttons as hidden.
+	 *
+	 * Auto-hidden buttons are those that re-appear as soon as we have enough available space.
+	 */
+	void setAutoHidden(MASK button_types, bool hide);
 
 	/// Buttons automatically hidden due to lack of space.
 	MASK mResizeState;

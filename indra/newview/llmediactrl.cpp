@@ -68,7 +68,6 @@ LLMediaCtrl::Params::Params()
 :	start_url("start_url"),
 	border_visible("border_visible", true),
 	ignore_ui_scale("ignore_ui_scale", true),
-	hide_loading("hide_loading", false),
 	decouple_texture_size("decouple_texture_size", false),
 	texture_width("texture_width", 1024),
 	texture_height("texture_height", 1024),
@@ -97,8 +96,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mCurrentNavUrl( "" ),
 	mStretchToFill( true ),
 	mMaintainAspectRatio ( true ),
-	mHideLoading (false),
-	mHidingInitialLoad (false),
 	mDecoupleTextureSize ( false ),
 	mTextureWidth ( 1024 ),
 	mTextureHeight ( 1024 ),
@@ -120,8 +117,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	setHomePageUrl(p.start_url, p.initial_mime_type);
 	
 	setBorderVisible(p.border_visible);
-	
-	mHideLoading = p.hide_loading;
 	
 	setDecoupleTextureSize(p.decouple_texture_size);
 	
@@ -684,11 +679,6 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 				mMediaSource->clearCache();
 				mClearCache = false;
 			}
-			
-			if(mHideLoading)
-			{
-				mHidingInitialLoad = true;
-			}
 		}
 		else
 		{
@@ -756,11 +746,11 @@ void LLMediaCtrl::draw()
 		}
 	}
 	
-	if(mHidingInitialLoad)
-	{
-		// If we're hiding loading, don't draw at all.
-		draw_media = false;
-	}
+//	if(mHidingInitialLoad)
+//	{
+//		// If we're hiding loading, don't draw at all.
+//		draw_media = false;
+//	}
 	
 	bool background_visible = isBackgroundVisible();
 	bool background_opaque = isBackgroundOpaque();

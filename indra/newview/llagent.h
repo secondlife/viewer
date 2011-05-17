@@ -29,15 +29,11 @@
 
 #include "indra_constants.h"
 #include "llevent.h" 				// LLObservable base class
-#include "llagentaccess.h"
 #include "llagentconstants.h"
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
-#include "llcharacter.h" 			// LLAnimPauseRequest
+#include "llcharacter.h"
 #include "llcoordframe.h"			// for mFrameAgent
-#include "llpointer.h"
-#include "lluicolor.h"
 #include "llvoavatardefines.h"
-#include "llslurl.h"
 
 #include <boost/signals2.hpp>
 
@@ -56,6 +52,10 @@ class LLFriendObserver;
 class LLPickInfo;
 class LLViewerObject;
 class LLAgentDropGroupViewerNode;
+class LLAgentAccess;
+class LLSLURL;
+class LLPauseRequestHandle;
+class LLUIColor;
 
 //--------------------------------------------------------------------
 // Types
@@ -79,6 +79,8 @@ struct LLGroupData
 };
 
 class LLAgentListener;
+
+class LLAgentImpl;
 
 //------------------------------------------------------------------------
 // LLAgent
@@ -420,7 +422,7 @@ private:
 	camera_signal_t* mMouselookModeInSignal;
 	camera_signal_t* mMouselookModeOutSignal;
 	BOOL            mCustomAnim; 		// Current animation is ANIM_AGENT_CUSTOMIZE ?
-	LLAnimPauseRequest mPauseRequest;
+	LLPointer<LLPauseRequestHandle> mPauseRequest;
 	BOOL			mViewsPushed; 		// Keep track of whether or not we have pushed views
 	
 /**                    Animation
@@ -525,13 +527,13 @@ public:
 
 public:
 	static void 	parseTeleportMessages(const std::string& xml_filename);
-	const void getTeleportSourceSLURL(LLSLURL& slurl) const { slurl = mTeleportSourceSLURL; }
+	const void getTeleportSourceSLURL(LLSLURL& slurl) const;
 public:
 	// ! TODO ! Define ERROR and PROGRESS enums here instead of exposing the mappings.
 	static std::map<std::string, std::string> sTeleportErrorMessages;
 	static std::map<std::string, std::string> sTeleportProgressMessages;
 private:
-	LLSLURL	mTeleportSourceSLURL; 			// SLURL where last TP began
+	LLSLURL * mTeleportSourceSLURL; 			// SLURL where last TP began
 
 	//--------------------------------------------------------------------
 	// Teleport Actions
@@ -590,7 +592,7 @@ public:
 	// ! BACKWARDS COMPATIBILITY ! This function can go away after the AO transition (see llstartup.cpp).
 	void 			setAOTransition();
 private:
-	LLAgentAccess 	mAgentAccess;
+	LLAgentAccess * mAgentAccess;
 	
 	//--------------------------------------------------------------------
 	// God
@@ -670,7 +672,7 @@ public:
 	const LLColor4	&getEffectColor();
 	void			setEffectColor(const LLColor4 &color);
 private:
-	LLUIColor 		mEffectColor;
+	LLUIColor * mEffectColor;
 
 /**                    Rendering
  **                                                                            **

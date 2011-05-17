@@ -127,7 +127,8 @@ elseif (MSVC_VERSION EQUAL 1600) # VisualStudio 2010
         PATHS
         ${MSVC_DEBUG_REDIST_PATH}
          [HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\10.0\\Setup\\VC;ProductDir]/redist/Debug_NonRedist/x86/Microsoft.VC100.DebugCRT
-        NO_DEFAULT_PATH
+        [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/SysWOW64
+        [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32
         NO_DEFAULT_PATH
         )
 
@@ -151,7 +152,8 @@ elseif (MSVC_VERSION EQUAL 1600) # VisualStudio 2010
         PATHS
         ${MSVC_REDIST_PATH}
          [HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\10.0\\Setup\\VC;ProductDir]/redist/x86/Microsoft.VC100.CRT
-        NO_DEFAULT_PATH
+        [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/SysWOW64
+        [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32
         NO_DEFAULT_PATH
         )
 

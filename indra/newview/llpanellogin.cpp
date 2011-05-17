@@ -100,58 +100,6 @@ public:
 	}
 };
 
-LLLoginRefreshHandler gLoginRefreshHandler;
-
-
-// helper class that trys to download a URL from a web site and calls a method 
-// on parent class indicating if the web server is working or not
-class LLIamHereLogin : public LLHTTPClient::Responder
-{
-	private:
-		LLIamHereLogin( LLPanelLogin* parent ) :
-		   mParent( parent )
-		{}
-
-		LLPanelLogin* mParent;
-
-	public:
-		static boost::intrusive_ptr< LLIamHereLogin > build( LLPanelLogin* parent )
-		{
-			return boost::intrusive_ptr< LLIamHereLogin >( new LLIamHereLogin( parent ) );
-		};
-
-		virtual void  setParent( LLPanelLogin* parentIn )
-		{
-			mParent = parentIn;
-		};
-
-		// We don't actually expect LLSD back, so need to override completedRaw
-		virtual void completedRaw(U32 status, const std::string& reason,
-								  const LLChannelDescriptors& channels,
-								  const LLIOPipe::buffer_ptr_t& buffer)
-		{
-			completed(status, reason, LLSD()); // will call result() or error()
-		}
-	
-		virtual void result( const LLSD& content )
-		{
-			if ( mParent )
-				mParent->setSiteIsAlive( true );
-		};
-
-		virtual void error( U32 status, const std::string& reason )
-		{
-			if ( mParent )
-				mParent->setSiteIsAlive( false );
-		};
-};
-
-// this is global and not a class member to keep crud out of the header file
-namespace {
-	boost::intrusive_ptr< LLIamHereLogin > gResponsePtr = 0;
-};
-
-
 //---------------------------------------------------------------------------
 // Public methods
 //---------------------------------------------------------------------------
@@ -163,7 +111,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mLogoImage(),
 	mCallback(callback),
 	mCallbackData(cb_data),
-	mHtmlAvailable( TRUE ),
 	mListener(new LLPanelLoginListener(this))
 {
 	setBackgroundVisible(FALSE);
@@ -193,21 +140,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	buildFromFile( "panel_login.xml");
 	
-	// Legacy login web page is hidden under the menu bar.
-	// Adjust reg-in-client web browser widget to not be hidden.
-	if (gSavedSettings.getBOOL("RegInClient"))
-	{
-		reshape(rect.getWidth(), rect.getHeight() - MENU_BAR_HEIGHT);
-	}
-	else
-	{
-		reshape(rect.getWidth(), rect.getHeight());
-	}
+	reshape(rect.getWidth(), rect.getHeight());
 
 	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
 
 	// change z sort of clickable text to be behind buttons
-	//sendChildToBack(getChildView("channel_text"));
 	sendChildToBack(getChildView("forgot_password_text"));
 
 	if(LLStartUp::getStartSLURL().getType() != LLSLURL::LOCATION)
@@ -252,16 +189,10 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	web_browser->addObserver(this);
 	
-	// Clear the browser's cache to avoid any potential for the cache messing up the login screen.
-	web_browser->clearCache();
-
 	reshapeBrowser();
 
-	// kick off a request to grab the url manually
-	gResponsePtr = LLIamHereLogin::build( this );
-
-	LLHTTPClient::head( LLGridManager::getInstance()->getLoginPage(), gResponsePtr );
-
+	loadLoginPage();
+			
 	// Show last logged in user favorites in "Start at" combo.
 	addUsersWithFavoritesToUsername();
 	getChild<LLComboBox>("username_combo")->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
@@ -344,45 +275,9 @@ void LLPanelLogin::reshapeBrowser()
 	reshape( rect.getWidth(), rect.getHeight(), 1 );
 }
 
-void LLPanelLogin::setSiteIsAlive( bool alive )
-{
-	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
-	// if the contents of the site was retrieved
-	if ( alive )
-	{
-		if ( web_browser )
-		{
-			loadLoginPage();
-			
-			// mark as available
-			mHtmlAvailable = TRUE;
-		}
-	}
-	else
-	// the site is not available (missing page, server down, other badness)
-	{
-		if ( web_browser )
-		{
-			// hide browser control (revealing default one)
-			web_browser->setVisible( FALSE );
-
-			// mark as unavailable
-			mHtmlAvailable = FALSE;
-		}
-	}
-}
-
-
 LLPanelLogin::~LLPanelLogin()
 {
 	LLPanelLogin::sInstance = NULL;
-
-	// tell the responder we're not here anymore
-	if ( gResponsePtr )
-		gResponsePtr->setParent( 0 );
-
-	//// We know we're done with the image, so be rid of it.
-	//gTextureList.deleteImage( mLogoImage );
 
 	// Controls having keyboard focus by default
 	// must reset it on destroy. (EXT-2748)
@@ -406,22 +301,13 @@ void LLPanelLogin::draw()
 		S32 width = getRect().getWidth();
 		S32 height = getRect().getHeight();
 
-		if ( mHtmlAvailable )
+		if (getChild<LLView>("login_widgets")->getVisible())
 		{
-			if (getChild<LLView>("login_widgets")->getVisible())
-			{
-				// draw a background box in black
-				gl_rect_2d( 0, height - 264, width, 264, LLColor4::black );
-				// draw the bottom part of the background image
-				// just the blue background to the native client UI
-				mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
-			}
-		}
-		else
-		{
-			// the HTML login page is not available so default to the original screen
-			S32 offscreen_part = height / 3;
-			mLogoImage->draw(0, -offscreen_part, width, height+offscreen_part);
+			// draw a background box in black
+			gl_rect_2d( 0, height - 264, width, 264, LLColor4::black );
+			// draw the bottom part of the background image
+			// just the blue background to the native client UI
+			mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
 		};
 	}
 	glPopMatrix();
@@ -880,20 +766,10 @@ void LLPanelLogin::loadLoginPage()
 	oStr << "&os=" << os_info;
 	curl_free(os_info);
 	
-	
 	gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
-	gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());
 	
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-
-	// navigate to the "real" page
-	if (gSavedSettings.getBOOL("RegInClient"))
-	{
-		web_browser->setFocus(TRUE);
-		login_page = sInstance->getString("reg_in_client_url");
-		web_browser->navigateTo(login_page, "text/html");
-	}
-	else
+	if (web_browser->getCurrentNavUrl() != oStr.str())
 	{
 		web_browser->navigateTo( oStr.str(), "text/html" );
 	}
@@ -927,10 +803,6 @@ void LLPanelLogin::onClickConnect(void *)
 {
 	if (sInstance && sInstance->mCallback)
 	{
-		// tell the responder we're not here anymore
-		if ( gResponsePtr )
-			gResponsePtr->setParent( 0 );
-
 		// JC - Make sure the fields all get committed.
 		sInstance->setFocus(FALSE);
 
@@ -997,24 +869,6 @@ void LLPanelLogin::onClickConnect(void *)
 		}
 	}
 }
-
-/*
-// static
-bool LLPanelLogin::newAccountAlertCallback(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (0 == option)
-	{
-		llinfos << "Going to account creation URL" << llendl;
-		LLWeb::loadURLExternal( LLNotifications::instance().getGlobalString("CREATE_ACCOUNT_URL")); 
-	}
-	else
-	{
-		sInstance->setFocus(TRUE);
-	}
-	return false;
-}
-*/
 
 // static
 void LLPanelLogin::onClickNewAccount(void*)

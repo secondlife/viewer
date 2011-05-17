@@ -554,7 +554,7 @@ void LLAvatarNameCache::eraseUnrefreshed()
     {
         sLastExpireCheck = now;
 
-        for (cache_t::iterator it = sCache.begin(); it != sCache.end(); ++it)
+        for (cache_t::iterator it = sCache.begin(); it != sCache.end();)
         {
             const LLAvatarName& av_name = it->second;
             if (av_name.mExpires < max_unrefreshed)
@@ -564,8 +564,12 @@ void LLAvatarNameCache::eraseUnrefreshed()
                                          << " user '" << av_name.mUsername << "' "
                                          << "expired " << now - av_name.mExpires << " secs ago"
                                          << LL_ENDL;
-                sCache.erase(it);
+                sCache.erase(it++);
             }
+			else
+			{
+				++it;
+			}
         }
         LL_INFOS("AvNameCache") << sCache.size() << " cached avatar names" << LL_ENDL;
 	}

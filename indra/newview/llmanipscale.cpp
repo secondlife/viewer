@@ -217,8 +217,6 @@ void LLManipScale::render()
 		
 		LLVector3 center_agent = gAgent.getPosAgentFromGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal());
 
-		F32 range;
-		F32 range_from_agent;
 		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			mBoxHandleSize = BOX_HANDLE_BASE_SIZE * BOX_HANDLE_BASE_FACTOR / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
@@ -226,25 +224,25 @@ void LLManipScale::render()
 		}
 		else
 		{
-			range = dist_vec(gAgentCamera.getCameraPositionAgent(), center_agent);
-			range_from_agent = dist_vec(gAgent.getPositionAgent(), center_agent);
+			F32 range_squared = dist_vec_squared(gAgentCamera.getCameraPositionAgent(), center_agent);
+			F32 range_from_agent_squared = dist_vec_squared(gAgent.getPositionAgent(), center_agent);
 
 			// Don't draw manip if object too far away
 			if (gSavedSettings.getBOOL("LimitSelectDistance"))
 			{
 				F32 max_select_distance = gSavedSettings.getF32("MaxSelectDistance");
-				if (range_from_agent > max_select_distance)
+				if (range_from_agent_squared > max_select_distance * max_select_distance)
 				{
 					return;
 				}
 			}
 
-			if (range > 0.001f)
+			if (range_squared > 0.001f * 0.001f)
 			{
 				// range != zero
 				F32 fraction_of_fov = BOX_HANDLE_BASE_SIZE / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
 				F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
-				mBoxHandleSize = range * tan(apparent_angle) * BOX_HANDLE_BASE_FACTOR;
+				mBoxHandleSize = fsqrtf(range_squared) * tan(apparent_angle) * BOX_HANDLE_BASE_FACTOR;
 			}
 			else
 			{

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
 <avatar_icon
+    name="avatar_icon"
     default_icon_name="Generic_Person_Large"
     use_draw_context_alpha="false">
 </avatar_icon>

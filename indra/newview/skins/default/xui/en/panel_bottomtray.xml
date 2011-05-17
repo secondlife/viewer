@@ -48,15 +48,15 @@
 		 name="chat_bar_layout_panel"
          user_resize="true"
      width="310" >
-      <panel
-		   name="chat_bar"
-			  filename="panel_nearby_chat_bar.xml"
-			  left="0"
-			  height="28"
+          <panel
+            name="chat_bar"
+            filename="panel_nearby_chat_bar.xml"
+            left="0"
+            height="28"
         width="308"
-			  top="0"
-			  mouse_opaque="false"
-			  follows="left|right"
+            top="0"
+            mouse_opaque="false"
+            follows="left|right"
           />
     </layout_panel>
     <!--
@@ -283,100 +283,100 @@ Disabled for now.
          mouse_opaque="false"
      name="search_btn_panel"
          user_resize="false"
-     width="83">
-      <bottomtray_button
-			  follows="left|right"
-			  height="23"
-			  image_pressed="PushButton_Press"
-			  image_pressed_selected="PushButton_Selected_Press"
-			  image_selected="PushButton_Selected_Press"
-       is_toggle="true"
-       label="Search"
-			  layout="topleft"
-			  left="0"
-       name="search_btn"
-       tool_tip="Shows/hides Search"
-			  top="5"
-			  use_ellipses="true"
-       width="80">
-        <init_callback
-         function="Button.SetFloaterToggle"
-         parameter="search" />
-      </bottomtray_button>
-    </layout_panel>
-    <layout_panel
-		   auto_resize="false"
-     follows="left|right"
-		   height="28"
-		   layout="topleft"
-		   min_height="28"
+         width="83">
+            <bottomtray_button
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Search"
+             layout="topleft"
+             left="0"
+             name="search_btn"
+             tool_tip="Shows/hides Search"
+             top="5"
+             use_ellipses="true"
+             width="80">
+                <init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="search" />
+            </bottomtray_button>
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="52"
+         mouse_opaque="false"
+         name="world_map_btn_panel"
+         user_resize="false"
+         width="83">
+            <bottomtray_button
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Map"
+             layout="topleft"
+             left="0"
+             name="world_map_btn"
+             tool_tip="Shows/hides World Map"
+             top="5"
+             use_ellipses="true"
+             width="80">
+                <init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="world_map" />
+            </bottomtray_button>
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
      min_width="52"
-		   mouse_opaque="false"
-     name="world_map_btn_panel"
-		   user_resize="false"
-     width="83">
-      <bottomtray_button
-			  follows="left|right"
-			  height="23"
-			  image_pressed="PushButton_Press"
-			  image_pressed_selected="PushButton_Selected_Press"
-			  image_selected="PushButton_Selected_Press"
-       is_toggle="true"
-       label="Map"
-			  layout="topleft"
-			  left="0"
-       name="world_map_btn"
-       tool_tip="Shows/hides World Map"
-			  top="5"
-			  use_ellipses="true"
-       width="80">
-        <init_callback
-         function="Button.SetFloaterToggle"
-         parameter="world_map" />
-      </bottomtray_button>
-    </layout_panel>
-    <layout_panel
-		   auto_resize="false"
-     follows="left|right"
-		   height="28"
-		   layout="topleft"
-		   min_height="28"
-     min_width="52"
-		   mouse_opaque="false"
-     name="mini_map_btn_panel"
-		   user_resize="false"
-     width="83">
-      <bottomtray_button
-			  follows="left|right"
-			  height="23"
-			  image_pressed="PushButton_Press"
-			  image_pressed_selected="PushButton_Selected_Press"
-			  image_selected="PushButton_Selected_Press"
-       is_toggle="true"
-       label="Mini-Map"
-			  layout="topleft"
-			  left="0"
-       name="mini_map_btn"
-       tool_tip="Shows/hides Mini-Map"
-			  top="5"
-			  use_ellipses="true"
-       width="80">
-        <init_callback
-         function="Button.SetFloaterToggle"
-         parameter="mini_map" />
-      </bottomtray_button>
-    </layout_panel>
-    <layout_panel
-		   follows="left|right"
-		   height="30"
-		   layout="topleft"
-		   min_width="95"
-		   mouse_opaque="false"
-		   name="chiclet_list_panel"
-		   top="0"
-		   user_resize="false"
-		   width="189">
-      <!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same
+         mouse_opaque="false"
+         name="mini_map_btn_panel"
+         user_resize="false"
+         width="83">
+            <bottomtray_button
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Mini-Map"
+             layout="topleft"
+             left="0"
+             name="mini_map_btn"
+             tool_tip="Shows/hides Mini-Map"
+             top="5"
+             use_ellipses="true"
+             width="80">
+                <init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="mini_map" />
+            </bottomtray_button>
+        </layout_panel>
+        <layout_panel
+         follows="left|right"
+         height="30"
+         layout="topleft"
+         min_width="95"
+         mouse_opaque="false"
+         name="chiclet_list_panel"
+         top="0"
+         user_resize="false"
+         width="189">
+<!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same
 as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. EXT-991-->
       <chiclet_panel
              chiclet_padding="4"

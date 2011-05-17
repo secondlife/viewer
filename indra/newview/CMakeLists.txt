@@ -214,6 +214,7 @@ set(viewer_SOURCE_FILES
     llfloatersettingsdebug.cpp
     llfloatersidetraytab.cpp
     llfloatersnapshot.cpp
+    llfloatersounddevices.cpp
     llfloatertelehub.cpp
     llfloatertestinspectors.cpp
     llfloatertestlistview.cpp
@@ -760,6 +761,7 @@ set(viewer_HEADER_FILES
     llfloatersettingsdebug.h
     llfloatersidetraytab.h
     llfloatersnapshot.h
+    llfloatersounddevices.h
     llfloatertelehub.h
     llfloatertestinspectors.h
     llfloatertestlistview.h

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_web_content" title="">
+	<layout_stack name="stack1">
+		<layout_panel name="nav_controls">
+			<button name="back" tool_tip="Wstecz"/>
+			<button name="forward" tool_tip="Dalej"/>
+			<button name="stop" tool_tip="Zatrzymaj"/>
+			<button name="reload" tool_tip="Odśwież stronę"/>
+			<combo_box name="address" tool_tip="Wpisz URL tutaj"/>
+			<icon name="media_secure_lock_flag" tool_tip="Zabezpieczona przeglądarka"/>
+			<button name="popexternal" tool_tip="Otwórz bieżący URL w zewnętrznej przeglądarce"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

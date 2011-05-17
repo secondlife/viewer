@@ -25,6 +25,7 @@
 		<menu_item_call label="Nouveau caleçon" name="New Underpants"/>
 		<menu_item_call label="Nouveau masque alpha" name="New Alpha Mask"/>
 		<menu_item_call label="Nouveau tatouage" name="New Tattoo"/>
+		<menu_item_call label="Nouvelles propriétés physiques" name="New Physics"/>
 	</menu>
 	<menu label="Nouvelles parties du corps" name="New Body Parts">
 		<menu_item_call label="Nouvelle silhouette" name="New Shape"/>

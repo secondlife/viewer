@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Outfit">
+	<menu_item_call label="Załóż - Zastąp obecny strój" name="wear_replace"/>
+	<menu_item_call label="Załóż - Dodaj do obecnego stroju" name="wear_add"/>
+	<menu_item_call label="Zdejmij - Usuń z obecnego stroju" name="take_off"/>
+	<menu_item_call label="Edytuj strój" name="edit"/>
+	<menu_item_call label="Zmień nazwę stroju" name="rename"/>
+	<menu_item_call label="Usuń strój" name="delete"/>
+</context_menu>

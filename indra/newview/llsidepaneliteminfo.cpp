@@ -39,6 +39,7 @@
 #include "llinventoryobserver.h"
 #include "lllineeditor.h"
 #include "llradiogroup.h"
+#include "llslurl.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewerobjectlist.h"
