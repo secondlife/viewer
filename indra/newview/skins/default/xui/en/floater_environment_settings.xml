@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="350"
+ height="338"
  layout="topleft"
  name="Environment Editor Floater"
  help_topic="environment_editor_floater"
  save_rect="true"
  title="ENVIRONMENT EDITOR"
- width="600">
+ width="540">
  
  <view_border
   bevel_style="none"  
   follows="top|left"
   height="237"
   layout="topleft"
-  left="50"
+  left="20"
   name="border"
-  top="50"
+  top="38"
   width="500"/>  
  <radio_group
   follows="top|left"
