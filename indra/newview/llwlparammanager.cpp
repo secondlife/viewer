@@ -600,32 +600,19 @@ void LLWLParamManager::applyUserPrefs(bool interpolate)
 	}
 	else // apply user-specified settings
 	{
-		// Load day cycle anyway so that we can switch to it from a fixed sky.
-		LL_DEBUGS("Windlight") << "Loading day cycle " << LLEnvManagerNew::instance().getDayCycleName() << LL_ENDL;
-		mDay.loadDayCycleFromFile(LLEnvManagerNew::instance().getDayCycleName() + ".xml");
-
-		bool use_day_cycle = LLEnvManagerNew::instance().getUseDayCycle();
-		if (!use_day_cycle) // if we should use fixed sky
+		if (LLEnvManagerNew::instance().getUseDayCycle())
 		{
+			std::string day_cycle = LLEnvManagerNew::instance().getDayCycleName();
+			LL_DEBUGS("Windlight") << "Applying day cycle [" << day_cycle << "]" << LL_ENDL;
+			mDay.loadDayCycleFromFile(day_cycle + ".xml");
+			resetAnimator(0.5, true); // set to noon and start animator
+		}
+		else
+		{
+			mAnimator.deactivate();
 			std::string sky = LLEnvManagerNew::instance().getSkyPresetName();
 			LL_DEBUGS("Windlight") << "Loading fixed sky " << sky << LL_ENDL;
 			getParamSet(LLWLParamKey(sky, LLWLParamKey::SCOPE_LOCAL), mCurParams);
-		}
-
-		// Animator should be running if we're using a day cycle
-		// and be stopped if we want fixed sky.
-		if (use_day_cycle != mAnimator.getIsRunning())
-		{
-			if (use_day_cycle)
-			{
-				LL_DEBUGS("Windlight") << "Activating animator" << LL_ENDL;
-				mAnimator.activate(mAnimator.getTimeType());
-			}
-			else
-			{
-				LL_DEBUGS("Windlight") << "Deactivating animator" << LL_ENDL;
-				mAnimator.deactivate();
-			}
 		}
 	}
 }
