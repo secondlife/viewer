@@ -113,7 +113,7 @@ BOOL LLImageJ2COJ::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int disca
 	return FALSE;
 }
 
-BOOL LLImageJ2COJ::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size)
+BOOL LLImageJ2COJ::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels)
 {
 	// No specific implementation for this method in the OpenJpeg case
 	return FALSE;

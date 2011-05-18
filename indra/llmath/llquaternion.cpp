@@ -26,9 +26,10 @@
 
 #include "linden_common.h"
 
+#include "llmath.h"	// for F_PI
+
 #include "llquaternion.h"
 
-#include "llmath.h"	// for F_PI
 //#include "vmath.h"
 #include "v3math.h"
 #include "v3dmath.h"

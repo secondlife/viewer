@@ -30,12 +30,12 @@
 #include "../test/lltut.h"
 #include "llsd.h"
 
-#include "../llquaternion.h"
-#include "../llquantize.h"
 #include "../v3dmath.h"
 #include "../m3math.h"
 #include "../v4math.h"
 #include "../v3math.h"
+#include "../llquaternion.h"
+#include "../llquantize.h"
 
 
 namespace tut
@@ -149,7 +149,7 @@ namespace tut
 		F32 x = 2.32f, y = 1.212f, z = -.12f;
 		LLVector3 vec3(x,y,z);		
 		ensure("1:magVecSquared:Fail ", is_approx_equal(vec3.magVecSquared(), (x*x + y*y + z*z)));
-		ensure("2:magVec:Fail ", is_approx_equal(vec3.magVec(), fsqrtf(x*x + y*y + z*z)));
+		ensure("2:magVec:Fail ", is_approx_equal(vec3.magVec(), (F32) sqrt(x*x + y*y + z*z)));
 	}
 
 	template<> template<>
@@ -509,7 +509,7 @@ namespace tut
 		F32 val1,val2;
 		LLVector3 vec3(x1,y1,z1),vec3a(x2,y2,z2);
 		val1 = dist_vec(vec3,vec3a);
-		val2 = fsqrtf((x1 - x2)*(x1 - x2) + (y1 - y2)* (y1 - y2) + (z1 - z2)* (z1 -z2));
+		val2 = (F32) sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)* (y1 - y2) + (z1 - z2)* (z1 -z2));
 		ensure_equals("1:dist_vec: Fail ",val2, val1);
 		val1 = dist_vec_squared(vec3,vec3a);
 		val2 =((x1 - x2)*(x1 - x2) + (y1 - y2)* (y1 - y2) + (z1 - z2)* (z1 -z2));

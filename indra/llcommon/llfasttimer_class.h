@@ -31,11 +31,14 @@
 
 #define FAST_TIMER_ON 1
 #define TIME_FAST_TIMERS 0
+#define DEBUG_FAST_TIMER_THREADS 1
 
 class LLMutex;
 
 #include <queue>
 #include "llsd.h"
+
+LL_COMMON_API void assert_main_thread();
 
 class LL_COMMON_API LLFastTimer
 {
@@ -176,6 +179,11 @@ public:
 		U64 timer_end = getCPUClockCount64();
 		sTimerCycles += timer_end - timer_start;
 #endif
+#if DEBUG_FAST_TIMER_THREADS
+#if !LL_RELEASE
+		assert_main_thread();
+#endif
+#endif
 	}
 
 	LL_FORCE_INLINE ~LLFastTimer()
@@ -245,6 +253,7 @@ public:
 		U32				mChildTime;
 	};
 	static CurTimerData		sCurTimerData;
+	static std::string sClockType;
 
 private:
 	static U32 getCPUClockCount32();

@@ -6979,13 +6979,6 @@ void LLVivoxProtocolParser::reset()
 	alias.clear();
 	numberOfAliases = 0;
 	applicationString.clear();
-	id = 0;
-	nameString.clear();
-	descriptionString.clear();
-	expirationDate = LLDate();
-	hasExpired = false;
-	fontType = 0;
-	fontStatus = 0;
 }
 
 //virtual 

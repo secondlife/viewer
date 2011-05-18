@@ -80,9 +80,11 @@ public:
 		FT_OUTFIT = 47,
 		FT_MY_OUTFITS = 48,
 		
-		FT_INBOX = 49,
+		FT_MESH = 49,
 
-		FT_COUNT = 50,
+		FT_INBOX = 50,
+
+		FT_COUNT = 51,
 
 		FT_NONE = -1
 	};

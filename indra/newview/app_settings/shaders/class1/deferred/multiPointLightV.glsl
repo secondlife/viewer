@@ -1,17 +1,20 @@
 /** 
- * @file postDeferredV.glsl
+ * @file multiPointLightV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
 
-varying vec2 vary_fragcoord;
-uniform vec2 screen_res;
+#version 120
+
+varying vec4 vary_fragcoord;
 
 void main()
 {
 	//transform vertex
-	gl_Position = ftransform(); 
 	vec4 pos = gl_ModelViewProjectionMatrix * gl_Vertex;
-	vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
+	vary_fragcoord = pos;
+
+	gl_Position = pos;
+	gl_FrontColor = gl_Color;
 }

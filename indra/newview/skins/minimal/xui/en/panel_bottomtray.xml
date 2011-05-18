@@ -115,7 +115,7 @@
         top="5"
      left="0"
      height="23"
-     name="speak_flyout_btn"
+     name="flyout_btn"
      label=""
      tab_stop="false"
      tool_tip="Change your sound preferences"

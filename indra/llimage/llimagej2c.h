@@ -57,7 +57,7 @@ public:
 	/*virtual*/ void setLastError(const std::string& message, const std::string& filename = std::string());
 	
 	BOOL initDecode(LLImageRaw &raw_image, int discard_level, int* region);
-	BOOL initEncode(LLImageRaw &raw_image, int blocks_size, int precincts_size);
+	BOOL initEncode(LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels);
 	
 	// Encode with comment text 
 	BOOL encode(const LLImageRaw *raw_imagep, const char* comment_text, F32 encode_time=0.0);
@@ -120,7 +120,7 @@ protected:
 	virtual BOOL encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0,
 							BOOL reversible=FALSE) = 0;
 	virtual BOOL initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level = -1, int* region = NULL) = 0;
-	virtual BOOL initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size = -1, int precincts_size = -1) = 0;
+	virtual BOOL initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size = -1, int precincts_size = -1, int levels = 0) = 0;
 
 	friend class LLImageJ2C;
 };

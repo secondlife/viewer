@@ -11,14 +11,6 @@
 	  name="default_text">
 		Default
 	</panel.string>
-	<panel.string
-	  name="default system device">
-		Default system device
-	</panel.string>
-	<panel.string
-	  name="no device">
-		No device
-	</panel.string>
 	<icon
 		   height="18"
 		   image_name="Microphone_On"
