@@ -204,8 +204,7 @@
 		name="LocalLights"
 		 top_pad="1"
 		 width="256" />
-		width="256" />
-      <check_box
+		  <check_box
 		 control_name="VertexShaderEnable"
 		 height="16"
 		 initial_value="true"
