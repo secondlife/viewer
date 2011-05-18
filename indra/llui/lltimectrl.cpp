@@ -371,17 +371,17 @@ LLTimeCtrl::EEditingPart LLTimeCtrl::getEditingPart()
 	S32 cur_pos = mEditor->getCursor();
 	LLWString time_str = mEditor->getWText();
 
-	size_t colon_index = time_str.find_first_of(':');
+	S32 colon_index = time_str.find_first_of(':');
 
 	if (cur_pos <= colon_index)
 	{
 		return HOURS;
 	}
-	else if (cur_pos > colon_index && cur_pos <= (time_str.length() - AMPM_LEN))
+	else if (cur_pos > colon_index && cur_pos <= (S32)(time_str.length() - AMPM_LEN))
 	{
 		return MINUTES;
 	}
-	else if (cur_pos > (time_str.length() - AMPM_LEN))
+	else if (cur_pos > (S32)(time_str.length() - AMPM_LEN))
 	{
 		return DAYPART;
 	}
