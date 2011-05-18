@@ -341,6 +341,9 @@ public:
 	
 	LLVector3 getTranslationForJointOffset( std::string joint );
 
+	void		createPreviewAvatar( void );
+	LLVOAvatar* getPreviewAvatar( void ) { return mPreviewAvatar; }
+
  protected:
 	friend class LLModelLoader;
 	friend class LLFloaterModelPreview;
@@ -422,6 +425,7 @@ public:
 	std::deque<std::string> mMasterLegacyJointList;
 	std::deque<std::string> mJointsFromNode;
 	JointTransformMap		mJointTransformMap;
+	LLPointer<LLVOAvatar>	mPreviewAvatar;
 };
 
 #endif  // LL_LLFLOATERMODELPREVIEW_H
