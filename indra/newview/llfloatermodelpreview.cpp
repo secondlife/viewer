@@ -3848,6 +3848,18 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
+
+	//make sure no hulls have more than 256 points in them
+	for (U32 i = 0; upload_ok && i < mModel[LLModel::LOD_PHYSICS].size(); ++i)
+	{
+		LLModel* mdl = mModel[LLModel::LOD_PHYSICS][i];
+
+		for (U32 j = 0; upload_ok && j < mdl->mPhysics.mHull.size(); ++j)
+		{
+			upload_ok = upload_ok && mdl->mPhysics.mHull[i].size() <= 256;
+		}
+	}
+
 	bool errorStateFromLoader = getLoadState() >= LLModelLoader::ERROR_PARSING ? true : false;
 
 	bool skinAndRigOk = true;
@@ -3870,6 +3882,10 @@ void LLModelPreview::updateStatusMessages()
 	if ( upload_ok && !errorStateFromLoader && skinAndRigOk )
 	{
 		mFMP->childEnable("ok_btn");
+	}
+	else
+	{
+		mFMP->childDisable("ok_btn");
 	}
 	
 	//add up physics triangles etc

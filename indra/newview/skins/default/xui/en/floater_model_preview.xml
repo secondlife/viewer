@@ -23,7 +23,7 @@
   <string name="simplifying">Simplifying...</string>
   
 
-  <text left="15" bottom="25" follows="top|left" height="15" name="name_label">
+  <text left="15" bottom="25" follows="top|left" height="15" max_length_bytes="64" name="name_label">
     Name:
   </text>
   <line_editor bottom_delta="20" follows="top|left|right" height="19" 
