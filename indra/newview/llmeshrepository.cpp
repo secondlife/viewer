@@ -500,7 +500,7 @@ public:
 		mThread->mPendingUploads--;
 		dumpLLSDToFile(content,"whole_model_response.xml");
 
-		mThread->mWholeModelUploadURL = content["uploader"]; 
+		mThread->mWholeModelUploadURL = content["uploader"].asString(); 
 	}
 };
 
@@ -1389,7 +1389,7 @@ void LLMeshUploadThread::run()
 #if 1
 void dumpLLSDToFile(const LLSD& content, std::string filename)
 {
-	std::ofstream of(filename);
+	std::ofstream of(filename.c_str());
 	LLSDSerialize::toPrettyXML(content,of);
 }
 #endif
