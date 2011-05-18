@@ -225,7 +225,8 @@ bool LLTimeCtrl::isTimeStringValid(const LLWString &wstr)
 bool LLTimeCtrl::isHoursStringValid(const LLWString& wstr)
 {
 	U32 hours;
-	if ((!LLWStringUtil::convertToU32(wstr, hours) || (hours <= HOURS_MAX)) && wstr.length() < 3)
+	std::string utf8time = wstring_to_utf8str(wstr);
+	if ((!LLStringUtil::convertToU32(utf8time, hours) || (hours <= HOURS_MAX)) && wstr.length() < 3)
 		return true;
 
 	return false;
@@ -234,7 +235,8 @@ bool LLTimeCtrl::isHoursStringValid(const LLWString& wstr)
 bool LLTimeCtrl::isMinutesStringValid(const LLWString& wstr)
 {
 	U32 minutes;
-	if (!LLWStringUtil::convertToU32(wstr, minutes) || (minutes <= MINUTES_MAX) && wstr.length() < 3)
+	std::string utf8time = wstring_to_utf8str(wstr);
+	if (!LLStringUtil::convertToU32(utf8time, minutes) || (minutes <= MINUTES_MAX) && wstr.length() < 3)
 		return true;
 
 	return false;
@@ -243,7 +245,8 @@ bool LLTimeCtrl::isMinutesStringValid(const LLWString& wstr)
 void LLTimeCtrl::validateHours(const LLWString& wstr)
 {
 	U32 hours;
-	if (LLWStringUtil::convertToU32(wstr, hours) && (hours >= HOURS_MIN) && (hours <= HOURS_MAX))
+	std::string utf8time = wstring_to_utf8str(wstr);
+	if (LLStringUtil::convertToU32(utf8time, hours) && (hours >= HOURS_MIN) && (hours <= HOURS_MAX))
 	{
 		mHours = hours;
 	}
@@ -256,7 +259,8 @@ void LLTimeCtrl::validateHours(const LLWString& wstr)
 void LLTimeCtrl::validateMinutes(const LLWString& wstr)
 {
 	U32 minutes;
-	if (LLWStringUtil::convertToU32(wstr, minutes) && (minutes >= MINUTES_MIN) && (minutes <= MINUTES_MAX))
+	std::string utf8time = wstring_to_utf8str(wstr);
+	if (LLStringUtil::convertToU32(utf8time, minutes) && (minutes >= MINUTES_MIN) && (minutes <= MINUTES_MAX))
 	{
 		mMinutes = minutes;
 	}
