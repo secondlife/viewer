@@ -76,6 +76,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	S32 size = -1;
 	BOOL success;
 
+	mDP.assignBuffer(mBuffer, 0);
 	success = check_read(apr_file, &mLocalID, sizeof(U32));
 	if(success)
 	{
@@ -136,10 +137,11 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 
 LLVOCacheEntry::~LLVOCacheEntry()
 {
-	if(mBuffer)
+	if(mBuffer != mDP.getBuffer())
 	{
-		delete[] mBuffer;
+		delete[] mBuffer ; //just in case
 	}
+	mDP.freeBuffer();
 }
 
 
