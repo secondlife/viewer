@@ -499,6 +499,13 @@ private:
                 // 'array' as the value of this 'key'.
                 responses.insert(key, array);
             }
+            else if (xmlrpc_type_struct == type)
+            {
+                LLSD submap = parseValues(status_string,
+                                          STRINGIZE(key_pfx << key << ':'),
+                                          current);
+                responses.insert(key, submap);
+            }
             else
             {
                 // whoops - unrecognized type
