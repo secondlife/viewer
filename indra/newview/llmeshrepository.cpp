@@ -499,6 +499,27 @@ public:
 		llinfos << "completed" << llendl;
 		mThread->mPendingUploads--;
 		dumpLLSDToFile(content,"whole_model_response.xml");
+
+		mThread->mWholeModelUploadURL = content["uploader"]; 
+	}
+};
+
+class LLWholeModelUploadResponder: public LLCurl::Responder
+{
+	LLMeshUploadThread* mThread;
+public:
+	LLWholeModelUploadResponder(LLMeshUploadThread* thread):
+		mThread(thread)
+	{
+	}
+	virtual void completed(U32 status,
+						   const std::string& reason,
+						   const LLSD& content)
+	{
+		//assert_main_thread();
+		llinfos << "upload completed" << llendl;
+		mThread->mPendingUploads--;
+		dumpLLSDToFile(content,"whole_model_upload_response.xml");
 	}
 };
 
@@ -1263,7 +1284,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	
 	mUploadObjectAssetCapability = gAgent.getRegion()->getCapability("UploadObjectAsset");
 	mNewInventoryCapability = gAgent.getRegion()->getCapability("NewFileAgentInventoryVariablePrice");
-	mWholeModelUploadCapability = gAgent.getRegion()->getCapability("NewFileAgentInventory");
+	mWholeModelFeeCapability = gAgent.getRegion()->getCapability("NewFileAgentInventory");
 
 	mOrigin += gAgent.getAtAxis() * scale.magVec();
 }
@@ -1548,9 +1569,16 @@ void LLMeshUploadThread::doWholeModelUpload()
 
 	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
-	mCurlRequest->post(mWholeModelUploadCapability, headers, model_data,
+	mCurlRequest->post(mWholeModelFeeCapability, headers, model_data,
 					   new LLWholeModelFeeResponder(this));
 
+	do
+	{
+		mCurlRequest->process();
+	} while (mCurlRequest->getQueued() > 0);
+
+	mCurlRequest->post(mWholeModelUploadURL, headers, model_data["asset_resources"], new LLWholeModelUploadResponder(this));
+	
 	do
 	{
 		mCurlRequest->process();
