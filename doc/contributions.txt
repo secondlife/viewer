@@ -255,6 +255,8 @@ Dale Glass
 	VWR-2502
 	VWR-1358
 	VWR-2041
+Draconis Neurocam
+	STORM-1259
 Drew Dri
 	VWR-19683
 Drewan Keats
@@ -368,6 +370,7 @@ Ian Kas
 Ima Mechanique
 	OPEN-50
 	OPEN-61
+	STORM-1175
 Irene Muni
 	CT-324
 	CT-352
@@ -436,6 +439,7 @@ Jonathan Yap
 	STORM-956
 	STORM-1095
 	STORM-1236
+	STORM-1259
 Kage Pixel
 	VWR-11
 Ken March
@@ -453,6 +457,7 @@ Kitty Barnett
 	STORM-799
 	STORM-800
 	STORM-1001
+	STORM-1175
     VWR-24217
 Kunnis Basiat
 	VWR-82
