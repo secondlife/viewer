@@ -18,9 +18,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7c546f54f6ed654f713c778af3925dd4</string>
+              <string>930bdd987a321eda1838caba8cd6098f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226566/arch/Darwin/installer/glod-1.0pre4-darwin-20110413.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/230348/arch/Darwin/installer/glod-1.0pre4-darwin-20110519.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -30,9 +30,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>18c708163d2a669bc3c030b05b4ebe61</string>
+              <string>fb33b6cac2e6b98f93c5efa2af2e5a00</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226657/arch/Linux/installer/glod-1.0pre4-linux-20110414.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/230348/arch/Linux/installer/glod-1.0pre4-linux-20110519.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -42,9 +42,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c4ae6cddc04e0b2908a301726a53922c</string>
+              <string>388cf0e292f756b4bb37696622f0bbc5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/226194/arch/CYGWIN/installer/glod-1.0pre4-windows-20110408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/230348/arch/CYGWIN/installer/glod-1.0pre4-windows-20110519.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
