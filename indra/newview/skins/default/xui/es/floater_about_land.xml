@@ -82,7 +82,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				Calificación:
 			</text>
 			<text name="ContentRatingText">
-				&apos;Adult&apos;
+				Adulto
 			</text>
 			<text name="Owner:">
 				Propietario:
@@ -187,7 +187,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				Calificación:
 			</text>
 			<text name="region_maturity_text">
-				&apos;Adult&apos;
+				Adulto
 			</text>
 			<text name="resellable_lbl">
 				Revender:
@@ -288,16 +288,16 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Esta opción no esta activada porque usted no puede modificar las opciones de la parcela.
 			</panel.string>
 			<panel.string name="mature_check_mature">
-				Contenido &apos;Mature&apos;
+				Contenido Moderado
 			</panel.string>
 			<panel.string name="mature_check_adult">
-				Contenido &apos;Adult&apos;
+				Contenido Adulto
 			</panel.string>
 			<panel.string name="mature_check_mature_tooltip">
-				La información o el contenido de su parcela se considera &apos;Mature&apos;.
+				La información o el contenido de su parcela se considera Moderado.
 			</panel.string>
 			<panel.string name="mature_check_adult_tooltip">
-				La información o el contenido de su parcela se considera &apos;Adult&apos;.
+				La información o el contenido de su parcela se considera Adulto.
 			</panel.string>
 			<panel.string name="landing_point_none">
 				(ninguno)
@@ -337,7 +337,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			<combo_box name="land category with adult">
 				<combo_box.item label="Cualquier categoría" name="item0"/>
 				<combo_box.item label="Localización Linden" name="item1"/>
-				<combo_box.item label="&apos;Adult&apos;" name="item2"/>
+				<combo_box.item label="Adulto" name="item2"/>
 				<combo_box.item label="Arte y Cultura" name="item3"/>
 				<combo_box.item label="Negocios" name="item4"/>
 				<combo_box.item label="Educativo" name="item5"/>
@@ -365,7 +365,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				<combo_box.item label="Terreno en alquiler" name="item13"/>
 				<combo_box.item label="Otra" name="item12"/>
 			</combo_box>
-			<check_box label="Contenido &apos;Mature&apos;" name="MatureCheck" tool_tip=""/>
+			<check_box label="Contenido Moderado" name="MatureCheck" tool_tip=""/>
 			<text name="Snapshot:">
 				Foto:
 			</text>

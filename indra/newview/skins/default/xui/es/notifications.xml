@@ -1761,11 +1761,11 @@ Puedes pulsar &apos;Cambiar las Preferencias&apos; para incrementar las preferen
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="SetClassifiedMature">
-		¿Este anuncio tiene contenido &apos;Moderado&apos;?
+		¿Este anuncio tiene contenido moderado?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="SetGroupMature">
-		¿Este grupo tiene contenido &apos;Moderado&apos;?
+		¿Este grupo tiene contenido moderado?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification label="Confirmar el reinicio" name="ConfirmRestart">
@@ -2244,7 +2244,7 @@ Inténtalo seleccionando un trozo más pequeño de terreno.
 		Se han excluido algunos términos de tu búsqueda debido a restricciones en el contenido, según se especifica en las Normas de la Comunidad.
 	</notification>
 	<notification name="NoContentToSearch">
-		Por favor, elige al menos un tipo de contenido a buscar (&apos;PG&apos;, &apos;Mature&apos;, o &apos;Adult&apos;).
+		Por favor, elige al menos un tipo de contenido a buscar (General, Moderado o Adulto;).
 	</notification>
 	<notification name="SystemMessage">
 		[MESSAGE]
