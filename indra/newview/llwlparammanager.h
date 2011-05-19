@@ -238,6 +238,12 @@ public:
 	/// apply specified params
 	void applyUserPrefs(bool interpolate);
 
+	/// apply default sky params
+	void applyDefaults();
+
+	/// apply default sky params
+	void applyDayCycle(const std::string& day);
+
 	// get where the light is pointing
 	inline LLVector4 getLightDir(void) const;
 

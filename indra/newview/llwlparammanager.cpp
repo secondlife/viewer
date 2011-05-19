@@ -585,30 +585,35 @@ void LLWLParamManager::update(LLViewerCamera * cam)
 
 void LLWLParamManager::applyUserPrefs(bool interpolate)
 {
-	LL_DEBUGS("Windlight") << "Applying sky prefs" << LL_ENDL;
+	// Remove all region sky presets because they may belong to a previously visited region.
 	clearParamSetsOfScope(LLEnvKey::SCOPE_REGION);
 
 	if (LLEnvManagerNew::instance().getUseRegionSettings()) // apply region-wide settings
 	{
-		// *TODO: Support fixed sky from region.
-		LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
-
 		const LLEnvironmentSettings& region_settings = LLEnvManagerNew::instance().getRegionSettings();
 
-		addAllSkies(LLEnvKey::SCOPE_REGION, region_settings.getSkyMap());
-		mDay.loadDayCycle(region_settings.getWLDayCycle(), LLEnvKey::SCOPE_REGION);
-		LL_DEBUGS("Windlight") << "Applying region time: " << region_settings.getDayTime()
-			<< " = " << region_settings.getDayTime() * 24.0f << " h" << LL_ENDL;
-		resetAnimator(region_settings.getDayTime(), true);
+		if (region_settings.getSkyMap().size() == 0)
+		{
+			applyDefaults();
+		}
+		else
+		{
+			// *TODO: Support fixed sky from region.
+			LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
+
+			// Add all sky presets belonging to the current region.
+			addAllSkies(LLEnvKey::SCOPE_REGION, region_settings.getSkyMap());
+
+			// Apply region day cycle.
+			mDay.loadDayCycle(region_settings.getWLDayCycle(), LLEnvKey::SCOPE_REGION);
+			resetAnimator(region_settings.getDayTime(), true);
+		}
 	}
 	else // apply user-specified settings
 	{
 		if (LLEnvManagerNew::instance().getUseDayCycle())
 		{
-			std::string day_cycle = LLEnvManagerNew::instance().getDayCycleName();
-			LL_DEBUGS("Windlight") << "Applying day cycle [" << day_cycle << "]" << LL_ENDL;
-			mDay.loadDayCycleFromFile(day_cycle + ".xml");
-			resetAnimator(0.5, true); // set to noon and start animator
+			applyDayCycle(LLEnvManagerNew::instance().getDayCycleName());
 		}
 		else
 		{
@@ -618,6 +623,18 @@ void LLWLParamManager::applyUserPrefs(bool interpolate)
 			getParamSet(LLWLParamKey(sky, LLWLParamKey::SCOPE_LOCAL), mCurParams);
 		}
 	}
+}
+
+void LLWLParamManager::applyDefaults()
+{
+	applyDayCycle("Default");
+}
+
+void LLWLParamManager::applyDayCycle(const std::string& day_cycle)
+{
+	LL_DEBUGS("Windlight") << "Applying day cycle [" << day_cycle << "]" << LL_ENDL;
+	mDay.loadDayCycleFromFile(day_cycle + ".xml");
+	resetAnimator(0.5, true); // set to noon and start animator
 }
 
 void LLWLParamManager::resetAnimator(F32 curTime, bool run)

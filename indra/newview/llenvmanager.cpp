@@ -821,7 +821,7 @@ void LLEnvManagerNew::onRegionChange(bool interpolate)
 void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 {
 	// 1. Refresh cached region settings.
-	LL_DEBUGS("Windlight") << "Caching region environment settings" << LL_ENDL;
+	LL_DEBUGS("Windlight") << "Caching region environment settings: " << content << LL_ENDL;
 	F32 sun_hour = 0; // *TODO
 	LLEnvironmentSettings new_settings(content[1], content[2], content[3], sun_hour);
 	mCachedRegionPrefs = new_settings;

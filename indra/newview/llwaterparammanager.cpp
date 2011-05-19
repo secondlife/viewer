@@ -264,11 +264,27 @@ void LLWaterParamManager::applyUserPrefs(bool interpolate)
 	LLSD target_water_params;
 
 	// Determine new water settings based on user prefs.
+
+	{
+		// Fall back to default water.
+		LLWaterParamSet default_water;
+		getParamSet("Default", default_water);
+		target_water_params = default_water.getAll();
+	}
+
 	if (LLEnvManagerNew::instance().getUseRegionSettings())
 	{
 		// *TODO: make sure whether region settings belong to the current region?
-		LL_DEBUGS("Windlight") << "Applying region water" << LL_ENDL;
-		target_water_params = LLEnvManagerNew::instance().getRegionSettings().getWaterParams();
+		const LLSD& region_water_params = LLEnvManagerNew::instance().getRegionSettings().getWaterParams();
+		if (region_water_params.size() != 0) // region has no water settings
+		{
+			LL_DEBUGS("Windlight") << "Applying region water" << LL_ENDL;
+			target_water_params = region_water_params;
+		}
+		else
+		{
+			LL_DEBUGS("Windlight") << "Applying default water" << LL_ENDL;
+		}
 	}
 	else
 	{
@@ -280,7 +296,7 @@ void LLWaterParamManager::applyUserPrefs(bool interpolate)
 	}
 
 	// Apply them with or without interpolation.
-	if (target_water_params.isUndefined())
+	if (target_water_params.size() == 0)
 	{
 		llwarns << "Undefined target water params" << llendl;
 		return;
