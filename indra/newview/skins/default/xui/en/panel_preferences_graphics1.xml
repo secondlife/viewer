@@ -723,7 +723,7 @@
        follows="left|top"
        height="12"
        layout="topleft"
-       left="358"
+       left="388"
        left_pad="-30"
        name="TerrainDetailText"
         top="250"
@@ -735,7 +735,7 @@
        draw_border="false"
        height="38"
        layout="topleft"
-       left_delta="0"
+       left_delta="10"
        name="TerrainDetailRadio"
        top_pad="5"
        width="70">
