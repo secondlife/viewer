@@ -1427,6 +1427,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	S32 texture_num = 0;
 	
 	std::set<LLViewerTexture* > textures;
+	std::map<LLViewerTexture*,S32> texture_index;
 
 	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
 	{
@@ -1484,7 +1485,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		std::string str = ostr.str();
 		mesh_entry["mesh_data"] = LLSD::Binary(str.begin(),str.end()); 
 
-
 		// TODO how do textures in the list map to textures in the meshes?
 		if (mUploadTextures)
 		{
@@ -1492,20 +1492,24 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 			S32 face_num = 0;
 
-			for (std::vector<LLImportMaterial>::iterator material_iter = instance.mMaterial.begin();
-				material_iter != instance.mMaterial.end(); ++material_iter)
+			for (S32 face_num = 0; face_num < model->getNumVolumeFaces(); face_num++)
 			{
+				LLImportMaterial& material = instance.mMaterial[face_num];
 				LLSD face_entry = LLSD::emptyMap();
-
-
-				if (textures.find(material_iter->mDiffuseMap.get()) == textures.end())
+				
+				LLViewerFetchedTexture *texture = material.mDiffuseMap.get();
+				
+				if (texture != NULL)
 				{
-					textures.insert(material_iter->mDiffuseMap.get());
+					if (textures.find(texture) == textures.end())
+					{
+						textures.insert(texture);
+					}
 
 					std::stringstream ostr;
 					if (include_textures) // otherwise data is blank.
 					{
-						LLTextureUploadData data(material_iter->mDiffuseMap.get(), material_iter->mDiffuseMapLabel);
+						LLTextureUploadData data(texture, material.mDiffuseMapLabel);
 						if (!data.mTexture->isRawImageValid())
 						{
 							data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
@@ -1515,22 +1519,25 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 							LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
 						ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
 					}
-					LLSD texture_entry;
-					texture_entry["texture_data"] = ostr.str();
-					res["texture_list"][texture_num] = texture_entry;
-					face_entry["image"] = texture_num;
+
+					if (texture_index.find(texture) == texture_index.end())
+					{
+						texture_index[texture] = texture_num;
+						std::string str = ostr.str();
+						res["texture_list"][texture_num] = LLSD::Binary(str.begin(),str.end());
+						texture_num++;
+					}
+
+					face_entry["image"] = texture_index[texture];
 					face_entry["scales"] = 1.0;
 					face_entry["scalet"] = 1.0;
 					face_entry["offsets"] = 0.0;
 					face_entry["offsett"] = 0.0;
 					face_entry["imagerot"] = 0.0;
-
-					texture_num++;
 				}
-
 				mesh_entry["face_list"][face_num] = face_entry;
-				face_num++;
 			}
+
 		}
 
 		res["mesh_list"][mesh_num] = mesh_entry;
@@ -1593,9 +1600,9 @@ void LLMeshUploadThread::doWholeModelUpload()
 		apr_sleep(100);
 	}
 
-	bool do_include_textures = false; // not needed for initial cost/validation check.
 	LLSD model_data;
-	wholeModelToLLSD(model_data, do_include_textures);
+	wholeModelToLLSD(model_data,false);
+	dumpLLSDToFile(model_data,"whole_model_fee_request.xml");
 
 	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
@@ -1607,8 +1614,6 @@ void LLMeshUploadThread::doWholeModelUpload()
 		mCurlRequest->process();
 	} while (mCurlRequest->getQueued() > 0);
 
-	LLSD body = model_data["asset_resources"];
-	dumpLLSDToFile(body,"whole_model_body.xml");
 
 	if (mWholeModelUploadURL.empty())
 	{
@@ -1616,6 +1621,10 @@ void LLMeshUploadThread::doWholeModelUpload()
 	}
 	else
 	{
+		LLSD full_model_data;
+		wholeModelToLLSD(full_model_data, true);
+		LLSD body = full_model_data["asset_resources"];
+		dumpLLSDToFile(body,"whole_model_body.xml");
 		mCurlRequest->post(mWholeModelUploadURL, headers, body,
 						   new LLWholeModelUploadResponder(this, model_data));
 		do
