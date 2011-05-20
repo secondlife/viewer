@@ -2971,15 +2971,15 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	// per-prim costs
 	static const U32 ARC_PARTICLE_COST = 1; // determined experimentally
 	static const U32 ARC_PARTICLE_MAX = 2048; // default values
-	static const U32 ARC_TEXTURE_COST = 32; // multiplier for texture resolution - performance tested
+	static const U32 ARC_TEXTURE_COST = 16; // multiplier for texture resolution - performance tested
 
 	// per-prim multipliers
 	static const F32 ARC_GLOW_MULT = 1.5f; // tested based on performance
 	static const F32 ARC_BUMP_MULT = 1.25f; // tested based on performance
-	static const F32 ARC_FLEXI_MULT = 4;
+	static const F32 ARC_FLEXI_MULT = 5; // tested based on performance
 	static const F32 ARC_SHINY_MULT = 1.6f; // tested based on performance
 	static const F32 ARC_INVISI_COST = 1.2f; // tested based on performance
-	static const F32 ARC_WEIGHTED_MESH = 1.2f; 
+	static const F32 ARC_WEIGHTED_MESH = 1.2f; // tested based on performance
 
 	static const F32 ARC_PLANAR_COST = 1.0f; // tested based on performance to have negligible impact
 	static const F32 ARC_ANIM_TEX_COST = 1.4f; // 1.4x max
@@ -3069,7 +3069,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 				LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(sculpt_id);
 				if (texture)
 				{
-					S32 texture_cost = 512 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+					S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
 					textures.insert(texture_cost_t::value_type(sculpt_id, texture_cost));
 				}
 			}
@@ -3101,7 +3101,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		{
 			if (textures.find(img->getID()) == textures.end())
 			{
-				S32 texture_cost = 512 + (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f));
+				S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f));
 				textures.insert(texture_cost_t::value_type(img->getID(), texture_cost));
 			}
 		}
@@ -3143,8 +3143,8 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		}
 	}
 
-	// shame currently has the "base" cost of 1 point per 50 triangles, min 2.
-	shame = num_triangles / 50.f;
+	// shame currently has the "base" cost of 1 point per 15 triangles, min 2.
+	shame = num_triangles / 15.f;
 	shame = shame < 2.f ? 2.f : shame;
 
 	// factor in scale
