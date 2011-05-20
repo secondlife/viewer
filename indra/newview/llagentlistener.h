@@ -46,6 +46,7 @@ private:
 	void requestStand(LLSD const & event_data) const;
 	void resetAxes(const LLSD& event) const;
 	void getAxes(const LLSD& event) const;
+	void getGroups(const LLSD& event) const;
 
 private:
 	LLAgent & mAgent;

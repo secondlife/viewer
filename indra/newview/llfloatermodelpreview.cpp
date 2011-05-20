@@ -98,20 +98,20 @@
 #include "llvfile.h"
 #include "llvfs.h"
 #include "llcallbacklist.h"
-
+#include "llviewerobjectlist.h"
+#include "llanimationstates.h"
 #include "glod/glod.h"
 
 //static
 S32 LLFloaterModelPreview::sUploadAmount = 10;
 LLFloaterModelPreview* LLFloaterModelPreview::sInstance = NULL;
+std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
 
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
-
-const F32 MAXIMUM_PIVOT_OFFSET = 64.0f;
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
@@ -381,12 +381,6 @@ BOOL LLFloaterModelPreview::postBuild()
 LLFloaterModelPreview::~LLFloaterModelPreview()
 {
 	sInstance = NULL;
-	
-	if ( mModelPreview && mModelPreview->getResetJointFlag() )
-	{		
-		gAgentAvatarp->resetJointPositions();
-	}
-
 	
 	if ( mModelPreview )
 	{
@@ -1087,6 +1081,15 @@ LLModelLoader::LLModelLoader( std::string filename, S32 lod, LLModelPreview* pre
 	{
 		mTrySLM = false;
 	}
+
+	assert_main_thread();
+	sActiveLoaderList.push_back(this) ;
+}
+
+LLModelLoader::~LLModelLoader()
+{
+	assert_main_thread();
+	sActiveLoaderList.remove(this);
 }
 
 void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, BOOL& first_transform)
@@ -1550,14 +1553,14 @@ bool LLModelLoader::doLoadModel()
 						//(which means we have all the joints that are required for an avatar versus
 						//a skinned asset attached to a node in a file that contains an entire skeleton,
 						//but does not use the skeleton).						
-						
+						buildJointToNodeMappingFromScene( root );
 						mPreview->critiqueRigForUploadApplicability( model->mSkinInfo.mJointNames );
 										
 						if ( !missingSkeletonOrScene )
 						{
 							//Set the joint translations on the avatar - if it's a full mapping
 							//The joints are reset in the dtor
-							if ( mPreview->getResetJointFlag() )
+							if ( mPreview->getRigWithSceneParity() )
 							{	
 								std::map<std::string, std::string> :: const_iterator masterJointIt = mJointMap.begin();
 								std::map<std::string, std::string> :: const_iterator masterJointItEnd = mJointMap.end();
@@ -1569,7 +1572,7 @@ bool LLModelLoader::doLoadModel()
 									{
 										//llinfos<<"joint "<<lookingForJoint.c_str()<<llendl;
 										LLMatrix4 jointTransform = mJointList[lookingForJoint];
-										LLJoint* pJoint = gAgentAvatarp->getJoint( lookingForJoint );
+										LLJoint* pJoint = mPreview->getPreviewAvatar()->getJoint( lookingForJoint );
 										if ( pJoint )
 										{   
 											pJoint->storeCurrentXform( jointTransform.getTranslation() );												
@@ -1762,12 +1765,6 @@ bool LLModelLoader::doLoadModel()
 
 	processElement(scene);
 	
-	handlePivotPoint( root );
-
-	buildJointToNodeMappingFromScene( root );
-	
-	mPreview->critiqueJointToNodeMappingFromScene();
-
 	return true;
 }
 
@@ -1872,8 +1869,24 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 	return true;
 }
 
+//static
+bool LLModelLoader::isAlive(LLModelLoader* loader)
+{
+	if(!loader)
+	{
+		return false ;
+	}
+
+	std::list<LLModelLoader*>::iterator iter = sActiveLoaderList.begin() ;
+	for(; iter != sActiveLoaderList.end() && (*iter) != loader; ++iter) ;
+	
+	return *iter == loader ;
+}
+
 void LLModelLoader::loadModelCallback()
 {
+	assert_main_thread();
+
 	if (mPreview)
 	{
 		mPreview->loadModelCallback(mLod);	
@@ -1882,6 +1895,12 @@ void LLModelLoader::loadModelCallback()
 	while (!isStopped())
 	{ //wait until this thread is stopped before deleting self
 		apr_sleep(100);
+	}
+
+	//doubel check if "this" is valid before deleting it, in case it is aborted during running.
+	if(!isAlive(this))
+	{
+		return ;
 	}
 
 	//cleanup model loader
@@ -1935,55 +1954,14 @@ void LLModelLoader::processJointToNodeMapping( domNode* pNode )
 		}
 	}
 }
-//-----------------------------------------------------------------------------
-// handlePivotPoint()
-//-----------------------------------------------------------------------------
-void LLModelLoader::handlePivotPoint( daeElement* pRoot )
-{
-	//Import an optional pivot point - a pivot point is just a node in the visual scene named "AssetPivot"
-	//If no assetpivot is found then the asset will use the SL default
-	daeElement* pScene = pRoot->getDescendant("visual_scene");
-	if ( pScene )
-	{
-		daeTArray< daeSmartRef<daeElement> > children = pScene->getChildren();
-		S32 childCount = children.getCount();
-		for (S32 i = 0; i < childCount; ++i)
-		{
-			domNode* pNode = daeSafeCast<domNode>(children[i]);
-			if ( pNode && isNodeAPivotPoint( pNode ) )
-			{
-				LLMatrix4 workingTransform;
-				daeSIDResolver nodeResolver( pNode, "./translate" );
-				domTranslate* pTranslate = daeSafeCast<domTranslate>( nodeResolver.getElement() );
-				//Translation via SID was successful
-				//todo#extract via element as well
-				if ( pTranslate )
-				{
-					extractTranslation( pTranslate, workingTransform );
-					LLVector3 pivotTrans = workingTransform.getTranslation();
-					if ( pivotTrans[VX] > MAXIMUM_PIVOT_OFFSET || pivotTrans[VX] < -MAXIMUM_PIVOT_OFFSET || 
-						 pivotTrans[VY] > MAXIMUM_PIVOT_OFFSET || pivotTrans[VY] < -MAXIMUM_PIVOT_OFFSET || 
-						 pivotTrans[VZ] > MAXIMUM_PIVOT_OFFSET || pivotTrans[VZ] < -MAXIMUM_PIVOT_OFFSET ) 
-					{
-						llwarns<<"Asset Pivot Node contains an offset that is too large - values should be within (-"<<MAXIMUM_PIVOT_OFFSET<<","<<MAXIMUM_PIVOT_OFFSET<<")."<<llendl;
-						mPreview->setHasPivot( false );
-					}
-					else
-					{
-						mPreview->setModelPivot( pivotTrans );
-						mPreview->setHasPivot( true );					
-					}
-				}					
-			}
-		}
-	} 
-}
 
 //-----------------------------------------------------------------------------
 // critiqueRigForUploadApplicability()
 //-----------------------------------------------------------------------------
 void LLModelPreview::critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset )
 {
+	critiqueJointToNodeMappingFromScene();
+	
 	//Determines the following use cases for a rig:
 	//1. It is suitable for upload with skin weights & joint positions, or
 	//2. It is suitable for upload as standard av with just skin weights
@@ -2002,7 +1980,7 @@ void LLModelPreview::critiqueRigForUploadApplicability( const std::vector<std::s
 		setLegacyRigValid( true );
 	}
 
-	if ( isJointPositionUploadOK )
+	if ( getRigWithSceneParity() && isJointPositionUploadOK )
 	{
 		setResetJointFlag( true );
 	}
@@ -2046,12 +2024,11 @@ void LLModelPreview::critiqueJointToNodeMappingFromScene( void  )
 	if ( result )
 	{		
 		setResetJointFlag( true );
-		//llinfos<<"Full"<<llendl;
+		setRigWithSceneParity( true );
 	}
 	else
 	{
 		setResetJointFlag( false );
-		//llinfos<<"Partial"<<llendl;
 	}	
 }
 //-----------------------------------------------------------------------------
@@ -2176,27 +2153,7 @@ bool LLModelLoader::isNodeAJoint( domNode* pNode )
 
 	return false;
 }
-//-----------------------------------------------------------------------------
-// isNodeAPivotPoint()
-//-----------------------------------------------------------------------------
-bool LLModelLoader::isNodeAPivotPoint( domNode* pNode )
-{
-	bool result = false;
-	
-	if ( pNode && pNode->getName() )
-	{
-		std::string name = pNode->getName();
-		if ( name == "AssetPivot" )
-		{
-			result = true;
-		}
-		else
-		{
-			result = false;
-		}
-	}	
-	return result;
-}
+
 //-----------------------------------------------------------------------------
 // extractTranslation()
 //-----------------------------------------------------------------------------
@@ -2618,6 +2575,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 , mLegacyRigValid( false )
 , mRigValidJointUpload( false )
 , mResetJoints( false )
+, mRigParityWithScene( false )
 , mLastJointUpdate( false )
 {
 	mNeedsUpdate = TRUE;
@@ -2634,6 +2592,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mLoading = false;
 	mLoadState = LLModelLoader::STARTING;
 	mGroup = 0;
+	mLODFrozen = false;
 	mBuildShareTolerance = 0.f;
 	mBuildQueueMode = GLOD_QUEUE_GREEDY;
 	mBuildBorderMode = GLOD_BORDER_UNLOCK;
@@ -2642,6 +2601,13 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	for (U32 i = 0; i < LLModel::NUM_LODS; ++i)
 	{
 		mRequestedTriangleCount[i] = 0;
+		mRequestedCreaseAngle[i] = -1.f;
+		mRequestedLoDMode[i] = 0;
+		mRequestedErrorThreshold[i] = 0.f;
+		mRequestedBuildOperator[i] = 0;
+		mRequestedQueueMode[i] = 0;
+		mRequestedBorderMode[i] = 0;
+		mRequestedShareTolerance[i] = 0.f;
 	}
 
 	mViewOption["show_textures"] = false;
@@ -2686,6 +2652,8 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mMasterLegacyJointList.push_front("mHipLeft");
 	mMasterLegacyJointList.push_front("mKneeLeft");
 	mMasterLegacyJointList.push_front("mFootLeft");
+
+	createPreviewAvatar();
 }
 
 LLModelPreview::~LLModelPreview()
@@ -2693,7 +2661,7 @@ LLModelPreview::~LLModelPreview()
 	if (mModelLoader)
 	{
 		delete mModelLoader;
-		mModelLoader->mPreview = NULL;
+		mModelLoader = NULL;
 	}
 	//*HACK : *TODO : turn this back on when we understand why this crashes
 	//glodShutdown();
@@ -2739,7 +2707,7 @@ U32 LLModelPreview::calcResourceCost()
 	
 	if ( mFMP && mFMP->childGetValue("upload_joints").asBoolean() )
 	{
-		gAgentAvatarp->setPelvisOffset( mPelvisZOffset );
+		getPreviewAvatar()->setPelvisOffset( mPelvisZOffset );
 	}
 
 	F32 streaming_cost = 0.f;
@@ -2822,27 +2790,6 @@ void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, 
 	childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 }
 
-void LLModelPreview::alterModelsPivot( void )
-{
-	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
-	{
-		if ( *iter )
-		{
-			(*iter)->offsetMesh( mModelPivot );
-		}
-	}
-	
-	for ( int i=0;i<LLModel::NUM_LODS;++i )
-	{
-		for (LLModelLoader::model_list::iterator iter = mModel[i].begin(); iter != mModel[i].end(); ++iter)
-		{
-			if ( *iter )
-			{
-				(*iter)->offsetMesh( mModelPivot );
-			}
-		}
-	}
-}
 
 void LLModelPreview::rebuildUploadData()
 {
@@ -3305,6 +3252,8 @@ void LLModelPreview::generateNormals()
 
 	F32 angle_cutoff = mFMP->childGetValue("crease_angle").asReal();
 
+	mRequestedCreaseAngle[which_lod] = angle_cutoff;
+
 	angle_cutoff *= DEG_TO_RAD;
 
 	if (which_lod == 3 && !mBaseModel.empty())
@@ -3324,7 +3273,7 @@ void LLModelPreview::generateNormals()
 
 	mVertexBuffer[which_lod].clear();
 	refresh();
-
+	updateStatusMessages();
 }
 
 void LLModelPreview::clearMaterials()
@@ -3400,6 +3349,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		lod_mode = iface->getFirstSelectedIndex();
 	}
+	mRequestedLoDMode[mPreviewLOD] = lod_mode;
 
 	F32 lod_error_threshold = mFMP->childGetValue("lod_error_threshold").asReal();
 
@@ -3423,6 +3373,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		build_operator = iface->getFirstSelectedIndex();
 	}
+	mRequestedBuildOperator[mPreviewLOD] = build_operator; 
 
 	if (build_operator == 0)
 	{
@@ -3439,6 +3390,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		queue_mode = iface->getFirstSelectedIndex();
 	}
+	mRequestedQueueMode[mPreviewLOD] = queue_mode;
 
 	if (queue_mode == 0)
 	{
@@ -3460,6 +3412,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		border_mode = iface->getFirstSelectedIndex();
 	}
+	mRequestedBorderMode[mPreviewLOD] = border_mode;
 
 	if (border_mode == 0)
 	{
@@ -3495,6 +3448,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		mBuildShareTolerance = share_tolerance;
 		object_dirty = true;
 	}
+	mRequestedShareTolerance[mPreviewLOD] = share_tolerance;
 
 	if (mGroup == 0)
 	{
@@ -3603,6 +3557,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		U32 submeshes = 0;
 
 		mRequestedTriangleCount[lod] = triangle_count;
+		mRequestedErrorThreshold[lod] = lod_error_threshold;
 
 		glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
 		stop_gloderror();
@@ -3613,21 +3568,19 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		glodGroupParameterf(mGroup, GLOD_OBJECT_SPACE_ERROR_THRESHOLD, lod_error_threshold);
 		stop_gloderror();
 
-		glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, 0);
-		stop_gloderror();
-
-		glodAdaptGroup(mGroup);
-		stop_gloderror();
-
-		if (lod_mode == GLOD_TRIANGLE_BUDGET)
-		{ //SH-632 Always adapt to 0 before adapting to actual desired amount, and always
-			//add 1 to desired amount to avoid decimating below desired amount
-			glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, triangle_count+1);
-			stop_gloderror();
-
-			glodAdaptGroup(mGroup);
-			stop_gloderror();
+		if (lod_mode != GLOD_TRIANGLE_BUDGET)
+		{ 			
+			glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, 0);
 		}
+		else
+		{
+			//SH-632: always add 1 to desired amount to avoid decimating below desired amount
+			glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, triangle_count+1);
+		}
+			
+		stop_gloderror();
+		glodAdaptGroup(mGroup);
+		stop_gloderror();		
 
 		for (U32 mdl_idx = 0; mdl_idx < mBaseModel.size(); ++mdl_idx)
 		{
@@ -3892,6 +3845,18 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
+
+	//make sure no hulls have more than 256 points in them
+	for (U32 i = 0; upload_ok && i < mModel[LLModel::LOD_PHYSICS].size(); ++i)
+	{
+		LLModel* mdl = mModel[LLModel::LOD_PHYSICS][i];
+
+		for (U32 j = 0; upload_ok && j < mdl->mPhysics.mHull.size(); ++j)
+		{
+			upload_ok = upload_ok && mdl->mPhysics.mHull[i].size() <= 256;
+		}
+	}
+
 	bool errorStateFromLoader = getLoadState() >= LLModelLoader::ERROR_PARSING ? true : false;
 
 	bool skinAndRigOk = true;
@@ -3914,6 +3879,10 @@ void LLModelPreview::updateStatusMessages()
 	if ( upload_ok && !errorStateFromLoader && skinAndRigOk )
 	{
 		mFMP->childEnable("ok_btn");
+	}
+	else
+	{
+		mFMP->childDisable("ok_btn");
 	}
 	
 	//add up physics triangles etc
@@ -4081,6 +4050,9 @@ void LLModelPreview::updateStatusMessages()
 		{	// auto generate, also the default case for wizard which has no radio selection
 			fmp->mLODMode[mPreviewLOD] = 1;
 
+			//don't actually regenerate lod when refreshing UI
+			mLODFrozen = true;
+
 			for (U32 i = 0; i < num_file_controls; ++i)
 			{
 				mFMP->childDisable(file_controls[i]);
@@ -4093,20 +4065,21 @@ void LLModelPreview::updateStatusMessages()
 
 			//if (threshold)
 			{	
-				U32 lod_mode = 0;
-				LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode");
-				if (iface)
-				{
-					lod_mode = iface->getFirstSelectedIndex();
-				}
-
 				LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold");
 				LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit");
 
 				limit->setMaxValue(mMaxTriangleLimit);
-				limit->setValue(mRequestedTriangleCount[mPreviewLOD]);
+				limit->forceSetValue(mRequestedTriangleCount[mPreviewLOD]);
 
-				if (lod_mode == 0)
+				threshold->forceSetValue(mRequestedErrorThreshold[mPreviewLOD]);
+
+				mFMP->getChild<LLComboBox>("lod_mode")->selectNthItem(mRequestedLoDMode[mPreviewLOD]);
+				mFMP->getChild<LLComboBox>("build_operator")->selectNthItem(mRequestedBuildOperator[mPreviewLOD]);
+				mFMP->getChild<LLComboBox>("queue_mode")->selectNthItem(mRequestedQueueMode[mPreviewLOD]);
+				mFMP->getChild<LLComboBox>("border_mode")->selectNthItem(mRequestedBorderMode[mPreviewLOD]);
+				mFMP->getChild<LLSpinCtrl>("share_tolerance")->setValue(mRequestedShareTolerance[mPreviewLOD]);
+
+				if (mRequestedLoDMode[mPreviewLOD] == 0)
 				{
 					limit->setVisible(true);
 					threshold->setVisible(false);
@@ -4120,6 +4093,8 @@ void LLModelPreview::updateStatusMessages()
 					threshold->setVisible(true);
 				}
 			}
+
+			mLODFrozen = false;
 		}
 	}
 
@@ -4135,6 +4110,20 @@ void LLModelPreview::updateStatusMessages()
 		mFMP->childDisable("physics_file");
 		mFMP->childDisable("physics_browse");
 	}
+
+	LLSpinCtrl* crease = mFMP->getChild<LLSpinCtrl>("crease_angle");
+	
+	if (mRequestedCreaseAngle[mPreviewLOD] == -1.f)
+	{
+		mFMP->childSetColor("crease_label", LLColor4::grey);
+		crease->forceSetValue(75.f);
+	}
+	else
+	{
+		mFMP->childSetColor("crease_label", LLColor4::white);
+		crease->forceSetValue(mRequestedCreaseAngle[mPreviewLOD]);
+	}
+
 }
 
 void LLModelPreview::setPreviewTarget(F32 distance)
@@ -4301,42 +4290,6 @@ void LLModelPreview::update()
 
 }
 //-----------------------------------------------------------------------------
-// changeAvatarsJointPositions()
-//-----------------------------------------------------------------------------
-void LLModelPreview::changeAvatarsJointPositions( LLModel* pModel )
-{
-	if ( mMasterJointList.empty() )
-	{
-		return;
-	}
-
-	std::vector<std::string> :: const_iterator jointListItBegin = pModel->mSkinInfo.mJointNames.begin();
-	std::vector<std::string> :: const_iterator jointListItEnd = pModel->mSkinInfo.mJointNames.end();
-
-	S32 index = 0;
-	for ( ; jointListItBegin!=jointListItEnd; ++jointListItBegin, ++index )
-	{	
-		std::string elem = *jointListItBegin;
-		//llinfos<<"joint "<<elem<<llendl;
-
-		S32 matrixCnt = pModel->mSkinInfo.mAlternateBindMatrix.size();
-		if ( matrixCnt < 1 )
-		{
-			llinfos<<"Total WTF moment :"<<matrixCnt<<llendl;
-		}
-		else
-		{
-			LLMatrix4 jointTransform = pModel->mSkinInfo.mAlternateBindMatrix[index];
-
-			LLJoint* pJoint = gAgentAvatarp->getJoint( elem );
-			if ( pJoint )
-			{   
-				pJoint->storeCurrentXform( jointTransform.getTranslation() );												
-			}	
-		}
-	}
-}
-//-----------------------------------------------------------------------------
 // getTranslationForJointOffset()
 //-----------------------------------------------------------------------------
 LLVector3 LLModelPreview::getTranslationForJointOffset( std::string joint )
@@ -4349,6 +4302,30 @@ LLVector3 LLModelPreview::getTranslationForJointOffset( std::string joint )
 	}
 	return LLVector3(0.0f,0.0f,0.0f);								
 }
+//-----------------------------------------------------------------------------
+// createPreviewAvatar
+//-----------------------------------------------------------------------------
+void LLModelPreview::createPreviewAvatar( void )
+{
+	mPreviewAvatar = (LLVOAvatar*)gObjectList.createObjectViewer( LL_PCODE_LEGACY_AVATAR, gAgent.getRegion() );
+	if ( mPreviewAvatar )
+	{
+		mPreviewAvatar->createDrawable( &gPipeline );
+		mPreviewAvatar->mIsDummy = TRUE;
+		mPreviewAvatar->mSpecialRenderMode = 1;
+		mPreviewAvatar->setPositionAgent( LLVector3::zero );
+		mPreviewAvatar->slamPosition();
+		mPreviewAvatar->updateJointLODs();
+		mPreviewAvatar->updateGeometry( mPreviewAvatar->mDrawable );
+		mPreviewAvatar->startMotion( ANIM_AGENT_STAND );
+		mPreviewAvatar->hideSkirt();
+	}
+	else
+	{
+		llinfos<<"Failed to create preview avatar for upload model window"<<llendl;
+	}
+}
+
 //-----------------------------------------------------------------------------
 // render()
 //-----------------------------------------------------------------------------
@@ -4463,25 +4440,6 @@ BOOL LLModelPreview::render()
 	
 	mFMP->childSetEnabled("upload_joints", upload_skin);
 
-	//poke at avatar when we upload custom joints
-	/*	
-	if ( upload_joints )
-	{
-		for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
-		{
-			for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
-			{
-				LLModelInstance& instance = *model_iter;
-				LLModel* model = instance.mModel;
-				if ( !model->mSkinWeights.empty() )
-				{
-					changeAvatarsJointPositions( model );
-				}
-			}
-		}
-	}
-	*/
-	
 	F32 explode = mFMP->childGetValue("physics_explode").asReal();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -4501,7 +4459,7 @@ BOOL LLModelPreview::render()
 
 	if (skin_weight)
 	{
-		target_pos = gAgentAvatarp->getPositionAgent();
+		target_pos = getPreviewAvatar()->getPositionAgent();
 		z_near = 0.01f;
 		z_far = 1024.f;
 		mCameraDistance = 16.f;
@@ -4721,8 +4679,7 @@ BOOL LLModelPreview::render()
 		}
 		else
 		{
-			LLVOAvatarSelf* avatar = gAgentAvatarp;
-			target_pos = avatar->getPositionAgent();
+			target_pos = getPreviewAvatar()->getPositionAgent();
 
 			LLViewerCamera::getInstance()->setOriginAndLookAt(
 															  target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + offset) * av_rot),		// camera
@@ -4731,7 +4688,7 @@ BOOL LLModelPreview::render()
 
 			if (joint_positions)
 			{
-				avatar->renderCollisionVolumes();
+				getPreviewAvatar()->renderCollisionVolumes();
 			}
 
 			for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
@@ -4762,7 +4719,7 @@ BOOL LLModelPreview::render()
 							LLMatrix4 mat[64];
 							for (U32 j = 0; j < model->mSkinInfo.mJointNames.size(); ++j)
 							{
-								LLJoint* joint = avatar->getJoint(model->mSkinInfo.mJointNames[j]);
+								LLJoint* joint = getPreviewAvatar()->getJoint(model->mSkinInfo.mJointNames[j]);
 								if (joint)
 								{
 									mat[j] = model->mSkinInfo.mInvBindMatrix[j];
@@ -4943,11 +4900,6 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 
 	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
 
-	if ( mp && mp->mModelPreview->mHasPivot )
-	{
-		mp->mModelPreview->alterModelsPivot();
-	}
-	
 	mp->mModelPreview->rebuildUploadData();
 
 	bool upload_skinweights = mp->childGetValue("upload_skin").asBoolean();
@@ -4990,9 +4942,12 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 
 void LLModelPreview::onLODParamCommit(bool enforce_tri_limit)
 {
-	genLODs(mPreviewLOD, 3, enforce_tri_limit);
-	updateStatusMessages();
-	refresh();
+	if (!mLODFrozen)
+	{
+		genLODs(mPreviewLOD, 3, enforce_tri_limit);
+		updateStatusMessages();
+		refresh();
+	}
 }
 
 LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LLModel* mdl)

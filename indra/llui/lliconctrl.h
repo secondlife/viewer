@@ -30,6 +30,7 @@
 #include "lluuid.h"
 #include "v4color.h"
 #include "lluictrl.h"
+#include "lluiimage.h"
 #include "stdenums.h"
 
 class LLTextBox;

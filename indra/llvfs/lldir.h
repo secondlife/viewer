@@ -75,31 +75,6 @@ class LLDir
 // pure virtual functions
 	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask) = 0;
 
-    /// Walk the files in a directory, with file pattern matching
-	virtual BOOL getNextFileInDir(const std::string& dirname, ///< directory path - must end in trailing slash!
-                                  const std::string& mask,    ///< file pattern string (use "*" for all)
-                                  std::string& fname          ///< output: found file name
-                                  ) = 0;
-    /**<
-     * @returns true if a file was found, false if the entire directory has been scanned.
-     *
-     * @note that this function is NOT thread safe
-     *
-     * This function may not be used to scan part of a directory, then start a new search of a different
-     * directory, and then restart the first search where it left off; the entire search must run to
-     * completion or be abandoned - there is no restart.
-     *
-     * @bug: See http://jira.secondlife.com/browse/VWR-23697
-     *       and/or the tests in test/lldir_test.cpp
-     *       This is known to fail with patterns that have both:
-     *       a wildcard left of a . and more than one sequential ? right of a .
-     *       the pattern foo.??x appears to work
-     *       but *.??x or foo?.??x do not
-     *
-     * @todo this really should be rewritten as an iterator object, and the
-     *       filtering should be done in a platform-independent way.
-     */
-
 	virtual std::string getCurPath() = 0;
 	virtual BOOL fileExists(const std::string &filename) const = 0;
 

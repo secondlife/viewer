@@ -40,6 +40,7 @@
 #include "v4math.h"
 #include "llplane.h"
 #include "llgltypes.h"
+#include "llinstancetracker.h"
 
 #include "llglheaders.h"
 #include "glh/glh_linear.h"
@@ -90,6 +91,7 @@ public:
 	BOOL mHasShaderObjects;
 	BOOL mHasVertexShader;
 	BOOL mHasFragmentShader;
+	S32  mNumTextureImageUnits;
 	BOOL mHasOcclusionQuery;
 	BOOL mHasOcclusionQuery2;
 	BOOL mHasPointParameters;
@@ -332,9 +334,11 @@ public:
 	Generic pooling scheme for things which use GL names (used for occlusion queries and vertex buffer objects).
 	Prevents thrashing of GL name caches by avoiding calls to glGenFoo and glDeleteFoo.
 */
-class LLGLNamePool
+class LLGLNamePool : public LLInstanceTracker<LLGLNamePool>
 {
 public:
+	typedef LLInstanceTracker<LLGLNamePool> tracker_t;
+
 	struct NameEntry
 	{
 		GLuint name;
@@ -361,13 +365,11 @@ public:
 	GLuint allocate();
 	void release(GLuint name);
 	
-	static void registerPool(LLGLNamePool* pool);
 	static void upkeepPools();
 	static void cleanupPools();
 
 protected:
 	typedef std::vector<LLGLNamePool*> pool_list_t;
-	static pool_list_t sInstances;
 	
 	virtual GLuint allocateName() = 0;
 	virtual void releaseName(GLuint name) = 0;

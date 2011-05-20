@@ -31,6 +31,7 @@
 #include "v3dmath.h"
 
 class LLEventNotification;
+class LLMessageSystem;
 
 
 class LLEventNotifier

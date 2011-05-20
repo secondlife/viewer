@@ -57,11 +57,11 @@ void dofSampleNear(inout vec4 diff, inout float w, float cur_sc, vec2 tc)
 	
 	float sc = calc_cof(d);
 	
-	float wg = 1.0;
+	float wg = 0.25;
 		
 	vec4 s = texture2DRect(diffuseRect, tc);
 	// de-weight dull areas to make highlights 'pop'
-	wg *= s.r+s.g+s.b;
+	wg += s.r+s.g+s.b;
 	
 	diff += wg*s;
 	
@@ -77,11 +77,11 @@ void dofSample(inout vec4 diff, inout float w, float min_sc, float cur_depth, ve
 	if (sc > min_sc //sampled pixel is more "out of focus" than current sample radius
 	   || d < cur_depth) //sampled pixel is further away than current pixel
 	{
-		float wg = 1.0;
+		float wg = 0.25;
 		
 		vec4 s = texture2DRect(diffuseRect, tc);
 		// de-weight dull areas to make highlights 'pop'
-		wg *= s.r+s.g+s.b;
+		wg += s.r+s.g+s.b;
 	
 		diff += wg*s;
 		

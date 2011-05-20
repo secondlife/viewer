@@ -1742,8 +1742,6 @@ LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 
 	mSlopRatio = 0.25f;
 	mInfiniteFarClip = FALSE;
 
-	LLGLNamePool::registerPool(&sQueryPool);
-
 	LLVector4a center, size;
 	center.splat(0.f);
 	size.splat(1.f);
@@ -3169,11 +3167,11 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 					LLConvexDecomposition::getInstance()->generateSingleHullMeshFromMesh( &mesh, &res );
 
 					//copy res into phys_volume
-					phys_volume->mHullPoints = (LLVector4a*) malloc(sizeof(LLVector4a)*res.mNumVertices);
+					phys_volume->mHullPoints = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*res.mNumVertices);
 					phys_volume->mNumHullPoints = res.mNumVertices;
 
 					S32 idx_size = (res.mNumTriangles*3*2+0xF) & ~0xF;
-					phys_volume->mHullIndices = (U16*) malloc(idx_size);
+					phys_volume->mHullIndices = (U16*) ll_aligned_malloc_16(idx_size);
 					phys_volume->mNumHullIndices = res.mNumTriangles*3;
 
 					const F32* v = res.mVertexBase;

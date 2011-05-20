@@ -80,7 +80,7 @@ public:
 	BOOL mFirstTransform;
 	LLVector3 mExtents[2];
 	bool mTrySLM;
-
+	
 	std::map<daeElement*, LLPointer<LLModel> > mModel;
 	
 	typedef std::vector<LLPointer<LLModel> > model_list;
@@ -99,6 +99,8 @@ public:
 
 	LLModelLoader( std::string filename, S32 lod, LLModelPreview* preview, JointTransformMap& jointMap, 
 				   std::deque<std::string>& jointsFromNodes );
+	~LLModelLoader() ;
+
 	virtual void run();
 	bool doLoadModel();
 	bool loadFromSLM(const std::string& filename);
@@ -118,9 +120,6 @@ public:
 	void extractTranslation( domTranslate* pTranslate, LLMatrix4& transform );
 	void extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform );
 	
-	void handlePivotPoint( daeElement* pRoot );
-	bool isNodeAPivotPoint( domNode* pNode );
-	
 	void setLoadState(U32 state);
 
 	void buildJointToNodeMappingFromScene( daeElement* pRoot );
@@ -131,6 +130,10 @@ public:
 	std::map<std::string, std::string> mJointMap;
 	JointTransformMap& mJointList;	
 	std::deque<std::string>& mJointsFromNode;
+
+private:
+	static std::list<LLModelLoader*> sActiveLoaderList;
+	static bool isAlive(LLModelLoader* loader) ;
 };
 
 class LLFloaterModelPreview : public LLFloater
@@ -292,7 +295,6 @@ public:
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
-	void alterModelsPivot( void );
 	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();
@@ -331,11 +333,16 @@ public:
 	
 	void setLoadState( U32 state ) { mLoadState = state; }
 	U32 getLoadState() { return mLoadState; }
-		
-	void setResetJointFlag( bool state ) { mResetJoints = state; }
-	bool getResetJointFlag( void ) { return mResetJoints; }
-
+	//setRestJointFlag: If an asset comes through that changes the joints, we want the reset to persist
+	void setResetJointFlag( bool state ) { if ( !mResetJoints ) mResetJoints = state; }
+	const bool getResetJointFlag( void ) const { return mResetJoints; }
+	void setRigWithSceneParity( bool state ) { mRigParityWithScene = state; }
+	const bool getRigWithSceneParity( void ) const { return mRigParityWithScene; }
+	
 	LLVector3 getTranslationForJointOffset( std::string joint );
+
+	void		createPreviewAvatar( void );
+	LLVOAvatar* getPreviewAvatar( void ) { return mPreviewAvatar; }
 
  protected:
 	friend class LLModelLoader;
@@ -364,16 +371,25 @@ public:
 	bool		mLoading;
 	U32			mLoadState;
 	bool		mResetJoints;
+	bool		mRigParityWithScene;
+	
 	std::map<std::string, bool> mViewOption;
 
 	//GLOD object parameters (must rebuild object if these change)
+	bool mLODFrozen;
 	F32 mBuildShareTolerance;
 	U32 mBuildQueueMode;
 	U32 mBuildOperator;
 	U32 mBuildBorderMode;
+	U32 mRequestedLoDMode[LLModel::NUM_LODS];
 	S32 mRequestedTriangleCount[LLModel::NUM_LODS];
+	F32 mRequestedErrorThreshold[LLModel::NUM_LODS];
+	U32 mRequestedBuildOperator[LLModel::NUM_LODS];
+	U32 mRequestedQueueMode[LLModel::NUM_LODS];
+	U32 mRequestedBorderMode[LLModel::NUM_LODS];
+	F32 mRequestedShareTolerance[LLModel::NUM_LODS];
+	F32 mRequestedCreaseAngle[LLModel::NUM_LODS];
 
-	
 	LLModelLoader* mModelLoader;
 
 	LLModelLoader::scene mScene[LLModel::NUM_LODS];
@@ -409,6 +425,7 @@ public:
 	std::deque<std::string> mMasterLegacyJointList;
 	std::deque<std::string> mJointsFromNode;
 	JointTransformMap		mJointTransformMap;
+	LLPointer<LLVOAvatar>	mPreviewAvatar;
 };
 
 #endif  // LL_LLFLOATERMODELPREVIEW_H

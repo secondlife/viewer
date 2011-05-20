@@ -31,6 +31,7 @@
 #include "llview.h"
 #include "llmutelist.h"
 #include "llspeakingindicatormanager.h"
+#include "lluiimage.h"
 
 class LLTextBox;
 class LLUICtrlFactory;

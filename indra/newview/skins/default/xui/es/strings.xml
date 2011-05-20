@@ -724,13 +724,13 @@
 		Controlar su cámara
 	</string>
 	<string name="SIM_ACCESS_PG">
-		&apos;PG&apos;
+		General
 	</string>
 	<string name="SIM_ACCESS_MATURE">
-		&apos;Mature&apos;
+		Moderado
 	</string>
 	<string name="SIM_ACCESS_ADULT">
-		&apos;Adult&apos;
+		Adulto
 	</string>
 	<string name="SIM_ACCESS_DOWN">
 		Desconectado
@@ -1916,7 +1916,7 @@ Se esperaba .wav, .tga, .bmp, .jpg, .jpeg, o .bvh
 		Localización Linden
 	</string>
 	<string name="Adult">
-		&apos;Adult&apos;
+		Adulto
 	</string>
 	<string name="Arts&amp;Culture">
 		Arte y Cultura
@@ -3587,6 +3587,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="conference-title-incoming">
 		Conferencia con [AGENT_NAME]
+	</string>
+	<string name="inventory_item_offered-im">
+		Ofrecido el item del inventario
 	</string>
 	<string name="no_session_message">
 		(La sesión de MI no existe)

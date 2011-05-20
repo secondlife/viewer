@@ -32,19 +32,23 @@ build_dir_CYGWIN()
 
 installer_Darwin()
 {
-  ls -1td "$(build_dir_Darwin Release)/newview/"*.dmg 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Darwin ${last_built_variant:-Release})/newview/"*.dmg 2>/dev/null | sed 1q
 }
 
 installer_Linux()
 {
-  ls -1td "$(build_dir_Linux Release)/newview/"*.tar.bz2 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Linux ${last_built_variant:-Release})/newview/"*.tar.bz2 2>/dev/null | sed 1q
 }
 
 installer_CYGWIN()
 {
-  d=$(build_dir_CYGWIN Release)
-  p=$(sed 's:.*=::' "$d/newview/Release/touched.bat")
-  echo "$d/newview/Release/$p"
+  v=${last_built_variant:-Release}
+  d=$(build_dir_CYGWIN $v)
+  if [ -r "$d/newview/$v/touched.bat" ]
+  then
+    p=$(sed 's:.*=::' "$d/newview/$v/touched.bat")
+    echo "$d/newview/$v/$p"
+  fi
 }
 
 pre_build()
@@ -58,7 +62,6 @@ pre_build()
     "$AUTOBUILD" configure -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
-     -DUSE_PRECOMPILED_HEADERS=FALSE \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
      -DVIEWER_LOGIN_CHANNEL:STRING="\"$viewer_login_channel\"" \
      -DGRID:STRING="\"$viewer_grid\"" \
@@ -125,6 +128,7 @@ if test -f scripts/update_version_files.py ; then
                 --verbose \
          | sed -n -e "s,Setting viewer channel/version: '\([^']*\)' / '\([^']*\)',VIEWER_CHANNEL='\1';VIEWER_VERSION='\2',p")\
   || fail update_version_files.py
+  echo "{\"Type\":\"viewer\",\"Version\":\"${VIEWER_VERSION}\"}" > summary.json
   end_section UpdateVer
 fi
 
@@ -262,9 +266,7 @@ then
     else
       upload_item installer "$package" binary/octet-stream
       upload_item quicklink "$package" binary/octet-stream
-
-      echo "{\"Type\":\"viewer\",\"Version\":\"${VIEWER_VERSION}\"}" > summary.json
-      upload_item installer summary.json text/plain
+      [ -f summary.json ] && upload_item installer summary.json text/plain
 
       # Upload crash reporter files.
       case "$last_built_variant" in

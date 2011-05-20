@@ -88,7 +88,7 @@ void LLStyle::setVisible(BOOL is_visible)
 	mVisible = is_visible;
 }
 
-LLUIImagePtr LLStyle::getImage() const
+LLPointer<LLUIImage> LLStyle::getImage() const
 {
 	return mImagep;
 }

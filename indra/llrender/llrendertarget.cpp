@@ -44,6 +44,7 @@ void check_framebuffer_status()
 		case GL_FRAMEBUFFER_COMPLETE:
 			break;
 		default:
+			llwarns << "check_framebuffer_status failed -- " << std::hex << status << llendl;
 			ll_fail("check_framebuffer_status failed");	
 			break;
 		}

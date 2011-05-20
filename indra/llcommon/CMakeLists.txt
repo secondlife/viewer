@@ -7,7 +7,6 @@ include(00-Common)
 include(LLCommon)
 include(Linking)
 include(Boost)
-include(Pth)
 include(LLSharedLibs)
 include(GoogleBreakpad)
 include(GooglePerfTools)
@@ -18,7 +17,6 @@ include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
-    ${PTH_INCLUDE_DIRS}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -117,6 +115,7 @@ set(llcommon_HEADER_FILES
     indra_constants.h
     linden_common.h
     linked_lists.h
+    llaccountingquota.h
     llallocator.h
     llallocator_heap_profile.h
     llagentconstants.h
@@ -268,6 +267,10 @@ if(LLCOMMON_LINK_SHARED)
       add_definitions(-fPIC)
     endif(WINDOWS)
   endif(NOT WORD_SIZE EQUAL 32)
+  if(WINDOWS)
+    # always generate llcommon.pdb, even for "Release" builds
+    set_target_properties(llcommon PROPERTIES LINK_FLAGS "/DEBUG")
+  endif(WINDOWS)
   ll_stage_sharedlib(llcommon)
 else(LLCOMMON_LINK_SHARED)
     add_library (llcommon ${llcommon_SOURCE_FILES})
@@ -283,9 +286,14 @@ target_link_libraries(
     ${WINDOWS_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
-    ${PTH_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
+
+if (DARWIN)
+  include(CMakeFindFrameworks)
+  find_library(CARBON_LIBRARY Carbon)
+  target_link_libraries(llcommon ${CARBON_LIBRARY})
+endif (DARWIN)
 
 add_dependencies(llcommon stage_third_party_libs)
 

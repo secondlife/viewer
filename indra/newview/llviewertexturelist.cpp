@@ -76,18 +76,23 @@ LLStat LLViewerTextureList::sFormattedMemStat(32, TRUE);
 LLViewerTextureList gTextureList;
 static LLFastTimer::DeclareTimer FTM_PROCESS_IMAGES("Process Images");
 
+U32 LLViewerTextureList::sRenderThreadID = 0 ;
 ///////////////////////////////////////////////////////////////////////////////
 
 LLViewerTextureList::LLViewerTextureList() 
 	: mForceResetTextureStats(FALSE),
 	mUpdateStats(FALSE),
 	mMaxResidentTexMemInMegaBytes(0),
-	mMaxTotalTextureMemInMegaBytes(0)
+	mMaxTotalTextureMemInMegaBytes(0),
+	mInitialized(FALSE)
 {
 }
 
 void LLViewerTextureList::init()
 {
+	sRenderThreadID = LLThread::currentID() ;
+
+	mInitialized = TRUE ;
 	sNumImages = 0;
 	mMaxResidentTexMemInMegaBytes = 0;
 	mMaxTotalTextureMemInMegaBytes = 0 ;
@@ -105,6 +110,10 @@ void LLViewerTextureList::doPreloadImages()
 {
 	LL_DEBUGS("ViewerImages") << "Preloading images..." << LL_ENDL;
 	
+	llassert_always(mInitialized) ;
+	llassert_always(mImageList.empty()) ;
+	llassert_always(mUUIDMap.empty()) ;
+
 	// Set the "missing asset" image
 	LLViewerFetchedTexture::sMissingAssetImagep = LLViewerTextureManager::getFetchedTextureFromFile("missing_asset.tga", MIPMAP_NO, LLViewerFetchedTexture::BOOST_UI);
 	
@@ -300,6 +309,7 @@ void LLViewerTextureList::destroyGL(BOOL save_state)
 
 void LLViewerTextureList::restoreGL()
 {
+	llassert_always(mInitialized) ;
 	LLImageGL::restoreGL();
 }
 
@@ -477,8 +487,10 @@ LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id)
 	return iter->second;
 }
 
-void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
+void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image, U32 thread_id)
 {
+	llassert_always(mInitialized) ;
+	llassert_always(sRenderThreadID == thread_id);
 	llassert(image);
 	if (image->isInImageList())
 	{
@@ -492,8 +504,10 @@ void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 	image->setInImageList(TRUE) ;
 }
 
-void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
+void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image, U32 thread_id)
 {
+	llassert_always(mInitialized) ;
+	llassert_always(sRenderThreadID == thread_id);
 	llassert(image);
 	if (!image->isInImageList())
 	{
@@ -690,9 +704,9 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			if ((decode_priority_test < old_priority_test * .8f) ||
 				(decode_priority_test > old_priority_test * 1.25f))
 			{
-				removeImageFromList(imagep);
+				removeImageFromList(imagep, sRenderThreadID);
 				imagep->setDecodePriority(decode_priority);
-				addImageToList(imagep);
+				addImageToList(imagep, sRenderThreadID);
 			}
 			update_counter--;
 		}
@@ -769,9 +783,8 @@ void LLViewerTextureList::forceImmediateUpdate(LLViewerFetchedTexture* imagep)
 	imagep->processTextureStats();
 	F32 decode_priority = LLViewerFetchedTexture::maxDecodePriority() ;
 	imagep->setDecodePriority(decode_priority);
-	mImageList.insert(imagep);
-	imagep->setInImageList(TRUE) ;
-
+	addImageToList(imagep);
+	
 	return ;
 }
 
@@ -864,7 +877,9 @@ void LLViewerTextureList::updateImagesUpdateStats()
 void LLViewerTextureList::decodeAllImages(F32 max_time)
 {
 	LLTimer timer;
-	
+
+	llassert_always(sRenderThreadID == LLThread::currentID());
+
 	// Update texture stats and priorities
 	std::vector<LLPointer<LLViewerFetchedTexture> > image_list;
 	for (image_priority_list_t::iterator iter = mImageList.begin();
@@ -882,8 +897,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		imagep->processTextureStats();
 		F32 decode_priority = imagep->calcDecodePriority();
 		imagep->setDecodePriority(decode_priority);
-		mImageList.insert(imagep);
-		imagep->setInImageList(TRUE) ;
+		addImageToList(imagep);
 	}
 	image_list.clear();
 	
@@ -932,16 +946,19 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
 	if (image.isNull())
 	{
+		image->setLastError("Couldn't open the image to be uploaded.");
 		return FALSE;
 	}	
 	if (!image->load(filename))
 	{
+		image->setLastError("Couldn't load the image to be uploaded.");
 		return FALSE;
 	}
 	// Decompress or expand it in a raw image structure
 	LLPointer<LLImageRaw> raw_image = new LLImageRaw;
 	if (!image->decode(raw_image, 0.0f))
 	{
+		image->setLastError("Couldn't decode the image to be uploaded.");
 		return FALSE;
 	}
 	// Check the image constraints
@@ -952,8 +969,15 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 	}
 	// Convert to j2c (JPEG2000) and save the file locally
 	LLPointer<LLImageJ2C> compressedImage = convertToUploadFile(raw_image);	
+	if (compressedImage.isNull())
+	{
+		image->setLastError("Couldn't convert the image to jpeg2000.");
+		llinfos << "Couldn't convert to j2c, file : " << filename << llendl;
+		return FALSE;
+	}
 	if (!compressedImage->save(out_filename))
 	{
+		image->setLastError("Couldn't create the jpeg2000 image for upload.");
 		llinfos << "Couldn't create output file : " << out_filename << llendl;
 		return FALSE;
 	}
@@ -961,6 +985,7 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 	LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
 	if (!integrity_test->loadAndValidate( out_filename ))
 	{
+		image->setLastError("The created jpeg2000 image is corrupt.");
 		llinfos << "Image file : " << out_filename << " is corrupt" << llendl;
 		return FALSE;
 	}
@@ -978,7 +1003,25 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 		(raw_image->getWidth() * raw_image->getHeight() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF))
 		compressedImage->setReversible(TRUE);
 	
-	compressedImage->encode(raw_image, 0.0f);
+
+	if (gSavedSettings.getBOOL("Jpeg2000AdvancedCompression"))
+	{
+		// This test option will create jpeg2000 images with precincts for each level, RPCL ordering
+		// and PLT markers. The block size is also optionally modifiable.
+		// Note: the images hence created are compatible with older versions of the viewer.
+		// Read the blocks and precincts size settings
+		S32 block_size = gSavedSettings.getS32("Jpeg2000BlocksSize");
+		S32 precinct_size = gSavedSettings.getS32("Jpeg2000PrecinctsSize");
+		llinfos << "Advanced JPEG2000 Compression: precinct = " << precinct_size << ", block = " << block_size << llendl;
+		compressedImage->initEncode(*raw_image, block_size, precinct_size, 0);
+	}
+	
+	if (!compressedImage->encode(raw_image, 0.0f))
+	{
+		llinfos << "convertToUploadFile : encode returns with error!!" << llendl;
+		// Clear up the pointer so we don't leak that one
+		compressedImage = NULL;
+	}
 	
 	return compressedImage;
 }

@@ -203,7 +203,7 @@ BOOL LLFeatureManager::maskFeatures(const std::string& name)
  		LL_DEBUGS("RenderInit") << "Unknown feature mask " << name << LL_ENDL;
 		return FALSE;
 	}
-	LL_DEBUGS("RenderInit") << "Applying Feature Mask: " << name << LL_ENDL;
+	LL_INFOS("RenderInit") << "Applying GPU Feature list: " << name << LL_ENDL;
 	return maskList(*maskp);
 }
 
@@ -378,13 +378,16 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 		return;
 	}
 
-	std::string renderer = gGLManager.getRawGLString();
+	std::string rawRenderer = gGLManager.getRawGLString();
+	std::string renderer = rawRenderer;
 	for (std::string::iterator i = renderer.begin(); i != renderer.end(); ++i)
 	{
 		*i = tolower(*i);
 	}
-	
-	while (!file.eof())
+
+	bool gpuFound;
+	U32 lineNumber;
+	for (gpuFound = false, lineNumber = 0; !gpuFound && !file.eof(); lineNumber++)
 	{
 		char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
 		buffer[0] = 0;
@@ -431,6 +434,7 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 
 		if (label.empty() || expr.empty() || cls.empty() || supported.empty())
 		{
+			LL_WARNS("RenderInit") << "invald gpu_table.txt:" << lineNumber << ": '" << buffer << "'" << LL_ENDL;
 			continue;
 		}
 	
@@ -444,18 +448,26 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 		if(boost::regex_search(renderer, re))
 		{
 			// if we found it, stop!
-			file.close();
-			LL_INFOS("RenderInit") << "GPU is " << label << llendl;
+			gpuFound = true;
 			mGPUString = label;
 			mGPUClass = (EGPUClass) strtol(cls.c_str(), NULL, 10);
 			mGPUSupported = (BOOL) strtol(supported.c_str(), NULL, 10);
-			file.close();
-			return;
 		}
 	}
 	file.close();
 
-	LL_WARNS("RenderInit") << "Couldn't match GPU to a class: " << gGLManager.getRawGLString() << LL_ENDL;
+	if ( gpuFound )
+	{
+		LL_INFOS("RenderInit") << "GPU '" << rawRenderer << "' recognized as '" << mGPUString << "'" << LL_ENDL;
+		if (!mGPUSupported)
+		{
+			LL_INFOS("RenderInit") << "GPU '" << mGPUString << "' is not supported." << LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_WARNS("RenderInit") << "GPU '" << rawRenderer << "' not recognized" << LL_ENDL;
+	}
 }
 
 // responder saves table into file
@@ -752,6 +764,10 @@ void LLFeatureManager::applyBaseMasks()
 	if (gGLManager.mGLVersion < 3.f)
 	{
 		maskFeatures("OpenGLPre30");
+	}
+	if (gGLManager.mNumTextureImageUnits <= 8)
+	{
+		maskFeatures("TexUnit8orLess");
 	}
 
 	// now mask by gpu string

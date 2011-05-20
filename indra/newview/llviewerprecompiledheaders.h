@@ -99,8 +99,6 @@
 #include "llcoord.h"
 #include "llcoordframe.h"
 #include "llcrc.h"
-#include "llinterp.h"
-#include "llperlin.h"
 #include "llplane.h"
 #include "llquantize.h"
 #include "llrand.h"
@@ -109,7 +107,6 @@
 #include "m3math.h"
 #include "m4math.h"
 #include "llquaternion.h"
-#include "raytrace.h"
 #include "v2math.h"
 #include "v3color.h"
 #include "v3dmath.h"
@@ -117,7 +114,6 @@
 #include "v4color.h"
 #include "v4coloru.h"
 #include "v4math.h"
-////#include "vmath.h"
 #include "xform.h"
 
 // Library includes from llvfs
@@ -125,8 +121,5 @@
 
 // Library includes from llmessage project
 #include "llcachename.h"
-
-// llxuixml
-#include "llinitparam.h"
 
 #endif

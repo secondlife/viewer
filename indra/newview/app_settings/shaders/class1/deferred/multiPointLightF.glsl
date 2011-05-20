@@ -23,8 +23,9 @@ uniform float sun_wash;
 
 uniform int light_count;
 
-uniform vec4 light[16];
-uniform vec4 light_col[16];
+#define MAX_LIGHT_COUNT		16
+uniform vec4 light[MAX_LIGHT_COUNT];
+uniform vec4 light_col[MAX_LIGHT_COUNT];
 
 varying vec4 vary_fragcoord;
 uniform vec2 screen_res;
@@ -63,50 +64,56 @@ void main()
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	vec3 out_col = vec3(0,0,0);
 	vec3 npos = normalize(-pos);
-	
-	for (int i = 0; i < light_count; ++i)
+
+	// As of OSX 10.6.7 ATI Apple's crash when using a variable size loop
+	for (int i = 0; i < MAX_LIGHT_COUNT; ++i)
 	{
+		bool light_contrib = (i < light_count);
+		
 		vec3 lv = light[i].xyz-pos;
 		float dist2 = dot(lv,lv);
 		dist2 /= light[i].w;
 		if (dist2 > 1.0)
 		{
-			continue;
+			light_contrib = false;
 		}
 		
 		float da = dot(norm, lv);
 		if (da < 0.0)
 		{
-			continue;
+			light_contrib = false;
 		}
-				
-		lv = normalize(lv);
-		da = dot(norm, lv);
-				
-		float fa = light_col[i].a+1.0;
-		float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
-		dist_atten *= noise;
-
-		float lit = da * dist_atten;
 		
-		vec3 col = light_col[i].rgb*lit*diff;
-		//vec3 col = vec3(dist2, light_col[i].a, lit);
-		
-		if (spec.a > 0.0)
+		if (light_contrib)
 		{
-			//vec3 ref = dot(pos+lv, norm);
+			lv = normalize(lv);
+			da = dot(norm, lv);
+					
+			float fa = light_col[i].a+1.0;
+			float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
+			dist_atten *= noise;
+
+			float lit = da * dist_atten;
 			
-			float sa = dot(normalize(lv+npos),norm);
+			vec3 col = light_col[i].rgb*lit*diff;
+			//vec3 col = vec3(dist2, light_col[i].a, lit);
 			
-			if (sa > 0.0)
+			if (spec.a > 0.0)
 			{
-				sa = texture2D(lightFunc,vec2(sa, spec.a)).a * min(dist_atten*4.0, 1.0);
-				sa *= noise;
-				col += da*sa*light_col[i].rgb*spec.rgb;
+				//vec3 ref = dot(pos+lv, norm);
+				
+				float sa = dot(normalize(lv+npos),norm);
+				
+				if (sa > 0.0)
+				{
+					sa = texture2D(lightFunc,vec2(sa, spec.a)).a * min(dist_atten*4.0, 1.0);
+					sa *= noise;
+					col += da*sa*light_col[i].rgb*spec.rgb;
+				}
 			}
+			
+			out_col += col;
 		}
-		
-		out_col += col;	
 	}
 	
 	if (dot(out_col, out_col) <= 0.0)
