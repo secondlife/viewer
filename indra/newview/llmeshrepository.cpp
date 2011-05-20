@@ -498,18 +498,29 @@ public:
 		//assert_main_thread();
 		llinfos << "completed" << llendl;
 		mThread->mPendingUploads--;
-		dumpLLSDToFile(content,"whole_model_response.xml");
+		dumpLLSDToFile(content,"whole_model_fee_response.xml");
+		if (isGoodStatus(status))
+		{
+			mThread->mWholeModelUploadURL = content["uploader"].asString(); 
+		}
+		else
+		{
+			llinfos << "upload failed" << llendl;
+			mThread->mWholeModelUploadURL = "";
+		}
 
-		mThread->mWholeModelUploadURL = content["uploader"].asString(); 
 	}
 };
 
 class LLWholeModelUploadResponder: public LLCurl::Responder
 {
 	LLMeshUploadThread* mThread;
+	LLSD mPostData;
+	
 public:
-	LLWholeModelUploadResponder(LLMeshUploadThread* thread):
-		mThread(thread)
+	LLWholeModelUploadResponder(LLMeshUploadThread* thread, LLSD& post_data):
+		mThread(thread),
+		mPostData(post_data)
 	{
 	}
 	virtual void completed(U32 status,
@@ -520,6 +531,7 @@ public:
 		llinfos << "upload completed" << llendl;
 		mThread->mPendingUploads--;
 		dumpLLSDToFile(content,"whole_model_upload_response.xml");
+		gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mPostData,content));
 	}
 };
 
@@ -1404,14 +1416,13 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	result["folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	result["asset_type"] = "mesh";
 	result["inventory_type"] = "object";
-	result["name"] = "your name here";
+	result["name"] = "mesh model";
 	result["description"] = "your description here";
 
 	// TODO "optional" fields from the spec
 	
 	res["mesh_list"] = LLSD::emptyArray();
-// TODO Textures
-	//res["texture_list"] = LLSD::emptyArray();
+	res["texture_list"] = LLSD::emptyArray();
 	S32 mesh_num = 0;
 	S32 texture_num = 0;
 	
@@ -1421,8 +1432,15 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	{
 		LLMeshUploadData data;
 		data.mBaseModel = iter->first;
-
 		LLModelInstance& instance = *(iter->second.begin());
+		LLModel* model = instance.mModel;
+
+		std::string model_name = data.mBaseModel->getName();
+
+		if (!model_name.empty())
+		{
+			result["name"] = model_name;
+		}
 
 		for (S32 i = 0; i < 5; i++)
 		{
@@ -1458,11 +1476,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		LLMatrix4 transformation = instance.mTransform;
 		decomposeMeshMatrix(transformation,pos,rot,scale);
 
-#if 0
-		mesh_entry["childpos"] = ll_sd_from_vector3(pos);
-		mesh_entry["childrot"] = ll_sd_from_quaternion(rot);
-		mesh_entry["scale"] = ll_sd_from_vector3(scale);
-#endif
 		mesh_entry["position"] = ll_sd_from_vector3(LLVector3());
 		mesh_entry["rotation"] = ll_sd_from_quaternion(rot);
 		mesh_entry["scale"] = ll_sd_from_vector3(scale);
@@ -1471,14 +1484,19 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		std::string str = ostr.str();
 		mesh_entry["mesh_data"] = LLSD::Binary(str.begin(),str.end()); 
 
-		res["mesh_list"][mesh_num] = mesh_entry;
 
 		// TODO how do textures in the list map to textures in the meshes?
 		if (mUploadTextures)
 		{
+			mesh_entry["face_list"] = LLSD::emptyArray();
+
+			S32 face_num = 0;
+
 			for (std::vector<LLImportMaterial>::iterator material_iter = instance.mMaterial.begin();
 				material_iter != instance.mMaterial.end(); ++material_iter)
 			{
+				LLSD face_entry = LLSD::emptyMap();
+
 
 				if (textures.find(material_iter->mDiffuseMap.get()) == textures.end())
 				{
@@ -1500,10 +1518,22 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 					LLSD texture_entry;
 					texture_entry["texture_data"] = ostr.str();
 					res["texture_list"][texture_num] = texture_entry;
+					face_entry["image"] = texture_num;
+					face_entry["scales"] = 1.0;
+					face_entry["scalet"] = 1.0;
+					face_entry["offsets"] = 0.0;
+					face_entry["offsett"] = 0.0;
+					face_entry["imagerot"] = 0.0;
+
 					texture_num++;
 				}
+
+				mesh_entry["face_list"][face_num] = face_entry;
+				face_num++;
 			}
 		}
+
+		res["mesh_list"][mesh_num] = mesh_entry;
 
 		mesh_num++;
 	}
@@ -1577,12 +1607,22 @@ void LLMeshUploadThread::doWholeModelUpload()
 		mCurlRequest->process();
 	} while (mCurlRequest->getQueued() > 0);
 
-	mCurlRequest->post(mWholeModelUploadURL, headers, model_data["asset_resources"], new LLWholeModelUploadResponder(this));
-	
-	do
+	LLSD body = model_data["asset_resources"];
+	dumpLLSDToFile(body,"whole_model_body.xml");
+
+	if (mWholeModelUploadURL.empty())
 	{
-		mCurlRequest->process();
-	} while (mCurlRequest->getQueued() > 0);
+		llinfos << "unable to upload, fee request failed" << llendl;
+	}
+	else
+	{
+		mCurlRequest->post(mWholeModelUploadURL, headers, body,
+						   new LLWholeModelUploadResponder(this, model_data));
+		do
+		{
+			mCurlRequest->process();
+		} while (mCurlRequest->getQueued() > 0);
+	}
 
 	delete mCurlRequest;
 	mCurlRequest = NULL;
@@ -3243,6 +3283,8 @@ bool LLImportMaterial::operator<(const LLImportMaterial &rhs) const
 void LLMeshRepository::updateInventory(inventory_data data)
 {
 	LLMutexLock lock(mMeshMutex);
+	dumpLLSDToFile(data.mPostData,"update_inventory_post_data.xml");
+	dumpLLSDToFile(data.mResponse,"update_inventory_response.xml");
 	mInventoryQ.push(data);
 }
 
