@@ -53,7 +53,6 @@ class LLVFS;
 
 class LLPanelRegionGeneralInfo;
 class LLPanelRegionDebugInfo;
-class LLPanelRegionTextureInfo;
 class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
@@ -213,25 +212,6 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
-class LLPanelRegionTextureInfo : public LLPanelRegionInfo
-{
-public:
-	LLPanelRegionTextureInfo();
-	~LLPanelRegionTextureInfo() {}
-	
-	virtual bool refreshFromRegion(LLViewerRegion* region);
-	
-	// LLPanel && LLView
-	virtual BOOL postBuild();
-	
-protected:
-	virtual BOOL sendUpdate();
-	
-	static void onClickDump(void* data);
-	BOOL validateTextureSizes();
-};
-
-/////////////////////////////////////////////////////////////////////////////
 class LLPanelRegionTerrainInfo : public LLPanelRegionInfo
 {
 	LOG_CLASS(LLPanelRegionTerrainInfo);
@@ -249,6 +229,8 @@ public:
 	void setEnvControls(bool available);									// Whether environment settings are available for this region
 	void setCommitControls(bool available);									// Whether user can currently commit (whether they changed anything)
 	void cancelChanges();													// cancels changes, reverts local settings, and resyncs UI
+
+	BOOL validateTextureSizes();
 
 	//static void onChangeAnything(LLUICtrl* ctrl, void* userData);			// callback for any change, to enable commit button
 	
