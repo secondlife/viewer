@@ -127,7 +127,7 @@ void LLEnvManager::startEditingScope(LLEnvKey::EScope scope)
 		// not implemented here (yet)
 		return;
 	case LLEnvKey::SCOPE_REGION:
-		LLPanelRegionTerrainInfo::instance()->setCommitControls(true);
+		/* LLPanelRegionTerrainInfo::instance()->setCommitControls(true); the windlight settings are no longer on the region terrain panel */
 		break;
 	default:
 		return;
@@ -182,7 +182,7 @@ void LLEnvManager::clearEditingScope(const LLSD& notification, const LLSD& respo
 	mIsEditing = false;
 
 	updateUIFromEditability();
-	LLPanelRegionTerrainInfo::instance()->cancelChanges();
+	/* LLPanelRegionTerrainInfo::instance()->cancelChanges(); the terrain panel no longer has windlight data - if this is needed, it should move. */
 
 	loadSettingsIntoManagers(mCurNormalScope, true);
 }
@@ -305,6 +305,7 @@ bool LLEnvManager::processIncomingMessage(const LLSD& unvalidated_content, const
 
 	if (valid)
 	{
+		// TODO - the sun controls are moving; this should be updated
 		F32 sun_hour = 0;
 		LLPanelRegionTerrainInfo* terrain_panel = LLPanelRegionTerrainInfo::instance();
 

@@ -227,14 +227,11 @@ public:
 	F32 getSunHour();
 	virtual bool refreshFromRegion(LLViewerRegion* region);					// refresh local settings from region update from simulator
 	void setEnvControls(bool available);									// Whether environment settings are available for this region
-	void setCommitControls(bool available);									// Whether user can currently commit (whether they changed anything)
-	void cancelChanges();													// cancels changes, reverts local settings, and resyncs UI
 
 	BOOL validateTextureSizes();
 
 	//static void onChangeAnything(LLUICtrl* ctrl, void* userData);			// callback for any change, to enable commit button
 	
-protected:
 	static LLPanelRegionTerrainInfo* sPanelRegionTerrainInfo;				// static instance pointer for singleton
 
 	virtual BOOL sendUpdate();
