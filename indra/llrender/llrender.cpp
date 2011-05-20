@@ -53,7 +53,8 @@ static GLenum sGLTextureType[] =
 {
 	GL_TEXTURE_2D,
 	GL_TEXTURE_RECTANGLE_ARB,
-	GL_TEXTURE_CUBE_MAP_ARB
+	GL_TEXTURE_CUBE_MAP_ARB,
+	GL_TEXTURE_2D_MULTISAMPLE
 };
 
 static GLint sGLAddressMode[] =
@@ -121,12 +122,18 @@ void LLTexUnit::refreshState(void)
 	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
 	if (mCurrTexType != TT_NONE)
 	{
-		glEnable(sGLTextureType[mCurrTexType]);
+		if (mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE)
+		{
+			glEnable(sGLTextureType[mCurrTexType]);
+		}
 		glBindTexture(sGLTextureType[mCurrTexType], mCurrTexture);
 	}
 	else
 	{
-		glDisable(GL_TEXTURE_2D);
+		if (mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE)
+		{
+			glDisable(GL_TEXTURE_2D);
+		}
 		glBindTexture(GL_TEXTURE_2D, 0);	
 	}
 
@@ -167,7 +174,10 @@ void LLTexUnit::enable(eTextureType type)
 		mCurrTexType = type;
 
 		gGL.flush();
-		glEnable(sGLTextureType[type]);
+		if (type != LLTexUnit::TT_MULTISAMPLE_TEXTURE)
+		{
+			glEnable(sGLTextureType[type]);
+		}
 	}
 }
 
@@ -180,7 +190,10 @@ void LLTexUnit::disable(void)
 		activate();
 		unbind(mCurrTexType);
 		gGL.flush();
-		glDisable(sGLTextureType[mCurrTexType]);
+		if (mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE)
+		{
+			glDisable(sGLTextureType[mCurrTexType]);
+		}
 		mCurrTexType = TT_NONE;
 	}
 }
@@ -399,7 +412,7 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 
 void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option)
 {
-	if (mIndex < 0 || mCurrTexture == 0) return;
+	if (mIndex < 0 || mCurrTexture == 0 || mCurrTexType == LLTexUnit::TT_MULTISAMPLE_TEXTURE) return;
 
 	gGL.flush();
 

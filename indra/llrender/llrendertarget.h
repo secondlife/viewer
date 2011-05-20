@@ -71,10 +71,7 @@ public:
 	//allocate resources for rendering
 	//must be called before use
 	//multiple calls will release previously allocated resources
-	void allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, bool use_fbo = FALSE);
-
-	//provide this render target with a multisample resource.
-	void setSampleBuffer(LLMultisampleBuffer* buffer);
+	void allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, bool use_fbo = false, S32 samples = 0);
 
 	//add color buffer attachment
 	//limit of 4 color attachments per render target
@@ -141,7 +138,6 @@ public:
 	static LLRenderTarget* getCurrentBoundTarget() { return sBoundTarget; }
 
 protected:
-	friend class LLMultisampleBuffer;
 	U32 mResX;
 	U32 mResY;
 	std::vector<U32> mTex;
@@ -152,26 +148,8 @@ protected:
 	bool mRenderDepth;
 	LLTexUnit::eTextureType mUsage;
 	U32 mSamples;
-	LLMultisampleBuffer* mSampleBuffer;
-
-	static LLRenderTarget* sBoundTarget;
 	
-};
-
-class LLMultisampleBuffer : public LLRenderTarget
-{
-public:
-	LLMultisampleBuffer();
-	virtual ~LLMultisampleBuffer();
-
-	virtual void release();
-
-	virtual void bindTarget();
-	void bindTarget(LLRenderTarget* ref);
-	virtual void allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo);
-	void allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo, U32 samples);
-	virtual void addColorAttachment(U32 color_fmt);
-	virtual void allocateDepth();
+	static LLRenderTarget* sBoundTarget;
 };
 
 #endif //!LL_MESA_HEADLESS

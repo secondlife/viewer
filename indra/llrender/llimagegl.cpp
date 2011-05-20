@@ -1417,7 +1417,7 @@ void LLImageGL::deleteDeadTextures()
 		{
 			if (sCurrentBoundTextures[i] == tex)
 			{
-				gGL.getTexUnit(i)->unbind(LLTexUnit::TT_TEXTURE);
+				gGL.getTexUnit(i)->unbind(gGL.getTexUnit(i)->getCurrType());
 				stop_glerror();
 			}
 		}
