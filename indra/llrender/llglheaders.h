@@ -474,6 +474,11 @@ extern PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer;
 //GL_ARB_draw_buffers
 extern PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB;
 
+//GL_ARB_texture_multisample
+extern PFNGLTEXIMAGE2DMULTISAMPLEPROC glTexImage2DMultisample;
+extern PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample;
+extern PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv;
+extern PFNGLSAMPLEMASKIPROC glSampleMaski;
 
 #elif LL_WINDOWS
 //----------------------------------------------------------------------------
@@ -673,6 +678,11 @@ extern PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer;
 //GL_ARB_draw_buffers
 extern PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB;
 
+//GL_ARB_texture_multisample
+extern PFNGLTEXIMAGE2DMULTISAMPLEPROC glTexImage2DMultisample;
+extern PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample;
+extern PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv;
+extern PFNGLSAMPLEMASKIPROC glSampleMaski;
 
 #elif LL_DARWIN
 //----------------------------------------------------------------------------
