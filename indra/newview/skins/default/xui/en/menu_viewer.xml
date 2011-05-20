@@ -2348,6 +2348,16 @@
            function="Advanced.ToggleInfoDisplay"
            parameter="raycast" />
         </menu_item_check>
+		<menu_item_check
+         label="Sculpt"
+         name="Sculpt">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="sculpt" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="sculpt" />
+		</menu_item_check>
       </menu>
         <menu
          create_jump_keys="true"

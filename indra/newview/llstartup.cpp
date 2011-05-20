@@ -995,6 +995,7 @@ bool idle_startup()
 
 	if(STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState()) 
 	{
+		// Generic failure message
 		std::ostringstream emsg;
 		emsg << LLTrans::getString("LoginFailed") << "\n";
 		if(LLLoginInstance::getInstance()->authFailure())
@@ -1003,24 +1004,32 @@ bool idle_startup()
 			                      << LLLoginInstance::getInstance()->getResponse() << LL_ENDL;
 			LLSD response = LLLoginInstance::getInstance()->getResponse();
 			// Still have error conditions that may need some 
-			// sort of handling.
+			// sort of handling - dig up specific message
 			std::string reason_response = response["reason"];
 			std::string message_response = response["message"];
-	
-			if(!message_response.empty())
+			std::string message_id = response["message_id"];
+			std::string message; // actual string to show the user
+
+			if(!message_id.empty() && LLTrans::findString(message, message_id, response["message_args"]))
 			{
-				// XUI: fix translation for strings returned during login
-				// We need a generic table for translations
-				std::string big_reason = LLAgent::sTeleportErrorMessages[ message_response ];
-				if ( big_reason.size() == 0 )
-				{
-					emsg << message_response;
-				}
-				else
-				{
-					emsg << big_reason;
-				}
+				// message will be filled in with the template and arguments
 			}
+			else if(!message_response.empty())
+			{
+				// *HACK: "no_inventory_host" sent as the message itself.
+				// Remove this clause when server is sending message_id as well.
+				message = LLAgent::sTeleportErrorMessages[ message_response ];
+			}
+
+			if (message.empty())
+			{
+				// Fallback to server-supplied string; necessary since server
+				// may add strings that this viewer is not yet aware of
+				message = message_response;
+			}
+
+			emsg << message;
+
 
 			if(reason_response == "key")
 			{

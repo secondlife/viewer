@@ -34,6 +34,8 @@
 
 class LLXMLNode;
 
+class LLSD;
+
 /**
  * @brief String template loaded from strings.xml
  */
@@ -74,7 +76,9 @@ public:
 	 * @returns Translated string
 	 */
 	static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args);
+	static std::string getString(const std::string &xml_desc, const LLSD& args);
 	static bool findString(std::string &result, const std::string &xml_desc, const LLStringUtil::format_map_t& args);
+	static bool findString(std::string &result, const std::string &xml_desc, const LLSD& args);
 
 	// Returns translated string with [COUNT] replaced with a number, following
 	// special per-language logic for plural nouns.  For example, some languages

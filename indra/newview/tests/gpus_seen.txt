@@ -1,0 +1,1593 @@
+ATI
+ATI 3D-Analyze
+ATI ASUS A9xxx
+ATI ASUS AH24xx
+ATI ASUS AH26xx
+ATI ASUS AH34xx
+ATI ASUS AH36xx
+ATI ASUS AH46xx
+ATI ASUS AX3xx
+ATI ASUS AX5xx
+ATI ASUS AX8xx
+ATI ASUS EAH38xx
+ATI ASUS EAH43xx
+ATI ASUS EAH45xx
+ATI ASUS EAH48xx
+ATI ASUS EAH57xx
+ATI ASUS EAH58xx
+ATI ASUS X1xxx
+ATI All-in-Wonder 9xxx
+ATI All-in-Wonder HD
+ATI All-in-Wonder PCI-E
+ATI All-in-Wonder X1800
+ATI All-in-Wonder X1900
+ATI All-in-Wonder X600
+ATI All-in-Wonder X800
+ATI Diamond X1xxx
+ATI Display Adapter
+ATI FireGL
+ATI FireGL 5200
+ATI FireGL 5xxx
+ATI FireMV
+ATI Generic
+ATI Hercules 9800
+ATI IGP 340M
+ATI M52
+ATI M54
+ATI M56
+ATI M71
+ATI M72
+ATI M76
+ATI Mobility Radeon
+ATI Mobility Radeon 7xxx
+ATI Mobility Radeon 9600
+ATI Mobility Radeon 9700
+ATI Mobility Radeon 9800
+ATI Mobility Radeon HD 2300
+ATI Mobility Radeon HD 2400
+ATI Mobility Radeon HD 2600
+ATI Mobility Radeon HD 2700
+ATI Mobility Radeon HD 3400
+ATI Mobility Radeon HD 3600
+ATI Mobility Radeon HD 3800
+ATI Mobility Radeon HD 4200
+ATI Mobility Radeon HD 4300
+ATI Mobility Radeon HD 4500
+ATI Mobility Radeon HD 4600
+ATI Mobility Radeon HD 4800
+ATI Mobility Radeon HD 5400
+ATI Mobility Radeon HD 5600
+ATI Mobility Radeon X1xxx
+ATI Mobility Radeon X2xxx
+ATI Mobility Radeon X3xx
+ATI Mobility Radeon X6xx
+ATI Mobility Radeon X7xx
+ATI Mobility Radeon Xxxx
+ATI RV380
+ATI RV530
+ATI Radeon 2100
+ATI Radeon 3000
+ATI Radeon 3100
+ATI Radeon 7000
+ATI Radeon 7xxx
+ATI Radeon 8xxx
+ATI Radeon 9000
+ATI Radeon 9100
+ATI Radeon 9200
+ATI Radeon 9500
+ATI Radeon 9600
+ATI Radeon 9700
+ATI Radeon 9800
+ATI Radeon HD 2300
+ATI Radeon HD 2400
+ATI Radeon HD 2600
+ATI Radeon HD 2900
+ATI Radeon HD 3000
+ATI Radeon HD 3100
+ATI Radeon HD 3200
+ATI Radeon HD 3300
+ATI Radeon HD 3400
+ATI Radeon HD 3600
+ATI Radeon HD 3800
+ATI Radeon HD 4200
+ATI Radeon HD 4300
+ATI Radeon HD 4500
+ATI Radeon HD 4600
+ATI Radeon HD 4700
+ATI Radeon HD 4800
+ATI Radeon HD 5400
+ATI Radeon HD 5500
+ATI Radeon HD 5600
+ATI Radeon HD 5700
+ATI Radeon HD 5800
+ATI Radeon HD 5900
+ATI Radeon HD 6200
+ATI Radeon HD 6300
+ATI Radeon HD 6500
+ATI Radeon HD 6800
+ATI Radeon HD 6900
+ATI Radeon OpenGL
+ATI Radeon RV250
+ATI Radeon RV600
+ATI Radeon RX9550
+ATI Radeon VE
+ATI Radeon X1000
+ATI Radeon X1200
+ATI Radeon X1300
+ATI Radeon X13xx
+ATI Radeon X1400
+ATI Radeon X1500
+ATI Radeon X1600
+ATI Radeon X16xx
+ATI Radeon X1700
+ATI Radeon X1800
+ATI Radeon X1900
+ATI Radeon X19xx
+ATI Radeon X1xxx
+ATI Radeon X300
+ATI Radeon X500
+ATI Radeon X600
+ATI Radeon X700
+ATI Radeon X7xx
+ATI Radeon X800
+ATI Radeon Xpress
+ATI Rage 128
+ATI Technologies Inc.
+ATI Technologies Inc.  x86
+ATI Technologies Inc.  x86/SSE2
+ATI Technologies Inc. (Vista) ATI Mobility Radeon HD 5730
+ATI Technologies Inc. 256MB ATI Radeon X1300PRO x86/SSE2
+ATI Technologies Inc. AMD 760G
+ATI Technologies Inc. AMD 760G (Microsoft WDDM 1.1)
+ATI Technologies Inc. AMD 780L
+ATI Technologies Inc. AMD FirePro 2270
+ATI Technologies Inc. AMD M860G with ATI Mobility Radeon 4100
+ATI Technologies Inc. AMD M880G with ATI Mobility Radeon HD 4200
+ATI Technologies Inc. AMD M880G with ATI Mobility Radeon HD 4250
+ATI Technologies Inc. AMD RADEON HD 6450
+ATI Technologies Inc. AMD Radeon HD 6200 series Graphics
+ATI Technologies Inc. AMD Radeon HD 6250 Graphics
+ATI Technologies Inc. AMD Radeon HD 6300 series Graphics
+ATI Technologies Inc. AMD Radeon HD 6300M Series
+ATI Technologies Inc. AMD Radeon HD 6310 Graphics
+ATI Technologies Inc. AMD Radeon HD 6310M
+ATI Technologies Inc. AMD Radeon HD 6330M
+ATI Technologies Inc. AMD Radeon HD 6350
+ATI Technologies Inc. AMD Radeon HD 6370M
+ATI Technologies Inc. AMD Radeon HD 6400M Series
+ATI Technologies Inc. AMD Radeon HD 6450
+ATI Technologies Inc. AMD Radeon HD 6470M
+ATI Technologies Inc. AMD Radeon HD 6490M
+ATI Technologies Inc. AMD Radeon HD 6500M/5600/5700 Series
+ATI Technologies Inc. AMD Radeon HD 6530M
+ATI Technologies Inc. AMD Radeon HD 6550M
+ATI Technologies Inc. AMD Radeon HD 6570
+ATI Technologies Inc. AMD Radeon HD 6570M
+ATI Technologies Inc. AMD Radeon HD 6570M/5700 Series
+ATI Technologies Inc. AMD Radeon HD 6600M Series
+ATI Technologies Inc. AMD Radeon HD 6650M
+ATI Technologies Inc. AMD Radeon HD 6670
+ATI Technologies Inc. AMD Radeon HD 6700 Series
+ATI Technologies Inc. AMD Radeon HD 6750
+ATI Technologies Inc. AMD Radeon HD 6750M
+ATI Technologies Inc. AMD Radeon HD 6770
+ATI Technologies Inc. AMD Radeon HD 6800 Series
+ATI Technologies Inc. AMD Radeon HD 6850M
+ATI Technologies Inc. AMD Radeon HD 6870
+ATI Technologies Inc. AMD Radeon HD 6870M
+ATI Technologies Inc. AMD Radeon HD 6900 Series
+ATI Technologies Inc. AMD Radeon HD 6970M
+ATI Technologies Inc. AMD Radeon HD 6990
+ATI Technologies Inc. AMD Radeon(TM) HD 6470M
+ATI Technologies Inc. ASUS 5870 Eyefinity 6
+ATI Technologies Inc. ASUS AH2600 Series
+ATI Technologies Inc. ASUS AH3450 Series
+ATI Technologies Inc. ASUS AH3650 Series
+ATI Technologies Inc. ASUS AH4650 Series
+ATI Technologies Inc. ASUS ARES
+ATI Technologies Inc. ASUS EAH2900 Series
+ATI Technologies Inc. ASUS EAH3450 Series
+ATI Technologies Inc. ASUS EAH3650 Series
+ATI Technologies Inc. ASUS EAH4350 series
+ATI Technologies Inc. ASUS EAH4550 series
+ATI Technologies Inc. ASUS EAH4650 series
+ATI Technologies Inc. ASUS EAH4670 series
+ATI Technologies Inc. ASUS EAH4750 Series
+ATI Technologies Inc. ASUS EAH4770 Series
+ATI Technologies Inc. ASUS EAH4770 series
+ATI Technologies Inc. ASUS EAH4850 series
+ATI Technologies Inc. ASUS EAH5450 Series
+ATI Technologies Inc. ASUS EAH5550 Series
+ATI Technologies Inc. ASUS EAH5570 series
+ATI Technologies Inc. ASUS EAH5670 Series
+ATI Technologies Inc. ASUS EAH5750 Series
+ATI Technologies Inc. ASUS EAH5770 Series
+ATI Technologies Inc. ASUS EAH5830 Series
+ATI Technologies Inc. ASUS EAH5850 Series
+ATI Technologies Inc. ASUS EAH5870 Series
+ATI Technologies Inc. ASUS EAH5970 Series
+ATI Technologies Inc. ASUS EAH6850 Series
+ATI Technologies Inc. ASUS EAH6870 Series
+ATI Technologies Inc. ASUS EAH6950 Series
+ATI Technologies Inc. ASUS EAH6970 Series
+ATI Technologies Inc. ASUS EAHG4670 series
+ATI Technologies Inc. ASUS Extreme AX600 Series
+ATI Technologies Inc. ASUS Extreme AX600XT-TD
+ATI Technologies Inc. ASUS X1300 Series x86/SSE2
+ATI Technologies Inc. ASUS X1550 Series
+ATI Technologies Inc. ASUS X1950 Series x86/SSE2
+ATI Technologies Inc. ASUS X800 Series
+ATI Technologies Inc. ASUS X850 Series
+ATI Technologies Inc. ATI All-in-Wonder HD
+ATI Technologies Inc. ATI FirePro 2260
+ATI Technologies Inc. ATI FirePro 2450
+ATI Technologies Inc. ATI FirePro M5800
+ATI Technologies Inc. ATI FirePro M7740
+ATI Technologies Inc. ATI FirePro M7820
+ATI Technologies Inc. ATI FirePro V3700 (FireGL)
+ATI Technologies Inc. ATI FirePro V3800
+ATI Technologies Inc. ATI FirePro V4800
+ATI Technologies Inc. ATI FirePro V4800 (FireGL)
+ATI Technologies Inc. ATI FirePro V5800
+ATI Technologies Inc. ATI FirePro V7800
+ATI Technologies Inc. ATI MOBILITY RADEON 9XXX x86/SSE2
+ATI Technologies Inc. ATI MOBILITY RADEON HD 3450
+ATI Technologies Inc. ATI MOBILITY RADEON X1600
+ATI Technologies Inc. ATI MOBILITY RADEON X2300
+ATI Technologies Inc. ATI MOBILITY RADEON X2300 HD x86/SSE2
+ATI Technologies Inc. ATI MOBILITY RADEON X2300 x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. ATI MOBILITY RADEON X2300 x86/SSE2
+ATI Technologies Inc. ATI MOBILITY RADEON X300
+ATI Technologies Inc. ATI MOBILITY RADEON X600
+ATI Technologies Inc. ATI MOBILITY RADEON XPRESS 200
+ATI Technologies Inc. ATI Mobility FireGL V5700
+ATI Technologies Inc. ATI Mobility Radeon 4100
+ATI Technologies Inc. ATI Mobility Radeon Graphics
+ATI Technologies Inc. ATI Mobility Radeon HD 2300
+ATI Technologies Inc. ATI Mobility Radeon HD 2400
+ATI Technologies Inc. ATI Mobility Radeon HD 2400 XT
+ATI Technologies Inc. ATI Mobility Radeon HD 2600
+ATI Technologies Inc. ATI Mobility Radeon HD 2600 XT
+ATI Technologies Inc. ATI Mobility Radeon HD 2700
+ATI Technologies Inc. ATI Mobility Radeon HD 3400 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 3430
+ATI Technologies Inc. ATI Mobility Radeon HD 3450
+ATI Technologies Inc. ATI Mobility Radeon HD 3470
+ATI Technologies Inc. ATI Mobility Radeon HD 3470 Hybrid X2
+ATI Technologies Inc. ATI Mobility Radeon HD 3650
+ATI Technologies Inc. ATI Mobility Radeon HD 4200
+ATI Technologies Inc. ATI Mobility Radeon HD 4200 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4225
+ATI Technologies Inc. ATI Mobility Radeon HD 4225 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4250
+ATI Technologies Inc. ATI Mobility Radeon HD 4250 Graphics
+ATI Technologies Inc. ATI Mobility Radeon HD 4270
+ATI Technologies Inc. ATI Mobility Radeon HD 4300 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4300/4500 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4330
+ATI Technologies Inc. ATI Mobility Radeon HD 4330 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4350
+ATI Technologies Inc. ATI Mobility Radeon HD 4350 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4500 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4500/5100 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4530
+ATI Technologies Inc. ATI Mobility Radeon HD 4530 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4550
+ATI Technologies Inc. ATI Mobility Radeon HD 4570
+ATI Technologies Inc. ATI Mobility Radeon HD 4600 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4650
+ATI Technologies Inc. ATI Mobility Radeon HD 4650 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4670
+ATI Technologies Inc. ATI Mobility Radeon HD 4830 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 4850
+ATI Technologies Inc. ATI Mobility Radeon HD 4870
+ATI Technologies Inc. ATI Mobility Radeon HD 5000
+ATI Technologies Inc. ATI Mobility Radeon HD 5000 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 5145
+ATI Technologies Inc. ATI Mobility Radeon HD 5165
+ATI Technologies Inc. ATI Mobility Radeon HD 530v
+ATI Technologies Inc. ATI Mobility Radeon HD 5400 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 540v
+ATI Technologies Inc. ATI Mobility Radeon HD 5430
+ATI Technologies Inc. ATI Mobility Radeon HD 5450
+ATI Technologies Inc. ATI Mobility Radeon HD 5450 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 545v
+ATI Technologies Inc. ATI Mobility Radeon HD 5470
+ATI Technologies Inc. ATI Mobility Radeon HD 550v
+ATI Technologies Inc. ATI Mobility Radeon HD 5600/5700 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 560v
+ATI Technologies Inc. ATI Mobility Radeon HD 5650
+ATI Technologies Inc. ATI Mobility Radeon HD 5700 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 5730
+ATI Technologies Inc. ATI Mobility Radeon HD 5800 Series
+ATI Technologies Inc. ATI Mobility Radeon HD 5850
+ATI Technologies Inc. ATI Mobility Radeon HD 5870
+ATI Technologies Inc. ATI Mobility Radeon HD 6300 series
+ATI Technologies Inc. ATI Mobility Radeon HD 6370
+ATI Technologies Inc. ATI Mobility Radeon HD 6470M
+ATI Technologies Inc. ATI Mobility Radeon HD 6550
+ATI Technologies Inc. ATI Mobility Radeon HD 6570
+ATI Technologies Inc. ATI Mobility Radeon X1300
+ATI Technologies Inc. ATI Mobility Radeon X1300 x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. ATI Mobility Radeon X1300 x86/SSE2
+ATI Technologies Inc. ATI Mobility Radeon X1350
+ATI Technologies Inc. ATI Mobility Radeon X1350 x86/SSE2
+ATI Technologies Inc. ATI Mobility Radeon X1400
+ATI Technologies Inc. ATI Mobility Radeon X1400 x86/SSE2
+ATI Technologies Inc. ATI Mobility Radeon X1600
+ATI Technologies Inc. ATI Mobility Radeon X1600 x86/SSE2
+ATI Technologies Inc. ATI Mobility Radeon X1700 x86/SSE2
+ATI Technologies Inc. ATI Mobility Radeon X2300
+ATI Technologies Inc. ATI Mobility Radeon X2300 (Omega 3.8.442)
+ATI Technologies Inc. ATI Mobility Radeon X2300 x86
+ATI Technologies Inc. ATI Mobility Radeon X2300 x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. ATI Mobility Radeon X2300 x86/SSE2
+ATI Technologies Inc. ATI Mobility Radeon X2500
+ATI Technologies Inc. ATI Mobility Radeon X2500 x86/SSE2
+ATI Technologies Inc. ATI Mobility Radeon. HD 530v
+ATI Technologies Inc. ATI Mobility Radeon. HD 5470
+ATI Technologies Inc. ATI RADEON HD 3200 T25XX by CAMILO
+ATI Technologies Inc. ATI RADEON XPRESS 1100
+ATI Technologies Inc. ATI RADEON XPRESS 200 Series
+ATI Technologies Inc. ATI RADEON XPRESS 200 Series x86/SSE2
+ATI Technologies Inc. ATI RADEON XPRESS 200M SERIES
+ATI Technologies Inc. ATI Radeon
+ATI Technologies Inc. ATI Radeon 2100
+ATI Technologies Inc. ATI Radeon 2100 (Microsoft - WDDM)
+ATI Technologies Inc. ATI Radeon 2100 Graphics
+ATI Technologies Inc. ATI Radeon 3000
+ATI Technologies Inc. ATI Radeon 3000 Graphics
+ATI Technologies Inc. ATI Radeon 3100 Graphics
+ATI Technologies Inc. ATI Radeon 5xxx series
+ATI Technologies Inc. ATI Radeon 9550 / X1050 Series
+ATI Technologies Inc. ATI Radeon 9550 / X1050 Series x86/MMX/3DNow!/SSE
+ATI Technologies Inc. ATI Radeon 9550 / X1050 Series x86/SSE2
+ATI Technologies Inc. ATI Radeon 9550 / X1050 Series(Microsoft - WDDM)
+ATI Technologies Inc. ATI Radeon 9600 / X1050 Series
+ATI Technologies Inc. ATI Radeon 9600/9550/X1050 Series
+ATI Technologies Inc. ATI Radeon BA Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon BB Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon Cedar PRO Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon Cypress PRO Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon Graphics Processor
+ATI Technologies Inc. ATI Radeon HD 2200 Graphics
+ATI Technologies Inc. ATI Radeon HD 2350
+ATI Technologies Inc. ATI Radeon HD 2400
+ATI Technologies Inc. ATI Radeon HD 2400 OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 2400 PRO
+ATI Technologies Inc. ATI Radeon HD 2400 PRO AGP
+ATI Technologies Inc. ATI Radeon HD 2400 Pro
+ATI Technologies Inc. ATI Radeon HD 2400 Series
+ATI Technologies Inc. ATI Radeon HD 2400 XT
+ATI Technologies Inc. ATI Radeon HD 2400 XT OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 2600 OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 2600 PRO
+ATI Technologies Inc. ATI Radeon HD 2600 PRO OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 2600 Pro
+ATI Technologies Inc. ATI Radeon HD 2600 Series
+ATI Technologies Inc. ATI Radeon HD 2600 XT
+ATI Technologies Inc. ATI Radeon HD 2900 GT
+ATI Technologies Inc. ATI Radeon HD 2900 XT
+ATI Technologies Inc. ATI Radeon HD 3200 Graphics
+ATI Technologies Inc. ATI Radeon HD 3300 Graphics
+ATI Technologies Inc. ATI Radeon HD 3400 Series
+ATI Technologies Inc. ATI Radeon HD 3450
+ATI Technologies Inc. ATI Radeon HD 3450 - Dell Optiplex
+ATI Technologies Inc. ATI Radeon HD 3470
+ATI Technologies Inc. ATI Radeon HD 3470 - Dell Optiplex
+ATI Technologies Inc. ATI Radeon HD 3550
+ATI Technologies Inc. ATI Radeon HD 3600 Series
+ATI Technologies Inc. ATI Radeon HD 3650
+ATI Technologies Inc. ATI Radeon HD 3650 AGP
+ATI Technologies Inc. ATI Radeon HD 3730
+ATI Technologies Inc. ATI Radeon HD 3800 Series
+ATI Technologies Inc. ATI Radeon HD 3850
+ATI Technologies Inc. ATI Radeon HD 3850 AGP
+ATI Technologies Inc. ATI Radeon HD 3870
+ATI Technologies Inc. ATI Radeon HD 3870 X2
+ATI Technologies Inc. ATI Radeon HD 4200
+ATI Technologies Inc. ATI Radeon HD 4250
+ATI Technologies Inc. ATI Radeon HD 4250 Graphics
+ATI Technologies Inc. ATI Radeon HD 4270
+ATI Technologies Inc. ATI Radeon HD 4290
+ATI Technologies Inc. ATI Radeon HD 4300 Series
+ATI Technologies Inc. ATI Radeon HD 4300/4500 Series
+ATI Technologies Inc. ATI Radeon HD 4350
+ATI Technologies Inc. ATI Radeon HD 4350 (Microsoft WDDM 1.1)
+ATI Technologies Inc. ATI Radeon HD 4450
+ATI Technologies Inc. ATI Radeon HD 4500 Series
+ATI Technologies Inc. ATI Radeon HD 4550
+ATI Technologies Inc. ATI Radeon HD 4600 Series
+ATI Technologies Inc. ATI Radeon HD 4650
+ATI Technologies Inc. ATI Radeon HD 4670
+ATI Technologies Inc. ATI Radeon HD 4670 OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 4700 Series
+ATI Technologies Inc. ATI Radeon HD 4720
+ATI Technologies Inc. ATI Radeon HD 4730
+ATI Technologies Inc. ATI Radeon HD 4730 Series
+ATI Technologies Inc. ATI Radeon HD 4750
+ATI Technologies Inc. ATI Radeon HD 4770
+ATI Technologies Inc. ATI Radeon HD 4800 Series
+ATI Technologies Inc. ATI Radeon HD 4850
+ATI Technologies Inc. ATI Radeon HD 4850 OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 4850 Series
+ATI Technologies Inc. ATI Radeon HD 4870
+ATI Technologies Inc. ATI Radeon HD 4870 OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 4870 X2
+ATI Technologies Inc. ATI Radeon HD 5400 Series
+ATI Technologies Inc. ATI Radeon HD 5450
+ATI Technologies Inc. ATI Radeon HD 5500 Series
+ATI Technologies Inc. ATI Radeon HD 5570
+ATI Technologies Inc. ATI Radeon HD 5600 Series
+ATI Technologies Inc. ATI Radeon HD 5630
+ATI Technologies Inc. ATI Radeon HD 5670
+ATI Technologies Inc. ATI Radeon HD 5670 OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 5700 Series
+ATI Technologies Inc. ATI Radeon HD 5750
+ATI Technologies Inc. ATI Radeon HD 5750 OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 5770
+ATI Technologies Inc. ATI Radeon HD 5770 OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 5800 Series
+ATI Technologies Inc. ATI Radeon HD 5850
+ATI Technologies Inc. ATI Radeon HD 5870
+ATI Technologies Inc. ATI Radeon HD 5870 OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 5900 Series
+ATI Technologies Inc. ATI Radeon HD 5970
+ATI Technologies Inc. ATI Radeon HD 6230
+ATI Technologies Inc. ATI Radeon HD 6250
+ATI Technologies Inc. ATI Radeon HD 6350
+ATI Technologies Inc. ATI Radeon HD 6390
+ATI Technologies Inc. ATI Radeon HD 6490M OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 6510
+ATI Technologies Inc. ATI Radeon HD 6570M
+ATI Technologies Inc. ATI Radeon HD 6750
+ATI Technologies Inc. ATI Radeon HD 6750M OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 6770
+ATI Technologies Inc. ATI Radeon HD 6770M OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD 6800 Series
+ATI Technologies Inc. ATI Radeon HD 6970M OpenGL Engine
+ATI Technologies Inc. ATI Radeon HD3750
+ATI Technologies Inc. ATI Radeon HD4300/HD4500 series
+ATI Technologies Inc. ATI Radeon HD4670
+ATI Technologies Inc. ATI Radeon Juniper LE Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon RV710 Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon RV730 Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon RV770 Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon RV790 Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon Redwood PRO Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon Redwood XT Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon Whistler PRO/LP Prototype OpenGL Engine
+ATI Technologies Inc. ATI Radeon X1050
+ATI Technologies Inc. ATI Radeon X1050 Series
+ATI Technologies Inc. ATI Radeon X1200
+ATI Technologies Inc. ATI Radeon X1200 Series
+ATI Technologies Inc. ATI Radeon X1200 Series x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. ATI Radeon X1250
+ATI Technologies Inc. ATI Radeon X1250 x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. ATI Radeon X1270
+ATI Technologies Inc. ATI Radeon X1270 x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. ATI Radeon X1300/X1550 Series
+ATI Technologies Inc. ATI Radeon X1550 Series
+ATI Technologies Inc. ATI Radeon X1600 OpenGL Engine
+ATI Technologies Inc. ATI Radeon X1900 OpenGL Engine
+ATI Technologies Inc. ATI Radeon X1950 GT
+ATI Technologies Inc. ATI Radeon X300/X550/X1050 Series
+ATI Technologies Inc. ATI Radeon Xpress 1100
+ATI Technologies Inc. ATI Radeon Xpress 1150
+ATI Technologies Inc. ATI Radeon Xpress 1150 x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. ATI Radeon Xpress 1200
+ATI Technologies Inc. ATI Radeon Xpress 1200 Series
+ATI Technologies Inc. ATI Radeon Xpress 1200 Series x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. ATI Radeon Xpress 1200 x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. ATI Radeon Xpress 1250
+ATI Technologies Inc. ATI Radeon Xpress 1250 x86/SSE2
+ATI Technologies Inc. ATI Radeon Xpress Series
+ATI Technologies Inc. ATI Yamaha HD 9000
+ATI Technologies Inc. ATi RS880M
+ATI Technologies Inc. Carte graphique VGA standard
+ATI Technologies Inc. Diamond Radeon X1550 Series
+ATI Technologies Inc. EG JUNIPER
+ATI Technologies Inc. EG PARK
+ATI Technologies Inc. FireGL V3100 Pentium 4 (SSE2)
+ATI Technologies Inc. FireMV 2400 PCI DDR x86
+ATI Technologies Inc. FireMV 2400 PCI DDR x86/SSE2
+ATI Technologies Inc. GeCube Radeon X1550
+ATI Technologies Inc. Geforce 9500 GT
+ATI Technologies Inc. Geforce 9500GT
+ATI Technologies Inc. Geforce 9800 GT
+ATI Technologies Inc. HD3730
+ATI Technologies Inc. HIGHTECH EXCALIBUR RADEON 9550SE Series
+ATI Technologies Inc. HIGHTECH EXCALIBUR X700 PRO
+ATI Technologies Inc. M21 x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. M76M
+ATI Technologies Inc. MOBILITY RADEON 7500 DDR x86/SSE2
+ATI Technologies Inc. MOBILITY RADEON 9000 DDR x86/SSE2
+ATI Technologies Inc. MOBILITY RADEON 9000 IGPRADEON 9100 IGP DDR x86/SSE2
+ATI Technologies Inc. MOBILITY RADEON 9600 x86/SSE2
+ATI Technologies Inc. MOBILITY RADEON 9700 x86/SSE2
+ATI Technologies Inc. MOBILITY RADEON X300 x86/SSE2
+ATI Technologies Inc. MOBILITY RADEON X600 x86/SSE2
+ATI Technologies Inc. MOBILITY RADEON X700 SE x86
+ATI Technologies Inc. MOBILITY RADEON X700 x86/SSE2
+ATI Technologies Inc. MSI RX9550SE
+ATI Technologies Inc. Mobility Radeon X2300 HD
+ATI Technologies Inc. Mobility Radeon X2300 HD x86/SSE2
+ATI Technologies Inc. RADEON 7000 DDR x86/MMX/3DNow!/SSE
+ATI Technologies Inc. RADEON 7000 DDR x86/SSE2
+ATI Technologies Inc. RADEON 7500 DDR x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON 7500 DDR x86/SSE2
+ATI Technologies Inc. RADEON 9100 IGP DDR x86/SSE2
+ATI Technologies Inc. RADEON 9200 DDR x86/MMX/3DNow!/SSE
+ATI Technologies Inc. RADEON 9200 DDR x86/SSE2
+ATI Technologies Inc. RADEON 9200 PRO DDR x86/MMX/3DNow!/SSE
+ATI Technologies Inc. RADEON 9200 Series DDR x86/MMX/3DNow!/SSE
+ATI Technologies Inc. RADEON 9200 Series DDR x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON 9200 Series DDR x86/SSE
+ATI Technologies Inc. RADEON 9200 Series DDR x86/SSE2
+ATI Technologies Inc. RADEON 9200SE DDR x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON 9200SE DDR x86/SSE2
+ATI Technologies Inc. RADEON 9250/9200 Series DDR x86/MMX/3DNow!/SSE
+ATI Technologies Inc. RADEON 9250/9200 Series DDR x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON 9250/9200 Series DDR x86/SSE2
+ATI Technologies Inc. RADEON 9500
+ATI Technologies Inc. RADEON 9550 x86/SSE2
+ATI Technologies Inc. RADEON 9600 SERIES
+ATI Technologies Inc. RADEON 9600 SERIES x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON 9600 TX x86/SSE2
+ATI Technologies Inc. RADEON 9600 x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON 9600 x86/SSE2
+ATI Technologies Inc. RADEON 9700 PRO x86/MMX/3DNow!/SSE
+ATI Technologies Inc. RADEON 9800 PRO
+ATI Technologies Inc. RADEON 9800 x86/SSE2
+ATI Technologies Inc. RADEON IGP 340M DDR x86/SSE2
+ATI Technologies Inc. RADEON X300 Series x86/SSE2
+ATI Technologies Inc. RADEON X300 x86/SSE2
+ATI Technologies Inc. RADEON X300/X550 Series x86/SSE2
+ATI Technologies Inc. RADEON X550 x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON X550 x86/SSE2
+ATI Technologies Inc. RADEON X600 Series
+ATI Technologies Inc. RADEON X600 x86/SSE2
+ATI Technologies Inc. RADEON X700 PRO x86/SSE2
+ATI Technologies Inc. RADEON X800 SE x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON X800GT
+ATI Technologies Inc. RADEON XPRESS 200 Series SW TCL x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON XPRESS 200 Series SW TCL x86/SSE2
+ATI Technologies Inc. RADEON XPRESS 200 Series x86/SSE2
+ATI Technologies Inc. RADEON XPRESS 200M Series SW TCL x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON XPRESS 200M Series SW TCL x86/SSE2
+ATI Technologies Inc. RADEON XPRESS 200M Series x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON XPRESS 200M Series x86/SSE2
+ATI Technologies Inc. RADEON XPRESS Series x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. RADEON XPRESS Series x86/SSE2
+ATI Technologies Inc. RS740
+ATI Technologies Inc. RS780C
+ATI Technologies Inc. RS780M
+ATI Technologies Inc. RS880
+ATI Technologies Inc. RV410 Pro x86/SSE2
+ATI Technologies Inc. RV790
+ATI Technologies Inc. Radeon (TM) HD 6470M
+ATI Technologies Inc. Radeon (TM) HD 6490M
+ATI Technologies Inc. Radeon (TM) HD 6770M
+ATI Technologies Inc. Radeon 7000 DDR x86/SSE2
+ATI Technologies Inc. Radeon 7000 SDR x86/SSE2
+ATI Technologies Inc. Radeon 7500 DDR x86/SSE2
+ATI Technologies Inc. Radeon 9000 DDR x86/SSE2
+ATI Technologies Inc. Radeon DDR x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. Radeon DDR x86/SSE
+ATI Technologies Inc. Radeon DDR x86/SSE2
+ATI Technologies Inc. Radeon HD 6310
+ATI Technologies Inc. Radeon HD 6800 Series
+ATI Technologies Inc. Radeon SDR x86/SSE2
+ATI Technologies Inc. Radeon X1300 Series
+ATI Technologies Inc. Radeon X1300 Series x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. Radeon X1300 Series x86/SSE2
+ATI Technologies Inc. Radeon X1300/X1550 Series
+ATI Technologies Inc. Radeon X1300/X1550 Series x86/SSE2
+ATI Technologies Inc. Radeon X1550 64-bit (Microsoft - WDDM)
+ATI Technologies Inc. Radeon X1550 Series
+ATI Technologies Inc. Radeon X1550 Series x86/SSE2
+ATI Technologies Inc. Radeon X1600
+ATI Technologies Inc. Radeon X1600 Pro / X1300XT x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. Radeon X1600 Series x86/SSE2
+ATI Technologies Inc. Radeon X1600/X1650 Series
+ATI Technologies Inc. Radeon X1650 Series
+ATI Technologies Inc. Radeon X1650 Series x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. Radeon X1650 Series x86/SSE2
+ATI Technologies Inc. Radeon X1900 Series x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. Radeon X1950 Pro
+ATI Technologies Inc. Radeon X1950 Pro x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. Radeon X1950 Series
+ATI Technologies Inc. Radeon X1950 Series  (Microsoft - WDDM)
+ATI Technologies Inc. Radeon X300/X550/X1050 Series
+ATI Technologies Inc. Radeon X550/X700 Series
+ATI Technologies Inc. Radeon X550XTX x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. SAPPHIRE RADEON X300SE
+ATI Technologies Inc. SAPPHIRE RADEON X300SE x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. SAPPHIRE RADEON X300SE x86/SSE2
+ATI Technologies Inc. SAPPHIRE Radeon X1550 Series
+ATI Technologies Inc. SAPPHIRE Radeon X1550 Series x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. Sapphire Radeon HD 3730
+ATI Technologies Inc. Sapphire Radeon HD 3750
+ATI Technologies Inc. Standard VGA Graphics Adapter
+ATI Technologies Inc. Tul, RADEON  X600 PRO
+ATI Technologies Inc. Tul, RADEON  X600 PRO x86/SSE2
+ATI Technologies Inc. Tul, RADEON  X700 PRO
+ATI Technologies Inc. Tul, RADEON  X700 PRO x86/MMX/3DNow!/SSE2
+ATI Technologies Inc. VisionTek Radeon 4350
+ATI Technologies Inc. VisionTek Radeon X1550 Series
+ATI Technologies Inc. WRESTLER 9802
+ATI Technologies Inc. WRESTLER 9803
+ATI Technologies Inc. XFX Radeon HD 4570
+ATI Technologies Inc. Yamaha ATI HD 9000da/s
+ATI Technologies Inc. Yamaha ATI HD 9000da/s 2048
+Advanced Micro Devices, Inc. Mesa DRI R600 (RS780 9612) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RS880 9710) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RS880 9712) 20090101  TCL
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV610 94C1) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV610 94C9) 20090101 x86/MMX/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV620 95C4) 20090101 x86/MMX/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV620 95C5) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV620 95C5) 20090101 x86/MMX/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV635 9596) 20090101 x86/MMX+/3DNow!+/SSE TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV670 9505) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV710 9552) 20090101 x86/MMX/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV730 9490) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV730 9490) 20090101 x86/MMX/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV730 9498) 20090101  TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV770 9440) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+Advanced Micro Devices, Inc. Mesa DRI R600 (RV770 9442) 20090101 x86/MMX/SSE2 TCL DRI2
+Alex Mohr GL Hijacker!
+Apple Software Renderer
+DRI R300 Project Mesa DRI R300 (RS400 5954) 20090101 x86/MMX+/3DNow!+/SSE2 NO-TCL DRI2
+DRI R300 Project Mesa DRI R300 (RS400 5975) 20090101 x86/MMX+/3DNow!+/SSE2 NO-TCL DRI2
+DRI R300 Project Mesa DRI R300 (RS400 5A62) 20090101 x86/MMX/SSE2 NO-TCL DRI2
+DRI R300 Project Mesa DRI R300 (RS600 7941) 20090101 x86/MMX/SSE2 NO-TCL
+DRI R300 Project Mesa DRI R300 (RS690 791F) 20090101 x86/MMX+/3DNow!+/SSE2 NO-TCL DRI2
+DRI R300 Project Mesa DRI R300 (RV350 4151) 20090101 AGP 4x x86/MMX+/3DNow!+/SSE TCL
+DRI R300 Project Mesa DRI R300 (RV350 4153) 20090101 AGP 8x x86/MMX+/3DNow!+/SSE TCL
+DRI R300 Project Mesa DRI R300 (RV380 3150) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+DRI R300 Project Mesa DRI R300 (RV380 3150) 20090101 x86/MMX/SSE2 TCL DRI2
+DRI R300 Project Mesa DRI R300 (RV380 5B60) 20090101 x86/MMX/SSE2 TCL DRI2
+DRI R300 Project Mesa DRI R300 (RV380 5B62) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+DRI R300 Project Mesa DRI R300 (RV515 7145) 20090101 x86/MMX/SSE2 TCL DRI2
+DRI R300 Project Mesa DRI R300 (RV515 7146) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+DRI R300 Project Mesa DRI R300 (RV515 7146) 20090101 x86/MMX/SSE2 TCL DRI2
+DRI R300 Project Mesa DRI R300 (RV515 7149) 20090101 x86/MMX/SSE2 TCL DRI2
+DRI R300 Project Mesa DRI R300 (RV515 714A) 20090101 x86/MMX/SSE2 TCL
+DRI R300 Project Mesa DRI R300 (RV515 714A) 20090101 x86/MMX/SSE2 TCL DRI2
+DRI R300 Project Mesa DRI R300 (RV530 71C4) 20090101 x86/MMX/SSE2 TCL DRI2
+GPU_CLASS_UNKNOWN
+Humper Chromium
+Intel
+Intel  HD Graphics Family
+Intel 3D-Analyze v2.2 - http://www.tommti-systems.com
+Intel 3D-Analyze v2.3 - http://www.tommti-systems.com
+Intel 4 Series Internal Chipset
+Intel 830M
+Intel 845G
+Intel 855GM
+Intel 865G
+Intel 915G
+Intel 915GM
+Intel 945G
+Intel 945GM
+Intel 950
+Intel 965
+Intel B43 Express Chipset
+Intel Bear Lake
+Intel Broadwater
+Intel Brookdale
+Intel Cantiga
+Intel Eaglelake
+Intel Familia Mobile 45 Express Chipset (Microsoft Corporation - WDDM 1.1)
+Intel G33
+Intel G41
+Intel G41 Express Chipset
+Intel G45
+Intel G45/G43 Express Chipset
+Intel Graphics Media Accelerator HD
+Intel HD Graphics
+Intel HD Graphics 100
+Intel HD Graphics 200
+Intel HD Graphics 200 BR-1101-00SH
+Intel HD Graphics 200 BR-1101-00SJ
+Intel HD Graphics 200 BR-1101-00SK
+Intel HD Graphics 200 BR-1101-01M5
+Intel HD Graphics 200 BR-1101-01M6
+Intel HD Graphics BR-1004-01Y1
+Intel HD Graphics BR-1006-0364
+Intel HD Graphics BR-1006-0365
+Intel HD Graphics BR-1006-0366
+Intel HD Graphics BR-1007-02G4
+Intel HD Graphics BR-1101-04SY
+Intel HD Graphics BR-1101-04SZ
+Intel HD Graphics BR-1101-04T0
+Intel HD Graphics BR-1101-04T9
+Intel HD Graphics Family
+Intel HD Graphics Family BR-1012-00Y8
+Intel HD Graphics Family BR-1012-00YF
+Intel HD Graphics Family BR-1012-00ZD
+Intel HD Graphics Family BR-1102-00ML
+Intel Inc. Intel GMA 900 OpenGL Engine
+Intel Inc. Intel GMA 950 OpenGL Engine
+Intel Inc. Intel GMA X3100 OpenGL Engine
+Intel Inc. Intel HD Graphics 3000 OpenGL Engine
+Intel Inc. Intel HD Graphics OpenGL Engine
+Intel Inc. Intel HD xxxx OpenGL Engine
+Intel Intel 845G
+Intel Intel 855GM
+Intel Intel 865G
+Intel Intel 915G
+Intel Intel 915GM
+Intel Intel 945G
+Intel Intel 945GM
+Intel Intel 965/963 Graphics Media Accelerator
+Intel Intel Bear Lake B
+Intel Intel Broadwater G
+Intel Intel Brookdale-G
+Intel Intel Calistoga
+Intel Intel Cantiga
+Intel Intel Eaglelake
+Intel Intel Grantsdale-G
+Intel Intel HD Graphics 3000
+Intel Intel Lakeport
+Intel Intel Montara-GM
+Intel Intel Pineview Platform
+Intel Intel Springdale-G
+Intel Mobile - famiglia Express Chipset 45 (Microsoft Corporation - WDDM 1.1)
+Intel Mobile 4 Series
+Intel Mobile 4 Series Express Chipset Family
+Intel Mobile 45 Express Chipset Family (Microsoft Corporation - WDDM 1.1)
+Intel Mobile HD Graphics
+Intel Mobile SandyBridge HD Graphics
+Intel Montara
+Intel Pineview
+Intel Q45/Q43 Express Chipset
+Intel Royal BNA Driver
+Intel SandyBridge HD Graphics
+Intel SandyBridge HD Graphics BR-1006-00V8
+Intel Springdale
+Intel X3100
+Intergraph wcgdrv 06.05.06.18
+Intergraph wcgdrv 06.06.00.35
+LegendgrafiX Mobile 945 Express C/TitaniumGL/GAC/D3D ACCELERATION/6x86/1 THREADs | http://LegendgrafiX.tk
+LegendgrafiX NVIDIA GeForce GT 430/TitaniumGL/GAC/D3D ACCELERATION/6x86/1 THREADs | http://LegendgrafiX.tk
+Linden Lab Headless
+Matrox
+Mesa
+Mesa Project Software Rasterizer
+NVIDIA /PCI/SSE2
+NVIDIA /PCI/SSE2/3DNOW!
+NVIDIA 205
+NVIDIA 210
+NVIDIA 310
+NVIDIA 310M
+NVIDIA 315
+NVIDIA 315M
+NVIDIA 320M
+NVIDIA C51
+NVIDIA D10M2-20/PCI/SSE2
+NVIDIA D10P1-25/PCI/SSE2
+NVIDIA D10P1-30/PCI/SSE2
+NVIDIA D10P2-50/PCI/SSE2
+NVIDIA D11M2-30/PCI/SSE2
+NVIDIA D12-P1-35/PCI/SSE2
+NVIDIA D12U-15/PCI/SSE2
+NVIDIA D13M1-40/PCI/SSE2
+NVIDIA D13P1-40/PCI/SSE2
+NVIDIA D13U-10/PCI/SSE2
+NVIDIA D13U/PCI/SSE2
+NVIDIA D9M
+NVIDIA D9M-20/PCI/SSE2
+NVIDIA Entry Graphics/PCI/SSE2
+NVIDIA Entry Graphics/PCI/SSE2/3DNOW!
+NVIDIA G 102M
+NVIDIA G 103M
+NVIDIA G 105M
+NVIDIA G 110M
+NVIDIA G100
+NVIDIA G102M
+NVIDIA G103M
+NVIDIA G105M
+NVIDIA G210
+NVIDIA G210M
+NVIDIA G70/PCI/SSE2
+NVIDIA G72
+NVIDIA G73
+NVIDIA G84
+NVIDIA G86
+NVIDIA G92
+NVIDIA G92-200/PCI/SSE2
+NVIDIA G94
+NVIDIA G96/PCI/SSE2
+NVIDIA G98/PCI/SSE2
+NVIDIA GT 120
+NVIDIA GT 130
+NVIDIA GT 130M
+NVIDIA GT 140
+NVIDIA GT 150
+NVIDIA GT 160M
+NVIDIA GT 220
+NVIDIA GT 220/PCI/SSE2
+NVIDIA GT 220/PCI/SSE2/3DNOW!
+NVIDIA GT 230
+NVIDIA GT 230M
+NVIDIA GT 240
+NVIDIA GT 240M
+NVIDIA GT 250M
+NVIDIA GT 260M
+NVIDIA GT 320
+NVIDIA GT 320M
+NVIDIA GT 330
+NVIDIA GT 330M
+NVIDIA GT 340
+NVIDIA GT 420
+NVIDIA GT 430
+NVIDIA GT 440
+NVIDIA GT 450
+NVIDIA GT 520
+NVIDIA GT 540
+NVIDIA GT 540M
+NVIDIA GT-120
+NVIDIA GT200/PCI/SSE2
+NVIDIA GTS 150
+NVIDIA GTS 240
+NVIDIA GTS 250
+NVIDIA GTS 350M
+NVIDIA GTS 360
+NVIDIA GTS 360M
+NVIDIA GTS 450
+NVIDIA GTX 260
+NVIDIA GTX 260M
+NVIDIA GTX 270
+NVIDIA GTX 280
+NVIDIA GTX 285
+NVIDIA GTX 290
+NVIDIA GTX 460
+NVIDIA GTX 460M
+NVIDIA GTX 465
+NVIDIA GTX 470
+NVIDIA GTX 470M
+NVIDIA GTX 480
+NVIDIA GTX 480M
+NVIDIA GTX 550 Ti
+NVIDIA GTX 560
+NVIDIA GTX 560 Ti
+NVIDIA GTX 570
+NVIDIA GTX 580
+NVIDIA GTX 590
+NVIDIA GeForce
+NVIDIA GeForce 2
+NVIDIA GeForce 205/PCI/SSE2
+NVIDIA GeForce 210
+NVIDIA GeForce 210/PCI/SSE2
+NVIDIA GeForce 210/PCI/SSE2/3DNOW!
+NVIDIA GeForce 3
+NVIDIA GeForce 305M/PCI/SSE2
+NVIDIA GeForce 310/PCI/SSE2
+NVIDIA GeForce 310/PCI/SSE2/3DNOW!
+NVIDIA GeForce 310M/PCI/SSE2
+NVIDIA GeForce 315/PCI/SSE2
+NVIDIA GeForce 315/PCI/SSE2/3DNOW!
+NVIDIA GeForce 315M/PCI/SSE2
+NVIDIA GeForce 320M/PCI/SSE2
+NVIDIA GeForce 4 Go
+NVIDIA GeForce 4 MX
+NVIDIA GeForce 4 Ti
+NVIDIA GeForce 405/PCI/SSE2
+NVIDIA GeForce 6100
+NVIDIA GeForce 6100 nForce 400/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6100 nForce 405/PCI/SSE2
+NVIDIA GeForce 6100 nForce 405/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6100 nForce 420/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6100 nForce 430/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6100/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6150 LE/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6150/PCI/SSE2
+NVIDIA GeForce 6150/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6150SE nForce 430/PCI/SSE2
+NVIDIA GeForce 6150SE nForce 430/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6150SE/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6200
+NVIDIA GeForce 6200 A-LE/AGP/SSE/3DNOW!
+NVIDIA GeForce 6200 A-LE/AGP/SSE2
+NVIDIA GeForce 6200 A-LE/AGP/SSE2/3DNOW!
+NVIDIA GeForce 6200 LE/PCI/SSE2
+NVIDIA GeForce 6200 LE/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6200 TurboCache(TM)/PCI/SSE2
+NVIDIA GeForce 6200 TurboCache(TM)/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6200/AGP/SSE/3DNOW!
+NVIDIA GeForce 6200/AGP/SSE2
+NVIDIA GeForce 6200/AGP/SSE2/3DNOW!
+NVIDIA GeForce 6200/PCI/SSE/3DNOW!
+NVIDIA GeForce 6200/PCI/SSE2
+NVIDIA GeForce 6200/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6200SE TurboCache(TM)/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6500
+NVIDIA GeForce 6500/PCI/SSE2
+NVIDIA GeForce 6600
+NVIDIA GeForce 6600 GT/AGP/SSE/3DNOW!
+NVIDIA GeForce 6600 GT/AGP/SSE2
+NVIDIA GeForce 6600 GT/PCI/SSE/3DNOW!
+NVIDIA GeForce 6600 GT/PCI/SSE2
+NVIDIA GeForce 6600 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6600 LE/PCI/SSE2
+NVIDIA GeForce 6600/AGP/SSE/3DNOW!
+NVIDIA GeForce 6600/AGP/SSE2
+NVIDIA GeForce 6600/AGP/SSE2/3DNOW!
+NVIDIA GeForce 6600/PCI/SSE2
+NVIDIA GeForce 6600/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6700
+NVIDIA GeForce 6800
+NVIDIA GeForce 6800 GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 6800 GT/AGP/SSE2
+NVIDIA GeForce 6800 GT/PCI/SSE2
+NVIDIA GeForce 6800 XT/AGP/SSE2
+NVIDIA GeForce 6800 XT/PCI/SSE2
+NVIDIA GeForce 6800/PCI/SSE2
+NVIDIA GeForce 6800/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7000
+NVIDIA GeForce 7000M
+NVIDIA GeForce 7000M / nForce 610M/PCI/SSE2
+NVIDIA GeForce 7000M / nForce 610M/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7025 / NVIDIA nForce 630a/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7025 / nForce 630a/PCI/SSE2
+NVIDIA GeForce 7025 / nForce 630a/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7050 / NVIDIA nForce 610i/PCI/SSE2
+NVIDIA GeForce 7050 / NVIDIA nForce 620i/PCI/SSE2
+NVIDIA GeForce 7050 / nForce 610i/PCI/SSE2
+NVIDIA GeForce 7050 / nForce 620i/PCI/SSE2
+NVIDIA GeForce 7050 PV / NVIDIA nForce 630a/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7050 PV / nForce 630a/PCI/SSE2
+NVIDIA GeForce 7050 PV / nForce 630a/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7050 SE / NVIDIA nForce 630a/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7100
+NVIDIA GeForce 7100 / NVIDIA nForce 620i/PCI/SSE2
+NVIDIA GeForce 7100 / NVIDIA nForce 630i/PCI/SSE2
+NVIDIA GeForce 7100 / nForce 630i/PCI/SSE2
+NVIDIA GeForce 7100 GS/PCI/SSE2
+NVIDIA GeForce 7100 GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7150M / nForce 630M/PCI/SSE2
+NVIDIA GeForce 7150M / nForce 630M/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7300
+NVIDIA GeForce 7300 GS/PCI/SSE2
+NVIDIA GeForce 7300 GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7300 GT/AGP/SSE2
+NVIDIA GeForce 7300 GT/AGP/SSE2/3DNOW!
+NVIDIA GeForce 7300 GT/PCI/SSE2
+NVIDIA GeForce 7300 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7300 LE/PCI/SSE2
+NVIDIA GeForce 7300 LE/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7300 SE/7200 GS/PCI/SSE2
+NVIDIA GeForce 7300 SE/7200 GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7300 SE/PCI/SSE2
+NVIDIA GeForce 7300 SE/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7350 LE/PCI/SSE2
+NVIDIA GeForce 7500
+NVIDIA GeForce 7500 LE/PCI/SSE2
+NVIDIA GeForce 7500 LE/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7600
+NVIDIA GeForce 7600 GS/AGP/SSE2
+NVIDIA GeForce 7600 GS/AGP/SSE2/3DNOW!
+NVIDIA GeForce 7600 GS/PCI/SSE2
+NVIDIA GeForce 7600 GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7600 GT/AGP/SSE/3DNOW!
+NVIDIA GeForce 7600 GT/AGP/SSE2
+NVIDIA GeForce 7600 GT/PCI/SSE2
+NVIDIA GeForce 7600 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7650 GS/PCI/SSE2
+NVIDIA GeForce 7800
+NVIDIA GeForce 7800 GS/AGP/SSE2
+NVIDIA GeForce 7800 GS/AGP/SSE2/3DNOW!
+NVIDIA GeForce 7800 GT/PCI/SSE2
+NVIDIA GeForce 7800 GTX/PCI/SSE2
+NVIDIA GeForce 7800 GTX/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7900
+NVIDIA GeForce 7900 GS/PCI/SSE2
+NVIDIA GeForce 7900 GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7900 GT/GTO/PCI/SSE2
+NVIDIA GeForce 7900 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 7900 GTX/PCI/SSE2
+NVIDIA GeForce 7950 GT/PCI/SSE2
+NVIDIA GeForce 7950 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8100
+NVIDIA GeForce 8100 / nForce 720a/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8200
+NVIDIA GeForce 8200/PCI/SSE2
+NVIDIA GeForce 8200/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8200M
+NVIDIA GeForce 8200M G/PCI/SSE2
+NVIDIA GeForce 8200M G/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8300
+NVIDIA GeForce 8300 GS/PCI/SSE2
+NVIDIA GeForce 8400
+NVIDIA GeForce 8400 GS/PCI/SSE/3DNOW!
+NVIDIA GeForce 8400 GS/PCI/SSE2
+NVIDIA GeForce 8400 GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8400/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8400GS/PCI/SSE2
+NVIDIA GeForce 8400GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8400M
+NVIDIA GeForce 8400M G/PCI/SSE2
+NVIDIA GeForce 8400M G/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8400M GS/PCI/SSE2
+NVIDIA GeForce 8400M GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8400M GT/PCI/SSE2
+NVIDIA GeForce 8500
+NVIDIA GeForce 8500 GT/PCI/SSE2
+NVIDIA GeForce 8500 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8600
+NVIDIA GeForce 8600 GS/PCI/SSE2
+NVIDIA GeForce 8600 GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8600 GT/PCI/SSE2
+NVIDIA GeForce 8600 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8600 GTS/PCI/SSE2
+NVIDIA GeForce 8600 GTS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8600GS/PCI/SSE2
+NVIDIA GeForce 8600M
+NVIDIA GeForce 8600M GS/PCI/SSE2
+NVIDIA GeForce 8600M GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8600M GT/PCI/SSE2
+NVIDIA GeForce 8700
+NVIDIA GeForce 8700M
+NVIDIA GeForce 8700M GT/PCI/SSE2
+NVIDIA GeForce 8800
+NVIDIA GeForce 8800 GS/PCI/SSE2
+NVIDIA GeForce 8800 GT/PCI/SSE2
+NVIDIA GeForce 8800 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8800 GTS 512/PCI/SSE2
+NVIDIA GeForce 8800 GTS 512/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8800 GTS/PCI/SSE2
+NVIDIA GeForce 8800 GTS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 8800 GTX/PCI/SSE2
+NVIDIA GeForce 8800 Ultra/PCI/SSE2
+NVIDIA GeForce 8800M GTS/PCI/SSE2
+NVIDIA GeForce 8800M GTX/PCI/SSE2
+NVIDIA GeForce 9100
+NVIDIA GeForce 9100/PCI/SSE2
+NVIDIA GeForce 9100/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9100M
+NVIDIA GeForce 9100M G/PCI/SSE2
+NVIDIA GeForce 9100M G/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9200
+NVIDIA GeForce 9200/PCI/SSE2
+NVIDIA GeForce 9200/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9200M GE/PCI/SSE2
+NVIDIA GeForce 9200M GS/PCI/SSE2
+NVIDIA GeForce 9300
+NVIDIA GeForce 9300 / nForce 730i/PCI/SSE2
+NVIDIA GeForce 9300 GE/PCI/SSE2
+NVIDIA GeForce 9300 GE/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9300 GS/PCI/SSE2
+NVIDIA GeForce 9300 GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9300 SE/PCI/SSE2
+NVIDIA GeForce 9300M
+NVIDIA GeForce 9300M G/PCI/SSE2
+NVIDIA GeForce 9300M G/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9300M GS/PCI/SSE2
+NVIDIA GeForce 9300M GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9400
+NVIDIA GeForce 9400 GT/PCI/SSE2
+NVIDIA GeForce 9400 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9400/PCI/SSE2
+NVIDIA GeForce 9400M
+NVIDIA GeForce 9400M G/PCI/SSE2
+NVIDIA GeForce 9400M/PCI/SSE2
+NVIDIA GeForce 9500
+NVIDIA GeForce 9500 GS/PCI/SSE2
+NVIDIA GeForce 9500 GS/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9500 GT/PCI/SSE2
+NVIDIA GeForce 9500 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9500M
+NVIDIA GeForce 9500M GS/PCI/SSE2
+NVIDIA GeForce 9600
+NVIDIA GeForce 9600 GS/PCI/SSE2
+NVIDIA GeForce 9600 GSO 512/PCI/SSE2
+NVIDIA GeForce 9600 GSO/PCI/SSE2
+NVIDIA GeForce 9600 GSO/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9600 GT/PCI/SSE2
+NVIDIA GeForce 9600 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9600M
+NVIDIA GeForce 9600M GS/PCI/SSE2
+NVIDIA GeForce 9600M GT/PCI/SSE2
+NVIDIA GeForce 9650M GT/PCI/SSE2
+NVIDIA GeForce 9700M
+NVIDIA GeForce 9700M GT/PCI/SSE2
+NVIDIA GeForce 9700M GTS/PCI/SSE2
+NVIDIA GeForce 9800
+NVIDIA GeForce 9800 GT/PCI/SSE2
+NVIDIA GeForce 9800 GT/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9800 GTX+/PCI/SSE2
+NVIDIA GeForce 9800 GTX+/PCI/SSE2/3DNOW!
+NVIDIA GeForce 9800 GTX/9800 GTX+/PCI/SSE2
+NVIDIA GeForce 9800 GTX/PCI/SSE2
+NVIDIA GeForce 9800 GX2/PCI/SSE2
+NVIDIA GeForce 9800M
+NVIDIA GeForce 9800M GS/PCI/SSE2
+NVIDIA GeForce 9800M GT/PCI/SSE2
+NVIDIA GeForce 9800M GTS/PCI/SSE2
+NVIDIA GeForce FX 5100
+NVIDIA GeForce FX 5100/AGP/SSE/3DNOW!
+NVIDIA GeForce FX 5200
+NVIDIA GeForce FX 5200/AGP/SSE
+NVIDIA GeForce FX 5200/AGP/SSE/3DNOW!
+NVIDIA GeForce FX 5200/AGP/SSE2
+NVIDIA GeForce FX 5200/AGP/SSE2/3DNOW!
+NVIDIA GeForce FX 5200/PCI/SSE2
+NVIDIA GeForce FX 5200/PCI/SSE2/3DNOW!
+NVIDIA GeForce FX 5200LE/AGP/SSE2
+NVIDIA GeForce FX 5500
+NVIDIA GeForce FX 5500/AGP/SSE/3DNOW!
+NVIDIA GeForce FX 5500/AGP/SSE2
+NVIDIA GeForce FX 5500/AGP/SSE2/3DNOW!
+NVIDIA GeForce FX 5500/PCI/SSE2
+NVIDIA GeForce FX 5500/PCI/SSE2/3DNOW!
+NVIDIA GeForce FX 5600
+NVIDIA GeForce FX 5600/AGP/SSE2
+NVIDIA GeForce FX 5600/AGP/SSE2/3DNOW!
+NVIDIA GeForce FX 5600XT/AGP/SSE2/3DNOW!
+NVIDIA GeForce FX 5700
+NVIDIA GeForce FX 5700/AGP/SSE/3DNOW!
+NVIDIA GeForce FX 5700LE/AGP/SSE
+NVIDIA GeForce FX 5700LE/AGP/SSE/3DNOW!
+NVIDIA GeForce FX 5800
+NVIDIA GeForce FX 5900
+NVIDIA GeForce FX 5900/AGP/SSE2
+NVIDIA GeForce FX 5900XT/AGP/SSE2
+NVIDIA GeForce FX Go5100
+NVIDIA GeForce FX Go5100/AGP/SSE2
+NVIDIA GeForce FX Go5200
+NVIDIA GeForce FX Go5200/AGP/SSE2
+NVIDIA GeForce FX Go5300
+NVIDIA GeForce FX Go5600
+NVIDIA GeForce FX Go5600/AGP/SSE2
+NVIDIA GeForce FX Go5650/AGP/SSE2
+NVIDIA GeForce FX Go5700
+NVIDIA GeForce FX Go5xxx/AGP/SSE2
+NVIDIA GeForce G 103M/PCI/SSE2
+NVIDIA GeForce G 105M/PCI/SSE2
+NVIDIA GeForce G 110M/PCI/SSE2
+NVIDIA GeForce G100/PCI/SSE2
+NVIDIA GeForce G100/PCI/SSE2/3DNOW!
+NVIDIA GeForce G102M/PCI/SSE2
+NVIDIA GeForce G105M/PCI/SSE2
+NVIDIA GeForce G200/PCI/SSE2
+NVIDIA GeForce G205M/PCI/SSE2
+NVIDIA GeForce G210/PCI/SSE2
+NVIDIA GeForce G210/PCI/SSE2/3DNOW!
+NVIDIA GeForce G210M/PCI/SSE2
+NVIDIA GeForce G310M/PCI/SSE2
+NVIDIA GeForce GT 120/PCI/SSE2
+NVIDIA GeForce GT 120/PCI/SSE2/3DNOW!
+NVIDIA GeForce GT 120M/PCI/SSE2
+NVIDIA GeForce GT 130M/PCI/SSE2
+NVIDIA GeForce GT 140/PCI/SSE2
+NVIDIA GeForce GT 220/PCI/SSE2
+NVIDIA GeForce GT 220/PCI/SSE2/3DNOW!
+NVIDIA GeForce GT 220M/PCI/SSE2
+NVIDIA GeForce GT 230/PCI/SSE2
+NVIDIA GeForce GT 230M/PCI/SSE2
+NVIDIA GeForce GT 240
+NVIDIA GeForce GT 240/PCI/SSE2
+NVIDIA GeForce GT 240/PCI/SSE2/3DNOW!
+NVIDIA GeForce GT 240M/PCI/SSE2
+NVIDIA GeForce GT 320/PCI/SSE2
+NVIDIA GeForce GT 320M/PCI/SSE2
+NVIDIA GeForce GT 325M/PCI/SSE2
+NVIDIA GeForce GT 330/PCI/SSE2
+NVIDIA GeForce GT 330/PCI/SSE2/3DNOW!
+NVIDIA GeForce GT 330M/PCI/SSE2
+NVIDIA GeForce GT 335M/PCI/SSE2
+NVIDIA GeForce GT 340/PCI/SSE2
+NVIDIA GeForce GT 340/PCI/SSE2/3DNOW!
+NVIDIA GeForce GT 415M/PCI/SSE2
+NVIDIA GeForce GT 420/PCI/SSE2
+NVIDIA GeForce GT 420M/PCI/SSE2
+NVIDIA GeForce GT 425M/PCI/SSE2
+NVIDIA GeForce GT 430/PCI/SSE2
+NVIDIA GeForce GT 430/PCI/SSE2/3DNOW!
+NVIDIA GeForce GT 435M/PCI/SSE2
+NVIDIA GeForce GT 440/PCI/SSE2
+NVIDIA GeForce GT 440/PCI/SSE2/3DNOW!
+NVIDIA GeForce GT 445M/PCI/SSE2
+NVIDIA GeForce GT 520M/PCI/SSE2
+NVIDIA GeForce GT 525M/PCI/SSE2
+NVIDIA GeForce GT 540M/PCI/SSE2
+NVIDIA GeForce GT 550M/PCI/SSE2
+NVIDIA GeForce GT 555M/PCI/SSE2
+NVIDIA GeForce GTS 150/PCI/SSE2
+NVIDIA GeForce GTS 160M/PCI/SSE2
+NVIDIA GeForce GTS 240/PCI/SSE2
+NVIDIA GeForce GTS 250/PCI/SSE2
+NVIDIA GeForce GTS 250/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTS 250M/PCI/SSE2
+NVIDIA GeForce GTS 350M/PCI/SSE2
+NVIDIA GeForce GTS 360M/PCI/SSE2
+NVIDIA GeForce GTS 450/PCI/SSE2
+NVIDIA GeForce GTS 450/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTS 455/PCI/SSE2
+NVIDIA GeForce GTX 260/PCI/SSE2
+NVIDIA GeForce GTX 260/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTX 260M/PCI/SSE2
+NVIDIA GeForce GTX 275/PCI/SSE2
+NVIDIA GeForce GTX 280
+NVIDIA GeForce GTX 280/PCI/SSE2
+NVIDIA GeForce GTX 280M/PCI/SSE2
+NVIDIA GeForce GTX 285/PCI/SSE2
+NVIDIA GeForce GTX 295/PCI/SSE2
+NVIDIA GeForce GTX 460 SE/PCI/SSE2
+NVIDIA GeForce GTX 460 SE/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTX 460/PCI/SSE2
+NVIDIA GeForce GTX 460/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTX 460M/PCI/SSE2
+NVIDIA GeForce GTX 465/PCI/SSE2
+NVIDIA GeForce GTX 465/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTX 470/PCI/SSE2
+NVIDIA GeForce GTX 470/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTX 480/PCI/SSE2
+NVIDIA GeForce GTX 550 Ti/PCI/SSE2
+NVIDIA GeForce GTX 550 Ti/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTX 560 Ti/PCI/SSE2
+NVIDIA GeForce GTX 560 Ti/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTX 560/PCI/SSE2
+NVIDIA GeForce GTX 570/PCI/SSE2
+NVIDIA GeForce GTX 570/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTX 580/PCI/SSE2
+NVIDIA GeForce GTX 580/PCI/SSE2/3DNOW!
+NVIDIA GeForce GTX 580M/PCI/SSE2
+NVIDIA GeForce GTX 590/PCI/SSE2
+NVIDIA GeForce Go 6
+NVIDIA GeForce Go 6100
+NVIDIA GeForce Go 6100/PCI/SSE2
+NVIDIA GeForce Go 6100/PCI/SSE2/3DNOW!
+NVIDIA GeForce Go 6150/PCI/SSE2
+NVIDIA GeForce Go 6150/PCI/SSE2/3DNOW!
+NVIDIA GeForce Go 6200
+NVIDIA GeForce Go 6200/PCI/SSE2
+NVIDIA GeForce Go 6400
+NVIDIA GeForce Go 6400/PCI/SSE2
+NVIDIA GeForce Go 6600
+NVIDIA GeForce Go 6600/PCI/SSE2
+NVIDIA GeForce Go 6800
+NVIDIA GeForce Go 6800 Ultra/PCI/SSE2
+NVIDIA GeForce Go 6800/PCI/SSE2
+NVIDIA GeForce Go 7200
+NVIDIA GeForce Go 7200/PCI/SSE2
+NVIDIA GeForce Go 7200/PCI/SSE2/3DNOW!
+NVIDIA GeForce Go 7300
+NVIDIA GeForce Go 7300/PCI/SSE2
+NVIDIA GeForce Go 7300/PCI/SSE2/3DNOW!
+NVIDIA GeForce Go 7400
+NVIDIA GeForce Go 7400/PCI/SSE2
+NVIDIA GeForce Go 7400/PCI/SSE2/3DNOW!
+NVIDIA GeForce Go 7600
+NVIDIA GeForce Go 7600/PCI/SSE2
+NVIDIA GeForce Go 7600/PCI/SSE2/3DNOW!
+NVIDIA GeForce Go 7700
+NVIDIA GeForce Go 7800
+NVIDIA GeForce Go 7800 GTX/PCI/SSE2
+NVIDIA GeForce Go 7900
+NVIDIA GeForce Go 7900 GS/PCI/SSE2
+NVIDIA GeForce Go 7900 GTX/PCI/SSE2
+NVIDIA GeForce Go 7950 GTX/PCI/SSE2
+NVIDIA GeForce PCX
+NVIDIA GeForce2 GTS/AGP/SSE
+NVIDIA GeForce2 MX/AGP/3DNOW!
+NVIDIA GeForce2 MX/AGP/SSE/3DNOW!
+NVIDIA GeForce2 MX/AGP/SSE2
+NVIDIA GeForce2 MX/PCI/SSE2
+NVIDIA GeForce3/AGP/SSE/3DNOW!
+NVIDIA GeForce3/AGP/SSE2
+NVIDIA GeForce4 420 Go 32M/AGP/SSE2
+NVIDIA GeForce4 420 Go 32M/AGP/SSE2/3DNOW!
+NVIDIA GeForce4 420 Go 32M/PCI/SSE2/3DNOW!
+NVIDIA GeForce4 440 Go 64M/AGP/SSE2/3DNOW!
+NVIDIA GeForce4 460 Go/AGP/SSE2
+NVIDIA GeForce4 MX 4000/AGP/SSE/3DNOW!
+NVIDIA GeForce4 MX 4000/AGP/SSE2
+NVIDIA GeForce4 MX 4000/PCI/3DNOW!
+NVIDIA GeForce4 MX 4000/PCI/SSE/3DNOW!
+NVIDIA GeForce4 MX 4000/PCI/SSE2
+NVIDIA GeForce4 MX 420/AGP/SSE/3DNOW!
+NVIDIA GeForce4 MX 420/AGP/SSE2
+NVIDIA GeForce4 MX 440 with AGP8X/AGP/SSE2
+NVIDIA GeForce4 MX 440/AGP/SSE2
+NVIDIA GeForce4 MX 440/AGP/SSE2/3DNOW!
+NVIDIA GeForce4 MX 440SE with AGP8X/AGP/SSE2
+NVIDIA GeForce4 MX Integrated GPU/AGP/SSE/3DNOW!
+NVIDIA GeForce4 Ti 4200 with AGP8X/AGP/SSE
+NVIDIA GeForce4 Ti 4200/AGP/SSE/3DNOW!
+NVIDIA GeForce4 Ti 4400/AGP/SSE2
+NVIDIA Generic
+NVIDIA ION LE/PCI/SSE2
+NVIDIA ION/PCI/SSE2
+NVIDIA ION/PCI/SSE2/3DNOW!
+NVIDIA MCP61/PCI/SSE2
+NVIDIA MCP61/PCI/SSE2/3DNOW!
+NVIDIA MCP73/PCI/SSE2
+NVIDIA MCP79MH/PCI/SSE2
+NVIDIA MCP79MX/PCI/SSE2
+NVIDIA MCP7A-O/PCI/SSE2
+NVIDIA MCP7A-S/PCI/SSE2
+NVIDIA MCP89-EPT/PCI/SSE2
+NVIDIA N10M-GE1/PCI/SSE2
+NVIDIA N10P-GE1/PCI/SSE2
+NVIDIA N10P-GV2/PCI/SSE2
+NVIDIA N11M-GE1/PCI/SSE2
+NVIDIA N11M-GE2/PCI/SSE2
+NVIDIA N12E-GS-A1/PCI/SSE2
+NVIDIA NB9M-GE/PCI/SSE2
+NVIDIA NB9M-GE1/PCI/SSE2
+NVIDIA NB9M-GS/PCI/SSE2
+NVIDIA NB9M-NS/PCI/SSE2
+NVIDIA NB9P-GE1/PCI/SSE2
+NVIDIA NB9P-GS/PCI/SSE2
+NVIDIA NV17/AGP/3DNOW!
+NVIDIA NV17/AGP/SSE2
+NVIDIA NV34
+NVIDIA NV35
+NVIDIA NV36/AGP/SSE/3DNOW!
+NVIDIA NV36/AGP/SSE2
+NVIDIA NV41/PCI/SSE2
+NVIDIA NV43
+NVIDIA NV44
+NVIDIA NVIDIA GeForce 210 OpenGL Engine
+NVIDIA NVIDIA GeForce 320M OpenGL Engine
+NVIDIA NVIDIA GeForce 7300 GT OpenGL Engine
+NVIDIA NVIDIA GeForce 7600 GT OpenGL Engine
+NVIDIA NVIDIA GeForce 8600M GT OpenGL Engine
+NVIDIA NVIDIA GeForce 8800 GS OpenGL Engine
+NVIDIA NVIDIA GeForce 8800 GT OpenGL Engine
+NVIDIA NVIDIA GeForce 9400 OpenGL Engine
+NVIDIA NVIDIA GeForce 9400M OpenGL Engine
+NVIDIA NVIDIA GeForce 9500 GT OpenGL Engine
+NVIDIA NVIDIA GeForce 9600M GT OpenGL Engine
+NVIDIA NVIDIA GeForce GT 120 OpenGL Engine
+NVIDIA NVIDIA GeForce GT 130 OpenGL Engine
+NVIDIA NVIDIA GeForce GT 220 OpenGL Engine
+NVIDIA NVIDIA GeForce GT 230M OpenGL Engine
+NVIDIA NVIDIA GeForce GT 240M OpenGL Engine
+NVIDIA NVIDIA GeForce GT 330M OpenGL Engine
+NVIDIA NVIDIA GeForce GT 420M OpenGL Engine
+NVIDIA NVIDIA GeForce GT 425M OpenGL Engine
+NVIDIA NVIDIA GeForce GT 430 OpenGL Engine
+NVIDIA NVIDIA GeForce GT 440 OpenGL Engine
+NVIDIA NVIDIA GeForce GT 540M OpenGL Engine
+NVIDIA NVIDIA GeForce GTS 240 OpenGL Engine
+NVIDIA NVIDIA GeForce GTS 250 OpenGL Engine
+NVIDIA NVIDIA GeForce GTS 450 OpenGL Engine
+NVIDIA NVIDIA GeForce GTX 285 OpenGL Engine
+NVIDIA NVIDIA GeForce GTX 460 OpenGL Engine
+NVIDIA NVIDIA GeForce GTX 460M OpenGL Engine
+NVIDIA NVIDIA GeForce GTX 465 OpenGL Engine
+NVIDIA NVIDIA GeForce GTX 470 OpenGL Engine
+NVIDIA NVIDIA GeForce GTX 480 OpenGL Engine
+NVIDIA NVIDIA GeForce Pre-Release ION OpenGL Engine
+NVIDIA NVIDIA GeForce4 OpenGL Engine
+NVIDIA NVIDIA NV34MAP OpenGL Engine
+NVIDIA NVIDIA Quadro 4000 OpenGL Engine
+NVIDIA NVIDIA Quadro FX 4800 OpenGL Engine
+NVIDIA NVS 2100M/PCI/SSE2
+NVIDIA NVS 300/PCI/SSE2
+NVIDIA NVS 3100M/PCI/SSE2
+NVIDIA NVS 4100/PCI/SSE2/3DNOW!
+NVIDIA NVS 4200M/PCI/SSE2
+NVIDIA NVS 5100M/PCI/SSE2
+NVIDIA PCI
+NVIDIA Quadro 2000/PCI/SSE2
+NVIDIA Quadro 4000
+NVIDIA Quadro 4000 OpenGL Engine
+NVIDIA Quadro 4000/PCI/SSE2
+NVIDIA Quadro 5000/PCI/SSE2
+NVIDIA Quadro 5000M/PCI/SSE2
+NVIDIA Quadro 600
+NVIDIA Quadro 600/PCI/SSE2
+NVIDIA Quadro 600/PCI/SSE2/3DNOW!
+NVIDIA Quadro 6000
+NVIDIA Quadro 6000/PCI/SSE2
+NVIDIA Quadro CX/PCI/SSE2
+NVIDIA Quadro DCC
+NVIDIA Quadro FX
+NVIDIA Quadro FX 1100/AGP/SSE2
+NVIDIA Quadro FX 1400/PCI/SSE2
+NVIDIA Quadro FX 1500
+NVIDIA Quadro FX 1500M/PCI/SSE2
+NVIDIA Quadro FX 1600M/PCI/SSE2
+NVIDIA Quadro FX 1700
+NVIDIA Quadro FX 1700M/PCI/SSE2
+NVIDIA Quadro FX 1800
+NVIDIA Quadro FX 1800/PCI/SSE2
+NVIDIA Quadro FX 1800M/PCI/SSE2
+NVIDIA Quadro FX 2500M/PCI/SSE2
+NVIDIA Quadro FX 2700M/PCI/SSE2
+NVIDIA Quadro FX 2800M/PCI/SSE2
+NVIDIA Quadro FX 3400
+NVIDIA Quadro FX 3450
+NVIDIA Quadro FX 3450/4000 SDI/PCI/SSE2
+NVIDIA Quadro FX 3500
+NVIDIA Quadro FX 3500M/PCI/SSE2
+NVIDIA Quadro FX 360M/PCI/SSE2
+NVIDIA Quadro FX 370
+NVIDIA Quadro FX 370/PCI/SSE2
+NVIDIA Quadro FX 3700
+NVIDIA Quadro FX 3700M/PCI/SSE2
+NVIDIA Quadro FX 370M/PCI/SSE2
+NVIDIA Quadro FX 3800
+NVIDIA Quadro FX 3800M/PCI/SSE2
+NVIDIA Quadro FX 4500
+NVIDIA Quadro FX 4600
+NVIDIA Quadro FX 4800
+NVIDIA Quadro FX 4800/PCI/SSE2
+NVIDIA Quadro FX 560
+NVIDIA Quadro FX 5600
+NVIDIA Quadro FX 570
+NVIDIA Quadro FX 570/PCI/SSE2
+NVIDIA Quadro FX 570M/PCI/SSE2
+NVIDIA Quadro FX 580/PCI/SSE2
+NVIDIA Quadro FX 770M/PCI/SSE2
+NVIDIA Quadro FX 880M
+NVIDIA Quadro FX 880M/PCI/SSE2
+NVIDIA Quadro FX Go700/AGP/SSE2
+NVIDIA Quadro NVS
+NVIDIA Quadro NVS 110M/PCI/SSE2
+NVIDIA Quadro NVS 130M/PCI/SSE2
+NVIDIA Quadro NVS 135M/PCI/SSE2
+NVIDIA Quadro NVS 140M/PCI/SSE2
+NVIDIA Quadro NVS 150M/PCI/SSE2
+NVIDIA Quadro NVS 160M/PCI/SSE2
+NVIDIA Quadro NVS 210S/PCI/SSE2/3DNOW!
+NVIDIA Quadro NVS 285/PCI/SSE2
+NVIDIA Quadro NVS 290/PCI/SSE2
+NVIDIA Quadro NVS 295/PCI/SSE2
+NVIDIA Quadro NVS 320M/PCI/SSE2
+NVIDIA Quadro NVS 55/280 PCI/PCI/SSE2
+NVIDIA Quadro NVS/PCI/SSE2
+NVIDIA Quadro PCI-E Series/PCI/SSE2/3DNOW!
+NVIDIA Quadro VX 200/PCI/SSE2
+NVIDIA Quadro/AGP/SSE2
+NVIDIA Quadro2
+NVIDIA Quadro4
+NVIDIA RIVA TNT
+NVIDIA RIVA TNT2/AGP/SSE2
+NVIDIA RIVA TNT2/PCI/3DNOW!
+NVIDIA nForce
+NVIDIA unknown board/AGP/SSE2
+NVIDIA unknown board/PCI/SSE2
+NVIDIA unknown board/PCI/SSE2/3DNOW!
+Parallels and ATI Technologies Inc. Parallels using ATI Radeon HD 5670 OpenGL Engine
+Parallels and ATI Technologies Inc. Parallels using ATI Radeon HD 5750 OpenGL Engine
+Parallels and ATI Technologies Inc. Parallels using ATI Radeon HD 5770 OpenGL Engine
+Parallels and ATI Technologies Inc. Parallels using ATI Radeon HD 6490M OpenGL Engine
+Parallels and ATI Technologies Inc. Parallels using ATI Radeon HD 6750M OpenGL Engine
+Parallels and Intel Inc. 3D-Analyze v2.3 - http://www.tommti-systems.com
+Parallels and Intel Inc. Parallels using Intel HD Graphics 3000 OpenGL Engine
+Parallels and NVIDIA Parallels using NVIDIA GeForce 320M OpenGL Engine
+Parallels and NVIDIA Parallels using NVIDIA GeForce 9400 OpenGL Engine
+Parallels and NVIDIA Parallels using NVIDIA GeForce GT 120 OpenGL Engine
+Parallels and NVIDIA Parallels using NVIDIA GeForce GT 330M OpenGL Engine
+Radeon RV350 on Gallium
+S3
+S3 Graphics VIA/S3G UniChrome IGP/MMX/K3D
+S3 Graphics VIA/S3G UniChrome Pro IGP/MMX/SSE
+S3 Graphics, Incorporated ProSavage/Twister
+S3 Graphics, Incorporated S3 Graphics Chrome9 HC
+S3 Graphics, Incorporated S3 Graphics DeltaChrome
+S3 Graphics, Incorporated VIA Chrome9 HC IGP
+SiS
+SiS 661 VGA
+SiS 662 VGA
+SiS 741 VGA
+SiS 760 VGA
+SiS 761GX VGA
+SiS Mirage Graphics3
+Trident
+Tungsten Graphics
+Tungsten Graphics, Inc Mesa DRI 865G GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 865G GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 915G GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 915G GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 915GM GEM 20090712 2009Q2 RC3 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 915GM GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 915GM GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 945G
+Tungsten Graphics, Inc Mesa DRI 945G GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 945G GEM 20100330 DEVELOPMENT
+Tungsten Graphics, Inc Mesa DRI 945G GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 945GM GEM 20090712 2009Q2 RC3 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 945GM GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 945GM GEM 20100328 2010Q1 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 945GM GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 945GME  x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 945GME 20061017
+Tungsten Graphics, Inc Mesa DRI 945GME GEM 20090712 2009Q2 RC3 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 945GME GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 945GME GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 965GM GEM 20090326 2009Q1 RC2 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 965GM GEM 20090712 2009Q2 RC3 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 965GM GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI 965GM GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI G33 20061017 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI G33 GEM 20090712 2009Q2 RC3 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI G33 GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI G41 GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI G41 GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI GMA500 20081116 - 5.0.1.0046 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI IGD GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI IGD GEM 20100330 DEVELOPMENT
+Tungsten Graphics, Inc Mesa DRI IGD GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI IGDNG_D GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI Ironlake Desktop GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI Ironlake Mobile GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset 20080716 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20090712 2009Q2 RC3 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20100328 2010Q1
+Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20100330 DEVELOPMENT
+Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc. Mesa DRI R200 (RV280 5964) 20090101 x86/MMX+/3DNow!+/SSE2 TCL DRI2
+VIA
+VMware, Inc. Gallium 0.3 on SVGA3D; build: RELEASE;
+VMware, Inc. Gallium 0.4 on i915 (chipset: 945GM)
+VMware, Inc. Gallium 0.4 on llvmpipe
+VMware, Inc. Gallium 0.4 on softpipe
+X.Org Gallium 0.4 on AMD BARTS
+X.Org Gallium 0.4 on AMD CEDAR
+X.Org Gallium 0.4 on AMD HEMLOCK
+X.Org Gallium 0.4 on AMD JUNIPER
+X.Org Gallium 0.4 on AMD REDWOOD
+X.Org Gallium 0.4 on AMD RS780
+X.Org Gallium 0.4 on AMD RS880
+X.Org Gallium 0.4 on AMD RV610
+X.Org Gallium 0.4 on AMD RV620
+X.Org Gallium 0.4 on AMD RV630
+X.Org Gallium 0.4 on AMD RV635
+X.Org Gallium 0.4 on AMD RV710
+X.Org Gallium 0.4 on AMD RV730
+X.Org Gallium 0.4 on AMD RV740
+X.Org Gallium 0.4 on AMD RV770
+X.Org R300 Project Gallium 0.4 on ATI R300
+X.Org R300 Project Gallium 0.4 on ATI R580
+X.Org R300 Project Gallium 0.4 on ATI RC410
+X.Org R300 Project Gallium 0.4 on ATI RS482
+X.Org R300 Project Gallium 0.4 on ATI RS600
+X.Org R300 Project Gallium 0.4 on ATI RS690
+X.Org R300 Project Gallium 0.4 on ATI RV350
+X.Org R300 Project Gallium 0.4 on ATI RV370
+X.Org R300 Project Gallium 0.4 on ATI RV410
+X.Org R300 Project Gallium 0.4 on ATI RV515
+X.Org R300 Project Gallium 0.4 on ATI RV530
+X.Org R300 Project Gallium 0.4 on ATI RV570
+X.Org R300 Project Gallium 0.4 on R420
+X.Org R300 Project Gallium 0.4 on R580
+X.Org R300 Project Gallium 0.4 on RC410
+X.Org R300 Project Gallium 0.4 on RS480
+X.Org R300 Project Gallium 0.4 on RS482
+X.Org R300 Project Gallium 0.4 on RS600
+X.Org R300 Project Gallium 0.4 on RS690
+X.Org R300 Project Gallium 0.4 on RS740
+X.Org R300 Project Gallium 0.4 on RV350
+X.Org R300 Project Gallium 0.4 on RV370
+X.Org R300 Project Gallium 0.4 on RV410
+X.Org R300 Project Gallium 0.4 on RV515
+X.Org R300 Project Gallium 0.4 on RV530
+XGI
+nouveau Gallium 0.4 on NV34
+nouveau Gallium 0.4 on NV36
+nouveau Gallium 0.4 on NV46
+nouveau Gallium 0.4 on NV49
+nouveau Gallium 0.4 on NV4A
+nouveau Gallium 0.4 on NV4B
+nouveau Gallium 0.4 on NV4E
+nouveau Gallium 0.4 on NV50
+nouveau Gallium 0.4 on NV84
+nouveau Gallium 0.4 on NV86
+nouveau Gallium 0.4 on NV92
+nouveau Gallium 0.4 on NV94
+nouveau Gallium 0.4 on NV96
+nouveau Gallium 0.4 on NV98
+nouveau Gallium 0.4 on NVA0
+nouveau Gallium 0.4 on NVA3
+nouveau Gallium 0.4 on NVA5
+nouveau Gallium 0.4 on NVA8
+nouveau Gallium 0.4 on NVAA
+nouveau Gallium 0.4 on NVAC
