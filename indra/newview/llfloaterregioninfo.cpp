@@ -1228,7 +1228,7 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	strings.push_back(buffer);
 	buffer = llformat("%f", estate_sun_hour);
 	strings.push_back(buffer);
-#endif TMP_DISABLE_WLES
+#endif // TMP_DISABLE_WLES
 
 	sendEstateOwnerMessage(gMessageSystem, "setregionterrain", invoice, strings);
 	strings.clear();
@@ -1400,7 +1400,7 @@ void LLPanelRegionTerrainInfo::onApplyCurrentWL(void* userData)
 	// Immediately apply current environment settings to region.
 	LLEnvManager::instance().applyLocalSettingsToRegion();
 }
-#endif TMP_DISABLE_WLES
+#endif // TMP_DISABLE_WLES
 
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelEstateInfo
@@ -1451,7 +1451,7 @@ void LLPanelEstateInfo::onChangeFixedSun()
 	getChild<LLUICtrl>("use_global_time_check")->setValue(LLSD(FALSE));
 	enableButton("apply_btn");
 }
-#endif TMP_DISABLE_WLES
+#endif // TMP_DISABLE_WLES
 
 
 
