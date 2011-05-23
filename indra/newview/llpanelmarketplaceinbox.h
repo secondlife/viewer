@@ -1,6 +1,6 @@
 /** 
- * @file llpanelmarketplaceinventory.h
- * @brief Panel for marketplace inbox and outbox
+ * @file llpanelmarketplaceinbox.h
+ * @brief Panel for marketplace inbox
  *
 * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,23 +24,23 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELMARKETPLACEINVENTORY_H
-#define LL_LLPANELMARKETPLACEINVENTORY_H
+#ifndef LL_LLPANELMARKETPLACEINBOX_H
+#define LL_LLPANELMARKETPLACEINBOX_H
 
 #include "llpanel.h"
 
-class LLPanelMarketplaceInventory : public LLPanel
+class LLPanelMarketplaceInbox : public LLPanel
 {
 public:
 
-	LOG_CLASS(LLPanelMarketplaceInventory);
+	LOG_CLASS(LLPanelMarketplaceInbox);
 
-	LLPanelMarketplaceInventory();
-	~LLPanelMarketplaceInventory();
+	LLPanelMarketplaceInbox();
+	~LLPanelMarketplaceInbox();
 
 	/*virtual*/ BOOL postBuild();
 };
 
 
-#endif //LL_LLPANELMARKETPLACEINVENTORY_H
+#endif //LL_LLPANELMARKETPLACEINBOX_H
 

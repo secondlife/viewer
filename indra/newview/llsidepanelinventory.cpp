@@ -42,6 +42,7 @@
 #include "lltabcontainer.h"
 #include "llselectmgr.h"
 #include "llweb.h"
+#include "lllayoutstack.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
@@ -118,9 +119,55 @@ BOOL LLSidepanelInventory::postBuild()
 			back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
 		}
 	}
-	
+
+	getChild<LLButton>("inbox_btn")->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
+	getChild<LLButton>("outbox_btn")->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleOutboxBtn, this));
+
+	LLLayoutStack* stack = getChild<LLLayoutStack>("inventory_layout_stack");
+
+	stack->collapsePanel(getChild<LLLayoutPanel>("inbox_layout_panel"), true);
+	stack->collapsePanel(getChild<LLLayoutPanel>("outbox_layout_panel"), true);
+	getChild<LLButton>("outbox_btn")->setToggleState(false);
+	getChild<LLButton>("inbox_btn")->setToggleState(false);
+
 	return TRUE;
 }
+
+
+void LLSidepanelInventory::onToggleInboxBtn()
+{
+	LLLayoutStack* stack = getChild<LLLayoutStack>("inventory_layout_stack");
+	bool collapse = !getChild<LLButton>("inbox_btn")->getToggleState();
+
+	if (stack)
+	{
+		stack->collapsePanel(getChild<LLLayoutPanel>("inbox_layout_panel"), collapse);
+	}
+	if (!collapse)
+	{
+		stack->collapsePanel(getChild<LLLayoutPanel>("outbox_layout_panel"), true);
+		getChild<LLButton>("outbox_btn")->setToggleState(false);
+	}
+}
+
+void LLSidepanelInventory::onToggleOutboxBtn()
+{
+	LLLayoutStack* stack = getChild<LLLayoutStack>("inventory_layout_stack");
+	bool collapse = !getChild<LLButton>("outbox_btn")->getToggleState();
+
+	if (stack)
+	{
+		stack->collapsePanel(getChild<LLLayoutPanel>("outbox_layout_panel"), collapse);
+	}
+
+	if (!collapse)
+	{
+		stack->collapsePanel(getChild<LLLayoutPanel>("inbox_layout_panel"), true);
+		getChild<LLButton>("inbox_btn")->setToggleState(false);
+	}
+
+}
+
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {

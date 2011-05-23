@@ -26,12 +26,12 @@
               top="0"
               orientation="vertical"
               name="inventory_layout_stack"
-              height="545"
+              height="540"
               width="330">
              <layout_panel
                  width="330"
                   follows="bottom|left|right"
-                 height="445">
+                 height="480">
                  <panel
                       class="panel_main_inventory"
                       filename="panel_main_inventory.xml"
@@ -41,92 +41,119 @@
                       name="panel_main_inventory"
                       top="0"
                       label=""
-                      height="445"
+                      height="480"
                       width="330" />
              </layout_panel>
              <layout_panel
                  width="330"
+                 auto_resize="true"
                   follows="bottom|left|right"
-                 height="100">
+                 min_dim="35"
+                 name="inbox_layout_panel"
+                 max_dim="125"
+                 height="35">
                  <panel
-                      class="panel_marketplace_inventory"
-                      follows="all"
+                      follows="top|left|right"
                       layout="topleft"
                       left="0"
-                      name="panel_marketplace"
+                      name="marketplace_inbox"
+                      class="panel_marketplace_inbox"
                       top="0"
                       label=""
-                      height="100"
+                      height="125"
                       width="330">
-                 <accordion
-                   follows="all"
-                   fit_parent="true"
-                   height="100"
-                   left="10"
-                   single_expansion="true"
-                   top="0"
-                   name="accordion"
-                   background_visible="true"
-                   bg_alpha_color="DkGray2"
-                   width="311">
-                     <accordion_tab
-                      name="tab_clothing"
-                      height="35" 
-                      min_height="150"
-                      fit_panel="false"
-                      title="MARKETPLACE INBOX">
+                     <button
+                         label="MARKETPLACE INBOX"
+                         name="inbox_btn"
+                         height="35"
+                         width="308"
+                         image_unselected="MarketplaceBtn_Off"
+                            image_selected="MarketplaceBtn_Selected"
+                         halign="left"
+                         follows="top|left|right"
+                         is_toggle="true"
+                         tab_stop="false"
+                         pad_left="35"
+                         top="0"
+                         left="10"
+                         ></button>
                          <panel
                              follows="all"
                              left="0"
-                             height="40"
+                             height="90"
                              width="250"
-                             top="0"
+                             top="30"
                            >
                              <text
                                  left ="40"
                                  top="15"
+                                 align="left"
                                  height="14"
                                  width="100"
                                  >Just a panel</text>    
                          </panel>
-                         <panel
-                     follows="all"
-                     left="0"
-                     height="40"
-                             visible="false"
-                     width="250"
-                     top="0"
+                     
+                 </panel>
+             </layout_panel>
+             <layout_panel
+  width="330"
+  auto_resize="true"
+   follows="bottom|left|right"
+  name="outbox_layout_panel"
+                 min_dim="35"
+                 max_dim="125"
+  height="35">
+                 <panel
+                      follows="top|left|right"
+                      layout="topleft"
+                      left="10"
+                      name="marketplace_outbox"
+                      class="panel_marketplace_outbox"
+                      top="0"
+                      label=""
+                      height="125"
+                      width="310">
+                     <button
+                         label="MARKETPLACE OUTBOX"
+                         is_toggle="true"
+                         name="outbox_btn"
+                      follows="top|left|right"
+                         image_unselected="MarketplaceBtn_Off"
+                            image_selected="MarketplaceBtn_Selected"
+                         height="35"
+                         tab_stop="false"
+                         width="308"
+                         halign="left"
+                         pad_left="35"
+                         top="0"
+                         left="0"
+                         ></button>
+                     <panel
+                         follows="all"
+                         left="0"
+                         height="90"
+                         width="250"
+                         top="30"
                            >
-                             <text
-                                 left ="40"
-                                 top="15"
-                                 height="14"
-                                 width="100"
-                                 >Just a panel 2</text>
-                         </panel>
-                     </accordion_tab>
-                     <accordion_tab
-                      name="tab_attachments"
-                      fit_panel="false"
-                      title="MARKETPLACE OUTBOX">
-                         <view
-                           follows="all"
-                           height="35"
-                           left="0"
-                           top="0"
-                           />
-                     </accordion_tab>
-                 </accordion>
+                         <text
+                             left ="40"
+                             top="15"
+                             align="left"
+                             height="14"
+                             width="100"
+                                 >Just a panel</text>
+                     </panel>
+
                  </panel>
              </layout_panel>
          </layout_stack>
 		<panel
 		     follows="bottom|left|right"
-			 height="25"
+			 height="30"
 			 layout="topleft"
 			 name="button_panel"
 			 left="9"
-			 top_pad="-2"
+			 top_pad="2"
 			 width="308">
 			<layout_stack
      	         follows="bottom|left|right"

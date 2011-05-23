@@ -56,6 +56,9 @@ public:
 	// checks can share selected item(s)
 	bool canShare();
 
+	void onToggleInboxBtn();
+	void onToggleOutboxBtn();
+
 protected:
 	// Tracks highlighted (selected) item in inventory panel.
 	LLInventoryItem *getSelectedItem();

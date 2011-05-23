@@ -1,6 +1,6 @@
 /** 
- * @file llpanelmarketplaceinventory.cpp
- * @brief Panel for marketplace inbox and outbox
+ * @file llpanelmarketplaceoutbox.cpp
+ * @brief Panel for marketplace outbox
  *
 * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,24 +23,25 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+
 #include "llviewerprecompiledheaders.h"
 
-#include "llpanelmarketplaceinventory.h"
+#include "llpanelmarketplaceoutbox.h"
 
-static LLRegisterPanelClassWrapper<LLPanelMarketplaceInventory> t_panel_marketplace_inventory("panel_marketplace_inventory");
+static LLRegisterPanelClassWrapper<LLPanelMarketplaceOutbox> t_panel_marketplace_outbox("panel_marketplace_outbox");
 
 // protected
-LLPanelMarketplaceInventory::LLPanelMarketplaceInventory()
+LLPanelMarketplaceOutbox::LLPanelMarketplaceOutbox()
 :	LLPanel()
 {
 }
 
-LLPanelMarketplaceInventory::~LLPanelMarketplaceInventory()
+LLPanelMarketplaceOutbox::~LLPanelMarketplaceOutbox()
 {
 }
 
 // virtual
-BOOL LLPanelMarketplaceInventory::postBuild()
+BOOL LLPanelMarketplaceOutbox::postBuild()
 {
 	return TRUE;
 }
