@@ -3667,6 +3667,9 @@ void LLPhysicsDecomp::run()
 	LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
 	if (decomp == NULL)
 	{
+		// stub library. Set init to true so the main thread
+		// doesn't wait for this to finish.
+		mInited = true;
 		return;
 	}
 
