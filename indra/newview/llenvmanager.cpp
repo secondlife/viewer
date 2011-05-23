@@ -793,6 +793,26 @@ void LLEnvManagerNew::onTeleport()
 	onRegionChange(false);
 }
 
+void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
+{
+	// If the message was valid, grab the UUID from it and save it for next outbound update message.
+	mLastReceivedID = content[0]["messageID"].asUUID();
+
+	// 1. Refresh cached region settings.
+	LL_DEBUGS("Windlight") << "Caching region environment settings: " << content << LL_ENDL;
+	F32 sun_hour = 0; // *TODO
+	LLEnvironmentSettings new_settings(content[1], content[2], content[3], sun_hour);
+	mCachedRegionPrefs = new_settings;
+
+	// 2. If using server settings, update managers.
+	if (getUseRegionSettings())
+	{
+		updateManagersFromPrefs(mInterpNextChangeMessage);
+	}
+
+	mInterpNextChangeMessage = false;
+}
+
 //-- private methods ----------------------------------------------------------
 
 // virtual
@@ -834,24 +854,4 @@ void LLEnvManagerNew::onRegionChange(bool interpolate)
 	mCurRegionUUID = region_uuid;
 	mInterpNextChangeMessage = interpolate;
 	requestRegionSettings();
-}
-
-void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
-{
-	// If the message was valid, grab the UUID from it and save it for next outbound update message.
-	mLastReceivedID = content[0]["messageID"].asUUID();
-
-	// 1. Refresh cached region settings.
-	LL_DEBUGS("Windlight") << "Caching region environment settings: " << content << LL_ENDL;
-	F32 sun_hour = 0; // *TODO
-	LLEnvironmentSettings new_settings(content[1], content[2], content[3], sun_hour);
-	mCachedRegionPrefs = new_settings;
-
-	// 2. If using server settings, update managers.
-	if (getUseRegionSettings())
-	{
-		updateManagersFromPrefs(mInterpNextChangeMessage);
-	}
-
-	mInterpNextChangeMessage = false;
 }
