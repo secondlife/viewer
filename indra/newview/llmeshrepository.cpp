@@ -1477,7 +1477,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		LLMatrix4 transformation = instance.mTransform;
 		decomposeMeshMatrix(transformation,pos,rot,scale);
 
-		mesh_entry["position"] = ll_sd_from_vector3(LLVector3());
+		mesh_entry["position"] = ll_sd_from_vector3(pos);
 		mesh_entry["rotation"] = ll_sd_from_quaternion(rot);
 		mesh_entry["scale"] = ll_sd_from_vector3(scale);
 
