@@ -40,10 +40,12 @@
 #include "llsidetray.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "llimfloater.h"
+#include "groupchatlistener.h"
 
 //
 // Globals
 //
+static GroupChatListener sGroupChatListener;
 
 class LLGroupHandler : public LLCommandHandler
 {
@@ -320,10 +322,9 @@ void LLGroupActions::closeGroup(const LLUUID& group_id)
 
 
 // static
-void LLGroupActions::startIM(const LLUUID& group_id)
+LLUUID LLGroupActions::startIM(const LLUUID& group_id)
 {
-	if (group_id.isNull())
-		return;
+	if (group_id.isNull()) return LLUUID::null;
 
 	LLGroupData group_data;
 	if (gAgent.getGroupData(group_id, group_data))
@@ -337,12 +338,14 @@ void LLGroupActions::startIM(const LLUUID& group_id)
 			LLIMFloater::show(session_id);
 		}
 		make_ui_sound("UISndStartIM");
+		return session_id;
 	}
 	else
 	{
 		// this should never happen, as starting a group IM session
 		// relies on you belonging to the group and hence having the group data
 		make_ui_sound("UISndInvalidOp");
+		return LLUUID::null;
 	}
 }
 

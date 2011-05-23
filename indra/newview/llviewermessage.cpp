@@ -2603,6 +2603,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		args["NAME"] = LLSLURL("agent", from_id, "completename").getSLURLString();;
 		LLSD payload;
 		payload["from_id"] = from_id;
+		// Passing the "SESSION_NAME" to use it for IM notification logging
+		// in LLTipHandler::processNotification(). See STORM-941.
+		payload["SESSION_NAME"] = name;
 		LLNotificationsUtil::add("InventoryAccepted", args, payload);
 		break;
 	}
@@ -2802,7 +2805,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				LLVector3 pos, look_at;
 				U64 region_handle;
-				U8 region_access = SIM_ACCESS_MIN;
+				U8 region_access;
 				std::string region_info = ll_safe_string((char*)binary_bucket, binary_bucket_size);
 				std::string region_access_str = LLStringUtil::null;
 				std::string region_access_icn = LLStringUtil::null;

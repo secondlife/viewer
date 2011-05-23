@@ -396,7 +396,6 @@ protected:
  */
 class LLWearableItemsList : public LLInventoryItemsList
 {
-	LOG_CLASS(LLWearableItemsList);
 public:
 	/**
 	 * Context menu.

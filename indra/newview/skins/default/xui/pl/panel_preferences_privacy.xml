@@ -9,7 +9,7 @@
 	</text>
 	<check_box label="Pokaż mój profil w wynikach wyszukiwarki" name="online_searchresults"/>
 	<check_box label="Mój status online jest dostępny tylko dla znajomych i grup do których należę" name="online_visibility"/>
-	<check_box label="Możliwość wysyłania wiadomości prywatnej (IM) oraz rozmowy głosowej tylko dla znajomych i grup do których należę" name="voice_call_friends_only_check"/>
+	<check_box label="Możliwość wysyłania wiadomości prywatnej (IM) oraz rozmowy głosowej tylko dla &#10;znajomych i grup do których należę" name="voice_call_friends_only_check" top_pad="15"/>
 	<check_box label="Wyłącz mikrofon po zakończeniu rozmowy głosowej" name="auto_disengage_mic_check"/>
 	<check_box label="Pokaż moje ulubione landmarki przy logowaniu (w rozwijanym menu &apos;Rozpocznij w&apos;)" name="favorites_on_login_check"/>
 	<text name="Logs:">

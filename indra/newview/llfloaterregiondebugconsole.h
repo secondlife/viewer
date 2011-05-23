@@ -35,6 +35,9 @@
 
 class LLTextEditor;
 
+typedef boost::signals2::signal<
+	void (const std::string& output)> console_reply_signal_t;
+
 class LLFloaterRegionDebugConsole : public LLFloater, public LLHTTPClient::Responder
 {
 public:
@@ -47,6 +50,8 @@ public:
 	void onInput(LLUICtrl* ctrl, const LLSD& param);
 
 	LLTextEditor * mOutput;
+
+	static boost::signals2::connection setConsoleReplyCallback(const console_reply_signal_t::slot_type& cb);
 
  private:
 	void onReplyReceived(const std::string& output);

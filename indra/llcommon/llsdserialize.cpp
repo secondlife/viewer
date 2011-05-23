@@ -34,6 +34,12 @@
 #include <iostream>
 #include "apr_base64.h"
 
+#ifdef LL_STANDALONE
+# include <zlib.h>
+#else
+# include "zlib/zlib.h"  // for davep's dirty little zip functions
+#endif
+
 #if !LL_WINDOWS
 #include <netinet/in.h> // htonl & ntohl
 #endif
@@ -1982,4 +1988,181 @@ std::ostream& operator<<(std::ostream& s, const LLSD& llsd)
 	s << LLSDNotationStreamer(llsd);
 	return s;
 }
+
+
+//dirty little zippers -- yell at davep if these are horrid
+
+//return a string containing gzipped bytes of binary serialized LLSD
+// VERY inefficient -- creates several copies of LLSD block in memory
+std::string zip_llsd(LLSD& data)
+{ 
+	std::stringstream llsd_strm;
+
+	LLSDSerialize::toBinary(data, llsd_strm);
+
+	const U32 CHUNK = 65536;
+
+	z_stream strm;
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+
+	S32 ret = deflateInit(&strm, Z_BEST_COMPRESSION);
+	if (ret != Z_OK)
+	{
+		llwarns << "Failed to compress LLSD block." << llendl;
+		return std::string();
+	}
+
+	std::string source = llsd_strm.str();
+
+	U8 out[CHUNK];
+
+	strm.avail_in = source.size();
+	strm.next_in = (U8*) source.data();
+	U8* output = NULL;
+
+	U32 cur_size = 0;
+
+	U32 have = 0;
+
+	do
+	{
+		strm.avail_out = CHUNK;
+		strm.next_out = out;
+
+		ret = deflate(&strm, Z_FINISH);
+		if (ret == Z_OK || ret == Z_STREAM_END)
+		{ //copy result into output
+			if (strm.avail_out >= CHUNK)
+			{
+				llerrs << "WTF?" << llendl;
+			}
+
+			have = CHUNK-strm.avail_out;
+			output = (U8*) realloc(output, cur_size+have);
+			memcpy(output+cur_size, out, have);
+			cur_size += have;
+		}
+		else 
+		{
+			free(output);
+			llwarns << "Failed to compress LLSD block." << llendl;
+			return std::string();
+		}
+	}
+	while (ret == Z_OK);
+
+	std::string::size_type size = cur_size;
+
+	std::string result((char*) output, size);
+	deflateEnd(&strm);
+	free(output);
+
+#if 0 //verify results work with unzip_llsd
+	std::istringstream test(result);
+	LLSD test_sd;
+	if (!unzip_llsd(test_sd, test, result.size()))
+	{
+		llerrs << "Invalid compression result!" << llendl;
+	}
+#endif
+
+	return result;
+}
+
+//decompress a block of LLSD from provided istream
+// not very efficient -- creats a copy of decompressed LLSD block in memory
+// and deserializes from that copy using LLSDSerialize
+bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
+{
+	U8* result = NULL;
+	U32 cur_size = 0;
+	z_stream strm;
+		
+	const U32 CHUNK = 65536;
+
+	U8 *in = new U8[size];
+	is.read((char*) in, size); 
+
+	U8 out[CHUNK];
+		
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	strm.avail_in = size;
+	strm.next_in = in;
+
+	S32 ret = inflateInit(&strm);
+
+	do
+	{
+		strm.avail_out = CHUNK;
+		strm.next_out = out;
+		ret = inflate(&strm, Z_NO_FLUSH);
+		if (ret == Z_STREAM_ERROR)
+		{
+			inflateEnd(&strm);
+			free(result);
+			delete [] in;
+			return false;
+		}
+		
+		switch (ret)
+		{
+		case Z_NEED_DICT:
+			ret = Z_DATA_ERROR;
+		case Z_DATA_ERROR:
+		case Z_MEM_ERROR:
+			inflateEnd(&strm);
+			free(result);
+			delete [] in;
+			return false;
+			break;
+		}
+
+		U32 have = CHUNK-strm.avail_out;
+
+		result = (U8*) realloc(result, cur_size + have);
+		memcpy(result+cur_size, out, have);
+		cur_size += have;
+
+	} while (ret == Z_OK);
+
+	inflateEnd(&strm);
+	delete [] in;
+
+	if (ret != Z_STREAM_END)
+	{
+		free(result);
+		return false;
+	}
+
+	//result now points to the decompressed LLSD block
+	{
+		std::string res_str((char*) result, cur_size);
+
+		std::string deprecated_header("<? LLSD/Binary ?>");
+
+		if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
+		{
+			res_str = res_str.substr(deprecated_header.size()+1, cur_size);
+		}
+		cur_size = res_str.size();
+
+		std::istringstream istr(res_str);
+		
+		if (!LLSDSerialize::fromBinary(data, istr, cur_size))
+		{
+			llwarns << "Failed to unzip LLSD block" << llendl;
+			free(result);
+			return false;
+		}
+	}
+
+	free(result);
+	return true;
+}
+
+
 

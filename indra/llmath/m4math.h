@@ -119,6 +119,8 @@ public:
 
 	~LLMatrix4(void);										// Destructor
 
+	LLSD getValue() const;
+	void setValue(const LLSD&);
 
 	//////////////////////////////
 	//
@@ -132,6 +134,7 @@ public:
 
 	// various useful matrix functions
 	const LLMatrix4& setIdentity();					// Load identity matrix
+	bool isIdentity() const;
 	const LLMatrix4& setZero();						// Clears matrix to all zeros.
 
 	const LLMatrix4& initRotation(const F32 angle, const F32 x, const F32 y, const F32 z);	// Calculate rotation matrix by rotating angle radians about (x, y, z)
@@ -153,6 +156,7 @@ public:
 	const LLMatrix4& initRotTrans(const F32 roll, const F32 pitch, const F32 yaw, const LLVector4 &pos); // Rotation from Euler + translation
 	const LLMatrix4& initRotTrans(const LLQuaternion &q, const LLVector4 &pos);	// Set with Quaternion and position
 
+	const LLMatrix4& initScale(const LLVector3 &scale);
 
 	// Set all
 	const LLMatrix4& initAll(const LLVector3 &scale, const LLQuaternion &q, const LLVector3 &pos);	
@@ -219,10 +223,7 @@ public:
 	// Operators
 	//
 
-// Not implemented to enforce code that agrees with symbolic syntax
-//		friend LLVector4 operator*(const LLMatrix4 &a, const LLVector4 &b);		// Apply rotation a to vector b
-
-//	friend inline LLMatrix4 operator*(const LLMatrix4 &a, const LLMatrix4 &b);		// Return a * b
+	//	friend inline LLMatrix4 operator*(const LLMatrix4 &a, const LLMatrix4 &b);		// Return a * b
 	friend LLVector4 operator*(const LLVector4 &a, const LLMatrix4 &b);		// Return transform of vector a by matrix b
 	friend const LLVector3 operator*(const LLVector3 &a, const LLMatrix4 &b);		// Return full transform of a by matrix b
 	friend LLVector4 rotate_vector(const LLVector4 &a, const LLMatrix4 &b);	// Rotates a but does not translate
@@ -230,6 +231,7 @@ public:
 
 	friend bool operator==(const LLMatrix4 &a, const LLMatrix4 &b);			// Return a == b
 	friend bool operator!=(const LLMatrix4 &a, const LLMatrix4 &b);			// Return a != b
+	friend bool operator<(const LLMatrix4 &a, const LLMatrix4& b);			// Return a < b
 
 	friend const LLMatrix4& operator+=(LLMatrix4 &a, const LLMatrix4 &b);	// Return a + b
 	friend const LLMatrix4& operator-=(LLMatrix4 &a, const LLMatrix4 &b);	// Return a - b
@@ -261,6 +263,30 @@ inline const LLMatrix4&	LLMatrix4::setIdentity()
 	mMatrix[3][2] = 0.f;
 	mMatrix[3][3] = 1.f;
 	return (*this);
+}
+
+inline bool LLMatrix4::isIdentity() const
+{
+	return
+		mMatrix[0][0] == 1.f &&
+		mMatrix[0][1] == 0.f &&
+		mMatrix[0][2] == 0.f &&
+		mMatrix[0][3] == 0.f &&
+
+		mMatrix[1][0] == 0.f &&
+		mMatrix[1][1] == 1.f &&
+		mMatrix[1][2] == 0.f &&
+		mMatrix[1][3] == 0.f &&
+
+		mMatrix[2][0] == 0.f &&
+		mMatrix[2][1] == 0.f &&
+		mMatrix[2][2] == 1.f &&
+		mMatrix[2][3] == 0.f &&
+
+		mMatrix[3][0] == 0.f &&
+		mMatrix[3][1] == 0.f &&
+		mMatrix[3][2] == 0.f &&
+		mMatrix[3][3] == 1.f;
 }
 
 

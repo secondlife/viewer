@@ -4,15 +4,15 @@
 	<RenderAvatarCloth value="FALSE"/>
 	<!--Default for now-->
 	<RenderAvatarLODFactor value="0.5"/>
-  <!--Default for now-->
-  <RenderAvatarPhysicsLODFactor value="0.75"/>
+	<!--Default for now-->
+	<RenderAvatarPhysicsLODFactor value="0.75"/>
 	<!--NO SHADERS-->
 	<RenderAvatarVP value="TRUE"/>
 	<!--Short Range-->
 	<RenderFarClip value="96"/>
 	<!--Default for now-->
 	<RenderFlexTimeFactor value="1"/>
-	<!--256... but they don't use this-->
+	<!--256... but they do not use this-->
 	<RenderGlowResolutionPow value="8"/>
 	<!--Low number-->
 	<RenderMaxPartCount value="2048"/>
@@ -26,8 +26,6 @@
 	<RenderTerrainLODFactor value="1.0"/>
 	<!--Default for now-->
 	<RenderTreeLODFactor value="0.5"/>
-	<!--Default for now-->
-	<RenderUseFBO value="0"/>
 	<!--Try Impostors-->
 	<RenderUseImpostors value="TRUE"/>
 	<!--Default for now-->
@@ -36,11 +34,10 @@
 	<VertexShaderEnable value="TRUE"/>
 	<!--NO SHADERS-->
 	<WindLightUseAtmosShaders value="FALSE"/>
-  <!--No Deferred Shading-->
-  <RenderDeferred value="FALSE"/>
-  <!--SSAO Disabled-->
-  <RenderDeferredSSAO value="FALSE"/>
-  <!--No Shadows-->
-  <RenderShadowDetail value="0"/>
-
+	<!--No Deferred Shading-->
+	<RenderDeferred value="FALSE"/>
+	<!--SSAO Disabled-->
+	<RenderDeferredSSAO value="FALSE"/>
+	<!--No Shadows-->
+	<RenderShadowDetail value="0"/>
 </settings>

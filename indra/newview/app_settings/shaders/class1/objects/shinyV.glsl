@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+#version 120
 
 void calcAtmospherics(vec3 inPositionEye);
 
@@ -12,7 +14,7 @@ uniform vec4 origin;
 void main()
 {
 	//transform vertex
-	gl_Position = ftransform(); //gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = ftransform();
 	
 	vec4 pos = (gl_ModelViewMatrix * gl_Vertex);
 	vec3 norm = normalize(gl_NormalMatrix * gl_Normal);
