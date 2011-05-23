@@ -3374,6 +3374,12 @@ void LLPhysicsDecomp::doDecomposition()
 	LLCDMeshData mesh;
 	S32 stage = mStageID[mCurRequest->mStage];
 
+	if (LLConvexDecomposition::getInstance() == NULL)
+	{
+		// stub library. do nothing.
+		return;
+	}
+
 	//load data intoLLCD
 	if (stage == 0)
 	{
@@ -3574,6 +3580,12 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 	
 	LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
 
+	if (decomp == NULL)
+	{
+		//stub. do nothing.
+		return;
+	}
+
 	for (S32 i = 0; i < param_count; ++i)
 	{
 		decomp->setParam(params[i].mName, params[i].mDefault.mIntOrEnumValue);
@@ -3653,6 +3665,11 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 void LLPhysicsDecomp::run()
 {
 	LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
+	if (decomp == NULL)
+	{
+		return;
+	}
+
 	decomp->initThread();
 	mInited = true;
 
