@@ -1401,13 +1401,13 @@ void LLMeshUploadThread::run()
 	}
 }
 
-#if 1
 void dumpLLSDToFile(const LLSD& content, std::string filename)
 {
+#if 1
 	std::ofstream of(filename.c_str());
 	LLSDSerialize::toPrettyXML(content,of);
-}
 #endif
+}
 
 void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 {
@@ -1452,7 +1452,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			data.mModel[i] = instance.mLOD[i];
 		}
 
-#if 1
 		LLVolumeParams  volume_params;
 		volume_params.setType( LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE );
 		volume_params.setBeginAndEndS( 0.f, 1.f );
@@ -1472,11 +1471,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 					   LLFloaterPerms::getEveryonePerms(),
 					   LLFloaterPerms::getGroupPerms(),
 					   LLFloaterPerms::getNextOwnerPerms());
-		
 		mesh_entry["permissions"] = ll_create_sd_from_permissions(perm);
-
 		mesh_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
-#endif
 
 		std::stringstream ostr;
 
