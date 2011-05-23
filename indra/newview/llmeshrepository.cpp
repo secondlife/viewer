@@ -1518,7 +1518,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			{
 				LLImportMaterial& material = instance.mMaterial[face_num];
 				LLSD face_entry = LLSD::emptyMap();
-				
 				LLViewerFetchedTexture *texture = material.mDiffuseMap.get();
 				
 				if (texture != NULL)
@@ -1549,14 +1548,20 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 						res["texture_list"][texture_num] = LLSD::Binary(str.begin(),str.end());
 						texture_num++;
 					}
-
-					face_entry["image"] = texture_index[texture];
-					face_entry["scales"] = 1.0;
-					face_entry["scalet"] = 1.0;
-					face_entry["offsets"] = 0.0;
-					face_entry["offsett"] = 0.0;
-					face_entry["imagerot"] = 0.0;
 				}
+
+				// Subset of TextureEntry fields.
+				if (texture)
+				{
+					face_entry["image"] = texture_index[texture];
+				}
+				face_entry["scales"] = 1.0;
+				face_entry["scalet"] = 1.0;
+				face_entry["offsets"] = 0.0;
+				face_entry["offsett"] = 0.0;
+				face_entry["imagerot"] = 0.0;
+				face_entry["colors"] = ll_sd_from_color4(material.mDiffuseColor);
+				face_entry["fullbright"] = material.mFullbright;
 				mesh_entry["face_list"][face_num] = face_entry;
 			}
 
