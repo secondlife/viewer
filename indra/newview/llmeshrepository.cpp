@@ -531,6 +531,9 @@ public:
 		llinfos << "upload completed" << llendl;
 		mThread->mPendingUploads--;
 		dumpLLSDToFile(content,"whole_model_upload_response.xml");
+		// requested "mesh" asset type isn't actually the type
+		// of the resultant object, fix it up here.
+		mPostData["asset_type"] = "object";
 		gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mPostData,content));
 	}
 };
@@ -1435,6 +1438,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		data.mBaseModel = iter->first;
 		LLModelInstance& instance = *(iter->second.begin());
 		LLModel* model = instance.mModel;
+		LLSD mesh_entry;
 
 		std::string model_name = data.mBaseModel->getName();
 
@@ -1447,6 +1451,32 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		{
 			data.mModel[i] = instance.mLOD[i];
 		}
+
+#if 1
+		LLVolumeParams  volume_params;
+		volume_params.setType( LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE );
+		volume_params.setBeginAndEndS( 0.f, 1.f );
+		volume_params.setBeginAndEndT( 0.f, 1.f );
+		volume_params.setRatio  ( 1, 1 );
+		volume_params.setShear  ( 0, 0 );
+		volume_params.setSculptID(instance.mMeshID, LL_SCULPT_TYPE_MESH);
+		mesh_entry["shape"] = volume_params.asLLSD();
+		mesh_entry["material"] = LL_MCODE_WOOD;
+		mesh_entry["group-id"] = gAgent.getGroupID();
+		LLPermissions perm;
+		perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
+		perm.setCreator(gAgent.getID());
+
+		perm.initMasks(PERM_ITEM_UNRESTRICTED | PERM_MOVE, //base
+					   PERM_ITEM_UNRESTRICTED | PERM_MOVE, //owner
+					   LLFloaterPerms::getEveryonePerms(),
+					   LLFloaterPerms::getGroupPerms(),
+					   LLFloaterPerms::getNextOwnerPerms());
+		
+		mesh_entry["permissions"] = ll_create_sd_from_permissions(perm);
+
+		mesh_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
+#endif
 
 		std::stringstream ostr;
 
@@ -1469,8 +1499,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			mUploadJoints);
 
 		data.mAssetData = ostr.str();
-
-		LLSD mesh_entry;
 
 		LLVector3 pos, scale;
 		LLQuaternion rot;
@@ -1546,9 +1574,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	}
 
 	result["asset_resources"] = res;
-#if 1	
 	dumpLLSDToFile(result,"whole_model.xml");
-#endif
 
 	dest = result;
 }
