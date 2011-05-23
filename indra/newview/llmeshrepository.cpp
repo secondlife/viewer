@@ -1514,8 +1514,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		{
 			mesh_entry["face_list"] = LLSD::emptyArray();
 
-			S32 face_num = 0;
-
 			for (S32 face_num = 0; face_num < model->getNumVolumeFaces(); face_num++)
 			{
 				LLImportMaterial& material = instance.mMaterial[face_num];
