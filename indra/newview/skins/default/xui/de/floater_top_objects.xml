@@ -39,21 +39,18 @@
 	<text name="id_text">
 		Objekt-ID:
 	</text>
-	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="false" follows="left|bottom|right" font="SansSerifSmall" height="20" left="80" name="id_editor" text_readonly_color="white" width="244"/>
-	<button bottom_delta="0" follows="bottom|right" height="20" label="Beacon anzeigen" name="show_beacon_btn" right="-10" width="110"/>
+	<button label="Beacon anzeigen" name="show_beacon_btn"/>
 	<text name="obj_name_text">
 		Objektname:
-	</text>
-	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="false" follows="left|bottom|right" font="SansSerifSmall" height="20" left="80" name="object_name_editor" text_readonly_color="white" width="244"/>
-	<button bottom_delta="0" follows="bottom|right" height="20" label="Filter" name="filter_object_btn" right="-10" width="110"/>
+	</text>	
+	<button label="Filter" name="filter_object_btn"/>
 	<text name="owner_name_text">
 		Eigentümer:
-	</text>
-	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="true" follows="left|bottom|right" font="SansSerifSmall" height="20" left="106" name="owner_name_editor" text_readonly_color="white" width="218"/>
-	<button bottom_delta="0" follows="bottom|right" height="20" label="Filter" name="filter_owner_btn" right="-10" width="110"/>
-	<button bottom_delta="0" follows="bottom|right" height="20" label="Aktualisieren" name="refresh_btn" right="-10" width="110"/>
-	<button bottom="35" follows="bottom|left" height="20" label="Auswahl zurückgeben" left="10" name="return_selected_btn" width="134"/>
-	<button bottom="35" follows="bottom|left" height="20" label="Alle zurückgeben" left="150" name="return_all_btn" width="134"/>
-	<button bottom="10" follows="bottom|left" height="20" label="Auswahl deaktivieren" left="10" name="disable_selected_btn" width="134"/>
-	<button bottom="10" follows="bottom|left" height="20" label="Alle deaktivieren" left="150" name="disable_all_btn" width="134"/>
+	</text>	
+	<button label="Filter" name="filter_owner_btn"/>
+	<button label="Aktualisieren" name="refresh_btn"/>
+	<button label="Auswahl zurückgeben" name="return_selected_btn" width="134"/>
+	<button label="Alle zurückgeben" left="150" name="return_all_btn" width="134"/>
+	<button label="Auswahl deaktivieren" name="disable_selected_btn" width="134"/>
+	<button label="Alle deaktivieren" left="150" name="disable_all_btn" width="134"/>
 </floater>
