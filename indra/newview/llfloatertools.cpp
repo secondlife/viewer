@@ -85,6 +85,7 @@
 #include "llviewerwindow.h"
 #include "llvovolume.h"
 #include "lluictrlfactory.h"
+#include "llaccountingquotamanager.h"
 
 // Globals
 LLFloaterTools *gFloaterTools = NULL;

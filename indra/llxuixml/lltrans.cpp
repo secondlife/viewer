@@ -30,6 +30,7 @@
 
 #include "llfasttimer.h"	// for call count statistics
 #include "llxuiparser.h"
+#include "llsd.h"
 #include "llxmlnode.h"
 
 #include <map>
@@ -155,13 +156,28 @@ std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::
 	}
 	else
 	{
-		LLSD args;
-		args["STRING_NAME"] = xml_desc;
 		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
+		return "MissingString("+xml_desc+")";
+	}
+}
 
-		//LLNotificationsUtil::add("MissingString", args); // *TODO: resurrect
-		//return xml_desc;
+//static
+std::string LLTrans::getString(const std::string &xml_desc, const LLSD& msg_args)
+{
+	// Don't care about time as much as call count.  Make sure we're not
+	// calling LLTrans::getString() in an inner loop. JC
+	LLFastTimer timer(FTM_GET_TRANS);
 
+	template_map_t::iterator iter = sStringTemplates.find(xml_desc);
+	if (iter != sStringTemplates.end())
+	{
+		std::string text = iter->second.mText;
+		LLStringUtil::format(text, msg_args);
+		return text;
+	}
+	else
+	{
+		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
 		return "MissingString("+xml_desc+")";
 	}
 }
@@ -183,11 +199,27 @@ bool LLTrans::findString(std::string &result, const std::string &xml_desc, const
 	}
 	else
 	{
-		LLSD args;
-		args["STRING_NAME"] = xml_desc;
-		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
-		//LLNotificationsUtil::add("MissingString", args);
-		
+		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;	
+		return false;
+	}
+}
+
+//static
+bool LLTrans::findString(std::string &result, const std::string &xml_desc, const LLSD& msg_args)
+{
+	LLFastTimer timer(FTM_GET_TRANS);
+
+	template_map_t::iterator iter = sStringTemplates.find(xml_desc);
+	if (iter != sStringTemplates.end())
+	{
+		std::string text = iter->second.mText;
+		LLStringUtil::format(text, msg_args);
+		result = text;
+		return true;
+	}
+	else
+	{
+		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;	
 		return false;
 	}
 }
