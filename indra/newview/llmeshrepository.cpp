@@ -1452,16 +1452,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			data.mModel[i] = instance.mLOD[i];
 		}
 
-		LLVolumeParams  volume_params;
-		volume_params.setType( LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE );
-		volume_params.setBeginAndEndS( 0.f, 1.f );
-		volume_params.setBeginAndEndT( 0.f, 1.f );
-		volume_params.setRatio  ( 1, 1 );
-		volume_params.setShear  ( 0, 0 );
-		volume_params.setSculptID(instance.mMeshID, LL_SCULPT_TYPE_MESH);
-		mesh_entry["shape"] = volume_params.asLLSD();
 		mesh_entry["material"] = LL_MCODE_WOOD;
-		mesh_entry["group-id"] = gAgent.getGroupID();
 		LLPermissions perm;
 		perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
 		perm.setCreator(gAgent.getID());
