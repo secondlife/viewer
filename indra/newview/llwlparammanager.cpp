@@ -234,6 +234,7 @@ std::map<LLWLParamKey, LLWLParamSet> LLWLParamManager::finalizeFromDayCycle(LLWL
 	return final_references;
 }
 
+// static
 LLSD LLWLParamManager::createSkyMap(std::map<LLWLParamKey, LLWLParamSet> refs)
 {
 	LLSD skies = LLSD::emptyMap();

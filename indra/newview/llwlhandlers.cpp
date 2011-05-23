@@ -127,21 +127,20 @@ LLEnvironmentRequestResponder::LLEnvironmentRequestResponder()
 	LLEnvManagerNew::getInstance()->onRegionSettingsResponse(LLSD());
 }
 
-
 /****
- * LLEnvironmentApplyResponder
+ * LLEnvironmentApply
  ****/
-clock_t LLEnvironmentApplyResponder::UPDATE_WAIT_SECONDS = clock_t(3.f);
-clock_t LLEnvironmentApplyResponder::sLastUpdate = clock_t(0.f);
 
-bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
+clock_t LLEnvironmentApply::UPDATE_WAIT_SECONDS = clock_t(3.f);
+clock_t LLEnvironmentApply::sLastUpdate = clock_t(0.f);
+
+// static
+bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 {
 	clock_t current = clock();
-	if(current >= sLastUpdate + (UPDATE_WAIT_SECONDS * CLOCKS_PER_SEC))
-	{
-		sLastUpdate = current;
-	}
-	else
+
+	// Make sure we don't update too frequently.
+	if (current < sLastUpdate + (UPDATE_WAIT_SECONDS * CLOCKS_PER_SEC))
 	{
 		LLSD args(LLSD::emptyMap());
 		args["WAIT"] = (F64)UPDATE_WAIT_SECONDS;
@@ -149,20 +148,25 @@ bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
 		return false;
 	}
 
+	sLastUpdate = current;
+
+	// Send update request.
 	std::string url = gAgent.getRegion()->getCapability("EnvironmentSettings");
-	if (!url.empty())
-	{
-		LL_INFOS("WindlightCaps") << "Sending windlight settings to " << url << LL_ENDL;
-		LL_DEBUGS("WindlightCaps") << "content: " << content << LL_ENDL;
-		LLHTTPClient::post(url, content, new LLEnvironmentApplyResponder());
-		return true;
-	}
-	else
+	if (url.empty())
 	{
 		LL_WARNS("WindlightCaps") << "Applying windlight settings not supported" << LL_ENDL;
+		return false;
 	}
-	return false;
+
+	LL_INFOS("WindlightCaps") << "Sending windlight settings to " << url << LL_ENDL;
+	LL_DEBUGS("WindlightCaps") << "content: " << content << LL_ENDL;
+	LLHTTPClient::post(url, content, new LLEnvironmentApplyResponder());
+	return true;
 }
+
+/****
+ * LLEnvironmentApplyResponder
+ ****/
 /*virtual*/ void LLEnvironmentApplyResponder::result(const LLSD& content)
 {
 	if (content["regionID"].asUUID() != gAgent.getRegion()->getRegionID())
@@ -183,8 +187,6 @@ bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
 		args["FAIL_REASON"] = content["fail_reason"].asString();
 		LLNotificationsUtil::add("WLRegionApplyFail", args);
 	}
-
-	LLEnvManager::getInstance()->commitSettingsFinished(LLEnvKey::SCOPE_REGION);
 }
 /*virtual*/ void LLEnvironmentApplyResponder::error(U32 status, const std::string& reason)
 {
@@ -196,6 +198,4 @@ bool LLEnvironmentApplyResponder::initiateRequest(const LLSD& content)
 	LLSD args(LLSD::emptyMap());
 	args["FAIL_REASON"] = msg.str();
 	LLNotificationsUtil::add("WLRegionApplyFail", args);
-
-	LLEnvManager::getInstance()->commitSettingsFinished(LLEnvKey::SCOPE_REGION);
 }

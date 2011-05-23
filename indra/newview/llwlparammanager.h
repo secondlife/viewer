@@ -289,7 +289,7 @@ public:
 	std::map<LLWLParamKey, LLWLParamSet> finalizeFromDayCycle(LLWLParamKey::EScope scope);
 
 	// returns all skies in map (intended to be called with output from a finalize)
-	LLSD createSkyMap(std::map<LLWLParamKey, LLWLParamSet> map);
+	static LLSD createSkyMap(std::map<LLWLParamKey, LLWLParamSet> map);
 
 	// helper variables
 	LLWLAnimator mAnimator;

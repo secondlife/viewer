@@ -99,7 +99,7 @@ public:
 		return mDayTime;
 	}
 
-	LLSD makePacket(const LLSD& metadata)
+	LLSD makePacket(const LLSD& metadata) const
 	{
 		LLSD full_packet = LLSD::emptyArray();
 
@@ -261,19 +261,24 @@ class LLEnvManagerNew : public LLSingleton<LLEnvManagerNew>
 public:
 	LLEnvManagerNew();
 
+	// getters to access user env. preferences
 	bool getUseRegionSettings() const;
 	bool getUseDayCycle() const;
 	bool getUseFixedSky() const;
 	std::string getWaterPresetName() const;
 	std::string getSkyPresetName() const;
 	std::string getDayCycleName() const;
+
+	/// @return cached env. settings of the current region.
 	const LLEnvironmentSettings& getRegionSettings() const;
 
+	// setters for user env. preferences
 	void setUseRegionSettings(bool val);
 	void setUseWaterPreset(const std::string& name);
 	void setUseSkyPreset(const std::string& name);
 	void setUseDayCycle(const std::string& name);
 
+	// Preferences manipulation.
 	void loadUserPrefs();
 	void saveUserPrefs();
 	void setUserPrefs(
@@ -284,6 +289,13 @@ public:
 		bool use_region_settings);
 	void dumpUserPrefs();
 
+	// Common interface to the wl/water managers.
+	static LLSD getDayCycleByName(const std::string name);
+
+	// Misc.
+	bool sendRegionSettings(const LLEnvironmentSettings& new_settings);
+
+	// Public callbacks.
 	void onRegionCrossing();
 	void onTeleport();
 	void onRegionSettingsResponse(const LLSD& content);
@@ -293,7 +305,7 @@ private:
 	/*virtual*/ void initSingleton();
 
 	void updateManagersFromPrefs(bool interpolate);
-	void sendRegionSettingsRequest();
+	void requestRegionSettings();
 
 	void onRegionChange(bool interpolate);
 
@@ -301,6 +313,7 @@ private:
 	LLEnvironmentSettings	mCachedRegionPrefs;			/// Cached region environment settings.
 	bool					mInterpNextChangeMessage;	/// Interpolate env. settings on next region change.
 	LLUUID					mCurRegionUUID;				/// To avoid duplicated region env. settings requests.
+	LLUUID					mLastReceivedID;			/// Id of last received region env. settings.
 };
 
 #endif // LL_LLENVMANAGER_H

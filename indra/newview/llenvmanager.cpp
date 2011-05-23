@@ -367,7 +367,7 @@ void LLEnvManager::commitSettings(LLEnvKey::EScope scope)
 		metadata["messageID"] = mLastReceivedID;			// add last received update ID to outbound message so simulator can handle concurrent updates
 
 		saveSettingsFromManagers(scope);	// save current settings into settings store before grabbing from settings store and sending
-		success = LLEnvironmentApplyResponder::initiateRequest(makePacket(LLEnvKey::SCOPE_REGION, metadata));
+		success = LLEnvironmentApply::initiateRequest(makePacket(LLEnvKey::SCOPE_REGION, metadata));
 		if(success)
 		{
 			// while waiting for the return message, render old settings
@@ -484,7 +484,7 @@ void LLEnvManager::saveSettingsFromManagers(LLEnvKey::EScope scope)
 		{
 			// ensure only referenced region-scope skies are saved, resolve naming collisions, etc.
 			std::map<LLWLParamKey, LLWLParamSet> final_references = LLWLParamManager::getInstance()->finalizeFromDayCycle(scope);
-			LLSD referenced_skies = LLWLParamManager::getInstance()->createSkyMap(final_references);
+			LLSD referenced_skies = LLWLParamManager::createSkyMap(final_references);
 
 			LL_DEBUGS("Windlight Sync") << "Dumping referenced skies (" << final_references.size() << ") to LLSD: " << referenced_skies << LL_ENDL;
 
@@ -764,6 +764,23 @@ void LLEnvManagerNew::dumpUserPrefs()
 	LL_DEBUGS("Windlight") << "UseDayCycle: "				<< gSavedSettings.getBOOL("UseDayCycle") << LL_ENDL;
 }
 
+// static
+LLSD LLEnvManagerNew::getDayCycleByName(const std::string name)
+{
+	return LLWLDayCycle::loadCycleDataFromFile(name + ".xml");
+}
+
+bool LLEnvManagerNew::sendRegionSettings(const LLEnvironmentSettings& new_settings)
+{
+	LLSD metadata;
+
+	metadata["regionID"] = gAgent.getRegion()->getRegionID();
+	// add last received update ID to outbound message so simulator can handle concurrent updates
+	metadata["messageID"] = mLastReceivedID;
+
+	return LLEnvironmentApply::initiateRequest(new_settings.makePacket(metadata));
+}
+
 void LLEnvManagerNew::onRegionCrossing()
 {
 	LL_DEBUGS("Windlight") << "Crossed region" << LL_ENDL;
@@ -795,7 +812,7 @@ void LLEnvManagerNew::updateManagersFromPrefs(bool interpolate)
 	LLWLParamManager::instance().applyUserPrefs(interpolate);
 }
 
-void LLEnvManagerNew::sendRegionSettingsRequest()
+void LLEnvManagerNew::requestRegionSettings()
 {
 	LLEnvironmentRequest::initiate();
 	// *TODO: Indicate that current cached region settings have been invalidated?
@@ -816,11 +833,14 @@ void LLEnvManagerNew::onRegionChange(bool interpolate)
 	LL_DEBUGS("Windlight") << "New viewer region: " << region_uuid << LL_ENDL;
 	mCurRegionUUID = region_uuid;
 	mInterpNextChangeMessage = interpolate;
-	sendRegionSettingsRequest();
+	requestRegionSettings();
 }
 
 void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 {
+	// If the message was valid, grab the UUID from it and save it for next outbound update message.
+	mLastReceivedID = content[0]["messageID"].asUUID();
+
 	// 1. Refresh cached region settings.
 	LL_DEBUGS("Windlight") << "Caching region environment settings: " << content << LL_ENDL;
 	F32 sun_hour = 0; // *TODO

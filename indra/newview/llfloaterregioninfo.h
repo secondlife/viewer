@@ -46,6 +46,7 @@ class LLInventoryItem;
 class LLCheckBoxCtrl;
 class LLComboBox;
 class LLNameListCtrl;
+class LLRadioGroup;
 class LLSliderCtrl;
 class LLSpinCtrl;
 class LLTextBox;
@@ -100,6 +101,7 @@ private:
 	~LLFloaterRegionInfo();
 	
 protected:
+	void onTabSelected(const LLSD& param);
 	void refreshFromRegion(LLViewerRegion* region);
 
 	// member data
@@ -422,6 +424,34 @@ protected:
 
 class LLPanelEnvironmentInfo : public LLPanelRegionInfo
 {
+	LOG_CLASS(LLPanelEnvironmentInfo);
+
+public:
+	LLPanelEnvironmentInfo();
+
+	// LLPanel
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
+
+private:
+	void refresh();
+
+	void populateWaterPresetsList();
+	void populateSkyPresetsList();
+	void populateDayCyclesList();
+
+	void onSwitchRegionSettings();
+	void onSwitchDayCycle();
+
+	void onBtnSave();
+	void onBtnCancel();
+
+	LLRadioGroup*	mRegionSettingsRadioGroup;
+	LLRadioGroup*	mDayCycleSettingsRadioGroup;
+
+	LLComboBox*		mWaterPresetCombo;
+	LLComboBox*		mSkyPresetCombo;
+	LLComboBox*		mDayCyclePresetCombo;
 };
 
 #endif
