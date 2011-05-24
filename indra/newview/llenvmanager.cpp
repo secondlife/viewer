@@ -820,10 +820,8 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	mCachedRegionPrefs = new_settings;
 
 	// If using server settings, update managers.
-	if (getUseRegionSettings())
-	{
-		updateManagersFromPrefs(mInterpNextChangeMessage);
-	}
+	// This also adds server skies to the WL param mgr.
+	updateManagersFromPrefs(mInterpNextChangeMessage);
 
 	// Let interested parties know about the region settings update.
 	mRegionSettingsChangeSignal();
