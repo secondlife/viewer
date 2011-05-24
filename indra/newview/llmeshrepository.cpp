@@ -3751,6 +3751,25 @@ void LLPhysicsDecomp::run()
 	mDone = true;
 }
 
+void LLPhysicsDecomp::Request::updateTriangleAreaThreshold() 
+{
+	F32 range = mBBox[1].mV[0] - mBBox[0].mV[0] ;
+	range = llmin(range, mBBox[1].mV[1] - mBBox[0].mV[1]) ;
+	range = llmin(range, mBBox[1].mV[2] - mBBox[0].mV[2]) ;
+
+	mTriangleAreaThreshold = llmin(0.0002f, range * 0.000002f) ;
+}
+
+//check if the triangle area is large enough to qualify for a valid triangle
+bool LLPhysicsDecomp::Request::isValidTriangle(U16 idx1, U16 idx2, U16 idx3) 
+{
+	LLVector3 a = mPositions[idx2] - mPositions[idx1] ;
+	LLVector3 b = mPositions[idx3] - mPositions[idx1] ;
+	F32 c = a * b ;
+
+	return ((a*a) * (b*b) - c * c) > mTriangleAreaThreshold ;
+}
+
 void LLPhysicsDecomp::Request::setStatusMessage(const std::string& msg)
 {
 	mStatusMessage = msg;
