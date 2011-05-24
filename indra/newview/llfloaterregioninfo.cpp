@@ -3504,5 +3504,12 @@ void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
 	if (!ok)
 	{
 		setApplyProgress(false);
+
+		// We need to re-request environment setting here,
+		// otherwise our subsequent attempts to change region settings will fail with the following error:
+		// "Unable to update environment settings because the last update your viewer saw was not the same
+		// as the last update sent from the simulator.  Try sending your update again, and if this
+		// does not work, try leaving and returning to the region."
+		LLEnvManagerNew::instance().requestRegionSettings();
 	}
 }
