@@ -34,6 +34,8 @@
 
 #include "stdtypes.h"
 
+#include "llpreprocessor.h"
+
 /** 
  * @class LLDate
  * @brief This class represents a particular point in time in UTC.

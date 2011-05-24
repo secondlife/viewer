@@ -27,6 +27,8 @@
 #ifndef LL_LLBUTTON_H
 #define LL_LLBUTTON_H
 
+#include "lluuid.h"
+#include "llbadge.h"
 #include "llcontrol.h"
 #include "lluictrl.h"
 #include "v4color.h"
@@ -52,8 +54,6 @@ S32 round_up(S32 grid, S32 value);
 
 
 class LLUICtrlFactory;
-class LLUIImage;
-class LLUUID;
 
 //
 // Classes
@@ -126,6 +126,8 @@ public:
 		Optional<TimeIntervalParam>	held_down_delay;
 
 		Optional<bool>			use_draw_context_alpha;
+		
+		Optional<LLBadge::Params>	badge;
 
 		Params();
 	};
@@ -249,6 +251,8 @@ public:
 	void			setImageDisabledSelected(LLPointer<LLUIImage> image);
 	void			setImageFlash(LLPointer<LLUIImage> image);
 	void			setImagePressed(LLPointer<LLUIImage> image);
+	
+	void			setBadgeLabel(const LLStringExplicit& label);
 
 	void			setCommitOnReturn(BOOL commit) { mCommitOnReturn = commit; }
 	BOOL			getCommitOnReturn() const { return mCommitOnReturn; }
@@ -266,6 +270,8 @@ public:
 protected:
 	LLPointer<LLUIImage> getImageUnselected() const	{ return mImageUnselected; }
 	LLPointer<LLUIImage> getImageSelected() const	{ return mImageSelected; }
+
+	void addBadgeToParentPanel();
 
 	LLFrameTimer	mMouseDownTimer;
 
@@ -357,6 +363,8 @@ private:
 	bool						mForcePressedState;
 
 	LLFrameTimer				mFlashingTimer;
+	
+	LLBadge*					mBadge;
 };
 
 // Build time optimization, generate once in .cpp file

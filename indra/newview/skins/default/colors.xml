@@ -133,6 +133,12 @@
      name="AvatarListItemIconVoiceLeftColor"
      reference="AvatarListItemIconOfflineColor" />
     <color
+     name="BadgeImageColor"
+     value="0.25 0.85 0.25 1.0" />
+    <color
+     name="BadgeLabelColor"
+     reference="White" />
+    <color
      name="ButtonBorderColor"
      reference="Unused?" />
     <color
