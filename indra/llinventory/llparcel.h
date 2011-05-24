@@ -272,6 +272,7 @@ public:
 	void setUserLookAt(const LLVector3& rot)	{ mUserLookAt = rot; }
 	void setLandingType(const ELandingType type) { mLandingType = type; }
 	void setPrivacy(bool privacy)	{ mPrivacy = privacy;	}
+	void setHavePrivacyData(bool have_privacy_data)		{ mHavePrivacyData = have_privacy_data;		}		// Remove this once parcel privacy is fully available grid-wide
 
 	void setAuctionID(U32 auction_id) { mAuctionID = auction_id;}
 
@@ -375,7 +376,7 @@ public:
 	const LLVector3& getUserLookAt() const	{ return mUserLookAt; }
 	ELandingType getLandingType() const	{ return mLandingType; }
 	bool getPrivacy() const				{ return mPrivacy;		}
-
+	bool getHavePrivacyData() const		{ return mHavePrivacyData;	}
 
 	// User-specified snapshot
 	const LLUUID&	getSnapshotID() const		{ return mSnapshotID; }
@@ -612,6 +613,7 @@ protected:
 	LLVector3 mUserLookAt;
 	ELandingType mLandingType;
 	bool mPrivacy;
+	bool mHavePrivacyData;			// Remove once parcel privacy is grid-wide
 	LLTimer mSaleTimerExpires;
 	LLTimer mMediaResetTimer;
 

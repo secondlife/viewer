@@ -2036,7 +2036,7 @@ void LLPanelLandOptions::refresh()
 
 		mPrivateParcelCtrl->set(parcel->getPrivacy());
 		mPrivateParcelCtrl->setLabel(getString("private_parcel_text"));
-		mPrivateParcelCtrl->setEnabled(can_change_options);
+		mPrivateParcelCtrl->setEnabled(can_change_options && parcel->getHavePrivacyData());
 
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
 														GP_LAND_SET_LANDING_POINT);

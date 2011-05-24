@@ -226,6 +226,9 @@ void LLParcel::init(const LLUUID &owner_id,
 
 	setPreviousOwnerID(LLUUID::null);
 	setPreviouslyGroupOwned(FALSE);
+
+	setPrivacy(false);
+	setHavePrivacyData(false);
 }
 
 void LLParcel::overrideOwner(const LLUUID& owner_id, BOOL is_group_owned)
@@ -728,6 +731,7 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
 		msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_Privacy, private_parcel);
 	}
 	setPrivacy((bool) private_parcel);
+	setHavePrivacyData(have_privacy_data);
 
     // non-optimized version
     msg->getU8 ( "ParcelData", "MediaAutoScale", mMediaAutoScale );
