@@ -1083,11 +1083,16 @@ void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
 }
 
 // static
-void LLImageGL::deleteTextures(S32 numTextures, U32 *textures)
+void LLImageGL::deleteTextures(S32 numTextures, U32 *textures, bool immediate)
 {
 	for (S32 i = 0; i < numTextures; i++)
 	{
 		sDeadTextureList.push_back(textures[i]);
+	}
+
+	if (immediate)
+	{
+		LLImageGL::deleteDeadTextures();
 	}
 }
 

@@ -278,11 +278,13 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
 	renderSkyHaze(camHeightLocal);
 
-	/*LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 	glPushMatrix();
 
+		
 		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
+		gDeferredStarProgram.bind();
 		// *NOTE: have to bind a texture here since register combiners blending in
 		// renderStars() requires something to be bound and we might as well only
 		// bind the moon's texture once.		
@@ -292,8 +294,9 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
 		renderStars();
 		
+		gDeferredStarProgram.unbind();
 
-	glPopMatrix();*/
+	glPopMatrix();
 
 	renderSkyClouds(camHeightLocal);
 

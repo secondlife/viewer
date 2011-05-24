@@ -28,12 +28,12 @@ uniform vec2 screen_res;
 vec4 texture2DMS(sampler2DMS tex, ivec2 tc)
 {
 	vec4 ret = vec4(0,0,0,0);
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < samples; i++)
 	{
 		ret += texelFetch(tex, tc, i);
 	}
 
-	return ret * 0.25;
+	return ret/samples;
 }
 
 vec4 getPosition(ivec2 pos_screen)

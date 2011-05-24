@@ -18,13 +18,14 @@ varying vec2 vary_fragcoord;
 
 vec4 texture2DMS(sampler2DMS tex, ivec2 tc)
 {
-	vec4 ret = texelFetch(tex,tc,0);
-	ret += texelFetch(tex,tc,1);
-	ret += texelFetch(tex,tc,2);
-	ret += texelFetch(tex,tc,3);
-	ret *= 0.25;
+	vec4 ret = vec4(0,0,0,0);
 
-	return ret;
+	for (int i = 0; i < samples; ++i)
+	{
+		 ret += texelFetch(tex,tc,i);
+	}
+
+	return ret/samples;
 }
 
 void main() 

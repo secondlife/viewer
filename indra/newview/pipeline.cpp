@@ -589,8 +589,8 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	mScreenWidth = resX;
 	mScreenHeight = resY;
 	
-	//never use more than 4 samples for render targets
-	U32 samples = llmin(gSavedSettings.getU32("RenderFSAASamples"), (U32) 4);
+	U32 samples = llmin(gSavedSettings.getU32("RenderFSAASamples"), (U32) 16);
+
 	if (gGLManager.mIsATI)
 	{ //disable multisampling of render targets where ATI is involved
 		samples = 0;
@@ -6170,11 +6170,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 		
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);		
-		gGL.getTexUnit(0)->disable();
-		gGL.getTexUnit(0)->enable(LLTexUnit::TT_RECT_TEXTURE);
-		gGL.getTexUnit(0)->bind(&mScreen);
-
+		mScreen.bindTexture(0, 0);
+		
 		gGL.color4f(1,1,1,1);
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 		gGL.begin(LLRender::TRIANGLE_STRIP);
@@ -6189,7 +6186,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		
 		gGL.end();
 		
-		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+		gGL.getTexUnit(0)->unbind(mScreen.getUsage());
 
 		mGlow[2].flush();
 	}
@@ -6217,7 +6214,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	for (S32 i = 0; i < kernel; i++)
 	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		{
 			LLFastTimer ftm(FTM_RENDER_BLOOM_FBO);
 			mGlow[i%2].bindTarget();

@@ -251,18 +251,18 @@ vec3 scaleSoftClip(vec3 light)
 
 vec4 texture2DMS(sampler2DMS tex, ivec2 tc)
 {
-	vec4 ret = texelFetch(tex,tc,0);
-	ret += texelFetch(tex,tc,1);
-	ret += texelFetch(tex,tc,2);
-	ret += texelFetch(tex,tc,3);
-	ret *= 0.25;
+	vec4 ret = vec4(0,0,0,0);
 
-	return ret;
+	for (int i = 0; i < samples; ++i)
+	{
+		 ret += texelFetch(tex,tc,i);
+	}
+
+	return ret/samples;
 }
 
 void main() 
 {
-	int samples = 4;
 	vec2 tc = vary_fragcoord.xy;
 	ivec2 itc = ivec2(tc);
 

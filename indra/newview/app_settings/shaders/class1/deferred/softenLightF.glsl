@@ -259,7 +259,7 @@ vec3 scaleSoftClip(vec3 light)
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
-	float depth = texture2DRect(depthMap, tc.xy).a;
+	float depth = texture2DRect(depthMap, tc.xy).r;
 	vec3 pos = getPosition_d(tc, depth).xyz;
 	vec3 norm = texture2DRect(normalMap, tc).xyz;
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm

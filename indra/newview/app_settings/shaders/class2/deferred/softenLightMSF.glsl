@@ -252,7 +252,6 @@ vec3 scaleSoftClip(vec3 light)
 
 void main() 
 {
-	int samples = 4;
 	vec2 tc = vary_fragcoord.xy;
 	ivec2 itc = ivec2(tc);
 

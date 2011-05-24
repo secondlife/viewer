@@ -289,7 +289,7 @@ void LLRenderTarget::release()
 		}
 		else
 		{
-			LLImageGL::deleteTextures(1, &mDepth);
+			LLImageGL::deleteTextures(1, &mDepth, true);
 			stop_glerror();
 		}
 		mDepth = 0;
@@ -318,7 +318,7 @@ void LLRenderTarget::release()
 
 	if (mTex.size() > 0)
 	{
-		LLImageGL::deleteTextures(mTex.size(), &mTex[0]);
+		LLImageGL::deleteTextures(mTex.size(), &mTex[0], true);
 		mTex.clear();
 	}
 

@@ -101,8 +101,6 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm, int sample)
 
 void main() 
 {
-	int samples = 4;
-
 	vec2 pos_screen = vary_fragcoord.xy;
 	ivec2 itc = ivec2(pos_screen);
 		

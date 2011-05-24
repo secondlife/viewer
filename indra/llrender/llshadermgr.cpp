@@ -374,6 +374,12 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	GLcharARB* text[1024];
 	GLuint count = 0;
 
+	//copy preprocessor definitions into buffer
+	for (std::map<std::string,std::string>::iterator iter = mDefinitions.begin(); iter != mDefinitions.end(); ++iter)
+	{
+		std::string define = "#define " + iter->first + " " + iter->second + "\n";
+		text[count++] = (GLcharARB *) strdup(define.c_str());
+	}
 
 	//copy file into memory
 	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(buff) ) 
