@@ -261,6 +261,7 @@ class LLEnvManagerNew : public LLSingleton<LLEnvManagerNew>
 public:
 	typedef boost::signals2::signal<void()> region_settings_change_signal_t;
 	typedef boost::signals2::signal<void()> region_change_signal_t;
+	typedef boost::signals2::signal<void(bool)> region_settings_applied_signal_t;
 
 	LLEnvManagerNew();
 
@@ -300,11 +301,13 @@ public:
 	bool sendRegionSettings(const LLEnvironmentSettings& new_settings);
 	boost::signals2::connection setRegionSettingsChangeCallback(const region_settings_change_signal_t::slot_type& cb);
 	boost::signals2::connection setRegionChangeCallback(const region_change_signal_t::slot_type& cb);
+	boost::signals2::connection setRegionSettingsAppliedCallback(const region_settings_applied_signal_t::slot_type& cb);
 
 	// Public callbacks.
 	void onRegionCrossing();
 	void onTeleport();
 	void onRegionSettingsResponse(const LLSD& content);
+	void onRegionSettingsApplyResponse(bool ok);
 
 private:
 	friend class LLSingleton<LLEnvManagerNew>;
@@ -319,6 +322,9 @@ private:
 
 	/// Emitted when agent region changes. Move to LLAgent?
 	region_settings_change_signal_t	mRegionChangeSignal;
+
+	/// Emitted when agent region changes. Move to LLAgent?
+	region_settings_applied_signal_t mRegionSettingsAppliedSignal;
 
 	LLEnvPrefs				mUserPrefs;					/// User environment preferences.
 	LLEnvironmentSettings	mCachedRegionPrefs;			/// Cached region environment settings.

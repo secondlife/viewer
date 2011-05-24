@@ -40,6 +40,7 @@
 #include "llxfermanager.h"
 #include "indra_constants.h"
 #include "message.h"
+#include "llloadingindicator.h"
 #include "llradiogroup.h"
 #include "llsd.h"
 #include "llsdserialize.h"
@@ -3203,6 +3204,7 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 	childSetCommitCallback("cancel_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnCancel, this), NULL);
 
 	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingschange, this));
+	LLEnvManagerNew::instance().setRegionSettingsAppliedCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingsApplied, this, _1));
 
 	return TRUE;
 }
@@ -3262,6 +3264,22 @@ void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 		// Enable/disable some controls based on currently selected radio buttons.
 		LLPanelEnvironmentInfo::onSwitchRegionSettings();
 		LLPanelEnvironmentInfo::onSwitchDayCycle();
+	}
+}
+
+void LLPanelEnvironmentInfo::setApplyProgress(bool started)
+{
+	LLLoadingIndicator* indicator = getChild<LLLoadingIndicator>("progress_indicator");
+
+	indicator->setVisible(started);
+
+	if (started)
+	{
+		indicator->start();
+	}
+	else
+	{
+		indicator->stop();
 	}
 }
 
@@ -3457,7 +3475,10 @@ void LLPanelEnvironmentInfo::onBtnSave()
 	if (!LLEnvManagerNew::instance().sendRegionSettings(new_region_settings))
 	{
 		llwarns << "Error applying region environment settings" << llendl;
+		return;
 	}
+
+	setApplyProgress(true);
 }
 
 void LLPanelEnvironmentInfo::onBtnCancel()
@@ -3470,4 +3491,18 @@ void LLPanelEnvironmentInfo::onRegionSettingschange()
 {
 	LL_DEBUGS("Windlight") << "Region settings changed, refreshing" << LL_ENDL;
 	refresh();
+
+	// Stop applying progress indicator (it may be running if it's us who initiated settings update).
+	setApplyProgress(false);
+}
+
+void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
+{
+	LL_DEBUGS("Windlight") << "Applying region settings finished, stopping indicator" << LL_ENDL;
+	// If applying new settings has failed, stop the indicator right away.
+	// Otherwise it will be stopped when we receive the updated settings from server.
+	if (!ok)
+	{
+		setApplyProgress(false);
+	}
 }

@@ -796,6 +796,11 @@ boost::signals2::connection LLEnvManagerNew::setRegionChangeCallback(const regio
 	return mRegionChangeSignal.connect(cb);
 }
 
+boost::signals2::connection LLEnvManagerNew::setRegionSettingsAppliedCallback(const region_settings_applied_signal_t::slot_type& cb)
+{
+	return mRegionSettingsAppliedSignal.connect(cb);
+}
+
 void LLEnvManagerNew::onRegionCrossing()
 {
 	LL_DEBUGS("Windlight") << "Crossed region" << LL_ENDL;
@@ -828,6 +833,12 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 
 	// reset
 	mInterpNextChangeMessage = false;
+}
+
+void LLEnvManagerNew::onRegionSettingsApplyResponse(bool ok)
+{
+	LL_DEBUGS("Windlight") << "Applying region settings " << (ok ? "succeeded" : "failed") << LL_ENDL;
+	mRegionSettingsAppliedSignal(ok);
 }
 
 //-- private methods ----------------------------------------------------------

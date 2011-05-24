@@ -439,6 +439,7 @@ public:
 private:
 	void refresh();
 	void setControlsEnabled(bool enabled);
+	void setApplyProgress(bool started);
 
 	void populateWaterPresetsList();
 	void populateSkyPresetsList();
@@ -451,6 +452,7 @@ private:
 	void onBtnCancel();
 
 	void onRegionSettingschange();
+	void onRegionSettingsApplied(bool ok);
 
 	bool			mEnableEditing;
 

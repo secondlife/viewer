@@ -179,6 +179,7 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 	else if (content["success"].asBoolean())
 	{
 		LL_DEBUGS("WindlightCaps") << "Success in applying windlight settings to region " << content["regionID"].asUUID() << LL_ENDL;
+		LLEnvManagerNew::instance().onRegionSettingsApplyResponse(true);
 	}
 	else
 	{
@@ -186,6 +187,7 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 		LLSD args(LLSD::emptyMap());
 		args["FAIL_REASON"] = content["fail_reason"].asString();
 		LLNotificationsUtil::add("WLRegionApplyFail", args);
+		LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
 	}
 }
 /*virtual*/ void LLEnvironmentApplyResponder::error(U32 status, const std::string& reason)
