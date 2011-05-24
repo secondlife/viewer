@@ -47,7 +47,7 @@
    height="12"
    name="font_colors"
    top_pad="20"
-   width="120"
+   width="170"
    >
     Chat font colors:
   </text>
@@ -306,7 +306,7 @@
    height="12"
    name="bubble_chat"
    top_pad="20"
-   width="450"
+   width="495"
    >
     Name tag background color (also affects Bubble Chat):
   </text>
@@ -351,7 +351,7 @@
    height="12"
    name="floater_opacity"
    top_pad="15"
-   width="120"
+   width="200"
    >
     Floater Opacity:
   </text>

@@ -489,3 +489,21 @@ void LLAgentListener::lookAt(LLSD const & event_data) const
 		gAgentCamera.setLookAt((ELookAtType) look_at_type, object);
 	}
 }
+
+void LLAgentListener::getGroups(const LLSD& event) const
+{
+    LLSD reply(LLSD::emptyArray());
+    for (LLDynamicArray<LLGroupData>::const_iterator
+             gi(mAgent.mGroups.begin()), gend(mAgent.mGroups.end());
+         gi != gend; ++gi)
+    {
+        reply.append(LLSDMap
+                     ("id", gi->mID)
+                     ("name", gi->mName)
+                     ("insignia", gi->mInsigniaID)
+                     ("notices", bool(gi->mAcceptNotices))
+                     ("display", bool(gi->mListInProfile))
+                     ("contrib", gi->mContribution));
+    }
+    sendReply(LLSDMap("groups", reply), event);
+}

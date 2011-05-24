@@ -10,7 +10,7 @@
 		Prévia da
 imagem como:
 	</text>
-	<combo_box label="Tipo de Roupas" left="100" name="clothing_type_combo" width="186">
+	<combo_box label="Tipo de Roupas" name="clothing_type_combo">
 		<item label="Imagem" name="Image" value="Imagem"/>
 		<item label="Cabelo" name="Hair" value="Cabelo"/>
 		<item label="Cabeça de mulher" name="FemaleHead" value="Cabeça de mulher"/>

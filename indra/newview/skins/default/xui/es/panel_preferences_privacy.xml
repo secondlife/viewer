@@ -11,7 +11,7 @@
 	<check_box label="Sólo saben si estoy conectado mis amigos y grupos" name="online_visibility"/>
 	<check_box label="Sólo pueden llamarme o mandarme un MI mis amigos y grupos" name="voice_call_friends_only_check"/>
 	<check_box label="Desconectar el micrófono cuando finalicen las llamadas" name="auto_disengage_mic_check"/>
-	<check_box label="Mostrar mis Hitos favoritos al Inicio de sesión (menú desplegable &quot;Empezar en&quot;)" name="favorites_on_login_check"/>
+	<check_box label="Mostrar mis Hitos favoritos al Inicio de sesión (menú desplegable &quot;Empezar &#10;en&quot;)" name="favorites_on_login_check" top_pad="15"/>
 	<text name="Logs:">
 		Registros de chat:
 	</text>

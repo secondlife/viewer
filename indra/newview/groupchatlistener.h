@@ -1,10 +1,12 @@
-/** 
- * @file llversionviewer.h
- * @brief
- *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+/**
+ * @file   groupchatlistener.h
+ * @author Nat Goodspeed
+ * @date   2011-04-11
+ * @brief  
+ * 
+ * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,18 +26,15 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+#if ! defined(LL_GROUPCHATLISTENER_H)
+#define LL_GROUPCHATLISTENER_H
 
-const S32 LL_VERSION_MAJOR = 2;
-const S32 LL_VERSION_MINOR = 7;
-const S32 LL_VERSION_PATCH = 1;
-const S32 LL_VERSION_BUILD = 0;
+#include "lleventapi.h"
 
-const char * const LL_CHANNEL = "Second Life Developer";
+class GroupChatListener: public LLEventAPI
+{
+public:
+    GroupChatListener();
+};
 
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
-#endif
-
-#endif
+#endif /* ! defined(LL_GROUPCHATLISTENER_H) */

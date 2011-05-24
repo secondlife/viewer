@@ -49,6 +49,7 @@ private:
     void requestTouch(LLSD const & event_data) const;
     void resetAxes(const LLSD& event_data) const;
     void getAxes(const LLSD& event_data) const;
+	void getGroups(const LLSD& event) const;
     void getPosition(const LLSD& event_data) const;
     void startAutoPilot(const LLSD& event_data);
     void getAutoPilot(const LLSD& event_data) const;

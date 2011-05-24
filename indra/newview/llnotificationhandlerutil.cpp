@@ -27,13 +27,17 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
-#include "llnotificationhandler.h"
-#include "llnotifications.h"
-#include "llimview.h"
-#include "llagent.h"
+#include "llavatarnamecache.h"
+
 #include "llfloaterreg.h"
-#include "llnearbychat.h"
+#include "llnotifications.h"
+#include "llurlaction.h"
+
+#include "llagent.h"
 #include "llimfloater.h"
+#include "llimview.h"
+#include "llnearbychat.h"
+#include "llnotificationhandler.h"
 
 using namespace LLNotificationsUI;
 
@@ -275,7 +279,11 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 		{
 			from = SYSTEM_FROM;
 		}
-		LLIMModel::instance().logToFile(session_name, from, from_id, message);
+
+		// Build a new format username or firstname_lastname for legacy names
+		// to use it for a history log filename.
+		std::string user_name = LLCacheName::buildUsername(session_name);
+		LLIMModel::instance().logToFile(user_name, from, from_id, message);
 	}
 	else
 	{
