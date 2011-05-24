@@ -836,7 +836,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 			{
 				gPipeline.mDeferredScreen.bindTarget();
-				glClearColor(0,0,0,0);
+				glClearColor(1,0,1,1);
 				gPipeline.mDeferredScreen.clear();
 			}
 			else

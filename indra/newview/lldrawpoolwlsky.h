@@ -44,10 +44,10 @@ public:
 
 	/*virtual*/ BOOL isDead() { return FALSE; }
 
-	/*virtual*/ S32 getNumPostDeferredPasses() { return getNumPasses(); }
-	/*virtual*/ void beginPostDeferredPass(S32 pass) { beginRenderPass(pass); }
-	/*virtual*/ void endPostDeferredPass(S32 pass) { endRenderPass(pass); }
-	/*virtual*/ void renderPostDeferred(S32 pass) { render(pass); }
+	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
+	/*virtual*/ void beginDeferredPass(S32 pass);
+	/*virtual*/ void endDeferredPass(S32 pass);
+	/*virtual*/ void renderDeferred(S32 pass);
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ void beginRenderPass( S32 pass );

@@ -374,7 +374,9 @@ extern LLGLSLShader			gDeferredAttachmentShadowProgram;
 extern LLGLSLShader			gDeferredAlphaProgram;
 extern LLGLSLShader			gDeferredFullbrightProgram;
 extern LLGLSLShader			gDeferredAvatarAlphaProgram;
-
+extern LLGLSLShader			gDeferredWLSkyProgram;
+extern LLGLSLShader			gDeferredWLCloudProgram;
+extern LLGLSLShader			gDeferredStarProgram;
 extern LLGLSLShader			gLuminanceGatherProgram;
 
 //current avatar shader parameter pointer

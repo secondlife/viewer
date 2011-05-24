@@ -8,10 +8,11 @@
 #version 120
 
 #extension GL_ARB_texture_rectangle : enable
+#extension GL_ARB_texture_multisample : enable
 
-uniform sampler2DRect depthMap;
-uniform sampler2DRect normalMap;
-uniform sampler2DRect lightMap;
+uniform sampler2DMS depthMap;
+uniform sampler2DMS normalMap;
+uniform sampler2DMS lightMap;
 
 uniform float dist_factor;
 uniform float blur_size;
@@ -24,9 +25,20 @@ varying vec2 vary_fragcoord;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-vec4 getPosition(vec2 pos_screen)
+vec4 texture2DMS(sampler2DMS tex, ivec2 tc)
 {
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
+	vec4 ret = vec4(0,0,0,0);
+	for (int i = 0; i < samples; i++)
+	{
+		ret += texelFetch(tex, tc, i);
+	}
+
+	return ret/samples;
+}
+
+vec4 getPosition(ivec2 pos_screen)
+{
+	float depth = texture2DMS(depthMap, pos_screen.xy).r;
 	vec2 sc = pos_screen.xy*2.0;
 	sc /= screen_res;
 	sc -= vec2(1.0,1.0);
@@ -40,10 +52,12 @@ vec4 getPosition(vec2 pos_screen)
 void main() 
 {
     vec2 tc = vary_fragcoord.xy;
-	vec3 norm = texture2DRect(normalMap, tc).xyz;
+	ivec2 itc = ivec2(tc);
+
+	vec3 norm = texture2DMS(normalMap, itc).xyz;
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
-	vec3 pos = getPosition(tc).xyz;
-	vec4 ccol = texture2DRect(lightMap, tc).rgba;
+	vec3 pos = getPosition(itc).xyz;
+	vec4 ccol = texture2DMS(lightMap, itc).rgba;
 	
 	vec2 dlt = kern_scale * delta / (1.0+norm.xy*norm.xy);
 	dlt /= max(-pos.z*dist_factor, 1.0);
@@ -59,30 +73,30 @@ void main()
 
 	for (int i = 1; i < 4; i++)
 	{
-		vec2 samptc = tc + kern[i].z*dlt;
-	        vec3 samppos = getPosition(samptc).xyz; 
+		ivec2 samptc = ivec2(tc + kern[i].z*dlt);
+		vec3 samppos = getPosition(samptc).xyz; 
 		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
 		if (d*d <= pointplanedist_tolerance_pow2)
 		{
-			col += texture2DRect(lightMap, samptc)*kern[i].xyxx;
+			col += texture2DMS(lightMap, samptc)*kern[i].xyxx;
 			defined_weight += kern[i].xy;
 		}
 	}
 	for (int i = 1; i < 4; i++)
 	{
-		vec2 samptc = tc - kern[i].z*dlt;
-	        vec3 samppos = getPosition(samptc).xyz; 
+		ivec2 samptc = ivec2(tc - kern[i].z*dlt);
+		vec3 samppos = getPosition(samptc).xyz; 
 		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
 		if (d*d <= pointplanedist_tolerance_pow2)
 		{
-			col += texture2DRect(lightMap, samptc)*kern[i].xyxx;
+			col += texture2DMS(lightMap, samptc)*kern[i].xyxx;
 			defined_weight += kern[i].xy;
 		}
 	}
 
 	col /= defined_weight.xyxx;
 	col.y *= col.y;
-	
+
 	gl_FragColor = col;
 }
 

@@ -36,7 +36,7 @@ uniform mat4 inv_proj;
 
 vec4 getPosition(vec2 pos_screen)
 {
-	float depth = texture2DRect(depthMap, pos_screen.xy).a;
+	float depth = texture2DRect(depthMap, pos_screen.xy).r;
 	vec2 sc = pos_screen.xy*2.0;
 	sc /= screen_res;
 	sc -= vec2(1.0,1.0);
