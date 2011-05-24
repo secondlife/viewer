@@ -134,6 +134,7 @@ kdu_params* kdu_params::access_cluster(const char*) { return NULL; }
 void kdu_codestream::set_fast() { }
 void kdu_codestream::set_fussy() { }
 void kdu_codestream::get_dims(int, kdu_dims&, bool ) { }
+int kdu_codestream::get_min_dwt_levels() { return 5; }
 void kdu_codestream::change_appearance(bool, bool, bool) { }
 void kdu_codestream::get_tile_dims(kdu_coords, int, kdu_dims&, bool ) { }
 void kdu_codestream::destroy() { }

@@ -987,9 +987,15 @@ void LLFloaterPreference::refreshEnabledState()
 	LLCheckBoxCtrl* ctrl_avatar_vp = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
 	// Avatar Render Mode
 	LLCheckBoxCtrl* ctrl_avatar_cloth = getChild<LLCheckBoxCtrl>("AvatarCloth");
+	
+	bool avatar_vp_enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP");
+	if (LLViewerShaderMgr::sInitialized)
+	{
+		S32 max_avatar_shader = LLViewerShaderMgr::instance()->mMaxAvatarShaderLevel;
+		avatar_vp_enabled = (max_avatar_shader > 0) ? TRUE : FALSE;
+	}
 
-	S32 max_avatar_shader = LLViewerShaderMgr::instance()->mMaxAvatarShaderLevel;
-	ctrl_avatar_vp->setEnabled((max_avatar_shader > 0) ? TRUE : FALSE);
+	ctrl_avatar_vp->setEnabled(avatar_vp_enabled);
 	
 	if (gSavedSettings.getBOOL("VertexShaderEnable") == FALSE || 
 		gSavedSettings.getBOOL("RenderAvatarVP") == FALSE)
@@ -1006,7 +1012,7 @@ void LLFloaterPreference::refreshEnabledState()
 	LLCheckBoxCtrl* ctrl_shader_enable   = getChild<LLCheckBoxCtrl>("BasicShaders");
 	// radio set for terrain detail mode
 	LLRadioGroup*   mRadioTerrainDetail = getChild<LLRadioGroup>("TerrainDetailRadio");   // can be linked with control var
-
+	
 	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
 	
 	BOOL shaders = ctrl_shader_enable->get();
@@ -1029,26 +1035,28 @@ void LLFloaterPreference::refreshEnabledState()
 
 	//Deferred/SSAO/Shadows
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
-	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseFBO") &&
-	    LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-		shaders)
-	{
-		BOOL enabled = (ctrl_wind_light->get()) ? TRUE : FALSE;
-
-		ctrl_deferred->setEnabled(enabled);
 	
-		LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
-		LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
+	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") && 
+						shaders && 
+						gGLManager.mHasFramebufferObject &&
+						gSavedSettings.getBOOL("RenderAvatarVP") &&
+						(ctrl_wind_light->get()) ? TRUE : FALSE;
 
-		enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
+	ctrl_deferred->setEnabled(enabled);
+	
+	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
+	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
+	LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
+
+	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
 		
-		ctrl_ssao->setEnabled(enabled);
+	ctrl_ssao->setEnabled(enabled);
+	ctrl_dof->setEnabled(enabled);
 
-		enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
+	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
 
-		ctrl_shadow->setEnabled(enabled);
-	}
-
+	ctrl_shadow->setEnabled(enabled);
+	
 
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
@@ -1067,6 +1075,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
+	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
 
 	// if vertex shaders off, disable all shader related products
 	if(!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
@@ -1092,6 +1101,9 @@ void LLFloaterPreference::disableUnavailableSettings()
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
 
+		ctrl_dof->setEnabled(FALSE);
+		ctrl_dof->setValue(FALSE);
+
 		ctrl_deferred->setEnabled(FALSE);
 		ctrl_deferred->setValue(FALSE);
 	}
@@ -1109,18 +1121,25 @@ void LLFloaterPreference::disableUnavailableSettings()
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
 
+		ctrl_dof->setEnabled(FALSE);
+		ctrl_dof->setValue(FALSE);
+
 		ctrl_deferred->setEnabled(FALSE);
 		ctrl_deferred->setValue(FALSE);
 	}
 
 	// disabled deferred
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") ||
+		!gGLManager.mHasFramebufferObject)
 	{
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
 		
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
+
+		ctrl_dof->setEnabled(FALSE);
+		ctrl_dof->setValue(FALSE);
 
 		ctrl_deferred->setEnabled(FALSE);
 		ctrl_deferred->setValue(FALSE);
@@ -1162,6 +1181,9 @@ void LLFloaterPreference::disableUnavailableSettings()
 		
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
+
+		ctrl_dof->setEnabled(FALSE);
+		ctrl_dof->setValue(FALSE);
 
 		ctrl_deferred->setEnabled(FALSE);
 		ctrl_deferred->setValue(FALSE);

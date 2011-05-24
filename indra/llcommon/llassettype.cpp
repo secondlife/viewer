@@ -93,8 +93,9 @@ LLAssetDictionary::LLAssetDictionary()
 
 	addEntry(LLAssetType::AT_LINK, 				new AssetEntry("LINK",				"link",		"sym link",			false,		false,		true));
 	addEntry(LLAssetType::AT_LINK_FOLDER, 		new AssetEntry("FOLDER_LINK",		"link_f", 	"sym folder link",	false,		false,		true));
+	addEntry(LLAssetType::AT_MESH,              new AssetEntry("MESH",              "mesh",     "mesh",             false, false, false));
+	addEntry(LLAssetType::AT_NONE, 				new AssetEntry("NONE",				"-1",		NULL,		  		FALSE,		FALSE,		FALSE));
 
-	addEntry(LLAssetType::AT_NONE, 				new AssetEntry("NONE",				"-1",		NULL,		  		false,		false,		false));
 };
 
 // static

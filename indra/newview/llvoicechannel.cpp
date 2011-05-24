@@ -412,6 +412,7 @@ void LLVoiceChannel::doSetState(const EState& new_state)
 {
 	EState old_state = mState;
 	mState = new_state;
+
 	if (!mStateChangedCallback.empty())
 		mStateChangedCallback(old_state, mState, mCallDirection, mCallEndedByAgent);
 }
@@ -846,8 +847,13 @@ void LLVoiceChannelP2P::activate()
 		// otherwise answering the call
 		else
 		{
-			LLVoiceClient::getInstance()->answerInvite(mSessionHandle);
-			
+			if (!LLVoiceClient::getInstance()->answerInvite(mSessionHandle))
+			{
+				mCallEndedByAgent = false;
+				mSessionHandle.clear();
+				handleError(ERROR_UNKNOWN);
+				return;
+			}
 			// using the session handle invalidates it.  Clear it out here so we can't reuse it by accident.
 			mSessionHandle.clear();
 		}

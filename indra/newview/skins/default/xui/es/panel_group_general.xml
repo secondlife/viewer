@@ -46,12 +46,12 @@ Deja el cursor sobre las opciones para ver más ayuda.
 		<check_box label="Cualquiera puede entrar" name="open_enrollement" tool_tip="Configura si se permite la entrada de nuevos miembros sin ser invitados."/>
 		<check_box label="Cuota de entrada" name="check_enrollment_fee" tool_tip="Configura si hay que pagar una cuota para entrar al grupo"/>
 		<spinner label="L$" left_delta="130" name="spin_enrollment_fee" tool_tip="Si la opción Cuota de entrada está marcada, los nuevos miembros han de pagar esta cuota para entrar al grupo." width="60"/>
-		<combo_box bottom_delta="-38" name="group_mature_check" tool_tip="Establece si la información de su grupo es &apos;mature&apos;." width="150">
+		<combo_box bottom_delta="-38" name="group_mature_check" tool_tip="Establece si la información de su grupo es moderado." width="150">
 			<combo_item name="select_mature">
 				- Selecciona el nivel de calificación -
 			</combo_item>
-			<combo_box.item label="Contenido &apos;Mature&apos;" name="mature"/>
-			<combo_box.item label="Contenido &apos;PG&apos;" name="pg"/>
+			<combo_box.item label="Contenido moderado" name="mature"/>
+			<combo_box.item label="Contenido general" name="pg"/>
 		</combo_box>
 		<check_box initial_value="true" label="Mostrar en la búsqueda" name="show_in_group_list" tool_tip="Permite que la gente vea este grupo en los resultados de la búsqueda"/>
 	</panel>

@@ -86,7 +86,7 @@ F32	dist_vec(const LLVector2 &a, const LLVector2 &b)
 {
 	F32 x = a.mV[0] - b.mV[0];
 	F32 y = a.mV[1] - b.mV[1];
-	return fsqrtf( x*x + y*y );
+	return (F32) sqrt( x*x + y*y );
 }
 
 F32	dist_vec_squared(const LLVector2 &a, const LLVector2 &b)
@@ -109,3 +109,18 @@ LLVector2 lerp(const LLVector2 &a, const LLVector2 &b, F32 u)
 		a.mV[VX] + (b.mV[VX] - a.mV[VX]) * u,
 		a.mV[VY] + (b.mV[VY] - a.mV[VY]) * u );
 }
+
+LLSD LLVector2::getValue() const
+{
+	LLSD ret;
+	ret[0] = mV[0];
+	ret[1] = mV[1];
+	return ret;
+}
+
+void LLVector2::setValue(LLSD& sd)
+{
+	mV[0] = (F32) sd[0].asReal();
+	mV[1] = (F32) sd[1].asReal();
+}
+

@@ -652,7 +652,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		const F32 area_for_max_settings = 0.0;
 		const F32 area_for_min_settings = 1400.0;
 		const F32 area_for_this_setting = area_for_max_settings + (area_for_min_settings-area_for_max_settings)*(1.0-lod_factor);
-		const F32 pixel_area = fsqrtf(mCharacter->getPixelArea());
+	        const F32 pixel_area = sqrtf(mCharacter->getPixelArea());
         
 		const BOOL is_self = (dynamic_cast<LLVOAvatarSelf *>(mCharacter) != NULL);
 		if ((pixel_area > area_for_this_setting) || is_self)
