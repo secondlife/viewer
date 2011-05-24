@@ -8,7 +8,7 @@
 		Gemaakt met [COMPILER] versie [COMPILER_VERSION]
 	</floater.string>
 	<floater.string name="AboutPosition">
-		U bent op [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] gelegen op [HOSTNAME] ([HOSTIP])
+		U bent op [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] gelegen op &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
 [[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</floater.string>

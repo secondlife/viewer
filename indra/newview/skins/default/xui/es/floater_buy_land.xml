@@ -129,25 +129,25 @@ para cubrir esta parcela.
 	<text name="region_name_label">
 		Región:
 	</text>
-	<text left="565" name="region_name_text">
+	<text name="region_name_text">
 		(desconocida)
 	</text>
 	<text name="region_type_label">
 		Tipo:
 	</text>
-	<text left="565" name="region_type_text">
+	<text name="region_type_text">
 		(desconocido)
 	</text>
 	<text name="estate_name_label">
 		Estado:
 	</text>
-	<text left="565" name="estate_name_text">
+	<text name="estate_name_text">
 		(desconocido)
 	</text>
-	<text name="estate_owner_label" right="565" width="115">
+	<text name="estate_owner_label">
 		Propietario del estado:
 	</text>
-	<text left="565" name="estate_owner_text">
+	<text name="estate_owner_text">
 		(desconocido)
 	</text>
 	<text name="resellable_changeable_label">
