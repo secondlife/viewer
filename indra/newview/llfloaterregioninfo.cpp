@@ -218,6 +218,9 @@ BOOL LLFloaterRegionInfo::postBuild()
 		"EstateOwnerMessage", 
 		&processEstateOwnerRequest);
 
+	// Request region info when agent region changes.
+	LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterRegionInfo::requestRegionInfo, this));
+
 	return TRUE;
 }
 
@@ -292,6 +295,8 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 // static
 void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 {
+	LL_DEBUGS("Windlight") << "Processing region info" << LL_ENDL;
+
 	LLPanel* panel;
 	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
 	llinfos << "LLFloaterRegionInfo::processRegionInfo" << llendl;
@@ -299,11 +304,12 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	{
 		return;
 	}
+
+	// We need to re-request environment setting here,
+	// otherwise after we apply (send) updated region settings we won't get them back,
+	// so our environment won't be updated.
+	LLEnvManagerNew::instance().requestRegionSettings();
 	
-
-	// currently, region can send this message when its windlight settings change
-	LLEnvManager::instance().refreshFromStorage(LLEnvKey::SCOPE_REGION);
-
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 
 	LLViewerRegion* region = gAgent.getRegion();
@@ -3171,7 +3177,8 @@ bool LLDispatchSetEstateAccess::operator()(
 }
 
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo()
-:	mRegionSettingsRadioGroup(NULL),
+:	mEnableEditing(false),
+	mRegionSettingsRadioGroup(NULL),
  	mDayCycleSettingsRadioGroup(NULL),
  	mWaterPresetCombo(NULL),
  	mSkyPresetCombo(NULL),
@@ -3195,13 +3202,30 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 	childSetCommitCallback("save_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnSave, this), NULL);
 	childSetCommitCallback("cancel_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnCancel, this), NULL);
 
+	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingschange, this));
+
 	return TRUE;
 }
 
 // virtual
 void LLPanelEnvironmentInfo::onOpen(const LLSD& key)
 {
+	LL_DEBUGS("Windlight") << "Panel opened, refreshing" << LL_ENDL;
 	refresh();
+}
+
+// virtual
+bool LLPanelEnvironmentInfo::refreshFromRegion(LLViewerRegion* region)
+{
+	LL_DEBUGS("Windlight") << "Region updated, enabling/disabling controls" << LL_ENDL;
+	BOOL owner_or_god = gAgent.isGodlike() || (region && (region->getOwner() == gAgent.getID()));
+	BOOL owner_or_god_or_manager = owner_or_god || (region && region->isEstateManager());
+
+	// Don't refresh from region settings to avoid flicker after applying new region settings.
+	mEnableEditing = owner_or_god_or_manager;
+	setControlsEnabled(mEnableEditing);
+
+	return LLPanelRegionInfo::refreshFromRegion(region);
 }
 
 void LLPanelEnvironmentInfo::refresh()
@@ -3218,8 +3242,27 @@ void LLPanelEnvironmentInfo::refresh()
 	mRegionSettingsRadioGroup->setSelectedIndex(settings.getSkyMap().size() == 0 ? 0 : 1);
 	mDayCycleSettingsRadioGroup->setSelectedIndex(use_fixed_sky ? 0 : 1);
 
-	LLPanelEnvironmentInfo::onSwitchRegionSettings();
-	LLPanelEnvironmentInfo::onSwitchDayCycle();
+	setControlsEnabled(mEnableEditing);
+}
+
+void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
+{
+	mRegionSettingsRadioGroup->setEnabled(enabled);
+	mDayCycleSettingsRadioGroup->setEnabled(enabled);
+
+	mWaterPresetCombo->setEnabled(enabled);
+	mSkyPresetCombo->setEnabled(enabled);
+	mDayCyclePresetCombo->setEnabled(enabled);
+
+	getChildView("save_btn")->setEnabled(enabled);
+	getChildView("cancel_btn")->setEnabled(enabled);
+
+	if (enabled)
+	{
+		// Enable/disable some controls based on currently selected radio buttons.
+		LLPanelEnvironmentInfo::onSwitchRegionSettings();
+		LLPanelEnvironmentInfo::onSwitchDayCycle();
+	}
 }
 
 void LLPanelEnvironmentInfo::populateWaterPresetsList()
@@ -3420,5 +3463,11 @@ void LLPanelEnvironmentInfo::onBtnSave()
 void LLPanelEnvironmentInfo::onBtnCancel()
 {
 	// Reload current region settings.
+	refresh();
+}
+
+void LLPanelEnvironmentInfo::onRegionSettingschange()
+{
+	LL_DEBUGS("Windlight") << "Region settings changed, refreshing" << LL_ENDL;
 	refresh();
 }

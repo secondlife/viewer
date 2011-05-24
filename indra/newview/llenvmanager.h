@@ -259,6 +259,9 @@ class LLEnvManagerNew : public LLSingleton<LLEnvManagerNew>
 {
 	LOG_CLASS(LLEnvManagerNew);
 public:
+	typedef boost::signals2::signal<void()> region_settings_change_signal_t;
+	typedef boost::signals2::signal<void()> region_change_signal_t;
+
 	LLEnvManagerNew();
 
 	// getters to access user env. preferences
@@ -293,7 +296,10 @@ public:
 	static LLSD getDayCycleByName(const std::string name);
 
 	// Misc.
+	void requestRegionSettings();
 	bool sendRegionSettings(const LLEnvironmentSettings& new_settings);
+	boost::signals2::connection setRegionSettingsChangeCallback(const region_settings_change_signal_t::slot_type& cb);
+	boost::signals2::connection setRegionChangeCallback(const region_change_signal_t::slot_type& cb);
 
 	// Public callbacks.
 	void onRegionCrossing();
@@ -305,9 +311,14 @@ private:
 	/*virtual*/ void initSingleton();
 
 	void updateManagersFromPrefs(bool interpolate);
-	void requestRegionSettings();
 
 	void onRegionChange(bool interpolate);
+
+	/// Emitted when region environment settings update comes.
+	region_settings_change_signal_t	mRegionSettingsChangeSignal;
+
+	/// Emitted when agent region changes. Move to LLAgent?
+	region_settings_change_signal_t	mRegionChangeSignal;
 
 	LLEnvPrefs				mUserPrefs;					/// User environment preferences.
 	LLEnvironmentSettings	mCachedRegionPrefs;			/// Cached region environment settings.

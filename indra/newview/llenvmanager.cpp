@@ -770,6 +770,11 @@ LLSD LLEnvManagerNew::getDayCycleByName(const std::string name)
 	return LLWLDayCycle::loadCycleDataFromFile(name + ".xml");
 }
 
+void LLEnvManagerNew::requestRegionSettings()
+{
+	LLEnvironmentRequest::initiate();
+}
+
 bool LLEnvManagerNew::sendRegionSettings(const LLEnvironmentSettings& new_settings)
 {
 	LLSD metadata;
@@ -779,6 +784,16 @@ bool LLEnvManagerNew::sendRegionSettings(const LLEnvironmentSettings& new_settin
 	metadata["messageID"] = mLastReceivedID;
 
 	return LLEnvironmentApply::initiateRequest(new_settings.makePacket(metadata));
+}
+
+boost::signals2::connection LLEnvManagerNew::setRegionSettingsChangeCallback(const region_settings_change_signal_t::slot_type& cb)
+{
+	return mRegionSettingsChangeSignal.connect(cb);
+}
+
+boost::signals2::connection LLEnvManagerNew::setRegionChangeCallback(const region_change_signal_t::slot_type& cb)
+{
+	return mRegionChangeSignal.connect(cb);
 }
 
 void LLEnvManagerNew::onRegionCrossing()
@@ -798,18 +813,22 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	// If the message was valid, grab the UUID from it and save it for next outbound update message.
 	mLastReceivedID = content[0]["messageID"].asUUID();
 
-	// 1. Refresh cached region settings.
+	// Refresh cached region settings.
 	LL_DEBUGS("Windlight") << "Caching region environment settings: " << content << LL_ENDL;
 	F32 sun_hour = 0; // *TODO
 	LLEnvironmentSettings new_settings(content[1], content[2], content[3], sun_hour);
 	mCachedRegionPrefs = new_settings;
 
-	// 2. If using server settings, update managers.
+	// If using server settings, update managers.
 	if (getUseRegionSettings())
 	{
 		updateManagersFromPrefs(mInterpNextChangeMessage);
 	}
 
+	// Let interested parties know about the region settings update.
+	mRegionSettingsChangeSignal();
+
+	// reset
 	mInterpNextChangeMessage = false;
 }
 
@@ -832,12 +851,6 @@ void LLEnvManagerNew::updateManagersFromPrefs(bool interpolate)
 	LLWLParamManager::instance().applyUserPrefs(interpolate);
 }
 
-void LLEnvManagerNew::requestRegionSettings()
-{
-	LLEnvironmentRequest::initiate();
-	// *TODO: Indicate that current cached region settings have been invalidated?
-}
-
 void LLEnvManagerNew::onRegionChange(bool interpolate)
 {
 	// Avoid duplicating region setting requests
@@ -854,4 +867,7 @@ void LLEnvManagerNew::onRegionChange(bool interpolate)
 	mCurRegionUUID = region_uuid;
 	mInterpNextChangeMessage = interpolate;
 	requestRegionSettings();
+
+	// Let interested parties know agent region has been changed.
+	mRegionChangeSignal();
 }

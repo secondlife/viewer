@@ -433,8 +433,12 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
+	// LLPanelRegionInfo
+	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region);
+
 private:
 	void refresh();
+	void setControlsEnabled(bool enabled);
 
 	void populateWaterPresetsList();
 	void populateSkyPresetsList();
@@ -445,6 +449,10 @@ private:
 
 	void onBtnSave();
 	void onBtnCancel();
+
+	void onRegionSettingschange();
+
+	bool			mEnableEditing;
 
 	LLRadioGroup*	mRegionSettingsRadioGroup;
 	LLRadioGroup*	mDayCycleSettingsRadioGroup;
