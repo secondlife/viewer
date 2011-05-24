@@ -275,6 +275,7 @@ public:
 	F32 getLandHeightRegion(const LLVector3& region_pos);
 
 	void getInfo(LLSD& info);
+	
 
 	typedef enum
 	{

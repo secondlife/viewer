@@ -67,8 +67,8 @@
 		<combo_box.item label="Acoso &gt; Abuso verbal" name="Harassment__Verbal_abuse"/>
 		<combo_box.item label="Indecencia &gt; En general, contenido o conducta ofensivos" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="Indecencia &gt; Nombre inapropiado del avatar" name="Indecency__Inappropriate_avatar_name"/>
-		<combo_box.item label="Indecencia &gt; Contenido o conducta inapropiada en una región &apos;PG&apos;" name="Indecency__Mature_content_in_PG_region"/>
-		<combo_box.item label="Indecencia &gt; Contenido o conducta inapropiada en una región &apos;Mature&apos;" name="Indecency__Inappropriate_content_in_Mature_region"/>
+		<combo_box.item label="Indecencia &gt; Contenido o conducta inapropiada en una región General" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="Indecencia &gt; Contenido o conducta inapropiada en una región Moderado" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="Infracción de la propiedad intelectual &gt; Eliminación de contenidos" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="Infracción de la propiedad intelectual &gt; CopyBot o Exploit (programa malicioso) de permisos" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="Intolerancia" name="Intolerance"/>

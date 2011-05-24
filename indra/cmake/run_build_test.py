@@ -109,6 +109,8 @@ def main(command, libpath=[], vars={}):
     os.environ.update(dict([(str(key), str(value)) for key, value in vars.iteritems()]))
     # Run the child process.
     print "Running: %s" % " ".join(command)
+    # Make sure we see all relevant output *before* child-process output.
+    sys.stdout.flush()
     return subprocess.call(command)
 
 if __name__ == "__main__":

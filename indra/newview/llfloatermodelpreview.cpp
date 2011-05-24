@@ -98,7 +98,8 @@
 #include "llvfile.h"
 #include "llvfs.h"
 #include "llcallbacklist.h"
-
+#include "llviewerobjectlist.h"
+#include "llanimationstates.h"
 #include "glod/glod.h"
 
 //static
@@ -380,12 +381,6 @@ BOOL LLFloaterModelPreview::postBuild()
 LLFloaterModelPreview::~LLFloaterModelPreview()
 {
 	sInstance = NULL;
-	
-	if ( mModelPreview && mModelPreview->getResetJointFlag() )
-	{		
-		gAgentAvatarp->resetJointPositions();
-	}
-
 	
 	if ( mModelPreview )
 	{
@@ -1577,7 +1572,7 @@ bool LLModelLoader::doLoadModel()
 									{
 										//llinfos<<"joint "<<lookingForJoint.c_str()<<llendl;
 										LLMatrix4 jointTransform = mJointList[lookingForJoint];
-										LLJoint* pJoint = gAgentAvatarp->getJoint( lookingForJoint );
+										LLJoint* pJoint = mPreview->getPreviewAvatar()->getJoint( lookingForJoint );
 										if ( pJoint )
 										{   
 											pJoint->storeCurrentXform( jointTransform.getTranslation() );												
@@ -2657,6 +2652,8 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mMasterLegacyJointList.push_front("mHipLeft");
 	mMasterLegacyJointList.push_front("mKneeLeft");
 	mMasterLegacyJointList.push_front("mFootLeft");
+
+	createPreviewAvatar();
 }
 
 LLModelPreview::~LLModelPreview()
@@ -2710,7 +2707,7 @@ U32 LLModelPreview::calcResourceCost()
 	
 	if ( mFMP && mFMP->childGetValue("upload_joints").asBoolean() )
 	{
-		gAgentAvatarp->setPelvisOffset( mPelvisZOffset );
+		getPreviewAvatar()->setPelvisOffset( mPelvisZOffset );
 	}
 
 	F32 streaming_cost = 0.f;
@@ -4293,42 +4290,6 @@ void LLModelPreview::update()
 
 }
 //-----------------------------------------------------------------------------
-// changeAvatarsJointPositions()
-//-----------------------------------------------------------------------------
-void LLModelPreview::changeAvatarsJointPositions( LLModel* pModel )
-{
-	if ( mMasterJointList.empty() )
-	{
-		return;
-	}
-
-	std::vector<std::string> :: const_iterator jointListItBegin = pModel->mSkinInfo.mJointNames.begin();
-	std::vector<std::string> :: const_iterator jointListItEnd = pModel->mSkinInfo.mJointNames.end();
-
-	S32 index = 0;
-	for ( ; jointListItBegin!=jointListItEnd; ++jointListItBegin, ++index )
-	{	
-		std::string elem = *jointListItBegin;
-		//llinfos<<"joint "<<elem<<llendl;
-
-		S32 matrixCnt = pModel->mSkinInfo.mAlternateBindMatrix.size();
-		if ( matrixCnt < 1 )
-		{
-			llinfos<<"Total WTF moment :"<<matrixCnt<<llendl;
-		}
-		else
-		{
-			LLMatrix4 jointTransform = pModel->mSkinInfo.mAlternateBindMatrix[index];
-
-			LLJoint* pJoint = gAgentAvatarp->getJoint( elem );
-			if ( pJoint )
-			{   
-				pJoint->storeCurrentXform( jointTransform.getTranslation() );												
-			}	
-		}
-	}
-}
-//-----------------------------------------------------------------------------
 // getTranslationForJointOffset()
 //-----------------------------------------------------------------------------
 LLVector3 LLModelPreview::getTranslationForJointOffset( std::string joint )
@@ -4341,6 +4302,30 @@ LLVector3 LLModelPreview::getTranslationForJointOffset( std::string joint )
 	}
 	return LLVector3(0.0f,0.0f,0.0f);								
 }
+//-----------------------------------------------------------------------------
+// createPreviewAvatar
+//-----------------------------------------------------------------------------
+void LLModelPreview::createPreviewAvatar( void )
+{
+	mPreviewAvatar = (LLVOAvatar*)gObjectList.createObjectViewer( LL_PCODE_LEGACY_AVATAR, gAgent.getRegion() );
+	if ( mPreviewAvatar )
+	{
+		mPreviewAvatar->createDrawable( &gPipeline );
+		mPreviewAvatar->mIsDummy = TRUE;
+		mPreviewAvatar->mSpecialRenderMode = 1;
+		mPreviewAvatar->setPositionAgent( LLVector3::zero );
+		mPreviewAvatar->slamPosition();
+		mPreviewAvatar->updateJointLODs();
+		mPreviewAvatar->updateGeometry( mPreviewAvatar->mDrawable );
+		mPreviewAvatar->startMotion( ANIM_AGENT_STAND );
+		mPreviewAvatar->hideSkirt();
+	}
+	else
+	{
+		llinfos<<"Failed to create preview avatar for upload model window"<<llendl;
+	}
+}
+
 //-----------------------------------------------------------------------------
 // render()
 //-----------------------------------------------------------------------------
@@ -4455,25 +4440,6 @@ BOOL LLModelPreview::render()
 	
 	mFMP->childSetEnabled("upload_joints", upload_skin);
 
-	//poke at avatar when we upload custom joints
-	/*	
-	if ( upload_joints )
-	{
-		for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
-		{
-			for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
-			{
-				LLModelInstance& instance = *model_iter;
-				LLModel* model = instance.mModel;
-				if ( !model->mSkinWeights.empty() )
-				{
-					changeAvatarsJointPositions( model );
-				}
-			}
-		}
-	}
-	*/
-	
 	F32 explode = mFMP->childGetValue("physics_explode").asReal();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -4493,7 +4459,7 @@ BOOL LLModelPreview::render()
 
 	if (skin_weight)
 	{
-		target_pos = gAgentAvatarp->getPositionAgent();
+		target_pos = getPreviewAvatar()->getPositionAgent();
 		z_near = 0.01f;
 		z_far = 1024.f;
 		mCameraDistance = 16.f;
@@ -4713,8 +4679,7 @@ BOOL LLModelPreview::render()
 		}
 		else
 		{
-			LLVOAvatarSelf* avatar = gAgentAvatarp;
-			target_pos = avatar->getPositionAgent();
+			target_pos = getPreviewAvatar()->getPositionAgent();
 
 			LLViewerCamera::getInstance()->setOriginAndLookAt(
 															  target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + offset) * av_rot),		// camera
@@ -4723,7 +4688,7 @@ BOOL LLModelPreview::render()
 
 			if (joint_positions)
 			{
-				avatar->renderCollisionVolumes();
+				getPreviewAvatar()->renderCollisionVolumes();
 			}
 
 			for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
@@ -4754,7 +4719,7 @@ BOOL LLModelPreview::render()
 							LLMatrix4 mat[64];
 							for (U32 j = 0; j < model->mSkinInfo.mJointNames.size(); ++j)
 							{
-								LLJoint* joint = avatar->getJoint(model->mSkinInfo.mJointNames[j]);
+								LLJoint* joint = getPreviewAvatar()->getJoint(model->mSkinInfo.mJointNames[j]);
 								if (joint)
 								{
 									mat[j] = model->mSkinInfo.mInvBindMatrix[j];

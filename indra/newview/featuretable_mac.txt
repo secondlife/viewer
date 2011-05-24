@@ -281,6 +281,9 @@ RenderVBOEnable				1	0
 list TexUnit8orLess
 RenderDeferredSSAO			0	0
 
+list ATI
+RenderDeferredSSAO			0	0
+
 list Intel
 RenderAnisotropic			1	0
 RenderLocalLights			1	0
