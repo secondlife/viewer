@@ -299,7 +299,7 @@ Re-enter amount to see the latest exchange rate.
      type="string"
      font="SansSerifHuge"
      left="165"
-     width="170"
+     width="360"
      height="25"
      top="25"
      name="info_cannot_buy">

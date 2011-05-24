@@ -73,7 +73,22 @@ with the same filename but different name
   <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
 
   <texture name="Blank" file_name="Blank.png" preload="false" />
+	
+  <texture name="BreadCrumbBtn_Left_Disabled" file_name="widgets/BreadCrumbBtn_Left_Disabled.png" preload="false"/>
+  <texture name="BreadCrumbBtn_Left_Off" file_name="widgets/BreadCrumbBtn_Left_Off.png" preload="false"/>
+  <texture name="BreadCrumbBtn_Left_Over" file_name="widgets/BreadCrumbBtn_Left_Over.png" preload="false"/>
+  <texture name="BreadCrumbBtn_Left_Press" file_name="widgets/BreadCrumbBtn_Left_Press.png" preload="false"/>
+ 
+  <texture name="BreadCrumbBtn_Middle_Disabled" file_name="widgets/BreadCrumbBtn_Middle_Disabled.png" preload="false"/>
+  <texture name="BreadCrumbBtn_Middle_Off" file_name="widgets/BreadCrumbBtn_Middle_Off.png" preload="false"/>
+  <texture name="BreadCrumbBtn_Middle_Over" file_name="widgets/BreadCrumbBtn_Middle_Over.png" preload="false"/>
+  <texture name="BreadCrumbBtn_Middle_Press" file_name="widgets/BreadCrumbBtn_Middle_Press.png" preload="false"/>
 
+  <texture name="BreadCrumbBtn_Right_Disabled" file_name="widgets/BreadCrumbBtn_Right_Disabled.png" preload="false"/>
+  <texture name="BreadCrumbBtn_Right_Off" file_name="widgets/BreadCrumbBtn_Right_Off.png" preload="false"/>
+  <texture name="BreadCrumbBtn_Right_Over" file_name="widgets/BreadCrumbBtn_Right_Over.png" preload="false"/>
+  <texture name="BreadCrumbBtn_Right_Press" file_name="widgets/BreadCrumbBtn_Right_Press.png" preload="false"/>
+ 
 
   <texture name="BuyArrow_Over" file_name="navbar/BuyArrow_Over.png" preload="true" scale.left="0" scale.top="1" scale.right="0" scale.bottom="0"  />
   <texture name="BuyArrow_Press" file_name="navbar/BuyArrow_Press.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
@@ -102,6 +117,7 @@ with the same filename but different name
   <texture name="Checkbox_On" file_name="widgets/Checkbox_On.png" preload="true" />
   <texture name="Checkbox_On_Press" file_name="widgets/Checkbox_On_Press.png" preload="true" />
   <texture name="Checkbox_Press" file_name="widgets/Checkbox_Press.png" preload="true" />
+  <texture name="Check_Mark" file_name="icons/check_mark" preload="true" />
 
   <texture name="ComboButton_Disabled" file_name="widgets/ComboButton_Disabled.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Selected" file_name="widgets/ComboButton_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
@@ -211,6 +227,7 @@ with the same filename but different name
   <texture name="Inv_LostClosed" file_name="icons/Inv_LostClosed.png" preload="false" />
   <texture name="Inv_LostOpen" file_name="icons/Inv_LostOpen.png" preload="false" />
   <texture name="Inv_Landmark" file_name="icons/Inv_Landmark.png" preload="false" />
+  <texture name="Inv_Mesh" file_name="icons/Inv_Mesh.png" preload="false" />  
   <texture name="Inv_Notecard" file_name="icons/Inv_Notecard.png" preload="false" />
   <texture name="Inv_Object" file_name="icons/Inv_Object.png" preload="false" />
   <texture name="Inv_Object_Multi" file_name="icons/Inv_Object_Multi.png" preload="false" />
@@ -258,6 +275,10 @@ with the same filename but different name
 
   <texture name="menu_separator" file_name="navbar/FileMenu_Divider.png" scale.left="4" scale.top="166" scale.right="0" scale.bottom="0" />
 
+  <texture name="ModelImport_Status_Good" file_name="lag_status_good.tga" preload="false"/>
+  <texture name="ModelImport_Status_Warning" file_name="lag_status_warning.tga" preload="false"/>
+  <texture name="ModelImport_Status_Error" file_name="lag_status_critical.tga" preload="false"/>
+  
   <texture name="MouseLook_View_Off" file_name="bottomtray/MouseLook_view_off.png" preload="false" />
   <texture name="MouseLook_View_On" file_name="bottomtray/MouseLook_view_on.png" preload="false" />
 
@@ -626,6 +647,8 @@ with the same filename but different name
   <texture name="icon_for_sale.tga" file_name="icons/Icon_For_Sale.png" />
   <texture name="icon_top_pick.tga" />
 
+  <texture name="inv_folder_mesh.tga"/>
+  <texture name="inv_item_mesh.tga"/>
   <texture name="lag_status_critical.tga" />
   <texture name="lag_status_good.tga" />
   <texture name="lag_status_warning.tga" />

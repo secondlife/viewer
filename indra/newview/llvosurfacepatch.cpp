@@ -54,27 +54,77 @@ public:
 		LLVertexBuffer(MAP_VERTEX | MAP_NORMAL | MAP_TEXCOORD0 | MAP_TEXCOORD1 | MAP_COLOR, GL_DYNAMIC_DRAW_ARB)
 	{
 		//texture coordinates 2 and 3 exist, but use the same data as texture coordinate 1
-		mOffsets[TYPE_TEXCOORD3] = mOffsets[TYPE_TEXCOORD2] = mOffsets[TYPE_TEXCOORD1];
-		mTypeMask |= MAP_TEXCOORD2 | MAP_TEXCOORD3;
 	};
 
-	/*// virtual
+	// virtual
 	void setupVertexBuffer(U32 data_mask) const
-	{		
-		if (LLDrawPoolTerrain::getDetailMode() == 0 || LLPipeline::sShadowRender)
+	{	
+		U8* base = useVBOs() ? (U8*) mAlignedOffset : mMappedData;
+
+		//assume tex coords 2 and 3 are present
+		U32 type_mask = mTypeMask | MAP_TEXCOORD2 | MAP_TEXCOORD3;
+
+		if ((data_mask & type_mask) != data_mask)
 		{
-			LLVertexBuffer::setupVertexBuffer(data_mask);
+			llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
 		}
-		else if (data_mask & LLVertexBuffer::MAP_TEXCOORD1)
+
+		if (data_mask & MAP_NORMAL)
 		{
-			LLVertexBuffer::setupVertexBuffer(data_mask);
+			glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
 		}
-		else
+		if (data_mask & MAP_TEXCOORD3)
+		{ //substitute tex coord 0 for tex coord 3
+			glClientActiveTextureARB(GL_TEXTURE3_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+		if (data_mask & MAP_TEXCOORD2)
+		{ //substitute tex coord 0 for tex coord 2
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+		if (data_mask & MAP_TEXCOORD1)
 		{
-			LLVertexBuffer::setupVertexBuffer(data_mask);
+			glClientActiveTextureARB(GL_TEXTURE1_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
-		llglassertok();		
-	}*/
+		if (data_mask & MAP_BINORMAL)
+		{
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+		if (data_mask & MAP_TEXCOORD0)
+		{
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+		}
+		if (data_mask & MAP_COLOR)
+		{
+			glColorPointer(4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeSize[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
+		}
+		
+		if (data_mask & MAP_WEIGHT)
+		{
+			glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
+		}
+
+		if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
+		{
+			glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
+		}
+
+		if (data_mask & MAP_CLOTHWEIGHT)
+		{
+			glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+		}
+		if (data_mask & MAP_VERTEX)
+		{
+			glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+		}
+	}
 };
 
 //============================================================================
@@ -840,7 +890,7 @@ void LLVOSurfacePatch::dirtyGeom()
 	if (mDrawable)
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-		mDrawable->getFace(0)->mVertexBuffer = NULL;
+		mDrawable->getFace(0)->setVertexBuffer(NULL);
 		mDrawable->movePartition();
 	}
 }
@@ -939,7 +989,13 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector3& start, const LLVect
 
 	//step one meter at a time until intersection point found
 
-	const LLVector3* ext = mDrawable->getSpatialExtents();
+	//VECTORIZE THIS
+	const LLVector4a* exta = mDrawable->getSpatialExtents();
+
+	LLVector3 ext[2];
+	ext[0].set(exta[0].getF32ptr());
+	ext[1].set(exta[1].getF32ptr());
+
 	F32 rad = (delta*tdelta).magVecSquared();
 
 	F32 t = 0.f;
@@ -1001,13 +1057,16 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector3& start, const LLVect
 	return FALSE;
 }
 
-void LLVOSurfacePatch::updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax)
+void LLVOSurfacePatch::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
 	LLVector3 posAgent = getPositionAgent();
 	LLVector3 scale = getScale();
-	newMin = posAgent-scale*0.5f; // Changing to 2.f makes the culling a -little- better, but still wrong
-	newMax = posAgent+scale*0.5f;
-	mDrawable->setPositionGroup((newMin+newMax)*0.5f);
+	newMin.load3( (posAgent-scale*0.5f).mV); // Changing to 2.f makes the culling a -little- better, but still wrong
+	newMax.load3( (posAgent+scale*0.5f).mV);
+	LLVector4a pos;
+	pos.setAdd(newMin,newMax);
+	pos.mul(0.5f);
+	mDrawable->setPositionGroup(pos);
 }
 
 U32 LLVOSurfacePatch::getPartitionType() const
@@ -1060,7 +1119,7 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 
 		facep->setIndicesIndex(indices_index);
 		facep->setGeomIndex(index_offset);
-		facep->mVertexBuffer = buffer;
+		facep->setVertexBuffer(buffer);
 
 		LLVOSurfacePatch* patchp = (LLVOSurfacePatch*) facep->getViewerObject();
 		patchp->getGeometry(vertices, normals, colors, texcoords, texcoords2, indices);

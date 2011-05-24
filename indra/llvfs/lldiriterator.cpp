@@ -55,7 +55,7 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
 	// Check if path exists.
 	if (!fs::exists(dir_path))
 	{
-		llerrs << "Invalid path: \"" << dir_path.string() << "\"" << llendl;
+		llwarns << "Invalid path: \"" << dir_path.string() << "\"" << llendl;
 		return;
 	}
 
@@ -100,7 +100,7 @@ bool LLDirIterator::Impl::next(std::string &fname)
 
 	if (!mIsValid)
 	{
-		llerrs << "The iterator is not correctly initialized." << llendl;
+		llwarns << "The iterator is not correctly initialized." << llendl;
 		return false;
 	}
 

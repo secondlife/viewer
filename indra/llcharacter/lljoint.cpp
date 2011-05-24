@@ -50,6 +50,7 @@ LLJoint::LLJoint()
 	mUpdateXform = TRUE;
 	mJointNum = -1;
 	touch();
+	mResetAfterRestoreOldXform = false;
 }
 
 
@@ -233,6 +234,42 @@ void LLJoint::setPosition( const LLVector3& pos )
 	}
 }
 
+
+//--------------------------------------------------------------------
+// setPosition()
+//--------------------------------------------------------------------
+void LLJoint::setDefaultFromCurrentXform( void )
+{
+	mDefaultXform = mXform;
+	touch(MATRIX_DIRTY | POSITION_DIRTY);
+	
+}
+
+//--------------------------------------------------------------------
+// storeCurrentXform()
+//--------------------------------------------------------------------
+void LLJoint::storeCurrentXform( const LLVector3& pos )
+{
+	mOldXform = mXform;
+	mResetAfterRestoreOldXform = true;
+	setPosition( pos );
+}
+//--------------------------------------------------------------------
+// restoreOldXform()
+//--------------------------------------------------------------------
+void LLJoint::restoreOldXform( void )
+{
+	mResetAfterRestoreOldXform = false;
+	mXform = mOldXform;
+}
+//--------------------------------------------------------------------
+// restoreOldXform()
+//--------------------------------------------------------------------
+void LLJoint::restoreToDefaultXform( void )
+{	
+	mXform = mDefaultXform;
+	setPosition( mXform.getPosition() );	
+}
 
 //--------------------------------------------------------------------
 // getWorldPosition()
@@ -522,3 +559,4 @@ void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
 }
 
 // End
+

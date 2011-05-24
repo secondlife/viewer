@@ -40,8 +40,10 @@
 #include "llevents.h"
 #include "lleventfilter.h"
 #include "llsd.h"
+#include "llhost.h"
 #include "llcontrol.h"
 #include "tests/wrapllerrs.h"
+#include "tests/commtest.h"
 
 LLControlGroup gSavedSettings("Global");
 
@@ -54,7 +56,8 @@ namespace tut
     {
         data():
             pumps(LLEventPumps::instance()),
-            uri("http://127.0.0.1:8000")
+            uri(std::string("http://") +
+                LLHost("127.0.0.1", commtest_data::getport("PORT")).getString())
         {
             // These variables are required by machinery used by
             // LLXMLRPCTransaction. The values reflect reality for this test
@@ -145,7 +148,7 @@ namespace tut
         pumps.obtain("LLXMLRPCTransaction").post(request);
         // Set the timer
         F32 timeout(10);
-        watchdog.eventAfter(timeout, LLSD().insert("timeout", 0));
+        watchdog.eventAfter(timeout, LLSD().with("timeout", 0));
         // and pump "mainloop" until we get something, whether from
         // LLXMLRPCListener or from the watchdog filter.
         LLTimer timer;
@@ -182,7 +185,7 @@ namespace tut
         pumps.obtain("LLXMLRPCTransaction").post(request);
         // Set the timer
         F32 timeout(10);
-        watchdog.eventAfter(timeout, LLSD().insert("timeout", 0));
+        watchdog.eventAfter(timeout, LLSD().with("timeout", 0));
         // and pump "mainloop" until we get something, whether from
         // LLXMLRPCListener or from the watchdog filter.
         LLTimer timer;
@@ -218,7 +221,7 @@ namespace tut
         pumps.obtain("LLXMLRPCTransaction").post(request);
         // Set the timer
         F32 timeout(10);
-        watchdog.eventAfter(timeout, LLSD().insert("timeout", 0));
+        watchdog.eventAfter(timeout, LLSD().with("timeout", 0));
         // and pump "mainloop" until we get something, whether from
         // LLXMLRPCListener or from the watchdog filter.
         LLTimer timer;

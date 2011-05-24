@@ -1224,7 +1224,13 @@ BOOL LLAgent::getBusy() const
 //-----------------------------------------------------------------------------
 // startAutoPilotGlobal()
 //-----------------------------------------------------------------------------
-void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::string& behavior_name, const LLQuaternion *target_rotation, void (*finish_callback)(BOOL, void *),  void *callback_data, F32 stop_distance, F32 rot_threshold)
+void LLAgent::startAutoPilotGlobal(
+	const LLVector3d &target_global,
+	const std::string& behavior_name,
+	const LLQuaternion *target_rotation,
+	void (*finish_callback)(BOOL, void *),
+	void *callback_data,
+	F32 stop_distance, F32 rot_threshold)
 {
 	if (!isAgentAvatarValid())
 	{
@@ -1255,7 +1261,7 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 	else
 	{
 		// Guess at a reasonable stop distance.
-		mAutoPilotStopDistance = fsqrtf( distance );
+		mAutoPilotStopDistance = (F32) sqrt( distance );
 		if (mAutoPilotStopDistance < 0.5f) 
 		{
 			mAutoPilotStopDistance = 0.5f;

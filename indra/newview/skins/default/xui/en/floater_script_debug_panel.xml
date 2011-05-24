@@ -20,5 +20,6 @@
      parse_highlights="true" 
      read_only="true"
      width="420"
+     track_bottom="true" 
      word_wrap="true" />
 </floater>

@@ -11,7 +11,7 @@
  save_rect="true"
  single_instance="true"
  bevel_style="in"
- height="140"
+ height="164"
  layout="topleft"
  name="floater_sound_devices"
  title="Sound Devices"
@@ -25,4 +25,23 @@
     left="2"
     top="26"
     class="panel_voice_device_settings"/>
+  <text
+    name="voice_label"
+    top="136"
+    left="12"
+    height="14"
+    width="80"
+    layout="topleft"
+    >Voice Chat</text>
+  <check_box
+    layout="topleft"
+    control_name="EnableVoiceChat"
+    follows="bottom|left"
+    top="138"
+    left="80"
+    name="enable_voice"
+    width="100"
+    height="14"
+    label="Enabled"
+    />
 </floater>

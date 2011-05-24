@@ -35,6 +35,13 @@
 #include "llhost.h"
 #include "stringize.h"
 #include <string>
+#include <stdexcept>
+#include <boost/lexical_cast.hpp>
+
+struct CommtestError: public std::runtime_error
+{
+    CommtestError(const std::string& what): std::runtime_error(what) {}
+};
 
 /**
  * This struct is shared by a couple of standalone comm tests (ADD_COMM_BUILD_TEST).
@@ -55,11 +62,22 @@ struct commtest_data
         replyPump("reply"),
         errorPump("error"),
         success(false),
-        host("127.0.0.1", 8000),
+        host("127.0.0.1", getport("PORT")),
         server(STRINGIZE("http://" << host.getString() << "/"))
     {
         replyPump.listen("self", boost::bind(&commtest_data::outcome, this, _1, true));
         errorPump.listen("self", boost::bind(&commtest_data::outcome, this, _1, false));
+    }
+
+    static int getport(const std::string& var)
+    {
+        const char* port = getenv(var.c_str());
+        if (! port)
+        {
+            throw CommtestError("missing $PORT environment variable");
+        }
+        // This will throw, too, if the value of PORT isn't numeric.
+        return boost::lexical_cast<int>(port);
     }
 
     bool outcome(const LLSD& _result, bool _success)

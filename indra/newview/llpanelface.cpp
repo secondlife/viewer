@@ -376,6 +376,11 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
 			return true;
 		}
 
+		if (facep->getViewerObject()->getVolume()->getNumVolumeFaces() <= te)
+		{
+			return true;
+		}
+
 		bool set_aligned = true;
 		if (facep == mCenterFace)
 		{
@@ -418,6 +423,12 @@ struct LLPanelFaceGetIsAlignedTEFunctor : public LLSelectedTEFunctor
 		{
 			return false;
 		}
+
+		if (facep->getViewerObject()->getVolume()->getNumVolumeFaces() <= te)
+		{ //volume face does not exist, can't be aligned
+			return false;
+		}
+
 		if (facep == mCenterFace)
 		{
 			return true;
