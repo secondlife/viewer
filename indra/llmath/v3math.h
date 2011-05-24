@@ -34,6 +34,7 @@
 class LLVector2;
 class LLVector4;
 class LLMatrix3;
+class LLMatrix4;
 class LLVector3d;
 class LLQuaternion;
 
@@ -110,6 +111,7 @@ class LLVector3
 		const LLVector3&	rotVec(F32 angle, F32 x, F32 y, F32 z);		// Rotates about x,y,z by angle radians
 		const LLVector3&	rotVec(const LLMatrix3 &mat);				// Rotates by LLMatrix4 mat
 		const LLVector3&	rotVec(const LLQuaternion &q);				// Rotates by LLQuaternion q
+		const LLVector3&	transVec(const LLMatrix4& mat);				// Transforms by LLMatrix4 mat (mat * v)
 
 		const LLVector3&	scaleVec(const LLVector3& vec);				// scales per component by vec
 		LLVector3			scaledVec(const LLVector3& vec) const;			// get a copy of this vector scaled by vec
@@ -277,7 +279,7 @@ inline void	LLVector3::setVec(const F32 *vec)
 
 inline F32 LLVector3::normalize(void)
 {
-	F32 mag = fsqrtf(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
+	F32 mag = (F32) sqrt(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
 	F32 oomag;
 
 	if (mag > FP_MAG_THRESHOLD)
@@ -300,7 +302,7 @@ inline F32 LLVector3::normalize(void)
 // deprecated
 inline F32 LLVector3::normVec(void)
 {
-	F32 mag = fsqrtf(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
+	F32 mag = (F32) sqrt(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
 	F32 oomag;
 
 	if (mag > FP_MAG_THRESHOLD)
@@ -324,7 +326,7 @@ inline F32 LLVector3::normVec(void)
 
 inline F32	LLVector3::length(void) const
 {
-	return fsqrtf(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
+	return (F32) sqrt(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
 }
 
 inline F32	LLVector3::lengthSquared(void) const
@@ -334,7 +336,7 @@ inline F32	LLVector3::lengthSquared(void) const
 
 inline F32	LLVector3::magVec(void) const
 {
-	return fsqrtf(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
+	return (F32) sqrt(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
 }
 
 inline F32	LLVector3::magVecSquared(void) const
@@ -468,7 +470,7 @@ inline F32	dist_vec(const LLVector3 &a, const LLVector3 &b)
 	F32 x = a.mV[0] - b.mV[0];
 	F32 y = a.mV[1] - b.mV[1];
 	F32 z = a.mV[2] - b.mV[2];
-	return fsqrtf( x*x + y*y + z*z );
+	return (F32) sqrt( x*x + y*y + z*z );
 }
 
 inline F32	dist_vec_squared(const LLVector3 &a, const LLVector3 &b)
@@ -533,6 +535,21 @@ inline void update_min_max(LLVector3& min, LLVector3& max, const LLVector3& pos)
 		if (max.mV[i] < pos.mV[i])
 		{
 			max.mV[i] = pos.mV[i];
+		}
+	}
+}
+
+inline void update_min_max(LLVector3& min, LLVector3& max, const F32* pos)
+{
+	for (U32 i = 0; i < 3; i++)
+	{
+		if (min.mV[i] > pos[i])
+		{
+			min.mV[i] = pos[i];
+		}
+		if (max.mV[i] < pos[i])
+		{
+			max.mV[i] = pos[i];
 		}
 	}
 }

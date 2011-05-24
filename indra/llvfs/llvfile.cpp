@@ -314,7 +314,7 @@ BOOL LLVFile::setMaxSize(S32 size)
 
 	if (!mVFS->checkAvailable(size))
 	{
-		LLFastTimer t(FTM_VFILE_WAIT);
+		//LLFastTimer t(FTM_VFILE_WAIT);
 		S32 count = 0;
 		while (sVFSThread->getPending() > 1000)
 		{
@@ -422,7 +422,7 @@ bool LLVFile::isLocked(EVFSLock lock)
 
 void LLVFile::waitForLock(EVFSLock lock)
 {
-	LLFastTimer t(FTM_VFILE_WAIT);
+	//LLFastTimer t(FTM_VFILE_WAIT);
 	// spin until the lock clears
 	while (isLocked(lock))
 	{

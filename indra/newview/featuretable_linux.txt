@@ -1,4 +1,4 @@
-version 22
+version 23
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -37,6 +37,7 @@ RenderFogRatio				1	4.0
 RenderGamma					1	0
 RenderGlowResolutionPow		1	9
 RenderGround				1	1
+RenderLocalLights			1	1
 RenderMaxPartCount			1	8192
 RenderNightBrightness		1	1.0
 RenderObjectBump			1	1
@@ -58,11 +59,9 @@ Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
 SkyUseClassicClouds			1	1
 RenderShaderLightingMaxLevel		1	3
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
-WatchdogDisabled				1	1
-RenderUseFBO				1	1
+RenderDeferred				1	1
+RenderDeferredSSAO			1	1
+RenderShadowDetail			1	2
 
 //
 // Low Graphics Settings
@@ -77,6 +76,7 @@ RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
 RenderGlowResolutionPow		1	8
+RenderLocalLights			1	0
 RenderMaxPartCount			1	0
 RenderObjectBump			1	0
 RenderReflectionDetail		1	0
@@ -93,7 +93,6 @@ SkyUseClassicClouds			1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-RenderUseFBO				1	0
 
 //
 // Mid Graphics Settings
@@ -107,6 +106,7 @@ RenderAvatarVP				1	1
 RenderFarClip				1	96
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	8
+RenderLocalLights			1	1
 RenderMaxPartCount			1	2048
 RenderObjectBump			1	1
 RenderReflectionDetail		1	0
@@ -122,7 +122,6 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-RenderUseFBO				1	0
 
 //
 // High Graphics Settings (purty)
@@ -136,6 +135,7 @@ RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
+RenderLocalLights			1	1
 RenderMaxPartCount			1	4096
 RenderObjectBump			1	1
 RenderReflectionDetail		1	0
@@ -151,7 +151,6 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-RenderUseFBO				1	0
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -165,6 +164,7 @@ RenderAvatarVP				1	1
 RenderFarClip				1	256
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
+RenderLocalLights			1	1
 RenderMaxPartCount			1	8192
 RenderObjectBump			1	1
 RenderReflectionDetail		1	4
@@ -177,10 +177,9 @@ RenderVolumeLODFactor		1	2.0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
-RenderUseFBO				1	0
+RenderDeferred				1	1
+RenderDeferredSSAO			1	1
+RenderShadowDetail			1	2
 
 //
 // Class Unknown Hardware (unknown)
@@ -255,7 +254,6 @@ WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
-RenderUseFBO				1	0
 
 
 //

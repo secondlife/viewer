@@ -248,15 +248,6 @@ private:
 
 LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name);
 
-typedef boost::function<void ()> nullary_func_t;
-typedef boost::function<bool ()> bool_func_t;
-
-// Call a given callable once in idle loop.
-void doOnIdleOneTime(nullary_func_t callable);
-
-// Repeatedly call a callable in idle loop until it returns true.
-void doOnIdleRepeating(bool_func_t callable);
-
 // Invoke a given callable after category contents are fully fetched.
 void callAfterCategoryFetch(const LLUUID& cat_id, nullary_func_t cb);
 

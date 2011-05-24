@@ -56,42 +56,65 @@ protected:
 	virtual GLuint allocateName()
 	{
 		GLuint name;
+		stop_glerror();
 		glGenBuffersARB(1, &name);
+		stop_glerror();
 		return name;
 	}
 
 	virtual void releaseName(GLuint name)
 	{
+		stop_glerror();
 		glDeleteBuffersARB(1, &name);
+		stop_glerror();
 	}
 };
 
 
 //============================================================================
-// base class
+// base class 
 
 class LLVertexBuffer : public LLRefCount
 {
 public:
+	LLVertexBuffer(const LLVertexBuffer& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLVertexBuffer& operator=(const LLVertexBuffer& rhs)
+	{
+		llerrs << "Illegal operation!" << llendl;
+		return *this;
+	}
+
 	static LLVBOPool sStreamVBOPool;
 	static LLVBOPool sDynamicVBOPool;
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
 
+	static S32	sWeight4Loc;
+
 	static BOOL	sUseStreamDraw;
+	static BOOL	sPreferStreamDraw;
 
 	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
 	static void setupClientArrays(U32 data_mask);
+	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm);
+
  	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
 	static void unbind(); //unbind any bound vertex buffer
 
 	//get the size of a vertex with the given typemask
-	//if offsets is not NULL, its contents will be filled
-	//with the offset of each vertex component in the buffer, 
-	// indexed by the following enum
-	static S32 calcStride(const U32& typemask, S32* offsets = NULL); 										
+	static S32 calcVertexSize(const U32& typemask);
 
+	//get the size of a buffer with the given typemask and vertex count
+	//fill offsets with the offset of each vertex component array into the buffer
+	// indexed by the following enum
+	static S32 calcOffsets(const U32& typemask, S32* offsets, S32 num_vertices);		
+
+	
 	enum {
 		TYPE_VERTEX,
 		TYPE_NORMAL,
@@ -103,6 +126,7 @@ public:
 		// These use VertexAttribPointer and should possibly be made generic
 		TYPE_BINORMAL,
 		TYPE_WEIGHT,
+		TYPE_WEIGHT4,
 		TYPE_CLOTHWEIGHT,
 		TYPE_MAX,
 		TYPE_INDEX,
@@ -118,6 +142,7 @@ public:
 		// These use VertexAttribPointer and should possibly be made generic
 		MAP_BINORMAL = (1<<TYPE_BINORMAL),
 		MAP_WEIGHT = (1<<TYPE_WEIGHT),
+		MAP_WEIGHT4 = (1<<TYPE_WEIGHT4),
 		MAP_CLOTHWEIGHT = (1<<TYPE_CLOTHWEIGHT),
 	};
 	
@@ -172,6 +197,7 @@ public:
 	bool getBinormalStrider(LLStrider<LLVector3>& strider, S32 index=0);
 	bool getColorStrider(LLStrider<LLColor4U>& strider, S32 index=0);
 	bool getWeightStrider(LLStrider<F32>& strider, S32 index=0);
+	bool getWeight4Strider(LLStrider<LLVector4>& strider, S32 index=0);
 	bool getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index=0);
 	
 	BOOL isEmpty() const					{ return mEmpty; }
@@ -181,25 +207,27 @@ public:
 	S32 getRequestedVerts() const			{ return mRequestedNumVerts; }
 	S32 getRequestedIndices() const			{ return mRequestedNumIndices; }
 
-	U8* getIndicesPointer() const			{ return useVBOs() ? NULL : mMappedIndexData; }
-	U8* getVerticesPointer() const			{ return useVBOs() ? NULL : mMappedData; }
-	S32 getStride() const					{ return mStride; }
-	S32 getTypeMask() const					{ return mTypeMask; }
-	BOOL hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()) ? TRUE : FALSE; }
-	S32 getSize() const						{ return mNumVerts*mStride; }
+	U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
+	U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
+	U32 getTypeMask() const					{ return mTypeMask; }
+	bool hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()); }
+	S32 getSize() const;
 	S32 getIndicesSize() const				{ return mNumIndices * sizeof(U16); }
 	U8* getMappedData() const				{ return mMappedData; }
 	U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
 	S32 getUsage() const					{ return mUsage; }
 
-	void setStride(S32 type, S32 new_stride);
-	
 	void markDirty(U32 vert_index, U32 vert_count, U32 indices_index, U32 indices_count);
 
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
 	void drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
+
+	//for debugging, validate data in given range is valid
+	void validateRange(U32 start, U32 end, U32 count, U32 offset) const;
+
+	
 
 protected:	
 	S32		mNumVerts;		// Number of vertices allocated
@@ -207,7 +235,9 @@ protected:
 	S32		mRequestedNumVerts;  // Number of vertices requested
 	S32		mRequestedNumIndices;  // Number of indices requested
 
-	S32		mStride;
+	ptrdiff_t mAlignedOffset;
+	ptrdiff_t mAlignedIndexOffset;
+	S32		mSize;
 	U32		mTypeMask;
 	S32		mUsage;			// GL usage
 	U32		mGLBuffer;		// GL VBO handle
@@ -248,12 +278,12 @@ public:
 		
 	static BOOL sDisableVBOMapping; //disable glMapBufferARB
 	static BOOL sEnableVBOs;
-	static BOOL sVBOActive;
-	static BOOL sIBOActive;
-	static S32 sTypeOffsets[TYPE_MAX];
+	static S32 sTypeSize[TYPE_MAX];
 	static U32 sGLMode[LLRender::NUM_MODES];
 	static U32 sGLRenderBuffer;
-	static U32 sGLRenderIndices;	
+	static U32 sGLRenderIndices;
+	static BOOL sVBOActive;
+	static BOOL sIBOActive;
 	static U32 sLastMask;
 	static U32 sAllocatedBytes;
 	static U32 sBindCount;

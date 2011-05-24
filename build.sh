@@ -42,9 +42,13 @@ installer_Linux()
 
 installer_CYGWIN()
 {
-  d=$(build_dir_CYGWIN ${last_built_variant:-Release})
-  p=$(sed 's:.*=::' "$d/newview/${last_built_variant:-Release}/touched.bat")
-  echo "$d/newview/${last_built_variant:-Release}/$p"
+  v=${last_built_variant:-Release}
+  d=$(build_dir_CYGWIN $v)
+  if [ -r "$d/newview/$v/touched.bat" ]
+  then
+    p=$(sed 's:.*=::' "$d/newview/$v/touched.bat")
+    echo "$d/newview/$v/$p"
+  fi
 }
 
 pre_build()

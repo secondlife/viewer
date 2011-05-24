@@ -251,3 +251,4 @@ BOOL LLTransferSourceParamsAsset::unpackParams(LLDataPacker &dp)
 
 	return TRUE;
 }
+
