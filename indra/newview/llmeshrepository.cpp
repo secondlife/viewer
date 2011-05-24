@@ -1411,8 +1411,6 @@ void dumpLLSDToFile(const LLSD& content, std::string filename)
 
 void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 {
-	// TODO where do textures go?
-
 	LLSD result;
 
 	LLSD res;
@@ -1422,88 +1420,94 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	result["name"] = "mesh model";
 	result["description"] = "your description here";
 
-	// TODO "optional" fields from the spec
-	
 	res["mesh_list"] = LLSD::emptyArray();
 	res["texture_list"] = LLSD::emptyArray();
+	res["instance_list"] = LLSD::emptyArray();
 	S32 mesh_num = 0;
 	S32 texture_num = 0;
 	
 	std::set<LLViewerTexture* > textures;
 	std::map<LLViewerTexture*,S32> texture_index;
 
+	std::map<LLModel*,S32> mesh_index;
+
+	S32 instance_num = 0;
+	
 	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
 	{
 		LLMeshUploadData data;
 		data.mBaseModel = iter->first;
 		LLModelInstance& instance = *(iter->second.begin());
 		LLModel* model = instance.mModel;
-		LLSD mesh_entry;
-
-		std::string model_name = data.mBaseModel->getName();
-
-		if (!model_name.empty())
+		if (mesh_index.find(model) == mesh_index.end())
 		{
-			result["name"] = model_name;
-		}
+			// Have not seen this model before - create a new mesh_list entry for it.
+			std::string model_name = data.mBaseModel->getName();
+			if (!model_name.empty())
+			{
+				result["name"] = model_name;
+			}
 
+			std::stringstream ostr;
+			
+			LLModel::Decomposition& decomp =
+				data.mModel[LLModel::LOD_PHYSICS].notNull() ? 
+				data.mModel[LLModel::LOD_PHYSICS]->mPhysics : 
+				data.mBaseModel->mPhysics;
+
+			decomp.mBaseHull = mHullMap[data.mBaseModel];
+
+			LLSD mesh_header = LLModel::writeModel(
+				ostr,  
+				data.mModel[LLModel::LOD_PHYSICS],
+				data.mModel[LLModel::LOD_HIGH],
+				data.mModel[LLModel::LOD_MEDIUM],
+				data.mModel[LLModel::LOD_LOW],
+				data.mModel[LLModel::LOD_IMPOSTOR], 
+				decomp,
+				mUploadSkin,
+				mUploadJoints);
+
+			data.mAssetData = ostr.str();
+			std::string str = ostr.str();
+
+			res["mesh_list"][mesh_num] = LLSD::Binary(str.begin(),str.end()); 
+			mesh_index[model] = mesh_num;
+			mesh_num++;
+		}
+		
+		LLSD instance_entry;
+		
 		for (S32 i = 0; i < 5; i++)
 		{
 			data.mModel[i] = instance.mLOD[i];
 		}
-
-		mesh_entry["material"] = LL_MCODE_WOOD;
+		
+		LLVector3 pos, scale;
+		LLQuaternion rot;
+		LLMatrix4 transformation = instance.mTransform;
+		decomposeMeshMatrix(transformation,pos,rot,scale);
+		instance_entry["position"] = ll_sd_from_vector3(pos);
+		instance_entry["rotation"] = ll_sd_from_quaternion(rot);
+		instance_entry["scale"] = ll_sd_from_vector3(scale);
+		
+		instance_entry["material"] = LL_MCODE_WOOD;
 		LLPermissions perm;
 		perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
 		perm.setCreator(gAgent.getID());
-
+		
 		perm.initMasks(PERM_ITEM_UNRESTRICTED | PERM_MOVE, //base
 					   PERM_ITEM_UNRESTRICTED | PERM_MOVE, //owner
 					   LLFloaterPerms::getEveryonePerms(),
 					   LLFloaterPerms::getGroupPerms(),
 					   LLFloaterPerms::getNextOwnerPerms());
-		mesh_entry["permissions"] = ll_create_sd_from_permissions(perm);
-		mesh_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
+		instance_entry["permissions"] = ll_create_sd_from_permissions(perm);
+		instance_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
+		instance_entry["mesh"] = mesh_index[model];
 
-		std::stringstream ostr;
-
-		LLModel::Decomposition& decomp =
-			data.mModel[LLModel::LOD_PHYSICS].notNull() ? 
-			data.mModel[LLModel::LOD_PHYSICS]->mPhysics : 
-			data.mBaseModel->mPhysics;
-
-		decomp.mBaseHull = mHullMap[data.mBaseModel];
-
-		LLSD mesh_header = LLModel::writeModel(
-			ostr,  
-			data.mModel[LLModel::LOD_PHYSICS],
-			data.mModel[LLModel::LOD_HIGH],
-			data.mModel[LLModel::LOD_MEDIUM],
-			data.mModel[LLModel::LOD_LOW],
-			data.mModel[LLModel::LOD_IMPOSTOR], 
-			decomp,
-			mUploadSkin,
-			mUploadJoints);
-
-		data.mAssetData = ostr.str();
-
-		LLVector3 pos, scale;
-		LLQuaternion rot;
-		LLMatrix4 transformation = instance.mTransform;
-		decomposeMeshMatrix(transformation,pos,rot,scale);
-
-		mesh_entry["position"] = ll_sd_from_vector3(pos);
-		mesh_entry["rotation"] = ll_sd_from_quaternion(rot);
-		mesh_entry["scale"] = ll_sd_from_vector3(scale);
-
-		// TODO should be binary.
-		std::string str = ostr.str();
-		mesh_entry["mesh_data"] = LLSD::Binary(str.begin(),str.end()); 
-
-		// TODO how do textures in the list map to textures in the meshes?
 		if (mUploadTextures)
 		{
-			mesh_entry["face_list"] = LLSD::emptyArray();
+			instance_entry["face_list"] = LLSD::emptyArray();
 
 			for (S32 face_num = 0; face_num < model->getNumVolumeFaces(); face_num++)
 			{
@@ -1553,14 +1557,12 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				face_entry["imagerot"] = 0.0;
 				face_entry["colors"] = ll_sd_from_color4(material.mDiffuseColor);
 				face_entry["fullbright"] = material.mFullbright;
-				mesh_entry["face_list"][face_num] = face_entry;
+				instance_entry["face_list"][face_num] = face_entry;
 			}
-
 		}
 
-		res["mesh_list"][mesh_num] = mesh_entry;
-
-		mesh_num++;
+		res["instance_list"][instance_num] = instance_entry;
+		instance_num++;
 	}
 
 	result["asset_resources"] = res;
