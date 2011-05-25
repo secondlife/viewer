@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Additional attributes:
+   -->
+<badge font="SansSerifSmall"
+       image="Badge"
+       image_color="BadgeImageColor"
+       label_color="BadgeLabelColor"
+       location="top_left"
+       location_percent_hcenter="85"
+       location_percent_vcenter="85"
+       padding_horiz="7"
+       padding_vert="4"
+       >
+</badge>

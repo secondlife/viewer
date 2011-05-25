@@ -26,7 +26,7 @@
               top="0"
               orientation="vertical"
               name="inventory_layout_stack"
-              height="540"
+             height="535"
               width="330">
              <layout_panel
                  width="330"
@@ -47,6 +47,7 @@
              <layout_panel
                  width="330"
                  auto_resize="true"
+                user_resize="false"
                   follows="bottom|left|right"
                  min_dim="35"
                  name="inbox_layout_panel"
@@ -75,8 +76,7 @@
                          tab_stop="false"
                          pad_left="35"
                          top="0"
-                         left="10"
-                         ></button>
+                        left="10" />
                          <panel
                              follows="all"
                              left="10"
@@ -102,12 +102,12 @@
                                 top="0"
                                 width="308" />   
                          </panel>
-                     
                  </panel>
              </layout_panel>
              <layout_panel
   width="330"
   auto_resize="true"
+                user_resize="false"
    follows="bottom|left|right"
   name="outbox_layout_panel"
                  min_dim="35"
@@ -136,8 +136,19 @@
                          halign="left"
                          pad_left="35"
                          top="0"
-                         left="0"
-                         ></button>
+                        left="0" />
+                    <button
+                        label="SYNC"
+                        is_toggle="false"
+                        name="outbox_sync_btn"
+                        follows="top|right"
+                        height="25"
+                        tab_stop="false"
+                        width="45"
+                        halign="center"
+                        top="5"
+                        left="-50"
+                        enabled="false" />
                      <panel
                          follows="all"
                          left="0"
@@ -163,7 +174,7 @@
 			 layout="topleft"
 			 name="button_panel"
 			 left="9"
-			 top_pad="2"
+             top_pad="7"
 			 width="308">
 			<layout_stack
      	         follows="bottom|left|right"

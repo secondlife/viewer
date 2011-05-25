@@ -56,6 +56,9 @@ static LLDefaultChildRegistry::Register<LLButton> r("button");
 template class LLButton* LLView::getChild<class LLButton>(
 	const std::string& name, BOOL recurse) const;
 
+
+
+
 // globals loaded from settings.xml
 S32	LLBUTTON_H_PAD	= 0;
 S32 BTN_HEIGHT_SMALL= 0;
@@ -99,7 +102,8 @@ LLButton::Params::Params()
 	scale_image("scale_image", true),
 	hover_glow_amount("hover_glow_amount"),
 	commit_on_return("commit_on_return", true),
-	use_draw_context_alpha("use_draw_context_alpha", true)
+	use_draw_context_alpha("use_draw_context_alpha", true),
+	badge("badge")
 {
 	addSynonym(is_toggle, "toggle");
 	held_down_delay.seconds = 0.5f;
@@ -160,8 +164,8 @@ LLButton::LLButton(const LLButton::Params& p)
 	mMouseDownSignal(NULL),
 	mMouseUpSignal(NULL),
 	mHeldDownSignal(NULL),
-	mUseDrawContextAlpha(p.use_draw_context_alpha)
-
+	mUseDrawContextAlpha(p.use_draw_context_alpha),
+	mBadge(NULL)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
@@ -243,6 +247,17 @@ LLButton::LLButton(const LLButton::Params& p)
 	if (p.mouse_held_callback.isProvided())
 	{
 		setHeldDownCallback(initCommitCallback(p.mouse_held_callback));
+	}
+	
+	// Only create a badge here if a non-default one was provided.
+	if (p.badge.isProvided())
+	{
+		if (!p.badge().equals(LLUICtrlFactory::getDefaultParams<LLBadge>()))
+		{
+			LLBadge::Params badge_params(p.badge());
+			badge_params.owner = getUICtrlHandle();
+			mBadge = LLUICtrlFactory::create<LLBadge>(badge_params);
+		}
 	}
 }
 
@@ -327,6 +342,13 @@ boost::signals2::connection LLButton::setHeldDownCallback( button_callback_t cb,
 BOOL LLButton::postBuild()
 {
 	autoResize();
+
+	// Attach the badge to the appropriate parent panel
+	if (mBadge)
+	{
+		addBadgeToParentPanel();
+	}
+
 	return TRUE;
 }
 BOOL LLButton::handleUnicodeCharHere(llwchar uni_char)
@@ -867,7 +889,7 @@ void LLButton::draw()
 			S32_MAX, text_width,
 			NULL, mUseEllipses);
 	}
-
+	
 	LLUICtrl::draw();
 }
 
@@ -1060,6 +1082,70 @@ void LLButton::setImageOverlay(const LLUUID& image_id, LLFontGL::HAlign alignmen
 		mImageOverlay = LLUI::getUIImageByID(image_id);
 		mImageOverlayAlignment = alignment;
 		mImageOverlayColor = color;
+	}
+}
+
+void LLButton::addBadgeToParentPanel()
+{
+	if (mBadge)
+	{
+		// Find the appropriate parent panel for the badge
+
+		LLPanel * parentPanel = NULL;
+		LLUICtrl * parent = getParentUICtrl();
+		
+		while (parent)
+		{
+			parentPanel = dynamic_cast<LLPanel*>(parent);
+		
+			if (parentPanel != NULL)
+			{
+				break;
+			}
+
+			parent = parent->getParentUICtrl();
+		}
+
+		if (parentPanel)
+		{
+			parentPanel->addChild(mBadge);
+		}
+		else
+		{
+			llwarns << "Unable to find parent panel for badge " << mBadge->getName() << " on button " << getName() << llendl;
+		}
+	}
+	else
+	{
+		llwarns << "Unable to add NULL badge to button " << getName() << llendl;
+	}
+}
+
+void LLButton::setBadgeLabel(const LLStringExplicit& label)
+{
+	if (mBadge == NULL)
+	{
+		LLBadge::Params badge_params(LLUICtrlFactory::getDefaultParams<LLBadge>());
+		badge_params.owner = getUICtrlHandle();
+		mBadge = LLUICtrlFactory::create<LLBadge>(badge_params);
+
+		addBadgeToParentPanel();
+	}
+
+	if (mBadge)
+	{
+		mBadge->setLabel(label);
+
+		//
+		// Push the badge to the front so it renders last
+		//
+
+		LLUICtrl * parent = mBadge->getParentUICtrl();
+
+		if (parent)
+		{
+			parent->sendChildToFront(mBadge);
+		}
 	}
 }
 
