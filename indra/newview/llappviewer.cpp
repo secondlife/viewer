@@ -3732,14 +3732,12 @@ bool LLAppViewer::initCache()
 		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"");
 
 		std::string mask;
-		mask = gDirUtilp->getDirDelimiter();
-		mask += VFS_DATA_FILE_BASE;
+		mask = VFS_DATA_FILE_BASE;
 		mask += "*";
 
 		gDirUtilp->deleteFilesInDir(dir, mask);
 
-		mask = gDirUtilp->getDirDelimiter();
-		mask += VFS_INDEX_FILE_BASE;
+		mask = VFS_INDEX_FILE_BASE;
 		mask += "*";
 
 		gDirUtilp->deleteFilesInDir(dir, mask);
@@ -3805,11 +3803,11 @@ bool LLAppViewer::initCache()
 
 void LLAppViewer::purgeCache()
 {
-	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << llendl;
+	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << LL_ENDL;
 	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
 	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
-	std::string mask = gDirUtilp->getDirDelimiter() + "*.*";
-	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
+	std::string mask = "*.*";
+	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), mask);
 }
 
 std::string LLAppViewer::getSecondLifeTitle() const
