@@ -177,6 +177,10 @@ public:
 	~LLLayoutPanel();
 
 	void initFromParams(const Params& p);
+
+	S32 getMinDim() const { return mMinDim; }
+	S32 getMaxDim() const { return mMaxDim; }
+
 	void setMinDim(S32 value) { mMinDim = value; }
 	void setMaxDim(S32 value) { mMaxDim = value; }
 

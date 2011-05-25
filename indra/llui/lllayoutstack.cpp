@@ -78,20 +78,20 @@ LLLayoutPanel::~LLLayoutPanel()
 	delete mResizeBar;
 	mResizeBar = NULL;
 }
-	
+
 F32 LLLayoutPanel::getCollapseFactor(LLLayoutStack::ELayoutOrientation orientation)
 {
 	if (orientation == LLLayoutStack::HORIZONTAL)
 	{
 		F32 collapse_amt = 
-		clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, (F32)mMinDim / (F32)llmax(1, getRect().getWidth()));
+			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, (F32)mMinDim / (F32)llmax(1, getRect().getWidth()));
 		return mVisibleAmt * collapse_amt;
 	}
 	else
 	{
-			F32 collapse_amt = 
+		F32 collapse_amt = 
 			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, llmin(1.f, (F32)mMinDim / (F32)llmax(1, getRect().getHeight())));
-			return mVisibleAmt * collapse_amt;
+		return mVisibleAmt * collapse_amt;
 	}
 }
 
@@ -182,14 +182,14 @@ BOOL LLLayoutStack::postBuild()
 }
 
 bool LLLayoutStack::addChild(LLView* child, S32 tab_group)
-		{
+{
 	LLLayoutPanel* panelp = dynamic_cast<LLLayoutPanel*>(child);
-			if (panelp)
-			{
+	if (panelp)
+	{
 		mPanels.push_back(panelp);
-			}
+	}
 	return LLView::addChild(child, tab_group);
-		}
+}
 
 
 S32 LLLayoutStack::getDefaultHeight(S32 cur_height)

@@ -134,38 +134,45 @@ BOOL LLSidepanelInventory::postBuild()
 }
 
 
+void manageInboxOutboxPanels(LLLayoutStack * stack,
+							 LLButton * pressedButton, LLLayoutPanel * pressedPanel,
+							 LLButton * otherButton, LLLayoutPanel * otherPanel)
+{
+	bool expand = pressedButton->getToggleState();
+	bool otherExpanded = otherButton->getToggleState();
+
+	if (expand && otherExpanded)
+	{
+		// Reshape pressedPanel to the otherPanel's height so we preserve the marketplace panel size
+		pressedPanel->reshape(pressedPanel->getRect().getWidth(), otherPanel->getRect().getHeight());
+
+		stack->collapsePanel(otherPanel, true);
+		otherButton->setToggleState(false);
+	}
+
+	stack->collapsePanel(pressedPanel, !expand);
+}
+
 void LLSidepanelInventory::onToggleInboxBtn()
 {
 	LLLayoutStack* stack = getChild<LLLayoutStack>("inventory_layout_stack");
-	bool collapse = !getChild<LLButton>("inbox_btn")->getToggleState();
+	LLButton* pressedButton = getChild<LLButton>("inbox_btn");
+	LLLayoutPanel* pressedPanel = getChild<LLLayoutPanel>("inbox_layout_panel");
+	LLButton* otherButton = getChild<LLButton>("outbox_btn");
+	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>("outbox_layout_panel");
 
-	if (stack)
-	{
-		stack->collapsePanel(getChild<LLLayoutPanel>("inbox_layout_panel"), collapse);
-	}
-	if (!collapse)
-	{
-		stack->collapsePanel(getChild<LLLayoutPanel>("outbox_layout_panel"), true);
-		getChild<LLButton>("outbox_btn")->setToggleState(false);
-	}
+	manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
 }
 
 void LLSidepanelInventory::onToggleOutboxBtn()
 {
 	LLLayoutStack* stack = getChild<LLLayoutStack>("inventory_layout_stack");
-	bool collapse = !getChild<LLButton>("outbox_btn")->getToggleState();
+	LLButton* pressedButton = getChild<LLButton>("outbox_btn");
+	LLLayoutPanel* pressedPanel = getChild<LLLayoutPanel>("outbox_layout_panel");
+	LLButton* otherButton = getChild<LLButton>("inbox_btn");
+	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>("inbox_layout_panel");
 
-	if (stack)
-	{
-		stack->collapsePanel(getChild<LLLayoutPanel>("outbox_layout_panel"), collapse);
-	}
-
-	if (!collapse)
-	{
-		stack->collapsePanel(getChild<LLLayoutPanel>("inbox_layout_panel"), true);
-		getChild<LLButton>("inbox_btn")->setToggleState(false);
-	}
-
+	manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
 }
 
 

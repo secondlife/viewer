@@ -9,170 +9,181 @@
 	  min_width="240"
 	  name="objects panel"
 	  width="333">
-	 <panel
-		 follows="all"
-		 layout="topleft"
-		 left="0"
-		 name="sidepanel__inventory_panel"
-		 top="0"
-		 label=""
-		 height="570"
-		 visible="true"
-		 width="330">
-         <layout_stack
-              follows="left|right|top|bottom"
-              layout="topleft"
-              left="0"
-              top="0"
-              orientation="vertical"
-              name="inventory_layout_stack"
-              height="540"
-              width="330">
-             <layout_panel
-                 width="330"
-                  follows="bottom|left|right"
-                 height="480">
-                 <panel
-                      class="panel_main_inventory"
-                      filename="panel_main_inventory.xml"
-                      follows="all"
-                      layout="topleft"
-                      left="0"
-                      name="panel_main_inventory"
-                      top="0"
-                      label=""
-                      height="480"
-                      width="330" />
-             </layout_panel>
-             <layout_panel
-                 width="330"
-                 auto_resize="true"
-                  follows="bottom|left|right"
-                 min_dim="35"
-                 name="inbox_layout_panel"
-                 max_dim="125"
-                 height="35">
-                 <panel
-                      follows="top|left|right"
-                      layout="topleft"
-                      left="0"
-                      name="marketplace_inbox"
-                      class="panel_marketplace_inbox"
-                      top="0"
-                      label=""
-                      height="125"
-                      width="330">
-                     <button
-                         label="MARKETPLACE INBOX"
-                         name="inbox_btn"
-                         height="35"
-                         width="308"
-                         image_unselected="MarketplaceBtn_Off"
-                            image_selected="MarketplaceBtn_Selected"
-                         halign="left"
-                         follows="top|left|right"
-                         is_toggle="true"
-                         tab_stop="false"
-                         pad_left="35"
-                         top="0"
-                         left="10"
-                         ></button>
-                         <panel
-                             follows="all"
-                             left="0"
-                             height="90"
-                             width="250"
-                             top="30"
-                           >
-                             <text
-                                 left ="40"
-                                 top="15"
-                                 align="left"
-                                 height="14"
-                                 width="100"
-                                 >Just a panel</text>    
-                         </panel>
-                     
-                 </panel>
-             </layout_panel>
-             <layout_panel
-  width="330"
-  auto_resize="true"
-   follows="bottom|left|right"
-  name="outbox_layout_panel"
-                 min_dim="35"
-                 max_dim="125"
-  height="35">
-                 <panel
-                      follows="top|left|right"
-                      layout="topleft"
-                      left="10"
-                      name="marketplace_outbox"
-                      class="panel_marketplace_outbox"
-                      top="0"
-                      label=""
-                      height="125"
-                      width="310">
-                     <button
-                         label="MARKETPLACE OUTBOX"
-                         is_toggle="true"
-                         name="outbox_btn"
-                      follows="top|left|right"
-                         image_unselected="MarketplaceBtn_Off"
-                            image_selected="MarketplaceBtn_Selected"
-                         height="35"
-                         tab_stop="false"
-                         width="308"
-                         halign="left"
-                         pad_left="35"
-                         top="0"
-                         left="0"
-                         ></button>
-                     <panel
-                         follows="all"
-                         left="0"
-                         height="90"
-                         width="250"
-                         top="30"
-                           >
-                         <text
-                             left ="40"
-                             top="15"
-                             align="left"
-                             height="14"
-                             width="100"
+    <panel
+        follows="all"
+        layout="topleft"
+        left="0"
+        name="sidepanel__inventory_panel"
+        top="0"
+        label=""
+        height="570"
+        visible="true"
+        width="330">
+        <layout_stack
+             follows="left|right|top|bottom"
+             layout="topleft"
+             left="0"
+             top="0"
+             orientation="vertical"
+             name="inventory_layout_stack"
+             height="535"
+             width="330">
+            <layout_panel
+                width="330"
+                follows="bottom|left|right"
+                height="480">
+                <panel
+                     class="panel_main_inventory"
+                     filename="panel_main_inventory.xml"
+                     follows="all"
+                     layout="topleft"
+                     left="0"
+                     name="panel_main_inventory"
+                     top="0"
+                     label=""
+                     height="480"
+                     width="330" />
+            </layout_panel>
+            <layout_panel
+                width="330"
+                auto_resize="true"
+                user_resize="false"
+                follows="bottom|left|right"
+                min_dim="35"
+                name="inbox_layout_panel"
+                max_dim="125"
+                height="35">
+                <panel
+                     follows="top|left|right"
+                     layout="topleft"
+                     left="0"
+                     name="marketplace_inbox"
+                     class="panel_marketplace_inbox"
+                     top="0"
+                     label=""
+                     height="125"
+                     width="330">
+                    <button
+                        label="MARKETPLACE INBOX"
+                        name="inbox_btn"
+                        height="35"
+                        width="308"
+                        image_unselected="MarketplaceBtn_Off"
+                        image_selected="MarketplaceBtn_Selected"
+                        halign="left"
+                        follows="top|left|right"
+                        is_toggle="true"
+                        tab_stop="false"
+                        pad_left="35"
+                        top="0"
+                        left="10" />
+                    <panel
+                        follows="all"
+                        left="0"
+                        height="90"
+                        width="250"
+                        top="30"
+                            >
+                        <text
+                            left ="40"
+                            top="15"
+                            align="left"
+                            height="14"
+                            width="100"
                                  >Just a panel</text>
-                     </panel>
+                    </panel>
+                </panel>
+            </layout_panel>
+            <layout_panel
+                width="330"
+                auto_resize="true"
+                user_resize="false"
+                follows="bottom|left|right"
+                name="outbox_layout_panel"
+                min_dim="35"
+                max_dim="125"
+                height="35">
+                <panel
+                     follows="top|left|right"
+                     layout="topleft"
+                     left="10"
+                     name="marketplace_outbox"
+                     class="panel_marketplace_outbox"
+                     top="0"
+                     label=""
+                     height="125"
+                     width="310">
+                    <button
+                        label="MARKETPLACE OUTBOX"
+                        is_toggle="true"
+                        name="outbox_btn"
+                        follows="top|left|right"
+                        image_unselected="MarketplaceBtn_Off"
+                        image_selected="MarketplaceBtn_Selected"
+                        height="35"
+                        tab_stop="false"
+                        width="308"
+                        halign="left"
+                        pad_left="35"
+                        top="0"
+                        left="0" />
+                    <button
+                        label="SYNC"
+                        is_toggle="false"
+                        name="outbox_sync_btn"
+                        follows="top|right"
+                        height="25"
+                        tab_stop="false"
+                        width="45"
+                        halign="center"
+                        top="5"
+                        left="-50"
+                        enabled="false" />
+                    <panel
+                        follows="all"
+                        left="0"
+                        height="90"
+                        width="250"
+                        top="30"
+                           >
+                        <text
+                            left ="40"
+                            top="15"
+                            align="left"
+                            height="14"
+                            width="100"
+                                 >Just a panel</text>
+                    </panel>
 
-                 </panel>
-             </layout_panel>
-         </layout_stack>
-		<panel
-		     follows="bottom|left|right"
-			 height="30"
-			 layout="topleft"
-			 name="button_panel"
-			 left="9"
-			 top_pad="2"
-			 width="308">
-			<layout_stack
-     	         follows="bottom|left|right"
-		         height="23"
-		         layout="topleft"
-		         mouse_opaque="false"
-		         name="button_panel_ls"
-		         left="0"
-		         orientation="horizontal"
-		         top="0"
-		         width="308">	
-			    <layout_panel
-			         follows="bottom|left|right"
-			         height="23"
+                </panel>
+            </layout_panel>
+        </layout_stack>
+        <panel
+             follows="bottom|left|right"
+             height="30"
+             layout="topleft"
+             name="button_panel"
+             left="9"
+             top_pad="7"
+             width="308">
+            <layout_stack
+                 follows="bottom|left|right"
+                 height="23"
+                 layout="topleft"
+                 mouse_opaque="false"
+                 name="button_panel_ls"
+                 left="0"
+                 orientation="horizontal"
+                 top="0"
+                 width="308">
+                <layout_panel
+                     follows="bottom|left|right"
+                     height="23"
                      layout="bottomleft"
-                     left="0"			
+                     left="0"
                      mouse_opaque="false"
                      name="info_btn_lp"
-                     user_resize="false" 
+                     user_resize="false"
                      auto_resize="true"
                      width="101">
                     <button
@@ -186,15 +197,15 @@
                          tool_tip="Show object profile"
                          top="0"
                          width="100" />
-			    </layout_panel>
-			    <layout_panel
+                </layout_panel>
+                <layout_panel
                      follows="bottom|left|right"
                      height="23"
                      layout="bottomleft"
-                     left_pad="1"			
+                     left_pad="1"
                      mouse_opaque="false"
                      name="share_btn_lp"
-                     user_resize="false" 
+                     user_resize="false"
                      auto_resize="true"
                      width="100">
                     <button
@@ -208,15 +219,15 @@
                          tool_tip="Share an inventory item"
                          top="0"
                          width="99" />
-			    </layout_panel>
-			    <layout_panel
+                </layout_panel>
+                <layout_panel
                      follows="bottom|left|right"
                      height="23"
                      layout="bottomleft"
-                     left_pad="1"			
+                     left_pad="1"
                      mouse_opaque="false"
                      name="shop_btn_lp"
-                     user_resize="false" 
+                     user_resize="false"
                      auto_resize="true"
                      width="100">
                     <button
@@ -262,36 +273,36 @@
                          tool_tip="Teleport to the selected area"
                          top="0"
                          width="99" />
-			    </layout_panel>
-			</layout_stack>
-		</panel>
-	</panel>
+                </layout_panel>
+            </layout_stack>
+        </panel>
+    </panel>
 
-<panel
-		 follows="all"
-		 layout="topleft"
-		 left="0"
-		 class="sidepanel_item_info"
-		 filename="sidepanel_item_info.xml"
-		 name="sidepanel__item_panel"
-		 top="0"
-		 label=""
-		 height="570"
-		 visible="false"
-		 width="330">
-	</panel>
+    <panel
+             follows="all"
+             layout="topleft"
+             left="0"
+             class="sidepanel_item_info"
+             filename="sidepanel_item_info.xml"
+             name="sidepanel__item_panel"
+             top="0"
+             label=""
+             height="570"
+             visible="false"
+             width="330">
+    </panel>
 
-<panel
-		 follows="all"
-		 layout="topleft"
-		 left="0"
-		 class="sidepanel_task_info"
-		 filename="sidepanel_task_info.xml"
-		 name="sidepanel__task_panel"
-		 top="0"
-		 label=""
-		 height="570"
-		 visible="false"
-		 width="330">
-	</panel>
+    <panel
+             follows="all"
+             layout="topleft"
+             left="0"
+             class="sidepanel_task_info"
+             filename="sidepanel_task_info.xml"
+             name="sidepanel__task_panel"
+             top="0"
+             label=""
+             height="570"
+             visible="false"
+             width="330">
+    </panel>
 </panel>
