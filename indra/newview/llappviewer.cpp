@@ -739,6 +739,8 @@ bool LLAppViewer::init()
 	}
 
     initThreads();
+	LL_INFOS("InitInfo") << "Threads initialized." << LL_ENDL ; ;
+
     writeSystemInfo();
 
 	// Initialize updater service (now that we have an io pump)
@@ -765,6 +767,10 @@ bool LLAppViewer::init()
 	LL_INFOS("InitInfo") << "J2C Engine is: " << LLImageJ2C::getEngineInfo() << LL_ENDL;
 	LL_INFOS("InitInfo") << "libcurl version is: " << LLCurl::getVersionString() << LL_ENDL;
 
+	//Note: --bao
+	//allow to start texture fetching, must be called after initThreads();
+	gTextureList.start() ;
+
 	// Get the single value from the crash settings file, if it exists
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 	gCrashSettings.loadFromFile(crash_settings_filename);
@@ -773,6 +779,7 @@ bool LLAppViewer::init()
 		gCrashSettings.setS32(CRASH_BEHAVIOR_SETTING, CRASH_BEHAVIOR_ALWAYS_SEND);
 		gCrashSettings.saveToFile(crash_settings_filename, FALSE);
 	}
+	LL_INFOS("InitInfo") << "Crash settings done." << LL_ENDL ;
 
 	/////////////////////////////////////////////////
 	// OS-specific login dialogs
@@ -820,6 +827,8 @@ bool LLAppViewer::init()
 
 	// Let code in llui access the viewer help floater
 	LLUI::sHelpImpl = LLViewerHelp::getInstance();
+
+	LL_INFOS("InitInfo") << "UI initialization is done." << LL_ENDL ;
 
 	// Load translations for tooltips
 	LLFloater::initClass();
@@ -890,7 +899,8 @@ bool LLAppViewer::init()
 		OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
 		return 1;
 	}
-	
+	LL_INFOS("InitInfo") << "Cache initialization is done." << LL_ENDL ;
+
 	// Initialize the repeater service.
 	LLMainLoopRepeater::instance().start();
 
@@ -899,6 +909,7 @@ bool LLAppViewer::init()
 	//
 	gGLActive = TRUE;
 	initWindow();
+	LL_INFOS("InitInfo") << "Window is initialized." << LL_ENDL ;
 
 	// initWindow also initializes the Feature List, so now we can initialize this global.
 	LLCubeMap::sUseCubeMaps = LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap");

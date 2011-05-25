@@ -78,6 +78,7 @@ public:
 	LLViewerTextureList();
 	~LLViewerTextureList();
 
+	void start();
 	void init();
 	void shutdown();
 	void dump();
