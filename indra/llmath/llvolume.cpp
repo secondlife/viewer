@@ -100,7 +100,7 @@ void assert_aligned(void* ptr, uintptr_t alignment)
 	uintptr_t t = (uintptr_t) ptr;
 	if (t%alignment != 0)
 	{
-		llerrs << "WTF?" << llendl;
+		llerrs << "Alignment check failed." << llendl;
 	}
 #endif
 }
@@ -361,7 +361,7 @@ public:
 		}
 		else
 		{
-			llerrs << "WTF? Empty leaf" << llendl;
+			llerrs << "Empty leaf" << llendl;
 		}
 
 		for (S32 i = 0; i < branch->getChildCount(); ++i)
@@ -2159,8 +2159,9 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 		U32 face_count = mdl.size();
 
 		if (face_count == 0)
-		{
-			llerrs << "WTF?" << llendl;
+		{ //no faces unpacked, treat as failed decode
+			llwarns << "found no faces!" << llendl;
+			return false;
 		}
 
 		mVolumeFaces.resize(face_count);
@@ -2179,7 +2180,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			
 			if (idx.empty() || face.mNumIndices < 3)
 			{ //why is there an empty index list?
-				llerrs <<"WTF?" << llendl;
+				llwarns <<"Empty face present!" << llendl;
 				continue;
 			}
 

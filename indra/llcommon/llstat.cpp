@@ -737,7 +737,7 @@ void LLPerfBlock::addStatsToLLSDandReset( LLSD & stats,
             }
 		}
 		else
-		{	// WTF?  Shouldn't have a NULL pointer in the map.
+		{	// Shouldn't have a NULL pointer in the map.
             llwarns << "Unexpected NULL dynamic stat at '" << stats_full_path << "'" << llendl;
 		}
 	}	

@@ -689,17 +689,8 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
 void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 {
-	/*if (!gPipeline.hasRenderType(mDrawableType))
-	{
-		return;
-	}*/
-
 	if (group->isDead() || !group->isState(LLSpatialGroup::GEOM_DIRTY))
 	{
-		/*if (!group->isState(LLSpatialGroup::GEOM_DIRTY) && mRenderByGroup)
-		{
-			llerrs << "WTF?" << llendl;
-		}*/
 		return;
 	}
 
@@ -961,21 +952,15 @@ void LLSpatialGroup::setState(U32 state)
 { 
 	mState |= state; 
 	
-	if (state > LLSpatialGroup::STATE_MASK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	llassert(state <= LLSpatialGroup::STATE_MASK);
 }	
 
 void LLSpatialGroup::setState(U32 state, S32 mode) 
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
-	if (state > LLSpatialGroup::STATE_MASK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
-
+	llassert(state <= LLSpatialGroup::STATE_MASK);
+	
 	if (mode > STATE_MODE_SINGLE)
 	{
 		if (mode == STATE_MODE_DIFF)
@@ -1021,20 +1006,14 @@ public:
 
 void LLSpatialGroup::clearState(U32 state)
 {
-	if (state > LLSpatialGroup::STATE_MASK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	llassert(state <= LLSpatialGroup::STATE_MASK);
 
 	mState &= ~state; 
 }
 
 void LLSpatialGroup::clearState(U32 state, S32 mode)
 {
-	if (state > LLSpatialGroup::STATE_MASK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	llassert(state <= LLSpatialGroup::STATE_MASK);
 
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	
@@ -1059,10 +1038,7 @@ void LLSpatialGroup::clearState(U32 state, S32 mode)
 
 BOOL LLSpatialGroup::isState(U32 state) const
 { 
-	if (state > LLSpatialGroup::STATE_MASK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	llassert(state <= LLSpatialGroup::STATE_MASK);
 
 	return mState & state ? TRUE : FALSE; 
 }
@@ -1250,7 +1226,8 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 {
 	if (LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
-		llerrs << "WTF?" << llendl;
+		llwarns << "Attempted to update distance for camera other than world camera!" << llendl;
+		return;
 	}
 
 #if !LL_RELEASE_FOR_DOWNLOAD
@@ -2064,11 +2041,8 @@ public:
 
 	virtual void processGroup(LLSpatialGroup* group)
 	{
-		if (group->isState(LLSpatialGroup::DIRTY) || group->getData().empty())
-		{
-			llerrs << "WTF?" << llendl;
-		}
-
+		llassert(!group->isState(LLSpatialGroup::DIRTY) && !group->getData().empty())
+		
 		if (mRes < 2)
 		{
 			if (mCamera->AABBInFrustum(group->mObjectBounds[0], group->mObjectBounds[1]) > 0)
