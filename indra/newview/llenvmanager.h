@@ -99,7 +99,7 @@ public:
 		return mDayTime;
 	}
 
-	LLSD makePacket(const LLSD& metadata)
+	LLSD makePacket(const LLSD& metadata) const
 	{
 		LLSD full_packet = LLSD::emptyArray();
 
@@ -259,21 +259,30 @@ class LLEnvManagerNew : public LLSingleton<LLEnvManagerNew>
 {
 	LOG_CLASS(LLEnvManagerNew);
 public:
+	typedef boost::signals2::signal<void()> region_settings_change_signal_t;
+	typedef boost::signals2::signal<void()> region_change_signal_t;
+	typedef boost::signals2::signal<void(bool)> region_settings_applied_signal_t;
+
 	LLEnvManagerNew();
 
+	// getters to access user env. preferences
 	bool getUseRegionSettings() const;
 	bool getUseDayCycle() const;
 	bool getUseFixedSky() const;
 	std::string getWaterPresetName() const;
 	std::string getSkyPresetName() const;
 	std::string getDayCycleName() const;
+
+	/// @return cached env. settings of the current region.
 	const LLEnvironmentSettings& getRegionSettings() const;
 
+	// setters for user env. preferences
 	void setUseRegionSettings(bool val);
 	void setUseWaterPreset(const std::string& name);
 	void setUseSkyPreset(const std::string& name);
 	void setUseDayCycle(const std::string& name);
 
+	// Preferences manipulation.
 	void loadUserPrefs();
 	void saveUserPrefs();
 	void setUserPrefs(
@@ -284,23 +293,44 @@ public:
 		bool use_region_settings);
 	void dumpUserPrefs();
 
+	// Common interface to the wl/water managers.
+	static LLSD getDayCycleByName(const std::string name);
+
+	// Misc.
+	void requestRegionSettings();
+	bool sendRegionSettings(const LLEnvironmentSettings& new_settings);
+	boost::signals2::connection setRegionSettingsChangeCallback(const region_settings_change_signal_t::slot_type& cb);
+	boost::signals2::connection setRegionChangeCallback(const region_change_signal_t::slot_type& cb);
+	boost::signals2::connection setRegionSettingsAppliedCallback(const region_settings_applied_signal_t::slot_type& cb);
+
+	// Public callbacks.
 	void onRegionCrossing();
 	void onTeleport();
 	void onRegionSettingsResponse(const LLSD& content);
+	void onRegionSettingsApplyResponse(bool ok);
 
 private:
 	friend class LLSingleton<LLEnvManagerNew>;
 	/*virtual*/ void initSingleton();
 
 	void updateManagersFromPrefs(bool interpolate);
-	void sendRegionSettingsRequest();
 
 	void onRegionChange(bool interpolate);
+
+	/// Emitted when region environment settings update comes.
+	region_settings_change_signal_t	mRegionSettingsChangeSignal;
+
+	/// Emitted when agent region changes. Move to LLAgent?
+	region_settings_change_signal_t	mRegionChangeSignal;
+
+	/// Emitted when agent region changes. Move to LLAgent?
+	region_settings_applied_signal_t mRegionSettingsAppliedSignal;
 
 	LLEnvPrefs				mUserPrefs;					/// User environment preferences.
 	LLEnvironmentSettings	mCachedRegionPrefs;			/// Cached region environment settings.
 	bool					mInterpNextChangeMessage;	/// Interpolate env. settings on next region change.
 	LLUUID					mCurRegionUUID;				/// To avoid duplicated region env. settings requests.
+	LLUUID					mLastReceivedID;			/// Id of last received region env. settings.
 };
 
 #endif // LL_LLENVMANAGER_H

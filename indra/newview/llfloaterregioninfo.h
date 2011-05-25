@@ -46,6 +46,7 @@ class LLInventoryItem;
 class LLCheckBoxCtrl;
 class LLComboBox;
 class LLNameListCtrl;
+class LLRadioGroup;
 class LLSliderCtrl;
 class LLSpinCtrl;
 class LLTextBox;
@@ -105,6 +106,7 @@ private:
 	boost::signals2::connection mConsoleReplySignalConnection;;
 	
 protected:
+	void onTabSelected(const LLSD& param);
 	void refreshFromRegion(LLViewerRegion* region);
 
 	// member data
@@ -427,6 +429,44 @@ protected:
 
 class LLPanelEnvironmentInfo : public LLPanelRegionInfo
 {
+	LOG_CLASS(LLPanelEnvironmentInfo);
+
+public:
+	LLPanelEnvironmentInfo();
+
+	// LLPanel
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
+
+	// LLPanelRegionInfo
+	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region);
+
+private:
+	void refresh();
+	void setControlsEnabled(bool enabled);
+	void setApplyProgress(bool started);
+
+	void populateWaterPresetsList();
+	void populateSkyPresetsList();
+	void populateDayCyclesList();
+
+	void onSwitchRegionSettings();
+	void onSwitchDayCycle();
+
+	void onBtnSave();
+	void onBtnCancel();
+
+	void onRegionSettingschange();
+	void onRegionSettingsApplied(bool ok);
+
+	bool			mEnableEditing;
+
+	LLRadioGroup*	mRegionSettingsRadioGroup;
+	LLRadioGroup*	mDayCycleSettingsRadioGroup;
+
+	LLComboBox*		mWaterPresetCombo;
+	LLComboBox*		mSkyPresetCombo;
+	LLComboBox*		mDayCyclePresetCombo;
 };
 
 #endif

@@ -234,6 +234,7 @@ std::map<LLWLParamKey, LLWLParamSet> LLWLParamManager::finalizeFromDayCycle(LLWL
 	return final_references;
 }
 
+// static
 LLSD LLWLParamManager::createSkyMap(std::map<LLWLParamKey, LLWLParamSet> refs)
 {
 	LLSD skies = LLSD::emptyMap();
@@ -588,10 +589,12 @@ void LLWLParamManager::applyUserPrefs(bool interpolate)
 	// Remove all region sky presets because they may belong to a previously visited region.
 	clearParamSetsOfScope(LLEnvKey::SCOPE_REGION);
 
+	// Add all sky presets belonging to the current region.
+	const LLEnvironmentSettings& region_settings = LLEnvManagerNew::instance().getRegionSettings();
+	addAllSkies(LLEnvKey::SCOPE_REGION, region_settings.getSkyMap());
+
 	if (LLEnvManagerNew::instance().getUseRegionSettings()) // apply region-wide settings
 	{
-		const LLEnvironmentSettings& region_settings = LLEnvManagerNew::instance().getRegionSettings();
-
 		if (region_settings.getSkyMap().size() == 0)
 		{
 			applyDefaults();
@@ -600,9 +603,6 @@ void LLWLParamManager::applyUserPrefs(bool interpolate)
 		{
 			// *TODO: Support fixed sky from region.
 			LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
-
-			// Add all sky presets belonging to the current region.
-			addAllSkies(LLEnvKey::SCOPE_REGION, region_settings.getSkyMap());
 
 			// Apply region day cycle.
 			mDay.loadDayCycle(region_settings.getWLDayCycle(), LLEnvKey::SCOPE_REGION);

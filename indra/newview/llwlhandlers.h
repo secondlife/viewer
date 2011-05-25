@@ -66,6 +66,18 @@ private:
 	int mID;
 };
 
+class LLEnvironmentApply
+{
+	LOG_CLASS(LLEnvironmentApply);
+public:
+	/// @return true if request was successfully sent
+	static bool initiateRequest(const LLSD& content);
+
+private:
+	static clock_t sLastUpdate;
+	static clock_t UPDATE_WAIT_SECONDS;
+};
+
 class LLEnvironmentApplyResponder: public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLEnvironmentApplyResponder);
@@ -89,14 +101,8 @@ public:
 	virtual void error(U32 status, const std::string& reason); // non-200 errors only
 
 private:
-	friend class LLEnvManager;
+	friend class LLEnvironmentApply;
 	
-	static clock_t sLastUpdate;
-	static clock_t UPDATE_WAIT_SECONDS;
-
-	// for format of packet expected, see llwlscrubbers.cpp in llmessage
-	static bool initiateRequest(const LLSD& packet);
-
 	LLEnvironmentApplyResponder() {}
 };
 

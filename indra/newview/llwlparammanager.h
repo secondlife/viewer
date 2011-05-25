@@ -144,9 +144,13 @@ public:
 	}
 
 	inline LLWLParamKey(std::string& stringVal)
-		: name(stringVal.substr(0, stringVal.length()-1)),
-		  scope((EScope)atoi(stringVal.substr(stringVal.length()-1, stringVal.length()).c_str()))
 	{
+		size_t len = stringVal.length();
+		if (len > 0)
+		{
+			name = stringVal.substr(0, len - 1);
+			scope = (EScope) atoi(stringVal.substr(len - 1, len).c_str());
+		}
 	}
 
 	inline std::string toStringVal() const
@@ -289,7 +293,7 @@ public:
 	std::map<LLWLParamKey, LLWLParamSet> finalizeFromDayCycle(LLWLParamKey::EScope scope);
 
 	// returns all skies in map (intended to be called with output from a finalize)
-	LLSD createSkyMap(std::map<LLWLParamKey, LLWLParamSet> map);
+	static LLSD createSkyMap(std::map<LLWLParamKey, LLWLParamSet> map);
 
 	// helper variables
 	LLWLAnimator mAnimator;

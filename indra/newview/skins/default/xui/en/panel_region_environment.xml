@@ -137,4 +137,11 @@
   left_pad="10"
   name="cancel_btn"
   width="100" /> 
+ <loading_indicator
+  height="23"
+  left="10"
+  name="progress_indicator"
+  top_delta="0"
+  visible="false"
+  width="23" />
 </panel>
