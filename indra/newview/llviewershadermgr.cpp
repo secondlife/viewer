@@ -353,7 +353,7 @@ void LLViewerShaderMgr::setShaders()
 	}
 
 	//setup preprocessor definitions
-	LLShaderMgr::instance()->mDefinitions["samples"] = llformat("%d", gSavedSettings.getU32("RenderFSAASamples"));
+	LLShaderMgr::instance()->mDefinitions["samples"] = llformat("%d", gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples")));
 
 	reentrance = true;
 
@@ -841,7 +841,8 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 {
 	BOOL success = TRUE;
 
-	bool multisample = gSavedSettings.getU32("RenderFSAASamples") > 0 && gGLManager.mHasTextureMultisample;
+	U32 samples = gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples"));
+	bool multisample = samples > 1 && LLPipeline::sRenderDeferred && gGLManager.mHasTextureMultisample;
 
 	if (mVertexShaderLevel[SHADER_EFFECT] == 0)
 	{
@@ -870,7 +871,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 	{
 		std::string fragment;
 
-		if (gSavedSettings.getU32("RenderFSAASamples") > 0 && LLRenderTarget::sUseFBO && gGLManager.mHasTextureMultisample)
+		if (multisample)
 		{
 			fragment = "effects/glowExtractMSF.glsl";
 		}
@@ -983,7 +984,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	BOOL success = TRUE;
 
-	bool multisample = gSavedSettings.getU32("RenderFSAASamples") > 0 && gGLManager.mHasTextureMultisample;
+	U32 samples = gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples"));
+	bool multisample = samples > 1 && gGLManager.mHasTextureMultisample;
 
 	if (success)
 	{

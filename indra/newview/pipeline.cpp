@@ -589,7 +589,8 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	mScreenWidth = resX;
 	mScreenHeight = resY;
 	
-	U32 samples = llmin(gSavedSettings.getU32("RenderFSAASamples"), (U32) 16);
+	//cap samples at 4 for render targets to avoid out of memory errors
+	U32 samples = gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples"));
 
 	if (gGLManager.mIsATI)
 	{ //disable multisampling of render targets where ATI is involved
@@ -631,7 +632,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		if (shadow_detail > 0 || ssao)
 		{ //only need mDeferredLight[0] for shadows OR ssao
-			mDeferredLight[0].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples);
+			mDeferredLight[0].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 		}
 		else
 		{
@@ -640,7 +641,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		if (ssao)
 		{ //only need mDeferredLight[1] for ssao
-			mDeferredLight[1].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, false, samples);
+			mDeferredLight[1].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, false);
 		}
 		else
 		{
@@ -742,13 +743,6 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	if (LLPipeline::sRenderDeferred)
 	{ //share depth buffer between deferred targets
 		mDeferredScreen.shareDepthBuffer(mScreen);
-		for (U32 i = 0; i < 3; i++)
-		{ //share stencil buffer with screen space lightmap to stencil out sky
-			if (mDeferredLight[i].getTexture(0))
-			{
-				mDeferredScreen.shareDepthBuffer(mDeferredLight[i]);
-			}
-		}
 	}
 
 	gGL.getTexUnit(0)->disable();
@@ -7751,18 +7745,27 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 
 	LLViewerTexture* img = volume->getLightTexture();
 
+	if (img == NULL)
+	{
+		img = LLViewerFetchedTexture::sWhiteImagep;
+	}
+
 	S32 channel = shader.enableTexture(LLViewerShaderMgr::DEFERRED_PROJECTION);
 
-	if (channel > -1 && img)
+	if (channel > -1)
 	{
-		gGL.getTexUnit(channel)->bind(img);
+		if (img)
+		{
+			gGL.getTexUnit(channel)->bind(img);
 
-		F32 lod_range = logf(img->getWidth())/logf(2.f);
+			F32 lod_range = logf(img->getWidth())/logf(2.f);
 
-		shader.uniform1f("proj_focus", focus);
-		shader.uniform1f("proj_lod", lod_range);
-		shader.uniform1f("proj_ambient_lod", llclamp((proj_range-focus)/proj_range*lod_range, 0.f, 1.f));
+			shader.uniform1f("proj_focus", focus);
+			shader.uniform1f("proj_lod", lod_range);
+			shader.uniform1f("proj_ambient_lod", llclamp((proj_range-focus)/proj_range*lod_range, 0.f, 1.f));
+		}
 	}
+		
 }
 
 void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
@@ -9372,6 +9375,11 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			mShadow[i+4].flush();
  		}
 	}
+	else
+	{ //no spotlight shadows
+		mShadowSpotLight[0] = mShadowSpotLight[1] = NULL;
+	}
+
 
 	if (!gSavedSettings.getBOOL("CameraOffset"))
 	{

@@ -229,6 +229,6 @@ void main()
 		discard;
 	}
 
-	gl_FragColor.rgb = fcol/wght;	
+	gl_FragColor.rgb = fcol/samples;	
 	gl_FragColor.a = 0.0;
 }

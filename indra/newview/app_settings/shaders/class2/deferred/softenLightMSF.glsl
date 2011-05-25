@@ -13,7 +13,7 @@
 uniform sampler2DMS diffuseRect;
 uniform sampler2DMS specularRect;
 uniform sampler2DMS normalMap;
-uniform sampler2DMS lightMap;
+uniform sampler2DRect lightMap;
 uniform sampler2DMS depthMap;
 uniform sampler2D	  noiseMap;
 uniform samplerCube environmentMap;
@@ -257,7 +257,8 @@ void main()
 
 	vec3 fcol = vec3(0,0,0);
 
-	float amb = 0;
+	vec2 scol_ambocc = texture2DRect(lightMap, tc).rg;
+	float ambocc = scol_ambocc.g;
 
 	for (int i = 0; i < samples; ++i)
 	{
@@ -271,9 +272,9 @@ void main()
 		vec4 diffuse = texelFetch(diffuseRect, itc, i);
 		vec4 spec = texelFetch(specularRect, itc, i);
 	
-		vec2 scol_ambocc = texelFetch(lightMap, itc, i).rg;
+		float amb = 0;
+
 		float scol = max(scol_ambocc.r, diffuse.a); 
-		float ambocc = scol_ambocc.g;
 		amb += ambocc;
 
 		calcAtmospherics(pos.xyz, ambocc);

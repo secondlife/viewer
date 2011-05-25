@@ -83,11 +83,10 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 	mUseDepth = depth;
 	mSamples = samples;
 
-	mSamples = llmin(mSamples, (U32) gGLManager.mMaxColorTextureSamples);
-
-	if (mSamples > 0 && gGLManager.mHasTextureMultisample)
+	mSamples = gGLManager.getNumFBOFSAASamples(mSamples);
+	
+	if (mSamples > 1 && gGLManager.mHasTextureMultisample)
 	{
-		mSamples = llmin(mSamples, (U32) gGLManager.mMaxColorTextureSamples);
 		mUsage = LLTexUnit::TT_MULTISAMPLE_TEXTURE;
 		//no support for multisampled stencil targets yet
 		mStencil = false;
@@ -155,7 +154,7 @@ void LLRenderTarget::addColorAttachment(U32 color_fmt)
 	stop_glerror();
 
 
-	if (mSamples > 0)
+	if (mSamples > 1)
 	{
 		glTexImage2DMultisample(LLTexUnit::getInternalType(mUsage), mSamples, color_fmt, mResX, mResY, GL_TRUE);
 	}
@@ -206,6 +205,12 @@ void LLRenderTarget::addColorAttachment(U32 color_fmt)
 	}
 
 	mTex.push_back(tex);
+
+	if (gDebugGL)
+	{ //bind and unbind to validate target
+		bindTarget();
+		flush();
+	}
 
 }
 
@@ -272,6 +277,9 @@ void LLRenderTarget::shareDepthBuffer(LLRenderTarget& target)
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
 			stop_glerror();
 		}
+
+		check_framebuffer_status();
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		target.mUseDepth = true;
@@ -456,6 +464,7 @@ void LLRenderTarget::copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, 
 		stop_glerror();
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, source.mFBO);
+		check_framebuffer_status();
 		gGL.getTexUnit(0)->bind(this, true);
 		stop_glerror();
 		glCopyTexSubImage2D(LLTexUnit::getInternalType(mUsage), 0, srcX0, srcY0, dstX0, dstY0, dstX1, dstY1);
@@ -472,6 +481,10 @@ void LLRenderTarget::copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, 
 		check_framebuffer_status();
 		stop_glerror();
 		glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+		stop_glerror();
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		stop_glerror();
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		stop_glerror();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		stop_glerror();

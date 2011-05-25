@@ -14,7 +14,7 @@ uniform sampler2DMS diffuseRect;
 uniform sampler2DMS specularRect;
 uniform sampler2DMS depthMap;
 uniform sampler2DMS normalMap;
-uniform sampler2DMS lightMap;
+uniform sampler2DRect lightMap;
 uniform sampler2D noiseMap;
 uniform sampler2D lightFunc;
 uniform sampler2D projectionMap;
@@ -112,6 +112,17 @@ void main()
 	
 	ivec2 itc = ivec2(frag.xy);
 
+	float shadow = 1.0;
+
+	if (proj_shadow_idx >= 0)
+	{
+		vec4 shd = texture2DRect(lightMap, frag);
+		float sh[2];
+		sh[0] = shd.b;
+		sh[1] = shd.a;
+		shadow = min(sh[proj_shadow_idx]+shadow_fade, 1.0);
+	}
+		
 	for (int i = 0; i < samples; i++)
 	{
 		vec3 pos = getPosition(itc, i).xyz;
@@ -120,17 +131,6 @@ void main()
 		dist2 /= vary_light.w;
 		if (dist2 <= 1.0)
 		{
-			float shadow = 1.0;
-	
-			if (proj_shadow_idx >= 0)
-			{
-				vec4 shd = texelFetch(lightMap, itc, i);
-				float sh[2];
-				sh[0] = shd.b;
-				sh[1] = shd.a;
-				shadow = min(sh[proj_shadow_idx]+shadow_fade, 1.0);
-			}
-	
 			vec3 norm = texelFetch(normalMap, itc, i).xyz;
 			norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	
@@ -239,6 +239,6 @@ void main()
 		discard;
 	}
 
-	gl_FragColor.rgb = fcol/wght;	
+	gl_FragColor.rgb = fcol/samples;	
 	gl_FragColor.a = 0.0;
 }

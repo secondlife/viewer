@@ -673,6 +673,14 @@ std::string LLGLManager::getRawGLString()
 	return gl_string;
 }
 
+U32 LLGLManager::getNumFBOFSAASamples(U32 samples)
+{
+	samples = llmin(samples, (U32) mMaxColorTextureSamples);
+	samples = llmin(samples, (U32) mMaxDepthTextureSamples);
+	samples = llmin(samples, (U32) 4);
+	return samples;
+}
+
 void LLGLManager::shutdownGL()
 {
 	if (mInited)
@@ -979,7 +987,7 @@ void LLGLManager::initExtensions()
 	{
 		glBlendFuncSeparateEXT = (PFNGLBLENDFUNCSEPARATEEXTPROC) GLH_EXT_GET_PROC_ADDRESS("glBlendFuncSeparateEXT");
 	}
-	if (mHasTextureRectangle)
+	if (mHasTextureMultisample)
 	{
 		glTexImage2DMultisample = (PFNGLTEXIMAGE2DMULTISAMPLEPROC) GLH_EXT_GET_PROC_ADDRESS("glTexImage2DMultisample");
 		glTexImage3DMultisample = (PFNGLTEXIMAGE3DMULTISAMPLEPROC) GLH_EXT_GET_PROC_ADDRESS("glTexImage3DMultisample");
