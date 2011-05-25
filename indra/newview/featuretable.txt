@@ -467,7 +467,6 @@ RenderAvatarCloth			0	0
 
 list ATI
 RenderUseStreamVBO			1	0
-RenderAvatarVP				1	0
 
 // Disable vertex buffer objects by default for ATI cards with little video memory
 list ATIVramLT256
