@@ -314,7 +314,7 @@ BOOL LLFloaterModelPreview::postBuild()
 	childSetCommitCallback("pelvis_offset", onPelvisOffsetCommit, this);
 
 	childSetCommitCallback("lod_file_or_limit", refresh, this);
-	childSetCommitCallback("physics_load_radio", refresh, this);
+	childSetCommitCallback("physics_load_radio", onPhysicsLoadRadioCommit, this);
 	//childSetCommitCallback("physics_optimize", refresh, this);
 	//childSetCommitCallback("physics_use_hull", refresh, this);
 
@@ -467,6 +467,29 @@ void LLFloaterModelPreview::onPelvisOffsetCommit( LLUICtrl*, void* userdata )
 	}
 	fp->mModelPreview->calcResourceCost();
 	fp->mModelPreview->refresh();
+}
+
+//static
+void LLFloaterModelPreview::onPhysicsLoadRadioCommit( LLUICtrl*, void *userdata)
+{
+	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+	if (fmp)
+	{
+		if (fmp->childGetValue("physics_use_lod").asBoolean())
+		{
+			onPhysicsUseLOD(NULL,NULL);
+		}
+		if (fmp->childGetValue("physics_load_from_file").asBoolean())
+		{
+			
+		}
+		LLModelPreview *model_preview = fmp->mModelPreview;
+		if (model_preview)
+		{
+			model_preview->refresh();
+			model_preview->updateStatusMessages();
+		}
+	}
 }
 
 //static
@@ -2296,8 +2319,11 @@ void LLModelLoader::processElement(daeElement* element)
 	{
 		domFloat3 dom_value = scale->getValue();
 
+
+		LLVector3 scale_vector = LLVector3(dom_value[0], dom_value[1], dom_value[2]);
+		scale_vector.abs(); // Set all values positive, since we don't currently support mirrored meshes
 		LLMatrix4 scaling;
-		scaling.initScale(LLVector3(dom_value[0], dom_value[1], dom_value[2]));
+		scaling.initScale(scale_vector);
 
 		scaling *= mTransform;
 		mTransform = scaling;

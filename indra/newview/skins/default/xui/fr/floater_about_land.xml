@@ -411,11 +411,11 @@ texture :
 			<text name="replace_texture_help">
 				Les objets avec cette texture affichent le film ou la page web quand vous cliquez sur la flèche Jouer.  Sélectionnez l&apos;image miniature pour choisir une texture différente.
 			</text>
-			<check_box label="Échelle automatique" left="97" name="media_auto_scale" tool_tip="Si vous sélectionnez cette option, le contenu de cette parcelle sera automatiquement mis à l&apos;échelle. La qualité visuelle sera peut-être amoindrie mais vous n&apos;aurez à faire aucune autre mise à l&apos;échelle ou alignement."/>
-			<text left="102" name="media_size" tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut." width="105">
+			<check_box label="Échelle automatique" name="media_auto_scale" tool_tip="Si vous sélectionnez cette option, le contenu de cette parcelle sera automatiquement mis à l&apos;échelle. La qualité visuelle sera peut-être amoindrie mais vous n&apos;aurez à faire aucune autre mise à l&apos;échelle ou alignement."/>
+			<text name="media_size" tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut.">
 				Taille :
 			</text>
-			<spinner left_delta="89" name="media_size_width" tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut."/>
+			<spinner name="media_size_width" tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut."/>
 			<spinner name="media_size_height" tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut."/>
 			<text name="pixels">
 				pixels
