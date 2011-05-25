@@ -349,7 +349,6 @@ LLViewerRegion::~LLViewerRegion()
 	// Can't do this on destruction, because the neighbor pointers might be invalid.
 	// This should be reference counted...
 	disconnectAllNeighbors();
-	mCloudLayer.destroy();
 	LLViewerPartSim::getInstance()->cleanupRegion(this);
 
 	gObjectList.killObjects(this);

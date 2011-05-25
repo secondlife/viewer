@@ -1,4 +1,4 @@
-	/** 
+/** 
  * @file llappviewer.cpp
  * @brief The LLAppViewer class definitions
  *
@@ -4311,7 +4311,6 @@ void LLAppViewer::idle()
 	//
 	// Update weather effects
 	//
-	LLWorld::getInstance()->updateClouds(gFrameDTClamped);
 	gSky.propagateHeavenlyBodies(gFrameDTClamped);				// moves sun, moon, and planets
 
 	// Update wind vector 
