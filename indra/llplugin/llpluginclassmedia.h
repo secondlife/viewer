@@ -122,6 +122,8 @@ public:
 	void jsExposeObjectEvent( bool expose );
 	void jsValuesValidEvent( bool valid );
 	void jsAgentLocationEvent( double x, double y, double z );
+	void jsAgentGlobalLocationEvent( double x, double y, double z );
+	void jsAgentOrientationEvent( double angle );
 	void jsAgentLanguageEvent( const std::string& language );
 	void jsAgentRegionEvent( const std::string& region_name );
 	void jsAgentMaturityEvent( const std::string& maturity );

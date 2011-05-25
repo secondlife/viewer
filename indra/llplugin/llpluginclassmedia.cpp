@@ -474,6 +474,33 @@ void LLPluginClassMedia::jsAgentLocationEvent( double x, double y, double z )
 	sendMessage( message );
 }
 
+void LLPluginClassMedia::jsAgentGlobalLocationEvent( double x, double y, double z )
+{
+	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
+	{
+		return;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_agent_global_location");
+	message.setValueReal( "x", x );
+	message.setValueReal( "y", y );
+	message.setValueReal( "z", z );
+	sendMessage( message );
+}
+
+void LLPluginClassMedia::jsAgentOrientationEvent( double angle )
+{
+	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
+	{
+		return;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_agent_orientation");
+	message.setValueReal( "angle", angle );
+
+	sendMessage( message );
+}
+
 void LLPluginClassMedia::jsAgentLanguageEvent( const std::string& language )
 {
 	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )

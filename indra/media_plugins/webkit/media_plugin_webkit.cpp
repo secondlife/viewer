@@ -1194,11 +1194,21 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 #endif
 			}
 			else
-			if(message_name == "js_agent_language")
+			if(message_name == "js_agent_global_location")
 			{
 #if LLQTWEBKIT_API_VERSION >= 9
-				const std::string& language = message_in.getValue("language");
-				LLQtWebKit::getInstance()->setAgentLanguage( language );
+				F32 x = message_in.getValueReal("x");
+				F32 y = message_in.getValueReal("y");
+				F32 z = message_in.getValueReal("z");
+				LLQtWebKit::getInstance()->setAgentGlobalLocation( x, y, z );
+#endif
+			}
+			else			
+			if(message_name == "js_agent_orientation")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				F32 angle = message_in.getValueReal("angle");
+				LLQtWebKit::getInstance()->setAgentOrientation( angle );
 #endif
 			}
 			else
