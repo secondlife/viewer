@@ -1778,7 +1778,7 @@ void LLModel::updateHullCenters()
 	if (mHullPoints > 0)
 	{
 		mCenterOfHullCenters *= 1.f / mHullPoints;
-		llassert(mPhysics.asLLSD().has("HullList"));
+		llassert(mPhysics.hasHullList());
 	}
 }
 
@@ -2127,6 +2127,11 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 	}
 }
 
+bool LLModel::Decomposition::hasHullList() const
+{
+	return !mHull.empty() ;
+}
+
 LLSD LLModel::Decomposition::asLLSD() const
 {
 	LLSD ret;
@@ -2208,14 +2213,17 @@ LLSD LLModel::Decomposition::asLLSD() const
 					//convert to 16-bit normalized across domain
 					U16 val = (U16) (((mHull[i][j].mV[k]-min.mV[k])/range.mV[k])*65535);
 
-					switch (k)
+					if(valid.size() < 3)
 					{
-						case 0: test = test | (U64) val; break;
-						case 1: test = test | ((U64) val << 16); break;
-						case 2: test = test | ((U64) val << 32); break;
-					};
+						switch (k)
+						{
+							case 0: test = test | (U64) val; break;
+							case 1: test = test | ((U64) val << 16); break;
+							case 2: test = test | ((U64) val << 32); break;
+						};
 
-					valid.insert(test);
+						valid.insert(test);
+					}
 					
 					U8* buff = (U8*) &val;
 					//write to binary buffer
@@ -2227,8 +2235,8 @@ LLSD LLModel::Decomposition::asLLSD() const
 				}
 			}
 
-			//must have at least 4 unique points
-			llassert(valid.size() > 3);
+			//must have at least 3 unique points
+			llassert(valid.size() > 2);
 		}
 
 		ret["Position"] = p;
@@ -2289,11 +2297,6 @@ void LLModel::Decomposition::merge(const LLModel::Decomposition* rhs)
 	if (mPhysicsShapeMesh.empty())
 	{ //take physics shape mesh from rhs
 		mPhysicsShapeMesh = rhs->mPhysicsShapeMesh;
-	}
-
-	if (!mHull.empty())
-	{ //verify
-		llassert(asLLSD().has("HullList"));
 	}
 }
 

@@ -152,7 +152,7 @@ public:
 		std::string mStatusMessage;
 		std::vector<LLModel::PhysicsMesh> mHullMesh;
 		LLModel::convex_hull_decomposition mHull;
-		
+			
 		//status message callback, called from decomposition thread
 		virtual S32 statusCallback(const char* status, S32 p1, S32 p2) = 0;
 
@@ -160,6 +160,14 @@ public:
 		virtual void completed() = 0;
 
 		virtual void setStatusMessage(const std::string& msg);
+
+	protected:
+		//internal use
+		LLVector3 mBBox[2] ;
+		F32 mTriangleAreaThreshold ;
+
+		void updateTriangleAreaThreshold() ;
+		bool isValidTriangle(U16 idx1, U16 idx2, U16 idx3) ;
 	};
 
 	LLCondition* mSignal;
