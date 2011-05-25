@@ -22,7 +22,7 @@
 	<text name="media_setting_note">
 		Nota: I residenti possono annullare questa impostazione
 	</text>
-	<check_box initial_value="false" label="Messa in scala automatica dell&apos;elemento multimediale sulla faccia dell&apos;oggetto" name="auto_scale"/>
+	<check_box initial_value="false" label="Messa in scala automatica dell&apos;elemento multimediale sulla &#10;faccia dell&apos;oggetto" name="auto_scale"/>
 	<text name="size_label">
 		Dimensioni:
 	</text>

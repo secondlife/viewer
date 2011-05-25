@@ -127,25 +127,25 @@ contribuídas para cobrir este lote antes da aquisição se completar.
 	<text name="region_name_label">
 		Região:
 	</text>
-	<text left="560" name="region_name_text">
+	<text name="region_name_text">
 		(desconhecido)
 	</text>
 	<text name="region_type_label">
 		Tipo:
 	</text>
-	<text left="560" name="region_type_text">
+	<text name="region_type_text">
 		(desconhecido)
 	</text>
 	<text name="estate_name_label">
 		Propriedade:
 	</text>
-	<text left="560" name="estate_name_text">
+	<text name="estate_name_text">
 		(desconhecido)
 	</text>
-	<text name="estate_owner_label" right="565" width="105">
+	<text name="estate_owner_label">
 		Dono da propriedade:
 	</text>
-	<text left="560" name="estate_owner_text">
+	<text name="estate_owner_text">
 		(desconhecido)
 	</text>
 	<text name="resellable_changeable_label">
@@ -160,11 +160,11 @@ contribuídas para cobrir este lote antes da aquisição se completar.
 	<text name="covenant_text">
 		Você deve concordar com o Corretor da Propriedade:
 	</text>
-	<text left="470" name="covenant_timestamp_text"/>
+	<text name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Carregando...
 	</text_editor>
-	<check_box label="Eu concordo com as definições do  Corretor feitas acima." name="agree_covenant"/>
+	<check_box label="Eu concordo com as definições do Corretor feitas acima." name="agree_covenant" left="-330"/>
 	<text name="info_parcel_label">
 		Lote:
 	</text>
