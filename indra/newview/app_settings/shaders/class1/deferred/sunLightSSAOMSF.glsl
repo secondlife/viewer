@@ -8,11 +8,12 @@
 #version 120
 
 #extension GL_ARB_texture_rectangle : enable
+#extension GL_ARB_texture_multisample : enable
 
 //class 1 -- no shadow, SSAO only
 
-uniform sampler2DRect depthMap;
-uniform sampler2DRect normalMap;
+uniform sampler2DMS depthMap;
+uniform sampler2DMS normalMap;
 uniform sampler2D noiseMap;
 
 
@@ -33,9 +34,9 @@ uniform vec2 screen_res;
 uniform float shadow_bias;
 uniform float shadow_offset;
 
-vec4 getPosition(vec2 pos_screen)
+vec4 getPosition(ivec2 pos_screen, int sample)
 {
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
+	float depth = texelFetch(depthMap, pos_screen, sample).r;
 	vec2 sc = pos_screen.xy*2.0;
 	sc /= screen_res;
 	sc -= vec2(1.0,1.0);
@@ -47,7 +48,7 @@ vec4 getPosition(vec2 pos_screen)
 }
 
 //calculate decreases in ambient lighting when crowded out (SSAO)
-float calcAmbientOcclusion(vec4 pos, vec3 norm)
+float calcAmbientOcclusion(vec4 pos, vec3 norm, int sample)
 {
 	float ret = 1.0;
 	
@@ -74,8 +75,8 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 	// it was found that keeping # of samples a constant was the fastest, probably due to compiler optimizations unrolling?)
 	for (int i = 0; i < 8; i++)
 	{
-		vec2 samppos_screen = pos_screen + scale * reflect(kern[i], noise_reflect);
-		vec3 samppos_world = getPosition(samppos_screen).xyz; 
+		ivec2 samppos_screen = ivec2(pos_screen + scale * reflect(kern[i], noise_reflect));
+		vec3 samppos_world = getPosition(samppos_screen, sample).xyz; 
 			
 		vec3 diff = pos_world - samppos_world;
 		float dist2 = dot(diff, diff);
@@ -101,16 +102,22 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 void main() 
 {
 	vec2 pos_screen = vary_fragcoord.xy;
-	
-	//try doing an unproject here
-	
-	vec4 pos = getPosition(pos_screen);
-	
-	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
-	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
+	ivec2 itc = ivec2(pos_screen);
 		
+	float col = 0;
+
+	for (int i = 0; i < samples; i++)
+	{
+		vec4 pos = getPosition(itc, i);
+		vec3 norm = texelFetch(normalMap, itc, i).xyz;
+		norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
+		col += calcAmbientOcclusion(pos,norm,i);
+	}
+
+	col /= samples;
+
 	gl_FragColor[0] = 1.0;
-	gl_FragColor[1] = calcAmbientOcclusion(pos, norm);
+	gl_FragColor[1] = col;
 	gl_FragColor[2] = 1.0; 
 	gl_FragColor[3] = 1.0;
 }

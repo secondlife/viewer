@@ -524,7 +524,6 @@ public:
 	LLRenderTarget			mEdgeMap;
 	LLRenderTarget			mDeferredDepth;
 	LLRenderTarget			mDeferredLight[3];
-	LLMultisampleBuffer		mSampleBuffer;
 	LLRenderTarget			mGIMap;
 	LLRenderTarget			mGIMapPost[2];
 	LLRenderTarget			mLuminanceMap;

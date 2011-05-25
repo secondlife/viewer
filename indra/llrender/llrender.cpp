@@ -53,7 +53,8 @@ static GLenum sGLTextureType[] =
 {
 	GL_TEXTURE_2D,
 	GL_TEXTURE_RECTANGLE_ARB,
-	GL_TEXTURE_CUBE_MAP_ARB
+	GL_TEXTURE_CUBE_MAP_ARB,
+	GL_TEXTURE_2D_MULTISAMPLE
 };
 
 static GLint sGLAddressMode[] =
@@ -124,7 +125,7 @@ void LLTexUnit::refreshState(void)
 	// Per apple spec, don't call glEnable/glDisable when index exceeds max texture units
 	// http://www.mailinglistarchive.com/html/mac-opengl@lists.apple.com/2008-07/msg00653.html
 	//
-	bool enableDisable = (mIndex < gGLManager.mNumTextureUnits);
+	bool enableDisable = (mIndex < gGLManager.mNumTextureUnits) && mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE;
 		
 	if (mCurrTexType != TT_NONE)
 	{
@@ -182,8 +183,8 @@ void LLTexUnit::enable(eTextureType type)
 		mCurrTexType = type;
 
 		gGL.flush();
-		
-		if (mIndex < gGLManager.mNumTextureUnits)
+		if (type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
+			mIndex < gGLManager.mNumTextureUnits)
 		{
 			glEnable(sGLTextureType[type]);
 		}
@@ -199,8 +200,8 @@ void LLTexUnit::disable(void)
 		activate();
 		unbind(mCurrTexType);
 		gGL.flush();
-		
-		if (mIndex < gGLManager.mNumTextureUnits)
+		if (mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
+			mIndex < gGLManager.mNumTextureUnits)
 		{
 			glDisable(sGLTextureType[mCurrTexType]);
 		}
@@ -423,7 +424,7 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 
 void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option)
 {
-	if (mIndex < 0 || mCurrTexture == 0) return;
+	if (mIndex < 0 || mCurrTexture == 0 || mCurrTexType == LLTexUnit::TT_MULTISAMPLE_TEXTURE) return;
 
 	gGL.flush();
 

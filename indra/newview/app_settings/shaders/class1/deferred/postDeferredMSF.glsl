@@ -8,11 +8,12 @@
 #version 120
 
 #extension GL_ARB_texture_rectangle : enable
+#extension GL_ARB_texture_multisample : enable
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect edgeMap;
-uniform sampler2DRect depthMap;
-uniform sampler2DRect normalMap;
+uniform sampler2DMS diffuseRect;
+uniform sampler2DMS edgeMap;
+uniform sampler2DMS depthMap;
+uniform sampler2DMS normalMap;
 uniform sampler2D bloomMap;
 
 uniform float depth_cutoff;
@@ -27,9 +28,20 @@ uniform vec2 screen_res;
 
 varying vec2 vary_fragcoord;
 
-float getDepth(vec2 pos_screen)
+vec4 texture2DMS(sampler2DMS tex, ivec2 tc)
 {
-	float z = texture2DRect(depthMap, pos_screen.xy).r;
+	vec4 ret = vec4(0,0,0,0);
+	for (int i = 0; i < samples; ++i)
+	{
+		ret += texelFetch(tex, tc, i);
+	}
+
+	return ret/samples;
+}
+
+float getDepth(ivec2 pos_screen)
+{
+	float z = texture2DMS(depthMap, pos_screen.xy).r;
 	z = z*2.0-1.0;
 	vec4 ndc = vec4(0.0, 0.0, z, 1.0);
 	vec4 p = inv_proj*ndc;
@@ -51,24 +63,7 @@ float calc_cof(float depth)
 	return sc;
 }
 
-void dofSampleNear(inout vec4 diff, inout float w, float cur_sc, vec2 tc)
-{
-	float d = getDepth(tc);
-	
-	float sc = calc_cof(d);
-	
-	float wg = 0.25;
-		
-	vec4 s = texture2DRect(diffuseRect, tc);
-	// de-weight dull areas to make highlights 'pop'
-	wg += s.r+s.g+s.b;
-	
-	diff += wg*s;
-	
-	w += wg;
-}
-
-void dofSample(inout vec4 diff, inout float w, float min_sc, float cur_depth, vec2 tc)
+void dofSample(inout vec4 diff, inout float w, float min_sc, float cur_depth, ivec2 tc)
 {
 	float d = getDepth(tc);
 	
@@ -79,7 +74,7 @@ void dofSample(inout vec4 diff, inout float w, float min_sc, float cur_depth, ve
 	{
 		float wg = 0.25;
 		
-		vec4 s = texture2DRect(diffuseRect, tc);
+		vec4 s = texture2DMS(diffuseRect, tc);
 		// de-weight dull areas to make highlights 'pop'
 		wg += s.r+s.g+s.b;
 	
@@ -92,14 +87,14 @@ void dofSample(inout vec4 diff, inout float w, float min_sc, float cur_depth, ve
 
 void main() 
 {
-	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz;
+	ivec2 itc = ivec2(vary_fragcoord.xy);
+
+	vec3 norm = texture2DMS(normalMap, itc).xyz;
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 		
-	vec2 tc = vary_fragcoord.xy;
+	float depth = getDepth(itc);
 	
-	float depth = getDepth(tc);
-	
-	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
+	vec4 diff = texture2DMS(diffuseRect, itc);
 	
 	{ 
 		float w = 1.0;
@@ -111,21 +106,22 @@ void main()
 		
 		float PI = 3.14159265358979323846264;
 
+		int isc = int(sc);
+		
 		// sample quite uniformly spaced points within a circle, for a circular 'bokeh'		
 		//if (depth < focal_distance)
 		{
-			while (sc > 0.5)
+			for (int x = -isc; x <= isc; x+=2)
 			{
-				int its = int(max(1.0,(sc*3.7)));
-				for (int i=0; i<its; ++i)
+				for (int y = -isc; y <= isc; y+=2)
 				{
-					float ang = sc+i*2*PI/its; // sc is added for rotary perturbance
-					float samp_x = sc*sin(ang);
-					float samp_y = sc*cos(ang);
-					// you could test sample coords against an interesting non-circular aperture shape here, if desired.
-					dofSample(diff, w, sc, depth, vary_fragcoord.xy + vec2(samp_x,samp_y));
+					ivec2 cur_samp = ivec2(x,y);
+					float cur_sc = length(vec2(cur_samp));
+					if (cur_sc < sc)
+					{
+						dofSample(diff, w, cur_sc, depth, itc+cur_samp);
+					}
 				}
-				sc -= 1.0;
 			}
 		}
 		

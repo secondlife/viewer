@@ -8,11 +8,12 @@
 #version 120
 
 #extension GL_ARB_texture_rectangle : enable
+#extension GL_ARB_texture_multisample : enable
 
 //class 2 -- shadows and SSAO
 
-uniform sampler2DRect depthMap;
-uniform sampler2DRect normalMap;
+uniform sampler2DMS depthMap;
+uniform sampler2DMS normalMap;
 uniform sampler2DRectShadow shadowMap0;
 uniform sampler2DRectShadow shadowMap1;
 uniform sampler2DRectShadow shadowMap2;
@@ -43,10 +44,10 @@ uniform float shadow_offset;
 uniform float spot_shadow_bias;
 uniform float spot_shadow_offset;
 
-vec4 getPosition(vec2 pos_screen)
+vec4 getPosition(ivec2 pos_screen, int sample)
 {
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
-	vec2 sc = pos_screen.xy*2.0;
+	float depth = texelFetch(depthMap, pos_screen, sample).r;
+	vec2 sc = vec2(pos_screen.xy)*2.0;
 	sc /= screen_res;
 	sc -= vec2(1.0,1.0);
 	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
@@ -57,7 +58,7 @@ vec4 getPosition(vec2 pos_screen)
 }
 
 //calculate decreases in ambient lighting when crowded out (SSAO)
-float calcAmbientOcclusion(vec4 pos, vec3 norm)
+float calcAmbientOcclusion(vec4 pos, vec3 norm, int sample)
 {
 	float ret = 1.0;
 
@@ -84,8 +85,8 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 	// it was found that keeping # of samples a constant was the fastest, probably due to compiler optimizations (unrolling?)
 	for (int i = 0; i < 8; i++)
 	{
-		vec2 samppos_screen = pos_screen + scale * reflect(kern[i], noise_reflect);
-		vec3 samppos_world = getPosition(samppos_screen).xyz; 
+		ivec2 samppos_screen = ivec2(pos_screen + scale * reflect(kern[i], noise_reflect));
+		vec3 samppos_world = getPosition(samppos_screen, sample).xyz; 
 			
 		vec3 diff = pos_world - samppos_world;
 		float dist2 = dot(diff, diff);
@@ -150,100 +151,91 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl)
 void main() 
 {
 	vec2 pos_screen = vary_fragcoord.xy;
-	
-	//try doing an unproject here
-	
-	vec4 pos = getPosition(pos_screen);
-	
-	vec4 nmap4 = texture2DRect(normalMap, pos_screen);
-	nmap4 = vec4((nmap4.xy-0.5)*2.0,nmap4.z,nmap4.w); // unpack norm
-	float displace = nmap4.w;
-	vec3 norm = nmap4.xyz;
-	
-	/*if (pos.z == 0.0) // do nothing for sky *FIX: REMOVE THIS IF/WHEN THE POSITION MAP IS BEING USED AS A STENCIL
-	{
-		gl_FragColor = vec4(0.0); // doesn't matter
-		return;
-	}*/
-	
-	float shadow = 1.0;
-	float dp_directional_light = max(0.0, dot(norm, vary_light.xyz));
+	ivec2 itc = ivec2(pos_screen);
+	vec4 fcol = vec4(0,0,0,0);
 
-	vec3 shadow_pos = pos.xyz + displace*norm;
-	vec3 offset = vary_light.xyz * (1.0-dp_directional_light);
+	for (int i = 0; i < samples; i++)
+	{
+		vec4 pos = getPosition(itc, i);
 	
-	vec4 spos = vec4(shadow_pos+offset*shadow_offset, 1.0);
+		vec4 nmap4 = texelFetch(normalMap, itc, i);
+		nmap4 = vec4((nmap4.xy-0.5)*2.0,nmap4.z,nmap4.w); // unpack norm
+		float displace = nmap4.w;
+		vec3 norm = nmap4.xyz;
 	
-	if (spos.z > -shadow_clip.w)
-	{	
-		if (dp_directional_light == 0.0)
-		{
-			// if we know this point is facing away from the sun then we know it's in shadow without having to do a squirrelly shadow-map lookup
-			shadow = 0.0;
-		}
-		else
-		{
-			vec4 lpos;
-			
-			if (spos.z < -shadow_clip.z)
+		float shadow = 1.0;
+		float dp_directional_light = max(0.0, dot(norm, vary_light.xyz));
+
+		vec3 shadow_pos = pos.xyz + displace*norm;
+		vec3 offset = vary_light.xyz * (1.0-dp_directional_light);
+	
+		vec4 spos = vec4(shadow_pos+offset*shadow_offset, 1.0);
+	
+		if (spos.z > -shadow_clip.w)
+		{	
+			if (dp_directional_light == 0.0)
 			{
-				lpos = shadow_matrix[3]*spos;
-				lpos.xy *= shadow_res;
-				shadow = pcfShadow(shadowMap3, lpos, 0.25);
-				shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
-			}
-			else if (spos.z < -shadow_clip.y)
-			{
-				lpos = shadow_matrix[2]*spos;
-				lpos.xy *= shadow_res;
-				shadow = pcfShadow(shadowMap2, lpos, 0.5);
-			}
-			else if (spos.z < -shadow_clip.x)
-			{
-				lpos = shadow_matrix[1]*spos;
-				lpos.xy *= shadow_res;
-				shadow = pcfShadow(shadowMap1, lpos, 0.75);
+				// if we know this point is facing away from the sun then we know it's in shadow without having to do a squirrelly shadow-map lookup
+				shadow = 0.0;
 			}
 			else
 			{
-				lpos = shadow_matrix[0]*spos;
-				lpos.xy *= shadow_res;
-				shadow = pcfShadow(shadowMap0, lpos, 1.0);
-			}
+				vec4 lpos;
+			
+				if (spos.z < -shadow_clip.z)
+				{
+					lpos = shadow_matrix[3]*spos;
+					lpos.xy *= shadow_res;
+					shadow = pcfShadow(shadowMap3, lpos, 0.25);
+					shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
+				}
+				else if (spos.z < -shadow_clip.y)
+				{
+					lpos = shadow_matrix[2]*spos;
+					lpos.xy *= shadow_res;
+					shadow = pcfShadow(shadowMap2, lpos, 0.5);
+				}
+				else if (spos.z < -shadow_clip.x)
+				{
+					lpos = shadow_matrix[1]*spos;
+					lpos.xy *= shadow_res;
+					shadow = pcfShadow(shadowMap1, lpos, 0.75);
+				}
+				else
+				{
+					lpos = shadow_matrix[0]*spos;
+					lpos.xy *= shadow_res;
+					shadow = pcfShadow(shadowMap0, lpos, 1.0);
+				}
 		
-			// take the most-shadowed value out of these two:
-			//  * the blurred sun shadow in the light (shadow) map
-			//  * an unblurred dot product between the sun and this norm
-			// the goal is to err on the side of most-shadow to fill-in shadow holes and reduce artifacting
-			shadow = min(shadow, dp_directional_light);
+				// take the most-shadowed value out of these two:
+				//  * the blurred sun shadow in the light (shadow) map
+				//  * an unblurred dot product between the sun and this norm
+				// the goal is to err on the side of most-shadow to fill-in shadow holes and reduce artifacting
+				shadow = min(shadow, dp_directional_light);
 			
-			//lpos.xy /= lpos.w*32.0;
-			//if (fract(lpos.x) < 0.1 || fract(lpos.y) < 0.1)
-			//{
-			//	shadow = 0.0;
-			//}
-			
+			}
 		}
-	}
-	else
-	{
-		// more distant than the shadow map covers
-		shadow = 1.0;
-	}
+		else
+		{
+			// more distant than the shadow map covers
+			shadow = 1.0;
+		}
 	
-	gl_FragColor[0] = shadow;
-	gl_FragColor[1] = calcAmbientOcclusion(pos, norm);
-	
-	spos.xyz = shadow_pos+offset*spot_shadow_offset;
-	
-	//spotlight shadow 1
-	vec4 lpos = shadow_matrix[4]*spos;
-	gl_FragColor[2] = pcfShadow(shadowMap4, lpos, 0.8); 
-	
-	//spotlight shadow 2
-	lpos = shadow_matrix[5]*spos;
-	gl_FragColor[3] = pcfShadow(shadowMap5, lpos, 0.8); 
+		
+		fcol[0] += shadow;
+		fcol[1] += calcAmbientOcclusion(pos, norm, i);
 
-	//gl_FragColor.rgb = pos.xyz;
-	//gl_FragColor.b = shadow;
+		spos.xyz = shadow_pos+offset*spot_shadow_offset;
+	
+		//spotlight shadow 1
+		vec4 lpos = shadow_matrix[4]*spos;
+		fcol[2] += pcfShadow(shadowMap4, lpos, 0.8); 
+	
+		//spotlight shadow 2
+		lpos = shadow_matrix[5]*spos;
+		fcol[3] += pcfShadow(shadowMap5, lpos, 0.8); 
+	}
+		
+	gl_FragColor = fcol / samples;
 }
