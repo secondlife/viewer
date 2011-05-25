@@ -1437,9 +1437,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	{
 		LLMeshUploadData data;
 		data.mBaseModel = iter->first;
-		LLModelInstance& instance = *(iter->second.begin());
-		LLModel* model = instance.mModel;
-		if (mesh_index.find(model) == mesh_index.end())
+		if (mesh_index.find(data.mBaseModel) == mesh_index.end())
 		{
 			// Have not seen this model before - create a new mesh_list entry for it.
 			std::string model_name = data.mBaseModel->getName();
@@ -1472,97 +1470,106 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			std::string str = ostr.str();
 
 			res["mesh_list"][mesh_num] = LLSD::Binary(str.begin(),str.end()); 
-			mesh_index[model] = mesh_num;
+			mesh_index[data.mBaseModel] = mesh_num;
 			mesh_num++;
 		}
-		
-		LLSD instance_entry;
-		
-		for (S32 i = 0; i < 5; i++)
-		{
-			data.mModel[i] = instance.mLOD[i];
-		}
-		
-		LLVector3 pos, scale;
-		LLQuaternion rot;
-		LLMatrix4 transformation = instance.mTransform;
-		decomposeMeshMatrix(transformation,pos,rot,scale);
-		instance_entry["position"] = ll_sd_from_vector3(pos);
-		instance_entry["rotation"] = ll_sd_from_quaternion(rot);
-		instance_entry["scale"] = ll_sd_from_vector3(scale);
-		
-		instance_entry["material"] = LL_MCODE_WOOD;
-		LLPermissions perm;
-		perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
-		perm.setCreator(gAgent.getID());
-		
-		perm.initMasks(PERM_ITEM_UNRESTRICTED | PERM_MOVE, //base
-					   PERM_ITEM_UNRESTRICTED | PERM_MOVE, //owner
-					   LLFloaterPerms::getEveryonePerms(),
-					   LLFloaterPerms::getGroupPerms(),
-					   LLFloaterPerms::getNextOwnerPerms());
-		instance_entry["permissions"] = ll_create_sd_from_permissions(perm);
-		instance_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
-		instance_entry["mesh"] = mesh_index[model];
 
-		if (mUploadTextures)
+		// For all instances that use this model
+		for (instance_list::iterator instance_iter = iter->second.begin();
+			 instance_iter != iter->second.end();
+			 ++instance_iter)
 		{
-			instance_entry["face_list"] = LLSD::emptyArray();
 
-			for (S32 face_num = 0; face_num < model->getNumVolumeFaces(); face_num++)
+			LLModelInstance& instance = *instance_iter;
+		
+			LLSD instance_entry;
+		
+			for (S32 i = 0; i < 5; i++)
 			{
-				LLImportMaterial& material = instance.mMaterial[face_num];
-				LLSD face_entry = LLSD::emptyMap();
-				LLViewerFetchedTexture *texture = material.mDiffuseMap.get();
-				
-				if (texture != NULL)
-				{
-					if (textures.find(texture) == textures.end())
-					{
-						textures.insert(texture);
-					}
-
-					std::stringstream ostr;
-					if (include_textures) // otherwise data is blank.
-					{
-						LLTextureUploadData data(texture, material.mDiffuseMapLabel);
-						if (!data.mTexture->isRawImageValid())
-						{
-							data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
-						}
-						
-						LLPointer<LLImageJ2C> upload_file =
-							LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
-						ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
-					}
-
-					if (texture_index.find(texture) == texture_index.end())
-					{
-						texture_index[texture] = texture_num;
-						std::string str = ostr.str();
-						res["texture_list"][texture_num] = LLSD::Binary(str.begin(),str.end());
-						texture_num++;
-					}
-				}
-
-				// Subset of TextureEntry fields.
-				if (texture)
-				{
-					face_entry["image"] = texture_index[texture];
-				}
-				face_entry["scales"] = 1.0;
-				face_entry["scalet"] = 1.0;
-				face_entry["offsets"] = 0.0;
-				face_entry["offsett"] = 0.0;
-				face_entry["imagerot"] = 0.0;
-				face_entry["colors"] = ll_sd_from_color4(material.mDiffuseColor);
-				face_entry["fullbright"] = material.mFullbright;
-				instance_entry["face_list"][face_num] = face_entry;
+				data.mModel[i] = instance.mLOD[i];
 			}
-		}
+		
+			LLVector3 pos, scale;
+			LLQuaternion rot;
+			LLMatrix4 transformation = instance.mTransform;
+			decomposeMeshMatrix(transformation,pos,rot,scale);
+			instance_entry["position"] = ll_sd_from_vector3(pos);
+			instance_entry["rotation"] = ll_sd_from_quaternion(rot);
+			instance_entry["scale"] = ll_sd_from_vector3(scale);
+		
+			instance_entry["material"] = LL_MCODE_WOOD;
+			LLPermissions perm;
+			perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
+			perm.setCreator(gAgent.getID());
+		
+			perm.initMasks(PERM_ITEM_UNRESTRICTED | PERM_MOVE, //base
+						   PERM_ITEM_UNRESTRICTED | PERM_MOVE, //owner
+						   LLFloaterPerms::getEveryonePerms(),
+						   LLFloaterPerms::getGroupPerms(),
+						   LLFloaterPerms::getNextOwnerPerms());
+			instance_entry["permissions"] = ll_create_sd_from_permissions(perm);
+			instance_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
+			instance_entry["mesh"] = mesh_index[data.mBaseModel];
 
-		res["instance_list"][instance_num] = instance_entry;
-		instance_num++;
+			if (mUploadTextures)
+			{
+				instance_entry["face_list"] = LLSD::emptyArray();
+
+				for (S32 face_num = 0; face_num < data.mBaseModel->getNumVolumeFaces(); face_num++)
+				{
+					LLImportMaterial& material = instance.mMaterial[face_num];
+					LLSD face_entry = LLSD::emptyMap();
+					LLViewerFetchedTexture *texture = material.mDiffuseMap.get();
+				
+					if (texture != NULL)
+					{
+						if (textures.find(texture) == textures.end())
+						{
+							textures.insert(texture);
+						}
+
+						std::stringstream ostr;
+						if (include_textures) // otherwise data is blank.
+						{
+							LLTextureUploadData data(texture, material.mDiffuseMapLabel);
+							if (!data.mTexture->isRawImageValid())
+							{
+								data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
+							}
+						
+							LLPointer<LLImageJ2C> upload_file =
+								LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
+							ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
+						}
+
+						if (texture_index.find(texture) == texture_index.end())
+						{
+							texture_index[texture] = texture_num;
+							std::string str = ostr.str();
+							res["texture_list"][texture_num] = LLSD::Binary(str.begin(),str.end());
+							texture_num++;
+						}
+					}
+
+					// Subset of TextureEntry fields.
+					if (texture)
+					{
+						face_entry["image"] = texture_index[texture];
+					}
+					face_entry["scales"] = 1.0;
+					face_entry["scalet"] = 1.0;
+					face_entry["offsets"] = 0.0;
+					face_entry["offsett"] = 0.0;
+					face_entry["imagerot"] = 0.0;
+					face_entry["colors"] = ll_sd_from_color4(material.mDiffuseColor);
+					face_entry["fullbright"] = material.mFullbright;
+					instance_entry["face_list"][face_num] = face_entry;
+				}
+		    }
+
+			res["instance_list"][instance_num] = instance_entry;
+			instance_num++;
+		}
 	}
 
 	result["asset_resources"] = res;
@@ -3818,6 +3825,25 @@ void LLPhysicsDecomp::run()
 	}
 
 	mDone = true;
+}
+
+void LLPhysicsDecomp::Request::updateTriangleAreaThreshold() 
+{
+	F32 range = mBBox[1].mV[0] - mBBox[0].mV[0] ;
+	range = llmin(range, mBBox[1].mV[1] - mBBox[0].mV[1]) ;
+	range = llmin(range, mBBox[1].mV[2] - mBBox[0].mV[2]) ;
+
+	mTriangleAreaThreshold = llmin(0.0002f, range * 0.000002f) ;
+}
+
+//check if the triangle area is large enough to qualify for a valid triangle
+bool LLPhysicsDecomp::Request::isValidTriangle(U16 idx1, U16 idx2, U16 idx3) 
+{
+	LLVector3 a = mPositions[idx2] - mPositions[idx1] ;
+	LLVector3 b = mPositions[idx3] - mPositions[idx1] ;
+	F32 c = a * b ;
+
+	return ((a*a) * (b*b) - c * c) > mTriangleAreaThreshold ;
 }
 
 void LLPhysicsDecomp::Request::setStatusMessage(const std::string& msg)
