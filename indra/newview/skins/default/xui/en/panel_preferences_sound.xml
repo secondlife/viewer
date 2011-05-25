@@ -341,7 +341,7 @@
      layout="topleft"
      left="25"
      name="voice_chat_settings"
-     width="180"
+     width="200"
      top_pad="7">
 	  Voice Chat Settings
     </text>
