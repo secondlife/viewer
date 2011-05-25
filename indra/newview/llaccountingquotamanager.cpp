@@ -77,12 +77,10 @@ public:
 			return;
 		}
 		
-		//Differentiate what the incoming caps could be from the data
-		//bool VOContent  = content.has("Objects");
+		//Differentiate what the incoming caps could be from the data	
 		bool containsParcel    = content.has("parcel");
 		bool containsSelection = content.has("selected");
-		//bool VORegion   = content.has("region");
-				
+					
 		//Loop over the stored object ids checking against the incoming data
 		for ( LLSD::array_iterator iter = mObjectIDs.beginArray(); iter != mObjectIDs.endArray(); ++iter )
 		{
@@ -97,16 +95,17 @@ public:
 					for(S32 i = 0; i < dataCount; i++)
 					{
 						//prep#todo verify that this is safe, otherwise just add a bool
-						S32 parcelId = 0;
-						S32 parcelOwner = 0;
+						LLUUID parcelId;
+						//S32 parcelOwner = 0;
 						if ( content["parcel"][i].has("parcel_id") )
 						{
-							parcelId = content["parcel"][i]["parcel_id"].asInteger();
+							parcelId = content["parcel"][i]["parcel_id"].asUUID();
 						}
-						if ( content["parcel"][i].has("parcel_owner") )
-						{
-							parcelOwner = content["parcel"][i]["parcel_owner"].asInteger();
-						}
+						
+						//if ( content["parcel"][i].has("parcel_owner") )
+						//{
+						//	parcelOwner = content["parcel"][i]["parcel_owner"].asInteger();
+						//}
 											
 						F32 ownerRenderCost		= 0;
 						F32 ownerPhysicsCost	= 0;
@@ -123,48 +122,69 @@ public:
 						F32 otherNetworkCost	= 0;
 						F32 otherSimulationCost = 0;
 						
-						F32 totalRenderCost		= 0;
-						F32 totalPhysicsCost	= 0;
-						F32 totalNetworkCost	= 0;
-						F32 totalSimulationCost = 0;
+						F32 tempRenderCost		= 0;
+						F32 tempPhysicsCost		= 0;
+						F32 tempNetworkCost		= 0;
+						F32 tempSimulationCost  = 0;
 						
+						F32 selectedRenderCost		= 0;
+						F32 selectedPhysicsCost		= 0;
+						F32 selectedNetworkCost		= 0;
+						F32 selectedSimulationCost  = 0;
+						
+						F32 parcelCapacity			= 0;
+
+						if ( content["parcel"][i].has("capacity") )
+						{
+							parcelCapacity =  content["parcel"][i].has("capacity");
+						}
+
 						if ( content["parcel"][i].has("owner") )
 						{
-							ownerRenderCost		= content["parcel"][i]["owner"]["render"].asReal();
+							ownerRenderCost		= content["parcel"][i]["owner"]["rendering"].asReal();
 							ownerPhysicsCost	= content["parcel"][i]["owner"]["physics"].asReal();
-							ownerNetworkCost	= content["parcel"][i]["owner"]["network"].asReal();
-							ownerSimulationCost = content["parcel"][i]["owner"]["simulation"].asReal();
-							
+							ownerNetworkCost	= content["parcel"][i]["owner"]["streaming"].asReal();
+							ownerSimulationCost = content["parcel"][i]["owner"]["simulation"].asReal();							
 						}
+
 						if ( content["parcel"][i].has("group") )
 						{
-							groupRenderCost		= content["parcel"][i]["group"]["render"].asReal();
+							groupRenderCost		= content["parcel"][i]["group"]["rendering"].asReal();
 							groupPhysicsCost	= content["parcel"][i]["group"]["physics"].asReal();
-							groupNetworkCost	= content["parcel"][i]["group"]["network"].asReal();
+							groupNetworkCost	= content["parcel"][i]["group"]["streaming"].asReal();
 							groupSimulationCost = content["parcel"][i]["group"]["simulation"].asReal();
 							
 						}
 						if ( content["parcel"][i].has("other") )
 						{
-							otherRenderCost		= content["parcel"][i]["other"]["render"].asReal();
+							otherRenderCost		= content["parcel"][i]["other"]["rendering"].asReal();
 							otherPhysicsCost	= content["parcel"][i]["other"]["physics"].asReal();
-							otherNetworkCost	= content["parcel"][i]["other"]["network"].asReal();
+							otherNetworkCost	= content["parcel"][i]["other"]["streaming"].asReal();
 							otherSimulationCost = content["parcel"][i]["other"]["simulation"].asReal();
 						}
 						
-						if ( content["parcel"][i].has("total") )
+						if ( content["parcel"][i].has("temp") )
 						{
-							totalRenderCost		= content["parcel"][i]["total"]["render"].asReal();
-							totalPhysicsCost	= content["parcel"][i]["total"]["physics"].asReal();
-							totalNetworkCost	= content["parcel"][i]["total"]["network"].asReal();
-							totalSimulationCost = content["parcel"][i]["total"]["simulation"].asReal();
-							
+							tempRenderCost		= content["parcel"][i]["total"]["rendering"].asReal();
+							tempPhysicsCost		= content["parcel"][i]["total"]["physics"].asReal();
+							tempNetworkCost		= content["parcel"][i]["total"]["streaming"].asReal();
+							tempSimulationCost  = content["parcel"][i]["total"]["simulation"].asReal();							
+						}
+
+						if ( content["parcel"][i].has("selected") )
+						{
+							selectedRenderCost		= content["parcel"][i]["total"]["rendering"].asReal();
+							selectedPhysicsCost		= content["parcel"][i]["total"]["physics"].asReal();
+							selectedNetworkCost		= content["parcel"][i]["total"]["streaming"].asReal();
+							selectedSimulationCost  = content["parcel"][i]["total"]["simulation"].asReal();							
 						}
 						
-						ParcelQuota parcelQuota( ownerRenderCost, ownerPhysicsCost, ownerNetworkCost, ownerSimulationCost,
-												 groupRenderCost, groupPhysicsCost, groupNetworkCost, groupSimulationCost,
-												 otherRenderCost, otherPhysicsCost, otherNetworkCost, otherSimulationCost,
-												 totalRenderCost, totalPhysicsCost, totalNetworkCost, totalSimulationCost );
+						ParcelQuota parcelQuota( ownerRenderCost,	 ownerPhysicsCost,	  ownerNetworkCost,    ownerSimulationCost,
+												 groupRenderCost,	 groupPhysicsCost,	  groupNetworkCost,    groupSimulationCost,
+												 otherRenderCost,	 otherPhysicsCost,	  otherNetworkCost,    otherSimulationCost,
+												 tempRenderCost,	 tempPhysicsCost,	  tempNetworkCost,	   tempSimulationCost,
+												 selectedRenderCost, selectedPhysicsCost, selectedNetworkCost, selectedSimulationCost,
+												 parcelCapacity );
 						//Update the Parcel						
 						LLParcel* pParcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
 						if ( pParcel )
@@ -185,18 +205,18 @@ public:
 					F32 networkCost		= 0;
 					F32 simulationCost	= 0;
 					
-					S32 localId = 0;
+					LLUUID objectId;
 					
-					localId			= content["selected"][i]["local_id"].asInteger();
-					renderCost		= content["selected"][i]["render"].asReal();
+					objectId		= content["selected"][i]["local_id"].asUUID();
+					renderCost		= content["selected"][i]["rendering"].asReal();
 					physicsCost		= content["selected"][i]["physics"].asReal();
-					networkCost		= content["selected"][i]["network"].asReal();
+					networkCost		= content["selected"][i]["streaming"].asReal();
 					simulationCost	= content["selected"][i]["simulation"].asReal();
 					
-					SelectionQuota selectionQuota( localId, renderCost, physicsCost, networkCost, simulationCost );
+					SelectionQuota selectionQuota( objectId, renderCost, physicsCost, networkCost, simulationCost );
 					
 					//Update the objects					
-					//gObjectList.updateQuota( localId, selectionQuota ); 
+					gObjectList.updateQuota( objectId, selectionQuota ); 
 					
 				}
 			}
