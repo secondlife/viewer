@@ -250,7 +250,7 @@ with the same filename but different name
   <texture name="Locked_Icon" file_name="icons/Locked_Icon.png" preload="false" />
 
   <texture name="MarketplaceBtn_Off" file_name="widgets/MarketplaceBtn_Off.png" preload="true" scale.left="30" scale.top="19" scale.right="35" scale.bottom="4" />
-  <texture name="MarketplaceBtn_Selected" file_name="widgets/MarketplaceBtn_Selected.png" preload="true" scale.left="22" scale.top="16" scale.right="26" scale.bottom="7" />
+  <texture name="MarketplaceBtn_Selected" file_name="widgets/MarketplaceBtn_Selected.png" preload="true" scale.left="30" scale.top="19" scale.right="35" scale.bottom="4" />
 
   <texture name="Microphone_On" file_name="icons/Microphone_On.png" preload="false" />
 

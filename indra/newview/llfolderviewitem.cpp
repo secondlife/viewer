@@ -30,6 +30,7 @@
 // viewer includes
 #include "llfolderview.h"		// Items depend extensively on LLFolderViews
 #include "llfoldervieweventlistener.h"
+#include "llviewerfoldertype.h"
 #include "llinventorybridge.h"	// for LLItemBridge in LLInventorySort::operator()
 #include "llinventoryfilter.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -1190,8 +1191,11 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 				}
 				else
 				{
-					folderp->setVisible(show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
-						(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))); // passed filter or has descendants that passed filter
+					bool is_hidden = folderp->getListener() && LLViewerFolderType::lookupIsHiddenType(folderp->getListener()->getPreferredType());
+
+					folderp->setVisible( !is_hidden &&
+						(show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
+						(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation)))); // passed filter or has descendants that passed filter
 				}
 
 				if (folderp->getVisible())
