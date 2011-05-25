@@ -1702,7 +1702,13 @@ void LLMeshUploadThread::doIterativeUpload()
 		}
 
 		//queue up models for hull generation
-		DecompRequest* request = new DecompRequest(data.mModel[LLModel::LOD_HIGH], data.mBaseModel, this);
+		LLModel* physics = data.mModel[LLModel::LOD_PHYSICS];
+		if (physics == NULL)
+		{ //no physics model available, use high lod
+			physics = data.mModel[LLModel::LOD_HIGH];
+		}
+		
+		DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
 		gMeshRepo.mDecompThread->submitRequest(request);
 	}
 
