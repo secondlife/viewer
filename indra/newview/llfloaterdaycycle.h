@@ -83,15 +83,6 @@ public:
 	/// if you change the combo box, change the frame
 	static void onKeyPresetChanged(LLUICtrl* ctrl, void* userData);
 	
-	/// run this when user says to run the sky animation
-	static void onRunAnimSky(void* userData);
-
-	/// run this when user says to stop the sky animation
-	static void onStopAnimSky(void* userData);
-
-	/// if you change the combo box, change the frame
-	static void onTimeRateChanged(LLUICtrl* ctrl, void* userData);
-
 	/// add a new key on slider
 	static void onAddKey(void* userData);
 
@@ -100,15 +91,6 @@ public:
 
 	/// delete a key frame
 	static void onDeleteKey(void* userData);
-
-	/// button to load day
-	static void onLoadDayCycle(void* userData);
-
-	/// button to save day
-	static void onSaveDayCycle(void* userData);
-
-	/// toggle for Linden time
-	static void onUseLindenTime(void* userData);
 
 
 	//// menu management
