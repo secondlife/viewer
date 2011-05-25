@@ -212,9 +212,14 @@ BOOL LLFloaterRegionInfo::postBuild()
 	panel->buildFromFile("panel_region_general.xml");
 	mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
-	panel = new LLPanelRegionDebugInfo;
+	panel = new LLPanelEstateInfo;
 	mInfoPanels.push_back(panel);
-	panel->buildFromFile("panel_region_debug.xml");
+	panel->buildFromFile("panel_region_estate.xml");
+	mTab->addTabPanel(panel);
+
+	panel = new LLPanelEstateCovenant;
+	mInfoPanels.push_back(panel);
+	panel->buildFromFile("panel_region_covenant.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelRegionTerrainInfo;
@@ -227,14 +232,9 @@ BOOL LLFloaterRegionInfo::postBuild()
 	panel->buildFromFile("panel_region_environment.xml");
 	mTab->addTabPanel(panel);
 
-	panel = new LLPanelEstateInfo;
+	panel = new LLPanelRegionDebugInfo;
 	mInfoPanels.push_back(panel);
-	panel->buildFromFile("panel_region_estate.xml");
-	mTab->addTabPanel(panel);
-
-	panel = new LLPanelEstateCovenant;
-	mInfoPanels.push_back(panel);
-	panel->buildFromFile("panel_region_covenant.xml");
+	panel->buildFromFile("panel_region_debug.xml");
 	mTab->addTabPanel(panel);
 
 	gMessageSystem->setHandlerFunc(
