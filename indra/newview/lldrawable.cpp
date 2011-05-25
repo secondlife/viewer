@@ -695,7 +695,8 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 {
 	if (LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
-		llerrs << "WTF?" << llendl;
+		llwarns << "Attempted to update distance for non-world camera." << llendl;
+		return;
 	}
 
 	//switch LOD with the spatial group to avoid artifacts

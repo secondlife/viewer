@@ -364,14 +364,7 @@ void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 		//allocate vertices in blocks of 4 for alignment
 		num_vertices = (num_vertices + 0x3) & ~0x3;
 	}
-	else
-	{
-		if (mDrawablep->getVOVolume())
-		{
-			llerrs << "WTF?" << llendl;
-		}
-	}
-
+	
 	if (mGeomCount != num_vertices ||
 		mIndicesCount != num_indices)
 	{

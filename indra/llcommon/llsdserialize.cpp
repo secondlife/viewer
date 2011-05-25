@@ -2036,7 +2036,9 @@ std::string zip_llsd(LLSD& data)
 		{ //copy result into output
 			if (strm.avail_out >= CHUNK)
 			{
-				llerrs << "WTF?" << llendl;
+				free(output);
+				llwarns << "Failed to compress LLSD block." << llendl;
+				return std::string();
 			}
 
 			have = CHUNK-strm.avail_out;

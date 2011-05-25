@@ -709,10 +709,7 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 		if (pending != mPendingLOD.end())
 		{ //append this lod request to existing header request
 			pending->second.push_back(lod);
-			if (pending->second.size() > 4)
-			{
-				llerrs << "WTF?" << llendl;
-			} 
+			llassert(pending->second.size() <= LLModel::NUM_LODS)
 		}
 		else
 		{ //if no header request is pending, fetch header
@@ -1359,11 +1356,8 @@ void LLMeshUploadThread::DecompRequest::completed()
 		mThread->mPhysicsComplete = true;
 	}
 
-	if (mHull.size() != 1)
-	{
-		llerrs << "WTF?" << llendl;
-	}
-
+	llassert(mHull.size() == 1);
+	
 	mThread->mHullMap[mBaseModel] = mHull[0];
 }
 
@@ -1604,11 +1598,8 @@ void LLMeshUploadThread::doWholeModelUpload()
 			physics = data.mModel[LLModel::LOD_HIGH];
 		}
 
-		if (!physics)
-		{
-			llerrs << "WTF?" << llendl;
-		}
-
+		llassert(physics != NULL);
+		
 		DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
 		gMeshRepo.mDecompThread->submitRequest(request);
 	}
@@ -2460,10 +2451,6 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 				group->derefLOD(lod);
 			}
 		}
-		else
-		{
-			llerrs << "WTF?" << llendl;
-		}
 	}
 
 	return detail;
@@ -3148,11 +3135,8 @@ LLSD LLMeshUploadThread::createObject(LLModelInstance& instance)
 {
 	LLMatrix4 transformation = instance.mTransform;
 
-	if (instance.mMeshID.isNull())
-	{
-		llerrs << "WTF?" << llendl;
-	}
-
+	llassert(instance.mMeshID.notNull());
+	
 	// check for reflection
 	BOOL reflected = (transformation.determinant() < 0);
 
@@ -3540,11 +3524,6 @@ void LLPhysicsDecomp::doDecomposition()
 		else if (param->mType == LLCDParam::LLCD_BOOLEAN)
 		{
 			ret = LLConvexDecomposition::getInstance()->setParam(param->mName, value.asBoolean());
-		}
-
-		if (ret)
-		{
-			llerrs << "WTF?" << llendl;
 		}
 	}
 

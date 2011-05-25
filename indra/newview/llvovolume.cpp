@@ -4297,11 +4297,6 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 						face->getGeometryVolume(*volume, face->getTEOffset(), 
 							vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex());
 					}
-
-					if (!face)
-					{
-						llerrs << "WTF?" << llendl;
-					}
 				}
 
 				drawablep->clearState(LLDrawable::REBUILD_ALL);
@@ -4356,10 +4351,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 	}
 
-	if (group && group->isState(LLSpatialGroup::NEW_DRAWINFO))
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	llassert(!group || !group->isState(LLSpatialGroup::NEW_DRAWINFO));
 }
 
 void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort)
