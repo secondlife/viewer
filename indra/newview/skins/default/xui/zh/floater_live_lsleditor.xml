@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script ed float" title="SCRIPT: NEW SCRIPT">
+	<floater.string name="not_allowed">
+		You can not view or edit this script, since it has been set as &quot;no copy&quot;. You need full permissions to view or edit a script inside an object.
+	</floater.string>
+	<floater.string name="script_running">
+		Running
+	</floater.string>
+	<floater.string name="Title">
+		SCRIPT: [NAME]
+	</floater.string>
+	<button label="Reset" label_selected="Reset" name="Reset"/>
+	<check_box initial_value="true" label="Running" name="running"/>
+	<check_box initial_value="true" label="Mono" name="mono"/>
+</floater>

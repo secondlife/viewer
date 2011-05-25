@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray Outfit Edit panel -->
+<panel name="outfit_edit">
+	<string name="No Outfit" value="No Outfit"/>
+	<string name="unsaved_changes" value="Unsaved Changes"/>
+	<string name="now_editing" value="Now Editing"/>
+	<panel.string name="not_available">
+		(N\A)
+	</panel.string>
+	<panel.string name="unknown">
+		（未知）
+	</panel.string>
+	<string name="Filter.All" value="全部"/>
+	<string name="Filter.Clothes/Body" value="Clothes/Body"/>
+	<string name="Filter.Objects" value="Objects"/>
+	<string name="Filter.Clothing" value="Clothing"/>
+	<string name="Filter.Bodyparts" value="Body parts"/>
+	<string name="replace_body_part" value="Click to replace your existing shape"/>
+	<text name="title" value="Edit Outfit"/>
+	<panel name="header_panel">
+		<panel name="outfit_name_and_status">
+			<text name="status" value="Now editing..."/>
+			<text name="curr_outfit_name" value="[Current Outfit]"/>
+		</panel>
+	</panel>
+	<layout_stack name="im_panels">
+		<layout_panel name="outfit_wearables_panel">
+			<layout_stack name="filter_panels">
+				<layout_panel name="add_button_and_combobox">
+					<button label="Add More..." name="show_add_wearables_btn" tool_tip="Open/Close"/>
+				</layout_panel>
+				<layout_panel name="filter_panel">
+					<filter_editor label="Filter Inventory Wearables" name="look_item_filter"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="add_wearables_panel">
+			<button label="Wear Item" name="plus_btn"/>
+		</layout_panel>
+	</layout_stack>
+	<panel name="no_add_wearables_button_bar">
+		<button name="shop_btn_1" tool_tip="Visit the SL Marketplace. You can also select something you are wearing, then click here to see more things like it"/>
+	</panel>
+	<panel name="add_wearables_button_bar">
+		<button name="shop_btn_2" tool_tip="Visit the SL Marketplace. You can also select something you are wearing, then click here to see more things like it"/>
+	</panel>
+	<panel name="save_revert_button_bar">
+		<layout_stack name="button_bar_ls">
+			<layout_panel name="save_btn_lp">
+				<button label="儲存" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="復原變更" name="revert_btn" tool_tip="Revert to last saved version"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

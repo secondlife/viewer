@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="perm prefs" title="預設上傳權限">
+	<panel label="權限" name="permissions">
+		<check_box label="與社團分享" name="share_with_group"/>
+		<check_box label="允許任何人覆製" name="everyone_copy"/>
+		<text name="NextOwnerLabel">
+			下一個擁有者可以：
+		</text>
+		<check_box label="修改" name="next_owner_modify"/>
+		<check_box label="覆製" name="next_owner_copy"/>
+		<check_box initial_value="true" label="轉售 / 送人" name="next_owner_transfer"/>
+	</panel>
+	<button label="確定" label_selected="確定" name="ok"/>
+	<button label="取銷" label_selected="取銷" name="cancel"/>
+</floater>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="dummy_clothing_item">
+	<text name="item_name" value="..."/>
+	<panel name="btn_add_panel">
+		<button name="btn_add" tool_tip="Add more items of this type"/>
+	</panel>
+</panel>

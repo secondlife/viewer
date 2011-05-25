@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Login Menu">
+	<menu label="Me" name="File">
+		<menu_item_call label="Preferences" name="Preferences..."/>
+		<menu_item_call label="Exit [APP_NAME]" name="Quit"/>
+	</menu>
+	<menu label="Help" name="Help">
+		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
+		<menu_item_call label="About [APP_NAME]" name="About Second Life"/>
+	</menu>
+	<menu_item_check label="Show Debug Menu" name="Show Debug Menu"/>
+	<menu label="除錯" name="Debug">
+		<menu_item_call label="Show Debug Settings" name="Debug Settings"/>
+		<menu_item_call label="UI/Color Settings" name="UI/Color Settings"/>
+		<menu_item_call label="XUI Preview Tool" name="UI Preview Tool"/>
+		<menu label="UI Tests" name="UI Tests"/>
+		<menu_item_call label="Set Window Size..." name="Set Window Size..."/>
+		<menu_item_call label="Show TOS" name="TOS"/>
+		<menu_item_call label="Show Critical Message" name="Critical"/>
+		<menu_item_call label="Media Browser Test" name="Web Browser Test"/>
+		<menu_item_call label="Web Content Floater Test" name="Web Content Floater Test"/>
+		<menu_item_check label="Show Grid Picker" name="Show Grid Picker"/>
+		<menu_item_call label="Show Notifications Console" name="Show Notifications Console"/>
+	</menu>
+</menu_bar>

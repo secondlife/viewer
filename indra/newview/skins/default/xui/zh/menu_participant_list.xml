@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Participant List Context Menu">
+	<menu_item_check label="依名稱排序" name="SortByName"/>
+	<menu_item_check label="Sort by Recent Speakers" name="SortByRecentSpeakers"/>
+	<menu_item_call label="View Profile" name="View Profile"/>
+	<menu_item_call label="加為朋友" name="Add Friend"/>
+	<menu_item_call label="IM" name="IM"/>
+	<menu_item_call label="Call" name="Call"/>
+	<menu_item_call label="分享" name="Share"/>
+	<menu_item_call label="Pay" name="Pay"/>
+	<menu_item_check label="View People Icons" name="View Icons"/>
+	<menu_item_check label="Block Voice" name="Block/Unblock"/>
+	<menu_item_check label="Block Text" name="MuteText"/>
+	<context_menu label="Moderator Options" name="Moderator Options">
+		<menu_item_check label="Allow text chat" name="AllowTextChat"/>
+		<menu_item_call label="Mute this participant" name="ModerateVoiceMuteSelected"/>
+		<menu_item_call label="Unmute this participant" name="ModerateVoiceUnMuteSelected"/>
+		<menu_item_call label="Mute everyone" name="ModerateVoiceMute"/>
+		<menu_item_call label="Unmute everyone" name="ModerateVoiceUnmute"/>
+	</context_menu>
+</context_menu>

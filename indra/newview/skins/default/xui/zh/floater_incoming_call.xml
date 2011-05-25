@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="incoming call" title="Incoming call">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
+	<floater.string name="localchat">
+		Nearby Voice Chat
+	</floater.string>
+	<floater.string name="anonymous">
+		anonymous
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		is calling.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		has joined a Voice Chat call with a conference chat.
+	</floater.string>
+	<floater.string name="VoiceInviteGroup">
+		just joined &apos;[GROUP]&apos; voice channel.
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionGroup">
+		Would you like to leave [CURRENT_CHAT] and join the call with &apos;[GROUP]&apos;?
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionDefault">
+		Do you want to leave [CURRENT_CHAT] and join this voice chat?
+	</floater.string>
+	<text name="question">
+		Do you want to leave [CURRENT_CHAT] and join this voice chat?
+	</text>
+	<button label="接受" label_selected="接受" name="Accept"/>
+	<button label="Reject" label_selected="Reject" name="Reject"/>
+	<button label="Start IM" name="Start IM"/>
+</floater>
