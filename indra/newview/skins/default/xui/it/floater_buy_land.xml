@@ -142,10 +142,10 @@ consente [AMOUNT2] oggetti
 	<text name="estate_name_text">
 		(sconosciuto)
 	</text>
-	<text name="estate_owner_label" right="575" width="120">
+	<text name="estate_owner_label">
 		Proprietario della regione:
 	</text>
-	<text left="580" name="estate_owner_text" width="155">
+	<text name="estate_owner_text">
 		(sconosciuto)
 	</text>
 	<text name="resellable_changeable_label">

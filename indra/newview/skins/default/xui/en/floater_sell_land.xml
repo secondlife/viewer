@@ -41,14 +41,14 @@
      follows="top|left"
      left="16"
      name="info_parcel_label"
-     width="48">
+     width="70">
         Parcel:
     </text>
     <text
      top_delta="0"
      follows="top|left"
      height="16"
-     left="56"
+     left="78"
      name="info_parcel"
      right="-20">
         PARCEL NAME
@@ -57,14 +57,14 @@
      follows="top|left"
      left="16"
      name="info_size_label"
-     width="48">
+     width="70">
         Size:
     </text>
     <text
      follows="top|left"
      top_delta="0"
      height="32"
-     left="56"
+     left="78"
      name="info_size"
      right="-20">
         [AREA] m²
@@ -164,14 +164,14 @@
      left_delta="0"
      name="sell_to_agent"
      top_pad="4"
-     width="170" />
+     width="150" />
     <button
      height="20"
      label="Select"
      left_pad="5"
      name="sell_to_select_agent"
      top_delta="0"
-     width="60" />
+     width="90" />
     <text
      follows="top|left"
      font="SansSerif"
@@ -199,20 +199,20 @@
         <radio_item
          bottom="40"
          height="0"
-         left="10"
+         left="2"
          name="none"
          visible="false" />
         <radio_item
          top_pad="10"
-         height="16"
+         height="18"
          label="No, keep ownership of objects"
-         left="10"
+         left="2"
          name="no" />
         <radio_item
          top_pad="10"
          height="16"
          label="Yes, sell objects with land"
-         left="10"
+         left="2"
          name="yes" />
     </radio_group>
     <button
@@ -221,7 +221,7 @@
      name="show_objects"
      left="70"
      top_pad="10"
-     width="110" />
+     width="140" />
     <text
      bottom_delta="30"
      follows="top|left"
@@ -229,7 +229,7 @@
      height="16"
      left="16"
      name="nag_message_label"
-     right="-20">
+     right="-5">
         REMEMBER: All sales are final.
     </text>
     <button
@@ -239,15 +239,15 @@
      left_delta="0"
      name="sell_btn"
      top_pad="10"
-     width="130" />
+     width="185" />
     <button
      follows="bottom|left"
      height="20"
      label="Cancel"
-     left_pad="30"
+     left_pad="5"
      name="cancel_btn"
      top_delta="0"
-     width="90" />
+     width="85" />
     </panel>
     </scroll_container>
 </floater>
