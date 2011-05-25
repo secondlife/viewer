@@ -1418,12 +1418,12 @@ void LLViewerObjectList::onObjectCostFetchFailure(const LLUUID& object_id)
 	mPendingObjectCost.erase(object_id);
 }
 
-void LLViewerObjectList::updateQuotaCost( const LLUUID& objectId, const SelectionQuota& quota  )
+void LLViewerObjectList::updateQuota( const LLUUID& objectId, const SelectionQuota& quota  )
 {
 	LLViewerObject* pVO = findObject( objectId );
 	if ( pVO )
 	{
-		//pVO->updateQuota( quota );
+		pVO->updateQuota( quota );
 	}
 }
 
