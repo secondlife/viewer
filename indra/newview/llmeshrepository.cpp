@@ -62,6 +62,8 @@
 #include "llinventorymodel.h"
 #include "llfoldertype.h"
 
+#include "boost/lexical_cast.hpp"
+
 #ifndef LL_WINDOWS
 #include "netdb.h"
 #endif
@@ -85,6 +87,12 @@ U32 LLMeshRepository::sPeakKbps = 0;
 
 const U32 MAX_TEXTURE_UPLOAD_RETRIES = 5;
 
+static S32 dump_num = 0;
+std::string make_dump_name(std::string prefix, S32 num)
+{
+	return prefix + boost::lexical_cast<std::string>(num) + std::string(".xml");
+	
+}
 void dumpLLSDToFile(const LLSD& content, std::string filename);
 
 std::string header_lod[] = 
@@ -498,7 +506,7 @@ public:
 		//assert_main_thread();
 		llinfos << "completed" << llendl;
 		mThread->mPendingUploads--;
-		dumpLLSDToFile(content,"whole_model_fee_response.xml");
+		dumpLLSDToFile(content,make_dump_name("whole_model_fee_response_",dump_num));
 		if (isGoodStatus(status))
 		{
 			mThread->mWholeModelUploadURL = content["uploader"].asString(); 
@@ -530,7 +538,7 @@ public:
 		//assert_main_thread();
 		llinfos << "upload completed" << llendl;
 		mThread->mPendingUploads--;
-		dumpLLSDToFile(content,"whole_model_upload_response.xml");
+		dumpLLSDToFile(content,make_dump_name("whole_model_upload_response_",dump_num));
 		// requested "mesh" asset type isn't actually the type
 		// of the resultant object, fix it up here.
 		mPostData["asset_type"] = "object";
@@ -1437,6 +1445,12 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	{
 		LLMeshUploadData data;
 		data.mBaseModel = iter->first;
+		LLModelInstance& first_instance = *(iter->second.begin());
+		for (S32 i = 0; i < 5; i++)
+		{
+			data.mModel[i] = first_instance.mLOD[i];
+		}
+
 		if (mesh_index.find(data.mBaseModel) == mesh_index.end())
 		{
 			// Have not seen this model before - create a new mesh_list entry for it.
@@ -1573,13 +1587,15 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	}
 
 	result["asset_resources"] = res;
-	dumpLLSDToFile(result,"whole_model.xml");
+	dumpLLSDToFile(result,make_dump_name("whole_model_",dump_num));
 
 	dest = result;
 }
 
 void LLMeshUploadThread::doWholeModelUpload()
 {
+	dump_num++;
+	
 	mCurlRequest = new LLCurlRequest();	
 
 	// Queue up models for hull generation (viewer-side)
@@ -1627,7 +1643,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 
 	LLSD model_data;
 	wholeModelToLLSD(model_data,false);
-	dumpLLSDToFile(model_data,"whole_model_fee_request.xml");
+	dumpLLSDToFile(model_data,make_dump_name("whole_model_fee_request_",dump_num));
 
 	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
@@ -1649,7 +1665,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 		LLSD full_model_data;
 		wholeModelToLLSD(full_model_data, true);
 		LLSD body = full_model_data["asset_resources"];
-		dumpLLSDToFile(body,"whole_model_body.xml");
+		dumpLLSDToFile(body,make_dump_name("whole_model_body_",dump_num));
 		mCurlRequest->post(mWholeModelUploadURL, headers, body,
 						   new LLWholeModelUploadResponder(this, model_data));
 		do
@@ -3317,8 +3333,8 @@ bool LLImportMaterial::operator<(const LLImportMaterial &rhs) const
 void LLMeshRepository::updateInventory(inventory_data data)
 {
 	LLMutexLock lock(mMeshMutex);
-	dumpLLSDToFile(data.mPostData,"update_inventory_post_data.xml");
-	dumpLLSDToFile(data.mResponse,"update_inventory_response.xml");
+	dumpLLSDToFile(data.mPostData,make_dump_name("update_inventory_post_data_",dump_num));
+	dumpLLSDToFile(data.mResponse,make_dump_name("update_inventory_response_",dump_num));
 	mInventoryQ.push(data);
 }
 
