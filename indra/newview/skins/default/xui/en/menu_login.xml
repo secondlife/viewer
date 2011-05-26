@@ -187,7 +187,7 @@
        name="Web Content Floater Debug Test">
         <menu_item_call.on_click
          function="Advanced.WebContentTest"
-         parameter="http://callum-linden.s3.amazonaws.com/browsertest.html"/>
+         parameter="http://google.com"/>
       </menu_item_call>
       <menu_item_check
         label="Show Grid Picker"
