@@ -914,7 +914,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 				
 				// Set the low priority size for downsampling to approximately the size the texture is displayed at.
 				{
-					F32 approximate_interest_dimension = fsqrtf(pimpl->getInterest());
+					F32 approximate_interest_dimension = (F32) sqrt(pimpl->getInterest());
 					
 					pimpl->setLowPrioritySizeLimit(llround(approximate_interest_dimension));
 				}

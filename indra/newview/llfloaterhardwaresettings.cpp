@@ -50,7 +50,6 @@ LLFloaterHardwareSettings::LLFloaterHardwareSettings(const LLSD& key)
 	  // but init them anyway
 	  mUseVBO(0),
 	  mUseAniso(0),
-	  mUseFBO(0),
 	  mFSAASamples(0),
 	  mGamma(0.0),
 	  mVideoCardMem(0),
@@ -75,7 +74,6 @@ void LLFloaterHardwareSettings::refresh()
 
 	mUseVBO = gSavedSettings.getBOOL("RenderVBOEnable");
 	mUseAniso = gSavedSettings.getBOOL("RenderAnisotropic");
-	mUseFBO = gSavedSettings.getBOOL("RenderUseFBO");
 	mFSAASamples = gSavedSettings.getU32("RenderFSAASamples");
 	mGamma = gSavedSettings.getF32("RenderGamma");
 	mVideoCardMem = gSavedSettings.getS32("TextureMemory");
@@ -104,7 +102,7 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fsaa")->setEnabled(gPipeline.canUseAntiAliasing());
-	getChildView("antialiasing restart")->setVisible(!gSavedSettings.getBOOL("RenderUseFBO"));
+	getChildView("antialiasing restart")->setVisible(!gSavedSettings.getBOOL("RenderDeferred"));
 
 	/* Enable to reset fsaa value to disabled when feature is not available.
 	if (!gPipeline.canUseAntiAliasing())
@@ -139,7 +137,6 @@ void LLFloaterHardwareSettings::cancel()
 {
 	gSavedSettings.setBOOL("RenderVBOEnable", mUseVBO);
 	gSavedSettings.setBOOL("RenderAnisotropic", mUseAniso);
-	gSavedSettings.setBOOL("RenderUseFBO", mUseFBO);
 	gSavedSettings.setU32("RenderFSAASamples", mFSAASamples);
 	gSavedSettings.setF32("RenderGamma", mGamma);
 	gSavedSettings.setS32("TextureMemory", mVideoCardMem);

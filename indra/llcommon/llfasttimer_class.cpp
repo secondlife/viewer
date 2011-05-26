@@ -35,10 +35,13 @@
 
 #include <boost/bind.hpp>
 
+
 #if LL_WINDOWS
+#include "lltimer.h"
 #elif LL_LINUX || LL_SOLARIS
 #include <sys/time.h>
 #include <sched.h>
+#include "lltimer.h"
 #elif LL_DARWIN
 #include <sys/time.h>
 #include "lltimer.h"	// get_clock_count()
@@ -60,6 +63,8 @@ std::string LLFastTimer::sLogName = "";
 BOOL LLFastTimer::sMetricLog = FALSE;
 LLMutex* LLFastTimer::sLogLock = NULL;
 std::queue<LLSD> LLFastTimer::sLogQueue;
+
+#define USE_RDTSC 0
 
 #if LL_LINUX || LL_SOLARIS
 U64 LLFastTimer::sClockResolution = 1000000000; // Nanosecond resolution
@@ -234,10 +239,23 @@ U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
 #else // windows or x86-mac or x86-linux or x86-solaris
 U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
 {
+#if USE_RDTSC || !LL_WINDOWS
 	//getCPUFrequency returns MHz and sCPUClockFrequency wants to be in Hz
 	static U64 sCPUClockFrequency = U64(LLProcessorInfo().getCPUFrequency()*1000000.0);
 
 	// we drop the low-order byte in our timers, so report a lower frequency
+#else
+	// If we're not using RDTSC, each fasttimer tick is just a performance counter tick.
+	// Not redefining the clock frequency itself (in llprocessor.cpp/calculate_cpu_frequency())
+	// since that would change displayed MHz stats for CPUs
+	static bool firstcall = true;
+	static U64 sCPUClockFrequency;
+	if (firstcall)
+	{
+		QueryPerformanceFrequency((LARGE_INTEGER*)&sCPUClockFrequency);
+		firstcall = false;
+	}
+#endif
 	return sCPUClockFrequency >> 8;
 }
 #endif
@@ -482,6 +500,19 @@ void LLFastTimer::NamedTimer::resetFrame()
 {
 	if (sLog)
 	{ //output current frame counts to performance log
+
+		static S32 call_count = 0;
+		if (call_count % 100 == 0)
+		{
+			llinfos << "countsPerSecond (32 bit): " << countsPerSecond() << llendl;
+			llinfos << "get_clock_count (64 bit): " << get_clock_count() << llendl;
+			llinfos << "LLProcessorInfo().getCPUFrequency() " << LLProcessorInfo().getCPUFrequency() << llendl;
+			llinfos << "getCPUClockCount32() " << getCPUClockCount32() << llendl;
+			llinfos << "getCPUClockCount64() " << getCPUClockCount64() << llendl;
+			llinfos << "elapsed sec " << ((F64)getCPUClockCount64())/((F64)LLProcessorInfo().getCPUFrequency()*1000000.0) << llendl;
+		}
+		call_count++;
+
 		F64 iclock_freq = 1000.0 / countsPerSecond(); // good place to calculate clock frequency
 
 		F64 total_time = 0;
@@ -763,3 +794,144 @@ LLFastTimer::LLFastTimer(LLFastTimer::FrameState* state)
 
 
 //////////////////////////////////////////////////////////////////////////////
+//
+// Important note: These implementations must be FAST!
+//
+
+
+#if LL_WINDOWS
+//
+// Windows implementation of CPU clock
+//
+
+//
+// NOTE: put back in when we aren't using platform sdk anymore
+//
+// because MS has different signatures for these functions in winnt.h
+// need to rename them to avoid conflicts
+//#define _interlockedbittestandset _renamed_interlockedbittestandset
+//#define _interlockedbittestandreset _renamed_interlockedbittestandreset
+//#include <intrin.h>
+//#undef _interlockedbittestandset
+//#undef _interlockedbittestandreset
+
+//inline U32 LLFastTimer::getCPUClockCount32()
+//{
+//	U64 time_stamp = __rdtsc();
+//	return (U32)(time_stamp >> 8);
+//}
+//
+//// return full timer value, *not* shifted by 8 bits
+//inline U64 LLFastTimer::getCPUClockCount64()
+//{
+//	return __rdtsc();
+//}
+
+// shift off lower 8 bits for lower resolution but longer term timing
+// on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
+#if USE_RDTSC
+U32 LLFastTimer::getCPUClockCount32()
+{
+	U32 ret_val;
+	__asm
+	{
+        _emit   0x0f
+        _emit   0x31
+		shr eax,8
+		shl edx,24
+		or eax, edx
+		mov dword ptr [ret_val], eax
+	}
+    return ret_val;
+}
+
+// return full timer value, *not* shifted by 8 bits
+U64 LLFastTimer::getCPUClockCount64()
+{
+	U64 ret_val;
+	__asm
+	{
+        _emit   0x0f
+        _emit   0x31
+		mov eax,eax
+		mov edx,edx
+		mov dword ptr [ret_val+4], edx
+		mov dword ptr [ret_val], eax
+	}
+    return ret_val;
+}
+
+std::string LLFastTimer::sClockType = "rdtsc";
+
+#else
+//LL_COMMON_API U64 get_clock_count(); // in lltimer.cpp
+// These use QueryPerformanceCounter, which is arguably fine and also works on amd architectures.
+U32 LLFastTimer::getCPUClockCount32()
+{
+	return (U32)(get_clock_count()>>8);
+}
+
+U64 LLFastTimer::getCPUClockCount64()
+{
+	return get_clock_count();
+}
+
+std::string LLFastTimer::sClockType = "QueryPerformanceCounter";
+#endif
+
+#endif
+
+
+#if (LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
+//
+// Linux and Solaris implementation of CPU clock - non-x86.
+// This is accurate but SLOW!  Only use out of desperation.
+//
+// Try to use the MONOTONIC clock if available, this is a constant time counter
+// with nanosecond resolution (but not necessarily accuracy) and attempts are
+// made to synchronize this value between cores at kernel start. It should not
+// be affected by CPU frequency. If not available use the REALTIME clock, but
+// this may be affected by NTP adjustments or other user activity affecting
+// the system time.
+U64 LLFastTimer::getCPUClockCount64()
+{
+	struct timespec tp;
+	
+#ifdef CLOCK_MONOTONIC // MONOTONIC supported at build-time?
+	if (-1 == clock_gettime(CLOCK_MONOTONIC,&tp)) // if MONOTONIC isn't supported at runtime then ouch, try REALTIME
+#endif
+		clock_gettime(CLOCK_REALTIME,&tp);
+
+	return (tp.tv_sec*LLFastTimer::sClockResolution)+tp.tv_nsec;        
+}
+
+U32 LLFastTimer::getCPUClockCount32()
+{
+	return (U32)(LLFastTimer::getCPUClockCount64() >> 8);
+}
+
+std::string LLFastTimer::sClockType = "clock_gettime";
+
+#endif // (LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
+
+
+#if (LL_LINUX || LL_SOLARIS || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
+//
+// Mac+Linux+Solaris FAST x86 implementation of CPU clock
+U32 LLFastTimer::getCPUClockCount32()
+{
+	U64 x;
+	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
+	return (U32)(x >> 8);
+}
+
+U64 LLFastTimer::getCPUClockCount64()
+{
+	U64 x;
+	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
+	return x;
+}
+
+std::string LLFastTimer::sClockType = "rdtsc";
+#endif
+

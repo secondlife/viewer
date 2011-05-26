@@ -56,6 +56,21 @@
 // 
 //----------------------------------------------------------------------------
 
+#if !LL_DARWIN
+U32 ll_thread_local sThreadID = 0;
+#endif 
+
+U32 LLThread::sIDIter = 0;
+
+LL_COMMON_API void assert_main_thread()
+{
+	static U32 s_thread_id = LLThread::currentID();
+	if (LLThread::currentID() != s_thread_id)
+	{
+		llerrs << "Illegal execution outside main thread." << llendl;
+	}
+}
+
 //
 // Handed to the APR thread creation function
 //
@@ -63,10 +78,14 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 {
 	LLThread *threadp = (LLThread *)datap;
 
+#if !LL_DARWIN
+	sThreadID = threadp->mID;
+#endif
+
 	// Run the user supplied function
 	threadp->run();
 
-	llinfos << "LLThread::staticRun() Exiting: " << threadp->mName << llendl;
+	//llinfos << "LLThread::staticRun() Exiting: " << threadp->mName << llendl;
 	
 	// We're done with the run function, this thread is done executing now.
 	threadp->mStatus = STOPPED;
@@ -81,6 +100,8 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
 	mAPRThreadp(NULL),
 	mStatus(STOPPED)
 {
+	mID = ++sIDIter;
+
 	// Thread creation probably CAN be paranoid about APR being initialized, if necessary
 	if (poolp)
 	{
@@ -121,7 +142,7 @@ void LLThread::shutdown()
 			// First, set the flag that indicates that we're ready to die
 			setQuitting();
 
-			llinfos << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << llendl;
+			//llinfos << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << llendl;
 			// Now wait a bit for the thread to exit
 			// It's unclear whether I should even bother doing this - this destructor
 			// should netver get called unless we're already stopped, really...
@@ -143,7 +164,7 @@ void LLThread::shutdown()
 		if (!isStopped())
 		{
 			// This thread just wouldn't stop, even though we gave it time
-			llwarns << "LLThread::~LLThread() exiting thread before clean exit!" << llendl;
+			//llwarns << "LLThread::~LLThread() exiting thread before clean exit!" << llendl;
 			// Put a stake in its heart.
 			apr_thread_exit(mAPRThreadp, -1);
 			return;
@@ -283,7 +304,7 @@ void LLThread::wakeLocked()
 //============================================================================
 
 LLMutex::LLMutex(apr_pool_t *poolp) :
-	mAPRMutexp(NULL)
+	mAPRMutexp(NULL), mCount(0), mLockingThread(NO_THREAD)
 {
 	//if (poolp)
 	//{
@@ -315,7 +336,18 @@ LLMutex::~LLMutex()
 
 void LLMutex::lock()
 {
+#if LL_DARWIN
+	if (mLockingThread == LLThread::currentID())
+#else
+	if (mLockingThread == sThreadID)
+#endif
+	{ //redundant lock
+		mCount++;
+		return;
+	}
+	
 	apr_thread_mutex_lock(mAPRMutexp);
+	
 #if MUTEX_DEBUG
 	// Have to have the lock before we can access the debug info
 	U32 id = LLThread::currentID();
@@ -323,10 +355,22 @@ void LLMutex::lock()
 		llerrs << "Already locked in Thread: " << id << llendl;
 	mIsLocked[id] = TRUE;
 #endif
+
+#if LL_DARWIN
+	mLockingThread = LLThread::currentID();
+#else
+	mLockingThread = sThreadID;
+#endif
 }
 
 void LLMutex::unlock()
 {
+	if (mCount > 0)
+	{ //not the root unlock
+		mCount--;
+		return;
+	}
+	
 #if MUTEX_DEBUG
 	// Access the debug info while we have the lock
 	U32 id = LLThread::currentID();
@@ -334,6 +378,8 @@ void LLMutex::unlock()
 		llerrs << "Not locked in Thread: " << id << llendl;	
 	mIsLocked[id] = FALSE;
 #endif
+
+	mLockingThread = NO_THREAD;
 	apr_thread_mutex_unlock(mAPRMutexp);
 }
 
@@ -349,6 +395,11 @@ bool LLMutex::isLocked()
 		apr_thread_mutex_unlock(mAPRMutexp);
 		return false;
 	}
+}
+
+U32 LLMutex::lockingThread() const
+{
+	return mLockingThread;
 }
 
 //============================================================================
@@ -371,6 +422,15 @@ LLCondition::~LLCondition()
 
 void LLCondition::wait()
 {
+	if (!isLocked())
+	{ //mAPRMutexp MUST be locked before calling apr_thread_cond_wait
+		apr_thread_mutex_lock(mAPRMutexp);
+#if MUTEX_DEBUG
+		// avoid asserts on destruction in non-release builds
+		U32 id = LLThread::currentID();
+		mIsLocked[id] = TRUE;
+#endif
+	}
 	apr_thread_cond_wait(mAPRCondp, mAPRMutexp);
 }
 

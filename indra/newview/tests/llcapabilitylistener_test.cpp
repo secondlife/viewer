@@ -114,6 +114,7 @@ namespace tut
             regionListener("testCapabilityListener", NULL, provider, LLUUID(), LLUUID()),
             regionPump(regionListener.getCapAPI())
         {
+            LLCurl::initClass();
             provider.setCapability("good", server + "capability-test");
             provider.setCapability("fail", server + "fail");
         }
