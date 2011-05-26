@@ -1554,7 +1554,9 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 					texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
 				}
 
-				if (texture_index.find(texture) == texture_index.end())
+				if (texture != NULL &&
+					mUploadTextures &&
+					texture_index.find(texture) == texture_index.end())
 				{
 					texture_index[texture] = texture_num;
 					std::string str = texture_str.str();
@@ -1563,15 +1565,15 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				}
 
 				// Subset of TextureEntry fields.
-				if (texture)
+				if (texture != NULL && mUploadTextures)
 				{
 					face_entry["image"] = texture_index[texture];
+					face_entry["scales"] = 1.0;
+					face_entry["scalet"] = 1.0;
+					face_entry["offsets"] = 0.0;
+					face_entry["offsett"] = 0.0;
+					face_entry["imagerot"] = 0.0;
 				}
-				face_entry["scales"] = 1.0;
-				face_entry["scalet"] = 1.0;
-				face_entry["offsets"] = 0.0;
-				face_entry["offsett"] = 0.0;
-				face_entry["imagerot"] = 0.0;
 				face_entry["colors"] = ll_sd_from_color4(material.mDiffuseColor);
 				face_entry["fullbright"] = material.mFullbright;
 				instance_entry["face_list"][face_num] = face_entry;
