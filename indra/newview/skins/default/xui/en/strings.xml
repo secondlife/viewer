@@ -2092,6 +2092,8 @@ Requests name of an avatar.  When data is available the dataserver event will be
 	<string name="InvFolder Friends">Friends</string>
 	<string name="InvFolder All">All</string>
 
+	<string name="no_attachments">No attachments worn</string>
+
 	<!-- inventory FVBridge -->
 	<!--  This is used in llpanelinventory.cpp when constructing a context menu for an item for Sale  -->
 	<string name="Buy">Buy</string>

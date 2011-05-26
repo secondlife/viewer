@@ -296,7 +296,7 @@ LLCOFWearables::~LLCOFWearables()
 // virtual
 BOOL LLCOFWearables::postBuild()
 {
-	mAttachments = getChild<LLFlatListView>("list_attachments");
+	mAttachments = getChild<LLFlatListViewEx>("list_attachments");
 	mClothing = getChild<LLFlatListView>("list_clothing");
 	mBodyParts = getChild<LLFlatListView>("list_body_parts");
 
@@ -317,6 +317,7 @@ BOOL LLCOFWearables::postBuild()
 	mAttachments->setComparator(&WEARABLE_NAME_COMPARATOR);
 	mBodyParts->setComparator(&WEARABLE_NAME_COMPARATOR);
 
+	mAttachments->setNoItemsMsg(getString("no_attachments"));
 
 	mClothingTab = getChild<LLAccordionCtrlTab>("tab_clothing");
 	mClothingTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
