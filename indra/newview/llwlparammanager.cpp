@@ -621,7 +621,7 @@ void LLWLParamManager::applyUserPrefs(bool interpolate)
 	{
 		if (env_mgr.getUseDayCycle())
 		{
-			if (!env_mgr.useDayCycle(env_mgr.getDayCycleName(), LLEnvKey::SCOPE_LOCAL));
+			if (!env_mgr.useDayCycle(env_mgr.getDayCycleName(), LLEnvKey::SCOPE_LOCAL))
 			{
 				// *TODO: fix user prefs
 				applyDefaults();
@@ -647,8 +647,7 @@ void LLWLParamManager::applyUserPrefs(bool interpolate)
 
 void LLWLParamManager::applyDefaults()
 {
-	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
-	llassert(env_mgr.useDayCycle("Default", LLEnvKey::SCOPE_LOCAL) == true);
+	LLEnvManagerNew::instance().useDayCycle("Default", LLEnvKey::SCOPE_LOCAL);
 }
 
 bool LLWLParamManager::applyDayCycleParams(const LLSD& params, LLEnvKey::EScope scope, F32 time)
