@@ -436,6 +436,107 @@ std::string LLPluginClassMedia::translateModifiers(MASK modifiers)
 	return result;
 }
 
+void LLPluginClassMedia::jsExposeObjectEvent( bool expose )
+{
+	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
+	{
+		return;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_expose_object");
+	message.setValueBoolean( "expose", expose );
+	sendMessage( message );
+}
+
+void LLPluginClassMedia::jsValuesValidEvent( bool valid )
+{
+	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
+	{
+		return;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_values_valid");
+	message.setValueBoolean( "valid", valid );
+	sendMessage( message );
+}
+
+void LLPluginClassMedia::jsAgentLocationEvent( double x, double y, double z )
+{
+	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
+	{
+		return;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_agent_location");
+	message.setValueReal( "x", x );
+	message.setValueReal( "y", y );
+	message.setValueReal( "z", z );
+	sendMessage( message );
+}
+
+void LLPluginClassMedia::jsAgentGlobalLocationEvent( double x, double y, double z )
+{
+	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
+	{
+		return;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_agent_global_location");
+	message.setValueReal( "x", x );
+	message.setValueReal( "y", y );
+	message.setValueReal( "z", z );
+	sendMessage( message );
+}
+
+void LLPluginClassMedia::jsAgentOrientationEvent( double angle )
+{
+	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
+	{
+		return;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_agent_orientation");
+	message.setValueReal( "angle", angle );
+
+	sendMessage( message );
+}
+
+void LLPluginClassMedia::jsAgentLanguageEvent( const std::string& language )
+{
+	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
+	{
+		return;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_agent_language");
+	message.setValue( "language", language );
+	sendMessage( message );
+}
+
+void LLPluginClassMedia::jsAgentRegionEvent( const std::string& region )
+{
+	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
+	{
+		return;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_agent_region");
+	message.setValue( "region", region );
+	sendMessage( message );
+}
+
+void LLPluginClassMedia::jsAgentMaturityEvent( const std::string& maturity )
+{
+	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
+	{
+		return;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_agent_maturity");
+	message.setValue( "maturity", maturity );
+	sendMessage( message );
+}
+
 void LLPluginClassMedia::mouseEvent(EMouseEventType type, int button, int x, int y, MASK modifiers)
 {
 	if(type == MOUSE_EVENT_MOVE)
