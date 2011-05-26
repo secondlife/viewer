@@ -176,6 +176,9 @@ set(viewer_SOURCE_FILES
     llfloaterdaycycle.cpp
     llfloaterdeleteenvpreset.cpp
     llfloaterdisplayname.cpp
+    llfloatereditdaycycle.cpp
+    llfloatereditsky.cpp
+    llfloatereditwater.cpp
     llfloaterenvsettings.cpp
     llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
@@ -726,6 +729,9 @@ set(viewer_HEADER_FILES
     llfloaterdaycycle.h
     llfloaterdeleteenvpreset.h
     llfloaterdisplayname.h
+    llfloatereditdaycycle.h
+    llfloatereditsky.h
+    llfloatereditwater.h
     llfloaterenvsettings.h
     llfloaterenvironmentsettings.h
     llfloaterevent.h

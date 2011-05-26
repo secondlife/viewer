@@ -7627,9 +7627,11 @@ class LLWorldEnvPreset : public view_listener_t
 
 		if (item == "new_water")
 		{
+			LLFloaterReg::showInstance("env_edit_water", "new");
 		}
 		else if (item == "edit_water")
 		{
+			LLFloaterReg::showInstance("env_edit_water", "edit");
 		}
 		else if (item == "delete_water")
 		{
@@ -7637,9 +7639,11 @@ class LLWorldEnvPreset : public view_listener_t
 		}
 		else if (item == "new_sky")
 		{
+			LLFloaterReg::showInstance("env_edit_sky", "new");
 		}
 		else if (item == "edit_sky")
 		{
+			LLFloaterReg::showInstance("env_edit_sky", "edit");
 		}
 		else if (item == "delete_sky")
 		{
@@ -7647,9 +7651,11 @@ class LLWorldEnvPreset : public view_listener_t
 		}
 		else if (item == "new_day_cycle")
 		{
+			LLFloaterReg::showInstance("env_edit_day_cycle", "new");
 		}
 		else if (item == "edit_day_cycle")
 		{
+			LLFloaterReg::showInstance("env_edit_day_cycle", "edit");
 		}
 		else if (item == "delete_day_cycle")
 		{
