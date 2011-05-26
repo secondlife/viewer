@@ -54,8 +54,8 @@
 				<radio_item label="No, mantener la propiedad de los objetos" name="no"/>
 				<radio_item label="Sí, vender los objetos con el terreno" name="yes"/>
 			</radio_group>
-			<button label="Mostrar los objetos" name="show_objects" width="120"/>
-			<text name="nag_message_label">
+			<button label="Mostrar los objetos" name="show_objects"/>
+			<text name="nag_message_label" font="SansSerifSmallBold" left="10">
 				RECUERDA: todas las ventas son definitivas.
 			</text>
 			<button label="Poner en venta el terreno" name="sell_btn"/>
