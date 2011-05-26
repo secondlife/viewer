@@ -18,11 +18,13 @@
 	<string name="groups_filter_label" value="グループをフィルター"/>
 	<string name="no_filtered_groups_msg" value="お探しのものは見つかりましたか？ [secondlife:///app/search/groups/[SEARCH_TERM] 検索] をお試しください。"/>
 	<string name="no_groups_msg" value="グループをお探しですか？ [secondlife:///app/search/groups 検索] をお試しください。"/>
+	<string name="MiniMapToolTipMsg" value="[地域]（ダブルクリックで地図を開く。Shift‐ドラッグで水平・垂直移動）"/>
+	<string name="AltMiniMapToolTipMsg" value="[地域]（ダブルクリックでテレポート。Shift‐ドラッグで水平・垂直移動）"/>
 	<filter_editor label="フィルター" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="近く" name="nearby_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="nearby_view_sort_btn" tool_tip="オプション"/>
+				<menu_button name="nearby_view_sort_btn" tool_tip="オプション"/>
 				<button name="add_friend_btn" tool_tip="選択した住人をフレンドリストに登録"/>
 			</panel>
 		</panel>
@@ -34,27 +36,27 @@
 			<panel label="bottom_panel" name="bottom_panel">
 				<layout_stack name="bottom_panel">
 					<layout_panel name="options_gear_btn_panel">
-						<button name="friends_viewsort_btn" tool_tip="オプションを表示します"/>
+						<menu_button name="friends_viewsort_btn" tool_tip="オプションを表示します"/>
 					</layout_panel>
 					<layout_panel name="add_btn_panel">
 						<button name="add_btn" tool_tip="フレンド登録を申し出る"/>
 					</layout_panel>
 					<layout_panel name="trash_btn_panel">
-						<dnd_button name="trash_btn" tool_tip="選択した人をフレンドリストから削除"/>
+						<dnd_button name="del_btn" tool_tip="選択した人をフレンドリストから削除"/>
 					</layout_panel>
 				</layout_stack>
 			</panel>
 		</panel>
 		<panel label="マイ グループ" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="groups_viewsort_btn" tool_tip="オプション"/>
+				<menu_button name="groups_viewsort_btn" tool_tip="オプション"/>
 				<button name="plus_btn" tool_tip="グループに参加 / 新規グループを作成します"/>
 				<button name="activate_btn" tool_tip="選択したグループをアクティブにします"/>
 			</panel>
 		</panel>
 		<panel label="最新" name="recent_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<button name="recent_viewsort_btn" tool_tip="オプション"/>
+				<menu_button name="recent_viewsort_btn" tool_tip="オプション"/>
 				<button name="add_friend_btn" tool_tip="選択した住人をフレンドリストに登録"/>
 			</panel>
 		</panel>

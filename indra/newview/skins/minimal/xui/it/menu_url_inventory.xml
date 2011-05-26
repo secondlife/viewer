@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="Mostra oggetto dell&apos;inventario" name="show_item"/>
+	<menu_item_call label="Copia nome negli Appunti" name="url_copy_label"/>
+	<menu_item_call label="Copia SLurl negli Appunti" name="url_copy"/>
+</context_menu>

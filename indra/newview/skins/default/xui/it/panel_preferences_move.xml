@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Movimento" name="move_panel">
+	<slider label="Angolo di visuale" name="camera_fov"/>
+	<slider label="Distanza" name="camera_offset_scale"/>
+	<text name="heading2">
+		Posizione automatica per:
+	</text>
+	<check_box label="Costruire/Modificare" name="edit_camera_movement" tool_tip="Utilizza il posizionamento automatico della fotocamera entrando o uscendo dalla modalità modifica"/>
+	<check_box label="Aspetto fisico" name="appearance_camera_movement" tool_tip="Utilizza il posizionamento automatico della camera in modalità modifica"/>
+	<check_box initial_value="vero" label="Barra laterale" name="appearance_sidebar_positioning" tool_tip="Utilizza il posizionamento automatico della fotocamera per la barra laterale"/>
+	<check_box label="Mostra in modalità Mouselook" name="first_person_avatar_visible"/>
+	<text name=" Mouse Sensitivity">
+		Sensibilità mouse visuale soggettiva:
+	</text>
+	<check_box label="Inverti" name="invert_mouse"/>
+	<check_box label="Le frecce di direzione mi fanno sempre spostare" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Doppio click e tieni premuto per correre" name="tap_tap_hold_to_run"/>
+	<check_box label="Doppio clic per:" name="double_click_chkbox"/>
+	<radio_group name="double_click_action">
+		<radio_item label="Teleport" name="radio_teleport"/>
+		<radio_item label="Autopilota" name="radio_autopilot"/>
+	</radio_group>
+	<button label="Altri dispositivi" name="joystick_setup_button"/>
+</panel>

@@ -64,6 +64,8 @@
 		<radio_item label="面を選択" name="radio select face"/>
 	</radio_group>
 	<check_box label="リンク部分を編集" name="checkbox edit linked parts"/>
+	<button label="リンク" name="link_btn"/>
+	<button label="リンクを外す" name="unlink_btn"/>
 	<text name="RenderingCost" tool_tip="このオブジェクトにかかるレンダリングコストを表示">
 		þ: [COUNT]
 	</text>
@@ -170,8 +172,14 @@
 			<text name="Creator:">
 				制作者：
 			</text>
+			<text name="Creator Name">
+				Mrs. Esbee Linden (esbee.linden)
+			</text>
 			<text name="Owner:">
 				所有者：
+			</text>
+			<text name="Owner Name">
+				Mrs. Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				グループ：

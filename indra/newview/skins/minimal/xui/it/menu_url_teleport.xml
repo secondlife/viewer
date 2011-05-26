@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="Teleport a questa destinazione" name="teleport"/>
+	<menu_item_call label="Mostra sulla mappa" name="show_on_map"/>
+	<menu_item_call label="Copia SLurl negli Appunti" name="url_copy"/>
+</context_menu>
