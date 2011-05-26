@@ -1742,7 +1742,8 @@ void LLPanelObject::refresh()
 	
 	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
 					   gAgent.getRegion() &&
-					   !gAgent.getRegion()->getCapability("GetMesh").empty();
+					   !gAgent.getRegion()->getCapability("GetMesh").empty() &&
+					   !gAgent.getRegion()->getCapability("ObjectAdd").empty();
 
 	F32 max_scale = get_default_max_prim_scale(LLPickInfo::isFlora(mObject));
 
