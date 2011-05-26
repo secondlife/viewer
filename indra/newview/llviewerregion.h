@@ -34,7 +34,6 @@
 
 #include "lldarray.h"
 #include "llwind.h"
-#include "llcloud.h"
 #include "llstat.h"
 #include "v3dmath.h"
 #include "llstring.h"
@@ -334,7 +333,6 @@ protected:
 
 public:
 	LLWind  mWind;
-	LLCloudLayer mCloudLayer;
 	LLViewerParcelOverlay	*mParcelOverlay;
 
 	LLStat	mBitStat;

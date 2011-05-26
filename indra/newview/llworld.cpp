@@ -61,6 +61,8 @@
 #include <map>
 #include <cstring>
 
+#define TMP_WL_REMOVE_CLOUDS /* disables code for classic clouds */
+
 //
 // Globals
 //
@@ -91,8 +93,11 @@ LLWorld::LLWorld() :
 	mLastPacketsIn(0),
 	mLastPacketsOut(0),
 	mLastPacketsLost(0),
-	mSpaceTimeUSec(0),
-	mClassicCloudsEnabled(TRUE)
+	mSpaceTimeUSec(0)
+#ifndef TMP_WL_REMOVE_CLOUDS
+	,
+	mClassicCloudsEnabled(FALSE)
+#endif
 {
 	for (S32 i = 0; i < 8; i++)
 	{
@@ -183,10 +188,12 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 		llerrs << "Unable to create new region!" << llendl;
 	}
 
+#ifndef TMP_WL_REMOVE_CLOUDS
 	regionp->mCloudLayer.create(regionp);
 	regionp->mCloudLayer.setWidth((F32)mWidth);
 	regionp->mCloudLayer.setWindPointer(&regionp->mWind);
-
+#endif // TMP_WL_REMOVE_CLOUDS
+	
 	mRegionList.push_back(regionp);
 	mActiveRegionList.push_back(regionp);
 	mCulledRegionList.push_back(regionp);
@@ -661,6 +668,7 @@ void LLWorld::updateParticles()
 	LLViewerPartSim::getInstance()->updateSimulation();
 }
 
+#ifndef TMP_WL_REMOVE_CLOUDS
 void LLWorld::updateClouds(const F32 dt)
 {
 	static LLFastTimer::DeclareTimer ftm("World Clouds");
@@ -671,33 +679,6 @@ void LLWorld::updateClouds(const F32 dt)
 		// don't move clouds in snapshot mode
 		return;
 	}
-
-	if (
-		mClassicCloudsEnabled !=
-		gSavedSettings.getBOOL("SkyUseClassicClouds") )
-	{
-		// The classic cloud toggle has been flipped
-		// gotta update all of the cloud layers
-		mClassicCloudsEnabled =
-			gSavedSettings.getBOOL("SkyUseClassicClouds");
-
-		if ( !mClassicCloudsEnabled && mActiveRegionList.size() )
-		{
-			// We've transitioned to having classic clouds disabled
-			// reset all cloud layers.
-			for (
-				region_list_t::iterator iter = mActiveRegionList.begin();
-				iter != mActiveRegionList.end();
-				++iter)
-			{
-				LLViewerRegion* regionp = *iter;
-				regionp->mCloudLayer.reset();
-			}
-
-			return;
-		}
-	}
-	else if ( !mClassicCloudsEnabled ) return;
 
 	if (mActiveRegionList.size())
 	{
@@ -745,7 +726,7 @@ LLCloudGroup* LLWorld::findCloudGroup(const LLCloudPuff &puff)
 	}
 	return NULL;
 }
-
+#endif // TMP_WL_REMOVE_CLOUDS
 
 void LLWorld::renderPropertyLines()
 {

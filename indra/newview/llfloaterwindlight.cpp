@@ -180,8 +180,6 @@ void LLFloaterWindLight::initCallbacks(void)
 	childSetCommitCallback("WLCloudDetailDensity", onColorControlBMoved, &param_mgr->mCloudDetail);
 
 	// Cloud extras
-	static std::string use_classic_clouds = "SkyUseClassicClouds";
-
 	childSetCommitCallback("WLCloudCoverage", onFloatControlMoved, &param_mgr->mCloudCoverage);
 	childSetCommitCallback("WLCloudScale", onFloatControlMoved, &param_mgr->mCloudScale);
 	childSetCommitCallback("WLCloudLockX", onCloudScrollXToggled, NULL);
@@ -189,8 +187,7 @@ void LLFloaterWindLight::initCallbacks(void)
 	childSetCommitCallback("WLCloudScrollX", onCloudScrollXMoved, NULL);
 	childSetCommitCallback("WLCloudScrollY", onCloudScrollYMoved, NULL);
 	childSetCommitCallback("WLDistanceMult", onFloatControlMoved, &param_mgr->mDistanceMult);
-	getChild<LLUICtrl>("DrawClassicClouds")->setCommitCallback(boost::bind(LLSavedSettingsGlue::setBOOL, _1, "SkyUseClassicClouds"));
-
+ 
 	// WL Top
 	childSetAction("WLDayCycleMenuButton", onOpenDayCycle, NULL);
 	// Load/save
@@ -373,7 +370,6 @@ void LLFloaterWindLight::syncMenu()
 	bool lockY = !param_mgr->mCurParams.getEnableCloudScrollY();
 	childSetValue("WLCloudLockX", lockX);
 	childSetValue("WLCloudLockY", lockY);
-	childSetValue("DrawClassicClouds", gSavedSettings.getBOOL("SkyUseClassicClouds"));
 	
 	// disable if locked, enable if not
 	if(lockX) 

@@ -349,7 +349,6 @@ LLViewerRegion::~LLViewerRegion()
 	// Can't do this on destruction, because the neighbor pointers might be invalid.
 	// This should be reference counted...
 	disconnectAllNeighbors();
-	mCloudLayer.destroy();
 	LLViewerPartSim::getInstance()->cleanupRegion(this);
 
 	gObjectList.killObjects(this);
@@ -485,7 +484,6 @@ void LLViewerRegion::setOriginGlobal(const LLVector3d &origin_global)
 	updateRenderMatrix();
 	mImpl->mLandp->setOriginGlobal(origin_global);
 	mWind.setOriginGlobal(origin_global);
-	mCloudLayer.setOriginGlobal(origin_global);
 	calculateCenterGlobal();
 }
 
@@ -708,14 +706,12 @@ void LLViewerRegion::forceUpdate()
 void LLViewerRegion::connectNeighbor(LLViewerRegion *neighborp, U32 direction)
 {
 	mImpl->mLandp->connectNeighbor(neighborp->mImpl->mLandp, direction);
-	mCloudLayer.connectNeighbor(&(neighborp->mCloudLayer), direction);
 }
 
 
 void LLViewerRegion::disconnectAllNeighbors()
 {
 	mImpl->mLandp->disconnectAllNeighbors();
-	mCloudLayer.disconnectAllNeighbors();
 }
 
 LLVLComposition * LLViewerRegion::getComposition() const

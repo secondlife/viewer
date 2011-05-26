@@ -1273,16 +1273,6 @@
              name="WLCloudScrollY"
              top="85"
              width="200" />
-            <check_box
-             control_name="DrawClassicClouds"
-             follows="left"
-             height="16"
-             label="Draw Classic Clouds"
-             layout="topleft"
-             left="480"
-             name="DrawClassicClouds"
-             top="104"
-             width="200" />
         </panel>
     </tab_container>
 </floater>
