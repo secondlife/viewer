@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="IMChiclet P2P Menu">
+	<menu_item_call label="View Profile" name="Show Profile"/>
+	<menu_item_call label="加為朋友" name="Add Friend"/>
+	<menu_item_call label="Show Session" name="Send IM"/>
+	<menu_item_call label="End Session" name="End Session"/>
+</menu>

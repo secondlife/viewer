@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview notecard" title="NOTECARD:">
+	<floater.string name="no_object">
+		Unable to find object containing this notecard.
+	</floater.string>
+	<floater.string name="not_allowed">
+		You do not have permission to view this notecard.
+	</floater.string>
+	<floater.string name="Title">
+		Notecard: [NAME]
+	</floater.string>
+	<text name="desc txt">
+		描述：
+	</text>
+	<text_editor name="Notecard Editor">
+		載入中...
+	</text_editor>
+	<button label="儲存" label_selected="儲存" name="Save"/>
+	<button label="刪除" label_selected="刪除" name="Delete"/>
+</floater>

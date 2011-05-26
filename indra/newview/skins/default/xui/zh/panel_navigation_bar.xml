@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="navigation_bar">
+	<panel name="navigation_panel">
+		<pull_button name="back_btn" tool_tip="Go back to previous location"/>
+		<pull_button name="forward_btn" tool_tip="Go forward one location"/>
+		<button name="home_btn" tool_tip="Teleport to my home location"/>
+		<location_input label="Location" name="location_combo"/>
+		<search_combo_box label="Search" name="search_combo_box" tool_tip="Search">
+			<combo_editor label="Search [SECOND_LIFE]" name="search_combo_editor"/>
+		</search_combo_box>
+	</panel>
+	<favorites_bar name="favorite" tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!">
+		<label name="favorites_bar_label" tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!">
+			Favorites Bar
+		</label>
+		<chevron_button name="&gt;&gt;" tool_tip="Show more of My Favorites"/>
+	</favorites_bar>
+</panel>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Outfits">
+	<panel name="bottom_panel">
+		<menu_button name="options_gear_btn" tool_tip="Show additional options"/>
+		<button name="trash_btn" tool_tip="Delete selected outfit"/>
+	</panel>
+</panel>

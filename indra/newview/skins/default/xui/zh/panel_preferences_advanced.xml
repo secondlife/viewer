@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="進階" name="advanced">
+	<panel.string name="aspect_ratio_text">
+		[NUM]:[DEN]
+	</panel.string>
+	<text name="UI Size:">
+		使用者界面尺寸：
+	</text>
+	<check_box label="顯示腳本錯誤訊息於：" name="show_script_errors"/>
+	<radio_group name="show_location">
+		<radio_item label="附近的聊天中" name="0"/>
+		<radio_item label="分開的試窗中" name="1"/>
+	</radio_group>
+	<check_box label="允許同時執行多個瀏覽器" name="allow_multiple_viewer_check"/>
+	<check_box label="登入時顯示網格選擇" name="show_grid_selection_check"/>
+	<check_box label="顯示進階選單" name="show_advanced_menu_check"/>
+	<check_box label="顯示開發選單" name="show_develop_menu_check"/>
+</panel>

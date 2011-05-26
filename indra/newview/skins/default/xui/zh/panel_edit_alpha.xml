@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_alpha_panel">
+	<scroll_container name="avatar_alpha_color_panel_scroll">
+		<panel name="avatar_alpha_color_panel">
+			<texture_picker label="Lower Alpha" name="Lower Alpha" tool_tip="點擊以挑選圖片"/>
+			<texture_picker label="Upper Alpha" name="Upper Alpha" tool_tip="點擊以挑選圖片"/>
+			<texture_picker label="Head Alpha" name="Head Alpha" tool_tip="點擊以挑選圖片"/>
+			<texture_picker label="Eye Alpha" name="Eye Alpha" tool_tip="點擊以挑選圖片"/>
+			<texture_picker label="Hair Alpha" name="Hair Alpha" tool_tip="點擊以挑選圖片"/>
+		</panel>
+	</scroll_container>
+</panel>

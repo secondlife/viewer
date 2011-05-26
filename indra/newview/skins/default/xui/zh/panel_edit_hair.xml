@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_hair_panel">
+	<panel name="avatar_hair_color_panel">
+		<texture_picker label="Texture" name="Texture" tool_tip="點擊以挑選圖片"/>
+	</panel>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="hair_color_tab" title="Color"/>
+			<accordion_tab name="hair_style_tab" title="Style"/>
+			<accordion_tab name="hair_eyebrows_tab" title="Eyebrows"/>
+			<accordion_tab name="hair_facial_tab" title="Facial"/>
+		</accordion>
+	</panel>
+</panel>

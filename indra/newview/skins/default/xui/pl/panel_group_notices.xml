@@ -47,7 +47,7 @@ Limit dzienny ogłoszeń dla grupy wynosi 200.
 			Ogłoszenia zachowane
 		</text>
 		<text name="lbl2">
-			W celu wysłania nowego ogłoszenia kliknij przycisk +
+			W celu wysłania nowego ogłoszenia kliknij + Stwórz ogłoszenie
 		</text>
 		<text name="lbl3">
 			Temat:
