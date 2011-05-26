@@ -1525,60 +1525,56 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			instance_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
 			instance_entry["mesh"] = mesh_index[data.mBaseModel];
 
-			if (mUploadTextures)
+			instance_entry["face_list"] = LLSD::emptyArray();
+
+			for (S32 face_num = 0; face_num < data.mBaseModel->getNumVolumeFaces(); face_num++)
 			{
-				instance_entry["face_list"] = LLSD::emptyArray();
-
-				for (S32 face_num = 0; face_num < data.mBaseModel->getNumVolumeFaces(); face_num++)
-				{
-					LLImportMaterial& material = instance.mMaterial[face_num];
-					LLSD face_entry = LLSD::emptyMap();
-					LLViewerFetchedTexture *texture = material.mDiffuseMap.get();
+				LLImportMaterial& material = instance.mMaterial[face_num];
+				LLSD face_entry = LLSD::emptyMap();
+				LLViewerFetchedTexture *texture = material.mDiffuseMap.get();
 				
-					if (texture != NULL)
-					{
-						if (textures.find(texture) == textures.end())
-						{
-							textures.insert(texture);
-						}
-
-						std::stringstream ostr;
-						if (include_textures) // otherwise data is blank.
-						{
-							LLTextureUploadData data(texture, material.mDiffuseMapLabel);
-							if (!data.mTexture->isRawImageValid())
-							{
-								data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
-							}
-						
-							LLPointer<LLImageJ2C> upload_file =
-								LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
-							ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
-						}
-
-						if (texture_index.find(texture) == texture_index.end())
-						{
-							texture_index[texture] = texture_num;
-							std::string str = ostr.str();
-							res["texture_list"][texture_num] = LLSD::Binary(str.begin(),str.end());
-							texture_num++;
-						}
-					}
-
-					// Subset of TextureEntry fields.
-					if (texture)
-					{
-						face_entry["image"] = texture_index[texture];
-					}
-					face_entry["scales"] = 1.0;
-					face_entry["scalet"] = 1.0;
-					face_entry["offsets"] = 0.0;
-					face_entry["offsett"] = 0.0;
-					face_entry["imagerot"] = 0.0;
-					face_entry["colors"] = ll_sd_from_color4(material.mDiffuseColor);
-					face_entry["fullbright"] = material.mFullbright;
-					instance_entry["face_list"][face_num] = face_entry;
+				if ((texture != NULL) &&
+					(textures.find(texture) == textures.end()))
+				{
+					textures.insert(texture);
 				}
+
+				std::stringstream texture_str;
+				if (texture != NULL && include_textures && mUploadTextures)
+				{
+					// Get binary rep of texture, if needed.
+					LLTextureUploadData data(texture, material.mDiffuseMapLabel);
+					if (!data.mTexture->isRawImageValid())
+					{
+						data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
+					}
+						
+					LLPointer<LLImageJ2C> upload_file =
+						LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
+					texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
+				}
+
+				if (texture_index.find(texture) == texture_index.end())
+				{
+					texture_index[texture] = texture_num;
+					std::string str = texture_str.str();
+					res["texture_list"][texture_num] = LLSD::Binary(str.begin(),str.end());
+					texture_num++;
+				}
+
+				// Subset of TextureEntry fields.
+				if (texture)
+				{
+					face_entry["image"] = texture_index[texture];
+				}
+				face_entry["scales"] = 1.0;
+				face_entry["scalet"] = 1.0;
+				face_entry["offsets"] = 0.0;
+				face_entry["offsett"] = 0.0;
+				face_entry["imagerot"] = 0.0;
+				face_entry["colors"] = ll_sd_from_color4(material.mDiffuseColor);
+				face_entry["fullbright"] = material.mFullbright;
+				instance_entry["face_list"][face_num] = face_entry;
 		    }
 
 			res["instance_list"][instance_num] = instance_entry;
