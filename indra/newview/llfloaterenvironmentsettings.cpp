@@ -197,6 +197,7 @@ void LLFloaterEnvironmentSettings::populateSkyPresetsList()
 	const std::map<LLWLParamKey, LLWLParamSet> &sky_params_map = LLWLParamManager::getInstance()->mParamList;
 	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = sky_params_map.begin(); it != sky_params_map.end(); it++)
 	{
+		if (it->first.scope == LLEnvKey::SCOPE_REGION) continue; // list only local presets
 		mSkyPresetCombo->add(it->first.name);
 	}
 }

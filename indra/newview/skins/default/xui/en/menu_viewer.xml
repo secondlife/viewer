@@ -539,22 +539,22 @@
 	     	 	 label="New preset..."
 	     	 	 name="new_water_preset">
 	     	 	 	<menu_item_call.on_click
-	     	 	 	function="stub"
-	     	 	 	parameter="stub"/>
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="new_water"/>
 	     	 	</menu_item_call>
 	     	 	<menu_item_call
 	     	 	 label="Edit preset..."
 	     	 	 name="edit_water_preset">
 	     	 	 	<menu_item_call.on_click
-	     	 	 	function="stub"
-	     	 	 	parameter="stub"/>
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="edit_water"/>
 	     	 	</menu_item_call>
 	     	 	<menu_item_call
 	     	 	 label="Delete preset..."
 	     	 	 name="delete_water_preset">
 	     	 	 	<menu_item_call.on_click
-	     	 	 	function="stub"
-	     	 	 	parameter="stub"/>
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="delete_water"/>
 	     	 	</menu_item_call>
 	     	</menu>
 	     	
@@ -565,22 +565,22 @@
 	     	 	 label="New preset..."
 	     	 	 name="new_sky_preset">
 	     	 	 	<menu_item_call.on_click
-	     	 	 	function="stub"
-	     	 	 	parameter="stub"/>
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="new_sky"/>
 	     	 	</menu_item_call>
 	     	 	<menu_item_call
 	     	 	 label="Edit preset..."
 	     	 	 name="edit_sky_preset">
 	     	 	 	<menu_item_call.on_click
-	     	 	 	function="stub"
-	     	 	 	parameter="stub"/>
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="edit_sky"/>
 	     	 	</menu_item_call>
 	     	 	<menu_item_call
 	     	 	 label="Delete preset..."
 	     	 	 name="delete_sky_preset">
 	     	 	 	<menu_item_call.on_click
-	     	 	 	function="stub"
-	     	 	 	parameter="stub"/>
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="delete_sky"/>
 	     	 	</menu_item_call>
 	     	</menu>
 	     	
@@ -591,22 +591,22 @@
 	     	 	 label="New preset..."
 	     	 	 name="new_day_preset">
 	     	 	 	<menu_item_call.on_click
-	     	 	 	function="stub"
-	     	 	 	parameter="stub"/>
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="new_day_cycle"/>
 	     	 	</menu_item_call>
 	     	 	<menu_item_call
 	     	 	 label="Edit preset..."
 	     	 	 name="edit_day_preset">
 	     	 	 	<menu_item_call.on_click
-	     	 	 	function="stub"
-	     	 	 	parameter="stub"/>
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="edit_day_cycle"/>
 	     	 	</menu_item_call>
 	     	 	<menu_item_call
 	     	 	 label="Delete preset..."
 	     	 	 name="delete_day_preset">
 	     	 	 	<menu_item_call.on_click
-	     	 	 	function="stub"
-	     	 	 	parameter="stub"/>
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="delete_day_cycle"/>
 	     	 	</menu_item_call>
 	     	</menu>
 	    </menu>

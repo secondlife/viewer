@@ -7619,6 +7619,51 @@ class LLWorldEnvSettings : public view_listener_t
 	}
 };
 
+class LLWorldEnvPreset : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string item = userdata.asString();
+
+		if (item == "new_water")
+		{
+		}
+		else if (item == "edit_water")
+		{
+		}
+		else if (item == "delete_water")
+		{
+			LLFloaterReg::showInstance("env_delete_preset", "water");
+		}
+		else if (item == "new_sky")
+		{
+		}
+		else if (item == "edit_sky")
+		{
+		}
+		else if (item == "delete_sky")
+		{
+			LLFloaterReg::showInstance("env_delete_preset", "sky");
+		}
+		else if (item == "new_day_cycle")
+		{
+		}
+		else if (item == "edit_day_cycle")
+		{
+		}
+		else if (item == "delete_day_cycle")
+		{
+			LLFloaterReg::showInstance("env_delete_preset", "day_cycle");
+		}
+		else
+		{
+			llwarns << "Unknown item selected" << llendl;
+		}
+
+		return true;
+	}
+};
+
 /// Post-Process callbacks
 class LLWorldPostProcess : public view_listener_t
 {
@@ -7867,6 +7912,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldCheckAlwaysRun(), "World.CheckAlwaysRun");
 	
 	view_listener_t::addMenu(new LLWorldEnvSettings(), "World.EnvSettings");
+	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
 	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
 

@@ -49,6 +49,7 @@
 #include "llfloaterbump.h"
 #include "llfloatercamera.h"
 #include "llfloaterdaycycle.h"
+#include "llfloaterdeleteenvpreset.h"
 #include "llfloaterdisplayname.h"
 #include "llfloaterenvironmentsettings.h"
 #include "llfloaterevent.h"
@@ -159,6 +160,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("env_settings", "floater_environment_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvironmentSettings>);
 	LLFloaterReg::add("env_water", "floater_water.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWater>);
 	LLFloaterReg::add("env_windlight", "floater_windlight_options.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWindLight>);
+	LLFloaterReg::add("env_delete_preset", "floater_delete_env_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDeleteEnvPreset>);
 
 	LLFloaterReg::add("event", "floater_event.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEvent>);
 	
