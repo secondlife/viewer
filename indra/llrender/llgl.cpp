@@ -1480,10 +1480,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 				gFailLog << "Texture matrix in channel " << i << " corrupt." << std::endl;
 			}
 		}
-
-		
-		S32 num_texture_types = 8;
-		
+				
 		for (S32 j = (i == 0 ? 1 : 0); 
 			j < 9; j++)
 		{
