@@ -68,6 +68,9 @@ public:
 	/// load the LLSD data from a file (returns the undefined LLSD if not found)
 	static LLSD loadCycleDataFromFile(const std::string & fileName);
 
+	/// load the LLSD data from a file specified by full path
+	static LLSD loadDayCycleFromPath(const std::string& file_path);
+
 	/// get the LLSD data for this day cycle
 	LLSD asLLSD();
 

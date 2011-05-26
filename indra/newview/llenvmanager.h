@@ -293,9 +293,6 @@ public:
 		bool use_region_settings);
 	void dumpUserPrefs();
 
-	// Common interface to the wl/water managers.
-	static LLSD getDayCycleByName(const std::string name);
-
 	// Misc.
 	void requestRegionSettings();
 	bool sendRegionSettings(const LLEnvironmentSettings& new_settings);

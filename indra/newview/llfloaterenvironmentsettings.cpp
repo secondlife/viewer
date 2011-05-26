@@ -31,6 +31,7 @@
 #include "llcombobox.h"
 #include "llradiogroup.h"
 
+#include "lldaycyclemanager.h"
 #include "llenvmanager.h"
 #include "llwaterparammanager.h"
 #include "llwlparamset.h"
@@ -204,6 +205,9 @@ void LLFloaterEnvironmentSettings::populateDayCyclePresetsList()
 {
 	mDayCyclePresetCombo->removeall();
 
-	std::string day_cycle_name = LLEnvManagerNew::getInstance()->getDayCycleName();
-	mDayCyclePresetCombo->add(day_cycle_name);
+	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
+	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
+	{
+		mDayCyclePresetCombo->add(it->first);
+	}
 }

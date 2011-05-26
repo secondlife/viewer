@@ -52,6 +52,7 @@
 #include "llbutton.h" 
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "lldaycyclemanager.h"
 #include "llenvmanager.h"
 #include "llfilepicker.h"
 #include "llfloaterdaycycle.h"
@@ -3350,14 +3351,18 @@ void LLPanelEnvironmentInfo::populateDayCyclesList()
 		llassert(region != NULL);
 
 		LLWLParamKey key(region->getName(), LLEnvKey::SCOPE_REGION);
-		mDayCyclePresetCombo->add(region->getName(), key.toLLSD());
+		mDayCyclePresetCombo->add(region->getName(), key.toStringVal());
 		mDayCyclePresetCombo->addSeparator();
 	}
 
 	// Add local day cycles.
-	// *TODO: multiple local day cycles support
-	LLWLParamKey key("Default", LLEnvKey::SCOPE_LOCAL);
-	mDayCyclePresetCombo->add("Default", key.toLLSD());
+	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
+	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
+	{
+		std::string name = it->first;
+		LLWLParamKey key(name, LLEnvKey::SCOPE_LOCAL);
+		mDayCyclePresetCombo->add(name, key.toStringVal());
+	}
 
 	// Current day cycle is already selected.
 }
@@ -3421,7 +3426,8 @@ void LLPanelEnvironmentInfo::onBtnSave()
 		}
 		else // use day cycle
 		{
-			LLWLParamKey dc(mDayCyclePresetCombo->getValue());
+			std::string preset_key(mDayCyclePresetCombo->getValue().asString());
+			LLWLParamKey dc(preset_key);
 			LL_DEBUGS("Windlight") << "Use day cycle: " << dc.toLLSD() << LL_ENDL;
 
 			if (dc.scope == LLEnvKey::SCOPE_REGION) // current region day cycle
@@ -3431,8 +3437,11 @@ void LLPanelEnvironmentInfo::onBtnSave()
 			}
 			else // a local day cycle
 			{
-				// *TODO: multiple local day cycles support
-				day_cycle = LLEnvManagerNew::instance().getDayCycleByName("Default");
+				if (!LLDayCycleManager::instance().getPreset(dc.name, day_cycle))
+				{
+					llwarns << "Error getting day cycle " << dc.name << llendl;
+					return;
+				}
 
 				// Create sky map from the day cycle.
 				{

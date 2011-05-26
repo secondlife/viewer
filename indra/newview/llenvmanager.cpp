@@ -764,12 +764,6 @@ void LLEnvManagerNew::dumpUserPrefs()
 	LL_DEBUGS("Windlight") << "UseDayCycle: "				<< gSavedSettings.getBOOL("UseDayCycle") << LL_ENDL;
 }
 
-// static
-LLSD LLEnvManagerNew::getDayCycleByName(const std::string name)
-{
-	return LLWLDayCycle::loadCycleDataFromFile(name + ".xml");
-}
-
 void LLEnvManagerNew::requestRegionSettings()
 {
 	LLEnvironmentRequest::initiate();

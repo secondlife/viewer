@@ -100,9 +100,16 @@ void LLWLDayCycle::loadDayCycleFromFile(const std::string & fileName)
 	// now load the file
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, 
 		"windlight/days", fileName));
-	llinfos << "Loading DayCycle settings from " << pathName << llendl;
+
+	return loadDayCycleFromPath(pathName);
+}
+
+// static
+LLSD LLWLDayCycle::loadDayCycleFromPath(const std::string& file_path)
+{
+	LL_INFOS("Windlight") << "Loading DayCycle settings from " << file_path << LL_ENDL;
 	
-	llifstream day_cycle_xml(pathName);
+	llifstream day_cycle_xml(file_path);
 	if (day_cycle_xml.is_open())
 	{
 		// load and parse it

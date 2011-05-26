@@ -123,6 +123,7 @@ set(viewer_SOURCE_FILES
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldateutil.cpp
+    lldaycyclemanager.cpp
     lldebugmessagebox.cpp
     lldebugview.cpp
     lldelayedgestureerror.cpp
@@ -670,6 +671,7 @@ set(viewer_HEADER_FILES
     llcurrencyuimanager.h
     llcylinder.h
     lldateutil.h
+    lldaycyclemanager.h
     lldebugmessagebox.h
     lldebugview.h
     lldelayedgestureerror.h

@@ -246,7 +246,7 @@ public:
 	void applyDefaults();
 
 	/// apply default sky params
-	void applyDayCycle(const std::string& day);
+	bool applyDayCycle(const std::string& day);
 
 	// get where the light is pointing
 	inline LLVector4 getLightDir(void) const;

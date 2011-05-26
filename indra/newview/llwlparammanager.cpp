@@ -50,6 +50,7 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 
+#include "lldaycyclemanager.h"
 #include "llenvmanager.h"
 #include "llwlparamset.h"
 #include "llpostprocess.h"
@@ -613,7 +614,11 @@ void LLWLParamManager::applyUserPrefs(bool interpolate)
 	{
 		if (LLEnvManagerNew::instance().getUseDayCycle())
 		{
-			applyDayCycle(LLEnvManagerNew::instance().getDayCycleName());
+			if (!applyDayCycle(LLEnvManagerNew::instance().getDayCycleName()))
+			{
+				// *TODO: fix user prefs
+				applyDefaults();
+			}
 		}
 		else
 		{
@@ -627,14 +632,21 @@ void LLWLParamManager::applyUserPrefs(bool interpolate)
 
 void LLWLParamManager::applyDefaults()
 {
-	applyDayCycle("Default");
+	llassert(applyDayCycle("Default") == true);
 }
 
-void LLWLParamManager::applyDayCycle(const std::string& day_cycle)
+bool LLWLParamManager::applyDayCycle(const std::string& day_cycle)
 {
 	LL_DEBUGS("Windlight") << "Applying day cycle [" << day_cycle << "]" << LL_ENDL;
-	mDay.loadDayCycleFromFile(day_cycle + ".xml");
+
+	if (!LLDayCycleManager::instance().getPreset(day_cycle, mDay))
+	{
+		llwarns << "No day cycle named " << day_cycle << llendl;
+		return false;
+	}
+
 	resetAnimator(0.5, true); // set to noon and start animator
+	return true;
 }
 
 void LLWLParamManager::resetAnimator(F32 curTime, bool run)
