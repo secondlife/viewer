@@ -123,10 +123,10 @@
  <button
   follows="left|top"
   height="23"
-  label="Save"
+  label="Apply"
   layout="topleft"
   right="-160"
-  name="save_btn"
+  name="apply_btn"
   top_pad="150"
   width="100" />
  <button
