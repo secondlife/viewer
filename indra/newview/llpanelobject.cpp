@@ -64,6 +64,7 @@
 #include "pipeline.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
+#include "llmeshrepository.h"
 //#include "llfirstuse.h"
 
 #include "lldrawpool.h"
@@ -1740,9 +1741,7 @@ void LLPanelObject::refresh()
 		mRootObject = NULL;
 	}
 	
-	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
-					   gAgent.getRegion() &&
-					   !gAgent.getRegion()->getCapability("GetMesh").empty();
+	bool enable_mesh = gMeshRepo.meshRezEnabled();
 
 	F32 max_scale = get_default_max_prim_scale(LLPickInfo::isFlora(mObject));
 
