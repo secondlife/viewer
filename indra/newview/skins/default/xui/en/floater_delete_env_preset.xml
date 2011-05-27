@@ -2,22 +2,31 @@
 <floater
  legacy_header_height="18"
  height="130"
- help_topic="environment_editor_floater"
+ help_topic=""
  layout="topleft"
- name="Environment Editor Floater"
+ name="Delete Env Preset"
  save_rect="true"
- title="DELETE PRESETS"
+ title="DELETE ENV PRESET"
  width="550">
+
+    <string name="title_water">Delete Water Preset</string>
+    <string name="title_sky">Delete Sky Preset</string>
+    <string name="title_day_cycle">Delete Day Cycle</string>
+
+    <string name="label_water">Preset:</string>
+    <string name="label_sky">Preset:</string>
+    <string name="label_day_cycle">Day cycle:</string>
+
     <text
      follows="top|left|right"
      font="SansSerif"
      height="10"
      layout="topleft"
      left="50"
-     name="delete_preset"
+     name="label"
      top="60"
      width="60">
-     Setting:
+     Preset:
     </text>
     <combo_box
      follows="top|left"

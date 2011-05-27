@@ -276,6 +276,15 @@ public:
 	/// @return cached env. settings of the current region.
 	const LLEnvironmentSettings& getRegionSettings() const;
 
+	// Change environment w/o changing user preferences.
+	bool usePrefs();
+	bool useDefaults();
+	bool useWaterPreset(const std::string& name);
+	bool useWaterParams(const LLSD& params);
+	bool useSkyParams(const LLSD& params);
+	bool useDayCycle(const std::string& name, LLEnvKey::EScope scope);
+	bool useDayCycleParams(const LLSD& params, LLEnvKey::EScope scope);
+
 	// setters for user env. preferences
 	void setUseRegionSettings(bool val);
 	void setUseWaterPreset(const std::string& name);
@@ -292,9 +301,6 @@ public:
 		bool use_fixed_sky,
 		bool use_region_settings);
 	void dumpUserPrefs();
-
-	// Common interface to the wl/water managers.
-	static LLSD getDayCycleByName(const std::string name);
 
 	// Misc.
 	void requestRegionSettings();

@@ -438,6 +438,9 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
+	// LLView
+	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
+
 	// LLPanelRegionInfo
 	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region);
 
@@ -450,10 +453,18 @@ private:
 	void populateSkyPresetsList();
 	void populateDayCyclesList();
 
+	bool getSelectedWaterParams(LLSD& water_params);
+	bool getSelectedSkyParams(LLSD& sky_params, std::string& preset_name);
+	bool getSelectedDayCycleParams(LLSD& day_cycle, LLSD& sky_map, short& scope);
+
 	void onSwitchRegionSettings();
 	void onSwitchDayCycle();
 
-	void onBtnSave();
+	void onSelectWaterPreset();
+	void onSelectSkyPreset();
+	void onSelectDayCycle();
+
+	void onBtnApply();
 	void onBtnCancel();
 
 	void onRegionSettingschange();

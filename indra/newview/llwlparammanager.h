@@ -245,8 +245,11 @@ public:
 	/// apply default sky params
 	void applyDefaults();
 
-	/// apply default sky params
-	void applyDayCycle(const std::string& day);
+	/// apply specified day cycle, setting time to noon by default
+	bool applyDayCycleParams(const LLSD& params, LLEnvKey::EScope scope, F32 time = 0.5);
+
+	/// apply specified fixed sky params
+	bool applySkyParams(const LLSD& params);
 
 	// get where the light is pointing
 	inline LLVector4 getLightDir(void) const;
@@ -287,6 +290,9 @@ public:
 
 	/// add all skies in LLSD using the given scope
 	void addAllSkies(LLEnvKey::EScope scope, const LLSD& preset_map);
+
+	/// refresh region-scope presets
+	void refreshRegionPresets();
 
 	// returns all skies referenced by the current day cycle (in mDay), with their final names
 	// side effect: applies changes to all internal structures!  (trashes all unreferenced skies in scope, keys in day cycle rescoped to scope, etc.)

@@ -3,17 +3,23 @@
  legacy_header_height="18"
  height="375"
  layout="topleft"
- name="Environment Editor Floater"
- help_topic="environment_editor_floater"
+ name="Edit Sky Preset"
+ help_topic=""
  save_rect="true"
  title="Edit Sky Preset"
  width="900">
+
+    <string name="title_new">Create a New Sky Preset</string>
+    <string name="title_edit">Edit Sky Preset</string>
+    <string name="hint_new">Name your preset, adjust the controls to create it, and click "Save".</string>
+    <string name="hint_edit">To edit your sky preset, adjust the controls and click "Save".</string>
+
     <text
      follows="top|left|right"
      height="10"
      layout="topleft"
      left="30"
-     name="info_string"
+     name="hint"
      top="25"
      width="700">
      To edit your preset, adjust the controls then click "Save"
@@ -24,7 +30,7 @@
      height="10"
      layout="topleft"
      left="30"
-     name="info_string"
+     name="label"
      top_pad="25"
      width="120">
         Preset Name:
@@ -34,7 +40,7 @@
      follows="top|left"
      layout="topleft"
      left_pad="10"
-     name="water_preset_combo"
+     name="sky_preset_combo"
      top_delta="-5"
      width="200">
         <combo_box.item
@@ -47,7 +53,7 @@
      height="40"
      layout="topleft"
      left_pad="10"
-     name="info_string"
+     name="note"
      top_delta="0"
      width="405"
      wrap="true">

@@ -31,6 +31,7 @@
 #include "llcombobox.h"
 #include "llradiogroup.h"
 
+#include "lldaycyclemanager.h"
 #include "llenvmanager.h"
 #include "llwaterparammanager.h"
 #include "llwlparamset.h"
@@ -196,6 +197,7 @@ void LLFloaterEnvironmentSettings::populateSkyPresetsList()
 	const std::map<LLWLParamKey, LLWLParamSet> &sky_params_map = LLWLParamManager::getInstance()->mParamList;
 	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = sky_params_map.begin(); it != sky_params_map.end(); it++)
 	{
+		if (it->first.scope == LLEnvKey::SCOPE_REGION) continue; // list only local presets
 		mSkyPresetCombo->add(it->first.name);
 	}
 }
@@ -204,6 +206,9 @@ void LLFloaterEnvironmentSettings::populateDayCyclePresetsList()
 {
 	mDayCyclePresetCombo->removeall();
 
-	std::string day_cycle_name = LLEnvManagerNew::getInstance()->getDayCycleName();
-	mDayCyclePresetCombo->add(day_cycle_name);
+	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
+	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
+	{
+		mDayCyclePresetCombo->add(it->first);
+	}
 }

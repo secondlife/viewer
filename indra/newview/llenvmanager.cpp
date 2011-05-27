@@ -37,6 +37,7 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 
+#include "lldaycyclemanager.h"
 #include "llfloaterreg.h"
 #include "llfloaterwindlight.h"
 #include "llfloaterwater.h"
@@ -668,6 +669,74 @@ const LLEnvironmentSettings& LLEnvManagerNew::getRegionSettings() const
 	return mCachedRegionPrefs;
 }
 
+bool LLEnvManagerNew::usePrefs()
+{
+	LL_DEBUGS("Windlight") << "Displaying preferred environment" << LL_ENDL;
+	updateManagersFromPrefs(false);
+	return true;
+}
+
+bool LLEnvManagerNew::useDefaults()
+{
+	bool rslt = useWaterPreset("Default") && useDayCycle("Default", LLEnvKey::SCOPE_LOCAL);
+	return rslt;
+}
+
+bool LLEnvManagerNew::useWaterPreset(const std::string& name)
+{
+	LL_DEBUGS("Windlight") << "Displaying water preset " << name << LL_ENDL;
+	LLWaterParamManager& water_mgr = LLWaterParamManager::instance();
+	bool rslt = water_mgr.getParamSet(name, water_mgr.mCurParams);
+	llassert(rslt == true);
+	return rslt;
+}
+
+bool LLEnvManagerNew::useWaterParams(const LLSD& params)
+{
+	LL_DEBUGS("Windlight") << "Displaying water params" << LL_ENDL;
+	LLWaterParamManager::instance().mCurParams.setAll(params);
+	return true;
+}
+
+bool LLEnvManagerNew::useSkyParams(const LLSD& params)
+{
+	LL_DEBUGS("Windlight") << "Displaying sky params" << LL_ENDL;
+	LLWLParamManager::instance().applySkyParams(params);
+	return true;
+}
+
+bool LLEnvManagerNew::useDayCycle(const std::string& name, LLEnvKey::EScope scope)
+{
+	LLSD params;
+
+	if (scope == LLEnvKey::SCOPE_REGION)
+	{
+		LL_DEBUGS("Windlight") << "Displaying region day cycle " << name << LL_ENDL;
+		params = getRegionSettings().getWLDayCycle();
+	}
+	else
+	{
+		LL_DEBUGS("Windlight") << "Displaying local day cycle " << name << LL_ENDL;
+
+		if (!LLDayCycleManager::instance().getPreset(name, params))
+		{
+			llwarns << "No day cycle named " << name << llendl;
+			return false;
+		}
+	}
+
+	bool rslt = LLWLParamManager::instance().applyDayCycleParams(params, scope);
+	llassert(rslt == true);
+	return rslt;
+}
+
+bool LLEnvManagerNew::useDayCycleParams(const LLSD& params, LLEnvKey::EScope scope)
+{
+	LL_DEBUGS("Windlight") << "Displaying day cycle params" << LL_ENDL;
+	LLWLParamManager::instance().applyDayCycleParams(params, scope);
+	return true;
+}
+
 void LLEnvManagerNew::setUseRegionSettings(bool val)
 {
 	mUserPrefs.setUseDefaults(val);
@@ -764,12 +833,6 @@ void LLEnvManagerNew::dumpUserPrefs()
 	LL_DEBUGS("Windlight") << "UseDayCycle: "				<< gSavedSettings.getBOOL("UseDayCycle") << LL_ENDL;
 }
 
-// static
-LLSD LLEnvManagerNew::getDayCycleByName(const std::string name)
-{
-	return LLWLDayCycle::loadCycleDataFromFile(name + ".xml");
-}
-
 void LLEnvManagerNew::requestRegionSettings()
 {
 	LLEnvironmentRequest::initiate();
@@ -824,9 +887,14 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	LLEnvironmentSettings new_settings(content[1], content[2], content[3], sun_hour);
 	mCachedRegionPrefs = new_settings;
 
+	// Load region sky presets.
+	LLWLParamManager::instance().refreshRegionPresets();
+
 	// If using server settings, update managers.
-	// This also adds server skies to the WL param mgr.
-	updateManagersFromPrefs(mInterpNextChangeMessage);
+	if (getUseRegionSettings())
+	{
+		updateManagersFromPrefs(mInterpNextChangeMessage);
+	}
 
 	// Let interested parties know about the region settings update.
 	mRegionSettingsChangeSignal();

@@ -52,6 +52,7 @@
 #include "llbutton.h" 
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "lldaycyclemanager.h"
 #include "llenvmanager.h"
 #include "llfilepicker.h"
 #include "llfloaterdaycycle.h"
@@ -1204,7 +1205,7 @@ F32 LLPanelRegionTerrainInfo::getSunHour()
 // virtual
 bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 {
-	LLEnvManager::instance().maybeClearEditingScope(LLEnvKey::SCOPE_REGION, false, false);
+	//LLEnvManager::instance().maybeClearEditingScope(LLEnvKey::SCOPE_REGION, false, false);
 
 	BOOL owner_or_god = gAgent.isGodlike() 
 						|| (region && (region->getOwner() == gAgent.getID()));
@@ -2168,7 +2169,7 @@ void LLFloaterRegionInfo::onClose(bool app_quitting)
 {
 	if(!app_quitting)
 	{
-		LLEnvManager::getInstance()->maybeClearEditingScope(true, false);
+		//LLEnvManager::getInstance()->maybeClearEditingScope(true, false);
 		LLPanelRegionTerrainInfo::onFloaterClose(app_quitting);
 	}
 }
@@ -3278,10 +3279,15 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 	mDayCycleSettingsRadioGroup->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSwitchDayCycle, this));
 
 	mWaterPresetCombo = getChild<LLComboBox>("water_settings_preset_combo");
-	mSkyPresetCombo = getChild<LLComboBox>("sky_settings_preset_combo");
-	mDayCyclePresetCombo = getChild<LLComboBox>("dayc_settings_preset_combo");
+	mWaterPresetCombo->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSelectWaterPreset, this));
 
-	childSetCommitCallback("save_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnSave, this), NULL);
+	mSkyPresetCombo = getChild<LLComboBox>("sky_settings_preset_combo");
+	mSkyPresetCombo->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSelectSkyPreset, this));
+
+	mDayCyclePresetCombo = getChild<LLComboBox>("dayc_settings_preset_combo");
+	mDayCyclePresetCombo->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSelectDayCycle, this));
+
+	childSetCommitCallback("apply_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnApply, this), NULL);
 	childSetCommitCallback("cancel_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnCancel, this), NULL);
 
 	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingschange, this));
@@ -3295,6 +3301,17 @@ void LLPanelEnvironmentInfo::onOpen(const LLSD& key)
 {
 	LL_DEBUGS("Windlight") << "Panel opened, refreshing" << LL_ENDL;
 	refresh();
+}
+
+// virtual
+void LLPanelEnvironmentInfo::handleVisibilityChange(BOOL new_visibility)
+{
+	// If hiding (user switched to another tab or closed the floater),
+	// display user's preferred environment.
+	if (!new_visibility)
+	{
+		LLEnvManagerNew::instance().usePrefs();
+	}
 }
 
 // virtual
@@ -3337,14 +3354,18 @@ void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 	mSkyPresetCombo->setEnabled(enabled);
 	mDayCyclePresetCombo->setEnabled(enabled);
 
-	getChildView("save_btn")->setEnabled(enabled);
+	getChildView("apply_btn")->setEnabled(enabled);
 	getChildView("cancel_btn")->setEnabled(enabled);
 
 	if (enabled)
 	{
 		// Enable/disable some controls based on currently selected radio buttons.
-		LLPanelEnvironmentInfo::onSwitchRegionSettings();
-		LLPanelEnvironmentInfo::onSwitchDayCycle();
+		bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
+		getChild<LLView>("user_environment_settings")->setEnabled(!use_defaults);
+
+		bool is_fixed_sky = mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
+		mSkyPresetCombo->setEnabled(is_fixed_sky);
+		mDayCyclePresetCombo->setEnabled(!is_fixed_sky);
 	}
 }
 
@@ -3431,21 +3452,113 @@ void LLPanelEnvironmentInfo::populateDayCyclesList()
 		llassert(region != NULL);
 
 		LLWLParamKey key(region->getName(), LLEnvKey::SCOPE_REGION);
-		mDayCyclePresetCombo->add(region->getName(), key.toLLSD());
+		mDayCyclePresetCombo->add(region->getName(), key.toStringVal());
 		mDayCyclePresetCombo->addSeparator();
 	}
 
 	// Add local day cycles.
-	// *TODO: multiple local day cycles support
-	LLWLParamKey key("Default", LLEnvKey::SCOPE_LOCAL);
-	mDayCyclePresetCombo->add("Default", key.toLLSD());
+	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
+	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
+	{
+		std::string name = it->first;
+		LLWLParamKey key(name, LLEnvKey::SCOPE_LOCAL);
+		mDayCyclePresetCombo->add(name, key.toStringVal());
+	}
 
 	// Current day cycle is already selected.
 }
 
+bool LLPanelEnvironmentInfo::getSelectedWaterParams(LLSD& water_params)
+{
+	LLWLParamKey water_key(mWaterPresetCombo->getSelectedValue());
+
+	if (water_key.scope == LLEnvKey::SCOPE_REGION)
+	{
+		water_params = LLEnvManagerNew::instance().getRegionSettings().getWaterParams();
+	}
+	else
+	{
+		LLWaterParamSet param_set;
+		if (!LLWaterParamManager::instance().getParamSet(water_key.name, param_set))
+		{
+			llwarns << "Error getting water preset: " << water_key.name << llendl;
+			return false;
+		}
+
+		water_params = param_set.getAll();
+	}
+
+	return true;
+}
+
+bool LLPanelEnvironmentInfo::getSelectedSkyParams(LLSD& sky_params, std::string& preset_name)
+{
+	std::string preset_key(mSkyPresetCombo->getValue().asString());
+	LLWLParamKey preset(preset_key);
+
+	// Get the preset sky params.
+	LLWLParamSet param_set;
+	if (!LLWLParamManager::instance().getParamSet(preset, param_set))
+	{
+		llwarns << "Error getting sky params: " << preset.toLLSD() << llendl;
+		return false;
+	}
+
+	sky_params = param_set.getAll();
+	preset_name = preset.name;
+	return true;
+}
+
+bool LLPanelEnvironmentInfo::getSelectedDayCycleParams(LLSD& day_cycle, LLSD& sky_map, short& scope)
+{
+	std::string preset_key(mDayCyclePresetCombo->getValue().asString());
+	LLWLParamKey dc(preset_key);
+	LL_DEBUGS("Windlight") << "Use day cycle: " << dc.toLLSD() << LL_ENDL;
+
+	if (dc.scope == LLEnvKey::SCOPE_REGION) // current region day cycle
+	{
+		const LLEnvironmentSettings& cur_region_settings = LLEnvManagerNew::instance().getRegionSettings();
+		day_cycle = cur_region_settings.getWLDayCycle();
+		sky_map = cur_region_settings.getSkyMap();
+	}
+	else // a local day cycle
+	{
+		if (!LLDayCycleManager::instance().getPreset(dc.name, day_cycle))
+		{
+			llwarns << "Error getting day cycle " << dc.name << llendl;
+			return false;
+		}
+
+		// Create sky map from the day cycle.
+		{
+			std::map<LLWLParamKey, LLWLParamSet> refs;
+			LLWLDayCycle tmp_day;
+
+			tmp_day.loadDayCycle(day_cycle, dc.scope);
+			tmp_day.getSkyRefs(refs);
+
+			sky_map = LLWLParamManager::createSkyMap(refs);
+		}
+	}
+
+	scope = dc.scope;
+
+	return true;
+}
 void LLPanelEnvironmentInfo::onSwitchRegionSettings()
 {
-	getChild<LLView>("user_environment_settings")->setEnabled(mRegionSettingsRadioGroup->getSelectedIndex() != 0);
+	bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
+	getChild<LLView>("user_environment_settings")->setEnabled(!use_defaults);
+
+	if (use_defaults)
+	{
+		LLEnvManagerNew::instance().useDefaults();
+	}
+	else
+	{
+		onSelectWaterPreset();
+		onSwitchDayCycle();
+	}
 }
 
 void LLPanelEnvironmentInfo::onSwitchDayCycle()
@@ -3454,13 +3567,52 @@ void LLPanelEnvironmentInfo::onSwitchDayCycle()
 
 	mSkyPresetCombo->setEnabled(is_fixed_sky);
 	mDayCyclePresetCombo->setEnabled(!is_fixed_sky);
+
+	if (is_fixed_sky)
+	{
+		onSelectSkyPreset();
+	}
+	else
+	{
+		onSelectDayCycle();
+	}
 }
 
-void LLPanelEnvironmentInfo::onBtnSave()
+void LLPanelEnvironmentInfo::onSelectWaterPreset()
 {
-	LL_DEBUGS("Windlight") << "About to save region settings" << LL_ENDL;
+	LLSD water_params;
 
-	const LLEnvironmentSettings& old_region_settings = LLEnvManagerNew::instance().getRegionSettings();
+	if (getSelectedWaterParams(water_params))
+	{
+		LLEnvManagerNew::instance().useWaterParams(water_params);
+	}
+}
+
+void LLPanelEnvironmentInfo::onSelectSkyPreset()
+{
+	LLSD params;
+	std::string dummy;
+
+	if (getSelectedSkyParams(params, dummy))
+	{
+		LLEnvManagerNew::instance().useSkyParams(params);
+	}
+}
+
+void LLPanelEnvironmentInfo::onSelectDayCycle()
+{
+	LLSD day_cycle;
+	LLSD sky_map; // unused
+	short scope;
+
+	if (getSelectedDayCycleParams(day_cycle, sky_map, scope))
+	{
+		LLEnvManagerNew::instance().useDayCycleParams(day_cycle, (LLEnvKey::EScope) scope);
+	}
+}
+
+void LLPanelEnvironmentInfo::onBtnApply()
+{
 	const bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
 	const bool use_fixed_sky = mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
 
@@ -3478,75 +3630,54 @@ void LLPanelEnvironmentInfo::onBtnSave()
 		if (use_fixed_sky)
 		{
 			LL_DEBUGS("Windlight") << "Use fixed sky" << LL_ENDL;
-			std::string preset_key(mSkyPresetCombo->getValue().asString());
-			LLWLParamKey preset(preset_key);
 
-			// Get the preset sky params.
-			LLWLParamSet params;
-			if (!LLWLParamManager::instance().getParamSet(preset, params))
+			// Get selected sky params.
+			LLSD params;
+			std::string preset_name;
+			if (!getSelectedSkyParams(params, preset_name))
 			{
-				llwarns << "Error getting sky params: " << preset.toLLSD() << llendl;
 				return;
 			}
 
 			// Create a day cycle consisting of a single sky preset.
 			LLSD key(LLSD::emptyArray());
 			key.append(-1.0f); // indicate that user preference is actually fixed sky, not a day cycle
-			key.append(preset.name);
+			key.append(preset_name);
 			day_cycle.append(key);
 
 			// Create a sky map consisting of only the sky preset.
 			std::map<LLWLParamKey, LLWLParamSet> refs;
-			refs[preset] = params;
+			LLWLParamSet param_set;
+			param_set.setAll(params);
+			refs[LLWLParamKey(preset_name, LLEnvKey::SCOPE_LOCAL)] = param_set; // scope doesn't matter here
 			sky_map = LLWLParamManager::createSkyMap(refs);
 		}
 		else // use day cycle
 		{
-			LLWLParamKey dc(mDayCyclePresetCombo->getValue());
-			LL_DEBUGS("Windlight") << "Use day cycle: " << dc.toLLSD() << LL_ENDL;
+			LL_DEBUGS("Windlight") << "Use day cycle" << LL_ENDL;
 
-			if (dc.scope == LLEnvKey::SCOPE_REGION) // current region day cycle
+			short scope; // unused
+			if (!getSelectedDayCycleParams(day_cycle, sky_map, scope))
 			{
-				day_cycle = old_region_settings.getWLDayCycle();
-				sky_map = old_region_settings.getSkyMap();
+				return;
 			}
-			else // a local day cycle
+
+			// If it's a special single-preset day cycle meaning using a fixed sky,
+			// reset the frame time to a non-negative value,
+			// so that the region setting is displayed in the floater as
+			// a day cycle, not a preset. (STORM-1289)
+			if (day_cycle.size() == 1 && day_cycle[0][0].asReal() < 0.0f)
 			{
-				// *TODO: multiple local day cycles support
-				day_cycle = LLEnvManagerNew::instance().getDayCycleByName("Default");
-
-				// Create sky map from the day cycle.
-				{
-					std::map<LLWLParamKey, LLWLParamSet> refs;
-					LLWLDayCycle tmp_day;
-
-					tmp_day.loadDayCycle(day_cycle, dc.scope);
-					tmp_day.getSkyRefs(refs);
-
-					sky_map = LLWLParamManager::createSkyMap(refs);
-				}
-
-				LL_DEBUGS("Windlight") << "day_cycle: " << day_cycle << LL_ENDL;
-				LL_DEBUGS("Windlight") << "sky_map: " << sky_map << LL_ENDL;
+				LL_DEBUGS("Windlight") << "Fixing negative time" << LL_ENDL;
+				day_cycle[0][0] = 0.0f;
 			}
 		}
 
 		// Get water params.
-		LLWLParamKey water_key(mWaterPresetCombo->getSelectedValue());
-		if (water_key.scope == LLEnvKey::SCOPE_REGION)
+		if (!getSelectedWaterParams(water_params))
 		{
-			water_params = old_region_settings.getWaterParams();
-		}
-		else
-		{
-			LLWaterParamSet param_set;
-			if (!LLWaterParamManager::instance().getParamSet(water_key.name, param_set))
-			{
-				llwarns << "Error getting water preset: " << water_key.name << llendl;
-				return;
-			}
-
-			water_params = param_set.getAll();
+			// *TODO: show a notification?
+			return;
 		}
 	}
 
@@ -3564,8 +3695,16 @@ void LLPanelEnvironmentInfo::onBtnSave()
 
 void LLPanelEnvironmentInfo::onBtnCancel()
 {
-	// Reload current region settings.
+	// Reload last saved region settings.
 	refresh();
+
+	// Apply them.
+	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
+	const LLEnvironmentSettings& cur_settings = env_mgr.getRegionSettings();
+	const LLSD& region_day_cycle = cur_settings.getWLDayCycle();
+	const LLSD& region_water = cur_settings.getWaterParams();
+	env_mgr.useWaterParams(region_water);
+	env_mgr.useDayCycleParams(region_day_cycle, LLEnvKey::SCOPE_REGION);
 }
 
 void LLPanelEnvironmentInfo::onRegionSettingschange()
