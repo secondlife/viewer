@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="REGION MEMORY" name="script_limits_region_memory_panel">
+	<text name="script_memory">
+		Parcel Script Memory
+	</text>
+	<text name="loading_text">
+		載入中...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Size (kb)" name="size"/>
+		<scroll_list.columns label="URLs" name="urls"/>
+		<scroll_list.columns label="物件名稱" name="name"/>
+		<scroll_list.columns label="Object Owner" name="owner"/>
+		<scroll_list.columns label="地段" name="parcel"/>
+		<scroll_list.columns label="Location" name="location"/>
+	</scroll_list>
+	<button label="Refresh List" name="refresh_list_btn"/>
+	<button label="Highlight" name="highlight_btn"/>
+	<button label="Return" name="return_btn"/>
+</panel>

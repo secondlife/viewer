@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="world_map">
+	<panel.string name="Loading">
+		載入中...
+	</panel.string>
+	<panel.string name="InvalidLocation">
+		Invalid Location
+	</panel.string>
+	<panel.string name="world_map_north">
+		N
+	</panel.string>
+	<panel.string name="world_map_east">
+		E
+	</panel.string>
+	<panel.string name="world_map_west">
+		W
+	</panel.string>
+	<panel.string name="world_map_south">
+		S
+	</panel.string>
+	<panel.string name="world_map_southeast">
+		SE
+	</panel.string>
+	<panel.string name="world_map_northeast">
+		NE
+	</panel.string>
+	<panel.string name="world_map_southwest">
+		SW
+	</panel.string>
+	<panel.string name="world_map_northwest">
+		NW
+	</panel.string>
+	<panel.string name="world_map_person">
+		1 person
+	</panel.string>
+	<panel.string name="world_map_people">
+		[NUMBER] people
+	</panel.string>
+	<text label="N" name="floater_map_north">
+		N
+	</text>
+	<text label="E" name="floater_map_east">
+		E
+	</text>
+	<text label="W" name="floater_map_west">
+		W
+	</text>
+	<text label="S" name="floater_map_south">
+		S
+	</text>
+	<text label="SE" name="floater_map_southeast">
+		SE
+	</text>
+	<text label="NE" name="floater_map_northeast">
+		NE
+	</text>
+	<text label="SW" name="floater_map_southwest">
+		SW
+	</text>
+	<text label="NW" name="floater_map_northwest">
+		NW
+	</text>
+</panel>

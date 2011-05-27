@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profile Edit" name="edit_profile_panel">
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE]
+[PAYMENTINFO] [AGEVERIFICATION]
+	</string>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
+	<string name="AcctTypeResident" value="Resident"/>
+	<string name="AcctTypeTrial" value="Trial"/>
+	<string name="AcctTypeCharterMember" value="Charter Member"/>
+	<string name="AcctTypeEmployee" value="Linden Lab Employee"/>
+	<string name="PaymentInfoUsed" value="Payment Info Used"/>
+	<string name="PaymentInfoOnFile" value="Payment Info On File"/>
+	<string name="NoPaymentInfoOnFile" value="No Payment Info On File"/>
+	<string name="AgeVerified" value="Age-verified"/>
+	<string name="NotAgeVerified" value="Not Age-verified"/>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=en
+	</string>
+	<string name="my_account_link_url">
+		http://secondlife.com/my
+	</string>
+	<string name="no_partner_text" value="無"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="data_panel">
+				<text name="display_name_label" value="Display Name:"/>
+				<text name="solo_username_label" value="Username:"/>
+				<button name="set_name" tool_tip="Set Display Name"/>
+				<text name="user_label" value="Username:"/>
+				<panel name="lifes_images_panel">
+					<panel name="second_life_image_panel">
+						<text name="second_life_photo_title_text" value="[SECOND_LIFE]:"/>
+					</panel>
+					<icon label="" name="2nd_life_edit_icon" tool_tip="Click to select an image"/>
+				</panel>
+				<panel name="first_life_image_panel">
+					<text name="real_world_photo_title_text" value="Real World:"/>
+				</panel>
+				<icon label="" name="real_world_edit_icon" tool_tip="Click to select an image"/>
+				<text name="title_homepage_text">
+					Homepage:
+				</text>
+				<line_editor name="homepage_edit" value="http://"/>
+				<text name="title_acc_status_text" value="My Account:"/>
+				<text_editor name="acc_status_text" value="Resident. No payment info on file."/>
+				<text name="my_account_link" value="[[URL] Go to My Dashboard]"/>
+				<text name="title_partner_text" value="My Partner:"/>
+				<panel name="partner_data_panel">
+					<text initial_value="(retrieving)" name="partner_text"/>
+				</panel>
+				<text name="partner_edit_link" value="[[URL] Edit]"/>
+			</panel>
+		</panel>
+	</scroll_container>
+	<panel name="profile_me_buttons_panel">
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_changes_btn_lp">
+				<button label="Save Changes" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="取銷" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

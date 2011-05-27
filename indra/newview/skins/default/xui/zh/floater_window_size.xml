@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="window_size" title="WINDOW SIZE">
+	<string name="resolution_format">
+		[RES_X] x [RES_Y]
+	</string>
+	<text name="windowsize_text">
+		Set window size:
+	</text>
+	<combo_box name="window_size_combo" tool_tip="width x height">
+		<combo_box.item label="1000 x 700 (default)" name="item0"/>
+		<combo_box.item label="1024 x 768" name="item1"/>
+		<combo_box.item label="1280 x 720 (720p)" name="item2"/>
+		<combo_box.item label="1920 x 1080 (1080p)" name="item3"/>
+	</combo_box>
+	<button label="設定" name="set_btn"/>
+	<button label="取銷" name="cancel_btn"/>
+</floater>

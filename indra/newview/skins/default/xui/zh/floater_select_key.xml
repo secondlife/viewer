@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container">
+	<text name="Save item as:">
+		Press a key to set your Speak button trigger.
+	</text>
+	<button label="取銷" label_selected="取銷" name="Cancel"/>
+</floater>
