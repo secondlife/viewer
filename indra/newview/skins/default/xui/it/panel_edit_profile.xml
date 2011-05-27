@@ -22,6 +22,14 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="data_panel">
+				<text name="display_name_label" value="Nome visualizzato:"/>
+				<text name="solo_username_label" value="Nome utente:"/>
+				<button name="set_name" tool_tip="Imposta nome visualizzato"/>
+				<text name="solo_user_name" value="Hamilton Hitchings"/>
+				<text name="user_name" value="Hamilton Hitchings"/>
+				<text name="user_name_small" value="Hamilton Hitchings"/>
+				<text name="user_label" value="Nome utente:"/>
+				<text name="user_slid" value="hamilton.linden"/>
 				<panel name="lifes_images_panel">
 					<icon label="" name="2nd_life_edit_icon" tool_tip="Clicca per selezionare un&apos;immagine"/>
 				</panel>
@@ -38,7 +46,7 @@
 				<text name="my_account_link" value="[[URL] Go to My Dashboard]"/>
 				<text name="title_partner_text" value="Il mio partner:"/>
 				<panel name="partner_data_panel">
-					<name_box initial_value="(recupero)" name="partner_text"/>
+					<text initial_value="(recupero)" name="partner_text"/>
 				</panel>
 				<text name="partner_edit_link" value="[[URL] Edit]"/>
 			</panel>

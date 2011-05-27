@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Suoni" name="Preference Media panel">
+	<panel.string name="middle_mouse">
+		Pulsante centrale del mouse
+	</panel.string>
 	<slider label="Vol. principale" name="System Volume"/>
 	<check_box initial_value="true" label="" name="mute_when_minimized"/>
-	<text name="mute_chb_label">Disatt. se a icona</text>
+	<text name="mute_chb_label">
+		Disatt. audio se minimizzato
+	</text>
 	<slider label="Pulsanti" name="UI Volume"/>
 	<slider label="Ambiente" name="Wind Volume"/>
 	<slider label="Effetti sonori" name="SFX Volume"/>
@@ -24,6 +29,11 @@
 		<radio_item label="Posizione della fotocamera" name="0"/>
 		<radio_item label="Posizione dell&apos;avatar" name="1"/>
 	</radio_group>
+	<check_box label="Muovi le labbra dell&apos;avatar quando parla" name="enable_lip_sync"/>
+	<check_box label="Attiva/disattiva la funzione parla quando premo:" name="push_to_talk_toggle_check" tool_tip="In modalità &quot;interruttore ON/OFF&quot; premi il tasto una volta per attivare o disattivare il microfono. Quando non usi questa modalità, il microfono è attivo solo se tieni premuto il tasto di comando."/>
+	<line_editor label="Pulsante di comando della funzione Premi per parlare" name="modifier_combo"/>
+	<button label="Imposta tasto" name="set_voice_hotkey_button"/>
+	<button name="set_voice_middlemouse_button" tool_tip="Reimposta sul pulsante centrale del mouse"/>
 	<button label="Dispositivi di Input/Output" name="device_settings_btn" width="165"/>
 	<panel label="Impostazioni del dispositivo" name="device_settings_panel">
 		<panel.string name="default_text">

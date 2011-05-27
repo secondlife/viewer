@@ -7,11 +7,17 @@
 		</menu_item_call>
 		<menu_item_call label="L$ の購入" name="Buy and Sell L$"/>
 		<menu_item_call label="プロフィール" name="Profile"/>
-		<menu_item_call label="アウトフィットを変更" name="ChangeOutfit"/>
+		<menu_item_call label="容姿" name="ChangeOutfit"/>
 		<menu_item_check label="持ち物" name="Inventory"/>
 		<menu_item_check label="持ち物" name="ShowSidetrayInventory"/>
 		<menu_item_check label="ジェスチャー" name="Gestures"/>
 		<menu_item_check label="マイボイス" name="ShowVoice"/>
+		<menu label="ムーブメント" name="Movement">
+			<menu_item_call label="座る" name="Sit Down Here"/>
+			<menu_item_check label="飛ぶ" name="Fly"/>
+			<menu_item_check label="常に走る" name="Always Run"/>
+			<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
+		</menu>
 		<menu label="ログイン状態" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>
 			<menu_item_call label="取り込み中" name="Set Busy"/>
@@ -29,6 +35,7 @@
 	<menu label="世界" name="World">
 		<menu_item_check label="ミニマップ" name="Mini-Map"/>
 		<menu_item_check label="世界地図" name="World Map"/>
+		<menu_item_check label="検索" name="Search"/>
 		<menu_item_call label="スナップショット" name="Take Snapshot"/>
 		<menu_item_call label="現在地をランドマーク" name="Create Landmark Here"/>
 		<menu label="場所のプロフィール" name="Land">
@@ -47,6 +54,7 @@
 			<menu_item_check label="土地所有者" name="Land Owners"/>
 			<menu_item_check label="座標" name="Coordinates"/>
 			<menu_item_check label="区画プロパティ" name="Parcel Properties"/>
+			<menu_item_check label="アドバンスメニュー" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="ホームにテレポート" name="Teleport Home"/>
 		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
@@ -85,6 +93,7 @@
 			<menu_item_call label="コピーを取る" name="Take Copy"/>
 			<menu_item_call label="「持ち物」に保存" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="オブジェクトの中身に保存" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="オブジェクトを返却する" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="スクリプト" name="Scripts">
 			<menu_item_call label="スクリプトのリコンパイル（Mono）" name="Mono"/>
@@ -98,6 +107,7 @@
 			<menu_item_check label="私のオブジェクトだけを選択する" name="Select Only My Objects"/>
 			<menu_item_check label="動的オブジェクトだけを選択する" name="Select Only Movable Objects"/>
 			<menu_item_check label="範囲内を選択する" name="Select By Surrounding"/>
+			<menu_item_check label="選択外形を表示" name="Show Selection Outlines"/>
 			<menu_item_check label="隠れた位置の選択も表示する" name="Show Hidden Selection"/>
 			<menu_item_check label="選択した光の半径範囲を表示する" name="Show Light Radius for Selection"/>
 			<menu_item_check label="選択ビームを表示する" name="Show Selection Beam"/>
@@ -112,15 +122,17 @@
 			<menu_item_call label="アニメーション（L$[COST]）..." name="Upload Animation"/>
 			<menu_item_call label="一括 （ファイルにつきL$[COST]）..." name="Bulk Upload"/>
 		</menu>
+		<menu_item_call label="元に戻す" name="Undo"/>
+		<menu_item_call label="やり直し" name="Redo"/>
 	</menu>
 	<menu label="ヘルプ" name="Help">
 		<menu_item_call label="[SECOND_LIFE] ヘルプ" name="Second Life Help"/>
+		<menu_item_check label="ヒントを有効にする" name="Enable Hints"/>
 		<menu_item_call label="嫌がらせを報告する" name="Report Abuse"/>
 		<menu_item_call label="バグを報告する" name="Report Bug"/>
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
 	</menu>
 	<menu label="アドバンス" name="Advanced">
-		<menu_item_call label="自分のアニメーションを停止する" name="Stop Animating My Avatar"/>
 		<menu_item_call label="テクスチャのリベークをする" name="Rebake Texture"/>
 		<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
 		<menu_item_call label="ウィンドウのサイズを設定する" name="Set Window Size..."/>
@@ -175,8 +187,7 @@
 			<menu_item_check label="検索" name="Search"/>
 			<menu_item_call label="キーをリリース" name="Release Keys"/>
 			<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
-			<menu_item_check label="常に走る" name="Always Run"/>
-			<menu_item_check label="飛行する" name="Fly"/>
+			<menu_item_check label="アドバンスメニューを表示 - レガシーのショートカット" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="ウィンドウを閉じる" name="Close Window"/>
 			<menu_item_call label="全てのウィンドウを閉じる" name="Close All Windows"/>
 			<menu_item_call label="スナップショットをディスクに保存する" name="Snapshot to Disk"/>
@@ -194,7 +205,6 @@
 			<menu_item_call label="ズームイン" name="Zoom In"/>
 			<menu_item_call label="ズーム（デフォルト）" name="Zoom Default"/>
 			<menu_item_call label="ズームアウト" name="Zoom Out"/>
-			<menu_item_check label="アドバンスメニューを表示する" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="デバッグ設定を表示する" name="Debug Settings"/>
 		<menu_item_check label="開発メニューを表示する" name="Debug Mode"/>
@@ -219,8 +229,10 @@
 		<menu label="情報を表示" name="Display Info">
 			<menu_item_check label="時間を表示する" name="Show Time"/>
 			<menu_item_check label="描画情報を表示する" name="Show Render Info"/>
+			<menu_item_check label="テクスチャ情報を表示" name="Show Texture Info"/>
 			<menu_item_check label="マトリックスを表示する" name="Show Matrices"/>
 			<menu_item_check label="カーソルを乗せた場所の色を表示する" name="Show Color Under Cursor"/>
+			<menu_item_check label="メモリを表示：" name="Show Memory"/>
 			<menu_item_check label="オブジェクトのアップデートを表示する" name="Show Updates"/>
 		</menu>
 		<menu label="エラー実行" name="Force Errors">
@@ -245,6 +257,7 @@
 			<menu_item_check label="シャドウ円錐" name="Shadow Frusta"/>
 			<menu_item_check label="オクルージョン" name="Occlusion"/>
 			<menu_item_check label="バッチの描画" name="Render Batches"/>
+			<menu_item_check label="タイプを更新" name="Update Type"/>
 			<menu_item_check label="アニメーション部分をテクスチャで表示" name="Texture Anim"/>
 			<menu_item_check label="テクスチャ優先度" name="Texture Priority"/>
 			<menu_item_check label="テクスチャの範囲" name="Texture Area"/>
@@ -301,7 +314,8 @@
 			<menu_item_call label="リージョンオブジェクトのキャッシュをダンプする" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI" name="UI">
-			<menu_item_call label="Web ブラウザのテスト" name="Web Browser Test"/>
+			<menu_item_call label="メディアブラウザのテスト" name="Web Browser Test"/>
+			<menu_item_call label="Web コンテンツブラウザ" name="Web Content Browser"/>
 			<menu_item_call label="SelectMgr をダンプ" name="Dump SelectMgr"/>
 			<menu_item_call label="持ち物の出力" name="Dump Inventory"/>
 			<menu_item_call label="タイマーをダンプ" name="Dump Timers"/>
@@ -309,8 +323,7 @@
 			<menu_item_call label="選択したオブジェクト情報をプリント" name="Print Selected Object Info"/>
 			<menu_item_call label="エージェント情報をプリント" name="Print Agent Info"/>
 			<menu_item_call label="メモリ使用状況" name="Memory Stats"/>
-			<menu_item_check label="ダブルクリックで自動追跡を行う" name="Double-Click Auto-Pilot"/>
-			<menu_item_check label="ダブルクリックでテレポート" name="DoubleClick Teleport"/>
+			<menu_item_check label="地域デバッグコンソール" name="Region Debug Console"/>
 			<menu_item_check label="SelectMgr のデバッグ" name="Debug SelectMgr"/>
 			<menu_item_check label="ダブルクリック" name="Debug Clicks"/>
 			<menu_item_check label="デバッグ表示" name="Debug Views"/>
@@ -322,10 +335,9 @@
 		<menu label="XUI" name="XUI">
 			<menu_item_call label="色の設定を更新する" name="Reload Color Settings"/>
 			<menu_item_call label="フォントテストを表示する" name="Show Font Test"/>
-			<menu_item_call label="XML から読み込む" name="Load from XML"/>
-			<menu_item_call label="XML で保存する" name="Save to XML"/>
 			<menu_item_check label="XUI ネームを表示する" name="Show XUI Names"/>
 			<menu_item_call label="テスト用 IM を送信する" name="Send Test IMs"/>
+			<menu_item_call label="名前のキャッシュをフラッシュ" name="Flush Names Caches"/>
 		</menu>
 		<menu label="アバター" name="Character">
 			<menu label="ベークドテクスチャを取得する" name="Grab Baked Texture">
@@ -362,9 +374,9 @@
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
 		<menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump"/>
 		<menu_item_check label="次回の起動時にコンソールウィンドウを表示する" name="Console Window"/>
-		<menu_item_check label="管理者メニューを表示する" name="View Admin Options"/>
 		<menu_item_call label="管理者ステータスの呼び出し" name="Request Admin Options"/>
 		<menu_item_call label="管理者ステータス解除" name="Leave Admin Options"/>
+		<menu_item_check label="管理者メニューを表示する" name="View Admin Options"/>
 	</menu>
 	<menu label="管理者" name="Admin">
 		<menu label="Object">
@@ -401,6 +413,7 @@
 			<menu_item_call label="スカート" name="Skirt"/>
 			<menu_item_call label="アルファ" name="Alpha"/>
 			<menu_item_call label="タトゥ" name="Tattoo"/>
+			<menu_item_call label="物理作用" name="Physics"/>
 			<menu_item_call label="すべての衣類" name="All Clothes"/>
 		</menu>
 		<menu label="ヘルプ" name="Help">

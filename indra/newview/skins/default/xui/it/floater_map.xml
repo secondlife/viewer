@@ -3,6 +3,9 @@
 	<floater.string name="ToolTipMsg">
 		[REGION](Fai doppio clic per aprire la Mappa, premi il tasto Maiusc e trascina per la panoramica)
 	</floater.string>
+	<floater.string name="AltToolTipMsg">
+		[REGION](Fai doppio clic per teleportarti, premi il tasto Maiusc e trascina per la panoramica)
+	</floater.string>
 	<floater.string name="mini_map_caption">
 		MINI MAPPA
 	</floater.string>

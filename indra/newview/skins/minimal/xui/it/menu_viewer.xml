@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Main Menu">
+	<menu label="Aiuto" name="Help">
+		<menu_item_call label="Aiuto di [SECOND_LIFE]" name="Second Life Help"/>
+	</menu>
+	<menu label="Avanzate" name="Advanced">
+		<menu label="Scorciatoie" name="Shortcuts">
+			<menu_item_check label="Vola" name="Fly"/>
+			<menu_item_call label="Chiudi finestra" name="Close Window"/>
+			<menu_item_call label="Chiudi tutte le finestre" name="Close All Windows"/>
+			<menu_item_call label="Reimposta vista" name="Reset View"/>
+		</menu>
+	</menu>
+</menu_bar>

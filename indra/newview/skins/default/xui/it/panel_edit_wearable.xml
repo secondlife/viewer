@@ -45,6 +45,9 @@
 	<string name="edit_tattoo_title">
 		Modifica del tatuaggio
 	</string>
+	<string name="edit_physics_title">
+		Modifica fisica
+	</string>
 	<string name="shape_desc_text">
 		Figura corporea:
 	</string>
@@ -89,6 +92,9 @@
 	</string>
 	<string name="tattoo_desc_text">
 		Tatuaggio:
+	</string>
+	<string name="physics_desc_text">
+		Fisica:
 	</string>
 	<labeled_back_button label="Salva" name="back_btn" tool_tip="Torna alla modifica del vestiario"/>
 	<text name="edit_wearable_title" value="Modifica della figura corporea"/>
