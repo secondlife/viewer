@@ -64,7 +64,6 @@
 #include "llvlmanager.h"
 #include "llvlcomposition.h"
 #include "llvocache.h"
-#include "llvoclouds.h"
 #include "llworld.h"
 #include "llspatialpartition.h"
 #include "stringize.h"
@@ -314,7 +313,6 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mImpl->mObjectPartition.push_back(new LLWaterPartition());		//PARTITION_WATER
 	mImpl->mObjectPartition.push_back(new LLTreePartition());		//PARTITION_TREE
 	mImpl->mObjectPartition.push_back(new LLParticlePartition());	//PARTITION_PARTICLE
-	mImpl->mObjectPartition.push_back(new LLCloudPartition());		//PARTITION_CLOUD
 	mImpl->mObjectPartition.push_back(new LLGrassPartition());		//PARTITION_GRASS
 	mImpl->mObjectPartition.push_back(new LLVolumePartition());	//PARTITION_VOLUME
 	mImpl->mObjectPartition.push_back(new LLBridgePartition());	//PARTITION_BRIDGE
@@ -484,7 +482,6 @@ void LLViewerRegion::setOriginGlobal(const LLVector3d &origin_global)
 	updateRenderMatrix();
 	mImpl->mLandp->setOriginGlobal(origin_global);
 	mWind.setOriginGlobal(origin_global);
-	mCloudLayer.setOriginGlobal(origin_global);
 	calculateCenterGlobal();
 }
 
@@ -707,14 +704,12 @@ void LLViewerRegion::forceUpdate()
 void LLViewerRegion::connectNeighbor(LLViewerRegion *neighborp, U32 direction)
 {
 	mImpl->mLandp->connectNeighbor(neighborp->mImpl->mLandp, direction);
-	mCloudLayer.connectNeighbor(&(neighborp->mCloudLayer), direction);
 }
 
 
 void LLViewerRegion::disconnectAllNeighbors()
 {
 	mImpl->mLandp->disconnectAllNeighbors();
-	mCloudLayer.disconnectAllNeighbors();
 }
 
 LLVLComposition * LLViewerRegion::getComposition() const

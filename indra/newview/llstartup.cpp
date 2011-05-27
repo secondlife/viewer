@@ -163,7 +163,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
-#include "llvoclouds.h"
 #include "llweb.h"
 #include "llworld.h"
 #include "llworldmapmessage.h"
@@ -3149,11 +3148,6 @@ bool process_login_success_response()
 			gMoonTextureID = id;
 		}
 
-		id = global_textures["cloud_texture_id"];
-		if(id.notNull())
-		{
-			gCloudTextureID = id;
-		}
 	}
 
 	// Set the location of the snapshot sharing config endpoint

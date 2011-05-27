@@ -94,10 +94,6 @@ LLWorld::LLWorld() :
 	mLastPacketsOut(0),
 	mLastPacketsLost(0),
 	mSpaceTimeUSec(0)
-#ifndef TMP_WL_REMOVE_CLOUDS
-	,
-	mClassicCloudsEnabled(FALSE)
-#endif
 {
 	for (S32 i = 0; i < 8; i++)
 	{
@@ -187,10 +183,6 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 	{
 		llerrs << "Unable to create new region!" << llendl;
 	}
-
-	regionp->mCloudLayer.create(regionp);
-	regionp->mCloudLayer.setWidth((F32)mWidth);
-	regionp->mCloudLayer.setWindPointer(&regionp->mWind);
 
 	mRegionList.push_back(regionp);
 	mActiveRegionList.push_back(regionp);
@@ -667,64 +659,6 @@ void LLWorld::updateParticles()
 }
 
 #ifndef TMP_WL_REMOVE_CLOUDS
-void LLWorld::updateClouds(const F32 dt)
-{
-	static LLFastTimer::DeclareTimer ftm("World Clouds");
-	LLFastTimer t(ftm);
-
-	if ( gSavedSettings.getBOOL("FreezeTime") )
-	{
-		// don't move clouds in snapshot mode
-		return;
-	}
-
-	if (mActiveRegionList.size())
-	{
-		for (region_list_t::iterator iter = mActiveRegionList.begin();
-			 iter != mActiveRegionList.end(); ++iter)
-		{
-			LLViewerRegion* regionp = *iter;
-			regionp->mCloudLayer.updatePuffs(dt);
-		}
-
-		// Reshuffle who owns which puffs
-		for (region_list_t::iterator iter = mActiveRegionList.begin();
-			 iter != mActiveRegionList.end(); ++iter)
-		{
-			LLViewerRegion* regionp = *iter;
-			regionp->mCloudLayer.updatePuffOwnership();
-		}
-
-		// Add new puffs
-		for (region_list_t::iterator iter = mActiveRegionList.begin();
-			 iter != mActiveRegionList.end(); ++iter)
-		{
-			LLViewerRegion* regionp = *iter;
-			regionp->mCloudLayer.updatePuffCount();
-		}
-	}
-}
-
-LLCloudGroup* LLWorld::findCloudGroup(const LLCloudPuff &puff)
-{
-	if (mActiveRegionList.size())
-	{
-		// Update all the cloud puff positions, and timer based stuff
-		// such as death decay
-		for (region_list_t::iterator iter = mActiveRegionList.begin();
-			 iter != mActiveRegionList.end(); ++iter)
-		{
-			LLViewerRegion* regionp = *iter;
-			LLCloudGroup *groupp = regionp->mCloudLayer.findCloudGroup(puff);
-			if (groupp)
-			{
-				return groupp;
-			}
-		}
-	}
-	return NULL;
-}
-#endif // TMP_WL_REMOVE_CLOUDS
 
 void LLWorld::renderPropertyLines()
 {

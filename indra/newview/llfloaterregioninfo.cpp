@@ -206,21 +206,20 @@ BOOL LLFloaterRegionInfo::postBuild()
 
 	// contruct the panels
 	LLPanelRegionInfo* panel;
-	panel = new LLPanelRegionGeneralInfo;
-	mInfoPanels.push_back(panel);
-	panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub",	boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel));
-	
-	panel->buildFromFile("panel_region_general.xml");
-	mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
-
 	panel = new LLPanelEstateInfo;
 	mInfoPanels.push_back(panel);
 	panel->buildFromFile("panel_region_estate.xml");
-	mTab->addTabPanel(panel);
+	mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
 	panel = new LLPanelEstateCovenant;
 	mInfoPanels.push_back(panel);
 	panel->buildFromFile("panel_region_covenant.xml");
+	mTab->addTabPanel(panel);
+
+	panel = new LLPanelRegionGeneralInfo;
+	mInfoPanels.push_back(panel);
+	panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub",	boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel));
+	panel->buildFromFile("panel_region_general.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelRegionTerrainInfo;
