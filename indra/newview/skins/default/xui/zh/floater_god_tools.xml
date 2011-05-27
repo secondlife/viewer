@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="godtools floater" title="GOD TOOLS">
+	<tab_container name="GodTools Tabs">
+		<panel label="Grid" name="grid">
+			<button label="Flush This Region&apos;s Map Visibility Caches" label_selected="Flush This Region&apos;s Map Visibility Caches" name="Flush This Region&apos;s Map Visibility Caches"/>
+		</panel>
+		<panel label="地區" name="region">
+			<text name="Region Name:">
+				地區名稱：
+			</text>
+			<check_box label="Prelude" name="check prelude" tool_tip="Set this to make the region a prelude"/>
+			<check_box label="Fixed Sun" name="check fixed sun" tool_tip="Fix the sun position (like in Region/Estate &gt; Terrain"/>
+			<check_box label="Reset Home On Teleport" name="check reset home" tool_tip="When Resident teleports out, reset their home to the destination position."/>
+			<check_box label="Visible" name="check visible" tool_tip="Set this to make the region visible to non-gods"/>
+			<check_box label="Damage" name="check damage" tool_tip="Set this to enable damage in this region"/>
+			<check_box label="Block Traffic Tracking" name="block dwell" tool_tip="Set this to make the region not compute traffic"/>
+			<check_box label="Block Terraform" name="block terraform" tool_tip="Set this to disallow people terraforming their land"/>
+			<check_box label="Sandbox" name="is sandbox" tool_tip="Toggle whether this is a sandbox region"/>
+			<button label="Bake Terrain" label_selected="Bake Terrain" name="Bake Terrain" tool_tip="Save the current terrain as default"/>
+			<button label="Revert Terrain" label_selected="Revert Terrain" name="Revert Terrain" tool_tip="Replace the current terrain with default"/>
+			<button label="Swap Terrain" label_selected="Swap Terrain" name="Swap Terrain" tool_tip="Swap current terrain with default"/>
+			<text name="estate id">
+				Estate ID:
+			</text>
+			<text name="parent id">
+				Parent ID:
+			</text>
+			<line_editor name="parentestate" tool_tip="This is the parent estate for this region"/>
+			<text name="Grid Pos: ">
+				Grid Pos:
+			</text>
+			<line_editor name="gridposx" tool_tip="This is the grid x position for this region"/>
+			<line_editor name="gridposy" tool_tip="This is the grid y position for this region"/>
+			<text name="Redirect to Grid: ">
+				Redirect to Grid:
+			</text>
+			<text name="billable factor text">
+				Billable Factor:
+			</text>
+			<text name="land cost text">
+				L$ per m²:
+			</text>
+			<button label="Refresh" label_selected="Refresh" name="Refresh" tool_tip="Click here to refresh the above information"/>
+			<button label="套用" label_selected="套用" name="Apply" tool_tip="Click here to apply any changes from above"/>
+			<button label="選擇地區" label_selected="選擇地區" name="Select Region" tool_tip="Select the whole region with the land tool"/>
+			<button label="Autosave now" label_selected="Autosave now" name="Autosave now" tool_tip="Save gzipped state to autosave directory"/>
+		</panel>
+		<panel label="Objects" name="objects">
+			<panel.string name="no_target">
+				(no target)
+			</panel.string>
+			<text name="Region Name:">
+				地區名稱：
+			</text>
+			<text name="region name">
+				Welsh
+			</text>
+			<check_box label="Disable Scripts" name="disable scripts" tool_tip="Set this to disable all scripts in this region"/>
+			<check_box label="Disable Collisions" name="disable collisions" tool_tip="Set this to disable non-agent collisions in this region"/>
+			<check_box label="Disable Physics" name="disable physics" tool_tip="Set this to disable all physics in this region"/>
+			<button label="套用" label_selected="套用" name="Apply" tool_tip="Click here to apply any changes from above"/>
+			<button label="Set Target" label_selected="Set Target" name="Set Target" tool_tip="Set the target avatar for object deletion"/>
+			<text name="target_avatar_name">
+				(no target)
+			</text>
+			<button label="Delete Target&apos;s Scripted Objects On Others Land" label_selected="Delete Target&apos;s Scripted Objects On Others Land" name="Delete Target&apos;s Scripted Objects On Others Land" tool_tip="Delete all scripted objects owned by the target on land not owned by the target. (no copy) objects will be returned."/>
+			<button label="Delete Target&apos;s Scripted Objects On *Any* Land" label_selected="Delete Target&apos;s Scripted Objects On *Any* Land" name="Delete Target&apos;s Scripted Objects On *Any* Land" tool_tip="Delete all scripted objects owned by the target in this region. (no copy) objects will be returned."/>
+			<button label="Delete *ALL* Of Target&apos;s Objects" label_selected="Delete *ALL* Of Target&apos;s Objects" name="Delete *ALL* Of Target&apos;s Objects" tool_tip="Delete all objects owned by the target in this region. (no copy) objects will be returned."/>
+			<button label="Get Top Colliders" label_selected="Get Top Colliders" name="Get Top Colliders" tool_tip="Gets list of objects experiencing the most narrowphase callbacks"/>
+			<button label="Get Top Scripts" label_selected="Get Top Scripts" name="Get Top Scripts" tool_tip="Gets list of objects spending the most time running scripts"/>
+			<button label="Scripts digest" label_selected="Scripts digest" name="Scripts digest" tool_tip="Gets a list of all scripts and number of occurences of each"/>
+		</panel>
+		<panel label="Request" name="request">
+			<text name="Destination:">
+				Destination:
+			</text>
+			<combo_box name="destination">
+				<combo_box.item label="Selection" name="item1"/>
+				<combo_box.item label="Agent Region" name="item2"/>
+			</combo_box>
+			<text name="Request:">
+				Request:
+			</text>
+			<combo_box name="request">
+				<combo_box.item label="colliders &lt;steps&gt;" name="item1"/>
+				<combo_box.item label="scripts &lt;count&gt;,&lt;optional pattern&gt;" name="item2"/>
+				<combo_box.item label="objects &lt;pattern&gt;" name="item3"/>
+				<combo_box.item label="rez &lt;asset_id&gt;" name="item4"/>
+			</combo_box>
+			<text name="Parameter:">
+				Parameter:
+			</text>
+			<button label="Make Request" label_selected="Make Request" name="Make Request"/>
+		</panel>
+	</tab_container>
+</floater>

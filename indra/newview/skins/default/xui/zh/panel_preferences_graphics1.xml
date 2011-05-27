@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Graphics" name="Display panel">
+	<text name="QualitySpeed">
+		Quality and speed:
+	</text>
+	<text name="FasterText">
+		Faster
+	</text>
+	<text name="BetterText">
+		Better
+	</text>
+	<text name="ShadersPrefText">
+		Low
+	</text>
+	<text name="ShadersPrefText2">
+		Mid
+	</text>
+	<text name="ShadersPrefText3">
+		High
+	</text>
+	<text name="ShadersPrefText4">
+		Ultra
+	</text>
+	<panel label="CustomGraphics" name="CustomGraphics Panel">
+		<text name="ShadersText">
+			Shaders:
+		</text>
+		<check_box initial_value="true" label="Transparent Water" name="TransparentWater"/>
+		<check_box initial_value="true" label="Bump mapping and shiny" name="BumpShiny"/>
+		<check_box initial_value="true" label="Basic shaders" name="BasicShaders" tool_tip="Disabling this option may prevent some graphics card drivers from crashing"/>
+		<check_box initial_value="true" label="Atmospheric shaders" name="WindLightUseAtmosShaders"/>
+		<text name="reflection_label">
+			Water Reflections:
+		</text>
+		<combo_box name="Reflections">
+			<combo_box.item label="Minimal" name="0"/>
+			<combo_box.item label="Terrain and trees" name="1"/>
+			<combo_box.item label="All static objects" name="2"/>
+			<combo_box.item label="All avatars and objects" name="3"/>
+			<combo_box.item label="Everything" name="4"/>
+		</combo_box>
+		<slider label="Avatar Physics:" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			Low
+		</text>
+		<slider label="Draw distance:" name="DrawDistance"/>
+		<text name="DrawDistanceMeterText2">
+			m
+		</text>
+		<slider label="Max. particle count:" name="MaxParticleCount"/>
+		<slider label="Max. # of non-impostor avatars:" name="MaxNumberAvatarDrawn"/>
+		<slider label="Post process quality:" name="RenderPostProcess"/>
+		<text name="MeshDetailText">
+			Mesh detail:
+		</text>
+		<slider label="Objects:" name="ObjectMeshDetail"/>
+		<slider label="Flexiprims:" name="FlexibleMeshDetail"/>
+		<slider label="Trees:" name="TreeMeshDetail"/>
+		<slider label="Avatars:" name="AvatarMeshDetail"/>
+		<slider label="Terrain:" name="TerrainMeshDetail"/>
+		<slider label="Sky:" name="SkyMeshDetail"/>
+		<text name="PostProcessText">
+			Low
+		</text>
+		<text name="ObjectMeshDetailText">
+			Low
+		</text>
+		<text name="FlexibleMeshDetailText">
+			Low
+		</text>
+		<text name="TreeMeshDetailText">
+			Low
+		</text>
+		<text name="AvatarMeshDetailText">
+			Low
+		</text>
+		<text name="TerrainMeshDetailText">
+			Low
+		</text>
+		<text name="SkyMeshDetailText">
+			Low
+		</text>
+		<text name="AvatarRenderingText">
+			Avatar Rendering:
+		</text>
+		<check_box initial_value="true" label="Avatar impostors" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Hardware skinning" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Avatar cloth" name="AvatarCloth"/>
+		<text name="TerrainDetailText">
+			Terrain detail:
+		</text>
+		<radio_group name="TerrainDetailRadio">
+			<radio_item label="Low" name="0"/>
+			<radio_item label="High" name="2"/>
+		</radio_group>
+		--&gt;
+	</panel>
+	<button label="套用" label_selected="套用" name="Apply"/>
+	<button label="Reset" name="Defaults"/>
+	<button label="進階" name="Advanced"/>
+	<button label="硬體" label_selected="硬體" name="GraphicsHardwareButton"/>
+</panel>

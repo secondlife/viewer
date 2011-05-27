@@ -55,7 +55,7 @@
 				<radio_item label="Si, vendi gli oggetti con la terra" name="yes"/>
 			</radio_group>
 			<button label="Mostra oggetti" name="show_objects"/>
-			<text name="nag_message_label">
+			<text name="nag_message_label" font="SansSerifSmallBold" left="9">
 				RICORDA: Tutte le vendite sono definitive.
 			</text>
 			<button label="Imposta terreno come in vendita" name="sell_btn"/>

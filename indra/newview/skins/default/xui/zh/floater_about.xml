@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_about" title="ABOUT [CAPITALIZED_APP_NAME]">
+	<floater.string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</floater.string>
+	<floater.string name="AboutCompiler">
+		Built with [COMPILER] version [COMPILER_VERSION]
+	</floater.string>
+	<floater.string name="AboutPosition">
+		You are at [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] located at &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+[SERVER_VERSION]
+[[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</floater.string>
+	<floater.string name="AboutSystem">
+		CPU: [CPU]
+Memory: [MEMORY_MB] MB
+OS Version: [OS_VERSION]
+Graphics Card Vendor: [GRAPHICS_CARD_VENDOR]
+Graphics Card: [GRAPHICS_CARD]
+	</floater.string>
+	<floater.string name="AboutDriver">
+		Windows Graphics Driver Version: [GRAPHICS_DRIVER_VERSION]
+	</floater.string>
+	<floater.string name="AboutLibs">
+		OpenGL Version: [OPENGL_VERSION]
+
+libcurl Version: [LIBCURL_VERSION]
+J2C Decoder Version: [J2C_VERSION]
+Audio Driver Version: [AUDIO_DRIVER_VERSION]
+Qt Webkit Version: [QT_WEBKIT_VERSION]
+Voice Server Version: [VOICE_VERSION]
+	</floater.string>
+	<floater.string name="none">
+		（無）
+	</floater.string>
+	<floater.string name="AboutTraffic">
+		Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</floater.string>
+	<tab_container name="about_tab">
+		<panel label="資訊" name="support_panel">
+			<button label="覆製到剪貼簿" name="copy_btn"/>
+		</panel>
+		<panel label="Credits" name="credits_panel">
+			<text_editor name="credits_editor">
+				Second Life is brought to you by ..., and many others.
+
+Thank you to the following Residents for helping to ensure that this is the best version yet: ..., and many others.
+
+
+
+
+&quot;The work goes on, the cause endures, the hope still lives, and the dreams shall never die&quot; - Edward Kennedy
+			</text_editor>
+		</panel>
+		<panel label="Licenses" name="licenses_panel">
+			<text_editor name="credits_editor">
+				3Dconnexion SDK Copyright (C) 1992-2007 3Dconnexion
+APR Copyright (C) 2000-2004 The Apache Software Foundation
+cURL Copyright (C) 1996-2002, Daniel Stenberg, (daniel@haxx.se)
+DBus/dbus-glib Copyright (C) 2002, 2003  CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.
+expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
+FreeType Copyright (C) 1996-2002, The FreeType Project (www.freetype.org).
+GL Copyright (C) 1999-2004 Brian Paul.
+google-perftools Copyright (c) 2005, Google Inc.
+Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
+jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
+jpeglib Copyright (C) 1991-1998, Thomas G. Lane.
+ogg/vorbis Copyright (C) 2001, Xiphophorus
+OpenSSL Copyright (C) 1998-2002 The OpenSSL Project.
+Pth Copyright (C) 1999-2006 Ralf S. Engelschall &lt;rse@gnu.org&gt;
+SDL Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
+SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+xmlrpc-epi Copyright (C) 2000 Epinions, Inc.
+zlib Copyright (C) 1995-2002 Jean-loup Gailly and Mark Adler.
+google-perftools Copyright (c) 2005, Google Inc.
+
+All rights reserved.  See licenses.txt for details.
+
+Voice chat Audio coding: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
+			</text_editor>
+		</panel>
+	</tab_container>
+</floater>

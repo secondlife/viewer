@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="item properties" title="INVENTORY ITEM PROPERTIES">
+	<floater.string name="unknown">
+		（未知）
+	</floater.string>
+	<floater.string name="public">
+		（公開）
+	</floater.string>
+	<floater.string name="you_can">
+		你可以：
+	</floater.string>
+	<floater.string name="owner_can">
+		擁有者可以：
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
+	<text name="LabelItemNameTitle">
+		名稱：
+	</text>
+	<text name="LabelItemDescTitle">
+		描述：
+	</text>
+	<text name="LabelCreatorTitle">
+		創造者：
+	</text>
+	<button label="Profile..." name="BtnCreator"/>
+	<text name="LabelOwnerTitle">
+		擁有者：
+	</text>
+	<button label="Profile..." name="BtnOwner"/>
+	<text name="LabelAcquiredTitle">
+		Acquired:
+	</text>
+	<text name="LabelAcquiredDate">
+		Wed May 24 12:50:46 2006
+	</text>
+	<text name="OwnerLabel">
+		你：
+	</text>
+	<check_box label="編輯" name="CheckOwnerModify"/>
+	<check_box label="覆製" name="CheckOwnerCopy"/>
+	<check_box label="轉售" name="CheckOwnerTransfer"/>
+	<text name="AnyoneLabel">
+		任何人：
+	</text>
+	<check_box label="覆製" name="CheckEveryoneCopy"/>
+	<text name="GroupLabel">
+		Group:
+	</text>
+	<check_box label="分享" name="CheckShareWithGroup"/>
+	<text name="NextOwnerLabel">
+		下一個擁有者：
+	</text>
+	<check_box label="編輯" name="CheckNextOwnerModify"/>
+	<check_box label="覆製" name="CheckNextOwnerCopy"/>
+	<check_box label="轉售" name="CheckNextOwnerTransfer"/>
+	<check_box label="出售" name="CheckPurchase"/>
+	<combo_box name="combobox sale copy">
+		<combo_box.item label="副本" name="Copy"/>
+		<combo_box.item label="原件" name="Original"/>
+	</combo_box>
+	<spinner label="價格：" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
+	</text>
+</floater>

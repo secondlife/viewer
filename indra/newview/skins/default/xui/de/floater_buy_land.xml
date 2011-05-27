@@ -127,41 +127,41 @@ unterstützt [AMOUNT2] Objekte
 	<text name="region_name_label">
 		Region:
 	</text>
-	<text left="680" left_delta="140" name="region_name_text">
+	<text name="region_name_text">
 		(unbekannt)
 	</text>
 	<text name="region_type_label">
 		Typ:
 	</text>
-	<text left="680" left_delta="140" name="region_type_text">
+	<text name="region_type_text">
 		(unbekannt)
 	</text>
 	<text name="estate_name_label">
 		Grundbesitz:
 	</text>
-	<text left="680" left_delta="140" name="estate_name_text">
+	<text name="estate_name_text">
 		(unbekannt)
 	</text>
-	<text name="estate_owner_label" right="600" width="200">
+	<text name="estate_owner_label">
 		Grundbesitzer:
 	</text>
-	<text left="680" left_delta="140" name="estate_owner_text">
+	<text name="estate_owner_text">
 		(unbekannt)
 	</text>
-	<text left="410" name="resellable_changeable_label">
+	<text name="resellable_changeable_label">
 		Gekauftes Land in dieser Region:
 	</text>
-	<text left="410" name="resellable_clause">
+	<text name="resellable_clause">
 		Wiederverkauf möglich oder nicht möglich.
 	</text>
-	<text left="410" name="changeable_clause">
+	<text name="changeable_clause">
 		Darft oder darf nicht zusammengelegt/unterteilt werden.
 	</text>
-	<text left="410" name="covenant_text">
+	<text name="covenant_text">
 		Sie müssen dem Grundbesitzvertrag zustimmen:
 	</text>
-	<text left="470" name="covenant_timestamp_text"/>
-	<text_editor left="470" name="covenant_editor">
+	<text name="covenant_timestamp_text"/>
+	<text_editor name="covenant_editor">
 		Wird geladen...
 	</text_editor>
 	<check_box label="Ich stimme dem obigen Vertrag zu." name="agree_covenant"/>
@@ -191,7 +191,7 @@ Objekte im Verkauf eingeschlossen
 	<text name="error_message">
 		Irgendetwas stimmt nicht.
 	</text>
-	<button label="Gehe zu Website" name="error_web" top_delta="136"/>
+	<button label="Gehe zu Website" name="error_web" />
 	<text name="account_action">
 		Macht Sie zum Premium-Mitglied.
 	</text>
@@ -203,9 +203,8 @@ Objekte im Verkauf eingeschlossen
 		<combo_box.item label="7,50 US$/Monat, vierteljährliche Abrechnung" name="US$7.50/month,billedquarterly"/>
 		<combo_box.item label="6,00 US$/Monat, jährliche Abrechnung" name="US$6.00/month,billedannually"/>
 	</combo_box>
-	<text height="36" name="land_use_action" top="270">
-		Erhöhen Sie Ihre monatlichen Landnutzungsgebühren 
-auf 40 US$/month.
+	<text name="land_use_action">
+		Erhöhen Sie Ihre monatlichen Landnutzungsgebühren auf 40 US$/month.
 	</text>
 	<text name="land_use_reason">
 		Sie besitzen 1309 m² Land.
