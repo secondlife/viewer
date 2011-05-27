@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Snapshot" title="SNAPSHOT PREVIEW">
+	<floater.string name="unknown">
+		未知
+	</floater.string>
+	<radio_group label="Snapshot type" name="snapshot_type_radio">
+		<radio_item label="Email" name="postcard"/>
+		<radio_item label="My inventory (L$[AMOUNT])" name="texture"/>
+		<radio_item label="Save to my computer" name="local"/>
+	</radio_group>
+	<text name="file_size_label">
+		[SIZE] KB
+	</text>
+	<button label="Send" name="send_btn"/>
+	<button label="Save (L$[AMOUNT])" name="upload_btn"/>
+	<flyout_button label="儲存" name="save_btn" tool_tip="Save image to a file">
+		<flyout_button.item label="儲存" name="save_item"/>
+		<flyout_button.item label="另存..." name="saveas_item"/>
+	</flyout_button>
+	<button label="More" name="more_btn" tool_tip="Advanced options"/>
+	<button label="Less" name="less_btn" tool_tip="Advanced options"/>
+	<button label="取銷" name="discard_btn"/>
+	<text name="type_label2">
+		Size
+	</text>
+	<text name="format_label">
+		Format
+	</text>
+	<combo_box label="Resolution" name="postcard_size_combo">
+		<combo_box.item label="Current Window" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="Custom" name="Custom"/>
+	</combo_box>
+	<combo_box label="Resolution" name="texture_size_combo">
+		<combo_box.item label="Current Window" name="CurrentWindow"/>
+		<combo_box.item label="Small (128x128)" name="Small(128x128)"/>
+		<combo_box.item label="Medium (256x256)" name="Medium(256x256)"/>
+		<combo_box.item label="Large (512x512)" name="Large(512x512)"/>
+		<combo_box.item label="Custom" name="Custom"/>
+	</combo_box>
+	<combo_box label="Resolution" name="local_size_combo">
+		<combo_box.item label="Current Window" name="CurrentWindow"/>
+		<combo_box.item label="320x240" name="320x240"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="1280x1024" name="1280x1024"/>
+		<combo_box.item label="1600x1200" name="1600x1200"/>
+		<combo_box.item label="Custom" name="Custom"/>
+	</combo_box>
+	<combo_box label="Format" name="local_format_combo">
+		<combo_box.item label="PNG" name="PNG"/>
+		<combo_box.item label="JPEG" name="JPEG"/>
+		<combo_box.item label="BMP" name="BMP"/>
+	</combo_box>
+	<spinner label="Width" name="snapshot_width"/>
+	<spinner label="Height" name="snapshot_height"/>
+	<check_box label="Constrain proportions" name="keep_aspect_check"/>
+	<slider label="Image quality" name="image_quality_slider"/>
+	<text name="layer_type_label">
+		Capture:
+	</text>
+	<combo_box label="Image Layers" name="layer_types">
+		<combo_box.item label="Colors" name="Colors"/>
+		<combo_box.item label="Depth" name="Depth"/>
+	</combo_box>
+	<check_box label="Interface" name="ui_check"/>
+	<check_box label="HUDs" name="hud_check"/>
+	<check_box label="Keep open after saving" name="keep_open_check"/>
+	<check_box label="Freeze frame (fullscreen)" name="freeze_frame_check"/>
+	<check_box label="Auto-refresh" name="auto_snapshot_check"/>
+</floater>

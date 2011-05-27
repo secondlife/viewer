@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Invite a Member" name="invite_panel">
+	<panel.string name="confirm_invite_owner_str">
+		Are you sure you want to invite new owner(s)? This action is permanent!
+	</panel.string>
+	<panel.string name="loading">
+		（載入中...）
+	</panel.string>
+	<panel.string name="already_in_group">
+		Some Residents you chose are already in the group, and so were not sent an invitation.
+	</panel.string>
+	<text name="help_text">
+		You can select multiple Residents to invite to your group. Click &apos;Open Resident Chooser&apos; to start.
+	</text>
+	<button label="Open Resident Chooser" name="add_button"/>
+	<name_list name="invitee_list" tool_tip="Hold the Ctrl key and click Resident names to multi-select"/>
+	<button label="Remove Selected from List" name="remove_button" tool_tip="Removes the Residents selected above from the invite list"/>
+	<text name="role_text">
+		Choose what Role to assign them to:
+	</text>
+	<combo_box name="role_name" tool_tip="Choose from the list of Roles you are allowed to assign members to"/>
+	<button label="Send Invitations" name="ok_button"/>
+	<button label="取銷" name="cancel_button"/>
+	<string name="GroupInvitation">
+		Group Invitation
+	</string>
+</panel>

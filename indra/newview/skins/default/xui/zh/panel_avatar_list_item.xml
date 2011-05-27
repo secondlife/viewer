@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="avatar_list_item">
+	<string name="FormatSeconds">
+		[COUNT]s
+	</string>
+	<string name="FormatMinutes">
+		[COUNT]m
+	</string>
+	<string name="FormatHours">
+		[COUNT]h
+	</string>
+	<string name="FormatDays">
+		[COUNT]d
+	</string>
+	<string name="FormatWeeks">
+		[COUNT]w
+	</string>
+	<string name="FormatMonths">
+		[COUNT]mon
+	</string>
+	<string name="FormatYears">
+		[COUNT]y
+	</string>
+	<text name="avatar_name" value="(loading)"/>
+	<text name="last_interaction" value="0s"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="You can edit this friend&apos;s objects"/>
+	<icon name="permission_edit_mine_icon" tool_tip="This friend can edit, delete or take your objects"/>
+	<icon name="permission_map_icon" tool_tip="This friend can locate you on the map"/>
+	<icon name="permission_online_icon" tool_tip="This friend can see when you&apos;re online"/>
+	<button name="profile_btn" tool_tip="View profile"/>
+</panel>

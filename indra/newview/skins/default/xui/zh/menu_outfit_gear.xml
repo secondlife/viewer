@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Gear Outfit">
+	<menu_item_call label="Wear - Replace Current Outfit" name="wear"/>
+	<menu_item_call label="Wear - Add to Current Outfit" name="wear_add"/>
+	<menu_item_call label="Take Off - Remove from Current Outfit" name="take_off"/>
+	<menu label="New Clothes" name="New Clothes">
+		<menu_item_call label="新襯衫" name="New Shirt"/>
+		<menu_item_call label="新褲子" name="New Pants"/>
+		<menu_item_call label="新鞋子" name="New Shoes"/>
+		<menu_item_call label="新襪子" name="New Socks"/>
+		<menu_item_call label="新夾克" name="New Jacket"/>
+		<menu_item_call label="新裙子" name="New Skirt"/>
+		<menu_item_call label="新手套" name="New Gloves"/>
+		<menu_item_call label="新內衣" name="New Undershirt"/>
+		<menu_item_call label="新內褲" name="New Underpants"/>
+		<menu_item_call label="New Alpha" name="New Alpha"/>
+		<menu_item_call label="New Physics" name="New Physics"/>
+		<menu_item_call label="New Tattoo" name="New Tattoo"/>
+	</menu>
+	<menu label="New Body Parts" name="New Body Parts">
+		<menu_item_call label="New Shape" name="New Shape"/>
+		<menu_item_call label="New Skin" name="New Skin"/>
+		<menu_item_call label="New Hair" name="New Hair"/>
+		<menu_item_call label="New Eyes" name="New Eyes"/>
+	</menu>
+	<menu_item_call label="Rename Outfit" name="rename"/>
+	<menu_item_call label="Delete Outfit" name="delete_outfit"/>
+</toggleable_menu>

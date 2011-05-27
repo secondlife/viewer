@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Self Pie">
+	<menu_item_call label="坐下" name="Sit Down Here"/>
+	<menu_item_call label="起立" name="Stand Up"/>
+	<context_menu label="脫下" name="Take Off &gt;">
+		<context_menu label="Clothes" name="Clothes &gt;">
+			<menu_item_call label="襯衫" name="Shirt"/>
+			<menu_item_call label="褲子" name="Pants"/>
+			<menu_item_call label="裙子" name="Skirt"/>
+			<menu_item_call label="鞋子" name="Shoes"/>
+			<menu_item_call label="襪子" name="Socks"/>
+			<menu_item_call label="夾克" name="Jacket"/>
+			<menu_item_call label="手套" name="Gloves"/>
+			<menu_item_call label="內衣" name="Self Undershirt"/>
+			<menu_item_call label="內褲" name="Self Underpants"/>
+			<menu_item_call label="刺青" name="Self Tattoo"/>
+			<menu_item_call label="Physics" name="Self Physics"/>
+			<menu_item_call label="Alpha" name="Self Alpha"/>
+			<menu_item_call label="All Clothes" name="All Clothes"/>
+		</context_menu>
+		<context_menu label="HUD" name="Object Detach HUD"/>
+		<context_menu label="卸下" name="Object Detach"/>
+		<menu_item_call label="全部卸下" name="Detach All"/>
+	</context_menu>
+	<menu_item_call label="My Appearance" name="Chenge Outfit"/>
+	<menu_item_call label="Edit My Outfit" name="Edit Outfit"/>
+	<menu_item_call label="Edit My Shape" name="Edit My Shape"/>
+	<menu_item_call label="My Friends" name="Friends..."/>
+	<menu_item_call label="My Groups" name="Groups..."/>
+	<menu_item_call label="My Profile" name="Profile..."/>
+	<menu_item_call label="Debug Textures" name="Debug..."/>
+</context_menu>

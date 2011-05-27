@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_ladmark_gear">
+	<menu_item_call label="Teleport" name="teleport"/>
+	<menu_item_call label="更多資訊" name="more_info"/>
+	<menu_item_call label="顯示在地圖上" name="show_on_map"/>
+	<menu_item_call label="Add Landmark" name="add_landmark"/>
+	<menu_item_call label="Add Folder" name="add_folder"/>
+	<menu_item_call label="Restore Item" name="restore_item"/>
+	<menu_item_call label="剪下" name="cut"/>
+	<menu_item_call label="Copy Landmark" name="copy_landmark"/>
+	<menu_item_call label="Copy SLurl" name="copy_slurl"/>
+	<menu_item_call label="貼上" name="paste"/>
+	<menu_item_call label="更名" name="rename"/>
+	<menu_item_call label="刪除" name="delete"/>
+	<menu_item_call label="展開全部資料夾" name="expand_all"/>
+	<menu_item_call label="摺疊全部資料夾" name="collapse_all"/>
+	<menu_item_check label="依日期排序" name="sort_by_date"/>
+	<menu_item_call label="Create Pick" name="create_pick"/>
+</toggleable_menu>

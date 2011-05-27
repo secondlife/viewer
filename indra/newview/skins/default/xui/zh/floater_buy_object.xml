@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="contents" title="BUY COPY OF OBJECT">
+	<floater.string name="title_buy_text">
+		購買
+	</floater.string>
+	<floater.string name="title_buy_copy_text">
+		Buy a copy of
+	</floater.string>
+	<floater.string name="no_copy_text">
+		(no copy)
+	</floater.string>
+	<floater.string name="no_modify_text">
+		(no modify)
+	</floater.string>
+	<floater.string name="no_transfer_text">
+		(no transfer)
+	</floater.string>
+	<text name="contents_text">
+		Contains:
+	</text>
+	<text name="buy_text">
+		Buy for L$[AMOUNT] from:
+	</text>
+	<text name="buy_name_text">
+		[NAME]?
+	</text>
+	<button label="購買" label_selected="購買" name="buy_btn"/>
+	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
+</floater>

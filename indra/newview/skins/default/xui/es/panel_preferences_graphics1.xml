@@ -86,7 +86,7 @@
 		<check_box initial_value="true" label="Avatares simulados" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Renderizado por hardware" name="AvatarVertexProgram"/>
 		<check_box initial_value="true" label="Ropas del avatar" name="AvatarCloth"/>
-		<text name="TerrainDetailText">
+		<text name="TerrainDetailText" left="402">
 			Detalle del terreno:
 		</text>
 		<radio_group name="TerrainDetailRadio">

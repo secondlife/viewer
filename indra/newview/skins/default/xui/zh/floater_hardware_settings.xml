@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Hardware Settings Floater" title="硬體設定">
+	<text name="Filtering:">
+		Filtering:
+	</text>
+	<check_box label="Anisotropic Filtering (slower when enabled)" name="ani"/>
+	<text name="Antialiasing:">
+		Antialiasing:
+	</text>
+	<combo_box label="Antialiasing" name="fsaa">
+		<combo_box.item label="Disabled" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
+	</combo_box>
+	<text name="antialiasing restart">
+		（須重新啟動瀏覽器）
+	</text>
+	<spinner label="Gamma:" name="gamma"/>
+	<text name="(brightness, lower is brighter)">
+		(0 = default brightness, lower = brighter)
+	</text>
+	<text name="Enable VBO:">
+		Enable VBO:
+	</text>
+	<check_box initial_value="true" label="Enable OpenGL Vertex Buffer Objects" name="vbo" tool_tip="Enabling this on modern hardware gives a performance gain.  However, older hardware often has poor implementations of VBOs and you may get crashes when this is enabled."/>
+	<slider label="Texture Memory (MB):" name="GraphicsCardTextureMemory" tool_tip="Amount of memory to allocate for textures. Defaults to video card memory. Reducing this may improve performance but may also make textures blurry."/>
+	<spinner label="Fog Distance Ratio:" name="fog"/>
+	<button label="確定" label_selected="確定" name="OK"/>
+</floater>

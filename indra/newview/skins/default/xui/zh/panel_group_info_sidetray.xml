@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Group Profile" name="GroupInfo">
+	<panel.string name="default_needs_apply_text">
+		There are unsaved changes
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Do you want to save these changes?
+	</panel.string>
+	<panel.string name="group_join_btn">
+		Join (L$[AMOUNT])
+	</panel.string>
+	<panel.string name="group_join_free">
+		Free
+	</panel.string>
+	<panel name="group_info_top">
+		<text_editor name="group_name" value="（載入中...）"/>
+		<line_editor label="Type your new group name here" name="group_name_editor"/>
+	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="group_accordions">
+			<accordion name="groups_accordion">
+				<accordion_tab name="group_general_tab" title="一般"/>
+				<accordion_tab name="group_roles_tab" title="Roles"/>
+				<accordion_tab name="group_notices_tab" title="Notices"/>
+				<accordion_tab name="group_land_tab" title="Land/Assets"/>
+			</accordion>
+		</layout_panel>
+	</layout_stack>
+	<layout_stack name="button_row_ls">
+		<layout_panel name="btn_chat_lp">
+			<button label="聊天" name="btn_chat"/>
+		</layout_panel>
+		<layout_panel name="call_btn_lp">
+			<button label="Group Call" name="btn_call" tool_tip="Call this group"/>
+		</layout_panel>
+		<layout_panel name="btn_apply_lp">
+			<button label="儲存" label_selected="儲存" name="btn_apply"/>
+			<button label="Create Group" name="btn_create" tool_tip="Create a new Group"/>
+		</layout_panel>
+	</layout_stack>
+</panel>
