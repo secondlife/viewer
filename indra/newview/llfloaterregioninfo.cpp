@@ -3581,7 +3581,8 @@ void LLPanelEnvironmentInfo::onBtnApply()
 				return;
 			}
 
-			// If it's a single-preset day cycle, reset the frame time to a non-negative value
+			// If it's a special single-preset day cycle meaning using a fixed sky,
+			// reset the frame time to a non-negative value,
 			// so that the region setting is displayed in the floater as
 			// a day cycle, not a preset. (STORM-1289)
 			if (day_cycle.size() == 1 && day_cycle[0][0].asReal() < 0.0f)
