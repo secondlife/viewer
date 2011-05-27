@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Inventory Finder" title="INVENTORY_RECENT_ITEMS">
+	<check_box label="Animation" name="check_animation"/>
+	<check_box label="Calling Cards" name="check_calling_card"/>
+	<check_box label="Clothing" name="check_clothing"/>
+	<check_box label="Gestures" name="check_gesture"/>
+	<check_box label="Landmarks" name="check_landmark"/>
+	<check_box label="Notecards" name="check_notecard"/>
+	<check_box label="Objects" name="check_object"/>
+	<check_box label="Scripts" name="check_script"/>
+	<check_box label="Sounds" name="check_sound"/>
+	<check_box label="Textures" name="check_texture"/>
+	<check_box label="Snapshots" name="check_snapshot"/>
+	<button label="全部" label_selected="全部" name="All"/>
+	<button label="無" label_selected="無" name="None"/>
+	<check_box label="Always show folders" name="check_show_empty"/>
+	<check_box label="Since Logoff" name="check_since_logoff"/>
+	<text name="- OR -">
+		- 或 -
+	</text>
+	<spinner label="小時前" name="spin_hours_ago"/>
+	<spinner label="天前" name="spin_days_ago"/>
+	<button label="關閉" label_selected="關閉" name="Close"/>
+</floater>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="一般" name="Media Settings General">
+	<text name="home_label">
+		首頁：
+	</text>
+	<text name="home_fails_whitelist_label">
+		(This page does not pass the specified whitelist)
+	</text>
+	<line_editor name="home_url" tool_tip="The home page for this media source"/>
+	<text name="preview_label">
+		預覽
+	</text>
+	<text name="current_url_label">
+		Current Page:
+	</text>
+	<text name="current_url" tool_tip="The current page for this media source" value=""/>
+	<button label="Reset" name="current_url_reset_btn"/>
+	<check_box initial_value="false" label="Auto Loop" name="auto_loop"/>
+	<check_box initial_value="false" label="First Click Interacts" name="first_click_interact"/>
+	<check_box initial_value="false" label="Auto Zoom" name="auto_zoom"/>
+	<check_box initial_value="false" label="Auto Play Media" name="auto_play"/>
+	<text name="media_setting_note">
+		Note: Residents can override this setting
+	</text>
+	<check_box initial_value="false" label="Auto Scale Media on Face of Object" name="auto_scale"/>
+	<text name="size_label">
+		Size:
+	</text>
+	<text name="X_label">
+		X
+	</text>
+</panel>

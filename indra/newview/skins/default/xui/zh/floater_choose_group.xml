@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="groups" title="GROUPS">
+	<text name="groupdesc">
+		Choose a group:
+	</text>
+	<button label="確定" label_selected="確定" name="OK"/>
+	<button label="取銷" label_selected="取銷" name="Cancel"/>
+</floater>

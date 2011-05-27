@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Terrain" name="Terrain">
+	<text name="region_text_lbl">
+		地區：
+	</text>
+	<text name="region_text">
+		未知
+	</text>
+	<spinner label="Water Height" name="water_height_spin"/>
+	<spinner label="Terrain Raise Limit" name="terrain_raise_spin"/>
+	<spinner label="Terrain Lower Limit" name="terrain_lower_spin"/>
+	<check_box label="Use Estate Sun" name="use_estate_sun_check"/>
+	<check_box label="Fixed Sun" name="fixed_sun_check"/>
+	<slider label="Phase" name="sun_hour_slider"/>
+	<button label="套用" name="apply_btn"/>
+	<button label="Download RAW terrain..." name="download_raw_btn" tool_tip="Available only to estate owners, not managers"/>
+	<button label="Upload RAW terrain..." name="upload_raw_btn" tool_tip="Available only to estate owners, not managers"/>
+	<button label="Bake Terrain" name="bake_terrain_btn" tool_tip="Set current terrain as mid-point for raise/lower limits"/>
+</panel>

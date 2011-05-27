@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="契約" name="Covenant">
+	<panel.string name="can_resell">
+		Purchased land in this region may be resold.
+	</panel.string>
+	<panel.string name="can_not_resell">
+		Purchased land in this region may not be resold.
+	</panel.string>
+	<panel.string name="can_change">
+		Purchased land in this region may be joined or subdivided.
+	</panel.string>
+	<panel.string name="can_not_change">
+		Purchased land in this region may not be joined or subdivided.
+	</panel.string>
+	<text name="estate_section_lbl">
+		領地
+	</text>
+	<text name="estate_name_lbl">
+		名稱：
+	</text>
+	<text name="estate_name_text">
+		mainland
+	</text>
+	<text name="estate_owner_lbl">
+		擁有者：
+	</text>
+	<text name="estate_owner_text">
+		（無）
+	</text>
+	<text name="estate_cov_lbl">
+		契約：
+	</text>
+	<text name="covenant_timestamp_text">
+		Last Modified Wed Dec 31 16:00:00 1969
+	</text>
+	<text_editor name="covenant_editor">
+		There is no Covenant provided for this Estate.
+	</text_editor>
+	<button label="Reset" name="reset_covenant"/>
+	<text name="covenant_help_text">
+		Changes to the covenant will show on all parcels in the estate.
+	</text>
+	<text name="covenant_instructions">
+		Drag and drop a notecard to change the Covenant for this estate.
+	</text>
+	<text name="region_section_lbl">
+		地區
+	</text>
+	<text name="region_name_lbl">
+		名稱：
+	</text>
+	<text name="region_name_text">
+		Erica
+	</text>
+	<text name="region_landtype_lbl">
+		類型：
+	</text>
+	<text name="region_landtype_text">
+		Mainland / Homestead
+	</text>
+	<text name="region_maturity_lbl">
+		分級：
+	</text>
+	<text name="region_maturity_text">
+		Adult
+	</text>
+	<text name="resellable_lbl">
+		Resale:
+	</text>
+	<text name="resellable_clause">
+		Land in this region may not be resold.
+	</text>
+	<text name="changeable_lbl">
+		Subdivide:
+	</text>
+	<text name="changeable_clause">
+		Land in this region may not be joined/subdivided.
+	</text>
+</panel>

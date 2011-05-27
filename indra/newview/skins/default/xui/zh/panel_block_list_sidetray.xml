@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="block_list_panel">
+	<text name="title_text">
+		Block List
+	</text>
+	<scroll_list name="blocked" tool_tip="List of currently blocked Residents"/>
+	<button label="Block person" name="Block resident..." tool_tip="Pick a Resident to block"/>
+	<button label="Block object by name" name="Block object by name..." tool_tip="Pick an object to block by name"/>
+	<button label="Unblock" name="Unblock" tool_tip="Remove Resident or object from blocked list"/>
+</panel>

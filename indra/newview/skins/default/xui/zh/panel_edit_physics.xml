@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_physics_panel">
+	<panel label="" name="accordion_panel">
+		<accordion name="physics_accordion">
+			<accordion_tab name="physics_breasts_updown_tab" title="Breasts Bounce"/>
+			<accordion_tab name="physics_breasts_inout_tab" title="Breasts Cleavage"/>
+			<accordion_tab name="physics_breasts_leftright_tab" title="Breasts Sway"/>
+			<accordion_tab name="physics_belly_tab" title="Belly Bounce"/>
+			<accordion_tab name="physics_butt_tab" title="Butt Bounce"/>
+			<accordion_tab name="physics_butt_leftright_tab" title="Butt Sway"/>
+			<accordion_tab name="physics_advanced_tab" title="進階參數"/>
+		</accordion>
+	</panel>
+</panel>
