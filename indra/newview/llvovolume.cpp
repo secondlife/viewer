@@ -1245,7 +1245,19 @@ BOOL LLVOVolume::calcLOD()
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO))
 	{
-		setDebugText(llformat("%.2f:%.2f, %d", debug_distance, radius, cur_detail));
+		//setDebugText(llformat("%.2f:%.2f, %d", debug_distance, radius, cur_detail));
+
+		F32 bin_radius = getBinRadius();
+		F32 node_size = 0.f; 
+
+		LLSpatialGroup* group = mDrawable->getSpatialGroup();
+		if (group)
+		{
+			LLSpatialGroup::OctreeNode* node = group->mOctreeNode;
+			node_size = node->getSize()[0];
+		}
+
+		setDebugText(llformat("%.2f:%.2f", bin_radius, node_size));
 	}
 
 	if (cur_detail != mLOD)
@@ -1273,6 +1285,15 @@ BOOL LLVOVolume::updateLOD()
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
 		mLODChanged = TRUE;
+	}
+	else
+	{
+		F32 new_radius = getBinRadius();
+		F32 old_radius = mDrawable->getBinRadius();
+		if (new_radius < old_radius * 0.9f || new_radius > old_radius*1.1f)
+		{
+			gPipeline.markPartitionMove(mDrawable);
+		}
 	}
 
 	lod_changed = lod_changed || LLViewerObject::updateLOD();
@@ -3187,6 +3208,10 @@ F32 LLVOVolume::getBinRadius()
 	
 	F32 scale = 1.f;
 
+	S32 size_factor = llmax(gSavedSettings.getS32("OctreeStaticObjectSizeFactor"), 1);
+	S32 attachment_size_factor = llmax(gSavedSettings.getS32("OctreeAttachmentSizeFactor"), 1);
+	LLVector3 distance_factor = gSavedSettings.getVector3("OctreeDistanceFactor");
+	LLVector3 alpha_distance_factor = gSavedSettings.getVector3("OctreeAlphaDistanceFactor");
 	const LLVector4a* ext = mDrawable->getSpatialExtents();
 	
 	BOOL shrink_wrap = mDrawable->isAnimating();
@@ -3216,6 +3241,8 @@ F32 LLVOVolume::getBinRadius()
 		radius = llmin(bounds.mV[1], bounds.mV[2]);
 		radius = llmin(radius, bounds.mV[0]);
 		radius *= 0.5f;
+		radius *= 1.f+mDrawable->mDistanceWRTCamera*alpha_distance_factor[1];
+		radius += mDrawable->mDistanceWRTCamera*alpha_distance_factor[0];
 	}
 	else if (shrink_wrap)
 	{
@@ -3226,24 +3253,19 @@ F32 LLVOVolume::getBinRadius()
 	}
 	else if (mDrawable->isStatic())
 	{
-		/*if (mDrawable->getRadius() < 2.0f)
-		{
-			radius = 16.f;
-		}
-		else
-		{
-			radius = llmax(mDrawable->getRadius(), 32.f);
-		}*/
-
-		radius = (((S32) mDrawable->getRadius())/2+1)*8;
+		radius = llmax((S32) mDrawable->getRadius(), 1)*size_factor;
+		radius *= 1.f + mDrawable->mDistanceWRTCamera * distance_factor[1];
+		radius += mDrawable->mDistanceWRTCamera * distance_factor[0];
 	}
 	else if (mDrawable->getVObj()->isAttachment())
 	{
-		radius = (((S32) (mDrawable->getRadius()*4)+1))*2;
+		radius = llmax((S32) mDrawable->getRadius(),1)*attachment_size_factor;
 	}
 	else
 	{
-		radius = 8.f;
+		radius = mDrawable->getRadius();
+		radius *= 1.f + mDrawable->mDistanceWRTCamera * distance_factor[1];
+		radius += mDrawable->mDistanceWRTCamera * distance_factor[0];
 	}
 
 	return llclamp(radius*scale, 0.5f, 256.f);

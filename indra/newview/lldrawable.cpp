@@ -94,7 +94,9 @@ void LLDrawable::init()
 	mRenderType = 0;
 	mCurrentScale = LLVector3(1,1,1);
 	mDistanceWRTCamera = 0.0f;
-
+	mPositionGroup.clear();
+	mExtents[0].clear();
+	mExtents[1].clear();
 	mQuietCount = 0;
 
 	mState     = 0;
@@ -587,7 +589,10 @@ void LLDrawable::setRadius(F32 radius)
 
 void LLDrawable::moveUpdatePipeline(BOOL moved)
 {
-	makeActive();
+	if (moved)
+	{
+		makeActive();
+	}
 	
 	// Update the face centers.
 	for (S32 i = 0; i < getNumFaces(); i++)

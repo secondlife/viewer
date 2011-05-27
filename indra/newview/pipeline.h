@@ -157,7 +157,8 @@ public:
 	void		markGLRebuild(LLGLUpdate* glu);
 	void		markRebuild(LLSpatialGroup* group, BOOL priority = FALSE);
 	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL, BOOL priority = FALSE);
-		
+	void		markPartitionMove(LLDrawable* drawablep);
+
 	//get the object between start and end that's closest to start.
 	LLViewerObject* lineSegmentIntersectInWorld(const LLVector3& start, const LLVector3& end,
 												BOOL pick_transparent,
@@ -211,6 +212,7 @@ public:
 	void updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip = 0, LLPlane* plane = NULL);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
 	void createObjects(F32 max_dtime);
 	void createObject(LLViewerObject* vobj);
+	void processPartitionQ();
 	void updateGeom(F32 max_dtime);
 	void updateGL();
 	void rebuildPriorityGroups();
@@ -636,6 +638,9 @@ protected:
 	LLDrawable::drawable_list_t 	mBuildQ2; // non-priority
 	LLSpatialGroup::sg_vector_t		mGroupQ1; //priority
 	LLSpatialGroup::sg_vector_t		mGroupQ2; // non-priority
+
+	LLDrawable::drawable_list_t		mPartitionQ; //drawables that need to update their spatial partition radius 
+
 	bool mGroupQ2Locked;
 	bool mGroupQ1Locked;
 

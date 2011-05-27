@@ -392,6 +392,7 @@ void LLPipeline::init()
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_INIT);
 
+	gOctreeMaxCapacity = gSavedSettings.getU32("OctreeMaxNodeCapacity");
 	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
@@ -2517,6 +2518,32 @@ void LLPipeline::markGLRebuild(LLGLUpdate* glu)
 		LLGLUpdate::sGLQ.push_back(glu);
 		glu->mInQ = TRUE;
 	}
+}
+
+void LLPipeline::markPartitionMove(LLDrawable* drawable)
+{
+	if (!drawable->isState(LLDrawable::PARTITION_MOVE) && 
+		!drawable->getPositionGroup().equals3(LLVector4a::getZero()))
+	{
+		drawable->setState(LLDrawable::PARTITION_MOVE);
+		mPartitionQ.push_back(drawable);
+	}
+}
+
+void LLPipeline::processPartitionQ()
+{
+	for (LLDrawable::drawable_list_t::iterator iter = mPartitionQ.begin(); iter != mPartitionQ.end(); ++iter)
+	{
+		LLDrawable* drawable = *iter;
+		if (!drawable->isDead())
+		{
+			drawable->updateBinRadius();
+			drawable->movePartition();
+		}
+		drawable->clearState(LLDrawable::PARTITION_MOVE);
+	}
+
+	mPartitionQ.clear();
 }
 
 void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
@@ -5887,7 +5914,6 @@ LLSpatialPartition* LLPipeline::getSpatialPartition(LLViewerObject* vobj)
 	}
 	return NULL;
 }
-
 
 void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 {

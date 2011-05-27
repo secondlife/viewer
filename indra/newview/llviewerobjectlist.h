@@ -105,6 +105,7 @@ public:
 	void updateQuota( const LLUUID& objectId, const SelectionQuota& costs );
 	
 	void shiftObjects(const LLVector3 &offset);
+	void repartitionObjects();
 
 	bool hasMapObjectInRegion(LLViewerRegion* regionp) ;
 	void clearAllMapObjectsInRegion(LLViewerRegion* regionp) ;

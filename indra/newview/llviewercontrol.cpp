@@ -57,6 +57,7 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
+#include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llparcel.h"
 #include "llkeyboard.h"
@@ -372,6 +373,16 @@ static bool handleResetVertexBuffersChanged(const LLSD&)
 	return true;
 }
 
+static bool handleRepartition(const LLSD&)
+{
+	if (gPipeline.isInit())
+	{
+		gOctreeMaxCapacity = gSavedSettings.getU32("OctreeMaxNodeCapacity");
+		gObjectList.repartitionObjects();
+	}
+	return true;
+}
+
 static bool handleRenderDynamicLODChanged(const LLSD& newvalue)
 {
 	LLPipeline::sDynamicLOD = newvalue.asBoolean();
@@ -575,6 +586,11 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("FirstPersonAvatarVisible")->getSignal()->connect(boost::bind(&handleRenderAvatarMouselookChanged, _2));
 	gSavedSettings.getControl("RenderFarClip")->getSignal()->connect(boost::bind(&handleRenderFarClipChanged, _2));
 	gSavedSettings.getControl("RenderTerrainDetail")->getSignal()->connect(boost::bind(&handleTerrainDetailChanged, _2));
+	gSavedSettings.getControl("OctreeStaticObjectSizeFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
+	gSavedSettings.getControl("OctreeDistanceFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
+	gSavedSettings.getControl("OctreeMaxNodeCapacity")->getSignal()->connect(boost::bind(&handleRepartition, _2));
+	gSavedSettings.getControl("OctreeAlphaDistanceFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
+	gSavedSettings.getControl("OctreeAttachmentSizeFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
 	gSavedSettings.getControl("RenderUseTriStrips")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAnimateTrees")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAvatarVP")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
