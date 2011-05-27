@@ -69,6 +69,7 @@ U32 LLSpatialGroup::sNodeCount = 0;
 
 std::set<GLuint> LLSpatialGroup::sPendingQueries;
 
+U32 gOctreeMaxCapacity;
 
 BOOL LLSpatialGroup::sNoDelete = FALSE;
 
@@ -630,7 +631,7 @@ BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 	if (mOctreeNode->isInside(drawablep->getPositionGroup()) && 
 		(mOctreeNode->contains(drawablep) ||
 		 (drawablep->getBinRadius() > mOctreeNode->getSize()[0] &&
-				parent && parent->getElementCount() >= LL_OCTREE_MAX_CAPACITY)))
+				parent && parent->getElementCount() >= gOctreeMaxCapacity)))
 	{
 		unbound();
 		setState(OBJECT_DIRTY);
@@ -2515,7 +2516,7 @@ void renderOctree(LLSpatialGroup* group)
 	//coded by buffer usage and activity
 	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 	LLVector4 col;
-	if (group->mBuilt > 0.f)
+	/*if (group->mBuilt > 0.f)
 	{
 		group->mBuilt -= 2.f * gFrameIntervalSeconds;
 		if (group->mBufferUsage == GL_STATIC_DRAW_ARB)
@@ -2584,7 +2585,7 @@ void renderOctree(LLSpatialGroup* group)
 			gGL.color4f(1,1,1,1);
 		}
 	}
-	else
+	else*/
 	{
 		if (group->mBufferUsage == GL_STATIC_DRAW_ARB && !group->getData().empty() 
 			&& group->mSpatialPartition->mRenderByGroup)
@@ -2604,33 +2605,24 @@ void renderOctree(LLSpatialGroup* group)
 	size.mul(1.01f);
 	size.add(fudge);
 
-	{
-		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-		drawBox(group->mObjectBounds[0], fudge);
-	}
+	//{
+	//	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+	//	drawBox(group->mObjectBounds[0], fudge);
+	//}
 	
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-	if (group->mBuilt <= 0.f)
+	//if (group->mBuilt <= 0.f)
 	{
 		//draw opaque outline
-		gGL.color4f(col.mV[0], col.mV[1], col.mV[2], 1.f);
-		drawBoxOutline(group->mObjectBounds[0], group->mObjectBounds[1]);
+		//gGL.color4f(col.mV[0], col.mV[1], col.mV[2], 1.f);
+		//drawBoxOutline(group->mObjectBounds[0], group->mObjectBounds[1]);
 
-		if (group->mOctreeNode->isLeaf())
-		{
-			gGL.color4f(1,1,1,1);
-		}
-		else
-		{
-			gGL.color4f(0,1,1,1);
-		}
-						
+		gGL.color4f(0,1,1,1);
 		drawBoxOutline(group->mBounds[0],group->mBounds[1]);
-
-
+		
 		//draw bounding box for draw info
-		if (group->mSpatialPartition->mRenderByGroup)
+		/*if (group->mSpatialPartition->mRenderByGroup)
 		{
 			gGL.color4f(1.0f, 0.75f, 0.25f, 0.6f);
 			for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
@@ -2647,7 +2639,7 @@ void renderOctree(LLSpatialGroup* group)
 					drawBoxOutline(center, size);
 				}
 			}
-		}
+		}*/
 	}
 	
 //	LLSpatialGroup::OctreeNode* node = group->mOctreeNode;
@@ -2690,7 +2682,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 			gGL.color4f(0.f, 0.75f, 0.f, 0.5f);
 			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
 		}
-		else if (camera && group->mOcclusionVerts.notNull())
+		/*else if (camera && group->mOcclusionVerts.notNull())
 		{
 			LLVertexBuffer::unbind();
 			group->mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
@@ -2702,7 +2694,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 			glColor4f(1.0f, 1.f, 1.f, 1.0f);
 			group->mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, group->mBounds[0]));
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
+		}*/
 	}
 }
 
