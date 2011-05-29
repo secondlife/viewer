@@ -1292,7 +1292,7 @@ void LLDrawPoolBump::renderBump(U32 type, U32 mask)
 	}
 }
 
-void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
+void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
 {
 	applyModelMatrix(params);
 

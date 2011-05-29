@@ -203,7 +203,9 @@ void LLTexUnit::disable(void)
 		if (mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
+			stop_glerror();
 			glDisable(sGLTextureType[mCurrTexType]);
+			stop_glerror();
 		}
 		
 		mCurrTexType = TT_NONE;
@@ -403,6 +405,7 @@ void LLTexUnit::unbind(eTextureType type)
 		activate();
 		mCurrTexture = 0;
 		glBindTexture(sGLTextureType[type], 0);
+		stop_glerror();
 	}
 }
 

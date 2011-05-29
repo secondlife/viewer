@@ -430,14 +430,14 @@ void LLRenderPass::renderTexture(U32 type, U32 mask)
 	pushBatches(type, mask, TRUE);
 }
 
-void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture)
+void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
 {
 	for (LLCullResult::drawinfo_list_t::iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
 	{
 		LLDrawInfo* pparams = *i;
 		if (pparams) 
 		{
-			pushBatch(*pparams, mask, texture);
+			pushBatch(*pparams, mask, texture, batch_textures);
 		}
 	}
 }
@@ -456,26 +456,42 @@ void LLRenderPass::applyModelMatrix(LLDrawInfo& params)
 	}
 }
 
-void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
+void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
 {
 	applyModelMatrix(params);
 
+	bool tex_setup = false;
+
 	if (texture)
 	{
-		if (params.mTexture.notNull())
+		if (batch_textures && params.mTextureList.size() > 1)
 		{
-			params.mTexture->addTextureStats(params.mVSize);
-			gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
-			if (params.mTextureMatrix)
+			for (U32 i = 0; i < params.mTextureList.size(); ++i)
 			{
-				glMatrixMode(GL_TEXTURE);
-				glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
-				gPipeline.mTextureMatrixOps++;
+				if (params.mTextureList[i].notNull())
+				{
+					gGL.getTexUnit(i)->bind(params.mTextureList[i], TRUE);
+				}
 			}
 		}
 		else
-		{
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+		{ //not batching textures or batch has only 1 texture -- might need a texture matrix
+			if (params.mTexture.notNull())
+			{
+				params.mTexture->addTextureStats(params.mVSize);
+				gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
+				if (params.mTextureMatrix)
+				{
+					tex_setup = true;
+					glMatrixMode(GL_TEXTURE);
+					glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+					gPipeline.mTextureMatrixOps++;
+				}
+			}
+			else
+			{
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			}
 		}
 	}
 	
@@ -490,7 +506,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 	}
 
-	if (params.mTextureMatrix && texture && params.mTexture.notNull())
+	if (tex_setup)
 	{
 		glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW);

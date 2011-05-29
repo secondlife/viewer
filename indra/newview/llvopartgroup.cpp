@@ -418,6 +418,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 			mFaceList.push_back(facep);
 			vertex_count += facep->getGeomCount();
 			index_count += facep->getIndicesCount();
+			llassert(facep->getIndicesCount() < 65536);
 		}
 		
 		obj->mDepth /= count;

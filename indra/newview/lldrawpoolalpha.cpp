@@ -124,7 +124,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 	if (pass == 0)
 	{
 		simple_shader = &gDeferredAlphaProgram;
-		fullbright_shader = &gDeferredFullbrightProgram;
+		fullbright_shader = &gObjectFullbrightProgram;
 	}
 	else
 	{

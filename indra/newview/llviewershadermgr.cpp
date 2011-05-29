@@ -354,6 +354,7 @@ void LLViewerShaderMgr::setShaders()
 
 	//setup preprocessor definitions
 	LLShaderMgr::instance()->mDefinitions["samples"] = llformat("%d", gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples")));
+	LLShaderMgr::instance()->mDefinitions["NUM_TEX_UNITS"] = llformat("%d", gGLManager.mNumTextureImageUnits);
 
 	reentrance = true;
 
@@ -941,6 +942,20 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 
 }
 
+void setup_indexed_texture(LLGLSLShader& shader)
+{
+	shader.bind();
+	shader.uniform1i("tex0", 0);
+	shader.uniform1i("tex1", 1);
+	shader.uniform1i("tex2", 2);
+	shader.uniform1i("tex3", 3);
+	shader.uniform1i("tex4", 4);
+	shader.uniform1i("tex5", 5);
+	shader.uniform1i("tex6", 6);
+	shader.uniform1i("tex7", 7);
+	shader.unbind();
+}
+
 BOOL LLViewerShaderMgr::loadShadersDeferred()
 {
 	if (mVertexShaderLevel[SHADER_DEFERRED] == 0)
@@ -992,9 +1007,14 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredDiffuseProgram.mName = "Deferred Diffuse Shader";
 		gDeferredDiffuseProgram.mShaderFiles.clear();
 		gDeferredDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseIndexedF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredDiffuseProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredDiffuseProgram.createShader(NULL, NULL);
+
+		if (success)
+		{ //force tex0-7 to appropriate texture channels
+			setup_indexed_texture(gDeferredDiffuseProgram);
+		}
 	}
 
 	if (success)
@@ -1231,6 +1251,11 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredFullbrightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredFullbrightProgram.createShader(NULL, NULL);
+
+		if (success)
+		{
+			setup_indexed_texture(gDeferredFullbrightProgram);
+		}
 	}
 
 	if (success)
