@@ -244,9 +244,13 @@ void LLVOClouds::getGeometry(S32 te,
 	vtx[2] = puff_pos_agent + right + up;
 	vtx[3] = puff_pos_agent + right - up;
 
+	verticesp->mV[3] = 0.f;
 	*verticesp++  = vtx[0];
+	verticesp->mV[3] = 0.f;
 	*verticesp++  = vtx[1];
+	verticesp->mV[3] = 0.f;
 	*verticesp++  = vtx[2];
+	verticesp->mV[3] = 0.f;
 	*verticesp++  = vtx[3];
 
 	*texcoordsp++ = uvs[0];
