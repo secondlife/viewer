@@ -91,14 +91,14 @@ void LLFloaterEnvironmentSettings::onOpen(const LLSD& key)
 	mRegionSettingsRadioGroup->setSelectedIndex(mUseRegionSettings ? 0 : 1);
 	mDayCycleSettingsRadioGroup->setSelectedIndex(mUseFixedSky ? 0 : 1);
 
-	// Update other controls state based on the selected radio buttons.
-	onSwitchRegionSettings();
-	onSwitchDayCycle();
-
 	// Populate the combo boxes with appropriate lists of available presets.
 	populateWaterPresetsList();
 	populateSkyPresetsList();
 	populateDayCyclePresetsList();
+
+	// Update other controls state based on the selected radio buttons.
+	onSwitchRegionSettings();
+	onSwitchDayCycle();
 
 	// Save water, sky and day cycle presets to restore them
 	// in case of "Cancel" button has been pressed.
