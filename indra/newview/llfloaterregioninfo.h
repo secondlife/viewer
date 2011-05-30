@@ -448,6 +448,7 @@ private:
 	void refresh();
 	void setControlsEnabled(bool enabled);
 	void setApplyProgress(bool started);
+	void setDirty(bool dirty);
 
 	void populateWaterPresetsList();
 	void populateSkyPresetsList();

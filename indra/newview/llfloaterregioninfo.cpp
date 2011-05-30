@@ -3342,6 +3342,8 @@ void LLPanelEnvironmentInfo::refresh()
 	mDayCycleSettingsRadioGroup->setSelectedIndex(use_fixed_sky ? 0 : 1);
 
 	setControlsEnabled(mEnableEditing);
+
+	setDirty(false);
 }
 
 void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
@@ -3382,6 +3384,12 @@ void LLPanelEnvironmentInfo::setApplyProgress(bool started)
 	{
 		indicator->stop();
 	}
+}
+
+void LLPanelEnvironmentInfo::setDirty(bool dirty)
+{
+	getChildView("apply_btn")->setEnabled(dirty);
+	getChildView("cancel_btn")->setEnabled(dirty);
 }
 
 void LLPanelEnvironmentInfo::populateWaterPresetsList()
@@ -3558,6 +3566,8 @@ void LLPanelEnvironmentInfo::onSwitchRegionSettings()
 		onSelectWaterPreset();
 		onSwitchDayCycle();
 	}
+
+	setDirty(true);
 }
 
 void LLPanelEnvironmentInfo::onSwitchDayCycle()
@@ -3575,6 +3585,8 @@ void LLPanelEnvironmentInfo::onSwitchDayCycle()
 	{
 		onSelectDayCycle();
 	}
+
+	setDirty(true);
 }
 
 void LLPanelEnvironmentInfo::onSelectWaterPreset()
@@ -3585,6 +3597,8 @@ void LLPanelEnvironmentInfo::onSelectWaterPreset()
 	{
 		LLEnvManagerNew::instance().useWaterParams(water_params);
 	}
+
+	setDirty(true);
 }
 
 void LLPanelEnvironmentInfo::onSelectSkyPreset()
@@ -3596,6 +3610,8 @@ void LLPanelEnvironmentInfo::onSelectSkyPreset()
 	{
 		LLEnvManagerNew::instance().useSkyParams(params);
 	}
+
+	setDirty(true);
 }
 
 void LLPanelEnvironmentInfo::onSelectDayCycle()
@@ -3608,6 +3624,8 @@ void LLPanelEnvironmentInfo::onSelectDayCycle()
 	{
 		LLEnvManagerNew::instance().useDayCycleParams(day_cycle, (LLEnvKey::EScope) scope);
 	}
+
+	setDirty(true);
 }
 
 void LLPanelEnvironmentInfo::onBtnApply()
