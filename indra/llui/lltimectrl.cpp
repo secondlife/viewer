@@ -161,7 +161,7 @@ void LLTimeCtrl::setTime24(F32 time)
 {
 	time = llclamp(time, 0.0f, 23.99f); // fix out of range values
 
-	U32 h = time;
+	U32 h = (U32) time;
 	U32 m = llround((time - h) * 60); // fixes values like 4.99999
 
 	// fix rounding error
