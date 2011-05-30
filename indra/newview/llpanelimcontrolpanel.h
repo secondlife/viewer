@@ -94,6 +94,12 @@ private:
 	void onPayButtonClicked();
 	void onFocusReceived();
 
+	void onClickMuteVolume();
+	void onClickBlock();
+	void onClickUnblock();
+	/*virtual*/ void draw();
+	void onVolumeChange(const LLSD& data);
+
 	LLUUID mAvatarID;
 };
 
