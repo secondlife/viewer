@@ -47,7 +47,7 @@
   </radio_group>
  <panel
   follows="top|left"
-  height="170"
+  height="150"
   layout="topleft"
   left="50"
   name="user_environment_settings"
@@ -127,7 +127,7 @@
   layout="topleft"
   right="-160"
   name="apply_btn"
-  top_pad="150"
+  top_pad="10"
   width="100" />
  <button
   follows="left|top"
@@ -139,7 +139,7 @@
   width="100" /> 
  <loading_indicator
   height="23"
-  left="10"
+  left="50"
   name="progress_indicator"
   top_delta="0"
   visible="false"
