@@ -97,7 +97,7 @@ void LLWLDayCycle::loadDayCycleFromFile(const std::string & fileName)
 
 /*static*/ LLSD LLWLDayCycle::loadCycleDataFromFile(const std::string & fileName)
 {
-	// now load the file
+	// *FIX: Cannot load user day cycles.
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, 
 		"windlight/days", fileName));
 

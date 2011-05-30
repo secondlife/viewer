@@ -776,11 +776,25 @@ void LLWLParamManager::initSingleton()
 	loadPresets(LLStringUtil::null);
 
 	// load the day
-	mDay.loadDayCycleFromFile(LLEnvManagerNew::instance().getDayCycleName() + ".xml");
+	std::string preferred_day = LLEnvManagerNew::instance().getDayCycleName();
+	if (!LLDayCycleManager::instance().getPreset(preferred_day, mDay))
+	{
+		// Fall back to default.
+		llwarns << "No day cycle named " << preferred_day << ", falling back to defaults" << llendl;
+		mDay.loadDayCycleFromFile("Default.xml");
+
+		// *TODO: Fix user preferences accordingly.
+	}
 
 	// *HACK - sets cloud scrolling to what we want... fix this better in the future
 	std::string sky = LLEnvManagerNew::instance().getSkyPresetName();
-	getParamSet(LLWLParamKey(sky, LLWLParamKey::SCOPE_LOCAL), mCurParams);
+	if (!getParamSet(LLWLParamKey(sky, LLWLParamKey::SCOPE_LOCAL), mCurParams))
+	{
+		llwarns << "No sky preset named " << sky << ", falling back to defaults" << llendl;
+		getParamSet(LLWLParamKey("Default", LLWLParamKey::SCOPE_LOCAL), mCurParams);
+
+		// *TODO: Fix user preferences accordingly.
+	}
 
 	// set it to noon
 	resetAnimator(0.5, LLEnvManagerNew::instance().getUseDayCycle());

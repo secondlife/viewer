@@ -291,7 +291,13 @@ void LLWaterParamManager::applyUserPrefs(bool interpolate)
 		std::string water = LLEnvManagerNew::instance().getWaterPresetName();
 		LL_DEBUGS("Windlight") << "Applying water preset [" << water << "]" << LL_ENDL;
 		LLWaterParamSet params;
-		getParamSet(water, params);
+		if (!getParamSet(water, params))
+		{
+			llwarns << "No wayer preset named " << water << ", falling back to defaults" << llendl;
+			getParamSet("Default", params);
+
+			// *TODO: Fix user preferences accordingly.
+		}
 		target_water_params = params.getAll();
 	}
 
