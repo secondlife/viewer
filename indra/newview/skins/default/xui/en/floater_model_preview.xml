@@ -83,6 +83,20 @@
     </text>
   </panel>
 
+  <check_box
+	height="16"
+	left_delta="0"
+	name="confirm_checkbox"
+	top_pad="15"
+	follows="bottom|left"
+	width="16" />
+
+  <text
+	height="30"
+	width="570"
+	word_wrap="true" 
+	left_delta="25"
+	top_delta="0">I confirm that I have the appropriate rights to the material contained in this model. [secondlife:///app/floater/learn_more Learn more]</text>
   <text left="10" bottom="540" width="290" height="15" follows="bottom|left|right" name="status">[STATUS]</text>
 
   

@@ -320,8 +320,10 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childDisable("upload_skin");
 	childDisable("upload_joints");
-
+	
 	childDisable("ok_btn");
+
+	childSetCommitCallback("confirm_checkbox", refresh, this);
 
 	mViewOptionMenuButton = getChild<LLMenuButton>("options_gear_btn");
 
@@ -2701,7 +2703,8 @@ U32 LLModelPreview::calcResourceCost()
 
 	if (mFMP && mModelLoader)
 	{
-		if ( getLoadState() < LLModelLoader::ERROR_PARSING )
+		const BOOL confirmed_checkbox = mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean();
+		if ( getLoadState() < LLModelLoader::ERROR_PARSING && confirmed_checkbox )
 		{
 			mFMP->childEnable("ok_btn");
 		}
@@ -2843,7 +2846,8 @@ void LLModelPreview::rebuildUploadData()
 
 	F32 max_scale = 0.f;
 
-	if ( mBaseScene.size() > 0 )
+	const BOOL confirmed_checkbox = mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean();
+	if ( mBaseScene.size() > 0 && confirmed_checkbox )
 	{
 		mFMP->childEnable("ok_btn");
 	}
@@ -3247,6 +3251,8 @@ void LLModelPreview::loadModelCallback(S32 lod)
 	}
 
 	mLoading = false;
+	if (mFMP)
+		mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->set(FALSE);
 	refresh();
 
 	mModelLoadedSignal();
@@ -3902,7 +3908,8 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 	
-	if ( upload_ok && !errorStateFromLoader && skinAndRigOk )
+	const BOOL confirmed_checkbox = mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean();
+	if ( upload_ok && !errorStateFromLoader && skinAndRigOk && confirmed_checkbox)
 	{
 		mFMP->childEnable("ok_btn");
 	}
