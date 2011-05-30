@@ -801,4 +801,6 @@ void LLWLParamManager::initSingleton()
 
 	// but use linden time sets it to what the estate is
 	mAnimator.setTimeType(LLWLAnimator::TIME_LINDEN);
+
+	applyUserPrefs(false);
 }
