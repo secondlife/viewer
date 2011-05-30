@@ -22,9 +22,7 @@
      left="30"
      name="hint"
      top="25"
-     width="700">
-     To edit your preset, adjust the controls then click "Save"
-    </text>
+     width="700" />
     <text
      follows="top|left|right"
      font="SansSerif"
