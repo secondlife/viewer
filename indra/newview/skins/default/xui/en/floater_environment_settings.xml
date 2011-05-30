@@ -6,9 +6,33 @@
  name="Environment Editor Floater"
  help_topic="environment_editor_floater"
  save_rect="true"
- title="ENVIRONMENT EDITOR"
+ title="ENVIRONMENT SETTINGS"
  width="540">
- 
+
+ <text
+  follows="top|left|right"
+  height="15"
+  layout="topleft"
+  left="20"
+  name="note"
+  top="25"
+  width="510"
+  wrap="true">
+  Use the options below to customize the environment settings for your viewer.
+ </text>
+ <text
+  follows="top|left|right"
+  font="SansSerifItalic"
+  height="15"
+  layout="topleft"
+  left_delta="0"
+  name="note"
+  top_pad="-"
+  width="510"
+  wrap="true">
+  Note: if you choose to use your own settings, they will not be visible to other users.
+ </text>
+
  <view_border
   bevel_style="none"  
   follows="top|left"
@@ -16,7 +40,7 @@
   layout="topleft"
   left="20"
   name="border"
-  top="38"
+  top_pad="8"
   width="500"/>  
  <radio_group
   follows="top|left"
@@ -43,7 +67,7 @@
   left="50"
   name="user_environment_settings"
   top_pad="0"
-  width="500">
+  width="470">
 
  <!-- Water Setting -->
  <text
@@ -122,9 +146,9 @@
    height="23"
    label="OK"
    layout="topleft"
-   right="-160"
+   right="-130"
    name="ok_btn"
-   top_pad="20"
+   top_pad="10"
    width="100" />
   <button
    follows="left|top"
