@@ -191,6 +191,14 @@ void LLDrawPool::renderPostDeferred(S32 pass)
 //virtual
 void LLDrawPool::endRenderPass( S32 pass )
 {
+	for (U32 i = 1; i < 8; i++)
+	{ //dummy cleanup of any currently bound textures
+		if (gGL.getTexUnit(i)->getCurrType() != LLTexUnit::TT_NONE)
+		{
+			gGL.getTexUnit(i)->unbind(gGL.getTexUnit(i)->getCurrType());
+			gGL.getTexUnit(i)->disable();
+		}
+	}
 }
 
 //virtual 

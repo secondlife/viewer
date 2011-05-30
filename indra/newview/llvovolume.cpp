@@ -73,6 +73,7 @@
 #include "llagent.h"
 #include "llviewermediafocus.h"
 #include "lldatapacker.h"
+#include "llviewershadermgr.h"
 #include "llvoavatar.h"
 #include "llvocache.h"
 
@@ -4295,20 +4296,24 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 bump_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 	U32 fullbright_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 
-	if (LLPipeline::sRenderDeferred)
+	bool batch_textures = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
+
+	if (batch_textures)
 	{
 		bump_mask |= LLVertexBuffer::MAP_BINORMAL;
 		genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, FALSE, TRUE);
 		genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, FALSE, TRUE);
 		genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, FALSE, TRUE);
+		genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, TRUE, TRUE);
 	}
 	else
 	{
 		genDrawInfo(group, simple_mask, simple_faces);
 		genDrawInfo(group, fullbright_mask, fullbright_faces);
 		genDrawInfo(group, bump_mask, bump_faces, FALSE, TRUE);
+		genDrawInfo(group, alpha_mask, alpha_faces, TRUE);
 	}
-	genDrawInfo(group, alpha_mask, alpha_faces, TRUE);
+	
 
 	if (!LLPipeline::sDelayVBUpdate)
 	{
@@ -4482,25 +4487,60 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		
 		std::vector<LLViewerTexture*> texture_list;
 
-		if (!distance_sort && batch_textures)
+		if (batch_textures)
 		{
 			U8 cur_tex = 0;
 			facep->setTextureIndex(cur_tex);
 			texture_list.push_back(tex);
 
-			if (can_batch_texture(facep))
+			//if (can_batch_texture(facep))
 			{
 				while (i != faces.end())
 				{
 					facep = *i;
 					if (facep->getTexture() != tex)
 					{
-						cur_tex++;
+						if (distance_sort)
+						{ //textures might be out of order, see if texture exists in current batch
+							bool found = false;
+							for (U32 tex_idx = 0; tex_idx < texture_list.size(); ++tex_idx)
+							{
+								if (facep->getTexture() == texture_list[tex_idx])
+								{
+									cur_tex = tex_idx;
+									found = true;
+									break;
+								}
+							}
+
+							if (!found)
+							{
+								cur_tex = texture_list.size();
+							}
+						}
+						else
+						{
+							cur_tex++;
+
+							if (cur_tex >= 7 && facep->getTextureEntry()->getShiny())
+							{ //entry 7 is reserved for the environment map for shiny faces
+								break;
+							}
+						}
+
+						if (!can_batch_texture(facep))
+						{ //face is bump mapped or has an animated texture matrix -- can't 
+							//batch more than 1 texture at a time
+							break;
+						}
+
 						if (cur_tex >= 8)
 						{ //cut batches on every 8 textures
 							break;
 						}
+
 						tex = facep->getTexture();
+
 						texture_list.push_back(tex);
 					}
 
@@ -4509,11 +4549,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 						break;
 					}
 
-					if (!can_batch_texture(facep))
-					{ //cut batches on things that require single texture rendering (animated texture, bump maps)
-						break;
-					}
-					
 					++i;
 					index_count += facep->getIndicesCount();
 					geom_count += facep->getGeomCount();

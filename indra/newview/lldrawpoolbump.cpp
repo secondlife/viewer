@@ -309,6 +309,9 @@ void LLDrawPoolBump::endRenderPass(S32 pass)
 			llassert(0);
 			break;
 	}
+
+	//to cleanup texture channels
+	LLRenderPass::endRenderPass(pass);
 }
 
 //static
@@ -347,6 +350,11 @@ void LLDrawPoolBump::beginShiny(bool invisible)
 	}
 
 	bindCubeMap(shader, mVertexShaderLevel, diffuse_channel, cube_channel, invisible);
+
+	if (mVertexShaderLevel > 1)
+	{ //indexed texture rendering, channel 0 is always diffuse
+		diffuse_channel = 0;
+	}
 }
 
 //static
@@ -414,16 +422,16 @@ void LLDrawPoolBump::renderShiny(bool invisible)
 		LLGLEnable blend_enable(GL_BLEND);
 		if (!invisible && mVertexShaderLevel > 1)
 		{
-			LLRenderPass::renderTexture(LLRenderPass::PASS_SHINY, sVertexMask);
+			LLRenderPass::pushBatches(LLRenderPass::PASS_SHINY, sVertexMask | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 		}
 		else if (!invisible)
 		{
 			renderGroups(LLRenderPass::PASS_SHINY, sVertexMask);
 		}
-		else // invisible
-		{
-			renderGroups(LLRenderPass::PASS_INVISI_SHINY, sVertexMask);
-		}
+		//else // invisible (deprecated)
+		//{
+			//renderGroups(LLRenderPass::PASS_INVISI_SHINY, sVertexMask);
+		//}
 	}
 }
 
@@ -536,7 +544,15 @@ void LLDrawPoolBump::renderFullbrightShiny()
 	if( gSky.mVOSkyp->getCubeMap() )
 	{
 		LLGLEnable blend_enable(GL_BLEND);
-		LLRenderPass::renderTexture(LLRenderPass::PASS_FULLBRIGHT_SHINY, sVertexMask);
+
+		if (mVertexShaderLevel > 1)
+		{
+			LLRenderPass::pushBatches(LLRenderPass::PASS_FULLBRIGHT_SHINY, sVertexMask | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+		}
+		else
+		{
+			LLRenderPass::renderTexture(LLRenderPass::PASS_FULLBRIGHT_SHINY, sVertexMask);
+		}
 	}
 }
 
@@ -836,6 +852,9 @@ void LLDrawPoolBump::endPostDeferredPass(S32 pass)
 		endBump(LLRenderPass::PASS_POST_BUMP);
 		break;
 	}
+
+	//to disable texture channels
+	LLRenderPass::endRenderPass(pass);
 }
 
 void LLDrawPoolBump::renderPostDeferred(S32 pass)
@@ -1296,39 +1315,56 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 {
 	applyModelMatrix(params);
 
-	if (params.mTextureMatrix)
+	bool tex_setup = false;
+
+	if (batch_textures && params.mTextureList.size() > 1)
 	{
-		if (mShiny)
+		for (U32 i = 0; i < params.mTextureList.size(); ++i)
 		{
-			gGL.getTexUnit(0)->activate();
-			glMatrixMode(GL_TEXTURE);
+			if (params.mTextureList[i].notNull())
+			{
+				gGL.getTexUnit(i)->bind(params.mTextureList[i], TRUE);
+			}
 		}
-		else
+	}
+	else
+	{ //not batching textures or batch has only 1 texture -- might need a texture matrix
+		if (params.mTextureMatrix)
 		{
-			gGL.getTexUnit(1)->activate();
-			glMatrixMode(GL_TEXTURE);
+			if (mShiny)
+			{
+				gGL.getTexUnit(0)->activate();
+				glMatrixMode(GL_TEXTURE);
+			}
+			else
+			{
+				gGL.getTexUnit(1)->activate();
+				glMatrixMode(GL_TEXTURE);
+				glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+				gPipeline.mTextureMatrixOps++;
+				gGL.getTexUnit(0)->activate();
+			}
+
 			glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
 			gPipeline.mTextureMatrixOps++;
-			gGL.getTexUnit(0)->activate();
+
+			tex_setup = true;
 		}
 
-		glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
-		gPipeline.mTextureMatrixOps++;
+		if (mShiny && mVertexShaderLevel > 1 && texture)
+		{
+			if (params.mTexture.notNull())
+			{
+				gGL.getTexUnit(diffuse_channel)->bind(params.mTexture) ;
+				params.mTexture->addTextureStats(params.mVSize);		
+			}
+			else
+			{
+				gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
+			}
+		}
 	}
 
-	if (mShiny && mVertexShaderLevel > 1 && texture)
-	{
-		if (params.mTexture.notNull())
-		{
-			gGL.getTexUnit(diffuse_channel)->bind(params.mTexture) ;
-			params.mTexture->addTextureStats(params.mVSize);		
-		}
-		else
-		{
-			gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
-		}
-	}
-	
 	if (params.mGroup)
 	{
 		params.mGroup->rebuildMesh();
@@ -1336,7 +1372,7 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 	params.mVertexBuffer->setBuffer(mask);
 	params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 	gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
-	if (params.mTextureMatrix)
+	if (tex_setup)
 	{
 		if (mShiny)
 		{

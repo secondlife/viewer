@@ -45,6 +45,7 @@ public:
 	bool hasObjectSkinning;
 	bool hasAtmospherics;
 	bool hasGamma;
+	bool disableTextureIndex;
 
 	// char numLights;
 	
