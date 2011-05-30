@@ -1223,7 +1223,7 @@ BOOL LLVOVolume::calcLOD()
 	}
 	
 	//hold onto unmodified distance for debugging
-	F32 debug_distance = distance;
+	//F32 debug_distance = distance;
 	
 	distance *= sDistanceFactor;
 
