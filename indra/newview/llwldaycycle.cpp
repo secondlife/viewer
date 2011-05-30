@@ -127,12 +127,17 @@ LLSD LLWLDayCycle::loadDayCycleFromPath(const std::string& file_path)
 
 void LLWLDayCycle::saveDayCycle(const std::string & fileName)
 {
-	LLSD day_data = asLLSD();
-
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/days", fileName));
 	//llinfos << "Saving WindLight settings to " << pathName << llendl;
 
-	llofstream day_cycle_xml(pathName);
+	save(pathName);
+}
+
+void LLWLDayCycle::save(const std::string& file_path)
+{
+	LLSD day_data = asLLSD();
+
+	llofstream day_cycle_xml(file_path);
 	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 	formatter->format(day_data, day_cycle_xml, LLSDFormatter::OPTIONS_PRETTY);
 	day_cycle_xml.close();

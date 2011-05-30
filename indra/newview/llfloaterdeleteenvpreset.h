@@ -49,6 +49,8 @@ private:
 	void populateSkyPresetsList();
 	void populateDayCyclesList();
 
+	void onDeleteDayCycleConfirmation();
+
 	LLComboBox* mPresetCombo;
 };
 

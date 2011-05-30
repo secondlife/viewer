@@ -37,6 +37,7 @@ class LLLineEditor;
 class LLTimeCtrl
 : public LLUICtrl
 {
+	LOG_CLASS(LLTimeCtrl);
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
@@ -51,12 +52,16 @@ public:
 
 		Params();
 	};
+
+	F32 getTime24() const;		// 0.0 - 24.0
+	U32 getHours24() const;		// 0 - 23
+	U32 getMinutes() const;		// 0 - 59
+
+	void setTime24(F32 time);	// 0.0 - 23.98(3)
+
 protected:
 	LLTimeCtrl(const Params&);
 	friend class LLUICtrlFactory;
-
-	U32 getHours() const	{ return mHours; }
-	U32 getMinutes() const { return mMinutes; }
 
 private:
 
@@ -101,7 +106,7 @@ private:
 
 	void switchDayPeriod();
 
-	void buildTimeString();
+	void updateText();
 
 	EEditingPart getEditingPart();
 
@@ -114,11 +119,9 @@ private:
 	class LLButton*		mUpBtn;
 	class LLButton*		mDownBtn;
 
-	U32 			mHours;
-	U32 			mMinutes;
-	EDayPeriod 		mCurrentDayPeriod;
-
-	std::string	mTimeString;
+	U32 			mHours;				// 1 - 12
+	U32 			mMinutes;			// 0 - 59
+	EDayPeriod 		mCurrentDayPeriod;	// AM/PM
 
 	BOOL			mAllowEdit;
 };

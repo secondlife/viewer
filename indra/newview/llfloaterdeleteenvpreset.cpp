@@ -31,10 +31,22 @@
 // libs
 #include "llbutton.h"
 #include "llcombobox.h"
+#include "llnotificationsutil.h"
 
 // newview
 #include "lldaycyclemanager.h"
 #include "llwaterparammanager.h"
+
+static bool confirmation_callback(const LLSD& notification, const LLSD& response, boost::function<void()> cb)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+		cb();
+	}
+	return false;
+
+}
 
 LLFloaterDeleteEnvPreset::LLFloaterDeleteEnvPreset(const LLSD &key)
 :	LLFloater(key)
@@ -49,9 +61,6 @@ BOOL LLFloaterDeleteEnvPreset::postBuild()
 
 	getChild<LLButton>("delete")->setCommitCallback(boost::bind(&LLFloaterDeleteEnvPreset::onBtnDelete, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterDeleteEnvPreset::onBtnCancel, this));
-
-	// Deletion is not implemented yet, so disable the button for now.
-	getChild<LLButton>("delete")->setEnabled(FALSE);
 
 	return TRUE;
 }
@@ -70,14 +79,15 @@ void LLFloaterDeleteEnvPreset::onOpen(const LLSD& key)
 	getChild<LLUICtrl>("label")->setValue(combo_label);
 
 	// Populate the combobox.
-	mPresetCombo->removeall();
 	if (param == "water")
 	{
 		populateWaterPresetsList();
+		getChild<LLButton>("delete")->setEnabled(FALSE); // not implemented yet
 	}
 	else if (param == "sky")
 	{
 		populateSkyPresetsList();
+		getChild<LLButton>("delete")->setEnabled(FALSE); // not implemented yet
 	}
 	else if (param == "day_cycle")
 	{
@@ -91,7 +101,42 @@ void LLFloaterDeleteEnvPreset::onOpen(const LLSD& key)
 
 void LLFloaterDeleteEnvPreset::onBtnDelete()
 {
-	closeFloater();
+	std::string param = mKey.asString();
+	boost::function<void()> confirm_cb;
+
+	if (param == "water")
+	{
+		llwarns << "Deleting water presets not implemented" << llendl;
+		return;
+	}
+	else if (param == "sky")
+	{
+		llwarns << "Deleting sky presets not implemented" << llendl;
+		return;
+	}
+	else if (param == "day_cycle")
+	{
+		LLDayCycleManager& day_mgr = LLDayCycleManager::instance();
+		std::string preset_name = mPresetCombo->getValue().asString();
+
+		// Don't allow deleting system presets.
+		if (day_mgr.isSystemPreset(preset_name))
+		{
+			LLNotificationsUtil::add("WLNoEditDefault");
+			return;
+		}
+
+		confirm_cb = boost::bind(&LLFloaterDeleteEnvPreset::onDeleteDayCycleConfirmation, this);
+	}
+	else
+	{
+		llwarns << "Unrecognized key" << llendl;
+	}
+
+	LLSD args;
+	args["MESSAGE"] = getString("msg_confirm_deletion");
+	LLNotificationsUtil::add("GenericAlertYesCancel", args, LLSD(),
+		boost::bind(&confirmation_callback, _1, _2, confirm_cb));
 }
 
 void LLFloaterDeleteEnvPreset::onBtnCancel()
@@ -101,6 +146,8 @@ void LLFloaterDeleteEnvPreset::onBtnCancel()
 
 void LLFloaterDeleteEnvPreset::populateWaterPresetsList()
 {
+	mPresetCombo->removeall();
+
 	// *TODO: Reload the list when user preferences change.
 	LLWaterParamManager& water_mgr = LLWaterParamManager::instance();
 	LL_DEBUGS("Windlight") << "Current water preset: " << water_mgr.mCurParams.mName << LL_ENDL;
@@ -116,6 +163,9 @@ void LLFloaterDeleteEnvPreset::populateWaterPresetsList()
 
 void LLFloaterDeleteEnvPreset::populateSkyPresetsList()
 {
+	mPresetCombo->removeall();
+
+	// *TODO: Reload the list when user preferences change.
 	LLWLParamManager& sky_mgr = LLWLParamManager::instance();
 	LL_DEBUGS("Windlight") << "Current sky preset: " << sky_mgr.mCurParams.mName << LL_ENDL;
 
@@ -130,10 +180,18 @@ void LLFloaterDeleteEnvPreset::populateSkyPresetsList()
 
 void LLFloaterDeleteEnvPreset::populateDayCyclesList()
 {
+	mPresetCombo->removeall();
+
 	// *TODO: Disable current day cycle.
 	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
 	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
 	{
 		mPresetCombo->add(it->first);
 	}
+}
+
+void LLFloaterDeleteEnvPreset::onDeleteDayCycleConfirmation()
+{
+	LLDayCycleManager::instance().deletePreset(mPresetCombo->getValue().asString());
+	populateDayCyclesList();
 }

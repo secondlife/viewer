@@ -38,7 +38,7 @@ const LLDayCycleManager::dc_map_t& LLDayCycleManager::getPresets()
 	return mDayCycleMap;
 }
 
-bool LLDayCycleManager::getPreset(const std::string name, LLWLDayCycle& day_cycle)
+bool LLDayCycleManager::getPreset(const std::string name, LLWLDayCycle& day_cycle) const
 {
 	dc_map_t::const_iterator it = mDayCycleMap.find(name);
 	if (it == mDayCycleMap.end())
@@ -50,7 +50,7 @@ bool LLDayCycleManager::getPreset(const std::string name, LLWLDayCycle& day_cycl
 	return true;
 }
 
-bool LLDayCycleManager::getPreset(const std::string name, LLSD& day_cycle)
+bool LLDayCycleManager::getPreset(const std::string name, LLSD& day_cycle) const
 {
 	LLWLDayCycle dc;
 	if (!getPreset(name, dc))
@@ -60,6 +60,46 @@ bool LLDayCycleManager::getPreset(const std::string name, LLSD& day_cycle)
 
 	day_cycle = dc.asLLSD();
 	return true;
+}
+
+bool LLDayCycleManager::presetExists(const std::string name) const
+{
+	LLWLDayCycle dummy;
+	return getPreset(name, dummy);
+}
+
+bool LLDayCycleManager::isSystemPreset(const std::string& name) const
+{
+	return gDirUtilp->fileExists(getSysDir() + LLURI::escape(name) + ".xml");
+}
+
+bool LLDayCycleManager::savePreset(const std::string& name, const LLSD& data)
+{
+	// Save given preset.
+	LLWLDayCycle day;
+	day.loadDayCycle(data, LLEnvKey::SCOPE_LOCAL);
+	day.save(getUserDir() + LLURI::escape(name) + ".xml");
+
+	// Add it to our map.
+	addPreset(name, data);
+	return true;
+}
+
+bool LLDayCycleManager::deletePreset(const std::string& name)
+{
+	std::string path;
+	std::string filename = LLURI::escape(name) + ".xml";
+
+	// Try removing specified user preset.
+	path = getUserDir() + filename;
+	if (gDirUtilp->fileExists(path))
+	{
+		gDirUtilp->deleteFilesInDir(getUserDir(), filename);
+		return true;
+	}
+
+	// Invalid or system preset.
+	return false;
 }
 
 // virtual
@@ -102,11 +142,23 @@ bool LLDayCycleManager::loadPreset(const std::string& path)
 	}
 
 	std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
-	LLWLDayCycle day_cycle;
-	day_cycle.loadDayCycle(data, LLEnvKey::SCOPE_LOCAL);
-	mDayCycleMap[name] = day_cycle;
+	addPreset(name, data);
 
 	return true;
+}
+
+bool LLDayCycleManager::addPreset(const std::string& name, const LLSD& data)
+{
+	if (name.empty())
+	{
+		llassert(name.empty());
+		return false;
+	}
+
+	LLWLDayCycle day;
+	day.loadDayCycle(data, LLEnvKey::SCOPE_LOCAL);
+	mDayCycleMap[name] = day;
+	return false;
 }
 
 // static

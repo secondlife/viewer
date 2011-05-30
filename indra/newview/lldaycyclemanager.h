@@ -46,8 +46,12 @@ public:
 	typedef std::map<std::string, LLWLDayCycle> dc_map_t;
 
 	const dc_map_t& getPresets();
-	bool getPreset(const std::string name, LLWLDayCycle& day_cycle);
-	bool getPreset(const std::string name, LLSD& day_cycle);
+	bool getPreset(const std::string name, LLWLDayCycle& day_cycle) const;
+	bool getPreset(const std::string name, LLSD& day_cycle) const;
+	bool presetExists(const std::string name) const;
+	bool isSystemPreset(const std::string& name) const;
+	bool savePreset(const std::string& name, const LLSD& data);
+	bool deletePreset(const std::string& name);
 
 private:
 	friend class LLSingleton<LLDayCycleManager>;
@@ -56,6 +60,7 @@ private:
 	void loadAllPresets();
 	void loadPresets(const std::string& dir);
 	bool loadPreset(const std::string& path);
+	bool addPreset(const std::string& name, const LLSD& data);
 
 	static std::string getSysDir();
 	static std::string getUserDir();

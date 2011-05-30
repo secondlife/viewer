@@ -62,8 +62,11 @@ public:
 	/// load a day cycle
 	void loadDayCycleFromFile(const std::string & fileName);
 
-	/// load a day cycle
+	/// save a day cycle
 	void saveDayCycle(const std::string & fileName);
+
+	/// save a day cycle
+	void save(const std::string& file_path);
 
 	/// load the LLSD data from a file (returns the undefined LLSD if not found)
 	static LLSD loadCycleDataFromFile(const std::string & fileName);

@@ -16,6 +16,8 @@
     <string name="label_water">Preset:</string>
     <string name="label_sky">Preset:</string>
     <string name="label_day_cycle">Day cycle:</string>
+   
+   <string name="msg_confirm_deletion">Are you sure you want to delete the selected preset?</string>
 
     <text
      follows="top|left|right"

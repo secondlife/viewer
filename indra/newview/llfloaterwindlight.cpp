@@ -82,7 +82,13 @@ BOOL LLFloaterWindLight::postBuild()
 			LLWLParamManager::getInstance()->mParamList.begin();
 		for(; mIt != LLWLParamManager::getInstance()->mParamList.end(); mIt++) 
 		{
-			comboBox->add(mIt->first.toString(), mIt->first.toLLSD());
+			const LLWLParamKey& key = mIt->first;
+			std::string item_title = key.name;
+			if (key.scope == LLEnvKey::SCOPE_REGION)
+			{
+				item_title += std::string(" (") + LLTrans::getString("Region") + std::string(")");
+			}
+			comboBox->add(item_title, key.toLLSD());
 		}
 
 		// entry for when we're in estate time

@@ -139,7 +139,7 @@ public:
 	}
 
 	inline LLWLParamKey() // NOT really valid, just so std::maps can return a default of some sort
-		: name(NULL), scope(SCOPE_LOCAL)
+		: name(""), scope(SCOPE_LOCAL)
 	{
 	}
 
@@ -166,6 +166,12 @@ public:
 		llsd.append(LLSD(name));
 		llsd.append(LLSD(scope));
 		return llsd;
+	}
+
+	inline void fromLLSD(const LLSD& llsd)
+	{
+		name = llsd[NAME_IDX].asString();
+		scope = EScope(llsd[SCOPE_IDX].asInteger());
 	}
 
 	inline bool operator <(const LLWLParamKey other) const

@@ -108,7 +108,7 @@ LLTimeCtrl::LLTimeCtrl(const LLTimeCtrl::Params& p)
 	mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
 	mEditor->setPrevalidateInput(LLTextValidate::validateNonNegativeS32NoSpace);
 	mEditor->setPrevalidate(boost::bind(&LLTimeCtrl::isTimeStringValid, this, _1));
-	mEditor->setText(LLStringExplicit("0:00 AM"));
+	mEditor->setText(LLStringExplicit("12:00 AM"));
 	addChild(mEditor);
 
 	//================= Spin Buttons ==========//
@@ -130,6 +130,66 @@ LLTimeCtrl::LLTimeCtrl(const LLTimeCtrl::Params& p)
 	setUseBoundingRect( TRUE );
 }
 
+F32 LLTimeCtrl::getTime24() const
+{
+	return getHours24() + getMinutes() / 60.0f;
+}
+
+U32 LLTimeCtrl::getHours24() const
+{
+	U32 h = mHours;
+
+	if (h == 12)
+    {
+        h = 0;
+    }
+
+    if (mCurrentDayPeriod == PM)
+    {
+        h += 12;
+    }
+
+    return h;
+}
+
+U32 LLTimeCtrl::getMinutes() const
+{
+	return mMinutes;
+}
+
+void LLTimeCtrl::setTime24(F32 time)
+{
+	time = llclamp(time, 0.0f, 23.99f); // fix out of range values
+
+	U32 h = time;
+	U32 m = llround((time - h) * 60); // fixes values like 4.99999
+
+	// fix rounding error
+	if (m == 60)
+	{
+		m = 0;
+		++h;
+	}
+
+	mCurrentDayPeriod = (h >= 12 ? PM : AM);
+
+	if (h >= 12)
+	{
+		h -= 12;
+	}
+
+	if (h == 0)
+	{
+		h = 12;
+	}
+
+
+	mHours = h;
+	mMinutes = m;
+
+	updateText();
+}
+
 BOOL LLTimeCtrl::handleKeyHere(KEY key, MASK mask)
 {
 	if (mEditor->hasFocus())
@@ -142,6 +202,11 @@ BOOL LLTimeCtrl::handleKeyHere(KEY key, MASK mask)
 		if(key == KEY_DOWN)
 		{
 			onDownBtn();
+			return TRUE;
+		}
+		if (key == KEY_RETURN)
+		{
+			onCommit();
 			return TRUE;
 		}
 	}
@@ -165,8 +230,8 @@ void LLTimeCtrl::onUpBtn()
 		break;
 	}
 
-	buildTimeString();
-	mEditor->setText(mTimeString);
+	updateText();
+	onCommit();
 }
 
 void LLTimeCtrl::onDownBtn()
@@ -186,15 +251,14 @@ void LLTimeCtrl::onDownBtn()
 		break;
 	}
 
-	buildTimeString();
-	mEditor->setText(mTimeString);
+	updateText();
+	onCommit();
 }
 
 void LLTimeCtrl::onFocusLost()
 {
-	buildTimeString();
-	mEditor->setText(mTimeString);
-
+	updateText();
+	onCommit();
 	LLUICtrl::onFocusLost();
 }
 
@@ -300,6 +364,7 @@ LLWString LLTimeCtrl::getMinutesWString(const LLWString& wstr)
 
 void LLTimeCtrl::increaseMinutes()
 {
+	// *TODO: snap to 5 min
 	if (++mMinutes > MINUTES_MAX)
 	{
 		mMinutes = MINUTES_MIN;
@@ -316,6 +381,7 @@ void LLTimeCtrl::increaseHours()
 
 void LLTimeCtrl::decreaseMinutes()
 {
+	// *TODO: snap to 5 min
 	if (mMinutes-- == MINUTES_MIN)
 	{
 		mMinutes = MINUTES_MAX;
@@ -344,7 +410,7 @@ void LLTimeCtrl::switchDayPeriod()
 	}
 }
 
-void LLTimeCtrl::buildTimeString()
+void LLTimeCtrl::updateText()
 {
 	std::stringstream time_buf;
 	time_buf << mHours << ":";
@@ -367,7 +433,7 @@ void LLTimeCtrl::buildTimeString()
 		break;
 	}
 
-	mTimeString = time_buf.str();
+	mEditor->setText(time_buf.str());
 }
 
 LLTimeCtrl::EEditingPart LLTimeCtrl::getEditingPart()

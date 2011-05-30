@@ -29,6 +29,16 @@
 
 #include "llfloater.h"
 
+#include "llwlparammanager.h" // for LLWLParamKey
+
+class LLCheckBoxCtrl;
+class LLComboBox;
+class LLLineEditor;
+class LLMultiSliderCtrl;
+class LLTimeCtrl;
+
+/// Menu for all of windlight's functionality.
+/// Menuing system for adjusting the atmospheric settings of the world.
 class LLFloaterEditDayCycle : public LLFloater
 {
 	LOG_CLASS(LLFloaterEditDayCycle);
@@ -38,8 +48,78 @@ public:
 
 	/*virtual*/	BOOL	postBuild();
 	/*virtual*/ void	onOpen(const LLSD& key);
+	/*virtual*/ void	onClose(bool app_quitting);
+	/*virtual*/ void	draw();
 
+private:
+
+	/// sync the time slider with day cycle structure
+	void syncTimeSlider();
+
+	// 	makes sure key slider has what's in day cycle
+	void loadTrack();
+
+	/// makes sure day cycle data structure has what's in menu
+	void applyTrack();
+
+	/// refresh the sky presets combobox
+	void refreshSkyPresetsList();
+
+	/// refresh the day cycle combobox
+	void refreshDayCyclesList();
+
+	/// add a slider to the track
+	void addSliderKey(F32 time, LLWLParamKey keyframe);
+
+	void initCallbacks();
+	LLWLParamKey getSelectedDayCycle();
+	void deletePreset(LLWLParamKey keyframe);
+	bool isNewDay() const;
+	void dumpTrack();
+	void enableEditing(bool enable);
+	void reset();
+
+	void onTimeSliderMoved();	/// time slider moved
+	void onKeyTimeMoved();		/// a key frame moved
+	void onKeyTimeChanged();	/// a key frame's time changed
+	void onKeyPresetChanged();	/// sky preset selected
+	void onAddKey();			/// new key added on slider
+	void onDeleteKey();			/// a key frame deleted
+
+	void onDayCycleNameEdited();
+	void onDayCycleSelected();
+	void onBtnSave();
 	void onBtnCancel();
+
+	bool onSaveAnswer(const LLSD& notification, const LLSD& response);
+	void onSaveConfirmed();
+
+	static std::string getRegionName();
+
+	/// convenience class for holding keyframes mapped to sliders
+	struct SliderKey
+	{
+	public:
+		SliderKey(LLWLParamKey kf, F32 t) : keyframe(kf), time(t) {}
+		SliderKey() : keyframe(), time(0.f) {} // Don't use this default constructor
+
+		LLWLParamKey keyframe;
+		F32 time;
+	};
+
+	static const F32 sHoursPerDay;
+
+	LLLineEditor*		mDayCycleNameEditor;
+	LLComboBox*			mDayCyclesCombo;
+	LLMultiSliderCtrl*	mTimeSlider;
+	LLMultiSliderCtrl*	mKeysSlider;
+	LLComboBox*			mSkyPresetsCombo;
+	LLTimeCtrl*			mTimeCtrl;
+	LLCheckBoxCtrl*		mMakeDefaultCheckBox;
+	LLButton*			mSaveButton;
+
+	// map of sliders to parameters
+	std::map<std::string, SliderKey> mSliderToKey;
 };
 
 #endif // LL_LLFLOATEREDITDAYCYCLE_H

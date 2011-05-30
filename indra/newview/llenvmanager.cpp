@@ -746,6 +746,7 @@ void LLEnvManagerNew::setUseRegionSettings(bool val)
 
 void LLEnvManagerNew::setUseWaterPreset(const std::string& name)
 {
+	// *TODO: make sure the preset exists.
 	if (name.empty())
 	{
 		llwarns << "Empty water preset name passed" << llendl;
@@ -759,6 +760,7 @@ void LLEnvManagerNew::setUseWaterPreset(const std::string& name)
 
 void LLEnvManagerNew::setUseSkyPreset(const std::string& name)
 {
+	// *TODO: make sure the preset exists.
 	if (name.empty())
 	{
 		llwarns << "Empty sky preset name passed" << llendl;
@@ -772,9 +774,9 @@ void LLEnvManagerNew::setUseSkyPreset(const std::string& name)
 
 void LLEnvManagerNew::setUseDayCycle(const std::string& name)
 {
-	if (name.empty())
+	if (!LLDayCycleManager::instance().presetExists(name))
 	{
-		llwarns << "Empty day cycle name passed" << llendl;
+		llwarns << "Invalid day cycle name passed" << llendl;
 		return;
 	}
 
@@ -938,6 +940,8 @@ void LLEnvManagerNew::onRegionChange(bool interpolate)
 	{
 		return;
 	}
+
+	// *TODO: clear environment settings of the previous region?
 
 	// Request environment settings of the new region.
 	LL_DEBUGS("Windlight") << "New viewer region: " << region_uuid << LL_ENDL;
