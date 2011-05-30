@@ -165,6 +165,7 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mIndexInTex = 0;
 	mTexture		= NULL;
 	mTEOffset		= -1;
+	mTextureIndex = 255;
 
 	setDrawable(drawablep);
 	mVObjp = objp;
@@ -383,6 +384,26 @@ void LLFace::setGeomIndex(U16 idx)
 	{
 		mGeomIndex = idx; 
 		mVertexBuffer = NULL;
+	}
+}
+
+void LLFace::setTextureIndex(U8 index)
+{
+	if (index != mTextureIndex)
+	{
+		mTextureIndex = index;
+
+		if (mTextureIndex != 255)
+		{
+			mDrawablep->setState(LLDrawable::REBUILD_POSITION);
+		}
+		else
+		{
+			if (mDrawInfo && !mDrawInfo->mTextureList.empty())
+			{
+				llerrs << "Face with no texture index references indexed texture draw info." << llendl;
+			}
+		}
 	}
 }
 
@@ -1573,6 +1594,20 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			mat_vert.affineTransform(*src++, *dst++);
 		}
 		while(dst < end);
+
+		F32 index = (F32) (mTextureIndex < 255 ? mTextureIndex : 0);
+		F32 *index_dst = (F32*) vertices;
+		F32 *index_end = (F32*) end;
+
+		index_dst += 3;
+		index_end += 3;
+		do
+		{
+			*index_dst = index;
+			index_dst += 4;
+		}
+		while (index_dst < index_end);
+		
 	}
 		
 	if (rebuild_normal)

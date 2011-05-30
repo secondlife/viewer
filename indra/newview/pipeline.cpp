@@ -3606,7 +3606,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 					if (gDebugGL)
 					{
 						check_stack_depth(stack_depth);
-						std::string msg = llformat("%s pass %d", gPoolNames[cur_type].c_str(), i);
+						std::string msg = llformat("pass %d", i);
 						LLGLState::checkStates(msg);
 						LLGLState::checkTextureChannels(msg);
 						LLGLState::checkClientArrays(msg);
@@ -6568,8 +6568,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, LLRen
 		noise_map = mNoiseMap;
 	}
 
-	LLGLState::checkTextureChannels();
-
 	shader.bind();
 	S32 channel = 0;
 	channel = shader.enableTexture(LLViewerShaderMgr::DEFERRED_DIFFUSE, mDeferredScreen.getUsage());
@@ -7852,8 +7850,6 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(0)->activate();
 	shader.unbind();
-
-	LLGLState::checkTextureChannels();
 }
 
 inline float sgn(float a)

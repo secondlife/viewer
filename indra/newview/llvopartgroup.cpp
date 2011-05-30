@@ -324,10 +324,18 @@ void LLVOPartGroup::getGeometry(S32 idx,
 
 
 	LLVector3 normal = -LLViewerCamera::getInstance()->getXAxis();
-		
+
+	//HACK -- the verticesp->mV[3] = 0.f here are to set the texture index to 0 (particles don't use texture batching, maybe they should)
+	// this works because there is actually a 4th float stored after the vertex position which is used as a texture index
+	// also, somebody please VECTORIZE THIS
+
+	verticesp->mV[3] = 0.f;
 	*verticesp++ = part_pos_agent + up - right;
+	verticesp->mV[3] = 0.f;
 	*verticesp++ = part_pos_agent - up - right;
+	verticesp->mV[3] = 0.f;
 	*verticesp++ = part_pos_agent + up + right;
+	verticesp->mV[3] = 0.f;
 	*verticesp++ = part_pos_agent - up + right;
 
 	*colorsp++ = part.mColor;
@@ -360,7 +368,7 @@ U32 LLVOPartGroup::getPartitionType() const
 }
 
 LLParticlePartition::LLParticlePartition()
-: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK, TRUE, GL_STREAM_DRAW_ARB)
+: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, GL_STREAM_DRAW_ARB)
 {
 	mRenderPass = LLRenderPass::PASS_ALPHA;
 	mDrawableType = LLPipeline::RENDER_TYPE_PARTICLES;
@@ -418,6 +426,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 			mFaceList.push_back(facep);
 			vertex_count += facep->getGeomCount();
 			index_count += facep->getIndicesCount();
+			llassert(facep->getIndicesCount() < 65536);
 		}
 		
 		obj->mDepth /= count;

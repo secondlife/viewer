@@ -124,7 +124,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 	if (pass == 0)
 	{
 		simple_shader = &gDeferredAlphaProgram;
-		fullbright_shader = &gDeferredFullbrightProgram;
+		fullbright_shader = &gObjectFullbrightProgram;
 	}
 	else
 	{
@@ -228,13 +228,13 @@ void LLDrawPoolAlpha::render(S32 pass)
 			if (!LLPipeline::sRenderDeferred)
 			{
 				simple_shader->bind();
-				pushBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask());
+				pushBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 			}
 			if (fullbright_shader)
 			{
 				fullbright_shader->bind();
 			}
-			pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask());
+			pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 			LLGLSLShader::bindNoShader();
 		}
 		else
@@ -273,7 +273,14 @@ void LLDrawPoolAlpha::render(S32 pass)
 		}
 	}
 
-	renderAlpha(getVertexDataMask());
+	if (mVertexShaderLevel > 0)
+	{
+		renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX);
+	}
+	else
+	{
+		renderAlpha(getVertexDataMask());
+	}
 
 	gGL.setColorMask(true, false);
 
@@ -341,10 +348,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 	BOOL light_enabled = TRUE;
 	S32 diffuse_channel = 0;
 
-	BOOL use_shaders = (LLPipeline::sUnderWaterRender && gPipeline.canUseVertexShaders())
-		|| gPipeline.canUseWindLightShadersOnObjects();
-	
-	
+	BOOL use_shaders = gPipeline.canUseVertexShaders();
+		
 	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
@@ -368,91 +373,106 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 
 				LLRenderPass::applyModelMatrix(params);
 
+				
+				if (params.mFullbright)
 				{
-					if (params.mFullbright)
-					{
-						// Turn off lighting if it hasn't already been so.
-						if (light_enabled || !initialized_lighting)
-						{
-							initialized_lighting = TRUE;
-							if (use_shaders) 
-							{
-								target_shader = fullbright_shader;
-							}
-							else
-							{
-								gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
-							}
-							light_enabled = FALSE;
-						}
-					}
-					// Turn on lighting if it isn't already.
-					else if (!light_enabled || !initialized_lighting)
+					// Turn off lighting if it hasn't already been so.
+					if (light_enabled || !initialized_lighting)
 					{
 						initialized_lighting = TRUE;
 						if (use_shaders) 
 						{
-							target_shader = simple_shader;
+							target_shader = fullbright_shader;
 						}
 						else
 						{
-							gPipeline.enableLightsDynamic();
+							gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 						}
-						light_enabled = TRUE;
+						light_enabled = FALSE;
 					}
-
-					// If we need shaders, and we're not ALREADY using the proper shader, then bind it
-					// (this way we won't rebind shaders unnecessarily).
-					if(use_shaders && (current_shader != target_shader))
+				}
+				// Turn on lighting if it isn't already.
+				else if (!light_enabled || !initialized_lighting)
+				{
+					initialized_lighting = TRUE;
+					if (use_shaders) 
 					{
-						llassert(target_shader != NULL);
-						if (deferred_render && current_shader != NULL)
-						{
-							gPipeline.unbindDeferredShader(*current_shader);
-							diffuse_channel = 0;
-						}
-						current_shader = target_shader;
-						if (deferred_render)
-						{
-							gPipeline.bindDeferredShader(*current_shader);
-							diffuse_channel = current_shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-						}
-						else
-						{
-							current_shader->bind();
-						}
+						target_shader = simple_shader;
 					}
-					else if (!use_shaders && current_shader != NULL)
+					else
 					{
-						if (deferred_render)
-						{
-							gPipeline.unbindDeferredShader(*current_shader);
-							diffuse_channel = 0;
-						}
-						LLGLSLShader::bindNoShader();
-						current_shader = NULL;
+						gPipeline.enableLightsDynamic();
 					}
+					light_enabled = TRUE;
+				}
 
-					if (params.mGroup)
+				// If we need shaders, and we're not ALREADY using the proper shader, then bind it
+				// (this way we won't rebind shaders unnecessarily).
+				if(use_shaders && (current_shader != target_shader))
+				{
+					llassert(target_shader != NULL);
+					if (deferred_render && current_shader != NULL)
 					{
-						params.mGroup->rebuildMesh();
+						gPipeline.unbindDeferredShader(*current_shader);
+						diffuse_channel = 0;
 					}
+					current_shader = target_shader;
+					if (deferred_render)
+					{
+						gPipeline.bindDeferredShader(*current_shader);
+						diffuse_channel = current_shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+					}
+					else
+					{
+						current_shader->bind();
+					}
+				}
+				else if (!use_shaders && current_shader != NULL)
+				{
+					if (deferred_render)
+					{
+						gPipeline.unbindDeferredShader(*current_shader);
+						diffuse_channel = 0;
+					}
+					LLGLSLShader::bindNoShader();
+					current_shader = NULL;
+				}
 
-					
+				if (params.mGroup)
+				{
+					params.mGroup->rebuildMesh();
+				}
+
+				bool tex_setup = false;
+
+				if (use_shaders && params.mTextureList.size() > 1)
+				{
+					for (U32 i = 0; i < params.mTextureList.size(); ++i)
+					{
+						if (params.mTextureList[i].notNull())
+						{
+							gGL.getTexUnit(i)->bind(params.mTextureList[i], TRUE);
+						}
+					}
+				}
+				else
+				{ //not batching textures or batch has only 1 texture -- might need a texture matrix
 					if (params.mTexture.notNull())
 					{
-						gGL.getTexUnit(diffuse_channel)->bind(params.mTexture.get());
-						if(params.mTexture.notNull())
-						{
-							params.mTexture->addTextureStats(params.mVSize);
-						}
+						params.mTexture->addTextureStats(params.mVSize);
+						gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
 						if (params.mTextureMatrix)
 						{
+							tex_setup = true;
 							gGL.getTexUnit(0)->activate();
 							glMatrixMode(GL_TEXTURE);
 							glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
 							gPipeline.mTextureMatrixOps++;
 						}
+					}
+					else
+					{
+						gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 					}
 				}
 
@@ -480,7 +500,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
 				}
 			
-				if (params.mTextureMatrix && params.mTexture.notNull())
+				if (tex_setup)
 				{
 					gGL.getTexUnit(0)->activate();
 					glLoadIdentity();
@@ -494,9 +514,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 	{
 		gPipeline.unbindDeferredShader(*current_shader);
 		LLVertexBuffer::unbind();	
-		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
-		LLGLState::checkClientArrays();
 	}
 	
 	if (!light_enabled)

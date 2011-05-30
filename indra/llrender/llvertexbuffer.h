@@ -130,6 +130,9 @@ public:
 		TYPE_CLOTHWEIGHT,
 		TYPE_MAX,
 		TYPE_INDEX,
+		
+		//no actual additional data, but indicates position.w is texture index
+		TYPE_TEXTURE_INDEX,
 	};
 	enum {
 		MAP_VERTEX = (1<<TYPE_VERTEX),
@@ -144,6 +147,7 @@ public:
 		MAP_WEIGHT = (1<<TYPE_WEIGHT),
 		MAP_WEIGHT4 = (1<<TYPE_WEIGHT4),
 		MAP_CLOTHWEIGHT = (1<<TYPE_CLOTHWEIGHT),
+		MAP_TEXTURE_INDEX = (1<<TYPE_TEXTURE_INDEX),
 	};
 	
 protected:

@@ -1497,7 +1497,14 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 	}
 	if (data_mask & MAP_VERTEX)
 	{
-		glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+		if (data_mask & MAP_TEXTURE_INDEX)
+		{
+			glVertexPointer(4,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+		}
+		else
+		{
+			glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+		}
 	}
 
 	llglassertok();

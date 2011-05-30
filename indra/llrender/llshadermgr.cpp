@@ -209,7 +209,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	
 		if (features->hasWaterFog)
 		{
-			if (!shader->attachObject("lighting/lightWaterF.glsl"))
+			if (features->disableTextureIndex)
+			{
+				if (!shader->attachObject("lighting/lightWaterNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else if (!shader->attachObject("lighting/lightWaterF.glsl"))
 			{
 				return FALSE;
 			}
@@ -217,7 +224,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		
 		else
 		{
-			if (!shader->attachObject("lighting/lightF.glsl"))
+			if (features->disableTextureIndex)
+			{
+				if (!shader->attachObject("lighting/lightNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else if (!shader->attachObject("lighting/lightF.glsl"))
 			{
 				return FALSE;
 			}
@@ -230,14 +244,28 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	
 		if (features->isShiny && features->hasWaterFog)
 		{
-			if (!shader->attachObject("lighting/lightFullbrightShinyWaterF.glsl"))
+			if (features->disableTextureIndex)
+			{
+				if (!shader->attachObject("lighting/lightFullbrightShinyWaterNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else if (!shader->attachObject("lighting/lightFullbrightShinyWaterF.glsl"))
 			{
 				return FALSE;
 			}
 		}
 		else if (features->hasWaterFog)
 		{
-			if (!shader->attachObject("lighting/lightFullbrightWaterF.glsl"))
+			if (features->disableTextureIndex)
+			{
+				if (!shader->attachObject("lighting/lightFullbrightWaterNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else if (!shader->attachObject("lighting/lightFullbrightWaterF.glsl"))
 			{
 				return FALSE;
 			}
@@ -245,7 +273,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		
 		else if (features->isShiny)
 		{
-			if (!shader->attachObject("lighting/lightFullbrightShinyF.glsl"))
+			if (features->disableTextureIndex)
+			{
+				if (!shader->attachObject("lighting/lightFullbrightShinyNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else if (!shader->attachObject("lighting/lightFullbrightShinyF.glsl"))
 			{
 				return FALSE;
 			}
@@ -253,7 +288,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		
 		else
 		{
-			if (!shader->attachObject("lighting/lightFullbrightF.glsl"))
+			if (features->disableTextureIndex)
+			{
+				if (!shader->attachObject("lighting/lightFullbrightNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else if (!shader->attachObject("lighting/lightFullbrightF.glsl"))
 			{
 				return FALSE;
 			}
@@ -266,7 +308,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	
 		if (features->hasWaterFog)
 		{
-			if (!shader->attachObject("lighting/lightShinyWaterF.glsl"))
+			if (features->disableTextureIndex)
+			{
+				if (!shader->attachObject("lighting/lightShinyWaterNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else if (!shader->attachObject("lighting/lightShinyWaterF.glsl"))
 			{
 				return FALSE;
 			}
@@ -274,7 +323,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		
 		else 
 		{
-			if (!shader->attachObject("lighting/lightShinyF.glsl"))
+			if (features->disableTextureIndex)
+			{
+				if (!shader->attachObject("lighting/lightShinyNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else if (!shader->attachObject("lighting/lightShinyF.glsl"))
 			{
 				return FALSE;
 			}

@@ -298,16 +298,25 @@ extern LLVector4			gShinyOrigin;
 //object shaders
 extern LLGLSLShader			gObjectSimpleProgram;
 extern LLGLSLShader			gObjectSimpleWaterProgram;
+extern LLGLSLShader			gObjectSimpleNonIndexedProgram;
+extern LLGLSLShader			gObjectSimpleNonIndexedWaterProgram;
 extern LLGLSLShader			gObjectFullbrightProgram;
 extern LLGLSLShader			gObjectFullbrightWaterProgram;
+extern LLGLSLShader			gObjectFullbrightNonIndexedProgram;
+extern LLGLSLShader			gObjectFullbrightNonIndexedWaterProgram;
 
 extern LLGLSLShader			gObjectSimpleLODProgram;
 extern LLGLSLShader			gObjectFullbrightLODProgram;
 
 extern LLGLSLShader			gObjectFullbrightShinyProgram;
 extern LLGLSLShader			gObjectFullbrightShinyWaterProgram;
+extern LLGLSLShader			gObjectFullbrightShinyNonIndexedProgram;
+extern LLGLSLShader			gObjectFullbrightShinyNonIndexedWaterProgram;
+
 extern LLGLSLShader			gObjectShinyProgram;
 extern LLGLSLShader			gObjectShinyWaterProgram;
+extern LLGLSLShader			gObjectShinyNonIndexedProgram;
+extern LLGLSLShader			gObjectShinyNonIndexedWaterProgram;
 
 extern LLGLSLShader			gSkinnedObjectSimpleProgram;
 extern LLGLSLShader			gSkinnedObjectFullbrightProgram;
@@ -349,6 +358,7 @@ extern LLGLSLShader			gDeferredImpostorProgram;
 extern LLGLSLShader			gDeferredEdgeProgram;
 extern LLGLSLShader			gDeferredWaterProgram;
 extern LLGLSLShader			gDeferredDiffuseProgram;
+extern LLGLSLShader			gDeferredNonIndexedDiffuseProgram;
 extern LLGLSLShader			gDeferredSkinnedDiffuseProgram;
 extern LLGLSLShader			gDeferredSkinnedBumpProgram;
 extern LLGLSLShader			gDeferredSkinnedAlphaProgram;
@@ -373,6 +383,7 @@ extern LLGLSLShader			gDeferredAvatarShadowProgram;
 extern LLGLSLShader			gDeferredAttachmentShadowProgram;
 extern LLGLSLShader			gDeferredAlphaProgram;
 extern LLGLSLShader			gDeferredFullbrightProgram;
+extern LLGLSLShader			gDeferredAvatarEyesProgram;
 extern LLGLSLShader			gDeferredAvatarAlphaProgram;
 extern LLGLSLShader			gDeferredWLSkyProgram;
 extern LLGLSLShader			gDeferredWLCloudProgram;
