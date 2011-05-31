@@ -1570,8 +1570,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 BOOL LLViewerShaderMgr::loadShadersObject()
 {
 	BOOL success = TRUE;
-	bool batch_textures = mVertexShaderLevel[SHADER_OBJECT] > 1;
-
+	
 	if (mVertexShaderLevel[SHADER_OBJECT] == 0)
 	{
 		gObjectShinyProgram.unload();
