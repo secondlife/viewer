@@ -414,6 +414,7 @@ set(viewer_SOURCE_FILES
     llproductinforequest.cpp
     llprogressview.cpp
     llrecentpeople.cpp
+    llregioninfomodel.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
@@ -964,6 +965,7 @@ set(viewer_HEADER_FILES
     llproductinforequest.h
     llprogressview.h
     llrecentpeople.h
+    llregioninfomodel.h
     llregionposition.h
     llremoteparcelrequest.h
     llresourcedata.h

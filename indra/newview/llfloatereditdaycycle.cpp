@@ -32,6 +32,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "llloadingindicator.h"
 #include "llmultisliderctrl.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -42,6 +43,7 @@
 #include "llagent.h"
 #include "lldaycyclemanager.h"
 #include "llenvmanager.h"
+#include "llregioninfomodel.h"
 #include "llviewerregion.h"
 #include "llwlparammanager.h"
 
@@ -138,6 +140,15 @@ void LLFloaterEditDayCycle::initCallbacks(void)
 	mSaveButton->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onBtnSave, this));
 	mSaveButton->setRightMouseDownCallback(boost::bind(&LLFloaterEditDayCycle::dumpTrack, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onBtnCancel, this));
+
+	// Connect to env manager events.
+	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
+	env_mgr.setRegionSettingsChangeCallback(boost::bind(&LLFloaterEditDayCycle::onRegionSettingsChange, this));
+	env_mgr.setRegionChangeCallback(boost::bind(&LLFloaterEditDayCycle::onRegionChange, this));
+	env_mgr.setRegionSettingsAppliedCallback(boost::bind(&LLFloaterEditDayCycle::onRegionSettingsApplied, this, _1));
+
+	// Connect to region info updates.
+	LLRegionInfoModel::instance().setUpdateCallback(boost::bind(&LLFloaterEditDayCycle::onRegionInfoUpdate, this));
 }
 
 void LLFloaterEditDayCycle::syncTimeSlider()
@@ -500,6 +511,50 @@ void LLFloaterEditDayCycle::reset()
 	}
 }
 
+void LLFloaterEditDayCycle::saveRegionDayCycle()
+{
+	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
+	LLWLDayCycle& cur_dayp = LLWLParamManager::instance().mDay; // the day cycle being edited
+
+	// Get current day cycle and the sky preset it references.
+	LLSD day_cycle = cur_dayp.asLLSD();
+	LLSD sky_map;
+	cur_dayp.getSkyMap(sky_map);
+
+	// Apply it to the region.
+	LLEnvironmentSettings new_region_settings;
+	new_region_settings.saveParams(day_cycle, sky_map, env_mgr.getRegionSettings().getWaterParams(), 0.0f);
+
+	if (!LLEnvManagerNew::instance().sendRegionSettings(new_region_settings))
+	{
+		llwarns << "Error applying region environment settings" << llendl;
+		return;
+	}
+
+	setApplyProgress(true);
+}
+
+void LLFloaterEditDayCycle::setApplyProgress(bool started)
+{
+	LLLoadingIndicator* indicator = getChild<LLLoadingIndicator>("progress_indicator");
+
+	indicator->setVisible(started);
+
+	if (started)
+	{
+		indicator->start();
+	}
+	else
+	{
+		indicator->stop();
+	}
+}
+
+bool LLFloaterEditDayCycle::getApplyProgress() const
+{
+	return getChild<LLLoadingIndicator>("progress_indicator")->getVisible();
+}
+
 void LLFloaterEditDayCycle::onDeleteKey()
 {
 	if (mSliderToKey.size() == 0)
@@ -533,6 +588,62 @@ void LLFloaterEditDayCycle::onDeleteKey()
 	applyTrack();
 }
 
+void LLFloaterEditDayCycle::onRegionSettingsChange()
+{
+	LL_DEBUGS("Windlight") << "Region settings changed" << LL_ENDL;
+
+	if (getApplyProgress()) // our region settings have being applied
+	{
+		setApplyProgress(false);
+
+		// Change preference if requested.
+		if (mMakeDefaultCheckBox->getValue())
+		{
+			LL_DEBUGS("Windlight") << "Changed environment preference to region settings" << llendl;
+			LLEnvManagerNew::instance().setUseRegionSettings(true);
+		}
+
+		closeFloater();
+	}
+}
+
+void LLFloaterEditDayCycle::onRegionChange()
+{
+	LL_DEBUGS("Windlight") << "Region changed" << LL_ENDL;
+
+	// If we're editing the region day cycle
+	if (getSelectedDayCycle().scope == LLEnvKey::SCOPE_REGION)
+	{
+		reset(); // undoes all unsaved changes
+	}
+}
+
+void LLFloaterEditDayCycle::onRegionSettingsApplied(bool success)
+{
+	LL_DEBUGS("Windlight") << "Region settings applied: " << success << LL_ENDL;
+
+	if (!success)
+	{
+		// stop progress indicator
+		setApplyProgress(false);
+	}
+}
+
+void LLFloaterEditDayCycle::onRegionInfoUpdate()
+{
+	LL_DEBUGS("Windlight") << "Region info updated" << LL_ENDL;
+	bool can_edit = true;
+
+	// If we've selected the region day cycle for editing.
+	if (getSelectedDayCycle().scope == LLEnvKey::SCOPE_REGION)
+	{
+		// check whether we have the access
+		can_edit = canEditRegionSettings();
+	}
+
+	enableEditing(can_edit);
+}
+
 void LLFloaterEditDayCycle::onDayCycleNameEdited()
 {
 	// Disable saving a day cycle having empty name.
@@ -544,6 +655,7 @@ void LLFloaterEditDayCycle::onDayCycleSelected()
 {
 	LLSD day_data;
 	LLWLParamKey dc_key = getSelectedDayCycle();
+	bool can_edit = true;
 
 	if (dc_key.scope == LLEnvKey::SCOPE_LOCAL)
 	{
@@ -562,6 +674,8 @@ void LLFloaterEditDayCycle::onDayCycleSelected()
 			llassert(day_data.size() > 0);
 			return;
 		}
+
+		can_edit = canEditRegionSettings();
 	}
 
 	F32 slider_time = mTimeSlider->getCurSliderValue() / sHoursPerDay;
@@ -569,7 +683,7 @@ void LLFloaterEditDayCycle::onDayCycleSelected()
 	LLWLParamManager::instance().applyDayCycleParams(day_data, dc_key.scope, slider_time);
 	loadTrack();
 
-	enableEditing(true);
+	enableEditing(can_edit);
 }
 
 void LLFloaterEditDayCycle::onBtnSave()
@@ -579,7 +693,8 @@ void LLFloaterEditDayCycle::onBtnSave()
 
 	if (selected_day.scope == LLEnvKey::SCOPE_REGION)
 	{
-		llwarns << "Saving to a local day cycle" << llendl;
+		saveRegionDayCycle();
+		return;
 	}
 
 	std::string name = selected_day.name;
@@ -659,4 +774,15 @@ void LLFloaterEditDayCycle::onSaveConfirmed()
 std::string LLFloaterEditDayCycle::getRegionName()
 {
 	return gAgent.getRegion() ? gAgent.getRegion()->getName() : LLTrans::getString("Unknown");
+}
+
+// static
+bool LLFloaterEditDayCycle::canEditRegionSettings()
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	BOOL owner_or_god = gAgent.isGodlike() || (region && region->getOwner() == gAgent.getID());
+	BOOL owner_or_god_or_manager = owner_or_god || (region && region->isEstateManager());
+
+	LL_DEBUGS("Windlight") << "Can edit region settings: " << owner_or_god_or_manager << LL_ENDL;
+	return owner_or_god_or_manager;
 }

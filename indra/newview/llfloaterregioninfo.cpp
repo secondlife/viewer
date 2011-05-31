@@ -3538,13 +3538,9 @@ bool LLPanelEnvironmentInfo::getSelectedDayCycleParams(LLSD& day_cycle, LLSD& sk
 
 		// Create sky map from the day cycle.
 		{
-			std::map<LLWLParamKey, LLWLParamSet> refs;
 			LLWLDayCycle tmp_day;
-
 			tmp_day.loadDayCycle(day_cycle, dc.scope);
-			tmp_day.getSkyRefs(refs);
-
-			sky_map = LLWLParamManager::createSkyMap(refs);
+			tmp_day.getSkyMap(sky_map);
 		}
 	}
 

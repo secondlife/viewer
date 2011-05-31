@@ -78,7 +78,10 @@ public:
 	LLSD asLLSD();
 
 	// get skies referenced by this day cycle
-	bool getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs);
+	bool getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs) const;
+
+	// get referenced skies as LLSD
+	bool getSkyMap(LLSD& sky_map) const;
 
 	/// clear keyframes
 	void clearKeyframes();

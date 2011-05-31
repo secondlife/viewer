@@ -78,6 +78,10 @@ private:
 	void dumpTrack();
 	void enableEditing(bool enable);
 	void reset();
+	void saveRegionDayCycle();
+
+	void setApplyProgress(bool started);
+	bool getApplyProgress() const;
 
 	void onTimeSliderMoved();	/// time slider moved
 	void onKeyTimeMoved();		/// a key frame moved
@@ -85,6 +89,11 @@ private:
 	void onKeyPresetChanged();	/// sky preset selected
 	void onAddKey();			/// new key added on slider
 	void onDeleteKey();			/// a key frame deleted
+
+	void onRegionSettingsChange();
+	void onRegionChange();
+	void onRegionSettingsApplied(bool success);
+	void onRegionInfoUpdate();
 
 	void onDayCycleNameEdited();
 	void onDayCycleSelected();
@@ -95,6 +104,7 @@ private:
 	void onSaveConfirmed();
 
 	static std::string getRegionName();
+	static bool canEditRegionSettings();
 
 	/// convenience class for holding keyframes mapped to sliders
 	struct SliderKey

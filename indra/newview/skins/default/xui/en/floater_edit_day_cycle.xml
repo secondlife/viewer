@@ -455,6 +455,14 @@
      top_delta="-1"
      value="6:00 AM"
      width="75"/> 
+        <loading_indicator
+         height="23"
+         layout="topleft"
+         left="25"
+         name="progress_indicator"
+         top="417"
+         visible="false"
+         width="23" />
         <check_box
          follows="top|left"
          height="10"
@@ -471,6 +479,7 @@
          layout="topleft"
          left_pad="0"
          name="save"
+         top="417"
          width="70"/>
         <button
          follows="bottom|right"
@@ -479,5 +488,6 @@
          layout="topleft"
          left_pad="15"
          name="cancel"
+         top_delta="0"
          width="70"/>
  </floater>

@@ -54,6 +54,7 @@
 #include "llfloaterreporter.h"
 #include "llfloaterregioninfo.h"
 #include "llhttpnode.h"
+#include "llregioninfomodel.h"
 #include "llsdutil.h"
 #include "llstartup.h"
 #include "lltrans.h"
@@ -642,9 +643,11 @@ std::string LLViewerRegion::accessToShortString(U8 sim_access)
 void LLViewerRegion::processRegionInfo(LLMessageSystem* msg, void**)
 {
 	// send it to 'observers'
+	// *TODO: switch the floaters to using LLRegionInfoModel
 	LLFloaterGodTools::processRegionInfo(msg);
 	LLFloaterRegionInfo::processRegionInfo(msg);
 	LLFloaterReporter::processRegionInfo(msg);
+	LLRegionInfoModel::instance().update(msg);
 }
 
 void LLViewerRegion::setCacheID(const LLUUID& id)

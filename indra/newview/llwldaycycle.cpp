@@ -158,15 +158,15 @@ LLSD LLWLDayCycle::asLLSD()
 	return day_data;
 }
 
-bool LLWLDayCycle::getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs)
+bool LLWLDayCycle::getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs) const
 {
 	bool result = true;
 	LLWLParamManager& wl_mgr = LLWLParamManager::instance();
 
 	refs.clear();
-	for (std::map<F32, LLWLParamKey>::iterator iter = mTimeMap.begin(); iter != mTimeMap.end(); ++iter)
+	for (std::map<F32, LLWLParamKey>::const_iterator iter = mTimeMap.begin(); iter != mTimeMap.end(); ++iter)
 	{
-		LLWLParamKey& key = iter->second;
+		const LLWLParamKey& key = iter->second;
 		if (!wl_mgr.getParamSet(key, refs[key]))
 		{
 			llwarns << "Cannot find sky [" << key.name << "] referenced by a day cycle" << llendl;
@@ -175,6 +175,19 @@ bool LLWLDayCycle::getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs)
 	}
 
 	return result;
+}
+
+bool LLWLDayCycle::getSkyMap(LLSD& sky_map) const
+{
+	std::map<LLWLParamKey, LLWLParamSet> refs;
+
+	if (!getSkyRefs(refs))
+	{
+		return false;
+	}
+
+	sky_map = LLWLParamManager::createSkyMap(refs);
+	return true;
 }
 
 void LLWLDayCycle::clearKeyframes()
