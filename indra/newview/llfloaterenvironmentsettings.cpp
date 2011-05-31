@@ -96,9 +96,10 @@ void LLFloaterEnvironmentSettings::onOpen(const LLSD& key)
 	populateSkyPresetsList();
 	populateDayCyclePresetsList();
 
-	// Update other controls state based on the selected radio buttons.
-	onSwitchRegionSettings();
-	onSwitchDayCycle();
+	// Enable/disable other controls based on user preferences.
+	getChild<LLView>("user_environment_settings")->setEnabled(!mUseRegionSettings);
+	mSkyPresetCombo->setEnabled(mUseFixedSky);
+	mDayCyclePresetCombo->setEnabled(!mUseFixedSky);
 
 	// Save water, sky and day cycle presets to restore them
 	// in case of "Cancel" button has been pressed.

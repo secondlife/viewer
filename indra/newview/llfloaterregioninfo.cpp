@@ -3287,6 +3287,7 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 	mDayCyclePresetCombo->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSelectDayCycle, this));
 
 	childSetCommitCallback("apply_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnApply, this), NULL);
+	getChild<LLButton>("apply_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, LLEnvManagerNew::getInstance()));
 	childSetCommitCallback("cancel_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnCancel, this), NULL);
 
 	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingschange, this));
