@@ -456,8 +456,8 @@ void LLFloaterEditDayCycle::dumpTrack()
 	for (std::map<F32, LLWLParamKey>::iterator it = cur_dayp.mTimeMap.begin(); it != cur_dayp.mTimeMap.end(); ++it)
 	{
 		F32 time = it->first * 24.0f;
-		S32 h = time;
-		S32 m = (time - h) * 60.0f;
+		S32 h = (S32) time;
+		S32 m = (S32) ((time - h) * 60.0f);
 		LL_DEBUGS("Windlight") << llformat("(%.3f) %02d:%02d", time, h, m) << " => " << it->second.name << LL_ENDL;
 	}
 }
