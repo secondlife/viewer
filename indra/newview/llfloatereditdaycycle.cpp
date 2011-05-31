@@ -208,7 +208,6 @@ void LLFloaterEditDayCycle::applyTrack()
 	}
 
 	// set the param manager's track to the new one
-	LL_DEBUGS("Windlight") << "Time slider val: " << mTimeSlider->getCurSliderValue() / sHoursPerDay << " (" << mTimeSlider->getCurSliderValue() << ")" << LL_ENDL;
 	LLWLParamManager::getInstance()->resetAnimator(
 		mTimeSlider->getCurSliderValue() / sHoursPerDay, false);
 
@@ -265,7 +264,6 @@ void LLFloaterEditDayCycle::onTimeSliderMoved()
 {
 	/// get the slider value
 	F32 val = mTimeSlider->getCurSliderValue() / sHoursPerDay;
-	LL_DEBUGS("Windlight") << "Time slider val: " << val << " (" << mTimeSlider->getCurSliderValue() << ")" << LL_ENDL;
 
 	// set the value, turn off animation
 	LLWLParamManager::getInstance()->mAnimator.setDayTime((F64)val);
@@ -679,7 +677,6 @@ void LLFloaterEditDayCycle::onDayCycleSelected()
 	}
 
 	F32 slider_time = mTimeSlider->getCurSliderValue() / sHoursPerDay;
-	LL_DEBUGS("Windlight") << "Time slider val: " << slider_time << " (" << mTimeSlider->getCurSliderValue() << ")" << LL_ENDL;
 	LLWLParamManager::instance().applyDayCycleParams(day_data, dc_key.scope, slider_time);
 	loadTrack();
 
@@ -726,12 +723,7 @@ void LLFloaterEditDayCycle::onBtnSave()
 
 void LLFloaterEditDayCycle::onBtnCancel()
 {
-#if 0 // temporary
-	onClose(false);
-	reset();
-#else
 	closeFloater();
-#endif
 }
 
 bool LLFloaterEditDayCycle::onSaveAnswer(const LLSD& notification, const LLSD& response)
@@ -763,11 +755,7 @@ void LLFloaterEditDayCycle::onSaveConfirmed()
 		LLEnvManagerNew::instance().setUseDayCycle(name);
 	}
 
-#if 0 // temporary
-	reset();
-#else
 	closeFloater();
-#endif
 }
 
 // static
