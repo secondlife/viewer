@@ -29,6 +29,11 @@
 
 #include "llpanel.h"
 
+
+class LLButton;
+class LLLoadingIndicator;
+
+
 class LLPanelMarketplaceOutbox : public LLPanel
 {
 public:
@@ -39,6 +44,20 @@ public:
 	~LLPanelMarketplaceOutbox();
 
 	/*virtual*/ BOOL postBuild();
+
+	bool isOutboxEmpty() const;
+	bool isSyncInProgress() const;
+
+	void onSyncComplete();
+
+protected:
+	void onSyncButtonClicked();
+	void updateSyncButtonStatus();
+
+private:
+	LLButton *				mSyncButton;
+	LLLoadingIndicator *	mSyncIndicator;
+	bool					mSyncInProgress;
 };
 
 

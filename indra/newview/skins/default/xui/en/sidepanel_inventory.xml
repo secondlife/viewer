@@ -29,8 +29,11 @@
              height="535"
               width="330">
              <layout_panel
+                 name="main_inventory_layout_panel"
+                 min_dim="150"
                  width="330"
                   follows="bottom|left|right"
+                 user_resize="false"
                  height="480">
                  <panel
                       class="panel_main_inventory"
@@ -138,17 +141,40 @@
                          top="0"
                         left="0" />
                     <button
-                        label="SYNC"
+                        image_disabled="Sync_Disabled"
+                        image_disabled_selected="Sync_Disabled"
+                        image_unselected="Sync_Enabled"
+                        image_selected="Sync_Enabled"
+                        label=""
                         is_toggle="false"
                         name="outbox_sync_btn"
                         follows="top|right"
-                        height="25"
+                        height="16"
                         tab_stop="false"
-                        width="45"
+                        width="16"
                         halign="center"
-                        top="5"
-                        left="-50"
+                        top="10"
+                        left="-40"
                         enabled="false" />
+                     <loading_indicator
+                        follows="top|right"
+                        name="outbox_sync_indicator"
+                        top="10"
+                        left="-40"
+                        height="16"
+                        width="16"
+                        images_per_sec="1.0"
+                        tab_stop="false"
+                        visible="false">
+                         <images>
+                             <image name="Sync_Progress_1"/>
+                             <image name="Sync_Progress_2"/>
+                             <image name="Sync_Progress_3"/>
+                             <image name="Sync_Progress_4"/>
+                             <image name="Sync_Progress_5"/>
+                             <image name="Sync_Progress_6"/>
+                         </images>
+                     </loading_indicator>
                      <panel
                          follows="all"
                          left="0"

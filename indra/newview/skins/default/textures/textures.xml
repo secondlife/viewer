@@ -72,10 +72,10 @@ with the same filename but different name
   <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
   <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
 
-  <texture name="Badge" file_name="widgets/Badge.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
+  <texture name="Badge_Background" file_name="widgets/Badge_Background.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
+  <texture name="Badge_Border" file_name="widgets/Badge_Border.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
 
   <texture name="Blank" file_name="Blank.png" preload="false" />
-
 
   <texture name="BuyArrow_Over" file_name="navbar/BuyArrow_Over.png" preload="true" scale.left="0" scale.top="1" scale.right="0" scale.bottom="0"  />
   <texture name="BuyArrow_Press" file_name="navbar/BuyArrow_Press.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
@@ -479,7 +479,16 @@ with the same filename but different name
   <texture name="StopReload_Off" file_name="icons/StopReload_Off.png" preload="false" />
   <texture name="StopReload_Over" file_name="icons/StopReload_Over.png" preload="false" />
 
-  <texture name="TabIcon_Appearance_Off" file_name="taskpanel/TabIcon_Appearance_Off.png" preload="false" />
+  <texture name="Sync_Disabled" file_name="icons/Sync_Disabled.png" preload="true" />
+  <texture name="Sync_Enabled" file_name="icons/Sync_Enabled.png" preload="true" />
+  <texture name="Sync_Progress_1" file_name="icons/Sync_Progress_1.png" preload="true" />
+  <texture name="Sync_Progress_2" file_name="icons/Sync_Progress_2.png" preload="true" />
+  <texture name="Sync_Progress_3" file_name="icons/Sync_Progress_3.png" preload="true" />
+  <texture name="Sync_Progress_4" file_name="icons/Sync_Progress_4.png" preload="true" />
+  <texture name="Sync_Progress_5" file_name="icons/Sync_Progress_5.png" preload="true" />
+  <texture name="Sync_Progress_6" file_name="icons/Sync_Progress_6.png" preload="true" />
+
+    <texture name="TabIcon_Appearance_Off" file_name="taskpanel/TabIcon_Appearance_Off.png" preload="false" />
   <texture name="TabIcon_Appearance_Selected" file_name="taskpanel/TabIcon_Appearance_Selected.png" preload="false" />
   <texture name="TabIcon_Close_Off" file_name="taskpanel/TabIcon_Close_Off.png" preload="false" />
   <texture name="TabIcon_Home_Off" file_name="taskpanel/TabIcon_Home_Off.png" preload="false" />

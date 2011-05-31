@@ -24,15 +24,26 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+#include <boost/coroutine/coroutine.hpp>
+#include <boost/coroutine/future.hpp>
 
 #include "llpanelmarketplaceoutbox.h"
+
+#include "llbutton.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
+#include "llloadingindicator.h"
+#include "lltimer.h"
+
 
 static LLRegisterPanelClassWrapper<LLPanelMarketplaceOutbox> t_panel_marketplace_outbox("panel_marketplace_outbox");
 
 // protected
 LLPanelMarketplaceOutbox::LLPanelMarketplaceOutbox()
-:	LLPanel()
+	: LLPanel()
+	, mSyncButton(NULL)
+	, mSyncIndicator(NULL)
+	, mSyncInProgress(false)
 {
 }
 
@@ -43,5 +54,83 @@ LLPanelMarketplaceOutbox::~LLPanelMarketplaceOutbox()
 // virtual
 BOOL LLPanelMarketplaceOutbox::postBuild()
 {
+	mSyncButton = getChild<LLButton>("outbox_sync_btn");
+	mSyncButton->setCommitCallback(boost::bind(&LLPanelMarketplaceOutbox::onSyncButtonClicked, this));
+
+	mSyncIndicator = getChild<LLLoadingIndicator>("outbox_sync_indicator");
+
+	mSyncButton->setEnabled(!isOutboxEmpty());
+
 	return TRUE;
+}
+
+bool LLPanelMarketplaceOutbox::isOutboxEmpty() const
+{
+	// TODO: Check for contents of outbox
+
+	return false;
+}
+
+bool LLPanelMarketplaceOutbox::isSyncInProgress() const
+{
+	return mSyncInProgress;
+}
+
+
+std::string gTimeDelayDebugFunc = "";
+
+void timeDelay(LLCoros::self& self, LLPanelMarketplaceOutbox* outboxPanel)
+{
+	waitForEventOn(self, "mainloop");
+
+	LLTimer delayTimer;
+	delayTimer.reset();
+	delayTimer.setTimerExpirySec(5.0f);
+
+	while (!delayTimer.hasExpired())
+	{
+		waitForEventOn(self, "mainloop");
+	}
+
+	outboxPanel->onSyncComplete();
+
+	gTimeDelayDebugFunc = "";
+}
+
+void LLPanelMarketplaceOutbox::onSyncButtonClicked()
+{
+	// TODO: Actually trigger sync to marketplace
+
+	mSyncInProgress = true;
+	updateSyncButtonStatus();
+
+	// Set a timer (for testing only)
+
+    gTimeDelayDebugFunc = LLCoros::instance().launch("LLPanelMarketplaceOutbox timeDelay", boost::bind(&timeDelay, _1, this));
+}
+
+void LLPanelMarketplaceOutbox::onSyncComplete()
+{
+	mSyncInProgress = false;
+
+	updateSyncButtonStatus();
+}
+
+void LLPanelMarketplaceOutbox::updateSyncButtonStatus()
+{
+	if (isSyncInProgress())
+	{
+		mSyncButton->setVisible(false);
+
+		mSyncIndicator->setVisible(true);
+		mSyncIndicator->start();
+	}
+	else
+	{
+		mSyncIndicator->stop();
+		mSyncIndicator->setVisible(false);
+
+		mSyncButton->setVisible(true);
+		mSyncButton->setEnabled(!isOutboxEmpty());
+	}
 }
