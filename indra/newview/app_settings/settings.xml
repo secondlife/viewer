@@ -7113,7 +7113,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>4</integer>
   </map>
 
   <key>OctreeAlphaDistanceFactor</key>
@@ -7154,7 +7154,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.05</real>
+      <real>0.25</real>
       <real>0.0</real>
       <real>0.0</real>
     </array>

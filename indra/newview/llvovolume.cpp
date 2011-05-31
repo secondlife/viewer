@@ -4455,6 +4455,14 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		buffer_index = -1;
 	}
 
+	S32 texture_index_channels = gGLManager.mNumTextureImageUnits-1; //always reserve one for shiny for now just for simplicity
+	
+	if (LLPipeline::sRenderDeferred && distance_sort)
+	{
+		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
+	}
+
+
 	while (face_iter != faces.end())
 	{
 		//pull off next face
@@ -4521,11 +4529,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 						else
 						{
 							cur_tex++;
-
-							if (cur_tex >= 7 && facep->getTextureEntry()->getShiny())
-							{ //entry 7 is reserved for the environment map for shiny faces
-								break;
-							}
 						}
 
 						if (!can_batch_texture(facep))
@@ -4534,8 +4537,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 							break;
 						}
 
-						if (cur_tex >= 8)
-						{ //cut batches on every 8 textures
+						if (cur_tex >= texture_index_channels)
+						{ //cut batches when index channels are depleted
 							break;
 						}
 
