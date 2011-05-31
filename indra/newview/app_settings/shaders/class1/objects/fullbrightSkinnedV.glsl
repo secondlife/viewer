@@ -5,7 +5,7 @@
  * $License$
  */
 
-#version 120
+
 
 void calcAtmospherics(vec3 inPositionEye);
 mat4 getObjectSkinnedTransform();

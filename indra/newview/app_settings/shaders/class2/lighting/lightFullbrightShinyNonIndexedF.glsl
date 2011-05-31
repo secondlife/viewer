@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 uniform samplerCube environmentMap;
 uniform sampler2D diffuseMap;

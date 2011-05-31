@@ -191,7 +191,7 @@ void LLDrawPool::renderPostDeferred(S32 pass)
 //virtual
 void LLDrawPool::endRenderPass( S32 pass )
 {
-	for (U32 i = 1; i < 8; i++)
+	for (U32 i = 1; i < gGLManager.mNumTextureImageUnits; i++)
 	{ //dummy cleanup of any currently bound textures
 		if (gGL.getTexUnit(i)->getCurrType() != LLTexUnit::TT_NONE)
 		{
@@ -199,6 +199,8 @@ void LLDrawPool::endRenderPass( S32 pass )
 			gGL.getTexUnit(i)->disable();
 		}
 	}
+
+	gGL.getTexUnit(0)->activate();
 }
 
 //virtual 
@@ -491,6 +493,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 				if (params.mTextureMatrix)
 				{
 					tex_setup = true;
+					gGL.getTexUnit(0)->activate();
 					glMatrixMode(GL_TEXTURE);
 					glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
 					gPipeline.mTextureMatrixOps++;

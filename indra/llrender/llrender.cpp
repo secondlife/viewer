@@ -46,7 +46,7 @@ S32	gGLViewport[4];
 U32 LLRender::sUICalls = 0;
 U32 LLRender::sUIVerts = 0;
 
-static const U32 LL_NUM_TEXTURE_LAYERS = 16; 
+static const U32 LL_NUM_TEXTURE_LAYERS = 32; 
 static const U32 LL_NUM_LIGHT_UNITS = 8;
 
 static GLenum sGLTextureType[] =

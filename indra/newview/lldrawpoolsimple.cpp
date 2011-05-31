@@ -171,8 +171,9 @@ void LLDrawPoolSimple::beginRenderPass(S32 pass)
 void LLDrawPoolSimple::endRenderPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_SIMPLE);
+	stop_glerror();
 	LLRenderPass::endRenderPass(pass);
-
+	stop_glerror();
 	if (mVertexShaderLevel > 0)
 	{
 		simple_shader->unbind();

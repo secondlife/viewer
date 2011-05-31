@@ -10,8 +10,8 @@
 #extension GL_ARB_texture_rectangle : enable
 
 uniform sampler2DRect depthMap;
+uniform sampler2D diffuseMap;
 
-vec4 diffuseLookup(vec2 texcoord);
 
 uniform mat4 shadow_matrix[6];
 uniform vec4 shadow_clip;
@@ -48,7 +48,7 @@ void main()
 	
 	vec4 pos = vec4(vary_position, 1.0);
 	
-	vec4 diff= diffuseLookup(gl_TexCoord[0].xy);
+	vec4 diff= texture2D(diffuseMap,gl_TexCoord[0].xy);
 
 	vec4 col = vec4(vary_ambient + vary_directional.rgb, gl_Color.a);
 	vec4 color = diff * col;

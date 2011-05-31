@@ -551,7 +551,7 @@ bool LLGLManager::initGL()
 	{
 		GLint num_tex_image_units;
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &num_tex_image_units);
-		mNumTextureImageUnits = num_tex_image_units;
+		mNumTextureImageUnits = llmin(num_tex_image_units, 32);
 	}
 
 	if (mHasTextureMultisample)
@@ -1516,6 +1516,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 		}
 	}
 
+	stop_glerror();
 	gGL.getTexUnit(0)->activate();
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	stop_glerror();

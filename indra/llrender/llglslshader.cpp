@@ -56,7 +56,7 @@ BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
 LLShaderFeatures::LLShaderFeatures()
 : calculatesLighting(false), isShiny(false), isFullbright(false), hasWaterFog(false),
 hasTransport(false), hasSkinning(false), hasObjectSkinning(false), hasAtmospherics(false), isSpecular(false),
-hasGamma(false), hasLighting(false), calculatesAtmospherics(false), disableTextureIndex(false)
+hasGamma(false), hasLighting(false), calculatesAtmospherics(false), mIndexedTextureChannels(0), disableTextureIndex(false)
 {
 }
 
@@ -107,16 +107,11 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	// Create program
 	mProgramObject = glCreateProgramObjectARB();
 	
-	// Attach existing objects
-	if (!LLShaderMgr::instance()->attachShaderFeatures(this))
-	{
-		return FALSE;
-	}
-
+	//compile new source
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
 	for ( ; fileIter != mShaderFiles.end(); fileIter++ )
 	{
-		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second);
+		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, mFeatures.mIndexedTextureChannels);
 		LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
 		if (shaderhandle > 0)
 		{
@@ -126,6 +121,12 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 		{
 			success = FALSE;
 		}
+	}
+
+	// Attach existing objects
+	if (!LLShaderMgr::instance()->attachShaderFeatures(this))
+	{
+		return FALSE;
 	}
 
 	// Map attributes and uniforms
@@ -149,6 +150,29 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 			return createShader(attributes,uniforms);
 		}
 	}
+	else if (mFeatures.mIndexedTextureChannels > 0)
+	{ //override texture channels for indexed texture rendering
+		bind();
+		S32 channel_count = mFeatures.mIndexedTextureChannels;
+
+		for (S32 i = 0; i < channel_count; i++)
+		{
+			uniform1i(llformat("tex%d", i), i);
+		}
+
+		S32 cur_tex = channel_count; //adjust any texture channels that might have been overwritten
+		for (U32 i = 0; i < mTexture.size(); i++)
+		{
+			if (mTexture[i] > -1 && mTexture[i] < channel_count)
+			{
+				llassert(cur_tex < gGLManager.mNumTextureImageUnits);
+				uniform1i(i, cur_tex);
+				mTexture[i] = cur_tex++;
+			}
+		}
+		unbind();
+	}
+
 	return success;
 }
 

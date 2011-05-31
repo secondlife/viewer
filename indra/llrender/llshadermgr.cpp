@@ -216,9 +216,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 					return FALSE;
 				}
 			}
-			else if (!shader->attachObject("lighting/lightWaterF.glsl"))
+			else 
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightWaterF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 		
@@ -231,9 +235,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 					return FALSE;
 				}
 			}
-			else if (!shader->attachObject("lighting/lightF.glsl"))
+			else 
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}		
 	}
@@ -251,9 +259,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 					return FALSE;
 				}
 			}
-			else if (!shader->attachObject("lighting/lightFullbrightShinyWaterF.glsl"))
+			else 
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightFullbrightShinyWaterF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 		else if (features->hasWaterFog)
@@ -265,9 +277,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 					return FALSE;
 				}
 			}
-			else if (!shader->attachObject("lighting/lightFullbrightWaterF.glsl"))
+			else 
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightFullbrightWaterF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 		
@@ -280,9 +296,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 					return FALSE;
 				}
 			}
-			else if (!shader->attachObject("lighting/lightFullbrightShinyF.glsl"))
+			else 
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightFullbrightShinyF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 		
@@ -295,9 +315,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 					return FALSE;
 				}
 			}
-			else if (!shader->attachObject("lighting/lightFullbrightF.glsl"))
+			else 
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightFullbrightF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 	}
@@ -315,9 +339,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 					return FALSE;
 				}
 			}
-			else if (!shader->attachObject("lighting/lightShinyWaterF.glsl"))
+			else 
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightShinyWaterF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 		
@@ -330,9 +358,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 					return FALSE;
 				}
 			}
-			else if (!shader->attachObject("lighting/lightShinyF.glsl"))
+			else 
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightShinyF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 	}
@@ -376,7 +408,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 	}
 }
 
-GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type)
+GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, S32 texture_index_channels)
 {
 	GLenum error = GL_NO_ERROR;
 	if (gDebugGL)
@@ -430,11 +462,72 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	GLcharARB* text[1024];
 	GLuint count = 0;
 
+	//set version to 1.20
+	text[count++] = strdup("#version 120\n");
+
 	//copy preprocessor definitions into buffer
 	for (std::map<std::string,std::string>::iterator iter = mDefinitions.begin(); iter != mDefinitions.end(); ++iter)
 	{
 		std::string define = "#define " + iter->first + " " + iter->second + "\n";
 		text[count++] = (GLcharARB *) strdup(define.c_str());
+	}
+
+	if (texture_index_channels > 0 && type == GL_FRAGMENT_SHADER_ARB)
+	{
+		//use specified number of texture channels for indexed texture rendering
+
+		/* prepend shader code that looks like this:
+
+		uniform sampler2D tex0;
+		uniform sampler2D tex1;
+		uniform sampler2D tex2;
+		.
+		.
+		.
+		uniform sampler2D texN;
+		
+		varying float vary_texture_index;
+
+		vec4 diffuseLookup(vec2 texcoord)
+		{
+			switch (int(vary_texture_index+0.25))
+			{
+				case 0: return texture2D(tex0, texcoord);
+				case 1: return texture2D(tex1, texcoord);
+				case 2: return texture2D(tex2, texcoord);
+				.
+				.
+				.
+				case N: return texture2D(texN, texcoord);
+			}
+
+			return vec4(0,0,0,0);
+		}
+		*/
+
+		//uniform declartion
+		for (S32 i = 0; i < texture_index_channels; ++i)
+		{
+			std::string decl = llformat("uniform sampler2D tex%d;\n", i);
+			text[count++] = strdup(decl.c_str());
+		}
+
+		text[count++] = strdup("varying float vary_texture_index;\n");
+		text[count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
+		text[count++] = strdup("{\n");
+		text[count++] = strdup("\tswitch (int(vary_texture_index+0.25))\n");
+		text[count++] = strdup("\t{\n");
+		
+		//switch body
+		for (S32 i = 0; i < texture_index_channels; ++i)
+		{
+			std::string case_str = llformat("\t\tcase %d: return texture2D(tex%d, texcoord);\n", i, i);
+			text[count++] = strdup(case_str.c_str());
+		}
+
+		text[count++] = strdup("\t}\n");
+		text[count++] = strdup("\treturn vec4(0,0,0,0);\n");
+		text[count++] = strdup("}\n");
 	}
 
 	//copy file into memory
@@ -519,7 +612,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		if (shader_level > 1)
 		{
 			shader_level--;
-			return loadShaderFile(filename,shader_level,type);
+			return loadShaderFile(filename,shader_level,type,texture_index_channels);
 		}
 		LL_WARNS("ShaderLoading") << "Failed to load " << filename << LL_ENDL;	
 	}
