@@ -695,6 +695,8 @@ bool LLAppViewer::init()
 	if (!initConfiguration())
 		return false;
 
+	LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
+
 	// write Google Breakpad minidump files to our log directory
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 	logdir += gDirUtilp->getDirDelimiter();
@@ -721,6 +723,8 @@ bool LLAppViewer::init()
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass();
+	LL_INFOS("InitInfo") << "LLCurl initialized." << LL_ENDL ;
+
     LLMachineID::init();
 	
 	{
@@ -739,7 +743,7 @@ bool LLAppViewer::init()
 	}
 
     initThreads();
-	LL_INFOS("InitInfo") << "Threads initialized." << LL_ENDL ; ;
+	LL_INFOS("InitInfo") << "Threads initialized." << LL_ENDL ;
 
     writeSystemInfo();
 
@@ -766,10 +770,6 @@ bool LLAppViewer::init()
 	//
 	LL_INFOS("InitInfo") << "J2C Engine is: " << LLImageJ2C::getEngineInfo() << LL_ENDL;
 	LL_INFOS("InitInfo") << "libcurl version is: " << LLCurl::getVersionString() << LL_ENDL;
-
-	//Note: --bao
-	//allow to start texture fetching, must be called after initThreads();
-	gTextureList.start() ;
 
 	// Get the single value from the crash settings file, if it exists
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
@@ -879,6 +879,7 @@ bool LLAppViewer::init()
 		// Early out from user choice.
 		return false;
 	}
+	LL_INFOS("InitInfo") << "Hardware test initialization done." << LL_ENDL ;
 
 	// Prepare for out-of-memory situations, during which we will crash on
 	// purpose and save a dump.
@@ -1047,6 +1048,8 @@ bool LLAppViewer::init()
 	}
 	
 	LLViewerMedia::initClass();
+	LL_INFOS("InitInfo") << "Viewer media initialized." << LL_ENDL ;
+
 	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
 
 	//EXT-7013 - On windows for some locale (Japanese) standard 
@@ -2823,6 +2826,8 @@ bool LLAppViewer::initWindow()
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		gSavedSettings.getBOOL("WindowFullScreen"), ignorePixelDepth);
 
+	LL_INFOS("AppInit") << "gViewerwindow created." << LL_ENDL;
+
 	// Need to load feature table before cheking to start watchdog.
 	const S32 NEVER_SUBMIT_REPORT = 2;
 	bool use_watchdog = false;
@@ -2842,6 +2847,7 @@ bool LLAppViewer::initWindow()
 	{
 		LLWatchdog::getInstance()->init(watchdog_killer_callback);
 	}
+	LL_INFOS("AppInit") << "watchdog setting is done." << LL_ENDL;
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 		
@@ -2864,7 +2870,8 @@ bool LLAppViewer::initWindow()
 	gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 
 	gPipeline.init();
-		
+	LL_INFOS("AppInit") << "gPipeline Initialized" << LL_ENDL;
+
 	stop_glerror();
 	gViewerWindow->initGLDefaults();
 
@@ -2903,7 +2910,7 @@ bool LLAppViewer::initWindow()
 	// show viewer window
 	//gViewerWindow->mWindow->show();
 
-	
+	LL_INFOS("AppInit") << "Window initialization done." << LL_ENDL;
 	return true;
 }
 
