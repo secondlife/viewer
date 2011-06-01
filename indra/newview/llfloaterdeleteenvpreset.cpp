@@ -62,6 +62,8 @@ BOOL LLFloaterDeleteEnvPreset::postBuild()
 	getChild<LLButton>("delete")->setCommitCallback(boost::bind(&LLFloaterDeleteEnvPreset::onBtnDelete, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterDeleteEnvPreset::onBtnCancel, this));
 
+	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterDeleteEnvPreset::onDayCycleListChange, this));
+
 	return TRUE;
 }
 
@@ -193,5 +195,9 @@ void LLFloaterDeleteEnvPreset::populateDayCyclesList()
 void LLFloaterDeleteEnvPreset::onDeleteDayCycleConfirmation()
 {
 	LLDayCycleManager::instance().deletePreset(mPresetCombo->getValue().asString());
+}
+
+void LLFloaterDeleteEnvPreset::onDayCycleListChange()
+{
 	populateDayCyclesList();
 }

@@ -82,6 +82,7 @@ bool LLDayCycleManager::savePreset(const std::string& name, const LLSD& data)
 
 	// Add it to our map.
 	addPreset(name, data);
+	mModifySignal();
 	return true;
 }
 
@@ -95,11 +96,17 @@ bool LLDayCycleManager::deletePreset(const std::string& name)
 	if (gDirUtilp->fileExists(path))
 	{
 		gDirUtilp->deleteFilesInDir(getUserDir(), filename);
+		mModifySignal();
 		return true;
 	}
 
 	// Invalid or system preset.
 	return false;
+}
+
+boost::signals2::connection LLDayCycleManager::setModifyCallback(const modify_signal_t::slot_type& cb)
+{
+	return mModifySignal.connect(cb);
 }
 
 // virtual

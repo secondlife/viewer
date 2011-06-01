@@ -50,6 +50,7 @@ private:
 	void populateDayCyclesList();
 
 	void onDeleteDayCycleConfirmation();
+	void onDayCycleListChange();
 
 	LLComboBox* mPresetCombo;
 };

@@ -147,6 +147,9 @@ void LLFloaterEditDayCycle::initCallbacks(void)
 	env_mgr.setRegionChangeCallback(boost::bind(&LLFloaterEditDayCycle::onRegionChange, this));
 	env_mgr.setRegionSettingsAppliedCallback(boost::bind(&LLFloaterEditDayCycle::onRegionSettingsApplied, this, _1));
 
+	// Connect to day cycle manager events.
+	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleListChange, this));
+
 	// Connect to region info updates.
 	LLRegionInfoModel::instance().setUpdateCallback(boost::bind(&LLFloaterEditDayCycle::onRegionInfoUpdate, this));
 }
@@ -756,6 +759,14 @@ void LLFloaterEditDayCycle::onSaveConfirmed()
 	}
 
 	closeFloater();
+}
+
+void LLFloaterEditDayCycle::onDayCycleListChange()
+{
+	if (!isNewDay())
+	{
+		refreshDayCyclesList();
+	}
 }
 
 // static

@@ -75,6 +75,8 @@ BOOL LLFloaterEnvironmentSettings::postBuild()
 
 	setCloseCallback(boost::bind(&LLFloaterEnvironmentSettings::cancel, this));
 
+	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterEnvironmentSettings::onDayCycleListChange, this));
+
 	return TRUE;
 }
 
@@ -159,6 +161,11 @@ void LLFloaterEnvironmentSettings::onSelectDayCyclePreset()
 {
 	LLEnvManagerNew::getInstance()->setUseDayCycle(mDayCyclePresetCombo->getValue().asString());
 	mDirty = true;
+}
+
+void LLFloaterEnvironmentSettings::onDayCycleListChange()
+{
+	populateDayCyclePresetsList();
 }
 
 void LLFloaterEnvironmentSettings::onBtnOK()

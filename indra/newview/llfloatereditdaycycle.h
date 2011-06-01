@@ -103,6 +103,8 @@ private:
 	bool onSaveAnswer(const LLSD& notification, const LLSD& response);
 	void onSaveConfirmed();
 
+	void onDayCycleListChange();
+
 	static std::string getRegionName();
 	static bool canEditRegionSettings();
 

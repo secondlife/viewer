@@ -44,6 +44,7 @@ class LLDayCycleManager : public LLSingleton<LLDayCycleManager>
 
 public:
 	typedef std::map<std::string, LLWLDayCycle> dc_map_t;
+	typedef boost::signals2::signal<void()> modify_signal_t;
 
 	const dc_map_t& getPresets();
 	bool getPreset(const std::string name, LLWLDayCycle& day_cycle) const;
@@ -52,6 +53,9 @@ public:
 	bool isSystemPreset(const std::string& name) const;
 	bool savePreset(const std::string& name, const LLSD& data);
 	bool deletePreset(const std::string& name);
+
+	/// Emitted when a preset gets added or deleted.
+	boost::signals2::connection setModifyCallback(const modify_signal_t::slot_type& cb);
 
 private:
 	friend class LLSingleton<LLDayCycleManager>;
@@ -66,6 +70,7 @@ private:
 	static std::string getUserDir();
 
 	dc_map_t mDayCycleMap;
+	modify_signal_t mModifySignal;
 };
 
 #endif // LL_LLDAYCYCLEMANAGER_H

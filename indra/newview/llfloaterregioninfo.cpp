@@ -3293,6 +3293,8 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingschange, this));
 	LLEnvManagerNew::instance().setRegionSettingsAppliedCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingsApplied, this, _1));
 
+	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLPanelEnvironmentInfo::onDayCycleListChange, this));
+
 	return TRUE;
 }
 
@@ -3746,4 +3748,9 @@ void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
 		// does not work, try leaving and returning to the region."
 		LLEnvManagerNew::instance().requestRegionSettings();
 	}
+}
+
+void LLPanelEnvironmentInfo::onDayCycleListChange()
+{
+	populateDayCyclesList();
 }
