@@ -120,15 +120,22 @@ BOOL LLSidepanelInventory::postBuild()
 		}
 	}
 
-	getChild<LLButton>("inbox_btn")->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
-	getChild<LLButton>("outbox_btn")->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleOutboxBtn, this));
+	// Marketplace inbox/outbox setup
+	{
+		LLButton * inboxButton = getChild<LLButton>("inbox_btn");
+		LLButton * outboxButton = getChild<LLButton>("outbox_btn");
 
-	LLLayoutStack* stack = getChild<LLLayoutStack>("inventory_layout_stack");
+		inboxButton->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
+		outboxButton->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleOutboxBtn, this));
 
-	stack->collapsePanel(getChild<LLLayoutPanel>("inbox_layout_panel"), true);
-	stack->collapsePanel(getChild<LLLayoutPanel>("outbox_layout_panel"), true);
-	getChild<LLButton>("outbox_btn")->setToggleState(false);
-	getChild<LLButton>("inbox_btn")->setToggleState(false);
+		LLLayoutStack* stack = getChild<LLLayoutStack>("inventory_layout_stack");
+
+		stack->collapsePanel(getChild<LLLayoutPanel>("inbox_layout_panel"), true);
+		stack->collapsePanel(getChild<LLLayoutPanel>("outbox_layout_panel"), true);
+
+		inboxButton->setToggleState(false);
+		outboxButton->setToggleState(false);
+	}
 
 	return TRUE;
 }
@@ -151,6 +158,9 @@ void manageInboxOutboxPanels(LLLayoutStack * stack,
 	}
 
 	stack->collapsePanel(pressedPanel, !expand);
+
+	// Enable user_resize on main inventory panel when at least one marketplace box is expanded
+	stack->setPanelUserResize("main_inventory_layout_panel", expand);
 }
 
 void LLSidepanelInventory::onToggleInboxBtn()

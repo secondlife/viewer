@@ -26,11 +26,14 @@
               top="0"
               orientation="vertical"
               name="inventory_layout_stack"
-             height="535"
+              height="535"
               width="330">
              <layout_panel
+                 name="main_inventory_layout_panel"
+                 min_dim="150"
                  width="330"
-                  follows="bottom|left|right"
+                 follows="bottom|left|right"
+                 user_resize="false"
                  height="480">
                  <panel
                       class="panel_main_inventory"
@@ -45,14 +48,14 @@
                       width="330" />
              </layout_panel>
              <layout_panel
-                 width="330"
-                 auto_resize="true"
-                user_resize="false"
-                  follows="bottom|left|right"
-                 min_dim="35"
-                 name="inbox_layout_panel"
-                 max_dim="125"
-                 height="35">
+                    width="330"
+                    auto_resize="true"
+                    user_resize="false"
+                    follows="bottom|left|right"
+                    min_dim="35"
+                    name="inbox_layout_panel"
+                    max_dim="125"
+                    height="35">
                  <panel
                       follows="all"
                       layout="topleft"
@@ -69,14 +72,14 @@
                          height="35"
                          width="308"
                          image_unselected="MarketplaceBtn_Off"
-                            image_selected="MarketplaceBtn_Selected"
+                         image_selected="MarketplaceBtn_Selected"
                          halign="left"
                          follows="top|left|right"
                          is_toggle="true"
                          tab_stop="false"
                          pad_left="35"
                          top="0"
-                        left="10" />
+                         left="10" />
                          <panel
                              follows="all"
                              left="10"
@@ -105,14 +108,14 @@
                  </panel>
              </layout_panel>
              <layout_panel
-  width="330"
-  auto_resize="true"
+                width="330"
+                auto_resize="true"
                 user_resize="false"
-   follows="bottom|left|right"
-  name="outbox_layout_panel"
-                 min_dim="35"
-                 max_dim="125"
-  height="35">
+                follows="bottom|left|right"
+                name="outbox_layout_panel"
+                min_dim="35"
+                max_dim="125"
+                height="35">
                  <panel
                       follows="top|left|right"
                       layout="topleft"
