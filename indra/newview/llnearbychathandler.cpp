@@ -472,7 +472,8 @@ void LLNearbyChatHandler::initChannel()
 
 
 
-void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
+void LLNearbyChatHandler::processChat(const LLChat& chat_msg,		// WARNING - not really const, see hack below changing chat_msg.mText
+									  const LLSD &args)
 {
 	if(chat_msg.mMuted == TRUE)
 		return;
@@ -480,7 +481,17 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 	if(chat_msg.mText.empty())
 		return;//don't process empty messages
 
+	// Handle irc styled messages for toast panel
+	// HACK ALERT - changes mText, stripping out IRC style "/me" prefixes
 	LLChat& tmp_chat = const_cast<LLChat&>(chat_msg);
+	std::string original_message = tmp_chat.mText;			// Save un-modified version of chat text
+	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
+	{
+		if(!tmp_chat.mFromName.empty())
+			tmp_chat.mText = tmp_chat.mFromName + tmp_chat.mText.substr(3);
+		else
+			tmp_chat.mText = tmp_chat.mText.substr(3);
+	}
 
 	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 	{
@@ -531,7 +542,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 
 			LLViewerChat::getChatColor(chat_msg,txt_color);
 
-			LLFloaterScriptDebug::addScriptLine(chat_msg.mText,
+			LLFloaterScriptDebug::addScriptLine(original_message,		// Send full message with "/me" style prefix
 												chat_msg.mFromName,
 												txt_color,
 												chat_msg.mFromID);
@@ -561,15 +572,6 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
 		|| !mChannel->getShowToasts() ) // to prevent toasts in Busy mode
 		return;//no need in toast if chat is visible or if bubble chat is enabled
-
-	// Handle irc styled messages for toast panel
-	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
-	{
-		if(!tmp_chat.mFromName.empty())
-			tmp_chat.mText = tmp_chat.mFromName + tmp_chat.mText.substr(3);
-		else
-			tmp_chat.mText = tmp_chat.mText.substr(3);
-	}
 
 	// arrange a channel on a screen
 	if(!mChannel->getVisible())
