@@ -89,7 +89,7 @@
          visibility_control="VoiceMorphingEnabled">
             <menu_item_check.on_check
              function="Floater.Visible"
-             parameter="voice_effect" />
+             Parameter="voice_effect" />
             <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="voice_effect" />
@@ -972,6 +972,30 @@
                  parameter="Upload Animation" />
             </menu_item_call>
             <menu_item_call
+           label="Model..."
+           layout="topleft"
+           name="Upload Model">
+            <menu_item_call.on_click
+             function="File.UploadModel"
+             parameter="" />
+            <menu_item_call.on_enable
+             function="File.EnableUploadModel" />
+            <menu_item_call.on_visible
+            function="File.VisibleUploadModel"/>
+            </menu_item_call>
+			<menu_item_call
+           label="Model Wizard..."
+           layout="topleft"
+           name="Upload Model Wizard">
+				<menu_item_call.on_click
+				 function="Floater.Show"
+				 parameter="upload_model_wizard" />
+				<menu_item_call.on_enable
+				 function="File.EnableUploadModel" />
+				<menu_item_call.on_visible
+				function="File.VisibleUploadModel"/>
+			</menu_item_call>
+            <menu_item_call
              label="Bulk (L$[COST] per file)..."
              layout="topleft"
              name="Bulk Upload">
@@ -1342,15 +1366,15 @@
                  parameter="character" />
             </menu_item_check>
             <menu_item_check
-             label="SurfacePath"
-             name="SurfacePath"
+             label="Surface Patch"
+             name="Surface Patch"
              shortcut="control|alt|shift|5">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
-                 parameter="surfacePath" />
+                 parameter="surfacePatch" />
                 <menu_item_check.on_click
                  function="Advanced.ToggleRenderType"
-                 parameter="surfacePath" />
+                 parameter="surfacePatch" />
             </menu_item_check>
             <menu_item_check
              label="Sky"
@@ -1877,6 +1901,16 @@
                  function="Advanced.ToggleConsole"
                  parameter="memory view" />
             </menu_item_check>
+            <menu_item_check
+               label="Scene Statistics"
+               name="Scene Statistics">
+              <menu_item_check.on_check
+               function="Advanced.CheckConsole"
+               parameter="scene view" />
+              <menu_item_check.on_click
+               function="Advanced.ToggleConsole"
+               parameter="scene view" />
+            </menu_item_check>
 
             <menu_item_separator/>
 
@@ -1961,6 +1995,17 @@
                  function="ToggleControl"
                  parameter="DebugShowTime" />
             </menu_item_check>
+          <menu_item_check
+             label="Show Upload Cost"
+             layout="topleft"
+             name="Show Upload Cost">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="DebugShowUploadCost" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="DebugShowUploadCost" />
+          </menu_item_check>
             <menu_item_check
              label="Show Render Info"
              name="Show Render Info">
@@ -2144,6 +2189,16 @@
          parameter="bboxes" />
         </menu_item_check>
         <menu_item_check
+         label="Normals"
+         name="Normals">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="normals" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="normals" />
+        </menu_item_check>
+        <menu_item_check
          label="Octree"
          name="Octree">
           <menu_item_check.on_check
@@ -2162,6 +2217,16 @@
           <menu_item_check.on_click
            function="Advanced.ToggleInfoDisplay"
            parameter="shadow frusta" />
+        </menu_item_check>
+        <menu_item_check
+         label="Physics Shapes"
+         name="Physics Shapes">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="physics shapes" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="physics shapes" />
         </menu_item_check>
         <menu_item_check
          label="Occlusion"
@@ -2234,6 +2299,26 @@
            parameter="face area" />
         </menu_item_check>
         <menu_item_check
+         label="LOD Info"
+         name="LOD Info">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="lod info" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="lod info" />
+        </menu_item_check>
+        <menu_item_check
+         label="Build Queue"
+         name="Build Queue">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="build queue" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="build queue" />
+        </menu_item_check>
+        <menu_item_check
          label="Lights"
          name="Lights">
           <menu_item_check.on_check
@@ -2263,6 +2348,16 @@
            function="Advanced.ToggleInfoDisplay"
            parameter="raycast" />
         </menu_item_check>
+		<menu_item_check
+         label="Sculpt"
+         name="Sculpt">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="sculpt" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="sculpt" />
+		</menu_item_check>
       </menu>
         <menu
          create_jump_keys="true"
@@ -2319,19 +2414,6 @@
                 <menu_item_check.on_enable
                  function="Advanced.EnableObjectObjectOcclusion" />
             </menu_item_check>
-          <menu_item_check
-             label="Framebuffer Objects"
-             name="Framebuffer Objects">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RenderUseFBO" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RenderUseFBO" />
-            <menu_item_check.on_enable
-                 function="Advanced.EnableRenderFBO" />
-           </menu_item_check>
-
           <menu_item_separator />
 
           <menu_item_check
@@ -2696,7 +2778,7 @@
           <menu_item_call
            label="Web Content Browser"
            name="Web Content Browser"
-           shortcut="control|alt|W">
+           shortcut="control|shift|Z">
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
              parameter="http://google.com"/>
@@ -2758,7 +2840,6 @@
                  function="Floater.Toggle"
                  parameter="region_debug_console" />
             </menu_item_check>
-
             <menu_item_separator />
 
             <menu_item_check
@@ -3166,7 +3247,7 @@
             <menu_item_call.on_click
              function="Advanced.LeaveAdminStatus" />
         </menu_item_call>
-        <menu_item_check
+		<menu_item_check
          label="Show Admin Menu"
          name="View Admin Options">
             <menu_item_check.on_enable

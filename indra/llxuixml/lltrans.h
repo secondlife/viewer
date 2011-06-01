@@ -29,8 +29,12 @@
 
 #include <map>
 
+#include "llpointer.h"
 #include "llstring.h"
-#include "llxmlnode.h"
+
+class LLXMLNode;
+
+class LLSD;
 
 /**
  * @brief String template loaded from strings.xml
@@ -61,9 +65,9 @@ public:
 	 * @param default_args Set of strings (expected to be in the file) to use as default replacement args, e.g. "SECOND_LIFE"
 	 * @returns true if the file was parsed successfully, true if something went wrong
 	 */
-	static bool parseStrings(LLXMLNodePtr& root, const std::set<std::string>& default_args);
+	static bool parseStrings(LLPointer<LLXMLNode> & root, const std::set<std::string>& default_args);
 
-	static bool parseLanguageStrings(LLXMLNodePtr &root);
+	static bool parseLanguageStrings(LLPointer<LLXMLNode> & root);
 
 	/**
 	 * @brief Returns a translated string
@@ -72,7 +76,9 @@ public:
 	 * @returns Translated string
 	 */
 	static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args);
+	static std::string getString(const std::string &xml_desc, const LLSD& args);
 	static bool findString(std::string &result, const std::string &xml_desc, const LLStringUtil::format_map_t& args);
+	static bool findString(std::string &result, const std::string &xml_desc, const LLSD& args);
 
 	// Returns translated string with [COUNT] replaced with a number, following
 	// special per-language logic for plural nouns.  For example, some languages

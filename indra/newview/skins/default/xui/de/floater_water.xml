@@ -3,9 +3,10 @@
 	<floater.string name="WLDefaultWaterNames">
 		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
 	</floater.string>
-	<text name="KeyFramePresetsText" width="116">
+	<text name="KeyFramePresetsText" width="110">
 		Voreinstellungen:
 	</text>
+	<combo_box left_delta="110" name="WaterPresetsCombo"/>
 	<button label="Neu" label_selected="Neu" name="WaterNewPreset"/>
 	<button label="Speichern" label_selected="Speichern" name="WaterSavePreset"/>
 	<button label="Löschen" label_selected="Löschen" name="WaterDeletePreset"/>

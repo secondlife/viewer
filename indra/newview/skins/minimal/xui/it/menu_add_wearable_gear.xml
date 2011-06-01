@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Add Wearable Gear Menu">
+	<menu_item_check label="Mostra prima i più recenti" name="sort_by_most_recent"/>
+	<menu_item_check label="Ordina in base al nome" name="sort_by_name"/>
+	<menu_item_check label="Ordina in base al tipo" name="sort_by_type"/>
+</menu>

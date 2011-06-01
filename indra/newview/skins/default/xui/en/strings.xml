@@ -58,6 +58,83 @@
 	<string name="Quit">Quit</string>
 	<string name="create_account_url">http://join.secondlife.com/</string>
 
+	<string name="LoginFailedViewerNotPermitted">
+The viewer you are using can no longer access Second Life. Please visit the following page to download a new viewer:
+http://secondlife.com/download
+
+For more information, see our FAQ below:
+http://secondlife.com/viewer-access-faq</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">Optional viewer update available: [VERSION]</string>
+	<string name="LoginFailedRequiredUpdate">Required viewer update: [VERSION]</string>
+	<string name="LoginFailedAlreadyLoggedIn">This agent is already logged in.
+</string>
+	<string name="LoginFailedAuthenticationFailed">Sorry! We couldn't log you in.
+Please check to make sure you entered the right
+    * Username (like bobsmith12 or steller.sunshine)
+    * Password
+Also, please make sure your Caps Lock key is off.</string>
+	<string name="LoginFailedPasswordChanged">As a security precaution your password has been changed.
+Please go to your account page at http://secondlife.com/password
+and answer the security question to reset your password.
+We are very sorry for the inconvenience.</string>
+	<string name="LoginFailedPasswordReset">We made some changes to our system and you will need to reset your password.
+Please go to your account page at http://secondlife.com/password
+and answer the security question to reset your password.
+We are very sorry for the inconvenience.</string>
+	<string name="LoginFailedEmployeesOnly">Second Life is temporarily closed for maintenance.
+Logins are currently restricted to employees only.
+Check www.secondlife.com/status for updates.</string>
+	<string name="LoginFailedPremiumOnly">Second Life logins are temporarily restricted in order to make sure that those in-world have the best possible experience.
+	 	
+People with free accounts will not be able to access Second Life during this time, to make room for those who have paid for Second Life.</string>
+	<string name="LoginFailedComputerProhibited">Second Life cannot be accessed from this computer.
+If you feel this is an error, please contact
+support@secondlife.com.</string>
+	<string name="LoginFailedAcountSuspended">Your account is not accessible until
+[TIME] Pacific Time.</string>
+	<string name="LoginFailedAccountDisabled">We are unable to complete your request at this time.
+Please contact Second Life support for assistance at http://secondlife.com/support.
+If you are unable to change your password, please call (866) 476-9763.</string>
+	<string name="LoginFailedTransformError">Data inconsistency found during login.
+Please contact support@secondlife.com.</string>
+	<string name="LoginFailedAccountMaintenance">Your account is undergoing minor maintenance.
+Your account is not accessible until
+[TIME] Pacific Time.
+If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LoginFailedPendingLogoutFault">Request for logout responded with a fault from simulator.</string>
+	<string name="LoginFailedPendingLogout">The system is logging you out right now.
+Your Account will not be available until
+[TIME] Pacific Time.</string>
+	<string name="LoginFailedUnableToCreateSession">Unable to create valid session.</string>
+	<string name="LoginFailedUnableToConnectToSimulator">Unable to connect to a simulator.</string>
+	<string name="LoginFailedRestrictedHours">Your account can only access Second Life
+between [START] and [END] Pacific Time.
+Please come back during those hours.
+If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LoginFailedIncorrectParameters">Incorrect parameters.
+If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">First name parameter must be alphanumeric.
+If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">Last name parameter must be alphanumeric.
+If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LogoutFailedRegionGoingOffline">Region is going offline.
+Please try logging in again in a minute.</string>
+	<string name="LogoutFailedAgentNotInRegion">Agent not in region.
+Please try logging in again in a minute.</string>
+	<string name="LogoutFailedPendingLogin">The region was logging in another session.
+Please try logging in again in a minute.</string>
+	<string name="LogoutFailedLoggingOut">The region was logging out the previous session.
+Please try logging in again in a minute.</string>
+	<string name="LogoutFailedStillLoggingOut">The region is still logging out the previous session.
+Please try logging in again in a minute.</string>
+	<string name="LogoutSucceeded">Region has logged out last session.
+Please try logging in again in a minute.</string>
+	<string name="LogoutFailedLogoutBegun">Region has begun the logout process.
+Please try logging in again in a minute.</string>
+	<string name="LoginFailedLoggingOutSession">The system has begun logging out your last session.
+Please try logging in again in a minute.</string>
+
+
 	<!-- Disconnection -->
 	<string name="AgentLostConnection">This region may be experiencing trouble.  Please check your connection to the Internet.</string>
 	<string name="SavingSettings">Saving your settings...</string>
@@ -198,6 +275,7 @@
 	<string name="favorite">favorite</string>
 	<string name="symbolic link">link</string>
 	<string name="symbolic folder link">folder link</string>
+  <string name="mesh">mesh</string>
 
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
@@ -1830,6 +1908,15 @@ Requests single-word username of an avatar.  When data is available the dataserv
 key llRequestDisplayName(key id)
 Requests name of an avatar.  When data is available the dataserver event will be raised.
 </string>
+<string name="LSLTipText_llRegionSayTo" translate="false">
+llRegionSayTo(key target, integer channel, string msg)
+Sends msg on channel (not DEBUG_CHANNEL) directly to prim or avatar target anywhere within the region
+</string>
+<string name="LSLTipText_llGetEnv" translate="false">
+llGetEnv(string name)
+Returns a string with the requested data about the region
+</string>
+
 
   <!-- Avatar busy/away mode -->
 	<string name="AvatarSetNotAway">Not Away</string>
@@ -2008,6 +2095,7 @@ Requests name of an avatar.  When data is available the dataserver event will be
 	<string name="InvFolder Initial Outfits">Initial Outfits</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
 	<string name="InvFolder Accessories">Accessories</string>
+	<string name="InvFolder Meshes">Meshes</string>
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
 	<string name="InvFolder Friends">Friends</string>

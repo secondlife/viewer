@@ -738,7 +738,11 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 		setNumTEs(mVolumep->getNumFaces());
 		return TRUE;
 	}
-
+	
+#if 0 
+	// #if 0'd out by davep
+	// this is a lot of cruft to set texture entry values that just stay the same for LOD switch 
+	// or immediately get overridden by an object update message, also crashes occasionally
 	U32 old_face_mask = mVolumep->mFaceMask;
 
 	S32 face_bit = 0;
@@ -936,6 +940,13 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 			setTE(te_num, *(old_tes.getTexture(face_mapping[face_bit])));
 		}
 	}
+#else
+	// build the new object
+	sVolumeManager->unrefVolume(mVolumep);
+	mVolumep = volumep; 
+
+	setNumTEs(mVolumep->getNumFaces());
+#endif
 	return TRUE;
 }
 
@@ -1078,7 +1089,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 	U8 packed_buffer[MAX_TE_BUFFER];
 	U8 *cur_ptr = packed_buffer;
 	
-	S32 last_face_index = getNumTEs() - 1;
+	S32 last_face_index = llmin((U32) getNumTEs(), MAX_TES) - 1;
 	
 	if (last_face_index > -1)
 	{
@@ -1359,7 +1370,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 		return retval;
 	}
 
-	face_count = getNumTEs();
+	face_count = llmin((U32) getNumTEs(), MAX_TES);
 	U32 i;
 
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)image_data, 16, face_count, MVT_LLUUID);

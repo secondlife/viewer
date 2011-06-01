@@ -5,13 +5,13 @@
 			<text name="info_parcel_label">
 				Parcelle :
 			</text>
-			<text name="info_parcel" left="70">
+			<text name="info_parcel">
 				NOM DE LA PARCELLE
 			</text>
 			<text name="info_size_label">
 				Taille :
 			</text>
-			<text name="info_size" left="70">
+			<text name="info_size">
 				[AREA] m²
 			</text>
 			<text bottom_delta="-60" name="info_action">
@@ -38,27 +38,27 @@
 			<text name="sell_to_text">
 				Vendez votre terrain à n&apos;importe qui ou uniquement à un acheteur spécifique.
 			</text>
-			<combo_box bottom_delta="-32" name="sell_to">
+			<combo_box name="sell_to">
 				<combo_box.item label="- Sélectionnez -" name="--selectone--"/>
 				<combo_box.item label="Tout le monde" name="Anyone"/>
 				<combo_box.item label="Personne spécifique :" name="Specificuser:"/>
 			</combo_box>
-			<button label="Sélectionner" name="sell_to_select_agent" width="100"/>
+			<button label="Sélectionner" name="sell_to_select_agent"/>
 			<text name="sell_objects_label">
 				3. Vendre les objets avec ce terrain ?
 			</text>
 			<text name="sell_objects_text">
 				Les objets transférables se trouvant sur la parcelle changeront de propriétaire.
 			</text>
-			<radio_group bottom_delta="-54" name="sell_objects" right="430">
+			<radio_group name="sell_objects">
 				<radio_item label="Non, rester le propriétaire des objets" name="no"/>
 				<radio_item label="Oui, vendre les objets avec le terrain" name="yes"/>
 			</radio_group>
-			<button label="Afficher les objets" name="show_objects" right="420" width="120"/>
-			<text bottom_delta="-30" name="nag_message_label">
+			<button label="Afficher les objets" name="show_objects"/>
+			<text name="nag_message_label" font="SansSerif">
 				Rappel : Toutes les ventes sont définitives.
 			</text>
-			<button label="Indiquer le terrain à vendre" name="sell_btn" width="165"/>
+			<button label="Indiquer le terrain à vendre" name="sell_btn"/>
 			<button label="Annuler" name="cancel_btn"/>
 		</panel>
 	</scroll_container>

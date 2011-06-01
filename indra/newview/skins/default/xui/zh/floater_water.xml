@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Water Floater" title="ADVANCED WATER EDITOR">
+	<floater.string name="WLDefaultWaterNames">
+		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
+	</floater.string>
+	<text name="KeyFramePresetsText">
+		Water Presets:
+	</text>
+	<button label="New" label_selected="New" name="WaterNewPreset"/>
+	<button label="儲存" label_selected="儲存" name="WaterSavePreset"/>
+	<button label="刪除" label_selected="刪除" name="WaterDeletePreset"/>
+	<tab_container name="Water Tabs">
+		<panel label="設定" name="Settings">
+			<text name="BHText">
+				Water Fog Color
+			</text>
+			<color_swatch name="WaterFogColor" tool_tip="Click to open color picker"/>
+			<text name="WaterFogDensText">
+				Fog Density Exponent
+			</text>
+			<text name="WaterUnderWaterFogModText">
+				Underwater Fog Modifier
+			</text>
+			<text name="BDensText">
+				Reflection Wavelet Scale
+			</text>
+			<slider label="1" name="WaterNormalScaleX"/>
+			<slider label="2" name="WaterNormalScaleY"/>
+			<slider label="3" name="WaterNormalScaleZ"/>
+			<text name="HDText">
+				Fresnel Scale
+			</text>
+			<text name="FresnelOffsetText">
+				Fresnel Offset
+			</text>
+			<text name="DensMultText">
+				Refract Scale Above
+			</text>
+			<text name="WaterScaleBelowText">
+				Refract Scale Below
+			</text>
+			<text name="MaxAltText">
+				Blur Multiplier
+			</text>
+		</panel>
+		<panel label="IMAGE" name="Waves">
+			<text name="BHText">
+				Big Wave Direction
+			</text>
+			<text name="WaterWave1DirXText">
+				X
+			</text>
+			<text name="WaterWave1DirYText">
+				Y
+			</text>
+			<text name="BHText2">
+				Little Wave Direction
+			</text>
+			<text name="WaterWave2DirXText">
+				X
+			</text>
+			<text name="WaterWave2DirYText">
+				Y
+			</text>
+			<text name="BHText3">
+				Normal Map
+			</text>
+		</panel>
+	</tab_container>
+</floater>

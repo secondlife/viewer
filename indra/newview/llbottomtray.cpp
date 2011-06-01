@@ -46,6 +46,7 @@
 #include "llhints.h"
 #include "llimfloater.h" // for LLIMFloater
 #include "llnearbychatbar.h"
+#include "llnearbychatbarlistener.h"
 #include "llsidetray.h"
 #include "llspeakbutton.h"
 #include "llsplitbutton.h"
@@ -218,7 +219,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mLandingTab(NULL),
 	mCheckForDrag(false)
 {
-	// Firstly add ourself to IMSession observers, so we catch session events
+	// Firstly add our self to IMSession observers, so we catch session events
 	// before chiclets do that.
 	LLIMMgr::getInstance()->addSessionObserver(this);
 
@@ -378,12 +379,13 @@ void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, b
 	}
 
 	// We have to enable/disable right and left parts of speak button separately (EXT-4648)
-	mSpeakBtn->setSpeakBtnEnabled(enable);
+	getChild<LLButton>("speak_btn")->setEnabled(enable);
+
 	// skipped to avoid button blinking
 	if (status != STATUS_JOINING && status!= STATUS_LEFT_CHANNEL)
 	{
 		bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
-		mSpeakBtn->setFlyoutBtnEnabled(voice_status);
+		getChild<LLButton>("speak_flyout_btn")->setEnabled(voice_status);
 		if (voice_status)
 		{
 			LLFirstUse::speak(true);
@@ -536,6 +538,8 @@ BOOL LLBottomTray::postBuild()
 	mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
 	LLHints::registerHintTarget("chat_bar", mNearbyChatBar->LLView::getHandle());
 
+	mListener.reset(new LLNearbyChatBarListener(*mNearbyChatBar));
+
 	mChatBarContainer = getChild<LLLayoutPanel>("chat_bar_layout_panel");
 	mNearbyCharResizeHandlePanel = getChild<LLPanel>("chat_bar_resize_handle_panel");
 
@@ -546,17 +550,27 @@ BOOL LLBottomTray::postBuild()
 	setRightMouseDownCallback(boost::bind(&LLBottomTray::showBottomTrayContextMenu,this, _2, _3,_4));
 
 	mSpeakPanel = getChild<LLPanel>("speak_panel");
-	mSpeakBtn = getChild<LLSpeakButton>("talk");
-	LLHints::registerHintTarget("speak_btn", mSpeakBtn->getHandle());
+	mSpeakBtn = findChild<LLSpeakButton>("talk");
+	if (mSpeakBtn)
+	{
+		LLHints::registerHintTarget("speak_btn", mSpeakBtn->getHandle());
+
+		// Localization tool doesn't understand custom buttons like <talk_button>
+		mSpeakBtn->setSpeakToolTip( getString("SpeakBtnToolTip") );
+		mSpeakBtn->setShowToolTip( getString("VoiceControlBtnToolTip") );
+	}	
+	else
+	{
+		LLTransientFloaterMgr::getInstance()->addControlView(getChild<LLButton>("speak_btn"));
+		LLTransientFloaterMgr::getInstance()->addControlView(getChild<LLButton>("flyout_btn"));
+	}
+
 
 	// Both parts of speak button should be initially disabled because
 	// it takes some time between logging in to world and connecting to voice channel.
-	mSpeakBtn->setSpeakBtnEnabled(false);
-	mSpeakBtn->setFlyoutBtnEnabled(false);
+	getChild<LLButton>("speak_btn")->setEnabled(false);
+	getChild<LLButton>("speak_flyout_btn")->setEnabled(false);
 
-	// Localization tool doesn't understand custom buttons like <talk_button>
-	mSpeakBtn->setSpeakToolTip( getString("SpeakBtnToolTip") );
-	mSpeakBtn->setShowToolTip( getString("VoiceControlBtnToolTip") );
 
 	// Registering Chat Bar to receive Voice client status change notifications.
 	LLVoiceClient::getInstance()->addObserver(this);
@@ -740,6 +754,8 @@ void LLBottomTray::updateButtonsOrdersAfterDnD()
 
 void LLBottomTray::saveButtonsOrder()
 {
+	if (!gSavedSettings.getBOOL("AllowBottomTrayButtonReordering")) return;
+
 	std::string user_dir = gDirUtilp->getLindenUserDir();
 	if (user_dir.empty()) return;
 	
@@ -760,6 +776,8 @@ void LLBottomTray::saveButtonsOrder()
 
 void LLBottomTray::loadButtonsOrder()
 {
+	if (!gSavedSettings.getBOOL("AllowBottomTrayButtonReordering")) return;
+
 	// load per-resident sorting information
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME);
 
@@ -852,6 +870,10 @@ void LLBottomTray::draw()
 
 	getChild<LLButton>("show_help_btn")->setToggleState(help_floater_visible);
 
+	bool openmic = LLVoiceClient::getInstance()->getUserPTTState();
+	bool voiceenabled = LLVoiceClient::getInstance()->voiceEnabled();
+	getChild<LLButton>("speak_btn")->setToggleState(openmic && voiceenabled);
+	getChild<LLOutputMonitorCtrl>("chat_zone_indicator")->setIsMuted(!voiceenabled);
 
 }
 
@@ -1309,7 +1331,11 @@ void LLBottomTray::processShrinkButtons(S32& required_width, S32& buttons_freed_
 
 			if (possible_shrink_width > 0)
 			{
-				mSpeakBtn->setLabelVisible(false);
+				if (mSpeakBtn)
+				{	
+					mSpeakBtn->setLabelVisible(false);
+				}
+
 				mSpeakPanel->reshape(panel_width - possible_shrink_width, mSpeakPanel->getRect().getHeight());
 
 				required_width += possible_shrink_width;
@@ -1435,7 +1461,7 @@ bool LLBottomTray::processExtendSpeakButton(S32& available_width)
 		}
 
 		// Reshape the Speak button to its maximum width.
-		mSpeakBtn->setLabelVisible(true);
+		if (mSpeakBtn) mSpeakBtn->setLabelVisible(true);
 		mSpeakPanel->reshape(panel_max_width, mSpeakPanel->getRect().getHeight());
 
 		available_width -= required_headroom;
@@ -1510,21 +1536,35 @@ void LLBottomTray::initResizeStateContainers()
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_GESTURES, getChild<LLPanel>("gesture_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, getChild<LLPanel>("movement_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_CAMERA, getChild<LLPanel>("cam_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_DESTINATIONS, getChild<LLPanel>("destinations_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_AVATARS, getChild<LLPanel>("avatar_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, getChild<LLPanel>("snapshot_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_BUILD, getChild<LLPanel>("build_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SEARCH, getChild<LLPanel>("search_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_WORLD_MAP, getChild<LLPanel>("world_map_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MINI_MAP, getChild<LLPanel>("mini_map_btn_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SPLITTER_1, getChild<LLPanel>("splitter_panel_1")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_PEOPLE, getChild<LLPanel>("people_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_PROFILE, getChild<LLPanel>("profile_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SPLITTER_2, getChild<LLPanel>("splitter_panel_2")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_HOWTO, getChild<LLPanel>("howto_panel")));
 
 	// init an order of processed buttons
-	mButtonsProcessOrder.push_back(RS_BUTTON_GESTURES);
-	mButtonsProcessOrder.push_back(RS_BUTTON_MOVEMENT);
-	mButtonsProcessOrder.push_back(RS_BUTTON_CAMERA);
+	mButtonsProcessOrder.push_back(RS_BUTTON_DESTINATIONS);
+	mButtonsProcessOrder.push_back(RS_BUTTON_AVATARS);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SNAPSHOT);
 	mButtonsProcessOrder.push_back(RS_BUTTON_BUILD);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SEARCH);
 	mButtonsProcessOrder.push_back(RS_BUTTON_WORLD_MAP);
 	mButtonsProcessOrder.push_back(RS_BUTTON_MINI_MAP);
+	mButtonsProcessOrder.push_back(RS_BUTTON_SPLITTER_1);
+	mButtonsProcessOrder.push_back(RS_BUTTON_PEOPLE);
+	mButtonsProcessOrder.push_back(RS_BUTTON_PROFILE);
+	mButtonsProcessOrder.push_back(RS_BUTTON_SPLITTER_2);
+	mButtonsProcessOrder.push_back(RS_BUTTON_HOWTO);
+	mButtonsProcessOrder.push_back(RS_BUTTON_MOVEMENT);
+	mButtonsProcessOrder.push_back(RS_BUTTON_CAMERA);
+	mButtonsProcessOrder.push_back(RS_BUTTON_GESTURES);
 
 	mButtonsOrder.push_back(RS_BUTTON_SPEAK);
 	mButtonsOrder.insert(mButtonsOrder.end(), mButtonsProcessOrder.begin(), mButtonsProcessOrder.end());
@@ -1554,7 +1594,7 @@ void LLBottomTray::initResizeStateContainers()
 // because it resets chatbar's width according to resize logic.
 void LLBottomTray::initButtonsVisibility()
 {
-	setVisibleAndFitWidths(RS_BUTTON_SPEAK, gSavedSettings.getBOOL("EnableVoiceChat"));
+	setVisibleAndFitWidths(RS_BUTTON_SPEAK, gSavedSettings.getBOOL("EnableVoiceChat") || !mSpeakBtn );
 	setVisibleAndFitWidths(RS_BUTTON_GESTURES, gSavedSettings.getBOOL("ShowGestureButton"));
 	setVisibleAndFitWidths(RS_BUTTON_MOVEMENT, gSavedSettings.getBOOL("ShowMoveButton"));
 	setVisibleAndFitWidths(RS_BUTTON_CAMERA, gSavedSettings.getBOOL("ShowCameraButton"));
@@ -1568,7 +1608,12 @@ void LLBottomTray::initButtonsVisibility()
 
 void LLBottomTray::setButtonsControlsAndListeners()
 {
-	gSavedSettings.getControl("EnableVoiceChat")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SPEAK, _2));
+	// always show the speak panel if using the basic skin
+	if (mSpeakBtn)
+	{
+		gSavedSettings.getControl("EnableVoiceChat")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SPEAK, _2));
+	}	
+
 	gSavedSettings.getControl("ShowGestureButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_GESTURES, _2));
 	gSavedSettings.getControl("ShowMoveButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_MOVEMENT, _2));
 	gSavedSettings.getControl("ShowCameraButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_CAMERA, _2));
@@ -1857,26 +1902,36 @@ S32 LLBottomTray::getChicletPanelShrinkHeadroom() const
 // static
 std::string LLBottomTray::resizeStateToString(EResizeState state)
 {
+	const char *rs_string = "UNKNOWN_BUTTON";
+	
 	switch (state)
 	{
-	case RS_NORESIZE:				return "RS_NORESIZE";
-	case RS_CHICLET_PANEL:			return "RS_CHICLET_PANEL";
-	case RS_CHATBAR_INPUT:			return "RS_CHATBAR_INPUT";
-	case RS_BUTTON_SNAPSHOT:		return "RS_BUTTON_SNAPSHOT";
-	case RS_BUTTON_CAMERA:			return "RS_BUTTON_CAMERA";
-	case RS_BUTTON_MOVEMENT:		return "RS_BUTTON_MOVEMENT";
-	case RS_BUTTON_GESTURES:		return "RS_BUTTON_GESTURES";
-	case RS_BUTTON_SPEAK:			return "RS_BUTTON_SPEAK";
-	case RS_IM_WELL:				return "RS_IM_WELL";
-	case RS_NOTIFICATION_WELL:		return "RS_NOTIFICATION_WELL";
-	case RS_BUTTON_BUILD:			return "RS_BUTTON_BUILD";
-	case RS_BUTTON_SEARCH:			return "RS_BUTTON_SEARCH";
-	case RS_BUTTON_WORLD_MAP:		return "RS_BUTTON_WORLD_MAP";
-	case RS_BUTTON_MINI_MAP:		return "RS_BUTTON_MINI_MAP";
-	case RS_BUTTONS_CAN_BE_HIDDEN:	return "RS_BUTTONS_CAN_BE_HIDDEN";
-	// No default to track additions.
+		case RS_NORESIZE:               rs_string = "RS_NORESIZE";              break;
+		case RS_CHICLET_PANEL:          rs_string = "RS_CHICLET_PANEL";         break;
+		case RS_CHATBAR_INPUT:          rs_string = "RS_CHATBAR_INPUT";         break;
+		case RS_BUTTON_SNAPSHOT:        rs_string = "RS_BUTTON_SNAPSHOT";       break;
+		case RS_BUTTON_CAMERA:          rs_string = "RS_BUTTON_CAMERA";         break;
+		case RS_BUTTON_MOVEMENT:        rs_string = "RS_BUTTON_MOVEMENT";       break;
+		case RS_BUTTON_GESTURES:        rs_string = "RS_BUTTON_GESTURES";       break;
+		case RS_BUTTON_SPEAK:           rs_string = "RS_BUTTON_SPEAK";          break;
+		case RS_IM_WELL:                rs_string = "RS_IM_WELL";               break;
+		case RS_NOTIFICATION_WELL:      rs_string = "RS_NOTIFICATION_WELL";     break;
+		case RS_BUTTON_BUILD:           rs_string = "RS_BUTTON_BUILD";          break;
+		case RS_BUTTON_SEARCH:          rs_string = "RS_BUTTON_SEARCH";         break;
+		case RS_BUTTON_WORLD_MAP:       rs_string = "RS_BUTTON_WORLD_MAP";      break;
+		case RS_BUTTON_MINI_MAP:        rs_string = "RS_BUTTON_MINI_MAP";       break;
+		case RS_BUTTON_DESTINATIONS:    rs_string = "RS_BUTTON_DESTINATIONS";   break;
+		case RS_BUTTON_AVATARS:         rs_string = "RS_BUTTON_AVATARS";        break;
+		case RS_BUTTON_PEOPLE:          rs_string = "RS_BUTTON_PEOPLE";         break;
+		case RS_BUTTON_PROFILE:         rs_string = "RS_BUTTON_PROFILE";        break;
+		case RS_BUTTON_HOWTO:           rs_string = "RS_BUTTON_HOWTO";          break;
+		case RS_BUTTON_SPLITTER_1:      rs_string = "RS_BUTTON_SPLITTER_1";     break;
+		case RS_BUTTON_SPLITTER_2:      rs_string = "RS_BUTTON_SPLITTER_2";     break;
+		case RS_BUTTONS_CAN_BE_HIDDEN:  rs_string = "RS_BUTTONS_CAN_BE_HIDDEN"; break;
+		// No default to track additions.
 	}
-	return "UNKNOWN_BUTTON";
+
+	return rs_string;
 }
 
 // static

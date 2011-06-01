@@ -28,6 +28,7 @@
 
 #include "llview.h"
 #include "lldarray.h"  // *TODO: Eliminate, forward declare
+#include "lluiimage.h"
 
 class LLFontGL;
 class LLFolderView;

@@ -50,6 +50,7 @@
 #include "llviewerstats.h"
 #include "llvlcomposition.h"
 #include "llvoavatar.h"
+#include "llvocache.h"
 #include "llvowater.h"
 #include "message.h"
 #include "pipeline.h"
@@ -596,7 +597,7 @@ void LLWorld::updateVisibilities()
 		region_list_t::iterator curiter = iter++;
 		LLViewerRegion* regionp = *curiter;
 		F32 height = regionp->getLand().getMaxZ() - regionp->getLand().getMinZ();
-		F32 radius = 0.5f*fsqrtf(height * height + diagonal_squared);
+		F32 radius = 0.5f*(F32) sqrt(height * height + diagonal_squared);
 		if (!regionp->getLand().hasZData()
 			|| LLViewerCamera::getInstance()->sphereInFrustum(regionp->getCenterAgent(), radius))
 		{
@@ -617,7 +618,7 @@ void LLWorld::updateVisibilities()
 		}
 
 		F32 height = regionp->getLand().getMaxZ() - regionp->getLand().getMinZ();
-		F32 radius = 0.5f*fsqrtf(height * height + diagonal_squared);
+		F32 radius = 0.5f*(F32) sqrt(height * height + diagonal_squared);
 		if (LLViewerCamera::getInstance()->sphereInFrustum(regionp->getCenterAgent(), radius))
 		{
 			regionp->calculateCameraDistance();
@@ -866,42 +867,6 @@ void LLWorld::waterHeightRegionInfo(std::string const& sim_name, F32 water_heigh
 	}
 }
 
-// There are three types of water objects:
-// Region water objects: the water in a region.
-// Hole water objects: water in the void but within current draw distance.
-// Edge water objects: the water outside the draw distance, up till the horizon.
-//
-// For example:
-//
-// -----------------------horizon-------------------------
-// |                 |                 |                 |
-// |  Edge Water     |                 |                 |
-// |                 |                 |                 |
-// |                 |                 |                 |
-// |                 |                 |                 |
-// |                 |                 |                 |
-// |                 |      rwidth     |                 |
-// |                 |     <----->     |                 |
-// -------------------------------------------------------
-// |                 |Hole |other|     |                 |
-// |                 |Water|reg. |     |                 |
-// |                 |-----------------|                 |
-// |                 |other|cur. |<--> |                 |
-// |                 |reg. | reg.|  \__|_ draw distance  |
-// |                 |-----------------|                 |
-// |                 |     |     |<--->|                 |
-// |                 |     |     |  \__|_ range          |
-// -------------------------------------------------------
-// |                 |<----width------>|<--horizon ext.->|
-// |                 |                 |                 |
-// |                 |                 |                 |
-// |                 |                 |                 |
-// |                 |                 |                 |
-// |                 |                 |                 |
-// |                 |                 |                 |
-// |                 |                 |                 |
-// -------------------------------------------------------
-//
 void LLWorld::updateWaterObjects()
 {
 	if (!gAgent.getRegion())
@@ -914,265 +879,128 @@ void LLWorld::updateWaterObjects()
 		return;
 	}
 
-	// Region width in meters.
-	S32 const rwidth = (S32)REGION_WIDTH_U32;
-
-	// The distance we might see into the void
-	// when standing on the edge of a region, in meters.
-	S32 const draw_distance = llceil(mLandFarClip);
-
-	// We can only have "holes" in the water (where there no region) if we
-	// can have existing regions around it. Taking into account that this
-	// code is only executed when we enter a region, and not when we walk
-	// around in it, we (only) need to take into account regions that fall
-	// within the draw_distance.
-	//
-	// Set 'range' to draw_distance, rounded up to the nearest multiple of rwidth.
-	S32 const nsims = (draw_distance + rwidth - 1) / rwidth;
-	S32 const range = nsims * rwidth;
-
-	// Get South-West corner of current region.
-	LLViewerRegion const* regionp = gAgent.getRegion();
+	// First, determine the min and max "box" of water objects
+	S32 min_x = 0;
+	S32 min_y = 0;
+	S32 max_x = 0;
+	S32 max_y = 0;
 	U32 region_x, region_y;
+
+	S32 rwidth = 256;
+
+	// We only want to fill in water for stuff that's near us, say, within 256 or 512m
+	S32 range = LLViewerCamera::getInstance()->getFar() > 256.f ? 512 : 256;
+
+	LLViewerRegion* regionp = gAgent.getRegion();
 	from_region_handle(regionp->getHandle(), &region_x, &region_y);
 
-	// The min. and max. coordinates of the South-West corners of the Hole water objects.
-	S32 const min_x = (S32)region_x - range;
-	S32 const min_y = (S32)region_y - range;
-	S32 const max_x = (S32)region_x + range;
-	S32 const max_y = (S32)region_y + range;
+	min_x = (S32)region_x - range;
+	min_y = (S32)region_y - range;
+	max_x = (S32)region_x + range;
+	max_y = (S32)region_y + range;
 
-	// Attempt to determine a sensible water height for all the
-	// Hole Water objects.
-	//
-	// It make little sense to try to guess what the best water
-	// height should be when that isn't completely obvious: if it's
-	// impossible to satisfy every region's water height without
-	// getting a jump in the water height.
-	//
-	// In order to keep the reasoning simple, we assume something
-	// logical as a group of connected regions, where the coastline
-	// is at the outer edge. Anything more complex that would "break"
-	// under such an assumption would probably break anyway (would
-	// depend on terrain editing and existing mega prims, say, if
-	// anything would make sense at all).
-	//
-	// So, what we do is find all connected regions within the
-	// draw distance that border void, and then pick the lowest
-	// water height of those (coast) regions.
-	S32 const n = 2 * nsims + 1;
-	S32 const origin = nsims + nsims * n;
-	std::vector<F32> water_heights(n * n);
-	std::vector<U8> checked(n * n, 0);		// index = nx + ny * n + origin;
-	U8 const region_bit = 1;
-	U8 const hole_bit = 2;
-	U8 const bordering_hole_bit = 4;
-	U8 const bordering_edge_bit = 8;
-	// Use the legacy waterheight for the Edge water in the case
-	// that we don't find any Hole water at all.
-	F32 water_height = DEFAULT_WATER_HEIGHT;
-	int max_count = 0;
-	LL_DEBUGS("WaterHeight") << "Current region: " << regionp->getName() << "; water height: " << regionp->getWaterHeight() << " m." << LL_ENDL;
-	std::map<S32, int> water_height_counts;
-	typedef std::queue<std::pair<S32, S32>, std::deque<std::pair<S32, S32> > > nxny_pairs_type;
-	nxny_pairs_type nxny_pairs;
-	nxny_pairs.push(nxny_pairs_type::value_type(0, 0));
-	water_heights[origin] = regionp->getWaterHeight();
-	checked[origin] = region_bit;
-	// For debugging purposes.
-	int number_of_connected_regions = 1;
-	int uninitialized_regions = 0;
-	int bordering_hole = 0;
-	int bordering_edge = 0;
-	while(!nxny_pairs.empty())
-	{
-		S32 const nx = nxny_pairs.front().first;
-		S32 const ny = nxny_pairs.front().second;
-		LL_DEBUGS("WaterHeight") << "nx,ny = " << nx << "," << ny << LL_ENDL;
-		S32 const index = nx + ny * n + origin;
-		nxny_pairs.pop();
-		for (S32 dir = 0; dir < 4; ++dir)
-		{
-			S32 const cnx = nx + gDirAxes[dir][0];
-			S32 const cny = ny + gDirAxes[dir][1];
-			LL_DEBUGS("WaterHeight") << "dir = " << dir << "; cnx,cny = " << cnx << "," << cny << LL_ENDL;
-			S32 const cindex = cnx + cny * n + origin;
-			bool is_hole = false;
-			bool is_edge = false;
-			LLViewerRegion* new_region_found = NULL;
-			if (cnx < -nsims || cnx > nsims ||
-			    cny < -nsims || cny > nsims)
-			{
-				LL_DEBUGS("WaterHeight") << "  Edge Water!" << LL_ENDL;
-				// Bumped into Edge water object.
-				is_edge = true;
-			}
-			else if (checked[cindex])
-			{
-				LL_DEBUGS("WaterHeight") << "  Already checked before!" << LL_ENDL;
-				// Already checked.
-				is_hole = (checked[cindex] & hole_bit);
-			}
-			else
-			{
-				S32 x = (S32)region_x + cnx * rwidth;
-				S32 y = (S32)region_y + cny * rwidth;
-				U64 region_handle = to_region_handle(x, y);
-				new_region_found = getRegionFromHandle(region_handle);
-				is_hole = !new_region_found;
-				checked[cindex] = is_hole ? hole_bit : region_bit;
-			}
-			if (is_hole)
-			{
-				// This was a region that borders at least one 'hole'.
-				// Count the found coastline.
-				F32 new_water_height = water_heights[index];
-				LL_DEBUGS("WaterHeight") << "  This is void; counting coastline with water height of " << new_water_height << LL_ENDL;
-				S32 new_water_height_cm = llround(new_water_height * 100);
-				int count = (water_height_counts[new_water_height_cm] += 1);
-				// Just use the lowest water height: this is mainly about the horizon water,
-				// and whatever we do, we don't want it to be possible to look under the water
-				// when looking in the distance: it is better to make a step downwards in water
-				// height when going away from the avie than a step upwards. However, since
-				// everyone is used to DEFAULT_WATER_HEIGHT, don't allow a single region
-				// to drag the water level below DEFAULT_WATER_HEIGHT on it's own.
-				if (bordering_hole == 0 ||			// First time we get here.
-				    (new_water_height >= DEFAULT_WATER_HEIGHT &&
-					 new_water_height < water_height) ||
-				    (new_water_height < DEFAULT_WATER_HEIGHT &&
-					 count > max_count)
-				   )
-				{
-					water_height = new_water_height;
-				}
-				if (count > max_count)
-				{
-					max_count = count;
-				}
-				if (!(checked[index] & bordering_hole_bit))
-				{
-					checked[index] |= bordering_hole_bit;
-					++bordering_hole;
-				}
-			}
-			else if (is_edge && !(checked[index] & bordering_edge_bit))
-			{
-				checked[index] |= bordering_edge_bit;
-				++bordering_edge;
-			}
-			if (!new_region_found)
-			{
-				// Dead end, there is no region here.
-				continue;
-			}
-			// Found a new connected region.
-			++number_of_connected_regions;
-			if (new_region_found->getName().empty())
-			{
-				// Uninitialized LLViewerRegion, don't use it's water height.
-				LL_DEBUGS("WaterHeight") << "  Uninitialized region." << LL_ENDL;
-				++uninitialized_regions;
-				continue;
-			}
-			nxny_pairs.push(nxny_pairs_type::value_type(cnx, cny));
-			water_heights[cindex] = new_region_found->getWaterHeight();
-			LL_DEBUGS("WaterHeight") << "  Found a new region (name: " << new_region_found->getName() << "; water height: " << water_heights[cindex] << " m)!" << LL_ENDL;
-		}
-	}
-	llinfos << "Number of connected regions: " << number_of_connected_regions << " (" << uninitialized_regions <<
-		" uninitialized); number of regions bordering Hole water: " << bordering_hole <<
-		"; number of regions bordering Edge water: " << bordering_edge << llendl;
-	llinfos << "Coastline count (height, count): ";
-	bool first = true;
-	for (std::map<S32, int>::iterator iter = water_height_counts.begin(); iter != water_height_counts.end(); ++iter)
-	{
-		if (!first) llcont << ", ";
-		llcont << "(" << (iter->first / 100.f) << ", " << iter->second << ")";
-		first = false;
-	}
-	llcont << llendl;
-	llinfos << "Water height used for Hole and Edge water objects: " << water_height << llendl;
-
-	// Update all Region water objects.
-	for (region_list_t::iterator iter = mRegionList.begin(); iter != mRegionList.end(); ++iter)
+	F32 height = 0.f;
+	
+	for (region_list_t::iterator iter = mRegionList.begin();
+		 iter != mRegionList.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		LLVOWater* waterp = regionp->getLand().getWaterObj();
+		height += regionp->getWaterHeight();
 		if (waterp)
 		{
 			gObjectList.updateActive(waterp);
 		}
 	}
 
-	// Clean up all existing Hole water objects.
 	for (std::list<LLVOWater*>::iterator iter = mHoleWaterObjects.begin();
-		 iter != mHoleWaterObjects.end(); ++iter)
+		 iter != mHoleWaterObjects.end(); ++ iter)
 	{
 		LLVOWater* waterp = *iter;
 		gObjectList.killObject(waterp);
 	}
 	mHoleWaterObjects.clear();
 
-	// Let the Edge and Hole water boxes be 1024 meter high so that they
-	// are never too small to be drawn (A LL_VO_*_WATER box has water
-	// rendered on it's bottom surface only), and put their bottom at
-	// the current regions water height.
-	F32 const box_height = 1024;
-	F32 const water_center_z = water_height + box_height / 2;
-
-	// Create new Hole water objects within 'range' where there is no region.
-	for (S32 x = min_x; x <= max_x; x += rwidth)
+	// Now, get a list of the holes
+	S32 x, y;
+	for (x = min_x; x <= max_x; x += rwidth)
 	{
-		for (S32 y = min_y; y <= max_y; y += rwidth)
+		for (y = min_y; y <= max_y; y += rwidth)
 		{
 			U64 region_handle = to_region_handle(x, y);
 			if (!getRegionFromHandle(region_handle))
 			{
-				LLVOWater* waterp = (LLVOWater*)gObjectList.createObjectViewer(LLViewerObject::LL_VO_VOID_WATER, gAgent.getRegion());
+				LLVOWater* waterp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, gAgent.getRegion());
 				waterp->setUseTexture(FALSE);
-				waterp->setPositionGlobal(LLVector3d(x + rwidth / 2, y + rwidth / 2, water_center_z));
-				waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, box_height));
+				waterp->setPositionGlobal(LLVector3d(x + rwidth/2,
+													 y + rwidth/2,
+													 256.f+DEFAULT_WATER_HEIGHT));
+				waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, 512.f));
 				gPipeline.createObject(waterp);
 				mHoleWaterObjects.push_back(waterp);
 			}
 		}
 	}
 
-	// Center of the region.
-	S32 const center_x = region_x + rwidth / 2;
-	S32 const center_y = region_y + rwidth / 2;
-	// Width of the area with Hole water objects.
-	S32 const width = rwidth + 2 * range;
-	S32 const horizon_extend = 2048 + 512 - range;	// Legacy value.
-	// The overlap is needed to get rid of sky pixels being visible between the
-	// Edge and Hole water object at greater distances (due to floating point
-	// round off errors).
-	S32 const edge_hole_overlap = 1;		// Twice the actual overlap.
-		
-	for (S32 dir = 0; dir < 8; ++dir)
-	{
-		// Size of the Edge water objects.
-		S32 const dim_x = (gDirAxes[dir][0] == 0) ? width : (horizon_extend + edge_hole_overlap);
-		S32 const dim_y = (gDirAxes[dir][1] == 0) ? width : (horizon_extend + edge_hole_overlap);
-		// And their position.
-		S32 const water_center_x = center_x + (width + horizon_extend) / 2 * gDirAxes[dir][0];
-		S32 const water_center_y = center_y + (width + horizon_extend) / 2 * gDirAxes[dir][1];
+	// Update edge water objects
+	S32 wx, wy;
+	S32 center_x, center_y;
+	wx = (max_x - min_x) + rwidth;
+	wy = (max_y - min_y) + rwidth;
+	center_x = min_x + (wx >> 1);
+	center_y = min_y + (wy >> 1);
 
+	S32 add_boundary[4] = {
+		512 - (max_x - region_x),
+		512 - (max_y - region_y),
+		512 - (region_x - min_x),
+		512 - (region_y - min_y) };
+		
+	S32 dir;
+	for (dir = 0; dir < 8; dir++)
+	{
+		S32 dim[2] = { 0 };
+		switch (gDirAxes[dir][0])
+		{
+		case -1: dim[0] = add_boundary[2]; break;
+		case  0: dim[0] = wx; break;
+		default: dim[0] = add_boundary[0]; break;
+		}
+		switch (gDirAxes[dir][1])
+		{
+		case -1: dim[1] = add_boundary[3]; break;
+		case  0: dim[1] = wy; break;
+		default: dim[1] = add_boundary[1]; break;
+		}
+
+		// Resize and reshape the water objects
+		const S32 water_center_x = center_x + llround((wx + dim[0]) * 0.5f * gDirAxes[dir][0]);
+		const S32 water_center_y = center_y + llround((wy + dim[1]) * 0.5f * gDirAxes[dir][1]);
+		
 		LLVOWater* waterp = mEdgeWaterObjects[dir];
 		if (!waterp || waterp->isDead())
 		{
 			// The edge water objects can be dead because they're attached to the region that the
 			// agent was in when they were originally created.
-			mEdgeWaterObjects[dir] = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_VOID_WATER, gAgent.getRegion());
+			mEdgeWaterObjects[dir] = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_VOID_WATER,
+																				 gAgent.getRegion());
 			waterp = mEdgeWaterObjects[dir];
 			waterp->setUseTexture(FALSE);
-			waterp->setIsEdgePatch(TRUE);		// Mark that this is edge water and not hole water.
+			waterp->setIsEdgePatch(TRUE);
 			gPipeline.createObject(waterp);
 		}
 
 		waterp->setRegion(gAgent.getRegion());
-		LLVector3d water_pos(water_center_x, water_center_y, water_center_z);
-		LLVector3 water_scale((F32) dim_x, (F32) dim_y, box_height);
+		LLVector3d water_pos(water_center_x, water_center_y, 
+			DEFAULT_WATER_HEIGHT+256.f);
+		LLVector3 water_scale((F32) dim[0], (F32) dim[1], 512.f);
+
+		//stretch out to horizon
+		water_scale.mV[0] += fabsf(2048.f * gDirAxes[dir][0]);
+		water_scale.mV[1] += fabsf(2048.f * gDirAxes[dir][1]);
+
+		water_pos.mdV[0] += 1024.f * gDirAxes[dir][0];
+		water_pos.mdV[1] += 1024.f * gDirAxes[dir][1];
 
 		waterp->setPositionGlobal(water_pos);
 		waterp->setScale(water_scale);
@@ -1180,6 +1008,7 @@ void LLWorld::updateWaterObjects()
 		gObjectList.updateActive(waterp);
 	}
 }
+
 
 void LLWorld::shiftRegions(const LLVector3& offset)
 {

@@ -340,7 +340,7 @@ void LLVOGrass::updateTextures()
 	{
 		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
 		{
-			setDebugText(llformat("%4.0f", fsqrtf(mPixelArea)));
+			setDebugText(llformat("%4.0f", (F32) sqrt(mPixelArea)));
 		}
 		getTEImage(0)->addTextureStats(mPixelArea);
 	}
@@ -453,7 +453,7 @@ void LLVOGrass::plantBlades()
 	face->setTexture(getTEImage(0));
 	face->setState(LLFace::GLOBAL);
 	face->setSize(mNumBlades * 8, mNumBlades * 12);
-	face->mVertexBuffer = NULL;
+	face->setVertexBuffer(NULL);
 	face->setTEOffset(0);
 	face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
 	
@@ -640,7 +640,7 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 
 	LLVector2 tc[4];
 	LLVector3 v[4];
-	// LLVector3 n[4]; // unused!
+	//LLVector3 n[4];
 
 	F32 closest_t = 1.f;
 
@@ -686,7 +686,6 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 		position.mV[2] += blade_height;
 		v[3]    = v1 = position + mRegionp->getOriginAgent();
 	
-
 		F32 a,b,t;
 
 		BOOL hit = FALSE;
@@ -694,23 +693,23 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 
 		U32 idx0 = 0,idx1 = 0,idx2 = 0;
 
-		if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, &a, &b, &t, FALSE))
+		if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, a, b, t, FALSE))
 		{
 			hit = TRUE;
 			idx0 = 0; idx1 = 1; idx2 = 2;
 		}
-		else if (LLTriangleRayIntersect(v[1], v[3], v[2], start, dir, &a, &b, &t, FALSE))
+		else if (LLTriangleRayIntersect(v[1], v[3], v[2], start, dir, a, b, t, FALSE))
 		{
 			hit = TRUE;
 			idx0 = 1; idx1 = 3; idx2 = 2;
 		}
-		else if (LLTriangleRayIntersect(v[2], v[1], v[0], start, dir, &a, &b, &t, FALSE))
+		else if (LLTriangleRayIntersect(v[2], v[1], v[0], start, dir, a, b, t, FALSE))
 		{
 			normal1 = -normal1;
 			hit = TRUE;
 			idx0 = 2; idx1 = 1; idx2 = 0;
 		}
-		else if (LLTriangleRayIntersect(v[2], v[3], v[1], start, dir, &a, &b, &t, FALSE))
+		else if (LLTriangleRayIntersect(v[2], v[3], v[1], start, dir, a, b, t, FALSE))
 		{
 			normal1 = -normal1;
 			hit = TRUE;

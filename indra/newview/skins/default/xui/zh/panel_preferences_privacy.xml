@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="溝通" name="im">
+	<panel.string name="log_in_to_change">
+		log in to change
+	</panel.string>
+	<button label="清除歷史紀錄" name="clear_cache" tool_tip="清除登入圖像、最後位置、瞬間傳送紀錄、網頁及材質快取"/>
+	<text name="cache_size_label_l">
+		（位置、圖像、網頁、搜尋的歷使紀錄）
+	</text>
+	<check_box label="將我顯示在搜尋的結果中" name="online_searchresults"/>
+	<check_box label="只有我的朋友和社團知道我在線上" name="online_visibility"/>
+	<check_box label="Only friends and groups can call or IM me" name="voice_call_friends_only_check"/>
+	<check_box label="Switch off microphone when ending calls" name="auto_disengage_mic_check"/>
+	<check_box label="Show my Favorite Landmarks at Login (via &apos;Start At&apos; drop-down menu)" name="favorites_on_login_check"/>
+	<text name="Logs:">
+		聊天紀錄：
+	</text>
+	<check_box label="儲存附近的聊天紀錄到我的電腦" name="log_nearby_chat"/>
+	<check_box label="Save IM logs on my computer" name="log_instant_messages"/>
+	<check_box label="添加時間戳記到聊天紀錄的每一行" name="show_timestamps_check_im"/>
+	<check_box label="添加時間戳記到紀錄檔檔名。" name="logfile_name_datestamp"/>
+	<text name="log_path_desc">
+		位置紀錄：
+	</text>
+	<button label="瀏覽" label_selected="瀏覽" name="log_path_button"/>
+	<button label="封鎖清單" name="block_list"/>
+	<text name="block_list_label">
+		（你所封鎖的人 及/或 物件）
+	</text>
+</panel>

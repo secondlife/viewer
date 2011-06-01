@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_object">
+	<string name="Creator">
+		By [CREATOR]
+	</string>
+	<string name="CreatorAndOwner">
+		By [CREATOR]
+Owner [OWNER]
+	</string>
+	<string name="Price">
+		L$[AMOUNT]
+	</string>
+	<string name="PriceFree">
+		Free!
+	</string>
+	<string name="Touch">
+		Touch
+	</string>
+	<string name="Sit">
+		Sit
+	</string>
+	<text name="object_creator">
+		by secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+	</text>
+	<text name="price_text">
+		L$30,000
+	</text>
+	<icon name="secure_browsing" tool_tip="Secure Browsing"/>
+	<text name="object_media_url">
+		http://www.superdupertest.com
+	</text>
+	<button label="購買" name="buy_btn"/>
+	<button label="Pay" name="pay_btn"/>
+	<button label="取得副本" name="take_free_copy_btn"/>
+	<button label="Touch" name="touch_btn"/>
+	<button label="Sit" name="sit_btn"/>
+	<button label="Open" name="open_btn"/>
+	<button label="More" name="more_info_btn"/>
+</floater>

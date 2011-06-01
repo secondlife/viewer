@@ -37,6 +37,7 @@
 
 // newview includes
 #include "llagent.h"
+#include "llagentaccess.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
@@ -76,6 +77,7 @@
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
+#include "llsceneview.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
 #include "llstatusbar.h"
@@ -104,6 +106,7 @@
 #include "llappearancemgr.h"
 #include "lltrans.h"
 #include "lleconomy.h"
+#include "lltoolgrab.h"
 #include "boost/unordered_map.hpp"
 
 using namespace LLVOAvatarDefines;
@@ -167,7 +170,6 @@ LLMenuItemCallGL* gBusyMenu = NULL;
 // Local prototypes
 
 // File Menu
-const char* upload_pick(void* data);
 void handle_compress_image(void*);
 
 
@@ -454,7 +456,7 @@ void init_menus()
 	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", upload_cost);
 	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", upload_cost);
 	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", upload_cost);
-
+	
 	gAFKMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Away", TRUE);
 	gBusyMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Busy", TRUE);
 	gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", TRUE);
@@ -516,6 +518,11 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)gDebugView->mFastTimerView );
 		}
+		else if ("scene view" == console_type)
+		{
+			toggle_visibility( (void*)gSceneView);
+		}
+
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
 		{
@@ -550,6 +557,10 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("fast timers" == console_type)
 		{
 			new_value = get_visibility( (void*)gDebugView->mFastTimerView );
+		}
+		else if ("scene view" == console_type)
+		{
+			new_value = get_visibility( (void*) gSceneView);
 		}
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
@@ -698,7 +709,7 @@ U32 render_type_from_string(std::string render_type)
 	{
 		return LLPipeline::RENDER_TYPE_AVATAR;
 	}
-	else if ("surfacePath" == render_type)
+	else if ("surfacePatch" == render_type)
 	{
 		return LLPipeline::RENDER_TYPE_TERRAIN;
 	}
@@ -902,6 +913,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_BBOXES;
 	}
+	else if ("normals" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_NORMALS;
+	}
 	else if ("points" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_POINTS;
@@ -913,6 +928,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("shadow frusta" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA;
+	}
+	else if ("physics shapes" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES;
 	}
 	else if ("occlusion" == info_display)
 	{
@@ -946,6 +965,14 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_FACE_AREA;
 	}
+	else if ("lod info" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_LOD_INFO;
+	}
+	else if ("build queue" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_BUILD_QUEUE;
+	}
 	else if ("lights" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_LIGHTS;
@@ -973,6 +1000,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("agent target" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_AGENT_TARGET;
+	}
+	else if ("sculpt" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_SCULPTED;
 	}
 	else
 	{
@@ -1906,19 +1937,20 @@ class LLAdvancedAgentPilot : public view_listener_t
 		std::string command = userdata.asString();
 		if ("start playback" == command)
 		{
-			LLAgentPilot::startPlayback(NULL);
+			gAgentPilot.setNumRuns(-1);
+			gAgentPilot.startPlayback();
 		}
 		else if ("stop playback" == command)
 		{
-			LLAgentPilot::stopPlayback(NULL);
+			gAgentPilot.stopPlayback();
 		}
 		else if ("start record" == command)
 		{
-			LLAgentPilot::startRecord(NULL);
+			gAgentPilot.startRecord();
 		}
 		else if ("stop record" == command)
 		{
-			LLAgentPilot::saveRecord(NULL);
+			gAgentPilot.stopRecord();
 		}
 
 		return true;
@@ -1936,7 +1968,7 @@ class LLAdvancedToggleAgentPilotLoop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLAgentPilot::sLoop = !(LLAgentPilot::sLoop);
+		gAgentPilot.setLoop(!gAgentPilot.getLoop());
 		return true;
 	}
 };
@@ -1945,7 +1977,7 @@ class LLAdvancedCheckAgentPilotLoop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = LLAgentPilot::sLoop;
+		bool new_value = gAgentPilot.getLoop();
 		return new_value;
 	}
 };
@@ -2073,7 +2105,7 @@ class LLAdvancedEnableRenderDeferred: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gSavedSettings.getBOOL("RenderUseFBO") && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT > 0) &&
+		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
 			LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0;
 		return new_value;
 	}
@@ -2086,7 +2118,8 @@ class LLAdvancedEnableRenderDeferredOptions: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gSavedSettings.getBOOL("RenderUseFBO") && gSavedSettings.getBOOL("RenderDeferred");
+		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
+			LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0 && gSavedSettings.getBOOL("RenderDeferred");
 		return new_value;
 	}
 };
@@ -2388,49 +2421,22 @@ class LLObjectEnableReportAbuse : public view_listener_t
 	}
 };
 
+
 void handle_object_touch()
 {
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		if (!object) return;
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	if (!object) return;
 
-		LLPickInfo pick = LLToolPie::getInstance()->getPick();
+	LLPickInfo pick = LLToolPie::getInstance()->getPick();
 
-		LLMessageSystem	*msg = gMessageSystem;
-
-		msg->newMessageFast(_PREHASH_ObjectGrab);
-		msg->nextBlockFast( _PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast( _PREHASH_ObjectData);
-		msg->addU32Fast(    _PREHASH_LocalID, object->mLocalID);
-		msg->addVector3Fast(_PREHASH_GrabOffset, LLVector3::zero );
-		msg->nextBlock("SurfaceInfo");
-		msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
-		msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
-		msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
-		msg->addVector3("Position", pick.mIntersection);
-		msg->addVector3("Normal", pick.mNormal);
-		msg->addVector3("Binormal", pick.mBinormal);
-		msg->sendMessage( object->getRegion()->getHost());
-
-		// *NOTE: Hope the packets arrive safely and in order or else
-		// there will be some problems.
-		// *TODO: Just fix this bad assumption.
-		msg->newMessageFast(_PREHASH_ObjectDeGrab);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast(_PREHASH_ObjectData);
-		msg->addU32Fast(_PREHASH_LocalID, object->mLocalID);
-		msg->nextBlock("SurfaceInfo");
-		msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
-		msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
-		msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
-		msg->addVector3("Position", pick.mIntersection);
-		msg->addVector3("Normal", pick.mNormal);
-		msg->addVector3("Binormal", pick.mBinormal);
-		msg->sendMessage(object->getRegion()->getHost());
+	// *NOTE: Hope the packets arrive safely and in order or else
+	// there will be some problems.
+	// *TODO: Just fix this bad assumption.
+	send_ObjectGrab_message(object, pick, LLVector3::zero);
+	send_ObjectDeGrab_message(object, pick);
 }
+
+
 
 static void init_default_item_label(const std::string& item_name)
 {
@@ -5591,6 +5597,14 @@ class LLToggleHelp : public view_listener_t
 	}
 };
 
+class LLToggleSpeak : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLVoiceClient::getInstance()->toggleUserPTTState();
+		return true;
+	}
+};
 class LLShowSidetrayPanel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -8187,6 +8201,7 @@ void initialize_menus()
 	commit.add("BuyCurrency", boost::bind(&handle_buy_currency));
 	view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
 	view_listener_t::addMenu(new LLToggleHelp(), "ToggleHelp");
+	view_listener_t::addMenu(new LLToggleSpeak(), "ToggleSpeak");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
 	view_listener_t::addMenu(new LLToggleAgentProfile(), "ToggleAgentProfile");

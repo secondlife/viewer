@@ -12,6 +12,7 @@ include_directories(
 
 set(llvfs_SOURCE_FILES
     lldir.cpp
+    lldiriterator.cpp
     lllfsthread.cpp
     llpidlock.cpp
     llvfile.cpp
@@ -24,6 +25,7 @@ set(llvfs_HEADER_FILES
 
     lldir.h
     lldirguard.h
+    lldiriterator.h
     lllfsthread.h
     llpidlock.h
     llvfile.h
@@ -60,6 +62,11 @@ list(APPEND llvfs_SOURCE_FILES ${llvfs_HEADER_FILES})
 
 add_library (llvfs ${llvfs_SOURCE_FILES})
 
+target_link_libraries(llvfs
+    ${BOOST_FILESYSTEM_LIBRARY}
+    ${BOOST_SYSTEM_LIBRARY}
+    )
+
 if (DARWIN)
   include(CMakeFindFrameworks)
   find_library(CARBON_LIBRARY Carbon)
@@ -67,17 +74,17 @@ if (DARWIN)
 endif (DARWIN)
 
 
-if(LL_TESTS)
-  # Add tests
-  include(LLAddBuildTest)
-  # UNIT TESTS
-  SET(llvfs_TEST_SOURCE_FILES
-      # none so far
-      )
-  LL_ADD_PROJECT_UNIT_TESTS(llvfs "${llvfs_TEST_SOURCE_FILES}")
+# Add tests
+if (LL_TESTS)
+	include(LLAddBuildTest)
+	# UNIT TESTS
+	SET(llvfs_TEST_SOURCE_FILES
+	  # none so far
+	  )
+	LL_ADD_PROJECT_UNIT_TESTS(llvfs "${llvfs_TEST_SOURCE_FILES}")
 
-  # INTEGRATION TESTS
-  set(test_libs llmath llcommon llvfs ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
-  # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
-  LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
-endif(LL_TESTS)
+	# INTEGRATION TESTS
+	set(test_libs llmath llcommon llvfs ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+	# TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
+	LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
+endif (LL_TESTS)

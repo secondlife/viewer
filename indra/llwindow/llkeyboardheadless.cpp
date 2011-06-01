@@ -46,5 +46,28 @@ MASK LLKeyboardHeadless::currentMask(BOOL for_mouse_event)
 { return MASK_NONE; }
 
 void LLKeyboardHeadless::scanKeyboard()
-{ } 
+{
+	for (S32 key = 0; key < KEY_COUNT; key++)
+	{
+		// Generate callback if any event has occurred on this key this frame.
+		// Can't just test mKeyLevel, because this could be a slow frame and
+		// key might have gone down then up. JC
+		if (mKeyLevel[key] || mKeyDown[key] || mKeyUp[key])
+		{
+			mCurScanKey = key;
+			mCallbacks->handleScanKey(key, mKeyDown[key], mKeyUp[key], mKeyLevel[key]);
+		}
+	}
+
+	// Reset edges for next frame
+	for (S32 key = 0; key < KEY_COUNT; key++)
+	{
+		mKeyUp[key] = FALSE;
+		mKeyDown[key] = FALSE;
+		if (mKeyLevel[key])
+		{
+			mKeyLevelFrameCount[key]++;
+		}
+	}
+}
  

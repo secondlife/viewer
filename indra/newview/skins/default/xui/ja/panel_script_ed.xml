@@ -15,11 +15,9 @@
 	<panel.string name="Title">
 		スクリプト： [NAME]
 	</panel.string>
-	<text_editor name="Script Editor">
-		ローディング...
-	</text_editor>
-	<button label="保存" label_selected="保存" name="Save_btn"/>
-	<combo_box label="挿入..." name="Insert..."/>
+	<panel.string name="external_editor_not_set">
+		環境変数 LL_SCRIPT_EDITOR または ExternalEditor を設定してエディターを選択します。
+	</panel.string>
 	<menu_bar name="script_menu">
 		<menu label="ファイル" name="File">
 			<menu_item_call label="保存" name="Save"/>
@@ -40,4 +38,10 @@
 			<menu_item_call label="キーワードヘルプ..." name="Keyword Help..."/>
 		</menu>
 	</menu_bar>
+	<text_editor name="Script Editor">
+		ローディング...
+	</text_editor>
+	<combo_box label="挿入..." name="Insert..."/>
+	<button label="保存" label_selected="保存" name="Save_btn"/>
+	<button label="編集..." name="Edit_btn"/>
 </panel>

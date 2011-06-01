@@ -54,6 +54,7 @@
 #include "llfilepicker.h"
 #include "llnotifications.h"
 #include "lldir.h"
+#include "lldiriterator.h"
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
 #include "lluuid.h"
@@ -913,7 +914,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 				
 				// Set the low priority size for downsampling to approximately the size the texture is displayed at.
 				{
-					F32 approximate_interest_dimension = fsqrtf(pimpl->getInterest());
+					F32 approximate_interest_dimension = (F32) sqrt(pimpl->getInterest());
 					
 					pimpl->setLowPrioritySizeLimit(llround(approximate_interest_dimension));
 				}
@@ -1154,7 +1155,8 @@ void LLViewerMedia::clearAllCookies()
 	}
 	
 	// the hard part: iterate over all user directories and delete the cookie file from each one
-	while(gDirUtilp->getNextFileInDir(base_dir, "*_*", filename))
+	LLDirIterator dir_iter(base_dir, "*_*");
+	while (dir_iter.next(filename))
 	{
 		target = base_dir;
 		target += filename;

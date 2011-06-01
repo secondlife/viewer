@@ -459,10 +459,18 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 			return;
 		}
 
-		if (!authorizedBuyer.isNull()  &&  buyer != authorizedBuyer)
+		if (!authorizedBuyer.isNull() && buyer != authorizedBuyer)
 		{
-			mCannotBuyReason = getString("set_to_sell_to_other");
-			return;
+			// Maybe the parcel is set for sale to a group we are in.
+			bool authorized_group =
+				gAgent.hasPowerInGroup(authorizedBuyer,GP_LAND_DEED)
+				&& gAgent.hasPowerInGroup(authorizedBuyer,GP_LAND_SET_SALE_INFO);
+
+			if (!authorized_group)
+			{
+				mCannotBuyReason = getString("set_to_sell_to_other");
+				return;
+			}
 		}
 	}
 	else

@@ -25,6 +25,7 @@
 		<text name="ShadersText">
 			Effetti grafici:
 		</text>
+		<check_box initial_value="vero" label="Acqua trasparente" name="TransparentWater"/>
 		<check_box initial_value="true" label="Piccoli rilievi e scintillii" name="BumpShiny"/>
 		<check_box initial_value="true" label="Effetti grafici base" name="BasicShaders" tool_tip="Disabilitare questa opzione può evitare che qualche scheda grafica vada in crash."/>
 		<check_box initial_value="true" label="Effetti grafici atmosferici" name="WindLightUseAtmosShaders"/>
@@ -38,6 +39,10 @@
 			<combo_box.item label="Tutti gli avatar e gli oggetti" name="3"/>
 			<combo_box.item label="Tutto" name="4"/>
 		</combo_box>
+		<slider label="Fisica avatar:" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			Basso
+		</text>
 		<slider label="Distanza di disegno:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -76,7 +81,7 @@
 			Basso
 		</text>
 		<text name="AvatarRenderingText">
-			Rendering dell&apos;avatar:
+			Rendering avatar :
 		</text>
 		<check_box initial_value="true" label="Avatar bidimensionali (Impostor)" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Hardware Skinning" name="AvatarVertexProgram"/>

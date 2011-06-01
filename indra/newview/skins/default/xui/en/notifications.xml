@@ -5239,6 +5239,20 @@ Insufficient permissions to rez object.
 
   <notification
    icon="notifytip.tga"
+   name="IMAcrossParentEstates"
+   type="notifytip">
+Unable to send IM across parent estates.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="TransferInventoryAcrossParentEstates"
+   type="notifytip">
+Unable to transfer inventory across parent estates.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
    name="UnableToLoadNotecard"
    type="notifytip">
 Unable to load notecard.
@@ -6733,7 +6747,7 @@ Unable to find the help topic for this element.
   <tag>fail</tag>
   </notification>
 
-    <notification
+     <notification
  icon="alertmodal.tga"
  name="ObjectMediaFailure"
  type="alertmodal">
@@ -6765,6 +6779,17 @@ Your voice has been muted by moderator.
          name="okbutton"
          yestext="OK"/>
     </notification>
+  
+   <notification
+    icon="alertmodal.tga"
+    name="UploadCostConfirmation"
+    type="alertmodal">
+This upload will cost L$[PRICE], do you wish to continue with the upload?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Upload"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -6793,6 +6818,14 @@ The button will be shown when there is enough space for it.
    type="notifytip">
 Select residents to share with.
   </notification>
+
+  <notification
+    name="MeshUploadError"
+    icon="alert.tga"
+    type="alert">
+    [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+  </notification>
+   
   <notification
    icon="notifytip.tga"
    name="ShareItemsConfirmation"
@@ -6825,6 +6858,34 @@ Items successfully shared.
 Deed to group failed.
     <tag>group</tag>
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ReleaseLandThrottled"
+   type="notifytip">
+The parcel [PARCEL_NAME] can not be abandoned at this time.
+   <tag>fail</tag>
+  </notification>
+	
+  <notification
+   icon="notifytip.tga"
+   name="ReleasedLandWithReclaim"
+   type="notifytip">
+The [AREA] m² parcel &apos;[PARCEL_NAME]&apos; has been released.
+
+You will have [RECLAIM_PERIOD] hours to reclaim for L$0 before it is set for sale to anyone.
+   <tag>fail</tag>
+  </notification>
+	
+  <notification
+   icon="notifytip.tga"
+   name="ReleasedLandNoReclaim"
+   type="notifytip">
+The [AREA] m² parcel &apos;[PARCEL_NAME]&apos; has been released.
+
+It is now available for purchase by anyone.
+   <tag>fail</tag>
   </notification>
 
   <notification
@@ -6979,7 +7040,6 @@ Mute everyone?
      notext="Cancel"
      unique="true"/>
   </notification>
-
   <notification
   name="HintChat"
   label="Chat"
@@ -7158,6 +7218,20 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   </notification>
 
   <notification
+ name="NoPlaceInfo"
+ label=""
+ type="alertmodal"
+ unique="true">
+    <tag>fail</tag>
+    <tag>confirm</tag>
+    Viewing place profile is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
+    <usetemplate
+   name="okcancelbuttons"
+   yestext="Quit"
+   notext="Don't Quit"/>
+  </notification>
+  
+  <notification
  name="NoPicks"
  label=""
  type="alertmodal"
@@ -7268,10 +7342,6 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    yestext="Quit"
    notext="Don't Quit"/>
   </notification>
-
-  <global name="UnsupportedCPU">
-- Your CPU speed does not meet the minimum requirements.
-  </global>
 
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.

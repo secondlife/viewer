@@ -83,6 +83,7 @@ LLInventoryDictionary::LLInventoryDictionary()
 	addEntry(LLInventoryType::IT_WEARABLE,            new InventoryEntry("wearable",  "wearable",      2, LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART));
 	addEntry(LLInventoryType::IT_ANIMATION,           new InventoryEntry("animation", "animation",     1, LLAssetType::AT_ANIMATION));  
 	addEntry(LLInventoryType::IT_GESTURE,             new InventoryEntry("gesture",   "gesture",       1, LLAssetType::AT_GESTURE)); 
+	addEntry(LLInventoryType::IT_MESH,                new InventoryEntry("mesh",      "mesh",          1, LLAssetType::AT_MESH));
 }
 
 
@@ -91,32 +92,58 @@ LLInventoryDictionary::LLInventoryDictionary()
 static const LLInventoryType::EType
 DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 {
-	LLInventoryType::IT_TEXTURE,		// AT_TEXTURE
-	LLInventoryType::IT_SOUND,			// AT_SOUND
-	LLInventoryType::IT_CALLINGCARD,	// AT_CALLINGCARD
-	LLInventoryType::IT_LANDMARK,		// AT_LANDMARK
-	LLInventoryType::IT_LSL,			// AT_SCRIPT
-	LLInventoryType::IT_WEARABLE,		// AT_CLOTHING
-	LLInventoryType::IT_OBJECT,			// AT_OBJECT
-	LLInventoryType::IT_NOTECARD,		// AT_NOTECARD
-	LLInventoryType::IT_CATEGORY,		// AT_CATEGORY
-	LLInventoryType::IT_NONE,			// (null entry)
-	LLInventoryType::IT_LSL,			// AT_LSL_TEXT
-	LLInventoryType::IT_LSL,			// AT_LSL_BYTECODE
-	LLInventoryType::IT_TEXTURE,		// AT_TEXTURE_TGA
-	LLInventoryType::IT_WEARABLE,		// AT_BODYPART
-	LLInventoryType::IT_CATEGORY,		// AT_TRASH
-	LLInventoryType::IT_CATEGORY,		// AT_SNAPSHOT_CATEGORY
-	LLInventoryType::IT_CATEGORY,		// AT_LOST_AND_FOUND
-	LLInventoryType::IT_SOUND,			// AT_SOUND_WAV
-	LLInventoryType::IT_NONE,			// AT_IMAGE_TGA
-	LLInventoryType::IT_NONE,			// AT_IMAGE_JPEG
-	LLInventoryType::IT_ANIMATION,		// AT_ANIMATION
-	LLInventoryType::IT_GESTURE,		// AT_GESTURE
-	LLInventoryType::IT_NONE,			// AT_SIMSTATE
+	LLInventoryType::IT_TEXTURE,		// 0	AT_TEXTURE
+	LLInventoryType::IT_SOUND,			// 1	AT_SOUND
+	LLInventoryType::IT_CALLINGCARD,	// 2	AT_CALLINGCARD
+	LLInventoryType::IT_LANDMARK,		// 3	AT_LANDMARK
+	LLInventoryType::IT_LSL,			// 4	AT_SCRIPT
+	LLInventoryType::IT_WEARABLE,		// 5	AT_CLOTHING
+	LLInventoryType::IT_OBJECT,			// 6	AT_OBJECT
+	LLInventoryType::IT_NOTECARD,		// 7	AT_NOTECARD
+	LLInventoryType::IT_CATEGORY,		// 8	AT_CATEGORY
+	LLInventoryType::IT_NONE,			// 9	(null entry)
+	LLInventoryType::IT_LSL,			// 10	AT_LSL_TEXT
+	LLInventoryType::IT_LSL,			// 11	AT_LSL_BYTECODE
+	LLInventoryType::IT_TEXTURE,		// 12	AT_TEXTURE_TGA
+	LLInventoryType::IT_WEARABLE,		// 13	AT_BODYPART
+	LLInventoryType::IT_CATEGORY,		// 14	AT_TRASH
+	LLInventoryType::IT_CATEGORY,		// 15	AT_SNAPSHOT_CATEGORY
+	LLInventoryType::IT_CATEGORY,		// 16	AT_LOST_AND_FOUND
+	LLInventoryType::IT_SOUND,			// 17	AT_SOUND_WAV
+	LLInventoryType::IT_NONE,			// 18	AT_IMAGE_TGA
+	LLInventoryType::IT_NONE,			// 19	AT_IMAGE_JPEG
+	LLInventoryType::IT_ANIMATION,		// 20	AT_ANIMATION
+	LLInventoryType::IT_GESTURE,		// 21	AT_GESTURE
+	LLInventoryType::IT_NONE,			// 22	AT_SIMSTATE
 
-	LLInventoryType::IT_NONE,			// AT_LINK
-	LLInventoryType::IT_NONE,			// AT_LINK_FOLDER
+	LLInventoryType::IT_NONE,			// 23	AT_LINK
+	LLInventoryType::IT_NONE,			// 24	AT_LINK_FOLDER
+
+	LLInventoryType::IT_NONE,			// 25	AT_NONE
+	LLInventoryType::IT_NONE,			// 26	AT_NONE
+	LLInventoryType::IT_NONE,			// 27	AT_NONE
+	LLInventoryType::IT_NONE,			// 28	AT_NONE
+	LLInventoryType::IT_NONE,			// 29	AT_NONE
+	LLInventoryType::IT_NONE,			// 30	AT_NONE
+	LLInventoryType::IT_NONE,			// 31	AT_NONE
+	LLInventoryType::IT_NONE,			// 32	AT_NONE
+	LLInventoryType::IT_NONE,			// 33	AT_NONE
+	LLInventoryType::IT_NONE,			// 34	AT_NONE
+	LLInventoryType::IT_NONE,			// 35	AT_NONE
+	LLInventoryType::IT_NONE,			// 36	AT_NONE
+	LLInventoryType::IT_NONE,			// 37	AT_NONE
+	LLInventoryType::IT_NONE,			// 38	AT_NONE
+	LLInventoryType::IT_NONE,			// 39	AT_NONE
+	LLInventoryType::IT_NONE,			// 40	AT_NONE
+	LLInventoryType::IT_NONE,			// 41	AT_NONE
+	LLInventoryType::IT_NONE,			// 42	AT_NONE
+	LLInventoryType::IT_NONE,			// 43	AT_NONE
+	LLInventoryType::IT_NONE,			// 44	AT_NONE
+	LLInventoryType::IT_NONE,			// 45	AT_NONE
+	LLInventoryType::IT_NONE,			// 46	AT_NONE
+	LLInventoryType::IT_NONE,			// 47	AT_NONE
+	LLInventoryType::IT_NONE,			// 48	AT_NONE
+	LLInventoryType::IT_MESH            // 49	AT_MESH
 };
 
 // static

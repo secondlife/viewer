@@ -158,6 +158,7 @@ Ann Congrejo
 Ansariel Hiller
 	STORM-1101
 Ardy Lay
+	STORM-859
 	VWR-19499
 	VWR-24917
 Argent Stonecutter
@@ -195,6 +196,7 @@ blino Nakamura
 	VWR-17
 Boroondas Gupte
 	OPEN-29
+	OPEN-39
 	OPEN-39
 	SNOW-278
 	SNOW-503
@@ -253,6 +255,8 @@ Dale Glass
 	VWR-2502
 	VWR-1358
 	VWR-2041
+Draconis Neurocam
+	STORM-1259
 Drew Dri
 	VWR-19683
 Drewan Keats
@@ -364,7 +368,9 @@ Ian Kas
 	CT-322
 	CT-325
 Ima Mechanique
+	OPEN-50
 	OPEN-61
+	STORM-1175
 Irene Muni
 	CT-324
 	CT-352
@@ -417,6 +423,7 @@ Jonathan Yap
 	VWR-17801
 	VWR-24347
 	STORM-975
+	STORM-990
 	STORM-1019
 	STORM-844
 	STORM-643
@@ -431,6 +438,8 @@ Jonathan Yap
 	STORM-1128
 	STORM-956
 	STORM-1095
+	STORM-1236
+	STORM-1259
 Kage Pixel
 	VWR-11
 Ken March
@@ -448,6 +457,7 @@ Kitty Barnett
 	STORM-799
 	STORM-800
 	STORM-1001
+	STORM-1175
     VWR-24217
 Kunnis Basiat
 	VWR-82
@@ -456,6 +466,8 @@ Lance Corrimal
 	VWR-25269
 Latif Khalifa
 	VWR-5370
+leliel Mirihi
+	STORM-1100
 Lisa Lowe
 	CT-218
 	CT-219
@@ -758,6 +770,8 @@ Strife Onizuka
 	VWR-2265
 	VWR-4111
 	SNOW-691
+TankMaster Finesmith
+	STORM-1100
 Tayra Dagostino
 	SNOW-517
 	SNOW-543
@@ -814,9 +828,13 @@ Thraxis Epsilon
 tiamat bingyi
 	CT-246
 Tofu Buzzard
+	CTS-411
 	STORM-546
+	VWR-24509
 TraductoresAnonimos Alter
 	CT-324
+TriloByte Zanzibar
+	STORM-1100
 Tue Torok
 	CT-68
 	CT-69
@@ -883,6 +901,7 @@ WolfPup Lowenhar
 	STORM-674
 	STORM-776
 	STORM-825
+	STORM-859
 	STORM-1098
 	VWR-20741
 	VWR-20933

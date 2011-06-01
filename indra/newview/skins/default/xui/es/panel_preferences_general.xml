@@ -24,9 +24,9 @@
 	</text>
 	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item label="&apos;PG&apos;, &apos;Mature&apos; y &apos;Adult&apos;" name="Desired_Adult"/>
-		<combo_box.item label="&apos;PG&apos; y &apos;Mature&apos;" name="Desired_Mature"/>
-		<combo_box.item label="&apos;PG&apos;" name="Desired_PG"/>
+		<combo_box.item label="General, Moderado y Adulto" name="Desired_Adult"/>
+		<combo_box.item label="General y Moderado" name="Desired_Mature"/>
+		<combo_box.item label="General" name="Desired_PG"/>
 	</combo_box>
 	<text name="start_location_textbox">
 		Localización inicial:

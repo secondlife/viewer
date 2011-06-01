@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="chat_bar">
+	<line_editor label="點擊此處開始聊天。" name="chat_box" tool_tip="Press Enter to say, Ctrl+Enter to shout"/>
+	<button name="show_nearby_chat" tool_tip="顯示 / 隱藏 附近聊天紀錄"/>
+</panel>

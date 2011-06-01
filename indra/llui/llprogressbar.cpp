@@ -38,6 +38,7 @@
 
 #include "llfocusmgr.h"
 #include "lluictrlfactory.h"
+#include "lluiimage.h"
 
 static LLDefaultChildRegistry::Register<LLProgressBar> r("progress_bar");
 

@@ -3587,6 +3587,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="conference-title-incoming">
 		Conversa com [AGENT_NAME]
 	</string>
+	<string name="inventory_item_offered-im">
+		Oferta de item de inventário
+	</string>
 	<string name="no_session_message">
 		(Sessão de MI inexistente)
 	</string>

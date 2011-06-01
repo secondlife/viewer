@@ -85,7 +85,7 @@ namespace tut
 		F32 x = 2.2345f, y = 3.5678f ;
 		LLVector2 vec2(x,y);
 		ensure("magVecSquared:Fail ", is_approx_equal(vec2.magVecSquared(), (x*x + y*y)));
-		ensure("magVec:Fail ", is_approx_equal(vec2.magVec(), fsqrtf(x*x + y*y)));
+		ensure("magVec:Fail ", is_approx_equal(vec2.magVec(), (F32) sqrt(x*x + y*y)));
 	}
 
 	template<> template<>
@@ -407,7 +407,7 @@ namespace tut
 		ensure_equals("dist_vec_squared values are not equal",val2, val1);
 
 		val1 = 	dist_vec(vec2, vec3);
-		val2 = fsqrtf((x1 - x2)*(x1 - x2) + (y1 - y2)* (y1 - y2));
+		val2 = (F32) sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)* (y1 - y2));
 		ensure_equals("dist_vec values are not equal",val2, val1);
 	}
 
@@ -431,7 +431,7 @@ namespace tut
 		LLVector2 vec2(x1, y1);
 
 		F32 vecMag = vec2.normVec();
-		F32 mag = fsqrtf(x1*x1 + y1*y1);
+		F32 mag = (F32) sqrt(x1*x1 + y1*y1);
 
 		F32 oomag = 1.f / mag;
 		val1 = x1 * oomag;

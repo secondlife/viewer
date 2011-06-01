@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Image Preview">
+	<text name="name_label">
+		名稱：
+	</text>
+	<text name="description_label">
+		描述：
+	</text>
+	<text name="preview_label">
+		Preview image as:
+	</text>
+	<combo_box label="Clothing Type" name="clothing_type_combo">
+		<item label="Image" name="Image" value="Image"/>
+		<item label="Hair" name="Hair" value="Hair"/>
+		<item label="Female Head" name="FemaleHead" value="Female Head"/>
+		<item label="Female Upper Body" name="FemaleUpperBody" value="Female Upper Body"/>
+		<item label="Female Lower Body" name="FemaleLowerBody" value="Female Lower Body"/>
+		<item label="Male Head" name="MaleHead" value="Male Head"/>
+		<item label="Male Upper Body" name="MaleUpperBody" value="Male Upper Body"/>
+		<item label="Male Lower Body" name="MaleLowerBody" value="Male Lower Body"/>
+		<item label="裙子" name="Skirt" value="裙子"/>
+		<item label="Sculpted Prim" name="SculptedPrim" value="Sculpted Prim"/>
+	</combo_box>
+	<text name="bad_image_text">
+		Unable to read image.
+
+Try saving image as 24 bit Targa (.tga).
+	</text>
+	<check_box label="Use lossless compression" name="lossless_check"/>
+	<button label="取銷" name="cancel_btn"/>
+	<button label="Upload (L$[AMOUNT])" name="ok_btn"/>
+</floater>

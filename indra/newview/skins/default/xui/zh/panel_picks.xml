@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Picks" name="panel_picks">
+	<string name="no_picks" value="No Picks"/>
+	<string name="no_classifieds" value="No Classifieds"/>
+	<accordion name="accordion">
+		<accordion_tab name="tab_picks" title="Picks"/>
+		<accordion_tab name="tab_classifieds" title="Classifieds"/>
+	</accordion>
+	<panel label="bottom_panel" name="edit_panel">
+		<layout_stack name="edit_panel_ls">
+			<layout_panel name="gear_menu_btn">
+				<button name="new_btn" tool_tip="Create a new pick or classified at the current location"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+	<panel name="buttons_cucks">
+		<layout_stack name="buttons_cucks_ls">
+			<layout_panel name="info_btn_lp">
+				<button label="資訊" name="info_btn" tool_tip="Show pick information"/>
+			</layout_panel>
+			<layout_panel name="teleport_btn_lp">
+				<button label="Teleport" name="teleport_btn" tool_tip="Teleport to the corresponding area"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="地圖" name="show_on_map_btn" tool_tip="Show the corresponding area on the World Map"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

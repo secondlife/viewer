@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Water Floater" title="EDITOR DE ÁGUA AVANÇADO">
-	<text name="KeyFramePresetsText" width="154">
+	<text name="KeyFramePresetsText" width="175">
 		Pré-configurações da Água:
 	</text>
-	<combo_box left_delta="160" name="WaterPresetsCombo" width="150"/>
+	<combo_box left_delta="175" name="WaterPresetsCombo" width="150"/>
 	<button label="Novo" label_selected="Novo" name="WaterNewPreset"/>
 	<button label="Salvar" label_selected="Salvar" name="WaterSavePreset"/>
 	<button label="Deletar" label_selected="Deletar" name="WaterDeletePreset"/>

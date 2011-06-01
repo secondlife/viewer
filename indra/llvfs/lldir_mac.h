@@ -44,10 +44,8 @@ public:
 	/*virtual*/ void initAppDirs(const std::string &app_name,
 		const std::string& app_read_only_data_dir);
 
-	virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
 	virtual std::string getCurPath();
 	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
-	virtual BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname);
 	virtual BOOL fileExists(const std::string &filename) const;
 
 	/*virtual*/ std::string getLLPluginLauncher();

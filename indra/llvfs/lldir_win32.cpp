@@ -240,67 +240,6 @@ U32 LLDir_Win32::countFilesInDir(const std::string &dirname, const std::string &
 	return (file_count);
 }
 
-
-// get the next file in the directory
-BOOL LLDir_Win32::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
-{
-    BOOL fileFound = FALSE;
-	fname = "";
-
-	WIN32_FIND_DATAW FileData;
-    llutf16string pathname = utf8str_to_utf16str(dirname) + utf8str_to_utf16str(mask);
-
-	if (pathname != mCurrentDir)
-	{
-		// different dir specified, close old search
-		if (!mCurrentDir.empty())
-		{
-			FindClose(mDirSearch_h);
-		}
-		mCurrentDir = pathname;
-
-		// and open new one
-		// Check error opening Directory structure
-		if ((mDirSearch_h = FindFirstFile(pathname.c_str(), &FileData)) != INVALID_HANDLE_VALUE)   
-		{
-           fileFound = TRUE;
-		}
-	}
-
-    // Loop to skip over the current (.) and parent (..) directory entries
-    // (apparently returned in Win7 but not XP)
-    do
-    {
-       if (   fileFound
-           && (  (lstrcmp(FileData.cFileName, (LPCTSTR)TEXT(".")) == 0)
-               ||(lstrcmp(FileData.cFileName, (LPCTSTR)TEXT("..")) == 0)
-               )
-           )
-       {
-          fileFound = FALSE;
-       }
-    } while (   mDirSearch_h != INVALID_HANDLE_VALUE
-             && !fileFound
-             && (fileFound = FindNextFile(mDirSearch_h, &FileData)
-                 )
-             );
-
-    if (!fileFound && GetLastError() == ERROR_NO_MORE_FILES)
-    {
-       // No more files, so reset to beginning of directory
-       FindClose(mDirSearch_h);
-       mCurrentDir[0] = '\000';
-    }
-
-    if (fileFound)
-    {
-        // convert from TCHAR to char
-        fname = utf16str_to_utf8str(FileData.cFileName);
-	}
-    
-	return fileFound;
-}
-
 std::string LLDir_Win32::getCurPath()
 {
 	WCHAR w_str[MAX_PATH];

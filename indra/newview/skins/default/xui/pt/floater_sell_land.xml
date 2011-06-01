@@ -55,8 +55,9 @@
 				<radio_item label="Sim, vender o terreno com os objetos" name="yes"/>
 			</radio_group>
 			<button label="Mostrar objetos" name="show_objects"/>
-			<text name="nag_message_label">
-				LEMBRE-SE: Qualquer transação de compra e venda é irreversível.
+			<text name="nag_message_label" font="SansSerifSmallBold">
+				LEMBRE-SE: Qualquer transação de compra 
+e venda é irreversível.
 			</text>
 			<button label="Colocar terreno à venda" name="sell_btn"/>
 			<button label="Cancelar" name="cancel_btn"/>

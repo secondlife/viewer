@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gesture_preview">
+	<floater.string name="step_anim">
+		Animation to play:
+	</floater.string>
+	<floater.string name="step_sound">
+		Sound to play:
+	</floater.string>
+	<floater.string name="step_chat">
+		Chat to say:
+	</floater.string>
+	<floater.string name="step_wait">
+		Wait:
+	</floater.string>
+	<floater.string name="stop_txt">
+		Stop
+	</floater.string>
+	<floater.string name="preview_txt">
+		預覽
+	</floater.string>
+	<floater.string name="none_text">
+		-- 無 --
+	</floater.string>
+	<floater.string name="Title">
+		Gesture: [NAME]
+	</floater.string>
+	<text name="desc_label">
+		描述：
+	</text>
+	<text name="trigger_label">
+		Trigger:
+	</text>
+	<text name="replace_text" tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!">
+		Replace with:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"/>
+	<text name="key_label">
+		Shortcut Key:
+	</text>
+	<combo_box label="無" name="modifier_combo"/>
+	<combo_box label="無" name="key_combo"/>
+	<text name="library_label">
+		Library:
+	</text>
+	<scroll_list name="library_list">
+		<scroll_list.rows name="action_animation" value="Animation"/>
+		<scroll_list.rows name="action_sound" value="Sound"/>
+		<scroll_list.rows name="action_chat" value="聊天"/>
+		<scroll_list.rows name="action_wait" value="Wait"/>
+	</scroll_list>
+	<button label="Add &gt;&gt;" name="add_btn"/>
+	<text name="steps_label">
+		Steps:
+	</text>
+	<button label="Up" name="up_btn"/>
+	<button label="Down" name="down_btn"/>
+	<button label="Remove" name="delete_btn"/>
+	<text name="options_text">
+		(options)
+	</text>
+	<radio_group name="animation_trigger_type">
+		<radio_item label="Start" name="start"/>
+		<radio_item label="Stop" name="stop"/>
+	</radio_group>
+	<check_box label="until animations are done" name="wait_anim_check"/>
+	<check_box label="time in seconds:" name="wait_time_check"/>
+	<text name="help_label">
+		All steps happen simultaneously, unless you add wait steps.
+	</text>
+	<check_box label="Active" name="active_check" tool_tip="Active gestures can be triggered by chatting their trigger phrases or pressing their hot keys.  Gestures usually become inactive when there is a key binding conflict."/>
+	<button label="預覽" name="preview_btn"/>
+	<button label="儲存" name="save_btn"/>
+</floater>

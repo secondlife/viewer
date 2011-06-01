@@ -73,6 +73,7 @@
 #include "llfloaterlandholdings.h"
 #include "llfloatermap.h"
 #include "llfloatermemleak.h"
+#include "llfloatermodelwizard.h"
 #include "llfloaternamedesc.h"
 #include "llfloaternotificationsconsole.h"
 #include "llfloateropenobject.h"
@@ -91,6 +92,7 @@
 #include "llfloatersettingsdebug.h"
 #include "llfloatersidetraytab.h"
 #include "llfloatersnapshot.h"
+#include "llfloatersounddevices.h"
 #include "llfloatertelehub.h"
 #include "llfloatertestinspectors.h"
 #include "llfloatertestlistview.h"
@@ -122,8 +124,34 @@
 #include "llpreviewtexture.h"
 #include "llsyswellwindow.h"
 #include "llscriptfloater.h"
+#include "llfloatermodelpreview.h"
+#include "llcommandhandler.h"
+
 // *NOTE: Please add files in alphabetical order to keep merges easy.
 
+// handle secondlife:///app/floater/{NAME} URLs
+class LLFloaterOpenHandler : public LLCommandHandler
+{
+public:
+	// requires trusted browser to trigger
+	LLFloaterOpenHandler() : LLCommandHandler("floater", UNTRUSTED_THROTTLE) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map,
+				LLMediaCtrl* web)
+	{
+		if (params.size() != 1)
+		{
+			return false;
+		}
+
+		const std::string floater_name = LLURI::unescape(params[0].asString());
+		LLFloaterReg::showInstance(floater_name);
+
+		return true;
+	}
+};
+
+LLFloaterOpenHandler gFloaterOpenHandler;
 
 void LLViewerFloaterReg::registerFloaters()
 {
@@ -239,6 +267,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("sell_land", "floater_sell_land.xml", &LLFloaterSellLand::buildFloater);
 	LLFloaterReg::add("settings_debug", "floater_settings_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSettingsDebug>);
 	LLFloaterReg::add("side_bar_tab", "floater_side_bar_tab.xml", &LLFloaterReg::build<LLFloaterSideTrayTab>);
+	LLFloaterReg::add("sound_devices", "floater_sound_devices.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundDevices>);
 	LLFloaterReg::add("stats", "floater_stats.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater>);
 	LLFloaterReg::add("start_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRunQueue>);
 	LLFloaterReg::add("stop_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotRunQueue>);
@@ -249,7 +278,9 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("upload_anim", "floater_animation_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAnimPreview>, "upload");
 	LLFloaterReg::add("upload_image", "floater_image_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterImagePreview>, "upload");
 	LLFloaterReg::add("upload_sound", "floater_sound_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundPreview>, "upload");
-	
+	LLFloaterReg::add("upload_model", "floater_model_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterModelPreview>, "upload");
+	LLFloaterReg::add("upload_model_wizard", "floater_model_wizard.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterModelWizard>);
+
 	LLFloaterReg::add("voice_controls", "floater_voice_controls.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLCallFloater>);
 	LLFloaterReg::add("voice_effect", "floater_voice_effect.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterVoiceEffect>);
 

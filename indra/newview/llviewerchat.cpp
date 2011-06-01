@@ -29,6 +29,8 @@
 
 // newview includes
 #include "llagent.h" 	// gAgent		
+#include "llslurl.h"
+#include "lluicolor.h"
 #include "lluicolortable.h"
 #include "llviewercontrol.h" // gSavedSettings
 #include "llviewerregion.h"
@@ -77,6 +79,10 @@ void LLViewerChat::getChatColor(const LLChat& chat, LLColor4& r_color)
 				else if ( chat.mChatType == CHAT_TYPE_OWNER )
 				{
 					r_color = LLUIColorTable::instance().getColor("llOwnerSayChatColor");
+				}
+				else if ( chat.mChatType == CHAT_TYPE_DIRECT )
+				{
+					r_color = LLUIColorTable::instance().getColor("DirectChatColor");
 				}
 				else
 				{
@@ -143,6 +149,10 @@ void LLViewerChat::getChatColor(const LLChat& chat, std::string& r_color_name, F
 				else if ( chat.mChatType == CHAT_TYPE_OWNER )
 				{
 					r_color_name = "llOwnerSayChatColor";
+				}
+				else if ( chat.mChatType == CHAT_TYPE_DIRECT )
+				{
+					r_color_name = "DirectChatColor";
 				}
 				else
 				{

@@ -127,8 +127,6 @@ protected:
 	void			undock(LLFloater* floater_tab);
 
 	LLSideTray*		getSideTray();
-
-	void			onFloaterClose(LLSD::Boolean app_quitting);
 	
 public:
 	virtual ~LLSideTrayTab();
@@ -146,7 +144,7 @@ public:
 	
 	void			onOpen		(const LLSD& key);
 	
-	void			toggleTabDocked();
+	void			toggleTabDocked(bool toggle_floater = true);
 	void			setDocked(bool dock);
 	bool			isDocked() const;
 
@@ -160,7 +158,6 @@ private:
 	std::string	mDescription;
 	
 	LLView*	mMainPanel;
-	boost::signals2::connection mFloaterCloseConn;
 };
 
 LLSideTrayTab::LLSideTrayTab(const Params& p)
@@ -196,8 +193,8 @@ BOOL LLSideTrayTab::postBuild()
 	
 	title_panel->getChild<LLTextBox>(TAB_PANEL_CAPTION_TITLE_BOX)->setValue(mTabTitle);
 
-	getChild<LLButton>("undock")->setCommitCallback(boost::bind(&LLSideTrayTab::toggleTabDocked, this));
-	getChild<LLButton>("dock")->setCommitCallback(boost::bind(&LLSideTrayTab::toggleTabDocked, this));
+	getChild<LLButton>("undock")->setCommitCallback(boost::bind(&LLSideTrayTab::setDocked, this, false));
+	getChild<LLButton>("dock")->setCommitCallback(boost::bind(&LLSideTrayTab::setDocked, this, true));
 
 	return true;
 }
@@ -253,14 +250,16 @@ LLSideTray* LLSideTrayTab::getSideTray()
 	return side_tray;
 }
 
-void LLSideTrayTab::toggleTabDocked()
+void LLSideTrayTab::toggleTabDocked(bool toggle_floater /* = true */)
 {
+	// *FIX: Calling this method twice per frame would crash the viewer.
+
 	std::string tab_name = getName();
 
 	LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab_name);
 	if (!floater_tab) return;
 
-	bool docking = LLFloater::isShown(floater_tab);
+	bool docking = !isDocked();
 
 	// Hide the "Tear Off" button when a tab gets undocked
 	// and show "Dock" button instead.
@@ -278,7 +277,10 @@ void LLSideTrayTab::toggleTabDocked()
 
 	// Open/close the floater *after* we reparent the tab panel,
 	// so that it doesn't receive redundant visibility change notifications.
-	LLFloaterReg::toggleInstance("side_bar_tab", tab_name);
+	if (toggle_floater)
+	{
+		LLFloaterReg::toggleInstance("side_bar_tab", tab_name);
+	}
 }
 
 // Same as toggleTabDocked() apart from making sure that we do exactly what we want.
@@ -296,18 +298,6 @@ void LLSideTrayTab::setDocked(bool dock)
 bool LLSideTrayTab::isDocked() const
 {
 	return dynamic_cast<LLSideTray*>(getParent()) != NULL;
-}
-
-void LLSideTrayTab::onFloaterClose(LLSD::Boolean app_quitting)
-{
-	// If user presses Ctrl-Shift-W, handle that gracefully by docking all
-	// undocked tabs before their floaters get destroyed (STORM-1016).
-
-	// Don't dock on quit for the current dock state to be correctly saved.
-	if (app_quitting) return;
-
-	lldebugs << "Forcibly docking tab " << getName() << llendl;
-	setDocked(true);
 }
 
 BOOL LLSideTrayTab::handleScrollWheel(S32 x, S32 y, S32 clicks)
@@ -333,7 +323,6 @@ void LLSideTrayTab::dock(LLFloater* floater_tab)
 		return;
 	}
 
-	mFloaterCloseConn.disconnect();
 	setRect(side_tray->getLocalRect());
 	reshape(getRect().getWidth(), getRect().getHeight());
 
@@ -382,7 +371,6 @@ void LLSideTrayTab::undock(LLFloater* floater_tab)
 	}
 
 	floater_tab->addChild(this);
-	mFloaterCloseConn = floater_tab->setCloseCallback(boost::bind(&LLSideTrayTab::onFloaterClose, this, _2));
 	floater_tab->setTitle(mTabTitle);
 	floater_tab->setName(getName());
 
@@ -510,7 +498,7 @@ public:
 			LLSideTrayTab* tab = side_tray->getTab(getName());
 			if (!tab) return FALSE;
 
-			tab->toggleTabDocked();
+			tab->setDocked(false);
 
 			LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab->getName());
 			if (!floater_tab) return FALSE;
@@ -681,7 +669,7 @@ LLPanel* LLSideTray::openChildPanel(LLSideTrayTab* tab, const std::string& panel
 
 	if (tab_attached && LLUI::sSettingGroups["config"]->getBOOL("OpenSidePanelsInFloaters"))
 	{
-		tab->toggleTabDocked();
+		tab->setDocked(false);
 		tab_attached = false;
 	}
 
@@ -1102,7 +1090,7 @@ void LLSideTray::detachTabs()
 		if (!is_visible) continue;
 
 		llassert(isTabAttached(tab->getName()));
-		tab->toggleTabDocked();
+		tab->setDocked(false);
 	}
 }
 
@@ -1354,8 +1342,9 @@ bool		LLSideTray::isPanelActive(const std::string& panel_name)
 	return (panel->getName() == panel_name);
 }
 
-void LLSideTray::setTabDocked(const std::string& tab_name, bool dock)
+void LLSideTray::setTabDocked(const std::string& tab_name, bool dock, bool toggle_floater /* = true*/)
 {
+	// Lookup tab by name.
 	LLSideTrayTab* tab = getTab(tab_name);
 	if (!tab)
 	{	// not a docked tab, look through detached tabs
@@ -1372,20 +1361,12 @@ void LLSideTray::setTabDocked(const std::string& tab_name, bool dock)
 
 	}
 
-	if (tab)
-	{
-		bool tab_attached = isTabAttached(tab_name);
-		LLFloater* floater_tab = LLFloaterReg::getInstance("side_bar_tab", tab_name);
-		if (!floater_tab) return;
+	llassert(tab != NULL);
 
-		if (dock && !tab_attached)
-		{
-			tab->dock(floater_tab);
-		}
-		else if (!dock && tab_attached)
-		{
-			tab->undock(floater_tab);
-		}
+	// Toggle its dock state.
+	if (tab && tab->isDocked() != dock)
+	{
+		tab->toggleTabDocked(toggle_floater);
 	}
 }
 

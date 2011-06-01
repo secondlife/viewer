@@ -78,11 +78,13 @@ public:
 	LLViewerTextureList();
 	~LLViewerTextureList();
 
+	void start();
 	void init();
 	void shutdown();
 	void dump();
 	void destroyGL(BOOL save_state = TRUE);
 	void restoreGL();
+	BOOL isInitialized() const {return mInitialized;}
 
 	LLViewerFetchedTexture *findImage(const LLUUID &image_id);
 
@@ -120,8 +122,8 @@ private:
 	void addImage(LLViewerFetchedTexture *image);
 	void deleteImage(LLViewerFetchedTexture *image);
 
-	void addImageToList(LLViewerFetchedTexture *image);
-	void removeImageFromList(LLViewerFetchedTexture *image);
+	void addImageToList(LLViewerFetchedTexture *image, U32 thread_id = LLThread::currentID());
+	void removeImageFromList(LLViewerFetchedTexture *image, U32 thread_id = LLThread::currentID());
 
 	LLViewerFetchedTexture * getImage(const LLUUID &image_id,									 
 									 BOOL usemipmap = TRUE,
@@ -187,6 +189,7 @@ private:
 	// simply holds on to LLViewerFetchedTexture references to stop them from being purged too soon
 	std::set<LLPointer<LLViewerFetchedTexture> > mImagePreloads;
 
+	BOOL mInitialized ;
 	BOOL mUpdateStats;
 	S32	mMaxResidentTexMemInMegaBytes;
 	S32 mMaxTotalTextureMemInMegaBytes;
@@ -206,30 +209,33 @@ public:
 private:
 	static S32 sNumImages;
 	static void (*sUUIDCallback)(void**, const LLUUID &);
+
+	//debug use
+	static U32 sRenderThreadID;
 };
 
 class LLUIImageList : public LLImageProviderInterface, public LLSingleton<LLUIImageList>
 {
 public:
 	// LLImageProviderInterface
-	/*virtual*/ LLUIImagePtr getUIImageByID(const LLUUID& id, S32 priority);
-	/*virtual*/ LLUIImagePtr getUIImage(const std::string& name, S32 priority);
+	/*virtual*/ LLPointer<LLUIImage> getUIImageByID(const LLUUID& id, S32 priority);
+	/*virtual*/ LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority);
 	void cleanUp();
 
 	bool initFromFile();
 
-	LLUIImagePtr preloadUIImage(const std::string& name, const std::string& filename, BOOL use_mips, const LLRect& scale_rect);
+	LLPointer<LLUIImage> preloadUIImage(const std::string& name, const std::string& filename, BOOL use_mips, const LLRect& scale_rect);
 	
 	static void onUIImageLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 private:
-	LLUIImagePtr loadUIImageByName(const std::string& name, const std::string& filename,
+	LLPointer<LLUIImage> loadUIImageByName(const std::string& name, const std::string& filename,
 		                           BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, 
 		                           LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_UI);
-	LLUIImagePtr loadUIImageByID(const LLUUID& id,
+	LLPointer<LLUIImage> loadUIImageByID(const LLUUID& id,
 								 BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, 
 								 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_UI);
 
-	LLUIImagePtr loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null);
+	LLPointer<LLUIImage> loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null);
 
 
 	struct LLUIImageLoadData

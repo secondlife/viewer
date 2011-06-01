@@ -461,6 +461,9 @@ void LLScriptLibrary::init()
 	addFunction(10.f, 0.f, dummy_func, "llGetDisplayName", "s", "k");
 	addFunction(10.f, 0.f, dummy_func, "llRequestDisplayName", "k", "k");
 
+	addFunction(10.f, 0.f, dummy_func, "llGetEnv", "s", "s");
+	addFunction(10.f, 0.f, dummy_func, "llRegionSayTo", NULL, "kis");
+
 	// energy, sleep, dummy_func, name, return type, parameters, help text, gods-only
 
 	// IF YOU ADD NEW SCRIPT CALLS, YOU MUST PUT THEM AT THE END OF THIS LIST.
