@@ -115,14 +115,14 @@ La lunghezza massima è [MAX_LENGTH] secondi.
 	<text name="description_label">
 		Descrizione:
 	</text>
-	<spinner label="Priorità" label_width="72" name="priority" tool_tip="Definisce quali altre animazioni possono essere sostituite da questa animazione" width="110"/>
+	<spinner label="Priorità" name="priority" tool_tip="Definisce quali altre animazioni possono essere sostituite da questa animazione"/>
 	<check_box label="Ciclica" name="loop_check" tool_tip="Riproduce questa animazione in ripetizione"/>
 	<spinner label="In(%)" name="loop_in_point" tool_tip="Imposta il punto sul quale ritorna l&apos;animazione"/>
 	<spinner label="Out(%)" name="loop_out_point" tool_tip="Imposta il punto sul quale termina l&apos;animazione"/>
 	<text name="hand_label">
 		Postura della mano
 	</text>
-	<combo_box left_delta="100" name="hand_pose_combo" tool_tip="Definisce ciò che fanno le mani durante l&apos;animazione" width="184">
+	<combo_box name="hand_pose_combo" tool_tip="Definisce ciò che fanno le mani durante l&apos;animazione">
 		<combo_box.item label="Stendi" name="Spread"/>
 		<combo_box.item label="Rilassato" name="Relaxed"/>
 		<combo_box.item label="Indica entrambi" name="PointBoth"/>
@@ -140,7 +140,7 @@ La lunghezza massima è [MAX_LENGTH] secondi.
 	<text name="emote_label">
 		Espressione
 	</text>
-	<combo_box left_delta="100" name="emote_combo" tool_tip="Definisce ciò che fa il viso durante l&apos;animazione" width="184">
+	<combo_box name="emote_combo" tool_tip="Definisce ciò che fa il viso durante l&apos;animazione">
 		<item label="(Nessuno)" name="[None]" value=""/>
 		<item label="Aaaaah" name="Aaaaah" value="Aaaaah"/>
 		<item label="Spavento" name="Afraid" value="Spavento"/>
@@ -162,18 +162,18 @@ La lunghezza massima è [MAX_LENGTH] secondi.
 		<item label="Occhiolino" name="Wink" value="Occhiolino"/>
 		<item label="Preoccupato" name="Worry" value="Preoccupato"/>
 	</combo_box>
-	<text name="preview_label" width="250">
+	<text name="preview_label">
 		Vedi anteprima mentre
 	</text>
-	<combo_box left_delta="154" name="preview_base_anim" tool_tip="Da usarsi per controllare il comportamento dell&apos;animazione mentre l&apos;avatar svolge azioni abituali." width="130">
+	<combo_box name="preview_base_anim" tool_tip="Da usarsi per controllare il comportamento dell&apos;animazione mentre l&apos;avatar svolge azioni abituali.">
 		<item label="In piedi" name="Standing" value="In piedi"/>
 		<item label="Camminando" name="Walking" value="Cammina"/>
 		<item label="Seduto" name="Sitting" value="Seduto"/>
 		<item label="Volo" name="Flying" value="Volo"/>
 	</combo_box>
-	<spinner label="Avvio lento (sec)" label_width="125" name="ease_in_time" tool_tip="Durata (in secondi) della fusione in entrata delle animazioni" width="192"/>
-	<spinner bottom_delta="-20" label="Arresto lento (sec)" label_width="125" left="10" name="ease_out_time" tool_tip="Durata (in secondi) della fusione in uscita delle animazioni" width="192"/>
-	<button bottom_delta="-32" name="play_btn" tool_tip="Riproduci la tua animazione"/>
+	<spinner label="Avvio lento (sec)" name="ease_in_time" tool_tip="Durata (in secondi) della fusione in entrata delle animazioni"/>
+	<spinner label="Arresto lento (sec)" name="ease_out_time" tool_tip="Durata (in secondi) della fusione in uscita delle animazioni"/>
+	<button name="play_btn" tool_tip="Riproduci la tua animazione"/>
 	<button name="pause_btn" tool_tip="Metti in pausa la tua animazione"/>
 	<button label="" name="stop_btn" tool_tip="Ferma la riproduzione dell&apos;animazione"/>
 	<text name="bad_animation_text">
