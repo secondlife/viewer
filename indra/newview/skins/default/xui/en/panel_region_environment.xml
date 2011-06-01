@@ -40,7 +40,7 @@
    layout="topleft"
    name="use_sl_default_settings"/>
   <radio_item
-   label="Use my settings"
+   label="Use the following settings"
    layout="topleft"
    name="use_my_settings"
    top_pad="20"/>
