@@ -42,6 +42,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<S32> label_width;
+		Optional<S32> snap_to;
 		Optional<bool> allow_text_entry;
 
 		Optional<LLUIColor> text_enabled_color;
@@ -84,19 +85,9 @@ private:
 
 	void	onUpBtn();
 	void	onDownBtn();
-
 	void	onTextEntry(LLLineEditor* line_editor);
 
-	void	validateHours(const LLWString& wstr);
-	void	validateMinutes(const LLWString& wstr);
 	bool	isTimeStringValid(const LLWString& wstr);
-
-	bool	isPMAMStringValid(const LLWString& wstr);
-	bool	isHoursStringValid(const LLWString& wstr);
-	bool 	isMinutesStringValid(const LLWString& wstr);
-
-	LLWString getHoursWString(const LLWString& wstr);
-	LLWString getMinutesWString(const LLWString& wstr);
 
 	void increaseMinutes();
 	void increaseHours();
@@ -104,11 +95,24 @@ private:
 	void decreaseMinutes();
 	void decreaseHours();
 
+	bool isPM() const;
 	void switchDayPeriod();
 
 	void updateText();
 
 	EEditingPart getEditingPart();
+
+	static std::string getHoursString(const std::string& str);
+	static std::string getMinutesString(const std::string& str);
+	static std::string getAMPMString(const std::string& str);
+
+	static bool isHoursStringValid(const std::string& str);
+	static bool isMinutesStringValid(const std::string& str);
+	static bool isPMAMStringValid(const std::string& str);
+
+	static U32		parseHours(const std::string& str);
+	static U32		parseMinutes(const std::string& str);
+	static bool		parseAMPM(const std::string& str);
 
 	class LLTextBox*	mLabelBox;
 
@@ -119,9 +123,8 @@ private:
 	class LLButton*		mUpBtn;
 	class LLButton*		mDownBtn;
 
-	U32 			mHours;				// 1 - 12
-	U32 			mMinutes;			// 0 - 59
-	EDayPeriod 		mCurrentDayPeriod;	// AM/PM
+	U32				mTime;				// minutes since midnight: 0 - 1439
+	U32				mSnapToMin;			// interval in minutes to snap to
 
 	BOOL			mAllowEdit;
 };

@@ -46,9 +46,13 @@ const U32 MINUTES_MIN = 0;
 const U32 MINUTES_MAX = 59;
 const U32 HOURS_MIN = 1;
 const U32 HOURS_MAX = 12;
+const U32 MINUTES_PER_HOUR = 60;
+const U32 MINUTES_PER_DAY = 24 * MINUTES_PER_HOUR;
+
 
 LLTimeCtrl::Params::Params()
 :	label_width("label_width"),
+	snap_to("snap_to"),
 	allow_text_entry("allow_text_entry", true),
 	text_enabled_color("text_enabled_color"),
 	text_disabled_color("text_disabled_color"),
@@ -61,8 +65,8 @@ LLTimeCtrl::LLTimeCtrl(const LLTimeCtrl::Params& p)
 	mLabelBox(NULL),
 	mTextEnabledColor(p.text_enabled_color()),
 	mTextDisabledColor(p.text_disabled_color()),
-	mHours(HOURS_MIN),
-	mMinutes(MINUTES_MIN)
+	mTime(0),
+	mSnapToMin(5)
 {
 	static LLUICachedControl<S32> spinctrl_spacing ("UISpinctrlSpacing", 0);
 	static LLUICachedControl<S32> spinctrl_btn_width ("UISpinctrlBtnWidth", 0);
@@ -132,60 +136,24 @@ LLTimeCtrl::LLTimeCtrl(const LLTimeCtrl::Params& p)
 
 F32 LLTimeCtrl::getTime24() const
 {
-	return getHours24() + getMinutes() / 60.0f;
+	// 0.0 - 23.99;
+	return mTime / 60.0f;
 }
 
 U32 LLTimeCtrl::getHours24() const
 {
-	U32 h = mHours;
-
-	if (h == 12)
-    {
-        h = 0;
-    }
-
-    if (mCurrentDayPeriod == PM)
-    {
-        h += 12;
-    }
-
-    return h;
+	return (U32) getTime24();
 }
 
 U32 LLTimeCtrl::getMinutes() const
 {
-	return mMinutes;
+	return mTime % MINUTES_PER_HOUR;
 }
 
 void LLTimeCtrl::setTime24(F32 time)
 {
 	time = llclamp(time, 0.0f, 23.99f); // fix out of range values
-
-	U32 h = (U32) time;
-	U32 m = llround((time - h) * 60); // fixes values like 4.99999
-
-	// fix rounding error
-	if (m == 60)
-	{
-		m = 0;
-		++h;
-	}
-
-	mCurrentDayPeriod = (h >= 12 ? PM : AM);
-
-	if (h >= 12)
-	{
-		h -= 12;
-	}
-
-	if (h == 0)
-	{
-		h = 12;
-	}
-
-
-	mHours = h;
-	mMinutes = m;
+	mTime = llround(time * MINUTES_PER_HOUR); // fixes values like 4.99999
 
 	updateText();
 }
@@ -264,182 +232,95 @@ void LLTimeCtrl::onFocusLost()
 
 void LLTimeCtrl::onTextEntry(LLLineEditor* line_editor)
 {
-	LLWString time_str = line_editor->getWText();
-	switch(getEditingPart())
+	std::string time_str = line_editor->getText();
+	U32 h12 = parseHours(getHoursString(time_str));
+	U32 m = parseMinutes(getMinutesString(time_str));
+	bool pm = parseAMPM(getAMPMString(time_str));
+
+	if (h12 == 12)
 	{
-	case HOURS:
-		validateHours(getHoursWString(time_str));
-		break;
-	case MINUTES:
-		validateMinutes(getMinutesWString(time_str));
-		break;
-	default:
-		break;
+		h12 = 0;
 	}
+
+	U32 h24 = pm ? h12 + 12 : h12;
+
+	mTime = h24 * MINUTES_PER_HOUR + m;
 }
 
 bool LLTimeCtrl::isTimeStringValid(const LLWString &wstr)
 {
-	if (!isHoursStringValid(getHoursWString(wstr)) || !isMinutesStringValid(getMinutesWString(wstr)) || !isPMAMStringValid(wstr))
-		return false;
+	std::string str = wstring_to_utf8str(wstr);
 
-	return true;
-}
-
-bool LLTimeCtrl::isHoursStringValid(const LLWString& wstr)
-{
-	U32 hours;
-	std::string utf8time = wstring_to_utf8str(wstr);
-	if ((!LLStringUtil::convertToU32(utf8time, hours) || (hours <= HOURS_MAX)) && wstr.length() < 3)
-		return true;
-
-	return false;
-}
-
-bool LLTimeCtrl::isMinutesStringValid(const LLWString& wstr)
-{
-	U32 minutes;
-	std::string utf8time = wstring_to_utf8str(wstr);
-	if (!LLStringUtil::convertToU32(utf8time, minutes) || (minutes <= MINUTES_MAX) && wstr.length() < 3)
-		return true;
-
-	return false;
-}
-
-void LLTimeCtrl::validateHours(const LLWString& wstr)
-{
-	U32 hours;
-	std::string utf8time = wstring_to_utf8str(wstr);
-	if (LLStringUtil::convertToU32(utf8time, hours) && (hours >= HOURS_MIN) && (hours <= HOURS_MAX))
-	{
-		mHours = hours;
-	}
-	else
-	{
-		mHours = HOURS_MIN;
-	}
-}
-
-void LLTimeCtrl::validateMinutes(const LLWString& wstr)
-{
-	U32 minutes;
-	std::string utf8time = wstring_to_utf8str(wstr);
-	if (LLStringUtil::convertToU32(utf8time, minutes) && (minutes >= MINUTES_MIN) && (minutes <= MINUTES_MAX))
-	{
-		mMinutes = minutes;
-	}
-	else
-	{
-		mMinutes = MINUTES_MIN;
-	}
-}
-
-bool LLTimeCtrl::isPMAMStringValid(const LLWString &wstr)
-{
-	S32 len = wstr.length();
-
-	bool valid = (wstr[--len] == 'M') && (wstr[--len] == 'P' || wstr[len] == 'A');
-
-	return valid;
-}
-
-LLWString LLTimeCtrl::getHoursWString(const LLWString& wstr)
-{
-	size_t colon_index = wstr.find_first_of(':');
-	LLWString hours_str = wstr.substr(0, colon_index);
-
-	return hours_str;
-}
-
-LLWString LLTimeCtrl::getMinutesWString(const LLWString& wstr)
-{
-	size_t colon_index = wstr.find_first_of(':');
-	++colon_index;
-
-	int minutes_len = wstr.length() - colon_index - AMPM_LEN;
-	LLWString minutes_str = wstr.substr(colon_index, minutes_len);
-
-	return minutes_str;
+	return isHoursStringValid(getHoursString(str)) &&
+		isMinutesStringValid(getMinutesString(str)) &&
+		isPMAMStringValid(getAMPMString(str));
 }
 
 void LLTimeCtrl::increaseMinutes()
 {
-	// *TODO: snap to 5 min
-	if (++mMinutes > MINUTES_MAX)
-	{
-		mMinutes = MINUTES_MIN;
-	}
+	mTime = (mTime + mSnapToMin) % MINUTES_PER_DAY - (mTime % mSnapToMin);
 }
 
 void LLTimeCtrl::increaseHours()
 {
-	if (++mHours > HOURS_MAX)
-	{
-		mHours = HOURS_MIN;
-	}
+	mTime = (mTime + MINUTES_PER_HOUR) % MINUTES_PER_DAY;
 }
 
 void LLTimeCtrl::decreaseMinutes()
 {
-	// *TODO: snap to 5 min
-	if (mMinutes-- == MINUTES_MIN)
+	if (mTime < mSnapToMin)
 	{
-		mMinutes = MINUTES_MAX;
+		mTime = MINUTES_PER_DAY - mTime;
 	}
+
+	mTime -= (mTime % mSnapToMin) ? mTime % mSnapToMin : mSnapToMin;
 }
 
 void LLTimeCtrl::decreaseHours()
 {
-	if (mHours-- == HOURS_MIN)
+	if (mTime < MINUTES_PER_HOUR)
 	{
-		mHours = HOURS_MAX;
-		switchDayPeriod();
+		mTime = 23 * MINUTES_PER_HOUR + mTime;
 	}
+	else
+	{
+		mTime -= MINUTES_PER_HOUR;
+	}
+}
+
+bool LLTimeCtrl::isPM() const
+{
+	return mTime >= (MINUTES_PER_DAY / 2);
 }
 
 void LLTimeCtrl::switchDayPeriod()
 {
-	switch (mCurrentDayPeriod)
+	if (isPM())
 	{
-	case AM:
-		mCurrentDayPeriod = PM;
-		break;
-	case PM:
-		mCurrentDayPeriod = AM;
-		break;
+		mTime -= MINUTES_PER_DAY / 2;
+	}
+	else
+	{
+		mTime += MINUTES_PER_DAY / 2;
 	}
 }
 
 void LLTimeCtrl::updateText()
 {
-	std::stringstream time_buf;
-	time_buf << mHours << ":";
+	U32 h24 = getHours24();
+	U32 m = getMinutes();
+	U32 h12 = h24 > 12 ? h24 - 12 : h24;
 
-	if (mMinutes < 10)
-	{
-		time_buf << "0";
-	}
+	if (h12 == 0)
+		h12 = 12;
 
-	time_buf << mMinutes;
-	time_buf << " ";
-
-	switch (mCurrentDayPeriod)
-	{
-	case AM:
-		time_buf << "AM";
-		break;
-	case PM:
-		time_buf << "PM";
-		break;
-	}
-
-	mEditor->setText(time_buf.str());
+	mEditor->setText(llformat("%d:%02d %s", h12, m, isPM() ? "PM":"AM"));
 }
 
 LLTimeCtrl::EEditingPart LLTimeCtrl::getEditingPart()
 {
 	S32 cur_pos = mEditor->getCursor();
-	LLWString time_str = mEditor->getWText();
+	std::string time_str = mEditor->getText();
 
 	S32 colon_index = time_str.find_first_of(':');
 
@@ -457,4 +338,95 @@ LLTimeCtrl::EEditingPart LLTimeCtrl::getEditingPart()
 	}
 
 	return NONE;
+}
+
+// static
+std::string LLTimeCtrl::getHoursString(const std::string& str)
+{
+	size_t colon_index = str.find_first_of(':');
+	std::string hours_str = str.substr(0, colon_index);
+
+	return hours_str;
+}
+
+// static
+std::string LLTimeCtrl::getMinutesString(const std::string& str)
+{
+	size_t colon_index = str.find_first_of(':');
+	++colon_index;
+
+	int minutes_len = str.length() - colon_index - AMPM_LEN;
+	std::string minutes_str = str.substr(colon_index, minutes_len);
+
+	return minutes_str;
+}
+
+// static
+std::string LLTimeCtrl::getAMPMString(const std::string& str)
+{
+	return str.substr(str.size() - 2, 2); // returns last two characters
+}
+
+// static
+bool LLTimeCtrl::isHoursStringValid(const std::string& str)
+{
+	U32 hours;
+	if ((!LLStringUtil::convertToU32(str, hours) || (hours <= HOURS_MAX)) && str.length() < 3)
+		return true;
+
+	return false;
+}
+
+// static
+bool LLTimeCtrl::isMinutesStringValid(const std::string& str)
+{
+	U32 minutes;
+	if (!LLStringUtil::convertToU32(str, minutes) || (minutes <= MINUTES_MAX) && str.length() < 3)
+		return true;
+
+	return false;
+}
+
+// static
+bool LLTimeCtrl::isPMAMStringValid(const std::string& str)
+{
+	S32 len = str.length();
+
+	bool valid = (str[--len] == 'M') && (str[--len] == 'P' || str[len] == 'A');
+
+	return valid;
+}
+
+// static
+U32 LLTimeCtrl::parseHours(const std::string& str)
+{
+	U32 hours;
+	if (LLStringUtil::convertToU32(str, hours) && (hours >= HOURS_MIN) && (hours <= HOURS_MAX))
+	{
+		return hours;
+	}
+	else
+	{
+		return HOURS_MIN;
+	}
+}
+
+// static
+U32 LLTimeCtrl::parseMinutes(const std::string& str)
+{
+	U32 minutes;
+	if (LLStringUtil::convertToU32(str, minutes) && (minutes >= MINUTES_MIN) && (minutes <= MINUTES_MAX))
+	{
+		return minutes;
+	}
+	else
+	{
+		return MINUTES_MIN;
+	}
+}
+
+// static
+bool LLTimeCtrl::parseAMPM(const std::string& str)
+{
+	return str == "PM";
 }
