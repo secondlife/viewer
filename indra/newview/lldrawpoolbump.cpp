@@ -94,6 +94,13 @@ void LLStandardBumpmap::restoreGL()
 // static
 void LLStandardBumpmap::addstandard()
 {
+	if(!gTextureList.isInitialized())
+	{
+		//Note: loading pre-configuration sometimes triggers this call.
+		//But it is safe to return here because bump images will be reloaded during initialization later.
+		return ;
+	}
+
 	// can't assert; we destroyGL and restoreGL a lot during *first* startup, which populates this list already, THEN we explicitly init the list as part of *normal* startup.  Sigh.  So clear the list every time before we (re-)add the standard bumpmaps.
 	//llassert( LLStandardBumpmap::sStandardBumpmapCount == 0 );
 	clear();
@@ -891,6 +898,7 @@ void LLBumpImageList::restoreGL()
 {
 	if(!gTextureList.isInitialized())
 	{
+		//safe to return here because bump images will be reloaded during initialization later.
 		return ;
 	}
 
