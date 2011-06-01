@@ -1908,6 +1908,15 @@ Requests single-word username of an avatar.  When data is available the dataserv
 key llRequestDisplayName(key id)
 Requests name of an avatar.  When data is available the dataserver event will be raised.
 </string>
+<string name="LSLTipText_llRegionSayTo" translate="false">
+llRegionSayTo(key target, integer channel, string msg)
+Sends msg on channel (not DEBUG_CHANNEL) directly to prim or avatar target anywhere within the region
+</string>
+<string name="LSLTipText_llGetEnv" translate="false">
+llGetEnv(string name)
+Returns a string with the requested data about the region
+</string>
+
 
   <!-- Avatar busy/away mode -->
 	<string name="AvatarSetNotAway">Not Away</string>
