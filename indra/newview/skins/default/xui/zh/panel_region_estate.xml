@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="領地" name="Estate">
+	<text name="estate_help_text">
+		Changes to settings on this tab will affect all regions in the estate.
+	</text>
+	<text name="estate_text">
+		領地：
+	</text>
+	<text name="estate_name">
+		（未知）
+	</text>
+	<text name="owner_text">
+		領地擁有者：
+	</text>
+	<text name="estate_owner">
+		（未知）
+	</text>
+	<check_box label="Use Global Time" name="use_global_time_check"/>
+	<check_box label="Fixed Sun" name="fixed_sun_check"/>
+	<slider label="Phase" name="sun_hour_slider"/>
+	<check_box label="Allow Public Access" name="externally_visible_check"/>
+	<text name="Only Allow">
+		Restrict Access to accounts verified by:
+	</text>
+	<check_box label="Payment Information on File" name="limit_payment" tool_tip="Ban unidentified Residents"/>
+	<check_box label="年齡驗證" name="limit_age_verified" tool_tip="Ban Residents who have not verified their age. See the [SUPPORT_SITE] for more information."/>
+	<check_box label="Allow Voice Chat" name="voice_chat_check"/>
+	<check_box label="Allow Direct Teleport" name="allow_direct_teleport"/>
+	<button label="套用" name="apply_btn"/>
+	<button label="Send Message To Estate..." name="message_estate_btn"/>
+	<button label="Kick Resident from Estate..." name="kick_user_from_estate_btn"/>
+	<text name="estate_manager_label">
+		領地管理員：
+	</text>
+	<button label="Remove..." name="remove_estate_manager_btn"/>
+	<button label="Add..." name="add_estate_manager_btn"/>
+	<text name="allow_resident_label">
+		Allowed Residents:
+	</text>
+	<button label="Remove..." name="remove_allowed_avatar_btn"/>
+	<button label="Add..." name="add_allowed_avatar_btn"/>
+	<text name="allow_group_label">
+		Allowed Groups:
+	</text>
+	<button label="Remove..." name="remove_allowed_group_btn"/>
+	<button label="Add..." name="add_allowed_group_btn"/>
+	<text name="ban_resident_label">
+		Banned Residents:
+	</text>
+	<button label="Remove..." name="remove_banned_avatar_btn"/>
+	<button label="Add..." name="add_banned_avatar_btn"/>
+</panel>

@@ -200,6 +200,9 @@
 	<string name="TooltipAgentUrl">
 		Clicca per vedere il profilo di questo residente
 	</string>
+	<string name="TooltipAgentInspect">
+		Ulteriori informazioni su questo Residente
+	</string>
 	<string name="TooltipAgentMute">
 		Clicca per disattivare l&apos;audio di questo residente
 	</string>
@@ -747,6 +750,12 @@
 	<string name="Estate / Full Region">
 		Proprietà immobiliare / Regione completa
 	</string>
+	<string name="Estate / Homestead">
+		Proprietà immobiliare / Homestead
+	</string>
+	<string name="Mainland / Homestead">
+		Continente / Homestead
+	</string>
 	<string name="Mainland / Full Region">
 		Continente / Regione completa
 	</string>
@@ -852,6 +861,9 @@
 	<string name="tattoo">
 		Tatuaggio
 	</string>
+	<string name="physics">
+		Fisica
+	</string>
 	<string name="invalid">
 		non valido
 	</string>
@@ -890,6 +902,9 @@
 	</string>
 	<string name="tattoo_not_worn">
 		Tatuaggio non portato
+	</string>
+	<string name="physics_not_worn">
+		Fisica non indossata
 	</string>
 	<string name="invalid_not_worn">
 		non valido
@@ -938,6 +953,9 @@
 	</string>
 	<string name="create_new_tattoo">
 		Crea un nuovo tatuaggio
+	</string>
+	<string name="create_new_physics">
+		Crea nuova fisica
 	</string>
 	<string name="create_new_invalid">
 		non valido
@@ -1037,7 +1055,7 @@
 	</string>
 	<string name="WornOnAttachmentPoint" value="(indossato su [ATTACHMENT_POINT])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (attivo)"/>
-	<string name="Chat" value="Chat :"/>
+	<string name="Chat Message" value="Chat:"/>
 	<string name="Sound" value="Suono :"/>
 	<string name="Wait" value="--- Attendi :"/>
 	<string name="AnimFlagStop" value="Ferma l&apos;animazione :"/>
@@ -1737,11 +1755,8 @@
 	<string name="InvOfferGaveYou">
 		Ti ha offerto
 	</string>
-	<string name="InvOfferYouDecline">
-		Rifiuta
-	</string>
-	<string name="InvOfferFrom">
-		da
+	<string name="InvOfferDecline">
+		Non hai accettato [DESC] da &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</string>
 	<string name="GroupMoneyTotal">
 		Totale
@@ -1821,12 +1836,6 @@ Tipi conosciuti .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="accel-win-shift">
 		Shift+
-	</string>
-	<string name="Esc">
-		Esc
-	</string>
-	<string name="Home">
-		Home
 	</string>
 	<string name="FileSaved">
 		File salvato
@@ -1944,6 +1953,9 @@ Tipi conosciuti .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="Other">
 		Altro
+	</string>
+	<string name="Rental">
+		Affitto
 	</string>
 	<string name="Any">
 		Tutti
@@ -2181,6 +2193,114 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Bulbous Nose">
 		Naso bulboso
 	</string>
+	<string name="Breast Physics Mass">
+		Massa seno
+	</string>
+	<string name="Breast Physics Smoothing">
+		Lisciatura seno
+	</string>
+	<string name="Breast Physics Gravity">
+		Gravità seno
+	</string>
+	<string name="Breast Physics Drag">
+		Resistenza seno
+	</string>
+	<string name="Breast Physics InOut Max Effect">
+		Massimo effetto
+	</string>
+	<string name="Breast Physics InOut Spring">
+		Elasticità
+	</string>
+	<string name="Breast Physics InOut Gain">
+		Guadagno
+	</string>
+	<string name="Breast Physics InOut Damping">
+		Attenuazione
+	</string>
+	<string name="Breast Physics UpDown Max Effect">
+		Massimo effetto
+	</string>
+	<string name="Breast Physics UpDown Spring">
+		Elasticità
+	</string>
+	<string name="Breast Physics UpDown Gain">
+		Guadagno
+	</string>
+	<string name="Breast Physics UpDown Damping">
+		Attenuazione
+	</string>
+	<string name="Breast Physics LeftRight Max Effect">
+		Massimo effetto
+	</string>
+	<string name="Breast Physics LeftRight Spring">
+		Elasticità
+	</string>
+	<string name="Breast Physics LeftRight Gain">
+		Guadagno
+	</string>
+	<string name="Breast Physics LeftRight Damping">
+		Attenuazione
+	</string>
+	<string name="Belly Physics Mass">
+		Massa pancia
+	</string>
+	<string name="Belly Physics Smoothing">
+		Lisciatura pancia
+	</string>
+	<string name="Belly Physics Gravity">
+		Gravità pancia
+	</string>
+	<string name="Belly Physics Drag">
+		Resistenza pancia
+	</string>
+	<string name="Belly Physics UpDown Max Effect">
+		Massimo effetto
+	</string>
+	<string name="Belly Physics UpDown Spring">
+		Elasticità
+	</string>
+	<string name="Belly Physics UpDown Gain">
+		Guadagno
+	</string>
+	<string name="Belly Physics UpDown Damping">
+		Attenuazione
+	</string>
+	<string name="Butt Physics Mass">
+		Massa natiche
+	</string>
+	<string name="Butt Physics Smoothing">
+		Lisciatura natiche
+	</string>
+	<string name="Butt Physics Gravity">
+		Gravità natiche
+	</string>
+	<string name="Butt Physics Drag">
+		Resistenza natiche
+	</string>
+	<string name="Butt Physics UpDown Max Effect">
+		Massimo effetto
+	</string>
+	<string name="Butt Physics UpDown Spring">
+		Elasticità
+	</string>
+	<string name="Butt Physics UpDown Gain">
+		Guadagno
+	</string>
+	<string name="Butt Physics UpDown Damping">
+		Attenuazione
+	</string>
+	<string name="Butt Physics LeftRight Max Effect">
+		Massimo effetto
+	</string>
+	<string name="Butt Physics LeftRight Spring">
+		Elasticità
+	</string>
+	<string name="Butt Physics LeftRight Gain">
+		Guadagno
+	</string>
+	<string name="Butt Physics LeftRight Damping">
+		Attenuazione
+	</string>
 	<string name="Bushy Eyebrows">
 		Sopracciglia cespugliose
 	</string>
@@ -2189,6 +2309,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Butt Size">
 		Grandezza del sedere
+	</string>
+	<string name="Butt Gravity">
+		Gravità natiche
 	</string>
 	<string name="bustle skirt">
 		Crinolina
@@ -3478,7 +3601,7 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 		Sei l&apos;unico utente di questa sessione.
 	</string>
 	<string name="offline_message">
-		[NAME] è offline.
+		[NAME] è offline
 	</string>
 	<string name="invite_message">
 		Clicca il tasto [BUTTON NAME] per accettare/connetterti a questa voice chat.
@@ -3547,6 +3670,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
+		[NAME] ti ha inviato un pagamento di L$[AMOUNT] [REASON].
+	</string>
+	<string name="paid_you_ldollars_no_reason">
 		[NAME] ti ha inviato un pagamento di L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars">
@@ -3560,6 +3686,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		Hai pagato L$ [AMOUNT] [REASON].
+	</string>
+	<string name="for item">
+		per [ITEM]
 	</string>
 	<string name="for a parcel of land">
 		per un lotto di terreno
@@ -3578,6 +3707,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="to upload">
 		per caricare
+	</string>
+	<string name="to publish a classified ad">
+		per pubblicare un annuncio
 	</string>
 	<string name="giving">
 		Contributo di L$ [AMOUNT]
@@ -3655,6 +3787,9 @@ Segnala abuso
 	</string>
 	<string name="New Tattoo">
 		Nuovo tatuaggio
+	</string>
+	<string name="New Physics">
+		Nuova fisica
 	</string>
 	<string name="Invalid Wearable">
 		Capo da indossare non valido
@@ -3855,7 +3990,7 @@ Segnala abuso
 	<string name="Notices">
 		Avvisi
 	</string>
-	<string name="Chat">
+	<string name="Chat" value="Chat :">
 		Chat
 	</string>
 	<string name="DeleteItems">
@@ -3866,5 +4001,349 @@ Segnala abuso
 	</string>
 	<string name="EmptyOutfitText">
 		Questo vestiario non contiene alcun elemento
+	</string>
+	<string name="ExternalEditorNotSet">
+		Seleziona un editor usando le impostazioni ExternalEditor.
+	</string>
+	<string name="ExternalEditorNotFound">
+		L&apos;editor esterno specificato non è stato trovato.
+Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
+(per es. &quot;/percorso per il mio/editor&quot; &quot;%s&quot;)
+	</string>
+	<string name="ExternalEditorCommandParseError">
+		Errore nell&apos;elaborazione del comando dell&apos;editor esterno.
+	</string>
+	<string name="ExternalEditorFailedToRun">
+		L&apos;editor esterno non è stato avviato.
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Space">
+		Space
+	</string>
+	<string name="Enter">
+		Enter
+	</string>
+	<string name="Tab">
+		Tab
+	</string>
+	<string name="Ins">
+		Ins
+	</string>
+	<string name="Del">
+		Del
+	</string>
+	<string name="Backsp">
+		Backsp
+	</string>
+	<string name="Shift">
+		Shift
+	</string>
+	<string name="Ctrl">
+		Ctrl
+	</string>
+	<string name="Alt">
+		Alt
+	</string>
+	<string name="CapsLock">
+		CapsLock
+	</string>
+	<string name="Home">
+		Home
+	</string>
+	<string name="End">
+		End
+	</string>
+	<string name="PgUp">
+		PgUp
+	</string>
+	<string name="PgDn">
+		PgDn
+	</string>
+	<string name="F1">
+		F1
+	</string>
+	<string name="F2">
+		F2
+	</string>
+	<string name="F3">
+		F3
+	</string>
+	<string name="F4">
+		F4
+	</string>
+	<string name="F5">
+		F5
+	</string>
+	<string name="F6">
+		F6
+	</string>
+	<string name="F7">
+		F7
+	</string>
+	<string name="F8">
+		F8
+	</string>
+	<string name="F9">
+		F9
+	</string>
+	<string name="F10">
+		F10
+	</string>
+	<string name="F11">
+		F11
+	</string>
+	<string name="F12">
+		F12
+	</string>
+	<string name="Add">
+		Aggiungi
+	</string>
+	<string name="Subtract">
+		Sottrai
+	</string>
+	<string name="Multiply">
+		Moltiplica
+	</string>
+	<string name="Divide">
+		Dividi
+	</string>
+	<string name="PAD_DIVIDE">
+		PAD_DIVIDE
+	</string>
+	<string name="PAD_LEFT">
+		PAD_LEFT
+	</string>
+	<string name="PAD_RIGHT">
+		PAD_RIGHT
+	</string>
+	<string name="PAD_DOWN">
+		PAD_DOWN
+	</string>
+	<string name="PAD_UP">
+		PAD_UP
+	</string>
+	<string name="PAD_HOME">
+		PAD_HOME
+	</string>
+	<string name="PAD_END">
+		PAD_END
+	</string>
+	<string name="PAD_PGUP">
+		PAD_PGUP
+	</string>
+	<string name="PAD_PGDN">
+		PAD_PGDN
+	</string>
+	<string name="PAD_CENTER">
+		PAD_CENTER
+	</string>
+	<string name="PAD_INS">
+		PAD_INS
+	</string>
+	<string name="PAD_DEL">
+		PAD_DEL
+	</string>
+	<string name="PAD_Enter">
+		PAD_Enter
+	</string>
+	<string name="PAD_BUTTON0">
+		PAD_BUTTON0
+	</string>
+	<string name="PAD_BUTTON1">
+		PAD_BUTTON1
+	</string>
+	<string name="PAD_BUTTON2">
+		PAD_BUTTON2
+	</string>
+	<string name="PAD_BUTTON3">
+		PAD_BUTTON3
+	</string>
+	<string name="PAD_BUTTON4">
+		PAD_BUTTON4
+	</string>
+	<string name="PAD_BUTTON5">
+		PAD_BUTTON5
+	</string>
+	<string name="PAD_BUTTON6">
+		PAD_BUTTON6
+	</string>
+	<string name="PAD_BUTTON7">
+		PAD_BUTTON7
+	</string>
+	<string name="PAD_BUTTON8">
+		PAD_BUTTON8
+	</string>
+	<string name="PAD_BUTTON9">
+		PAD_BUTTON9
+	</string>
+	<string name="PAD_BUTTON10">
+		PAD_BUTTON10
+	</string>
+	<string name="PAD_BUTTON11">
+		PAD_BUTTON11
+	</string>
+	<string name="PAD_BUTTON12">
+		PAD_BUTTON12
+	</string>
+	<string name="PAD_BUTTON13">
+		PAD_BUTTON13
+	</string>
+	<string name="PAD_BUTTON14">
+		PAD_BUTTON14
+	</string>
+	<string name="PAD_BUTTON15">
+		PAD_BUTTON15
+	</string>
+	<string name="-">
+		-
+	</string>
+	<string name="=">
+		=
+	</string>
+	<string name="`">
+		`
+	</string>
+	<string name=";">
+		;
+	</string>
+	<string name="[">
+		[
+	</string>
+	<string name="]">
+		]
+	</string>
+	<string name="\">
+		\
+	</string>
+	<string name="0">
+		0
+	</string>
+	<string name="1">
+		1
+	</string>
+	<string name="2">
+		2
+	</string>
+	<string name="3">
+		3
+	</string>
+	<string name="4">
+		4
+	</string>
+	<string name="5">
+		5
+	</string>
+	<string name="6">
+		6
+	</string>
+	<string name="7">
+		7
+	</string>
+	<string name="8">
+		8
+	</string>
+	<string name="9">
+		9
+	</string>
+	<string name="A">
+		A
+	</string>
+	<string name="B">
+		B
+	</string>
+	<string name="C">
+		C
+	</string>
+	<string name="D">
+		D
+	</string>
+	<string name="E">
+		E
+	</string>
+	<string name="F">
+		F
+	</string>
+	<string name="G">
+		G
+	</string>
+	<string name="H">
+		H
+	</string>
+	<string name="I">
+		I
+	</string>
+	<string name="J">
+		J
+	</string>
+	<string name="K">
+		K
+	</string>
+	<string name="L">
+		L
+	</string>
+	<string name="M">
+		M
+	</string>
+	<string name="N">
+		N
+	</string>
+	<string name="O">
+		O
+	</string>
+	<string name="P">
+		P
+	</string>
+	<string name="Q">
+		Q
+	</string>
+	<string name="R">
+		R
+	</string>
+	<string name="S">
+		S
+	</string>
+	<string name="T">
+		T
+	</string>
+	<string name="U">
+		U
+	</string>
+	<string name="V">
+		V
+	</string>
+	<string name="W">
+		W
+	</string>
+	<string name="X">
+		X
+	</string>
+	<string name="Y">
+		Y
+	</string>
+	<string name="Z">
+		Z
+	</string>
+	<string name="BeaconParticle">
+		Visualizzazione marcatori particelle (blu)
+	</string>
+	<string name="BeaconPhysical">
+		Visualizzazione marcatori oggetti fisici (verde)
+	</string>
+	<string name="BeaconScripted">
+		Visualizzazione marcatori oggetti scriptati (rosso)
+	</string>
+	<string name="BeaconScriptedTouch">
+		Visualizzazione marcatori oggetti scriptati con funzione tocco (rosso)
+	</string>
+	<string name="BeaconSound">
+		Visualizzazione marcatori suoni (giallo)
+	</string>
+	<string name="BeaconMedia">
+		Visualizzazione marcatori multimedia (bianco)
+	</string>
+	<string name="ParticleHiding">
+		Particelle nascoste
 	</string>
 </strings>

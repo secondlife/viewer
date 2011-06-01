@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Security" name="Media Settings Security">
+	<check_box initial_value="false" label="Only Allow Access to Specified URL patterns" name="whitelist_enable"/>
+	<text name="home_url_fails_some_items_in_whitelist">
+		Entries that the home page fails against are marked:
+	</text>
+	<button label="Add" name="whitelist_add"/>
+	<button label="刪除" name="whitelist_del"/>
+	<text name="home_url_fails_whitelist">
+		Warning: the home page specified in the General tab fails to pass this whitelist. It has been disabled until a valid entry has been added.
+	</text>
+</panel>

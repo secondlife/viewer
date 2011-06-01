@@ -572,9 +572,9 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
 		 background_opaque="true">
-      <text top="25" left="30" text_color="White" font="SansSerifSmallBold" width="300" height="4">Performance</text>
+      <text top="15" left="20" text_color="White" font="SansSerifSmallBold" width="110" height="30" wrap="true" halign="center">Higher Performance</text>
       <text top="45" left="10" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">Faster rendering but less detailed; lowers Resource (prim) cost.</text>
-      <text top="25" left="390" text_color="White" font="SansSerifSmallBold" width="300" height="4">Accuracy</text>
+      <text top="15" left="372" text_color="White" font="SansSerifSmallBold" width="90" height="30" wrap="true" halign="center">Higher Accuracy</text>
       <text top="45" left="360" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">More detailed model but slower; increases Resource (prim) cost.</text>
 
       <slider

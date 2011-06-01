@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Attachment Pie">
+	<menu_item_call label="Touch" name="Attachment Object Touch"/>
+	<menu_item_call label="編輯" name="Edit..."/>
+	<menu_item_call label="卸下" name="Detach"/>
+	<menu_item_call label="坐下" name="Sit Down Here"/>
+	<menu_item_call label="起立" name="Stand Up"/>
+	<menu_item_call label="My Appearance" name="Change Outfit"/>
+	<menu_item_call label="Edit My Outfit" name="Edit Outfit"/>
+	<menu_item_call label="Edit My Shape" name="Edit My Shape"/>
+	<menu_item_call label="My Friends" name="Friends..."/>
+	<menu_item_call label="My Groups" name="Groups..."/>
+	<menu_item_call label="My Profile" name="Profile..."/>
+	<menu_item_call label="Debug Textures" name="Debug..."/>
+	<menu_item_call label="Drop" name="Drop"/>
+</context_menu>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="bottom_tray">
+	<string name="DragIndicationImageName" value="Accordion_ArrowOpened_Off"/>
+	<string name="SpeakBtnToolTip" value="マイクのオン・オフ"/>
+	<string name="VoiceControlBtnToolTip" value="ボイスコントロールパネルの表示・非表示"/>
+	<layout_stack name="toolbar_stack">
+		<layout_panel name="gesture_panel">
+			<gesture_combo_list label="ジェスチャー" name="Gesture" tool_tip="ジェスチャーの表示・非表示"/>
+		</layout_panel>
+		<layout_panel name="cam_panel">
+			<bottomtray_button label="視界" name="camera_btn" tool_tip="カメラコントロールの表示・非表示"/>
+		</layout_panel>
+		<layout_panel name="avatar_and_destinations_panel">
+			<bottomtray_button label="行き先" name="destination_btn" tool_tip="人ウインドウを表示"/>
+		</layout_panel>
+		<layout_panel name="avatar_and_destinations_panel">
+			<bottomtray_button label="マイ アバター" name="avatar_btn"/>
+		</layout_panel>
+		<layout_panel name="people_panel">
+			<bottomtray_button label="人" name="show_people_button" tool_tip="人ウインドウを表示"/>
+		</layout_panel>
+		<layout_panel name="profile_panel">
+			<bottomtray_button label="プロフィール" name="show_profile_btn" tool_tip="プロフィールウインドウを表示"/>
+		</layout_panel>
+		<layout_panel name="howto_panel">
+			<bottomtray_button label="ハウツー" name="show_help_btn" tool_tip="Second Lifeのハウツートピックを開く"/>
+		</layout_panel>
+		<layout_panel name="im_well_panel">
+			<chiclet_im_well name="im_well">
+				<button name="Unread IM messages" tool_tip="会話"/>
+			</chiclet_im_well>
+		</layout_panel>
+		<layout_panel name="notification_well_panel">
+			<chiclet_notification name="notification_well">
+				<button name="Unread" tool_tip="通知"/>
+			</chiclet_notification>
+		</layout_panel>
+	</layout_stack>
+</panel>

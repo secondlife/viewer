@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Edit Pick" name="panel_edit_pick">
+	<panel.string name="location_notice">
+		(will update after save)
+	</panel.string>
+	<text name="title">
+		Edit Pick
+	</text>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<icon label="" name="edit_icon" tool_tip="Click to select an image"/>
+			<text name="Name:">
+				Title:
+			</text>
+			<text name="description_label">
+				描述：
+			</text>
+			<text name="location_label">
+				位置：
+			</text>
+			<text name="pick_location">
+				載入中...
+			</text>
+			<button label="Set to Current Location" name="set_to_curr_location_btn"/>
+		</panel>
+	</scroll_container>
+	<panel label="bottom_panel" name="bottom_panel">
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Save Pick" name="save_changes_btn"/>
+			</layout_panel>
+			<layout_panel name="layout_panel1">
+				<button label="取銷" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

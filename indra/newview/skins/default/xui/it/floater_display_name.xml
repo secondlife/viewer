@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Display Name" title="CAMBIA NOME VISUALIZZATO">
+	<text name="info_text">
+		Il nome che assegni al tuo avatar è il Nome visualizzato. Puoi cambiarlo una volta alla settimana.
+	</text>
+	<text name="lockout_text">
+		Non puoi cambiare il Nome visualizzato fino a: [TIME].
+	</text>
+	<text name="set_name_label">
+		Nuovo Nome visualizzato:
+	</text>
+	<text name="name_confirm_label">
+		Digita nuovamente il nuovo nome per confermare:
+	</text>
+	<button label="Salva" name="save_btn" tool_tip="Salva il tuo nuovo Nome visualizzato"/>
+	<button label="Reimposta" name="reset_btn" tool_tip="Fai corrispondere Nome visualizzato e Nome utente"/>
+	<button label="Annulla" name="cancel_btn"/>
+</floater>

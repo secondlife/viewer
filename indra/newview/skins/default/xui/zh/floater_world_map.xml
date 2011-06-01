@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="worldmap" title="世界地圖">
+	<panel name="layout_panel_1">
+		<text name="events_label">
+			Legend
+		</text>
+	</panel>
+	<panel name="layout_panel_2">
+		<button name="Show My Location" tool_tip="Center map on my avatar&apos;s location"/>
+		<text name="me_label">
+			Me
+		</text>
+		<text name="person_label">
+			Person
+		</text>
+		<text name="infohub_label">
+			Infohub
+		</text>
+		<text name="land_sale_label">
+			Land Sale
+		</text>
+		<text name="auction_label">
+			land auction
+		</text>
+		<text name="by_owner_label">
+			by owner
+		</text>
+		<button name="Go Home" tool_tip="Teleport to my home location"/>
+		<text name="Home_label">
+			Home
+		</text>
+		<text name="events_label">
+			Events:
+		</text>
+		<text name="pg_label">
+			一般
+		</text>
+		<check_box initial_value="true" name="events_mature_chk"/>
+		<text name="events_mature_label">
+			Moderate
+		</text>
+		<text name="events_adult_label">
+			Adult
+		</text>
+	</panel>
+	<panel name="layout_panel_3">
+		<text name="find_on_map_label">
+			Find on Map
+		</text>
+	</panel>
+	<panel name="layout_panel_4">
+		<combo_box label="Online Friends" name="friend combo" tool_tip="Show friends on map">
+			<combo_box.item label="My Friends Online" name="item1"/>
+		</combo_box>
+		<combo_box label="My Landmarks" name="landmark combo" tool_tip="Landmark to show on map">
+			<combo_box.item label="My Landmarks" name="item1"/>
+		</combo_box>
+		<search_editor label="Regions by Name" name="location" tool_tip="Type the name of a region"/>
+		<button label="Find" name="DoSearch" tool_tip="Search for region"/>
+		<button name="Clear" tool_tip="Clear tracking lines and reset map"/>
+		<text name="events_label">
+			位置：
+		</text>
+		<button label="Teleport" name="Teleport" tool_tip="Teleport to selected location"/>
+		<button label="Copy SLurl" name="copy_slurl" tool_tip="Copies current location as SLurl to be used on the web."/>
+		<button label="Show Selection" name="Show Destination" tool_tip="Center map on selected location"/>
+	</panel>
+	<panel name="layout_panel_5">
+		<text name="zoom_label">
+			Zoom
+		</text>
+	</panel>
+</floater>

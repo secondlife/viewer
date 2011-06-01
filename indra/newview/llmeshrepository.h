@@ -387,7 +387,8 @@ public:
 	LLHost			mHost;
 	std::string		mUploadObjectAssetCapability;
 	std::string		mNewInventoryCapability;
-	std::string		mWholeModelUploadCapability;
+	std::string		mWholeModelFeeCapability;
+	std::string		mWholeModelUploadURL;
 
 	std::queue<LLMeshUploadData> mUploadQ;
 	std::queue<LLMeshUploadData> mConfirmedQ;

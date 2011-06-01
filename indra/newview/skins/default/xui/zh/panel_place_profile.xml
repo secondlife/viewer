@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="place_profile">
+	<string name="on" value="On"/>
+	<string name="off" value="Off"/>
+	<string name="anyone" value="Anyone"/>
+	<string name="available" value="available"/>
+	<string name="allocated" value="allocated"/>
+	<string name="title_place" value="Place Profile"/>
+	<string name="title_teleport_history" value="Teleport History"/>
+	<string name="not_available" value="(N\A)"/>
+	<string name="unknown" value="（未知）"/>
+	<string name="public" value="（公開）"/>
+	<string name="none_text" value="（無）"/>
+	<string name="sale_pending_text" value="(Sale Pending)"/>
+	<string name="group_owned_text" value="(Group Owned)"/>
+	<string name="price_text" value="L$"/>
+	<string name="area_text" value="m²"/>
+	<string name="all_residents_text" value="全部居民"/>
+	<string name="group_text" value="Group"/>
+	<string name="can_resell">
+		Purchased land in this region may be resold.
+	</string>
+	<string name="can_not_resell">
+		Purchased land in this region may not be resold.
+	</string>
+	<string name="can_change">
+		Purchased land in this region may be joined or subdivided.
+	</string>
+	<string name="can_not_change">
+		Purchased land in this region may not be joined or subdivided.
+	</string>
+	<string name="server_update_text">
+		Place information not available without server update.
+	</string>
+	<string name="server_error_text">
+		Information about this location is unavailable at this time, please try again later.
+	</string>
+	<string name="server_forbidden_text">
+		Information about this location is unavailable due to access restrictions.  Please check your permissions with the parcel owner.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</string>
+	<button name="back_btn" tool_tip="Back"/>
+	<text name="title" value="Place Profile"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="region_title" value="SampleRegion"/>
+			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="owner_label" value="擁有者："/>
+			<text name="owner_value" value="Alex Superduperlongenamenton"/>
+			<text name="maturity_value" value="未知"/>
+			<accordion name="advanced_info_accordion">
+				<accordion_tab name="parcel_characteristics_tab" title="地段">
+					<panel name="parcel_characteristics_panel">
+						<text name="rating_label" value="分級："/>
+						<text name="rating_value" value="未知"/>
+						<text name="voice_label" value="Voice:"/>
+						<text name="voice_value" value="On"/>
+						<text name="fly_label" value="Fly:"/>
+						<text name="fly_value" value="On"/>
+						<text name="push_label" value="Push:"/>
+						<text name="push_value" value="Off"/>
+						<text name="build_label" value="Build:"/>
+						<text name="build_value" value="On"/>
+						<text name="scripts_label" value="Scripts:"/>
+						<text name="scripts_value" value="On"/>
+						<text name="damage_label" value="Damage:"/>
+						<text name="damage_value" value="Off"/>
+						<button label="關於土地" name="about_land_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="region_information_tab" title="地區">
+					<panel name="region_information_panel">
+						<text name="region_name_label" value="地區："/>
+						<text name="region_name" value="Mooseland"/>
+						<text name="region_type_label" value="類型："/>
+						<text name="region_type" value="Moose"/>
+						<text name="region_rating_label" value="分級："/>
+						<text name="region_rating" value="Adult"/>
+						<text name="region_owner_label" value="擁有者："/>
+						<text name="region_owner" value="moose Van Moose extra long name moose"/>
+						<text name="region_group_label" value="Group:"/>
+						<text name="region_group">
+							The Mighty Moose of mooseville soundvillemoose
+						</text>
+						<button label="地區 / 領地" name="region_info_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="estate_information_tab" title="領地">
+					<panel name="estate_information_panel">
+						<text name="estate_name_label" value="領地："/>
+						<text name="estate_rating_label" value="分級："/>
+						<text name="estate_owner_label" value="擁有者："/>
+						<text name="estate_owner" value="Testing owner name length with long name"/>
+						<text name="covenant_label" value="契約："/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="sales_tab" title="出售">
+					<panel name="sales_panel">
+						<text name="sales_price_label" value="價格："/>
+						<text name="area_label" value="面積："/>
+						<text name="traffic_label" value="流量："/>
+						<text name="primitives_label" value="Primitives:"/>
+						<text name="parcel_scripts_label" value="Scripts:"/>
+						<text name="terraform_limits_label" value="Terraform limits:"/>
+						<text name="subdivide_label" value="Subdivide/Join ability:"/>
+						<text name="resale_label" value="ReSale ability:"/>
+						<text name="sale_to_label" value="出售給："/>
+					</panel>
+				</accordion_tab>
+			</accordion>
+		</panel>
+	</scroll_container>
+</panel>

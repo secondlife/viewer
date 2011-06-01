@@ -30,16 +30,13 @@
 		<text name="lbl2">
 			U kunt een enkel item aan een bericht toevoegen door het van uw inventaris naar dit paneel te slepen. Bevestigde items moeten kopieerbaar en overdraagbaar zijn en u kunt geen mappen versturen.
 		</text>
-		<text bottom_delta="-79" halign="right" left="10" name="lbl3" width="60">
+		<text name="lbl3">
 			Onderwerp:
 		</text>
-		<line_editor name="create_subject" width="331" left_delta="71"/>
-		<text bottom_delta="-18" halign="right" left="10" name="lbl4" width="60">
+		<text name="lbl4">
 			Bericht:
 		</text>
-		<text_editor name="create_message" bottom_delta="-90" height="104" left_delta="71" width="330"/>
-		<line_editor name="create_inventory_name" width="190" left_delta="71"/>
-		<text name="lbl5" left="10">
+		<text name="lbl5">
 			Bevestig:
 		</text>
 		<button label="Verwijder bevestiging" label_selected="Verwijder bevestiging" name="remove_attachment"/>

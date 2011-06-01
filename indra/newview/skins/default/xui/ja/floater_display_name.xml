@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Display Name" title="表示名を変更">
+	<text name="info_text">
+		アバターにつけた名前があなたの表示名となります。表示名は週一回の頻度で変更することが可能です。
+	</text>
+	<text name="lockout_text">
+		表示名は次の日付まで変更できません：[TIME]。
+	</text>
+	<text name="set_name_label">
+		新しい表示名：
+	</text>
+	<text name="name_confirm_label">
+		新しい表示名を再入力して確認：
+	</text>
+	<button label="保存" name="save_btn" tool_tip="新しい表示名を保存"/>
+	<button label="リセット" name="reset_btn" tool_tip="表示名とユーザー名を統一"/>
+	<button label="取り消し" name="cancel_btn"/>
+</floater>

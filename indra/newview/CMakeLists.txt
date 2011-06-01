@@ -77,6 +77,7 @@ include_directories(
 
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
+    llaccountingquotamanager.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentcamera.cpp
@@ -626,6 +627,7 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
     groupchatlistener.h
+    llaccountingquotamanager.h
     llagent.h
     llagentaccess.h
     llagentcamera.h

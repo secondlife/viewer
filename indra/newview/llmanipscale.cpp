@@ -93,6 +93,7 @@ F32 get_default_max_prim_scale(bool is_flora)
 	if (gSavedSettings.getBOOL("MeshEnabled") && 
 		gAgent.getRegion() && 
 		!gAgent.getRegion()->getCapability("GetMesh").empty() &&
+		!gAgent.getRegion()->getCapability("ObjectAdd").empty() &&
 		!is_flora)
 	{
 		return DEFAULT_MAX_PRIM_SCALE;

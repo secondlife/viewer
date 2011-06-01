@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="突顯式視窗" name="popups">
+	<text name="tell_me_label">
+		告訴我：
+	</text>
+	<check_box label="當我花費或取得 L$" name="notify_money_change_checkbox"/>
+	<check_box label="當我的朋友上線或離線" name="friends_online_notify_checkbox"/>
+	<text name="show_label">
+		總是顯示：
+	</text>
+	<text name="dont_show_label">
+		絕不顯示：
+	</text>
+</panel>

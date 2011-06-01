@@ -3,35 +3,16 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<panel.string name="middle_mouse">
-		Pulsante centrale del mouse
-	</panel.string>
-	<slider label="Angolo di visuale" name="camera_fov"/>
-	<slider label="Distanza" name="camera_offset_scale"/>
-	<text name="heading2">
-		Posizione automatica per:
-	</text>
-	<check_box label="Costruire/Modificare" name="edit_camera_movement" tool_tip="Utilizza il posizionamento automatico della fotocamera entrando o uscendo dalla modalità modifica"/>
-	<check_box label="Aspetto fisico" name="appearance_camera_movement" tool_tip="Utilizza il posizionamento automatico della camera in modalità modifica"/>
-	<check_box initial_value="vero" label="Barra laterale" name="appearance_sidebar_positioning" tool_tip="Utilizza il posizionamento automatico della fotocamera per la barra laterale"/>
-	<check_box label="Visualizzami in modalità soggettiva" name="first_person_avatar_visible"/>
-	<check_box label="Le frecce di direzione mi fanno sempre spostare" name="arrow_keys_move_avatar_check"/>
-	<check_box label="Doppio click e tieni premuto per correre" name="tap_tap_hold_to_run"/>
-	<check_box label="Movimento delle labbra dell&apos;avatar quando parla" name="enable_lip_sync"/>
-	<check_box label="Chat a bolla" name="bubble_text_chat"/>
-	<slider label="Opacità" name="bubble_chat_opacity"/>
-	<color_swatch name="background" tool_tip="Scegli il colore delle vignette della chat"/>
 	<text name="UI Size:">
-		Dimensioni interfaccia utente
+		Dimensioni UI:
 	</text>
 	<check_box label="Mostra errori dello script in:" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Chat nei dintorni" name="0"/>
 		<radio_item label="Finestra separata" name="1"/>
 	</radio_group>
-	<check_box label="Attiva/disattiva la funzione parla quando premo:" name="push_to_talk_toggle_check" tool_tip="In modalità &quot;interruttore ON/OFF&quot; premi il tasto una volta per attivare o disattivare il microfono. Quando non usi questa modalità, il microfono è attivo solo se tieni premuto il tasto di comando."/>
-	<line_editor label="Pulsante di comando della funzione Premi per parlare" name="modifier_combo"/>
-	<button label="Imposta tasto" name="set_voice_hotkey_button"/>
-	<button label="Pulsante centrale del mouse" name="set_voice_middlemouse_button" tool_tip="Reimposta sul pulsante centrale del mouse"/>
-	<button label="Altri dispositivi" name="joystick_setup_button"/>
+	<check_box label="Consenti più Viewer" name="allow_multiple_viewer_check"/>
+	<check_box label="Mostra selezione griglia all&apos;accesso" name="show_grid_selection_check"/>
+	<check_box label="Mostra menu Avanzato" name="show_advanced_menu_check"/>
+	<check_box label="Mostra menu Sviluppatore" name="show_develop_menu_check"/>
 </panel>

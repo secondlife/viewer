@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="landmark_info">
+	<string name="title_create_landmark" value="Create Landmark"/>
+	<string name="title_edit_landmark" value="Edit Landmark"/>
+	<string name="title_landmark" value="Landmark"/>
+	<string name="not_available" value="(N\A)"/>
+	<string name="unknown" value="（未知）"/>
+	<string name="public" value="（公開）"/>
+	<string name="server_update_text">
+		Place information not available without server update.
+	</string>
+	<string name="server_error_text">
+		Information about this location is unavailable at this time, please try again later.
+	</string>
+	<string name="server_forbidden_text">
+		Information about this location is unavailable due to access restrictions.  Please check your permissions with the parcel owner.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</string>
+	<button name="back_btn" tool_tip="Back"/>
+	<text name="title" value="Place Profile"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="region_title" value="SampleRegion"/>
+			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="maturity_value" value="未知"/>
+			<panel name="landmark_info_panel">
+				<text name="owner_label" value="擁有者："/>
+				<text name="creator_label" value="創造者："/>
+				<text name="created_label" value="Created:"/>
+			</panel>
+			<panel name="landmark_edit_panel">
+				<text name="title_label" value="Title:"/>
+				<text name="notes_label" value="My notes:"/>
+				<text name="folder_label" value="Landmark location:"/>
+			</panel>
+		</panel>
+	</scroll_container>
+</panel>

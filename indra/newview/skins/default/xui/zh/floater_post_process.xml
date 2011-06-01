@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Post-Process Floater" title="POST-PROCESS SETTINGS">
+	<tab_container name="Post-Process Tabs">
+		<panel label="Color Filter" name="wmiColorFilterPanel">
+			<check_box label="Enable" name="wmiColorFilterToggle"/>
+			<text name="wmiColorFilterBrightnessText">
+				Brightness
+			</text>
+			<text name="wmiColorFilterSaturationText">
+				Saturation
+			</text>
+			<text name="wmiColorFilterContrastText">
+				Contrast
+			</text>
+			<text name="wmiColorFilterBaseText">
+				Contrast Base Color
+			</text>
+			<slider label="R" name="wmiColorFilterBaseR"/>
+			<slider label="G" name="wmiColorFilterBaseG"/>
+			<slider label="B" name="wmiColorFilterBaseB"/>
+			<slider label="I" name="wmiColorFilterBaseI"/>
+		</panel>
+		<panel label="Night Vision" name="wmiNightVisionPanel">
+			<check_box label="Enable" name="wmiNightVisionToggle"/>
+			<text name="wmiNightVisionBrightMultText">
+				Light Amplification Multiple
+			</text>
+			<text name="wmiNightVisionNoiseSizeText">
+				Noise Size
+			</text>
+			<text name="wmiNightVisionNoiseStrengthText">
+				Noise Strength
+			</text>
+		</panel>
+		<panel label="Bloom" name="wmiBloomPanel">
+			<check_box label="Enable" name="wmiBloomToggle"/>
+			<text name="wmiBloomExtractText">
+				Luminosity Extraction
+			</text>
+			<text name="wmiBloomSizeText">
+				Bloom Size
+			</text>
+			<text name="wmiBloomStrengthText">
+				Bloom Strength
+			</text>
+		</panel>
+		<panel label="Extras" name="Extras">
+			<button label="LoadEffect" label_selected="LoadEffect" name="PPLoadEffect"/>
+			<button label="SaveEffect" label_selected="SaveEffect" name="PPSaveEffect"/>
+			<line_editor label="效果名稱" name="PPEffectNameEditor"/>
+		</panel>
+	</tab_container>
+</floater>

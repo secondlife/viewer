@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script ed float" title="LSL REFERENCE">
+	<check_box label="Follow cursor" name="lock_check"/>
+	<combo_box label="Lock" name="history_combo"/>
+	<button label="Back" name="back_btn"/>
+	<button label="Forward" name="fwd_btn"/>
+</floater>
