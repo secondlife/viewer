@@ -327,7 +327,7 @@ private:
 	region_settings_change_signal_t	mRegionSettingsChangeSignal;
 
 	/// Emitted when agent region changes. Move to LLAgent?
-	region_settings_change_signal_t	mRegionChangeSignal;
+	region_change_signal_t	mRegionChangeSignal;
 
 	/// Emitted when agent region changes. Move to LLAgent?
 	region_settings_applied_signal_t mRegionSettingsAppliedSignal;

@@ -158,7 +158,7 @@ bool LLDayCycleManager::addPreset(const std::string& name, const LLSD& data)
 	LLWLDayCycle day;
 	day.loadDayCycle(data, LLEnvKey::SCOPE_LOCAL);
 	mDayCycleMap[name] = day;
-	return false;
+	return true;
 }
 
 // static
