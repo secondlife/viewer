@@ -2,7 +2,7 @@
 <!-- Additional attributes:
    -->
 <badge font="SansSerifSmall"
-       image="Badge"
+       image="Badge_Background"
        image_color="BadgeImageColor"
        label_color="BadgeLabelColor"
        location="top_left"
