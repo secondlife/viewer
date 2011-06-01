@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_buy_contents" title="BUY CONTENTS">
+	<floater.string name="no_copy_text">
+		(no copy)
+	</floater.string>
+	<floater.string name="no_modify_text">
+		(no modify)
+	</floater.string>
+	<floater.string name="no_transfer_text">
+		(no transfer)
+	</floater.string>
+	<text name="contains_text">
+		[NAME] contains:
+	</text>
+	<text name="buy_text">
+		Buy for L$[AMOUNT] from [NAME]?
+	</text>
+	<check_box label="Wear clothing now" name="wear_check"/>
+	<button label="購買" label_selected="購買" name="buy_btn"/>
+	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
+</floater>

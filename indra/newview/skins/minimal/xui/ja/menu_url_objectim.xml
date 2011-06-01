@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="オブジェクトの情報を表示" name="show_object"/>
+	<menu_item_call label="地図に表示" name="show_on_map"/>
+	<menu_item_call label="オブジェクトの場所にテレポート" name="teleport_to_object"/>
+	<menu_item_call label="オブジェクト名をクリップボードにコピー" name="url_copy_label"/>
+	<menu_item_call label="SLurl をクリップボードにコピー" name="url_copy"/>
+</context_menu>

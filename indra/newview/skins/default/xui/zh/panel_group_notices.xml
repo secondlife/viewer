@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Notices" name="notices_tab">
+	<panel.string name="help_text">
+		Notices let you send a message and an optionally attached item.
+Notices only go to group members in Roles with the ability to receive Notices.
+You can turn off Notices on the General tab.
+	</panel.string>
+	<panel.string name="no_notices_text">
+		There are no past notices
+	</panel.string>
+	<text name="lbl2">
+		Notices are kept for 14 days.
+Maximum 200 per group daily
+	</text>
+	<scroll_list name="notice_list">
+		<scroll_list.columns label="Subject" name="subject"/>
+		<scroll_list.columns label="From" name="from"/>
+		<scroll_list.columns label="Date" name="date"/>
+	</scroll_list>
+	<text name="notice_list_none_found">
+		None found
+	</text>
+	<button label="New Notice" name="create_new_notice" tool_tip="Create a new notice"/>
+	<button name="refresh_notices" tool_tip="Refresh list of notices"/>
+	<panel label="Create New Notice" name="panel_create_new_notice">
+		<text name="lbl">
+			Create a Notice
+		</text>
+		<text name="lbl3">
+			主旨：
+		</text>
+		<text name="lbl4">
+			訊息：
+		</text>
+		<text name="lbl5">
+			附件：
+		</text>
+		<text name="string">
+			Drag and drop item here to attach it:
+		</text>
+		<button label="Inventory" name="open_inventory" tool_tip="Open Inventory"/>
+		<button name="remove_attachment" tool_tip="Remove attachment from your notification"/>
+		<button label="Send" label_selected="Send" name="send_notice"/>
+		<group_drop_target name="drop_target" tool_tip="Drag an inventory item onto this target box to send it with this notice. You must have permission to copy and transfer the item in order to attach it."/>
+	</panel>
+	<panel label="View Past Notice" name="panel_view_past_notice">
+		<text name="lbl">
+			Archived Notice
+		</text>
+		<text name="lbl2">
+			To send a new notice, click the + button
+		</text>
+		<text name="lbl3">
+			Subject:
+		</text>
+		<text name="lbl4">
+			Message:
+		</text>
+		<button label="Open Attachment" name="open_attachment"/>
+	</panel>
+</panel>

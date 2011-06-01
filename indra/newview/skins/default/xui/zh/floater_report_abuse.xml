@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_report_abuse" title="REPORT ABUSE">
+	<floater.string name="Screenshot">
+		Screenshot
+	</floater.string>
+	<check_box label="Use this screenshot" name="screen_check"/>
+	<text name="reporter_title">
+		Reporter:
+	</text>
+	<text name="sim_title">
+		地區：
+	</text>
+	<text name="sim_field">
+		地區名稱
+	</text>
+	<text name="pos_title">
+		Position:
+	</text>
+	<text name="pos_field">
+		{128.1, 128.1, 15.4}
+	</text>
+	<text name="select_object_label">
+		Click the button, then the abusive object:
+	</text>
+	<button name="pick_btn" tool_tip="Object Picker - Identify an object as the subject of this report"/>
+	<text name="object_name_label">
+		Object:
+	</text>
+	<text name="owner_name_label">
+		擁有者：
+	</text>
+	<combo_box name="category_combo" tool_tip="Category -- select the category that best describes this report">
+		<combo_box.item label="Select category" name="Select_category"/>
+		<combo_box.item label="Age &gt; Age play" name="Age__Age_play"/>
+		<combo_box.item label="Age &gt; Adult Resident on Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
+		<combo_box.item label="Age &gt; Underage Resident outside of Teen Second Life" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
+		<combo_box.item label="Assault &gt; Combat sandbox / unsafe area" name="Assault__Combat_sandbox___unsafe_area"/>
+		<combo_box.item label="Assault &gt; Safe area" name="Assault__Safe_area"/>
+		<combo_box.item label="Assault &gt; Weapons testing sandbox" name="Assault__Weapons_testing_sandbox"/>
+		<combo_box.item label="Commerce &gt; Failure to deliver product or service" name="Commerce__Failure_to_deliver_product_or_service"/>
+		<combo_box.item label="Disclosure &gt; Real world information" name="Disclosure__Real_world_information"/>
+		<combo_box.item label="Disclosure &gt; Remotely monitoring chat" name="Disclosure__Remotely_monitoring chat"/>
+		<combo_box.item label="Disclosure &gt; Second Life information/chat/IMs" name="Disclosure__Second_Life_information_chat_IMs"/>
+		<combo_box.item label="Disturbing the peace &gt; Unfair use of region resources" name="Disturbing_the_peace__Unfair_use_of_region_resources"/>
+		<combo_box.item label="Disturbing the peace &gt; Excessive scripted objects" name="Disturbing_the_peace__Excessive_scripted_objects"/>
+		<combo_box.item label="Disturbing the peace &gt; Object littering" name="Disturbing_the_peace__Object_littering"/>
+		<combo_box.item label="Disturbing the peace &gt; Repetitive spam" name="Disturbing_the_peace__Repetitive_spam"/>
+		<combo_box.item label="Disturbing the peace &gt; Unwanted advert spam" name="Disturbing_the_peace__Unwanted_advert_spam"/>
+		<combo_box.item label="Fraud &gt; L$" name="Fraud__L$"/>
+		<combo_box.item label="Fraud &gt; Land" name="Fraud__Land"/>
+		<combo_box.item label="Fraud &gt; Pyramid scheme or chain letter" name="Fraud__Pyramid_scheme_or_chain_letter"/>
+		<combo_box.item label="Fraud &gt; US$" name="Fraud__US$"/>
+		<combo_box.item label="Harassment &gt; Advert farms / visual spam" name="Harassment__Advert_farms___visual_spam"/>
+		<combo_box.item label="Harassment &gt; Defaming individuals or groups" name="Harassment__Defaming_individuals_or_groups"/>
+		<combo_box.item label="Harassment &gt; Impeding movement" name="Harassment__Impeding_movement"/>
+		<combo_box.item label="Harassment &gt; Sexual harassment" name="Harassment__Sexual_harassment"/>
+		<combo_box.item label="Harassment &gt; Solicting/inciting others to violate ToS" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="Harassment &gt; Verbal abuse" name="Harassment__Verbal_abuse"/>
+		<combo_box.item label="Indecency &gt; Broadly offensive content or conduct" name="Indecency__Broadly_offensive_content_or_conduct"/>
+		<combo_box.item label="Indecency &gt; Inappropriate avatar name" name="Indecency__Inappropriate_avatar_name"/>
+		<combo_box.item label="Indecency &gt; Inappropriate content or conduct in a PG region" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="Indecency &gt; Inappropriate content or conduct in a Moderate region" name="Indecency__Inappropriate_content_in_Mature_region"/>
+		<combo_box.item label="Intellectual property infringement &gt; Content Removal" name="Intellectual_property_infringement_Content_Removal"/>
+		<combo_box.item label="Intellectual property infringement &gt; CopyBot or Permissions Exploit" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
+		<combo_box.item label="Intolerance" name="Intolerance"/>
+		<combo_box.item label="Land &gt; Abuse of sandbox resources" name="Land__Abuse_of_sandbox_resources"/>
+		<combo_box.item label="Land &gt; Encroachment &gt; Objects/textures" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="Land &gt; Encroachment &gt; Particles" name="Land__Encroachment__Particles"/>
+		<combo_box.item label="Land &gt; Encroachment &gt; Trees/plants" name="Land__Encroachment__Trees_plants"/>
+		<combo_box.item label="Wagering/gambling" name="Wagering_gambling"/>
+		<combo_box.item label="Other" name="Other"/>
+	</combo_box>
+	<text name="abuser_name_title">
+		Abuser name:
+	</text>
+	<button label="Choose" name="select_abuser" tool_tip="Select the name of the abuser from a list"/>
+	<text name="abuser_name_title2">
+		Location of Abuse:
+	</text>
+	<text name="sum_title">
+		Summary:
+	</text>
+	<text name="dscr_title">
+		Details:
+	</text>
+	<text name="bug_aviso">
+		Please be as specific as possible
+	</text>
+	<text name="incomplete_title">
+		* Incomplete reports won&apos;t be investigated
+	</text>
+	<button label="Report Abuse" label_selected="Report Abuse" name="send_btn"/>
+	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
+</floater>

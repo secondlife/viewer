@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Places" name="places panel">
+	<string name="landmarks_tab_title" value="MY LANDMARKS"/>
+	<string name="teleport_history_tab_title" value="TELEPORT HISTORY"/>
+	<filter_editor label="Filter My Places" name="Filter"/>
+	<panel name="button_panel">
+		<layout_stack name="bottom_bar_ls0">
+			<layout_panel name="lp1">
+				<layout_stack name="bottom_bar_ls1">
+					<layout_panel name="teleport_btn_lp">
+						<button label="Teleport" name="teleport_btn" tool_tip="Teleport to the selected area"/>
+					</layout_panel>
+					<layout_panel name="chat_btn_lp">
+						<button label="地圖" name="map_btn" tool_tip="Show the corresponding area on the World Map"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+			<layout_panel name="lp2">
+				<layout_stack name="bottom_bar_ls3">
+					<layout_panel name="edit_btn_lp">
+						<button label="編輯" name="edit_btn" tool_tip="Edit landmark information"/>
+					</layout_panel>
+					<layout_panel name="overflow_btn_lp">
+						<menu_button name="overflow_btn" tool_tip="Show additional options"/>
+					</layout_panel>
+				</layout_stack>
+				<layout_stack name="bottom_bar_ls3">
+					<layout_panel name="profile_btn_lp">
+						<button label="Profile" name="profile_btn" tool_tip="Show place profile"/>
+					</layout_panel>
+				</layout_stack>
+				<layout_stack name="bottom_bar_close_ls3">
+					<layout_panel name="close_btn_lp">
+						<button label="關閉" name="close_btn"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls2">
+			<layout_panel name="save_btn_lp">
+				<button label="儲存" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="cancel_btn_lp">
+				<button label="取銷" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

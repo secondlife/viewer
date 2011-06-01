@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Outfits" name="appearance panel">
+	<string name="No Outfit" value="No Outfit"/>
+	<string name="Unsaved Changes" value="Unsaved changes"/>
+	<string name="Now Wearing" value="Now wearing..."/>
+	<string name="Changing outfits" value="Changing outfits"/>
+	<panel name="panel_currentlook">
+		<button label="E" name="editappearance_btn"/>
+		<button label="O" name="openoutfit_btn"/>
+		<text name="currentlook_status">
+			(Status)
+		</text>
+		<text name="currentlook_name">
+			MyOutfit With a really Long Name like MOOSE
+		</text>
+		<button label="" name="edit_outfit_btn" tool_tip="Edit this outfit"/>
+	</panel>
+	<filter_editor label="Filter Outfits" name="Filter"/>
+</panel>

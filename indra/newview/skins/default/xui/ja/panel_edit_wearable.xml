@@ -45,6 +45,9 @@
 	<string name="edit_tattoo_title">
 		タトゥーを編集中
 	</string>
+	<string name="edit_physics_title">
+		物理作用の編集中
+	</string>
 	<string name="shape_desc_text">
 		シェイプ：
 	</string>
@@ -89,6 +92,9 @@
 	</string>
 	<string name="tattoo_desc_text">
 		タトゥ：
+	</string>
+	<string name="physics_desc_text">
+		物理作用：
 	</string>
 	<labeled_back_button label="保存" name="back_btn" tool_tip="アウトフィットの編集に戻る"/>
 	<text name="edit_wearable_title" value="シェイプを編集中"/>

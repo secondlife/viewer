@@ -1,0 +1,2952 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notifications>
+	<global name="skipnexttime">
+		Don&apos;t show me this again
+	</global>
+	<global name="alwayschoose">
+		Always choose this option
+	</global>
+	<global name="implicitclosebutton">
+		關閉
+	</global>
+	<template name="okbutton">
+		<form>
+			<button name="OK_okbutton" text="$yestext"/>
+		</form>
+	</template>
+	<template name="okignore">
+		<form>
+			<button name="OK_okignore" text="$yestext"/>
+		</form>
+	</template>
+	<template name="okcancelbuttons">
+		<form>
+			<button name="OK_okcancelbuttons" text="$yestext"/>
+			<button name="Cancel_okcancelbuttons" text="$notext"/>
+		</form>
+	</template>
+	<template name="okcancelignore">
+		<form>
+			<button name="OK_okcancelignore" text="$yestext"/>
+			<button name="Cancel_okcancelignore" text="$notext"/>
+		</form>
+	</template>
+	<template name="okhelpbuttons">
+		<form>
+			<button name="OK_okhelpbuttons" text="$yestext"/>
+			<button name="Help" text="$helptext"/>
+		</form>
+	</template>
+	<template name="yesnocancelbuttons">
+		<form>
+			<button name="Yes" text="$yestext"/>
+			<button name="No" text="$notext"/>
+			<button name="Cancel_yesnocancelbuttons" text="$canceltext"/>
+		</form>
+	</template>
+	<notification label="Unknown Notification Message" name="MissingAlert">
+		Your version of [APP_NAME] does not know how to display the notification it just received.  Please verify that you have the latest Viewer installed.
+
+Error details: The notification called &apos;[_NAME]&apos; was not found in notifications.xml.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="FloaterNotFound">
+		Floater error: Could not find the following controls:
+
+[CONTROLS]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="TutorialNotFound">
+		No tutorial is currently available.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="GenericAlert">
+		[MESSAGE]
+	</notification>
+	<notification name="GenericAlertYesCancel">
+		[MESSAGE]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="是"/>
+	</notification>
+	<notification name="BadInstallation">
+		An error occurred while updating [APP_NAME].  Please [http://get.secondlife.com download the latest version] of the Viewer.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="LoginFailedNoNetwork">
+		Could not connect to the [SECOND_LIFE_GRID].
+    &apos;[DIAGNOSTIC]&apos;
+Make sure your Internet connection is working properly.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="MessageTemplateNotFound">
+		Message Template [PATH] not found.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="WearableSave">
+		Save changes to current clothing/body part?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="不要儲存" yestext="儲存"/>
+	</notification>
+	<notification name="CompileQueueSaveText">
+		There was a problem uploading the text for a script due to the following reason: [REASON]. Please try again later.
+	</notification>
+	<notification name="CompileQueueSaveBytecode">
+		There was a problem uploading the compiled script due to the following reason: [REASON]. Please try again later.
+	</notification>
+	<notification name="WriteAnimationFail">
+		There was a problem writing animation data.  Please try again later.
+	</notification>
+	<notification name="UploadAuctionSnapshotFail">
+		There was a problem uploading the auction snapshot due to the following reason: [REASON]
+	</notification>
+	<notification name="UnableToViewContentsMoreThanOne">
+		Unable to view the contents of more than one item at a time.
+Please select only one object and try again.
+	</notification>
+	<notification name="SaveClothingBodyChanges">
+		Save all changes to clothing/body parts?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="不要儲存" yestext="全部儲存"/>
+	</notification>
+	<notification name="FriendsAndGroupsOnly">
+		Non-friends won&apos;t know that you&apos;ve choosen to ignore their calls and instant messages.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="FavoritesOnLogin">
+		Note: When you turn on this option, anyone who uses this computer can see your list of favorite locations.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="GrantModifyRights">
+		Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
+Do you want to grant modify rights for [NAME]?
+		<usetemplate name="okcancelbuttons" notext="No" yestext="是"/>
+	</notification>
+	<notification name="GrantModifyRightsMultiple">
+		Granting modify rights to another Resident allows them to change ANY objects you may have in-world. Be VERY careful when handing out this permission.
+Do you want to grant modify rights for the selected Residents?
+		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification name="RevokeModifyRights">
+		Do you want to revoke modify rights for [NAME]?
+		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification name="RevokeModifyRightsMultiple">
+		Do you want to revoke modify rights for the selected Residents?
+		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification name="UnableToCreateGroup">
+		Unable to create group.
+[MESSAGE]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="PanelGroupApply">
+		[NEEDS_APPLY_MESSAGE]
+[WANT_APPLY_MESSAGE]
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="忽視變更" yestext="套用變更"/>
+	</notification>
+	<notification name="MustSpecifyGroupNoticeSubject">
+		You must specify a subject to send a group notice.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="AddGroupOwnerWarning">
+		You are about to add group members to the role of [ROLE_NAME].
+Members cannot be removed from that role.
+The members must resign from the role themselves.
+Are you sure you want to continue?
+		<usetemplate ignoretext="Confirm before I add a new group Owner" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="AssignDangerousActionWarning">
+		You are about to add the Ability &apos;[ACTION_NAME]&apos; to the Role &apos;[ROLE_NAME]&apos;.
+
+ *WARNING*
+ Any Member in a Role with this Ability can assign themselves -- and any other member -- to Roles that have more powers than they  currently have, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability.
+
+Add this Ability to &apos;[ROLE_NAME]&apos;?
+		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification name="AssignDangerousAbilityWarning">
+		You are about to add the Ability &apos;[ACTION_NAME]&apos; to the Role &apos;[ROLE_NAME]&apos;.
+
+ *WARNING*
+ Any Member in a Role with this Ability can assign themselves -- and any other member -- all Abilities, elevating themselves to near-Owner power.
+
+Add this Ability to &apos;[ROLE_NAME]&apos;?
+		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification name="AttachmentDrop">
+		You are about to drop your attachment.
+    Are you sure you want to continue?
+		<usetemplate ignoretext="Confirm before dropping attachments" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="JoinGroupCanAfford">
+		Joining this group costs L$[COST].
+Do you wish to proceed?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="Join"/>
+	</notification>
+	<notification name="JoinGroupNoCost">
+		You are joining group [NAME].
+Do you wish to proceed?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="Join"/>
+	</notification>
+	<notification name="JoinGroupCannotAfford">
+		Joining this group costs L$[COST].
+You do not have enough L$ to join this group.
+	</notification>
+	<notification name="CreateGroupCost">
+		Creating this group will cost L$100.
+Groups need more than one member, or they are deleted forever.
+Please invite members within 48 hours.
+		<usetemplate canceltext="取銷" name="okcancelbuttons" notext="取銷" yestext="Create group for L$100"/>
+	</notification>
+	<notification name="LandBuyPass">
+		For L$[COST] you can enter this land (&apos;[PARCEL_NAME]&apos;) for [TIME] hours.  Buy a pass?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="SalePriceRestriction">
+		Sale price must be set to more than L$0 if selling to anyone.
+Please select an individual to sell to if selling for L$0.
+	</notification>
+	<notification name="ConfirmLandSaleChange">
+		The selected [LAND_SIZE] m² land is being set for sale.
+Your selling price will be L$[SALE_PRICE] and will be authorized for sale to [NAME].
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmLandSaleToAnyoneChange">
+		ATTENTION: Clicking &apos;sell to anyone&apos; makes your land available to the entire [SECOND_LIFE] community, even those not in this region.
+
+The selected [LAND_SIZE] m² land is being set for sale.
+Your selling price will be L$[SALE_PRICE] and will be authorized for sale to [NAME].
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ReturnObjectsDeededToGroup">
+		Are you sure you want to return all objects shared with the group &apos;[NAME]&apos; on this parcel of land back to their previous owner&apos;s inventory?
+
+*WARNING* This will delete the non-transferable objects deeded to the group!
+
+Objects: [N]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ReturnObjectsOwnedByUser">
+		Are you sure you want to return all objects owned by the Resident &apos;[NAME]&apos; on this parcel of land back to their inventory?
+
+Objects: [N]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ReturnObjectsOwnedBySelf">
+		Are you sure you want to return all objects owned by you on this parcel of land back to your inventory?
+
+Objects: [N]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ReturnObjectsNotOwnedBySelf">
+		Are you sure you want to return all objects NOT owned by you on this parcel of land back to their owner&apos;s inventory?
+Transferable objects deeded to a group will be returned to their previous owners.
+
+*WARNING* This will delete the non-transferable objects deeded to the group!
+
+Objects: [N]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ReturnObjectsNotOwnedByUser">
+		Are you sure you want to return all objects NOT owned by [NAME] on this parcel of land back to their owner&apos;s inventory?
+Transferable objects deeded to a group will be returned to their previous owners.
+
+*WARNING* This will delete the non-transferable objects deeded to the group!
+
+Objects: [N]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ReturnAllTopObjects">
+		Are you sure you want to return all listed objects back to their owner&apos;s inventory?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="DisableAllTopObjects">
+		Are you sure you want to disable all objects in this region?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ReturnObjectsNotOwnedByGroup">
+		Return the objects on this parcel of land that are NOT shared with the group [NAME] back to their owners?
+
+Objects: [N]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="UnableToDisableOutsideScripts">
+		Can not disable scripts.
+This entire region is damage enabled.
+Scripts must be allowed to run for weapons to work.
+	</notification>
+	<notification name="MultipleFacesSelected">
+		Multiple faces are currently selected.
+If you continue this action, separate instances of media will be set on multiple faces of the object.
+To place the media on only one face, choose Select Face and click on the desired face of that object then click Add.
+		<usetemplate ignoretext="Media will be set on multiple selected faces" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="MustBeInParcel">
+		You must be standing inside the land parcel to set its Landing Point.
+	</notification>
+	<notification name="PromptRecipientEmail">
+		Please enter a valid email address for the recipient(s).
+	</notification>
+	<notification name="PromptSelfEmail">
+		Please enter your email address.
+	</notification>
+	<notification name="PromptMissingSubjMsg">
+		Email snapshot with the default subject or message?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ErrorProcessingSnapshot">
+		Error processing snapshot data
+	</notification>
+	<notification name="ErrorEncodingSnapshot">
+		Error encoding snapshot.
+	</notification>
+	<notification name="ErrorUploadingPostcard">
+		There was a problem sending a snapshot due to the following reason: [REASON]
+	</notification>
+	<notification name="ErrorUploadingReportScreenshot">
+		There was a problem uploading a report screenshot due to the following reason: [REASON]
+	</notification>
+	<notification name="MustAgreeToLogIn">
+		You must agree to the Terms of Service to continue logging into [SECOND_LIFE].
+	</notification>
+	<notification name="CouldNotPutOnOutfit">
+		Could not put on outfit.
+The outfit folder contains no clothing, body parts, or attachments.
+	</notification>
+	<notification name="CannotWearTrash">
+		You can not wear clothes or body parts that are in the trash
+	</notification>
+	<notification name="MaxAttachmentsOnOutfit">
+		Could not attach object.
+Exceeds the attachments limit of [MAX_ATTACHMENTS] objects. Please detach another object first.
+	</notification>
+	<notification name="CannotWearInfoNotComplete">
+		You can not wear that item because it has not yet loaded. Please try again in a minute.
+	</notification>
+	<notification name="MustHaveAccountToLogIn">
+		Oops! Something was left blank.
+You need to enter the Username name of your avatar.
+
+You need an account to enter [SECOND_LIFE]. Would you like to create one now?
+		<url name="url">
+			http://join.secondlife.com/
+		</url>
+		<usetemplate name="okcancelbuttons" notext="Try again" yestext="Create a new account"/>
+	</notification>
+	<notification name="InvalidCredentialFormat">
+		You need to enter either the Username or both the First and Last name of your avatar into the Username field, then login again.
+	</notification>
+	<notification name="DeleteClassified">
+		Delete classified &apos;[NAME]&apos;?
+There is no reimbursement for fees paid.
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="DeleteMedia">
+		You have selected to delete the media associated with this face.
+Are you sure you want to continue?
+		<usetemplate ignoretext="Confirm before I delete media from an object" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="ClassifiedSave">
+		Save changes to classified [NAME]?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="不要儲存" yestext="儲存"/>
+	</notification>
+	<notification name="ClassifiedInsufficientFunds">
+		Insufficient funds to create classified.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="DeleteAvatarPick">
+		Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="DeleteOutfits">
+		Delete the selected outfit?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="PromptGoToEventsPage">
+		Go to the [SECOND_LIFE] events web page?
+		<url name="url">
+			http://secondlife.com/events/
+		</url>
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="SelectProposalToView">
+		Please select a proposal to view.
+	</notification>
+	<notification name="SelectHistoryItemToView">
+		Please select a history item to view.
+	</notification>
+	<notification name="CacheWillClear">
+		Cache will be cleared after you restart [APP_NAME].
+	</notification>
+	<notification name="CacheWillBeMoved">
+		Cache will be moved after you restart [APP_NAME].
+Note: This will clear the cache.
+	</notification>
+	<notification name="ChangeConnectionPort">
+		Port settings take effect after you restart [APP_NAME].
+	</notification>
+	<notification name="ChangeSkin">
+		The new skin will appear after you restart [APP_NAME].
+	</notification>
+	<notification name="ChangeLanguage">
+		Changing language will take effect after you restart [APP_NAME].
+	</notification>
+	<notification name="GoToAuctionPage">
+		Go to the [SECOND_LIFE] web page to see auction details or make a bid?
+		<url name="url">
+			http://secondlife.com/auctions/auction-detail.php?id=[AUCTION_ID]
+		</url>
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="SaveChanges">
+		Save Changes?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="不要儲存" yestext="儲存"/>
+	</notification>
+	<notification name="GestureSaveFailedTooManySteps">
+		Gesture save failed.
+This gesture has too many steps.
+Try removing some steps, then save again.
+	</notification>
+	<notification name="GestureSaveFailedTryAgain">
+		Gesture save failed.  Please try again in a minute.
+	</notification>
+	<notification name="GestureSaveFailedObjectNotFound">
+		Could not save gesture because the object or the associated object inventory could not be found.
+The object may be out of range or may have been deleted.
+	</notification>
+	<notification name="GestureSaveFailedReason">
+		There was a problem saving a gesture due to the following reason: [REASON].  Please try resaving the gesture later.
+	</notification>
+	<notification name="SaveNotecardFailObjectNotFound">
+		Could not save notecard because the object or the associated object inventory could not be found.
+The object may be out of range or may have been deleted.
+	</notification>
+	<notification name="SaveNotecardFailReason">
+		There was a problem saving a notecard due to the following reason: [REASON].  Please try re-saving the notecard later.
+	</notification>
+	<notification name="ScriptCannotUndo">
+		Could not undo all changes in your version of the script.
+Would you like to load the server&apos;s last saved version?
+(**Warning** This operation cannot be undone.)
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="SaveScriptFailReason">
+		There was a problem saving a script due to the following reason: [REASON].  Please try re-saving the script later.
+	</notification>
+	<notification name="SaveScriptFailObjectNotFound">
+		Could not save the script because the object it is in could not be found.
+The object may be out of range or may have been deleted.
+	</notification>
+	<notification name="SaveBytecodeFailReason">
+		There was a problem saving a compiled script due to the following reason: [REASON].  Please try re-saving the script later.
+	</notification>
+	<notification name="StartRegionEmpty">
+		Oops, Your Start Region is not defined.
+Please type the Region name in Start Location box or choose My Last Location or My Home as your Start Location.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="CouldNotStartStopScript">
+		Could not start or stop the script because the object it is on could not be found.
+The object may be out of range or may have been deleted.
+	</notification>
+	<notification name="CannotDownloadFile">
+		Unable to download file
+	</notification>
+	<notification name="CannotWriteFile">
+		Unable to write file [[FILE]]
+	</notification>
+	<notification name="UnsupportedHardware">
+		Just so you know, your computer does not meet [APP_NAME]&apos;s minimum system requirements. You may experience poor performance. Unfortunately, the [SUPPORT_SITE] can&apos;t provide technical support for unsupported system configurations.
+
+Visit [_URL] for more information?
+		<url name="url">
+			http://www.secondlife.com/corporate/sysreqs.php
+		</url>
+		<usetemplate ignoretext="My computer hardware is not supported" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="UnknownGPU">
+		Your system contains a graphics card that [APP_NAME] doesn&apos;t recognize.
+This is often the case with new hardware that hasn&apos;t been tested yet with [APP_NAME].  It will probably be ok, but you may need to adjust your graphics settings.
+(Me &gt; Preferences &gt; Graphics).
+		<form name="form">
+			<ignore name="ignore" text="My graphics card could not be identified"/>
+		</form>
+	</notification>
+	<notification name="DisplaySettingsNoShaders">
+		[APP_NAME] crashed while initializing graphics drivers.
+Graphics Quality will be set to Low to avoid some common driver errors. This will disable some graphics features.
+We recommend updating your graphics card drivers.
+Graphics Quality can be raised in Preferences &gt; Graphics.
+	</notification>
+	<notification name="RegionNoTerraforming">
+		The region [REGION] does not allow terraforming.
+	</notification>
+	<notification name="CannotCopyWarning">
+		You do not have permission to copy the following items:
+[ITEMS]
+and will lose it from your inventory if you give it away. Do you really want to offer these items?
+		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification name="CannotGiveItem">
+		Unable to give inventory item.
+	</notification>
+	<notification name="TransactionCancelled">
+		Transaction cancelled.
+	</notification>
+	<notification name="TooManyItems">
+		Cannot give more than 42 items in a single inventory transfer.
+	</notification>
+	<notification name="NoItems">
+		You do not have permission to transfer the selected items.
+	</notification>
+	<notification name="CannotCopyCountItems">
+		You do not have permission to copy [COUNT] of the selected items. You will lose these items from your inventory.
+Do you really want to give these items?
+		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification name="CannotGiveCategory">
+		You do not have permission to transfer the selected folder.
+	</notification>
+	<notification name="FreezeAvatar">
+		Freeze this avatar?
+He or she will temporarily be unable to move, chat, or interact with the world.
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="Unfreeze" yestext="Freeze"/>
+	</notification>
+	<notification name="FreezeAvatarFullname">
+		Freeze [AVATAR_NAME]?
+He or she will temporarily be unable to move, chat, or interact with the world.
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="Unfreeze" yestext="Freeze"/>
+	</notification>
+	<notification name="EjectAvatarFullname">
+		Eject [AVATAR_NAME] from your land?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="Eject and Ban" yestext="Eject"/>
+	</notification>
+	<notification name="EjectAvatarNoBan">
+		Eject this avatar from your land?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="Eject"/>
+	</notification>
+	<notification name="EjectAvatarFullnameNoBan">
+		Eject [AVATAR_NAME] from your land?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="Eject"/>
+	</notification>
+	<notification name="EjectAvatarFromGroup">
+		You ejected [AVATAR_NAME] from group [GROUP_NAME]
+	</notification>
+	<notification name="AcquireErrorTooManyObjects">
+		ACQUIRE ERROR: Too many objects selected.
+	</notification>
+	<notification name="AcquireErrorObjectSpan">
+		ACQUIRE ERROR: Objects span more than one region.
+Please move all objects to be acquired onto the same region.
+	</notification>
+	<notification name="PromptGoToCurrencyPage">
+		[EXTRA]
+
+Go to [_URL] for information on purchasing L$?
+		<url name="url">
+			http://secondlife.com/app/currency/
+		</url>
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="UnableToLinkObjects">
+		Unable to link these [COUNT] objects.
+You can link a maximum of [MAX] objects.
+	</notification>
+	<notification name="CannotLinkIncompleteSet">
+		You can only link complete sets of objects, and must select more than one object.
+	</notification>
+	<notification name="CannotLinkModify">
+		Unable to link because you don&apos;t have modify permission on all the objects.
+
+Please make sure none are locked, and that you own all of them.
+	</notification>
+	<notification name="CannotLinkDifferentOwners">
+		Unable to link because not all of the objects have the same owner.
+
+Please make sure you own all of the selected objects.
+	</notification>
+	<notification name="NoFileExtension">
+		No file extension for the file: &apos;[FILE]&apos;
+
+Please make sure the file has a correct file extension.
+	</notification>
+	<notification name="InvalidFileExtension">
+		Invalid file extension [EXTENSION]
+Expected [VALIDS]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="CannotUploadSoundFile">
+		Couldn&apos;t open uploaded sound file for reading:
+[FILE]
+	</notification>
+	<notification name="SoundFileNotRIFF">
+		File does not appear to be a RIFF WAVE file:
+[FILE]
+	</notification>
+	<notification name="SoundFileNotPCM">
+		File does not appear to be a PCM WAVE audio file:
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidChannelCount">
+		File has invalid number of channels (must be mono or stereo):
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidSampleRate">
+		File does not appear to be a supported sample rate (must be 44.1k):
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidWordSize">
+		File does not appear to be a supported word size (must be 8 or 16 bit):
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidHeader">
+		Could not find &apos;data&apos; chunk in WAV header:
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidChunkSize">
+		Wrong chunk size in WAV file:
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidTooLong">
+		Audio file is too long (10 second maximum):
+[FILE]
+	</notification>
+	<notification name="ProblemWithFile">
+		Problem with file [FILE]:
+
+[ERROR]
+	</notification>
+	<notification name="CannotOpenTemporarySoundFile">
+		Couldn&apos;t open temporary compressed sound file for writing: [FILE]
+	</notification>
+	<notification name="UnknownVorbisEncodeFailure">
+		Unknown Vorbis encode failure on: [FILE]
+	</notification>
+	<notification name="CannotEncodeFile">
+		Unable to encode file: [FILE]
+	</notification>
+	<notification name="CorruptedProtectedDataStore">
+		We can&apos;t fill in your username and password.  This may happen when you change network setup
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="CorruptResourceFile">
+		Corrupt resource file: [FILE]
+	</notification>
+	<notification name="UnknownResourceFileVersion">
+		Unknown Linden resource file version in file: [FILE]
+	</notification>
+	<notification name="UnableToCreateOutputFile">
+		Unable to create output file: [FILE]
+	</notification>
+	<notification name="DoNotSupportBulkAnimationUpload">
+		[APP_NAME] does not currently support bulk upload of animation files.
+	</notification>
+	<notification name="CannotUploadReason">
+		Unable to upload [FILE] due to the following reason: [REASON]
+Please try again later.
+	</notification>
+	<notification name="LandmarkCreated">
+		You have added &quot;[LANDMARK_NAME]&quot; to your [FOLDER_NAME] folder.
+	</notification>
+	<notification name="LandmarkAlreadyExists">
+		You already have a landmark for this location.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="CannotCreateLandmarkNotOwner">
+		You cannot create a landmark here because the owner of the land doesn&apos;t allow it.
+	</notification>
+	<notification name="CannotRecompileSelectObjectsNoScripts">
+		Not able to perform &apos;recompilation&apos;.
+Select an object with a script.
+	</notification>
+	<notification name="CannotRecompileSelectObjectsNoPermission">
+		Not able to perform &apos;recompilation&apos;.
+
+Select objects with scripts that you have permission to modify.
+	</notification>
+	<notification name="CannotResetSelectObjectsNoScripts">
+		Not able to perform &apos;reset&apos;.
+
+Select objects with scripts.
+	</notification>
+	<notification name="CannotResetSelectObjectsNoPermission">
+		Not able to perform &apos;reset&apos;.
+
+Select objects with scripts that you have permission to modify.
+	</notification>
+	<notification name="CannotOpenScriptObjectNoMod">
+		Unable to open script in object without modify permissions.
+	</notification>
+	<notification name="CannotSetRunningSelectObjectsNoScripts">
+		Not able to set any scripts to &apos;running&apos;.
+
+Select objects with scripts.
+	</notification>
+	<notification name="CannotSetRunningNotSelectObjectsNoScripts">
+		Unable to set any scripts to &apos;not running&apos;.
+
+Select objects with scripts.
+	</notification>
+	<notification name="NoFrontmostFloater">
+		No frontmost floater to save.
+	</notification>
+	<notification name="SeachFilteredOnShortWords">
+		Your search query was modified and the words that were too short were removed.
+
+Searched for: [FINALQUERY]
+	</notification>
+	<notification name="SeachFilteredOnShortWordsEmpty">
+		Your search terms were too short so no search was performed.
+	</notification>
+	<notification name="CouldNotTeleportReason">
+		Teleport failed.
+[REASON]
+	</notification>
+	<notification name="invalid_tport">
+		Problem encountered processing your teleport request. You may need to log back in before you can teleport.
+If you continue to get this message, please check the [SUPPORT_SITE].
+	</notification>
+	<notification name="invalid_region_handoff">
+		Problem encountered processing your region crossing. You may need to log back in before you can cross regions.
+If you continue to get this message, please check the [SUPPORT_SITE].
+	</notification>
+	<notification name="blocked_tport">
+		Sorry, teleport is currently blocked. Try again in a moment.  If you still cannot teleport, please log out and log back in to resolve the problem.
+	</notification>
+	<notification name="nolandmark_tport">
+		Sorry, but system was unable to locate landmark destination.
+	</notification>
+	<notification name="timeout_tport">
+		Sorry, but system was unable to complete the teleport connection.  Try again in a moment.
+	</notification>
+	<notification name="noaccess_tport">
+		Sorry, you do not have access to that teleport destination.
+	</notification>
+	<notification name="missing_attach_tport">
+		Your attachments have not arrived yet. Try waiting for a few more seconds or log out and back in again before attempting to teleport.
+	</notification>
+	<notification name="too_many_uploads_tport">
+		The asset queue in this region is currently clogged so your teleport request will not be able to succeed in a timely manner. Please try again in a few minutes or go to a less busy area.
+	</notification>
+	<notification name="expired_tport">
+		Sorry, but the system was unable to complete your teleport request in a timely fashion. Please try again in a few minutes.
+	</notification>
+	<notification name="expired_region_handoff">
+		Sorry, but the system was unable to complete your region crossing in a timely fashion. Please try again in a few minutes.
+	</notification>
+	<notification name="no_host">
+		Unable to find teleport destination. The destination may be temporarily unavailable or no longer exists. Please try again in a few minutes.
+	</notification>
+	<notification name="no_inventory_host">
+		The inventory system is currently unavailable.
+	</notification>
+	<notification name="CannotSetLandOwnerNothingSelected">
+		Unable to set land owner:
+No parcel selected.
+	</notification>
+	<notification name="CannotSetLandOwnerMultipleRegions">
+		Unable to force land ownership because selection spans multiple regions. Please select a smaller area and try again.
+	</notification>
+	<notification name="ForceOwnerAuctionWarning">
+		This parcel is up for auction. Forcing ownership will cancel the auction and potentially make some Residents unhappy if bidding has begun.
+Force ownership?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="CannotContentifyNothingSelected">
+		Unable to contentify:
+No parcel selected.
+	</notification>
+	<notification name="CannotContentifyNoRegion">
+		Unable to contentify:
+No region selected.
+	</notification>
+	<notification name="CannotReleaseLandNothingSelected">
+		Unable to abandon land:
+No parcel selected.
+	</notification>
+	<notification name="CannotReleaseLandNoRegion">
+		Unable to abandon land:
+Cannot find region.
+	</notification>
+	<notification name="CannotBuyLandNothingSelected">
+		Unable to buy land:
+No parcel selected.
+	</notification>
+	<notification name="CannotBuyLandNoRegion">
+		Unable to buy land:
+Cannot find the region this land is in.
+	</notification>
+	<notification name="CannotCloseFloaterBuyLand">
+		You cannot close the Buy Land window until [APP_NAME] estimates the price of this transaction.
+	</notification>
+	<notification name="CannotDeedLandNothingSelected">
+		Unable to deed land:
+No parcel selected.
+	</notification>
+	<notification name="CannotDeedLandNoGroup">
+		Unable to deed land:
+No Group selected.
+	</notification>
+	<notification name="CannotDeedLandNoRegion">
+		Unable to deed land:
+Cannot find the region this land is in.
+	</notification>
+	<notification name="CannotDeedLandMultipleSelected">
+		Unable to deed land:
+Multiple parcels selected.
+
+Try selecting a single parcel.
+	</notification>
+	<notification name="CannotDeedLandWaitingForServer">
+		Unable to deed land:
+Waiting for server to report ownership.
+
+Please try again.
+	</notification>
+	<notification name="CannotDeedLandNoTransfer">
+		Unable to deed land:
+The region [REGION] does not allow transfer of land.
+	</notification>
+	<notification name="CannotReleaseLandWatingForServer">
+		Unable to abandon land:
+Waiting for server to update parcel information.
+
+Try again in a few seconds.
+	</notification>
+	<notification name="CannotReleaseLandSelected">
+		Unable to abandon land:
+You do not own all the parcels selected.
+
+Please select a single parcel.
+	</notification>
+	<notification name="CannotReleaseLandDontOwn">
+		Unable to abandon land:
+You don&apos;t have permission to release this parcel.
+Parcels you own appear in green.
+	</notification>
+	<notification name="CannotReleaseLandRegionNotFound">
+		Unable to abandon land:
+Cannot find the region this land is in.
+	</notification>
+	<notification name="CannotReleaseLandNoTransfer">
+		Unable to abandon land:
+The region [REGION] does not allow transfer of land.
+	</notification>
+	<notification name="CannotReleaseLandPartialSelection">
+		Unable to abandon land:
+You must select an entire parcel to release it.
+
+Select an entire parcel, or divide your parcel first.
+	</notification>
+	<notification name="ReleaseLandWarning">
+		You are about to release [AREA] m² of land.
+Releasing this parcel will remove it from your land holdings, but will not grant any L$.
+
+Release this land?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="CannotDivideLandNothingSelected">
+		Unable to divide land:
+
+No parcels selected.
+	</notification>
+	<notification name="CannotDivideLandPartialSelection">
+		Unable to divide land:
+
+You have an entire parcel selected.
+Try selecting a part of the parcel.
+	</notification>
+	<notification name="LandDivideWarning">
+		Dividing this land will split this parcel into two and each parcel can have its own settings. Some settings will be reset to defaults after the operation.
+
+Divide land?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="CannotDivideLandNoRegion">
+		Unable to divide land:
+Cannot find the region this land is in.
+	</notification>
+	<notification name="CannotJoinLandNoRegion">
+		Unable to join land:
+Cannot find the region this land is in.
+	</notification>
+	<notification name="CannotJoinLandNothingSelected">
+		Unable to join land:
+No parcels selected.
+	</notification>
+	<notification name="CannotJoinLandEntireParcelSelected">
+		Unable to join land:
+You only have one parcel selected.
+
+Select land across both parcels.
+	</notification>
+	<notification name="CannotJoinLandSelection">
+		Unable to join land:
+You must select more than one parcel.
+
+Select land across both parcels.
+	</notification>
+	<notification name="JoinLandWarning">
+		Joining this land will create one large parcel out of all parcels intersecting the selected rectangle.
+You will need to reset the name and options of the new parcel.
+
+Join land?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmNotecardSave">
+		This notecard needs to be saved before the item can be copied or viewed. Save notecard?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmItemCopy">
+		Copy this item to your inventory?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="Copy"/>
+	</notification>
+	<notification name="ResolutionSwitchFail">
+		Failed to switch resolution to [RESX] by [RESY]
+	</notification>
+	<notification name="ErrorUndefinedGrasses">
+		Error: Undefined grasses: [SPECIES]
+	</notification>
+	<notification name="ErrorUndefinedTrees">
+		Error: Undefined trees: [SPECIES]
+	</notification>
+	<notification name="CannotSaveWearableOutOfSpace">
+		Unable to save &apos;[NAME]&apos; to wearable file.  You will need to free up some space on your computer and save the wearable again.
+	</notification>
+	<notification name="CannotSaveToAssetStore">
+		Unable to save [NAME] to central asset store.
+This is usually a temporary failure. Please customize and save the wearable again in a few minutes.
+	</notification>
+	<notification name="YouHaveBeenLoggedOut">
+		Darn. You have been logged out of [SECOND_LIFE]
+            [MESSAGE]
+		<usetemplate name="okcancelbuttons" notext="Quit" yestext="View IM &amp; Chat"/>
+	</notification>
+	<notification name="OnlyOfficerCanBuyLand">
+		Unable to buy land for the group:
+You do not have permission to buy land for your active group.
+	</notification>
+	<notification label="加為朋友" name="AddFriendWithMessage">
+		Friends can give permissions to track each other on the map and receive online status updates.
+
+Offer friendship to [NAME]?
+		<form name="form">
+			<input name="message">
+				Would you be my friend?
+			</input>
+			<button name="Offer" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification label="Save Outfit" name="SaveOutfitAs">
+		Save what I&apos;m wearing as a new Outfit:
+		<form name="form">
+			<input name="message">
+				[DESC] (new)
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification label="Save Wearable" name="SaveWearableAs">
+		Save item to my inventory as:
+		<form name="form">
+			<input name="message">
+				[DESC] （新）
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification label="Rename Outfit" name="RenameOutfit">
+		New outfit name:
+		<form name="form">
+			<input name="new_name">
+				[NAME]
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="RemoveFromFriends">
+		Do you want to remove [NAME] from your Friends List?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="RemoveMultipleFromFriends">
+		Do you want to remove multiple friends from your Friends list?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="GodDeleteAllScriptedPublicObjectsByUser">
+		Are you sure you want to delete all scripted objects owned by
+** [AVATAR_NAME] **
+on all others land in this sim?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="GodDeleteAllScriptedObjectsByUser">
+		Are you sure you want to DELETE ALL scripted objects owned by
+** [AVATAR_NAME] **
+on ALL LAND in this sim?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="GodDeleteAllObjectsByUser">
+		Are you sure you want to DELETE ALL objects (scripted or not) owned by
+** [AVATAR_NAME] **
+on ALL LAND in this sim?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="BlankClassifiedName">
+		You must specify a name for your classified.
+	</notification>
+	<notification name="MinClassifiedPrice">
+		Price to pay for listing must be at least L$[MIN_PRICE].
+
+Please enter a higher price.
+	</notification>
+	<notification name="ConfirmItemDeleteHasLinks">
+		At least one of the items you has link items that point to it.  If you delete this item, its links will permanently stop working.  It is strongly advised to delete the links first.
+
+Are you sure you want to delete these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteLock">
+		At least one of the items you have selected is locked.
+
+Are you sure you want to delete these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteNoCopy">
+		At least one of the items you have selected is not copyable.
+
+Are you sure you want to delete these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteNoOwn">
+		You do not own least one of the items you have selected.
+
+Are you sure you want to delete these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteLockNoCopy">
+		At least one object is locked.
+At least one object is not copyable.
+
+Are you sure you want to delete these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteLockNoOwn">
+		At least one object is locked.
+You do not own least one object.
+
+Are you sure you want to delete these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteNoCopyNoOwn">
+		At least one object is not copyable.
+You do not own least one object.
+
+Are you sure you want to delete these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteLockNoCopyNoOwn">
+		At least one object is locked.
+At least one object is not copyable.
+You do not own least one object.
+
+Are you sure you want to delete these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmObjectTakeLock">
+		At least one object is locked.
+
+Are you sure you want to take these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmObjectTakeNoOwn">
+		You do not own all of the objects you are taking.
+If you continue, next owner permissions will be applied and possibly restrict your ability to modify or copy them.
+
+Are you sure you want to take these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmObjectTakeLockNoOwn">
+		At least one object is locked.
+You do not own all of the objects you are taking.
+If you continue, next owner permissions will be applied and possibly restrict your ability to modify or copy them.
+However, you can take the current selection.
+
+Are you sure you want to take these items?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="CantBuyLandAcrossMultipleRegions">
+		Unable to buy land because selection spans multiple regions.
+
+Please select a smaller area and try again.
+	</notification>
+	<notification name="DeedLandToGroup">
+		By deeding this parcel, the group will be required to have and maintain sufficient land use credits.
+The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
+
+Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="DeedLandToGroupWithContribution">
+		By deeding this parcel, the group will be required to have and maintain sufficient land use credits.
+The deed will include a simultaneous land contribution to the group from &apos;[NAME]&apos;.
+The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
+
+Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="DisplaySetToSafe">
+		Display settings have been set to safe levels because you have specified the -safe option.
+	</notification>
+	<notification name="DisplaySetToRecommended">
+		Display settings have been set to recommended levels based on your system configuration.
+	</notification>
+	<notification name="ErrorMessage">
+		[ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="AvatarMovedDesired">
+		Your desired location is not currently available.
+You have been moved into a nearby region.
+	</notification>
+	<notification name="AvatarMovedLast">
+		Your last location is not currently available.
+You have been moved into a nearby region.
+	</notification>
+	<notification name="AvatarMovedHome">
+		Your home location is not currently available.
+You have been moved into a nearby region.
+You may want to set a new home location.
+	</notification>
+	<notification name="ClothingLoading">
+		Your clothing is still downloading.
+You can use [SECOND_LIFE] normally and other people will see you correctly.
+		<form name="form">
+			<ignore name="ignore" text="Clothing is taking a long time to download"/>
+		</form>
+	</notification>
+	<notification name="FirstRun">
+		[APP_NAME] installation is complete.
+
+If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
+Return to [http://join.secondlife.com secondlife.com] to create a new account?
+		<usetemplate name="okcancelbuttons" notext="繼續" yestext="New Account..."/>
+	</notification>
+	<notification name="LoginPacketNeverReceived">
+		We&apos;re having trouble connecting. There may be a problem with your Internet connection or the [SECOND_LIFE_GRID].
+
+You can either check your Internet connection and try again in a few minutes, click Help to view the [SUPPORT_SITE], or click Teleport to attempt to teleport home.
+		<url name="url">
+			http://secondlife.com/support/
+		</url>
+		<form name="form">
+			<button name="OK" text="確定"/>
+			<button name="Help" text="Help"/>
+			<button name="Teleport" text="Teleport"/>
+		</form>
+	</notification>
+	<notification name="WelcomeChooseSex">
+		Your character will appear in a moment.
+
+Use arrow keys to walk.
+Press the F1 key at any time for help or to learn more about [SECOND_LIFE].
+Please choose the male or female avatar. You can change your mind later.
+		<usetemplate name="okcancelbuttons" notext="女性" yestext="男性"/>
+	</notification>
+	<notification name="CantTeleportToGrid">
+		Could not teleport to [SLURL] as it&apos;s on a different grid ([GRID]) than the current grid ([CURRENT_GRID]).  Please close your viewer and try again.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="GeneralCertificateError">
+		無法連接到伺服器。
+[REASON]
+
+SubjectName: [SUBJECT_NAME_STRING]
+IssuerName: [ISSUER_NAME_STRING]
+Valid From: [VALID_FROM]
+Valid To: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+SHA1 Fingerprint: [MD5_DIGEST]
+Key Usage: [KEYUSAGE]
+Extended Key Usage: [EXTENDEDKEYUSAGE]
+Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="TrustCertificateError">
+		The certification authority for this server is not known.
+
+Certificate Information:
+SubjectName: [SUBJECT_NAME_STRING]
+IssuerName: [ISSUER_NAME_STRING]
+Valid From: [VALID_FROM]
+Valid To: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+SHA1 Fingerprint: [MD5_DIGEST]
+Key Usage: [KEYUSAGE]
+Extended Key Usage: [EXTENDEDKEYUSAGE]
+Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
+
+Would you like to trust this authority?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="Trust"/>
+	</notification>
+	<notification name="NotEnoughCurrency">
+		[NAME] L$ [PRICE] You don&apos;t have enough L$ to do that.
+	</notification>
+	<notification name="GrantedModifyRights">
+		[NAME] has given you permission to edit their objects.
+	</notification>
+	<notification name="RevokedModifyRights">
+		Your privilege to modify [NAME]&apos;s objects has been revoked
+	</notification>
+	<notification name="FlushMapVisibilityCaches">
+		This will flush the map caches on this region.
+This is really only useful for debugging.
+(In production, wait 5 minutes, then everyone&apos;s map will update after they relog.)
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="BuyOneObjectOnly">
+		Unable to buy more than one object at a time.  Please select only one object and try again.
+	</notification>
+	<notification name="OnlyCopyContentsOfSingleItem">
+		Unable to copy the contents of more than one item at a time.
+Please select only one object and try again.
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="KickUsersFromRegion">
+		Teleport all Residents in this region home?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="EstateObjectReturn">
+		Are you sure you want to return objects owned by [USER_NAME]?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="InvalidTerrainBitDepth">
+		Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] has an invalid bit depth of [TEXTURE_BIT_DEPTH].
+
+Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click &quot;Apply&quot; again.
+	</notification>
+	<notification name="InvalidTerrainSize">
+		Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] is too large at [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
+
+Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click &quot;Apply&quot; again.
+	</notification>
+	<notification name="RawUploadStarted">
+		Upload started. It may take up to two minutes, depending on your connection speed.
+	</notification>
+	<notification name="ConfirmBakeTerrain">
+		Do you really want to bake the current terrain, make it the center for terrain raise/lower limits and the default for the &apos;Revert&apos; tool?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="MaxAllowedAgentOnRegion">
+		You can only have [MAX_AGENTS] Allowed Residents.
+	</notification>
+	<notification name="MaxBannedAgentsOnRegion">
+		You can only have [MAX_BANNED] Banned Residents.
+	</notification>
+	<notification name="MaxAgentOnRegionBatch">
+		Failure while attempting to add [NUM_ADDED] agents:
+Exceeds the [MAX_AGENTS] [LIST_TYPE] limit by [NUM_EXCESS].
+	</notification>
+	<notification name="MaxAllowedGroupsOnRegion">
+		You can only have [MAX_GROUPS] Allowed Groups.
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="Bake"/>
+	</notification>
+	<notification name="MaxManagersOnRegion">
+		You can only have [MAX_MANAGER] Estate Managers.
+	</notification>
+	<notification name="OwnerCanNotBeDenied">
+		Can&apos;t add estate owner to estate &apos;Banned Resident&apos; list.
+	</notification>
+	<notification name="CanNotChangeAppearanceUntilLoaded">
+		Can&apos;t change appearance until clothing and shape are loaded.
+	</notification>
+	<notification name="ClassifiedMustBeAlphanumeric">
+		The name of your classified must start with a letter from A to Z or a number.  No punctuation is allowed.
+	</notification>
+	<notification name="CantSetBuyObject">
+		Can&apos;t set Buy Object, because the object is not for sale.
+Please set the object for sale and try again.
+	</notification>
+	<notification name="FinishedRawDownload">
+		Finished download of raw terrain file to:
+[DOWNLOAD_PATH].
+	</notification>
+	<notification name="DownloadWindowsMandatory">
+		A new version of [APP_NAME] is available.
+[MESSAGE]
+You must download this update to use [APP_NAME].
+		<usetemplate name="okcancelbuttons" notext="Quit" yestext="下載"/>
+	</notification>
+	<notification name="DownloadWindows">
+		An updated version of [APP_NAME] is available.
+[MESSAGE]
+This update is not required, but we suggest you install it to improve performance and stability.
+		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
+	</notification>
+	<notification name="DownloadWindowsReleaseForDownload">
+		An updated version of [APP_NAME] is available.
+[MESSAGE]
+This update is not required, but we suggest you install it to improve performance and stability.
+		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
+	</notification>
+	<notification name="DownloadLinuxMandatory">
+		A new version of [APP_NAME] is available.
+[MESSAGE]
+You must download this update to use [APP_NAME].
+		<usetemplate name="okcancelbuttons" notext="Quit" yestext="下載"/>
+	</notification>
+	<notification name="DownloadLinux">
+		An updated version of [APP_NAME] is available.
+[MESSAGE]
+This update is not required, but we suggest you install it to improve performance and stability.
+		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
+	</notification>
+	<notification name="DownloadLinuxReleaseForDownload">
+		An updated version of [APP_NAME] is available.
+[MESSAGE]
+This update is not required, but we suggest you install it to improve performance and stability.
+		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
+	</notification>
+	<notification name="DownloadMacMandatory">
+		A new version of [APP_NAME] is available.
+[MESSAGE]
+You must download this update to use [APP_NAME].
+
+Download to your Applications folder?
+		<usetemplate name="okcancelbuttons" notext="Quit" yestext="下載"/>
+	</notification>
+	<notification name="DownloadMac">
+		An updated version of [APP_NAME] is available.
+[MESSAGE]
+This update is not required, but we suggest you install it to improve performance and stability.
+
+Download to your Applications folder?
+		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
+	</notification>
+	<notification name="DownloadMacReleaseForDownload">
+		An updated version of [APP_NAME] is available.
+[MESSAGE]
+This update is not required, but we suggest you install it to improve performance and stability.
+
+Download to your Applications folder?
+		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
+	</notification>
+	<notification name="FailedUpdateInstall">
+		An error occurred installing the viewer update.
+Please download and install the latest viewer from
+http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="FailedRequiredUpdateInstall">
+		We were unable to install a required update. 
+You will be unable to log in until [APP_NAME] has been updated.
+
+Please download and install the latest viewer from
+http://secondlife.com/download.
+		<usetemplate name="okbutton" yestext="Quit"/>
+	</notification>
+	<notification name="UpdaterServiceNotRunning">
+		There is a required update for your Second Life Installation.
+
+You may download this update from http://www.secondlife.com/downloads
+or you can install it now.
+		<usetemplate name="okcancelbuttons" notext="Quit Second Life" yestext="Download and install now"/>
+	</notification>
+	<notification name="DownloadBackgroundTip">
+		We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+		<usetemplate name="okcancelbuttons" notext="Later..." yestext="Install now and restart [APP_NAME]"/>
+	</notification>
+	<notification name="DownloadBackgroundDialog">
+		We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+		<usetemplate name="okcancelbuttons" notext="Later..." yestext="Install now and restart [APP_NAME]"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedVerboseDialog">
+		We have downloaded a required software update.
+Version [VERSION]
+
+We must restart [APP_NAME] to install the update.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedDialog">
+		We must restart [APP_NAME] to install the update.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="DeedObjectToGroup">
+		Deeding this object will cause the group to:
+* Receive L$ paid into the object
+		<usetemplate ignoretext="Confirm before I deed an object to a group" name="okcancelignore" notext="取銷" yestext="Deed"/>
+	</notification>
+	<notification name="WebLaunchExternalTarget">
+		Do you want to open your Web browser to view this content?
+		<usetemplate ignoretext="Launch my browser to view a web page" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="WebLaunchJoinNow">
+		Go to your [http://secondlife.com/account/ Dashboard] to manage your account?
+		<usetemplate ignoretext="Launch my browser to manage my account" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="WebLaunchSecurityIssues">
+		Visit the [SECOND_LIFE] Wiki for details of how to report a security issue.
+		<usetemplate ignoretext="Launch my browser to learn how to report a Security Issue" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="WebLaunchQAWiki">
+		Visit the [SECOND_LIFE] QA Wiki.
+		<usetemplate ignoretext="Launch my browser to view the QA Wiki" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="WebLaunchPublicIssue">
+		Visit the [SECOND_LIFE] Public Issue Tracker, where you can report bugs and other issues.
+		<usetemplate ignoretext="Launch my browser to use the Public Issue Tracker" name="okcancelignore" notext="取銷" yestext="Go to page"/>
+	</notification>
+	<notification name="WebLaunchSupportWiki">
+		Go to the Official Linden Blog, for the latest news and information.
+		<usetemplate ignoretext="Launch my browser to view the blog" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="WebLaunchLSLGuide">
+		Do you want to open the Scripting Guide for help with scripting?
+		<usetemplate ignoretext="Launch my browser to view the Scripting Guide" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="WebLaunchLSLWiki">
+		Do you want to visit the LSL Portal for help with scripting?
+		<usetemplate ignoretext="Launch my browser to view the LSL Portal" name="okcancelignore" notext="取銷" yestext="Go to page"/>
+	</notification>
+	<notification name="ReturnToOwner">
+		Are you sure you want to return the selected objects to their owners? Transferable deeded objects will be returned to their previous owners.
+
+*WARNING* No-transfer deeded objects will be deleted!
+		<usetemplate ignoretext="Confirm before I return objects to their owners" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="GroupLeaveConfirmMember">
+		You are currently a member of the group [GROUP].
+Leave Group?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmKick">
+		Do you REALLY want to kick all Residents off the grid?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="Kick All Residents"/>
+	</notification>
+	<notification name="MuteLinden">
+		Sorry, you cannot block a Linden.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="CannotStartAuctionAlreadyForSale">
+		You cannot start an auction on a parcel which is already set for sale.  Disable the land sale if you are sure you want to start an auction.
+	</notification>
+	<notification label="Block object by name failed" name="MuteByNameFailed">
+		You already have blocked this name.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="RemoveItemWarn">
+		Though permitted, deleting contents may damage the object. Do you want to delete that item?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="CantOfferCallingCard">
+		Cannot offer a calling card at this time. Please try again in a moment.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="CantOfferFriendship">
+		Cannot offer friendship at this time. Please try again in a moment.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="BusyModeSet">
+		Busy mode is set.
+Chat and instant messages will be hidden. Instant messages will get your Busy mode response. All teleportation offers will be declined. All inventory offers will go to your Trash.
+		<usetemplate ignoretext="I change my status to Busy mode" name="okignore" yestext="確定"/>
+	</notification>
+	<notification name="JoinedTooManyGroupsMember">
+		You have reached your maximum number of groups. Please leave another group before joining this one, or decline the offer.
+[NAME] has invited you to join a group as a member.
+		<usetemplate name="okcancelbuttons" notext="Decline" yestext="Join"/>
+	</notification>
+	<notification name="JoinedTooManyGroups">
+		You have reached your maximum number of groups. Please leave some group before joining or creating a new one.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="KickUser">
+		Kick this Resident with what message?
+		<form name="form">
+			<input name="message">
+				An administrator has logged you off.
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="KickAllUsers">
+		Kick everyone currently on the grid with what message?
+		<form name="form">
+			<input name="message">
+				An administrator has logged you off.
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="FreezeUser">
+		Freeze this Resident with what message?
+		<form name="form">
+			<input name="message">
+				You have been frozen. You cannot move or chat. An administrator will contact you via instant message (IM).
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="UnFreezeUser">
+		Unfreeze this Resident with what message?
+		<form name="form">
+			<input name="message">
+				You are no longer frozen.
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="SetDisplayNameSuccess">
+		Hi [DISPLAY_NAME]!
+
+Just like in real life, it takes a while for everyone to learn about a new name.  Please allow several days for [http://wiki.secondlife.com/wiki/Setting_your_display_name your name to update] in objects, scripts, search, etc.
+	</notification>
+	<notification name="SetDisplayNameBlocked">
+		Sorry, you cannot change your display name. If you feel this is in error, please contact support.
+	</notification>
+	<notification name="SetDisplayNameFailedLength">
+		Sorry, that name is too long.  Display names can have a maximum of [LENGTH] characters.
+
+Please try a shorter name.
+	</notification>
+	<notification name="SetDisplayNameFailedGeneric">
+		Sorry, we could not set your display name.  Please try again later.
+	</notification>
+	<notification name="SetDisplayNameMismatch">
+		The display names you entered do not match. Please re-enter.
+	</notification>
+	<notification name="AgentDisplayNameUpdateThresholdExceeded">
+		Sorry, you have to wait longer before you can change your display name.
+
+See http://wiki.secondlife.com/wiki/Setting_your_display_name
+
+Please try again later.
+	</notification>
+	<notification name="AgentDisplayNameSetBlocked">
+		Sorry, we could not set your requested name because it contains a banned word.
+ 
+ Please try a different name.
+	</notification>
+	<notification name="AgentDisplayNameSetInvalidUnicode">
+		The display name you wish to set contains invalid characters.
+	</notification>
+	<notification name="AgentDisplayNameSetOnlyPunctuation">
+		Your display name must contain letters other than punctuation.
+	</notification>
+	<notification name="DisplayNameUpdate">
+		[OLD_NAME] ([SLID]) is now known as [NEW_NAME].
+	</notification>
+	<notification name="OfferTeleport">
+		Offer a teleport to your location with the following message?
+		<form name="form">
+			<input name="message">
+				Join me in [REGION]
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="OfferTeleportFromGod">
+		God summon Resident to your location?
+		<form name="form">
+			<input name="message">
+				Join me in [REGION]
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="TeleportFromLandmark">
+		Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
+		<usetemplate ignoretext="Confirm that I want to teleport to a landmark" name="okcancelignore" notext="取銷" yestext="Teleport"/>
+	</notification>
+	<notification name="TeleportToPick">
+		Teleport to [PICK]?
+		<usetemplate ignoretext="Confirm that I want to teleport to a location in Picks" name="okcancelignore" notext="取銷" yestext="Teleport"/>
+	</notification>
+	<notification name="TeleportToClassified">
+		Teleport to [CLASSIFIED]?
+		<usetemplate ignoretext="Confirm that I want to teleport to a location in Classifieds" name="okcancelignore" notext="取銷" yestext="Teleport"/>
+	</notification>
+	<notification name="TeleportToHistoryEntry">
+		Teleport to [HISTORY_ENTRY]?
+		<usetemplate ignoretext="Confirm that I want to teleport to a history location" name="okcancelignore" notext="取銷" yestext="Teleport"/>
+	</notification>
+	<notification label="Message everyone in your Estate" name="MessageEstate">
+		Type a short announcement which will be sent to everyone currently in your estate.
+		<form name="form">
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification label="Change Linden Estate" name="ChangeLindenEstate">
+		You are about to change a Linden owned estate (mainland, teen grid, orientation, etc.).
+
+This is EXTREMELY DANGEROUS because it can fundamentally affect the Resident experience.  On the mainland, it will change thousands of regions and make the spaceserver hiccup.
+
+Proceed?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification label="Change Linden Estate Access" name="ChangeLindenAccess">
+		You are about to change the access list for a Linden owned estate (mainland, teen grid, orientation, etc.).
+
+This is DANGEROUS and should only be done to invoke the hack allowing objects/L$ to be transfered in/out of a grid.
+It will change thousands of regions and make the spaceserver hiccup.
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification label="選擇領地" name="EstateAllowedAgentAdd">
+		Add to allowed list for this estate only or for [ALL_ESTATES]?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateAllowedAgentRemove">
+		Remove from allowed list for this estate only or for [ALL_ESTATES]?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateAllowedGroupAdd">
+		Add to group allowed list for this estate only or for [ALL_ESTATES]?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateAllowedGroupRemove">
+		Remove from group allowed list for this estate only or [ALL_ESTATES]?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateBannedAgentAdd">
+		Deny access for this estate only or for [ALL_ESTATES]?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateBannedAgentRemove">
+		Remove this Resident from the ban list for  access for this estate only or for [ALL_ESTATES]?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateManagerAdd">
+		Add estate manager for this estate only or for [ALL_ESTATES]?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateManagerRemove">
+		Remove estate manager for this estate only or for [ALL_ESTATES]?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="Confirm Kick" name="EstateKickUser">
+		Kick [EVIL_USER] from this estate?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="EstateChangeCovenant">
+		Are you sure you want to change the Estate Covenant?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="RegionEntryAccessBlocked">
+		You are not allowed in that Region due to your maturity Rating. This may be a result of a lack of information validating your age.
+
+Please verify you have the latest Viewer installed, and go to the Knowledge Base for details on accessing areas with this maturity rating.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="RegionEntryAccessBlocked_KB">
+		You are not allowed in that region due to your maturity Rating.
+
+Go to the Knowledge Base for more information about maturity Ratings?
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
+		</url>
+		<usetemplate ignoretext="I can&apos;t enter this Region, due to restrictions of the maturity Rating" name="okcancelignore" notext="關閉" yestext="Go to Knowledge Base"/>
+	</notification>
+	<notification name="RegionEntryAccessBlocked_Notify">
+		You are not allowed in that region due to your maturity Rating.
+	</notification>
+	<notification name="RegionEntryAccessBlocked_Change">
+		You are not allowed in that Region due to your maturity Rating preference.
+
+To enter the desired region, please change your maturity Rating preference. This will allow you to search for and access [REGIONMATURITY] content. To undo any changes, go to Me &gt; Preferences &gt; General.
+		<form name="form">
+			<button name="OK" text="Change Preference"/>
+			<button name="Cancel" text="Close"/>
+			<ignore name="ignore" text="My chosen Rating preference prevents me from entering a Region"/>
+		</form>
+	</notification>
+	<notification name="PreferredMaturityChanged">
+		Your maturity Rating preference is now [RATING].
+	</notification>
+	<notification name="LandClaimAccessBlocked">
+		You cannot claim this land due to your maturity Rating. This may be a result of a lack of information validating your age.
+
+Please verify you have the latest Viewer installed, and go to the Knowledge Base for details on accessing areas with this maturity rating.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="LandClaimAccessBlocked_KB">
+		You cannot claim this land due to your maturity Rating.
+
+Go to the Knowledge Base for more information about maturity Ratings?
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
+		</url>
+		<usetemplate ignoretext="I can&apos;t claim this Land, due to restrictions of the maturity Rating" name="okcancelignore" notext="關閉" yestext="Go to Knowledge Base"/>
+	</notification>
+	<notification name="LandClaimAccessBlocked_Notify">
+		You cannot claim this land due to your maturity Rating.
+	</notification>
+	<notification name="LandClaimAccessBlocked_Change">
+		You cannot claim this land due to your maturity Rating preference.
+
+You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Me &gt; Preferences &gt; General.
+		<usetemplate ignoretext="My chosen Rating preference prevents me from claiming Land" name="okcancelignore" notext="關閉" yestext="Change Preference"/>
+	</notification>
+	<notification name="LandBuyAccessBlocked">
+		You cannot buy this land due to your maturity Rating. This may be a result of a lack of information validating your age.
+
+Please verify you have the latest Viewer installed, and go to the Knowledge Base for details on accessing areas with this maturity rating.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="LandBuyAccessBlocked_KB">
+		You cannot buy this land due to your maturity Rating.
+
+Go to the Knowledge Base for more information about maturity Ratings?
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
+		</url>
+		<usetemplate ignoretext="I can&apos;t buy this Land, due to restrictions of the maturity Rating" name="okcancelignore" notext="關閉" yestext="Go to Knowledge Base"/>
+	</notification>
+	<notification name="LandBuyAccessBlocked_Notify">
+		You cannot buy this land due to your maturity Rating.
+	</notification>
+	<notification name="LandBuyAccessBlocked_Change">
+		You cannot buy this land due to your maturity Rating preference.
+
+You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Me &gt; Preferences &gt; General.
+		<usetemplate ignoretext="My chosen Rating preference prevents me from buying Land" name="okcancelignore" notext="關閉" yestext="變更偏好設定"/>
+	</notification>
+	<notification name="TooManyPrimsSelected">
+		There are too many prims selected.  Please select [MAX_PRIM_COUNT] or fewer prims and try again
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="ProblemImportingEstateCovenant">
+		Problem importing estate covenant.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="ProblemAddingEstateManager">
+		Problems adding a new estate manager.  One or more estates may have a full manager list.
+	</notification>
+	<notification name="ProblemAddingEstateGeneric">
+		Problems adding to this estate list.  One or more estates may have a full list.
+	</notification>
+	<notification name="UnableToLoadNotecardAsset">
+		Unable to load notecard&apos;s asset at this time.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="NotAllowedToViewNotecard">
+		Insufficient permissions to view notecard associated with asset ID requested.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="MissingNotecardAssetID">
+		Asset ID for notecard is missing from database.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="PublishClassified">
+		Remember: Classified ad fees are non-refundable.
+
+Publish this classified now for L$[AMOUNT]?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="SetClassifiedMature">
+		Does this classified contain Moderate content?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification name="SetGroupMature">
+		Does this group contain Moderate content?
+		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification label="Confirm restart" name="ConfirmRestart">
+		Do you really want to restart this region in 2 minutes?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification label="Message everyone in this region" name="MessageRegion">
+		Type a short announcement which will be sent to everyone in this region.
+		<form name="form">
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification label="Changed Region Maturity" name="RegionMaturityChange">
+		The maturity rating for this region has been updated.
+It may take some time for the change to be reflected on the map.
+
+To enter Adult regions, Residents must be Account Verified, either by age-verification or payment-verification.
+	</notification>
+	<notification label="Voice Version Mismatch" name="VoiceVersionMismatch">
+		This version of [APP_NAME] is not compatible with the Voice Chat feature in this region. In order for Voice Chat to function correctly you will need to update [APP_NAME].
+	</notification>
+	<notification label="Can&apos;t Buy Objects" name="BuyObjectOneOwner">
+		Cannot buy objects from different owners at the same time.
+Please select only one object and try again.
+	</notification>
+	<notification label="Can&apos;t Buy Contents" name="BuyContentsOneOnly">
+		Unable to buy the contents of more than one object at a time.
+Please select only one object and try again.
+	</notification>
+	<notification label="Can&apos;t Buy Contents" name="BuyContentsOneOwner">
+		Cannot buy objects from different owners at the same time.
+Please select only one object and try again.
+	</notification>
+	<notification name="BuyOriginal">
+		Buy original object from [OWNER] for L$[PRICE]?
+You will become the owner of this object.
+You will be able to:
+ Modify: [MODIFYPERM]
+ Copy: [COPYPERM]
+ Resell or Give Away: [RESELLPERM]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="BuyOriginalNoOwner">
+		Buy original object for L$[PRICE]?
+You will become the owner of this object.
+You will be able to:
+ Modify: [MODIFYPERM]
+ Copy: [COPYPERM]
+ Resell or Give Away: [RESELLPERM]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="BuyCopy">
+		Buy a copy from [OWNER] for L$[PRICE]?
+The object will be copied to your inventory.
+You will be able to:
+ Modify: [MODIFYPERM]
+ Copy: [COPYPERM]
+ Resell or Give Away: [RESELLPERM]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="BuyCopyNoOwner">
+		Buy a copy for L$[PRICE]?
+The object will be copied to your inventory.
+You will be able to:
+ Modify: [MODIFYPERM]
+ Copy: [COPYPERM]
+ Resell or Give Away: [RESELLPERM]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="BuyContents">
+		Buy contents from [OWNER] for L$[PRICE]?
+They will be copied to your inventory.
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="BuyContentsNoOwner">
+		Buy contents for L$[PRICE]?
+They will be copied to your inventory.
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmPurchase">
+		This transaction will:
+[ACTION]
+
+Are you sure you want to proceed with this purchase?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmPurchasePassword">
+		This transaction will:
+[ACTION]
+
+Are you sure you want to proceed with this purchase?
+Please re-enter your password and click OK.
+		<form name="form">
+			<button name="ConfirmPurchase" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="SetPickLocation">
+		Note:
+You have updated the location of this pick but the other details will retain their original values.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="MoveInventoryFromObject">
+		You have selected &apos;no copy&apos; inventory items.
+These items will be moved to your inventory, not copied.
+
+Move the inventory item(s)?
+		<usetemplate ignoretext="Warn me before I move &apos;no-copy&apos; items from an object" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="MoveInventoryFromScriptedObject">
+		You have selected &apos;no copy&apos; inventory items.  These items will be moved to your inventory, not copied.
+Because this object is scripted, moving these items to your inventory may cause the script to malfunction.
+
+Move the inventory item(s)?
+		<usetemplate ignoretext="Warn me before I move &apos;no-copy&apos; items which might break a scripted object" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ClickActionNotPayable">
+		Warning: The &apos;Pay object&apos; click action has been set, but it will only work if a script is added with a money() event.
+		<form name="form">
+			<ignore name="ignore" text="I set the action &apos;Pay object&apos; when building an object without a money() script"/>
+		</form>
+	</notification>
+	<notification name="OpenObjectCannotCopy">
+		There are no items in this object that you are allowed to copy.
+	</notification>
+	<notification name="WebLaunchAccountHistory">
+		Go to your [http://secondlife.com/account/ Dashboard] to see your account history?
+		<usetemplate ignoretext="Launch my browser to see my account history" name="okcancelignore" notext="取銷" yestext="Go to page"/>
+	</notification>
+	<notification name="ConfirmQuit">
+		Are you sure you want to quit?
+		<usetemplate ignoretext="Confirm before I quit" name="okcancelignore" notext="Don&apos;t Quit" yestext="Quit"/>
+	</notification>
+	<notification name="DeleteItems">
+		[QUESTION]
+		<usetemplate ignoretext="Confirm before deleting items" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="HelpReportAbuseEmailLL">
+		Use this tool to report violations of the [http://secondlife.com/corporate/tos.php Terms of Service] and [http://secondlife.com/corporate/cs.php Community Standards].
+
+All reported abuses are investigated and resolved.
+	</notification>
+	<notification name="HelpReportAbuseSelectCategory">
+		Please select a category for this abuse report.
+Selecting a category helps us file and process abuse reports.
+	</notification>
+	<notification name="HelpReportAbuseAbuserNameEmpty">
+		Please enter the name of the abuser.
+Entering an accurate value helps us file and process abuse reports.
+	</notification>
+	<notification name="HelpReportAbuseAbuserLocationEmpty">
+		Please enter the location where the abuse took place.
+Entering an accurate value helps us file and process abuse reports.
+	</notification>
+	<notification name="HelpReportAbuseSummaryEmpty">
+		Please enter a summary of the abuse that took place.
+Entering an accurate summary helps us file and process abuse reports.
+	</notification>
+	<notification name="HelpReportAbuseDetailsEmpty">
+		Please enter a detailed description of the abuse that took place.
+Be as specific as you can, including names and the details of the incident you are reporting.
+Entering an accurate description helps us file and process abuse reports.
+	</notification>
+	<notification name="HelpReportAbuseContainsCopyright">
+		Dear Resident,
+
+You appear to be reporting intellectual property infringement. Please make sure you are reporting it correctly:
+
+(1) The Abuse Process. You may submit an abuse report if you believe a Resident is exploiting the [SECOND_LIFE] permissions system, for example, by using CopyBot or similar copying tools, to infringe intellectual property rights. The Abuse Team investigates and issues appropriate disciplinary action for behavior that violates the [SECOND_LIFE] [http://secondlife.com/corporate/tos.php Terms of Service] or [http://secondlife.com/corporate/cs.php Community Standards]. However, the Abuse Team does not handle and will not respond to requests to remove content from the [SECOND_LIFE] world.
+
+(2) The DMCA or Content Removal Process. To request removal of content from [SECOND_LIFE], you MUST submit a valid notification of infringement as provided in our [http://secondlife.com/corporate/dmca.php DMCA Policy].
+
+If you still wish to continue with the abuse process, please close this window and finish submitting your report.  You may need to select the specific category &apos;CopyBot or Permissions Exploit&apos;.
+
+Thank you,
+
+Linden Lab
+	</notification>
+	<notification name="FailedRequirementsCheck">
+		The following required components are missing from [FLOATER]:
+[COMPONENTS]
+	</notification>
+	<notification label="Replace Existing Attachment" name="ReplaceAttachment">
+		There is already an object attached to this point on your body.
+Do you want to replace it with the selected object?
+		<form name="form">
+			<ignore name="ignore" text="Replace an existing attachment with the selected item"/>
+			<button ignore="Replace Automatically" name="Yes" text="確定"/>
+			<button ignore="Never Replace" name="No" text="取銷"/>
+		</form>
+	</notification>
+	<notification label="Busy Mode Warning" name="BusyModePay">
+		You are in Busy Mode, which means you will not receive any items offered in exchange for this payment.
+
+Would you like to leave Busy Mode before completing this transaction?
+		<form name="form">
+			<ignore name="ignore" text="I am about to pay a person or object while I am in Busy mode"/>
+			<button ignore="Always leave Busy Mode" name="Yes" text="確定"/>
+			<button ignore="Never leave Busy Mode" name="No" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="ConfirmDeleteProtectedCategory">
+		The folder &apos;[FOLDERNAME]&apos; is a system folder. Deleting system folders can cause instability.  Are you sure you want to delete it?
+		<usetemplate ignoretext="Confirm before I delete a system folder" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmEmptyTrash">
+		Are you sure you want to permanently delete the contents of your Trash?
+		<usetemplate ignoretext="Confirm before I empty the inventory Trash folder" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmClearBrowserCache">
+		Are you sure you want to delete your travel, web, and search history?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmClearCookies">
+		Are you sure you want to clear your cookies?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="是"/>
+	</notification>
+	<notification name="ConfirmClearMediaUrlList">
+		Are you sure you want to clear your list of saved URLs?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="是"/>
+	</notification>
+	<notification name="ConfirmEmptyLostAndFound">
+		Are you sure you want to permanently delete the contents of your Lost And Found?
+		<usetemplate ignoretext="Confirm before I empty the inventory Lost And Found folder" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="CopySLURL">
+		The following SLurl has been copied to your clipboard:
+ [SLURL]
+
+Link to this from a web page to give others easy access to this location, or try it out yourself by pasting it into the address bar of any web browser.
+		<form name="form">
+			<ignore name="ignore" text="SLurl is copied to my clipboard"/>
+		</form>
+	</notification>
+	<notification name="WLSavePresetAlert">
+		Do you wish to overwrite the saved preset?
+		<usetemplate name="okcancelbuttons" notext="No" yestext="是"/>
+	</notification>
+	<notification name="WLDeletePresetAlert">
+		Do you wish to delete [SKY]?
+		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification name="WLNoEditDefault">
+		You cannot edit or delete a default preset.
+	</notification>
+	<notification name="WLMissingSky">
+		This day cycle file references a missing sky file: [SKY].
+	</notification>
+	<notification name="PPSaveEffectAlert">
+		PostProcess Effect exists. Do you still wish overwrite it?
+		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
+	</notification>
+	<notification name="NewSkyPreset">
+		Give me a name for the new sky.
+		<form name="form">
+			<input name="message">
+				New Preset
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="ExistsSkyPresetAlert">
+		Preset already exists!
+	</notification>
+	<notification name="NewWaterPreset">
+		Give me a name for the new water preset.
+		<form name="form">
+			<input name="message">
+				New Preset
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="ExistsWaterPresetAlert">
+		Preset already exists!
+	</notification>
+	<notification name="WaterNoEditDefault">
+		You cannot edit or delete a default preset.
+	</notification>
+	<notification name="ChatterBoxSessionStartError">
+		Unable to start a new chat session with [RECIPIENT].
+[REASON]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="ChatterBoxSessionEventError">
+		[EVENT]
+[REASON]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="ForceCloseChatterBoxSession">
+		Your chat session with [NAME] must close.
+[REASON]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="Cannot_Purchase_an_Attachment">
+		You can&apos;t buy an object while it is attached.
+	</notification>
+	<notification label="About Requests for the Debit Permission" name="DebitPermissionDetails">
+		Granting this request gives a script ongoing permission to take Linden dollars (L$) from your account. To revoke this permission, the object owner must delete the object or reset the scripts in the object.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="AutoWearNewClothing">
+		Would you like to automatically wear the clothing you are about to create?
+		<usetemplate ignoretext="Wear the clothing I create while editing My Appearance" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="NotAgeVerified">
+		You must be age-verified to visit this area.  Do you want to go to the [SECOND_LIFE] website and verify your age?
+
+[_URL]
+		<url name="url">
+			https://secondlife.com/account/verification.php
+		</url>
+		<usetemplate ignoretext="I have not verified my age" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="Cannot enter parcel: no payment info on file">
+		You must have payment information on file to visit this area.  Do you want to go to the [SECOND_LIFE] website and set this up?
+
+[_URL]
+		<url name="url">
+			https://secondlife.com/account/
+		</url>
+		<usetemplate ignoretext="I lack payment information on file" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="MissingString">
+		The string [STRING_NAME] is missing from strings.xml
+	</notification>
+	<notification name="SystemMessageTip">
+		[MESSAGE]
+	</notification>
+	<notification name="IMSystemMessageTip">
+		[MESSAGE]
+	</notification>
+	<notification name="Cancelled">
+		Cancelled
+	</notification>
+	<notification name="CancelledSit">
+		Cancelled Sit
+	</notification>
+	<notification name="CancelledAttach">
+		Cancelled Attach
+	</notification>
+	<notification name="ReplacedMissingWearable">
+		Replaced missing clothing/body part with default.
+	</notification>
+	<notification name="GroupNotice">
+		Topic: [SUBJECT], Message: [MESSAGE]
+	</notification>
+	<notification name="FriendOnline">
+		[NAME] is Online
+	</notification>
+	<notification name="FriendOffline">
+		[NAME] is Offline
+	</notification>
+	<notification name="AddSelfFriend">
+		Although you&apos;re very nice, you can&apos;t add yourself as a friend.
+	</notification>
+	<notification name="UploadingAuctionSnapshot">
+		Uploading in-world and web site snapshots...
+(Takes about 5 minutes.)
+	</notification>
+	<notification name="UploadPayment">
+		You paid L$[AMOUNT] to upload.
+	</notification>
+	<notification name="UploadWebSnapshotDone">
+		Web site snapshot upload done.
+	</notification>
+	<notification name="UploadSnapshotDone">
+		In-world snapshot upload done
+	</notification>
+	<notification name="TerrainDownloaded">
+		Terrain.raw downloaded
+	</notification>
+	<notification name="GestureMissing">
+		Hmm. Gesture [NAME] is missing from the database.
+	</notification>
+	<notification name="UnableToLoadGesture">
+		Unable to load gesture [NAME].
+	</notification>
+	<notification name="LandmarkMissing">
+		Landmark is missing from database.
+	</notification>
+	<notification name="UnableToLoadLandmark">
+		Unable to load landmark.  Please try again.
+	</notification>
+	<notification name="CapsKeyOn">
+		Your Caps Lock key is on.
+This might affect your password.
+	</notification>
+	<notification name="NotecardMissing">
+		Notecard is missing from database.
+	</notification>
+	<notification name="NotecardNoPermissions">
+		You don&apos;t have permission to view this notecard.
+	</notification>
+	<notification name="RezItemNoPermissions">
+		Insufficient permissions to rez object.
+	</notification>
+	<notification name="UnableToLoadNotecard">
+		Unable to load notecard.
+Please try again.
+	</notification>
+	<notification name="ScriptMissing">
+		Script is missing from database.
+	</notification>
+	<notification name="ScriptNoPermissions">
+		Insufficient permissions to view script.
+	</notification>
+	<notification name="UnableToLoadScript">
+		Unable to load script.  Please try again.
+	</notification>
+	<notification name="IncompleteInventory">
+		The complete contents you are offering are not yet locally available. Please try offering those items again in a minute.
+	</notification>
+	<notification name="CannotModifyProtectedCategories">
+		You cannot modify protected categories.
+	</notification>
+	<notification name="CannotRemoveProtectedCategories">
+		You cannot remove protected categories.
+	</notification>
+	<notification name="UnableToBuyWhileDownloading">
+		Unable to buy while downloading object data.
+Please try again.
+	</notification>
+	<notification name="UnableToLinkWhileDownloading">
+		Unable to link while downloading object data.
+Please try again.
+	</notification>
+	<notification name="CannotBuyObjectsFromDifferentOwners">
+		You can only buy objects from one owner at a time.
+Please select a single object.
+	</notification>
+	<notification name="ObjectNotForSale">
+		This object is not for sale.
+	</notification>
+	<notification name="EnteringGodMode">
+		Entering god mode, level [LEVEL]
+	</notification>
+	<notification name="LeavingGodMode">
+		Now leaving god mode, level [LEVEL]
+	</notification>
+	<notification name="CopyFailed">
+		You don&apos;t have permission to copy this.
+	</notification>
+	<notification name="InventoryAccepted">
+		[NAME] received your inventory offer.
+	</notification>
+	<notification name="InventoryDeclined">
+		[NAME] declined your inventory offer.
+	</notification>
+	<notification name="ObjectMessage">
+		[NAME]: [MESSAGE]
+	</notification>
+	<notification name="CallingCardAccepted">
+		Your calling card was accepted.
+	</notification>
+	<notification name="CallingCardDeclined">
+		Your calling card was declined.
+	</notification>
+	<notification name="TeleportToLandmark">
+		You can teleport to locations like &apos;[NAME]&apos; by opening the Places panel on the right side of your screen, and then select the Landmarks tab.
+Click on any landmark to select it, then click &apos;Teleport&apos; at the bottom of the panel.
+(You can also double-click on the landmark, or right-click it and choose &apos;Teleport&apos;.)
+	</notification>
+	<notification name="TeleportToPerson">
+		You can contact Residents like &apos;[NAME]&apos; by opening the People panel on the right side of your screen.
+Select the Resident from the list, then click &apos;IM&apos; at the bottom of the panel.
+(You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
+	</notification>
+	<notification name="CantSelectLandFromMultipleRegions">
+		Can&apos;t select land across server boundaries.
+Try selecting a smaller piece of land.
+	</notification>
+	<notification name="SearchWordBanned">
+		Some terms in your search query were excluded due to content restrictions as clarified in the Community Standards.
+	</notification>
+	<notification name="NoContentToSearch">
+		Please select at least one type of content to search (General, Moderate, or Adult).
+	</notification>
+	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentReceived">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="EventNotification">
+		Event Notification:
+
+[NAME]
+[DATE]
+		<form name="form">
+			<button name="Details" text="Details"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="TransferObjectsHighlighted">
+		All objects on this parcel that will transfer to the purchaser of this parcel are now highlighted.
+
+* Trees and grasses that will transfer are not highlighted.
+		<form name="form">
+			<button name="Done" text="Done"/>
+		</form>
+	</notification>
+	<notification name="DeactivatedGesturesTrigger">
+		Deactivated gestures with same trigger:
+[NAMES]
+	</notification>
+	<notification name="NoQuickTime">
+		Apple&apos;s QuickTime software does not appear to be installed on your system.
+If you want to view streaming media on parcels that support it you should go to the [http://www.apple.com/quicktime QuickTime site] and install the QuickTime Player.
+	</notification>
+	<notification name="NoPlugin">
+		No Media Plugin was found to handle the &quot;[MIME_TYPE]&quot; mime type.  Media of this type will be unavailable.
+	</notification>
+	<notification name="MediaPluginFailed">
+		The following Media Plugin has failed:
+    [PLUGIN]
+
+Please re-install the plugin or contact the vendor if you continue to experience problems.
+		<form name="form">
+			<ignore name="ignore" text="A Media Plugin fails to run"/>
+		</form>
+	</notification>
+	<notification name="OwnedObjectsReturned">
+		The objects you own on the selected parcel of land have been returned back to your inventory.
+	</notification>
+	<notification name="OtherObjectsReturned">
+		The objects on the selected parcel of land that is owned by [NAME] have been returned to his or her inventory.
+	</notification>
+	<notification name="OtherObjectsReturned2">
+		The objects on the selected parcel of land owned by the Resident &apos;[NAME]&apos; have been returned to their owner.
+	</notification>
+	<notification name="GroupObjectsReturned">
+		The objects on the selected parcel of land shared with the group [GROUPNAME] have been returned back to their owner&apos;s inventory.
+Transferable deeded objects have been returned to their previous owners.
+Non-transferable objects that are deeded to the group have been deleted.
+	</notification>
+	<notification name="UnOwnedObjectsReturned">
+		The objects on the selected parcel that are NOT owned by you have been returned to their owners.
+	</notification>
+	<notification name="ServerObjectMessage">
+		Message from [NAME]:
+&lt;nolink&gt;[MSG]&lt;/nolink&gt;
+	</notification>
+	<notification name="NotSafe">
+		This land has damage enabled.
+You can be hurt here. If you die, you will be teleported to your home location.
+	</notification>
+	<notification name="NoFly">
+		This area has flying disabled.
+You can&apos;t fly here.
+	</notification>
+	<notification name="PushRestricted">
+		This area does not allow pushing. You can&apos;t push others here unless you own the land.
+	</notification>
+	<notification name="NoVoice">
+		This area has voice chat disabled. You won&apos;t be able to hear anyone talking.
+	</notification>
+	<notification name="NoBuild">
+		This area has building disabled. You can&apos;t build or rez objects here.
+	</notification>
+	<notification name="ScriptsStopped">
+		An administrator has temporarily stopped scripts in this region.
+	</notification>
+	<notification name="ScriptsNotRunning">
+		This region is not running any scripts.
+	</notification>
+	<notification name="NoOutsideScripts">
+		This land has outside scripts disabled.
+
+No scripts will work here except those belonging to the land owner.
+	</notification>
+	<notification name="ClaimPublicLand">
+		You can only claim public land in the Region you&apos;re in.
+	</notification>
+	<notification name="RegionTPAccessBlocked">
+		You aren&apos;t allowed in that Region due to your maturity Rating. You may need to validate your age and/or install the latest Viewer.
+
+Please go to the Knowledge Base for details on accessing areas with this maturity Rating.
+	</notification>
+	<notification name="URBannedFromRegion">
+		You are banned from the region.
+	</notification>
+	<notification name="NoTeenGridAccess">
+		Your account cannot connect to this teen grid region.
+	</notification>
+	<notification name="ImproperPaymentStatus">
+		You do not have proper payment status to enter this region.
+	</notification>
+	<notification name="MustGetAgeRgion">
+		You must be age-verified to enter this region.
+	</notification>
+	<notification name="MustGetAgeParcel">
+		You must be age-verified to enter this parcel.
+	</notification>
+	<notification name="NoDestRegion">
+		No destination region found.
+	</notification>
+	<notification name="NotAllowedInDest">
+		You are not allowed into the destination.
+	</notification>
+	<notification name="RegionParcelBan">
+		Cannot region cross into banned parcel. Try another way.
+	</notification>
+	<notification name="TelehubRedirect">
+		You have been redirected to a telehub.
+	</notification>
+	<notification name="CouldntTPCloser">
+		Could not teleport closer to destination.
+	</notification>
+	<notification name="TPCancelled">
+		Teleport cancelled.
+	</notification>
+	<notification name="FullRegionTryAgain">
+		The region you are attempting to enter is currently full.
+Please try again in a few moments.
+	</notification>
+	<notification name="GeneralFailure">
+		General failure.
+	</notification>
+	<notification name="RoutedWrongRegion">
+		Routed to wrong region. Please try again.
+	</notification>
+	<notification name="NoValidAgentID">
+		No valid agent id.
+	</notification>
+	<notification name="NoValidSession">
+		No valid session id.
+	</notification>
+	<notification name="NoValidCircuit">
+		No valid circuit code.
+	</notification>
+	<notification name="NoValidTimestamp">
+		No valid timestamp.
+	</notification>
+	<notification name="NoPendingConnection">
+		Unable to create pending connection.
+	</notification>
+	<notification name="InternalUsherError">
+		Internal error attempting to connect agent usher.
+	</notification>
+	<notification name="NoGoodTPDestination">
+		Unable to find a good teleport destination in this region.
+	</notification>
+	<notification name="InternalErrorRegionResolver">
+		Internal error attempting to activate region resolver.
+	</notification>
+	<notification name="NoValidLanding">
+		A valid landing point could not be found.
+	</notification>
+	<notification name="NoValidParcel">
+		No valid parcel could be found.
+	</notification>
+	<notification name="ObjectGiveItem">
+		An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
+[ITEM_SLURL]
+		<form name="form">
+			<button name="Keep" text="Keep"/>
+			<button name="Discard" text="Discard"/>
+			<button name="Mute" text="Block"/>
+		</form>
+	</notification>
+	<notification name="UserGiveItem">
+		[NAME_SLURL] has given you this [OBJECTTYPE]:
+[ITEM_SLURL]
+		<form name="form">
+			<button name="Show" text="Show"/>
+			<button name="Discard" text="Discard"/>
+			<button name="Mute" text="Block"/>
+		</form>
+	</notification>
+	<notification name="GodMessage">
+		[NAME]
+
+[MESSAGE]
+	</notification>
+	<notification name="JoinGroup">
+		[MESSAGE]
+		<form name="form">
+			<button name="Join" text="Join"/>
+			<button name="Decline" text="Decline"/>
+			<button name="Info" text="資訊"/>
+		</form>
+	</notification>
+	<notification name="TeleportOffered">
+		[NAME_SLURL] has offered to teleport you to their location:
+
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+		<form name="form">
+			<button name="Teleport" text="Teleport"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="TeleportOfferSent">
+		Teleport offer sent to [TO_NAME]
+	</notification>
+	<notification name="GotoURL">
+		[MESSAGE]
+[URL]
+		<form name="form">
+			<button name="Later" text="Later"/>
+			<button name="GoNow..." text="Go Now..."/>
+		</form>
+	</notification>
+	<notification name="OfferFriendship">
+		[NAME_SLURL] is offering friendship.
+
+[MESSAGE]
+
+(By default, you will be able to see each other&apos;s online status.)
+		<form name="form">
+			<button name="Accept" text="接受"/>
+			<button name="Decline" text="Decline"/>
+		</form>
+	</notification>
+	<notification name="FriendshipOffered">
+		You have offered friendship to [TO_NAME]
+	</notification>
+	<notification name="OfferFriendshipNoMessage">
+		[NAME_SLURL] is offering friendship.
+
+(By default, you will be able to see each other&apos;s online status.)
+		<form name="form">
+			<button name="Accept" text="接受"/>
+			<button name="Decline" text="Decline"/>
+		</form>
+	</notification>
+	<notification name="FriendshipAccepted">
+		[NAME] accepted your friendship offer.
+	</notification>
+	<notification name="FriendshipDeclined">
+		[NAME] declined your friendship offer.
+	</notification>
+	<notification name="FriendshipAcceptedByMe">
+		Friendship offer accepted.
+	</notification>
+	<notification name="FriendshipDeclinedByMe">
+		Friendship offer declined.
+	</notification>
+	<notification name="OfferCallingCard">
+		[NAME] is offering their calling card.
+This will add a bookmark in your inventory so you can quickly IM this Resident.
+		<form name="form">
+			<button name="Accept" text="接受"/>
+			<button name="Decline" text="Decline"/>
+		</form>
+	</notification>
+	<notification name="RegionRestartMinutes">
+		This region will restart in [MINUTES] minutes.
+If you stay in this region you will be logged out.
+	</notification>
+	<notification name="RegionRestartSeconds">
+		This region will restart in [SECONDS] seconds.
+If you stay in this region you will be logged out.
+	</notification>
+	<notification name="LoadWebPage">
+		Load web page [URL]?
+
+[MESSAGE]
+
+From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]?
+		<form name="form">
+			<button name="Gotopage" text="Go to page"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification name="FailedToFindWearableUnnamed">
+		Failed to find [TYPE] in database.
+	</notification>
+	<notification name="FailedToFindWearable">
+		Failed to find [TYPE] named [DESC] in database.
+	</notification>
+	<notification name="InvalidWearable">
+		The item you are trying to wear uses a feature that your Viewer can&apos;t read. Please upgrade your version of [APP_NAME] to wear this item.
+	</notification>
+	<notification name="ScriptQuestion">
+		&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, would like to:
+
+[QUESTIONS]
+Is this OK?
+		<form name="form">
+			<button name="Yes" text="是"/>
+			<button name="No" text="否"/>
+			<button name="Mute" text="Block"/>
+		</form>
+	</notification>
+	<notification name="ScriptQuestionCaution">
+		An object named &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, owned by &apos;[NAME]&apos; would like to:
+
+[QUESTIONS]
+If you do not trust this object and its creator, you should deny the request.
+
+Grant this request?
+		<form name="form">
+			<button name="Grant" text="Grant"/>
+			<button name="Deny" text="Deny"/>
+			<button name="Details" text="Details..."/>
+		</form>
+	</notification>
+	<notification name="ScriptDialog">
+		[NAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
+[MESSAGE]
+		<form name="form">
+			<button name="Ignore" text="忽視"/>
+		</form>
+	</notification>
+	<notification name="ScriptDialogGroup">
+		[GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
+[MESSAGE]
+		<form name="form">
+			<button name="Ignore" text="忽視"/>
+		</form>
+	</notification>
+	<notification name="BuyLindenDollarSuccess">
+		Thank you for your payment!
+
+Your L$ balance will be updated when processing completes. If processing takes more than 20 mins, your transaction may be cancelled. In that case, the purchase amount will be credited to your US$ balance.
+
+The status of your payment can be checked on your Transaction History page on your [http://secondlife.com/account/ Dashboard]
+	</notification>
+	<notification name="FirstOverrideKeys">
+		Your movement keys are now being handled by an object.
+Try the arrow keys or AWSD to see what they do.
+Some objects (like guns) require you to go into mouselook  to use them.
+Press &apos;M&apos; to do this.
+	</notification>
+	<notification name="FirstSandbox">
+		This is a sandbox area, and is meant to help Residents learn how to build.
+
+Things you build here will be deleted after you leave, so don&apos;t forget to right-click and choose &apos;Take&apos; to move your creation to your Inventory.
+	</notification>
+	<notification name="MaxListSelectMessage">
+		You may only select up to [MAX_SELECT] items from this list.
+	</notification>
+	<notification name="VoiceInviteP2P">
+		[NAME] is inviting you to a Voice Chat call.
+Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
+		<form name="form">
+			<button name="Accept" text="接受"/>
+			<button name="Decline" text="Decline"/>
+			<button name="Mute" text="Block"/>
+		</form>
+	</notification>
+	<notification name="AutoUnmuteByIM">
+		[NAME] was sent an instant message and has been automatically unblocked.
+	</notification>
+	<notification name="AutoUnmuteByMoney">
+		[NAME] was given money and has been automatically unblocked.
+	</notification>
+	<notification name="AutoUnmuteByInventory">
+		[NAME] was offered inventory and has been automatically unblocked.
+	</notification>
+	<notification name="VoiceInviteGroup">
+		[NAME] has joined a Voice Chat call with the group [GROUP].
+Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
+		<form name="form">
+			<button name="Accept" text="接受"/>
+			<button name="Decline" text="Decline"/>
+			<button name="Mute" text="Block"/>
+		</form>
+	</notification>
+	<notification name="VoiceInviteAdHoc">
+		[NAME] has joined a voice chat call with a conference chat.
+Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
+		<form name="form">
+			<button name="Accept" text="接受"/>
+			<button name="Decline" text="Decline"/>
+			<button name="Mute" text="Block"/>
+		</form>
+	</notification>
+	<notification name="InviteAdHoc">
+		[NAME] is inviting you to a conference chat.
+Click Accept to join the chat or Decline to decline the invitation. Click Block to block this caller.
+		<form name="form">
+			<button name="Accept" text="接受"/>
+			<button name="Decline" text="Decline"/>
+			<button name="Mute" text="Block"/>
+		</form>
+	</notification>
+	<notification name="VoiceChannelFull">
+		The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum capacity. Please try again later.
+	</notification>
+	<notification name="ProximalVoiceChannelFull">
+		We&apos;re sorry.  This area has reached maximum capacity for voice conversations.  Please try to use voice in another area.
+	</notification>
+	<notification name="VoiceChannelDisconnected">
+		You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to Nearby Voice Chat.
+	</notification>
+	<notification name="VoiceChannelDisconnectedP2P">
+		[VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to Nearby Voice Chat.
+	</notification>
+	<notification name="P2PCallDeclined">
+		[VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to Nearby Voice Chat.
+	</notification>
+	<notification name="P2PCallNoAnswer">
+		[VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to Nearby Voice Chat.
+	</notification>
+	<notification name="VoiceChannelJoinFailed">
+		Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to Nearby Voice Chat.
+	</notification>
+	<notification name="VoiceLoginRetry">
+		We are creating a voice channel for you. This may take up to one minute.
+	</notification>
+	<notification name="VoiceEffectsExpired">
+		One or more of your subscribed Voice Morphs has expired.
+[[URL] Click here] to renew your subscription.
+	</notification>
+	<notification name="VoiceEffectsExpiredInUse">
+		The active Voice Morph has expired, your normal voice settings have been applied.
+[[URL] Click here] to renew your subscription.
+	</notification>
+	<notification name="VoiceEffectsWillExpire">
+		One or more of your Voice Morphs will expire in less than [INTERVAL] days.
+[[URL] Click here] to renew your subscription.
+	</notification>
+	<notification name="VoiceEffectsNew">
+		New Voice Morphs are available!
+	</notification>
+	<notification name="Cannot enter parcel: not a group member">
+		Only members of a certain group can visit this area.
+	</notification>
+	<notification name="Cannot enter parcel: banned">
+		Cannot enter parcel, you have been banned.
+	</notification>
+	<notification name="Cannot enter parcel: not on access list">
+		Cannot enter parcel, you are not on the access list.
+	</notification>
+	<notification name="VoiceNotAllowed">
+		You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
+	</notification>
+	<notification name="VoiceCallGenericError">
+		An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_NAME].  Please try again later.
+	</notification>
+	<notification name="UnsupportedCommandSLURL">
+		The SLurl you clicked on is not supported.
+	</notification>
+	<notification name="BlockedSLURL">
+		A SLurl was received from an untrusted browser and has been blocked for your security.
+	</notification>
+	<notification name="ThrottledSLURL">
+		Multiple SLurls were received from an untrusted browser within a short period.
+They will be blocked for a few seconds for your security.
+	</notification>
+	<notification name="IMToast">
+		[MESSAGE]
+		<form name="form">
+			<button name="respondbutton" text="Respond"/>
+		</form>
+	</notification>
+	<notification name="ConfirmCloseAll">
+		Are you sure you want to close all IMs?
+		<usetemplate ignoretext="Confirm before I close all IMs" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="AttachmentSaved">
+		Attachment has been saved.
+	</notification>
+	<notification name="UnableToFindHelpTopic">
+		Unable to find the help topic for this element.
+	</notification>
+	<notification name="ObjectMediaFailure">
+		Server Error: Media update or get failed.
+&apos;[ERROR]&apos;
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="TextChatIsMutedByModerator">
+		Your text chat has been muted by moderator.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="VoiceIsMutedByModerator">
+		Your voice has been muted by moderator.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmClearTeleportHistory">
+		Are you sure you want to delete your teleport history?
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="BottomTrayButtonCanNotBeShown">
+		Selected button can not be shown right now.
+The button will be shown when there is enough space for it.
+	</notification>
+	<notification name="ShareNotification">
+		Select residents to share with.
+	</notification>
+	<notification name="ShareItemsConfirmation">
+		Are you sure you want to share the following items:
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+With the following Residents:
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification name="ItemsShared">
+		Items successfully shared.
+	</notification>
+	<notification name="DeedToGroupFail">
+		Deed to group failed.
+	</notification>
+	<notification name="AvatarRezNotification">
+		( [EXISTENCE] seconds alive )
+Avatar &apos;[NAME]&apos; declouded after [TIME] seconds.
+	</notification>
+	<notification name="AvatarRezSelfBakedDoneNotification">
+		( [EXISTENCE] seconds alive )
+You finished baking your outfit after [TIME] seconds.
+	</notification>
+	<notification name="AvatarRezSelfBakedUpdateNotification">
+		( [EXISTENCE] seconds alive )
+You sent out an update of your appearance after [TIME] seconds.
+[STATUS]
+	</notification>
+	<notification name="AvatarRezCloudNotification">
+		( [EXISTENCE] seconds alive )
+Avatar &apos;[NAME]&apos; became cloud.
+	</notification>
+	<notification name="AvatarRezArrivedNotification">
+		( [EXISTENCE] seconds alive )
+Avatar &apos;[NAME]&apos; appeared.
+	</notification>
+	<notification name="AvatarRezLeftCloudNotification">
+		( [EXISTENCE] seconds alive )
+Avatar &apos;[NAME]&apos; left after [TIME] seconds as cloud.
+	</notification>
+	<notification name="AvatarRezEnteredAppearanceNotification">
+		( [EXISTENCE] seconds alive )
+Avatar &apos;[NAME]&apos; entered appearance mode.
+	</notification>
+	<notification name="AvatarRezLeftAppearanceNotification">
+		( [EXISTENCE] seconds alive )
+Avatar &apos;[NAME]&apos; left appearance mode.
+	</notification>
+	<notification name="NoConnect">
+		We&apos;re having trouble connecting using [PROTOCOL] [HOSTID].
+Please check your network and firewall setup.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="NoVoiceConnect">
+		We&apos;re having trouble connecting to your voice server:
+
+[HOSTID]
+
+Voice communications will not be available.
+Please check your network and firewall setup.
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="AvatarRezLeftNotification">
+		( [EXISTENCE] seconds alive )
+Avatar &apos;[NAME]&apos; left as fully loaded.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUploadNotification">
+		( [EXISTENCE] seconds alive )
+You uploaded a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; after [TIME] seconds.
+	</notification>
+	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
+		( [EXISTENCE] seconds alive )
+You locally updated a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; after [TIME] seconds.
+	</notification>
+	<notification name="ConfirmLeaveCall">
+		Are you sure you want to leave this call?
+		<usetemplate ignoretext="Confirm before I leave call" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="ConfirmMuteAll">
+		You have selected to mute all participants in a group call.
+This will also cause all residents that later join the call to be
+muted, even after you have left the call.
+
+Mute everyone?
+		<usetemplate ignoretext="Confirm before I mute all participants in a group call" name="okcancelignore" notext="取銷" yestext="確定"/>
+	</notification>
+	<notification label="聊天" name="HintChat">
+		To join the conversation, type into the chat field below.
+	</notification>
+	<notification label="Stand" name="HintSit">
+		To stand up and exit the sitting position, click the Stand button.
+	</notification>
+	<notification label="Speak" name="HintSpeak">
+		Click the Speak button to turn your microphone on and off.
+
+Click on the up arrow to see the voice control panel.
+
+Hiding the Speak button will disable the voice feature.
+	</notification>
+	<notification label="Explore the World" name="HintDestinationGuide">
+		The Destination Guide contains thousands of new places to discover. Select a location and choose Teleport to start exploring.
+	</notification>
+	<notification label="側邊欄" name="HintSidePanel">
+		Get quick access to your inventory, outfits, profiles and more in the side panel.
+	</notification>
+	<notification label="移動" name="HintMove">
+		To walk or run, open the Move Panel and use the directional arrows to navigate. You can also use the directional keys on your keyboard.
+	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Click to Walk
+Click anywhere on the ground to walk to that spot.
+
+2. Click and Drag to Rotate View
+Click and drag anywhere on the world to rotate your view
+	</notification>
+	<notification label="Display Name" name="HintDisplayName">
+		Set your customizable display name here. This is in addition to your unique username, which can&apos;t be changed. You can change how you see other people&apos;s names in your preferences.
+	</notification>
+	<notification label="View" name="HintView">
+		To change your camera view, use the Orbit and Pan controls. Reset your view by pressing Escape or walking.
+	</notification>
+	<notification label="Inventory" name="HintInventory">
+		Check your inventory to find items. Newest items can be easily found in the Recent tab.
+	</notification>
+	<notification label="You&apos;ve got Linden Dollars!" name="HintLindenDollar">
+		Here&apos;s your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
+	</notification>
+	<notification name="PopupAttempt">
+		A pop-up was prevented from opening.
+		<form name="form">
+			<ignore name="ignore" text="Enable all pop-ups"/>
+			<button name="open" text="Open pop-up window"/>
+		</form>
+	</notification>
+	<notification name="AuthRequest">
+		The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;[REALM]&apos; requires a user name and password.
+		<form name="form">
+			<input name="username" text="User Name"/>
+			<input name="password" text="Password"/>
+			<button name="ok" text="Submit"/>
+			<button name="cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification label="" name="ModeChange">
+		Changing modes requires you to quit and restart.
+		<usetemplate name="okcancelbuttons" notext="Don&apos;t Quit" yestext="Quit"/>
+	</notification>
+	<notification label="" name="NoClassifieds">
+		Creation and editing of Classifieds is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
+		<usetemplate name="okcancelbuttons" notext="Don&apos;t Quit" yestext="Quit"/>
+	</notification>
+	<notification label="" name="NoGroupInfo">
+		Creation and editing of Groups is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
+		<usetemplate name="okcancelbuttons" notext="Don&apos;t Quit" yestext="Quit"/>
+	</notification>
+	<notification label="" name="NoPicks">
+		Creation and editing of Picks is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
+		<usetemplate name="okcancelbuttons" notext="Don&apos;t Quit" yestext="Quit"/>
+	</notification>
+	<notification label="" name="NoWorldMap">
+		Viewing of the world map is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
+		<usetemplate name="okcancelbuttons" notext="Don&apos;t Quit" yestext="Quit"/>
+	</notification>
+	<notification label="" name="NoVoiceCall">
+		Voice calls are only available in Advanced mode. Would you like to logout and change modes?
+		<usetemplate name="okcancelbuttons" notext="Don&apos;t Quit" yestext="Quit"/>
+	</notification>
+	<notification label="" name="NoAvatarShare">
+		Sharing is only available in Advanced mode. Would you like to logout and change modes?
+		<usetemplate name="okcancelbuttons" notext="Don&apos;t Quit" yestext="Quit"/>
+	</notification>
+	<notification label="" name="NoAvatarPay">
+		Paying other residents is only available in Advanced mode. Would you like to logout and change modes?
+		<usetemplate name="okcancelbuttons" notext="Don&apos;t Quit" yestext="Quit"/>
+	</notification>
+	<global name="UnsupportedCPU">
+		- Your CPU speed does not meet the minimum requirements.
+	</global>
+	<global name="UnsupportedGLRequirements">
+		You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
+
+If you continue to have problems, please visit the [SUPPORT_SITE].
+	</global>
+	<global name="UnsupportedCPUAmount">
+		796
+	</global>
+	<global name="UnsupportedRAMAmount">
+		510
+	</global>
+	<global name="UnsupportedGPU">
+		- Your graphics card does not meet the minimum requirements.
+	</global>
+	<global name="UnsupportedRAM">
+		- Your system memory does not meet the minimum requirements.
+	</global>
+	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
+		If you own a piece of land, you can make it your home location.
+Otherwise, you can look at the Map and find places marked &quot;Infohub&quot;.
+	</global>
+	<global name="You died and have been teleported to your home location">
+		You died and have been teleported to your home location.
+	</global>
+</notifications>

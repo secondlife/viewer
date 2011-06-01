@@ -24,6 +24,10 @@
 				名前の一部を入力：
 			</text>
 			<button label="検索" label_selected="検索" name="Find"/>
+			<scroll_list name="SearchResults">
+				<columns label="名前" name="name"/>
+				<columns label="ユーザー名" name="username"/>
+			</scroll_list>
 		</panel>
 		<panel label="フレンド" name="FriendsPanel">
 			<text name="InstructSelectFriend">
@@ -39,6 +43,10 @@
 				メートル
 			</text>
 			<button label="リスト更新" label_selected="リスト更新" name="Refresh"/>
+			<scroll_list name="NearMe">
+				<columns label="名前" name="name"/>
+				<columns label="ユーザー名" name="username"/>
+			</scroll_list>
 		</panel>
 	</tab_container>
 	<button label="OK" label_selected="OK" name="ok_btn"/>

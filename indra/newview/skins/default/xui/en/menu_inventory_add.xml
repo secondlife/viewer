@@ -42,7 +42,7 @@
                     <menu_item_call.on_enable
                      function="File.EnableUpload" />
                 </menu_item_call>
-		            <menu_item_call
+		<menu_item_call
                  label="Model..."
                  layout="topleft"
                  name="Upload Model">
@@ -54,6 +54,18 @@
                 <menu_item_call.on_visible
                 function="File.VisibleUploadModel"/>
                 </menu_item_call>
+              <menu_item_call
+                label="Model Wizard..."
+                layout="topleft"
+                name="Upload Model Wizard">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="upload_model_wizard" />
+                <menu_item_call.on_enable
+                 function="File.EnableUploadModel" />
+                <menu_item_call.on_visible
+                function="File.VisibleUploadModel"/>
+	      </menu_item_call>
                 <menu_item_call
                  label="Bulk (L$[COST] per file)..."
                  layout="topleft"

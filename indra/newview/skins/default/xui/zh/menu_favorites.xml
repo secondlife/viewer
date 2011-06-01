@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Popup">
+	<menu_item_call label="Teleport" name="Teleport To Landmark"/>
+	<menu_item_call label="View/Edit Landmark" name="Landmark Open"/>
+	<menu_item_call label="Copy SLurl" name="Copy slurl"/>
+	<menu_item_call label="顯示在地圖上" name="Show On Map"/>
+	<menu_item_call label="覆製" name="Landmark Copy"/>
+	<menu_item_call label="貼上" name="Landmark Paste"/>
+	<menu_item_call label="刪除" name="Delete"/>
+</menu>

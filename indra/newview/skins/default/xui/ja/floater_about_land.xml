@@ -349,6 +349,7 @@
 				<combo_box.item label="公園と自然" name="item9"/>
 				<combo_box.item label="住宅用" name="item10"/>
 				<combo_box.item label="ショッピング" name="item11"/>
+				<combo_box.item label="レンタル" name="item13"/>
 				<combo_box.item label="その他" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -363,6 +364,7 @@
 				<combo_box.item label="公園と自然" name="item9"/>
 				<combo_box.item label="住宅用" name="item10"/>
 				<combo_box.item label="ショッピング" name="item11"/>
+				<combo_box.item label="レンタル" name="item13"/>
 				<combo_box.item label="その他" name="item12"/>
 			</combo_box>
 			<check_box label="「Moderate」コンテンツ" name="MatureCheck" tool_tip=""/>
@@ -438,7 +440,7 @@
 				（エステートに限定）
 			</panel.string>
 			<panel.string name="allow_public_access">
-				パブリックアクセスを許可 （[MATURITY]）
+				パブリックアクセスを許可 （[MATURITY]）（注意：このオプションをオフにすると立入禁止ラインが作成されます）
 			</panel.string>
 			<panel.string name="estate_override">
 				1 つ以上のオプションが、不動産レベルで設定されています。

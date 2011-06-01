@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray panel -->
+<panel label="人" name="people_panel">
+	<string name="no_recent_people" value="最近交流した人はいません。一緒に何かする仲間をお探しですか？下の「行き先ガイド」ボタンをクリックしてください。"/>
+	<string name="no_filtered_recent_people" value="その名前で最近交流した人はいません。"/>
+	<string name="no_one_near" value="近くに誰もいません。一緒に何かする仲間をお探しですか？下の「行き先ガイド」ボタンをクリックしてください。"/>
+	<string name="no_one_filtered_near" value="その名前の人は近くにいません。"/>
+	<string name="no_friends_online" value="オンラインのフレンドはいません"/>
+	<string name="no_friends" value="フレンドはいません"/>
+	<string name="no_friends_msg">
+		住人を右クリックすると、フレンド登録できます。
+一緒に何かする仲間をお探しですか？下の「行き先ガイド」ボタンをクリックしてください。
+	</string>
+	<string name="no_filtered_friends_msg">
+		お探しのものは見つかりましたか？下の「行き先ガイド」ボタンをクリックしてください。
+	</string>
+	<string name="people_filter_label" value="人をフィルター"/>
+	<string name="groups_filter_label" value="グループをフィルター"/>
+	<string name="no_filtered_groups_msg" value="お探しのものは見つかりましたか？ [secondlife:///app/search/groups/[SEARCH_TERM] 検索] をお試しください。"/>
+	<string name="no_groups_msg" value="グループをお探しですか？ [secondlife:///app/search/groups 検索] をお試しください。"/>
+	<string name="MiniMapToolTipMsg" value="[地域]（ダブルクリックで地図を開く。Shift‐ドラッグで水平・垂直移動）"/>
+	<string name="AltMiniMapToolTipMsg" value="[地域]（ダブルクリックでテレポート。Shift‐ドラッグで水平・垂直移動）"/>
+	<filter_editor label="フィルター" name="filter_input"/>
+	<tab_container name="tabs">
+		<panel label="近く" name="nearby_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<menu_button name="nearby_view_sort_btn" tool_tip="オプション"/>
+				<button name="add_friend_btn" tool_tip="選択した住人をフレンドリストに登録"/>
+			</panel>
+		</panel>
+		<panel label="マイ フレンド" name="friends_panel">
+			<accordion name="friends_accordion">
+				<accordion_tab name="tab_online" title="オンライン"/>
+				<accordion_tab name="tab_all" title="全員"/>
+			</accordion>
+			<panel label="bottom_panel" name="bottom_panel">
+				<layout_stack name="bottom_panel">
+					<layout_panel name="options_gear_btn_panel">
+						<menu_button name="friends_viewsort_btn" tool_tip="オプションを表示します"/>
+					</layout_panel>
+					<layout_panel name="add_btn_panel">
+						<button name="add_btn" tool_tip="フレンド登録を申し出る"/>
+					</layout_panel>
+					<layout_panel name="trash_btn_panel">
+						<dnd_button name="del_btn" tool_tip="選択した人をフレンドリストから削除"/>
+					</layout_panel>
+				</layout_stack>
+			</panel>
+		</panel>
+		<panel label="マイ グループ" name="groups_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<menu_button name="groups_viewsort_btn" tool_tip="オプション"/>
+				<button name="plus_btn" tool_tip="グループに参加 / 新規グループを作成します"/>
+				<button name="activate_btn" tool_tip="選択したグループをアクティブにします"/>
+			</panel>
+		</panel>
+		<panel label="最新" name="recent_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<menu_button name="recent_viewsort_btn" tool_tip="オプション"/>
+				<button name="add_friend_btn" tool_tip="選択した住人をフレンドリストに登録"/>
+			</panel>
+		</panel>
+	</tab_container>
+	<panel name="button_bar">
+		<layout_stack name="bottom_bar_ls">
+			<layout_panel name="view_profile_btn_lp">
+				<button label="プロフィール" name="view_profile_btn" tool_tip="写真、グループ、その他住人情報を表示"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="IM" name="im_btn" tool_tip="インスタントメッセージを開きます"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="コール" name="call_btn" tool_tip="この住人にコールする"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="共有" name="share_btn" tool_tip="「持ち物」のアイテムを共有する"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="テレポート" name="teleport_btn" tool_tip="テレポートを送ります"/>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls1">
+			<layout_panel name="group_info_btn_lp">
+				<button label="グループ情報" name="group_info_btn" tool_tip="グループ情報を表示します"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="グループチャット" name="chat_btn" tool_tip="チャットを開始します"/>
+			</layout_panel>
+			<layout_panel name="group_call_btn_lp">
+				<button label="グループコール" name="group_call_btn" tool_tip="このグループにコールする"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

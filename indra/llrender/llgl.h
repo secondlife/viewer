@@ -91,6 +91,7 @@ public:
 	BOOL mHasShaderObjects;
 	BOOL mHasVertexShader;
 	BOOL mHasFragmentShader;
+	S32  mNumTextureImageUnits;
 	BOOL mHasOcclusionQuery;
 	BOOL mHasOcclusionQuery2;
 	BOOL mHasPointParameters;

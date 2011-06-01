@@ -76,7 +76,7 @@
 						<text name="region_rating_label" value="Categoria:"/>
 						<text name="region_rating" value="Adulti"/>
 						<text name="region_owner_label" value="Proprietario:"/>
-						<text name="region_owner" value="moose Van Moose"/>
+						<text name="region_owner" value="moose Van Moose nome lunghissimo moose"/>
 						<text name="region_group_label" value="Gruppo:"/>
 						<text name="region_group">
 							The Mighty Moose of mooseville soundvillemoose
@@ -89,6 +89,7 @@
 						<text name="estate_name_label" value="Proprietà immobiliare:"/>
 						<text name="estate_rating_label" value="Categoria:"/>
 						<text name="estate_owner_label" value="Proprietario:"/>
+						<text name="estate_owner" value="Test nome proprietario con nome molto lungo"/>
 						<text name="covenant_label" value="Regolamento:"/>
 					</panel>
 				</accordion_tab>

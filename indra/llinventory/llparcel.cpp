@@ -1348,3 +1348,12 @@ LLParcel::ECategory category_ui_string_to_category(const std::string& s)
     // is a distinct option from "None" and "Other"
     return LLParcel::C_ANY;
 }
+
+void LLParcel::updateQuota( const LLUUID& objectId,  const ParcelQuota& quota )
+{
+	if ( mID == objectId )
+	{
+		mQuota = quota;
+	}
+}
+

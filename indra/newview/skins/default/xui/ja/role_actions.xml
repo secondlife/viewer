@@ -39,6 +39,7 @@
 		<action description="常に「オブジェクト作成」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上にオブジェクトを作成することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、オブジェクトの作成が可能です。" name="land allow create" value="25"/>
 		<action description="常に「ランドマークを作成」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上にランドマークを作成することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、ランドマークの作成が可能です。" name="land allow landmark" value="26"/>
 		<action description="グループの土地への「ホーム設定」を許可" longdescription="この「役割」を持つメンバーは、このグループに譲渡された区画上で「世界」メニュー &gt; ランドマーク &gt; 現在地をホームに設定 を使用して、ホームの設定を行うことができます。" name="land allow set home" value="28"/>
+		<action description="グループ所有地での「イベント主催」を許可" longdescription="この「能力」を持つ「役割」のメンバーは、グループ所有区画を利用してイベントを開催することができます。" name="land allow host event" value="41"/>
 	</action_set>
 	<action_set description="これらの能力には、住人の凍結や追放を含む、グループ所有の区画へのアクセスを許可、制限する権限が含まれます。" name="Parcel Access">
 		<action description="区画アクセスリストの管理" longdescription="区画アクセス・リストの管理は、「土地情報」＞「アクセス」タブで行います。" name="land manage allowed" value="29"/>
@@ -57,20 +58,16 @@
 		<action description="グループ所有オブジェクトの操作（移動、コピー、修正）" longdescription="「制作ツール」 &gt; 「一般」タブで、グループ所有のオブジェクトを操作（移動、コピー、修正）します。" name="object manipulate" value="38"/>
 		<action description="グループ所有オブジェクトを販売可能に設定" longdescription="「制作ツール」 &gt; 「一般」タブで、グループ所有のオブジェクトを販売対象に設定します。" name="object set sale" value="39"/>
 	</action_set>
-	<action_set description="これらの能力には、メンバーに、グループの負債の支払いと利子受け取りを要求する権限、グループ口座履歴へのアクセスを制限する権限が含まれます。" name="Accounting"><action description="グループ負債の返済とグループ配当の受領" longdescription="この能力を持つ役割のメンバーについては、グループ負債の支払いとグループ配当の受け取りが自動的に行われます。
-		つまり、これらのメンバーは、毎日配当されるグループ所有地の売り上げ金の一部を受け取ると共に、区画の広告費などを負担することになります。" name="accounting accountable" value="40"/>
+	<action_set description="これらの能力には、メンバーに、グループの負債の支払いと利子受け取りを要求する権限、グループ口座履歴へのアクセスを制限する権限が含まれます。" name="Accounting">
+		<action description="グループ負債の返済とグループ配当の受領" longdescription="この能力を持つ役割のメンバーについては、グループ負債の支払いとグループ配当の受け取りが自動的に行われます。   つまり、これらのメンバーは、毎日配当されるグループ所有地の売り上げ金の一部を受け取ると共に、区画の広告費などを負担することになります。" name="accounting accountable" value="40"/>
 	</action_set>
 	<action_set description="これらの能力には、グループ通知の送信、受信、表示をメンバーに許可する権限が含まれます。" name="Notices">
 		<action description="通知を送信" longdescription="この「能力」を持つ「役割」のメンバーは、「グループ」 &gt; 「通知」セクションから通知を送信できます。" name="notices send" value="42"/>
 		<action description="通知の受信と過去の通知の閲覧" longdescription="この「能力」を持つ「役割」のメンバーは、「グループ」 &gt; 「通知」セクションで通知を受信したり過去の通知を見ることができます。" name="notices receive" value="43"/>
 	</action_set>
-	<action_set description="これらの能力には、提案の作成と投票、投票履歴の表示をメンバーに許可する権限が含まれます。" name="Proposals">
-		<action description="提案を作成" longdescription="この能力を持つ役割のメンバーは、投票の対象となる問題提起を「グループ情報」＞「問題提起」タブ上で作成することができます。" name="proposal start" value="44"/>
-		<action description="問題提起に投票する" longdescription="この能力を持つ役割のメンバーは、グループ情報＞提案タブで提案に投票することができます。" name="proposal vote" value="45"/>
-	</action_set>
 	<action_set description=" これらの能力には、グループチャットセッションやグループボイスチャットへのアクセスの許可や制限の権限が含まれます。 " name="Chat">
-		<action description="グループチャットに参加する" longdescription=" この能力を持つ役割のメンバーは、グループチャットセッションにテキストおよびボイスで参加できます。 " name="join group chat"/>
-		<action description="グループボイスチャットに参加する" longdescription=" この能力を持つ役割のメンバーは、グループボイスチャットセッションに参加できます。  注： ボイスチャットセッションにアクセスするには、グループチャットに参加する能力が必要です。 " name="join voice chat"/>
-		<action description="グループチャットを管理する" longdescription=" この能力を持つ役割のメンバーは、グループボイスチャットセッションおよびグループテキストチャットセッションへのアクセスや参加をコントロールすることができます。 " name="moderate group chat"/>
+		<action description="グループチャットに参加する" longdescription=" この能力を持つ役割のメンバーは、グループチャットセッションにテキストおよびボイスで参加できます。 " name="join group chat" value="16"/>
+		<action description="グループボイスチャットに参加する" longdescription=" この能力を持つ役割のメンバーは、グループボイスチャットセッションに参加できます。  注： ボイスチャットセッションにアクセスするには、グループチャットに参加する能力が必要です。 " name="join voice chat" value="27"/>
+		<action description="グループチャットを管理する" longdescription=" この能力を持つ役割のメンバーは、グループボイスチャットセッションおよびグループテキストチャットセッションへのアクセスや参加をコントロールすることができます。 " name="moderate group chat" value="37"/>
 	</action_set>
 </role_actions>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="顏色" name="colors_panel">
+	<text name="effects_color_textbox">
+		我的效果（選擇指標）：
+	</text>
+	<color_swatch name="effect_color_swatch" tool_tip="點擊以開啟顏色挑選器"/>
+	<text name="font_colors">
+		聊天字型顏色：
+	</text>
+	<text name="text_box1">
+		自己
+	</text>
+	<text name="text_box2">
+		其他人
+	</text>
+	<text name="text_box3">
+		物件
+	</text>
+	<text name="text_box4">
+		系統
+	</text>
+	<text name="text_box5">
+		錯誤
+	</text>
+	<text name="text_box7">
+		擁有者
+	</text>
+	<text name="text_box9">
+		URLs
+	</text>
+	<text name="bubble_chat">
+		名稱標籤背景色（亦會影響聊天泡泡）：
+	</text>
+	<color_swatch name="background" tool_tip="挑選名稱標籤顏色"/>
+	<slider label="不透明度：" name="bubble_chat_opacity" tool_tip="挑選名稱標籤不透明度"/>
+	<text name="floater_opacity">
+		Floater Opacity:
+	</text>
+	<slider label="啟用：" name="active"/>
+	<slider label="停用：" name="inactive"/>
+</panel>

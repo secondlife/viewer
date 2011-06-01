@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_voice_effect">
+	<string name="no_voice_effect">
+		關閉變聲效果
+	</string>
+	<string name="preview_voice_effects">
+		預覽變聲效果  ▶
+	</string>
+	<string name="get_voice_effects">
+		取得變聲效果  ▶
+	</string>
+	<combo_box name="voice_effect" tool_tip="選取一個變聲效果來改變你的聲音">
+		<combo_box.item label="關閉變聲效果" name="no_voice_effect"/>
+	</combo_box>
+</panel>

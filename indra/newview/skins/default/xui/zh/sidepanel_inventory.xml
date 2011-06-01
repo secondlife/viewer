@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Things" name="objects panel">
+	<panel label="" name="sidepanel__inventory_panel">
+		<panel name="button_panel">
+			<layout_stack name="button_panel_ls">
+				<layout_panel name="info_btn_lp">
+					<button label="Profile" name="info_btn" tool_tip="Show object profile"/>
+				</layout_panel>
+				<layout_panel name="share_btn_lp">
+					<button label="分享" name="share_btn" tool_tip="Share an inventory item"/>
+				</layout_panel>
+				<layout_panel name="shop_btn_lp">
+					<button label="Shop" name="shop_btn" tool_tip="Open Marketplace webpage"/>
+					<button label="Wear" name="wear_btn" tool_tip="Wear seleceted outfit"/>
+					<button label="Play" name="play_btn"/>
+					<button label="Teleport" name="teleport_btn" tool_tip="Teleport to the selected area"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</panel>
+</panel>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_undershirt_panel">
+	<panel name="avatar_undershirt_color_panel">
+		<texture_picker label="Texture" name="Fabric" tool_tip="點擊以挑選圖片"/>
+		<color_swatch label="Color/Tint" name="Color/Tint" tool_tip="Click to open Color Picker"/>
+	</panel>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="undershirt_main_tab" title="內衣"/>
+		</accordion>
+	</panel>
+</panel>
