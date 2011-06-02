@@ -67,9 +67,10 @@ void LLWLDayCycle::loadDayCycle(const LLSD& day_data, LLWLParamKey::EScope scope
 			LLWLParamManager::getInstance()->getParamSet(frame, pset);
 		if(!success)
 		{
-			// *HACK try the local-scope ones for "A-something" defaults
-			// (because our envManager.lindenDefault() doesn't have the skies yet)
-			if (frame.name.find("A-") == 0)
+			// *HACK: If loading region day cycle, try local sky presets as well.
+			// Local presets may be referenced by a region day cycle after
+			// it has been edited but the changes have not been uploaded.
+			if (scope == LLEnvKey::SCOPE_REGION)
 			{
 				frame.scope = LLEnvKey::SCOPE_LOCAL;
 				success = LLWLParamManager::getInstance()->getParamSet(frame, pset);
@@ -80,7 +81,7 @@ void LLWLDayCycle::loadDayCycle(const LLSD& day_data, LLWLParamKey::EScope scope
 				// alert the user
 				LLSD args;
 				args["SKY"] = day_data[i][1].asString();
-				LLNotifications::instance().add("WLMissingSky", LLSD(), args);
+				LLNotifications::instance().add("WLMissingSky", args, LLSD());
 				continue;
 			}
 		}

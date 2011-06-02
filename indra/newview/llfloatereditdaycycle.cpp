@@ -220,6 +220,8 @@ void LLFloaterEditDayCycle::applyTrack()
 
 void LLFloaterEditDayCycle::refreshSkyPresetsList()
 {
+	mSkyPresetsCombo->removeall();
+
 	LLWLParamManager& sky_mgr = LLWLParamManager::instance();
 	for (std::map<LLWLParamKey, LLWLParamSet>::iterator it = sky_mgr.mParamList.begin();
 		it != sky_mgr.mParamList.end(); ++it)
@@ -339,6 +341,7 @@ void LLFloaterEditDayCycle::onKeyPresetChanged()
 
 	std::string stringVal = mSkyPresetsCombo->getSelectedValue().asString();
 	LLWLParamKey new_key(stringVal);
+	llassert(!new_key.name.empty());
 	const std::string& cur_sldr = mKeysSlider->getCurSlider();
 
 	// if null, don't use
@@ -382,7 +385,10 @@ void LLFloaterEditDayCycle::onAddKey()
 	}
 
 	// add the slider key
-	LLWLParamKey sky_params(mSkyPresetsCombo->getSelectedValue());
+	std::string key_val = mSkyPresetsCombo->getSelectedValue().asString();
+	LLWLParamKey sky_params(key_val);
+	llassert(!sky_params.name.empty());
+
 	F32 time = mTimeSlider->getCurSliderValue();
 	addSliderKey(time, sky_params);
 
@@ -526,6 +532,9 @@ void LLFloaterEditDayCycle::saveRegionDayCycle()
 	LLEnvironmentSettings new_region_settings;
 	new_region_settings.saveParams(day_cycle, sky_map, env_mgr.getRegionSettings().getWaterParams(), 0.0f);
 
+#if 1
+	LLEnvManagerNew::instance().setRegionSettings(new_region_settings);
+#else // Temporary disabled ability to upload new region settings from the Day Cycle Editor.
 	if (!LLEnvManagerNew::instance().sendRegionSettings(new_region_settings))
 	{
 		llwarns << "Error applying region environment settings" << llendl;
@@ -533,6 +542,7 @@ void LLFloaterEditDayCycle::saveRegionDayCycle()
 	}
 
 	setApplyProgress(true);
+#endif
 }
 
 void LLFloaterEditDayCycle::setApplyProgress(bool started)
@@ -694,6 +704,7 @@ void LLFloaterEditDayCycle::onBtnSave()
 	if (selected_day.scope == LLEnvKey::SCOPE_REGION)
 	{
 		saveRegionDayCycle();
+		closeFloater();
 		return;
 	}
 

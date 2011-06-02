@@ -99,6 +99,16 @@ public:
 		return mDayTime;
 	}
 
+	bool isEmpty() const
+	{
+		return mWLDayCycle.size() == 0;
+	}
+
+	void clear()
+	{
+		*this = LLEnvironmentSettings();
+	}
+
 	LLSD makePacket(const LLSD& metadata) const
 	{
 		LLSD full_packet = LLSD::emptyArray();
@@ -276,6 +286,14 @@ public:
 	/// @return cached env. settings of the current region.
 	const LLEnvironmentSettings& getRegionSettings() const;
 
+	/**
+	 * Set new region settings without uploading them to the region.
+	 *
+	 * The override will be reset when the changes are applied to the region (=uploaded)
+	 * or user teleports to another region.
+	 */
+	void setRegionSettings(const LLEnvironmentSettings& new_settings);
+
 	// Change environment w/o changing user preferences.
 	bool usePrefs();
 	bool useDefaults();
@@ -335,6 +353,7 @@ private:
 
 	LLEnvPrefs				mUserPrefs;					/// User environment preferences.
 	LLEnvironmentSettings	mCachedRegionPrefs;			/// Cached region environment settings.
+	LLEnvironmentSettings	mNewRegionPrefs;			/// Not-yet-uploaded modified region env. settings.
 	bool					mInterpNextChangeMessage;	/// Interpolate env. settings on next region change.
 	LLUUID					mCurRegionUUID;				/// To avoid duplicated region env. settings requests.
 	LLUUID					mLastReceivedID;			/// Id of last received region env. settings.

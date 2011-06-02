@@ -666,7 +666,14 @@ std::string LLEnvManagerNew::getDayCycleName() const
 
 const LLEnvironmentSettings& LLEnvManagerNew::getRegionSettings() const
 {
-	return mCachedRegionPrefs;
+	return !mNewRegionPrefs.isEmpty() ? mNewRegionPrefs : mCachedRegionPrefs;
+}
+
+void LLEnvManagerNew::setRegionSettings(const LLEnvironmentSettings& new_settings)
+{
+	// Set region settings override that will be used locally
+	// until user either uploads the changes or goes to another region.
+	mNewRegionPrefs = new_settings;
 }
 
 bool LLEnvManagerNew::usePrefs()
@@ -958,6 +965,10 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 void LLEnvManagerNew::onRegionSettingsApplyResponse(bool ok)
 {
 	LL_DEBUGS("Windlight") << "Applying region settings " << (ok ? "succeeded" : "failed") << LL_ENDL;
+
+	// Clear locally modified region settings because they have just been uploaded.
+	mNewRegionPrefs.clear();
+
 	mRegionSettingsAppliedSignal(ok);
 }
 
@@ -990,6 +1001,9 @@ void LLEnvManagerNew::onRegionChange(bool interpolate)
 	{
 		return;
 	}
+
+	// Clear locally modified region settings.
+	mNewRegionPrefs.clear();
 
 	// *TODO: clear environment settings of the previous region?
 
