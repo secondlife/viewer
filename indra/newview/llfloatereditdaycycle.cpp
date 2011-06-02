@@ -220,6 +220,10 @@ void LLFloaterEditDayCycle::applyTrack()
 
 void LLFloaterEditDayCycle::refreshSkyPresetsList()
 {
+	// Don't allow selecting region skies for a local day cycle,
+	// because thus we may end up with invalid day cycle.
+	bool include_region_skies = getSelectedDayCycle().scope == LLEnvKey::SCOPE_REGION;
+
 	mSkyPresetsCombo->removeall();
 
 	LLWLParamManager& sky_mgr = LLWLParamManager::instance();
@@ -231,6 +235,11 @@ void LLFloaterEditDayCycle::refreshSkyPresetsList()
 		std::string item_title = key.name;
 		if (key.scope == LLEnvKey::SCOPE_REGION)
 		{
+			if (!include_region_skies)
+			{
+				continue;
+			}
+
 			item_title += " (" + getRegionName() + ")";
 		}
 
@@ -688,6 +697,9 @@ void LLFloaterEditDayCycle::onDayCycleSelected()
 
 		can_edit = canEditRegionSettings();
 	}
+
+	// We may need to add or remove region skies from the list.
+	refreshSkyPresetsList();
 
 	F32 slider_time = mTimeSlider->getCurSliderValue() / sHoursPerDay;
 	LLWLParamManager::instance().applyDayCycleParams(day_data, dc_key.scope, slider_time);
