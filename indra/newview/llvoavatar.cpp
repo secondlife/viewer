@@ -6004,7 +6004,7 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
 		if ( pVObj )
 		{
-			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID() );
+			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
 			if ( pSkinData )
 			{
 				const int jointCnt = pSkinData->mJointNames.size();

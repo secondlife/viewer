@@ -475,7 +475,7 @@ public:
 	static S32 getActualMeshLOD(LLSD& header, S32 lod);
 	U32 calcResourceCost(LLSD& header);
 	U32 getResourceCost(const LLUUID& mesh_params);
-	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id);
+	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id, LLVOVolume* requesting_obj);
 	LLModel::Decomposition* getDecomposition(const LLUUID& mesh_id);
 	void fetchPhysicsShape(const LLUUID& mesh_id);
 	bool hasPhysicsShape(const LLUUID& mesh_id);
@@ -504,7 +504,8 @@ public:
 	std::vector<LLMeshRepoThread::LODRequest> mPendingRequests;
 	
 	//list of mesh ids awaiting skin info
-	std::set<LLUUID> mLoadingSkins;
+	typedef std::map<LLUUID, std::set<LLUUID> > skin_load_map;
+	skin_load_map mLoadingSkins;
 
 	//list of mesh ids that need to send skin info fetch requests
 	std::queue<LLUUID> mPendingSkinRequests;

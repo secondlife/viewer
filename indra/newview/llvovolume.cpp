@@ -1096,8 +1096,6 @@ void LLVOVolume::updateSculptTexture()
 	
 }
 
-
-
 void LLVOVolume::notifyMeshLoaded()
 { 
 	mSculptChanged = TRUE;
@@ -3534,7 +3532,7 @@ void LLVOVolume::updateRiggedVolume()
 
 	LLVolume* volume = getVolume();
 
-	const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(volume->getParams().getSculptID());
+	const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(volume->getParams().getSculptID(), this);
 
 	if (!skin)
 	{
@@ -3986,7 +3984,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 		bool rigged = vobj->isAttachment() && 
 					vobj->isMesh() && 
-					gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID());
+					gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
 
 		bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
 
@@ -4028,7 +4026,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				if ( pAvatarVO )
 				{
 					LLUUID currentId = vobj->getVolume()->getParams().getSculptID();
-					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId );
+					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
 					
 					if ( pSkinData )
 					{
