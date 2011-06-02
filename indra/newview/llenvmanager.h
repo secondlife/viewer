@@ -301,6 +301,7 @@ public:
 		bool use_fixed_sky,
 		bool use_region_settings);
 	void dumpUserPrefs();
+	void dumpPresets();
 
 	// Misc.
 	void requestRegionSettings();

@@ -678,6 +678,8 @@ bool LLWLParamManager::addParamSet(const LLWLParamKey& key, LLWLParamSet& param)
 	std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = mParamList.find(key);
 	if(mIt == mParamList.end()) 
 	{	
+		llassert(!key.name.empty());
+		// *TODO: validate params
 		mParamList[key] = param;
 		return true;
 	}
@@ -691,6 +693,8 @@ BOOL LLWLParamManager::addParamSet(const LLWLParamKey& key, LLSD const & param)
 	std::map<LLWLParamKey, LLWLParamSet>::const_iterator finder = mParamList.find(key);
 	if(finder == mParamList.end())
 	{
+		llassert(!key.name.empty());
+		// *TODO: validate params
 		mParamList[key].setAll(param);
 		return TRUE;
 	}
@@ -716,6 +720,8 @@ bool LLWLParamManager::getParamSet(const LLWLParamKey& key, LLWLParamSet& param)
 
 bool LLWLParamManager::setParamSet(const LLWLParamKey& key, LLWLParamSet& param)
 {
+	llassert(!key.name.empty());
+	// *TODO: validate params
 	mParamList[key] = param;
 
 	return true;
@@ -723,6 +729,9 @@ bool LLWLParamManager::setParamSet(const LLWLParamKey& key, LLWLParamSet& param)
 
 bool LLWLParamManager::setParamSet(const LLWLParamKey& key, const LLSD & param)
 {
+	llassert(!key.name.empty());
+	// *TODO: validate params
+
 	// quick, non robust (we won't be working with files, but assets) check
 	// this might not actually be true anymore....
 	if(!param.isMap()) 

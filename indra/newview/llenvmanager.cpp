@@ -835,6 +835,56 @@ void LLEnvManagerNew::dumpUserPrefs()
 	LL_DEBUGS("Windlight") << "UseDayCycle: "				<< gSavedSettings.getBOOL("UseDayCycle") << LL_ENDL;
 }
 
+void LLEnvManagerNew::dumpPresets()
+{
+	const LLEnvironmentSettings& region_settings = getRegionSettings();
+	std::string region_name = gAgent.getRegion() ? gAgent.getRegion()->getName() : "Unknown region";
+
+	// Dump water presets.
+	LL_DEBUGS("Windlight") << "Waters:" << LL_ENDL;
+	if (region_settings.getWaterParams().size() != 0)
+	{
+		LL_DEBUGS("Windlight") << " - " << region_name << LL_ENDL;
+	}
+	const std::map<std::string, LLWaterParamSet> &water_params_map = LLWaterParamManager::instance().mParamList;
+	for (std::map<std::string, LLWaterParamSet>::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
+	{
+		LL_DEBUGS("Windlight") << " - " << it->first << LL_ENDL;
+	}
+
+	// Dump sky presets.
+	LL_DEBUGS("Windlight") << "Skies:" << LL_ENDL;
+	const std::map<LLWLParamKey, LLWLParamSet> &sky_params_map = LLWLParamManager::getInstance()->mParamList;
+	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = sky_params_map.begin(); it != sky_params_map.end(); it++)
+	{
+		std::string preset_name = it->first.name;
+		std::string item_title;
+
+		if (it->first.scope == LLEnvKey::SCOPE_LOCAL) // local preset
+		{
+			item_title = preset_name;
+		}
+		else // region preset
+		{
+			item_title = preset_name + " (" + region_name + ")";
+		}
+		LL_DEBUGS("Windlight") << " - " << item_title << LL_ENDL;
+	}
+
+	// Dump day cycles.
+	LL_DEBUGS("Windlight") << "Days:" << LL_ENDL;
+	const LLSD& cur_region_dc = region_settings.getWLDayCycle();
+	if (cur_region_dc.size() != 0)
+	{
+		LL_DEBUGS("Windlight") << " - " << region_name << LL_ENDL;
+	}
+	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
+	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
+	{
+		LL_DEBUGS("Windlight") << " - " << it->first << LL_ENDL;
+	}
+}
+
 void LLEnvManagerNew::requestRegionSettings()
 {
 	LLEnvironmentRequest::initiate();
