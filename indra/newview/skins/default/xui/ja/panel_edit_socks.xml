@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_socks_panel">
 	<panel name="avatar_socks_color_panel">
-		<texture_picker label="生地" name="Fabric" tool_tip="クリックして写真を選択します"/>
+		<texture_picker label="テクスチャ" name="Fabric" tool_tip="クリックして写真を選択します"/>
 		<color_swatch label="色・色彩配合" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
 	</panel>
 	<panel name="accordion_panel">

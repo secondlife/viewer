@@ -64,6 +64,8 @@
 		<radio_item label="Seleziona faccia" name="radio select face"/>
 	</radio_group>
 	<check_box label="Modifica parti collegate" name="checkbox edit linked parts"/>
+	<button label="Collegamento" name="link_btn"/>
+	<button label="Scollega" name="unlink_btn"/>
 	<text name="RenderingCost" tool_tip="Mostra il costo di rendering calcolato per questo oggetto">
 		þ: [COUNT]
 	</text>
@@ -171,8 +173,14 @@
 			<text name="Creator:">
 				Creatore:
 			</text>
+			<text name="Creator Name">
+				Sig.ra Esbee Linden (esbee.linden)
+			</text>
 			<text name="Owner:">
 				Proprietario:
+			</text>
+			<text name="Owner Name">
+				Sig.ra Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Gruppo:
@@ -277,7 +285,7 @@
 				<combo_box.item label="Plastica" name="Plastic"/>
 				<combo_box.item label="Gomma" name="Rubber"/>
 			</combo_box>
-			<text name="text cut" left_delta="-10" width="170">
+			<text left_delta="-10" name="text cut" width="170">
 				Riduci una sezione (inizio/fine)
 			</text>
 			<spinner label="I" name="cut begin"/>

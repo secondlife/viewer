@@ -287,8 +287,6 @@ LLVOCache::~LLVOCache()
 
 void LLVOCache::setDirNames(ELLPath location)
 {
-	std::string delem = gDirUtilp->getDirDelimiter();
-
 	mHeaderFileName = gDirUtilp->getExpandedFilename(location, object_cache_dirname, header_filename);
 	mObjectCacheDirName = gDirUtilp->getExpandedFilename(location, object_cache_dirname);
 }
@@ -341,8 +339,7 @@ void LLVOCache::removeCache(ELLPath location)
 
 	llinfos << "about to remove the object cache due to settings." << llendl ;
 
-	std::string delem = gDirUtilp->getDirDelimiter();
-	std::string mask = delem + "*";
+	std::string mask = "*";
 	std::string cache_dir = gDirUtilp->getExpandedFilename(location, object_cache_dirname);
 	llinfos << "Removing cache at " << cache_dir << llendl;
 	gDirUtilp->deleteFilesInDir(cache_dir, mask); //delete all files
@@ -363,8 +360,7 @@ void LLVOCache::removeCache()
 
 	llinfos << "about to remove the object cache due to some error." << llendl ;
 
-	std::string delem = gDirUtilp->getDirDelimiter();
-	std::string mask = delem + "*";
+	std::string mask = "*";
 	llinfos << "Removing cache at " << mObjectCacheDirName << llendl;
 	gDirUtilp->deleteFilesInDir(mObjectCacheDirName, mask); 
 

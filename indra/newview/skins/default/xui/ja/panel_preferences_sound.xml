@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="サウンド" name="Preference Media panel">
+	<panel.string name="middle_mouse">
+		マウスの中央
+	</panel.string>
 	<slider label="全体の音量" name="System Volume"/>
-	<check_box initial_value="true" name="mute_when_minimized"/>
-	<text name="mute_chb_label">最小化でミュート</text>
+	<check_box initial_value="true" label="Mute when minimized" name="mute_when_minimized"/>
+	<text name="mute_chb_label">
+		最小化でミュート
+	</text>
 	<slider label="ボタン" name="UI Volume"/>
 	<slider label="風" name="Wind Volume"/>
 	<slider label="効果音" name="SFX Volume"/>
@@ -24,6 +29,11 @@
 		<radio_item label="カメラの位置から聞く" name="0"/>
 		<radio_item label="アバターの位置から聞く" name="1"/>
 	</radio_group>
+	<check_box label="話すときにアバターの口を動かす" name="enable_lip_sync"/>
+	<check_box label="ボイスのオン・オフ切り替えに使用するトリガーキー：" name="push_to_talk_toggle_check" tool_tip="トグルモードの時にトリガーキーを1度押して放すと、マイクのオン・オフ設定を切り替えます。トグルモードではないときは、トリガーキーを押した状態の時のみあなたの声が相手に聞こえます。"/>
+	<line_editor label="プッシュ・トゥ・スピークのトリガー" name="modifier_combo"/>
+	<button label="キー設定" name="set_voice_hotkey_button"/>
+	<button name="set_voice_middlemouse_button" tool_tip="マウスの中央ボタンにリセット"/>
 	<button label="入力・出力機器" name="device_settings_btn"/>
 	<panel label="機器の設定" name="device_settings_panel">
 		<panel.string name="default_text">

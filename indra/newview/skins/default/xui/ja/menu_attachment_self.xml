@@ -5,7 +5,7 @@
 	<menu_item_call label="取り外す" name="Detach"/>
 	<menu_item_call label="座る" name="Sit Down Here"/>
 	<menu_item_call label="立ち上がる" name="Stand Up"/>
-	<menu_item_call label="アウトフィットを変更" name="Change Outfit"/>
+	<menu_item_call label="容姿" name="Change Outfit"/>
 	<menu_item_call label="アウトフィットの編集" name="Edit Outfit"/>
 	<menu_item_call label="シェイプの編集" name="Edit My Shape"/>
 	<menu_item_call label="フレンド" name="Friends..."/>

@@ -63,8 +63,8 @@ public:
 	static void 	onCommitLight(			LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitIsFlexible(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitFlexible(		LLUICtrl* ctrl, void* userdata);
-
 	static void     onCommitPhysicsParam(       LLUICtrl* ctrl, void* userdata);
+	static void 	onCommitMaterial(		LLUICtrl* ctrl, void* userdata);
 
 	void		onLightCancelColor(const LLSD& data);
 	void		onLightSelectColor(const LLSD& data);
@@ -103,6 +103,10 @@ protected:
 	LLSpinCtrl*		mSpinWind;
 	LLSpinCtrl*		mSpinForce[3];
 */
+
+	S32			mComboMaterialItemCount;
+	LLComboBox*		mComboMaterial;
+	
 
 	LLColor4		mLightSavedColor;
 	LLUUID			mLightSavedTexture;

@@ -5,10 +5,12 @@
 	<tab_container name="pref core">
 		<panel label="一般" name="general"/>
 		<panel label="グラフィック" name="display"/>
-		<panel label="プライバシー" name="im"/>
 		<panel label="サウンドとメディア" name="audio"/>
 		<panel label="チャット" name="chat"/>
+		<panel label="移動 &amp; 表示" name="move"/>
 		<panel label="メッセージ" name="msgs"/>
+		<panel label="色" name="colors"/>
+		<panel label="プライバシー" name="im"/>
 		<panel label="セットアップ" name="input"/>
 		<panel label="詳細" name="advanced1"/>
 	</tab_container>

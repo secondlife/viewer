@@ -765,7 +765,7 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("OpenGLPre30");
 	}
-	if (gGLManager.mNumTextureUnits <= 8)
+	if (gGLManager.mNumTextureImageUnits <= 8)
 	{
 		maskFeatures("TexUnit8orLess");
 	}

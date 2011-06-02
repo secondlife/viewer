@@ -44,16 +44,22 @@
 		<radio_item label="On" name="radio2" value="1"/>
 		<radio_item label="Mostra brevemente" name="radio3" value="2"/>
 	</radio_group>
-	<check_box label="Mostra il mio nome" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Nome in piccolo" name="small_avatar_names_checkbox"/>
-	<check_box label="Mostra titoli del gruppo" name="show_all_title_checkbox1"/>
-	<text name="effects_color_textbox">
-		I miei effetti:
+	<check_box label="Il mio nome" name="show_my_name_checkbox1"/>
+	<check_box label="Nomi utente" name="show_slids" tool_tip="Mostra il nome utente, come bobsmith123"/>
+	<check_box label="TItoli gruppo" name="show_all_title_checkbox1" tool_tip="Mostra titoli di gruppo, come Funzionario o Membro"/>
+	<check_box label="Evidenzia amici" name="show_friends" tool_tip="Evidenzia le etichette dei nomi dei tuoi amici"/>
+	<check_box label="Mostra nomi visualizzati" name="display_names_check" tool_tip="Seleziona per visualizzare i nomi in chat, IM, etichette, ecc."/>
+	<check_box label="Attiva suggerimenti UI Viewer" name="viewer_hints_check"/>
+	<text name="inworld_typing_rg_label">
+		Premere i tasti lettera:
 	</text>
+	<radio_group name="inworld_typing_preference">
+		<radio_item label="Avvia chat locale" name="radio_start_chat" value="1"/>
+		<radio_item label="Influenza il movimento (per es. WASD)" name="radio_move" value="0"/>
+	</radio_group>
 	<text name="title_afk_text">
 		Pausa assenza:
 	</text>
-	<color_swatch label="" name="effect_color_swatch" tool_tip="Clicca per aprire la tavolozza dei colori"/>
 	<combo_box label="Pausa assenza:" name="afk">
 		<combo_box.item label="2 minuti" name="item0"/>
 		<combo_box.item label="5 minuti" name="item1"/>

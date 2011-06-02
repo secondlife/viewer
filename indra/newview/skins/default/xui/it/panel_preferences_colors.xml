@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Colori" name="colors_panel">
+	<text name="effects_color_textbox">
+		I miei effetti (raggio indicatore):
+	</text>
+	<color_swatch name="effect_color_swatch" tool_tip="Clicca per aprire il selettore dei colori"/>
+	<text name="font_colors">
+		Colori font della chat:
+	</text>
+	<text name="text_box1">
+		Io
+	</text>
+	<text name="text_box2">
+		Altri
+	</text>
+	<text name="text_box3">
+		Oggetti
+	</text>
+	<text name="text_box4">
+		Sistema
+	</text>
+	<text name="text_box5">
+		Errori
+	</text>
+	<text name="text_box7">
+		Proprietario
+	</text>
+	<text name="text_box9">
+		URL
+	</text>
+	<text name="bubble_chat">
+		Colore sfondo etichetta nome (influenza anche Chat a vignetta):
+	</text>
+	<color_swatch name="background" tool_tip="Seleziona colore etichetta nome"/>
+	<slider label="Opacità:" name="bubble_chat_opacity" tool_tip="Seleziona opacità etichetta nome"/>
+	<text name="floater_opacity">
+		Opacità finestra:
+	</text>
+	<slider label="Attiva:" name="active"/>
+	<slider label="Disattivata:" name="inactive"/>
+</panel>
