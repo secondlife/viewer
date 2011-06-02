@@ -48,6 +48,8 @@ using std::pair;
 using std::make_pair;
 using std::string;
 
+U32 LLGLSLShader::sCurBoundShader = 0;
+
 BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
 {
 	return v1 != v2;
@@ -367,7 +369,7 @@ void LLGLSLShader::bind()
 	if (gGLManager.mHasShaderObjects)
 	{
 		glUseProgramObjectARB(mProgramObject);
-
+		sCurBoundShader = mProgramObject;
 		if (mUniformsDirty)
 		{
 			LLShaderMgr::instance()->updateShaderUniforms(this);
@@ -390,6 +392,7 @@ void LLGLSLShader::unbind()
 			}
 		}
 		glUseProgramObjectARB(0);
+		sCurBoundShader = 0;
 		stop_glerror();
 	}
 }
@@ -397,6 +400,7 @@ void LLGLSLShader::unbind()
 void LLGLSLShader::bindNoShader(void)
 {
 	glUseProgramObjectARB(0);
+	sCurBoundShader = 0;
 }
 
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)

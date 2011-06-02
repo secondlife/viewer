@@ -1418,11 +1418,13 @@ void LLImageGL::deleteDeadTextures()
 	{
 		GLuint tex = sDeadTextureList.front();
 		sDeadTextureList.pop_front();
-		for (int i = 0; i < gGLManager.mNumTextureUnits; i++)
+		for (int i = 0; i < gGLManager.mNumTextureImageUnits; i++)
 		{
-			if (sCurrentBoundTextures[i] == tex)
+			LLTexUnit* tex_unit = gGL.getTexUnit(i);
+
+			if (tex_unit->getCurrTexture() == tex)
 			{
-				gGL.getTexUnit(i)->unbind(gGL.getTexUnit(i)->getCurrType());
+				tex_unit->unbind(tex_unit->getCurrType());
 				stop_glerror();
 			}
 		}

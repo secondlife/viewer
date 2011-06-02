@@ -127,6 +127,11 @@ PFNGLUNMAPBUFFERARBPROC				glUnmapBufferARB = NULL;
 PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB = NULL;
 PFNGLGETBUFFERPOINTERVARBPROC		glGetBufferPointervARB = NULL;
 
+// GL_ARB_map_buffer_range
+PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;
+PFNGLFLUSHMAPPEDBUFFERRANGEPROC	glFlushMappedBufferRange;
+
+
 // vertex object prototypes
 PFNGLNEWOBJECTBUFFERATIPROC			glNewObjectBufferATI = NULL;
 PFNGLISOBJECTBUFFERATIPROC			glIsObjectBufferATI = NULL;
@@ -331,6 +336,7 @@ LLGLManager::LLGLManager() :
 	mHasBlendFuncSeparate(FALSE),
 
 	mHasVertexBufferObject(FALSE),
+	mHasMapBufferRange(FALSE),
 	mHasPBuffer(FALSE),
 	mHasShaderObjects(FALSE),
 	mHasVertexShader(FALSE),
@@ -761,6 +767,7 @@ void LLGLManager::initExtensions()
 	mHasOcclusionQuery = ExtensionExists("GL_ARB_occlusion_query", gGLHExts.mSysExts);
 	mHasOcclusionQuery2 = ExtensionExists("GL_ARB_occlusion_query2", gGLHExts.mSysExts);
 	mHasVertexBufferObject = ExtensionExists("GL_ARB_vertex_buffer_object", gGLHExts.mSysExts);
+	mHasMapBufferRange = ExtensionExists("GL_ARB_map_buffer_range", gGLHExts.mSysExts);
 	mHasDepthClamp = ExtensionExists("GL_ARB_depth_clamp", gGLHExts.mSysExts) || ExtensionExists("GL_NV_depth_clamp", gGLHExts.mSysExts);
 	// mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
 #ifdef GL_ARB_framebuffer_object
@@ -954,6 +961,11 @@ void LLGLManager::initExtensions()
 		{
 			mHasVertexBufferObject = FALSE;
 		}
+	}
+	if (mHasMapBufferRange)
+	{
+		glMapBufferRange = (PFNGLMAPBUFFERRANGEPROC) GLH_EXT_GET_PROC_ADDRESS("glMapBufferRange");
+		glFlushMappedBufferRange = (PFNGLFLUSHMAPPEDBUFFERRANGEPROC) GLH_EXT_GET_PROC_ADDRESS("glFlushMappedBufferRange");
 	}
 	if (mHasFramebufferObject)
 	{
@@ -1411,10 +1423,6 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 		}
 	}
 
-	GLint maxTextureUnits = 0;
-	glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &maxTextureUnits);
-	stop_glerror();
-
 	static const char* label[] =
 	{
 		"GL_TEXTURE_2D",
@@ -1449,69 +1457,91 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 	glh::matrix4f identity;
 	identity.identity();
 
-	for (GLint i = 1; i < maxTextureUnits; i++)
+	for (GLint i = 1; i < gGLManager.mNumTextureUnits; i++)
 	{
 		gGL.getTexUnit(i)->activate();
-		glClientActiveTextureARB(GL_TEXTURE0_ARB+i);
-		stop_glerror();
-		glGetIntegerv(GL_TEXTURE_STACK_DEPTH, &stackDepth);
-		stop_glerror();
 
-		if (stackDepth != 1)
+		if (i < gGLManager.mNumTextureUnits)
 		{
-			error = TRUE;
-			LL_WARNS("RenderState") << "Texture matrix stack corrupted." << LL_ENDL;
+			glClientActiveTextureARB(GL_TEXTURE0_ARB+i);
+			stop_glerror();
+			glGetIntegerv(GL_TEXTURE_STACK_DEPTH, &stackDepth);
+			stop_glerror();
 
-			if (gDebugSession)
-			{
-				gFailLog << "Texture matrix stack corrupted." << std::endl;
-			}
-		}
-
-		glGetFloatv(GL_TEXTURE_MATRIX, (GLfloat*) mat.m);
-		stop_glerror();
-
-		if (mat != identity)
-		{
-			error = TRUE;
-			LL_WARNS("RenderState") << "Texture matrix in channel " << i << " corrupt." << LL_ENDL;
-			if (gDebugSession)
-			{
-				gFailLog << "Texture matrix in channel " << i << " corrupt." << std::endl;
-			}
-		}
-				
-		for (S32 j = (i == 0 ? 1 : 0); 
-			j < 9; j++)
-		{
-			if (j == 8 && !gGLManager.mHasTextureRectangle ||
-				j == 9 && !gGLManager.mHasTextureMultisample)
-			{
-				continue;
-			}
-				
-			if (glIsEnabled(value[j]))
+			if (stackDepth != 1)
 			{
 				error = TRUE;
-				LL_WARNS("RenderState") << "Texture channel " << i << " still has " << label[j] << " enabled." << LL_ENDL;
+				LL_WARNS("RenderState") << "Texture matrix stack corrupted." << LL_ENDL;
+
 				if (gDebugSession)
 				{
-					gFailLog << "Texture channel " << i << " still has " << label[j] << " enabled." << std::endl;
+					gFailLog << "Texture matrix stack corrupted." << std::endl;
 				}
 			}
+
+			glGetFloatv(GL_TEXTURE_MATRIX, (GLfloat*) mat.m);
 			stop_glerror();
+
+			if (mat != identity)
+			{
+				error = TRUE;
+				LL_WARNS("RenderState") << "Texture matrix in channel " << i << " corrupt." << LL_ENDL;
+				if (gDebugSession)
+				{
+					gFailLog << "Texture matrix in channel " << i << " corrupt." << std::endl;
+				}
+			}
+				
+			for (S32 j = (i == 0 ? 1 : 0); 
+				j < 9; j++)
+			{
+				if (j == 8 && !gGLManager.mHasTextureRectangle ||
+					j == 9 && !gGLManager.mHasTextureMultisample)
+				{
+					continue;
+				}
+				
+				if (glIsEnabled(value[j]))
+				{
+					error = TRUE;
+					LL_WARNS("RenderState") << "Texture channel " << i << " still has " << label[j] << " enabled." << LL_ENDL;
+					if (gDebugSession)
+					{
+						gFailLog << "Texture channel " << i << " still has " << label[j] << " enabled." << std::endl;
+					}
+				}
+				stop_glerror();
+			}
+
+			glGetFloatv(GL_TEXTURE_MATRIX, mat.m);
+			stop_glerror();
+
+			if (mat != identity)
+			{
+				error = TRUE;
+				LL_WARNS("RenderState") << "Texture matrix " << i << " is not identity." << LL_ENDL;
+				if (gDebugSession)
+				{
+					gFailLog << "Texture matrix " << i << " is not identity." << std::endl;
+				}
+			}
 		}
 
-		glGetFloatv(GL_TEXTURE_MATRIX, mat.m);
-		stop_glerror();
-
-		if (mat != identity)
 		{
-			error = TRUE;
-			LL_WARNS("RenderState") << "Texture matrix " << i << " is not identity." << LL_ENDL;
-			if (gDebugSession)
+			GLint tex = 0;
+			stop_glerror();
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &tex);
+			stop_glerror();
+
+			if (tex != 0)
 			{
-				gFailLog << "Texture matrix " << i << " is not identity." << std::endl;
+				error = TRUE;
+				LL_WARNS("RenderState") << "Texture channel " << i << " still has texture " << tex << " bound." << llendl;
+
+				if (gDebugSession)
+				{
+					gFailLog << "Texture channel " << i << " still has texture " << tex << " bound." << std::endl;
+				}
 			}
 		}
 	}

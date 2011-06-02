@@ -71,14 +71,7 @@ void LLDrawPoolGlow::renderPostDeferred(S32 pass)
 void LLDrawPoolGlow::endPostDeferredPass(S32 pass)
 {
 	gDeferredFullbrightProgram.unbind();
-	for (U32 i = 0; i < 8; i++)
-	{
-		if (gGL.getTexUnit(i)->getCurrType() != LLTexUnit::TT_NONE)
-		{
-			gGL.getTexUnit(i)->unbind(gGL.getTexUnit(i)->getCurrType());
-			gGL.getTexUnit(i)->disable();
-		}
-	}
+	LLRenderPass::endRenderPass(pass);
 }
 
 void LLDrawPoolGlow::render(S32 pass)
@@ -225,15 +218,6 @@ void LLDrawPoolSimple::endDeferredPass(S32 pass)
 	LLRenderPass::endRenderPass(pass);
 
 	gDeferredDiffuseProgram.unbind();
-
-	for (U32 i = 0; i < 8; i++)
-	{
-		if (gGL.getTexUnit(i)->getCurrType() != LLTexUnit::TT_NONE)
-		{
-			gGL.getTexUnit(i)->unbind(gGL.getTexUnit(i)->getCurrType());
-			gGL.getTexUnit(i)->disable();
-		}
-	}
 }
 
 void LLDrawPoolSimple::renderDeferred(S32 pass)
@@ -368,14 +352,7 @@ void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
 void LLDrawPoolFullbright::endPostDeferredPass(S32 pass)
 {
 	gDeferredFullbrightProgram.unbind();
-	for (U32 i = 0; i < 8; i++)
-	{
-		if (gGL.getTexUnit(i)->getCurrType() != LLTexUnit::TT_NONE)
-		{
-			gGL.getTexUnit(i)->unbind(gGL.getTexUnit(i)->getCurrType());
-			gGL.getTexUnit(i)->disable();
-		}
-	}
+	LLRenderPass::endRenderPass(pass);
 }
 
 void LLDrawPoolFullbright::beginRenderPass(S32 pass)

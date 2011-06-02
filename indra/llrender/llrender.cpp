@@ -30,6 +30,7 @@
 
 #include "llvertexbuffer.h"
 #include "llcubemap.h"
+#include "llglslshader.h"
 #include "llimagegl.h"
 #include "llrendertarget.h"
 #include "lltexture.h"
@@ -183,7 +184,8 @@ void LLTexUnit::enable(eTextureType type)
 		mCurrTexType = type;
 
 		gGL.flush();
-		if (type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
+		if (LLGLSLShader::sCurBoundShader == 0 &&
+			type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
 			glEnable(sGLTextureType[type]);
@@ -200,12 +202,10 @@ void LLTexUnit::disable(void)
 		activate();
 		unbind(mCurrTexType);
 		gGL.flush();
-		if (mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
+		if (LLGLSLShader::sCurBoundShader == 0 && mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
-			stop_glerror();
 			glDisable(sGLTextureType[mCurrTexType]);
-			stop_glerror();
 		}
 		
 		mCurrTexType = TT_NONE;
@@ -295,7 +295,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
 		glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
 		texture->updateBindStats(texture->mTextureMemory);		
 		mHasMipMaps = texture->mHasMipMaps;
-		if (texture->mTexOptionsDirty)
+		if (mIndex == 0 && texture->mTexOptionsDirty)
 		{
 			texture->mTexOptionsDirty = false;
 			setTextureAddressMode(texture->mAddressMode);

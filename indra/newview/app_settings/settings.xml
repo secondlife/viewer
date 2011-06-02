@@ -7126,7 +7126,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.05</real>
+      <real>0.1</real>
       <real>0.0</real>
       <real>0.0</real>
     </array>
@@ -7154,7 +7154,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.25</real>
+      <real>0.01</real>
       <real>0.0</real>
       <real>0.0</real>
     </array>
@@ -7513,6 +7513,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>RenderMaxTextureIndex</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum texture index to use for indexed texture rendering.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>6</integer>
+  </map>
     <key>RenderDebugTextureBind</key>
     <map>
       <key>Comment</key>
@@ -9011,7 +9022,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
   <key>RenderUseStreamVBO</key>
   <map>

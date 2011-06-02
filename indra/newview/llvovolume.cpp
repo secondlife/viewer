@@ -4426,6 +4426,33 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 	llassert(!group || !group->isState(LLSpatialGroup::NEW_DRAWINFO));
 }
 
+struct CompareBatchBreakerModified
+{
+	bool operator()(const LLFace* const& lhs, const LLFace* const& rhs)
+	{
+		const LLTextureEntry* lte = lhs->getTextureEntry();
+		const LLTextureEntry* rte = rhs->getTextureEntry();
+
+		if (lte->getBumpmap() != rte->getBumpmap())
+		{
+			return lte->getBumpmap() < rte->getBumpmap();
+		}
+		else if (lte->getFullbright() != rte->getFullbright())
+		{
+			return lte->getFullbright() < rte->getFullbright();
+		}
+		else  if (lte->getGlow() != rte->getGlow())
+		{
+			return lte->getGlow() < rte->getGlow();
+		}
+		else
+		{
+			return lhs->getTexture() < rhs->getTexture();
+		}
+		
+	}
+};
+
 void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort, BOOL batch_textures)
 {
 	//calculate maximum number of vertices to store in a single buffer
@@ -4435,7 +4462,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 	if (!distance_sort)
 	{
 		//sort faces by things that break batches
-		std::sort(faces.begin(), faces.end(), LLFace::CompareBatchBreaker());
+		std::sort(faces.begin(), faces.end(), CompareBatchBreakerModified());
 	}
 	else
 	{
@@ -4462,6 +4489,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
 	}
 
+	texture_index_channels = llmin(texture_index_channels, (S32) gSavedSettings.getU32("RenderMaxTextureIndex"));
+	
 
 	while (face_iter != faces.end())
 	{
@@ -4587,7 +4616,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 	
 		//create/delete/resize vertex buffer if needed
 		LLVertexBuffer* buffer = NULL;
-		LLSpatialGroup::buffer_texture_map_t::iterator found_iter = group->mBufferMap[mask].find(tex);
+		LLSpatialGroup::buffer_texture_map_t::iterator found_iter = group->mBufferMap[mask].find(*face_iter);
 		
 		if (found_iter != group->mBufferMap[mask].end())
 		{
@@ -4618,7 +4647,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			}
 		}
 
-		buffer_map[mask][tex].push_back(buffer);
+		buffer_map[mask][*face_iter].push_back(buffer);
 
 		//add face geometry
 
@@ -4649,12 +4678,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 					U32 te_idx = facep->getTEOffset();
 
-					if (facep->getGeometryVolume(*volume, te_idx, 
-						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset))
-					{
-						buffer->markDirty(facep->getGeomIndex(), facep->getGeomCount(), 
-							facep->getIndicesStart(), facep->getIndicesCount());
-					}
+					facep->getGeometryVolume(*volume, te_idx, 
+						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset);
 				}
 			}
 

@@ -66,6 +66,8 @@ public:
 	
 	LLGLSLShader();
 
+	static GLhandleARB sCurBoundShader;
+
 	void unload();
 	BOOL createShader(std::vector<std::string> * attributes,
 						std::vector<std::string> * uniforms);

@@ -68,6 +68,10 @@ extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
 
+// GL_ARB_map_buffer_range
+extern PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;
+extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC	glFlushMappedBufferRange;
+
 // GL_ATI_vertex_array_object
 extern PFNGLNEWOBJECTBUFFERATIPROC			glNewObjectBufferATI;
 extern PFNGLISOBJECTBUFFERATIPROC			glIsObjectBufferATI;
@@ -306,6 +310,10 @@ extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
 
+// GL_ARB_map_buffer_range
+extern PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;
+extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC	glFlushMappedBufferRange;
+
 // GL_ATI_vertex_array_object
 extern PFNGLNEWOBJECTBUFFERATIPROC			glNewObjectBufferATI;
 extern PFNGLISOBJECTBUFFERATIPROC			glIsObjectBufferATI;
@@ -510,6 +518,10 @@ extern PFNGLMAPBUFFERARBPROC		glMapBufferARB;
 extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
+
+// GL_ARB_map_buffer_range
+extern PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;
+extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC	glFlushMappedBufferRange;
 
 // GL_ATI_vertex_array_object
 extern PFNGLNEWOBJECTBUFFERATIPROC			glNewObjectBufferATI;

@@ -209,7 +209,7 @@ public:
 	typedef std::vector<LLPointer<LLDrawInfo> > drawmap_elem_t; 
 	typedef std::map<U32, drawmap_elem_t > draw_map_t;	
 	typedef std::vector<LLPointer<LLVertexBuffer> > buffer_list_t;
-	typedef std::map<LLPointer<LLViewerTexture>, buffer_list_t> buffer_texture_map_t;
+	typedef std::map<LLFace*, buffer_list_t> buffer_texture_map_t;
 	typedef std::map<U32, buffer_texture_map_t> buffer_map_t;
 
 	typedef LLOctreeListener<LLDrawable>	BaseType;
@@ -401,7 +401,7 @@ protected:
 
 public:
 	bridge_list_t mBridgeList;
-	buffer_map_t mBufferMap; //used by volume buffers to store unique buffers per texture
+	buffer_map_t mBufferMap; //used by volume buffers to attempt to reuse vertex buffers
 
 	F32 mBuilt;
 	OctreeNode* mOctreeNode;
