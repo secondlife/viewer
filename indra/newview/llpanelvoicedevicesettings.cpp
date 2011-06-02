@@ -191,7 +191,21 @@ void LLPanelVoiceDeviceSettings::refresh()
 	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
 	mCtrlOutputDevices = getChild<LLComboBox>("voice_output_device");
 
-	if(!LLVoiceClient::getInstance()->deviceSettingsAvailable())
+	bool device_settings_available = LLVoiceClient::getInstance()->deviceSettingsAvailable();
+
+	if (mCtrlInputDevices)
+	{
+		mCtrlInputDevices->setEnabled(device_settings_available);
+	}
+
+	if (mCtrlOutputDevices)
+	{
+		mCtrlOutputDevices->setEnabled(device_settings_available);
+	}
+
+	getChild<LLSlider>("mic_volume_slider")->setEnabled(device_settings_available);
+
+	if(!device_settings_available)
 	{
 		// The combo boxes are disabled, since we can't get the device settings from the daemon just now.
 		// Put the currently set default (ONLY) in the box, and select it.
@@ -207,6 +221,7 @@ void LLPanelVoiceDeviceSettings::refresh()
 			mCtrlOutputDevices->add( mOutputDevice, ADD_BOTTOM );
 			mCtrlOutputDevices->setSimple(mOutputDevice);
 		}
+		mDevicesUpdated = FALSE;
 	}
 	else if (!mDevicesUpdated)
 	{

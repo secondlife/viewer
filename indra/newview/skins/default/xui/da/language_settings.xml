@@ -4,6 +4,7 @@
 
 	<!-- Locale Information -->
 	<string name="MicrosoftLocale">danish</string>
+	<string name="MacLocale">da_DK.UTF-8</string>
 	<string name="DarwinLocale">da_DK.UTF-8</string>
 	<string name="LinuxLocale">da_DK.UTF-8</string>
 	
