@@ -1,0 +1,32 @@
+<llsd>
+    <array>
+        <array>
+            <real>0</real>
+            <string>Night</string>
+        </array>
+        <array>
+            <real>0.12499994784593582</real>
+            <string>Blizzard</string>
+        </array>
+        <array>
+            <real>0.24999989569187164</real>
+            <string>Sunrise</string>
+        </array>
+        <array>
+            <real>0.49999979138374329</real>
+            <string>Midday 3</string>
+        </array>
+        <array>
+            <real>0.68749970197677612</real>
+            <string>Pirate</string>
+        </array>
+        <array>
+            <real>0.81249970197677612</real>
+            <string>Coastal Sunset</string>
+        </array>
+        <array>
+            <real>0.99999958276748657</real>
+            <string>Midnight</string>
+        </array>
+    </array>
+</llsd>

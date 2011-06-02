@@ -1,0 +1,44 @@
+<llsd>
+    <array>
+        <array>
+            <real>0</real>
+            <string>A-12AM</string>
+        </array>
+        <array>
+            <real>0.12499994784593582</real>
+            <string>A-3AM</string>
+        </array>
+        <array>
+            <real>0.22222213447093964</real>
+            <string>Barcelona</string>
+        </array>
+        <array>
+            <real>0.30208322405815125</real>
+            <string>Sunrise</string>
+        </array>
+        <array>
+            <real>0.37499985098838806</real>
+            <string>Sailor&apos;s Delight</string>
+        </array>
+        <array>
+            <real>0.53819423913955688</real>
+            <string>Coastal Afternoon</string>
+        </array>
+        <array>
+            <real>0.63194417953491211</real>
+            <string>Pirate</string>
+        </array>
+        <array>
+            <real>0.7048608660697937</real>
+            <string>Desert Sunset</string>
+        </array>
+        <array>
+            <real>0.74999970197677612</real>
+            <string>Coastal Sunset</string>
+        </array>
+        <array>
+            <real>0.87499958276748657</real>
+            <string>Blizzard</string>
+        </array>
+    </array>
+</llsd>
