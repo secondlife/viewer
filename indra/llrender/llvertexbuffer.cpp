@@ -1338,8 +1338,6 @@ template <class T,S32 type> struct VertexBufferStrider
 	{
 		if (type == LLVertexBuffer::TYPE_INDEX)
 		{
-			S32 stride = sizeof(T);
-
 			U8* ptr = vbo.mapIndexBuffer(index, count, map_range);
 
 			if (ptr == NULL)
