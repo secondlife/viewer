@@ -256,6 +256,7 @@ void LLFloaterEditDayCycle::refreshDayCyclesList()
 
 	mDayCyclesCombo->removeall();
 
+#if 0 // Disable editing existing day cycle until the workflow is clear enough.
 	const LLSD& region_day = LLEnvManagerNew::instance().getRegionSettings().getWLDayCycle();
 	if (region_day.size() > 0)
 	{
@@ -263,6 +264,7 @@ void LLFloaterEditDayCycle::refreshDayCyclesList()
 		mDayCyclesCombo->add(key.name, key.toLLSD());
 		mDayCyclesCombo->addSeparator();
 	}
+#endif
 
 	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
 	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
