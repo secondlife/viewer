@@ -13,7 +13,7 @@
 		Modos de cámara
 	</floater.string>
 	<floater.string name="pan_mode_title">
-		Orbital - Zoom - Panóramica
+		Orbital - Zoom - Panorámica
 	</floater.string>
 	<floater.string name="presets_mode_title">
 		Vistas predefinidas
@@ -59,7 +59,7 @@
 	</panel>
 	<panel name="buttons">
 		<button label="" name="presets_btn" tool_tip="Vistas predefinidas"/>
-		<button label="" name="pan_btn" tool_tip="Orbital - Zoom - Panóramica"/>
+		<button label="" name="pan_btn" tool_tip="Orbital - Zoom - Panorámica"/>
 		<button label="" name="avatarview_btn" tool_tip="Modos de cámara"/>
 	</panel>
 </floater>
