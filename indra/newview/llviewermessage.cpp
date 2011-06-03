@@ -6483,10 +6483,14 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	LLSD payload;
 
 	LLUUID object_id;
-    LLUUID owner_id;
-
 	msg->getUUID("Data", "ObjectID", object_id);
-    msg->getUUID("OwnerData", "OwnerID", owner_id);
+
+//	For compability with OS grids first check for presence of extended packet before fetching data.
+    LLUUID owner_id;
+	if (gMessageSystem->getNumberOfBlocks("OwnerData") > 0)
+	{
+		msg->getUUID("OwnerData", "OwnerID", owner_id);
+	}
 
 	if (LLMuteList::getInstance()->isMuted(object_id) || LLMuteList::getInstance()->isMuted(owner_id))
 	{

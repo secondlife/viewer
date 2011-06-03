@@ -440,6 +440,7 @@ Jonathan Yap
 	STORM-1095
 	STORM-1236
 	STORM-1259
+	STORM-1313
 Kage Pixel
 	VWR-11
 Ken March
