@@ -748,12 +748,7 @@ S32 LLProfile::getNumPoints(const LLProfileParams& params, BOOL path_open,F32 de
 	}
 
 	// Generate the face data
-	S32 i;
-	F32 begin = params.getBegin();
-	F32 end = params.getEnd();
 	F32 hollow = params.getHollow();
-
-	S32 face_num = 0;
 
 	S32 np = 0;
 
