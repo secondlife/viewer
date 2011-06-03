@@ -154,11 +154,15 @@ void LLRenderTarget::addColorAttachment(U32 color_fmt)
 	stop_glerror();
 
 
+#ifdef GL_ARB_texture_multisample
 	if (mSamples > 1)
 	{
 		glTexImage2DMultisample(LLTexUnit::getInternalType(mUsage), mSamples, color_fmt, mResX, mResY, GL_TRUE);
 	}
 	else
+#else
+	llassert_always(mSamples <= 1);
+#endif
 	{
 		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	}
@@ -234,10 +238,14 @@ void LLRenderTarget::allocateDepth()
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 			LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT32, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 		}
+#ifdef GL_ARB_texture_multisample
 		else
 		{
 			glTexImage2DMultisample(LLTexUnit::getInternalType(mUsage), mSamples, GL_DEPTH_COMPONENT32, mResX, mResY, GL_TRUE);
 		}
+#else
+		llassert_always(mSamples <= 1);
+#endif
 	}
 }
 

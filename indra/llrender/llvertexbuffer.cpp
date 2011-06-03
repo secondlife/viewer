@@ -1017,6 +1017,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 			else
 			{
 				U8* src = NULL;
+#ifdef GL_ARB_map_buffer_range
 				if (gGLManager.mHasMapBufferRange)
 				{
 					if (map_range)
@@ -1031,6 +1032,9 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 					}
 				}
 				else
+#else
+				llassert_always(!gGLManager.mHasMapBufferRange);
+#endif
 				{
 					map_range = false;
 					src = (U8*) glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
@@ -1156,6 +1160,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 			else
 			{
 				U8* src = NULL;
+#ifdef GL_ARB_map_buffer_range
 				if (gGLManager.mHasMapBufferRange)
 				{
 					if (map_range)
@@ -1170,6 +1175,9 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 					}
 				}
 				else
+#else
+				llassert_always(!gGLManager.mHasMapBufferRange);
+#endif
 				{
 					map_range = false;
 					src = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
@@ -1241,6 +1249,7 @@ void LLVertexBuffer::unmapBuffer(S32 type)
 		}
 		else
 		{
+#ifdef GL_ARB_map_buffer_range
 			if (gGLManager.mHasMapBufferRange)
 			{
 				if (!mMappedVertexRegions.empty())
@@ -1258,6 +1267,9 @@ void LLVertexBuffer::unmapBuffer(S32 type)
 					mMappedVertexRegions.clear();
 				}
 			}
+#else
+			llassert_always(!gGLManager.mHasMapBufferRange);
+#endif
 			stop_glerror();
 			glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
 			stop_glerror();
@@ -1279,7 +1291,7 @@ void LLVertexBuffer::unmapBuffer(S32 type)
 		}
 		else
 		{
-
+#ifdef GL_ARB_map_buffer_range
 			if (gGLManager.mHasMapBufferRange)
 			{
 				if (!mMappedIndexRegions.empty())
@@ -1296,6 +1308,9 @@ void LLVertexBuffer::unmapBuffer(S32 type)
 					mMappedIndexRegions.clear();
 				}
 			}
+#else
+			llassert_always(!gGLManager.mHasMapBufferRange);
+#endif
 			stop_glerror();
 			glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
 			stop_glerror();
