@@ -61,6 +61,7 @@
 #include "pipeline.h"
 #include "llinventorymodel.h"
 #include "llfoldertype.h"
+#include "llviewerparcelmgr.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -3975,4 +3976,34 @@ void LLMeshRepository::buildPhysicsMesh(LLModel::Decomposition& decomp)
 			get_vertex_buffer_from_mesh(mesh, decomp.mBaseHullMesh);
 		}
 	}
+}
+
+
+bool LLMeshRepository::meshUploadEnabled()
+{
+	LLViewerRegion *region = gAgent.getRegion();
+	if(gSavedSettings.getBOOL("MeshEnabled") && 
+	   LLViewerParcelMgr::getInstance()->allowAgentBuild() &&
+	   region)
+	{
+		LLSD sim_features;
+		region->getSimulatorFeatures(sim_features);
+		return (sim_features.has("MeshUploadEnabled") &&
+				sim_features["MeshUploadEnabled"].asBoolean());
+	}
+	return false;
+}
+
+bool LLMeshRepository::meshRezEnabled()
+{
+	LLViewerRegion *region = gAgent.getRegion();
+	if(gSavedSettings.getBOOL("MeshEnabled") && 
+	   region)
+	{
+		LLSD sim_features;
+		region->getSimulatorFeatures(sim_features);
+		return (sim_features.has("MeshRezEnabled") &&
+				sim_features["MeshRezEnabled"].asBoolean());
+	}
+	return false;
 }

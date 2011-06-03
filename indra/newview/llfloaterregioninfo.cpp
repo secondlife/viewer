@@ -82,6 +82,7 @@
 #include "llvlcomposition.h"
 #include "lltrans.h"
 #include "llagentui.h"
+#include "llmeshrepository.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
@@ -590,9 +591,7 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
 	getChildView("im_btn")->setEnabled(allow_modify);
 	getChildView("manage_telehub_btn")->setEnabled(allow_modify);
 
-	const bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
-		gAgent.getRegion() &&
-		!gAgent.getRegion()->getCapability("GetMesh").empty();
+	const bool enable_mesh = gMeshRepo.meshRezEnabled();
 	getChildView("mesh_rez_enabled_check")->setVisible(enable_mesh);
 	getChildView("mesh_rez_enabled_check")->setEnabled(getChildView("mesh_rez_enabled_check")->getEnabled() && enable_mesh);
 	// Data gets filled in by processRegionInfo
