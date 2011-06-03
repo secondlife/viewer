@@ -48,7 +48,7 @@ using std::pair;
 using std::make_pair;
 using std::string;
 
-U32 LLGLSLShader::sCurBoundShader = 0;
+GLhandleARB LLGLSLShader::sCurBoundShader = 0;
 
 BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
 {
