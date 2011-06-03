@@ -1399,14 +1399,14 @@ BOOL LLMeshUploadThread::isDiscarded()
 
 void LLMeshUploadThread::run()
 {
-	if (gSavedSettings.getBOOL("MeshUseWholeModelUpload"))
+	//if (gSavedSettings.getBOOL("MeshUseWholeModelUpload"))
 	{
 		doWholeModelUpload();
 	}
-	else
+	/*else
 	{
 		doIterativeUpload();
-	}
+	}*/
 }
 
 void dumpLLSDToFile(const LLSD& content, std::string filename)
