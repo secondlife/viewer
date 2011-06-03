@@ -711,9 +711,9 @@
     <key>BrowserEnableJSObject</key>
     <map>
       <key>Comment</key>
-      <string>Enable or disable the viewer to Javascript bridge object.</string>
+      <string>(WARNING: Advanced feature. Use if you are aware of the implications). Enable or disable the viewer to Javascript bridge object.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
