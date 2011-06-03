@@ -62,6 +62,8 @@
 #include "llinventorymodel.h"
 #include "llfoldertype.h"
 
+#include "boost/lexical_cast.hpp"
+
 #ifndef LL_WINDOWS
 #include "netdb.h"
 #endif
@@ -85,6 +87,12 @@ U32 LLMeshRepository::sPeakKbps = 0;
 
 const U32 MAX_TEXTURE_UPLOAD_RETRIES = 5;
 
+static S32 dump_num = 0;
+std::string make_dump_name(std::string prefix, S32 num)
+{
+	return prefix + boost::lexical_cast<std::string>(num) + std::string(".xml");
+	
+}
 void dumpLLSDToFile(const LLSD& content, std::string filename);
 
 std::string header_lod[] = 
@@ -498,7 +506,7 @@ public:
 		//assert_main_thread();
 		llinfos << "completed" << llendl;
 		mThread->mPendingUploads--;
-		dumpLLSDToFile(content,"whole_model_fee_response.xml");
+		dumpLLSDToFile(content,make_dump_name("whole_model_fee_response_",dump_num));
 		if (isGoodStatus(status))
 		{
 			mThread->mWholeModelUploadURL = content["uploader"].asString(); 
@@ -530,7 +538,7 @@ public:
 		//assert_main_thread();
 		llinfos << "upload completed" << llendl;
 		mThread->mPendingUploads--;
-		dumpLLSDToFile(content,"whole_model_upload_response.xml");
+		dumpLLSDToFile(content,make_dump_name("whole_model_upload_response_",dump_num));
 		// requested "mesh" asset type isn't actually the type
 		// of the resultant object, fix it up here.
 		mPostData["asset_type"] = "object";
@@ -829,8 +837,8 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 
 	if (header_size > 0)
 	{
-		S32 offset = header_size + mMeshHeader[mesh_id]["decomposition"]["offset"].asInteger();
-		S32 size = mMeshHeader[mesh_id]["decomposition"]["size"].asInteger();
+		S32 offset = header_size + mMeshHeader[mesh_id]["physics_convex"]["offset"].asInteger();
+		S32 size = mMeshHeader[mesh_id]["physics_convex"]["size"].asInteger();
 
 		mHeaderMutex->unlock();
 
@@ -901,8 +909,8 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 
 	if (header_size > 0)
 	{
-		S32 offset = header_size + mMeshHeader[mesh_id]["physics_shape"]["offset"].asInteger();
-		S32 size = mMeshHeader[mesh_id]["physics_shape"]["size"].asInteger();
+		S32 offset = header_size + mMeshHeader[mesh_id]["physics_mesh"]["offset"].asInteger();
+		S32 size = mMeshHeader[mesh_id]["physics_mesh"]["size"].asInteger();
 
 		mHeaderMutex->unlock();
 
@@ -1385,14 +1393,14 @@ BOOL LLMeshUploadThread::isDiscarded()
 
 void LLMeshUploadThread::run()
 {
-	if (gSavedSettings.getBOOL("MeshUseWholeModelUpload"))
+	//if (gSavedSettings.getBOOL("MeshUseWholeModelUpload"))
 	{
 		doWholeModelUpload();
 	}
-	else
+	/*else
 	{
 		doIterativeUpload();
-	}
+	}*/
 }
 
 void dumpLLSDToFile(const LLSD& content, std::string filename)
@@ -1431,9 +1439,13 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	{
 		LLMeshUploadData data;
 		data.mBaseModel = iter->first;
-		LLModelInstance& instance = *(iter->second.begin());
-		LLModel* model = instance.mModel;
-		if (mesh_index.find(model) == mesh_index.end())
+		LLModelInstance& first_instance = *(iter->second.begin());
+		for (S32 i = 0; i < 5; i++)
+		{
+			data.mModel[i] = first_instance.mLOD[i];
+		}
+
+		if (mesh_index.find(data.mBaseModel) == mesh_index.end())
 		{
 			// Have not seen this model before - create a new mesh_list entry for it.
 			std::string model_name = data.mBaseModel->getName();
@@ -1466,107 +1478,116 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			std::string str = ostr.str();
 
 			res["mesh_list"][mesh_num] = LLSD::Binary(str.begin(),str.end()); 
-			mesh_index[model] = mesh_num;
+			mesh_index[data.mBaseModel] = mesh_num;
 			mesh_num++;
 		}
-		
-		LLSD instance_entry;
-		
-		for (S32 i = 0; i < 5; i++)
-		{
-			data.mModel[i] = instance.mLOD[i];
-		}
-		
-		LLVector3 pos, scale;
-		LLQuaternion rot;
-		LLMatrix4 transformation = instance.mTransform;
-		decomposeMeshMatrix(transformation,pos,rot,scale);
-		instance_entry["position"] = ll_sd_from_vector3(pos);
-		instance_entry["rotation"] = ll_sd_from_quaternion(rot);
-		instance_entry["scale"] = ll_sd_from_vector3(scale);
-		
-		instance_entry["material"] = LL_MCODE_WOOD;
-		LLPermissions perm;
-		perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
-		perm.setCreator(gAgent.getID());
-		
-		perm.initMasks(PERM_ITEM_UNRESTRICTED | PERM_MOVE, //base
-					   PERM_ITEM_UNRESTRICTED | PERM_MOVE, //owner
-					   LLFloaterPerms::getEveryonePerms(),
-					   LLFloaterPerms::getGroupPerms(),
-					   LLFloaterPerms::getNextOwnerPerms());
-		instance_entry["permissions"] = ll_create_sd_from_permissions(perm);
-		instance_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
-		instance_entry["mesh"] = mesh_index[model];
 
-		if (mUploadTextures)
+		// For all instances that use this model
+		for (instance_list::iterator instance_iter = iter->second.begin();
+			 instance_iter != iter->second.end();
+			 ++instance_iter)
 		{
+
+			LLModelInstance& instance = *instance_iter;
+		
+			LLSD instance_entry;
+		
+			for (S32 i = 0; i < 5; i++)
+			{
+				data.mModel[i] = instance.mLOD[i];
+			}
+		
+			LLVector3 pos, scale;
+			LLQuaternion rot;
+			LLMatrix4 transformation = instance.mTransform;
+			decomposeMeshMatrix(transformation,pos,rot,scale);
+			instance_entry["position"] = ll_sd_from_vector3(pos);
+			instance_entry["rotation"] = ll_sd_from_quaternion(rot);
+			instance_entry["scale"] = ll_sd_from_vector3(scale);
+		
+			instance_entry["material"] = LL_MCODE_WOOD;
+			LLPermissions perm;
+			perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
+			perm.setCreator(gAgent.getID());
+		
+			perm.initMasks(PERM_ITEM_UNRESTRICTED | PERM_MOVE, //base
+						   PERM_ITEM_UNRESTRICTED | PERM_MOVE, //owner
+						   LLFloaterPerms::getEveryonePerms(),
+						   LLFloaterPerms::getGroupPerms(),
+						   LLFloaterPerms::getNextOwnerPerms());
+			instance_entry["permissions"] = ll_create_sd_from_permissions(perm);
+			instance_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
+			instance_entry["mesh"] = mesh_index[data.mBaseModel];
+
 			instance_entry["face_list"] = LLSD::emptyArray();
 
-			for (S32 face_num = 0; face_num < model->getNumVolumeFaces(); face_num++)
+			for (S32 face_num = 0; face_num < data.mBaseModel->getNumVolumeFaces(); face_num++)
 			{
 				LLImportMaterial& material = instance.mMaterial[face_num];
 				LLSD face_entry = LLSD::emptyMap();
 				LLViewerFetchedTexture *texture = material.mDiffuseMap.get();
 				
-				if (texture != NULL)
+				if ((texture != NULL) &&
+					(textures.find(texture) == textures.end()))
 				{
-					if (textures.find(texture) == textures.end())
-					{
-						textures.insert(texture);
-					}
+					textures.insert(texture);
+				}
 
-					std::stringstream ostr;
-					if (include_textures) // otherwise data is blank.
+				std::stringstream texture_str;
+				if (texture != NULL && include_textures && mUploadTextures)
+				{
+					// Get binary rep of texture, if needed.
+					LLTextureUploadData data(texture, material.mDiffuseMapLabel);
+					if (!data.mTexture->isRawImageValid())
 					{
-						LLTextureUploadData data(texture, material.mDiffuseMapLabel);
-						if (!data.mTexture->isRawImageValid())
-						{
-							data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
-						}
+						data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
+					}
 						
-						LLPointer<LLImageJ2C> upload_file =
-							LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
-						ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
-					}
+					LLPointer<LLImageJ2C> upload_file =
+						LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
+					texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
+				}
 
-					if (texture_index.find(texture) == texture_index.end())
-					{
-						texture_index[texture] = texture_num;
-						std::string str = ostr.str();
-						res["texture_list"][texture_num] = LLSD::Binary(str.begin(),str.end());
-						texture_num++;
-					}
+				if (texture != NULL &&
+					mUploadTextures &&
+					texture_index.find(texture) == texture_index.end())
+				{
+					texture_index[texture] = texture_num;
+					std::string str = texture_str.str();
+					res["texture_list"][texture_num] = LLSD::Binary(str.begin(),str.end());
+					texture_num++;
 				}
 
 				// Subset of TextureEntry fields.
-				if (texture)
+				if (texture != NULL && mUploadTextures)
 				{
 					face_entry["image"] = texture_index[texture];
+					face_entry["scales"] = 1.0;
+					face_entry["scalet"] = 1.0;
+					face_entry["offsets"] = 0.0;
+					face_entry["offsett"] = 0.0;
+					face_entry["imagerot"] = 0.0;
 				}
-				face_entry["scales"] = 1.0;
-				face_entry["scalet"] = 1.0;
-				face_entry["offsets"] = 0.0;
-				face_entry["offsett"] = 0.0;
-				face_entry["imagerot"] = 0.0;
 				face_entry["colors"] = ll_sd_from_color4(material.mDiffuseColor);
 				face_entry["fullbright"] = material.mFullbright;
 				instance_entry["face_list"][face_num] = face_entry;
-			}
-		}
+		    }
 
-		res["instance_list"][instance_num] = instance_entry;
-		instance_num++;
+			res["instance_list"][instance_num] = instance_entry;
+			instance_num++;
+		}
 	}
 
 	result["asset_resources"] = res;
-	dumpLLSDToFile(result,"whole_model.xml");
+	dumpLLSDToFile(result,make_dump_name("whole_model_",dump_num));
 
 	dest = result;
 }
 
 void LLMeshUploadThread::doWholeModelUpload()
 {
+	dump_num++;
+	
 	mCurlRequest = new LLCurlRequest();	
 
 	// Queue up models for hull generation (viewer-side)
@@ -1611,7 +1632,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 
 	LLSD model_data;
 	wholeModelToLLSD(model_data,false);
-	dumpLLSDToFile(model_data,"whole_model_fee_request.xml");
+	dumpLLSDToFile(model_data,make_dump_name("whole_model_fee_request_",dump_num));
 
 	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
@@ -1633,7 +1654,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 		LLSD full_model_data;
 		wholeModelToLLSD(full_model_data, true);
 		LLSD body = full_model_data["asset_resources"];
-		dumpLLSDToFile(body,"whole_model_body.xml");
+		dumpLLSDToFile(body,make_dump_name("whole_model_body_",dump_num));
 		mCurlRequest->post(mWholeModelUploadURL, headers, body,
 						   new LLWholeModelUploadResponder(this, model_data));
 		do
@@ -2234,7 +2255,7 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		
 		//just in case skin info or decomposition is at the end of the file (which it shouldn't be)
 		lod_bytes = llmax(lod_bytes, header["skin"]["offset"].asInteger() + header["skin"]["size"].asInteger());
-		lod_bytes = llmax(lod_bytes, header["decomposition"]["offset"].asInteger() + header["decomposition"]["size"].asInteger());
+		lod_bytes = llmax(lod_bytes, header["physics_convex"]["offset"].asInteger() + header["physics_convex"]["size"].asInteger());
 
 		S32 header_bytes = (S32) gMeshRepo.mThread->mMeshHeaderSize[mesh_id];
 		S32 bytes = lod_bytes + header_bytes; 
@@ -2860,7 +2881,7 @@ void LLMeshRepository::buildHull(const LLVolumeParams& params, S32 detail)
 bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
 {
 	LLSD mesh = mThread->getMeshHeader(mesh_id);
-	return mesh.has("physics_shape") && mesh["physics_shape"].has("size") && (mesh["physics_shape"]["size"].asInteger() > 0);
+	return mesh.has("physics_mesh") && mesh["physics_mesh"].has("size") && (mesh["physics_mesh"]["size"].asInteger() > 0);
 }
 
 LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
@@ -3314,8 +3335,8 @@ bool LLImportMaterial::operator<(const LLImportMaterial &rhs) const
 void LLMeshRepository::updateInventory(inventory_data data)
 {
 	LLMutexLock lock(mMeshMutex);
-	dumpLLSDToFile(data.mPostData,"update_inventory_post_data.xml");
-	dumpLLSDToFile(data.mResponse,"update_inventory_response.xml");
+	dumpLLSDToFile(data.mPostData,make_dump_name("update_inventory_post_data_",dump_num));
+	dumpLLSDToFile(data.mResponse,make_dump_name("update_inventory_response_",dump_num));
 	mInventoryQ.push(data);
 }
 
