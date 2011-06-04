@@ -480,7 +480,7 @@
 			Modificar la parcela
 		</text>
 		<button label="Dividir" label_selected="Dividir" name="button subdivide land"/>
-		<button label="Inscribirse" label_selected="Unir" name="button join land"/>
+		<button label="Unir" label_selected="Unir" name="button join land"/>
 		<text name="label_parcel_trans">
 			Transacciones de terreno
 		</text>
