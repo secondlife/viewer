@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="MY AVATAR" name="script_limits_my_avatar_panel">
+	<text name="script_memory">
+		Avatar Script Usage
+	</text>
+	<text name="loading_text">
+		載入中...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Size (kb)" name="size"/>
+		<scroll_list.columns label="URLs" name="urls"/>
+		<scroll_list.columns label="物件名稱" name="name"/>
+		<scroll_list.columns label="Location" name="location"/>
+	</scroll_list>
+	<button label="Refresh List" name="refresh_list_btn"/>
+</panel>

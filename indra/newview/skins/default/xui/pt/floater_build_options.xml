@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="OPÇÕES DE GRADE">
-	<spinner label="Unidade da grade (metros)" label_width="122" name="GridResolution" width="180"/>
-	<spinner label="Ext. da Grade (metros)" label_width="122" name="GridDrawSize" width="180"/>
+	<spinner label="Unidade da grade (metros)" name="GridResolution"/>
+	<spinner label="Ext. da Grade (metros)" name="GridDrawSize"/>
 	<check_box label="Encaixar em sub-unidades" name="GridSubUnit"/>
 	<check_box label="Ver corte transversal" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="Opacidade da grade">
 		Opacidade:
 	</text>
-	<slider label="Opacidade da grade" name="GridOpacity" width="220"/>
+	<slider label="Opacidade da grade" name="GridOpacity"/>
 </floater>

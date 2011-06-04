@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Teleport History">
+	<accordion name="history_accordion">
+		<no_matched_tabs_text name="no_matched_teleports_msg" value="Didn&apos;t find what you&apos;re looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search]."/>
+		<no_visible_tabs_text name="no_teleports_msg" value="Teleport history is empty. Try [secondlife:///app/search/places/ Search]."/>
+		<accordion_tab name="today" title="今天"/>
+		<accordion_tab name="yesterday" title="昨天"/>
+		<accordion_tab name="2_days_ago" title="前天"/>
+		<accordion_tab name="3_days_ago" title="三天前"/>
+		<accordion_tab name="4_days_ago" title="四天前"/>
+		<accordion_tab name="5_days_ago" title="五天前"/>
+		<accordion_tab name="6_days_and_older" title="六天前或更久"/>
+		<accordion_tab name="1_month_and_older" title="一個月或更久"/>
+		<accordion_tab name="6_months_and_older" title="半年前或更久"/>
+	</accordion>
+	<panel name="bottom_panel">
+		<menu_button name="gear_btn" tool_tip="Show additional options"/>
+	</panel>
+</panel>

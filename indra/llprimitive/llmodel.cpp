@@ -991,6 +991,9 @@ void LLModel::normalizeVolumeFaces()
 		scale.splat(1.f);
 		scale.div(size);
 
+		LLVector4a inv_scale(1.f);
+		inv_scale.div(scale);
+
 		for (U32 i = 0; i < mVolumeFaces.size(); ++i)
 		{
 			LLVolumeFace& face = mVolumeFaces[i];
@@ -1007,10 +1010,14 @@ void LLModel::normalizeVolumeFaces()
 			// For all the positions, we scale
 			// the positions to fit within the unit cube.
 			LLVector4a* pos = (LLVector4a*) face.mPositions;
+			LLVector4a* norm = (LLVector4a*) face.mNormals;
+
 			for (U32 j = 0; j < face.mNumVertices; ++j)
 			{
 			 	pos[j].add(trans);
 				pos[j].mul(scale);
+				norm[j].mul(inv_scale);
+				norm[j].normalize3();
 			}
 		}
 

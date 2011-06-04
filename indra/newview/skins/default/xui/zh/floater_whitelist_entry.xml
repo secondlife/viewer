@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="whitelist_entry" title="WHITELIST ENTRY">
+	<text name="media_label">
+		Enter a URL or URL pattern to add to the list of allowed domains
+	</text>
+	<line_editor name="whitelist_entry" tool_tip="Enter a URL or URL pattern to White List"/>
+	<button label="確定" name="ok_btn"/>
+	<button label="取銷" name="cancel_btn"/>
+</floater>

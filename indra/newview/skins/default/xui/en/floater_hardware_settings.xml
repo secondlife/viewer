@@ -80,7 +80,7 @@
      left_pad="10"
      name="antialiasing restart"
      top_delta="0"
-     width="188">
+     width="230">
       (requires viewer restart)
     </text>
     <spinner

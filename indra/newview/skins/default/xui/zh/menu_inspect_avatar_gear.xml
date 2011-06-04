@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toggleable_menu name="Gear Menu">
+	<menu_item_call label="View Profile" name="view_profile"/>
+	<menu_item_call label="加為朋友" name="add_friend"/>
+	<menu_item_call label="IM" name="im"/>
+	<menu_item_call label="Call" name="call"/>
+	<menu_item_call label="Teleport" name="teleport"/>
+	<menu_item_call label="Invite to Group" name="invite_to_group"/>
+	<menu_item_call label="Block" name="block"/>
+	<menu_item_call label="Unblock" name="unblock"/>
+	<menu_item_call label="Report" name="report"/>
+	<menu_item_call label="Freeze" name="freeze"/>
+	<menu_item_call label="Eject" name="eject"/>
+	<menu_item_call label="Kick" name="kick"/>
+	<menu_item_call label="CSR" name="csr"/>
+	<menu_item_call label="Debug Textures" name="debug"/>
+	<menu_item_call label="Find On Map" name="find_on_map"/>
+	<menu_item_call label="Zoom In" name="zoom_in"/>
+	<menu_item_call label="Pay" name="pay"/>
+	<menu_item_call label="分享" name="share"/>
+</toggleable_menu>

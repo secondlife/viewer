@@ -7,19 +7,24 @@
 	<text name="cache_size_label_l">
 		（位置、画像、web、検索履歴）
 	</text>
+	<check_box label="検索結果に表示" name="online_searchresults"/>
 	<check_box label="私のオンライン状態を確認できるのは、フレンドとグループだけ" name="online_visibility"/>
 	<check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check"/>
 	<check_box label="コールが終了したら自動的にマイクのスイッチを切る" name="auto_disengage_mic_check"/>
-	<check_box label="Cookie を受け入れる" name="cookies_enabled"/>
+	<check_box label="ログイン時にお気に入りのランドマークを表示（「開始地点」ドロップダウンメニュー経由）" name="favorites_on_login_check"/>
 	<text name="Logs:">
-		ログ：
+		チャットログ：
 	</text>
 	<check_box label="近くのチャットログをコンピューターに保存する" name="log_nearby_chat"/>
 	<check_box label="IM ログをコンピューターに保存する" name="log_instant_messages"/>
-	<check_box label="日時を入れる" name="show_timestamps_check_im"/>
+	<check_box label="チャットログでラインごとに時間を入れる" name="show_timestamps_check_im"/>
+	<check_box label="ログファイル名に日付を入れる。" name="logfile_name_datestamp"/>
 	<text name="log_path_desc">
 		ログの保存場所：
 	</text>
 	<button label="参照" label_selected="参照" name="log_path_button"/>
 	<button label="ブロックリスト" name="block_list"/>
+	<text name="block_list_label">
+		（あなたがブロックした住人/オブジェクト）
+	</text>
 </panel>

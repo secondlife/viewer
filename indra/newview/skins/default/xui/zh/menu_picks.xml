@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Picks">
+	<menu_item_call label="資訊" name="pick_info"/>
+	<menu_item_call label="編輯" name="pick_edit"/>
+	<menu_item_call label="Teleport" name="pick_teleport"/>
+	<menu_item_call label="地圖" name="pick_map"/>
+	<menu_item_call label="刪除" name="pick_delete"/>
+</context_menu>

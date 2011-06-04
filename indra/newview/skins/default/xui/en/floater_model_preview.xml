@@ -26,7 +26,7 @@
   <text left="15" bottom="25" follows="top|left" height="15" name="name_label">
     Name:
   </text>
-  <line_editor bottom_delta="20" follows="top|left|right" height="19" 
+  <line_editor bottom_delta="20" follows="top|left|right" height="19" max_length_bytes="64" 
 	     name="description_form" prevalidate_callback="ascii" width="290" />
   
   <text bottom_delta="20" left="15" follows="left|top" height="15" name="lod_label">
@@ -219,7 +219,7 @@
       <text left="10" top_pad="35" follows="top|left" width="240" height="15">
         Generate Normals
       </text>
-      <text left="35" top_pad="5" follows="top|left" width="100" height="15">
+      <text left="35" top_pad="5" follows="top|left" width="100" height="15" name="crease_label">
         Crease Angle:
       </text>
       <spinner follows="top|left" left_pad="5" min_val="0" max_val="180" value="75" width="60" height="20" name="crease_angle"/>  

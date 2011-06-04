@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="place_overflow_menu">
+	<menu_item_call label="Salva come punto di riferimento" name="landmark"/>
+	<menu_item_call label="Crea Luogo consigliato" name="pick"/>
+	<menu_item_call label="Acquista Permesso" name="pass"/>
+	<menu_item_call label="Modifica" name="edit"/>
+</toggleable_menu>

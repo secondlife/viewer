@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="media_settings" title="MEDIA SETTINGS">
+	<button label="確定" label_selected="確定" name="OK"/>
+	<button label="取銷" label_selected="取銷" name="Cancel"/>
+	<button label="套用" label_selected="套用" name="Apply"/>
+</floater>

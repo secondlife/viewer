@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_folder_gear">
+	<menu_item_call label="Add Landmark" name="add_landmark"/>
+	<menu_item_call label="Add Folder" name="add_folder"/>
+	<menu_item_call label="Restore Item" name="restore_item"/>
+	<menu_item_call label="剪下" name="cut"/>
+	<menu_item_call label="覆製" name="copy_folder"/>
+	<menu_item_call label="貼上" name="paste"/>
+	<menu_item_call label="更名" name="rename"/>
+	<menu_item_call label="刪除" name="delete"/>
+	<menu_item_call label="展開" name="expand"/>
+	<menu_item_call label="摺疊" name="collapse"/>
+	<menu_item_call label="展開全部資料夾" name="expand_all"/>
+	<menu_item_call label="摺疊全部資料夾" name="collapse_all"/>
+	<menu_item_check label="依日期排序" name="sort_by_date"/>
+</toggleable_menu>

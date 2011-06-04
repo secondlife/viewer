@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Wearable" name="panel_edit_wearable">
+	<string name="edit_shape_title">
+		Editing Shape
+	</string>
+	<string name="edit_skin_title">
+		Editing Skin
+	</string>
+	<string name="edit_hair_title">
+		Editing Hair
+	</string>
+	<string name="edit_eyes_title">
+		Editing Eyes
+	</string>
+	<string name="edit_shirt_title">
+		Editing Shirt
+	</string>
+	<string name="edit_pants_title">
+		Editing Pants
+	</string>
+	<string name="edit_shoes_title">
+		Editing Shoes
+	</string>
+	<string name="edit_socks_title">
+		Editing Socks
+	</string>
+	<string name="edit_jacket_title">
+		Editing Jacket
+	</string>
+	<string name="edit_skirt_title">
+		Editing Skirt
+	</string>
+	<string name="edit_gloves_title">
+		Editing Gloves
+	</string>
+	<string name="edit_undershirt_title">
+		Editing Undershirt
+	</string>
+	<string name="edit_underpants_title">
+		Editing Underpants
+	</string>
+	<string name="edit_alpha_title">
+		Editing Alpha Mask
+	</string>
+	<string name="edit_tattoo_title">
+		Editing Tattoo
+	</string>
+	<string name="edit_physics_title">
+		Editing Physics
+	</string>
+	<string name="shape_desc_text">
+		Shape:
+	</string>
+	<string name="skin_desc_text">
+		Skin:
+	</string>
+	<string name="hair_desc_text">
+		Hair:
+	</string>
+	<string name="eyes_desc_text">
+		Eyes:
+	</string>
+	<string name="shirt_desc_text">
+		襯衫：
+	</string>
+	<string name="pants_desc_text">
+		褲子：
+	</string>
+	<string name="shoes_desc_text">
+		鞋子：
+	</string>
+	<string name="socks_desc_text">
+		襪子：
+	</string>
+	<string name="jacket_desc_text">
+		夾克：
+	</string>
+	<string name="skirt_desc_text">
+		裙子：
+	</string>
+	<string name="gloves_desc_text">
+		手套：
+	</string>
+	<string name="undershirt_desc_text">
+		內衣：
+	</string>
+	<string name="underpants_desc_text">
+		內褲：
+	</string>
+	<string name="alpha_desc_text">
+		Alpha Mask:
+	</string>
+	<string name="tattoo_desc_text">
+		刺青：
+	</string>
+	<string name="physics_desc_text">
+		Physics:
+	</string>
+	<labeled_back_button label="儲存" name="back_btn" tool_tip="Return to Edit Outfit"/>
+	<text name="edit_wearable_title" value="Editing Shape"/>
+	<panel label="襯衫" name="wearable_type_panel">
+		<text name="description_text" value="Shape:"/>
+		<radio_group name="sex_radio">
+			<radio_item label="" name="sex_male" tool_tip="男性" value="1"/>
+			<radio_item label="" name="sex_female" tool_tip="Female" value="0"/>
+		</radio_group>
+		<icon name="male_icon" tool_tip="男性"/>
+		<icon name="female_icon" tool_tip="Female"/>
+	</panel>
+	<panel name="button_panel">
+		<layout_stack name="button_panel_ls">
+			<layout_panel name="save_as_btn_lp">
+				<button label="另存" name="save_as_button"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="復原變更" name="revert_button"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>
