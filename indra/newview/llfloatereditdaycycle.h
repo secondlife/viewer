@@ -106,7 +106,6 @@ private:
 	void onDayCycleListChange();
 
 	static std::string getRegionName();
-	static bool canEditRegionSettings();
 
 	/// convenience class for holding keyframes mapped to sliders
 	struct SliderKey

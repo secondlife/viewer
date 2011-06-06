@@ -328,6 +328,8 @@ public:
 	boost::signals2::connection setRegionChangeCallback(const region_change_signal_t::slot_type& cb);
 	boost::signals2::connection setRegionSettingsAppliedCallback(const region_settings_applied_signal_t::slot_type& cb);
 
+	static bool canEditRegionSettings(); /// @return true if we have access to editing region environment
+
 	// Public callbacks.
 	void onRegionCrossing();
 	void onTeleport();

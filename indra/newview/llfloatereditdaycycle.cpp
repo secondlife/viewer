@@ -660,7 +660,7 @@ void LLFloaterEditDayCycle::onRegionInfoUpdate()
 	if (getSelectedDayCycle().scope == LLEnvKey::SCOPE_REGION)
 	{
 		// check whether we have the access
-		can_edit = canEditRegionSettings();
+		can_edit = LLEnvManagerNew::canEditRegionSettings();
 	}
 
 	enableEditing(can_edit);
@@ -697,7 +697,7 @@ void LLFloaterEditDayCycle::onDayCycleSelected()
 			return;
 		}
 
-		can_edit = canEditRegionSettings();
+		can_edit = LLEnvManagerNew::canEditRegionSettings();
 	}
 
 	// We may need to add or remove region skies from the list.
@@ -798,15 +798,4 @@ void LLFloaterEditDayCycle::onDayCycleListChange()
 std::string LLFloaterEditDayCycle::getRegionName()
 {
 	return gAgent.getRegion() ? gAgent.getRegion()->getName() : LLTrans::getString("Unknown");
-}
-
-// static
-bool LLFloaterEditDayCycle::canEditRegionSettings()
-{
-	LLViewerRegion* region = gAgent.getRegion();
-	BOOL owner_or_god = gAgent.isGodlike() || (region && region->getOwner() == gAgent.getID());
-	BOOL owner_or_god_or_manager = owner_or_god || (region && region->isEstateManager());
-
-	LL_DEBUGS("Windlight") << "Can edit region settings: " << owner_or_god_or_manager << LL_ENDL;
-	return owner_or_god_or_manager;
 }

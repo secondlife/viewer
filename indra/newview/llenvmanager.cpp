@@ -923,6 +923,17 @@ boost::signals2::connection LLEnvManagerNew::setRegionSettingsAppliedCallback(co
 	return mRegionSettingsAppliedSignal.connect(cb);
 }
 
+// static
+bool LLEnvManagerNew::canEditRegionSettings()
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	BOOL owner_or_god = gAgent.isGodlike() || (region && region->getOwner() == gAgent.getID());
+	BOOL owner_or_god_or_manager = owner_or_god || (region && region->isEstateManager());
+
+	LL_DEBUGS("Windlight") << "Can edit region settings: " << (bool) owner_or_god_or_manager << LL_ENDL;
+	return owner_or_god_or_manager;
+}
+
 void LLEnvManagerNew::onRegionCrossing()
 {
 	LL_DEBUGS("Windlight") << "Crossed region" << LL_ENDL;
