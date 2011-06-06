@@ -1510,9 +1510,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("LandResources");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
-	capabilityNames.append("NewAccountingEnabled");
 	capabilityNames.append("NewFileAgentInventory");
-	capabilityNames.append("NewFileAgentInventoryVariablePrice");
+	// mesh *TODO: Use SimulatorFeatures cap to get this info instead.
 	capabilityNames.append("ObjectAdd");
 	capabilityNames.append("ParcelPropertiesUpdate");
 	capabilityNames.append("ParcelMediaURLFilterList");
@@ -1544,7 +1543,6 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("UpdateNotecardTaskInventory");
 	capabilityNames.append("UpdateScriptTask");
 	capabilityNames.append("UploadBakedTexture");
-	capabilityNames.append("UploadObjectAsset");
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
