@@ -4,7 +4,7 @@
  height="450"
  layout="topleft"
  name="Edit Day cycle"
- help_topic=""
+ help_topic="day_presets"
  save_rect="true"
  title="Edit Day Cycle"
  width="800">

@@ -5,6 +5,7 @@
  height="300"
  label="Environment"
  layout="topleft"
+ help_topic="panel_region_environment_tab"
  name="panel_env_info"
  width="530"> 
  <text

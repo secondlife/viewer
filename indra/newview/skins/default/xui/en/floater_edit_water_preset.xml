@@ -4,7 +4,7 @@
  height="450"
  layout="topleft"
  name="Edit Water Preset"
- help_topic=""
+ help_topic="water_preset"
  save_rect="true"
  title="Edit Water Preset"
  width="900">

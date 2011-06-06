@@ -4,7 +4,7 @@
  height="375"
  layout="topleft"
  name="Edit Sky Preset"
- help_topic=""
+ help_topic="sky_preset"
  save_rect="true"
  title="Edit Sky Preset"
  width="900">
@@ -98,7 +98,7 @@
      layout="topleft"
      left="1"
      mouse_opaque="false"
-     help_topic="windlight_atmosphere_tab"
+     help_topic="sky_preset_atmosphere"
      name="Atmosphere"
      top="60"
      width="698">
@@ -379,7 +379,7 @@
          label="LIGHTING"
          layout="topleft"
          left_delta="0"
-         help_topic="windlight_lighting_tab"
+         help_topic="sky_preset_lighting"
          name="Lighting"
          top_delta="4"
          width="698">
@@ -685,7 +685,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
-         help_topic="windlight_clouds_tab"
+         help_topic="sky_preset_clouds"
          name="Clouds"
          top_delta="4"
          width="698">
