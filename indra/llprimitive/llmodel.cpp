@@ -1419,8 +1419,9 @@ LLSD LLModel::writeModel(
 			for (S32 i = 0; i < model[idx]->getNumVolumeFaces(); ++i)
 			{ //for each face
 				const LLVolumeFace& face = model[idx]->getVolumeFace(i);
-				if (!face.mNumVertices)
+				if (face.mNumVertices < 3)
 				{ //don't export an empty face
+					mdl[model_names[idx]][i]["NoGeometry"] = true;
 					continue;
 				}
 				LLSD::Binary verts(face.mNumVertices*3*2);
