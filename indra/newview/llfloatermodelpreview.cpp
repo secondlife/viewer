@@ -1399,7 +1399,7 @@ bool LLModelLoader::doLoadModel()
 			if(model->getStatus() != LLModel::NO_ERRORS)
 			{
 				setLoadState(ERROR_PARSING + model->getStatus()) ;
-				return true ; //abort
+				return false; //abort
 			}
 
 			if (model.notNull() && validate_model(model))

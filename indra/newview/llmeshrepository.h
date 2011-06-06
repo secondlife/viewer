@@ -393,8 +393,6 @@ public:
 	BOOL            mDiscarded ;
 
 	LLHost			mHost;
-	std::string		mUploadObjectAssetCapability;
-	std::string		mNewInventoryCapability;
 	std::string		mWholeModelFeeCapability;
 	std::string		mWholeModelUploadURL;
 
@@ -413,12 +411,10 @@ public:
 
 	void uploadTexture(LLTextureUploadData& data);
 	void doUploadTexture(LLTextureUploadData& data);
-	void sendCostRequest(LLTextureUploadData& data);
 	void priceResult(LLTextureUploadData& data, const LLSD& content);
 	void onTextureUploaded(LLTextureUploadData& data);
 
 	void uploadModel(LLMeshUploadData& data);
-	void sendCostRequest(LLMeshUploadData& data);
 	void doUploadModel(LLMeshUploadData& data);
 	void onModelUploaded(LLMeshUploadData& data);
 	void createObjects(LLMeshUploadData& data);
@@ -432,7 +428,6 @@ public:
 	BOOL isDiscarded();
 
 	void doWholeModelUpload();
-	void doIterativeUpload();
 
 	void wholeModelToLLSD(LLSD& dest, bool include_textures);
 
