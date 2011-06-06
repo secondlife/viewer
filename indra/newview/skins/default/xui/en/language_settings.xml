@@ -4,6 +4,7 @@
 
 	<!-- Locale Information -->
 	<string name="MicrosoftLocale">english</string>
+	<string name="MacLocale">C</string>
 	<string name="DarwinLocale">C</string>
 	<string name="LinuxLocale">C</string>
   
