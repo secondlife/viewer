@@ -10801,7 +10801,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>-2</real>
+      <real>-1</real>
     </map>
     <key>UIExtraTriangleWidth</key>
     <map>
@@ -10812,7 +10812,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>2</real>
+      <real>4</real>
     </map>
     <key>UIFloaterCloseBoxSize</key>
     <map>
