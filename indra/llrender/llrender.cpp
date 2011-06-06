@@ -184,8 +184,7 @@ void LLTexUnit::enable(eTextureType type)
 		mCurrTexType = type;
 
 		gGL.flush();
-		if (LLGLSLShader::sCurBoundShader == 0 &&
-			type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
+		if (type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
 			glEnable(sGLTextureType[type]);
@@ -202,7 +201,7 @@ void LLTexUnit::disable(void)
 		activate();
 		unbind(mCurrTexType);
 		gGL.flush();
-		if (LLGLSLShader::sCurBoundShader == 0 && mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
+		if (mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
 			glDisable(sGLTextureType[mCurrTexType]);
