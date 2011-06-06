@@ -276,6 +276,8 @@ public:
 
 	void getInfo(LLSD& info);
 	
+	void getSimulatorFeatures(LLSD& info);	
+	void setSimulatorFeatures(const LLSD& info);
 
 	typedef enum
 	{
@@ -401,6 +403,8 @@ private:
 	bool	mCapabilitiesReceived;
 
 	BOOL mReleaseNotesRequested;
+	
+	LLSD mSimulatorFeatures;
 };
 
 inline BOOL LLViewerRegion::getAllowDamage() const

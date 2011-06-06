@@ -107,9 +107,7 @@ class LLMeshUploadVisible : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		return gSavedSettings.getBOOL("MeshEnabled") && 
-			   LLViewerParcelMgr::getInstance()->allowAgentBuild() && 
-			   !gAgent.getRegion()->getCapability("ObjectAdd").empty();
+		return gMeshRepo.meshUploadEnabled();
 	}
 };
 
