@@ -146,7 +146,7 @@
 			<menu_item_check label="Estadísticas" name="Statistics Bar"/>
 			<menu_item_check label="Mostrar cuánto cuesta renderizar el avatar" name="Avatar Rendering Cost"/>
 		</menu>
-		<menu label="Realzando y Visibilidad" name="Highlighting and Visibility">
+		<menu label="Realzado y Visibilidad" name="Highlighting and Visibility">
 			<menu_item_check label="Baliza con destellos" name="Cheesy Beacon"/>
 			<menu_item_check label="Ocultar las partículas" name="Hide Particles"/>
 			<menu_item_check label="Ocultar lo seleccionado" name="Hide Selected"/>

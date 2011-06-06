@@ -889,11 +889,11 @@ void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_CHAT_COUNT);
 }
 
-class LLChatHandler : public LLCommandHandler
+class LLChatCommandHandler : public LLCommandHandler
 {
 public:
 	// not allowed from outside the app
-	LLChatHandler() : LLCommandHandler("chat", UNTRUSTED_BLOCK) { }
+	LLChatCommandHandler() : LLCommandHandler("chat", UNTRUSTED_BLOCK) { }
 
     // Your code here
 	bool handle(const LLSD& tokens, const LLSD& query_map,
@@ -909,7 +909,7 @@ public:
 		{
 		S32 channel = tokens[0].asInteger();
 			// VWR-19499 Restrict function to chat channels greater than 0.
-			if ((channel > 0) && (channel < 2147483647))
+			if ((channel > 0) && (channel < CHAT_CHANNEL_DEBUG))
 			{
 				retval = true;
 		// Send unescaped message, see EXT-6353.
@@ -927,6 +927,6 @@ public:
 };
 
 // Creating the object registers with the dispatcher.
-LLChatHandler gChatHandler;
+LLChatCommandHandler gChatHandler;
 
 

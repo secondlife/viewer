@@ -244,6 +244,7 @@ set(viewer_SOURCE_FILES
     llfolderviewitem.cpp
     llfollowcam.cpp
     llfriendcard.cpp
+    llgesturelistener.cpp
     llgesturemgr.cpp
     llgiveinventory.cpp
     llglsandbox.cpp
@@ -321,6 +322,7 @@ set(viewer_SOURCE_FILES
     llnearbychat.cpp
     llnearbychatbar.cpp
     llnearbychathandler.cpp
+    llnearbychatbarlistener.cpp
     llnetmap.cpp
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
@@ -797,6 +799,7 @@ set(viewer_HEADER_FILES
     llfolderviewitem.h
     llfollowcam.h
     llfriendcard.h
+    llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
     llgroupactions.h
@@ -873,6 +876,7 @@ set(viewer_HEADER_FILES
     llnearbychat.h
     llnearbychatbar.h
     llnearbychathandler.h
+    llnearbychatbarlistener.h
     llnetmap.h
     llnotificationhandler.h
     llnotificationmanager.h
