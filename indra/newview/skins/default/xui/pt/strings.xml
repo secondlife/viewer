@@ -1466,8 +1466,8 @@
 	<string name="Unknown">
 		(Desconhecido)
 	</string>
-	<string name="SummaryForTheWeek" value="Resumo para esta semana, com início em"/>
-	<string name="NextStipendDay" value="Próximo dia de salário é"/>
+	<string name="SummaryForTheWeek" value="Resumo para esta semana, com início em "/>
+	<string name="NextStipendDay" value=". Próximo dia de salário é "/>
 	<string name="GroupIndividualShare" value="Grupo       Divisão individualI"/>
 	<string name="GroupColumn" value="Grupo"/>
 	<string name="Balance">

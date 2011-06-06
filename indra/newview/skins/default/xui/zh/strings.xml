@@ -1490,8 +1490,8 @@
 	<string name="Unknown">
 		（未知）
 	</string>
-	<string name="SummaryForTheWeek" value="Summary for this week, beginning on"/>
-	<string name="NextStipendDay" value="The next stipend day is"/>
+	<string name="SummaryForTheWeek" value="Summary for this week, beginning on "/>
+	<string name="NextStipendDay" value=". The next stipend day is "/>
 	<string name="GroupIndividualShare" value="Group       Individual Share"/>
 	<string name="GroupColumn" value="Group"/>
 	<string name="Balance">
