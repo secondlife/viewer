@@ -13,6 +13,7 @@
     <string name="title_edit">Edit Sky Preset</string>
     <string name="hint_new">Name your preset, adjust the controls to create it, and click "Save".</string>
     <string name="hint_edit">To edit your sky preset, adjust the controls and click "Save".</string>
+    <string name="combo_label">-Select a preset-</string>
 
     <text
      follows="top|left|right"
@@ -42,12 +43,13 @@
      left_pad="10"
      name="sky_preset_combo"
      top_delta="-5"
-     width="200">
-        <combo_box.item
-         label="-Select a preset-"
-         name="item0"
-         value="any" />
-        </combo_box>
+     width="200"/>
+    <line_editor
+     height="20"
+     left_delta="0"
+     name="sky_preset_name"
+     top_delta="0"
+     width="200" />
     <text
      follows="top|left|right"
      height="40"
@@ -61,7 +63,6 @@
     </text>
  <!--======== Controls panel ========-->
     <view_border
-     border="true"
      bevel_style="none"
      follows="top|left"
      height="225"
@@ -1003,7 +1004,7 @@
      label="Make this preset my new sky setting"
      layout="topleft"
      left="430"
-     name="new_water_preset_chb"
+     name="make_default_cb"
      top_pad="30"
      width="280"/>
     <button

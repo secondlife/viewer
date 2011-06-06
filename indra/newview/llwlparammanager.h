@@ -216,19 +216,6 @@ class LLWLParamManager : public LLSingleton<LLWLParamManager>
 {
 	LOG_CLASS(LLWLParamManager);
 public:
-	/// load a preset file
-	void loadPresets(const std::string & fileName);
-
-	/// save the preset file
-	// the implementation of this method was unmaintained and is commented out
-	// *NOTE test and sanity-check before uncommenting and using!
-	void savePresets(const std::string & fileName);
-
-	/// load an individual preset into the sky
-	void loadPreset(const LLWLParamKey key, bool propogate=true);
-
-	/// load an individual preset from a stream of XML
-	void loadPresetFromXML(const LLWLParamKey key, std::istream & presetXML);
 
 	/// save the parameter presets to file
 	void savePreset(const LLWLParamKey key);
@@ -281,18 +268,24 @@ public:
 	/// get a param set (preset) from the list
 	bool getParamSet(const LLWLParamKey& key, LLWLParamSet& param);
 
+	/// get a param set (preset) from the list
+	bool hasParamSet(const LLWLParamKey& key);
+
 	/// set the param in the list with a new param
 	bool setParamSet(const LLWLParamKey& key, LLWLParamSet& param);
 	
 	/// set the param in the list with a new param
 	bool setParamSet(const LLWLParamKey& key, LLSD const & param);
-	
+
 	/// gets rid of a parameter and any references to it
 	/// ignores "delete_from_disk" if the scope is not local
 	void removeParamSet(const LLWLParamKey& key, bool delete_from_disk);
 
 	/// clear parameter mapping of a given scope
 	void clearParamSetsOfScope(LLEnvKey::EScope scope);
+
+	/// @return true if the preset comes out of the box
+	bool isSystemPreset(const std::string& preset_name);
 
 	/// add all skies in LLSD using the given scope
 	void addAllSkies(LLEnvKey::EScope scope, const LLSD& preset_map);
@@ -306,6 +299,9 @@ public:
 
 	// returns all skies in map (intended to be called with output from a finalize)
 	static LLSD createSkyMap(std::map<LLWLParamKey, LLWLParamSet> map);
+
+	/// escape string in a way different from LLURI::escape()
+	static std::string escapeString(const std::string& str);
 
 	// helper variables
 	LLWLAnimator mAnimator;
@@ -362,6 +358,14 @@ public:
 	std::map<LLWLParamKey, LLWLParamSet> mParamList;
 	
 private:
+
+	void loadAllPresets();
+	void loadPresetsFromDir(const std::string& dir);
+	bool loadPreset(const std::string& path);
+
+	static std::string getSysDir();
+	static std::string getUserDir();
+
 	friend class LLSingleton<LLWLParamManager>;
 	/*virtual*/ void initSingleton();
 	LLWLParamManager();

@@ -265,167 +265,74 @@ void LLWLParamManager::refreshRegionPresets()
 	addAllSkies(LLEnvKey::SCOPE_REGION, LLEnvManagerNew::instance().getRegionSettings().getSkyMap());
 }
 
-void LLWLParamManager::loadPresets(const std::string& file_name)
+void LLWLParamManager::loadAllPresets()
 {
-	std::string path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", ""));
-	LL_INFOS2("AppInit", "Shaders") << "Loading Default WindLight settings from " << path_name << LL_ENDL;
-	
-	bool found = true;
-	LLDirIterator app_settings_iter(path_name, "*.xml");
-	while(found) 
-	{
-		std::string name;
-		found = app_settings_iter.next(name);
-		if(found)
-		{
-			name=name.erase(name.length()-4);
+	// First, load system (coming out of the box) sky presets.
+	loadPresetsFromDir(getSysDir());
 
-			// bugfix for SL-46920: preventing filenames that break stuff.
-			char * curl_str = curl_unescape(name.c_str(), name.size());
-			std::string unescaped_name(curl_str);
-			curl_free(curl_str);
-			curl_str = NULL;
-
-			LL_DEBUGS2("AppInit", "Shaders") << "name: " << name << LL_ENDL;
-			loadPreset(LLWLParamKey(unescaped_name, LLWLParamKey::SCOPE_LOCAL),FALSE);
-		}
-	}
-
-	// And repeat for user presets, note the user presets will modify any system presets already loaded
-
-	std::string path_name2(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", ""));
-	LL_INFOS2("AppInit", "Shaders") << "Loading User WindLight settings from " << path_name2 << LL_ENDL;
-	
-	found = true;
-	LLDirIterator user_settings_iter(path_name2, "*.xml");
-	while(found) 
-	{
-		std::string name;
-		found = user_settings_iter.next(name);
-		if(found)
-		{
-			name=name.erase(name.length()-4);
-
-			// bugfix for SL-46920: preventing filenames that break stuff.
-			char * curl_str = curl_unescape(name.c_str(), name.size());
-			std::string unescaped_name(curl_str);
-			curl_free(curl_str);
-			curl_str = NULL;
-
-			LL_DEBUGS2("AppInit", "Shaders") << "name: " << name << LL_ENDL;
-			loadPreset(LLWLParamKey(unescaped_name,LLWLParamKey::SCOPE_LOCAL),FALSE);
-		}
-	}
-
+	// Then load user presets. Note that user day presets will modify any system ones already loaded.
+	loadPresetsFromDir(getUserDir());
 }
 
-// untested and unmaintained!  sanity-check me before using
-/*
-void LLWLParamManager::savePresets(const std::string & fileName)
+void LLWLParamManager::loadPresetsFromDir(const std::string& dir)
 {
-	//Nobody currently calls me, but if they did, then its reasonable to write the data out to the user's folder
-	//and not over the RO system wide version.
+	LL_INFOS2("AppInit", "Shaders") << "Loading sky presets from " << dir << LL_ENDL;
 
-	LLSD paramsData(LLSD::emptyMap());
-	
-	std::string pathName(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", fileName));
-
-	for(std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = mParamList.begin();
-		mIt != mParamList.end();
-		++mIt) 
+	LLDirIterator dir_iter(dir, "*.xml");
+	while (1)
 	{
-		paramsData[mIt->first.name] = mIt->second.getAll();
-	}
-
-	llofstream presetsXML(pathName);
-
-	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
-
-	formatter->format(paramsData, presetsXML, LLSDFormatter::OPTIONS_PRETTY);
-
-	presetsXML.close();
-}
-*/
-
-void LLWLParamManager::loadPreset(const LLWLParamKey key, bool propagate)
-{
-	if(mParamList.find(key) == mParamList.end())			// key does not already exist in mapping
-	{
-		if(key.scope == LLWLParamKey::SCOPE_LOCAL)			// local scope, so try to load from file
+		std::string file;
+		if (!dir_iter.next(file))
 		{
-			// bugfix for SL-46920: preventing filenames that break stuff.
-			char * curl_str = curl_escape(key.name.c_str(), key.name.size());
-			std::string escaped_filename(curl_str);
-			curl_free(curl_str);
-			curl_str = NULL;
-
-			escaped_filename += ".xml";
-
-			std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", escaped_filename));
-			llinfos << "Loading WindLight sky setting from " << pathName << llendl;
-
-			llifstream presetsXML;
-			presetsXML.open(pathName.c_str());
-
-			// That failed, try loading from the users area instead.
-			if(!presetsXML)
-			{
-				pathName=gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", escaped_filename);
-				llinfos << "Loading User WindLight sky setting from " << pathName << llendl;
-				presetsXML.open(pathName.c_str());
-			}
-
-			if (presetsXML)
-			{
-				loadPresetFromXML(key, presetsXML);
-				presetsXML.close();
-			} 
-			else 
-			{
-				llwarns << "Could not load local WindLight sky setting " << key.toString() << llendl;
-				return;
-			}
+			break; // no more files
 		}
-		else
-		{
-			llwarns << "Attempted to load non-local WindLight sky settings " << key.toString() << "; not found in parameter mapping." << llendl;
-			return;
-		}		
-	}
 
-	if(propagate)
-	{
-		getParamSet(key, mCurParams);
-		propagateParameters();
+		std::string path = dir + file;
+		if (!loadPreset(path))
+		{
+			llwarns << "Error loading sky preset from " << path << llendl;
+		}
 	}
 }
 
-void LLWLParamManager::loadPresetFromXML(LLWLParamKey key, std::istream & presetsXML)
+bool LLWLParamManager::loadPreset(const std::string& path)
 {
-	LLSD paramsData(LLSD::emptyMap());
+	llifstream xml_file;
+	std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
+
+	xml_file.open(path.c_str());
+	if (!xml_file)
+	{
+		return false;
+	}
+
+	LL_DEBUGS2("AppInit", "Shaders") << "Loading sky " << name << LL_ENDL;
+
+	LLSD params_data;
 	LLPointer<LLSDParser> parser = new LLSDXMLParser();
+	parser->parse(xml_file, params_data, LLSDSerialize::SIZE_UNLIMITED);
+	xml_file.close();
 
-	parser->parse(presetsXML, paramsData, LLSDSerialize::SIZE_UNLIMITED);
+	LLWLParamKey key(name, LLEnvKey::SCOPE_LOCAL);
+	if (hasParamSet(key))
+	{
+		setParamSet(key, params_data);
+	}
+	else
+	{
+		addParamSet(key, params_data);
+	}
 
-	std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = mParamList.find(key);
-
-	if(mIt == mParamList.end()) addParamSet(key, paramsData);
-	else setParamSet(key, paramsData);
+	return true;
 }
 
 void LLWLParamManager::savePreset(LLWLParamKey key)
 {
-	// bugfix for SL-46920: preventing filenames that break stuff.
-	char * curl_str = curl_escape(key.name.c_str(), key.name.size());
-	std::string escaped_filename(curl_str);
-	curl_free(curl_str);
-	curl_str = NULL;
-
-	escaped_filename += ".xml";
+	llassert(key.scope == LLEnvKey::SCOPE_LOCAL && !key.name.empty());
 
 	// make an empty llsd
 	LLSD paramsData(LLSD::emptyMap());
-	std::string pathName(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", escaped_filename));
+	std::string pathName(getUserDir() + escapeString(key.name) + ".xml");
 
 	// fill it with LLSD windlight params
 	paramsData = mParamList[key].getAll();
@@ -718,6 +625,12 @@ bool LLWLParamManager::getParamSet(const LLWLParamKey& key, LLWLParamSet& param)
 	return false;
 }
 
+bool LLWLParamManager::hasParamSet(const LLWLParamKey& key)
+{
+	LLWLParamSet dummy;
+	return getParamSet(key, dummy);
+}
+
 bool LLWLParamManager::setParamSet(const LLWLParamKey& key, LLWLParamSet& param)
 {
 	llassert(!key.name.empty());
@@ -746,6 +659,15 @@ bool LLWLParamManager::setParamSet(const LLWLParamKey& key, const LLSD & param)
 
 void LLWLParamManager::removeParamSet(const LLWLParamKey& key, bool delete_from_disk)
 {
+	// *TODO: notify interested parties that a sky preset has been removed.
+
+	if (key.scope == LLEnvKey::SCOPE_REGION)
+	{
+		llwarns << "Removing region skies not supported" << llendl;
+		llassert(key.scope == LLEnvKey::SCOPE_LOCAL);
+		return;
+	}
+
 	// remove from param list
 	std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = mParamList.find(key);
 	if(mIt != mParamList.end()) 
@@ -759,30 +681,30 @@ void LLWLParamManager::removeParamSet(const LLWLParamKey& key, bool delete_from_
 
 	mDay.removeReferencesTo(key);
 
-	if(delete_from_disk && key.scope == LLWLParamKey::SCOPE_LOCAL)
+	if (delete_from_disk)
 	{
-		std::string path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", ""));
-		
-		// use full curl escaped name
-		char * curl_str = curl_escape(key.name.c_str(), key.name.size());
-		std::string escaped_name(curl_str);
-		curl_free(curl_str);
-		curl_str = NULL;
-		
+		std::string path_name(getUserDir());
+		std::string escaped_name = escapeString(key.name);
+
 		if(gDirUtilp->deleteFilesInDir(path_name, escaped_name + ".xml") < 1)
 		{
-			LL_WARNS("WindLight") << "Unable to delete key " << key.toString() << " from disk; not found." << LL_ENDL;
+			LL_WARNS("WindLight") << "Error removing sky preset " << key.name << " from disk" << LL_ENDL;
 		}
 	}
 }
 
+bool LLWLParamManager::isSystemPreset(const std::string& preset_name)
+{
+	// *TODO: file system access is excessive here.
+	return gDirUtilp->fileExists(getSysDir() + escapeString(preset_name) + ".xml");
+}
 
 // virtual static
 void LLWLParamManager::initSingleton()
 {
 	LL_DEBUGS("Windlight") << "Initializing sky" << LL_ENDL;
 
-	loadPresets(LLStringUtil::null);
+	loadAllPresets();
 
 	// load the day
 	std::string preferred_day = LLEnvManagerNew::instance().getDayCycleName();
@@ -812,4 +734,28 @@ void LLWLParamManager::initSingleton()
 	mAnimator.setTimeType(LLWLAnimator::TIME_LINDEN);
 
 	applyUserPrefs(false);
+}
+
+// static
+std::string LLWLParamManager::getSysDir()
+{
+	return gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", "");
+}
+
+// static
+std::string LLWLParamManager::getUserDir()
+{
+	return gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS , "windlight/skies", "");
+}
+
+// static
+std::string LLWLParamManager::escapeString(const std::string& str)
+{
+	// Don't use LLURI::escape() because it doesn't encode '-' characters
+	// which may break handling of some system presets like "A-12AM".
+	char* curl_str = curl_escape(str.c_str(), str.size());
+	std::string escaped_str(curl_str);
+	curl_free(curl_str);
+
+	return escaped_str;
 }

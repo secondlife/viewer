@@ -28,7 +28,16 @@
 #define LL_LLFLOATEREDITSKY_H
 
 #include "llfloater.h"
+#include "llwlparammanager.h"
 
+class LLButton;
+class LLCheckBoxCtrl;
+class LLComboBox;
+class LLLineEditor;
+
+/**
+ * Floater for creating or editing a sky preset.
+ */
 class LLFloaterEditSky : public LLFloater
 {
 	LOG_CLASS(LLFloaterEditSky);
@@ -38,8 +47,59 @@ public:
 
 	/*virtual*/	BOOL	postBuild();
 	/*virtual*/ void	onOpen(const LLSD& key);
+	/*virtual*/ void	onClose(bool app_quitting);
+	/*virtual*/ void	draw();
 
+private:
+	void initCallbacks(void);
+
+	//-- WL stuff begins ------------------------------------------------------
+
+	// general purpose callbacks for dealing with color controllers
+	void onColorControlRMoved(LLUICtrl* ctrl, void* userdata);
+	void onColorControlGMoved(LLUICtrl* ctrl, void* userdata);
+	void onColorControlBMoved(LLUICtrl* ctrl, void* userdata);
+	void onColorControlIMoved(LLUICtrl* ctrl, void* userdata);
+	void onFloatControlMoved(LLUICtrl* ctrl, void* userdata);
+
+	// lighting callbacks for glow
+	void onGlowRMoved(LLUICtrl* ctrl, void* userdata);
+	void onGlowBMoved(LLUICtrl* ctrl, void* userdata);
+
+	// lighting callbacks for sun
+	void onSunMoved(LLUICtrl* ctrl, void* userdata);
+
+	// for handling when the star slider is moved to adjust the alpha
+	void onStarAlphaMoved(LLUICtrl* ctrl);
+
+	// handle cloud scrolling
+	void onCloudScrollXMoved(LLUICtrl* ctrl);
+	void onCloudScrollYMoved(LLUICtrl* ctrl);
+	void onCloudScrollXToggled(LLUICtrl* ctrl);
+	void onCloudScrollYToggled(LLUICtrl* ctrl);
+
+	void syncControls(); /// sync up sliders with parameters
+
+	//-- WL stuff ends --------------------------------------------------------
+
+	bool isNewPreset() const;
+	void refreshSkyPresetsList();
+	void enableEditing(bool enable);
+	void saveRegionSky();
+	LLWLParamKey getSelectedSkyPreset();
+
+	void onSkyPresetNameEdited();
+	void onSkyPresetSelected();
+	bool onSaveAnswer(const LLSD& notification, const LLSD& response);
+	void onSaveConfirmed();
+
+	void onBtnSave();
 	void onBtnCancel();
+
+	LLLineEditor*	mSkyPresetNameEditor;
+	LLComboBox*		mSkyPresetCombo;
+	LLCheckBoxCtrl*	mMakeDefaultCheckBox;
+	LLButton*		mSaveButton;
 };
 
 #endif // LL_LLFLOATEREDITSKY_H

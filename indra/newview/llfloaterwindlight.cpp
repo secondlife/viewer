@@ -57,6 +57,8 @@
 
 #undef max
 
+// *TODO: Remove this class in favor of LLFloaterEditSky
+
 LLFloaterWindLight* LLFloaterWindLight::sWindLight = NULL;
 std::set<LLWLParamKey> LLFloaterWindLight::sDefaultPresets;
 LLEnvKey::EScope LLFloaterWindLight::sScope;
