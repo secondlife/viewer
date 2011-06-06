@@ -42,7 +42,7 @@
 		<panel name="camera_modes_list">
 			<panel_camera_item name="object_view">
 				<panel_camera_item.text name="object_view_text">
-					Vista de objeto
+					Vista objetiva
 				</panel_camera_item.text>
 			</panel_camera_item>
 			<panel_camera_item name="mouselook_view">
