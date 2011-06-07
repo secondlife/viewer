@@ -1716,4 +1716,16 @@ std::string LLViewerRegion::getDescription() const
     return stringize(*this);
 }
 
+bool LLViewerRegion::meshUploadEnabled() const
+{
+	return (mSimulatorFeatures.has("MeshUploadEnabled") &&
+		mSimulatorFeatures["MeshUploadEnabled"].asBoolean());
+}
+
+bool LLViewerRegion::meshRezEnabled() const
+{
+	return (mSimulatorFeatures.has("MeshRezEnabled") &&
+				mSimulatorFeatures["MeshRezEnabled"].asBoolean());
+}
+
 
