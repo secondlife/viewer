@@ -4,6 +4,7 @@
 
 	<!-- Locale Information -->
 	<string name="MicrosoftLocale">spanish</string>
+	<string name="MacLocale">es_ES.UTF-8</string>
 	<string name="DarwinLocale">es_ES.UTF-8</string>
 	<string name="LinuxLocale">es_ES.UTF-8</string>
 	
