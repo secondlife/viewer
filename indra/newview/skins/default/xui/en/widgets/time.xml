@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<time text_enabled_color="LabelTextColor"
+         text_disabled_color="LabelDisabledColor"
+         font="SansSerifSmall"
+         label_width="40" >
+  <time.up_button name="SpinCtrl Up"
+                     image_unselected="Stepper_Up_Off"
+                     image_selected="Stepper_Up_Press"
+                     tab_stop="false"
+                     follows="left|bottom" />
+  <time.down_button name="SpinCtrl Down"
+                       image_unselected="Stepper_Down_Off"
+                       image_selected="Stepper_Down_Press"
+                       tab_stop="false"
+                       follows="left|bottom" />
+</time>

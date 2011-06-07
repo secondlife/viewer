@@ -32,15 +32,19 @@
 #include <vector>
 #include "llwlparamset.h"
 #include "llwlanimator.h"
+#include "llwlparammanager.h"
 
 struct WLColorControl;
 struct WLFloatControl;
 
-/// convenience class for holding keys mapped to sliders
-struct LLWLSkyKey
+/// convenience class for holding keyframes mapped to sliders
+struct LLWLCycleSliderKey
 {
 public:
-	std::string presetName;
+	LLWLCycleSliderKey(LLWLParamKey kf, F32 t) : keyframe(kf), time(t) {}
+	LLWLCycleSliderKey() : keyframe(), time(0.f) {} // Don't use this default constructor
+	
+	LLWLParamKey keyframe;
 	F32 time;
 };
 
@@ -48,72 +52,79 @@ public:
 /// Menuing system for adjusting the atmospheric settings of the world.
 class LLFloaterDayCycle : public LLFloater
 {
+	LOG_CLASS(LLFloaterDayCycle);
 public:
-
-	LLFloaterDayCycle(const LLSD& key);
+	LLFloaterDayCycle(const LLSD &key);
 	virtual ~LLFloaterDayCycle();
-	/*virtual*/	BOOL	postBuild();
+	/*virtual*/ BOOL postBuild();
+
+	// map of sliders to parameters
+	static std::map<std::string, LLWLCycleSliderKey> sSliderToKey;
+
+	/// help button stuff
+	static void onClickHelp(void* data);
+	void initHelpBtn(const std::string& name, const std::string& xml_alert);
 
 	/// initialize all
 	void initCallbacks(void);
 
+	/// one and one instance only
+	static LLFloaterDayCycle* instance();
+
 	/// on time slider moved
-	void onTimeSliderMoved(LLUICtrl* ctrl);
+	static void onTimeSliderMoved(LLUICtrl* ctrl, void* userData);
 
 	/// what happens when you move the key frame
-	void onKeyTimeMoved(LLUICtrl* ctrl);
+	static void onKeyTimeMoved(LLUICtrl* ctrl, void* userData);
 
 	/// what happens when you change the key frame's time
-	void onKeyTimeChanged(LLUICtrl* ctrl);
+	static void onKeyTimeChanged(LLUICtrl* ctrl, void* userData);
 
 	/// if you change the combo box, change the frame
-	void onKeyPresetChanged(LLUICtrl* ctrl);
+	static void onKeyPresetChanged(LLUICtrl* ctrl, void* userData);
 	
-	/// run this when user says to run the sky animation
-	void onRunAnimSky(LLUICtrl* ctrl);
-
-	/// run this when user says to stop the sky animation
-	void onStopAnimSky(LLUICtrl* ctrl);
-
-	/// if you change the combo box, change the frame
-	void onTimeRateChanged(LLUICtrl* ctrl);
-
 	/// add a new key on slider
-	void onAddKey(LLUICtrl* ctrl);
+	static void onAddKey(void* userData);
 
 	/// delete any and all reference to a preset
-	void deletePreset(std::string& presetName);
+	void deletePreset(LLWLParamKey keyframe);
 
 	/// delete a key frame
-	void onDeleteKey(LLUICtrl* ctrl);
+	static void onDeleteKey(void* userData);
 
-	/// button to load day
-	void onLoadDayCycle(LLUICtrl* ctrl);
 
-	/// button to save day
-	void onSaveDayCycle(LLUICtrl* ctrl);
+	//// menu management
 
-	/// toggle for Linden time
-	void onUseLindenTime(LLUICtrl* ctrl);
+	/// show off our menu
+	static void show(LLEnvKey::EScope scope = LLEnvKey::SCOPE_LOCAL);
+
+	/// return if the menu exists or not
+	static bool isOpen();
+
+	/// stuff to do on exit
+	virtual void onClose(bool app_quitting);
 
 	/// sync up sliders with day cycle structure
-	void syncMenu();
+	static void syncMenu();
 
 	// 	makes sure key slider has what's in day cycle
-	void syncSliderTrack();
+	static void syncSliderTrack();
 
 	/// makes sure day cycle data structure has what's in menu
-	void syncTrack();
+	static void syncTrack();
+
+	/// refresh combox box from param manager
+	static void refreshPresetsFromParamManager();
 
 	/// add a slider to the track
-	void addSliderKey(F32 time, const std::string& presetName);
+	static void addSliderKey(F32 time, LLWLParamKey keyframe);
 
 private:
-
-	// map of sliders to parameters
-	static std::map<std::string, LLWLSkyKey> sSliderToKey;
-
+	static LLFloaterDayCycle* sDayCycle;	// one instance on the inside
 	static const F32 sHoursPerDay;
+	static LLEnvKey::EScope sScope;
+	static std::string sOriginalTitle;
+	static LLWLAnimator::ETime sPreviousTimeType;
 };
 
 

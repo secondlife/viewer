@@ -58,8 +58,6 @@
 
 #include "curl/curl.h"
 
-LLWaterParamManager * LLWaterParamManager::sInstance = NULL;
-
 LLWaterParamManager::LLWaterParamManager() :
 	mFogColor(22.f/255.f, 43.f/255.f, 54.f/255.f, 0.0f, 0.0f, "waterFogColor", "WaterFogColor"),
 	mFogDensity(4, "waterFogDensity", 2),
@@ -73,8 +71,6 @@ LLWaterParamManager::LLWaterParamManager() :
 	mWave1Dir(.5f, .5f, "wave1Dir"),
 	mWave2Dir(.5f, .5f, "wave2Dir"),
 	mDensitySliderValue(1.0f),
-	mPrevFogDensity(16.0f), // 2^4
-	mPrevFogColor(22.f/255.f, 43.f/255.f, 54.f/255.f, 0.0f),
 	mWaterFogKS(1.0f)
 {
 }
@@ -251,7 +247,7 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 {
 	if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
 	{
-		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLWLParamManager::instance()->getRotatedLightDir().mV);
+		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLWLParamManager::getInstance()->getRotatedLightDir().mV);
 		shader->uniform3fv("camPosLocal", 1, LLViewerCamera::getInstance()->getOrigin().mV);
 		shader->uniform4fv("waterFogColor", 1, LLDrawPoolWater::sWaterFogColor.mV);
 		shader->uniform4fv("waterPlane", 1, mWaterPlane.mV);
@@ -261,28 +257,73 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_WLPARAM("Update Windlight Params");
+static LLFastTimer::DeclareTimer FTM_UPDATE_WATERPARAM("Update Water Params");
+
+void LLWaterParamManager::applyUserPrefs(bool interpolate)
+{
+	LLSD target_water_params;
+
+	// Determine new water settings based on user prefs.
+
+	{
+		// Fall back to default water.
+		LLWaterParamSet default_water;
+		getParamSet("Default", default_water);
+		target_water_params = default_water.getAll();
+	}
+
+	if (LLEnvManagerNew::instance().getUseRegionSettings())
+	{
+		// *TODO: make sure whether region settings belong to the current region?
+		const LLSD& region_water_params = LLEnvManagerNew::instance().getRegionSettings().getWaterParams();
+		if (region_water_params.size() != 0) // region has no water settings
+		{
+			LL_DEBUGS("Windlight") << "Applying region water" << LL_ENDL;
+			target_water_params = region_water_params;
+		}
+		else
+		{
+			LL_DEBUGS("Windlight") << "Applying default water" << LL_ENDL;
+		}
+	}
+	else
+	{
+		std::string water = LLEnvManagerNew::instance().getWaterPresetName();
+		LL_DEBUGS("Windlight") << "Applying water preset [" << water << "]" << LL_ENDL;
+		LLWaterParamSet params;
+		if (!getParamSet(water, params))
+		{
+			llwarns << "No wayer preset named " << water << ", falling back to defaults" << llendl;
+			getParamSet("Default", params);
+
+			// *TODO: Fix user preferences accordingly.
+		}
+		target_water_params = params.getAll();
+	}
+
+	// Apply them with or without interpolation.
+	if (target_water_params.size() == 0)
+	{
+		llwarns << "Undefined target water params" << llendl;
+		return;
+	}
+
+	if (interpolate)
+	{
+		LLWLParamManager::getInstance()->mAnimator.startInterpolation(target_water_params);
+	}
+	else
+	{
+		LLWaterParamManager::getInstance()->mCurParams.setAll(target_water_params);
+	}
+}
 
 void LLWaterParamManager::update(LLViewerCamera * cam)
 {
-	LLFastTimer ftm(FTM_UPDATE_WLPARAM);
+	LLFastTimer ftm(FTM_UPDATE_WATERPARAM);
 	
 	// update the shaders and the menu
 	propagateParameters();
-	
-	// If water fog color has been changed, save it.
-	if (mPrevFogColor != mFogColor)
-	{
-		gSavedSettings.setColor4("WaterFogColor", mFogColor);
-		mPrevFogColor = mFogColor;
-	}
-
-	// If water fog density has been changed, save it.
-	if (mPrevFogDensity != mFogDensity)
-	{
-		gSavedSettings.setF32("WaterFogDensity", mFogDensity);
-		mPrevFogDensity = mFogDensity;
-	}
 	
 	// sync menus if they exist
 	LLFloaterWater* waterfloater = LLFloaterReg::findTypedInstance<LLFloaterWater>("env_water");
@@ -337,19 +378,6 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 			}
 		}
 	}
-}
-
-// static
-void LLWaterParamManager::initClass(void)
-{
-	instance();
-}
-
-// static
-void LLWaterParamManager::cleanupClass(void)
-{
-	delete sInstance;
-	sInstance = NULL;
 }
 
 bool LLWaterParamManager::addParamSet(const std::string& name, LLWaterParamSet& param)
@@ -458,34 +486,10 @@ F32 LLWaterParamManager::getFogDensity(void)
 	return fogDensity;
 }
 
-// static
-LLWaterParamManager * LLWaterParamManager::instance()
+// virtual static
+void LLWaterParamManager::initSingleton()
 {
-	if(NULL == sInstance)
-	{
-		sInstance = new LLWaterParamManager();
-
-		sInstance->loadAllPresets(LLStringUtil::null);
-
-		sInstance->getParamSet("Default", sInstance->mCurParams);
-		sInstance->initOverrides();
-	}
-
-	return sInstance;
-}
-
-void LLWaterParamManager::initOverrides()
-{
-	// Override fog color from the current preset with the saved setting.
-	LLColor4 fog_color_override = gSavedSettings.getColor4("WaterFogColor");
-	mFogColor = fog_color_override;
-	mPrevFogColor = fog_color_override;
-	mCurParams.set("waterFogColor", fog_color_override);
-
-	// Do the same with fog density.
-	F32 fog_density = gSavedSettings.getF32("WaterFogDensity");
-	mPrevFogDensity = fog_density;
-	mFogDensity = fog_density;
-	mCurParams.set("waterFogDensity", fog_density);
-	setDensitySliderValue(mFogDensity.mExp);
+	LL_DEBUGS("Windlight") << "Initializing water" << LL_ENDL;
+	loadAllPresets(LLStringUtil::null);
+	applyUserPrefs(false);
 }

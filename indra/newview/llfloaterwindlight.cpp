@@ -35,7 +35,6 @@
 #include "llsliderctrl.h"
 #include "llmultislider.h"
 #include "llmultisliderctrl.h"
-#include "llnotificationsutil.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
 #include "lluictrlfactory.h"
@@ -44,6 +43,7 @@
 #include "lllineeditor.h"
 #include "llfloaterdaycycle.h"
 #include "llboost.h"
+#include "llnotifications.h"
 
 #include "v4math.h"
 #include "llviewerdisplay.h"
@@ -54,157 +54,169 @@
 #include "llwlparamset.h"
 #include "llwlparammanager.h"
 #include "llpostprocess.h"
-#include "lltabcontainer.h"
-
 
 #undef max
 
-std::set<std::string> LLFloaterWindLight::sDefaultPresets;
+LLFloaterWindLight* LLFloaterWindLight::sWindLight = NULL;
+std::set<LLWLParamKey> LLFloaterWindLight::sDefaultPresets;
+LLEnvKey::EScope LLFloaterWindLight::sScope;
+std::string LLFloaterWindLight::sOriginalTitle;
 
 static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
 
-LLFloaterWindLight::LLFloaterWindLight(const LLSD& key)
-  : LLFloater(key)
-{
-}
-
-LLFloaterWindLight::~LLFloaterWindLight()
+LLFloaterWindLight::LLFloaterWindLight(const LLSD &key) : LLFloater(key)
 {
 }
 
 BOOL LLFloaterWindLight::postBuild()
 {
-	// add the list of presets
-	std::string def_days = getString("WLDefaultSkyNames");
-
-	// no editing or deleting of the blank string
-	sDefaultPresets.insert("");
-	boost_tokenizer tokens(def_days, boost::char_separator<char>(":"));
-	for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
-	{
-		std::string tok(*token_iter);
-		sDefaultPresets.insert(tok);
-	}
-
+	sWindLight = this;
+	sOriginalTitle = getTitle();
+	
 	// add the combo boxes
 	LLComboBox* comboBox = getChild<LLComboBox>("WLPresetsCombo");
 
 	if(comboBox != NULL) {
-
-		std::map<std::string, LLWLParamSet>::iterator mIt = 
-			LLWLParamManager::instance()->mParamList.begin();
-		for(; mIt != LLWLParamManager::instance()->mParamList.end(); mIt++) 
+		
+		std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = 
+			LLWLParamManager::getInstance()->mParamList.begin();
+		for(; mIt != LLWLParamManager::getInstance()->mParamList.end(); mIt++) 
 		{
-			comboBox->add(mIt->first);
+			const LLWLParamKey& key = mIt->first;
+			std::string item_title = key.name;
+			if (key.scope == LLEnvKey::SCOPE_REGION)
+			{
+				item_title += std::string(" (") + LLTrans::getString("Region") + std::string(")");
+			}
+			comboBox->add(item_title, key.toLLSD());
 		}
 
 		// entry for when we're in estate time
 		comboBox->add(LLStringUtil::null);
 
 		// set defaults on combo boxes
-		comboBox->selectByValue(LLSD("Default"));
+		LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
+		comboBox->selectByValue(env_mgr.getUseFixedSky() ? env_mgr.getSkyPresetName() : LLStringUtil::null);
 	}
+
+	// add the list of presets
+	std::string def_days = getString("WLDefaultSkyNames");
+
+	// no editing or deleting of the blank string
+	LLWLParamKey blank("", LLEnvKey::SCOPE_LOCAL);
+	sDefaultPresets.insert(blank);
+	boost_tokenizer tokens(def_days, boost::char_separator<char>(":"));
+	for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
+	{
+		std::string tok(*token_iter);
+		LLWLParamKey key(tok, LLEnvKey::SCOPE_LOCAL);
+		sDefaultPresets.insert(key);
+	}
+
 	// load it up
 	initCallbacks();
 
-	syncMenu();
-	
 	return TRUE;
 }
-void LLFloaterWindLight::initCallbacks(void) {
 
-	LLWLParamManager * param_mgr = LLWLParamManager::instance();
+LLFloaterWindLight::~LLFloaterWindLight()
+{
+}
+
+void LLFloaterWindLight::initCallbacks(void) 
+{
+	LLWLParamManager * param_mgr = LLWLParamManager::getInstance();
 
 	// blue horizon
-	getChild<LLUICtrl>("WLBlueHorizonR")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlRMoved, this, _1, &param_mgr->mBlueHorizon));
-	getChild<LLUICtrl>("WLBlueHorizonG")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlGMoved, this, _1, &param_mgr->mBlueHorizon));
-	getChild<LLUICtrl>("WLBlueHorizonB")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlBMoved, this, _1, &param_mgr->mBlueHorizon));
-	getChild<LLUICtrl>("WLBlueHorizonI")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlIMoved, this, _1, &param_mgr->mBlueHorizon));
+	childSetCommitCallback("WLBlueHorizonR", onColorControlRMoved, &param_mgr->mBlueHorizon);
+	childSetCommitCallback("WLBlueHorizonG", onColorControlGMoved, &param_mgr->mBlueHorizon);
+	childSetCommitCallback("WLBlueHorizonB", onColorControlBMoved, &param_mgr->mBlueHorizon);
+	childSetCommitCallback("WLBlueHorizonI", onColorControlIMoved, &param_mgr->mBlueHorizon);
 
 	// haze density, horizon, mult, and altitude
-	getChild<LLUICtrl>("WLHazeDensity")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlRMoved, this, _1, &param_mgr->mHazeDensity));
-	getChild<LLUICtrl>("WLHazeHorizon")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlRMoved, this, _1, &param_mgr->mHazeHorizon));
-	getChild<LLUICtrl>("WLDensityMult")->setCommitCallback(boost::bind(&LLFloaterWindLight::onFloatControlMoved, this, _1, &param_mgr->mDensityMult));
-	getChild<LLUICtrl>("WLMaxAltitude")->setCommitCallback(boost::bind(&LLFloaterWindLight::onFloatControlMoved, this, _1, &param_mgr->mMaxAlt));
+	childSetCommitCallback("WLHazeDensity", onColorControlRMoved, &param_mgr->mHazeDensity);
+	childSetCommitCallback("WLHazeHorizon", onColorControlRMoved, &param_mgr->mHazeHorizon);
+	childSetCommitCallback("WLDensityMult", onFloatControlMoved, &param_mgr->mDensityMult);
+	childSetCommitCallback("WLMaxAltitude", onFloatControlMoved, &param_mgr->mMaxAlt);
 
 	// blue density
-	getChild<LLUICtrl>("WLBlueDensityR")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlRMoved, this, _1, &param_mgr->mBlueDensity));
-	getChild<LLUICtrl>("WLBlueDensityG")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlGMoved, this, _1, &param_mgr->mBlueDensity));
-	getChild<LLUICtrl>("WLBlueDensityB")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlBMoved, this, _1, &param_mgr->mBlueDensity));
-	getChild<LLUICtrl>("WLBlueDensityI")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlIMoved, this, _1, &param_mgr->mBlueDensity));
+	childSetCommitCallback("WLBlueDensityR", onColorControlRMoved, &param_mgr->mBlueDensity);
+	childSetCommitCallback("WLBlueDensityG", onColorControlGMoved, &param_mgr->mBlueDensity);
+	childSetCommitCallback("WLBlueDensityB", onColorControlBMoved, &param_mgr->mBlueDensity);
+	childSetCommitCallback("WLBlueDensityI", onColorControlIMoved, &param_mgr->mBlueDensity);
 
 	// Lighting
 	
 	// sunlight
-	getChild<LLUICtrl>("WLSunlightR")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlRMoved, this, _1, &param_mgr->mSunlight));
-	getChild<LLUICtrl>("WLSunlightG")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlGMoved, this, _1, &param_mgr->mSunlight));
-	getChild<LLUICtrl>("WLSunlightB")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlBMoved, this, _1, &param_mgr->mSunlight));
-	getChild<LLUICtrl>("WLSunlightI")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlIMoved, this, _1, &param_mgr->mSunlight));
+	childSetCommitCallback("WLSunlightR", onColorControlRMoved, &param_mgr->mSunlight);
+	childSetCommitCallback("WLSunlightG", onColorControlGMoved, &param_mgr->mSunlight);
+	childSetCommitCallback("WLSunlightB", onColorControlBMoved, &param_mgr->mSunlight);
+	childSetCommitCallback("WLSunlightI", onColorControlIMoved, &param_mgr->mSunlight);
 
 	// glow
-	getChild<LLUICtrl>("WLGlowR")->setCommitCallback(boost::bind(&LLFloaterWindLight::onGlowRMoved, this, _1, &param_mgr->mGlow));
-	getChild<LLUICtrl>("WLGlowB")->setCommitCallback(boost::bind(&LLFloaterWindLight::onGlowBMoved, this, _1, &param_mgr->mGlow));
+	childSetCommitCallback("WLGlowR", onGlowRMoved, &param_mgr->mGlow);
+	childSetCommitCallback("WLGlowB", onGlowBMoved, &param_mgr->mGlow);
 
 	// ambient
-	getChild<LLUICtrl>("WLAmbientR")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlRMoved, this, _1, &param_mgr->mAmbient));
-	getChild<LLUICtrl>("WLAmbientG")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlGMoved, this, _1, &param_mgr->mAmbient));
-	getChild<LLUICtrl>("WLAmbientB")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlBMoved, this, _1, &param_mgr->mAmbient));
-	getChild<LLUICtrl>("WLAmbientI")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlIMoved, this, _1, &param_mgr->mAmbient));
+	childSetCommitCallback("WLAmbientR", onColorControlRMoved, &param_mgr->mAmbient);
+	childSetCommitCallback("WLAmbientG", onColorControlGMoved, &param_mgr->mAmbient);
+	childSetCommitCallback("WLAmbientB", onColorControlBMoved, &param_mgr->mAmbient);
+	childSetCommitCallback("WLAmbientI", onColorControlIMoved, &param_mgr->mAmbient);
 
 	// time of day
-	getChild<LLUICtrl>("WLSunAngle")->setCommitCallback(boost::bind(&LLFloaterWindLight::onSunMoved, this, _1, &param_mgr->mLightnorm));
-	getChild<LLUICtrl>("WLEastAngle")->setCommitCallback(boost::bind(&LLFloaterWindLight::onSunMoved, this, _1, &param_mgr->mLightnorm));
+	childSetCommitCallback("WLSunAngle", onSunMoved, &param_mgr->mLightnorm);
+	childSetCommitCallback("WLEastAngle", onSunMoved, &param_mgr->mLightnorm);
 
 	// Clouds
 
 	// Cloud Color
-	getChild<LLUICtrl>("WLCloudColorR")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlRMoved, this, _1, &param_mgr->mCloudColor));
-	getChild<LLUICtrl>("WLCloudColorG")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlGMoved, this, _1, &param_mgr->mCloudColor));
-	getChild<LLUICtrl>("WLCloudColorB")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlBMoved, this, _1, &param_mgr->mCloudColor));
-	getChild<LLUICtrl>("WLCloudColorI")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlIMoved, this, _1, &param_mgr->mCloudColor));
+	childSetCommitCallback("WLCloudColorR", onColorControlRMoved, &param_mgr->mCloudColor);
+	childSetCommitCallback("WLCloudColorG", onColorControlGMoved, &param_mgr->mCloudColor);
+	childSetCommitCallback("WLCloudColorB", onColorControlBMoved, &param_mgr->mCloudColor);
+	childSetCommitCallback("WLCloudColorI", onColorControlIMoved, &param_mgr->mCloudColor);
 
 	// Cloud
-	getChild<LLUICtrl>("WLCloudX")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlRMoved, this, _1, &param_mgr->mCloudMain));
-	getChild<LLUICtrl>("WLCloudY")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlGMoved, this, _1, &param_mgr->mCloudMain));
-	getChild<LLUICtrl>("WLCloudDensity")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlBMoved, this, _1, &param_mgr->mCloudMain));
+	childSetCommitCallback("WLCloudX", onColorControlRMoved, &param_mgr->mCloudMain);
+	childSetCommitCallback("WLCloudY", onColorControlGMoved, &param_mgr->mCloudMain);
+	childSetCommitCallback("WLCloudDensity", onColorControlBMoved, &param_mgr->mCloudMain);
 
 	// Cloud Detail
-	getChild<LLUICtrl>("WLCloudDetailX")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlRMoved, this, _1, &param_mgr->mCloudDetail));
-	getChild<LLUICtrl>("WLCloudDetailY")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlGMoved, this, _1, &param_mgr->mCloudDetail));
-	getChild<LLUICtrl>("WLCloudDetailDensity")->setCommitCallback(boost::bind(&LLFloaterWindLight::onColorControlBMoved, this, _1, &param_mgr->mCloudDetail));
+	childSetCommitCallback("WLCloudDetailX", onColorControlRMoved, &param_mgr->mCloudDetail);
+	childSetCommitCallback("WLCloudDetailY", onColorControlGMoved, &param_mgr->mCloudDetail);
+	childSetCommitCallback("WLCloudDetailDensity", onColorControlBMoved, &param_mgr->mCloudDetail);
 
 	// Cloud extras
-	getChild<LLUICtrl>("WLCloudCoverage")->setCommitCallback(boost::bind(&LLFloaterWindLight::onFloatControlMoved, this, _1, &param_mgr->mCloudCoverage));
-	getChild<LLUICtrl>("WLCloudScale")->setCommitCallback(boost::bind(&LLFloaterWindLight::onFloatControlMoved, this, _1, &param_mgr->mCloudScale));
-	getChild<LLUICtrl>("WLCloudLockX")->setCommitCallback(boost::bind(&LLFloaterWindLight::onCloudScrollXToggled, this, _1));
-	getChild<LLUICtrl>("WLCloudLockY")->setCommitCallback(boost::bind(&LLFloaterWindLight::onCloudScrollYToggled, this, _1));
-	getChild<LLUICtrl>("WLCloudScrollX")->setCommitCallback(boost::bind(&LLFloaterWindLight::onCloudScrollXMoved, this, _1));
-	getChild<LLUICtrl>("WLCloudScrollY")->setCommitCallback(boost::bind(&LLFloaterWindLight::onCloudScrollYMoved, this, _1));
-	getChild<LLUICtrl>("WLDistanceMult")->setCommitCallback(boost::bind(&LLFloaterWindLight::onFloatControlMoved, this, _1, &param_mgr->mDistanceMult));
-	getChild<LLUICtrl>("DrawClassicClouds")->setCommitCallback(boost::bind(LLSavedSettingsGlue::setBOOL, _1, "SkyUseClassicClouds"));
-
+	childSetCommitCallback("WLCloudCoverage", onFloatControlMoved, &param_mgr->mCloudCoverage);
+	childSetCommitCallback("WLCloudScale", onFloatControlMoved, &param_mgr->mCloudScale);
+	childSetCommitCallback("WLCloudLockX", onCloudScrollXToggled, NULL);
+	childSetCommitCallback("WLCloudLockY", onCloudScrollYToggled, NULL);
+	childSetCommitCallback("WLCloudScrollX", onCloudScrollXMoved, NULL);
+	childSetCommitCallback("WLCloudScrollY", onCloudScrollYMoved, NULL);
+	childSetCommitCallback("WLDistanceMult", onFloatControlMoved, &param_mgr->mDistanceMult);
+ 
 	// WL Top
-	getChild<LLUICtrl>("WLDayCycleMenuButton")->setCommitCallback(boost::bind(&LLFloaterWindLight::onOpenDayCycle, this));
+	childSetAction("WLDayCycleMenuButton", onOpenDayCycle, NULL);
 	// Load/save
 	LLComboBox* comboBox = getChild<LLComboBox>("WLPresetsCombo");
 
 	//childSetAction("WLLoadPreset", onLoadPreset, comboBox);
-	getChild<LLUICtrl>("WLNewPreset")->setCommitCallback(boost::bind(&LLFloaterWindLight::onNewPreset, this));
-	getChild<LLUICtrl>("WLSavePreset")->setCommitCallback(boost::bind(&LLFloaterWindLight::onSavePreset, this));
-	getChild<LLUICtrl>("WLDeletePreset")->setCommitCallback(boost::bind(&LLFloaterWindLight::onDeletePreset, this));
+	childSetAction("WLNewPreset", onNewPreset, comboBox);
+	childSetAction("WLSavePreset", onSavePreset, comboBox);
+	childSetAction("WLDeletePreset", onDeletePreset, comboBox);
 
-	comboBox->setCommitCallback(boost::bind(&LLFloaterWindLight::onChangePresetName, this, _1));
-
+	comboBox->setCommitCallback(boost::bind(&LLFloaterWindLight::onChangePresetName, _1));
 
 	// Dome
-	getChild<LLUICtrl>("WLGamma")->setCommitCallback(boost::bind(&LLFloaterWindLight::onFloatControlMoved, this, _1, &param_mgr->mWLGamma));
-	getChild<LLUICtrl>("WLStarAlpha")->setCommitCallback(boost::bind(&LLFloaterWindLight::onStarAlphaMoved, this, _1));
+	childSetCommitCallback("WLGamma", onFloatControlMoved, &param_mgr->mWLGamma);
+	childSetCommitCallback("WLStarAlpha", onStarAlphaMoved, NULL);
 }
 
 bool LLFloaterWindLight::newPromptCallback(const LLSD& notification, const LLSD& response)
 {
+	llassert(sWindLight);
 	std::string text = response["message"].asString();
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	LLWLParamKey newKey(text, LLEnvKey::SCOPE_LOCAL);
+	S32 option = LLNotification::getSelectedOption(notification, response);
 
 	if(text == "")
 	{
@@ -212,26 +224,29 @@ bool LLFloaterWindLight::newPromptCallback(const LLSD& notification, const LLSD&
 	}
 
 	if(option == 0) {
-		LLComboBox* comboBox = getChild<LLComboBox>("WLPresetsCombo");
+		LLComboBox* comboBox = sWindLight->getChild<LLComboBox>( 
+			"WLPresetsCombo");
 
-		LLFloaterDayCycle* day_cycle = LLFloaterReg::findTypedInstance<LLFloaterDayCycle>("env_day_cycle");
+		LLFloaterDayCycle* sDayCycle = NULL;
 		LLComboBox* keyCombo = NULL;
-		if(day_cycle) 
+		if(LLFloaterDayCycle::isOpen()) 
 		{
-			keyCombo = day_cycle->getChild<LLComboBox>("WLKeyPresets");
+			sDayCycle = LLFloaterDayCycle::instance();
+			keyCombo = sDayCycle->getChild<LLComboBox>( 
+				"WLKeyPresets");
 		}
 
 		// add the current parameters to the list
 		// see if it's there first
-		std::map<std::string, LLWLParamSet>::iterator mIt = 
-			LLWLParamManager::instance()->mParamList.find(text);
+		std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = 
+			LLWLParamManager::getInstance()->mParamList.find(newKey);
 
 		// if not there, add a new one
-		if(mIt == LLWLParamManager::instance()->mParamList.end()) 
+		if(mIt == LLWLParamManager::getInstance()->mParamList.end()) 
 		{
-			LLWLParamManager::instance()->addParamSet(text, 
-				LLWLParamManager::instance()->mCurParams);
-			comboBox->add(text);
+			LLWLParamManager::getInstance()->addParamSet(newKey, 
+				LLWLParamManager::getInstance()->mCurParams);
+			comboBox->add(newKey.toString(), newKey.toLLSD());
 			comboBox->sortByName();
 
 			// add a blank to the bottom
@@ -243,18 +258,18 @@ bool LLFloaterWindLight::newPromptCallback(const LLSD& notification, const LLSD&
 			comboBox->add(LLStringUtil::null);
 
 			comboBox->setSelectedByValue(text, true);
-			if(keyCombo) 
+			if(LLFloaterDayCycle::isOpen()) 
 			{
 				keyCombo->add(text);
 				keyCombo->sortByName();
 			}
-			LLWLParamManager::instance()->savePreset(text);
+			LLWLParamManager::getInstance()->savePreset(newKey);
 
 		// otherwise, send a message to the user
 		} 
 		else 
 		{
-			LLNotificationsUtil::add("ExistsSkyPresetAlert");
+			LLNotifications::instance().add("ExistsSkyPresetAlert", LLSD(), LLSD());
 		}
 	}
 	return false;
@@ -264,38 +279,38 @@ void LLFloaterWindLight::syncMenu()
 {
 	bool err;
 
-	LLWLParamManager * param_mgr = LLWLParamManager::instance();
+	LLWLParamManager * param_mgr = LLWLParamManager::getInstance();
 
 	LLWLParamSet& currentParams = param_mgr->mCurParams;
 	//std::map<std::string, LLVector4> & currentParams = param_mgr->mCurParams.mParamValues;
 
 	// blue horizon
 	param_mgr->mBlueHorizon = currentParams.getVector(param_mgr->mBlueHorizon.mName, err);
-	getChild<LLUICtrl>("WLBlueHorizonR")->setValue(param_mgr->mBlueHorizon.r / 2.0);
-	getChild<LLUICtrl>("WLBlueHorizonG")->setValue(param_mgr->mBlueHorizon.g / 2.0);
-	getChild<LLUICtrl>("WLBlueHorizonB")->setValue(param_mgr->mBlueHorizon.b / 2.0);
-	getChild<LLUICtrl>("WLBlueHorizonI")->setValue(
+	childSetValue("WLBlueHorizonR", param_mgr->mBlueHorizon.r / 2.0);
+	childSetValue("WLBlueHorizonG", param_mgr->mBlueHorizon.g / 2.0);
+	childSetValue("WLBlueHorizonB", param_mgr->mBlueHorizon.b / 2.0);
+	childSetValue("WLBlueHorizonI", 
 		std::max(param_mgr->mBlueHorizon.r / 2.0, 
 			std::max(param_mgr->mBlueHorizon.g / 2.0, 
 				param_mgr->mBlueHorizon.b / 2.0)));
 
 	// haze density, horizon, mult, and altitude
 	param_mgr->mHazeDensity = currentParams.getVector(param_mgr->mHazeDensity.mName, err);
-	getChild<LLUICtrl>("WLHazeDensity")->setValue(param_mgr->mHazeDensity.r);
+	childSetValue("WLHazeDensity", param_mgr->mHazeDensity.r);
 	param_mgr->mHazeHorizon = currentParams.getVector(param_mgr->mHazeHorizon.mName, err);
-	getChild<LLUICtrl>("WLHazeHorizon")->setValue(param_mgr->mHazeHorizon.r);
+	childSetValue("WLHazeHorizon", param_mgr->mHazeHorizon.r);
 	param_mgr->mDensityMult = currentParams.getVector(param_mgr->mDensityMult.mName, err);
-	getChild<LLUICtrl>("WLDensityMult")->setValue(param_mgr->mDensityMult.x * 
+	childSetValue("WLDensityMult", param_mgr->mDensityMult.x * 
 		param_mgr->mDensityMult.mult);
 	param_mgr->mMaxAlt = currentParams.getVector(param_mgr->mMaxAlt.mName, err);
-	getChild<LLUICtrl>("WLMaxAltitude")->setValue(param_mgr->mMaxAlt.x);
+	childSetValue("WLMaxAltitude", param_mgr->mMaxAlt.x);
 
 	// blue density
 	param_mgr->mBlueDensity = currentParams.getVector(param_mgr->mBlueDensity.mName, err);
-	getChild<LLUICtrl>("WLBlueDensityR")->setValue(param_mgr->mBlueDensity.r / 2.0);
-	getChild<LLUICtrl>("WLBlueDensityG")->setValue(param_mgr->mBlueDensity.g / 2.0);
-	getChild<LLUICtrl>("WLBlueDensityB")->setValue(param_mgr->mBlueDensity.b / 2.0);
-	getChild<LLUICtrl>("WLBlueDensityI")->setValue(
+	childSetValue("WLBlueDensityR", param_mgr->mBlueDensity.r / 2.0);
+	childSetValue("WLBlueDensityG", param_mgr->mBlueDensity.g / 2.0);
+	childSetValue("WLBlueDensityB", param_mgr->mBlueDensity.b / 2.0);
+	childSetValue("WLBlueDensityI", 
 		std::max(param_mgr->mBlueDensity.r / 2.0, 
 		std::max(param_mgr->mBlueDensity.g / 2.0, param_mgr->mBlueDensity.b / 2.0)));
 
@@ -303,107 +318,160 @@ void LLFloaterWindLight::syncMenu()
 	
 	// sunlight
 	param_mgr->mSunlight = currentParams.getVector(param_mgr->mSunlight.mName, err);
-	getChild<LLUICtrl>("WLSunlightR")->setValue(param_mgr->mSunlight.r / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLSunlightG")->setValue(param_mgr->mSunlight.g / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLSunlightB")->setValue(param_mgr->mSunlight.b / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLSunlightI")->setValue(
+	childSetValue("WLSunlightR", param_mgr->mSunlight.r / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLSunlightG", param_mgr->mSunlight.g / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLSunlightB", param_mgr->mSunlight.b / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLSunlightI", 
 		std::max(param_mgr->mSunlight.r / WL_SUN_AMBIENT_SLIDER_SCALE, 
 		std::max(param_mgr->mSunlight.g / WL_SUN_AMBIENT_SLIDER_SCALE, param_mgr->mSunlight.b / WL_SUN_AMBIENT_SLIDER_SCALE)));
 
 	// glow
 	param_mgr->mGlow = currentParams.getVector(param_mgr->mGlow.mName, err);
-	getChild<LLUICtrl>("WLGlowR")->setValue(2 - param_mgr->mGlow.r / 20.0f);
-	getChild<LLUICtrl>("WLGlowB")->setValue(-param_mgr->mGlow.b / 5.0f);
+	childSetValue("WLGlowR", 2 - param_mgr->mGlow.r / 20.0f);
+	childSetValue("WLGlowB", -param_mgr->mGlow.b / 5.0f);
 		
 	// ambient
 	param_mgr->mAmbient = currentParams.getVector(param_mgr->mAmbient.mName, err);
-	getChild<LLUICtrl>("WLAmbientR")->setValue(param_mgr->mAmbient.r / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLAmbientG")->setValue(param_mgr->mAmbient.g / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLAmbientB")->setValue(param_mgr->mAmbient.b / WL_SUN_AMBIENT_SLIDER_SCALE);
-	getChild<LLUICtrl>("WLAmbientI")->setValue(
+	childSetValue("WLAmbientR", param_mgr->mAmbient.r / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLAmbientG", param_mgr->mAmbient.g / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLAmbientB", param_mgr->mAmbient.b / WL_SUN_AMBIENT_SLIDER_SCALE);
+	childSetValue("WLAmbientI", 
 		std::max(param_mgr->mAmbient.r / WL_SUN_AMBIENT_SLIDER_SCALE, 
 		std::max(param_mgr->mAmbient.g / WL_SUN_AMBIENT_SLIDER_SCALE, param_mgr->mAmbient.b / WL_SUN_AMBIENT_SLIDER_SCALE)));		
 
-	getChild<LLUICtrl>("WLSunAngle")->setValue(param_mgr->mCurParams.getFloat("sun_angle",err) / F_TWO_PI);
-	getChild<LLUICtrl>("WLEastAngle")->setValue(param_mgr->mCurParams.getFloat("east_angle",err) / F_TWO_PI);
+	childSetValue("WLSunAngle", param_mgr->mCurParams.getFloat("sun_angle",err) / F_TWO_PI);
+	childSetValue("WLEastAngle", param_mgr->mCurParams.getFloat("east_angle",err) / F_TWO_PI);
 
 	// Clouds
 
 	// Cloud Color
 	param_mgr->mCloudColor = currentParams.getVector(param_mgr->mCloudColor.mName, err);
-	getChild<LLUICtrl>("WLCloudColorR")->setValue(param_mgr->mCloudColor.r);
-	getChild<LLUICtrl>("WLCloudColorG")->setValue(param_mgr->mCloudColor.g);
-	getChild<LLUICtrl>("WLCloudColorB")->setValue(param_mgr->mCloudColor.b);
-	getChild<LLUICtrl>("WLCloudColorI")->setValue(
+	childSetValue("WLCloudColorR", param_mgr->mCloudColor.r);
+	childSetValue("WLCloudColorG", param_mgr->mCloudColor.g);
+	childSetValue("WLCloudColorB", param_mgr->mCloudColor.b);
+	childSetValue("WLCloudColorI", 
 		std::max(param_mgr->mCloudColor.r, 
 		std::max(param_mgr->mCloudColor.g, param_mgr->mCloudColor.b)));
 
 	// Cloud
 	param_mgr->mCloudMain = currentParams.getVector(param_mgr->mCloudMain.mName, err);
-	getChild<LLUICtrl>("WLCloudX")->setValue(param_mgr->mCloudMain.r);
-	getChild<LLUICtrl>("WLCloudY")->setValue(param_mgr->mCloudMain.g);
-	getChild<LLUICtrl>("WLCloudDensity")->setValue(param_mgr->mCloudMain.b);
+	childSetValue("WLCloudX", param_mgr->mCloudMain.r);
+	childSetValue("WLCloudY", param_mgr->mCloudMain.g);
+	childSetValue("WLCloudDensity", param_mgr->mCloudMain.b);
 
 	// Cloud Detail
 	param_mgr->mCloudDetail = currentParams.getVector(param_mgr->mCloudDetail.mName, err);
-	getChild<LLUICtrl>("WLCloudDetailX")->setValue(param_mgr->mCloudDetail.r);
-	getChild<LLUICtrl>("WLCloudDetailY")->setValue(param_mgr->mCloudDetail.g);
-	getChild<LLUICtrl>("WLCloudDetailDensity")->setValue(param_mgr->mCloudDetail.b);
+	childSetValue("WLCloudDetailX", param_mgr->mCloudDetail.r);
+	childSetValue("WLCloudDetailY", param_mgr->mCloudDetail.g);
+	childSetValue("WLCloudDetailDensity", param_mgr->mCloudDetail.b);
 
 	// Cloud extras
 	param_mgr->mCloudCoverage = currentParams.getVector(param_mgr->mCloudCoverage.mName, err);
 	param_mgr->mCloudScale = currentParams.getVector(param_mgr->mCloudScale.mName, err);
-	getChild<LLUICtrl>("WLCloudCoverage")->setValue(param_mgr->mCloudCoverage.x);
-	getChild<LLUICtrl>("WLCloudScale")->setValue(param_mgr->mCloudScale.x);
+	childSetValue("WLCloudCoverage", param_mgr->mCloudCoverage.x);
+	childSetValue("WLCloudScale", param_mgr->mCloudScale.x);
 
 	// cloud scrolling
 	bool lockX = !param_mgr->mCurParams.getEnableCloudScrollX();
 	bool lockY = !param_mgr->mCurParams.getEnableCloudScrollY();
-	getChild<LLUICtrl>("WLCloudLockX")->setValue(lockX);
-	getChild<LLUICtrl>("WLCloudLockY")->setValue(lockY);
-	getChild<LLUICtrl>("DrawClassicClouds")->setValue(gSavedSettings.getBOOL("SkyUseClassicClouds"));
+	childSetValue("WLCloudLockX", lockX);
+	childSetValue("WLCloudLockY", lockY);
 	
 	// disable if locked, enable if not
 	if(lockX) 
 	{
-		getChildView("WLCloudScrollX")->setEnabled(FALSE);
+		childDisable("WLCloudScrollX");
 	} else {
-		getChildView("WLCloudScrollX")->setEnabled(TRUE);
+		childEnable("WLCloudScrollX");
 	}
 	if(lockY)
 	{
-		getChildView("WLCloudScrollY")->setEnabled(FALSE);
+		childDisable("WLCloudScrollY");
 	} else {
-		getChildView("WLCloudScrollY")->setEnabled(TRUE);
+		childEnable("WLCloudScrollY");
 	}
 
 	// *HACK cloud scrolling is off my an additive of 10
-	getChild<LLUICtrl>("WLCloudScrollX")->setValue(param_mgr->mCurParams.getCloudScrollX() - 10.0f);
-	getChild<LLUICtrl>("WLCloudScrollY")->setValue(param_mgr->mCurParams.getCloudScrollY() - 10.0f);
+	childSetValue("WLCloudScrollX", param_mgr->mCurParams.getCloudScrollX() - 10.0f);
+	childSetValue("WLCloudScrollY", param_mgr->mCurParams.getCloudScrollY() - 10.0f);
 
 	param_mgr->mDistanceMult = currentParams.getVector(param_mgr->mDistanceMult.mName, err);
-	getChild<LLUICtrl>("WLDistanceMult")->setValue(param_mgr->mDistanceMult.x);
+	childSetValue("WLDistanceMult", param_mgr->mDistanceMult.x);
 
 	// Tweak extras
 
 	param_mgr->mWLGamma = currentParams.getVector(param_mgr->mWLGamma.mName, err);
-	getChild<LLUICtrl>("WLGamma")->setValue(param_mgr->mWLGamma.x);
+	childSetValue("WLGamma", param_mgr->mWLGamma.x);
 
-	getChild<LLUICtrl>("WLStarAlpha")->setValue(param_mgr->mCurParams.getStarBrightness());
-
-	LLTabContainer* tab = getChild<LLTabContainer>("WindLight Tabs");
-	LLPanel* panel = getChild<LLPanel>("Scattering");
-
-	tab->enableTabButton(tab->getIndexForPanel(panel), gSavedSettings.getBOOL("RenderDeferredGI"));
+	childSetValue("WLStarAlpha", param_mgr->mCurParams.getStarBrightness());
 }
 
 
-// color control callbacks
-void LLFloaterWindLight::onColorControlRMoved(LLUICtrl* ctrl, WLColorControl* colorControl)
+// static
+LLFloaterWindLight* LLFloaterWindLight::instance()
 {
-	deactivateAnimator();
+	if (!sWindLight)
+	{
+		lldebugs << "Creating WL floater" << llendl;
+		sWindLight = LLFloaterReg::getTypedInstance<LLFloaterWindLight>("env_windlight");
+		llassert(sWindLight);
+	}
+	return sWindLight;
+}
+
+// static
+void LLFloaterWindLight::show(LLEnvKey::EScope scope)
+{
+	LLFloaterWindLight* windLight = instance();
+	if(scope != sScope && ((LLView*)windLight)->getVisible())
+	{
+		LLNotifications::instance().add("EnvOtherScopeAlreadyOpen", LLSD(), LLSD());
+		return;
+	}
+	sScope = scope;
+	std::string scope_str = "";
+	switch(sScope)
+	{
+		case LLEnvKey::SCOPE_LOCAL:
+			scope_str = LLTrans::getString("LocalSettings");
+			break;
+		case LLEnvKey::SCOPE_REGION:
+			scope_str = LLTrans::getString("RegionSettings");
+			break;
+	}
+	std::string title = sOriginalTitle + " (" + scope_str + ")";
+	windLight->setTitle(title);
+	windLight->syncMenu();
+
+	LLEnvManager::instance().startEditingScope(scope);
+
+	// comment in if you want the menu to rebuild each time
+	//LLUICtrlFactory::getInstance()->buildFloater(windLight, "floater_windlight_options.xml");
+	//windLight->initCallbacks();
+
+	windLight->openFloater();
+}
+
+bool LLFloaterWindLight::isOpen()
+{
+	return LLFloater::isShown(sWindLight);
+}
+
+// virtual
+void LLFloaterWindLight::onClose(bool app_quitting)
+{
+	lldebugs << "Destroying WL floater" << llendl;
+	sWindLight = NULL;
+}
+
+// color control callbacks
+void LLFloaterWindLight::onColorControlRMoved(LLUICtrl* ctrl, void* userData)
+{
+	llassert(sWindLight);
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
+	WLColorControl * colorControl = static_cast<WLColorControl *>(userData);
 
 	colorControl->r = sldrCtrl->getValueF32();
 	if(colorControl->isSunOrAmbientColor) {
@@ -421,24 +489,26 @@ void LLFloaterWindLight::onColorControlRMoved(LLUICtrl* ctrl, WLColorControl* co
 		name.append("I");
 		
 		if(colorControl->isSunOrAmbientColor) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->r / 3);
+			sWindLight->childSetValue(name, colorControl->r / 3);
 		} else if(colorControl->isBlueHorizonOrDensity) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->r / 2);
+			sWindLight->childSetValue(name, colorControl->r / 2);
 		} else {
-			getChild<LLUICtrl>(name)->setValue(colorControl->r);
+			sWindLight->childSetValue(name, colorControl->r);
 		}
 	}
 
-	colorControl->update(LLWLParamManager::instance()->mCurParams);
+	colorControl->update(LLWLParamManager::getInstance()->mCurParams);
 
-	LLWLParamManager::instance()->propagateParameters();
+	LLWLParamManager::getInstance()->propagateParameters();
 }
 
-void LLFloaterWindLight::onColorControlGMoved(LLUICtrl* ctrl, WLColorControl* colorControl)
+void LLFloaterWindLight::onColorControlGMoved(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	llassert(sWindLight);
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
+	WLColorControl * colorControl = static_cast<WLColorControl *>(userData);
 
 	colorControl->g = sldrCtrl->getValueF32();
 	if(colorControl->isSunOrAmbientColor) {
@@ -456,24 +526,25 @@ void LLFloaterWindLight::onColorControlGMoved(LLUICtrl* ctrl, WLColorControl* co
 		name.append("I");
 
 		if(colorControl->isSunOrAmbientColor) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->g / 3);
+			sWindLight->childSetValue(name, colorControl->g / 3);
 		} else if(colorControl->isBlueHorizonOrDensity) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->g / 2);
+			sWindLight->childSetValue(name, colorControl->g / 2);
 		} else {
-			getChild<LLUICtrl>(name)->setValue(colorControl->g);
+			sWindLight->childSetValue(name, colorControl->g);
 		}
 	}
 
-	colorControl->update(LLWLParamManager::instance()->mCurParams);
+	colorControl->update(LLWLParamManager::getInstance()->mCurParams);
 
-	LLWLParamManager::instance()->propagateParameters();
+	LLWLParamManager::getInstance()->propagateParameters();
 }
 
-void LLFloaterWindLight::onColorControlBMoved(LLUICtrl* ctrl, WLColorControl* colorControl)
+void LLFloaterWindLight::onColorControlBMoved(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
+	WLColorControl * colorControl = static_cast<WLColorControl *>(userData);
 
 	colorControl->b = sldrCtrl->getValueF32();
 	if(colorControl->isSunOrAmbientColor) {
@@ -491,24 +562,26 @@ void LLFloaterWindLight::onColorControlBMoved(LLUICtrl* ctrl, WLColorControl* co
 		name.append("I");
 
 		if(colorControl->isSunOrAmbientColor) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->b / 3);
+			sWindLight->childSetValue(name, colorControl->b / 3);
 		} else if(colorControl->isBlueHorizonOrDensity) {
-			getChild<LLUICtrl>(name)->setValue(colorControl->b / 2);
+			sWindLight->childSetValue(name, colorControl->b / 2);
 		} else {
-			getChild<LLUICtrl>(name)->setValue(colorControl->b);
+			sWindLight->childSetValue(name, colorControl->b);
 		}
 	}
 
-	colorControl->update(LLWLParamManager::instance()->mCurParams);
+	colorControl->update(LLWLParamManager::getInstance()->mCurParams);
 
-	LLWLParamManager::instance()->propagateParameters();
+	LLWLParamManager::getInstance()->propagateParameters();
 }
 
-void LLFloaterWindLight::onColorControlIMoved(LLUICtrl* ctrl, WLColorControl* colorControl)
+void LLFloaterWindLight::onColorControlIMoved(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	llassert(sWindLight);
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
+	WLColorControl * colorControl = static_cast<WLColorControl *>(userData);
 
 	colorControl->i = sldrCtrl->getValueF32();
 	
@@ -565,84 +638,101 @@ void LLFloaterWindLight::onColorControlIMoved(LLUICtrl* ctrl, WLColorControl* co
 		// divide sun color vals by three
 		if(colorControl->isSunOrAmbientColor) 
 		{
-			getChild<LLUICtrl>(rName)->setValue(colorControl->r/3);
-			getChild<LLUICtrl>(gName)->setValue(colorControl->g/3);
-			getChild<LLUICtrl>(bName)->setValue(colorControl->b/3);	
+			sWindLight->childSetValue(rName, colorControl->r/3);
+			sWindLight->childSetValue(gName, colorControl->g/3);
+			sWindLight->childSetValue(bName, colorControl->b/3);	
 		
 		} 
 		else if(colorControl->isBlueHorizonOrDensity) 
 		{
-			getChild<LLUICtrl>(rName)->setValue(colorControl->r/2);
-			getChild<LLUICtrl>(gName)->setValue(colorControl->g/2);
-			getChild<LLUICtrl>(bName)->setValue(colorControl->b/2);	
+			sWindLight->childSetValue(rName, colorControl->r/2);
+			sWindLight->childSetValue(gName, colorControl->g/2);
+			sWindLight->childSetValue(bName, colorControl->b/2);	
 		
 		} 
 		else 
 		{
 			// set the sliders to the new vals
-			getChild<LLUICtrl>(rName)->setValue(colorControl->r);
-			getChild<LLUICtrl>(gName)->setValue(colorControl->g);
-			getChild<LLUICtrl>(bName)->setValue(colorControl->b);
+			sWindLight->childSetValue(rName, colorControl->r);
+			sWindLight->childSetValue(gName, colorControl->g);
+			sWindLight->childSetValue(bName, colorControl->b);
 		}
 	}
 
 	// now update the current parameters and send them to shaders
-	colorControl->update(LLWLParamManager::instance()->mCurParams);
-	LLWLParamManager::instance()->propagateParameters();
+	colorControl->update(LLWLParamManager::getInstance()->mCurParams);
+	LLWLParamManager::getInstance()->propagateParameters();
 }
 
 /// GLOW SPECIFIC CODE
-void LLFloaterWindLight::onGlowRMoved(LLUICtrl* ctrl, WLColorControl* colorControl)
+void LLFloaterWindLight::onGlowRMoved(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
+	WLColorControl * colorControl = static_cast<WLColorControl *>(userData);
 
 	// scaled by 20
 	colorControl->r = (2 - sldrCtrl->getValueF32()) * 20;
 
-	colorControl->update(LLWLParamManager::instance()->mCurParams);
-	LLWLParamManager::instance()->propagateParameters();
+	colorControl->update(LLWLParamManager::getInstance()->mCurParams);
+	LLWLParamManager::getInstance()->propagateParameters();
 }
 
 /// \NOTE that we want NEGATIVE (-) B
-void LLFloaterWindLight::onGlowBMoved(LLUICtrl* ctrl, WLColorControl* colorControl)
+void LLFloaterWindLight::onGlowBMoved(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
+	WLColorControl * colorControl = static_cast<WLColorControl *>(userData);
 
 	/// \NOTE that we want NEGATIVE (-) B and NOT by 20 as 20 is too big
 	colorControl->b = -sldrCtrl->getValueF32() * 5;
 
-	colorControl->update(LLWLParamManager::instance()->mCurParams);
-	LLWLParamManager::instance()->propagateParameters();
+	colorControl->update(LLWLParamManager::getInstance()->mCurParams);
+	LLWLParamManager::getInstance()->propagateParameters();
 }
 
-void LLFloaterWindLight::onFloatControlMoved(LLUICtrl* ctrl, WLFloatControl* floatControl)
+void LLFloaterWindLight::onFloatControlMoved(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
+	WLFloatControl * floatControl = static_cast<WLFloatControl *>(userData);
 
 	floatControl->x = sldrCtrl->getValueF32() / floatControl->mult;
 
-	floatControl->update(LLWLParamManager::instance()->mCurParams);
-	LLWLParamManager::instance()->propagateParameters();
+	floatControl->update(LLWLParamManager::getInstance()->mCurParams);
+	LLWLParamManager::getInstance()->propagateParameters();
 }
+
+void LLFloaterWindLight::onBoolToggle(LLUICtrl* ctrl, void* userData)
+{
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
+
+	LLCheckBoxCtrl* cbCtrl = static_cast<LLCheckBoxCtrl*>(ctrl);
+
+	bool value = cbCtrl->get();
+	(*(static_cast<BOOL *>(userData))) = value;
+}
+
 
 // Lighting callbacks
 
 // time of day
-void LLFloaterWindLight::onSunMoved(LLUICtrl* ctrl, WLColorControl* colorControl)
+void LLFloaterWindLight::onSunMoved(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	llassert(sWindLight);
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
-	LLSliderCtrl* sunSldr = getChild<LLSliderCtrl>("WLSunAngle");
-	LLSliderCtrl* eastSldr = getChild<LLSliderCtrl>("WLEastAngle");
+	LLSliderCtrl* sunSldr = sWindLight->getChild<LLSliderCtrl>("WLSunAngle");
+	LLSliderCtrl* eastSldr = sWindLight->getChild<LLSliderCtrl>("WLEastAngle");
 
+	WLColorControl * colorControl = static_cast<WLColorControl *>(userData);
+	
 	// get the two angles
-	LLWLParamManager * param_mgr = LLWLParamManager::instance();
+	LLWLParamManager * param_mgr = LLWLParamManager::getInstance();
 
 	param_mgr->mCurParams.setSunAngle(F_TWO_PI * sunSldr->getValueF32());
 	param_mgr->mCurParams.setEastAngle(F_TWO_PI * eastSldr->getValueF32());
@@ -659,24 +749,36 @@ void LLFloaterWindLight::onSunMoved(LLUICtrl* ctrl, WLColorControl* colorControl
 	param_mgr->propagateParameters();
 }
 
-void LLFloaterWindLight::onStarAlphaMoved(LLUICtrl* ctrl)
+void LLFloaterWindLight::onFloatTweakMoved(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
+
+	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
+	F32 * tweak = static_cast<F32 *>(userData);
+
+	(*tweak) = sldrCtrl->getValueF32();
+	LLWLParamManager::getInstance()->propagateParameters();
+}
+
+void LLFloaterWindLight::onStarAlphaMoved(LLUICtrl* ctrl, void* userData)
+{
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
 
-	LLWLParamManager::instance()->mCurParams.setStarBrightness(sldrCtrl->getValueF32());
+	LLWLParamManager::getInstance()->mCurParams.setStarBrightness(sldrCtrl->getValueF32());
 }
 
-void LLFloaterWindLight::onNewPreset()
+void LLFloaterWindLight::onNewPreset(void* userData)
 {
-	LLNotificationsUtil::add("NewSkyPreset", LLSD(), LLSD(), boost::bind(&LLFloaterWindLight::newPromptCallback, this, _1, _2));
+	LLNotifications::instance().add("NewSkyPreset", LLSD(), LLSD(), newPromptCallback);
 }
 
-void LLFloaterWindLight::onSavePreset()
+void LLFloaterWindLight::onSavePreset(void* userData)
 {
+	llassert(sWindLight);
 	// get the name
-	LLComboBox* comboBox = getChild<LLComboBox>( 
+	LLComboBox* comboBox = sWindLight->getChild<LLComboBox>( 
 		"WLPresetsCombo");
 
 	// don't save the empty name
@@ -685,91 +787,113 @@ void LLFloaterWindLight::onSavePreset()
 		return;
 	}
 
-	// check to see if it's a default and shouldn't be overwritten
-	std::set<std::string>::iterator sIt = sDefaultPresets.find(
-		comboBox->getSelectedItemLabel());
-	if(sIt != sDefaultPresets.end() && !gSavedSettings.getBOOL("SkyEditPresets")) 
+	// If region scope, save immediately.
+	// We don't actually save to file in this case, but just update the preset
+	// so that the changes can be uploaded to server.
+	LLWLParamKey key(comboBox->getSelectedValue());
+	if (key.scope == LLEnvKey::SCOPE_REGION)
 	{
-		LLNotificationsUtil::add("WLNoEditDefault");
+		// *TODO: Eliminate code duplication.
+		LL_DEBUGS("Windlight") << "Saving region sky preset: " << key.name  << llendl;
+		LLWLParamManager * param_mgr = LLWLParamManager::getInstance();
+		param_mgr->mCurParams.mName = key.name;
+		param_mgr->setParamSet(key, param_mgr->mCurParams);
 		return;
 	}
 
-	LLWLParamManager::instance()->mCurParams.mName = 
+	// check to see if it's a default and shouldn't be overwritten
+	std::set<LLWLParamKey>::iterator sIt = sDefaultPresets.find(LLWLParamKey(key));
+	if(sIt != sDefaultPresets.end() && !gSavedSettings.getBOOL("SkyEditPresets")) 
+	{
+		LLNotifications::instance().add("WLNoEditDefault", LLSD(), LLSD());
+		return;
+	}
+
+	LLWLParamManager::getInstance()->mCurParams.mName = 
 		comboBox->getSelectedItemLabel();
 
-	LLNotificationsUtil::add("WLSavePresetAlert", LLSD(), LLSD(), boost::bind(&LLFloaterWindLight::saveAlertCallback, this, _1, _2));
+	LLNotifications::instance().add("WLSavePresetAlert", LLSD(), LLSD(), saveAlertCallback);
 }
 
 bool LLFloaterWindLight::saveAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	// if they choose save, do it.  Otherwise, don't do anything
 	if(option == 0) 
 	{
-		LLWLParamManager * param_mgr = LLWLParamManager::instance();
+		LLWLParamManager * param_mgr = LLWLParamManager::getInstance();
 
-		param_mgr->setParamSet(param_mgr->mCurParams.mName, param_mgr->mCurParams);
+		// we should only "save" local presets; those with other scopes should be "save as"
+		LLWLParamKey key(param_mgr->mCurParams.mName, LLEnvKey::SCOPE_LOCAL);
+
+		param_mgr->setParamSet(key, param_mgr->mCurParams);
 		
 		// comment this back in to save to file
-		param_mgr->savePreset(param_mgr->mCurParams.mName);
+		param_mgr->savePreset(key);
 	}
 	return false;
 }
 
-void LLFloaterWindLight::onDeletePreset()
+void LLFloaterWindLight::onDeletePreset(void* userData)
 {
-	LLComboBox* combo_box = getChild<LLComboBox>( 
+	llassert(sWindLight);
+	LLComboBox* combo_box = sWindLight->getChild<LLComboBox>( 
 		"WLPresetsCombo");
 
-	if(combo_box->getSelectedValue().asString() == "")
+	if(combo_box->getSelectedValue().isUndefined())
 	{
 		return;
 	}
 
 	LLSD args;
-	args["SKY"] = combo_box->getSelectedValue().asString();
-	LLNotificationsUtil::add("WLDeletePresetAlert", args, LLSD(), 
-									boost::bind(&LLFloaterWindLight::deleteAlertCallback, this, _1, _2));
+	args["SKY"] = combo_box->getSelectedValue()[0].asString();
+	LLNotifications::instance().add("WLDeletePresetAlert", args, LLSD(), 
+									boost::bind(&LLFloaterWindLight::deleteAlertCallback, sWindLight, _1, _2));
 }
 
 bool LLFloaterWindLight::deleteAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	S32 option = LLNotification::getSelectedOption(notification, response);
 
 	// if they choose delete, do it.  Otherwise, don't do anything
 	if(option == 0) 
 	{
-		LLComboBox* combo_box = getChild<LLComboBox>("WLPresetsCombo");
-		LLFloaterDayCycle* day_cycle = LLFloaterReg::findTypedInstance<LLFloaterDayCycle>("env_day_cycle");
+		LLComboBox* combo_box = getChild<LLComboBox>( 
+			"WLPresetsCombo");
+		LLFloaterDayCycle* day_cycle = NULL;
 		LLComboBox* key_combo = NULL;
+		LLMultiSliderCtrl* mult_sldr = NULL;
 
-		if (day_cycle) 
+		if(LLFloaterDayCycle::isOpen()) 
 		{
-			key_combo = day_cycle->getChild<LLComboBox>("WLKeyPresets");
+			day_cycle = LLFloaterDayCycle::instance();
+			key_combo = day_cycle->getChild<LLComboBox>( 
+				"WLKeyPresets");
+			mult_sldr = day_cycle->getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
 		}
 
-		std::string name(combo_box->getSelectedValue().asString());
+		LLWLParamKey key(combo_box->getSelectedValue());
 
 		// check to see if it's a default and shouldn't be deleted
-		std::set<std::string>::iterator sIt = sDefaultPresets.find(name);
+		std::set<LLWLParamKey>::iterator sIt = sDefaultPresets.find(key);
 		if(sIt != sDefaultPresets.end()) 
 		{
-			LLNotificationsUtil::add("WLNoEditDefault");
+			LLNotifications::instance().add("WLNoEditDefault", LLSD(), LLSD());
 			return false;
 		}
 
-		LLWLParamManager::instance()->removeParamSet(name, true);
+		LLWLParamManager::getInstance()->removeParamSet(key, true);
 		
 		// remove and choose another
 		S32 new_index = combo_box->getCurrentIndex();
 
-		combo_box->remove(name);
+		combo_box->remove(key.toString());
 		if(key_combo != NULL) 
 		{
-			key_combo->remove(name);
+			key_combo->remove(key.toString());
 
 			// remove from slider, as well
-			day_cycle->deletePreset(name);
+			day_cycle->deletePreset(key);
 		}
 
 		// pick the previously selected index after delete
@@ -789,51 +913,60 @@ bool LLFloaterWindLight::deleteAlertCallback(const LLSD& notification, const LLS
 
 void LLFloaterWindLight::onChangePresetName(LLUICtrl* ctrl)
 {
-	deactivateAnimator();
+	llassert(sWindLight);
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
-	std::string data = ctrl->getValue().asString();
-	if(!data.empty())
+	LLComboBox * combo_box = static_cast<LLComboBox*>(ctrl);
+	
+	if(combo_box->getSimple() == "")
 	{
-		LLWLParamManager::instance()->loadPreset( data);
-		syncMenu();
+		return;
 	}
+	
+#if 0
+	LLWLParamManager::getInstance()->loadPreset(LLWLParamKey(combo_box->getSelectedValue()));
+#else
+	LLEnvManagerNew::instance().setUseSkyPreset(LLWLParamKey(combo_box->getSelectedValue()).name);
+#endif
+	sWindLight->syncMenu();
 }
 
-void LLFloaterWindLight::onOpenDayCycle()
+void LLFloaterWindLight::onOpenDayCycle(void* userData)
 {
-	LLFloaterReg::showInstance("env_day_cycle");
+	LLFloaterDayCycle::show(sScope);
 }
 
 // Clouds
-void LLFloaterWindLight::onCloudScrollXMoved(LLUICtrl* ctrl)
+void LLFloaterWindLight::onCloudScrollXMoved(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
 	// *HACK  all cloud scrolling is off by an additive of 10. 
-	LLWLParamManager::instance()->mCurParams.setCloudScrollX(sldrCtrl->getValueF32() + 10.0f);
+	LLWLParamManager::getInstance()->mCurParams.setCloudScrollX(sldrCtrl->getValueF32() + 10.0f);
 }
 
-void LLFloaterWindLight::onCloudScrollYMoved(LLUICtrl* ctrl)
+void LLFloaterWindLight::onCloudScrollYMoved(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
 
 	// *HACK  all cloud scrolling is off by an additive of 10. 
-	LLWLParamManager::instance()->mCurParams.setCloudScrollY(sldrCtrl->getValueF32() + 10.0f);
+	LLWLParamManager::getInstance()->mCurParams.setCloudScrollY(sldrCtrl->getValueF32() + 10.0f);
 }
 
-void LLFloaterWindLight::onCloudScrollXToggled(LLUICtrl* ctrl)
+void LLFloaterWindLight::onCloudScrollXToggled(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	llassert(sWindLight);
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLCheckBoxCtrl* cbCtrl = static_cast<LLCheckBoxCtrl*>(ctrl);
 
 	bool lock = cbCtrl->get();
-	LLWLParamManager::instance()->mCurParams.setEnableCloudScrollX(!lock);
+	LLWLParamManager::getInstance()->mCurParams.setEnableCloudScrollX(!lock);
 
-	LLSliderCtrl* sldr = getChild<LLSliderCtrl>( 
+	LLSliderCtrl* sldr = sWindLight->getChild<LLSliderCtrl>( 
 		"WLCloudScrollX");
 
 	if(cbCtrl->get()) 
@@ -847,15 +980,16 @@ void LLFloaterWindLight::onCloudScrollXToggled(LLUICtrl* ctrl)
 
 }
 
-void LLFloaterWindLight::onCloudScrollYToggled(LLUICtrl* ctrl)
+void LLFloaterWindLight::onCloudScrollYToggled(LLUICtrl* ctrl, void* userData)
 {
-	deactivateAnimator();
+	llassert(sWindLight);
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLCheckBoxCtrl* cbCtrl = static_cast<LLCheckBoxCtrl*>(ctrl);
 	bool lock = cbCtrl->get();
-	LLWLParamManager::instance()->mCurParams.setEnableCloudScrollY(!lock);
+	LLWLParamManager::getInstance()->mCurParams.setEnableCloudScrollY(!lock);
 
-	LLSliderCtrl* sldr = getChild<LLSliderCtrl>( 
+	LLSliderCtrl* sldr = sWindLight->getChild<LLSliderCtrl>( 
 		"WLCloudScrollY");
 
 	if(cbCtrl->get()) 
@@ -866,10 +1000,4 @@ void LLFloaterWindLight::onCloudScrollYToggled(LLUICtrl* ctrl)
 	{
 		sldr->setEnabled(true);
 	}
-}
-
-void LLFloaterWindLight::deactivateAnimator()
-{
-	LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-	LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
 }

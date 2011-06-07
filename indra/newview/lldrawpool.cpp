@@ -35,7 +35,6 @@
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
-#include "lldrawpoolclouds.h"
 #include "lldrawpoolground.h"
 #include "lldrawpoolsimple.h"
 #include "lldrawpoolsky.h"

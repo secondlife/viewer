@@ -46,6 +46,7 @@ class LLInventoryItem;
 class LLCheckBoxCtrl;
 class LLComboBox;
 class LLNameListCtrl;
+class LLRadioGroup;
 class LLSliderCtrl;
 class LLSpinCtrl;
 class LLTextBox;
@@ -53,10 +54,16 @@ class LLVFS;
 
 class LLPanelRegionGeneralInfo;
 class LLPanelRegionDebugInfo;
-class LLPanelRegionTextureInfo;
 class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
+
+class LLEventTimer;
+class LLEnvironmentSettings;
+class LLWLParamManager;
+class LLWaterParamManager;
+class LLWLParamSet;
+class LLWaterParamSet;
 
 class LLFloaterRegionInfo : public LLFloater
 {
@@ -66,6 +73,8 @@ public:
 
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ BOOL postBuild();
+
+	/*virtual*/ void onClose(bool app_quitting);
 
 	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
 
@@ -79,6 +88,7 @@ public:
 
 	static LLPanelEstateInfo* getPanelEstate();
 	static LLPanelEstateCovenant* getPanelCovenant();
+	static LLPanelRegionTerrainInfo* getPanelRegionTerrain();
 
 	// from LLPanel
 	virtual void refresh();
@@ -96,6 +106,7 @@ private:
 	boost::signals2::connection mConsoleReplySignalConnection;;
 	
 protected:
+	void onTabSelected(const LLSD& param);
 	void refreshFromRegion(LLViewerRegion* region);
 
 	// member data
@@ -208,38 +219,28 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
-class LLPanelRegionTextureInfo : public LLPanelRegionInfo
-{
-public:
-	LLPanelRegionTextureInfo();
-	~LLPanelRegionTextureInfo() {}
-	
-	virtual bool refreshFromRegion(LLViewerRegion* region);
-	
-	// LLPanel && LLView
-	virtual BOOL postBuild();
-	
-protected:
-	virtual BOOL sendUpdate();
-	
-	static void onClickDump(void* data);
-	BOOL validateTextureSizes();
-};
-
-/////////////////////////////////////////////////////////////////////////////
-
 class LLPanelRegionTerrainInfo : public LLPanelRegionInfo
 {
+	LOG_CLASS(LLPanelRegionTerrainInfo);
+
 public:
-	LLPanelRegionTerrainInfo()
-		:	LLPanelRegionInfo() {}
+	LLPanelRegionTerrainInfo() : LLPanelRegionInfo() {}
 	~LLPanelRegionTerrainInfo() {}
-	// LLPanel
-	virtual BOOL postBuild();
 	
-	virtual bool refreshFromRegion(LLViewerRegion* region);
+	static LLPanelRegionTerrainInfo* instance();
+	virtual BOOL postBuild();												// LLPanel
+	static void onFloaterClose(bool app_quitting);
 	
-protected:
+	F32 getSunHour();
+	virtual bool refreshFromRegion(LLViewerRegion* region);					// refresh local settings from region update from simulator
+	void setEnvControls(bool available);									// Whether environment settings are available for this region
+
+	BOOL validateTextureSizes();
+
+	//static void onChangeAnything(LLUICtrl* ctrl, void* userData);			// callback for any change, to enable commit button
+	
+	static LLPanelRegionTerrainInfo* sPanelRegionTerrainInfo;				// static instance pointer for singleton
+
 	virtual BOOL sendUpdate();
 
 	void onChangeUseEstateTime();
@@ -250,6 +251,14 @@ protected:
 	static void onClickUploadRaw(void*);
 	static void onClickBakeTerrain(void*);
 	bool callbackBakeTerrain(const LLSD& notification, const LLSD& response);
+
+	static void onOpenAdvancedSky(void* userData);							// open the advanced sky settings menu
+	static void onOpenAdvancedWater(void* userData);						// open the advanced water settings menu
+	static void onUseEstateTime(void* userData);							// sync time with the server
+	static void onCommitRegionWL(void* userData);							// commit region information to server
+	static void onCancelRegionWL(void* userData);							// cancel changes to region
+	static void onSetRegionToDefaultWL(void* userData);						// revert region WL settings to default
+	static void onApplyCurrentWL(void* userData);							// apply current settings to region
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -337,7 +346,6 @@ public:
 	// If visible from mainland, allowed agent and allowed groups
 	// are ignored, so must disable UI.
 	void setAccessAllowedEnabled(bool enable_agent, bool enable_group, bool enable_ban);
-
 protected:
 	virtual BOOL sendUpdate();
 	// confirmation dialog callback
@@ -415,6 +423,64 @@ protected:
 	LLUUID					mCovenantID;
 	LLViewerTextEditor*		mEditor;
 	EAssetStatus			mAssetStatus;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+
+class LLPanelEnvironmentInfo : public LLPanelRegionInfo
+{
+	LOG_CLASS(LLPanelEnvironmentInfo);
+
+public:
+	LLPanelEnvironmentInfo();
+
+	// LLPanel
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
+
+	// LLView
+	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
+
+	// LLPanelRegionInfo
+	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region);
+
+private:
+	void refresh();
+	void setControlsEnabled(bool enabled);
+	void setApplyProgress(bool started);
+	void setDirty(bool dirty);
+
+	void populateWaterPresetsList();
+	void populateSkyPresetsList();
+	void populateDayCyclesList();
+
+	bool getSelectedWaterParams(LLSD& water_params);
+	bool getSelectedSkyParams(LLSD& sky_params, std::string& preset_name);
+	bool getSelectedDayCycleParams(LLSD& day_cycle, LLSD& sky_map, short& scope);
+
+	void onSwitchRegionSettings();
+	void onSwitchDayCycle();
+
+	void onSelectWaterPreset();
+	void onSelectSkyPreset();
+	void onSelectDayCycle();
+
+	void onBtnApply();
+	void onBtnCancel();
+
+	void onRegionSettingschange();
+	void onRegionSettingsApplied(bool ok);
+
+	void onDayCycleListChange();
+
+	bool			mEnableEditing;
+
+	LLRadioGroup*	mRegionSettingsRadioGroup;
+	LLRadioGroup*	mDayCycleSettingsRadioGroup;
+
+	LLComboBox*		mWaterPresetCombo;
+	LLComboBox*		mSkyPresetCombo;
+	LLComboBox*		mDayCyclePresetCombo;
 };
 
 #endif

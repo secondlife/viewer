@@ -2350,6 +2350,12 @@ Returns a string with the requested data about the region
 	<string name="GroupOwned">Group Owned</string>
 	<string name="Public">Public</string>
 
+	<!-- Environment settings -->
+	<string name="LocalSettings">Local Settings</string>
+	<string name="RegionSettings">Region Settings</string>
+	<string name="Local">Local</string>
+	<string name="Region">Region</string>
+
 	<!-- panel classified -->
 	<string name="ClassifiedClicksTxt">Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile</string>
 	<string name="ClassifiedUpdateAfterPublish">(will update after publish)</string>

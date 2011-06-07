@@ -957,8 +957,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			iter != idle_list.end(); iter++)
 		{
 			objectp = *iter;
-			if (objectp->getPCode() == LLViewerObject::LL_VO_CLOUDS ||
-				objectp->isAvatar())
+			if (objectp->isAvatar())
 			{
 				objectp->idleUpdate(agent, world, frame_time);
 			}

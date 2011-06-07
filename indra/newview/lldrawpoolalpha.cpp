@@ -357,7 +357,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 			bool draw_glow_for_this_partition = mVertexShaderLevel > 0 && // no shaders = no glow.
 				// All particle systems seem to come off the wire with texture entries which claim that they glow.  This is probably a bug in the data.  Suppress.
 				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_PARTICLE &&
-				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_CLOUD &&
 				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD_PARTICLE;
 
 			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];

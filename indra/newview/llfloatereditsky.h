@@ -1,10 +1,10 @@
 /** 
- * @file lldrawpoolclouds.h
- * @brief LLDrawPoolClouds class definition
+ * @file llfloatereditsky.h
+ * @brief Floater to create or edit a sky preset
  *
- * $LicenseInfo:firstyear=2006&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,31 +24,22 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLCLOUDS_H
-#define LL_LLDRAWPOOLCLOUDS_H
+#ifndef LL_LLFLOATEREDITSKY_H
+#define LL_LLFLOATEREDITSKY_H
 
-#include "lldrawpool.h"
+#include "llfloater.h"
 
-class LLDrawPoolClouds : public LLDrawPool
+class LLFloaterEditSky : public LLFloater
 {
+	LOG_CLASS(LLFloaterEditSky);
+
 public:
-	enum
-	{
-		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_NORMAL |
-							LLVertexBuffer::MAP_TEXCOORD0
-	};
+	LLFloaterEditSky(const LLSD &key);
 
-	BOOL addFace(LLFace* face);
-	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+	/*virtual*/	BOOL	postBuild();
+	/*virtual*/ void	onOpen(const LLSD& key);
 
-	LLDrawPoolClouds();
-
-	/*virtual*/ void prerender();
-	/*virtual*/ LLDrawPool *instancePool();
-	/*virtual*/ void enqueue(LLFace *face);
-	/*virtual*/ void beginRenderPass(S32 pass);
-	/*virtual*/ void render(S32 pass = 0);
+	void onBtnCancel();
 };
 
-#endif // LL_LLDRAWPOOLSKY_H
+#endif // LL_LLFLOATEREDITSKY_H
