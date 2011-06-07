@@ -89,21 +89,21 @@
                              width="308"
                              top="35"
                              bg_opaque_color="InventoryBackgroundColor"
-  background_visible="true"
-  background_opaque="true"
+                             background_visible="true"
+                             background_opaque="true"
                            >
                              <text
                                  type="string"
-		length="1"
-		follows="top|left|right"
-		font="SansSerifSmall"
+                                 length="1"
+                                 follows="top|left|right"
+                                 font="SansSerifSmall"
                                  use_ellipses="true"
                                  name="move_items_text"
-                               top="10"
-                               left="4"
-                               height="20"
-                               width="304"
-                               >Move items to your inventory to manage and use them.</text>
+                                 top="10"
+                                 left="4"
+                                 height="20"
+                                 width="304"
+                                 >Move items to your inventory to manage and use them.</text>
                              <inventory_panel
                                 bg_opaque_color="DkGray2"
                                 bg_alpha_color="DkGray2"
@@ -125,14 +125,14 @@
                  </panel>
              </layout_panel>
              <layout_panel
-  width="330"
-  auto_resize="true"
+                width="330"
+                auto_resize="true"
                 user_resize="false"
-   follows="bottom|left|right"
-  name="outbox_layout_panel"
-                 min_dim="35"
-                 max_dim="125"
-  height="35">
+                follows="bottom|left|right"
+                name="outbox_layout_panel"
+                min_dim="35"
+                max_dim="125"
+                height="35">
                  <panel
                       follows="all"
                       layout="topleft"
@@ -144,52 +144,57 @@
                       height="125"
                       width="310">
                      <button
-                         label="MARKETPLACE OUTBOX"
-                         is_toggle="true"
-                         name="outbox_btn"
-                      follows="top|left|right"
-                         image_unselected="MarketplaceBtn_Off"
-                            image_selected="MarketplaceBtn_Selected"
-                         height="35"
-                         tab_stop="false"
-                         width="308"
-                         halign="left"
-                         pad_left="35"
-                         top="0"
-                        left="0" />
-                    <button
-                        image_disabled="Sync_Disabled"
-                        image_disabled_selected="Sync_Disabled"
-                        image_unselected="Sync_Enabled"
-                        image_selected="Sync_Enabled"
-                        label=""
-                        is_toggle="false"
-                        name="outbox_sync_btn"
-                        follows="top|right"
-                        height="16"
+                        label="MARKETPLACE OUTBOX"
+                        is_toggle="true"
+                        name="outbox_btn"
+                        follows="top|left|right"
+                        image_unselected="MarketplaceBtn_Off"
+                        image_selected="MarketplaceBtn_Selected"
+                        height="35"
                         tab_stop="false"
-                        width="16"
-                        halign="center"
-                        top="10"
-                        left="-40"
-                        enabled="false" />
+                        width="308"
+                        halign="left"
+                        pad_left="35"
+                        top="0"
+                        left="0" />
+                     <button
+                         image_unselected="OutboxPush_Off"
+                         image_selected="OutboxPush_Selected"
+                         image_hover_selected="OutboxPush_Selected_Over"
+                         image_hover_unselected="OutboxPush_Over"
+                         image_disabled_selected="OutboxPush_Selected_Disabled"
+                         image_disabled="OutboxPush_Disabled"
+                         image_pressed="OutboxPush_Press"
+                         image_pressed_selected="OutboxPush_Selected_Press"
+                         label=""
+                         tool_tip="Push to my Marketplace Storefront"
+                         is_toggle="false"
+                         name="outbox_sync_btn"
+                         follows="top|right"
+                         tab_stop="false"
+                         halign="center"
+                         top="6"
+                         left="-50"
+                         height="23"
+                         width="32"
+                         enabled="false" />
                      <loading_indicator
                         follows="top|right"
                         name="outbox_sync_indicator"
-                        top="10"
-                        left="-40"
-                        height="16"
-                        width="16"
-                        images_per_sec="1.0"
+                        top="6"
+                        left="-50"
+                        height="23"
+                        width="32"
+                        images_per_sec="1.15"
                         tab_stop="false"
                         visible="false">
                          <images>
-                             <image name="Sync_Progress_1"/>
-                             <image name="Sync_Progress_2"/>
-                             <image name="Sync_Progress_3"/>
-                             <image name="Sync_Progress_4"/>
-                             <image name="Sync_Progress_5"/>
-                             <image name="Sync_Progress_6"/>
+                             <image name="OutboxPush_Progress_1"/>
+                             <image name="OutboxPush_Progress_2"/>
+                             <image name="OutboxPush_Progress_3"/>
+                             <image name="OutboxPush_Progress_4"/>
+                             <image name="OutboxPush_Progress_5"/>
+                             <image name="OutboxPush_Progress_6"/>
                          </images>
                      </loading_indicator>
                      <panel

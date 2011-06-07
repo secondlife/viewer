@@ -332,6 +332,23 @@ with the same filename but different name
   <texture name="OptionsMenu_Off" file_name="icons/OptionsMenu_Off.png" preload="false" />
   <texture name="OptionsMenu_Press" file_name="icons/OptionsMenu_Press.png" preload="false" />
 
+  <texture name="OutboxPush_Disabled" file_name="icons/OutboxPush_Disabled.png" preload="true" />
+  <texture name="OutboxPush_Off" file_name="icons/OutboxPush_Off.png" preload="true" />
+  <texture name="OutboxPush_On" file_name="icons/OutboxPush_On.png" preload="true" />
+  <texture name="OutboxPush_On_Over" file_name="icons/OutboxPush_On_Over.png" preload="true" />
+  <texture name="OutboxPush_Over" file_name="icons/OutboxPush_Over.png" preload="true" />
+  <texture name="OutboxPush_Press" file_name="icons/OutboxPush_Press.png" preload="true" />
+  <texture name="OutboxPush_Progress_1" file_name="icons/OutboxPush_Progress_1.png" preload="true" />
+  <texture name="OutboxPush_Progress_2" file_name="icons/OutboxPush_Progress_2.png" preload="true" />
+  <texture name="OutboxPush_Progress_3" file_name="icons/OutboxPush_Progress_3.png" preload="true" />
+  <texture name="OutboxPush_Progress_4" file_name="icons/OutboxPush_Progress_4.png" preload="true" />
+  <texture name="OutboxPush_Progress_5" file_name="icons/OutboxPush_Progress_5.png" preload="true" />
+  <texture name="OutboxPush_Progress_6" file_name="icons/OutboxPush_Progress_6.png" preload="true" />
+  <texture name="OutboxPush_Selected" file_name="icons/OutboxPush_Selected.png" preload="true" />
+  <texture name="OutboxPush_Selected_Disabled" file_name="icons/OutboxPush_Selected_Disabled.png" preload="true" />
+  <texture name="OutboxPush_Selected_Over" file_name="icons/OutboxPush_Selected_Over.png" preload="true" />
+  <texture name="OutboxPush_Selected_Press" file_name="icons/OutboxPush_Selected_Press.png" preload="true" />
+
   <texture name="PanOrbit_Off" file_name="bottomtray/PanOrbit_Off.png" preload="false" />
 
   <texture name="Parcel_Exp_Color" file_name="icons/Parcel_Exp_Color.png" preload="false" />
@@ -488,7 +505,7 @@ with the same filename but different name
   <texture name="Sync_Progress_5" file_name="icons/Sync_Progress_5.png" preload="true" />
   <texture name="Sync_Progress_6" file_name="icons/Sync_Progress_6.png" preload="true" />
 
-    <texture name="TabIcon_Appearance_Off" file_name="taskpanel/TabIcon_Appearance_Off.png" preload="false" />
+  <texture name="TabIcon_Appearance_Off" file_name="taskpanel/TabIcon_Appearance_Off.png" preload="false" />
   <texture name="TabIcon_Appearance_Selected" file_name="taskpanel/TabIcon_Appearance_Selected.png" preload="false" />
   <texture name="TabIcon_Close_Off" file_name="taskpanel/TabIcon_Close_Off.png" preload="false" />
   <texture name="TabIcon_Home_Off" file_name="taskpanel/TabIcon_Home_Off.png" preload="false" />

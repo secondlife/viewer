@@ -68,7 +68,17 @@ void LLPanelMarketplaceInbox::draw()
 
 	model->getDirectDescendentsOf(model->findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false), cats, items);
 
-	S32 item_count = cats->size() + items->size();
+	S32 item_count = 0;
+	
+	if (cats)
+	{
+		item_count += cats->size();
+	}
+
+	if (items)
+	{
+		item_count += items->size();
+	}
 
 	if (item_count)
 	{

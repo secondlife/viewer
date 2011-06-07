@@ -123,6 +123,7 @@ void LLPanelMarketplaceOutbox::updateSyncButtonStatus()
 		mSyncButton->setVisible(false);
 
 		mSyncIndicator->setVisible(true);
+		mSyncIndicator->reset();
 		mSyncIndicator->start();
 	}
 	else

@@ -31,32 +31,116 @@
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llbutton.h"
+#include "lldate.h"
 #include "llfirstuse.h"
+#include "llfoldertype.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
+#include "llinventoryobserver.h"
 #include "llinventorypanel.h"
+#include "lllayoutstack.h"
 #include "lloutfitobserver.h"
 #include "llpanelmaininventory.h"
+#include "llselectmgr.h"
 #include "llsidepaneliteminfo.h"
 #include "llsidepaneltaskinfo.h"
 #include "lltabcontainer.h"
-#include "llselectmgr.h"
 #include "llweb.h"
-#include "lllayoutstack.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
-LLSidepanelInventory::LLSidepanelInventory()
-	:	LLPanel(),
-		mItemPanel(NULL),
-		mPanelMainInventory(NULL)
-{
+//
+// Constants
+//
 
+static const char * const INBOX_EXPAND_TIME_SETTING = "LastInventoryInboxExpand";
+
+static const char * const INBOX_BUTTON_NAME = "inbox_btn";
+static const char * const OUTBOX_BUTTON_NAME = "outbox_btn";
+
+static const char * const INBOX_LAYOUT_PANEL_NAME = "inbox_layout_panel";
+static const char * const OUTBOX_LAYOUT_PANEL_NAME = "outbox_layout_panel";
+static const char * const MAIN_INVENTORY_LAYOUT_PANEL = "main_inventory_layout_panel";
+
+static const char * const INVENTORY_LAYOUT_STACK_NAME = "inventory_layout_stack";
+
+//
+// Helpers
+//
+
+class LLInboxOutboxInventoryAddedObserver : public LLInventoryAddedObserver
+{
+public:
+	LLInboxOutboxInventoryAddedObserver(LLSidepanelInventory * sidepanelInventory)
+		: LLInventoryAddedObserver()
+		, mSidepanelInventory(sidepanelInventory)
+	{}
+
+protected:
+	virtual void done()
+	{
+		uuid_vec_t::const_iterator it = mAdded.begin();
+		uuid_vec_t::const_iterator it_end = mAdded.end();
+		
+		for(; it != it_end; ++it)
+		{
+			LLInventoryObject* item = gInventory.getObject(*it);
+
+			// NOTE: This doesn't actually work because folder creation does not trigger this observer
+			if (item && item->getType() == LLAssetType::AT_CATEGORY)
+			{
+				// Check for FolderType FT_INBOX or FT_OUTBOX and report back to mSidepanelInventory
+				LLInventoryCategory * item_cat = static_cast<LLInventoryCategory *>(item);
+				LLFolderType::EType folderType = item_cat->getPreferredType();
+
+				if (folderType == LLFolderType::FT_INBOX)
+				{
+					mSidepanelInventory->enableInbox(true);
+				}
+				else if (folderType == LLFolderType::FT_OUTBOX)
+				{
+					mSidepanelInventory->enableOutbox(true);
+				}
+			}
+		}
+
+		mAdded.clear();
+	}
+
+private:
+	LLSidepanelInventory * mSidepanelInventory;
+};
+
+//
+// Implementation
+//
+
+LLSidepanelInventory::LLSidepanelInventory()
+	: LLPanel()
+	, mItemPanel(NULL)
+	, mPanelMainInventory(NULL)
+	, mInventoryFetched(false)
+	, mCategoriesObserver(NULL)
+	, mInboxOutboxAddedObserver(NULL)
+{
 	//buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
 
 LLSidepanelInventory::~LLSidepanelInventory()
 {
+	if (mInboxOutboxAddedObserver && gInventory.containsObserver(mInboxOutboxAddedObserver))
+	{
+		gInventory.removeObserver(mInboxOutboxAddedObserver);
+	}
+	delete mInboxOutboxAddedObserver;
+
+	if (mCategoriesObserver && gInventory.containsObserver(mCategoriesObserver))
+	{
+		gInventory.removeObserver(mCategoriesObserver);
+	}
+	delete mCategoriesObserver;
 }
 
 BOOL LLSidepanelInventory::postBuild()
@@ -122,31 +206,109 @@ BOOL LLSidepanelInventory::postBuild()
 
 	// Marketplace inbox/outbox setup
 	{
-		LLButton * inboxButton = getChild<LLButton>("inbox_btn");
-		LLButton * outboxButton = getChild<LLButton>("outbox_btn");
+		LLButton * inbox_button = getChild<LLButton>(INBOX_BUTTON_NAME);
+		LLButton * outbox_button = getChild<LLButton>(OUTBOX_BUTTON_NAME);
 
-		inboxButton->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
-		outboxButton->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleOutboxBtn, this));
+		LLLayoutStack* stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
 
-		LLLayoutStack* stack = getChild<LLLayoutStack>("inventory_layout_stack");
+		LLLayoutPanel * inbox_panel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
+		LLLayoutPanel * outbox_panel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
 
-		stack->collapsePanel(getChild<LLLayoutPanel>("inbox_layout_panel"), true);
-		stack->collapsePanel(getChild<LLLayoutPanel>("outbox_layout_panel"), true);
+		stack->collapsePanel(inbox_panel, true);
+		stack->collapsePanel(outbox_panel, true);
 
-		inboxButton->setToggleState(false);
-		outboxButton->setToggleState(false);
+		inbox_button->setToggleState(false);
+		outbox_button->setToggleState(false);
+
+		inbox_button->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
+		outbox_button->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleOutboxBtn, this));
+	
+		// TODO: Hide inbox/outbox panels until we determine the status of the feature
+		//inbox_panel->setVisible(false);
+		//outbox_panel->setVisible(false);
+
+		// Track added items
+		mInboxOutboxAddedObserver = new LLInboxOutboxInventoryAddedObserver(this);
+		gInventory.addObserver(mInboxOutboxAddedObserver);
+
+		// Track inbox and outbox folder changes
+		const bool do_not_create_folder = false;
+		const bool do_not_find_in_library = false;
+
+		const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, do_not_create_folder, do_not_find_in_library);
+		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, do_not_create_folder, do_not_find_in_library);
+
+		mCategoriesObserver = new LLInventoryCategoriesObserver();
+		gInventory.addObserver(mCategoriesObserver);
+
+		mCategoriesObserver->addCategory(inbox_id, boost::bind(&LLSidepanelInventory::onInboxChanged, this, inbox_id));
+		mCategoriesObserver->addCategory(outbox_id, boost::bind(&LLSidepanelInventory::onOutboxChanged, this, outbox_id));
 	}
 
 	return TRUE;
 }
 
+void LLSidepanelInventory::draw()
+{
+	if (!mInventoryFetched && LLInventoryModelBackgroundFetch::instance().isEverythingFetched())
+	{
+		mInventoryFetched = true;
+		
+		updateInboxOutboxPanels();
+	}
 
-void manageInboxOutboxPanels(LLLayoutStack * stack,
+	LLPanel::draw();
+}
+
+void LLSidepanelInventory::updateInboxOutboxPanels()
+{
+	// Iterate through gInventory looking for inbox and outbox
+	const bool do_not_create_folder = false;
+	const bool do_not_find_in_library = false;
+
+	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, do_not_create_folder, do_not_find_in_library);
+	const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, do_not_create_folder, do_not_find_in_library);
+
+	enableInbox(inbox_id.notNull());
+	enableOutbox(outbox_id.notNull());
+}
+
+void LLSidepanelInventory::enableInbox(bool enabled)
+{
+	getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME)->setVisible(enabled);
+}
+
+void LLSidepanelInventory::enableOutbox(bool enabled)
+{
+	getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME)->setVisible(enabled);
+}
+
+void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
+{
+	// Perhaps use this to track inbox changes?
+}
+
+void LLSidepanelInventory::onOutboxChanged(const LLUUID& outbox_id)
+{
+	// Perhaps use this to track outbox changes?
+}
+
+bool manageInboxOutboxPanels(LLLayoutStack * stack,
 							 LLButton * pressedButton, LLLayoutPanel * pressedPanel,
 							 LLButton * otherButton, LLLayoutPanel * otherPanel)
 {
 	bool expand = pressedButton->getToggleState();
 	bool otherExpanded = otherButton->getToggleState();
+
+	//
+	// NOTE: Ideally we could have two panel sizes stored for a collapsed and expanded minimum size.
+	//       For now, leave this code disabled because it creates some bad artifacts when expanding
+	//       and collapsing the inbox/outbox.
+	//
+	//S32 smallMinSize = (expand ? pressedPanel->getMinDim() : otherPanel->getMinDim());
+	//S32 pressedMinSize = (expand ? 2 * smallMinSize : smallMinSize);
+	//otherPanel->setMinDim(smallMinSize);
+	//pressedPanel->setMinDim(pressedMinSize);
 
 	if (expand && otherExpanded)
 	{
@@ -159,32 +321,45 @@ void manageInboxOutboxPanels(LLLayoutStack * stack,
 
 	stack->collapsePanel(pressedPanel, !expand);
 
-	// Enable user_resize on main inventory panel when at least one marketplace box is expanded
-	stack->setPanelUserResize("main_inventory_layout_panel", expand);
+	// Enable user_resize on main inventory panel only when a marketplace box is expanded
+	stack->setPanelUserResize(MAIN_INVENTORY_LAYOUT_PANEL, expand);
+
+	return expand;
 }
 
 void LLSidepanelInventory::onToggleInboxBtn()
 {
-	LLLayoutStack* stack = getChild<LLLayoutStack>("inventory_layout_stack");
-	LLButton* pressedButton = getChild<LLButton>("inbox_btn");
-	LLLayoutPanel* pressedPanel = getChild<LLLayoutPanel>("inbox_layout_panel");
-	LLButton* otherButton = getChild<LLButton>("outbox_btn");
-	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>("outbox_layout_panel");
+	LLLayoutStack* stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
+	LLButton* pressedButton = getChild<LLButton>(INBOX_BUTTON_NAME);
+	LLLayoutPanel* pressedPanel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
+	LLButton* otherButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
+	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
 
-	manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
+	bool inboxExpanded = manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
+
+	if (inboxExpanded)
+	{
+		// Save current time as a setting for future new-ness tests
+		gSavedSettings.setString(INBOX_EXPAND_TIME_SETTING, LLDate::now().asString());
+
+		// TODO: Hide inbox badge
+	}
+	else
+	{
+		// TODO: Show inbox badge
+	}
 }
 
 void LLSidepanelInventory::onToggleOutboxBtn()
 {
-	LLLayoutStack* stack = getChild<LLLayoutStack>("inventory_layout_stack");
-	LLButton* pressedButton = getChild<LLButton>("outbox_btn");
-	LLLayoutPanel* pressedPanel = getChild<LLLayoutPanel>("outbox_layout_panel");
-	LLButton* otherButton = getChild<LLButton>("inbox_btn");
-	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>("inbox_layout_panel");
+	LLLayoutStack* stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
+	LLButton* pressedButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
+	LLLayoutPanel* pressedPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
+	LLButton* otherButton = getChild<LLButton>(INBOX_BUTTON_NAME);
+	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
 
 	manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
 }
-
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {

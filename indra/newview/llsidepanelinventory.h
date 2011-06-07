@@ -30,6 +30,8 @@
 #include "llpanel.h"
 
 class LLFolderViewItem;
+class LLInboxOutboxInventoryAddedObserver;
+class LLInventoryCategoriesObserver;
 class LLInventoryItem;
 class LLInventoryPanel;
 class LLPanelMainInventory;
@@ -59,6 +61,12 @@ public:
 	void onToggleInboxBtn();
 	void onToggleOutboxBtn();
 
+	void updateInboxOutboxPanels();
+	void enableInbox(bool enabled);
+	void enableOutbox(bool enabled);
+
+	virtual void draw();
+
 protected:
 	// Tracks highlighted (selected) item in inventory panel.
 	LLInventoryItem *getSelectedItem();
@@ -69,6 +77,9 @@ protected:
 	void updateVerbs();
 
 	bool canWearSelected(); // check whether selected items can be worn
+
+	void onInboxChanged(const LLUUID& inbox_id);
+	void onOutboxChanged(const LLUUID& outbox_id);
 
 	//
 	// UI Elements
@@ -88,6 +99,7 @@ protected:
 	void 						onTeleportButtonClicked();
 	void 						onOverflowButtonClicked();
 	void 						onBackButtonClicked();
+
 private:
 	LLButton*					mInfoBtn;
 	LLButton*					mShareBtn;
@@ -97,6 +109,10 @@ private:
 	LLButton*					mOverflowBtn;
 	LLButton*					mShopBtn;
 
+	bool						mInventoryFetched;
+
+	LLInventoryCategoriesObserver* 			mCategoriesObserver;
+	LLInboxOutboxInventoryAddedObserver*	mInboxOutboxAddedObserver;
 };
 
 #endif //LL_LLSIDEPANELINVENTORY_H
