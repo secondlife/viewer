@@ -82,6 +82,7 @@ private:
 
 	//-- WL stuff ends --------------------------------------------------------
 
+	void reset(); /// reset the floater to its initial state
 	bool isNewPreset() const;
 	void refreshSkyPresetsList();
 	void enableEditing(bool enable);
@@ -97,6 +98,7 @@ private:
 	void onBtnCancel();
 
 	void onSkyPresetListChange();
+	void onRegionSettingsChange();
 
 	LLLineEditor*	mSkyPresetNameEditor;
 	LLComboBox*		mSkyPresetCombo;

@@ -88,18 +88,7 @@ void LLFloaterEditSky::onOpen(const LLSD& key)
 	mSkyPresetCombo->setVisible(!new_preset);
 	mSkyPresetNameEditor->setVisible(new_preset);
 
-	if (isNewPreset())
-	{
-		mSkyPresetNameEditor->setValue(LLSD());
-		mSaveButton->setEnabled(FALSE); // will be enabled as soon as users enters a name
-	}
-	else
-	{
-		refreshSkyPresetsList();
-
-		// Disable controls until a sky preset to edit is selected.
-		enableEditing(false);
-	}
+	reset();
 }
 
 // virtual
@@ -129,6 +118,7 @@ void LLFloaterEditSky::initCallbacks(void)
 	mSaveButton->setCommitCallback(boost::bind(&LLFloaterEditSky::onBtnSave, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterEditSky::onBtnCancel, this));
 
+	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLFloaterEditSky::onRegionSettingsChange, this));
 	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEditSky::onSkyPresetListChange, this));
 
 	//-------------------------------------------------------------------------
@@ -712,6 +702,22 @@ void LLFloaterEditSky::onCloudScrollYToggled(LLUICtrl* ctrl)
 
 //=================================================================================================
 
+void LLFloaterEditSky::reset()
+{
+	if (isNewPreset())
+	{
+		mSkyPresetNameEditor->setValue(LLSD());
+		mSaveButton->setEnabled(FALSE); // will be enabled as soon as users enters a name
+	}
+	else
+	{
+		refreshSkyPresetsList();
+
+		// Disable controls until a sky preset to edit is selected.
+		enableEditing(false);
+	}
+}
+
 bool LLFloaterEditSky::isNewPreset() const
 {
 	return mKey.asString() == "new";
@@ -919,6 +925,27 @@ void LLFloaterEditSky::onSkyPresetListChange()
 	{
 		// A new preset has been added.
 		// Refresh the presets list, though it may not make sense as the floater is about to be closed.
+		refreshSkyPresetsList();
+	}
+}
+
+void LLFloaterEditSky::onRegionSettingsChange()
+{
+	// If creating a new sky, don't bother.
+	if (isNewPreset())
+	{
+		return;
+	}
+
+	if (getSelectedSkyPreset().scope == LLEnvKey::SCOPE_REGION) // if editing a region sky
+	{
+		// reset the floater to its initial state
+		reset();
+
+		// *TODO: Notify user?
+	}
+	else // editing a local sky
+	{
 		refreshSkyPresetsList();
 	}
 }
