@@ -35,6 +35,7 @@
 #include "llvolumeoctree.h"
 #include "llviewercamera.h"
 #include "llface.h"
+#include "llfloatertools.h"
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llcamera.h"
@@ -4272,7 +4273,29 @@ public:
 			if (vobj)
 			{
 				LLVector3 intersection;
-				if (vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal))
+				bool skip_check = false;
+				if (vobj->isAvatar())
+				{
+					LLVOAvatar* avatar = (LLVOAvatar*) vobj;
+					if (avatar->isSelf() && LLFloater::isVisible(gFloaterTools))
+					{
+						LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal);
+						if (hit)
+						{
+							mEnd = intersection;
+							if (mIntersection)
+							{
+								*mIntersection = intersection;
+							}
+							
+							mHit = hit->mDrawable;
+							skip_check = true;
+						}
+
+					}
+				}
+
+				if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal))
 				{
 					mEnd = intersection;  // shorten ray so we only find CLOSER hits
 					if (mIntersection)

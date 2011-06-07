@@ -3365,7 +3365,8 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 	{
 		if (LLFloater::isVisible(gFloaterTools) && getAvatar()->isSelf())
 		{
-			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_RIGGED, TRUE);
+			updateRiggedVolume();
+			genBBoxes(FALSE);
 			volume = mRiggedVolume;
 			transform = false;
 		}
