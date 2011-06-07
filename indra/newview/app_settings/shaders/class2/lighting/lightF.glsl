@@ -5,16 +5,14 @@
  * $/LicenseInfo$
  */
  
-#version 120
 
-uniform sampler2D diffuseMap;
 
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
 
 void default_lighting() 
 {
-	vec4 color = texture2D(diffuseMap, gl_TexCoord[0].xy) * gl_Color;
+	vec4 color = diffuseLookup(gl_TexCoord[0].xy) * gl_Color;
 	
 	color.rgb = atmosLighting(color.rgb);
 

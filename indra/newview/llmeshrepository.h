@@ -152,7 +152,7 @@ public:
 		std::string mStatusMessage;
 		std::vector<LLModel::PhysicsMesh> mHullMesh;
 		LLModel::convex_hull_decomposition mHull;
-		
+			
 		//status message callback, called from decomposition thread
 		virtual S32 statusCallback(const char* status, S32 p1, S32 p2) = 0;
 
@@ -160,6 +160,14 @@ public:
 		virtual void completed() = 0;
 
 		virtual void setStatusMessage(const std::string& msg);
+
+	protected:
+		//internal use
+		LLVector3 mBBox[2] ;
+		F32 mTriangleAreaThreshold ;
+
+		void updateTriangleAreaThreshold() ;
+		bool isValidTriangle(U16 idx1, U16 idx2, U16 idx3) ;
 	};
 
 	LLCondition* mSignal;
@@ -467,7 +475,7 @@ public:
 	static S32 getActualMeshLOD(LLSD& header, S32 lod);
 	U32 calcResourceCost(LLSD& header);
 	U32 getResourceCost(const LLUUID& mesh_params);
-	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id);
+	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id, LLVOVolume* requesting_obj);
 	LLModel::Decomposition* getDecomposition(const LLUUID& mesh_id);
 	void fetchPhysicsShape(const LLUUID& mesh_id);
 	bool hasPhysicsShape(const LLUUID& mesh_id);
@@ -496,7 +504,8 @@ public:
 	std::vector<LLMeshRepoThread::LODRequest> mPendingRequests;
 	
 	//list of mesh ids awaiting skin info
-	std::set<LLUUID> mLoadingSkins;
+	typedef std::map<LLUUID, std::set<LLUUID> > skin_load_map;
+	skin_load_map mLoadingSkins;
 
 	//list of mesh ids that need to send skin info fetch requests
 	std::queue<LLUUID> mPendingSkinRequests;

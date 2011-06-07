@@ -613,11 +613,11 @@ void LLDrawPoolAvatar::beginRigid()
 	{
 		if (LLPipeline::sUnderWaterRender)
 		{
-			sVertexProgram = &gObjectSimpleWaterProgram;
+			sVertexProgram = &gObjectSimpleNonIndexedWaterProgram;
 		}
 		else
 		{
-			sVertexProgram = &gObjectSimpleProgram;
+			sVertexProgram = &gObjectSimpleNonIndexedProgram;
 		}
 		
 		if (sVertexProgram != NULL)
@@ -669,7 +669,7 @@ void LLDrawPoolAvatar::endDeferredImpostor()
 
 void LLDrawPoolAvatar::beginDeferredRigid()
 {
-	sVertexProgram = &gDeferredDiffuseProgram;
+	sVertexProgram = &gDeferredNonIndexedDiffuseProgram;
 				
 	sVertexProgram->bind();
 }
@@ -700,11 +700,11 @@ void LLDrawPoolAvatar::beginSkinned()
 	{
 		if (LLPipeline::sUnderWaterRender)
 		{
-			sVertexProgram = &gObjectSimpleWaterProgram;
+			sVertexProgram = &gObjectSimpleNonIndexedWaterProgram;
 		}
 		else
 		{
-			sVertexProgram = &gObjectSimpleProgram;
+			sVertexProgram = &gObjectSimpleNonIndexedProgram;
 		}
 	}
 	
@@ -789,11 +789,11 @@ void LLDrawPoolAvatar::beginRiggedSimple()
 	{
 		if (LLPipeline::sUnderWaterRender)
 		{
-			sVertexProgram = &gObjectSimpleWaterProgram;
+			sVertexProgram = &gObjectSimpleNonIndexedWaterProgram;
 		}
 		else
 		{
-			sVertexProgram = &gObjectSimpleProgram;
+			sVertexProgram = &gObjectSimpleNonIndexedProgram;
 		}
 	}
 
@@ -864,11 +864,11 @@ void LLDrawPoolAvatar::beginRiggedFullbright()
 	{
 		if (LLPipeline::sUnderWaterRender)
 		{
-			sVertexProgram = &gObjectFullbrightWaterProgram;
+			sVertexProgram = &gObjectFullbrightNonIndexedWaterProgram;
 		}
 		else
 		{
-			sVertexProgram = &gObjectFullbrightProgram;
+			sVertexProgram = &gObjectFullbrightNonIndexedProgram;
 		}
 	}
 
@@ -908,11 +908,11 @@ void LLDrawPoolAvatar::beginRiggedShinySimple()
 	{
 		if (LLPipeline::sUnderWaterRender)
 		{
-			sVertexProgram = &gObjectShinyWaterProgram;
+			sVertexProgram = &gObjectShinyNonIndexedWaterProgram;
 		}
 		else
 		{
-			sVertexProgram = &gObjectShinyProgram;
+			sVertexProgram = &gObjectShinyNonIndexedProgram;
 		}
 	}
 
@@ -953,11 +953,11 @@ void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 	{
 		if (LLPipeline::sUnderWaterRender)
 		{
-			sVertexProgram = &gObjectFullbrightShinyWaterProgram;
+			sVertexProgram = &gObjectFullbrightShinyNonIndexedWaterProgram;
 		}
 		else
 		{
-			sVertexProgram = &gObjectFullbrightShinyProgram;
+			sVertexProgram = &gObjectFullbrightShinyNonIndexedProgram;
 		}
 	}
 
@@ -1456,7 +1456,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			continue;
 		}
 
-		const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id);
+		const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id, vobj);
 		if (!skin)
 		{
 			continue;

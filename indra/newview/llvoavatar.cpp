@@ -4968,19 +4968,6 @@ void LLVOAvatar::resetSpecificJointPosition( const std::string& name )
 //-----------------------------------------------------------------------------
 void LLVOAvatar::resetJointPositionsToDefault( void )
 {
-	const LLVector3& avPos = getCharacterPosition();
-	
-	//Reposition the pelvis
-	LLJoint* pPelvis = mRoot.findJoint("mPelvis");
-	if ( pPelvis )
-	{
-		pPelvis->setPosition( avPos + pPelvis->getPosition() );
-	}
-	else 
-	{
-		llwarns<<"Can't get pelvis joint."<<llendl;	
-		return;
-	}
 
 	//Subsequent joints are relative to pelvis
 	for( S32 i = 0; i < (S32)mNumJoints; ++i )
@@ -4991,7 +4978,7 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 
 			pJoint->setId( LLUUID::null );
 			//restore joints to default positions, however skip over the pelvis
-			if ( pJoint && pPelvis != pJoint )
+			if ( pJoint )
 			{
 				pJoint->restoreOldXform();
 			}
@@ -6017,7 +6004,7 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
 		if ( pVObj )
 		{
-			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID() );
+			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
 			if ( pSkinData )
 			{
 				const int jointCnt = pSkinData->mJointNames.size();
@@ -6028,6 +6015,14 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 					if ( bindCnt > 0 )
 					{
 						LLVOAvatar::resetJointPositionsToDefault();
+						//Need to handle the repositioning of the cam, updating rig data etc during outfit editing 
+						//This handles the case where we detach a replacement rig.
+						if ( gAgentCamera.cameraCustomizeAvatar() )
+						{
+							gAgent.unpauseAnimation();
+							//Still want to refocus on head bone
+							gAgentCamera.changeCameraToCustomizeAvatar();
+						}
 					}
 				}
 			}				

@@ -1,4 +1,4 @@
-version 23
+version 24
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -411,31 +411,6 @@ list ATI_Radeon_X1700
 Disregard128DefaultDrawDistance	1	0
 list ATI_Mobility_Radeon_X1xxx
 Disregard128DefaultDrawDistance	1	0
-
-
-
-
-// Avatar hardware skinning causes
-// invisible avatars on HD 2600... so I masked
-// out other possible bad ones till it's fixed
-
-list ATI_Radeon_HD_2300
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_HD_2400
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_HD_2600
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_HD_2900
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_HD_3800
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
 
 /// Tweaked NVIDIA
 

@@ -592,8 +592,7 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
 
 	const bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
 		gAgent.getRegion() &&
-		!gAgent.getRegion()->getCapability("GetMesh").empty() &&
-		!gAgent.getRegion()->getCapability("ObjectAdd").empty();
+		!gAgent.getRegion()->getCapability("GetMesh").empty();
 	getChildView("mesh_rez_enabled_check")->setVisible(enable_mesh);
 	getChildView("mesh_rez_enabled_check")->setEnabled(getChildView("mesh_rez_enabled_check")->getEnabled() && enable_mesh);
 	// Data gets filled in by processRegionInfo

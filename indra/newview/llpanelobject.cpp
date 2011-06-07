@@ -1740,26 +1740,11 @@ void LLPanelObject::refresh()
 		mRootObject = NULL;
 	}
 	
-	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
-					   gAgent.getRegion() &&
-					   !gAgent.getRegion()->getCapability("GetMesh").empty() &&
-					   !gAgent.getRegion()->getCapability("ObjectAdd").empty();
-
 	F32 max_scale = get_default_max_prim_scale(LLPickInfo::isFlora(mObject));
 
 	getChild<LLSpinCtrl>("Scale X")->setMaxValue(max_scale);
 	getChild<LLSpinCtrl>("Scale Y")->setMaxValue(max_scale);
 	getChild<LLSpinCtrl>("Scale Z")->setMaxValue(max_scale);
-
-	BOOL found = mCtrlSculptType->itemExists("Mesh");
-	if (enable_mesh && !found)
-	{
-		mCtrlSculptType->add("Mesh");
-	}
-	else if (!enable_mesh && found)
-	{
-		mCtrlSculptType->remove("Mesh");
-	}
 }
 
 

@@ -7102,7 +7102,76 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>RenderAnisotropic</key>
+
+  <key>OctreeMaxNodeCapacity</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum number of elements to store in a single octree node</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>128</integer>
+  </map>
+
+  <key>OctreeStaticObjectSizeFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier on static object size for determining octree node size </string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>4</integer>
+  </map>
+
+  <key>OctreeAlphaDistanceFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier on alpha object distance for determining octree node size </string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>0.1</real>
+      <real>0.0</real>
+      <real>0.0</real>
+    </array>
+  </map>
+
+  <key>OctreeAttachmentSizeFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier on attachment size for determining octree node size </string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>4</integer>
+  </map>
+
+  <key>OctreeDistanceFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier on distance for determining octree node size </string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>0.01</real>
+      <real>0.0</real>
+      <real>0.0</real>
+    </array>
+  </map>
+
+  <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
       <string>Render textures using anisotropic filtering</string>
@@ -7199,7 +7268,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>1.0</integer>
+      <real>1.0</real>
     </map>
     <key>RenderAvatarVP</key>
     <map>
@@ -7455,6 +7524,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>RenderMaxTextureIndex</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum texture index to use for indexed texture rendering.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>6</integer>
+  </map>
     <key>RenderDebugTextureBind</key>
     <map>
       <key>Comment</key>
@@ -8600,7 +8680,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>8192</integer>
+    <integer>65536</integer>
   </map>
     <key>RenderMaxVBOSize</key>
     <map>
@@ -8953,7 +9033,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
   <key>RenderUseStreamVBO</key>
   <map>

@@ -199,6 +199,8 @@ protected:
 	static void		onUploadJointsCommit(LLUICtrl*,void*);
 	static void		onUploadSkinCommit(LLUICtrl*,void*);
 	
+	static void		onPhysicsLoadRadioCommit(LLUICtrl*,void *data);
+
 	static void		onPreviewLODCommit(LLUICtrl*,void*);
 	
 	static void		onGenerateNormalsCommit(LLUICtrl*,void*);

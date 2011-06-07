@@ -1894,7 +1894,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	//
 	//
 
-	// WTF?   If we're going to skip this message, why are we 
+	// If we're going to skip this message, why are we 
 	// doing all the parenting, etc above?
 	U32 packet_id = mesgsys->getCurrentRecvPacketID(); 
 	if (packet_id < mLatestRecvPacketID && 

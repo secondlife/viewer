@@ -106,6 +106,7 @@ public:
 		Decomposition(LLSD& data);
 		void fromLLSD(LLSD& data);
 		LLSD asLLSD() const;
+		bool hasHullList() const;
 
 		void merge(const Decomposition* rhs);
 

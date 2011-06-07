@@ -1480,6 +1480,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 
 	LLSD capabilityNames = LLSD::emptyArray();
 	
+	capabilityNames.append("AccountingParcel");
+	capabilityNames.append("AccountingSelection");
 	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("AvatarPickerSearch");
 	capabilityNames.append("ChatSessionRequest");
@@ -1508,6 +1510,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("LandResources");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
+	capabilityNames.append("NewAccountingEnabled");
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("NewFileAgentInventoryVariablePrice");
 	capabilityNames.append("ObjectAdd");
