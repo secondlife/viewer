@@ -457,24 +457,6 @@ LLWLParamKey LLFloaterEditDayCycle::getSelectedDayCycle()
 	return dc_key;
 }
 
-void LLFloaterEditDayCycle::deletePreset(LLWLParamKey keyframe)
-{
-	// *TODO: This should be called when a sky preset gets deleted.
-
-	/// delete any reference
-	std::map<std::string, SliderKey>::iterator curr_preset, next_preset;
-	for (curr_preset = mSliderToKey.begin(); curr_preset != mSliderToKey.end(); curr_preset = next_preset)
-	{
-		next_preset = curr_preset;
-		++next_preset;
-		if (curr_preset->second.keyframe == keyframe)
-		{
-			mKeysSlider->deleteSlider(curr_preset->first);
-			mSliderToKey.erase(curr_preset);
-		}
-	}
-}
-
 bool LLFloaterEditDayCycle::isNewDay() const
 {
 	return mKey.asString() == "new";

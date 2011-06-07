@@ -74,7 +74,6 @@ private:
 
 	void initCallbacks();
 	LLWLParamKey getSelectedDayCycle();
-	void deletePreset(LLWLParamKey keyframe);
 	bool isNewDay() const;
 	void dumpTrack();
 	void enableEditing(bool enable);
