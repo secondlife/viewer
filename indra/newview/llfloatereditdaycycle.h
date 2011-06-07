@@ -37,8 +37,9 @@ class LLLineEditor;
 class LLMultiSliderCtrl;
 class LLTimeCtrl;
 
-/// Menu for all of windlight's functionality.
-/// Menuing system for adjusting the atmospheric settings of the world.
+/**
+ * Floater for creating or editing a day cycle.
+ */
 class LLFloaterEditDayCycle : public LLFloater
 {
 	LOG_CLASS(LLFloaterEditDayCycle);
