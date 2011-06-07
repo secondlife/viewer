@@ -20,8 +20,112 @@
    height="12"
    layout="topleft"
    left="33"
+   name="Cache:"
+   top_pad="10"
+   width="100">
+    Cache:
+  </text>
+  <spinner
+   control_name="CacheSize"
+   decimal_digits="0"
+   follows="left|top"
+   height="23"
+   increment="64"
+   initial_value="1024"
+   label="Cache size (64 - 9984MB)"
+   label_width="150"
+   layout="topleft"
+   left="80"
+   max_val="9984"
+   min_val="64"
+   top_pad="10"
+   name="cachesizespinner"
+   width="200" />
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="23"
+   layout="topleft"
+   left_pad="5"
+   mouse_opaque="false"
+   name="text_box5"
+   width="20">
+    MB
+  </text>
+  <button
+   follows="left|top"
+   height="23"
+   label="Clear Cache"
+   label_selected="Clear Cache"
+   layout="topleft"
+   left_pad="30"
+   name="clear_cache"
+   top_delta="0"
+   width="100">
+  <button.commit_callback
+   function="Pref.ClearCache" />
+  </button>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left="80"
+   name="Cache location"
+   top_pad="5"
+   width="300">
+    Cache location:
+  </text>
+  <line_editor
+   control_name="CacheLocationTopFolder"
+   border_style="line"
+   border_thickness="1"
+   follows="left|top"
+   font="SansSerif"
+   height="23"
+   layout="topleft"
+   left="80"
+   max_length="4096"
+   name="cache_location"
+   top_pad="5"
+   width="205" />
+  <button
+   follows="left|top"
+   height="23"
+   label="Browse"
+   label_selected="Browse"
+   layout="topleft"
+   left_pad="5"
+   name="set_cache"
+   top_delta="0"
+   width="100">
+  <button.commit_callback
+   function="Pref.SetCache" />
+  </button>
+  <button
+    follows="left|top"
+    height="23"
+    label="Default Location"
+    label_selected="Default Location"
+    layout="topleft"
+    left_pad="3"
+    name="default_cache_location"
+    top_delta="0"
+    width="100">
+    <button.commit_callback
+     function="Pref.ResetCache" />
+  </button>
+   <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="12"
+   layout="topleft"
+   left="33"
    name="UI Size:"
-   top_pad="25"
+   top_pad="20"
    width="100">
     UI size:
   </text>

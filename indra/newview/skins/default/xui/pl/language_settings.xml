@@ -4,6 +4,7 @@
 
 	<!-- Locale Information -->
 	<string name="MicrosoftLocale">polish</string>
+	<string name="MacLocale">pl_PL.UTF-8</string>
 	<string name="DarwinLocale">pl_PL.UTF-8</string>
 	<string name="LinuxLocale">pl_PL.UTF-8</string>
 	
