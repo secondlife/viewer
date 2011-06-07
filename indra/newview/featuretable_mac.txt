@@ -1,4 +1,4 @@
-version 24
+version 23
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -282,7 +282,6 @@ list TexUnit8orLess
 RenderDeferredSSAO			0	0
 
 list ATI
-RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 
 list Intel
