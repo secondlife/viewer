@@ -1464,7 +1464,7 @@
 		(nieznane)
 	</string>
 	<string name="SummaryForTheWeek" value="Podsumowanie dla tego tygodnia, począwszy od "/>
-	<string name="NextStipendDay" value="Następna wypłata będzie w "/>
+	<string name="NextStipendDay" value=". Następna wypłata będzie w "/>
 	<string name="GroupIndividualShare" value="                      Groupa       Udziały Indywidualne"/>
 	<string name="GroupColumn" value="Grupa"/>
 	<string name="Balance">
