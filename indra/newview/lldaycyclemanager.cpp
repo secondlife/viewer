@@ -88,20 +88,25 @@ bool LLDayCycleManager::savePreset(const std::string& name, const LLSD& data)
 
 bool LLDayCycleManager::deletePreset(const std::string& name)
 {
-	std::string path;
-	std::string filename = LLURI::escape(name) + ".xml";
+	// Remove it from the map.
+	dc_map_t::iterator it = mDayCycleMap.find(name);
+	if (it == mDayCycleMap.end())
+	{
+		LL_WARNS("Windlight") << "No day cycle named " << name << LL_ENDL;
+		return false;
+	}
+	mDayCycleMap.erase(it);
 
-	// Try removing specified user preset.
-	path = getUserDir() + filename;
-	if (gDirUtilp->fileExists(path))
+	// Remove from the filesystem.
+	std::string filename = LLURI::escape(name) + ".xml";
+	if (gDirUtilp->fileExists(getUserDir() + filename))
 	{
 		gDirUtilp->deleteFilesInDir(getUserDir(), filename);
-		mModifySignal();
-		return true;
 	}
 
-	// Invalid or system preset.
-	return false;
+	// Signal interested parties.
+	mModifySignal();
+	return true;
 }
 
 boost::signals2::connection LLDayCycleManager::setModifyCallback(const modify_signal_t::slot_type& cb)
