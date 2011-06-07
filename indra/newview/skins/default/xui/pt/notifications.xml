@@ -2148,6 +2148,12 @@ Ela pode afetar a digitação da senha.
 	<notification name="RezItemNoPermissions">
 		Sem permissões suficientes para criar objetos.
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		Não é possível enviar MIs entre propriedades-pai.
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		Não é possível transferir o inventário para propriedades-pai.
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		Não é possível carregar notas neste momento.
 	</notification>
@@ -2718,6 +2724,10 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 		Sua voz foi silenciada pelo moderador.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		O carregamento custa L$[PRICE]. Deseja prosseguir?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Carregar"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		Tem certeza que deseja apagar todo o seu histórico de teletransporte?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
@@ -2728,6 +2738,9 @@ O botão será exibido quando houver espaço suficente.
 	</notification>
 	<notification name="ShareNotification">
 		Selecione os residentes com quem compartilhar.
+	</notification>
+	<notification name="MeshUploadError">
+		[LABEL] não foi carregado: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Tem certeza de que quer compartilhar os itens abaixo?
@@ -2744,6 +2757,19 @@ Com os seguintes residentes:
 	</notification>
 	<notification name="DeedToGroupFail">
 		Ocorreu uma falha durante a doação ao grupo.
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		O lote [PARCEL_NAME] não pode ser abandonado.
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		O lote de [AREA] m² &apos;[PARCEL_NAME]&apos; foi liberado.
+
+Você tem [RECLAIM_PERIOD] para reivindicá-lo por L$0. Depois o lote será colocado à venda para qualquer interessado.
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		O lote de [AREA] m² &apos;[PARCEL_NAME]&apos; foi liberado.
+
+Ele está à venda para qualquer interessado.
 	</notification>
 	<notification name="AvatarRezNotification">
 		( [EXISTENCE] segundos de vida )
@@ -2883,6 +2909,10 @@ Se o botão Falar for ocultado, o recurso de voz será desabilitado.
 		É preciso usar o modo Avançado para criar e editar grupos.  Desejar sair para mudar o modo? Selecione o modo na tela de login.
 		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
 	</notification>
+	<notification label="" name="NoPlaceInfo">
+		É preciso estar no modo Avançado para visualizar o perfil de um lugar. Deseja sair para mudar o modo? Selecione o modo na tela de login.
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
 	<notification label="" name="NoPicks">
 		É preciso usar o modo Avançado para criar e editar Destaques.  Desejar sair para mudar o modo? Selecione o modo na tela de login.
 		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
@@ -2903,9 +2933,18 @@ Se o botão Falar for ocultado, o recurso de voz será desabilitado.
 		É preciso usar o modo Avançado para fazer pagamentos a outros residentes.  Desejar sair para mudar o modo?
 		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
 	</notification>
-	<global name="UnsupportedCPU">
-		- A velocidade da sua CPU não suporta os requisitos mínimos exigidos.
-	</global>
+	<notification label="" name="NoInventory">
+		É preciso estar no modo Avançado para visualizar o inventário. Deseja sair para mudar o modo?
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		É preciso usar o modo Avançado para usar o editor de visual. Deseja sair para mudar o modo?
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		É preciso estar no modo Avançado para fazer pesquisas. Deseja sair para mudar o modo?
+		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		Aparentemente a sua máquina não atende os requisitos de hardware do [APP_NAME].  [APP_NAME] requer placas de vídeo OpenGL com suporte a multitexturas.  Se sua place de vídeo tiver este perfil, atualize o driver da placa de vídeo, assim como patches e service packs do sistema operacional. 
 
