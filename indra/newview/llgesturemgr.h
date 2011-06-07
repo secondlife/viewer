@@ -37,6 +37,7 @@
 #include "llviewerinventory.h"
 
 class LLMultiGesture;
+class LLGestureListener;
 class LLGestureStep;
 class LLUUID;
 class LLVFS;
@@ -154,9 +155,9 @@ protected:
 
 	// Used by loadGesture
 	static void onLoadComplete(LLVFS *vfs,
-							   const LLUUID& asset_uuid,
-							   LLAssetType::EType type,
-							   void* user_data, S32 status, LLExtStat ext_status);
+						   const LLUUID& asset_uuid,
+						   LLAssetType::EType type,
+						   void* user_data, S32 status, LLExtStat ext_status);
 
 	// Used by playGesture to load an asset file
 	// required to play a gesture step
@@ -185,6 +186,9 @@ private:
 	BOOL mValid;
 
 	std::set<LLUUID> mLoadingAssets;
+
+	// LLEventHost interface
+	boost::shared_ptr<LLGestureListener> mListener;
 };
 
 #endif

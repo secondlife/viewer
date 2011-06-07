@@ -25,6 +25,7 @@
 		<text name="ShadersText">
 			シェーダー：
 		</text>
+		<check_box initial_value="true" label="透明な水" name="TransparentWater"/>
 		<check_box initial_value="true" label="バンプマッピングと光沢" name="BumpShiny"/>
 		<check_box initial_value="true" label="基本シェーダー" name="BasicShaders" tool_tip="このオプションを無効にすると、グラフィックカードのドライバの種類によっては、クラッシュするのを防ぎます。"/>
 		<check_box initial_value="true" label="周囲（大気）シェーダー" name="WindLightUseAtmosShaders"/>
@@ -38,6 +39,10 @@
 			<combo_box.item label="すべてのアバターとオブジェクト" name="3"/>
 			<combo_box.item label="すべて" name="4"/>
 		</combo_box>
+		<slider label="アバターの物理作用：" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			低
+		</text>
 		<slider label="描画距離：" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -76,7 +81,7 @@
 			低
 		</text>
 		<text name="AvatarRenderingText">
-			アバター表示：
+			アバターレンダリング：
 		</text>
 		<check_box initial_value="true" label="アバターの描画を簡略化" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="ハードウェアスキニング" name="AvatarVertexProgram"/>

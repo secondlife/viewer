@@ -423,7 +423,7 @@ void LLFloaterTools::refresh()
 	// Refresh object and prim count labels
 	LLLocale locale(LLLocale::USER_LOCALE);
 
-	if ((gAgent.getRegion() && gAgent.getRegion()->getCapability("GetMesh").empty()) || !gSavedSettings.getBOOL("MeshEnabled"))
+	if ((gAgent.getRegion() && (gAgent.getRegion()->getCapability("GetMesh").empty() || gAgent.getRegion()->getCapability("ObjectAdd").empty())) || !gSavedSettings.getBOOL("MeshEnabled"))
 	{		
 		std::string obj_count_string;
 		LLResMgr::getInstance()->getIntegerString(obj_count_string, LLSelectMgr::getInstance()->getSelection()->getRootObjectCount());
@@ -790,7 +790,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 	bool show_mesh_cost = gAgent.getRegion() && 
 		                  !gAgent.getRegion()->getCapability("GetMesh").empty() && 
-						  gSavedSettings.getBOOL("MeshEnabled");
+						  gSavedSettings.getBOOL("MeshEnabled") &&
+						  !gAgent.getRegion()->getCapability("ObjectAdd").empty();
 
 	getChildView("obj_count")->setVisible( !land_visible && !show_mesh_cost);
 	getChildView("prim_count")->setVisible( !land_visible && !show_mesh_cost);

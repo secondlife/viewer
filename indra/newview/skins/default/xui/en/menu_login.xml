@@ -183,11 +183,11 @@
            parameter="http://join.secondlife.com/"/>
         </menu_item_call>
       <menu_item_call
-       label="Web Content Floater Test"
-       name="Web Content Floater Test">
+       label="Web Content Floater Debug Test"
+       name="Web Content Floater Debug Test">
         <menu_item_call.on_click
          function="Advanced.WebContentTest"
-         parameter="http://www.google.com"/>
+         parameter="http://google.com"/>
       </menu_item_call>
       <menu_item_check
         label="Show Grid Picker"

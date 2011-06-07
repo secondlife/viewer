@@ -53,6 +53,7 @@
 #include "llviewerstats.h"
 #include "llnearbychatbar.h"
 #include "llappearancemgr.h"
+#include "llgesturelistener.h"
 
 // Longest time, in seconds, to wait for all animations to stop playing
 const F32 MAX_WAIT_ANIM_SECS = 30.f;
@@ -70,6 +71,7 @@ LLGestureMgr::LLGestureMgr()
 	mLoadingCount(0)
 {
 	gInventory.addObserver(this);
+	mListener.reset(new LLGestureListener());
 }
 
 

@@ -48,7 +48,7 @@
 			m
 		</text>
 		<slider label="Núm. máx. de partículas:" name="MaxParticleCount"/>
-		<slider label="N.º máximo de avatares no impostores:" name="MaxNumberAvatarDrawn"/>
+		<slider label="Nº máx. de avats. no impostores:" name="MaxNumberAvatarDrawn"/>
 		<slider label="Calidad de procesamiento:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Detalle de la malla:

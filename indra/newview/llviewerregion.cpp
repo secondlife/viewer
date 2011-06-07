@@ -1548,6 +1548,10 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
+	//prep# Finalize these!!!!!!!!!
+	//capabilityNames.append("AccountingVO");	
+	capabilityNames.append("AccountingParcel");
+	capabilityNames.append("AccountingRegion");
 	
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.
