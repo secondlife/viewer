@@ -3983,7 +3983,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 		LLVOVolume* vobj = drawablep->getVOVolume();
 
-		if (vobj->getVolume() && vobj->getVolume()->isTetrahedron())
+		if (vobj->getVolume() && vobj->getVolume()->isTetrahedron() || (vobj->isMesh() && !gMeshRepo.meshRezEnabled()))
 		{
 			continue;
 		}
