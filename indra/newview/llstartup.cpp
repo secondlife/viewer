@@ -1953,7 +1953,8 @@ bool idle_startup()
 		gViewerWindow->getWindow()->resetBusyCount();
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 		LL_DEBUGS("AppInit") << "Done releasing bitmap" << LL_ENDL;
-		gViewerWindow->setShowProgress(FALSE);
+		gViewerWindow->revealIntroPanel();
+		//gViewerWindow->setShowProgress(FALSE);  // reveal intro video now handles this
 		gViewerWindow->setProgressCancelButtonVisible(FALSE);
 
 		// We're not away from keyboard, even though login might have taken
