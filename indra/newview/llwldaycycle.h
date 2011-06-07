@@ -106,7 +106,7 @@ public:
 
 	/// get the first key time for a parameter
 	/// returns false if not there
-	bool getKeytime(LLWLParamKey keyFrame, F32& keyTime);
+	bool getKeytime(LLWLParamKey keyFrame, F32& keyTime) const;
 
 	/// get the param set at a given time
 	/// returns true if found one
@@ -115,6 +115,9 @@ public:
 	/// get the name
 	/// returns true if it found one
 	bool getKeyedParamName(F32 time, std::string & name);
+
+	/// @return true if there are references to the given sky
+	bool hasReferencesTo(const LLWLParamKey& keyframe) const;
 
 	/// removes all references to the sky (paramkey)
 	/// does nothing if the sky doesn't exist in the day

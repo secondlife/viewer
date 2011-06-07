@@ -54,6 +54,9 @@ public:
 	bool savePreset(const std::string& name, const LLSD& data);
 	bool deletePreset(const std::string& name);
 
+	/// @return true if there is a day cycle that refers to the sky preset.
+	bool isSkyPresetReferenced(const std::string& preset_name) const;
+
 	/// Emitted when a preset gets added or deleted.
 	boost::signals2::connection setModifyCallback(const modify_signal_t::slot_type& cb);
 

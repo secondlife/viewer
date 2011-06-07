@@ -50,8 +50,6 @@ private:
 	void onSelectSkyPreset();
 	void onSelectDayCyclePreset();
 
-	void onDayCycleListChange();
-
 	void onBtnOK();
 	void onBtnCancel();
 

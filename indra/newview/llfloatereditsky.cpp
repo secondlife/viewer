@@ -131,6 +131,8 @@ void LLFloaterEditSky::initCallbacks(void)
 	mSaveButton->setCommitCallback(boost::bind(&LLFloaterEditSky::onBtnSave, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterEditSky::onBtnCancel, this));
 
+	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEditSky::onSkyPresetListChange, this));
+
 	//-------------------------------------------------------------------------
 
 	LLWLParamManager& param_mgr = LLWLParamManager::instance();
@@ -806,8 +808,8 @@ void LLFloaterEditSky::onSkyPresetSelected()
 
 	if (!LLWLParamManager::instance().getParamSet(key, sky_params))
 	{
-		llwarns << "No sky preset named " << key.toString() << llendl;
-		llassert(false);
+		// Manually entered string?
+		LL_WARNS("Windlight") << "No sky preset named " << key.toString() << LL_ENDL;
 		return;
 	}
 
@@ -903,4 +905,20 @@ void LLFloaterEditSky::onSaveConfirmed()
 	}
 
 	closeFloater();
+}
+
+void LLFloaterEditSky::onSkyPresetListChange()
+{
+	LLWLParamKey key = getSelectedSkyPreset(); // preset being edited
+	if (!LLWLParamManager::instance().hasParamSet(key))
+	{
+		// Preset we've been editing doesn't exist anymore. Close the floater.
+		closeFloater(false);
+	}
+	else
+	{
+		// A new preset has been added.
+		// Refresh the presets list, though it may not make sense as the floater is about to be closed.
+		refreshSkyPresetsList();
+	}
 }

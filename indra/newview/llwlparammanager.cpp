@@ -588,6 +588,7 @@ bool LLWLParamManager::addParamSet(const LLWLParamKey& key, LLWLParamSet& param)
 		llassert(!key.name.empty());
 		// *TODO: validate params
 		mParamList[key] = param;
+		mPresetListChangeSignal();
 		return true;
 	}
 
@@ -596,19 +597,9 @@ bool LLWLParamManager::addParamSet(const LLWLParamKey& key, LLWLParamSet& param)
 
 BOOL LLWLParamManager::addParamSet(const LLWLParamKey& key, LLSD const & param)
 {
-	// add a new one if not one there already
-	std::map<LLWLParamKey, LLWLParamSet>::const_iterator finder = mParamList.find(key);
-	if(finder == mParamList.end())
-	{
-		llassert(!key.name.empty());
-		// *TODO: validate params
-		mParamList[key].setAll(param);
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+	LLWLParamSet param_set;
+	param_set.setAll(param);
+	return addParamSet(key, param_set);
 }
 
 bool LLWLParamManager::getParamSet(const LLWLParamKey& key, LLWLParamSet& param)
@@ -652,14 +643,14 @@ bool LLWLParamManager::setParamSet(const LLWLParamKey& key, const LLSD & param)
 		return false;
 	}
 	
-	mParamList[key].setAll(param);
-
-	return true;
+	LLWLParamSet param_set;
+	param_set.setAll(param);
+	return setParamSet(key, param_set);
 }
 
 void LLWLParamManager::removeParamSet(const LLWLParamKey& key, bool delete_from_disk)
 {
-	// *TODO: notify interested parties that a sky preset has been removed.
+	// *NOTE: Removing a sky preset invalidates day cycles that refer to it.
 
 	if (key.scope == LLEnvKey::SCOPE_REGION)
 	{
@@ -669,18 +660,17 @@ void LLWLParamManager::removeParamSet(const LLWLParamKey& key, bool delete_from_
 	}
 
 	// remove from param list
-	std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = mParamList.find(key);
-	if(mIt != mParamList.end()) 
+	std::map<LLWLParamKey, LLWLParamSet>::iterator it = mParamList.find(key);
+	if (it == mParamList.end())
 	{
-		mParamList.erase(mIt);
-	}
-	else
-	{
-		LL_WARNS("WindLight") << "Unable to delete key " << key.toString() << "; not found." << LL_ENDL;
+		LL_WARNS("WindLight") << "No sky preset named " << key.name << LL_ENDL;
+		return;
 	}
 
+	mParamList.erase(it);
 	mDay.removeReferencesTo(key);
 
+	// remove from file system if requested
 	if (delete_from_disk)
 	{
 		std::string path_name(getUserDir());
@@ -691,12 +681,20 @@ void LLWLParamManager::removeParamSet(const LLWLParamKey& key, bool delete_from_
 			LL_WARNS("WindLight") << "Error removing sky preset " << key.name << " from disk" << LL_ENDL;
 		}
 	}
+
+	// signal interested parties
+	mPresetListChangeSignal();
 }
 
 bool LLWLParamManager::isSystemPreset(const std::string& preset_name)
 {
 	// *TODO: file system access is excessive here.
 	return gDirUtilp->fileExists(getSysDir() + escapeString(preset_name) + ".xml");
+}
+
+boost::signals2::connection LLWLParamManager::setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb)
+{
+	return mPresetListChangeSignal.connect(cb);
 }
 
 // virtual static

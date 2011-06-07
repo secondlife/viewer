@@ -471,8 +471,6 @@ private:
 	void onRegionSettingschange();
 	void onRegionSettingsApplied(bool ok);
 
-	void onDayCycleListChange();
-
 	bool			mEnableEditing;
 
 	LLRadioGroup*	mRegionSettingsRadioGroup;

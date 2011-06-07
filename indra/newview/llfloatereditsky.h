@@ -96,6 +96,8 @@ private:
 	void onBtnSave();
 	void onBtnCancel();
 
+	void onSkyPresetListChange();
+
 	LLLineEditor*	mSkyPresetNameEditor;
 	LLComboBox*		mSkyPresetCombo;
 	LLCheckBoxCtrl*	mMakeDefaultCheckBox;

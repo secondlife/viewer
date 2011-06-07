@@ -270,10 +270,10 @@ bool LLWLDayCycle::removeKeyframe(F32 time)
 	return false;
 }
 
-bool LLWLDayCycle::getKeytime(LLWLParamKey frame, F32& key_time)
+bool LLWLDayCycle::getKeytime(LLWLParamKey frame, F32& key_time) const
 {
 	// scroll through till we find the correct value in the map
-	std::map<F32, LLWLParamKey>::iterator mIt = mTimeMap.begin();
+	std::map<F32, LLWLParamKey>::const_iterator mIt = mTimeMap.begin();
 	for(; mIt != mTimeMap.end(); ++mIt) 
 	{
 		if(frame == mIt->second) 
@@ -313,6 +313,12 @@ bool LLWLDayCycle::getKeyedParamName(F32 time, std::string & name)
 	// return error if not found
 	lldebugs << "Key " << time << " not found" << llendl;
 	return false;
+}
+
+bool LLWLDayCycle::hasReferencesTo(const LLWLParamKey& keyframe) const
+{
+	F32 dummy;
+	return getKeytime(keyframe, dummy);
 }
 
 void LLWLDayCycle::removeReferencesTo(const LLWLParamKey& keyframe)

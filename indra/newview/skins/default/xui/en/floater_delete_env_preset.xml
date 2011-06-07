@@ -17,7 +17,10 @@
     <string name="label_sky">Preset:</string>
     <string name="label_day_cycle">Day cycle:</string>
    
-   <string name="msg_confirm_deletion">Are you sure you want to delete the selected preset?</string>
+    <string name="msg_confirm_deletion">Are you sure you want to delete the selected preset?</string>
+    <string name="msg_sky_is_referenced">Cannot remove a preset that is referenced by some day cycle(s).</string>
+
+    <string name="combo_label">-Select a preset-</string>
 
     <text
      follows="top|left|right"
@@ -36,12 +39,7 @@
      left_pad="10"
      name="preset_combo"
      top_delta="-5"
-     width="200">
-        <combo_box.item
-         label="-Select a preset-"
-         name="item0"
-         value="any" />
-    </combo_box>
+     width="200"/>
     <button
      follows="bottom|right"
      height="23"

@@ -105,6 +105,7 @@ private:
 	void onSaveConfirmed();
 
 	void onDayCycleListChange();
+	void onSkyPresetListChange();
 
 	static std::string getRegionName();
 

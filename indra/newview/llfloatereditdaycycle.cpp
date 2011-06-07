@@ -150,6 +150,9 @@ void LLFloaterEditDayCycle::initCallbacks(void)
 	// Connect to day cycle manager events.
 	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleListChange, this));
 
+	// Connect to sky preset list changes.
+	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEditDayCycle::onSkyPresetListChange, this));
+
 	// Connect to region info updates.
 	LLRegionInfoModel::instance().setUpdateCallback(boost::bind(&LLFloaterEditDayCycle::onRegionInfoUpdate, this));
 }
@@ -792,6 +795,14 @@ void LLFloaterEditDayCycle::onDayCycleListChange()
 	{
 		refreshDayCyclesList();
 	}
+}
+
+void LLFloaterEditDayCycle::onSkyPresetListChange()
+{
+	refreshSkyPresetsList();
+
+	// Refresh sliders from the currently visible day cycle.
+	loadTrack();
 }
 
 // static

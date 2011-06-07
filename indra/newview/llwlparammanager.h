@@ -215,7 +215,9 @@ public:
 class LLWLParamManager : public LLSingleton<LLWLParamManager>
 {
 	LOG_CLASS(LLWLParamManager);
+
 public:
+	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
 	/// save the parameter presets to file
 	void savePreset(const LLWLParamKey key);
@@ -286,6 +288,9 @@ public:
 
 	/// @return true if the preset comes out of the box
 	bool isSystemPreset(const std::string& preset_name);
+
+	/// Emitted when a preset gets added or deleted.
+	boost::signals2::connection setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb);
 
 	/// add all skies in LLSD using the given scope
 	void addAllSkies(LLEnvKey::EScope scope, const LLSD& preset_map);
@@ -370,6 +375,8 @@ private:
 	/*virtual*/ void initSingleton();
 	LLWLParamManager();
 	~LLWLParamManager();
+
+	preset_list_signal_t mPresetListChangeSignal;
 };
 
 inline F32 LLWLParamManager::getDomeOffset(void) const

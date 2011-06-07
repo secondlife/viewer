@@ -49,10 +49,10 @@ private:
 	void populateSkyPresetsList();
 	void populateDayCyclesList();
 
+	void postPopulate();
+
 	void onDeleteDayCycleConfirmation();
 	void onDeleteSkyPresetConfirmation();
-
-	void onDayCycleListChange();
 
 	LLComboBox* mPresetCombo;
 };

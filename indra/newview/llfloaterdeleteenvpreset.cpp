@@ -62,7 +62,9 @@ BOOL LLFloaterDeleteEnvPreset::postBuild()
 	getChild<LLButton>("delete")->setCommitCallback(boost::bind(&LLFloaterDeleteEnvPreset::onBtnDelete, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterDeleteEnvPreset::onBtnCancel, this));
 
-	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterDeleteEnvPreset::onDayCycleListChange, this));
+	// Listen to presets addition/removal.
+	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterDeleteEnvPreset::populateDayCyclesList, this));
+	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterDeleteEnvPreset::populateSkyPresetsList, this));
 
 	return TRUE;
 }
@@ -113,6 +115,13 @@ void LLFloaterDeleteEnvPreset::onBtnDelete()
 	}
 	else if (param == "sky")
 	{
+		// Don't allow deleting presets referenced by local day cycles.
+		if (LLDayCycleManager::instance().isSkyPresetReferenced(preset_name))
+		{
+			LLNotificationsUtil::add("GenericAlert", LLSD().with("MESSAGE", getString("msg_sky_is_referenced")));
+			return;
+		}
+
 		LLWLParamManager& wl_mgr = LLWLParamManager::instance();
 
 		// Don't allow deleting system presets.
@@ -155,6 +164,8 @@ void LLFloaterDeleteEnvPreset::onBtnCancel()
 
 void LLFloaterDeleteEnvPreset::populateWaterPresetsList()
 {
+	if (mKey.asString() != "water") return;
+
 	mPresetCombo->removeall();
 
 	// *TODO: Reload the list when user preferences change.
@@ -168,10 +179,14 @@ void LLFloaterDeleteEnvPreset::populateWaterPresetsList()
 		bool enabled = (name != water_mgr.mCurParams.mName); // don't allow deleting current preset
 		mPresetCombo->add(name, ADD_BOTTOM, enabled);
 	}
+
+	postPopulate();
 }
 
 void LLFloaterDeleteEnvPreset::populateSkyPresetsList()
 {
+	if (mKey.asString() != "sky") return;
+
 	mPresetCombo->removeall();
 
 	std::string cur_preset;
@@ -187,14 +202,24 @@ void LLFloaterDeleteEnvPreset::populateSkyPresetsList()
 	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = sky_params_map.begin(); it != sky_params_map.end(); it++)
 	{
 		const LLWLParamKey& key = it->first;
-		if (key.scope == LLEnvKey::SCOPE_REGION) continue; // list only local presets
-		bool enabled = key.name != cur_preset && !sky_mgr.isSystemPreset(key.name);
+
+		// list only local user presets
+		if (key.scope == LLEnvKey::SCOPE_REGION || sky_mgr.isSystemPreset(key.name))
+		{
+			continue;
+		}
+
+		bool enabled = (key.name != cur_preset);
 		mPresetCombo->add(key.name, ADD_BOTTOM, enabled);
 	}
+
+	postPopulate();
 }
 
 void LLFloaterDeleteEnvPreset::populateDayCyclesList()
 {
+	if (mKey.asString() != "day_cycle") return;
+
 	mPresetCombo->removeall();
 
 	// *TODO: Disable current day cycle.
@@ -203,6 +228,21 @@ void LLFloaterDeleteEnvPreset::populateDayCyclesList()
 	{
 		mPresetCombo->add(it->first);
 	}
+
+	postPopulate();
+}
+
+void LLFloaterDeleteEnvPreset::postPopulate()
+{
+	// Handle empty list.
+	S32 n_items = mPresetCombo->getItemCount();
+
+	if (n_items == 0)
+	{
+		mPresetCombo->setLabel(getString("combo_label"));
+	}
+
+	getChild<LLButton>("delete")->setEnabled(n_items > 0);
 }
 
 void LLFloaterDeleteEnvPreset::onDeleteDayCycleConfirmation()
@@ -214,9 +254,4 @@ void LLFloaterDeleteEnvPreset::onDeleteSkyPresetConfirmation()
 {
 	LLWLParamKey key(mPresetCombo->getValue().asString(), LLEnvKey::SCOPE_LOCAL);
 	LLWLParamManager::instance().removeParamSet(key, true);
-}
-
-void LLFloaterDeleteEnvPreset::onDayCycleListChange()
-{
-	populateDayCyclesList();
 }

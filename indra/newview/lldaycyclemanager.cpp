@@ -109,6 +109,22 @@ bool LLDayCycleManager::deletePreset(const std::string& name)
 	return true;
 }
 
+bool LLDayCycleManager::isSkyPresetReferenced(const std::string& preset_name) const
+{
+	// We're traversing local day cycles, they can only reference local skies.
+	LLWLParamKey key(preset_name, LLEnvKey::SCOPE_LOCAL);
+
+	for (dc_map_t::const_iterator it = mDayCycleMap.begin(); it != mDayCycleMap.end(); ++it)
+	{
+		if (it->second.hasReferencesTo(key))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 boost::signals2::connection LLDayCycleManager::setModifyCallback(const modify_signal_t::slot_type& cb)
 {
 	return mModifySignal.connect(cb);
