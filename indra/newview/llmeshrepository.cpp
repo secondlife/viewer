@@ -2379,7 +2379,6 @@ void LLMeshRepository::notifyLoadedMeshes()
 		if (gAgent.getRegion()->getName() != region_name && gAgent.getRegion()->capabilitiesReceived())
 		{
 			region_name = gAgent.getRegion()->getName();
-		
 			mGetMeshCapability = gAgent.getRegion()->getCapability("GetMesh");
 		}
 	}
@@ -3725,10 +3724,7 @@ bool LLMeshRepository::meshUploadEnabled()
 	   LLViewerParcelMgr::getInstance()->allowAgentBuild() &&
 	   region)
 	{
-		LLSD sim_features;
-		region->getSimulatorFeatures(sim_features);
-		return (sim_features.has("MeshUploadEnabled") &&
-				sim_features["MeshUploadEnabled"].asBoolean());
+		return region->meshUploadEnabled();
 	}
 	return false;
 }
@@ -3739,10 +3735,7 @@ bool LLMeshRepository::meshRezEnabled()
 	if(gSavedSettings.getBOOL("MeshEnabled") && 
 	   region)
 	{
-		LLSD sim_features;
-		region->getSimulatorFeatures(sim_features);
-		return (sim_features.has("MeshRezEnabled") &&
-				sim_features["MeshRezEnabled"].asBoolean());
+		return region->meshRezEnabled();
 	}
 	return false;
 }
