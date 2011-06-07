@@ -106,7 +106,7 @@ protected:
 
 	void onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu);
 
-	LLFlatListViewEx* mAttachments;
+	LLFlatListView* mAttachments;
 	LLFlatListView* mClothing;
 	LLFlatListView* mBodyParts;
 
