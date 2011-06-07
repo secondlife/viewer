@@ -222,11 +222,17 @@ void LLFloaterDeleteEnvPreset::populateDayCyclesList()
 
 	mPresetCombo->removeall();
 
-	// *TODO: Disable current day cycle.
+	std::string cur_day;
+	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
+	if (!env_mgr.getUseRegionSettings() && env_mgr.getUseDayCycle())
+	{
+		cur_day = env_mgr.getDayCycleName();
+	}
+
 	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
 	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
 	{
-		mPresetCombo->add(it->first);
+		mPresetCombo->add(it->first, ADD_BOTTOM, it->first != cur_day);
 	}
 
 	postPopulate();
