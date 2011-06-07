@@ -149,9 +149,10 @@ void load_face_from_dom_inputs(LLVolumeFace& face, const domInputLocalOffset_Arr
 	}
 }
 
-void get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S32& tc_offset, S32& norm_offset, S32 &idx_stride,
+bool get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S32& tc_offset, S32& norm_offset, S32 &idx_stride,
 					 domSource* &pos_source, domSource* &tc_source, domSource* &norm_source)
 {
+	
 	idx_stride = 0;
 
 	for (U32 j = 0; j < inputs.getCount(); ++j)
@@ -163,7 +164,11 @@ void get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S
 			const domURIFragmentType& uri = inputs[j]->getSource();
 			daeElementRef elem = uri.getElement();
 			domVertices* vertices = (domVertices*) elem.cast();
-
+			if ( !vertices )
+			{
+				return false;
+			}
+				
 			domInputLocal_Array& v_inp = vertices->getInput_array();
 			
 			
@@ -207,6 +212,8 @@ void get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S
 	}
 
 	idx_stride += 1;
+	
+	return true;
 }
 
 LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domTrianglesRef& tri)
@@ -227,8 +234,12 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 	S32 idx_stride = 0;
 
-	get_dom_sources(inputs, pos_offset, tc_offset, norm_offset, idx_stride, pos_source, tc_source, norm_source);
+	if ( !get_dom_sources(inputs, pos_offset, tc_offset, norm_offset, idx_stride, pos_source, tc_source, norm_source) || !pos_source )
+	{
+		return LLModel::BAD_ELEMENT;
+	}
 
+	
 	domPRef p = tri->getP();
 	domListOfUInts& idx = p->getValue();
 	
@@ -367,7 +378,10 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 
 	S32 idx_stride = 0;
 
-	get_dom_sources(inputs, pos_offset, tc_offset, norm_offset, idx_stride, pos_source, tc_source, norm_source);
+	if (!get_dom_sources(inputs, pos_offset, tc_offset, norm_offset, idx_stride, pos_source, tc_source, norm_source))
+	{
+		return LLModel::BAD_ELEMENT;
+	}
 
 	LLVolumeFace face;
 
@@ -564,7 +578,10 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 			const domURIFragmentType& uri = inputs[i]->getSource();
 			daeElementRef elem = uri.getElement();
 			domVertices* vertices = (domVertices*) elem.cast();
-
+			if (!vertices)
+			{
+				return LLModel::BAD_ELEMENT;
+			}
 			domInputLocal_Array& v_inp = vertices->getInput_array();
 
 			for (U32 k = 0; k < v_inp.getCount(); ++k)
@@ -574,6 +591,10 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 					const domURIFragmentType& uri = v_inp[k]->getSource();
 					daeElementRef elem = uri.getElement();
 					domSource* src = (domSource*) elem.cast();
+					if (!src)
+					{
+						return LLModel::BAD_ELEMENT;
+					}
 					v = &(src->getFloat_array()->getValue());
 				}
 			}
@@ -585,6 +606,10 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 			const domURIFragmentType& uri = inputs[i]->getSource();
 			daeElementRef elem = uri.getElement();
 			domSource* src = (domSource*) elem.cast();
+			if (!src)
+			{
+				return LLModel::BAD_ELEMENT;
+			}
 			n = &(src->getFloat_array()->getValue());
 		}
 		else if (strcmp(COMMON_PROFILE_INPUT_TEXCOORD, inputs[i]->getSemantic()) == 0 && inputs[i]->getSet() == 0)
@@ -593,6 +618,10 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 			const domURIFragmentType& uri = inputs[i]->getSource();
 			daeElementRef elem = uri.getElement();
 			domSource* src = (domSource*) elem.cast();
+			if (!src)
+			{
+				return LLModel::BAD_ELEMENT;
+			}
 			t = &(src->getFloat_array()->getValue());
 		}
 	}
@@ -712,7 +741,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 //static
 std::string LLModel::getStatusString(U32 status)
 {
-	const static std::string status_strings[(S32)INVALID_STATUS] = {"status_no_error", "status_vertex_number_overflow"};
+	const static std::string status_strings[(S32)INVALID_STATUS] = {"status_no_error", "status_vertex_number_overflow","bad_element"};
 
 	if(status < INVALID_STATUS)
 	{
@@ -750,7 +779,6 @@ void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
 	for (U32 i = 0; i < polys.getCount(); ++i)
 	{
 		domPolylistRef& poly = polys.get(i);
-
 		mStatus = load_face_from_dom_polylist(mVolumeFaces, mMaterialList, poly);
 
 		if(mStatus != NO_ERRORS)
@@ -760,12 +788,12 @@ void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
 			return ; //abort
 		}
 	}
-
+	
 	domPolygons_Array& polygons = mesh->getPolygons_array();
+	
 	for (U32 i = 0; i < polygons.getCount(); ++i)
 	{
 		domPolygonsRef& poly = polygons.get(i);
-
 		mStatus = load_face_from_dom_polygons(mVolumeFaces, mMaterialList, poly);
 
 		if(mStatus != NO_ERRORS)
@@ -775,7 +803,7 @@ void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
 			return ; //abort
 		}
 	}
-
+ 
 }
 
 BOOL LLModel::createVolumeFacesFromDomMesh(domMesh* mesh)

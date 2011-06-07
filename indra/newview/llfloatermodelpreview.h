@@ -311,9 +311,6 @@ public:
 	void setHasPivot( bool val ) { mHasPivot = val; }
 	void setModelPivot( const LLVector3& pivot ) { mModelPivot = pivot; }
 
-	//Sets the current avatars joints to new positions
-	//Makes in world go to shit, however
-	void changeAvatarsJointPositions( LLModel* pModel );
 	//Determines the viability of an asset to be used as an avatar rig (w or w/o joint upload caps)
 	void critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset );
 	void critiqueJointToNodeMappingFromScene( void  );
