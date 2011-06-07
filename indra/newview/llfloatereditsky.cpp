@@ -39,6 +39,7 @@
 
 // newview
 #include "llagent.h"
+#include "llregioninfomodel.h"
 #include "llviewerregion.h"
 
 #undef max
@@ -120,6 +121,9 @@ void LLFloaterEditSky::initCallbacks(void)
 
 	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLFloaterEditSky::onRegionSettingsChange, this));
 	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEditSky::onSkyPresetListChange, this));
+
+	// Connect to region info updates.
+	LLRegionInfoModel::instance().setUpdateCallback(boost::bind(&LLFloaterEditSky::onRegionInfoUpdate, this));
 
 	//-------------------------------------------------------------------------
 
@@ -948,4 +952,18 @@ void LLFloaterEditSky::onRegionSettingsChange()
 	{
 		refreshSkyPresetsList();
 	}
+}
+
+void LLFloaterEditSky::onRegionInfoUpdate()
+{
+	bool can_edit = true;
+
+	// If we've selected the region day cycle for editing.
+	if (getSelectedSkyPreset().scope == LLEnvKey::SCOPE_REGION)
+	{
+		// check whether we have the access
+		can_edit = LLEnvManagerNew::canEditRegionSettings();
+	}
+
+	enableEditing(can_edit);
 }

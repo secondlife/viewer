@@ -99,6 +99,7 @@ private:
 
 	void onSkyPresetListChange();
 	void onRegionSettingsChange();
+	void onRegionInfoUpdate();
 
 	LLLineEditor*	mSkyPresetNameEditor;
 	LLComboBox*		mSkyPresetCombo;
