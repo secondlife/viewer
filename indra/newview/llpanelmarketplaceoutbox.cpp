@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#include <boost/coroutine/coroutine.hpp>
-#include <boost/coroutine/future.hpp>
+#include "llviewerprecompiledheaders.h"
 
 #include "llpanelmarketplaceoutbox.h"
 
