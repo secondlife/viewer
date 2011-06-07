@@ -38,6 +38,8 @@ template class LLBadge* LLView::getChild<class LLBadge>(const std::string& name,
 
 LLBadge::Params::Params()
 	: image("image")
+	, border_image("border_image")
+	, border_color("border_color")
 	, image_color("image_color")
 	, label("label")
 	, label_color("label_color")
@@ -57,6 +59,8 @@ bool LLBadge::Params::equals(const Params& a) const
 	
 	// skip owner in comparison on purpose
 	
+	comp &= (border_image() == a.border_image());
+	comp &= (border_color() == a.border_color());
 	comp &= (image() == a.image());
 	comp &= (image_color() == a.image_color());
 	comp &= (label() == a.label());
@@ -73,6 +77,8 @@ bool LLBadge::Params::equals(const Params& a) const
 LLBadge::LLBadge(const LLBadge::Params& p)
 	: LLUICtrl(p)
 	, mOwner(p.owner)
+	, mBorderImage(p.border_image)
+	, mBorderColor(p.border_color)
 	, mGLFont(p.font)
 	, mImage(p.image)
 	, mImageColor(p.image_color)
@@ -216,6 +222,11 @@ void LLBadge::draw()
 				F32 badge_y = badge_center_y - badge_height * 0.5f;
 			
 				mImage->drawSolid(badge_x, badge_y, badge_width, badge_height, mImageColor % alpha);
+
+				if (!mBorderImage.isNull())
+				{
+					mBorderImage->drawSolid(badge_x, badge_y, badge_width, badge_height, mBorderColor % alpha);
+				}
 			}
 			else
 			{

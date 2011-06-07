@@ -94,6 +94,9 @@ public:
 	{
 		Optional< LLHandle<LLUICtrl> >	owner;	// Mandatory in code but not in xml
 		
+		Optional< LLUIImage* >			border_image;
+		Optional< LLUIColor >			border_color;
+
 		Optional< LLUIImage* >			image;
 		Optional< LLUIColor >			image_color;
 		
@@ -126,6 +129,9 @@ public:
 	void				setLabel( const LLStringExplicit& label);
 
 private:
+	LLPointer< LLUIImage >	mBorderImage;
+	LLUIColor				mBorderColor;
+
 	const LLFontGL*			mGLFont;
 	
 	LLPointer< LLUIImage >	mImage;

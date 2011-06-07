@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <!-- Additional attributes:
    -->
-<badge font="SansSerifSmall"
+<badge border_image="Badge_Border"
+       border_color="BadgeBorderColor"
+       font="SansSerifSmall"
        image="Badge_Background"
        image_color="BadgeImageColor"
        label_color="BadgeLabelColor"
@@ -10,5 +12,6 @@
        location_percent_vcenter="85"
        padding_horiz="7"
        padding_vert="4"
+       requests_front="true"
        >
 </badge>

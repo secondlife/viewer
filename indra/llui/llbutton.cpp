@@ -1098,7 +1098,7 @@ void LLButton::addBadgeToParentPanel()
 		{
 			parentPanel = dynamic_cast<LLPanel*>(parent);
 		
-			if (parentPanel != NULL)
+			if (parentPanel && parentPanel->acceptsBadge())
 			{
 				break;
 			}
