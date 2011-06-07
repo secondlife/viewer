@@ -739,7 +739,11 @@ void LLFloaterEditSky::refreshSkyPresetsList()
 		std::string item_title = key.name;
 		if (key.scope == LLEnvKey::SCOPE_REGION)
 		{
+#if 1 // Disable editing region skies until the workflow is clear enough.
+			continue;
+#else
 			item_title += " (" + region_name + ")";
+#endif
 		}
 		mSkyPresetCombo->add(item_title, key.toLLSD());
 	}
