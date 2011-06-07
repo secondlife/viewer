@@ -45,8 +45,6 @@
 
 static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
 
-//=================================================================================================
-
 LLFloaterEditSky::LLFloaterEditSky(const LLSD &key)
 :	LLFloater(key)
 ,	mSkyPresetNameEditor(NULL)
@@ -209,6 +207,8 @@ void LLFloaterEditSky::initCallbacks(void)
 	getChild<LLUICtrl>("WLGamma")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &param_mgr.mWLGamma));
 	getChild<LLUICtrl>("WLStarAlpha")->setCommitCallback(boost::bind(&LLFloaterEditSky::onStarAlphaMoved, this, _1));
 }
+
+//=================================================================================================
 
 void LLFloaterEditSky::syncControls()
 {
@@ -822,6 +822,47 @@ void LLFloaterEditSky::onSkyPresetSelected()
 	mMakeDefaultCheckBox->setEnabled(key.scope == LLEnvKey::SCOPE_LOCAL);
 }
 
+bool LLFloaterEditSky::onSaveAnswer(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+	// If they choose save, do it.  Otherwise, don't do anything
+	if (option == 0)
+	{
+		onSaveConfirmed();
+	}
+
+	return false;
+}
+
+void LLFloaterEditSky::onSaveConfirmed()
+{
+	// Save current params to the selected preset.
+	LLWLParamKey key(getSelectedSkyPreset());
+
+	LL_DEBUGS("Windlight") << "Saving sky preset " << key.name << LL_ENDL;
+	LLWLParamManager& wl_mgr = LLWLParamManager::instance();
+	if (wl_mgr.hasParamSet(key))
+	{
+		wl_mgr.setParamSet(key, wl_mgr.mCurParams);
+	}
+	else
+	{
+		wl_mgr.addParamSet(key, wl_mgr.mCurParams);
+	}
+
+	wl_mgr.savePreset(key);
+
+	// Change preference if requested.
+	if (mMakeDefaultCheckBox->getValue())
+	{
+		LL_DEBUGS("Windlight") << key.name << " is now the new preferred sky preset" << llendl;
+		LLEnvManagerNew::instance().setUseSkyPreset(key.name);
+	}
+
+	closeFloater();
+}
+
 void LLFloaterEditSky::onBtnSave()
 {
 	LLWLParamKey selected_sky = getSelectedSkyPreset();
@@ -863,47 +904,6 @@ void LLFloaterEditSky::onBtnSave()
 
 void LLFloaterEditSky::onBtnCancel()
 {
-	closeFloater();
-}
-
-bool LLFloaterEditSky::onSaveAnswer(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-
-	// If they choose save, do it.  Otherwise, don't do anything
-	if (option == 0)
-	{
-		onSaveConfirmed();
-	}
-
-	return false;
-}
-
-void LLFloaterEditSky::onSaveConfirmed()
-{
-	// Save current params to the selected preset.
-	LLWLParamKey key(getSelectedSkyPreset());
-
-	LL_DEBUGS("Windlight") << "Saving sky preset " << key.name << LL_ENDL;
-	LLWLParamManager& wl_mgr = LLWLParamManager::instance();
-	if (wl_mgr.hasParamSet(key))
-	{
-		wl_mgr.setParamSet(key, wl_mgr.mCurParams);
-	}
-	else
-	{
-		wl_mgr.addParamSet(key, wl_mgr.mCurParams);
-	}
-
-	wl_mgr.savePreset(key);
-
-	// Change preference if requested.
-	if (mMakeDefaultCheckBox->getValue())
-	{
-		LL_DEBUGS("Windlight") << key.name << " is now the new preferred sky preset" << llendl;
-		LLEnvManagerNew::instance().setUseSkyPreset(key.name);
-	}
-
 	closeFloater();
 }
 

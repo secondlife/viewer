@@ -55,6 +55,8 @@ private:
 
 	//-- WL stuff begins ------------------------------------------------------
 
+	void syncControls(); /// sync up sliders with parameters
+
 	// general purpose callbacks for dealing with color controllers
 	void onColorControlRMoved(LLUICtrl* ctrl, void* userdata);
 	void onColorControlGMoved(LLUICtrl* ctrl, void* userdata);
@@ -77,8 +79,6 @@ private:
 	void onCloudScrollYMoved(LLUICtrl* ctrl);
 	void onCloudScrollXToggled(LLUICtrl* ctrl);
 	void onCloudScrollYToggled(LLUICtrl* ctrl);
-
-	void syncControls(); /// sync up sliders with parameters
 
 	//-- WL stuff ends --------------------------------------------------------
 
