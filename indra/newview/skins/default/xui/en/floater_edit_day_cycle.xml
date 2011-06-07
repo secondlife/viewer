@@ -39,6 +39,7 @@
      follows="top|left"
      layout="topleft"
      left_pad="10"
+     max_chars="100"
      name="day_cycle_combo"
      top_delta="-5"
      width="200" />
