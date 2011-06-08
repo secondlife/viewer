@@ -2419,12 +2419,25 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 		for (U32 i = 0; i < face_count; ++i)
 		{
+			LLVolumeFace& face = mVolumeFaces[i];
+
+			if (mdl[i].has("NoGeometry"))
+			{ //face has no geometry, continue
+				face.resizeIndices(3);
+				face.resizeVertices(1);
+				memset(face.mPositions, 0, sizeof(LLVector4a));
+				memset(face.mNormals, 0, sizeof(LLVector4a));
+				memset(face.mTexCoords, 0, sizeof(LLVector2));
+				memset(face.mIndices, 0, sizeof(U16)*3);
+				continue;
+			}
+
 			LLSD::Binary pos = mdl[i]["Position"];
 			LLSD::Binary norm = mdl[i]["Normal"];
 			LLSD::Binary tc = mdl[i]["TexCoord0"];
 			LLSD::Binary idx = mdl[i]["TriangleList"];
 
-			LLVolumeFace& face = mVolumeFaces[i];
+			
 
 			//copy out indices
 			face.resizeIndices(idx.size()/2);
