@@ -166,6 +166,7 @@ public:
 		LLVector3 mBBox[2] ;
 		F32 mTriangleAreaThreshold ;
 
+		void assignData(LLModel* mdl) ;
 		void updateTriangleAreaThreshold() ;
 		bool isValidTriangle(U16 idx1, U16 idx2, U16 idx3) ;
 	};
