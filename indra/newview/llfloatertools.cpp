@@ -424,6 +424,7 @@ void LLFloaterTools::refresh()
 	// Refresh object and prim count labels
 	LLLocale locale(LLLocale::USER_LOCALE);
 
+#if 0
 	if (gMeshRepo.meshRezEnabled())
 	{		
 		std::string obj_count_string;
@@ -448,6 +449,7 @@ void LLFloaterTools::refresh()
 		getChildView("RenderingCost")->setEnabled(have_selection && sShowObjectCost);
 	}
 	else
+#endif
 	{
 		// Get the number of objects selected
 		std::string root_object_count_string;
