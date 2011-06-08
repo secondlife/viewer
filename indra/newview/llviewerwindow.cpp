@@ -1979,7 +1979,10 @@ void LLViewerWindow::shutdownViews()
 	
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
-	delete LLNavigationBar::getInstance();
+	if (LLNavigationBar::instanceExists())
+	{
+		delete LLNavigationBar::getInstance();
+	}
 
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
