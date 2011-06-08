@@ -1,4 +1,4 @@
-version 27
+version 28
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -64,6 +64,7 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
+RenderFSAASamples			1	16
 
 //
 // Low Graphics Settings
@@ -95,6 +96,7 @@ SkyUseClassicClouds			1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
+RenderFSAASamples			1	0
 
 //
 // Mid Graphics Settings
@@ -124,6 +126,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
+RenderFSAASamples			1	0
 
 //
 // High Graphics Settings (purty)
@@ -153,6 +156,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	2
+RenderFSAASamples			1	4
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -182,6 +186,7 @@ WLSkyDetail					1	128
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	2
+RenderFSAASamples			1	8
 
 //
 // Class Unknown Hardware (unknown)
