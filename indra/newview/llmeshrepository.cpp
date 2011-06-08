@@ -1533,7 +1533,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 					face_entry["offsett"] = 0.0;
 					face_entry["imagerot"] = 0.0;
 				}
-				face_entry["colors"] = ll_sd_from_color4(material.mDiffuseColor);
+				face_entry["diffuse_color"] = ll_sd_from_color4(material.mDiffuseColor);
 				face_entry["fullbright"] = material.mFullbright;
 				instance_entry["face_list"][face_num] = face_entry;
 		    }
