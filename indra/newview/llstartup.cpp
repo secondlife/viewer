@@ -191,6 +191,8 @@
 #include "llevents.h"
 #include "llstartuplistener.h"
 
+#include "llsocks5.h"
+
 #if LL_WINDOWS
 #include "lldxhardware.h"
 #endif
@@ -390,7 +392,7 @@ bool idle_startup()
 		gSavedSettings.setS32("LastGPUClass", LLFeatureManager::getInstance()->getGPUClass());
 
 		// load dynamic GPU/feature tables from website (S3)
-		LLFeatureManager::getInstance()->fetchHTTPTables();
+		//LLFeatureManager::getInstance()->fetchHTTPTables();
 		
 		std::string xml_file = LLUI::locateSkin("xui_version.xml");
 		LLXMLNodePtr root;
@@ -592,6 +594,15 @@ bool idle_startup()
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
 		
+		//-------------------------------------------------
+		// Init the socks 5 proxy and open the control TCP 
+		// connection if the user is using SOCKS5
+		// We need to do this early incase the user is using
+		// socks for http so we get the login screen via socks
+		//-------------------------------------------------
+
+		LLStartUp::handleSocksProxy(false);
+
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.
@@ -807,6 +818,27 @@ bool idle_startup()
 
 	if (STATE_LOGIN_CLEANUP == LLStartUp::getStartupState())
 	{
+		// Post login screen, we should see if any settings have changed that may
+		// require us to either start/stop or change the socks proxy. As various communications
+		// past this point may require the proxy to be up.
+		if ( gSavedSettings.getBOOL("Socks5ProxyEnabled") )
+		{
+			if (!LLStartUp::handleSocksProxy(true))
+			{
+				// Proxy start up failed, we should now bail the state machine
+				// HandleSocksProxy() will have reported an error to the user 
+				// already, so we just go back to the login screen. The user
+				// could then change the preferences to fix the issue. 
+				LLStartUp::setStartupState(STATE_LOGIN_SHOW);
+				return FALSE;
+			}
+		}
+		else
+		{
+			LLSocks::getInstance()->stopProxy();
+		}
+		
+
 		//reset the values that could have come in from a slurl
 		// DEV-42215: Make sure they're not empty -- gUserCredential
 		// might already have been set from gSavedSettings, and it's too bad
@@ -2726,6 +2758,95 @@ void LLStartUp::setStartSLURL(const LLSLURL& slurl)
 			LLGridManager::getInstance()->setGridChoice(slurl.getGrid());
 			break;
     }
+}
+
+bool LLStartUp::handleSocksProxy(bool reportOK)
+{
+	std::string httpProxyType = gSavedSettings.getString("Socks5HttpProxyType");
+
+	// Determine the http proxy type (if any)
+	if ((httpProxyType.compare("Web") == 0) && gSavedSettings.getBOOL("BrowserProxyEnabled"))
+	{
+		LLHost httpHost;
+		httpHost.setHostByName(gSavedSettings.getString("BrowserProxyAddress"));
+		httpHost.setPort(gSavedSettings.getS32("BrowserProxyPort"));
+		LLSocks::getInstance()->EnableHttpProxy(httpHost,LLPROXY_HTTP);
+	}
+	else if ((httpProxyType.compare("Socks") == 0) && gSavedSettings.getBOOL("Socks5ProxyEnabled"))
+	{
+		LLHost httpHost;
+		httpHost.setHostByName(gSavedSettings.getString("Socks5ProxyHost"));
+		httpHost.setPort(gSavedSettings.getU32("Socks5ProxyPort"));
+		LLSocks::getInstance()->EnableHttpProxy(httpHost,LLPROXY_SOCKS);
+	}
+	else
+	{
+		LLSocks::getInstance()->DisableHttpProxy();
+	}
+	
+	bool use_socks_proxy = gSavedSettings.getBOOL("Socks5ProxyEnabled");
+	if (use_socks_proxy)
+	{	
+
+		// Determine and update LLSocks with the saved authentication system
+		std::string auth_type = gSavedSettings.getString("Socks5AuthType");
+			
+		if (auth_type.compare("None") == 0)
+		{
+			LLSocks::getInstance()->setAuthNone();
+		}
+
+		if (auth_type.compare("UserPass") == 0)
+		{
+			LLSocks::getInstance()->setAuthPassword(gSavedSettings.getString("Socks5Username"),gSavedSettings.getString("Socks5Password"));
+		}
+
+		// Start the proxy and check for errors
+		int status = LLSocks::getInstance()->startProxy(gSavedSettings.getString("Socks5ProxyHost"), gSavedSettings.getU32("Socks5ProxyPort"));
+		LLSD subs;
+		LLSD payload;
+		subs["HOST"] = gSavedSettings.getString("Socks5ProxyHost");
+		subs["PORT"] = (S32)gSavedSettings.getU32("Socks5ProxyPort");
+
+		switch(status)
+		{
+			case SOCKS_OK:
+				return true;
+				break;
+
+			case SOCKS_CONNECT_ERROR: // TCP Fail
+				LLNotifications::instance().add("SOCKS_CONNECT_ERROR", subs,payload);
+				break;
+
+			case SOCKS_NOT_PERMITTED: // Socks5 server rule set refused connection
+				LLNotifications::instance().add("SOCKS_NOT_PERMITTED", subs,payload);
+				break;
+					
+			case SOCKS_NOT_ACCEPTABLE: // Selected authentication is not acceptable to server
+				LLNotifications::instance().add("SOCKS_NOT_ACCEPTABLE", subs,payload);
+				break;
+
+			case SOCKS_AUTH_FAIL: // Authentication failed
+				LLNotifications::instance().add("SOCKS_AUTH_FAIL", subs,payload);
+				break;
+
+			case SOCKS_UDP_FWD_NOT_GRANTED: // UDP forward request failed
+				LLNotifications::instance().add("SOCKS_UDP_FWD_NOT_GRANTED", subs,payload);
+				break;
+
+			case SOCKS_HOST_CONNECT_FAILED: // Failed to open a TCP channel to the socks server
+				LLNotifications::instance().add("SOCKS_HOST_CONNECT_FAILED", subs,payload);
+				break;		
+		}
+
+		return false;
+	}
+	else
+	{
+		LLSocks::getInstance()->stopProxy(); //ensure no UDP proxy is running and its all cleaned up
+	}
+
+	return true;
 }
 
 bool login_alert_done(const LLSD& notification, const LLSD& response)

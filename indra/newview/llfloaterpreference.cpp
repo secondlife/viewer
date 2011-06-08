@@ -105,6 +105,7 @@
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
 #include "llteleporthistorystorage.h"
+#include "llsocks5.h"
 
 #include "lllogininstance.h"        // to check if logged in yet
 #include "llsdserialize.h"
@@ -342,6 +343,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.getUIColor",				boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.MaturitySettings",		boost::bind(&LLFloaterPreference::onChangeMaturity, this));
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
+    mCommitCallbackRegistrar.add("Pref.Proxy",                    boost::bind(&LLFloaterPreference::onClickProxySettings, this));
 	
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
@@ -615,6 +617,12 @@ void LLFloaterPreference::cancel()
 		updateDoubleClickControls();
 		mDoubleClickActionDirty = false;
 	}
+    LLFloaterPreferenceProxy * advanced_socks_settings = LLFloaterReg::findTypedInstance<LLFloaterPreferenceProxy>("prefs_socks5_advanced");
+    if(advanced_socks_settings)
+    {
+        advanced_socks_settings->cancel();
+    }
+    
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
@@ -1535,6 +1543,11 @@ void LLFloaterPreference::updateDoubleClickSettings()
 	}
 }
 
+void LLFloaterPreference::onClickProxySettings()
+{
+    LLFloaterReg::showInstance("prefs_proxy");
+}
+
 void LLFloaterPreference::updateDoubleClickControls()
 {
 	// check is one of double-click actions settings enabled
@@ -1902,3 +1915,161 @@ void LLPanelPreferenceGraphics::setHardwareDefaults()
 	resetDirtyChilds();
 	LLPanelPreference::setHardwareDefaults();
 }
+
+
+/* ------------------------------------------------------------ */
+
+LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
+    : LLFloater(key),
+    mSocksSettingsDirty(false)
+{
+    mCommitCallbackRegistrar.add("Proxy.OK",                boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this));
+    mCommitCallbackRegistrar.add("Proxy.Cancel",            boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this));
+    mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
+}
+
+LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
+{
+}
+
+BOOL LLFloaterPreferenceProxy::postBuild()
+{
+    LLLineEditor* edit = getChild<LLLineEditor>("socks_password_editor");
+    if (edit) edit->setDrawAsterixes(TRUE);
+
+    LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
+    if(socksAuth->getSelectedValue().asString() == "None")
+    {
+        getChild<LLLineEditor>("socks5_username")->setEnabled(false);
+        getChild<LLLineEditor>("socks5_password")->setEnabled(false);
+    }
+
+    center();
+    return TRUE;
+}
+
+void LLFloaterPreferenceProxy::onOpen(const LLSD& key)
+{
+    saveSettings();
+}
+
+void LLFloaterPreferenceProxy::onClose(bool app_quitting)
+{
+    if(mSocksSettingsDirty)
+    {
+
+        // If the user plays with the Socks proxy settings after login, its only fair we let them know
+        // it will not be updated untill next restart.
+        if(LLStartUp::getStartupState()>STATE_LOGIN_WAIT)
+        {        
+            if(this->mSocksSettingsDirty == true )
+            {
+                LLNotifications::instance().add("ChangeSocks5Settings",LLSD(),LLSD());
+                mSocksSettingsDirty = false; // we have notified the user now be quiet again
+            }
+        }
+    }
+}
+
+void LLFloaterPreferenceProxy::saveSettings()
+{
+    // Save the value of all controls in the hierarchy
+    mSavedValues.clear();
+    std::list<LLView*> view_stack;
+    view_stack.push_back(this);
+    while(!view_stack.empty())
+    {
+        // Process view on top of the stack
+        LLView* curview = view_stack.front();
+        view_stack.pop_front();
+
+        LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
+        if (ctrl)
+        {
+            LLControlVariable* control = ctrl->getControlVariable();
+            if (control)
+            {
+                mSavedValues[control] = control->getValue();
+            }
+        }
+                    
+        // Push children onto the end of the work stack
+        for (child_list_t::const_iterator iter = curview->getChildList()->begin();
+             iter != curview->getChildList()->end(); ++iter)
+        {
+            view_stack.push_back(*iter);
+        }
+    }    
+
+}
+
+void LLFloaterPreferenceProxy::onBtnOk()
+{
+    // commit any outstanding text entry
+    if (hasFocus())
+    {
+        LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+        if (cur_focus && cur_focus->acceptsTextInput())
+        {
+            cur_focus->onCommit();
+        }
+    }
+    closeFloater(false);
+}
+
+void LLFloaterPreferenceProxy::onBtnCancel()
+{
+    if (hasFocus())
+    {
+        LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+        if (cur_focus && cur_focus->acceptsTextInput())
+        {
+            cur_focus->onCommit();
+        }
+        refresh();
+    }
+    
+    cancel();
+    
+}
+void LLFloaterPreferenceProxy::cancel()
+{
+
+    for (control_values_map_t::iterator iter =  mSavedValues.begin();
+         iter !=  mSavedValues.end(); ++iter)
+    {
+        LLControlVariable* control = iter->first;
+        LLSD ctrl_value = iter->second;
+        control->set(ctrl_value);
+    }
+    
+    closeFloater();
+}
+
+void LLFloaterPreferenceProxy::onChangeSocksSettings() 
+{
+    mSocksSettingsDirty = true; 
+
+    LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
+    if(socksAuth->getSelectedValue().asString() == "None")
+    {
+        getChild<LLLineEditor>("socks5_username")->setEnabled(false);
+        getChild<LLLineEditor>("socks5_password")->setEnabled(false);
+    }
+    else
+    {
+        getChild<LLLineEditor>("socks5_username")->setEnabled(true);
+        getChild<LLLineEditor>("socks5_password")->setEnabled(true);
+    }
+
+    //Check for invalid states for the other http proxy radio
+    LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("other_http_proxy_selection");
+    if( (otherHttpProxy->getSelectedValue().asString() == "Socks" && 
+        getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == FALSE )||(
+        otherHttpProxy->getSelectedValue().asString() == "Web" && 
+        getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get() == FALSE ) )
+    {    
+        otherHttpProxy->selectFirstItem();
+    }
+
+};

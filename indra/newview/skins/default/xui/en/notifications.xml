@@ -7159,6 +7159,76 @@ Click and drag anywhere on the world to rotate your view
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="SOCKS_NOT_PERMITTED"
+   type="alertmodal">
+	The Socks5 proxy "[HOST]:[PORT]" refused the connection, not allowed by rule set
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_CONNECT_ERROR"
+   type="alertmodal">
+	The Socks5 proxy "[HOST]:[PORT]" refused the connection, could not open TCP channel
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>	 
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_NOT_ACCEPTABLE"
+   type="alertmodal">
+	The Socks5 proxy "[HOST]:[PORT]" refused the selected authentication system
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_AUTH_FAIL"
+   type="alertmodal">
+	The Socks5 proxy "[HOST]:[PORT]" reported your credentials are invalid
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_UDP_FWD_NOT_GRANTED"
+   type="alertmodal">
+	The Socks5 proxy "[HOST]:[PORT]" refused the UDP associate request
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_HOST_CONNECT_FAILED"
+   type="alertmodal">
+	Could not connect to Socks5 proxy server "[HOST]:[PORT]"
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ChangeSocks5Settings"
+   type="alert">
+	Socks 5 proxy settings take effect after you restart [APP_NAME].
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
   name="AuthRequest"
   type="browser">
 The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;[REALM]&apos; requires a user name and password.

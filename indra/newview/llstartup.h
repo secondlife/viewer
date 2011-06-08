@@ -113,6 +113,8 @@ public:
 	static void setStartSLURL(const LLSLURL& slurl); 
 	static LLSLURL& getStartSLURL() { return sStartSLURL; } 
 
+	static bool handleSocksProxy(bool reportOK); //handle kicking the socks 5 proxy code at startup time
+
 private:
 	static LLSLURL sStartSLURL;
 
