@@ -598,6 +598,11 @@ void LLFloaterModelPreview::draw()
 			childSetTextArg("status", "[STATUS]", getString(LLModel::getStatusString(mModelPreview->getLoadState() - LLModelLoader::ERROR_PARSING)));
 		}
 		else
+		if ( mModelPreview->getLoadState() == LLModelLoader::ERROR_PARSING )
+		{
+			childSetTextArg("status", "[STATUS]", getString("status_parse_error"));
+		}
+		else
 		{
 			childSetTextArg("status", "[STATUS]", getString("status_idle"));
 		}
@@ -1250,6 +1255,23 @@ bool LLModelLoader::doLoadModel()
 		return false;
 	}
 	
+	//Verify some basic properties of the dae
+	//1. Basic validity check on controller 
+	U32 controllerCount = (int) db->getElementCount( NULL, "controller" );
+	bool result = false;
+	for ( int i=0; i<controllerCount; ++i )
+	{
+		domController* pController = NULL;
+		db->getElement( (daeElement**) &pController, i , NULL, "controller" );
+		result = mPreview->verifyController( pController );
+		if (!result)
+		{
+			setLoadState( ERROR_PARSING );
+			return true;
+		}
+	}
+
+
 	//get unit scale
 	mTransform.setIdentity();
 	
@@ -2177,6 +2199,90 @@ bool LLModelLoader::isNodeAJoint( domNode* pNode )
 	}
 
 	return false;
+}
+//-----------------------------------------------------------------------------
+// verifyCount
+//-----------------------------------------------------------------------------
+bool LLModelPreview::verifyCount( int expected, int result )
+{
+	if ( expected != result )
+	{
+		llinfos<< "Error: (expected/got)"<<expected<<"/"<<result<<"verts"<<llendl;
+		return false;
+	}
+	return true;
+}
+//-----------------------------------------------------------------------------
+// verifyController
+//-----------------------------------------------------------------------------
+bool LLModelPreview::verifyController( domController* pController )
+{	
+
+	bool result = true;
+
+	domSkin* pSkin = pController->getSkin();
+
+	if ( pSkin )
+	{
+		xsAnyURI & uri = pSkin->getSource();
+		domElement* pElement = uri.getElement();
+
+		if ( !pElement )
+		{
+			llinfos<<"Can't resolve skin source"<<llendl;
+			return false;
+		}
+
+		daeString type_str = pElement->getTypeName();
+		if ( stricmp(type_str, "geometry") == 0 )
+		{	
+			//Skin is reference directly by geometry and get the vertex count from skin
+			domSkin::domVertex_weights* pVertexWeights = pSkin->getVertex_weights();
+			U32 vertexWeightsCount = pVertexWeights->getCount();
+			domGeometry* pGeometry = (domGeometry*) (domElement*) uri.getElement();
+			domMesh* pMesh = pGeometry->getMesh();				
+			
+			if ( pMesh )
+			{
+				//Get vertex count from geometry
+				domVertices* pVertices = pMesh->getVertices();
+				if ( !pVertices )
+				{ 
+					llinfos<<"No vertices!"<<llendl;
+					return false;
+				}
+
+				if ( pVertices )
+				{
+					xsAnyURI src = pVertices->getInput_array()[0]->getSource();
+					domSource* pSource = (domSource*) (domElement*) src.getElement();
+					U32 verticesCount = pSource->getTechnique_common()->getAccessor()->getCount();
+					result = verifyCount( verticesCount, vertexWeightsCount );
+					if ( !result )
+					{
+						return result;
+					}
+				}
+			}	
+
+			U32 vcountCount = (U32) pVertexWeights->getVcount()->getValue().getCount();
+			result = verifyCount( vcountCount, vertexWeightsCount );	
+			if ( !result )
+			{
+				return result;
+			}
+
+			domInputLocalOffset_Array& inputs = pVertexWeights->getInput_array();
+			U32 sum = 0;
+			for (size_t i=0; i<vcountCount; i++)
+			{
+				sum += pVertexWeights->getVcount()->getValue()[i];
+			}
+			result = verifyCount( sum * inputs.getCount(), (domInt) pVertexWeights->getV()->getValue().getCount() );
+		}
+	}
+	
+	return result;
 }
 
 //-----------------------------------------------------------------------------
