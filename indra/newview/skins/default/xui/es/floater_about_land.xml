@@ -133,7 +133,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				0
 			</text>
 			<button label="Comprar terreno" left="130" name="Buy Land..." width="125"/>
-			<button label="Información del script" name="Scripts..."/>
+			<button label="Información de scripts" name="Scripts..."/>
 			<button label="Comprar para el grupo" name="Buy For Group..."/>
 			<button label="Comprar un pase" left="130" name="Buy Pass..." tool_tip="Un pase le da acceso temporal a este terreno." width="125"/>
 			<button label="Abandonar el terreno" name="Abandon Land..."/>
