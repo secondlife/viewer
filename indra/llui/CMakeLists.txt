@@ -29,6 +29,7 @@ set(llui_SOURCE_FILES
     llaccordionctrl.cpp
     llaccordionctrltab.cpp
     llbadge.cpp
+    llbadgeowner.cpp
     llbutton.cpp
     llcheckboxctrl.cpp
     llclipboard.cpp
@@ -121,6 +122,7 @@ set(llui_HEADER_FILES
     llaccordionctrl.h
     llaccordionctrltab.h
     llbadge.h
+    llbadgeowner.h
     llbutton.h
     llcallbackmap.h
     llcheckboxctrl.h
