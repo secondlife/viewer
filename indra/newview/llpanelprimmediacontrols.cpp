@@ -61,6 +61,7 @@
 #include "llwindow.h"
 #include "llwindowshade.h"
 #include "llfloatertools.h"  // to enable hide if build tools are up
+#include "llvector4a.h"
 
 // Functions pulled from pipeline.cpp
 glh::matrix4f glh_get_current_modelview();
@@ -577,7 +578,9 @@ void LLPanelPrimMediaControls::updateShape()
 		{
 			const LLVolumeFace& vf = volume->getVolumeFace(mTargetObjectFace);
 			
-			const LLVector3* ext = vf.mExtents;
+			LLVector3 ext[2];
+			ext[0].set(vf.mExtents[0].getF32ptr());
+			ext[1].set(vf.mExtents[1].getF32ptr());
 			
 			LLVector3 center = (ext[0]+ext[1])*0.5f;
 			LLVector3 size = (ext[1]-ext[0])*0.5f;

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="top_objects" title="Top Objects">
+	<floater.string name="top_scripts_title">
+		Top Scripts
+	</floater.string>
+	<floater.string name="top_scripts_text">
+		[COUNT] scripts taking a total of [TIME] ms
+	</floater.string>
+	<floater.string name="scripts_score_label">
+		Time
+	</floater.string>
+	<floater.string name="scripts_mono_time_label">
+		Mono Time
+	</floater.string>
+	<floater.string name="top_colliders_title">
+		Top Colliders
+	</floater.string>
+	<floater.string name="top_colliders_text">
+		Top [COUNT] objects experiencing many potential collisions
+	</floater.string>
+	<floater.string name="colliders_score_label">
+		Score
+	</floater.string>
+	<floater.string name="none_descriptor">
+		None found.
+	</floater.string>
+	<text name="title_text">
+		載入中...
+	</text>
+	<scroll_list name="objects_list">
+		<scroll_list.columns label="Score" name="score"/>
+		<scroll_list.columns label="名稱" name="name"/>
+		<scroll_list.columns label="擁有者" name="owner"/>
+		<scroll_list.columns label="位置" name="location"/>
+		<scroll_list.columns label="Time" name="time"/>
+		<scroll_list.columns label="Mono Time" name="mono_time"/>
+		<scroll_list.columns label="URLs" name="URLs"/>
+	</scroll_list>
+	<text name="id_text">
+		Object ID:
+	</text>
+	<button label="Show Beacon" name="show_beacon_btn"/>
+	<text name="obj_name_text">
+		物件名稱：
+	</text>
+	<button label="Filter" name="filter_object_btn"/>
+	<text name="owner_name_text">
+		擁有者：
+	</text>
+	<button label="Filter" name="filter_owner_btn"/>
+	<button label="Return Selected" name="return_selected_btn"/>
+	<button label="全部退回" name="return_all_btn"/>
+	<button label="Disable Selected" name="disable_selected_btn"/>
+	<button label="Disable All" name="disable_all_btn"/>
+</floater>

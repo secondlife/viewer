@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script search" title="SCRIPT SEARCH">
+	<check_box label="Case Insensitive" name="case_text"/>
+	<button label="Search" label_selected="Search" name="search_btn"/>
+	<button label="取代" label_selected="取代" name="replace_btn"/>
+	<button label="全部取代" label_selected="全部取代" name="replace_all_btn"/>
+	<text name="txt">
+		Search
+	</text>
+	<text name="txt2">
+		取代
+	</text>
+</floater>

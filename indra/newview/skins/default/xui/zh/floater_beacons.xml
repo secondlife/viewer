@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="beacons" title="BEACONS">
+	<panel name="beacons_panel">
+		<text name="label_show">
+			Show :
+		</text>
+		<check_box label="Beacons" name="beacons"/>
+		<check_box label="Highlights" name="highlights"/>
+		<text name="beacon_width_label" tool_tip="Beacon width">
+			Width:
+		</text>
+		<text name="label_objects">
+			For these objects:
+		</text>
+		<check_box label="Physical" name="physical"/>
+		<check_box label="Scripted" name="scripted"/>
+		<check_box label="Touch only" name="touch_only"/>
+		<check_box label="Sound sources" name="sounds"/>
+		<check_box label="Particle sources" name="particles"/>
+		<check_box label="Media sources" name="moapbeacon"/>
+	</panel>
+</floater>

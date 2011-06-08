@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_skirt_panel">
 	<panel name="avatar_skirt_color_panel">
-		<texture_picker label="生地" name="Fabric" tool_tip="クリックして写真を選択"/>
+		<texture_picker label="テクスチャ" name="Fabric" tool_tip="クリックして写真を選択"/>
 		<color_swatch label="色・色彩配合" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
 	</panel>
 	<panel name="accordion_panel">

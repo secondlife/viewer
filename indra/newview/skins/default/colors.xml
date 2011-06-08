@@ -760,6 +760,17 @@
     <color
      name="MenuBarProjectBgColor"
      reference="MdBlue" />
+
+    <color
+      name="MeshImportTableNormalColor"
+      value="1 1 1 1"/>
+    <color
+      name="MeshImportTableHighlightColor"
+      value="0.2 0.8 1 1"/>
+
+    <color
+     name="DirectChatColor"
+     reference="LtOrange" />
   
     <!-- Generic color names (legacy) -->
   <color

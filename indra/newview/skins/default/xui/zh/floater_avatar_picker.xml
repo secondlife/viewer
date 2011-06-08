@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarpicker" title="挑選居民">
+	<floater.string name="not_found">
+		&apos;[TEXT]&apos; not found
+	</floater.string>
+	<floater.string name="no_one_near">
+		No one near
+	</floater.string>
+	<floater.string name="no_results">
+		No results
+	</floater.string>
+	<floater.string name="searching">
+		Searching...
+	</floater.string>
+	<string name="Select">
+		Select
+	</string>
+	<string name="Close">
+		關閉
+	</string>
+	<tab_container name="ResidentChooserTabs">
+		<panel label="Search" name="SearchPanel">
+			<text name="InstructSearchResidentName">
+				Type part of a person&apos;s name:
+			</text>
+			<button label="Go" label_selected="Go" name="Find"/>
+			<scroll_list name="SearchResults">
+				<columns label="名稱" name="name"/>
+				<columns label="Username" name="username"/>
+			</scroll_list>
+		</panel>
+		<panel label="Friends" name="FriendsPanel">
+			<text name="InstructSelectFriend">
+				選擇一個人：
+			</text>
+		</panel>
+		<panel label="接近我" name="NearMePanel">
+			<text name="InstructSelectResident">
+				Select a person nearby:
+			</text>
+			<slider label="Range" name="near_me_range"/>
+			<text name="meters">
+				Meters
+			</text>
+			<scroll_list name="NearMe">
+				<columns label="名稱" name="name"/>
+				<columns label="Username" name="username"/>
+			</scroll_list>
+		</panel>
+	</tab_container>
+	<button label="確定" label_selected="確定" name="ok_btn"/>
+	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
+</floater>

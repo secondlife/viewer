@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="WindLight floater" title="EDITOR AVANZATO DEL CIELO">
-	<text name="KeyFramePresetsText">
+	<text name="KeyFramePresetsText" width="105">
 		Cieli predefiniti:
 	</text>
+	<combo_box left_delta="105" name="WLPresetsCombo"/>
 	<button label="Nuovo" label_selected="Nuovo" name="WLNewPreset"/>
 	<button label="Salva" label_selected="Salva" left_delta="72" name="WLSavePreset"/>
 	<button label="Elimina" label_selected="Elimina" left_delta="72" name="WLDeletePreset"/>

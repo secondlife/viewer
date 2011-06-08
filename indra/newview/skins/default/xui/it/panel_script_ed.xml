@@ -15,11 +15,9 @@
 	<panel.string name="Title">
 		Script: [NAME]
 	</panel.string>
-	<text_editor name="Script Editor">
-		Caricamento in corso...
-	</text_editor>
-	<button label="Salva" label_selected="Salva" name="Save_btn"/>
-	<combo_box label="Inserisci..." name="Insert..."/>
+	<panel.string name="external_editor_not_set">
+		Seleziona un editor impostando la variabile di ambiente LL_SCRIPT_EDITOR o l&apos;impostazione ExternalEditor.
+	</panel.string>
 	<menu_bar name="script_menu">
 		<menu label="File" name="File">
 			<menu_item_call label="Salva" name="Save"/>
@@ -40,4 +38,10 @@
 			<menu_item_call label="Aiuto con parole chiave..." name="Keyword Help..."/>
 		</menu>
 	</menu_bar>
+	<text_editor name="Script Editor">
+		Caricamento in corso...
+	</text_editor>
+	<combo_box label="Inserisci..." name="Insert..."/>
+	<button label="Salva" label_selected="Salva" name="Save_btn"/>
+	<button label="Modifica..." name="Edit_btn"/>
 </panel>

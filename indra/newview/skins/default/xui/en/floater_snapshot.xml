@@ -100,7 +100,7 @@
      right="-5"
      name="upload_btn"
      top_delta="0"
-     width="100" />
+     width="110" />
     <flyout_button
      follows="left|top"
      height="23"
@@ -147,7 +147,7 @@
      right="-5"
      left_pad="5"
      name="discard_btn"
-     width="100" />
+     width="110" />
     <text
      type="string"
      length="1"

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu name="Gear Menu">
+	<menu_item_call label="触る" name="touch"/>
+	<menu_item_call label="座る" name="sit"/>
+	<menu_item_call label="支払う" name="pay"/>
+	<menu_item_call label="買う" name="buy"/>
+	<menu_item_call label="取る" name="take"/>
+	<menu_item_call label="コピーを取る" name="take_copy"/>
+	<menu_item_call label="開く" name="open"/>
+	<menu_item_call label="編集" name="edit"/>
+	<menu_item_call label="装着" name="wear"/>
+	<menu_item_call label="追加" name="add"/>
+	<menu_item_call label="報告" name="report"/>
+	<menu_item_call label="ブロック" name="block"/>
+	<menu_item_call label="ズームイン" name="zoom_in"/>
+	<menu_item_call label="削除" name="remove"/>
+	<menu_item_call label="詳細" name="more_info"/>
+</menu>

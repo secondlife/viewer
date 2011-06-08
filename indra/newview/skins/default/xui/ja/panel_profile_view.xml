@@ -6,7 +6,14 @@
 	<string name="status_offline">
 		オフライン
 	</string>
+	<text name="display_name_label" value="表示名："/>
+	<text name="solo_username_label" value="ユーザー名："/>
 	<text name="status" value="オンライン"/>
+	<text name="user_name_small" value="Jack oh look at me this is a super duper long name"/>
+	<text name="user_name" value="Jack Linden"/>
+	<button name="copy_to_clipboard" tool_tip="クリップボードにコピー"/>
+	<text name="user_label" value="ユーザー名："/>
+	<text name="user_slid" value="jack.linden"/>
 	<tab_container name="tabs">
 		<panel label="プロフィール" name="panel_profile"/>
 		<panel label="ピック" name="panel_picks"/>

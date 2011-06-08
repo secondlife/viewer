@@ -80,10 +80,15 @@ protected:
 
 	// explicit transformation members
 	LLXformMatrix		mXform;
+	LLXformMatrix		mOldXform;
+	LLXformMatrix		mDefaultXform;
 
+	LLUUID				mId;
 public:
 	U32				mDirtyFlags;
 	BOOL			mUpdateXform;
+
+	BOOL			mResetAfterRestoreOldXform;
 
 	// describes the skin binding pose
 	LLVector3		mSkinOffset;
@@ -130,7 +135,9 @@ public:
 	// get/set local position
 	const LLVector3& getPosition();
 	void setPosition( const LLVector3& pos );
-
+	
+	void setDefaultPosition( const LLVector3& pos );
+	
 	// get/set world position
 	LLVector3 getWorldPosition();
 	LLVector3 getLastWorldPosition();
@@ -172,6 +179,21 @@ public:
 
 	S32 getJointNum() const { return mJointNum; }
 	void setJointNum(S32 joint_num) { mJointNum = joint_num; }
+	
+	void restoreOldXform( void );
+	void restoreToDefaultXform( void );
+	void setDefaultFromCurrentXform( void );
+	void storeCurrentXform( const LLVector3& pos );
+
+	//Accessor for the joint id
+	LLUUID getId( void ) { return mId; }
+	//Setter for the joints id
+	void setId( const LLUUID& id ) { mId = id;}
+
+	//If the old transform flag has been set, then the reset logic in avatar needs to be aware(test) of it
+	const BOOL doesJointNeedToBeReset( void ) const { return mResetAfterRestoreOldXform; }
+	//Setter for joint reset flag
+	void setJointToBeReset( BOOL val ) { mResetAfterRestoreOldXform = val; }
 };
 #endif // LL_LLJOINT_H
 

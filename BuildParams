@@ -11,8 +11,11 @@ Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 # Use Public Upload Locations
 public_build = true
 
+# skip windows debug build until we can get a fix in.
+build_CYGWIN_Debug = false
+
 # Update Public Inworld Build Status Indicators
-email_status_this_is_os = true
+email_status_this_is_os = false
 
 # Limit extent of codeticket updates to revisions after...
 codeticket_since = 2.2.0-release
@@ -90,6 +93,33 @@ brad-parabuild.build_server = false
 brad-parabuild.build_server_tests = false
 
 # ========================================
+# mesh-development
+# ========================================
+mesh-development.viewer_channel = "Project Viewer - Mesh"
+mesh-development.login_channel = "Project Viewer - Mesh"
+mesh-development.viewer_grid = aditi
+mesh-development.build_debug_release_separately = true
+mesh-development.build_CYGWIN_Debug = false
+mesh-development.build_viewer_update_version_manager = false
+
+# ========================================
+# viewer-mesh
+# ========================================
+
+viewer-mesh.build_viewer = true
+viewer-mesh.build_server = false
+viewer-mesh.build_Linux = true
+viewer-mesh.build_hg_bundle = true
+viewer-mesh.build_viewer_update_version_manager = false
+viewer-mesh.build_Debug = false
+viewer-mesh.build_RelWithDebInfo = false
+viewer-mesh.viewer_channel = "Project Viewer - Mesh"
+viewer-mesh.login_channel = "Project Viewer - Mesh"
+viewer-mesh.viewer_grid = aditi
+viewer-mesh.email = shining@lists.lindenlab.com
+
+
+# ========================================
 # CG
 # ========================================
 
@@ -112,24 +142,12 @@ gooey.viewer_grid = agni
 gooey.build_viewer_update_version_manager = false
 
 # ========================================
-# Display Names project
+# Search Project
 # ========================================
 
-#viewer-identity-evolution.email = leyla@lindenlab.com
-viewer-identity.build_Debug = false
-viewer-identity.build_RelWithDebInfo = false
-viewer-identity.build_viewer = true
-viewer-identity.build_server = false
-viewer-identity.build_server_tests = false
-viewer-identity.build_Linux = true
-viewer-identity.build_hg_bundle = true
-viewer-identity.bulld_docs = true
-viewer-identity.viewer_channel = "Second Life Project Viewer"
-viewer-identity.login_channel = "Second Life Project Viewer"
-viewer-identity.viewer_grid = aditi
-viewer-identity.build_viewer_update_version_manager = false
-
-
+search_project-viewer.build_debug_release_separately = true
+search_project-viewer.viewer_channel = "Second Life Project Viewer - Search"
+search_project-viewer.login_channel = "Second Life Project Viewer - Search"
 
 # ========================================
 # palange

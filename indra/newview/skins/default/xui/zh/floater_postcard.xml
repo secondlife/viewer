@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Postcard" title="EMAIL SNAPSHOT">
+	<floater.string name="default_subject">
+		Postcard from [SECOND_LIFE].
+	</floater.string>
+	<floater.string name="default_message">
+		Check this out!
+	</floater.string>
+	<floater.string name="upload_message">
+		Sending...
+	</floater.string>
+	<text name="to_label">
+		Recipient&apos;s Email:
+	</text>
+	<text name="from_label">
+		Your Email:
+	</text>
+	<text name="name_label">
+		Your Name:
+	</text>
+	<text name="subject_label">
+		Subject:
+	</text>
+	<line_editor label="Type your subject here." name="subject_form"/>
+	<text name="msg_label">
+		Message:
+	</text>
+	<text_editor name="msg_form">
+		Type your message here.
+	</text_editor>
+	<button label="取銷" name="cancel_btn"/>
+	<button label="Send" name="send_btn"/>
+</floater>

@@ -120,9 +120,9 @@ BOOL LLPanelChatControlPanel::postBuild()
 	childSetAction("call_btn", boost::bind(&LLPanelChatControlPanel::onCallButtonClicked, this));
 	childSetAction("end_call_btn", boost::bind(&LLPanelChatControlPanel::onEndCallButtonClicked, this));
 	childSetAction("voice_ctrls_btn", boost::bind(&LLPanelChatControlPanel::onOpenVoiceControlsClicked, this));
-	
+
 	LLVoiceClient::getInstance()->addObserver(this);
-	
+
 	return TRUE;
 }
 
@@ -167,7 +167,7 @@ BOOL LLPanelIMControlPanel::postBuild()
 	getChildView("add_friend_btn")->setEnabled(!LLAvatarActions::isFriend(getChild<LLAvatarIconCtrl>("avatar_icon")->getAvatarId()));
 
 	setFocusReceivedCallback(boost::bind(&LLPanelIMControlPanel::onFocusReceived, this));
-
+	
 	return LLPanelChatControlPanel::postBuild();
 }
 

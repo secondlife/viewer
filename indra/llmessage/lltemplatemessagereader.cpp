@@ -30,6 +30,7 @@
 #include "llfasttimer.h"
 #include "llmessagebuilder.h"
 #include "llmessagetemplate.h"
+#include "llmath.h"
 #include "llquaternion.h"
 #include "message.h"
 #include "u64.h"

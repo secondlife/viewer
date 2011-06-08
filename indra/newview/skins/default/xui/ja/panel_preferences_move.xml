@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="移動" name="move_panel">
+	<slider label="視界角" name="camera_fov"/>
+	<slider label="距離" name="camera_offset_scale"/>
+	<text name="heading2">
+		自動ポジション：
+	</text>
+	<check_box label="制作・編集" name="edit_camera_movement" tool_tip="編集モードのオン・オフの切り替えに、自動カメラポジションを使います"/>
+	<check_box label="容姿" name="appearance_camera_movement" tool_tip="編集モードに入ったときに、自動カメラポジションを使います"/>
+	<check_box initial_value="true" label="サイドバー" name="appearance_sidebar_positioning" tool_tip="サイドバーに自動カメラポジションを使います"/>
+	<check_box label="一人称視点で表示する" name="first_person_avatar_visible"/>
+	<text name=" Mouse Sensitivity">
+		一人称視点のマウスの感度：
+	</text>
+	<check_box label="切り替え" name="invert_mouse"/>
+	<check_box label="常にキー操作で動くようにする" name="arrow_keys_move_avatar_check"/>
+	<check_box label="上矢印キー2度押し+長押しで走る" name="tap_tap_hold_to_run"/>
+	<check_box label="ダブルクリックで次の操作：" name="double_click_chkbox"/>
+	<radio_group name="double_click_action">
+		<radio_item label="テレポート" name="radio_teleport"/>
+		<radio_item label="自動追跡" name="radio_autopilot"/>
+	</radio_group>
+	<button label="その他のディバイス" name="joystick_setup_button"/>
+</panel>

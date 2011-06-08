@@ -43,6 +43,7 @@ public:
 private:
 	static void doAnalysisDefault(std::string baseline, std::string target, std::string output) ;
 	static LLSD analyzePerformanceLogDefault(std::istream& is) ;
+	static void exportCharts(const std::string& base, const std::string& target);
 
 public:
 

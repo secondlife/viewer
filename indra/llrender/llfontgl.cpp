@@ -271,7 +271,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		}
 	}
 
-
 	const LLFontGlyphInfo* next_glyph = NULL;
 
 	const S32 GLYPH_BATCH_SIZE = 30;
@@ -555,7 +554,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 	BOOL in_word = FALSE;
 
 	// avoid S32 overflow when max_pixels == S32_MAX by staying in floating point
-	F32 scaled_max_pixels =	ceil(max_pixels * sScaleX);
+	F32 scaled_max_pixels =	max_pixels * sScaleX;
 	F32 width_padding = 0.f;
 	
 	LLFontGlyphInfo* next_glyph = NULL;

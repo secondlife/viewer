@@ -87,9 +87,6 @@ bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*
 		mItemsPanel->addChild(item);
 		break;
 	default:
-		LL_WARNS("") << "Unsupported position." << LL_ENDL;
-		delete new_pair;
-		return false;
 		break;
 	}
 	

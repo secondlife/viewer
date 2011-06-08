@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="item properties" title="Item Profile">
+	<panel.string name="unknown">
+		（未知）
+	</panel.string>
+	<panel.string name="public">
+		（公開）
+	</panel.string>
+	<panel.string name="you_can">
+		你可以：
+	</panel.string>
+	<panel.string name="owner_can">
+		擁有者可以：
+	</panel.string>
+	<panel.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</panel.string>
+	<panel.string name="origin_inventory">
+		(Inventory)
+	</panel.string>
+	<panel.string name="origin_inworld">
+		(Inworld)
+	</panel.string>
+	<text name="title" value="Item Profile"/>
+	<text name="origin" value="(Inventory)"/>
+	<scroll_container name="item_profile_scroll">
+		<panel label="" name="item_profile">
+			<text name="LabelItemNameTitle">
+				名稱：
+			</text>
+			<text name="LabelItemDescTitle">
+				描述：
+			</text>
+			<text name="LabelCreatorTitle">
+				創造者：
+			</text>
+			<text name="LabelOwnerTitle">
+				擁有者：
+			</text>
+			<text name="LabelAcquiredTitle">
+				Acquired:
+			</text>
+			<panel name="perms_inv">
+				<text name="perm_modify">
+					你可以：
+				</text>
+				<check_box label="修改" name="CheckOwnerModify"/>
+				<check_box label="覆製" name="CheckOwnerCopy"/>
+				<check_box label="轉移" name="CheckOwnerTransfer"/>
+				<text name="AnyoneLabel">
+					任何人：
+				</text>
+				<check_box label="覆製" name="CheckEveryoneCopy"/>
+				<text name="GroupLabel">
+					Group:
+				</text>
+				<check_box label="分享" name="CheckShareWithGroup" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."/>
+				<text name="NextOwnerLabel">
+					下一個擁有者：
+				</text>
+				<check_box label="修改" name="CheckNextOwnerModify"/>
+				<check_box label="覆製" name="CheckNextOwnerCopy"/>
+				<check_box label="轉移" name="CheckNextOwnerTransfer" tool_tip="Next owner can give away or resell this object"/>
+			</panel>
+			<check_box label="出售" name="CheckPurchase"/>
+			<combo_box name="combobox sale copy">
+				<combo_box.item label="Copy" name="Copy"/>
+				<combo_box.item label="Original" name="Original"/>
+			</combo_box>
+			<spinner label="價格： L$" name="Edit Cost"/>
+		</panel>
+	</scroll_container>
+	<panel name="button_panel">
+		<button label="取銷" name="cancel_btn"/>
+	</panel>
+</panel>

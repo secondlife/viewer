@@ -352,6 +352,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				<combo_box.item label="Parchi &amp; Natura" name="item9"/>
 				<combo_box.item label="Residenziale" name="item10"/>
 				<combo_box.item label="Shopping" name="item11"/>
+				<combo_box.item label="Affitto" name="item13"/>
 				<combo_box.item label="Altro" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -366,6 +367,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				<combo_box.item label="Parchi &amp; Natura" name="item9"/>
 				<combo_box.item label="Residenziale" name="item10"/>
 				<combo_box.item label="Shopping" name="item11"/>
+				<combo_box.item label="Affitto" name="item13"/>
 				<combo_box.item label="Altro" name="item12"/>
 			</combo_box>
 			<check_box label="Contenuti di tipo Moderato" name="MatureCheck" tool_tip=" "/>
@@ -444,7 +446,7 @@ Media:
 				(Definito dalla proprietà)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Consenti accesso pubblico ([MATURITY])
+				Consenti accesso pubblico ([MATURITY]) (Nota: se si rimuove la selezione vengono create linee di espulsione)
 			</panel.string>
 			<panel.string name="estate_override">
 				Una o più di queste impostazioni sono già impostate a livello regionale

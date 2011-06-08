@@ -108,6 +108,7 @@ class LLColor4
 	
 	    const LLColor4& operator=(const LLColor3 &a);	// Assigns vec3 to vec4 and returns vec4
 		
+		bool operator<(const LLColor4& rhs) const;
 		friend std::ostream&	 operator<<(std::ostream& s, const LLColor4 &a);		// Print a
 		friend LLColor4 operator+(const LLColor4 &a, const LLColor4 &b);	// Return vector a + b
 		friend LLColor4 operator-(const LLColor4 &a, const LLColor4 &b);	// Return vector a minus b
@@ -385,7 +386,7 @@ inline const LLColor4&	LLColor4::setAlpha(F32 a)
 
 inline F32		LLColor4::length(void) const
 {
-	return fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	return (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 }
 
 inline F32		LLColor4::lengthSquared(void) const
@@ -395,7 +396,7 @@ inline F32		LLColor4::lengthSquared(void) const
 
 inline F32		LLColor4::normalize(void)
 {
-	F32 mag = fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	F32 mag = (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 	F32 oomag;
 
 	if (mag)
@@ -411,7 +412,7 @@ inline F32		LLColor4::normalize(void)
 // deprecated
 inline F32		LLColor4::magVec(void) const
 {
-	return fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	return (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 }
 
 // deprecated
@@ -423,7 +424,7 @@ inline F32		LLColor4::magVecSquared(void) const
 // deprecated
 inline F32		LLColor4::normVec(void)
 {
-	F32 mag = fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	F32 mag = (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 	F32 oomag;
 
 	if (mag)
@@ -589,6 +590,23 @@ inline LLColor4 lerp(const LLColor4 &a, const LLColor4 &b, F32 u)
 		a.mV[VW] + (b.mV[VW] - a.mV[VW]) * u);
 }
 
+inline bool LLColor4::operator<(const LLColor4& rhs) const
+{
+	if (mV[0] != rhs.mV[0])
+	{
+		return mV[0] < rhs.mV[0];
+	}
+	if (mV[1] != rhs.mV[1])
+	{
+		return mV[1] < rhs.mV[1];
+	}
+	if (mV[2] != rhs.mV[2])
+	{
+		return mV[2] < rhs.mV[2];
+	}
+
+	return mV[3] < rhs.mV[3];
+}
 
 void LLColor4::clamp()
 {

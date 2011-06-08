@@ -508,10 +508,10 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 	if (delta_weight != 0.f)
 	{
 		llassert(!mMesh->isLOD());
-		LLVector3 *coords = mMesh->getWritableCoords();
+		LLVector4 *coords = mMesh->getWritableCoords();
 
 		LLVector3 *scaled_normals = mMesh->getScaledNormals();
-		LLVector3 *normals = mMesh->getWritableNormals();
+		LLVector4 *normals = mMesh->getWritableNormals();
 
 		LLVector3 *scaled_binormals = mMesh->getScaledBinormals();
 		LLVector3 *binormals = mMesh->getWritableBinormals();
@@ -531,7 +531,8 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 				maskWeight = maskWeightArray[vert_index_morph];
 			}
 
-			coords[vert_index_mesh] += mMorphData->mCoords[vert_index_morph] * delta_weight * maskWeight;
+			coords[vert_index_mesh] += LLVector4(mMorphData->mCoords[vert_index_morph] * delta_weight * maskWeight);
+
 			if (getInfo()->mIsClothingMorph && clothing_weights)
 			{
 				LLVector3 clothing_offset = mMorphData->mCoords[vert_index_morph] * delta_weight * maskWeight;
@@ -546,7 +547,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 			scaled_normals[vert_index_mesh] += mMorphData->mNormals[vert_index_morph] * delta_weight * maskWeight * NORMAL_SOFTEN_FACTOR;
 			LLVector3 normalized_normal = scaled_normals[vert_index_mesh];
 			normalized_normal.normVec();
-			normals[vert_index_mesh] = normalized_normal;
+			normals[vert_index_mesh] = LLVector4(normalized_normal);
 
 			// calculate new binormals
 			scaled_binormals[vert_index_mesh] += mMorphData->mBinormals[vert_index_morph] * delta_weight * maskWeight * NORMAL_SOFTEN_FACTOR;
@@ -595,7 +596,7 @@ void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S3
 
 		if (maskWeights)
 		{
-			LLVector3 *coords = mMesh->getWritableCoords();
+			LLVector4 *coords = mMesh->getWritableCoords();
 			LLVector3 *scaled_normals = mMesh->getScaledNormals();
 			LLVector3 *scaled_binormals = mMesh->getScaledBinormals();
 			LLVector2 *tex_coords = mMesh->getWritableTexCoords();
@@ -606,7 +607,7 @@ void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S3
 				S32 out_vert = mMorphData->mVertexIndices[vert];
 
 				// remove effect of existing masked morph
-				coords[out_vert] -= mMorphData->mCoords[vert] * lastMaskWeight;
+				coords[out_vert] -= LLVector4(mMorphData->mCoords[vert]) * lastMaskWeight;
 				scaled_normals[out_vert] -= mMorphData->mNormals[vert] * lastMaskWeight * NORMAL_SOFTEN_FACTOR;
 				scaled_binormals[out_vert] -= mMorphData->mBinormals[vert] * lastMaskWeight * NORMAL_SOFTEN_FACTOR;
 				tex_coords[out_vert] -= mMorphData->mTexCoords[vert] * lastMaskWeight;
