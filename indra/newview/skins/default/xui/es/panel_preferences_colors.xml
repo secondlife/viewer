@@ -32,7 +32,7 @@
 		URLs
 	</text>
 	<text name="bubble_chat">
-		Color de fondo de las etiquetas de nombre (también se aplica a los bocadillos del chat):
+		Color de fondo de la etiqueta del nombre (afectará también a los bocadillos del chat):
 	</text>
 	<color_swatch name="background" tool_tip="Elige el color de las etiquetas de nombre"/>
 	<slider label="Opacidad:" name="bubble_chat_opacity" tool_tip="Elige la opacidad de las etiquetas de nombre"/>
