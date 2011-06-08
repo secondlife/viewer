@@ -20,8 +20,8 @@
 			<menu_item_call label="離開" name="Set Away"/>
 			<menu_item_call label="忙碌" name="Set Busy"/>
 		</menu>
-		<menu_item_call label="Request Admin Status" name="Request Admin Options"/>
-		<menu_item_call label="Leave Admin Status" name="Leave Admin Options"/>
+		<menu_item_call label="要求 Admin 狀態" name="Request Admin Options"/>
+		<menu_item_call label="離開 Admin 狀態" name="Leave Admin Options"/>
 		<menu_item_call label="結束離開 [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="溝通" name="Communicate">
@@ -35,9 +35,9 @@
 		<menu_item_check label="世界地圖" name="World Map"/>
 		<menu_item_check label="搜尋" name="Search"/>
 		<menu_item_call label="拍攝快照" name="Take Snapshot"/>
-		<menu_item_call label="Landmark This Place" name="Create Landmark Here"/>
-		<menu label="Place Profile" name="Land">
-			<menu_item_call label="Place Profile" name="Place Profile"/>
+		<menu_item_call label="將此處記下地標" name="Create Landmark Here"/>
+		<menu label="地點檔案" name="Land">
+			<menu_item_call label="地點檔案" name="Place Profile"/>
 			<menu_item_call label="關於土地" name="About Land"/>
 			<menu_item_call label="地區 / 領地" name="Region/Estate"/>
 		</menu>
@@ -85,11 +85,11 @@
 		</menu>
 		<menu_item_call label="聚焦於所選部位" name="Focus on Selection"/>
 		<menu_item_call label="Zoom to Selection" name="Zoom to Selection"/>
-		<menu label="Object" name="Object">
+		<menu label="物件" name="Object">
 			<menu_item_call label="購買" name="Menu Object Buy"/>
-			<menu_item_call label="Take" name="Menu Object Take"/>
+			<menu_item_call label="取得" name="Menu Object Take"/>
 			<menu_item_call label="取得副本" name="Take Copy"/>
-			<menu_item_call label="Save Back to My Inventory" name="Save Object Back to My Inventory"/>
+			<menu_item_call label="回存到我的收納區" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Save Back to Object Contents" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="退回物件" name="Return Object back to Owner"/>
 		</menu>
@@ -100,10 +100,10 @@
 			<menu_item_call label="Set Scripts to Running" name="Set Scripts to Running"/>
 			<menu_item_call label="Set Scripts to Not Running" name="Set Scripts to Not Running"/>
 		</menu>
-		<menu label="Options" name="Options">
-			<menu_item_check label="Show Advanced Permissions" name="DebugPermissions"/>
-			<menu_item_check label="Select Only My Objects" name="Select Only My Objects"/>
-			<menu_item_check label="Select Only Movable Objects" name="Select Only Movable Objects"/>
+		<menu label="選項" name="Options">
+			<menu_item_check label="顯示進階權限" name="DebugPermissions"/>
+			<menu_item_check label="只選取我的物件" name="Select Only My Objects"/>
+			<menu_item_check label="只選取可移動的物件" name="Select Only Movable Objects"/>
 			<menu_item_check label="Select By Surrounding" name="Select By Surrounding"/>
 			<menu_item_check label="Show Selection Outlines" name="Show Selection Outlines"/>
 			<menu_item_check label="Show Hidden Selection" name="Show Hidden Selection"/>
@@ -112,9 +112,9 @@
 			<menu_item_check label="貼齊格線" name="Snap to Grid"/>
 			<menu_item_call label="Snap Object XY to Grid" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Use Selection for Grid" name="Use Selection for Grid"/>
-			<menu_item_call label="Grid Options" name="Grid Options"/>
+			<menu_item_call label="格線選項" name="Grid Options"/>
 		</menu>
-		<menu label="Upload" name="Upload">
+		<menu label="上傳" name="Upload">
 			<menu_item_call label="Image (L$[COST])..." name="Upload Image"/>
 			<menu_item_call label="Sound (L$[COST])..." name="Upload Sound"/>
 			<menu_item_call label="Animation (L$[COST])..." name="Upload Animation"/>
@@ -122,19 +122,19 @@
 			<menu_item_call label="Set Default Upload Permissions" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="復原" name="Undo"/>
-		<menu_item_call label="Redo" name="Redo"/>
+		<menu_item_call label="重做" name="Redo"/>
 	</menu>
-	<menu label="Help" name="Help">
-		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
-		<menu_item_check label="Enable Hints" name="Enable Hints"/>
-		<menu_item_call label="Report Abuse" name="Report Abuse"/>
-		<menu_item_call label="Report Bug" name="Report Bug"/>
-		<menu_item_call label="About [APP_NAME]" name="About Second Life"/>
+	<menu label="幫助" name="Help">
+		<menu_item_call label="[SECOND_LIFE] 幫助" name="Second Life Help"/>
+		<menu_item_check label="啟用提示" name="Enable Hints"/>
+		<menu_item_call label="舉報濫用" name="Report Abuse"/>
+		<menu_item_call label="回報臭蟲" name="Report Bug"/>
+		<menu_item_call label="關於 [APP_NAME]" name="About Second Life"/>
 	</menu>
-	<menu label="Advanced" name="Advanced">
+	<menu label="進階" name="Advanced">
 		<menu_item_call label="Rebake Textures" name="Rebake Texture"/>
-		<menu_item_call label="Set UI Size to Default" name="Set UI Size to Default"/>
-		<menu_item_call label="Set Window Size..." name="Set Window Size..."/>
+		<menu_item_call label="設定使用者界面大小至預設值" name="Set UI Size to Default"/>
+		<menu_item_call label="設定視窗尺寸大小..." name="Set Window Size..."/>
 		<menu_item_check label="Limit Select Distance" name="Limit Select Distance"/>
 		<menu_item_check label="Disable Camera Constraints" name="Disable Camera Distance"/>
 		<menu_item_check label="High-res Snapshot" name="HighResSnapshot"/>
@@ -185,7 +185,7 @@
 			<menu_item_call label="Image (L$[COST])..." name="Upload Image"/>
 			<menu_item_check label="Search" name="Search"/>
 			<menu_item_call label="Release Keys" name="Release Keys"/>
-			<menu_item_call label="Set UI Size to Default" name="Set UI Size to Default"/>
+			<menu_item_call label="設定使用者界面大小至預設值" name="Set UI Size to Default"/>
 			<menu_item_check label="Show Advanced Menu - legacy shortcut" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="關閉視窗" name="Close Window"/>
 			<menu_item_call label="關閉全部視窗" name="Close All Windows"/>
@@ -210,10 +210,10 @@
 	</menu>
 	<menu label="開發" name="Develop">
 		<menu label="Consoles" name="Consoles">
-			<menu_item_check label="Texture Console" name="Texture Console"/>
+			<menu_item_check label="材質控制台" name="Texture Console"/>
 			<menu_item_check label="Debug Console" name="Debug Console"/>
 			<menu_item_call label="Notifications Console" name="Notifications"/>
-			<menu_item_check label="Texture Size Console" name="Texture Size"/>
+			<menu_item_check label="材質尺寸控制台" name="Texture Size"/>
 			<menu_item_check label="Texture Category Console" name="Texture Category"/>
 			<menu_item_check label="Fast Timers" name="Fast Timers"/>
 			<menu_item_check label="記憶體" name="Memory"/>
@@ -228,7 +228,7 @@
 		<menu label="顯示資訊" name="Display Info">
 			<menu_item_check label="Show Time" name="Show Time"/>
 			<menu_item_check label="Show Render Info" name="Show Render Info"/>
-			<menu_item_check label="Show Texture Info" name="Show Texture Info"/>
+			<menu_item_check label="顯示材質資訊" name="Show Texture Info"/>
 			<menu_item_check label="Show Matrices" name="Show Matrices"/>
 			<menu_item_check label="Show Color Under Cursor" name="Show Color Under Cursor"/>
 			<menu_item_check label="顯示記憶體" name="Show Memory"/>
@@ -316,7 +316,7 @@
 			<menu_item_call label="Media Browser Test" name="Web Browser Test"/>
 			<menu_item_call label="Web Content Browser" name="Web Content Browser"/>
 			<menu_item_call label="Dump SelectMgr" name="Dump SelectMgr"/>
-			<menu_item_call label="Dump Inventory" name="Dump Inventory"/>
+			<menu_item_call label="傾印收納區" name="Dump Inventory"/>
 			<menu_item_call label="Dump Timers" name="Dump Timers"/>
 			<menu_item_call label="Dump Focus Holder" name="Dump Focus Holder"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
@@ -335,7 +335,7 @@
 			<menu_item_call label="Reload Color Settings" name="Reload Color Settings"/>
 			<menu_item_call label="Show Font Test" name="Show Font Test"/>
 			<menu_item_check label="Show XUI Names" name="Show XUI Names"/>
-			<menu_item_call label="Send Test IMs" name="Send Test IMs"/>
+			<menu_item_call label="送出測試 IMs" name="Send Test IMs"/>
 			<menu_item_call label="Flush Names Caches" name="Flush Names Caches"/>
 		</menu>
 		<menu label="Avatar" name="Character">
@@ -369,7 +369,7 @@
 			<menu_item_call label="Debug Avatar Textures" name="Debug Avatar Textures"/>
 			<menu_item_call label="Dump Local Textures" name="Dump Local Textures"/>
 		</menu>
-		<menu_item_check label="HTTP Textures" name="HTTP Textures"/>
+		<menu_item_check label="HTTP 材質" name="HTTP Textures"/>
 		<menu_item_call label="Compress Images" name="Compress Images"/>
 		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
@@ -400,7 +400,7 @@
 	<menu label="Admin" name="Deprecated">
 		<menu label="Attach Object" name="Attach Object"/>
 		<menu label="Detach Object" name="Detach Object"/>
-		<menu label="Take Off Clothing" name="Take Off Clothing">
+		<menu label="脫下服裝" name="Take Off Clothing">
 			<menu_item_call label="襯衫" name="Shirt"/>
 			<menu_item_call label="褲子" name="Pants"/>
 			<menu_item_call label="鞋子" name="Shoes"/>
@@ -413,15 +413,15 @@
 			<menu_item_call label="Alpha" name="Alpha"/>
 			<menu_item_call label="Tattoo" name="Tattoo"/>
 			<menu_item_call label="Physics" name="Physics"/>
-			<menu_item_call label="All Clothes" name="All Clothes"/>
+			<menu_item_call label="全部衣服" name="All Clothes"/>
 		</menu>
-		<menu label="Help" name="Help">
-			<menu_item_call label="Official Linden Blog" name="Official Linden Blog"/>
+		<menu label="幫助" name="Help">
+			<menu_item_call label="林登官方部落格" name="Official Linden Blog"/>
 			<menu_item_call label="Scripting Portal" name="Scripting Portal"/>
-			<menu label="Bug Reporting" name="Bug Reporting">
+			<menu label="臭蟲回報" name="Bug Reporting">
 				<menu_item_call label="Public Issue Tracker" name="Public Issue Tracker"/>
 				<menu_item_call label="Public Issue Tracker Help" name="Publc Issue Tracker Help"/>
-				<menu_item_call label="Bug Reporting 101" name="Bug Reporing 101"/>
+				<menu_item_call label="臭蟲回報 101" name="Bug Reporing 101"/>
 				<menu_item_call label="Security Issues" name="Security Issues"/>
 				<menu_item_call label="QA Wiki" name="QA Wiki"/>
 			</menu>

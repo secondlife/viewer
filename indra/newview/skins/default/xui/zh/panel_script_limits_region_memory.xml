@@ -7,7 +7,7 @@
 		載入中...
 	</text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="Size (kb)" name="size"/>
+		<scroll_list.columns label="尺寸（kb）" name="size"/>
 		<scroll_list.columns label="URLs" name="urls"/>
 		<scroll_list.columns label="物件名稱" name="name"/>
 		<scroll_list.columns label="Object Owner" name="owner"/>

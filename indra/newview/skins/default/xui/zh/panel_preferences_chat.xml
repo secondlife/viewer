@@ -13,7 +13,7 @@
 	<check_box label="Enable plain text IM and chat history" name="plain_text_chat_history"/>
 	<check_box label="聊天泡泡" name="bubble_text_chat"/>
 	<text name="show_ims_in_label">
-		Show IMs in:
+		顯示 IMs 於：
 	</text>
 	<text name="requires_restart_label">
 		（須重新啟動）
@@ -26,7 +26,7 @@
 		Enable incoming chat popups:
 	</text>
 	<check_box label="Group Chats" name="EnableGroupChatPopups" tool_tip="Check to see popups when a Group Chat message arrives"/>
-	<check_box label="IM Chats" name="EnableIMChatPopups" tool_tip="Check to see popups when an instant message arrives"/>
+	<check_box label="IM 聊天" name="EnableIMChatPopups" tool_tip="Check to see popups when an instant message arrives"/>
 	<spinner label="Nearby chat toasts life time:" name="nearby_toasts_lifetime"/>
 	<spinner label="Nearby chat toasts fading time:" name="nearby_toasts_fadingtime"/>
 	<text name="translate_chb_label">

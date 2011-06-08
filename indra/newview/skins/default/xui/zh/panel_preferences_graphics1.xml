@@ -35,8 +35,8 @@
 		<combo_box name="Reflections">
 			<combo_box.item label="Minimal" name="0"/>
 			<combo_box.item label="Terrain and trees" name="1"/>
-			<combo_box.item label="All static objects" name="2"/>
-			<combo_box.item label="All avatars and objects" name="3"/>
+			<combo_box.item label="全部靜態物件" name="2"/>
+			<combo_box.item label="全部化身與物件" name="3"/>
 			<combo_box.item label="Everything" name="4"/>
 		</combo_box>
 		<slider label="Avatar Physics:" name="AvatarPhysicsDetail"/>

@@ -10,7 +10,7 @@
 		anonymous
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		is calling.
+		通話中。
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		has joined a Voice Chat call with a conference chat.

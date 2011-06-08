@@ -73,7 +73,7 @@
 	<text label="Stretch Both Sides" name="checkbox uniform label">
 		Stretch Both Sides
 	</text>
-	<check_box initial_value="true" label="Stretch Textures" name="checkbox stretch textures"/>
+	<check_box initial_value="true" label="伸展材質" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="貼齊格線" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Choose the type of grid ruler for positioning the object">
 		<combo_box.item label="World grid" name="World"/>
@@ -113,7 +113,7 @@
 		Bulldozer:
 	</text>
 	<text name="Dozer Size:">
-		Size
+		尺寸
 	</text>
 	<slider_bar initial_value="2.0" name="slider brush size"/>
 	<text name="Strength:">
@@ -178,7 +178,7 @@
 				擁有者：
 			</text>
 			<text name="Group:">
-				Group:
+				社團：
 			</text>
 			<name_box initial_value="載入中..." name="Group Name Proxy"/>
 			<button name="button set group" tool_tip="Choose a group to share this object&apos;s permissions"/>
@@ -250,7 +250,7 @@
 			<spinner label="Y" name="Pos Y"/>
 			<spinner label="Z" name="Pos Z"/>
 			<text name="label size">
-				Size (meters)
+				尺寸（公尺）
 			</text>
 			<spinner label="X" name="Scale X"/>
 			<spinner label="Y" name="Scale Y"/>
@@ -309,7 +309,7 @@
 				Taper
 			</text>
 			<text name="scale_hole">
-				Hole Size
+				洞尺寸
 			</text>
 			<spinner label="X" name="Taper Scale X"/>
 			<spinner label="Y" name="Taper Scale Y"/>
@@ -380,14 +380,14 @@
 			<spinner label="Falloff" name="Light Falloff"/>
 			<spinner label="Ambiance" name="Light Ambiance"/>
 		</panel>
-		<panel label="Texture" name="Texture">
+		<panel label="材質" name="Texture">
 			<panel.string name="string repeats per meter">
 				Repeats Per Meter
 			</panel.string>
 			<panel.string name="string repeats per face">
 				Repeats Per Face
 			</panel.string>
-			<texture_picker label="Texture" name="texture control" tool_tip="點擊以挑選圖片"/>
+			<texture_picker label="材質" name="texture control" tool_tip="點擊以挑選圖片"/>
 			<color_swatch label="Color" name="colorswatch" tool_tip="Click to open color picker"/>
 			<text name="color trans">
 				Transparency %
@@ -447,7 +447,7 @@
 			<spinner label="Repeats / Meter" name="rptctrl"/>
 			<button label="套用" label_selected="套用" name="button apply"/>
 			<text name="tex offset">
-				Texture Offset
+				材質位移
 			</text>
 			<spinner label="Horizontal (U)" name="TexOffsetU"/>
 			<spinner label="Vertical (V)" name="TexOffsetV"/>
@@ -456,7 +456,7 @@
 					Media
 				</text>
 				<button name="add_media" tool_tip="Add Media"/>
-				<button name="delete_media" tool_tip="Delete this media texture"/>
+				<button name="delete_media" tool_tip="刪除這個媒體材質"/>
 				<button name="edit_media" tool_tip="Edit this Media"/>
 				<button label="Align" label_selected="Align Media" name="button align" tool_tip="Align media texture (must load first)"/>
 			</panel>

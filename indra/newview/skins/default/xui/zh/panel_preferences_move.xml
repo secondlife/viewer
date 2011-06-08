@@ -17,7 +17,7 @@
 	<check_box label="Tap-tap-hold to run" name="tap_tap_hold_to_run"/>
 	<check_box label="Double-Click to:" name="double_click_chkbox"/>
 	<radio_group name="double_click_action">
-		<radio_item label="Teleport" name="radio_teleport"/>
+		<radio_item label="瞬間傳送" name="radio_teleport"/>
 		<radio_item label="Auto-pilot" name="radio_autopilot"/>
 	</radio_group>
 	<button label="其他設備" name="joystick_setup_button"/>

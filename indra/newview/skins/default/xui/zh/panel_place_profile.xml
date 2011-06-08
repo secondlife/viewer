@@ -5,18 +5,18 @@
 	<string name="anyone" value="Anyone"/>
 	<string name="available" value="available"/>
 	<string name="allocated" value="allocated"/>
-	<string name="title_place" value="Place Profile"/>
-	<string name="title_teleport_history" value="Teleport History"/>
+	<string name="title_place" value="地點檔案"/>
+	<string name="title_teleport_history" value="瞬間傳送歷史紀錄"/>
 	<string name="not_available" value="(N\A)"/>
 	<string name="unknown" value="（未知）"/>
 	<string name="public" value="（公開）"/>
 	<string name="none_text" value="（無）"/>
 	<string name="sale_pending_text" value="(Sale Pending)"/>
-	<string name="group_owned_text" value="(Group Owned)"/>
+	<string name="group_owned_text" value="（社團所擁有）"/>
 	<string name="price_text" value="L$"/>
 	<string name="area_text" value="m²"/>
 	<string name="all_residents_text" value="全部居民"/>
-	<string name="group_text" value="Group"/>
+	<string name="group_text" value="社團"/>
 	<string name="can_resell">
 		Purchased land in this region may be resold.
 	</string>
@@ -42,7 +42,7 @@
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
 	<button name="back_btn" tool_tip="Back"/>
-	<text name="title" value="Place Profile"/>
+	<text name="title" value="地點檔案"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
 			<text name="region_title" value="SampleRegion"/>
@@ -58,7 +58,7 @@
 						<text name="rating_value" value="未知"/>
 						<text name="voice_label" value="Voice:"/>
 						<text name="voice_value" value="On"/>
-						<text name="fly_label" value="Fly:"/>
+						<text name="fly_label" value="飛行："/>
 						<text name="fly_value" value="On"/>
 						<text name="push_label" value="Push:"/>
 						<text name="push_value" value="Off"/>
@@ -81,7 +81,7 @@
 						<text name="region_rating" value="Adult"/>
 						<text name="region_owner_label" value="擁有者："/>
 						<text name="region_owner" value="moose Van Moose extra long name moose"/>
-						<text name="region_group_label" value="Group:"/>
+						<text name="region_group_label" value="社團："/>
 						<text name="region_group">
 							The Mighty Moose of mooseville soundvillemoose
 						</text>

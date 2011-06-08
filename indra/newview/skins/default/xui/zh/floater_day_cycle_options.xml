@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Day Cycle Floater" title="DAY CYCLE EDITOR">
+<floater name="Day Cycle Floater" title="日循環編輯器">
 	<tab_container name="Day Cycle Tabs">
-		<panel label="Day Cycle" name="Day Cycle">
+		<panel label="日循環" name="Day Cycle">
 			<multi_slider initial_value="0" name="WLTimeSlider"/>
 			<multi_slider initial_value="0" name="WLDayCycleKeys"/>
 			<text name="WL12am">

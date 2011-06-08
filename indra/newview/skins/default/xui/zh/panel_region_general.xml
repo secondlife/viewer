@@ -36,8 +36,8 @@
 		<icons_combo_box.item label="一般" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="套用" name="apply_btn"/>
-	<button label="Teleport Home One Resident..." name="kick_btn"/>
-	<button label="Teleport Home All Residents..." name="kick_all_btn"/>
-	<button label="Send Message To Region..." name="im_btn"/>
-	<button label="Manage Telehub..." name="manage_telehub_btn"/>
+	<button label="強制瞬間傳送一位居民回家..." name="kick_btn"/>
+	<button label="強制瞬間傳送所有居民回家..." name="kick_all_btn"/>
+	<button label="傳送訊息到地區..." name="im_btn"/>
+	<button label="管理瞬間傳送中心..." name="manage_telehub_btn"/>
 </panel>

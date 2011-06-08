@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_report_abuse" title="REPORT ABUSE">
+<floater name="floater_report_abuse" title="舉報濫用">
 	<floater.string name="Screenshot">
-		Screenshot
+		快照
 	</floater.string>
-	<check_box label="Use this screenshot" name="screen_check"/>
+	<check_box label="使用這張快照" name="screen_check"/>
 	<text name="reporter_title">
-		Reporter:
+		舉報者：
 	</text>
 	<text name="sim_title">
 		地區：
@@ -24,13 +24,13 @@
 	</text>
 	<button name="pick_btn" tool_tip="Object Picker - Identify an object as the subject of this report"/>
 	<text name="object_name_label">
-		Object:
+		物件：
 	</text>
 	<text name="owner_name_label">
 		擁有者：
 	</text>
 	<combo_box name="category_combo" tool_tip="Category -- select the category that best describes this report">
-		<combo_box.item label="Select category" name="Select_category"/>
+		<combo_box.item label="選擇類別" name="Select_category"/>
 		<combo_box.item label="Age &gt; Age play" name="Age__Age_play"/>
 		<combo_box.item label="Age &gt; Adult Resident on Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="Age &gt; Underage Resident outside of Teen Second Life" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
@@ -68,20 +68,20 @@
 		<combo_box.item label="Land &gt; Encroachment &gt; Particles" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Land &gt; Encroachment &gt; Trees/plants" name="Land__Encroachment__Trees_plants"/>
 		<combo_box.item label="Wagering/gambling" name="Wagering_gambling"/>
-		<combo_box.item label="Other" name="Other"/>
+		<combo_box.item label="其他" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">
-		Abuser name:
+		濫用者名稱：
 	</text>
-	<button label="Choose" name="select_abuser" tool_tip="Select the name of the abuser from a list"/>
+	<button label="選擇" name="select_abuser" tool_tip="Select the name of the abuser from a list"/>
 	<text name="abuser_name_title2">
-		Location of Abuse:
+		濫用位置：
 	</text>
 	<text name="sum_title">
-		Summary:
+		摘要：
 	</text>
 	<text name="dscr_title">
-		Details:
+		細節：
 	</text>
 	<text name="bug_aviso">
 		Please be as specific as possible
@@ -89,6 +89,6 @@
 	<text name="incomplete_title">
 		* Incomplete reports won&apos;t be investigated
 	</text>
-	<button label="Report Abuse" label_selected="Report Abuse" name="send_btn"/>
+	<button label="舉報濫用" label_selected="舉報濫用" name="send_btn"/>
 	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
 </floater>

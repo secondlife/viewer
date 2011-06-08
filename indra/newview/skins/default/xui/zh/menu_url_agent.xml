@@ -2,5 +2,5 @@
 <context_menu name="Url Popup">
 	<menu_item_call label="Show Resident Profile" name="show_agent"/>
 	<menu_item_call label="覆製名稱到剪貼簿" name="url_copy_label"/>
-	<menu_item_call label="Copy SLurl to clipboard" name="url_copy"/>
+	<menu_item_call label="覆製 SLurl 到剪貼簿" name="url_copy"/>
 </context_menu>

@@ -37,7 +37,7 @@
 		<action description="Always allow &apos;Edit Terrain&apos;" longdescription="Members in a Role with this Ability can edit terrain on a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab." name="land allow edit land" value="23"/>
 		<action description="Always allow &apos;Fly&apos;" longdescription="Members in a Role with this Ability can fly on a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab." name="land allow fly" value="24"/>
 		<action description="Always allow &apos;Create Objects&apos;" longdescription="Members in a Role with this Ability can create objects on a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab." name="land allow create" value="25"/>
-		<action description="Always allow &apos;Create Landmark&apos;" longdescription="Members in a Role with this Ability can landmark a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab." name="land allow landmark" value="26"/>
+		<action description="總是允許 &apos;創造地標&apos;" longdescription="Members in a Role with this Ability can landmark a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab." name="land allow landmark" value="26"/>
 		<action description="Allow &apos;Set Home to Here&apos; on group land" longdescription="Members in a Role with this Ability can use World menu &gt; Landmarks &gt; Set Home to Here on a parcel deeded to this group." name="land allow set home" value="28"/>
 		<action description="Allow &apos;Event Hosting&apos; on group land" longdescription="Members in a Role with this Ability can select group owned parcels as venus when hosting an event." name="land allow host event" value="41"/>
 	</action_set>

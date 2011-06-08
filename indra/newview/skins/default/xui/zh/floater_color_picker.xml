@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="ColorPicker" title="COLOR PICKER">
+<floater name="ColorPicker" title="顏色挑選器">
 	<text name="r_val_text">
-		Red:
+		紅色：
 	</text>
 	<text name="g_val_text">
-		Green:
+		綠色：
 	</text>
 	<text name="b_val_text">
-		Blue:
+		藍色：
 	</text>
 	<text name="h_val_text">
 		Hue:
@@ -22,7 +22,7 @@
 	<button label="確定" label_selected="確定" name="select_btn"/>
 	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
 	<text name="Current color:">
-		Current color:
+		目前顏色：
 	</text>
 	<text name="(Drag below to save.)">
 		(Drag below to save)

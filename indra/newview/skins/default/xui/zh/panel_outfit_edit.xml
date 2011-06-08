@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray Outfit Edit panel -->
 <panel name="outfit_edit">
-	<string name="No Outfit" value="No Outfit"/>
-	<string name="unsaved_changes" value="Unsaved Changes"/>
-	<string name="now_editing" value="Now Editing"/>
+	<string name="No Outfit" value="無裝扮"/>
+	<string name="unsaved_changes" value="變更未儲存"/>
+	<string name="now_editing" value="現在編輯中"/>
 	<panel.string name="not_available">
 		(N\A)
 	</panel.string>
@@ -11,15 +11,15 @@
 		（未知）
 	</panel.string>
 	<string name="Filter.All" value="全部"/>
-	<string name="Filter.Clothes/Body" value="Clothes/Body"/>
-	<string name="Filter.Objects" value="Objects"/>
-	<string name="Filter.Clothing" value="Clothing"/>
-	<string name="Filter.Bodyparts" value="Body parts"/>
+	<string name="Filter.Clothes/Body" value="衣服 / 身體"/>
+	<string name="Filter.Objects" value="物件"/>
+	<string name="Filter.Clothing" value="服裝"/>
+	<string name="Filter.Bodyparts" value="身體部位"/>
 	<string name="replace_body_part" value="Click to replace your existing shape"/>
-	<text name="title" value="Edit Outfit"/>
+	<text name="title" value="編輯裝扮"/>
 	<panel name="header_panel">
 		<panel name="outfit_name_and_status">
-			<text name="status" value="Now editing..."/>
+			<text name="status" value="現在編輯中..."/>
 			<text name="curr_outfit_name" value="[Current Outfit]"/>
 		</panel>
 	</panel>
@@ -27,10 +27,10 @@
 		<layout_panel name="outfit_wearables_panel">
 			<layout_stack name="filter_panels">
 				<layout_panel name="add_button_and_combobox">
-					<button label="Add More..." name="show_add_wearables_btn" tool_tip="Open/Close"/>
+					<button label="Add More..." name="show_add_wearables_btn" tool_tip="開啟 / 關閉"/>
 				</layout_panel>
 				<layout_panel name="filter_panel">
-					<filter_editor label="Filter Inventory Wearables" name="look_item_filter"/>
+					<filter_editor label="收納區可穿著過濾器" name="look_item_filter"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

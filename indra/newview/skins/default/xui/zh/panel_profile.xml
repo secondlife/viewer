@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Profile" name="panel_profile">
+<panel label="檔案" name="panel_profile">
 	<string name="CaptionTextAcctInfo">
 		[ACCTTYPE]
 [PAYMENTINFO] [AGEVERIFICATION]
@@ -30,15 +30,15 @@
 						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
 					</panel>
 					<panel name="first_life_image_panel">
-						<text name="title_rw_descr_text" value="Real World:"/>
+						<text name="title_rw_descr_text" value="真實世界："/>
 					</panel>
 					<text name="title_member_text" value="Resident Since:"/>
 					<text name="title_acc_status_text" value="Account Status:"/>
-					<text name="title_partner_text" value="Partner:"/>
+					<text name="title_partner_text" value="配偶："/>
 					<panel name="partner_data_panel">
 						<text initial_value="(retrieving)" name="partner_text"/>
 					</panel>
-					<text name="title_groups_text" value="Groups:"/>
+					<text name="title_groups_text" value="社團："/>
 				</panel>
 			</scroll_container>
 		</layout_panel>
@@ -53,10 +53,10 @@
 					<button label="IM" name="im" tool_tip="Open instant message session"/>
 				</layout_panel>
 				<layout_panel name="call_btn_lp">
-					<button label="Call" name="call" tool_tip="Call this Resident"/>
+					<button label="通話" name="call" tool_tip="與這位居民通話"/>
 				</layout_panel>
 				<layout_panel name="chat_btn_lp">
-					<button label="Teleport" name="teleport" tool_tip="Offer teleport"/>
+					<button label="瞬間傳送" name="teleport" tool_tip="Offer teleport"/>
 				</layout_panel>
 				<layout_panel name="overflow_btn_lp">
 					<menu_button label="▼" name="overflow_btn" tool_tip="Pay money to or share inventory with the Resident"/>

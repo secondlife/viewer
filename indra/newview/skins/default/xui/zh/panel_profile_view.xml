@@ -13,7 +13,7 @@
 	<button name="copy_to_clipboard" tool_tip="覆製到剪貼簿"/>
 	<text name="user_label" value="Username:"/>
 	<tab_container name="tabs">
-		<panel label="PROFILE" name="panel_profile"/>
+		<panel label="檔案" name="panel_profile"/>
 		<panel label="PICKS" name="panel_picks"/>
 		<panel label="NOTES &amp; PRIVACY" name="panel_notes"/>
 	</tab_container>

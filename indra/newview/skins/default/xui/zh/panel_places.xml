@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Places" name="places panel">
-	<string name="landmarks_tab_title" value="MY LANDMARKS"/>
-	<string name="teleport_history_tab_title" value="TELEPORT HISTORY"/>
-	<filter_editor label="Filter My Places" name="Filter"/>
+<panel label="地點" name="places panel">
+	<string name="landmarks_tab_title" value="我的地標"/>
+	<string name="teleport_history_tab_title" value="瞬間傳送歷史紀錄"/>
+	<filter_editor label="我的地點過濾器" name="Filter"/>
 	<panel name="button_panel">
 		<layout_stack name="bottom_bar_ls0">
 			<layout_panel name="lp1">
 				<layout_stack name="bottom_bar_ls1">
 					<layout_panel name="teleport_btn_lp">
-						<button label="Teleport" name="teleport_btn" tool_tip="Teleport to the selected area"/>
+						<button label="瞬間傳送" name="teleport_btn" tool_tip="瞬間傳送到所選擇的區域"/>
 					</layout_panel>
 					<layout_panel name="chat_btn_lp">
 						<button label="地圖" name="map_btn" tool_tip="Show the corresponding area on the World Map"/>
@@ -18,15 +18,15 @@
 			<layout_panel name="lp2">
 				<layout_stack name="bottom_bar_ls3">
 					<layout_panel name="edit_btn_lp">
-						<button label="編輯" name="edit_btn" tool_tip="Edit landmark information"/>
+						<button label="編輯" name="edit_btn" tool_tip="編輯地標資訊"/>
 					</layout_panel>
 					<layout_panel name="overflow_btn_lp">
-						<menu_button name="overflow_btn" tool_tip="Show additional options"/>
+						<menu_button name="overflow_btn" tool_tip="顯示額外選項"/>
 					</layout_panel>
 				</layout_stack>
 				<layout_stack name="bottom_bar_ls3">
 					<layout_panel name="profile_btn_lp">
-						<button label="Profile" name="profile_btn" tool_tip="Show place profile"/>
+						<button label="檔案" name="profile_btn" tool_tip="顯示地點檔案"/>
 					</layout_panel>
 				</layout_stack>
 				<layout_stack name="bottom_bar_close_ls3">
