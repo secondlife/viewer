@@ -130,6 +130,139 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/index.php?lang=ja-JP
 	</string>
+	<string name="LoginFailedViewerNotPermitted">
+		お使いの古いビューワでは Second Life にアクセスできません。以下のページから新しいビューワをダウンロードしてください：
+http://secondlife.com/download
+
+詳細については、FAQ を参照してください：
+http://secondlife.com/viewer-access-faq
+	</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">
+		ビューワアップデート（オプション）があります： [VERSION]
+	</string>
+	<string name="LoginFailedRequiredUpdate">
+		ビューワアップデート（必須）： [VERSION]
+	</string>
+	<string name="LoginFailedAlreadyLoggedIn">
+		このエージェントは既にログインされています。
+	</string>
+	<string name="LoginFailedAuthenticationFailed">
+		申し訳ありませんが、ログインできませんでした。
+以下の情報が正しく入力されたことを確認してください：
+* ユーザー名（bobsmith12 または steller.sunshine など）
+* パスワード
+また、Caps Lock キーが有効になっていないこともお確かめください。
+	</string>
+	<string name="LoginFailedPasswordChanged">
+		セキュリティ上の理由により、あなたのパスワードは変更されました。
+アカウントページ（http://secondlife.com/password）に移動し、
+秘密の質問に答えて、パスワードをリセットしてください。
+ご迷惑をおかけして申し訳ございません。
+	</string>
+	<string name="LoginFailedPasswordReset">
+		弊社はシステムを若干変更しました。お手数ですが、パスワードのリセットをお願いします。
+アカウントページ（http://secondlife.com/password）に移動し、
+秘密の質問に答えて、パスワードをリセットしてください。
+ご迷惑をおかけして申し訳ございません。
+	</string>
+	<string name="LoginFailedEmployeesOnly">
+		Second Life はメンテナンスのため、一時的にご利用いただけません。
+従業員以外にはログインをご遠慮いただいています。
+最新の状況については www.secondlife.com/status でお確かめください。
+	</string>
+	<string name="LoginFailedPremiumOnly">
+		既にログインしているユーザーに最上のインワールド体験を提供するため、Second Life へのログインは一時的に制限されています。
+	 	
+申し訳ございませんが、有料アカウントのユーザーを優先するために、現時点のところ無料アカウントのユーザーには Second Life へのアクセスをご遠慮いただいています。
+	</string>
+	<string name="LoginFailedComputerProhibited">
+		このパソコンからは Second Life にアクセスできません。
+システムのエラーだと思われる場合は、
+support@secondlife.com にお問い合わせください。
+	</string>
+	<string name="LoginFailedAcountSuspended">
+		あなたのアカウントは
+太平洋時間の [TIME] までご利用いただけません。
+	</string>
+	<string name="LoginFailedAccountDisabled">
+		現在リクエストを完了することができません。
+Second Life のサポート（http://secondlife.com/support）にお問い合わせください。
+パスワードを変更できない場合には、(866) 476-9763 に電話でお問い合わせください。
+	</string>
+	<string name="LoginFailedTransformError">
+		ログイン時にデータの不一致が見つかりました。
+support@secondlife.com にお問い合わせください。
+	</string>
+	<string name="LoginFailedAccountMaintenance">
+		現在アカウントのメインテナンスが行われています。
+あなたのアカウントは
+太平洋時間の [TIME] までご利用いただけません。
+システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+	</string>
+	<string name="LoginFailedPendingLogoutFault">
+		ログアウトをリスクエストしたら、シミュレーターから「fault」が返されました。
+	</string>
+	<string name="LoginFailedPendingLogout">
+		システムによるログアウトが実行されました。
+あなたのアカウントは
+太平洋時間の [TIME] までご利用いただけません。
+	</string>
+	<string name="LoginFailedUnableToCreateSession">
+		有効なセッションを生成できません。
+	</string>
+	<string name="LoginFailedUnableToConnectToSimulator">
+		シミュレーターに接続できませんでした。
+	</string>
+	<string name="LoginFailedRestrictedHours">
+		あなたの Second Life アカウントにアクセスできるのは、
+太平洋時間の [START] ～ [END] の間に限られます。
+有効な時間帯に再度お試しください。
+システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+	</string>
+	<string name="LoginFailedIncorrectParameters">
+		パラメーターが正しくありません。
+システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+	</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">
+		ファーストネームのパラメーターは英数字です。
+システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+	</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">
+		ラストネームのパラメーターは英数字です。
+システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+	</string>
+	<string name="LogoutFailedRegionGoingOffline">
+		リージョンはオフライン中です。
+しばらくしてから再度お試しください。
+	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		エージェントがリージョンに不在です。
+しばらくしてから再度お試しください。
+	</string>
+	<string name="LogoutFailedPendingLogin">
+		このリージョンでは別のセッションがログインされていました。
+しばらくしてから再度お試しください。
+	</string>
+	<string name="LogoutFailedLoggingOut">
+		このリージョンでは前のセッションがログアウトされました。
+しばらくしてから再度お試しください。
+	</string>
+	<string name="LogoutFailedStillLoggingOut">
+		このリージョンでは現在も前のセッションのログアウトが処理されています。
+しばらくしてから再度お試しください。
+	</string>
+	<string name="LogoutSucceeded">
+		リージョンでは前のセッションがログアウトされました。
+しばらくしてから再度お試しください。
+	</string>
+	<string name="LogoutFailedLogoutBegun">
+		リージョンではログアウトプロセスが開始されました。
+しばらくしてから再度お試しください。
+	</string>
+	<string name="LoginFailedLoggingOutSession">
+		あなたの前のセッションはシステムによってログアウトされています。
+しばらくしてから再度お試しください。
+	</string>
 	<string name="AgentLostConnection">
 		このリージョンに不都合が発生している可能性があります。  ご使用のインターネット接続をご確認ください。
 	</string>
@@ -440,6 +573,9 @@
 	</string>
 	<string name="symbolic folder link">
 		フォルダのリンク
+	</string>
+	<string name="mesh">
+		メッシュ
 	</string>
 	<string name="AvatarEditingAppearance">
 		（容姿の編集中）
@@ -1179,6 +1315,9 @@
 	</string>
 	<string name="InvFolder Accessories">
 		アクセサリ
+	</string>
+	<string name="InvFolder Meshes">
+		メッシュ
 	</string>
 	<string name="InvFolder Friends">
 		フレンド
@@ -3761,6 +3900,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="session_initialization_timed_out_error">
 		セッションの初期化がタイムアウトしました
+	</string>
+	<string name="Home position set.">
+		家の配置の設定。
 	</string>
 	<string name="voice_morphing_url">
 		http://secondlife.com/landing/voicemorphing
