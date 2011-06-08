@@ -49,7 +49,7 @@
 			<text name="Sell with landowners objects in parcel.">
 				Objecten opgenomen in verkoop
 			</text>
-			<text name="Selling with no objects in parcel." width="196">
+			<text name="Selling with no objects in parcel.">
 				Objecten niet opgenomen in verkoop
 			</text>
 			<button label="Annuleer landverkoop" label_selected="Annuleer landverkoop" name="Cancel Land Sale"/>
