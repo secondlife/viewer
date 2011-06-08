@@ -234,7 +234,7 @@ void main()
 	gl_FragColor[0] = shadow;
 	gl_FragColor[1] = calcAmbientOcclusion(pos, norm);
 	
-	spos.xyz = shadow_pos+offset*spot_shadow_offset;
+	spos.xyz = shadow_pos+norm*spot_shadow_offset;
 	
 	//spotlight shadow 1
 	vec4 lpos = shadow_matrix[4]*spos;
