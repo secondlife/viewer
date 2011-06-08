@@ -7,11 +7,17 @@
 		</menu_item_call>
 		<menu_item_call label="Compra L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Il mio profilo" name="Profile"/>
-		<menu_item_call label="Cambia vestiario" name="ChangeOutfit"/>
+		<menu_item_call label="Il mio aspetto" name="ChangeOutfit"/>
 		<menu_item_check label="Il mio inventario" name="Inventory"/>
 		<menu_item_check label="Il mio inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Le mie gesture" name="Gestures"/>
 		<menu_item_check label="La mia voce" name="ShowVoice"/>
+		<menu label="Spostamento" name="Movement">
+			<menu_item_call label="Siedi" name="Sit Down Here"/>
+			<menu_item_check label="Vola" name="Fly"/>
+			<menu_item_check label="Corri sempre" name="Always Run"/>
+			<menu_item_call label="Ferma animazione" name="Stop Animating My Avatar"/>
+		</menu>
 		<menu label="Il mio stato" name="Status">
 			<menu_item_call label="Assente" name="Set Away"/>
 			<menu_item_call label="Non disponibile" name="Set Busy"/>
@@ -29,6 +35,7 @@
 	<menu label="Mondo" name="World">
 		<menu_item_check label="Mini mappa" name="Mini-Map"/>
 		<menu_item_check label="Mappa del mondo" name="World Map"/>
+		<menu_item_check label="Cerca" name="Search"/>
 		<menu_item_call label="Istantanea" name="Take Snapshot"/>
 		<menu_item_call label="Crea punto di riferimento per questo luogo" name="Create Landmark Here"/>
 		<menu label="Profilo del luogo" name="Land">
@@ -47,6 +54,7 @@
 			<menu_item_check label="Proprietari di terreno" name="Land Owners"/>
 			<menu_item_check label="Coordinate" name="Coordinates"/>
 			<menu_item_check label="Proprietà del lotto" name="Parcel Properties"/>
+			<menu_item_check label="Menu Avanzato" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Teleport a Casa" name="Teleport Home"/>
 		<menu_item_call label="Imposta come Casa mia" name="Set Home to Here"/>
@@ -85,6 +93,7 @@
 			<menu_item_call label="Prendi copia" name="Take Copy"/>
 			<menu_item_call label="Salva nell&apos;inventario" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Salva nei contenuti oggetto" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="Restituisci oggetto" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Script" name="Scripts">
 			<menu_item_call label="Ricompila script (Mono)" name="Mono"/>
@@ -98,6 +107,7 @@
 			<menu_item_check label="Seleziona solo i miei oggetti" name="Select Only My Objects"/>
 			<menu_item_check label="Seleziona solo gli oggetti spostabili" name="Select Only Movable Objects"/>
 			<menu_item_check label="Seleziona circostante" name="Select By Surrounding"/>
+			<menu_item_check label="Mostra contorni selezione" name="Show Selection Outlines"/>
 			<menu_item_check label="Seleziona mostra nascosti" name="Show Hidden Selection"/>
 			<menu_item_check label="Seleziona mostra il raggio luminoso per la selezione" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Mostra il raggio indicatore" name="Show Selection Beam"/>
@@ -112,15 +122,17 @@
 			<menu_item_call label="Animazione ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="In blocco ([COST] L$ per file)..." name="Bulk Upload"/>
 		</menu>
+		<menu_item_call label="Annulla" name="Undo"/>
+		<menu_item_call label="Ripeti" name="Redo"/>
 	</menu>
 	<menu label="Aiuto" name="Help">
 		<menu_item_call label="Aiuto di [SECOND_LIFE]" name="Second Life Help"/>
+		<menu_item_check label="Attiva suggerimenti" name="Enable Hints"/>
 		<menu_item_call label="Segnala abuso" name="Report Abuse"/>
 		<menu_item_call label="Segnala bug" name="Report Bug"/>
 		<menu_item_call label="Informazioni su [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanzate" name="Advanced">
-		<menu_item_call label="Ferma animazione" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Ridisegna le texture" name="Rebake Texture"/>
 		<menu_item_call label="Imposta dimensioni dell&apos;interfaccia sui valori predefiniti" name="Set UI Size to Default"/>
 		<menu_item_call label="Imposta dimensioni della finestra..." name="Set Window Size..."/>
@@ -174,8 +186,7 @@
 			<menu_item_check label="Cerca" name="Search"/>
 			<menu_item_call label="Rilascia tasti" name="Release Keys"/>
 			<menu_item_call label="Imposta dimensioni dell&apos;interfaccia sui valori predefiniti" name="Set UI Size to Default"/>
-			<menu_item_check label="Corri sempre" name="Always Run"/>
-			<menu_item_check label="Vola" name="Fly"/>
+			<menu_item_check label="Mostra menu Avanzato - tasti di scelta rapida esistenti" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Chiudi finestra" name="Close Window"/>
 			<menu_item_call label="Chiudi tutte le finestre" name="Close All Windows"/>
 			<menu_item_call label="Foto su disco" name="Snapshot to Disk"/>
@@ -193,7 +204,6 @@
 			<menu_item_call label="Zoom avanti" name="Zoom In"/>
 			<menu_item_call label="Zoom predefinito" name="Zoom Default"/>
 			<menu_item_call label="Zoom indietro" name="Zoom Out"/>
-			<menu_item_check label="Mostra menu Avanzato" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Mostra impostazioni di debug" name="Debug Settings"/>
 		<menu_item_check label="Mostra menu sviluppo" name="Debug Mode"/>
@@ -215,7 +225,9 @@
 		<menu label="Mostra informazioni" name="Display Info">
 			<menu_item_check label="Mostra orario" name="Show Time"/>
 			<menu_item_check label="Mostra informazioni di rendering" name="Show Render Info"/>
+			<menu_item_check label="Mostra info sulla texture" name="Show Texture Info"/>
 			<menu_item_check label="Mostra colore sotto il cursore" name="Show Color Under Cursor"/>
+			<menu_item_check label="Mostra memoria" name="Show Memory"/>
 			<menu_item_check label="Mostra aggiornamenti agli oggetti" name="Show Updates"/>
 		</menu>
 		<menu label="Forza un errore" name="Force Errors">
@@ -232,6 +244,9 @@
 			<menu_item_check label="Spostamento fotocamera" name="Camera Offset"/>
 			<menu_item_check label="Veloc. di visualizzazione casuale" name="Randomize Framerate"/>
 			<menu_item_check label="Test frame" name="Frame Test"/>
+		</menu>
+		<menu label="Render Metadata" name="Render Metadata">
+			<menu_item_check label="Aggiorna tipo" name="Update Type"/>
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Assi" name="Axes"/>
@@ -261,21 +276,20 @@
 			<menu_item_call label="Dump della cache oggetti regione" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="Interfaccia utente" name="UI">
-			<menu_item_call label="Test browser Web" name="Web Browser Test"/>
+			<menu_item_call label="Test browser multimedia" name="Web Browser Test"/>
+			<menu_item_call label="Browser contenuto Web" name="Web Content Browser"/>
 			<menu_item_call label="Stampa informazioni oggetto selezionato" name="Print Selected Object Info"/>
 			<menu_item_call label="Statistiche memoria" name="Memory Stats"/>
-			<menu_item_check label="Doppio clic pilota automatico" name="Double-Click Auto-Pilot"/>
-			<menu_item_check label="Doppio clic per teleport" name="DoubleClick Teleport"/>
+			<menu_item_check label="Console di debug regione" name="Region Debug Console"/>
 			<menu_item_check label="Debug clic" name="Debug Clicks"/>
 			<menu_item_check label="Debug eventi mouse" name="Debug Mouse Events"/>
 		</menu>
 		<menu label="XUI" name="XUI">
 			<menu_item_call label="Ricarica impostazioni colori" name="Reload Color Settings"/>
 			<menu_item_call label="Test Mostra Font" name="Show Font Test"/>
-			<menu_item_call label="Carica da XML" name="Load from XML"/>
-			<menu_item_call label="Salva in XML" name="Save to XML"/>
 			<menu_item_check label="Mostra nomi XUI" name="Show XUI Names"/>
 			<menu_item_call label="Manda IM di prova" name="Send Test IMs"/>
+			<menu_item_call label="Svuota cache nomi" name="Flush Names Caches"/>
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
@@ -299,9 +313,9 @@
 		</menu>
 		<menu_item_check label="Texture HTTP" name="HTTP Textures"/>
 		<menu_item_check label="Finestra Console al prossimo lancio" name="Console Window"/>
-		<menu_item_check label="Mostra menu Admin" name="View Admin Options"/>
 		<menu_item_call label="Richiedi diritti Admin" name="Request Admin Options"/>
 		<menu_item_call label="Lascia stato Admin" name="Leave Admin Options"/>
+		<menu_item_check label="Mostra menu Admin" name="View Admin Options"/>
 	</menu>
 	<menu label="Admin" name="Admin">
 		<menu label="Object">
@@ -321,5 +335,10 @@
 			<menu_item_call label="Salva stato regione" name="Save Region State"/>
 		</menu>
 		<menu_item_call label="Strumenti Admin" name="God Tools"/>
+	</menu>
+	<menu label="Admin" name="Deprecated">
+		<menu label="Take Off Clothing" name="Take Off Clothing">
+			<menu_item_call label="Fisica" name="Physics"/>
+		</menu>
 	</menu>
 </menu_bar>

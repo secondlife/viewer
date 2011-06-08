@@ -450,8 +450,9 @@ private:
  */
 class LLFlatListViewEx : public LLFlatListView
 {
-	LOG_CLASS(LLFlatListViewEx);
 public:
+	LOG_CLASS(LLFlatListViewEx);
+
 	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params>
 	{
 		/**

@@ -168,10 +168,15 @@ public:
 
 				S32			getCurrentSize() const	{ return (S32)(mCurBufferp - mBufferp); }
 				S32			getBufferSize() const	{ return mBufferSize; }
+				const U8*   getBuffer() const   { return mBufferp; }    
 				void		reset()				{ mCurBufferp = mBufferp; mWriteEnabled = (mCurBufferp != NULL); }
 				void		freeBuffer()		{ delete [] mBufferp; mBufferp = mCurBufferp = NULL; mBufferSize = 0; mWriteEnabled = FALSE; }
 				void		assignBuffer(U8 *bufferp, S32 size)
 				{
+					if(mBufferp && mBufferp != bufferp)
+					{
+						freeBuffer() ;
+					}
 					mBufferp = bufferp;
 					mCurBufferp = bufferp;
 					mBufferSize = size;

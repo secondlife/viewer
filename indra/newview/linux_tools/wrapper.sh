@@ -92,23 +92,23 @@ cd "${RUN_PATH}"
 ##  subprocesses that care.
 export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 
-if [ -n "$LL_TCMALLOC" ]; then
-    tcmalloc_libs='/usr/lib/libtcmalloc.so.0 /usr/lib/libstacktrace.so.0 /lib/libpthread.so.0'
-    all=1
-    for f in $tcmalloc_libs; do
-        if [ ! -f $f ]; then
-	    all=0
-	fi
-    done
-    if [ $all != 1 ]; then
-        echo 'Cannot use tcmalloc libraries: components missing' 1>&2
-    else
-	export LD_PRELOAD=$(echo $tcmalloc_libs | tr ' ' :)
-	if [ -z "$HEAPCHECK" -a -z "$HEAPPROFILE" ]; then
-	    export HEAPCHECK=${HEAPCHECK:-normal}
-	fi
-    fi
-fi
+# if [ -n "$LL_TCMALLOC" ]; then
+#    tcmalloc_libs='/usr/lib/libtcmalloc.so.0 /usr/lib/libstacktrace.so.0 /lib/libpthread.so.0'
+#    all=1
+#    for f in $tcmalloc_libs; do
+#        if [ ! -f $f ]; then
+#	    all=0
+#	fi
+#    done
+#    if [ $all != 1 ]; then
+#        echo 'Cannot use tcmalloc libraries: components missing' 1>&2
+#    else
+#	export LD_PRELOAD=$(echo $tcmalloc_libs | tr ' ' :)
+#	if [ -z "$HEAPCHECK" -a -z "$HEAPPROFILE" ]; then
+#	    export HEAPCHECK=${HEAPCHECK:-normal}
+#	fi
+#    fi
+#fi
 
 export SL_ENV='LD_LIBRARY_PATH="`pwd`"/lib:"${LD_LIBRARY_PATH}"'
 export SL_CMD='$LL_WRAPPER bin/do-not-directly-run-secondlife-bin'

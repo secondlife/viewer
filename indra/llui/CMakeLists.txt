@@ -248,8 +248,8 @@ target_link_libraries(llui
     ${LLCOMMON_LIBRARIES} # must be after llimage, llwindow, llrender
     )
 
+# Add tests
 if(LL_TESTS)
-  # Add tests
   include(LLAddBuildTest)
   SET(llui_TEST_SOURCE_FILES
       llurlmatch.cpp

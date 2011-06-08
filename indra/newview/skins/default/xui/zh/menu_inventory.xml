@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Popup">
+	<menu_item_call label="分享" name="Share"/>
+	<menu_item_call label="購買" name="Task Buy"/>
+	<menu_item_call label="Open" name="Task Open"/>
+	<menu_item_call label="Play" name="Task Play"/>
+	<menu_item_call label="Properties" name="Task Properties"/>
+	<menu_item_call label="更名" name="Task Rename"/>
+	<menu_item_call label="刪除" name="Task Remove"/>
+	<menu_item_call label="清空垃圾筒" name="Empty Trash"/>
+	<menu_item_call label="Empty Lost And Found" name="Empty Lost And Found"/>
+	<menu_item_call label="新資料夾" name="New Folder"/>
+	<menu_item_call label="New Script" name="New Script"/>
+	<menu_item_call label="New Notecard" name="New Note"/>
+	<menu_item_call label="New Gesture" name="New Gesture"/>
+	<menu label="New Clothes" name="New Clothes">
+		<menu_item_call label="新襯衫" name="New Shirt"/>
+		<menu_item_call label="新褲子" name="New Pants"/>
+		<menu_item_call label="新鞋子" name="New Shoes"/>
+		<menu_item_call label="新襪子" name="New Socks"/>
+		<menu_item_call label="新夾克" name="New Jacket"/>
+		<menu_item_call label="新裙子" name="New Skirt"/>
+		<menu_item_call label="新手套" name="New Gloves"/>
+		<menu_item_call label="新內衣" name="New Undershirt"/>
+		<menu_item_call label="新內褲" name="New Underpants"/>
+		<menu_item_call label="New Alpha Mask" name="New Alpha Mask"/>
+		<menu_item_call label="New Tattoo" name="New Tattoo"/>
+		<menu_item_call label="New Physics" name="New Physics"/>
+	</menu>
+	<menu label="New Body Parts" name="New Body Parts">
+		<menu_item_call label="New Shape" name="New Shape"/>
+		<menu_item_call label="New Skin" name="New Skin"/>
+		<menu_item_call label="New Hair" name="New Hair"/>
+		<menu_item_call label="New Eyes" name="New Eyes"/>
+	</menu>
+	<menu label="Change Type" name="Change Type">
+		<menu_item_call label="預設" name="Default"/>
+		<menu_item_call label="手套" name="Gloves"/>
+		<menu_item_call label="夾克" name="Jacket"/>
+		<menu_item_call label="褲子" name="Pants"/>
+		<menu_item_call label="Shape" name="Shape"/>
+		<menu_item_call label="鞋子" name="Shoes"/>
+		<menu_item_call label="襯衫" name="Shirt"/>
+		<menu_item_call label="裙子" name="Skirt"/>
+		<menu_item_call label="內褲" name="Underpants"/>
+		<menu_item_call label="內衣" name="Undershirt"/>
+	</menu>
+	<menu_item_call label="Teleport" name="Landmark Open"/>
+	<menu_item_call label="Open" name="Animation Open"/>
+	<menu_item_call label="Open" name="Sound Open"/>
+	<menu_item_call label="Replace Current Outfit" name="Replace Outfit"/>
+	<menu_item_call label="Add To Current Outfit" name="Add To Outfit"/>
+	<menu_item_call label="Remove From Current Outfit" name="Remove From Outfit"/>
+	<menu_item_call label="Find Original" name="Find Original"/>
+	<menu_item_call label="Purge Item" name="Purge Item"/>
+	<menu_item_call label="Restore Item" name="Restore Item"/>
+	<menu_item_call label="Open" name="Open"/>
+	<menu_item_call label="Open Original" name="Open Original"/>
+	<menu_item_call label="Properties" name="Properties"/>
+	<menu_item_call label="更名" name="Rename"/>
+	<menu_item_call label="Copy Asset UUID" name="Copy Asset UUID"/>
+	<menu_item_call label="覆製" name="Copy"/>
+	<menu_item_call label="貼上" name="Paste"/>
+	<menu_item_call label="Paste As Link" name="Paste As Link"/>
+	<menu_item_call label="刪除" name="Remove Link"/>
+	<menu_item_call label="刪除" name="Delete"/>
+	<menu_item_call label="刪除系統資料夾" name="Delete System Folder"/>
+	<menu_item_call label="Start Conference Chat" name="Conference Chat Folder"/>
+	<menu_item_call label="Play" name="Sound Play"/>
+	<menu_item_call label="About Landmark" name="About Landmark"/>
+	<menu_item_call label="Play Inworld" name="Animation Play"/>
+	<menu_item_call label="Play Locally" name="Animation Audition"/>
+	<menu_item_call label="Send Instant Message" name="Send Instant Message"/>
+	<menu_item_call label="Offer Teleport..." name="Offer Teleport..."/>
+	<menu_item_call label="Start Conference Chat" name="Conference Chat"/>
+	<menu_item_call label="Activate" name="Activate"/>
+	<menu_item_call label="Deactivate" name="Deactivate"/>
+	<menu_item_call label="另存" name="Save As"/>
+	<menu_item_call label="Detach From Yourself" name="Detach From Yourself"/>
+	<menu_item_call label="Wear" name="Wearable And Object Wear"/>
+	<menu label="Attach To" name="Attach To"/>
+	<menu label="Attach To HUD" name="Attach To HUD"/>
+	<menu_item_call label="編輯" name="Wearable Edit"/>
+	<menu_item_call label="Add" name="Wearable Add"/>
+	<menu_item_call label="脫下" name="Take Off"/>
+	<menu_item_call label="--no options--" name="--no options--"/>
+</menu>

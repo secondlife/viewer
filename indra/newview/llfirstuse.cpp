@@ -131,7 +131,7 @@ void LLFirstUse::notMoving(bool enable)
 // static
 void LLFirstUse::viewPopup(bool enable)
 {
-	firstUseNotification("FirstViewPopup", enable, "HintView", LLSD(), LLSD().with("target", "view_popup").with("direction", "right"));
+//	firstUseNotification("FirstViewPopup", enable, "HintView", LLSD(), LLSD().with("target", "view_popup").with("direction", "right"));
 }
 
 // static

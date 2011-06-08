@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="除錯" name="Debug">
+	<text name="region_text_lbl">
+		地區：
+	</text>
+	<text name="region_text">
+		未知
+	</text>
+	<check_box label="Disable Scripts" name="disable_scripts_check" tool_tip="Disable all scripts in this region"/>
+	<check_box label="Disable Collisions" name="disable_collisions_check" tool_tip="Disable non-avatar collisions in this region"/>
+	<check_box label="Disable Physics" name="disable_physics_check" tool_tip="Disable all physics in this region"/>
+	<button label="套用" name="apply_btn"/>
+	<text name="objret_text_lbl">
+		Object Return
+	</text>
+	<text name="resident_text_lbl">
+		Resident:
+	</text>
+	<line_editor name="target_avatar_name">
+		（無）
+	</line_editor>
+	<button label="Choose" name="choose_avatar_btn"/>
+	<text name="options_text_lbl">
+		Options:
+	</text>
+	<check_box label="With scripts" name="return_scripts" tool_tip="Return only objects which have scripts"/>
+	<check_box label="On someone else&apos;s land" name="return_other_land" tool_tip="Return only objects which are on land belonging to someone else"/>
+	<check_box label="In every region of this estate" name="return_estate_wide" tool_tip="Return objects in all of the regions that make up this estate"/>
+	<button label="Return" name="return_btn"/>
+	<button label="Get Top Colliders..." name="top_colliders_btn" tool_tip="List of objects experiencing the most potential collisions"/>
+	<button label="Get Top Scripts..." name="top_scripts_btn" tool_tip="List of objects spending the most time running scripts"/>
+	<button label="Restart Region" name="restart_btn" tool_tip="Give 2 minute countdown and restart region"/>
+	<button label="Delay Restart" name="cancel_restart_btn" tool_tip="Delay region restart by one hour"/>
+</panel>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="publish_classified" title="Publishing Classified">
+	<text name="explanation_text">
+		Your classified ad will run for one week from the date it is published.
+        
+Remember, Classified fees are non-refundable.
+	</text>
+	<spinner label="價格： L$" name="price_for_listing" tool_tip="Price for listing." value="50"/>
+	<button label="Publish" name="publish_btn"/>
+	<button label="取銷" name="cancel_btn"/>
+</floater>

@@ -17,5 +17,6 @@
 		<check_box label="触れる" name="touch_only"/>
 		<check_box label="音源" name="sounds"/>
 		<check_box label="パーティクル源" name="particles"/>
+		<check_box label="メディア源" name="moapbeacon"/>
 	</panel>
 </floater>

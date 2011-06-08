@@ -1,31 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Map" title="">
-	<floater.string name="mini_map_north">
-		北
-	</floater.string>
-	<floater.string name="mini_map_east">
-		東
-	</floater.string>
-	<floater.string name="mini_map_west">
-		西
-	</floater.string>
-	<floater.string name="mini_map_south">
-		南
-	</floater.string>
-	<floater.string name="mini_map_southeast">
-		南東
-	</floater.string>
-	<floater.string name="mini_map_northeast">
-		北東
-	</floater.string>
-	<floater.string name="mini_map_southwest">
-		南西
-	</floater.string>
-	<floater.string name="mini_map_northwest">
-		北西
-	</floater.string>
 	<floater.string name="ToolTipMsg">
 		[REGION]（ダブルクリックで地図を開く。Shift‐ドラッグで水平・垂直移動）
+	</floater.string>
+	<floater.string name="AltToolTipMsg">
+		[地域]（ダブルクリックでテレポート。Shift‐ドラッグで水平・垂直移動）
 	</floater.string>
 	<floater.string name="mini_map_caption">
 		ミニマップ

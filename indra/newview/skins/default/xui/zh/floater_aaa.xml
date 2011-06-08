@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Test Floater" title="TEST FLOATER">
+	<string name="test_the_vlt">
+		This string CHANGE2 is extracted.
+	</string>
+	<string name="testing_eli">
+		Just a test. changes.
+	</string>
+</floater>

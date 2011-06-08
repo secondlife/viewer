@@ -74,17 +74,17 @@ if (DARWIN)
 endif (DARWIN)
 
 
-if(LL_TESTS)
-  # Add tests
-  include(LLAddBuildTest)
-  # UNIT TESTS
-  SET(llvfs_TEST_SOURCE_FILES
-      # none so far
-      )
-  LL_ADD_PROJECT_UNIT_TESTS(llvfs "${llvfs_TEST_SOURCE_FILES}")
+# Add tests
+if (LL_TESTS)
+	include(LLAddBuildTest)
+	# UNIT TESTS
+	SET(llvfs_TEST_SOURCE_FILES
+	  # none so far
+	  )
+	LL_ADD_PROJECT_UNIT_TESTS(llvfs "${llvfs_TEST_SOURCE_FILES}")
 
-  # INTEGRATION TESTS
-  set(test_libs llmath llcommon llvfs ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
-  # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
-  LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
-endif(LL_TESTS)
+	# INTEGRATION TESTS
+	set(test_libs llmath llcommon llvfs ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+	# TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
+	LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
+endif (LL_TESTS)

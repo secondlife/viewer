@@ -915,7 +915,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 				
 				// Set the low priority size for downsampling to approximately the size the texture is displayed at.
 				{
-					F32 approximate_interest_dimension = fsqrtf(pimpl->getInterest());
+					F32 approximate_interest_dimension = (F32) sqrt(pimpl->getInterest());
 					
 					pimpl->setLowPrioritySizeLimit(llround(approximate_interest_dimension));
 				}
@@ -2364,6 +2364,19 @@ void LLViewerMediaImpl::updateJavascriptObject()
 		double y = agent_pos.mV[ VY ];
 		double z = agent_pos.mV[ VZ ];
 		mMediaSource->jsAgentLocationEvent( x, y, z );
+
+		// current location within the grid
+		LLVector3d agent_pos_global = gAgent.getLastPositionGlobal();
+		double global_x = agent_pos_global.mdV[ VX ];
+		double global_y = agent_pos_global.mdV[ VY ];
+		double global_z = agent_pos_global.mdV[ VZ ];
+		mMediaSource->jsAgentGlobalLocationEvent( global_x, global_y, global_z );
+
+		// current agent orientation
+		double rotation = atan2( gAgent.getAtAxis().mV[VX], gAgent.getAtAxis().mV[VY] );
+		double angle = rotation * RAD_TO_DEG;
+		if ( angle < 0.0f ) angle = 360.0f + angle;	// TODO: has to be a better way to get orientation!
+		mMediaSource->jsAgentOrientationEvent( angle );
 
 		// current region agent is in
 		std::string region_name("");

@@ -671,6 +671,9 @@ void LLChatBar::onCommitGesture(LLUICtrl* ctrl)
 	}
 }
 
+
+/* Cruft - global gChatHandler declared below has been commented out,
+   so this class is never used.  See similar code in llnearbychatbar.cpp
 class LLChatHandler : public LLCommandHandler
 {
 public:
@@ -691,7 +694,7 @@ public:
 		{
 		S32 channel = tokens[0].asInteger();
 			// VWR-19499 Restrict function to chat channels greater than 0.
-			if ((channel > 0) && (channel < 2147483647))
+			if ((channel > 0) && (channel < CHAT_CHANNEL_DEBUG))
 			{
 				retval = true;
 				// Say mesg on channel
@@ -710,3 +713,4 @@ public:
 
 // Creating the object registers with the dispatcher.
 //LLChatHandler gChatHandler;
+cruft */

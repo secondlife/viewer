@@ -29,7 +29,7 @@
 
 #include <cmath>
 #include <cstdlib>
-#include <complex>
+#include <vector>
 #include "lldefs.h"
 //#include "llstl.h" // *TODO: Remove when LLString is gone
 //#include "llstring.h" // *TODO: Remove when LLString is gone
@@ -55,32 +55,11 @@
 #endif
 
 // Single Precision Floating Point Routines
-#ifndef sqrtf
-#define sqrtf(x)	((F32)sqrt((F64)(x)))
-#endif
-#ifndef fsqrtf
-#define fsqrtf(x)	sqrtf(x)
-#endif
-
-#ifndef cosf
-#define cosf(x)		((F32)cos((F64)(x)))
-#endif
-#ifndef sinf
-#define sinf(x)		((F32)sin((F64)(x)))
-#endif
-#ifndef tanf
+// (There used to be more defined here, but they appeared to be redundant and 
+// were breaking some other includes. Removed by Falcon, reviewed by Andrew, 11/25/09)
+/*#ifndef tanf
 #define tanf(x)		((F32)tan((F64)(x)))
-#endif
-#ifndef acosf
-#define acosf(x)	((F32)acos((F64)(x)))
-#endif
-
-#ifndef powf
-#define powf(x,y)	((F32)pow((F64)(x),(F64)(y)))
-#endif
-#ifndef expf
-#define expf(x)		((F32)exp((F64)(x)))
-#endif
+#endif*/
 
 const F32	GRAVITY			= -9.8f;
 
@@ -200,7 +179,7 @@ inline S32 llfloor( F32 f )
 		}
 		return result;
 #else
-		return (S32)floorf(f);
+		return (S32)floor(f);
 #endif
 }
 
@@ -378,11 +357,14 @@ inline F32 snap_to_sig_figs(F32 foo, S32 sig_figs)
 		bar *= 10.f;
 	}
 
-	foo = (F32)llround(foo * bar);
+	//F32 new_foo = (F32)llround(foo * bar);
+	// the llround() implementation sucks.  Don't us it.
 
-	// shift back
-	foo /= bar;
-	return foo;
+	F32 sign = (foo > 0.f) ? 1.f : -1.f;
+	F32 new_foo = F32( S64(foo * bar + sign * 0.5f));
+	new_foo /= bar;
+
+	return new_foo;
 }
 
 inline F32 lerp(F32 a, F32 b, F32 u) 
@@ -515,5 +497,46 @@ inline F32 llgaussian(F32 x, F32 o)
 {
 	return 1.f/(F_SQRT_TWO_PI*o)*powf(F_E, -(x*x)/(2*o*o));
 }
+
+//helper function for removing outliers
+template <class VEC_TYPE>
+inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
+{
+	if (data.size() < 100)
+	{ //not enough samples
+		return;
+	}
+
+	VEC_TYPE Q1 = data[data.size()/4];
+	VEC_TYPE Q3 = data[data.size()-data.size()/4-1];
+
+	VEC_TYPE min = (VEC_TYPE) ((F32) Q1-k * (F32) (Q3-Q1));
+	VEC_TYPE max = (VEC_TYPE) ((F32) Q3+k * (F32) (Q3-Q1));
+
+	U32 i = 0;
+	while (i < data.size() && data[i] < min)
+	{
+		i++;
+	}
+
+	S32 j = data.size()-1;
+	while (j > 0 && data[j] > max)
+	{
+		j--;
+	}
+
+	if (j < data.size()-1)
+	{
+		data.erase(data.begin()+j, data.end());
+	}
+
+	if (i > 0)
+	{
+		data.erase(data.begin(), data.begin()+i);
+	}
+}
+
+// Include simd math header
+#include "llsimdmath.h"
 
 #endif

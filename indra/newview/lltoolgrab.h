@@ -39,6 +39,13 @@ class LLTextBox;
 class LLViewerObject;
 class LLPickInfo;
 
+
+// Message utilities
+void send_ObjectGrab_message(LLViewerObject* object, const LLPickInfo & pick, const LLVector3 &grab_offset);
+void send_ObjectDeGrab_message(LLViewerObject* object, const LLPickInfo & pick);
+
+
+
 class LLToolGrab : public LLTool, public LLSingleton<LLToolGrab>
 {
 public:

@@ -72,7 +72,7 @@ public:
 	/*virtual*/ void updateTextures();
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
 
-	/*virtual*/ void updateSpatialExtents(LLVector3& newMin, LLVector3& newMax);
+	/*virtual*/ void updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
 	/*virtual*/ BOOL isActive() const; // Whether this object needs to do an idleUpdate.
 
 	void setPatch(LLSurfacePatch *patchp);

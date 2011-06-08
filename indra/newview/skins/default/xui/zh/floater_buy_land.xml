@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy land" title="購買土地">
+	<floater.string name="can_resell">
+		May be resold.
+	</floater.string>
+	<floater.string name="can_not_resell">
+		May not be resold.
+	</floater.string>
+	<floater.string name="can_change">
+		May be joined or subdivided.
+	</floater.string>
+	<floater.string name="can_not_change">
+		May not be joined or subdivided.
+	</floater.string>
+	<floater.string name="cant_buy_for_group">
+		You do not have permission to buy land for your active group.
+	</floater.string>
+	<floater.string name="no_land_selected">
+		No land selected.
+	</floater.string>
+	<floater.string name="multiple_parcels_selected">
+		Multiple different parcels selected. 
+Try selecting a smaller area.
+	</floater.string>
+	<floater.string name="no_permission">
+		You do not have permission to buy land for your active group.
+	</floater.string>
+	<floater.string name="parcel_not_for_sale">
+		The selected parcel is not for sale.
+	</floater.string>
+	<floater.string name="group_already_owns">
+		The group already owns the parcel.
+	</floater.string>
+	<floater.string name="you_already_own">
+		You already own the parcel.
+	</floater.string>
+	<floater.string name="set_to_sell_to_other">
+		The selected parcel is set to sell to another party.
+	</floater.string>
+	<floater.string name="no_public_land">
+		The selected area has no public land.
+	</floater.string>
+	<floater.string name="not_owned_by_you">
+		Land owned by another Resident is selected. 
+Try selecting a smaller area.
+	</floater.string>
+	<floater.string name="processing">
+		Processing your purchase...
+ 
+(This may take a minute or two.)
+	</floater.string>
+	<floater.string name="fetching_error">
+		There has been an error while fetching land buying information.
+	</floater.string>
+	<floater.string name="buying_will">
+		Buying this land will:
+	</floater.string>
+	<floater.string name="buying_for_group">
+		Buying land for group will:
+	</floater.string>
+	<floater.string name="cannot_buy_now">
+		Cannot buy now:
+	</floater.string>
+	<floater.string name="not_for_sale">
+		Not for sale:
+	</floater.string>
+	<floater.string name="none_needed">
+		none needed
+	</floater.string>
+	<floater.string name="must_upgrade">
+		Your account must be upgraded to own land.
+	</floater.string>
+	<floater.string name="cant_own_land">
+		Your account can own land.
+	</floater.string>
+	<floater.string name="land_holdings">
+		You hold [BUYER] m² of land.
+	</floater.string>
+	<floater.string name="pay_to_for_land">
+		Pay L$ [AMOUNT] to [SELLER] for this land
+	</floater.string>
+	<floater.string name="buy_for_US">
+		Buy L$ [AMOUNT] for approx. [LOCAL_AMOUNT],
+	</floater.string>
+	<floater.string name="parcel_meters">
+		This parcel is [AMOUNT] m²
+	</floater.string>
+	<floater.string name="premium_land">
+		This land is premium, and will charge as [AMOUNT] m².
+	</floater.string>
+	<floater.string name="discounted_land">
+		This land is discounted, and will charge as [AMOUNT] m².
+	</floater.string>
+	<floater.string name="meters_supports_object">
+		[AMOUNT] m²
+supports [AMOUNT2] objects
+	</floater.string>
+	<floater.string name="sold_with_objects">
+		sold with objects
+	</floater.string>
+	<floater.string name="sold_without_objects">
+		objects not included
+	</floater.string>
+	<floater.string name="info_price_string">
+		L$ [PRICE]
+(L$ [PRICE_PER_SQM]/m²)
+[SOLD_WITH_OBJECTS]
+	</floater.string>
+	<floater.string name="insufficient_land_credits">
+		The group [GROUP] will need sufficient contributed land use credits to cover this parcel before the purchase will complete.
+	</floater.string>
+	<floater.string name="have_enough_lindens">
+		You have L$ [AMOUNT], which is enough to buy this land.
+	</floater.string>
+	<floater.string name="not_enough_lindens">
+		You have only L$ [AMOUNT], and need L$ [AMOUNT2] more.
+	</floater.string>
+	<floater.string name="balance_left">
+		After the purchase, you will have L$ [AMOUNT] left.
+	</floater.string>
+	<floater.string name="balance_needed">
+		You need to buy at least L$ [AMOUNT] to afford this land.
+	</floater.string>
+	<floater.string name="no_parcel_selected">
+		(no parcel selected)
+	</floater.string>
+	<text name="region_name_label">
+		地區：
+	</text>
+	<text name="region_name_text">
+		（未知）
+	</text>
+	<text name="region_type_label">
+		類型：
+	</text>
+	<text name="region_type_text">
+		（未知）
+	</text>
+	<text name="estate_name_label">
+		領地：
+	</text>
+	<text name="estate_name_text">
+		（未知）
+	</text>
+	<text name="estate_owner_label">
+		領地擁有者：
+	</text>
+	<text name="estate_owner_text">
+		（未知）
+	</text>
+	<text name="resellable_changeable_label">
+		Purchased land in this region:
+	</text>
+	<text name="resellable_clause">
+		May or may not be resold.
+	</text>
+	<text name="changeable_clause">
+		May or may not be joined or subdivided.
+	</text>
+	<text name="covenant_text">
+		You must agree to the Estate Covenant:
+	</text>
+	<text_editor name="covenant_editor">
+		載入中...
+	</text_editor>
+	<check_box label="I Agree to the Covenant Defined Above." name="agree_covenant"/>
+	<text name="info_parcel_label">
+		地段：
+	</text>
+	<text name="info_parcel">
+		Scotopteryx 138,204
+	</text>
+	<text name="info_size_label">
+		Size:
+	</text>
+	<text name="info_size">
+		1024 m²
+	</text>
+	<text name="info_price_label">
+		價格：
+	</text>
+	<text name="info_price">
+		L$ 1500
+(L$ 1.1/m²)
+sold with objects
+	</text>
+	<text name="info_action">
+		Buying this land will:
+	</text>
+	<text name="error_message">
+		Something ain&apos;t right.
+	</text>
+	<button label="Go to website" name="error_web"/>
+	<text name="account_action">
+		Upgrade you to premium membership.
+	</text>
+	<text name="account_reason">
+		Only premimum members may own land.
+	</text>
+	<combo_box name="account_level">
+		<combo_box.item label="US$9.95/month, billed monthly" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="US$7.50/month, billed quarterly" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="US$6.00/month, billed annually" name="US$6.00/month,billedannually"/>
+	</combo_box>
+	<text name="land_use_action">
+		Increase your monthly land use fees to US$ 40/month.
+	</text>
+	<text name="land_use_reason">
+		You hold 1309 m² of land.
+This parcel is 512 m² of land.
+	</text>
+	<text name="purchase_action">
+		Pay Joe Resident L$ 4000 for the land
+	</text>
+	<text name="currency_reason">
+		You have L$ 2,100.
+	</text>
+	<text name="currency_action">
+		Buy additional L$
+	</text>
+	<line_editor name="currency_amt">
+		1000
+	</line_editor>
+	<text name="currency_est">
+		for approx. [LOCAL_AMOUNT]
+	</text>
+	<text name="currency_balance">
+		You have L$ 2,100.
+	</text>
+	<check_box label="Remove [AMOUNT] m² of contribution from group." name="remove_contribution"/>
+	<button label="Purchase" name="buy_btn"/>
+	<button label="取銷" name="cancel_btn"/>
+</floater>

@@ -56,9 +56,6 @@ static LLDefaultChildRegistry::Register<LLButton> r("button");
 template class LLButton* LLView::getChild<class LLButton>(
 	const std::string& name, BOOL recurse) const;
 
-
-
-
 // globals loaded from settings.xml
 S32	LLBUTTON_H_PAD	= 0;
 S32 BTN_HEIGHT_SMALL= 0;
@@ -880,7 +877,7 @@ void LLButton::draw()
 			S32_MAX, text_width,
 			NULL, mUseEllipses);
 	}
-	
+
 	LLUICtrl::draw();
 }
 

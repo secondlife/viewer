@@ -30,11 +30,11 @@
 #include "llsd.h"
 #include "../test/lltut.h"
 
-#include "../llquaternion.h"
 #include "../m3math.h"
 #include "../v4math.h"
 #include "../v3dmath.h"
 #include "../v3dmath.h"
+#include "../llquaternion.h"
 
 namespace tut
 {
@@ -403,7 +403,7 @@ namespace tut
 		LLVector3d vec3D(x,y,z);
 		F64 res = (x*x + y*y + z*z) - vec3D.magVecSquared();
 		ensure("1:magVecSquared:Fail ", ((-F_APPROXIMATELY_ZERO <= res)&& (res <=F_APPROXIMATELY_ZERO)));
-		res = fsqrtf(x*x + y*y + z*z) - vec3D.magVec();
+		res = (F32) sqrt(x*x + y*y + z*z) - vec3D.magVec();
 		ensure("2:magVec: Fail ", ((-F_APPROXIMATELY_ZERO <= res)&& (res <=F_APPROXIMATELY_ZERO)));	
 	}
 

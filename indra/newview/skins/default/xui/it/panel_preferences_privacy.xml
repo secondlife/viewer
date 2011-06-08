@@ -7,21 +7,25 @@
 	<text name="cache_size_label_l">
 		(Luoghi, immagini, web, cronologia ricerche)
 	</text>
+	<check_box label="Mostrami nei risultati della ricerca" name="online_searchresults"/>
 	<check_box label="Solo amici e gruppi mi vedono online" name="online_visibility"/>
 	<check_box label="Solo amici e gruppi possono chiamarmi o mandarmi IM" name="voice_call_friends_only_check"/>
 	<check_box label="Spegnere il microfono alla chiusura delle chiamate" name="auto_disengage_mic_check"/>
-	<check_box label="Accetta cookie" name="cookies_enabled"/>
-	<check_box label="Consenti riproduzione multimediale automatica" name="autoplay_enabled"/>
+	<check_box label="Mostra i miei punti di riferimento preferiti all&apos;accesso (nel menu a discesa &apos;Inizia da&apos;)" name="favorites_on_login_check"/>
 	<text name="Logs:">
-		Registri:
+		Registri chat:
 	</text>
 	<check_box label="Salva i registri delle conversazioni sul mio computer" name="log_nearby_chat"/>
 	<check_box label="Salva i registri degli IM nel mio computer" name="log_instant_messages"/>
-	<check_box label="Riporta data e ora" name="show_timestamps_check_im"/>
-	<line_editor left="288" name="log_path_string" right="-20"/>
+	<check_box label="Aggiungi l&apos;orario a ogni riga nel registro chat" name="show_timestamps_check_im"/>
+	<check_box label="Aggiungi la data al nome del file del registro." name="logfile_name_datestamp"/>
 	<text name="log_path_desc">
 		Ubicazione dei registri
 	</text>
+	<line_editor left="288" name="log_path_string" right="-20"/>
 	<button label="Sfoglia" label_selected="Sfoglia" name="log_path_button" width="130"/>
 	<button label="Lista dei bloccati" name="block_list"/>
+	<text name="block_list_label">
+		(Persone e/o Oggetti bloccati)
+	</text>
 </panel>

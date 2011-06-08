@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="block by name" title="BLOCK OBJECT BY NAME">
+	<text name="message">
+		Block an object:
+	</text>
+	<line_editor name="object_name">
+		Object name
+	</line_editor>
+	<text name="note">
+		* Only blocks object text, not sounds
+	</text>
+	<button label="確定" name="OK"/>
+	<button label="取銷" name="Cancel"/>
+</floater>

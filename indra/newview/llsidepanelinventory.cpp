@@ -203,7 +203,7 @@ BOOL LLSidepanelInventory::postBuild()
 			back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
 		}
 	}
-
+	
 	// Marketplace inbox/outbox setup
 	{
 		LLButton * inbox_button = getChild<LLButton>(INBOX_BUTTON_NAME);
