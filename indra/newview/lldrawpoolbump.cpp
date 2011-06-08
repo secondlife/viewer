@@ -537,6 +537,12 @@ void LLDrawPoolBump::beginFullbrightShiny()
 		gGL.getTexUnit(cube_channel)->bind(cube_map);
 		gGL.getTexUnit(0)->activate();
 	}
+
+	if (mVertexShaderLevel > 1)
+	{ //indexed texture rendering, channel 0 is always diffuse
+		diffuse_channel = 0;
+	}
+
 	mShiny = TRUE;
 }
 
