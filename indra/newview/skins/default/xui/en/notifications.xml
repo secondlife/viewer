@@ -4763,6 +4763,18 @@ Are you sure you want to delete your travel, web, and search history?
      notext="Cancel"
      yestext="OK"/>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmClearCache"
+   type="alertmodal">
+Are you sure you want to clear your viewer cache?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -5223,6 +5235,20 @@ You don&apos;t have permission to view this notecard.
    type="notifytip">
 Insufficient permissions to rez object.
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="IMAcrossParentEstates"
+   type="notifytip">
+Unable to send IM across parent estates.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="TransferInventoryAcrossParentEstates"
+   type="notifytip">
+Unable to transfer inventory across parent estates.
   </notification>
 
   <notification

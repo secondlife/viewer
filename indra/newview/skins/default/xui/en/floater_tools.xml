@@ -1608,41 +1608,6 @@ even though the user gets a free copy.
                  name="Sculpted"
                  value="Sculpted" />
             </combo_box>
-            <combo_box
-             height="19"
-             layout="topleft"
-             name="material"
-             top_pad="5"
-             width="150">
-                <combo_box.item
-                 label="Stone"
-                 name="Stone"
-                 value="Stone" />
-                <combo_box.item
-                 label="Metal"
-                 name="Metal"
-                 value="Metal" />
-                <combo_box.item
-                 label="Glass"
-                 name="Glass"
-                 value="Glass" />
-                <combo_box.item
-                 label="Wood"
-                 name="Wood"
-                 value="Wood" />
-                <combo_box.item
-                 label="Flesh"
-                 name="Flesh"
-                 value="Flesh" />
-                <combo_box.item
-                 label="Plastic"
-                 name="Plastic"
-                 value="Plastic" />
-                <combo_box.item
-                 label="Rubber"
-                 name="Rubber"
-                 value="Rubber" />
-            </combo_box>
             <text
              type="string"
              length="1"
@@ -2426,6 +2391,41 @@ even though the user gets a free copy.
 			   name="Physics Shape Type Combo Ctrl"
 			   tool_tip="Choose the physics shape type"
 			   width="108"/>
+            <combo_box
+             height="19"
+             layout="topleft"
+             name="material"
+             top_pad="5"
+             width="150">
+                <combo_box.item
+                 label="Stone"
+                 name="Stone"
+                 value="Stone" />
+                <combo_box.item
+                 label="Metal"
+                 name="Metal"
+                 value="Metal" />
+                <combo_box.item
+                 label="Glass"
+                 name="Glass"
+                 value="Glass" />
+                <combo_box.item
+                 label="Wood"
+                 name="Wood"
+                 value="Wood" />
+                <combo_box.item
+                 label="Flesh"
+                 name="Flesh"
+                 value="Flesh" />
+                <combo_box.item
+                 label="Plastic"
+                 name="Plastic"
+                 value="Plastic" />
+                <combo_box.item
+                 label="Rubber"
+                 name="Rubber"
+                 value="Rubber" />
+            </combo_box>
 
             <spinner
              follows="left|top"
@@ -2438,16 +2438,6 @@ even though the user gets a free copy.
              min_val="-1"
              max_val="28"
              name="Physics Gravity"
-             top_pad="10"
-             width="132" />
-
-            <check_box
-             height="19"
-             label="Override material"
-             layout="topleft"
-             left_delta="0"
-             name="Physics Material Override"
-             tool_tip="Override Material"
              top_pad="10"
              width="132" />
 

@@ -1168,6 +1168,66 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				authResponse(message_in);
 			}
 			else
+			if(message_name == "js_expose_object")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				bool expose_object = message_in.getValueBoolean( "expose" );
+				LLQtWebKit::getInstance()->setExposeObject( expose_object );
+#endif
+			}
+			else
+			if(message_name == "js_values_valid")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				bool valid = message_in.getValueBoolean( "valid" );
+				LLQtWebKit::getInstance()->setValuesValid( valid );
+#endif
+			}
+			else
+			if(message_name == "js_agent_location")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				F32 x = message_in.getValueReal("x");
+				F32 y = message_in.getValueReal("y");
+				F32 z = message_in.getValueReal("z");
+				LLQtWebKit::getInstance()->setAgentLocation( x, y, z );
+#endif
+			}
+			else
+			if(message_name == "js_agent_global_location")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				F32 x = message_in.getValueReal("x");
+				F32 y = message_in.getValueReal("y");
+				F32 z = message_in.getValueReal("z");
+				LLQtWebKit::getInstance()->setAgentGlobalLocation( x, y, z );
+#endif
+			}
+			else			
+			if(message_name == "js_agent_orientation")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				F32 angle = message_in.getValueReal("angle");
+				LLQtWebKit::getInstance()->setAgentOrientation( angle );
+#endif
+			}
+			else
+			if(message_name == "js_agent_region")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				const std::string& region = message_in.getValue("region");
+				LLQtWebKit::getInstance()->setAgentRegion( region );
+#endif
+			}
+			else
+			if(message_name == "js_agent_maturity")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				const std::string& maturity = message_in.getValue("maturity");
+				LLQtWebKit::getInstance()->setAgentMaturity( maturity );
+#endif
+			}
+			else
 			{
 //				std::cerr << "MediaPluginWebKit::receiveMessage: unknown media message: " << message_string << std::endl;
 			}
@@ -1324,4 +1384,3 @@ int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func, void
 
 	return 0;
 }
-

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Day Cycle Floater" title="DAY CYCLE EDITOR">
+	<tab_container name="Day Cycle Tabs">
+		<panel label="Day Cycle" name="Day Cycle">
+			<multi_slider initial_value="0" name="WLTimeSlider"/>
+			<multi_slider initial_value="0" name="WLDayCycleKeys"/>
+			<text name="WL12am">
+				12am
+			</text>
+			<text name="WL3am">
+				3am
+			</text>
+			<text name="WL6am">
+				6am
+			</text>
+			<text name="WL9amHash">
+				9am
+			</text>
+			<text name="WL12pmHash">
+				12pm
+			</text>
+			<text name="WL3pm">
+				3pm
+			</text>
+			<text name="WL6pm">
+				6pm
+			</text>
+			<text name="WL9pm">
+				9pm
+			</text>
+			<text name="WL12am2">
+				12am
+			</text>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL3amHash">
+				I
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL9amHash2">
+				I
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL3pmHash">
+				I
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL9pmHash">
+				I
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<button label="Add Key" label_selected="Add Key" name="WLAddKey"/>
+			<button label="Delete Key" label_selected="Delete Key" name="WLDeleteKey"/>
+			<text name="WLCurKeyFrameText">
+				Key Frame Settings:
+			</text>
+			<text name="WLCurKeyTimeText">
+				Key Time:
+			</text>
+			<spinner label="Hour" name="WLCurKeyHour"/>
+			<spinner label="Min" name="WLCurKeyMin"/>
+			<text name="WLCurKeyTimeText2">
+				Key Preset:
+			</text>
+			<combo_box label="Preset" name="WLKeyPresets"/>
+			<text name="DayCycleText">
+				Snap:
+			</text>
+			<combo_box label="五分鐘" name="WLSnapOptions"/>
+			<text name="DayCycleText2">
+				Length of Cycle:
+			</text>
+			<spinner label="小時" name="WLLengthOfDayHour"/>
+			<spinner label="分" name="WLLengthOfDayMin"/>
+			<spinner label="秒" name="WLLengthOfDaySec"/>
+			<text name="DayCycleText3">
+				預覽：
+			</text>
+			<button label="Play" label_selected="Play" name="WLAnimSky"/>
+			<button label="Stop!" label_selected="Stop" name="WLStopAnimSky"/>
+			<button label="Use Estate Time" label_selected="Go to Estate Time" name="WLUseLindenTime"/>
+			<button label="Save Test Day" label_selected="Save Test Day" name="WLSaveDayCycle"/>
+			<button label="Load Test Day" label_selected="Load Test Day" name="WLLoadDayCycle"/>
+		</panel>
+	</tab_container>
+</floater>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Map" title="">
+	<floater.string name="ToolTipMsg">
+		[REGION](Double-click to open Map, shift-drag to pan)
+	</floater.string>
+	<floater.string name="AltToolTipMsg">
+		[REGION](Double-click to teleport, shift-drag to pan)
+	</floater.string>
+	<floater.string name="mini_map_caption">
+		MINIMAP
+	</floater.string>
+	<text label="N" name="floater_map_north">
+		N
+	</text>
+	<text label="E" name="floater_map_east">
+		E
+	</text>
+	<text label="W" name="floater_map_west">
+		W
+	</text>
+	<text label="S" name="floater_map_south">
+		S
+	</text>
+	<text label="SE" name="floater_map_southeast">
+		SE
+	</text>
+	<text label="NE" name="floater_map_northeast">
+		NE
+	</text>
+	<text label="SW" name="floater_map_southwest">
+		SW
+	</text>
+	<text label="NW" name="floater_map_northwest">
+		NW
+	</text>
+</floater>

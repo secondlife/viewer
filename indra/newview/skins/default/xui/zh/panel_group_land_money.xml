@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Land &amp; L$" name="land_money_tab">
+	<panel.string name="help_text">
+		A warning appears until the Total Land in Use is less than or = to the Total Contribution.
+	</panel.string>
+	<panel.string name="cant_view_group_land_text">
+		You don&apos;t have permission to view group owned land
+	</panel.string>
+	<panel.string name="epmty_view_group_land_text">
+		No entries
+	</panel.string>
+	<panel.string name="cant_view_group_accounting_text">
+		You don&apos;t have permission to view the group&apos;s accounting information.
+	</panel.string>
+	<panel.string name="loading_txt">
+		載入中...
+	</panel.string>
+	<panel.string name="land_contrib_error">
+		Unable to set your land contribution
+	</panel.string>
+	<panel name="layout_panel_landmoney">
+		<scroll_list name="group_parcel_list">
+			<scroll_list.columns label="地段" name="name"/>
+			<scroll_list.columns label="地區" name="location"/>
+			<scroll_list.columns label="Type" name="type"/>
+			<scroll_list.columns label="Area" name="area"/>
+			<scroll_list.columns label="Hidden" name="hidden"/>
+		</scroll_list>
+		<text name="total_contributed_land_label">
+			Total contribution:
+		</text>
+		<text name="total_contributed_land_value">
+			[AREA] m²
+		</text>
+		<button label="地圖" label_selected="地圖" name="map_button"/>
+		<text name="total_land_in_use_label">
+			Total land in use:
+		</text>
+		<text name="total_land_in_use_value">
+			[AREA] m²
+		</text>
+		<text name="land_available_label">
+			Land available:
+		</text>
+		<text name="land_available_value">
+			[AREA] m²
+		</text>
+		<text name="your_contribution_label">
+			Your contribution:
+		</text>
+		<text name="your_contribution_units">
+			m²
+		</text>
+		<text name="your_contribution_max_value">
+			([AMOUNT] max)
+		</text>
+		<text name="group_over_limit_text">
+			More land credits are needed to support land in use
+		</text>
+		<text name="group_money_heading">
+			Group L$
+		</text>
+	</panel>
+	<tab_container name="group_money_tab_container">
+		<panel label="PLANNING" name="group_money_planning_tab">
+			<text_editor name="group_money_planning_text">
+				載入中...
+			</text_editor>
+		</panel>
+		<panel label="DETAILS" name="group_money_details_tab">
+			<text_editor name="group_money_details_text">
+				載入中...
+			</text_editor>
+			<button name="earlier_details_button" tool_tip="Back"/>
+			<button name="later_details_button" tool_tip="Next"/>
+		</panel>
+		<panel label="SALES" name="group_money_sales_tab">
+			<text_editor name="group_money_sales_text">
+				載入中...
+			</text_editor>
+			<button name="earlier_sales_button" tool_tip="Back"/>
+			<button name="later_sales_button" tool_tip="Next"/>
+		</panel>
+	</tab_container>
+</panel>

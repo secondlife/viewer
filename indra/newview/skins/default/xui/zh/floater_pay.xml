@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Give Money">
+	<string name="payee_group">
+		Pay Group
+	</string>
+	<string name="payee_resident">
+		Pay Resident
+	</string>
+	<text name="payee_name">
+		Test Name That Is Extremely Long To Check Clipping
+	</text>
+	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
+	<button label="L$5" label_selected="L$5" name="fastpay 5"/>
+	<button label="L$10" label_selected="L$10" name="fastpay 10"/>
+	<button label="L$20" label_selected="L$20" name="fastpay 20"/>
+	<text name="amount text">
+		Or, choose amount:
+	</text>
+	<button label="Pay" label_selected="Pay" name="pay btn"/>
+	<button label="取銷" label_selected="取銷" name="cancel btn"/>
+</floater>

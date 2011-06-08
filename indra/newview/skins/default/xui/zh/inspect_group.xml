@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_group">
+	<string name="PrivateGroup">
+		Private group
+	</string>
+	<string name="FreeToJoin">
+		Free to join
+	</string>
+	<string name="CostToJoin">
+		L$[AMOUNT] to join
+	</string>
+	<string name="YouAreMember">
+		You are a member
+	</string>
+	<text name="group_subtitle">
+		123 members
+	</text>
+	<text name="group_details">
+		A group of folks charged with creating a room with a moose.
+Fear the moose!  Fear it!  And the mongoose too!
+	</text>
+	<text name="group_cost">
+		L$123 to join
+	</text>
+	<button label="Join" name="join_btn"/>
+	<button label="Leave" name="leave_btn"/>
+	<button label="View Profile" name="view_profile_btn"/>
+</floater>

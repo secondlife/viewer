@@ -89,15 +89,13 @@ LLViewerTextureList::LLViewerTextureList()
 }
 
 void LLViewerTextureList::init()
-{
+{			
 	sRenderThreadID = LLThread::currentID() ;
-
 	mInitialized = TRUE ;
 	sNumImages = 0;
+	mUpdateStats = TRUE;
 	mMaxResidentTexMemInMegaBytes = 0;
 	mMaxTotalTextureMemInMegaBytes = 0 ;
-	
-	mUpdateStats = TRUE;
 	
 	// Update how much texture RAM we're allowed to use.
 	updateMaxResidentTexMem(0); // 0 = use current

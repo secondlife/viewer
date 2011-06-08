@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_inventory_add">
+	<menu label="上傳" name="upload">
+		<menu_item_call label="圖像（L$[COST]）..." name="Upload Image"/>
+		<menu_item_call label="聲音（L$[COST]）..." name="Upload Sound"/>
+		<menu_item_call label="動作（L$[COST]）..." name="Upload Animation"/>
+		<menu_item_call label="大批（L$[COST] 每檔案）..." name="Bulk Upload"/>
+		<menu_item_call label="設定預設上傳權限" name="perm prefs"/>
+	</menu>
+	<menu_item_call label="新資料夾" name="New Folder"/>
+	<menu_item_call label="新腳本" name="New Script"/>
+	<menu_item_call label="新記事卡" name="New Note"/>
+	<menu_item_call label="新姿勢" name="New Gesture"/>
+	<menu label="新衣服" name="New Clothes">
+		<menu_item_call label="新襯衫" name="New Shirt"/>
+		<menu_item_call label="新褲子" name="New Pants"/>
+		<menu_item_call label="新鞋子" name="New Shoes"/>
+		<menu_item_call label="新襪子" name="New Socks"/>
+		<menu_item_call label="新夾克" name="New Jacket"/>
+		<menu_item_call label="新裙子" name="New Skirt"/>
+		<menu_item_call label="新手套" name="New Gloves"/>
+		<menu_item_call label="新內衣" name="New Undershirt"/>
+		<menu_item_call label="新內褲" name="New Underpants"/>
+		<menu_item_call label="New Alpha" name="New Alpha"/>
+		<menu_item_call label="新刺青" name="New Tattoo"/>
+		<menu_item_call label="New Physics" name="New Physics"/>
+	</menu>
+	<menu label="New Body Parts" name="New Body Parts">
+		<menu_item_call label="新體形" name="New Shape"/>
+		<menu_item_call label="新皮膚" name="New Skin"/>
+		<menu_item_call label="新頭髮" name="New Hair"/>
+		<menu_item_call label="新眼睛" name="New Eyes"/>
+	</menu>
+</menu>

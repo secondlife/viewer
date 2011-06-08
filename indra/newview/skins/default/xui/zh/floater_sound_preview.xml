@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Sound Preview" title="SOUND.WAV">
+	<text name="name_label">
+		名稱：
+	</text>
+	<text name="description_label">
+		描述：
+	</text>
+	<button label="上傳（L$[AMOUNT]）" name="ok_btn"/>
+	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
+</floater>

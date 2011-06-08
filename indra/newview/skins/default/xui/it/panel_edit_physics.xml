@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_physics_panel">
+	<panel label="" name="accordion_panel">
+		<accordion name="physics_accordion">
+			<accordion_tab name="physics_breasts_updown_tab" title="Rimbalzo seno"/>
+			<accordion_tab name="physics_breasts_inout_tab" title="Décolleté"/>
+			<accordion_tab name="physics_breasts_leftright_tab" title="Ondeggiamento seno"/>
+			<accordion_tab name="physics_belly_tab" title="Rimbalzo pancia"/>
+			<accordion_tab name="physics_butt_tab" title="Rimbalzo natiche"/>
+			<accordion_tab name="physics_butt_leftright_tab" title="Ondeggiamento natiche"/>
+			<accordion_tab name="physics_advanced_tab" title="Parametri avanzati"/>
+		</accordion>
+	</panel>
+</panel>

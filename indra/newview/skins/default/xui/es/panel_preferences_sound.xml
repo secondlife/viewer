@@ -14,7 +14,7 @@
 	<slider label="Música en streaming" name="Music Volume"/>
 	<check_box label="Activados" name="enable_music"/>
 	<slider label="Multimedia" name="Media Volume"/>
-	<check_box label="Activada" name="enable_media"/>
+	<check_box label="Activados" name="enable_media"/>
 	<slider label="Chat de voz" name="Voice Volume"/>
 	<check_box label="Activado" name="enable_voice_check"/>
 	<check_box label="Permitir la ejecución automática de los media" name="media_auto_play_btn" tool_tip="Marcar esto para permitir la ejecución automática de los media" value="true"/>
