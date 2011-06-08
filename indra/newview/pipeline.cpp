@@ -773,14 +773,29 @@ void LLPipeline::updateRenderDeferred()
 //static
 void LLPipeline::refreshRenderDeferred()
 {
+	static BOOL physics_shapes_is_on = FALSE ;
+	static BOOL render_glow_copy = FALSE ;
+
 	if(gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
 	{
+		if(!physics_shapes_is_on)
+		{
+			physics_shapes_is_on = TRUE ;
+			render_glow_copy = sRenderGlow ;
+		}
+
 		//turn the deferred rendering and glow off when draw physics shapes.
 		sRenderDeferred = FALSE ;
 		sRenderGlow = FALSE ;
 	}
 	else
 	{
+		if(physics_shapes_is_on)
+		{
+			physics_shapes_is_on = FALSE ;
+			sRenderGlow = render_glow_copy ;
+		}
+
 		updateRenderDeferred() ;
 	}
 }
