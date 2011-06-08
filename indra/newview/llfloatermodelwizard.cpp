@@ -438,54 +438,7 @@ LLFloaterModelWizard::DecompRequest::DecompRequest(const std::string& stage, LLM
 	mParams = sInstance->mDecompParams;
 
 	//copy out positions and indices
-	if (mdl)
-	{
-		U16 index_offset = 0;
-		U16 tri[3] ;
-
-		mPositions.clear();
-		mIndices.clear();
-		mBBox[1] = LLVector3(F32_MIN, F32_MIN, F32_MIN) ;
-		mBBox[0] = LLVector3(F32_MAX, F32_MAX, F32_MAX) ;
-		
-		//queue up vertex positions and indices
-		for (S32 i = 0; i < mdl->getNumVolumeFaces(); ++i)
-		{
-			const LLVolumeFace& face = mdl->getVolumeFace(i);
-			if (mPositions.size() + face.mNumVertices > 65535)
-			{
-				continue;
-			}
-
-			for (U32 j = 0; j < face.mNumVertices; ++j)
-			{
-				mPositions.push_back(LLVector3(face.mPositions[j].getF32ptr()));
-				for(U32 k = 0 ; k < 3 ; k++)
-				{
-					mBBox[0].mV[k] = llmin(mBBox[0].mV[k], mPositions[j].mV[k]) ;
-					mBBox[1].mV[k] = llmax(mBBox[1].mV[k], mPositions[j].mV[k]) ;
-				}
-			}
-
-			updateTriangleAreaThreshold() ;
-
-			for (U32 j = 0; j+2 < face.mNumIndices; j += 3)
-			{
-				tri[0] = face.mIndices[j] + index_offset ;
-				tri[1] = face.mIndices[j + 1] + index_offset ;
-				tri[2] = face.mIndices[j + 2] + index_offset ;
-				
-				if(isValidTriangle(tri[0], tri[1], tri[2]))
-				{
-					mIndices.push_back(tri[0]);
-					mIndices.push_back(tri[1]);
-					mIndices.push_back(tri[2]);
-				}
-			}
-
-			index_offset += face.mNumVertices;
-		}
-	}
+	assignData(mdl) ;	
 }
 
 
