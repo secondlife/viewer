@@ -44,6 +44,8 @@
 #include "llviewerregion.h"
 #include "llwaterparammanager.h"
 
+#undef max // Fixes a Windows compiler error
+
 LLFloaterEditWater::LLFloaterEditWater(const LLSD &key)
 :	LLFloater(key)
 ,	mWaterPresetNameEditor(NULL)
