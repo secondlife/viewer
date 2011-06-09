@@ -1640,7 +1640,10 @@ void LLMeshUploadThread::doWholeModelUpload()
 		llassert(physics != NULL);
 		
 		DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
-		gMeshRepo.mDecompThread->submitRequest(request);
+		if(request->isValid())
+		{
+			gMeshRepo.mDecompThread->submitRequest(request);
+		}		
 	}
 
 	while (!mPhysicsComplete)

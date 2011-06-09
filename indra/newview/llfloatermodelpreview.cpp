@@ -915,8 +915,11 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 			{
 				LLModel* mdl = sInstance->mModelPreview->mModel[LLModel::LOD_PHYSICS][i];
 				DecompRequest* request = new DecompRequest(stage, mdl);
-				sInstance->mCurRequest.insert(request);
-				gMeshRepo.mDecompThread->submitRequest(request);
+				if(request->isValid())
+				{
+					sInstance->mCurRequest.insert(request);
+					gMeshRepo.mDecompThread->submitRequest(request);
+				}	
 			}
 		}
 
