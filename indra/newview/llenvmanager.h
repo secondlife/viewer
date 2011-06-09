@@ -310,8 +310,6 @@ public:
 	void setUseDayCycle(const std::string& name);
 
 	// Preferences manipulation.
-	void loadUserPrefs();
-	void saveUserPrefs();
 	void setUserPrefs(
 		const std::string& water_preset,
 		const std::string& sky_preset,
@@ -339,6 +337,9 @@ public:
 private:
 	friend class LLSingleton<LLEnvManagerNew>;
 	/*virtual*/ void initSingleton();
+
+	void loadUserPrefs();
+	void saveUserPrefs();
 
 	void updateManagersFromPrefs(bool interpolate);
 
