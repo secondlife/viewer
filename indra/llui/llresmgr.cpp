@@ -337,7 +337,7 @@ LLLocale::LLLocale(const std::string& locale_string)
 	char* new_locale_string = setlocale( LC_ALL, locale_string.c_str());
 	if ( new_locale_string == NULL)
 	{
-		llwarns << "Failed to set locale " << locale_string << llendl;
+		LL_WARNS_ONCE("LLLocale") << "Failed to set locale " << locale_string << LL_ENDL;
 		setlocale(LC_ALL, SYSTEM_LOCALE.c_str());
 	}
 	//else
