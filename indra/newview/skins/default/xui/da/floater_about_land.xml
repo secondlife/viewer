@@ -312,17 +312,17 @@ Kun større parceller kan vises i søgning.
 			</text>
 			<check_box label="Redigere terræn" name="edit land check" tool_tip="Hvis dette er valg, kan enhver redigere dit land. Det er bedst ikke at vælge her, da det altid er muligt for dig som ejer at ændre terræn på dit eget land."/>
 			<check_box label="Flyve" name="check fly" tool_tip="Hvis valgt, kan beboere flyve på dit land. Hvis ikke valgt kan beboere kun flyve ind på dit land og over dit land."/>
-			<text left="194" name="allow_label2">
+			<text name="allow_label2">
 				Lave objekter:
 			</text>
 			<check_box label="Alle beboere" name="edit objects check"/>
 			<check_box label="Gruppe" name="edit group objects check"/>
-			<text left="170" name="allow_label3">
+			<text name="allow_label3">
 				Anbringe objekter:
 			</text>
 			<check_box label="Alle beboere" name="all object entry check"/>
 			<check_box label="Gruppe" name="group object entry check"/>
-			<text left="200" name="allow_label4">
+			<text name="allow_label4">
 				Køre scripts:
 			</text>
 			<check_box label="Alle beboere" name="check other scripts"/>
