@@ -468,6 +468,48 @@ public:
 
 };
 
+void log_upload_error(const LLSD& content)
+{
+	if (content.has("error"))
+	{
+		const LLSD& err = content["error"];
+		llwarns << "mesh upload failed " << err["message"].asString() << " id " << err["identifier"].asString() << llendl;
+
+		if ((err["identifier"].asString() == "NewAgentInventory_InvalidAsset") &&
+			content.has("errors"))
+		{
+			const LLSD& err_list = content["errors"];
+			for (LLSD::array_const_iterator it = err_list.beginArray();
+				 it != err_list.endArray();
+				 ++it)
+			{
+				const LLSD& err_entry = *it;
+				std::string index_info;
+				std::string texture_index_str = err_entry["TextureIndex"].asString();
+				if (!texture_index_str.empty())
+				{
+					index_info += " texture_index: " + texture_index_str;
+				}
+				std::string	mesh_index_str = err_entry["MeshIndex"].asString();
+				if (!mesh_index_str.empty())
+				{
+					index_info += " mesh_index: " + mesh_index_str;
+				}
+				llwarns << "mesh err code " << err_entry["error"].asString()
+						<< " message " << err_entry["message"]
+						<< index_info
+						<< llendl;
+			}
+		}
+	}
+	else
+	{
+		llwarns << "bad mesh, no error information available" << llendl;
+	}
+
+	
+}
+
 class LLModelObjectUploadResponder: public LLCurl::Responder
 {
 	LLSD mObjectAsset;
@@ -516,10 +558,11 @@ public:
 		else
 		{
 			llinfos << "upload failed" << llendl;
+			log_upload_error(content);
 			mThread->mWholeModelUploadURL = "";
 		}
-
 	}
+
 };
 
 class LLWholeModelUploadResponder: public LLCurl::Responder
