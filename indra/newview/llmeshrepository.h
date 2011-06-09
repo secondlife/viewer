@@ -161,6 +161,8 @@ public:
 
 		virtual void setStatusMessage(const std::string& msg);
 
+		bool isValid() const {return mPositions.size() > 2 && mIndices.size() > 2 ;}
+
 	protected:
 		//internal use
 		LLVector3 mBBox[2] ;
