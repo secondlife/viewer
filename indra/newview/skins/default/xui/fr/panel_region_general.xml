@@ -25,6 +25,7 @@
 	<check_box label="Autoriser la revente" name="allow_land_resell_check"/>
 	<check_box label="Autoriser la fusion/division" name="allow_parcel_changes_check"/>
 	<check_box label="Ne pas afficher dans la recherche" name="block_parcel_search_check" tool_tip="Afficher cette région et ses parcelles dans les résultats de recherche"/>
+	<check_box label="Autoriser les objets de maillage" name="mesh_rez_enabled_check" tool_tip="Laisser les gens rezzer des objets de maillage dans cette région."/>
 	<spinner label="Nombre maximum d&apos;avatars" label_width="160" name="agent_limit_spin" width="240"/>
 	<spinner label="Bonus objet" label_width="160" name="object_bonus_spin" width="240"/>
 	<text label="Maturité" name="access_text">
