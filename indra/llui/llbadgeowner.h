@@ -28,7 +28,7 @@
 #define LL_LLBADGEOWNER_H
 
 #include "llbadge.h"
-#include "lluictrl.h"
+#include "llview.h"
 
 //
 // Classes
@@ -38,7 +38,7 @@ class LLBadgeOwner
 {
 public:
 
-	LLBadgeOwner(LLHandle<LLUICtrl> ctrlHandle);
+	LLBadgeOwner(LLHandle< LLView > viewHandle);
 
 	void initBadgeParams(const LLBadge::Params& p);
 	void addBadgeToParentPanel();
@@ -52,7 +52,7 @@ private:
 private:
 
 	LLBadge*			mBadge;
-	LLHandle<LLUICtrl>	mBadgeOwnerCtrl;
+	LLHandle< LLView >	mBadgeOwnerView;
 };
 
 #endif  // LL_LLBADGEOWNER_H

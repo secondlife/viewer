@@ -30,6 +30,7 @@
 
 #include "llagentcamera.h"
 #include "llappviewer.h"
+#include "llbadgeowner.h"
 #include "llbottomtray.h"
 #include "llfloaterreg.h"
 #include "llfirstuse.h"
@@ -98,7 +99,7 @@ bool	LLSideTray::instanceCreated	()
 // Represents a single tab in the side tray, only used by LLSideTray
 //////////////////////////////////////////////////////////////////////////////
 
-class LLSideTrayTab: public LLPanel
+class LLSideTrayTab: public LLPanel, public LLBadgeOwner
 {
 	LOG_CLASS(LLSideTrayTab);
 	friend class LLUICtrlFactory;
@@ -113,11 +114,14 @@ public:
 		Optional<std::string>		image_selected;
 		Optional<std::string>		tab_title;
 		Optional<std::string>		description;
+		Optional<LLBadge::Params>	badge;
+		
 		Params()
 		:	image("image"),
 			image_selected("image_selected"),
 			tab_title("tab_title","no title"),
-			description("description","no description")
+			description("description","no description"),
+			badge("badge")
 		{};
 	};
 protected:
@@ -162,12 +166,17 @@ private:
 
 LLSideTrayTab::LLSideTrayTab(const Params& p)
 :	LLPanel(),
+	LLBadgeOwner(LLView::getHandle()),
 	mTabTitle(p.tab_title),
 	mImage(p.image),
 	mImageSelected(p.image_selected),
 	mDescription(p.description),
 	mMainPanel(NULL)
 {
+	if (p.badge.isProvided())
+	{
+		LLBadgeOwner::initBadgeParams(p.badge());
+	}
 }
 
 LLSideTrayTab::~LLSideTrayTab()
@@ -196,7 +205,9 @@ BOOL LLSideTrayTab::postBuild()
 	getChild<LLButton>("undock")->setCommitCallback(boost::bind(&LLSideTrayTab::setDocked, this, false));
 	getChild<LLButton>("dock")->setCommitCallback(boost::bind(&LLSideTrayTab::setDocked, this, true));
 
-	return true;
+	addBadgeToParentPanel();
+
+	return LLPanel::postBuild();
 }
 
 static const S32 splitter_margin = 1;

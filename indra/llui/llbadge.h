@@ -33,6 +33,7 @@
 #include "lluictrl.h"
 #include "llstring.h"
 #include "lluiimage.h"
+#include "llview.h"
 
 //
 // Declarations
@@ -92,7 +93,7 @@ public:
 	struct Params 
 	: public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional< LLHandle<LLUICtrl> >	owner;	// Mandatory in code but not in xml
+		Optional< LLHandle<LLView> >	owner;	// Mandatory in code but not in xml
 		
 		Optional< LLUIImage* >			border_image;
 		Optional< LLUIColor >			border_color;
@@ -144,7 +145,7 @@ private:
 	F32						mLocationPercentHCenter;
 	F32						mLocationPercentVCenter;
 	
-	LLHandle< LLUICtrl >	mOwner;
+	LLHandle< LLView >		mOwner;
 
 	F32						mPaddingHoriz;
 	F32						mPaddingVert;

@@ -178,16 +178,16 @@ void LLBadge::draw()
 {
 	if (!mLabel.empty())
 	{
-		LLUICtrl* owner_ctrl = mOwner.get();
+		LLView* owner_view = mOwner.get();
 
-		if (owner_ctrl)
+		if (owner_view)
 		{
 			//
 			// Calculate badge position based on owner
 			//
 			
 			LLRect owner_rect;
-			owner_ctrl->localRectToOtherView(owner_ctrl->getLocalRect(), & owner_rect, this);
+			owner_view->localRectToOtherView(owner_view->getLocalRect(), & owner_rect, this);
 			
 			F32 badge_center_x = owner_rect.mLeft + owner_rect.getWidth() * mLocationPercentHCenter;
 			F32 badge_center_y = owner_rect.mBottom + owner_rect.getHeight() * mLocationPercentVCenter;
@@ -230,7 +230,7 @@ void LLBadge::draw()
 			}
 			else
 			{
-				lldebugs << "No image for badge " << getName() << " on owner " << owner_ctrl->getName() << llendl;
+				lldebugs << "No image for badge " << getName() << " on owner " << owner_view->getName() << llendl;
 				
 				renderBadgeBackground(badge_center_x, badge_center_y,
 									  badge_width, badge_height,

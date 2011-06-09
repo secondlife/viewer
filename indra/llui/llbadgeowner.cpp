@@ -33,9 +33,9 @@
 // Classes
 //
 
-LLBadgeOwner::LLBadgeOwner(LLHandle<LLUICtrl> ctrlHandle)
+LLBadgeOwner::LLBadgeOwner(LLHandle< LLView > viewHandle)
 	: mBadge(NULL)
-	, mBadgeOwnerCtrl(ctrlHandle)
+	, mBadgeOwnerView(viewHandle)
 {
 }
 
@@ -64,7 +64,7 @@ void LLBadgeOwner::setBadgeLabel(const LLStringExplicit& label)
 		// Push the badge to the front so it renders on top
 		//
 
-		LLUICtrl * parent = mBadge->getParentUICtrl();
+		LLView * parent = mBadge->getParent();
 
 		if (parent)
 		{
@@ -75,34 +75,34 @@ void LLBadgeOwner::setBadgeLabel(const LLStringExplicit& label)
 
 void LLBadgeOwner::addBadgeToParentPanel()
 {
-	if (mBadge && mBadgeOwnerCtrl.get())
+	LLView * owner_view = mBadgeOwnerView.get();
+	
+	if (mBadge && owner_view)
 	{
 		// Find the appropriate parent panel for the badge
 
-		LLUICtrl * owner_ctrl = mBadgeOwnerCtrl.get();
-		LLUICtrl * parent = owner_ctrl->getParentUICtrl();
-
-		LLPanel * parentPanel = NULL;
+		LLView * parent = owner_view->getParent();
+		LLPanel * parent_panel = NULL;
 
 		while (parent)
 		{
-			parentPanel = dynamic_cast<LLPanel *>(parent);
+			parent_panel = dynamic_cast<LLPanel *>(parent);
 
-			if (parentPanel && parentPanel->acceptsBadge())
+			if (parent_panel && parent_panel->acceptsBadge())
 			{
 				break;
 			}
 
-			parent = parent->getParentUICtrl();
+			parent = parent->getParent();
 		}
 
-		if (parentPanel)
+		if (parent_panel)
 		{
-			parentPanel->addChild(mBadge);
+			parent_panel->addChild(mBadge);
 		}
 		else
 		{
-			llwarns << "Unable to find parent panel for badge " << mBadge->getName() << " on ui control " << owner_ctrl->getName() << llendl;
+			llwarns << "Unable to find parent panel for badge " << mBadge->getName() << " on " << owner_view->getName() << llendl;
 		}
 	}
 }
@@ -110,7 +110,7 @@ void LLBadgeOwner::addBadgeToParentPanel()
 LLBadge* LLBadgeOwner::createBadge(const LLBadge::Params& p)
 {
 	LLBadge::Params badge_params(p);
-	badge_params.owner = mBadgeOwnerCtrl;
+	badge_params.owner = mBadgeOwnerView;
 
 	return LLUICtrlFactory::create<LLBadge>(badge_params);
 }
