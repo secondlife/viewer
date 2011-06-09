@@ -742,6 +742,7 @@ char const* const _PREHASH_MoneyData = LLMessageStringTable::getInstance()->getS
 char const* const _PREHASH_ObjectDeselect = LLMessageStringTable::getInstance()->getString("ObjectDeselect");
 char const* const _PREHASH_NewAssetID = LLMessageStringTable::getInstance()->getString("NewAssetID");
 char const* const _PREHASH_ObjectAdd = LLMessageStringTable::getInstance()->getString("ObjectAdd");
+char const* const _PREHASH_SimulatorFeatures = LLMessageStringTable::getInstance()->getString("SimulatorFeatures");
 char const* const _PREHASH_RayEndIsIntersection = LLMessageStringTable::getInstance()->getString("RayEndIsIntersection");
 char const* const _PREHASH_CompleteAuction = LLMessageStringTable::getInstance()->getString("CompleteAuction");
 char const* const _PREHASH_CircuitCode = LLMessageStringTable::getInstance()->getString("CircuitCode");
