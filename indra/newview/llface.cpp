@@ -693,6 +693,19 @@ static void xform(LLVector2 &tex_coord, F32 cosAng, F32 sinAng, F32 offS, F32 of
 }
 
 
+bool less_than_max_mag(const LLVector4a& vec)
+{
+	LLVector4a MAX_MAG;
+	MAX_MAG.splat(1024.f*1024.f);
+
+	LLVector4a val;
+	val.setAbs(vec);
+
+	S32 lt = val.lessThan(MAX_MAG).getGatheredBits() & 0x7;
+	
+	return lt == 0x7;
+}
+
 BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 								const LLMatrix4& mat_vert_in, const LLMatrix3& mat_normal_in, BOOL global_volume)
 {
@@ -727,6 +740,8 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		min = face.mExtents[0];
 		max = face.mExtents[1];
 		
+		llassert(less_than_max_mag(min));
+		llassert(less_than_max_mag(max));
 
 		//min, max are in volume space, convert to drawable render space
 		LLVector4a center;
@@ -737,6 +752,9 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		LLVector4a size;
 		size.setSub(max, min);
 		size.mul(0.5f);
+
+		llassert(less_than_max_mag(min));
+		llassert(less_than_max_mag(max));
 
 		if (!global_volume)
 		{
@@ -775,6 +793,8 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		
 		newMin = newMax = center;
 		
+		llassert(less_than_max_mag(center));
+		
 		for (U32 i = 0; i < 4; i++)
 		{
 			LLVector4a delta;
@@ -786,6 +806,9 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 
 			newMin.setMin(newMin,min);
 			newMax.setMax(newMax,max);
+
+			llassert(less_than_max_mag(newMin));
+			llassert(less_than_max_mag(newMax));
 		}
 
 		if (!mDrawablep->isActive())
@@ -794,14 +817,22 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 			offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
 			newMin.add(offset);
 			newMax.add(offset);
+			
+			llassert(less_than_max_mag(newMin));
+			llassert(less_than_max_mag(newMax));
 		}
 
 		t.setAdd(newMin, newMax);
 		t.mul(0.5f);
 
+		llassert(less_than_max_mag(t));
+		
 		//VECTORIZE THIS
 		mCenterLocal.set(t.getF32ptr());
 		
+		llassert(less_than_max_mag(newMin));
+		llassert(less_than_max_mag(newMax));
+
 		t.setSub(newMax,newMin);
 		mBoundingSphereRadius = t.getLength3().getF32()*0.5f;
 
