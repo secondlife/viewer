@@ -949,7 +949,7 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL texture_cache
 	max_size -= sCacheMaxTexturesSize;
 	
 	LL_INFOS("TextureCache") << "Headers: " << sCacheMaxEntries
-			<< " Textures size: " << sCacheMaxTexturesSize/(1024*1024) << " MB" << LL_ENDL;
+			<< " Textures size: " << sCacheMaxTexturesSize / (1024 * 1024) << " MB" << LL_ENDL;
 
 	setDirNames(location);
 	
@@ -1513,12 +1513,12 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 	{
 		const char* subdirs = "0123456789abcdef";
 		std::string delem = gDirUtilp->getDirDelimiter();
-		std::string mask = delem + "*";
+		std::string mask = "*";
 		for (S32 i=0; i<16; i++)
 		{
 			std::string dirname = mTexturesDirName + delem + subdirs[i];
 			llinfos << "Deleting files in directory: " << dirname << llendl;
-			gDirUtilp->deleteFilesInDir(dirname,mask);
+			gDirUtilp->deleteFilesInDir(dirname, mask);
 			if (purge_directories)
 			{
 				LLFile::rmdir(dirname);
@@ -1655,7 +1655,7 @@ void LLTextureCache::purgeTextures(bool validate)
 	LL_INFOS("TextureCache") << "TEXTURE CACHE:"
 			<< " PURGED: " << purge_count
 			<< " ENTRIES: " << num_entries
-			<< " CACHE SIZE: " << mTexturesSizeTotal / 1024*1024 << " MB"
+			<< " CACHE SIZE: " << mTexturesSizeTotal / (1024 * 1024) << " MB"
 			<< llendl;
 }
 

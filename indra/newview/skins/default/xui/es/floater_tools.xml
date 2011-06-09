@@ -58,7 +58,7 @@
 		<radio_item label="Horizontal (Ctrl+Shift)" name="radio spin"/>
 	</radio_group>
 	<radio_group name="edit_radio_group">
-		<radio_item label="Moverse" name="radio position"/>
+		<radio_item label="Mover" name="radio position"/>
 		<radio_item label="Girar (Ctrl)" name="radio rotate"/>
 		<radio_item label="Estirar (Ctrl+Shift)" name="radio stretch"/>
 		<radio_item label="Elegir la cara" name="radio select face"/>
@@ -480,7 +480,7 @@
 			Modificar la parcela
 		</text>
 		<button label="Dividir" label_selected="Dividir" name="button subdivide land"/>
-		<button label="Inscribirse" label_selected="Inscribirse" name="button join land"/>
+		<button label="Unir" label_selected="Unir" name="button join land"/>
 		<text name="label_parcel_trans">
 			Transacciones de terreno
 		</text>

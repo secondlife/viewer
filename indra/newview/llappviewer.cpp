@@ -695,6 +695,8 @@ bool LLAppViewer::init()
 	if (!initConfiguration())
 		return false;
 
+	LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
+
 	// write Google Breakpad minidump files to our log directory
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 	logdir += gDirUtilp->getDirDelimiter();
@@ -721,6 +723,8 @@ bool LLAppViewer::init()
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass();
+	LL_INFOS("InitInfo") << "LLCurl initialized." << LL_ENDL ;
+
     LLMachineID::init();
 	
 	{
@@ -739,7 +743,7 @@ bool LLAppViewer::init()
 	}
 
     initThreads();
-	LL_INFOS("InitInfo") << "Threads initialized." << LL_ENDL ; ;
+	LL_INFOS("InitInfo") << "Threads initialized." << LL_ENDL ;
 
     writeSystemInfo();
 
@@ -766,10 +770,6 @@ bool LLAppViewer::init()
 	//
 	LL_INFOS("InitInfo") << "J2C Engine is: " << LLImageJ2C::getEngineInfo() << LL_ENDL;
 	LL_INFOS("InitInfo") << "libcurl version is: " << LLCurl::getVersionString() << LL_ENDL;
-
-	//Note: --bao
-	//allow to start texture fetching, must be called after initThreads();
-	gTextureList.start() ;
 
 	// Get the single value from the crash settings file, if it exists
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
@@ -879,6 +879,7 @@ bool LLAppViewer::init()
 		// Early out from user choice.
 		return false;
 	}
+	LL_INFOS("InitInfo") << "Hardware test initialization done." << LL_ENDL ;
 
 	// Prepare for out-of-memory situations, during which we will crash on
 	// purpose and save a dump.
@@ -1047,6 +1048,8 @@ bool LLAppViewer::init()
 	}
 	
 	LLViewerMedia::initClass();
+	LL_INFOS("InitInfo") << "Viewer media initialized." << LL_ENDL ;
+
 	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
 
 	//EXT-7013 - On windows for some locale (Japanese) standard 
@@ -1190,11 +1193,11 @@ bool LLAppViewer::mainLoop()
 				// Scan keyboard for movement keys.  Command keys and typing
 				// are handled by windows callbacks.  Don't do this until we're
 				// done initializing.  JC
-				if (gViewerWindow->mWindow->getVisible() 
+				if ((gHeadlessClient || gViewerWindow->mWindow->getVisible())
 					&& gViewerWindow->getActive()
 					&& !gViewerWindow->mWindow->getMinimized()
 					&& LLStartUp::getStartupState() == STATE_STARTED
-					&& !gViewerWindow->getShowProgress()
+					&& (gHeadlessClient || !gViewerWindow->getShowProgress())
 					&& !gFocusMgr.focusLocked())
 				{
 					LLMemType mjk(LLMemType::MTYPE_JOY_KEY);
@@ -2513,7 +2516,8 @@ bool LLAppViewer::initConfiguration()
 	// it relies on checking a marker file which will not work when running
 	// out of different directories
 
-	if (LLStartUp::getStartSLURL().isValid())
+	if (LLStartUp::getStartSLURL().isValid() &&
+		(gSavedSettings.getBOOL("SLURLPassToOtherInstance")))
 	{
 		if (sendURLToOtherInstance(LLStartUp::getStartSLURL().getSLURLString()))
 		{
@@ -2823,6 +2827,8 @@ bool LLAppViewer::initWindow()
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		gSavedSettings.getBOOL("WindowFullScreen"), ignorePixelDepth);
 
+	LL_INFOS("AppInit") << "gViewerwindow created." << LL_ENDL;
+
 	// Need to load feature table before cheking to start watchdog.
 	const S32 NEVER_SUBMIT_REPORT = 2;
 	bool use_watchdog = false;
@@ -2842,6 +2848,7 @@ bool LLAppViewer::initWindow()
 	{
 		LLWatchdog::getInstance()->init(watchdog_killer_callback);
 	}
+	LL_INFOS("AppInit") << "watchdog setting is done." << LL_ENDL;
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 		
@@ -2864,7 +2871,8 @@ bool LLAppViewer::initWindow()
 	gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 
 	gPipeline.init();
-		
+	LL_INFOS("AppInit") << "gPipeline Initialized" << LL_ENDL;
+
 	stop_glerror();
 	gViewerWindow->initGLDefaults();
 
@@ -2903,7 +2911,7 @@ bool LLAppViewer::initWindow()
 	// show viewer window
 	//gViewerWindow->mWindow->show();
 
-	
+	LL_INFOS("AppInit") << "Window initialization done." << LL_ENDL;
 	return true;
 }
 
@@ -3645,11 +3653,25 @@ bool LLAppViewer::initCache()
 	
 	// Init the texture cache
 	// Allocate 80% of the cache size for textures	
-	const S32 MB = 1024*1024;
+	const S32 MB = 1024 * 1024;
+	const S64 MIN_CACHE_SIZE = 64 * MB;
+	const S64 MAX_CACHE_SIZE = 9984ll * MB;
+	const S64 MAX_VFS_SIZE = 1024 * MB; // 1 GB
+
 	S64 cache_size = (S64)(gSavedSettings.getU32("CacheSize")) * MB;
-	const S64 MAX_CACHE_SIZE = 1024*MB;
-	cache_size = llmin(cache_size, MAX_CACHE_SIZE);
-	S64 texture_cache_size = ((cache_size * 8)/10);
+	cache_size = llclamp(cache_size, MIN_CACHE_SIZE, MAX_CACHE_SIZE);
+
+	S64 texture_cache_size = ((cache_size * 8) / 10);
+	S64 vfs_size = cache_size - texture_cache_size;
+
+	if (vfs_size > MAX_VFS_SIZE)
+	{
+		// Give the texture cache more space, since the VFS can't be bigger than 1GB.
+		// This happens when the user's CacheSize setting is greater than 5GB.
+		vfs_size = MAX_VFS_SIZE;
+		texture_cache_size = cache_size - MAX_VFS_SIZE;
+	}
+
 	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
 	texture_cache_size -= extra;
 
@@ -3658,21 +3680,19 @@ bool LLAppViewer::initCache()
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
 	
 	// Init the VFS
-	S64 vfs_size = cache_size - texture_cache_size;
-	const S64 MAX_VFS_SIZE = 1024 * MB; // 1 GB
-	vfs_size = llmin(vfs_size, MAX_VFS_SIZE);
+	vfs_size = llmin(vfs_size + extra, MAX_VFS_SIZE);
 	vfs_size = (vfs_size / MB) * MB; // make sure it is MB aligned
 	U32 vfs_size_u32 = (U32)vfs_size;
 	U32 old_vfs_size = gSavedSettings.getU32("VFSOldSize") * MB;
 	bool resize_vfs = (vfs_size_u32 != old_vfs_size);
 	if (resize_vfs)
 	{
-		gSavedSettings.setU32("VFSOldSize", vfs_size_u32/MB);
+		gSavedSettings.setU32("VFSOldSize", vfs_size_u32 / MB);
 	}
-	LL_INFOS("AppCache") << "VFS CACHE SIZE: " << vfs_size/(1024*1024) << " MB" << LL_ENDL;
+	LL_INFOS("AppCache") << "VFS CACHE SIZE: " << vfs_size / (1024*1024) << " MB" << LL_ENDL;
 	
 	// This has to happen BEFORE starting the vfs
-	//time_t	ltime;
+	// time_t	ltime;
 	srand(time(NULL));		// Flawfinder: ignore
 	U32 old_salt = gSavedSettings.getU32("VFSSalt");
 	U32 new_salt;
@@ -3693,10 +3713,10 @@ bool LLAppViewer::initCache()
 		do
 		{
 			new_salt = rand();
-		} while( new_salt == old_salt );
+		} while(new_salt == old_salt);
 	}
 
-	old_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,VFS_DATA_FILE_BASE) + llformat("%u",old_salt);
+	old_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_DATA_FILE_BASE) + llformat("%u", old_salt);
 
 	// make sure this file exists
 	llstat s;
@@ -3710,7 +3730,7 @@ bool LLAppViewer::initCache()
 		mask += "*";
 
 		std::string dir;
-		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"");
+		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 
 		std::string found_file;
 		LLDirIterator iter(dir, mask);
@@ -3727,7 +3747,7 @@ bool LLAppViewer::initCache()
 		}
 	}
 
-	old_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,VFS_INDEX_FILE_BASE) + llformat("%u",old_salt);
+	old_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_INDEX_FILE_BASE) + llformat("%u", old_salt);
 
 	stat_result = LLFile::stat(old_vfs_index_file, &s);
 	if (stat_result)
@@ -3740,27 +3760,25 @@ bool LLAppViewer::initCache()
 		
 		// Just in case, nuke any other old cache files in the directory.
 		std::string dir;
-		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"");
+		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 
 		std::string mask;
-		mask = gDirUtilp->getDirDelimiter();
-		mask += VFS_DATA_FILE_BASE;
+		mask = VFS_DATA_FILE_BASE;
 		mask += "*";
 
 		gDirUtilp->deleteFilesInDir(dir, mask);
 
-		mask = gDirUtilp->getDirDelimiter();
-		mask += VFS_INDEX_FILE_BASE;
+		mask = VFS_INDEX_FILE_BASE;
 		mask += "*";
 
 		gDirUtilp->deleteFilesInDir(dir, mask);
 	}
 
-	new_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,VFS_DATA_FILE_BASE) + llformat("%u",new_salt);
-	new_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_INDEX_FILE_BASE) + llformat("%u",new_salt);
+	new_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_DATA_FILE_BASE) + llformat("%u", new_salt);
+	new_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_INDEX_FILE_BASE) + llformat("%u", new_salt);
 
-	static_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"static_data.db2");
-	static_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"static_index.db2");
+	static_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "static_data.db2");
+	static_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "static_index.db2");
 
 	if (resize_vfs)
 	{
@@ -3783,19 +3801,19 @@ bool LLAppViewer::initCache()
 
 	// Don't remove VFS after viewer crashes.  If user has corrupt data, they can reinstall. JC
 	gVFS = LLVFS::createLLVFS(new_vfs_index_file, new_vfs_data_file, false, vfs_size_u32, false);
-	if( !gVFS )
+	if (!gVFS)
 	{
 		return false;
 	}
 
 	gStaticVFS = LLVFS::createLLVFS(static_vfs_index_file, static_vfs_data_file, true, 0, false);
-	if( !gStaticVFS )
+	if (!gStaticVFS)
 	{
 		return false;
 	}
 
 	BOOL success = gVFS->isValid() && gStaticVFS->isValid();
-	if( !success )
+	if (!success)
 	{
 		return false;
 	}
@@ -3816,11 +3834,11 @@ bool LLAppViewer::initCache()
 
 void LLAppViewer::purgeCache()
 {
-	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << llendl;
+	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << LL_ENDL;
 	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
 	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
-	std::string mask = gDirUtilp->getDirDelimiter() + "*.*";
-	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
+	std::string mask = "*.*";
+	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), mask);
 }
 
 std::string LLAppViewer::getSecondLifeTitle() const
