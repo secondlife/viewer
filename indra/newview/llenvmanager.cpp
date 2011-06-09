@@ -596,27 +596,27 @@ std::string LLEnvPrefs::getDayCycleName() const
 	return mDayCycleName;
 }
 
-void LLEnvPrefs::setUseDefaults(bool val)
+void LLEnvPrefs::setUseRegionSettings(bool val)
 {
-	mUseDefaults = val;
+	mUseRegionSettings = val;
 }
 
 void LLEnvPrefs::setUseWaterPreset(const std::string& name)
 {
-	setUseDefaults(false);
+	mUseRegionSettings = false;
 	mWaterPresetName = name;
 }
 
 void LLEnvPrefs::setUseSkyPreset(const std::string& name)
 {
-	setUseDefaults(false);
+	mUseRegionSettings = false;
 	mUseDayCycle = false;
 	mSkyPresetName = name;
 }
 
 void LLEnvPrefs::setUseDayCycle(const std::string& name)
 {
-	setUseDefaults(false);
+	mUseRegionSettings = false;
 	mUseDayCycle = true;
 	mDayCycleName = name;
 }
@@ -627,7 +627,7 @@ LLEnvManagerNew::LLEnvManagerNew()
 	mInterpNextChangeMessage = true;
 
 	// Set default environment settings.
-	mUserPrefs.mUseDefaults = true;
+	mUserPrefs.mUseRegionSettings = true;
 	mUserPrefs.mUseDayCycle = true;
 	mUserPrefs.mWaterPresetName = "Default";
 	mUserPrefs.mSkyPresetName = "Default";
@@ -636,7 +636,7 @@ LLEnvManagerNew::LLEnvManagerNew()
 
 bool LLEnvManagerNew::getUseRegionSettings() const
 {
-	return mUserPrefs.getUseDefaults();
+	return mUserPrefs.getUseRegionSettings();
 }
 
 bool LLEnvManagerNew::getUseDayCycle() const
@@ -746,7 +746,7 @@ bool LLEnvManagerNew::useDayCycleParams(const LLSD& params, LLEnvKey::EScope sco
 
 void LLEnvManagerNew::setUseRegionSettings(bool val)
 {
-	mUserPrefs.setUseDefaults(val);
+	mUserPrefs.setUseRegionSettings(val);
 	saveUserPrefs();
 	updateManagersFromPrefs(false);
 }
@@ -799,8 +799,8 @@ void LLEnvManagerNew::loadUserPrefs()
 	mUserPrefs.mSkyPresetName	= gSavedSettings.getString("SkyPresetName");
 	mUserPrefs.mDayCycleName	= gSavedSettings.getString("DayCycleName");
 
-	mUserPrefs.mUseDefaults		= gSavedSettings.getBOOL("UseEnvironmentFromRegion");
-	mUserPrefs.mUseDayCycle		= gSavedSettings.getBOOL("UseDayCycle");
+	mUserPrefs.mUseRegionSettings	= gSavedSettings.getBOOL("UseEnvironmentFromRegion");
+	mUserPrefs.mUseDayCycle			= gSavedSettings.getBOOL("UseDayCycle");
 }
 
 void LLEnvManagerNew::saveUserPrefs()
@@ -825,8 +825,8 @@ void LLEnvManagerNew::setUserPrefs(
 	mUserPrefs.mSkyPresetName	= sky_preset;
 	mUserPrefs.mDayCycleName	= day_cycle_preset;
 
-	mUserPrefs.mUseDefaults		= use_region_settings;
-	mUserPrefs.mUseDayCycle		= !use_fixed_sky;
+	mUserPrefs.mUseRegionSettings	= use_region_settings;
+	mUserPrefs.mUseDayCycle			= !use_fixed_sky;
 
 	saveUserPrefs();
 	updateManagersFromPrefs(false);

@@ -232,15 +232,13 @@ private:
 
 /**
  * User environment preferences.
- *
- * defaults = use region settings
  */
 class LLEnvPrefs
 {
 public:
-	LLEnvPrefs() : mUseDefaults(true), mUseDayCycle(true) {}
+	LLEnvPrefs() : mUseRegionSettings(true), mUseDayCycle(true) {}
 
-	bool getUseDefaults() const { return mUseDefaults; }
+	bool getUseRegionSettings() const { return mUseRegionSettings; }
 	bool getUseDayCycle() const { return mUseDayCycle; }
 	bool getUseFixedSky() const { return !getUseDayCycle(); }
 
@@ -248,12 +246,12 @@ public:
 	std::string getSkyPresetName() const;
 	std::string getDayCycleName() const;
 
-	void setUseDefaults(bool val);
+	void setUseRegionSettings(bool val);
 	void setUseWaterPreset(const std::string& name);
 	void setUseSkyPreset(const std::string& name);
 	void setUseDayCycle(const std::string& name);
 
-	bool			mUseDefaults;
+	bool			mUseRegionSettings;
 	bool			mUseDayCycle;
 	std::string		mWaterPresetName;
 	std::string		mSkyPresetName;
