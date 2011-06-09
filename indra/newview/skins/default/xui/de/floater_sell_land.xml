@@ -5,16 +5,16 @@
 			<text name="info_parcel_label">
 				Parzelle:
 			</text>
-			<text bottom_delta="-5" height="16" name="info_parcel" left="70">
+			<text name="info_parcel">
 				PARZELLENNAME
 			</text>
 			<text name="info_size_label">
 				Größe:
 			</text>
-			<text bottom_delta="-21" height="32" name="info_size" left="70">
+			<text name="info_size">
 				[AREA] m².
 			</text>
-			<text bottom_delta="-57" height="28" name="info_action">
+			<text name="info_action">
 				Zum Verkauf dieser Parzelle:
 			</text>
 			<text name="price_label">
@@ -32,13 +32,13 @@
 			<text name="price_per_m">
 				([PER_METER] L$ pro m²)
 			</text>
-			<text bottom_delta="38" left="72" name="sell_to_label" right="-20">
+			<text name="sell_to_label">
 				2. Land verkaufen an:
 			</text>
-			<text bottom_delta="-16" height="16" left="72" name="sell_to_text" right="-10">
+			<text name="sell_to_text">
 				Offener Verkauf oder Verkauf an bestimmte Person?
 			</text>
-			<combo_box bottom_delta="-32" height="16" left="72" name="sell_to" width="140">
+			<combo_box name="sell_to">
 				<combo_box.item label="-- Auswählen --" name="--selectone--"/>
 				<combo_box.item label="An jeden" name="Anyone"/>
 				<combo_box.item label="An bestimmte Person:" name="Specificuser:"/>
@@ -50,15 +50,15 @@
 			<text name="sell_objects_text">
 				Die transferierbaren Landeigentümer-Objekte auf der Parzelle wechseln den Eigentümer.
 			</text>
-			<radio_group bottom_delta="-58" name="sell_objects">
+			<radio_group name="sell_objects">
 				<radio_item label="Nein, Objekte behalten" name="no"/>
 				<radio_item label="Ja, Objekte mit Land verkaufen" name="yes"/>
 			</radio_group>
-			<button label="Objekte anzeigen" name="show_objects" width="116"/>
+			<button label="Objekte anzeigen" name="show_objects"/>
 			<text name="nag_message_label">
 				ACHTUNG: Verkäufe sind endgültig.
 			</text>
-			<button label="Zum Verkauf freigeben" name="sell_btn" width="180"/>
+			<button label="Zum Verkauf freigeben" name="sell_btn"/>
 			<button label="Abbrechen" name="cancel_btn"/>
 		</panel>
 	</scroll_container>

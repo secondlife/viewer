@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_jacket_panel">
 	<panel name="avatar_jacket_color_panel">
-		<texture_picker label="生地・上" name="Upper Fabric" tool_tip="クリックして写真を選択します"/>
-		<texture_picker label="生地・下" name="Lower Fabric" tool_tip="クリックして写真を選択します"/>
+		<texture_picker label="上半身のテクスチャ" name="Upper Fabric" tool_tip="クリックして写真を選択します"/>
+		<texture_picker label="下半身のテクスチャ" name="Lower Fabric" tool_tip="クリックして写真を選択します"/>
 		<color_swatch label="色・色彩配合" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
 	</panel>
 	<panel name="accordion_panel">

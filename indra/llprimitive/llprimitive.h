@@ -323,7 +323,7 @@ public:
 	const LLVolume *getVolumeConst() const { return mVolumep; }		// HACK for Windoze confusion about ostream operator in LLVolume
 	LLVolume *getVolume() const { return mVolumep; }
 	virtual BOOL setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false);
-
+	
 	// Modify texture entry properties
 	inline BOOL validTE(const U8 te_num) const;
 	LLTextureEntry* getTE(const U8 te_num) const;
@@ -444,6 +444,7 @@ protected:
 	U8					mNumTEs;			// # of faces on the primitve	
 	U32 				mMiscFlags;			// home for misc bools
 
+public:
 	static LLVolumeMgr* sVolumeManager;
 };
 

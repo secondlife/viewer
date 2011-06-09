@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="inspect" title="INSPECT OBJECTS">
+	<floater.string name="timeStamp">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
+	<scroll_list name="object_list" tool_tip="Select an object from this list to highlight it in-world">
+		<scroll_list.columns label="物件名稱" name="object_name"/>
+		<scroll_list.columns label="Owner Name" name="owner_name"/>
+		<scroll_list.columns label="Creator Name" name="creator_name"/>
+		<scroll_list.columns label="Creation Date" name="creation_date"/>
+	</scroll_list>
+	<button label="See Owner Profile..." name="button owner" tool_tip="See profile of the highlighted object&apos;s owner"/>
+	<button label="See Creator Profile..." name="button creator" tool_tip="See profile of the highlighted object&apos;s original creator"/>
+</floater>

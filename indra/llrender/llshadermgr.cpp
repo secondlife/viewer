@@ -146,6 +146,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 			return FALSE;
 		}
 	}
+
+	if (features->hasObjectSkinning)
+	{
+		if (!shader->attachObject("avatar/objectSkinV.glsl"))
+		{
+			return FALSE;
+		}
+	}
 	
 	///////////////////////////////////////
 	// Attach Fragment Shader Features Next
@@ -220,7 +228,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	else if (features->isFullbright)
 	{
 	
-		if (features->hasWaterFog)
+		if (features->isShiny && features->hasWaterFog)
+		{
+			if (!shader->attachObject("lighting/lightFullbrightShinyWaterF.glsl"))
+			{
+				return FALSE;
+			}
+		}
+		else if (features->hasWaterFog)
 		{
 			if (!shader->attachObject("lighting/lightFullbrightWaterF.glsl"))
 			{
@@ -300,18 +315,21 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 		}
 		else
 		{
-			LL_DEBUGS("ShaderLoading") << log << LL_ENDL;
+			LL_INFOS("ShaderLoading") << log << LL_ENDL;
 		}
 	}
 }
 
 GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type)
 {
-	GLenum error;
-	error = glGetError();
-	if (error != GL_NO_ERROR)
+	GLenum error = GL_NO_ERROR;
+	if (gDebugGL)
 	{
-		LL_WARNS("ShaderLoading") << "GL ERROR entering loadShaderFile(): " << error << LL_ENDL;
+		error = glGetError();
+		if (error != GL_NO_ERROR)
+		{
+			LL_WARNS("ShaderLoading") << "GL ERROR entering loadShaderFile(): " << error << LL_ENDL;
+		}
 	}
 	
 	LL_DEBUGS("ShaderLoading") << "Loading shader file: " << filename << " class " << shader_level << LL_ENDL;
@@ -366,31 +384,39 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 	//create shader object
 	GLhandleARB ret = glCreateShaderObjectARB(type);
-	error = glGetError();
-	if (error != GL_NO_ERROR)
+	if (gDebugGL)
 	{
-		LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << LL_ENDL;
+		error = glGetError();
+		if (error != GL_NO_ERROR)
+		{
+			LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << LL_ENDL;
+		}
 	}
-	else
+	
+	//load source
+	glShaderSourceARB(ret, count, (const GLcharARB**) text, NULL);
+
+	if (gDebugGL)
 	{
-		//load source
-		glShaderSourceARB(ret, count, (const GLcharARB**) text, NULL);
 		error = glGetError();
 		if (error != GL_NO_ERROR)
 		{
 			LL_WARNS("ShaderLoading") << "GL ERROR in glShaderSourceARB: " << error << LL_ENDL;
 		}
-		else
+	}
+
+	//compile source
+	glCompileShaderARB(ret);
+
+	if (gDebugGL)
+	{
+		error = glGetError();
+		if (error != GL_NO_ERROR)
 		{
-			//compile source
-			glCompileShaderARB(ret);
-			error = glGetError();
-			if (error != GL_NO_ERROR)
-			{
-				LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShaderARB: " << error << LL_ENDL;
-			}
+			LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShaderARB: " << error << LL_ENDL;
 		}
 	}
+		
 	//free memory
 	for (GLuint i = 0; i < count; i++)
 	{
@@ -401,13 +427,16 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		//check for errors
 		GLint success = GL_TRUE;
 		glGetObjectParameterivARB(ret, GL_OBJECT_COMPILE_STATUS_ARB, &success);
-		error = glGetError();
-		if (error != GL_NO_ERROR || success == GL_FALSE) 
+		if (gDebugGL || success == GL_FALSE)
 		{
-			//an error occured, print log
-			LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
-			dumpObjectLog(ret);
-			ret = 0;
+			error = glGetError();
+			if (error != GL_NO_ERROR || success == GL_FALSE) 
+			{
+				//an error occured, print log
+				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
+				dumpObjectLog(ret);
+				ret = 0;
+			}
 		}
 	}
 	else

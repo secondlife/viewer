@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="im_panel" name="im_panel">
+	<string name="message_max_lines_count">
+		6
+	</string>
+	<panel label="im_header" name="im_header">
+		<text name="time_box" value="23:30"/>
+	</panel>
+</panel>

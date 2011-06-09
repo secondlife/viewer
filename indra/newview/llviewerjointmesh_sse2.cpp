@@ -90,13 +90,13 @@ void LLViewerJointMesh::updateGeometrySSE2(LLFace *face, LLPolyMesh *mesh)
 	LLStrider<LLVector3> o_vertices;
 	LLStrider<LLVector3> o_normals;
 
-	LLVertexBuffer *buffer = face->mVertexBuffer;
+	LLVertexBuffer *buffer = face->getVertexBuffer();
 	buffer->getVertexStrider(o_vertices,  mesh->mFaceVertexOffset);
 	buffer->getNormalStrider(o_normals,   mesh->mFaceVertexOffset);
 
 	const F32*			weights			= mesh->getWeights();
-	const LLVector3*	coords			= mesh->getCoords();
-	const LLVector3*	normals			= mesh->getNormals();
+	const LLVector3*	coords			= (const LLVector3*)mesh->getCoords();
+	const LLVector3*	normals			= (const LLVector3*)mesh->getNormals();
 	for (U32 index = 0, index_end = mesh->getNumVertices(); index < index_end; ++index)
 	{
 		if( weight != weights[index])

@@ -77,6 +77,7 @@
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
+#include "llsceneview.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
 #include "llstatusbar.h"
@@ -168,7 +169,6 @@ LLMenuItemCallGL* gBusyMenu = NULL;
 // Local prototypes
 
 // File Menu
-const char* upload_pick(void* data);
 void handle_compress_image(void*);
 
 
@@ -455,7 +455,7 @@ void init_menus()
 	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", upload_cost);
 	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", upload_cost);
 	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", upload_cost);
-
+	
 	gAFKMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Away", TRUE);
 	gBusyMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Busy", TRUE);
 	gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", TRUE);
@@ -517,6 +517,11 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)gDebugView->mFastTimerView );
 		}
+		else if ("scene view" == console_type)
+		{
+			toggle_visibility( (void*)gSceneView);
+		}
+
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
 		{
@@ -551,6 +556,10 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("fast timers" == console_type)
 		{
 			new_value = get_visibility( (void*)gDebugView->mFastTimerView );
+		}
+		else if ("scene view" == console_type)
+		{
+			new_value = get_visibility( (void*) gSceneView);
 		}
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
@@ -699,7 +708,7 @@ U32 render_type_from_string(std::string render_type)
 	{
 		return LLPipeline::RENDER_TYPE_AVATAR;
 	}
-	else if ("surfacePath" == render_type)
+	else if ("surfacePatch" == render_type)
 	{
 		return LLPipeline::RENDER_TYPE_TERRAIN;
 	}
@@ -903,6 +912,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_BBOXES;
 	}
+	else if ("normals" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_NORMALS;
+	}
 	else if ("points" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_POINTS;
@@ -914,6 +927,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("shadow frusta" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA;
+	}
+	else if ("physics shapes" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES;
 	}
 	else if ("occlusion" == info_display)
 	{
@@ -947,6 +964,14 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_FACE_AREA;
 	}
+	else if ("lod info" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_LOD_INFO;
+	}
+	else if ("build queue" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_BUILD_QUEUE;
+	}
 	else if ("lights" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_LIGHTS;
@@ -974,6 +999,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("agent target" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_AGENT_TARGET;
+	}
+	else if ("sculpt" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_SCULPTED;
 	}
 	else
 	{
@@ -1907,19 +1936,20 @@ class LLAdvancedAgentPilot : public view_listener_t
 		std::string command = userdata.asString();
 		if ("start playback" == command)
 		{
-			LLAgentPilot::startPlayback(NULL);
+			gAgentPilot.setNumRuns(-1);
+			gAgentPilot.startPlayback();
 		}
 		else if ("stop playback" == command)
 		{
-			LLAgentPilot::stopPlayback(NULL);
+			gAgentPilot.stopPlayback();
 		}
 		else if ("start record" == command)
 		{
-			LLAgentPilot::startRecord(NULL);
+			gAgentPilot.startRecord();
 		}
 		else if ("stop record" == command)
 		{
-			LLAgentPilot::saveRecord(NULL);
+			gAgentPilot.stopRecord();
 		}
 
 		return true;
@@ -1937,7 +1967,7 @@ class LLAdvancedToggleAgentPilotLoop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLAgentPilot::sLoop = !(LLAgentPilot::sLoop);
+		gAgentPilot.setLoop(!gAgentPilot.getLoop());
 		return true;
 	}
 };
@@ -1946,7 +1976,7 @@ class LLAdvancedCheckAgentPilotLoop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = LLAgentPilot::sLoop;
+		bool new_value = gAgentPilot.getLoop();
 		return new_value;
 	}
 };
@@ -2074,7 +2104,7 @@ class LLAdvancedEnableRenderDeferred: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gSavedSettings.getBOOL("RenderUseFBO") && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT > 0) &&
+		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
 			LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0;
 		return new_value;
 	}
@@ -2087,7 +2117,8 @@ class LLAdvancedEnableRenderDeferredOptions: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gSavedSettings.getBOOL("RenderUseFBO") && gSavedSettings.getBOOL("RenderDeferred");
+		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
+			LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0 && gSavedSettings.getBOOL("RenderDeferred");
 		return new_value;
 	}
 };

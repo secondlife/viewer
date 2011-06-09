@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+#version 120
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;

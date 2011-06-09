@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profile" name="panel_profile">
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE]
+[PAYMENTINFO] [AGEVERIFICATION]
+	</string>
+	<string name="payment_update_link_url">
+		http://www.secondlife.com/account/billing.php?lang=en
+	</string>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=en
+	</string>
+	<string name="my_account_link_url" value="http://secondlife.com/account"/>
+	<string name="no_partner_text" value="無"/>
+	<string name="no_group_text" value="無"/>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
+	<string name="name_text_args">
+		[NAME]
+	</string>
+	<string name="display_name_text_args">
+		[DISPLAY_NAME]
+	</string>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="scroll_content_panel">
+					<panel name="second_life_image_panel">
+						<text name="display_name_descr_text">
+							User name
+						</text>
+						<text name="name_descr_text">
+							Display Name
+						</text>
+						<button label="Profile" name="see_profile_btn" tool_tip="See profile for this avatar"/>
+					</panel>
+				</panel>
+			</scroll_container>
+		</layout_panel>
+	</layout_stack>
+</panel>

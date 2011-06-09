@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="WindLight floater" title="ADVANCED SKY EDITOR">
+	<floater.string name="WLDefaultSkyNames">
+		A-12AM:A-12PM:A-3AM:A-3PM:A-4.30PM:A-6AM:A-6PM:A-9AM:A-9PM:Barcelona:Blizzard:Blue Midday:Coastal Afternoon:Coastal Sunset:Default:Desert Sunset:Fine Day:Fluffy Big Clouds:Foggy:Funky Funky:Funky Funky Funky:Gelatto:Ghost:Incongruent Truths:Midday 1:Midday 2:Midday 3:Midday 4:Night:Pirate:Purple:Sailor&apos;s Delight:Sheer Sensuality
+	</floater.string>
+	<text name="KeyFramePresetsText">
+		Sky Presets:
+	</text>
+	<button label="New" label_selected="New" name="WLNewPreset"/>
+	<button label="儲存" label_selected="儲存" name="WLSavePreset"/>
+	<button label="刪除" label_selected="刪除" name="WLDeletePreset"/>
+	<button label="Day Cycle Editor" label_selected="Day Cycle Editor" name="WLDayCycleMenuButton"/>
+	<tab_container name="WindLight Tabs">
+		<panel label="ATMOSPHERE" name="Atmosphere">
+			<text name="BHText">
+				Blue Horizon
+			</text>
+			<text name="BHText2">
+				R
+			</text>
+			<text name="BHText3">
+				G
+			</text>
+			<text name="BHText4">
+				B
+			</text>
+			<text name="BHText5">
+				I
+			</text>
+			<text name="BDensText">
+				Haze Horizon
+			</text>
+			<text name="BDensText2">
+				Blue Density
+			</text>
+			<text name="BHText6">
+				R
+			</text>
+			<text name="BHText7">
+				G
+			</text>
+			<text name="BHText8">
+				B
+			</text>
+			<text name="BHText9">
+				I
+			</text>
+			<text name="HDText">
+				Haze Density
+			</text>
+			<text name="DensMultText">
+				Density Multiplier
+			</text>
+			<text name="WLDistanceMultText">
+				Distance Multiplier
+			</text>
+			<text name="MaxAltText">
+				Max Altitude
+			</text>
+		</panel>
+		<panel label="LIGHTING" name="Lighting">
+			<text name="SLCText">
+				Sun/Moon Color
+			</text>
+			<text name="BHText">
+				R
+			</text>
+			<text name="BHText2">
+				G
+			</text>
+			<text name="BHText3">
+				B
+			</text>
+			<text name="BHText4">
+				I
+			</text>
+			<text name="TODText">
+				Sun/Moon Position
+			</text>
+			<text name="WLAmbientText">
+				Ambient
+			</text>
+			<text name="BHText5">
+				R
+			</text>
+			<text name="BHText6">
+				G
+			</text>
+			<text name="BHText7">
+				B
+			</text>
+			<text name="BHText8">
+				I
+			</text>
+			<text name="WLEastAngleText">
+				East Angle
+			</text>
+			<text name="SunGlowText">
+				Sun Glow
+			</text>
+			<slider label="Focus" name="WLGlowB"/>
+			<slider label="Size" name="WLGlowR"/>
+			<text name="SceneGammaText">
+				Scene Gamma
+			</text>
+			<text name="WLStarText">
+				Star Brightness
+			</text>
+		</panel>
+		<panel label="CLOUDS" name="Clouds">
+			<text name="WLCloudColorText">
+				Cloud Color
+			</text>
+			<text name="BHText">
+				R
+			</text>
+			<text name="BHText2">
+				G
+			</text>
+			<text name="BHText3">
+				B
+			</text>
+			<text name="BHText4">
+				I
+			</text>
+			<text name="WLCloudColorText2">
+				Cloud XY/Density
+			</text>
+			<text name="BHText5">
+				X
+			</text>
+			<text name="BHText6">
+				Y
+			</text>
+			<text name="BHText7">
+				D
+			</text>
+			<text name="WLCloudCoverageText">
+				Cloud Coverage
+			</text>
+			<text name="WLCloudScaleText">
+				Cloud Scale
+			</text>
+			<text name="WLCloudDetailText">
+				Cloud Detail (XY/Density)
+			</text>
+			<text name="BHText8">
+				X
+			</text>
+			<text name="BHText9">
+				Y
+			</text>
+			<text name="BHText10">
+				D
+			</text>
+			<text name="WLCloudScrollXText">
+				Cloud Scroll X
+			</text>
+			<check_box label="Lock" name="WLCloudLockX"/>
+			<text name="WLCloudScrollYText">
+				Cloud Scroll Y
+			</text>
+			<check_box label="Lock" name="WLCloudLockY"/>
+			<check_box label="Draw Classic Clouds" name="DrawClassicClouds"/>
+		</panel>
+	</tab_container>
+</floater>

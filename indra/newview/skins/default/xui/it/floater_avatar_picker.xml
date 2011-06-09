@@ -24,6 +24,10 @@
 				Comincia a digitare il nome della persona:
 			</text>
 			<button label="Vai" label_selected="Vai" name="Find"/>
+			<scroll_list name="SearchResults">
+				<columns label="Nome" name="name"/>
+				<columns label="Nome utente" name="username"/>
+			</scroll_list>
 		</panel>
 		<panel label="Amici" name="FriendsPanel">
 			<text name="InstructSelectFriend">
@@ -39,7 +43,10 @@
 				Metri
 			</text>
 			<button font="SansSerifSmall" label="Aggiorna la lista" label_selected="Aggiorna l&apos;elenco" left_delta="6" name="Refresh" width="110"/>
-			<scroll_list bottom_delta="-169" height="159" name="NearMe"/>
+			<scroll_list bottom_delta="-169" height="159" name="NearMe">
+				<columns label="Nome" name="name"/>
+				<columns label="Nome utente" name="username"/>
+			</scroll_list>
 		</panel>
 	</tab_container>
 	<button label="OK" label_selected="OK" name="ok_btn"/>

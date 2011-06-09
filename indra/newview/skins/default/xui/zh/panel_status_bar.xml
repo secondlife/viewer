@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="status">
+	<panel.string name="packet_loss_tooltip">
+		封包損失
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		頻寬
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		L$ [AMT]
+	</panel.string>
+	<panel name="balance_bg">
+		<text name="balance" tool_tip="Click to refresh your L$ balance" value="L$20"/>
+		<button label="購買 L$" name="buyL" tool_tip="Click to buy more L$"/>
+	</panel>
+	<text name="TimeText" tool_tip="Current time (Pacific)">
+		24:00 AM PST
+	</text>
+	<button name="media_toggle_btn" tool_tip="Start/Stop All Media (Music, Video, Web pages)"/>
+	<button name="volume_btn" tool_tip="Global Volume Control"/>
+</panel>

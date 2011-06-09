@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Edit Classified" name="panel_edit_classified">
+	<panel.string name="location_notice">
+		(will update after save)
+	</panel.string>
+	<string name="publish_label">
+		Publish
+	</string>
+	<string name="save_label">
+		儲存
+	</string>
+	<text name="title">
+		Edit Classified
+	</text>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="snapshot_panel">
+				<icon label="" name="edit_icon" tool_tip="Click to select an image"/>
+			</panel>
+			<text name="Name:">
+				Title:
+			</text>
+			<text name="description_label">
+				描述：
+			</text>
+			<text name="location_label">
+				位置：
+			</text>
+			<text name="classified_location">
+				載入中...
+			</text>
+			<button label="Set to Current Location" name="set_to_curr_location_btn"/>
+			<text name="category_label" value="Category:"/>
+			<text name="content_type_label" value="Content type:"/>
+			<icons_combo_box label="General Content" name="content_type">
+				<icons_combo_box.item label="Moderate Content" name="mature_ci" value="Mature"/>
+				<icons_combo_box.item label="General Content" name="pg_ci" value="PG"/>
+			</icons_combo_box>
+			<check_box label="Auto renew each week" name="auto_renew"/>
+			<text name="price_for_listing_label" value="Price for listing:"/>
+			<spinner label="L$" name="price_for_listing" tool_tip="Price for listing." value="50"/>
+		</panel>
+	</scroll_container>
+	<panel label="bottom_panel" name="bottom_panel">
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_changes_btn_lp">
+				<button label="[LABEL]" name="save_changes_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="取銷" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

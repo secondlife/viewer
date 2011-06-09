@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="object properties" title="Object Profile">
+	<panel.string name="text deed continued">
+		Deed
+	</panel.string>
+	<panel.string name="text deed">
+		Deed
+	</panel.string>
+	<panel.string name="text modify info 1">
+		You can modify this object
+	</panel.string>
+	<panel.string name="text modify info 2">
+		You can modify these objects
+	</panel.string>
+	<panel.string name="text modify info 3">
+		You can&apos;t modify this object
+	</panel.string>
+	<panel.string name="text modify info 4">
+		You can&apos;t modify these objects
+	</panel.string>
+	<panel.string name="text modify warning">
+		This object has linked parts
+	</panel.string>
+	<panel.string name="Cost Default">
+		價格： L$
+	</panel.string>
+	<panel.string name="Cost Total">
+		總價： L$
+	</panel.string>
+	<panel.string name="Cost Per Unit">
+		Price Per: L$
+	</panel.string>
+	<panel.string name="Cost Mixed">
+		Mixed Price
+	</panel.string>
+	<panel.string name="Sale Mixed">
+		Mixed Sale
+	</panel.string>
+	<text name="title" value="Object Profile"/>
+	<text name="where" value="(Inworld)"/>
+	<panel label="" name="properties_panel">
+		<text name="Name:">
+			名稱：
+		</text>
+		<text name="Description:">
+			描述：
+		</text>
+		<text name="CreatorNameLabel">
+			創造者：
+		</text>
+		<text name="Owner:">
+			擁有者：
+		</text>
+		<text name="Group_label">
+			Group:
+		</text>
+		<button name="button set group" tool_tip="Choose a group to share this object&apos;s permissions"/>
+		<name_box initial_value="載入中..." name="Group Name Proxy"/>
+		<button label="Deed" label_selected="Deed" name="button deed" tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."/>
+		<text name="label click action">
+			Click to:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Touch  (default)" name="Touch/grab(default)"/>
+			<combo_box.item label="Sit on object" name="Sitonobject"/>
+			<combo_box.item label="Buy object" name="Buyobject"/>
+			<combo_box.item label="Pay object" name="Payobject"/>
+			<combo_box.item label="Open" name="Open"/>
+		</combo_box>
+		<panel name="perms_inv">
+			<text name="perm_modify">
+				You can modify this object
+			</text>
+			<text name="Anyone can:">
+				任何人：
+			</text>
+			<check_box label="覆製" name="checkbox allow everyone copy"/>
+			<check_box label="移動" name="checkbox allow everyone move"/>
+			<text name="GroupLabel">
+				Group:
+			</text>
+			<check_box label="分享" name="checkbox share with group" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."/>
+			<text name="NextOwnerLabel">
+				下一個擁有者：
+			</text>
+			<check_box label="修改" name="checkbox next owner can modify"/>
+			<check_box label="覆製" name="checkbox next owner can copy"/>
+			<check_box label="轉移" name="checkbox next owner can transfer" tool_tip="Next owner can give away or resell this object"/>
+		</panel>
+		<check_box label="出售" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Copy" name="Copy"/>
+			<combo_box.item label="Contents" name="Contents"/>
+			<combo_box.item label="Original" name="Original"/>
+		</combo_box>
+		<spinner label="價格： L$" name="Edit Cost"/>
+		<check_box label="Show in search" name="search_check" tool_tip="Let people see this object in search results"/>
+		<text name="B:">
+			B:
+		</text>
+		<text name="O:">
+			O:
+		</text>
+		<text name="G:">
+			G:
+		</text>
+		<text name="E:">
+			E:
+		</text>
+		<text name="N:">
+			N:
+		</text>
+		<text name="F:">
+			F:
+		</text>
+	</panel>
+	<panel name="button_panel">
+		<button label="Open" name="open_btn"/>
+		<button label="Pay" name="pay_btn"/>
+		<button label="購買" name="buy_btn"/>
+		<button label="Details" name="details_btn"/>
+	</panel>
+</panel>

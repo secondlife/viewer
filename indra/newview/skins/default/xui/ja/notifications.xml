@@ -113,9 +113,13 @@
 		フレンド以外からのコールやインスタントメッセージを無視する設定にしたことを、相手に知られることはありません。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="FavoritesOnLogin">
+		注意：このオプションを有効にすると、このパソコンを使うユーザーは誰でも、あなたのお気に入りの場所を見ることができるようになります。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
-		他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更、削除、持ち帰ることができます。 この権限を与える際には十分に注意してください。
-[FIRST_NAME] [LAST_NAME] に修正権限を与えますか？
+		他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更、削除、持ち帰ることができます。この権限を与える際には十分に注意してください。
+[NAME] に修正権限を与えますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
@@ -124,7 +128,7 @@
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="RevokeModifyRights">
-		[FIRST_NAME] [LAST_NAME] に対して変更権限を取り消しますか？
+		[NAME] の修正権限を解約しますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="RevokeModifyRightsMultiple">
@@ -339,24 +343,17 @@ L$ が不足しているのでこのグループに参加することができ�
 		まだ読み込まれていないため、そのアイテムを装着できません。後でやり直してください。
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
-		おっと！記入漏れがありますよ。
-アバターのファーストネームとラストネームの両方を入力する必要があります。
+		注意：記入漏れの箇所があります。
+アバターのユーザー名を入力してください。
 
-[SECOND_LIFE] に入るには、アカウントが必要です。 アカウントを作成しますか？
+[SECOND_LIFE] に入るにはアカウントが必要です。今すぐアカウントを作成しますか？
 		<url name="url">
 			https://join.secondlife.com/index.php?lang=ja-JP
 		</url>
 		<usetemplate name="okcancelbuttons" notext="もう一度試す" yestext="新しいアカウントを作成"/>
 	</notification>
 	<notification name="InvalidCredentialFormat">
-		「ユーザーネーム」欄にアバターのファーストネームとラストネーム両方を入力してからログインしてください。
-	</notification>
-	<notification name="AddClassified">
-		クラシファイド広告は、検索ディレクトリと [http://secondlife.com/community/classifieds secondlife.com] の「クラシファイド広告」セクションに一週間掲載されます。
-広告を記入したら、「掲載...」をクリックしてディレクトリに追加してください。
-「掲載」をクリックすると、支払いたい金額を尋ねられます。
-支払金額が多いほどあなたの広告は一覧とキーワード検索で上位に表示されます。
-		<usetemplate ignoretext="新規クラシファイド広告作成方法" name="okcancelignore" notext="取り消し" yestext="OK"/>
+		ユーザー名のフィールドにアバターのユーザー名もしくは氏名を入力してから、再度ログインする必要があります。
 	</notification>
 	<notification name="DeleteClassified">
 		クラシファイド広告 [NAME] を削除しますか？
@@ -409,6 +406,9 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="ChangeSkin">
 		新しいスキンは [APP_NAME] を再起動後に表示されます。
+	</notification>
+	<notification name="ChangeLanguage">
+		言語の変更は [APP_NAME] を再起動後に反映されます。
 	</notification>
 	<notification name="GoToAuctionPage">
 		[SECOND_LIFE]の Web ページに移動し、入札あるいはオークションの詳細を確認しますか？
@@ -621,6 +621,10 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="SoundFileInvalidHeader">
 		WAV ヘッダーにデータチャンクが見つかりません：
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidChunkSize">
+		WAV ファイルのチャンクサイズが間違っています：
 [FILE]
 	</notification>
 	<notification name="SoundFileInvalidTooLong">
@@ -950,12 +954,6 @@ L$ は返金されません。
 		グループ用の土地の購入ができません：
 あなたにはアクティブなグループのために土地を購入する権限がありません。
 	</notification>
-	<notification label="フレンド登録" name="AddFriend">
-		フレンド登録すると、お互いの現在地の地図への表示許可、オンライン状態の表示設定ができます。
-
-[NAME] にフレンドシップを送りますか？
-		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
-	</notification>
 	<notification label="フレンド登録" name="AddFriendWithMessage">
 		フレンド登録すると、お互いの現在地の地図への表示許可、オンライン状態の表示設定ができます。
 
@@ -974,7 +972,7 @@ L$ は返金されません。
 			<input name="message">
 				[DESC] （新）
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -984,7 +982,7 @@ L$ は返金されません。
 			<input name="message">
 				[DESC]（新規）
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>
@@ -994,12 +992,12 @@ L$ は返金されません。
 			<input name="new_name">
 				[NAME]
 			</input>
-			<button name="Offer" text="OK"/>
+			<button name="OK" text="OK"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		[FIRST_NAME] [LAST_NAME] をフレンドリストから削除しますか？
+		フレンドリストから [NAME] を削除しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1122,14 +1120,11 @@ L$ は返金されません。
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="DeedLandToGroupWithContribution">
-		この区画の譲渡に際しては、このグループが十分な土地クレジットを保有および維持している必要があります。
-この譲渡により、
-「 [FIRST_NAME] [LAST_NAME] 」から
-グループに対して土地が同時に提供されます。
-土地の購入価格は、所有者には返金されません。
-譲渡された区画が売れると、売上金額はグループメンバーに均等に分配されます。
+		この区画が譲渡されると、グループはその土地利用料として十分な残高を維持していく必要があります。
+譲渡には同時に [NAME] からグループへの土地の貢献が含まれます。
+土地の購入価格は所有者に返金されません。譲渡された区画が売却されると、販売価格はグループメンバーの間で均等に分配されます。
 
-この [AREA] 平方メートルの土地を、「 [GROUP_NAME] 」に譲渡しますか？
+この [AREA] m² の土地を [GROUP_NAME] というグループに譲渡しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="DisplaySetToSafe">
@@ -1374,6 +1369,45 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 あなたのアプリケーションフォルダにダウンロードしますか？
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
 	</notification>
+	<notification name="FailedUpdateInstall">
+		ビューワのアップデートをインストール中にエラーが発生しました。
+http://secondlife.com/download から最新バージョンをダウンロードしてインストールしてください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedRequiredUpdateInstall">
+		必要なアップデートをインストールできませんでした。 
+[APP_NAME] がアップデートされるまでログインできません。
+
+http://secondlife.com/download から最新バージョンをダウンロードしてインストールしてください。
+		<usetemplate name="okbutton" yestext="終了"/>
+	</notification>
+	<notification name="UpdaterServiceNotRunning">
+		お使いの Second Life に必要なアップデートがインストールされていません。
+
+このアップデートは、http://www.secondlife.com/downloads からダウンロードして、今すぐインストールできます。
+		<usetemplate name="okcancelbuttons" notext="終了" yestext="今すぐダウンロードしてインストール"/>
+	</notification>
+	<notification name="DownloadBackgroundTip">
+		お使いの [APP_NAME] に必要なアップデートをダウンロードしました。
+バージョン [VERSION] [[RELEASE_NOTES_FULL_URL] このアップデートに関する情報]
+		<usetemplate name="okcancelbuttons" notext="後で実行" yestext="今すぐインストールして [APP_NAME] を再起動"/>
+	</notification>
+	<notification name="DownloadBackgroundDialog">
+		お使いの [APP_NAME] に必要なアップデートをダウンロードしました。
+バージョン [VERSION] [[RELEASE_NOTES_FULL_URL] このアップデートに関する情報]
+		<usetemplate name="okcancelbuttons" notext="後で実行" yestext="今すぐインストールして [APP_NAME] を再起動"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedVerboseDialog">
+		必要なソフトウェアのアップデートをダウンロードしました。
+バージョン [VERSION]
+
+アップデートをインストールするには [APP_NAME] を再起動する必要があります。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RequiredUpdateDownloadedDialog">
+		アップデートをインストールするには [APP_NAME] を再起動する必要があります。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeedObjectToGroup">
 		このオブジェクトを譲渡するとグループは以下のことが可能です：
 * オブジェクトに支払われた L$ を受領します。
@@ -1505,6 +1539,46 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
+	</notification>
+	<notification name="SetDisplayNameSuccess">
+		[DISPLAY_NAME] さん、
+
+現実の世界と同じく、Second Life でも新しい名前が浸透するには時間がかかります。オブジェクト、スクリプト、検索などで名前が更新されるまでに（[http://wiki.secondlife.com/wiki/Setting_your_display_name your name to update]）数日かかりますのでご了承ください。
+	</notification>
+	<notification name="SetDisplayNameBlocked">
+		申し訳ありませんが、現在表示名は変更できません。システムのエラーだと思われる場合は、サポートにお問い合わせください。
+	</notification>
+	<notification name="SetDisplayNameFailedLength">
+		申し訳ありませんが、その名前は長すぎます。表示名は最長 [LENGTH] 文字までです。
+
+もう少し短い名前をお試しください。
+	</notification>
+	<notification name="SetDisplayNameFailedGeneric">
+		申し訳ありませんが、表示名を設定できませんでした。あとでもう一度お試しください。
+	</notification>
+	<notification name="SetDisplayNameMismatch">
+		入力した表示名が一致しません。もう一度入力してください。
+	</notification>
+	<notification name="AgentDisplayNameUpdateThresholdExceeded">
+		しばらくは表示名を変更できません。
+
+http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してください。
+
+あとでもう一度お試しください。
+	</notification>
+	<notification name="AgentDisplayNameSetBlocked">
+		申し訳ありませんが、リクエストされた名前は禁句を含むために設定できませんでした。
+ 
+別の名前をお試しください。
+	</notification>
+	<notification name="AgentDisplayNameSetInvalidUnicode">
+		設定しようとする表示名には使えない文字が含まれます。
+	</notification>
+	<notification name="AgentDisplayNameSetOnlyPunctuation">
+		表示名には句読点以外の文字を含む必要があります。
+	</notification>
+	<notification name="DisplayNameUpdate">
+		[OLD_NAME] ([SLID]) は [NEW_NAME] に変更されました。
 	</notification>
 	<notification name="OfferTeleport">
 		次のメッセージを添えて現在地にテレポートを送りますか？
@@ -2082,10 +2156,10 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		件名： [SUBJECT]、メッセージ： [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] はオンラインです
+		[NAME] はオンライン中です
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] はオフラインです
+		[NAME] はオフライン中です
 	</notification>
 	<notification name="AddSelfFriend">
 		残念ながら自分自身をフレンド登録することはできません。
@@ -2212,18 +2286,13 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="NoContentToSearch">
 		少なくともどれか一つコンテンツの種類を選択して検索を行ってください。（General、Moderate、Adult）
 	</notification>
-	<notification name="GroupVote">
-		[NAME] は投票の申請をしています：
-[MESSAGE]
-		<form name="form">
-			<button name="VoteNow" text="今すぐ投票する"/>
-			<button name="Later" text="あとで"/>
-		</form>
-	</notification>
 	<notification name="SystemMessage">
 		[MESSAGE]
 	</notification>
-	<notification name="PaymentRecived">
+	<notification name="PaymentReceived">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentSent">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2232,7 +2301,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Details" text="説明"/>
+			<button name="Details" text="詳細"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>
@@ -2269,9 +2338,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		選択した土地の区画上にあったあなたのオブジェクトは、すべてあなたの「持ち物」に返却されました。
 	</notification>
 	<notification name="OtherObjectsReturned">
-		選択した土地の区画上にあった
- [NAME]
- が所有するオブジェクトは、すべて所有者の「持ち物」に返却されました。
+		[NAME] が所有する、選択した区画にあるオブジェクトは、所有者の持ち物に返却されました。
 	</notification>
 	<notification name="OtherObjectsReturned2">
 		「 [NAME] 」という名前の住人が所有する、選択した区画上のオブジェクトは、本人に返却されました。
@@ -2398,7 +2465,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		有効な区画が見つかりませんでした。
 	</notification>
 	<notification name="ObjectGiveItem">
-		[NAME_SLURL] が所有する [OBJECTFROMNAME] という名前のオブジェクトが、あなたに [OBJECTTYPE] を渡しました：
+		[NAME_SLURL] が所有する &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; という名前のオブジェクトが、あなたに [OBJECTTYPE] を渡しました：
 [ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="受け取る"/>
@@ -2463,10 +2530,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		[TO_NAME] にフレンド登録を申し出ました。
 	</notification>
 	<notification name="OfferFriendshipNoMessage">
-		[NAME] は、
-フレンド登録を申し込んでいます。
+		[NAME_SLURL] はフレンド登録を申し込んでいます。
 
-（デフォルトでお互いのオンライン状態を見ることができるようになります。）
+（デフォルト設定だとお互いのオンライン状態を見ることができます）
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="拒否"/>
@@ -2486,7 +2552,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="OfferCallingCard">
 		[NAME] がコーリングカードを渡そうとしています。
-あなたの「持ち物」にブックマークが追加され、この住人に素早く IM を送ることができます。
+あなたの持ち物にブックマークが追加され、この住人に素早く IM を送ることができます。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="辞退"/>
@@ -2501,11 +2567,11 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 このままここにいるとログアウトされます。
 	</notification>
 	<notification name="LoadWebPage">
-		Web ページ [URL] を読み込みますか？
+		Web ページ [URL] をロードしますか？
 
 [MESSAGE]
 
-読み込み元のオブジェクト：[OBJECTNAME]、所有者：[NAME]
+送信元のオブジェクト：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;、所有者：[NAME]?
 		<form name="form">
 			<button name="Gotopage" text="ページに移動"/>
 			<button name="Cancel" text="取り消し"/>
@@ -2521,7 +2587,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		着用しようとしているアイテムはあなたのビューワでは読み込むことができません。 [APP_NAME] のバージョンをアップグレードしてからこのアイテムを着用してください。
 	</notification>
 	<notification name="ScriptQuestion">
-		[NAME] が所有するオブジェクト「 [OBJECTNAME] 」を：
+		[NAME] が所有する「&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;」 というオブジェクトが、次のことをしようとしています：
 
 [QUESTIONS]
 よろしいですか？
@@ -2532,7 +2598,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		[NAME] が所有する「 [OBJECTNAME] 」 というオブジェクトが、次のことをしようとしています：
+		[NAME] が所有する「&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;」 というオブジェクトが、次のことをしようとしています：
 
 [QUESTIONS]
 このオブジェクトや制作者を信用できない場合は、このリクエストを拒否してください。
@@ -2545,14 +2611,14 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
-		[NAME] の「 &lt;nolink&gt;[TITLE]&lt;/nolink&gt; 」
+		[NAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="無視する"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
-		[GROUPNAME] の「 [TITLE] 」
+		[GROUPNAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="無視する"/>
@@ -2595,7 +2661,7 @@ M キーを押して変更します。
 		[NAME] はお金を受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[NAME] はアイテムを受け取り、自動的にブロックが解除されました。
+		[NAME] は持ち物を受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] は [GROUP] のボイスチャットコールに参加しました。
@@ -2726,11 +2792,11 @@ M キーを押して変更します。
 		共有する住人を選択します。
 	</notification>
 	<notification name="ShareItemsConfirmation">
-		次のアイテムを共有しますか：
+		次のアイテムを共有しますか？
 
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
-次の住人と共有しますか：
+次の住人と共有しますか？
 
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
@@ -2777,9 +2843,7 @@ M キーを押して変更します。
 	<notification name="NoConnect">
 		[PROTOCOL] [HOSTID]を使って接続できません。
 お使いのネットワークやファイアウォールの設定を確認してください。
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NoVoiceConnect">
 		ボイスサーバーに接続できません：
@@ -2788,9 +2852,7 @@ M キーを押して変更します。
 
 ボイスチャットによるコミュニケーションが利用できません。
 お使いのネットワークやファイアウォールの設定を確認してください。
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
 		（ [EXISTENCE] 秒）
@@ -2815,6 +2877,95 @@ M キーを押して変更します。
 
 全員をミュートしますか？
 		<usetemplate ignoretext="グループコールの参加者全員をミュートする前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification label="チャット" name="HintChat">
+		チャットに参加するには、画面下のチャットフィールドにテキストを入力します。
+	</notification>
+	<notification label="立ち上がる" name="HintSit">
+		座る姿勢から立ち上がるには、「立ち上がる」ボタンをクリックします。
+	</notification>
+	<notification label="話す" name="HintSpeak">
+		「スピーカー」ボタンをクリックすると、マイクのオン・オフが切り替わります。
+
+上矢印をクリックすると、ボイスコントロールパネルが表示されます。
+
+「スピーカー」ボタンを非表示にすると、ボイス機能も無効になります。
+	</notification>
+	<notification label="世界を探検" name="HintDestinationGuide">
+		行き先ガイドには数多くの探索場所が含まれます。どこか行き先を決めたら、テレポートして探索に出かけましょう。
+	</notification>
+	<notification label="サイドパネル" name="HintSidePanel">
+		サイドパネルでインベントリ、服、プロフィールなどにすばやくアクセスできます。
+	</notification>
+	<notification label="移動" name="HintMove">
+		歩行や走行は、「移動」パネルを開き、矢印コントロールによって操作します。この操作はキーボードの矢印キーで実行することも可能です。
+	</notification>
+	<notification label="" name="HintMoveClick">
+		1. クリックして歩行
+地面の一箇所をクリックすると、その場所まで歩きます。
+
+2. クリック・ドラッグで視界を回転
+世界の一箇所をクリックしてドラッグすると、視界の向きが変わります。
+	</notification>
+	<notification label="表示名" name="HintDisplayName">
+		表示名（カスタマイズ可能）を設定します。ユーザー名は固有で変更できませんが、ここで追加する表示名は変更可能です。他の住人の名前の表示方法は環境設定で変更してください。
+	</notification>
+	<notification label="表示" name="HintView">
+		カメラの視点を変更するには、水平・垂直コントロールを使います。Escape を押すか、または歩行すると、視点がリセットされます。
+	</notification>
+	<notification label="インベントリ" name="HintInventory">
+		持ち物にはあなたのアイテムがすべて含まれます。新しく追加されたアイテムは「最新」タブに一覧表示されています。
+	</notification>
+	<notification label="あなたのリンデンドル" name="HintLindenDollar">
+		これがあなたの L$ 残高です。リンデンドルを購入するには「L$ の購入」をクリックします。
+	</notification>
+	<notification name="PopupAttempt">
+		ポップアップがブロックされました。
+		<form name="form">
+			<ignore name="ignore" text="全てのポップアップを有効にする"/>
+			<button name="open" text="ポップアップウィンドウを開く"/>
+		</form>
+	</notification>
+	<notification name="AuthRequest">
+		「[REALM]」にある「&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;」のサイトにはユーザー名とパスワードが必要です。
+		<form name="form">
+			<input name="username" text="ユーザー名"/>
+			<input name="password" text="パスワード"/>
+			<button name="ok" text="送信"/>
+			<button name="cancel" text="取り消し"/>
+		</form>
+	</notification>
+	<notification label="" name="ModeChange">
+		モードを変更するには終了して再起動する必要があります。
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="NoClassifieds">
+		クラシファイド広告の作成と編集はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="NoGroupInfo">
+		グループの作成と編集はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="NoPicks">
+		ピックの作成と編集はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="NoWorldMap">
+		世界地図の表示はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="NoVoiceCall">
+		ボイスコールはアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="NoAvatarShare">
+		共有はアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="NoAvatarPay">
+		他の住人への支払いはアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- あなたの CPU の速度は必須動作環境の条件を満たしていません。

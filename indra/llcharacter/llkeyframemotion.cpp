@@ -1145,7 +1145,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 			constraint->mPositions[joint_num] = new_pos;
 		}
 		constraint->mFixupDistanceRMS *= 1.f / (constraint->mTotalLength * (F32)(shared_data->mChainLength - 1));
-		constraint->mFixupDistanceRMS = fsqrtf(constraint->mFixupDistanceRMS);
+		constraint->mFixupDistanceRMS = (F32) sqrt(constraint->mFixupDistanceRMS);
 
 		//reset old joint rots
 		for (joint_num = 0; joint_num <= shared_data->mChainLength; joint_num++)
