@@ -387,6 +387,7 @@ bool LLWaterParamManager::addParamSet(const std::string& name, LLWaterParamSet& 
 	if(mIt == mParamList.end()) 
 	{	
 		mParamList[name] = param;
+		mPresetListChangeSignal();
 		return true;
 	}
 
@@ -395,17 +396,9 @@ bool LLWaterParamManager::addParamSet(const std::string& name, LLWaterParamSet& 
 
 BOOL LLWaterParamManager::addParamSet(const std::string& name, LLSD const & param)
 {
-	// add a new one if not one there already
-	std::map<std::string, LLWaterParamSet>::const_iterator finder = mParamList.find(name);
-	if(finder == mParamList.end())
-	{
-		mParamList[name].setAll(param);
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+	LLWaterParamSet param_set;
+	param_set.setAll(param);
+	return addParamSet(name, param_set);
 }
 
 bool LLWaterParamManager::getParamSet(const std::string& name, LLWaterParamSet& param)
@@ -420,6 +413,12 @@ bool LLWaterParamManager::getParamSet(const std::string& name, LLWaterParamSet& 
 	}
 
 	return false;
+}
+
+bool LLWaterParamManager::hasParamSet(const std::string& name)
+{
+	LLWaterParamSet dummy;
+	return getParamSet(name, dummy);
 }
 
 bool LLWaterParamManager::setParamSet(const std::string& name, LLWaterParamSet& param)
@@ -465,7 +464,19 @@ bool LLWaterParamManager::removeParamSet(const std::string& name, bool delete_fr
 		gDirUtilp->deleteFilesInDir(path_name, escaped_name + ".xml");
 	}
 
+	mPresetListChangeSignal();
 	return true;
+}
+
+bool LLWaterParamManager::isSystemPreset(const std::string& preset_name)
+{
+	// *TODO: file system access is excessive here.
+	return gDirUtilp->fileExists(getSysDir() + LLURI::escape(preset_name) + ".xml");
+}
+
+boost::signals2::connection LLWaterParamManager::setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb)
+{
+	return mPresetListChangeSignal.connect(cb);
 }
 
 F32 LLWaterParamManager::getFogDensity(void)
@@ -492,4 +503,16 @@ void LLWaterParamManager::initSingleton()
 	LL_DEBUGS("Windlight") << "Initializing water" << LL_ENDL;
 	loadAllPresets(LLStringUtil::null);
 	applyUserPrefs(false);
+}
+
+// static
+std::string LLWaterParamManager::getSysDir()
+{
+	return gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/water", "");
+}
+
+// static
+std::string LLWaterParamManager::getUserDir()
+{
+	return gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS , "windlight/water", "");
 }

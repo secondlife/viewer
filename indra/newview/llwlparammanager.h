@@ -270,7 +270,7 @@ public:
 	/// get a param set (preset) from the list
 	bool getParamSet(const LLWLParamKey& key, LLWLParamSet& param);
 
-	/// get a param set (preset) from the list
+	/// check whether the preset is in the list
 	bool hasParamSet(const LLWLParamKey& key);
 
 	/// set the param in the list with a new param

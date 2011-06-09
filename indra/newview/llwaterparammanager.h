@@ -216,6 +216,7 @@ class LLWaterParamManager : public LLSingleton<LLWaterParamManager>
 {
 	LOG_CLASS(LLWaterParamManager);
 public:
+	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
 	/// load a preset file
 	void loadAllPresets(const std::string & fileName);
@@ -248,6 +249,9 @@ public:
 	/// get a param from the list
 	bool getParamSet(const std::string& name, LLWaterParamSet& param);
 
+	/// check whether the preset is in the list
+	bool hasParamSet(const std::string& name);
+
 	/// set the param in the list with a new param
 	bool setParamSet(const std::string& name, LLWaterParamSet& param);
 	
@@ -257,6 +261,12 @@ public:
 	/// gets rid of a parameter and any references to it
 	/// returns true if successful
 	bool removeParamSet(const std::string& name, bool delete_from_disk);
+
+	/// @return true if the preset comes out of the box
+	bool isSystemPreset(const std::string& preset_name);
+
+	/// Emitted when a preset gets added or deleted.
+	boost::signals2::connection setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb);
 
 	/// set the normap map we want for water
 	bool setNormalMapID(const LLUUID& img);
@@ -308,8 +318,13 @@ private:
 	LLWaterParamManager();
 	~LLWaterParamManager();
 
+	static std::string getSysDir();
+	static std::string getUserDir();
+
 	LLVector4 mWaterPlane;
 	F32 mWaterFogKS;
+
+	preset_list_signal_t mPresetListChangeSignal;
 };
 
 inline void LLWaterParamManager::setDensitySliderValue(F32 val)
