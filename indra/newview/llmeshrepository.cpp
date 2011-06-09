@@ -585,6 +585,7 @@ public:
 		//assert_main_thread();
 		mThread->mPendingUploads--;
 		dumpLLSDToFile(content,make_dump_name("whole_model_upload_response_",dump_num));
+		llinfos << "LLWholeModelUploadResponder content: " << content << llendl;
 		// requested "mesh" asset type isn't actually the type
 		// of the resultant object, fix it up here.
 		if (isGoodStatus(status))
