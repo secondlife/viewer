@@ -218,13 +218,6 @@ class LLWaterParamManager : public LLSingleton<LLWaterParamManager>
 public:
 	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
-	/// load a preset file
-	void loadAllPresets(const std::string & fileName);
-
-	/// load an individual preset into the sky
-
-	void loadPreset(const std::string & name,bool propagate=true);
-
 	/// save the parameter presets to file
 	void savePreset(const std::string & name);
 
@@ -317,6 +310,10 @@ private:
 	/*virtual*/ void initSingleton();
 	LLWaterParamManager();
 	~LLWaterParamManager();
+
+	void loadAllPresets();
+	void loadPresetsFromDir(const std::string& dir);
+	bool loadPreset(const std::string& path);
 
 	static std::string getSysDir();
 	static std::string getUserDir();
