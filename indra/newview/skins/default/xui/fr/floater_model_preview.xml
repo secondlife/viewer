@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Preview" title="Chargement du modèle">
+	<string name="status_idle">
+		Inactif
+	</string>
+	<string name="status_reading_file">
+		Chargement...
+	</string>
+	<string name="status_generating_meshes">
+		Génération des maillages...
+	</string>
+	<string name="status_vertex_number_overflow">
+		Erreur : valeur de sommet supérieure à 65534. Opération abandonnée.
+	</string>
+	<string name="high">
+		Élevé
+	</string>
+	<string name="medium">
+		Moyen
+	</string>
+	<string name="low">
+		Faible
+	</string>
+	<string name="lowest">
+		Le plus faible
+	</string>
+	<string name="mesh_status_good">
+		Bon à publier !
+	</string>
+	<string name="mesh_status_na">
+		N/A
+	</string>
+	<string name="mesh_status_none">
+		Aucun
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		Un nombre différent de faces d&apos;application de texture est associé aux niveaux de détail.
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		Un nombre différent d&apos;instances de maillage est associé aux niveaux de détail.
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		Trop de sommets pour le niveau de détail.
+	</string>
+	<string name="mesh_status_missing_lod">
+		Niveau de détail requis manquant.
+	</string>
+	<string name="layer_all">
+		Tout
+	</string>
+	<string name="decomposing">
+		Analyse...
+	</string>
+	<string name="simplifying">
+		Simplification...
+	</string>
+	<text name="name_label">
+		Nom :
+	</text>
+	<text name="lod_label">
+		Aperçu :
+	</text>
+	<combo_box name="preview_lod_combo" tool_tip="Niveau de détail à afficher en rendu d&apos;aperçu.">
+		<combo_item name="high">
+			Niveau de détail : Élevé
+		</combo_item>
+		<combo_item name="medium">
+			Niveau de détail : Moyen
+		</combo_item>
+		<combo_item name="low">
+			Niveau de détail : Faible
+		</combo_item>
+		<combo_item name="lowest">
+			Niveau de détail : Le plus faible
+		</combo_item>
+	</combo_box>
+	<panel>
+		<text name="streaming cost">
+			Coût de la ressource : [COST]
+		</text>
+		<text name="physics cost">
+			Coût des propriétés physiques : [COST]
+		</text>
+		<text name="upload fee">
+			Frais de chargement : N/A
+		</text>
+	</panel>
+	<text name="status">
+		[STATUS]
+	</text>
+	<button label="Valeurs par défaut" name="reset_btn" tool_tip="Rétablir les valeurs par défaut."/>
+	<button label="Charger" name="ok_btn" tool_tip="Charger dans le simulateur."/>
+	<button label="Annuler" name="cancel_btn"/>
+	<tab_container name="import_tab">
+		<panel label="Niveau de détail" name="lod_panel">
+			<text name="lod_table_header">
+				Sélectionner le niveau de détail :
+			</text>
+			<text name="high_label" value="Élevé"/>
+			<text name="high_triangles" value="0"/>
+			<text name="high_vertices" value="0"/>
+			<text name="medium_label" value="Moyen"/>
+			<text name="medium_triangles" value="0"/>
+			<text name="medium_vertices" value="0"/>
+			<text name="low_label" value="Faible"/>
+			<text name="low_triangles" value="0"/>
+			<text name="low_vertices" value="0"/>
+			<text name="lowest_label" value="Le plus faible"/>
+			<text name="lowest_triangles" value="0"/>
+			<text name="lowest_vertices" value="0"/>
+			<text name="lod_table_footer">
+				Niveau de détail : [DETAIL]
+			</text>
+			<radio_group name="lod_file_or_limit" value="lod_from_file">
+				<radio_item label="Charger depuis un fichier" name="lod_from_file"/>
+				<radio_item label="Générer automatiquement" name="lod_auto_generate"/>
+				<radio_item label="Aucun" name="lod_none"/>
+			</radio_group>
+			<button label="Parcourir..." name="lod_browse"/>
+			<combo_box name="lod_mode">
+				<combo_item name="triangle_limit">
+					Limite du triangle
+				</combo_item>
+				<combo_item name="error_threshold">
+					Seuil d&apos;erreur
+				</combo_item>
+			</combo_box>
+			<text name="build_operator_text">
+				Opér. construction :
+			</text>
+			<text name="queue_mode_text">
+				Mode fil d&apos;attente :
+			</text>
+			<combo_box name="build_operator">
+				<combo_item name="edge_collapse">
+					Fusion (nouveau sommet)
+				</combo_item>
+				<combo_item name="half_edge_collapse">
+					Fusion (un des sommets)
+				</combo_item>
+			</combo_box>
+			<combo_box name="queue_mode">
+				<combo_item name="greedy">
+					Glouton
+				</combo_item>
+				<combo_item name="lazy">
+					Paresseux
+				</combo_item>
+				<combo_item name="independent">
+					Indépendant
+				</combo_item>
+			</combo_box>
+			<text name="border_mode_text">
+				Mode bord :
+			</text>
+			<text name="share_tolderance_text">
+				Tolérance partage :
+			</text>
+			<combo_box name="border_mode">
+				<combo_item name="border_unlock">
+					Déverrouiller
+				</combo_item>
+				<combo_item name="border_lock">
+					Verrouiller
+				</combo_item>
+			</combo_box>
+			<text name="crease_label">
+				Angle pli :
+			</text>
+			<spinner name="crease_angle" value="75"/>
+		</panel>
+		<panel label="Propriétés physiques" name="physics_panel">
+			<panel name="physics geometry">
+				<radio_group name="physics_load_radio" value="physics_load_from_file">
+					<radio_item label="Fichier :" name="physics_load_from_file"/>
+					<radio_item label="Utiliser le niveau de détail :" name="physics_use_lod"/>
+				</radio_group>
+				<combo_box name="physics_lod_combo" tool_tip="Niveau de détail à utiliser pour la forme physique.">
+					<combo_item name="physics_lowest">
+						Le plus faible
+					</combo_item>
+					<combo_item name="physics_low">
+						Faible
+					</combo_item>
+					<combo_item name="physics_medium">
+						Moyen
+					</combo_item>
+					<combo_item name="physics_high">
+						Élevé
+					</combo_item>
+				</combo_box>
+				<button label="Parcourir..." name="physics_browse"/>
+			</panel>
+			<panel name="physics analysis">
+				<slider label="Lissage :" name="Smooth"/>
+				<check_box label="Fermer les trous (lent)" name="Close Holes (Slow)"/>
+				<button label="Analyser" name="Decompose"/>
+				<button label="Annuler" name="decompose_cancel"/>
+			</panel>
+			<panel name="physics simplification">
+				<slider label="Passes :" name="Combine Quality"/>
+				<slider label="Échelle de détail :" name="Detail Scale"/>
+				<slider label="Retenue :" name="Retain%"/>
+				<button label="Simplifier" name="Simplify"/>
+				<button label="Annuler" name="simplify_cancel"/>
+			</panel>
+			<panel name="physics info">
+				<slider label="Décomposition de l&apos;aperçu :" name="physics_explode"/>
+				<text name="physics_triangles">
+					Triangles : [TRIANGLES]
+				</text>
+				<text name="physics_points">
+					Sommets : [POINTS]
+				</text>
+				<text name="physics_hulls">
+					Enveloppes : [HULLS]
+				</text>
+			</panel>
+		</panel>
+		<panel label="Modificateurs" name="modifiers_panel">
+			<spinner name="import_scale" value="1.0"/>
+			<text name="import_dimensions">
+				[X] x [Y] x [Z] m
+			</text>
+			<check_box label="Textures" name="upload_textures"/>
+			<check_box label="Pondération de la peau" name="upload_skin"/>
+			<check_box label="Position des articulations" name="upload_joints"/>
+			<spinner name="pelvis_offset" value="0.0"/>
+		</panel>
+	</tab_container>
+</floater>

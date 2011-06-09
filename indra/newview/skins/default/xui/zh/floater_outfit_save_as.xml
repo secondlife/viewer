@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="modal container" title="Save Outfit">
+<floater name="modal container" title="儲存裝扮">
 	<button label="儲存" label_selected="儲存" name="Save"/>
 	<button label="取銷" label_selected="取銷" name="Cancel"/>
 	<text name="Save item as:">
-		Save what I&apos;m wearing
-as a new Outfit:
+		儲存我正在穿的為新裝扮：
 	</text>
 	<line_editor name="name ed">
 		[DESC] (new)

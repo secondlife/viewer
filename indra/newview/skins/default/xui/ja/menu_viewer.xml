@@ -120,6 +120,8 @@
 			<menu_item_call label="画像（L$[COST]）..." name="Upload Image"/>
 			<menu_item_call label="サウンド（L$[COST]）..." name="Upload Sound"/>
 			<menu_item_call label="アニメーション（L$[COST]）..." name="Upload Animation"/>
+			<menu_item_call label="モデル" name="Upload Model"/>
+			<menu_item_call label="モデルウィザード" name="Upload Model Wizard"/>
 			<menu_item_call label="一括 （ファイルにつきL$[COST]）..." name="Bulk Upload"/>
 		</menu>
 		<menu_item_call label="元に戻す" name="Undo"/>
@@ -159,7 +161,7 @@
 			<menu_item_check label="アルファ" name="Alpha"/>
 			<menu_item_check label="木" name="Tree"/>
 			<menu_item_check label="アバター" name="Character"/>
-			<menu_item_check label="地表" name="SurfacePath"/>
+			<menu_item_check label="サーフェスパッチ" name="Surface Patch"/>
 			<menu_item_check label="空" name="Sky"/>
 			<menu_item_check label="水" name="Water"/>
 			<menu_item_check label="地面" name="Ground"/>
@@ -218,6 +220,7 @@
 			<menu_item_check label="テクスチャカテゴリのコンソール" name="Texture Category"/>
 			<menu_item_check label="ファーストタイマー" name="Fast Timers"/>
 			<menu_item_check label="メモリ" name="Memory"/>
+			<menu_item_check label="風景の統計" name="Scene Statistics"/>
 			<menu_item_call label="リージョン情報をデバッグコンソールへ" name="Region Info to Debug Console"/>
 			<menu_item_call label="グループ情報をデバッグコンソールへ" name="Group Info to Debug Console"/>
 			<menu_item_call label="性能情報をデバッグコンソールへ" name="Capabilities Info to Debug Console"/>
@@ -228,6 +231,7 @@
 		</menu>
 		<menu label="情報を表示" name="Display Info">
 			<menu_item_check label="時間を表示する" name="Show Time"/>
+			<menu_item_check label="アップロード代金を表示" name="Show Upload Cost"/>
 			<menu_item_check label="描画情報を表示する" name="Show Render Info"/>
 			<menu_item_check label="テクスチャ情報を表示" name="Show Texture Info"/>
 			<menu_item_check label="マトリックスを表示する" name="Show Matrices"/>
@@ -253,8 +257,10 @@
 		</menu>
 		<menu label="メタデータのレンダー" name="Render Metadata">
 			<menu_item_check label="バウンディングボックス" name="Bounding Boxes"/>
+			<menu_item_check label="普通" name="Normals"/>
 			<menu_item_check label="オクトリー" name="Octree"/>
 			<menu_item_check label="シャドウ円錐" name="Shadow Frusta"/>
+			<menu_item_check label="実像" name="Physics Shapes"/>
 			<menu_item_check label="オクルージョン" name="Occlusion"/>
 			<menu_item_check label="バッチの描画" name="Render Batches"/>
 			<menu_item_check label="タイプを更新" name="Update Type"/>
@@ -262,9 +268,12 @@
 			<menu_item_check label="テクスチャ優先度" name="Texture Priority"/>
 			<menu_item_check label="テクスチャの範囲" name="Texture Area"/>
 			<menu_item_check label="側面" name="Face Area"/>
+			<menu_item_check label="LOD 情報" name="LOD Info"/>
+			<menu_item_check label="制作キュー" name="Build Queue"/>
 			<menu_item_check label="光" name="Lights"/>
 			<menu_item_check label="骨組みの衝突判定" name="Collision Skeleton"/>
 			<menu_item_check label="レイキャスト" name="Raycast"/>
+			<menu_item_check label="スカルプト" name="Sculpt"/>
 		</menu>
 		<menu label="レンダリング" name="Rendering">
 			<menu_item_check label="軸" name="Axes"/>
@@ -272,7 +281,6 @@
 			<menu_item_call label="選択したテクスチャ情報基底" name="Selected Texture Info Basis"/>
 			<menu_item_check label="ワイヤーフレーム" name="Wireframe"/>
 			<menu_item_check label="オブジェクト間オクルージョン" name="Object-Object Occlusion"/>
-			<menu_item_check label="フレームバッファオブジェクト" name="Framebuffer Objects"/>
 			<menu_item_check label="光と影" name="Lighting and Shadows"/>
 			<menu_item_check label="太陽・月・プロジェクタからの影" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO と影の平滑化" name="SSAO and Shadow Smoothing"/>
@@ -371,6 +379,7 @@
 			<menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
+		<menu_item_check label="HTTP 持ち物" name="HTTP Inventory"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
 		<menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump"/>
 		<menu_item_check label="次回の起動時にコンソールウィンドウを表示する" name="Console Window"/>

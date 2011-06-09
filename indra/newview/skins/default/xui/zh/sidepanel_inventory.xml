@@ -4,16 +4,16 @@
 		<panel name="button_panel">
 			<layout_stack name="button_panel_ls">
 				<layout_panel name="info_btn_lp">
-					<button label="Profile" name="info_btn" tool_tip="Show object profile"/>
+					<button label="檔案" name="info_btn" tool_tip="顯示物件檔案"/>
 				</layout_panel>
 				<layout_panel name="share_btn_lp">
 					<button label="分享" name="share_btn" tool_tip="Share an inventory item"/>
 				</layout_panel>
 				<layout_panel name="shop_btn_lp">
 					<button label="Shop" name="shop_btn" tool_tip="Open Marketplace webpage"/>
-					<button label="Wear" name="wear_btn" tool_tip="Wear seleceted outfit"/>
+					<button label="Wear" name="wear_btn" tool_tip="穿上所選擇的裝扮"/>
 					<button label="Play" name="play_btn"/>
-					<button label="Teleport" name="teleport_btn" tool_tip="Teleport to the selected area"/>
+					<button label="瞬間傳送" name="teleport_btn" tool_tip="瞬間傳送到所選的區域"/>
 				</layout_panel>
 			</layout_stack>
 		</panel>

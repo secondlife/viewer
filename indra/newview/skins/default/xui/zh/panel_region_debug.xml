@@ -21,7 +21,7 @@
 	</line_editor>
 	<button label="Choose" name="choose_avatar_btn"/>
 	<text name="options_text_lbl">
-		Options:
+		選項：
 	</text>
 	<check_box label="With scripts" name="return_scripts" tool_tip="Return only objects which have scripts"/>
 	<check_box label="On someone else&apos;s land" name="return_other_land" tool_tip="Return only objects which are on land belonging to someone else"/>

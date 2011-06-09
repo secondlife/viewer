@@ -15,7 +15,7 @@
 					<stat_bar label="Total Objects" name="objs"/>
 					<stat_bar label="New Objects" name="newobjs"/>
 				</stat_view>
-				<stat_view label="Texture" name="texture">
+				<stat_view label="材質" name="texture">
 					<stat_bar label="Count" name="numimagesstat"/>
 					<stat_bar label="Raw Count" name="numrawimagesstat"/>
 					<stat_bar label="GL Mem" name="gltexmemstat"/>
@@ -27,7 +27,7 @@
 					<stat_bar label="Packets In" name="packetsinstat"/>
 					<stat_bar label="Packets Out" name="packetsoutstat"/>
 					<stat_bar label="Objects" name="objectkbitstat"/>
-					<stat_bar label="Texture" name="texturekbitstat"/>
+					<stat_bar label="材質" name="texturekbitstat"/>
 					<stat_bar label="Asset" name="assetkbitstat"/>
 					<stat_bar label="Layers" name="layerskbitstat"/>
 					<stat_bar label="Actual In" name="actualinkbitstat"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_lagmeter" title="LAG METER">
+<floater name="floater_lagmeter" title="LAG 測量器">
 	<floater.string name="max_title_msg">
-		Lag Meter
+		Lag 測量器
 	</floater.string>
 	<floater.string name="max_width_px">
 		360
@@ -13,7 +13,7 @@
 		90
 	</floater.string>
 	<floater.string name="client_text_msg">
-		Client
+		客戶端
 	</floater.string>
 	<floater.string name="client_frame_rate_critical_fps">
 		10
@@ -31,7 +31,7 @@
 		Client frame rate between [CLIENT_FRAME_RATE_CRITICAL] and [CLIENT_FRAME_RATE_WARNING]
 	</floater.string>
 	<floater.string name="client_frame_time_normal_msg">
-		Normal
+		正常
 	</floater.string>
 	<floater.string name="client_draw_distance_cause_msg">
 		Possible cause: Draw distance set too high
@@ -46,7 +46,7 @@
 		Possible cause: Too many complex objects in scene
 	</floater.string>
 	<floater.string name="network_text_msg">
-		Network
+		網路
 	</floater.string>
 	<floater.string name="network_packet_loss_critical_pct">
 		10
@@ -61,7 +61,7 @@
 		Connection is dropping [NETWORK_PACKET_LOSS_WARNING]%-[NETWORK_PACKET_LOSS_CRITICAL]% of packets
 	</floater.string>
 	<floater.string name="network_performance_normal_msg">
-		Normal
+		正常
 	</floater.string>
 	<floater.string name="network_ping_critical_ms">
 		600
@@ -82,7 +82,7 @@
 		Possible bad connection or file-sharing app.
 	</floater.string>
 	<floater.string name="server_text_msg">
-		Server
+		伺服器
 	</floater.string>
 	<floater.string name="server_frame_rate_critical_fps">
 		20
@@ -94,31 +94,31 @@
 		20
 	</floater.string>
 	<floater.string name="server_frame_time_critical_msg">
-		Simulator framerate below [SERVER_FRAME_RATE_CRITICAL]
+		模擬器 framerate 低於 [SERVER_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="server_frame_time_warning_msg">
-		Simulator framerate between [SERVER_FRAME_RATE_CRITICAL] and [SERVER_FRAME_RATE_WARNING]
+		模擬器 framerate 介於 [SERVER_FRAME_RATE_CRITICAL] 與 [SERVER_FRAME_RATE_WARNING]　之間
 	</floater.string>
 	<floater.string name="server_frame_time_normal_msg">
-		Normal
+		正常
 	</floater.string>
 	<floater.string name="server_physics_cause_msg">
-		Possible Cause: Too many physical objects
+		可能原因：太多物理物件
 	</floater.string>
 	<floater.string name="server_scripts_cause_msg">
-		Possible Cause: Too many scripted objects
+		可能原因：太多腳本物件
 	</floater.string>
 	<floater.string name="server_net_cause_msg">
-		Possible Cause: Too much network traffic
+		可能原因：太多網路流量
 	</floater.string>
 	<floater.string name="server_agent_cause_msg">
-		Possible Cause: Too many moving people in region
+		可能原因：地區有太多移動的人
 	</floater.string>
 	<floater.string name="server_images_cause_msg">
-		Possible Cause: Too many image calculations
+		可能原因：太多影像計算
 	</floater.string>
 	<floater.string name="server_generic_cause_msg">
-		Possible Cause: Simulator load too heavy
+		可能原因：模擬器負載過重
 	</floater.string>
 	<floater.string name="smaller_label">
 		&gt;&gt;
@@ -126,26 +126,26 @@
 	<floater.string name="bigger_label">
 		&lt;&lt;
 	</floater.string>
-	<button name="client_lagmeter" tool_tip="Client lag status"/>
+	<button name="client_lagmeter" tool_tip="客戶端 lag 狀態"/>
 	<text name="client">
-		Client
+		客戶端
 	</text>
 	<text name="client_text">
-		Normal
+		正常
 	</text>
-	<button name="network_lagmeter" tool_tip="Network lag status"/>
+	<button name="network_lagmeter" tool_tip="網路 lag 狀態"/>
 	<text name="network">
-		Network
+		網路
 	</text>
 	<text name="network_text">
-		Normal
+		正常
 	</text>
-	<button name="server_lagmeter" tool_tip="Server lag status"/>
+	<button name="server_lagmeter" tool_tip="伺服器 lag 狀態"/>
 	<text name="server">
-		Server
+		伺服器
 	</text>
 	<text name="server_text">
-		Normal
+		正常
 	</text>
-	<button label="&gt;&gt;" name="minimize" tool_tip="Toggle floater size"/>
+	<button label="&gt;&gt;" name="minimize" tool_tip="切換浮動視窗尺寸"/>
 </floater>

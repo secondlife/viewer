@@ -17,7 +17,7 @@
 	<check_box initial_value="false" label="Allow Navigation &amp; Interactivity" name="perms_owner_interact"/>
 	<check_box initial_value="false" label="Show Control Bar" name="perms_owner_control"/>
 	<text name="group_label">
-		Group:
+		社團：
 	</text>
 	<check_box initial_value="false" label="Allow Navigation &amp; Interactivity" name="perms_group_interact"/>
 	<check_box initial_value="false" label="Show Control Bar" name="perms_group_control"/>

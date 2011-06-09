@@ -40,7 +40,7 @@
 		</layout_panel>
 		<layout_panel name="notification_well_panel">
 			<chiclet_notification name="notification_well">
-				<button name="Unread" tool_tip="Notifications"/>
+				<button name="Unread" tool_tip="通知"/>
 			</chiclet_notification>
 		</layout_panel>
 	</layout_stack>

@@ -5,12 +5,12 @@
 	<menu_item_call label="卸下" name="Detach"/>
 	<menu_item_call label="坐下" name="Sit Down Here"/>
 	<menu_item_call label="起立" name="Stand Up"/>
-	<menu_item_call label="My Appearance" name="Change Outfit"/>
-	<menu_item_call label="Edit My Outfit" name="Edit Outfit"/>
-	<menu_item_call label="Edit My Shape" name="Edit My Shape"/>
-	<menu_item_call label="My Friends" name="Friends..."/>
-	<menu_item_call label="My Groups" name="Groups..."/>
-	<menu_item_call label="My Profile" name="Profile..."/>
-	<menu_item_call label="Debug Textures" name="Debug..."/>
-	<menu_item_call label="Drop" name="Drop"/>
+	<menu_item_call label="我的外觀" name="Change Outfit"/>
+	<menu_item_call label="編輯我的裝扮" name="Edit Outfit"/>
+	<menu_item_call label="編輯我的體形" name="Edit My Shape"/>
+	<menu_item_call label="我的朋友" name="Friends..."/>
+	<menu_item_call label="我的社團" name="Groups..."/>
+	<menu_item_call label="我的檔案" name="Profile..."/>
+	<menu_item_call label="材質除錯" name="Debug..."/>
+	<menu_item_call label="丟棄" name="Drop"/>
 </context_menu>

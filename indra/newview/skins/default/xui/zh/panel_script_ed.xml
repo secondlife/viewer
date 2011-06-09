@@ -19,29 +19,29 @@
 		Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.
 	</panel.string>
 	<menu_bar name="script_menu">
-		<menu label="File" name="File">
+		<menu label="檔案" name="File">
 			<menu_item_call label="儲存" name="Save"/>
-			<menu_item_call label="Revert All Changes" name="Revert All Changes"/>
+			<menu_item_call label="還原全部變更" name="Revert All Changes"/>
 		</menu>
 		<menu label="編輯" name="Edit">
 			<menu_item_call label="復原" name="Undo"/>
-			<menu_item_call label="Redo" name="Redo"/>
+			<menu_item_call label="重做" name="Redo"/>
 			<menu_item_call label="剪下" name="Cut"/>
 			<menu_item_call label="覆製" name="Copy"/>
 			<menu_item_call label="貼上" name="Paste"/>
 			<menu_item_call label="全選" name="Select All"/>
-			<menu_item_call label="Deselect" name="Deselect"/>
+			<menu_item_call label="取銷選擇" name="Deselect"/>
 			<menu_item_call label="搜尋 / 取代..." name="Search / Replace..."/>
 		</menu>
-		<menu label="Help" name="Help">
-			<menu_item_call label="Help..." name="Help..."/>
-			<menu_item_call label="Keyword Help..." name="Keyword Help..."/>
+		<menu label="幫助" name="Help">
+			<menu_item_call label="幫助..." name="Help..."/>
+			<menu_item_call label="關鍵字幫助..." name="Keyword Help..."/>
 		</menu>
 	</menu_bar>
 	<text_editor name="Script Editor">
 		載入中...
 	</text_editor>
-	<combo_box label="Insert..." name="Insert..."/>
+	<combo_box label="插入..." name="Insert..."/>
 	<button label="儲存" label_selected="儲存" name="Save_btn"/>
 	<button label="編輯..." name="Edit_btn"/>
 </panel>

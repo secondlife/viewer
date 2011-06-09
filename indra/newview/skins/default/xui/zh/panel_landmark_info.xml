@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="landmark_info">
-	<string name="title_create_landmark" value="Create Landmark"/>
-	<string name="title_edit_landmark" value="Edit Landmark"/>
-	<string name="title_landmark" value="Landmark"/>
+	<string name="title_create_landmark" value="創造地標"/>
+	<string name="title_edit_landmark" value="編輯地標"/>
+	<string name="title_landmark" value="地標"/>
 	<string name="not_available" value="(N\A)"/>
 	<string name="unknown" value="（未知）"/>
 	<string name="public" value="（公開）"/>
@@ -19,7 +19,7 @@
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
 	<button name="back_btn" tool_tip="Back"/>
-	<text name="title" value="Place Profile"/>
+	<text name="title" value="地點檔案"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
 			<text name="region_title" value="SampleRegion"/>
@@ -29,12 +29,12 @@
 			<panel name="landmark_info_panel">
 				<text name="owner_label" value="擁有者："/>
 				<text name="creator_label" value="創造者："/>
-				<text name="created_label" value="Created:"/>
+				<text name="created_label" value="創造於："/>
 			</panel>
 			<panel name="landmark_edit_panel">
 				<text name="title_label" value="Title:"/>
 				<text name="notes_label" value="My notes:"/>
-				<text name="folder_label" value="Landmark location:"/>
+				<text name="folder_label" value="地標位置："/>
 			</panel>
 		</panel>
 	</scroll_container>

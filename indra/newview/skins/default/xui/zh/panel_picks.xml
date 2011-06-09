@@ -19,7 +19,7 @@
 				<button label="資訊" name="info_btn" tool_tip="Show pick information"/>
 			</layout_panel>
 			<layout_panel name="teleport_btn_lp">
-				<button label="Teleport" name="teleport_btn" tool_tip="Teleport to the corresponding area"/>
+				<button label="瞬間傳送" name="teleport_btn" tool_tip="Teleport to the corresponding area"/>
 			</layout_panel>
 			<layout_panel name="show_on_map_btn_lp">
 				<button label="地圖" name="show_on_map_btn" tool_tip="Show the corresponding area on the World Map"/>

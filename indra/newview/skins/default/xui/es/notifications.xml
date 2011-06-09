@@ -2166,6 +2166,12 @@ Esto puede influir en tu contraseña.
 	<notification name="RezItemNoPermissions">
 		No tienes permisos suficientes para renderizar el objeto.
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		No se pueden enviar mensajes instantáneos entre propiedades principales.
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		No se puede transferir el inventario entre propiedades principales.
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		En este momento no se puede cargar la nota.
 	</notification>
@@ -2738,6 +2744,10 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 		Un moderador ha silenciado tu voz.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		Esta carga te costará [PRECIO] L$. ¿Deseas continuar?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Subir"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		¿Estás seguro de que quieres borrar tu historial de teleportes?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
@@ -2748,6 +2758,9 @@ Se mostrará cuando haya suficiente espacio.
 	</notification>
 	<notification name="ShareNotification">
 		Selecciona los residentes con quienes deseas compartir.
+	</notification>
+	<notification name="MeshUploadError">
+		No se ha cargado [ETIQUETA]: [MENSAJE] [IDENTIFICADOR] [IDENTIFICADOR_FALTA_VALIDEZ]
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		¿Estás seguro de que quieres compartir los elementos siguientes?
@@ -2764,6 +2777,19 @@ Con los siguientes residentes:
 	</notification>
 	<notification name="DeedToGroupFail">
 		Error de transferencia a grupo.
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		La parcela [NOMBRE_PARCELA] no se puede abandonar en este momento.
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		Ya está disponible la parcela [NOMBRE_PARCELA] de [ÁREA] m².
+
+Dispondrás de [PERÍODO_DE_RECLAMACIÓN] horas para reclamar la cantidad de 0 L$ antes de que se ponga en venta.
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		Ya está disponible la parcela [NOMBRE_PARCELA] de [ÁREA] m².
+
+Ya está en venta.
 	</notification>
 	<notification name="AvatarRezNotification">
 		( [EXISTENCE] segundos vivo)
@@ -2902,6 +2928,10 @@ Al ocultar el botón Hablar se desactiva la función de voz.
 		La creación y edición de grupos sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
 		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
 	</notification>
+	<notification label="" name="NoPlaceInfo">
+		La opción de consulta del perfil del lugar solo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
 	<notification label="" name="NoPicks">
 		La creación y edición de Destacados sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
 		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
@@ -2922,9 +2952,18 @@ Al ocultar el botón Hablar se desactiva la función de voz.
 		El pago a otros residentes sólo está disponible en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
 		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
 	</notification>
-	<global name="UnsupportedCPU">
-		- La velocidad de tu CPU no cumple los requerimientos mínimos.
-	</global>
+	<notification label="" name="NoInventory">
+		La opción de consulta del inventario solo está disponible en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		El editor de apariencia solo está disponible en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		Las búsquedas solo están disponibles en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		Parece que no tienes el hardware apropiado para [APP_NAME]. [APP_NAME] requiere una tarjeta gráfica OpenGL que admita texturas múltiples (&apos;multitexture support&apos;). Si la tienes, comprueba que tienes los últimos &apos;drivers&apos; para tu tarjeta gráfica, así como los últimos parches y &apos;service packs&apos; para tu sistema operativo.
 

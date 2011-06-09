@@ -25,7 +25,7 @@
 		<menu_item_call label="新刺青" name="New Tattoo"/>
 		<menu_item_call label="New Physics" name="New Physics"/>
 	</menu>
-	<menu label="New Body Parts" name="New Body Parts">
+	<menu label="新身體部位" name="New Body Parts">
 		<menu_item_call label="新體形" name="New Shape"/>
 		<menu_item_call label="新皮膚" name="New Skin"/>
 		<menu_item_call label="新頭髮" name="New Hair"/>

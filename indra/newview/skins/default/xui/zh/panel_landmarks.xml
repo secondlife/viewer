@@ -2,8 +2,8 @@
 <panel name="Landmarks">
 	<accordion name="landmarks_accordion">
 		<accordion_tab name="tab_favorites" title="Favorites bar"/>
-		<accordion_tab name="tab_landmarks" title="My Landmarks"/>
-		<accordion_tab name="tab_inventory" title="My Inventory"/>
+		<accordion_tab name="tab_landmarks" title="我的地標"/>
+		<accordion_tab name="tab_inventory" title="我的收納區"/>
 		<accordion_tab name="tab_library" title="Library"/>
 	</accordion>
 	<panel name="bottom_panel">
@@ -12,10 +12,10 @@
 				<menu_button name="options_gear_btn" tool_tip="Show additional options"/>
 			</layout_panel>
 			<layout_panel name="add_btn_panel">
-				<button name="add_btn" tool_tip="Add new landmark"/>
+				<button name="add_btn" tool_tip="添加新地標"/>
 			</layout_panel>
 			<layout_panel name="trash_btn_panel">
-				<dnd_button name="trash_btn" tool_tip="Remove selected landmark"/>
+				<dnd_button name="trash_btn" tool_tip="移除所選擇的地標"/>
 			</layout_panel>
 		</layout_stack>
 	</panel>

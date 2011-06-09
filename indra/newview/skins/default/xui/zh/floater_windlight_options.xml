@@ -99,7 +99,7 @@
 				Sun Glow
 			</text>
 			<slider label="Focus" name="WLGlowB"/>
-			<slider label="Size" name="WLGlowR"/>
+			<slider label="尺寸" name="WLGlowR"/>
 			<text name="SceneGammaText">
 				Scene Gamma
 			</text>

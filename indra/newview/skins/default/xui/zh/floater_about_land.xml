@@ -42,10 +42,10 @@
 				You must approve your purchase to modify this land.
 			</panel.string>
 			<panel.string name="group_owned_text">
-				(Group Owned)
+				（社團所擁有）
 			</panel.string>
 			<panel.string name="profile_text">
-				Profile
+				檔案
 			</panel.string>
 			<panel.string name="info_text">
 				資訊
@@ -87,7 +87,7 @@
 				擁有者：
 			</text>
 			<text name="Group:">
-				Group:
+				社團：
 			</text>
 			<button label="設定" name="Set..."/>
 			<check_box label="Allow Deed to Group" name="check deed" tool_tip="A group officer can deed this land to the group, so it will be supported by the group&apos;s land allocation."/>
@@ -274,7 +274,7 @@
 				<name_list.columns label="Most Recent" name="mostrecent"/>
 			</name_list>
 		</panel>
-		<panel label="OPTIONS" name="land_options_panel">
+		<panel label="選項" name="land_options_panel">
 			<panel.string name="search_enabled_tooltip">
 				Let people see this parcel in search results
 			</panel.string>
@@ -310,22 +310,22 @@ Only large parcels can be listed in search.
 				Allow other Residents to:
 			</text>
 			<check_box label="Edit Terrain" name="edit land check" tool_tip="If checked, anyone can terraform your land. It is best to leave this unchecked, as you can always edit your own land."/>
-			<check_box label="Fly" name="check fly" tool_tip="If checked, Residents can fly on your land. If unchecked, they can only fly into and over your land."/>
+			<check_box label="飛行" name="check fly" tool_tip="If checked, Residents can fly on your land. If unchecked, they can only fly into and over your land."/>
 			<text name="allow_label2">
-				Build:
+				建造：
 			</text>
 			<check_box label="Everyone" name="edit objects check"/>
-			<check_box label="Group" name="edit group objects check"/>
+			<check_box label="社團" name="edit group objects check"/>
 			<text name="allow_label3">
 				Object Entry:
 			</text>
 			<check_box label="Everyone" name="all object entry check"/>
-			<check_box label="Group" name="group object entry check"/>
+			<check_box label="社團" name="group object entry check"/>
 			<text name="allow_label4">
 				Run Scripts:
 			</text>
 			<check_box label="Everyone" name="check other scripts"/>
-			<check_box label="Group" name="check group scripts"/>
+			<check_box label="社團" name="check group scripts"/>
 			<text name="land_options_label">
 				Land Options:
 			</text>
@@ -374,7 +374,7 @@ Only large parcels can be listed in search.
 			<button label="設定" label_selected="設定" name="Set" tool_tip="Sets the landing point where visitors arrive. Sets to your avatar&apos;s location inside this parcel."/>
 			<button label="清除" label_selected="清除" name="Clear" tool_tip="清除登陸點"/>
 			<text name="Teleport Routing: ">
-				Teleport Routing:
+				瞬間傳送路徑：
 			</text>
 			<combo_box name="landing type" tool_tip="Teleport Routing -- select how to handle teleports onto your land">
 				<combo_box.item label="Blocked" name="Blocked"/>
@@ -388,7 +388,7 @@ Only large parcels can be listed in search.
 			</text>
 			<combo_box name="media type" tool_tip="Specify if the URL is a movie, web page, or other media"/>
 			<text name="at URL:">
-				Home Page:
+				首頁：
 			</text>
 			<button label="設定" name="set_media_url"/>
 			<text name="Description:">
@@ -396,15 +396,15 @@ Only large parcels can be listed in search.
 			</text>
 			<line_editor name="url_description" tool_tip="Text displayed next to play/load button"/>
 			<text name="Media texture:">
-				Replace Texture:
+				取代材質：
 			</text>
 			<texture_picker name="media texture" tool_tip="點擊以挑選圖片"/>
 			<text name="replace_texture_help">
 				Objects using this texture will show the movie or web page after you click the play arrow.  Select the thumbnail to choose a different texture.
 			</text>
-			<check_box label="Auto scale" name="media_auto_scale" tool_tip="Checking this option will scale the content for this parcel automatically. It may be slightly slower and lower quality visually but no other texture scaling or alignment will be required."/>
+			<check_box label="自動縮放" name="media_auto_scale" tool_tip="Checking this option will scale the content for this parcel automatically. It may be slightly slower and lower quality visually but no other texture scaling or alignment will be required."/>
 			<text name="media_size" tool_tip="Size to render Web media, leave 0 for default.">
-				Size:
+				尺寸：
 			</text>
 			<spinner name="media_size_width" tool_tip="Size to render Web media, leave 0 for default."/>
 			<spinner name="media_size_height" tool_tip="Size to render Web media, leave 0 for default."/>
@@ -453,7 +453,7 @@ Only large parcels can be listed in search.
 			<check_box label="Sell passes to:" name="PassCheck" tool_tip="Allows temporary access to this parcel"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="Anyone" name="Anyone"/>
-				<combo_box.item label="Group" name="Group"/>
+				<combo_box.item label="社團" name="Group"/>
 			</combo_box>
 			<spinner label="Price in L$:" name="PriceSpin"/>
 			<spinner label="Hours of access:" name="HoursSpin"/>

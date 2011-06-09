@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="godtools floater" title="GOD TOOLS">
 	<tab_container name="GodTools Tabs">
-		<panel label="Grid" name="grid">
+		<panel label="網格" name="grid">
 			<button label="Flush This Region&apos;s Map Visibility Caches" label_selected="Flush This Region&apos;s Map Visibility Caches" name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="地區" name="region">
@@ -27,7 +27,7 @@
 			</text>
 			<line_editor name="parentestate" tool_tip="This is the parent estate for this region"/>
 			<text name="Grid Pos: ">
-				Grid Pos:
+				網格位置：
 			</text>
 			<line_editor name="gridposx" tool_tip="This is the grid x position for this region"/>
 			<line_editor name="gridposy" tool_tip="This is the grid y position for this region"/>
@@ -43,9 +43,9 @@
 			<button label="Refresh" label_selected="Refresh" name="Refresh" tool_tip="Click here to refresh the above information"/>
 			<button label="套用" label_selected="套用" name="Apply" tool_tip="Click here to apply any changes from above"/>
 			<button label="選擇地區" label_selected="選擇地區" name="Select Region" tool_tip="Select the whole region with the land tool"/>
-			<button label="Autosave now" label_selected="Autosave now" name="Autosave now" tool_tip="Save gzipped state to autosave directory"/>
+			<button label="立即自動儲存" label_selected="立即自動儲存" name="Autosave now" tool_tip="Save gzipped state to autosave directory"/>
 		</panel>
-		<panel label="Objects" name="objects">
+		<panel label="物件" name="objects">
 			<panel.string name="no_target">
 				(no target)
 			</panel.string>

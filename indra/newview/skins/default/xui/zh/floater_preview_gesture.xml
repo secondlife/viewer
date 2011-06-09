@@ -54,9 +54,9 @@
 	</text>
 	<button label="Up" name="up_btn"/>
 	<button label="Down" name="down_btn"/>
-	<button label="Remove" name="delete_btn"/>
+	<button label="移除" name="delete_btn"/>
 	<text name="options_text">
-		(options)
+		（選項）
 	</text>
 	<radio_group name="animation_trigger_type">
 		<radio_item label="Start" name="start"/>

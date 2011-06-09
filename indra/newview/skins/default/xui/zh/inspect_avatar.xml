@@ -17,7 +17,7 @@
 	<slider name="volume_slider" tool_tip="Voice volume" value="0.5"/>
 	<button label="加為朋友" name="add_friend_btn"/>
 	<button label="IM" name="im_btn"/>
-	<button label="Profile" name="view_profile_btn"/>
+	<button label="檔案" name="view_profile_btn"/>
 	<panel name="moderator_panel">
 		<button label="Disable Voice" name="disable_voice"/>
 		<button label="Enable Voice" name="enable_voice"/>

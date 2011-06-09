@@ -24,7 +24,7 @@
 	</text>
 	<check_box initial_value="false" label="Auto Scale Media on Face of Object" name="auto_scale"/>
 	<text name="size_label">
-		Size:
+		尺寸：
 	</text>
 	<text name="X_label">
 		X

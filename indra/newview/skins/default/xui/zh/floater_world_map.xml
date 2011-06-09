@@ -25,9 +25,9 @@
 		<text name="by_owner_label">
 			by owner
 		</text>
-		<button name="Go Home" tool_tip="Teleport to my home location"/>
+		<button name="Go Home" tool_tip="瞬間傳送到我的家位置"/>
 		<text name="Home_label">
-			Home
+			家
 		</text>
 		<text name="events_label">
 			Events:
@@ -45,24 +45,24 @@
 	</panel>
 	<panel name="layout_panel_3">
 		<text name="find_on_map_label">
-			Find on Map
+			在地圖上發現
 		</text>
 	</panel>
 	<panel name="layout_panel_4">
-		<combo_box label="Online Friends" name="friend combo" tool_tip="Show friends on map">
-			<combo_box.item label="My Friends Online" name="item1"/>
+		<combo_box label="線上的朋友" name="friend combo" tool_tip="顯示朋友在地圖上">
+			<combo_box.item label="我線上的朋友" name="item1"/>
 		</combo_box>
-		<combo_box label="My Landmarks" name="landmark combo" tool_tip="Landmark to show on map">
-			<combo_box.item label="My Landmarks" name="item1"/>
+		<combo_box label="我的地標" name="landmark combo" tool_tip="將地標位置顯示在地圖上">
+			<combo_box.item label="我的地標" name="item1"/>
 		</combo_box>
-		<search_editor label="Regions by Name" name="location" tool_tip="Type the name of a region"/>
+		<search_editor label="Regions by Name" name="location" tool_tip="輸入一個地區的名稱"/>
 		<button label="Find" name="DoSearch" tool_tip="Search for region"/>
 		<button name="Clear" tool_tip="Clear tracking lines and reset map"/>
 		<text name="events_label">
 			位置：
 		</text>
-		<button label="Teleport" name="Teleport" tool_tip="Teleport to selected location"/>
-		<button label="Copy SLurl" name="copy_slurl" tool_tip="Copies current location as SLurl to be used on the web."/>
+		<button label="瞬間傳送" name="Teleport" tool_tip="瞬間傳送到所選的位置"/>
+		<button label="覆製 SLurl" name="copy_slurl" tool_tip="Copies current location as SLurl to be used on the web."/>
 		<button label="Show Selection" name="Show Destination" tool_tip="Center map on selected location"/>
 	</panel>
 	<panel name="layout_panel_5">

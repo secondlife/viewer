@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="model_menu_gear_default">
+	<menu_item_check label="Mostra bordi" name="show_edges"/>
+	<menu_item_check label="Mostra fisica" name="show_physics"/>
+	<menu_item_check label="Mostra texture" name="show_textures"/>
+	<menu_item_check label="Mostra peso pelle" name="show_skin_weight"/>
+	<menu_item_check label="Mostra posizioni giunti" name="show_joint_positions"/>
+</toggleable_menu>

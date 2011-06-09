@@ -96,7 +96,7 @@
 	<string name="physics_desc_text">
 		Physics:
 	</string>
-	<labeled_back_button label="儲存" name="back_btn" tool_tip="Return to Edit Outfit"/>
+	<labeled_back_button label="儲存" name="back_btn" tool_tip="回到編輯裝扮"/>
 	<text name="edit_wearable_title" value="Editing Shape"/>
 	<panel label="襯衫" name="wearable_type_panel">
 		<text name="description_text" value="Shape:"/>
