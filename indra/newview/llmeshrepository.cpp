@@ -468,15 +468,16 @@ public:
 
 };
 
-void log_upload_error(const LLSD& content)
+void log_upload_error(const LLSD& content,std::string stage)
 {
 	if (content.has("error"))
 	{
 		const LLSD& err = content["error"];
-		llwarns << "mesh upload failed " << err["message"].asString() << " id " << err["identifier"].asString() << llendl;
+		llwarns << "mesh upload failed, stage " << stage
+				<< " message " << err["message"].asString() << " id " << err["identifier"].asString()
+				<< llendl;
 
-		if ((err["identifier"].asString() == "NewAgentInventory_InvalidAsset") &&
-			content.has("errors"))
+		if (content.has("errors"))
 		{
 			const LLSD& err_list = content["errors"];
 			for (LLSD::array_const_iterator it = err_list.beginArray();
@@ -553,12 +554,13 @@ public:
 		llinfos << "LLWholeModelFeeResponder content: " << content << llendl;
 		if (isGoodStatus(status))
 		{
+			llinfos << "fee request succeeded" << llendl;
 			mThread->mWholeModelUploadURL = content["uploader"].asString(); 
 		}
 		else
 		{
-			llinfos << "upload failed" << llendl;
-			log_upload_error(content);
+			llwarns << "fee request failed" << llendl;
+			log_upload_error(content,"fee");
 			mThread->mWholeModelUploadURL = "";
 		}
 	}
@@ -581,13 +583,21 @@ public:
 						   const LLSD& content)
 	{
 		//assert_main_thread();
-		llinfos << "upload completed" << llendl;
 		mThread->mPendingUploads--;
 		dumpLLSDToFile(content,make_dump_name("whole_model_upload_response_",dump_num));
 		// requested "mesh" asset type isn't actually the type
 		// of the resultant object, fix it up here.
-		mPostData["asset_type"] = "object";
-		gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mPostData,content));
+		if (isGoodStatus(status))
+		{
+			llinfos << "upload succeeded" << llendl;
+			mPostData["asset_type"] = "object";
+			gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mPostData,content));
+		}
+		else
+		{
+			llwarns << "upload failed" << llendl;
+			log_upload_error(content,"upload");
+		}
 	}
 };
 
