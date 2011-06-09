@@ -23,7 +23,6 @@ void main()
 
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
 
-	//gl_FragColor = color;
-	gl_FragColor = vec4(1,0,1,1);
+	gl_FragColor = color;
 }
 

@@ -3232,7 +3232,11 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 		// don't test lowest LOD to support legacy content DEV-33670
 		if (mDetail > SCULPT_MIN_AREA_DETAIL)
 		{
-			if (sculptGetSurfaceArea() < SCULPT_MIN_AREA)
+			F32 area = sculptGetSurfaceArea();
+
+			const F32 SCULPT_MAX_AREA = 32.f;
+
+			if (area < SCULPT_MIN_AREA || area > SCULPT_MAX_AREA)
 			{
 				data_is_empty = TRUE;
 			}
