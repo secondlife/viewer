@@ -92,7 +92,6 @@ F32 get_default_max_prim_scale(bool is_flora)
 	// a bit of a hack, but if it's foilage, we don't want to use the
 	// new larger scale which would result in giant trees and grass
 	if (gMeshRepo.meshRezEnabled() &&
-		!gAgent.getRegion()->getCapability("ObjectAdd").empty() &&
 		!is_flora)
 	{
 		return DEFAULT_MAX_PRIM_SCALE;
