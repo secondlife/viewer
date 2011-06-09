@@ -129,6 +129,7 @@ void LLFloaterEditDayCycle::initCallbacks(void)
 {
 	mDayCycleNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleNameEdited, this), NULL);
 	mDayCyclesCombo->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleSelected, this));
+	mDayCyclesCombo->setTextEntryCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleNameEdited, this));
 	mTimeSlider->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onTimeSliderMoved, this));
 	mKeysSlider->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onKeyTimeMoved, this));
 	mTimeCtrl->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onKeyTimeChanged, this));

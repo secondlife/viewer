@@ -53,6 +53,7 @@ private:
 
 	void onDeleteDayCycleConfirmation();
 	void onDeleteSkyPresetConfirmation();
+	void onDeleteWaterPresetConfirmation();
 
 	LLComboBox* mPresetCombo;
 };

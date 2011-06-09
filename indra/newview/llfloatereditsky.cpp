@@ -962,7 +962,7 @@ void LLFloaterEditSky::onRegionInfoUpdate()
 {
 	bool can_edit = true;
 
-	// If we've selected the region day cycle for editing.
+	// If we've selected a region sky preset for editing.
 	if (getSelectedSkyPreset().scope == LLEnvKey::SCOPE_REGION)
 	{
 		// check whether we have the access
