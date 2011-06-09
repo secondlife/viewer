@@ -70,7 +70,7 @@ private:
 		BUILD_ICON,			// 3
 		SCRIPTS_ICON,		// 4
 		DAMAGE_ICON,		// 5
-		PRIVACY_ICON,		// 6
+		HIDDEN_AV_ICON,		// 6
 		ICON_COUNT			// 7 total
 	};
 

@@ -102,7 +102,7 @@ void LLPanelTopInfoBar::initParcelIcons()
 	mParcelIcon[BUILD_ICON] = getChild<LLIconCtrl>("build_icon");
 	mParcelIcon[SCRIPTS_ICON] = getChild<LLIconCtrl>("scripts_icon");
 	mParcelIcon[DAMAGE_ICON] = getChild<LLIconCtrl>("damage_icon");
-	mParcelIcon[PRIVACY_ICON] = getChild<LLIconCtrl>("privacy_icon");
+	mParcelIcon[HIDDEN_AV_ICON] = getChild<LLIconCtrl>("hidden_av_icon");
 
 	mParcelIcon[VOICE_ICON]->setToolTip(LLTrans::getString("LocationCtrlVoiceTooltip"));
 	mParcelIcon[FLY_ICON]->setToolTip(LLTrans::getString("LocationCtrlFlyTooltip"));
@@ -110,7 +110,7 @@ void LLPanelTopInfoBar::initParcelIcons()
 	mParcelIcon[BUILD_ICON]->setToolTip(LLTrans::getString("LocationCtrlBuildTooltip"));
 	mParcelIcon[SCRIPTS_ICON]->setToolTip(LLTrans::getString("LocationCtrlScriptsTooltip"));
 	mParcelIcon[DAMAGE_ICON]->setToolTip(LLTrans::getString("LocationCtrlDamageTooltip"));
-	mParcelIcon[PRIVACY_ICON]->setToolTip(LLTrans::getString("LocationCtrlPrivacyTooltip"));
+	mParcelIcon[HIDDEN_AV_ICON]->setToolTip(LLTrans::getString("LocationCtrlHiddenAVsTooltip"));
 
 	mParcelIcon[VOICE_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, VOICE_ICON));
 	mParcelIcon[FLY_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, FLY_ICON));
@@ -118,7 +118,7 @@ void LLPanelTopInfoBar::initParcelIcons()
 	mParcelIcon[BUILD_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, BUILD_ICON));
 	mParcelIcon[SCRIPTS_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, SCRIPTS_ICON));
 	mParcelIcon[DAMAGE_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, DAMAGE_ICON));
-	mParcelIcon[PRIVACY_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, PRIVACY_ICON));
+	mParcelIcon[HIDDEN_AV_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, HIDDEN_AV_ICON));
 
 	mDamageText->setText(LLStringExplicit("100%"));
 }
@@ -298,7 +298,7 @@ void LLPanelTopInfoBar::updateParcelIcons()
 		bool allow_build	= vpm->allowAgentBuild(current_parcel); // true when anyone is allowed to build. See EXT-4610.
 		bool allow_scripts	= vpm->allowAgentScripts(agent_region, current_parcel);
 		bool allow_damage	= vpm->allowAgentDamage(agent_region, current_parcel);
-		bool privacy        = current_parcel->getPrivacy();
+		bool hidden_avs        = current_parcel->getHiddenAVs();
 
 		// Most icons are "block this ability"
 		mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
@@ -308,7 +308,7 @@ void LLPanelTopInfoBar::updateParcelIcons()
 		mParcelIcon[SCRIPTS_ICON]->setVisible( !allow_scripts );
 		mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
 		mDamageText->setVisible(allow_damage);
-		mParcelIcon[PRIVACY_ICON]->setVisible(  privacy );
+		mParcelIcon[HIDDEN_AV_ICON]->setVisible( hidden_avs );
 
 		layoutParcelIcons();
 	}
@@ -414,8 +414,8 @@ void LLPanelTopInfoBar::onParcelIconClick(EParcelIcon icon)
 	case DAMAGE_ICON:
 		LLNotificationsUtil::add("NotSafe");
 		break;
-	case PRIVACY_ICON:
-		LLNotificationsUtil::add("PrivateParcel");
+	case HIDDEN_AV_ICON:
+		LLNotificationsUtil::add("HiddenAVs");
 		break;
 	case ICON_COUNT:
 		break;

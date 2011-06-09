@@ -78,7 +78,7 @@ public:
 											build_icon,
 											scripts_icon,
 											damage_icon,
-											privacy_icon;
+											hidden_av_icon;
 		Optional<LLTextBox::Params>			damage_text;
 		Params();
 	};
@@ -115,7 +115,7 @@ private:
 		BUILD_ICON,			// 3
 		SCRIPTS_ICON,		// 4
 		DAMAGE_ICON,		// 5
-		PRIVACY_ICON,		// 6
+		HIDDEN_AV_ICON,		// 6
 		ICON_COUNT			// 7 total
 	};
 

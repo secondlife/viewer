@@ -1759,10 +1759,10 @@ integer llGetParcelMaxPrims(vector pos, integer sim_wide)
 Returns the maximum number of prims allowed on the parcel at pos
 	</string>
 	<string name="LSLTipText_llGetParcelDetails" translate="false">
-list llGetParcelDetails(vector pos, list params)
-Returns the parcel details specified in params for the parcel at pos.
-Params is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _PRIVACY
-	</string>
+    list llGetParcelDetails(vector pos, list params)
+    Returns the parcel details specified in params for the parcel at pos.
+    Params is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _HIDDEN_AVS
+  </string>
 	<string name="LSLTipText_llSetLinkPrimitiveParams" translate="false">
 llSetLinkPrimitiveParams(integer linknumber, list rules)
 Sets primitive parameters for linknumber based on rules
@@ -3131,7 +3131,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlAdultIconTooltip">Adult Region</string>
   <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
   <string name="LocationCtrlGeneralIconTooltip">General Region</string>
-  <string name="LocationCtrlPrivacyTooltip">Private Parcel</string>
+  <string name="LocationCtrlHiddenAVsTooltip">Hidden Avatars Parcel</string>
 
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">

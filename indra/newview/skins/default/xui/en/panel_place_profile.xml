@@ -154,13 +154,13 @@
      translate="false"
      value="Parcel_DamageNo_Dark" />
     <string
-     name="icon_PrivacyOff"
+     name="icon_HiddenAVsOff"
      translate="false"
-     value="Parcel_PrivacyOff_Dark" />
+     value="Parcel_HiddenAVsOff_Dark" />
     <string
-     name="icon_PrivacyOn"
+     name="icon_HiddenAVsOn"
      translate="false"
-     value="Parcel_PrivacyOn_Dark" />
+     value="Parcel_HiddenAVsOn_Dark" />
     <button
      follows="top|left"
      height="24"
@@ -362,7 +362,7 @@
                  title="Parcel">
                     <panel
                      follows="all"
-                     height="175"
+                     height="200"
                      layout="topleft"
                      left="0"
                      name="parcel_characteristics_panel"
@@ -554,10 +554,10 @@
                         <icon
                          follows="top|left"
                          height="18"
-                         image_name="Parcel_PrivacyOff_Dark"
+                         image_name="Parcel_HiddenAVsOff_Dark"
                          layout="topleft"
                          left="10"
-                         name="privacy_icon"
+                         name="hidden_av_icon"
                          top_pad="7"
                          width="22" />
                         <text
@@ -565,15 +565,15 @@
                          height="14"
                          layout="topleft"
                          left_pad="8"
-                         name="privacy_label"
-                         value="Privacy:"
+                         name="hidden_avs_label"
+                         value="Hidden Avatars:"
                          width="90" />
                         <text
                          follows="left|top"
                          height="14"
                          layout="topleft"
                          left_pad="0"
-                         name="privacy_value"
+                         name="hidden_av_value"
                          value="Off"
                          width="60" />
                         <button

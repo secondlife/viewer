@@ -1205,8 +1205,8 @@ Only large parcels can be listed in search.
                 No Pushing (Region Override)
             </panel.string>
             <panel.string
-             name="private_parcel_text">
-                Private Parcel
+             name="hidden_avs_text">
+                Hidden Avatars
             </panel.string>
             <text
              type="string"

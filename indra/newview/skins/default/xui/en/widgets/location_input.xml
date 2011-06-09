@@ -123,13 +123,13 @@
 	font="SansSerifSmall"
 	text_color="TextFgColor"
 	/>
-  <privacy_icon
-    name="privacy_icon"
+  <hidden_av_icon
+    name="hidden_av_icon"
     width="22"
     height="18"
     top="21"
     follows="right|top"
-    image_name="Parcel_PrivacyOn_Dark"
+    image_name="Parcel_HiddenAVsOn_Dark"
     />
   <combo_button
 		name="Location History"

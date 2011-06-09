@@ -2034,9 +2034,9 @@ void LLPanelLandOptions::refresh()
 			mPushRestrictionCtrl->setEnabled(can_change_options);
 		}
 
-		mPrivateParcelCtrl->set(parcel->getPrivacy());
-		mPrivateParcelCtrl->setLabel(getString("private_parcel_text"));
-		mPrivateParcelCtrl->setEnabled(can_change_options && parcel->getHavePrivacyData());
+		mPrivateParcelCtrl->set(parcel->getHiddenAVs());
+		mPrivateParcelCtrl->setLabel(getString("hidden_avs_text"));
+		mPrivateParcelCtrl->setEnabled(can_change_options && parcel->getHaveHiddenAVsData());
 
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
 														GP_LAND_SET_LANDING_POINT);
@@ -2242,7 +2242,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL allow_publish		= FALSE;
 	BOOL mature_publish		= self->mMatureCtrl->get();
 	BOOL push_restriction	= self->mPushRestrictionCtrl->get();
-	BOOL private_parcel     = self->mPrivateParcelCtrl->get();
+	BOOL hidden_avs     = self->mPrivateParcelCtrl->get();
 	BOOL show_directory		= self->mCheckShowDirectory->get();
 	// we have to get the index from a lookup, not from the position in the dropdown!
 	S32  category_index		= LLParcel::getCategoryFromString(self->mCategoryCombo->getSelectedValue());
@@ -2276,7 +2276,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setCategory((LLParcel::ECategory)category_index);
 	parcel->setLandingType((LLParcel::ELandingType)landing_type_index);
 	parcel->setSnapshotID(snapshot_id);
-	parcel->setPrivacy(private_parcel);
+	parcel->setHiddenAVs(hidden_avs);
 
 	// Send current parcel data upstream to server
 	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );

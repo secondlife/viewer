@@ -5654,14 +5654,12 @@ This area has building disabled. You can&apos;t build or rez objects here.
   </notification>
 
   <notification
-   icon="privacy.tga"
-   name="PrivateParcel"
+   icon="notify.tga"
+   name="HiddenAVs"
    persist="true"
    type="notify"
    unique="true">
-This is a private parcel.   You can&apos;t see 
-others outside the parcel, and those 
-outside are not able to see you.
+This parcel hides avatars from view from another parcel.   You can&apos;t see others outside the parcel, and those outside are not able to see you.
   </notification>
 
   <notification
