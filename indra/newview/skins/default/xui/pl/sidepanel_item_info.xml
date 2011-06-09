@@ -46,7 +46,7 @@
 				</text>
 				<check_box label="Modyfikuje" name="CheckOwnerModify"/>
 				<check_box label="Kopiuje" name="CheckOwnerCopy"/>
-				<check_box label="Oddaje/Sprzedaje" name="CheckOwnerTransfer"/>
+				<check_box label="Oddaje/&#10;Sprzedaje" name="CheckOwnerTransfer"/>
 				<text name="AnyoneLabel">
 					Każdy:
 				</text>
@@ -60,7 +60,7 @@
 				</text>
 				<check_box label="Modyfikuje" name="CheckNextOwnerModify"/>
 				<check_box label="Kopiuje" name="CheckNextOwnerCopy"/>
-				<check_box label="Sprzedaje/Oddaje" name="CheckNextOwnerTransfer" tool_tip="Następny właściciel może oddawać lub sprzedawać ten obiekt"/>
+				<check_box label="Sprzedaje/&#10;Oddaje" name="CheckNextOwnerTransfer" tool_tip="Następny właściciel może oddawać lub sprzedawać ten obiekt"/>
 			</panel>
 			<check_box label="Na sprzedaż" name="CheckPurchase"/>
 			<combo_box name="combobox sale copy">
