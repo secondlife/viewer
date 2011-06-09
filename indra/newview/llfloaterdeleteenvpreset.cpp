@@ -248,10 +248,19 @@ void LLFloaterDeleteEnvPreset::populateDayCyclesList()
 		cur_day = env_mgr.getDayCycleName();
 	}
 
-	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
+	LLDayCycleManager& day_mgr = LLDayCycleManager::instance();
+	const LLDayCycleManager::dc_map_t& map = day_mgr.getPresets();
 	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
 	{
-		mPresetCombo->add(it->first, ADD_BOTTOM, it->first != cur_day);
+		const std::string& name = it->first;
+
+		// list only user presets
+		if (day_mgr.isSystemPreset(name))
+		{
+			continue;
+		}
+
+		mPresetCombo->add(name, ADD_BOTTOM, name != cur_day);
 	}
 
 	postPopulate();
