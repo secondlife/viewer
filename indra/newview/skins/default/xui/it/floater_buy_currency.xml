@@ -52,7 +52,8 @@
 		Riscrivi l&apos;importo per vedere l&apos;ultimo tasso al cambio.
 	</text>
 	<text name="purchase_warning_repurchase">
-		La conferma di questo acquisto compra solo L$, non l&apos;oggetto.
+		La conferma di questo acquisto compra solo L$, non 
+l&apos;oggetto.
 	</text>
 	<text bottom_delta="16" name="purchase_warning_notenough">
 		Non stai acquistando abbastanza L$. Aumenta l&apos;importo.
