@@ -344,8 +344,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 {
 	BOOL initialized_lighting = FALSE;
 	BOOL light_enabled = TRUE;
-	S32 diffuse_channel = 0;
-
+	
 	BOOL use_shaders = gPipeline.canUseVertexShaders();
 		
 	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
