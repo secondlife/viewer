@@ -3417,11 +3417,24 @@ void LLPanelEnvironmentInfo::populateWaterPresetsList()
 		mWaterPresetCombo->addSeparator();
 	}
 
-	// Add local water presets.
-	const LLWaterParamManager::preset_map_t &water_params_map = LLWaterParamManager::instance().getPresets();
-	for (LLWaterParamManager::preset_map_t::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
+	std::list<std::string> user_presets, system_presets;
+	LLWaterParamManager::instance().getPresetNames(user_presets, system_presets);
+
+	// Add local user presets first.
+	for (std::list<std::string>::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
 	{
-		mWaterPresetCombo->add(it->first, LLWLParamKey(it->first, LLEnvKey::SCOPE_LOCAL).toLLSD());
+		mWaterPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toLLSD());
+	}
+
+	if (user_presets.size() > 0)
+	{
+		mWaterPresetCombo->addSeparator();
+	}
+
+	// Add local system presets.
+	for (std::list<std::string>::const_iterator it = system_presets.begin(); it != system_presets.end(); ++it)
+	{
+		mWaterPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toLLSD());
 	}
 
 	// There's no way to select current preset because its name is not stored on server.

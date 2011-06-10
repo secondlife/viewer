@@ -367,10 +367,44 @@ bool LLWaterParamManager::removeParamSet(const std::string& name, bool delete_fr
 	return true;
 }
 
-bool LLWaterParamManager::isSystemPreset(const std::string& preset_name)
+bool LLWaterParamManager::isSystemPreset(const std::string& preset_name) const
 {
 	// *TODO: file system access is excessive here.
 	return gDirUtilp->fileExists(getSysDir() + LLURI::escape(preset_name) + ".xml");
+}
+
+void LLWaterParamManager::getPresetNames(preset_name_list_t& presets) const
+{
+	presets.clear();
+
+	for (preset_map_t::const_iterator it = mParamList.begin(); it != mParamList.end(); ++it)
+	{
+		presets.push_back(it->first);
+	}
+}
+
+void LLWaterParamManager::getPresetNames(preset_name_list_t& user_presets, preset_name_list_t& system_presets) const
+{
+	user_presets.clear();
+	system_presets.clear();
+
+	for (preset_map_t::const_iterator it = mParamList.begin(); it != mParamList.end(); ++it)
+	{
+		if (isSystemPreset(it->first))
+		{
+			system_presets.push_back(it->first);
+		}
+		else
+		{
+			user_presets.push_back(it->first);
+		}
+	}
+}
+
+void LLWaterParamManager::getUserPresetNames(preset_name_list_t& user_presets) const
+{
+	preset_name_list_t dummy;
+	getPresetNames(user_presets, dummy);
 }
 
 boost::signals2::connection LLWaterParamManager::setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb)

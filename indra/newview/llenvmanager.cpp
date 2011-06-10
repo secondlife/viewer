@@ -884,10 +884,11 @@ void LLEnvManagerNew::dumpPresets()
 	{
 		LL_DEBUGS("Windlight") << " - " << region_name << LL_ENDL;
 	}
-	const LLWaterParamManager::preset_map_t& water_params_map = LLWaterParamManager::instance().getPresets();
-	for (LLWaterParamManager::preset_map_t::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
+	LLWaterParamManager::preset_name_list_t water_presets;
+	LLWaterParamManager::instance().getPresetNames(water_presets);
+	for (LLWaterParamManager::preset_name_list_t::const_iterator it = water_presets.begin(); it != water_presets.end(); ++it)
 	{
-		LL_DEBUGS("Windlight") << " - " << it->first << LL_ENDL;
+		LL_DEBUGS("Windlight") << " - " << *it << LL_ENDL;
 	}
 
 	// Dump sky presets.

@@ -507,11 +507,26 @@ void LLFloaterEditWater::refreshWaterPresetsList()
 	}
 #endif
 
-	// Add local water presets.
-	const LLWaterParamManager::preset_map_t &water_params_map = LLWaterParamManager::instance().getPresets();
-	for (LLWaterParamManager::preset_map_t::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
+	std::list<std::string> user_presets, system_presets;
+	LLWaterParamManager::instance().getPresetNames(user_presets, system_presets);
+
+	// Add local user presets first.
+	for (std::list<std::string>::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
 	{
-		mWaterPresetCombo->add(it->first, LLSD().with(0, it->first).with(1, LLEnvKey::SCOPE_LOCAL));
+		const std::string& name = *it;
+		mWaterPresetCombo->add(name, LLSD().with(0, name).with(1, LLEnvKey::SCOPE_LOCAL)); // [<name>, <scope>]
+	}
+
+	if (user_presets.size() > 0)
+	{
+		mWaterPresetCombo->addSeparator();
+	}
+
+	// Add local system presets.
+	for (std::list<std::string>::const_iterator it = system_presets.begin(); it != system_presets.end(); ++it)
+	{
+		const std::string& name = *it;
+		mWaterPresetCombo->add(name, LLSD().with(0, name).with(1, LLEnvKey::SCOPE_LOCAL)); // [<name>, <scope>]
 	}
 
 	mWaterPresetCombo->setLabel(getString("combo_label"));

@@ -209,10 +209,24 @@ void LLFloaterEnvironmentSettings::populateWaterPresetsList()
 {
 	mWaterPresetCombo->removeall();
 
-	const LLWaterParamManager::preset_map_t &water_params_map = LLWaterParamManager::getInstance()->getPresets();
-	for (LLWaterParamManager::preset_map_t::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
+	std::list<std::string> user_presets, system_presets;
+	LLWaterParamManager::instance().getPresetNames(user_presets, system_presets);
+
+	// Add user presets first.
+	for (std::list<std::string>::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
 	{
-		mWaterPresetCombo->add(it->first);
+		mWaterPresetCombo->add(*it);
+	}
+
+	if (user_presets.size() > 0)
+	{
+		mWaterPresetCombo->addSeparator();
+	}
+
+	// Add system presets.
+	for (std::list<std::string>::const_iterator it = system_presets.begin(); it != system_presets.end(); ++it)
+	{
+		mWaterPresetCombo->add(*it);
 	}
 }
 

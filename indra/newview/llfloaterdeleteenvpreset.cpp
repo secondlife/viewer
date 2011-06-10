@@ -193,17 +193,11 @@ void LLFloaterDeleteEnvPreset::populateWaterPresetsList()
 		cur_preset = env_mgr.getWaterPresetName();
 	}
 
-	LLWaterParamManager& water_mgr = LLWaterParamManager::instance();
-	const LLWaterParamManager::preset_map_t &water_params_map = water_mgr.getPresets();
-	for (LLWaterParamManager::preset_map_t::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
+	LLWaterParamManager::preset_name_list_t presets;
+	LLWaterParamManager::instance().getUserPresetNames(presets); // list only user presets
+	for (LLWaterParamManager::preset_name_list_t::const_iterator it = presets.begin(); it != presets.end(); ++it)
 	{
-		std::string name = it->first;
-
-		// list only user presets
-		if (water_mgr.isSystemPreset(name))
-		{
-			continue;
-		}
+		std::string name = *it;
 
 		bool enabled = (name != cur_preset); // don't allow deleting current preset
 		mPresetCombo->add(name, ADD_BOTTOM, enabled);

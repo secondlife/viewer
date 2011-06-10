@@ -90,10 +90,11 @@ BOOL LLFloaterWater::postBuild()
 
 	if(comboBox != NULL) {
 
-		const LLWaterParamManager::preset_map_t& preset_map = LLWaterParamManager::getInstance()->getPresets();
-		for (LLWaterParamManager::preset_map_t::const_iterator it = preset_map.begin(); it != preset_map.end(); ++it)
+		LLWaterParamManager::preset_name_list_t presets;
+		LLWaterParamManager::instance().getPresetNames(presets);
+		for (LLWaterParamManager::preset_name_list_t::const_iterator it = presets.begin(); it != presets.end(); ++it)
 		{
-			comboBox->add(it->first);
+			comboBox->add(*it);
 		}
 
 		// set defaults on combo boxes

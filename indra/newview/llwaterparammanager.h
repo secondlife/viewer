@@ -27,7 +27,7 @@
 #ifndef LL_WATER_PARAMMANAGER_H
 #define LL_WATER_PARAMMANAGER_H
 
-#include <vector>
+#include <list>
 #include <map>
 #include "llwaterparamset.h"
 #include "llviewercamera.h"
@@ -216,6 +216,7 @@ class LLWaterParamManager : public LLSingleton<LLWaterParamManager>
 {
 	LOG_CLASS(LLWaterParamManager);
 public:
+	typedef std::list<std::string> preset_name_list_t;
 	typedef std::map<std::string, LLWaterParamSet> preset_map_t;
 	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
@@ -257,10 +258,19 @@ public:
 	bool removeParamSet(const std::string& name, bool delete_from_disk);
 
 	/// @return true if the preset comes out of the box
-	bool isSystemPreset(const std::string& preset_name);
+	bool isSystemPreset(const std::string& preset_name) const;
 
 	/// @return all named water presets.
 	const preset_map_t& getPresets() const { return mParamList; }
+
+	/// @return user and system preset names as a single list
+	void getPresetNames(preset_name_list_t& presets) const;
+
+	/// @return user and system preset names separately
+	void getPresetNames(preset_name_list_t& user_presets, preset_name_list_t& system_presets) const;
+
+	/// @return list of user presets names
+	void getUserPresetNames(preset_name_list_t& user_presets) const;
 
 	/// Emitted when a preset gets added or deleted.
 	boost::signals2::connection setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb);
