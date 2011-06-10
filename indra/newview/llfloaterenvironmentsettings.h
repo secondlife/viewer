@@ -38,7 +38,6 @@ class LLFloaterEnvironmentSettings : public LLFloater
 
 public:
 	LLFloaterEnvironmentSettings(const LLSD &key);
-	/*virtual*/ ~LLFloaterEnvironmentSettings();
 	/*virtual*/	BOOL	postBuild();	
 	/*virtual*/ void	onOpen(const LLSD& key);
 
@@ -53,6 +52,8 @@ private:
 	void onBtnOK();
 	void onBtnCancel();
 
+	void refresh(); /// update controls with user prefs
+	void apply();
 	void cancel();
 
 	void populateWaterPresetsList();
@@ -65,14 +66,6 @@ private:
 	LLComboBox*		mWaterPresetCombo;
 	LLComboBox*		mSkyPresetCombo;
 	LLComboBox*		mDayCyclePresetCombo;
-
-	std::string 	mWaterPreset;
-	std::string 	mSkyPreset;
-	std::string 	mDayCyclePreset;
-
-	bool 			mUseRegionSettings;
-	bool 			mUseFixedSky;
-	bool			mDirty;
 };
 
 #endif // LL_LLFLOATERENVIRONMENTSETTINGS_H

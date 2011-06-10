@@ -234,12 +234,6 @@ public:
 	/// update information camera dependent parameters
 	void update(LLViewerCamera * cam);
 
-	/// apply specified params
-	void applyUserPrefs(bool interpolate);
-
-	/// apply default sky params
-	void applyDefaults();
-
 	/// apply specified day cycle, setting time to noon by default
 	bool applyDayCycleParams(const LLSD& params, LLEnvKey::EScope scope, F32 time = 0.5);
 

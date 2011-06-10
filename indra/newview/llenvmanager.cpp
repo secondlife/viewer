@@ -685,7 +685,21 @@ bool LLEnvManagerNew::usePrefs()
 
 bool LLEnvManagerNew::useDefaults()
 {
-	bool rslt = useWaterPreset("Default") && useDayCycle("Default", LLEnvKey::SCOPE_LOCAL);
+	bool rslt;
+
+	rslt  = useDefaultWater();
+	rslt &= useDefaultSky();
+
+	return rslt;
+}
+
+bool LLEnvManagerNew::useRegionSettings()
+{
+	bool rslt;
+
+	rslt  = useRegionSky();
+	rslt &= useRegionWater();
+
 	return rslt;
 }
 
@@ -702,6 +716,22 @@ bool LLEnvManagerNew::useWaterParams(const LLSD& params)
 {
 	LL_DEBUGS("Windlight") << "Displaying water params" << LL_ENDL;
 	LLWaterParamManager::instance().mCurParams.setAll(params);
+	return true;
+}
+
+bool LLEnvManagerNew::useSkyPreset(const std::string& name)
+{
+	LLWLParamManager& sky_mgr = LLWLParamManager::instance();
+	LLWLParamSet param_set;
+
+	if (!sky_mgr.getParamSet(LLWLParamKey(name, LLEnvKey::SCOPE_LOCAL), param_set))
+	{
+		llwarns << "No sky preset named " << name << llendl;
+		return false;
+	}
+
+	LL_DEBUGS("Windlight") << "Displaying sky preset " << name << LL_ENDL;
+	sky_mgr.applySkyParams(param_set.getAll());
 	return true;
 }
 
@@ -737,11 +767,10 @@ bool LLEnvManagerNew::useDayCycle(const std::string& name, LLEnvKey::EScope scop
 	return rslt;
 }
 
-bool LLEnvManagerNew::useDayCycleParams(const LLSD& params, LLEnvKey::EScope scope)
+bool LLEnvManagerNew::useDayCycleParams(const LLSD& params, LLEnvKey::EScope scope, F32 time /* = 0.5*/)
 {
 	LL_DEBUGS("Windlight") << "Displaying day cycle params" << LL_ENDL;
-	LLWLParamManager::instance().applyDayCycleParams(params, scope);
-	return true;
+	return LLWLParamManager::instance().applyDayCycleParams(params, scope);
 }
 
 void LLEnvManagerNew::setUseRegionSettings(bool val)
@@ -811,6 +840,8 @@ void LLEnvManagerNew::saveUserPrefs()
 
 	gSavedSettings.setBOOL("UseEnvironmentFromRegion",	getUseRegionSettings());
 	gSavedSettings.setBOOL("UseDayCycle",				getUseDayCycle());
+
+	mUsePrefsChangeSignal();
 }
 
 void LLEnvManagerNew::setUserPrefs(
@@ -908,6 +939,11 @@ bool LLEnvManagerNew::sendRegionSettings(const LLEnvironmentSettings& new_settin
 	return LLEnvironmentApply::initiateRequest(new_settings.makePacket(metadata));
 }
 
+boost::signals2::connection LLEnvManagerNew::setPreferencesChangeCallback(const prefs_change_signal_t::slot_type& cb)
+{
+	return mUsePrefsChangeSignal.connect(cb);
+}
+
 boost::signals2::connection LLEnvManagerNew::setRegionSettingsChangeCallback(const region_settings_change_signal_t::slot_type& cb)
 {
 	return mRegionSettingsChangeSignal.connect(cb);
@@ -993,14 +1029,140 @@ void LLEnvManagerNew::initSingleton()
 	loadUserPrefs();
 }
 
+void LLEnvManagerNew::updateSkyFromPrefs()
+{
+	bool success = true;
+
+	// Sync sky with user prefs.
+	if (getUseRegionSettings()) // apply region-wide settings
+	{
+		success = useRegionSky();
+	}
+	else // apply user-specified settings
+	{
+		if (getUseDayCycle())
+		{
+			success = useDayCycle(getDayCycleName(), LLEnvKey::SCOPE_LOCAL);
+		}
+		else
+		{
+			success = useSkyPreset(getSkyPresetName());
+		}
+	}
+
+	// If something went wrong, fall back to defaults.
+	if (!success)
+	{
+		// *TODO: fix user prefs
+		useDefaultSky();
+	}
+}
+
+void LLEnvManagerNew::updateWaterFromPrefs(bool interpolate)
+{
+	LLWaterParamManager& water_mgr = LLWaterParamManager::instance();
+	LLSD target_water_params;
+
+	// Determine new water settings based on user prefs.
+
+	{
+		// Fall back to default water.
+		LLWaterParamSet default_water;
+		water_mgr.getParamSet("Default", default_water);
+		target_water_params = default_water.getAll();
+	}
+
+	if (getUseRegionSettings())
+	{
+		// *TODO: make sure whether region settings belong to the current region?
+		const LLSD& region_water_params = getRegionSettings().getWaterParams();
+		if (region_water_params.size() != 0) // region has no water settings
+		{
+			LL_DEBUGS("Windlight") << "Applying region water" << LL_ENDL;
+			target_water_params = region_water_params;
+		}
+		else
+		{
+			LL_DEBUGS("Windlight") << "Applying default water" << LL_ENDL;
+		}
+	}
+	else
+	{
+		std::string water = getWaterPresetName();
+		LL_DEBUGS("Windlight") << "Applying water preset [" << water << "]" << LL_ENDL;
+		LLWaterParamSet params;
+		if (!water_mgr.getParamSet(water, params))
+		{
+			llwarns << "No water preset named " << water << ", falling back to defaults" << llendl;
+			water_mgr.getParamSet("Default", params);
+
+			// *TODO: Fix user preferences accordingly.
+		}
+		target_water_params = params.getAll();
+	}
+
+	// Sync water with user prefs.
+	water_mgr.applyParams(target_water_params, interpolate);
+}
+
 void LLEnvManagerNew::updateManagersFromPrefs(bool interpolate)
 {
 	// Apply water settings.
-	LLWaterParamManager::instance().applyUserPrefs(interpolate);
+	updateWaterFromPrefs(interpolate);
 
 	// Apply sky settings.
-	LLWLParamManager::instance().applyUserPrefs(interpolate);
+	updateSkyFromPrefs();
 }
+
+bool LLEnvManagerNew::useRegionSky()
+{
+	const LLEnvironmentSettings& region_settings = getRegionSettings();
+
+	// If region is set to defaults,
+	if (region_settings.getSkyMap().size() == 0)
+	{
+		// well... apply the default sky settings.
+		useDefaultSky();
+		return true;
+	}
+
+	// *TODO: Support fixed sky from region.
+
+	// Otherwise apply region day cycle.
+	LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
+	return useDayCycleParams(
+		region_settings.getWLDayCycle(),
+		LLEnvKey::SCOPE_REGION,
+		region_settings.getDayTime());
+}
+
+bool LLEnvManagerNew::useRegionWater()
+{
+	const LLEnvironmentSettings& region_settings = getRegionSettings();
+	const LLSD& region_water = region_settings.getWaterParams();
+
+	// If region is set to defaults,
+	if (region_water.size() == 0)
+	{
+		// well... apply the default water settings.
+		return useDefaultWater();
+	}
+
+	// Otherwise apply region water.
+	LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
+	return useWaterParams(region_water);
+}
+
+bool LLEnvManagerNew::useDefaultSky()
+{
+	return useDayCycle("Default", LLEnvKey::SCOPE_LOCAL);
+}
+
+bool LLEnvManagerNew::useDefaultWater()
+{
+	return useWaterPreset("Default");
+}
+
 
 void LLEnvManagerNew::onRegionChange(bool interpolate)
 {

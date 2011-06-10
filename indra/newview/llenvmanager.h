@@ -267,6 +267,7 @@ class LLEnvManagerNew : public LLSingleton<LLEnvManagerNew>
 {
 	LOG_CLASS(LLEnvManagerNew);
 public:
+	typedef boost::signals2::signal<void()> prefs_change_signal_t;
 	typedef boost::signals2::signal<void()> region_settings_change_signal_t;
 	typedef boost::signals2::signal<void()> region_change_signal_t;
 	typedef boost::signals2::signal<void(bool)> region_settings_applied_signal_t;
@@ -295,31 +296,34 @@ public:
 	// Change environment w/o changing user preferences.
 	bool usePrefs();
 	bool useDefaults();
+	bool useRegionSettings();
 	bool useWaterPreset(const std::string& name);
 	bool useWaterParams(const LLSD& params);
+	bool useSkyPreset(const std::string& name);
 	bool useSkyParams(const LLSD& params);
 	bool useDayCycle(const std::string& name, LLEnvKey::EScope scope);
-	bool useDayCycleParams(const LLSD& params, LLEnvKey::EScope scope);
+	bool useDayCycleParams(const LLSD& params, LLEnvKey::EScope scope, F32 time = 0.5);
 
 	// setters for user env. preferences
 	void setUseRegionSettings(bool val);
 	void setUseWaterPreset(const std::string& name);
 	void setUseSkyPreset(const std::string& name);
 	void setUseDayCycle(const std::string& name);
-
-	// Preferences manipulation.
 	void setUserPrefs(
 		const std::string& water_preset,
 		const std::string& sky_preset,
 		const std::string& day_cycle_preset,
 		bool use_fixed_sky,
 		bool use_region_settings);
+
+	// debugging methods
 	void dumpUserPrefs();
 	void dumpPresets();
 
 	// Misc.
 	void requestRegionSettings();
 	bool sendRegionSettings(const LLEnvironmentSettings& new_settings);
+	boost::signals2::connection setPreferencesChangeCallback(const prefs_change_signal_t::slot_type& cb);
 	boost::signals2::connection setRegionSettingsChangeCallback(const region_settings_change_signal_t::slot_type& cb);
 	boost::signals2::connection setRegionChangeCallback(const region_change_signal_t::slot_type& cb);
 	boost::signals2::connection setRegionSettingsAppliedCallback(const region_settings_applied_signal_t::slot_type& cb);
@@ -339,9 +343,20 @@ private:
 	void loadUserPrefs();
 	void saveUserPrefs();
 
+	void updateSkyFromPrefs();
+	void updateWaterFromPrefs(bool interpolate);
 	void updateManagersFromPrefs(bool interpolate);
 
+	bool useRegionSky();
+	bool useRegionWater();
+
+	bool useDefaultSky();
+	bool useDefaultWater();
+
 	void onRegionChange(bool interpolate);
+
+	/// Emitted when user environment preferences change.
+	prefs_change_signal_t mUsePrefsChangeSignal;
 
 	/// Emitted when region environment settings update comes.
 	region_settings_change_signal_t	mRegionSettingsChangeSignal;

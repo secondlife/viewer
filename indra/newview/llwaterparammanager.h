@@ -224,8 +224,8 @@ public:
 	/// send the parameters to the shaders
 	void propagateParameters(void);
 
-	/// apply user water preferences
-	void applyUserPrefs(bool interpolate);
+	// display specified water
+	void applyParams(const LLSD& params, bool interpolate);
 
 	/// update information for the shader
 	void update(LLViewerCamera * cam);

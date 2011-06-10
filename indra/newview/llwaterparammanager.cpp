@@ -198,66 +198,25 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_WATERPARAM("Update Water Params");
-
-void LLWaterParamManager::applyUserPrefs(bool interpolate)
+void LLWaterParamManager::applyParams(const LLSD& params, bool interpolate)
 {
-	LLSD target_water_params;
-
-	// Determine new water settings based on user prefs.
-
+	if (params.size() == 0)
 	{
-		// Fall back to default water.
-		LLWaterParamSet default_water;
-		getParamSet("Default", default_water);
-		target_water_params = default_water.getAll();
-	}
-
-	if (LLEnvManagerNew::instance().getUseRegionSettings())
-	{
-		// *TODO: make sure whether region settings belong to the current region?
-		const LLSD& region_water_params = LLEnvManagerNew::instance().getRegionSettings().getWaterParams();
-		if (region_water_params.size() != 0) // region has no water settings
-		{
-			LL_DEBUGS("Windlight") << "Applying region water" << LL_ENDL;
-			target_water_params = region_water_params;
-		}
-		else
-		{
-			LL_DEBUGS("Windlight") << "Applying default water" << LL_ENDL;
-		}
-	}
-	else
-	{
-		std::string water = LLEnvManagerNew::instance().getWaterPresetName();
-		LL_DEBUGS("Windlight") << "Applying water preset [" << water << "]" << LL_ENDL;
-		LLWaterParamSet params;
-		if (!getParamSet(water, params))
-		{
-			llwarns << "No wayer preset named " << water << ", falling back to defaults" << llendl;
-			getParamSet("Default", params);
-
-			// *TODO: Fix user preferences accordingly.
-		}
-		target_water_params = params.getAll();
-	}
-
-	// Apply them with or without interpolation.
-	if (target_water_params.size() == 0)
-	{
-		llwarns << "Undefined target water params" << llendl;
+		llwarns << "Undefined water params" << llendl;
 		return;
 	}
 
 	if (interpolate)
 	{
-		LLWLParamManager::getInstance()->mAnimator.startInterpolation(target_water_params);
+		LLWLParamManager::getInstance()->mAnimator.startInterpolation(params);
 	}
 	else
 	{
-		LLWaterParamManager::getInstance()->mCurParams.setAll(target_water_params);
+		mCurParams.setAll(params);
 	}
 }
+
+static LLFastTimer::DeclareTimer FTM_UPDATE_WATERPARAM("Update Water Params");
 
 void LLWaterParamManager::update(LLViewerCamera * cam)
 {
@@ -442,7 +401,7 @@ void LLWaterParamManager::initSingleton()
 {
 	LL_DEBUGS("Windlight") << "Initializing water" << LL_ENDL;
 	loadAllPresets();
-	applyUserPrefs(false);
+	LLEnvManagerNew::instance().usePrefs();
 }
 
 // static
