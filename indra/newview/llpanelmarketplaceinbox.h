@@ -28,10 +28,11 @@
 #define LL_LLPANELMARKETPLACEINBOX_H
 
 #include "llpanel.h"
+#include "llsidetray.h"
 
 class LLInventoryPanel;
 
-class LLPanelMarketplaceInbox : public LLPanel
+class LLPanelMarketplaceInbox : public LLPanel, public LLSideTrayTabBadgeDriver
 {
 public:
 
@@ -45,6 +46,12 @@ public:
 	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
 
 	/*virtual*/ void draw();
+
+	U32 getItemCount() const;
+	std::string getBadgeString() const;
+
+private:
+	void handleLoginComplete();
 
 private:
 	LLInventoryPanel* mInventoryPanel;

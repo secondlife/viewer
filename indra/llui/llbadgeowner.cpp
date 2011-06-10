@@ -79,26 +79,28 @@ void LLBadgeOwner::addBadgeToParentPanel()
 	
 	if (mBadge && owner_view)
 	{
-		// Find the appropriate parent panel for the badge
+		// Badge parent is badge owner by default
+		LLView * badge_parent = owner_view;
 
+		// Find the appropriate parent for the badge
 		LLView * parent = owner_view->getParent();
-		LLPanel * parent_panel = NULL;
 
 		while (parent)
 		{
-			parent_panel = dynamic_cast<LLPanel *>(parent);
+			LLPanel * parent_panel = dynamic_cast<LLPanel *>(parent);
 
 			if (parent_panel && parent_panel->acceptsBadge())
 			{
+				badge_parent = parent;
 				break;
 			}
 
 			parent = parent->getParent();
 		}
 
-		if (parent_panel)
+		if (badge_parent)
 		{
-			parent_panel->addChild(mBadge);
+			badge_parent->addChild(mBadge);
 		}
 		else
 		{

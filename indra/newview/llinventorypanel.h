@@ -35,6 +35,7 @@
 #include "llinventoryfilter.h"
 #include "llfolderview.h"
 #include "llinventorymodel.h"
+#include "llscrollcontainer.h"
 #include "lluictrlfactory.h"
 #include <set>
 
@@ -46,7 +47,6 @@ class LLInventoryFVBridgeBuilder;
 class LLMenuBarGL;
 class LLCheckBoxCtrl;
 class LLSpinCtrl;
-class LLScrollContainer;
 class LLTextBox;
 class LLIconCtrl;
 class LLSaveFolderState;
@@ -83,6 +83,7 @@ public:
 		Optional<Filter>					filter;
 		Optional<std::string>               start_folder;
 		Optional<bool>						use_label_suffix;
+		Optional<LLScrollContainer::Params>	scroll;
 
 		Params()
 		:	sort_order_setting("sort_order_setting"),
@@ -91,7 +92,8 @@ public:
 			show_item_link_overlays("show_item_link_overlays", false),
 			filter("filter"),
 			start_folder("start_folder"),
-			use_label_suffix("use_label_suffix", true)
+			use_label_suffix("use_label_suffix", true),
+			scroll("scroll")
 		{}
 	};
 

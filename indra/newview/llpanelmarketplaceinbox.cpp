@@ -28,6 +28,7 @@
 
 #include "llpanelmarketplaceinbox.h"
 
+#include "llappviewer.h"
 #include "llbutton.h"
 #include "llinventorypanel.h"
 
@@ -35,7 +36,8 @@ static LLRegisterPanelClassWrapper<LLPanelMarketplaceInbox> t_panel_marketplace_
 
 // protected
 LLPanelMarketplaceInbox::LLPanelMarketplaceInbox()
-:	LLPanel()
+	: LLPanel()
+	, mInventoryPanel(NULL)
 {
 }
 
@@ -50,7 +52,15 @@ BOOL LLPanelMarketplaceInbox::postBuild()
 
 	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);
 
+	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLPanelMarketplaceInbox::handleLoginComplete, this));
+
 	return TRUE;
+}
+
+void LLPanelMarketplaceInbox::handleLoginComplete()
+{
+	// Set us up as the class to drive the badge value for the sidebar_inventory button
+	LLSideTray::getInstance()->setTabButtonBadgeDriver("sidebar_inventory", this);
 }
 
 BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg)
@@ -59,7 +69,7 @@ BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dr
 	return TRUE;
 }
 
-void LLPanelMarketplaceInbox::draw()
+U32 LLPanelMarketplaceInbox::getItemCount() const
 {
 	LLInventoryModel* model = mInventoryPanel->getModel();
 
@@ -68,8 +78,8 @@ void LLPanelMarketplaceInbox::draw()
 
 	model->getDirectDescendentsOf(model->findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false), cats, items);
 
-	S32 item_count = 0;
-	
+	U32 item_count = 0;
+
 	if (cats)
 	{
 		item_count += cats->size();
@@ -80,10 +90,30 @@ void LLPanelMarketplaceInbox::draw()
 		item_count += items->size();
 	}
 
+	return item_count;
+}
+
+std::string LLPanelMarketplaceInbox::getBadgeString() const
+{
+	std::string item_count_str("");
+	U32 item_count = getItemCount();
+
 	if (item_count)
 	{
+		item_count_str = llformat("%d", item_count);
+	}
+
+	return item_count_str;
+}
+
+void LLPanelMarketplaceInbox::draw()
+{
+	std::string item_count_str = getBadgeString();
+
+	if (item_count_str.length() > 0)
+	{
 		LLStringUtil::format_map_t args;
-		args["[NUM]"] =  llformat ("%d", item_count);
+		args["[NUM]"] = item_count_str;
 		getChild<LLButton>("inbox_btn")->setLabel(getString("InboxLabelWithArg", args));
 	}
 	else
