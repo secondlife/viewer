@@ -135,7 +135,7 @@ protected:
 	std::string					mSearchableLabel;
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
-	time_t						mCreationDate;
+	mutable time_t				mCreationDate;
 	LLFolderViewFolder*			mParentFolder;
 	LLFolderViewEventListener*	mListener;
 	BOOL						mIsCurSelection;
@@ -278,7 +278,7 @@ public:
 
 	// Used for sorting, like getLabel() above.
 	virtual time_t getCreationDate() const { return mCreationDate; }
-
+	
 	LLFolderViewFolder* getParentFolder( void ) { return mParentFolder; }
 	const LLFolderViewFolder* getParentFolder( void ) const { return mParentFolder; }
 

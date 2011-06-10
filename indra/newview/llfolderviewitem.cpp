@@ -2334,6 +2334,21 @@ void LLFolderViewFolder::draw()
 
 time_t LLFolderViewFolder::getCreationDate() const
 {
+	// folders have no creation date so use first non-folder descendent's date
+	if (!mCreationDate)
+	{
+		for(items_t::const_iterator iit = mItems.begin();
+			iit != mItems.end(); ++iit)
+		{
+			LLFolderViewItem* itemp = (*iit);
+			if (itemp->getCreationDate())
+			{
+				mCreationDate = itemp->getCreationDate();
+				break;
+			}
+		}
+	}
+
 	return llmax<time_t>(mCreationDate, mSubtreeCreationDate);
 }
 
