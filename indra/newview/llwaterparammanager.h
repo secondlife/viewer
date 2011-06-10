@@ -216,6 +216,7 @@ class LLWaterParamManager : public LLSingleton<LLWaterParamManager>
 {
 	LOG_CLASS(LLWaterParamManager);
 public:
+	typedef std::map<std::string, LLWaterParamSet> preset_map_t;
 	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
 	/// save the parameter presets to file
@@ -257,6 +258,9 @@ public:
 
 	/// @return true if the preset comes out of the box
 	bool isSystemPreset(const std::string& preset_name);
+
+	/// @return all named water presets.
+	const preset_map_t& getPresets() const { return mParamList; }
 
 	/// Emitted when a preset gets added or deleted.
 	boost::signals2::connection setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb);
@@ -300,9 +304,6 @@ public:
 	WaterFloatControl mScaleBelow;
 	WaterFloatControl mBlurMultiplier;
 	
-	// list of all the parameters, listed by name
-	std::map<std::string, LLWaterParamSet> mParamList;
-
 	F32 mDensitySliderValue;
 
 private:
@@ -320,6 +321,9 @@ private:
 
 	LLVector4 mWaterPlane;
 	F32 mWaterFogKS;
+
+	// list of all the parameters, listed by name
+	preset_map_t mParamList;
 
 	preset_list_signal_t mPresetListChangeSignal;
 };

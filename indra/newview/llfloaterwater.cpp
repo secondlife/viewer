@@ -90,11 +90,10 @@ BOOL LLFloaterWater::postBuild()
 
 	if(comboBox != NULL) {
 
-		std::map<std::string, LLWaterParamSet>::iterator mIt = 
-			LLWaterParamManager::getInstance()->mParamList.begin();
-		for(; mIt != LLWaterParamManager::getInstance()->mParamList.end(); mIt++) 
+		const LLWaterParamManager::preset_map_t& preset_map = LLWaterParamManager::getInstance()->getPresets();
+		for (LLWaterParamManager::preset_map_t::const_iterator it = preset_map.begin(); it != preset_map.end(); ++it)
 		{
-			comboBox->add(mIt->first);
+			comboBox->add(it->first);
 		}
 
 		// set defaults on combo boxes
@@ -203,11 +202,8 @@ bool LLFloaterWater::newPromptCallback(const LLSD& notification, const LLSD& res
 
 		// add the current parameters to the list
 		// see if it's there first
-		std::map<std::string, LLWaterParamSet>::iterator mIt = 
-			param_mgr->mParamList.find(text);
-
 		// if not there, add a new one
-		if(mIt == param_mgr->mParamList.end()) 
+		if (!param_mgr->hasParamSet(text))
 		{
 			param_mgr->addParamSet(text, param_mgr->mCurParams);
 			comboBox->add(text);

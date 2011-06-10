@@ -508,8 +508,8 @@ void LLFloaterEditWater::refreshWaterPresetsList()
 #endif
 
 	// Add local water presets.
-	const std::map<std::string, LLWaterParamSet> &water_params_map = LLWaterParamManager::instance().mParamList;
-	for (std::map<std::string, LLWaterParamSet>::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
+	const LLWaterParamManager::preset_map_t &water_params_map = LLWaterParamManager::instance().getPresets();
+	for (LLWaterParamManager::preset_map_t::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
 	{
 		mWaterPresetCombo->add(it->first, LLSD().with(0, it->first).with(1, LLEnvKey::SCOPE_LOCAL));
 	}

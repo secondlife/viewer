@@ -283,7 +283,7 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 bool LLWaterParamManager::addParamSet(const std::string& name, LLWaterParamSet& param)
 {
 	// add a new one if not one there already
-	std::map<std::string, LLWaterParamSet>::iterator mIt = mParamList.find(name);
+	preset_map_t::iterator mIt = mParamList.find(name);
 	if(mIt == mParamList.end()) 
 	{	
 		mParamList[name] = param;
@@ -304,7 +304,7 @@ BOOL LLWaterParamManager::addParamSet(const std::string& name, LLSD const & para
 bool LLWaterParamManager::getParamSet(const std::string& name, LLWaterParamSet& param)
 {
 	// find it and set it
-	std::map<std::string, LLWaterParamSet>::iterator mIt = mParamList.find(name);
+	preset_map_t::iterator mIt = mParamList.find(name);
 	if(mIt != mParamList.end()) 
 	{
 		param = mParamList[name];
@@ -344,7 +344,7 @@ bool LLWaterParamManager::setParamSet(const std::string& name, const LLSD & para
 bool LLWaterParamManager::removeParamSet(const std::string& name, bool delete_from_disk)
 {
 	// remove from param list
-	std::map<std::string, LLWaterParamSet>::iterator it = mParamList.find(name);
+	preset_map_t::iterator it = mParamList.find(name);
 	if (it == mParamList.end())
 	{
 		LL_WARNS("WindLight") << "No water preset named " << name << LL_ENDL;

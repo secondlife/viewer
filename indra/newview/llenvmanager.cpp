@@ -884,8 +884,8 @@ void LLEnvManagerNew::dumpPresets()
 	{
 		LL_DEBUGS("Windlight") << " - " << region_name << LL_ENDL;
 	}
-	const std::map<std::string, LLWaterParamSet> &water_params_map = LLWaterParamManager::instance().mParamList;
-	for (std::map<std::string, LLWaterParamSet>::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
+	const LLWaterParamManager::preset_map_t& water_params_map = LLWaterParamManager::instance().getPresets();
+	for (LLWaterParamManager::preset_map_t::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
 	{
 		LL_DEBUGS("Windlight") << " - " << it->first << LL_ENDL;
 	}
