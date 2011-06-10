@@ -52,7 +52,8 @@
 		Indtast beløbet for at se nyeste valutakurs.
 	</text>
 	<text name="purchase_warning_repurchase">
-		Bekræftelse af dette køb medfører kun køb af L$, ikke objektet.
+		Bekræftelse af dette køb medfører kun køb af L$, ikke 
+objektet.
 	</text>
 	<text name="purchase_warning_notenough">
 		Du køber ikke nok L$. Forøg venligst beløbet.
