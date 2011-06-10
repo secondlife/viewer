@@ -63,6 +63,10 @@ BOOL LLFloaterDeleteEnvPreset::postBuild()
 	getChild<LLButton>("delete")->setCommitCallback(boost::bind(&LLFloaterDeleteEnvPreset::onBtnDelete, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterDeleteEnvPreset::onBtnCancel, this));
 
+	// Listen to user preferences change, in which case we need to rebuild the presets list
+	// to disable the [new] current preset.
+	LLEnvManagerNew::instance().setPreferencesChangeCallback(boost::bind(&LLFloaterDeleteEnvPreset::populatePresetsList, this));
+
 	// Listen to presets addition/removal.
 	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLFloaterDeleteEnvPreset::populateDayCyclesList, this));
 	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterDeleteEnvPreset::populateSkyPresetsList, this));
@@ -85,22 +89,7 @@ void LLFloaterDeleteEnvPreset::onOpen(const LLSD& key)
 	getChild<LLUICtrl>("label")->setValue(combo_label);
 
 	// Populate the combobox.
-	if (param == "water")
-	{
-		populateWaterPresetsList();
-	}
-	else if (param == "sky")
-	{
-		populateSkyPresetsList();
-	}
-	else if (param == "day_cycle")
-	{
-		populateDayCyclesList();
-	}
-	else
-	{
-		llwarns << "Unrecognized key" << llendl;
-	}
+	populatePresetsList();
 }
 
 void LLFloaterDeleteEnvPreset::onBtnDelete()
@@ -167,6 +156,28 @@ void LLFloaterDeleteEnvPreset::onBtnDelete()
 void LLFloaterDeleteEnvPreset::onBtnCancel()
 {
 	closeFloater();
+}
+
+void LLFloaterDeleteEnvPreset::populatePresetsList()
+{
+	std::string param = mKey.asString();
+
+	if (param == "water")
+	{
+		populateWaterPresetsList();
+	}
+	else if (param == "sky")
+	{
+		populateSkyPresetsList();
+	}
+	else if (param == "day_cycle")
+	{
+		populateDayCyclesList();
+	}
+	else
+	{
+		llwarns << "Unrecognized key" << llendl;
+	}
 }
 
 void LLFloaterDeleteEnvPreset::populateWaterPresetsList()

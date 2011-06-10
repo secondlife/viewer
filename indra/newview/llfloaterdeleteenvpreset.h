@@ -45,6 +45,7 @@ public:
 	void onBtnCancel();
 
 private:
+	void populatePresetsList();
 	void populateWaterPresetsList();
 	void populateSkyPresetsList();
 	void populateDayCyclesList();
