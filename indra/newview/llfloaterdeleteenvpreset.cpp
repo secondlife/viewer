@@ -193,7 +193,6 @@ void LLFloaterDeleteEnvPreset::populateWaterPresetsList()
 		cur_preset = env_mgr.getWaterPresetName();
 	}
 
-	// *TODO: Reload the list when user preferences change.
 	LLWaterParamManager& water_mgr = LLWaterParamManager::instance();
 	const std::map<std::string, LLWaterParamSet> &water_params_map = water_mgr.mParamList;
 	for (std::map<std::string, LLWaterParamSet>::const_iterator it = water_params_map.begin(); it != water_params_map.end(); it++)
@@ -226,7 +225,6 @@ void LLFloaterDeleteEnvPreset::populateSkyPresetsList()
 		cur_preset = env_mgr.getSkyPresetName();
 	}
 
-	// *TODO: Reload the list when user preferences change.
 	LLWLParamManager& sky_mgr = LLWLParamManager::instance();
 	const std::map<LLWLParamKey, LLWLParamSet> &sky_params_map = sky_mgr.mParamList;
 	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = sky_params_map.begin(); it != sky_params_map.end(); it++)
