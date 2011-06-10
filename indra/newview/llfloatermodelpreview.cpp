@@ -3372,7 +3372,7 @@ void LLModelPreview::resetPreviewTarget()
 		mPreviewScale = (mModelLoader->mExtents[1] - mModelLoader->mExtents[0]) * 0.5f;
 	}
 
-	setPreviewTarget(mPreviewScale.magVec()*2.f);
+	setPreviewTarget(mPreviewScale.magVec()*10.f);
 }
 
 void LLModelPreview::generateNormals()
@@ -4590,7 +4590,7 @@ BOOL LLModelPreview::render()
 	LLVector3 target_pos = mPreviewTarget+offset;
 
 	F32 z_near = 0.001f;
-	F32 z_far = mCameraDistance+mPreviewScale.magVec()+mCameraOffset.magVec();
+	F32 z_far = mCameraDistance*10.0f+mPreviewScale.magVec()+mCameraOffset.magVec();
 
 	if (skin_weight)
 	{
