@@ -731,21 +731,37 @@ void LLFloaterEditSky::refreshSkyPresetsList()
 {
 	mSkyPresetCombo->removeall();
 
+	LLWLParamManager::preset_name_list_t region_presets, user_presets, sys_presets;
+	LLWLParamManager::instance().getPresetNames(region_presets, user_presets, sys_presets);
+
+#if 0 // Disable editing region skies until the workflow is clear enough.
+	// Add region presets.
 	std::string region_name = gAgent.getRegion() ? gAgent.getRegion()->getName() : LLTrans::getString("Unknown");
-	const std::map<LLWLParamKey, LLWLParamSet> &sky_params_map = LLWLParamManager::getInstance()->mParamList;
-	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = sky_params_map.begin(); it != sky_params_map.end(); it++)
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = region_presets.begin(); it != region_presets.end(); ++it)
 	{
-		const LLWLParamKey& key = it->first;
-		std::string item_title = key.name;
-		if (key.scope == LLEnvKey::SCOPE_REGION)
-		{
-#if 1 // Disable editing region skies until the workflow is clear enough.
-			continue;
-#else
-			item_title += " (" + region_name + ")";
+		std::string item_title = *it + " (" + region_name + ")";
+		mSkyPresetCombo->add(item_title, LLWLParamKey(*it, LLEnvKey::SCOPE_REGION).toLLSD());
+	}
+	if (region_presets.size() > 0)
+	{
+		mSkyPresetCombo->addSeparator();
+	}
 #endif
-		}
-		mSkyPresetCombo->add(item_title, key.toLLSD());
+
+	// Add user presets.
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
+	{
+		mSkyPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toLLSD());
+	}
+	if (user_presets.size() > 0)
+	{
+		mSkyPresetCombo->addSeparator();
+	}
+
+	// Add system presets.
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = sys_presets.begin(); it != sys_presets.end(); ++it)
+	{
+		mSkyPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toLLSD());
 	}
 
 	mSkyPresetCombo->setLabel(getString("combo_label"));

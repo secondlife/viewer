@@ -219,20 +219,12 @@ void LLFloaterDeleteEnvPreset::populateSkyPresetsList()
 		cur_preset = env_mgr.getSkyPresetName();
 	}
 
-	LLWLParamManager& sky_mgr = LLWLParamManager::instance();
-	const std::map<LLWLParamKey, LLWLParamSet> &sky_params_map = sky_mgr.mParamList;
-	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = sky_params_map.begin(); it != sky_params_map.end(); it++)
+	LLWLParamManager::preset_name_list_t user_presets;
+	LLWLParamManager::instance().getUserPresetNames(user_presets);
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
 	{
-		const LLWLParamKey& key = it->first;
-
-		// list only local user presets
-		if (key.scope == LLEnvKey::SCOPE_REGION || sky_mgr.isSystemPreset(key.name))
-		{
-			continue;
-		}
-
-		bool enabled = (key.name != cur_preset);
-		mPresetCombo->add(key.name, ADD_BOTTOM, enabled);
+		const std::string& name = *it;
+		mPresetCombo->add(name, ADD_BOTTOM, /*enabled = */ name != cur_preset);
 	}
 
 	postPopulate();

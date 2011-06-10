@@ -80,16 +80,17 @@ BOOL LLFloaterWindLight::postBuild()
 
 	if(comboBox != NULL) {
 		
-		std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = 
-			LLWLParamManager::getInstance()->mParamList.begin();
-		for(; mIt != LLWLParamManager::getInstance()->mParamList.end(); mIt++) 
+		LLWLParamManager::preset_key_list_t preset_keys;
+		LLWLParamManager::instance().getPresetKeys(preset_keys);
+		for (LLWLParamManager::preset_key_list_t::const_iterator it = preset_keys.begin(); it != preset_keys.end(); ++it)
 		{
-			const LLWLParamKey& key = mIt->first;
+			const LLWLParamKey& key = *it;
 			std::string item_title = key.name;
 			if (key.scope == LLEnvKey::SCOPE_REGION)
 			{
 				item_title += std::string(" (") + LLTrans::getString("Region") + std::string(")");
 			}
+
 			comboBox->add(item_title, key.toLLSD());
 		}
 
@@ -240,11 +241,8 @@ bool LLFloaterWindLight::newPromptCallback(const LLSD& notification, const LLSD&
 
 		// add the current parameters to the list
 		// see if it's there first
-		std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = 
-			LLWLParamManager::getInstance()->mParamList.find(newKey);
-
 		// if not there, add a new one
-		if(mIt == LLWLParamManager::getInstance()->mParamList.end()) 
+		if (!LLWLParamManager::instance().hasParamSet(newKey))
 		{
 			LLWLParamManager::getInstance()->addParamSet(newKey, 
 				LLWLParamManager::getInstance()->mCurParams);

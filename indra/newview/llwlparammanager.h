@@ -27,7 +27,7 @@
 #ifndef LL_WLPARAMMANAGER_H
 #define LL_WLPARAMMANAGER_H
 
-#include <vector>
+#include <list>
 #include <map>
 #include "llenvmanager.h"
 #include "llwlparamset.h"
@@ -217,6 +217,8 @@ class LLWLParamManager : public LLSingleton<LLWLParamManager>
 	LOG_CLASS(LLWLParamManager);
 
 public:
+	typedef std::list<std::string> preset_name_list_t;
+	typedef std::list<LLWLParamKey> preset_key_list_t;
 	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
 	/// save the parameter presets to file
@@ -281,7 +283,16 @@ public:
 	void clearParamSetsOfScope(LLEnvKey::EScope scope);
 
 	/// @return true if the preset comes out of the box
-	bool isSystemPreset(const std::string& preset_name);
+	bool isSystemPreset(const std::string& preset_name) const;
+
+	/// @return user and system preset names as a single list
+	void getPresetNames(preset_name_list_t& region, preset_name_list_t& user, preset_name_list_t& sys) const;
+
+	/// @return user preset names
+	void getUserPresetNames(preset_name_list_t& user) const;
+
+	/// @return keys of all known presets
+	void getPresetKeys(preset_key_list_t& keys) const;
 
 	/// Emitted when a preset gets added or deleted.
 	boost::signals2::connection setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb);
@@ -353,10 +364,10 @@ public:
 	F32 mDomeOffset;
 	F32 mDomeRadius;
 	
-	// list of all the parameters, listed by name
-	std::map<LLWLParamKey, LLWLParamSet> mParamList;
-	
+
 private:
+
+	friend class LLWLAnimator;
 
 	void loadAllPresets();
 	void loadPresetsFromDir(const std::string& dir);
@@ -369,6 +380,9 @@ private:
 	/*virtual*/ void initSingleton();
 	LLWLParamManager();
 	~LLWLParamManager();
+
+	// list of all the parameters, listed by name
+	std::map<LLWLParamKey, LLWLParamSet> mParamList;
 
 	preset_list_signal_t mPresetListChangeSignal;
 };

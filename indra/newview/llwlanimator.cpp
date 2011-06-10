@@ -123,6 +123,7 @@ void LLWLAnimator::update(LLWLParamSet& curParams)
 		}
 		
 		// determine moving target for final interpolation value
+		// *TODO: this will not work with lazy loading of sky presets.
 		LLWLParamSet buf = LLWLParamSet();
 		buf.setAll(LLWLParamManager::getInstance()->mParamList[mFirstIt->second].getAll());	// just give it some values, otherwise it has no params to begin with (see comment in constructor)
 		buf.mix(LLWLParamManager::getInstance()->mParamList[mFirstIt->second], LLWLParamManager::getInstance()->mParamList[mSecondIt->second], weight);	// mix to determine moving target for interpolation finish (as below)
@@ -137,6 +138,7 @@ void LLWLAnimator::update(LLWLParamSet& curParams)
 	else
 	{
 	// do the interpolation and set the parameters
+		// *TODO: this will not work with lazy loading of sky presets.
 		curParams.mix(LLWLParamManager::getInstance()->mParamList[mFirstIt->second], LLWLParamManager::getInstance()->mParamList[mSecondIt->second], weight);
 	}
 }

@@ -230,24 +230,41 @@ void LLFloaterEditDayCycle::refreshSkyPresetsList()
 
 	mSkyPresetsCombo->removeall();
 
-	LLWLParamManager& sky_mgr = LLWLParamManager::instance();
-	for (std::map<LLWLParamKey, LLWLParamSet>::iterator it = sky_mgr.mParamList.begin();
-		it != sky_mgr.mParamList.end(); ++it)
+	LLWLParamManager::preset_name_list_t region_presets;
+	LLWLParamManager::preset_name_list_t user_presets, sys_presets;
+	LLWLParamManager::instance().getPresetNames(region_presets, user_presets, sys_presets);
+
+	if (include_region_skies)
 	{
-		const LLWLParamKey& key = it->first;
-
-		std::string item_title = key.name;
-		if (key.scope == LLEnvKey::SCOPE_REGION)
+		// Add region presets.
+		for (LLWLParamManager::preset_name_list_t::const_iterator it = region_presets.begin(); it != region_presets.end(); ++it)
 		{
-			if (!include_region_skies)
-			{
-				continue;
-			}
-
-			item_title += " (" + getRegionName() + ")";
+			std::string preset_name = *it;
+			std::string item_title = preset_name + " (" + getRegionName() + ")";
+			mSkyPresetsCombo->add(preset_name, LLWLParamKey(*it, LLEnvKey::SCOPE_REGION).toStringVal());
 		}
 
-		mSkyPresetsCombo->add(item_title, LLSD(key.toStringVal()));
+		if (!region_presets.empty())
+		{
+			mSkyPresetsCombo->addSeparator();
+		}
+	}
+
+	// Add user presets.
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
+	{
+		mSkyPresetsCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
+	}
+
+	if (!user_presets.empty())
+	{
+		mSkyPresetsCombo->addSeparator();
+	}
+
+	// Add system presets.
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = sys_presets.begin(); it != sys_presets.end(); ++it)
+	{
+		mSkyPresetsCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
 	}
 
 	// set defaults on combo boxes

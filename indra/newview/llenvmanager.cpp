@@ -893,13 +893,14 @@ void LLEnvManagerNew::dumpPresets()
 
 	// Dump sky presets.
 	LL_DEBUGS("Windlight") << "Skies:" << LL_ENDL;
-	const std::map<LLWLParamKey, LLWLParamSet> &sky_params_map = LLWLParamManager::getInstance()->mParamList;
-	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = sky_params_map.begin(); it != sky_params_map.end(); it++)
+	LLWLParamManager::preset_key_list_t sky_preset_keys;
+	LLWLParamManager::instance().getPresetKeys(sky_preset_keys);
+	for (LLWLParamManager::preset_key_list_t::const_iterator it = sky_preset_keys.begin(); it != sky_preset_keys.end(); ++it)
 	{
-		std::string preset_name = it->first.name;
+		std::string preset_name = it->name;
 		std::string item_title;
 
-		if (it->first.scope == LLEnvKey::SCOPE_LOCAL) // local preset
+		if (it->scope == LLEnvKey::SCOPE_LOCAL) // local preset
 		{
 			item_title = preset_name;
 		}

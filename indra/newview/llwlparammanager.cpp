@@ -630,10 +630,55 @@ void LLWLParamManager::removeParamSet(const LLWLParamKey& key, bool delete_from_
 	mPresetListChangeSignal();
 }
 
-bool LLWLParamManager::isSystemPreset(const std::string& preset_name)
+bool LLWLParamManager::isSystemPreset(const std::string& preset_name) const
 {
 	// *TODO: file system access is excessive here.
 	return gDirUtilp->fileExists(getSysDir() + escapeString(preset_name) + ".xml");
+}
+
+void LLWLParamManager::getPresetNames(preset_name_list_t& region, preset_name_list_t& user, preset_name_list_t& sys) const
+{
+	region.clear();
+	user.clear();
+	sys.clear();
+
+	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = mParamList.begin(); it != mParamList.end(); it++)
+	{
+		const LLWLParamKey& key = it->first;
+		const std::string& name = key.name;
+
+		if (key.scope == LLEnvKey::SCOPE_REGION)
+		{
+			region.push_back(name);
+		}
+		else
+		{
+			if (isSystemPreset(name))
+			{
+				sys.push_back(name);
+			}
+			else
+			{
+				user.push_back(name);
+			}
+		}
+	}
+}
+
+void LLWLParamManager::getUserPresetNames(preset_name_list_t& user) const
+{
+	preset_name_list_t region, sys; // unused
+	getPresetNames(region, user, sys);
+}
+
+void LLWLParamManager::getPresetKeys(preset_key_list_t& keys) const
+{
+	keys.clear();
+
+	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = mParamList.begin(); it != mParamList.end(); it++)
+	{
+		keys.push_back(it->first);
+	}
 }
 
 boost::signals2::connection LLWLParamManager::setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb)

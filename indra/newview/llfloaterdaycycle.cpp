@@ -200,14 +200,15 @@ void LLFloaterDayCycle::refreshPresetsFromParamManager()
 
 	if(keyCombo != NULL) 
 	{
-		std::map<LLWLParamKey, LLWLParamSet>::iterator mIt = 
-			LLWLParamManager::getInstance()->mParamList.begin();
-		for(; mIt != LLWLParamManager::getInstance()->mParamList.end(); mIt++) 
+		LLWLParamManager::preset_key_list_t preset_keys;
+		LLWLParamManager::instance().getPresetKeys(preset_keys);
+		for (LLWLParamManager::preset_key_list_t::const_iterator it = preset_keys.begin(); it != preset_keys.end(); ++it)
 		{
-			if(mIt->first.scope <= sScope)
+			if (it->scope <= sScope)
 			{
-				llinfos << "Adding key: " << mIt->first.toString() << llendl;
-				keyCombo->add(mIt->first.toString(), LLSD(mIt->first.toStringVal()));
+				const LLWLParamKey& key = *it;
+				llinfos << "Adding key: " << key.toString() << llendl;
+				keyCombo->add(key.toString(), LLSD(key.toStringVal()));
 			}
 		}
 

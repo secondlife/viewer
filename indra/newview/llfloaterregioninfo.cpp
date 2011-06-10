@@ -3444,23 +3444,39 @@ void LLPanelEnvironmentInfo::populateSkyPresetsList()
 {
 	mSkyPresetCombo->removeall();
 
-	const std::map<LLWLParamKey, LLWLParamSet> &sky_params_map = LLWLParamManager::getInstance()->mParamList;
-	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = sky_params_map.begin(); it != sky_params_map.end(); it++)
+	LLWLParamManager::preset_name_list_t region_presets;
+	LLWLParamManager::preset_name_list_t user_presets, sys_presets;
+	LLWLParamManager::instance().getPresetNames(region_presets, user_presets, sys_presets);
+
+	// Add region presets.
+	std::string region_name = gAgent.getRegion() ? gAgent.getRegion()->getName() : LLTrans::getString("Unknown");
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = region_presets.begin(); it != region_presets.end(); ++it)
 	{
-		std::string preset_name = it->first.name;
-		std::string item_title;
+		std::string preset_name = *it;
+		std::string item_title = preset_name + " (" + region_name + ")";
+		mSkyPresetCombo->add(item_title, LLWLParamKey(preset_name, LLEnvKey::SCOPE_REGION).toStringVal());
+	}
 
-		if (it->first.scope == LLEnvKey::SCOPE_LOCAL) // local preset
-		{
-			item_title = preset_name;
-		}
-		else // region preset
-		{
-			item_title = preset_name + " (" + gAgent.getRegion()->getName() + ")";
-		}
+	if (!region_presets.empty())
+	{
+		mSkyPresetCombo->addSeparator();
+	}
 
-		// Saving as string instead of LLSD() for selectByValue() to work, as it doesn't support non-scalar values.
-		mSkyPresetCombo->add(item_title, it->first.toStringVal());
+	// Add user presets.
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
+	{
+		mSkyPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
+	}
+
+	if (!user_presets.empty())
+	{
+		mSkyPresetCombo->addSeparator();
+	}
+
+	// Add system presets.
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = sys_presets.begin(); it != sys_presets.end(); ++it)
+	{
+		mSkyPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
 	}
 
 	// Select current preset.
