@@ -360,6 +360,8 @@ public:
 	static void updateRenderDeferred();
 	static void refreshRenderDeferred();
 
+	void addDebugBlip(const LLVector3& position, const LLColor4& color);
+
 private:
 	void unloadShaders();
 	void addToQuickLookup( LLDrawPool* new_poolp );
@@ -729,6 +731,20 @@ public:
 	std::vector<LLFace*>		mHighlightFaces;	// highlight faces on physical objects
 protected:
 	std::vector<LLFace*>		mSelectedFaces;
+
+	class DebugBlip
+	{
+	public:
+		LLColor4 mColor;
+		LLVector3 mPosition;
+		F32 mAge;
+
+		DebugBlip(const LLVector3& position, const LLColor4& color)
+			: mColor(color), mPosition(position), mAge(0.f)
+		{ }
+	};
+
+	std::list<DebugBlip> mDebugBlips;
 
 	LLPointer<LLViewerFetchedTexture>	mFaceSelectImagep;
 	
