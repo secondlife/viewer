@@ -915,11 +915,8 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 			{
 				LLModel* mdl = sInstance->mModelPreview->mModel[LLModel::LOD_PHYSICS][i];
 				DecompRequest* request = new DecompRequest(stage, mdl);
-				if(request->isValid())
-				{
-					sInstance->mCurRequest.insert(request);
-					gMeshRepo.mDecompThread->submitRequest(request);
-				}	
+				sInstance->mCurRequest.insert(request);
+				gMeshRepo.mDecompThread->submitRequest(request);
 			}
 		}
 
@@ -4869,39 +4866,43 @@ BOOL LLModelPreview::render()
 
 						LLModel::Decomposition& physics = model->mPhysics;
 
-						if (physics.mMesh.empty())
-						{ //build vertex buffer for physics mesh
-							gMeshRepo.buildPhysicsMesh(physics);
-						}
-							
-						if (!physics.mMesh.empty())
-						{ //render hull instead of mesh
+						if (!physics.mHull.empty())
+						{
 							render_mesh = false;
-							for (U32 i = 0; i < physics.mMesh.size(); ++i)
-							{
-								if (explode > 0.f)
+
+							if (physics.mMesh.empty())
+							{ //build vertex buffer for physics mesh
+								gMeshRepo.buildPhysicsMesh(physics);
+							}
+						
+							if (!physics.mMesh.empty())
+							{ //render hull instead of mesh
+								for (U32 i = 0; i < physics.mMesh.size(); ++i)
 								{
-									gGL.pushMatrix();
+									if (explode > 0.f)
+									{
+										gGL.pushMatrix();
 
-									LLVector3 offset = model->mHullCenter[i]-model->mCenterOfHullCenters;
-									offset *= explode;
+										LLVector3 offset = model->mHullCenter[i]-model->mCenterOfHullCenters;
+										offset *= explode;
 
-									gGL.translatef(offset.mV[0], offset.mV[1], offset.mV[2]);
-								}
+										gGL.translatef(offset.mV[0], offset.mV[1], offset.mV[2]);
+									}
 
-								static std::vector<LLColor4U> hull_colors;
+									static std::vector<LLColor4U> hull_colors;
 
-								if (i+1 >= hull_colors.size())
-								{
-									hull_colors.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127, 255));
-								}
+									if (i+1 >= hull_colors.size())
+									{
+										hull_colors.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127, 255));
+									}
 
-									glColor4ubv(hull_colors[i].mV);
-								LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions, physics.mMesh[i].mNormals);
+										glColor4ubv(hull_colors[i].mV);
+									LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions, physics.mMesh[i].mNormals);
 
-								if (explode > 0.f)
-								{
-									gGL.popMatrix();
+									if (explode > 0.f)
+									{
+										gGL.popMatrix();
+									}
 								}
 							}
 						}
@@ -4927,34 +4928,9 @@ BOOL LLModelPreview::render()
 
 							glColor3f(1.f, 1.f, 0.f);
 
-							glLineWidth(3.f);
+							glLineWidth(2.f);
 							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 							buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
-
-							{ //show degenerate triangles
-								LLStrider<LLVector3> pos_strider; 
-								buffer->getVertexStrider(pos_strider, 0);
-								LLVector4a* pos = (LLVector4a*) pos_strider.get();
-							
-								LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-								LLGLDisable cull(GL_CULL_FACE);
-								LLStrider<U16> idx;
-								buffer->getIndexStrider(idx, 0);
-
-								glColor4f(1.f,0.f,0.f,1.f);
-								const LLVector4a scale(0.5f);
-								for (U32 i = 0; i < buffer->getNumIndices(); i += 3)
-								{
-									LLVector4a v1; v1.setMul(pos[*idx++], scale);
-									LLVector4a v2; v2.setMul(pos[*idx++], scale);
-									LLVector4a v3; v3.setMul(pos[*idx++], scale);
-
-									if (ll_is_degenerate(v1,v2,v3))
-									{
-										buffer->draw(LLRender::TRIANGLES, 3, i);
-									}
-								}
-							}
 
 							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 							glLineWidth(1.f);
@@ -4964,6 +4940,80 @@ BOOL LLModelPreview::render()
 					gGL.popMatrix();
 				}
 
+				glLineWidth(3.f);
+				glPointSize(8.f);
+				gPipeline.enableLightsFullbright(LLColor4::white);
+				//show degenerate triangles
+				LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
+				LLGLDisable cull(GL_CULL_FACE);
+				glColor4f(1.f,0.f,0.f,1.f);
+				const LLVector4a scale(0.5f);
+
+				for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
+				{
+					LLModelInstance& instance = *iter;
+
+					LLModel* model = instance.mLOD[LLModel::LOD_PHYSICS];
+
+					if (!model)
+					{
+						continue;
+					}
+
+					gGL.pushMatrix();
+					LLMatrix4 mat = instance.mTransform;
+
+					glMultMatrixf((GLfloat*) mat.mMatrix);
+
+
+					LLPhysicsDecomp* decomp = gMeshRepo.mDecompThread;
+					if (decomp)
+					{
+						LLMutexLock(decomp->mMutex);
+
+						LLModel::Decomposition& physics = model->mPhysics;
+
+						if (physics.mHull.empty())
+						{
+							if (mVertexBuffer[LLModel::LOD_PHYSICS].empty())
+							{
+								genBuffers(LLModel::LOD_PHYSICS, false);
+							}
+							
+							for (U32 i = 0; i < mVertexBuffer[LLModel::LOD_PHYSICS][model].size(); ++i)
+							{
+								LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][i];
+
+								buffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0);
+
+								LLStrider<LLVector3> pos_strider; 
+								buffer->getVertexStrider(pos_strider, 0);
+								LLVector4a* pos = (LLVector4a*) pos_strider.get();
+							
+								LLStrider<U16> idx;
+								buffer->getIndexStrider(idx, 0);
+
+								for (U32 i = 0; i < buffer->getNumIndices(); i += 3)
+								{
+									LLVector4a v1; v1.setMul(pos[*idx++], scale);
+									LLVector4a v2; v2.setMul(pos[*idx++], scale);
+									LLVector4a v3; v3.setMul(pos[*idx++], scale);
+
+									if (ll_is_degenerate(v1,v2,v3))
+									{
+										buffer->draw(LLRender::LINE_LOOP, 3, i);
+										buffer->draw(LLRender::POINTS, 3, i);
+									}
+								}
+							}
+						}
+					}
+
+					gGL.popMatrix();
+				}
+				glLineWidth(1.f);
+				glPointSize(1.f);
+				gPipeline.enableLightsPreview();
 				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			}
 		}

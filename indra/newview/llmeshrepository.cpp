@@ -3272,15 +3272,18 @@ void LLPhysicsDecomp::setMeshData(LLCDMeshData& mesh)
 	
 	mesh.mNumTriangles = mCurRequest->mIndices.size()/3;
 
-	LLCDResult ret = LLCD_OK;
-	if (LLConvexDecomposition::getInstance() != NULL)
+	if (mesh.mNumTriangles > 0 && mesh.mNumVertices > 2)
 	{
-		ret  = LLConvexDecomposition::getInstance()->setMeshData(&mesh);
-	}
+		LLCDResult ret = LLCD_OK;
+		if (LLConvexDecomposition::getInstance() != NULL)
+		{
+			ret  = LLConvexDecomposition::getInstance()->setMeshData(&mesh);
+		}
 
-	if (ret)
-	{
-		llerrs << "Convex Decomposition thread valid but could not set mesh data" << llendl;
+		if (ret)
+		{
+			llerrs << "Convex Decomposition thread valid but could not set mesh data" << llendl;
+		}
 	}
 }
 
