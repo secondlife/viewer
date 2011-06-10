@@ -28,22 +28,26 @@
 
 #include "llpacketring.h"
 
-// linden library includes
-#include "llerror.h"
-#include "lltimer.h"
-#include "timing.h"
-#include "llrand.h"
-#include "u64.h"
-
-#include "llsocks5.h"
-#include "message.h"
-
 #if LL_WINDOWS
 	#include <winsock2.h>
 #else
 	#include <sys/socket.h>
 	#include <netinet/in.h>
 #endif
+
+// linden library includes
+#include "llerror.h"
+#include "message.h"
+#include "llsocks5.h"
+#include "lltimer.h"
+#include "timing.h"
+#include "llrand.h"
+#include "u64.h"
+
+
+
+
+
 
 
 ///////////////////////////////////////////////////////////
@@ -241,8 +245,7 @@ S32 LLPacketRing::receivePacket (S32 socket, char *datap)
 				packet_size=0;
 			}
 
-			proxywrap_t * header;
-			header = (proxywrap_t *)buffer;
+			proxywrap_t * header = (proxywrap_t *)buffer;
 			mLastSender.setAddress(header->addr);
 			mLastSender.setPort(ntohs(header->port));
 		}

@@ -343,7 +343,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.getUIColor",				boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.MaturitySettings",		boost::bind(&LLFloaterPreference::onChangeMaturity, this));
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
-    mCommitCallbackRegistrar.add("Pref.Proxy",                    boost::bind(&LLFloaterPreference::onClickProxySettings, this));
+	mCommitCallbackRegistrar.add("Pref.Proxy",                    boost::bind(&LLFloaterPreference::onClickProxySettings, this));
 	
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
@@ -1545,7 +1545,7 @@ void LLFloaterPreference::updateDoubleClickSettings()
 
 void LLFloaterPreference::onClickProxySettings()
 {
-    LLFloaterReg::showInstance("prefs_proxy");
+	LLFloaterReg::showInstance("prefs_proxy");
 }
 
 void LLFloaterPreference::updateDoubleClickControls()
@@ -1916,16 +1916,13 @@ void LLPanelPreferenceGraphics::setHardwareDefaults()
 	LLPanelPreference::setHardwareDefaults();
 }
 
-
-/* ------------------------------------------------------------ */
-
 LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
-    : LLFloater(key),
-    mSocksSettingsDirty(false)
+	: LLFloater(key),
+	  mSocksSettingsDirty(false)
 {
-    mCommitCallbackRegistrar.add("Proxy.OK",                boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this));
-    mCommitCallbackRegistrar.add("Proxy.Cancel",            boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this));
-    mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
+	mCommitCallbackRegistrar.add("Proxy.OK",                boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this));
+	mCommitCallbackRegistrar.add("Proxy.Cancel",            boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this));
+	mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
 }
 
 LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
@@ -1934,142 +1931,142 @@ LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
 
 BOOL LLFloaterPreferenceProxy::postBuild()
 {
-    LLLineEditor* edit = getChild<LLLineEditor>("socks_password_editor");
-    if (edit) edit->setDrawAsterixes(TRUE);
+	LLLineEditor* edit = getChild<LLLineEditor>("socks_password_editor");
+	if (edit) edit->setDrawAsterixes(TRUE);
 
-    LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
-    if(socksAuth->getSelectedValue().asString() == "None")
-    {
-        getChild<LLLineEditor>("socks5_username")->setEnabled(false);
-        getChild<LLLineEditor>("socks5_password")->setEnabled(false);
-    }
+	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
+	if(socksAuth->getSelectedValue().asString() == "None")
+	{
+		getChild<LLLineEditor>("socks5_username")->setEnabled(false);
+		getChild<LLLineEditor>("socks5_password")->setEnabled(false);
+	}
 
-    center();
-    return TRUE;
+	center();
+	return TRUE;
 }
 
 void LLFloaterPreferenceProxy::onOpen(const LLSD& key)
 {
-    saveSettings();
+	saveSettings();
 }
 
 void LLFloaterPreferenceProxy::onClose(bool app_quitting)
 {
-    if(mSocksSettingsDirty)
-    {
+	if(mSocksSettingsDirty)
+	{
 
-        // If the user plays with the Socks proxy settings after login, its only fair we let them know
-        // it will not be updated untill next restart.
-        if(LLStartUp::getStartupState()>STATE_LOGIN_WAIT)
-        {        
-            if(this->mSocksSettingsDirty == true )
-            {
-                LLNotifications::instance().add("ChangeSocks5Settings",LLSD(),LLSD());
-                mSocksSettingsDirty = false; // we have notified the user now be quiet again
-            }
-        }
-    }
+		// If the user plays with the Socks proxy settings after login, it's only fair we let them know
+		// it will not be updated until next restart.
+		if(LLStartUp::getStartupState()>STATE_LOGIN_WAIT)
+		{
+			if(this->mSocksSettingsDirty == true )
+			{
+				LLNotifications::instance().add("ChangeSocks5Settings",LLSD(),LLSD());
+				mSocksSettingsDirty = false; // we have notified the user now be quiet again
+			}
+		}
+	}
 }
 
 void LLFloaterPreferenceProxy::saveSettings()
 {
-    // Save the value of all controls in the hierarchy
-    mSavedValues.clear();
-    std::list<LLView*> view_stack;
-    view_stack.push_back(this);
-    while(!view_stack.empty())
-    {
-        // Process view on top of the stack
-        LLView* curview = view_stack.front();
-        view_stack.pop_front();
+	// Save the value of all controls in the hierarchy
+	mSavedValues.clear();
+	std::list<LLView*> view_stack;
+	view_stack.push_back(this);
+	while(!view_stack.empty())
+	{
+		// Process view on top of the stack
+		LLView* curview = view_stack.front();
+		view_stack.pop_front();
 
-        LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
-        if (ctrl)
-        {
-            LLControlVariable* control = ctrl->getControlVariable();
-            if (control)
-            {
-                mSavedValues[control] = control->getValue();
-            }
-        }
-                    
-        // Push children onto the end of the work stack
-        for (child_list_t::const_iterator iter = curview->getChildList()->begin();
-             iter != curview->getChildList()->end(); ++iter)
-        {
-            view_stack.push_back(*iter);
-        }
-    }    
+		LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
+		if (ctrl)
+		{
+			LLControlVariable* control = ctrl->getControlVariable();
+			if (control)
+			{
+				mSavedValues[control] = control->getValue();
+			}
+		}
+
+		// Push children onto the end of the work stack
+		for (child_list_t::const_iterator iter = curview->getChildList()->begin();
+				iter != curview->getChildList()->end(); ++iter)
+		{
+			view_stack.push_back(*iter);
+		}
+	}
 
 }
 
 void LLFloaterPreferenceProxy::onBtnOk()
 {
-    // commit any outstanding text entry
-    if (hasFocus())
-    {
-        LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-        if (cur_focus && cur_focus->acceptsTextInput())
-        {
-            cur_focus->onCommit();
-        }
-    }
-    closeFloater(false);
+	// commit any outstanding text entry
+	if (hasFocus())
+	{
+		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+		if (cur_focus && cur_focus->acceptsTextInput())
+		{
+			cur_focus->onCommit();
+		}
+	}
+	closeFloater(false);
 }
 
 void LLFloaterPreferenceProxy::onBtnCancel()
 {
-    if (hasFocus())
-    {
-        LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-        if (cur_focus && cur_focus->acceptsTextInput())
-        {
-            cur_focus->onCommit();
-        }
-        refresh();
-    }
-    
-    cancel();
-    
+	if (hasFocus())
+	{
+		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+		if (cur_focus && cur_focus->acceptsTextInput())
+		{
+			cur_focus->onCommit();
+		}
+		refresh();
+	}
+
+	cancel();
+
 }
 void LLFloaterPreferenceProxy::cancel()
 {
 
-    for (control_values_map_t::iterator iter =  mSavedValues.begin();
-         iter !=  mSavedValues.end(); ++iter)
-    {
-        LLControlVariable* control = iter->first;
-        LLSD ctrl_value = iter->second;
-        control->set(ctrl_value);
-    }
-    
-    closeFloater();
+	for (control_values_map_t::iterator iter =  mSavedValues.begin();
+			iter !=  mSavedValues.end(); ++iter)
+	{
+		LLControlVariable* control = iter->first;
+		LLSD ctrl_value = iter->second;
+		control->set(ctrl_value);
+	}
+
+	closeFloater();
 }
 
 void LLFloaterPreferenceProxy::onChangeSocksSettings() 
 {
-    mSocksSettingsDirty = true; 
+	mSocksSettingsDirty = true;
 
-    LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
-    if(socksAuth->getSelectedValue().asString() == "None")
-    {
-        getChild<LLLineEditor>("socks5_username")->setEnabled(false);
-        getChild<LLLineEditor>("socks5_password")->setEnabled(false);
-    }
-    else
-    {
-        getChild<LLLineEditor>("socks5_username")->setEnabled(true);
-        getChild<LLLineEditor>("socks5_password")->setEnabled(true);
-    }
+	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
+	if(socksAuth->getSelectedValue().asString() == "None")
+	{
+		getChild<LLLineEditor>("socks5_username")->setEnabled(false);
+		getChild<LLLineEditor>("socks5_password")->setEnabled(false);
+	}
+	else
+	{
+		getChild<LLLineEditor>("socks5_username")->setEnabled(true);
+		getChild<LLLineEditor>("socks5_password")->setEnabled(true);
+	}
 
-    //Check for invalid states for the other http proxy radio
-    LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("other_http_proxy_selection");
-    if( (otherHttpProxy->getSelectedValue().asString() == "Socks" && 
-        getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == FALSE )||(
-        otherHttpProxy->getSelectedValue().asString() == "Web" && 
-        getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get() == FALSE ) )
-    {    
-        otherHttpProxy->selectFirstItem();
-    }
+	//Check for invalid states for the other http proxy radio
+	LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("other_http_proxy_selection");
+	if( (otherHttpProxy->getSelectedValue().asString() == "Socks" &&
+			getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == FALSE )||(
+					otherHttpProxy->getSelectedValue().asString() == "Web" &&
+					getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get() == FALSE ) )
+	{
+		otherHttpProxy->selectFirstItem();
+	}
 
 };

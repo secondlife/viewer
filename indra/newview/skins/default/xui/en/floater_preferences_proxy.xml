@@ -60,7 +60,7 @@
            layout="topleft"
            value="None"
            width="120"
-           tool_tip="Non web Http trafic should NOT be sent to any proxy."/>
+           tool_tip="Non web Http traffic should NOT be sent to any proxy."/>
           <radio_item
            height="16"
            label="Use Socks 5 Proxy"

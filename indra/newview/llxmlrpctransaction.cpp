@@ -319,15 +319,17 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 		{
 			mCurlRequest->setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
 			if(LLSocks::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)
+			{
 				mCurlRequest->setoptString(CURLOPT_PROXYUSERPWD,LLSocks::getInstance()->getProxyUserPwd());
+			}
 		}
 		else
 		{
-		mCurlRequest->setopt(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-	}
+			mCurlRequest->setopt(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+		}
 	}
 
-//	mCurlRequest->setopt(CURLOPT_VERBOSE, 1); // usefull for debugging
+//	mCurlRequest->setopt(CURLOPT_VERBOSE, 1); // useful for debugging
 	mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
 	mCurlRequest->setWriteCallback(&curlDownloadCallback, (void*)this);
 	BOOL vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");

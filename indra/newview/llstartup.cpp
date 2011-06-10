@@ -2770,18 +2770,18 @@ bool LLStartUp::handleSocksProxy(bool reportOK)
 		LLHost httpHost;
 		httpHost.setHostByName(gSavedSettings.getString("BrowserProxyAddress"));
 		httpHost.setPort(gSavedSettings.getS32("BrowserProxyPort"));
-		LLSocks::getInstance()->EnableHttpProxy(httpHost,LLPROXY_HTTP);
+		LLSocks::getInstance()->enableHttpProxy(httpHost,LLPROXY_HTTP);
 	}
 	else if ((httpProxyType.compare("Socks") == 0) && gSavedSettings.getBOOL("Socks5ProxyEnabled"))
 	{
 		LLHost httpHost;
 		httpHost.setHostByName(gSavedSettings.getString("Socks5ProxyHost"));
 		httpHost.setPort(gSavedSettings.getU32("Socks5ProxyPort"));
-		LLSocks::getInstance()->EnableHttpProxy(httpHost,LLPROXY_SOCKS);
+		LLSocks::getInstance()->enableHttpProxy(httpHost,LLPROXY_SOCKS);
 	}
 	else
 	{
-		LLSocks::getInstance()->DisableHttpProxy();
+		LLSocks::getInstance()->disableHttpProxy();
 	}
 	
 	bool use_socks_proxy = gSavedSettings.getBOOL("Socks5ProxyEnabled");
@@ -2843,7 +2843,7 @@ bool LLStartUp::handleSocksProxy(bool reportOK)
 	}
 	else
 	{
-		LLSocks::getInstance()->stopProxy(); //ensure no UDP proxy is running and its all cleaned up
+		LLSocks::getInstance()->stopProxy(); // ensure no UDP proxy is running and it's all cleaned up
 	}
 
 	return true;
