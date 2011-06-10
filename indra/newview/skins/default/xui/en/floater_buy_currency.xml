@@ -247,10 +247,10 @@ Re-enter amount to see the latest exchange rate.
      follows="top|left"
      layout="topleft"
      halign="right"
-     top="213"
+     top="208"
      left="10"
      width="310"
-     height="30"
+     height="35"
      name="purchase_warning_repurchase">
         Confirming this purchase only buys L$, not the object.
     </text>

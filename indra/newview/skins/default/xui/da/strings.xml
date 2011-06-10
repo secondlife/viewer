@@ -1455,7 +1455,7 @@
 		(ukendt)
 	</string>
 	<string name="SummaryForTheWeek" value="Opsummering for denne uge, begyndende med "/>
-	<string name="NextStipendDay" value="Næste stipendie dag er "/>
+	<string name="NextStipendDay" value=". Næste stipendie dag er "/>
 	<string name="GroupIndividualShare" value="                      Gruppe     Individuel Delt"/>
 	<string name="GroupColumn" value="Gruppe"/>
 	<string name="Balance">
