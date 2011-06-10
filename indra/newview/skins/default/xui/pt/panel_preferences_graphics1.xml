@@ -28,8 +28,20 @@ rápido
 		</text>
 		<check_box initial_value="verdadeiro" label="Água transparente" name="TransparentWater"/>
 		<check_box initial_value="true" label="Bump de Mapeamento e Brilho" name="BumpShiny"/>
+		<check_box initial_value="verdadeiro" label="Luzes locais" name="LocalLights"/>
 		<check_box initial_value="true" label="Sombreadores básicos" name="BasicShaders" tool_tip="Desabilitar esta opção poderá impedir que alguns drivers de placa de vídeo a travem."/>
 		<check_box initial_value="true" label="Sombreadores Atmosféricos" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="verdadeiro" label="Iluminação e sombras" name="UseLightShaders"/>
+		<check_box initial_value="verdadeiro" label="Oclusão ambiental" name="UseSSAO"/>
+		<check_box initial_value="verdadeiro" label="Profundidade" name="UseDoF"/>
+		<text name="shadows_label">
+			Sombras:
+		</text>
+		<combo_box name="ShadowDetail">
+			<combo_box.item label="Nenhum" name="0"/>
+			<combo_box.item label="Sol/Lua" name="1"/>
+			<combo_box.item label="Sol/Lua + Projetores" name="2"/>
+		</combo_box>
 		<text name="reflection_label">
 			Reflexo de água:
 		</text>

@@ -28,6 +28,8 @@
 
 #include "lltranslate.h"
 
+#include <curl/curl.h>
+
 #include "llbufferstream.h"
 #include "llui.h"
 #include "llversioninfo.h"
@@ -76,7 +78,9 @@ void LLTranslate::translateMessage(LLHTTPClient::ResponderPtr &result, const std
 //static
 void LLTranslate::getTranslateUrl(std::string &translate_url, const std::string &from_lang, const std::string &to_lang, const std::string &mesg)
 {
-	std::string escaped_mesg = curl_escape(mesg.c_str(), mesg.size());
+	char * curl_str = curl_escape(mesg.c_str(), mesg.size());
+	std::string const escaped_mesg(curl_str);
+	curl_free(curl_str);
 
 	translate_url = m_GoogleURL
 		+ escaped_mesg + m_GoogleLangSpec
