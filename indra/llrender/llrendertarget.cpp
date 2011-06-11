@@ -75,6 +75,9 @@ LLRenderTarget::~LLRenderTarget()
 void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo, S32 samples)
 {
 	stop_glerror();
+	
+	release();
+
 	mResX = resx;
 	mResY = resy;
 
@@ -95,8 +98,6 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 	{
 		mSamples = 0;
 	}
-
-	release();
 
 	if ((sUseFBO || use_fbo) && gGLManager.mHasFramebufferObject)
 	{
@@ -337,6 +338,8 @@ void LLRenderTarget::release()
 		LLImageGL::deleteTextures(mTex.size(), &mTex[0], true);
 		mTex.clear();
 	}
+	
+	mResX = mResY = 0;
 
 	sBoundTarget = NULL;
 }

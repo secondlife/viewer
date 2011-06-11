@@ -2969,13 +2969,6 @@ void render_hull(LLModel::PhysicsMesh& mesh, const LLColor4& color, const LLColo
 
 void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 {
-	if (volume->isSelected())
-	{
-		LLVector3 construct_me(5,5,5);
-		construct_me.normalize();
-	}
-
-	
 	U8 physics_type = volume->getPhysicsShapeType();
 
 	if (physics_type == LLViewerObject::PHYSICS_SHAPE_NONE || volume->isFlexible())

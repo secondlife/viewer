@@ -2093,7 +2093,7 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 
 	if (decomp.has("BoundingVerts"))
 	{
-		const LLSD::Binary& position = decomp["BundingVerts"].asBinary();
+		const LLSD::Binary& position = decomp["BoundingVerts"].asBinary();
 
 		U16* p = (U16*) &position[0];
 
@@ -2129,7 +2129,7 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 	{
 		//empty base hull mesh to indicate decomposition has been loaded
 		//but contains no base hull
-		mBaseHullMesh.clear();;
+		mBaseHullMesh.clear();
 	}
 }
 
@@ -2251,6 +2251,8 @@ LLSD LLModel::Decomposition::asLLSD() const
 
 		ret["Positions"] = p;
 	}
+
+	llassert(!mBaseHull.empty());
 
 	if (!mBaseHull.empty())
 	{
