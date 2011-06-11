@@ -6257,9 +6257,9 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	
 	LLVertexBuffer::unbind();
 
-	if (LLPipeline::sRenderDeferred && !LLViewerCamera::getInstance()->cameraUnderWater())
+	if (LLPipeline::sRenderDeferred)
 	{
-		bool dof_enabled = true;
+		bool dof_enabled = !LLViewerCamera::getInstance()->cameraUnderWater();
 
 		LLGLSLShader* shader = &gDeferredPostProgram;
 		if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 2)
@@ -6267,7 +6267,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			shader = &gDeferredGIFinalProgram;
 			dof_enabled = false;
 		}
-		else if (LLToolMgr::getInstance()->inBuildMode() || !gSavedSettings.getBOOL("RenderDepthOfField"))
+		else if (!dof_enabled || LLToolMgr::getInstance()->inBuildMode() || !gSavedSettings.getBOOL("RenderDepthOfField"))
 		{ //squish focal length when in build mode (or if DoF is disabled) so DoF doesn't make editing objects difficult
 			shader = &gDeferredPostNoDoFProgram;
 			dof_enabled = false;
