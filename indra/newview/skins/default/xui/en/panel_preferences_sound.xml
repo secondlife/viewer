@@ -322,7 +322,7 @@
 		follows="left|bottom|right"
 		height="15"
 		tool_tip="Check this to hear sounds from gestures"
-		label="Enable sounds from gestures"
+		label="Play sounds from gestures"
 		top_pad="1"
 		left="25"/>
 	<check_box
