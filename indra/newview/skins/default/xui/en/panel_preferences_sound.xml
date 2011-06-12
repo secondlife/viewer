@@ -123,8 +123,8 @@
          function="Pref.setControlFalse"
          parameter="MuteAmbient" />
     </slider>
-        <button
-    control_name="MuteAmbient"
+    <button
+     control_name="MuteAmbient"
      disabled_control="MuteAudio"
      follows="top|left"
      height="16"
@@ -157,7 +157,7 @@
          function="Pref.setControlFalse"
          parameter="MuteSounds" />
     </slider>
-   <button
+    <button
      control_name="MuteSounds"
      disabled_control="MuteAudio"
      follows="top|left"
@@ -169,7 +169,10 @@
      left_pad="5"
      name="mute_audio"
      tab_stop="false"
-     width="16" />
+     width="16">
+      <button.commit_callback
+      function="Pref.SetSounds"/>
+    </button>
     <slider
      control_name="AudioLevelMusic"
      disabled_control="MuteAudio"
@@ -311,6 +314,17 @@
 		name="enable_voice_check"
 		width="110"/>
 	<!-- -->
+	<check_box
+		name="gesture_audio_play_btn"
+		control_name="EnableGestureSounds"
+        disabled_control="MuteAudio"
+		value="true"
+		follows="left|bottom|right"
+		height="15"
+		tool_tip="Check this to hear sounds from gestures"
+		label="Enable sounds from gestures"
+		top_pad="1"
+		left="25"/>
 	<check_box
 		name="media_auto_play_btn"
 		control_name="ParcelMediaAutoPlayEnable"

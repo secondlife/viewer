@@ -3058,6 +3058,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>EnableGestureSounds</key>
+    <map>
+      <key>Comment</key>
+      <string>Play sounds from gestures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>EnableMouselook</key>
     <map>
       <key>Comment</key>
