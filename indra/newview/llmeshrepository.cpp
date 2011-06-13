@@ -1424,10 +1424,11 @@ void LLMeshUploadThread::run()
 
 void dumpLLSDToFile(const LLSD& content, std::string filename)
 {
-#if 1
-	std::ofstream of(filename.c_str());
-	LLSDSerialize::toPrettyXML(content,of);
-#endif
+	if (gSavedSettings.getBOOL("MeshUploadLogXML"))
+	{
+		std::ofstream of(filename.c_str());
+		LLSDSerialize::toPrettyXML(content,of);
+	}
 }
 
 void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)

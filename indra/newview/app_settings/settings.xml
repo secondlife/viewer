@@ -5589,10 +5589,10 @@
     <key>Value</key>
     <real>0</real>
   </map>
-  <key>MeshUseWholeModelUpload</key>
+  <key>MeshUploadLogXML</key>
   <map>
     <key>Comment</key>
-    <string>Upload model in its entirety instead of mesh-by-mesh (new caps)</string>
+    <string>Verbose XML logging on mesh upload</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
