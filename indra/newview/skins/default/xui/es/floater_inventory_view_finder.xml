@@ -5,6 +5,7 @@
 	<check_box label="Ropa" name="check_clothing"/>
 	<check_box label="Gestos" name="check_gesture"/>
 	<check_box label="Hitos" name="check_landmark"/>
+	<check_box label="Redes" name="check_mesh"/>
 	<check_box label="Notas" name="check_notecard"/>
 	<check_box label="Objetos" name="check_object"/>
 	<check_box label="Scripts" name="check_script"/>
@@ -14,11 +15,11 @@
 	<button label="Todos" label_selected="Todo" name="All"/>
 	<button label="Ninguno" label_selected="Nada" name="None"/>
 	<check_box label="Mostrar siempre las carpetas" name="check_show_empty"/>
-	<check_box label="Desde el fin de sesión" name="check_since_logoff" bottom_delta="-36"/>
+	<check_box bottom_delta="-36" label="Desde el fin de sesión" name="check_since_logoff"/>
 	<text name="- OR -">
 		- o -
 	</text>
 	<spinner label="horas atrás" name="spin_hours_ago"/>
 	<spinner label="días atrás" name="spin_days_ago"/>
-	<button label="Cerrar" label_selected="Cerrar" name="Close" bottom_delta="-30"/>
+	<button bottom_delta="-30" label="Cerrar" label_selected="Cerrar" name="Close"/>
 </floater>

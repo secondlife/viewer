@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="機器の設定" name="device_settings_panel">
+	<panel.string name="default_text">
+		デフォルト
+	</panel.string>
+	<text name="Input">
+		入力
+	</text>
+	<text name="My volume label">
+		私の音量：
+	</text>
+	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="スライダーを使って音量を調節します"/>
+	<text name="wait_text">
+		しばらくお待ちください。
+	</text>
+	<text name="Output">
+		出力
+	</text>
+</panel>

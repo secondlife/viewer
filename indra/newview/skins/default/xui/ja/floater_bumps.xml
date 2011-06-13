@@ -4,19 +4,19 @@
 		検出なし
 	</floater.string>
 	<floater.string name="bump">
-		[TIME]  [NAME]が、あなたにぶつかりました。
+		[TIME]  [NAME] があなたに衝突しました
 	</floater.string>
 	<floater.string name="llpushobject">
-		[TIME]  [NAME]が、スクリプトであなたをプッシュしました。
+		[TIME]  [NAME] がスクリプトであなたを押しました
 	</floater.string>
 	<floater.string name="selected_object_collide">
-		[TIME]  [NAME]が、オブジェクトをあなたに当てました。
+		[TIME]  [NAME] がオブジェクトであなたをたたきました
 	</floater.string>
 	<floater.string name="scripted_object_collide">
-		[TIME]  [NAME]が、スクリプト・オブジェクトをあなたに当てました。
+		[TIME]  [NAME] がスクリプトのオブジェクトであなたをたたきました
 	</floater.string>
 	<floater.string name="physical_object_collide">
-		[TIME]  [NAME]が、物理オブジェクトをあなたに当てました。
+		[TIME]  [NAME] が物理的オブジェクトであなたをたたきました
 	</floater.string>
 	<floater.string name="timeStr">
 		[[hour,datetime,slt]:[min,datetime,slt]]

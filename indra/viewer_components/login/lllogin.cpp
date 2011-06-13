@@ -178,6 +178,8 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
         request["uri"] = uri;
         request["reply"] = replyPump.getName();
         rewrittenURIs = postAndWait(self, request, srv_pump_name, filter);
+        // EXP-772: If rewrittenURIs fail, try original URI as a fallback.
+        rewrittenURIs.append(uri);
     } // we no longer need the filter
 
     LLEventPump& xmlrpcPump(LLEventPumps::instance().obtain("LLXMLRPCTransaction"));

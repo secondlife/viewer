@@ -11,7 +11,7 @@
 	</text>
 	<icon name="icon_person" tool_tip="Persona"/>
 	<text left="115" name="payee_name">
-		Test Name That Is Extremely Long To Check Clipping
+		Nome di test che è troppo lungo per controllare il taglio
 	</text>
 	<button label="1 L$" label_selected="1 L$" left="118" name="fastpay 1" width="80"/>
 	<button label="5 L$" label_selected="5 L$" left="210" name="fastpay 5"/>

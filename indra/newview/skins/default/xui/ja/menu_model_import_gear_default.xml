@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="model_menu_gear_default">
+	<menu_item_check label="稜を表示" name="show_edges"/>
+	<menu_item_check label="物理効果を表示" name="show_physics"/>
+	<menu_item_check label="テクスチャを表示" name="show_textures"/>
+	<menu_item_check label="スキンの重さを表示" name="show_skin_weight"/>
+	<menu_item_check label="ジョイントポジションを表示" name="show_joint_positions"/>
+</toggleable_menu>

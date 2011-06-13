@@ -258,38 +258,6 @@ U32 LLDir_Mac::countFilesInDir(const std::string &dirname, const std::string &ma
 	return (file_count);
 }
 
-S32 LLDir_Mac::deleteFilesInDir(const std::string &dirname, const std::string &mask)
-{
-	glob_t g;
-	S32 result = 0;
-	
-	std::string tmp_str;
-	tmp_str = dirname;
-	tmp_str += mask;
-	
-	if(glob(tmp_str.c_str(), GLOB_NOSORT, NULL, &g) == 0)
-	{
-		int i;
-		
-		for(i = 0; i < g.gl_pathc; i++)
-		{
-//			llinfos << "deleteFilesInDir: deleting number " << i << ", path is " << g.gl_pathv[i] << llendl;
-
-			if(unlink(g.gl_pathv[i]) != 0)
-			{
-				result = errno;
-
-				llwarns << "Problem removing " << g.gl_pathv[i] << " - errorcode: "
-					<< result << llendl;
-			}
-		}
-
-		globfree(&g);
-	}
-	
-	return(result);
-}
-
 std::string LLDir_Mac::getCurPath()
 {
 	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 

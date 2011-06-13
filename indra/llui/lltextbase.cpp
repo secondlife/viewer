@@ -280,7 +280,7 @@ bool LLTextBase::truncate()
 	if (getLength() >= S32(mMaxTextByteLength / 4))
 	{	
 		// Have to check actual byte size
-        LLWString text(getWText());
+		LLWString text(getWText());
 		S32 utf8_byte_size = wstring_utf8_length(text);
 		if ( utf8_byte_size > mMaxTextByteLength )
 		{
@@ -547,8 +547,7 @@ void LLTextBase::drawText()
 		}
 
 		LLRect text_rect(line.mRect);
-		text_rect.mRight = llmin(mDocumentView->getRect().getWidth(), text_rect.mRight); // clamp right edge to document extents
-		text_rect.translate(mVisibleTextRect.mLeft, mVisibleTextRect.mBottom); // translate into display region of text widget
+		text_rect.mRight = mDocumentView->getRect().getWidth(); // clamp right edge to document extents
 		text_rect.translate(mDocumentView->getRect().mLeft, mDocumentView->getRect().mBottom); // adjust by scroll position
 
 		// draw a single line of text
@@ -655,7 +654,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 	}
 
 	text.insert(pos, wstr);
-    getViewModel()->setDisplay(text);
+	getViewModel()->setDisplay(text);
 
 	if ( truncate() )
 	{
@@ -670,7 +669,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 {
-    LLWString text(getWText());
+	LLWString text(getWText());
 	segment_set_t::iterator seg_iter = getSegIterContaining(pos);
 	while(seg_iter != mSegments.end())
 	{
@@ -717,7 +716,7 @@ S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 	}
 
 	text.erase(pos, length);
-    getViewModel()->setDisplay(text);
+	getViewModel()->setDisplay(text);
 
 	// recreate default segment in case we erased everything
 	createDefaultSegment();
@@ -734,9 +733,9 @@ S32 LLTextBase::overwriteCharNoUndo(S32 pos, llwchar wc)
 	{
 		return 0;
 	}
-    LLWString text(getWText());
+	LLWString text(getWText());
 	text[pos] = wc;
-    getViewModel()->setDisplay(text);
+	getViewModel()->setDisplay(text);
 
 	onValueChange(pos, pos + 1);
 	needsReflow(pos);
@@ -857,7 +856,7 @@ BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 		// Did we just click on a link?
 		if (mURLClickSignal
 			&& cur_segment->getStyle()
-		    && cur_segment->getStyle()->isLink())
+			&& cur_segment->getStyle()->isLink())
 		{
 			// *TODO: send URL here?
 			(*mURLClickSignal)(this, LLSD() );
@@ -1035,27 +1034,27 @@ void LLTextBase::draw()
 		gl_rect_2d(text_rect, bg_color % alpha, TRUE);
 	}
 
- 	bool should_clip = mClip || mScroller != NULL;
- 	{ LLLocalClipRect clip(text_rect, should_clip);
+	bool should_clip = mClip || mScroller != NULL;
+	{ LLLocalClipRect clip(text_rect, should_clip);
  
- 		// draw document view
- 		if (mScroller)
+		// draw document view
+		if (mScroller)
 		{
- 			drawChild(mScroller);
- 		}
- 		else
- 		{
- 			drawChild(mDocumentView);
- 		}
+			drawChild(mScroller);
+		}
+		else
+		{
+			drawChild(mDocumentView);
+		}
  
 		drawSelectionBackground();
 		drawText();
 		drawCursor();
 	}
  
- 	mDocumentView->setVisible(FALSE);
- 	LLUICtrl::draw();
- 	mDocumentView->setVisible(TRUE);
+	mDocumentView->setVisible(FALSE);
+	LLUICtrl::draw();
+	mDocumentView->setVisible(TRUE);
 }
 
 
@@ -1119,8 +1118,7 @@ void LLTextBase::updateScrollFromCursor()
 
 	// scroll so that the cursor is at the top of the page
 	LLRect scroller_doc_window = getVisibleDocumentRect();
-	LLRect cursor_rect_doc = getLocalRectFromDocIndex(mCursorPos);
-	cursor_rect_doc.translate(scroller_doc_window.mLeft, scroller_doc_window.mBottom);
+	LLRect cursor_rect_doc = getDocRectFromDocIndex(mCursorPos);
 	mScroller->scrollToShowRect(cursor_rect_doc, LLRect(0, scroller_doc_window.getHeight() - 5, scroller_doc_window.getWidth(), 5));
 }
 
@@ -1366,9 +1364,9 @@ S32 LLTextBase::getLineStart( S32 line ) const
 {
 	S32 num_lines = getLineCount();
 	if (num_lines == 0)
-    {
+	{
 		return 0;
-    }
+	}
 
 	line = llclamp(line, 0, num_lines-1);
 	return mLineInfoList[line].mDocIndexStart;
@@ -1378,9 +1376,9 @@ S32 LLTextBase::getLineEnd( S32 line ) const
 {
 	S32 num_lines = getLineCount();
 	if (num_lines == 0)
-    {
+	{
 		return 0;
-    }
+	}
 
 	line = llclamp(line, 0, num_lines-1);
 	return mLineInfoList[line].mDocIndexEnd;
@@ -1656,7 +1654,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		LLUrlMatch match;
 		std::string text = new_text;
 		while ( LLUrlRegistry::instance().findUrl(text, match,
-		        boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3)) )
+				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3)) )
 		{
 			
 			LLTextUtil::processUrlMatch(&match,this);
@@ -1949,7 +1947,7 @@ void LLTextBase::setWText(const LLWString& text)
 
 const LLWString& LLTextBase::getWText() const
 {
-    return getViewModel()->getDisplay();
+	return getViewModel()->getDisplay();
 }
 
 // If round is true, if the position is on the right half of a character, the cursor
@@ -1960,9 +1958,12 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 {
 	// Figure out which line we're nearest to.
 	LLRect visible_region = getVisibleDocumentRect();
+	LLRect doc_rect = mDocumentView->getRect();
+
+	S32 doc_y = local_y - doc_rect.mBottom;
 	
 	// binary search for line that starts before local_y
-	line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), local_y - mVisibleTextRect.mBottom + visible_region.mBottom, compare_bottom());
+	line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), doc_y, compare_bottom());
 
 	if (line_iter == mLineInfoList.end())
 	{
@@ -1970,7 +1971,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 	}
 	
 	S32 pos = getLength();
-	S32 start_x = mVisibleTextRect.mLeft + line_iter->mRect.mLeft - visible_region.mLeft;
+	S32 start_x = line_iter->mRect.mLeft + doc_rect.mLeft;
 
 	segment_set_t::iterator line_seg_iter;
 	S32 line_seg_offset;
@@ -1992,7 +1993,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 		}
 
 		// if we've reached a line of text *below* the mouse cursor, doc index is first character on that line
-		if (hit_past_end_of_line && local_y - mVisibleTextRect.mBottom + visible_region.mBottom > line_iter->mRect.mTop)
+		if (hit_past_end_of_line && doc_y > line_iter->mRect.mTop)
 		{
 			pos = segment_line_start;
 			break;
@@ -2461,7 +2462,7 @@ LLRect LLTextBase::getVisibleDocumentRect() const
 		LLRect doc_rect = mDocumentView->getLocalRect();
 		doc_rect.mLeft -= mDocumentView->getRect().mLeft;
 		// adjust for height of text above widget baseline
-		doc_rect.mBottom = llmin(0, doc_rect.getHeight() - mVisibleTextRect.getHeight());
+		doc_rect.mBottom = doc_rect.getHeight() - mVisibleTextRect.getHeight();
 		return doc_rect;
 	}
 }
@@ -2575,21 +2576,21 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
 	LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % alpha;
 
-  	if( selection_start > seg_start )
+	if( selection_start > seg_start )
 	{
 		// Draw normally
 		S32 start = seg_start;
 		S32 end = llmin( selection_start, seg_end );
 		S32 length =  end - start;
 		font->render(text, start, 
-			     rect, 
-			     color, 
-			     LLFontGL::LEFT, mEditor.mVAlign, 
-			     LLFontGL::NORMAL, 
-			     mStyle->getShadowType(), 
-			     length,
-			     &right_x, 
-			     mEditor.getUseEllipses());
+				 rect, 
+				 color, 
+				 LLFontGL::LEFT, mEditor.mVAlign, 
+				 LLFontGL::NORMAL, 
+				 mStyle->getShadowType(), 
+				 length,
+				 &right_x, 
+				 mEditor.getUseEllipses());
 	}
 	rect.mLeft = (S32)ceil(right_x);
 	
@@ -2601,14 +2602,14 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 length = end - start;
 
 		font->render(text, start, 
-			     rect,
-			     mStyle->getSelectedColor().get(),
-			     LLFontGL::LEFT, mEditor.mVAlign, 
-			     LLFontGL::NORMAL, 
-			     LLFontGL::NO_SHADOW, 
-			     length,
-			     &right_x, 
-			     mEditor.getUseEllipses());
+				 rect,
+				 mStyle->getSelectedColor().get(),
+				 LLFontGL::LEFT, mEditor.mVAlign, 
+				 LLFontGL::NORMAL, 
+				 LLFontGL::NO_SHADOW, 
+				 length,
+				 &right_x, 
+				 mEditor.getUseEllipses());
 	}
 	rect.mLeft = (S32)ceil(right_x);
 	if( selection_end < seg_end )
@@ -2618,14 +2619,14 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 end = seg_end;
 		S32 length = end - start;
 		font->render(text, start, 
-			     rect, 
-			     color, 
-			     LLFontGL::LEFT, mEditor.mVAlign, 
-			     LLFontGL::NORMAL, 
-			     mStyle->getShadowType(), 
-			     length,
-			     &right_x, 
-			     mEditor.getUseEllipses());
+				 rect, 
+				 color, 
+				 LLFontGL::LEFT, mEditor.mVAlign, 
+				 LLFontGL::NORMAL, 
+				 mStyle->getShadowType(), 
+				 length,
+				 &right_x, 
+				 mEditor.getUseEllipses());
 	}
 	return right_x;
 }

@@ -39,13 +39,13 @@
 	<text name="id_text">
 		ID oggetto:
 	</text>
-	<line_editor font="SansSerifSmall" left="90" name="id_editor" width="280"/>
-	<button label="Mostra segnali luminosi" name="show_beacon_btn" width="150"/>
+	<line_editor font="SansSerifSmall" name="id_editor"/>
+	<button label="Mostra segnali luminosi" name="show_beacon_btn"/>
 	<text name="obj_name_text">
 		Nome dell&apos;oggetto:
 	</text>
-	<line_editor font="SansSerifSmall" left="90" name="object_name_editor" width="280"/>
-	<button label="Filtro" name="filter_object_btn" width="150"/>
+	<line_editor font="SansSerifSmall" name="object_name_editor"/>
+	<button label="Filtro" name="filter_object_btn"/>
 	<text name="owner_name_text">
 		Proprietario:
 	</text>

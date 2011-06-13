@@ -25,6 +25,7 @@
 	<check_box label="Permitir revenda do terreno" name="allow_land_resell_check"/>
 	<check_box label="Permitir junção/divisão do terreno" name="allow_parcel_changes_check"/>
 	<check_box label="Bloquear exibição do terreno na busca" name="block_parcel_search_check" tool_tip="Permitir que as pessoas vejam esta região e seus lotes nos resultados de busca"/>
+	<check_box label="Permitir objetos mesh" name="mesh_rez_enabled_check" tool_tip="Permitir que que outras pessoas renderizem objectos mesh nessa região"/>
 	<spinner label="Limite do agente" name="agent_limit_spin"/>
 	<spinner label="Bônus de objetos" name="object_bonus_spin"/>
 	<text label="Maturidade" name="access_text">

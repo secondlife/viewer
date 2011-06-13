@@ -53,6 +53,9 @@ Em busca de alguém para conversar? Confira o botão Destinos abaixo.
 				<button label="MI" name="im_btn" tool_tip="Abrir sessão de mensagem instantânea"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
+				<button label="Ligar" name="call_btn" tool_tip="Ligar para este residente"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
 				<button label="Teletransportar" name="teleport_btn" tool_tip="Oferecer teletransporte"/>
 			</layout_panel>
 		</layout_stack>

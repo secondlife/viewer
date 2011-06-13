@@ -625,8 +625,14 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 		addDeferredAttachments(mDeferredScreen);
 	
-		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		
+#if LL_DARWIN
+		// As of OS X 10.6.7, Apple doesn't support multiple color formats in a single FBO
+		mEdgeMap.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+#else
 		mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+#endif
 
 		if (shadow_detail > 0 || ssao)
 		{ //only need mDeferredLight[0] for shadows OR ssao
@@ -651,7 +657,12 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 			mDeferredLight[2].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
 			for (U32 i = 0; i < 2; i++)
 			{
+#if LL_DARWIN
+				// As of OS X 10.6.7, Apple doesn't support multiple color formats in a single FBO
+				mGIMapPost[i].allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+#else
 				mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+#endif
 			}
 		}
 		else
@@ -666,8 +677,12 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		F32 scale = gSavedSettings.getF32("RenderShadowResolutionScale");
 
+#if LL_DARWIN
+		U32 shadow_fmt = 0;
+#else
 		//HACK: make alpha masking work on ATI depth shadows (work around for ATI driver bug)
 		U32 shadow_fmt = gGLManager.mIsATI ? GL_ALPHA : 0;
+#endif
 
 		if (shadow_detail > 0)
 		{ //allocate 4 sun shadow maps

@@ -4,6 +4,7 @@
 
 	<!-- Locale Information -->
 	<string name="MicrosoftLocale">japanese</string>
+	<string name="MacLocale">ja_JP.UTF-8</string>
 	<string name="DarwinLocale">ja_JP.UTF-8</string>
 	<string name="LinuxLocale">ja_JP.UTF-8</string>
 	

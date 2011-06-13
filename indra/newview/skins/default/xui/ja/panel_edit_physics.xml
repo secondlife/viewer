@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_physics_panel">
+	<panel label="" name="accordion_panel">
+		<accordion name="physics_accordion">
+			<accordion_tab name="physics_breasts_updown_tab" title="胸の弾み"/>
+			<accordion_tab name="physics_breasts_inout_tab" title="胸の谷間"/>
+			<accordion_tab name="physics_breasts_leftright_tab" title="胸の揺れ"/>
+			<accordion_tab name="physics_belly_tab" title="お腹の弾み"/>
+			<accordion_tab name="physics_butt_tab" title="お尻の弾み"/>
+			<accordion_tab name="physics_butt_leftright_tab" title="お尻の揺れ"/>
+			<accordion_tab name="physics_advanced_tab" title="高度なパラメーター"/>
+		</accordion>
+	</panel>
+</panel>
