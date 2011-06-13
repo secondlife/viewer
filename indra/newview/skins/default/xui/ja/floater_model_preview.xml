@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Preview" title="モデルをアップロード">
+	<string name="status_idle">
+		待機状態
+	</string>
+	<string name="status_reading_file">
+		ローディング...
+	</string>
+	<string name="status_generating_meshes">
+		メッシュを作成中
+	</string>
+	<string name="status_vertex_number_overflow">
+		エラー：頂点の数が65534を超過したので中止されました。
+	</string>
+	<string name="high">
+		高
+	</string>
+	<string name="medium">
+		中
+	</string>
+	<string name="low">
+		低
+	</string>
+	<string name="lowest">
+		最低
+	</string>
+	<string name="mesh_status_good">
+		発送
+	</string>
+	<string name="mesh_status_na">
+		該当なし
+	</string>
+	<string name="mesh_status_none">
+		なし
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		テクスチャ編集可能な面の数は描画詳細度に応じて異なります。
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		メッシュインスタンスの数は描画詳細度に応じて異なります。
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		描画詳細度に対して頂点の数が多すぎます。
+	</string>
+	<string name="mesh_status_missing_lod">
+		必要な描画詳細度が見つかりません。
+	</string>
+	<string name="layer_all">
+		全て
+	</string>
+	<string name="decomposing">
+		分析中
+	</string>
+	<string name="simplifying">
+		単純化
+	</string>
+	<text name="name_label">
+		名前：
+	</text>
+	<text name="lod_label">
+		プレビュー：
+	</text>
+	<combo_box name="preview_lod_combo" tool_tip="プレビュー表示のLOD設定">
+		<combo_item name="high">
+			描画詳細度：高
+		</combo_item>
+		<combo_item name="medium">
+			描画詳細度：中
+		</combo_item>
+		<combo_item name="low">
+			描画詳細度：低
+		</combo_item>
+		<combo_item name="lowest">
+			描画詳細度：最低
+		</combo_item>
+	</combo_box>
+	<panel>
+		<text name="streaming cost">
+			リソース料金： [COST]
+		</text>
+		<text name="physics cost">
+			物理効果料金： [COST]
+		</text>
+		<text name="upload fee">
+			アップロード手数料：該当なし
+		</text>
+	</panel>
+	<text name="status">
+		[STATUS]
+	</text>
+	<button label="デフォルト" name="reset_btn" tool_tip="デフォルトにリセット"/>
+	<button label="アップロード" name="ok_btn" tool_tip="シミュレーターにアップロード"/>
+	<button label="取り消し" name="cancel_btn"/>
+	<tab_container name="import_tab">
+		<panel label="描画詳細度" name="lod_panel">
+			<text name="lod_table_header">
+				描画詳細度を選択：
+			</text>
+			<text name="high_label" value="高"/>
+			<text name="high_triangles" value="0"/>
+			<text name="high_vertices" value="0"/>
+			<text name="medium_label" value="中"/>
+			<text name="medium_triangles" value="0"/>
+			<text name="medium_vertices" value="0"/>
+			<text name="low_label" value="低"/>
+			<text name="low_triangles" value="0"/>
+			<text name="low_vertices" value="0"/>
+			<text name="lowest_label" value="最低"/>
+			<text name="lowest_triangles" value="0"/>
+			<text name="lowest_vertices" value="0"/>
+			<text name="lod_table_footer">
+				描画詳細度： [DETAIL]
+			</text>
+			<radio_group name="lod_file_or_limit" value="lod_from_file">
+				<radio_item label="ファイルからロード" name="lod_from_file"/>
+				<radio_item label="自動作成" name="lod_auto_generate"/>
+				<radio_item label="なし" name="lod_none"/>
+			</radio_group>
+			<button label="参照" name="lod_browse"/>
+			<combo_box name="lod_mode">
+				<combo_item name="triangle_limit">
+					三角形の限度数
+				</combo_item>
+				<combo_item name="error_threshold">
+					エラーしきい値
+				</combo_item>
+			</combo_box>
+			<text name="build_operator_text">
+				制作演算子：
+			</text>
+			<text name="queue_mode_text">
+				キューモード：
+			</text>
+			<combo_box name="build_operator">
+				<combo_item name="edge_collapse">
+					稜の完全複合
+				</combo_item>
+				<combo_item name="half_edge_collapse">
+					稜の半複合
+				</combo_item>
+			</combo_box>
+			<combo_box name="queue_mode">
+				<combo_item name="greedy">
+					グリーディ
+				</combo_item>
+				<combo_item name="lazy">
+					レイジー
+				</combo_item>
+				<combo_item name="independent">
+					インディペンデント
+				</combo_item>
+			</combo_box>
+			<text name="border_mode_text">
+				境界線モード：
+			</text>
+			<text name="share_tolderance_text">
+				共有誤差：
+			</text>
+			<combo_box name="border_mode">
+				<combo_item name="border_unlock">
+					ロック解除
+				</combo_item>
+				<combo_item name="border_lock">
+					ロック
+				</combo_item>
+			</combo_box>
+			<text name="crease_label">
+				折れ角度：
+			</text>
+			<spinner name="crease_angle" value="75"/>
+		</panel>
+		<panel label="物理効果" name="physics_panel">
+			<panel name="physics geometry">
+				<radio_group name="physics_load_radio" value="physics_load_from_file">
+					<radio_item label="ファイル：" name="physics_load_from_file"/>
+					<radio_item label="次の描画詳細度を使用：" name="physics_use_lod"/>
+				</radio_group>
+				<combo_box name="physics_lod_combo" tool_tip="実像に適用するLOD">
+					<combo_item name="physics_lowest">
+						最低
+					</combo_item>
+					<combo_item name="physics_low">
+						低
+					</combo_item>
+					<combo_item name="physics_medium">
+						中
+					</combo_item>
+					<combo_item name="physics_high">
+						高
+					</combo_item>
+				</combo_box>
+				<button label="参照" name="physics_browse"/>
+			</panel>
+			<panel name="physics analysis">
+				<slider label="滑らかさ：" name="Smooth"/>
+				<check_box label="穴を閉じる（スロー）" name="Close Holes (Slow)"/>
+				<button label="分析" name="Decompose"/>
+				<button label="取り消し" name="decompose_cancel"/>
+			</panel>
+			<panel name="physics simplification">
+				<slider label="パス：" name="Combine Quality"/>
+				<slider label="詳細度：" name="Detail Scale"/>
+				<slider label="維持率：" name="Retain%"/>
+				<button label="単純化" name="Simplify"/>
+				<button label="取り消し" name="simplify_cancel"/>
+			</panel>
+			<panel name="physics info">
+				<slider label="プレビュースプレッド：" name="physics_explode"/>
+				<text name="physics_triangles">
+					三角形： [TRIANGLES]
+				</text>
+				<text name="physics_points">
+					頂点： [POINTS]
+				</text>
+				<text name="physics_hulls">
+					外殻構造： [HULLS]
+				</text>
+			</panel>
+		</panel>
+		<panel label="修飾子" name="modifiers_panel">
+			<spinner name="import_scale" value="1.0"/>
+			<text name="import_dimensions">
+				[X] x [Y] x [Z] m
+			</text>
+			<check_box label="テクスチャ" name="upload_textures"/>
+			<check_box label="スキンの重さ" name="upload_skin"/>
+			<check_box label="ジョイントポジション" name="upload_joints"/>
+			<spinner name="pelvis_offset" value="0.0"/>
+		</panel>
+	</tab_container>
+</floater>

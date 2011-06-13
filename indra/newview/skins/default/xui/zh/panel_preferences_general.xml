@@ -46,7 +46,7 @@
 	<check_box label="My name" name="show_my_name_checkbox1"/>
 	<check_box label="Usernames" name="show_slids" tool_tip="Show username, like bobsmith123"/>
 	<check_box label="Group titles" name="show_all_title_checkbox1" tool_tip="Show group titles, like Officer or Member"/>
-	<check_box label="Highlight friends" name="show_friends" tool_tip="Highlight the name tags of your friends"/>
+	<check_box label="高亮顯示朋友" name="show_friends" tool_tip="高亮顯示你朋友的名稱標籤"/>
 	<check_box label="View Display Names" name="display_names_check" tool_tip="Check to use display names in chat, IM, name tags, etc."/>
 	<text name="inworld_typing_rg_label">
 		Pressing letter keys:

@@ -25,7 +25,7 @@
 		Enable VBO:
 	</text>
 	<check_box initial_value="true" label="Enable OpenGL Vertex Buffer Objects" name="vbo" tool_tip="Enabling this on modern hardware gives a performance gain.  However, older hardware often has poor implementations of VBOs and you may get crashes when this is enabled."/>
-	<slider label="Texture Memory (MB):" name="GraphicsCardTextureMemory" tool_tip="Amount of memory to allocate for textures. Defaults to video card memory. Reducing this may improve performance but may also make textures blurry."/>
+	<slider label="材質記憶體（MB）：" name="GraphicsCardTextureMemory" tool_tip="Amount of memory to allocate for textures. Defaults to video card memory. Reducing this may improve performance but may also make textures blurry."/>
 	<spinner label="Fog Distance Ratio:" name="fog"/>
 	<button label="確定" label_selected="確定" name="OK"/>
 </floater>

@@ -23,9 +23,9 @@
 	</string>
 	<text name="avatar_name" value="(loading)"/>
 	<text name="last_interaction" value="0s"/>
-	<icon name="permission_edit_theirs_icon" tool_tip="You can edit this friend&apos;s objects"/>
-	<icon name="permission_edit_mine_icon" tool_tip="This friend can edit, delete or take your objects"/>
-	<icon name="permission_map_icon" tool_tip="This friend can locate you on the map"/>
-	<icon name="permission_online_icon" tool_tip="This friend can see when you&apos;re online"/>
-	<button name="profile_btn" tool_tip="View profile"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="你不能編輯這位朋友的物件"/>
+	<icon name="permission_edit_mine_icon" tool_tip="這位朋友能編輯、刪除或取得你的物件"/>
+	<icon name="permission_map_icon" tool_tip="這位朋友能在地圖上找到你的位置"/>
+	<icon name="permission_online_icon" tool_tip="這位朋友當你上線能看到訊息"/>
+	<button name="profile_btn" tool_tip="察看檔案"/>
 </panel>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="溝通" name="im">
 	<panel.string name="log_in_to_change">
-		log in to change
+		登入以改變
 	</panel.string>
 	<button label="清除歷史紀錄" name="clear_cache" tool_tip="清除登入圖像、最後位置、瞬間傳送紀錄、網頁及材質快取"/>
 	<text name="cache_size_label_l">
@@ -9,14 +9,14 @@
 	</text>
 	<check_box label="將我顯示在搜尋的結果中" name="online_searchresults"/>
 	<check_box label="只有我的朋友和社團知道我在線上" name="online_visibility"/>
-	<check_box label="Only friends and groups can call or IM me" name="voice_call_friends_only_check"/>
-	<check_box label="Switch off microphone when ending calls" name="auto_disengage_mic_check"/>
-	<check_box label="Show my Favorite Landmarks at Login (via &apos;Start At&apos; drop-down menu)" name="favorites_on_login_check"/>
+	<check_box label="只有我的朋友和社團可以 IM 或與我通話。" name="voice_call_friends_only_check"/>
+	<check_box label="當通話結束時關閉麥克風" name="auto_disengage_mic_check"/>
+	<check_box label="登入時顯示我最愛的地標位置（經由 &apos;開始於&apos; 的下拉式選單）" name="favorites_on_login_check"/>
 	<text name="Logs:">
 		聊天紀錄：
 	</text>
 	<check_box label="儲存附近的聊天紀錄到我的電腦" name="log_nearby_chat"/>
-	<check_box label="Save IM logs on my computer" name="log_instant_messages"/>
+	<check_box label="儲存 IM 紀錄到我的電腦中" name="log_instant_messages"/>
 	<check_box label="添加時間戳記到聊天紀錄的每一行" name="show_timestamps_check_im"/>
 	<check_box label="添加時間戳記到紀錄檔檔名。" name="logfile_name_datestamp"/>
 	<text name="log_path_desc">

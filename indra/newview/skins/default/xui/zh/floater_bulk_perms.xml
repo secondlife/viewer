@@ -13,21 +13,21 @@
 		Finished permission change requests.
 	</floater.string>
 	<icon name="icon_animation" tool_tip="Animation"/>
-	<icon name="icon_bodypart" tool_tip="Body Parts"/>
-	<icon name="icon_clothing" tool_tip="Clothing"/>
-	<icon name="icon_gesture" tool_tip="Gestures"/>
+	<icon name="icon_bodypart" tool_tip="身體部位"/>
+	<icon name="icon_clothing" tool_tip="服裝"/>
+	<icon name="icon_gesture" tool_tip="姿勢"/>
 	<icon name="icon_notecard" tool_tip="Notecards"/>
 	<icon name="icon_object" tool_tip="Objects"/>
 	<icon name="icon_script" tool_tip="Scripts"/>
 	<icon name="icon_sound" tool_tip="Sounds"/>
-	<icon name="icon_texture" tool_tip="Textures"/>
-	<button label="√ All" name="check_all"/>
+	<icon name="icon_texture" tool_tip="材質"/>
+	<button label="√ 全部" name="check_all"/>
 	<button label="清除" label_selected="無" name="check_none"/>
 	<text name="newperms">
 		New Content Permissions
 	</text>
 	<text name="GroupLabel">
-		Group:
+		社團：
 	</text>
 	<check_box label="分享" name="share_with_group"/>
 	<text name="AnyoneLabel">

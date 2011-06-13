@@ -6,7 +6,7 @@
 	<menu_item_call label="Open" name="Open"/>
 	<menu_item_call label="Sit Here" name="Object Sit"/>
 	<menu_item_call label="起立" name="Object Stand Up"/>
-	<menu_item_call label="Object Profile" name="Object Inspect"/>
+	<menu_item_call label="物件檔案" name="Object Inspect"/>
 	<menu_item_call label="Zoom In" name="Zoom In"/>
 	<context_menu label="Put On" name="Put On">
 		<menu_item_call label="Wear" name="Wear"/>
@@ -15,7 +15,7 @@
 		<context_menu label="Attach HUD" name="Object Attach HUD"/>
 	</context_menu>
 	<context_menu label="Manage" name="Remove">
-		<menu_item_call label="Report Abuse" name="Report Abuse..."/>
+		<menu_item_call label="舉報濫用" name="Report Abuse..."/>
 		<menu_item_call label="Block" name="Object Mute"/>
 		<menu_item_call label="Return" name="Return..."/>
 	</context_menu>

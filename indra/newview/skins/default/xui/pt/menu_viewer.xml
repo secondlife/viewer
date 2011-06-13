@@ -120,6 +120,8 @@
 			<menu_item_call label="Imagem (L$[COST])..." name="Upload Image"/>
 			<menu_item_call label="Som (L$[COST])..." name="Upload Sound"/>
 			<menu_item_call label="Animação (L$[COST])..." name="Upload Animation"/>
+			<menu_item_call label="Modelar..." name="Upload Model"/>
+			<menu_item_call label="Assistente de modelagem..." name="Upload Model Wizard"/>
 			<menu_item_call label="Volume (L$[COST] por arquivo)..." name="Bulk Upload"/>
 		</menu>
 		<menu_item_call label="Desfazer" name="Undo"/>
@@ -159,7 +161,7 @@
 			<menu_item_check label="Alpha" name="Alpha"/>
 			<menu_item_check label="Árvore" name="Tree"/>
 			<menu_item_check label="Avatares" name="Character"/>
-			<menu_item_check label="SurfacePath" name="SurfacePath"/>
+			<menu_item_check label="Patch de superfície" name="Surface Patch"/>
 			<menu_item_check label="Céu" name="Sky"/>
 			<menu_item_check label="Água" name="Water"/>
 			<menu_item_check label="Chão" name="Ground"/>
@@ -217,6 +219,7 @@
 			<menu_item_check label="Painel de texturas" name="Texture Category"/>
 			<menu_item_check label="Tempos" name="Fast Timers"/>
 			<menu_item_check label="Memória" name="Memory"/>
+			<menu_item_check label="Estatísticas da cena" name="Scene Statistics"/>
 			<menu_item_call label="Region Info to Debug Console" name="Region Info to Debug Console"/>
 			<menu_item_check label="Câmera:" name="Camera"/>
 			<menu_item_check label="Vento" name="Wind"/>
@@ -224,6 +227,7 @@
 		</menu>
 		<menu label="Show Info" name="Display Info">
 			<menu_item_check label="Mostrar hora" name="Show Time"/>
+			<menu_item_check label="Mostar custo do upload" name="Show Upload Cost"/>
 			<menu_item_check label="Dados de renderização" name="Show Render Info"/>
 			<menu_item_check label="Mostrar info da textura" name="Show Texture Info"/>
 			<menu_item_check label="Mostrar cor sob o cursor" name="Show Color Under Cursor"/>
@@ -246,7 +250,12 @@
 			<menu_item_check label="Frame Test" name="Frame Test"/>
 		</menu>
 		<menu label="Render Metadata" name="Render Metadata">
+			<menu_item_check label="Normais" name="Normals"/>
+			<menu_item_check label="Formas físicas" name="Physics Shapes"/>
 			<menu_item_check label="Tipo de atualização" name="Update Type"/>
+			<menu_item_check label="Dados LOD" name="LOD Info"/>
+			<menu_item_check label="Fila de construção" name="Build Queue"/>
+			<menu_item_check label="Esculpir" name="Sculpt"/>
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
@@ -312,6 +321,7 @@
 			<menu_item_call label="Depurar texturas do avatar" name="Debug Avatar Textures"/>
 		</menu>
 		<menu_item_check label="Texturas HTTP" name="HTTP Textures"/>
+		<menu_item_check label="Inventário HTTP" name="HTTP Inventory"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
 		<menu_item_call label="Request Admin Status" name="Request Admin Options"/>
 		<menu_item_call label="Sair do modo admin" name="Leave Admin Options"/>

@@ -5,10 +5,10 @@
 			<scroll_container name="profile_scroll">
 				<panel name="profile_scroll_panel">
 					<text name="status_message" value="My private notes:"/>
-					<text name="status_message2" value="Allow this person to:"/>
-					<check_box label="See my online status" name="status_check"/>
-					<check_box label="See me on the map" name="map_check"/>
-					<check_box label="Edit, delete or take my objects" name="objects_check"/>
+					<text name="status_message2" value="允許這個人可以："/>
+					<check_box label="看到我上線狀態" name="status_check"/>
+					<check_box label="在地圖上看見我" name="map_check"/>
+					<check_box label="邊輯，刪除或取下我的物件" name="objects_check"/>
 				</panel>
 			</scroll_container>
 		</layout_panel>
@@ -21,13 +21,13 @@
 					<button label="IM" name="im" tool_tip="Open instant message session"/>
 				</layout_panel>
 				<layout_panel name="call_btn_lp">
-					<button label="Call" name="call" tool_tip="Call this Resident"/>
+					<button label="通話" name="call" tool_tip="與這位居民通話"/>
 				</layout_panel>
 				<layout_panel name="show_on_map_btn_lp">
 					<button label="地圖" name="show_on_map_btn" tool_tip="Show the Resident on the map"/>
 				</layout_panel>
 				<layout_panel name="teleport_btn_lp">
-					<button label="Teleport" name="teleport" tool_tip="Offer teleport"/>
+					<button label="瞬間傳送" name="teleport" tool_tip="Offer teleport"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

@@ -24,11 +24,11 @@
 	</text>
 	<check_box label="Payment Information on File" name="limit_payment" tool_tip="Ban unidentified Residents"/>
 	<check_box label="年齡驗證" name="limit_age_verified" tool_tip="Ban Residents who have not verified their age. See the [SUPPORT_SITE] for more information."/>
-	<check_box label="Allow Voice Chat" name="voice_chat_check"/>
-	<check_box label="Allow Direct Teleport" name="allow_direct_teleport"/>
+	<check_box label="允許語音聊天" name="voice_chat_check"/>
+	<check_box label="允許直接瞬間傳送" name="allow_direct_teleport"/>
 	<button label="套用" name="apply_btn"/>
-	<button label="Send Message To Estate..." name="message_estate_btn"/>
-	<button label="Kick Resident from Estate..." name="kick_user_from_estate_btn"/>
+	<button label="瞬間傳送訊息到領地..." name="message_estate_btn"/>
+	<button label="由領地將居民踢除..." name="kick_user_from_estate_btn"/>
 	<text name="estate_manager_label">
 		領地管理員：
 	</text>

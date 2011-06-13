@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="block_list_panel">
 	<text name="title_text">
-		Block List
+		封鎖清單
 	</text>
 	<scroll_list name="blocked" tool_tip="List of currently blocked Residents"/>
 	<button label="Block person" name="Block resident..." tool_tip="Pick a Resident to block"/>

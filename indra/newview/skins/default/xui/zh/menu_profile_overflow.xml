@@ -5,7 +5,7 @@
 	<menu_item_call label="分享" name="share"/>
 	<menu_item_call label="Block" name="block"/>
 	<menu_item_call label="Unblock" name="unblock"/>
-	<menu_item_call label="Kick" name="kick"/>
+	<menu_item_call label="踢除" name="kick"/>
 	<menu_item_call label="Freeze" name="freeze"/>
 	<menu_item_call label="Unfreeze" name="unfreeze"/>
 	<menu_item_call label="CSR" name="csr"/>

@@ -37,10 +37,10 @@ Hover your mouse over the options for more help.
 	</text>
 	<combo_box name="active_title" tool_tip="Sets the title that appears in your avatar&apos;s name tag when this group is active."/>
 	<check_box label="Receive group notices" name="receive_notices" tool_tip="Sets whether you want to receive Notices from this group.  Uncheck this box if this group is spamming you."/>
-	<check_box label="Show in my profile" name="list_groups_in_profile" tool_tip="Sets whether you want to show this group in your profile"/>
+	<check_box label="顯示在我的檔案中" name="list_groups_in_profile" tool_tip="Sets whether you want to show this group in your profile"/>
 	<panel name="preferences_container">
 		<text name="group_settngs_label">
-			Group
+			社團
 		</text>
 		<check_box label="Anyone can join" name="open_enrollement" tool_tip="Sets whether this group allows new members to join without being invited."/>
 		<check_box label="Cost to join" name="check_enrollment_fee" tool_tip="Sets whether to require an enrollment fee to join the group"/>

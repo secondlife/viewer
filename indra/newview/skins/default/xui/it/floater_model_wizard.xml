@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Wizard" title="PROCEDURA GUIDATA CARICA MODELLO">
+	<button label="5. Carica sul server" name="upload_btn"/>
+	<button label="4. Rivedi" name="review_btn"/>
+	<button label="3. Fisica" name="physics2_btn"/>
+	<button label="3. Fisica" name="physics_btn"/>
+	<button label="2. Ottimizza" name="optimize_btn"/>
+	<button label="1. Seleziona file" name="choose_file_btn"/>
+	<panel name="choose_file_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Carica modello
+			</text>
+		</panel>
+		<text name="description">
+			Questa procedura guidata permette di importare modelli di reticoli in Second Life.  Specificare prima un  file che contiene il modello da importare.  Second Life supporta file COLLADA (.dae).
+		</text>
+		<panel name="content">
+			<text name="Cache location">
+				Nome file:
+			</text>
+			<button label="Sfoglia..." label_selected="Sfoglia..." name="browse"/>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="optimize_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Ottimizza
+			</text>
+		</panel>
+		<text name="description">
+			Questa procedura guidata ha ottimizzato il modello per migliorare le prestazioni. Si possono variare i risultati dell&apos;ottimizzazione in basso o fare clic su Avanti per continuare.
+		</text>
+		<panel name="content">
+			<text name="high_detail_text">
+				Genera livello di dettaglio: Alto
+			</text>
+			<text name="medium_detail_text">
+				Genera livello di dettaglio: Medio
+			</text>
+			<text name="low_detail_text">
+				Genera livello di dettaglio: Basso
+			</text>
+			<text name="lowest_detail_text">
+				Genera livello di dettaglio: Bassissimo
+			</text>
+		</panel>
+		<panel name="content2">
+			<text name="lod_label">
+				Anteprima modello:
+			</text>
+			<combo_box name="preview_lod_combo2" tool_tip="Livello di dettaglio per anteprima rendering">
+				<combo_item name="high">
+					Alto
+				</combo_item>
+				<combo_item name="medium">
+					Medio
+				</combo_item>
+				<combo_item name="low">
+					Basso
+				</combo_item>
+				<combo_item name="lowest">
+					Bassissimo
+				</combo_item>
+			</combo_box>
+			<text name="streaming cost">
+				Costo risorsa:    [COST]
+			</text>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Fisica
+			</text>
+		</panel>
+		<text name="description">
+			La procedura guidata permette di creare una forma fisica che determina come l&apos;oggetto interagisce con altri oggetti e avatar. Impostare il comando a scorrimento sul livello di dettaglio appropriato per l&apos;uso dell&apos;oggetto:
+		</text>
+		<panel name="content">
+			<text name="streaming cost">
+				Costo risorsa:       [COST]
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics2_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Fisica
+			</text>
+		</panel>
+		<text name="description">
+			Visualizza in anteprima la forma fisica in basso, quindi fai clic su Avanti per continuare.  Per modificare la forma fisica, fare clic su Indietro.
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				Anteprima modello:
+			</text>
+			<combo_box name="preview_lod_combo3" tool_tip="Livello di dettaglio per anteprima rendering">
+				<combo_item name="high">
+					Alto
+				</combo_item>
+				<combo_item name="medium">
+					Medio
+				</combo_item>
+				<combo_item name="low">
+					Basso
+				</combo_item>
+				<combo_item name="lowest">
+					Bassissimo
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+			<text name="streaming cost">
+				Costo risorsa:       [COST]
+			</text>
+		</panel>
+	</panel>
+	<panel name="review_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Rivedi
+			</text>
+		</panel>
+		<text name="description">
+			Rivedere i dettagli in basso, quindi fare clic su Carica per caricare il modello. Il tuo saldo in L$ verrà addebitato quando fai clic su Carica.
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				Anteprima modello:
+			</text>
+			<combo_box name="preview_lod_combo" tool_tip="Livello di dettaglio per anteprima rendering">
+				<combo_item name="high">
+					Alto
+				</combo_item>
+				<combo_item name="medium">
+					Medio
+				</combo_item>
+				<combo_item name="low">
+					Basso
+				</combo_item>
+				<combo_item name="lowest">
+					Bassissimo
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+		<text name="streaming cost">
+			Costo risorsa:         [COST]
+		</text>
+		<text name="physics cost">
+			Costo fisica:        [COST]
+		</text>
+	</panel>
+	<panel name="upload_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Caricamento completato.
+			</text>
+		</panel>
+		<text name="description">
+			Congratulazioni. Il modello è stato caricato correttamente  e ora puoi trovarlo nella cartella Oggetti nel tuo inventario.
+		</text>
+	</panel>
+	<button label="&lt;&lt; Indietro" name="back"/>
+	<button label="Avanti &gt;&gt;" name="next"/>
+	<button label="Carica" name="upload" tool_tip="Carica al simulatore"/>
+	<button label="Annulla" name="cancel"/>
+	<button label="Chiudi" name="close"/>
+	<spinner name="import_scale" value="1.0"/>
+	<string name="status_idle">
+		Pausa
+	</string>
+	<string name="status_reading_file">
+		Caricamento in corso...
+	</string>
+	<string name="status_generating_meshes">
+		Generazione reticoli...
+	</string>
+	<string name="status_vertex_number_overflow">
+		Errore: numero di vertici maggiore di 65534, annullato.
+	</string>
+	<string name="high">
+		Alto
+	</string>
+	<string name="medium">
+		Medio
+	</string>
+	<string name="low">
+		Basso
+	</string>
+	<string name="lowest">
+		Bassissimo
+	</string>
+	<string name="mesh_status_good">
+		Invia!
+	</string>
+	<string name="mesh_status_na">
+		N/D
+	</string>
+	<string name="mesh_status_none">
+		Nessuno
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		Ai vari livelli del dettaglio corrispondono numeri diversi di faccette con texture.
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		Ai vari livelli del dettaglio corrispondono numeri diversi istanze di reticoli.
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		Troppi vertici per il livello di dettaglio.
+	</string>
+	<string name="mesh_status_missing_lod">
+		Livello di dettaglio minimo mancante.
+	</string>
+	<string name="layer_all">
+		Tutto
+	</string>
+</floater>

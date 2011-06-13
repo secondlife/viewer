@@ -3,10 +3,10 @@
 	<panel name="navigation_panel">
 		<pull_button name="back_btn" tool_tip="Go back to previous location"/>
 		<pull_button name="forward_btn" tool_tip="Go forward one location"/>
-		<button name="home_btn" tool_tip="Teleport to my home location"/>
-		<location_input label="Location" name="location_combo"/>
-		<search_combo_box label="Search" name="search_combo_box" tool_tip="Search">
-			<combo_editor label="Search [SECOND_LIFE]" name="search_combo_editor"/>
+		<button name="home_btn" tool_tip="瞬間傳送到我家的位置"/>
+		<location_input label="位置" name="location_combo"/>
+		<search_combo_box label="搜尋" name="search_combo_box" tool_tip="搜尋">
+			<combo_editor label="搜尋 [SECOND_LIFE]" name="search_combo_editor"/>
 		</search_combo_box>
 	</panel>
 	<favorites_bar name="favorite" tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!">

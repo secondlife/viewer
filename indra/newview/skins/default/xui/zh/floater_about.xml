@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_about" title="ABOUT [CAPITALIZED_APP_NAME]">
+<floater name="floater_about" title="關於 [CAPITALIZED_APP_NAME]">
 	<floater.string name="AboutHeader">
 		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]

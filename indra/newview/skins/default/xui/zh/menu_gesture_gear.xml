@@ -4,6 +4,6 @@
 	<menu_item_call label="覆製" name="copy_gesture"/>
 	<menu_item_call label="貼上" name="paste"/>
 	<menu_item_call label="Copy UUID" name="copy_uuid"/>
-	<menu_item_call label="Save to current outfit" name="save_to_outfit"/>
+	<menu_item_call label="儲存到目前裝扮" name="save_to_outfit"/>
 	<menu_item_call label="編輯" name="edit_gesture"/>
 </toggleable_menu>

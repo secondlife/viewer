@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_sound_devices" title="Périphériques audio">
+	<text name="voice_label">
+		Chat vocal
+	</text>
+	<check_box label="Activé" name="enable_voice"/>
+</floater>

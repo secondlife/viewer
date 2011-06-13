@@ -17,11 +17,11 @@
 	</panel.string>
 	<panel name="balance_bg">
 		<text name="balance" tool_tip="Click to refresh your L$ balance" value="L$20"/>
-		<button label="購買 L$" name="buyL" tool_tip="Click to buy more L$"/>
+		<button label="購買 L$" name="buyL" tool_tip="點擊以購買更多 L$"/>
 	</panel>
-	<text name="TimeText" tool_tip="Current time (Pacific)">
+	<text name="TimeText" tool_tip="目前時區（太平洋）">
 		24:00 AM PST
 	</text>
-	<button name="media_toggle_btn" tool_tip="Start/Stop All Media (Music, Video, Web pages)"/>
+	<button name="media_toggle_btn" tool_tip="開始 / 停止全部媒體（音樂、影片、網頁）"/>
 	<button name="volume_btn" tool_tip="Global Volume Control"/>
 </panel>

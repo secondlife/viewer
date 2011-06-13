@@ -5,6 +5,7 @@
 	<check_box label="Abiti" name="check_clothing"/>
 	<check_box label="Gesture" name="check_gesture"/>
 	<check_box label="Landmark" name="check_landmark"/>
+	<check_box label="Reticoli" name="check_mesh"/>
 	<check_box label="Notecard" name="check_notecard"/>
 	<check_box label="Oggetti" name="check_object"/>
 	<check_box label="Script" name="check_script"/>

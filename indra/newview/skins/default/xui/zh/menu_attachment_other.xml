@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- *NOTE: See also menu_avatar_other.xml -->
 <context_menu name="Avatar Pie">
-	<menu_item_call label="View Profile" name="Profile..."/>
+	<menu_item_call label="察看檔案" name="Profile..."/>
 	<menu_item_call label="加為朋友" name="Add Friend"/>
 	<menu_item_call label="IM" name="Send IM..."/>
-	<menu_item_call label="Call" name="Call"/>
-	<menu_item_call label="Invite to Group" name="Invite..."/>
-	<menu_item_call label="Block" name="Avatar Mute"/>
-	<menu_item_call label="Report" name="abuse"/>
+	<menu_item_call label="通話" name="Call"/>
+	<menu_item_call label="邀請加入社團" name="Invite..."/>
+	<menu_item_call label="封鎖" name="Avatar Mute"/>
+	<menu_item_call label="回報" name="abuse"/>
 	<menu_item_call label="Freeze" name="Freeze..."/>
 	<menu_item_call label="Eject" name="Eject..."/>
-	<menu_item_call label="Debug Textures" name="Debug..."/>
+	<menu_item_call label="材質除錯" name="Debug..."/>
 	<menu_item_call label="Zoom In" name="Zoom In"/>
 	<menu_item_call label="Pay" name="Pay..."/>
-	<menu_item_call label="Object Profile" name="Object Inspect"/>
+	<menu_item_call label="物件檔案" name="Object Inspect"/>
 </context_menu>

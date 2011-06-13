@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Wizard" title="CARGAR ASISTENTE DE MODELO">
+	<button label="5. Subir" name="upload_btn"/>
+	<button label="4. Revisar" name="review_btn"/>
+	<button label="3. Física" name="physics2_btn"/>
+	<button label="3. Física" name="physics_btn"/>
+	<button label="2. Optimizar" name="optimize_btn"/>
+	<button label="1. Seleccionar archivo" name="choose_file_btn"/>
+	<panel name="choose_file_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Cargar modelo
+			</text>
+		</panel>
+		<text name="description">
+			Este asistente te ayudará a importar modelos de redes en Second Life.  En primer lugar, especifica un archivo que contenga el modelo que desees importar.  Second Life es compatible con los archivos de COLLADA (.dae).
+		</text>
+		<panel name="content">
+			<text name="Cache location">
+				Nombre del archivo:
+			</text>
+			<button label="Examinar..." label_selected="Examinar..." name="browse"/>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="optimize_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Optimizar
+			</text>
+		</panel>
+		<text name="description">
+			Este asistente ha optimizado tu modelo con el fin de mejorar el rendimiento. Puedes ajustar los resultados del proceso de optimización a continuación o hacer clic en Siguiente para continuar.
+		</text>
+		<panel name="content">
+			<text name="high_detail_text">
+				Generar nivel de detalle: Alto
+			</text>
+			<text name="medium_detail_text">
+				Generar nivel de detalle: Media
+			</text>
+			<text name="low_detail_text">
+				Generar nivel de detalle: Bajo
+			</text>
+			<text name="lowest_detail_text">
+				Generar nivel de detalle: Mínimo
+			</text>
+		</panel>
+		<panel name="content2">
+			<text name="lod_label">
+				Vista previa de modelo:
+			</text>
+			<combo_box name="preview_lod_combo2" tool_tip="Nivel de detalle disponible en la vista previa">
+				<combo_item name="high">
+					Alto
+				</combo_item>
+				<combo_item name="medium">
+					Media
+				</combo_item>
+				<combo_item name="low">
+					Bajo
+				</combo_item>
+				<combo_item name="lowest">
+					Mínimo
+				</combo_item>
+			</combo_box>
+			<text name="streaming cost">
+				Coste de recursos:    [COSTE]
+			</text>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Física
+			</text>
+		</panel>
+		<text name="description">
+			El asistente creará una forma física, que determinará la manera en la que el objeto interactúa con otros objetos y avatares. Selecciona con el controlador deslizante el nivel de detalle más adecuado en función del uso del objeto:
+		</text>
+		<panel name="content">
+			<text name="streaming cost">
+				Coste de recursos:       [COSTE]
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics2_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Física
+			</text>
+		</panel>
+		<text name="description">
+			Obtén una vista previa de la forma física a continuación y haz clic en Siguiente para continuar.  Para modificar la forma física, haz clic en el botón Atrás.
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				Vista previa de modelo:
+			</text>
+			<combo_box name="preview_lod_combo3" tool_tip="Nivel de detalle disponible en la vista previa">
+				<combo_item name="high">
+					Alto
+				</combo_item>
+				<combo_item name="medium">
+					Media
+				</combo_item>
+				<combo_item name="low">
+					Bajo
+				</combo_item>
+				<combo_item name="lowest">
+					Mínimo
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+			<text name="streaming cost">
+				Coste de recursos:       [COSTE]
+			</text>
+		</panel>
+	</panel>
+	<panel name="review_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Revisar
+			</text>
+		</panel>
+		<text name="description">
+			Revisa los detalles que aparecen más abajo y, a continuación, haz clic. Selecciona la opción de carga para cargar el modelo. Se realizará el cargo en tu saldo de L$ cuando hagas clic en Cargar.
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				Vista previa de modelo:
+			</text>
+			<combo_box name="preview_lod_combo" tool_tip="Nivel de detalle disponible en la vista previa">
+				<combo_item name="high">
+					Alto
+				</combo_item>
+				<combo_item name="medium">
+					Media
+				</combo_item>
+				<combo_item name="low">
+					Bajo
+				</combo_item>
+				<combo_item name="lowest">
+					Mínimo
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+		<text name="streaming cost">
+			Coste de recursos:         [COSTE]
+		</text>
+		<text name="physics cost">
+			Coste físico:        [COSTE]
+		</text>
+	</panel>
+	<panel name="upload_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Carga completa.
+			</text>
+		</panel>
+		<text name="description">
+			¡Felicidades! Tu modelo se ha cargado correctamente.  Encontrarás el modelo en la carpeta Objetos del inventario.
+		</text>
+	</panel>
+	<button label="&lt;&lt; Atrás" name="back"/>
+	<button label="Siguiente &gt;&gt;" name="next"/>
+	<button label="Subir" name="upload" tool_tip="Cargar al simulador"/>
+	<button label="Cancelar" name="cancel"/>
+	<button label="Cerrar" name="close"/>
+	<spinner name="import_scale" value="1.0"/>
+	<string name="status_idle">
+		Inactivo
+	</string>
+	<string name="status_reading_file">
+		Cargando...
+	</string>
+	<string name="status_generating_meshes">
+		Generando redes...
+	</string>
+	<string name="status_vertex_number_overflow">
+		Error: El número de intersección es superior a 65534. Cancelado.
+	</string>
+	<string name="high">
+		Alto
+	</string>
+	<string name="medium">
+		Media
+	</string>
+	<string name="low">
+		Bajo
+	</string>
+	<string name="lowest">
+		Mínimo
+	</string>
+	<string name="mesh_status_good">
+		Factúralo.
+	</string>
+	<string name="mesh_status_na">
+		N/A
+	</string>
+	<string name="mesh_status_none">
+		Ninguno
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		Los niveles de detalle poseen un número distinto de caras a las que se pueden aplicar texturas.
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		Los niveles de detalle poseen un número distinto de ejemplos de red.
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		El nivel de detalle posee demasiadas intersecciones.
+	</string>
+	<string name="mesh_status_missing_lod">
+		Falta un nivel de detalle requerido.
+	</string>
+	<string name="layer_all">
+		Todo
+	</string>
+</floater>

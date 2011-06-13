@@ -2163,6 +2163,12 @@ Questo potrebbe incidere sulla tua password.
 	<notification name="RezItemNoPermissions">
 		Permessi insufficienti per creare un oggetto.
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		Impossibile inviare IM tra proprietà principali diverse.
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		Impossibile trasferire l&apos;inventario tra proprietà principali diverse.
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		Impossibile caricare la notecard in questo momento.
 	</notification>
@@ -2736,6 +2742,10 @@ Per sicurezza, verranno bloccati per alcuni secondi.
 		La tua voce è stata interrotta dal moderatore.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		Questo caricamento costerà L$[PRICE]. Continuare con il caricamento?
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Carica"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		Sei sicuro di volere cancellare la cronologia dei tuoi teleport?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
@@ -2746,6 +2756,9 @@ Il pulsante verrà visualizzato quando lo spazio sarà sufficiente.
 	</notification>
 	<notification name="ShareNotification">
 		Scegli i residenti con i quali condividere.
+	</notification>
+	<notification name="MeshUploadError">
+		[LABEL] non è stato caricato: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Sei sicuro di volere condividere gli oggetti
@@ -2762,6 +2775,19 @@ Con i seguenti residenti?
 	</notification>
 	<notification name="DeedToGroupFail">
 		Cessione al gruppo non riuscita.
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		Il lotto [PARCEL_NAME] non può essere abbandonato in questo momento.
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		Il lotto di [AREA] m² &apos;[PARCEL_NAME]&apos; è stato rilasciato.
+
+Hai [RECLAIM_PERIOD] ore per riprendere possesso per L$0 prima che venga messo in vendita a chiunque altro.
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		Il lotto di [AREA] m² &apos;[PARCEL_NAME]&apos; è stato rilasciato.
+
+Ora è disponibile per l&apos;acquisto da parte di chiunque.
 	</notification>
 	<notification name="AvatarRezNotification">
 		( in esistenza da [EXISTENCE] secondi )
@@ -2903,6 +2929,10 @@ Clicca e trascina dovunque nel mondo per ruotare la visuale
 		La creazione e la modifica dei gruppi sono disponibili solo in modalità Avanzata. Uscire e cambiare la modalità? Sulla schermata di accesso si può selezionare la modalità.
 		<usetemplate name="okcancelbuttons" notext="Non uscire" yestext="Esci"/>
 	</notification>
+	<notification label="" name="NoPlaceInfo">
+		La visualizzazione del profilo del luogo è disponibile solo in modalità Avanzata. Uscire e cambiare la modalità? Sulla schermata di accesso si può selezionare la modalità.
+		<usetemplate name="okcancelbuttons" notext="Non uscire" yestext="Esci"/>
+	</notification>
 	<notification label="" name="NoPicks">
 		La creazione e la modifica dei luoghi preferiti sono disponibili solo in modalità Avanzata. Uscire e cambiare la modalità? Sulla schermata di accesso si può selezionare la modalità.
 		<usetemplate name="okcancelbuttons" notext="Non uscire" yestext="Esci"/>
@@ -2923,9 +2953,18 @@ Clicca e trascina dovunque nel mondo per ruotare la visuale
 		Il pagamento ad altri residenti è disponibile solo in modalità Avanzata. Eseguire il logout e cambiare la modalità?
 		<usetemplate name="okcancelbuttons" notext="Non uscire" yestext="Esci"/>
 	</notification>
-	<global name="UnsupportedCPU">
-		- La velocità della tua CPU non soddisfa i requisiti minimi.
-	</global>
+	<notification label="" name="NoInventory">
+		La visualizzazione dell&apos;inventario è disponibile solo in modalità Avanzata. Eseguire il logout e cambiare la modalità?
+		<usetemplate name="okcancelbuttons" notext="Non uscire" yestext="Esci"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		L&apos;editor dell&apos;aspetto è disponibile solo in modalità Avanzata. Eseguire il logout e cambiare la modalità?
+		<usetemplate name="okcancelbuttons" notext="Non uscire" yestext="Esci"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		La ricerca è disponibile solo in modalità Avanzata. Eseguire il logout e cambiare la modalità?
+		<usetemplate name="okcancelbuttons" notext="Non uscire" yestext="Esci"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		Non sembra che tu abbia i requisiti hardware adeguati per [APP_NAME]. [APP_NAME] richiede una scheda grafica OpenGL con supporto multitexture. Se ne hai una in dotazione, accertati di avere i driver, i service pack e i patch più recenti per la scheda grafica e per il sistema operativo.
 

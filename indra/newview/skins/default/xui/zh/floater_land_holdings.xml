@@ -9,13 +9,13 @@
 		<scroll_list.columns label="Type" name="type"/>
 		<scroll_list.columns label="Area" name="area"/>
 	</scroll_list>
-	<button label="Teleport" label_selected="Teleport" name="Teleport" tool_tip="Teleport to the center of this land."/>
+	<button label="瞬間傳送" label_selected="瞬間傳送" name="Teleport" tool_tip="Teleport to the center of this land."/>
 	<button label="地圖" label_selected="地圖" name="Show on Map" tool_tip="Show this land on the world map"/>
 	<text name="contrib_label">
 		Contributions to your groups:
 	</text>
 	<scroll_list name="grant list">
-		<scroll_list.columns label="Group" name="group"/>
+		<scroll_list.columns label="社團" name="group"/>
 		<scroll_list.columns label="Area" name="area"/>
 	</scroll_list>
 	<text name="allowed_label">

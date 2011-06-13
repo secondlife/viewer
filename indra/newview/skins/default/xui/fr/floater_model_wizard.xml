@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Wizard" title="ASSISTANT DE CHARGEMENT DE MODÈLE">
+	<button label="5. Chargement" name="upload_btn"/>
+	<button label="4. Vérification" name="review_btn"/>
+	<button label="3. Propriétés physiques" name="physics2_btn"/>
+	<button label="3. Propriétés physiques" name="physics_btn"/>
+	<button label="2. Optimisation" name="optimize_btn"/>
+	<button label="1. Sélection du fichier" name="choose_file_btn"/>
+	<panel name="choose_file_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Charger le modèle
+			</text>
+		</panel>
+		<text name="description">
+			Cet Assistant vous aidera à importer des modèles de maillage dans Second Life. Commencez par spécifier un fichier contenant le modèle à importer. Second Life prend en charge les fichiers COLLADA (.dae).
+		</text>
+		<panel name="content">
+			<text name="Cache location">
+				Nom du fichier :
+			</text>
+			<button label="Parcourir..." label_selected="Parcourir..." name="browse"/>
+			<text name="dimensions">
+				X :         Y :         Z :
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="optimize_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Optimisation
+			</text>
+		</panel>
+		<text name="description">
+			Cet Assistant a optimisé votre modèle afin d&apos;améliorer les performances. Vous pouvez ajuster les résultats du processus d&apos;optimisation ci-dessous ou cliquer sur Suiv. pour continuer.
+		</text>
+		<panel name="content">
+			<text name="high_detail_text">
+				Générer le niveau de détail : Élevé
+			</text>
+			<text name="medium_detail_text">
+				Générer le niveau de détail : Moyen
+			</text>
+			<text name="low_detail_text">
+				Générer le niveau de détail : Faible
+			</text>
+			<text name="lowest_detail_text">
+				Générer le niveau de détail : Le plus faible
+			</text>
+		</panel>
+		<panel name="content2">
+			<text name="lod_label">
+				Aperçu du modèle :
+			</text>
+			<combo_box name="preview_lod_combo2" tool_tip="Niveau de détail à afficher en rendu d&apos;aperçu.">
+				<combo_item name="high">
+					Élevé
+				</combo_item>
+				<combo_item name="medium">
+					Moyen
+				</combo_item>
+				<combo_item name="low">
+					Faible
+				</combo_item>
+				<combo_item name="lowest">
+					Le plus faible
+				</combo_item>
+			</combo_box>
+			<text name="streaming cost">
+				Coût de la ressource :    [COST]
+			</text>
+			<text name="dimensions">
+				X :         Y :         Z :
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Propriétés physiques
+			</text>
+		</panel>
+		<text name="description">
+			Cet Assistant créera une forme physique déterminant le mode d&apos;interaction de l&apos;objet avec les autres objets et avatars. Réglez le curseur sur le niveau de détail le plus approprié à l&apos;utilisation de l&apos;objet :
+		</text>
+		<panel name="content">
+			<text name="streaming cost">
+				Coût de la ressource :       [COST]
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics2_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Propriétés physiques
+			</text>
+		</panel>
+		<text name="description">
+			Prévisualisez la forme physique ci-dessous, puis cliquez sur Suiv. pour continuer. Le bouton Préc. permet de modifier cette forme, le cas échéant.
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				Aperçu du modèle :
+			</text>
+			<combo_box name="preview_lod_combo3" tool_tip="Niveau de détail à afficher en rendu d&apos;aperçu.">
+				<combo_item name="high">
+					Élevé
+				</combo_item>
+				<combo_item name="medium">
+					Moyen
+				</combo_item>
+				<combo_item name="low">
+					Faible
+				</combo_item>
+				<combo_item name="lowest">
+					Le plus faible
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X :         Y :         Z :
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+			<text name="streaming cost">
+				Coût de la ressource :       [COST]
+			</text>
+		</panel>
+	</panel>
+	<panel name="review_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Vérification
+			</text>
+		</panel>
+		<text name="description">
+			Vérifiez les détails ci-dessous, puis cliquez sur Charger pour charger le modèle. Votre solde en L$ sera alors débité.
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				Aperçu du modèle :
+			</text>
+			<combo_box name="preview_lod_combo" tool_tip="Niveau de détail à afficher en rendu d&apos;aperçu.">
+				<combo_item name="high">
+					Élevé
+				</combo_item>
+				<combo_item name="medium">
+					Moyen
+				</combo_item>
+				<combo_item name="low">
+					Faible
+				</combo_item>
+				<combo_item name="lowest">
+					Le plus faible
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X :         Y :         Z :
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+		<text name="streaming cost">
+			Coût de la ressource :         [COST]
+		</text>
+		<text name="physics cost">
+			Coût des propriétés physiques :        [COST]
+		</text>
+	</panel>
+	<panel name="upload_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Chargement terminé !
+			</text>
+		</panel>
+		<text name="description">
+			Félicitations ! Votre modèle a été chargé. Il se trouve dans le dossier Objets de votre inventaire.
+		</text>
+	</panel>
+	<button label="&lt;&lt; Préc." name="back"/>
+	<button label="Suiv. &gt;&gt;" name="next"/>
+	<button label="Charger" name="upload" tool_tip="Charger dans le simulateur."/>
+	<button label="Annuler" name="cancel"/>
+	<button label="Fermer" name="close"/>
+	<spinner name="import_scale" value="1.0"/>
+	<string name="status_idle">
+		Inactif
+	</string>
+	<string name="status_reading_file">
+		Chargement...
+	</string>
+	<string name="status_generating_meshes">
+		Génération des maillages...
+	</string>
+	<string name="status_vertex_number_overflow">
+		Erreur : valeur de sommet supérieure à 65534. Opération abandonnée.
+	</string>
+	<string name="high">
+		Élevé
+	</string>
+	<string name="medium">
+		Moyen
+	</string>
+	<string name="low">
+		Faible
+	</string>
+	<string name="lowest">
+		Le plus faible
+	</string>
+	<string name="mesh_status_good">
+		Bon à publier !
+	</string>
+	<string name="mesh_status_na">
+		N/A
+	</string>
+	<string name="mesh_status_none">
+		Aucun
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		Un nombre différent de faces d&apos;application de texture est associé aux niveaux de détail.
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		Un nombre différent d&apos;instances de maillage est associé aux niveaux de détail.
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		Trop de sommets pour le niveau de détail.
+	</string>
+	<string name="mesh_status_missing_lod">
+		Niveau de détail requis manquant.
+	</string>
+	<string name="layer_all">
+		Tout
+	</string>
+</floater>

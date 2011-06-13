@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="Gear COF">
-	<menu label="New Clothes" name="COF.Gear.New_Clothes"/>
-	<menu label="New Body Parts" name="COF.Geear.New_Body_Parts"/>
+	<menu label="新衣服" name="COF.Gear.New_Clothes"/>
+	<menu label="新身體部位" name="COF.Geear.New_Body_Parts"/>
 </toggleable_menu>

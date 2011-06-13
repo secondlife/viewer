@@ -9,7 +9,7 @@
 	<text name="preview_label">
 		Preview image as:
 	</text>
-	<combo_box label="Clothing Type" name="clothing_type_combo">
+	<combo_box label="服裝類型" name="clothing_type_combo">
 		<item label="Image" name="Image" value="Image"/>
 		<item label="Hair" name="Hair" value="Hair"/>
 		<item label="Female Head" name="FemaleHead" value="Female Head"/>
@@ -28,5 +28,5 @@ Try saving image as 24 bit Targa (.tga).
 	</text>
 	<check_box label="Use lossless compression" name="lossless_check"/>
 	<button label="取銷" name="cancel_btn"/>
-	<button label="Upload (L$[AMOUNT])" name="ok_btn"/>
+	<button label="上傳（L$[AMOUNT]）" name="ok_btn"/>
 </floater>

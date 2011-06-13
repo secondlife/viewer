@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="avatar_texture_debug" title="AVATAR TEXTURES">
+<floater name="avatar_texture_debug" title="化身材質">
 	<floater.string name="InvalidAvatar">
 		INVALID AVATAR
 	</floater.string>
@@ -23,7 +23,7 @@ Textures
 				<texture_picker label="Head Alpha" name="head_alpha"/>
 				<texture_picker label="Head Tattoo" name="head_tattoo"/>
 				<texture_picker label="眼睛" name="eyes-baked"/>
-				<texture_picker label="Eye" name="eyes_iris"/>
+				<texture_picker label="眼睛" name="eyes_iris"/>
 				<texture_picker label="Eyes Alpha" name="eyes_alpha"/>
 				<texture_picker label="Upper Body" name="upper-baked"/>
 				<texture_picker label="Upper BodyPaint" name="upper_bodypaint"/>

@@ -17,8 +17,8 @@
 	<text name="Control Modes:">
 		Control Modes:
 	</text>
-	<check_box label="Avatar" name="JoystickAvatarEnabled"/>
-	<check_box label="Build" name="JoystickBuildEnabled"/>
+	<check_box label="化身" name="JoystickAvatarEnabled"/>
+	<check_box label="建造" name="JoystickBuildEnabled"/>
 	<check_box label="Flycam" name="JoystickFlycamEnabled"/>
 	<stat_view label="Joystick Monitor" name="axis_view">
 		<stat_bar label="Axis 0" name="axis0"/>
