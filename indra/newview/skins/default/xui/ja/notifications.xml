@@ -2205,6 +2205,12 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="RezItemNoPermissions">
 		オブジェクトを Rez するには権限が不足しています。
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		親エステート間では IM を送信できません。
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		親エステート間で持ち物を移動することはできません。
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		ノートカードを読み込めません。あとで再度お試しください。
 	</notification>
@@ -2780,6 +2786,10 @@ M キーを押して変更します。
 		モデレーターがあなたのボイスをミュートしました。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		このアップロードは L$[PRICE] のコストがかかります。アップロードを続けますか？
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="アップロード"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		テレポート履歴を削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
@@ -2790,6 +2800,9 @@ M キーを押して変更します。
 	</notification>
 	<notification name="ShareNotification">
 		共有する住人を選択します。
+	</notification>
+	<notification name="MeshUploadError">
+		[LABEL] をアップロードできませんでした： [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		次のアイテムを共有しますか？
@@ -2806,6 +2819,19 @@ M キーを押して変更します。
 	</notification>
 	<notification name="DeedToGroupFail">
 		グループへの譲渡に失敗しました。
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		区画「[PARCEL_NAME]」は現在放棄できません。
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		[AREA] m² の区画「[PARCEL_NAME]」が公開されました。
+
+同区画が他の住人に売り出される前の [RECLAIM_PERIOD] 時間内であれば無償で土地を取り戻すことができます。
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		[AREA] m² の区画「[PARCEL_NAME]」が公開されました。
+
+一般に公開されたので、今なら誰でも購入可能です。
 	</notification>
 	<notification name="AvatarRezNotification">
 		（作成後[EXISTENCE]秒経過）
@@ -2947,6 +2973,10 @@ M キーを押して変更します。
 		グループの作成と編集はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
+	<notification label="" name="NoPlaceInfo">
+		場所のプロフィールの表示はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
 	<notification label="" name="NoPicks">
 		ピックの作成と編集はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
@@ -2967,9 +2997,18 @@ M キーを押して変更します。
 		他の住人への支払いはアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
-	<global name="UnsupportedCPU">
-		- あなたの CPU の速度は必須動作環境の条件を満たしていません。
-	</global>
+	<notification label="" name="NoInventory">
+		持ち物の表示はアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		容姿エディターはアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		検索はアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		[APP_NAME] に必要なハードウェアがないようです。 [APP_NAME] にはマルチテクスチャをサポートする OpenGL グラフィックカードが必要です。 お使いのグラフィックカードの最新ドライバがインストールされているかどうか、オペレーティングシステムのサービスパックとパッチが入っているかをご確認ください。
 

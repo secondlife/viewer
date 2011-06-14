@@ -10,7 +10,7 @@
 		L$[PRICE]
 	</panel.string>
 	<panel.string name="click_through_text_fmt">
-		[TELEPORT] teleport, [MAP] map, [PROFILE] profile
+		[TELEPORT] 瞬間傳送，[MAP] 地圖，[PROFILE] 檔案
 	</panel.string>
 	<panel.string name="date_fmt">
 		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
@@ -54,7 +54,7 @@
 	<panel name="buttons">
 		<layout_stack name="layout_stack1">
 			<layout_panel name="layout_panel1">
-				<button label="Teleport" name="teleport_btn"/>
+				<button label="瞬間傳送" name="teleport_btn"/>
 			</layout_panel>
 			<layout_panel name="show_on_map_btn_lp">
 				<button label="地圖" name="show_on_map_btn"/>

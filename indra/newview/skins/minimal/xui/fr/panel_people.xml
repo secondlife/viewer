@@ -53,6 +53,9 @@ Vous recherchez des résidents avec qui passer du temps ? Essayez avec le bouto
 				<button label="IM" name="im_btn" tool_tip="Ouvrir une session IM"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
+				<button label="Appeler" name="call_btn" tool_tip="Appeler ce résident."/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
 				<button label="Téléporter" name="teleport_btn" tool_tip="Proposer une téléportation"/>
 			</layout_panel>
 		</layout_stack>

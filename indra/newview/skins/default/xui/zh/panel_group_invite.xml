@@ -22,6 +22,6 @@
 	<button label="Send Invitations" name="ok_button"/>
 	<button label="取銷" name="cancel_button"/>
 	<string name="GroupInvitation">
-		Group Invitation
+		社團邀請
 	</string>
 </panel>

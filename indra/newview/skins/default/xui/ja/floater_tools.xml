@@ -125,6 +125,18 @@
 	<text name="prim_count">
 		プリム： [COUNT]
 	</text>
+	<text name="linked_set_count">
+		リンクセット：[COUNT]
+	</text>
+	<text name="linked_set_cost" tool_tip="[prims] / [physics complexity] として現在選択されているリンクセットのコスト">
+		料金： [COST] / [PHYSICS]
+	</text>
+	<text name="object_count">
+		オブジェクト： [COUNT]
+	</text>
+	<text name="object_cost" tool_tip="[prims] / [physics complexity] として現在選択されているオブジェクトのコスト">
+		料金： [COST] / [PHYSICS]
+	</text>
 	<tab_container name="Object Info Tabs" tab_max_width="150" tab_min_width="30">
 		<panel label="一般" name="General">
 			<panel.string name="text deed continued">
@@ -275,15 +287,6 @@
 				<combo_box.item label="リング" name="Ring"/>
 				<combo_box.item label="スカルプト" name="Sculpted"/>
 			</combo_box>
-			<combo_box name="material">
-				<combo_box.item label="石材" name="Stone"/>
-				<combo_box.item label="金属" name="Metal"/>
-				<combo_box.item label="ガラス" name="Glass"/>
-				<combo_box.item label="木材" name="Wood"/>
-				<combo_box.item label="肌" name="Flesh"/>
-				<combo_box.item label="プラスチック" name="Plastic"/>
-				<combo_box.item label="ゴム" name="Rubber"/>
-			</combo_box>
 			<text name="text cut">
 				パスカット（始点と終点）
 			</text>
@@ -356,9 +359,19 @@
 				<combo_box.item label="トーラス" name="Torus"/>
 				<combo_box.item label="平面" name="Plane"/>
 				<combo_box.item label="シリンダー" name="Cylinder"/>
+				<combo_box.item label="メッシュ" name="Mesh"/>
 			</combo_box>
 		</panel>
 		<panel label="特徴" name="Features">
+			<panel.string name="None">
+				なし
+			</panel.string>
+			<panel.string name="Prim">
+				プリム
+			</panel.string>
+			<panel.string name="Convex Hull">
+				凸状の外殻構造
+			</panel.string>
 			<text name="select_single">
 				プリムを 1 つだけ選択して編集してください
 			</text>
@@ -383,6 +396,23 @@
 			<spinner label="焦点" name="Light Focus"/>
 			<spinner label="弱まる" label_width="72" name="Light Falloff" width="135"/>
 			<spinner label="環境" name="Light Ambiance"/>
+			<text name="label physicsshapetype">
+				実像の種類：
+			</text>
+			<combo_box name="Physics Shape Type Combo Ctrl" tool_tip="実像の種類を選択"/>
+			<combo_box name="material">
+				<combo_box.item label="石" name="Stone"/>
+				<combo_box.item label="金属" name="Metal"/>
+				<combo_box.item label="ガラス" name="Glass"/>
+				<combo_box.item label="木" name="Wood"/>
+				<combo_box.item label="肌" name="Flesh"/>
+				<combo_box.item label="プラスチック" name="Plastic"/>
+				<combo_box.item label="ゴム" name="Rubber"/>
+			</combo_box>
+			<spinner label="重力" name="Physics Gravity"/>
+			<spinner label="摩擦" name="Physics Friction"/>
+			<spinner label="密度" name="Physics Density"/>
+			<spinner label="復元" name="Physics Restitution"/>
 		</panel>
 		<panel label="材質" name="Texture">
 			<panel.string name="string repeats per meter">

@@ -64,7 +64,7 @@ things in this group. There&apos;s a broad variety of Abilities.
 	</panel>
 	<panel name="roles_footer">
 		<text name="static">
-			Role Name
+			角色名稱
 		</text>
 		<text name="static3">
 			Role Title

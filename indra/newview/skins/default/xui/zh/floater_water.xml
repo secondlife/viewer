@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Water Floater" title="ADVANCED WATER EDITOR">
+<floater name="Water Floater" title="進階水文編輯器">
 	<floater.string name="WLDefaultWaterNames">
 		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
 	</floater.string>
 	<text name="KeyFramePresetsText">
 		Water Presets:
 	</text>
-	<button label="New" label_selected="New" name="WaterNewPreset"/>
+	<button label="新增" label_selected="新增" name="WaterNewPreset"/>
 	<button label="儲存" label_selected="儲存" name="WaterSavePreset"/>
 	<button label="刪除" label_selected="刪除" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
@@ -63,7 +63,7 @@
 				Y
 			</text>
 			<text name="BHText3">
-				Normal Map
+				正常地圖
 			</text>
 		</panel>
 	</tab_container>

@@ -5,7 +5,7 @@
 	</floater.string>
 	<radio_group label="Snapshot type" name="snapshot_type_radio">
 		<radio_item label="Email" name="postcard"/>
-		<radio_item label="My inventory (L$[AMOUNT])" name="texture"/>
+		<radio_item label="我的收納區（L$[AMOUNT]）" name="texture"/>
 		<radio_item label="Save to my computer" name="local"/>
 	</radio_group>
 	<text name="file_size_label">
@@ -17,31 +17,31 @@
 		<flyout_button.item label="儲存" name="save_item"/>
 		<flyout_button.item label="另存..." name="saveas_item"/>
 	</flyout_button>
-	<button label="More" name="more_btn" tool_tip="Advanced options"/>
-	<button label="Less" name="less_btn" tool_tip="Advanced options"/>
+	<button label="更多" name="more_btn" tool_tip="進階選項"/>
+	<button label="更少" name="less_btn" tool_tip="進階選項"/>
 	<button label="取銷" name="discard_btn"/>
 	<text name="type_label2">
-		Size
+		尺寸
 	</text>
 	<text name="format_label">
 		Format
 	</text>
 	<combo_box label="Resolution" name="postcard_size_combo">
-		<combo_box.item label="Current Window" name="CurrentWindow"/>
+		<combo_box.item label="目前視窗" name="CurrentWindow"/>
 		<combo_box.item label="640x480" name="640x480"/>
 		<combo_box.item label="800x600" name="800x600"/>
 		<combo_box.item label="1024x768" name="1024x768"/>
-		<combo_box.item label="Custom" name="Custom"/>
+		<combo_box.item label="自訂" name="Custom"/>
 	</combo_box>
 	<combo_box label="Resolution" name="texture_size_combo">
-		<combo_box.item label="Current Window" name="CurrentWindow"/>
+		<combo_box.item label="目前視窗" name="CurrentWindow"/>
 		<combo_box.item label="Small (128x128)" name="Small(128x128)"/>
 		<combo_box.item label="Medium (256x256)" name="Medium(256x256)"/>
 		<combo_box.item label="Large (512x512)" name="Large(512x512)"/>
-		<combo_box.item label="Custom" name="Custom"/>
+		<combo_box.item label="自訂" name="Custom"/>
 	</combo_box>
 	<combo_box label="Resolution" name="local_size_combo">
-		<combo_box.item label="Current Window" name="CurrentWindow"/>
+		<combo_box.item label="目前視窗" name="CurrentWindow"/>
 		<combo_box.item label="320x240" name="320x240"/>
 		<combo_box.item label="640x480" name="640x480"/>
 		<combo_box.item label="800x600" name="800x600"/>

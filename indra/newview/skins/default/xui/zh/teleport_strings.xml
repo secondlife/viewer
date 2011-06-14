@@ -39,7 +39,7 @@ Try again in a moment.
 			Unable to find teleport destination. The destination may be temporarily unavailable or no longer exists. Please try again in a few minutes.
 		</message>
 		<message name="no_inventory_host">
-			The inventory system is currently unavailable.
+			收納區功能目前無法使用。
 		</message>
 	</message_set>
 	<message_set name="progress">
@@ -53,28 +53,28 @@ Try again in a moment.
 			Relaying to destination.
 		</message>
 		<message name="sending_home">
-			Sending home location request.
+			傳送家位置的要求。
 		</message>
 		<message name="sending_landmark">
-			Sending landmark location request.
+			地標位置要求瞬間傳送中。
 		</message>
 		<message name="completing">
-			Completing teleport.
+			瞬間傳送完成。
 		</message>
 		<message name="completed_from">
-			Teleport completed from [T_SLURL]
+			由 [T_SLURL] 瞬間傳送完成。
 		</message>
 		<message name="resolving">
-			Resolving destination.
+			目的地解決中。
 		</message>
 		<message name="contacting">
-			Contacting new region.
+			聯繫到新的地區。
 		</message>
 		<message name="arriving">
 			抵達中...
 		</message>
 		<message name="requesting">
-			Requesting Teleport...
+			瞬間傳送要求中...
 		</message>
 	</message_set>
 </teleport_messages>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Outfit">
-	<menu_item_call label="Wear - Replace Current Outfit" name="wear_replace"/>
-	<menu_item_call label="Wear - Add to Current Outfit" name="wear_add"/>
-	<menu_item_call label="Take Off - Remove from Current Outfit" name="take_off"/>
-	<menu_item_call label="Edit Outfit" name="edit"/>
-	<menu_item_call label="Rename Outfit" name="rename"/>
-	<menu_item_call label="Delete Outfit" name="delete"/>
+	<menu_item_call label="穿上 － 取代目前裝扮" name="wear_replace"/>
+	<menu_item_call label="穿上 － 添加到目前裝扮" name="wear_add"/>
+	<menu_item_call label="脫下 － 由目前裝扮移除" name="take_off"/>
+	<menu_item_call label="編輯裝扮" name="edit"/>
+	<menu_item_call label="裝扮更名" name="rename"/>
+	<menu_item_call label="刪除裝扮" name="delete"/>
 </context_menu>

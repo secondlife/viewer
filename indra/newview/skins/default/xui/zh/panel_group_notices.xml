@@ -38,7 +38,7 @@ Maximum 200 per group daily
 		<text name="string">
 			Drag and drop item here to attach it:
 		</text>
-		<button label="Inventory" name="open_inventory" tool_tip="Open Inventory"/>
+		<button label="收納區" name="open_inventory" tool_tip="開啟收納區"/>
 		<button name="remove_attachment" tool_tip="Remove attachment from your notification"/>
 		<button label="Send" label_selected="Send" name="send_notice"/>
 		<group_drop_target name="drop_target" tool_tip="Drag an inventory item onto this target box to send it with this notice. You must have permission to copy and transfer the item in order to attach it."/>

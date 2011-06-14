@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="item properties" title="Item Profile">
+<panel name="item properties" title="物品檔案">
 	<panel.string name="unknown">
 		（未知）
 	</panel.string>
@@ -16,13 +16,13 @@
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
 	<panel.string name="origin_inventory">
-		(Inventory)
+		（收納區）
 	</panel.string>
 	<panel.string name="origin_inworld">
 		(Inworld)
 	</panel.string>
-	<text name="title" value="Item Profile"/>
-	<text name="origin" value="(Inventory)"/>
+	<text name="title" value="物品檔案"/>
+	<text name="origin" value="（收納區）"/>
 	<scroll_container name="item_profile_scroll">
 		<panel label="" name="item_profile">
 			<text name="LabelItemNameTitle">
@@ -38,7 +38,7 @@
 				擁有者：
 			</text>
 			<text name="LabelAcquiredTitle">
-				Acquired:
+				取得於：
 			</text>
 			<panel name="perms_inv">
 				<text name="perm_modify">
@@ -52,7 +52,7 @@
 				</text>
 				<check_box label="覆製" name="CheckEveryoneCopy"/>
 				<text name="GroupLabel">
-					Group:
+					社團：
 				</text>
 				<check_box label="分享" name="CheckShareWithGroup" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."/>
 				<text name="NextOwnerLabel">
@@ -64,8 +64,8 @@
 			</panel>
 			<check_box label="出售" name="CheckPurchase"/>
 			<combo_box name="combobox sale copy">
-				<combo_box.item label="Copy" name="Copy"/>
-				<combo_box.item label="Original" name="Original"/>
+				<combo_box.item label="副本" name="Copy"/>
+				<combo_box.item label="原件" name="Original"/>
 			</combo_box>
 			<spinner label="價格： L$" name="Edit Cost"/>
 		</panel>

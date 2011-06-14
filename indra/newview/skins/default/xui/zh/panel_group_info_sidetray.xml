@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Group Profile" name="GroupInfo">
+<panel label="社團檔案" name="GroupInfo">
 	<panel.string name="default_needs_apply_text">
 		There are unsaved changes
 	</panel.string>

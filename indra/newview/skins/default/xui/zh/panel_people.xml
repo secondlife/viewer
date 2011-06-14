@@ -5,8 +5,8 @@
 	<string name="no_filtered_recent_people" value="Didn&apos;t find what you&apos;re looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]."/>
 	<string name="no_one_near" value="No one nearby. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]."/>
 	<string name="no_one_filtered_near" value="Didn&apos;t find what you&apos;re looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]."/>
-	<string name="no_friends_online" value="No friends online"/>
-	<string name="no_friends" value="No friends"/>
+	<string name="no_friends_online" value="無朋友上線"/>
+	<string name="no_friends" value="無朋友"/>
 	<string name="no_friends_msg">
 		Find friends using [secondlife:///app/search/people Search] or right-click on a Resident to add them as a friend.
 Looking for people to hang out with? Try the [secondlife:///app/worldmap World Map].
@@ -22,13 +22,13 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 	<string name="AltMiniMapToolTipMsg" value="[REGION](Double-click to teleport, shift-drag to pan)"/>
 	<filter_editor label="Filter" name="filter_input"/>
 	<tab_container name="tabs">
-		<panel label="NEARBY" name="nearby_panel">
+		<panel label="附近" name="nearby_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="nearby_view_sort_btn" tool_tip="Options"/>
+				<menu_button name="nearby_view_sort_btn" tool_tip="選項"/>
 				<button name="add_friend_btn" tool_tip="Add selected Resident to your friends List"/>
 			</panel>
 		</panel>
-		<panel label="MY FRIENDS" name="friends_panel">
+		<panel label="我的朋友" name="friends_panel">
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="上線"/>
 				<accordion_tab name="tab_all" title="全部"/>
@@ -36,7 +36,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			<panel label="bottom_panel" name="bottom_panel">
 				<layout_stack name="bottom_panel">
 					<layout_panel name="options_gear_btn_panel">
-						<menu_button name="friends_viewsort_btn" tool_tip="Show additional options"/>
+						<menu_button name="friends_viewsort_btn" tool_tip="顯示額外選項"/>
 					</layout_panel>
 					<layout_panel name="add_btn_panel">
 						<button name="add_btn" tool_tip="Offer friendship to a Resident"/>
@@ -47,16 +47,16 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				</layout_stack>
 			</panel>
 		</panel>
-		<panel label="MY GROUPS" name="groups_panel">
+		<panel label="我的社團" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="groups_viewsort_btn" tool_tip="Options"/>
+				<menu_button name="groups_viewsort_btn" tool_tip="選項"/>
 				<button name="plus_btn" tool_tip="Join group/Create new group"/>
 				<button name="activate_btn" tool_tip="Activate selected group"/>
 			</panel>
 		</panel>
 		<panel label="RECENT" name="recent_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="recent_viewsort_btn" tool_tip="Options"/>
+				<menu_button name="recent_viewsort_btn" tool_tip="選項"/>
 				<button name="add_friend_btn" tool_tip="Add selected Resident to your friends List"/>
 			</panel>
 		</panel>
@@ -64,24 +64,24 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 	<panel name="button_bar">
 		<layout_stack name="bottom_bar_ls">
 			<layout_panel name="view_profile_btn_lp">
-				<button label="Profile" name="view_profile_btn" tool_tip="Show picture, groups, and other Residents information"/>
+				<button label="檔案" name="view_profile_btn" tool_tip="Show picture, groups, and other Residents information"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
 				<button label="IM" name="im_btn" tool_tip="Open instant message session"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
-				<button label="Call" name="call_btn" tool_tip="Call this Resident"/>
+				<button label="通話" name="call_btn" tool_tip="Call this Resident"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
-				<button label="分享" name="share_btn" tool_tip="Share an inventory item"/>
+				<button label="分享" name="share_btn" tool_tip="分享一個收納區物品"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
-				<button label="Teleport" name="teleport_btn" tool_tip="Offer teleport"/>
+				<button label="瞬間傳送" name="teleport_btn" tool_tip="Offer teleport"/>
 			</layout_panel>
 		</layout_stack>
 		<layout_stack name="bottom_bar_ls1">
 			<layout_panel name="group_info_btn_lp">
-				<button label="Group Profile" name="group_info_btn" tool_tip="Show group information"/>
+				<button label="社團檔案" name="group_info_btn" tool_tip="顯示社團資訊"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
 				<button label="Group Chat" name="chat_btn" tool_tip="Open chat session"/>

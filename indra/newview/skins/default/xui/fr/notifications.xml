@@ -2157,6 +2157,12 @@ Cela risque d&apos;impacter votre mot de passe.
 	<notification name="RezItemNoPermissions">
 		Droits insuffisants pour rezzer l&apos;objet.
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		Impossible d&apos;envoyer d&apos;IM entre domaines parents.
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		Impossible de transférer l&apos;inventaire entre domaines parents.
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		Impossible de lire les données de la note actuellement.
 	</notification>
@@ -2734,6 +2740,10 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 		Le modérateur ignore vos paroles.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		Ce chargement coûtera [PRICE] L$. Continuer ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Charger"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		Voulez-vous vraiment supprimer votre historique des téléportations ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
@@ -2744,6 +2754,9 @@ Le bouton sera affiché quand il y aura suffisamment de place.
 	</notification>
 	<notification name="ShareNotification">
 		Sélectionnez les résidents avec lesquels partager l&apos;élément.
+	</notification>
+	<notification name="MeshUploadError">
+		Échec de chargement de [LABEL] : [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Voulez-vous vraiment partager les articles suivants :
@@ -2760,6 +2773,19 @@ avec les résidents suivants :
 	</notification>
 	<notification name="DeedToGroupFail">
 		Échec de cession au groupe.
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		Impossible d&apos;abandonner la parcelle [PARCEL_NAME] actuellement.
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		La parcelle [PARCEL_NAME] de [AREA] m² a été libérée.
+
+Vous disposerez d&apos;un délai de récupération à 0 L$ de [RECLAIM_PERIOD] heures avant qu&apos;elle soit mise en vente pour tous.
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		La parcelle [PARCEL_NAME] de [AREA] m² a été libérée.
+
+Elle est désormais disponible à l&apos;achat auprès de tous.
 	</notification>
 	<notification name="AvatarRezNotification">
 		([EXISTENCE] secondes d&apos;existence)
@@ -2901,6 +2927,10 @@ Cliquez sur un point dans le monde et faites glisser votre souris pour faire tou
 		Pour créer et modifier des groupes, vous devez utiliser le mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ? Le sélecteur de mode se trouve sur l&apos;écran de connexion.
 		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
+	<notification label="" name="NoPlaceInfo">
+		L&apos;affichage du profil du lieu est uniquement disponible en mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ? Le sélecteur de mode se trouve sur l&apos;écran de connexion.
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
 	<notification label="" name="NoPicks">
 		Pour créer et modifier des favoris, vous devez utiliser le mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ? Le sélecteur de mode se trouve sur l&apos;écran de connexion.
 		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
@@ -2921,9 +2951,18 @@ Cliquez sur un point dans le monde et faites glisser votre souris pour faire tou
 		Pour pouvoir payer d&apos;autres résidents, vous devez utiliser le mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ?
 		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
-	<global name="UnsupportedCPU">
-		- Votre processeur ne remplit pas les conditions minimum requises.
-	</global>
+	<notification label="" name="NoInventory">
+		L&apos;affichage de l&apos;inventaire est uniquement disponible en mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ?
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		L&apos;Éditeur d&apos;apparence est uniquement disponible en mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ?
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		La recherche est uniquement disponible en mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ?
+		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		Vous semblez ne pas avoir le matériel requis pour utiliser [APP_NAME]. [APP_NAME] requiert une carte graphique OpenGL avec une prise en charge du multitexturing. Si vous avez une telle carte, assurez-vous que vous avez aussi les pilotes les plus récents pour la carte, ainsi que les service packs et les patchs pour votre système d&apos;exploitation.
 

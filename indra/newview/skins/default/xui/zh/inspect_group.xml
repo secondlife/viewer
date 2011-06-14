@@ -5,7 +5,7 @@
 -->
 <floater name="inspect_group">
 	<string name="PrivateGroup">
-		Private group
+		私人社團
 	</string>
 	<string name="FreeToJoin">
 		Free to join
@@ -28,5 +28,5 @@ Fear the moose!  Fear it!  And the mongoose too!
 	</text>
 	<button label="Join" name="join_btn"/>
 	<button label="Leave" name="leave_btn"/>
-	<button label="View Profile" name="view_profile_btn"/>
+	<button label="察看檔案" name="view_profile_btn"/>
 </floater>

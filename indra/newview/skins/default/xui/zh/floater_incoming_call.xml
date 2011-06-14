@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="incoming call" title="Incoming call">
+<floater name="incoming call" title="來電">
 	<floater.string name="lifetime">
 		5
 	</floater.string>
@@ -10,7 +10,7 @@
 		anonymous
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		is calling.
+		通話中。
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		has joined a Voice Chat call with a conference chat.
@@ -29,5 +29,5 @@
 	</text>
 	<button label="接受" label_selected="接受" name="Accept"/>
 	<button label="Reject" label_selected="Reject" name="Reject"/>
-	<button label="Start IM" name="Start IM"/>
+	<button label="開始 IM" name="Start IM"/>
 </floater>

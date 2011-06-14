@@ -102,7 +102,7 @@ Make sure your Internet connection is working properly.
 Please select only one object and try again.
 	</notification>
 	<notification name="SaveClothingBodyChanges">
-		Save all changes to clothing/body parts?
+		儲存全部服裝或身體部位的變更？
 		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="不要儲存" yestext="全部儲存"/>
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
@@ -356,11 +356,11 @@ Are you sure you want to continue?
 		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
 	</notification>
 	<notification name="DeleteOutfits">
-		Delete the selected outfit?
+		刪除所選擇的裝扮？
 		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
-		Go to the [SECOND_LIFE] events web page?
+		前往 [SECOND_LIFE] 事件網頁？
 		<url name="url">
 			http://secondlife.com/events/
 		</url>
@@ -389,7 +389,7 @@ Note: This will clear the cache.
 		Changing language will take effect after you restart [APP_NAME].
 	</notification>
 	<notification name="GoToAuctionPage">
-		Go to the [SECOND_LIFE] web page to see auction details or make a bid?
+		前往 [SECOND_LIFE] 網頁去察看拍賣細節或下標？
 		<url name="url">
 			http://secondlife.com/auctions/auction-detail.php?id=[AUCTION_ID]
 		</url>
@@ -485,10 +485,10 @@ and will lose it from your inventory if you give it away. Do you really want to 
 		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
 	</notification>
 	<notification name="CannotGiveItem">
-		Unable to give inventory item.
+		無法給予收納區物品。
 	</notification>
 	<notification name="TransactionCancelled">
-		Transaction cancelled.
+		交易已取銷。
 	</notification>
 	<notification name="TooManyItems">
 		Cannot give more than 42 items in a single inventory transfer.
@@ -643,14 +643,14 @@ Expected [VALIDS]
 Please try again later.
 	</notification>
 	<notification name="LandmarkCreated">
-		You have added &quot;[LANDMARK_NAME]&quot; to your [FOLDER_NAME] folder.
+		你已經添加 &quot;[LANDMARK_NAME]&quot; 到你的 [FOLDER_NAME] 資料夾。
 	</notification>
 	<notification name="LandmarkAlreadyExists">
-		You already have a landmark for this location.
+		你已經有這個位置的地標。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="CannotCreateLandmarkNotOwner">
-		You cannot create a landmark here because the owner of the land doesn&apos;t allow it.
+		你不能創造地標，因為地主並不允許你這樣做。
 	</notification>
 	<notification name="CannotRecompileSelectObjectsNoScripts">
 		Not able to perform &apos;recompilation&apos;.
@@ -696,7 +696,7 @@ Searched for: [FINALQUERY]
 		Your search terms were too short so no search was performed.
 	</notification>
 	<notification name="CouldNotTeleportReason">
-		Teleport failed.
+		瞬間傳送失敗。
 [REASON]
 	</notification>
 	<notification name="invalid_tport">
@@ -735,7 +735,7 @@ If you continue to get this message, please check the [SUPPORT_SITE].
 		Unable to find teleport destination. The destination may be temporarily unavailable or no longer exists. Please try again in a few minutes.
 	</notification>
 	<notification name="no_inventory_host">
-		The inventory system is currently unavailable.
+		收納區功能目前無法使用。
 	</notification>
 	<notification name="CannotSetLandOwnerNothingSelected">
 		Unable to set land owner:
@@ -895,8 +895,8 @@ Join land?
 		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
 	</notification>
 	<notification name="ConfirmItemCopy">
-		Copy this item to your inventory?
-		<usetemplate name="okcancelbuttons" notext="取銷" yestext="Copy"/>
+		覆製這個物品到你的收納區？
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="覆製"/>
 	</notification>
 	<notification name="ResolutionSwitchFail">
 		Failed to switch resolution to [RESX] by [RESY]
@@ -929,24 +929,14 @@ You do not have permission to buy land for your active group.
 Offer friendship to [NAME]?
 		<form name="form">
 			<input name="message">
-				Would you be my friend?
+				你願意成為我的朋友嗎？
 			</input>
 			<button name="Offer" text="確定"/>
 			<button name="Cancel" text="取銷"/>
 		</form>
 	</notification>
-	<notification label="Save Outfit" name="SaveOutfitAs">
-		Save what I&apos;m wearing as a new Outfit:
-		<form name="form">
-			<input name="message">
-				[DESC] (new)
-			</input>
-			<button name="OK" text="確定"/>
-			<button name="Cancel" text="取銷"/>
-		</form>
-	</notification>
-	<notification label="Save Wearable" name="SaveWearableAs">
-		Save item to my inventory as:
+	<notification label="儲存裝扮" name="SaveOutfitAs">
+		儲存我正在穿的為新裝扮：
 		<form name="form">
 			<input name="message">
 				[DESC] （新）
@@ -955,8 +945,18 @@ Offer friendship to [NAME]?
 			<button name="Cancel" text="取銷"/>
 		</form>
 	</notification>
-	<notification label="Rename Outfit" name="RenameOutfit">
-		New outfit name:
+	<notification label="Save Wearable" name="SaveWearableAs">
+		儲存物品到我的收納區為：
+		<form name="form">
+			<input name="message">
+				[DESC] （新）
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取銷"/>
+		</form>
+	</notification>
+	<notification label="裝扮更名" name="RenameOutfit">
+		新裝扮名稱：
 		<form name="form">
 			<input name="new_name">
 				[NAME]
@@ -970,7 +970,7 @@ Offer friendship to [NAME]?
 		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
-		Do you want to remove multiple friends from your Friends list?
+		你確定要由朋友清單中移除多個朋友嗎？
 		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
 	</notification>
 	<notification name="GodDeleteAllScriptedPublicObjectsByUser">
@@ -1118,14 +1118,14 @@ You have been moved into a nearby region.
 You may want to set a new home location.
 	</notification>
 	<notification name="ClothingLoading">
-		Your clothing is still downloading.
-You can use [SECOND_LIFE] normally and other people will see you correctly.
+		你的服裝仍在下載中。
+你可以正常使用 [SECOND_LIFE]，而且其他人看到你也是正常的。
 		<form name="form">
-			<ignore name="ignore" text="Clothing is taking a long time to download"/>
+			<ignore name="ignore" text="服裝花太多時間下載"/>
 		</form>
 	</notification>
 	<notification name="FirstRun">
-		[APP_NAME] installation is complete.
+		[APP_NAME] 安裝完成。
 
 If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
 Return to [http://join.secondlife.com secondlife.com] to create a new account?
@@ -1140,8 +1140,8 @@ You can either check your Internet connection and try again in a few minutes, cl
 		</url>
 		<form name="form">
 			<button name="OK" text="確定"/>
-			<button name="Help" text="Help"/>
-			<button name="Teleport" text="Teleport"/>
+			<button name="Help" text="幫助"/>
+			<button name="Teleport" text="瞬間傳送"/>
 		</form>
 	</notification>
 	<notification name="WelcomeChooseSex">
@@ -1212,7 +1212,7 @@ Please select only one object and try again.
 		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
 	</notification>
 	<notification name="KickUsersFromRegion">
-		Teleport all Residents in this region home?
+		確定要強制瞬間傳送這地區所有居民回家？
 		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
 	</notification>
 	<notification name="EstateObjectReturn">
@@ -1232,7 +1232,7 @@ Terrain texture [TEXTURE_NUM] is too large at [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click &quot;Apply&quot; again.
 	</notification>
 	<notification name="RawUploadStarted">
-		Upload started. It may take up to two minutes, depending on your connection speed.
+		上傳開始。將會花費約兩分鐘，這取決於你的連線速度。
 	</notification>
 	<notification name="ConfirmBakeTerrain">
 		Do you really want to bake the current terrain, make it the center for terrain raise/lower limits and the default for the &apos;Revert&apos; tool?
@@ -1259,7 +1259,7 @@ Exceeds the [MAX_AGENTS] [LIST_TYPE] limit by [NUM_EXCESS].
 		Can&apos;t add estate owner to estate &apos;Banned Resident&apos; list.
 	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
-		Can&apos;t change appearance until clothing and shape are loaded.
+		無法變更外觀，直到服裝與體形下載完畢。
 	</notification>
 	<notification name="ClassifiedMustBeAlphanumeric">
 		The name of your classified must start with a letter from A to Z or a number.  No punctuation is allowed.
@@ -1351,7 +1351,7 @@ http://secondlife.com/download.
 
 You may download this update from http://www.secondlife.com/downloads
 or you can install it now.
-		<usetemplate name="okcancelbuttons" notext="Quit Second Life" yestext="Download and install now"/>
+		<usetemplate name="okcancelbuttons" notext="Quit Second Life" yestext="立即下載及安裝"/>
 	</notification>
 	<notification name="DownloadBackgroundTip">
 		We have downloaded an update to your [APP_NAME] installation.
@@ -1397,7 +1397,7 @@ We must restart [APP_NAME] to install the update.
 	</notification>
 	<notification name="WebLaunchPublicIssue">
 		Visit the [SECOND_LIFE] Public Issue Tracker, where you can report bugs and other issues.
-		<usetemplate ignoretext="Launch my browser to use the Public Issue Tracker" name="okcancelignore" notext="取銷" yestext="Go to page"/>
+		<usetemplate ignoretext="Launch my browser to use the Public Issue Tracker" name="okcancelignore" notext="取銷" yestext="前往頁面"/>
 	</notification>
 	<notification name="WebLaunchSupportWiki">
 		Go to the Official Linden Blog, for the latest news and information.
@@ -1423,8 +1423,8 @@ Leave Group?
 		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
 	</notification>
 	<notification name="ConfirmKick">
-		Do you REALLY want to kick all Residents off the grid?
-		<usetemplate name="okcancelbuttons" notext="取銷" yestext="Kick All Residents"/>
+		你確定要踢除這網格內的全部居民？
+		<usetemplate name="okcancelbuttons" notext="取銷" yestext="踢除全部居民"/>
 	</notification>
 	<notification name="MuteLinden">
 		Sorry, you cannot block a Linden.
@@ -1464,7 +1464,7 @@ Chat and instant messages will be hidden. Instant messages will get your Busy mo
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="KickUser">
-		Kick this Resident with what message?
+		踢除這個居民並留給他什麼訊息？
 		<form name="form">
 			<input name="message">
 				An administrator has logged you off.
@@ -1547,7 +1547,7 @@ Please try again later.
 		Offer a teleport to your location with the following message?
 		<form name="form">
 			<input name="message">
-				Join me in [REGION]
+				加入我到 [REGION]
 			</input>
 			<button name="OK" text="確定"/>
 			<button name="Cancel" text="取銷"/>
@@ -1565,19 +1565,19 @@ Please try again later.
 	</notification>
 	<notification name="TeleportFromLandmark">
 		Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
-		<usetemplate ignoretext="Confirm that I want to teleport to a landmark" name="okcancelignore" notext="取銷" yestext="Teleport"/>
+		<usetemplate ignoretext="Confirm that I want to teleport to a landmark" name="okcancelignore" notext="取銷" yestext="瞬間傳送"/>
 	</notification>
 	<notification name="TeleportToPick">
-		Teleport to [PICK]?
+		瞬間傳送到 [PICK]?
 		<usetemplate ignoretext="Confirm that I want to teleport to a location in Picks" name="okcancelignore" notext="取銷" yestext="Teleport"/>
 	</notification>
 	<notification name="TeleportToClassified">
-		Teleport to [CLASSIFIED]?
-		<usetemplate ignoretext="Confirm that I want to teleport to a location in Classifieds" name="okcancelignore" notext="取銷" yestext="Teleport"/>
+		瞬間傳送到 [CLASSIFIED]?
+		<usetemplate ignoretext="Confirm that I want to teleport to a location in Classifieds" name="okcancelignore" notext="取銷" yestext="瞬間傳送"/>
 	</notification>
 	<notification name="TeleportToHistoryEntry">
-		Teleport to [HISTORY_ENTRY]?
-		<usetemplate ignoretext="Confirm that I want to teleport to a history location" name="okcancelignore" notext="取銷" yestext="Teleport"/>
+		瞬間傳送到 [HISTORY_ENTRY]?
+		<usetemplate ignoretext="Confirm that I want to teleport to a history location" name="okcancelignore" notext="取銷" yestext="瞬間傳送"/>
 	</notification>
 	<notification label="Message everyone in your Estate" name="MessageEstate">
 		Type a short announcement which will be sent to everyone currently in your estate.
@@ -1633,8 +1633,8 @@ It will change thousands of regions and make the spaceserver hiccup.
 		Remove estate manager for this estate only or for [ALL_ESTATES]?
 		<usetemplate canceltext="取銷" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
 	</notification>
-	<notification label="Confirm Kick" name="EstateKickUser">
-		Kick [EVIL_USER] from this estate?
+	<notification label="確認踢除" name="EstateKickUser">
+		將 [EVIL_USER] 由這領地踢除？
 		<usetemplate name="okcancelbuttons" notext="取銷" yestext="確定"/>
 	</notification>
 	<notification name="EstateChangeCovenant">
@@ -1946,8 +1946,8 @@ Linden Lab
 Do you want to replace it with the selected object?
 		<form name="form">
 			<ignore name="ignore" text="Replace an existing attachment with the selected item"/>
-			<button ignore="Replace Automatically" name="Yes" text="確定"/>
-			<button ignore="Never Replace" name="No" text="取銷"/>
+			<button ignore="自動取代" name="Yes" text="確定"/>
+			<button ignore="絕不取代" name="No" text="取銷"/>
 		</form>
 	</notification>
 	<notification label="Busy Mode Warning" name="BusyModePay">
@@ -1990,7 +1990,7 @@ Would you like to leave Busy Mode before completing this transaction?
 
 Link to this from a web page to give others easy access to this location, or try it out yourself by pasting it into the address bar of any web browser.
 		<form name="form">
-			<ignore name="ignore" text="SLurl is copied to my clipboard"/>
+			<ignore name="ignore" text="SLurl 已經覆製到我的剪貼簿。"/>
 		</form>
 	</notification>
 	<notification name="WLSavePresetAlert">
@@ -2063,8 +2063,8 @@ Link to this from a web page to give others easy access to this location, or try
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="AutoWearNewClothing">
-		Would you like to automatically wear the clothing you are about to create?
-		<usetemplate ignoretext="Wear the clothing I create while editing My Appearance" name="okcancelignore" notext="否" yestext="是"/>
+		你要自動穿上你所創造的服裝嗎？
+		<usetemplate ignoretext="編輯外觀時能穿上我所創造的服裝" name="okcancelignore" notext="否" yestext="是"/>
 	</notification>
 	<notification name="NotAgeVerified">
 		You must be age-verified to visit this area.  Do you want to go to the [SECOND_LIFE] website and verify your age?
@@ -2122,7 +2122,7 @@ Link to this from a web page to give others easy access to this location, or try
 (Takes about 5 minutes.)
 	</notification>
 	<notification name="UploadPayment">
-		You paid L$[AMOUNT] to upload.
+		你支付 L$[AMOUNT] 上傳。
 	</notification>
 	<notification name="UploadWebSnapshotDone">
 		Web site snapshot upload done.
@@ -2140,10 +2140,10 @@ Link to this from a web page to give others easy access to this location, or try
 		Unable to load gesture [NAME].
 	</notification>
 	<notification name="LandmarkMissing">
-		Landmark is missing from database.
+		資料庫中的地標遺失。
 	</notification>
 	<notification name="UnableToLoadLandmark">
-		Unable to load landmark.  Please try again.
+		無法載入地標，請再試一次。
 	</notification>
 	<notification name="CapsKeyOn">
 		Your Caps Lock key is on.
@@ -2374,7 +2374,7 @@ Please go to the Knowledge Base for details on accessing areas with this maturit
 		Could not teleport closer to destination.
 	</notification>
 	<notification name="TPCancelled">
-		Teleport cancelled.
+		瞬間傳送已取銷。
 	</notification>
 	<notification name="FullRegionTryAgain">
 		The region you are attempting to enter is currently full.
@@ -2452,7 +2452,7 @@ Please try again in a few moments.
 
 [MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
 		<form name="form">
-			<button name="Teleport" text="Teleport"/>
+			<button name="Teleport" text="瞬間傳送"/>
 			<button name="Cancel" text="取銷"/>
 		</form>
 	</notification>
@@ -2519,7 +2519,7 @@ If you stay in this region you will be logged out.
 If you stay in this region you will be logged out.
 	</notification>
 	<notification name="LoadWebPage">
-		Load web page [URL]?
+		載入網頁 [URL]?
 
 [MESSAGE]
 
@@ -2697,7 +2697,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
 		An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_NAME].  Please try again later.
 	</notification>
 	<notification name="UnsupportedCommandSLURL">
-		The SLurl you clicked on is not supported.
+		你所點擊的 SLurl 位置並不被支援。
 	</notification>
 	<notification name="BlockedSLURL">
 		A SLurl was received from an untrusted browser and has been blocked for your security.
@@ -2823,7 +2823,7 @@ You locally updated a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; af
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Are you sure you want to leave this call?
-		<usetemplate ignoretext="Confirm before I leave call" name="okcancelignore" notext="否" yestext="是"/>
+		<usetemplate ignoretext="我結束通話前進行確認" name="okcancelignore" notext="否" yestext="是"/>
 	</notification>
 	<notification name="ConfirmMuteAll">
 		You have selected to mute all participants in a group call.
@@ -2868,7 +2868,7 @@ Click and drag anywhere on the world to rotate your view
 	<notification label="View" name="HintView">
 		To change your camera view, use the Orbit and Pan controls. Reset your view by pressing Escape or walking.
 	</notification>
-	<notification label="Inventory" name="HintInventory">
+	<notification label="收納區" name="HintInventory">
 		Check your inventory to find items. Newest items can be easily found in the Recent tab.
 	</notification>
 	<notification label="You&apos;ve got Linden Dollars!" name="HintLindenDollar">

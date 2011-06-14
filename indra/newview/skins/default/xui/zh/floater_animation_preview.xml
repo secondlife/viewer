@@ -169,7 +169,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
 		<item label="Standing" name="Standing" value="Standing"/>
 		<item label="Walking" name="Walking" value="Walking"/>
 		<item label="Sitting" name="Sitting" value="Sitting"/>
-		<item label="Flying" name="Flying" value="Flying"/>
+		<item label="飛行" name="Flying" value="飛行"/>
 	</combo_box>
 	<spinner label="淡入（秒）" name="ease_in_time" tool_tip="Amount of time (in seconds) over which animations blends in"/>
 	<spinner label="淡出（秒）" name="ease_out_time" tool_tip="Amount of time (in seconds) over which animations blends out"/>
