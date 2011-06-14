@@ -24,7 +24,7 @@
 	<check_box label="Restrict Pushing" name="restrict_pushobject"/>
 	<check_box label="Allow Land Resell" name="allow_land_resell_check"/>
 	<check_box label="Allow Land Join/Divide" name="allow_parcel_changes_check"/>
-	<check_box label="Block Land Show in Search" name="block_parcel_search_check" tool_tip="Let people see this region and its parcels in search results"/>
+	<check_box label="阻擋土地顯示於搜尋中" name="block_parcel_search_check" tool_tip="Let people see this region and its parcels in search results"/>
 	<spinner label="Agent Limit" name="agent_limit_spin"/>
 	<spinner label="Object Bonus" name="object_bonus_spin"/>
 	<text label="Maturity" name="access_text">

@@ -18,7 +18,7 @@
 					<button label="加為朋友" name="add_friend" tool_tip="Offer friendship to the Resident"/>
 				</layout_panel>
 				<layout_panel name="im_btn_lp">
-					<button label="IM" name="im" tool_tip="Open instant message session"/>
+					<button label="IM" name="im" tool_tip="開啟即時訊息會話"/>
 				</layout_panel>
 				<layout_panel name="call_btn_lp">
 					<button label="通話" name="call" tool_tip="與這位居民通話"/>

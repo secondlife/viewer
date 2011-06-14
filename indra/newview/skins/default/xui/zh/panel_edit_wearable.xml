@@ -97,15 +97,15 @@
 		Physics:
 	</string>
 	<labeled_back_button label="儲存" name="back_btn" tool_tip="回到編輯裝扮"/>
-	<text name="edit_wearable_title" value="Editing Shape"/>
+	<text name="edit_wearable_title" value="體形編輯中"/>
 	<panel label="襯衫" name="wearable_type_panel">
-		<text name="description_text" value="Shape:"/>
+		<text name="description_text" value="體形："/>
 		<radio_group name="sex_radio">
 			<radio_item label="" name="sex_male" tool_tip="男性" value="1"/>
-			<radio_item label="" name="sex_female" tool_tip="Female" value="0"/>
+			<radio_item label="" name="sex_female" tool_tip="女性" value="0"/>
 		</radio_group>
 		<icon name="male_icon" tool_tip="男性"/>
-		<icon name="female_icon" tool_tip="Female"/>
+		<icon name="female_icon" tool_tip="女性"/>
 	</panel>
 	<panel name="button_panel">
 		<layout_stack name="button_panel_ls">

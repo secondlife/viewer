@@ -59,7 +59,7 @@
 				REMEMBER: All sales are final.
 			</text>
 			<button label="Set Land For Sale" name="sell_btn"/>
-			<button label="取銷" name="cancel_btn"/>
+			<button label="取消" name="cancel_btn"/>
 		</panel>
 	</scroll_container>
 </floater>

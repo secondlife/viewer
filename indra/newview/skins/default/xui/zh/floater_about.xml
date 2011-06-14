@@ -13,11 +13,11 @@
 [[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</floater.string>
 	<floater.string name="AboutSystem">
-		CPU: [CPU]
-Memory: [MEMORY_MB] MB
-OS Version: [OS_VERSION]
-Graphics Card Vendor: [GRAPHICS_CARD_VENDOR]
-Graphics Card: [GRAPHICS_CARD]
+		CPU：[CPU]
+記憶體：[MEMORY_MB] MB
+作業系統版本：[OS_VERSION]
+顯示卡供應商：[GRAPHICS_CARD_VENDOR]
+顯示卡：[GRAPHICS_CARD]
 	</floater.string>
 	<floater.string name="AboutDriver">
 		Windows Graphics Driver Version: [GRAPHICS_DRIVER_VERSION]

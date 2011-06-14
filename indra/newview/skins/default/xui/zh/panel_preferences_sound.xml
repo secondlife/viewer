@@ -53,7 +53,7 @@
 		</text>
 		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Change the volume using this slider"/>
 		<text name="wait_text">
-			Please wait
+			請稍候
 		</text>
 		<text name="Output">
 			輸出

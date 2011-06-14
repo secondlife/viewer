@@ -24,7 +24,7 @@
 	</widgetset>
 	<widgetset name="image">
 		<label name="image_label">
-			Image
+			圖像
 		</label>
 		<tooltip name="image_tooltip">
 			There is an image at this location
@@ -71,7 +71,7 @@
 	</mimetype>
 	<mimetype name="image/*">
 		<label name="image2_label">
-			Image
+			圖像
 		</label>
 	</mimetype>
 	<mimetype name="video/vnd.secondlife.qt.legacy">
@@ -91,12 +91,12 @@
 	</mimetype>
 	<mimetype name="application/pdf">
 		<label name="application/pdf_label">
-			PDF Document
+			PDF 文件
 		</label>
 	</mimetype>
 	<mimetype name="application/postscript">
 		<label name="application/postscript_label">
-			Postscript Document
+			Postscript 文件
 		</label>
 	</mimetype>
 	<mimetype name="application/rtf">
@@ -141,32 +141,32 @@
 	</mimetype>
 	<mimetype name="image/bmp">
 		<label name="image/bmp_label">
-			Image (BMP)
+			圖像（BMP）
 		</label>
 	</mimetype>
 	<mimetype name="image/gif">
 		<label name="image/gif_label">
-			Image (GIF)
+			圖像（GIF）
 		</label>
 	</mimetype>
 	<mimetype name="image/jpeg">
 		<label name="image/jpeg_label">
-			Image (JPEG)
+			圖像（JPEG）
 		</label>
 	</mimetype>
 	<mimetype name="image/png">
 		<label name="image/png_label">
-			Image (PNG)
+			圖像（PNG）
 		</label>
 	</mimetype>
 	<mimetype name="image/svg+xml">
 		<label name="image/svg+xml_label">
-			Image (SVG)
+			圖像（SVG）
 		</label>
 	</mimetype>
 	<mimetype name="image/tiff">
 		<label name="image/tiff_label">
-			Image (TIFF)
+			圖像（TIFF）
 		</label>
 	</mimetype>
 	<mimetype name="text/html">
@@ -176,7 +176,7 @@
 	</mimetype>
 	<mimetype name="text/plain">
 		<label name="text/plain_label">
-			Text
+			文字
 		</label>
 	</mimetype>
 	<mimetype name="text/xml">

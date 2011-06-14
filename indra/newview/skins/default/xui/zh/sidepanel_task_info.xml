@@ -94,7 +94,7 @@
 			<combo_box.item label="Original" name="Original"/>
 		</combo_box>
 		<spinner label="價格： L$" name="Edit Cost"/>
-		<check_box label="Show in search" name="search_check" tool_tip="Let people see this object in search results"/>
+		<check_box label="顯示在搜尋中" name="search_check" tool_tip="Let people see this object in search results"/>
 		<text name="B:">
 			B:
 		</text>

@@ -15,15 +15,15 @@
 		Owner
 	</text>
 	<check_box initial_value="false" label="Allow Navigation &amp; Interactivity" name="perms_owner_interact"/>
-	<check_box initial_value="false" label="Show Control Bar" name="perms_owner_control"/>
+	<check_box initial_value="false" label="顯示控制列" name="perms_owner_control"/>
 	<text name="group_label">
 		社團：
 	</text>
 	<check_box initial_value="false" label="Allow Navigation &amp; Interactivity" name="perms_group_interact"/>
-	<check_box initial_value="false" label="Show Control Bar" name="perms_group_control"/>
+	<check_box initial_value="false" label="顯示控制列" name="perms_group_control"/>
 	<text name="anyone_label">
 		Anyone
 	</text>
 	<check_box initial_value="false" label="Allow Navigation &amp; Interactivity" name="perms_anyone_interact"/>
-	<check_box initial_value="false" label="Show Control Bar" name="perms_anyone_control"/>
+	<check_box initial_value="false" label="顯示控制列" name="perms_anyone_control"/>
 </panel>

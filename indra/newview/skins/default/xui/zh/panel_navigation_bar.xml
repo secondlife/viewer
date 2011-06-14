@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="navigation_bar">
 	<panel name="navigation_panel">
-		<pull_button name="back_btn" tool_tip="Go back to previous location"/>
-		<pull_button name="forward_btn" tool_tip="Go forward one location"/>
+		<pull_button name="back_btn" tool_tip="前往上一個位置"/>
+		<pull_button name="forward_btn" tool_tip="前往下一個位置"/>
 		<button name="home_btn" tool_tip="瞬間傳送到我家的位置"/>
 		<location_input label="位置" name="location_combo"/>
 		<search_combo_box label="搜尋" name="search_combo_box" tool_tip="搜尋">
@@ -11,8 +11,8 @@
 	</panel>
 	<favorites_bar name="favorite" tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!">
 		<label name="favorites_bar_label" tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!">
-			Favorites Bar
+			最愛列
 		</label>
-		<chevron_button name="&gt;&gt;" tool_tip="Show more of My Favorites"/>
+		<chevron_button name="&gt;&gt;" tool_tip="顯示更多我的最愛"/>
 	</favorites_bar>
 </panel>
