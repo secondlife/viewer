@@ -36,9 +36,17 @@ class LLPanelMarketplaceInbox : public LLPanel, public LLSideTrayTabBadgeDriver
 {
 public:
 
+	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
+	{
+		Params() {}
+	};
+
 	LOG_CLASS(LLPanelMarketplaceInbox);
 
-	LLPanelMarketplaceInbox();
+	// RN: for some reason you can't just use LLUICtrlFactory::getDefaultParams as a default argument in VC8
+	static const LLPanelMarketplaceInbox::Params& getDefaultParams();
+
+	LLPanelMarketplaceInbox(const Params& p = getDefaultParams());
 	~LLPanelMarketplaceInbox();
 
 	/*virtual*/ BOOL postBuild();
@@ -47,7 +55,9 @@ public:
 
 	/*virtual*/ void draw();
 
-	U32 getItemCount() const;
+	U32 getFreshItemCount() const;
+	U32 getTotalItemCount() const;
+
 	std::string getBadgeString() const;
 
 private:

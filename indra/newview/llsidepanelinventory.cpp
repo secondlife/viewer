@@ -43,6 +43,7 @@
 #include "lllayoutstack.h"
 #include "lloutfitobserver.h"
 #include "llpanelmaininventory.h"
+#include "llpanelmarketplaceinbox.h"
 #include "llselectmgr.h"
 #include "llsidepaneliteminfo.h"
 #include "llsidepaneltaskinfo.h"
@@ -341,12 +342,6 @@ void LLSidepanelInventory::onToggleInboxBtn()
 	{
 		// Save current time as a setting for future new-ness tests
 		gSavedSettings.setString(INBOX_EXPAND_TIME_SETTING, LLDate::now().asString());
-
-		// TODO: Hide inbox badge
-	}
-	else
-	{
-		// TODO: Show inbox badge
 	}
 }
 
@@ -364,6 +359,14 @@ void LLSidepanelInventory::onToggleOutboxBtn()
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
 	LLFirstUse::newInventory(false);
+
+	// Expand the inbox if we have fresh items
+	LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>("marketplace_inbox");
+	if (inbox && (inbox->getFreshItemCount() > 0))
+	{
+		getChild<LLButton>(INBOX_BUTTON_NAME)->setToggleState(true);
+		onToggleInboxBtn();
+	}
 
 	if(key.size() == 0)
 		return;

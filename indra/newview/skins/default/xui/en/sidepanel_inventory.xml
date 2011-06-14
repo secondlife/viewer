@@ -54,8 +54,8 @@
                  follows="bottom|left|right"
                  min_dim="35"
                  name="inbox_layout_panel"
-                 max_dim="125"
-                 height="125">
+                 max_dim="200"
+                 height="200">
                  <panel
                       follows="all"
                       layout="topleft"
@@ -64,12 +64,12 @@
                       class="panel_marketplace_inbox"
                       top="0"
                       label=""
-                      height="125"
+                      height="200"
                       width="330">
-                     <string name="InboxLabelWithArg">MARKETPLACE INBOX ([NUM])</string>
-                     <string name="InboxLabelNoArg">MARKETPLACE INBOX</string>
+                     <string name="InboxLabelWithArg">Received Items ([NUM])</string>
+                     <string name="InboxLabelNoArg">Received Items</string>
                      <button
-                        label="MARKETPLACE INBOX"
+                        label="Received Items"
                         name="inbox_btn"
                         height="35"
                         width="308"
@@ -82,28 +82,33 @@
                         pad_left="35"
                         top="0"
                         left="10" />
+                     <text
+                        type="string"
+                        length="1"
+                        follows="right|top"
+                        layout="topleft"
+                        height="13"
+                        top="10"
+                        right="-20"
+                        name="inbox_fresh_new_count"
+                        font="SansSerifMedium"
+                        halign="right"
+                        text_color="EmphasisColor"
+                        top_pad="0"
+                        width="300">
+                        [NUM] New
+                     </text>
                      <panel
                         follows="all"
                         left="10"
-                        height="90"
+                        bottom="200"
                         width="308"
                         top="35"
                         bg_opaque_color="InventoryBackgroundColor"
                         background_visible="true"
                         background_opaque="true"
-                    >
-                        <text
-                            type="string"
-                            length="1"
-                            follows="top|left|right"
-                            font="SansSerifSmall"
-                            use_ellipses="true"
-                            name="move_items_text"
-                            top="5"
-                            left="4"
-                            height="20"
-                            width="304"
-                            >Move items to your inventory to manage and use them.</text>
+                        tool_tip="Drag and drop items to your inventory to manage and use them"
+                        >
                         <inventory_panel
                             bg_opaque_color="DkGray2"
                             bg_alpha_color="DkGray2"
@@ -112,8 +117,8 @@
                             border="false"
                             bevel_style="none"
                             follows="all"
-                            top="25"
-                            height="70"
+                            top="0"
+                            height="165"
                             start_folder="Inbox"
                             layout="topleft"
                             left="0"
@@ -134,8 +139,8 @@
                 follows="bottom|left|right"
                 name="outbox_layout_panel"
                 min_dim="35"
-                max_dim="125"
-                height="125">
+                max_dim="200"
+                height="200">
                  <panel
                       follows="all"
                       layout="topleft"
@@ -144,10 +149,10 @@
                       class="panel_marketplace_outbox"
                       top="0"
                       label=""
-                      height="125"
+                      height="200"
                       width="310">
                      <button
-                        label="MARKETPLACE OUTBOX"
+                        label="Merchant Outbox"
                         is_toggle="true"
                         name="outbox_btn"
                         follows="top|left|right"
@@ -203,7 +208,7 @@
                      <panel
                          follows="all"
                          left="0"
-                         bottom="125"
+                         bottom="200"
                          width="330"
                          top="35"
                            >
@@ -215,7 +220,7 @@
                               border="false"
                               bevel_style="none"
                               follows="all"
-                              height="90"
+                              height="165"
                               start_folder="Outbox"
                               layout="topleft"
                               left="0"

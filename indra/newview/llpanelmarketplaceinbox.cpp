@@ -34,9 +34,14 @@
 
 static LLRegisterPanelClassWrapper<LLPanelMarketplaceInbox> t_panel_marketplace_inbox("panel_marketplace_inbox");
 
+const LLPanelMarketplaceInbox::Params& LLPanelMarketplaceInbox::getDefaultParams() 
+{ 
+	return LLUICtrlFactory::getDefaultParams<LLPanelMarketplaceInbox>(); 
+}
+
 // protected
-LLPanelMarketplaceInbox::LLPanelMarketplaceInbox()
-	: LLPanel()
+LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
+	: LLPanel(p)
 	, mInventoryPanel(NULL)
 {
 }
@@ -69,7 +74,31 @@ BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dr
 	return TRUE;
 }
 
-U32 LLPanelMarketplaceInbox::getItemCount() const
+U32 LLPanelMarketplaceInbox::getFreshItemCount() const
+{
+	U32 fresh_item_count = 0;
+
+	LLFolderView * root_folder = mInventoryPanel->getRootFolder();
+
+	const LLFolderViewFolder * inbox_folder = *(root_folder->getFoldersBegin());
+
+	LLFolderViewFolder::folders_t::const_iterator folders_it = inbox_folder->getFoldersBegin();
+	LLFolderViewFolder::folders_t::const_iterator folders_end = inbox_folder->getFoldersEnd();
+
+	for (; folders_it != folders_end; ++folders_it)
+	{
+		const LLFolderViewFolder * folder = *folders_it;
+
+		if (folder->getCreationDate() > 1500)
+		{
+			fresh_item_count++;
+		}
+	}
+
+	return fresh_item_count;
+}
+
+U32 LLPanelMarketplaceInbox::getTotalItemCount() const
 {
 	LLInventoryModel* model = mInventoryPanel->getModel();
 
@@ -96,11 +125,16 @@ U32 LLPanelMarketplaceInbox::getItemCount() const
 std::string LLPanelMarketplaceInbox::getBadgeString() const
 {
 	std::string item_count_str("");
-	U32 item_count = getItemCount();
 
-	if (item_count)
+	// If side panel collapsed or expanded and not inventory
+	if (LLSideTray::getInstance()->getCollapsed() || !LLSideTray::getInstance()->isPanelActive("sidepanel_inventory"))
 	{
-		item_count_str = llformat("%d", item_count);
+		U32 item_count = getFreshItemCount();
+
+		if (item_count)
+		{
+			item_count_str = llformat("%d", item_count);
+		}
 	}
 
 	return item_count_str;
@@ -108,17 +142,32 @@ std::string LLPanelMarketplaceInbox::getBadgeString() const
 
 void LLPanelMarketplaceInbox::draw()
 {
-	std::string item_count_str = getBadgeString();
+	U32 item_count = getTotalItemCount();
 
-	if (item_count_str.length() > 0)
+	LLView * fresh_new_count_view = getChildView("inbox_fresh_new_count");
+
+	if (item_count > 0)
 	{
+		std::string item_count_str = llformat("%d", item_count);
+
 		LLStringUtil::format_map_t args;
 		args["[NUM]"] = item_count_str;
 		getChild<LLButton>("inbox_btn")->setLabel(getString("InboxLabelWithArg", args));
+
+		// set green text to fresh item count
+		U32 fresh_item_count = getFreshItemCount();
+		fresh_new_count_view->setVisible((fresh_item_count > 0));
+
+		if (fresh_item_count > 0)
+		{
+			getChild<LLUICtrl>("inbox_fresh_new_count")->setTextArg("[NUM]", llformat("%d", fresh_item_count));
+		}
 	}
 	else
 	{
 		getChild<LLButton>("inbox_btn")->setLabel(getString("InboxLabelNoArg"));
+
+		fresh_new_count_view->setVisible(FALSE);
 	}
 		
 	LLPanel::draw();

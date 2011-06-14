@@ -167,7 +167,7 @@ protected:
 	void extendSelectionFromRoot(LLFolderViewItem* selection);
 
 	// this is an internal method used for adding items to folders. A
-	// no-op at this leve, but reimplemented in derived classes.
+	// no-op at this level, but reimplemented in derived classes.
 	virtual BOOL addItem(LLFolderViewItem*) { return FALSE; }
 	virtual BOOL addFolder(LLFolderViewFolder*) { return FALSE; }
 
@@ -366,6 +366,9 @@ public:
 		UNKNOWN, TRASH, NOT_TRASH
 	} ETrash;
 
+	typedef std::list<LLFolderViewItem*> items_t;
+	typedef std::list<LLFolderViewFolder*> folders_t;
+
 private:
 	S32		mNumDescendantsSelected;
 
@@ -374,8 +377,6 @@ public:		// Accessed needed by LLFolderViewItem
 	S32 numSelected(void) const { return mNumDescendantsSelected + (isSelected() ? 1 : 0); }
 
 protected:
-	typedef std::list<LLFolderViewItem*> items_t;
-	typedef std::list<LLFolderViewFolder*> folders_t;
 	items_t mItems;
 	folders_t mFolders;
 	LLInventorySort	mSortFunction;
@@ -537,6 +538,9 @@ public:
 	time_t getCreationDate() const;
 	bool isTrash() const;
 	S32 getNumSelectedDescendants(void) const { return mNumDescendantsSelected; }
+
+	folders_t::const_iterator getFoldersBegin() const { return mFolders.cbegin(); }
+	folders_t::const_iterator getFoldersEnd() const { return mFolders.cend(); }
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
