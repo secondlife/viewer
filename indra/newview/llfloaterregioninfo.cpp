@@ -3504,13 +3504,23 @@ void LLPanelEnvironmentInfo::populateDayCyclesList()
 		mDayCyclePresetCombo->addSeparator();
 	}
 
-	// Add local day cycles.
-	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
-	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
+	// Add local user day cycles.
+	LLDayCycleManager::preset_name_list_t user_days, sys_days;
+	LLDayCycleManager::instance().getPresetNames(user_days, sys_days);
+	for (LLDayCycleManager::preset_name_list_t::const_iterator it = user_days.begin(); it != user_days.end(); ++it)
 	{
-		std::string name = it->first;
-		LLWLParamKey key(name, LLEnvKey::SCOPE_LOCAL);
-		mDayCyclePresetCombo->add(name, key.toStringVal());
+		mDayCyclePresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
+	}
+
+	if (user_days.size() > 0)
+	{
+		mDayCyclePresetCombo->addSeparator();
+	}
+
+	// Add local system day cycles.
+	for (LLDayCycleManager::preset_name_list_t::const_iterator it = sys_days.begin(); it != sys_days.end(); ++it)
+	{
+		mDayCyclePresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
 	}
 
 	// Current day cycle is already selected.

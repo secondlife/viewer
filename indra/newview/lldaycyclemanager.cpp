@@ -30,12 +30,40 @@
 
 #include "lldiriterator.h"
 
-const LLDayCycleManager::dc_map_t& LLDayCycleManager::getPresets()
+void LLDayCycleManager::getPresetNames(preset_name_list_t& names) const
 {
-	// Refresh day cycles.
-	loadAllPresets();
+	names.clear();
 
-	return mDayCycleMap;
+	for (dc_map_t::const_iterator it = mDayCycleMap.begin(); it != mDayCycleMap.end(); ++it)
+	{
+		names.push_back(it->first);
+	}
+}
+
+void LLDayCycleManager::getPresetNames(preset_name_list_t& user, preset_name_list_t& sys) const
+{
+	user.clear();
+	sys.clear();
+
+	for (dc_map_t::const_iterator it = mDayCycleMap.begin(); it != mDayCycleMap.end(); ++it)
+	{
+		const std::string& name = it->first;
+
+		if (isSystemPreset(name))
+		{
+			sys.push_back(name);
+		}
+		else
+		{
+			user.push_back(name);
+		}
+	}
+}
+
+void LLDayCycleManager::getUserPresetNames(preset_name_list_t& user) const
+{
+	preset_name_list_t sys; // unused
+	getPresetNames(user, sys);
 }
 
 bool LLDayCycleManager::getPreset(const std::string name, LLWLDayCycle& day_cycle) const

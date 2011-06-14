@@ -260,9 +260,23 @@ void LLFloaterEnvironmentSettings::populateDayCyclePresetsList()
 {
 	mDayCyclePresetCombo->removeall();
 
-	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
-	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
+	LLDayCycleManager::preset_name_list_t user_days, sys_days;
+	LLDayCycleManager::instance().getPresetNames(user_days, sys_days);
+
+	// Add user days.
+	for (LLDayCycleManager::preset_name_list_t::const_iterator it = user_days.begin(); it != user_days.end(); ++it)
 	{
-		mDayCyclePresetCombo->add(it->first);
+		mDayCyclePresetCombo->add(*it);
+	}
+
+	if (user_days.size() > 0)
+	{
+		mDayCyclePresetCombo->addSeparator();
+	}
+
+	// Add system days.
+	for (LLDayCycleManager::preset_name_list_t::const_iterator it = sys_days.begin(); it != sys_days.end(); ++it)
+	{
+		mDayCyclePresetCombo->add(*it);
 	}
 }

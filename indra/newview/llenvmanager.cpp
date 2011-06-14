@@ -918,10 +918,11 @@ void LLEnvManagerNew::dumpPresets()
 	{
 		LL_DEBUGS("Windlight") << " - " << region_name << LL_ENDL;
 	}
-	const LLDayCycleManager::dc_map_t& map = LLDayCycleManager::instance().getPresets();
-	for (LLDayCycleManager::dc_map_t::const_iterator it = map.begin(); it != map.end(); ++it)
+	LLDayCycleManager::preset_name_list_t days;
+	LLDayCycleManager::instance().getPresetNames(days);
+	for (LLDayCycleManager::preset_name_list_t::const_iterator it = days.begin(); it != days.end(); ++it)
 	{
-		LL_DEBUGS("Windlight") << " - " << it->first << LL_ENDL;
+		LL_DEBUGS("Windlight") << " - " << *it << LL_ENDL;
 	}
 }
 
