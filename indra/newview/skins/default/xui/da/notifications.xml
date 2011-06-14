@@ -1746,6 +1746,13 @@ Sluk for alles lyd?
 	<notification label="Stå op" name="HintSit">
 		For at rejse dig op og forlad siddeposition, tryk på &quot;Stå op&quot; knappen.
 	</notification>
+	<notification label="Tal" name="HintSpeak">
+		Klik på tal knappen for at tænde og slukke for din mikrofon.
+
+Klik på den lille pil-op for at se stemme kontrolpanelet.
+
+Skjules tale knappen, vil stemmechat ikke være mulig.
+	</notification>
 	<notification label="Undersøg verden" name="HintDestinationGuide">
 		Destinationsguiden indeholder tusinder af nye steder der kan opleves. Vælg venligst et sted og vælg Teleport for at komme derhen.
 	</notification>
@@ -1755,11 +1762,15 @@ Sluk for alles lyd?
 	<notification label="Flyt" name="HintMove">
 		For at gå eller løbe, åben Flyt panelet for neden og brug pilene til at navigere. Du kan også bruge pile-tasterne på dit tastatur.
 	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Klik for at gå
+Klik et hvorsomhelst på jorden for at gå til dette sted.
+
+2. Klik og træk for at rotere visning
+Klik hvorsomhelst i verden for at rotere din visning
+	</notification>
 	<notification label="Visningsnavn" name="HintDisplayName">
 		Angiv dit konfigurérbare visningsnavn her. Dette er i tillæg til dit unikke brugernavn, som ikke kan ændres. Du kan ændre hvordan du ser andre beboeres navne i dine indstillinger.
-	</notification>
-	<notification label="Flyt" name="HintMoveArrows">
-		For at gå, brug piletasterne på tastaturet. Du kan løbe ved at trykke to gange på Pil-Op
 	</notification>
 	<notification label="Se" name="HintView">
 		For at ændre dit kamera-view, benyt kredsløbs og panoreringskontrollerne. Nulstil view ved at trykke Esc eller ved at gå.

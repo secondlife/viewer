@@ -40,6 +40,10 @@
 			<combo_box.item label="Alle avatarer og objekter" name="3"/>
 			<combo_box.item label="Alt" name="4"/>
 		</combo_box>
+		<slider label="Avatar fysik:" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			Lav
+		</text>
 		<slider label="Maks. visnings-afstand:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -78,7 +82,7 @@
 			Lav
 		</text>
 		<text name="AvatarRenderingText">
-			Avatar gengivelse
+			Avatar rendering:
 		</text>
 		<check_box initial_value="true" label="Mini-figurer på lang afstand" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Hardware Skinning" name="AvatarVertexProgram"/>

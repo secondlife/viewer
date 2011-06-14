@@ -852,6 +852,9 @@
 	<string name="tattoo">
 		Tatovering
 	</string>
+	<string name="physics">
+		Fysik
+	</string>
 	<string name="invalid">
 		ugyldig
 	</string>
@@ -890,6 +893,9 @@
 	</string>
 	<string name="tattoo_not_worn">
 		Tatovering ikke benyttet
+	</string>
+	<string name="physics_not_worn">
+		Ikke noget fysisk båret
 	</string>
 	<string name="invalid_not_worn">
 		ugyldig
@@ -938,6 +944,9 @@
 	</string>
 	<string name="create_new_tattoo">
 		Opret ny tatovering
+	</string>
+	<string name="create_new_physics">
+		Opret ny fysik
 	</string>
 	<string name="create_new_invalid">
 		ugyldig
@@ -2175,6 +2184,114 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Bulbous Nose">
 		Kartoffelnæse
 	</string>
+	<string name="Breast Physics Mass">
+		Bryst fylde
+	</string>
+	<string name="Breast Physics Smoothing">
+		Brystudjævning
+	</string>
+	<string name="Breast Physics Gravity">
+		Bryst tyngde
+	</string>
+	<string name="Breast Physics Drag">
+		Bryst inerti
+	</string>
+	<string name="Breast Physics InOut Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Breast Physics InOut Spring">
+		Fjeder
+	</string>
+	<string name="Breast Physics InOut Gain">
+		Øg
+	</string>
+	<string name="Breast Physics InOut Damping">
+		Dæmpning
+	</string>
+	<string name="Breast Physics UpDown Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Breast Physics UpDown Spring">
+		Fjeder
+	</string>
+	<string name="Breast Physics UpDown Gain">
+		Øg
+	</string>
+	<string name="Breast Physics UpDown Damping">
+		Dæmpning
+	</string>
+	<string name="Breast Physics LeftRight Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Breast Physics LeftRight Spring">
+		Fjeder
+	</string>
+	<string name="Breast Physics LeftRight Gain">
+		Øg
+	</string>
+	<string name="Breast Physics LeftRight Damping">
+		Dæmpning
+	</string>
+	<string name="Belly Physics Mass">
+		Mave omfang
+	</string>
+	<string name="Belly Physics Smoothing">
+		maveudjævning
+	</string>
+	<string name="Belly Physics Gravity">
+		Mave tyngde
+	</string>
+	<string name="Belly Physics Drag">
+		Mave inerti
+	</string>
+	<string name="Belly Physics UpDown Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Belly Physics UpDown Spring">
+		Fjeder
+	</string>
+	<string name="Belly Physics UpDown Gain">
+		Øg
+	</string>
+	<string name="Belly Physics UpDown Damping">
+		Dæmpning
+	</string>
+	<string name="Butt Physics Mass">
+		Bagdel omfang
+	</string>
+	<string name="Butt Physics Smoothing">
+		Bagdelsudjævning
+	</string>
+	<string name="Butt Physics Gravity">
+		Bagdel tyngde
+	</string>
+	<string name="Butt Physics Drag">
+		Bagdel modstand
+	</string>
+	<string name="Butt Physics UpDown Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Butt Physics UpDown Spring">
+		Fjeder
+	</string>
+	<string name="Butt Physics UpDown Gain">
+		Øg
+	</string>
+	<string name="Butt Physics UpDown Damping">
+		Dæmpning
+	</string>
+	<string name="Butt Physics LeftRight Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Butt Physics LeftRight Spring">
+		Fjeder
+	</string>
+	<string name="Butt Physics LeftRight Gain">
+		Øg
+	</string>
+	<string name="Butt Physics LeftRight Damping">
+		Dæmpning
+	</string>
 	<string name="Bushy Eyebrows">
 		Buskede øjenbryn
 	</string>
@@ -2183,6 +2300,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="Butt Size">
 		Størrelse bagdel
+	</string>
+	<string name="Butt Gravity">
+		Bagdel tyngde
 	</string>
 	<string name="bustle skirt">
 		Tournure
@@ -3658,6 +3778,9 @@ Krænkelsesanmeldelse
 	</string>
 	<string name="New Tattoo">
 		Ny tatovering
+	</string>
+	<string name="New Physics">
+		Ny fysik
 	</string>
 	<string name="Invalid Wearable">
 		Kan ikke tages på
