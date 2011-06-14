@@ -6,7 +6,7 @@
 	<text name="region_text">
 		未知
 	</text>
-	<check_box label="Disable Scripts" name="disable_scripts_check" tool_tip="Disable all scripts in this region"/>
+	<check_box label="關閉腳本" name="disable_scripts_check" tool_tip="關閉這個地區現在的全部腳本"/>
 	<check_box label="Disable Collisions" name="disable_collisions_check" tool_tip="Disable non-avatar collisions in this region"/>
 	<check_box label="Disable Physics" name="disable_physics_check" tool_tip="Disable all physics in this region"/>
 	<button label="套用" name="apply_btn"/>

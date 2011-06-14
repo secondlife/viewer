@@ -22,7 +22,7 @@
 		</menu>
 		<menu_item_call label="要求 Admin 狀態" name="Request Admin Options"/>
 		<menu_item_call label="離開 Admin 狀態" name="Leave Admin Options"/>
-		<menu_item_call label="結束離開 [APP_NAME]" name="Quit"/>
+		<menu_item_call label="結束退出 [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="溝通" name="Communicate">
 		<menu_item_call label="我的朋友" name="My Friends"/>
@@ -75,7 +75,7 @@
 			<menu_item_call label="土地工具" name="Land"/>
 		</menu>
 		<menu_item_call label="聯結" name="Link"/>
-		<menu_item_call label="取銷聯結" name="Unlink"/>
+		<menu_item_call label="取消聯結" name="Unlink"/>
 		<menu_item_check label="編輯聯結部位" name="Edit Linked Parts"/>
 		<menu label="選擇聯結部位" name="Select Linked Parts">
 			<menu_item_call label="選擇下一部位" name="Select Next Part"/>
@@ -93,7 +93,7 @@
 			<menu_item_call label="Save Back to Object Contents" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="退回物件" name="Return Object back to Owner"/>
 		</menu>
-		<menu label="Scripts" name="Scripts">
+		<menu label="腳本" name="Scripts">
 			<menu_item_call label="Recompile Scripts (Mono)" name="Mono"/>
 			<menu_item_call label="Recompile Scripts (LSL)" name="LSL"/>
 			<menu_item_call label="Reset Scripts" name="Reset Scripts"/>
@@ -115,7 +115,7 @@
 			<menu_item_call label="格線選項" name="Grid Options"/>
 		</menu>
 		<menu label="上傳" name="Upload">
-			<menu_item_call label="Image (L$[COST])..." name="Upload Image"/>
+			<menu_item_call label="圖像（L$[COST]）..." name="Upload Image"/>
 			<menu_item_call label="Sound (L$[COST])..." name="Upload Sound"/>
 			<menu_item_call label="Animation (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Bulk (L$[COST] per file)..." name="Bulk Upload"/>
@@ -137,12 +137,12 @@
 		<menu_item_call label="設定視窗尺寸大小..." name="Set Window Size..."/>
 		<menu_item_check label="Limit Select Distance" name="Limit Select Distance"/>
 		<menu_item_check label="Disable Camera Constraints" name="Disable Camera Distance"/>
-		<menu_item_check label="High-res Snapshot" name="HighResSnapshot"/>
+		<menu_item_check label="高解析度快照" name="HighResSnapshot"/>
 		<menu_item_check label="Quiet Snapshots to Disk" name="QuietSnapshotsToDisk"/>
 		<menu_item_check label="Compress Snapshots to Disk" name="CompressSnapshotsToDisk"/>
 		<menu label="Performance Tools" name="Performance Tools">
 			<menu_item_call label="Lag Meter" name="Lag Meter"/>
-			<menu_item_check label="Statistics Bar" name="Statistics Bar"/>
+			<menu_item_check label="統計列" name="Statistics Bar"/>
 			<menu_item_check label="Show Avatar Rendering Cost" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Highlighting and Visibility" name="Highlighting and Visibility">
@@ -181,10 +181,10 @@
 		<menu_item_check label="Use Plugin Read Thread" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Clear Group Cache" name="ClearGroupCache"/>
 		<menu_item_check label="Mouse Smoothing" name="Mouse Smoothing"/>
-		<menu label="Shortcuts" name="Shortcuts">
-			<menu_item_call label="Image (L$[COST])..." name="Upload Image"/>
-			<menu_item_check label="Search" name="Search"/>
-			<menu_item_call label="Release Keys" name="Release Keys"/>
+		<menu label="快速鍵" name="Shortcuts">
+			<menu_item_call label="圖像（L$[COST]）..." name="Upload Image"/>
+			<menu_item_check label="搜尋" name="Search"/>
+			<menu_item_call label="釋出按鍵" name="Release Keys"/>
 			<menu_item_call label="設定使用者界面大小至預設值" name="Set UI Size to Default"/>
 			<menu_item_check label="Show Advanced Menu - legacy shortcut" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="關閉視窗" name="Close Window"/>
@@ -209,10 +209,10 @@
 		<menu_item_check label="顯示開發選單" name="Debug Mode"/>
 	</menu>
 	<menu label="開發" name="Develop">
-		<menu label="Consoles" name="Consoles">
+		<menu label="控制台" name="Consoles">
 			<menu_item_check label="材質控制台" name="Texture Console"/>
-			<menu_item_check label="Debug Console" name="Debug Console"/>
-			<menu_item_call label="Notifications Console" name="Notifications"/>
+			<menu_item_check label="除錯控制台" name="Debug Console"/>
+			<menu_item_call label="通知控制台" name="Notifications"/>
 			<menu_item_check label="材質尺寸控制台" name="Texture Size"/>
 			<menu_item_check label="Texture Category Console" name="Texture Category"/>
 			<menu_item_check label="Fast Timers" name="Fast Timers"/>

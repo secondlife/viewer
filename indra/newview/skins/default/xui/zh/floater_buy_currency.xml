@@ -58,7 +58,7 @@
 		You aren&apos;t buying enough L$. Please increase the amount.
 	</text>
 	<button label="立即購買" name="buy_btn"/>
-	<button label="取銷" name="cancel_btn"/>
+	<button label="取消" name="cancel_btn"/>
 	<text name="info_cannot_buy">
 		Unable to Buy
 	</text>

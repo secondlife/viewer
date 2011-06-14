@@ -2,7 +2,7 @@
 <panel name="bottom_tray_lite">
 	<layout_stack name="toolbar_stack_lite">
 		<layout_panel name="gesture_panel">
-			<gesture_combo_list label="Gesture" name="Gesture" tool_tip="顯示 / 隱藏 姿勢"/>
+			<gesture_combo_list label="姿勢" name="Gesture" tool_tip="顯示 / 隱藏 姿勢"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

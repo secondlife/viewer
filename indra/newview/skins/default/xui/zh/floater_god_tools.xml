@@ -55,7 +55,7 @@
 			<text name="region name">
 				Welsh
 			</text>
-			<check_box label="Disable Scripts" name="disable scripts" tool_tip="Set this to disable all scripts in this region"/>
+			<check_box label="關閉腳本" name="disable scripts" tool_tip="關閉這個地區現在的全部腳本"/>
 			<check_box label="Disable Collisions" name="disable collisions" tool_tip="Set this to disable non-agent collisions in this region"/>
 			<check_box label="Disable Physics" name="disable physics" tool_tip="Set this to disable all physics in this region"/>
 			<button label="套用" label_selected="套用" name="Apply" tool_tip="Click here to apply any changes from above"/>

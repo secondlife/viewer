@@ -2,16 +2,16 @@
 <role_actions>
 	<action_set description="These Abilities include powers to add and remove group Members, and allow new Members to join without an invitation." name="Membership">
 		<action description="Invite People to this Group" longdescription="Invite People to this Group using the &apos;Invite&apos; button in the Roles section &gt; Members tab." name="member invite" value="1"/>
-		<action description="Eject Members from this Group" longdescription="Eject Members from this Group using the &apos;Eject&apos; button in the Roles section &gt; Members tab. An Owner can eject anyone except another Owner. If you&apos;re not an Owner, a Member can be ejected from a group if, and only if, they&apos;re only in the Everyone Role, and NO other Roles. To remove Members from Roles, you need to have the &apos;Remove Members from Roles&apos; Ability." name="member eject" value="2"/>
+		<action description="將會員由這個社團中踢出" longdescription="Eject Members from this Group using the &apos;Eject&apos; button in the Roles section &gt; Members tab. An Owner can eject anyone except another Owner. If you&apos;re not an Owner, a Member can be ejected from a group if, and only if, they&apos;re only in the Everyone Role, and NO other Roles. To remove Members from Roles, you need to have the &apos;Remove Members from Roles&apos; Ability." name="member eject" value="2"/>
 		<action description="Toggle &apos;Open Enrollment&apos; and change &apos;Enrollment fee&apos;" longdescription="Toggle &apos;Open Enrollment&apos; to let new Members join without an invitation, and change the &apos;Enrollment fee&apos; in the General section." name="member options" value="3"/>
 	</action_set>
 	<action_set description="These Abilities include powers to add, remove, and change group Roles, add and remove Members in Roles, and assign Abilities to Roles." name="Roles">
 		<action description="Create new Roles" longdescription="Create new Roles in the Roles section &gt; Roles tab." name="role create" value="4"/>
-		<action description="Delete Roles" longdescription="Delete Roles in the Roles section &gt; Roles tab." name="role delete" value="5"/>
+		<action description="刪除角色" longdescription="Delete Roles in the Roles section &gt; Roles tab." name="role delete" value="5"/>
 		<action description="Change Role names, titles, descriptions, and whether Role members are publicly revealed" longdescription="Change Role names, titles, descriptions, and whether Role members are publicly revealed. This is done at the bottom of the the Roles section &gt; Roles tab after selecting a Role." name="role properties" value="6"/>
 		<action description="Assign Members to Assigner&apos;s Roles" longdescription="Assign Members to Roles in the list of Assigned Roles (Roles section &gt; Members tab). A Member with this Ability can only add Members to a Role that the assigner is already in." name="role assign member limited" value="7"/>
 		<action description="Assign Members to Any Role" longdescription="Assign Members to Any Role in the list of Assigned Roles (Roles section &gt; Members tab). *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--to Roles that have more powers than they currently have, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability." name="role assign member" value="8"/>
-		<action description="Remove Members from Roles" longdescription="Remove Members from Roles in the list of Assigned Roles (Roles section &gt; Members tab). Owners can&apos;t be removed." name="role remove member" value="9"/>
+		<action description="由角色中移除成員" longdescription="Remove Members from Roles in the list of Assigned Roles (Roles section &gt; Members tab). Owners can&apos;t be removed." name="role remove member" value="9"/>
 		<action description="Assign and Remove Abilities in Roles" longdescription="Assign and Remove Abilities for each Role in the list of Allowed Abilities (Roles section &gt; Roles tab). *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--all Abilities, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability." name="role change actions" value="10"/>
 	</action_set>
 	<action_set description="These Abilities include powers to modify this group&apos;s identity, such as changing public visibility, charter, and insignia." name="Group Identity">
@@ -45,7 +45,7 @@
 		<action description="Manage parcel Access lists" longdescription="Manage parcel Access lists in About Land &gt; Access tab." name="land manage allowed" value="29"/>
 		<action description="Manage parcel Ban lists" longdescription="Manage parcel Ban lists in About Land &gt; Access tab." name="land manage banned" value="30"/>
 		<action description="Change parcel &apos;Sell passes to&apos; settings" longdescription="Change parcel &apos;Sell passes to&apos; settings in About Land &gt; Access tab." name="land manage passes" value="31"/>
-		<action description="Eject and freeze Residents on parcels" longdescription="Members in a Role with this Ability can handle an unwelcome Resident on a group-owned parcel by right-clicking them, then selecting &apos;Eject&apos; or &apos;Freeze&apos;." name="land admin" value="32"/>
+		<action description="將地段內的居民踢出及凍結" longdescription="Members in a Role with this Ability can handle an unwelcome Resident on a group-owned parcel by right-clicking them, then selecting &apos;Eject&apos; or &apos;Freeze&apos;." name="land admin" value="32"/>
 	</action_set>
 	<action_set description="These Abilities include powers to allow members to return objects and place and move Linden plants. This is useful for Members to clean up litter and do landscaping, but it should also be used with care, because there&apos;s no undo for returning objects." name="Parcel Content">
 		<action description="Return objects owned by group" longdescription="Return objects on group-owned parcels that are owned by the group in About Land &gt; Objects tab." name="land return group owned" value="48"/>
@@ -62,8 +62,8 @@
 		<action description="Pay group liabilities and receive group dividends" longdescription="Members in a Role with this Ability will automatically pay group liabilities and receive group dividends. This means they will receive a portion of group-owned land sales which are distributed daily, as well as contribute towards things like parcel listing fees." name="accounting accountable" value="40"/>
 	</action_set>
 	<action_set description="These Abilities include powers to allow Members to send, receive, and view group Notices." name="Notices">
-		<action description="Send Notices" longdescription="Members in a Role with this Ability can send Notices via the Group &gt; Notices section." name="notices send" value="42"/>
-		<action description="Receive Notices and view past Notices" longdescription="Members in a Role with this Ability can receive Notices and view past Notices in Group &gt; Notices section." name="notices receive" value="43"/>
+		<action description="送出通知" longdescription="Members in a Role with this Ability can send Notices via the Group &gt; Notices section." name="notices send" value="42"/>
+		<action description="接收通知與察看過去通知" longdescription="Members in a Role with this Ability can receive Notices and view past Notices in Group &gt; Notices section." name="notices receive" value="43"/>
 	</action_set>
 	<action_set description="These Abilities include powers to allow or restrict access to group chat sessions and group voice chat." name="Chat">
 		<action description="Join Group Chat" longdescription="Members in a Role with this Ability can join group chat sessions, for text and voice." name="join group chat" value="16"/>

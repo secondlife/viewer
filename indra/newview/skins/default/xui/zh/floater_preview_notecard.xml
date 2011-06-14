@@ -7,7 +7,7 @@
 		You do not have permission to view this notecard.
 	</floater.string>
 	<floater.string name="Title">
-		Notecard: [NAME]
+		記事卡： [NAME]
 	</floater.string>
 	<text name="desc txt">
 		描述：
