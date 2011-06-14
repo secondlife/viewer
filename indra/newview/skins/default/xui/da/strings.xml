@@ -115,6 +115,140 @@
 	<string name="Quit">
 		Afslut
 	</string>
+	<string name="LoginFailedViewerNotPermitted">
+		Den klient du benytter kan ikke længere få adgang til Second Life. Besøg venligst denne side for at hente en ny klient:
+http://secondlife.com/download
+
+For mere information, se denne FAQ:
+http://secondlife.com/viewer-access-faq
+	</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">
+		Valgfri klient opdatering tilgængelig: [VERSION]
+	</string>
+	<string name="LoginFailedRequiredUpdate">
+		Påkrævet opdatering a klient: [VERSION]
+	</string>
+	<string name="LoginFailedAlreadyLoggedIn">
+		Din avatar er allerede logget på.
+	</string>
+	<string name="LoginFailedAuthenticationFailed">
+		Beklager! vi kunne ikke logge dig på.
+Undersøg venligst at du har indtastet det rette				
+Please check to make sure you entered the right
+    * Brugernavn (like bobsmith12 or steller.sunshine)
+    * Password
+Check også at Caps Lock ikke er aktiveret.
+	</string>
+	<string name="LoginFailedPasswordChanged">
+		Som en sikkerhedsforanstaltning er dit password blevet ændret.
+Går venligst til din konto-side på http://secondlife.com/password
+og besvar sikkerhedsspørgsmål for at nulstille dit password.
+Vi undskylder besværet.
+	</string>
+	<string name="LoginFailedPasswordReset">
+		vi har lavet nogle ændringer i vores system og det er nødvendigt at nulstille dit password.
+Går venligst til din konto-side på http://secondlife.com/password
+og besvar sikkerhedsspørgsmål for at nulstille dit password.
+Vi undskylder besværet.
+	</string>
+	<string name="LoginFailedEmployeesOnly">
+		Second Life er midlertidig lukket ned for vedligeholdelse.
+Kun medarbejdere kan logge på for øjeblikket.
+Check www.secondlife.com/status for opdateringer.
+	</string>
+	<string name="LoginFailedPremiumOnly">
+		Second Life har midlertidig begrænset muligheden for log-in for at sikre, at brugere på systemet ikke får dårlige svartider.
+
+ Brugere med gratis-konti vil ikke kunne logge på Second Life på dette tidspunkt.
+	</string>
+	<string name="LoginFailedComputerProhibited">
+		Second Life kan ikke tilgås fra dennecomputer.
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedAcountSuspended">
+		Din konto vil ikke være tilgængelig før 
+[TIME] Pacific Time.
+	</string>
+	<string name="LoginFailedAccountDisabled">
+		Vi kan desværre ikke behandle forespøgsel lige nu.
+Kontakt venligst Second Life supper for assitance via http://secondlife.com/support.
+Hvis du ikke kan ændre dit password ring venligst +1 (866) 476-9763.
+	</string>
+	<string name="LoginFailedTransformError">
+		Data inkonsistens registret ved login.
+Kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedAccountMaintenance">
+		Der foretages vedligehold på din konto lige nu.
+Din konto vil ikke være tilgængelig før 
+[TIME] Pacific Time.
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedPendingLogoutFault">
+		Forespøgsel på logout blev besvaret med en fejl fra simulatoren.
+	</string>
+	<string name="LoginFailedPendingLogout">
+		Systemet er i gang med at logge dig ud netop nu.
+Din konto vil ikke være tilgængelig før 
+[TIME] Pacific Time.
+	</string>
+	<string name="LoginFailedUnableToCreateSession">
+		Ikke muligt at oprette gyldig session.
+	</string>
+	<string name="LoginFailedUnableToConnectToSimulator">
+		Ikke muligt at koble til en simulator.
+	</string>
+	<string name="LoginFailedRestrictedHours">
+		Din konto kan kun tilgå Second Life
+mellem [START] [END] Pacific Time.
+Kom venligst tilbage i dette tidsrum.
+
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedIncorrectParameters">
+		Ugyldig parametre.
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">
+		Fornavn parameter skal være alfanumerisk
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">
+		Efternavn parameter skal være alfanumerisk
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LogoutFailedRegionGoingOffline">
+		Regionen er lukket ned.
+Prøv at logge på om lidt igen.
+	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		Avatar ikke i en region.
+Prøv venligst om lidt igen.
+	</string>
+	<string name="LogoutFailedPendingLogin">
+		The region was logging in another session.
+Please try logging in again in a minute.
+	</string>
+	<string name="LogoutFailedLoggingOut">
+		Region har lukket sidste session ned.
+Prøv venligst om lidt igen.
+	</string>
+	<string name="LogoutFailedStillLoggingOut">
+		Regionen er stadig ved at lukke forrige session ud.
+Prøv venligst om lidt igen.
+	</string>
+	<string name="LogoutSucceeded">
+		Region har lukket sidste session ned.
+Prøv venligst om lidt igen.
+	</string>
+	<string name="LogoutFailedLogoutBegun">
+		Region er i gang med at logge ud.
+Prøv venligst om lidt igen.
+	</string>
+	<string name="LoginFailedLoggingOutSession">
+		Region er i gang med at lukket sidste session ned.
+Prøv venligst om lidt igen.
+	</string>
 	<string name="AgentLostConnection">
 		Denne region kan have problemer. Tjek venligst din forbindelse til internettet.
 	</string>
@@ -422,6 +556,9 @@
 	</string>
 	<string name="symbolic folder link">
 		link til mappe
+	</string>
+	<string name="mesh">
+		mesh
 	</string>
 	<string name="AvatarAway">
 		Væk
@@ -1149,6 +1286,9 @@
 	</string>
 	<string name="InvFolder Accessories">
 		Tilbehør
+	</string>
+	<string name="InvFolder Meshes">
+		Meshes
 	</string>
 	<string name="InvFolder Friends">
 		Venner
@@ -3656,6 +3796,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="session_initialization_timed_out_error">
 		Initialisering af session er &quot;timed out&quot;
+	</string>
+	<string name="Home position set.">
+		Hjemmeposition sat.
 	</string>
 	<string name="voice_morphing_url">
 		http://secondlife.com/landing/voicemorphing

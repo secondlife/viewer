@@ -1071,6 +1071,12 @@ Det kan påvirke din indtastning af password.
 	<notification name="RezItemNoPermissions">
 		Utilstrækkelige tilladelser til at danne genstanden.
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		Ikke muligt at sende IM over forældre estates.
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		Ikke muligt at overføre din beholdning over forældre parceller.
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		Ikke muligt at indlæse note.
 Prøv venligst igen.
@@ -1641,6 +1647,10 @@ De vil blive blokeret nogle få sekunder af sikkerhedsmæssige årsager.
 		Din stemme er blevet slukket af moderatoren.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		Dette upload vil koste L$[PRICE], ønsker du at sende?
+		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Send"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		Er du sikker på at du vil slette teleport historikken?
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
@@ -1651,6 +1661,9 @@ Knappen vil blive vist når der er nok plads til den.
 	</notification>
 	<notification name="ShareNotification">
 		Vælg beboere at dele med.
+	</notification>
+	<notification name="MeshUploadError">
+		[LABEL] kunne ikke sendes: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Er du sikker på at du vil dele følgende genstande:
@@ -1667,6 +1680,19 @@ Me følgende beboere:
 	</notification>
 	<notification name="DeedToGroupFail">
 		Dedikering til gruppe fejlede.
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		Parcellen [PARCEL_NAME] kan ikke efterlades på nuværende tidspunkt.
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		[AREA] m² parcellen &apos;[PARCEL_NAME]&apos; er blevet frigivet.
+
+Du har [RECLAIM_PERIOD] timer til at få den tilbage for L$0 før den udbydes til salg til andre beboere.
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		[AREA] m² parcel &apos;[PARCEL_NAME]&apos; er blevet frigivet.
+
+Parcellen kan nu købes af enhver beboer.
 	</notification>
 	<notification name="AvatarRezNotification">
 		( [EXISTENCE] sekunder i live )
@@ -1809,6 +1835,10 @@ Klik hvorsomhelst i verden for at rotere din visning
 		Oprettelse og redigering af grupper er kun muligt i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
 		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
 	</notification>
+	<notification label="" name="NoPlaceInfo">
+		Det er kun muligt at vise profil for stedet i avanceret opsætning. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
 	<notification label="" name="NoPicks">
 		Oprettelse og redigering af favoritter er kun mulig i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
 		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
@@ -1827,6 +1857,18 @@ Klik hvorsomhelst i verden for at rotere din visning
 	</notification>
 	<notification label="" name="NoAvatarPay">
 		Det er kun muligt at betale andre beboere i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand?
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoInventory">
+		Det er kun muligt at vise beholdning i avanceret tilstand. Ønsker du at logge ud og logge på i avanceret tilstand.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		Udseende opsætning er kun tilgængelig i avanceret tilstand. Ønsker du at logge ud og logge på i avanceret tilstand.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		Søgning er kun mulig i avanceret tilstand. Ønsker du at logge ud og logge på i avanceret tilstand.
 		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">

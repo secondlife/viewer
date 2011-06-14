@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="price_for_listing" title="PUBLISH CLASSIFIED AD">
+	<text name="explanation_text">
+		Din annonce vil løbe en uge fra udgivelsesdatoen.
+
+Placeringen af din annonce i listerne er afhængig af hvor meget du har valgt at betale.
+
+De annoncer der betales mest for vises øverst i lister og højere i søgeresultater.
+	</text>
+	<text name="price_text">
+		Pris for annonce:
+	</text>
+	<text name="price_symbol">
+		L$
+	</text>
+	<button label="OK" name="set_price_btn"/>
+	<button label="Annullér" name="cancel_btn"/>
+</floater>
