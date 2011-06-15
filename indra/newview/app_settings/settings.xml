@@ -3256,17 +3256,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>FirstLoginThisInstall</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifies that you have not successfully logged in since you installed the latest update</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>FirstName</key>
     <map>
       <key>Comment</key>
@@ -8867,17 +8856,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>RenderUseTriStrips</key>
-  <map>
-    <key>Comment</key>
-    <string>Use triangle strips for rendering prims.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
   <key>RenderUseTriStrips</key>
   <map>
     <key>Comment</key>
