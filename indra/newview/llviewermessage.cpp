@@ -6266,6 +6266,15 @@ void send_group_notice(const LLUUID& group_id,
 
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
+	if(notification["payload"]["ids"].size() > 250) 
+	{
+		// More than 250 targets will overload the message.
+		LLSD args;
+		args["OFFERS"] = notification["payload"]["ids"].size();
+		LLNotificationsUtil::add("TooManyTeleportOffers", args);
+		return false;
+	}
+	
 	std::string text = response["message"].asString();
 	LLSLURL slurl;
 	LLAgentUI::buildSLURL(slurl);
