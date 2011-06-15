@@ -3700,8 +3700,8 @@ Join me in [REGION]
    icon="alertmodal.tga"
    name="TooManyTeleportOffers"
    type="alertmodal">
-You attempted to make [OFFERS] teleport offers; 
-250 are the most that can be done at one time
+You attempted to make [OFFERS] teleport offers
+which exceeds the limit of [LIMIT].
     <tag>group</tag>
     <tag>fail</tag>
   <usetemplate

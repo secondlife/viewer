@@ -6266,11 +6266,14 @@ void send_group_notice(const LLUUID& group_id,
 
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
-	if(notification["payload"]["ids"].size() > 250) 
+	static const unsigned OFFER_RECIPIENT_LIMIT = 250;
+	if(notification["payload"]["ids"].size() > OFFER_RECIPIENT_LIMIT) 
 	{
-		// More than 250 targets will overload the message.
+		// More than OFFER_RECIPIENT_LIMIT targets will overload the message
+		// producing an llerror.
 		LLSD args;
 		args["OFFERS"] = notification["payload"]["ids"].size();
+		args["LIMIT"] = static_cast<int>(OFFER_RECIPIENT_LIMIT);
 		LLNotificationsUtil::add("TooManyTeleportOffers", args);
 		return false;
 	}
