@@ -1556,16 +1556,12 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				std::stringstream texture_str;
 				if (texture != NULL && include_textures && mUploadTextures)
 				{
-					// Get binary rep of texture, if needed.
-					LLTextureUploadData data(texture, material.mDiffuseMapLabel);
-					if (!data.mTexture->isRawImageValid())
-					{
-						data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
+					if(texture->hasSavedRawImage())
+					{											
+						LLPointer<LLImageJ2C> upload_file =
+							LLViewerTextureList::convertToUploadFile(texture->getSavedRawImage());
+						texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
 					}
-						
-					LLPointer<LLImageJ2C> upload_file =
-						LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
-					texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
 				}
 
 				if (texture != NULL &&
@@ -2868,9 +2864,12 @@ void LLMeshUploadThread::doUploadTexture(LLTextureUploadData& data)
 			data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
 		}
 
-		LLPointer<LLImageJ2C> upload_file = LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
+		if(data.mTexture->hasSavedRawImage())
+		{
+			LLPointer<LLImageJ2C> upload_file = LLViewerTextureList::convertToUploadFile(data.mTexture->getSavedRawImage());
 		
-		ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
+			ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
+		}
 
 		data.mAssetData = ostr.str();
 

@@ -1121,7 +1121,7 @@ LLModelLoader::LLModelLoader( std::string filename, S32 lod, LLModelPreview* pre
 							  std::deque<std::string>& jointsFromNodes )
 : mJointList( jointMap )
 , mJointsFromNode( jointsFromNodes )
-, LLThread("Model Loader"), mFilename(filename), mLod(lod), mPreview(preview), mFirstTransform(TRUE)
+, LLThread("Model Loader"), mFilename(filename), mLod(lod), mPreview(preview), mFirstTransform(TRUE), mNumOfFetchingTextures(0)
 {
 	mJointMap["mPelvis"] = "mPelvis";
 	mJointMap["mTorso"] = "mTorso";
@@ -2266,7 +2266,8 @@ void LLModelLoader::loadTextures()
 					iter->second[i].mMaterial[j].mDiffuseMap = 
 						LLViewerTextureManager::getFetchedTextureFromUrl("file://" + iter->second[i].mMaterial[j].mDiffuseMapFilename, TRUE, LLViewerTexture::BOOST_PREVIEW);
 					iter->second[i].mMaterial[j].mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, mPreview, NULL, FALSE);
-					iter->second[i].mMaterial[j].mDiffuseMap->forceToSaveRawImage();
+					iter->second[i].mMaterial[j].mDiffuseMap->forceToSaveRawImage(0, F32_MAX);
+					mNumOfFetchingTextures++ ;
 				}
 			}
 		}
@@ -4140,6 +4141,14 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 	
+	if(upload_ok && mModelLoader)
+	{
+		if(!mModelLoader->areTexturesReady() && mFMP->childGetValue("upload_textures").asBoolean())
+		{
+			upload_ok = false ;
+		}
+	}
+
 	const BOOL confirmed_checkbox = mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean();
 	if ( upload_ok && !errorStateFromLoader && skinAndRigOk && !has_degenerate && confirmed_checkbox)
 	{
@@ -5278,6 +5287,14 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 {
 	LLModelPreview* preview = (LLModelPreview*) userdata;
 	preview->refresh();
+
+	if(final && preview->mModelLoader)
+	{
+		if(preview->mModelLoader->mNumOfFetchingTextures > 0)
+		{
+			preview->mModelLoader->mNumOfFetchingTextures-- ;
+		}
+	}
 }
 
 void LLModelPreview::onLODParamCommit(bool enforce_tri_limit)
