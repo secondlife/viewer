@@ -132,6 +132,9 @@ public:
 	JointTransformMap& mJointList;	
 	std::deque<std::string>& mJointsFromNode;
 
+	S32 mNumOfFetchingTextures ; //updated in the main thread
+	bool areTexturesReady() { return !mNumOfFetchingTextures; } //called in the main thread.
+
 private:
 	static std::list<LLModelLoader*> sActiveLoaderList;
 	static bool isAlive(LLModelLoader* loader) ;

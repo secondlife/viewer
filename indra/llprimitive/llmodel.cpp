@@ -2252,7 +2252,7 @@ LLSD LLModel::Decomposition::asLLSD() const
 		ret["Positions"] = p;
 	}
 
-	llassert(!mBaseHull.empty());
+	//llassert(!mBaseHull.empty());
 
 	if (!mBaseHull.empty())
 	{
