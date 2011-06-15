@@ -87,7 +87,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      width="319">
      	<panel
          background_opaque="true"
-       background_visible="true"
+         background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
          follows="all"
@@ -99,28 +99,54 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          name="nearby_panel"
          top="0"
          width="313">
-			<net_map
-			 bg_color="NetMapBackgroundColor"
-			 follows="top|left|right"
-			 layout="topleft"
-			 left="3"
-			 mouse_opaque="false"
-			 name="Net Map"
-			 width="305"
-			 height="140"
-			 top="5"/>
-			<avatar_list
-             allow_select="true"
-             follows="top|left|bottom|right"
-             height="211"
-             ignore_online_status="true"
+         <layout_stack
+           clip="false"
+           follows="all"
+           height="355"
+           layout="topleft"
+           mouse_opaque="false"
+           orientation="vertical"
+           width="313">
+           <layout_panel
+             height="142"
              layout="topleft"
-             left="3"
-             multi_select="true"
-             name="avatar_list"
-             top="145"
-             width="306" />
-            <panel
+             mouse_opaque="false"
+             user_resize="false"
+             visibility_control="NearbyListShowMap"
+             width="313">
+             <net_map
+               bg_color="NetMapBackgroundColor"
+               follows="all"
+               height="140"
+               layout="topleft"
+               left="3"
+               mouse_opaque="false"
+               name="Net Map"
+               top="4"
+               width="305"/>
+           </layout_panel>
+           <layout_panel
+             height="213"
+             layout="topleft"
+             min_height="100"
+             mouse_opaque="false"
+             user_resize="false"
+             width="313">
+             <avatar_list
+               allow_select="true"
+               follows="all"
+               height="211"
+               ignore_online_status="true"
+               layout="topleft"
+               left="3"
+               keep_one_selected="false"
+               multi_select="true"
+               name="avatar_list"
+               top="2"
+               width="306" />
+           </layout_panel>
+         </layout_stack>
+         <panel
              background_visible="true"
              follows="left|right|bottom"
              height="27"
