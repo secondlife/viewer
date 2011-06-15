@@ -1,24 +1,25 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Inventory Finder" title="INVENTORY_RECENT_ITEMS">
-	<check_box label="Animation" name="check_animation" />
-	<check_box label="Visitkort" name="check_calling_card" />
-	<check_box label="Tøj" name="check_clothing" />
-	<check_box label="Bevægelser" name="check_gesture" />
-	<check_box label="Landemærke" name="check_landmark" />
-	<check_box label="Note" name="check_notecard" />
-	<check_box label="Objekter" name="check_object" />
-	<check_box label="Scripts" name="check_script" />
-	<check_box label="Lyde" name="check_sound" />
-	<check_box label="Teksturer" name="check_texture" />
-	<check_box label="Foto&apos;s" name="check_snapshot" />
-	<button label="Alle" label_selected="Alle" name="All" />
-	<button label="Ingen" label_selected="Ingen" name="None" />
-	<check_box label="Vis altid mapper" name="check_show_empty" />
-	<check_box label="Siden sidste logoff" name="check_since_logoff" />
+	<check_box label="Animation" name="check_animation"/>
+	<check_box label="Visitkort" name="check_calling_card"/>
+	<check_box label="Tøj" name="check_clothing"/>
+	<check_box label="Bevægelser" name="check_gesture"/>
+	<check_box label="Landemærke" name="check_landmark"/>
+	<check_box label="Meshes" name="check_mesh"/>
+	<check_box label="Note" name="check_notecard"/>
+	<check_box label="Objekter" name="check_object"/>
+	<check_box label="Scripts" name="check_script"/>
+	<check_box label="Lyde" name="check_sound"/>
+	<check_box label="Teksturer" name="check_texture"/>
+	<check_box label="Foto&apos;s" name="check_snapshot"/>
+	<button label="Alle" label_selected="Alle" name="All"/>
+	<button label="Ingen" label_selected="Ingen" name="None"/>
+	<check_box label="Vis altid mapper" name="check_show_empty"/>
+	<check_box label="Siden sidste logoff" name="check_since_logoff"/>
 	<text name="- OR -">
 		- ELLER -
 	</text>
-	<spinner label="Timer siden" name="spin_hours_ago" />
-	<spinner label="Dage siden" name="spin_days_ago" />
-	<button label="Luk" label_selected="Luk" name="Close" />
+	<spinner label="Timer siden" name="spin_hours_ago"/>
+	<spinner label="Dage siden" name="spin_days_ago"/>
+	<button label="Luk" label_selected="Luk" name="Close"/>
 </floater>

@@ -27,8 +27,20 @@
 		</text>
 		<check_box initial_value="true" label="Transparentes Wasser" name="TransparentWater"/>
 		<check_box initial_value="true" label="Bumpmapping und Glanz" name="BumpShiny"/>
+		<check_box initial_value="true" label="Lokale Lichtquellen" name="LocalLights"/>
 		<check_box initial_value="true" label="Einfache Shader" name="BasicShaders" tool_tip="Deaktivieren Sie diese Option, wenn der Grafikkartentreiber Abstürze verursacht"/>
 		<check_box initial_value="true" label="Atmosphären-Shader" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="Licht und Schatten" name="UseLightShaders"/>
+		<check_box initial_value="true" label="Ambient Occlusion" name="UseSSAO"/>
+		<check_box initial_value="true" label="Schärfentiefe" name="UseDoF"/>
+		<text name="shadows_label">
+			Schatten:
+		</text>
+		<combo_box name="ShadowDetail">
+			<combo_box.item label="Keine" name="0"/>
+			<combo_box.item label="Sonne/Mond" name="1"/>
+			<combo_box.item label="Sonne/Mond + Projektoren" name="2"/>
+		</combo_box>
 		<text name="reflection_label">
 			Wasserreflexionen:
 		</text>

@@ -1071,6 +1071,12 @@ Det kan påvirke din indtastning af password.
 	<notification name="RezItemNoPermissions">
 		Utilstrækkelige tilladelser til at danne genstanden.
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		Ikke muligt at sende IM over forældre estates.
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		Ikke muligt at overføre din beholdning over forældre parceller.
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		Ikke muligt at indlæse note.
 Prøv venligst igen.
@@ -1641,6 +1647,10 @@ De vil blive blokeret nogle få sekunder af sikkerhedsmæssige årsager.
 		Din stemme er blevet slukket af moderatoren.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		Dette upload vil koste L$[PRICE], ønsker du at sende?
+		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Send"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		Er du sikker på at du vil slette teleport historikken?
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
@@ -1651,6 +1661,9 @@ Knappen vil blive vist når der er nok plads til den.
 	</notification>
 	<notification name="ShareNotification">
 		Vælg beboere at dele med.
+	</notification>
+	<notification name="MeshUploadError">
+		[LABEL] kunne ikke sendes: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Er du sikker på at du vil dele følgende genstande:
@@ -1667,6 +1680,19 @@ Me følgende beboere:
 	</notification>
 	<notification name="DeedToGroupFail">
 		Dedikering til gruppe fejlede.
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		Parcellen [PARCEL_NAME] kan ikke efterlades på nuværende tidspunkt.
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		[AREA] m² parcellen &apos;[PARCEL_NAME]&apos; er blevet frigivet.
+
+Du har [RECLAIM_PERIOD] timer til at få den tilbage for L$0 før den udbydes til salg til andre beboere.
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		[AREA] m² parcel &apos;[PARCEL_NAME]&apos; er blevet frigivet.
+
+Parcellen kan nu købes af enhver beboer.
 	</notification>
 	<notification name="AvatarRezNotification">
 		( [EXISTENCE] sekunder i live )
@@ -1746,6 +1772,13 @@ Sluk for alles lyd?
 	<notification label="Stå op" name="HintSit">
 		For at rejse dig op og forlad siddeposition, tryk på &quot;Stå op&quot; knappen.
 	</notification>
+	<notification label="Tal" name="HintSpeak">
+		Klik på tal knappen for at tænde og slukke for din mikrofon.
+
+Klik på den lille pil-op for at se stemme kontrolpanelet.
+
+Skjules tale knappen, vil stemmechat ikke være mulig.
+	</notification>
 	<notification label="Undersøg verden" name="HintDestinationGuide">
 		Destinationsguiden indeholder tusinder af nye steder der kan opleves. Vælg venligst et sted og vælg Teleport for at komme derhen.
 	</notification>
@@ -1755,11 +1788,15 @@ Sluk for alles lyd?
 	<notification label="Flyt" name="HintMove">
 		For at gå eller løbe, åben Flyt panelet for neden og brug pilene til at navigere. Du kan også bruge pile-tasterne på dit tastatur.
 	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Klik for at gå
+Klik et hvorsomhelst på jorden for at gå til dette sted.
+
+2. Klik og træk for at rotere visning
+Klik hvorsomhelst i verden for at rotere din visning
+	</notification>
 	<notification label="Visningsnavn" name="HintDisplayName">
 		Angiv dit konfigurérbare visningsnavn her. Dette er i tillæg til dit unikke brugernavn, som ikke kan ændres. Du kan ændre hvordan du ser andre beboeres navne i dine indstillinger.
-	</notification>
-	<notification label="Flyt" name="HintMoveArrows">
-		For at gå, brug piletasterne på tastaturet. Du kan løbe ved at trykke to gange på Pil-Op
 	</notification>
 	<notification label="Se" name="HintView">
 		For at ændre dit kamera-view, benyt kredsløbs og panoreringskontrollerne. Nulstil view ved at trykke Esc eller ved at gå.
@@ -1798,6 +1835,10 @@ Sluk for alles lyd?
 		Oprettelse og redigering af grupper er kun muligt i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
 		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
 	</notification>
+	<notification label="" name="NoPlaceInfo">
+		Det er kun muligt at vise profil for stedet i avanceret opsætning. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
 	<notification label="" name="NoPicks">
 		Oprettelse og redigering af favoritter er kun mulig i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
 		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
@@ -1816,6 +1857,18 @@ Sluk for alles lyd?
 	</notification>
 	<notification label="" name="NoAvatarPay">
 		Det er kun muligt at betale andre beboere i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand?
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoInventory">
+		Det er kun muligt at vise beholdning i avanceret tilstand. Ønsker du at logge ud og logge på i avanceret tilstand.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		Udseende opsætning er kun tilgængelig i avanceret tilstand. Ønsker du at logge ud og logge på i avanceret tilstand.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		Søgning er kun mulig i avanceret tilstand. Ønsker du at logge ud og logge på i avanceret tilstand.
 		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
