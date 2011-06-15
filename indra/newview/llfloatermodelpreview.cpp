@@ -1901,11 +1901,19 @@ bool LLModelLoader::doLoadModel()
 	{
 		llwarns << "document has no visual_scene" << llendl;
 		setLoadState( ERROR_PARSING );
-		return false;
+		return true;
 	}
+	
 	setLoadState( DONE );
 
-	processElement(scene);
+	bool badElement = false;
+	
+	processElement( scene, badElement );
+	
+	if ( badElement )
+	{
+		setLoadState( ERROR_PARSING );
+	}
 	
 	return true;
 }
@@ -2489,7 +2497,7 @@ daeElement* LLModelLoader::getChildFromElement( daeElement* pElement, std::strin
     return NULL;
 }
 
-void LLModelLoader::processElement(daeElement* element)
+void LLModelLoader::processElement( daeElement* element, bool& badElement )
 {
 	LLMatrix4 saved_transform = mTransform;
 
@@ -2589,6 +2597,12 @@ void LLModelLoader::processElement(daeElement* element)
 				}
 			}
 		}
+		else 
+		{
+			llinfos<<"Unable to resolve geometry URL."<<llendl;
+			badElement = true;			
+		}
+
 	}
 
 	domInstance_node* instance_node = daeSafeCast<domInstance_node>(element);
@@ -2597,7 +2611,7 @@ void LLModelLoader::processElement(daeElement* element)
 		daeElement* instance = instance_node->getUrl().getElement();
 		if (instance)
 		{
-			processElement(instance);
+			processElement(instance,badElement);
 		}
 	}
 
@@ -2605,7 +2619,7 @@ void LLModelLoader::processElement(daeElement* element)
 	daeTArray< daeSmartRef<daeElement> > children = element->getChildren();
 	for (S32 i = 0; i < children.getCount(); i++)
 	{
-		processElement(children[i]);
+		processElement(children[i],badElement);
 	}
 
 	domNode* node = daeSafeCast<domNode>(element);

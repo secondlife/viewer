@@ -108,7 +108,7 @@ public:
 	void loadModelCallback();
 
 	void loadTextures() ; //called in the main thread.
-	void processElement(daeElement* element);
+	void processElement(daeElement* element, bool& badElement);
 	std::vector<LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
 	LLImportMaterial profileToMaterial(domProfile_COMMON* material);
 	std::string getElementLabel(daeElement *element);
