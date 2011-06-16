@@ -5,5 +5,5 @@
 	</text>
 	<line_editor name="whitelist_entry" tool_tip="Enter a URL or URL pattern to White List"/>
 	<button label="確定" name="ok_btn"/>
-	<button label="取銷" name="cancel_btn"/>
+	<button label="取消" name="cancel_btn"/>
 </floater>

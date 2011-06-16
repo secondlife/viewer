@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Graphics" name="Display panel">
+<panel label="圖形" name="Display panel">
 	<text name="QualitySpeed">
 		Quality and speed:
 	</text>
@@ -21,7 +21,7 @@
 	<text name="ShadersPrefText4">
 		Ultra
 	</text>
-	<panel label="CustomGraphics" name="CustomGraphics Panel">
+	<panel label="自訂圖形" name="CustomGraphics Panel">
 		<text name="ShadersText">
 			Shaders:
 		</text>
@@ -43,7 +43,7 @@
 		<text name="AvatarPhysicsDetailText">
 			Low
 		</text>
-		<slider label="Draw distance:" name="DrawDistance"/>
+		<slider label="描繪距離：" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
 		</text>

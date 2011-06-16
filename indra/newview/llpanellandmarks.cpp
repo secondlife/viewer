@@ -299,7 +299,7 @@ void LLLandmarksPanel::onTeleport()
 	}
 
 	LLFolderViewEventListener* listenerp = current_item->getListener();
-	if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
+	if (listenerp && listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		listenerp->openItem();
 	}

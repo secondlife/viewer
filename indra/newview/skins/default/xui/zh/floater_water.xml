@@ -43,7 +43,7 @@
 				Blur Multiplier
 			</text>
 		</panel>
-		<panel label="IMAGE" name="Waves">
+		<panel label="圖像" name="Waves">
 			<text name="BHText">
 				Big Wave Direction
 			</text>

@@ -71,6 +71,6 @@
 		</panel>
 	</scroll_container>
 	<panel name="button_panel">
-		<button label="取銷" name="cancel_btn"/>
+		<button label="取消" name="cancel_btn"/>
 	</panel>
 </panel>

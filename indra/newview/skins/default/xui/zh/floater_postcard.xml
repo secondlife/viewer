@@ -7,27 +7,27 @@
 		Check this out!
 	</floater.string>
 	<floater.string name="upload_message">
-		Sending...
+		傳送中...
 	</floater.string>
 	<text name="to_label">
-		Recipient&apos;s Email:
+		收件人電子郵件地址：
 	</text>
 	<text name="from_label">
-		Your Email:
+		你的電子郵件地址：
 	</text>
 	<text name="name_label">
-		Your Name:
+		你的名稱：
 	</text>
 	<text name="subject_label">
-		Subject:
+		主旨：
 	</text>
-	<line_editor label="Type your subject here." name="subject_form"/>
+	<line_editor label="在此輸入你的主旨。" name="subject_form"/>
 	<text name="msg_label">
-		Message:
+		訓息：
 	</text>
 	<text_editor name="msg_form">
-		Type your message here.
+		在此輸入你的訊息。
 	</text_editor>
-	<button label="取銷" name="cancel_btn"/>
-	<button label="Send" name="send_btn"/>
+	<button label="取消" name="cancel_btn"/>
+	<button label="送出" name="send_btn"/>
 </floater>

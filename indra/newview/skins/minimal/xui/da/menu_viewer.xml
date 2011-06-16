@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Main Menu">
+	<menu label="Hjælp" name="Help">
+		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
+	</menu>
+	<menu label="Avanceret" name="Advanced">
+		<menu label="Shortcuts" name="Shortcuts">
+			<menu_item_check label="Flyv" name="Fly"/>
+			<menu_item_call label="Luk vindue" name="Close Window"/>
+			<menu_item_call label="Luk alle vinduer" name="Close All Windows"/>
+			<menu_item_call label="Nulstil udsyn" name="Reset View"/>
+		</menu>
+	</menu>
+</menu_bar>

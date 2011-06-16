@@ -346,6 +346,7 @@ Kun større parceller kan vises i søgning.
 				<combo_box.item label="Parker &amp; natur" name="item9"/>
 				<combo_box.item label="Beboelse" name="item10"/>
 				<combo_box.item label="Indkøb" name="item11"/>
+				<combo_box.item label="Leje" name="item13"/>
 				<combo_box.item label="Andet" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -360,6 +361,7 @@ Kun større parceller kan vises i søgning.
 				<combo_box.item label="Parker &amp; natur" name="item9"/>
 				<combo_box.item label="Beboelse" name="item10"/>
 				<combo_box.item label="Indkøb" name="item11"/>
+				<combo_box.item label="Leje" name="item13"/>
 				<combo_box.item label="Andet" name="item12"/>
 			</combo_box>
 			<check_box label="Mature indhold" name="MatureCheck" tool_tip=""/>
@@ -426,7 +428,7 @@ Kun større parceller kan vises i søgning.
 				(Defineret via estate)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Tillad adgang for alle ([MATURITY])
+				Tillad offentlig adgang ([MATURITY]) (Bemærk: Ellers oprettes blokeringslinier)
 			</panel.string>
 			<panel.string name="estate_override">
 				En eller flere af disse valg er indstillet på estate niveau

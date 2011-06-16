@@ -17,5 +17,5 @@
 		Or, choose amount:
 	</text>
 	<button label="Pay" label_selected="Pay" name="pay btn"/>
-	<button label="取銷" label_selected="取銷" name="cancel btn"/>
+	<button label="取消" label_selected="取消" name="cancel btn"/>
 </floater>

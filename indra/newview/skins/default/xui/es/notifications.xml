@@ -2365,6 +2365,9 @@ Por favor, dirígete a la Base de Conocimientos para más detalles sobre el acce
 	<notification name="ImproperPaymentStatus">
 		No tienes el estado de pago adecuado para entrar a esta región.
 	</notification>
+	<notification name="MustGetAgeRgion">
+		Debes tener verificada la edad para entrar a esta región
+	</notification>
 	<notification name="MustGetAgeParcel">
 		Debes haber verificado tu edad para entrar a esta parcela.
 	</notification>

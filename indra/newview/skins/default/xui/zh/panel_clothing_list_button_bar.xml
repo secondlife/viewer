@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="clothing_list_button_bar_panel">
-	<button label="Add +" name="add_btn"/>
+	<button label="添加 +" name="add_btn"/>
 </panel>

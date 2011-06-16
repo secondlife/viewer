@@ -8,7 +8,7 @@
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<icon label="" name="edit_icon" tool_tip="Click to select an image"/>
+			<icon label="" name="edit_icon" tool_tip="點擊以選擇圖像"/>
 			<text name="Name:">
 				Title:
 			</text>
@@ -30,7 +30,7 @@
 				<button label="Save Pick" name="save_changes_btn"/>
 			</layout_panel>
 			<layout_panel name="layout_panel1">
-				<button label="取銷" name="cancel_btn"/>
+				<button label="取消" name="cancel_btn"/>
 			</layout_panel>
 		</layout_stack>
 	</panel>

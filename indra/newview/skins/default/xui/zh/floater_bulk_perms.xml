@@ -12,14 +12,14 @@
 	<floater.string name="done_text">
 		Finished permission change requests.
 	</floater.string>
-	<icon name="icon_animation" tool_tip="Animation"/>
+	<icon name="icon_animation" tool_tip="動作"/>
 	<icon name="icon_bodypart" tool_tip="身體部位"/>
 	<icon name="icon_clothing" tool_tip="服裝"/>
 	<icon name="icon_gesture" tool_tip="姿勢"/>
-	<icon name="icon_notecard" tool_tip="Notecards"/>
-	<icon name="icon_object" tool_tip="Objects"/>
-	<icon name="icon_script" tool_tip="Scripts"/>
-	<icon name="icon_sound" tool_tip="Sounds"/>
+	<icon name="icon_notecard" tool_tip="記事卡"/>
+	<icon name="icon_object" tool_tip="物件"/>
+	<icon name="icon_script" tool_tip="腳本"/>
+	<icon name="icon_sound" tool_tip="聲音"/>
 	<icon name="icon_texture" tool_tip="材質"/>
 	<button label="√ 全部" name="check_all"/>
 	<button label="清除" label_selected="無" name="check_none"/>
@@ -41,5 +41,5 @@
 	<check_box label="覆製" name="next_owner_copy"/>
 	<check_box initial_value="true" label="轉移" name="next_owner_transfer" tool_tip="Next owner can give away or resell this object"/>
 	<button label="確定" name="apply"/>
-	<button label="取銷" name="close"/>
+	<button label="取消" name="close"/>
 </floater>

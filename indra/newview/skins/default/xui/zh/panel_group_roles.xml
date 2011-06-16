@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Members &amp; Roles" name="roles_tab">
+<panel label="成員與角色" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
 		There are unsaved changes
 	</panel.string>
@@ -7,7 +7,7 @@
 		Do you want to save your changes?
 	</panel.string>
 	<tab_container name="roles_tab_container">
-		<panel label="MEMBERS" name="members_sub_tab" tool_tip="Members">
+		<panel label="成員" name="members_sub_tab" tool_tip="成員">
 			<panel.string name="help_text">
 				You can add or remove Roles assigned to Members.
 Select multiple Members by holding the Ctrl key and
@@ -16,16 +16,16 @@ clicking on their names.
 			<panel.string name="donation_area">
 				[AREA] m²
 			</panel.string>
-			<filter_editor label="Filter Members" name="filter_input"/>
+			<filter_editor label="成員過濾器" name="filter_input"/>
 			<name_list name="member_list">
-				<name_list.columns label="Member" name="name"/>
+				<name_list.columns label="成員" name="name"/>
 				<name_list.columns label="Donation" name="donated"/>
-				<name_list.columns label="Status" name="online"/>
+				<name_list.columns label="狀態" name="online"/>
 			</name_list>
-			<button label="Invite" name="member_invite"/>
-			<button label="Eject" name="member_eject"/>
+			<button label="邀請" name="member_invite"/>
+			<button label="踢出" name="member_eject"/>
 		</panel>
-		<panel label="ROLES" name="roles_sub_tab">
+		<panel label="角色" name="roles_sub_tab">
 			<panel.string name="help_text">
 				Roles have a title and an allowed list of Abilities
 that Members can perform. Members can belong to
@@ -35,21 +35,21 @@ including the Everyone and Owner Roles.
 			<panel.string name="cant_delete_role">
 				The &apos;Everyone&apos; and &apos;Owners&apos; Roles are special and can&apos;t be deleted.
 			</panel.string>
-			<filter_editor label="Filter Roles" name="filter_input"/>
+			<filter_editor label="角色過濾器" name="filter_input"/>
 			<scroll_list name="role_list">
-				<scroll_list.columns label="Role" name="name"/>
-				<scroll_list.columns label="Title" name="title"/>
+				<scroll_list.columns label="角色" name="name"/>
+				<scroll_list.columns label="頭銜" name="title"/>
 				<scroll_list.columns label="#" name="members"/>
 			</scroll_list>
-			<button label="New Role" name="role_create"/>
-			<button label="Delete Role" name="role_delete"/>
+			<button label="新角色" name="role_create"/>
+			<button label="刪除角色" name="role_delete"/>
 		</panel>
-		<panel label="ABILITIES" name="actions_sub_tab" tool_tip="You can view an Ability&apos;s Description and which Roles and Members can execute the Ability.">
+		<panel label="能力" name="actions_sub_tab" tool_tip="You can view an Ability&apos;s Description and which Roles and Members can execute the Ability.">
 			<panel.string name="help_text">
 				Abilities allow Members in Roles to do specific
 things in this group. There&apos;s a broad variety of Abilities.
 			</panel.string>
-			<filter_editor label="Filter Abilities" name="filter_input"/>
+			<filter_editor label="能力過濾器" name="filter_input"/>
 			<scroll_list name="action_list" tool_tip="Select an Ability to view more details"/>
 		</panel>
 	</tab_container>
@@ -67,10 +67,10 @@ things in this group. There&apos;s a broad variety of Abilities.
 			角色名稱
 		</text>
 		<text name="static3">
-			Role Title
+			角色頭銜
 		</text>
 		<text name="static2">
-			Description
+			描述
 		</text>
 		<text name="static4">
 			Assigned Members
