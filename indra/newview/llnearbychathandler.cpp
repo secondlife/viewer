@@ -268,6 +268,9 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 	
 	toast->setOnFadeCallback(boost::bind(&LLNearbyChatScreenChannel::onToastFade, this, _1));
 
+	// If the toast gets somehow prematurely destroyed, deactivate it to prevent crash (STORM-1352).
+	toast->setOnToastDestroyedCallback(boost::bind(&LLNearbyChatScreenChannel::onToastDestroyed, this, _1, false));
+
 	LL_DEBUGS("NearbyChat") << "Creating and pooling toast" << llendl;	
 	m_toast_pool.push_back(toast->getHandle());
 	return true;
@@ -371,6 +374,8 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 
 int sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> second)
 {
+	if (!first.get() || !second.get()) return 0; // STORM-1352
+
 	F32 v1 = first.get()->getTimeLeftToLive();
 	F32 v2 = second.get()->getTimeLeftToLive();
 	return v1 > v2;
