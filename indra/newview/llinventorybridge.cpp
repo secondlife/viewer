@@ -571,7 +571,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		}
 	}
 
-	// Don't allow items to be pasted directly into the COF.
+	// Don't allow items to be pasted directly into the COF or the inbox
 	if (!isCOFFolder() && !isInboxFolder())
 	{
 		items.push_back(std::string("Paste"));
@@ -2530,6 +2530,7 @@ void LLFolderBridge::folderOptionsMenu()
 			{
 				mItems.push_back(std::string("Add To Outfit"));
 			}
+
 			mItems.push_back(std::string("Replace Outfit"));
 		}
 		if (is_ensemble)
@@ -2617,17 +2618,19 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLViewerInventoryCategory *cat =  getCategory();
 		// BAP removed protected check to re-enable standard ops in untyped folders.
 		// Not sure what the right thing is to do here.
-		if (!isCOFFolder() && !isInboxFolder() && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
+		if (!isCOFFolder() && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
 		{
-			// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
-			if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
-				mItems.push_back(std::string("New Folder"));
-			mItems.push_back(std::string("New Script"));
-			mItems.push_back(std::string("New Note"));
-			mItems.push_back(std::string("New Gesture"));
-			mItems.push_back(std::string("New Clothes"));
-			mItems.push_back(std::string("New Body Parts"));
-
+			if (!isInboxFolder()) // don't allow creation in inbox
+			{
+				// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
+				if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
+					mItems.push_back(std::string("New Folder"));
+				mItems.push_back(std::string("New Script"));
+				mItems.push_back(std::string("New Note"));
+				mItems.push_back(std::string("New Gesture"));
+				mItems.push_back(std::string("New Clothes"));
+				mItems.push_back(std::string("New Body Parts"));
+			}
 #if SUPPORT_ENSEMBLES
 			// Changing folder types is an unfinished unsupported feature
 			// and can lead to unexpected behavior if enabled.
@@ -2643,7 +2646,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		else
 		{
 			// Want some but not all of the items from getClipboardEntries for outfits.
-			if (cat && (cat->getPreferredType() == LLFolderType::FT_OUTFIT) || (cat->getPreferredType() == LLFolderType::FT_INBOX))
+			if (cat && (cat->getPreferredType() == LLFolderType::FT_OUTFIT))
 			{
 				mItems.push_back(std::string("Rename"));
 
@@ -4320,7 +4323,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				items.push_back(std::string("Wearable And Object Separator"));
 				items.push_back(std::string("Detach From Yourself"));
 			}
-			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing() && !isCOFFolder() && !isInboxFolder())
+			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing() && !isCOFFolder())
 			{
 				items.push_back(std::string("Wearable And Object Separator"));
 				items.push_back(std::string("Wearable And Object Wear"));
@@ -4672,7 +4675,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}
 		// Don't allow items to be worn if their baseobj is in the trash.
-		if (isLinkedObjectInTrash() || isLinkedObjectMissing() || isCOFFolder() || isInboxFolder())
+		if (isLinkedObjectInTrash() || isLinkedObjectMissing() || isCOFFolder())
 		{
 			disabled_items.push_back(std::string("Wearable And Object Wear"));
 			disabled_items.push_back(std::string("Wearable Add"));
