@@ -5655,6 +5655,15 @@ This area has building disabled. You can&apos;t build or rez objects here.
 
   <notification
    icon="notify.tga"
+   name="HiddenAVs"
+   persist="true"
+   type="notify"
+   unique="true">
+This parcel hides avatars from view from another parcel.   You can&apos;t see others outside the parcel, and those outside are not able to see you.
+  </notification>
+
+  <notification
+   icon="notify.tga"
    name="ScriptsStopped"
    persist="true"
    type="notify">

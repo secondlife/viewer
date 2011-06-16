@@ -88,6 +88,16 @@
     visible="false"
     width="14"
     />
+  <icon
+    follows="right|top"
+    height="13"
+    image_name="Parcel_HiddenAVsOff_Dark"
+    left="2"
+    name="hidden_av_icon"
+    top="3"
+    visible="false"
+    width="14"
+    />
   <text
     follows="right|top"
     font="SansSerifSmall"

@@ -113,6 +113,14 @@
 	  font="SansSerifSmall"
 	  text_color="TextFgColor"
 	/>
+  <hidden_av_icon
+    name="hidden_av_icon"
+    width="0"
+    height="0"
+    visible="false" 
+    top="21"
+    follows="right|top"
+    />
   <combo_button
 		name="Location History"
                 label=""

@@ -190,6 +190,7 @@ LLLocationInputCtrl::Params::Params()
 	scripts_icon("scripts_icon"),
 	damage_icon("damage_icon"),
 	damage_text("damage_text"),
+	hidden_av_icon("hidden_av_icon"),
 	maturity_help_topic("maturity_help_topic")
 {
 }
@@ -341,6 +342,13 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	damage_text.mouse_opaque = true;
 	mDamageText = LLUICtrlFactory::create<LLTextBox>(damage_text);
 	addChild(mDamageText);
+	
+	LLIconCtrl::Params hidden_av_icon = p.hidden_av_icon;
+	hidden_av_icon.tool_tip = LLTrans::getString("LocationCtrlHiddenAVsTooltip");
+	hidden_av_icon.mouse_opaque = true;
+	mParcelIcon[HIDDEN_AV_ICON] = LLUICtrlFactory::create<LLIconCtrl>(hidden_av_icon);
+	mParcelIcon[HIDDEN_AV_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, HIDDEN_AV_ICON));
+	addChild(mParcelIcon[HIDDEN_AV_ICON]);
 	
 	// Register callbacks and load the location field context menu (NB: the order matters).
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Navbar.Action", boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemClicked, this, _2));
@@ -810,6 +818,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		bool allow_build	= vpm->allowAgentBuild(current_parcel); // true when anyone is allowed to build. See EXT-4610.
 		bool allow_scripts	= vpm->allowAgentScripts(agent_region, current_parcel);
 		bool allow_damage	= vpm->allowAgentDamage(agent_region, current_parcel);
+		bool hidden_avs        = current_parcel->getHiddenAVs();
 
 		// Most icons are "block this ability"
 		mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
@@ -819,6 +828,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		mParcelIcon[SCRIPTS_ICON]->setVisible( !allow_scripts );
 		mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
 		mDamageText->setVisible(allow_damage);
+		mParcelIcon[HIDDEN_AV_ICON]->setVisible( hidden_avs );
 
 		// Padding goes to left of both landmark star and for sale btn
 		x -= mAddLandmarkHPad;
@@ -1174,6 +1184,9 @@ void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
 	}
 	case DAMAGE_ICON:
 		LLNotificationsUtil::add("NotSafe");
+		break;
+	case HIDDEN_AV_ICON:
+		LLNotificationsUtil::add("HiddenAVs");
 		break;
 	case ICON_COUNT:
 		break;

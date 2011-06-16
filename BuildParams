@@ -226,4 +226,10 @@ viewer-vs2010.build_debug_release_separately = true
 viewer-vs2010.build_viewer_update_version_manager = false
 viewer-vs2010.build_link_parallel = false
 
+# ========================================
+# Simon says
+# ========================================
+simon_viewer-dev-private.public_build = false
+
+
 # eof

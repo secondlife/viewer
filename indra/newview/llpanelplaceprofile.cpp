@@ -70,6 +70,8 @@ static std::string icon_scripts;
 static std::string icon_scripts_no;
 static std::string icon_damage;
 static std::string icon_damage_no;
+static std::string icon_hidden_avs_on;
+static std::string icon_hidden_avs_off;
 
 LLPanelPlaceProfile::LLPanelPlaceProfile()
 :	LLPanelPlaceInfo(),
@@ -114,6 +116,8 @@ BOOL LLPanelPlaceProfile::postBuild()
 	mScriptsText = getChild<LLTextBox>("scripts_value");
 	mDamageIcon = getChild<LLIconCtrl>("damage_icon");
 	mDamageText = getChild<LLTextBox>("damage_value");
+	mHiddenAVsIcon = getChild<LLIconCtrl>("hidden_av_icon");
+	mHiddenAVsText = getChild<LLTextBox>("hidden_av_value");
 
 	mRegionNameText = getChild<LLTextBox>("region_name");
 	mRegionTypeText = getChild<LLTextBox>("region_type");
@@ -153,6 +157,8 @@ BOOL LLPanelPlaceProfile::postBuild()
 	icon_scripts_no = getString("icon_ScriptsNo");
 	icon_damage = getString("icon_Damage");
 	icon_damage_no = getString("icon_DamageNo");
+	icon_hidden_avs_on = getString("icon_HiddenAVsOn");
+	icon_hidden_avs_off = getString("icon_HiddenAVsOff");
 
 	return TRUE;
 }
@@ -182,6 +188,8 @@ void LLPanelPlaceProfile::resetLocation()
 	mScriptsText->setText(loading);
 	mDamageIcon->setValue(loading);
 	mDamageText->setText(loading);
+	mHiddenAVsIcon->setValue(loading);
+	mHiddenAVsText->setText(loading);
 
 	mRegionNameText->setValue(loading);
 	mRegionTypeText->setValue(loading);
@@ -412,6 +420,17 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	{
 		mDamageIcon->setValue(icon_damage_no);
 		mDamageText->setText(off);
+	}
+
+	if (parcel->getHiddenAVs())
+	{
+		mHiddenAVsIcon->setValue(icon_hidden_avs_on);
+		mHiddenAVsText->setText(on);
+	}
+	else
+	{
+		mHiddenAVsIcon->setValue(icon_hidden_avs_off);
+		mHiddenAVsText->setText(off);
 	}
 
 	mRegionNameText->setText(region->getName());

@@ -75,7 +75,7 @@ const U8 PARCEL_AUCTION		= 0x05;
 // unused 0x06
 // unused 0x07
 // flag, unused 0x08
-// flag, unused 0x10
+const U8 PARCEL_HIDDENAVS   = 0x10;	// avatars not visible outside of parcel
 const U8 PARCEL_SOUND_LOCAL = 0x20;
 const U8 PARCEL_WEST_LINE	= 0x40;	// flag, property line on west edge
 const U8 PARCEL_SOUTH_LINE	= 0x80;	// flag, property line on south edge
@@ -130,6 +130,12 @@ class LLSD;
 class LLAccessEntry
 {
 public:
+	LLAccessEntry()
+	:	mID(),
+		mTime(0),
+		mFlags(0)
+	{}
+
 	LLUUID		mID;		// Agent ID
 	S32			mTime;		// Time (unix seconds) when entry expires
 	U32			mFlags;		// Not used - currently should always be zero
@@ -265,6 +271,8 @@ public:
 	void setUserLocation(const LLVector3& pos)	{ mUserLocation = pos; }
 	void setUserLookAt(const LLVector3& rot)	{ mUserLookAt = rot; }
 	void setLandingType(const ELandingType type) { mLandingType = type; }
+	void setHiddenAVs(bool hidden_avs)	{ mHiddenAVs = hidden_avs;	}
+	void setHaveHiddenAVsData(bool have_hidden_av_data)		{ mHaveHiddenAVData = have_hidden_av_data;		}		// Remove this once hidden AV feature is fully available grid-wide
 
 	void setAuctionID(U32 auction_id) { mAuctionID = auction_id;}
 
@@ -367,6 +375,8 @@ public:
 	const LLVector3& getUserLocation() const	{ return mUserLocation; }
 	const LLVector3& getUserLookAt() const	{ return mUserLookAt; }
 	ELandingType getLandingType() const	{ return mLandingType; }
+	bool getHiddenAVs() const			{ return mHiddenAVs;		}
+	bool getHaveHiddenAVsData() const	{ return mHaveHiddenAVData;	}
 
 	// User-specified snapshot
 	const LLUUID&	getSnapshotID() const		{ return mSnapshotID; }
@@ -606,6 +616,8 @@ protected:
 	LLVector3 mUserLocation;
 	LLVector3 mUserLookAt;
 	ELandingType mLandingType;
+	bool mHiddenAVs;				// Avatars are hidden on this parcel from outside it
+	bool mHaveHiddenAVData;			// Remove once hidden AV feature is grid-wide
 	LLTimer mSaleTimerExpires;
 	LLTimer mMediaResetTimer;
 
