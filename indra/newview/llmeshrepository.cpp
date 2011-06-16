@@ -1455,7 +1455,7 @@ void dump_llsd_to_file(const LLSD& content, std::string filename)
 
 LLSD llsd_from_file(std::string filename)
 {
-	std::ifstream ifs(filename);
+	std::ifstream ifs(filename.c_str());
 	LLSD result;
 	LLSDSerialize::fromXML(result,ifs);
 	return result;
