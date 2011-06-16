@@ -6824,6 +6824,8 @@ Select residents to share with.
     icon="alert.tga"
     type="alert">
     [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] 
+
+See the log file for details.
   </notification>
    
   <notification
