@@ -137,10 +137,6 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 
 LLVOCacheEntry::~LLVOCacheEntry()
 {
-	if(mBuffer != mDP.getBuffer())
-	{
-		delete[] mBuffer ; //just in case
-	}
 	mDP.freeBuffer();
 }
 
