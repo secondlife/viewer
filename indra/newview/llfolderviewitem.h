@@ -539,8 +539,8 @@ public:
 	bool isTrash() const;
 	S32 getNumSelectedDescendants(void) const { return mNumDescendantsSelected; }
 
-	folders_t::const_iterator getFoldersBegin() const { return mFolders.cbegin(); }
-	folders_t::const_iterator getFoldersEnd() const { return mFolders.cend(); }
+	folders_t::const_iterator getFoldersBegin() const { return mFolders.begin(); }
+	folders_t::const_iterator getFoldersEnd() const { return mFolders.end(); }
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

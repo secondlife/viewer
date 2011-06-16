@@ -29,8 +29,10 @@
 
 #include "llagent.h"
 #include "llappearancemgr.h"
+#include "llappviewer.h"
 #include "llavataractions.h"
 #include "llbutton.h"
+#include "llcurl.h"
 #include "lldate.h"
 #include "llfirstuse.h"
 #include "llfoldertype.h"
@@ -47,7 +49,9 @@
 #include "llselectmgr.h"
 #include "llsidepaneliteminfo.h"
 #include "llsidepaneltaskinfo.h"
+#include "llstring.h"
 #include "lltabcontainer.h"
+#include "llviewernetwork.h"
 #include "llweb.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
@@ -71,47 +75,27 @@ static const char * const INVENTORY_LAYOUT_STACK_NAME = "inventory_layout_stack"
 // Helpers
 //
 
-class LLInboxOutboxInventoryAddedObserver : public LLInventoryAddedObserver
+class LLInventoryUserStatusResponder : public LLHTTPClient::Responder
 {
 public:
-	LLInboxOutboxInventoryAddedObserver(LLSidepanelInventory * sidepanelInventory)
-		: LLInventoryAddedObserver()
+	LLInventoryUserStatusResponder(LLSidepanelInventory * sidepanelInventory)
+		: LLCurl::Responder()
 		, mSidepanelInventory(sidepanelInventory)
-	{}
-
-protected:
-	virtual void done()
 	{
-		uuid_vec_t::const_iterator it = mAdded.begin();
-		uuid_vec_t::const_iterator it_end = mAdded.end();
-		
-		for(; it != it_end; ++it)
-		{
-			LLInventoryObject* item = gInventory.getObject(*it);
+	}
 
-			// NOTE: This doesn't actually work because folder creation does not trigger this observer
-			if (item && item->getType() == LLAssetType::AT_CATEGORY)
-			{
-				// Check for FolderType FT_INBOX or FT_OUTBOX and report back to mSidepanelInventory
-				LLInventoryCategory * item_cat = static_cast<LLInventoryCategory *>(item);
-				LLFolderType::EType folderType = item_cat->getPreferredType();
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	{
+		llinfos << "Marketplace Inbox Disabled" << llendl;
+	}
 
-				if (folderType == LLFolderType::FT_INBOX)
-				{
-					mSidepanelInventory->enableInbox(true);
-				}
-				else if (folderType == LLFolderType::FT_OUTBOX)
-				{
-					mSidepanelInventory->enableOutbox(true);
-				}
-			}
-		}
-
-		mAdded.clear();
+	void result(const LLSD& content)
+	{
+		mSidepanelInventory->enableInbox(true);
 	}
 
 private:
-	LLSidepanelInventory * mSidepanelInventory;
+	LLSidepanelInventory *	mSidepanelInventory;
 };
 
 //
@@ -124,19 +108,12 @@ LLSidepanelInventory::LLSidepanelInventory()
 	, mPanelMainInventory(NULL)
 	, mInventoryFetched(false)
 	, mCategoriesObserver(NULL)
-	, mInboxOutboxAddedObserver(NULL)
 {
 	//buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
 
 LLSidepanelInventory::~LLSidepanelInventory()
 {
-	if (mInboxOutboxAddedObserver && gInventory.containsObserver(mInboxOutboxAddedObserver))
-	{
-		gInventory.removeObserver(mInboxOutboxAddedObserver);
-	}
-	delete mInboxOutboxAddedObserver;
-
 	if (mCategoriesObserver && gInventory.containsObserver(mCategoriesObserver))
 	{
 		gInventory.removeObserver(mCategoriesObserver);
@@ -207,9 +184,6 @@ BOOL LLSidepanelInventory::postBuild()
 	
 	// Marketplace inbox/outbox setup
 	{
-		LLButton * inbox_button = getChild<LLButton>(INBOX_BUTTON_NAME);
-		LLButton * outbox_button = getChild<LLButton>(OUTBOX_BUTTON_NAME);
-
 		LLLayoutStack* stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
 
 		LLLayoutPanel * inbox_panel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
@@ -217,61 +191,69 @@ BOOL LLSidepanelInventory::postBuild()
 
 		stack->collapsePanel(inbox_panel, true);
 		stack->collapsePanel(outbox_panel, true);
+		
+		// Disable user_resize on main inventory panel by default
+		stack->setPanelUserResize(MAIN_INVENTORY_LAYOUT_PANEL, false);
+
+		LLButton * inbox_button = getChild<LLButton>(INBOX_BUTTON_NAME);
+		LLButton * outbox_button = getChild<LLButton>(OUTBOX_BUTTON_NAME);
 
 		inbox_button->setToggleState(false);
 		outbox_button->setToggleState(false);
 
 		inbox_button->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
 		outbox_button->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleOutboxBtn, this));
-	
-		// TODO: Hide inbox/outbox panels until we determine the status of the feature
-		//inbox_panel->setVisible(false);
-		//outbox_panel->setVisible(false);
 
-		// Track added items
-		mInboxOutboxAddedObserver = new LLInboxOutboxInventoryAddedObserver(this);
-		gInventory.addObserver(mInboxOutboxAddedObserver);
+		// Set the inbox and outbox visible based on debug settings (final setting comes from http request below)
+		inbox_panel->setVisible(gSavedSettings.getBOOL("InventoryDisplayInbox"));
+		outbox_panel->setVisible(gSavedSettings.getBOOL("InventoryDisplayOutbox"));
 
-		// Track inbox and outbox folder changes
-		const bool do_not_create_folder = false;
-		const bool do_not_find_in_library = false;
-
-		const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, do_not_create_folder, do_not_find_in_library);
-		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, do_not_create_folder, do_not_find_in_library);
-
-		mCategoriesObserver = new LLInventoryCategoriesObserver();
-		gInventory.addObserver(mCategoriesObserver);
-
-		mCategoriesObserver->addCategory(inbox_id, boost::bind(&LLSidepanelInventory::onInboxChanged, this, inbox_id));
-		mCategoriesObserver->addCategory(outbox_id, boost::bind(&LLSidepanelInventory::onOutboxChanged, this, outbox_id));
+		// Trigger callback for after login so we can setup to track inbox and outbox changes after initial inventory load
+		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::handleLoginComplete, this));
 	}
 
 	return TRUE;
 }
 
-void LLSidepanelInventory::draw()
+void LLSidepanelInventory::handleLoginComplete()
 {
-	if (!mInventoryFetched && LLInventoryModelBackgroundFetch::instance().isEverythingFetched())
+	//
+	// Hard coding this as a temporary way to determine whether or not to display the inbox
+	//
+
+	std::string url = "https://marketplace.secondlife.com/";
+
+	if (!LLGridManager::getInstance()->isInProductionGrid())
 	{
-		mInventoryFetched = true;
-		
-		updateInboxOutboxPanels();
+		std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
+		url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
 	}
 
-	LLPanel::draw();
-}
+	std::string url_suffix = "api/1/users/b72d31f8-d03c-4a3b-a002-3dd7b4a712b8/user_status";
 
-void LLSidepanelInventory::updateInboxOutboxPanels()
-{
-	// Iterate through gInventory looking for inbox and outbox
+	LLHTTPClient::get(url + url_suffix, new LLInventoryUserStatusResponder(this));
+
+	//
+	// Track inbox and outbox folder changes
+	//
+
 	const bool do_not_create_folder = false;
 	const bool do_not_find_in_library = false;
 
 	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, do_not_create_folder, do_not_find_in_library);
 	const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, do_not_create_folder, do_not_find_in_library);
 
-	enableInbox(inbox_id.notNull());
-	enableOutbox(outbox_id.notNull());
+	mCategoriesObserver = new LLInventoryCategoriesObserver();
+	gInventory.addObserver(mCategoriesObserver);
+
+	mCategoriesObserver->addCategory(inbox_id, boost::bind(&LLSidepanelInventory::onInboxChanged, this, inbox_id));
+	mCategoriesObserver->addCategory(outbox_id, boost::bind(&LLSidepanelInventory::onOutboxChanged, this, outbox_id));
+
+	//
+	// Trigger a load for the entire contents of the Inbox
+	//
+
+	LLInventoryModelBackgroundFetch::instance().start(inbox_id);
 }
 
 void LLSidepanelInventory::enableInbox(bool enabled)
@@ -286,7 +268,8 @@ void LLSidepanelInventory::enableOutbox(bool enabled)
 
 void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
 {
-	// Perhaps use this to track inbox changes?
+	// Trigger a load of the entire inbox so we always know the contents and their creation dates for sorting
+	LLInventoryModelBackgroundFetch::instance().start(inbox_id);
 }
 
 void LLSidepanelInventory::onOutboxChanged(const LLUUID& outbox_id)

@@ -30,7 +30,6 @@
 #include "llpanel.h"
 
 class LLFolderViewItem;
-class LLInboxOutboxInventoryAddedObserver;
 class LLInventoryCategoriesObserver;
 class LLInventoryItem;
 class LLInventoryPanel;
@@ -43,6 +42,8 @@ class LLSidepanelInventory : public LLPanel
 public:
 	LLSidepanelInventory();
 	virtual ~LLSidepanelInventory();
+
+	void handleLoginComplete();
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
@@ -61,11 +62,8 @@ public:
 	void onToggleInboxBtn();
 	void onToggleOutboxBtn();
 
-	void updateInboxOutboxPanels();
 	void enableInbox(bool enabled);
 	void enableOutbox(bool enabled);
-
-	virtual void draw();
 
 protected:
 	// Tracks highlighted (selected) item in inventory panel.
@@ -112,7 +110,6 @@ private:
 	bool						mInventoryFetched;
 
 	LLInventoryCategoriesObserver* 			mCategoriesObserver;
-	LLInboxOutboxInventoryAddedObserver*	mInboxOutboxAddedObserver;
 };
 
 #endif //LL_LLSIDEPANELINVENTORY_H
