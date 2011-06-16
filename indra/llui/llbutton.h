@@ -129,6 +129,8 @@ public:
 		
 		Optional<LLBadge::Params>	badge;
 
+		Optional<bool>				handle_right_mouse;
+
 		Params();
 	};
 	
@@ -359,6 +361,8 @@ private:
 	bool						mForcePressedState;
 
 	LLFrameTimer				mFlashingTimer;
+
+	bool						mHandleRightMouse;
 };
 
 // Build time optimization, generate once in .cpp file
