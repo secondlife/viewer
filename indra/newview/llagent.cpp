@@ -206,6 +206,7 @@ LLAgent::LLAgent() :
 
 	mAutoPilot(FALSE),
 	mAutoPilotFlyOnStop(FALSE),
+	mAutoPilotAllowFlying(TRUE),
 	mAutoPilotTargetGlobal(),
 	mAutoPilotStopDistance(1.f),
 	mAutoPilotUseRotation(FALSE),
@@ -1230,17 +1231,26 @@ void LLAgent::startAutoPilotGlobal(
 	const LLQuaternion *target_rotation,
 	void (*finish_callback)(BOOL, void *),
 	void *callback_data,
-	F32 stop_distance, F32 rot_threshold)
+	F32 stop_distance,
+	F32 rot_threshold,
+	BOOL allow_flying)
 {
 	if (!isAgentAvatarValid())
 	{
 		return;
 	}
 	
+	// Are there any pending callbacks from previous auto pilot requests?
+	if (mAutoPilotFinishedCallback)
+	{
+		mAutoPilotFinishedCallback(dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal) < mAutoPilotStopDistance, mAutoPilotCallbackData);
+	}
+
 	mAutoPilotFinishedCallback = finish_callback;
 	mAutoPilotCallbackData = callback_data;
 	mAutoPilotRotationThreshold = rot_threshold;
 	mAutoPilotBehaviorName = behavior_name;
+	mAutoPilotAllowFlying = allow_flying;
 
 	LLVector3d delta_pos( target_global );
 	delta_pos -= getPositionGlobal();
@@ -1268,14 +1278,23 @@ void LLAgent::startAutoPilotGlobal(
 		}
 	}
 
-	mAutoPilotFlyOnStop = getFlying();
+	if (mAutoPilotAllowFlying)
+	{
+		mAutoPilotFlyOnStop = getFlying();
+	}
+	else
+	{
+		mAutoPilotFlyOnStop = FALSE;
+	}
 
-	if (distance > 30.0)
+	if (distance > 30.0 && mAutoPilotAllowFlying)
 	{
 		setFlying(TRUE);
 	}
 
-	if ( distance > 1.f && heightDelta > (sqrtf(mAutoPilotStopDistance) + 1.f))
+	if ( distance > 1.f && 
+		mAutoPilotAllowFlying &&
+		heightDelta > (sqrtf(mAutoPilotStopDistance) + 1.f))
 	{
 		setFlying(TRUE);
 		// Do not force flying for "Sit" behavior to prevent flying after pressing "Stand"
@@ -1285,22 +1304,8 @@ void LLAgent::startAutoPilotGlobal(
 	}
 
 	mAutoPilot = TRUE;
-	mAutoPilotTargetGlobal = target_global;
+	setAutoPilotTargetGlobal(target_global);
 
-	// trace ray down to find height of destination from ground
-	LLVector3d traceEndPt = target_global;
-	traceEndPt.mdV[VZ] -= 20.f;
-
-	LLVector3d targetOnGround;
-	LLVector3 groundNorm;
-	LLViewerObject *obj;
-
-	LLWorld::getInstance()->resolveStepHeightGlobal(NULL, target_global, traceEndPt, targetOnGround, groundNorm, &obj);
-	F64 target_height = llmax((F64)gAgentAvatarp->getPelvisToFoot(), target_global.mdV[VZ] - targetOnGround.mdV[VZ]);
-
-	// clamp z value of target to minimum height above ground
-	mAutoPilotTargetGlobal.mdV[VZ] = targetOnGround.mdV[VZ] + target_height;
-	mAutoPilotTargetDist = (F32)dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal);
 	if (target_rotation)
 	{
 		mAutoPilotUseRotation = TRUE;
@@ -1318,12 +1323,36 @@ void LLAgent::startAutoPilotGlobal(
 
 
 //-----------------------------------------------------------------------------
+// setAutoPilotTargetGlobal
+//-----------------------------------------------------------------------------
+void LLAgent::setAutoPilotTargetGlobal(const LLVector3d &target_global)
+{
+	if (mAutoPilot)
+	{
+		mAutoPilotTargetGlobal = target_global;
+
+		// trace ray down to find height of destination from ground
+		LLVector3d traceEndPt = target_global;
+		traceEndPt.mdV[VZ] -= 20.f;
+
+		LLVector3d targetOnGround;
+		LLVector3 groundNorm;
+		LLViewerObject *obj;
+
+		LLWorld::getInstance()->resolveStepHeightGlobal(NULL, target_global, traceEndPt, targetOnGround, groundNorm, &obj);
+		F64 target_height = llmax((F64)gAgentAvatarp->getPelvisToFoot(), target_global.mdV[VZ] - targetOnGround.mdV[VZ]);
+
+		// clamp z value of target to minimum height above ground
+		mAutoPilotTargetGlobal.mdV[VZ] = targetOnGround.mdV[VZ] + target_height;
+		mAutoPilotTargetDist = (F32)dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal);
+	}
+}
+
+//-----------------------------------------------------------------------------
 // startFollowPilot()
 //-----------------------------------------------------------------------------
-void LLAgent::startFollowPilot(const LLUUID &leader_id)
+void LLAgent::startFollowPilot(const LLUUID &leader_id, BOOL allow_flying, F32 stop_distance)
 {
-	if (!mAutoPilot) return;
-
 	mLeaderID = leader_id;
 	if ( mLeaderID.isNull() ) return;
 
@@ -1334,7 +1363,14 @@ void LLAgent::startFollowPilot(const LLUUID &leader_id)
 		return;
 	}
 
-	startAutoPilotGlobal(object->getPositionGlobal());
+	startAutoPilotGlobal(object->getPositionGlobal(), 
+						 std::string(),	// behavior_name
+						 NULL,			// target_rotation
+						 NULL,			// finish_callback
+						 NULL,			// callback_data
+						 stop_distance,
+						 0.03f,			// rotation_threshold
+						 allow_flying);
 }
 
 
@@ -1360,7 +1396,8 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		//NB: auto pilot can terminate for a reason other than reaching the destination
 		if (mAutoPilotFinishedCallback)
 		{
-			mAutoPilotFinishedCallback(!user_cancel && dist_vec_squared(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal) < (mAutoPilotStopDistance * mAutoPilotStopDistance), mAutoPilotCallbackData);
+			mAutoPilotFinishedCallback(!user_cancel && dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal) < mAutoPilotStopDistance, mAutoPilotCallbackData);
+			mAutoPilotFinishedCallback = NULL;
 		}
 		mLeaderID = LLUUID::null;
 
@@ -1400,7 +1437,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		
 		if (!isAgentAvatarValid()) return;
 
-		if (gAgentAvatarp->mInAir)
+		if (gAgentAvatarp->mInAir && mAutoPilotAllowFlying)
 		{
 			setFlying(TRUE);
 		}

@@ -441,6 +441,8 @@ void LLNearbyChatScreenChannel::reshape			(S32 width, S32 height, BOOL called_fr
 //-----------------------------------------------------------------------------------------------
 //LLNearbyChatHandler
 //-----------------------------------------------------------------------------------------------
+boost::scoped_ptr<LLEventPump> LLNearbyChatHandler::sChatWatcher(new LLEventStream("LLChat"));
+
 LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& id)
 {
 	mType = type;
@@ -487,6 +489,27 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 		//	tmp_chat.mFromName = tmp_chat.mFromID.asString();
 	}
 
+	// Build notification data 
+	LLSD notification;
+	notification["message"] = chat_msg.mText;
+	notification["from"] = chat_msg.mFromName;
+	notification["from_id"] = chat_msg.mFromID;
+	notification["time"] = chat_msg.mTime;
+	notification["source"] = (S32)chat_msg.mSourceType;
+	notification["chat_type"] = (S32)chat_msg.mChatType;
+	notification["chat_style"] = (S32)chat_msg.mChatStyle;
+	// Pass sender info so that it can be rendered properly (STORM-1021).
+	notification["sender_slurl"] = LLViewerChat::getSenderSLURL(chat_msg, args);
+
+	if (chat_msg.mChatType == CHAT_TYPE_DIRECT &&
+		chat_msg.mText.length() > 0 &&
+		chat_msg.mText[0] == '@')
+	{
+		// Send event on to LLEventStream and exit
+		sChatWatcher->post(notification);
+		return;
+	}
+
 	// don't show toast and add message to chat history on receive debug message
 	// with disabled setting showing script errors or enabled setting to show script
 	// errors in separate window.
@@ -529,6 +552,10 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 
 	}
 
+	// Send event on to LLEventStream
+	sChatWatcher->post(notification);
+
+
 	if( nearby_chat->getVisible()
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
@@ -562,25 +589,14 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 	}
 	*/
 
-	// Add a nearby chat toast.
-	LLUUID id;
-	id.generate();
-
 	LLNearbyChatScreenChannel* channel = dynamic_cast<LLNearbyChatScreenChannel*>(mChannel);
-	
 
 	if(channel)
 	{
-		LLSD notification;
+		// Add a nearby chat toast.
+		LLUUID id;
+		id.generate();
 		notification["id"] = id;
-		notification["message"] = chat_msg.mText;
-		notification["from"] = chat_msg.mFromName;
-		notification["from_id"] = chat_msg.mFromID;
-		notification["time"] = chat_msg.mTime;
-		notification["source"] = (S32)chat_msg.mSourceType;
-		notification["chat_type"] = (S32)chat_msg.mChatType;
-		notification["chat_style"] = (S32)chat_msg.mChatStyle;
-		
 		std::string r_color_name = "White";
 		F32 r_color_alpha = 1.0f; 
 		LLViewerChat::getChatColor( chat_msg, r_color_name, r_color_alpha);
@@ -588,13 +604,8 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 		notification["text_color"] = r_color_name;
 		notification["color_alpha"] = r_color_alpha;
 		notification["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
-
-		// Pass sender info so that it can be rendered properly (STORM-1021).
-		notification["sender_slurl"] = LLViewerChat::getSenderSLURL(chat_msg, args);
-
 		channel->addNotification(notification);	
 	}
-
 }
 
 void LLNearbyChatHandler::onDeleteToast(LLToast* toast)

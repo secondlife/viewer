@@ -69,7 +69,7 @@ public:
 private:
 	//TODO (*)
 	std::map<std::string, boost::shared_ptr<LLEventHandler> > mNotifyHandlers;
-	std::map<std::string, LLChatHandler*> mChatHandlers;
+	// cruft std::map<std::string, LLChatHandler*> mChatHandlers;
 };
 
 }
