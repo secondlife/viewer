@@ -468,38 +468,36 @@ public:
 
 };
 
-void log_upload_error(const LLSD& content,std::string stage)
+void log_upload_error(S32 status, const LLSD& content,std::string stage)
 {
+	llwarns << "stage: " << stage << " http status: " << status << llendl;
 	if (content.has("error"))
 	{
 		const LLSD& err = content["error"];
-		llwarns << "mesh upload failed, stage " << stage
-				<< " message " << err["message"].asString() << " id " << err["identifier"].asString()
-				<< llendl;
-
-		if (content.has("errors"))
+		llwarns << "err: " << err << llendl;
+		llwarns << "mesh upload failed, stage '" << stage
+				<< "' error '" << err["error"].asString()
+				<< "', message '" << err["message"].asString()
+				<< "', id '" << err["identifier"].asString()
+				<< "'" << llendl;
+		if (err.has("errors"))
 		{
-			const LLSD& err_list = content["errors"];
+			S32 error_num = 0;
+			const LLSD& err_list = err["errors"];
 			for (LLSD::array_const_iterator it = err_list.beginArray();
 				 it != err_list.endArray();
 				 ++it)
 			{
 				const LLSD& err_entry = *it;
-				std::string index_info;
-				std::string texture_index_str = err_entry["TextureIndex"].asString();
-				if (!texture_index_str.empty())
+				llwarns << "error[" << error_num << "]:" << llendl;
+				for (LLSD::map_const_iterator map_it = err_entry.beginMap();
+					 map_it != err_entry.endMap();
+					 ++map_it)
 				{
-					index_info += " texture_index: " + texture_index_str;
+					llwarns << "\t" << map_it->first << ": "
+							<< map_it->second << llendl;
 				}
-				std::string	mesh_index_str = err_entry["MeshIndex"].asString();
-				if (!mesh_index_str.empty())
-				{
-					index_info += " mesh_index: " + mesh_index_str;
-				}
-				llwarns << "mesh err code " << err_entry["error"].asString()
-						<< " message " << err_entry["message"]
-						<< index_info
-						<< llendl;
+				error_num++;
 			}
 		}
 	}
@@ -507,8 +505,6 @@ void log_upload_error(const LLSD& content,std::string stage)
 	{
 		llwarns << "bad mesh, no error information available" << llendl;
 	}
-
-	
 }
 
 class LLModelObjectUploadResponder: public LLCurl::Responder
@@ -547,12 +543,11 @@ public:
 						   const std::string& reason,
 						   const LLSD& content)
 	{
-		//assert_main_thread();
 		llinfos << "completed" << llendl;
 		mThread->mPendingUploads--;
 		dumpLLSDToFile(content,make_dump_name("whole_model_fee_response_",dump_num));
-		llinfos << "LLWholeModelFeeResponder content: " << content << llendl;
-		if (isGoodStatus(status))
+		if (isGoodStatus(status) &&
+			content["state"].asString() == "upload")
 		{
 			llinfos << "fee request succeeded" << llendl;
 			mThread->mWholeModelUploadURL = content["uploader"].asString(); 
@@ -560,7 +555,7 @@ public:
 		else
 		{
 			llwarns << "fee request failed" << llendl;
-			log_upload_error(content,"fee");
+			log_upload_error(status,content,"fee");
 			mThread->mWholeModelUploadURL = "";
 		}
 	}
@@ -588,7 +583,8 @@ public:
 		llinfos << "LLWholeModelUploadResponder content: " << content << llendl;
 		// requested "mesh" asset type isn't actually the type
 		// of the resultant object, fix it up here.
-		if (isGoodStatus(status))
+		if (isGoodStatus(status) &&
+			content["state"].asString() == "complete")
 		{
 			llinfos << "upload succeeded" << llendl;
 			mPostData["asset_type"] = "object";
@@ -597,7 +593,7 @@ public:
 		else
 		{
 			llwarns << "upload failed" << llendl;
-			log_upload_error(content,"upload");
+			log_upload_error(status,content,"upload");
 		}
 	}
 };
@@ -1556,16 +1552,12 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				std::stringstream texture_str;
 				if (texture != NULL && include_textures && mUploadTextures)
 				{
-					// Get binary rep of texture, if needed.
-					LLTextureUploadData data(texture, material.mDiffuseMapLabel);
-					if (!data.mTexture->isRawImageValid())
-					{
-						data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
+					if(texture->hasSavedRawImage())
+					{											
+						LLPointer<LLImageJ2C> upload_file =
+							LLViewerTextureList::convertToUploadFile(texture->getSavedRawImage());
+						texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
 					}
-						
-					LLPointer<LLImageJ2C> upload_file =
-						LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
-					texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
 				}
 
 				if (texture != NULL &&
@@ -2868,9 +2860,12 @@ void LLMeshUploadThread::doUploadTexture(LLTextureUploadData& data)
 			data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
 		}
 
-		LLPointer<LLImageJ2C> upload_file = LLViewerTextureList::convertToUploadFile(data.mTexture->getRawImage());
+		if(data.mTexture->hasSavedRawImage())
+		{
+			LLPointer<LLImageJ2C> upload_file = LLViewerTextureList::convertToUploadFile(data.mTexture->getSavedRawImage());
 		
-		ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
+			ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
+		}
 
 		data.mAssetData = ostr.str();
 
