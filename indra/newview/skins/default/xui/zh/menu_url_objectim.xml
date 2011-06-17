@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Url Popup">
-	<menu_item_call label="Show Object Information" name="show_object"/>
+	<menu_item_call label="顯示物件資訊" name="show_object"/>
 	<menu_item_call label="顯示在地圖上" name="show_on_map"/>
 	<menu_item_call label="瞬間傳送到物件位置" name="teleport_to_object"/>
 	<menu_item_call label="覆製物件名稱到剪貼簿" name="url_copy_label"/>

@@ -67,7 +67,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				<button label="檔案" name="view_profile_btn" tool_tip="Show picture, groups, and other Residents information"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
-				<button label="IM" name="im_btn" tool_tip="Open instant message session"/>
+				<button label="IM" name="im_btn" tool_tip="開啟即時訊息會話"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
 				<button label="通話" name="call_btn" tool_tip="Call this Resident"/>
@@ -84,7 +84,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				<button label="社團檔案" name="group_info_btn" tool_tip="顯示社團資訊"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
-				<button label="Group Chat" name="chat_btn" tool_tip="Open chat session"/>
+				<button label="Group Chat" name="chat_btn" tool_tip="開啟聊天會話"/>
 			</layout_panel>
 			<layout_panel name="group_call_btn_lp">
 				<button label="Group Call" name="group_call_btn" tool_tip="Call this group"/>

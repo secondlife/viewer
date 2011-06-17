@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray panel -->
+<panel label="Personer" name="people_panel">
+	<string name="no_recent_people" value="Ingen nylige personer. Leder du efter personer at være sammen med? Prøv destinationsknappen nedenfor."/>
+	<string name="no_filtered_recent_people" value="Ingen nylige personer med det navn."/>
+	<string name="no_one_near" value="Ingen i nærheden. Leder du efter personer at være sammen med? Prøv destinationsknappen nedenfor."/>
+	<string name="no_one_filtered_near" value="Ingen i nærheden med det navn."/>
+	<string name="no_friends_online" value="Ingen venner online"/>
+	<string name="no_friends" value="Ingen venner"/>
+	<string name="no_friends_msg">
+		Højre-klik på en person for at tilføje som ven.
+Leder du efter personer at være sammen med? Prøv destinationsknappen nedenfor.
+	</string>
+	<string name="no_filtered_friends_msg">
+		Fandt du ikke hvad du søgte? Prøv destinationsknappen nedenfor.
+	</string>
+	<string name="people_filter_label" value="Filtrér personer"/>
+	<string name="groups_filter_label" value="Filtrér grupper"/>
+	<string name="no_filtered_groups_msg" value="Fandt du ikke det du søgte? Prøv [secondlife:///app/search/groups/[SEARCH_TERM] Søg]."/>
+	<string name="no_groups_msg" value="Leder du efter grupper at være med i? Prøv [secondlife:///app/search/groups Søg]."/>
+	<string name="MiniMapToolTipMsg" value="[REGION](Dobbelt-klik for at åbne kort, træk for at panorere)"/>
+	<string name="AltMiniMapToolTipMsg" value="[REGION](Dobbelt-klik for at teleportere, træk for at panorere)"/>
+	<filter_editor label="Filtrér" name="filter_input"/>
+	<tab_container name="tabs">
+		<panel label="TÆT PÅ" name="nearby_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<menu_button name="nearby_view_sort_btn" tool_tip="Valg"/>
+				<button name="add_friend_btn" tool_tip="Tilføj valgte beboer til din venneliste"/>
+			</panel>
+		</panel>
+		<panel label="MINE VENNER" name="friends_panel">
+			<accordion name="friends_accordion">
+				<accordion_tab name="tab_online" title="Online"/>
+				<accordion_tab name="tab_all" title="Alle"/>
+			</accordion>
+			<panel label="bottom_panel" name="bottom_panel">
+				<layout_stack name="bottom_panel">
+					<layout_panel name="options_gear_btn_panel">
+						<menu_button name="friends_viewsort_btn" tool_tip="Vis flere valg"/>
+					</layout_panel>
+					<layout_panel name="add_btn_panel">
+						<button name="add_btn" tool_tip="Tilbyd venskab til en beboer"/>
+					</layout_panel>
+					<layout_panel name="trash_btn_panel">
+						<dnd_button name="del_btn" tool_tip="Fjern valgte person fra din venneliste"/>
+					</layout_panel>
+				</layout_stack>
+			</panel>
+		</panel>
+		<panel label="MINE GRUPPER" name="groups_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<menu_button name="groups_viewsort_btn" tool_tip="Valg"/>
+				<button name="plus_btn" tool_tip="Bliv medlem af gruppe/Opret ny gruppe"/>
+				<button name="activate_btn" tool_tip="Activér valgte gruppe"/>
+			</panel>
+		</panel>
+		<panel label="NYLIGE" name="recent_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<menu_button name="recent_viewsort_btn" tool_tip="Valg"/>
+				<button name="add_friend_btn" tool_tip="Tilføj valgte beboer til din venneliste"/>
+			</panel>
+		</panel>
+	</tab_container>
+	<panel name="button_bar">
+		<layout_stack name="bottom_bar_ls">
+			<layout_panel name="view_profile_btn_lp">
+				<button label="Profil" name="view_profile_btn" tool_tip="Vis billeder, grupper og anden beboer information"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="IM" name="im_btn" tool_tip="Åben session med privat besked (IM)"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Kald" name="call_btn" tool_tip="Opkald til denne beboer"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Del" name="share_btn" tool_tip="Del en genstand fra beholdning"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Teleportér" name="teleport_btn" tool_tip="Tilbyd teleport"/>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls1">
+			<layout_panel name="group_info_btn_lp">
+				<button label="Gruppe profil" name="group_info_btn" tool_tip="Vis gruppe information"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Gruppe chat" name="chat_btn" tool_tip="Åben chat session"/>
+			</layout_panel>
+			<layout_panel name="group_call_btn_lp">
+				<button label="Gruppe kald" name="group_call_btn" tool_tip="Opkald til denne gruppe"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

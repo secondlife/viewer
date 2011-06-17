@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" short_title="BUILD TOOLS">
+<floater name="toolbox floater" short_title="建造工具">
 	<floater.string name="status_rotate">
 		Drag colored bands to rotate object
 	</floater.string>
@@ -60,7 +60,7 @@
 	</radio_group>
 	<radio_group name="edit_radio_group">
 		<radio_item label="移動" name="radio position"/>
-		<radio_item label="Rotate (Ctrl)" name="radio rotate"/>
+		<radio_item label="旋轉（Ctrl）" name="radio rotate"/>
 		<radio_item label="Stretch (Ctrl+Shift)" name="radio stretch"/>
 		<radio_item label="Select Face" name="radio select face"/>
 	</radio_group>
@@ -202,10 +202,10 @@
 				<combo_box.item label="原件" name="Original"/>
 			</combo_box>
 			<spinner label="價格： L$" name="Edit Cost"/>
-			<check_box label="Show in search" name="search_check" tool_tip="Let people see this object in search results"/>
+			<check_box label="顯示在搜尋中" name="search_check" tool_tip="Let people see this object in search results"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
-					You can modify this object
+					你可以修改這個物件
 				</text>
 				<text name="Anyone can:">
 					任何人：
@@ -239,10 +239,10 @@
 			</panel>
 		</panel>
 		<panel label="Object" name="Object">
-			<check_box label="Locked" name="checkbox locked" tool_tip="Prevents object from being moved or deleted. Frequently useful during building to avoid unintended edits."/>
-			<check_box label="Physical" name="Physical Checkbox Ctrl" tool_tip="Allows object to be pushed and affected by gravity"/>
-			<check_box label="Temporary" name="Temporary Checkbox Ctrl" tool_tip="Causes object to be deleted 1 minute after creation"/>
-			<check_box label="Phantom" name="Phantom Checkbox Ctrl" tool_tip="Causes object to not collide with other objects or avatars"/>
+			<check_box label="鎖定" name="checkbox locked" tool_tip="Prevents object from being moved or deleted. Frequently useful during building to avoid unintended edits."/>
+			<check_box label="物理性" name="Physical Checkbox Ctrl" tool_tip="Allows object to be pushed and affected by gravity"/>
+			<check_box label="暫時性" name="Temporary Checkbox Ctrl" tool_tip="Causes object to be deleted 1 minute after creation"/>
+			<check_box label="幻影性" name="Phantom Checkbox Ctrl" tool_tip="Causes object to not collide with other objects or avatars"/>
 			<text name="label position">
 				Position (meters)
 			</text>

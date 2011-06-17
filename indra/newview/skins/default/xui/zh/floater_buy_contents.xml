@@ -17,5 +17,5 @@
 	</text>
 	<check_box label="立即穿上服裝" name="wear_check"/>
 	<button label="購買" label_selected="購買" name="buy_btn"/>
-	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
+	<button label="取消" label_selected="取消" name="cancel_btn"/>
 </floater>

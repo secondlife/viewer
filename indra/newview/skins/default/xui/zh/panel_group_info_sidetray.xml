@@ -20,9 +20,9 @@
 		<layout_panel name="group_accordions">
 			<accordion name="groups_accordion">
 				<accordion_tab name="group_general_tab" title="一般"/>
-				<accordion_tab name="group_roles_tab" title="Roles"/>
-				<accordion_tab name="group_notices_tab" title="Notices"/>
-				<accordion_tab name="group_land_tab" title="Land/Assets"/>
+				<accordion_tab name="group_roles_tab" title="角色"/>
+				<accordion_tab name="group_notices_tab" title="通知"/>
+				<accordion_tab name="group_land_tab" title="土地 / 資產"/>
 			</accordion>
 		</layout_panel>
 	</layout_stack>
@@ -35,7 +35,7 @@
 		</layout_panel>
 		<layout_panel name="btn_apply_lp">
 			<button label="儲存" label_selected="儲存" name="btn_apply"/>
-			<button label="Create Group" name="btn_create" tool_tip="Create a new Group"/>
+			<button label="創造社團" name="btn_create" tool_tip="創造一個新社團"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

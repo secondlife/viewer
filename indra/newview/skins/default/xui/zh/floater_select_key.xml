@@ -3,5 +3,5 @@
 	<text name="Save item as:">
 		Press a key to set your Speak button trigger.
 	</text>
-	<button label="取銷" label_selected="取銷" name="Cancel"/>
+	<button label="取消" label_selected="取消" name="Cancel"/>
 </floater>

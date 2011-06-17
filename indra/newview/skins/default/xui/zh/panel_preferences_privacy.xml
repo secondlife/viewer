@@ -5,7 +5,7 @@
 	</panel.string>
 	<button label="清除歷史紀錄" name="clear_cache" tool_tip="清除登入圖像、最後位置、瞬間傳送紀錄、網頁及材質快取"/>
 	<text name="cache_size_label_l">
-		（位置、圖像、網頁、搜尋的歷使紀錄）
+		（位置、圖像、網頁、搜尋的歷史紀錄）
 	</text>
 	<check_box label="將我顯示在搜尋的結果中" name="online_searchresults"/>
 	<check_box label="只有我的朋友和社團知道我在線上" name="online_visibility"/>
