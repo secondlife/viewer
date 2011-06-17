@@ -3107,18 +3107,20 @@ void LLModelPreview::rebuildUploadData()
 				}
 			}
 
-			for (U32 i = 0; i < LLModel::NUM_LODS; i++)
-			{ //fill LOD slots based on reference model index
-				if (!mModel[i].empty())
-				{
-					instance.mLOD[i] = mModel[i][idx];
-				}
-				else
-				{
-					instance.mLOD[i] = NULL;
+			if(idx < mBaseModel.size())
+			{
+				for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+				{ //fill LOD slots based on reference model index
+					if (mModel[i].size() > idx)
+					{
+						instance.mLOD[i] = mModel[i][idx];
+					}
+					else
+					{
+						instance.mLOD[i] = NULL;
+					}
 				}
 			}
-
 			instance.mTransform = mat;
 			mUploadData.push_back(instance);
 		}
