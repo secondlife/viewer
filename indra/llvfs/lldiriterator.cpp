@@ -121,6 +121,14 @@ bool LLDirIterator::Impl::next(std::string &fname)
 	return found;
 }
 
+/*
+converts the incoming glob into a regex. This involves
+converting incoming glob expressions to regex equivilents and
+at the same time, escaping any regex meaningful characters which
+do not have glob meaning, i.e.
+            .()+|^$ 
+in the input
+*/
 std::string glob_to_regex(const std::string& glob)
 {
 	std::string regex;
@@ -135,9 +143,6 @@ std::string glob_to_regex(const std::string& glob)
 
 		switch (c)
 		{
-			case '.':
-				regex+="\\.";
-				break;
 			case '*':
 				if (glob.begin() == i)
 				{
@@ -170,7 +175,15 @@ std::string glob_to_regex(const std::string& glob)
 			case '!':
 				regex+= square_brace_open ? '^' : c;
 				break;
-			default:
+			case '.': // This collection have different regex meaning
+			case '^': // And so need escaping
+			case '(': 
+			case ')':
+			case '+':
+			case '|':
+			case '$':
+                regex+='\\'; 
+            default:
 				regex+=c;
 				break;
 		}

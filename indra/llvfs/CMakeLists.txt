@@ -80,6 +80,7 @@ if (LL_TESTS)
 	# UNIT TESTS
 	SET(llvfs_TEST_SOURCE_FILES
 	  # none so far
+	  lldiriterator.cpp
 	  )
 	LL_ADD_PROJECT_UNIT_TESTS(llvfs "${llvfs_TEST_SOURCE_FILES}")
 
