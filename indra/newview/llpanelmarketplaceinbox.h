@@ -63,6 +63,8 @@ public:
 private:
 	void handleLoginComplete();
 
+	void onFocusReceived();
+
 private:
 	LLInventoryPanel* mInventoryPanel;
 };

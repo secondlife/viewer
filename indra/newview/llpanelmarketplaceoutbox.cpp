@@ -31,7 +31,11 @@
 #include "llbutton.h"
 #include "llcoros.h"
 #include "lleventcoro.h"
+#include "llinventorypanel.h"
 #include "llloadingindicator.h"
+#include "llpanelmarketplaceinbox.h"
+#include "llsidepanelinventory.h"
+#include "llsidetray.h"
 #include "lltimer.h"
 
 
@@ -60,7 +64,31 @@ BOOL LLPanelMarketplaceOutbox::postBuild()
 
 	mSyncButton->setEnabled(!isOutboxEmpty());
 
+	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceOutbox::onFocusReceived, this));
+
 	return TRUE;
+}
+
+void LLPanelMarketplaceOutbox::onFocusReceived()
+{
+	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
+
+	if (sidepanel_inventory)
+	{
+		LLInventoryPanel * inv_panel = sidepanel_inventory->getActivePanel();
+
+		if (inv_panel)
+		{
+			inv_panel->clearSelection();
+		}
+
+		LLInventoryPanel * inbox_panel = sidepanel_inventory->findChild<LLInventoryPanel>("inventory_inbox");
+
+		if (inbox_panel)
+		{
+			inbox_panel->clearSelection();
+		}
+	}
 }
 
 bool LLPanelMarketplaceOutbox::isOutboxEmpty() const

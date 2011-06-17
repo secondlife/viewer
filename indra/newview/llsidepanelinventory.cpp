@@ -32,10 +32,10 @@
 #include "llappviewer.h"
 #include "llavataractions.h"
 #include "llbutton.h"
-#include "llcurl.h"
 #include "lldate.h"
 #include "llfirstuse.h"
 #include "llfoldertype.h"
+#include "llhttpclient.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -69,6 +69,9 @@ static const char * const INBOX_LAYOUT_PANEL_NAME = "inbox_layout_panel";
 static const char * const OUTBOX_LAYOUT_PANEL_NAME = "outbox_layout_panel";
 static const char * const MAIN_INVENTORY_LAYOUT_PANEL = "main_inventory_layout_panel";
 
+static const char * const INBOX_INVENTORY_PANEL = "inventory_inbox";
+static const char * const OUTBOX_INVENTORY_PANEL = "inventory_outbox";
+
 static const char * const INVENTORY_LAYOUT_STACK_NAME = "inventory_layout_stack";
 
 //
@@ -84,14 +87,23 @@ public:
 	{
 	}
 
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llinfos << "Marketplace Inbox Disabled" << llendl;
-	}
-
-	void result(const LLSD& content)
-	{
-		mSidepanelInventory->enableInbox(true);
+		if (isGoodStatus(status))
+		{
+			// Complete success
+			mSidepanelInventory->enableInbox(true);
+		}
+		else if (status == 401)
+		{
+			// API is available for use but OpenID authorization failed
+			mSidepanelInventory->enableInbox(true);
+		}
+		else
+		{
+			// API in unavailable
+			llinfos << "Marketplace API is unavailable -- Inbox Disabled" << llendl;
+		}
 	}
 
 private:
@@ -106,7 +118,8 @@ LLSidepanelInventory::LLSidepanelInventory()
 	: LLPanel()
 	, mItemPanel(NULL)
 	, mPanelMainInventory(NULL)
-	, mInventoryFetched(false)
+	, mInboxEnabled(false)
+	, mOutboxEnabled(false)
 	, mCategoriesObserver(NULL)
 {
 	//buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
@@ -205,8 +218,8 @@ BOOL LLSidepanelInventory::postBuild()
 		outbox_button->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleOutboxBtn, this));
 
 		// Set the inbox and outbox visible based on debug settings (final setting comes from http request below)
-		inbox_panel->setVisible(gSavedSettings.getBOOL("InventoryDisplayInbox"));
-		outbox_panel->setVisible(gSavedSettings.getBOOL("InventoryDisplayOutbox"));
+		enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
+		enableOutbox(gSavedSettings.getBOOL("InventoryDisplayOutbox"));
 
 		// Trigger callback for after login so we can setup to track inbox and outbox changes after initial inventory load
 		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::handleLoginComplete, this));
@@ -258,11 +271,13 @@ void LLSidepanelInventory::handleLoginComplete()
 
 void LLSidepanelInventory::enableInbox(bool enabled)
 {
+	mInboxEnabled = enabled;
 	getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME)->setVisible(enabled);
 }
 
 void LLSidepanelInventory::enableOutbox(bool enabled)
 {
+	mOutboxEnabled = enabled;
 	getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME)->setVisible(enabled);
 }
 

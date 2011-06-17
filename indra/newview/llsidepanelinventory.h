@@ -43,8 +43,10 @@ public:
 	LLSidepanelInventory();
 	virtual ~LLSidepanelInventory();
 
+private:
 	void handleLoginComplete();
 
+public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
@@ -64,6 +66,9 @@ public:
 
 	void enableInbox(bool enabled);
 	void enableOutbox(bool enabled);
+
+	bool isInboxEnabled() const { return mInboxEnabled; }
+	bool isOutboxEnabled() const { return mOutboxEnabled; }
 
 protected:
 	// Tracks highlighted (selected) item in inventory panel.
@@ -107,7 +112,8 @@ private:
 	LLButton*					mOverflowBtn;
 	LLButton*					mShopBtn;
 
-	bool						mInventoryFetched;
+	bool						mInboxEnabled;
+	bool						mOutboxEnabled;
 
 	LLInventoryCategoriesObserver* 			mCategoriesObserver;
 };

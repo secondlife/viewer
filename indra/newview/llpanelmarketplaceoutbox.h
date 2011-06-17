@@ -54,6 +54,8 @@ protected:
 	void onSyncButtonClicked();
 	void updateSyncButtonStatus();
 
+	void onFocusReceived();
+
 private:
 	LLButton *				mSyncButton;
 	LLLoadingIndicator *	mSyncIndicator;
