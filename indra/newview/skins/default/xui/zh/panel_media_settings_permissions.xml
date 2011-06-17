@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="自訂" name="Media settings for controls">
 	<text name="controls_label">
-		Controls:
+		控制：
 	</text>
 	<combo_box name="controls">
 		<combo_item name="Standard">
-			Standard
+			標準
 		</combo_item>
 		<combo_item name="Mini">
-			Mini
+			迷你
 		</combo_item>
 	</combo_box>
 	<text name="owner_label">
-		Owner
+		擁有者
 	</text>
 	<check_box initial_value="false" label="Allow Navigation &amp; Interactivity" name="perms_owner_interact"/>
 	<check_box initial_value="false" label="顯示控制列" name="perms_owner_control"/>
@@ -22,7 +22,7 @@
 	<check_box initial_value="false" label="Allow Navigation &amp; Interactivity" name="perms_group_interact"/>
 	<check_box initial_value="false" label="顯示控制列" name="perms_group_control"/>
 	<text name="anyone_label">
-		Anyone
+		任何人
 	</text>
 	<check_box initial_value="false" label="Allow Navigation &amp; Interactivity" name="perms_anyone_interact"/>
 	<check_box initial_value="false" label="顯示控制列" name="perms_anyone_control"/>

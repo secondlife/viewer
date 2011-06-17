@@ -6,7 +6,7 @@
 Hover your mouse over the options for more help.
 	</panel.string>
 	<panel.string name="group_info_unchanged">
-		General group information has changed
+		一般社團資訊已經被變更
 	</panel.string>
 	<panel.string name="incomplete_member_data_str">
 		Retrieving member data
@@ -17,7 +17,7 @@ Hover your mouse over the options for more help.
 			創辦人：
 		</text>
 		<text name="join_cost_text">
-			Free
+			免費
 		</text>
 		<button label="現在就加入!!" name="btn_join"/>
 	</panel>
@@ -50,7 +50,7 @@ Hover your mouse over the options for more help.
 				- 選擇內容分級 -
 			</combo_item>
 			<combo_box.item label="Moderate Content" name="mature"/>
-			<combo_box.item label="General Content" name="pg"/>
+			<combo_box.item label="一般內容" name="pg"/>
 		</combo_box>
 		<check_box initial_value="true" label="顯示在搜尋中" name="show_in_group_list" tool_tip="Let people see this group in search results"/>
 	</panel>

@@ -53,7 +53,7 @@ Try again in a moment.
 			Relaying to destination.
 		</message>
 		<message name="sending_home">
-			傳送家位置的要求。
+			送出家位置的要求。
 		</message>
 		<message name="sending_landmark">
 			地標位置要求瞬間傳送中。

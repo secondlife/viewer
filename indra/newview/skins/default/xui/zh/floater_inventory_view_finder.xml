@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Inventory Finder" title="最近_收納區_物品">
-	<check_box label="Animation" name="check_animation"/>
+	<check_box label="動作" name="check_animation"/>
 	<check_box label="Calling Cards" name="check_calling_card"/>
 	<check_box label="服裝" name="check_clothing"/>
 	<check_box label="姿勢" name="check_gesture"/>
 	<check_box label="地標" name="check_landmark"/>
 	<check_box label="Notecards" name="check_notecard"/>
 	<check_box label="Objects" name="check_object"/>
-	<check_box label="Scripts" name="check_script"/>
+	<check_box label="腳本" name="check_script"/>
 	<check_box label="Sounds" name="check_sound"/>
 	<check_box label="材質" name="check_texture"/>
 	<check_box label="Snapshots" name="check_snapshot"/>

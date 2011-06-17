@@ -86,7 +86,7 @@
 				預覽：
 			</text>
 			<button label="Play" label_selected="Play" name="WLAnimSky"/>
-			<button label="Stop!" label_selected="Stop" name="WLStopAnimSky"/>
+			<button label="停止!" label_selected="停止" name="WLStopAnimSky"/>
 			<button label="Use Estate Time" label_selected="Go to Estate Time" name="WLUseLindenTime"/>
 			<button label="Save Test Day" label_selected="Save Test Day" name="WLSaveDayCycle"/>
 			<button label="Load Test Day" label_selected="Load Test Day" name="WLLoadDayCycle"/>
