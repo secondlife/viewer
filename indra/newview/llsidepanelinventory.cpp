@@ -241,10 +241,12 @@ void LLSidepanelInventory::handleLoginComplete()
 		std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
 		url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
 	}
+	
+	url += "api/1/users/";
+	url += gAgent.getID().getString();
+	url += "/user_status";
 
-	std::string url_suffix = "api/1/users/b72d31f8-d03c-4a3b-a002-3dd7b4a712b8/user_status";
-
-	LLHTTPClient::get(url + url_suffix, new LLInventoryUserStatusResponder(this));
+	LLHTTPClient::get(url, new LLInventoryUserStatusResponder(this));
 
 	//
 	// Track inbox and outbox folder changes
