@@ -68,7 +68,7 @@ Try selecting a smaller area.
 		none needed
 	</floater.string>
 	<floater.string name="must_upgrade">
-		Your account must be upgraded to own land.
+		你的帳戶必須要升級才能擁有土地。
 	</floater.string>
 	<floater.string name="cant_own_land">
 		你的帳戶能擁有土地。
@@ -83,7 +83,7 @@ Try selecting a smaller area.
 		Buy L$ [AMOUNT] for approx. [LOCAL_AMOUNT],
 	</floater.string>
 	<floater.string name="parcel_meters">
-		This parcel is [AMOUNT] m²
+		這個地段為 [AMOUNT] m²
 	</floater.string>
 	<floater.string name="premium_land">
 		This land is premium, and will charge as [AMOUNT] m².
@@ -122,7 +122,7 @@ supports [AMOUNT2] objects
 		You need to buy at least L$ [AMOUNT] to afford this land.
 	</floater.string>
 	<floater.string name="no_parcel_selected">
-		(no parcel selected)
+		（無地段被選擇）
 	</floater.string>
 	<text name="region_name_label">
 		地區：

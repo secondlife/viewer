@@ -27,7 +27,7 @@
 	<check_box label="允許語音聊天" name="voice_chat_check"/>
 	<check_box label="允許直接瞬間傳送" name="allow_direct_teleport"/>
 	<button label="套用" name="apply_btn"/>
-	<button label="瞬間傳送訊息到領地..." name="message_estate_btn"/>
+	<button label="送出訊息到領地..." name="message_estate_btn"/>
 	<button label="由領地將居民踢出..." name="kick_user_from_estate_btn"/>
 	<text name="estate_manager_label">
 		領地管理員：

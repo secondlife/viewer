@@ -10,29 +10,29 @@
 	</text>
 	<slider label="按鍵音" name="UI Volume"/>
 	<slider label="Ambient" name="Wind Volume"/>
-	<slider label="Sound Effects" name="SFX Volume"/>
-	<slider label="Streaming music" name="Music Volume"/>
-	<check_box label="Enabled" name="enable_music"/>
-	<slider label="Media" name="Media Volume"/>
-	<check_box label="Enabled" name="enable_media"/>
-	<slider label="Voice Chat" name="Voice Volume"/>
-	<check_box label="Enabled" name="enable_voice_check"/>
-	<check_box label="Allow Media to auto-play" name="media_auto_play_btn" tool_tip="Check this to let media auto-play if it wants" value="true"/>
-	<check_box label="Play media attached to other avatars" name="media_show_on_others_btn" tool_tip="Uncheck this to hide media attached to other avatars nearby" value="true"/>
+	<slider label="音效" name="SFX Volume"/>
+	<slider label="串流音樂" name="Music Volume"/>
+	<check_box label="已啟用" name="enable_music"/>
+	<slider label="媒體" name="Media Volume"/>
+	<check_box label="已啟用" name="enable_media"/>
+	<slider label="語音聊天" name="Voice Volume"/>
+	<check_box label="已啟用" name="enable_voice_check"/>
+	<check_box label="允許媒體自動播放" name="media_auto_play_btn" tool_tip="若你想要，可以勾選這個允許媒體自動播放" value="true"/>
+	<check_box label="播放附加到其他化身身上的媒體" name="media_show_on_others_btn" tool_tip="Uncheck this to hide media attached to other avatars nearby" value="true"/>
 	<text name="voice_chat_settings">
-		Voice Chat Settings
+		語音聊天設定
 	</text>
 	<text name="Listen from">
-		Listen from:
+		傾聽位置：
 	</text>
 	<radio_group name="ear_location">
-		<radio_item label="Camera position" name="0"/>
-		<radio_item label="Avatar position" name="1"/>
+		<radio_item label="攝影機位置" name="0"/>
+		<radio_item label="化身位置" name="1"/>
 	</radio_group>
-	<check_box label="Move avatar lips when speaking" name="enable_lip_sync"/>
+	<check_box label="說話時同步移動化身嘴唇" name="enable_lip_sync"/>
 	<check_box label="Toggle speak on/off when I press:" name="push_to_talk_toggle_check" tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."/>
 	<line_editor label="Push-to-Speak trigger" name="modifier_combo"/>
-	<button label="Set Key" name="set_voice_hotkey_button"/>
+	<button label="設定按鍵" name="set_voice_hotkey_button"/>
 	<button name="set_voice_middlemouse_button" tool_tip="Reset to Middle Mouse Button"/>
 	<button label="輸入 / 輸出設備" name="device_settings_btn"/>
 	<panel label="設備設定" name="device_settings_panel">
@@ -49,7 +49,7 @@
 			輸入
 		</text>
 		<text name="My volume label">
-			My volume:
+			我的音量：
 		</text>
 		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Change the volume using this slider"/>
 		<text name="wait_text">

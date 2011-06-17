@@ -28,17 +28,17 @@
 		<menu_item_call label="New Physics" name="New Physics"/>
 	</menu>
 	<menu label="新身體部位" name="New Body Parts">
-		<menu_item_call label="New Shape" name="New Shape"/>
-		<menu_item_call label="New Skin" name="New Skin"/>
-		<menu_item_call label="New Hair" name="New Hair"/>
-		<menu_item_call label="New Eyes" name="New Eyes"/>
+		<menu_item_call label="新體形" name="New Shape"/>
+		<menu_item_call label="新皮膚" name="New Skin"/>
+		<menu_item_call label="新頭髮" name="New Hair"/>
+		<menu_item_call label="新眼睛" name="New Eyes"/>
 	</menu>
-	<menu label="Change Type" name="Change Type">
+	<menu label="變更類型" name="Change Type">
 		<menu_item_call label="預設" name="Default"/>
 		<menu_item_call label="手套" name="Gloves"/>
 		<menu_item_call label="夾克" name="Jacket"/>
 		<menu_item_call label="褲子" name="Pants"/>
-		<menu_item_call label="Shape" name="Shape"/>
+		<menu_item_call label="體形" name="Shape"/>
 		<menu_item_call label="鞋子" name="Shoes"/>
 		<menu_item_call label="襯衫" name="Shirt"/>
 		<menu_item_call label="裙子" name="Skirt"/>
@@ -46,19 +46,19 @@
 		<menu_item_call label="內衣" name="Undershirt"/>
 	</menu>
 	<menu_item_call label="瞬間傳送" name="Landmark Open"/>
-	<menu_item_call label="Open" name="Animation Open"/>
-	<menu_item_call label="Open" name="Sound Open"/>
+	<menu_item_call label="開啟" name="Animation Open"/>
+	<menu_item_call label="開啟" name="Sound Open"/>
 	<menu_item_call label="取代目前的裝扮" name="Replace Outfit"/>
 	<menu_item_call label="添加到目前裝扮" name="Add To Outfit"/>
 	<menu_item_call label="由目前的裝扮移除" name="Remove From Outfit"/>
 	<menu_item_call label="Find Original" name="Find Original"/>
 	<menu_item_call label="Purge Item" name="Purge Item"/>
 	<menu_item_call label="Restore Item" name="Restore Item"/>
-	<menu_item_call label="Open" name="Open"/>
+	<menu_item_call label="開啟" name="Open"/>
 	<menu_item_call label="Open Original" name="Open Original"/>
 	<menu_item_call label="Properties" name="Properties"/>
 	<menu_item_call label="更名" name="Rename"/>
-	<menu_item_call label="Copy Asset UUID" name="Copy Asset UUID"/>
+	<menu_item_call label="覆製資產 UUID" name="Copy Asset UUID"/>
 	<menu_item_call label="覆製" name="Copy"/>
 	<menu_item_call label="貼上" name="Paste"/>
 	<menu_item_call label="Paste As Link" name="Paste As Link"/>
@@ -66,11 +66,11 @@
 	<menu_item_call label="刪除" name="Delete"/>
 	<menu_item_call label="刪除系統資料夾" name="Delete System Folder"/>
 	<menu_item_call label="Start Conference Chat" name="Conference Chat Folder"/>
-	<menu_item_call label="Play" name="Sound Play"/>
+	<menu_item_call label="播放" name="Sound Play"/>
 	<menu_item_call label="添加地標" name="About Landmark"/>
 	<menu_item_call label="Play Inworld" name="Animation Play"/>
 	<menu_item_call label="Play Locally" name="Animation Audition"/>
-	<menu_item_call label="Send Instant Message" name="Send Instant Message"/>
+	<menu_item_call label="送出即時訊息" name="Send Instant Message"/>
 	<menu_item_call label="Offer Teleport..." name="Offer Teleport..."/>
 	<menu_item_call label="Start Conference Chat" name="Conference Chat"/>
 	<menu_item_call label="Activate" name="Activate"/>

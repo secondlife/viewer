@@ -14,7 +14,7 @@
 			<button label="分享" name="share_btn"/>
 		</layout_panel>
 		<layout_panel name="pay_btn_panel">
-			<button label="Pay" name="pay_btn"/>
+			<button label="支付" name="pay_btn"/>
 		</layout_panel>
 		<layout_panel name="call_btn_panel">
 			<button label="通話" name="call_btn"/>

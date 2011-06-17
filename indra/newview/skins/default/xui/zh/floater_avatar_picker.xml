@@ -29,18 +29,18 @@
 				<columns label="使用者名稱" name="username"/>
 			</scroll_list>
 		</panel>
-		<panel label="Friends" name="FriendsPanel">
+		<panel label="朋友" name="FriendsPanel">
 			<text name="InstructSelectFriend">
 				選擇一個人：
 			</text>
 		</panel>
 		<panel label="接近我" name="NearMePanel">
 			<text name="InstructSelectResident">
-				Select a person nearby:
+				選擇一位附近的人：
 			</text>
-			<slider label="Range" name="near_me_range"/>
+			<slider label="範圍" name="near_me_range"/>
 			<text name="meters">
-				Meters
+				公尺
 			</text>
 			<scroll_list name="NearMe">
 				<columns label="名稱" name="name"/>

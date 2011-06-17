@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Edit Pick" name="panel_edit_pick">
+<panel label="編輯精選地點" name="panel_edit_pick">
 	<panel.string name="location_notice">
-		(will update after save)
+		（將在儲存後更新）
 	</panel.string>
 	<text name="title">
-		Edit Pick
+		編輯精選地點
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<icon label="" name="edit_icon" tool_tip="點擊以選擇圖像"/>
 			<text name="Name:">
-				Title:
+				標題：
 			</text>
 			<text name="description_label">
 				描述：
@@ -21,13 +21,13 @@
 			<text name="pick_location">
 				載入中...
 			</text>
-			<button label="Set to Current Location" name="set_to_curr_location_btn"/>
+			<button label="設定為目前位置" name="set_to_curr_location_btn"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
 		<layout_stack name="layout_stack1">
 			<layout_panel name="layout_panel1">
-				<button label="Save Pick" name="save_changes_btn"/>
+				<button label="儲存精選地點" name="save_changes_btn"/>
 			</layout_panel>
 			<layout_panel name="layout_panel1">
 				<button label="取消" name="cancel_btn"/>

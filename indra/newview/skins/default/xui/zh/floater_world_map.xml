@@ -11,7 +11,7 @@
 			Me
 		</text>
 		<text name="person_label">
-			Person
+			人
 		</text>
 		<text name="infohub_label">
 			Infohub
@@ -40,7 +40,7 @@
 			Moderate
 		</text>
 		<text name="events_adult_label">
-			Adult
+			成人
 		</text>
 	</panel>
 	<panel name="layout_panel_3">

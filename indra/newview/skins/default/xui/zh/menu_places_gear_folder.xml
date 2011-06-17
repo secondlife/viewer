@@ -2,7 +2,7 @@
 <toggleable_menu name="menu_folder_gear">
 	<menu_item_call label="添加地標" name="add_landmark"/>
 	<menu_item_call label="添加資料夾" name="add_folder"/>
-	<menu_item_call label="Restore Item" name="restore_item"/>
+	<menu_item_call label="還原物品" name="restore_item"/>
 	<menu_item_call label="剪下" name="cut"/>
 	<menu_item_call label="覆製" name="copy_folder"/>
 	<menu_item_call label="貼上" name="paste"/>

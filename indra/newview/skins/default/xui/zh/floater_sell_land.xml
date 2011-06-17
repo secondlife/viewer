@@ -41,7 +41,7 @@
 			<combo_box name="sell_to">
 				<combo_box.item label="- 選擇一個 -" name="--selectone--"/>
 				<combo_box.item label="任何人" name="Anyone"/>
-				<combo_box.item label="Specific person:" name="Specificuser:"/>
+				<combo_box.item label="指定人：" name="Specificuser:"/>
 			</combo_box>
 			<button label="選擇" name="sell_to_select_agent"/>
 			<text name="sell_objects_label">
