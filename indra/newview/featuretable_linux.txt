@@ -1,4 +1,4 @@
-version 23
+version 25
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -48,6 +48,7 @@ RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderUseImpostors			1	1
 RenderVBOEnable				1	1
+RenderVBOMappingDisable		1	1
 RenderVolumeLODFactor		1	2.0
 UseStartScreen				1	1
 UseOcclusion				1	1
@@ -62,6 +63,7 @@ RenderShaderLightingMaxLevel		1	3
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
+RenderFSAASamples			1	16
 
 //
 // Low Graphics Settings
@@ -93,6 +95,7 @@ SkyUseClassicClouds			1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
+RenderFSAASamples			1	0
 
 //
 // Mid Graphics Settings
@@ -122,6 +125,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
+RenderFSAASamples			1	0
 
 //
 // High Graphics Settings (purty)
@@ -151,6 +155,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
+RenderFSAASamples			1	4
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -180,6 +185,7 @@ WLSkyDetail					1	128
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
+RenderFSAASamples			1	8
 
 //
 // Class Unknown Hardware (unknown)
@@ -236,6 +242,13 @@ WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
+
+//
+// No GL_ARB_map_buffer_range
+//
+list NoMapBufferRange
+RenderVBOMappingDisable		1	0
+
 
 
 // "Default" setups for safe, low, medium, high

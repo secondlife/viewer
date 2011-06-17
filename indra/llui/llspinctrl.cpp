@@ -52,6 +52,7 @@ LLSpinCtrl::Params::Params()
 :	label_width("label_width"),
 	decimal_digits("decimal_digits"),
 	allow_text_entry("allow_text_entry", true),
+	label_wrap("label_wrap", false),
 	text_enabled_color("text_enabled_color"),
 	text_disabled_color("text_disabled_color"),
 	up_button("up_button"),
@@ -80,6 +81,7 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	{
 		LLRect label_rect( 0, centered_top, label_width, centered_bottom );
 		LLTextBox::Params params;
+		params.wrap(p.label_wrap);
 		params.name("SpinCtrl Label");
 		params.rect(label_rect);
 		params.initial_value(p.label());

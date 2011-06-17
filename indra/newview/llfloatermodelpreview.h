@@ -50,6 +50,7 @@ class domProfile_COMMON;
 class domInstance_geometry;
 class domNode;
 class domTranslate;
+class domController;
 class LLMenuButton;
 class LLToggleableMenu;
 
@@ -107,7 +108,7 @@ public:
 	void loadModelCallback();
 
 	void loadTextures() ; //called in the main thread.
-	void processElement(daeElement* element);
+	void processElement(daeElement* element, bool& badElement);
 	std::vector<LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
 	LLImportMaterial profileToMaterial(domProfile_COMMON* material);
 	std::string getElementLabel(daeElement *element);
@@ -130,6 +131,9 @@ public:
 	std::map<std::string, std::string> mJointMap;
 	JointTransformMap& mJointList;	
 	std::deque<std::string>& mJointsFromNode;
+
+	S32 mNumOfFetchingTextures ; //updated in the main thread
+	bool areTexturesReady() { return !mNumOfFetchingTextures; } //called in the main thread.
 
 private:
 	static std::list<LLModelLoader*> sActiveLoaderList;
@@ -199,6 +203,8 @@ protected:
 	static void		onUploadJointsCommit(LLUICtrl*,void*);
 	static void		onUploadSkinCommit(LLUICtrl*,void*);
 	
+	static void		onPhysicsLoadRadioCommit(LLUICtrl*,void *data);
+
 	static void		onPreviewLODCommit(LLUICtrl*,void*);
 	
 	static void		onGenerateNormalsCommit(LLUICtrl*,void*);
@@ -309,9 +315,6 @@ public:
 	void setHasPivot( bool val ) { mHasPivot = val; }
 	void setModelPivot( const LLVector3& pivot ) { mModelPivot = pivot; }
 
-	//Sets the current avatars joints to new positions
-	//Makes in world go to shit, however
-	void changeAvatarsJointPositions( LLModel* pModel );
 	//Determines the viability of an asset to be used as an avatar rig (w or w/o joint upload caps)
 	void critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset );
 	void critiqueJointToNodeMappingFromScene( void  );
@@ -325,6 +328,8 @@ public:
 	//Accessors for the legacy rigs
 	const bool isLegacyRigValid( void ) const { return mLegacyRigValid; }
 	void setLegacyRigValid( bool rigValid ) { mLegacyRigValid = rigValid; }	
+	//Verify that a controller matches vertex counts
+	bool verifyController( domController* pController );
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 	
@@ -341,7 +346,12 @@ public:
 	
 	LLVector3 getTranslationForJointOffset( std::string joint );
 
+private:
+	//Utility function for controller vertex compare
+	bool verifyCount( int expected, int result );
+	//Creates the dummy avatar for the preview window
 	void		createPreviewAvatar( void );
+	//Accessor for the dummy avatar
 	LLVOAvatar* getPreviewAvatar( void ) { return mPreviewAvatar; }
 
  protected:

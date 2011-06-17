@@ -77,6 +77,18 @@ protected:
 class LLVertexBuffer : public LLRefCount
 {
 public:
+	class MappedRegion
+	{
+	public:
+		S32 mType;
+		S32 mIndex;
+		S32 mCount;
+		
+		MappedRegion(S32 type, S32 index, S32 count)
+			: mType(type), mIndex(index), mCount(count)
+		{ }	
+	};
+
 	LLVertexBuffer(const LLVertexBuffer& rhs)
 	{
 		*this = rhs;
@@ -130,6 +142,9 @@ public:
 		TYPE_CLOTHWEIGHT,
 		TYPE_MAX,
 		TYPE_INDEX,
+		
+		//no actual additional data, but indicates position.w is texture index
+		TYPE_TEXTURE_INDEX,
 	};
 	enum {
 		MAP_VERTEX = (1<<TYPE_VERTEX),
@@ -144,6 +159,7 @@ public:
 		MAP_WEIGHT = (1<<TYPE_WEIGHT),
 		MAP_WEIGHT4 = (1<<TYPE_WEIGHT4),
 		MAP_CLOTHWEIGHT = (1<<TYPE_CLOTHWEIGHT),
+		MAP_TEXTURE_INDEX = (1<<TYPE_TEXTURE_INDEX),
 	};
 	
 protected:
@@ -173,8 +189,8 @@ public:
 	LLVertexBuffer(U32 typemask, S32 usage);
 	
 	// map for data access
-	U8*		mapVertexBuffer(S32 type = -1, S32 access = -1);
-	U8*		mapIndexBuffer(S32 access = -1);
+	U8*		mapVertexBuffer(S32 type, S32 index, S32 count, bool map_range);
+	U8*		mapIndexBuffer(S32 index, S32 count, bool map_range);
 
 	// set for rendering
 	virtual void	setBuffer(U32 data_mask, S32 type = -1); 	// calls  setupVertexBuffer() if data_mask is not 0
@@ -189,16 +205,16 @@ public:
 	//   vb->getNormalStrider(norms);
 	//   setVertsNorms(verts, norms);
 	//   vb->unmapBuffer();
-	bool getVertexStrider(LLStrider<LLVector3>& strider, S32 index=0);
-	bool getIndexStrider(LLStrider<U16>& strider, S32 index=0);
-	bool getTexCoord0Strider(LLStrider<LLVector2>& strider, S32 index=0);
-	bool getTexCoord1Strider(LLStrider<LLVector2>& strider, S32 index=0);
-	bool getNormalStrider(LLStrider<LLVector3>& strider, S32 index=0);
-	bool getBinormalStrider(LLStrider<LLVector3>& strider, S32 index=0);
-	bool getColorStrider(LLStrider<LLColor4U>& strider, S32 index=0);
-	bool getWeightStrider(LLStrider<F32>& strider, S32 index=0);
-	bool getWeight4Strider(LLStrider<LLVector4>& strider, S32 index=0);
-	bool getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index=0);
+	bool getVertexStrider(LLStrider<LLVector3>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getIndexStrider(LLStrider<U16>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getTexCoord0Strider(LLStrider<LLVector2>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getTexCoord1Strider(LLStrider<LLVector2>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getNormalStrider(LLStrider<LLVector3>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getBinormalStrider(LLStrider<LLVector3>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getColorStrider(LLStrider<LLColor4U>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getWeightStrider(LLStrider<F32>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getWeight4Strider(LLStrider<LLVector4>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	
 	BOOL isEmpty() const					{ return mEmpty; }
 	BOOL isLocked() const					{ return mVertexLocked || mIndexLocked; }
@@ -217,8 +233,6 @@ public:
 	U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
 	S32 getUsage() const					{ return mUsage; }
-
-	void markDirty(U32 vert_index, U32 vert_count, U32 indices_index, U32 indices_count);
 
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
@@ -253,20 +267,8 @@ protected:
 	BOOL	mDynamicSize;	// if TRUE, buffer has been resized at least once (and should be padded)
 	S32		mOffsets[TYPE_MAX];
 
-	class DirtyRegion
-	{
-	public:
-		U32 mIndex;
-		U32 mCount;
-		U32 mIndicesIndex;
-		U32 mIndicesCount;
-
-		DirtyRegion(U32 vi, U32 vc, U32 ii, U32 ic)
-			: mIndex(vi), mCount(vc), mIndicesIndex(ii), mIndicesCount(ic)
-		{ }	
-	};
-
-	std::vector<DirtyRegion> mDirtyRegions; //vector of dirty regions to rebuild
+	std::vector<MappedRegion> mMappedVertexRegions;
+	std::vector<MappedRegion> mMappedIndexRegions;
 
 public:
 	static S32 sCount;

@@ -422,8 +422,11 @@ void LLFloaterModelWizard::executePhysicsStage(std::string stage_name)
 			{
 				LLModel* mdl = sInstance->mModelPreview->mModel[LLModel::LOD_PHYSICS][i];
 				DecompRequest* request = new DecompRequest(stage_name, mdl);
-				sInstance->mCurRequest.insert(request);
-				gMeshRepo.mDecompThread->submitRequest(request);
+				if(request->isValid())
+				{
+					sInstance->mCurRequest.insert(request);
+					gMeshRepo.mDecompThread->submitRequest(request);
+				}				
 			}
 		}
 	}
@@ -438,35 +441,7 @@ LLFloaterModelWizard::DecompRequest::DecompRequest(const std::string& stage, LLM
 	mParams = sInstance->mDecompParams;
 
 	//copy out positions and indices
-	if (mdl)
-	{
-		U16 index_offset = 0;
-
-		mPositions.clear();
-		mIndices.clear();
-
-		//queue up vertex positions and indices
-		for (S32 i = 0; i < mdl->getNumVolumeFaces(); ++i)
-		{
-			const LLVolumeFace& face = mdl->getVolumeFace(i);
-			if (mPositions.size() + face.mNumVertices > 65535)
-			{
-				continue;
-			}
-
-			for (U32 j = 0; j < face.mNumVertices; ++j)
-			{
-				mPositions.push_back(LLVector3(face.mPositions[j].getF32ptr()));
-			}
-
-			for (U32 j = 0; j < face.mNumIndices; ++j)
-			{
-				mIndices.push_back(face.mIndices[j]+index_offset);
-			}
-
-			index_offset += face.mNumVertices;
-		}
-	}
+	assignData(mdl) ;	
 }
 
 

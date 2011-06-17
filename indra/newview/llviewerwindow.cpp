@@ -601,7 +601,7 @@ public:
 			
 			ypos += y_inc;
 
-			if (gSavedSettings.getBOOL("MeshEnabled"))
+			if (gMeshRepo.meshRezEnabled())
 			{
 				addText(xpos, ypos, llformat("%.3f MB Mesh Data Received", LLMeshRepository::sBytesReceived/(1024.f*1024.f)));
 				

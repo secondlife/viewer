@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 vec3 atmosTransport(vec3 light)
 {

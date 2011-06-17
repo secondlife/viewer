@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
 
-#version 120
+
 
 varying vec4 vary_fragcoord;
 
