@@ -25,33 +25,33 @@ Hover your mouse over the options for more help.
 		Group Charter
 	</text_editor>
 	<name_list name="visible_members">
-		<name_list.columns label="Member" name="name"/>
-		<name_list.columns label="Title" name="title"/>
-		<name_list.columns label="Status" name="status"/>
+		<name_list.columns label="成員" name="name"/>
+		<name_list.columns label="頭銜" name="title"/>
+		<name_list.columns label="狀態" name="status"/>
 	</name_list>
 	<text name="my_group_settngs_label">
 		自己
 	</text>
 	<text name="active_title_label">
-		My title:
+		我的頭銜：
 	</text>
 	<combo_box name="active_title" tool_tip="Sets the title that appears in your avatar&apos;s name tag when this group is active."/>
-	<check_box label="Receive group notices" name="receive_notices" tool_tip="Sets whether you want to receive Notices from this group.  Uncheck this box if this group is spamming you."/>
+	<check_box label="接受社團通知" name="receive_notices" tool_tip="Sets whether you want to receive Notices from this group.  Uncheck this box if this group is spamming you."/>
 	<check_box label="顯示在我的檔案中" name="list_groups_in_profile" tool_tip="Sets whether you want to show this group in your profile"/>
 	<panel name="preferences_container">
 		<text name="group_settngs_label">
 			社團
 		</text>
-		<check_box label="Anyone can join" name="open_enrollement" tool_tip="Sets whether this group allows new members to join without being invited."/>
-		<check_box label="Cost to join" name="check_enrollment_fee" tool_tip="Sets whether to require an enrollment fee to join the group"/>
+		<check_box label="任何人都可以加入" name="open_enrollement" tool_tip="Sets whether this group allows new members to join without being invited."/>
+		<check_box label="加入費用" name="check_enrollment_fee" tool_tip="Sets whether to require an enrollment fee to join the group"/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked."/>
 		<combo_box name="group_mature_check" tool_tip="Sets whether your group contains information rated as Moderate">
 			<combo_item name="select_mature">
-				- Select maturity rating -
+				- 選擇內容分級 -
 			</combo_item>
 			<combo_box.item label="Moderate Content" name="mature"/>
 			<combo_box.item label="General Content" name="pg"/>
 		</combo_box>
-		<check_box initial_value="true" label="Show in search" name="show_in_group_list" tool_tip="Let people see this group in search results"/>
+		<check_box initial_value="true" label="顯示在搜尋中" name="show_in_group_list" tool_tip="Let people see this group in search results"/>
 	</panel>
 </panel>

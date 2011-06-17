@@ -4,5 +4,5 @@
 		選擇一個社團：
 	</text>
 	<button label="確定" label_selected="確定" name="OK"/>
-	<button label="取銷" label_selected="取銷" name="Cancel"/>
+	<button label="取消" label_selected="取消" name="Cancel"/>
 </floater>

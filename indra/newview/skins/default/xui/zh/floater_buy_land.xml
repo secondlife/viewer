@@ -71,10 +71,10 @@ Try selecting a smaller area.
 		Your account must be upgraded to own land.
 	</floater.string>
 	<floater.string name="cant_own_land">
-		Your account can own land.
+		你的帳戶能擁有土地。
 	</floater.string>
 	<floater.string name="land_holdings">
-		You hold [BUYER] m² of land.
+		你持有 [BUYER] m² 土地。
 	</floater.string>
 	<floater.string name="pay_to_for_land">
 		Pay L$ [AMOUNT] to [SELLER] for this land
@@ -190,7 +190,7 @@ sold with objects
 	<text name="error_message">
 		Something ain&apos;t right.
 	</text>
-	<button label="Go to website" name="error_web"/>
+	<button label="前往網站" name="error_web"/>
 	<text name="account_action">
 		Upgrade you to premium membership.
 	</text>
@@ -229,5 +229,5 @@ This parcel is 512 m² of land.
 	</text>
 	<check_box label="Remove [AMOUNT] m² of contribution from group." name="remove_contribution"/>
 	<button label="Purchase" name="buy_btn"/>
-	<button label="取銷" name="cancel_btn"/>
+	<button label="取消" name="cancel_btn"/>
 </floater>

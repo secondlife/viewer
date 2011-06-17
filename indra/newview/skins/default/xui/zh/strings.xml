@@ -59,37 +59,37 @@
 		Previous login attempt failed. Logging in, attempt [NUMBER]
 	</string>
 	<string name="LoginPrecaching">
-		Loading world...
+		世界載入中...
 	</string>
 	<string name="LoginInitializingBrowser">
-		Initializing embedded web browser...
+		內嵌式網頁瀏覽器初始化中...
 	</string>
 	<string name="LoginInitializingMultimedia">
-		Initializing multimedia...
+		多媒體初始化中...
 	</string>
 	<string name="LoginInitializingFonts">
-		Loading fonts...
+		字型載入中...
 	</string>
 	<string name="LoginVerifyingCache">
-		Verifying cache files (can take 60-90 seconds)...
+		驗證快取檔案（約需 60-90 秒左右）...
 	</string>
 	<string name="LoginProcessingResponse">
-		Processing Response...
+		回應處理中...
 	</string>
 	<string name="LoginInitializingWorld">
-		Initializing World...
+		世界初始化中...
 	</string>
 	<string name="LoginDecodingImages">
-		Decoding images...
+		圖像解碼中...
 	</string>
 	<string name="LoginInitializingQuicktime">
-		Initializing QuickTime...
+		QuickTime 初始化中...
 	</string>
 	<string name="LoginQuicktimeNotFound">
-		QuickTime not found - unable to initialize.
+		QuickTime 未發現 - 無法進行初始化。
 	</string>
 	<string name="LoginQuicktimeOK">
-		QuickTime initialized successfully.
+		QuickTime 已成功初始化。
 	</string>
 	<string name="LoginWaitingForRegionHandshake">
 		地區交握等待中...
@@ -125,7 +125,7 @@
 		登入失敗。
 	</string>
 	<string name="Quit">
-		Quit
+		結束退出
 	</string>
 	<string name="create_account_url">
 		http://join.secondlife.com/
@@ -191,7 +191,7 @@
 		No Scripts
 	</string>
 	<string name="TooltipLand">
-		Land:
+		土地：
 	</string>
 	<string name="TooltipMustSingleDrop">
 		Only a single item can be dragged here
@@ -382,10 +382,10 @@
 		服裝
 	</string>
 	<string name="object">
-		object
+		物件
 	</string>
 	<string name="note card">
-		notecard
+		記事卡
 	</string>
 	<string name="folder">
 		資料夾
@@ -403,28 +403,28 @@
 		tga 材質
 	</string>
 	<string name="body part">
-		body part
+		身體部位
 	</string>
 	<string name="snapshot">
-		snapshot
+		快照
 	</string>
 	<string name="lost and found">
 		Lost and Found
 	</string>
 	<string name="targa image">
-		targa image
+		targa 圖像
 	</string>
 	<string name="trash">
-		Trash
+		垃圾桶
 	</string>
 	<string name="jpeg image">
-		jpeg image
+		jpeg 圖像
 	</string>
 	<string name="animation">
-		animation
+		動作
 	</string>
 	<string name="gesture">
-		gesture
+		姿勢
 	</string>
 	<string name="simstate">
 		simstate
@@ -439,13 +439,13 @@
 		folder link
 	</string>
 	<string name="AvatarEditingAppearance">
-		(Editing Appearance)
+		（外觀編輯中）
 	</string>
 	<string name="AvatarAway">
-		Away
+		離開
 	</string>
 	<string name="AvatarBusy">
-		Busy
+		忙碌
 	</string>
 	<string name="AvatarMuted">
 		Blocked
@@ -781,7 +781,7 @@
 		Animations
 	</string>
 	<string name="image_files">
-		Images
+		圖像
 	</string>
 	<string name="save_file_verb">
 		Save
@@ -790,10 +790,10 @@
 		Load
 	</string>
 	<string name="targa_image_files">
-		Targa Images
+		Targa 圖像
 	</string>
 	<string name="bitmap_image_files">
-		Bitmap Images
+		Bitmap 圖像
 	</string>
 	<string name="avi_movie_file">
 		AVI 影片檔案
@@ -1367,16 +1367,16 @@
 		[COUNT] 天
 	</string>
 	<string name="GroupMembersA">
-		[COUNT] member
+		[COUNT] 成員
 	</string>
 	<string name="GroupMembersB">
-		[COUNT] members
+		[COUNT] 成員
 	</string>
 	<string name="GroupMembersC">
-		[COUNT] members
+		[COUNT] 成員
 	</string>
 	<string name="AcctTypeResident">
-		Resident
+		居民
 	</string>
 	<string name="AcctTypeTrial">
 		Trial
@@ -1457,28 +1457,28 @@
 		reset
 	</string>
 	<string name="RunQueueTitle">
-		Set Running Progress
+		設定執行中程序
 	</string>
 	<string name="RunQueueStart">
-		set running
+		設為執行中
 	</string>
 	<string name="NotRunQueueTitle">
-		Set Not Running Progress
+		設定非執行中程序
 	</string>
 	<string name="NotRunQueueStart">
-		set not running
+		設為非執行中
 	</string>
 	<string name="CompileSuccessful">
-		Compile successful!
+		編譯成功!
 	</string>
 	<string name="CompileSuccessfulSaving">
-		Compile successful, saving...
+		編譯成功，儲存中...
 	</string>
 	<string name="SaveComplete">
-		Save complete.
+		儲存完畢。
 	</string>
 	<string name="ObjectOutOfRange">
-		Script (object out of range)
+		腳本（物件超出範圍）
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		Object [OBJECT] owned by [OWNER]
@@ -1537,7 +1537,7 @@
 		Allowed groups: ([ALLOWEDGROUPS], max [MAXACCESS])
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
-		Parcel Script Memory
+		地段腳本記憶體
 	</string>
 	<string name="ScriptLimitsParcelsOwned">
 		Parcels Listed: [PARCELS]
@@ -1819,7 +1819,7 @@
 		Acquired Items
 	</string>
 	<string name="Cancel">
-		取銷
+		取消
 	</string>
 	<string name="UploadingCosts">
 		花費 L$ [AMOUNT] 上傳 [NAME]
@@ -1919,7 +1919,7 @@
 		Down
 	</string>
 	<string name="Any Category">
-		Any Category
+		任何類別
 	</string>
 	<string name="Shopping">
 		Shopping
@@ -3565,7 +3565,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		不允許飛行
 	</string>
 	<string name="LocationCtrlPushTooltip">
-		No pushing
+		禁止推撞
 	</string>
 	<string name="LocationCtrlBuildTooltip">
 		Building/dropping objects not allowed
@@ -3586,34 +3586,34 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		General Region
 	</string>
 	<string name="UpdaterWindowTitle">
-		[APP_NAME] Update
+		[APP_NAME] 更新
 	</string>
 	<string name="UpdaterNowUpdating">
-		Now updating [APP_NAME]...
+		[APP_NAME] 現更新中...
 	</string>
 	<string name="UpdaterNowInstalling">
-		Installing [APP_NAME]...
+		[APP_NAME] 安裝中...
 	</string>
 	<string name="UpdaterUpdatingDescriptive">
 		Your [APP_NAME] Viewer is being updated to the latest release.  This may take some time, so please be patient.
 	</string>
 	<string name="UpdaterProgressBarTextWithEllipses">
-		Downloading update...
+		更新下載中...
 	</string>
 	<string name="UpdaterProgressBarText">
-		Downloading update
+		更新下載
 	</string>
 	<string name="UpdaterFailDownloadTitle">
-		Failed to download update
+		夏載更新失敗
 	</string>
 	<string name="UpdaterFailUpdateDescriptive">
 		An error occurred while updating [APP_NAME]. Please download the latest version from www.secondlife.com.
 	</string>
 	<string name="UpdaterFailInstallTitle">
-		Failed to install update
+		安裝更新失敗
 	</string>
 	<string name="UpdaterFailStartTitle">
-		Failed to start viewer
+		啟動瀏覽器失敗
 	</string>
 	<string name="ItemsComingInTooFastFrom">
 		[APP_NAME]: Items coming in too fast from [FROM_NAME], automatic preview disabled for [TIME] seconds
@@ -3625,7 +3625,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		-- Instant message logging enabled --
 	</string>
 	<string name="IM_typing_start_string">
-		[NAME] is typing...
+		[NAME] 正在輸入...
 	</string>
 	<string name="Unnamed">
 		(Unnamed)
@@ -3688,13 +3688,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Drag items from inventory here
 	</string>
 	<string name="no_session_message">
-		(IM Session Doesn&apos;t Exist)
+		（IM 會話不存在）
 	</string>
 	<string name="only_user_message">
 		You are the only user in this session.
 	</string>
 	<string name="offline_message">
-		[NAME] is offline.
+		[NAME] 離線。
 	</string>
 	<string name="invite_message">
 		Click the [BUTTON NAME] button to accept/connect to this voice chat.
@@ -3712,7 +3712,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		You do not have sufficient permissions.
 	</string>
 	<string name="session_does_not_exist_error">
-		The session no longer exists
+		此會話不再存在
 	</string>
 	<string name="no_ability_error">
 		You do not have that ability.
@@ -3793,13 +3793,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		for deeding land
 	</string>
 	<string name="to create a group">
-		to create a group
+		以創造社團
 	</string>
 	<string name="to join a group">
-		to join a group
+		以加入社團
 	</string>
 	<string name="to upload">
-		to upload
+		以上傳
 	</string>
 	<string name="to publish a classified ad">
 		to publish a classified ad
@@ -3820,7 +3820,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		This object costs L$ [AMOUNT]
 	</string>
 	<string name="group_role_everyone">
-		Everyone
+		任何人
 	</string>
 	<string name="group_role_officers">
 		Officers
@@ -3829,7 +3829,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Owners
 	</string>
 	<string name="group_member_status_online">
-		Online
+		上線
 	</string>
 	<string name="uploading_abuse_report">
 		上傳中...
@@ -4014,7 +4014,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		無/無
 	</string>
 	<string name="texture_load_dimensions_error">
-		Can&apos;t load images larger than [WIDTH]*[HEIGHT]
+		無法載入圖像大於 [WIDTH]*[HEIGHT]
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
@@ -4051,7 +4051,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Membership
 	</string>
 	<string name="Roles">
-		Roles
+		角色
 	</string>
 	<string name="Group Identity">
 		Group Identity
@@ -4081,7 +4081,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Accounting
 	</string>
 	<string name="Notices">
-		Notices
+		通知
 	</string>
 	<string name="Chat">
 		聊天

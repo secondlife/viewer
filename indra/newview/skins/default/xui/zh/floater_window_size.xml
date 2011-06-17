@@ -13,5 +13,5 @@
 		<combo_box.item label="1920 x 1080 （1080p）" name="item3"/>
 	</combo_box>
 	<button label="設定" name="set_btn"/>
-	<button label="取銷" name="cancel_btn"/>
+	<button label="取消" name="cancel_btn"/>
 </floater>

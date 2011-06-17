@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Landmarks">
 	<accordion name="landmarks_accordion">
-		<accordion_tab name="tab_favorites" title="Favorites bar"/>
+		<accordion_tab name="tab_favorites" title="最愛列"/>
 		<accordion_tab name="tab_landmarks" title="我的地標"/>
 		<accordion_tab name="tab_inventory" title="我的收納區"/>
 		<accordion_tab name="tab_library" title="Library"/>

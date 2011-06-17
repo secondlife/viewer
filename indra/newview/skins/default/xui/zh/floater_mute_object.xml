@@ -10,5 +10,5 @@
 		* Only blocks object text, not sounds
 	</text>
 	<button label="確定" name="OK"/>
-	<button label="取銷" name="Cancel"/>
+	<button label="取消" name="Cancel"/>
 </floater>

@@ -10,23 +10,23 @@
 		No results
 	</floater.string>
 	<floater.string name="searching">
-		Searching...
+		搜尋中...
 	</floater.string>
 	<string name="Select">
-		Select
+		選擇
 	</string>
 	<string name="Close">
 		關閉
 	</string>
 	<tab_container name="ResidentChooserTabs">
-		<panel label="Search" name="SearchPanel">
+		<panel label="搜尋" name="SearchPanel">
 			<text name="InstructSearchResidentName">
 				Type part of a person&apos;s name:
 			</text>
 			<button label="Go" label_selected="Go" name="Find"/>
 			<scroll_list name="SearchResults">
 				<columns label="名稱" name="name"/>
-				<columns label="Username" name="username"/>
+				<columns label="使用者名稱" name="username"/>
 			</scroll_list>
 		</panel>
 		<panel label="Friends" name="FriendsPanel">
@@ -44,10 +44,10 @@
 			</text>
 			<scroll_list name="NearMe">
 				<columns label="名稱" name="name"/>
-				<columns label="Username" name="username"/>
+				<columns label="使用者名稱" name="username"/>
 			</scroll_list>
 		</panel>
 	</tab_container>
 	<button label="確定" label_selected="確定" name="ok_btn"/>
-	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
+	<button label="取消" label_selected="取消" name="cancel_btn"/>
 </floater>

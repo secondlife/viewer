@@ -5,6 +5,12 @@
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
+	<string name="name_text_args">
+		[NAME]
+	</string>
+	<string name="display_name_text_args">
+		[DISPLAY_NAME]
+	</string>
 	<layout_stack name="layout">
 		<layout_panel name="profile_stack">
 			<scroll_container name="profile_scroll">
@@ -19,7 +25,7 @@
 					<text name="title_acc_status_text" value="Konto status:"/>
 					<text name="title_partner_text" value="Partner:"/>
 					<panel name="partner_data_panel">
-						<name_box initial_value="(henter)" name="partner_text"/>
+						<text initial_value="(henter)" name="partner_text"/>
 					</panel>
 					<text name="title_groups_text" value="Grupper:"/>
 				</panel>

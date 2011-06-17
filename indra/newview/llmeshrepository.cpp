@@ -94,7 +94,8 @@ std::string make_dump_name(std::string prefix, S32 num)
 	return prefix + boost::lexical_cast<std::string>(num) + std::string(".xml");
 	
 }
-void dumpLLSDToFile(const LLSD& content, std::string filename);
+void dump_llsd_to_file(const LLSD& content, std::string filename);
+LLSD llsd_from_file(std::string filename);
 
 std::string header_lod[] = 
 {
@@ -468,8 +469,18 @@ public:
 
 };
 
-void log_upload_error(S32 status, const LLSD& content,std::string stage)
+void log_upload_error(S32 status, const LLSD& content, std::string stage, std::string model_name)
 {
+	// Add notification popup.
+	LLSD args;
+	std::string message = content["error"]["message"];
+	std::string identifier = content["error"]["identifier"];
+	args["MESSAGE"] = message;
+	args["IDENTIFIER"] = identifier;
+	args["LABEL"] = model_name;
+	gMeshRepo.uploadError(args);
+
+	// Log details.
 	llwarns << "stage: " << stage << " http status: " << status << llendl;
 	if (content.has("error"))
 	{
@@ -534,28 +545,36 @@ public:
 class LLWholeModelFeeResponder: public LLCurl::Responder
 {
 	LLMeshUploadThread* mThread;
+	LLSD mModelData;
 public:
-	LLWholeModelFeeResponder(LLMeshUploadThread* thread):
-		mThread(thread)
+	LLWholeModelFeeResponder(LLMeshUploadThread* thread, LLSD& model_data):
+		mThread(thread),
+		mModelData(model_data)
 	{
 	}
 	virtual void completed(U32 status,
 						   const std::string& reason,
 						   const LLSD& content)
 	{
+		LLSD cc = content;
+		if (gSavedSettings.getS32("MeshUploadFakeErrors")&1)
+		{
+			cc = llsd_from_file("fake_upload_error.xml");
+		}
+			
 		llinfos << "completed" << llendl;
 		mThread->mPendingUploads--;
-		dumpLLSDToFile(content,make_dump_name("whole_model_fee_response_",dump_num));
+		dump_llsd_to_file(cc,make_dump_name("whole_model_fee_response_",dump_num));
 		if (isGoodStatus(status) &&
-			content["state"].asString() == "upload")
+			cc["state"].asString() == "upload")
 		{
 			llinfos << "fee request succeeded" << llendl;
-			mThread->mWholeModelUploadURL = content["uploader"].asString(); 
+			mThread->mWholeModelUploadURL = cc["uploader"].asString(); 
 		}
 		else
 		{
 			llwarns << "fee request failed" << llendl;
-			log_upload_error(status,content,"fee");
+			log_upload_error(status,cc,"fee",mModelData["name"]);
 			mThread->mWholeModelUploadURL = "";
 		}
 	}
@@ -565,35 +584,42 @@ public:
 class LLWholeModelUploadResponder: public LLCurl::Responder
 {
 	LLMeshUploadThread* mThread;
-	LLSD mPostData;
+	LLSD mModelData;
 	
 public:
-	LLWholeModelUploadResponder(LLMeshUploadThread* thread, LLSD& post_data):
+	LLWholeModelUploadResponder(LLMeshUploadThread* thread, LLSD& model_data):
 		mThread(thread),
-		mPostData(post_data)
+		mModelData(model_data)
 	{
 	}
 	virtual void completed(U32 status,
 						   const std::string& reason,
 						   const LLSD& content)
 	{
+		LLSD cc = content;
+		if (gSavedSettings.getS32("MeshUploadFakeErrors")&2)
+		{
+			cc = llsd_from_file("fake_upload_error.xml");
+		}
+
 		//assert_main_thread();
 		mThread->mPendingUploads--;
-		dumpLLSDToFile(content,make_dump_name("whole_model_upload_response_",dump_num));
-		llinfos << "LLWholeModelUploadResponder content: " << content << llendl;
+		dump_llsd_to_file(cc,make_dump_name("whole_model_upload_response_",dump_num));
+		llinfos << "LLWholeModelUploadResponder content: " << cc << llendl;
 		// requested "mesh" asset type isn't actually the type
 		// of the resultant object, fix it up here.
 		if (isGoodStatus(status) &&
-			content["state"].asString() == "complete")
+			cc["state"].asString() == "complete")
 		{
 			llinfos << "upload succeeded" << llendl;
-			mPostData["asset_type"] = "object";
-			gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mPostData,content));
+			mModelData["asset_type"] = "object";
+			gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mModelData,cc));
 		}
 		else
 		{
 			llwarns << "upload failed" << llendl;
-			log_upload_error(status,content,"upload");
+			std::string model_name = mModelData["name"].asString();
+			log_upload_error(status,cc,"upload",model_name);
 		}
 	}
 };
@@ -1418,13 +1444,21 @@ void LLMeshUploadThread::run()
 	doWholeModelUpload();
 }
 
-void dumpLLSDToFile(const LLSD& content, std::string filename)
+void dump_llsd_to_file(const LLSD& content, std::string filename)
 {
 	if (gSavedSettings.getBOOL("MeshUploadLogXML"))
 	{
 		std::ofstream of(filename.c_str());
 		LLSDSerialize::toPrettyXML(content,of);
 	}
+}
+
+LLSD llsd_from_file(std::string filename)
+{
+	std::ifstream ifs(filename.c_str());
+	LLSD result;
+	LLSDSerialize::fromXML(result,ifs);
+	return result;
 }
 
 void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
@@ -1591,7 +1625,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	}
 
 	result["asset_resources"] = res;
-	dumpLLSDToFile(result,make_dump_name("whole_model_",dump_num));
+	dump_llsd_to_file(result,make_dump_name("whole_model_",dump_num));
 
 	dest = result;
 }
@@ -1647,12 +1681,12 @@ void LLMeshUploadThread::doWholeModelUpload()
 
 	LLSD model_data;
 	wholeModelToLLSD(model_data,false);
-	dumpLLSDToFile(model_data,make_dump_name("whole_model_fee_request_",dump_num));
+	dump_llsd_to_file(model_data,make_dump_name("whole_model_fee_request_",dump_num));
 
 	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
 	mCurlRequest->post(mWholeModelFeeCapability, headers, model_data,
-					   new LLWholeModelFeeResponder(this));
+					   new LLWholeModelFeeResponder(this,model_data));
 
 	do
 	{
@@ -1669,7 +1703,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 		LLSD full_model_data;
 		wholeModelToLLSD(full_model_data, true);
 		LLSD body = full_model_data["asset_resources"];
-		dumpLLSDToFile(body,make_dump_name("whole_model_body_",dump_num));
+		dump_llsd_to_file(body,make_dump_name("whole_model_body_",dump_num));
 		mCurlRequest->post(mWholeModelUploadURL, headers, body,
 						   new LLWholeModelUploadResponder(this, model_data));
 		do
@@ -3110,8 +3144,8 @@ bool LLImportMaterial::operator<(const LLImportMaterial &rhs) const
 void LLMeshRepository::updateInventory(inventory_data data)
 {
 	LLMutexLock lock(mMeshMutex);
-	dumpLLSDToFile(data.mPostData,make_dump_name("update_inventory_post_data_",dump_num));
-	dumpLLSDToFile(data.mResponse,make_dump_name("update_inventory_response_",dump_num));
+	dump_llsd_to_file(data.mPostData,make_dump_name("update_inventory_post_data_",dump_num));
+	dump_llsd_to_file(data.mResponse,make_dump_name("update_inventory_response_",dump_num));
 	mInventoryQ.push(data);
 }
 

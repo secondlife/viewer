@@ -5,7 +5,7 @@
 		<menu_item_call label="Mit instrumentpanel" name="Manage My Account"/>
 		<menu_item_call label="Køb L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Profil" name="Profile"/>
-		<menu_item_call label="Skift sæt" name="ChangeOutfit"/>
+		<menu_item_call label="Udseende" name="ChangeOutfit"/>
 		<menu_item_check label="Beholdning" name="Inventory"/>
 		<menu_item_check label="Min beholdning" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mine bevægelser" name="Gestures"/>
@@ -33,6 +33,7 @@
 	<menu label="Verden" name="World">
 		<menu_item_check label="Mini-kort" name="Mini-Map"/>
 		<menu_item_check label="Verdenskort" name="World Map"/>
+		<menu_item_check label="Søg" name="Search"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Opret landemærke for dette sted" name="Create Landmark Here"/>
 		<menu label="Profil for sted" name="Land">
@@ -222,7 +223,9 @@
 		<menu label="Vis info" name="Display Info">
 			<menu_item_check label="Vis tid" name="Show Time"/>
 			<menu_item_check label="Vis gengivelses information" name="Show Render Info"/>
+			<menu_item_check label="Vis tekstur information" name="Show Texture Info"/>
 			<menu_item_check label="Vis farve under cursor" name="Show Color Under Cursor"/>
+			<menu_item_check label="Vis memory" name="Show Memory"/>
 			<menu_item_check label="Vis opdateringer på objekter" name="Show Updates"/>
 		</menu>
 		<menu label="Fremtving en fejl" name="Force Errors">
@@ -239,6 +242,9 @@
 			<menu_item_check label="Kamera offset" name="Camera Offset"/>
 			<menu_item_check label="Tilfældige framerates" name="Randomize Framerate"/>
 			<menu_item_check label="Frame test" name="Frame Test"/>
+		</menu>
+		<menu label="Render Metadata" name="Render Metadata">
+			<menu_item_check label="Opdatér type" name="Update Type"/>
 		</menu>
 		<menu label="Gengivelse" name="Rendering">
 			<menu_item_check label="Akser" name="Axes"/>

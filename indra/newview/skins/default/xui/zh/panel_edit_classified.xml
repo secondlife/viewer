@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Edit Classified" name="panel_edit_classified">
 	<panel.string name="location_notice">
-		(will update after save)
+		（儲存後將會更新）
 	</panel.string>
 	<string name="publish_label">
 		Publish
@@ -15,7 +15,7 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="snapshot_panel">
-				<icon label="" name="edit_icon" tool_tip="Click to select an image"/>
+				<icon label="" name="edit_icon" tool_tip="點擊以選擇圖像"/>
 			</panel>
 			<text name="Name:">
 				Title:
@@ -47,7 +47,7 @@
 				<button label="[LABEL]" name="save_changes_btn"/>
 			</layout_panel>
 			<layout_panel name="show_on_map_btn_lp">
-				<button label="取銷" name="cancel_btn"/>
+				<button label="取消" name="cancel_btn"/>
 			</layout_panel>
 		</layout_stack>
 	</panel>

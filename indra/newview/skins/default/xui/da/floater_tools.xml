@@ -64,6 +64,8 @@
 		<radio_item label="Vælg overflade" name="radio select face"/>
 	</radio_group>
 	<check_box label="Redigér lænkede" name="checkbox edit linked parts"/>
+	<button label="Sammenkæd" name="link_btn"/>
+	<button label="Adskil" name="unlink_btn"/>
 	<text name="RenderingCost" tool_tip="Hvis beregnede rendering omkostninger for dette objekt">
 		þ: [COUNT]
 	</text>

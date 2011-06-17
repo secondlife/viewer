@@ -9,7 +9,7 @@
 	<check_box label="顯示腳本錯誤訊息於：" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="附近的聊天中" name="0"/>
-		<radio_item label="分開的試窗中" name="1"/>
+		<radio_item label="分開的視窗中" name="1"/>
 	</radio_group>
 	<check_box label="允許同時執行多個瀏覽器" name="allow_multiple_viewer_check"/>
 	<check_box label="登入時顯示網格選擇" name="show_grid_selection_check"/>
