@@ -27,6 +27,7 @@
 #include "linden_common.h"
 
 #include "llmodel.h"
+#include "llmemory.h"
 #include "llconvexdecomposition.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
@@ -71,88 +72,10 @@ LLModel::~LLModel()
 	}
 }
 
-void load_face_from_dom_inputs(LLVolumeFace& face, const domInputLocalOffset_Array& inputs, U32 min_idx, U32 max_idx)
-{
-	for (U32 j = 0; j < inputs.getCount(); ++j)
-	{
-		if (strcmp(COMMON_PROFILE_INPUT_VERTEX, inputs[j]->getSemantic()) == 0)
-		{ //found vertex array
-			const domURIFragmentType& uri = inputs[j]->getSource();
-			daeElementRef elem = uri.getElement();
-			domVertices* vertices = (domVertices*) elem.cast();
-
-			domInputLocal_Array& v_inp = vertices->getInput_array();
-			if (inputs[j]->getOffset() != 0)
-			{
-				llerrs << "Vertex array offset MUST be zero." << llendl;
-			}
-
-			for (U32 k = 0; k < v_inp.getCount(); ++k)
-			{
-				if (strcmp(COMMON_PROFILE_INPUT_POSITION, v_inp[k]->getSemantic()) == 0)
-				{
-					const domURIFragmentType& uri = v_inp[k]->getSource();
-					
-					daeElementRef elem = uri.getElement();
-					domSource* src = (domSource*) elem.cast();
-
-					if (src->getTechnique_common()->getAccessor()->getStride() != 3)
-					{
-						llerrs << "Vertex array stride MUST be three." << llendl;
-					}
-
-					domListOfFloats& v = src->getFloat_array()->getValue();
-
-					LLVector4a min;
-					min.set(v[min_idx], v[min_idx+1], v[min_idx+2]);
-					LLVector4a max = min;
-
-					for (U32 j = min_idx; j <= max_idx; ++j)
-					{ //copy vertex array
-						face.mPositions[j-min_idx].set(v[j*3+0], v[j*3+1], v[j*3+2]);
-						update_min_max(min, max, face.mPositions[j-min_idx]);
-					}
-
-					face.mExtents[0] = min;
-					face.mExtents[1] = max;
-				}
-			}
-		}
-
-		if (strcmp(COMMON_PROFILE_INPUT_NORMAL, inputs[j]->getSemantic()) == 0)
-		{
-			//found normal array for this triangle list
-			const domURIFragmentType& uri = inputs[j]->getSource();
-			daeElementRef elem = uri.getElement();
-			domSource* src = (domSource*) elem.cast();
-			domListOfFloats& n = src->getFloat_array()->getValue();
-			
-			for (U32 j = min_idx; j <= max_idx; ++j)
-			{
-				LLVector4a* norm = (LLVector4a*) face.mNormals + (j-min_idx);
-				norm->set(n[j*3+0], n[j*3+1], n[j*3+2]);
-				norm->normalize3();
-			}
-		}
-		else if (strcmp(COMMON_PROFILE_INPUT_TEXCOORD, inputs[j]->getSemantic()) == 0)
-		{ //found texCoords
-			const domURIFragmentType& uri = inputs[j]->getSource();
-			daeElementRef elem = uri.getElement();
-			domSource* src = (domSource*) elem.cast();
-			domListOfFloats& u = src->getFloat_array()->getValue();
-			
-			for (U32 j = min_idx; j <= max_idx; ++j)
-			{
-				face.mTexCoords[j-min_idx].setVec(u[j*2+0], u[j*2+1]);
-			}
-		}
-	}
-}
 
 bool get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S32& tc_offset, S32& norm_offset, S32 &idx_stride,
 					 domSource* &pos_source, domSource* &tc_source, domSource* &norm_source)
 {
-	
 	idx_stride = 0;
 
 	for (U32 j = 0; j < inputs.getCount(); ++j)
@@ -271,14 +194,13 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 			cv.mTexCoord.setVec(tc[idx[i+tc_offset]*2+0],
 								tc[idx[i+tc_offset]*2+1]);
 		}
-
+		
 		if (norm_source)
 		{
 			cv.setNormal(LLVector4a(n[idx[i+norm_offset]*3+0],
 								n[idx[i+norm_offset]*3+1],
 								n[idx[i+norm_offset]*3+2]));
 		}
-
 		
 		BOOL found = FALSE;
 			
@@ -329,10 +251,22 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		{
 			face_list.push_back(face);
 			face_list.rbegin()->fillFromLegacyData(verts, indices);
+			LLVolumeFace& new_face = *face_list.rbegin();
+			if (!norm_source)
+			{
+				ll_aligned_free_16(new_face.mNormals);
+				new_face.mNormals = NULL;
+			}
+
+			if (!tc_source)
+			{
+				ll_aligned_free_16(face.mTexCoords);
+				new_face.mTexCoords = NULL;
+			}
+
 			face = LLVolumeFace();
 			point_map.clear();
 		}
-
 	}
 
 	if (!verts.empty())
@@ -348,6 +282,18 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		face_list.push_back(face);
 
 		face_list.rbegin()->fillFromLegacyData(verts, indices);
+		LLVolumeFace& new_face = *face_list.rbegin();
+		if (!norm_source)
+		{
+			ll_aligned_free_16(new_face.mNormals);
+			new_face.mNormals = NULL;
+		}
+
+		if (!tc_source)
+		{
+			ll_aligned_free_16(face.mTexCoords);
+			new_face.mTexCoords = NULL;
+		}
 	}
 
 	return LLModel::NO_ERRORS ;
@@ -433,14 +379,14 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 				cv.mTexCoord.setVec(tc[idx[cur_idx+tc_offset]*2+0],
 									tc[idx[cur_idx+tc_offset]*2+1]);
 			}
-
+			
 			if (norm_source)
 			{
 				cv.getNormal().set(n[idx[cur_idx+norm_offset]*3+0],
 									n[idx[cur_idx+norm_offset]*3+1],
 									n[idx[cur_idx+norm_offset]*3+2]);
 			}
-
+			
 			cur_idx += idx_stride;
 			
 			BOOL found = FALSE;
@@ -524,6 +470,19 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 			{
 				face_list.push_back(face);
 				face_list.rbegin()->fillFromLegacyData(verts, indices);
+				LLVolumeFace& new_face = *face_list.rbegin();
+				if (!norm_source)
+				{
+					ll_aligned_free_16(new_face.mNormals);
+					new_face.mNormals = NULL;
+				}
+
+				if (!tc_source)
+				{
+					ll_aligned_free_16(face.mTexCoords);
+					new_face.mTexCoords = NULL;
+				}
+
 				face = LLVolumeFace();
 				verts.clear();
 				indices.clear();
@@ -540,10 +499,23 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 		{
 			material = std::string(poly->getMaterial());
 		}
-		
+	
 		materials.push_back(material);
 		face_list.push_back(face);
 		face_list.rbegin()->fillFromLegacyData(verts, indices);
+
+		LLVolumeFace& new_face = *face_list.rbegin();
+		if (!norm_source)
+		{
+			ll_aligned_free_16(new_face.mNormals);
+			new_face.mNormals = NULL;
+		}
+
+		if (!tc_source)
+		{
+			ll_aligned_free_16(face.mTexCoords);
+			new_face.mTexCoords = NULL;
+		}
 	}
 
 	return LLModel::NO_ERRORS ;
@@ -556,7 +528,6 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 	std::vector<LLVolumeFace::VertexData> verts;
 
 	const domInputLocalOffset_Array& inputs = poly->getInput_array();
-
 
 	S32 v_offset = -1;
 	S32 n_offset = -1;
@@ -662,15 +633,14 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 								n->get(n_idx+1),
 								n->get(n_idx+2));
 			}
-
+			
 			if (t)
 			{
 				U32 t_idx = idx[j*stride+t_offset]*2;
 				vert.mTexCoord.setVec(t->get(t_idx),
 								t->get(t_idx+1));								
 			}
-		
-			
+						
 			verts.push_back(vert);
 		}
 	}
@@ -733,6 +703,19 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 		materials.push_back(material);
 		face_list.push_back(face);
 		face_list.rbegin()->fillFromLegacyData(new_verts, indices);
+
+		LLVolumeFace& new_face = *face_list.rbegin();
+		if (!n)
+		{
+			ll_aligned_free_16(new_face.mNormals);
+			new_face.mNormals = NULL;
+		}
+
+		if (!t)
+		{
+			ll_aligned_free_16(face.mTexCoords);
+			new_face.mTexCoords = NULL;
+		}
 	}
 
 	return LLModel::NO_ERRORS ;
@@ -817,9 +800,9 @@ BOOL LLModel::createVolumeFacesFromDomMesh(domMesh* mesh)
 		
 		if (getNumVolumeFaces() > 0)
 		{
-			optimizeVolumeFaces();
 			normalizeVolumeFaces();
-
+			optimizeVolumeFaces();
+			
 			if (getNumVolumeFaces() > 0)
 			{
 				return TRUE;
@@ -853,81 +836,10 @@ void LLModel::offsetMesh( const LLVector3& pivotPoint )
 
 void LLModel::optimizeVolumeFaces()
 {
-#if 0 //VECTORIZE ?
-	for (std::vector<LLVolumeFace>::iterator iter = mVolumeFaces.begin(); iter != mVolumeFaces.end(); )
+	for (U32 i = 0; i < getNumVolumeFaces(); ++i)
 	{
-		std::vector<LLVolumeFace>::iterator cur_iter = iter++;
-		LLVolumeFace& face = *cur_iter;
-
-		for (S32 i = 0; i < (S32) face.mNumIndices; i += 3)
-		{ //remove zero area triangles
-			U16 i0 = face.mIndices[i+0];
-			U16 i1 = face.mIndices[i+1];
-			U16 i2 = face.mIndices[i+2];
-
-			if (i0 == i1 || 
-				i1 == i2 || 
-				i0 == i2)
-			{ //duplicate index in triangle, remove triangle
-				face.mIndices.erase(face.mIndices.begin()+i, face.mIndices.begin()+i+3);
-				i -= 3;
-			}
-			else
-			{ 
-				LLVolumeFace::VertexData& v0 = face.mVertices[i0];
-				LLVolumeFace::VertexData& v1 = face.mVertices[i1];
-				LLVolumeFace::VertexData& v2 = face.mVertices[i2];
-
-				if (v0.mPosition == v1.mPosition ||
-					v1.mPosition == v2.mPosition ||
-					v2.mPosition == v0.mPosition)
-				{ //zero area triangle, delete
-					face.mIndices.erase(face.mIndices.begin()+i, face.mIndices.begin()+i+3);
-					i-=3;
-				}
-			}
-		}
-
-		//remove unreference vertices
-		std::vector<bool> ref;
-		ref.resize(face.mNumVertices);
-
-		for (U32 i = 0; i < ref.size(); ++i)
-		{
-			ref[i] = false;
-		}
-
-		for (U32 i = 0; i < face.mNumIndices; ++i)
-		{ 
-			ref[face.mIndices[i]] = true;
-		}
-
-		U32 unref_count = 0;
-		for (U32 i = 0; i < ref.size(); ++i)
-		{
-			if (!ref[i])
-			{
-				//vertex is unreferenced
-				face.mVertices.erase(face.mVertices.begin()+(i-unref_count));
-				U16 idx = (U16) (i-unref_count);
-
-				for (U32 j = 0; j < face.mNumIndices; ++j)
-				{ //decrement every index array value greater than idx
-					if (face.mIndices[j] > idx)
-					{
-						--face.mIndices[j];
-					}
-				}
-				++unref_count;
-			}
-		}
-
-		if (face.mVertices.empty() || face.mIndices.empty())
-		{ //face is empty, remove it
-			iter = mVolumeFaces.erase(cur_iter);
-		}
+		mVolumeFaces[i].optimize();
 	}
-#endif
 }
 
 // Shrink the model to fit
@@ -962,6 +874,25 @@ void LLModel::normalizeVolumeFaces()
 
 			update_min_max(min, max, face.mExtents[0]);
 			update_min_max(min, max, face.mExtents[1]);
+
+			if (face.mTexCoords)
+			{
+				LLVector2& min_tc = face.mTexCoordExtents[0];
+				LLVector2& max_tc = face.mTexCoordExtents[1];
+
+				min_tc = face.mTexCoords[0];
+				max_tc = face.mTexCoords[0];
+
+				for (U32 j = 1; j < face.mNumVertices; ++j)
+				{
+					update_min_max(min_tc, max_tc, face.mTexCoords[j]);
+				}
+			}
+			else
+			{
+				face.mTexCoordExtents[0].set(0,0);
+				face.mTexCoordExtents[1].set(1,1);
+			}
 		}
 
 		// Now that we have the extents of the model
@@ -1029,8 +960,11 @@ void LLModel::normalizeVolumeFaces()
 			{
 			 	pos[j].add(trans);
 				pos[j].mul(scale);
-				norm[j].mul(inv_scale);
-				norm[j].normalize3();
+				if (norm && !norm[j].equals3(LLVector4a::getZero()))
+				{
+					norm[j].mul(inv_scale);
+					norm[j].normalize3();
+				}
 			}
 		}
 
@@ -1073,8 +1007,26 @@ void LLModel::setVolumeFaceData(
 	face.resizeIndices(num_indices);
 
 	LLVector4a::memcpyNonAliased16((F32*) face.mPositions, (F32*) pos.get(), num_verts*4*sizeof(F32));
-	LLVector4a::memcpyNonAliased16((F32*) face.mNormals, (F32*) norm.get(), num_verts*4*sizeof(F32));
-	LLVector4a::memcpyNonAliased16((F32*) face.mTexCoords, (F32*) tc.get(), num_verts*2*sizeof(F32));
+	if (norm.get())
+	{
+		LLVector4a::memcpyNonAliased16((F32*) face.mNormals, (F32*) norm.get(), num_verts*4*sizeof(F32));
+	}
+	else
+	{
+		ll_aligned_free_16(face.mNormals);
+		face.mNormals = NULL;
+	}
+
+	if (tc.get())
+	{
+		LLVector4a::memcpyNonAliased16((F32*) face.mTexCoords, (F32*) tc.get(), num_verts*2*sizeof(F32));
+	}
+	else
+	{
+		ll_aligned_free_16(face.mTexCoords);
+		face.mTexCoords = NULL;
+	}
+
 	U32 size = (num_indices*2+0xF)&~0xF;
 	LLVector4a::memcpyNonAliased16((F32*) face.mIndices, (F32*) ind.get(), size);
 }
@@ -1477,9 +1429,8 @@ LLSD LLModel::writeModel(
 				{ //for each vert
 		
 					F32* pos = face.mPositions[j].getF32ptr();
-					F32* norm = face.mNormals[j].getF32ptr();
-
-					//position + normal
+										
+					//position
 					for (U32 k = 0; k < 3; ++k)
 					{ //for each component
 						//convert to 16-bit normalized across domain
@@ -1489,29 +1440,41 @@ LLSD LLModel::writeModel(
 						//write to binary buffer
 						verts[vert_idx++] = buff[0];
 						verts[vert_idx++] = buff[1];
-						
-						//convert to 16-bit normalized
-						val = (U16) ((norm[k]+1.f)*0.5f*65535);
-
-						//write to binary buffer
-						normals[norm_idx++] = buff[0];
-						normals[norm_idx++] = buff[1];
 					}
+
+					if (face.mNormals)
+					{ //normals
+						F32* norm = face.mNormals[j].getF32ptr();
+
+						for (U32 k = 0; k < 3; ++k)
+						{ //for each component
+							//convert to 16-bit normalized
+							U16 val = (U16) ((norm[k]+1.f)*0.5f*65535);
+							U8* buff = (U8*) &val;
+
+							//write to binary buffer
+							normals[norm_idx++] = buff[0];
+							normals[norm_idx++] = buff[1];
+						}
+					}
+
 
 					F32* src_tc = (F32*) face.mTexCoords[j].mV;
 
 					//texcoord
-					for (U32 k = 0; k < 2; ++k)
-					{ //for each component
-						//convert to 16-bit normalized
-						U16 val = (U16) ((src_tc[k]-min_tc.mV[k])/tc_range.mV[k]*65535);
+					if (face.mTexCoords)
+					{
+						for (U32 k = 0; k < 2; ++k)
+						{ //for each component
+							//convert to 16-bit normalized
+							U16 val = (U16) ((src_tc[k]-min_tc.mV[k])/tc_range.mV[k]*65535);
 
-						U8* buff = (U8*) &val;
-						//write to binary buffer
-						tc[tc_idx++] = buff[0];
-						tc[tc_idx++] = buff[1];
+							U8* buff = (U8*) &val;
+							//write to binary buffer
+							tc[tc_idx++] = buff[0];
+							tc[tc_idx++] = buff[1];
+						}
 					}
-					
 				}
 
 				U32 idx_idx = 0;
@@ -1525,12 +1488,20 @@ LLSD LLModel::writeModel(
 				//write out face data
 				mdl[model_names[idx]][i]["PositionDomain"]["Min"] = min_pos.getValue();
 				mdl[model_names[idx]][i]["PositionDomain"]["Max"] = max_pos.getValue();
-				mdl[model_names[idx]][i]["TexCoord0Domain"]["Min"] = min_tc.getValue();
-				mdl[model_names[idx]][i]["TexCoord0Domain"]["Max"] = max_tc.getValue();
-
 				mdl[model_names[idx]][i]["Position"] = verts;
-				mdl[model_names[idx]][i]["Normal"] = normals;
-				mdl[model_names[idx]][i]["TexCoord0"] = tc;
+				
+				if (face.mNormals)
+				{
+					mdl[model_names[idx]][i]["Normal"] = normals;
+				}
+
+				if (face.mTexCoords)
+				{
+					mdl[model_names[idx]][i]["TexCoord0Domain"]["Min"] = min_tc.getValue();
+					mdl[model_names[idx]][i]["TexCoord0Domain"]["Max"] = max_tc.getValue();
+					mdl[model_names[idx]][i]["TexCoord0"] = tc;
+				}
+
 				mdl[model_names[idx]][i]["TriangleList"] = indices;
 
 				if (skinning)

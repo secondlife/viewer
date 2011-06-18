@@ -2379,11 +2379,16 @@ bool LLVolumeFace::VertexData::operator==(const LLVolumeFace::VertexData& rhs)co
 bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs, F32 angle_cutoff) const
 {
 	bool retval = false;
-	if (rhs.mData[POSITION].equals3(mData[POSITION]) && rhs.mTexCoord == mTexCoord)
+
+	const F32 epsilon = 0.00001f;
+
+	if (rhs.mData[POSITION].equals3(mData[POSITION], epsilon) && 
+		abs(rhs.mTexCoord[0]-mTexCoord[0]) < epsilon &&
+		abs(rhs.mTexCoord[1]-mTexCoord[1]) < epsilon)
 	{
 		if (angle_cutoff > 1.f)
 		{
-			retval = (mData[NORMAL].equals3(rhs.mData[NORMAL]));
+			retval = (mData[NORMAL].equals3(rhs.mData[NORMAL], epsilon));
 		}
 		else
 		{
@@ -2499,38 +2504,52 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			}
 
 			{
-				U16* n = (U16*) &(norm[0]);
-				for (U32 j = 0; j < num_verts; ++j)
+				if (!norm.empty())
 				{
-					norm_out->set((F32) n[0], (F32) n[1], (F32) n[2]);
-					norm_out->div(65535.f);
-					norm_out->mul(2.f);
-					norm_out->sub(1.f);
-					norm_out++;
-					n += 3;
+					U16* n = (U16*) &(norm[0]);
+					for (U32 j = 0; j < num_verts; ++j)
+					{
+						norm_out->set((F32) n[0], (F32) n[1], (F32) n[2]);
+						norm_out->div(65535.f);
+						norm_out->mul(2.f);
+						norm_out->sub(1.f);
+						norm_out++;
+						n += 3;
+					}
+				}
+				else
+				{
+					memset(norm_out, 0, sizeof(LLVector4a)*num_verts);
 				}
 			}
 
 			{
-				U16* t = (U16*) &(tc[0]);
-				for (U32 j = 0; j < num_verts; j+=2)
+				if (!tc.empty())
 				{
-					if (j < num_verts-1)
+					U16* t = (U16*) &(tc[0]);
+					for (U32 j = 0; j < num_verts; j+=2)
 					{
-						tc_out->set((F32) t[0], (F32) t[1], (F32) t[2], (F32) t[3]);
+						if (j < num_verts-1)
+						{
+							tc_out->set((F32) t[0], (F32) t[1], (F32) t[2], (F32) t[3]);
+						}
+						else
+						{
+							tc_out->set((F32) t[0], (F32) t[1], 0.f, 0.f);
+						}
+
+						t += 4;
+
+						tc_out->div(65535.f);
+						tc_out->mul(tc_range);
+						tc_out->add(min_tc4);
+
+						tc_out++;
 					}
-					else
-					{
-						tc_out->set((F32) t[0], (F32) t[1], 0.f, 0.f);
-					}
-
-					t += 4;
-
-					tc_out->div(65535.f);
-					tc_out->mul(tc_range);
-					tc_out->add(min_tc4);
-
-					tc_out++;
+				}
+				else
+				{
+					memset(tc_out, 0, sizeof(LLVector2)*num_verts);
 				}
 			}
 
@@ -2655,6 +2674,25 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				{
 					min.setMin(min, face.mPositions[i]);
 					max.setMax(max, face.mPositions[i]);
+				}
+
+				if (face.mTexCoords)
+				{
+					LLVector2& min_tc = face.mTexCoordExtents[0];
+					LLVector2& max_tc = face.mTexCoordExtents[1];
+
+					min_tc = face.mTexCoords[0];
+					max_tc = face.mTexCoords[0];
+
+					for (U32 j = 1; j < face.mNumVertices; ++j)
+					{
+						update_min_max(min_tc, max_tc, face.mTexCoords[j]);
+					}
+				}
+				else
+				{
+					face.mTexCoordExtents[0].set(0,0);
+					face.mTexCoordExtents[1].set(1,1);
 				}
 			}
 		}
@@ -5696,8 +5734,23 @@ BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 void LLVolumeFace::getVertexData(U16 index, LLVolumeFace::VertexData& cv)
 {
 	cv.setPosition(mPositions[index]);
-	cv.setNormal(mNormals[index]);
-	cv.mTexCoord = mTexCoords[index];
+	if (mNormals)
+	{
+		cv.setNormal(mNormals[index]);
+	}
+	else
+	{
+		cv.getNormal().clear();
+	}
+
+	if (mTexCoords)
+	{
+		cv.mTexCoord = mTexCoords[index];
+	}
+	else
+	{
+		cv.mTexCoord.clear();
+	}
 }
 
 bool LLVolumeFace::VertexMapData::operator==(const LLVolumeFace::VertexData& rhs) const
@@ -5727,7 +5780,10 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 	LLVolumeFace new_face;
 
 	//map of points to vector of vertices at that point
-	VertexMapData::PointMap point_map;
+	std::map<U64, std::vector<VertexMapData> > point_map;
+
+	LLVector4a range;
+	range.setSub(mExtents[1],mExtents[0]);
 
 	//remove redundant vertices
 	for (U32 i = 0; i < mNumIndices; ++i)
@@ -5738,7 +5794,19 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 		getVertexData(index, cv);
 		
 		BOOL found = FALSE;
-		VertexMapData::PointMap::iterator point_iter = point_map.find(LLVector3(cv.getPosition().getF32ptr()));
+
+		LLVector4a pos;
+		pos.setSub(mPositions[index], mExtents[0]);
+		pos.div(range);
+
+		U64 pos64 = 0;
+
+		pos64 = (U16) (pos[0]*65535);
+		pos64 = pos64 | (((U64) (pos[1]*65535)) << 16);
+		pos64 = pos64 | (((U64) (pos[2]*65535)) << 32);
+
+		std::map<U64, std::vector<VertexMapData> >::iterator point_iter = point_map.find(pos64);
+		
 		if (point_iter != point_map.end())
 		{ //duplicate point might exist
 			for (U32 j = 0; j < point_iter->second.size(); ++j)
@@ -5770,9 +5838,24 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 			}
 			else
 			{
-				point_map[LLVector3(d.getPosition().getF32ptr())].push_back(d);
+				point_map[pos64].push_back(d);
 			}
 		}
+	}
+
+	llassert(new_face.mNumIndices == mNumIndices);
+	llassert(new_face.mNumVertices <= mNumVertices);
+
+	if (angle_cutoff > 1.f && !mNormals)
+	{
+		ll_aligned_free_16(new_face.mNormals);
+		new_face.mNormals = NULL;
+	}
+
+	if (!mTexCoords)
+	{
+		ll_aligned_free_16(new_face.mTexCoords);
+		new_face.mTexCoords = NULL;
 	}
 
 	swapData(new_face);
