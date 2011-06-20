@@ -1414,13 +1414,19 @@ LLSD LLModel::writeModel(
 				U32 tc_idx = 0;
 			
 				LLVector2* ftc = (LLVector2*) face.mTexCoords;
-				LLVector2 min_tc = ftc[0];
-				LLVector2 max_tc = min_tc;
-	
-				//get texture coordinate domain
-				for (U32 j = 0; j < face.mNumVertices; ++j)
+				LLVector2 min_tc;
+				LLVector2 max_tc;
+
+				if (ftc)
 				{
-					update_min_max(min_tc, max_tc, ftc[j]);
+					min_tc = ftc[0];
+					max_tc = min_tc;
+					
+					//get texture coordinate domain
+					for (U32 j = 0; j < face.mNumVertices; ++j)
+					{
+						update_min_max(min_tc, max_tc, ftc[j]);
+					}
 				}
 
 				LLVector2 tc_range = max_tc - min_tc;
@@ -1457,8 +1463,7 @@ LLSD LLModel::writeModel(
 							normals[norm_idx++] = buff[1];
 						}
 					}
-
-
+					
 					F32* src_tc = (F32*) face.mTexCoords[j].mV;
 
 					//texcoord
