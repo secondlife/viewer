@@ -92,22 +92,6 @@
                  parameter="category" />
             </menu_item_call>
             <menu_item_call
-                    label="Inbox"
-                   layout="topleft"
-                    name="Inbox">
-               <menu_item_call.on_click
-     function="Inventory.DoCreate"
-     parameter="inbox" />
-</menu_item_call>
-           <menu_item_call
-                 label="Outbox"
-                 layout="topleft"
-                 name="Outbox">
-             <menu_item_call.on_click
-     function="Inventory.DoCreate"
-     parameter="outbox" />
-</menu_item_call>
-            <menu_item_call
              label="New Script"
              layout="topleft"
              name="New Script">
