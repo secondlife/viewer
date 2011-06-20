@@ -401,7 +401,11 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 	for(toast_vec_t::iterator it = m_active_toasts.begin(); it != m_active_toasts.end(); ++it)
 	{
 		LLToast* toast = it->get();
-		if (!toast) continue;
+		if (!toast)
+		{
+			llwarns << "NULL found in the active chat toasts list!" << llendl;
+			continue;
+		}
 
 		S32 toast_top = bottom + toast->getRect().getHeight() + margin;
 
