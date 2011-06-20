@@ -1376,4 +1376,6 @@ extern char const* const _PREHASH_FaceIndex;
 extern char const* const _PREHASH_StatusData;
 extern char const* const _PREHASH_ProductSKU;
 extern char const* const _PREHASH_HiddenAVs;
+extern char const* const _PREHASH_AnyAVSounds;
+extern char const* const _PREHASH_GroupAVSounds;
 #endif

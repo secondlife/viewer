@@ -2036,7 +2036,7 @@ void LLPanelLandOptions::refresh()
 
 		mPrivateParcelCtrl->set(parcel->getHiddenAVs());
 		mPrivateParcelCtrl->setLabel(getString("hidden_avs_text"));
-		mPrivateParcelCtrl->setEnabled(can_change_options && parcel->getHaveHiddenAVsData());
+		mPrivateParcelCtrl->setEnabled(can_change_options && parcel->getHaveNewParcelLimitData());
 
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
 														GP_LAND_SET_LANDING_POINT);

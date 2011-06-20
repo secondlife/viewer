@@ -227,8 +227,10 @@ void LLParcel::init(const LLUUID &owner_id,
 	setPreviousOwnerID(LLUUID::null);
 	setPreviouslyGroupOwned(FALSE);
 
-	setHiddenAVs(false);
-	setHaveHiddenAVsData(false);
+	setHiddenAVs(FALSE);
+	setAllowGroupAVSounds(TRUE);
+	setAllowAnyAVSounds(TRUE);
+	setHaveNewParcelLimitData(FALSE);
 }
 
 void LLParcel::overrideOwner(const LLUUID& owner_id, BOOL is_group_owned)
@@ -706,6 +708,8 @@ void LLParcel::packMessage(LLSD& msg)
 	msg["user_look_at"] = ll_sd_from_vector3(mUserLookAt);
 	msg["landing_type"] = (U8)mLandingType;
 	msg["hidden_avs"] = (LLSD::Boolean) getHiddenAVs();
+	msg["group_av_sounds"] = (LLSD::Boolean) getAllowGroupAVSounds();
+	msg["any_av_sounds"] = (LLSD::Boolean) getAllowAnyAVSounds();
 }
 
 
@@ -725,13 +729,22 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
     setMediaURL(buffer);
     
 	BOOL hidden_avs = FALSE;
-	bool have_hidden_av_data = (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_HiddenAVs) > 0);
-	if (have_hidden_av_data)
+	BOOL any_av_sounds = TRUE;
+	BOOL group_av_sounds = TRUE;
+	bool have_new_parcel_limit_data = (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_HiddenAVs) > 0);		// New version of server should send all 3 of these values
+	have_new_parcel_limit_data &= (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_AnyAVSounds) > 0);
+	have_new_parcel_limit_data &= (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_GroupAVSounds) > 0);
+	if (have_new_parcel_limit_data)
 	{
 		msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_HiddenAVs, hidden_avs);
+		msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_AnyAVSounds, any_av_sounds);
+		msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_GroupAVSounds, group_av_sounds);
 	}
 	setHiddenAVs((bool) hidden_avs);
-	setHaveHiddenAVsData(have_hidden_av_data);
+	setAllowAnyAVSounds((bool) any_av_sounds);
+	setAllowGroupAVSounds((bool) group_av_sounds);
+
+	setHaveNewParcelLimitData(have_new_parcel_limit_data);
 
     // non-optimized version
     msg->getU8 ( "ParcelData", "MediaAutoScale", mMediaAutoScale );

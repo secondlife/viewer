@@ -1376,3 +1376,5 @@ char const* const _PREHASH_FaceIndex = LLMessageStringTable::getInstance()->getS
 char const* const _PREHASH_StatusData = LLMessageStringTable::getInstance()->getString("StatusData");
 char const* const _PREHASH_ProductSKU = LLMessageStringTable::getInstance()->getString("ProductSKU");
 char const* const _PREHASH_HiddenAVs = LLMessageStringTable::getInstance()->getString("HiddenAVs");
+char const* const _PREHASH_AnyAVSounds = LLMessageStringTable::getInstance()->getString("AnyAVSounds");
+char const* const _PREHASH_GroupAVSounds = LLMessageStringTable::getInstance()->getString("GroupAVSounds");
