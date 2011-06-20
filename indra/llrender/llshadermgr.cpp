@@ -403,7 +403,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 		}
 		else
 		{
-			LL_INFOS("ShaderLoading") << log << LL_ENDL;
+			LL_DEBUGS("ShaderLoading") << log << LL_ENDL;
 		}
 	}
 }
@@ -462,8 +462,15 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	GLcharARB* text[1024];
 	GLuint count = 0;
 
-	//set version to 1.20
-	text[count++] = strdup("#version 120\n");
+	if (gGLManager.mGLVersion < 3.f)
+	{
+		//set version to 1.20
+		text[count++] = strdup("#version 120\n");
+	}
+	else
+	{  //set version to 1.30
+		text[count++] = strdup("#version 130\n");
+	}
 
 	//copy preprocessor definitions into buffer
 	for (std::map<std::string,std::string>::iterator iter = mDefinitions.begin(); iter != mDefinitions.end(); ++iter)
@@ -515,17 +522,43 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		text[count++] = strdup("varying float vary_texture_index;\n");
 		text[count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
 		text[count++] = strdup("{\n");
-		text[count++] = strdup("\tswitch (int(vary_texture_index+0.25))\n");
-		text[count++] = strdup("\t{\n");
 		
-		//switch body
-		for (S32 i = 0; i < texture_index_channels; ++i)
-		{
-			std::string case_str = llformat("\t\tcase %d: return texture2D(tex%d, texcoord);\n", i, i);
-			text[count++] = strdup(case_str.c_str());
-		}
+		
+		if (gGLManager.mGLVersion >= 3.f)
+		{ 
+			text[count++] = strdup("\tswitch (int(vary_texture_index+0.25))\n");
+			text[count++] = strdup("\t{\n");
+		
+			//switch body
+			for (S32 i = 0; i < texture_index_channels; ++i)
+			{
+				std::string case_str = llformat("\t\tcase %d: return texture2D(tex%d, texcoord);\n", i, i);
+				text[count++] = strdup(case_str.c_str());
+			}
 
-		text[count++] = strdup("\t}\n");
+			text[count++] = strdup("\t}\n");
+		}
+		else
+		{
+			//switches aren't supported, make block that looks like:
+			/*
+				int ti = int(vary_texture_index+0.25);
+				if (ti == 0) return texture2D(tex0, texcoord);
+				if (ti == 1) return texture2D(tex1, texcoord);
+				.
+				.
+				.
+				if (ti == N) return texture2D(texN, texcoord);
+			*/
+				
+			text[count++] = strdup("int ti = int(vary_texture_index+0.25);\n");
+			for (S32 i = 0; i < texture_index_channels; ++i)
+			{
+				std::string if_str = llformat("if (ti == %d) return texture2D(tex%d, texcoord);\n", i, i);
+				text[count++] = strdup(if_str.c_str());
+			}
+		}			
+
 		text[count++] = strdup("\treturn vec4(0,0,0,0);\n");
 		text[count++] = strdup("}\n");
 	}
