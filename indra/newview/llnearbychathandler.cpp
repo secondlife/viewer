@@ -372,9 +372,9 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 	}
 }
 
-int sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> second)
+static bool sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> second)
 {
-	if (!first.get() || !second.get()) return 0; // STORM-1352
+	if (!first.get() || !second.get()) return false; // STORM-1352
 
 	F32 v1 = first.get()->getTimeLeftToLive();
 	F32 v2 = second.get()->getTimeLeftToLive();
