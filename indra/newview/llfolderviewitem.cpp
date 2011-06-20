@@ -1171,8 +1171,6 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 
 	mHasVisibleChildren = hasFilteredDescendants(filter_generation);
 
-	LLInventoryFilter::EFolderShow show_folder_state = getRoot()->getFilter()->getShowFolderState();
-
 	// calculate height as a single item (without any children), and reshapes rectangle to match
 	LLFolderViewItem::arrange( width, height, filter_generation );
 
