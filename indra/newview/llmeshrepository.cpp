@@ -1383,6 +1383,8 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mWholeModelFeeCapability = gAgent.getRegion()->getCapability("NewFileAgentInventory");
 
 	mOrigin += gAgent.getAtAxis() * scale.magVec();
+
+	mMeshUploadTimeOut = gSavedSettings.getS32("MeshUploadTimeOut") ;
 }
 
 LLMeshUploadThread::~LLMeshUploadThread()
@@ -1686,7 +1688,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
 	mCurlRequest->post(mWholeModelFeeCapability, headers, model_data,
-					   new LLWholeModelFeeResponder(this,model_data));
+					   new LLWholeModelFeeResponder(this,model_data), mMeshUploadTimeOut);
 
 	do
 	{
@@ -1705,7 +1707,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 		LLSD body = full_model_data["asset_resources"];
 		dump_llsd_to_file(body,make_dump_name("whole_model_body_",dump_num));
 		mCurlRequest->post(mWholeModelUploadURL, headers, body,
-						   new LLWholeModelUploadResponder(this, model_data));
+						   new LLWholeModelUploadResponder(this, model_data), mMeshUploadTimeOut);
 		do
 		{
 			mCurlRequest->process();
@@ -2874,7 +2876,7 @@ void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
 		LLCurlRequest::headers_t headers;
 		mPendingUploads++;
 
-		mCurlRequest->post(data.mRSVP, headers, data.mAssetData, new LLMeshUploadResponder(data, this));
+		mCurlRequest->post(data.mRSVP, headers, data.mAssetData, new LLMeshUploadResponder(data, this), mMeshUploadTimeOut);
 	}
 }
 
@@ -2906,7 +2908,7 @@ void LLMeshUploadThread::doUploadTexture(LLTextureUploadData& data)
 		LLCurlRequest::headers_t headers;
 		mPendingUploads++;
 
-		mCurlRequest->post(data.mRSVP, headers, data.mAssetData, new LLTextureUploadResponder(data, this));
+		mCurlRequest->post(data.mRSVP, headers, data.mAssetData, new LLTextureUploadResponder(data, this), mMeshUploadTimeOut);
 	}
 }
 

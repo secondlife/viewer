@@ -356,6 +356,9 @@ public:
 
 class LLMeshUploadThread : public LLThread 
 {
+private:
+	S32 mMeshUploadTimeOut ; //maximum time in seconds to execute an uploading request.
+
 public:
 	class DecompRequest : public LLPhysicsDecomp::Request
 	{
