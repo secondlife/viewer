@@ -32,6 +32,7 @@
 #if !LL_WINDOWS
 #include <stdint.h>
 #endif
+#include <cmath>
 
 #include "llerror.h"
 #include "llmemtype.h"
@@ -2383,8 +2384,8 @@ bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs
 	const F32 epsilon = 0.00001f;
 
 	if (rhs.mData[POSITION].equals3(mData[POSITION], epsilon) && 
-		abs(rhs.mTexCoord[0]-mTexCoord[0]) < epsilon &&
-		abs(rhs.mTexCoord[1]-mTexCoord[1]) < epsilon)
+		fabs(rhs.mTexCoord[0]-mTexCoord[0]) < epsilon &&
+		fabs(rhs.mTexCoord[1]-mTexCoord[1]) < epsilon)
 	{
 		if (angle_cutoff > 1.f)
 		{
