@@ -157,7 +157,6 @@ protected:
 	BOOL						mDragAndDropTarget;
 	BOOL                        mIsLoading;
 	LLTimer                     mTimeSinceRequestStart;
-	bool						mHidden;
 	bool						mShowLoadStatus;
 
 	// helper function to change the selection from the root.

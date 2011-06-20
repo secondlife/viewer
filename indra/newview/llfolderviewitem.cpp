@@ -130,7 +130,6 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mIconOpen(p.icon_open),
 	mIconOverlay(p.icon_overlay),
 	mListener(p.listener),
-	mHidden(false),
 	mShowLoadStatus(false)
 {
 }
@@ -1058,7 +1057,7 @@ void LLFolderViewItem::draw()
 		&&	mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
 			||	(LLInventoryModelBackgroundFetch::instance().backgroundFetchActive()
 				&&	root_is_loading
-				&&	(mShowLoadStatus || mHidden)))
+				&&	mShowLoadStatus))
 	{
 		std::string load_string = " ( " + LLTrans::getString("LoadingData") + " ) ";
 		font->renderUTF8(load_string, 0, right_x, y, sSearchStatusColor,
@@ -1367,10 +1366,6 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			filterFolder(filter);
 			// and then item rules
 			LLFolderViewItem::filter( filter );
-		}
-		if (mHidden)
-		{
-			setOpen();
 		}
 	}
 
