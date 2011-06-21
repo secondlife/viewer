@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Things" name="Outfits">
 	<panel.string name="wear_outfit_tooltip">
-		Wear selected outfit
+		穿上所選擇的裝扮
 	</panel.string>
 	<panel.string name="wear_items_tooltip">
 		Wear selected items
 	</panel.string>
 	<tab_container name="appearance_tabs">
-		<panel label="MY OUTFITS" name="outfitslist_tab"/>
+		<panel label="我的裝扮" name="outfitslist_tab"/>
 		<panel label="WEARING" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">

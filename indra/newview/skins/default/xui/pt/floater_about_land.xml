@@ -113,7 +113,7 @@ Vá para o menu Mundo &gt; Sobre o terreno ou selecione outro lote para mostrar 
 			<text name="Selling with no objects in parcel.">
 				À venda (objetos não incluídos).
 			</text>
-			<button label="Cancelar venda do terreno" label_selected="Cancelar venda do terreno" left="275" name="Cancel Land Sale" width="165"/>
+			<button label="Cancelar venda do terreno" label_selected="Cancelar venda do terreno" name="Cancel Land Sale"/>
 			<text name="Claimed:">
 				Posse em:
 			</text>

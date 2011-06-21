@@ -5,7 +5,7 @@
  * $License$
  */
  
-#version 120
+
 
 #extension GL_ARB_texture_rectangle : enable
 
@@ -45,7 +45,7 @@ uniform float spot_shadow_offset;
 
 vec4 getPosition(vec2 pos_screen)
 {
-	float depth = texture2DRect(depthMap, pos_screen.xy).a;
+	float depth = texture2DRect(depthMap, pos_screen.xy).r;
 	vec2 sc = pos_screen.xy*2.0;
 	sc /= screen_res;
 	sc -= vec2(1.0,1.0);
@@ -234,7 +234,7 @@ void main()
 	gl_FragColor[0] = shadow;
 	gl_FragColor[1] = calcAmbientOcclusion(pos, norm);
 	
-	spos.xyz = shadow_pos+offset*spot_shadow_offset;
+	spos.xyz = shadow_pos+norm*spot_shadow_offset;
 	
 	//spotlight shadow 1
 	vec4 lpos = shadow_matrix[4]*spos;

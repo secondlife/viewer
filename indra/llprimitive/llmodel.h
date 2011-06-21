@@ -73,6 +73,7 @@ public:
 	{
 		NO_ERRORS = 0,
 		VERTEX_NUMBER_OVERFLOW, //vertex number is >= 65535.
+		BAD_ELEMENT,
 		INVALID_STATUS
 	} ;
 
@@ -106,6 +107,7 @@ public:
 		Decomposition(LLSD& data);
 		void fromLLSD(LLSD& data);
 		LLSD asLLSD() const;
+		bool hasHullList() const;
 
 		void merge(const Decomposition* rhs);
 

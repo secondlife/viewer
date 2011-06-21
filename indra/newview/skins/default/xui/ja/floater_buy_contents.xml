@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater min_width="340" name="floater_buy_contents" title="中身の購入" width="340">
 	<text name="contains_text" width="320">
-		[NAME] の中身：
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; に含まれるもの：
 	</text>
 	<scroll_list name="item_list" width="310"/>
 	<text name="buy_text" width="320">

@@ -530,17 +530,24 @@ void LLPanelVolume::refresh()
 	getChildView("Light Ambiance")->setVisible( visible);
 	getChildView("light texture control")->setVisible( visible);
 
-	bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
-					   gAgent.getRegion() &&
-					   !gAgent.getRegion()->getCapability("GetMesh").empty() &&
-					   !gAgent.getRegion()->getCapability("ObjectAdd").empty();
+	bool enable_mesh = false;
 
+	LLSD sim_features;
+	LLViewerRegion *region = gAgent.getRegion();
+	if(region)
+	{
+		LLSD sim_features;
+		region->getSimulatorFeatures(sim_features);		 
+		enable_mesh = sim_features.has("PhysicsShapeTypes");
+	}
 	getChildView("label physicsshapetype")->setVisible(enable_mesh);
 	getChildView("Physics Shape Type Combo Ctrl")->setVisible(enable_mesh);
 	getChildView("Physics Gravity")->setVisible(enable_mesh);
 	getChildView("Physics Friction")->setVisible(enable_mesh);
 	getChildView("Physics Density")->setVisible(enable_mesh);
 	getChildView("Physics Restitution")->setVisible(enable_mesh);
+	
+    /* TODO: add/remove individual physics shape types as per the PhysicsShapeTypes simulator features */
 }
 
 

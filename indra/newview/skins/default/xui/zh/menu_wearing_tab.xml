@@ -2,5 +2,5 @@
 <context_menu name="Wearing">
 	<menu_item_call label="脫下" name="take_off"/>
 	<menu_item_call label="卸下" name="detach"/>
-	<menu_item_call label="Edit Outfit" name="edit"/>
+	<menu_item_call label="編輯裝扮" name="edit"/>
 </context_menu>

@@ -57,6 +57,7 @@ public:
 		TT_TEXTURE = 0,			// Standard 2D Texture
 		TT_RECT_TEXTURE,	// Non power of 2 texture
 		TT_CUBE_MAP,		// 6-sided cube map texture
+		TT_MULTISAMPLE_TEXTURE, // see GL_ARB_texture_multisample
 		TT_NONE 		// No texture type is currently enabled
 	} eTextureType;
 

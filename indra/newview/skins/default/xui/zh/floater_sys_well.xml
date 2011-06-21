@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="sys_well_window" title="NOTIFICATIONS">
+<floater name="sys_well_window" title="通知">
 	<string name="title_im_well_window">
 		CONVERSATIONS
 	</string>
 	<string name="title_notification_well_window">
-		NOTIFICATIONS
+		通知
 	</string>
 </floater>

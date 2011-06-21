@@ -12,7 +12,7 @@
 		[NOTE2]
 	</text>
 	<button label="Start" name="start_btn"/>
-	<button label="Stop" name="stop_btn"/>
+	<button label="停止" name="stop_btn"/>
 	<button label="Release" name="release_btn"/>
 	<button label="關閉" name="close_btn"/>
 </floater>

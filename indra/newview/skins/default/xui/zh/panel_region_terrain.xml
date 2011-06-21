@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Terrain" name="Terrain">
+<panel label="地形" name="Terrain">
 	<text name="region_text_lbl">
 		地區：
 	</text>
@@ -14,6 +14,6 @@
 	<slider label="Phase" name="sun_hour_slider"/>
 	<button label="套用" name="apply_btn"/>
 	<button label="Download RAW terrain..." name="download_raw_btn" tool_tip="Available only to estate owners, not managers"/>
-	<button label="Upload RAW terrain..." name="upload_raw_btn" tool_tip="Available only to estate owners, not managers"/>
+	<button label="上傳 RAW 地形檔..." name="upload_raw_btn" tool_tip="Available only to estate owners, not managers"/>
 	<button label="Bake Terrain" name="bake_terrain_btn" tool_tip="Set current terrain as mid-point for raise/lower limits"/>
 </panel>

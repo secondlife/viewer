@@ -14,6 +14,7 @@
 			<menu_item_call label="Undertrøje" name="Self Undershirt"/>
 			<menu_item_call label="Underbukser" name="Self Underpants"/>
 			<menu_item_call label="Tatovering" name="Self Tattoo"/>
+			<menu_item_call label="Fysik" name="Self Physics"/>
 			<menu_item_call label="Alpha" name="Self Alpha"/>
 			<menu_item_call label="Alt tøj" name="All Clothes"/>
 		</context_menu>
@@ -21,7 +22,7 @@
 		<context_menu label="Tag af" name="Object Detach"/>
 		<menu_item_call label="Tag alt af" name="Detach All"/>
 	</context_menu>
-	<menu_item_call label="Skift sæt" name="Chenge Outfit"/>
+	<menu_item_call label="Mit udseende" name="Chenge Outfit"/>
 	<menu_item_call label="Redigér mit sæt" name="Edit Outfit"/>
 	<menu_item_call label="Redigér min form" name="Edit My Shape"/>
 	<menu_item_call label="Venner" name="Friends..."/>

@@ -27,8 +27,20 @@
 		</text>
 		<check_box initial_value="vero" label="Acqua trasparente" name="TransparentWater"/>
 		<check_box initial_value="true" label="Piccoli rilievi e scintillii" name="BumpShiny"/>
+		<check_box initial_value="true" label="Luci locali" name="LocalLights"/>
 		<check_box initial_value="true" label="Effetti grafici base" name="BasicShaders" tool_tip="Disabilitare questa opzione può evitare che qualche scheda grafica vada in crash."/>
 		<check_box initial_value="true" label="Effetti grafici atmosferici" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="Luci e ombre" name="UseLightShaders"/>
+		<check_box initial_value="true" label="Occlusione ambientale" name="UseSSAO"/>
+		<check_box initial_value="true" label="Profondità di campo" name="UseDoF"/>
+		<text name="shadows_label">
+			Ombre:
+		</text>
+		<combo_box name="ShadowDetail">
+			<combo_box.item label="Nessuno" name="0"/>
+			<combo_box.item label="Sole/Luna" name="1"/>
+			<combo_box.item label="Sole/Luna + Proiettori" name="2"/>
+		</combo_box>
 		<text name="reflection_label">
 			Riflessi nell’acqua:
 		</text>

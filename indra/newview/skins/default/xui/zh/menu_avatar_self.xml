@@ -3,7 +3,7 @@
 	<menu_item_call label="坐下" name="Sit Down Here"/>
 	<menu_item_call label="起立" name="Stand Up"/>
 	<context_menu label="脫下" name="Take Off &gt;">
-		<context_menu label="Clothes" name="Clothes &gt;">
+		<context_menu label="衣服" name="Clothes &gt;">
 			<menu_item_call label="襯衫" name="Shirt"/>
 			<menu_item_call label="褲子" name="Pants"/>
 			<menu_item_call label="裙子" name="Skirt"/>
@@ -16,17 +16,17 @@
 			<menu_item_call label="刺青" name="Self Tattoo"/>
 			<menu_item_call label="Physics" name="Self Physics"/>
 			<menu_item_call label="Alpha" name="Self Alpha"/>
-			<menu_item_call label="All Clothes" name="All Clothes"/>
+			<menu_item_call label="全部衣服" name="All Clothes"/>
 		</context_menu>
 		<context_menu label="HUD" name="Object Detach HUD"/>
 		<context_menu label="卸下" name="Object Detach"/>
 		<menu_item_call label="全部卸下" name="Detach All"/>
 	</context_menu>
-	<menu_item_call label="My Appearance" name="Chenge Outfit"/>
-	<menu_item_call label="Edit My Outfit" name="Edit Outfit"/>
-	<menu_item_call label="Edit My Shape" name="Edit My Shape"/>
-	<menu_item_call label="My Friends" name="Friends..."/>
-	<menu_item_call label="My Groups" name="Groups..."/>
-	<menu_item_call label="My Profile" name="Profile..."/>
-	<menu_item_call label="Debug Textures" name="Debug..."/>
+	<menu_item_call label="我的外觀" name="Chenge Outfit"/>
+	<menu_item_call label="編輯我裝扮" name="Edit Outfit"/>
+	<menu_item_call label="編輯我的體形" name="Edit My Shape"/>
+	<menu_item_call label="我的朋友" name="Friends..."/>
+	<menu_item_call label="我的社團" name="Groups..."/>
+	<menu_item_call label="我的檔案" name="Profile..."/>
+	<menu_item_call label="材質除錯" name="Debug..."/>
 </context_menu>

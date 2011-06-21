@@ -34,6 +34,7 @@
 #include "llsd.h"
 #include "llhost.h"
 #include "stringize.h"
+#include <map>
 #include <string>
 #include <stdexcept>
 #include <boost/lexical_cast.hpp>
@@ -42,6 +43,58 @@ struct CommtestError: public std::runtime_error
 {
     CommtestError(const std::string& what): std::runtime_error(what) {}
 };
+
+static bool query_verbose()
+{
+    const char* cbose = getenv("INTEGRATION_TEST_VERBOSE");
+    if (! cbose)
+    {
+        cbose = "1";
+    }
+    std::string strbose(cbose);
+    return (! (strbose == "0" || strbose == "off" ||
+               strbose == "false" || strbose == "quiet"));
+}
+
+bool verbose()
+{
+    // This should only be initialized once.
+    static bool vflag = query_verbose();
+    return vflag;
+}
+
+static int query_port(const std::string& var)
+{
+    const char* cport = getenv(var.c_str());
+    if (! cport)
+    {
+        throw CommtestError(STRINGIZE("missing environment variable" << var));
+    }
+    // This will throw, too, if the value of PORT isn't numeric.
+    int port(boost::lexical_cast<int>(cport));
+    if (verbose())
+    {
+        std::cout << "getport('" << var << "') = " << port << std::endl;
+    }
+    return port;
+}
+
+static int getport(const std::string& var)
+{
+    typedef std::map<std::string, int> portsmap;
+    static portsmap ports;
+    // We can do this with a single map lookup with map::insert(). Either it
+    // returns an existing entry and 'false' (not newly inserted), or it
+    // inserts the specified value and 'true'.
+    std::pair<portsmap::iterator, bool> inserted(ports.insert(portsmap::value_type(var, 0)));
+    if (inserted.second)
+    {
+        // We haven't yet seen this var. Remember its value.
+        inserted.first->second = query_port(var);
+    }
+    // Return the (existing or new) iterator's value.
+    return inserted.first->second;
+}
 
 /**
  * This struct is shared by a couple of standalone comm tests (ADD_COMM_BUILD_TEST).
@@ -71,13 +124,10 @@ struct commtest_data
 
     static int getport(const std::string& var)
     {
-        const char* port = getenv(var.c_str());
-        if (! port)
-        {
-            throw CommtestError("missing $PORT environment variable");
-        }
-        // This will throw, too, if the value of PORT isn't numeric.
-        return boost::lexical_cast<int>(port);
+        // We have a couple consumers of commtest_data::getport(). But we've
+        // since moved it out to the global namespace. So this is just a
+        // facade.
+        return ::getport(var);
     }
 
     bool outcome(const LLSD& _result, bool _success)

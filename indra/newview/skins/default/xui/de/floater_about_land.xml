@@ -103,17 +103,17 @@
 				Preis: [PRICE] L$ ([PRICE_PER_SQM]L$/m²)
 			</text>
 			<text name="SalePending"/>
-			<button bottom="-222" label="Land verkaufen" label_selected="Land verkaufen..." name="Sell Land..."/>
+			<button label="Land verkaufen" label_selected="Land verkaufen..." name="Sell Land..."/>
 			<text name="For sale to">
 				Zum Verkauf an: [BUYER]
 			</text>
-			<text left_delta="-50" name="Sell with landowners objects in parcel." width="240">
+			<text name="Sell with landowners objects in parcel.">
 				Objekte sind im Verkauf eingeschlossen
 			</text>
-			<text name="Selling with no objects in parcel." width="260">
+			<text name="Selling with no objects in parcel.">
 				Objekte sind im Verkauf nicht eingeschlossen
 			</text>
-			<button bottom="-222" label="Landverkauf abbrechen" label_selected="Landverkauf abbrechen" name="Cancel Land Sale"/>
+			<button label="Landverkauf abbrechen" label_selected="Landverkauf abbrechen" name="Cancel Land Sale"/>
 			<text name="Claimed:">
 				Gekauft am:
 			</text>

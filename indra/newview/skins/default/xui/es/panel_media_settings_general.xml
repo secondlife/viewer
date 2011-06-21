@@ -20,7 +20,8 @@
 	<check_box initial_value="false" label="Zoom automático" name="auto_zoom"/>
 	<check_box initial_value="false" label="Ejecutar automáticamente los media" name="auto_play"/>
 	<text name="media_setting_note">
-		Nota: los residentes pueden elegir una configuración distinta de ésta
+		Nota: los residentes pueden elegir una configuración distinta 
+de ésta
 	</text>
 	<check_box initial_value="false" label="Ajustar automáticamente los media en la cara del objeto" name="auto_scale"/>
 	<text name="size_label">
