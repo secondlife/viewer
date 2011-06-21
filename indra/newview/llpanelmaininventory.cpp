@@ -577,14 +577,16 @@ void LLPanelMainInventory::updateItemcountText()
 
 void LLPanelMainInventory::onFocusReceived()
 {
-	LLInventoryPanel * inbox_panel = findChild<LLInventoryPanel>("inventory_inbox");
+	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
+
+	LLInventoryPanel * inbox_panel = sidepanel_inventory->findChild<LLInventoryPanel>("inventory_inbox");
 
 	if (inbox_panel)
 	{
 		inbox_panel->clearSelection();
 	}
 
-	LLInventoryPanel * outbox_panel = findChild<LLInventoryPanel>("inventory_outbox");
+	LLInventoryPanel * outbox_panel = sidepanel_inventory->findChild<LLInventoryPanel>("inventory_outbox");
 
 	if (outbox_panel)
 	{

@@ -70,6 +70,8 @@ public:
 	bool isInboxEnabled() const { return mInboxEnabled; }
 	bool isOutboxEnabled() const { return mOutboxEnabled; }
 
+	void updateVerbs();
+
 protected:
 	// Tracks highlighted (selected) item in inventory panel.
 	LLInventoryItem *getSelectedItem();
@@ -77,7 +79,6 @@ protected:
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	// "wear", "teleport", etc.
 	void performActionOnSelection(const std::string &action);
-	void updateVerbs();
 
 	bool canWearSelected(); // check whether selected items can be worn
 

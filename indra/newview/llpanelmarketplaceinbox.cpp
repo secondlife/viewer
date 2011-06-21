@@ -66,8 +66,18 @@ BOOL LLPanelMarketplaceInbox::postBuild()
 
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceInbox::onFocusReceived, this));
 
+	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
+
 	return TRUE;
 }
+
+void LLPanelMarketplaceInbox::onSelectionChange()
+{
+	LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+		
+	sidepanel_inventory->updateVerbs();
+}
+
 
 void LLPanelMarketplaceInbox::handleLoginComplete()
 {
