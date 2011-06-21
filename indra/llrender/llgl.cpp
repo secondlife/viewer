@@ -568,6 +568,13 @@ bool LLGLManager::initGL()
 		glGetIntegerv(GL_MAX_SAMPLE_MASK_WORDS, &mMaxSampleMaskWords);
 	}
 
+#if LL_WINDOWS
+	if (mIsATI)
+	{ //using multisample textures on ATI results in black screen for some reason
+		mHasTextureMultisample = FALSE;
+	}
+#endif
+
 	if (mHasFramebufferObject)
 	{
 		glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples);
