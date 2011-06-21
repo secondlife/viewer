@@ -246,9 +246,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d05be8fc196e9ce7b6636b931cf13dff</string>
+              <string>be7321370b69b6d66938b82a9230a067</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/226716/arch/Linux/installer/colladadom-2.2-linux-20110415.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-colladadom/rev/233450/arch/Linux/installer/colladadom-2.2-linux-20110621.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1524,7 +1524,7 @@
               <key>hash</key>
               <string>bb0abe962b3b8208ed2dab0424aab33d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-pcre/rev/228822/arch/Linux/installer/pcre-7.6-linux-20110504.tar.bz2</string>              
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-pcre/rev/228822/arch/Linux/installer/pcre-7.6-linux-20110504.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
