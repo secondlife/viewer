@@ -1985,6 +1985,13 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	item->dirtyFilter();
 	requestArrange();
 	requestSort();
+	LLFolderViewFolder* parentp = getParentFolder();
+	while (parentp && !parentp->getCreationDate())
+	{
+		// parent folder doesn't have a time stamp yet, so get it from us
+		parentp->requestSort();
+		parentp = parentp->getParentFolder();
+	}
 	return TRUE;
 }
 
@@ -2004,6 +2011,13 @@ BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 	// rearrange all descendants too, as our indentation level might have changed
 	folder->requestArrange(TRUE);
 	requestSort();
+	LLFolderViewFolder* parentp = getParentFolder();
+	while (parentp && !parentp->getCreationDate())
+	{
+		// parent folder doesn't have a time stamp yet, so get it from us
+		parentp->requestSort();
+		parentp = parentp->getParentFolder();
+	}
 	return TRUE;
 }
 
