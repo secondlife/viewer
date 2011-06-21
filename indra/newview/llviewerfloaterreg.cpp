@@ -129,12 +129,12 @@
 
 // *NOTE: Please add files in alphabetical order to keep merges easy.
 
-// handle secondlife:///app/floater/{NAME} URLs
+// handle secondlife:///app/openfloater/{NAME} URLs
 class LLFloaterOpenHandler : public LLCommandHandler
 {
 public:
 	// requires trusted browser to trigger
-	LLFloaterOpenHandler() : LLCommandHandler("floater", UNTRUSTED_THROTTLE) { }
+	LLFloaterOpenHandler() : LLCommandHandler("openfloater", UNTRUSTED_THROTTLE) { }
 
 	bool handle(const LLSD& params, const LLSD& query_map,
 				LLMediaCtrl* web)

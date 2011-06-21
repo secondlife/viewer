@@ -281,7 +281,7 @@
 			 height="40"
 			 left="10"
 			 word_wrap="true">
-Advanced users familiar with 3d content creation tools may prefer to use the [secondlife:///app/floater/upload_model Advanced Mesh Import Window] .
+Advanced users familiar with 3d content creation tools may prefer to use the [secondlife:///app/openfloater/upload_model Advanced Mesh Import Window] .
 			</text>
 		</panel>
 	</panel>

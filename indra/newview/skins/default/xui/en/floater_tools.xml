@@ -47,24 +47,12 @@
         Click and drag to select land
     </floater.string>
     <floater.string
-     name="grid_screen_text">
-        Screen
+     name="status_selectcount">
+        [OBJ_COUNT] objects ( [PRIM_COUNT] prims ) selected
     </floater.string>
     <floater.string
-     name="grid_local_text">
-        Local
-    </floater.string>
-    <floater.string
-     name="grid_world_text">
-        World
-    </floater.string>
-    <floater.string
-     name="grid_reference_text">
-        Reference
-    </floater.string>
-    <floater.string
-     name="grid_attachment_text">
-        Attachment
+     name="status_selectprimequiv">
+        PE weight [SEL_WEIGHT]
     </floater.string>
     <button
      follows="left|top"
@@ -221,7 +209,7 @@
 	<radio_group
      follows="left|top"
 	 left="5"
-	 top="59"
+	 top="55"
 	 height="70"
      layout="topleft"
 	 name="edit_radio_group">
@@ -255,18 +243,18 @@
      label="Edit linked"
      layout="topleft"
      name="checkbox edit linked parts"
-     top_pad="-10">
+     top_pad="-18">
 		  <check_box.commit_callback
 			function="BuildTool.selectComponent"/>
 	</check_box>
 
    <button
      follows="left|top"
-     height="23"
+     height="20"
      label="Link"
-     top_pad="2"
+     top="108"
      layout="topleft"
-     left="5"
+     left="143"
      name="link_btn"
      width="50">
 	  <button.commit_callback
@@ -274,7 +262,7 @@
     </button>
     <button
      follows="left|top"
-     height="23"
+     height="20"
      label="Unlink"
      layout="topleft"
      left_pad="2"
@@ -302,7 +290,7 @@
      layout="topleft"
      left="143"
      name="checkbox uniform"
-     top="50"
+     top="48"
      width="20" />
     <text
      height="19"
@@ -324,53 +312,29 @@
      layout="topleft"
      left="143"
      name="checkbox stretch textures"
-     top_pad="-6"
+     top_pad="-4"
      follows="left|top"
      width="134" />
    <check_box
      control_name="SnapEnabled"
      height="18"
      initial_value="true"
-     label="Snap to grid"
+     label="Snap"
      layout="topleft"
      top_pad="0"
      name="checkbox snap to grid"
      width="134" />
-    <combo_box
-     height="23"
-     layout="topleft"
-     follows="left|top"
-     name="combobox grid mode"
-     tool_tip="Choose the type of grid ruler for positioning the object"
-     top_pad="0"
-     width="108">
-        <combo_box.item
-         label="World grid"
-         name="World"
-         value="World" />
-        <combo_box.item
-         label="Local grid"
-         name="Local"
-         value="Local" />
-        <combo_box.item
-         label="Reference grid"
-         name="Reference"
-         value="Reference" />
-		 <combo_box.commit_callback
-	     function="BuildTool.gridMode"/>
-    </combo_box>
     <button
      left_pad="0"
-     image_selected="ForwardArrow_Press"
-     image_unselected="ForwardArrow_Off"
+     label="Options..."
      layout="topleft"
      follows="top|left"
      name="Options..."
      tool_tip="See more grid options"
-     top_pad="-22"
-     right="-10"
-     width="18"
-     height="23" >
+     top="83"
+     right="-35"
+     width="65"
+     height="21" >
 	 <button.commit_callback
 	     function="BuildTool.gridOptions"/>
 	</button>
@@ -385,7 +349,7 @@
      left="10"
      name="ToolCube"
      tool_tip="Cube"
-     top="51"
+     top="58"
      width="20" />
     <button
      follows="left|top"
@@ -447,10 +411,10 @@
      image_selected="Object_Hemi_Cylinder_Selected"
      image_unselected="Object_Hemi_Cylinder"
      layout="topleft"
-     left_delta="29"
+     left="10"
      name="ToolHemiCylinder"
      tool_tip="Hemicylinder"
-     top_delta="0"
+     top="84"
      width="20" />
     <button
      follows="left|top"
@@ -515,7 +479,7 @@
      left="10"
      name="ToolTorus"
      tool_tip="Torus"
-     top="77"
+     top="109"
      width="20" />
     <button
      follows="left|top"
@@ -575,9 +539,9 @@
      height="19"
      label="Keep Tool selected"
      layout="topleft"
-     left="4"
+     left="155"
      name="checkbox sticky"
-     top="101"
+     top="55"
      width="128" />
     <check_box
      control_name="CreateToolCopySelection"
@@ -596,7 +560,7 @@
      layout="topleft"
      left_delta="18"
      name="checkbox copy centers"
-     top="132"
+     top="85"
      width="134" />
     <check_box
      control_name="CreateToolCopyRotates"
@@ -749,89 +713,49 @@
 	  <button.commit_callback
 	     function="BuildTool.applyToSelection"/>
     </button>
+    <text
+	 text_color="LtGray_50"
+	  type="string"
+	  length="1"
+	  height="16"
+	  follows="left|top"
+	  font="SansSerifSmall"
+	  layout="topleft"
+	  left="10"
+	  name="selection_empty"
+	  top_pad="0"
+	  width="100">
+		Nothing selected.
+	</text>
 	<text
 	 text_color="LtGray_50"
 	  type="string"
 	  length="1"
-	  height="10"
+	  height="16"
 	  follows="left|top"
-	  halign="right"
+	  font="SansSerifSmall"
 	  layout="topleft"
-	  right="-10"
-	  name="obj_count"
-	  top_pad="5"
-	  width="143">
-		Objects: [COUNT]
+	  left="10"
+	  name="selection_count"
+	  top_delta="0"
+	  visible="false"
+	  width="280">
 	</text>
 	<text
-    text_color="LtGray_50"
-     type="string"
-     length="1"
-	height="10" 
-     follows="left|top"
-     halign="right"
-     layout="topleft"
-     right="-10"
-     name="prim_count"
-     width="143">
-		Prims: [COUNT]
+	 text_color="LtGray_50"
+	  type="string"
+	  length="1"
+	  height="16"
+	  follows="left|top"
+	  font="SansSerifSmall"
+	  layout="topleft"
+	  left="10"
+	  name="selection_weight"
+	  top_pad="0"
+	  visible="false"
+	  width="280">
+	  Physics weight [PHYS_WEIGHT], Display weight [DISP_WEIGHT].
 	</text>
-    <text
-    text_color="LtGray_50"
-     type="string"
-     length="1"
-     height="10"
-     follows="left|top"
-     halign="right"
-     layout="topleft"
-     right="-120"
-     name="linked_set_count"
-     top="144"
-     width="80">
-        Linked Sets: [COUNT]
-    </text>
-    <text
-    text_color="LtGray_50"
-     type="string"
-     length="1"
-     height="10"
-     follows="left|top"
-     halign="right"
-     layout="topleft"
-     top_delta="0"
-     right="-8"
-     name="linked_set_cost"
-     tool_tip="Cost of currently selected linked sets as [prims],[physics complexity]" 
-     width="80">
-        Cost: [COST] / [PHYSICS]
-    </text>
-    <text
-    text_color="LtGray_50"
-     type="string"
-     length="1"
-     follows="left|top"
-     halign="right"
-     layout="topleft"
-     top_pad="5"
-     right="-120"
-     name="object_count"
-     width="80">
-        Objects: [COUNT]
-    </text>
-    <text
-    text_color="LtGray_50"
-     type="string"
-     length="1"
-     follows="left|top"
-     halign="right"
-     layout="topleft"
-	 top_delta="0"
-     right="-8"
-     name="object_cost"
-     tool_tip="Cost of currently selected objects as [prims] / [physics complexity]"
-     width="80">
-        Cost: [COST] / [PHYSICS]
-    </text>
     <!-- <text -->
     <!-- text_color="LtGray_50" -->
     <!--  type="string" -->
@@ -858,6 +782,15 @@
     <!--  width="143"> -->
     <!--     Prims: [COUNT] -->
     <!-- </text> -->
+    <view_border
+    bevel_style="none"
+    follows="top|left"
+    height="0"
+    layout="topleft"
+    left="6"
+    name="cost_text_border"
+    top="135"
+    width="282"/>
     <tab_container
      follows="left|top"
      height="410"
