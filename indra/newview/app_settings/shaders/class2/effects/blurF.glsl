@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 uniform sampler2DRect RenderTexture;
 uniform float bloomStrength;

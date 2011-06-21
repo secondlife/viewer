@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="NearBy Chat Menu">
-	<menu_item_call label="Show Nearby People..." name="nearby_people"/>
+	<menu_item_call label="顯示附近的人..." name="nearby_people"/>
 	<menu_item_check label="Show Blocked Text" name="muted_text"/>
 	<menu_item_check label="Show Buddy Icons" name="show_buddy_icons"/>
 	<menu_item_check label="Show Names" name="show_names"/>

@@ -980,11 +980,6 @@ void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices,
 	for (S32 i = 0; i < index_count; i++)
 	{
 		U16 index = index_offset + i;
-		if (idx[index] >= vert_start + vert_count ||
-			idx[index] < vert_start)
-		{
-			llerrs << "WTF?" << llendl;
-		}
 		*indices++ = idx[index]-vert_start+cur_idx;
 	}
 

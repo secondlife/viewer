@@ -19,7 +19,7 @@
 		<button label="Stop alt" name="all_nearby_media_disable_btn" tool_tip="Stop al media tæt på"/>
 		<button label="Start alt" name="all_nearby_media_enable_btn" tool_tip="Tænd al media tæt på"/>
 		<button name="open_prefs_btn" tool_tip="Vis media preferencer"/>
-		<button label="Mere &gt;&gt;" label_selected="Mindre &lt;&lt;" name="more_btn" tool_tip="Advancerede kontroller"/>
+		<button label="Mere &gt;&gt;" label_selected="&lt;&lt; Mindre" name="more_btn" tool_tip="Advancerede kontroller"/>
 		<button label="Mere &gt;&gt;" label_selected="Mindre &lt;&lt;" name="less_btn" tool_tip="Advancerede kontroller"/>
 	</panel>
 	<panel name="nearby_media_panel">

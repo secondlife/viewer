@@ -100,7 +100,7 @@ void assert_aligned(void* ptr, uintptr_t alignment)
 	uintptr_t t = (uintptr_t) ptr;
 	if (t%alignment != 0)
 	{
-		llerrs << "WTF?" << llendl;
+		llerrs << "Alignment check failed." << llendl;
 	}
 #endif
 }
@@ -361,7 +361,7 @@ public:
 		}
 		else
 		{
-			llerrs << "WTF? Empty leaf" << llendl;
+			llerrs << "Empty leaf" << llendl;
 		}
 
 		for (S32 i = 0; i < branch->getChildCount(); ++i)
@@ -414,6 +414,70 @@ LLProfile::Face* LLProfile::addFace(S32 i, S32 count, F32 scaleU, S16 faceID, BO
 	face->mCap   = FALSE;
 	face->mFaceID = faceID;
 	return face;
+}
+
+//static
+S32 LLProfile::getNumNGonPoints(const LLProfileParams& params, S32 sides, F32 offset, F32 bevel, F32 ang_scale, S32 split)
+{ // this is basically LLProfile::genNGon stripped down to only the operations that influence the number of points
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	S32 np = 0;
+
+	// Generate an n-sided "circular" path.
+	// 0 is (1,0), and we go counter-clockwise along a circular path from there.
+	F32 t, t_step, t_first, t_fraction;
+	
+	F32 begin  = params.getBegin();
+	F32 end    = params.getEnd();
+
+	t_step = 1.0f / sides;
+	
+	t_first = floor(begin * sides) / (F32)sides;
+
+	// pt1 is the first point on the fractional face.
+	// Starting t and ang values for the first face
+	t = t_first;
+	
+	// Increment to the next point.
+	// pt2 is the end point on the fractional face
+	t += t_step;
+	
+	t_fraction = (begin - t_first)*sides;
+
+	// Only use if it's not almost exactly on an edge.
+	if (t_fraction < 0.9999f)
+	{
+		np++;
+	}
+
+	// There's lots of potential here for floating point error to generate unneeded extra points - DJS 04/05/02
+	while (t < end)
+	{
+		// Iterate through all the integer steps of t.
+		np++;
+
+		t += t_step;
+	}
+
+	t_fraction = (end - (t - t_step))*sides;
+
+	// Find the fraction that we need to add to the end point.
+	t_fraction = (end - (t - t_step))*sides;
+	if (t_fraction > 0.0001f)
+	{
+		np++;
+	}
+
+	// If we're sliced, the profile is open.
+	if ((end - begin)*ang_scale < 0.99f)
+	{
+		if (params.getHollow() <= 0)
+		{
+			// put center point if not hollow.
+			np++;
+		}
+	}
+	
+	return np;
 }
 
 // What is the bevel parameter used for? - DJS 04/05/02
@@ -672,6 +736,117 @@ LLProfile::Face* LLProfile::addHole(const LLProfileParams& params, BOOL flat, F3
 	return face;
 }
 
+//static
+S32 LLProfile::getNumPoints(const LLProfileParams& params, BOOL path_open,F32 detail, S32 split,
+						 BOOL is_sculpted, S32 sculpt_size)
+{ // this is basically LLProfile::generate stripped down to only operations that influence the number of points
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
+	if (detail < MIN_LOD)
+	{
+		detail = MIN_LOD;
+	}
+
+	// Generate the face data
+	F32 hollow = params.getHollow();
+
+	S32 np = 0;
+
+	switch (params.getCurveType() & LL_PCODE_PROFILE_MASK)
+	{
+	case LL_PCODE_PROFILE_SQUARE:
+		{
+			np = getNumNGonPoints(params, 4,-0.375, 0, 1, split);
+		
+			if (hollow)
+			{
+				np *= 2;
+			}
+		}
+		break;
+	case  LL_PCODE_PROFILE_ISOTRI:
+	case  LL_PCODE_PROFILE_RIGHTTRI:
+	case  LL_PCODE_PROFILE_EQUALTRI:
+		{
+			np = getNumNGonPoints(params, 3,0, 0, 1, split);
+						
+			if (hollow)
+			{
+				np *= 2;
+			}
+		}
+		break;
+	case LL_PCODE_PROFILE_CIRCLE:
+		{
+			// If this has a square hollow, we should adjust the
+			// number of faces a bit so that the geometry lines up.
+			U8 hole_type=0;
+			F32 circle_detail = MIN_DETAIL_FACES * detail;
+			if (hollow)
+			{
+				hole_type = params.getCurveType() & LL_PCODE_HOLE_MASK;
+				if (hole_type == LL_PCODE_HOLE_SQUARE)
+				{
+					// Snap to the next multiple of four sides,
+					// so that corners line up.
+					circle_detail = llceil(circle_detail / 4.0f) * 4.0f;
+				}
+			}
+
+			S32 sides = (S32)circle_detail;
+
+			if (is_sculpted)
+				sides = sculpt_size;
+			
+			np = getNumNGonPoints(params, sides);
+			
+			if (hollow)
+			{
+				np *= 2;
+			}
+		}
+		break;
+	case LL_PCODE_PROFILE_CIRCLE_HALF:
+		{
+			// If this has a square hollow, we should adjust the
+			// number of faces a bit so that the geometry lines up.
+			U8 hole_type=0;
+			// Number of faces is cut in half because it's only a half-circle.
+			F32 circle_detail = MIN_DETAIL_FACES * detail * 0.5f;
+			if (hollow)
+			{
+				hole_type = params.getCurveType() & LL_PCODE_HOLE_MASK;
+				if (hole_type == LL_PCODE_HOLE_SQUARE)
+				{
+					// Snap to the next multiple of four sides (div 2),
+					// so that corners line up.
+					circle_detail = llceil(circle_detail / 2.0f) * 2.0f;
+				}
+			}
+			np = getNumNGonPoints(params, llfloor(circle_detail), 0.5f, 0.f, 0.5f);
+			
+			if (hollow)
+			{
+				np *= 2;
+			}
+
+			// Special case for openness of sphere
+			if ((params.getEnd() - params.getBegin()) < 1.f)
+			{
+			}
+			else if (!hollow)
+			{
+				np++;
+			}
+		}
+		break;
+	default:
+	   break;
+	};
+
+	
+	return np;
+}
 
 
 BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detail, S32 split,
@@ -1133,6 +1308,32 @@ LLPath::~LLPath()
 {
 }
 
+S32 LLPath::getNumNGonPoints(const LLPathParams& params, S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
+{ //this is basically LLPath::genNGon stripped down to only operations that influence the number of points added
+	S32 ret = 0;
+
+	F32 step= 1.0f / sides;
+	F32 t	= params.getBegin();
+	ret = 1;
+	
+	t+=step;
+
+	// Snap to a quantized parameter, so that cut does not
+	// affect most sample points.
+	t = ((S32)(t * sides)) / (F32)sides;
+
+	// Run through the non-cut dependent points.
+	while (t < params.getEnd())
+	{
+		ret++;
+		t+=step;
+	}
+
+	ret++;
+
+	return ret;
+}
+
 void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 {
 	// Generates a circular path, starting at (1, 0, 0), counterclockwise along the xz plane.
@@ -1308,6 +1509,56 @@ const LLVector2 LLPathParams::getEndScale() const
 		end_scale.mV[1] = getScaleY();
 	}
 	return end_scale;
+}
+
+S32 LLPath::getNumPoints(const LLPathParams& params, F32 detail)
+{ // this is basically LLPath::generate stripped down to only the operations that influence the number of points
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
+	if (detail < MIN_LOD)
+	{
+		detail = MIN_LOD;
+	}
+
+	S32 np = 2; // hardcode for line
+
+	// Is this 0xf0 mask really necessary?  DK 03/02/05
+
+	switch (params.getCurveType() & 0xf0)
+	{
+	default:
+	case LL_PCODE_PATH_LINE:
+		{
+			// Take the begin/end twist into account for detail.
+			np    = llfloor(fabs(params.getTwistBegin() - params.getTwist()) * 3.5f * (detail-0.5f)) + 2;
+		}
+		break;
+
+	case LL_PCODE_PATH_CIRCLE:
+		{
+			// Increase the detail as the revolutions and twist increase.
+			F32 twist_mag = fabs(params.getTwistBegin() - params.getTwist());
+
+			S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * params.getRevolutions());
+
+			np = sides;
+		}
+		break;
+
+	case LL_PCODE_PATH_CIRCLE2:
+		{
+			//genNGon(params, llfloor(MIN_DETAIL_FACES * detail), 4.f, 0.f);
+			np = getNumNGonPoints(params, llfloor(MIN_DETAIL_FACES * detail));
+		}
+		break;
+
+	case LL_PCODE_PATH_TEST:
+
+		np     = 5;
+		break;
+	};
+
+	return np;
 }
 
 BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
@@ -2159,27 +2410,41 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 		U32 face_count = mdl.size();
 
 		if (face_count == 0)
-		{
-			llerrs << "WTF?" << llendl;
+		{ //no faces unpacked, treat as failed decode
+			llwarns << "found no faces!" << llendl;
+			return false;
 		}
 
 		mVolumeFaces.resize(face_count);
 
 		for (U32 i = 0; i < face_count; ++i)
 		{
+			LLVolumeFace& face = mVolumeFaces[i];
+
+			if (mdl[i].has("NoGeometry"))
+			{ //face has no geometry, continue
+				face.resizeIndices(3);
+				face.resizeVertices(1);
+				memset(face.mPositions, 0, sizeof(LLVector4a));
+				memset(face.mNormals, 0, sizeof(LLVector4a));
+				memset(face.mTexCoords, 0, sizeof(LLVector2));
+				memset(face.mIndices, 0, sizeof(U16)*3);
+				continue;
+			}
+
 			LLSD::Binary pos = mdl[i]["Position"];
 			LLSD::Binary norm = mdl[i]["Normal"];
 			LLSD::Binary tc = mdl[i]["TexCoord0"];
 			LLSD::Binary idx = mdl[i]["TriangleList"];
 
-			LLVolumeFace& face = mVolumeFaces[i];
+			
 
 			//copy out indices
 			face.resizeIndices(idx.size()/2);
 			
 			if (idx.empty() || face.mNumIndices < 3)
 			{ //why is there an empty index list?
-				llerrs <<"WTF?" << llendl;
+				llwarns <<"Empty face present!" << llendl;
 				continue;
 			}
 
@@ -2377,14 +2642,20 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			LLVector4a& min = face.mExtents[0];
 			LLVector4a& max = face.mExtents[1];
 
-			min.clear();
-			max.clear();
-			min = max = face.mPositions[0];
-
-			for (S32 i = 1; i < face.mNumVertices; ++i)
+			if (face.mNumVertices < 3)
+			{ //empty face, use a dummy 1cm (at 1m scale) bounding box
+				min.splat(-0.005f);
+				max.splat(0.005f);
+			}
+			else
 			{
-				min.setMin(min, face.mPositions[i]);
-				max.setMax(max, face.mPositions[i]);
+				min = max = face.mPositions[0];
+
+				for (S32 i = 1; i < face.mNumVertices; ++i)
+				{
+					min.setMin(min, face.mPositions[i]);
+					max.setMax(max, face.mPositions[i]);
+				}
 			}
 		}
 	}
@@ -2980,7 +3251,11 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 		// don't test lowest LOD to support legacy content DEV-33670
 		if (mDetail > SCULPT_MIN_AREA_DETAIL)
 		{
-			if (sculptGetSurfaceArea() < SCULPT_MIN_AREA)
+			F32 area = sculptGetSurfaceArea();
+
+			const F32 SCULPT_MAX_AREA = 32.f;
+
+			if (area < SCULPT_MIN_AREA || area > SCULPT_MAX_AREA)
 			{
 				data_is_empty = TRUE;
 			}
@@ -4062,6 +4337,23 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 
 	num_indices = count;
 	return index;
+}
+
+void LLVolume::getLoDTriangleCounts(const LLVolumeParams& params, S32* counts)
+{ //attempt to approximate the number of triangles that will result from generating a volume LoD set for the 
+	//supplied LLVolumeParams -- inaccurate, but a close enough approximation for determining streaming cost
+	F32 detail[] = {1.f, 1.5f, 2.5f, 4.f};	
+	for (S32 i = 0; i < 4; i++)
+	{
+		S32 count = 0;
+		S32 path_points = LLPath::getNumPoints(params.getPathParams(), detail[i]);
+		S32 profile_points = LLProfile::getNumPoints(params.getProfileParams(), false, detail[i]);
+
+		count = (profile_points-1)*2*(path_points-1);
+		count += profile_points*2;
+
+		counts[i] = count;
+	}
 }
 
 S32 LLVolume::getNumTriangleIndices() const
@@ -5220,6 +5512,8 @@ LLVolumeFace::LLVolumeFace() :
 	mOctree(NULL)
 {
 	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*3);
+	mExtents[0].splat(-0.5f);
+	mExtents[1].splat(0.5f);
 	mCenter = mExtents+2;
 }
 
@@ -5741,6 +6035,11 @@ void LLVolumeFace::cacheOptimize()
 	
 	LLVCacheLRU cache;
 	
+	if (mNumVertices < 3)
+	{ //nothing to do
+		return;
+	}
+
 	//mapping of vertices to triangles and indices
 	std::vector<LLVCacheVertexData> vertex_data;
 

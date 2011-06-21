@@ -8,7 +8,7 @@
 		私人社團
 	</string>
 	<string name="FreeToJoin">
-		Free to join
+		免費加入
 	</string>
 	<string name="CostToJoin">
 		L$[AMOUNT] to join
@@ -26,7 +26,7 @@ Fear the moose!  Fear it!  And the mongoose too!
 	<text name="group_cost">
 		L$123 to join
 	</text>
-	<button label="Join" name="join_btn"/>
-	<button label="Leave" name="leave_btn"/>
+	<button label="加入" name="join_btn"/>
+	<button label="退出" name="leave_btn"/>
 	<button label="察看檔案" name="view_profile_btn"/>
 </floater>

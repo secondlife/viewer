@@ -21,7 +21,7 @@
 	<string name="FormatYears">
 		[COUNT]y
 	</string>
-	<text name="avatar_name" value="(loading)"/>
+	<text name="avatar_name" value="（載入）"/>
 	<text name="last_interaction" value="0s"/>
 	<icon name="permission_edit_theirs_icon" tool_tip="你不能編輯這位朋友的物件"/>
 	<icon name="permission_edit_mine_icon" tool_tip="這位朋友能編輯、刪除或取得你的物件"/>

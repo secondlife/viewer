@@ -28,8 +28,20 @@
 		</text>
 		<check_box initial_value="sand" label="Gennemsigtig vand" name="TransparentWater"/>
 		<check_box initial_value="true" label="Glatte flader og skin" name="BumpShiny"/>
+		<check_box initial_value="sand" label="Lokale lys" name="LocalLights"/>
 		<check_box initial_value="true" label="Basale flader" name="BasicShaders" tool_tip="Ved at slå dette valg fra, kan det forhindres at visse grafikkort drivere crasher."/>
 		<check_box initial_value="true" label="Atmosfæriske flader" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="sand" label="Lys og skygger" name="UseLightShaders"/>
+		<check_box initial_value="sand" label="&quot;Ambient Occlusion&quot;" name="UseSSAO"/>
+		<check_box initial_value="sand" label="Skarphedsdybde" name="UseDoF"/>
+		<text name="shadows_label">
+			Skygger:
+		</text>
+		<combo_box name="ShadowDetail">
+			<combo_box.item label="Ingen" name="0"/>
+			<combo_box.item label="Sol/Måne" name="1"/>
+			<combo_box.item label="Sol/Måne + Projektorer" name="2"/>
+		</combo_box>
 		<text name="reflection_label">
 			Reflektioner i vand:
 		</text>
@@ -40,6 +52,10 @@
 			<combo_box.item label="Alle avatarer og objekter" name="3"/>
 			<combo_box.item label="Alt" name="4"/>
 		</combo_box>
+		<slider label="Avatar fysik:" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			Lav
+		</text>
 		<slider label="Maks. visnings-afstand:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -78,7 +94,7 @@
 			Lav
 		</text>
 		<text name="AvatarRenderingText">
-			Avatar gengivelse
+			Avatar rendering:
 		</text>
 		<check_box initial_value="true" label="Mini-figurer på lang afstand" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Hardware Skinning" name="AvatarVertexProgram"/>

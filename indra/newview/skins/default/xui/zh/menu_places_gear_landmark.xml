@@ -15,5 +15,5 @@
 	<menu_item_call label="展開全部資料夾" name="expand_all"/>
 	<menu_item_call label="摺疊全部資料夾" name="collapse_all"/>
 	<menu_item_check label="依日期排序" name="sort_by_date"/>
-	<menu_item_call label="Create Pick" name="create_pick"/>
+	<menu_item_call label="建立精選地點" name="create_pick"/>
 </toggleable_menu>

@@ -5,7 +5,9 @@
 	</panel.string>
 	<slider label="Generel" name="System Volume"/>
 	<check_box initial_value="true" name="mute_when_minimized"/>
-	<text name="mute_chb_label">Sluk lyd når minimeret</text>
+	<text name="mute_chb_label">
+		Sluk for lyd når minimeret
+	</text>
 	<slider label="Knapper" name="UI Volume"/>
 	<slider label="Omgivelser" name="Wind Volume"/>
 	<slider label="Lyd effekter" name="SFX Volume"/>

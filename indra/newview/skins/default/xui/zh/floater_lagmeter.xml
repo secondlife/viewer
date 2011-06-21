@@ -115,7 +115,7 @@
 		可能原因：地區有太多移動的人
 	</floater.string>
 	<floater.string name="server_images_cause_msg">
-		可能原因：太多影像計算
+		可能原因：太多圖像計算
 	</floater.string>
 	<floater.string name="server_generic_cause_msg">
 		可能原因：模擬器負載過重

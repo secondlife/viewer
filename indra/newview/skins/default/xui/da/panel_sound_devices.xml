@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Opsætning for udstyr" name="device_settings_panel">
+	<panel.string name="default_text">
+		Standard
+	</panel.string>
+	<text name="Input">
+		Input
+	</text>
+	<text name="My volume label">
+		Min lydstyrke:
+	</text>
+	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Ændre lydstyrke med denne skyder"/>
+	<text name="wait_text">
+		Vent venligst
+	</text>
+	<text name="Output">
+		Output
+	</text>
+</panel>

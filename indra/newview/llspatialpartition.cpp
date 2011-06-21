@@ -35,6 +35,7 @@
 #include "llvolumeoctree.h"
 #include "llviewercamera.h"
 #include "llface.h"
+#include "llfloatertools.h"
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llcamera.h"
@@ -69,6 +70,7 @@ U32 LLSpatialGroup::sNodeCount = 0;
 
 std::set<GLuint> LLSpatialGroup::sPendingQueries;
 
+U32 gOctreeMaxCapacity;
 
 BOOL LLSpatialGroup::sNoDelete = FALSE;
 
@@ -630,7 +632,7 @@ BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 	if (mOctreeNode->isInside(drawablep->getPositionGroup()) && 
 		(mOctreeNode->contains(drawablep) ||
 		 (drawablep->getBinRadius() > mOctreeNode->getSize()[0] &&
-				parent && parent->getElementCount() >= LL_OCTREE_MAX_CAPACITY)))
+				parent && parent->getElementCount() >= gOctreeMaxCapacity)))
 	{
 		unbound();
 		setState(OBJECT_DIRTY);
@@ -689,17 +691,8 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
 void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 {
-	/*if (!gPipeline.hasRenderType(mDrawableType))
-	{
-		return;
-	}*/
-
 	if (group->isDead() || !group->isState(LLSpatialGroup::GEOM_DIRTY))
 	{
-		/*if (!group->isState(LLSpatialGroup::GEOM_DIRTY) && mRenderByGroup)
-		{
-			llerrs << "WTF?" << llendl;
-		}*/
 		return;
 	}
 
@@ -961,21 +954,15 @@ void LLSpatialGroup::setState(U32 state)
 { 
 	mState |= state; 
 	
-	if (state > LLSpatialGroup::STATE_MASK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	llassert(state <= LLSpatialGroup::STATE_MASK);
 }	
 
 void LLSpatialGroup::setState(U32 state, S32 mode) 
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
-	if (state > LLSpatialGroup::STATE_MASK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
-
+	llassert(state <= LLSpatialGroup::STATE_MASK);
+	
 	if (mode > STATE_MODE_SINGLE)
 	{
 		if (mode == STATE_MODE_DIFF)
@@ -1021,20 +1008,14 @@ public:
 
 void LLSpatialGroup::clearState(U32 state)
 {
-	if (state > LLSpatialGroup::STATE_MASK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	llassert(state <= LLSpatialGroup::STATE_MASK);
 
 	mState &= ~state; 
 }
 
 void LLSpatialGroup::clearState(U32 state, S32 mode)
 {
-	if (state > LLSpatialGroup::STATE_MASK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	llassert(state <= LLSpatialGroup::STATE_MASK);
 
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	
@@ -1059,10 +1040,7 @@ void LLSpatialGroup::clearState(U32 state, S32 mode)
 
 BOOL LLSpatialGroup::isState(U32 state) const
 { 
-	if (state > LLSpatialGroup::STATE_MASK)
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	llassert(state <= LLSpatialGroup::STATE_MASK);
 
 	return mState & state ? TRUE : FALSE; 
 }
@@ -1250,7 +1228,8 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 {
 	if (LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
-		llerrs << "WTF?" << llendl;
+		llwarns << "Attempted to update distance for camera other than world camera!" << llendl;
+		return;
 	}
 
 #if !LL_RELEASE_FOR_DOWNLOAD
@@ -2064,11 +2043,8 @@ public:
 
 	virtual void processGroup(LLSpatialGroup* group)
 	{
-		if (group->isState(LLSpatialGroup::DIRTY) || group->getData().empty())
-		{
-			llerrs << "WTF?" << llendl;
-		}
-
+		llassert(!group->isState(LLSpatialGroup::DIRTY) && !group->getData().empty())
+		
 		if (mRes < 2)
 		{
 			if (mCamera->AABBInFrustum(group->mObjectBounds[0], group->mObjectBounds[1]) > 0)
@@ -2541,7 +2517,7 @@ void renderOctree(LLSpatialGroup* group)
 	//coded by buffer usage and activity
 	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 	LLVector4 col;
-	if (group->mBuilt > 0.f)
+	/*if (group->mBuilt > 0.f)
 	{
 		group->mBuilt -= 2.f * gFrameIntervalSeconds;
 		if (group->mBufferUsage == GL_STATIC_DRAW_ARB)
@@ -2610,7 +2586,7 @@ void renderOctree(LLSpatialGroup* group)
 			gGL.color4f(1,1,1,1);
 		}
 	}
-	else
+	else*/
 	{
 		if (group->mBufferUsage == GL_STATIC_DRAW_ARB && !group->getData().empty() 
 			&& group->mSpatialPartition->mRenderByGroup)
@@ -2630,33 +2606,24 @@ void renderOctree(LLSpatialGroup* group)
 	size.mul(1.01f);
 	size.add(fudge);
 
-	{
-		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-		drawBox(group->mObjectBounds[0], fudge);
-	}
+	//{
+	//	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+	//	drawBox(group->mObjectBounds[0], fudge);
+	//}
 	
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-	if (group->mBuilt <= 0.f)
+	//if (group->mBuilt <= 0.f)
 	{
 		//draw opaque outline
-		gGL.color4f(col.mV[0], col.mV[1], col.mV[2], 1.f);
-		drawBoxOutline(group->mObjectBounds[0], group->mObjectBounds[1]);
+		//gGL.color4f(col.mV[0], col.mV[1], col.mV[2], 1.f);
+		//drawBoxOutline(group->mObjectBounds[0], group->mObjectBounds[1]);
 
-		if (group->mOctreeNode->isLeaf())
-		{
-			gGL.color4f(1,1,1,1);
-		}
-		else
-		{
-			gGL.color4f(0,1,1,1);
-		}
-						
+		gGL.color4f(0,1,1,1);
 		drawBoxOutline(group->mBounds[0],group->mBounds[1]);
-
-
+		
 		//draw bounding box for draw info
-		if (group->mSpatialPartition->mRenderByGroup)
+		/*if (group->mSpatialPartition->mRenderByGroup)
 		{
 			gGL.color4f(1.0f, 0.75f, 0.25f, 0.6f);
 			for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
@@ -2673,7 +2640,7 @@ void renderOctree(LLSpatialGroup* group)
 					drawBoxOutline(center, size);
 				}
 			}
-		}
+		}*/
 	}
 	
 //	LLSpatialGroup::OctreeNode* node = group->mOctreeNode;
@@ -2716,7 +2683,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 			gGL.color4f(0.f, 0.75f, 0.f, 0.5f);
 			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
 		}
-		else if (camera && group->mOcclusionVerts.notNull())
+		/*else if (camera && group->mOcclusionVerts.notNull())
 		{
 			LLVertexBuffer::unbind();
 			group->mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
@@ -2728,7 +2695,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 			glColor4f(1.0f, 1.f, 1.f, 1.0f);
 			group->mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, group->mBounds[0]));
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
+		}*/
 	}
 }
 
@@ -3002,13 +2969,6 @@ void render_hull(LLModel::PhysicsMesh& mesh, const LLColor4& color, const LLColo
 
 void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 {
-	if (volume->isSelected())
-	{
-		LLVector3 construct_me(5,5,5);
-		construct_me.normalize();
-	}
-
-	
 	U8 physics_type = volume->getPhysicsShapeType();
 
 	if (physics_type == LLViewerObject::PHYSICS_SHAPE_NONE || volume->isFlexible())
@@ -3473,6 +3433,8 @@ void renderTextureAnim(LLDrawInfo* params)
 
 void renderBatchSize(LLDrawInfo* params)
 {
+	LLGLEnable offset(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(-1.f, 1.f);
 	glColor3ubv((GLubyte*) &(params->mDebugColor));
 	pushVerts(params, LLVertexBuffer::MAP_VERTEX);
 }
@@ -3910,6 +3872,28 @@ public:
 				renderAgentTarget(avatar);
 			}
 			
+			if (gDebugGL)
+			{
+				for (U32 i = 0; i < drawable->getNumFaces(); ++i)
+				{
+					LLFace* facep = drawable->getFace(i);
+					U8 index = facep->getTextureIndex();
+					if (facep->mDrawInfo)
+					{
+						if (index < 255)
+						{
+							if (facep->mDrawInfo->mTextureList.size() <= index)
+							{
+								llerrs << "Face texture index out of bounds." << llendl;
+							}
+							else if (facep->mDrawInfo->mTextureList[index] != facep->getTexture())
+							{
+								llerrs << "Face texture index incorrect." << llendl;
+							}
+						}
+					}
+				}
+			}
 		}
 		
 		for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
@@ -4282,7 +4266,29 @@ public:
 			if (vobj)
 			{
 				LLVector3 intersection;
-				if (vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal))
+				bool skip_check = false;
+				if (vobj->isAvatar())
+				{
+					LLVOAvatar* avatar = (LLVOAvatar*) vobj;
+					if (avatar->isSelf() && LLFloater::isVisible(gFloaterTools))
+					{
+						LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal);
+						if (hit)
+						{
+							mEnd = intersection;
+							if (mIntersection)
+							{
+								*mIntersection = intersection;
+							}
+							
+							mHit = hit->mDrawable;
+							skip_check = true;
+						}
+
+					}
+				}
+
+				if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal))
 				{
 					mEnd = intersection;  // shorten ray so we only find CLOSER hits
 					if (mIntersection)

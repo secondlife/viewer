@@ -11,7 +11,7 @@
 		預覽
 	</text>
 	<text name="current_url_label">
-		Current Page:
+		目前頁面：
 	</text>
 	<text name="current_url" tool_tip="The current page for this media source" value=""/>
 	<button label="Reset" name="current_url_reset_btn"/>

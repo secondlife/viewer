@@ -14,5 +14,5 @@
 	</text>
 	<button label="儲存" name="save_btn" tool_tip="Save your new Display Name"/>
 	<button label="Reset" name="reset_btn" tool_tip="Make Display Name the same as Username"/>
-	<button label="取銷" name="cancel_btn"/>
+	<button label="取消" name="cancel_btn"/>
 </floater>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Invite a Member" name="invite_panel">
+<panel label="邀請一個成員" name="invite_panel">
 	<panel.string name="confirm_invite_owner_str">
 		Are you sure you want to invite new owner(s)? This action is permanent!
 	</panel.string>
@@ -19,8 +19,8 @@
 		Choose what Role to assign them to:
 	</text>
 	<combo_box name="role_name" tool_tip="Choose from the list of Roles you are allowed to assign members to"/>
-	<button label="Send Invitations" name="ok_button"/>
-	<button label="取銷" name="cancel_button"/>
+	<button label="送出邀請" name="ok_button"/>
+	<button label="取消" name="cancel_button"/>
 	<string name="GroupInvitation">
 		社團邀請
 	</string>

@@ -68,23 +68,6 @@ void upload_new_resource(
 	S32 expected_upload_cost,
 	void *userdata);
 
-// TODO* : Move all uploads to use this new function
-// since at some point, that upload path will be deprecated and no longer
-// used
-
-// We make a new function here to ensure that previous code is not broken
-BOOL upload_new_variable_price_resource(
-	const LLTransactionID& tid, 
-	LLAssetType::EType type,
-	std::string name,
-	std::string desc, 
-	LLFolderType::EType destination_folder_type,
-	LLInventoryType::EType inv_type,
-	U32 next_owner_perms,
-	U32 group_perms,
-	U32 everyone_perms,
-	const std::string& display_name,
-	const LLSD& asset_resources);
 
 LLAssetID generate_asset_id_for_new_upload(const LLTransactionID& tid);
 void increase_new_upload_stats(LLAssetType::EType asset_type);

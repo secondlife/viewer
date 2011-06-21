@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Farver" name="colors_panel">
 	<text name="effects_color_textbox">
-		Mine effekter (selektions-stråle):
+		Mine effekter (selektions pejlelys):
 	</text>
-	<color_swatch name="effect_color_swatch" tool_tip="Klik for at åbne farve-vælger"/>
+	<color_swatch name="effect_color_swatch" tool_tip="Klik for at åbne farvevælger"/>
 	<text name="font_colors">
-		Chat bogstavsfarver:
+		Vælg font farver:
 	</text>
 	<text name="text_box1">
 		Mig
@@ -22,6 +22,9 @@
 	<text name="text_box5">
 		Fejl
 	</text>
+	<text name="text_box10">
+		Direkte
+	</text>
 	<text name="text_box7">
 		Ejer
 	</text>
@@ -29,12 +32,12 @@
 		URL&apos;er
 	</text>
 	<text name="bubble_chat">
-		Baggrundsfarve til navne-skilt (berører også Bubble Chat):
+		Navneskilt baggrundsfarve (påvirker også chat talebobler):
 	</text>
-	<color_swatch name="background" tool_tip="Vælg farve til navne-skilt"/>
-	<slider label="Uigennemsigtighed:" name="bubble_chat_opacity" tool_tip="Vælg gennemsigtighed for navneskilt"/>
+	<color_swatch name="background" tool_tip="Vælg navneskilt farve"/>
+	<slider label="Gennemsigtighed:" name="bubble_chat_opacity" tool_tip="Vælg navneskilt gennemsigtighed"/>
 	<text name="floater_opacity">
-		Vindue uigennemsigtighed:
+		Floater gennemsigtighed:
 	</text>
 	<slider label="Aktiv:" name="active"/>
 	<slider label="Inaktiv:" name="inactive"/>

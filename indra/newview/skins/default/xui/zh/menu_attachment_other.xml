@@ -8,10 +8,10 @@
 	<menu_item_call label="邀請加入社團" name="Invite..."/>
 	<menu_item_call label="封鎖" name="Avatar Mute"/>
 	<menu_item_call label="回報" name="abuse"/>
-	<menu_item_call label="Freeze" name="Freeze..."/>
-	<menu_item_call label="Eject" name="Eject..."/>
+	<menu_item_call label="凍結" name="Freeze..."/>
+	<menu_item_call label="踢出" name="Eject..."/>
 	<menu_item_call label="材質除錯" name="Debug..."/>
 	<menu_item_call label="Zoom In" name="Zoom In"/>
-	<menu_item_call label="Pay" name="Pay..."/>
+	<menu_item_call label="支付" name="Pay..."/>
 	<menu_item_call label="物件檔案" name="Object Inspect"/>
 </context_menu>

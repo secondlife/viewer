@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="WindLight floater" title="ADVANCED SKY EDITOR">
+<floater name="WindLight floater" title="進階天空編輯器">
 	<floater.string name="WLDefaultSkyNames">
 		A-12AM:A-12PM:A-3AM:A-3PM:A-4.30PM:A-6AM:A-6PM:A-9AM:A-9PM:Barcelona:Blizzard:Blue Midday:Coastal Afternoon:Coastal Sunset:Default:Desert Sunset:Fine Day:Fluffy Big Clouds:Foggy:Funky Funky:Funky Funky Funky:Gelatto:Ghost:Incongruent Truths:Midday 1:Midday 2:Midday 3:Midday 4:Night:Pirate:Purple:Sailor&apos;s Delight:Sheer Sensuality
 	</floater.string>
 	<text name="KeyFramePresetsText">
 		Sky Presets:
 	</text>
-	<button label="New" label_selected="New" name="WLNewPreset"/>
+	<button label="新增" label_selected="新增" name="WLNewPreset"/>
 	<button label="儲存" label_selected="儲存" name="WLSavePreset"/>
 	<button label="刪除" label_selected="刪除" name="WLDeletePreset"/>
 	<button label="Day Cycle Editor" label_selected="Day Cycle Editor" name="WLDayCycleMenuButton"/>

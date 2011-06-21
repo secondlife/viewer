@@ -22,6 +22,9 @@
 	<text name="text_box5">
 		Fehler
 	</text>
+	<text name="text_box10">
+		Direkt
+	</text>
 	<text name="text_box7">
 		Eigentümer
 	</text>

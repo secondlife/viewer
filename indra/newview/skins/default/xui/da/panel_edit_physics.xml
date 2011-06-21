@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_physics_panel">
+	<panel label="" name="accordion_panel">
+		<accordion name="physics_accordion">
+			<accordion_tab name="physics_breasts_updown_tab" title="Bryst fasthed"/>
+			<accordion_tab name="physics_breasts_inout_tab" title="Kavalergang"/>
+			<accordion_tab name="physics_breasts_leftright_tab" title="Bryst sving"/>
+			<accordion_tab name="physics_belly_tab" title="Mave fasthed"/>
+			<accordion_tab name="physics_butt_tab" title="Bagdel fasthed"/>
+			<accordion_tab name="physics_butt_leftright_tab" title="Bagdel sving"/>
+			<accordion_tab name="physics_advanced_tab" title="Avancerede parametre"/>
+		</accordion>
+	</panel>
+</panel>

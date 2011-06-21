@@ -19,5 +19,5 @@
 	<filter_editor label="材質過濾器" name="inventory search editor"/>
 	<check_box initial_value="false" label="顯示資料夾" name="show_folders_check"/>
 	<button label="確定" label_selected="確定" name="Select"/>
-	<button label="取銷" label_selected="取銷" name="Cancel"/>
+	<button label="取消" label_selected="取消" name="Cancel"/>
 </floater>

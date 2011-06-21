@@ -15,13 +15,13 @@ Textures
 			</text>
 			<button label="Dump IDs to Console" label_selected="Dump" name="Dump"/>
 			<panel name="scroll_content_panel">
-				<texture_picker label="Hair" name="hair-baked"/>
-				<texture_picker label="Hair" name="hair_grain"/>
+				<texture_picker label="頭髮" name="hair-baked"/>
+				<texture_picker label="頭髮" name="hair_grain"/>
 				<texture_picker label="Hair Alpha" name="hair_alpha"/>
-				<texture_picker label="Head" name="head-baked"/>
+				<texture_picker label="頭部" name="head-baked"/>
 				<texture_picker label="Makeup" name="head_bodypaint"/>
 				<texture_picker label="Head Alpha" name="head_alpha"/>
-				<texture_picker label="Head Tattoo" name="head_tattoo"/>
+				<texture_picker label="頭部刺青" name="head_tattoo"/>
 				<texture_picker label="眼睛" name="eyes-baked"/>
 				<texture_picker label="眼睛" name="eyes_iris"/>
 				<texture_picker label="Eyes Alpha" name="eyes_alpha"/>

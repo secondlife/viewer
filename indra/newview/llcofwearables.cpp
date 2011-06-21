@@ -317,7 +317,6 @@ BOOL LLCOFWearables::postBuild()
 	mAttachments->setComparator(&WEARABLE_NAME_COMPARATOR);
 	mBodyParts->setComparator(&WEARABLE_NAME_COMPARATOR);
 
-
 	mClothingTab = getChild<LLAccordionCtrlTab>("tab_clothing");
 	mClothingTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
 
@@ -498,6 +497,10 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 	{
 		mAttachments->sort();
 		mAttachments->notify(REARRANGE); //notifying the parent about the list's size change (cause items were added with rearrange=false)
+	}
+	else
+	{
+		mAttachments->setNoItemsCommentText(LLTrans::getString("no_attachments"));
 	}
 
 	if (mBodyParts->size())

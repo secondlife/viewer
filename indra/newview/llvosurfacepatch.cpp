@@ -375,6 +375,8 @@ void LLVOSurfacePatch::updateMainGeometry(LLFace *facep,
 	S32 num_vertices, num_indices;
 	U32 index;
 
+	llassert(mLastStride > 0);
+
 	render_stride = mLastStride;
 	patch_size = mPatchp->getSurface()->getGridsPerPatchEdge();
 	S32 vert_size = patch_size / render_stride;

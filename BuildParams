@@ -102,6 +102,16 @@ mesh-development.build_CYGWIN_Debug = false
 mesh-development.build_viewer_update_version_manager = false
 
 # ========================================
+# mesh-asset-deprecation
+# ========================================
+mesh-asset-deprecation.viewer_channel = "Project Viewer - Mesh Asset Deprecation"
+mesh-asset-deprecation.login_channel = "Project Viewer - Mesh Asset Deprecation"
+mesh-asset-deprecation.viewer_grid = aditi
+mesh-asset-deprecation.build_debug_release_separately = true
+mesh-asset-deprecation.build_CYGWIN_Debug = false
+mesh-asset-deprecation.build_viewer_update_version_manager = false
+
+# ========================================
 # viewer-mesh
 # ========================================
 
@@ -177,9 +187,10 @@ oz_viewer-devreview.build_debug_release_separately = true
 oz_project-1.build_debug_release_separately = true
 oz_project-2.build_debug_release_separately = true
 oz-project-3.build_debug_release_separately = true
-
-
 oz_viewer-beta-review.build_debug_release_separately = true
+oz_viewer-poreview.build_debug_release_separately = true
+oz_viewer-poreview.codeticket_add_context = false
+
 # ========================================
 # enus
 # ========================================

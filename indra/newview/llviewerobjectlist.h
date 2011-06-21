@@ -102,9 +102,10 @@ public:
 									F32 restitution,
 									F32 gravity_multiplier);
 
-	void updateQuotaCost( const LLUUID& objectId, const SelectionQuota& costs );
+	void updateQuota( const LLUUID& objectId, const SelectionQuota& costs );
 	
 	void shiftObjects(const LLVector3 &offset);
+	void repartitionObjects();
 
 	bool hasMapObjectInRegion(LLViewerRegion* regionp) ;
 	void clearAllMapObjectsInRegion(LLViewerRegion* regionp) ;

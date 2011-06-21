@@ -7,14 +7,14 @@
 		Offline
 	</string>
 	<text name="display_name_label" value="Display Name:"/>
-	<text name="solo_username_label" value="Username:"/>
+	<text name="solo_username_label" value="使用者名稱："/>
 	<text name="status" value="Online"/>
 	<text name="user_name_small" value="Jack oh look at me this is a super duper long name"/>
 	<button name="copy_to_clipboard" tool_tip="覆製到剪貼簿"/>
-	<text name="user_label" value="Username:"/>
+	<text name="user_label" value="使用者名稱："/>
 	<tab_container name="tabs">
 		<panel label="檔案" name="panel_profile"/>
-		<panel label="PICKS" name="panel_picks"/>
+		<panel label="精選地點" name="panel_picks"/>
 		<panel label="NOTES &amp; PRIVACY" name="panel_notes"/>
 	</tab_container>
 </panel>

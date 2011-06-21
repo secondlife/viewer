@@ -9,7 +9,7 @@
 		<radio_item label="大" name="radio3" value="2"/>
 	</radio_group>
 	<check_box initial_value="true" label="聊天時播放打字動作" name="play_typing_animation"/>
-	<check_box label="Email me IMs when I&apos;m offline" name="send_im_to_email"/>
+	<check_box label="當我離線時將收到的 IM 訊息郵寄給我" name="send_im_to_email"/>
 	<check_box label="Enable plain text IM and chat history" name="plain_text_chat_history"/>
 	<check_box label="聊天泡泡" name="bubble_text_chat"/>
 	<text name="show_ims_in_label">
@@ -18,7 +18,7 @@
 	<text name="requires_restart_label">
 		（須重新啟動）
 	</text>
-	<radio_group name="chat_window" tool_tip="Show your Instant Messages in separate floaters, or in one floater with many tabs (Requires restart)">
+	<radio_group name="chat_window" tool_tip="顯示你的即時訊息在分開的浮動視窗，或是使用很多頁籤的單一浮動視窗（須重新啟動）">
 		<radio_item label="分開視窗" name="radio" value="0"/>
 		<radio_item label="頁籤" name="radio2" value="1"/>
 	</radio_group>
@@ -33,7 +33,7 @@
 		Use machine translation while chatting (powered by Google)
 	</text>
 	<text name="translate_language_text">
-		Translate chat into:
+		聊天翻譯為：
 	</text>
 	<combo_box name="translate_language_combobox">
 		<combo_box.item label="系統預設" name="System Default Language"/>

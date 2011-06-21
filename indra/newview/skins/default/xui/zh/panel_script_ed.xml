@@ -10,10 +10,10 @@
 		Public Objects cannot run scripts
 	</panel.string>
 	<panel.string name="script_running">
-		Running
+		執行中
 	</panel.string>
 	<panel.string name="Title">
-		Script: [NAME]
+		腳本：[NAME]
 	</panel.string>
 	<panel.string name="external_editor_not_set">
 		Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.
@@ -30,7 +30,7 @@
 			<menu_item_call label="覆製" name="Copy"/>
 			<menu_item_call label="貼上" name="Paste"/>
 			<menu_item_call label="全選" name="Select All"/>
-			<menu_item_call label="取銷選擇" name="Deselect"/>
+			<menu_item_call label="取消選擇" name="Deselect"/>
 			<menu_item_call label="搜尋 / 取代..." name="Search / Replace..."/>
 		</menu>
 		<menu label="幫助" name="Help">

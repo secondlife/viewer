@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="REGION MEMORY" name="script_limits_region_memory_panel">
+<panel label="地區記憶體" name="script_limits_region_memory_panel">
 	<text name="script_memory">
-		Parcel Script Memory
+		地段腳本記憶體
 	</text>
 	<text name="loading_text">
 		載入中...
@@ -10,11 +10,11 @@
 		<scroll_list.columns label="尺寸（kb）" name="size"/>
 		<scroll_list.columns label="URLs" name="urls"/>
 		<scroll_list.columns label="物件名稱" name="name"/>
-		<scroll_list.columns label="Object Owner" name="owner"/>
+		<scroll_list.columns label="物件擁有者" name="owner"/>
 		<scroll_list.columns label="地段" name="parcel"/>
-		<scroll_list.columns label="Location" name="location"/>
+		<scroll_list.columns label="位置" name="location"/>
 	</scroll_list>
 	<button label="Refresh List" name="refresh_list_btn"/>
 	<button label="Highlight" name="highlight_btn"/>
-	<button label="Return" name="return_btn"/>
+	<button label="退回" name="return_btn"/>
 </panel>
