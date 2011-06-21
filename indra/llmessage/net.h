@@ -27,6 +27,9 @@
 #ifndef LL_NET_H					
 #define LL_NET_H
 
+#include "lliosocket.h"
+#include "llapr.h"
+
 class LLTimer;
 class LLHost;
 
@@ -52,10 +55,10 @@ U32		get_sender_ip(void);
 LLHost	get_receiving_interface();
 U32		get_receiving_interface_ip(void);
 
-// Some helpful tcp functions added for the socks 5 proxy support
-S32 tcp_open_channel(LLHost host); // Open a tcp channel to a given host
-void tcp_close_channel(S32 handle); // Close an open tcp channel
-int tcp_handshake(S32 handle, char * dataout, int outlen, char * datain, int maxinlen); // Do a TCP data handshake
+// Some helpful TCP functions
+LLSocket::ptr_t tcp_open_channel(LLHost host); // Open a TCP channel to a given host
+void tcp_close_channel(LLSocket::ptr_t handle); // Close an open TCP channel
+int tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
 
 const char*	u32_to_ip_string(U32 ip);					// Returns pointer to internal string buffer, "(bad IP addr)" on failure, cannot nest calls 
 char*		u32_to_ip_string(U32 ip, char *ip_string);	// NULL on failure, ip_string on success, you must allocate at least MAXADDRSTR chars

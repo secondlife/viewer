@@ -46,9 +46,9 @@
 #define	MAXHOSTNAMELEN (255 + 1) /* socks5: 255, +1 for len. */
 #endif
 
-#define SOCKS_VERSION 0x05 // we are using socks 5
+#define SOCKS_VERSION 0x05 // we are using SOCKS 5
 
-// socks 5 address/hostname types
+// SOCKS 5 address/hostname types
 #define ADDRESS_IPV4     0x01
 #define ADDRESS_HOSTNAME 0x03
 #define ADDRESS_IPV6     0x04
@@ -56,16 +56,16 @@
 // Lets just use our own ipv4 struct rather than dragging in system
 // specific headers
 union ipv4_address_t {
-	unsigned char octets[4];
-	U32 addr32;
+	U8		octets[4];
+	U32		addr32;
 };
 
-// Socks 5 control channel commands
+// SOCKS 5 control channel commands
 #define COMMAND_TCP_STREAM    0x01
 #define COMMAND_TCP_BIND      0x02
 #define COMMAND_UDP_ASSOCIATE 0x03
 
-// Socks 5 command replys
+// SOCKS 5 command replies
 #define REPLY_REQUEST_GRANTED     0x00
 #define REPLY_GENERAL_FAIL        0x01
 #define REPLY_RULESET_FAIL        0x02
@@ -78,61 +78,61 @@ union ipv4_address_t {
 
 #define FIELD_RESERVED 0x00
 
-// The standard socks5 request packet
+// The standard SOCKS 5 request packet
 // Push current alignment to stack and set alignment to 1 byte boundary
 // This enabled us to use structs directly to set up and receive network packets
 // into the correct fields, without fear of boundary alignment causing issues
 #pragma pack(push,1)
 
-// Socks5 command packet
+// SOCKS 5 command packet
 struct socks_command_request_t {
-	unsigned char version;
-	unsigned char command;
-	unsigned char flag;
-	unsigned char atype;
-	U32           address;
-	U16           port;
+	U8		version;
+	U8		command;
+	U8		reserved;
+	U8		atype;
+	U32		address;
+	U16		port;
 };
 
-// Standard socks5 reply packet
+// Standard SOCKS 5 reply packet
 struct socks_command_response_t {
-	unsigned char version;
-	unsigned char reply;
-	unsigned char flag;
-	unsigned char atype;
-	unsigned char add_bytes[4];
-	U16           port;
+	U8		version;
+	U8		reply;
+	U8		reserved;
+	U8		atype;
+	U8		add_bytes[4];
+	U16		port;
 };
 
 #define AUTH_NOT_ACCEPTABLE 0xFF // reply if preferred methods are not available
 #define AUTH_SUCCESS        0x00 // reply if authentication successful
 
-// socks 5 authentication request, stating which methods the client supports
+// SOCKS 5 authentication request, stating which methods the client supports
 struct socks_auth_request_t {
-	unsigned char version;
-	unsigned char num_methods;
-	unsigned char methods; // We are only using a single method currently
+	U8		version;
+	U8		num_methods;
+	U8		methods; // We are only using a single method currently
 };
 
-// socks 5 authentication response packet, stating server prefered method
+// SOCKS 5 authentication response packet, stating server preferred method
 struct socks_auth_response_t {
-	unsigned char version;
-	unsigned char method;
+	U8		version;
+	U8		method;
 };
 
-// socks 5 password reply packet
+// SOCKS 5 password reply packet
 struct authmethod_password_reply_t {
-	unsigned char version;
-	unsigned char status;
+	U8		version;
+	U8		status;
 };
 
-// socks 5 UDP packet header
+// SOCKS 5 UDP packet header
 struct proxywrap_t {
-	U16 rsv;
-	U8  frag;
-	U8  atype;
-	U32 addr;
-	U16 port;
+	U16		rsv;
+	U8		frag;
+	U8		atype;
+	U32		addr;
+	U16		port;
 };
 
 #pragma pack(pop) /* restore original alignment from stack */
@@ -158,62 +158,62 @@ class LLSocks: public LLSingleton<LLSocks>
 public:
 	LLSocks();
 
-	// Start a connection to the socks 5 proxy
-	int startProxy(std::string host,U32 port);
-	int startProxy(LLHost proxy,U32 messagePort);
+	// Start a connection to the SOCKS 5 proxy
+	int startProxy(std::string host, U32 port);
+	int startProxy(LLHost proxy, U32 messagePort);
 
-	// Disconnect and clean up any connection to the socks 5 proxy
+	// Disconnect and clean up any connection to the SOCKS 5 proxy
 	void stopProxy();
 
-	// Set up to use Password auth when connecting to the socks proxy
-	void setAuthPassword(std::string username,std::string password);
+	// Set up to use Password auth when connecting to the SOCKS proxy
+	void setAuthPassword(std::string username, std::string password);
 
-	// Set up to use No Auth when connecting to the socks proxy
+	// Set up to use No Auth when connecting to the SOCKS proxy
 	void setAuthNone();
 
 	// get the currently selected auth method
 	LLSocks5AuthType getSelectedAuthMethod() const { return mAuthMethodSelected; }
 
 	// static check for enabled status for UDP packets
-	static bool isEnabled() { return sUdpProxyEnabled; }
+	static bool isEnabled() { return sUDPProxyEnabled; }
 
 	// static check for enabled status for http packets
-	static bool isHttpProxyEnabled() { return sHttpProxyEnabled; }
+	static bool isHTTPProxyEnabled() { return sHTTPProxyEnabled; }
 
-	// Proxy http packets via httpHost, which can be a Socks5 or a http proxy
+	// Proxy HTTP packets via httpHost, which can be a SOCKS 5 or a HTTP proxy
 	// as specified in type
-	void enableHttpProxy(LLHost httpHost, LLHttpProxyType type);
+	void enableHTTPProxy(LLHost httpHost, LLHttpProxyType type);
 
-	// Stop proxying http packets
-	void disableHttpProxy() { sHttpProxyEnabled = false; };
+	// Stop proxying HTTP packets
+	void disableHTTPProxy() { sHTTPProxyEnabled = false; };
 
 	// Get the UDP proxy address and port
 	LLHost getUDPProxy() const { return mUDPProxy; }
 
-	// Get the socks 5 TCP control channel address and port
+	// Get the SOCKS 5 TCP control channel address and port
 	LLHost getTCPProxy() const { return mTCPProxy; }
 
-	// Get the http proxy address and port
+	// Get the HTTP proxy address and port
 	LLHost getHTTPProxy() const { return mHTTPProxy; }
 
-	// Get the currently selected http proxy type
-	LLHttpProxyType getHttpProxyType() const { return mProxyType; }
+	// Get the currently selected HTTP proxy type
+	LLHttpProxyType getHTTPProxyType() const { return mProxyType; }
 
 	// Get the username password in a curl compatible format
 	std::string getProxyUserPwd() const { return (mSocksUsername + ":" + mSocksPassword); }
 
 private:
 
-	// Open a communication channel to the socks5 proxy proxy, at port messagePort
-	int proxyHandshake(LLHost proxy,U32 messagePort);
+	// Open a communication channel to the SOCKS 5 proxy proxy, at port messagePort
+	int proxyHandshake(LLHost proxy, U32 messagePort);
 
-	// socket handle to proxy tcp control channel
-	S32 mProxyControlChannel;
+	// socket handle to proxy TCP control channel
+	LLSocket::ptr_t mProxyControlChannel;
 
 	// is the UDP proxy enabled?
-	static bool sUdpProxyEnabled;
+	static bool sUDPProxyEnabled;
 	// is the http proxy enabled?
-	static bool sHttpProxyEnabled;
+	static bool sHTTPProxyEnabled;
 
 	// currently selected http proxy type
 	LLHttpProxyType mProxyType;
@@ -225,13 +225,16 @@ private:
 	// HTTP proxy address and port
 	LLHost mHTTPProxy;
 
-	// socks 5 auth method selected
+	// SOCKS 5 auth method selected
 	LLSocks5AuthType mAuthMethodSelected;
 
-	// socks 5 username
+	// SOCKS 5 username
 	std::string mSocksUsername;
-	// socks 5 password
+	// SOCKS 5 password
 	std::string mSocksPassword;
+
+	// APR pool for the socket
+	apr_pool_t* mPool;
 };
 
 #endif

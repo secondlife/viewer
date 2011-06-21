@@ -359,13 +359,13 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 	check_curl_code(result);
 
 	//Set the CURL options for either Socks or HTTP proxy
-	if (LLSocks::getInstance()->isHttpProxyEnabled())
+	if (LLSocks::getInstance()->isHTTPProxyEnabled())
 	{
 		std::string address = LLSocks::getInstance()->getHTTPProxy().getIPString();
 		U16 port = LLSocks::getInstance()->getHTTPProxy().getPort();
 		curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_PROXY,address.c_str());
 		curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_PROXYPORT,port);
-		if (LLSocks::getInstance()->getHttpProxyType() == LLPROXY_SOCKS)
+		if (LLSocks::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
 		{
 			curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
 			if(LLSocks::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)
@@ -557,13 +557,13 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	//setopt(CURLOPT_VERBOSE, 1); // usefull for debugging
 	setopt(CURLOPT_NOSIGNAL, 1);
 
-	if (LLSocks::getInstance()->isHttpProxyEnabled())
+	if (LLSocks::getInstance()->isHTTPProxyEnabled())
 	{
 		std::string address = LLSocks::getInstance()->getHTTPProxy().getIPString();
 		U16 port = LLSocks::getInstance()->getHTTPProxy().getPort();
 		setoptString(CURLOPT_PROXY, address.c_str());
 		setopt(CURLOPT_PROXYPORT, port);
-		if (LLSocks::getInstance()->getHttpProxyType() == LLPROXY_SOCKS)
+		if (LLSocks::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
 		{
 			setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
 			if(LLSocks::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)

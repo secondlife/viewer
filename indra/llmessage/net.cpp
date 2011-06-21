@@ -189,93 +189,6 @@ U32 ip_string_to_u32(const char* ip_string)
 //////////////////////////////////////////////////////////////////////////////////////////
 
 #if LL_WINDOWS
- 
-int tcp_handshake(S32 handle, char * dataout, int outlen, char * datain, int maxinlen)
-{
-	int result;
-	result = send(handle, dataout, outlen, 0);
-	if (result != outlen)
-	{
-		S32 err = WSAGetLastError();
-		llwarns << "Error sending data to proxy control channel, number of bytes sent were " << result << " error code was " << err << llendl;
-		return -1;
-	}
-
-	result = recv(handle, datain, maxinlen, 0);
-	if (result != maxinlen)
-	{
-		S32 err = WSAGetLastError();
-		llwarns << "Error receiving data from proxy control channel, number of bytes received were " << result << " error code was " << err << llendl;
-		return -1;
-	}
-
-	return 0;
-}
-
-S32 tcp_open_channel(LLHost host)
-{
-	// Open a TCP channel
-	// Jump through some hoops to ensure that if the request hosts is down
-	// or not reachable connect() does not block
-
-	S32 handle;
-	handle = socket(AF_INET, SOCK_STREAM, 0);
-	if (INVALID_SOCKET == handle)
-	{
-		llwarns << "Error opening TCP control socket, socket() returned "
-				<< WSAGetLastError() << ", " << DecodeError(WSAGetLastError()) << llendl;
-		return -1;
-	}
-
-	struct sockaddr_in address;
-	address.sin_port        = htons(host.getPort());
-	address.sin_family      = AF_INET;
-	address.sin_addr.s_addr = host.getAddress();
-
-	// Non blocking 
-	WSAEVENT hEvent = WSACreateEvent();
-	WSAEventSelect(handle, hEvent, FD_CONNECT) ;
-	connect(handle, (struct sockaddr*)&address, sizeof(address)) ;
-	// Wait for 5 seconds, if we can't get a TCP channel open in this
-	// time frame then there is something badly wrong.
-	WaitForSingleObject(hEvent, 1000 * 5); // 5 seconds time out
-
-	WSANETWORKEVENTS netevents;
-	WSAEnumNetworkEvents(handle, hEvent, &netevents);
-
-	// Check the async event status to see if we connected
-	if ((netevents.lNetworkEvents & FD_CONNECT) == FD_CONNECT)
-	{
-		if (netevents.iErrorCode[FD_CONNECT_BIT] != 0)
-		{
-			llwarns << "Unable to open TCP channel, WSA returned an error code of " << netevents.iErrorCode[FD_CONNECT_BIT] << llendl;
-			WSACloseEvent(hEvent);
-			tcp_close_channel(handle);
-			return -1;
-		}
-
-		// Now we are connected disable non blocking
-		// we don't need support an async interface as
-		// currently our only consumer (socks5) will make one round
-		// of packets then just hold the connection open
-		WSAEventSelect(handle, hEvent, NULL) ;
-		unsigned long NonBlock = 0;
-		ioctlsocket(handle, FIONBIO, &NonBlock);
-
-		return handle;
-	}
-
-	llwarns << "Unable to open TCP channel, Timeout is the host up?" << netevents.iErrorCode[FD_CONNECT_BIT] << llendl;
-	tcp_close_channel(handle);
-	return -1;
-}
-
-void tcp_close_channel(S32 handle)
-{
-	llinfos << "Closing TCP channel" << llendl;
-	shutdown(handle, SD_BOTH);
-	closesocket(handle);
-}
 
 S32 start_net(S32& socket_out, int& nPort) 
 {			
@@ -472,79 +385,6 @@ BOOL send_packet(int hSocket, const char *sendBuffer, int size, U32 recipient, i
 //////////////////////////////////////////////////////////////////////////////////////////
 
 #else
-
-
-int tcp_handshake(S32 handle, char * dataout, int outlen, char * datain, int maxinlen)
-{
-	if (send(handle, dataout, outlen, 0) != outlen)
-	{
-		llwarns << "Error sending data to proxy control channel" << llendl;
-		return -1;
-	}
-
-	if (recv(handle, datain, maxinlen, 0) != maxinlen)
-	{
-		llwarns << "Error receiving data to proxy control channel" << llendl;		
-		return -1;
-	}
-
-	return 0;
-}
-
-S32 tcp_open_channel(LLHost host)
-{
-	S32 handle;
-	handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (-1 == handle)
-	{
-		llwarns << "Error opening TCP control socket, socket() returned " << handle << "error code: " << errno << llendl;
-		return -1;
-	}
-
-	struct sockaddr_in address;
-	address.sin_port        = htons(host.getPort());
-	address.sin_family      = AF_INET;
-	address.sin_addr.s_addr = host.getAddress();
-
-	// Set the socket to non blocking for the connect()
-	int flags = fcntl(handle, F_GETFL, 0);
-	fcntl(handle, F_SETFL, flags | O_NONBLOCK);
-
-	S32 error = connect(handle, (sockaddr*)&address, sizeof(address));
-	if (error && (errno != EINPROGRESS))
-	{
-			llwarns << "Unable to open TCP channel, error code: " << errno << llendl;
-			tcp_close_channel(handle);
-			return -1;
-	}
-
-	struct timeval timeout;
-	timeout.tv_sec  = 5; // Maximum time to wait for the connect() to complete
-	timeout.tv_usec = 0;
-	fd_set fds;
-	FD_ZERO(&fds);
-	FD_SET(handle, &fds);
-
-	// See if we have connected or time out after 5 seconds
-	S32 rc = select(sizeof(fds)*8, NULL, &fds, NULL, &timeout);
-	
-	if (rc != 1) // we require exactly one descriptor to be set
-	{
-			llwarns << "Unable to open TCP channel" << llendl;
-			tcp_close_channel(handle);
-			return -1;
-	}
-
-	// Return the socket to blocking operations
-	fcntl(handle, F_SETFL, flags);
-
-	return handle;
-}
-
-void tcp_close_channel(S32 handle)
-{
-	close(handle);
-}
 
 //  Create socket, make non-blocking
 S32 start_net(S32& socket_out, int& nPort)
@@ -823,5 +663,64 @@ BOOL send_packet(int hSocket, const char * sendBuffer, int size, U32 recipient, 
 }
 
 #endif
+
+int tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen)
+{
+	apr_socket_t* apr_socket = handle->getSocket();
+	apr_status_t rv;
+
+	apr_size_t expected_len = outlen;
+
+    apr_socket_opt_set(apr_socket, APR_SO_NONBLOCK, -5); // Blocking connection, 5 second timeout
+    apr_socket_timeout_set(apr_socket, (APR_USEC_PER_SEC * 5));
+
+	rv = apr_socket_send(apr_socket, dataout, &outlen);
+	if (rv != APR_SUCCESS || expected_len != outlen)
+	{
+		llwarns << "Error sending data to proxy control channel" << llendl;
+		ll_apr_warn_status(rv);
+		return -1;
+	}
+
+	expected_len = maxinlen;
+	do
+	{
+		rv = apr_socket_recv(apr_socket, datain, &maxinlen);
+		llinfos << "Receiving packets." << llendl;
+		llwarns << "Proxy control channel status: " << rv << llendl;
+	} while (APR_STATUS_IS_EAGAIN(rv));
+
+	if (rv != APR_SUCCESS)
+	{
+		llwarns << "Error receiving data from proxy control channel, status: " << rv << llendl;
+		llwarns << "Received " << maxinlen << " bytes." << llendl;
+		ll_apr_warn_status(rv);
+		return rv;
+	}
+	else if (expected_len != maxinlen)
+	{
+		llwarns << "Incorrect data received length in proxy control channel" << llendl;
+		return -1;
+	}
+
+	return 0;
+}
+
+LLSocket::ptr_t tcp_open_channel(LLHost host)
+{
+	LLSocket::ptr_t socket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);
+	bool connected = socket->blockingConnect(host);
+	if (!connected)
+	{
+		tcp_close_channel(socket);
+	}
+
+	return socket;
+}
+
+void tcp_close_channel(LLSocket::ptr_t handle)
+{
+	handle.reset();
+}
 
 //EOF

@@ -309,13 +309,13 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	}
 	mErrorCert = NULL;
 	
-	if (LLSocks::getInstance()->isHttpProxyEnabled())
+	if (LLSocks::getInstance()->isHTTPProxyEnabled())
 	{
 		std::string address = LLSocks::getInstance()->getHTTPProxy().getIPString();
 		U16 port = LLSocks::getInstance()->getHTTPProxy().getPort();
 		mCurlRequest->setoptString(CURLOPT_PROXY, address.c_str());
 		mCurlRequest->setopt(CURLOPT_PROXYPORT, port);
-		if (LLSocks::getInstance()->getHttpProxyType() == LLPROXY_SOCKS)
+		if (LLSocks::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
 		{
 			mCurlRequest->setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
 			if(LLSocks::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)
