@@ -423,22 +423,24 @@ void LLSidepanelInventory::performActionOnSelection(const std::string &action)
 	LLFolderViewItem* current_item = panel_main_inventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 	{
-		return;
+		LLInventoryPanel* inbox = findChild<LLInventoryPanel>("inventory_inbox");
+		if (inbox)
+		{
+			current_item = inbox->getRootFolder()->getCurSelectedItem();
+			if (!current_item)
+			{
+				return;
+			}
+		}
 	}
+
 	current_item->getListener()->performAction(panel_main_inventory->getActivePanel()->getModel(), action);
 }
 
 void LLSidepanelInventory::onWearButtonClicked()
 {
-	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
-	if (!panel_main_inventory)
-	{
-		llassert(panel_main_inventory != NULL);
-		return;
-	}
-
 	// Get selected items set.
-	const std::set<LLUUID> selected_uuids_set = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
+	const std::set<LLUUID> selected_uuids_set = LLAvatarActions::getInventorySelectedUUIDs();
 	if (selected_uuids_set.empty()) return; // nothing selected
 
 	// Convert the set to a vector.
@@ -574,34 +576,29 @@ void LLSidepanelInventory::updateVerbs()
 
 bool LLSidepanelInventory::canShare()
 {
+	bool can_share = false;
+
 	LLPanelMainInventory* panel_main_inventory =
 		mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 
-	if (!panel_main_inventory)
-	{
-		llwarns << "Failed to get the main inventory panel" << llendl;
-		return false;
-	}
+	LLInventoryPanel* inbox = findChild<LLInventoryPanel>("inventory_inbox");
 
-	LLInventoryPanel* active_panel = panel_main_inventory->getActivePanel();
+	return ( (panel_main_inventory ? LLAvatarActions::canShareSelectedItems(panel_main_inventory->getActivePanel()) : false)
+			|| (inbox ? LLAvatarActions::canShareSelectedItems(inbox) : false) );
+		
 	// Avoid flicker in the Recent tab while inventory is being loaded.
-	if (!active_panel->getRootFolder()->hasVisibleChildren()) return false;
-
-	return LLAvatarActions::canShareSelectedItems(active_panel);
+	//if (!active_panel->getRootFolder()->hasVisibleChildren()) return false;
 }
+
 
 bool LLSidepanelInventory::canWearSelected()
 {
-	LLPanelMainInventory* panel_main_inventory =
-		mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 
-	if (!panel_main_inventory)
-	{
-		llassert(panel_main_inventory != NULL);
+	std::set<LLUUID> selected_uuids = LLAvatarActions::getInventorySelectedUUIDs();
+
+	if (selected_uuids.empty())
 		return false;
-	}
 
-	std::set<LLUUID> selected_uuids = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
 	for (std::set<LLUUID>::const_iterator it = selected_uuids.begin();
 		it != selected_uuids.end();
 		++it)
@@ -618,7 +615,15 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 	LLFolderViewItem* current_item = panel_main_inventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 	{
-		return NULL;
+		LLInventoryPanel* inbox = findChild<LLInventoryPanel>("inventory_inbox");
+		if (inbox)
+		{
+			current_item = inbox->getRootFolder()->getCurSelectedItem();
+			if (!current_item)
+			{
+				return NULL;
+			}
+		}
 	}
 	const LLUUID &item_id = current_item->getListener()->getUUID();
 	LLInventoryItem *item = gInventory.getItem(item_id);
@@ -627,9 +632,20 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 
 U32 LLSidepanelInventory::getSelectedCount()
 {
+	int count = 0;
+
 	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 	std::set<LLUUID> selection_list = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
-	return selection_list.size();
+	count += selection_list.size();
+
+	LLInventoryPanel* inbox = findChild<LLInventoryPanel>("inventory_inbox");
+	if (inbox)
+	{
+		selection_list = inbox->getRootFolder()->getSelectionList();
+		count += selection_list.size();
+	}
+
+	return count;
 }
 
 LLInventoryPanel *LLSidepanelInventory::getActivePanel()
