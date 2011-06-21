@@ -35,7 +35,7 @@ owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 		http://www.superdupertest.com
 	</text>
 	<button label="購買" name="buy_btn"/>
-	<button label="Pay" name="pay_btn"/>
+	<button label="支付" name="pay_btn"/>
 	<button label="取得副本" name="take_free_copy_btn"/>
 	<button label="Touch" name="touch_btn"/>
 	<button label="Sit" name="sit_btn"/>

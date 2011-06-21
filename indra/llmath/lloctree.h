@@ -35,12 +35,14 @@
 
 #define OCT_ERRS LL_WARNS("OctreeErrors")
 
-#define LL_OCTREE_PARANOIA_CHECK 0
+
+extern U32 gOctreeMaxCapacity;
+/*#define LL_OCTREE_PARANOIA_CHECK 0
 #if LL_DARWIN
 #define LL_OCTREE_MAX_CAPACITY 32
 #else
 #define LL_OCTREE_MAX_CAPACITY 128
-#endif
+#endif*/
 
 template <class T> class LLOctreeNode;
 
@@ -74,6 +76,7 @@ template <class T>
 class LLOctreeNode : public LLTreeNode<T>
 {
 public:
+
 	typedef LLOctreeTraveler<T>									oct_traveler;
 	typedef LLTreeTraveler<T>									tree_traveler;
 	typedef typename std::set<LLPointer<T> >					element_list;
@@ -294,8 +297,8 @@ public:
 		//is it here?
 		if (isInside(data->getPositionGroup()))
 		{
-			if ((getElementCount() < LL_OCTREE_MAX_CAPACITY && contains(data->getBinRadius()) ||
-				(data->getBinRadius() > getSize()[0] &&	parent && parent->getElementCount() >= LL_OCTREE_MAX_CAPACITY))) 
+			if ((getElementCount() < gOctreeMaxCapacity && contains(data->getBinRadius()) ||
+				(data->getBinRadius() > getSize()[0] &&	parent && parent->getElementCount() >= gOctreeMaxCapacity))) 
 			{ //it belongs here
 #if LL_OCTREE_PARANOIA_CHECK
 				//if this is a redundant insertion, error out (should never happen)

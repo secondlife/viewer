@@ -209,17 +209,39 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	
 		if (features->hasWaterFog)
 		{
-			if (!shader->attachObject("lighting/lightWaterF.glsl"))
+			if (features->disableTextureIndex)
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightWaterNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else 
+			{
+				if (!shader->attachObject("lighting/lightWaterF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 		
 		else
 		{
-			if (!shader->attachObject("lighting/lightF.glsl"))
+			if (features->disableTextureIndex)
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else 
+			{
+				if (!shader->attachObject("lighting/lightF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}		
 	}
@@ -230,32 +252,76 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	
 		if (features->isShiny && features->hasWaterFog)
 		{
-			if (!shader->attachObject("lighting/lightFullbrightShinyWaterF.glsl"))
+			if (features->disableTextureIndex)
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightFullbrightShinyWaterNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else 
+			{
+				if (!shader->attachObject("lighting/lightFullbrightShinyWaterF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 		else if (features->hasWaterFog)
 		{
-			if (!shader->attachObject("lighting/lightFullbrightWaterF.glsl"))
+			if (features->disableTextureIndex)
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightFullbrightWaterNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else 
+			{
+				if (!shader->attachObject("lighting/lightFullbrightWaterF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 		
 		else if (features->isShiny)
 		{
-			if (!shader->attachObject("lighting/lightFullbrightShinyF.glsl"))
+			if (features->disableTextureIndex)
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightFullbrightShinyNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else 
+			{
+				if (!shader->attachObject("lighting/lightFullbrightShinyF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 		
 		else
 		{
-			if (!shader->attachObject("lighting/lightFullbrightF.glsl"))
+			if (features->disableTextureIndex)
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightFullbrightNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else 
+			{
+				if (!shader->attachObject("lighting/lightFullbrightF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 	}
@@ -266,17 +332,39 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	
 		if (features->hasWaterFog)
 		{
-			if (!shader->attachObject("lighting/lightShinyWaterF.glsl"))
+			if (features->disableTextureIndex)
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightShinyWaterNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else 
+			{
+				if (!shader->attachObject("lighting/lightShinyWaterF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 		
 		else 
 		{
-			if (!shader->attachObject("lighting/lightShinyF.glsl"))
+			if (features->disableTextureIndex)
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/lightShinyNonIndexedF.glsl"))
+				{
+					return FALSE;
+				}
+			}
+			else 
+			{
+				if (!shader->attachObject("lighting/lightShinyF.glsl"))
+				{
+					return FALSE;
+				}
+				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
 			}
 		}
 	}
@@ -315,12 +403,12 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 		}
 		else
 		{
-			LL_INFOS("ShaderLoading") << log << LL_ENDL;
+			LL_DEBUGS("ShaderLoading") << log << LL_ENDL;
 		}
 	}
 }
 
-GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type)
+GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, S32 texture_index_channels)
 {
 	GLenum error = GL_NO_ERROR;
 	if (gDebugGL)
@@ -374,6 +462,106 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	GLcharARB* text[1024];
 	GLuint count = 0;
 
+	if (gGLManager.mGLVersion < 3.f)
+	{
+		//set version to 1.20
+		text[count++] = strdup("#version 120\n");
+	}
+	else
+	{  //set version to 1.30
+		text[count++] = strdup("#version 130\n");
+	}
+
+	//copy preprocessor definitions into buffer
+	for (std::map<std::string,std::string>::iterator iter = mDefinitions.begin(); iter != mDefinitions.end(); ++iter)
+	{
+		std::string define = "#define " + iter->first + " " + iter->second + "\n";
+		text[count++] = (GLcharARB *) strdup(define.c_str());
+	}
+
+	if (texture_index_channels > 0 && type == GL_FRAGMENT_SHADER_ARB)
+	{
+		//use specified number of texture channels for indexed texture rendering
+
+		/* prepend shader code that looks like this:
+
+		uniform sampler2D tex0;
+		uniform sampler2D tex1;
+		uniform sampler2D tex2;
+		.
+		.
+		.
+		uniform sampler2D texN;
+		
+		varying float vary_texture_index;
+
+		vec4 diffuseLookup(vec2 texcoord)
+		{
+			switch (int(vary_texture_index+0.25))
+			{
+				case 0: return texture2D(tex0, texcoord);
+				case 1: return texture2D(tex1, texcoord);
+				case 2: return texture2D(tex2, texcoord);
+				.
+				.
+				.
+				case N: return texture2D(texN, texcoord);
+			}
+
+			return vec4(0,0,0,0);
+		}
+		*/
+
+		//uniform declartion
+		for (S32 i = 0; i < texture_index_channels; ++i)
+		{
+			std::string decl = llformat("uniform sampler2D tex%d;\n", i);
+			text[count++] = strdup(decl.c_str());
+		}
+
+		text[count++] = strdup("varying float vary_texture_index;\n");
+		text[count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
+		text[count++] = strdup("{\n");
+		
+		
+		if (gGLManager.mGLVersion >= 3.f)
+		{ 
+			text[count++] = strdup("\tswitch (int(vary_texture_index+0.25))\n");
+			text[count++] = strdup("\t{\n");
+		
+			//switch body
+			for (S32 i = 0; i < texture_index_channels; ++i)
+			{
+				std::string case_str = llformat("\t\tcase %d: return texture2D(tex%d, texcoord);\n", i, i);
+				text[count++] = strdup(case_str.c_str());
+			}
+
+			text[count++] = strdup("\t}\n");
+		}
+		else
+		{
+			//switches aren't supported, make block that looks like:
+			/*
+				int ti = int(vary_texture_index+0.25);
+				if (ti == 0) return texture2D(tex0, texcoord);
+				if (ti == 1) return texture2D(tex1, texcoord);
+				.
+				.
+				.
+				if (ti == N) return texture2D(texN, texcoord);
+			*/
+				
+			text[count++] = strdup("int ti = int(vary_texture_index+0.25);\n");
+			for (S32 i = 0; i < texture_index_channels; ++i)
+			{
+				std::string if_str = llformat("if (ti == %d) return texture2D(tex%d, texcoord);\n", i, i);
+				text[count++] = strdup(if_str.c_str());
+			}
+		}			
+
+		text[count++] = strdup("\treturn vec4(0,0,0,0);\n");
+		text[count++] = strdup("}\n");
+	}
 
 	//copy file into memory
 	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(buff) ) 
@@ -457,7 +645,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		if (shader_level > 1)
 		{
 			shader_level--;
-			return loadShaderFile(filename,shader_level,type);
+			return loadShaderFile(filename,shader_level,type,texture_index_channels);
 		}
 		LL_WARNS("ShaderLoading") << "Failed to load " << filename << LL_ENDL;	
 	}

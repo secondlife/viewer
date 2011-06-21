@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_buy_contents" title="KØB INDHOLD">
 	<text name="contains_text">
-		[NAME] indeholder:
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; contains:
 	</text>
 	<text name="buy_text">
 		Køb for L$[AMOUNT] fra [NAME]?

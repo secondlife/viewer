@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Import Collada" title="Szene importieren">
+	<text name="mesh count">
+		Netze: [COUNT]
+	</text>
+	<text name="texture count">
+		Texturen: [COUNT]
+	</text>
+	<text name="status">
+		Status: [STATUS]
+	</text>
+	<button label="Abbrechen" name="cancel"/>
+	<button label="OK" name="ok"/>
+	<string name="status_idle">
+		Inaktiv
+	</string>
+	<string name="status_uploading">
+		[NAME] wird hochgeladen
+	</string>
+	<string name="status_creating">
+		Objektname [NAME] wird erstellt
+	</string>
+</floater>

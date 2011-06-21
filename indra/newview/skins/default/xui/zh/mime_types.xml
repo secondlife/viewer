@@ -176,7 +176,7 @@
 	</mimetype>
 	<mimetype name="text/plain">
 		<label name="text/plain_label">
-			Text
+			文字
 		</label>
 	</mimetype>
 	<mimetype name="text/xml">

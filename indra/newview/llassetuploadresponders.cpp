@@ -384,18 +384,18 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		// Continuing the horrible hack above, we need to extract the originally requested permissions data, if any,
 		// and use them for each next file to be uploaded. Note the requested perms are not the same as the
 		U32 everyone_perms =
-			content.has("everyone_mask") ?
-			content["everyone_mask"].asInteger() :
+			content.has("new_everyone_mask") ?
+			content["new_everyone_mask"].asInteger() :
 			PERM_NONE;
 
 		U32 group_perms =
-			content.has("group_mask") ?
-			content["group_mask"].asInteger() :
+			content.has("new_group_mask") ?
+			content["new_group_mask"].asInteger() :
 			PERM_NONE;
 
 		U32 next_owner_perms =
-			content.has("next_owner_mask") ?
-			content["next_owner_mask"].asInteger() :
+			content.has("new_next_owner_mask") ?
+			content["new_next_owner_mask"].asInteger() :
 			PERM_NONE;
 
 		std::string display_name = LLStringUtil::null;

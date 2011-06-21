@@ -56,6 +56,7 @@
 #include "lleditingmotion.h"
 #include "llemote.h"
 //#include "llfirstuse.h"
+#include "llfloatertools.h"
 #include "llheadrotmotion.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
@@ -1541,7 +1542,35 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 				return TRUE;
 			}
 		}
+
+		if (isSelf())
+		{
+			for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+			 iter != mAttachmentPoints.end();
+			 ++iter)
+			{
+				LLViewerJointAttachment* attachment = iter->second;
+
+				for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+					 attachment_iter != attachment->mAttachedObjects.end();
+					 ++attachment_iter)
+				{
+					LLViewerObject* attached_object = (*attachment_iter);
+					
+					if (attached_object && !attached_object->isDead() && attachment->getValid())
+					{
+						LLDrawable* drawable = attached_object->mDrawable;
+						if (drawable->isState(LLDrawable::RIGGED))
+						{ //regenerate octree for rigged attachment
+							gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_RIGGED, TRUE);
+						}
+					}
+				}
+			}
+		}
 	}
+
+	
 	
 	LLVector3 position;
 	if (mNameText.notNull() && mNameText->lineSegmentIntersect(start, end, position))
@@ -1555,6 +1584,56 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 	}
 
 	return FALSE;
+}
+
+LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector3& start, const LLVector3& end,
+									  S32 face,
+									  BOOL pick_transparent,
+									  S32* face_hit,
+									  LLVector3* intersection,
+									  LLVector2* tex_coord,
+									  LLVector3* normal,
+									  LLVector3* bi_normal)
+{
+	if (isSelf() && !gAgent.needsRenderAvatar())
+	{
+		return NULL;
+	}
+
+	LLViewerObject* hit = NULL;
+
+	if (lineSegmentBoundingBox(start, end))
+	{
+		LLVector3 local_end = end;
+		LLVector3 local_intersection;
+
+		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+			iter != mAttachmentPoints.end();
+			++iter)
+		{
+			LLViewerJointAttachment* attachment = iter->second;
+
+			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+					attachment_iter != attachment->mAttachedObjects.end();
+					++attachment_iter)
+			{
+				LLViewerObject* attached_object = (*attachment_iter);
+					
+				if (attached_object->lineSegmentIntersect(start, local_end, face, pick_transparent, face_hit, &local_intersection, tex_coord, normal, bi_normal))
+				{
+					local_end = local_intersection;
+					if (intersection)
+					{
+						*intersection = local_intersection;
+					}
+					
+					hit = attached_object;
+				}
+			}
+		}
+	}
+		
+	return hit;
 }
 
 //-----------------------------------------------------------------------------
@@ -4968,19 +5047,6 @@ void LLVOAvatar::resetSpecificJointPosition( const std::string& name )
 //-----------------------------------------------------------------------------
 void LLVOAvatar::resetJointPositionsToDefault( void )
 {
-	const LLVector3& avPos = getCharacterPosition();
-	
-	//Reposition the pelvis
-	LLJoint* pPelvis = mRoot.findJoint("mPelvis");
-	if ( pPelvis )
-	{
-		pPelvis->setPosition( avPos + pPelvis->getPosition() );
-	}
-	else 
-	{
-		llwarns<<"Can't get pelvis joint."<<llendl;	
-		return;
-	}
 
 	//Subsequent joints are relative to pelvis
 	for( S32 i = 0; i < (S32)mNumJoints; ++i )
@@ -4991,7 +5057,7 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 
 			pJoint->setId( LLUUID::null );
 			//restore joints to default positions, however skip over the pelvis
-			if ( pJoint && pPelvis != pJoint )
+			if ( pJoint )
 			{
 				pJoint->restoreOldXform();
 			}
@@ -6017,7 +6083,7 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
 		if ( pVObj )
 		{
-			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID() );
+			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
 			if ( pSkinData )
 			{
 				const int jointCnt = pSkinData->mJointNames.size();
@@ -6028,6 +6094,14 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 					if ( bindCnt > 0 )
 					{
 						LLVOAvatar::resetJointPositionsToDefault();
+						//Need to handle the repositioning of the cam, updating rig data etc during outfit editing 
+						//This handles the case where we detach a replacement rig.
+						if ( gAgentCamera.cameraCustomizeAvatar() )
+						{
+							gAgent.unpauseAnimation();
+							//Still want to refocus on head bone
+							gAgentCamera.changeCameraToCustomizeAvatar();
+						}
 					}
 				}
 			}				

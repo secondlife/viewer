@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Geräteeinstellungen" name="device_settings_panel">
+	<panel.string name="default_text">
+		Standard
+	</panel.string>
+	<text name="Input">
+		Eingabe
+	</text>
+	<text name="My volume label">
+		Meine Lautstärke:
+	</text>
+	<slider_bar initial_value="1,0" name="mic_volume_slider" tool_tip="Lautstärke mit diesem Regler ändern"/>
+	<text name="wait_text">
+		Bitte warten
+	</text>
+	<text name="Output">
+		Ausgabe
+	</text>
+</panel>

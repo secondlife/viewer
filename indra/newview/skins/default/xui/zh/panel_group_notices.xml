@@ -6,11 +6,11 @@ Notices only go to group members in Roles with the ability to receive Notices.
 You can turn off Notices on the General tab.
 	</panel.string>
 	<panel.string name="no_notices_text">
-		There are no past notices
+		沒有過去的通知
 	</panel.string>
 	<text name="lbl2">
-		Notices are kept for 14 days.
-Maximum 200 per group daily
+		通知保留 14 天。
+每個社團一天最多 200 則
 	</text>
 	<scroll_list name="notice_list">
 		<scroll_list.columns label="主旨" name="subject"/>
@@ -18,7 +18,7 @@ Maximum 200 per group daily
 		<scroll_list.columns label="日期" name="date"/>
 	</scroll_list>
 	<text name="notice_list_none_found">
-		None found
+		沒發現。
 	</text>
 	<button label="新通知" name="create_new_notice" tool_tip="建立一個新通知"/>
 	<button name="refresh_notices" tool_tip="Refresh list of notices"/>
@@ -39,16 +39,16 @@ Maximum 200 per group daily
 			將物品拖曳並丟於此處以添加為附件：
 		</text>
 		<button label="收納區" name="open_inventory" tool_tip="開啟收納區"/>
-		<button name="remove_attachment" tool_tip="Remove attachment from your notification"/>
-		<button label="Send" label_selected="Send" name="send_notice"/>
+		<button name="remove_attachment" tool_tip="由你的通知移除附件"/>
+		<button label="送出" label_selected="送出" name="send_notice"/>
 		<group_drop_target name="drop_target" tool_tip="Drag an inventory item onto this target box to send it with this notice. You must have permission to copy and transfer the item in order to attach it."/>
 	</panel>
 	<panel label="察看過去的通知" name="panel_view_past_notice">
 		<text name="lbl">
-			Archived Notice
+			存檔的通知
 		</text>
 		<text name="lbl2">
-			To send a new notice, click the + button
+			要送出一個新通知，點擊 + 按鈕
 		</text>
 		<text name="lbl3">
 			主旨：

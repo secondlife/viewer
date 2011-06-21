@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="godtools floater" title="GOD TOOLS">
+<floater name="godtools floater" title="神之工具">
 	<tab_container name="GodTools Tabs">
 		<panel label="網格" name="grid">
 			<button label="Flush This Region&apos;s Map Visibility Caches" label_selected="Flush This Region&apos;s Map Visibility Caches" name="Flush This Region&apos;s Map Visibility Caches"/>

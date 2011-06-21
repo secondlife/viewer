@@ -40,7 +40,7 @@
 			<button name="home_btn" tool_tip="Home page"/>
 		</layout_panel>
 		<layout_panel name="media_stop">
-			<button name="media_stop_btn" tool_tip="Stop media"/>
+			<button name="media_stop_btn" tool_tip="停止媒體"/>
 		</layout_panel>
 		<layout_panel name="reload">
 			<button name="reload_btn" tool_tip="Reload"/>

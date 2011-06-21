@@ -2172,6 +2172,12 @@ Dies kann die Eingabe Ihres Passworts beeinflussen.
 	<notification name="RezItemNoPermissions">
 		Keine Berechtigung zum Rezzen von Objekten.
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		Senden von IMs über übergeordnete Grundbesitze hinweg nicht möglich.
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		Inventarübertragung über übergeordnete Grundbesitze hinweg nicht möglich.
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		Notizkarten-Asset konnte nicht geladen werden.
 	</notification>
@@ -2749,6 +2755,10 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 		Sie wurden vom Moderator stummgeschaltet.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		Das Hochladen kostet [PRICE] L$. Möchten Sie fortfahren?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Hochladen"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		Möchten Sie Ihre Teleport-Liste löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
@@ -2759,6 +2769,9 @@ Die Schaltfläche wird angezeigt, wenn genügend Platz vorhanden ist.
 	</notification>
 	<notification name="ShareNotification">
 		Wählen Sie Einwohner aus, für die Sie das Objekt freigeben möchten.
+	</notification>
+	<notification name="MeshUploadError">
+		[LABEL] konnte nicht hochgeladen werden: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Möchten Sie wirklich die folgenden Objekte:
@@ -2775,6 +2788,19 @@ für folgende Einwohner freigeben:
 	</notification>
 	<notification name="DeedToGroupFail">
 		Übertragung an Gruppe ist fehlgeschlagen.
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		Die Parzelle [PARCEL_NAME] kann zurzeit nicht aufgegeben werden.
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		Die [AREA] m² große Parzelle „[PARCEL_NAME]“ wurde freigegeben.
+
+Sie haben [RECLAIM_PERIOD] Stunden, um die Parzelle für 0 L$ zurückzufordern, bevor sie zum Verkauf an alle freigegeben wird.
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		Die [AREA] m² große Parzelle „[PARCEL_NAME]“ wurde freigegeben.
+
+Sie steht jetzt zum Verkauf an alle zur Verfügung.
 	</notification>
 	<notification name="AvatarRezNotification">
 		(Seit [EXISTENCE] Sekunden inworld )
@@ -2914,6 +2940,10 @@ Durch Ausblenden der Schaltfläche „Sprechen“ wird die Sprechfunktion deakti
 		Die Erstellung und Bearbeitung von Gruppen ist nur im Modus „Erweitert“ möglich. Möchten Sie das Programm beenden und den Modus wechseln? Die Modusauswahl ist auf dem Anmeldebildschirm zu finden.
 		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
+	<notification label="" name="NoPlaceInfo">
+		Die Anzeige des Ortsprofils ist nur im Modus „Erweitert“ möglich. Möchten Sie das Programm beenden und den Modus wechseln? Die Modusauswahl ist auf dem Anmeldebildschirm zu finden.
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
 	<notification label="" name="NoPicks">
 		Die Erstellung und Bearbeitung von Auswahlen ist nur im Modus „Erweitert“ möglich. Möchten Sie das Programm beenden und den Modus wechseln? Die Modusauswahl ist auf dem Anmeldebildschirm zu finden.
 		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
@@ -2934,9 +2964,18 @@ Durch Ausblenden der Schaltfläche „Sprechen“ wird die Sprechfunktion deakti
 		Die Bezahlung anderer Einwohner ist nur im Modus „Erweitert“ möglich. Möchten Sie sich abmelden und den Modus wechseln?
 		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
-	<global name="UnsupportedCPU">
-		- Ihre CPU-Geschwindigkeit entspricht nicht den Mindestanforderungen.
-	</global>
+	<notification label="" name="NoInventory">
+		Die Inventaranzeige ist nur im Modus „Erweitert“ möglich. Möchten Sie sich abmelden und den Modus wechseln?
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		Das Fenster zum Bearbeiten des Aussehens ist nur im Modus „Erweitert“ verfügbar. Möchten Sie sich abmelden und den Modus wechseln?
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		Die Suche ist nur im Modus „Erweitert“ möglich. Möchten Sie sich abmelden und den Modus wechseln?
+		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		Ihr Computer entspricht nicht den Hardwareanforderungen von [APP_NAME]. [APP_NAME] setzt eine OpenGL-Grafikkarte mit Multitextur-Unterstützung voraus. Falls Ihre Grafikkarte diese Funktion unterstützt, installieren Sie die neuesten Treiber sowie die aktuellen Service Packs und Patches für Ihr Betriebssystem.
 

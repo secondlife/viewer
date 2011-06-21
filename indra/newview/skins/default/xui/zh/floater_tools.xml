@@ -39,11 +39,11 @@
 	<floater.string name="grid_attachment_text">
 		Attachment
 	</floater.string>
-	<button name="button focus" tool_tip="Focus"/>
+	<button name="button focus" tool_tip="聚焦"/>
 	<button name="button move" tool_tip="移動"/>
 	<button name="button edit" tool_tip="編輯"/>
-	<button name="button create" tool_tip="Create"/>
-	<button name="button land" tool_tip="Land"/>
+	<button name="button create" tool_tip="創造"/>
+	<button name="button land" tool_tip="土地"/>
 	<text name="text status">
 		Drag to move, shift-drag to copy
 	</text>
@@ -61,17 +61,17 @@
 	<radio_group name="edit_radio_group">
 		<radio_item label="移動" name="radio position"/>
 		<radio_item label="旋轉（Ctrl）" name="radio rotate"/>
-		<radio_item label="Stretch (Ctrl+Shift)" name="radio stretch"/>
-		<radio_item label="Select Face" name="radio select face"/>
+		<radio_item label="伸展（Ctrl+Shift）" name="radio stretch"/>
+		<radio_item label="選擇面" name="radio select face"/>
 	</radio_group>
-	<check_box label="Edit linked" name="checkbox edit linked parts"/>
-	<button label="Link" name="link_btn"/>
-	<button label="Unlink" name="unlink_btn"/>
+	<check_box label="編輯聯結部分" name="checkbox edit linked parts"/>
+	<button label="聯結" name="link_btn"/>
+	<button label="取消聯結" name="unlink_btn"/>
 	<text name="RenderingCost" tool_tip="Shows the rendering cost calculated for this object">
 		þ: [COUNT]
 	</text>
-	<text label="Stretch Both Sides" name="checkbox uniform label">
-		Stretch Both Sides
+	<text label="同時伸展兩側" name="checkbox uniform label">
+		同時伸展兩側
 	</text>
 	<check_box initial_value="true" label="伸展材質" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="貼齊格線" name="checkbox snap to grid"/>
@@ -80,7 +80,7 @@
 		<combo_box.item label="Local grid" name="Local"/>
 		<combo_box.item label="Reference grid" name="Reference"/>
 	</combo_box>
-	<button name="Options..." tool_tip="See more grid options"/>
+	<button name="Options..." tool_tip="察看更多格線選項"/>
 	<button name="ToolCube" tool_tip="Cube"/>
 	<button name="ToolPrism" tool_tip="Prism"/>
 	<button name="ToolPyramid" tool_tip="Pyramid"/>
@@ -96,33 +96,33 @@
 	<button name="ToolRing" tool_tip="Ring"/>
 	<button name="ToolTree" tool_tip="Tree"/>
 	<button name="ToolGrass" tool_tip="Grass"/>
-	<check_box label="Keep Tool selected" name="checkbox sticky"/>
-	<check_box label="Copy selection" name="checkbox copy selection"/>
+	<check_box label="保持已選擇的工具" name="checkbox sticky"/>
+	<check_box label="覆製選擇" name="checkbox copy selection"/>
 	<check_box initial_value="true" label="Center Copy" name="checkbox copy centers"/>
 	<check_box label="Rotate Copy" name="checkbox copy rotates"/>
 	<radio_group name="land_radio_group">
-		<radio_item label="Select Land" name="radio select land"/>
-		<radio_item label="Flatten" name="radio flatten"/>
-		<radio_item label="Raise" name="radio raise"/>
-		<radio_item label="Lower" name="radio lower"/>
-		<radio_item label="Smooth" name="radio smooth"/>
-		<radio_item label="Roughen" name="radio noise"/>
-		<radio_item label="Revert" name="radio revert"/>
+		<radio_item label="選擇土地" name="radio select land"/>
+		<radio_item label="攤平" name="radio flatten"/>
+		<radio_item label="提高" name="radio raise"/>
+		<radio_item label="降低" name="radio lower"/>
+		<radio_item label="平滑" name="radio smooth"/>
+		<radio_item label="粗糙" name="radio noise"/>
+		<radio_item label="還原" name="radio revert"/>
 	</radio_group>
 	<text name="Bulldozer:">
-		Bulldozer:
+		推土機：
 	</text>
 	<text name="Dozer Size:">
 		尺寸
 	</text>
 	<slider_bar initial_value="2.0" name="slider brush size"/>
 	<text name="Strength:">
-		Strength
+		力道
 	</text>
 	<slider_bar initial_value="0.00" name="slider force"/>
-	<button label="套用" label_selected="套用" name="button apply to selection" tool_tip="Modify selected land"/>
+	<button label="套用" label_selected="套用" name="button apply to selection" tool_tip="修改所選擇的土地"/>
 	<text name="obj_count">
-		Objects: [COUNT]
+		物件： [COUNT]
 	</text>
 	<text name="prim_count">
 		Prims: [COUNT]
@@ -136,19 +136,19 @@
 				Deed
 			</panel.string>
 			<panel.string name="text modify info 1">
-				You can modify this object
+				你能修改這個物件
 			</panel.string>
 			<panel.string name="text modify info 2">
-				You can modify these objects
+				你能修改這些物件
 			</panel.string>
 			<panel.string name="text modify info 3">
-				You can&apos;t modify this object
+				你不能修改這個物件
 			</panel.string>
 			<panel.string name="text modify info 4">
-				You can&apos;t modify these objects
+				你不能修改這些物件
 			</panel.string>
 			<panel.string name="text modify warning">
-				You must select entire object to set permissions
+				你必須選取整個物件以設定權限
 			</panel.string>
 			<panel.string name="Cost Default">
 				價格： L$
@@ -157,7 +157,7 @@
 				總價： L$
 			</panel.string>
 			<panel.string name="Cost Per Unit">
-				Price Per: L$
+				單價每個： L$
 			</panel.string>
 			<panel.string name="Cost Mixed">
 				Mixed Price
@@ -181,19 +181,19 @@
 				社團：
 			</text>
 			<name_box initial_value="載入中..." name="Group Name Proxy"/>
-			<button name="button set group" tool_tip="Choose a group to share this object&apos;s permissions"/>
+			<button name="button set group" tool_tip="選擇一個社團以分享這物件權限"/>
 			<check_box label="分享" name="checkbox share with group" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."/>
 			<button label="Deed" label_selected="Deed" name="button deed" tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."/>
 			<text name="label click action">
-				Click to:
+				點擊以：
 			</text>
 			<combo_box name="clickaction">
-				<combo_box.item label="Touch  (default)" name="Touch/grab(default)"/>
-				<combo_box.item label="Sit on object" name="Sitonobject"/>
-				<combo_box.item label="Buy object" name="Buyobject"/>
-				<combo_box.item label="Pay object" name="Payobject"/>
-				<combo_box.item label="Open" name="Open"/>
-				<combo_box.item label="Zoom" name="Zoom"/>
+				<combo_box.item label="觸碰（預設）" name="Touch/grab(default)"/>
+				<combo_box.item label="坐在物件上" name="Sitonobject"/>
+				<combo_box.item label="購買物件" name="Buyobject"/>
+				<combo_box.item label="支付物件" name="Payobject"/>
+				<combo_box.item label="開啟" name="Open"/>
+				<combo_box.item label="縮放" name="Zoom"/>
 			</combo_box>
 			<check_box label="出售：" name="checkbox for sale"/>
 			<combo_box name="sale type">
@@ -202,7 +202,7 @@
 				<combo_box.item label="原件" name="Original"/>
 			</combo_box>
 			<spinner label="價格： L$" name="Edit Cost"/>
-			<check_box label="顯示在搜尋中" name="search_check" tool_tip="Let people see this object in search results"/>
+			<check_box label="顯示在搜尋中" name="search_check" tool_tip="讓其他人可以在搜尋結果中看到這物件"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
 					你可以修改這個物件
@@ -238,13 +238,13 @@
 				</text>
 			</panel>
 		</panel>
-		<panel label="Object" name="Object">
-			<check_box label="鎖定" name="checkbox locked" tool_tip="Prevents object from being moved or deleted. Frequently useful during building to avoid unintended edits."/>
-			<check_box label="物理性" name="Physical Checkbox Ctrl" tool_tip="Allows object to be pushed and affected by gravity"/>
-			<check_box label="暫時性" name="Temporary Checkbox Ctrl" tool_tip="Causes object to be deleted 1 minute after creation"/>
-			<check_box label="幻影性" name="Phantom Checkbox Ctrl" tool_tip="Causes object to not collide with other objects or avatars"/>
+		<panel label="物件" name="Object">
+			<check_box label="鎖定" name="checkbox locked" tool_tip="預防物件被移動或刪除，最常使用的狀況是在建造過程中避免被意外的編輯。"/>
+			<check_box label="物理性" name="Physical Checkbox Ctrl" tool_tip="允許物件被推撞與受重力影響"/>
+			<check_box label="暫時性" name="Temporary Checkbox Ctrl" tool_tip="使物件在建造後的一分鐘自動刪除"/>
+			<check_box label="幻影性" name="Phantom Checkbox Ctrl" tool_tip="使物件不會與其他物件或化身產生碰撞"/>
 			<text name="label position">
-				Position (meters)
+				位置（公尺）
 			</text>
 			<spinner label="X" name="Pos X"/>
 			<spinner label="Y" name="Pos Y"/>
@@ -256,7 +256,7 @@
 			<spinner label="Y" name="Scale Y"/>
 			<spinner label="Z" name="Scale Z"/>
 			<text name="label rotation">
-				Rotation (degrees)
+				旋轉（角度）
 			</text>
 			<spinner label="X" name="Rot X"/>
 			<spinner label="Y" name="Rot Y"/>
@@ -273,12 +273,12 @@
 			</combo_box>
 			<combo_box name="material">
 				<combo_box.item label="Stone" name="Stone"/>
-				<combo_box.item label="Metal" name="Metal"/>
-				<combo_box.item label="Glass" name="Glass"/>
-				<combo_box.item label="Wood" name="Wood"/>
-				<combo_box.item label="Flesh" name="Flesh"/>
-				<combo_box.item label="Plastic" name="Plastic"/>
-				<combo_box.item label="Rubber" name="Rubber"/>
+				<combo_box.item label="金屬" name="Metal"/>
+				<combo_box.item label="玻璃" name="Glass"/>
+				<combo_box.item label="木頭" name="Wood"/>
+				<combo_box.item label="肌肉" name="Flesh"/>
+				<combo_box.item label="塑膠" name="Plastic"/>
+				<combo_box.item label="橡膠" name="Rubber"/>
 			</combo_box>
 			<text name="text cut">
 				Path Cut (begin/end)
@@ -286,13 +286,13 @@
 			<spinner label="B" name="cut begin"/>
 			<spinner label="E" name="cut end"/>
 			<text name="text hollow">
-				Hollow
+				中空
 			</text>
 			<text name="text skew">
 				Skew
 			</text>
 			<text name="Hollow Shape">
-				Hollow Shape
+				中空形狀
 			</text>
 			<combo_box name="hole">
 				<combo_box.item label="預設" name="Default"/>
@@ -354,12 +354,12 @@
 				<combo_box.item label="Cylinder" name="Cylinder"/>
 			</combo_box>
 		</panel>
-		<panel label="Features" name="Features">
+		<panel label="特性" name="Features">
 			<text name="select_single">
 				Select only one primitive to edit features.
 			</text>
 			<text name="edit_object">
-				Edit object features:
+				編輯物件特性：
 			</text>
 			<check_box label="Flexible Path" name="Flexible1D Checkbox Ctrl" tool_tip="Allows object to flex about the Z axis (Client-side only)"/>
 			<spinner label="Softness" name="FlexNumSections"/>
@@ -371,7 +371,7 @@
 			<spinner label="Force Y" name="FlexForceY"/>
 			<spinner label="Force Z" name="FlexForceZ"/>
 			<check_box label="Light" name="Light Checkbox Ctrl" tool_tip="Causes object to emit light"/>
-			<color_swatch name="colorswatch" tool_tip="Click to open color picker"/>
+			<color_swatch name="colorswatch" tool_tip="點擊以開啟顏色挑選器"/>
 			<texture_picker label="" name="light texture control" tool_tip="Click to choose a projection image (only has effect with deferred rendering enabled)"/>
 			<spinner label="Intensity" name="Light Intensity"/>
 			<spinner label="FOV" name="Light FOV"/>
@@ -382,38 +382,38 @@
 		</panel>
 		<panel label="材質" name="Texture">
 			<panel.string name="string repeats per meter">
-				Repeats Per Meter
+				每公尺重覆次數
 			</panel.string>
 			<panel.string name="string repeats per face">
-				Repeats Per Face
+				每一面重覆次數
 			</panel.string>
 			<texture_picker label="材質" name="texture control" tool_tip="點擊以挑選圖片"/>
-			<color_swatch label="Color" name="colorswatch" tool_tip="Click to open color picker"/>
+			<color_swatch label="顏色" name="colorswatch" tool_tip="點擊以開啟顏色挑選器"/>
 			<text name="color trans">
-				Transparency %
+				透明度 %
 			</text>
 			<text name="glow label">
-				Glow
+				光暈
 			</text>
-			<check_box label="Full Bright" name="checkbox fullbright"/>
+			<check_box label="全亮" name="checkbox fullbright"/>
 			<text name="tex gen">
-				Mapping
+				映射方式
 			</text>
 			<combo_box name="combobox texgen">
 				<combo_box.item label="預設" name="Default"/>
-				<combo_box.item label="Planar" name="Planar"/>
+				<combo_box.item label="平面" name="Planar"/>
 			</combo_box>
 			<text name="label shininess">
-				Shininess
+				光澤
 			</text>
 			<combo_box name="combobox shininess">
 				<combo_box.item label="無" name="None"/>
-				<combo_box.item label="Low" name="Low"/>
-				<combo_box.item label="Medium" name="Medium"/>
-				<combo_box.item label="High" name="High"/>
+				<combo_box.item label="低" name="Low"/>
+				<combo_box.item label="中" name="Medium"/>
+				<combo_box.item label="高" name="High"/>
 			</combo_box>
 			<text name="label bumpiness">
-				Bumpiness
+				凹凸貼圖
 			</text>
 			<combo_box name="combobox bumpiness">
 				<combo_box.item label="無" name="None"/>
@@ -435,65 +435,65 @@
 				<combo_box.item label="suction" name="suction"/>
 				<combo_box.item label="weave" name="weave"/>
 			</combo_box>
-			<check_box initial_value="false" label="Align planar faces" name="checkbox planar align" tool_tip="Align textures on all selected faces with the last selected face. Requires Planar texture mapping."/>
+			<check_box initial_value="false" label="對齊平面" name="checkbox planar align" tool_tip="以最後所選擇的面為基準，對齊全部所選擇的面上的材質。這必須使用平面材質映射方式。"/>
 			<text name="rpt">
-				Repeats / Face
+				重覆次數 / 面
 			</text>
-			<spinner label="Horizontal (U)" name="TexScaleU"/>
-			<check_box label="Flip" name="checkbox flip s"/>
-			<spinner label="Vertical (V)" name="TexScaleV"/>
-			<check_box label="Flip" name="checkbox flip t"/>
-			<spinner label="Rotation˚" name="TexRot"/>
-			<spinner label="Repeats / Meter" name="rptctrl"/>
+			<spinner label="水平（U）" name="TexScaleU"/>
+			<check_box label="翻轉" name="checkbox flip s"/>
+			<spinner label="垂直（V）" name="TexScaleV"/>
+			<check_box label="翻轉" name="checkbox flip t"/>
+			<spinner label="旋轉˚" name="TexRot"/>
+			<spinner label="重覆次數 / 公尺" name="rptctrl"/>
 			<button label="套用" label_selected="套用" name="button apply"/>
 			<text name="tex offset">
 				材質位移
 			</text>
-			<spinner label="Horizontal (U)" name="TexOffsetU"/>
-			<spinner label="Vertical (V)" name="TexOffsetV"/>
+			<spinner label="水平（U）" name="TexOffsetU"/>
+			<spinner label="垂直（V）" name="TexOffsetV"/>
 			<panel name="Add_Media">
 				<text name="media_tex">
-					Media
+					媒體
 				</text>
-				<button name="add_media" tool_tip="Add Media"/>
+				<button name="add_media" tool_tip="添加媒體"/>
 				<button name="delete_media" tool_tip="刪除這個媒體材質"/>
-				<button name="edit_media" tool_tip="Edit this Media"/>
-				<button label="Align" label_selected="Align Media" name="button align" tool_tip="Align media texture (must load first)"/>
+				<button name="edit_media" tool_tip="編輯這個媒體"/>
+				<button label="對齊" label_selected="對齊媒體" name="button align" tool_tip="對齊媒體材質（須先載入）"/>
 			</panel>
 		</panel>
-		<panel label="Content" name="Contents">
-			<button label="New Script" label_selected="New Script" name="button new script"/>
-			<button label="Permissions" name="button permissions"/>
+		<panel label="內容" name="Contents">
+			<button label="新腳本" label_selected="新腳本" name="button new script"/>
+			<button label="權限" name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
 		<text name="label_parcel_info">
-			Parcel Information
+			地段資訊
 		</text>
 		<text name="label_area_price">
-			Price: L$[PRICE] for [AREA] m²
+			價格： L$[PRICE] 購買 [AREA] m²
 		</text>
 		<text name="label_area">
 			面積： [AREA] m²
 		</text>
 		<button label="關於土地" label_selected="關於土地" name="button about land"/>
-		<check_box label="顯示擁有主" name="checkbox show owners" tool_tip="Colorize the parcels according to the type of owner: 
+		<check_box label="顯示擁有者" name="checkbox show owners" tool_tip="Colorize the parcels according to the type of owner: 
 
-Green = Your land 
-Aqua = Your group&apos;s land 
-Red = Owned by others 
-Yellow = For sale 
-Purple = For auction 
-Grey = Public"/>
+綠色 = 你的土地 
+水藍 = 你社團的土地 
+紅色 = 其他人所有 
+黃色 = 出售 
+紫色 = 拍賣 
+灰色 = 公有地"/>
 		<text name="label_parcel_modify">
-			Modify Parcel
+			修改地段
 		</text>
-		<button label="Subdivide" label_selected="Subdivide" name="button subdivide land"/>
-		<button label="Join" label_selected="Join" name="button join land"/>
+		<button label="分割" label_selected="分割" name="button subdivide land"/>
+		<button label="合併" label_selected="合併" name="button join land"/>
 		<text name="label_parcel_trans">
-			Land Transactions
+			土地交易
 		</text>
 		<button label="購買土地" label_selected="購買土地" name="button buy land"/>
-		<button label="Abandon Land" label_selected="Abandon Land" name="button abandon land"/>
+		<button label="放棄土地" label_selected="放棄土地" name="button abandon land"/>
 	</panel>
 </floater>

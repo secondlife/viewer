@@ -11,24 +11,24 @@
 	<check_box label="Disable Physics" name="disable_physics_check" tool_tip="Disable all physics in this region"/>
 	<button label="套用" name="apply_btn"/>
 	<text name="objret_text_lbl">
-		Object Return
+		物件退回
 	</text>
 	<text name="resident_text_lbl">
-		Resident:
+		居民：
 	</text>
 	<line_editor name="target_avatar_name">
 		（無）
 	</line_editor>
-	<button label="Choose" name="choose_avatar_btn"/>
+	<button label="選擇" name="choose_avatar_btn"/>
 	<text name="options_text_lbl">
 		選項：
 	</text>
-	<check_box label="With scripts" name="return_scripts" tool_tip="Return only objects which have scripts"/>
+	<check_box label="With scripts" name="return_scripts" tool_tip="只退回R包含腳本的物件"/>
 	<check_box label="On someone else&apos;s land" name="return_other_land" tool_tip="Return only objects which are on land belonging to someone else"/>
 	<check_box label="In every region of this estate" name="return_estate_wide" tool_tip="Return objects in all of the regions that make up this estate"/>
-	<button label="Return" name="return_btn"/>
+	<button label="退回" name="return_btn"/>
 	<button label="Get Top Colliders..." name="top_colliders_btn" tool_tip="List of objects experiencing the most potential collisions"/>
 	<button label="Get Top Scripts..." name="top_scripts_btn" tool_tip="List of objects spending the most time running scripts"/>
-	<button label="Restart Region" name="restart_btn" tool_tip="Give 2 minute countdown and restart region"/>
-	<button label="Delay Restart" name="cancel_restart_btn" tool_tip="Delay region restart by one hour"/>
+	<button label="地區重新啟動" name="restart_btn" tool_tip="給予兩分鐘倒數計時並重新啟動"/>
+	<button label="延遲重新啟動" name="cancel_restart_btn" tool_tip="延遲地區重新啟動一小時"/>
 </panel>

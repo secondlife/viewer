@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_pick_info">
-	<text name="title" value="Pick Info"/>
+	<text name="title" value="精選地點資訊"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text_editor name="pick_name" value="[name]"/>

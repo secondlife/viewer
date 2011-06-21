@@ -19,7 +19,7 @@
 		Choose what Role to assign them to:
 	</text>
 	<combo_box name="role_name" tool_tip="Choose from the list of Roles you are allowed to assign members to"/>
-	<button label="Send Invitations" name="ok_button"/>
+	<button label="送出邀請" name="ok_button"/>
 	<button label="取消" name="cancel_button"/>
 	<string name="GroupInvitation">
 		社團邀請

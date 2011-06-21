@@ -13,7 +13,7 @@
 		Wait:
 	</floater.string>
 	<floater.string name="stop_txt">
-		Stop
+		停止
 	</floater.string>
 	<floater.string name="preview_txt">
 		預覽
@@ -43,10 +43,10 @@
 		Library:
 	</text>
 	<scroll_list name="library_list">
-		<scroll_list.rows name="action_animation" value="Animation"/>
-		<scroll_list.rows name="action_sound" value="Sound"/>
+		<scroll_list.rows name="action_animation" value="動作"/>
+		<scroll_list.rows name="action_sound" value="聲音"/>
 		<scroll_list.rows name="action_chat" value="聊天"/>
-		<scroll_list.rows name="action_wait" value="Wait"/>
+		<scroll_list.rows name="action_wait" value="等待"/>
 	</scroll_list>
 	<button label="Add &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
@@ -59,10 +59,10 @@
 		（選項）
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item label="Start" name="start"/>
-		<radio_item label="Stop" name="stop"/>
+		<radio_item label="開始" name="start"/>
+		<radio_item label="停止" name="stop"/>
 	</radio_group>
-	<check_box label="until animations are done" name="wait_anim_check"/>
+	<check_box label="直到動作結束。" name="wait_anim_check"/>
 	<check_box label="time in seconds:" name="wait_time_check"/>
 	<text name="help_label">
 		All steps happen simultaneously, unless you add wait steps.

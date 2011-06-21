@@ -1019,9 +1019,11 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 	<spinner visible="false" left="10" height="20" follows="top|left" width="80" top_pad="-50" value="1.0" min_val="0.01" max_val="64.0" name="import_scale"/>
 
 	<string name="status_idle">Idle</string>
+  <string name="status_parse_error">Dae parsing issue - see log for details.</string>
 	<string name="status_reading_file">Loading...</string>
 	<string name="status_generating_meshes">Generating Meshes...</string>
-  <string name="status_vertex_number_overflow">Error: Vertex number is more than 65534, aborted!</string>
+	<string name="status_vertex_number_overflow">Error: Vertex number is more than 65534, aborted!</string>
+	<string name="bad_element">Error: element is invalid</string>
 	<string name="high">High</string>
 	<string name="medium">Medium</string>
 	<string name="low">Low</string>

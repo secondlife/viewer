@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 void setPositionEye(vec3 v);
 

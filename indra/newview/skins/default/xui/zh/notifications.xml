@@ -1242,7 +1242,7 @@ Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click 
 		You can only have [MAX_AGENTS] Allowed Residents.
 	</notification>
 	<notification name="MaxBannedAgentsOnRegion">
-		You can only have [MAX_BANNED] Banned Residents.
+		你只可以有最多 [MAX_BANNED] 位被封鎖的居民。
 	</notification>
 	<notification name="MaxAgentOnRegionBatch">
 		Failure while attempting to add [NUM_ADDED] agents:
@@ -1253,10 +1253,10 @@ Exceeds the [MAX_AGENTS] [LIST_TYPE] limit by [NUM_EXCESS].
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="Bake"/>
 	</notification>
 	<notification name="MaxManagersOnRegion">
-		You can only have [MAX_MANAGER] Estate Managers.
+		你只可以有最多 [MAX_MANAGER] 位領地經理。
 	</notification>
 	<notification name="OwnerCanNotBeDenied">
-		Can&apos;t add estate owner to estate &apos;Banned Resident&apos; list.
+		無法添加領地擁有者到領地的 &apos;被封鎖的居民&apos; 名單中。
 	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		無法變更外觀，直到服裝與體形下載完畢。
@@ -1273,15 +1273,15 @@ Please set the object for sale and try again.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="DownloadWindowsMandatory">
-		A new version of [APP_NAME] is available.
+		一個新版本的 [APP_NAME] 已經可用。
 [MESSAGE]
-You must download this update to use [APP_NAME].
+你必須下載這個更新以使用 [APP_NAME]。
 		<usetemplate name="okcancelbuttons" notext="結束退出" yestext="下載"/>
 	</notification>
 	<notification name="DownloadWindows">
-		An updated version of [APP_NAME] is available.
+		一個 [APP_NAME] 更新過的版本已經可用。
 [MESSAGE]
-This update is not required, but we suggest you install it to improve performance and stability.
+這個更新並非強制更新，但我們建議你安裝以增強效能及穩定性。
 		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
 	</notification>
 	<notification name="DownloadWindowsReleaseForDownload">
@@ -1356,12 +1356,12 @@ or you can install it now.
 	<notification name="DownloadBackgroundTip">
 		We have downloaded an update to your [APP_NAME] installation.
 Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
-		<usetemplate name="okcancelbuttons" notext="Later..." yestext="Install now and restart [APP_NAME]"/>
+		<usetemplate name="okcancelbuttons" notext="稍候..." yestext="立即安裝及重新啟動 [APP_NAME]"/>
 	</notification>
 	<notification name="DownloadBackgroundDialog">
 		We have downloaded an update to your [APP_NAME] installation.
 Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
-		<usetemplate name="okcancelbuttons" notext="Later..." yestext="Install now and restart [APP_NAME]"/>
+		<usetemplate name="okcancelbuttons" notext="梢候..." yestext="立即安裝及重新啟動 [APP_NAME]"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedVerboseDialog">
 		We have downloaded a required software update.
@@ -1371,7 +1371,7 @@ We must restart [APP_NAME] to install the update.
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedDialog">
-		We must restart [APP_NAME] to install the update.
+		我門必須重新啟動 [APP_NAME] 以安裝更新。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1569,17 +1569,17 @@ Please try again later.
 	</notification>
 	<notification name="TeleportToPick">
 		瞬間傳送到 [PICK]?
-		<usetemplate ignoretext="Confirm that I want to teleport to a location in Picks" name="okcancelignore" notext="取消" yestext="Teleport"/>
+		<usetemplate ignoretext="確認我要瞬間傳送到精選地點的所在位置" name="okcancelignore" notext="取消" yestext="瞬間傳送"/>
 	</notification>
 	<notification name="TeleportToClassified">
 		瞬間傳送到 [CLASSIFIED]?
-		<usetemplate ignoretext="Confirm that I want to teleport to a location in Classifieds" name="okcancelignore" notext="取消" yestext="瞬間傳送"/>
+		<usetemplate ignoretext="確認我要瞬間傳送到個人廣告的所在位置" name="okcancelignore" notext="取消" yestext="瞬間傳送"/>
 	</notification>
 	<notification name="TeleportToHistoryEntry">
 		瞬間傳送到 [HISTORY_ENTRY]?
-		<usetemplate ignoretext="Confirm that I want to teleport to a history location" name="okcancelignore" notext="取消" yestext="瞬間傳送"/>
+		<usetemplate ignoretext="確認我要瞬間傳送到歷史紀錄中的位置" name="okcancelignore" notext="取消" yestext="瞬間傳送"/>
 	</notification>
-	<notification label="Message everyone in your Estate" name="MessageEstate">
+	<notification label="送出訊息給你領地內的每一個人" name="MessageEstate">
 		Type a short announcement which will be sent to everyone currently in your estate.
 		<form name="form">
 			<button name="OK" text="確定"/>
@@ -1780,15 +1780,15 @@ To enter Adult regions, Residents must be Account Verified, either by age-verifi
 	<notification label="Voice Version Mismatch" name="VoiceVersionMismatch">
 		This version of [APP_NAME] is not compatible with the Voice Chat feature in this region. In order for Voice Chat to function correctly you will need to update [APP_NAME].
 	</notification>
-	<notification label="Can&apos;t Buy Objects" name="BuyObjectOneOwner">
+	<notification label="無法購買物件" name="BuyObjectOneOwner">
 		Cannot buy objects from different owners at the same time.
 Please select only one object and try again.
 	</notification>
-	<notification label="Can&apos;t Buy Contents" name="BuyContentsOneOnly">
+	<notification label="無法購買內容物" name="BuyContentsOneOnly">
 		Unable to buy the contents of more than one object at a time.
 Please select only one object and try again.
 	</notification>
-	<notification label="Can&apos;t Buy Contents" name="BuyContentsOneOwner">
+	<notification label="無法購買內容物" name="BuyContentsOneOwner">
 		Cannot buy objects from different owners at the same time.
 Please select only one object and try again.
 	</notification>
@@ -1950,7 +1950,7 @@ Do you want to replace it with the selected object?
 			<button ignore="絕不取代" name="No" text="取消"/>
 		</form>
 	</notification>
-	<notification label="Busy Mode Warning" name="BusyModePay">
+	<notification label="忙碌模式警告" name="BusyModePay">
 		You are in Busy Mode, which means you will not receive any items offered in exchange for this payment.
 
 Would you like to leave Busy Mode before completing this transaction?

@@ -19,7 +19,7 @@
 		Record a sample, then click on a voice to hear how it will sound.
 	</text>
 	<button label="Record" name="record_btn" tool_tip="Record a sample of your voice."/>
-	<button label="Stop" name="record_stop_btn"/>
+	<button label="停止" name="record_stop_btn"/>
 	<text name="voice_morphing_link">
 		[[URL] Subscribe Now]
 	</text>

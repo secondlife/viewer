@@ -11,7 +11,7 @@
 	</text>
 	<combo_box label="服裝類型" name="clothing_type_combo">
 		<item label="圖像" name="Image" value="圖像"/>
-		<item label="Hair" name="Hair" value="Hair"/>
+		<item label="頭髮" name="Hair" value="頭髮"/>
 		<item label="Female Head" name="FemaleHead" value="Female Head"/>
 		<item label="Female Upper Body" name="FemaleUpperBody" value="Female Upper Body"/>
 		<item label="Female Lower Body" name="FemaleLowerBody" value="Female Lower Body"/>

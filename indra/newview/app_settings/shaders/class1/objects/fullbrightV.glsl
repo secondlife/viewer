@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 void calcAtmospherics(vec3 inPositionEye);
 

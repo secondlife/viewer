@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_shape_panel">
 	<string name="meters">
-		Meters
+		公尺
 	</string>
 	<string name="feet">
-		Feet
+		英呎
 	</string>
 	<string name="height">
-		Height:
+		身高：
 	</string>
 	<panel label="襯衫" name="accordion_panel">
 		<accordion name="wearable_accordion">
-			<accordion_tab name="shape_body_tab" title="Body"/>
-			<accordion_tab name="shape_head_tab" title="Head"/>
+			<accordion_tab name="shape_body_tab" title="身體"/>
+			<accordion_tab name="shape_head_tab" title="頭部"/>
 			<accordion_tab name="shape_eyes_tab" title="眼睛"/>
-			<accordion_tab name="shape_ears_tab" title="Ears"/>
-			<accordion_tab name="shape_nose_tab" title="Nose"/>
-			<accordion_tab name="shape_mouth_tab" title="Mouth"/>
-			<accordion_tab name="shape_chin_tab" title="Chin"/>
-			<accordion_tab name="shape_torso_tab" title="Torso"/>
-			<accordion_tab name="shape_legs_tab" title="Legs"/>
+			<accordion_tab name="shape_ears_tab" title="耳朵"/>
+			<accordion_tab name="shape_nose_tab" title="鼻子"/>
+			<accordion_tab name="shape_mouth_tab" title="嘴巴"/>
+			<accordion_tab name="shape_chin_tab" title="下巴"/>
+			<accordion_tab name="shape_torso_tab" title="軀幹"/>
+			<accordion_tab name="shape_legs_tab" title="腿部"/>
 		</accordion>
 	</panel>
 </panel>

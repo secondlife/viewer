@@ -742,6 +742,7 @@ extern char const* const _PREHASH_MoneyData;
 extern char const* const _PREHASH_ObjectDeselect;
 extern char const* const _PREHASH_NewAssetID;
 extern char const* const _PREHASH_ObjectAdd;
+extern char const* const _PREHASH_SimulatorFeatures;
 extern char const* const _PREHASH_RayEndIsIntersection;
 extern char const* const _PREHASH_CompleteAuction;
 extern char const* const _PREHASH_CircuitCode;
