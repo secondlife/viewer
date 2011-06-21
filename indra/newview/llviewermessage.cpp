@@ -936,7 +936,6 @@ protected:
 
 //one global instance to bind them
 LLOpenTaskOffer* gNewInventoryObserver=NULL;
-
 class LLNewInventoryHintObserver : public LLInventoryAddedObserver
 {
 protected:
@@ -945,6 +944,8 @@ protected:
 		LLFirstUse::newInventory();
 	}
 };
+
+LLNewInventoryHintObserver* gNewInventoryHintObserver=NULL;
 
 void start_new_inventory_observer()
 {
@@ -962,7 +963,12 @@ void start_new_inventory_observer()
 		gInventory.addObserver(gInventoryMoveObserver);
 	}
 
-	gInventory.addObserver(new LLNewInventoryHintObserver());
+	if (!gNewInventoryHintObserver)
+	{
+		// Observer is deleted by gInventory
+		gNewInventoryHintObserver = new LLNewInventoryHintObserver();
+		gInventory.addObserver(gNewInventoryHintObserver);
+	}
 }
 
 class LLDiscardAgentOffer : public LLInventoryFetchItemsObserver
