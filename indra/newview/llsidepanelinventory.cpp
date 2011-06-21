@@ -51,6 +51,7 @@
 #include "llsidepaneltaskinfo.h"
 #include "llstring.h"
 #include "lltabcontainer.h"
+#include "llviewermedia.h"
 #include "llviewernetwork.h"
 #include "llweb.h"
 
@@ -246,7 +247,12 @@ void LLSidepanelInventory::handleLoginComplete()
 	url += gAgent.getID().getString();
 	url += "/user_status";
 
-	LLHTTPClient::get(url, new LLInventoryUserStatusResponder(this));
+	LLSD headers = LLSD::emptyMap();
+	headers["Accept"] = "*/*";
+	headers["Cookie"] = LLViewerMedia::getOpenIDCookie();
+	headers["User-Agent"] = LLViewerMedia::getCurrentUserAgent();
+
+	LLHTTPClient::get(url, new LLInventoryUserStatusResponder(this), headers);
 
 	//
 	// Track inbox and outbox folder changes
