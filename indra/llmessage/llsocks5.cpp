@@ -24,13 +24,16 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
+#include "llsocks5.h"
+
 #include <string>
 
-#include "linden_common.h"
-#include "net.h"
+#include "llapr.h"
 #include "llhost.h"
 #include "message.h"
-#include "llsocks5.h"
+#include "net.h"
 
 // Static class variable instances
 
@@ -39,6 +42,12 @@
 // member is also static
 bool LLSocks::sUDPProxyEnabled;
 bool LLSocks::sHTTPProxyEnabled;
+
+// Some helpful TCP functions
+static LLSocket::ptr_t tcp_open_channel(LLHost host); // Open a TCP channel to a given host
+static void tcp_close_channel(LLSocket::ptr_t handle); // Close an open TCP channel
+static int tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
+
 
 LLSocks::LLSocks()
 {
@@ -214,3 +223,63 @@ void LLSocks::enableHTTPProxy(LLHost httpHost, LLHttpProxyType type)
 	mHTTPProxy        = httpHost;
 	mProxyType        = type;
 }
+
+static int tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen)
+{
+	apr_socket_t* apr_socket = handle->getSocket();
+	apr_status_t rv;
+
+	apr_size_t expected_len = outlen;
+
+    apr_socket_opt_set(apr_socket, APR_SO_NONBLOCK, -5); // Blocking connection, 5 second timeout
+    apr_socket_timeout_set(apr_socket, (APR_USEC_PER_SEC * 5));
+
+	rv = apr_socket_send(apr_socket, dataout, &outlen);
+	if (rv != APR_SUCCESS || expected_len != outlen)
+	{
+		llwarns << "Error sending data to proxy control channel" << llendl;
+		ll_apr_warn_status(rv);
+		return -1;
+	}
+
+	expected_len = maxinlen;
+	do
+	{
+		rv = apr_socket_recv(apr_socket, datain, &maxinlen);
+		llinfos << "Receiving packets." << llendl;
+		llwarns << "Proxy control channel status: " << rv << llendl;
+	} while (APR_STATUS_IS_EAGAIN(rv));
+
+	if (rv != APR_SUCCESS)
+	{
+		llwarns << "Error receiving data from proxy control channel, status: " << rv << llendl;
+		llwarns << "Received " << maxinlen << " bytes." << llendl;
+		ll_apr_warn_status(rv);
+		return rv;
+	}
+	else if (expected_len != maxinlen)
+	{
+		llwarns << "Incorrect data received length in proxy control channel" << llendl;
+		return -1;
+	}
+
+	return 0;
+}
+
+static LLSocket::ptr_t tcp_open_channel(LLHost host)
+{
+	LLSocket::ptr_t socket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);
+	bool connected = socket->blockingConnect(host);
+	if (!connected)
+	{
+		tcp_close_channel(socket);
+	}
+
+	return socket;
+}
+
+static void tcp_close_channel(LLSocket::ptr_t handle)
+{
+	handle.reset();
+}
+

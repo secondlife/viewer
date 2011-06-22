@@ -28,6 +28,7 @@
 #define LL_SOCKS5_H
 
 #include "llhost.h"
+#include "lliosocket.h"
 #include "llmemory.h"
 #include "llsingleton.h"
 #include <string>
