@@ -221,11 +221,11 @@ void LLBadge::draw()
 				F32 badge_x = badge_center_x - badge_width * 0.5f;
 				F32 badge_y = badge_center_y - badge_height * 0.5f;
 			
-				mImage->drawSolid(badge_x, badge_y, badge_width, badge_height, mImageColor % alpha);
+				mImage->drawSolid((S32) badge_x, (S32) badge_y, (S32) badge_width, (S32) badge_height, mImageColor % alpha);
 
 				if (!mBorderImage.isNull())
 				{
-					mBorderImage->drawSolid(badge_x, badge_y, badge_width, badge_height, mBorderColor % alpha);
+					mBorderImage->drawSolid((S32) badge_x, (S32) badge_y, (S32) badge_width, (S32) badge_height, mBorderColor % alpha);
 				}
 			}
 			else
