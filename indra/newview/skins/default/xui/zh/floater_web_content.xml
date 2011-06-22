@@ -4,9 +4,9 @@
 		<layout_panel name="nav_controls">
 			<button name="back" tool_tip="Navigate back"/>
 			<button name="forward" tool_tip="Navigate forward"/>
-			<button name="stop" tool_tip="Stop navigation"/>
+			<button name="stop" tool_tip="停止導覽"/>
 			<button name="reload" tool_tip="重載頁面"/>
-			<combo_box name="address" tool_tip="Enter URL here"/>
+			<combo_box name="address" tool_tip="在此輸入 URL 位置"/>
 			<icon name="media_secure_lock_flag" tool_tip="Secured Browsing"/>
 			<button name="popexternal" tool_tip="Open current URL in your desktop browser"/>
 		</layout_panel>

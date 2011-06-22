@@ -120,6 +120,8 @@
 			<menu_item_call label="Immagine ([COST] L$)..." name="Upload Image"/>
 			<menu_item_call label="Suono ([COST] L$)..." name="Upload Sound"/>
 			<menu_item_call label="Animazione ([COST] L$)..." name="Upload Animation"/>
+			<menu_item_call label="Modella..." name="Upload Model"/>
+			<menu_item_call label="Procedura guidata modellazione..." name="Upload Model Wizard"/>
 			<menu_item_call label="In blocco ([COST] L$ per file)..." name="Bulk Upload"/>
 		</menu>
 		<menu_item_call label="Annulla" name="Undo"/>
@@ -159,7 +161,7 @@
 			<menu_item_check label="Alpha (Trasparenza)" name="Alpha"/>
 			<menu_item_check label="Albero" name="Tree"/>
 			<menu_item_check label="Avatar" name="Character"/>
-			<menu_item_check label="Superficie" name="SurfacePath"/>
+			<menu_item_check label="Superficie chiusa" name="Surface Patch"/>
 			<menu_item_check label="Cielo" name="Sky"/>
 			<menu_item_check label="Acqua" name="Water"/>
 			<menu_item_check label="Suolo" name="Ground"/>
@@ -217,6 +219,7 @@
 			<menu_item_check label="Console categoria texture" name="Texture Category"/>
 			<menu_item_check label="Timer veloci" name="Fast Timers"/>
 			<menu_item_check label="Memoria" name="Memory"/>
+			<menu_item_check label="Statistiche scena" name="Scene Statistics"/>
 			<menu_item_call label="Informazioni regione sulla console di debug" name="Region Info to Debug Console"/>
 			<menu_item_check label="Fotocamera" name="Camera"/>
 			<menu_item_check label="Vento" name="Wind"/>
@@ -224,6 +227,7 @@
 		</menu>
 		<menu label="Mostra informazioni" name="Display Info">
 			<menu_item_check label="Mostra orario" name="Show Time"/>
+			<menu_item_check label="Mostra costo di caricamento" name="Show Upload Cost"/>
 			<menu_item_check label="Mostra informazioni di rendering" name="Show Render Info"/>
 			<menu_item_check label="Mostra info sulla texture" name="Show Texture Info"/>
 			<menu_item_check label="Mostra colore sotto il cursore" name="Show Color Under Cursor"/>
@@ -246,7 +250,12 @@
 			<menu_item_check label="Test frame" name="Frame Test"/>
 		</menu>
 		<menu label="Render Metadata" name="Render Metadata">
+			<menu_item_check label="Normali" name="Normals"/>
+			<menu_item_check label="Forme fisica" name="Physics Shapes"/>
 			<menu_item_check label="Aggiorna tipo" name="Update Type"/>
+			<menu_item_check label="Info livello dettaglio" name="LOD Info"/>
+			<menu_item_check label="Crea coda" name="Build Queue"/>
+			<menu_item_check label="Scolpisci" name="Sculpt"/>
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Assi" name="Axes"/>
@@ -312,6 +321,7 @@
 			<menu_item_call label="Debug texture dell&apos;avatar" name="Debug Avatar Textures"/>
 		</menu>
 		<menu_item_check label="Texture HTTP" name="HTTP Textures"/>
+		<menu_item_check label="Inventario HTTP" name="HTTP Inventory"/>
 		<menu_item_check label="Finestra Console al prossimo lancio" name="Console Window"/>
 		<menu_item_call label="Richiedi diritti Admin" name="Request Admin Options"/>
 		<menu_item_call label="Lascia stato Admin" name="Leave Admin Options"/>

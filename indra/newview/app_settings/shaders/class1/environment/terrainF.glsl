@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 uniform sampler2D detail0;
 uniform sampler2D detail1;

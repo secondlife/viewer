@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Preferences" title="PREFERENCES">
+<floater name="Preferences" title="偏好設定">
 	<button label="確定" label_selected="確定" name="OK"/>
-	<button label="取銷" label_selected="取銷" name="Cancel"/>
+	<button label="取消" label_selected="取消" name="Cancel"/>
 	<tab_container name="pref core">
 		<panel label="一般" name="general"/>
-		<panel label="Graphics" name="display"/>
-		<panel label="Sound &amp; Media" name="audio"/>
+		<panel label="圖形" name="display"/>
+		<panel label="聲音與媒體" name="audio"/>
 		<panel label="聊天" name="chat"/>
-		<panel label="Move &amp; View" name="move"/>
-		<panel label="Notifications" name="msgs"/>
-		<panel label="Colors" name="colors"/>
-		<panel label="Privacy" name="im"/>
-		<panel label="Setup" name="input"/>
-		<panel label="Advanced" name="advanced1"/>
+		<panel label="移動與視角" name="move"/>
+		<panel label="通知" name="msgs"/>
+		<panel label="顏色" name="colors"/>
+		<panel label="隱私" name="im"/>
+		<panel label="設定" name="input"/>
+		<panel label="進階" name="advanced1"/>
 	</tab_container>
 </floater>

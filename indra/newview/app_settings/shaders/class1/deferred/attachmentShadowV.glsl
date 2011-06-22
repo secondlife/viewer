@@ -5,7 +5,7 @@
  * $License$
  */
 
-#version 120
+
 
 mat4 getObjectSkinnedTransform();
 

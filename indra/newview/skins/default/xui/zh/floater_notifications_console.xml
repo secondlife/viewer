@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="notifications_console" title="NOTIFICATIONS CONSOLE">
-	<combo_box label="Select notification type" name="notification_types"/>
-	<button label="Add" name="add_notification"/>
+<floater name="notifications_console" title="通知控制台">
+	<combo_box label="選擇通知類型" name="notification_types"/>
+	<button label="添加" name="add_notification"/>
 </floater>

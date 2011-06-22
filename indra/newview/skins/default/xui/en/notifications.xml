@@ -6897,7 +6897,9 @@ Select residents to share with.
     name="MeshUploadError"
     icon="alert.tga"
     type="alert">
-    [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+    [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] 
+
+See the log file for details.
   </notification>
    
   <notification

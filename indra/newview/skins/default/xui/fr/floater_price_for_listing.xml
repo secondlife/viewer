@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="price_for_listing" title="PUBLIER UNE PETITE ANNONCE">
+	<text name="explanation_text">
+		Votre petite annonce sera visible pendant une semaine à partir du jour de sa publication.
+
+La position de votre annonce dans les listes dépend du montant que vous décidez de payer.
+
+Si vous choisissez de payer plus cher, votre publicité sera plus visible dans les résultats de recherche.
+	</text>
+	<text name="price_text">
+		Coût de l&apos;annonce :
+	</text>
+	<text name="price_symbol">
+		L$
+	</text>
+	<button label="OK" name="set_price_btn"/>
+	<button label="Annuler" name="cancel_btn"/>
+</floater>

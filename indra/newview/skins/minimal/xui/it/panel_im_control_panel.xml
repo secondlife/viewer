@@ -5,7 +5,7 @@
 			<button label="Profilo" name="view_profile_btn"/>
 		</layout_panel>
 		<layout_panel name="add_friend_btn_panel">
-			<button label="Aggiungi amico" name="add_friend_btn"/>
+			<button label="Aggiungi come amico" name="add_friend_btn"/>
 		</layout_panel>
 		<layout_panel name="teleport_btn_panel">
 			<button label="Teleport" name="teleport_btn" tool_tip="Offri teleport a questa persona"/>

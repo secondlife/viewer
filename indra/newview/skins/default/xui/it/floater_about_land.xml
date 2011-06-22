@@ -75,64 +75,64 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 			<text name="LandType">
 				Tipo:
 			</text>
-			<text left="119" name="LandTypeText">
+			<text name="LandTypeText">
 				Mainland / Homestead
 			</text>
 			<text name="ContentRating" width="115">
 				Categoria di accesso:
 			</text>
-			<text left="119" name="ContentRatingText">
+			<text name="ContentRatingText">
 				Adulti
 			</text>
 			<text name="Owner:">
 				Proprietario:
 			</text>
-			<text left="119" name="OwnerText" width="227"/>
+			<text name="OwnerText" width="227"/>
 			<text name="Group:">
 				Gruppo:
 			</text>
-			<text left="119" name="GroupText" width="227"/>
+			<text name="GroupText" width="227"/>
 			<button label="Imposta" name="Set..."/>
-			<check_box label="Permetti cessione al gruppo" left="119" name="check deed" tool_tip="Un funzionario del gruppo può cedere questa terra al gruppo stesso cosicchè essa sarà  supportata  dalle terre del gruppo."/>
+			<check_box label="Permetti cessione al gruppo" name="check deed" tool_tip="Un funzionario del gruppo può cedere questa terra al gruppo stesso cosicchè essa sarà  supportata  dalle terre del gruppo."/>
 			<button label="Cedi" name="Deed..." tool_tip="Puoi solo offrire terra se sei un funzionario del gruppo selezionato."/>
-			<check_box label="Il proprietario fa un contributo con la cessione" left="119" name="check contrib" tool_tip="Quando la terra è ceduta al gruppo, il proprietario precedente contribuisce con abbastanza allocazione di terra per supportarlo."/>
+			<check_box label="Il proprietario fa un contributo con la cessione" name="check contrib" tool_tip="Quando la terra è ceduta al gruppo, il proprietario precedente contribuisce con abbastanza allocazione di terra per supportarlo."/>
 			<text name="For Sale:">
 				In vendita:
 			</text>
-			<text left="119" name="Not for sale.">
+			<text name="Not for sale.">
 				Non in vendita.
 			</text>
-			<text left="119" name="For Sale: Price L$[PRICE].">
+			<text name="For Sale: Price L$[PRICE].">
 				Prezzo: [PRICE]L$ ([PRICE_PER_SQM]L$/m²).
 			</text>
-			<text left="119" name="SalePending" width="321"/>
+			<text name="SalePending" width="321"/>
 			<button bottom="-242" label="Vendi la terra..." label_selected="Vendi la terra..." name="Sell Land..."/>
-			<text left="119" name="For sale to">
+			<text name="For sale to">
 				In vendita a: [BUYER]
 			</text>
-			<text left="119" name="Sell with landowners objects in parcel." width="240">
+			<text name="Sell with landowners objects in parcel.">
 				Gli oggetti sono inclusi nella vendita.
 			</text>
-			<text left="119" name="Selling with no objects in parcel." width="240">
+			<text name="Selling with no objects in parcel.">
 				Gli oggetti non sono inclusi nella vendita.
 			</text>
-			<button bottom="-242" font="SansSerifSmall" label="Annulla la vendita del terreno" label_selected="Annulla la vendita del terreno" left="275" name="Cancel Land Sale" width="165"/>
+			<button font="SansSerifSmall" label="Annulla la vendita del terreno" label_selected="Annulla la vendita del terreno" name="Cancel Land Sale"/>
 			<text name="Claimed:" width="115">
 				Presa in possesso il:
 			</text>
-			<text left="119" name="DateClaimText">
+			<text name="DateClaimText">
 				Tue Aug 15 13:47:25 2006
 			</text>
 			<text name="PriceLabel">
 				Area:
 			</text>
-			<text left="119" name="PriceText" width="140">
+			<text name="PriceText" width="140">
 				4048 m²
 			</text>
 			<text name="Traffic:">
 				Traffico:
 			</text>
-			<text left="119" name="DwellText" width="140">
+			<text name="DwellText" width="140">
 				0
 			</text>
 			<button label="Acquista il terreno..." label_selected="Acquista il terreno..." left="130" name="Buy Land..." width="125"/>

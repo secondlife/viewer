@@ -584,6 +584,13 @@ void LLPanelPlaces::onTeleportButtonClicked()
 	{
 		if (mPlaceInfoType == LANDMARK_INFO_TYPE)
 		{
+			if (mItem.isNull())
+			{
+				llwarns << "NULL landmark item" << llendl;
+				llassert(mItem.notNull());
+				return;
+			}
+
 			LLSD payload;
 			payload["asset_id"] = mItem->getAssetUUID();
 			LLSD args; 

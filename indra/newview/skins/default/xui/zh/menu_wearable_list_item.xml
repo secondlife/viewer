@@ -9,6 +9,6 @@
 	<context_menu label="Attach to HUD" name="wearable_attach_to_hud"/>
 	<menu_item_call label="脫下" name="take_off"/>
 	<menu_item_call label="編輯" name="edit"/>
-	<menu_item_call label="Item Profile" name="object_profile"/>
-	<menu_item_call label="Show Original" name="show_original"/>
+	<menu_item_call label="物品檔案" name="object_profile"/>
+	<menu_item_call label="顯示原件" name="show_original"/>
 </context_menu>

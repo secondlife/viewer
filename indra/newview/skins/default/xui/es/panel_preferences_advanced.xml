@@ -14,5 +14,5 @@
 	<check_box label="Permitir el acceso de varios usuarios" name="allow_multiple_viewer_check"/>
 	<check_box label="Mostrar la selección de cuadrícula al iniciar sesión" name="show_grid_selection_check"/>
 	<check_box label="Mostrar el menú Avanzado" name="show_advanced_menu_check"/>
-	<check_box label="Mostrar el menú Desarrollador" name="show_develop_menu_check"/>
+	<check_box label="Mostrar el menú Develop" name="show_develop_menu_check"/>
 </panel>

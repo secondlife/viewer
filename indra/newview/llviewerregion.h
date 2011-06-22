@@ -278,6 +278,11 @@ public:
 
 	void getInfo(LLSD& info);
 	
+	bool meshRezEnabled() const;
+	bool meshUploadEnabled() const;
+
+	void getSimulatorFeatures(LLSD& info);	
+	void setSimulatorFeatures(const LLSD& info);
 
 	typedef enum
 	{
@@ -403,6 +408,8 @@ private:
 	caps_received_signal_t mCapabilitiesReceivedSignal;
 
 	BOOL mReleaseNotesRequested;
+	
+	LLSD mSimulatorFeatures;
 };
 
 inline BOOL LLViewerRegion::getAllowDamage() const

@@ -90,6 +90,7 @@
 #include "llwaterparammanager.h"
 #include "lltrans.h"
 #include "llagentui.h"
+#include "llmeshrepository.h"
 
 // contains includes needed for WL estate settings
 #include "llfloaterwater.h"
@@ -631,10 +632,7 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
 	getChildView("im_btn")->setEnabled(allow_modify);
 	getChildView("manage_telehub_btn")->setEnabled(allow_modify);
 
-	const bool enable_mesh = gSavedSettings.getBOOL("MeshEnabled") && 
-		gAgent.getRegion() &&
-		!gAgent.getRegion()->getCapability("GetMesh").empty() &&
-		!gAgent.getRegion()->getCapability("ObjectAdd").empty();
+	const bool enable_mesh = gMeshRepo.meshRezEnabled();
 	getChildView("mesh_rez_enabled_check")->setVisible(enable_mesh);
 	getChildView("mesh_rez_enabled_check")->setEnabled(getChildView("mesh_rez_enabled_check")->getEnabled() && enable_mesh);
 	// Data gets filled in by processRegionInfo

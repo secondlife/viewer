@@ -45,6 +45,8 @@ public:
 	bool hasObjectSkinning;
 	bool hasAtmospherics;
 	bool hasGamma;
+	S32 mIndexedTextureChannels;
+	bool disableTextureIndex;
 
 	// char numLights;
 	
@@ -63,6 +65,8 @@ public:
 	};
 	
 	LLGLSLShader();
+
+	static GLhandleARB sCurBoundShader;
 
 	void unload();
 	BOOL createShader(std::vector<std::string> * attributes,

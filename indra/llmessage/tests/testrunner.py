@@ -29,14 +29,21 @@ $/LicenseInfo$
 
 import os
 import sys
+import re
 import errno
 import socket
 
-def debug(*args):
-    sys.stdout.writelines(args)
-    sys.stdout.flush()
-# comment out the line below to enable debug output
-debug = lambda *args: None
+VERBOSE = os.environ.get("INTEGRATION_TEST_VERBOSE", "1") # default to verbose
+# Support usage such as INTEGRATION_TEST_VERBOSE=off -- distressing to user if
+# that construct actually turns on verbosity...
+VERBOSE = not re.match(r"(0|off|false|quiet)$", VERBOSE, re.IGNORECASE)
+
+if VERBOSE:
+    def debug(fmt, *args):
+        print fmt % args
+        sys.stdout.flush()
+else:
+    debug = lambda *args: None
 
 def freeport(portlist, expr):
     """
@@ -78,44 +85,53 @@ def freeport(portlist, expr):
     # pass 'port' to client code
     # call server.serve_forever()
     """
-    # If portlist is completely empty, let StopIteration propagate: that's an
-    # error because we can't return meaningful values. We have no 'port',
-    # therefore no 'expr(port)'.
-    portiter = iter(portlist)
-    port = portiter.next()
+    try:
+        # If portlist is completely empty, let StopIteration propagate: that's an
+        # error because we can't return meaningful values. We have no 'port',
+        # therefore no 'expr(port)'.
+        portiter = iter(portlist)
+        port = portiter.next()
 
-    while True:
-        try:
-            # If this value of port works, return as promised.
-            return expr(port), port
-
-        except socket.error, err:
-            # Anything other than 'Address already in use', propagate
-            if err.args[0] != errno.EADDRINUSE:
-                raise
-
-            # Here we want the next port from portiter. But on StopIteration,
-            # we want to raise the original exception rather than
-            # StopIteration. So save the original exc_info().
-            type, value, tb = sys.exc_info()
+        while True:
             try:
-                try:
-                    port = portiter.next()
-                except StopIteration:
-                    raise type, value, tb
-            finally:
-                # Clean up local traceback, see docs for sys.exc_info()
-                del tb
+                # If this value of port works, return as promised.
+                value = expr(port)
 
-        # Recap of the control flow above:
-        # If expr(port) doesn't raise, return as promised.
-        # If expr(port) raises anything but EADDRINUSE, propagate that
-        # exception.
-        # If portiter.next() raises StopIteration -- that is, if the port
-        # value we just passed to expr(port) was the last available -- reraise
-        # the EADDRINUSE exception.
-        # If we've actually arrived at this point, portiter.next() delivered a
-        # new port value. Loop back to pass that to expr(port).
+            except socket.error, err:
+                # Anything other than 'Address already in use', propagate
+                if err.args[0] != errno.EADDRINUSE:
+                    raise
+
+                # Here we want the next port from portiter. But on StopIteration,
+                # we want to raise the original exception rather than
+                # StopIteration. So save the original exc_info().
+                type, value, tb = sys.exc_info()
+                try:
+                    try:
+                        port = portiter.next()
+                    except StopIteration:
+                        raise type, value, tb
+                finally:
+                    # Clean up local traceback, see docs for sys.exc_info()
+                    del tb
+
+            else:
+                debug("freeport() returning %s on port %s", value, port)
+                return value, port
+
+            # Recap of the control flow above:
+            # If expr(port) doesn't raise, return as promised.
+            # If expr(port) raises anything but EADDRINUSE, propagate that
+            # exception.
+            # If portiter.next() raises StopIteration -- that is, if the port
+            # value we just passed to expr(port) was the last available -- reraise
+            # the EADDRINUSE exception.
+            # If we've actually arrived at this point, portiter.next() delivered a
+            # new port value. Loop back to pass that to expr(port).
+
+    except Exception, err:
+        debug("*** freeport() raising %s: %s", err.__class__.__name__, err)
+        raise
 
 def run(*args, **kwds):
     """All positional arguments collectively form a command line, executed as
@@ -144,8 +160,7 @@ def run(*args, **kwds):
     # - [no p] don't use the PATH because we specifically want to invoke the
     #   executable passed as our first arg,
     # - [no e] child should inherit this process's environment.
-    debug("Running %s...\n" % (" ".join(args)))
-    sys.stdout.flush()
+    debug("Running %s...", " ".join(args))
     rc = os.spawnv(os.P_WAIT, args[0], args)
-    debug("%s returned %s\n" % (args[0], rc))
+    debug("%s returned %s", args[0], rc)
     return rc

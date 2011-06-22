@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 // varying param funcs
 void setSunlitColor(vec3 v);

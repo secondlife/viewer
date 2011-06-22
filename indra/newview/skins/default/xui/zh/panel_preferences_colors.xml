@@ -34,7 +34,7 @@
 	<color_swatch name="background" tool_tip="挑選名稱標籤顏色"/>
 	<slider label="不透明度：" name="bubble_chat_opacity" tool_tip="挑選名稱標籤不透明度"/>
 	<text name="floater_opacity">
-		Floater Opacity:
+		浮動視窗不透明度：
 	</text>
 	<slider label="啟用：" name="active"/>
 	<slider label="停用：" name="inactive"/>

@@ -124,6 +124,139 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/index.php?lang=it-IT
 	</string>
+	<string name="LoginFailedViewerNotPermitted">
+		Il viewer utilizzato non è più in grado di accedere a Second Life. Visita la parina seguente per scaricare un nuovo viewer:
+http://secondlife.com/download.
+
+Per maggiori informazioni, consulta le domande frequenti alla pagina seguente:
+http://secondlife.com/viewer-access-faq
+	</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">
+		Disponibile aggiornamento facoltativo viewer: [VERSION]
+	</string>
+	<string name="LoginFailedRequiredUpdate">
+		Aggernamento viewer richiesto: [VERSION]
+	</string>
+	<string name="LoginFailedAlreadyLoggedIn">
+		Questo agente ha già eseguito il login.
+	</string>
+	<string name="LoginFailedAuthenticationFailed">
+		Siamo spiacenti. Il tentativo di accesso non è riuscito.
+Verifica di avere inserito correttamente
+    * Nome utente (come robby12 o Stella Soleggiato)
+    * Password
+Verifica anche che il blocco delle maiuscole non sia attivato.
+	</string>
+	<string name="LoginFailedPasswordChanged">
+		Come misura precauzionale, la tua password è stata cambiata.
+Visita la pagina del tuo account a http://secondlife.com/password
+e rispondi alla domanda di sicurezza per reimpostare la password.
+Ci scusiamo per l&apos;inconveniente.
+	</string>
+	<string name="LoginFailedPasswordReset">
+		Abbiamo effettuato delle modifiche al sistema che richiedono di reimpostare la password.
+Visita la pagina del tuo account a http://secondlife.com/password
+e rispondi alla domanda di sicurezza per reimpostare la password.
+Ci scusiamo per l&apos;inconveniente.
+	</string>
+	<string name="LoginFailedEmployeesOnly">
+		Second Life è chiuso temporaneamente per manutenzione.
+Al momento, solo i dipendenti possono eseguire l&apos;accesso.
+Visita www.secondlife.com/status per aggiornamenti.
+	</string>
+	<string name="LoginFailedPremiumOnly">
+		L&apos;accesso a Second Life è temporaneamente limitato per garantire che chi è nel mondo virtuale abbia la migliore esperienza possibile.
+	 	
+Le persona con account gratuiti non potrenno accedere a Second Life durante questo periodo, per lasciare spazio alle persone che hanno pagato per Second Life.
+	</string>
+	<string name="LoginFailedComputerProhibited">
+		Non si può accedere a Second Life da questo computer.
+Se ritieni che si tratta di un errore, contatta
+support@secondlife.com.
+	</string>
+	<string name="LoginFailedAcountSuspended">
+		Il tuo account non è accessibile fino alle
+[TIME] fuso orario del Pacifico.
+	</string>
+	<string name="LoginFailedAccountDisabled">
+		Non siamo attualmente in grado di completare la tua richiesta.
+Contatta l&apos;assistenza Second Life alla pagina http://secondlife.com/support.
+Se non sei in grado di cambiare la password, chiama (866) 476-9763.
+	</string>
+	<string name="LoginFailedTransformError">
+		Dati incompatibili rilevati durante l&apos;accesso.
+Contattare support@secondlife.com.
+	</string>
+	<string name="LoginFailedAccountMaintenance">
+		Il tuo account è in fase di leggera manutenzione.
+Il tuo account non è accessibile fino alle
+[TIME] fuso orario del Pacifico.
+Se ritieni che si tratta di un errore, contatta support@secondlife.com.
+	</string>
+	<string name="LoginFailedPendingLogoutFault">
+		Errore del simulatore in seguito alla richiesta di logout.
+	</string>
+	<string name="LoginFailedPendingLogout">
+		Il sistema sta eseguendo il logout in questo momento.
+Il tuo account non sarà disponibile fino alle
+[TIME] fuso orario del Pacifico.
+	</string>
+	<string name="LoginFailedUnableToCreateSession">
+		Non è possibile creare una sessione valida.
+	</string>
+	<string name="LoginFailedUnableToConnectToSimulator">
+		Non è possibile collegarsi a un simulatore.
+	</string>
+	<string name="LoginFailedRestrictedHours">
+		Il tuo account può accedere a Second Life solo
+tra le [START] e le [END] fuso orario del Pacifico.
+Torna durante quell&apos;orario.
+Se ritieni che si tratta di un errore, contatta support@secondlife.com.
+	</string>
+	<string name="LoginFailedIncorrectParameters">
+		Parametri errati.
+Se ritieni che si tratta di un errore, contatta support@secondlife.com.
+	</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">
+		Il parametro Nome deve includere solo caratteri alfanumerici.
+Se ritieni che si tratta di un errore, contatta support@secondlife.com.
+	</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">
+		Il parametro Cognome deve includere solo caratteri alfanumerici.
+Se ritieni che si tratta di un errore, contatta support@secondlife.com.
+	</string>
+	<string name="LogoutFailedRegionGoingOffline">
+		La regione sta passando allo stato non in linea.
+Prova ad accedere nuovamente tra un minuto.
+	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		L&apos;agente non è nella regione.
+Prova ad accedere nuovamente tra un minuto.
+	</string>
+	<string name="LogoutFailedPendingLogin">
+		La regione ha eseguito l&apos;accesso in un&apos;altre sessione.
+Prova ad accedere nuovamente tra un minuto.
+	</string>
+	<string name="LogoutFailedLoggingOut">
+		La regione stava eseguendo il logout della sessione precedente.
+Prova ad accedere nuovamente tra un minuto.
+	</string>
+	<string name="LogoutFailedStillLoggingOut">
+		La regione sta ancora eseguendo il logout della sessione precedente.
+Prova ad accedere nuovamente tra un minuto.
+	</string>
+	<string name="LogoutSucceeded">
+		La regione ha eseguito il logout dell&apos;ultima sessione.
+Prova ad accedere nuovamente tra un minuto.
+	</string>
+	<string name="LogoutFailedLogoutBegun">
+		La regione ha iniziato la procedura di logout.
+Prova ad accedere nuovamente tra un minuto.
+	</string>
+	<string name="LoginFailedLoggingOutSession">
+		Il sistema ha iniziato il logout dell&apos;ultima sessione.
+Prova ad accedere nuovamente tra un minuto.
+	</string>
 	<string name="AgentLostConnection">
 		Questa regione sta avendo problemi.  Verifica la tua connessione a Internet.
 	</string>
@@ -431,6 +564,9 @@
 	</string>
 	<string name="symbolic folder link">
 		link alla cartella
+	</string>
+	<string name="mesh">
+		reticolo
 	</string>
 	<string name="AvatarAway">
 		Assente
@@ -1158,6 +1294,9 @@
 	</string>
 	<string name="InvFolder Accessories">
 		Accessori
+	</string>
+	<string name="InvFolder Meshes">
+		Reticoli
 	</string>
 	<string name="InvFolder Friends">
 		Amici
@@ -3665,6 +3804,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="session_initialization_timed_out_error">
 		Sessione di inizializzazione scaduta
+	</string>
+	<string name="Home position set.">
+		Posizione di base impostata.
 	</string>
 	<string name="voice_morphing_url">
 		http://secondlife.com/landing/voicemorphing

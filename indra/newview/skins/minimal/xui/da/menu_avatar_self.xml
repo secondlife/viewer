@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Self Pie">
+	<menu_item_call label="Sid ned" name="Sit Down Here"/>
+	<menu_item_call label="Stå op" name="Stand Up"/>
+	<context_menu label="Tag af" name="Take Off &gt;">
+		<context_menu label="Tøj" name="Clothes &gt;">
+			<menu_item_call label="Trøje" name="Shirt"/>
+			<menu_item_call label="Bukser" name="Pants"/>
+			<menu_item_call label="Nederdel" name="Skirt"/>
+			<menu_item_call label="Sko" name="Shoes"/>
+			<menu_item_call label="Strømper" name="Socks"/>
+			<menu_item_call label="Jakke" name="Jacket"/>
+			<menu_item_call label="Handsker" name="Gloves"/>
+			<menu_item_call label="Undertrøje" name="Self Undershirt"/>
+			<menu_item_call label="Underbukser" name="Self Underpants"/>
+			<menu_item_call label="Tatovering" name="Self Tattoo"/>
+			<menu_item_call label="Alpha" name="Self Alpha"/>
+			<menu_item_call label="Alt tøj" name="All Clothes"/>
+		</context_menu>
+		<context_menu label="HUD" name="Object Detach HUD"/>
+		<context_menu label="Tag af" name="Object Detach"/>
+		<menu_item_call label="Tag alt af" name="Detach All"/>
+	</context_menu>
+	<menu_item_call label="Mit udseende" name="Chenge Outfit"/>
+	<menu_item_call label="Redigér mit sæt" name="Edit Outfit"/>
+	<menu_item_call label="Redigér min form" name="Edit My Shape"/>
+	<menu_item_call label="Venner" name="Friends..."/>
+	<menu_item_call label="Grupper" name="Groups..."/>
+	<menu_item_call label="Profil" name="Profile..."/>
+	<menu_item_call label="Debug teksturer" name="Debug..."/>
+</context_menu>

@@ -17,7 +17,7 @@
 	</string>
 	<layout_stack name="my_call_stack">
 		<layout_panel name="my_panel">
-			<text name="user_text" value="My Avatar:"/>
+			<text name="user_text" value="我的化身："/>
 		</layout_panel>
 		<layout_panel name="leave_call_panel">
 			<layout_stack name="voice_effect_and_leave_call_stack">

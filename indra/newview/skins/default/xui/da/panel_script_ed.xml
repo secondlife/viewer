@@ -15,6 +15,9 @@
 	<panel.string name="Title">
 		Script: [NAME]
 	</panel.string>
+	<panel.string name="external_editor_not_set">
+		Vælg en editor ved at opsætte miljø-variablen LL_SCRIPT_EDITOR eller opsætning af Ekstern editor.
+	</panel.string>
 	<menu_bar name="script_menu">
 		<menu label="Filer" name="File">
 			<menu_item_call label="Gem" name="Save"/>

@@ -4,9 +4,11 @@
      name="Model Preview" title="Upload Model" width="620">
 
   <string name="status_idle">Idle</string>
+  <string name="status_parse_error">Dae parsing issue - see log for details.</string>
   <string name="status_reading_file">Loading...</string>
   <string name="status_generating_meshes">Generating Meshes...</string>
   <string name="status_vertex_number_overflow">Error: Vertex number is more than 65534, aborted!</string>
+  <string name="bad_element">Error: element is invalid</string>
   <string name="high">High</string>
   <string name="medium">Medium</string>
   <string name="low">Low</string>
@@ -83,6 +85,20 @@
     </text>
   </panel>
 
+  <check_box
+	height="16"
+	left_delta="0"
+	name="confirm_checkbox"
+	top_pad="15"
+	follows="bottom|left"
+	width="16" />
+
+  <text
+	height="30"
+	width="570"
+	word_wrap="true" 
+	left_delta="25"
+	top_delta="0">I confirm that I have the appropriate rights to the material contained in this model. [secondlife:///app/floater/learn_more Learn more]</text>
   <text left="10" bottom="540" width="290" height="15" follows="bottom|left|right" name="status">[STATUS]</text>
 
   

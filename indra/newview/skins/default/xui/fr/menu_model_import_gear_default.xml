@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="model_menu_gear_default">
+	<menu_item_check label="Afficher les arêtes" name="show_edges"/>
+	<menu_item_check label="Afficher les propriétés physiques" name="show_physics"/>
+	<menu_item_check label="Afficher les textures" name="show_textures"/>
+	<menu_item_check label="Afficher la pondération de la peau" name="show_skin_weight"/>
+	<menu_item_check label="Afficher la position des articulations" name="show_joint_positions"/>
+</toggleable_menu>

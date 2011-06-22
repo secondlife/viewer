@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="script ed float" title="SCRIPT: NEW SCRIPT">
+<floater name="script ed float" title="腳本：　新腳本">
 	<floater.string name="not_allowed">
 		You can not view or edit this script, since it has been set as &quot;no copy&quot;. You need full permissions to view or edit a script inside an object.
 	</floater.string>
 	<floater.string name="script_running">
-		Running
+		執行中
 	</floater.string>
 	<floater.string name="Title">
-		SCRIPT: [NAME]
+		腳本：[NAME]
 	</floater.string>
 	<button label="Reset" label_selected="Reset" name="Reset"/>
 	<check_box initial_value="true" label="Running" name="running"/>

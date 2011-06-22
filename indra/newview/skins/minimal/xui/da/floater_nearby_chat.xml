@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="nearby_chat" title="CHAT NÆRVED">
+	<check_box label="Oversæt chat (håndteret af Google)" name="translate_chat_checkbox"/>
+</floater>

@@ -1417,12 +1417,12 @@ void LLViewerObjectList::onObjectCostFetchFailure(const LLUUID& object_id)
 	mPendingObjectCost.erase(object_id);
 }
 
-void LLViewerObjectList::updateQuotaCost( const LLUUID& objectId, const SelectionQuota& quota  )
+void LLViewerObjectList::updateQuota( const LLUUID& objectId, const SelectionQuota& quota  )
 {
 	LLViewerObject* pVO = findObject( objectId );
 	if ( pVO )
 	{
-		//pVO->updateQuota( quota );
+		pVO->updateQuota( quota );
 	}
 }
 
@@ -1494,6 +1494,24 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 
 	gPipeline.shiftObjects(offset);
 	LLWorld::getInstance()->shiftRegions(offset);
+}
+
+void LLViewerObjectList::repartitionObjects()
+{
+	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+	{
+		LLViewerObject* objectp = *iter;
+		if (!objectp->isDead())
+		{
+			LLDrawable* drawable = objectp->mDrawable;
+			if (drawable && !drawable->isDead())
+			{
+				drawable->updateBinRadius();
+				drawable->updateSpatialExtents();
+				drawable->movePartition();
+			}
+		}
+	}
 }
 
 //debug code
