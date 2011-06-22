@@ -44,11 +44,11 @@
 #include "v3math.h"
 #include "llvertexbuffer.h"
 #include "llaccountingquota.h"
+#include "llbbox.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
 class LLAudioSourceVO;
-class LLBBox;
 class LLDataPacker;
 class LLColor4;
 class LLFrameTimer;
@@ -110,6 +110,12 @@ public:
 	S32			mMaterialIndex;
 	S32			mTextureIndex;
 	LLColor4	mColor;
+};
+
+struct PotentialReturnableObject
+{
+	LLBBox			box;
+	LLViewerRegion* pRegion;
 };
 
 //============================================================================
@@ -233,6 +239,9 @@ public:
 	// the agent, one of its groups, or it encroaches and 
 	// anti-encroachment is enabled
 	bool isReturnable();
+
+	void buildReturnablesForChildrenVO( std::vector<PotentialReturnableObject>& returnables, LLViewerObject* pChild );
+	void constructAndAddReturnable( std::vector<PotentialReturnableObject>& returnables, LLViewerObject* pChild );
 
 	/*
 	// This method will scan through this object, and then query the
