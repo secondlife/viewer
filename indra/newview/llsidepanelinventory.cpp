@@ -52,7 +52,6 @@
 #include "llstring.h"
 #include "lltabcontainer.h"
 #include "llviewermedia.h"
-#include "llviewernetwork.h"
 #include "llweb.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
@@ -79,37 +78,6 @@ static const char * const INVENTORY_LAYOUT_STACK_NAME = "inventory_layout_stack"
 // Helpers
 //
 
-class LLInventoryUserStatusResponder : public LLHTTPClient::Responder
-{
-public:
-	LLInventoryUserStatusResponder(LLSidepanelInventory * sidepanelInventory)
-		: LLCurl::Responder()
-		, mSidepanelInventory(sidepanelInventory)
-	{
-	}
-
-	void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (isGoodStatus(status))
-		{
-			// Complete success
-			mSidepanelInventory->enableInbox(true);
-		}
-		else if (status == 401)
-		{
-			// API is available for use but OpenID authorization failed
-			mSidepanelInventory->enableInbox(true);
-		}
-		else
-		{
-			// API in unavailable
-			llinfos << "Marketplace API is unavailable -- Inbox Disabled" << llendl;
-		}
-	}
-
-private:
-	LLSidepanelInventory *	mSidepanelInventory;
-};
 
 //
 // Implementation
@@ -133,6 +101,13 @@ LLSidepanelInventory::~LLSidepanelInventory()
 		gInventory.removeObserver(mCategoriesObserver);
 	}
 	delete mCategoriesObserver;
+}
+
+void handleInventoryDisplayInboxChanged()
+{
+	LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+
+	sidepanel_inventory->enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
 }
 
 BOOL LLSidepanelInventory::postBuild()
@@ -226,34 +201,13 @@ BOOL LLSidepanelInventory::postBuild()
 		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::handleLoginComplete, this));
 	}
 
+	gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
+
 	return TRUE;
 }
 
 void LLSidepanelInventory::handleLoginComplete()
 {
-	//
-	// Hard coding this as a temporary way to determine whether or not to display the inbox
-	//
-
-	std::string url = "https://marketplace.secondlife.com/";
-
-	if (!LLGridManager::getInstance()->isInProductionGrid())
-	{
-		std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
-		url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
-	}
-	
-	url += "api/1/users/";
-	url += gAgent.getID().getString();
-	url += "/user_status";
-
-	LLSD headers = LLSD::emptyMap();
-	headers["Accept"] = "*/*";
-	headers["Cookie"] = LLViewerMedia::getOpenIDCookie();
-	headers["User-Agent"] = LLViewerMedia::getCurrentUserAgent();
-
-	LLHTTPClient::get(url, new LLInventoryUserStatusResponder(this), headers);
-
 	//
 	// Track inbox and outbox folder changes
 	//

@@ -160,8 +160,6 @@ public:
 	
 	static void createSpareBrowserMediaSource();
 	static LLPluginClassMedia* getSpareBrowserMediaSource();
-
-	static std::string getOpenIDCookie() { return sOpenIDCookie; }
 	
 private:
 	static void setOpenIDCookie();
