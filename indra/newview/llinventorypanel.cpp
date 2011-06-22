@@ -497,7 +497,7 @@ void LLInventoryPanel::initializeViews()
 	}
 	else
 	{
-		mStartFolderID = (preferred_type != LLFolderType::FT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
+		mStartFolderID = (preferred_type != LLFolderType::FT_NONE ? gInventory.findCategoryUUIDForType(preferred_type, false, false) : LLUUID::null);
 	}
 	rebuildViewsFor(mStartFolderID);
 
