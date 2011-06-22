@@ -1970,7 +1970,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 			}
 			else
 			{
-				llassert(model[lod].empty());
+				return false;
 			}
 		}
 	}	

@@ -1784,6 +1784,7 @@ bool LLModel::loadModel(std::istream& is)
 	if (header[nm[lod]]["offset"].asInteger() == -1 || 
 		header[nm[lod]]["size"].asInteger() == 0 )
 	{ //cannot load requested LOD
+		llwarns << "LoD data is invalid!" << llendl;
 		return false;
 	}
 
@@ -1843,6 +1844,10 @@ bool LLModel::loadModel(std::istream& is)
 			}
 		}
 		return true;
+	}
+	else
+	{
+		llwarns << "unpackVolumeFaces failed!" << llendl;
 	}
 
 	return false;
