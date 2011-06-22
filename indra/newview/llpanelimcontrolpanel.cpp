@@ -71,7 +71,7 @@ void LLPanelChatControlPanel::onChange(EStatusType status, const std::string &ch
 
 void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
-	updateButtons(new_state >= LLVoiceChannel::STATE_CALL_STARTED);
+	updateButtons(new_state);
 }
 
 void LLPanelChatControlPanel::updateCallButton()
@@ -96,12 +96,15 @@ void LLPanelChatControlPanel::updateCallButton()
 	getChildView("call_btn")->setEnabled(enable_connect);
 }
 
-void LLPanelChatControlPanel::updateButtons(bool is_call_started)
+void LLPanelChatControlPanel::updateButtons(LLVoiceChannel::EState state)
 {
+	bool is_call_started = state >= LLVoiceChannel::STATE_CALL_STARTED;
 	getChildView("end_call_btn_panel")->setVisible( is_call_started);
-	getChildView("volume_ctrl_panel")->setVisible( is_call_started);
 	getChildView("voice_ctrls_btn_panel")->setVisible( is_call_started && findChild<LLView>("voice_ctrls_btn_panel"));
 	getChildView("call_btn_panel")->setVisible( ! is_call_started);
+	
+	getChildView("volume_ctrl_panel")->setVisible(state == LLVoiceChannel::STATE_CONNECTED);
+	
 	updateCallButton();
 	
 }
@@ -136,7 +139,7 @@ void LLPanelChatControlPanel::setSessionId(const LLUUID& session_id)
 		mVoiceChannelStateChangeConnection = voice_channel->setStateChangedCallback(boost::bind(&LLPanelChatControlPanel::onVoiceChannelStateChanged, this, _1, _2));
 		
 		//call (either p2p, group or ad-hoc) can be already in started state
-		updateButtons(voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED);
+		updateButtons(voice_channel->getState());
 	}
 }
 

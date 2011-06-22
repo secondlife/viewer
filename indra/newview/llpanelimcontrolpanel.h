@@ -54,7 +54,7 @@ public:
 
 	virtual void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
 
-	void updateButtons(bool is_call_started);
+	void updateButtons(LLVoiceChannel::EState state);
 	
 	// Enables/disables call button depending on voice availability
 	void updateCallButton();

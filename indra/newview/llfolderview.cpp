@@ -167,13 +167,22 @@ void LLCloseAllFoldersFunctor::doItem(LLFolderViewItem* item)
 ///----------------------------------------------------------------------------
 /// Class LLFolderView
 ///----------------------------------------------------------------------------
+LLFolderView::Params::Params()
+:	task_id("task_id"),
+	title("title"),
+	use_label_suffix("use_label_suffix"),
+	allow_multiselect("allow_multiselect", true),
+	use_ellipses("use_ellipses", false)
+{
+}
+
 
 // Default constructor
 LLFolderView::LLFolderView(const Params& p)
 :	LLFolderViewFolder(p),
 	mScrollContainer( NULL ),
 	mPopupMenuHandle(),
-	mAllowMultiSelect(TRUE),
+	mAllowMultiSelect(p.allow_multiselect),
 	mShowFolderHierarchy(FALSE),
 	mSourceID(p.task_id),
 	mRenameItem( NULL ),
@@ -194,10 +203,12 @@ LLFolderView::LLFolderView(const Params& p)
 	mDragAndDropThisFrame(FALSE),
 	mCallbackRegistrar(NULL),
 	mParentPanel(p.parent_panel),
-	mUseEllipses(false),
+	mUseEllipses(p.use_ellipses),
 	mDraggingOverItem(NULL),
 	mStatusTextBox(NULL)
 {
+	mRoot = this;
+
 	LLRect rect = p.rect;
 	LLRect new_rect(rect.mLeft, rect.mBottom + getRect().getHeight(), rect.mLeft + getRect().getWidth(), rect.mBottom);
 	setRect( rect );
@@ -424,11 +435,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 									(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))); // passed filter or has descendants that passed filter
 		}
 
-		// Need to call arrange regardless of visibility, since children's visibility
-		// might need to be changed too (e.g. even though a folder is invisible, its
-		// children also need to be set invisible for state-tracking purposes, e.g.
-		// llfolderviewitem::filter).
-		// if (folderp->getVisible())
+		if (folderp->getVisible())
 		{
 			S32 child_height = 0;
 			S32 child_width = 0;
@@ -764,7 +771,7 @@ void LLFolderView::sanitizeSelection()
 		}
 
 		// Don't allow invisible items (such as root folders) to be selected.
-		if (item->getHidden())
+		if (item == getRoot())
 		{
 			items_to_remove.push_back(item);
 		}
@@ -787,7 +794,7 @@ void LLFolderView::sanitizeSelection()
 				parent_folder;
 				parent_folder = parent_folder->getParentFolder())
 			{
-				if (parent_folder->potentiallyVisible() && !parent_folder->getHidden())
+				if (parent_folder->potentiallyVisible())
 				{
 					// give initial selection to first ancestor folder that potentially passes the filter
 					if (!new_selection)
@@ -808,11 +815,6 @@ void LLFolderView::sanitizeSelection()
 		{
 			// nothing selected to start with, so pick "My Inventory" as best guess
 			new_selection = getItemByID(gInventory.getRootFolderID());
-			// ... except if it's hidden from the UI.
-			if (new_selection && new_selection->getHidden())
-			{
-				new_selection = NULL;
-			}
 		}
 
 		if (new_selection)
@@ -962,7 +964,9 @@ void LLFolderView::draw()
 		
 	}
 
-	LLFolderViewFolder::draw();
+	// skip over LLFolderViewFolder::draw since we don't want the folder icon, label, 
+	// and arrow for the root folder
+	LLView::draw();
 
 	mDragAndDropThisFrame = FALSE;
 }
@@ -1642,11 +1646,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			LLFolderViewItem* parent_folder = last_selected->getParentFolder();
 			if (!last_selected->isOpen() && parent_folder && parent_folder->getParentFolder())
 			{
-				// Don't change selectin to hidden folder. See EXT-5328.
-				if (!parent_folder->getHidden())
-				{
-					setSelection(parent_folder, FALSE, TRUE);
-				}
+				setSelection(parent_folder, FALSE, TRUE);
 			}
 			else
 			{
@@ -2031,7 +2031,7 @@ void LLFolderView::removeItemID(const LLUUID& id)
 
 LLFolderViewItem* LLFolderView::getItemByID(const LLUUID& id)
 {
-	if (id.isNull())
+	if (id == getListener()->getUUID())
 	{
 		return this;
 	}
@@ -2048,7 +2048,7 @@ LLFolderViewItem* LLFolderView::getItemByID(const LLUUID& id)
 
 LLFolderViewFolder* LLFolderView::getFolderByID(const LLUUID& id)
 {
-	if (id.isNull())
+	if (id == getListener()->getUUID())
 	{
 		return this;
 	}
@@ -2494,11 +2494,6 @@ PermissionMask LLFolderView::getFilterPermissions() const
 BOOL LLFolderView::isFilterModified()
 {
 	return mFilter->isNotDefault();
-}
-
-BOOL LLFolderView::getAllowMultiSelect()
-{
-	return mAllowMultiSelect;
 }
 
 void delete_selected_item(void* user_data)

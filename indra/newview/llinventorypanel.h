@@ -126,6 +126,7 @@ public:
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb);
 	void clearSelection();
 	LLInventoryFilter* getFilter();
+	const LLInventoryFilter* getFilter() const;
 	void setFilterTypes(U64 filter, LLInventoryFilter::EFilterType = LLInventoryFilter::FILTERTYPE_OBJECT);
 	U32 getFilterObjectTypes() const { return mFolderRoot->getFilterObjectTypes(); }
 	void setFilterPermMask(PermissionMask filter_perm_mask);
@@ -140,7 +141,6 @@ public:
 
 	void setShowFolderState(LLInventoryFilter::EFolderShow show);
 	LLInventoryFilter::EFolderShow getShowFolderState();
-	void setAllowMultiSelect(BOOL allow) { mFolderRoot->setAllowMultiSelect(allow); }
 	// This method is called when something has changed about the inventory.
 	void modelChanged(U32 mask);
 	LLFolderView* getRootFolder() { return mFolderRoot; }
@@ -207,23 +207,18 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void addHideFolderType(LLFolderType::EType folder_type);
-protected:
-	BOOL getIsHiddenFolderType(LLFolderType::EType folder_type) const;
-private:
-	std::vector<LLFolderType::EType> mHiddenFolderTypes;
 
-	//--------------------------------------------------------------------
-	// Initialization routines for building up the UI ("views")
-	//--------------------------------------------------------------------
 public:
 	BOOL 				getIsViewsInitialized() const { return mViewsInitialized; }
-	const LLUUID&		getStartFolderID() const { return mStartFolderID; }
-	const std::string&  getStartFolderString() { return mStartFolderString; }
+	const LLUUID&		getRootFolderID() const;
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();
-	void rebuildViewsFor(const LLUUID& id); // Given the id and the parent, build all of the folder views.
-	virtual void buildNewViews(const LLUUID& id);
+	void				rebuildViewsFor(const LLUUID& id); // Given the id and the parent, build all of the folder views.
+
+	virtual void		buildFolderView(const LLInventoryPanel::Params& params);
+	virtual void		buildNewViews(const LLUUID& id);
+	BOOL				getIsHiddenFolderType(LLFolderType::EType folder_type) const;
 private:
 	BOOL				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
 	BOOL				mViewsInitialized; // Views have been generated
