@@ -52,9 +52,10 @@
                  auto_resize="true"
                  user_resize="false"
                  follows="bottom|left|right"
-                 min_dim="35"
                  name="inbox_layout_panel"
+                 min_dim="35"
                  max_dim="200"
+				 expanded_min_dim="90"
                  height="200">
                  <panel
                       follows="all"
@@ -141,6 +142,7 @@
                 name="outbox_layout_panel"
                 min_dim="35"
                 max_dim="200"
+				expanded_min_dim="90"
                 height="200">
                  <panel
                       follows="all"
