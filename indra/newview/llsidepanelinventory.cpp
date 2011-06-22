@@ -75,6 +75,8 @@ static const char * const OUTBOX_INVENTORY_PANEL = "inventory_outbox";
 
 static const char * const INVENTORY_LAYOUT_STACK_NAME = "inventory_layout_stack";
 
+static const char * const MARKETPLACE_INBOX_PANEL = "marketplace_inbox";
+
 //
 // Helpers
 //
@@ -293,6 +295,14 @@ void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
 {
 	// Trigger a load of the entire inbox so we always know the contents and their creation dates for sorting
 	LLInventoryModelBackgroundFetch::instance().start(inbox_id);
+	
+	// Expand the inbox since we have fresh items
+	LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
+	if (inbox && (inbox->getFreshItemCount() > 0))
+	{
+		getChild<LLButton>(INBOX_BUTTON_NAME)->setToggleState(true);
+		onToggleInboxBtn();
+	}	
 }
 
 void LLSidepanelInventory::onOutboxChanged(const LLUUID& outbox_id)
@@ -367,7 +377,7 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 	LLFirstUse::newInventory(false);
 
 	// Expand the inbox if we have fresh items
-	LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>("marketplace_inbox");
+	LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
 	if (inbox && (inbox->getFreshItemCount() > 0))
 	{
 		getChild<LLButton>(INBOX_BUTTON_NAME)->setToggleState(true);
@@ -576,8 +586,6 @@ void LLSidepanelInventory::updateVerbs()
 
 bool LLSidepanelInventory::canShare()
 {
-	bool can_share = false;
-
 	LLPanelMainInventory* panel_main_inventory =
 		mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
 
