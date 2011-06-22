@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="450"
+ height="381"
  layout="topleft"
  name="Edit Day cycle"
  help_topic="day_presets"
  save_rect="true"
  title="Edit Day Cycle"
- width="800">
+ width="705">
 
     <string name="title_new">Create a New Day Cycle</string>
     <string name="title_edit">Edit Day Cycle</string>
@@ -19,16 +19,16 @@
      follows="top|left|right"
      height="10"
      layout="topleft"
-     left="30"
+     left="10"
      name="hint"
      top="25"
-     width="700" />
+     width="685" />
     <text
      follows="top|left|right"
      font="SansSerif"
      height="10"
      layout="topleft"
-     left="30"
+     left="10"
      name="label"
      top_pad="25"
      width="120">
@@ -52,42 +52,23 @@
      width="200" />
     <text
      follows="top|left|right"
-     height="40"
+     height="95"
      layout="topleft"
      left_pad="10"
      name="note"
      top_delta="0"
-     width="405"
+     width="345"
      wrap="true">
      Note: if you change the name of your preset, you will be creating a new preset and the existing preset will not be changed.
     </text>
  <!--======== Controls panel ========-->
-    <view_border
-     bevel_style="none"
-     follows="top|left"
-     height="300"
-     layout="topleft"
-     left="25"
-     name="water_panel"
-     top="100"
-     width="750"/>
-    <text
-     follows="top|left|right"
-     height="10"
-     layout="topleft"
-     name="water_preset_help"
-     right="770"
-     top="104"
-     width="100">
-     Control Help
-    </text>
     <text
      follows="left|top|right"
      height="10"
      layout="topleft"
-     left="40"    
+     left="10"    
      name="water_color_label"
-     top="125"
+     top="100"
      width="300">
      - Click on a tab to edit the specific sky settings and time.
     </text>
@@ -115,8 +96,8 @@
      name="day_cycle_slider_panel"
      layout="topleft"
      left_delta="25"
-     top_pad="25"
-     width="670">
+     top_pad="15"
+     width="660">
         <multi_slider
          can_edit_text="true"
          control_name="WLTimeSlider"
@@ -409,6 +390,7 @@
          name="WL12amHash2"
          top_delta="-3"
          width="6">
+         |
         </text>
     </panel>
     <text
@@ -421,7 +403,7 @@
      layout="topleft"
      left_delta="192"
      name="WLCurKeyTimeText2"
-     top_pad="30"
+     top_pad="10"
      width="80">
         Sky Setting:
     </text>
@@ -456,39 +438,48 @@
      top_delta="-1"
      value="6:00 AM"
      width="75"/> 
-        <loading_indicator
-         height="23"
-         layout="topleft"
-         left="25"
-         name="progress_indicator"
-         top="417"
-         visible="false"
-         width="23" />
-        <check_box
-         follows="top|left"
-         height="10"
-         label="Make this my new day cycle"
-         layout="topleft"
-         left="330"
-         name="make_default_cb"
-         top="430"
-         width="280"/>
-        <button
-         follows="bottom|right"
-         height="23"
-         label="Save"
-         layout="topleft"
-         left_pad="0"
-         name="save"
-         top="417"
-         width="70"/>
-        <button
-         follows="bottom|right"
-         height="23"
-         label="Cancel"
-         layout="topleft"
-         left_pad="15"
-         name="cancel"
-         top_delta="0"
-         width="70"/>
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="0"
+     layout="topleft"
+     left="10"
+     name="horiz_separator"
+     top_pad="20"
+     width="685"/>
+    <loading_indicator
+     height="23"
+     layout="topleft"
+     left="25"
+     name="progress_indicator"
+     top="350"
+     visible="false"
+     width="23" />
+    <check_box
+     follows="top|left"
+     height="10"
+     label="Make this my new day cycle"
+     layout="topleft"
+     left="310"
+     name="make_default_cb"
+     top_delta="13"
+     width="230"/>
+    <button
+     follows="bottom|right"
+     height="23"
+     label="Save"
+     layout="topleft"
+     left_pad="0"
+     name="save"
+     top_delta="-13"
+     width="70"/>
+    <button
+     follows="bottom|right"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     left_pad="15"
+     name="cancel"
+     top_delta="0"
+     width="70"/>
  </floater>
