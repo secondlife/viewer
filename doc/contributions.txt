@@ -759,8 +759,6 @@ SpacedOut Frye
 	VWR-1823
 Sporked Friis
 	VWR-4903
-Squire Linden
-    CHOP-662
 Stevex Janus
 	VWR-1182
 Still Defiant
