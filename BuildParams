@@ -122,10 +122,20 @@ cg_viewer-development_lenny.email = cg@lindenlab.com
 # ================
 
 oz_viewer-devreview.build_debug_release_separately = true
+oz_viewer-devreview.codeticket_add_context = false
+
 oz_project-1.build_debug_release_separately = true
+oz_project-1.codeticket_add_context = false
 oz_project-2.build_debug_release_separately = true
-oz-project-3.build_debug_release_separately = true
+oz_project-2.codeticket_add_context = false
+oz_project-3.build_debug_release_separately = true
+oz_project-3.codeticket_add_context = false
+oz_project-4.build_debug_release_separately = true
+oz_project-4.codeticket_add_context = false
+
 oz_viewer-beta-review.build_debug_release_separately = true
+oz_viewer-beta-review.codeticket_add_context = false
+
 oz_viewer-poreview.build_debug_release_separately = true
 oz_viewer-poreview.codeticket_add_context = false
 
