@@ -72,25 +72,6 @@ viewer-pre-release.build_viewer_update_version_manager = true
 #viewer-pre-release.release-viewer.jira = DRTVWR-46
 
 
-# =======================================
-# brad
-# ========================================
-debug-halting.email = cg@lindenlab.com
-debug-halting.build_server = false
-debug-halting.build_server_tests = false
-debug-halting.build_Darwin = false
-debug-halting.build_Linux = false
-debug-halting.build_CYGWIN_Debug = false
-debug-halting.build_CYGWIN_RelWithDebInfo = false
-
-# ========================================
-# brad
-# ========================================
-
-brad-parabuild.email = brad@lindenlab.com
-brad-parabuild.build_server = false
-brad-parabuild.build_server_tests = false
-
 # ========================================
 # mesh-development
 # ========================================
@@ -136,49 +117,6 @@ cg_viewer-development_lenny.collect_metrics = true
 cg_viewer-development_lenny.show_changes_since = 4b140ce7839d
 cg_viewer-development_lenny.email = cg@lindenlab.com
 
-# ========================================
-# gooey
-# ========================================
-
-#gooey.email = james@lindenlab.com
-gooey.build_Debug = false
-gooey.build_RelWithDebInfo = false
-gooey.build_server = false
-gooey.build_server_tests = false
-gooey.viewer_channel = "Second Life Alpha"
-gooey.login_channel = "Second Life Alpha"
-gooey.viewer_grid = agni
-gooey.build_viewer_update_version_manager = false
-
-# ========================================
-# Search Project
-# ========================================
-
-search_project-viewer.build_debug_release_separately = true
-search_project-viewer.viewer_channel = "Second Life Project Viewer - Search"
-search_project-viewer.login_channel = "Second Life Project Viewer - Search"
-
-# ========================================
-# palange
-# ========================================
-
-palange_viewer-2-0.email = palange@lindenlab.com
-palange_viewer-2-0.build_server = false
-palange_viewer-2-0.build_server_tests = false
-palange_viewer-2-0.build_CYGWIN_Debug = false
-
-# ========================================
-# media
-# ========================================
-
-media.email = skolb@lindenlab.com
-media.build_server = false
-media.build_server_tests = false
-media.viewer_channel = "Second Life Alpha"
-media.login_channel = "Second Life Alpha"
-media.viewer_grid = agni
-media.build_viewer_update_version_manager = false
-
 # ================
 # oz
 # ================
@@ -190,14 +128,6 @@ oz-project-3.build_debug_release_separately = true
 oz_viewer-beta-review.build_debug_release_separately = true
 oz_viewer-poreview.build_debug_release_separately = true
 oz_viewer-poreview.codeticket_add_context = false
-
-# ========================================
-# enus
-# ========================================
-
-viewer-tut-teamcity.email = enus@lindenlab.com
-viewer-tut-teamcity.build_server = false
-viewer-tut-teamcity.build_server_tests = false
 
 # =================================================================
 # asset delivery 2010 projects
@@ -215,24 +145,5 @@ viewer-asset-delivery-metrics.build_viewer_update_version_manager = false
 viewer-asset-delivery-metrics.email = monty@lindenlab.com
 viewer-asset-delivery-metrics.build_server = false
 viewer-asset-delivery-metrics.build_server_tests = false
-
-#==============================================================================
-# autobuild viewers
-#==============================================================================
-viewer-autobuild2010.build_debug_release_separately = true
-viewer-autobuild2010.viewer_channel = "Project Viewer - VS2010"
-viewer-autobuild2010.login_channel = "Project Viewer - VS2010"
-viewer-autobuild2010.viewer_grid = agni
-viewer-autobuild2010.build_link_parallel = false
-
-#======================================== 
-# VS2010 
-#======================================== 
-viewer-vs2010.viewer_channel = "Project Viewer - VS2010"
-viewer-vs2010.login_channel = "Project Viewer - VS2010"
-viewer-vs2010.viewer_grid = agni
-viewer-vs2010.build_debug_release_separately = true
-viewer-vs2010.build_viewer_update_version_manager = false
-viewer-vs2010.build_link_parallel = false
 
 # eof
