@@ -318,6 +318,10 @@ public:
 	LLSpatialPartition* getSpatialPartition(U32 type);
 
 	bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
+	bool childrenObjectReturnable( const std::vector<LLBBox>& boxes ) const;
+
+	void getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions );
+	
 public:
 	struct CompareDistance
 	{

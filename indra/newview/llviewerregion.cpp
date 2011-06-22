@@ -1699,6 +1699,19 @@ bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const std::vector<
 				&& mParcelOverlay->encroachesOwned(boxes)) );
 }
 
+bool LLViewerRegion::childrenObjectReturnable( const std::vector<LLBBox>& boxes ) const
+{
+	bool result = false;
+	//TBD# Do we need similar checks to objectIsReturnable? if so just use objectisreturnable
+	result = ( mParcelOverlay && mParcelOverlay->encroachesOwned( boxes ) ) ? 1 : 0;
+	return result;
+}
+
+void LLViewerRegion::getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions )
+{
+	mImpl->mLandp->getNeighboringRegions( uniqueRegions );
+}
+
 void LLViewerRegion::showReleaseNotes()
 {
 	std::string url = this->getCapability("ServerReleaseNotes");

@@ -104,6 +104,7 @@
 #include "llaccountingquota.h"
 
 //#define DEBUG_UPDATE_TYPE
+//#define EXTENDED_ENCROACHMENT_CHECK //temp:
 
 BOOL		LLViewerObject::sVelocityInterpolate = TRUE;
 BOOL		LLViewerObject::sPingInterpolate = TRUE; 
@@ -519,7 +520,6 @@ void LLViewerObject::setNameValueList(const std::string& name_value_list)
 	}
 }
 
-
 // This method returns true if the object is over land owned by the
 // agent.
 bool LLViewerObject::isReturnable()
@@ -534,11 +534,87 @@ bool LLViewerObject::isReturnable()
 		 iter != mChildList.end(); iter++)
 	{
 		LLViewerObject* child = *iter;
-		boxes.push_back(LLBBox(child->getPositionRegion(), child->getRotationRegion(), child->getScale() * -0.5f, child->getScale() * 0.5f).getAxisAligned());
+		boxes.push_back( LLBBox(child->getPositionRegion(), child->getRotationRegion(), child->getScale() * -0.5f, child->getScale() * 0.5f).getAxisAligned());
 	}
 
-	return mRegionp
-		&& mRegionp->objectIsReturnable(getPositionRegion(), boxes);
+	bool result = (mRegionp && mRegionp->objectIsReturnable(getPositionRegion(), boxes)) ? 1 : 0;
+#ifdef EXTENDED_ENCROACHMENT_CHECK	
+	//Get list of neighboring regions
+	std::vector<LLViewerRegion*> uniqueRegions;
+	//Store this vo's region
+	uniqueRegions.push_back( mRegionp );
+	//Build list of neighboring regions realtive to this vo's region
+	mRegionp->getNeighboringRegions( uniqueRegions );
+	
+	//Build aabb's - for root and all children
+	std::vector<PotentialReturnableObject> returnables;
+	if ( !result )
+	{
+		//Current region 
+		PotentialReturnableObject returnableObj;
+		returnableObj.box = LLBBox( getPositionRegion(), getRotationRegion(), getScale() * -0.5f, getScale() * 0.5f).getAxisAligned() ;
+		returnableObj.pRegion = getRegion();
+		
+		for (child_list_t::iterator iter = mChildList.begin();  iter != mChildList.end(); iter++)
+		{
+			LLViewerObject* pChild = *iter;		
+			buildReturnablesForChildrenVO( returnables, pChild );
+		}
+	}
+	
+	//TBD# Should probably create a region -> box map 
+	typedef std::vector<PotentialReturnableObject>::iterator ReturnablesIt;
+	ReturnablesIt retCurrentIt = returnables.begin();
+	ReturnablesIt retEndIt = returnables.end();
+	
+	for ( ; retCurrentIt !=retEndIt; ++retCurrentIt )
+	{
+		boxes.clear();
+		LLViewerRegion* pRegion = (*retCurrentIt).pRegion;
+		boxes.push_back( (*retCurrentIt).box );	
+		//LLVector3 boxPos = (*retCurrentIt).box.getPositionAgent();
+		//TBD# Should we just use pRegion->objectIsReturnable, instead? 
+		//As it does various other checks, childrenObjectReturnable does not.
+		bool retResult = (mRegionp && pRegion->childrenObjectReturnable( boxes )) ? 1 : 0;
+		if ( retResult )
+		{ 
+			result = true;
+			break;
+		}
+	}
+#endif
+	return result;
+}
+
+void LLViewerObject::buildReturnablesForChildrenVO( std::vector<PotentialReturnableObject>& returnables, LLViewerObject* pChild )
+{
+	if ( !pChild )
+	{
+		llerrs<<"child viewerobject is NULL "<<llendl;
+	}
+	
+	constructAndAddReturnable( returnables, pChild );
+	
+	//We want to handle any children VO's.
+	for (child_list_t::iterator iter = pChild->mChildList.begin();  iter != pChild->mChildList.end(); iter++)
+	{
+		LLViewerObject* pChildofChild = *iter;
+		buildReturnablesForChildrenVO( returnables, pChildofChild );
+	}
+}
+
+void LLViewerObject::constructAndAddReturnable( std::vector<PotentialReturnableObject>& returnables, LLViewerObject* pChild )
+{
+	PotentialReturnableObject returnableObj;
+	LLViewerRegion* pRegion = pChild->getRegion();	
+		
+	LLVector3d posGlobal		= pRegion->getPosGlobalFromRegion( pChild->getPositionRegion() );
+	LLVector3 targetRegionPos	= pRegion->getPosRegionFromGlobal( posGlobal );
+	
+	returnableObj.box = LLBBox( targetRegionPos, pChild->getRotationRegion(), pChild->getScale() * -0.5f, 
+							    pChild->getScale() * 0.5f).getAxisAligned();
+	returnableObj.pRegion		= pRegion;
+	returnables.push_back( returnableObj );
 }
 
 BOOL LLViewerObject::setParent(LLViewerObject* parent)
