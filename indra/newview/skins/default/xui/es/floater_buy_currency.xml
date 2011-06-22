@@ -18,7 +18,7 @@
 	<text name="balance_amount">
 		[AMT] L$
 	</text>
-	<text name="currency_action" width="50">
+	<text name="currency_action">
 		Quiero comprar
 	</text>
 	<text name="currency_label">
