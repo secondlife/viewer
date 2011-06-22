@@ -783,7 +783,14 @@ BOOL LLInvFVBridge::isCOFFolder() const
 
 BOOL LLInvFVBridge::isInboxFolder() const
 {
-	return gInventory.isObjectDescendentOf(mUUID, gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX));
+	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false);
+	
+	if (inbox_id.isNull())
+	{
+		return FALSE;
+	}
+	
+	return gInventory.isObjectDescendentOf(mUUID, inbox_id);
 }
 
 BOOL LLInvFVBridge::isItemPermissive() const
