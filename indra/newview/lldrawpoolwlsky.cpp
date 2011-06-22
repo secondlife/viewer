@@ -268,7 +268,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 	}
 	LLFastTimer ftm(FTM_RENDER_WL_SKY);
 
-	const F32 camHeightLocal = LLWLParamManager::instance()->getDomeOffset() * LLWLParamManager::instance()->getDomeRadius();
+	const F32 camHeightLocal = LLWLParamManager::getInstance()->getDomeOffset() * LLWLParamManager::getInstance()->getDomeRadius();
 
 	LLGLSNoFog disableFog;
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
