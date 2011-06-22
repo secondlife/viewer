@@ -14,7 +14,7 @@
 	<text name="user_label" value="使用者名稱："/>
 	<tab_container name="tabs">
 		<panel label="檔案" name="panel_profile"/>
-		<panel label="PICKS" name="panel_picks"/>
+		<panel label="精選地點" name="panel_picks"/>
 		<panel label="NOTES &amp; PRIVACY" name="panel_notes"/>
 	</tab_container>
 </panel>

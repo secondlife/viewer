@@ -1290,9 +1290,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c81bacf922bb3b540d92b660364c48ce</string>
+              <string>9bf7a96c1d2fadb180fda91740c945c6</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-linux-0.2-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libndofdev-linux/rev/233137/arch/Linux/installer/libndofdev-0.3-linux-20110617.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

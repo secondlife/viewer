@@ -70,7 +70,7 @@ Leder du efter personer at være sammen med? Prøv destinationsknappen nedenfor.
 				<button label="IM" name="im_btn" tool_tip="Åben session med privat besked (IM)"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
-				<button label="Kald" name="call_btn" tool_tip="Opkald til denne beboer"/>
+				<button label="Opkald" name="call_btn" tool_tip="Kald til denne beboer"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
 				<button label="Del" name="share_btn" tool_tip="Del en genstand fra beholdning"/>

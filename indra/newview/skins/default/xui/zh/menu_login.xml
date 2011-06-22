@@ -11,15 +11,15 @@
 	<menu_item_check label="顯示除錯選單" name="Show Debug Menu"/>
 	<menu label="除錯" name="Debug">
 		<menu_item_call label="顯示除錯設定" name="Debug Settings"/>
-		<menu_item_call label="UI/Color Settings" name="UI/Color Settings"/>
-		<menu_item_call label="XUI Preview Tool" name="UI Preview Tool"/>
+		<menu_item_call label="UI / 顏色 設定" name="UI/Color Settings"/>
+		<menu_item_call label="XUI 預覽工具" name="UI Preview Tool"/>
 		<menu label="UI 測試" name="UI Tests"/>
 		<menu_item_call label="設定視窗尺寸大小..." name="Set Window Size..."/>
 		<menu_item_call label="顯示 TOS" name="TOS"/>
-		<menu_item_call label="Show Critical Message" name="Critical"/>
-		<menu_item_call label="Media Browser Test" name="Web Browser Test"/>
-		<menu_item_call label="Web Content Floater Test" name="Web Content Floater Test"/>
-		<menu_item_check label="Show Grid Picker" name="Show Grid Picker"/>
-		<menu_item_call label="Show Notifications Console" name="Show Notifications Console"/>
+		<menu_item_call label="顯示嚴重訊息" name="Critical"/>
+		<menu_item_call label="媒體瀏覽器測試" name="Web Browser Test"/>
+		<menu_item_call label="網頁內容浮動視窗測試" name="Web Content Floater Test"/>
+		<menu_item_check label="顯示網格挑選器" name="Show Grid Picker"/>
+		<menu_item_call label="顯示通知控制台" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

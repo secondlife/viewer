@@ -40,7 +40,7 @@
 		[ACTION]
 	</text>
 	<text name="total_label">
-		My new balance will be
+		我的帳戶餘額將為
 	</text>
 	<text name="total_amount">
 		L$ [AMT]

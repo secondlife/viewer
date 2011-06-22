@@ -19,7 +19,7 @@
 		Top [COUNT] objects experiencing many potential collisions
 	</floater.string>
 	<floater.string name="colliders_score_label">
-		Score
+		積分
 	</floater.string>
 	<floater.string name="none_descriptor">
 		None found.
@@ -28,7 +28,7 @@
 		載入中...
 	</text>
 	<scroll_list name="objects_list">
-		<scroll_list.columns label="Score" name="score"/>
+		<scroll_list.columns label="積分" name="score"/>
 		<scroll_list.columns label="名稱" name="name"/>
 		<scroll_list.columns label="擁有者" name="owner"/>
 		<scroll_list.columns label="位置" name="location"/>
@@ -37,19 +37,19 @@
 		<scroll_list.columns label="URLs" name="URLs"/>
 	</scroll_list>
 	<text name="id_text">
-		Object ID:
+		物件 ID:
 	</text>
 	<button label="Show Beacon" name="show_beacon_btn"/>
 	<text name="obj_name_text">
 		物件名稱：
 	</text>
-	<button label="Filter" name="filter_object_btn"/>
+	<button label="過濾器" name="filter_object_btn"/>
 	<text name="owner_name_text">
 		擁有者：
 	</text>
-	<button label="Filter" name="filter_owner_btn"/>
-	<button label="Return Selected" name="return_selected_btn"/>
+	<button label="過濾器" name="filter_owner_btn"/>
+	<button label="退回所選擇的" name="return_selected_btn"/>
 	<button label="全部退回" name="return_all_btn"/>
-	<button label="Disable Selected" name="disable_selected_btn"/>
-	<button label="Disable All" name="disable_all_btn"/>
+	<button label="關閉所選擇的" name="disable_selected_btn"/>
+	<button label="全部關閉" name="disable_all_btn"/>
 </floater>

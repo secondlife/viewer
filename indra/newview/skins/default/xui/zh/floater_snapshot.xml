@@ -11,7 +11,7 @@
 	<text name="file_size_label">
 		[SIZE] KB
 	</text>
-	<button label="Send" name="send_btn"/>
+	<button label="送出" name="send_btn"/>
 	<button label="儲存（L$[AMOUNT]）" name="upload_btn"/>
 	<flyout_button label="儲存" name="save_btn" tool_tip="儲存圖像到檔案">
 		<flyout_button.item label="儲存" name="save_item"/>

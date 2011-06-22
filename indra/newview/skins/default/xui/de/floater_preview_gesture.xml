@@ -33,7 +33,7 @@
 	<text name="replace_text" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser „hallo“ durch „wie geht&apos;s“ ersetzen, erscheint im Chat anstelle von „Ich wollte nur hallo sagen“ der Text „Ich wollte nur wie geht&apos;s sagen“ und die zugehörige Geste wird abgespielt.">
 		Ersetzen mit:
 	</text>
-	<line_editor left_delta="94" name="replace_editor" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser „hallo“ durch „wie geht&apos;s“ ersetzen, erscheint im Chat anstelle von „Ich wollte nur hallo sagen“ der Text „Ich wollte nur wie geht&apos;s sagen“ und die zugehörige Geste wird abgespielt." width="160"/>
+	<line_editor name="replace_editor" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser „hallo“ durch „wie geht&apos;s“ ersetzen, erscheint im Chat anstelle von „Ich wollte nur hallo sagen“ der Text „Ich wollte nur wie geht&apos;s sagen“ und die zugehörige Geste wird abgespielt."/>
 	<text name="key_label">
 		Tastenkürzel:
 	</text>

@@ -4,26 +4,32 @@
 	<string name="SpeakBtnToolTip" value="Schaltet Mikrofon ein/aus"/>
 	<string name="VoiceControlBtnToolTip" value="Voice-Chat-Steuerung anzeigen/ausblenden"/>
 	<layout_stack name="toolbar_stack">
+		<layout_panel name="speak_panel">
+			<button label="Sprechen" name="speak_btn" tool_tip="Mikrofon ein- und ausschalten"/>
+		</layout_panel>
+		<layout_panel name="speak_flyout_panel">
+			<button label="" name="flyout_btn" tool_tip="Soundeinstellungen ändern"/>
+		</layout_panel>
 		<layout_panel name="gesture_panel">
-			<gesture_combo_list label="Gesten" name="Gesture" tool_tip="Gesten anzeigen/ausblenden"/>
+			<gesture_combo_list label="Gesten" name="Gesture" tool_tip="Ihren Avatar bestimmte Aktionen durchführen lassen"/>
 		</layout_panel>
 		<layout_panel name="cam_panel">
-			<bottomtray_button label="Ansicht" name="camera_btn" tool_tip="Kamerasteuerung anzeigen/ausblenden"/>
+			<bottomtray_button label="Ansicht" name="camera_btn" tool_tip="Kamerawinkel steuern"/>
 		</layout_panel>
-		<layout_panel name="avatar_and_destinations_panel">
-			<bottomtray_button label="Ziele" name="destination_btn" tool_tip="Zeigt Leutefenster an"/>
+		<layout_panel name="destinations_panel">
+			<bottomtray_button label="Ziele" name="destination_btn" tool_tip="Durch Second Life reisen"/>
 		</layout_panel>
-		<layout_panel name="avatar_and_destinations_panel">
-			<bottomtray_button label="Mein Avatar" name="avatar_btn"/>
+		<layout_panel name="avatar_panel">
+			<bottomtray_button label="Mein Avatar" name="avatar_btn" tool_tip="Eigenes Aussehen verändern"/>
 		</layout_panel>
 		<layout_panel name="people_panel">
-			<bottomtray_button label="Leute" name="show_people_button" tool_tip="Zeigt Leutefenster an"/>
+			<bottomtray_button label="Leute" name="show_people_button" tool_tip="Personen in Second Life suchen"/>
 		</layout_panel>
 		<layout_panel name="profile_panel">
-			<bottomtray_button label="Profil" name="show_profile_btn" tool_tip="Zeigt Profilfenster an"/>
+			<bottomtray_button label="Profil" name="show_profile_btn" tool_tip="Eigenes Profil anzeigen und bearbeiten"/>
 		</layout_panel>
 		<layout_panel name="howto_panel">
-			<bottomtray_button label="Anweisungen" name="show_help_btn" tool_tip="Second Life-Anweisungsthemen öffnen"/>
+			<bottomtray_button label="Anweisungen" name="show_help_btn" tool_tip="Hilfeinfos zu Second Life anzeigen"/>
 		</layout_panel>
 		<layout_panel name="im_well_panel">
 			<chiclet_im_well name="im_well">

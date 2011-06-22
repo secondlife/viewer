@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="model_menu_gear_default">
+	<menu_item_check label="Kanten anzeigen" name="show_edges"/>
+	<menu_item_check label="Physik anzeigen" name="show_physics"/>
+	<menu_item_check label="Texturen anzeigen" name="show_textures"/>
+	<menu_item_check label="Skingewicht anzeigen" name="show_skin_weight"/>
+	<menu_item_check label="Gelenkpositionen anzeigen" name="show_joint_positions"/>
+</toggleable_menu>

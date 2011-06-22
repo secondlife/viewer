@@ -19,7 +19,7 @@ clicking on their names.
 			<filter_editor label="成員過濾器" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="成員" name="name"/>
-				<name_list.columns label="Donation" name="donated"/>
+				<name_list.columns label="捐款" name="donated"/>
 				<name_list.columns label="狀態" name="online"/>
 			</name_list>
 			<button label="邀請" name="member_invite"/>

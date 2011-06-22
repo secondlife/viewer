@@ -4,10 +4,10 @@
 		5
 	</floater.string>
 	<floater.string name="localchat">
-		Nearby Voice Chat
+		附近的音聊天
 	</floater.string>
 	<floater.string name="anonymous">
-		anonymous
+		匿名
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
 		通話中。
@@ -28,6 +28,6 @@
 		Do you want to leave [CURRENT_CHAT] and join this voice chat?
 	</text>
 	<button label="接受" label_selected="接受" name="Accept"/>
-	<button label="Reject" label_selected="Reject" name="Reject"/>
+	<button label="拒絕" label_selected="拒絕" name="Reject"/>
 	<button label="開始 IM" name="Start IM"/>
 </floater>

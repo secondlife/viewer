@@ -52,6 +52,9 @@
 				<button label="IM" name="im_btn" tool_tip="Instant Messenger öffnen"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
+				<button label="Anrufen" name="call_btn" tool_tip="Diesen Einwohner anrufen"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
 				<button label="Teleportieren" name="teleport_btn" tool_tip="Teleport anbieten"/>
 			</layout_panel>
 		</layout_stack>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_about" title="MEDIA BROWSER">
+<floater name="floater_about" title="媒體劉覽器">
 	<floater.string name="home_page_url">
 		http://www.secondlife.com
 	</floater.string>
@@ -8,22 +8,22 @@
 	</floater.string>
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
-			<button label="Back" name="back"/>
-			<button label="Forward" name="forward"/>
-			<button label="Reload" name="reload"/>
+			<button label="向後" name="back"/>
+			<button label="向前" name="forward"/>
+			<button label="重載" name="reload"/>
 			<button label="Go" name="go"/>
 		</layout_panel>
 		<layout_panel name="time_controls">
 			<button label="rewind" name="rewind"/>
-			<button label="stop" name="stop"/>
-			<button label="forward" name="seek"/>
+			<button label="停止" name="stop"/>
+			<button label="向前" name="seek"/>
 		</layout_panel>
 		<layout_panel name="parcel_owner_controls">
-			<button label="Send Current Page to Parcel" name="assign"/>
+			<button label="送出目前頁面到地段" name="assign"/>
 		</layout_panel>
 		<layout_panel name="external_controls">
-			<button label="Open in My Web Browser" name="open_browser"/>
-			<check_box label="Always open in my web browser" name="open_always"/>
+			<button label="在我的網頁瀏覽器中開啟" name="open_browser"/>
+			<check_box label="總是在我的網頁瀏覽器中開啟" name="open_always"/>
 			<button label="關閉" name="close"/>
 		</layout_panel>
 	</layout_stack>

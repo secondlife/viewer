@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Statistics" title="STATISTICS">
+<floater name="Statistics" title="統計">
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
-			<stat_view label="Basic" name="basic">
+			<stat_view label="基本" name="basic">
 				<stat_bar label="FPS" name="fps"/>
-				<stat_bar label="Bandwidth" name="bandwidth"/>
+				<stat_bar label="頻寬" name="bandwidth"/>
 				<stat_bar label="封包損失" name="packet_loss"/>
 				<stat_bar label="Ping Sim" name="ping"/>
 			</stat_view>
-			<stat_view label="Advanced" name="advanced">
+			<stat_view label="進階" name="advanced">
 				<stat_view label="Render" name="render">
 					<stat_bar label="KTris Drawn" name="ktrisframe"/>
 					<stat_bar label="KTris Drawn" name="ktrissec"/>
-					<stat_bar label="Total Objects" name="objs"/>
-					<stat_bar label="New Objects" name="newobjs"/>
+					<stat_bar label="物件總計" name="objs"/>
+					<stat_bar label="新物件" name="newobjs"/>
 				</stat_view>
 				<stat_view label="材質" name="texture">
-					<stat_bar label="Count" name="numimagesstat"/>
+					<stat_bar label="計數" name="numimagesstat"/>
 					<stat_bar label="Raw Count" name="numrawimagesstat"/>
 					<stat_bar label="GL Mem" name="gltexmemstat"/>
 					<stat_bar label="Formatted Mem" name="formattedmemstat"/>
 					<stat_bar label="Raw Mem" name="rawmemstat"/>
 					<stat_bar label="Bound Mem" name="glboundmemstat"/>
 				</stat_view>
-				<stat_view label="Network" name="network">
+				<stat_view label="網路" name="network">
 					<stat_bar label="Packets In" name="packetsinstat"/>
 					<stat_bar label="Packets Out" name="packetsoutstat"/>
-					<stat_bar label="Objects" name="objectkbitstat"/>
+					<stat_bar label="物件" name="objectkbitstat"/>
 					<stat_bar label="材質" name="texturekbitstat"/>
-					<stat_bar label="Asset" name="assetkbitstat"/>
+					<stat_bar label="資產" name="assetkbitstat"/>
 					<stat_bar label="Layers" name="layerskbitstat"/>
 					<stat_bar label="Actual In" name="actualinkbitstat"/>
 					<stat_bar label="Actual Out" name="actualoutkbitstat"/>
 					<stat_bar label="VFS Pending Ops" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
-			<stat_view label="Simulator" name="sim">
+			<stat_view label="模擬器" name="sim">
 				<stat_bar label="Time Dilation" name="simtimedilation"/>
 				<stat_bar label="Sim FPS" name="simfps"/>
 				<stat_bar label="Physics FPS" name="simphysicsfps"/>
 				<stat_view label="Physics Details" name="physicsdetail">
 					<stat_bar label="Pinned Objects" name="physicspinnedtasks"/>
 					<stat_bar label="Low LOD Objects" name="physicslodtasks"/>
-					<stat_bar label="Memory Allocated" name="physicsmemoryallocated"/>
+					<stat_bar label="記憶體配置" name="physicsmemoryallocated"/>
 				</stat_view>
 				<stat_bar label="Agent Updates/Sec" name="simagentups"/>
 				<stat_bar label="Main Agents" name="simmainagents"/>
 				<stat_bar label="Child Agents" name="simchildagents"/>
-				<stat_bar label="Objects" name="simobjects"/>
+				<stat_bar label="物件" name="simobjects"/>
 				<stat_bar label="Active Objects" name="simactiveobjects"/>
 				<stat_bar label="Active Scripts" name="simactivescripts"/>
 				<stat_bar label="Script Events" name="simscripteps"/>
@@ -63,7 +63,7 @@
 					<stat_bar label="Simulation Time" name="simsimothermsec"/>
 					<stat_bar label="Agent Time" name="simagentmsec"/>
 					<stat_bar label="Images Time" name="simimagesmsec"/>
-					<stat_bar label="Script Time" name="simscriptmsec"/>
+					<stat_bar label="腳本時間" name="simscriptmsec"/>
 				</stat_view>
 			</stat_view>
 		</container_view>
