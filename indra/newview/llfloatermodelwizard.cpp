@@ -46,12 +46,18 @@ static	const std::string stateNames[]={
 	"choose_file",
 	"optimize",
 	"physics",
-	"physics2",
 	"review",
 	"upload"};
 
+static void swap_controls(LLUICtrl* first_ctrl, LLUICtrl* second_ctrl, bool first_ctr_visible);
+
 LLFloaterModelWizard::LLFloaterModelWizard(const LLSD& key)
 	: LLFloater(key)
+	 ,mRecalculateGeometryBtn(NULL)
+	 ,mRecalculatePhysicsBtn(NULL)
+	 ,mRecalculatingPhysicsBtn(NULL)
+	 ,mCalculateWeightsBtn(NULL)
+	 ,mCalculatingWeightsBtn(NULL)
 {
 	mLastEnabledState = CHOOSE_FILE;
 	sInstance = this;
@@ -59,7 +65,6 @@ LLFloaterModelWizard::LLFloaterModelWizard(const LLSD& key)
 	mCommitCallbackRegistrar.add("Wizard.Choose", boost::bind(&LLFloaterModelWizard::setState, this, CHOOSE_FILE));
 	mCommitCallbackRegistrar.add("Wizard.Optimize", boost::bind(&LLFloaterModelWizard::setState, this, OPTIMIZE));
 	mCommitCallbackRegistrar.add("Wizard.Physics", boost::bind(&LLFloaterModelWizard::setState, this, PHYSICS));
-	mCommitCallbackRegistrar.add("Wizard.Physics2", boost::bind(&LLFloaterModelWizard::setState, this, PHYSICS2));
 	mCommitCallbackRegistrar.add("Wizard.Review", boost::bind(&LLFloaterModelWizard::setState, this, REVIEW));
 	mCommitCallbackRegistrar.add("Wizard.Upload", boost::bind(&LLFloaterModelWizard::setState, this, UPLOAD));
 }
@@ -91,6 +96,8 @@ void LLFloaterModelWizard::setState(int state)
 		getChildView("next")->setVisible(true);
 		getChildView("upload")->setVisible(false);
 		getChildView("cancel")->setVisible(true);
+		mCalculateWeightsBtn->setVisible(false);
+		mCalculatingWeightsBtn->setVisible(false);
 	}
 
 	if (state == OPTIMIZE)
@@ -108,6 +115,8 @@ void LLFloaterModelWizard::setState(int state)
 		getChildView("next")->setVisible(true);
 		getChildView("upload")->setVisible(false);
 		getChildView("cancel")->setVisible(true);
+		mCalculateWeightsBtn->setVisible(false);
+		mCalculatingWeightsBtn->setVisible(false);
 	}
 
 	if (state == PHYSICS)
@@ -119,30 +128,14 @@ void LLFloaterModelWizard::setState(int state)
 
 		mModelPreview->mViewOption["show_physics"] = true;
 
-		getChildView("next")->setVisible(true);
+		getChildView("next")->setVisible(false);
 		getChildView("upload")->setVisible(false);
 		getChildView("close")->setVisible(false);
 		getChildView("back")->setVisible(true);
 		getChildView("back")->setEnabled(true);
 		getChildView("cancel")->setVisible(true);
-	}
-
-	if (state == PHYSICS2)
-	{
-		if (mLastEnabledState < state)
-		{
-			executePhysicsStage("Decompose");
-		}
-
-		mModelPreview->mViewOption["show_physics"] = true;
-
-		getChildView("next")->setVisible(true);
-		getChildView("next")->setEnabled(true);
-		getChildView("upload")->setVisible(false);
-		getChildView("close")->setVisible(false);
-		getChildView("back")->setVisible(true);
-		getChildView("back")->setEnabled(true);
-		getChildView("cancel")->setVisible(true);
+		mCalculateWeightsBtn->setVisible(true);
+		mCalculatingWeightsBtn->setVisible(false);
 	}
 
 	if (state == REVIEW)
@@ -156,6 +149,8 @@ void LLFloaterModelWizard::setState(int state)
 		getChildView("back")->setEnabled(true);
 		getChildView("upload")->setVisible(true);
 		getChildView("cancel")->setVisible(true);
+		mCalculateWeightsBtn->setVisible(false);
+		mCalculatingWeightsBtn->setVisible(false);
 	}
 
 	if (state == UPLOAD)
@@ -165,6 +160,8 @@ void LLFloaterModelWizard::setState(int state)
 		getChildView("back")->setVisible(false);
 		getChildView("upload")->setVisible(false);
 		getChildView("cancel")->setVisible(false);
+		mCalculateWeightsBtn->setVisible(false);
+		mCalculatingWeightsBtn->setVisible(false);
 	}
 
 	updateButtons();
@@ -198,18 +195,48 @@ void LLFloaterModelWizard::updateButtons()
 			button->setEnabled(FALSE);
 		}
 	}
+}
 
-	LLButton *physics_button = getChild<LLButton>(stateNames[PHYSICS]+"_btn");
-	
-	if (mState == PHYSICS2)
+void LLFloaterModelWizard::onClickSwitchToAdvanced()
+{
+	LLFloaterModelPreview* floater_preview = LLFloaterReg::getTypedInstance<LLFloaterModelPreview>("upload_model");
+	if (!floater_preview)
 	{
-		physics_button->setVisible(false);
-	}
-	else
-	{
-		physics_button->setVisible(true);
+		llwarns << "FLoater model preview not found." << llendl;
+		return;
 	}
 
+	// Open floater model preview
+	floater_preview->openFloater();
+
+	// Close the wizard
+	closeFloater();
+
+	std::string filename = getChild<LLUICtrl>("lod_file")->getValue().asString();
+	if (!filename.empty())
+	{
+		// Re-load the model to the floater model preview if it has been loaded
+		// into the wizard.
+		floater_preview->loadModel(3, filename);
+	}
+}
+
+void LLFloaterModelWizard::onClickRecalculateGeometry()
+{
+	S32 val = getChild<LLUICtrl>("accuracy_slider")->getValue().asInteger();
+
+	mModelPreview->genLODs(-1, NUM_LOD - val);
+
+	mModelPreview->refresh();
+}
+
+void LLFloaterModelWizard::onClickRecalculatePhysics()
+{
+	// Hide the "Recalculate physics" button and show the "Recalculating..."
+	// button instead.
+	swap_controls(mRecalculatePhysicsBtn, mRecalculatingPhysicsBtn, false);
+
+	executePhysicsStage("Decompose");
 }
 
 void LLFloaterModelWizard::loadModel()
@@ -471,6 +498,11 @@ void LLFloaterModelWizard::DecompRequest::completed()
 	{
 		executePhysicsStage("Simplify");
 	}
+	else
+	{
+		// Decomp request is complete so we can enable the "Recalculate physics" button again.
+		swap_controls(sInstance->mRecalculatePhysicsBtn, sInstance->mRecalculatingPhysicsBtn, true);
+	}
 }
 
 
@@ -488,10 +520,22 @@ BOOL LLFloaterModelWizard::postBuild()
 	getChild<LLUICtrl>("next")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickNext, this));
 	getChild<LLUICtrl>("preview_lod_combo")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onPreviewLODCommit, this, _1));
 	getChild<LLUICtrl>("preview_lod_combo2")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onPreviewLODCommit, this, _1));
-	getChild<LLUICtrl>("preview_lod_combo3")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onPreviewLODCommit, this, _1));
-	getChild<LLUICtrl>("accuracy_slider")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onAccuracyPerformance, this, _2));
 	getChild<LLUICtrl>("upload")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onUpload, this));
-	getChild<LLUICtrl>("physics_slider")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onPhysicsChanged, this));
+	getChild<LLUICtrl>("switch_to_advanced")->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickSwitchToAdvanced, this));
+
+	mRecalculateGeometryBtn = getChild<LLButton>("recalculate_geometry_btn");
+	mRecalculateGeometryBtn->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickRecalculateGeometry, this));
+
+	mRecalculatePhysicsBtn = getChild<LLButton>("recalculate_physics_btn");
+	mRecalculatePhysicsBtn->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickRecalculatePhysics, this));
+
+	mRecalculatingPhysicsBtn = getChild<LLButton>("recalculating_physics_btn");
+
+	mCalculateWeightsBtn = getChild<LLButton>("calculate");
+	// *TODO: Change the callback to upload fee request.
+	mCalculateWeightsBtn->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickNext, this));
+
+	mCalculatingWeightsBtn = getChild<LLButton>("calculating");
 
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 	
@@ -532,22 +576,19 @@ void LLFloaterModelWizard::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F
 			panel->childSetText("dimension_x", llformat("%.1f", x));
 			panel->childSetText("dimension_y", llformat("%.1f", y));
 			panel->childSetText("dimension_z", llformat("%.1f", z));
-			panel->childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
-			panel->childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 		}
 	}
+
+	childSetTextArg("review_prim_equiv", "[EQUIV]", llformat("%d", mModelPreview->mResourceCost));
+
+	// *TODO: Get the actual upload fee.
+	childSetTextArg("review_fee", "[FEE]", llformat("%d", 0));
+	childSetTextArg("charged_fee", "[FEE]", llformat("%d", 0));
 }
 
 void LLFloaterModelWizard::modelLoadedCallback()
 {
 	mLastEnabledState = CHOOSE_FILE;
-	getChild<LLCheckBoxCtrl>("confirm_checkbox")->set(FALSE);
-	updateButtons();
-}
-
-void LLFloaterModelWizard::onPhysicsChanged()
-{
-	mLastEnabledState = PHYSICS;
 	updateButtons();
 }
 
@@ -561,16 +602,6 @@ void LLFloaterModelWizard::onUpload()
 	setState(UPLOAD);
 	
 }
-
-void LLFloaterModelWizard::onAccuracyPerformance(const LLSD& data)
-{
-	int val = (int) data.asInteger();
-
-	mModelPreview->genLODs(-1, NUM_LOD-val);
-
-	mModelPreview->refresh();
-}
-
 
 void LLFloaterModelWizard::onPreviewLODCommit(LLUICtrl* ctrl)
 {
@@ -601,11 +632,6 @@ void LLFloaterModelWizard::refresh()
 		
 		getChildView("next")->setEnabled(model_loaded);
 	}
-	if (mState == REVIEW)
-	{
-		getChildView("upload")->setEnabled(getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean());
-	}
-
 }
 
 void LLFloaterModelWizard::draw()
@@ -613,12 +639,11 @@ void LLFloaterModelWizard::draw()
 	refresh();
 
 	LLFloater::draw();
-	LLRect r = getRect();
-	
-	mModelPreview->update();
 
 	if (mModelPreview)
 	{
+		mModelPreview->update();
+
 		gGL.color3f(1.f, 1.f, 1.f);
 		
 		gGL.getTexUnit(0)->bind(mModelPreview);
@@ -651,4 +676,11 @@ void LLFloaterModelWizard::draw()
 		
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
+}
+
+// static
+void swap_controls(LLUICtrl* first_ctrl, LLUICtrl* second_ctrl, bool first_ctr_visible)
+{
+	first_ctrl->setVisible(first_ctr_visible);
+	second_ctrl->setVisible(!first_ctr_visible);
 }

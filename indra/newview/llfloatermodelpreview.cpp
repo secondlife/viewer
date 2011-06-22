@@ -544,6 +544,13 @@ void LLFloaterModelPreview::loadModel(S32 lod)
 	(new LLMeshFilePicker(mModelPreview, lod))->getFile();
 }
 
+void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name)
+{
+	mModelPreview->mLoading = true;
+
+	mModelPreview->loadModel(file_name, lod);
+}
+
 //static
 void LLFloaterModelPreview::onImportScaleCommit(LLUICtrl*,void* userdata)
 {

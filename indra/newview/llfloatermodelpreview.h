@@ -185,6 +185,7 @@ public:
 	void updateResourceCost();
 	
 	void			loadModel(S32 lod);
+	void 			loadModel(S32 lod, const std::string& file_name);
 	
 	void onViewOptionChecked(const LLSD& userdata);
 	bool isViewOptionChecked(const LLSD& userdata);
