@@ -12,5 +12,5 @@
 	<menu_item_call label="踢出" name="Eject..."/>
 	<menu_item_call label="材質除錯" name="Debug..."/>
 	<menu_item_call label="Zoom In" name="Zoom In"/>
-	<menu_item_call label="Pay" name="Pay..."/>
+	<menu_item_call label="支付" name="Pay..."/>
 </context_menu>

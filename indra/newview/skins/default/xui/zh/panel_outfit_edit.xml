@@ -15,7 +15,7 @@
 	<string name="Filter.Objects" value="物件"/>
 	<string name="Filter.Clothing" value="服裝"/>
 	<string name="Filter.Bodyparts" value="身體部位"/>
-	<string name="replace_body_part" value="Click to replace your existing shape"/>
+	<string name="replace_body_part" value="點擊以取代你現存的體形"/>
 	<text name="title" value="編輯裝扮"/>
 	<panel name="header_panel">
 		<panel name="outfit_name_and_status">
@@ -27,7 +27,7 @@
 		<layout_panel name="outfit_wearables_panel">
 			<layout_stack name="filter_panels">
 				<layout_panel name="add_button_and_combobox">
-					<button label="Add More..." name="show_add_wearables_btn" tool_tip="開啟 / 關閉"/>
+					<button label="添加更多..." name="show_add_wearables_btn" tool_tip="開啟 / 關閉"/>
 				</layout_panel>
 				<layout_panel name="filter_panel">
 					<filter_editor label="收納區可穿著過濾器" name="look_item_filter"/>
@@ -35,7 +35,7 @@
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="add_wearables_panel">
-			<button label="Wear Item" name="plus_btn"/>
+			<button label="穿上物品" name="plus_btn"/>
 		</layout_panel>
 	</layout_stack>
 	<panel name="no_add_wearables_button_bar">

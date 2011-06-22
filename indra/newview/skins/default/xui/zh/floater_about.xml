@@ -25,11 +25,11 @@
 	<floater.string name="AboutLibs">
 		OpenGL Version: [OPENGL_VERSION]
 
-libcurl Version: [LIBCURL_VERSION]
-J2C Decoder Version: [J2C_VERSION]
-Audio Driver Version: [AUDIO_DRIVER_VERSION]
-Qt Webkit Version: [QT_WEBKIT_VERSION]
-Voice Server Version: [VOICE_VERSION]
+libcurl 版本： [LIBCURL_VERSION]
+J2C 解碼器版本： [J2C_VERSION]
+音效驅動程式版本： [AUDIO_DRIVER_VERSION]
+Qt Webkit 版本： [QT_WEBKIT_VERSION]
+語音伺服器版本： [VOICE_VERSION]
 	</floater.string>
 	<floater.string name="none">
 		（無）

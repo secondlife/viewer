@@ -1288,7 +1288,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarEyesProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredAvatarEyesProgram.mFeatures.hasGamma = true;
 		gDeferredAvatarEyesProgram.mFeatures.hasTransport = true;
-		gDeferredAvatarEyesProgram.mFeatures.isFullbright = true;
 		gDeferredAvatarEyesProgram.mFeatures.disableTextureIndex = true;
 		gDeferredAvatarEyesProgram.mShaderFiles.clear();
 		gDeferredAvatarEyesProgram.mShaderFiles.push_back(make_pair("deferred/avatarEyesV.glsl", GL_VERTEX_SHADER_ARB));

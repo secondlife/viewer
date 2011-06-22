@@ -2,7 +2,7 @@
 <panel name="edit_shirt_panel">
 	<panel name="avatar_shirt_color_panel">
 		<texture_picker label="材質" name="Fabric" tool_tip="點擊以挑選圖片"/>
-		<color_swatch label="Color/Tint" name="Color/Tint" tool_tip="Click to open color picker"/>
+		<color_swatch label="Color/Tint" name="Color/Tint" tool_tip="點擊以開啟顏色挑選器"/>
 	</panel>
 	<panel name="accordion_panel">
 		<accordion name="wearable_accordion">

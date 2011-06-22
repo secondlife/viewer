@@ -4100,18 +4100,20 @@ void LLModelPreview::updateStatusMessages()
 			}
 			else if (!verts[lod].empty())
 			{
+				S32 sum_verts_higher_lod = 0;
+				S32 sum_verts_this_lod = 0;
 				for (U32 i = 0; i < verts[lod].size(); ++i)
 				{
-					S32 max_verts = i < verts[lod+1].size() ? verts[lod+1][i] : 0;
+					sum_verts_higher_lod += ((i < verts[lod+1].size()) ? verts[lod+1][i] : 0);
+					sum_verts_this_lod += verts[lod][i];
+				}
 
-					if (max_verts > 0)
-					{
-						if (verts[lod][i] > max_verts)
-						{ //too many vertices in this lod
-							message = "mesh_status_too_many_vertices";
-							upload_status[lod] = 2;
-						}
-					}
+				if ((sum_verts_higher_lod > 0) &&
+					(sum_verts_this_lod > sum_verts_higher_lod))
+				{
+					//too many vertices in this lod
+					message = "mesh_status_too_many_vertices";
+					upload_status[lod] = 2;
 				}
 			}
 		}

@@ -21,7 +21,7 @@
 				Tilstand:
 			</text>
 			<combo_box name="mode_combo" tool_tip="Vælg ønsket tilstand. Vælg basis for hurtig og nem udforskning og chat. Vælg avanceret for at få adgang til flere muligheder.">
-				<combo_box.item label="Basis (Standard)" name="Basic"/>
+				<combo_box.item label="Basis" name="Basic"/>
 				<combo_box.item label="Avanceret" name="Advanced"/>
 			</combo_box>
 			<text name="start_location_text">

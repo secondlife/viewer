@@ -8,7 +8,7 @@
 		<button label="E" name="editappearance_btn"/>
 		<button label="O" name="openoutfit_btn"/>
 		<text name="currentlook_status">
-			(Status)
+			（狀態）
 		</text>
 		<text name="currentlook_name">
 			MyOutfit With a really Long Name like MOOSE

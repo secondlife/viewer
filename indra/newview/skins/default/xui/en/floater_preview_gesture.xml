@@ -50,17 +50,17 @@
      name="desc_label"
      top_pad="25"
      font.style="BOLD"
-     width="100">
+     width="105">
         Description:
     </text>
     <line_editor
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="89"
+     left_delta="94"
      name="desc"
      top_delta="-4"
-     width="175" />
+     width="170" />
     <text
      type="string"
      length="1"
@@ -96,19 +96,19 @@
      name="replace_text"
      tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!"
      top_pad="10"
-     width="210">
+     width="215">
         Replace with:
     </text>
     <line_editor
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="99"
+     left_delta="104"
      max_length_bytes="31"
      name="replace_editor"
      tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"
      top_delta="-4"
-     width="165" />
+     width="160" />
     <text
      type="string"
      length="1"

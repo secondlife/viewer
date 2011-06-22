@@ -33,7 +33,7 @@
 		Use machine translation while chatting (powered by Google)
 	</text>
 	<text name="translate_language_text">
-		Translate chat into:
+		聊天翻譯為：
 	</text>
 	<combo_box name="translate_language_combobox">
 		<combo_box.item label="系統預設" name="System Default Language"/>

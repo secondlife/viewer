@@ -125,6 +125,18 @@
 	<text name="prim_count">
 		Primitive: [COUNT]
 	</text>
+	<text name="linked_set_count">
+		Verknüpfte Sätze: [COUNT]
+	</text>
+	<text name="linked_set_cost" tool_tip="Kosten der gegenwärtig ausgewählten verknüpften Sätze als [Prims],[Komplexität der Physik]">
+		Kosten: [COST] / [PHYSICS]
+	</text>
+	<text name="object_count">
+		Objekte: [COUNT]
+	</text>
+	<text name="object_cost" tool_tip="Kosten der gegenwärtig ausgewählten Objekte als [Prims] / [Komplexität der Physik]">
+		Kosten: [COST] / [PHYSICS]
+	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Allgemein" name="General">
 			<panel.string name="text deed continued">
@@ -269,15 +281,6 @@
 				<combo_box.item label="Ring" name="Ring"/>
 				<combo_box.item label="Geformt" name="Sculpted"/>
 			</combo_box>
-			<combo_box name="material">
-				<combo_box.item label="Stein" name="Stone"/>
-				<combo_box.item label="Metall" name="Metal"/>
-				<combo_box.item label="Glas" name="Glass"/>
-				<combo_box.item label="Holz" name="Wood"/>
-				<combo_box.item label="Fleisch" name="Flesh"/>
-				<combo_box.item label="Kunststoff" name="Plastic"/>
-				<combo_box.item label="Gummi" name="Rubber"/>
-			</combo_box>
 			<text name="text cut">
 				Pfadschnitt (Anfang/Ende)
 			</text>
@@ -353,9 +356,19 @@
 				<combo_box.item label="Torus" name="Torus"/>
 				<combo_box.item label="Fläche" name="Plane"/>
 				<combo_box.item label="Zylinder" name="Cylinder"/>
+				<combo_box.item label="Netz" name="Mesh"/>
 			</combo_box>
 		</panel>
 		<panel label="Eigenschaften" name="Features">
+			<panel.string name="None">
+				Keine
+			</panel.string>
+			<panel.string name="Prim">
+				Prim
+			</panel.string>
+			<panel.string name="Convex Hull">
+				Konvexe Hülle
+			</panel.string>
 			<text name="select_single">
 				Wählen Sie nur einen einzelnen Baustein aus, um Eigenschaften zu bearbeiten.
 			</text>
@@ -380,6 +393,23 @@
 			<spinner label="Fokus" name="Light Focus"/>
 			<spinner label="Abnehmend" name="Light Falloff"/>
 			<spinner label="Ambiente" name="Light Ambiance"/>
+			<text name="label physicsshapetype">
+				Art der physischen Form:
+			</text>
+			<combo_box name="Physics Shape Type Combo Ctrl" tool_tip="Art der physischen Form auswählen"/>
+			<combo_box name="material">
+				<combo_box.item label="Stein" name="Stone"/>
+				<combo_box.item label="Metall" name="Metal"/>
+				<combo_box.item label="Glas" name="Glass"/>
+				<combo_box.item label="Holz" name="Wood"/>
+				<combo_box.item label="Fleisch" name="Flesh"/>
+				<combo_box.item label="Plastik" name="Plastic"/>
+				<combo_box.item label="Gummi" name="Rubber"/>
+			</combo_box>
+			<spinner label="Schwerkraft" name="Physics Gravity"/>
+			<spinner label="Reibung" name="Physics Friction"/>
+			<spinner label="Dichte" name="Physics Density"/>
+			<spinner label="Restitution" name="Physics Restitution"/>
 		</panel>
 		<panel label="Textur" name="Texture">
 			<panel.string name="string repeats per meter">

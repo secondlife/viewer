@@ -1327,21 +1327,19 @@ Prøv igen om lidt.
 		No valid parcel could be found.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Et object med navnet &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; ejet af [NAME_SLURL] har givet dig denne [OBJECTTYPE]:
-[ITEM_SLURL]
+		Et objekt ved navn &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; ejet af [NAME_SLURL] tilbyder dig [ITEM_SLURL].  For at bruge denne genstand skal du skifte til avanceret tilstand, hvor du kan finde genstanden i din beholdning. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
 		<form name="form">
-			<button name="Keep" text="Behold"/>
-			<button name="Discard" text="Smid væk"/>
-			<button name="Mute" text="Blokér"/>
+			<button name="Keep" text="Behold genstand"/>
+			<button name="Discard" text="Afvis genstand"/>
+			<button name="Mute" text="Blokér objekt"/>
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
-		[NAME_SLURL] har givet dig denne/dette [OBJECTTYPE]:
-[ITEM_SLURL]
+		[NAME_SLURL] tilbyder dig [ITEM_SLURL].  For at bruge denne genstand skal du skifte til avanceret tilstand, hvor du kan finde genstanden i din beholdning. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
 		<form name="form">
-			<button name="Show" text="Vis"/>
-			<button name="Discard" text="Smid væk"/>
-			<button name="Mute" text="Blokér"/>
+			<button name="Show" text="Behold genstand"/>
+			<button name="Discard" text="Afvis genstand"/>
+			<button name="Mute" text="Blokér bruger"/>
 		</form>
 	</notification>
 	<notification name="GodMessage">
