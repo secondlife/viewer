@@ -332,16 +332,16 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 			{
 				if (!mAnimatedThisFrame)
 				{
-					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(mOpenTimeConstant));
-					if ((*panel_it)->mVisibleAmt > 0.99f)
+					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(mOpenTimeConstant));
+					if (panelp->mVisibleAmt > 0.99f)
 					{
-						(*panel_it)->mVisibleAmt = 1.f;
+						panelp->mVisibleAmt = 1.f;
 					}
 				}
 			}
 			else
 			{
-				(*panel_it)->mVisibleAmt = 1.f;
+				panelp->mVisibleAmt = 1.f;
 			}
 		}
 		else // not visible
@@ -350,36 +350,36 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 			{
 				if (!mAnimatedThisFrame)
 				{
-					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
-					if ((*panel_it)->mVisibleAmt < 0.001f)
+					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
+					if (panelp->mVisibleAmt < 0.001f)
 					{
-						(*panel_it)->mVisibleAmt = 0.f;
+						panelp->mVisibleAmt = 0.f;
 					}
 				}
 			}
 			else
 			{
-				(*panel_it)->mVisibleAmt = 0.f;
+				panelp->mVisibleAmt = 0.f;
 			}
 		}
 
-		if ((*panel_it)->mCollapsed)
+		if (panelp->mCollapsed)
 		{
-			(*panel_it)->mCollapseAmt = lerp((*panel_it)->mCollapseAmt, 1.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
+			panelp->mCollapseAmt = lerp(panelp->mCollapseAmt, 1.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
 		}
 		else
 		{
-			(*panel_it)->mCollapseAmt = lerp((*panel_it)->mCollapseAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
+			panelp->mCollapseAmt = lerp(panelp->mCollapseAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
 		}
 
 		if (mOrientation == HORIZONTAL)
 		{
 			// enforce minimize size constraint by default
-			if (panelp->getRect().getWidth() < (*panel_it)->getRelevantMinDim())
+			if (panelp->getRect().getWidth() < panelp->getRelevantMinDim())
 			{
-				panelp->reshape((*panel_it)->getRelevantMinDim(), panelp->getRect().getHeight());
+				panelp->reshape(panelp->getRelevantMinDim(), panelp->getRect().getHeight());
 			}
-        	total_width += llround(panelp->getRect().getWidth() * (*panel_it)->getCollapseFactor(mOrientation));
+        	total_width += llround(panelp->getRect().getWidth() * panelp->getCollapseFactor(mOrientation));
         	// want n-1 panel gaps for n panels
 			if (panel_it != mPanels.begin())
 			{
@@ -389,11 +389,11 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		else //VERTICAL
 		{
 			// enforce minimize size constraint by default
-			if (panelp->getRect().getHeight() < (*panel_it)->getRelevantMinDim())
+			if (panelp->getRect().getHeight() < panelp->getRelevantMinDim())
 			{
-				panelp->reshape(panelp->getRect().getWidth(), (*panel_it)->getRelevantMinDim());
+				panelp->reshape(panelp->getRect().getWidth(), panelp->getRelevantMinDim());
 			}
-			total_height += llround(panelp->getRect().getHeight() * (*panel_it)->getCollapseFactor(mOrientation));
+			total_height += llround(panelp->getRect().getHeight() * panelp->getCollapseFactor(mOrientation));
 			if (panel_it != mPanels.begin())
 			{
 				total_height += mPanelSpacing;
@@ -412,23 +412,20 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 			continue;
 		}
 
+		S32 relevant_dimension = (mOrientation == HORIZONTAL) ? (*panel_it)->getRect().getWidth() : (*panel_it)->getRect().getHeight();
+		S32 relevant_min = (*panel_it)->getRelevantMinDim();
+		
 		// if currently resizing a panel or the panel is flagged as not automatically resizing
 		// only track total available headroom, but don't use it for automatic resize logic
 		if ((*panel_it)->mResizeBar->hasMouseCapture() 
 			|| (!(*panel_it)->mAutoResize 
 				&& !force_resize))
 		{
-			S32 relevant_dimension = (mOrientation == HORIZONTAL) ? (*panel_it)->getRect().getWidth() : (*panel_it)->getRect().getHeight();
-			S32 relevant_min = llround((*panel_it)->mCollapsed ? (*panel_it)->getRelevantMinDim() : (*panel_it)->mExpandedMinDim);
-			
 			shrink_headroom_total += relevant_dimension - relevant_min;
 		}
 		else
 		{
 			num_resizable_panels++;
-
-			S32 relevant_dimension = (mOrientation == HORIZONTAL) ? (*panel_it)->getRect().getWidth() : (*panel_it)->getRect().getHeight();
-			S32 relevant_min = llround((*panel_it)->mCollapsed ? (*panel_it)->getRelevantMinDim() : (*panel_it)->mExpandedMinDim);
 			
 			shrink_headroom_available += relevant_dimension - relevant_min;
 			shrink_headroom_total += relevant_dimension - relevant_min;
@@ -483,7 +480,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 				{
 					// shrink proportionally to amount over minimum
 					// so we can do this in one pass
-					delta_size = (shrink_headroom_available > 0) ? llround((F32)pixels_to_distribute * ((F32)(cur_width - panelp->getRelevantMinDim()) / (F32)shrink_headroom_available)) : 0;
+					delta_size = (shrink_headroom_available > 0) ? llround((F32)pixels_to_distribute * ((F32)(cur_width - relevant_min) / (F32)shrink_headroom_available)) : 0;
 					shrink_headroom_available -= (cur_width - relevant_min);
 				}
 				else
@@ -691,7 +688,7 @@ void LLLayoutStack::createResizeBars()
 			LLResizeBar::Params resize_params;
 			resize_params.name("resize");
 			resize_params.resizing_view(lp);
-			resize_params.min_size(lp->mMinDim);
+			resize_params.min_size(lp->getRelevantMinDim());
 			resize_params.side(side);
 			resize_params.snapping_enabled(false);
 			LLResizeBar* resize_bar = LLUICtrlFactory::create<LLResizeBar>(resize_params);
