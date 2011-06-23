@@ -115,6 +115,7 @@ BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dr
 
 U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 {
+#if SUPPORTING_FRESH_ITEM_COUNT
 	U32 fresh_item_count = 0;
 
 	LLFolderView * root_folder = mInventoryPanel->getRootFolder();
@@ -135,6 +136,9 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 	}
 
 	return fresh_item_count;
+#else
+	return getTotalItemCount();
+#endif
 }
 
 U32 LLPanelMarketplaceInbox::getTotalItemCount() const
