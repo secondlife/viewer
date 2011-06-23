@@ -761,7 +761,7 @@ void LLTaskCategoryBridge::openItem()
 BOOL LLTaskCategoryBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
 {
 	//llinfos << "LLTaskInvFVBridge::startDrag()" << llendl;
-	if(mPanel)
+	if(mPanel && mUUID.notNull())
 	{
 		LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
 		if(object)
@@ -1349,79 +1349,81 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
 	LLTaskInvFVBridge* new_bridge = NULL;
 	const LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(object);
 	const U32 itemflags = ( NULL == item ? 0 : item->getFlags() );
-	LLAssetType::EType type = object->getType();
+	LLAssetType::EType type = object ? object->getType() : LLAssetType::AT_CATEGORY;
+	LLUUID object_id = object ? object->getUUID() : LLUUID::null;
+	std::string object_name = object ? object->getName() : std::string();
 
 	switch(type)
 	{
 	case LLAssetType::AT_TEXTURE:
 		new_bridge = new LLTaskTextureBridge(panel,
-						     object->getUUID(),
-						     object->getName());
+						     object_id,
+						     object_name);
 		break;
 	case LLAssetType::AT_SOUND:
 		new_bridge = new LLTaskSoundBridge(panel,
-						   object->getUUID(),
-						   object->getName());
+						   object_id,
+						   object_name);
 		break;
 	case LLAssetType::AT_LANDMARK:
 		new_bridge = new LLTaskLandmarkBridge(panel,
-						      object->getUUID(),
-						      object->getName());
+						      object_id,
+						      object_name);
 		break;
 	case LLAssetType::AT_CALLINGCARD:
 		new_bridge = new LLTaskCallingCardBridge(panel,
-							 object->getUUID(),
-							 object->getName());
+							 object_id,
+							 object_name);
 		break;
 	case LLAssetType::AT_SCRIPT:
 		// OLD SCRIPTS DEPRECATED - JC
 		llwarns << "Old script" << llendl;
 		//new_bridge = new LLTaskOldScriptBridge(panel,
-		//									   object->getUUID(),
-		//									   object->getName());
+		//									   object_id,
+		//									   object_name);
 		break;
 	case LLAssetType::AT_OBJECT:
 		new_bridge = new LLTaskObjectBridge(panel,
-						    object->getUUID(),
-						    object->getName(),
+						    object_id,
+						    object_name,
 						    itemflags);
 		break;
 	case LLAssetType::AT_NOTECARD:
 		new_bridge = new LLTaskNotecardBridge(panel,
-						      object->getUUID(),
-						      object->getName());
+						      object_id,
+						      object_name);
 		break;
 	case LLAssetType::AT_ANIMATION:
 		new_bridge = new LLTaskAnimationBridge(panel,
-						       object->getUUID(),
-						       object->getName());
+						       object_id,
+						       object_name);
 		break;
 	case LLAssetType::AT_GESTURE:
 		new_bridge = new LLTaskGestureBridge(panel,
-						     object->getUUID(),
-						     object->getName());
+						     object_id,
+						     object_name);
 		break;
 	case LLAssetType::AT_CLOTHING:
 	case LLAssetType::AT_BODYPART:
 		new_bridge = new LLTaskWearableBridge(panel,
-						      object->getUUID(),
-						      object->getName(),
+						      object_id,
+						      object_name,
 						      itemflags);
 		break;
 	case LLAssetType::AT_CATEGORY:
 		new_bridge = new LLTaskCategoryBridge(panel,
-						      object->getUUID(),
-						      object->getName());
+						      object_id,
+						      object_name);
 		break;
 	case LLAssetType::AT_LSL_TEXT:
 		new_bridge = new LLTaskLSLBridge(panel,
-						 object->getUUID(),
-						 object->getName());
+						 object_id,
+						 object_name);
 		break;
 	case LLAssetType::AT_MESH:
 		new_bridge = new LLTaskMeshBridge(panel,
-										  object->getUUID(),
-										  object->getName());
+										  object_id,
+										  object_name);
 		break;
 	default:
 		llinfos << "Unhandled inventory type (llassetstorage.h): "
@@ -1521,6 +1523,7 @@ void LLPanelObjectInventory::reset()
 	p.task_id = getTaskUUID();
 	p.parent_panel = this;
 	p.tool_tip= LLTrans::getString("PanelContentsTooltip");
+	p.listener = LLTaskInvFVBridge::createObjectBridge(this, NULL);
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	// this ensures that we never say "searching..." or "no items found"
 	mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);

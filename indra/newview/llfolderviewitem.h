@@ -94,7 +94,7 @@ public:
 		Optional<LLUIImage*>					icon_open;  // used for folders
 		Optional<LLUIImage*>					icon_overlay;  // for links
 		Optional<LLFolderView*>					root;
-		Optional<LLFolderViewEventListener*>	listener;
+		Mandatory<LLFolderViewEventListener*>	listener;
 
 		Optional<LLUIImage*>					folder_arrow_image;
 		Optional<S32>							folder_indentation; // pixels

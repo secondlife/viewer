@@ -274,6 +274,7 @@ LLFolderView::LLFolderView(const Params& p)
 	menu->setBackgroundColor(LLUIColorTable::instance().getColor("MenuPopupBgColor"));
 	mPopupMenuHandle = menu->getHandle();
 
+	mListener->openItem();
 }
 
 // Destroys the object

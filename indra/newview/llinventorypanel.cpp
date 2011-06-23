@@ -463,9 +463,8 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			// This item already exists in both memory and UI.  It was probably reparented.
 			if (model_item && view_item)
 			{
-				// Don't process the item if it's hanging from the root, since its
-				// model_item's parent will be NULL.
-				if (view_item->getRoot() != view_item->getParent())
+				// Don't process the item if it is the root
+				if (view_item->getRoot() != view_item)
 				{
 					LLFolderViewFolder* new_parent = (LLFolderViewFolder*)mFolderRoot->getItemByID(model_item->getParentUUID());
 					// Item has been moved.
