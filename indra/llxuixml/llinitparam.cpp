@@ -40,7 +40,7 @@ namespace LLInitParam
 	{
 		const U8* my_addr = reinterpret_cast<const U8*>(this);
 		const U8* block_addr = reinterpret_cast<const U8*>(enclosing_block);
-		mEnclosingBlockOffset = (U16)(my_addr - block_addr);
+		mEnclosingBlockOffset = 0x7FFFffff & ((U32)(my_addr - block_addr));
 	}
 
 	//

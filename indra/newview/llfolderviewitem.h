@@ -135,7 +135,7 @@ protected:
 	std::string					mSearchableLabel;
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
-	time_t						mCreationDate;
+	mutable time_t				mCreationDate;
 	LLFolderViewFolder*			mParentFolder;
 	LLFolderViewEventListener*	mListener;
 	BOOL						mIsCurSelection;
@@ -157,7 +157,6 @@ protected:
 	BOOL						mDragAndDropTarget;
 	BOOL                        mIsLoading;
 	LLTimer                     mTimeSinceRequestStart;
-	bool						mHidden;
 	bool						mShowLoadStatus;
 
 	// helper function to change the selection from the root.
@@ -167,13 +166,15 @@ protected:
 	void extendSelectionFromRoot(LLFolderViewItem* selection);
 
 	// this is an internal method used for adding items to folders. A
-	// no-op at this leve, but reimplemented in derived classes.
+	// no-op at this level, but reimplemented in derived classes.
 	virtual BOOL addItem(LLFolderViewItem*) { return FALSE; }
 	virtual BOOL addFolder(LLFolderViewFolder*) { return FALSE; }
 
 	static LLFontGL* getLabelFontForStyle(U8 style);
 
 public:
+	BOOL postBuild();
+
 	// This function clears the currently selected item, and records
 	// the specified selected item appropriately for display and use
 	// in the UI. If open is TRUE, then folders are opened up along
@@ -201,11 +202,6 @@ public:
 	// makes sure that this view and it's children are the right size.
 	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
 	virtual S32 getItemHeight();
-
-	// Hide the folder from the UI, such as if you want to hide the root
-	// folder in an inventory panel.
-	void setHidden(bool hidden) { mHidden = hidden; }
-	bool getHidden() const { return mHidden; }
 
 	// applies filters to control visibility of inventory items
 	virtual void filter( LLInventoryFilter& filter);
@@ -366,6 +362,9 @@ public:
 		UNKNOWN, TRASH, NOT_TRASH
 	} ETrash;
 
+	typedef std::list<LLFolderViewItem*> items_t;
+	typedef std::list<LLFolderViewFolder*> folders_t;
+
 private:
 	S32		mNumDescendantsSelected;
 
@@ -374,8 +373,6 @@ public:		// Accessed needed by LLFolderViewItem
 	S32 numSelected(void) const { return mNumDescendantsSelected + (isSelected() ? 1 : 0); }
 
 protected:
-	typedef std::list<LLFolderViewItem*> items_t;
-	typedef std::list<LLFolderViewFolder*> folders_t;
 	items_t mItems;
 	folders_t mFolders;
 	LLInventorySort	mSortFunction;
@@ -392,6 +389,8 @@ protected:
 	S32			mCompletedFilterGeneration;
 	S32			mMostFilteredDescendantGeneration;
 	bool		mNeedsSort;
+	bool		mPassedFolderFilter;
+
 public:
 	typedef enum e_recurse_type
 	{
@@ -432,6 +431,11 @@ public:
 	virtual void filter( LLInventoryFilter& filter);
 	virtual void setFiltered(BOOL filtered, S32 filter_generation);
 	virtual void dirtyFilter();
+
+	// folder-specific filtering (filter status propagates top down instead of bottom up)
+	void filterFolder(LLInventoryFilter& filter);
+	void setFilteredFolder(bool filtered, S32 filter_generation);
+	bool getFilteredFolder(S32 filter_generation);
 
 	// Passes selection information on to children and record
 	// selection information if necessary.
@@ -537,6 +541,9 @@ public:
 	time_t getCreationDate() const;
 	bool isTrash() const;
 	S32 getNumSelectedDescendants(void) const { return mNumDescendantsSelected; }
+
+	folders_t::const_iterator getFoldersBegin() const { return mFolders.begin(); }
+	folders_t::const_iterator getFoldersEnd() const { return mFolders.end(); }
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

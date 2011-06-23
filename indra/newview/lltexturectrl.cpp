@@ -420,7 +420,6 @@ BOOL LLFloaterTexturePicker::postBuild()
 		mInventoryPanel->setFilterPermMask(mImmediateFilterPermMask);
 		mInventoryPanel->setSelectCallback(boost::bind(&LLFloaterTexturePicker::onSelectionChange, this, _1, _2));
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-		mInventoryPanel->setAllowMultiSelect(FALSE);
 
 		// Disable auto selecting first filtered item because it takes away
 		// selection from the item set by LLTextureCtrl owning this floater.

@@ -936,7 +936,6 @@ protected:
 
 //one global instance to bind them
 LLOpenTaskOffer* gNewInventoryObserver=NULL;
-
 class LLNewInventoryHintObserver : public LLInventoryAddedObserver
 {
 protected:
@@ -945,6 +944,8 @@ protected:
 		LLFirstUse::newInventory();
 	}
 };
+
+LLNewInventoryHintObserver* gNewInventoryHintObserver=NULL;
 
 void start_new_inventory_observer()
 {
@@ -962,7 +963,12 @@ void start_new_inventory_observer()
 		gInventory.addObserver(gInventoryMoveObserver);
 	}
 
-	gInventory.addObserver(new LLNewInventoryHintObserver());
+	if (!gNewInventoryHintObserver)
+	{
+		// Observer is deleted by gInventory
+		gNewInventoryHintObserver = new LLNewInventoryHintObserver();
+		gInventory.addObserver(gNewInventoryHintObserver);
+	}
 }
 
 class LLDiscardAgentOffer : public LLInventoryFetchItemsObserver
@@ -4324,7 +4330,7 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 	{
 		return;
 	}
-
+		
 	// Don't play sounds from gestures if they are not enabled.
 	if (!gSavedSettings.getBOOL("EnableGestureSounds")) return;
 		
@@ -6484,7 +6490,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
     LLUUID owner_id;
 	if (gMessageSystem->getNumberOfBlocks("OwnerData") > 0)
 	{
-		msg->getUUID("OwnerData", "OwnerID", owner_id);
+    msg->getUUID("OwnerData", "OwnerID", owner_id);
 	}
 
 	if (LLMuteList::getInstance()->isMuted(object_id) || LLMuteList::getInstance()->isMuted(owner_id))

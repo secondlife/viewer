@@ -193,6 +193,9 @@ BOOL LLPanelMainInventory::postBuild()
 	mMenuAdd->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", upload_cost);
 	mMenuAdd->getChild<LLMenuItemGL>("Bulk Upload")->setLabelArg("[COST]", upload_cost);
 
+	// Trigger callback for focus received so we can deselect items in inbox/outbox
+	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMainInventory::onFocusReceived, this));
+
 	return TRUE;
 }
 
@@ -570,6 +573,25 @@ void LLPanelMainInventory::updateItemcountText()
 		text = getString("ItemcountUnknown");
 	}
 	getChild<LLUICtrl>("ItemcountText")->setValue(text);
+}
+
+void LLPanelMainInventory::onFocusReceived()
+{
+	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
+
+	LLInventoryPanel * inbox_panel = sidepanel_inventory->findChild<LLInventoryPanel>("inventory_inbox");
+
+	if (inbox_panel)
+	{
+		inbox_panel->clearSelection();
+	}
+
+	LLInventoryPanel * outbox_panel = sidepanel_inventory->findChild<LLInventoryPanel>("inventory_outbox");
+
+	if (outbox_panel)
+	{
+		outbox_panel->clearSelection();
+	}
 }
 
 void LLPanelMainInventory::setFilterTextFromFilter() 
