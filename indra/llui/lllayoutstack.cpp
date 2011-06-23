@@ -419,7 +419,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 				&& !force_resize))
 		{
 			S32 relevant_dimension = (mOrientation == HORIZONTAL) ? (*panel_it)->getRect().getWidth() : (*panel_it)->getRect().getHeight();
-			F32 relevant_min = ((*panel_it)->mCollapsed ? (*panel_it)->getRelevantMinDim() : (*panel_it)->mExpandedMinDim);
+			S32 relevant_min = llround((*panel_it)->mCollapsed ? (*panel_it)->getRelevantMinDim() : (*panel_it)->mExpandedMinDim);
 			
 			shrink_headroom_total += relevant_dimension - relevant_min;
 		}
@@ -428,7 +428,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 			num_resizable_panels++;
 
 			S32 relevant_dimension = (mOrientation == HORIZONTAL) ? (*panel_it)->getRect().getWidth() : (*panel_it)->getRect().getHeight();
-			F32 relevant_min = ((*panel_it)->mCollapsed ? (*panel_it)->getRelevantMinDim() : (*panel_it)->mExpandedMinDim);
+			S32 relevant_min = llround((*panel_it)->mCollapsed ? (*panel_it)->getRelevantMinDim() : (*panel_it)->mExpandedMinDim);
 			
 			shrink_headroom_available += relevant_dimension - relevant_min;
 			shrink_headroom_total += relevant_dimension - relevant_min;
