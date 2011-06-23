@@ -52,7 +52,7 @@
              multi_select="true"
              name="list_attachments"
              top="0"
-             width="311">
+             width="311"/>
         </accordion_tab>
         <accordion_tab
          layout="topleft"
