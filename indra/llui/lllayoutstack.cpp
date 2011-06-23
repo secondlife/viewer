@@ -93,13 +93,13 @@ F32 LLLayoutPanel::getCollapseFactor(LLLayoutStack::ELayoutOrientation orientati
 	if (orientation == LLLayoutStack::HORIZONTAL)
 	{
 		F32 collapse_amt = 
-			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, getRelevantMinDim() / (F32)llmax(1, getRect().getWidth()));
+			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, (F32)getRelevantMinDim() / (F32)llmax(1, getRect().getWidth()));
 		return mVisibleAmt * collapse_amt;
 	}
 	else
 	{
 		F32 collapse_amt = 
-			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, llmin(1.f, getRelevantMinDim() / (F32)llmax(1, getRect().getHeight())));
+			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, llmin(1.f, (F32)getRelevantMinDim() / (F32)llmax(1, getRect().getHeight())));
 		return mVisibleAmt * collapse_amt;
 	}
 }
@@ -456,7 +456,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		S32 cur_height = panelp->getRect().getHeight();
 		S32 new_width = cur_width;
 		S32 new_height = cur_height;
-		S32 relevant_min = (S32) panelp->getRelevantMinDim();
+		S32 relevant_min = panelp->getRelevantMinDim();
 
 		if (mOrientation == HORIZONTAL)
 		{
@@ -566,7 +566,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	for (panel_it = mPanels.begin(); panel_it != mPanels.end(); ++panel_it)
 	{
 		LLLayoutPanel* panelp = (*panel_it);
-		F32 relevant_min = panelp->getRelevantMinDim();
+		S32 relevant_min = panelp->getRelevantMinDim();
 
 		if (mOrientation == HORIZONTAL)
 		{
