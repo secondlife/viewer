@@ -88,7 +88,8 @@ protected:
 	void		onBtnCancel();
 	void		onBtnApply();
 
-	void		onClickBrowserClearCache();
+	void		onClickClearCache();			// Clear viewer texture cache, vfs, and VO cache on next startup
+	void		onClickBrowserClearCache();		// Clear web history and caches as well as viewer caches above
 	void		onLanguageChange();
 	void		onNameTagOpacityChange(const LLSD& newvalue);
 
@@ -99,7 +100,7 @@ protected:
 	void onChangeCustom();
 	void updateMeterText(LLUICtrl* ctrl);
 	void onOpenHardwareSettings();
-	/// callback for defaults
+	// callback for defaults
 	void setHardwareDefaults();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
@@ -128,6 +129,7 @@ public:
 	void onClickSetKey();
 	void setKey(KEY key);
 	void onClickSetMiddleMouse();
+	void onClickSetSounds();
 //	void onClickSkipDialogs();
 //	void onClickResetDialogs();
 	void onClickEnablePopup();

@@ -4,7 +4,7 @@
 	<menu_item_call label="Ver el perfil" name="Profile..."/>
 	<menu_item_call label="Añadir como amigo" name="Add Friend"/>
 	<menu_item_call label="MI" name="Send IM..."/>
-	<menu_item_call label="Llamada" name="Call"/>
+	<menu_item_call label="Llamar" name="Call"/>
 	<menu_item_call label="Invitar al grupo" name="Invite..."/>
 	<menu_item_call label="Ignorar" name="Avatar Mute"/>
 	<menu_item_call label="Denunciar" name="abuse"/>

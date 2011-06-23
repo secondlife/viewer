@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Wizard" title="CARREGAR ASSISTENTE DE MODELAGEM">
+	<button label="5. Carregar" name="upload_btn"/>
+	<button label="4. Revisar" name="review_btn"/>
+	<button label="3. Física" name="physics2_btn"/>
+	<button label="3. Física" name="physics_btn"/>
+	<button label="2. Otimizar" name="optimize_btn"/>
+	<button label="1. Selecionra arquivo" name="choose_file_btn"/>
+	<panel name="choose_file_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Carregar modelo
+			</text>
+		</panel>
+		<text name="description">
+			O assistente ajuda você a importar modelos mesh para o Second Life.  Para começar, especifique o arquivo com o modelo a ser importado.  O Second Life suporta arquivos COLLADA (.dae).
+		</text>
+		<panel name="content">
+			<text name="Cache location">
+				Nome do arquivo:
+			</text>
+			<button label="Procurar..." label_selected="Procurar..." name="browse"/>
+			<text name="dimensions">
+				X         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="optimize_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Otimizar
+			</text>
+		</panel>
+		<text name="description">
+			O assistente otimizou seu modelo para melhorar o desempenho.  Ajuste os resultados da otimização abaixou ou clique em Próximo para prosseguir.
+		</text>
+		<panel name="content">
+			<text name="high_detail_text">
+				Gerar nível de detalhamento: Alto
+			</text>
+			<text name="medium_detail_text">
+				Gerar nível de detalhamento: Médio
+			</text>
+			<text name="low_detail_text">
+				Gerar nível de detalhamento: Baixo
+			</text>
+			<text name="lowest_detail_text">
+				Gerar nível de detalhamento: Mais baixo
+			</text>
+		</panel>
+		<panel name="content2">
+			<text name="lod_label">
+				Visualizar modelo:
+			</text>
+			<combo_box name="preview_lod_combo2" tool_tip="LOD para ver no renderizador de pré-visualização">
+				<combo_item name="high">
+					Alto
+				</combo_item>
+				<combo_item name="medium">
+					Médio
+				</combo_item>
+				<combo_item name="low">
+					Baixo
+				</combo_item>
+				<combo_item name="lowest">
+					Mais baixo
+				</combo_item>
+			</combo_box>
+			<text name="streaming cost">
+				Custo do recurso:    [COST]
+			</text>
+			<text name="dimensions">
+				X         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Física
+			</text>
+		</panel>
+		<text name="description">
+			O assistente cria uma forma física que determina como o objeto interage com outros objetos e avatares.  Ajuste a barra para o nível de detalhamento mais apropriado para a finalidade do seu objeto:
+		</text>
+		<panel name="content">
+			<text name="streaming cost">
+				Custo do recurso:       [COST]
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics2_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Física
+			</text>
+		</panel>
+		<text name="description">
+			Veja a forma física abaixo e clique em Próximo para prosseguir.   Para modificar o formato físico, clique em Anterior.
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				Visualizar modelo:
+			</text>
+			<combo_box name="preview_lod_combo3" tool_tip="LOD para ver no renderizador de pré-visualização">
+				<combo_item name="high">
+					Alto
+				</combo_item>
+				<combo_item name="medium">
+					Médio
+				</combo_item>
+				<combo_item name="low">
+					Baixo
+				</combo_item>
+				<combo_item name="lowest">
+					Mais baixo
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+			<text name="streaming cost">
+				Custo do recurso:       [COST]
+			</text>
+		</panel>
+	</panel>
+	<panel name="review_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Revisar
+			</text>
+		</panel>
+		<text name="description">
+			Veja os detalhes abaixo e clique em  Carregar para carregar seu modelo. Seu saldo L$ será cobrado quando você clicar em Carregar.
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				Visualizar modelo:
+			</text>
+			<combo_box name="preview_lod_combo" tool_tip="LOD para ver no renderizador de pré-visualização">
+				<combo_item name="high">
+					Alto
+				</combo_item>
+				<combo_item name="medium">
+					Médio
+				</combo_item>
+				<combo_item name="low">
+					Baixo
+				</combo_item>
+				<combo_item name="lowest">
+					Mais baixo
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+		<text name="streaming cost">
+			Custo do recurso:         [COST]
+		</text>
+		<text name="physics cost">
+			Custo físico:        [COST]
+		</text>
+	</panel>
+	<panel name="upload_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Carregado!
+			</text>
+		</panel>
+		<text name="description">
+			Parabéns! Seu modelo foi carregado com êxito.   Procure-o na pasta Objetos de seu inventário.
+		</text>
+	</panel>
+	<button label="&lt;&lt; Voltar" name="back"/>
+	<button label="Próximo &gt;&gt;" name="next"/>
+	<button label="Carregar" name="upload" tool_tip="Carregar no simulador"/>
+	<button label="Cancelar" name="cancel"/>
+	<button label="Fechar" name="close"/>
+	<spinner name="import_scale" value="1.0"/>
+	<string name="status_idle">
+		Inativo
+	</string>
+	<string name="status_reading_file">
+		Carregando...
+	</string>
+	<string name="status_generating_meshes">
+		Gerando meshes...
+	</string>
+	<string name="status_vertex_number_overflow">
+		Erro: Número de Vertex acima de 65534. Abortado.
+	</string>
+	<string name="high">
+		Alto
+	</string>
+	<string name="medium">
+		Médio
+	</string>
+	<string name="low">
+		Baixo
+	</string>
+	<string name="lowest">
+		Mais baixo
+	</string>
+	<string name="mesh_status_good">
+		Entregar!
+	</string>
+	<string name="mesh_status_na">
+		N/D
+	</string>
+	<string name="mesh_status_none">
+		Nenhum
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		Cada nível de detalhamento têm um número de faces para textura.
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		Cada nível de detalhamento têm um número de faces para textura.
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		O nível de detalhamento possui vértices demais.
+	</string>
+	<string name="mesh_status_missing_lod">
+		Falta o nível de detalhamento necessário.
+	</string>
+	<string name="layer_all">
+		Tudo
+	</string>
+</floater>

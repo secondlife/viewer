@@ -4763,6 +4763,18 @@ Are you sure you want to delete your travel, web, and search history?
      notext="Cancel"
      yestext="OK"/>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmClearCache"
+   type="alertmodal">
+Are you sure you want to clear your viewer cache?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -6811,7 +6823,9 @@ Select residents to share with.
     name="MeshUploadError"
     icon="alert.tga"
     type="alert">
-    [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+    [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] 
+
+See the log file for details.
   </notification>
    
   <notification

@@ -5,7 +5,7 @@
  * $License$
  */
 
-#version 120
+
 
 attribute vec4 object_weight;  
 

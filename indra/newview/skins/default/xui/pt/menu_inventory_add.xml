@@ -4,6 +4,8 @@
 		<menu_item_call label="Imagem (L$[COST])..." name="Upload Image"/>
 		<menu_item_call label="Som (L$[COST])..." name="Upload Sound"/>
 		<menu_item_call label="Animação (L$[COST])..." name="Upload Animation"/>
+		<menu_item_call label="Modelar..." name="Upload Model"/>
+		<menu_item_call label="Assistente de modelagem..." name="Upload Model Wizard"/>
 		<menu_item_call label="Volume (L$[COST] per file)..." name="Bulk Upload"/>
 		<menu_item_call label="Autorizações de upload padrão" name="perm prefs"/>
 	</menu>

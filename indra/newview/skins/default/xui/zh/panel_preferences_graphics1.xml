@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Graphics" name="Display panel">
+<panel label="圖形" name="Display panel">
 	<text name="QualitySpeed">
 		Quality and speed:
 	</text>
@@ -21,7 +21,7 @@
 	<text name="ShadersPrefText4">
 		Ultra
 	</text>
-	<panel label="CustomGraphics" name="CustomGraphics Panel">
+	<panel label="自訂圖形" name="CustomGraphics Panel">
 		<text name="ShadersText">
 			Shaders:
 		</text>
@@ -35,15 +35,15 @@
 		<combo_box name="Reflections">
 			<combo_box.item label="Minimal" name="0"/>
 			<combo_box.item label="Terrain and trees" name="1"/>
-			<combo_box.item label="All static objects" name="2"/>
-			<combo_box.item label="All avatars and objects" name="3"/>
+			<combo_box.item label="全部靜態物件" name="2"/>
+			<combo_box.item label="全部化身與物件" name="3"/>
 			<combo_box.item label="Everything" name="4"/>
 		</combo_box>
 		<slider label="Avatar Physics:" name="AvatarPhysicsDetail"/>
 		<text name="AvatarPhysicsDetailText">
 			Low
 		</text>
-		<slider label="Draw distance:" name="DrawDistance"/>
+		<slider label="描繪距離：" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
 		</text>

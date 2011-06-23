@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 varying vec3 vary_PositionEye;
 

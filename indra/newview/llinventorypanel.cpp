@@ -42,7 +42,6 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llsidepanelinventory.h"
 #include "llsidetray.h"
-#include "llscrollcontainer.h"
 #include "llviewerattachmenu.h"
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
@@ -162,7 +161,7 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 	else
 	{
 		root_id = (preferred_type != LLFolderType::FT_NONE)
-				? gInventory.findCategoryUUIDForType(preferred_type) 
+				? gInventory.findCategoryUUIDForType(preferred_type, false, false) 
 				: LLUUID::null;
 	}
 
@@ -204,13 +203,9 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	{
 		LLRect scroller_view_rect = getRect();
 		scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
-		LLScrollContainer::Params p;
-		p.name("Inventory Scroller");
-		p.rect(scroller_view_rect);
-		p.follows.flags(FOLLOWS_ALL);
-		p.reserve_scroll_corner(true);
-		p.tab_stop(true);
-		mScroller = LLUICtrlFactory::create<LLScrollContainer>(p);
+		LLScrollContainer::Params scroller_params(params.scroll());
+		scroller_params.rect(scroller_view_rect);
+		mScroller = LLUICtrlFactory::create<LLScrollContainer>(scroller_params);
 		addChild(mScroller);
 		mScroller->addChild(mFolderRoot);
 		mFolderRoot->setScrollContainer(mScroller);

@@ -55,7 +55,7 @@ public:
 	virtual void endRenderPass( S32 pass );
 	virtual S32	 getNumPasses();
 	/*virtual*/ void prerender();
-	/*virtual*/ void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture);
+	/*virtual*/ void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
 
 	void renderBump(U32 type, U32 mask);
 	void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture);

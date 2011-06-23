@@ -30,6 +30,7 @@
 #include "llpanel.h"
 
 class LLFolderViewItem;
+class LLInventoryCategoriesObserver;
 class LLInventoryItem;
 class LLInventoryPanel;
 class LLPanelMainInventory;
@@ -42,6 +43,10 @@ public:
 	LLSidepanelInventory();
 	virtual ~LLSidepanelInventory();
 
+private:
+	void handleLoginComplete();
+
+public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
@@ -56,6 +61,17 @@ public:
 	// checks can share selected item(s)
 	bool canShare();
 
+	void onToggleInboxBtn();
+	void onToggleOutboxBtn();
+
+	void enableInbox(bool enabled);
+	void enableOutbox(bool enabled);
+
+	bool isInboxEnabled() const { return mInboxEnabled; }
+	bool isOutboxEnabled() const { return mOutboxEnabled; }
+
+	void updateVerbs();
+
 protected:
 	// Tracks highlighted (selected) item in inventory panel.
 	LLInventoryItem *getSelectedItem();
@@ -63,9 +79,11 @@ protected:
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	// "wear", "teleport", etc.
 	void performActionOnSelection(const std::string &action);
-	void updateVerbs();
 
 	bool canWearSelected(); // check whether selected items can be worn
+
+	void onInboxChanged(const LLUUID& inbox_id);
+	void onOutboxChanged(const LLUUID& outbox_id);
 
 	//
 	// UI Elements
@@ -85,6 +103,7 @@ protected:
 	void 						onTeleportButtonClicked();
 	void 						onOverflowButtonClicked();
 	void 						onBackButtonClicked();
+
 private:
 	LLButton*					mInfoBtn;
 	LLButton*					mShareBtn;
@@ -94,6 +113,10 @@ private:
 	LLButton*					mOverflowBtn;
 	LLButton*					mShopBtn;
 
+	bool						mInboxEnabled;
+	bool						mOutboxEnabled;
+
+	LLInventoryCategoriesObserver* 			mCategoriesObserver;
 };
 
 #endif //LL_LLSIDEPANELINVENTORY_H

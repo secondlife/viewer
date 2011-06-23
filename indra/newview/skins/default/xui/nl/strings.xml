@@ -1231,8 +1231,8 @@
 	<string name="Unknown">
 		(Unknown)
 	</string>
-	<string name="SummaryForTheWeek" value="Samenvatting voor deze week, vanaf"/>
-	<string name="NextStipendDay" value="The next stipend day is"/>
+	<string name="SummaryForTheWeek" value="Samenvatting voor deze week, vanaf "/>
+	<string name="NextStipendDay" value=". The next stipend day is "/>
 	<string name="GroupIndividualShare" value="Groep       Individueel Aandeel"/>
 	<string name="Balance">
 		Banksaldo

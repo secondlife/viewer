@@ -690,6 +690,9 @@ public:
 	BOOL isFlat(S32 face) const							{ return (mFaces[face].mCount == 2); }
 	BOOL isOpen() const									{ return mOpen; }
 	void setDirty()										{ mDirty     = TRUE; }
+
+	static S32 getNumPoints(const LLProfileParams& params, BOOL path_open, F32 detail = 1.0f, S32 split = 0,
+				  BOOL is_sculpted = FALSE, S32 sculpt_size = 0);
 	BOOL generate(const LLProfileParams& params, BOOL path_open, F32 detail = 1.0f, S32 split = 0,
 				  BOOL is_sculpted = FALSE, S32 sculpt_size = 0);
 	BOOL isConcave() const								{ return mConcave; }
@@ -714,6 +717,7 @@ public:
 
 protected:
 	void genNormals(const LLProfileParams& params);
+	static S32 getNumNGonPoints(const LLProfileParams& params, S32 sides, F32 offset=0.0f, F32 bevel = 0.0f, F32 ang_scale = 1.f, S32 split = 0);
 	void genNGon(const LLProfileParams& params, S32 sides, F32 offset=0.0f, F32 bevel = 0.0f, F32 ang_scale = 1.f, S32 split = 0);
 
 	Face* addHole(const LLProfileParams& params, BOOL flat, F32 sides, F32 offset, F32 box_hollow, F32 ang_scale, S32 split = 0);
@@ -755,6 +759,9 @@ public:
 	}
 
 	virtual ~LLPath();
+
+	static S32 getNumPoints(const LLPathParams& params, F32 detail);
+	static S32 getNumNGonPoints(const LLPathParams& params, S32 sides, F32 offset=0.0f, F32 end_scale = 1.f, F32 twist_scale = 1.f);
 
 	void genNGon(const LLPathParams& params, S32 sides, F32 offset=0.0f, F32 end_scale = 1.f, F32 twist_scale = 1.f);
 	virtual BOOL generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0,
@@ -981,6 +988,7 @@ public:
 
 	// returns number of triangle indeces required for path/profile mesh
 	S32 getNumTriangleIndices() const;
+	static void getLoDTriangleCounts(const LLVolumeParams& params, S32* counts);
 
 	S32 getNumTriangles() const;
 

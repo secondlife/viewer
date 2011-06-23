@@ -571,8 +571,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		}
 	}
 
-	// Don't allow items to be pasted directly into the COF.
-	if (!isCOFFolder())
+	// Don't allow items to be pasted directly into the COF or the inbox
+	if (!isCOFFolder() && !isInboxFolder())
 	{
 		items.push_back(std::string("Paste"));
 	}
@@ -779,6 +779,18 @@ BOOL LLInvFVBridge::isAgentInventory() const
 BOOL LLInvFVBridge::isCOFFolder() const
 {
 	return LLAppearanceMgr::instance().getIsInCOF(mUUID);
+}
+
+BOOL LLInvFVBridge::isInboxFolder() const
+{
+	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false);
+	
+	if (inbox_id.isNull())
+	{
+		return FALSE;
+	}
+	
+	return gInventory.isObjectDescendentOf(mUUID, inbox_id);
 }
 
 BOOL LLInvFVBridge::isItemPermissive() const
@@ -2525,6 +2537,7 @@ void LLFolderBridge::folderOptionsMenu()
 			{
 				mItems.push_back(std::string("Add To Outfit"));
 			}
+
 			mItems.push_back(std::string("Replace Outfit"));
 		}
 		if (is_ensemble)
@@ -2614,15 +2627,17 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		// Not sure what the right thing is to do here.
 		if (!isCOFFolder() && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
 		{
-			// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
-			if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
-				mItems.push_back(std::string("New Folder"));
-			mItems.push_back(std::string("New Script"));
-			mItems.push_back(std::string("New Note"));
-			mItems.push_back(std::string("New Gesture"));
-			mItems.push_back(std::string("New Clothes"));
-			mItems.push_back(std::string("New Body Parts"));
-
+			if (!isInboxFolder()) // don't allow creation in inbox
+			{
+				// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
+				if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
+					mItems.push_back(std::string("New Folder"));
+				mItems.push_back(std::string("New Script"));
+				mItems.push_back(std::string("New Note"));
+				mItems.push_back(std::string("New Gesture"));
+				mItems.push_back(std::string("New Clothes"));
+				mItems.push_back(std::string("New Body Parts"));
+			}
 #if SUPPORT_ENSEMBLES
 			// Changing folder types is an unfinished unsupported feature
 			// and can lead to unexpected behavior if enabled.

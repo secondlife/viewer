@@ -40,6 +40,7 @@ public:
 
 	static const std::string&   lookupIconName(EType folder_type, BOOL is_open = FALSE); // folder icon name
 	static BOOL					lookupIsQuietType(EType folder_type); // folder doesn't require UI update when changes have occured
+	static BOOL					lookupIsHiddenType(EType folder_type); // folder doesn't require UI update when changes have occured
 	static const std::string&	lookupNewCategoryName(EType folder_type); // default name when creating new category
 	static LLFolderType::EType	lookupTypeFromNewCategoryName(const std::string& name); // default name when creating new category
 

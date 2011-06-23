@@ -10,4 +10,5 @@
        bg_alpha_image_overlay="White"
        background_visible="false"
        background_opaque="false"
-       chrome="false"/>
+       chrome="false"
+       accepts_badge="true"/>

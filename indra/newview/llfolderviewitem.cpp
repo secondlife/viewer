@@ -30,6 +30,7 @@
 // viewer includes
 #include "llfolderview.h"		// Items depend extensively on LLFolderViews
 #include "llfoldervieweventlistener.h"
+#include "llviewerfoldertype.h"
 #include "llinventorybridge.h"	// for LLItemBridge in LLInventorySort::operator()
 #include "llinventoryfilter.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -357,7 +358,7 @@ void LLFolderViewItem::arrangeAndSet(BOOL set_selection,
 	LLFolderView* root = getRoot();
 	if (getParentFolder())
 	{
-		getParentFolder()->requestArrange();
+	getParentFolder()->requestArrange();
 	}
 	if(set_selection)
 	{
@@ -1202,10 +1203,11 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 				}
 				else
 				{
-					folderp->setVisible(
-						folderp->getFilteredFolder(filter_generation)					// folder must pass folder filters
-						&&	(folderp->getFiltered(filter_generation)
-							||	folderp->hasFilteredDescendants(filter_generation)));	// passed item filter or has descendants that passed filter
+					bool is_hidden = folderp->getListener() && LLViewerFolderType::lookupIsHiddenType(folderp->getListener()->getPreferredType());
+
+					folderp->setVisible( !is_hidden 
+										&&	(show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS 
+											|| (folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation)))); // passed filter or has descendants that passed filter
 				}
 
 				if (folderp->getVisible())
@@ -2023,6 +2025,13 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	item->dirtyFilter();
 	requestArrange();
 	requestSort();
+	LLFolderViewFolder* parentp = getParentFolder();
+	while (parentp && !parentp->getCreationDate())
+	{
+		// parent folder doesn't have a time stamp yet, so get it from us
+		parentp->requestSort();
+		parentp = parentp->getParentFolder();
+	}
 	return TRUE;
 }
 
@@ -2042,6 +2051,13 @@ BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 	// rearrange all descendants too, as our indentation level might have changed
 	folder->requestArrange(TRUE);
 	requestSort();
+	LLFolderViewFolder* parentp = getParentFolder();
+	while (parentp && !parentp->getCreationDate())
+	{
+		// parent folder doesn't have a time stamp yet, so get it from us
+		parentp->requestSort();
+		parentp = parentp->getParentFolder();
+	}
 	return TRUE;
 }
 
@@ -2377,6 +2393,21 @@ void LLFolderViewFolder::draw()
 
 time_t LLFolderViewFolder::getCreationDate() const
 {
+	// folders have no creation date so use first non-folder descendent's date
+	if (!mCreationDate)
+	{
+		for(items_t::const_iterator iit = mItems.begin();
+			iit != mItems.end(); ++iit)
+		{
+			LLFolderViewItem* itemp = (*iit);
+			if (itemp->getCreationDate())
+			{
+				mCreationDate = itemp->getCreationDate();
+				break;
+			}
+		}
+	}
+
 	return llmax<time_t>(mCreationDate, mSubtreeCreationDate);
 }
 
@@ -2648,8 +2679,8 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 	// We sort by name if we aren't sorting by date
 	// OR if these are folders and we are sorting folders by name.
 	bool by_name = (!mByDate 
-					|| (mFoldersByName 
-						&& (a->getSortGroup() != SG_ITEM)));
+		|| (mFoldersByName 
+		&& (a->getSortGroup() != SG_ITEM)));
 
 	if (a->getSortGroup() != b->getSortGroup())
 	{

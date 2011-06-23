@@ -1,4 +1,4 @@
-version 23
+version 26
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -48,6 +48,7 @@ RenderTransparentWater			1	1
 RenderTreeLODFactor				1	1.0
 RenderUseImpostors				1	1
 RenderVBOEnable					1	1
+RenderVBOMappingDisable		1	1
 RenderVolumeLODFactor			1	2.0
 UseStartScreen				1	1
 UseOcclusion					1	1
@@ -64,6 +65,7 @@ RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
+RenderFSAASamples			1	16
 
 //
 // Low Graphics Settings
@@ -95,6 +97,7 @@ SkyUseClassicClouds			1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
+RenderFSAASamples			1	0
 
 //
 // Mid Graphics Settings
@@ -124,6 +127,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
+RenderFSAASamples			1	0
 
 //
 // High Graphics Settings (purty)
@@ -153,6 +157,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	2
+RenderFSAASamples			1	4
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -182,6 +187,7 @@ WLSkyDetail					1	128
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	2
+RenderFSAASamples			1	8
 
 //
 // Class Unknown Hardware (unknown)
@@ -238,6 +244,13 @@ WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
+
+//
+// No GL_ARB_map_buffer_range
+//
+list NoMapBufferRange
+RenderVBOMappingDisable		1	0
+
 
 //
 // "Default" setups for safe, low, medium, high
@@ -411,31 +424,6 @@ list ATI_Radeon_X1700
 Disregard128DefaultDrawDistance	1	0
 list ATI_Mobility_Radeon_X1xxx
 Disregard128DefaultDrawDistance	1	0
-
-
-
-
-// Avatar hardware skinning causes
-// invisible avatars on HD 2600... so I masked
-// out other possible bad ones till it's fixed
-
-list ATI_Radeon_HD_2300
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_HD_2400
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_HD_2600
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_HD_2900
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_HD_3800
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
 
 /// Tweaked NVIDIA
 

@@ -44,7 +44,7 @@
 				<combo_box.item label="Wybrany Kupiec:" name="Specificuser:"/>
 			</combo_box>
 			<button label="Wybierz" name="sell_to_select_agent"/>
-			<text name="sell_objects_label">
+			<text name="sell_objects_label" font="SansSerifSmall">
 				3. Obiekty sprzedawane razem z posiadłością?
 			</text>
 			<text name="sell_objects_text">

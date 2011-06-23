@@ -83,10 +83,12 @@ public:
 	BOOL mHasMipMapGeneration;
 	BOOL mHasCompressedTextures;
 	BOOL mHasFramebufferObject;
+	S32 mMaxSamples;
 	BOOL mHasBlendFuncSeparate;
-	
+		
 	// ARB Extensions
 	BOOL mHasVertexBufferObject;
+	BOOL mHasMapBufferRange;
 	BOOL mHasPBuffer;
 	BOOL mHasShaderObjects;
 	BOOL mHasVertexShader;
@@ -98,6 +100,11 @@ public:
 	BOOL mHasDrawBuffers;
 	BOOL mHasDepthClamp;
 	BOOL mHasTextureRectangle;
+	BOOL mHasTextureMultisample;
+	S32 mMaxSampleMaskWords;
+	S32 mMaxColorTextureSamples;
+	S32 mMaxDepthTextureSamples;
+	S32 mMaxIntegerSamples;
 
 	// Other extensions.
 	BOOL mHasAnisotropic;
@@ -139,6 +146,7 @@ public:
 	void printGLInfoString();
 	void getGLInfo(LLSD& info);
 
+	U32 getNumFBOFSAASamples(U32 desired_samples = 32);
 	// In ALL CAPS
 	std::string mGLVendor;
 	std::string mGLVendorShort;

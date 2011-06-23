@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Gear Outfit">
+	<menu_item_call label="Tag på - Erstat nuværende sæt" name="wear"/>
+	<menu_item_call label="Tag på - Tilføj til nuværende sæt" name="wear_add"/>
+	<menu_item_call label="Tag af - Fjern fra nuværende sæt" name="take_off"/>
+	<menu label="Nyt tøj" name="New Clothes">
+		<menu_item_call label="Ny trøje" name="New Shirt"/>
+		<menu_item_call label="Nye bukser" name="New Pants"/>
+		<menu_item_call label="Nye sko" name="New Shoes"/>
+		<menu_item_call label="Nye strømper" name="New Socks"/>
+		<menu_item_call label="Ny jakke" name="New Jacket"/>
+		<menu_item_call label="Ny nederdel" name="New Skirt"/>
+		<menu_item_call label="Nye handsker" name="New Gloves"/>
+		<menu_item_call label="Ny undertrøje" name="New Undershirt"/>
+		<menu_item_call label="Nye underbukser" name="New Underpants"/>
+		<menu_item_call label="Ny alpha" name="New Alpha"/>
+		<menu_item_call label="Ny tatovering" name="New Tattoo"/>
+	</menu>
+	<menu label="Nye kropsdele" name="New Body Parts">
+		<menu_item_call label="Ny figur" name="New Shape"/>
+		<menu_item_call label="Nyt hud" name="New Skin"/>
+		<menu_item_call label="Nyt hår" name="New Hair"/>
+		<menu_item_call label="Nye øjne" name="New Eyes"/>
+	</menu>
+	<menu_item_call label="Omdøb sæt" name="rename"/>
+	<menu_item_call label="Slet sæt" name="delete_outfit"/>
+</menu>

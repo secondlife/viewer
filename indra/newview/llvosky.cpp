@@ -1483,6 +1483,8 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 		facep->setVertexBuffer(buff);
 	}
 
+	llassert(facep->getVertexBuffer()->getNumIndices() == 6);
+
 	index_offset = facep->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
 
 	if (-1 == index_offset)

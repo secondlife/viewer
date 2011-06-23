@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_gear_default">
-	<menu_item_call label="Replace Current Outfit" name="wear"/>
-	<menu_item_call label="Remove From Current Outfit" name="remove"/>
+	<menu_item_call label="取代目前的裝扮" name="wear"/>
+	<menu_item_call label="由目前的裝扮移除" name="remove"/>
 	<menu_item_call label="更名" name="rename"/>
-	<menu_item_call label="Remove Link" name="remove_link"/>
-	<menu_item_call label="Delete Outfit" name="delete"/>
+	<menu_item_call label="移除聯結" name="remove_link"/>
+	<menu_item_call label="刪除裝扮" name="delete"/>
 </menu>

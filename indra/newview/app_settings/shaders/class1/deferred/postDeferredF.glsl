@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 #extension GL_ARB_texture_rectangle : enable
 
@@ -29,7 +29,7 @@ varying vec2 vary_fragcoord;
 
 float getDepth(vec2 pos_screen)
 {
-	float z = texture2DRect(depthMap, pos_screen.xy).a;
+	float z = texture2DRect(depthMap, pos_screen.xy).r;
 	z = z*2.0-1.0;
 	vec4 ndc = vec4(0.0, 0.0, z, 1.0);
 	vec4 p = inv_proj*ndc;

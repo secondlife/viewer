@@ -94,7 +94,8 @@ public:
 	{
 		Optional<std::string>			label;
 		Optional<bool>					tab_stop,
-										chrome;
+										chrome,
+										requests_front;
 		Optional<LLSD>					initial_value;
 
 		Optional<CommitCallbackParam>	init_callback,
@@ -143,6 +144,8 @@ protected:
 	virtual LLViewModel* getViewModel() const;
     // We shouldn't ever need to set this directly
     //virtual void    setViewModel(const LLViewModelPtr&);
+
+	virtual BOOL	postBuild();
 	
 public:
 	// LLView interface
@@ -301,8 +304,9 @@ protected:
 
 private:
 
-	BOOL			mTabStop;
 	BOOL			mIsChrome;
+	BOOL			mRequestsFront;
+	BOOL			mTabStop;
 	BOOL			mTentative;
 	LLRootHandle<LLUICtrl> mUICtrlHandle;
 

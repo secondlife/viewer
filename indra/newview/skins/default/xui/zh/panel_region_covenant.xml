@@ -62,18 +62,18 @@
 		分級：
 	</text>
 	<text name="region_maturity_text">
-		Adult
+		成人
 	</text>
 	<text name="resellable_lbl">
-		Resale:
+		轉售：
 	</text>
 	<text name="resellable_clause">
-		Land in this region may not be resold.
+		這地區的土地不能轉售。
 	</text>
 	<text name="changeable_lbl">
-		Subdivide:
+		分割：
 	</text>
 	<text name="changeable_clause">
-		Land in this region may not be joined/subdivided.
+		這地區的土地不能合併或分割。
 	</text>
 </panel>

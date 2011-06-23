@@ -44,13 +44,13 @@
 		<panel name="media_controls_panel">
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
-					<button name="stop_btn" tool_tip="Stop selected media"/>
+					<button name="stop_btn" tool_tip="停止所選擇媒體"/>
 				</layout_panel>
 				<layout_panel name="play">
-					<button name="play_btn" tool_tip="Play selected media"/>
+					<button name="play_btn" tool_tip="播放所選擇的媒體"/>
 				</layout_panel>
 				<layout_panel name="pause">
-					<button name="pause_btn" tool_tip="Pause selected media"/>
+					<button name="pause_btn" tool_tip="暫停所選擇的媒體"/>
 				</layout_panel>
 				<layout_panel name="volume_slider_ctrl">
 					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Audio volume for selected media"/>

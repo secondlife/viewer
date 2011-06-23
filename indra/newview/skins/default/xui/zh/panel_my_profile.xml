@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Profile" name="panel_profile">
+<panel label="檔案" name="panel_profile">
 	<string name="CaptionTextAcctInfo">
 		[ACCTTYPE]
 [PAYMENTINFO] [AGEVERIFICATION]
@@ -33,7 +33,7 @@
 						<text name="name_descr_text">
 							Display Name
 						</text>
-						<button label="Profile" name="see_profile_btn" tool_tip="See profile for this avatar"/>
+						<button label="檔案" name="see_profile_btn" tool_tip="察看這位化身的檔案"/>
 					</panel>
 				</panel>
 			</scroll_container>

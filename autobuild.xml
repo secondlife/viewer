@@ -18,9 +18,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>930bdd987a321eda1838caba8cd6098f</string>
+              <string>b2fe1c860613a68e74d4384be418ffee</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/230348/arch/Darwin/installer/glod-1.0pre4-darwin-20110519.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/232684/arch/Darwin/installer/glod-1.0pre4-darwin-20110610.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -30,9 +30,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fb33b6cac2e6b98f93c5efa2af2e5a00</string>
+              <string>c0c64dae149d0892343e2ff300fd06b9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/230348/arch/Linux/installer/glod-1.0pre4-linux-20110519.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/232684/arch/Linux/installer/glod-1.0pre4-linux-20110611.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -42,9 +42,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>388cf0e292f756b4bb37696622f0bbc5</string>
+              <string>842208365f5b108dac4c7c733b99da9c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/230348/arch/CYGWIN/installer/glod-1.0pre4-windows-20110519.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/232684/arch/CYGWIN/installer/glod-1.0pre4-windows-20110610.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1290,9 +1290,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c81bacf922bb3b540d92b660364c48ce</string>
+              <string>9bf7a96c1d2fadb180fda91740c945c6</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-linux-0.2-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libndofdev-linux/rev/233137/arch/Linux/installer/libndofdev-0.3-linux-20110617.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1524,7 +1524,7 @@
               <key>hash</key>
               <string>bb0abe962b3b8208ed2dab0424aab33d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-pcre/rev/228822/arch/Linux/installer/pcre-7.6-linux-20110504.tar.bz2</string>              
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-pcre/rev/228822/arch/Linux/installer/pcre-7.6-linux-20110504.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

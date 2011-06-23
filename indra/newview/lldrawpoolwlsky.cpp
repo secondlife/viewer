@@ -44,6 +44,8 @@ LLPointer<LLViewerTexture> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
 
 LLPointer<LLImageRaw> LLDrawPoolWLSky::sCloudNoiseRawImage = NULL;
 
+static LLGLSLShader* cloud_shader = NULL;
+static LLGLSLShader* sky_shader = NULL;
 
 
 LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
@@ -83,10 +85,30 @@ LLViewerTexture *LLDrawPoolWLSky::getDebugTexture()
 
 void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 {
+	sky_shader =
+		LLPipeline::sUnderWaterRender ?
+			&gObjectSimpleWaterProgram :
+			&gWLSkyProgram;
+
+	cloud_shader =
+			LLPipeline::sUnderWaterRender ?
+				&gObjectSimpleWaterProgram :
+				&gWLCloudProgram;
 }
 
 void LLDrawPoolWLSky::endRenderPass( S32 pass )
 {
+}
+
+void LLDrawPoolWLSky::beginDeferredPass(S32 pass)
+{
+	sky_shader = &gDeferredWLSkyProgram;
+	cloud_shader = &gDeferredWLCloudProgram;
+}
+
+void LLDrawPoolWLSky::endDeferredPass(S32 pass)
+{
+
 }
 
 void LLDrawPoolWLSky::renderDome(F32 camHeightLocal, LLGLSLShader * shader) const
@@ -128,19 +150,14 @@ void LLDrawPoolWLSky::renderSkyHaze(F32 camHeightLocal) const
 {
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
 	{
-		LLGLSLShader* shader =
-			LLPipeline::sUnderWaterRender ?
-				&gObjectSimpleWaterProgram :
-				&gWLSkyProgram;
-
 		LLGLDisable blend(GL_BLEND);
 
-		shader->bind();
+		sky_shader->bind();
 
 		/// Render the skydome
-		renderDome(camHeightLocal, shader);	
+		renderDome(camHeightLocal, sky_shader);	
 
-		shader->unbind();
+		sky_shader->unbind();
 	}
 }
 
@@ -186,23 +203,18 @@ void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
 {
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS))
 	{
-		LLGLSLShader* shader =
-			LLPipeline::sUnderWaterRender ?
-				&gObjectSimpleWaterProgram :
-				&gWLCloudProgram;
-
 		LLGLEnable blend(GL_BLEND);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 
 		gGL.getTexUnit(0)->bind(sCloudNoiseTexture);
 
-		shader->bind();
+		cloud_shader->bind();
 
 		/// Render the skydome
-		renderDome(camHeightLocal, shader);
+		renderDome(camHeightLocal, cloud_shader);
 
-		shader->unbind();
+		cloud_shader->unbind();
 	}
 }
 
@@ -244,6 +256,53 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
 		face->renderIndexed();
 	}
+}
+
+void LLDrawPoolWLSky::renderDeferred(S32 pass)
+{
+	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
+	{
+		return;
+	}
+	LLFastTimer ftm(FTM_RENDER_WL_SKY);
+
+	const F32 camHeightLocal = LLWLParamManager::instance()->getDomeOffset() * LLWLParamManager::instance()->getDomeRadius();
+
+	LLGLSNoFog disableFog;
+	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+	LLGLDisable clip(GL_CLIP_PLANE0);
+
+	gGL.setColorMask(true, false);
+
+	LLGLSquashToFarClip far_clip(glh_get_current_projection());
+
+	renderSkyHaze(camHeightLocal);
+
+	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+	glPushMatrix();
+
+		
+		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+
+		gDeferredStarProgram.bind();
+		// *NOTE: have to bind a texture here since register combiners blending in
+		// renderStars() requires something to be bound and we might as well only
+		// bind the moon's texture once.		
+		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture());
+
+		renderHeavenlyBodies();
+
+		renderStars();
+		
+		gDeferredStarProgram.unbind();
+
+	glPopMatrix();
+
+	renderSkyClouds(camHeightLocal);
+
+	gGL.setColorMask(true, true);
+	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
 }
 
 void LLDrawPoolWLSky::render(S32 pass)

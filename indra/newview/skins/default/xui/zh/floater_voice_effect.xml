@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Places" name="voice_effects" title="語音變聲">
+<floater label="地點" name="voice_effects" title="語音變聲">
 	<string name="no_voice_effect">
 		(No Voice Morph)
 	</string>
@@ -19,7 +19,7 @@
 		Record a sample, then click on a voice to hear how it will sound.
 	</text>
 	<button label="Record" name="record_btn" tool_tip="Record a sample of your voice."/>
-	<button label="Stop" name="record_stop_btn"/>
+	<button label="停止" name="record_stop_btn"/>
 	<text name="voice_morphing_link">
 		[[URL] Subscribe Now]
 	</text>
