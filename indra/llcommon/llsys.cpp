@@ -1,6 +1,6 @@
 /** 
  * @file llsys.cpp
- * @brief Impelementation of the basic system query functions.
+ * @brief Implementation of the basic system query functions.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -697,6 +697,76 @@ void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_v
 	avail_physical_mem_kb = (U32)(state.ullAvailPhys/1024) ;
 	avail_virtual_mem_kb = (U32)(state.ullAvailVirtual/1024) ;
 
+#elif LL_DARWIN
+	// Run vm_stat and filter output, scaling for page size:
+	// $ vm_stat
+	// Mach Virtual Memory Statistics: (page size of 4096 bytes)
+	// Pages free:                   462078.
+	// Pages active:                 142010.
+	// Pages inactive:               220007.
+	// Pages wired down:             159552.
+	// "Translation faults":      220825184.
+	// Pages copy-on-write:         2104153.
+	// Pages zero filled:         167034876.
+	// Pages reactivated:             65153.
+	// Pageins:                     2097212.
+	// Pageouts:                      41759.
+	// Object cache: 841598 hits of 7629869 lookups (11% hit rate)
+	avail_physical_mem_kb = -1 ;
+	avail_virtual_mem_kb = -1 ;
+
+#elif LL_LINUX
+	// Read selected lines from MEMINFO_FILE:
+	// $ cat /proc/meminfo
+	// MemTotal:        4108424 kB
+	// MemFree:         1244064 kB
+	// Buffers:           85164 kB
+	// Cached:          1990264 kB
+	// SwapCached:            0 kB
+	// Active:          1176648 kB
+	// Inactive:        1427532 kB
+	// Active(anon):     529152 kB
+	// Inactive(anon):    15924 kB
+	// Active(file):     647496 kB
+	// Inactive(file):  1411608 kB
+	// Unevictable:          16 kB
+	// Mlocked:              16 kB
+	// HighTotal:       3266316 kB
+	// HighFree:         721308 kB
+	// LowTotal:         842108 kB
+	// LowFree:          522756 kB
+	// SwapTotal:       6384632 kB
+	// SwapFree:        6384632 kB
+	// Dirty:                28 kB
+	// Writeback:             0 kB
+	// AnonPages:        528820 kB
+	// Mapped:            89472 kB
+	// Shmem:             16324 kB
+	// Slab:             159624 kB
+	// SReclaimable:     145168 kB
+	// SUnreclaim:        14456 kB
+	// KernelStack:        2560 kB
+	// PageTables:         5560 kB
+	// NFS_Unstable:          0 kB
+	// Bounce:                0 kB
+	// WritebackTmp:          0 kB
+	// CommitLimit:     8438844 kB
+	// Committed_AS:    1271596 kB
+	// VmallocTotal:     122880 kB
+	// VmallocUsed:       65252 kB
+	// VmallocChunk:      52356 kB
+	// HardwareCorrupted:     0 kB
+	// HugePages_Total:       0
+	// HugePages_Free:        0
+	// HugePages_Rsvd:        0
+	// HugePages_Surp:        0
+	// Hugepagesize:       2048 kB
+	// DirectMap4k:      434168 kB
+	// DirectMap2M:      477184 kB
+	// (could also run 'free', but easier to read a file than run a program)
+	avail_physical_mem_kb = -1 ;
+	avail_virtual_mem_kb = -1 ;
+
 #else
 	//do not know how to collect available memory info for other systems.
 	//leave it blank here for now.
@@ -720,6 +790,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	s << "Avail page KB:      " << (U32)(state.ullAvailPageFile/1024) << std::endl;
 	s << "Total Virtual KB:   " << (U32)(state.ullTotalVirtual/1024) << std::endl;
 	s << "Avail Virtual KB:   " << (U32)(state.ullAvailVirtual/1024) << std::endl;
+
 #elif LL_DARWIN
 	uint64_t phys = 0;
 
@@ -731,22 +802,39 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	}
 	else
 	{
-		s << "Unable to collect memory information";
+		s << "Unable to collect hw.memsize memory information" << std::endl;
 	}
+
+	FILE* pout = popen("vm_stat 2>&1", "r");
+	if (! pout)
+	{
+		s << "Unable to collect vm_stat memory information" << std::endl;
+	}
+	else
+	{
+		// Here 'pout' is vm_stat's stdout. Copy it to output stream.
+		char line[100];
+		while (fgets(line, sizeof(line), pout))
+		{
+			s << line;
+		}
+		fclose(pout);
+	}
+
 #elif LL_SOLARIS
         U64 phys = 0;
 
         phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
 
         s << "Total Physical KB:  " << phys << std::endl;
-#else
-	// *NOTE: This works on linux. What will it do on other systems?
+
+#elif LL_LINUX
 	LLFILE* meminfo = LLFile::fopen(MEMINFO_FILE,"rb");
 	if(meminfo)
 	{
 		char line[MAX_STRING];		/* Flawfinder: ignore */
-		memset(line, 0, MAX_STRING);
-		while(fgets(line, MAX_STRING, meminfo))
+		memset(line, 0, sizeof(line));
+		while(fgets(line, sizeof(line), meminfo))
 		{
 			line[strlen(line)-1] = ' ';		 /*Flawfinder: ignore*/
 			s << line;
@@ -755,8 +843,12 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	}
 	else
 	{
-		s << "Unable to collect memory information";
+		s << "Unable to collect memory information" << std::endl;
 	}
+
+#else
+	s << "Unknown system; unable to collect memory information" << std::endl;
+
 #endif
 }
 
