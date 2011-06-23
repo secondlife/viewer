@@ -64,9 +64,9 @@
 		<radio_item label="Fläche auswählen" name="radio select face"/>
 	</radio_group>
 	<check_box label="Verknüpfte Teile bearbeiten" name="checkbox edit linked parts"/>
-	<button label="Link" name="link_btn"/>
-	<button label="Verknüpfung auflösen" name="unlink_btn"/>
-	<text name="RenderingCost" tool_tip="Zeigt die errechneten Wiedergabekosten für dieses Objekt">
+	<button label="Link" name="link_btn" width="30"/>
+	<button label="Verknüpfung auflösen" name="unlink_btn" width="126"/>
+	<text name="RenderingCost" tool_tip="Zeigt die errechneten Wiedergabekosten für dieses Objekt" left_pad="0">
 		þ: [COUNT]
 	</text>
 	<check_box label="" name="checkbox uniform"/>
