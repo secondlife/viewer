@@ -1206,8 +1206,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 					bool is_hidden = folderp->getListener() && LLViewerFolderType::lookupIsHiddenType(folderp->getListener()->getPreferredType());
 
 					folderp->setVisible( !is_hidden 
-										&&	(show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS 
-											|| (folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation)))); // passed filter or has descendants that passed filter
+										&&	(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))); // passed filter or has descendants that passed filter
 				}
 
 				if (folderp->getVisible())

@@ -816,11 +816,6 @@ void LLFolderView::sanitizeSelection()
 		{
 			// nothing selected to start with, so pick "My Inventory" as best guess
 			new_selection = getItemByID(gInventory.getRootFolderID());
-			// ... except if it's hidden from the UI.
-			if (new_selection && new_selection->getHidden())
-			{
-				new_selection = NULL;
-			}
 		}
 
 		if (new_selection)
