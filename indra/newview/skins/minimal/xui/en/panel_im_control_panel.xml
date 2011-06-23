@@ -153,13 +153,6 @@
          name="volume_ctrl_panel"
          visible="false" 
          user_resize="false">
-            <text
-             follows="left|top|right"
-             left="5"
-             top="14"
-             height="23"
-             name="volume_ctrl_text"
-             width="140">Volume Control:</text>
             <slider
              follows="top|left"
              height="23"
@@ -169,8 +162,8 @@
              min_val="0.05"
              name="volume_slider"
              show_text="false"
-             tool_tip="Voice volume"
-             top_pad="-5"
+             tool_tip="Call Volume"
+             top_pad="32"
              value="0.5"
              width="125" />
             <button
