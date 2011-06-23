@@ -150,7 +150,10 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 {
 	// Determine the root folder in case specified, and
 	// build the views starting with that folder.
-	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(params.start_folder);
+	
+	std::string start_folder_name(params.start_folder());
+	
+	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(start_folder_name);
 
 	LLUUID root_id;
 
@@ -163,6 +166,12 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 		root_id = (preferred_type != LLFolderType::FT_NONE)
 				? gInventory.findCategoryUUIDForType(preferred_type, false, false) 
 				: LLUUID::null;
+	}
+	
+	if ((root_id == LLUUID::null) && !start_folder_name.empty())
+	{
+		llwarns << "No category found that matches start_folder: " << start_folder_name << llendl;
+		root_id = LLUUID::generateNewID();
 	}
 
 	LLRect folder_rect(0,
@@ -184,7 +193,6 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 	p.use_label_suffix = params.use_label_suffix;
 	p.allow_multiselect = mAllowMultiSelect;
 	mFolderRoot = LLUICtrlFactory::create<LLFolderView>(p);
-	
 }
 
 void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)

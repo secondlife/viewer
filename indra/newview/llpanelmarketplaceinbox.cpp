@@ -59,7 +59,7 @@ LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 BOOL LLPanelMarketplaceInbox::postBuild()
 {
 	mInventoryPanel = getChild<LLInventoryPanel>("inventory_inbox");
-
+	
 	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);
 
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLPanelMarketplaceInbox::handleLoginComplete, this));
@@ -67,7 +67,10 @@ BOOL LLPanelMarketplaceInbox::postBuild()
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceInbox::onFocusReceived, this));
 
 	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
-
+	
+	// Set up the note to display when the inbox is empty
+	mInventoryPanel->getFilter()->setEmptyLookupMessage("InboxNoItems");
+	
 	return TRUE;
 }
 
@@ -116,6 +119,12 @@ BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dr
 U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 {
 #if SUPPORTING_FRESH_ITEM_COUNT
+	
+	//
+	// NOTE: When turning this on, be sure to test the no inbox/outbox case because this code probably
+	//       will return "2" for the Inventory and LIBRARY top-levels when that happens.
+	//
+	
 	U32 fresh_item_count = 0;
 
 	LLFolderView * root_folder = mInventoryPanel->getRootFolder();
@@ -143,23 +152,27 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 
 U32 LLPanelMarketplaceInbox::getTotalItemCount() const
 {
-	LLInventoryModel* model = mInventoryPanel->getModel();
-
-	LLInventoryModel::cat_array_t* cats;
-	LLInventoryModel::item_array_t* items;
-
-	model->getDirectDescendentsOf(model->findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false), cats, items);
-
 	U32 item_count = 0;
-
-	if (cats)
+	
+	LLInventoryModel* model = mInventoryPanel->getModel();
+	const LLUUID inbox_id = model->findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false);
+	
+	if (!inbox_id.isNull())
 	{
-		item_count += cats->size();
-	}
+		LLInventoryModel::cat_array_t* cats;
+		LLInventoryModel::item_array_t* items;
 
-	if (items)
-	{
-		item_count += items->size();
+		model->getDirectDescendentsOf(inbox_id, cats, items);
+
+		if (cats)
+		{
+			item_count += cats->size();
+		}
+
+		if (items)
+		{
+			item_count += items->size();
+		}
 	}
 
 	return item_count;

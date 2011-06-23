@@ -69,6 +69,7 @@
                       width="330">
                      <string name="InboxLabelWithArg">Received Items ([NUM])</string>
                      <string name="InboxLabelNoArg">Received Items</string>
+					 <string name="InboxNoItems">Items purchased through the marketplace will be delivered here.</string>
                      <button
                         label="Received Items"
                         name="inbox_btn"
