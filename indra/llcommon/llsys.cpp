@@ -36,6 +36,7 @@
 #endif
 
 #include "llprocessor.h"
+#include "llerrorcontrol.h"
 
 #if LL_WINDOWS
 #	define WIN32_LEAN_AND_MEAN
@@ -778,18 +779,24 @@ void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_v
 
 void LLMemoryInfo::stream(std::ostream& s) const
 {
+	// We want these memory stats to be easy to grep from the log, along with
+	// the timestamp. So preface each line with the timestamp and a
+	// distinctive marker. Without that, we'd have to search the log for the
+	// introducer line, then read subsequent lines, etc...
+	std::string pfx(LLError::utcTime() + " <mem> ");
+
 #if LL_WINDOWS
 	MEMORYSTATUSEX state;
 	state.dwLength = sizeof(state);
 	GlobalMemoryStatusEx(&state);
 
-	s << "Percent Memory use: " << (U32)state.dwMemoryLoad << '%' << std::endl;
-	s << "Total Physical KB:  " << (U32)(state.ullTotalPhys/1024) << std::endl;
-	s << "Avail Physical KB:  " << (U32)(state.ullAvailPhys/1024) << std::endl;
-	s << "Total page KB:      " << (U32)(state.ullTotalPageFile/1024) << std::endl;
-	s << "Avail page KB:      " << (U32)(state.ullAvailPageFile/1024) << std::endl;
-	s << "Total Virtual KB:   " << (U32)(state.ullTotalVirtual/1024) << std::endl;
-	s << "Avail Virtual KB:   " << (U32)(state.ullAvailVirtual/1024) << std::endl;
+	s << pfx << "Percent Memory use: " << (U32)state.dwMemoryLoad << '%' << std::endl;
+	s << pfx << "Total Physical KB:  " << (U32)(state.ullTotalPhys/1024) << std::endl;
+	s << pfx << "Avail Physical KB:  " << (U32)(state.ullAvailPhys/1024) << std::endl;
+	s << pfx << "Total page KB:      " << (U32)(state.ullTotalPageFile/1024) << std::endl;
+	s << pfx << "Avail page KB:      " << (U32)(state.ullAvailPageFile/1024) << std::endl;
+	s << pfx << "Total Virtual KB:   " << (U32)(state.ullTotalVirtual/1024) << std::endl;
+	s << pfx << "Avail Virtual KB:   " << (U32)(state.ullAvailVirtual/1024) << std::endl;
 
 #elif LL_DARWIN
 	uint64_t phys = 0;
@@ -798,7 +805,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	
 	if(sysctlbyname("hw.memsize", &phys, &len, NULL, 0) == 0)
 	{
-		s << "Total Physical KB:  " << phys/1024 << std::endl;
+		s << pfx << "Total Physical KB:  " << phys/1024 << std::endl;
 	}
 	else
 	{
@@ -816,7 +823,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 		char line[100];
 		while (fgets(line, sizeof(line), pout))
 		{
-			s << line;
+			s << pfx << line;
 		}
 		fclose(pout);
 	}
@@ -826,7 +833,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 
         phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
 
-        s << "Total Physical KB:  " << phys << std::endl;
+        s << pfx << "Total Physical KB:  " << phys << std::endl;
 
 #elif LL_LINUX
 	LLFILE* meminfo = LLFile::fopen(MEMINFO_FILE,"rb");
@@ -837,7 +844,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 		while(fgets(line, sizeof(line), meminfo))
 		{
 			line[strlen(line)-1] = ' ';		 /*Flawfinder: ignore*/
-			s << line;
+			s << pfx << line;
 		}
 		fclose(meminfo);
 	}
