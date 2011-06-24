@@ -1575,6 +1575,11 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 			for (S32 face_num = 0; face_num < data.mBaseModel->getNumVolumeFaces(); face_num++)
 			{
+				if(face_num >= instance.mMaterial.size())
+				{
+					break ;
+				}
+
 				LLImportMaterial& material = instance.mMaterial[face_num];
 				LLSD face_entry = LLSD::emptyMap();
 				LLViewerFetchedTexture *texture = material.mDiffuseMap.get();
