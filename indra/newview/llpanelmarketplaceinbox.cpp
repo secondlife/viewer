@@ -69,7 +69,7 @@ BOOL LLPanelMarketplaceInbox::postBuild()
 	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
 	
 	// Set up the note to display when the inbox is empty
-	mInventoryPanel->getFilter()->setEmptyLookupMessage("InboxNoItems");
+	//mInventoryPanel->getFilter()->setEmptyLookupMessage("InboxNoItems");
 	
 	return TRUE;
 }
@@ -108,6 +108,8 @@ void LLPanelMarketplaceInbox::onFocusReceived()
 			outbox_panel->clearSelection();
 		}
 	}
+
+	sidepanel_inventory->updateVerbs();
 }
 
 BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg)

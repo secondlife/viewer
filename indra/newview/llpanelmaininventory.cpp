@@ -1,4 +1,4 @@
-/** 
+n/** 
  * @file llsidepanelmaininventory.cpp
  * @brief Implementation of llsidepanelmaininventory.
  *
@@ -592,6 +592,8 @@ void LLPanelMainInventory::onFocusReceived()
 	{
 		outbox_panel->clearSelection();
 	}
+
+	sidepanel_inventory->updateVerbs();
 }
 
 void LLPanelMainInventory::setFilterTextFromFilter() 
