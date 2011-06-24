@@ -524,7 +524,12 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		text[count++] = strdup("{\n");
 		
 		
-		if (gGLManager.mGLVersion >= 3.f)
+		if (texture_index_channels == 1)
+		{ //don't use flow control, that's silly
+			text[count++] = strdup("return texture2D(tex0, texcoord);\n");
+			text[count++] = strdup("}\n");
+		}
+		else if (gGLManager.mGLVersion >= 3.f)
 		{ 
 			text[count++] = strdup("\tswitch (int(vary_texture_index+0.25))\n");
 			text[count++] = strdup("\t{\n");
