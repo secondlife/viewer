@@ -4500,16 +4500,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
 			bool skinned = include_skin_weights && !mdl->mSkinWeights.empty();
 
-			U32 mask = LLVertexBuffer::MAP_VERTEX;
-			
-			if (vf.mNormals)
-			{
-				mask |= LLVertexBuffer::MAP_NORMAL;
-			}
-			if (vf.mTexCoords)
-			{
-				mask |= LLVertexBuffer::MAP_TEXCOORD0;
-			}
+			U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0 ;
 
 			if (skinned)
 			{

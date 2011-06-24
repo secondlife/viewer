@@ -240,7 +240,8 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm)
 {
 	U32 count = pos.size();
-	llassert(norm.size() >= pos.size());
+	llassert_always(norm.size() >= pos.size());
+	llassert_always(count > 0) ;
 
 	unbind();
 	
