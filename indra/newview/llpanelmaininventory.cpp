@@ -1,6 +1,6 @@
-n/** 
- * @file llsidepanelmaininventory.cpp
- * @brief Implementation of llsidepanelmaininventory.
+/** 
+ * @file llpanelmaininventory.cpp
+ * @brief Implementation of llpanelmaininventory.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
