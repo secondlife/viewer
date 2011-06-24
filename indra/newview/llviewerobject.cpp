@@ -104,7 +104,6 @@
 #include "llaccountingquota.h"
 
 //#define DEBUG_UPDATE_TYPE
-#define EXTENDED_ENCROACHMENT_CHECK //temp:
 
 BOOL		LLViewerObject::sVelocityInterpolate = TRUE;
 BOOL		LLViewerObject::sPingInterpolate = TRUE; 
@@ -528,6 +527,7 @@ bool LLViewerObject::isReturnable()
 	{
 		return false;
 	}
+		
 	std::vector<LLBBox> boxes;
 	boxes.push_back(LLBBox(getPositionRegion(), getRotationRegion(), getScale() * -0.5f, getScale() * 0.5f).getAxisAligned());
 	for (child_list_t::iterator iter = mChildList.begin();
@@ -538,13 +538,11 @@ bool LLViewerObject::isReturnable()
 	}
 
 	bool result = (mRegionp && mRegionp->objectIsReturnable(getPositionRegion(), boxes)) ? 1 : 0;
-
-#ifdef EXTENDED_ENCROACHMENT_CHECK	
 	
 	if ( !result )
 	{		
-		std::vector<LLViewerRegion*> uniqueRegions;
 		//Get list of neighboring regions relative to this vo's region
+		std::vector<LLViewerRegion*> uniqueRegions;
 		mRegionp->getNeighboringRegions( uniqueRegions );
 	
 		//Build aabb's - for root and all children
@@ -552,9 +550,14 @@ bool LLViewerObject::isReturnable()
 		typedef std::vector<LLViewerRegion*>::iterator RegionIt;
 		RegionIt regionStart = uniqueRegions.begin();
 		RegionIt regionEnd   = uniqueRegions.end();
+		
 		for (; regionStart != regionEnd; ++regionStart )
 		{
 			LLViewerRegion* pTargetRegion = *regionStart;
+			//Add the root vo as there may be no children and we still want
+			//to test for any edge overlap
+			buildReturnablesForChildrenVO( returnables, this, pTargetRegion );
+			//Add it's children
 			for (child_list_t::iterator iter = mChildList.begin();  iter != mChildList.end(); iter++)
 			{
 				LLViewerObject* pChild = *iter;		
@@ -562,7 +565,7 @@ bool LLViewerObject::isReturnable()
 			}
 		}	
 	
-		//TBD# Should probably create a region -> box list map 
+		//TBD#Eventually create a region -> box list map 
 		typedef std::vector<PotentialReturnableObject>::iterator ReturnablesIt;
 		ReturnablesIt retCurrentIt = returnables.begin();
 		ReturnablesIt retEndIt = returnables.end();
@@ -572,10 +575,7 @@ bool LLViewerObject::isReturnable()
 			boxes.clear();
 			LLViewerRegion* pRegion = (*retCurrentIt).pRegion;
 			boxes.push_back( (*retCurrentIt).box );	
-			//LLVector3 boxPos = (*retCurrentIt).box.getPositionAgent();
-			//TBD# Should we just use pRegion->objectIsReturnable, instead? 
-			//As it does various other checks, childrenObjectReturnable does not.
-			bool retResult = (mRegionp && pRegion->childrenObjectReturnable( boxes )) ? 1 : 0;
+			bool retResult = (pRegion && pRegion->childrenObjectReturnable( boxes )) ? 1 : 0;
 			if ( retResult )
 			{ 
 				result = true;
@@ -583,7 +583,6 @@ bool LLViewerObject::isReturnable()
 			}
 		}
 	}
-#endif
 	return result;
 }
 
@@ -606,16 +605,28 @@ void LLViewerObject::buildReturnablesForChildrenVO( std::vector<PotentialReturna
 
 void LLViewerObject::constructAndAddReturnable( std::vector<PotentialReturnableObject>& returnables, LLViewerObject* pChild, LLViewerRegion* pTargetRegion )
 {
-	PotentialReturnableObject returnableObj;
-
-	LLViewerRegion* pRegion		= pChild->getRegion();			
-	LLVector3d posGlobal		= pRegion->getPosGlobalFromRegion( pChild->getPositionRegion() );
-	LLVector3 targetRegionPos	= pTargetRegion->getPosRegionFromGlobal( posGlobal );
 	
-	returnableObj.box = LLBBox( targetRegionPos, pChild->getRotationRegion(), pChild->getScale() * -0.5f, 
+	LLVector3 targetRegionPos;
+	targetRegionPos.setVec( pChild->getPositionGlobal() );	
+	
+	LLBBox childBBox = LLBBox( targetRegionPos, pChild->getRotationRegion(), pChild->getScale() * -0.5f, 
 							    pChild->getScale() * 0.5f).getAxisAligned();
-	returnableObj.pRegion		= pTargetRegion;
-	returnables.push_back( returnableObj );
+	
+	LLVector3 edgeA = targetRegionPos + childBBox.getMinLocal();
+	LLVector3 edgeB = targetRegionPos + childBBox.getMaxLocal();
+	
+	LLVector3d edgeAd, edgeBd;
+	edgeAd.setVec(edgeA);
+	edgeBd.setVec(edgeB);
+	
+	//Only add the box when either of the extents are in a neighboring region
+	if ( pTargetRegion->pointInRegionGlobal( edgeAd ) || pTargetRegion->pointInRegionGlobal( edgeBd ) )
+	{
+		PotentialReturnableObject returnableObj;
+		returnableObj.box		= childBBox;
+		returnableObj.pRegion	= pTargetRegion;
+		returnables.push_back( returnableObj );
+	}
 }
 
 BOOL LLViewerObject::setParent(LLViewerObject* parent)
