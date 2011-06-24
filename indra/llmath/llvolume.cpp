@@ -2774,11 +2774,13 @@ void LLVolume::makeTetrahedron()
 	n[2] = cv[2].getNormal();
 	n += 3;
 
-	tc[0] = cv[0].mTexCoord;
-	tc[1] = cv[1].mTexCoord;
-	tc[2] = cv[2].mTexCoord;
-	tc += 3;
-
+	if(tc)
+	{
+		tc[0] = cv[0].mTexCoord;
+		tc[1] = cv[1].mTexCoord;
+		tc[2] = cv[2].mTexCoord;
+		tc += 3;
+	}
 	
 	//side 2
 	cv[0].setPosition(p[3]);
@@ -2797,11 +2799,14 @@ void LLVolume::makeTetrahedron()
 	n[2] = cv[2].getNormal();
 	n += 3;
 
-	tc[0] = cv[0].mTexCoord;
-	tc[1] = cv[1].mTexCoord;
-	tc[2] = cv[2].mTexCoord;
-	tc += 3;
-	
+	if(tc)
+	{
+		tc[0] = cv[0].mTexCoord;
+		tc[1] = cv[1].mTexCoord;
+		tc[2] = cv[2].mTexCoord;
+		tc += 3;
+	}
+
 	//side 3
 	cv[0].setPosition(p[3]);
 	cv[1].setPosition(p[1]);
@@ -2819,10 +2824,13 @@ void LLVolume::makeTetrahedron()
 	n[2] = cv[2].getNormal();
 	n += 3;
 
-	tc[0] = cv[0].mTexCoord;
-	tc[1] = cv[1].mTexCoord;
-	tc[2] = cv[2].mTexCoord;
-	tc += 3;
+	if(tc)
+	{
+		tc[0] = cv[0].mTexCoord;
+		tc[1] = cv[1].mTexCoord;
+		tc[2] = cv[2].mTexCoord;
+		tc += 3;
+	}
 	
 	//side 4
 	cv[0].setPosition(p[2]);
@@ -2841,10 +2849,13 @@ void LLVolume::makeTetrahedron()
 	n[2] = cv[2].getNormal();
 	n += 3;
 
-	tc[0] = cv[0].mTexCoord;
-	tc[1] = cv[1].mTexCoord;
-	tc[2] = cv[2].mTexCoord;
-	tc += 3;
+	if(tc)
+	{
+		tc[0] = cv[0].mTexCoord;
+		tc[1] = cv[1].mTexCoord;
+		tc[2] = cv[2].mTexCoord;
+		tc += 3;
+	}
 	
 	//set index buffer
 	for (U16 i = 0; i < 12; i++)
@@ -5613,7 +5624,16 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 			
 		LLVector4a::memcpyNonAliased16((F32*) mPositions, (F32*) src.mPositions, vert_size);
 		LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) src.mNormals, vert_size);
-		LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) src.mTexCoords, tc_size);
+
+		if(src.mTexCoords)
+		{
+			LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) src.mTexCoords, tc_size);
+		}
+		else
+		{
+			ll_aligned_free_16(mTexCoords) ;
+			mTexCoords = NULL ;
+		}
 
 
 		if (src.mBinormals)
