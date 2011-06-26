@@ -103,6 +103,7 @@ Ales Beaumont
 Alexandrea Fride
     STORM-255
 	STORM-960
+	STORM-1327
 Alissa Sabre
 	VWR-81
 	VWR-83
@@ -446,6 +447,7 @@ Jonathan Yap
 	STORM-1313
 	STORM-899
 	STORM-1273
+	STORM-1327
 Kage Pixel
 	VWR-11
 Ken March
