@@ -137,9 +137,9 @@ void LLFloaterPostcard::draw()
 
 		// first set the max extents of our preview
 		rect.translate(-rect.mLeft, -rect.mBottom);
-		rect.mLeft += 280;
+		rect.mLeft += 320;
 		rect.mRight -= 10;
-		rect.mTop -= 20;
+		rect.mTop -= 27;
 		rect.mBottom = rect.mTop - 130;
 
 		// then fix the aspect ratio
