@@ -462,7 +462,11 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	GLcharARB* text[1024];
 	GLuint count = 0;
 
-	if (gGLManager.mGLVersion < 3.f)
+	if (gGLManager.mGLVersion < 2.1f)
+	{
+		text[count++] = strdup("#version 110\n");
+	}
+	else if (gGLManager.mGLVersion < 3.f)
 	{
 		//set version to 1.20
 		text[count++] = strdup("#version 120\n");
