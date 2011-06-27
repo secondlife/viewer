@@ -91,7 +91,7 @@
   <icon
     follows="right|top"
     height="13"
-    image_name="Parcel_HiddenAVsOff_Dark"
+    image_name="Parcel_HiddenAVsOn_Light"
     left="2"
     name="hidden_av_icon"
     top="3"

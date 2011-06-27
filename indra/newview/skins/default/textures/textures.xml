@@ -371,6 +371,7 @@ with the same filename but different name
  <texture name="Parcel_VoiceNo_Dark" file_name="icons/Parcel_VoiceNo_Dark.png" preload="false" />
  <texture name="Parcel_HiddenAVsOff_Dark" file_name="icons/Parcel_HiddenAVsOff_Dark.png" preload="false" />
  <texture name="Parcel_HiddenAVsOn_Dark" file_name="icons/Parcel_HiddenAVsOn_Dark.png" preload="false" />
+ <texture name="Parcel_HiddenAVsOn_Light" file_name="icons/Parcel_HiddenAVsOn_Light.png" preload="false" />
 
  <texture name="Parcel_BuildNo_Light" file_name="icons/Parcel_BuildNo_Light.png" preload="false" />
  <texture name="Parcel_FlyNo_Light" file_name="icons/Parcel_FlyNo_Light.png" preload="false" />

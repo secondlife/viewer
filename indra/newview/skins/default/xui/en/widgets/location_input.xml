@@ -129,7 +129,7 @@
     height="18"
     top="21"
     follows="right|top"
-    image_name="Parcel_HiddenAVsOn_Dark"
+    image_name="Parcel_HiddenAVsOn_Light"
     />
   <combo_button
 		name="Location History"
