@@ -3169,10 +3169,13 @@ F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32
 	F32 dlow = llmin(radius/0.06f, 256.f);
 	F32 dmid = llmin(radius/0.24f, 256.f);
 	
-	F32 bytes_lowest = header["lowest_lod"]["size"].asReal()/1024.f;
-	F32 bytes_low = header["low_lod"]["size"].asReal()/1024.f;
-	F32 bytes_mid = header["medium_lod"]["size"].asReal()/1024.f;
-	F32 bytes_high = header["high_lod"]["size"].asReal()/1024.f;
+	F32 METADATA_DISCOUNT = 128.f;  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
+	F32 MINIMUM_SIZE = 32.f; //make sure nothing is "free"
+
+	F32 bytes_lowest = llmax((F32) header["lowest_lod"]["size"].asReal()-METADATA_DISCOUNT, MINIMUM_SIZE)/1024.f;
+	F32 bytes_low = llmax((F32) header["low_lod"]["size"].asReal()/-METADATA_DISCOUNT, MINIMUM_SIZE)/1024.f;
+	F32 bytes_mid = llmax((F32) header["medium_lod"]["size"].asReal()-METADATA_DISCOUNT, MINIMUM_SIZE)/1024.f;
+	F32 bytes_high = llmax((F32) header["high_lod"]["size"].asReal()-METADATA_DISCOUNT, MINIMUM_SIZE)/1024.f;
 
 	if (bytes)
 	{
