@@ -78,6 +78,14 @@ LLMeshRepository gMeshRepo;
 
 const U32 MAX_MESH_REQUESTS_PER_SECOND = 100;
 
+// Maximum mesh version to support.  Three least significant digits are reserved for the minor version, 
+// with major version changes indicating a format change that is not backwards compatible and should not
+// be parsed by viewers that don't specifically support that version. For example, if the integer "1" is 
+// present, the version is 0.001. A viewer that can parse version 0.001 can also parse versions up to 0.999, 
+// but not 1.0 (integer 1000).
+// See wiki at https://wiki.secondlife.com/wiki/Mesh/Mesh_Asset_Format
+const S32 MAX_MESH_VERSION = 999;
+
 U32 LLMeshRepository::sBytesReceived = 0;
 U32 LLMeshRepository::sHTTPRequestCount = 0;
 U32 LLMeshRepository::sHTTPRetryCount = 0;
@@ -843,12 +851,13 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 
 	if (header_size > 0)
 	{
+		S32 version = mMeshHeader[mesh_id]["version"].asInteger();
 		S32 offset = header_size + mMeshHeader[mesh_id]["skin"]["offset"].asInteger();
 		S32 size = mMeshHeader[mesh_id]["skin"]["size"].asInteger();
 
 		mHeaderMutex->unlock();
 
-		if (offset >= 0 && size > 0)
+		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
 			//check VFS for mesh skin info
 			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
@@ -915,12 +924,13 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 
 	if (header_size > 0)
 	{
+		S32 version = mMeshHeader[mesh_id]["version"].asInteger();
 		S32 offset = header_size + mMeshHeader[mesh_id]["physics_convex"]["offset"].asInteger();
 		S32 size = mMeshHeader[mesh_id]["physics_convex"]["size"].asInteger();
 
 		mHeaderMutex->unlock();
 
-		if (offset >= 0 && size > 0)
+		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
 			//check VFS for mesh skin info
 			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
@@ -987,12 +997,13 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 
 	if (header_size > 0)
 	{
+		S32 version = mMeshHeader[mesh_id]["version"].asInteger();
 		S32 offset = header_size + mMeshHeader[mesh_id]["physics_mesh"]["offset"].asInteger();
 		S32 size = mMeshHeader[mesh_id]["physics_mesh"]["size"].asInteger();
 
 		mHeaderMutex->unlock();
 
-		if (offset >= 0 && size > 0)
+		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
 			//check VFS for mesh physics shape info
 			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
@@ -1103,10 +1114,12 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 
 	if (header_size > 0)
 	{
+		S32 version = mMeshHeader[mesh_id]["version"].asInteger();
 		S32 offset = header_size + mMeshHeader[mesh_id][header_lod[lod]]["offset"].asInteger();
 		S32 size = mMeshHeader[mesh_id][header_lod[lod]]["size"].asInteger();
 		mHeaderMutex->unlock();
-		if (offset >= 0 && size > 0)
+				
+		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
 
 			//check VFS for mesh asset
@@ -1806,7 +1819,9 @@ S32 LLMeshRepository::getActualMeshLOD(LLSD& header, S32 lod)
 {
 	lod = llclamp(lod, 0, 3);
 
-	if (header.has("404"))
+	S32 version = header["version"];
+
+	if (header.has("404") || version > MAX_MESH_VERSION)
 	{
 		return -1;
 	}
@@ -2142,54 +2157,59 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		LLUUID mesh_id = mMeshParams.getSculptID();
 		LLSD header = gMeshRepo.mThread->mMeshHeader[mesh_id];
 
-		std::stringstream str;
+		S32 version = header["version"].asInteger();
 
-		S32 lod_bytes = 0;
-
-		for (U32 i = 0; i < LLModel::LOD_PHYSICS; ++i)
-		{ //figure out how many bytes we'll need to reserve in the file
-			std::string lod_name = header_lod[i];
-			lod_bytes = llmax(lod_bytes, header[lod_name]["offset"].asInteger()+header[lod_name]["size"].asInteger());
-		}
-		
-		//just in case skin info or decomposition is at the end of the file (which it shouldn't be)
-		lod_bytes = llmax(lod_bytes, header["skin"]["offset"].asInteger() + header["skin"]["size"].asInteger());
-		lod_bytes = llmax(lod_bytes, header["physics_convex"]["offset"].asInteger() + header["physics_convex"]["size"].asInteger());
-
-		S32 header_bytes = (S32) gMeshRepo.mThread->mMeshHeaderSize[mesh_id];
-		S32 bytes = lod_bytes + header_bytes; 
-
-		
-		//it's possible for the remote asset to have more data than is needed for the local cache
-		//only allocate as much space in the VFS as is needed for the local cache
-		data_size = llmin(data_size, bytes);
-
-		LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH, LLVFile::WRITE);
-		if (file.getMaxSize() >= bytes || file.setMaxSize(bytes))
+		if (version <= MAX_MESH_VERSION)
 		{
-			LLMeshRepository::sCacheBytesWritten += data_size;
+			std::stringstream str;
 
-			file.write((const U8*) data, data_size);
+			S32 lod_bytes = 0;
+
+			for (U32 i = 0; i < LLModel::LOD_PHYSICS; ++i)
+			{ //figure out how many bytes we'll need to reserve in the file
+				std::string lod_name = header_lod[i];
+				lod_bytes = llmax(lod_bytes, header[lod_name]["offset"].asInteger()+header[lod_name]["size"].asInteger());
+			}
+		
+			//just in case skin info or decomposition is at the end of the file (which it shouldn't be)
+			lod_bytes = llmax(lod_bytes, header["skin"]["offset"].asInteger() + header["skin"]["size"].asInteger());
+			lod_bytes = llmax(lod_bytes, header["physics_convex"]["offset"].asInteger() + header["physics_convex"]["size"].asInteger());
+
+			S32 header_bytes = (S32) gMeshRepo.mThread->mMeshHeaderSize[mesh_id];
+			S32 bytes = lod_bytes + header_bytes; 
+
+		
+			//it's possible for the remote asset to have more data than is needed for the local cache
+			//only allocate as much space in the VFS as is needed for the local cache
+			data_size = llmin(data_size, bytes);
+
+			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH, LLVFile::WRITE);
+			if (file.getMaxSize() >= bytes || file.setMaxSize(bytes))
+			{
+				LLMeshRepository::sCacheBytesWritten += data_size;
+
+				file.write((const U8*) data, data_size);
 			
-			//zero out the rest of the file 
-			U8 block[4096];
-			memset(block, 0, 4096);
+				//zero out the rest of the file 
+				U8 block[4096];
+				memset(block, 0, 4096);
 
-			while (bytes-file.tell() > 4096)
-			{
-				file.write(block, 4096);
-			}
+				while (bytes-file.tell() > 4096)
+				{
+					file.write(block, 4096);
+				}
 
-			S32 remaining = bytes-file.tell();
+				S32 remaining = bytes-file.tell();
 
-			if (remaining < 0 || remaining > 4096)
-			{
-				llerrs << "Bad padding of mesh asset cache entry." << llendl;
-			}
+				if (remaining < 0 || remaining > 4096)
+				{
+					llerrs << "Bad padding of mesh asset cache entry." << llendl;
+				}
 
-			if (remaining > 0)
-			{
-				file.write(block, remaining);
+				if (remaining > 0)
+				{
+					file.write(block, remaining);
+				}
 			}
 		}
 	}
