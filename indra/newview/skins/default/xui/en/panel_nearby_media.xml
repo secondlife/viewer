@@ -104,12 +104,12 @@
 		top_pad="15"
 		left="10"
 		name="show_text"
-		width="40">
+		width="62">
 	  Show:
 	</text>
 	<combo_box
 		height="23"
-		left="50"
+		left="72"
 		width="140"
 		top_delta="-5"
 		follows="left|top"

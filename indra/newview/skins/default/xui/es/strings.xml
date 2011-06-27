@@ -3628,6 +3628,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="LocationCtrlComboBtnTooltip">
 		Historial de mis localizaciones
 	</string>
+	<string name="LocationCtrlForSaleTooltip">
+		Comprar este terreno
+	</string>
 	<string name="LocationCtrlAdultIconTooltip">
 		Región Adulta
 	</string>
