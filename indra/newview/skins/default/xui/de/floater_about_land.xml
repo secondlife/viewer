@@ -219,38 +219,38 @@ werden.
 			<text name="objects_available">
 				[COUNT] von [MAX] ([AVAILABLE] verfügbar)
 			</text>
-			<text name="Primitives parcel supports:" width="200">
+			<text name="Primitives parcel supports:">
 				Von Parzelle unterstützte Prims:
 			</text>
-			<text left="204" name="object_contrib_text" width="152">
+			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
 				Prims auf Parzelle:
 			</text>
-			<text left="204" name="total_objects_text" width="48">
+			<text name="total_objects_text">
 				[COUNT]
 			</text>
-			<text left="14" name="Owned by parcel owner:" width="200">
+			<text name="Owned by parcel owner:" width="200">
 				Im Eigentum des Parzellenbesitzers:
 			</text>
-			<text left="204" left_delta="200" name="owner_objects_text" width="48">
+			<text left_delta="204" name="owner_objects_text">
 				[COUNT]
 			</text>
-			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOwner" right="-135" width="60"/>
-			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnOwner..." right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119"/>
-			<text left="14" name="Set to group:">
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOwner"/>
+			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnOwner..." tool_tip="Objekte an ihre Eigentümer zurückgeben."/>
+			<text name="Set to group:">
 				Der Gruppe zugeordnet:
 			</text>
-			<text left="204" name="group_objects_text" width="48">
+			<text name="group_objects_text">
 				[COUNT]
 			</text>
-			<button label="Anzeigen" label_selected="Anzeigen" name="ShowGroup" right="-135" width="60"/>
-			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnGroup..." right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119"/>
-			<text left="14" name="Owned by others:" width="128">
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowGroup"/>
+			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnGroup..." tool_tip="Objekte an ihre Eigentümer zurückgeben."/>
+			<text name="Owned by others:">
 				Im Eigentum anderer:
 			</text>
-			<text left="204" name="other_objects_text" width="48">
+			<text name="other_objects_text">
 				[COUNT]
 			</text>
 			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOther"/>

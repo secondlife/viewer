@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="navigation_bar">
 	<panel name="navigation_panel">
-		<pull_button name="back_btn" tool_tip="Volver a lo localización anterior"/>
+		<pull_button name="back_btn" tool_tip="Volver a la localización anterior"/>
 		<pull_button name="forward_btn" tool_tip="Ir una localización adelante"/>
 		<button name="home_btn" tool_tip="Teleportar a mi Base"/>
 		<location_input label="Localización" name="location_combo"/>
