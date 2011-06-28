@@ -44,6 +44,7 @@
 #include "llevents.h"
 #include "lltimer.h"
 #include <boost/bind.hpp>
+#include <boost/circular_buffer.hpp>
 
 #if LL_WINDOWS
 #	define WIN32_LEAN_AND_MEAN
@@ -81,6 +82,11 @@ LLCPUInfo gSysCPU;
 // Don't log memory info any more often than this. It also serves as our
 // framerate sample size.
 static const F32 MEM_INFO_THROTTLE = 20;
+// Sliding window of samples. We intentionally limit the length of time we
+// remember "the slowest" framerate because framerate is very slow at login.
+// If we only triggered FrameWatcher logging when the session framerate
+// dropped below the login framerate, we'd have very little additional data.
+static const F32 MEM_INFO_WINDOW = 10*60;
 
 #if LL_WINDOWS
 #ifndef DLLVERSIONINFO
@@ -903,10 +909,13 @@ public:
         // as the completion of a sample window.
         mSampleEnd(0),
         mFrames(0),
+        // Both MEM_INFO_WINDOW and MEM_INFO_THROTTLE are in seconds. We need
+        // the number of integer MEM_INFO_THROTTLE sample slots that will fit
+        // in MEM_INFO_WINDOW. Round up.
+        mSamples(int((MEM_INFO_WINDOW / MEM_INFO_THROTTLE) + 0.7)),
         // Initializing to F32_MAX means that the first real frame will become
         // the slowest ever, which sounds like a good idea.
-        mSlowest(F32_MAX),
-        mDesc("startup")
+        mSlowest(F32_MAX)
     {}
 
     bool tick(const LLSD&)
@@ -947,20 +956,54 @@ public:
         F32 elapsed(timestamp - sampleStart);
         F32 framerate(frames/elapsed);
 
+        // Remember previous slowest framerate because we're just about to
+        // update it.
+        F32 slowest(mSlowest);
+        // Remember previous number of samples.
+        boost::circular_buffer<F32>::size_type prevSize(mSamples.size());
+
+        // Capture new framerate in our samples buffer. Once the buffer is
+        // full (after MEM_INFO_WINDOW seconds), this will displace the oldest
+        // sample. ("So they all rolled over, and one fell out...")
+        mSamples.push_back(framerate);
+
+        // Calculate the new minimum framerate. I know of no way to update a
+        // rolling minimum without ever rescanning the buffer. But since there
+        // are only a few tens of items in this buffer, rescanning it is
+        // probably cheaper (and certainly easier to reason about) than
+        // attempting to optimize away some of the scans.
+        mSlowest = framerate;       // pick an arbitrary entry to start
+        for (boost::circular_buffer<F32>::const_iterator si(mSamples.begin()), send(mSamples.end());
+             si != send; ++si)
+        {
+            if (*si < mSlowest)
+            {
+                mSlowest = *si;
+            }
+        }
+
         // We're especially interested in memory as framerate drops. Only log
-        // when framerate is lower than ever before. (Should always be true
-        // for the end of the very first sample window.)
-        if (framerate >= mSlowest)
+        // when framerate drops below the slowest framerate we remember.
+        // (Should always be true for the end of the very first sample
+        // window.)
+        if (framerate >= slowest)
         {
             return false;
         }
         // Congratulations, we've hit a new low.  :-P
-        mSlowest = framerate;
 
-        LL_INFOS("FrameWatcher") << mDesc << " framerate "
-                                 << std::fixed << std::setprecision(1) << framerate << '\n'
-                                 << LLMemoryInfo() << LL_ENDL;
-        mDesc = "new lowest";
+        LL_INFOS("FrameWatcher") << ' ';
+        if (! prevSize)
+        {
+            LL_CONT << "initial framerate ";
+        }
+        else
+        {
+            LL_CONT << "slowest framerate for last " << int(prevSize * MEM_INFO_THROTTLE)
+                    << " seconds ";
+        }
+        LL_CONT << std::fixed << std::setprecision(1) << framerate << '\n'
+                << LLMemoryInfo() << LL_ENDL;
 
         return false;
     }
@@ -979,12 +1022,13 @@ private:
     F32 mSampleStart, mSampleEnd;
     // Frames this sample window
     U32 mFrames;
-    // Slowest framerate EVAR
+    // Sliding window of framerate samples
+    boost::circular_buffer<F32> mSamples;
+    // Slowest framerate in mSamples
     F32 mSlowest;
-    // Description of next notable framerate
-    std::string mDesc;
 };
 
+// Need an instance of FrameWatcher before it does any good
 static FrameWatcher sFrameWatcher;
 
 BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
