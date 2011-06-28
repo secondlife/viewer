@@ -458,7 +458,9 @@ void LLFloaterModelWizard::executePhysicsStage(std::string stage_name)
 {
 	if (sInstance)
 	{
-		F64 physics_accuracy = sInstance->getChild<LLSliderCtrl>("physics_slider")->getValue().asReal();
+		// Invert the slider value so that "performance" end is giving the least detailed physics,
+		// and the "accuracy" end is giving the most detailed physics
+		F64 physics_accuracy = 1 - sInstance->getChild<LLSliderCtrl>("physics_slider")->getValue().asReal();
 
 		sInstance->mDecompParams["Retain%"] = physics_accuracy;
 
