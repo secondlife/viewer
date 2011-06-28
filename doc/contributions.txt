@@ -446,6 +446,7 @@ Jonathan Yap
 	STORM-1313
 	STORM-899
 	STORM-1273
+	STORM-1452
 Kage Pixel
 	VWR-11
 Ken March
@@ -778,6 +779,7 @@ Strife Onizuka
 	SNOW-691
 TankMaster Finesmith
 	STORM-1100
+	STORM-1452
 Tayra Dagostino
 	SNOW-517
 	SNOW-543
