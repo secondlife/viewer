@@ -24,6 +24,10 @@
  * $/LicenseInfo$
  */
 
+#if LL_WINDOWS
+#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
+#endif
+
 #include "linden_common.h"
 
 #include "llsys.h"
