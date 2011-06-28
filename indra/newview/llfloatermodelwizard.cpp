@@ -58,6 +58,9 @@ LLFloaterModelWizard::LLFloaterModelWizard(const LLSD& key)
 	 ,mRecalculatingPhysicsBtn(NULL)
 	 ,mCalculateWeightsBtn(NULL)
 	 ,mCalculatingWeightsBtn(NULL)
+	 ,mChooseFilePreviewPanel(NULL)
+	 ,mOptimizePreviewPanel(NULL)
+	 ,mPhysicsPreviewPanel(NULL)
 {
 	mLastEnabledState = CHOOSE_FILE;
 	sInstance = this;
@@ -86,9 +89,13 @@ void LLFloaterModelWizard::setState(int state)
 		}
 	}
 
+	LLView* current_preview_panel = NULL;
+
 	if (state == CHOOSE_FILE)
 	{
 		mModelPreview->mViewOption["show_physics"] = false;
+
+		current_preview_panel = mChooseFilePreviewPanel;
 
 		getChildView("close")->setVisible(false);
 		getChildView("back")->setVisible(true);
@@ -109,6 +116,8 @@ void LLFloaterModelWizard::setState(int state)
 
 		mModelPreview->mViewOption["show_physics"] = false;
 
+		current_preview_panel = mOptimizePreviewPanel;
+
 		getChildView("back")->setVisible(true);
 		getChildView("back")->setEnabled(true);
 		getChildView("close")->setVisible(false);
@@ -127,6 +136,8 @@ void LLFloaterModelWizard::setState(int state)
 		}
 
 		mModelPreview->mViewOption["show_physics"] = true;
+
+		current_preview_panel = mPhysicsPreviewPanel;
 
 		getChildView("next")->setVisible(false);
 		getChildView("upload")->setVisible(false);
@@ -164,6 +175,20 @@ void LLFloaterModelWizard::setState(int state)
 		mCalculatingWeightsBtn->setVisible(false);
 	}
 
+	if (current_preview_panel)
+	{
+		LLRect rect;
+		current_preview_panel->localRectToOtherView(current_preview_panel->getLocalRect(), &rect, this);
+
+		// Reduce the preview rect by 1 px to fit the borders
+		rect.stretch(-1);
+
+		if (rect != mPreviewRect)
+		{
+			mPreviewRect = rect;
+			mModelPreview->refresh();
+		}
+	}
 	updateButtons();
 }
 
@@ -508,8 +533,6 @@ void LLFloaterModelWizard::DecompRequest::completed()
 
 BOOL LLFloaterModelWizard::postBuild()
 {
-	LLView* preview_panel = getChildView("preview_panel");
-
 	childSetValue("import_scale", (F32) 0.67335826);
 
 	getChild<LLUICtrl>("browse")->setCommitCallback(boost::bind(&LLFloaterModelWizard::loadModel, this));
@@ -537,13 +560,14 @@ BOOL LLFloaterModelWizard::postBuild()
 
 	mCalculatingWeightsBtn = getChild<LLButton>("calculating");
 
+	mChooseFilePreviewPanel = getChild<LLView>("choose_file_preview_panel");
+	mOptimizePreviewPanel = getChild<LLView>("optimize_preview_panel");
+	mPhysicsPreviewPanel = getChild<LLView>("physics_preview_panel");
+
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 	
 	enable_registrar.add("Next.OnEnable", boost::bind(&LLFloaterModelWizard::onEnableNext, this));
 	enable_registrar.add("Back.OnEnable", boost::bind(&LLFloaterModelWizard::onEnableBack, this));
-
-
-	mPreviewRect = preview_panel->getRect();
 	
 	mModelPreview = new LLModelPreview(512, 512, this);
 	mModelPreview->setPreviewTarget(16.f);
@@ -648,29 +672,16 @@ void LLFloaterModelWizard::draw()
 		
 		gGL.getTexUnit(0)->bind(mModelPreview);
 		
-		LLView *view = getChildView(stateNames[mState]+"_panel");
-		LLView* preview_panel = view->getChildView("preview_panel");
-
-		LLRect rect = preview_panel->getRect();
-		if (rect != mPreviewRect)
-		{
-			mModelPreview->refresh();
-			mPreviewRect = preview_panel->getRect();
-		}
-		
-		LLRect item_rect;
-		preview_panel->localRectToOtherView(preview_panel->getLocalRect(), &item_rect, this);
-	
 		gGL.begin( LLRender::QUADS );
 		{
 			gGL.texCoord2f(0.f, 1.f);
-			gGL.vertex2i(item_rect.mLeft, item_rect.mTop-1);
+			gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mTop);
 			gGL.texCoord2f(0.f, 0.f);
-			gGL.vertex2i(item_rect.mLeft, item_rect.mBottom);
+			gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mBottom);
 			gGL.texCoord2f(1.f, 0.f);
-			gGL.vertex2i(item_rect.mRight-1, item_rect.mBottom);
+			gGL.vertex2i(mPreviewRect.mRight, mPreviewRect.mBottom);
 			gGL.texCoord2f(1.f, 1.f);
-			gGL.vertex2i(item_rect.mRight-1, item_rect.mTop-1);
+			gGL.vertex2i(mPreviewRect.mRight, mPreviewRect.mTop);
 		}
 		gGL.end();
 		

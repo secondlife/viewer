@@ -68,6 +68,8 @@ public:
 	void modelLoadedCallback();
 	void initDecompControls();
 	
+	const LLRect& getPreviewRect() const { return mPreviewRect; }
+
 	LLPhysicsDecomp::decomp_params mDecompParams;
 	std::set<LLPointer<DecompRequest> > mCurRequest;
 	std::string mStatusMessage;
@@ -111,6 +113,10 @@ private:
 	LLButton*		mRecalculatingPhysicsBtn;
 	LLButton*		mCalculateWeightsBtn;
 	LLButton*		mCalculatingWeightsBtn;
+
+	LLView*		mChooseFilePreviewPanel;
+	LLView*		mOptimizePreviewPanel;
+	LLView*		mPhysicsPreviewPanel;
 };
 
 
