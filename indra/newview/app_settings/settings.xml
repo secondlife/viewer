@@ -5576,7 +5576,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <real>1</real>
+    <real>0</real>
   </map>
   <key>MeshImportUseSLM</key>
   <map>
