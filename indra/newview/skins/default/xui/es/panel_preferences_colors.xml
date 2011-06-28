@@ -40,5 +40,5 @@
 		Opacidad de la ventana:
 	</text>
 	<slider label="Activa:" name="active"/>
-	<slider label="Inactivo:" name="inactive"/>
+	<slider label="Inactiva:" name="inactive"/>
 </panel>
