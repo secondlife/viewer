@@ -84,7 +84,9 @@ public:
 
 		FT_INBOX = 50,
 
-		FT_COUNT = 51,
+		FT_BASIC_ROOT = 51,
+
+		FT_COUNT = 52,
 
 		FT_NONE = -1
 	};
