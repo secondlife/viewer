@@ -544,6 +544,13 @@ void LLFloaterModelPreview::loadModel(S32 lod)
 	(new LLMeshFilePicker(mModelPreview, lod))->getFile();
 }
 
+void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name)
+{
+	mModelPreview->mLoading = true;
+
+	mModelPreview->loadModel(file_name, lod);
+}
+
 //static
 void LLFloaterModelPreview::onImportScaleCommit(LLUICtrl*,void* userdata)
 {
@@ -4751,7 +4758,18 @@ BOOL LLModelPreview::render()
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	LLRect preview_rect = mFMP->getChildView("preview_panel")->getRect();
+	LLRect preview_rect;
+
+	LLFloaterModelWizard* floater_wizard = dynamic_cast<LLFloaterModelWizard*>(mFMP);
+	if (floater_wizard)
+	{
+		preview_rect = floater_wizard->getPreviewRect();
+	}
+	else
+	{
+		preview_rect = mFMP->getChildView("preview_panel")->getRect();
+	}
+
 	F32 aspect = (F32) preview_rect.getWidth()/preview_rect.getHeight();
 
 	LLViewerCamera::getInstance()->setAspect(aspect);
