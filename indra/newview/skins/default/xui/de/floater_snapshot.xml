@@ -4,7 +4,7 @@
 		unbekannt
 	</floater.string>
 	<radio_group label="Fototyp" name="snapshot_type_radio">
-		<radio_item label="Email" name="postcard"/>
+		<radio_item label="E-Mail" name="postcard"/>
 		<radio_item label="Mein Inventar ([AMOUNT] L$)" name="texture"/>
 		<radio_item label="Auf meinem Computer speichern" name="local"/>
 	</radio_group>
