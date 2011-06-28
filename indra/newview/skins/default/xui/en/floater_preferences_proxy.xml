@@ -3,82 +3,82 @@
  legacy_header_height="18"
  height="490"
  layout="topleft"
- name="Socks5 Advanced Settings Floater"
+ name="Proxy Settings Floater"
  help_topic="hardware_settings_floater"
  title="Socks5 proxy advanced settings"
  width="385">
-    <check_box
-     control_name="BrowserProxyEnabled"
-     top="30"
-     enabled="true"
-     follows="left|top"
-     height="14"
-     initial_value="false"
-     commit_callback.function="Proxy.Change"
-     label="Use HTTP Proxy for Web pages"
-     left_delta="10"
-     mouse_opaque="true"
-     name="web_proxy_enabled"
-     radio_style="false"
-     width="400"
-     top_pad="5" />
-    <check_box
-     control_name="Socks5ProxyEnabled"
-     height="16"
-     label="Use Socks 5 Proxy for UDP traffic"
-     layout="topleft"
-     left_delta="0"
-     name="socks_proxy_enabled"
-     top_pad="5"
-     width="256"
-     commit_callback.function="Proxy.Change" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left="10"
-     name="Proxy location"
-     top_delta="30"
-     width="300">
-        Other Http traffic proxy:
-     </text>
-     <radio_group
-      control_name="Socks5HttpProxyType"
-      height="60"
-      layout="topleft"
-      name="other_http_proxy_selection"
-      top_pad="10"
-      width="120"
-      border="1"
-      left_delta="10" 
-      commit_callback.function="Proxy.Change" >
-          <radio_item
-           height="16"
-           label="Do not proxy"
-           layout="topleft"
-           value="None"
-           width="120"
-           tool_tip="Non web Http traffic should NOT be sent to any proxy."/>
-          <radio_item
-           height="16"
-           label="Use Socks 5 Proxy"
-           layout="topleft"
-           value="Socks"
-           width="120"
-           enabled_control="Socks5ProxyEnabled"
-           tool_tip="Non-web Http will be sent to the configured Socks 5 proxy."/>
-          <radio_item
-           height="16"
-           label="Use Http Proxy"
-           layout="topleft"
-           value="Web"
-           width="120"
-           enabled_control="BrowserProxyEnabled"
-           tool_tip="Non-web Http will be sent to the configured Web proxy." />
-    </radio_group>
-    <text
+	<check_box
+	 control_name="BrowserProxyEnabled"
+	 top="30"
+	 enabled="true"
+	 follows="left|top"
+	 height="14"
+	 initial_value="false"
+	 commit_callback.function="Proxy.Change"
+	 label="Use HTTP Proxy for Web pages"
+	 left_delta="10"
+	 mouse_opaque="true"
+	 name="web_proxy_enabled"
+	 radio_style="false"
+	 width="400"
+	 top_pad="5" />
+	<check_box
+	 control_name="Socks5ProxyEnabled"
+	 height="16"
+	 label="Use Socks 5 Proxy for UDP traffic"
+	 layout="topleft"
+	 left_delta="0"
+	 name="socks_proxy_enabled"
+	 top_pad="5"
+	 width="256"
+	 commit_callback.function="Proxy.Change" />
+	<text
+	type="string"
+	length="1"
+	follows="left|top"
+	height="10"
+	layout="topleft"
+	left="10"
+	name="Proxy location"
+	top_delta="30"
+	width="300">
+	   Other Http traffic proxy:
+	</text>
+	<radio_group
+	 control_name="Socks5HttpProxyType"
+	 height="60"
+	 layout="topleft"
+	 name="other_http_proxy_selection"
+	 top_pad="10"
+	 width="120"
+	 border="1"
+	 left_delta="10" 
+	 commit_callback.function="Proxy.Change" >
+		<radio_item
+		 height="16"
+		 label="Do not proxy"
+		 layout="topleft"
+		 value="None"
+		 width="120"
+		 tool_tip="Non web Http traffic should NOT be sent to any proxy."/>
+		<radio_item
+		 height="16"
+		 label="Use Socks 5 Proxy"
+		 layout="topleft"
+		 value="Socks"
+		 width="120"
+		 enabled_control="Socks5ProxyEnabled"
+		 tool_tip="Non-web Http will be sent to the configured Socks 5 proxy."/>
+		<radio_item
+		 height="16"
+		 label="Use Http Proxy"
+		 layout="topleft"
+		 value="Web"
+		 width="120"
+		 enabled_control="BrowserProxyEnabled"
+		 tool_tip="Non-web Http will be sent to the configured Web proxy." />
+	</radio_group>
+	<text
 	 type="string"
 	 length="1"
 	 follows="left|top"
@@ -93,7 +93,7 @@
 	<line_editor
 	 control_name="BrowserProxyAddress"
 	 enabled_control="BrowserProxyEnabled"
-     follows="left|top"
+	 follows="left|top"
 	 font="SansSerif"
 	 height="23"
 	 layout="topleft"
@@ -118,7 +118,7 @@
 	 min_val="10"
 	 name="web_proxy_port"
 	 top_delta="0"
-      tool_tip="The port of the HTTP proxy you would like to use."
+	 tool_tip="The port of the HTTP proxy you would like to use."
 	 width="145" />
 	<text
 	 type="string"
@@ -162,18 +162,18 @@
 	 name="socks_proxy_port"
 	 top_delta="0"
 	 width="145"
-     tool_tip="The port of the SOCKS 5 proxy you would like to use."
-	 commit_callback.function="Pref.SocksProxy" />
+	 tool_tip="The port of the SOCKS 5 proxy you would like to use."
+	 commit_callback.function="Proxy.Change" />
 	<text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left="16"
-     name="Proxy location"
-     top_delta="35"
-     width="300">
+	 type="string"
+	 length="1"
+	 follows="left|top"
+	 height="10"
+	 layout="topleft"
+	 left="16"
+	 name="Proxy location"
+	 top_delta="35"
+	 width="300">
 	    Authentication:
 	</text>
 	<radio_group
@@ -186,13 +186,13 @@
 	 width="120"
 	 border="1"
 	 commit_callback.function="Proxy.Change" >
-	    <radio_item
+		<radio_item
 		 height="16"
 		 label="No Authentication"
 		 layout="topleft"
 		 name="Socks5NoAuth"
 		 value="None"
-		 tool_tip="Socks5 proxy requires no authentication."/>
+		 tool_tip="Socks5 proxy requires no authentication."
 		 width="120" />
 		<radio_item
 		 height="16"
@@ -200,7 +200,7 @@
 		 layout="topleft"
 		 name="Socks5UserPass"
 		 value="UserPass"
-		 tool_tip="Socks5 proxy requires username/password authentication."/>
+		 tool_tip="Socks5 proxy requires username/password authentication."
 		 width="120" />
 	</radio_group>
 	<text
@@ -215,7 +215,6 @@
 	    Username:
 	</text>
 	<line_editor
-	 control_name="Socks5Username"
 	 follows="left|top"
 	 font="SansSerif"
 	 height="23"
@@ -238,7 +237,6 @@
 	    Password:
 	</text>
 	<line_editor
-	 control_name="Socks5Password"
 	 follows="left|top"
 	 font="SansSerif"
 	 height="23"
@@ -248,6 +246,7 @@
 	 tool_tip="The password used to authenticate with your SOCKS 5 server"
 	 top_pad="4"
 	 width="200"
+	 is_password="true"
 	 commit_callback.function="Proxy.Change" />
 	<button
 	 follows="left|top"

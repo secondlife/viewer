@@ -105,7 +105,7 @@
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
 #include "llteleporthistorystorage.h"
-#include "llsocks5.h"
+#include "llproxy.h"
 
 #include "lllogininstance.h"        // to check if logged in yet
 #include "llsdserialize.h"
@@ -1940,14 +1940,18 @@ LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
 
 BOOL LLFloaterPreferenceProxy::postBuild()
 {
-	LLLineEditor* edit = getChild<LLLineEditor>("socks_password_editor");
-	if (edit) edit->setDrawAsterixes(TRUE);
-
 	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
 	if(socksAuth->getSelectedValue().asString() == "None")
 	{
 		getChild<LLLineEditor>("socks5_username")->setEnabled(false);
 		getChild<LLLineEditor>("socks5_password")->setEnabled(false);
+	}
+	else
+	{
+		// Populate the SOCKS 5 credential fields with protected values.
+		LLPointer<LLCredential> socks_cred = gSecAPIHandler->loadCredential("SOCKS5");
+		getChild<LLLineEditor>("socks5_username")->setValue(socks_cred->getIdentifier()["username"].asString());
+		getChild<LLLineEditor>("socks5_password")->setValue(socks_cred->getAuthenticator()["creds"].asString());
 	}
 
 	center();
@@ -1968,11 +1972,8 @@ void LLFloaterPreferenceProxy::onClose(bool app_quitting)
 		// it will not be updated until next restart.
 		if(LLStartUp::getStartupState()>STATE_LOGIN_WAIT)
 		{
-			if(this->mSocksSettingsDirty == true )
-			{
-				LLNotifications::instance().add("ChangeSocks5Settings",LLSD(),LLSD());
-				mSocksSettingsDirty = false; // we have notified the user now be quiet again
-			}
+			LLNotifications::instance().add("ChangeSocks5Settings", LLSD(), LLSD());
+			mSocksSettingsDirty = false; // we have notified the user now be quiet again
 		}
 	}
 }
@@ -2006,7 +2007,6 @@ void LLFloaterPreferenceProxy::saveSettings()
 			view_stack.push_back(*iter);
 		}
 	}
-
 }
 
 void LLFloaterPreferenceProxy::onBtnOk()
@@ -2020,6 +2020,29 @@ void LLFloaterPreferenceProxy::onBtnOk()
 			cur_focus->onCommit();
 		}
 	}
+
+	// Save SOCKS proxy credentials securely if password auth is enabled
+	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
+	if(socksAuth->getSelectedValue().asString() == "UserPass")
+	{
+		LLSD socks_id = LLSD::emptyMap();
+		socks_id["type"] = "SOCKS5";
+		socks_id["username"] = getChild<LLLineEditor>("socks5_username")->getValue().asString();
+
+		LLSD socks_authenticator = LLSD::emptyMap();
+		socks_authenticator["type"] = "SOCKS5";
+		socks_authenticator["creds"] = getChild<LLLineEditor>("socks5_password")->getValue().asString();
+
+		LLPointer<LLCredential> socks_cred = gSecAPIHandler->createCredential("SOCKS5", socks_id, socks_authenticator);
+		gSecAPIHandler->saveCredential(socks_cred, true);
+	}
+	else
+	{
+		// Clear SOCKS5 credentials since they are no longer needed.
+		LLPointer<LLCredential> socks_cred = new LLCredential("SOCKS5");
+		gSecAPIHandler->deleteCredential(socks_cred);
+	}
+
 	closeFloater(false);
 }
 
@@ -2036,8 +2059,8 @@ void LLFloaterPreferenceProxy::onBtnCancel()
 	}
 
 	cancel();
-
 }
+
 void LLFloaterPreferenceProxy::cancel()
 {
 
@@ -2068,7 +2091,7 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 		getChild<LLLineEditor>("socks5_password")->setEnabled(true);
 	}
 
-	//Check for invalid states for the other http proxy radio
+	// Check for invalid states for the other HTTP proxy radio
 	LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("other_http_proxy_selection");
 	if( (otherHttpProxy->getSelectedValue().asString() == "Socks" &&
 			getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == FALSE )||(

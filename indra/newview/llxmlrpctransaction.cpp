@@ -41,7 +41,7 @@
 #include "llappviewer.h"
 #include "lltrans.h"
 
-#include "llsocks5.h"
+#include "llproxy.h"
 
 // Static instance of LLXMLRPCListener declared here so that every time we
 // bring in this code, we instantiate a listener. If we put the static
@@ -309,18 +309,18 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	}
 	mErrorCert = NULL;
 	
-	if (LLSocks::getInstance()->isHTTPProxyEnabled())
+	if (LLProxy::getInstance()->isHTTPProxyEnabled())
 	{
-		std::string address = LLSocks::getInstance()->getHTTPProxy().getIPString();
-		U16 port = LLSocks::getInstance()->getHTTPProxy().getPort();
+		std::string address = LLProxy::getInstance()->getHTTPProxy().getIPString();
+		U16 port = LLProxy::getInstance()->getHTTPProxy().getPort();
 		mCurlRequest->setoptString(CURLOPT_PROXY, address.c_str());
 		mCurlRequest->setopt(CURLOPT_PROXYPORT, port);
-		if (LLSocks::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
+		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
 		{
 			mCurlRequest->setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-			if(LLSocks::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)
+			if(LLProxy::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)
 			{
-				mCurlRequest->setoptString(CURLOPT_PROXYUSERPWD,LLSocks::getInstance()->getProxyUserPwd());
+				mCurlRequest->setoptString(CURLOPT_PROXYUSERPWD,LLProxy::getInstance()->getProxyUserPwdCURL());
 			}
 		}
 		else

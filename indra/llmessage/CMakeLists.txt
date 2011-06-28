@@ -65,6 +65,7 @@ set(llmessage_SOURCE_FILES
     llpacketbuffer.cpp
     llpacketring.cpp
     llpartdata.cpp
+    llproxy.cpp
     llpumpio.cpp
     llregionpresenceverifier.cpp
     llsdappservices.cpp
@@ -76,7 +77,6 @@ set(llmessage_SOURCE_FILES
     llsdrpcserver.cpp
     llservicebuilder.cpp
     llservice.cpp
-    llsocks5.cpp
     llstoredmessage.cpp
     lltemplatemessagebuilder.cpp
     lltemplatemessagedispatcher.cpp
@@ -162,6 +162,7 @@ set(llmessage_HEADER_FILES
     llpacketring.h
     llpartdata.h
     llpumpio.h
+    llproxy.h
     llqueryflags.h
     llregionflags.h
     llregionhandle.h
@@ -175,7 +176,6 @@ set(llmessage_HEADER_FILES
     llsdrpcserver.h
     llservice.h
     llservicebuilder.h
-    llsocks5.h
     llstoredmessage.h
     lltaskname.h
     llteleportflags.h

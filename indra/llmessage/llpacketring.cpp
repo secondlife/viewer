@@ -37,18 +37,12 @@
 
 // linden library includes
 #include "llerror.h"
-#include "message.h"
-#include "llsocks5.h"
 #include "lltimer.h"
-#include "timing.h"
+#include "llproxy.h"
 #include "llrand.h"
+#include "message.h"
+#include "timing.h"
 #include "u64.h"
-
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 LLPacketRing::LLPacketRing () :
@@ -231,28 +225,28 @@ S32 LLPacketRing::receivePacket (S32 socket, char *datap)
 	else
 	{
 		// no delay, pull straight from net
-		if (LLSocks::isEnabled())
+		if (LLProxy::isEnabled())
 		{
-			U8 buffer[MAX_BUFFER_SIZE];
-			packet_size = receive_packet(socket, (char*)buffer);
+			U8 buffer[NET_BUFFER_SIZE];
+			packet_size = receive_packet(socket, reinterpret_cast<char *>(buffer));
 			
 			if (packet_size > 10)
 			{
-				memcpy(datap,buffer+10,packet_size-10);
+				// *FIX We are assuming ATYP is 0x01 (IPv4), not 0x03 (hostname) or 0x04 (IPv6)
+				memcpy(datap, buffer + 10, packet_size - 10);
+				proxywrap_t * header = reinterpret_cast<proxywrap_t *>(buffer);
+				mLastSender.setAddress(header->addr);
+				mLastSender.setPort(ntohs(header->port));
 			}
 			else
 			{
-				packet_size=0;
+				packet_size = 0;
 			}
-
-			proxywrap_t * header = (proxywrap_t *)buffer;
-			mLastSender.setAddress(header->addr);
-			mLastSender.setPort(ntohs(header->port));
 		}
 		else
 		{
-		packet_size = receive_packet(socket, datap);		
-		mLastSender = ::get_sender();
+			packet_size = receive_packet(socket, datap);
+			mLastSender = ::get_sender();
 		}
 
 		mLastReceivingIF = ::get_receiving_interface();
@@ -352,7 +346,7 @@ BOOL LLPacketRing::sendPacket(int h_socket, char * send_buffer, S32 buf_size, LL
 BOOL LLPacketRing::doSendPacket(int h_socket, const char * send_buffer, S32 buf_size, LLHost host)
 {
 	
-	if (!LLSocks::isEnabled())
+	if (!LLProxy::isEnabled())
 	{
 		return send_packet(h_socket, send_buffer, buf_size, host.getAddress(), host.getPort());
 	}
@@ -364,7 +358,7 @@ BOOL LLPacketRing::doSendPacket(int h_socket, const char * send_buffer, S32 buf_
 	socks_header->atype = ADDRESS_IPV4;
 	socks_header->frag  = 0;
 
-	memcpy(mProxyWrappedSendBuffer+10, send_buffer, buf_size);
+	memcpy(mProxyWrappedSendBuffer + 10, send_buffer, buf_size);
 
-	return send_packet(h_socket,(const char*) mProxyWrappedSendBuffer, buf_size+10, LLSocks::getInstance()->getUDPProxy().getAddress(), LLSocks::getInstance()->getUDPProxy().getPort());
+	return send_packet(h_socket,(const char*) mProxyWrappedSendBuffer, buf_size + 10, LLProxy::getInstance()->getUDPProxy().getAddress(), LLProxy::getInstance()->getUDPProxy().getPort());
 }

@@ -46,12 +46,12 @@
 #endif
 
 #include "llbufferstream.h"
-#include "llstl.h"
 #include "llsdserialize.h"
+#include "llproxy.h"
+#include "llstl.h"
 #include "llthread.h"
 #include "lltimer.h"
 
-#include "llsocks5.h"
 
 //////////////////////////////////////////////////////////////////////////////
 /*
@@ -357,27 +357,6 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 	// multi handles cache if they are added to one.
 	CURLcode result = curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
 	check_curl_code(result);
-
-	//Set the CURL options for either Socks or HTTP proxy
-	if (LLSocks::getInstance()->isHTTPProxyEnabled())
-	{
-		std::string address = LLSocks::getInstance()->getHTTPProxy().getIPString();
-		U16 port = LLSocks::getInstance()->getHTTPProxy().getPort();
-		curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_PROXY,address.c_str());
-		curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_PROXYPORT,port);
-		if (LLSocks::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
-		{
-			curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-			if(LLSocks::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)
-			{
-				curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_PROXYUSERPWD,LLSocks::getInstance()->getProxyUserPwd().c_str());
-			}
-		}
-		else
-		{
-			curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-		}
-	}
 	
 	++gCurlEasyCount;
 	return easy;
@@ -557,18 +536,19 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	//setopt(CURLOPT_VERBOSE, 1); // usefull for debugging
 	setopt(CURLOPT_NOSIGNAL, 1);
 
-	if (LLSocks::getInstance()->isHTTPProxyEnabled())
+	// Set the CURL options for either Socks or HTTP proxy
+	if (LLProxy::getInstance()->isHTTPProxyEnabled())
 	{
-		std::string address = LLSocks::getInstance()->getHTTPProxy().getIPString();
-		U16 port = LLSocks::getInstance()->getHTTPProxy().getPort();
+		std::string address = LLProxy::getInstance()->getHTTPProxy().getIPString();
+		U16 port = LLProxy::getInstance()->getHTTPProxy().getPort();
 		setoptString(CURLOPT_PROXY, address.c_str());
 		setopt(CURLOPT_PROXYPORT, port);
-		if (LLSocks::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
+		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
 		{
 			setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-			if(LLSocks::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)
+			if(LLProxy::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)
 			{
-				setoptString(CURLOPT_PROXYUSERPWD,LLSocks::getInstance()->getProxyUserPwd());
+				setoptString(CURLOPT_PROXYUSERPWD, LLProxy::getInstance()->getProxyUserPwdCURL());
 			}
 		}
 		else

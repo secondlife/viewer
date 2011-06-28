@@ -139,7 +139,7 @@
      height="16"
      label="Add datestamp to log file name."
      layout="topleft"
-     left_detla="5"
+     left_delta="5"
      name="logfile_name_datestamp"
      top_pad="10"
      width="350"/>

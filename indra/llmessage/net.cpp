@@ -50,7 +50,7 @@
 #include "lltimer.h"
 #include "indra_constants.h"
 
-#include "llsocks5.h"
+#include "llproxy.h"
 
 // Globals
 #if LL_WINDOWS

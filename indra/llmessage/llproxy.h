@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SOCKS5_H
-#define LL_SOCKS5_H
+#ifndef LL_PROXY_H
+#define LL_PROXY_H
 
 #include "llhost.h"
 #include "lliosocket.h"
@@ -154,20 +154,20 @@ enum LLSocks5AuthType
 	METHOD_PASSWORD = 0x02 	// Client supports username/password
 };
 
-class LLSocks: public LLSingleton<LLSocks>
+class LLProxy: public LLSingleton<LLProxy>
 {
 public:
-	LLSocks();
+	LLProxy();
+	~LLProxy();
 
 	// Start a connection to the SOCKS 5 proxy
 	int startProxy(std::string host, U32 port);
-	int startProxy(LLHost proxy, U32 messagePort);
 
 	// Disconnect and clean up any connection to the SOCKS 5 proxy
 	void stopProxy();
 
 	// Set up to use Password auth when connecting to the SOCKS proxy
-	void setAuthPassword(std::string username, std::string password);
+	void setAuthPassword(const std::string &username, const std::string &password);
 
 	// Set up to use No Auth when connecting to the SOCKS proxy
 	void setAuthNone();
@@ -201,7 +201,10 @@ public:
 	LLHttpProxyType getHTTPProxyType() const { return mProxyType; }
 
 	// Get the username password in a curl compatible format
-	std::string getProxyUserPwd() const { return (mSocksUsername + ":" + mSocksPassword); }
+	std::string getProxyUserPwdCURL() const { return (mSocksUsername + ":" + mSocksPassword); }
+
+	std::string getSocksPwd() const { return mSocksPassword; }
+	std::string getSocksUser() const { return mSocksUsername; }
 
 private:
 

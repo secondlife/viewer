@@ -30,13 +30,13 @@
 
 // viewer includes
 #include "llsecapi.h"
-#include "lllogininstance.h"        // to check if logged in yet
-#include "llpanellogin.h"			// save_password_to_disk()
+#include "lllogininstance.h"		// to check if logged in yet
+#include "llpanellogin.h"
 #include "llstartup.h"				// getStartupState()
 #include "llslurl.h"
 #include "llviewercontrol.h"		// gSavedSettings
 #include "llviewernetwork.h"		// EGridInfo
-#include "llviewerwindow.h"                    // getWindow()
+#include "llviewerwindow.h"			// getWindow()
 
 // library includes
 #include "llmd5.h"

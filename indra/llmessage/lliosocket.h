@@ -159,7 +159,7 @@ protected:
 
 public:
 	/** 
-	 * @brief Do not call this directly.
+	 * @brief Do not call this directly. Use LLSocket::ptr_t.reset() instead.
 	 */
 	~LLSocket();
 

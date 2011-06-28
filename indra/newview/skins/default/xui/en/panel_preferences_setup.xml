@@ -79,7 +79,7 @@
   <spinner
    control_name="ConnectionPort"
    enabled_control="ConnectionPortEnabled"
- decimal_digits="0"
+   decimal_digits="0"
    follows="left|top"
    height="23"
    increment="1"
