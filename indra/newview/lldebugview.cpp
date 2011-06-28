@@ -59,12 +59,11 @@ LLDebugView::LLDebugView(const LLDebugView::Params& p)
 
 void LLDebugView::init()
 {
-	// Horizontal percentage of screen (not window) to draw debug data in
-	static const F32 debug_console_percentage = 0.75;
 	LLRect r;
 	LLRect rect = getLocalRect();
 
-	r.set(10, rect.getHeight() - 100, rect.getWidth() * debug_console_percentage, 100);
+	// Rectangle to draw debug data in (full height, 3/4 width)
+	r.set(10, rect.getHeight() - 100, ((rect.getWidth()*3)/4), 100);
 	LLConsole::Params cp;
 	cp.name("debug console");
 	cp.max_lines(20);
