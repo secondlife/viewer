@@ -666,7 +666,7 @@ void LLFloaterModelWizard::draw()
 
 	LLFloater::draw();
 
-	if (mModelPreview)
+	if (mModelPreview && mState < REVIEW)
 	{
 		mModelPreview->update();
 
