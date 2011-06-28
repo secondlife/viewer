@@ -37,6 +37,9 @@
 
 #include "llprocessor.h"
 #include "llerrorcontrol.h"
+#include "llevents.h"
+#include "lltimer.h"
+#include <boost/bind.hpp>
 
 #if LL_WINDOWS
 #	define WIN32_LEAN_AND_MEAN
@@ -70,6 +73,10 @@ extern int errno;
 
 static const S32 CPUINFO_BUFFER_SIZE = 16383;
 LLCPUInfo gSysCPU;
+
+// Don't log memory info any more often than this. It also serves as our
+// framerate sample size.
+static const F32 MEM_INFO_THROTTLE = 20;
 
 #if LL_WINDOWS
 #ifndef DLLVERSIONINFO
@@ -876,6 +883,105 @@ std::ostream& operator<<(std::ostream& s, const LLMemoryInfo& info)
 	info.stream(s);
 	return s;
 }
+
+class FrameWatcher
+{
+public:
+    FrameWatcher():
+        // Hooking onto the "mainloop" event pump gets us one call per frame.
+        mConnection(LLEventPumps::instance()
+                    .obtain("mainloop")
+                    .listen("FrameWatcher", boost::bind(&FrameWatcher::tick, this, _1))),
+        // Initializing mSampleStart to an invalid timestamp alerts us to skip
+        // trying to compute framerate on the first call.
+        mSampleStart(-1),
+        // Initializing mSampleEnd to 0 ensures that we treat the first call
+        // as the completion of a sample window.
+        mSampleEnd(0),
+        mFrames(0),
+        // Initializing to F32_MAX means that the first real frame will become
+        // the slowest ever, which sounds like a good idea.
+        mSlowest(F32_MAX),
+        mDesc("startup")
+    {}
+
+    bool tick(const LLSD&)
+    {
+        F32 timestamp(mTimer.getElapsedTimeF32());
+
+        // Count this frame in the interval just completed.
+        ++mFrames;
+
+        // Have we finished a sample window yet?
+        if (timestamp < mSampleEnd)
+        {
+            // no, just keep waiting
+            return false;
+        }
+
+        // Set up for next sample window. Capture values for previous frame in
+        // local variables and reset data members.
+        U32 frames(mFrames);
+        F32 sampleStart(mSampleStart);
+        // No frames yet in next window
+        mFrames = 0;
+        // which starts right now
+        mSampleStart = timestamp;
+        // and ends MEM_INFO_THROTTLE seconds in the future
+        mSampleEnd = mSampleStart + MEM_INFO_THROTTLE;
+
+        // On the very first call, that's all we can do, no framerate
+        // computation is possible.
+        if (sampleStart < 0)
+        {
+            return false;
+        }
+
+        // How long did this actually take? As framerate slows, the duration
+        // of the frame we just finished could push us WELL beyond our desired
+        // sample window size.
+        F32 elapsed(timestamp - sampleStart);
+        F32 framerate(frames/elapsed);
+
+        // We're especially interested in memory as framerate drops. Only log
+        // when framerate is lower than ever before. (Should always be true
+        // for the end of the very first sample window.)
+        if (framerate >= mSlowest)
+        {
+            return false;
+        }
+        // Congratulations, we've hit a new low.  :-P
+        mSlowest = framerate;
+
+        LL_INFOS("FrameWatcher") << mDesc << " framerate "
+                                 << std::fixed << std::setprecision(1) << framerate << '\n'
+                                 << LLMemoryInfo() << LL_ENDL;
+        mDesc = "new lowest";
+
+        return false;
+    }
+
+private:
+    // Storing the connection in an LLTempBoundListener ensures it will be
+    // disconnected when we're destroyed.
+    LLTempBoundListener mConnection;
+    // Track elapsed time
+    LLTimer mTimer;
+    // Some of what you see here is in fact redundant with functionality you
+    // can get from LLTimer. Unfortunately the LLTimer API is missing the
+    // feature we need: has at least the stated interval elapsed, and if so,
+    // exactly how long has passed? So we have to do it by hand, sigh.
+    // Time at start, end of sample window
+    F32 mSampleStart, mSampleEnd;
+    // Frames this sample window
+    U32 mFrames;
+    // Slowest framerate EVAR
+    F32 mSlowest;
+    // Description of next notable framerate
+    std::string mDesc;
+};
+
+static FrameWatcher sFrameWatcher;
 
 BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 {
