@@ -120,58 +120,16 @@
          width="200">
            Blue Horizon
         </text>
-        <slider
-         control_name="WLBlueHorizonR"
-         decimal_digits="2"
+        <color_swatch
+         can_apply_immediately="true"
          follows="left|top"
-         height="10"
-         increment="0.01"
-         initial_value="0.7"
-         label="R"
+         height="37"
+         label_height="0"
          layout="topleft"
          left_delta="0"
+         name="WLBlueHorizon"
          top_pad="6"
-         name="WLBlueHorizonR"
-         width="200" />
-        <slider
-         control_name="WLBlueHorizonG"
-         decimal_digits="2"
-         follows="left|top"
-         height="10"
-         increment="0.01"
-         initial_value="0.7"
-         label="G"
-         layout="topleft"
-         left_delta="0"
-         name="WLBlueHorizonG"
-         top_pad="6"
-         width="200" />
-        <slider
-         control_name="WLBlueHorizonB"
-         decimal_digits="2"
-         follows="left|top"
-         height="10"
-         increment="0.01"
-         initial_value="0.7"
-         label="B"
-         layout="topleft"
-         name="WLBlueHorizonB"
-         left_delta="0"
-         top_pad="6"
-         width="200" />
-        <slider
-         control_name="WLBlueHorizonI"
-         decimal_digits="2"
-         follows="left|top"
-         height="10"
-         increment="0.01"
-         initial_value="1.0"
-         label="I"
-         layout="topleft"
-         name="WLBlueHorizonI"
-         left_delta="0"
-         top_pad="6"
-         width="200" />
+         width="60" />
         <text
          type="string"
          length="1"
@@ -193,7 +151,7 @@
          increment="0.01"
          initial_value="0.25"
          layout="topleft"
-         left_delta="15"
+         left_delta="0"
          top_pad="6"
          name="WLHazeHorizon"
          width="200" />
@@ -213,58 +171,16 @@
          width="200">
             Blue Density
         </text>
-        <slider
-         control_name="WLBlueDensityR"
-         decimal_digits="2"
+        <color_swatch
+         can_apply_immediately="true"
          follows="left|top"
-         height="10"
-         increment="0.01"
-         initial_value="0.7"
-         label="R"
+         height="37"
+         label_height="0"
          layout="topleft"
          left_delta="0"
+         name="WLBlueDensity"
          top_pad="6"
-         name="WLBlueDensityR"
-         width="200" />
-        <slider
-         control_name="WLBlueDensityG"
-         decimal_digits="2"
-         follows="left|top"
-         height="10"
-         increment="0.01"
-         initial_value="0.7"
-         label="G"
-         layout="topleft"
-         left_delta="0"
-         name="WLBlueDensityG"
-         top_pad="6"
-         width="200" />
-        <slider
-         control_name="WLBlueDensityB"
-         decimal_digits="2"
-         follows="left|top"
-         height="10"
-         increment="0.01"
-         initial_value="0.7"
-         label="B"
-         layout="topleft"
-         left_delta="0"
-         name="WLBlueDensityB"
-         top_pad="6"
-         width="200" />
-        <slider
-         control_name="WLBlueDensityI"
-         decimal_digits="2"
-         follows="left|top"
-         height="10"
-         increment="0.01"
-         initial_value="1"
-         label="I"
-         layout="topleft"
-         left_delta="0"
-         name="WLBlueDensityI"
-         top_pad="6"
-         width="200" />
+         width="60" />
         <text
          type="string"
          length="1"
@@ -286,7 +202,7 @@
          increment="0.01"
          initial_value="0.7"
          layout="topleft"
-         left_delta="-15"
+         left_delta="0"
          max_val="4"
          name="WLHazeDensity"
          top_pad="6"
@@ -401,58 +317,16 @@
              width="200">
                 Sun/Moon Color
             </text>
-            <slider
-             control_name="WLSunlightR"
-             decimal_digits="2"
+            <color_swatch
+             can_apply_immediately="true"
              follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="0.7"
-             label="R"
+             height="37"
+             label_height="0"
              layout="topleft"
              left_delta="0"
+             name="WLSunlight"
              top_pad="6"
-             name="WLSunlightR"
-             width="200" />
-            <slider
-             control_name="WLSunlightG"
-             decimal_digits="2"
-             follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="0.7"
-             label="G"
-             layout="topleft"
-             left_delta="0"
-             name="WLSunlightG"
-             top_pad="6"
-             width="200" />
-            <slider
-             control_name="WLSunlightB"
-             decimal_digits="2"
-             follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="0.7"
-             label="B"
-             layout="topleft"
-             left_delta="0"
-             name="WLSunlightB"
-             top_pad="6"
-             width="200" />
-            <slider
-             control_name="WLSunlightI"
-             decimal_digits="2"
-             follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="1.0"
-             layout="topleft"
-             label="I"
-             left_delta="0"
-             name="WLSunlightI"
-             top_pad="6"
-             width="200" />
+             width="60" />
             <text
              type="string"
              length="1"
@@ -502,58 +376,16 @@
              width="200">
                 Ambient
             </text>
-            <slider
-             control_name="WLAmbientR"
-             decimal_digits="2"
+            <color_swatch
+             can_apply_immediately="true"
              follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="0.7"
-             label="R"
+             height="37"
+             label_height="0"
              layout="topleft"
              left_delta="0"
+             name="WLAmbient"
              top_pad="6"
-             name="WLAmbientR"
-             width="200" />
-            <slider
-             control_name="WLAmbientG"
-             decimal_digits="2"
-             follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="0.7"
-             label="G"
-             layout="topleft"
-             left_delta="0"
-             name="WLAmbientG"
-             top_pad="6"
-             width="200" />
-            <slider
-             control_name="WLAmbientB"
-             decimal_digits="2"
-             follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="0.7"
-             label="B"
-             layout="topleft"
-             left_delta="0"
-             name="WLAmbientB"
-             top_pad="6"
-             width="200" />
-            <slider
-             control_name="WLAmbientI"
-             decimal_digits="2"
-             follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="1"
-             label="I"
-             layout="topleft"
-             left_delta="0"
-             name="WLAmbientI"
-             top_pad="6"
-             width="200" />
+             width="60" />
             <text
              type="string"
              length="1"
@@ -707,59 +539,16 @@
              width="200">
                 Cloud Color
             </text>
-            <slider
-             control_name="WLCloudColorR"
-             decimal_digits="2"
+            <color_swatch
+             can_apply_immediately="true"
              follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="0.7"
-             label="R"
+             height="37"
+             label_height="0"
              layout="topleft"
              left_delta="0"
+             name="WLCloudColor"
              top_pad="6"
-             name="WLCloudColorR"
-             width="200" />
-            <slider
-             control_name="WLCloudColorG"
-             decimal_digits="2"
-             follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="0.7"
-             label="G"
-             layout="topleft"
-             left_delta="0"
-             name="WLCloudColorG"
-             top_pad="6"
-             width="200" />
-            <slider
-             control_name="WLCloudColorB"
-             decimal_digits="2"
-             follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="0.7"
-             label="B"
-             layout="topleft"
-             left_delta="0"
-             name="WLCloudColorB"
-             top_pad="6"
-             width="200" />
-            <slider
-             control_name="WLCloudColorI"
-             decimal_digits="2"
-             follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="1.0"
-             label="I"
-             layout="topleft"
-             left_delta="0"
-             name="WLCloudColorI"
-             top_pad="6"
-             width="200" />
-            
+             width="60" />
             <text
              type="string"
              length="1"

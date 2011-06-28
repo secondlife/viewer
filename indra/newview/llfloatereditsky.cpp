@@ -1,5 +1,5 @@
 /** 
- * @file llfloatereditsky.h
+ * @file llfloatereditsky.cpp
  * @brief Floater to create or edit a sky preset
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
@@ -39,12 +39,13 @@
 
 // newview
 #include "llagent.h"
+#include "llcolorswatch.h"
 #include "llregioninfomodel.h"
 #include "llviewerregion.h"
 
-#undef max
-
 static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
+static const F32 WL_BLUE_HORIZON_DENSITY_SCALE = 2.0f;
+static const F32 WL_CLOUD_SLIDER_SCALE = 1.0f;
 
 LLFloaterEditSky::LLFloaterEditSky(const LLSD &key)
 :	LLFloater(key)
@@ -130,11 +131,7 @@ void LLFloaterEditSky::initCallbacks(void)
 	LLWLParamManager& param_mgr = LLWLParamManager::instance();
 
 	// blue horizon
-	getChild<LLUICtrl>("WLBlueHorizonR")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlRMoved, this, _1, &param_mgr.mBlueHorizon));
-	getChild<LLUICtrl>("WLBlueHorizonR")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlRMoved, this, _1, &param_mgr.mBlueHorizon));
-	getChild<LLUICtrl>("WLBlueHorizonG")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlGMoved, this, _1, &param_mgr.mBlueHorizon));
-	getChild<LLUICtrl>("WLBlueHorizonB")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlBMoved, this, _1, &param_mgr.mBlueHorizon));
-	getChild<LLUICtrl>("WLBlueHorizonI")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlIMoved, this, _1, &param_mgr.mBlueHorizon));
+	getChild<LLUICtrl>("WLBlueHorizon")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &param_mgr.mBlueHorizon));
 
 	// haze density, horizon, mult, and altitude
 	getChild<LLUICtrl>("WLHazeDensity")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlRMoved, this, _1, &param_mgr.mHazeDensity));
@@ -143,28 +140,19 @@ void LLFloaterEditSky::initCallbacks(void)
 	getChild<LLUICtrl>("WLMaxAltitude")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &param_mgr.mMaxAlt));
 
 	// blue density
-	getChild<LLUICtrl>("WLBlueDensityR")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlRMoved, this, _1, &param_mgr.mBlueDensity));
-	getChild<LLUICtrl>("WLBlueDensityG")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlGMoved, this, _1, &param_mgr.mBlueDensity));
-	getChild<LLUICtrl>("WLBlueDensityB")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlBMoved, this, _1, &param_mgr.mBlueDensity));
-	getChild<LLUICtrl>("WLBlueDensityI")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlIMoved, this, _1, &param_mgr.mBlueDensity));
+	getChild<LLUICtrl>("WLBlueDensity")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &param_mgr.mBlueDensity));
 
 	// Lighting
 
 	// sunlight
-	getChild<LLUICtrl>("WLSunlightR")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlRMoved, this, _1, &param_mgr.mSunlight));
-	getChild<LLUICtrl>("WLSunlightG")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlGMoved, this, _1, &param_mgr.mSunlight));
-	getChild<LLUICtrl>("WLSunlightB")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlBMoved, this, _1, &param_mgr.mSunlight));
-	getChild<LLUICtrl>("WLSunlightI")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlIMoved, this, _1, &param_mgr.mSunlight));
+	getChild<LLUICtrl>("WLSunlight")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &param_mgr.mSunlight));
 
 	// glow
 	getChild<LLUICtrl>("WLGlowR")->setCommitCallback(boost::bind(&LLFloaterEditSky::onGlowRMoved, this, _1, &param_mgr.mGlow));
 	getChild<LLUICtrl>("WLGlowB")->setCommitCallback(boost::bind(&LLFloaterEditSky::onGlowBMoved, this, _1, &param_mgr.mGlow));
 
 	// ambient
-	getChild<LLUICtrl>("WLAmbientR")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlRMoved, this, _1, &param_mgr.mAmbient));
-	getChild<LLUICtrl>("WLAmbientG")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlGMoved, this, _1, &param_mgr.mAmbient));
-	getChild<LLUICtrl>("WLAmbientB")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlBMoved, this, _1, &param_mgr.mAmbient));
-	getChild<LLUICtrl>("WLAmbientI")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlIMoved, this, _1, &param_mgr.mAmbient));
+	getChild<LLUICtrl>("WLAmbient")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &param_mgr.mAmbient));
 
 	// time of day
 	getChild<LLUICtrl>("WLSunAngle")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &param_mgr.mLightnorm));
@@ -173,10 +161,7 @@ void LLFloaterEditSky::initCallbacks(void)
 	// Clouds
 
 	// Cloud Color
-	getChild<LLUICtrl>("WLCloudColorR")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlRMoved, this, _1, &param_mgr.mCloudColor));
-	getChild<LLUICtrl>("WLCloudColorG")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlGMoved, this, _1, &param_mgr.mCloudColor));
-	getChild<LLUICtrl>("WLCloudColorB")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlBMoved, this, _1, &param_mgr.mCloudColor));
-	getChild<LLUICtrl>("WLCloudColorI")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlIMoved, this, _1, &param_mgr.mCloudColor));
+	getChild<LLUICtrl>("WLCloudColor")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &param_mgr.mCloudColor));
 
 	// Cloud
 	getChild<LLUICtrl>("WLCloudX")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlRMoved, this, _1, &param_mgr.mCloudMain));
@@ -214,13 +199,7 @@ void LLFloaterEditSky::syncControls()
 
 	// blue horizon
 	param_mgr->mBlueHorizon = cur_params.getVector(param_mgr->mBlueHorizon.mName, err);
-	childSetValue("WLBlueHorizonR", param_mgr->mBlueHorizon.r / 2.0);
-	childSetValue("WLBlueHorizonG", param_mgr->mBlueHorizon.g / 2.0);
-	childSetValue("WLBlueHorizonB", param_mgr->mBlueHorizon.b / 2.0);
-	childSetValue("WLBlueHorizonI",
-		std::max(param_mgr->mBlueHorizon.r / 2.0,
-			std::max(param_mgr->mBlueHorizon.g / 2.0,
-				param_mgr->mBlueHorizon.b / 2.0)));
+	setColorSwatch("WLBlueHorizon", param_mgr->mBlueHorizon, WL_BLUE_HORIZON_DENSITY_SCALE);
 
 	// haze density, horizon, mult, and altitude
 	param_mgr->mHazeDensity = cur_params.getVector(param_mgr->mHazeDensity.mName, err);
@@ -235,23 +214,13 @@ void LLFloaterEditSky::syncControls()
 
 	// blue density
 	param_mgr->mBlueDensity = cur_params.getVector(param_mgr->mBlueDensity.mName, err);
-	childSetValue("WLBlueDensityR", param_mgr->mBlueDensity.r / 2.0);
-	childSetValue("WLBlueDensityG", param_mgr->mBlueDensity.g / 2.0);
-	childSetValue("WLBlueDensityB", param_mgr->mBlueDensity.b / 2.0);
-	childSetValue("WLBlueDensityI",
-		std::max(param_mgr->mBlueDensity.r / 2.0,
-		std::max(param_mgr->mBlueDensity.g / 2.0, param_mgr->mBlueDensity.b / 2.0)));
+	setColorSwatch("WLBlueDensity", param_mgr->mBlueDensity, WL_BLUE_HORIZON_DENSITY_SCALE);
 
 	// Lighting
 
 	// sunlight
 	param_mgr->mSunlight = cur_params.getVector(param_mgr->mSunlight.mName, err);
-	childSetValue("WLSunlightR", param_mgr->mSunlight.r / WL_SUN_AMBIENT_SLIDER_SCALE);
-	childSetValue("WLSunlightG", param_mgr->mSunlight.g / WL_SUN_AMBIENT_SLIDER_SCALE);
-	childSetValue("WLSunlightB", param_mgr->mSunlight.b / WL_SUN_AMBIENT_SLIDER_SCALE);
-	childSetValue("WLSunlightI",
-		std::max(param_mgr->mSunlight.r / WL_SUN_AMBIENT_SLIDER_SCALE,
-		std::max(param_mgr->mSunlight.g / WL_SUN_AMBIENT_SLIDER_SCALE, param_mgr->mSunlight.b / WL_SUN_AMBIENT_SLIDER_SCALE)));
+	setColorSwatch("WLSunlight", param_mgr->mSunlight, WL_SUN_AMBIENT_SLIDER_SCALE);
 
 	// glow
 	param_mgr->mGlow = cur_params.getVector(param_mgr->mGlow.mName, err);
@@ -260,12 +229,7 @@ void LLFloaterEditSky::syncControls()
 
 	// ambient
 	param_mgr->mAmbient = cur_params.getVector(param_mgr->mAmbient.mName, err);
-	childSetValue("WLAmbientR", param_mgr->mAmbient.r / WL_SUN_AMBIENT_SLIDER_SCALE);
-	childSetValue("WLAmbientG", param_mgr->mAmbient.g / WL_SUN_AMBIENT_SLIDER_SCALE);
-	childSetValue("WLAmbientB", param_mgr->mAmbient.b / WL_SUN_AMBIENT_SLIDER_SCALE);
-	childSetValue("WLAmbientI",
-		std::max(param_mgr->mAmbient.r / WL_SUN_AMBIENT_SLIDER_SCALE,
-		std::max(param_mgr->mAmbient.g / WL_SUN_AMBIENT_SLIDER_SCALE, param_mgr->mAmbient.b / WL_SUN_AMBIENT_SLIDER_SCALE)));
+	setColorSwatch("WLAmbient", param_mgr->mAmbient, WL_SUN_AMBIENT_SLIDER_SCALE);
 
 	childSetValue("WLSunAngle", param_mgr->mCurParams.getFloat("sun_angle",err) / F_TWO_PI);
 	childSetValue("WLEastAngle", param_mgr->mCurParams.getFloat("east_angle",err) / F_TWO_PI);
@@ -274,12 +238,7 @@ void LLFloaterEditSky::syncControls()
 
 	// Cloud Color
 	param_mgr->mCloudColor = cur_params.getVector(param_mgr->mCloudColor.mName, err);
-	childSetValue("WLCloudColorR", param_mgr->mCloudColor.r);
-	childSetValue("WLCloudColorG", param_mgr->mCloudColor.g);
-	childSetValue("WLCloudColorB", param_mgr->mCloudColor.b);
-	childSetValue("WLCloudColorI",
-		std::max(param_mgr->mCloudColor.r,
-		std::max(param_mgr->mCloudColor.g, param_mgr->mCloudColor.b)));
+	setColorSwatch("WLCloudColor", param_mgr->mCloudColor, WL_CLOUD_SLIDER_SCALE);
 
 	// Cloud
 	param_mgr->mCloudMain = cur_params.getVector(param_mgr->mCloudMain.mName, err);
@@ -338,8 +297,43 @@ void LLFloaterEditSky::syncControls()
 	childSetValue("WLStarAlpha", param_mgr->mCurParams.getStarBrightness());
 }
 
+void LLFloaterEditSky::setColorSwatch(const std::string& name, const WLColorControl& from_ctrl, F32 k)
+{
+	// Set the value, dividing it by <k> first.
+	LLVector4 color_vec = from_ctrl;
+	getChild<LLColorSwatchCtrl>(name)->set(LLColor4(color_vec / k));
+}
 
 // color control callbacks
+void LLFloaterEditSky::onColorControlMoved(LLUICtrl* ctrl, WLColorControl* color_ctrl)
+{
+	LLWLParamManager::getInstance()->mAnimator.deactivate();
+
+	LLColorSwatchCtrl* swatch = static_cast<LLColorSwatchCtrl*>(ctrl);
+	LLVector4 color_vec(swatch->get().mV);
+
+	// Set intensity to maximum of the RGB values.
+	color_vec.mV[3] = llmax(color_vec.mV[0], llmax(color_vec.mV[1], color_vec.mV[2]));
+
+	// Multiply RGB values by the appropriate factor.
+	F32 k = WL_CLOUD_SLIDER_SCALE;
+	if (color_ctrl->isSunOrAmbientColor)
+	{
+		k = WL_SUN_AMBIENT_SLIDER_SCALE;
+	}
+	if (color_ctrl->isBlueHorizonOrDensity)
+	{
+		k = WL_BLUE_HORIZON_DENSITY_SCALE;
+	}
+
+	color_vec *= k; // intensity isn't affected by the multiplication
+
+	// Apply the new RGBI value.
+	*color_ctrl = color_vec;
+	color_ctrl->update(LLWLParamManager::getInstance()->mCurParams);
+	LLWLParamManager::getInstance()->propagateParameters();
+}
+
 void LLFloaterEditSky::onColorControlRMoved(LLUICtrl* ctrl, void* userdata)
 {
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
@@ -350,11 +344,11 @@ void LLFloaterEditSky::onColorControlRMoved(LLUICtrl* ctrl, void* userdata)
 	color_ctrl->r = sldr_ctrl->getValueF32();
 	if (color_ctrl->isSunOrAmbientColor)
 	{
-		color_ctrl->r *= 3;
+		color_ctrl->r *= WL_SUN_AMBIENT_SLIDER_SCALE;
 	}
 	if (color_ctrl->isBlueHorizonOrDensity)
 	{
-		color_ctrl->r *= 2;
+		color_ctrl->r *= WL_BLUE_HORIZON_DENSITY_SCALE;
 	}
 
 	// move i if it's the max
@@ -366,11 +360,11 @@ void LLFloaterEditSky::onColorControlRMoved(LLUICtrl* ctrl, void* userdata)
 
 		if (color_ctrl->isSunOrAmbientColor)
 		{
-			childSetValue(name, color_ctrl->r / 3);
+			childSetValue(name, color_ctrl->r / WL_SUN_AMBIENT_SLIDER_SCALE);
 		}
 		else if	(color_ctrl->isBlueHorizonOrDensity)
 		{
-			childSetValue(name, color_ctrl->r / 2);
+			childSetValue(name, color_ctrl->r / WL_BLUE_HORIZON_DENSITY_SCALE);
 		}
 		else
 		{
@@ -393,11 +387,11 @@ void LLFloaterEditSky::onColorControlGMoved(LLUICtrl* ctrl, void* userdata)
 	color_ctrl->g = sldr_ctrl->getValueF32();
 	if (color_ctrl->isSunOrAmbientColor)
 	{
-		color_ctrl->g *= 3;
+		color_ctrl->g *= WL_SUN_AMBIENT_SLIDER_SCALE;
 	}
 	if (color_ctrl->isBlueHorizonOrDensity)
 	{
-		color_ctrl->g *= 2;
+		color_ctrl->g *= WL_BLUE_HORIZON_DENSITY_SCALE;
 	}
 
 	// move i if it's the max
@@ -409,11 +403,11 @@ void LLFloaterEditSky::onColorControlGMoved(LLUICtrl* ctrl, void* userdata)
 
 		if (color_ctrl->isSunOrAmbientColor)
 		{
-			childSetValue(name, color_ctrl->g / 3);
+			childSetValue(name, color_ctrl->g / WL_SUN_AMBIENT_SLIDER_SCALE);
 		}
 		else if (color_ctrl->isBlueHorizonOrDensity)
 		{
-			childSetValue(name, color_ctrl->g / 2);
+			childSetValue(name, color_ctrl->g / WL_BLUE_HORIZON_DENSITY_SCALE);
 		}
 		else
 		{
@@ -436,11 +430,11 @@ void LLFloaterEditSky::onColorControlBMoved(LLUICtrl* ctrl, void* userdata)
 	color_ctrl->b = sldr_ctrl->getValueF32();
 	if (color_ctrl->isSunOrAmbientColor)
 	{
-		color_ctrl->b *= 3;
+		color_ctrl->b *= WL_SUN_AMBIENT_SLIDER_SCALE;
 	}
 	if (color_ctrl->isBlueHorizonOrDensity)
 	{
-		color_ctrl->b *= 2;
+		color_ctrl->b *= WL_BLUE_HORIZON_DENSITY_SCALE;
 	}
 
 	// move i if it's the max
@@ -452,11 +446,11 @@ void LLFloaterEditSky::onColorControlBMoved(LLUICtrl* ctrl, void* userdata)
 
 		if (color_ctrl->isSunOrAmbientColor)
 		{
-			childSetValue(name, color_ctrl->b / 3);
+			childSetValue(name, color_ctrl->b / WL_SUN_AMBIENT_SLIDER_SCALE);
 		}
 		else if (color_ctrl->isBlueHorizonOrDensity)
 		{
-			childSetValue(name, color_ctrl->b / 2);
+			childSetValue(name, color_ctrl->b / WL_BLUE_HORIZON_DENSITY_SCALE);
 		}
 		else
 		{
@@ -466,96 +460,6 @@ void LLFloaterEditSky::onColorControlBMoved(LLUICtrl* ctrl, void* userdata)
 
 	color_ctrl->update(LLWLParamManager::getInstance()->mCurParams);
 
-	LLWLParamManager::getInstance()->propagateParameters();
-}
-
-void LLFloaterEditSky::onColorControlIMoved(LLUICtrl* ctrl, void* userdata)
-{
-	LLWLParamManager::getInstance()->mAnimator.deactivate();
-
-	LLSliderCtrl* sldr_ctrl = static_cast<LLSliderCtrl*>(ctrl);
-	WLColorControl* color_ctrl = static_cast<WLColorControl *>(userdata);
-
-	color_ctrl->i = sldr_ctrl->getValueF32();
-
-	// only for sliders where we pass a name
-	if (color_ctrl->hasSliderName)
-	{
-		// set it to the top
-		F32 maxVal = std::max(std::max(color_ctrl->r, color_ctrl->g), color_ctrl->b);
-		F32 iVal;
-
-		if (color_ctrl->isSunOrAmbientColor)
-		{
-			iVal = color_ctrl->i * 3;
-		}
-		else if (color_ctrl->isBlueHorizonOrDensity)
-		{
-			iVal = color_ctrl->i * 2;
-		}
-		else
-		{
-			iVal = color_ctrl->i;
-		}
-
-		// get the names of the other sliders
-		std::string rName = color_ctrl->mSliderName;
-		rName.append("R");
-		std::string gName = color_ctrl->mSliderName;
-		gName.append("G");
-		std::string bName = color_ctrl->mSliderName;
-		bName.append("B");
-
-		// handle if at 0
-		if (iVal == 0)
-		{
-			color_ctrl->r = 0;
-			color_ctrl->g = 0;
-			color_ctrl->b = 0;
-
-		// if all at the start
-		// set them all to the intensity
-		}
-		else if (maxVal == 0)
-		{
-			color_ctrl->r = iVal;
-			color_ctrl->g = iVal;
-			color_ctrl->b = iVal;
-
-		}
-		else
-		{
-			// add delta amounts to each
-			F32 delta = (iVal - maxVal) / maxVal;
-			color_ctrl->r *= (1.0f + delta);
-			color_ctrl->g *= (1.0f + delta);
-			color_ctrl->b *= (1.0f + delta);
-		}
-
-		// divide sun color vals by three
-		if (color_ctrl->isSunOrAmbientColor)
-		{
-			childSetValue(rName, color_ctrl->r/3);
-			childSetValue(gName, color_ctrl->g/3);
-			childSetValue(bName, color_ctrl->b/3);
-		}
-		else if (color_ctrl->isBlueHorizonOrDensity)
-		{
-			childSetValue(rName, color_ctrl->r/2);
-			childSetValue(gName, color_ctrl->g/2);
-			childSetValue(bName, color_ctrl->b/2);
-		}
-		else
-		{
-			// set the sliders to the new vals
-			childSetValue(rName, color_ctrl->r);
-			childSetValue(gName, color_ctrl->g);
-			childSetValue(bName, color_ctrl->b);
-		}
-	}
-
-	// now update the current parameters and send them to shaders
-	color_ctrl->update(LLWLParamManager::getInstance()->mCurParams);
 	LLWLParamManager::getInstance()->propagateParameters();
 }
 

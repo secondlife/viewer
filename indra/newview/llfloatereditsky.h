@@ -57,11 +57,13 @@ private:
 
 	void syncControls(); /// sync up sliders with parameters
 
+	void setColorSwatch(const std::string& name, const WLColorControl& from_ctrl, F32 k);
+
 	// general purpose callbacks for dealing with color controllers
+	void onColorControlMoved(LLUICtrl* ctrl, WLColorControl* color_ctrl);
 	void onColorControlRMoved(LLUICtrl* ctrl, void* userdata);
 	void onColorControlGMoved(LLUICtrl* ctrl, void* userdata);
 	void onColorControlBMoved(LLUICtrl* ctrl, void* userdata);
-	void onColorControlIMoved(LLUICtrl* ctrl, void* userdata);
 	void onFloatControlMoved(LLUICtrl* ctrl, void* userdata);
 
 	// lighting callbacks for glow
