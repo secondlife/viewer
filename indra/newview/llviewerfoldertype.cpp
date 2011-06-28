@@ -40,7 +40,6 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 					  const std::string &icon_name_open,	// name of the folder icon
 					  const std::string &icon_name_closed,
 					  BOOL is_quiet,						// folder doesn't need a UI update when changed
-					  bool is_hidden = false,
 					  const std::string &dictionary_name = empty_string // no reverse lookup needed on non-ensembles, so in most cases just leave this blank
 		) 
 		:
@@ -48,8 +47,7 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 		mNewCategoryName(new_category_name),
 		mIconNameOpen(icon_name_open),
 		mIconNameClosed(icon_name_closed),
-		mIsQuiet(is_quiet),
-		mIsHidden(is_hidden)
+		mIsQuiet(is_quiet)
 	{
 		mAllowedNames.clear();
 	}
@@ -68,8 +66,7 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 		*/
 		mIconNameOpen("Inv_FolderOpen"), mIconNameClosed("Inv_FolderClosed"),
 		mNewCategoryName(new_category_name),
-		mIsQuiet(FALSE),
-		mIsHidden(false)
+		mIsQuiet(FALSE)
 	{
 		const std::string delims (",");
 		LLStringUtilBase<char>::getTokens(allowed_names, mAllowedNames, delims);
@@ -94,7 +91,6 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 	typedef std::vector<std::string> name_vec_t;
 	name_vec_t mAllowedNames;
 	BOOL mIsQuiet;
-	bool mIsHidden;
 };
 
 class LLViewerFolderDictionary : public LLSingleton<LLViewerFolderDictionary>,
@@ -259,17 +255,6 @@ BOOL LLViewerFolderType::lookupIsQuietType(LLFolderType::EType folder_type)
 	if (entry)
 	{
 		return entry->mIsQuiet;
-	}
-	return FALSE;
-}
-
-
-BOOL LLViewerFolderType::lookupIsHiddenType(LLFolderType::EType folder_type)
-{
-	const ViewerFolderEntry *entry = LLViewerFolderDictionary::getInstance()->lookup(folder_type);
-	if (entry)
-	{
-		return entry->mIsHidden;
 	}
 	return FALSE;
 }

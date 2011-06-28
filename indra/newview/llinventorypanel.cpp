@@ -245,6 +245,9 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	}
 	mFolderRoot->setSortOrder(getFilter()->getSortOrder());
 
+	// hide inbox
+	getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
+
 	// Initialize base class params.
 	LLPanel::initFromParams(params);
 }
@@ -1089,6 +1092,13 @@ class LLInventoryRecentItemsPanel : public LLInventoryPanel
 public:
 	struct Params :	public LLInitParam::Block<Params, LLInventoryPanel::Params>
 	{};
+
+	void initFromParams(const Params& p)
+	{
+		LLInventoryPanel::initFromParams(p);
+		// turn on inbox for recent items
+		getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
+	}
 
 protected:
 	LLInventoryRecentItemsPanel (const Params&);

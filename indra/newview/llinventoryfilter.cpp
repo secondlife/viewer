@@ -125,7 +125,8 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
 		const LLViewerInventoryCategory *cat = gInventory.getCategory(folder_id);
 		if (!cat)
 			return false;
-		if ((1LL << cat->getPreferredType() & mFilterOps.mFilterCategoryTypes) == U64(0))
+		LLFolderType::EType cat_type = cat->getPreferredType();
+		if (cat_type != LLFolderType::FT_NONE && (1LL << cat_type & mFilterOps.mFilterCategoryTypes) == U64(0))
 			return false;
 	}
 
@@ -298,8 +299,8 @@ void LLInventoryFilter::updateFilterTypes(U64 types, U64& current_types)
 	if (current_types != types)
 	{
 		// keep current items only if no type bits getting turned off
-		BOOL fewer_bits_set = (current_types & ~types);
-		BOOL more_bits_set = (~current_types & types);
+		bool fewer_bits_set = (current_types & ~types) != 0;
+		bool more_bits_set = (~current_types & types) != 0;
 
 		current_types = types;
 		if (more_bits_set && fewer_bits_set)
