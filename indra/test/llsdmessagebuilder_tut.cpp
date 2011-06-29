@@ -33,6 +33,7 @@
 #include "llsdmessagebuilder.h"
 #include "llsdmessagereader.h"
 #include "llsdtraits.h"
+#include "llmath.h"
 #include "llquaternion.h"
 #include "u64.h"
 #include "v3dmath.h"
@@ -83,7 +84,7 @@ namespace tut
 
 		static LLMessageBlock* defaultTemplateBlock(const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = MBT_VARIABLE)
 		{
-			return createTemplateBlock(_PREHASH_Test0, type, size, block);
+			return createTemplateBlock(const_cast<char*>(_PREHASH_Test0), type, size, block);
 		}
 
 		static LLMessageBlock* createTemplateBlock(char* name, const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = MBT_VARIABLE)
@@ -91,12 +92,12 @@ namespace tut
 			LLMessageBlock* result = new LLMessageBlock(name, block);
 			if(type != MVT_NULL)
 			{
-				result->addVariable(_PREHASH_Test0, type, size);
+				result->addVariable(const_cast<char*>(_PREHASH_Test0), type, size);
 			}
 			return result;
 		}
 
-		static LLTemplateMessageBuilder* defaultTemplateBuilder(LLMessageTemplate& messageTemplate, char* name = _PREHASH_Test0)
+		static LLTemplateMessageBuilder* defaultTemplateBuilder(LLMessageTemplate& messageTemplate, char* name = const_cast<char*>(_PREHASH_Test0))
 		{
 			templateNameMap[_PREHASH_TestMessage] = &messageTemplate;
 			LLTemplateMessageBuilder* builder = new LLTemplateMessageBuilder(templateNameMap);

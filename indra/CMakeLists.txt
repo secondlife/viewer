@@ -62,6 +62,7 @@ if (WINDOWS AND EXISTS ${LIBS_CLOSED_DIR}copy_win_scripts)
   add_subdirectory(${LIBS_CLOSED_PREFIX}copy_win_scripts)
 endif (WINDOWS AND EXISTS ${LIBS_CLOSED_DIR}copy_win_scripts)
 
+
 add_custom_target(viewer)
 if (VIEWER)
   add_subdirectory(${LIBS_OPEN_PREFIX}llcrashlogger)
@@ -69,6 +70,10 @@ if (VIEWER)
   add_subdirectory(${LIBS_OPEN_PREFIX}llui)
   add_subdirectory(${LIBS_OPEN_PREFIX}llxuixml)
   add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)
+
+  if (LL_TESTS)
+    add_subdirectory(${VIEWER_PREFIX}test)
+  endif (LL_TESTS)
 
   # viewer media plugins
   add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
