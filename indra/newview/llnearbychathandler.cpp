@@ -268,6 +268,9 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 	
 	toast->setOnFadeCallback(boost::bind(&LLNearbyChatScreenChannel::onToastFade, this, _1));
 
+	// If the toast gets somehow prematurely destroyed, deactivate it to prevent crash (STORM-1352).
+	toast->setOnToastDestroyedCallback(boost::bind(&LLNearbyChatScreenChannel::onToastDestroyed, this, _1, false));
+
 	LL_DEBUGS("NearbyChat") << "Creating and pooling toast" << llendl;	
 	m_toast_pool.push_back(toast->getHandle());
 	return true;
@@ -369,8 +372,10 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 	}
 }
 
-int sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> second)
+static bool sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> second)
 {
+	if (!first.get() || !second.get()) return false; // STORM-1352
+
 	F32 v1 = first.get()->getTimeLeftToLive();
 	F32 v2 = second.get()->getTimeLeftToLive();
 	return v1 > v2;
@@ -396,7 +401,11 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 	for(toast_vec_t::iterator it = m_active_toasts.begin(); it != m_active_toasts.end(); ++it)
 	{
 		LLToast* toast = it->get();
-		if (!toast) continue;
+		if (!toast)
+		{
+			llwarns << "NULL found in the active chat toasts list!" << llendl;
+			continue;
+		}
 
 		S32 toast_top = bottom + toast->getRect().getHeight() + margin;
 

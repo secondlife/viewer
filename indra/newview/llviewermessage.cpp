@@ -1501,7 +1501,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
 			LLSD args;
 			args["MESSAGE"] = log_message;
-			LLNotificationsUtil::add("SystemMessage", args);
+			LLNotificationsUtil::add("SystemMessageTip", args);
 		}
 		break;
 
@@ -1675,7 +1675,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 				log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
 				LLSD args;
 				args["MESSAGE"] = log_message;
-				LLNotificationsUtil::add("SystemMessage", args);
+				LLNotificationsUtil::add("SystemMessageTip", args);
 			}
 			
 			// we will want to open this item when it comes back.
@@ -1726,7 +1726,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 
 				LLSD args;
 				args["MESSAGE"] = log_message;
-				LLNotificationsUtil::add("SystemMessage", args);
+				LLNotificationsUtil::add("SystemMessageTip", args);
 			}
 			
 			if (busy &&	(!mFromGroup && !mFromObject))
@@ -6261,6 +6261,18 @@ void send_group_notice(const LLUUID& group_id,
 
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
+	static const unsigned OFFER_RECIPIENT_LIMIT = 250;
+	if(notification["payload"]["ids"].size() > OFFER_RECIPIENT_LIMIT) 
+	{
+		// More than OFFER_RECIPIENT_LIMIT targets will overload the message
+		// producing an llerror.
+		LLSD args;
+		args["OFFERS"] = notification["payload"]["ids"].size();
+		args["LIMIT"] = static_cast<int>(OFFER_RECIPIENT_LIMIT);
+		LLNotificationsUtil::add("TooManyTeleportOffers", args);
+		return false;
+	}
+	
 	std::string text = response["message"].asString();
 	LLSLURL slurl;
 	LLAgentUI::buildSLURL(slurl);

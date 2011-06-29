@@ -1527,17 +1527,24 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 		mCompletingRegionName = "";
 	}
 	
-	// if match found, highlight it and go
-	if (!match.isUndefined())
+	if (num_results > 0)
 	{
-		list->selectByValue(match);
+		// if match found, highlight it and go
+		if (!match.isUndefined())
+		{
+			list->selectByValue(match);
+		}
+		// else select first found item
+		else
+		{
+			list->selectFirstItem();
+		}
 		getChild<LLUICtrl>("search_results")->setFocus(TRUE);
 		onCommitSearchResult();
 	}
-	
-	// if we found nothing, say "none"
-	if (num_results == 0)
+	else
 	{
+		// if we found nothing, say "none"
 		list->setCommentText(LLTrans::getString("worldmap_results_none_found"));
 		list->operateOnAll(LLCtrlListInterface::OP_DESELECT);
 	}
