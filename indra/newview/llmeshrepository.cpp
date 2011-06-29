@@ -577,13 +577,14 @@ public:
 		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_fee_response_",dump_num));
 
+		LLWholeModelFeeObserver* observer = mObserverHandle.get();
+
 		if (isGoodStatus(status) &&
 			cc["state"].asString() == "upload")
 		{
 			llinfos << "fee request succeeded" << llendl;
 			mThread->mWholeModelUploadURL = cc["uploader"].asString();
 
-			LLWholeModelFeeObserver* observer = mObserverHandle.get();
 			if (observer)
 			{
 				S32 fee = cc["upload_price"].asInteger();
@@ -597,6 +598,11 @@ public:
 			llwarns << "fee request failed" << llendl;
 			log_upload_error(status,cc,"fee",mModelData["name"]);
 			mThread->mWholeModelUploadURL = "";
+
+			if (observer)
+			{
+				observer->setModelPhysicsFeeErrorStatus(status, reason);
+			}
 		}
 	}
 

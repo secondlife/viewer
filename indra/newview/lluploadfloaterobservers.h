@@ -38,8 +38,8 @@ public:
 	LLUploadPermissionsObserver(){mUploadPermObserverHandle.bind(this);}
 	virtual ~LLUploadPermissionsObserver() {}
 
-	virtual void onPermReceived(const LLSD& result) = 0;
-	virtual void setPermErrorStatus(U32 status, const std::string& reason) = 0;
+	virtual void onPermissionsReceived(const LLSD& result) = 0;
+	virtual void setPermissonsErrorStatus(U32 status, const std::string& reason) = 0;
 
 	LLHandle<LLUploadPermissionsObserver> getPermObserverHandle() const {return mUploadPermObserverHandle;}
 

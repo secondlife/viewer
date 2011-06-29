@@ -72,10 +72,14 @@ public:
 	void initDecompControls();
 	
 	// shows warning message if agent has no permissions to upload model
-	void onPermReceived(const LLSD& result);
+	/*virtual*/ void onPermissionsReceived(const LLSD& result);
 
 	// called when error occurs during permissions request
-	void setPermErrorStatus(U32 status, const std::string& reason);
+	/*virtual*/ void setPermissonsErrorStatus(U32 status, const std::string& reason);
+
+	/*virtual*/ void onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url);
+
+	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
 
 	const LLRect& getPreviewRect() const { return mPreviewRect; }
 
@@ -99,6 +103,7 @@ private:
 	void onClickSwitchToAdvanced();
 	void onClickRecalculateGeometry();
 	void onClickRecalculatePhysics();
+	void onClickCalculateUploadFee();
 	void onClickCancel();
 	void onClickBack();
 	void onClickNext();

@@ -41,7 +41,7 @@ void LLUploadModelPremissionsResponder::error(U32 status, const std::string& rea
 
 	if (observer)
 	{
-		observer->setPermErrorStatus(status, reason);
+		observer->setPermissonsErrorStatus(status, reason);
 	}
 }
 
@@ -51,6 +51,6 @@ void LLUploadModelPremissionsResponder::result(const LLSD& content)
 
 	if (observer)
 	{
-		observer->onPermReceived(content);
+		observer->onPermissionsReceived(content);
 	}
 }

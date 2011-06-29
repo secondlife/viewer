@@ -5491,7 +5491,7 @@ void LLFloaterModelPreview::DecompRequest::completed()
 
 void dump_llsd_to_file(const LLSD& content, std::string filename);
 
-void LLFloaterModelPreview::onPermReceived(const LLSD& result)
+void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
 {
 	dump_llsd_to_file(result,"perm_received.xml");
 	std::string upload_status = result["mesh_upload_status"].asString();
@@ -5503,9 +5503,9 @@ void LLFloaterModelPreview::onPermReceived(const LLSD& result)
 	getChild<LLTextBox>("warning_message")->setVisible(!mHasUploadPerm);
 }
 
-void LLFloaterModelPreview::setPermErrorStatus(U32 status, const std::string& reason)
+void LLFloaterModelPreview::setPermissonsErrorStatus(U32 status, const std::string& reason)
 {
-	llwarns << "LLFloaterModelPreview::setPermErrors(" << status << " : " << reason << ")" << llendl;
+	llwarns << "LLFloaterModelPreview::setPermissonsErrorStatus(" << status << " : " << reason << ")" << llendl;
 
 	LLNotificationsUtil::add("MeshUploadPermError");
 }

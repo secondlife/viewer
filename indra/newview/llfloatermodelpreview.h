@@ -197,10 +197,10 @@ public:
 	void disableViewOption(const std::string& option);
 
 	// shows warning message if agent has no permissions to upload model
-	/*virtual*/ void onPermReceived(const LLSD& result);
+	/*virtual*/ void onPermissionsReceived(const LLSD& result);
 
 	// called when error occurs during permissions request
-	/*virtual*/ void setPermErrorStatus(U32 status, const std::string& reason);
+	/*virtual*/ void setPermissonsErrorStatus(U32 status, const std::string& reason);
 
 	/*virtual*/ void onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url);
 

@@ -162,6 +162,8 @@ void LLFloaterModelWizard::setState(int state)
 		getChildView("cancel")->setVisible(true);
 		mCalculateWeightsBtn->setVisible(false);
 		mCalculatingWeightsBtn->setVisible(false);
+
+		getChildView("upload")->setEnabled(mHasUploadPerm);
 	}
 
 	if (state == UPLOAD)
@@ -262,6 +264,21 @@ void LLFloaterModelWizard::onClickRecalculatePhysics()
 	swap_controls(mRecalculatePhysicsBtn, mRecalculatingPhysicsBtn, false);
 
 	executePhysicsStage("Decompose");
+}
+
+void LLFloaterModelWizard::onClickCalculateUploadFee()
+{
+	swap_controls(mCalculateWeightsBtn, mCalculatingWeightsBtn, false);
+
+	mModelPreview->rebuildUploadData();
+
+	mUploadModelUrl.clear();
+	LLMeshUploadThread* thread = new LLMeshUploadThread(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
+			true, false, false, mUploadModelUrl, false);
+
+	thread->setObserverHandle(getWholeModelFeeObserverHandle());
+
+	gMeshRepo.mUploadWaitList.push_back(thread);
 }
 
 void LLFloaterModelWizard::loadModel()
@@ -460,13 +477,42 @@ void LLFloaterModelWizard::initDecompControls()
 	mDecompParams["Simplify Method"] = 0; // set it to retain %
 }
 
-void LLFloaterModelWizard::onPermReceived(const LLSD& result)
+/*virtual*/
+void LLFloaterModelWizard::onPermissionsReceived(const LLSD& result)
 {
+	std::string upload_status = result["mesh_upload_status"].asString();
+	mHasUploadPerm = "valid" == upload_status;
+
+	getChildView("upload")->setEnabled(mHasUploadPerm);
+	getChildView("warning_label")->setVisible(mHasUploadPerm);
+	getChildView("warning_text")->setVisible(mHasUploadPerm);
 }
 
-void LLFloaterModelWizard::setPermErrorStatus(U32 status, const std::string& reason)
+/*virtual*/
+void LLFloaterModelWizard::setPermissonsErrorStatus(U32 status, const std::string& reason)
 {
-	llwarns << "LLFloaterModelWizard::setPermErrors(" << status << " : " << reason << ")" << llendl;
+	llwarns << "LLFloaterModelWizard::setPermissonsErrorStatus(" << status << " : " << reason << ")" << llendl;
+}
+
+/*virtual*/
+void LLFloaterModelWizard::onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url)
+{
+	swap_controls(mCalculateWeightsBtn, mCalculatingWeightsBtn, true);
+
+	mUploadModelUrl = upload_url;
+
+	childSetTextArg("review_fee", "[FEE]", llformat("%d", fee));
+	childSetTextArg("charged_fee", "[FEE]", llformat("%d", fee));
+
+	setState(llmin((int) UPLOAD, mState+1));
+}
+
+/*virtual*/
+void LLFloaterModelWizard::setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason)
+{
+	swap_controls(mCalculateWeightsBtn, mCalculatingWeightsBtn, true);
+
+	llwarns << "LLFloaterModelWizard::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << llendl;
 }
 
 //static
@@ -573,8 +619,7 @@ BOOL LLFloaterModelWizard::postBuild()
 	mRecalculatingPhysicsBtn = getChild<LLButton>("recalculating_physics_btn");
 
 	mCalculateWeightsBtn = getChild<LLButton>("calculate");
-	// *TODO: Change the callback to upload fee request.
-	mCalculateWeightsBtn->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickNext, this));
+	mCalculateWeightsBtn->setCommitCallback(boost::bind(&LLFloaterModelWizard::onClickCalculateUploadFee, this));
 
 	mCalculatingWeightsBtn = getChild<LLButton>("calculating");
 
@@ -622,10 +667,6 @@ void LLFloaterModelWizard::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F
 	}
 
 	childSetTextArg("review_prim_equiv", "[EQUIV]", llformat("%d", mModelPreview->mResourceCost));
-
-	// *TODO: Get the actual upload fee.
-	childSetTextArg("review_fee", "[FEE]", llformat("%d", 0));
-	childSetTextArg("charged_fee", "[FEE]", llformat("%d", 0));
 }
 
 void LLFloaterModelWizard::modelLoadedCallback()

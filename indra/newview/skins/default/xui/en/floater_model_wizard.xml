@@ -126,7 +126,7 @@
 			</text>
 		</panel>
 		<panel
-		 top="14"
+		 top_pad="14"
 		 left="15"
 		 height="310"
 		 width="505"
