@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="true" can_drag_on_left="false" can_minimize="false"
      can_resize="true" height="550" min_height="550" min_width="620"
-     name="Model Preview" title="Upload Model" width="620">
+     name="Model Preview" title="Upload Model" width="620"
+      help_topic="upload_model" >
 
   <string name="status_idle">Idle</string>
   <string name="status_parse_error">Dae parsing issue - see log for details.</string>
