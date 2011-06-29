@@ -172,7 +172,6 @@ void LLFloaterEditSky::initCallbacks(void)
 	getChild<LLUICtrl>("WLAmbient")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &param_mgr.mAmbient));
 
 	// time of day
-	getChild<LLUICtrl>("WLSunAngle")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &param_mgr.mLightnorm));   // old slider
 	getChild<LLUICtrl>("WLSunPos")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &param_mgr.mLightnorm));     // multi-slider
 	getChild<LLTimeCtrl>("WLDayTime")->setCommitCallback(boost::bind(&LLFloaterEditSky::onTimeChanged, this));                          // time ctrl
 	getChild<LLUICtrl>("WLEastAngle")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &param_mgr.mLightnorm));
@@ -251,7 +250,6 @@ void LLFloaterEditSky::syncControls()
 	setColorSwatch("WLAmbient", param_mgr->mAmbient, WL_SUN_AMBIENT_SLIDER_SCALE);
 
 	F32 sun_pos = param_mgr->mCurParams.getFloat("sun_angle",err) / F_TWO_PI;
-	getChild<LLUICtrl>("WLSunAngle")->setValue(sun_pos);
 	getChild<LLMultiSliderCtrl>("WLSunPos")->setCurSliderValue(sun_pos_to_time24(sun_pos), TRUE);
 	childSetValue("WLEastAngle", param_mgr->mCurParams.getFloat("east_angle",err) / F_TWO_PI);
 
@@ -535,36 +533,18 @@ void LLFloaterEditSky::onSunMoved(LLUICtrl* ctrl, void* userdata)
 {
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
-	LLSliderCtrl* sun_sldr = getChild<LLSliderCtrl>("WLSunAngle");
 	LLMultiSliderCtrl* sun_msldr = getChild<LLMultiSliderCtrl>("WLSunPos");
 	LLSliderCtrl* east_sldr = getChild<LLSliderCtrl>("WLEastAngle");
 	LLTimeCtrl* time_ctrl = getChild<LLTimeCtrl>("WLDayTime");
-
 	WLColorControl* color_ctrl = static_cast<WLColorControl *>(userdata);
 
-	F32 sun_pos = 0.0f; // 0..1
-	F32 time24  = 0.0f; // 0..24
-	if (ctrl == sun_msldr) // new slider moved
-	{
-		time24 = sun_msldr->getCurSliderValue();
-		sun_pos = time24_to_sun_pos(time24);
-
-		sun_sldr->setValue(sun_pos); // update the old slider
-	}
-	else
-	{
-		sun_pos = sun_sldr->getValueF32();
-		time24 = sun_pos_to_time24(sun_pos);
-
-		sun_msldr->setCurSliderValue(time24, TRUE); // update the new slider
-	}
-
+	F32 time24  = sun_msldr->getCurSliderValue();
 	time_ctrl->setTime24(time24); // sync the time ctrl with the new sun position
 
 	// get the two angles
 	LLWLParamManager * param_mgr = LLWLParamManager::getInstance();
 
-	param_mgr->mCurParams.setSunAngle(F_TWO_PI * sun_pos);
+	param_mgr->mCurParams.setSunAngle(F_TWO_PI * time24_to_sun_pos(time24));
 	param_mgr->mCurParams.setEastAngle(F_TWO_PI * east_sldr->getValueF32());
 
 	// set the sun vector
