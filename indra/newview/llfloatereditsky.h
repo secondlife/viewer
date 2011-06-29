@@ -72,6 +72,7 @@ private:
 
 	// lighting callbacks for sun
 	void onSunMoved(LLUICtrl* ctrl, void* userdata);
+	void onTimeChanged();
 
 	// for handling when the star slider is moved to adjust the alpha
 	void onStarAlphaMoved(LLUICtrl* ctrl);

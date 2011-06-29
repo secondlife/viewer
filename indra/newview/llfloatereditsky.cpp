@@ -32,10 +32,12 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "llmultisliderctrl.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llsliderctrl.h"
 #include "lltabcontainer.h"
+#include "lltimectrl.h"
 
 // newview
 #include "llagent.h"
@@ -46,6 +48,18 @@
 static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
 static const F32 WL_BLUE_HORIZON_DENSITY_SCALE = 2.0f;
 static const F32 WL_CLOUD_SLIDER_SCALE = 1.0f;
+
+static F32 sun_pos_to_time24(F32 sun_pos)
+{
+	return fmodf(sun_pos * 24.0f + 6, 24.0f);
+}
+
+static F32 time24_to_sun_pos(F32 time24)
+{
+	F32 sun_pos = fmodf((time24 - 6) / 24.0f, 1.0f);
+	if (sun_pos < 0) ++sun_pos;
+	return sun_pos;
+}
 
 LLFloaterEditSky::LLFloaterEditSky(const LLSD &key)
 :	LLFloater(key)
@@ -65,6 +79,9 @@ BOOL LLFloaterEditSky::postBuild()
 	mSaveButton = getChild<LLButton>("save");
 
 	initCallbacks();
+
+	// Create the sun position scrubber on the slider.
+	getChild<LLMultiSliderCtrl>("WLSunPos")->addSlider(12.f);
 
 	return TRUE;
 }
@@ -155,7 +172,9 @@ void LLFloaterEditSky::initCallbacks(void)
 	getChild<LLUICtrl>("WLAmbient")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &param_mgr.mAmbient));
 
 	// time of day
-	getChild<LLUICtrl>("WLSunAngle")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &param_mgr.mLightnorm));
+	getChild<LLUICtrl>("WLSunAngle")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &param_mgr.mLightnorm));   // old slider
+	getChild<LLUICtrl>("WLSunPos")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &param_mgr.mLightnorm));     // multi-slider
+	getChild<LLTimeCtrl>("WLDayTime")->setCommitCallback(boost::bind(&LLFloaterEditSky::onTimeChanged, this));                          // time ctrl
 	getChild<LLUICtrl>("WLEastAngle")->setCommitCallback(boost::bind(&LLFloaterEditSky::onSunMoved, this, _1, &param_mgr.mLightnorm));
 
 	// Clouds
@@ -231,7 +250,9 @@ void LLFloaterEditSky::syncControls()
 	param_mgr->mAmbient = cur_params.getVector(param_mgr->mAmbient.mName, err);
 	setColorSwatch("WLAmbient", param_mgr->mAmbient, WL_SUN_AMBIENT_SLIDER_SCALE);
 
-	childSetValue("WLSunAngle", param_mgr->mCurParams.getFloat("sun_angle",err) / F_TWO_PI);
+	F32 sun_pos = param_mgr->mCurParams.getFloat("sun_angle",err) / F_TWO_PI;
+	getChild<LLUICtrl>("WLSunAngle")->setValue(sun_pos);
+	getChild<LLMultiSliderCtrl>("WLSunPos")->setCurSliderValue(sun_pos_to_time24(sun_pos), TRUE);
 	childSetValue("WLEastAngle", param_mgr->mCurParams.getFloat("east_angle",err) / F_TWO_PI);
 
 	// Clouds
@@ -515,14 +536,35 @@ void LLFloaterEditSky::onSunMoved(LLUICtrl* ctrl, void* userdata)
 	LLWLParamManager::getInstance()->mAnimator.deactivate();
 
 	LLSliderCtrl* sun_sldr = getChild<LLSliderCtrl>("WLSunAngle");
+	LLMultiSliderCtrl* sun_msldr = getChild<LLMultiSliderCtrl>("WLSunPos");
 	LLSliderCtrl* east_sldr = getChild<LLSliderCtrl>("WLEastAngle");
+	LLTimeCtrl* time_ctrl = getChild<LLTimeCtrl>("WLDayTime");
 
 	WLColorControl* color_ctrl = static_cast<WLColorControl *>(userdata);
+
+	F32 sun_pos = 0.0f; // 0..1
+	F32 time24  = 0.0f; // 0..24
+	if (ctrl == sun_msldr) // new slider moved
+	{
+		time24 = sun_msldr->getCurSliderValue();
+		sun_pos = time24_to_sun_pos(time24);
+
+		sun_sldr->setValue(sun_pos); // update the old slider
+	}
+	else
+	{
+		sun_pos = sun_sldr->getValueF32();
+		time24 = sun_pos_to_time24(sun_pos);
+
+		sun_msldr->setCurSliderValue(time24, TRUE); // update the new slider
+	}
+
+	time_ctrl->setTime24(time24); // sync the time ctrl with the new sun position
 
 	// get the two angles
 	LLWLParamManager * param_mgr = LLWLParamManager::getInstance();
 
-	param_mgr->mCurParams.setSunAngle(F_TWO_PI * sun_sldr->getValueF32());
+	param_mgr->mCurParams.setSunAngle(F_TWO_PI * sun_pos);
 	param_mgr->mCurParams.setEastAngle(F_TWO_PI * east_sldr->getValueF32());
 
 	// set the sun vector
@@ -535,6 +577,13 @@ void LLFloaterEditSky::onSunMoved(LLUICtrl* ctrl, void* userdata)
 
 	color_ctrl->update(param_mgr->mCurParams);
 	param_mgr->propagateParameters();
+}
+
+void LLFloaterEditSky::onTimeChanged()
+{
+	F32 time24 = getChild<LLTimeCtrl>("WLDayTime")->getTime24();
+	getChild<LLMultiSliderCtrl>("WLSunPos")->setCurSliderValue(time24, TRUE);
+	onSunMoved(getChild<LLUICtrl>("WLSunPos"), &LLWLParamManager::instance().mLightnorm);
 }
 
 void LLFloaterEditSky::onStarAlphaMoved(LLUICtrl* ctrl)

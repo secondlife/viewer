@@ -7,7 +7,7 @@
  help_topic="sky_preset"
  save_rect="true"
  title="Edit Sky Preset"
- width="900">
+ width="840">
 
     <string name="title_new">Create a New Sky Preset</string>
     <string name="title_edit">Edit Sky Preset</string>
@@ -66,12 +66,13 @@
     <view_border
      bevel_style="none"
      follows="top|left"
-     height="225"
+     height="203"
      layout="topleft"
      left="25"
      name="panel_water_preset"
-     top="100"
-     width="850"/>
+     top="122"
+     visible="true"
+     width="790"/>
     <tab_container
      follows="left|top"
      height="225"
@@ -81,16 +82,7 @@
      name="WindLight Tabs"
      tab_position="top"
      top="101"
-     width="854">
-    <text
-     follows="top|left|right"
-     layout="topleft"
-     name="water_preset_help"
-     right="870"
-     top_pad="4"
-     width="100">
-        Control Help
-    </text>
+     width="794">
     <panel
      border="true"
      bevel_style="none"
@@ -99,8 +91,8 @@
      label="ATMOSPHERE"
      layout="topleft"
      left="1"
-     mouse_opaque="false"
      help_topic="sky_preset_atmosphere"
+     mouse_opaque="false"
      name="Atmosphere"
      top="60"
      width="698">
@@ -311,10 +303,10 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="40"
+             left="20"
              name="SLCText"
              top="25"
-             width="200">
+             width="150">
                 Sun/Moon Color
             </text>
             <color_swatch
@@ -323,7 +315,7 @@
              height="37"
              label_height="0"
              layout="topleft"
-             left_delta="0"
+             left_delta="10"
              name="WLSunlight"
              top_pad="6"
              width="60" />
@@ -334,46 +326,10 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
-             name="TODText"
-             top_pad="20"
-             width="200">
-                Sun/Moon Position
-            </text>
-            <icon
-             height="20"
-             image_name="icon_diurnal.tga"
-             layout="topleft"
-             left_delta="14"
-             top_pad="10"
-             name="SkyDayCycle"
-             use_draw_context_alpha="false"
-             width="148" />
-            <slider
-             control_name="WLSunAngle"
-             follows="left|top"
-             height="10"
-             increment="0.001"
-             initial_value="0.7"
-             layout="topleft"
-             left_delta="-8"
-             name="WLSunAngle"
-             top_pad="0"
-             width="207" />
-
-            <!--======== Tab Panel II. II conlumn of controls ========-->
-
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             font="SansSerif"
-             height="16"
-             layout="topleft"
-             left_pad="55"
+             left_delta="-10"
              name="WLAmbientText"
-             top="25"
-             width="200">
+             top_pad="20"
+             width="150">
                 Ambient
             </text>
             <color_swatch
@@ -382,10 +338,12 @@
              height="37"
              label_height="0"
              layout="topleft"
-             left_delta="0"
+             left_delta="10"
              name="WLAmbient"
              top_pad="6"
              width="60" />
+
+            <!--======== Tab Panel II. II conlumn of controls ========-->
             <text
              type="string"
              length="1"
@@ -393,35 +351,7 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
-             name="WLEastAngleText"
-             top_pad="20"
-             width="200">
-                East Angle
-            </text>
-            <slider
-             control_name="WLEastAngle"
-             decimal_digits="2"
-             follows="left|top"
-             height="10"
-             increment="0.01"
-             initial_value="0.0"
-             layout="topleft"
-             left_delta="15"
-             name="WLEastAngle"
-             top_pad="6"
-             width="200" />
-
-            <!--======== Tab Panel II. III conlumn of controls ========-->
-
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             font="SansSerif"
-             height="16"
-             layout="topleft"
-             left_pad="55"
+             left_pad="100"
              name="SunGlowText"
              top="25"
              width="200">
@@ -436,7 +366,7 @@
              initial_value="0.1"
              label="Focus "
              layout="topleft"
-             left_delta="0"
+             left_delta="10"
              max_val="0.5"
              name="WLGlowB"
              top_pad="6"
@@ -463,34 +393,7 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
-             name="SceneGammaText"
-             top_pad="20"
-             width="200">
-                Scene Gamma
-            </text>
-            <slider
-             control_name="WLGamma"
-             decimal_digits="2"
-             follows="top|left"
-             height="10"
-             increment="0.01"
-             initial_value="2.0"
-             layout="topleft"
-             left_delta="0"
-             max_val="10"
-             name="WLGamma"
-             top_pad="6"
-             width="200" />
-            
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             font="SansSerif"
-             height="16"
-             layout="topleft"
-             left_delta="0"
+             left_delta="-10"
              name="WLStarText"
              top_pad="20"
              width="200">
@@ -504,11 +407,126 @@
              increment="0.01"
              initial_value="0"
              layout="topleft"
-             left_delta="0"
+             left_delta="10"
              max_val="2"
              name="WLStarAlpha"
              top_pad="6"
              width="200" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left_delta="-10"
+             name="SceneGammaText"
+             top_pad="20"
+             width="200">
+                Scene Gamma
+            </text>
+            <slider
+             control_name="WLGamma"
+             decimal_digits="2"
+             follows="top|left"
+             height="10"
+             increment="0.01"
+             initial_value="2.0"
+             layout="topleft"
+             left_delta="10"
+             max_val="10"
+             name="WLGamma"
+             top_pad="6"
+             width="200" />
+
+            <!--======== Tab Panel II. III conlumn of controls ========-->
+
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left_pad="60"
+             name="TODText"
+             top="10"
+             width="200">
+                Sun/Moon Position
+            </text>
+            <icon
+             height="20"
+             image_name="icon_diurnal.tga"
+             layout="topleft"
+             left_delta="14"
+             top_pad="10"
+             name="SkyDayCycle"
+             use_draw_context_alpha="false"
+             width="148" />
+            <slider
+             control_name="WLSunAngle"
+             follows="left|top"
+             height="10"
+             increment="0.001"
+             initial_value="0.7"
+             layout="topleft"
+             left_delta="-8"
+             name="WLSunAngle"
+             top_pad="0"
+             width="207" />
+            <multi_slider
+             can_edit_text="true"
+             control_name="WLSunPos"
+             decimal_digits="0"
+             follows="bottom"
+             height="10"
+             increment="0.0833333"
+             initial_value="0"
+             layout="topleft"
+             left_delta="0"
+             max_sliders="1"
+             max_val="24"
+             name="WLSunPos"
+             show_text="false"
+             top_pad="0"
+             width="300" />
+            <time
+             follows="left|top"
+             height="16"
+             label_width="0"
+             layout="topleft"
+             left_delta="80"
+             name="WLDayTime"
+             top_pad="15"
+             value="6:00 AM"
+             width="75"/> 
+
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left_delta="-80"
+             name="WLEastAngleText"
+             top_pad="40"
+             width="200">
+                East Angle
+            </text>
+            <slider
+             control_name="WLEastAngle"
+             decimal_digits="2"
+             follows="left|top"
+             height="10"
+             increment="0.01"
+             initial_value="0.0"
+             layout="topleft"
+             left_delta="10"
+             name="WLEastAngle"
+             top_pad="6"
+             width="200" />
+
         </panel>
         <panel
          border="true"
@@ -613,7 +631,7 @@
              layout="topleft"
              left_pad="55"
              name="WLCloudCoverageText"
-             top="25"
+             top="15"
              width="200">
                 Cloud Coverage
             </text>
@@ -720,7 +738,7 @@
              layout="topleft"
              left_pad="55"
              name="WLCloudScrollXText"
-             top="25"
+             top="15"
              width="150">
                 Cloud Scroll X
             </text>
@@ -793,7 +811,7 @@
      height="10"
      label="Make this preset my new sky setting"
      layout="topleft"
-     left="430"
+     left="380"
      name="make_default_cb"
      top_pad="30"
      width="280"/>
