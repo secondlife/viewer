@@ -60,6 +60,7 @@ public:
 
 		registrar.add("Gear.Edit", boost::bind(&edit_outfit));
 		registrar.add("Gear.TakeOff", boost::bind(&LLWearingGearMenu::onTakeOff, this));
+		registrar.add("Gear.Copy", boost::bind(&LLPanelWearing::copyToClipboard, mPanelWearing));
 
 		enable_registrar.add("Gear.OnEnable", boost::bind(&LLPanelWearing::isActionEnabled, mPanelWearing, _2));
 
@@ -184,7 +185,6 @@ BOOL LLPanelWearing::postBuild()
 {
 	mCOFItemsList = getChild<LLWearableItemsList>("cof_items_list");
 	mCOFItemsList->setRightMouseDownCallback(boost::bind(&LLPanelWearing::onWearableItemsListRightClick, this, _1, _2, _3));
-	childSetAction("copy_to_clipboard", boost::bind(&LLPanelWearing::copyToClipboard, this));
 
 	LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
 
@@ -286,24 +286,22 @@ void LLPanelWearing::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
 void LLPanelWearing::copyToClipboard()
 {
 	std::string text;
-	bool need_cr = false;
 	std::vector<LLSD> data;
 	mCOFItemsList->getValues(data);
-	for(std::vector<LLSD>::iterator iter = data.begin(); iter != data.end(); iter++)
+
+	for(std::vector<LLSD>::const_iterator iter = data.begin(); iter != data.end();)
 	{
 		LLSD uuid = (*iter);
 		LLViewerInventoryItem* item = gInventory.getItem(uuid);
-		if (!need_cr)
+
+		iter++;
+		if (item != NULL)
 		{
-			text += item->getName();
-			need_cr = true;
-		}
-		else
-		{
-			text += "\n" + item->getName();
+			// Append a CR to all but the last line
+			text += iter != data.end() ? item->getName() + "\n" : item->getName();
 		}
 	}
+
 	gClipboard.copyFromString(utf8str_to_wstring(text));
 }
-
 // EOF

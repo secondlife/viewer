@@ -42,15 +42,6 @@
          tool_tip="Show additional options"
          top="1"
          width="31" />
-        <button
-         follows="bottom|left|right"
-         height="25"
-         layout="topleft"
-         left_pad="1"
-         name="copy_to_clipboard"
-         label="Send to clipboard"
-         tool_tip="Send current outfit names to clipboard"
-         width="150" />
         <icon
          follows="bottom|left|right"
          height="25"
@@ -58,6 +49,6 @@
          layout="topleft"
          left_pad="1"
          name="dummy_icon"
-         width="123" />
+         width="274" />
     </panel>
 </panel>
