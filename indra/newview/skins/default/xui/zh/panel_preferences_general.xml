@@ -17,10 +17,10 @@
 		<combo_box.item label="日本語 (Japanese) - Beta" name="(Japanese)"/>
 	</combo_box>
 	<text name="language_textbox2">
-		(Requires restart)
+		（須重新啟動）
 	</text>
 	<text name="maturity_desired_prompt">
-		I want to access content rated:
+		我想要能進出內容分級的地區為：
 	</text>
 	<combo_box name="maturity_desired_combobox">
 		<combo_box.item label="General, Moderate, Adult" name="Desired_Adult"/>
@@ -36,34 +36,34 @@
 	</combo_box>
 	<check_box initial_value="true" label="登入時顯示" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
-		Name tags:
+		名稱標籤：
 	</text>
 	<radio_group name="Name_Tag_Preference">
 		<radio_item label="Off" name="radio" value="0"/>
 		<radio_item label="On" name="radio2" value="1"/>
-		<radio_item label="Show briefly" name="radio3" value="2"/>
+		<radio_item label="簡短顯示" name="radio3" value="2"/>
 	</radio_group>
-	<check_box label="My name" name="show_my_name_checkbox1"/>
-	<check_box label="Usernames" name="show_slids" tool_tip="Show username, like bobsmith123"/>
-	<check_box label="Group titles" name="show_all_title_checkbox1" tool_tip="Show group titles, like Officer or Member"/>
+	<check_box label="我的名字" name="show_my_name_checkbox1"/>
+	<check_box label="使用者名稱" name="show_slids" tool_tip="顯示使用者名稱，就像 bobsmith123 這類的"/>
+	<check_box label="社團頭銜" name="show_all_title_checkbox1" tool_tip="顯示社團頭銜，像是 Officer 或成員"/>
 	<check_box label="高亮顯示朋友" name="show_friends" tool_tip="高亮顯示你朋友的名稱標籤"/>
 	<check_box label="View Display Names" name="display_names_check" tool_tip="Check to use display names in chat, IM, name tags, etc."/>
 	<text name="inworld_typing_rg_label">
-		Pressing letter keys:
+		按下字母鍵：
 	</text>
 	<radio_group name="inworld_typing_preference">
-		<radio_item label="Starts local chat" name="radio_start_chat" value="1"/>
-		<radio_item label="Affects movement (i.e. WASD)" name="radio_move" value="0"/>
+		<radio_item label="開始本地聊天" name="radio_start_chat" value="1"/>
+		<radio_item label="影響移動（例如 WASD鍵）" name="radio_move" value="0"/>
 	</radio_group>
 	<text name="title_afk_text">
-		Away timeout:
+		離開逾時設定：
 	</text>
-	<combo_box label="Away timeout:" name="afk">
-		<combo_box.item label="2 minutes" name="item0"/>
-		<combo_box.item label="5 minutes" name="item1"/>
-		<combo_box.item label="10 minutes" name="item2"/>
-		<combo_box.item label="30 minutes" name="item3"/>
-		<combo_box.item label="never" name="item4"/>
+	<combo_box label="離開逾時設定：" name="afk">
+		<combo_box.item label="2 分鐘" name="item0"/>
+		<combo_box.item label="5 分鐘" name="item1"/>
+		<combo_box.item label="10 分鐘" name="item2"/>
+		<combo_box.item label="30 分鐘" name="item3"/>
+		<combo_box.item label="絕不" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
 		忙碌模式回應：

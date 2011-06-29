@@ -13,11 +13,11 @@
 [[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</floater.string>
 	<floater.string name="AboutSystem">
-		CPU: [CPU]
-Memory: [MEMORY_MB] MB
-OS Version: [OS_VERSION]
-Graphics Card Vendor: [GRAPHICS_CARD_VENDOR]
-Graphics Card: [GRAPHICS_CARD]
+		CPU：[CPU]
+記憶體：[MEMORY_MB] MB
+作業系統版本：[OS_VERSION]
+顯示卡供應商：[GRAPHICS_CARD_VENDOR]
+顯示卡：[GRAPHICS_CARD]
 	</floater.string>
 	<floater.string name="AboutDriver">
 		Windows Graphics Driver Version: [GRAPHICS_DRIVER_VERSION]
@@ -25,11 +25,11 @@ Graphics Card: [GRAPHICS_CARD]
 	<floater.string name="AboutLibs">
 		OpenGL Version: [OPENGL_VERSION]
 
-libcurl Version: [LIBCURL_VERSION]
-J2C Decoder Version: [J2C_VERSION]
-Audio Driver Version: [AUDIO_DRIVER_VERSION]
-Qt Webkit Version: [QT_WEBKIT_VERSION]
-Voice Server Version: [VOICE_VERSION]
+libcurl 版本： [LIBCURL_VERSION]
+J2C 解碼器版本： [J2C_VERSION]
+音效驅動程式版本： [AUDIO_DRIVER_VERSION]
+Qt Webkit 版本： [QT_WEBKIT_VERSION]
+語音伺服器版本： [VOICE_VERSION]
 	</floater.string>
 	<floater.string name="none">
 		（無）

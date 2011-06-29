@@ -7,5 +7,5 @@ Remember, Classified fees are non-refundable.
 	</text>
 	<spinner label="價格： L$" name="price_for_listing" tool_tip="Price for listing." value="50"/>
 	<button label="Publish" name="publish_btn"/>
-	<button label="取銷" name="cancel_btn"/>
+	<button label="取消" name="cancel_btn"/>
 </floater>

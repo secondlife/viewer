@@ -22,7 +22,7 @@
 		</menu>
 		<menu_item_call label="要求 Admin 狀態" name="Request Admin Options"/>
 		<menu_item_call label="離開 Admin 狀態" name="Leave Admin Options"/>
-		<menu_item_call label="結束離開 [APP_NAME]" name="Quit"/>
+		<menu_item_call label="結束退出 [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="溝通" name="Communicate">
 		<menu_item_call label="我的朋友" name="My Friends"/>
@@ -54,7 +54,7 @@
 			<menu_item_check label="地段屬性" name="Parcel Properties"/>
 			<menu_item_check label="進階選單" name="Show Advanced Menu"/>
 		</menu>
-		<menu_item_call label="瞬間傳送回家" name="Teleport Home"/>
+		<menu_item_call label="瞬間瞬間傳送回家" name="Teleport Home"/>
 		<menu_item_call label="設定家在此處" name="Set Home to Here"/>
 		<menu label="太陽" name="Environment Settings">
 			<menu_item_call label="日出" name="Sunrise"/>
@@ -75,7 +75,7 @@
 			<menu_item_call label="土地工具" name="Land"/>
 		</menu>
 		<menu_item_call label="聯結" name="Link"/>
-		<menu_item_call label="取銷聯結" name="Unlink"/>
+		<menu_item_call label="取消聯結" name="Unlink"/>
 		<menu_item_check label="編輯聯結部位" name="Edit Linked Parts"/>
 		<menu label="選擇聯結部位" name="Select Linked Parts">
 			<menu_item_call label="選擇下一部位" name="Select Next Part"/>
@@ -84,21 +84,21 @@
 			<menu_item_call label="包括上一部位" name="Include Previous Part"/>
 		</menu>
 		<menu_item_call label="聚焦於所選部位" name="Focus on Selection"/>
-		<menu_item_call label="Zoom to Selection" name="Zoom to Selection"/>
+		<menu_item_call label="縮放至所選部位" name="Zoom to Selection"/>
 		<menu label="物件" name="Object">
 			<menu_item_call label="購買" name="Menu Object Buy"/>
 			<menu_item_call label="取得" name="Menu Object Take"/>
 			<menu_item_call label="取得副本" name="Take Copy"/>
 			<menu_item_call label="回存到我的收納區" name="Save Object Back to My Inventory"/>
-			<menu_item_call label="Save Back to Object Contents" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="回存到物件內容" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="退回物件" name="Return Object back to Owner"/>
 		</menu>
-		<menu label="Scripts" name="Scripts">
-			<menu_item_call label="Recompile Scripts (Mono)" name="Mono"/>
-			<menu_item_call label="Recompile Scripts (LSL)" name="LSL"/>
+		<menu label="腳本" name="Scripts">
+			<menu_item_call label="重新編譯腳本（Mono）" name="Mono"/>
+			<menu_item_call label="重新編譯腳本（LSL）" name="LSL"/>
 			<menu_item_call label="Reset Scripts" name="Reset Scripts"/>
-			<menu_item_call label="Set Scripts to Running" name="Set Scripts to Running"/>
-			<menu_item_call label="Set Scripts to Not Running" name="Set Scripts to Not Running"/>
+			<menu_item_call label="設定腳本為執行中" name="Set Scripts to Running"/>
+			<menu_item_call label="設定腳本為非執行中" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="選項" name="Options">
 			<menu_item_check label="顯示進階權限" name="DebugPermissions"/>
@@ -110,16 +110,16 @@
 			<menu_item_check label="Show Light Radius for Selection" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Show Selection Beam" name="Show Selection Beam"/>
 			<menu_item_check label="貼齊格線" name="Snap to Grid"/>
-			<menu_item_call label="Snap Object XY to Grid" name="Snap Object XY to Grid"/>
+			<menu_item_call label="貼齊物件 XY 軸到格線" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Use Selection for Grid" name="Use Selection for Grid"/>
 			<menu_item_call label="格線選項" name="Grid Options"/>
 		</menu>
 		<menu label="上傳" name="Upload">
-			<menu_item_call label="Image (L$[COST])..." name="Upload Image"/>
-			<menu_item_call label="Sound (L$[COST])..." name="Upload Sound"/>
-			<menu_item_call label="Animation (L$[COST])..." name="Upload Animation"/>
-			<menu_item_call label="Bulk (L$[COST] per file)..." name="Bulk Upload"/>
-			<menu_item_call label="Set Default Upload Permissions" name="perm prefs"/>
+			<menu_item_call label="圖像（L$[COST]）..." name="Upload Image"/>
+			<menu_item_call label="聲音（L$[COST]）..." name="Upload Sound"/>
+			<menu_item_call label="動作（L$[COST]）..." name="Upload Animation"/>
+			<menu_item_call label="大量上傳（每檔案 L$[COST] ）..." name="Bulk Upload"/>
+			<menu_item_call label="設定預設上傳權限" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="復原" name="Undo"/>
 		<menu_item_call label="重做" name="Redo"/>
@@ -135,22 +135,22 @@
 		<menu_item_call label="Rebake Textures" name="Rebake Texture"/>
 		<menu_item_call label="設定使用者界面大小至預設值" name="Set UI Size to Default"/>
 		<menu_item_call label="設定視窗尺寸大小..." name="Set Window Size..."/>
-		<menu_item_check label="Limit Select Distance" name="Limit Select Distance"/>
+		<menu_item_check label="限制選擇距離" name="Limit Select Distance"/>
 		<menu_item_check label="Disable Camera Constraints" name="Disable Camera Distance"/>
-		<menu_item_check label="High-res Snapshot" name="HighResSnapshot"/>
-		<menu_item_check label="Quiet Snapshots to Disk" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="Compress Snapshots to Disk" name="CompressSnapshotsToDisk"/>
-		<menu label="Performance Tools" name="Performance Tools">
+		<menu_item_check label="高解析度快照" name="HighResSnapshot"/>
+		<menu_item_check label="靜音拍攝快照到硬碟" name="QuietSnapshotsToDisk"/>
+		<menu_item_check label="壓縮快照存到硬碟" name="CompressSnapshotsToDisk"/>
+		<menu label="效能工具" name="Performance Tools">
 			<menu_item_call label="Lag Meter" name="Lag Meter"/>
-			<menu_item_check label="Statistics Bar" name="Statistics Bar"/>
+			<menu_item_check label="統計列" name="Statistics Bar"/>
 			<menu_item_check label="Show Avatar Rendering Cost" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Highlighting and Visibility" name="Highlighting and Visibility">
 			<menu_item_check label="Cheesy Beacon" name="Cheesy Beacon"/>
 			<menu_item_check label="Hide Particles" name="Hide Particles"/>
 			<menu_item_check label="Hide Selected" name="Hide Selected"/>
-			<menu_item_check label="Highlight Transparent" name="Highlight Transparent"/>
-			<menu_item_check label="Show HUD Attachments" name="Show HUD Attachments"/>
+			<menu_item_check label="高亮顯示透明物件" name="Highlight Transparent"/>
+			<menu_item_check label="顯示 HUD 附件" name="Show HUD Attachments"/>
 			<menu_item_check label="Show Mouselook Crosshairs" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Rendering Types" name="Rendering Types">
@@ -181,16 +181,16 @@
 		<menu_item_check label="Use Plugin Read Thread" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Clear Group Cache" name="ClearGroupCache"/>
 		<menu_item_check label="Mouse Smoothing" name="Mouse Smoothing"/>
-		<menu label="Shortcuts" name="Shortcuts">
-			<menu_item_call label="Image (L$[COST])..." name="Upload Image"/>
-			<menu_item_check label="Search" name="Search"/>
-			<menu_item_call label="Release Keys" name="Release Keys"/>
+		<menu label="快速鍵" name="Shortcuts">
+			<menu_item_call label="圖像（L$[COST]）..." name="Upload Image"/>
+			<menu_item_check label="搜尋" name="Search"/>
+			<menu_item_call label="釋出按鍵" name="Release Keys"/>
 			<menu_item_call label="設定使用者界面大小至預設值" name="Set UI Size to Default"/>
 			<menu_item_check label="Show Advanced Menu - legacy shortcut" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="關閉視窗" name="Close Window"/>
 			<menu_item_call label="關閉全部視窗" name="Close All Windows"/>
 			<menu_item_call label="Snapshot to Disk" name="Snapshot to Disk"/>
-			<menu_item_call label="Mouselook" name="Mouselook"/>
+			<menu_item_call label="第一人稱視角" name="Mouselook"/>
 			<menu_item_check label="Joystick Flycam" name="Joystick Flycam"/>
 			<menu_item_call label="Reset View" name="Reset View"/>
 			<menu_item_call label="Look at Last Chatter" name="Look at Last Chatter"/>
@@ -209,10 +209,10 @@
 		<menu_item_check label="顯示開發選單" name="Debug Mode"/>
 	</menu>
 	<menu label="開發" name="Develop">
-		<menu label="Consoles" name="Consoles">
+		<menu label="控制台" name="Consoles">
 			<menu_item_check label="材質控制台" name="Texture Console"/>
-			<menu_item_check label="Debug Console" name="Debug Console"/>
-			<menu_item_call label="Notifications Console" name="Notifications"/>
+			<menu_item_check label="除錯控制台" name="Debug Console"/>
+			<menu_item_call label="通知控制台" name="Notifications"/>
 			<menu_item_check label="材質尺寸控制台" name="Texture Size"/>
 			<menu_item_check label="Texture Category Console" name="Texture Category"/>
 			<menu_item_check label="Fast Timers" name="Fast Timers"/>
@@ -226,7 +226,7 @@
 			<menu_item_check label="Badge" name="Badge"/>
 		</menu>
 		<menu label="顯示資訊" name="Display Info">
-			<menu_item_check label="Show Time" name="Show Time"/>
+			<menu_item_check label="顯示時間" name="Show Time"/>
 			<menu_item_check label="Show Render Info" name="Show Render Info"/>
 			<menu_item_check label="顯示材質資訊" name="Show Texture Info"/>
 			<menu_item_check label="Show Matrices" name="Show Matrices"/>
@@ -338,10 +338,10 @@
 			<menu_item_call label="送出測試 IMs" name="Send Test IMs"/>
 			<menu_item_call label="Flush Names Caches" name="Flush Names Caches"/>
 		</menu>
-		<menu label="Avatar" name="Character">
+		<menu label="化身" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
 				<menu_item_call label="Iris" name="Iris"/>
-				<menu_item_call label="Head" name="Head"/>
+				<menu_item_call label="頭部" name="Head"/>
 				<menu_item_call label="Upper Body" name="Upper Body"/>
 				<menu_item_call label="Lower Body" name="Lower Body"/>
 				<menu_item_call label="裙子" name="Skirt"/>
@@ -355,10 +355,10 @@
 				<menu_item_check label="Allow Select Avatar" name="Allow Select Avatar"/>
 			</menu>
 			<menu_item_call label="Force Params to Default" name="Force Params to Default"/>
-			<menu_item_check label="Animation Info" name="Animation Info"/>
-			<menu_item_check label="Slow Motion Animations" name="Slow Motion Animations"/>
-			<menu_item_check label="Show Look At" name="Show Look At"/>
-			<menu_item_check label="Show Point At" name="Show Point At"/>
+			<menu_item_check label="動作資訊" name="Animation Info"/>
+			<menu_item_check label="慢動作" name="Slow Motion Animations"/>
+			<menu_item_check label="顯示注視在" name="Show Look At"/>
+			<menu_item_check label="顯示指向在" name="Show Point At"/>
 			<menu_item_check label="Debug Joint Updates" name="Debug Joint Updates"/>
 			<menu_item_check label="Disable LOD" name="Disable LOD"/>
 			<menu_item_check label="Debug Character Vis" name="Debug Character Vis"/>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="hide_camera_move_controls_menu">
+	<menu_item_check label="Tal knap" name="EnableVoiceChat"/>
 	<menu_item_check label="Faste bevægelser" name="ShowGestureButton"/>
 	<menu_item_check label="Bevægelse knap" name="ShowMoveButton"/>
 	<menu_item_check label="Vis knap" name="ShowCameraButton"/>
 	<menu_item_check label="Foto knap" name="ShowSnapshotButton"/>
-	<menu_item_check label="Sidepanel knap" name="ShowSidebarButton"/>
 	<menu_item_check label="Bygge knap" name="ShowBuildButton"/>
 	<menu_item_check label="Søge knap" name="ShowSearchButton"/>
 	<menu_item_check label="Kort knap" name="ShowWorldMapButton"/>

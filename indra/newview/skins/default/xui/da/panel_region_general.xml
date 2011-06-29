@@ -25,6 +25,7 @@
 	<check_box label="Tillad at sælge land" name="allow_land_resell_check"/>
 	<check_box label="Tillad at samle/dele land" name="allow_parcel_changes_check"/>
 	<check_box label="Blokér visning af land i Søgning" name="block_parcel_search_check" tool_tip="Lad beboere se denne region og dens parceller i søgeresultater"/>
+	<check_box label="Til &quot;mesh&quot; objekter" name="mesh_rez_enabled_check" tool_tip="Lad personer rezze mesh objekter i denne region"/>
 	<spinner label="Max besøgende" name="agent_limit_spin"/>
 	<spinner label="Objekt bonus" name="object_bonus_spin"/>
 	<text label="Indhold" name="access_text">

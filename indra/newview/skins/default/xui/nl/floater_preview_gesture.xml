@@ -15,7 +15,7 @@
 	<text name="trigger_label">
 		Trigger:
 	</text>
-	<text name="replace_text" tool_tip="Vervang de startseinwoorden door deze woorden. Bijvoorbeeld, startsein &apos;hallo&apos; vervang door &apos;hoi&apos; zal de chat &apos;Ik wilde hallo zeggen&apos; veranderen in &apos;Ik wilde hoi zeggen&apos;, waarbij tevens het gebaar afgespeeld zal worden!" left="208">
+	<text name="replace_text" tool_tip="Vervang de startseinwoorden door deze woorden. Bijvoorbeeld, startsein &apos;hallo&apos; vervang door &apos;hoi&apos; zal de chat &apos;Ik wilde hallo zeggen&apos; veranderen in &apos;Ik wilde hoi zeggen&apos;, waarbij tevens het gebaar afgespeeld zal worden!">
 		Vervangen door:
 	</text>
 	<line_editor name="replace_editor" tool_tip="Vervang de startseinwoorden door deze woorden. Bijvoorbeeld, startsein &apos;hallo&apos; vervang door &apos;hoi&apos; zal de chat &apos;Ik wilde hallo zeggen&apos; veranderen in &apos;Ik wilde hoi zeggen&apos;, waarbij tevens het gebaar afgespeeld zal worden."/>

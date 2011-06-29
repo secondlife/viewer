@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_avatar">
+	<string name="Subtitle">
+		[AGE]
+	</string>
+	<string name="Details">
+		[SL_PROFILE]
+	</string>
+	<text name="user_details">
+		Dette er min second life beskrivelse og jeg synes den er rigtig god. Men af en eller ande grund er min beskrivelse meget lang fordi jeg taler en hel masse
+	</text>
+	<slider name="volume_slider" tool_tip="Stemme lydstyrke" value="0.5"/>
+	<button label="Tilføj ven" name="add_friend_btn"/>
+	<button label="IM" name="im_btn"/>
+	<button label="Profil" name="view_profile_btn"/>
+	<panel name="moderator_panel">
+		<button label="Slå stemme-chat fra" name="disable_voice"/>
+		<button label="Slå stemme-chat til" name="enable_voice"/>
+	</panel>
+</floater>

@@ -7,7 +7,7 @@
 	<menu_item_call label="通話" name="Call"/>
 	<menu_item_call label="地圖" name="Map"/>
 	<menu_item_call label="分享" name="Share"/>
-	<menu_item_call label="Pay" name="Pay"/>
+	<menu_item_call label="支付" name="Pay"/>
 	<menu_item_check label="Block/Unblock" name="Block/Unblock"/>
 	<menu_item_call label="Offer Teleport" name="teleport"/>
 </context_menu>

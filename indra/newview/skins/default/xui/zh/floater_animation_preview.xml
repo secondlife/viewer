@@ -9,7 +9,7 @@
 Maximum animation length is [MAX_LENGTH] seconds.
 	</floater.string>
 	<floater.string name="failed_file_read">
-		Unable to read animation file.
+		無法讀取動作檔。
 
 [STATUS]
 	</floater.string>
@@ -23,7 +23,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
 		Cannot read constraint definition.
 	</floater.string>
 	<floater.string name="E_ST_NO_FILE">
-		Cannot open BVH file.
+		無法開啟 BVH 檔案。
 	</floater.string>
 	<floater.string name="E_ST_NO_HIER">
 		Invalid HIERARCHY header.
@@ -115,7 +115,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
 	<text name="description_label">
 		描述：
 	</text>
-	<spinner label="Priority" name="priority" tool_tip="Controls which other animations can be overridden by this animation"/>
+	<spinner label="優先度" name="priority" tool_tip="Controls which other animations can be overridden by this animation"/>
 	<check_box label="Loop" name="loop_check" tool_tip="Makes this animation loop"/>
 	<spinner label="In(%)" name="loop_in_point" tool_tip="Sets point in animation that looping returns to"/>
 	<spinner label="Out(%)" name="loop_out_point" tool_tip="Sets point in animation that ends a loop"/>
@@ -182,5 +182,5 @@ Maximum animation length is [MAX_LENGTH] seconds.
 We recommend BVH files exported from Poser 4.
 	</text>
 	<button label="上傳（L$[AMOUNT]）" name="ok_btn"/>
-	<button label="取銷" name="cancel_btn"/>
+	<button label="取消" name="cancel_btn"/>
 </floater>

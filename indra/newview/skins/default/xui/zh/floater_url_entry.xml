@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="url_entry">
 	<text name="media_label">
-		Media URL:
+		媒體 URL：
 	</text>
 	<button label="" name="ok_btn"/>
-	<button label="取銷" name="cancel_btn"/>
+	<button label="取消" name="cancel_btn"/>
 	<button label="清除" name="clear_btn"/>
 	<text name="loading_label">
 		載入中...

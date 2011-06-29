@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 uniform vec2 texelSize;
 uniform vec2 blurDirection;

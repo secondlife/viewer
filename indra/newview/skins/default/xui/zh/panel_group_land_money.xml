@@ -22,9 +22,9 @@
 		<scroll_list name="group_parcel_list">
 			<scroll_list.columns label="地段" name="name"/>
 			<scroll_list.columns label="地區" name="location"/>
-			<scroll_list.columns label="Type" name="type"/>
-			<scroll_list.columns label="Area" name="area"/>
-			<scroll_list.columns label="Hidden" name="hidden"/>
+			<scroll_list.columns label="類型" name="type"/>
+			<scroll_list.columns label="區域" name="area"/>
+			<scroll_list.columns label="隱藏" name="hidden"/>
 		</scroll_list>
 		<text name="total_contributed_land_label">
 			Total contribution:

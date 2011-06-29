@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_sound_devices" title="Audiogeräte">
+	<text name="voice_label">
+		Voice-Chat
+	</text>
+	<check_box label="Aktiviert" name="enable_voice"/>
+</floater>

@@ -14,7 +14,7 @@
 			<text name="BHText">
 				Water Fog Color
 			</text>
-			<color_swatch name="WaterFogColor" tool_tip="Click to open color picker"/>
+			<color_swatch name="WaterFogColor" tool_tip="點擊以開啟顏色挑選器"/>
 			<text name="WaterFogDensText">
 				Fog Density Exponent
 			</text>
@@ -43,7 +43,7 @@
 				Blur Multiplier
 			</text>
 		</panel>
-		<panel label="IMAGE" name="Waves">
+		<panel label="圖像" name="Waves">
 			<text name="BHText">
 				Big Wave Direction
 			</text>

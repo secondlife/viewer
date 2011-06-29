@@ -6,12 +6,12 @@
 	<text name="windowsize_text">
 		設定視窗尺寸大小：
 	</text>
-	<combo_box name="window_size_combo" tool_tip="width x height">
+	<combo_box name="window_size_combo" tool_tip="寬度 x 高度">
 		<combo_box.item label="1000 x 700 （預設）" name="item0"/>
 		<combo_box.item label="1024 x 768" name="item1"/>
 		<combo_box.item label="1280 x 720 （720p）" name="item2"/>
 		<combo_box.item label="1920 x 1080 （1080p）" name="item3"/>
 	</combo_box>
 	<button label="設定" name="set_btn"/>
-	<button label="取銷" name="cancel_btn"/>
+	<button label="取消" name="cancel_btn"/>
 </floater>

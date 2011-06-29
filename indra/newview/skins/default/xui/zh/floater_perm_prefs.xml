@@ -11,5 +11,5 @@
 		<check_box initial_value="true" label="轉售 / 送人" name="next_owner_transfer"/>
 	</panel>
 	<button label="確定" label_selected="確定" name="ok"/>
-	<button label="取銷" label_selected="取銷" name="cancel"/>
+	<button label="取消" label_selected="取消" name="cancel"/>
 </floater>

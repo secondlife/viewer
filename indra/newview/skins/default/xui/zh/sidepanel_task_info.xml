@@ -58,18 +58,18 @@
 		<name_box initial_value="載入中..." name="Group Name Proxy"/>
 		<button label="Deed" label_selected="Deed" name="button deed" tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."/>
 		<text name="label click action">
-			Click to:
+			點擊以：
 		</text>
 		<combo_box name="clickaction">
-			<combo_box.item label="Touch  (default)" name="Touch/grab(default)"/>
-			<combo_box.item label="Sit on object" name="Sitonobject"/>
-			<combo_box.item label="Buy object" name="Buyobject"/>
-			<combo_box.item label="Pay object" name="Payobject"/>
-			<combo_box.item label="Open" name="Open"/>
+			<combo_box.item label="觸碰（預設）" name="Touch/grab(default)"/>
+			<combo_box.item label="坐在物件上" name="Sitonobject"/>
+			<combo_box.item label="購買物件" name="Buyobject"/>
+			<combo_box.item label="支付物件" name="Payobject"/>
+			<combo_box.item label="開啟" name="Open"/>
 		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">
-				You can modify this object
+				你能修改這個物件
 			</text>
 			<text name="Anyone can:">
 				任何人：
@@ -94,7 +94,7 @@
 			<combo_box.item label="Original" name="Original"/>
 		</combo_box>
 		<spinner label="價格： L$" name="Edit Cost"/>
-		<check_box label="Show in search" name="search_check" tool_tip="Let people see this object in search results"/>
+		<check_box label="顯示在搜尋中" name="search_check" tool_tip="Let people see this object in search results"/>
 		<text name="B:">
 			B:
 		</text>
@@ -115,9 +115,9 @@
 		</text>
 	</panel>
 	<panel name="button_panel">
-		<button label="Open" name="open_btn"/>
-		<button label="Pay" name="pay_btn"/>
+		<button label="開啟" name="open_btn"/>
+		<button label="支付" name="pay_btn"/>
 		<button label="購買" name="buy_btn"/>
-		<button label="Details" name="details_btn"/>
+		<button label="細節" name="details_btn"/>
 	</panel>
 </panel>

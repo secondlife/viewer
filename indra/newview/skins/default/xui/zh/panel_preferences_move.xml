@@ -13,9 +13,9 @@
 		Mouselook mouse sensitivity:
 	</text>
 	<check_box label="反轉" name="invert_mouse"/>
-	<check_box label="Arrow keys always move me" name="arrow_keys_move_avatar_check"/>
+	<check_box label="總是使用方向鍵移動" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Tap-tap-hold to run" name="tap_tap_hold_to_run"/>
-	<check_box label="Double-Click to:" name="double_click_chkbox"/>
+	<check_box label="雙擊以D：" name="double_click_chkbox"/>
 	<radio_group name="double_click_action">
 		<radio_item label="瞬間傳送" name="radio_teleport"/>
 		<radio_item label="Auto-pilot" name="radio_autopilot"/>

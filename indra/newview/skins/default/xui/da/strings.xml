@@ -115,6 +115,140 @@
 	<string name="Quit">
 		Afslut
 	</string>
+	<string name="LoginFailedViewerNotPermitted">
+		Den klient du benytter kan ikke længere få adgang til Second Life. Besøg venligst denne side for at hente en ny klient:
+http://secondlife.com/download
+
+For mere information, se denne FAQ:
+http://secondlife.com/viewer-access-faq
+	</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">
+		Valgfri klient opdatering tilgængelig: [VERSION]
+	</string>
+	<string name="LoginFailedRequiredUpdate">
+		Påkrævet opdatering a klient: [VERSION]
+	</string>
+	<string name="LoginFailedAlreadyLoggedIn">
+		Din avatar er allerede logget på.
+	</string>
+	<string name="LoginFailedAuthenticationFailed">
+		Beklager! vi kunne ikke logge dig på.
+Undersøg venligst at du har indtastet det rette				
+Please check to make sure you entered the right
+    * Brugernavn (like bobsmith12 or steller.sunshine)
+    * Password
+Check også at Caps Lock ikke er aktiveret.
+	</string>
+	<string name="LoginFailedPasswordChanged">
+		Som en sikkerhedsforanstaltning er dit password blevet ændret.
+Går venligst til din konto-side på http://secondlife.com/password
+og besvar sikkerhedsspørgsmål for at nulstille dit password.
+Vi undskylder besværet.
+	</string>
+	<string name="LoginFailedPasswordReset">
+		vi har lavet nogle ændringer i vores system og det er nødvendigt at nulstille dit password.
+Går venligst til din konto-side på http://secondlife.com/password
+og besvar sikkerhedsspørgsmål for at nulstille dit password.
+Vi undskylder besværet.
+	</string>
+	<string name="LoginFailedEmployeesOnly">
+		Second Life er midlertidig lukket ned for vedligeholdelse.
+Kun medarbejdere kan logge på for øjeblikket.
+Check www.secondlife.com/status for opdateringer.
+	</string>
+	<string name="LoginFailedPremiumOnly">
+		Second Life har midlertidig begrænset muligheden for log-in for at sikre, at brugere på systemet ikke får dårlige svartider.
+
+ Brugere med gratis-konti vil ikke kunne logge på Second Life på dette tidspunkt.
+	</string>
+	<string name="LoginFailedComputerProhibited">
+		Second Life kan ikke tilgås fra dennecomputer.
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedAcountSuspended">
+		Din konto vil ikke være tilgængelig før 
+[TIME] Pacific Time.
+	</string>
+	<string name="LoginFailedAccountDisabled">
+		Vi kan desværre ikke behandle forespøgsel lige nu.
+Kontakt venligst Second Life supper for assitance via http://secondlife.com/support.
+Hvis du ikke kan ændre dit password ring venligst +1 (866) 476-9763.
+	</string>
+	<string name="LoginFailedTransformError">
+		Data inkonsistens registret ved login.
+Kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedAccountMaintenance">
+		Der foretages vedligehold på din konto lige nu.
+Din konto vil ikke være tilgængelig før 
+[TIME] Pacific Time.
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedPendingLogoutFault">
+		Forespøgsel på logout blev besvaret med en fejl fra simulatoren.
+	</string>
+	<string name="LoginFailedPendingLogout">
+		Systemet er i gang med at logge dig ud netop nu.
+Din konto vil ikke være tilgængelig før 
+[TIME] Pacific Time.
+	</string>
+	<string name="LoginFailedUnableToCreateSession">
+		Ikke muligt at oprette gyldig session.
+	</string>
+	<string name="LoginFailedUnableToConnectToSimulator">
+		Ikke muligt at koble til en simulator.
+	</string>
+	<string name="LoginFailedRestrictedHours">
+		Din konto kan kun tilgå Second Life
+mellem [START] [END] Pacific Time.
+Kom venligst tilbage i dette tidsrum.
+
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedIncorrectParameters">
+		Ugyldig parametre.
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">
+		Fornavn parameter skal være alfanumerisk
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">
+		Efternavn parameter skal være alfanumerisk
+Hvis du mener dette er en fejl, kontakt venligst support@secondlife.com.
+	</string>
+	<string name="LogoutFailedRegionGoingOffline">
+		Regionen er lukket ned.
+Prøv at logge på om lidt igen.
+	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		Avatar ikke i en region.
+Prøv venligst om lidt igen.
+	</string>
+	<string name="LogoutFailedPendingLogin">
+		The region was logging in another session.
+Please try logging in again in a minute.
+	</string>
+	<string name="LogoutFailedLoggingOut">
+		Region har lukket sidste session ned.
+Prøv venligst om lidt igen.
+	</string>
+	<string name="LogoutFailedStillLoggingOut">
+		Regionen er stadig ved at lukke forrige session ud.
+Prøv venligst om lidt igen.
+	</string>
+	<string name="LogoutSucceeded">
+		Region har lukket sidste session ned.
+Prøv venligst om lidt igen.
+	</string>
+	<string name="LogoutFailedLogoutBegun">
+		Region er i gang med at logge ud.
+Prøv venligst om lidt igen.
+	</string>
+	<string name="LoginFailedLoggingOutSession">
+		Region er i gang med at lukket sidste session ned.
+Prøv venligst om lidt igen.
+	</string>
 	<string name="AgentLostConnection">
 		Denne region kan have problemer. Tjek venligst din forbindelse til internettet.
 	</string>
@@ -422,6 +556,9 @@
 	</string>
 	<string name="symbolic folder link">
 		link til mappe
+	</string>
+	<string name="mesh">
+		mesh
 	</string>
 	<string name="AvatarAway">
 		Væk
@@ -852,6 +989,9 @@
 	<string name="tattoo">
 		Tatovering
 	</string>
+	<string name="physics">
+		Fysik
+	</string>
 	<string name="invalid">
 		ugyldig
 	</string>
@@ -890,6 +1030,9 @@
 	</string>
 	<string name="tattoo_not_worn">
 		Tatovering ikke benyttet
+	</string>
+	<string name="physics_not_worn">
+		Ikke noget fysisk båret
 	</string>
 	<string name="invalid_not_worn">
 		ugyldig
@@ -938,6 +1081,9 @@
 	</string>
 	<string name="create_new_tattoo">
 		Opret ny tatovering
+	</string>
+	<string name="create_new_physics">
+		Opret ny fysik
 	</string>
 	<string name="create_new_invalid">
 		ugyldig
@@ -1037,7 +1183,7 @@
 	</string>
 	<string name="WornOnAttachmentPoint" value=" (båret på [ATTACHMENT_POINT])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (aktiv)"/>
-	<string name="Chat" value=" Chat : "/>
+	<string name="Chat Message" value="Chat :"/>
 	<string name="Sound" value=" Lyd : "/>
 	<string name="Wait" value=" --- Vent : "/>
 	<string name="AnimFlagStop" value=" Stop Animation :   "/>
@@ -1140,6 +1286,9 @@
 	</string>
 	<string name="InvFolder Accessories">
 		Tilbehør
+	</string>
+	<string name="InvFolder Meshes">
+		Meshes
 	</string>
 	<string name="InvFolder Friends">
 		Venner
@@ -1819,12 +1968,6 @@ Forventet .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="accel-win-shift">
 		Shift+
 	</string>
-	<string name="Esc">
-		Esc
-	</string>
-	<string name="Home">
-		Hjem
-	</string>
 	<string name="FileSaved">
 		Fil gemt
 	</string>
@@ -1941,6 +2084,9 @@ Forventet .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="Other">
 		Andet
+	</string>
+	<string name="Rental">
+		Leje
 	</string>
 	<string name="Any">
 		Enhver
@@ -2178,6 +2324,114 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Bulbous Nose">
 		Kartoffelnæse
 	</string>
+	<string name="Breast Physics Mass">
+		Bryst fylde
+	</string>
+	<string name="Breast Physics Smoothing">
+		Brystudjævning
+	</string>
+	<string name="Breast Physics Gravity">
+		Bryst tyngde
+	</string>
+	<string name="Breast Physics Drag">
+		Bryst inerti
+	</string>
+	<string name="Breast Physics InOut Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Breast Physics InOut Spring">
+		Fjeder
+	</string>
+	<string name="Breast Physics InOut Gain">
+		Øg
+	</string>
+	<string name="Breast Physics InOut Damping">
+		Dæmpning
+	</string>
+	<string name="Breast Physics UpDown Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Breast Physics UpDown Spring">
+		Fjeder
+	</string>
+	<string name="Breast Physics UpDown Gain">
+		Øg
+	</string>
+	<string name="Breast Physics UpDown Damping">
+		Dæmpning
+	</string>
+	<string name="Breast Physics LeftRight Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Breast Physics LeftRight Spring">
+		Fjeder
+	</string>
+	<string name="Breast Physics LeftRight Gain">
+		Øg
+	</string>
+	<string name="Breast Physics LeftRight Damping">
+		Dæmpning
+	</string>
+	<string name="Belly Physics Mass">
+		Mave omfang
+	</string>
+	<string name="Belly Physics Smoothing">
+		maveudjævning
+	</string>
+	<string name="Belly Physics Gravity">
+		Mave tyngde
+	</string>
+	<string name="Belly Physics Drag">
+		Mave inerti
+	</string>
+	<string name="Belly Physics UpDown Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Belly Physics UpDown Spring">
+		Fjeder
+	</string>
+	<string name="Belly Physics UpDown Gain">
+		Øg
+	</string>
+	<string name="Belly Physics UpDown Damping">
+		Dæmpning
+	</string>
+	<string name="Butt Physics Mass">
+		Bagdel omfang
+	</string>
+	<string name="Butt Physics Smoothing">
+		Bagdelsudjævning
+	</string>
+	<string name="Butt Physics Gravity">
+		Bagdel tyngde
+	</string>
+	<string name="Butt Physics Drag">
+		Bagdel modstand
+	</string>
+	<string name="Butt Physics UpDown Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Butt Physics UpDown Spring">
+		Fjeder
+	</string>
+	<string name="Butt Physics UpDown Gain">
+		Øg
+	</string>
+	<string name="Butt Physics UpDown Damping">
+		Dæmpning
+	</string>
+	<string name="Butt Physics LeftRight Max Effect">
+		Maks. effekt
+	</string>
+	<string name="Butt Physics LeftRight Spring">
+		Fjeder
+	</string>
+	<string name="Butt Physics LeftRight Gain">
+		Øg
+	</string>
+	<string name="Butt Physics LeftRight Damping">
+		Dæmpning
+	</string>
 	<string name="Bushy Eyebrows">
 		Buskede øjenbryn
 	</string>
@@ -2186,6 +2440,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="Butt Size">
 		Størrelse bagdel
+	</string>
+	<string name="Butt Gravity">
+		Bagdel tyngde
 	</string>
 	<string name="bustle skirt">
 		Tournure
@@ -3540,6 +3797,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="session_initialization_timed_out_error">
 		Initialisering af session er &quot;timed out&quot;
 	</string>
+	<string name="Home position set.">
+		Hjemmeposition sat.
+	</string>
 	<string name="voice_morphing_url">
 		http://secondlife.com/landing/voicemorphing
 	</string>
@@ -3661,6 +3921,9 @@ Krænkelsesanmeldelse
 	</string>
 	<string name="New Tattoo">
 		Ny tatovering
+	</string>
+	<string name="New Physics">
+		Ny fysik
 	</string>
 	<string name="Invalid Wearable">
 		Kan ikke tages på
@@ -3861,7 +4124,7 @@ Krænkelsesanmeldelse
 	<string name="Notices">
 		Beskeder
 	</string>
-	<string name="Chat">
+	<string name="Chat" value=" Chat : ">
 		Chat
 	</string>
 	<string name="DeleteItems">
@@ -3872,5 +4135,349 @@ Krænkelsesanmeldelse
 	</string>
 	<string name="EmptyOutfitText">
 		Der er ingen genstande i dette sæt
+	</string>
+	<string name="ExternalEditorNotSet">
+		Vælg en editor via opsætningen for Ekstern editor.
+	</string>
+	<string name="ExternalEditorNotFound">
+		Kan ikke benytte deb eksterne editor der er angivet.
+Prøv at omkrandse stien til editor med anførselstegn.				
+(f.eks. &quot;/stil til min editor&quot; &quot;%s&quot;)
+	</string>
+	<string name="ExternalEditorCommandParseError">
+		Fejl ved håndtering af kommando til ekstern editor.
+	</string>
+	<string name="ExternalEditorFailedToRun">
+		Den eksterne editor kunne ikke startes.
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Space">
+		Space
+	</string>
+	<string name="Enter">
+		Enter
+	</string>
+	<string name="Tab">
+		Tab
+	</string>
+	<string name="Ins">
+		Ins
+	</string>
+	<string name="Del">
+		Del
+	</string>
+	<string name="Backsp">
+		Backsp
+	</string>
+	<string name="Shift">
+		Shift
+	</string>
+	<string name="Ctrl">
+		Ctrl
+	</string>
+	<string name="Alt">
+		Alt
+	</string>
+	<string name="CapsLock">
+		CapsLock
+	</string>
+	<string name="Home">
+		Hjem
+	</string>
+	<string name="End">
+		End
+	</string>
+	<string name="PgUp">
+		PgUp
+	</string>
+	<string name="PgDn">
+		PgDn
+	</string>
+	<string name="F1">
+		F1
+	</string>
+	<string name="F2">
+		F2
+	</string>
+	<string name="F3">
+		F3
+	</string>
+	<string name="F4">
+		F4
+	</string>
+	<string name="F5">
+		F5
+	</string>
+	<string name="F6">
+		F6
+	</string>
+	<string name="F7">
+		F7
+	</string>
+	<string name="F8">
+		F8
+	</string>
+	<string name="F9">
+		F9
+	</string>
+	<string name="F10">
+		F10
+	</string>
+	<string name="F11">
+		F11
+	</string>
+	<string name="F12">
+		F12
+	</string>
+	<string name="Add">
+		Tilføj
+	</string>
+	<string name="Subtract">
+		Træk fra
+	</string>
+	<string name="Multiply">
+		Multiplicer
+	</string>
+	<string name="Divide">
+		Divider
+	</string>
+	<string name="PAD_DIVIDE">
+		PAD_DIVIDE
+	</string>
+	<string name="PAD_LEFT">
+		PAD_LEFT
+	</string>
+	<string name="PAD_RIGHT">
+		PAD_RIGHT
+	</string>
+	<string name="PAD_DOWN">
+		PAD_DOWN
+	</string>
+	<string name="PAD_UP">
+		PAD_UP
+	</string>
+	<string name="PAD_HOME">
+		PAD_HOME
+	</string>
+	<string name="PAD_END">
+		PAD_END
+	</string>
+	<string name="PAD_PGUP">
+		PAD_PGUP
+	</string>
+	<string name="PAD_PGDN">
+		PAD_PGDN
+	</string>
+	<string name="PAD_CENTER">
+		PAD_CENTER
+	</string>
+	<string name="PAD_INS">
+		PAD_INS
+	</string>
+	<string name="PAD_DEL">
+		PAD_DEL
+	</string>
+	<string name="PAD_Enter">
+		PAD_Enter
+	</string>
+	<string name="PAD_BUTTON0">
+		PAD_BUTTON0
+	</string>
+	<string name="PAD_BUTTON1">
+		PAD_BUTTON1
+	</string>
+	<string name="PAD_BUTTON2">
+		PAD_BUTTON2
+	</string>
+	<string name="PAD_BUTTON3">
+		PAD_BUTTON3
+	</string>
+	<string name="PAD_BUTTON4">
+		PAD_BUTTON4
+	</string>
+	<string name="PAD_BUTTON5">
+		PAD_BUTTON5
+	</string>
+	<string name="PAD_BUTTON6">
+		PAD_BUTTON6
+	</string>
+	<string name="PAD_BUTTON7">
+		PAD_BUTTON7
+	</string>
+	<string name="PAD_BUTTON8">
+		PAD_BUTTON8
+	</string>
+	<string name="PAD_BUTTON9">
+		PAD_BUTTON9
+	</string>
+	<string name="PAD_BUTTON10">
+		PAD_BUTTON10
+	</string>
+	<string name="PAD_BUTTON11">
+		PAD_BUTTON11
+	</string>
+	<string name="PAD_BUTTON12">
+		PAD_BUTTON12
+	</string>
+	<string name="PAD_BUTTON13">
+		PAD_BUTTON13
+	</string>
+	<string name="PAD_BUTTON14">
+		PAD_BUTTON14
+	</string>
+	<string name="PAD_BUTTON15">
+		PAD_BUTTON15
+	</string>
+	<string name="-">
+		-
+	</string>
+	<string name="=">
+		=
+	</string>
+	<string name="`">
+		`
+	</string>
+	<string name=";">
+		;
+	</string>
+	<string name="[">
+		[
+	</string>
+	<string name="]">
+		]
+	</string>
+	<string name="\">
+		\
+	</string>
+	<string name="0">
+		0
+	</string>
+	<string name="1">
+		1
+	</string>
+	<string name="2">
+		2
+	</string>
+	<string name="3">
+		3
+	</string>
+	<string name="4">
+		4
+	</string>
+	<string name="5">
+		5
+	</string>
+	<string name="6">
+		6
+	</string>
+	<string name="7">
+		7
+	</string>
+	<string name="8">
+		8
+	</string>
+	<string name="9">
+		9
+	</string>
+	<string name="A">
+		A
+	</string>
+	<string name="B">
+		B
+	</string>
+	<string name="C">
+		C
+	</string>
+	<string name="D">
+		D
+	</string>
+	<string name="E">
+		E
+	</string>
+	<string name="F">
+		F
+	</string>
+	<string name="G">
+		G
+	</string>
+	<string name="H">
+		H
+	</string>
+	<string name="I">
+		I
+	</string>
+	<string name="J">
+		J
+	</string>
+	<string name="K">
+		K
+	</string>
+	<string name="L">
+		L
+	</string>
+	<string name="M">
+		M
+	</string>
+	<string name="N">
+		N
+	</string>
+	<string name="O">
+		O
+	</string>
+	<string name="P">
+		P
+	</string>
+	<string name="Q">
+		Q
+	</string>
+	<string name="R">
+		R
+	</string>
+	<string name="S">
+		S
+	</string>
+	<string name="T">
+		T
+	</string>
+	<string name="U">
+		U
+	</string>
+	<string name="V">
+		V
+	</string>
+	<string name="W">
+		W
+	</string>
+	<string name="X">
+		X
+	</string>
+	<string name="Y">
+		Y
+	</string>
+	<string name="Z">
+		Z
+	</string>
+	<string name="BeaconParticle">
+		Viser pejlelys for for partikler (blå)
+	</string>
+	<string name="BeaconPhysical">
+		Viser pejlelys for fysiske objekter (grøn)
+	</string>
+	<string name="BeaconScripted">
+		Viser pejlelys for &quot;scriptede&quot; objekter (rød)
+	</string>
+	<string name="BeaconScriptedTouch">
+		Viser pejlelys for &quot;scriptede&quot; objekter med berøringsfunktion (rød)
+	</string>
+	<string name="BeaconSound">
+		Viser pejlelys for lyd  (gul)
+	</string>
+	<string name="BeaconMedia">
+		Viser pejlelys for media (hvid)
+	</string>
+	<string name="ParticleHiding">
+		Skjuler partikler
 	</string>
 </strings>

@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
-#version 120
+
 
 // Output variables
 vec3 getSunlitColor();

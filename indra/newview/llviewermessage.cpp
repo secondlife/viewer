@@ -96,7 +96,6 @@
 #include "llviewerwindow.h"
 #include "llvlmanager.h"
 #include "llvoavatarself.h"
-#include "llvotextbubble.h"
 #include "llworld.h"
 #include "pipeline.h"
 #include "llfloaterworldmap.h"
@@ -1502,7 +1501,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
 			LLSD args;
 			args["MESSAGE"] = log_message;
-			LLNotificationsUtil::add("SystemMessage", args);
+			LLNotificationsUtil::add("SystemMessageTip", args);
 		}
 		break;
 
@@ -1676,7 +1675,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 				log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
 				LLSD args;
 				args["MESSAGE"] = log_message;
-				LLNotificationsUtil::add("SystemMessage", args);
+				LLNotificationsUtil::add("SystemMessageTip", args);
 			}
 			
 			// we will want to open this item when it comes back.
@@ -1727,7 +1726,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 
 				LLSD args;
 				args["MESSAGE"] = log_message;
-				LLNotificationsUtil::add("SystemMessage", args);
+				LLNotificationsUtil::add("SystemMessageTip", args);
 			}
 			
 			if (busy &&	(!mFromGroup && !mFromObject))
@@ -4228,15 +4227,8 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				// Display green bubble on kill
 				if ( gShowObjectUpdates )
 				{
-					LLViewerObject* newobject;
-					newobject = gObjectList.createObjectViewer(LL_PCODE_LEGACY_TEXT_BUBBLE, objectp->getRegion());
-
-					LLVOTextBubble* bubble = (LLVOTextBubble*) newobject;
-
-					bubble->mColor.setVec(0.f, 1.f, 0.f, 1.f);
-					bubble->setScale( 2.0f * bubble->getScale() );
-					bubble->setPositionGlobal(objectp->getPositionGlobal());
-					gPipeline.addObject(bubble);
+					LLColor4 color(0.f,1.f,0.f,1.f);
+					gPipeline.addDebugBlip(objectp->getPositionAgent(), color);
 				}
 
 				// Do the kill
@@ -4332,6 +4324,9 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 	{
 		return;
 	}
+
+	// Don't play sounds from gestures if they are not enabled.
+	if (!gSavedSettings.getBOOL("EnableGestureSounds")) return;
 		
 	gAudiop->triggerSound(sound_id, owner_id, gain, LLAudioEngine::AUDIO_TYPE_SFX, pos_global);
 }
@@ -6266,6 +6261,18 @@ void send_group_notice(const LLUUID& group_id,
 
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
+	static const unsigned OFFER_RECIPIENT_LIMIT = 250;
+	if(notification["payload"]["ids"].size() > OFFER_RECIPIENT_LIMIT) 
+	{
+		// More than OFFER_RECIPIENT_LIMIT targets will overload the message
+		// producing an llerror.
+		LLSD args;
+		args["OFFERS"] = notification["payload"]["ids"].size();
+		args["LIMIT"] = static_cast<int>(OFFER_RECIPIENT_LIMIT);
+		LLNotificationsUtil::add("TooManyTeleportOffers", args);
+		return false;
+	}
+	
 	std::string text = response["message"].asString();
 	LLSLURL slurl;
 	LLAgentUI::buildSLURL(slurl);
@@ -6483,10 +6490,14 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	LLSD payload;
 
 	LLUUID object_id;
-    LLUUID owner_id;
-
 	msg->getUUID("Data", "ObjectID", object_id);
-    msg->getUUID("OwnerData", "OwnerID", owner_id);
+
+//	For compability with OS grids first check for presence of extended packet before fetching data.
+    LLUUID owner_id;
+	if (gMessageSystem->getNumberOfBlocks("OwnerData") > 0)
+	{
+		msg->getUUID("OwnerData", "OwnerID", owner_id);
+	}
 
 	if (LLMuteList::getInstance()->isMuted(object_id) || LLMuteList::getInstance()->isMuted(owner_id))
 	{

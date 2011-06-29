@@ -41,7 +41,7 @@
 				<button label="儲存" name="save_btn"/>
 			</layout_panel>
 			<layout_panel name="cancel_btn_lp">
-				<button label="取銷" name="cancel_btn"/>
+				<button label="取消" name="cancel_btn"/>
 			</layout_panel>
 		</layout_stack>
 	</panel>

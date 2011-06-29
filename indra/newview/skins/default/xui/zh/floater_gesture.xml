@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Places" name="gestures" title="姿勢">
+<floater label="地點" name="gestures" title="姿勢">
 	<floater.string name="loading">
 		載入中...
 	</floater.string>
@@ -16,11 +16,11 @@
 	</scroll_list>
 	<panel label="bottom_panel" name="bottom_panel">
 		<menu_button name="gear_btn" tool_tip="更多選項"/>
-		<button name="new_gesture_btn" tool_tip="Make new gesture"/>
+		<button name="new_gesture_btn" tool_tip="製作新姿勢e"/>
 		<button name="activate_btn" tool_tip="Activate/Deactivate selected gesture"/>
-		<button name="del_btn" tool_tip="Delete this gesture"/>
+		<button name="del_btn" tool_tip="刪除這個姿勢"/>
 	</panel>
 	<button label="編輯" name="edit_btn"/>
-	<button label="Play" name="play_btn"/>
-	<button label="Stop" name="stop_btn"/>
+	<button label="播放" name="play_btn"/>
+	<button label="停止" name="stop_btn"/>
 </floater>

@@ -90,5 +90,5 @@
 		* Incomplete reports won&apos;t be investigated
 	</text>
 	<button label="舉報濫用" label_selected="舉報濫用" name="send_btn"/>
-	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
+	<button label="取消" label_selected="取消" name="cancel_btn"/>
 </floater>
