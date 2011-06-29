@@ -30,12 +30,13 @@
 #include "llmeshrepository.h"
 #include "llmodel.h"
 #include "llthread.h"
+#include "llfloatermodeluploadbase.h"
 
 
 class LLModelPreview;
 
 
-class LLFloaterModelWizard : public LLFloater
+class LLFloaterModelWizard : public LLFloaterModelUploadBase
 {
 public:
 	
@@ -62,12 +63,20 @@ public:
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
-	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
+	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
+
+	/*virtual*/ void onOpen(const LLSD& key);
 
 	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
 	void modelLoadedCallback();
 	void initDecompControls();
 	
+	// shows warning message if agent has no permissions to upload model
+	void onPermReceived(const LLSD& result);
+
+	// called when error occurs during permissions request
+	void setPermErrorStatus(U32 status, const std::string& reason);
+
 	const LLRect& getPreviewRect() const { return mPreviewRect; }
 
 	LLPhysicsDecomp::decomp_params mDecompParams;

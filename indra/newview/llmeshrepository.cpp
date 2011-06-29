@@ -62,6 +62,7 @@
 #include "llinventorymodel.h"
 #include "llfoldertype.h"
 #include "llviewerparcelmgr.h"
+#include "lluploadfloaterobservers.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -554,10 +555,12 @@ class LLWholeModelFeeResponder: public LLCurl::Responder
 {
 	LLMeshUploadThread* mThread;
 	LLSD mModelData;
+	LLHandle<LLWholeModelFeeObserver> mObserverHandle;
 public:
-	LLWholeModelFeeResponder(LLMeshUploadThread* thread, LLSD& model_data):
+	LLWholeModelFeeResponder(LLMeshUploadThread* thread, LLSD& model_data, LLHandle<LLWholeModelFeeObserver> observer_handle):
 		mThread(thread),
-		mModelData(model_data)
+		mModelData(model_data),
+		mObserverHandle(observer_handle)
 	{
 	}
 	virtual void completed(U32 status,
@@ -573,11 +576,21 @@ public:
 		llinfos << "completed" << llendl;
 		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_fee_response_",dump_num));
+
 		if (isGoodStatus(status) &&
 			cc["state"].asString() == "upload")
 		{
 			llinfos << "fee request succeeded" << llendl;
-			mThread->mWholeModelUploadURL = cc["uploader"].asString(); 
+			mThread->mWholeModelUploadURL = cc["uploader"].asString();
+
+			LLWholeModelFeeObserver* observer = mObserverHandle.get();
+			if (observer)
+			{
+				S32 fee = cc["upload_price"].asInteger();
+				F64 phys = cc["data"]["physics_cost"].asReal();
+
+				observer->onModelPhysicsFeeReceived(phys, fee, mThread->mWholeModelUploadURL);
+			}
 		}
 		else
 		{
@@ -1376,9 +1389,11 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 }
 
 LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
-										bool upload_skin, bool upload_joints)
+										bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload)
 : LLThread("mesh upload"),
-	mDiscarded(FALSE)
+	mDiscarded(FALSE),
+	mDoUpload(do_upload),
+	mWholeModelUploadURL(upload_url)
 {
 	mInstanceList = data;
 	mUploadTextures = upload_textures;
@@ -1456,7 +1471,14 @@ BOOL LLMeshUploadThread::isDiscarded()
 
 void LLMeshUploadThread::run()
 {
-	doWholeModelUpload();
+	if (mDoUpload)
+	{
+		doWholeModelUpload();
+	}
+	else
+	{
+		requestWholeModelFee();
+	}
 }
 
 void dump_llsd_to_file(const LLSD& content, std::string filename)
@@ -1650,54 +1672,90 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	dest = result;
 }
 
+void LLMeshUploadThread::queueUpModels()
+{
+	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
+		{
+			LLMeshUploadData data;
+			data.mBaseModel = iter->first;
+
+			LLModelInstance& instance = *(iter->second.begin());
+
+			for (S32 i = 0; i < 5; i++)
+			{
+				data.mModel[i] = instance.mLOD[i];
+			}
+
+			//queue up models for hull generation
+			LLModel* physics = NULL;
+
+			if (data.mModel[LLModel::LOD_PHYSICS].notNull())
+			{
+				physics = data.mModel[LLModel::LOD_PHYSICS];
+			}
+			else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
+			{
+				physics = data.mModel[LLModel::LOD_MEDIUM];
+			}
+			else
+			{
+				physics = data.mModel[LLModel::LOD_HIGH];
+			}
+
+			llassert(physics != NULL);
+
+			DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
+			if(request->isValid())
+			{
+				gMeshRepo.mDecompThread->submitRequest(request);
+			}
+		}
+
+		while (!mPhysicsComplete)
+		{
+			apr_sleep(100);
+		}
+}
+
 void LLMeshUploadThread::doWholeModelUpload()
 {
+	mCurlRequest = new LLCurlRequest();
+
+	if (mWholeModelUploadURL.empty())
+	{
+		llinfos << "unable to upload, fee request failed" << llendl;
+	}
+	else
+	{
+		queueUpModels();
+
+		LLSD full_model_data;
+		wholeModelToLLSD(full_model_data, true);
+		LLSD body = full_model_data["asset_resources"];
+		dump_llsd_to_file(body,make_dump_name("whole_model_body_",dump_num));
+		LLCurlRequest::headers_t headers;
+		mCurlRequest->post(mWholeModelUploadURL, headers, body,
+						   new LLWholeModelUploadResponder(this, full_model_data), mMeshUploadTimeOut);
+		do
+		{
+			mCurlRequest->process();
+		} while (mCurlRequest->getQueued() > 0);
+	}
+
+	delete mCurlRequest;
+	mCurlRequest = NULL;
+
+	// Currently a no-op.
+	mFinished = true;
+}
+
+void LLMeshUploadThread::requestWholeModelFee()
+{
 	dump_num++;
-	
-	mCurlRequest = new LLCurlRequest();	
 
-	// Queue up models for hull generation (viewer-side)
-	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
-	{
-		LLMeshUploadData data;
-		data.mBaseModel = iter->first;
+	mCurlRequest = new LLCurlRequest();
 
-		LLModelInstance& instance = *(iter->second.begin());
-
-		for (S32 i = 0; i < 5; i++)
-		{
-			data.mModel[i] = instance.mLOD[i];
-		}
-
-		//queue up models for hull generation
-		LLModel* physics = NULL;
-
-		if (data.mModel[LLModel::LOD_PHYSICS].notNull())
-		{
-			physics = data.mModel[LLModel::LOD_PHYSICS];
-		}
-		else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
-		{
-			physics = data.mModel[LLModel::LOD_MEDIUM];
-		}
-		else
-		{
-			physics = data.mModel[LLModel::LOD_HIGH];
-		}
-
-		llassert(physics != NULL);
-		
-		DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
-		if(request->isValid())
-		{
-			gMeshRepo.mDecompThread->submitRequest(request);
-		}		
-	}
-
-	while (!mPhysicsComplete)
-	{
-		apr_sleep(100);
-	}
+	queueUpModels();
 
 	LLSD model_data;
 	wholeModelToLLSD(model_data,false);
@@ -1706,31 +1764,12 @@ void LLMeshUploadThread::doWholeModelUpload()
 	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
 	mCurlRequest->post(mWholeModelFeeCapability, headers, model_data,
-					   new LLWholeModelFeeResponder(this,model_data), mMeshUploadTimeOut);
+					   new LLWholeModelFeeResponder(this,model_data, mObserverHandle), mMeshUploadTimeOut);
 
 	do
 	{
 		mCurlRequest->process();
 	} while (mCurlRequest->getQueued() > 0);
-
-
-	if (mWholeModelUploadURL.empty())
-	{
-		llinfos << "unable to upload, fee request failed" << llendl;
-	}
-	else
-	{
-		LLSD full_model_data;
-		wholeModelToLLSD(full_model_data, true);
-		LLSD body = full_model_data["asset_resources"];
-		dump_llsd_to_file(body,make_dump_name("whole_model_body_",dump_num));
-		mCurlRequest->post(mWholeModelUploadURL, headers, body,
-						   new LLWholeModelUploadResponder(this, model_data), mMeshUploadTimeOut);
-		do
-		{
-			mCurlRequest->process();
-		} while (mCurlRequest->getQueued() > 0);
-	}
 
 	delete mCurlRequest;
 	mCurlRequest = NULL;
@@ -2836,9 +2875,9 @@ LLSD& LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
 
 
 void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
-									bool upload_skin, bool upload_joints)
+									bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload)
 {
-	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures, upload_skin, upload_joints);
+	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures, upload_skin, upload_joints, upload_url, do_upload);
 	mUploadWaitList.push_back(thread);
 }
 

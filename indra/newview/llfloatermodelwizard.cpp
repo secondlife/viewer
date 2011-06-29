@@ -52,7 +52,7 @@ static	const std::string stateNames[]={
 static void swap_controls(LLUICtrl* first_ctrl, LLUICtrl* second_ctrl, bool first_ctr_visible);
 
 LLFloaterModelWizard::LLFloaterModelWizard(const LLSD& key)
-	: LLFloater(key)
+	: LLFloaterModelUploadBase(key)
 	 ,mRecalculateGeometryBtn(NULL)
 	 ,mRecalculatePhysicsBtn(NULL)
 	 ,mRecalculatingPhysicsBtn(NULL)
@@ -396,6 +396,13 @@ BOOL LLFloaterModelWizard::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
+
+/*virtual*/
+void LLFloaterModelWizard::onOpen(const LLSD& key)
+{
+	requestAgentUploadPermissions();
+}
+
 void LLFloaterModelWizard::initDecompControls()
 {
 	LLSD key;
@@ -451,6 +458,15 @@ void LLFloaterModelWizard::initDecompControls()
 	}
 
 	mDecompParams["Simplify Method"] = 0; // set it to retain %
+}
+
+void LLFloaterModelWizard::onPermReceived(const LLSD& result)
+{
+}
+
+void LLFloaterModelWizard::setPermErrorStatus(U32 status, const std::string& reason)
+{
+	llwarns << "LLFloaterModelWizard::setPermErrors(" << status << " : " << reason << ")" << llendl;
 }
 
 //static
@@ -623,7 +639,7 @@ void LLFloaterModelWizard::onUpload()
 	mModelPreview->rebuildUploadData();
 	
 	gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale, 
-						  true, false, false);
+						  true, false, false, mUploadModelUrl, true);
 	
 	setState(UPLOAD);
 	

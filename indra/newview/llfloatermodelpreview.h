@@ -140,7 +140,7 @@ private:
 	static bool isAlive(LLModelLoader* loader) ;
 };
 
-class LLFloaterModelPreview : public LLFloater
+class LLFloaterModelPreview : public LLFloaterModelUploadBase
 {
 public:
 	
@@ -167,6 +167,8 @@ public:
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
 	
+	/*virtual*/ void onOpen(const LLSD& key);
+
 	static void onMouseCaptureLostModelPreview(LLMouseHandler*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 
@@ -193,6 +195,16 @@ public:
 	void setViewOptionEnabled(const std::string& option, bool enabled);
 	void enableViewOption(const std::string& option);
 	void disableViewOption(const std::string& option);
+
+	// shows warning message if agent has no permissions to upload model
+	/*virtual*/ void onPermReceived(const LLSD& result);
+
+	// called when error occurs during permissions request
+	/*virtual*/ void setPermErrorStatus(U32 status, const std::string& reason);
+
+	/*virtual*/ void onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url);
+
+	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
 
 protected:
 	friend class LLModelPreview;
@@ -259,6 +271,14 @@ protected:
 	LLToggleableMenu* mViewOptionMenu;
 	LLMutex* mStatusLock;
 
+private:
+	void onClickCalculateBtn();
+
+	// Toggles between "Calculate weights & fee" and "Upload" buttons.
+	void toggleCalculateButton(bool visible);
+
+	LLButton* mUploadBtn;
+	LLButton* mCalculateBtn;
 };
 
 class LLMeshFilePicker : public LLFilePickerThread

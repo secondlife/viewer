@@ -71,6 +71,7 @@
 #include "llmatrix4a.h"
 #include "llmenubutton.h"
 #include "llmeshrepository.h"
+#include "llnotificationsutil.h"
 #include "llsdutil_math.h"
 #include "lltextbox.h"
 #include "lltoolmgr.h"
@@ -353,7 +354,9 @@ void LLMeshFilePicker::notify(const std::string& filename)
 // LLFloaterModelPreview()
 //-----------------------------------------------------------------------------
 LLFloaterModelPreview::LLFloaterModelPreview(const LLSD& key) :
-LLFloater(key)
+LLFloaterModelUploadBase(key),
+mUploadBtn(NULL),
+mCalculateBtn(NULL)
 {
 	sInstance = this;
 	mLastMouseX = 0;
@@ -422,8 +425,6 @@ BOOL LLFloaterModelPreview::postBuild()
 	
 	childDisable("ok_btn");
 
-	childSetCommitCallback("confirm_checkbox", refresh, this);
-
 	mViewOptionMenuButton = getChild<LLMenuButton>("options_gear_btn");
 
 	mCommitCallbackRegistrar.add("ModelImport.ViewOption.Action", boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _2));
@@ -472,6 +473,13 @@ BOOL LLFloaterModelPreview::postBuild()
 			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
 		}
 	}
+
+	mUploadBtn = getChild<LLButton>("ok_btn");
+	mCalculateBtn = getChild<LLButton>("calculate_btn");
+
+	mCalculateBtn->setClickedCallback(boost::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
+
+	toggleCalculateButton(true);
 
 	return TRUE;
 }
@@ -551,6 +559,26 @@ void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name)
 	mModelPreview->loadModel(file_name, lod);
 }
 
+void LLFloaterModelPreview::onClickCalculateBtn()
+{
+	childSetTextArg("weights", "[EQ]", llformat("%d", mModelPreview->mResourceCost));
+
+	mModelPreview->rebuildUploadData();
+
+	bool upload_skinweights = childGetValue("upload_skin").asBoolean();
+	bool upload_joint_positions = childGetValue("upload_joints").asBoolean();
+
+	mUploadModelUrl.clear();
+	LLMeshUploadThread* thread = new LLMeshUploadThread(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
+			childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mUploadModelUrl, false);
+
+	thread->setObserverHandle(getWholeModelFeeObserverHandle());
+
+	gMeshRepo.mUploadWaitList.push_back(thread);
+
+	toggleCalculateButton(false);
+}
+
 //static
 void LLFloaterModelPreview::onImportScaleCommit(LLUICtrl*,void* userdata)
 {
@@ -561,7 +589,8 @@ void LLFloaterModelPreview::onImportScaleCommit(LLUICtrl*,void* userdata)
 		return;
 	}
 
-	fp->mModelPreview->calcResourceCost();
+	fp->toggleCalculateButton(true);
+
 	fp->mModelPreview->refresh();
 }
 //static
@@ -573,7 +602,9 @@ void LLFloaterModelPreview::onPelvisOffsetCommit( LLUICtrl*, void* userdata )
 	{
 		return;
 	}
-	fp->mModelPreview->calcResourceCost();
+
+	fp->toggleCalculateButton(true);
+
 	fp->mModelPreview->refresh();
 }
 
@@ -623,7 +654,8 @@ void LLFloaterModelPreview::onUploadSkinCommit(LLUICtrl*,void* userdata)
 		return;
 	}
 	
-	fp->mModelPreview->calcResourceCost();
+	fp->toggleCalculateButton(true);
+
 	fp->mModelPreview->refresh();
 	fp->mModelPreview->resetPreviewTarget();
 	fp->mModelPreview->clearBuffers();
@@ -653,6 +685,7 @@ void LLFloaterModelPreview::onGenerateNormalsCommit(LLUICtrl* ctrl, void* userda
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
 
+	fp->toggleCalculateButton(true);
 	fp->mModelPreview->generateNormals();
 }
 
@@ -676,6 +709,8 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 void LLFloaterModelPreview::onLODParamCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
+
+	fp->toggleCalculateButton(true);
 	fp->mModelPreview->onLODParamCommit(false);
 }
 
@@ -683,6 +718,7 @@ void LLFloaterModelPreview::onLODParamCommit(LLUICtrl* ctrl, void* userdata)
 void LLFloaterModelPreview::onLODParamCommitTriangleLimit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
+	fp->toggleCalculateButton(true);
 	fp->mModelPreview->onLODParamCommit(true);
 }
 
@@ -713,6 +749,8 @@ void LLFloaterModelPreview::draw()
 			childSetTextArg("status", "[STATUS]", getString("status_idle"));
 		}
 	}
+
+	childSetEnabled("ok_btn", mHasUploadPerm);
 
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
@@ -869,6 +907,12 @@ BOOL LLFloaterModelPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	}
 
 	return TRUE;
+}
+
+/*virtual*/
+void LLFloaterModelPreview::onOpen(const LLSD& key)
+{
+	requestAgentUploadPermissions();
 }
 
 //static
@@ -2926,8 +2970,7 @@ U32 LLModelPreview::calcResourceCost()
 
 	if (mFMP && mModelLoader)
 	{
-		const BOOL confirmed_checkbox = mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean();
-		if ( getLoadState() < LLModelLoader::ERROR_PARSING && confirmed_checkbox )
+		if ( getLoadState() < LLModelLoader::ERROR_PARSING)
 		{
 			mFMP->childEnable("ok_btn");
 		}
@@ -3038,8 +3081,6 @@ void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, 
 	childSetTextArg("import_dimensions", "[X]", llformat("%.3f", x));
 	childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", y));
 	childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", z));
-	childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
-	childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 }
 
 
@@ -3069,8 +3110,7 @@ void LLModelPreview::rebuildUploadData()
 
 	F32 max_scale = 0.f;
 
-	const BOOL confirmed_checkbox = mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean();
-	if ( mBaseScene.size() > 0 && confirmed_checkbox )
+	if ( mBaseScene.size() > 0)
 	{
 		mFMP->childEnable("ok_btn");
 	}
@@ -3476,8 +3516,7 @@ void LLModelPreview::loadModelCallback(S32 lod)
 	}
 
 	mLoading = false;
-	if (mFMP)
-		mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->set(FALSE);
+
 	refresh();
 
 	mModelLoadedSignal();
@@ -4185,8 +4224,7 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
-	const BOOL confirmed_checkbox = mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean();
-	if ( upload_ok && !errorStateFromLoader && skinAndRigOk && !has_degenerate && confirmed_checkbox)
+	if ( upload_ok && !errorStateFromLoader && skinAndRigOk && !has_degenerate)
 	{
 		mFMP->childEnable("ok_btn");
 	}
@@ -5314,7 +5352,7 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
 
 	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
-						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions);
+						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mp->mUploadModelUrl);
 
 	mp->closeFloater(false);
 }
@@ -5330,6 +5368,7 @@ void LLFloaterModelPreview::onClearMaterials(void* user_data)
 //static
 void LLFloaterModelPreview::refresh(LLUICtrl* ctrl, void* user_data)
 {
+	sInstance->toggleCalculateButton(true);
 	sInstance->mModelPreview->mDirty = true;
 }
 
@@ -5382,6 +5421,34 @@ void LLFloaterModelPreview::setStatusMessage(const std::string& msg)
 	mStatusMessage = msg;
 }
 
+void LLFloaterModelPreview::toggleCalculateButton(bool visible)
+{
+	mCalculateBtn->setVisible(visible);
+	mUploadBtn->setVisible(!visible);
+	mUploadBtn->setEnabled(mHasUploadPerm);
+
+	if (visible)
+	{
+		std::string tbd = getString("tbd");
+		childSetTextArg("weights", "[EQ]", tbd);
+		childSetTextArg("weights", "[PH]", tbd);
+		childSetTextArg("weights", "[FEE]", tbd);
+	}
+}
+
+void LLFloaterModelPreview::onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url)
+{
+	mUploadModelUrl = upload_url;
+	childSetTextArg("weights", "[PH]", llformat("%.3f", physics));
+	childSetTextArg("weights", "[FEE]", llformat("%d", fee));
+	childSetVisible("weights", true);
+}
+
+void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason)
+{
+	llwarns << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << llendl;
+}
+
 S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32 p1, S32 p2)
 {
 	if (mContinue)
@@ -5420,4 +5487,21 @@ void LLFloaterModelPreview::DecompRequest::completed()
 	{
 		llassert(sInstance->mCurRequest.find(this) == sInstance->mCurRequest.end());
 	}
+}
+
+void LLFloaterModelPreview::onPermReceived(const LLSD& result)
+{
+	std::string upload_status = result["mesh_upload_status"].asString();
+	mHasUploadPerm = "valid" == upload_status;
+
+	mUploadBtn->setEnabled(mHasUploadPerm);
+	getChild<LLTextBox>("warning_title")->setVisible(mHasUploadPerm);
+	getChild<LLTextBox>("warning_message")->setVisible(mHasUploadPerm);
+}
+
+void LLFloaterModelPreview::setPermErrorStatus(U32 status, const std::string& reason)
+{
+	llwarns << "LLFloaterModelPreview::setPermErrors(" << status << " : " << reason << ")" << llendl;
+
+	LLNotificationsUtil::add("MeshUploadPermError");
 }

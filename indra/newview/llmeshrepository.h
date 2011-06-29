@@ -36,6 +36,7 @@
 #define LLCONVEXDECOMPINTER_STATIC 1
 
 #include "llconvexdecomposition.h"
+#include "lluploadfloaterobservers.h"
 
 class LLVOVolume;
 class LLMeshResponder;
@@ -412,7 +413,7 @@ public:
 	std::map<LLViewerFetchedTexture*, LLTextureUploadData> mTextureMap;
 
 	LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
-			bool upload_skin, bool upload_joints);
+			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true);
 	~LLMeshUploadThread();
 
 	void uploadTexture(LLTextureUploadData& data);
@@ -433,7 +434,11 @@ public:
 	void discard() ;
 	BOOL isDiscarded();
 
+	// Queue up models for hull generation (viewer-side)
+	void queueUpModels();
+
 	void doWholeModelUpload();
+	void requestWholeModelFee();
 
 	void wholeModelToLLSD(LLSD& dest, bool include_textures);
 
@@ -441,6 +446,12 @@ public:
 							 LLVector3& result_pos,
 							 LLQuaternion& result_rot,
 							 LLVector3& result_scale);
+
+	void setObserverHandle(LLHandle<LLWholeModelFeeObserver> observer_handle) { mObserverHandle = observer_handle; }
+
+private:
+	LLHandle<LLWholeModelFeeObserver> mObserverHandle;
+	bool mDoUpload; // if FALSE only model data will be requested, otherwise the model will be uploaded
 };
 
 class LLMeshRepository
@@ -491,7 +502,7 @@ public:
 	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
-			bool upload_skin, bool upload_joints);
+			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true);
 
 	S32 getMeshSize(const LLUUID& mesh_id, S32 lod);
 
