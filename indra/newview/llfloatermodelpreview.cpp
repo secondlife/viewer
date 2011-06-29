@@ -5489,14 +5489,18 @@ void LLFloaterModelPreview::DecompRequest::completed()
 	}
 }
 
+void dump_llsd_to_file(const LLSD& content, std::string filename);
+
 void LLFloaterModelPreview::onPermReceived(const LLSD& result)
 {
+	dump_llsd_to_file(result,"perm_received.xml");
 	std::string upload_status = result["mesh_upload_status"].asString();
-	mHasUploadPerm = "valid" == upload_status;
+	// BAP HACK: handle "" for case that  MeshUploadFlag cap is broken.
+	mHasUploadPerm = (("" == upload_status) || ("valid" == upload_status));
 
 	mUploadBtn->setEnabled(mHasUploadPerm);
-	getChild<LLTextBox>("warning_title")->setVisible(mHasUploadPerm);
-	getChild<LLTextBox>("warning_message")->setVisible(mHasUploadPerm);
+	getChild<LLTextBox>("warning_title")->setVisible(!mHasUploadPerm);
+	getChild<LLTextBox>("warning_message")->setVisible(!mHasUploadPerm);
 }
 
 void LLFloaterModelPreview::setPermErrorStatus(U32 status, const std::string& reason)
