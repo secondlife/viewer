@@ -1385,7 +1385,7 @@ public:
 		else
 		{
 			// API in unavailable
-			llinfos << "Marketplace API is unavailable -- Inbox Disabled" << llendl;
+			llinfos << "Marketplace API is unavailable -- Inbox Disabled, status = " << status << ", reason = " << reason << llendl;
 		}
 	}
 };
