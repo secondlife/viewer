@@ -2480,7 +2480,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 				data.mPostData["name"],
 				data.mPostData["description"],
 				data.mResponse,
-				0);
+				data.mResponse["upload_price"]);
 			
 			mInventoryQ.pop();
 		}
