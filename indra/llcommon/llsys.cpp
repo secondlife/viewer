@@ -853,17 +853,14 @@ void LLMemoryInfo::stream(std::ostream& s) const
         s << pfx << "Total Physical KB:  " << phys << std::endl;
 
 #elif LL_LINUX
-	LLFILE* meminfo = LLFile::fopen(MEMINFO_FILE,"rb");
-	if(meminfo)
+	std::ifstream meminfo(MEMINFO_FILE);
+	if (meminfo.is_open())
 	{
-		char line[MAX_STRING];		/* Flawfinder: ignore */
-		memset(line, 0, sizeof(line));
-		while(fgets(line, sizeof(line), meminfo))
+		std::string line;
+		while (std::getline(meminfo, line))
 		{
-			line[strlen(line)-1] = ' ';		 /*Flawfinder: ignore*/
-			s << pfx << line;
+			s << pfx << line << '\n';
 		}
-		fclose(meminfo);
 	}
 	else
 	{
