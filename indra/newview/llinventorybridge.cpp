@@ -1798,6 +1798,10 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 			else
 			{
+				if (gInventory.isObjectDescendentOf(inv_cat->getUUID(), gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false)))
+				{
+					set_dad_inbox_object(inv_cat->getUUID());
+				}
 
 				// Reparent the folder and restamp children if it's moving
 				// into trash.
@@ -3176,6 +3180,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// (move the item, restamp if into trash)
 			else
 			{
+				// set up observer to select item once drag and drop from inbox is complete 
+				if (gInventory.isObjectDescendentOf(inv_item->getUUID(), gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false)))
+				{
+					set_dad_inbox_object(inv_item->getUUID());
+				}
+
 				LLInvFVBridge::changeItemParent(
 					model,
 					(LLViewerInventoryItem*)inv_item,
