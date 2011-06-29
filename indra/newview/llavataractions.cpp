@@ -773,6 +773,10 @@ bool LLAvatarActions::canOfferTeleport(const LLUUID& id)
 // static
 bool LLAvatarActions::canOfferTeleport(const uuid_vec_t& ids)
 {
+	// We can't send more than 250 lures in a single message, so disable this
+	// button when there are too many id's selected.
+	if(ids.size() > 250) return false;
+	
 	bool result = true;
 	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
