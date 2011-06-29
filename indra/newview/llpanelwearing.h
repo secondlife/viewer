@@ -66,6 +66,7 @@ public:
 
 private:
 	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+	void copyToClipboard();
 
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 	LLWearableItemsList* 			mCOFItemsList;

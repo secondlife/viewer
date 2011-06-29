@@ -38,6 +38,8 @@
 #include "llsidetray.h"
 #include "llviewermenu.h"
 #include "llwearableitemslist.h"
+#include "llsdserialize.h"
+#include "llclipboard.h"
 
 // Context menu and Gear menu helper.
 static void edit_outfit()
@@ -182,6 +184,7 @@ BOOL LLPanelWearing::postBuild()
 {
 	mCOFItemsList = getChild<LLWearableItemsList>("cof_items_list");
 	mCOFItemsList->setRightMouseDownCallback(boost::bind(&LLPanelWearing::onWearableItemsListRightClick, this, _1, _2, _3));
+	childSetAction("copy_to_clipboard", boost::bind(&LLPanelWearing::copyToClipboard, this));
 
 	LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
 
@@ -278,6 +281,29 @@ bool LLPanelWearing::hasItemSelected()
 void LLPanelWearing::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
 {
 	mCOFItemsList->getSelectedUUIDs(selected_uuids);
+}
+
+void LLPanelWearing::copyToClipboard()
+{
+	std::string text;
+	bool need_cr = false;
+	std::vector<LLSD> data;
+	mCOFItemsList->getValues(data);
+	for(std::vector<LLSD>::iterator iter = data.begin(); iter != data.end(); iter++)
+	{
+		LLSD uuid = (*iter);
+		LLViewerInventoryItem* item = gInventory.getItem(uuid);
+		if (!need_cr)
+		{
+			text += item->getName();
+			need_cr = true;
+		}
+		else
+		{
+			text += "\n" + item->getName();
+		}
+	}
+	gClipboard.copyFromString(utf8str_to_wstring(text));
 }
 
 // EOF
