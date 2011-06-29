@@ -577,6 +577,7 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 	gMeshRepo.mUploadWaitList.push_back(thread);
 
 	toggleCalculateButton(false);
+	mUploadBtn->setEnabled(false);
 }
 
 //static
@@ -750,7 +751,7 @@ void LLFloaterModelPreview::draw()
 		}
 	}
 
-	childSetEnabled("ok_btn", mHasUploadPerm);
+	childSetEnabled("ok_btn", mHasUploadPerm && !mUploadModelUrl.empty());
 
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
@@ -5425,7 +5426,8 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 {
 	mCalculateBtn->setVisible(visible);
 	mUploadBtn->setVisible(!visible);
-	mUploadBtn->setEnabled(mHasUploadPerm);
+	//mUploadBtn->setEnabled(mHasUploadPerm);
+	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
 
 	if (visible)
 	{
@@ -5442,6 +5444,7 @@ void LLFloaterModelPreview::onModelPhysicsFeeReceived(F64 physics, S32 fee, std:
 	childSetTextArg("weights", "[PH]", llformat("%.3f", physics));
 	childSetTextArg("weights", "[FEE]", llformat("%d", fee));
 	childSetVisible("weights", true);
+	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
 }
 
 void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason)
@@ -5498,7 +5501,8 @@ void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
 	// BAP HACK: handle "" for case that  MeshUploadFlag cap is broken.
 	mHasUploadPerm = (("" == upload_status) || ("valid" == upload_status));
 
-	mUploadBtn->setEnabled(mHasUploadPerm);
+	//mUploadBtn->setEnabled(mHasUploadPerm);
+	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
 	getChild<LLTextBox>("warning_title")->setVisible(!mHasUploadPerm);
 	getChild<LLTextBox>("warning_message")->setVisible(!mHasUploadPerm);
 }
