@@ -622,7 +622,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="im_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="41">
@@ -643,7 +643,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="call_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="52">
@@ -664,7 +664,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="share_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="66">
@@ -685,7 +685,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="teleport_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="77">
