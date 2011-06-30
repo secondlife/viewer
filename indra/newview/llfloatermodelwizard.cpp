@@ -481,11 +481,12 @@ void LLFloaterModelWizard::initDecompControls()
 void LLFloaterModelWizard::onPermissionsReceived(const LLSD& result)
 {
 	std::string upload_status = result["mesh_upload_status"].asString();
-	mHasUploadPerm = "valid" == upload_status;
+	// BAP HACK: handle "" for case that  MeshUploadFlag cap is broken.
+	mHasUploadPerm = (("" == upload_status) || ("valid" == upload_status));
 
 	getChildView("upload")->setEnabled(mHasUploadPerm);
-	getChildView("warning_label")->setVisible(mHasUploadPerm);
-	getChildView("warning_text")->setVisible(mHasUploadPerm);
+	getChildView("warning_label")->setVisible(!mHasUploadPerm);
+	getChildView("warning_text")->setVisible(!mHasUploadPerm);
 }
 
 /*virtual*/
