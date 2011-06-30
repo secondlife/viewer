@@ -424,12 +424,15 @@ public:
 	virtual void	setCompletedFilterGeneration(S32 generation, BOOL recurse_up);
 	virtual S32		getCompletedFilterGeneration() { return mCompletedFilterGeneration; }
 
-	BOOL hasFilteredDescendants(S32 filter_generation) { return mMostFilteredDescendantGeneration >= filter_generation; }
+	BOOL hasFilteredDescendants(S32 filter_generation);
 	BOOL hasFilteredDescendants();
 
 	// applies filters to control visibility of inventory items
 	virtual void filter( LLInventoryFilter& filter);
 	virtual void setFiltered(BOOL filtered, S32 filter_generation);
+	virtual BOOL getFiltered();
+	virtual BOOL getFiltered(S32 filter_generation);
+
 	virtual void dirtyFilter();
 	
 	// folder-specific filtering (filter status propagates top down instead of bottom up)

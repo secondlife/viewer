@@ -1204,9 +1204,9 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 				else
 				{
 					folderp->setVisible( folderp->getListener()
-										&&	((folderp->getFilteredFolder(filter_generation) 
-												&&	folderp->getFiltered(filter_generation)) 
-											||	folderp->hasFilteredDescendants(filter_generation))); // passed filter or has descendants that passed filter
+										&&	(folderp->getFiltered(filter_generation)
+											||	(folderp->getFilteredFolder(filter_generation) 
+												&& folderp->hasFilteredDescendants(filter_generation)))); // passed filter or has descendants that passed filter
 				}
 
 				if (folderp->getVisible())
@@ -1530,6 +1530,23 @@ void LLFolderViewFolder::dirtyFilter()
 	setCompletedFilterGeneration(-1, FALSE);
 	LLFolderViewItem::dirtyFilter();
 }
+
+BOOL LLFolderViewFolder::getFiltered() 
+{ 
+	return getFilteredFolder(getRoot()->getFilter()->getMinRequiredGeneration()) 
+		&& LLFolderViewItem::getFiltered(); 
+}
+
+BOOL LLFolderViewFolder::getFiltered(S32 filter_generation) 
+{
+	return getFilteredFolder(filter_generation) && LLFolderViewItem::getFiltered(filter_generation);
+}
+
+BOOL LLFolderViewFolder::hasFilteredDescendants(S32 filter_generation)
+{ 
+	return mMostFilteredDescendantGeneration >= filter_generation; 
+}
+
 
 BOOL LLFolderViewFolder::hasFilteredDescendants()
 {
