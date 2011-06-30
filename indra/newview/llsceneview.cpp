@@ -83,6 +83,9 @@ void LLSceneView::draw()
 	S32 total_visible_triangles[] = {0, 0};
 	S32 total_triangles[] = {0, 0};
 	
+	S32 total_visible_bytes[] = {0, 0};
+	S32 total_bytes[] = {0, 0};
+
 	//streaming cost
 	std::vector<F32> streaming_cost[2];
 	F32 total_streaming[] = { 0.f, 0.f };
@@ -122,13 +125,19 @@ void LLSceneView::draw()
 				visible_triangles[idx].push_back(visible);
 				triangles[idx].push_back(high_triangles);
 
-				F32 streaming = object->getStreamingCost();
+				S32 bytes = 0;
+				S32 visible_bytes = 0;
+
+				F32 streaming = object->getStreamingCost(&bytes, &visible_bytes);
 				total_streaming[idx] += streaming;
 				streaming_cost[idx].push_back(streaming);
 
 				F32 physics = object->getPhysicsCost();
 				total_physics[idx] += physics;
 				physics_cost[idx].push_back(physics);
+
+				total_bytes[idx] += bytes;
+				total_visible_bytes[idx] += visible_bytes;
 			}
 		}
 	}
@@ -279,8 +288,8 @@ void LLSceneView::draw()
 				total_visible += tri_count;	
 			}
 
-			std::string label = llformat("%s Object Triangle Counts (Ktris) -- [%.2f, %.2f] Mean: %.2f  Median: %.2f  Visible: %.2f/%.2f",
-											category[idx], tri_domain[0]/1024.f, tri_domain[1]/1024.f, (total/count)/1024.f, triangles[idx][count/2]/1024.f, total_visible_triangles[idx]/1024.f, total_triangles[idx]/1024.f);
+			std::string label = llformat("%s Object Triangle Counts (Ktris) -- Visible: %.2f/%.2f (%.2f KB Visible)",
+				category[idx], total_visible_triangles[idx]/1024.f, total_triangles[idx]/1024.f, total_visible_bytes[idx]/1024.f);
 
 			LLFontGL::getFontMonospace()->renderUTF8(label,
 											0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
