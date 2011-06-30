@@ -452,6 +452,7 @@ Jonathan Yap
 	STORM-899
 	STORM-1273
 	STORM-457
+	STORM-1452
 	STORM-1406
 	STORM-1327
 	STORM-1396
@@ -791,6 +792,7 @@ Strife Onizuka
 	SNOW-691
 TankMaster Finesmith
 	STORM-1100
+	STORM-1452
 Tayra Dagostino
 	SNOW-517
 	SNOW-543
