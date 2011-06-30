@@ -62,7 +62,9 @@ LLCalc::LLCalc() : mLastErrorPos(0)
 	(*mConstants)["PI"] = F_PI;
 	(*mConstants)["TWO_PI"] = F_TWO_PI;
 	(*mConstants)["PI_BY_TWO"] = F_PI_BY_TWO;
+	(*mConstants)["SQRT_TWO_PI"] = F_SQRT_TWO_PI;
 	(*mConstants)["SQRT2"] = F_SQRT2;
+	(*mConstants)["SQRT3"] = F_SQRT3;
 	(*mConstants)["DEG_TO_RAD"] = DEG_TO_RAD;
 	(*mConstants)["RAD_TO_DEG"] = RAD_TO_DEG;
 	(*mConstants)["GRAVITY"] = GRAVITY;

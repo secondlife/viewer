@@ -73,7 +73,9 @@ struct LLCalcParser : grammar<LLCalcParser>
 				 (str_p("SQRT") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_sqrt)(self,arg1)]) |
 				 (str_p("LOG") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_log)(self,arg1)]) |
 				 (str_p("EXP") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_exp)(self,arg1)]) |
-				 (str_p("ABS") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_fabs)(self,arg1)])
+				 (str_p("ABS") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_fabs)(self,arg1)]) |
+				 (str_p("FLR") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_floor)(self,arg1)]) |
+				 (str_p("CEIL") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_ceil)(self,arg1)])
 				) >> assert_syntax(ch_p(')'))
 			;
 			
@@ -118,7 +120,8 @@ struct LLCalcParser : grammar<LLCalcParser>
 			term =
 				power[term.value = arg1] >>
 				*(('*' >> assert_syntax(power[term.value *= arg1])) |
-				  ('/' >> assert_syntax(power[term.value /= arg1]))
+				  ('/' >> assert_syntax(power[term.value /= arg1])) |
+				  ('%' >> assert_syntax(power[term.value = bind(&fmodf)(term.value, arg1)]))
 				)
 			;
 			
@@ -153,7 +156,9 @@ private:
 	F32 _sqrt(const F32& a) const { return sqrt(a); }
 	F32 _log(const F32& a) const { return log(a); }
 	F32 _exp(const F32& a) const { return exp(a); }
-	F32 _fabs(const F32& a) const { return fabs(a) * RAD_TO_DEG; }
+	F32 _fabs(const F32& a) const { return fabs(a); }
+	F32 _floor(const F32& a) const { return llfloor(a); }
+	F32 _ceil(const F32& a) const { return llceil(a); }
 
 	F32 _atan2(const F32& a,const F32& b) const { return atan2(a,b); }
 
