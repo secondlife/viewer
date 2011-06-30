@@ -558,11 +558,15 @@ bool LLSidepanelInventory::canShare()
 
 	LLInventoryPanel* inbox = findChild<LLInventoryPanel>("inventory_inbox");
 
+	// Avoid flicker in the Recent tab while inventory is being loaded.
+	if ( (!inbox || inbox->getRootFolder()->getSelectionList().empty())
+		&& (panel_main_inventory && !panel_main_inventory->getActivePanel()->getRootFolder()->hasVisibleChildren()) )
+	{
+		return false;
+	}
+
 	return ( (panel_main_inventory ? LLAvatarActions::canShareSelectedItems(panel_main_inventory->getActivePanel()) : false)
 			|| (inbox ? LLAvatarActions::canShareSelectedItems(inbox) : false) );
-		
-	// Avoid flicker in the Recent tab while inventory is being loaded.
-	//if (!active_panel->getRootFolder()->hasVisibleChildren()) return false;
 }
 
 
