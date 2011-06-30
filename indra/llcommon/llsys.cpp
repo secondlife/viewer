@@ -50,6 +50,7 @@
 #include <boost/regex.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/range.hpp>
 
 using namespace llsd;
 
@@ -955,7 +956,8 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 
 		boost::regex pagesize_rx("\\(page size of ([0-9]+) bytes\\)");
 		boost::regex stat_rx("(.+): +([0-9]+)\\.");
-		boost::regex pages_rx("Pages ");
+		boost::regex cache_rx("Object cache: ([0-9]+) hits of ([0-9]+) lookups "
+							  "\\(([0-9]+)% hit rate\\)");
 		boost::cmatch matched;
 		LLSD::Integer pagesizekb(4096/1024);
 
@@ -970,39 +972,79 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 			{
 				line[--linelen] = '\0';
 			}
-			if (boost::regex_search(&line[0], line+linelen, matched, pagesize_rx))
+			if (boost::regex_search(line, matched, pagesize_rx))
 			{
 				// "Mach Virtual Memory Statistics: (page size of 4096 bytes)"
 				std::string pagesize_str(matched[1].first, matched[1].second);
-				// Reasonable to assume that pagesize will always be a
-				// multiple of 1Kb?
-				pagesizekb = boost::lexical_cast<LLSD::Integer>(pagesize_str)/1024;
+				try
+				{
+					// Reasonable to assume that pagesize will always be a
+					// multiple of 1Kb?
+					pagesizekb = boost::lexical_cast<LLSD::Integer>(pagesize_str)/1024;
+				}
+				catch (const boost::bad_lexical_cast&)
+				{
+					LL_WARNS("LLMemoryInfo") << "couldn't parse '" << pagesize_str
+											 << "' in vm_stat line: " << line << LL_ENDL;
+					continue;
+				}
+				mData.append(LLSDArray("page size")(pagesizekb));
 			}
-			else if (boost::regex_match(&line[0], line+linelen, matched, stat_rx))
+			else if (boost::regex_match(line, matched, stat_rx))
 			{
 				// e.g. "Pages free:					 462078."
 				// Strip double-quotes off certain statistic names
-				if (matched[1].first[0] == '"' && matched[1].second[-1] == '"')
+				const char *key_begin(matched[1].first), *key_end(matched[1].second);
+				if (key_begin[0] == '"' && key_end[-1] == '"')
 				{
-					++matched[1].first;
-					--matched[1].second;
+					++key_begin;
+					--key_end;
 				}
-				LLSD::String key(matched[1].first, matched[1].second);
+				LLSD::String key(key_begin, key_end);
 				LLSD::String value_str(matched[2].first, matched[2].second);
-				LLSD::Integer value(boost::lexical_cast<LLSD::Integer>(value_str));
+				LLSD::Integer value(0);
+				try
+				{
+					value = boost::lexical_cast<LLSD::Integer>(value_str);
+				}
+				catch (const boost::bad_lexical_cast&)
+				{
+					LL_WARNS("LLMemoryInfo") << "couldn't parse '" << value_str
+											 << "' in vm_stat line: " << line << LL_ENDL;
+					continue;
+				}
 				// Store this statistic.
 				mData.append(LLSDArray(key)(value));
 				// Is this in units of pages? If so, convert to Kb.
-				// boost::regex_match() doc sez: "If you want to match a
-				// prefix of the character string then use regex_search with
-				// the flag match_continuous set."
-				boost::smatch smatched;
-				if (boost::regex_search(key, smatched, pages_rx, boost::match_continuous))
+				static const LLSD::String pages("Pages ");
+				if (key.substr(0, pages.length()) == pages)
 				{
-					// Synthesize a new key with kB in place of Pages
-					LLSD::String kbkey("kB ");
-					kbkey.append(smatched[0].second, key.end());
+					// Synthesize a new key with kb in place of Pages
+					LLSD::String kbkey("kb ");
+					kbkey.append(key.substr(pages.length()));
 					mData.append(LLSDArray(kbkey)(value * pagesizekb));
+				}
+			}
+			else if (boost::regex_match(line, matched, cache_rx))
+			{
+				// e.g. "Object cache: 841598 hits of 7629869 lookups (11% hit rate)"
+				static const char* cache_keys[] = { "cache hits", "cache lookups", "cache hit%" };
+				std::vector<LLSD::Integer> cache_values;
+				for (size_t i = 0; i < (sizeof(cache_keys)/sizeof(cache_keys[0])); ++i)
+				{
+					LLSD::String value_str(matched[i+1].first, matched[i+1].second);
+					LLSD::Integer value(0);
+					try
+					{
+						value = boost::lexical_cast<LLSD::Integer>(value_str);
+					}
+					catch (boost::bad_lexical_cast&)
+					{
+						LL_WARNS("LLMemoryInfo") << "couldn't parse '" << value_str
+												 << "' in vm_stat line: " << line << LL_ENDL;
+						continue;
+					}
+					mData.append(LLSDArray(cache_keys[i])(value));
 				}
 			}
 			else
@@ -1055,7 +1097,18 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 				// e.g. "MemTotal:		4108424 kB"
 				LLSD::String key(matched[1].first, matched[1].second);
 				LLSD::String value_str(matched[2].first, matched[2].second);
-				LLSD::Integer value(boost::lexical_cast<LLSD::Integer>(value_str));
+				LLSD::Integer value(0);
+				try
+				{
+					value = boost::lexical_cast<LLSD::Integer>(value_str);
+				}
+				catch (const boost::bad_lexical_cast&)
+				{
+					LL_WARNS("LLMemoryInfo") << "couldn't parse '" << value_str
+											 << "' in " << MEMINFO_FILE << " line: "
+											 << line << LL_ENDL;
+					continue;
+				}
 				// Store this statistic.
 				mData.append(LLSDArray(key)(value));
 			}
