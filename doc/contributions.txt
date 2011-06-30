@@ -103,6 +103,7 @@ Ales Beaumont
 Alexandrea Fride
     STORM-255
 	STORM-960
+	STORM-1327
 Alissa Sabre
 	VWR-81
 	VWR-83
@@ -450,6 +451,7 @@ Jonathan Yap
 	STORM-899
 	STORM-1273
 	STORM-457
+	STORM-1327
 	STORM-1396
 	STORM-1292
 	STORM-1392
