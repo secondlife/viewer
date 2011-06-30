@@ -386,6 +386,7 @@ void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, b
 	{
 		bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 		getChild<LLButton>("speak_flyout_btn")->setEnabled(voice_status);
+		gMenuBarView->getChild<LLView>("Nearby Voice")->setEnabled(voice_status);
 		if (voice_status)
 		{
 			LLFirstUse::speak(true);
@@ -570,7 +571,7 @@ BOOL LLBottomTray::postBuild()
 	// it takes some time between logging in to world and connecting to voice channel.
 	getChild<LLButton>("speak_btn")->setEnabled(false);
 	getChild<LLButton>("speak_flyout_btn")->setEnabled(false);
-
+	gMenuBarView->getChild<LLView>("Nearby Voice")->setEnabled(false);
 
 	// Registering Chat Bar to receive Voice client status change notifications.
 	LLVoiceClient::getInstance()->addObserver(this);
