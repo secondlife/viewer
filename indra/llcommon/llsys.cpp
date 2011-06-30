@@ -1050,7 +1050,7 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 		std::string line;
 		while (std::getline(meminfo, line))
 		{
-			if (boost::regex_match(line, line+linelen, matched, stat_rx))
+			if (boost::regex_match(line, matched, stat_rx))
 			{
 				// e.g. "MemTotal:		4108424 kB"
 				LLSD::String key(matched[1].first, matched[1].second);
@@ -1068,11 +1068,11 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 	}
 	else
 	{
-		s << "Unable to collect memory information" << std::endl;
+		LL_WARNS("LLMemoryInfo") << "Unable to collect memory information" << LL_ENDL;
 	}
 
 #else
-	s << "Unknown system; unable to collect memory information" << std::endl;
+	LL_WARNS("LLMemoryInfo") << "Unknown system; unable to collect memory information" << LL_ENDL;
 
 #endif
 
