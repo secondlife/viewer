@@ -268,6 +268,9 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 	
 	toast->setOnFadeCallback(boost::bind(&LLNearbyChatScreenChannel::onToastFade, this, _1));
 
+	// If the toast gets somehow prematurely destroyed, deactivate it to prevent crash (STORM-1352).
+	toast->setOnToastDestroyedCallback(boost::bind(&LLNearbyChatScreenChannel::onToastDestroyed, this, _1, false));
+
 	LL_DEBUGS("NearbyChat") << "Creating and pooling toast" << llendl;	
 	m_toast_pool.push_back(toast->getHandle());
 	return true;
@@ -369,8 +372,10 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 	}
 }
 
-int sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> second)
+static bool sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> second)
 {
+	if (!first.get() || !second.get()) return false; // STORM-1352
+
 	F32 v1 = first.get()->getTimeLeftToLive();
 	F32 v2 = second.get()->getTimeLeftToLive();
 	return v1 > v2;
@@ -396,7 +401,11 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 	for(toast_vec_t::iterator it = m_active_toasts.begin(); it != m_active_toasts.end(); ++it)
 	{
 		LLToast* toast = it->get();
-		if (!toast) continue;
+		if (!toast)
+		{
+			llwarns << "NULL found in the active chat toasts list!" << llendl;
+			continue;
+		}
 
 		S32 toast_top = bottom + toast->getRect().getHeight() + margin;
 
@@ -472,7 +481,8 @@ void LLNearbyChatHandler::initChannel()
 
 
 
-void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
+void LLNearbyChatHandler::processChat(const LLChat& chat_msg,		// WARNING - not really const, see hack below changing chat_msg.mText
+									  const LLSD &args)
 {
 	if(chat_msg.mMuted == TRUE)
 		return;
@@ -480,7 +490,17 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 	if(chat_msg.mText.empty())
 		return;//don't process empty messages
 
+	// Handle irc styled messages for toast panel
+	// HACK ALERT - changes mText, stripping out IRC style "/me" prefixes
 	LLChat& tmp_chat = const_cast<LLChat&>(chat_msg);
+	std::string original_message = tmp_chat.mText;			// Save un-modified version of chat text
+	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
+	{
+		if(!tmp_chat.mFromName.empty())
+			tmp_chat.mText = tmp_chat.mFromName + tmp_chat.mText.substr(3);
+		else
+			tmp_chat.mText = tmp_chat.mText.substr(3);
+	}
 
 	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 	{
@@ -531,7 +551,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 
 			LLViewerChat::getChatColor(chat_msg,txt_color);
 
-			LLFloaterScriptDebug::addScriptLine(chat_msg.mText,
+			LLFloaterScriptDebug::addScriptLine(original_message,		// Send full message with "/me" style prefix
 												chat_msg.mFromName,
 												txt_color,
 												chat_msg.mFromID);
@@ -561,15 +581,6 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
 		|| !mChannel->getShowToasts() ) // to prevent toasts in Busy mode
 		return;//no need in toast if chat is visible or if bubble chat is enabled
-
-	// Handle irc styled messages for toast panel
-	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
-	{
-		if(!tmp_chat.mFromName.empty())
-			tmp_chat.mText = tmp_chat.mFromName + tmp_chat.mText.substr(3);
-		else
-			tmp_chat.mText = tmp_chat.mText.substr(3);
-	}
 
 	// arrange a channel on a screen
 	if(!mChannel->getVisible())

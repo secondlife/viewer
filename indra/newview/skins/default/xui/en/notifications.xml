@@ -3698,6 +3698,19 @@ Join me in [REGION]
 
   <notification
    icon="alertmodal.tga"
+   name="TooManyTeleportOffers"
+   type="alertmodal">
+You attempted to make [OFFERS] teleport offers
+which exceeds the limit of [LIMIT].
+    <tag>group</tag>
+    <tag>fail</tag>
+  <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OfferTeleportFromGod"
    type="alertmodal">
 God summon Resident to your location?
