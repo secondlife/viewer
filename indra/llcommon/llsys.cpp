@@ -43,8 +43,15 @@
 #include "llerrorcontrol.h"
 #include "llevents.h"
 #include "lltimer.h"
+#include "llsdserialize.h"
+#include "llsdutil.h"
 #include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
+#include <boost/regex.hpp>
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+
+using namespace llsd;
 
 #if LL_WINDOWS
 #	define WIN32_LEAN_AND_MEAN
@@ -633,6 +640,7 @@ void LLCPUInfo::stream(std::ostream& s) const
 
 LLMemoryInfo::LLMemoryInfo()
 {
+	refresh();
 }
 
 #if LL_WINDOWS
@@ -871,6 +879,209 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	s << "Unknown system; unable to collect memory information" << std::endl;
 
 #endif
+}
+
+LLSD LLMemoryInfo::getStatsMap() const
+{
+    LLSD map;
+
+    BOOST_FOREACH(LLSD pair, inArray(mData))
+    {
+        // Have to be clear that we want the key asString() to specify map
+        // indexing rather than array subscripting.
+        map[pair[0].asString()] = pair[1];
+    }
+
+    return map;
+}
+
+LLSD LLMemoryInfo::getStatsArray() const
+{
+    return mData;
+}
+
+LLMemoryInfo& LLMemoryInfo::refresh()
+{
+    // This implementation is derived from stream() code (as of 2011-06-29).
+    // Hopefully we'll reimplement stream() to use mData before long...
+    mData = LLSD::emptyArray();
+
+#if LL_WINDOWS
+	MEMORYSTATUSEX state;
+	state.dwLength = sizeof(state);
+	GlobalMemoryStatusEx(&state);
+
+	mData.append(LLSDArray("Percent Memory use")(LLSD::Integer(state.dwMemoryLoad)));
+	mData.append(LLSDArray("Total Physical KB") (LLSD::Integer(state.ullTotalPhys/1024)));
+	mData.append(LLSDArray("Avail Physical KB") (LLSD::Integer(state.ullAvailPhys/1024)));
+	mData.append(LLSDArray("Total page KB")     (LLSD::Integer(state.ullTotalPageFile/1024)));
+	mData.append(LLSDArray("Avail page KB")     (LLSD::Integer(state.ullAvailPageFile/1024)));
+	mData.append(LLSDArray("Total Virtual KB")  (LLSD::Integer(state.ullTotalVirtual/1024)));
+	mData.append(LLSDArray("Avail Virtual KB")  (LLSD::Integer(state.ullAvailVirtual/1024)));
+
+#elif LL_DARWIN
+	uint64_t phys = 0;
+
+	size_t len = sizeof(phys);	
+	
+	if (sysctlbyname("hw.memsize", &phys, &len, NULL, 0) == 0)
+	{
+		mData.append(LLSDArray("Total Physical KB")(LLSD::Integer(phys/1024)));
+	}
+	else
+	{
+		LL_WARNS("LLMemoryInfo") << "Unable to collect hw.memsize memory information" << LL_ENDL;
+	}
+
+	FILE* pout = popen("vm_stat 2>&1", "r");
+	if (! pout)
+	{
+		LL_WARNS("LLMemoryInfo") << "Unable to collect vm_stat memory information" << LL_ENDL;
+	}
+	else
+	{
+		// Mach Virtual Memory Statistics: (page size of 4096 bytes)
+		// Pages free:					 462078.
+		// Pages active:				 142010.
+		// Pages inactive:				 220007.
+		// Pages wired down:			 159552.
+		// "Translation faults":	  220825184.
+		// Pages copy-on-write:			2104153.
+		// Pages zero filled:		  167034876.
+		// Pages reactivated:			  65153.
+		// Pageins:						2097212.
+		// Pageouts:					  41759.
+		// Object cache: 841598 hits of 7629869 lookups (11% hit rate)
+
+		boost::regex pagesize_rx("\\(page size of ([0-9]+) bytes\\)");
+		boost::regex stat_rx("(.+): +([0-9]+)\\.");
+		boost::regex pages_rx("Pages ");
+		boost::cmatch matched;
+		LLSD::Integer pagesizekb(4096/1024);
+
+		// Here 'pout' is vm_stat's stdout. Search it for relevant data.
+		char line[100];
+		line[sizeof(line)-1] = '\0';
+		while (fgets(line, sizeof(line)-1, pout))
+		{
+			size_t linelen(strlen(line));
+			// Truncate any trailing newline
+			if (line[linelen - 1] == '\n')
+			{
+				line[--linelen] = '\0';
+			}
+			if (boost::regex_search(&line[0], line+linelen, matched, pagesize_rx))
+			{
+				// "Mach Virtual Memory Statistics: (page size of 4096 bytes)"
+				std::string pagesize_str(matched[1].first, matched[1].second);
+				// Reasonable to assume that pagesize will always be a
+				// multiple of 1Kb?
+				pagesizekb = boost::lexical_cast<LLSD::Integer>(pagesize_str)/1024;
+			}
+			else if (boost::regex_match(&line[0], line+linelen, matched, stat_rx))
+			{
+				// e.g. "Pages free:					 462078."
+				// Strip double-quotes off certain statistic names
+				if (matched[1].first[0] == '"' && matched[1].second[-1] == '"')
+				{
+					++matched[1].first;
+					--matched[1].second;
+				}
+				LLSD::String key(matched[1].first, matched[1].second);
+				LLSD::String value_str(matched[2].first, matched[2].second);
+				LLSD::Integer value(boost::lexical_cast<LLSD::Integer>(value_str));
+				// Store this statistic.
+				mData.append(LLSDArray(key)(value));
+				// Is this in units of pages? If so, convert to Kb.
+				// boost::regex_match() doc sez: "If you want to match a
+				// prefix of the character string then use regex_search with
+				// the flag match_continuous set."
+				boost::smatch smatched;
+				if (boost::regex_search(key, smatched, pages_rx, boost::match_continuous))
+				{
+					// Synthesize a new key with kB in place of Pages
+					LLSD::String kbkey("kB ");
+					kbkey.append(smatched[0].second, key.end());
+					mData.append(LLSDArray(kbkey)(value * pagesizekb));
+				}
+			}
+			else
+			{
+				LL_WARNS("LLMemoryInfo") << "unrecognized vm_stat line: " << line << LL_ENDL;
+			}
+		}
+		fclose(pout);
+	}
+
+#elif LL_SOLARIS
+	U64 phys = 0;
+
+	phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
+
+	mData.append(LLSDArray("Total Physical KB")(phys));
+
+#elif LL_LINUX
+	std::ifstream meminfo(MEMINFO_FILE);
+	if (meminfo.is_open())
+	{
+		// MemTotal:		4108424 kB
+		// MemFree:			1244064 kB
+		// Buffers:			  85164 kB
+		// Cached:			1990264 kB
+		// SwapCached:			  0 kB
+		// Active:			1176648 kB
+		// Inactive:		1427532 kB
+		// ...
+		// VmallocTotal:	 122880 kB
+		// VmallocUsed:		  65252 kB
+		// VmallocChunk:	  52356 kB
+		// HardwareCorrupted:	  0 kB
+		// HugePages_Total:		  0
+		// HugePages_Free:		  0
+		// HugePages_Rsvd:		  0
+		// HugePages_Surp:		  0
+		// Hugepagesize:	   2048 kB
+		// DirectMap4k:		 434168 kB
+		// DirectMap2M:		 477184 kB
+
+		boost::regex stat_rx("(.+): +([0-9]+)( kB)?");
+		boost::smatch matched;
+
+		std::string line;
+		while (std::getline(meminfo, line))
+		{
+			if (boost::regex_match(line, line+linelen, matched, stat_rx))
+			{
+				// e.g. "MemTotal:		4108424 kB"
+				LLSD::String key(matched[1].first, matched[1].second);
+				LLSD::String value_str(matched[2].first, matched[2].second);
+				LLSD::Integer value(boost::lexical_cast<LLSD::Integer>(value_str));
+				// Store this statistic.
+				mData.append(LLSDArray(key)(value));
+			}
+			else
+			{
+				LL_WARNS("LLMemoryInfo") << "unrecognized " << MEMINFO_FILE << " line: "
+										 << line << LL_ENDL;
+			}
+		}
+	}
+	else
+	{
+		s << "Unable to collect memory information" << std::endl;
+	}
+
+#else
+	s << "Unknown system; unable to collect memory information" << std::endl;
+
+#endif
+
+    // should become LL_DEBUGS when we're happy
+    LL_INFOS("LLMemoryInfo") << "Populated mData:\n";
+    LLSDSerialize::toPrettyXML(mData, LL_CONT);
+    LL_ENDL;
+
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& s, const LLOSInfo& info)
