@@ -109,6 +109,11 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	// Create program
 	mProgramObject = glCreateProgramObjectARB();
 	
+	if (gGLManager.mGLVersion < 3.1f)
+	{ //force indexed texture channels to 1 if GL version is old (performance improvement for drivers with poor branching shader model support)
+		mFeatures.mIndexedTextureChannels = llmin(mFeatures.mIndexedTextureChannels, 1);
+	}
+
 	//compile new source
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
 	for ( ; fileIter != mShaderFiles.end(); fileIter++ )
@@ -129,6 +134,11 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	if (!LLShaderMgr::instance()->attachShaderFeatures(this))
 	{
 		return FALSE;
+	}
+
+	if (gGLManager.mGLVersion < 3.1f)
+	{ //attachShaderFeatures may have set the number of indexed texture channels, so set to 1 again
+		mFeatures.mIndexedTextureChannels = llmin(mFeatures.mIndexedTextureChannels, 1);
 	}
 
 	// Map attributes and uniforms
