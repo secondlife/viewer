@@ -141,6 +141,10 @@ public:
 	LLMemoryInfo& refresh();
 
 private:
+	// These methods are used to set mStatsArray and mStatsMap.
+	static LLSD loadStatsArray();
+	static LLSD loadStatsMap(const LLSD&);
+
 	// Memory stats for getStatsArray(). It's straightforward to convert that
 	// to getStatsMap() form, less so to reconstruct the original order when
 	// converting the other way.
