@@ -397,6 +397,10 @@ BOOL LLFloaterModelPreview::postBuild()
 	childSetCommitCallback("border_mode", onLODParamCommit, this);
 	childSetCommitCallback("share_tolerance", onLODParamCommit, this);
 
+	childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
+	childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
+	childSetCommitCallback("upload_textures", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
+
 	childSetTextArg("status", "[STATUS]", getString("status_idle"));
 
 	//childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d",sUploadAmount));
@@ -5415,6 +5419,11 @@ void LLFloaterModelPreview::setStatusMessage(const std::string& msg)
 {
 	LLMutexLock lock(mStatusLock);
 	mStatusMessage = msg;
+}
+
+void LLFloaterModelPreview::toggleCalculateButton()
+{
+	toggleCalculateButton(true);
 }
 
 void LLFloaterModelPreview::toggleCalculateButton(bool visible)

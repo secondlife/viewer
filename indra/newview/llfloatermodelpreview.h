@@ -273,6 +273,7 @@ protected:
 
 private:
 	void onClickCalculateBtn();
+	void toggleCalculateButton();
 
 	// Toggles between "Calculate weights & fee" and "Upload" buttons.
 	void toggleCalculateButton(bool visible);
