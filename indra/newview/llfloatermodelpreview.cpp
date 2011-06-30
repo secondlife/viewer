@@ -1968,10 +1968,6 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 					mPreview->critiqueRigForUploadApplicability( loaded_model->mSkinInfo.mJointNames );					
 				}
 			}
-			else
-			{
-				return false;
-			}
 		}
 	}	
 
@@ -1979,6 +1975,12 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 	{ //failed to load high lod
 		return false;
 	}
+
+	if (model[LLModel::LOD_PHYSICS].empty())
+	{ //no explicit physics block, copy HIGH_LOD into physics array to recover convex decomp
+		model[LLModel::LOD_PHYSICS] = model[LLModel::LOD_HIGH];
+	}
+
 
 	//load instance list
 	model_instance_list instance_list;

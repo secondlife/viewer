@@ -1798,7 +1798,7 @@ bool LLModel::loadModel(std::istream& is)
 		is.seekg(cur_pos);
 	}
 
-	if (lod == LLModel::LOD_PHYSICS)
+	if (lod == LLModel::LOD_HIGH || lod == LLModel::LOD_PHYSICS)
 	{
 		std::ios::pos_type cur_pos = is.tellg();
 		loadDecomposition(header, is);
@@ -2015,7 +2015,7 @@ LLModel::Decomposition::Decomposition(LLSD& data)
 
 void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 {
-	if (decomp.has("HullList"))
+	if (decomp.has("HullList") && decomp.has("Positions"))
 	{
 		// updated for const-correctness. gcc is picky about this type of thing - Nyx
 		const LLSD::Binary& hulls = decomp["HullList"].asBinary();
