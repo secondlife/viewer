@@ -141,10 +141,12 @@ public:
 	LLMemoryInfo& refresh();
 
 private:
-	// Internally, we store memory stats as for getStatsArray(). It's
-	// straightforward to convert that to getStatsMap() form, less so to
-	// reconstruct the original order when converting the other way.
-	LLSD mData;
+	// Memory stats for getStatsArray(). It's straightforward to convert that
+	// to getStatsMap() form, less so to reconstruct the original order when
+	// converting the other way.
+	LLSD mStatsArray;
+	// Memory stats for getStatsMap().
+	LLSD mStatsMap;
 };
 
 

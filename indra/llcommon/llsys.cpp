@@ -665,11 +665,7 @@ static U32 LLMemoryAdjustKBResult(U32 inKB)
 U32 LLMemoryInfo::getPhysicalMemoryKB() const
 {
 #if LL_WINDOWS
-	MEMORYSTATUSEX state;
-	state.dwLength = sizeof(state);
-	GlobalMemoryStatusEx(&state);
-
-	return LLMemoryAdjustKBResult((U32)(state.ullTotalPhys >> 10));
+	return LLMemoryAdjustKBResult(mStatsMap["Total Physical KB"]);
 
 #elif LL_DARWIN
 	// This might work on Linux as well.  Someone check...
@@ -717,15 +713,11 @@ U32 LLMemoryInfo::getPhysicalMemoryClamped() const
 void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb)
 {
 #if LL_WINDOWS
-	MEMORYSTATUSEX state;
-	state.dwLength = sizeof(state);
-	GlobalMemoryStatusEx(&state);
-
-	avail_physical_mem_kb = (U32)(state.ullAvailPhys/1024) ;
-	avail_virtual_mem_kb = (U32)(state.ullAvailVirtual/1024) ;
+	avail_physical_mem_kb = mStatsMap["Avail Physical KB"];
+	avail_virtual_mem_kb  = mStatsMap["Avail Virtual KB"];
 
 #elif LL_DARWIN
-	// Run vm_stat and filter output, scaling for page size:
+	// mStatsMap is derived from vm_stat, look for (e.g.) "kb free":
 	// $ vm_stat
 	// Mach Virtual Memory Statistics: (page size of 4096 bytes)
 	// Pages free:                   462078.
@@ -743,7 +735,7 @@ void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_v
 	avail_virtual_mem_kb = -1 ;
 
 #elif LL_LINUX
-	// Read selected lines from MEMINFO_FILE:
+	// mStatsMap is derived from MEMINFO_FILE:
 	// $ cat /proc/meminfo
 	// MemTotal:        4108424 kB
 	// MemFree:         1244064 kB
@@ -811,114 +803,58 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	// introducer line, then read subsequent lines, etc...
 	std::string pfx(LLError::utcTime() + " <mem> ");
 
-#if LL_WINDOWS
-	MEMORYSTATUSEX state;
-	state.dwLength = sizeof(state);
-	GlobalMemoryStatusEx(&state);
+	// Most of the reason we even store mStatsArray is to preserve the
+	// original order in which we obtained these stats from the OS. So use
+	// mStatsArray in this method rather than mStatsMap, which should present
+	// the same information but in arbitrary order.
 
-	s << pfx << "Percent Memory use: " << (U32)state.dwMemoryLoad << '%' << std::endl;
-	s << pfx << "Total Physical KB:  " << (U32)(state.ullTotalPhys/1024) << std::endl;
-	s << pfx << "Avail Physical KB:  " << (U32)(state.ullAvailPhys/1024) << std::endl;
-	s << pfx << "Total page KB:      " << (U32)(state.ullTotalPageFile/1024) << std::endl;
-	s << pfx << "Avail page KB:      " << (U32)(state.ullAvailPageFile/1024) << std::endl;
-	s << pfx << "Total Virtual KB:   " << (U32)(state.ullTotalVirtual/1024) << std::endl;
-	s << pfx << "Avail Virtual KB:   " << (U32)(state.ullAvailVirtual/1024) << std::endl;
-
-#elif LL_DARWIN
-	uint64_t phys = 0;
-
-	size_t len = sizeof(phys);	
-	
-	if(sysctlbyname("hw.memsize", &phys, &len, NULL, 0) == 0)
+	// Max key length
+	size_t key_width(0);
+	BOOST_FOREACH(LLSD pair, inArray(mStatsArray))
 	{
-		s << pfx << "Total Physical KB:  " << phys/1024 << std::endl;
-	}
-	else
-	{
-		s << "Unable to collect hw.memsize memory information" << std::endl;
-	}
-
-	FILE* pout = popen("vm_stat 2>&1", "r");
-	if (! pout)
-	{
-		s << "Unable to collect vm_stat memory information" << std::endl;
-	}
-	else
-	{
-		// Here 'pout' is vm_stat's stdout. Copy it to output stream.
-		char line[100];
-		while (fgets(line, sizeof(line), pout))
+		size_t len(pair[0].asString().length());
+		if (len > key_width)
 		{
-			s << pfx << line;
-		}
-		fclose(pout);
-	}
-
-#elif LL_SOLARIS
-        U64 phys = 0;
-
-        phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
-
-        s << pfx << "Total Physical KB:  " << phys << std::endl;
-
-#elif LL_LINUX
-	std::ifstream meminfo(MEMINFO_FILE);
-	if (meminfo.is_open())
-	{
-		std::string line;
-		while (std::getline(meminfo, line))
-		{
-			s << pfx << line << '\n';
+			key_width = len;
 		}
 	}
-	else
+
+	// Now stream stats
+	BOOST_FOREACH(LLSD pair, inArray(mStatsArray))
 	{
-		s << "Unable to collect memory information" << std::endl;
+		s << pfx << std::setw(key_width+1) << (pair[0].asString() + ':')
+		  << ' '
+		  << std::setw(12) << pair[1].asInteger() << std::endl;
 	}
-
-#else
-	s << "Unknown system; unable to collect memory information" << std::endl;
-
-#endif
 }
 
 LLSD LLMemoryInfo::getStatsMap() const
 {
-    LLSD map;
-
-    BOOST_FOREACH(LLSD pair, inArray(mData))
-    {
-        // Have to be clear that we want the key asString() to specify map
-        // indexing rather than array subscripting.
-        map[pair[0].asString()] = pair[1];
-    }
-
-    return map;
+	return mStatsMap;
 }
 
 LLSD LLMemoryInfo::getStatsArray() const
 {
-    return mData;
+	return mStatsArray;
 }
 
 LLMemoryInfo& LLMemoryInfo::refresh()
 {
-    // This implementation is derived from stream() code (as of 2011-06-29).
-    // Hopefully we'll reimplement stream() to use mData before long...
-    mData = LLSD::emptyArray();
+	// This implementation is derived from stream() code (as of 2011-06-29).
+	mStatsArray = LLSD::emptyArray();
 
 #if LL_WINDOWS
 	MEMORYSTATUSEX state;
 	state.dwLength = sizeof(state);
 	GlobalMemoryStatusEx(&state);
 
-	mData.append(LLSDArray("Percent Memory use")(LLSD::Integer(state.dwMemoryLoad)));
-	mData.append(LLSDArray("Total Physical KB") (LLSD::Integer(state.ullTotalPhys/1024)));
-	mData.append(LLSDArray("Avail Physical KB") (LLSD::Integer(state.ullAvailPhys/1024)));
-	mData.append(LLSDArray("Total page KB")     (LLSD::Integer(state.ullTotalPageFile/1024)));
-	mData.append(LLSDArray("Avail page KB")     (LLSD::Integer(state.ullAvailPageFile/1024)));
-	mData.append(LLSDArray("Total Virtual KB")  (LLSD::Integer(state.ullTotalVirtual/1024)));
-	mData.append(LLSDArray("Avail Virtual KB")  (LLSD::Integer(state.ullAvailVirtual/1024)));
+	mStatsArray.append(LLSDArray("Percent Memory use")(LLSD::Integer(state.dwMemoryLoad)));
+	mStatsArray.append(LLSDArray("Total Physical KB") (LLSD::Integer(state.ullTotalPhys/1024)));
+	mStatsArray.append(LLSDArray("Avail Physical KB") (LLSD::Integer(state.ullAvailPhys/1024)));
+	mStatsArray.append(LLSDArray("Total page KB")     (LLSD::Integer(state.ullTotalPageFile/1024)));
+	mStatsArray.append(LLSDArray("Avail page KB")     (LLSD::Integer(state.ullAvailPageFile/1024)));
+	mStatsArray.append(LLSDArray("Total Virtual KB")  (LLSD::Integer(state.ullTotalVirtual/1024)));
+	mStatsArray.append(LLSDArray("Avail Virtual KB")  (LLSD::Integer(state.ullAvailVirtual/1024)));
 
 #elif LL_DARWIN
 	uint64_t phys = 0;
@@ -927,7 +863,7 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 	
 	if (sysctlbyname("hw.memsize", &phys, &len, NULL, 0) == 0)
 	{
-		mData.append(LLSDArray("Total Physical KB")(LLSD::Integer(phys/1024)));
+		mStatsArray.append(LLSDArray("Total Physical KB")(LLSD::Integer(phys/1024)));
 	}
 	else
 	{
@@ -972,6 +908,7 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 			{
 				line[--linelen] = '\0';
 			}
+			LL_DEBUGS("LLMemoryInfo") << line << LL_ENDL;
 			if (boost::regex_search(line, matched, pagesize_rx))
 			{
 				// "Mach Virtual Memory Statistics: (page size of 4096 bytes)"
@@ -988,7 +925,7 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 											 << "' in vm_stat line: " << line << LL_ENDL;
 					continue;
 				}
-				mData.append(LLSDArray("page size")(pagesizekb));
+				mStatsArray.append(LLSDArray("page size")(pagesizekb));
 			}
 			else if (boost::regex_match(line, matched, stat_rx))
 			{
@@ -1014,7 +951,7 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 					continue;
 				}
 				// Store this statistic.
-				mData.append(LLSDArray(key)(value));
+				mStatsArray.append(LLSDArray(key)(value));
 				// Is this in units of pages? If so, convert to Kb.
 				static const LLSD::String pages("Pages ");
 				if (key.substr(0, pages.length()) == pages)
@@ -1022,7 +959,7 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 					// Synthesize a new key with kb in place of Pages
 					LLSD::String kbkey("kb ");
 					kbkey.append(key.substr(pages.length()));
-					mData.append(LLSDArray(kbkey)(value * pagesizekb));
+					mStatsArray.append(LLSDArray(kbkey)(value * pagesizekb));
 				}
 			}
 			else if (boost::regex_match(line, matched, cache_rx))
@@ -1044,7 +981,7 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 												 << "' in vm_stat line: " << line << LL_ENDL;
 						continue;
 					}
-					mData.append(LLSDArray(cache_keys[i])(value));
+					mStatsArray.append(LLSDArray(cache_keys[i])(value));
 				}
 			}
 			else
@@ -1060,7 +997,7 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 
 	phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
 
-	mData.append(LLSDArray("Total Physical KB")(phys));
+	mStatsArray.append(LLSDArray("Total Physical KB")(phys));
 
 #elif LL_LINUX
 	std::ifstream meminfo(MEMINFO_FILE);
@@ -1092,6 +1029,7 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 		std::string line;
 		while (std::getline(meminfo, line))
 		{
+			LL_DEBUGS("LLMemoryInfo") << line << LL_ENDL;
 			if (boost::regex_match(line, matched, stat_rx))
 			{
 				// e.g. "MemTotal:		4108424 kB"
@@ -1110,7 +1048,7 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 					continue;
 				}
 				// Store this statistic.
-				mData.append(LLSDArray(key)(value));
+				mStatsArray.append(LLSDArray(key)(value));
 			}
 			else
 			{
@@ -1129,12 +1067,19 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 
 #endif
 
-    // should become LL_DEBUGS when we're happy
-    LL_INFOS("LLMemoryInfo") << "Populated mData:\n";
-    LLSDSerialize::toPrettyXML(mData, LL_CONT);
-    LL_ENDL;
+	// Recast same data as mStatsMap for easy access
+	BOOST_FOREACH(LLSD pair, inArray(mStatsArray))
+	{
+		// Specify asString() to disambiguate map indexing from array
+		// subscripting.
+		mStatsMap[pair[0].asString()] = pair[1];
+	}
 
-    return *this;
+	LL_DEBUGS("LLMemoryInfo") << "Populated mStatsMap:\n";
+	LLSDSerialize::toPrettyXML(mStatsMap, LL_CONT);
+	LL_ENDL;
+
+	return *this;
 }
 
 std::ostream& operator<<(std::ostream& s, const LLOSInfo& info)
