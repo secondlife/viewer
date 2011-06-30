@@ -30,6 +30,7 @@
 #include "llpanelface.h"
  
 // library includes
+#include "llcalc.h"
 #include "llerror.h"
 #include "llfocusmgr.h"
 #include "llrect.h"
@@ -926,6 +927,16 @@ void LLPanelFace::getState()
 				getChildView("button apply")->setEnabled(enabled);
 			}
 		}
+
+		// Set variable values for numeric expressions
+		LLCalc* calcp = LLCalc::getInstance();
+		calcp->setVar(LLCalc::TEX_U_SCALE, childGetValue("TexScaleU").asReal());
+		calcp->setVar(LLCalc::TEX_V_SCALE, childGetValue("TexScaleV").asReal());
+		calcp->setVar(LLCalc::TEX_U_OFFSET, childGetValue("TexOffsetU").asReal());
+		calcp->setVar(LLCalc::TEX_V_OFFSET, childGetValue("TexOffsetV").asReal());
+		calcp->setVar(LLCalc::TEX_ROTATION, childGetValue("TexRot").asReal());
+		calcp->setVar(LLCalc::TEX_TRANSPARENCY, childGetValue("ColorTrans").asReal());
+		calcp->setVar(LLCalc::TEX_GLOW, childGetValue("glow").asReal());
 	}
 	else
 	{
