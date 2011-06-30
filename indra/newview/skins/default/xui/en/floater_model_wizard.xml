@@ -792,6 +792,7 @@ Buildings</text>
 	 name="calculating"
 	 label="Calculating... " />
 	<button
+	 enabled="false"
 	 top_delta="0"
 	 right="-150"
 	 width="90"

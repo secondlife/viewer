@@ -162,8 +162,6 @@ void LLFloaterModelWizard::setState(int state)
 		getChildView("cancel")->setVisible(true);
 		mCalculateWeightsBtn->setVisible(false);
 		mCalculatingWeightsBtn->setVisible(false);
-
-		getChildView("upload")->setEnabled(mHasUploadPerm);
 	}
 
 	if (state == UPLOAD)
@@ -484,7 +482,6 @@ void LLFloaterModelWizard::onPermissionsReceived(const LLSD& result)
 	// BAP HACK: handle "" for case that  MeshUploadFlag cap is broken.
 	mHasUploadPerm = (("" == upload_status) || ("valid" == upload_status));
 
-	getChildView("upload")->setEnabled(mHasUploadPerm);
 	getChildView("warning_label")->setVisible(!mHasUploadPerm);
 	getChildView("warning_text")->setVisible(!mHasUploadPerm);
 }
@@ -500,6 +497,10 @@ void LLFloaterModelWizard::onModelPhysicsFeeReceived(F64 physics, S32 fee, std::
 {
 	swap_controls(mCalculateWeightsBtn, mCalculatingWeightsBtn, true);
 
+	// Enable the "Upload" buton if we have calculated the upload fee
+	// and have the permission to upload.
+	getChildView("upload")->setEnabled(mHasUploadPerm);
+
 	mUploadModelUrl = upload_url;
 
 	childSetTextArg("review_fee", "[FEE]", llformat("%d", fee));
@@ -512,6 +513,9 @@ void LLFloaterModelWizard::onModelPhysicsFeeReceived(F64 physics, S32 fee, std::
 void LLFloaterModelWizard::setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason)
 {
 	swap_controls(mCalculateWeightsBtn, mCalculatingWeightsBtn, true);
+
+	// Disable the "Review" step if it has been previously enabled.
+	modelChangedCallback();
 
 	llwarns << "LLFloaterModelWizard::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << llendl;
 }
@@ -637,6 +641,7 @@ BOOL LLFloaterModelWizard::postBuild()
 	mModelPreview->setPreviewTarget(16.f);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelWizard::setDetails, this, _1, _2, _3, _4, _5));
 	mModelPreview->setModelLoadedCallback(boost::bind(&LLFloaterModelWizard::modelLoadedCallback, this));
+	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelWizard::modelChangedCallback, this));
 	mModelPreview->mViewOption["show_textures"] = true;
 
 	center();
@@ -673,6 +678,20 @@ void LLFloaterModelWizard::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F
 void LLFloaterModelWizard::modelLoadedCallback()
 {
 	mLastEnabledState = CHOOSE_FILE;
+	updateButtons();
+}
+
+void LLFloaterModelWizard::modelChangedCallback()
+{
+	// Don't allow to proceed to the "Review" step if the model has changed
+	// but the new upload fee hasn't been calculated yet.
+	if (mLastEnabledState > PHYSICS)
+	{
+		 mLastEnabledState = PHYSICS;
+	}
+
+	getChildView("upload")->setEnabled(false);
+
 	updateButtons();
 }
 

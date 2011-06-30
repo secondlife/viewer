@@ -69,6 +69,7 @@ public:
 
 	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
 	void modelLoadedCallback();
+	void modelChangedCallback();
 	void initDecompControls();
 	
 	// shows warning message if agent has no permissions to upload model
