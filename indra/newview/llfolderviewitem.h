@@ -547,6 +547,7 @@ public:
 
 	folders_t::const_iterator getFoldersBegin() const { return mFolders.begin(); }
 	folders_t::const_iterator getFoldersEnd() const { return mFolders.end(); }
+	folders_t::size_type getFoldersCount() const { return mFolders.size(); }
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

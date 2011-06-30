@@ -95,8 +95,8 @@ private:
 /// LLPanelMainInventory
 ///----------------------------------------------------------------------------
 
-LLPanelMainInventory::LLPanelMainInventory()
-	: LLPanel(),
+LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
+	: LLPanel(p),
 	  mActivePanel(NULL),
 	  mSavedFolderState(NULL),
 	  mFilterText(""),

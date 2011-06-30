@@ -58,18 +58,9 @@ LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 // virtual
 BOOL LLPanelMarketplaceInbox::postBuild()
 {
-	mInventoryPanel = getChild<LLInventoryPanel>("inventory_inbox");
-	
-	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);
-
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLPanelMarketplaceInbox::handleLoginComplete, this));
 
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceInbox::onFocusReceived, this));
-
-	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
-	
-	// Set up the note to display when the inbox is empty
-	//mInventoryPanel->getFilter()->setEmptyLookupMessage("InboxNoItems");
 	
 	return TRUE;
 }
@@ -86,6 +77,31 @@ void LLPanelMarketplaceInbox::handleLoginComplete()
 {
 	// Set us up as the class to drive the badge value for the sidebar_inventory button
 	LLSideTray::getInstance()->setTabButtonBadgeDriver("sidebar_inventory", this);
+}
+
+void LLPanelMarketplaceInbox::setupInventoryPanel()
+{
+	LLView * inbox_inventory_placeholder = getChild<LLView>("inbox_inventory_placeholder");
+	LLView * inbox_inventory_parent = inbox_inventory_placeholder->getParent();
+
+	mInventoryPanel = 
+		LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_inbox_inventory.xml",
+														  inbox_inventory_parent,
+														  LLInventoryPanel::child_registry_t::instance());
+	
+	// Reshape the inventory to the proper size
+	LLRect inventory_placeholder_rect = inbox_inventory_placeholder->getRect();
+	mInventoryPanel->setShape(inventory_placeholder_rect);
+	
+	// Set the sort order newest to oldest, and a selection change callback
+	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);	
+	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
+
+	// Set up the note to display when the inbox is empty
+	mInventoryPanel->getFilter()->setEmptyLookupMessage("InventoryInboxNoItems");
+	
+	// Hide the placeholder text
+	inbox_inventory_placeholder->setVisible(FALSE);
 }
 
 void LLPanelMarketplaceInbox::onFocusReceived()
@@ -107,9 +123,9 @@ void LLPanelMarketplaceInbox::onFocusReceived()
 		{
 			outbox_panel->clearSelection();
 		}
+		
+		sidepanel_inventory->updateVerbs();
 	}
-
-	sidepanel_inventory->updateVerbs();
 }
 
 BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg)
@@ -129,20 +145,25 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 	
 	U32 fresh_item_count = 0;
 
-	LLFolderView * root_folder = mInventoryPanel->getRootFolder();
-
-	const LLFolderViewFolder * inbox_folder = *(root_folder->getFoldersBegin());
-
-	LLFolderViewFolder::folders_t::const_iterator folders_it = inbox_folder->getFoldersBegin();
-	LLFolderViewFolder::folders_t::const_iterator folders_end = inbox_folder->getFoldersEnd();
-
-	for (; folders_it != folders_end; ++folders_it)
+	if (mInventoryPanel)
 	{
-		const LLFolderViewFolder * folder = *folders_it;
-
-		if (folder->getCreationDate() > 1500)
+		const LLFolderViewFolder * inbox_folder = mInventoryPanel->getRootFolder();
+		
+		if (inbox_folder)
 		{
-			fresh_item_count++;
+			LLFolderViewFolder::folders_t::const_iterator folders_it = inbox_folder->getFoldersBegin();
+			LLFolderViewFolder::folders_t::const_iterator folders_end = inbox_folder->getFoldersEnd();
+
+			for (; folders_it != folders_end; ++folders_it)
+			{
+				const LLFolderViewFolder * folder = *folders_it;
+
+				// TODO: Replace this check with new "fresh" flag
+				if (folder->getCreationDate() > 1500)
+				{
+					fresh_item_count++;
+				}
+			}
 		}
 	}
 
@@ -156,27 +177,16 @@ U32 LLPanelMarketplaceInbox::getTotalItemCount() const
 {
 	U32 item_count = 0;
 	
-	LLInventoryModel* model = mInventoryPanel->getModel();
-	const LLUUID inbox_id = model->findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false);
-	
-	if (!inbox_id.isNull())
+	if (mInventoryPanel)
 	{
-		LLInventoryModel::cat_array_t* cats;
-		LLInventoryModel::item_array_t* items;
-
-		model->getDirectDescendentsOf(inbox_id, cats, items);
-
-		if (cats)
+		const LLFolderViewFolder * inbox_folder = mInventoryPanel->getRootFolder();
+		
+		if (inbox_folder)
 		{
-			item_count += cats->size();
-		}
-
-		if (items)
-		{
-			item_count += items->size();
+			item_count += inbox_folder->getFoldersCount();
 		}
 	}
-
+	
 	return item_count;
 }
 

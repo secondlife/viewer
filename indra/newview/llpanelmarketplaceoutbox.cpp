@@ -28,6 +28,7 @@
 
 #include "llpanelmarketplaceoutbox.h"
 
+#include "llappviewer.h"
 #include "llbutton.h"
 #include "llcoros.h"
 #include "lleventcoro.h"
@@ -41,9 +42,15 @@
 
 static LLRegisterPanelClassWrapper<LLPanelMarketplaceOutbox> t_panel_marketplace_outbox("panel_marketplace_outbox");
 
+const LLPanelMarketplaceOutbox::Params& LLPanelMarketplaceOutbox::getDefaultParams() 
+{ 
+	return LLUICtrlFactory::getDefaultParams<LLPanelMarketplaceOutbox>(); 
+}
+
 // protected
-LLPanelMarketplaceOutbox::LLPanelMarketplaceOutbox()
-	: LLPanel()
+LLPanelMarketplaceOutbox::LLPanelMarketplaceOutbox(const Params& p)
+	: LLPanel(p)
+	, mInventoryPanel(NULL)
 	, mSyncButton(NULL)
 	, mSyncIndicator(NULL)
 	, mSyncInProgress(false)
@@ -57,16 +64,20 @@ LLPanelMarketplaceOutbox::~LLPanelMarketplaceOutbox()
 // virtual
 BOOL LLPanelMarketplaceOutbox::postBuild()
 {
-	mSyncButton = getChild<LLButton>("outbox_sync_btn");
-	mSyncButton->setCommitCallback(boost::bind(&LLPanelMarketplaceOutbox::onSyncButtonClicked, this));
-
-	mSyncIndicator = getChild<LLLoadingIndicator>("outbox_sync_indicator");
-
-	mSyncButton->setEnabled(!isOutboxEmpty());
-
+	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLPanelMarketplaceOutbox::handleLoginComplete, this));
+	
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceOutbox::onFocusReceived, this));
 
 	return TRUE;
+}
+
+void LLPanelMarketplaceOutbox::handleLoginComplete()
+{
+	mSyncButton = getChild<LLButton>("outbox_sync_btn");
+	mSyncButton->setCommitCallback(boost::bind(&LLPanelMarketplaceOutbox::onSyncButtonClicked, this));
+	mSyncButton->setEnabled(!isOutboxEmpty());
+	
+	mSyncIndicator = getChild<LLLoadingIndicator>("outbox_sync_indicator");
 }
 
 void LLPanelMarketplaceOutbox::onFocusReceived()
@@ -88,7 +99,41 @@ void LLPanelMarketplaceOutbox::onFocusReceived()
 		{
 			inbox_panel->clearSelection();
 		}
+		
+		sidepanel_inventory->updateVerbs();
 	}
+}
+
+void LLPanelMarketplaceOutbox::onSelectionChange()
+{
+	LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+	
+	sidepanel_inventory->updateVerbs();
+}
+
+void LLPanelMarketplaceOutbox::setupInventoryPanel()
+{
+	LLView * outbox_inventory_placeholder = getChild<LLView>("outbox_inventory_placeholder");
+	LLView * outbox_inventory_parent = outbox_inventory_placeholder->getParent();
+	
+	mInventoryPanel = 
+		LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_outbox_inventory.xml",
+														  outbox_inventory_parent,
+														  LLInventoryPanel::child_registry_t::instance());
+	
+	// Reshape the inventory to the proper size
+	LLRect inventory_placeholder_rect = outbox_inventory_placeholder->getRect();
+	mInventoryPanel->setShape(inventory_placeholder_rect);
+	
+	// Set the sort order newest to oldest, and a selection change callback
+	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);	
+	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceOutbox::onSelectionChange, this));
+	
+	// Set up the note to display when the outbox is empty
+	mInventoryPanel->getFilter()->setEmptyLookupMessage("InventoryOutboxNoItems");
+	
+	// Hide the placeholder text
+	outbox_inventory_placeholder->setVisible(FALSE);
 }
 
 bool LLPanelMarketplaceOutbox::isOutboxEmpty() const

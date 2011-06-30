@@ -46,6 +46,7 @@
 #include "lloutfitobserver.h"
 #include "llpanelmaininventory.h"
 #include "llpanelmarketplaceinbox.h"
+#include "llpanelmarketplaceoutbox.h"
 #include "llselectmgr.h"
 #include "llsidepaneliteminfo.h"
 #include "llsidepaneltaskinfo.h"
@@ -75,11 +76,56 @@ static const char * const OUTBOX_INVENTORY_PANEL = "inventory_outbox";
 static const char * const INVENTORY_LAYOUT_STACK_NAME = "inventory_layout_stack";
 
 static const char * const MARKETPLACE_INBOX_PANEL = "marketplace_inbox";
+static const char * const MARKETPLACE_OUTBOX_PANEL = "marketplace_outbox";
 
 //
 // Helpers
 //
 
+class LLInboxOutboxAddedObserver : public LLInventoryCategoryAddedObserver
+{
+public:
+	LLInboxOutboxAddedObserver(LLSidepanelInventory * sidepanelInventory)
+		: LLInventoryCategoryAddedObserver()
+		, mSidepanelInventory(sidepanelInventory)
+	{
+	}
+	
+	void done()
+	{
+		for (cat_vec_t::iterator it = mAddedCategories.begin(); it != mAddedCategories.end(); ++it)
+		{
+			LLViewerInventoryCategory* added_category = *it;
+			
+			LLFolderType::EType added_category_type = added_category->getPreferredType();
+			
+			switch (added_category_type)
+			{
+				case LLFolderType::FT_INBOX:
+					mSidepanelInventory->observeInboxModifications(added_category->getUUID());
+					break;
+				case LLFolderType::FT_OUTBOX:
+					mSidepanelInventory->observeOutboxModifications(added_category->getUUID());
+					break;
+				case LLFolderType::FT_NONE:
+					// HACK until sim update to properly create folder with system type
+					if (added_category->getName() == "Received Items")
+					{
+						mSidepanelInventory->observeInboxModifications(added_category->getUUID());
+					}
+					else if (added_category->getName() == "Merchant Outbox")
+					{
+						mSidepanelInventory->observeOutboxModifications(added_category->getUUID());
+					}
+				default:
+					break;
+			}
+		}
+	}
+	
+private:
+	LLSidepanelInventory * mSidepanelInventory;
+};
 
 //
 // Implementation
@@ -92,6 +138,7 @@ LLSidepanelInventory::LLSidepanelInventory()
 	, mInboxEnabled(false)
 	, mOutboxEnabled(false)
 	, mCategoriesObserver(NULL)
+	, mInboxOutboxAddedObserver(NULL)
 {
 	//buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
@@ -103,6 +150,12 @@ LLSidepanelInventory::~LLSidepanelInventory()
 		gInventory.removeObserver(mCategoriesObserver);
 	}
 	delete mCategoriesObserver;
+	
+	if (mInboxOutboxAddedObserver && gInventory.containsObserver(mInboxOutboxAddedObserver))
+	{
+		gInventory.removeObserver(mInboxOutboxAddedObserver);
+	}
+	delete mInboxOutboxAddedObserver;
 }
 
 void handleInventoryDisplayInboxChanged()
@@ -139,7 +192,7 @@ BOOL LLSidepanelInventory::postBuild()
 		mOverflowBtn = mInventoryPanel->getChild<LLButton>("overflow_btn");
 		mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onOverflowButtonClicked, this));
 		
-		mPanelMainInventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
+		mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
 		mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
 		LLTabContainer* tabs = mPanelMainInventory->getChild<LLTabContainer>("inventory filter tabs");
 		tabs->setCommitCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
@@ -157,7 +210,7 @@ BOOL LLSidepanelInventory::postBuild()
 
 	// UI elements from item panel
 	{
-		mItemPanel = findChild<LLSidepanelItemInfo>("sidepanel__item_panel");
+		mItemPanel = getChild<LLSidepanelItemInfo>("sidepanel__item_panel");
 		
 		LLButton* back_btn = mItemPanel->getChild<LLButton>("back_btn");
 		back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
@@ -221,29 +274,100 @@ void LLSidepanelInventory::handleLoginComplete()
 	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, do_not_create_folder, do_not_find_in_library);
 	const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, do_not_create_folder, do_not_find_in_library);
 	
-	if (inbox_id.isNull() && outbox_id.isNull())
+	// Set up observer to listen for creation of inbox and outbox if at least one of them doesn't exist
+	if (inbox_id.isNull() || outbox_id.isNull())
 	{
-		return;
+		observeInboxOutboxCreation();
 	}
 
-	mCategoriesObserver = new LLInventoryCategoriesObserver();
-	gInventory.addObserver(mCategoriesObserver);
-
-	if (!outbox_id.isNull())
-	{
-		mCategoriesObserver->addCategory(outbox_id, boost::bind(&LLSidepanelInventory::onOutboxChanged, this, outbox_id));
-	}
-	
+	// Set up observer for inbox changes, if we have an inbox already
 	if (!inbox_id.isNull())
 	{
-		mCategoriesObserver->addCategory(inbox_id, boost::bind(&LLSidepanelInventory::onInboxChanged, this, inbox_id));
-
-		//
-		// Trigger a load for the entire contents of the Inbox
-		//
-
-		LLInventoryModelBackgroundFetch::instance().start(inbox_id);
+		observeInboxModifications(inbox_id);
 	}
+	
+	// Set up observer for outbox changes, if we have an outbox already
+	if (!outbox_id.isNull())
+	{
+		observeOutboxModifications(outbox_id);
+	}
+}
+
+void LLSidepanelInventory::observeInboxOutboxCreation()
+{
+	//
+	// Set up observer to track inbox and outbox folder creation
+	//
+	
+	if (mInboxOutboxAddedObserver == NULL)
+	{
+		mInboxOutboxAddedObserver = new LLInboxOutboxAddedObserver(this);
+		
+		gInventory.addObserver(mInboxOutboxAddedObserver);
+	}
+}
+
+void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
+{
+	//
+	// Track inbox and outbox folder changes
+	//
+	
+	if (inboxID.isNull())
+	{
+		llwarns << "Attempting to track modifications to non-existant inbox" << llendl;
+		return;
+	}
+	
+	if (mCategoriesObserver == NULL)
+	{
+		mCategoriesObserver = new LLInventoryCategoriesObserver();
+		gInventory.addObserver(mCategoriesObserver);
+	}
+	
+	mCategoriesObserver->addCategory(inboxID, boost::bind(&LLSidepanelInventory::onInboxChanged, this, inboxID));
+	
+	//
+	// Trigger a load for the entire contents of the Inbox
+	//
+	
+	LLInventoryModelBackgroundFetch::instance().start(inboxID);
+	
+	//
+	// Set up the inbox inventory view
+	//
+	
+	LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
+	inbox->setupInventoryPanel();
+}
+
+
+void LLSidepanelInventory::observeOutboxModifications(const LLUUID& outboxID)
+{
+	//
+	// Track outbox folder changes
+	//
+	
+	if (outboxID.isNull())
+	{
+		llwarns << "Attempting to track modifications to non-existant outbox" << llendl;
+		return;
+	}
+	
+	if (mCategoriesObserver == NULL)
+	{
+		mCategoriesObserver = new LLInventoryCategoriesObserver();
+		gInventory.addObserver(mCategoriesObserver);
+	}
+	
+	mCategoriesObserver->addCategory(outboxID, boost::bind(&LLSidepanelInventory::onOutboxChanged, this, outboxID));
+	
+	//
+	// Set up the outbox inventory view
+	//
+	
+	LLPanelMarketplaceOutbox * outbox = getChild<LLPanelMarketplaceOutbox>(MARKETPLACE_OUTBOX_PANEL);
+	outbox->setupInventoryPanel();
 }
 
 void LLSidepanelInventory::enableInbox(bool enabled)
@@ -264,7 +388,7 @@ void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
 	LLInventoryModelBackgroundFetch::instance().start(inbox_id);
 	
 	// Expand the inbox since we have fresh items
-	LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
+	LLPanelMarketplaceInbox * inbox = findChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
 	if (inbox && (inbox->getFreshItemCount() > 0))
 	{
 		getChild<LLButton>(INBOX_BUTTON_NAME)->setToggleState(true);
@@ -344,7 +468,7 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 	LLFirstUse::newInventory(false);
 
 	// Expand the inbox if we have fresh items
-	LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
+	LLPanelMarketplaceInbox * inbox = findChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
 	if (inbox && (inbox->getFreshItemCount() > 0))
 	{
 		getChild<LLButton>(INBOX_BUTTON_NAME)->setToggleState(true);
@@ -396,7 +520,7 @@ void LLSidepanelInventory::onShopButtonClicked()
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)
 {
-	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
 	LLFolderViewItem* current_item = panel_main_inventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 	{
@@ -404,10 +528,11 @@ void LLSidepanelInventory::performActionOnSelection(const std::string &action)
 		if (inbox)
 		{
 			current_item = inbox->getRootFolder()->getCurSelectedItem();
-			if (!current_item)
-			{
-				return;
-			}
+		}
+
+		if (!current_item)
+		{
+			return;
 		}
 	}
 
@@ -590,7 +715,7 @@ bool LLSidepanelInventory::canWearSelected()
 
 LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 {
-	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
 	LLFolderViewItem* current_item = panel_main_inventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 	{
@@ -598,10 +723,11 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 		if (inbox)
 		{
 			current_item = inbox->getRootFolder()->getCurSelectedItem();
-			if (!current_item)
-			{
-				return NULL;
-			}
+		}
+
+		if (!current_item)
+		{
+			return NULL;
 		}
 	}
 	const LLUUID &item_id = current_item->getListener()->getUUID();
@@ -613,7 +739,7 @@ U32 LLSidepanelInventory::getSelectedCount()
 {
 	int count = 0;
 
-	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->findChild<LLPanelMainInventory>("panel_main_inventory");
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
 	std::set<LLUUID> selection_list = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
 	count += selection_list.size();
 

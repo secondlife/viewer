@@ -30,6 +30,7 @@
 #include "llpanel.h"
 
 class LLFolderViewItem;
+class LLInboxOutboxAddedObserver;
 class LLInventoryCategoriesObserver;
 class LLInventoryItem;
 class LLInventoryPanel;
@@ -45,8 +46,12 @@ public:
 
 private:
 	void handleLoginComplete();
-
+	
 public:
+	void observeInboxOutboxCreation();
+	void observeInboxModifications(const LLUUID& inboxID);
+	void observeOutboxModifications(const LLUUID& outboxID);
+
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
@@ -117,6 +122,7 @@ private:
 	bool						mOutboxEnabled;
 
 	LLInventoryCategoriesObserver* 			mCategoriesObserver;
+	LLInboxOutboxAddedObserver*				mInboxOutboxAddedObserver;
 };
 
 #endif //LL_LLSIDEPANELINVENTORY_H

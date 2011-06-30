@@ -31,19 +31,30 @@
 
 
 class LLButton;
+class LLInventoryPanel;
 class LLLoadingIndicator;
 
 
 class LLPanelMarketplaceOutbox : public LLPanel
 {
 public:
-
+	
+	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
+	{
+		Params() {}
+	};
+	
 	LOG_CLASS(LLPanelMarketplaceOutbox);
 
-	LLPanelMarketplaceOutbox();
+	// RN: for some reason you can't just use LLUICtrlFactory::getDefaultParams as a default argument in VC8
+	static const LLPanelMarketplaceOutbox::Params& getDefaultParams();
+	
+	LLPanelMarketplaceOutbox(const Params& p = getDefaultParams());
 	~LLPanelMarketplaceOutbox();
 
 	/*virtual*/ BOOL postBuild();
+
+	void setupInventoryPanel();
 
 	bool isOutboxEmpty() const;
 	bool isSyncInProgress() const;
@@ -54,9 +65,13 @@ protected:
 	void onSyncButtonClicked();
 	void updateSyncButtonStatus();
 
+	void handleLoginComplete();
 	void onFocusReceived();
+	void onSelectionChange();
 
 private:
+	LLInventoryPanel *		mInventoryPanel;
+
 	LLButton *				mSyncButton;
 	LLLoadingIndicator *	mSyncIndicator;
 	bool					mSyncInProgress;
