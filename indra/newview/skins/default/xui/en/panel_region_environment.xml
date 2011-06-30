@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
 <panel
+ border="true"
  follows="top|left"
  height="300"
  label="Environment"
