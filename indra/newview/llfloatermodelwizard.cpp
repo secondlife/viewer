@@ -412,12 +412,6 @@ BOOL LLFloaterModelWizard::handleScrollWheel(S32 x, S32 y, S32 clicks)
 }
 
 
-/*virtual*/
-void LLFloaterModelWizard::onOpen(const LLSD& key)
-{
-	requestAgentUploadPermissions();
-}
-
 void LLFloaterModelWizard::initDecompControls()
 {
 	LLSD key;
@@ -653,6 +647,8 @@ BOOL LLFloaterModelWizard::postBuild()
 	childSetTextArg("import_dimensions", "[Z]", LLStringUtil::null);
 
 	initDecompControls();
+
+	requestAgentUploadPermissions();
 
 	return TRUE;
 }

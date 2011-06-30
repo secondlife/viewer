@@ -264,14 +264,14 @@
                 WARNING:
             </text>
             <text
-             height="40"
+             height="50"
              left="10"
              name="warning_text"
              top_pad="0"
              visible="false"
              width="320"
              word_wrap="true">
-                You will not be able to complete the final step of uploading this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to set up y
+                You will not be able to complete the final step of uploading this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to set up your account for mesh model uploads. 
             </text>
 		</panel>
 	</panel>
