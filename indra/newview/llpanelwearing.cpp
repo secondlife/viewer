@@ -297,7 +297,7 @@ void LLPanelWearing::copyToClipboard()
 		iter++;
 		if (item != NULL)
 		{
-			// Append a CR to all but the last line
+			// Append a newline to all but the last line
 			text += iter != data.end() ? item->getName() + "\n" : item->getName();
 		}
 	}
