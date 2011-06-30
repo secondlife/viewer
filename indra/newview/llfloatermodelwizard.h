@@ -80,6 +80,10 @@ public:
 
 	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
 
+	/*virtual*/ void onModelUploadSuccess();
+
+	/*virtual*/ void onModelUploadFailure();
+
 	const LLRect& getPreviewRect() const { return mPreviewRect; }
 
 	LLPhysicsDecomp::decomp_params mDecompParams;

@@ -62,6 +62,24 @@ protected:
 	LLRootHandle<LLWholeModelFeeObserver> mWholeModelFeeObserverHandle;
 };
 
+
+class LLWholeModelUploadObserver
+{
+public:
+	LLWholeModelUploadObserver() { mWholeModelUploadObserverHandle.bind(this); }
+	virtual ~LLWholeModelUploadObserver() {}
+
+	virtual void onModelUploadSuccess() = 0;
+
+	virtual void onModelUploadFailure() = 0;
+
+	LLHandle<LLWholeModelUploadObserver> getWholeModelUploadObserverHandle() const { return mWholeModelUploadObserverHandle; }
+
+protected:
+	LLRootHandle<LLWholeModelUploadObserver> mWholeModelUploadObserverHandle;
+};
+
+
 class LLUploadModelPremissionsResponder : public LLHTTPClient::Responder
 {
 public:

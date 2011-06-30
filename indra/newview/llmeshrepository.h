@@ -447,10 +447,13 @@ public:
 							 LLQuaternion& result_rot,
 							 LLVector3& result_scale);
 
-	void setObserverHandle(LLHandle<LLWholeModelFeeObserver> observer_handle) { mObserverHandle = observer_handle; }
+	void setFeeObserverHandle(LLHandle<LLWholeModelFeeObserver> observer_handle) { mFeeObserverHandle = observer_handle; }
+	void setUploadObserverHandle(LLHandle<LLWholeModelUploadObserver> observer_handle) { mUploadObserverHandle = observer_handle; }
 
 private:
-	LLHandle<LLWholeModelFeeObserver> mObserverHandle;
+	LLHandle<LLWholeModelFeeObserver> mFeeObserverHandle;
+	LLHandle<LLWholeModelUploadObserver> mUploadObserverHandle;
+
 	bool mDoUpload; // if FALSE only model data will be requested, otherwise the model will be uploaded
 };
 

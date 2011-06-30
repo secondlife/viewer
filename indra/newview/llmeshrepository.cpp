@@ -612,11 +612,13 @@ class LLWholeModelUploadResponder: public LLCurl::Responder
 {
 	LLMeshUploadThread* mThread;
 	LLSD mModelData;
+	LLHandle<LLWholeModelUploadObserver> mObserverHandle;
 	
 public:
-	LLWholeModelUploadResponder(LLMeshUploadThread* thread, LLSD& model_data):
+	LLWholeModelUploadResponder(LLMeshUploadThread* thread, LLSD& model_data, LLHandle<LLWholeModelUploadObserver> observer_handle):
 		mThread(thread),
-		mModelData(model_data)
+		mModelData(model_data),
+		mObserverHandle(observer_handle)
 	{
 	}
 	virtual void completed(U32 status,
@@ -633,6 +635,9 @@ public:
 		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_upload_response_",dump_num));
 		llinfos << "LLWholeModelUploadResponder content: " << cc << llendl;
+
+		LLWholeModelUploadObserver* observer = mObserverHandle.get();
+
 		// requested "mesh" asset type isn't actually the type
 		// of the resultant object, fix it up here.
 		if (isGoodStatus(status) &&
@@ -641,12 +646,22 @@ public:
 			llinfos << "upload succeeded" << llendl;
 			mModelData["asset_type"] = "object";
 			gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mModelData,cc));
+
+			if (observer)
+			{
+				observer->onModelUploadSuccess();
+			}
 		}
 		else
 		{
 			llwarns << "upload failed" << llendl;
 			std::string model_name = mModelData["name"].asString();
 			log_upload_error(status,cc,"upload",model_name);
+
+			if (observer)
+			{
+				observer->onModelUploadFailure();
+			}
 		}
 	}
 };
@@ -1741,7 +1756,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 		dump_llsd_to_file(body,make_dump_name("whole_model_body_",dump_num));
 		LLCurlRequest::headers_t headers;
 		mCurlRequest->post(mWholeModelUploadURL, headers, body,
-						   new LLWholeModelUploadResponder(this, full_model_data), mMeshUploadTimeOut);
+						   new LLWholeModelUploadResponder(this, full_model_data, mUploadObserverHandle), mMeshUploadTimeOut);
 		do
 		{
 			mCurlRequest->process();
@@ -1770,7 +1785,7 @@ void LLMeshUploadThread::requestWholeModelFee()
 	mPendingUploads++;
 	LLCurlRequest::headers_t headers;
 	mCurlRequest->post(mWholeModelFeeCapability, headers, model_data,
-					   new LLWholeModelFeeResponder(this,model_data, mObserverHandle), mMeshUploadTimeOut);
+					   new LLWholeModelFeeResponder(this,model_data, mFeeObserverHandle), mMeshUploadTimeOut);
 
 	do
 	{

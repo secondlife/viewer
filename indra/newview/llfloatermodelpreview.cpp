@@ -575,7 +575,7 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 	LLMeshUploadThread* thread = new LLMeshUploadThread(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
 			childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mUploadModelUrl, false);
 
-	thread->setObserverHandle(getWholeModelFeeObserverHandle());
+	thread->setFeeObserverHandle(getWholeModelFeeObserverHandle());
 
 	gMeshRepo.mUploadWaitList.push_back(thread);
 

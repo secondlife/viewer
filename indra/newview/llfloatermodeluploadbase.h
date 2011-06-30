@@ -29,7 +29,7 @@
 
 #include "lluploadfloaterobservers.h"
 
-class LLFloaterModelUploadBase : public LLFloater, public LLUploadPermissionsObserver, public LLWholeModelFeeObserver
+class LLFloaterModelUploadBase : public LLFloater, public LLUploadPermissionsObserver, public LLWholeModelFeeObserver, public LLWholeModelUploadObserver
 {
 public:
 
@@ -44,6 +44,10 @@ public:
 	virtual void onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url) = 0;
 
 	virtual void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason) = 0;
+
+	virtual void onModelUploadSuccess() {};
+
+	virtual void onModelUploadFailure() {};
 
 protected:
 
