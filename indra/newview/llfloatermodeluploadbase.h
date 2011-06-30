@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERMODELUPLOADBASE_H_
-#define LLFLOATERMODELUPLOADBASE_H_
+#ifndef LL_LLFLOATERMODELUPLOADBASE_H
+#define LL_LLFLOATERMODELUPLOADBASE_H
 
 #include "lluploadfloaterobservers.h"
 
@@ -37,13 +37,13 @@ public:
 
 	virtual ~LLFloaterModelUploadBase(){};
 
-	virtual void setPermissonsErrorStatus(U32 status, const std::string& reason){};
+	virtual void setPermissonsErrorStatus(U32 status, const std::string& reason) = 0;
 
-	virtual void onPermissionsReceived(const LLSD& result){};
+	virtual void onPermissionsReceived(const LLSD& result) = 0;
 
-	virtual void onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url){};
+	virtual void onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url) = 0;
 
-	virtual void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason){};
+	virtual void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason) = 0;
 
 protected:
 
@@ -54,4 +54,4 @@ protected:
 	bool mHasUploadPerm;
 };
 
-#endif /* LLFLOATERMODELUPLOADBASE_H_ */
+#endif /* LL_LLFLOATERMODELUPLOADBASE_H */

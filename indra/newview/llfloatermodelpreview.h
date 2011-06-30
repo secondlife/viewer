@@ -297,6 +297,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 {	
 	typedef boost::signals2::signal<void (F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)> details_signal_t;
 	typedef boost::signals2::signal<void (void)> model_loaded_signal_t;
+	typedef boost::signals2::signal<void (bool)> model_updated_signal_t;
 
 public:
 	LLModelPreview(S32 width, S32 height, LLFloater* fmp);
@@ -356,6 +357,7 @@ public:
 	
 	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }
 	boost::signals2::connection setModelLoadedCallback( const model_loaded_signal_t::slot_type& cb ){  return mModelLoadedSignal.connect(cb);  }
+	boost::signals2::connection setModelUpdatedCallback( const model_updated_signal_t::slot_type& cb ){  return mModelUpdatedSignal.connect(cb);  }
 	
 	void setLoadState( U32 state ) { mLoadState = state; }
 	U32 getLoadState() { return mLoadState; }
@@ -441,6 +443,7 @@ private:
 
 	details_signal_t mDetailsSignal;
 	model_loaded_signal_t mModelLoadedSignal;
+	model_updated_signal_t mModelUpdatedSignal;
 	
 	LLVector3	mModelPivot;
 	bool		mHasPivot;

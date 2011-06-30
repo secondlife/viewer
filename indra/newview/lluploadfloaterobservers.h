@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLUPLOADFLOATEROBSERVERS_H_
-#define LLUPLOADFLOATEROBSERVERS_H_
+#ifndef LL_LLUPLOADFLOATEROBSERVERS_H
+#define LL_LLUPLOADFLOATEROBSERVERS_H
 
 #include "llfloater.h"
 #include "llhttpclient.h"
@@ -76,4 +76,4 @@ private:
 	LLHandle<LLUploadPermissionsObserver> mObserverHandle;
 };
 
-#endif /* LLUPLOADFLOATEROBSERVERS_H_ */
+#endif /* LL_LLUPLOADFLOATEROBSERVERS_H */

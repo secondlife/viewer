@@ -445,6 +445,7 @@ BOOL LLFloaterModelPreview::postBuild()
 	mModelPreview = new LLModelPreview(512, 512, this );
 	mModelPreview->setPreviewTarget(16.f);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
+	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, _1));
 
 	//set callbacks for left click on line editor rows
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
@@ -561,8 +562,6 @@ void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name)
 
 void LLFloaterModelPreview::onClickCalculateBtn()
 {
-	childSetTextArg("weights", "[EQ]", llformat("%d", mModelPreview->mResourceCost));
-
 	mModelPreview->rebuildUploadData();
 
 	bool upload_skinweights = childGetValue("upload_skin").asBoolean();
@@ -654,9 +653,6 @@ void LLFloaterModelPreview::onUploadSkinCommit(LLUICtrl*,void* userdata)
 	{
 		return;
 	}
-	
-	fp->toggleCalculateButton(true);
-
 	fp->mModelPreview->refresh();
 	fp->mModelPreview->resetPreviewTarget();
 	fp->mModelPreview->clearBuffers();
@@ -686,7 +682,6 @@ void LLFloaterModelPreview::onGenerateNormalsCommit(LLUICtrl* ctrl, void* userda
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
 
-	fp->toggleCalculateButton(true);
 	fp->mModelPreview->generateNormals();
 }
 
@@ -711,7 +706,6 @@ void LLFloaterModelPreview::onLODParamCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
 
-	fp->toggleCalculateButton(true);
 	fp->mModelPreview->onLODParamCommit(false);
 }
 
@@ -719,7 +713,6 @@ void LLFloaterModelPreview::onLODParamCommit(LLUICtrl* ctrl, void* userdata)
 void LLFloaterModelPreview::onLODParamCommitTriangleLimit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
-	fp->toggleCalculateButton(true);
 	fp->mModelPreview->onLODParamCommit(true);
 }
 
@@ -4473,6 +4466,8 @@ void LLModelPreview::updateStatusMessages()
 		crease->forceSetValue(mRequestedCreaseAngle[mPreviewLOD]);
 	}
 
+	mModelUpdatedSignal(true);
+
 }
 
 void LLModelPreview::setPreviewTarget(F32 distance)
@@ -5441,6 +5436,7 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 void LLFloaterModelPreview::onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url)
 {
 	mUploadModelUrl = upload_url;
+	childSetTextArg("weights", "[EQ]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("weights", "[PH]", llformat("%.3f", physics));
 	childSetTextArg("weights", "[FEE]", llformat("%d", fee));
 	childSetVisible("weights", true);
@@ -5449,6 +5445,7 @@ void LLFloaterModelPreview::onModelPhysicsFeeReceived(F64 physics, S32 fee, std:
 
 void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason)
 {
+	toggleCalculateButton(true);
 	llwarns << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << llendl;
 }
 
