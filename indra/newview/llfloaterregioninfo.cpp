@@ -544,8 +544,13 @@ void LLPanelRegionInfo::onChangeText(LLLineEditor* caller, void* user_data)
 // virtual
 BOOL LLPanelRegionInfo::postBuild()
 {
-	getChild<LLUICtrl>("apply_btn")->setCommitCallback(boost::bind(&LLPanelRegionInfo::onBtnSet, this));
-	getChildView("apply_btn")->setEnabled(FALSE);
+	// If the panel has an Apply button, set a callback for it.
+	LLUICtrl* apply_btn = findChild<LLUICtrl>("apply_btn");
+	if (apply_btn)
+	{
+		apply_btn->setCommitCallback(boost::bind(&LLPanelRegionInfo::onBtnSet, this));
+	}
+
 	refresh();
 	return TRUE;
 }
@@ -597,12 +602,14 @@ void LLPanelRegionInfo::sendEstateOwnerMessage(
 
 void LLPanelRegionInfo::enableButton(const std::string& btn_name, BOOL enable)
 {
-	getChildView(btn_name)->setEnabled(enable);
+	LLView* button = findChildView(btn_name);
+	if (button) button->setEnabled(enable);
 }
 
 void LLPanelRegionInfo::disableButton(const std::string& btn_name)
 {
-	getChildView(btn_name)->setEnabled(FALSE);
+	LLView* button = findChildView(btn_name);
+	if (button) button->setEnabled(FALSE);
 }
 
 void LLPanelRegionInfo::initCtrl(const std::string& name)
@@ -2115,7 +2122,6 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	BOOL manager = (region && region->isEstateManager());
 	setCtrlsEnabled(god || owner || manager);
 	
-	getChildView("apply_btn")->setEnabled(FALSE);
 	getChildView("add_allowed_avatar_btn")->setEnabled(god || owner || manager);
 	getChildView("remove_allowed_avatar_btn")->setEnabled(god || owner || manager);
 	getChildView("add_allowed_group_btn")->setEnabled(god || owner || manager);
