@@ -1395,6 +1395,10 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 {
+	if (!object->isRoot())
+	{ //always fetch cost for the parent when fetching cost for children
+		mStaleObjectCost.insert(((LLViewerObject*)object->getParent())->getID());
+	}
 	mStaleObjectCost.insert(object->getID());
 }
 
