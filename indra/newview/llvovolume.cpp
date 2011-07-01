@@ -4495,6 +4495,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 	S32 texture_index_channels = gGLManager.mNumTextureImageUnits-1; //always reserve one for shiny for now just for simplicity
 	
+	if (gGLManager.mGLVersion < 3.1f)
+	{
+		texture_index_channels = 1;
+	}
+
 	if (LLPipeline::sRenderDeferred && distance_sort)
 	{
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
