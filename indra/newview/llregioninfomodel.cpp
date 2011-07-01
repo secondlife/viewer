@@ -30,6 +30,7 @@
 
 // libs
 #include "message.h"
+#include "llregionflags.h"
 
 // viewers
 
@@ -67,6 +68,11 @@ LLRegionInfoModel::LLRegionInfoModel()
 boost::signals2::connection LLRegionInfoModel::setUpdateCallback(const update_signal_t::slot_type& cb)
 {
 	return mUpdateSignal.connect(cb);
+}
+
+bool LLRegionInfoModel::getUseFixedSun()
+{
+	return mRegionFlags & REGION_FLAGS_SUN_FIXED;
 }
 
 void LLRegionInfoModel::update(LLMessageSystem* msg)

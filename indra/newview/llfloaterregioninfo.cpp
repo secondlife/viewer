@@ -68,6 +68,7 @@
 #include "llnamelistctrl.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "llregioninfomodel.h"
 #include "llscrolllistitem.h"
 #include "llsliderctrl.h"
 #include "llslurl.h"
@@ -1288,55 +1289,34 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	// strings[7] = from estate, 'Y' fixed sun
 	// strings[8] = from estate, float sun_hour
 
+	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
+	bool region_use_estate_sun = region_info.mUseEstateSun;
+	bool region_use_fixed_sun = region_info.getUseFixedSun(); // *TODO: take into account region environment settings
+	F32 region_sun_hour = region_info.mSunHour;
+
+	// *NOTE: this resets estate sun info.
+	BOOL estate_global_time = true;
+	BOOL estate_fixed_sun = false;
+	F32 estate_sun_hour = 0.f;
+
 	buffer = llformat("%f", (F32)getChild<LLUICtrl>("water_height_spin")->getValue().asReal());
 	strings.push_back(buffer);
 	buffer = llformat("%f", (F32)getChild<LLUICtrl>("terrain_raise_spin")->getValue().asReal());
 	strings.push_back(buffer);
 	buffer = llformat("%f", (F32)getChild<LLUICtrl>("terrain_lower_spin")->getValue().asReal());
 	strings.push_back(buffer);
-
-#ifndef TMP_DISABLE_WLES
-	/*
-	 * This message is failing
-	 * We need to fix how the following values are obtained
-	 */
-	buffer = llformat("%s", (getChild<LLUICtrl>("use_estate_sun_check")->getValue().asBoolean() ? "Y" : "N"));
+	buffer = llformat("%s", (region_use_estate_sun ? "Y" : "N"));
 	strings.push_back(buffer);
-	buffer = llformat("%s", (getChild<LLUICtrl>("fixed_sun_check")->getValue().asBoolean() ? "Y" : "N"));
+	buffer = llformat("%s", (region_use_fixed_sun ? "Y" : "N"));
 	strings.push_back(buffer);
-	buffer = llformat("%f", (F32)getChild<LLUICtrl>("sun_hour_slider")->getValue().asReal() );
+	buffer = llformat("%f", region_sun_hour);
 	strings.push_back(buffer);
-
-	// Grab estate information in case the user decided to set the
-	// region back to estate time.
-	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-	if (!floater) return true;
-
-	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
-	if (!tab) return true;
-
-	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)tab->getChild<LLPanel>("Estate");
-	if (!panel) return true;
-
-	BOOL estate_global_time = panel->getGlobalTime();
-	BOOL estate_fixed_sun = panel->getFixedSun();
-	F32 estate_sun_hour;
-	if (estate_global_time)
-	{
-		estate_sun_hour = 0.f;
-	}
-	else
-	{
-		estate_sun_hour = panel->getSunHour();
-	}
-
 	buffer = llformat("%s", (estate_global_time ? "Y" : "N") );
 	strings.push_back(buffer);
 	buffer = llformat("%s", (estate_fixed_sun ? "Y" : "N") );
 	strings.push_back(buffer);
 	buffer = llformat("%f", estate_sun_hour);
 	strings.push_back(buffer);
-#endif // TMP_DISABLE_WLES
 
 	sendEstateOwnerMessage(gMessageSystem, "setregionterrain", invoice, strings);
 	strings.clear();

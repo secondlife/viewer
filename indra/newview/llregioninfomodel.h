@@ -42,6 +42,8 @@ public:
 	typedef boost::signals2::signal<void()> update_signal_t;
 	boost::signals2::connection setUpdateCallback(const update_signal_t::slot_type& cb);
 
+	bool getUseFixedSun();
+
 	// *TODO: Add getters and make the data private.
 	U8			mSimAccess;
 	U8			mAgentLimit;
