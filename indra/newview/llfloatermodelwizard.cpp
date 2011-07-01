@@ -271,12 +271,9 @@ void LLFloaterModelWizard::onClickCalculateUploadFee()
 	mModelPreview->rebuildUploadData();
 
 	mUploadModelUrl.clear();
-	LLMeshUploadThread* thread = new LLMeshUploadThread(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
-			true, false, false, mUploadModelUrl, false);
 
-	thread->setFeeObserverHandle(getWholeModelFeeObserverHandle());
-
-	gMeshRepo.mUploadWaitList.push_back(thread);
+	gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
+			true, false, false, mUploadModelUrl, false, getWholeModelFeeObserverHandle());
 }
 
 void LLFloaterModelWizard::loadModel()
@@ -524,7 +521,8 @@ void LLFloaterModelWizard::onModelUploadSuccess()
 /*virtual*/
 void LLFloaterModelWizard::onModelUploadFailure()
 {
-	
+	// Failure. Make the user recalculate fees
+	setState(PHYSICS);
 }
 
 //static
@@ -708,12 +706,9 @@ void LLFloaterModelWizard::onUpload()
 {	
 	mModelPreview->rebuildUploadData();
 	
-	LLMeshUploadThread* thread = new LLMeshUploadThread(mModelPreview->mUploadData, mModelPreview->mPreviewScale, 
-						  true, false, false, mUploadModelUrl, true);
-
-	thread->setUploadObserverHandle(getWholeModelUploadObserverHandle());
-
-	gMeshRepo.mUploadWaitList.push_back(thread);
+	gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale, 
+						  true, false, false, mUploadModelUrl, true,
+						  LLHandle<LLWholeModelFeeObserver>(), getWholeModelUploadObserverHandle());
 }
 
 void LLFloaterModelWizard::onPreviewLODCommit(LLUICtrl* ctrl)

@@ -1410,11 +1410,14 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 }
 
 LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
-										bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload)
+										bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload,
+					   LLHandle<LLWholeModelFeeObserver> fee_observer, LLHandle<LLWholeModelUploadObserver> upload_observer)
 : LLThread("mesh upload"),
 	mDiscarded(FALSE),
 	mDoUpload(do_upload),
-	mWholeModelUploadURL(upload_url)
+	mWholeModelUploadURL(upload_url),
+	mFeeObserverHandle(fee_observer),
+	mUploadObserverHandle(upload_observer)
 {
 	mInstanceList = data;
 	mUploadTextures = upload_textures;
@@ -2896,9 +2899,11 @@ LLSD& LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
 
 
 void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
-									bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload)
+									bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload,
+								   LLHandle<LLWholeModelFeeObserver> fee_observer, LLHandle<LLWholeModelUploadObserver> upload_observer)
 {
-	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures, upload_skin, upload_joints, upload_url, do_upload);
+	LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures, upload_skin, upload_joints, upload_url, 
+														do_upload, fee_observer, upload_observer);
 	mUploadWaitList.push_back(thread);
 }
 

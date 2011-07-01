@@ -413,7 +413,8 @@ public:
 	std::map<LLViewerFetchedTexture*, LLTextureUploadData> mTextureMap;
 
 	LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
-			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true);
+			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true,
+					   LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()), LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 	~LLMeshUploadThread();
 
 	void uploadTexture(LLTextureUploadData& data);
@@ -505,7 +506,8 @@ public:
 	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
-			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true);
+			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true,
+					 LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()), LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 
 	S32 getMeshSize(const LLUUID& mesh_id, S32 lod);
 
