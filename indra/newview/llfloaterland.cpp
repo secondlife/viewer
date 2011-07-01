@@ -1804,7 +1804,6 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 	mCheckEditGroupObjects(NULL),
 	mCheckAllObjectEntry(NULL),
 	mCheckGroupObjectEntry(NULL),
-	mCheckEditLand(NULL),
 	mCheckSafe(NULL),
 	mCheckFly(NULL),
 	mCheckGroupScripts(NULL),
@@ -1818,7 +1817,7 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 	mClearBtn(NULL),
 	mMatureCtrl(NULL),
 	mPushRestrictionCtrl(NULL),
-	mPrivateParcelCtrl(NULL),
+	mSeeAvatarsCtrl(NULL),
 	mParcel(parcel)
 {
 }
@@ -1838,8 +1837,8 @@ BOOL LLPanelLandOptions::postBuild()
 	mCheckGroupObjectEntry = getChild<LLCheckBoxCtrl>( "group object entry check");
 	childSetCommitCallback("group object entry check", onCommitAny, this);
 	
-	mCheckEditLand = getChild<LLCheckBoxCtrl>( "edit land check");
-	childSetCommitCallback("edit land check", onCommitAny, this);
+//	mCheckEditLand = getChild<LLCheckBoxCtrl>( "edit land check");
+//	childSetCommitCallback("edit land check", onCommitAny, this);
 
 	
 	mCheckGroupScripts = getChild<LLCheckBoxCtrl>( "check group scripts");
@@ -1861,8 +1860,8 @@ BOOL LLPanelLandOptions::postBuild()
 	mPushRestrictionCtrl = getChild<LLCheckBoxCtrl>( "PushRestrictCheck");
 	childSetCommitCallback("PushRestrictCheck", onCommitAny, this);
 
-	mPrivateParcelCtrl = getChild<LLCheckBoxCtrl>( "PrivateParcelCheck");
-	childSetCommitCallback("PrivateParcelCheck", onCommitAny, this);
+	mSeeAvatarsCtrl = getChild<LLCheckBoxCtrl>( "SeeAvatarsCheck");
+	childSetCommitCallback("SeeAvatarsCheck", onCommitAny, this);
 
 	mCheckShowDirectory = getChild<LLCheckBoxCtrl>( "ShowDirectoryCheck");
 	childSetCommitCallback("ShowDirectoryCheck", onCommitAny, this);
@@ -1954,9 +1953,6 @@ void LLPanelLandOptions::refresh()
 		mCheckGroupObjectEntry	->set(FALSE);
 		mCheckGroupObjectEntry	->setEnabled(FALSE);
 
-		mCheckEditLand		->set(FALSE);
-		mCheckEditLand		->setEnabled(FALSE);
-
 		mCheckSafe			->set(FALSE);
 		mCheckSafe			->setEnabled(FALSE);
 
@@ -1972,8 +1968,8 @@ void LLPanelLandOptions::refresh()
 		mPushRestrictionCtrl->set(FALSE);
 		mPushRestrictionCtrl->setEnabled(FALSE);
 
-		mPrivateParcelCtrl->set(FALSE);
-		mPrivateParcelCtrl->setEnabled(FALSE);
+		mSeeAvatarsCtrl->set(TRUE);				// NOTE - reversed FALSE/TRUE for 'see avatars' prototype
+		mSeeAvatarsCtrl->setEnabled(FALSE);
 
 		mLandingTypeCombo->setCurrentByIndex(0);
 		mLandingTypeCombo->setEnabled(FALSE);
@@ -2005,10 +2001,6 @@ void LLPanelLandOptions::refresh()
 		mCheckGroupObjectEntry	->set( parcel->getAllowGroupObjectEntry() ||  parcel->getAllowAllObjectEntry());
 		mCheckGroupObjectEntry	->setEnabled( can_change_options && !parcel->getAllowAllObjectEntry() );
 
-		BOOL can_change_terraform = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_EDIT);
-		mCheckEditLand		->set( parcel->getAllowTerraform() );
-		mCheckEditLand		->setEnabled( can_change_terraform );
-
 		mCheckSafe			->set( !parcel->getAllowDamage() );
 		mCheckSafe			->setEnabled( can_change_options );
 
@@ -2034,9 +2026,9 @@ void LLPanelLandOptions::refresh()
 			mPushRestrictionCtrl->setEnabled(can_change_options);
 		}
 
-		mPrivateParcelCtrl->set(parcel->getHiddenAVs());
-		mPrivateParcelCtrl->setLabel(getString("hidden_avs_text"));
-		mPrivateParcelCtrl->setEnabled(can_change_options && parcel->getHaveNewParcelLimitData());
+		mSeeAvatarsCtrl->set(parcel->getSeeAVs());
+		mSeeAvatarsCtrl->setLabel(getString("see_avs_text"));
+		mSeeAvatarsCtrl->setEnabled(can_change_options && parcel->getHaveNewParcelLimitData());
 
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
 														GP_LAND_SET_LANDING_POINT);
@@ -2233,7 +2225,6 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL create_group_objects	= self->mCheckEditGroupObjects->get() || self->mCheckEditObjects->get();
 	BOOL all_object_entry		= self->mCheckAllObjectEntry->get();
 	BOOL group_object_entry	= self->mCheckGroupObjectEntry->get() || self->mCheckAllObjectEntry->get();
-	BOOL allow_terraform	= self->mCheckEditLand->get();
 	BOOL allow_damage		= !self->mCheckSafe->get();
 	BOOL allow_fly			= self->mCheckFly->get();
 	BOOL allow_landmark		= TRUE; // cannot restrict landmark creation
@@ -2242,7 +2233,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL allow_publish		= FALSE;
 	BOOL mature_publish		= self->mMatureCtrl->get();
 	BOOL push_restriction	= self->mPushRestrictionCtrl->get();
-	BOOL hidden_avs     = self->mPrivateParcelCtrl->get();
+	BOOL see_avs			= self->mSeeAvatarsCtrl->get();
 	BOOL show_directory		= self->mCheckShowDirectory->get();
 	// we have to get the index from a lookup, not from the position in the dropdown!
 	S32  category_index		= LLParcel::getCategoryFromString(self->mCategoryCombo->getSelectedValue());
@@ -2263,7 +2254,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setParcelFlag(PF_CREATE_GROUP_OBJECTS, create_group_objects);
 	parcel->setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, all_object_entry);
 	parcel->setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, group_object_entry);
-	parcel->setParcelFlag(PF_ALLOW_TERRAFORM, allow_terraform);
+	parcel->setParcelFlag(PF_ALLOW_TERRAFORM, FALSE);		// was allow_terraform
 	parcel->setParcelFlag(PF_ALLOW_DAMAGE, allow_damage);
 	parcel->setParcelFlag(PF_ALLOW_FLY, allow_fly);
 	parcel->setParcelFlag(PF_ALLOW_LANDMARK, allow_landmark);
@@ -2276,7 +2267,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setCategory((LLParcel::ECategory)category_index);
 	parcel->setLandingType((LLParcel::ELandingType)landing_type_index);
 	parcel->setSnapshotID(snapshot_id);
-	parcel->setHiddenAVs(hidden_avs);
+	parcel->setSeeAVs(see_avs);
 
 	// Send current parcel data upstream to server
 	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );

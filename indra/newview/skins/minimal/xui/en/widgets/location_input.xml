@@ -113,8 +113,8 @@
 	  font="SansSerifSmall"
 	  text_color="TextFgColor"
 	/>
-  <hidden_av_icon
-    name="hidden_av_icon"
+  <see_avatars_icon
+    name="see_avatars_icon"
     width="0"
     height="0"
     visible="false" 

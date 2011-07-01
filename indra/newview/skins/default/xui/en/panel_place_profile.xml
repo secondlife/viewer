@@ -154,13 +154,13 @@
      translate="false"
      value="Parcel_DamageNo_Dark" />
     <string
-     name="icon_HiddenAVsOff"
+     name="icon_SeeAVs_Off"
      translate="false"
-     value="Parcel_HiddenAVsOff_Dark" />
+     value="Parcel_SeeAVsOff_Dark" />
     <string
-     name="icon_HiddenAVsOn"
+     name="icon_SeeAVs_On"
      translate="false"
-     value="Parcel_HiddenAVsOn_Dark" />
+     value="Parcel_SeeAVsOn_Dark" />
     <button
      follows="top|left"
      height="24"
@@ -554,10 +554,10 @@
                         <icon
                          follows="top|left"
                          height="18"
-                         image_name="Parcel_HiddenAVsOff_Dark"
+                         image_name="Parcel_SeeAVsOff_Dark"
                          layout="topleft"
                          left="10"
-                         name="hidden_av_icon"
+                         name="see_avatars_icon"
                          top_pad="7"
                          width="22" />
                         <text
@@ -565,15 +565,15 @@
                          height="14"
                          layout="topleft"
                          left_pad="8"
-                         name="hidden_avs_label"
-                         value="Hidden Avatars:"
+                         name="see_avatars_label"
+                         value="See Avatars:"
                          width="90" />
                         <text
                          follows="left|top"
                          height="14"
                          layout="topleft"
                          left_pad="0"
-                         name="hidden_av_value"
+                         name="see_avatars_value"
                          value="Off"
                          width="60" />
                         <button

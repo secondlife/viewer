@@ -330,7 +330,6 @@ private:
 	LLCheckBoxCtrl*	mCheckEditGroupObjects;
 	LLCheckBoxCtrl*	mCheckAllObjectEntry;
 	LLCheckBoxCtrl*	mCheckGroupObjectEntry;
-	LLCheckBoxCtrl*	mCheckEditLand;
 	LLCheckBoxCtrl*	mCheckSafe;
 	LLCheckBoxCtrl*	mCheckFly;
 	LLCheckBoxCtrl*	mCheckGroupScripts;
@@ -348,7 +347,7 @@ private:
 
 	LLCheckBoxCtrl		*mMatureCtrl;
 	LLCheckBoxCtrl		*mPushRestrictionCtrl;
-	LLCheckBoxCtrl		*mPrivateParcelCtrl;
+	LLCheckBoxCtrl		*mSeeAvatarsCtrl;
 
 	LLSafeHandle<LLParcelSelection>&	mParcel;
 };

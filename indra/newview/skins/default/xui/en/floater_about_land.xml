@@ -1205,8 +1205,8 @@ Only large parcels can be listed in search.
                 No Pushing (Region Override)
             </panel.string>
             <panel.string
-             name="hidden_avs_text">
-                Hidden Avatars
+             name="see_avs_text">
+                See and chat with avatars on this parcel
             </panel.string>
             <text
              type="string"
@@ -1218,18 +1218,9 @@ Only large parcels can be listed in search.
              left="10"
              name="allow_label"
              top="10"
-             width="278">
+             width="270">
                 Allow other Residents to:
             </text>
-            <check_box
-             height="16"
-             label="Edit Terrain"
-             layout="topleft"
-             left="14"
-             name="edit land check"
-             tool_tip="If checked, anyone can terraform your land. It is best to leave this unchecked, as you can always edit your own land."
-             top_pad="4"
-             width="147i" />
             <check_box
              height="16"
              label="Fly"
@@ -1237,7 +1228,7 @@ Only large parcels can be listed in search.
              name="check fly"
              tool_tip="If checked, Residents can fly on your land. If unchecked, they can only fly into and over your land."
              left_pad="4"
-             width="150" />
+             width="128" />
             <text
              type="string"
              length="1"
@@ -1317,7 +1308,16 @@ Only large parcels can be listed in search.
              name="check group scripts"
              top_delta="0"
              width="70" />
-            <text
+          <check_box
+             height="16"
+             label="See Avatars"
+             layout="topleft"
+             left="14"
+             name="SeeAvatarsCheck"
+             tool_tip="Allow avatars on other parcels to see and chat with avatars on this parcel."
+             top_pad="5"
+             width="119" />
+           <text
              type="string"
              text_color="white"
              length="1"
@@ -1355,15 +1355,6 @@ Only large parcels can be listed in search.
              name="ShowDirectoryCheck"
              tool_tip="Let people see this parcel in search results"
              width="280" />
-            <check_box
-             height="16"
-             label="Private Parcel"
-             layout="topleft"
-             left_pad="5"
-             name="PrivateParcelCheck"
-             tool_tip="Prevents avatars from seeing into or out of the parcel."
-             top_delta="0"
-             width="119" />
             <combo_box
              enabled="false"
              height="23"
