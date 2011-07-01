@@ -3245,17 +3245,46 @@ void LLMeshRepository::uploadError(LLSD& args)
 //static
 F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod)
 {
-	F32 dlowest = llmin(radius/0.03f, 256.f);
-	F32 dlow = llmin(radius/0.06f, 256.f);
-	F32 dmid = llmin(radius/0.24f, 256.f);
-	
-	F32 METADATA_DISCOUNT = 128.f;  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
-	F32 MINIMUM_SIZE = 32.f; //make sure nothing is "free"
+	F32 max_distance = 512.f;
 
-	F32 bytes_lowest = llmax((F32) header["lowest_lod"]["size"].asReal()-METADATA_DISCOUNT, MINIMUM_SIZE)/1024.f;
-	F32 bytes_low = llmax((F32) header["low_lod"]["size"].asReal()/-METADATA_DISCOUNT, MINIMUM_SIZE)/1024.f;
-	F32 bytes_mid = llmax((F32) header["medium_lod"]["size"].asReal()-METADATA_DISCOUNT, MINIMUM_SIZE)/1024.f;
-	F32 bytes_high = llmax((F32) header["high_lod"]["size"].asReal()-METADATA_DISCOUNT, MINIMUM_SIZE)/1024.f;
+	F32 dlowest = llmin(radius/0.03f, max_distance);
+	F32 dlow = llmin(radius/0.06f, max_distance);
+	F32 dmid = llmin(radius/0.24f, max_distance);
+	
+	F32 METADATA_DISCOUNT = (F32) gSavedSettings.getU32("MeshMetaDataDiscount");  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
+	F32 MINIMUM_SIZE = (F32) gSavedSettings.getU32("MeshMinimumByteSize"); //make sure nothing is "free"
+
+	F32 bytes_per_triangle = (F32) gSavedSettings.getU32("MeshBytesPerTriangle");
+
+	S32 bytes_lowest = header["lowest_lod"]["size"].asInteger();
+	S32 bytes_low = header["low_lod"]["size"].asInteger();
+	S32 bytes_mid = header["medium_lod"]["size"].asInteger();
+	S32 bytes_high = header["high_lod"]["size"].asInteger();
+
+	if (bytes_high == 0)
+	{
+		return 0.f;
+	}
+
+	if (bytes_mid == 0)
+	{
+		bytes_mid = bytes_high;
+	}
+
+	if (bytes_low == 0)
+	{
+		bytes_low = bytes_mid;
+	}
+
+	if (bytes_lowest == 0)
+	{
+		bytes_lowest = bytes_low;
+	}
+
+	F32 triangles_lowest = llmax((F32) bytes_lowest-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
+	F32 triangles_low = llmax((F32) bytes_low-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
+	F32 triangles_mid = llmax((F32) bytes_mid-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
+	F32 triangles_high = llmax((F32) bytes_high-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
 
 	if (bytes)
 	{
@@ -3266,7 +3295,6 @@ F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32
 		*bytes += header["high_lod"]["size"].asInteger();
 	}
 
-
 	if (bytes_visible)
 	{
 		lod = LLMeshRepository::getActualMeshLOD(header, lod);
@@ -3276,27 +3304,7 @@ F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32
 		}
 	}
 
-	if (bytes_high == 0.f)
-	{
-		return 0.f;
-	}
-
-	if (bytes_mid == 0.f)
-	{
-		bytes_mid = bytes_high;
-	}
-
-	if (bytes_low == 0.f)
-	{
-		bytes_low = bytes_mid;
-	}
-
-	if (bytes_lowest == 0.f)
-	{
-		bytes_lowest = bytes_low;
-	}
-
-	F32 max_area = 65536.f;
+	F32 max_area = 102932.f; //area of circle that encompasses region
 	F32 min_area = 1.f;
 
 	F32 high_area = llmin(F_PI*dmid*dmid, max_area);
@@ -3319,12 +3327,12 @@ F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32
 	low_area /= total_area;
 	lowest_area /= total_area;
 
-	F32 weighted_avg = bytes_high*high_area +
-					   bytes_mid*mid_area +
-					   bytes_low*low_area +
-					  bytes_lowest*lowest_area;
+	F32 weighted_avg = triangles_high*high_area +
+					   triangles_mid*mid_area +
+					   triangles_low*low_area +
+					  triangles_lowest*lowest_area;
 
-	return weighted_avg * gSavedSettings.getF32("MeshStreamingCostScaler");
+	return weighted_avg/gSavedSettings.getU32("MeshTriangleBudget")*15000.f;
 }
 
 

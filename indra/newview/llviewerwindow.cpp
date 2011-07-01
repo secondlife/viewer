@@ -528,8 +528,8 @@ public:
 				addText(xpos,ypos, llformat("%s streaming cost: %.1f", label, cost));
 				ypos += y_inc;
 
-				addText(xpos, ypos, llformat("    %.1f KTris, %.1f/%.1f KB, %d objects",
-										count/1024.f, visible_bytes/1024.f, total_bytes/1024.f, object_count));
+				addText(xpos, ypos, llformat("    %.3f KTris, %.1f/%.1f KB, %d objects",
+										count/1000.f, visible_bytes/1024.f, total_bytes/1024.f, object_count));
 				ypos += y_inc;
 			
 			}

@@ -8245,6 +8245,8 @@ U32 LLVOAvatar::getPartitionType() const
 //static
 void LLVOAvatar::updateImpostors() 
 {
+	LLCharacter::sAllowInstancesChange = FALSE ;
+
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
@@ -8254,6 +8256,8 @@ void LLVOAvatar::updateImpostors()
 			gPipeline.generateImpostor(avatar);
 		}
 	}
+
+	LLCharacter::sAllowInstancesChange = TRUE ;
 }
 
 BOOL LLVOAvatar::isImpostor() const
