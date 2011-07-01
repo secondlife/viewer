@@ -206,6 +206,10 @@ public:
 
 	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
 
+	/*virtual*/ void onModelUploadSuccess();
+
+	/*virtual*/ void onModelUploadFailure();
+
 protected:
 	friend class LLModelPreview;
 	friend class LLMeshFilePicker;

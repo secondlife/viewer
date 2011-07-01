@@ -572,12 +572,10 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 	bool upload_joint_positions = childGetValue("upload_joints").asBoolean();
 
 	mUploadModelUrl.clear();
-	LLMeshUploadThread* thread = new LLMeshUploadThread(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
-			childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mUploadModelUrl, false);
 
-	thread->setFeeObserverHandle(getWholeModelFeeObserverHandle());
-
-	gMeshRepo.mUploadWaitList.push_back(thread);
+	gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
+			childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mUploadModelUrl, false,
+						  getWholeModelFeeObserverHandle());
 
 	toggleCalculateButton(false);
 	mUploadBtn->setEnabled(false);
@@ -5354,9 +5352,8 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
 
 	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
-						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mp->mUploadModelUrl);
-
-	mp->closeFloater(false);
+						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mp->mUploadModelUrl,
+						  true, LLHandle<LLWholeModelFeeObserver>(), mp->getWholeModelUploadObserverHandle());
 }
 
 
@@ -5458,6 +5455,18 @@ void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(U32 status, const std:
 {
 	toggleCalculateButton(true);
 	llwarns << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << llendl;
+}
+
+/*virtual*/ 
+void LLFloaterModelPreview::onModelUploadSuccess()
+{
+	closeFloater(false);
+}
+
+/*virtual*/ 
+void LLFloaterModelPreview::onModelUploadFailure()
+{
+	toggleCalculateButton(true);
 }
 
 S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32 p1, S32 p2)
