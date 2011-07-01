@@ -249,8 +249,9 @@ void LLFloaterEditSky::syncControls()
 	param_mgr->mAmbient = cur_params.getVector(param_mgr->mAmbient.mName, err);
 	setColorSwatch("WLAmbient", param_mgr->mAmbient, WL_SUN_AMBIENT_SLIDER_SCALE);
 
-	F32 sun_pos = param_mgr->mCurParams.getFloat("sun_angle",err) / F_TWO_PI;
-	getChild<LLMultiSliderCtrl>("WLSunPos")->setCurSliderValue(sun_pos_to_time24(sun_pos), TRUE);
+	F32 time24 = sun_pos_to_time24(param_mgr->mCurParams.getFloat("sun_angle",err) / F_TWO_PI);
+	getChild<LLMultiSliderCtrl>("WLSunPos")->setCurSliderValue(time24, TRUE);
+	getChild<LLTimeCtrl>("WLDayTime")->setTime24(time24);
 	childSetValue("WLEastAngle", param_mgr->mCurParams.getFloat("east_angle",err) / F_TWO_PI);
 
 	// Clouds
