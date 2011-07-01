@@ -1,4 +1,4 @@
-version 29
+version 30
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -293,6 +293,7 @@ RenderDeferred				0	0
 
 list Intel
 RenderAnisotropic			1	0
+RenderVBOEnable				1	0
 
 list GeForce2
 RenderAnisotropic			1	0
