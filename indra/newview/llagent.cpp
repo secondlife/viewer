@@ -3350,6 +3350,9 @@ bool LLAgent::teleportCore(bool is_local)
 	// hide land floater too - it'll be out of date
 	LLFloaterReg::hideInstance("about_land");
 
+	// hide the Region/Estate floater
+	LLFloaterReg::hideInstance("region_info");
+
 	// hide the search floater (EXT-8276)
 	LLFloaterReg::hideInstance("search");
 
