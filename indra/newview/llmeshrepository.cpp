@@ -198,196 +198,6 @@ S32 LLMeshRepoThread::sActiveHeaderRequests = 0;
 S32 LLMeshRepoThread::sActiveLODRequests = 0;
 U32	LLMeshRepoThread::sMaxConcurrentRequests = 1;
 
-
-class LLTextureCostResponder : public LLCurl::Responder
-{
-public:
-	LLTextureUploadData mData;
-	LLMeshUploadThread* mThread;
-
-	LLTextureCostResponder(LLTextureUploadData data, LLMeshUploadThread* thread) 
-		: mData(data), mThread(thread)
-	{
-
-	}
-
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		mThread->mPendingConfirmations--;
-		if (isGoodStatus(status))
-		{
-			mThread->priceResult(mData, content);	
-		}
-		else
-		{
-			llwarns << status << ": " << reason << llendl;
-
-			if (mData.mRetries < MAX_TEXTURE_UPLOAD_RETRIES)
-			{
-				llwarns << "Retrying. (" << ++mData.mRetries << ")" << llendl;
-			
-				if (status == 499 || status == 500)
-				{
-					mThread->uploadTexture(mData);
-				}
-				else
-				{
-					llerrs << "Unhandled status " << status << llendl;
-				}
-			}
-			else
-			{ 
-				llwarns << "Giving up after " << mData.mRetries << " retries." << llendl;
-			}
-		}
-	}
-};
-
-class LLTextureUploadResponder : public LLCurl::Responder
-{
-public:
-	LLTextureUploadData mData;
-	LLMeshUploadThread* mThread;
-
-	LLTextureUploadResponder(LLTextureUploadData data, LLMeshUploadThread* thread)
-		: mData(data), mThread(thread)
-	{
-	}
-
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		mThread->mPendingUploads--;
-		if (isGoodStatus(status))
-		{
-			mData.mUUID = content["new_asset"].asUUID();
-			gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mData.mPostData, content));
-			mThread->onTextureUploaded(mData);
-		}
-		else
-		{
-			llwarns << status << ": " << reason << llendl;
-			llwarns << "Retrying. (" << ++mData.mRetries << ")" << llendl;
-
-			if (status == 404)
-			{
-				mThread->uploadTexture(mData);
-			}
-			else if (status == 499)
-			{
-				mThread->mConfirmedTextureQ.push(mData);
-			}
-			else
-			{
-				llerrs << "Unhandled status " << status << llendl;
-			}
-		}
-	}
-};
-
-class LLMeshCostResponder : public LLCurl::Responder
-{
-public:
-	LLMeshUploadData mData;
-	LLMeshUploadThread* mThread;
-
-	LLMeshCostResponder(LLMeshUploadData data, LLMeshUploadThread* thread) 
-		: mData(data), mThread(thread)
-	{
-
-	}
-
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		mThread->mPendingConfirmations--;
-
-		if (isGoodStatus(status))
-		{
-			mThread->priceResult(mData, content);	
-		}
-		else
-		{
-			llwarns << status << ": " << reason << llendl;			
-			
-			if (status == HTTP_INTERNAL_ERROR)
-			{
-				llwarns << "Retrying. (" << ++mData.mRetries << ")" << llendl;
-				mThread->uploadModel(mData);
-			}
-			else if (status == HTTP_BAD_REQUEST)
-			{
-				llwarns << "Status 400 received from server, giving up." << llendl;
-			}
-			else if (status == HTTP_NOT_FOUND)
-			{
-				llwarns <<"Status 404 received, server is disconnected, giving up." << llendl ;
-			}
-			else
-			{
-				llerrs << "Unhandled status " << status << llendl;
-			}
-		}
-	}
-};
-
-class LLMeshUploadResponder : public LLCurl::Responder
-{
-public:
-	LLMeshUploadData mData;
-	LLMeshUploadThread* mThread;
-
-	LLMeshUploadResponder(LLMeshUploadData data, LLMeshUploadThread* thread)
-		: mData(data), mThread(thread)
-	{
-	}
-
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		mThread->mPendingUploads--;
-		if (isGoodStatus(status))
-		{
-			mData.mUUID = content["new_asset"].asUUID();
-			if (mData.mUUID.isNull())
-			{
-				LLSD args;
-				std::string message = content["error"]["message"];
-				std::string identifier = content["error"]["identifier"];
-				std::string invalidity_identifier = content["error"]["invalidity_identifier"];
-
-				args["MESSAGE"] = message;
-				args["IDENTIFIER"] = identifier;
-				args["INVALIDITY_IDENTIFIER"] = invalidity_identifier;
-				args["LABEL"] = mData.mBaseModel->mLabel;
-
-				gMeshRepo.uploadError(args);
-			}
-			else
-			{
-				gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mData.mPostData, content));
-				mThread->onModelUploaded(mData);
-			}
-		}
-		else
-		{
-			llwarns << status << ": " << reason << llendl;
-			llwarns << "Retrying. (" << ++mData.mRetries << ")" << llendl;
-
-			if (status == 404)
-			{
-				mThread->uploadModel(mData);
-			}
-			else if (status == 499)
-			{
-				mThread->mConfirmedQ.push(mData);
-			}
-			else if (status != 500)
-			{ //drop internal server errors on the floor, otherwise grab
-				llerrs << "Unhandled status " << status << llendl;
-			}
-		}
-	}
-};
-
-
 class LLMeshHeaderResponder : public LLCurl::Responder
 {
 public:
@@ -525,30 +335,6 @@ void log_upload_error(S32 status, const LLSD& content, std::string stage, std::s
 		llwarns << "bad mesh, no error information available" << llendl;
 	}
 }
-
-class LLModelObjectUploadResponder: public LLCurl::Responder
-{
-	LLSD mObjectAsset;
-	LLMeshUploadThread* mThread;
-
-public:
-	LLModelObjectUploadResponder(LLMeshUploadThread* thread, const LLSD& object_asset):
-		mThread(thread),
-		mObjectAsset(object_asset)
-	{
-	}
-
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
-	{
-		assert_main_thread();
-		
-		llinfos << "completed" << llendl;
-		mThread->mPendingUploads--;
-		mThread->mFinished = true;
-	}
-};
 
 class LLWholeModelFeeResponder: public LLCurl::Responder
 {
@@ -1386,9 +1172,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mUploadJoints = upload_joints;
 	mMutex = new LLMutex(NULL);
 	mCurlRequest = NULL;
-	mPendingConfirmations = 0;
 	mPendingUploads = 0;
-	mPendingCost = 0;
 	mFinished = false;
 	mOrigin = gAgent.getPositionAgent();
 	mHost = gAgent.getRegionHost();
@@ -1484,8 +1268,10 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	result["folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	result["asset_type"] = "mesh";
 	result["inventory_type"] = "object";
-	result["name"] = "mesh model";
-	result["description"] = "your description here";
+	result["description"] = "(No Description)";
+	result["next_owner_mask"] = LLSD::Integer(LLFloaterPerms::getNextOwnerPerms());
+	result["group_mask"] = LLSD::Integer(LLFloaterPerms::getGroupPerms());
+	result["everyone_mask"] = LLSD::Integer(LLFloaterPerms::getEveryonePerms());
 
 	res["mesh_list"] = LLSD::emptyArray();
 	res["texture_list"] = LLSD::emptyArray();
@@ -1497,6 +1283,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	std::map<LLViewerTexture*,S32> texture_index;
 
 	std::map<LLModel*,S32> mesh_index;
+	std::string model_name;
 
 	S32 instance_num = 0;
 	
@@ -1513,10 +1300,9 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		if (mesh_index.find(data.mBaseModel) == mesh_index.end())
 		{
 			// Have not seen this model before - create a new mesh_list entry for it.
-			std::string model_name = data.mBaseModel->getName();
-			if (!model_name.empty())
+			if (model_name.empty())
 			{
-				result["name"] = model_name;
+				model_name = data.mBaseModel->getName();
 			}
 
 			std::stringstream ostr;
@@ -1571,16 +1357,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			instance_entry["scale"] = ll_sd_from_vector3(scale);
 		
 			instance_entry["material"] = LL_MCODE_WOOD;
-			LLPermissions perm;
-			perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
-			perm.setCreator(gAgent.getID());
-		
-			perm.initMasks(PERM_ITEM_UNRESTRICTED | PERM_MOVE, //base
-						   PERM_ITEM_UNRESTRICTED | PERM_MOVE, //owner
-						   LLFloaterPerms::getEveryonePerms(),
-						   LLFloaterPerms::getGroupPerms(),
-						   LLFloaterPerms::getNextOwnerPerms());
-			instance_entry["permissions"] = ll_create_sd_from_permissions(perm);
 			instance_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
 			instance_entry["mesh"] = mesh_index[data.mBaseModel];
 
@@ -1644,6 +1420,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		}
 	}
 
+	if (model_name.empty()) model_name = "mesh model";
+	result["name"] = model_name;
 	result["asset_resources"] = res;
 	dump_llsd_to_file(result,make_dump_name("whole_model_",dump_num));
 
@@ -1738,20 +1516,6 @@ void LLMeshUploadThread::doWholeModelUpload()
 	// Currently a no-op.
 	mFinished = true;
 }
-
-void LLMeshUploadThread::uploadModel(LLMeshUploadData& data)
-{ //called from arbitrary thread
-	{
-		LLMutexLock lock(mMutex);
-		mUploadQ.push(data);
-	}
-}
-
-void LLMeshUploadThread::uploadTexture(LLTextureUploadData& data)
-{ //called from mesh upload thread
-	mTextureQ.push(data);	
-}
-
 
 static LLFastTimer::DeclareTimer FTM_NOTIFY_MESH_LOADED("Notify Loaded");
 static LLFastTimer::DeclareTimer FTM_NOTIFY_MESH_UNAVAILABLE("Notify Unavailable");
@@ -2866,101 +2630,6 @@ S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod)
 
 }
 
-
-void LLMeshUploadThread::doUploadModel(LLMeshUploadData& data)
-{
-	if(isDiscarded())
-	{
-		return ;
-	}
-
-	if (!data.mRSVP.empty())
-	{
-		std::stringstream ostr;
-
-		LLModel::Decomposition& decomp =
-			data.mModel[LLModel::LOD_PHYSICS].notNull() ? 
-			data.mModel[LLModel::LOD_PHYSICS]->mPhysics : 
-			data.mBaseModel->mPhysics;
-
-		decomp.mBaseHull = mHullMap[data.mBaseModel];
-
-		LLModel::writeModel(
-			ostr,  
-			data.mModel[LLModel::LOD_PHYSICS],
-			data.mModel[LLModel::LOD_HIGH],
-			data.mModel[LLModel::LOD_MEDIUM],
-			data.mModel[LLModel::LOD_LOW],
-			data.mModel[LLModel::LOD_IMPOSTOR], 
-			decomp,
-			mUploadSkin,
-			mUploadJoints);
-
-		data.mAssetData = ostr.str();
-
-		LLCurlRequest::headers_t headers;
-		mPendingUploads++;
-
-		mCurlRequest->post(data.mRSVP, headers, data.mAssetData, new LLMeshUploadResponder(data, this), mMeshUploadTimeOut);
-	}
-}
-
-void LLMeshUploadThread::doUploadTexture(LLTextureUploadData& data)
-{
-	if(isDiscarded())
-	{
-		return ;
-	}
-
-	if (!data.mRSVP.empty())
-	{
-		std::stringstream ostr;
-		
-		if (!data.mTexture->isRawImageValid())
-		{
-			data.mTexture->reloadRawImage(data.mTexture->getDiscardLevel());
-		}
-
-		if(data.mTexture->hasSavedRawImage())
-		{
-			LLPointer<LLImageJ2C> upload_file = LLViewerTextureList::convertToUploadFile(data.mTexture->getSavedRawImage());
-		
-			ostr.write((const char*) upload_file->getData(), upload_file->getDataSize());
-		}
-
-		data.mAssetData = ostr.str();
-
-		LLCurlRequest::headers_t headers;
-		mPendingUploads++;
-
-		mCurlRequest->post(data.mRSVP, headers, data.mAssetData, new LLTextureUploadResponder(data, this), mMeshUploadTimeOut);
-	}
-}
-
-
-void LLMeshUploadThread::onModelUploaded(LLMeshUploadData& data)
-{
-	createObjects(data);
-}
-
-void LLMeshUploadThread::onTextureUploaded(LLTextureUploadData& data)
-{
-	mTextureMap[data.mTexture] = data;
-}
-
-
-void LLMeshUploadThread::createObjects(LLMeshUploadData& data)
-{
-	instance_list& instances = mInstance[data.mBaseModel];
-
-	for (instance_list::iterator iter = instances.begin(); iter != instances.end(); ++iter)
-	{ //create prims that reference given mesh
-		LLModelInstance& instance = *iter;
-		instance.mMeshID = data.mUUID;
-		mInstanceQ.push(instance);
-	}
-}
-
 void LLMeshUploadThread::decomposeMeshMatrix(LLMatrix4& transformation,
 											 LLVector3& result_pos,
 											 LLQuaternion& result_rot,
@@ -3000,147 +2669,6 @@ void LLMeshUploadThread::decomposeMeshMatrix(LLMatrix4& transformation,
 	result_scale = scale;
 	result_rot = quat_rotation; 
 }
-
-										 
-LLSD LLMeshUploadThread::createObject(LLModelInstance& instance)
-{
-	LLMatrix4 transformation = instance.mTransform;
-
-	llassert(instance.mMeshID.notNull());
-	
-	// check for reflection
-	BOOL reflected = (transformation.determinant() < 0);
-
-	// compute position
-	LLVector3 position = LLVector3(0, 0, 0) * transformation;
-
-	// compute scale
-	LLVector3 x_transformed = LLVector3(1, 0, 0) * transformation - position;
-	LLVector3 y_transformed = LLVector3(0, 1, 0) * transformation - position;
-	LLVector3 z_transformed = LLVector3(0, 0, 1) * transformation - position;
-	F32 x_length = x_transformed.normalize();
-	F32 y_length = y_transformed.normalize();
-	F32 z_length = z_transformed.normalize();
-	LLVector3 scale = LLVector3(x_length, y_length, z_length);
-
-    // adjust for "reflected" geometry
-	LLVector3 x_transformed_reflected = x_transformed;
-	if (reflected)
-	{
-		x_transformed_reflected *= -1.0;
-	}
-	
-	// compute rotation
-	LLMatrix3 rotation_matrix;
-	rotation_matrix.setRows(x_transformed_reflected, y_transformed, z_transformed);
-	LLQuaternion quat_rotation = rotation_matrix.quaternion();
-	quat_rotation.normalize(); // the rotation_matrix might not have been orthoginal.  make it so here.
-	LLVector3 euler_rotation;
-	quat_rotation.getEulerAngles(&euler_rotation.mV[VX], &euler_rotation.mV[VY], &euler_rotation.mV[VZ]);
-
-	//
-	// build parameter block to construct this prim
-	//
-	
-	LLSD object_params;
-
-	// create prim
-
-	// set volume params
-	U8 sculpt_type = LL_SCULPT_TYPE_MESH;
-	if (reflected)
-	{
-		sculpt_type |= LL_SCULPT_FLAG_MIRROR;
-	}
-	LLVolumeParams  volume_params;
-	volume_params.setType( LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE );
-	volume_params.setBeginAndEndS( 0.f, 1.f );
-	volume_params.setBeginAndEndT( 0.f, 1.f );
-	volume_params.setRatio  ( 1, 1 );
-	volume_params.setShear  ( 0, 0 );
-	volume_params.setSculptID(instance.mMeshID, sculpt_type);
-	object_params["shape"] = volume_params.asLLSD();
-
-	object_params["material"] = LL_MCODE_WOOD;
-
-	object_params["group-id"] = gAgent.getGroupID();
-	object_params["pos"] = ll_sd_from_vector3(position + mOrigin);
-	object_params["rotation"] = ll_sd_from_quaternion(quat_rotation);
-	object_params["scale"] = ll_sd_from_vector3(scale);
-	object_params["name"] = instance.mLabel;
-
-	// load material from dae file
-	object_params["facelist"] = LLSD::emptyArray();
-	for (S32 i = 0; i < instance.mMaterial.size(); i++)
-	{
-		LLTextureEntry te;
-		LLImportMaterial& mat = instance.mMaterial[i];
-
-		te.setColor(mat.mDiffuseColor);
-
-		LLUUID diffuse_id = mTextureMap[mat.mDiffuseMap].mUUID;
-
-		if (diffuse_id.notNull())
-		{
-			te.setID(diffuse_id);
-		}
-		else
-		{
-			te.setID(LLUUID("5748decc-f629-461c-9a36-a35a221fe21f")); // blank texture
-		}
-
-		te.setFullbright(mat.mFullbright);
-
-		object_params["facelist"][i] = te.asLLSD();
-	}
-
-	// set extra parameters
-	LLSculptParams sculpt_params;
-	sculpt_params.setSculptTexture(instance.mMeshID);
-	sculpt_params.setSculptType(sculpt_type);
-	U8 buffer[MAX_OBJECT_PARAMS_SIZE+1];
-	LLDataPackerBinaryBuffer dp(buffer, MAX_OBJECT_PARAMS_SIZE);
-	sculpt_params.pack(dp);
-	std::vector<U8> v(dp.getCurrentSize());
-	memcpy(&v[0], buffer, dp.getCurrentSize());
-	LLSD extra_parameter;
-	extra_parameter["extra_parameter"] = sculpt_params.mType;
-	extra_parameter["param_data"] = v;
-	object_params["extra_parameters"].append(extra_parameter);
-
-	LLPermissions perm;
-	perm.setOwnerAndGroup(gAgent.getID(), gAgent.getID(), LLUUID::null, false);
-	perm.setCreator(gAgent.getID());
-
-	perm.initMasks(PERM_ITEM_UNRESTRICTED | PERM_MOVE, //base
-				   PERM_ITEM_UNRESTRICTED | PERM_MOVE, //owner
-				   LLFloaterPerms::getEveryonePerms(),
-				   LLFloaterPerms::getGroupPerms(),
-				   LLFloaterPerms::getNextOwnerPerms());
-		
-	object_params["permissions"] = ll_create_sd_from_permissions(perm);
-
-	object_params["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
-
-	return object_params;
-}
-
-void LLMeshUploadThread::priceResult(LLMeshUploadData& data, const LLSD& content)
-{
-	mPendingCost += content["upload_price"].asInteger();
-	data.mRSVP = content["rsvp"].asString();
-
-	mConfirmedQ.push(data);
-}
-
-void LLMeshUploadThread::priceResult(LLTextureUploadData& data, const LLSD& content)
-{
-	mPendingCost += content["upload_price"].asInteger();
-	data.mRSVP = content["rsvp"].asString();
-
-	mConfirmedTextureQ.push(data);
-}
-
 
 bool LLImportMaterial::operator<(const LLImportMaterial &rhs) const
 {

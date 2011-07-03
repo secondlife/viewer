@@ -3472,7 +3472,17 @@ void LLModelPreview::loadModelCallback(S32 lod)
 
 	mLoading = false;
 	if (mFMP)
+	{
 		mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->set(FALSE);
+		if (!mBaseModel.empty())
+		{
+			if (mFMP->getChild<LLUICtrl>("description_form")->getValue().asString().empty())
+			{
+				const std::string& model_name = mBaseModel[0]->getName();
+				mFMP->getChild<LLUICtrl>("description_form")->setValue(model_name);
+			}
+		}
+	}
 	refresh();
 
 	mModelLoadedSignal();

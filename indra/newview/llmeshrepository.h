@@ -388,9 +388,7 @@ public:
 
 	LLMutex*					mMutex;
 	LLCurlRequest* mCurlRequest;
-	S32				mPendingConfirmations;
 	S32				mPendingUploads;
-	S32				mPendingCost;
 	LLVector3		mOrigin;
 	bool			mFinished;	
 	bool			mUploadTextures;
@@ -402,30 +400,9 @@ public:
 	std::string		mWholeModelFeeCapability;
 	std::string		mWholeModelUploadURL;
 
-	std::queue<LLMeshUploadData> mUploadQ;
-	std::queue<LLMeshUploadData> mConfirmedQ;
-	std::queue<LLModelInstance> mInstanceQ;
-
-	std::queue<LLTextureUploadData> mTextureQ;
-	std::queue<LLTextureUploadData> mConfirmedTextureQ;
-
-	std::map<LLViewerFetchedTexture*, LLTextureUploadData> mTextureMap;
-
 	LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
 			bool upload_skin, bool upload_joints);
 	~LLMeshUploadThread();
-
-	void uploadTexture(LLTextureUploadData& data);
-	void doUploadTexture(LLTextureUploadData& data);
-	void priceResult(LLTextureUploadData& data, const LLSD& content);
-	void onTextureUploaded(LLTextureUploadData& data);
-
-	void uploadModel(LLMeshUploadData& data);
-	void doUploadModel(LLMeshUploadData& data);
-	void onModelUploaded(LLMeshUploadData& data);
-	void createObjects(LLMeshUploadData& data);
-	LLSD createObject(LLModelInstance& instance);
-	void priceResult(LLMeshUploadData& data, const LLSD& content);
 
 	bool finished() { return mFinished; }
 	virtual void run();

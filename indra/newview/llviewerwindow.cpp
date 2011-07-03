@@ -747,10 +747,8 @@ public:
 			{
 				LLMeshUploadThread* thread = *iter;
 
-				addText(xpos, ypos, llformat("Mesh Upload -- price quote: %d:%d | upload: %d:%d | create: %d", 
-								thread->mPendingConfirmations, thread->mUploadQ.size()+thread->mTextureQ.size(),
-								thread->mPendingUploads, thread->mConfirmedQ.size()+thread->mConfirmedTextureQ.size(),
-								thread->mInstanceQ.size()));
+				addText(xpos, ypos, llformat("Mesh Uploads: %d", 
+								thread->mPendingUploads));
 				ypos += y_inc;
 			}
 		}
