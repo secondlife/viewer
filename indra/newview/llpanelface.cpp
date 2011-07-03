@@ -972,6 +972,16 @@ void LLPanelFace::getState()
 		//getChildView("has media")->setEnabled(FALSE);
 		//getChildView("media info set")->setEnabled(FALSE);
 		
+
+		// Set variable values for numeric expressions
+		LLCalc* calcp = LLCalc::getInstance();
+		calcp->clearVar(LLCalc::TEX_U_SCALE);
+		calcp->clearVar(LLCalc::TEX_V_SCALE);
+		calcp->clearVar(LLCalc::TEX_U_OFFSET);
+		calcp->clearVar(LLCalc::TEX_V_OFFSET);
+		calcp->clearVar(LLCalc::TEX_ROTATION);
+		calcp->clearVar(LLCalc::TEX_TRANSPARENCY);
+		calcp->clearVar(LLCalc::TEX_GLOW);		
 	}
 }
 
