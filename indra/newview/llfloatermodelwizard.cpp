@@ -133,6 +133,10 @@ void LLFloaterModelWizard::setState(int state)
 		if (mLastEnabledState < state)
 		{
 			mModelPreview->setPhysicsFromLOD(1);
+
+			// Trigger the recalculate physics when first entering
+			// the Physics step.
+			onClickRecalculatePhysics();
 		}
 
 		mModelPreview->mViewOption["show_physics"] = true;
