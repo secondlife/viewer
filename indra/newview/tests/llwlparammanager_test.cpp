@@ -26,9 +26,6 @@
 #include "llglslshader_stub.cpp"
 #include "lldir_stub.cpp"
 #include "llsky_stub.cpp"
-#include "llfloaterdaycycle_stub.cpp"
-#include "llfloaterenvsettings_stub.cpp"
-#include "llfloaterwindlight_stub.cpp"
 #include "llpipeline_stub.cpp"
 #include "llviewershadermgr_stub.cpp"
 

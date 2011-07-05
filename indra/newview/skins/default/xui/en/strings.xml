@@ -2358,8 +2358,6 @@ Returns a string with the requested data about the region
 	<!-- Environment settings -->
 	<string name="LocalSettings">Local Settings</string>
 	<string name="RegionSettings">Region Settings</string>
-	<string name="Local">Local</string>
-	<string name="Region">Region</string>
 
 	<!-- panel classified -->
 	<string name="ClassifiedClicksTxt">Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile</string>

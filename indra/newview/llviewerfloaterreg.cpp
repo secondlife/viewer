@@ -48,7 +48,6 @@
 #include "llfloaterbulkpermission.h"
 #include "llfloaterbump.h"
 #include "llfloatercamera.h"
-#include "llfloaterdaycycle.h"
 #include "llfloaterdeleteenvpreset.h"
 #include "llfloaterdisplayname.h"
 #include "llfloatereditdaycycle.h"
@@ -57,7 +56,6 @@
 #include "llfloaterenvironmentsettings.h"
 #include "llfloaterevent.h"
 #include "llfloatersearch.h"
-#include "llfloaterenvsettings.h"
 #include "llfloaterfonttest.h"
 #include "llfloatergesture.h"
 #include "llfloatergodtools.h"
@@ -106,9 +104,7 @@
 #include "llfloatertopobjects.h"
 #include "llfloateruipreview.h"
 #include "llfloatervoiceeffect.h"
-#include "llfloaterwater.h"
 #include "llfloaterwhitelistentry.h"
-#include "llfloaterwindlight.h"
 #include "llfloaterwindowsize.h"
 #include "llfloaterworldmap.h"
 #include "llimfloatercontainer.h"
@@ -184,12 +180,8 @@ void LLViewerFloaterReg::registerFloaters()
 
 	LLFloaterReg::add("compile_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCompileQueue>);
 
-	LLFloaterReg::add("env_day_cycle", "floater_day_cycle_options.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDayCycle>);
 	LLFloaterReg::add("env_post_process", "floater_post_process.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPostProcess>);
-	LLFloaterReg::add("old_env_settings", "floater_env_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvSettings>);
 	LLFloaterReg::add("env_settings", "floater_environment_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvironmentSettings>);
-	LLFloaterReg::add("env_water", "floater_water.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWater>);
-	LLFloaterReg::add("env_windlight", "floater_windlight_options.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWindLight>);
 	LLFloaterReg::add("env_delete_preset", "floater_delete_env_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDeleteEnvPreset>);
 	LLFloaterReg::add("env_edit_sky", "floater_edit_sky_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditSky>);
 	LLFloaterReg::add("env_edit_water", "floater_edit_water_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditWater>);

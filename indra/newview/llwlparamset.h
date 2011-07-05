@@ -33,7 +33,6 @@
 #include "v4math.h"
 #include "v4color.h"
 
-class LLFloaterWindLight;
 class LLWLParamSet;
 class LLGLSLShader;
 

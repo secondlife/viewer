@@ -29,7 +29,6 @@
 #include "llwlparamset.h"
 #include "llwlanimator.h"
 
-#include "llfloaterwindlight.h"
 #include "llwlparammanager.h"
 #include "llglslshader.h"
 #include "lluictrlfactory.h"

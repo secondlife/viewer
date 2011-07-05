@@ -55,9 +55,6 @@
 #include "llwlparamset.h"
 #include "llpostprocess.h"
 
-#include "llfloaterwindlight.h"
-#include "llfloaterdaycycle.h"
-#include "llfloaterenvsettings.h"
 #include "llviewershadermgr.h"
 #include "llglslshader.h"
 
@@ -457,23 +454,6 @@ void LLWLParamManager::update(LLViewerCamera * cam)
 	// update the shaders and the menu
 	propagateParameters();
 	
-	// sync menus if they exist
-	LLFloaterWindLight* wlfloater = LLFloaterReg::findTypedInstance<LLFloaterWindLight>("env_windlight");
-	if (wlfloater)
-	{
-		wlfloater->syncMenu();
-	}
-	LLFloaterDayCycle* dlfloater = LLFloaterReg::findTypedInstance<LLFloaterDayCycle>("env_day_cycle");
-	if (dlfloater)
-	{
-		dlfloater->syncMenu();
-	}
-	LLFloaterEnvSettings* envfloater = LLFloaterReg::findTypedInstance<LLFloaterEnvSettings>("old_env_settings");
-	if (envfloater)
-	{
-		envfloater->syncMenu();
-	}
-
 	F32 camYaw = cam->getYaw();
 
 	stop_glerror();

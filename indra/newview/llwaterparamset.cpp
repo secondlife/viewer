@@ -29,7 +29,6 @@
 #include "llwaterparamset.h"
 #include "llsd.h"
 
-#include "llfloaterwater.h"
 #include "llwaterparammanager.h"
 #include "lluictrlfactory.h"
 #include "llsliderctrl.h"

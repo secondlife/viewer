@@ -7583,16 +7583,7 @@ class LLWorldEnvSettings : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string tod = userdata.asString();
-		LLVector3 sun_direction;
 		
-		if (tod == "old_editor")
-		{
-			// if not there or is hidden, show it
-			// *TODO replace with LLFloaterWindLight::show(LLEnvKey::SCOPE_LOCAL) to make sure we're using the right scope?
-			LLFloaterReg::toggleInstance("old_env_settings");
-			return true;
-		}
-
 		if (tod == "editor")
 		{
 			LLFloaterReg::toggleInstance("env_settings");
@@ -7681,16 +7672,6 @@ class LLWorldPostProcess : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterReg::showInstance("env_post_process");
-		return true;
-	}
-};
-
-/// Day Cycle callbacks
-class LLWorldDayCycle : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterReg::showInstance("env_day_cycle");
 		return true;
 	}
 };
@@ -7925,7 +7906,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldEnvSettings(), "World.EnvSettings");
 	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
-	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
 
 	view_listener_t::addMenu(new LLWorldToggleMovementControls(), "World.Toggle.MovementControls");
 	view_listener_t::addMenu(new LLWorldToggleCameraControls(), "World.Toggle.CameraControls");

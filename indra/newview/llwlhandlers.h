@@ -36,8 +36,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llhttpclient.h"
 
-class LLEnvManager;
-
 class LLEnvironmentRequest
 {
 	LOG_CLASS(LLEnvironmentRequest);
@@ -59,7 +57,6 @@ public:
 
 private:
 	friend class LLEnvironmentRequest;
-	friend class LLEnvManager;
 
 	LLEnvironmentRequestResponder();
 	static int sCount;

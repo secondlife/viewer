@@ -74,8 +74,6 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void onClose(bool app_quitting);
-
 	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
 
 	// get and process region info if necessary.
@@ -227,11 +225,8 @@ public:
 	LLPanelRegionTerrainInfo() : LLPanelRegionInfo() {}
 	~LLPanelRegionTerrainInfo() {}
 	
-	static LLPanelRegionTerrainInfo* instance();
 	virtual BOOL postBuild();												// LLPanel
-	static void onFloaterClose(bool app_quitting);
 	
-	F32 getSunHour();
 	virtual bool refreshFromRegion(LLViewerRegion* region);					// refresh local settings from region update from simulator
 	void setEnvControls(bool available);									// Whether environment settings are available for this region
 
@@ -239,26 +234,12 @@ public:
 
 	//static void onChangeAnything(LLUICtrl* ctrl, void* userData);			// callback for any change, to enable commit button
 	
-	static LLPanelRegionTerrainInfo* sPanelRegionTerrainInfo;				// static instance pointer for singleton
-
 	virtual BOOL sendUpdate();
-
-	void onChangeUseEstateTime();
-	void onChangeFixedSun();
-	void onChangeSunHour();
 
 	static void onClickDownloadRaw(void*);
 	static void onClickUploadRaw(void*);
 	static void onClickBakeTerrain(void*);
 	bool callbackBakeTerrain(const LLSD& notification, const LLSD& response);
-
-	static void onOpenAdvancedSky(void* userData);							// open the advanced sky settings menu
-	static void onOpenAdvancedWater(void* userData);						// open the advanced water settings menu
-	static void onUseEstateTime(void* userData);							// sync time with the server
-	static void onCommitRegionWL(void* userData);							// commit region information to server
-	static void onCancelRegionWL(void* userData);							// cancel changes to region
-	static void onSetRegionToDefaultWL(void* userData);						// revert region WL settings to default
-	static void onApplyCurrentWL(void* userData);							// apply current settings to region
 };
 
 /////////////////////////////////////////////////////////////////////////////

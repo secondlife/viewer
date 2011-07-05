@@ -4854,18 +4854,6 @@ Do you wish to overwrite the saved preset?
 
   <notification
    icon="alertmodal.tga"
-   name="WLDeletePresetAlert"
-   type="alertmodal">
-Do you wish to delete [SKY]?
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="No"
-     yestext="Yes"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="WLNoEditDefault"
    type="alertmodal">
 You cannot edit or delete a default preset.
@@ -4885,40 +4873,6 @@ This day cycle file references a missing sky file: [SKY].
    name="WLRegionApplyFail"
    type="alertmodal">
 Sorry, the settings couldn't be applied to the region.  Leaving the region and then returning may help rectify the problem.  The reason given was: [FAIL_REASON]
-  </notification>
-
-  <notification
-   functor="GenericAcknowledge"
-   icon="alertmodal.tga"
-   name="EnvEditExternalCancel"
-   type="alertmodal">
-Warning: an update to the environment settings you were just editing was received, either because settings you recently committed have just been applied or because someone else with editing permissions updated the region's environment settings.  In order to avoid overwriting this update, your changes have been cancelled; concurrent edits are not permitted.  Please try again.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-
-  <notification
-   functor="GenericAlertYesCancel"
-   icon="alertmodal.tga"
-   name="EnvEditUnsavedChangesCancel"
-   type="alertmodal">
-Warning: you have un-applied changes to the following environment settings: [SCOPE].  Are you sure you want to cancel them?
-    <usetemplate
-     name="okcancelbuttons"
-     yestext="Cancel Changes"
-     notext="Resume Editing"/>
-  </notification>
-
-  <notification
-   functor="GenericAcknowledge"
-   icon="alertmodal.tga"
-   name="EnvOtherScopeAlreadyOpen"
-   type="alertmodal">
-You cannot modify your local environment settings and region environment settings at the same time.  Close the environment settings windows currently open and try again.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
   </notification>
 
   <notification
@@ -4963,74 +4917,6 @@ PostProcess Effect exists. Do you still wish overwrite it?
      name="okcancelbuttons"
      notext="No"
      yestext="Yes"/>
-  </notification>
-
-  <notification
-   icon="alert.tga"
-   name="NewSkyPreset"
-   type="alert">
-Give me a name for the new sky.
-    <tag>confirm</tag>
-    <form name="form">
-      <input name="message" type="text">
-New Preset
-      </input>
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-      <button
-       index="1"
-       name="Cancel"
-       text="Cancel"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="ExistsSkyPresetAlert"
-   type="alertmodal">
-Preset already exists!
-  <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alert.tga"
-   name="NewWaterPreset"
-   type="alert">
-Give me a name for the new water preset.
-    <tag>confirm</tag>
-    <form name="form">
-      <input name="message" type="text">
-New Preset
-      </input>
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-      <button
-       index="1"
-       name="Cancel"
-       text="Cancel"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="ExistsWaterPresetAlert"
-   type="alertmodal">
-Preset already exists!
-  <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="WaterNoEditDefault"
-   type="alertmodal">
-You cannot edit or delete a default preset.
-  <tag>fail</tag>
   </notification>
 
   <notification

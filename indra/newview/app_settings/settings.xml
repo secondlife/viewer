@@ -10237,17 +10237,6 @@
       <key>Value</key>
       <real>0.300000011921</real>
     </map>
-    <key>SkyEditPresets</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to be able to edit the sky defaults or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>SkyNightColorShift</key>
     <map>
       <key>Comment</key>
@@ -12542,17 +12531,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>20</integer>
-    </map>
-    <key>WaterEditPresets</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to be able to edit the water defaults or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>

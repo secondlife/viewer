@@ -54,7 +54,6 @@
 
 #include "llwlparammanager.h"
 #include "llwaterparamset.h"
-#include "llfloaterwater.h"
 
 #include "curl/curl.h"
 
@@ -225,13 +224,6 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 	// update the shaders and the menu
 	propagateParameters();
 	
-	// sync menus if they exist
-	LLFloaterWater* waterfloater = LLFloaterReg::findTypedInstance<LLFloaterWater>("env_water");
-	if(waterfloater) 
-	{
-		waterfloater->syncMenu();
-	}
-
 	// only do this if we're dealing with shaders
 	if(gPipeline.canUseVertexShaders()) 
 	{

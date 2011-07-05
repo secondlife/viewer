@@ -423,7 +423,7 @@ void LLFloaterEditDayCycle::onAddKey()
 	if ((S32)mSliderToKey.size() >= max_sliders)
 	{
 		LLSD args;
-		args["SCOPE"] = LLEnvManager::getScopeString(scope);
+		args["SCOPE"] = LLEnvManagerNew::getScopeString(scope);
 		args["MAX"] = max_sliders;
 		LLNotificationsUtil::add("DayCycleTooManyKeyframes", args, LLSD(), LLNotificationFunctorRegistry::instance().DONOTHING);
 		return;

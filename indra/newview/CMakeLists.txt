@@ -180,13 +180,11 @@ set(viewer_SOURCE_FILES
     llfloaterbuyland.cpp
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
-    llfloaterdaycycle.cpp
     llfloaterdeleteenvpreset.cpp
     llfloaterdisplayname.cpp
     llfloatereditdaycycle.cpp
     llfloatereditsky.cpp
     llfloatereditwater.cpp
-    llfloaterenvsettings.cpp
     llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
     llfloaterfonttest.cpp
@@ -240,10 +238,8 @@ set(viewer_SOURCE_FILES
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
-    llfloaterwater.cpp
     llfloaterwebcontent.cpp
     llfloaterwhitelistentry.cpp
-    llfloaterwindlight.cpp
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
     llfolderview.cpp
@@ -740,13 +736,11 @@ set(viewer_HEADER_FILES
     llfloaterbuyland.h
     llfloatercamera.h
     llfloatercolorpicker.h
-    llfloaterdaycycle.h
     llfloaterdeleteenvpreset.h
     llfloaterdisplayname.h
     llfloatereditdaycycle.h
     llfloatereditsky.h
     llfloatereditwater.h
-    llfloaterenvsettings.h
     llfloaterenvironmentsettings.h
     llfloaterevent.h
     llfloaterfonttest.h
@@ -800,10 +794,8 @@ set(viewer_HEADER_FILES
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h
-    llfloaterwater.h
     llfloaterwebcontent.h
     llfloaterwhitelistentry.h
-    llfloaterwindlight.h
     llfloaterwindowsize.h
     llfloaterworldmap.h
     llfolderview.h

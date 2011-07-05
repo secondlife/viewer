@@ -55,14 +55,12 @@
 #include "lldaycyclemanager.h"
 #include "llenvmanager.h"
 #include "llfilepicker.h"
-#include "llfloaterdaycycle.h"
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
 #include "llfloatertopobjects.h" // added to fix SL-32336
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
 #include "llfloaterregiondebugconsole.h"
 #include "llfloatertelehub.h"
-#include "llfloaterwindlight.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
@@ -92,9 +90,6 @@
 #include "lltrans.h"
 #include "llagentui.h"
 #include "llmeshrepository.h"
-
-// contains includes needed for WL estate settings
-#include "llfloaterwater.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
@@ -1151,36 +1146,11 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 // LLPanelRegionTerrainInfo
 /////////////////////////////////////////////////////////////////////////////
 // Initialize statics
-LLPanelRegionTerrainInfo* LLPanelRegionTerrainInfo::sPanelRegionTerrainInfo = NULL;
-
-// static
-LLPanelRegionTerrainInfo* LLPanelRegionTerrainInfo::instance()
-{
-       if (!sPanelRegionTerrainInfo)
-       {
-               sPanelRegionTerrainInfo = LLFloaterRegionInfo::getPanelRegionTerrain();
-               lldebugs << llformat("Instantiating sPanelRegionTerrainInfo: %p", sPanelRegionTerrainInfo) << llendl;
-       }
-       return sPanelRegionTerrainInfo;
-}
-
-// static
-void LLPanelRegionTerrainInfo::onFloaterClose(bool app_quitting)
-{
-       if (sPanelRegionTerrainInfo)
-       {
-    	       lldebugs << "Setting LLPanelRegionTerrainInfo to NULL" << llendl;
-               sPanelRegionTerrainInfo = NULL;
-       }
-}
 
 BOOL LLPanelRegionTerrainInfo::postBuild()
 {
 	LLPanelRegionInfo::postBuild();
 	
-	sPanelRegionTerrainInfo = this; // singleton instance pointer
-	lldebugs << llformat("Setting sPanelRegionTerrainInfo to: %p", sPanelRegionTerrainInfo) << llendl;
-
 	initCtrl("water_height_spin");
 	initCtrl("terrain_raise_spin");
 	initCtrl("terrain_lower_spin");
@@ -1207,20 +1177,9 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	return LLPanelRegionInfo::postBuild();
 }
 
-F32 LLPanelRegionTerrainInfo::getSunHour()
-{
-       if (childIsEnabled("sun_hour_slider"))
-       {
-               return (F32)childGetValue("sun_hour_slider").asReal();
-       }
-       return 0.f;
-}
-
 // virtual
 bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 {
-	//LLEnvManager::instance().maybeClearEditingScope(LLEnvKey::SCOPE_REGION, false, false);
-
 	BOOL owner_or_god = gAgent.isGodlike() 
 						|| (region && (region->getOwner() == gAgent.getID()));
 	BOOL owner_or_god_or_manager = owner_or_god
@@ -1397,65 +1356,6 @@ bool LLPanelRegionTerrainInfo::callbackBakeTerrain(const LLSD& notification, con
 
 	return false;
 }
-
-#ifndef TMP_DISABLE_WLES
-///////////////////////////////////////////////////////////////
-// Callbacks for Environment tab of Region panel
-
-void LLPanelRegionTerrainInfo::onOpenAdvancedSky(void* userData)
-{
-	LLFloaterWindLight::show(LLEnvKey::SCOPE_REGION);
-}
-
-void LLPanelRegionTerrainInfo::onOpenAdvancedWater(void* userData)
-{
-	LLFloaterWater::show(LLEnvKey::SCOPE_REGION);
-}
-
-
-void LLPanelRegionTerrainInfo::onUseEstateTime(void* userData)
-{
-	if(LLFloaterWindLight::isOpen())
-	{
-		// select the blank value in
-		LLFloaterWindLight* wl = LLFloaterWindLight::instance();
-		LLComboBox* box = wl->getChild<LLComboBox>("WLPresetsCombo");
-		box->selectByValue("");
-	}
-
-	LLWLParamManager::getInstance()->mAnimator.activate(LLWLAnimator::TIME_LINDEN);
-}
-
-///////////////////////////////////////////////////////
-// Advanced handling for WL region estate integration
-
-// Handle commit of WL settings to region
-void LLPanelRegionTerrainInfo::onCommitRegionWL(void* userData)
-{
-	LLEnvManager::getInstance()->commitSettings(LLEnvKey::SCOPE_REGION);
-	LLEnvManager::getInstance()->maybeClearEditingScope(LLEnvKey::SCOPE_REGION, true, false);
-}
-
-// Handle cancel of WL settings for region
-void LLPanelRegionTerrainInfo::onCancelRegionWL(void* userData)
-{
-	LLEnvManager::getInstance()->maybeClearEditingScope(LLEnvKey::SCOPE_REGION, true, false);
-}
-
-// Handle reversion of region WL settings to default
-void LLPanelRegionTerrainInfo::onSetRegionToDefaultWL(void* userData)
-{
-	LLEnvManager::instance().resetInternalsToDefault(LLEnvKey::SCOPE_REGION);
-	LLEnvManager::instance().startEditingScope(LLEnvKey::SCOPE_REGION);
-}
-
-// static
-void LLPanelRegionTerrainInfo::onApplyCurrentWL(void* userData)
-{
-	// Immediately apply current environment settings to region.
-	LLEnvManager::instance().applyLocalSettingsToRegion();
-}
-#endif // TMP_DISABLE_WLES
 
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelEstateInfo
@@ -2118,16 +2018,6 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
 	refresh();
 
 	return rv;
-}
-
-// virtual
-void LLFloaterRegionInfo::onClose(bool app_quitting)
-{
-	if(!app_quitting)
-	{
-		//LLEnvManager::getInstance()->maybeClearEditingScope(true, false);
-		LLPanelRegionTerrainInfo::onFloaterClose(app_quitting);
-	}
 }
 
 void LLPanelEstateInfo::updateChild(LLUICtrl* child_ctrl)

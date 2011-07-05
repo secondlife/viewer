@@ -133,103 +133,6 @@ private:
 	F64 mDayTime;
 };
 
-// not thread-safe
-class LLEnvManager : public LLSingleton<LLEnvManager>
-{
-	LOG_CLASS(LLEnvManager);
-public:
-	// sets scopes (currently, only region-scope) to startup states
-	// delay calling these until as close as possible to knowing whether the remote service is capable of holding windlight settings
-	void notifyCrossing();
-	// these avoid interpolation on the next incoming message (if it comes)
-	void notifyLogin();
-	void notifyTP();
-
-	// request settings again from remote storage (currently implemented only for region)
-	void refreshFromStorage(LLEnvKey::EScope scope);
-	// stores settings and starts transitions (as necessary)
-	// validates packet and returns whether it was valid
-	// loads defaults if not valid
-	// returns whether or not arguments were valid
-	bool processIncomingMessage(const LLSD& packet, LLEnvKey::EScope scope);
-	// saves settings in the given scope to persistent storage appropriate for that scope
-	void commitSettings(LLEnvKey::EScope scope);
-	// called back when the commit finishes
-	void commitSettingsFinished(LLEnvKey::EScope scope);
-	// Immediately apply current settings from managers to region.
-	void applyLocalSettingsToRegion();
-
-	/* 
-	 * notify of changes in god/not-god mode, estate ownership, etc.
-	 * should be called every time after entering new region (after receiving new caps)
-	 */
-	void notifyPermissionChange();
-
-	bool regionCapable();
-	static const std::string getScopeString(LLEnvKey::EScope scope);
-	bool canEdit(LLEnvKey::EScope scope);
-	// enables and populates UI
-	// populates display (param managers) with scope's settings
-	// silently fails if canEdit(scope) is false!
-	void startEditingScope(LLEnvKey::EScope scope);
-	// cancel and close UI as necessary
-	// reapplies unedited settings
-	// displays the settings from the scope that user has set (i.e. opt-in setting for now)
-	void maybeClearEditingScope(bool user_initiated, bool was_commit);
-	// clear the scope only if was editing that scope
-	void maybeClearEditingScope(LLEnvKey::EScope scope, bool user_initiated, bool was_commit);
-	// actually do the clearing
-	void clearEditingScope(const LLSD& notification, const LLSD& response);
-
-	// clear and reload defaults into scope
-	void resetInternalsToDefault(LLEnvKey::EScope scope);
-
-	// sets which scope is to be displayed
-	// fix me if/when adding more levels of scope
-	void setNormallyDisplayedScope(LLEnvKey::EScope scope);
-	// gets normally displayed scope
-	LLEnvKey::EScope getNormallyDisplayedScope() const;
-
-	// for debugging purposes
-	void dumpScopes();
-
-private:
-	// overriden initializer
-	friend class LLSingleton<LLEnvManager>;
-	virtual void initSingleton();
-	// helper function (when region changes, but before caps are received)
-	void changedRegion(bool interpolate);
-	// apply to current display and UI
-	void loadSettingsIntoManagers(LLEnvKey::EScope scope, bool interpolate);
-	// save from current display and UI into memory (mOrigSettingStore)
-	void saveSettingsFromManagers(LLEnvKey::EScope scope);
-	// If not done already, save current local environment settings, so that we can switch to them later.
-	void backUpLocalSettingsIfNeeded();
-
-	// Save copy of settings from the current ones in the param managers
-	LLEnvironmentSettings collateFromParamManagers();
-	// bundle settings (already committed from UI) into an LLSD
-	LLSD makePacket(LLEnvKey::EScope scope, const LLSD& metadata);
-
-	void updateUIFromEditability();
-
-	// only call when setting *changes*, not just when it might have changed
-	// saves local settings into mOrigSettingStore when necessary
-	void notifyOptInChange();
-
-	// calculate Linden default settings
-	static const LLEnvironmentSettings& lindenDefaults();
-
-	std::map<LLEnvKey::EScope, LLEnvironmentSettings> mOrigSettingStore; // settings which have been committed from UI
-
-	bool mInterpNextChangeMessage;
-	bool mPendingOutgoingMessage;
-	bool mIsEditing;
-	LLEnvKey::EScope mCurNormalScope; // scope being displayed when not editing (i.e. most of the time)
-	LLEnvKey::EScope mCurEditingScope;
-	LLUUID mLastReceivedID;
-};
-
 /**
  * User environment preferences.
  */
@@ -329,6 +232,7 @@ public:
 	boost::signals2::connection setRegionSettingsAppliedCallback(const region_settings_applied_signal_t::slot_type& cb);
 
 	static bool canEditRegionSettings(); /// @return true if we have access to editing region environment
+	static const std::string getScopeString(LLEnvKey::EScope scope);
 
 	// Public callbacks.
 	void onRegionCrossing();
