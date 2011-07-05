@@ -172,6 +172,7 @@ LLFolderView::Params::Params()
 	title("title"),
 	use_label_suffix("use_label_suffix"),
 	allow_multiselect("allow_multiselect", true),
+	show_load_status("show_load_status", true),
 	use_ellipses("use_ellipses", false)
 {
 }
@@ -208,6 +209,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mStatusTextBox(NULL)
 {
 	mRoot = this;
+	
+	mShowLoadStatus = p.show_load_status();
 
 	LLRect rect = p.rect;
 	LLRect new_rect(rect.mLeft, rect.mBottom + getRect().getHeight(), rect.mLeft + getRect().getWidth(), rect.mBottom);
@@ -354,7 +357,7 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	{
 		recursiveIncrementNumDescendantsSelected(folder->numSelected());
 	}
-	folder->setShowLoadStatus(true);
+	folder->setShowLoadStatus(mShowLoadStatus);
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
 	folder->setVisible(FALSE);

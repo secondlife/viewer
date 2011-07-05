@@ -84,6 +84,7 @@ public:
 		Optional<Filter>					filter;
 		Optional<std::string>               start_folder;
 		Optional<bool>						use_label_suffix;
+		Optional<bool>						show_load_status;
 		Optional<LLScrollContainer::Params>	scroll;
 
 		Params()
@@ -94,6 +95,7 @@ public:
 			filter("filter"),
 			start_folder("start_folder"),
 			use_label_suffix("use_label_suffix", true),
+			show_load_status("show_load_status"),
 			scroll("scroll")
 		{}
 	};
@@ -178,6 +180,7 @@ protected:
 	LLInvPanelComplObserver*	mCompletionObserver;
 	BOOL 						mAllowMultiSelect;
 	BOOL 						mShowItemLinkOverlays; // Shows link graphic over inventory item icons
+	BOOL						mShowLoadStatus;
 
 	LLFolderView*				mFolderRoot;
 	LLScrollContainer*			mScroller;

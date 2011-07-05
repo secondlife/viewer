@@ -91,6 +91,7 @@ public:
 		Optional<std::string>   title;
 		Optional<bool>			use_label_suffix,
 								allow_multiselect,
+								show_load_status,
 								use_ellipses;
 
 		Params();
