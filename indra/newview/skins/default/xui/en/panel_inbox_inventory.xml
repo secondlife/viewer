@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<inventory_panel
+<inbox_inventory_panel
     name="inventory_inbox"
-    start_folder="Inbox"
+    start_folder="Received Items"
     follows="all" layout="topleft"
     top="0" left="0" height="165" width="308"
 	top_pad="0"
@@ -14,4 +14,4 @@
     show_item_link_overlays="true"
     >
     <scroll reserve_scroll_corner="false" />
-</inventory_panel>
+</inbox_inventory_panel>

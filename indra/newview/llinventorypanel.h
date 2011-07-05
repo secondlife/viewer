@@ -39,6 +39,7 @@
 #include "lluictrlfactory.h"
 #include <set>
 
+class LLFolderViewFolder;
 class LLFolderViewItem;
 class LLInventoryFilter;
 class LLInventoryModel;
@@ -221,6 +222,10 @@ protected:
 	virtual void		buildFolderView(const LLInventoryPanel::Params& params);
 	virtual void		buildNewViews(const LLUUID& id);
 	BOOL				getIsHiddenFolderType(LLFolderType::EType folder_type) const;
+	
+	virtual LLFolderView*		createFolderView(LLInvFVBridge * bridge, bool useLabelSuffix);
+	virtual LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge);
+	virtual LLFolderViewItem*	createFolderViewItem(LLInvFVBridge * bridge);
 private:
 	BOOL				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
 	BOOL				mViewsInitialized; // Views have been generated

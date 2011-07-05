@@ -216,26 +216,15 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 		llwarns << "No category found that matches start_folder: " << start_folder_name << llendl;
 		root_id = LLUUID::generateNewID();
 	}
-
-	LLRect folder_rect(0,
-						0,
-						getRect().getWidth(),
-						0);
-	LLFolderView::Params p;
-	p.name = getName();
-	p.title = getLabel();
-	p.rect = folder_rect;
-	p.parent_panel = this;
-	p.tool_tip = p.name;
-	p.listener =  mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
-													LLAssetType::AT_CATEGORY,
-													LLInventoryType::IT_CATEGORY,
-													this,
-													NULL,
-													root_id);
-	p.use_label_suffix = params.use_label_suffix;
-	p.allow_multiselect = mAllowMultiSelect;
-	mFolderRoot = LLUICtrlFactory::create<LLFolderView>(p);
+	
+	LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
+																	LLAssetType::AT_CATEGORY,
+																	LLInventoryType::IT_CATEGORY,
+																	this,
+																	NULL,
+																	root_id);
+	
+	mFolderRoot = createFolderView(new_listener, params.use_label_suffix());
 }
 
 void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
@@ -611,6 +600,69 @@ void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
 	buildNewViews(id);
 }
 
+LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool useLabelSuffix)
+{
+	LLRect folder_rect(0,
+					   0,
+					   getRect().getWidth(),
+					   0);
+
+	LLFolderView::Params p;
+	
+	p.name = getName();
+	p.title = getLabel();
+	p.rect = folder_rect;
+	p.parent_panel = this;
+	p.tool_tip = p.name;
+	p.listener =  bridge;
+	p.use_label_suffix = useLabelSuffix;
+	p.allow_multiselect = mAllowMultiSelect;
+
+	return LLUICtrlFactory::create<LLFolderView>(p);
+}
+
+LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge)
+{
+	LLFolderViewFolder::Params params;
+
+	params.name = bridge->getDisplayName();
+	params.icon = bridge->getIcon();
+	params.icon_open = bridge->getOpenIcon();
+
+	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
+	{
+		params.icon_overlay = LLUI::getUIImage("Inv_Link");
+	}
+	
+	params.root = mFolderRoot;
+	params.listener = bridge;
+	params.tool_tip = params.name;
+
+	return LLUICtrlFactory::create<LLFolderViewFolder>(params);
+}
+
+LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge)
+{
+	LLFolderViewItem::Params params;
+	
+	params.name = bridge->getDisplayName();
+	params.icon = bridge->getIcon();
+	params.icon_open = bridge->getOpenIcon();
+
+	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
+	{
+		params.icon_overlay = LLUI::getUIImage("Inv_Link");
+	}
+
+	params.creation_date = bridge->getCreationDate();
+	params.root = mFolderRoot;
+	params.listener = bridge;
+	params.rect = LLRect (0, 0, 0, 0);
+	params.tool_tip = params.name;
+	
+	return LLUICtrlFactory::create<LLFolderViewItem>(params);
+}
+
 void LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
  	LLInventoryObject const* objectp = gInventory.getObject(id);
@@ -649,18 +701,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
   																				objectp->getUUID());
   				if (new_listener)
   				{
-  					LLFolderViewFolder::Params params;
-  					params.name = new_listener->getDisplayName();
-  					params.icon = new_listener->getIcon();
-  					params.icon_open = new_listener->getOpenIcon();
-  					if (mShowItemLinkOverlays) // if false, then links show up just like normal items
-  					{
-  						params.icon_overlay = LLUI::getUIImage("Inv_Link");
-  					}
-  					params.root = mFolderRoot;
-  					params.listener = new_listener;
-  					params.tool_tip = params.name;
-  					LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(params);
+					LLFolderViewFolder* folderp = createFolderViewFolder(new_listener);
   					folderp->setItemSortOrder(mFolderRoot->getSortOrder());
   					itemp = folderp;
   				}
@@ -679,20 +720,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
  
   				if (new_listener)
   				{
-  					LLFolderViewItem::Params params;
-  					params.name = new_listener->getDisplayName();
-  					params.icon = new_listener->getIcon();
-  					params.icon_open = new_listener->getOpenIcon();
-  					if (mShowItemLinkOverlays) // if false, then links show up just like normal items
-  					{
-  						params.icon_overlay = LLUI::getUIImage("Inv_Link");
-  					}
-  					params.creation_date = new_listener->getCreationDate();
-  					params.root = mFolderRoot;
-  					params.listener = new_listener;
-  					params.rect = LLRect (0, 0, 0, 0);
-  					params.tool_tip = params.name;
-  					itemp = LLUICtrlFactory::create<LLFolderViewItem> (params);
+					itemp = createFolderViewItem(new_listener);
   				}
   			}
  
