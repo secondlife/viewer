@@ -3022,7 +3022,6 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	F32 sun_hour = ((F32)(strtod(strings[4].c_str(), NULL)))/1024.0f;
 	if(sun_hour == 0 && (flags & REGION_FLAGS_SUN_FIXED ? FALSE : TRUE))
 	{
-		// no need to overwrite region sun phase?
 		lldebugs << "Estate uses global time" << llendl;
 		panel->setGlobalTime(TRUE);
 	} 
