@@ -2173,7 +2173,7 @@ void LLFolderView::doIdle()
 	// filter to determine visiblity before arranging
 	filterFromRoot();
 
-	// automatically show matching items, and select first one
+	// automatically show matching items, and select first one if we had a selection
 	// do this every frame until user puts keyboard focus into the inventory window
 	// signaling the end of the automatic update
 	// only do this when mNeedsFilter is set, meaning filtered items have
