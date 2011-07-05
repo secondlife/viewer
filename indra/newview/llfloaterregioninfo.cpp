@@ -342,6 +342,9 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	LLViewerRegion* region = gAgent.getRegion();
 	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
 
+	// *TODO: Replace parcing msg with accessing the region info model.
+	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
+
 	// extract message
 	std::string sim_name;
 	std::string sim_type = LLTrans::getString("land_type_unknown");
@@ -413,9 +416,9 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel = tab->getChild<LLPanel>("Terrain");
 
 	panel->getChild<LLUICtrl>("region_text")->setValue(LLSD(sim_name));
-	panel->getChild<LLUICtrl>("water_height_spin")->setValue(LLSD(water_height));
-	panel->getChild<LLUICtrl>("terrain_raise_spin")->setValue(LLSD(terrain_raise_limit));
-	panel->getChild<LLUICtrl>("terrain_lower_spin")->setValue(LLSD(terrain_lower_limit));
+	panel->getChild<LLUICtrl>("water_height_spin")->setValue(region_info.mWaterHeight);
+	panel->getChild<LLUICtrl>("terrain_raise_spin")->setValue(region_info.mTerrainRaiseLimit);
+	panel->getChild<LLUICtrl>("terrain_lower_spin")->setValue(region_info.mTerrainLowerLimit);
 
 	panel->setCtrlsEnabled(allow_modify);
 
@@ -1276,50 +1279,14 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	strings_t strings;
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 
-	// ==========================================
-	// Assemble and send setregionterrain message
-	// "setregionterrain"
-	// strings[0] = float water height
-	// strings[1] = float terrain raise
-	// strings[2] = float terrain lower
-	// strings[3] = 'Y' use estate time
-	// strings[4] = 'Y' fixed sun
-	// strings[5] = float sun_hour
-	// strings[6] = from estate, 'Y' use global time
-	// strings[7] = from estate, 'Y' fixed sun
-	// strings[8] = from estate, float sun_hour
-
+	// update the model
 	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
-	bool region_use_estate_sun = region_info.mUseEstateSun;
-	bool region_use_fixed_sun = region_info.getUseFixedSun(); // *TODO: take into account region environment settings
-	F32 region_sun_hour = region_info.mSunHour;
+	region_info.mWaterHeight = (F32) getChild<LLUICtrl>("water_height_spin")->getValue().asReal();
+	region_info.mTerrainRaiseLimit = (F32) getChild<LLUICtrl>("terrain_raise_spin")->getValue().asReal();
+	region_info.mTerrainLowerLimit = (F32) getChild<LLUICtrl>("terrain_lower_spin")->getValue().asReal();
 
-	// *NOTE: this resets estate sun info.
-	BOOL estate_global_time = true;
-	BOOL estate_fixed_sun = false;
-	F32 estate_sun_hour = 0.f;
-
-	buffer = llformat("%f", (F32)getChild<LLUICtrl>("water_height_spin")->getValue().asReal());
-	strings.push_back(buffer);
-	buffer = llformat("%f", (F32)getChild<LLUICtrl>("terrain_raise_spin")->getValue().asReal());
-	strings.push_back(buffer);
-	buffer = llformat("%f", (F32)getChild<LLUICtrl>("terrain_lower_spin")->getValue().asReal());
-	strings.push_back(buffer);
-	buffer = llformat("%s", (region_use_estate_sun ? "Y" : "N"));
-	strings.push_back(buffer);
-	buffer = llformat("%s", (region_use_fixed_sun ? "Y" : "N"));
-	strings.push_back(buffer);
-	buffer = llformat("%f", region_sun_hour);
-	strings.push_back(buffer);
-	buffer = llformat("%s", (estate_global_time ? "Y" : "N") );
-	strings.push_back(buffer);
-	buffer = llformat("%s", (estate_fixed_sun ? "Y" : "N") );
-	strings.push_back(buffer);
-	buffer = llformat("%f", estate_sun_hour);
-	strings.push_back(buffer);
-
-	sendEstateOwnerMessage(gMessageSystem, "setregionterrain", invoice, strings);
-	strings.clear();
+	// and sync the region with it
+	region_info.sendRegionTerrain(invoice);
 	
 	// =======================================
 	// Assemble and send texturedetail message

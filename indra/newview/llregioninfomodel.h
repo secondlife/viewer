@@ -42,7 +42,9 @@ public:
 	typedef boost::signals2::signal<void()> update_signal_t;
 	boost::signals2::connection setUpdateCallback(const update_signal_t::slot_type& cb);
 
-	bool getUseFixedSun();
+	void sendRegionTerrain(const LLUUID& invoice) const; /// upload region terrain data
+
+	bool getUseFixedSun() const;
 
 	// *TODO: Add getters and make the data private.
 	U8			mSimAccess;
@@ -73,10 +75,21 @@ protected:
 	friend class LLViewerRegion;
 
 	LLRegionInfoModel();
+
+	/**
+	 * Refresh model with data from the incoming server message.
+	 */
 	void update(LLMessageSystem* msg);
 
 private:
 	void reset();
+
+	// *FIXME: Duplicated code from LLPanelRegionInfo
+	static void sendEstateOwnerMessage(
+		LLMessageSystem* msg,
+		const std::string& request,
+		const LLUUID& invoice,
+		const std::vector<std::string>& strings);
 
 	update_signal_t mUpdateSignal;
 };

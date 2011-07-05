@@ -32,7 +32,9 @@
 #include "message.h"
 #include "llregionflags.h"
 
-// viewers
+// viewer
+#include "llagent.h"
+#include "llviewerregion.h"
 
 void LLRegionInfoModel::reset()
 {
@@ -70,7 +72,52 @@ boost::signals2::connection LLRegionInfoModel::setUpdateCallback(const update_si
 	return mUpdateSignal.connect(cb);
 }
 
-bool LLRegionInfoModel::getUseFixedSun()
+void LLRegionInfoModel::sendRegionTerrain(const LLUUID& invoice) const
+{
+	std::string buffer;
+	std::vector<std::string> strings;
+
+	// ==========================================
+	// Assemble and send setregionterrain message
+	// "setregionterrain"
+	// strings[0] = float water height
+	// strings[1] = float terrain raise
+	// strings[2] = float terrain lower
+	// strings[3] = 'Y' use estate time
+	// strings[4] = 'Y' fixed sun
+	// strings[5] = float sun_hour
+	// strings[6] = from estate, 'Y' use global time
+	// strings[7] = from estate, 'Y' fixed sun
+	// strings[8] = from estate, float sun_hour
+
+	// *NOTE: this resets estate sun info.
+	BOOL estate_global_time = true;
+	BOOL estate_fixed_sun = false;
+	F32 estate_sun_hour = 0.f;
+
+	buffer = llformat("%f", mWaterHeight);
+	strings.push_back(buffer);
+	buffer = llformat("%f", mTerrainRaiseLimit);
+	strings.push_back(buffer);
+	buffer = llformat("%f", mTerrainLowerLimit);
+	strings.push_back(buffer);
+	buffer = llformat("%s", (mUseEstateSun ? "Y" : "N"));
+	strings.push_back(buffer);
+	buffer = llformat("%s", (getUseFixedSun() ? "Y" : "N"));
+	strings.push_back(buffer);
+	buffer = llformat("%f", mSunHour);
+	strings.push_back(buffer);
+	buffer = llformat("%s", (estate_global_time ? "Y" : "N") );
+	strings.push_back(buffer);
+	buffer = llformat("%s", (estate_fixed_sun ? "Y" : "N") );
+	strings.push_back(buffer);
+	buffer = llformat("%f", estate_sun_hour);
+	strings.push_back(buffer);
+
+	sendEstateOwnerMessage(gMessageSystem, "setregionterrain", invoice, strings);
+}
+
+bool LLRegionInfoModel::getUseFixedSun() const
 {
 	return mRegionFlags & REGION_FLAGS_SUN_FIXED;
 }
@@ -109,4 +156,48 @@ void LLRegionInfoModel::update(LLMessageSystem* msg)
 
 	// Let interested parties know that region info has been updated.
 	mUpdateSignal();
+}
+
+// static
+void LLRegionInfoModel::sendEstateOwnerMessage(
+	LLMessageSystem* msg,
+	const std::string& request,
+	const LLUUID& invoice,
+	const std::vector<std::string>& strings)
+{
+	LLViewerRegion* cur_region = gAgent.getRegion();
+
+	if (!cur_region)
+	{
+		llwarns << "Agent region not set" << llendl;
+		return;
+	}
+
+	llinfos << "Sending estate request '" << request << "'" << llendl;
+	msg->newMessage("EstateOwnerMessage");
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
+	msg->nextBlock("MethodData");
+	msg->addString("Method", request);
+	msg->addUUID("Invoice", invoice);
+
+	if (strings.empty())
+	{
+		msg->nextBlock("ParamList");
+		msg->addString("Parameter", NULL);
+	}
+	else
+	{
+		std::vector<std::string>::const_iterator it = strings.begin();
+		std::vector<std::string>::const_iterator end = strings.end();
+		for (; it != end; ++it)
+		{
+			msg->nextBlock("ParamList");
+			msg->addString("Parameter", *it);
+		}
+	}
+
+	msg->sendReliable(cur_region->getHost());
 }
