@@ -295,16 +295,24 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 	if (sShowDebugAlpha)
 	{
-		if(gPipeline.canUseWindLightShaders()) 
+		BOOL shaders = gPipeline.canUseVertexShaders();
+		if(shaders) 
 		{
-			LLGLSLShader::bindNoShader();
+			gObjectFullbrightNonIndexedProgram.bind();
 		}
-		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+		else
+		{
+			gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+		}
 		glColor4f(1,0,0,1);
 		LLViewerFetchedTexture::sSmokeImagep->addTextureStats(1024.f*1024.f);
 		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sSmokeImagep, TRUE) ;
 		renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_TEXCOORD0);
+		if(shaders) 
+		{
+			gObjectFullbrightNonIndexedProgram.unbind();
+		}
 	}
 }
 
