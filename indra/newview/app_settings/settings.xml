@@ -13405,5 +13405,20 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+     <key>WebProfileRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Web profile dimensions</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>0</integer>
+        <integer>650</integer>
+        <integer>475</integer>
+        <integer>0</integer>
+      </array>    </map>
 </map>
 </llsd>
