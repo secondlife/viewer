@@ -161,10 +161,13 @@ public:
 	~LLProxy();
 
 	// Start a connection to the SOCKS 5 proxy
-	int startProxy(std::string host, U32 port);
+	S32 startProxy(std::string host, U32 port);
 
 	// Disconnect and clean up any connection to the SOCKS 5 proxy
 	void stopProxy();
+
+	// Delete LLProxy singleton, destroying the APR pool used by the control channel.
+	static void cleanupClass();
 
 	// Set up to use Password auth when connecting to the SOCKS proxy
 	void setAuthPassword(const std::string &username, const std::string &password);
@@ -209,7 +212,7 @@ public:
 private:
 
 	// Open a communication channel to the SOCKS 5 proxy proxy, at port messagePort
-	int proxyHandshake(LLHost proxy, U32 messagePort);
+	S32 proxyHandshake(LLHost proxy, U32 messagePort);
 
 	// socket handle to proxy TCP control channel
 	LLSocket::ptr_t mProxyControlChannel;

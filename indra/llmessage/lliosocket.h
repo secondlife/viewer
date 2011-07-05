@@ -145,13 +145,6 @@ public:
 	 */
 	apr_socket_t* getSocket() const { return mSocket; }
 
-protected:
-	/** 
-	 * @brief Protected constructor since should only make sockets
-	 * with one of the two <code>create()</code> calls.
-	 */
-	LLSocket(apr_socket_t* socket, apr_pool_t* pool);
-
 	/** 
 	 * @brief Set default socket options, with SO_NONBLOCK = 0 and a timeout in us.
 	 * @param timeout Number of microseconds to wait on this socket. Any
@@ -164,9 +157,16 @@ protected:
 	 */
 	void setNonBlocking();
 
+protected:
+	/**
+	 * @brief Protected constructor since should only make sockets
+	 * with one of the two <code>create()</code> calls.
+	 */
+	LLSocket(apr_socket_t* socket, apr_pool_t* pool);
+
 public:
 	/** 
-	 * @brief Do not call this directly. Use LLSocket::ptr_t.reset() instead.
+	 * @brief Do not call this directly.
 	 */
 	~LLSocket();
 

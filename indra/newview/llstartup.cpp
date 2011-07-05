@@ -2766,17 +2766,17 @@ bool LLStartUp::handleSocksProxy()
 	// Determine the HTTP proxy type (if any)
 	if ((httpProxyType.compare("Web") == 0) && gSavedSettings.getBOOL("BrowserProxyEnabled"))
 	{
-		LLHost httpHost;
-		httpHost.setHostByName(gSavedSettings.getString("BrowserProxyAddress"));
-		httpHost.setPort(gSavedSettings.getS32("BrowserProxyPort"));
-		LLProxy::getInstance()->enableHTTPProxy(httpHost, LLPROXY_HTTP);
+		LLHost http_host;
+		http_host.setHostByName(gSavedSettings.getString("BrowserProxyAddress"));
+		http_host.setPort(gSavedSettings.getS32("BrowserProxyPort"));
+		LLProxy::getInstance()->enableHTTPProxy(http_host, LLPROXY_HTTP);
 	}
 	else if ((httpProxyType.compare("Socks") == 0) && gSavedSettings.getBOOL("Socks5ProxyEnabled"))
 	{
-		LLHost httpHost;
-		httpHost.setHostByName(gSavedSettings.getString("Socks5ProxyHost"));
-		httpHost.setPort(gSavedSettings.getU32("Socks5ProxyPort"));
-		LLProxy::getInstance()->enableHTTPProxy(httpHost, LLPROXY_SOCKS);
+		LLHost socks_host;
+		socks_host.setHostByName(gSavedSettings.getString("Socks5ProxyHost"));
+		socks_host.setPort(gSavedSettings.getU32("Socks5ProxyPort"));
+		LLProxy::getInstance()->enableHTTPProxy(socks_host, LLPROXY_SOCKS);
 	}
 	else
 	{

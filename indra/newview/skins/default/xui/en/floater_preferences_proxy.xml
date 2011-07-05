@@ -217,7 +217,6 @@
 	 control_name="Socks5HttpProxyType"
 	 height="60"
 	 layout="topleft"
-	 name="other_http_proxy_selection"
 	 top_pad="9"
 	 width="120"
 	 border="1"
@@ -232,20 +231,20 @@
 		 tool_tip="Non-web HTTP traffic will NOT be sent to any proxy."/>
 		<radio_item
 		 height="16"
-		 label="Use SOCKS 5 Proxy"
-		 layout="topleft"
-		 value="Socks"
-		 width="120"
-		 enabled_control="Socks5ProxyEnabled"
-		 tool_tip="Non-web HTTP traffic will be sent through the configured Socks 5 proxy."/>
-		<radio_item
-		 height="16"
 		 label="Use HTTP Proxy"
 		 layout="topleft"
 		 value="Web"
 		 width="120"
 		 enabled_control="BrowserProxyEnabled"
 		 tool_tip="Non-web HTTP will be sent through the configured Web proxy." />
+		<radio_item
+		 height="16"
+		 label="Use SOCKS 5 Proxy"
+		 layout="topleft"
+		 value="Socks"
+		 width="120"
+		 enabled_control="Socks5ProxyEnabled"
+		 tool_tip="Non-web HTTP traffic will be sent through the configured Socks 5 proxy."/>
 	</radio_group>
 	<button
 	 follows="left|top"

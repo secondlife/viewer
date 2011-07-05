@@ -45,9 +45,8 @@ bool LLProxy::sHTTPProxyEnabled = false;
 
 // Some helpful TCP functions
 static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host); // Open a TCP channel to a given host
-static void tcp_close_channel(LLSocket::ptr_t handle); // Close an open TCP channel
-static int tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
-
+static void tcp_close_channel(LLSocket::ptr_t* handle_ptr); // Close an open TCP channel
+static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
 
 LLProxy::LLProxy():
 		mProxyType(LLPROXY_SOCKS),
@@ -63,16 +62,16 @@ LLProxy::LLProxy():
 
 LLProxy::~LLProxy()
 {
-	tcp_close_channel(mProxyControlChannel);
+	stopProxy();
 	sUDPProxyEnabled  = false;
 	sHTTPProxyEnabled = false;
 }
 
 // Perform a SOCKS 5 authentication and UDP association to the proxy
 // specified by proxy, and associate UDP port message_port
-int LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
+S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 {
-	int result;
+	S32 result;
 
 	/* SOCKS 5 Auth request */
 	socks_auth_request_t  socks_auth_request;
@@ -153,7 +152,6 @@ int LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 
 	if (connect_reply.reply != REPLY_REQUEST_GRANTED)
 	{
-		//Something went wrong
 		llwarns << "Connection to SOCKS 5 server failed, UDP forward request not granted" << llendl;
 		stopProxy();
 		return SOCKS_UDP_FWD_NOT_GRANTED;
@@ -161,21 +159,21 @@ int LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 
 	mUDPProxy.setPort(ntohs(connect_reply.port)); // reply port is in network byte order
 	mUDPProxy.setAddress(proxy.getAddress());
-	// All good now we have been given the UDP port to send requests that need forwarding.
+	// The connection was successful. We now have the UDP port to send requests that need forwarding to.
 	llinfos << "SOCKS 5 UDP proxy connected on " << mUDPProxy << llendl;
 	return SOCKS_OK;
 }
 
-int LLProxy::startProxy(std::string host, U32 port)
+S32 LLProxy::startProxy(std::string host, U32 port)
 {
 	mTCPProxy.setHostByName(host);
 	mTCPProxy.setPort(port);
 
-	int status;
+	S32 status;
 
 	if (mProxyControlChannel)
 	{
-		tcp_close_channel(mProxyControlChannel);
+		tcp_close_channel(&mProxyControlChannel);
 	}
 
 	mProxyControlChannel = tcp_open_channel(mPool, mTCPProxy);
@@ -200,9 +198,9 @@ void LLProxy::stopProxy()
 {
 	sUDPProxyEnabled = false;
 
-	// If the SOCKS proxy is requested to stop and we are using that for http as well
-	// then we must shut down any http proxy operations. But it is allowable if web
-	// proxy is being used to continue proxying http.
+	// If the SOCKS proxy is requested to stop and we are using that for HTTP as well
+	// then we must shut down any HTTP proxy operations. But it is allowable if web
+	// proxy is being used to continue proxying HTTP.
 
 	if(LLPROXY_SOCKS == mProxyType)
 	{
@@ -211,7 +209,7 @@ void LLProxy::stopProxy()
 
 	if (mProxyControlChannel)
 	{
-		tcp_close_channel(mProxyControlChannel);
+		tcp_close_channel(&mProxyControlChannel);
 	}
 }
 
@@ -234,46 +232,53 @@ void LLProxy::enableHTTPProxy(LLHost httpHost, LLHttpProxyType type)
 	mProxyType        = type;
 }
 
-static int tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen)
+//static
+void LLProxy::cleanupClass()
 {
+	LLProxy::getInstance()->stopProxy();
+}
+
+static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen)
+{
+
 	apr_socket_t* apr_socket = handle->getSocket();
-	apr_status_t rv;
+	apr_status_t rv = APR_SUCCESS;
 
 	apr_size_t expected_len = outlen;
 
-    apr_socket_opt_set(apr_socket, APR_SO_NONBLOCK, -5); // Blocking connection, 5 second timeout
-    apr_socket_timeout_set(apr_socket, (APR_USEC_PER_SEC * 5));
+	handle->setBlocking(1000);
 
-	rv = apr_socket_send(apr_socket, dataout, &outlen);
-	if (rv != APR_SUCCESS || expected_len != outlen)
+  	rv = apr_socket_send(apr_socket, dataout, &outlen);
+	if (APR_SUCCESS != rv || expected_len != outlen)
 	{
 		llwarns << "Error sending data to proxy control channel" << llendl;
 		ll_apr_warn_status(rv);
-		return -1;
+	}
+	else if (expected_len != outlen)
+	{
+		llwarns << "Error sending data to proxy control channel" << llendl;
+		rv = -1;
 	}
 
-	expected_len = maxinlen;
-	do
+	if (APR_SUCCESS == rv)
 	{
+		expected_len = maxinlen;
 		rv = apr_socket_recv(apr_socket, datain, &maxinlen);
-		llinfos << "Receiving packets." << llendl;
-		llwarns << "Proxy control channel status: " << rv << llendl;
-	} while (APR_STATUS_IS_EAGAIN(rv));
-
-	if (rv != APR_SUCCESS)
-	{
-		llwarns << "Error receiving data from proxy control channel, status: " << rv << llendl;
-		llwarns << "Received " << maxinlen << " bytes." << llendl;
-		ll_apr_warn_status(rv);
-		return rv;
-	}
-	else if (expected_len != maxinlen)
-	{
-		llwarns << "Incorrect data received length in proxy control channel" << llendl;
-		return -1;
+		if (rv != APR_SUCCESS)
+		{
+			llwarns << "Error receiving data from proxy control channel, status: " << rv << llendl;
+			ll_apr_warn_status(rv);
+		}
+		else if (expected_len != maxinlen)
+		{
+			llwarns << "Received incorrect amount of data in proxy control channel" << llendl;
+			rv = -1;
+		}
 	}
 
-	return 0;
+	handle->setNonBlocking();
+
+	return rv;
 }
 
 static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host)
@@ -282,13 +287,15 @@ static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host)
 	bool connected = socket->blockingConnect(host);
 	if (!connected)
 	{
-		tcp_close_channel(socket);
+		tcp_close_channel(&socket);
 	}
 
 	return socket;
 }
 
-static void tcp_close_channel(LLSocket::ptr_t handle)
+// Pass a pointer-to-pointer to avoid changing use_count().
+static void tcp_close_channel(LLSocket::ptr_t* handle_ptr)
 {
-	handle.reset();
+	lldebugs << "Resetting proxy LLSocket handle, use_count == " << handle_ptr->use_count() << llendl;
+	handle_ptr->reset();
 }
