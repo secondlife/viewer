@@ -42,8 +42,11 @@ public:
 
 	void initBadgeParams(const LLBadge::Params& p);
 	void addBadgeToParentPanel();
+	
+	bool badgeHasParent() const { return (mBadge && mBadge->getParent()); }
 
 	void setBadgeLabel(const LLStringExplicit& label);
+	void setBadgeVisibility(bool visible);
 
 private:
 

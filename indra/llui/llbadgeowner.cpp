@@ -73,6 +73,14 @@ void LLBadgeOwner::setBadgeLabel(const LLStringExplicit& label)
 	}
 }
 
+void LLBadgeOwner::setBadgeVisibility(bool visible)
+{
+	if (mBadge)
+	{
+		mBadge->setVisible(visible);
+	}
+}
+
 void LLBadgeOwner::addBadgeToParentPanel()
 {
 	LLView * owner_view = mBadgeOwnerView.get();

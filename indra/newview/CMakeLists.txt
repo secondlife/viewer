@@ -361,8 +361,9 @@ set(viewer_SOURCE_FILES
     llpanellogin.cpp
     llpanelloginlistener.cpp
     llpanelmaininventory.cpp
-	llpanelmarketplaceinbox.cpp
-	llpanelmarketplaceoutbox.cpp
+    llpanelmarketplaceinbox.cpp
+    llpanelmarketplaceinboxinventory.cpp
+    llpanelmarketplaceoutbox.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
@@ -911,8 +912,9 @@ set(viewer_HEADER_FILES
     llpanellogin.h
     llpanelloginlistener.h
     llpanelmaininventory.h
-	llpanelmarketplaceinbox.h
-	llpanelmarketplaceoutbox.h
+    llpanelmarketplaceinbox.h
+    llpanelmarketplaceinboxinventory.h
+    llpanelmarketplaceoutbox.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h

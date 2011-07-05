@@ -53,9 +53,10 @@
                  user_resize="false"
                  follows="bottom|left|right"
                  name="inbox_layout_panel"
+                 visible="false"
                  min_dim="35"
                  max_dim="200"
-				 expanded_min_dim="90"
+                 expanded_min_dim="90"
                  height="200">
                  <panel
                       follows="all"
@@ -133,9 +134,10 @@
                 user_resize="false"
                 follows="bottom|left|right"
                 name="outbox_layout_panel"
+                visible="false"
                 min_dim="35"
                 max_dim="200"
-				expanded_min_dim="90"
+                expanded_min_dim="90"
                 height="200">
                  <panel
                       follows="all"
