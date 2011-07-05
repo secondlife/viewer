@@ -412,8 +412,7 @@ public:
 	void discard() ;
 	BOOL isDiscarded();
 
-	// Queue up models for hull generation (viewer-side)
-	void queueUpModels();
+	void generateHulls();
 
 	void doWholeModelUpload();
 	void requestWholeModelFee();

@@ -1474,7 +1474,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	dest = result;
 }
 
-void LLMeshUploadThread::queueUpModels()
+void LLMeshUploadThread::generateHulls()
 {
 	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
 		{
@@ -1529,7 +1529,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 	}
 	else
 	{
-		queueUpModels();
+		generateHulls();
 
 		LLSD full_model_data;
 		wholeModelToLLSD(full_model_data, true);
@@ -1543,6 +1543,35 @@ void LLMeshUploadThread::doWholeModelUpload()
 			mCurlRequest->process();
 		} while (mCurlRequest->getQueued() > 0);
 	}
+
+	delete mCurlRequest;
+	mCurlRequest = NULL;
+
+	// Currently a no-op.
+	mFinished = true;
+}
+
+void LLMeshUploadThread::requestWholeModelFee()
+{
+	dump_num++;
+
+	mCurlRequest = new LLCurlRequest();
+
+	generateHulls();
+
+	LLSD model_data;
+	wholeModelToLLSD(model_data,false);
+	dump_llsd_to_file(model_data,make_dump_name("whole_model_fee_request_",dump_num));
+
+	mPendingUploads++;
+	LLCurlRequest::headers_t headers;
+	mCurlRequest->post(mWholeModelFeeCapability, headers, model_data,
+					   new LLWholeModelFeeResponder(this,model_data, mFeeObserverHandle), mMeshUploadTimeOut);
+
+	do
+	{
+		mCurlRequest->process();
+	} while (mCurlRequest->getQueued() > 0);
 
 	delete mCurlRequest;
 	mCurlRequest = NULL;
