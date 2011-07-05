@@ -46,6 +46,8 @@ public:
 
 	bool getUseFixedSun() const;
 
+	void setUseFixedSun(bool fixed);
+
 	// *TODO: Add getters and make the data private.
 	U8			mSimAccess;
 	U8			mAgentLimit;
@@ -63,7 +65,7 @@ public:
 	F32			mWaterHeight;
 	F32			mTerrainRaiseLimit;
 	F32			mTerrainLowerLimit;
-	F32			mSunHour;
+	F32			mSunHour; // 6..30
 
 	BOOL		mUseEstateSun;
 

@@ -328,10 +328,10 @@ public:
 	BOOL getGlobalTime();
 	void setGlobalTime(bool b);
 
-	BOOL getFixedSun();
+	BOOL getFixedSun();				// *TODO: deprecated
 
-	F32 getSunHour();
-	void setSunHour(F32 sun_hour);
+	F32 getSunHour();				// *TODO: deprecated
+	void setSunHour(F32 sun_hour);	// *TODO: deprecated
 	
 	const std::string getEstateName() const;
 	void setEstateName(const std::string& name);
@@ -449,6 +449,8 @@ private:
 	void setControlsEnabled(bool enabled);
 	void setApplyProgress(bool started);
 	void setDirty(bool dirty);
+
+	void sendRegionSunUpdate(F32 sun_angle);
 
 	void populateWaterPresetsList();
 	void populateSkyPresetsList();

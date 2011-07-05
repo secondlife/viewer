@@ -2994,6 +2994,8 @@ bool LLDispatchEstateUpdateInfo::operator()(
 		const LLUUID& invoice,
 		const sparam_t& strings)
 {
+	lldebugs << "Received estate update" << llendl;
+
 	LLPanelEstateInfo* panel = LLFloaterRegionInfo::getPanelEstate();
 	if (!panel) return true;
 
@@ -3020,10 +3022,13 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	F32 sun_hour = ((F32)(strtod(strings[4].c_str(), NULL)))/1024.0f;
 	if(sun_hour == 0 && (flags & REGION_FLAGS_SUN_FIXED ? FALSE : TRUE))
 	{
+		// no need to overwrite region sun phase?
+		lldebugs << "Estate uses global time" << llendl;
 		panel->setGlobalTime(TRUE);
 	} 
 	else
 	{
+		lldebugs << "Estate sun hour: " << sun_hour << llendl;
 		panel->setGlobalTime(FALSE);
 		panel->setSunHour(sun_hour);
 	}
@@ -3355,6 +3360,33 @@ void LLPanelEnvironmentInfo::setDirty(bool dirty)
 	getChildView("cancel_btn")->setEnabled(dirty);
 }
 
+void LLPanelEnvironmentInfo::sendRegionSunUpdate(F32 sun_angle)
+{
+	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
+	bool region_use_fixed_sky = sun_angle >= 0.f;
+
+	// Set sun hour.
+	if (region_use_fixed_sky)
+	{
+		LLWLParamSet param_set;
+		LLSD params;
+		std::string unused;
+		if (!getSelectedSkyParams(params, unused))
+		{
+			return;
+		}
+		param_set.setAll(params);
+
+		// convert value range from 0..2pi to 6..30
+		region_info.mSunHour = fmodf((sun_angle / F_TWO_PI) * 24.f, 24.f) + 6.f;
+	}
+
+	region_info.setUseFixedSun(region_use_fixed_sky);
+	region_info.mUseEstateSun = !region_use_fixed_sky;
+
+	region_info.sendRegionTerrain(LLFloaterRegionInfo::getLastInvoice());
+}
+
 void LLPanelEnvironmentInfo::populateWaterPresetsList()
 {
 	mWaterPresetCombo->removeall();
@@ -3634,6 +3666,7 @@ void LLPanelEnvironmentInfo::onBtnApply()
 	LLSD day_cycle;
 	LLSD sky_map;
 	LLSD water_params;
+	F32 sun_angle = -1.f; // invalid value meaning no fixed sky
 
 	if (use_defaults)
 	{
@@ -3666,6 +3699,9 @@ void LLPanelEnvironmentInfo::onBtnApply()
 			param_set.setAll(params);
 			refs[LLWLParamKey(preset_name, LLEnvKey::SCOPE_LOCAL)] = param_set; // scope doesn't matter here
 			sky_map = LLWLParamManager::createSkyMap(refs);
+
+			// Remember the sun angle to set fixed region sun hour below.
+			sun_angle = param_set.getSunAngle();
 		}
 		else // use day cycle
 		{
@@ -3686,6 +3722,16 @@ void LLPanelEnvironmentInfo::onBtnApply()
 				LL_DEBUGS("Windlight") << "Fixing negative time" << LL_ENDL;
 				day_cycle[0][0] = 0.0f;
 			}
+
+			// If the day cycle contains exactly one preset (i.e it's effectively a fixed sky),
+			// remember the preset's sun angle to set fixed region sun hour below.
+			if (sky_map.size() == 1)
+			{
+				LLWLParamSet param_set;
+				llassert(sky_map.isMap());
+				param_set.setAll(sky_map.beginMap()->second);
+				sun_angle = param_set.getSunAngle();
+			}
 		}
 
 		// Get water params.
@@ -3705,6 +3751,10 @@ void LLPanelEnvironmentInfo::onBtnApply()
 		return;
 	}
 
+	// Set the region sun phase/flags according to the chosen new preferences.
+	sendRegionSunUpdate(sun_angle);
+
+	// Start spinning the progress indicator.
 	setApplyProgress(true);
 }
 

@@ -122,6 +122,18 @@ bool LLRegionInfoModel::getUseFixedSun() const
 	return mRegionFlags & REGION_FLAGS_SUN_FIXED;
 }
 
+void LLRegionInfoModel::setUseFixedSun(bool fixed)
+{
+	if (fixed)
+	{
+		mRegionFlags |= REGION_FLAGS_SUN_FIXED;
+	}
+	else
+	{
+		mRegionFlags &= ~REGION_FLAGS_SUN_FIXED;
+	}
+}
+
 void LLRegionInfoModel::update(LLMessageSystem* msg)
 {
 	reset();
@@ -192,8 +204,9 @@ void LLRegionInfoModel::sendEstateOwnerMessage(
 	{
 		std::vector<std::string>::const_iterator it = strings.begin();
 		std::vector<std::string>::const_iterator end = strings.end();
-		for (; it != end; ++it)
+		for (unsigned i = 0; it != end; ++it, ++i)
 		{
+			lldebugs << "- [" << i << "] " << (*it) << llendl;
 			msg->nextBlock("ParamList");
 			msg->addString("Parameter", *it);
 		}
