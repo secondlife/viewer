@@ -33,12 +33,12 @@
 #include "llfloater.h"
 #include "llinventory.h"
 #include "llinventoryfilter.h"
-#include "llfolderview.h"
 #include "llinventorymodel.h"
 #include "llscrollcontainer.h"
 #include "lluictrlfactory.h"
 #include <set>
 
+class LLFolderView;
 class LLFolderViewFolder;
 class LLFolderViewItem;
 class LLInventoryFilter;
@@ -84,6 +84,7 @@ public:
 		Optional<Filter>					filter;
 		Optional<std::string>               start_folder;
 		Optional<bool>						use_label_suffix;
+		Optional<bool>						show_load_status;
 		Optional<LLScrollContainer::Params>	scroll;
 
 		Params()
@@ -94,6 +95,7 @@ public:
 			filter("filter"),
 			start_folder("start_folder"),
 			use_label_suffix("use_label_suffix", true),
+			show_load_status("show_load_status"),
 			scroll("scroll")
 		{}
 	};
@@ -126,17 +128,17 @@ public:
 	// Call this method to set the selection.
 	void openAllFolders();
 	void setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus);
-	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb);
+	void setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
 	void clearSelection();
 	LLInventoryFilter* getFilter();
 	const LLInventoryFilter* getFilter() const;
 	void setFilterTypes(U64 filter, LLInventoryFilter::EFilterType = LLInventoryFilter::FILTERTYPE_OBJECT);
-	U32 getFilterObjectTypes() const { return mFolderRoot->getFilterObjectTypes(); }
+	U32 getFilterObjectTypes() const;
 	void setFilterPermMask(PermissionMask filter_perm_mask);
-	U32 getFilterPermMask() const { return mFolderRoot->getFilterPermissions(); }
+	U32 getFilterPermMask() const;
 	void setFilterWearableTypes(U64 filter);
 	void setFilterSubString(const std::string& string);
-	const std::string getFilterSubString() { return mFolderRoot->getFilterSubString(); }
+	const std::string getFilterSubString();
 	void setSinceLogoff(BOOL sl);
 	void setHoursAgo(U32 hours);
 	BOOL getSinceLogoff();
@@ -146,7 +148,7 @@ public:
 	LLInventoryFilter::EFolderShow getShowFolderState();
 	// This method is called when something has changed about the inventory.
 	void modelChanged(U32 mask);
-	LLFolderView* getRootFolder() { return mFolderRoot; }
+	LLFolderView* getRootFolder();
 	LLScrollContainer* getScrollableContainer() { return mScroller; }
 	
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
@@ -161,7 +163,7 @@ public:
 	static void dumpSelectionInformation(void* user_data);
 
 	void openSelected();
-	void unSelectAll()	{ mFolderRoot->setSelection(NULL, FALSE, FALSE); }
+	void unSelectAll();
 	
 	static void onIdle(void* user_data);
 
@@ -178,6 +180,7 @@ protected:
 	LLInvPanelComplObserver*	mCompletionObserver;
 	BOOL 						mAllowMultiSelect;
 	BOOL 						mShowItemLinkOverlays; // Shows link graphic over inventory item icons
+	BOOL						mShowLoadStatus;
 
 	LLFolderView*				mFolderRoot;
 	LLScrollContainer*			mScroller;
@@ -201,7 +204,7 @@ public:
 	static const std::string INHERIT_SORT_ORDER;
 	
 	void setSortOrder(U32 order);
-	U32 getSortOrder() const { return mFolderRoot->getSortOrder(); }
+	U32 getSortOrder() const;
 private:
 	std::string					mSortOrderSetting;
 

@@ -49,6 +49,7 @@
 #include "llfloaterpay.h"
 #include "llfloaterwebcontent.h"
 #include "llfloaterworldmap.h"
+#include "llfolderview.h"
 #include "llgiveinventory.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
@@ -313,7 +314,9 @@ static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarNa
 	std::string url = getProfileURL(username);
 
 	// PROFILES: open in webkit window
-	LLWeb::loadWebURLInternal(url, "", agent_id.asString());
+	const bool show_chrome = false;
+	static LLCachedControl<LLRect> profile_rect(gSavedSettings, "WebProfileRect");
+	LLFloaterWebContent::create(url, "", agent_id.asString(), show_chrome, profile_rect);
 }
 
 // static

@@ -103,25 +103,14 @@ void LLInboxInventoryPanel::buildFolderView(const LLInventoryPanel::Params& para
 		root_id = LLUUID::generateNewID();
 	}
 	
-	LLRect folder_rect(0, 0, getRect().getWidth(), 0);
-
-	LLFolderView::Params p;
-
-	p.name = getName();
-	p.title = getLabel();
-	p.rect = folder_rect;
-	p.parent_panel = this;
-	p.tool_tip = p.name;
-	p.listener =  mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
-													LLAssetType::AT_CATEGORY,
-													LLInventoryType::IT_CATEGORY,
-													this,
-													NULL,
-													root_id);
-	p.use_label_suffix = params.use_label_suffix;
-	p.allow_multiselect = mAllowMultiSelect;
+	LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
+																	LLAssetType::AT_CATEGORY,
+																	LLInventoryType::IT_CATEGORY,
+																	this,
+																	NULL,
+																	root_id);
 	
-	mFolderRoot = LLUICtrlFactory::create<LLFolderView>(p);
+	mFolderRoot = createFolderView(new_listener, params.use_label_suffix());
 }
 
 LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge)

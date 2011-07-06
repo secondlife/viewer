@@ -40,6 +40,7 @@
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
+#include "llfolderview.h"
 #include "llfriendcard.h"
 #include "llgesturemgr.h"
 #include "llgiveinventory.h" 
