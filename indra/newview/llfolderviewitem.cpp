@@ -33,6 +33,7 @@
 #include "llviewerfoldertype.h"
 #include "llinventorybridge.h"	// for LLItemBridge in LLInventorySort::operator()
 #include "llinventoryfilter.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llpanel.h"
 #include "llviewercontrol.h"	// gSavedSettings
@@ -2042,7 +2043,7 @@ BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	requestArrange();
 	requestSort();
 	LLFolderViewFolder* parentp = getParentFolder();
-	while (parentp && !parentp->getCreationDate())
+	while (parentp && parentp->mSortFunction.isByDate())
 	{
 		// parent folder doesn't have a time stamp yet, so get it from us
 		parentp->requestSort();
@@ -2068,7 +2069,7 @@ BOOL LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 	folder->requestArrange(TRUE);
 	requestSort();
 	LLFolderViewFolder* parentp = getParentFolder();
-	while (parentp && !parentp->getCreationDate())
+	while (parentp && !parentp->mSortFunction.isByDate())
 	{
 		// parent folder doesn't have a time stamp yet, so get it from us
 		parentp->requestSort();

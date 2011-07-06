@@ -66,6 +66,7 @@ public:
 	// Returns true if order has changed
 	bool updateSort(U32 order);
 	U32 getSort() { return mSortOrder; }
+	bool isByDate() { return mByDate; }
 
 	bool operator()(const LLFolderViewItem* const& a, const LLFolderViewItem* const& b);
 private:

@@ -46,6 +46,7 @@
 #include "llfolderviewitem.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
+#include "llinventoryfunctions.h"
 #include "lllandmarkactions.h"
 #include "llmenubutton.h"
 #include "llplacesinventorybridge.h"

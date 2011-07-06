@@ -35,6 +35,7 @@
 #include "llavataractions.h"
 #include "llfloaterinventory.h"
 #include "llfloaterreg.h"
+#include "llfolderview.h"
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
@@ -340,6 +341,17 @@ void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType 
 		getFilter()->setFilterCategoryTypes(types);
 }
 
+U32 LLInventoryPanel::getFilterObjectTypes() const 
+{ 
+	return mFolderRoot->getFilterObjectTypes(); 
+}
+
+U32 LLInventoryPanel::getFilterPermMask() const 
+{ 
+	return mFolderRoot->getFilterPermissions(); 
+}
+
+
 void LLInventoryPanel::setFilterPermMask(PermissionMask filter_perm_mask)
 {
 	getFilter()->setFilterPermissions(filter_perm_mask);
@@ -355,6 +367,12 @@ void LLInventoryPanel::setFilterSubString(const std::string& string)
 	getFilter()->setFilterSubString(string);
 }
 
+const std::string LLInventoryPanel::getFilterSubString() 
+{ 
+	return mFolderRoot->getFilterSubString(); 
+}
+
+
 void LLInventoryPanel::setSortOrder(U32 order)
 {
 	getFilter()->setSortOrder(order);
@@ -365,6 +383,12 @@ void LLInventoryPanel::setSortOrder(U32 order)
 		mFolderRoot->scrollToShowSelection();
 	}
 }
+
+U32 LLInventoryPanel::getSortOrder() const 
+{ 
+	return mFolderRoot->getSortOrder(); 
+}
+
 
 void LLInventoryPanel::setSinceLogoff(BOOL sl)
 {
@@ -536,6 +560,12 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		}
 	}
 }
+
+LLFolderView* LLInventoryPanel::getRootFolder() 
+{ 
+	return mFolderRoot; 
+}
+
 
 // static
 void LLInventoryPanel::onIdle(void *userdata)
@@ -800,6 +830,12 @@ void LLInventoryPanel::openSelected()
 	bridge->openItem();
 }
 
+void LLInventoryPanel::unSelectAll()	
+{ 
+	mFolderRoot->setSelection(NULL, FALSE, FALSE); 
+}
+
+
 BOOL LLInventoryPanel::handleHover(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLView::handleHover(x, y, mask);
@@ -879,7 +915,7 @@ void LLInventoryPanel::setSelection(const LLUUID& obj_id, BOOL take_keyboard_foc
 	mFolderRoot->setSelectionByID(obj_id, take_keyboard_focus);
 }
 
-void LLInventoryPanel::setSelectCallback(const LLFolderView::signal_t::slot_type& cb) 
+void LLInventoryPanel::setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb) 
 { 
 	if (mFolderRoot) 
 	{

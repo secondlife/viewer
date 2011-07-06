@@ -49,6 +49,7 @@
 #include "llfloaterpay.h"
 #include "llfloaterwebcontent.h"
 #include "llfloaterworldmap.h"
+#include "llfolderview.h"
 #include "llgiveinventory.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType

@@ -30,8 +30,6 @@
 
 #include "llbadgeowner.h"
 #include "llinventorypanel.h"
-#include "llfolderviewitem.h"
-
 
 class LLInboxInventoryPanel : public LLInventoryPanel
 {
@@ -48,7 +46,7 @@ public:
 	void buildFolderView(const LLInventoryPanel::Params& params);
 
 	// virtual
-	LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge);
+	class LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge);
 };
 
 

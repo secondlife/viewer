@@ -31,6 +31,7 @@
 #include "llappviewer.h"
 #include "llbutton.h"
 #include "llinventorypanel.h"
+#include "llfolderview.h"
 #include "llsidepanelinventory.h"
 
 

@@ -59,22 +59,6 @@ class LLUICtrl;
 class LLTextBox;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLFolderViewFunctor
-//
-// Simple abstract base class for applying a functor to folders and
-// items in a folder view hierarchy. This is suboptimal for algorithms
-// that only work folders or only work on items, but I'll worry about
-// that later when it's determined to be too slow.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLFolderViewFunctor
-{
-public:
-	virtual ~LLFolderViewFunctor() {}
-	virtual void doFolder(LLFolderViewFolder* folder) = 0;
-	virtual void doItem(LLFolderViewItem* item) = 0;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFolderView
 //
 // Th LLFolderView represents the root level folder view object. It
