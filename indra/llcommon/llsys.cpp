@@ -58,6 +58,7 @@ using namespace llsd;
 #	define WIN32_LEAN_AND_MEAN
 #	include <winsock2.h>
 #	include <windows.h>
+#   include <psapi.h>
 #elif LL_DARWIN
 #	include <errno.h>
 #	include <sys/sysctl.h>
@@ -872,6 +873,25 @@ LLSD LLMemoryInfo::loadStatsArray()
 	statsArray.append(LLSDArray("Avail page KB")     (LLSD::Integer(state.ullAvailPageFile/1024)));
 	statsArray.append(LLSDArray("Total Virtual KB")  (LLSD::Integer(state.ullTotalVirtual/1024)));
 	statsArray.append(LLSDArray("Avail Virtual KB")  (LLSD::Integer(state.ullAvailVirtual/1024)));
+
+	PERFORMANCE_INFORMATION perf;
+	perf.cb = sizeof(perf);
+	GetPerformanceInfo(&perf, sizeof(perf));
+
+	SIZE_T pagekb(perf.PageSize/1024);
+	statsArray.append(LLSDArray("CommitTotal KB")	(LLSD::Integer(perf.CommitTotal * pagekb)));
+	statsArray.append(LLSDArray("CommitLimit KB")	(LLSD::Integer(perf.CommitLimit * pagekb)));
+	statsArray.append(LLSDArray("CommitPeak KB")	(LLSD::Integer(perf.CommitPeak * pagekb)));
+	statsArray.append(LLSDArray("PhysicalTotal KB") (LLSD::Integer(perf.PhysicalTotal * pagekb)));
+	statsArray.append(LLSDArray("PhysicalAvail KB") (LLSD::Integer(perf.PhysicalAvailable * pagekb)));
+	statsArray.append(LLSDArray("SystemCache KB")	(LLSD::Integer(perf.SystemCache * pagekb)));
+	statsArray.append(LLSDArray("KernelTotal KB")	(LLSD::Integer(perf.KernelTotal * pagekb)));
+	statsArray.append(LLSDArray("KernelPaged KB")	(LLSD::Integer(perf.KernelPaged * pagekb)));
+	statsArray.append(LLSDArray("KernelNonpaged KB")(LLSD::Integer(perf.KernelNonpaged * pagekb)));
+	statsArray.append(LLSDArray("PageSize KB")		(LLSD::Integer(pagekb)));
+	statsArray.append(LLSDArray("HandleCount")		(LLSD::Integer(perf.HandleCount)));
+	statsArray.append(LLSDArray("ProcessCount")		(LLSD::Integer(perf.ProcessCount)));
+	statsArray.append(LLSDArray("ThreadCount")		(LLSD::Integer(perf.ThreadCount)));
 
 #elif LL_DARWIN
 	uint64_t phys = 0;
