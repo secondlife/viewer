@@ -2067,7 +2067,6 @@ Returns a string with the requested data about the region
 
 	<!-- inventory folder -->
 	<string name="InvFolder My Inventory">My Inventory</string>
-	<string name="InvFolder My Favorites">My Favorites</string>
 	<string name="InvFolder Library">Library</string>
 	<string name="InvFolder Textures">Textures</string>
 	<string name="InvFolder Sounds">Sounds</string>
@@ -2087,10 +2086,10 @@ Returns a string with the requested data about the region
 	<string name="InvFolder Uncompressed Sounds">Uncompressed Sounds</string>
 	<string name="InvFolder Animations">Animations</string>
 	<string name="InvFolder Gestures">Gestures</string>
-	<string name="InvFolder Favorite">Favorites</string>
+	<string name="InvFolder Favorite">My Favorites</string>
   <!-- historically default name of the Favorites folder can start from either "f" or "F" letter.
   We should localize both of them with the same value -->
-	<string name="InvFolder favorite">Favorites</string>
+	<string name="InvFolder favorite">My Favorites</string>
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder Initial Outfits">Initial Outfits</string>
 	<string name="InvFolder My Outfits">My Outfits</string>

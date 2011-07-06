@@ -1238,9 +1238,6 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InvFolder My Inventory">
 		Mon inventaire
 	</string>
-	<string name="InvFolder My Favorites">
-		Mes Favoris
-	</string>
 	<string name="InvFolder Library">
 		Bibliothèque
 	</string>
@@ -1299,10 +1296,10 @@ Veuillez réessayer de vous connecter dans une minute.
 		Gestes
 	</string>
 	<string name="InvFolder Favorite">
-		Favoris
+		Mes Favoris
 	</string>
 	<string name="InvFolder favorite">
-		Favoris
+		Mes Favoris
 	</string>
 	<string name="InvFolder Current Outfit">
 		Tenue actuelle
