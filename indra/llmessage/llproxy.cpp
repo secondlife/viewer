@@ -84,14 +84,14 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 	result = tcp_handshake(mProxyControlChannel, (char*)&socks_auth_request, sizeof(socks_auth_request), (char*)&socks_auth_response, sizeof(socks_auth_response));
 	if (result != 0)
 	{
-		llwarns << "SOCKS authentication request failed, error on TCP control channel : " << result << llendl;
+		LL_WARNS("Proxy") << "SOCKS authentication request failed, error on TCP control channel : " << result << LL_ENDL;
 		stopProxy();
 		return SOCKS_CONNECT_ERROR;
 	}
 
 	if (socks_auth_response.method == AUTH_NOT_ACCEPTABLE)
 	{
-		llwarns << "SOCKS 5 server refused all our authentication methods" << llendl;
+		LL_WARNS("Proxy") << "SOCKS 5 server refused all our authentication methods" << LL_ENDL;
 		stopProxy();
 		return SOCKS_NOT_ACCEPTABLE;
 	}
@@ -115,14 +115,14 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 
 		if (result != 0)
 		{
-			llwarns << "SOCKS authentication failed, error on TCP control channel : " << result << llendl;
+			LL_WARNS("Proxy") << "SOCKS authentication failed, error on TCP control channel : " << result << LL_ENDL;
 			stopProxy();
 			return SOCKS_CONNECT_ERROR;
 		}
 
 		if (password_reply.status != AUTH_SUCCESS)
 		{
-			llwarns << "SOCKS authentication failed" << llendl;
+			LL_WARNS("Proxy") << "SOCKS authentication failed" << LL_ENDL;
 			stopProxy();
 			return SOCKS_AUTH_FAIL;
 		}
@@ -145,14 +145,14 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 	result = tcp_handshake(mProxyControlChannel, (char*)&connect_request, sizeof(socks_command_request_t), (char*)&connect_reply, sizeof(socks_command_response_t));
 	if (result != 0)
 	{
-		llwarns << "SOCKS connect request failed, error on TCP control channel : " << result << llendl;
+		LL_WARNS("Proxy") << "SOCKS connect request failed, error on TCP control channel : " << result << LL_ENDL;
 		stopProxy();
 		return SOCKS_CONNECT_ERROR;
 	}
 
 	if (connect_reply.reply != REPLY_REQUEST_GRANTED)
 	{
-		llwarns << "Connection to SOCKS 5 server failed, UDP forward request not granted" << llendl;
+		LL_WARNS("Proxy") << "Connection to SOCKS 5 server failed, UDP forward request not granted" << LL_ENDL;
 		stopProxy();
 		return SOCKS_UDP_FWD_NOT_GRANTED;
 	}
@@ -160,7 +160,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 	mUDPProxy.setPort(ntohs(connect_reply.port)); // reply port is in network byte order
 	mUDPProxy.setAddress(proxy.getAddress());
 	// The connection was successful. We now have the UDP port to send requests that need forwarding to.
-	llinfos << "SOCKS 5 UDP proxy connected on " << mUDPProxy << llendl;
+	LL_INFOS("Proxy") << "SOCKS 5 UDP proxy connected on " << mUDPProxy << LL_ENDL;
 	return SOCKS_OK;
 }
 
@@ -251,12 +251,12 @@ static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outl
   	rv = apr_socket_send(apr_socket, dataout, &outlen);
 	if (APR_SUCCESS != rv || expected_len != outlen)
 	{
-		llwarns << "Error sending data to proxy control channel" << llendl;
+		LL_WARNS("Proxy") << "Error sending data to proxy control channel" << LL_ENDL;
 		ll_apr_warn_status(rv);
 	}
 	else if (expected_len != outlen)
 	{
-		llwarns << "Error sending data to proxy control channel" << llendl;
+		LL_WARNS("Proxy") << "Error sending data to proxy control channel" << LL_ENDL;
 		rv = -1;
 	}
 
@@ -266,12 +266,12 @@ static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outl
 		rv = apr_socket_recv(apr_socket, datain, &maxinlen);
 		if (rv != APR_SUCCESS)
 		{
-			llwarns << "Error receiving data from proxy control channel, status: " << rv << llendl;
+			LL_WARNS("Proxy") << "Error receiving data from proxy control channel, status: " << rv << LL_ENDL;
 			ll_apr_warn_status(rv);
 		}
 		else if (expected_len != maxinlen)
 		{
-			llwarns << "Received incorrect amount of data in proxy control channel" << llendl;
+			LL_WARNS("Proxy") << "Received incorrect amount of data in proxy control channel" << LL_ENDL;
 			rv = -1;
 		}
 	}
@@ -296,6 +296,6 @@ static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host)
 // Pass a pointer-to-pointer to avoid changing use_count().
 static void tcp_close_channel(LLSocket::ptr_t* handle_ptr)
 {
-	lldebugs << "Resetting proxy LLSocket handle, use_count == " << handle_ptr->use_count() << llendl;
+	LL_DEBUGS("Proxy") << "Resetting proxy LLSocket handle, use_count == " << handle_ptr->use_count() << LL_ENDL;
 	handle_ptr->reset();
 }
