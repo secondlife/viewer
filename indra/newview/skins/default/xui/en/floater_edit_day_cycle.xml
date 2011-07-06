@@ -67,7 +67,7 @@
      height="10"
      layout="topleft"
      left="10"    
-     name="water_color_label"
+     name="hint_item1"
      top="100"
      width="300">
      - Click on a tab to edit the specific sky settings and time.
@@ -76,7 +76,7 @@
      follows="left|top|right"
      height="10"
      layout="topleft"    
-     name="water_color_label"
+     name="hint_item2"
      top_pad="10"
      width="300">
      - Click and drag the tabs to set the transition times.
@@ -85,7 +85,7 @@
      follows="left|top|right"
      height="10"
      layout="topleft"
-     name="water_color_label"
+     name="hint_item3"
      top_pad="10"
      width="300">
      - Use the scrubber to preview your day cycle.
@@ -402,7 +402,7 @@
      height="16"
      layout="topleft"
      left_delta="192"
-     name="WLCurKeyTimeText2"
+     name="WLCurKeyPresetText"
      top_pad="10"
      width="80">
         Sky Setting:
@@ -423,7 +423,7 @@
      height="16"
      layout="topleft"
      left_delta="-40"
-     name="WLCurKeyTimeText2"
+     name="WLCurKeyTimeText"
      top_pad="15"
      width="35">
         Time:
