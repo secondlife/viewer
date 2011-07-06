@@ -363,6 +363,7 @@ mCalculateBtn(NULL)
 	mLastMouseY = 0;
 	mGLName = 0;
 	mStatusLock = new LLMutex(NULL);
+	mModelPreview = NULL;
 
 	mLODMode[LLModel::LOD_HIGH] = 0;
 	for (U32 i = 0; i < LLModel::LOD_HIGH; i++)
@@ -446,10 +447,7 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	mPreviewRect = preview_panel->getRect();
 
-	mModelPreview = new LLModelPreview(512, 512, this );
-	mModelPreview->setPreviewTarget(16.f);
-	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
-	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, _1));
+	initModelPreview();
 
 	//set callbacks for left click on line editor rows
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
@@ -510,6 +508,19 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 	mStatusLock = NULL;
 }
 
+void LLFloaterModelPreview::initModelPreview()
+{
+	if (mModelPreview)
+	{
+		delete mModelPreview;
+	}
+
+	mModelPreview = new LLModelPreview(512, 512, this );
+	mModelPreview->setPreviewTarget(16.f);
+	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
+	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, _1));
+}
+
 void LLFloaterModelPreview::onViewOptionChecked(const LLSD& userdata)
 {
 	if (mModelPreview)
@@ -557,11 +568,11 @@ void LLFloaterModelPreview::loadModel(S32 lod)
 	(new LLMeshFilePicker(mModelPreview, lod))->getFile();
 }
 
-void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name)
+void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name, bool force_disable_slm)
 {
 	mModelPreview->mLoading = true;
 
-	mModelPreview->loadModel(file_name, lod);
+	mModelPreview->loadModel(file_name, lod, force_disable_slm);
 }
 
 void LLFloaterModelPreview::onClickCalculateBtn()
@@ -3264,7 +3275,7 @@ void LLModelPreview::clearModel(S32 lod)
 	mScene[lod].clear();
 }
 
-void LLModelPreview::loadModel(std::string filename, S32 lod)
+void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable_slm)
 {
 	assert_main_thread();
 
@@ -3300,6 +3311,11 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 	}
 
 	mModelLoader = new LLModelLoader(filename, lod, this, mJointTransformMap, mJointsFromNode );
+
+	if (force_disable_slm)
+	{
+		mModelLoader->mTrySLM = false;
+	}
 
 	mModelLoader->start();
 
@@ -5345,7 +5361,12 @@ void LLFloaterModelPreview::onReset(void* user_data)
 	LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) user_data;
 	LLModelPreview* mp = fmp->mModelPreview;
 	std::string filename = mp->mLODFile[3]; 
-	mp->loadModel(filename,3);
+
+	//reset model preview
+	fmp->initModelPreview();
+
+	mp = fmp->mModelPreview;
+	mp->loadModel(filename,3,true);
 }
 
 //static

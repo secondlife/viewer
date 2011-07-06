@@ -162,6 +162,8 @@ public:
 	
 	virtual BOOL postBuild();
 	
+	void initModelPreview();
+
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
@@ -187,7 +189,7 @@ public:
 	void updateResourceCost();
 	
 	void			loadModel(S32 lod);
-	void 			loadModel(S32 lod, const std::string& file_name);
+	void 			loadModel(S32 lod, const std::string& file_name, bool force_disable_slm = false);
 	
 	void onViewOptionChecked(const LLSD& userdata);
 	bool isViewOptionChecked(const LLSD& userdata);
@@ -324,7 +326,7 @@ public:
 	virtual BOOL needsRender() { return mNeedsUpdate; }
 	void setPreviewLOD(S32 lod);
 	void clearModel(S32 lod);
-	void loadModel(std::string filename, S32 lod);
+	void loadModel(std::string filename, S32 lod, bool force_disable_slm = false);
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();

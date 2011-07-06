@@ -2171,6 +2171,8 @@ LLSD LLModel::Decomposition::asLLSD() const
 	ret["Min"] = min.getValue();
 	ret["Max"] = max.getValue();
 
+	LLVector3 range = max-min;
+
 	if (!hulls.empty())
 	{
 		ret["HullList"] = hulls;
@@ -2179,10 +2181,6 @@ LLSD LLModel::Decomposition::asLLSD() const
 	if (total > 0)
 	{
 		LLSD::Binary p(total*3*2);
-
-		LLVector3 min(-0.5f, -0.5f, -0.5f);
-		LLVector3 max(0.5f, 0.5f, 0.5f);
-		LLVector3 range = max-min;
 
 		U32 vert_idx = 0;
 		
@@ -2195,11 +2193,11 @@ LLSD LLModel::Decomposition::asLLSD() const
 			for (U32 j = 0; j < mHull[i].size(); ++j)
 			{
 				U64 test = 0;
+				const F32* src = mHull[i][j].mV;
+
 				for (U32 k = 0; k < 3; k++)
 				{
-					F32* src = (F32*) (mHull[i][j].mV);
-
-					llassert(src[k] <= 0.501f && src[k] >= -0.501f);
+					llassert(src[k] <= 0.51f && src[k] >= -0.51f);
 
 					//convert to 16-bit normalized across domain
 					U16 val = (U16) (((src[k]-min.mV[k])/range.mV[k])*65535);
@@ -2239,19 +2237,17 @@ LLSD LLModel::Decomposition::asLLSD() const
 	{
 		LLSD::Binary p(mBaseHull.size()*3*2);
 
-		LLVector3 min(-0.5f, -0.5f, -0.5f);
-		LLVector3 max(0.5f, 0.5f, 0.5f);
-		LLVector3 range = max-min;
-
 		U32 vert_idx = 0;
 		for (U32 j = 0; j < mBaseHull.size(); ++j)
 		{
+			const F32* v = mBaseHull[j].mV;
+
 			for (U32 k = 0; k < 3; k++)
 			{
-				llassert(mBaseHull[j].mV[k] <= 0.51f && mBaseHull[j].mV[k] >= -0.51f);
+				llassert(v[k] <= 0.51f && v[k] >= -0.51f);
 
 				//convert to 16-bit normalized across domain
-				U16 val = (U16) (((mBaseHull[j].mV[k]-min.mV[k])/range.mV[k])*65535);
+				U16 val = (U16) (((v[k]-min.mV[k])/range.mV[k])*65535);
 
 				U8* buff = (U8*) &val;
 				//write to binary buffer
