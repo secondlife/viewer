@@ -320,15 +320,10 @@ void LLFolderView::setSortOrder(U32 order)
 	if (order != mSortOrder)
 	{
 		LLFastTimer t(FTM_SORT);
+		
 		mSortOrder = order;
-
-		for (folders_t::iterator iter = mFolders.begin();
-			 iter != mFolders.end();)
-		{
-			folders_t::iterator fit = iter++;
-			(*fit)->sortBy(order);
-		}
-
+		
+		sortBy(order);
 		arrangeAll();
 	}
 }

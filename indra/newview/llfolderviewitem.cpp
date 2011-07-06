@@ -1902,9 +1902,13 @@ void LLFolderViewFolder::sortBy(U32 order)
 		folders_t::iterator fit = iter++;
 		(*fit)->sortBy(order);
 	}
-
-	mFolders.sort(mSortFunction);
-	mItems.sort(mSortFunction);
+	
+	// Don't sort the topmost folders (My Inventory and Library)
+	if (mListener->getUUID().notNull())
+	{
+		mFolders.sort(mSortFunction);
+		mItems.sort(mSortFunction);
+	}
 
 	if (order & LLInventoryFilter::SO_DATE)
 	{
