@@ -30,6 +30,7 @@
 
 #include "llbadgeowner.h"
 #include "llinventorypanel.h"
+#include "llfolderviewitem.h"
 
 class LLInboxInventoryPanel : public LLInventoryPanel
 {
