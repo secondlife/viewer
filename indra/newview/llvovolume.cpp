@@ -3096,7 +3096,7 @@ U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 
 F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes)
 {
-	F32 radius = getScale().length();
+	F32 radius = getScale().length()*0.5f;
 
 	if (isMesh())
 	{	

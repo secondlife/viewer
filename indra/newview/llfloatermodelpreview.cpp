@@ -3059,7 +3059,7 @@ U32 LLModelPreview::calcResourceCost()
 			F32 z_length = z_transformed.normalize();
 			LLVector3 scale = LLVector3(x_length, y_length, z_length);
 
-			F32 radius = scale.length()*debug_scale;
+			F32 radius = scale.length()*0.5f*debug_scale;
 
 			streaming_cost += LLMeshRepository::getStreamingCost(ret, radius);
 		}

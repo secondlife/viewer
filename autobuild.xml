@@ -1148,7 +1148,7 @@
         <key>license</key>
         <string>lgpl</string>
         <key>license_file</key>
-        <string>LICENSES/lgpl.txt</string>
+        <string>LICENSES/LLConvexDecompositionStubLicense.txt</string>
         <key>name</key>
         <string>llconvexdecompositionstub</string>
         <key>platforms</key>
