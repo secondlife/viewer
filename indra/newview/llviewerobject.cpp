@@ -575,7 +575,9 @@ bool LLViewerObject::isReturnable()
 			boxes.clear();
 			LLViewerRegion* pRegion = (*retCurrentIt).pRegion;
 			boxes.push_back( (*retCurrentIt).box );	
-			bool retResult = (pRegion && pRegion->childrenObjectReturnable( boxes )) ? 1 : 0;
+			bool retResult = 	pRegion
+							 && pRegion->childrenObjectReturnable( boxes )
+							 && pRegion->canManageEstate();
 			if ( retResult )
 			{ 
 				result = true;
