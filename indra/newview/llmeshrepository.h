@@ -189,7 +189,7 @@ public:
 	static S32 llcdCallback(const char*, S32, S32);
 	void cancel();
 
-	void setMeshData(LLCDMeshData& mesh);
+	void setMeshData(LLCDMeshData& mesh, bool vertex_based);
 	void doDecomposition();
 	void doDecompositionSingleHull();
 
