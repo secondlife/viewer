@@ -915,7 +915,13 @@ LLSD LLMemoryInfo::loadStatsArray()
 
 	PROCESS_MEMORY_COUNTERS_EX pmem;
 	pmem.cb = sizeof(pmem);
-	GetProcessMemoryInfo(GetCurrentProcess(), &pmem, sizeof(pmem));
+	// GetProcessMemoryInfo() is documented to accept either
+	// PROCESS_MEMORY_COUNTERS* or PROCESS_MEMORY_COUNTERS_EX*, presumably
+	// using the redundant size info to distinguish. But its prototype
+	// specifically accepts PROCESS_MEMORY_COUNTERS*, and since this is a
+	// classic-C API, PROCESS_MEMORY_COUNTERS_EX isn't a subclass. Cast the
+	// pointer.
+	GetProcessMemoryInfo(GetCurrentProcess(), PPROCESS_MEMORY_COUNTERS(&pmem), sizeof(pmem));
 
 	stats.add("Page Fault Count",              pmem.PageFaultCount);
 	stats.add("PeakWorkingSetSize KB",         pmem.PeakWorkingSetSize/1024);
