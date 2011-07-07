@@ -103,6 +103,9 @@
 #include "llanimationstates.h"
 #include "glod/glod.h"
 
+
+const S32 SLM_SUPPORTED_VERSION = 2;
+
 //static
 S32 LLFloaterModelPreview::sUploadAmount = 10;
 LLFloaterModelPreview* LLFloaterModelPreview::sInstance = NULL;
@@ -409,8 +412,6 @@ BOOL LLFloaterModelPreview::postBuild()
 	childDisable("ok_btn");
 
 	childSetAction("reset_btn", onReset, this);
-
-	childSetAction("clear_materials", onClearMaterials, this);
 
 	childSetCommitCallback("preview_lod_combo", onPreviewLODCommit, this);
 
@@ -1945,8 +1946,11 @@ bool LLModelLoader::doLoadModel()
 								mesh_scale *= transformation;
 								transformation = mesh_scale;
 								
-								std::vector<LLImportMaterial> materials;
-								materials.resize(model->getNumVolumeFaces());
+								std::map<std::string, LLImportMaterial> materials;
+								for (U32 i = 0; i < model->mMaterialList.size(); ++i)
+								{
+									materials[model->mMaterialList[i]] = LLImportMaterial();
+								}
 								mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
 								stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
 							}
@@ -2007,6 +2011,11 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 
 	//build model list for each LoD
 	model_list model[LLModel::NUM_LODS];
+
+	if (data["version"].asInteger() != SLM_SUPPORTED_VERSION)
+	{  //unsupported version
+		return false;
+	}
 
 	LLSD& mesh = data["mesh"];
 
@@ -2325,14 +2334,17 @@ void LLModelLoader::loadTextures()
 	{
 		for(U32 i = 0 ; i < iter->second.size(); i++)
 		{
-			for(U32 j = 0 ; j < iter->second[i].mMaterial.size() ; j++)
+			for(std::map<std::string, LLImportMaterial>::iterator j = iter->second[i].mMaterial.begin();
+				j != iter->second[i].mMaterial.end(); ++j)
 			{
-				if(!iter->second[i].mMaterial[j].mDiffuseMapFilename.empty())
+				LLImportMaterial& material = j->second;
+
+				if(!material.mDiffuseMapFilename.empty())
 				{
-					iter->second[i].mMaterial[j].mDiffuseMap = 
-						LLViewerTextureManager::getFetchedTextureFromUrl("file://" + iter->second[i].mMaterial[j].mDiffuseMapFilename, TRUE, LLViewerTexture::BOOST_PREVIEW);
-					iter->second[i].mMaterial[j].mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, mPreview, NULL, FALSE);
-					iter->second[i].mMaterial[j].mDiffuseMap->forceToSaveRawImage(0, F32_MAX);
+					material.mDiffuseMap = 
+						LLViewerTextureManager::getFetchedTextureFromUrl("file://" + material.mDiffuseMapFilename, TRUE, LLViewerTexture::BOOST_PREVIEW);
+					material.mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, mPreview, NULL, FALSE);
+					material.mDiffuseMap->forceToSaveRawImage(0, F32_MAX);
 					mNumOfFetchingTextures++ ;
 				}
 			}
@@ -2632,7 +2644,7 @@ void LLModelLoader::processElement( daeElement* element, bool& badElement )
 				{
 					LLMatrix4 transformation = mTransform;
 
-					std::vector<LLImportMaterial> materials = getMaterials(model, instance_geo);
+					std::map<std::string, LLImportMaterial> materials = getMaterials(model, instance_geo);
 
 					// adjust the transformation to compensate for mesh normalization
 					LLVector3 mesh_scale_vector;
@@ -2688,9 +2700,9 @@ void LLModelLoader::processElement( daeElement* element, bool& badElement )
 	}
 }
 
-std::vector<LLImportMaterial> LLModelLoader::getMaterials(LLModel* model, domInstance_geometry* instance_geo)
+std::map<std::string, LLImportMaterial> LLModelLoader::getMaterials(LLModel* model, domInstance_geometry* instance_geo)
 {
-	std::vector<LLImportMaterial> materials;
+	std::map<std::string, LLImportMaterial> materials;
 	for (int i = 0; i < model->mMaterialList.size(); i++)
 	{
 		LLImportMaterial import_material;
@@ -2737,7 +2749,8 @@ std::vector<LLImportMaterial> LLModelLoader::getMaterials(LLModel* model, domIns
 			}
 		}
 
-		materials.push_back(import_material);
+		import_material.mBinding = model->mMaterialList[i];
+		materials[model->mMaterialList[i]] = import_material;
 	}
 
 	return materials;
@@ -3122,6 +3135,19 @@ void LLModelPreview::rebuildUploadData()
 		mFMP->childEnable("ok_btn");
 	}
 
+	//reorder materials to match mBaseModel
+	for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+	{
+		if (mBaseModel.size() == mModel[i].size())
+		{
+			for (U32 j = 0; j < mBaseModel.size(); ++j)
+			{
+				mModel[i][j]->matchMaterialOrder(mBaseModel[j]);
+				llassert(mModel[i][j]->mMaterialList == mBaseModel[j]->mMaterialList);
+			}
+		}
+	}
+
 	for (LLModelLoader::scene::iterator iter = mBaseScene.begin(); iter != mBaseScene.end(); ++iter)
 	{ //for each transform in scene
 		LLMatrix4 mat = iter->first;
@@ -3219,6 +3245,8 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 	LLModel::hull empty_hull;
 
 	LLSD data;
+
+	data["version"] = SLM_SUPPORTED_VERSION;
 
 	S32 mesh_id = 0;
 
@@ -3593,43 +3621,6 @@ void LLModelPreview::generateNormals()
 	mVertexBuffer[which_lod].clear();
 	refresh();
 	updateStatusMessages();
-}
-
-void LLModelPreview::clearMaterials()
-{
-	for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
-	{ //for each transform in current scene
-		for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
-		{ //for each instance with that transform
-			LLModelInstance& source_instance = *model_iter;
-			LLModel* source = source_instance.mModel;
-
-			for (S32 i = 0; i < source->getNumVolumeFaces(); ++i)
-			{ //for each face in instance
-				LLImportMaterial& source_material = source_instance.mMaterial[i];
-
-				//clear material info
-				source_material.mDiffuseColor = LLColor4(1,1,1,1);
-				source_material.mDiffuseMap = NULL;
-				source_material.mDiffuseMapFilename.clear();
-				source_material.mDiffuseMapLabel.clear();
-				source_material.mFullbright = false;
-			}
-		}
-	}
-
-	mVertexBuffer[mPreviewLOD].clear();
-
-	if (mPreviewLOD == LLModel::LOD_HIGH)
-	{
-		mBaseScene = mScene[mPreviewLOD];
-		mBaseModel = mModel[mPreviewLOD];
-		clearGLODGroup();
-		mVertexBuffer[5].clear();
-	}
-
-	mResourceCost = calcResourceCost();
-	refresh();
 }
 
 void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
@@ -4901,6 +4892,19 @@ BOOL LLModelPreview::render()
 			}
 		}
 
+		//make sure material lists all match
+		for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+		{
+			if (mBaseModel.size() == mModel[i].size())
+			{
+				for (U32 j = 0; j < mBaseModel.size(); ++j)
+				{
+					mModel[i][j]->matchMaterialOrder(mBaseModel[j]);
+					llassert(mModel[i][j]->mMaterialList == mBaseModel[j]->mMaterialList);
+				}
+			}
+		}
+
 		if (regen)
 		{
 			genBuffers(mPreviewLOD, skin_weight);
@@ -4932,13 +4936,18 @@ BOOL LLModelPreview::render()
 
 					if (textures)
 					{
-						glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
-						if (i < instance.mMaterial.size() && instance.mMaterial[i].mDiffuseMap.notNull())
+						const std::string& binding = instance.mModel->mMaterialList[i];
+						const LLImportMaterial& material = instance.mMaterial[binding];
+
+						llassert(binding == model->mMaterialList[i]);
+						
+						glColor4fv(material.mDiffuseColor.mV);
+						if (material.mDiffuseMap.notNull())
 						{
-							if (instance.mMaterial[i].mDiffuseMap->getDiscardLevel() > -1)
+							if (material.mDiffuseMap->getDiscardLevel() > -1)
 							{
-								gGL.getTexUnit(0)->bind(instance.mMaterial[i].mDiffuseMap, true);
-								mTextureSet.insert(instance.mMaterial[i].mDiffuseMap.get());
+								gGL.getTexUnit(0)->bind(material.mDiffuseMap, true);
+								mTextureSet.insert(material.mDiffuseMap.get());
 							}
 						}
 					}
@@ -5238,8 +5247,10 @@ BOOL LLModelPreview::render()
 								position[j] = v;
 							}
 
+							const std::string& binding = instance.mModel->mMaterialList[i];
+							const LLImportMaterial& material = instance.mMaterial[binding];
 							buffer->setBuffer(type_mask & buffer->getTypeMask());
-							glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
+							glColor4fv(material.mDiffuseColor.mV);
 							gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 							buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
 							glColor3f(0.4f, 0.4f, 0.4f);
@@ -5386,13 +5397,6 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 						  true, LLHandle<LLWholeModelFeeObserver>(), mp->getWholeModelUploadObserverHandle());
 }
 
-
-//static
-void LLFloaterModelPreview::onClearMaterials(void* user_data)
-{
-	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
-	mp->mModelPreview->clearMaterials();
-}
 
 //static
 void LLFloaterModelPreview::refresh(LLUICtrl* ctrl, void* user_data)
