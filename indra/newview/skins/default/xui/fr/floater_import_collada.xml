@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Import Collada" title="Importation de scène">
+	<text name="mesh count">
+		Maillages : [COUNT]
+	</text>
+	<text name="texture count">
+		Textures : [COUNT]
+	</text>
+	<text name="status">
+		État : [STATUS]
+	</text>
+	<button label="Annuler" name="cancel"/>
+	<button label="OK" name="ok"/>
+	<string name="status_idle">
+		Inactif
+	</string>
+	<string name="status_uploading">
+		Chargement de [NAME]
+	</string>
+	<string name="status_creating">
+		Création de l&apos;objet [NAME]
+	</string>
+</floater>

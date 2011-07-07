@@ -276,6 +276,7 @@ public:
 		REBUILD_SHADOW =  0x02000000,
 		HAS_ALPHA		= 0x04000000,
 		RIGGED			= 0x08000000,
+		PARTITION_MOVE	= 0x10000000,
 	} EDrawableFlags;
 
 private: //aligned members

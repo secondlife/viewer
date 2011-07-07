@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Profile Edit" name="edit_profile_panel">
+<panel label="檔案編輯" name="edit_profile_panel">
 	<string name="CaptionTextAcctInfo">
 		[ACCTTYPE]
 [PAYMENTINFO] [AGEVERIFICATION]
@@ -27,41 +27,41 @@
 		<panel name="scroll_content_panel">
 			<panel name="data_panel">
 				<text name="display_name_label" value="Display Name:"/>
-				<text name="solo_username_label" value="Username:"/>
+				<text name="solo_username_label" value="使用者名稱："/>
 				<button name="set_name" tool_tip="Set Display Name"/>
-				<text name="user_label" value="Username:"/>
+				<text name="user_label" value="使用者名稱："/>
 				<panel name="lifes_images_panel">
 					<panel name="second_life_image_panel">
 						<text name="second_life_photo_title_text" value="[SECOND_LIFE]:"/>
 					</panel>
-					<icon label="" name="2nd_life_edit_icon" tool_tip="Click to select an image"/>
+					<icon label="" name="2nd_life_edit_icon" tool_tip="點擊以選擇圖像"/>
 				</panel>
 				<panel name="first_life_image_panel">
-					<text name="real_world_photo_title_text" value="Real World:"/>
+					<text name="real_world_photo_title_text" value="真實世界："/>
 				</panel>
-				<icon label="" name="real_world_edit_icon" tool_tip="Click to select an image"/>
+				<icon label="" name="real_world_edit_icon" tool_tip="點擊以選擇圖像"/>
 				<text name="title_homepage_text">
-					Homepage:
+					首頁：
 				</text>
 				<line_editor name="homepage_edit" value="http://"/>
-				<text name="title_acc_status_text" value="My Account:"/>
+				<text name="title_acc_status_text" value="我的帳戶："/>
 				<text_editor name="acc_status_text" value="Resident. No payment info on file."/>
-				<text name="my_account_link" value="[[URL] Go to My Dashboard]"/>
-				<text name="title_partner_text" value="My Partner:"/>
+				<text name="my_account_link" value="[[URL] 前往我的塗鴉牆]"/>
+				<text name="title_partner_text" value="我的配偶："/>
 				<panel name="partner_data_panel">
 					<text initial_value="(retrieving)" name="partner_text"/>
 				</panel>
-				<text name="partner_edit_link" value="[[URL] Edit]"/>
+				<text name="partner_edit_link" value="[[URL] 編輯]"/>
 			</panel>
 		</panel>
 	</scroll_container>
 	<panel name="profile_me_buttons_panel">
 		<layout_stack name="bottom_panel_ls">
 			<layout_panel name="save_changes_btn_lp">
-				<button label="Save Changes" name="save_btn"/>
+				<button label="儲存變更" name="save_btn"/>
 			</layout_panel>
 			<layout_panel name="show_on_map_btn_lp">
-				<button label="取銷" name="cancel_btn"/>
+				<button label="取消" name="cancel_btn"/>
 			</layout_panel>
 		</layout_stack>
 	</panel>

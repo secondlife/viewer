@@ -177,7 +177,8 @@
      font="SansSerif"
      height="16"
      left="30"
-     name="sell_objects_label">
+     name="sell_objects_label"
+     width="266">
         3. Sell the objects with the land?
     </text>
     <text

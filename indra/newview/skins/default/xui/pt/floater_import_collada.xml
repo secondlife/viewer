@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Import Collada" title="Importar cena">
+	<text name="mesh count">
+		Meshes: [COUNT]
+	</text>
+	<text name="texture count">
+		Texturas: [COUNT]
+	</text>
+	<text name="status">
+		Status: [STATUS]
+	</text>
+	<button label="Cancelar" name="cancel"/>
+	<button label="OK" name="ok"/>
+	<string name="status_idle">
+		Inativo
+	</string>
+	<string name="status_uploading">
+		Carregando [NAME]
+	</string>
+	<string name="status_creating">
+		Criando objeto [NAME]
+	</string>
+</floater>

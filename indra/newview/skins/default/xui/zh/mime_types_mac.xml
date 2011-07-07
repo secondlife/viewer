@@ -5,7 +5,7 @@
 			網頁內容
 		</label>
 		<tooltip name="web_tooltip">
-			This location has Web content
+			這個位置有網頁內容
 		</tooltip>
 		<playtip name="web_playtip">
 			顯示網頁內容
@@ -13,18 +13,18 @@
 	</widgetset>
 	<widgetset name="movie">
 		<label name="movie_label">
-			Movie
+			影片
 		</label>
 		<tooltip name="movie_tooltip">
-			There is a movie to play here
+			沒有影片可以播放
 		</tooltip>
 		<playtip name="movie_playtip">
-			Play movie
+			播放影片
 		</playtip>
 	</widgetset>
 	<widgetset name="image">
 		<label name="image_label">
-			Image
+			圖像
 		</label>
 		<tooltip name="image_tooltip">
 			There is an image at this location
@@ -71,12 +71,12 @@
 	</mimetype>
 	<mimetype name="image/*">
 		<label name="image2_label">
-			Image
+			圖像
 		</label>
 	</mimetype>
 	<mimetype name="video/vnd.secondlife.qt.legacy">
 		<label name="vnd.secondlife.qt.legacy_label">
-			Movie (QuickTime)
+			影片 （QuickTime）
 		</label>
 	</mimetype>
 	<mimetype name="application/javascript">
@@ -91,12 +91,12 @@
 	</mimetype>
 	<mimetype name="application/pdf">
 		<label name="application/pdf_label">
-			PDF Document
+			PDF 文件
 		</label>
 	</mimetype>
 	<mimetype name="application/postscript">
 		<label name="application/postscript_label">
-			Postscript Document
+			Postscript 文件
 		</label>
 	</mimetype>
 	<mimetype name="application/rtf">
@@ -111,7 +111,7 @@
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
 		<label name="application/xhtml+xml_label">
-			Web Page (XHTML)
+			網頁（XHTML）
 		</label>
 	</mimetype>
 	<mimetype name="application/x-director">
@@ -141,32 +141,32 @@
 	</mimetype>
 	<mimetype name="image/bmp">
 		<label name="image/bmp_label">
-			Image (BMP)
+			圖像（BMP）
 		</label>
 	</mimetype>
 	<mimetype name="image/gif">
 		<label name="image/gif_label">
-			Image (GIF)
+			圖像（GIF）
 		</label>
 	</mimetype>
 	<mimetype name="image/jpeg">
 		<label name="image/jpeg_label">
-			Image (JPEG)
+			圖像（JPEG）
 		</label>
 	</mimetype>
 	<mimetype name="image/png">
 		<label name="image/png_label">
-			Image (PNG)
+			圖像（PNG）
 		</label>
 	</mimetype>
 	<mimetype name="image/svg+xml">
 		<label name="image/svg+xml_label">
-			Image (SVG)
+			圖像（SVG）
 		</label>
 	</mimetype>
 	<mimetype name="image/tiff">
 		<label name="image/tiff_label">
-			Image (TIFF)
+			圖像（TIFF）
 		</label>
 	</mimetype>
 	<mimetype name="text/html">
@@ -186,32 +186,32 @@
 	</mimetype>
 	<mimetype name="video/mpeg">
 		<label name="video/mpeg_label">
-			Movie (MPEG)
+			影片（MPEG）
 		</label>
 	</mimetype>
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
-			Movie (MP4)
+			影片（MP4）
 		</label>
 	</mimetype>
 	<mimetype name="video/quicktime">
 		<label name="video/quicktime_label">
-			Movie (QuickTime)
+			影片（QuickTime）
 		</label>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
 		<label name="video/x-ms-asf_label">
-			Movie (Windows Media ASF)
+			影片（Windows Media ASF）
 		</label>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
 		<label name="video/x-ms-wmv_label">
-			Movie (Windows Media WMV)
+			影片（Windows Media WMV）
 		</label>
 	</mimetype>
 	<mimetype name="video/x-msvideo">
 		<label name="video/x-msvideo_label">
-			Movie (AVI)
+			影片（AVI）
 		</label>
 	</mimetype>
 </mimetypes>

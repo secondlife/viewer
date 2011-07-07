@@ -25,22 +25,22 @@
 		Run right (press Shift + Right Arrow or D)
 	</string>
 	<string name="fly_forward_tooltip">
-		Fly Forward (press Up Arrow or W)
+		向前飛（按下向上箭頭或 W 鍵）
 	</string>
 	<string name="fly_back_tooltip">
-		Fly Backwards (press Down Arrow or S)
+		向後飛（按下向下箭頭或 S 鍵）
 	</string>
 	<string name="fly_left_tooltip">
-		Fly left (press Shift + Left Arrow or A)
+		向左飛（按下 Shift 加上左方向鍵或者是按 A 鍵）
 	</string>
 	<string name="fly_right_tooltip">
-		Fly right (press Shift + Right Arrow or D)
+		向右飛（按下 Shift 加上右方向鍵或者是按 D 鍵）
 	</string>
 	<string name="fly_up_tooltip">
-		Fly up (press E)
+		向上飛（按下 E 鍵）
 	</string>
 	<string name="fly_down_tooltip">
-		Fly down (press C)
+		向下飛（按下 C 鍵）
 	</string>
 	<string name="jump_tooltip">
 		Jump (press E)
@@ -55,7 +55,7 @@
 		Run
 	</string>
 	<string name="fly_title">
-		Fly
+		飛行
 	</string>
 	<panel name="panel_actions">
 		<button name="turn left btn" tool_tip="Turn left (press Left Arrow or A)"/>
@@ -64,12 +64,12 @@
 		<joystick_slide name="move right btn" tool_tip="Walk right (press Shift + Right Arrow or D)"/>
 		<joystick_turn name="forward btn" tool_tip="Walk forward (press up arrow or W)"/>
 		<joystick_turn name="backward btn" tool_tip="Walk backward (press down arrow or S)"/>
-		<button name="move up btn" tool_tip="Fly up (press E)"/>
-		<button name="move down btn" tool_tip="Fly down (press C)"/>
+		<button name="move up btn" tool_tip="向上飛（按下 E 鍵）"/>
+		<button name="move down btn" tool_tip="向下飛（按下 C 建）"/>
 	</panel>
 	<panel name="panel_modes">
 		<button label="" name="mode_walk_btn" tool_tip="Walking mode"/>
 		<button label="" name="mode_run_btn" tool_tip="Running mode"/>
-		<button label="" name="mode_fly_btn" tool_tip="Flying mode"/>
+		<button label="" name="mode_fly_btn" tool_tip="飛行模式"/>
 	</panel>
 </floater>

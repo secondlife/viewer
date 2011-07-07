@@ -4,26 +4,32 @@
 	<string name="SpeakBtnToolTip" value="Accende o spegne il microfono"/>
 	<string name="VoiceControlBtnToolTip" value="Mostra o nasconde il pannello di regolazione voce"/>
 	<layout_stack name="toolbar_stack">
+		<layout_panel name="speak_panel">
+			<button label="Parla" name="speak_btn" tool_tip="Accendi e spegni il microfono"/>
+		</layout_panel>
+		<layout_panel name="speak_flyout_panel">
+			<button label="" name="flyout_btn" tool_tip="Cambia le preferenze per i suoni"/>
+		</layout_panel>
 		<layout_panel name="gesture_panel">
-			<gesture_combo_list label="Gesture" name="Gesture" tool_tip="Mostra o nasconde le gesture"/>
+			<gesture_combo_list label="Gesture" name="Gesture" tool_tip="Fai fare qualcosa al tuo avatar"/>
 		</layout_panel>
 		<layout_panel name="cam_panel">
-			<bottomtray_button label="Visuale" name="camera_btn" tool_tip="Mostra o nasconde le regolazioni della visuale"/>
+			<bottomtray_button label="Visuale" name="camera_btn" tool_tip="Controlla l&apos;angolo di visualizzazione"/>
 		</layout_panel>
-		<layout_panel name="avatar_and_destinations_panel">
-			<bottomtray_button label="Destinazioni" name="destination_btn" tool_tip="Mostra finestra persone"/>
+		<layout_panel name="destinations_panel">
+			<bottomtray_button label="Destinazioni" name="destination_btn" tool_tip="Viaggia in Second Life"/>
 		</layout_panel>
-		<layout_panel name="avatar_and_destinations_panel">
-			<bottomtray_button label="Il mio avatar" name="avatar_btn"/>
+		<layout_panel name="avatar_panel">
+			<bottomtray_button label="Il mio avatar" name="avatar_btn" tool_tip="Cambia il tuo aspetto"/>
 		</layout_panel>
 		<layout_panel name="people_panel">
-			<bottomtray_button label="Persone" name="show_people_button" tool_tip="Mostra finestra persone"/>
+			<bottomtray_button label="Persone" name="show_people_button" tool_tip="Trova persone in Second Life"/>
 		</layout_panel>
 		<layout_panel name="profile_panel">
-			<bottomtray_button label="Profilo" name="show_profile_btn" tool_tip="Mostra finestra profilo"/>
+			<bottomtray_button label="Profilo" name="show_profile_btn" tool_tip="Visualizza e modifica il tuo profilo"/>
 		</layout_panel>
 		<layout_panel name="howto_panel">
-			<bottomtray_button label="Istruzioni" name="show_help_btn" tool_tip="Apri le Istruzioni Second Life"/>
+			<bottomtray_button label="Istruzioni" name="show_help_btn" tool_tip="Visualizza le informazioni della guida di Second Life"/>
 		</layout_panel>
 		<layout_panel name="im_well_panel">
 			<chiclet_im_well name="im_well">

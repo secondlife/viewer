@@ -51,8 +51,9 @@
 	<text name="exchange_rate_note">
 		Vuelve a escribir la cantidad para ver el tipo de cambio más reciente.
 	</text>
-	<text name="purchase_warning_repurchase" right="-10">
-		Confirmando que con esta compra sólo se compran L$, no el objeto.
+	<text name="purchase_warning_repurchase">
+		Confirmando que con esta compra sólo se compran L$, 
+no el objeto.
 	</text>
 	<text name="purchase_warning_notenough">
 		No estás comprando suficientes L$. Por favor, aumenta la cantidad.

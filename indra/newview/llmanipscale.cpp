@@ -58,6 +58,7 @@
 #include "llworld.h"
 #include "v2math.h"
 #include "llvoavatar.h"
+#include "llmeshrepository.h"
 
 
 const F32 MAX_MANIP_SELECT_DISTANCE_SQUARED = 11.f * 11.f;
@@ -90,10 +91,7 @@ F32 get_default_max_prim_scale(bool is_flora)
 {
 	// a bit of a hack, but if it's foilage, we don't want to use the
 	// new larger scale which would result in giant trees and grass
-	if (gSavedSettings.getBOOL("MeshEnabled") && 
-		gAgent.getRegion() && 
-		!gAgent.getRegion()->getCapability("GetMesh").empty() &&
-		!gAgent.getRegion()->getCapability("ObjectAdd").empty() &&
+	if (gMeshRepo.meshRezEnabled() &&
 		!is_flora)
 	{
 		return DEFAULT_MAX_PRIM_SCALE;

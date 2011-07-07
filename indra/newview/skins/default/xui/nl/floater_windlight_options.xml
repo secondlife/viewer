@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="WindLight floater" title="GEAVANCEERDE LUCHT EDITOR">
-	<combo_box allow_text_entry="false" bottom="-50" follows="left|top" height="18"
-	     left_delta="116" max_chars="20" mouse_opaque="true" name="WLPresetsCombo"
-	     width="150" />
+	<combo_box allow_text_entry="false" follows="left|top" mouse_opaque="true" name="WLPresetsCombo"/>
 	<text name="KeyFramePresetsText">
 		Lucht voorinstellingen
 	</text>
 	<button label="Nieuw" label_selected="Nieuw" name="WLNewPreset"/>
 	<button label="Opslaan" label_selected="Opslaan" name="WLSavePreset"/>
-	<button label="Verwijderen" label_selected="Verwijderen" name="WLDeletePreset" width="80"/>
+	<button label="Verwijderen" label_selected="Verwijderen" name="WLDeletePreset"/>
 	<button label="Dag cyclus editor" label_selected="Dag cyclus editor" name="WLDayCycleMenuButton"/>
 	<tab_container name="WindLight Tabs">
 		<panel label="Atmosfeer" name="Atmosphere">

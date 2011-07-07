@@ -4,6 +4,8 @@
 		<menu_item_call label="画像 （L$ [COST] ）..." name="Upload Image"/>
 		<menu_item_call label="サウンド （L$[COST] ）..." name="Upload Sound"/>
 		<menu_item_call label="アニメーション （L$ [COST] ）..." name="Upload Animation"/>
+		<menu_item_call label="モデル" name="Upload Model"/>
+		<menu_item_call label="モデルウィザード" name="Upload Model Wizard"/>
 		<menu_item_call label="一括 （ファイルにつき L$[COST] ）..." name="Bulk Upload"/>
 		<menu_item_call label="デフォルトのアップロード権限を設定" name="perm prefs"/>
 	</menu>

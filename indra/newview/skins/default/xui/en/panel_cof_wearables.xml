@@ -53,9 +53,6 @@
              name="list_attachments"
              top="0"
              width="311">
-              <flat_list_view.no_items_text
-               value="No attachments worn" />
-              </flat_list_view>
         </accordion_tab>
         <accordion_tab
          layout="topleft"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Ground Textures" name="Textures">
+<panel label="地面材質" name="Textures">
 	<text name="region_text_lbl">
 		地區：
 	</text>
@@ -7,7 +7,7 @@
 		未知
 	</text>
 	<text name="detail_texture_text">
-		Terrain Textures (requires 512x512, 24 bit .tga files)
+		地形材質（須 512x512，24 位元 .tga 檔格式）
 	</text>
 	<text name="height_text_lbl">
 		1 (Low)

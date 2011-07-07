@@ -27,8 +27,20 @@
 		</text>
 		<check_box initial_value="verdadero" label="Agua transparente" name="TransparentWater"/>
 		<check_box initial_value="true" label="Efecto de relieve y brillo" name="BumpShiny"/>
+		<check_box initial_value="verdadero" label="Luces locales" name="LocalLights"/>
 		<check_box initial_value="true" label="Shaders básicos" name="BasicShaders" tool_tip="Desactivando esta opción puede prevenir fallos en algunos controladores de la tarjeta gráfica."/>
 		<check_box initial_value="true" label="Shaders de la atmósfera" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="verdadero" label="Luces y sombras" name="UseLightShaders"/>
+		<check_box initial_value="verdadero" label="Oclusión del ambiente" name="UseSSAO"/>
+		<check_box initial_value="verdadero" label="Profundidad del campo" name="UseDoF"/>
+		<text name="shadows_label">
+			Sombras:
+		</text>
+		<combo_box name="ShadowDetail">
+			<combo_box.item label="Ninguno" name="0"/>
+			<combo_box.item label="Sol/luna" name="1"/>
+			<combo_box.item label="Sol/luna + proyectores" name="2"/>
+		</combo_box>
 		<text name="reflection_label">
 			Reflejos en el agua:
 		</text>
@@ -86,7 +98,7 @@
 		<check_box initial_value="true" label="Avatares simulados" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Renderizado por hardware" name="AvatarVertexProgram"/>
 		<check_box initial_value="true" label="Ropas del avatar" name="AvatarCloth"/>
-		<text name="TerrainDetailText" left="402">
+		<text left="402" name="TerrainDetailText">
 			Detalle del terreno:
 		</text>
 		<radio_group name="TerrainDetailRadio">

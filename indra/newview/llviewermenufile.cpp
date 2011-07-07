@@ -107,9 +107,7 @@ class LLMeshUploadVisible : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		return gSavedSettings.getBOOL("MeshEnabled") && 
-			   LLViewerParcelMgr::getInstance()->allowAgentBuild() && 
-			   !gAgent.getRegion()->getCapability("ObjectAdd").empty();
+		return gMeshRepo.meshUploadEnabled();
 	}
 };
 
@@ -1200,78 +1198,6 @@ void upload_new_resource(
 			asset_callback,
 			(void*)data,
 			FALSE);
-	}
-}
-
-BOOL upload_new_variable_price_resource(
-	const LLTransactionID &tid, 
-	LLAssetType::EType asset_type,
-	std::string name,
-	std::string desc, 
-	LLFolderType::EType destination_folder_type,
-	LLInventoryType::EType inv_type,
-	U32 next_owner_perms,
-	U32 group_perms,
-	U32 everyone_perms,
-	const std::string& display_name,
-	const LLSD& asset_resources)
-{
-	LLAssetID uuid = 
-		upload_new_resource_prep(
-			tid,
-			asset_type,
-			inv_type,
-			name,
-			display_name,
-			desc);
-
-	llinfos << "*** Uploading: " << llendl;
-	llinfos << "Type: " << LLAssetType::lookup(asset_type) << llendl;
-	llinfos << "UUID: " << uuid << llendl;
-	llinfos << "Name: " << name << llendl;
-	llinfos << "Desc: " << desc << llendl;
-	lldebugs << "Folder: "
-		<< gInventory.findCategoryUUIDForType((destination_folder_type == LLFolderType::FT_NONE) ? (LLFolderType::EType)asset_type : destination_folder_type) << llendl;
-	lldebugs << "Asset Type: " << LLAssetType::lookup(asset_type) << llendl;
-
-	std::string url = gAgent.getRegion()->getCapability(
-		"NewFileAgentInventoryVariablePrice");
-
-	if ( !url.empty() )
-	{
-		lldebugs
-			<< "New Agent Inventory variable price upload" << llendl;
-		
-		// Each of the two capabilities has similar data, so
-		// let's reuse that code
-
-		LLSD body;
-
-		body = generate_new_resource_upload_capability_body(
-			asset_type,
-			name,
-			desc,
-			destination_folder_type,
-			inv_type,
-			next_owner_perms,
-			group_perms,
-			everyone_perms);
-
-		body["asset_resources"] = asset_resources;
-
-		LLHTTPClient::post(
-			url,
-			body,
-			new LLNewAgentInventoryVariablePriceResponder(
-				uuid,
-				asset_type,
-				body));
-
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
 	}
 }
 

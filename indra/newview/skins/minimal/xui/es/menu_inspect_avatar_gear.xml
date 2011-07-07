@@ -3,6 +3,7 @@
 	<menu_item_call label="Ver el perfil" name="view_profile"/>
 	<menu_item_call label="Añadir como amigo" name="add_friend"/>
 	<menu_item_call label="MI" name="im"/>
+	<menu_item_call label="Llamar" name="call"/>
 	<menu_item_call label="Teleportar" name="teleport"/>
 	<menu_item_call label="Ignorar" name="block"/>
 	<menu_item_call label="Designorar" name="unblock"/>

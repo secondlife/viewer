@@ -17,8 +17,8 @@
 	<text name="Control Modes:">
 		Control Modes:
 	</text>
-	<check_box label="Avatar" name="JoystickAvatarEnabled"/>
-	<check_box label="Build" name="JoystickBuildEnabled"/>
+	<check_box label="化身" name="JoystickAvatarEnabled"/>
+	<check_box label="建造" name="JoystickBuildEnabled"/>
 	<check_box label="Flycam" name="JoystickFlycamEnabled"/>
 	<stat_view label="Joystick Monitor" name="axis_view">
 		<stat_bar label="Axis 0" name="axis0"/>
@@ -75,5 +75,5 @@
 	</text>
 	<button label="SpaceNavigator Defaults" name="SpaceNavigatorDefaults"/>
 	<button label="確定" label_selected="確定" name="ok_btn"/>
-	<button label="取銷" label_selected="取銷" name="cancel_btn"/>
+	<button label="取消" label_selected="取消" name="cancel_btn"/>
 </floater>

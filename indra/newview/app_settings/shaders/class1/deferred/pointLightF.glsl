@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
  
- #version 120
+ 
 
 #extension GL_ARB_texture_rectangle : enable
 
@@ -30,7 +30,7 @@ uniform vec4 viewport;
 
 vec4 getPosition(vec2 pos_screen)
 {
-	float depth = texture2DRect(depthMap, pos_screen.xy).a;
+	float depth = texture2DRect(depthMap, pos_screen.xy).r;
 	vec2 sc = (pos_screen.xy-viewport.xy)*2.0;
 	sc /= viewport.zw;
 	sc -= vec2(1.0,1.0);

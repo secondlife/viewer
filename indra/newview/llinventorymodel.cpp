@@ -632,10 +632,12 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 	}
 
 	// We're hiding mesh types
+#if 0
 	if (item->getType() == LLAssetType::AT_MESH)
 	{
 		return mask;
 	}
+#endif
 
 	LLViewerInventoryItem* old_item = getItem(item->getUUID());
 	LLPointer<LLViewerInventoryItem> new_item;

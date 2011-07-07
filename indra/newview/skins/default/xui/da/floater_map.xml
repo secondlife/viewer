@@ -3,6 +3,9 @@
 	<floater.string name="ToolTipMsg">
 		[REGION](Dobbeltklik for at åbne kort, klik-og-træk for at panorere)
 	</floater.string>
+	<floater.string name="AltToolTipMsg">
+		[REGION](Dobbeltklik for at teleportere, træk for at panorere)
+	</floater.string>
 	<floater.string name="mini_map_caption">
 		MINIKORT
 	</floater.string>

@@ -72,9 +72,9 @@ Fejl detaljer: Beskeden kaldet &apos;[_NAME]&apos; blev ikke fundet i notificati
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
-		Kunne ikke oprette forbindelse til [SECOND_LIFE_GRID].
-&apos;[DIAGNOSTIC]&apos;
-Make sure your Internet connection is working properly.
+		Kunne ikke tilslutte til  [SECOND_LIFE_GRID].
+    &apos;[DIAGNOSTIC]&apos;
+Check at Internet forbindelsen fungerer korrekt.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MessageTemplateNotFound">
@@ -214,13 +214,6 @@ Du skal bruge en konto for at benytte [SECOND_LIFE]. Ønsker du at oprette en ko
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		Du skal indtaste enten dit brugernavn eller både dit fornavn og efternavn for din avatar i brugernavn feltet, derefter log på igen.
-	</notification>
-	<notification name="AddClassified">
-		Annoncer vil vises i &apos;Annoncer&apos; sektionen i søge biblioteket og på [http://secondlife.com/community/classifieds secondlife.com] i en uge.
-Udfyld din annonce og klik på &apos;Udgiv...&apos; for at tilf&apos;je den til biblioteket.				
-Du vil blive spurgt om en pris når du klikker på &apos;Udgiv&apos;.
-Jo mere du betaler, jo højere oppe på listen vises annoncen, og den vil også optræde højere oppe når personer søger.
-		<usetemplate ignoretext="Hvordan man opretter en annonce" name="okcancelignore" notext="Cancel" yestext="OK"/>
 	</notification>
 	<notification name="DeleteMedia">
 		Du har valgt at slette media tilknyttet denne overflade.
@@ -1078,6 +1071,12 @@ Det kan påvirke din indtastning af password.
 	<notification name="RezItemNoPermissions">
 		Utilstrækkelige tilladelser til at danne genstanden.
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		Ikke muligt at sende IM over forældre estates.
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		Ikke muligt at overføre din beholdning over forældre parceller.
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		Ikke muligt at indlæse note.
 Prøv venligst igen.
@@ -1648,6 +1647,10 @@ De vil blive blokeret nogle få sekunder af sikkerhedsmæssige årsager.
 		Din stemme er blevet slukket af moderatoren.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		Dette upload vil koste L$[PRICE], ønsker du at sende?
+		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Send"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		Er du sikker på at du vil slette teleport historikken?
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
@@ -1659,12 +1662,15 @@ Knappen vil blive vist når der er nok plads til den.
 	<notification name="ShareNotification">
 		Vælg beboere at dele med.
 	</notification>
+	<notification name="MeshUploadError">
+		[LABEL] kunne ikke sendes: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+	</notification>
 	<notification name="ShareItemsConfirmation">
 		Er du sikker på at du vil dele følgende genstande:
 
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
-Med følgende beboere:
+Me følgende beboere:
 
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Ok"/>
@@ -1674,6 +1680,19 @@ Med følgende beboere:
 	</notification>
 	<notification name="DeedToGroupFail">
 		Dedikering til gruppe fejlede.
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		Parcellen [PARCEL_NAME] kan ikke efterlades på nuværende tidspunkt.
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		[AREA] m² parcellen &apos;[PARCEL_NAME]&apos; er blevet frigivet.
+
+Du har [RECLAIM_PERIOD] timer til at få den tilbage for L$0 før den udbydes til salg til andre beboere.
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		[AREA] m² parcel &apos;[PARCEL_NAME]&apos; er blevet frigivet.
+
+Parcellen kan nu købes af enhver beboer.
 	</notification>
 	<notification name="AvatarRezNotification">
 		( [EXISTENCE] sekunder i live )
@@ -1753,11 +1772,15 @@ Sluk for alles lyd?
 	<notification label="Stå op" name="HintSit">
 		For at rejse dig op og forlad siddeposition, tryk på &quot;Stå op&quot; knappen.
 	</notification>
+	<notification label="Tal" name="HintSpeak">
+		Klik på tal knappen for at tænde og slukke for din mikrofon.
+
+Klik på den lille pil-op for at se stemme kontrolpanelet.
+
+Skjules tale knappen, vil stemmechat ikke være mulig.
+	</notification>
 	<notification label="Undersøg verden" name="HintDestinationGuide">
 		Destinationsguiden indeholder tusinder af nye steder der kan opleves. Vælg venligst et sted og vælg Teleport for at komme derhen.
-	</notification>
-	<notification label="Ændre dit udseende" name="HintAvatarPicker">
-		Kunne du tænke dig at prøve et nyt udseende? Klik på knappen nedenfor for at se flere avatarer.
 	</notification>
 	<notification label="Side panel" name="HintSidePanel">
 		Få hurtig tilgang til din beholdning, sæt, profiler og andet i dette side panel.
@@ -1765,11 +1788,15 @@ Sluk for alles lyd?
 	<notification label="Flyt" name="HintMove">
 		For at gå eller løbe, åben Flyt panelet for neden og brug pilene til at navigere. Du kan også bruge pile-tasterne på dit tastatur.
 	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Klik for at gå
+Klik et hvorsomhelst på jorden for at gå til dette sted.
+
+2. Klik og træk for at rotere visning
+Klik hvorsomhelst i verden for at rotere din visning
+	</notification>
 	<notification label="Visningsnavn" name="HintDisplayName">
 		Angiv dit konfigurérbare visningsnavn her. Dette er i tillæg til dit unikke brugernavn, som ikke kan ændres. Du kan ændre hvordan du ser andre beboeres navne i dine indstillinger.
-	</notification>
-	<notification label="Flyt" name="HintMoveArrows">
-		For at gå, brug piletasterne på tastaturet. Du kan løbe ved at trykke to gange på Pil-Op
 	</notification>
 	<notification label="Se" name="HintView">
 		For at ændre dit kamera-view, benyt kredsløbs og panoreringskontrollerne. Nulstil view ved at trykke Esc eller ved at gå.
@@ -1795,6 +1822,54 @@ Sluk for alles lyd?
 			<button name="ok" text="Send"/>
 			<button name="cancel" text="Annullér"/>
 		</form>
+	</notification>
+	<notification label="" name="ModeChange">
+		For at skifte tilstand skal du genstarte programmet.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoClassifieds">
+		Oprettelse og redigering af annoncer er kun muligt i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoGroupInfo">
+		Oprettelse og redigering af grupper er kun muligt i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoPlaceInfo">
+		Det er kun muligt at vise profil for stedet i avanceret opsætning. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoPicks">
+		Oprettelse og redigering af favoritter er kun mulig i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoWorldMap">
+		Det er kun muligt at se verdenskortet i avanceret tilstand.Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoVoiceCall">
+		Stemme kald kan kun benttes i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand?
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoAvatarShare">
+		Det er kun mulig at dele i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand?
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoAvatarPay">
+		Det er kun muligt at betale andre beboere i avanceret tilstand. Ønsker du at logge ud for at skifte tilstand?
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoInventory">
+		Det er kun muligt at vise beholdning i avanceret tilstand. Ønsker du at logge ud og logge på i avanceret tilstand.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		Udseende opsætning er kun tilgængelig i avanceret tilstand. Ønsker du at logge ud og logge på i avanceret tilstand.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		Søgning er kun mulig i avanceret tilstand. Ønsker du at logge ud og logge på i avanceret tilstand.
+		<usetemplate name="okcancelbuttons" notext="Afslut ikke" yestext="Afslut"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Det ser ikke ud til at din hardware opfylder minimumskravene til [APP_NAME]. [APP_NAME] kræver et OpenGL grafikkort som understøter &apos;multitexture&apos;. Check eventuelt om du har de nyeste drivere for grafikkortet, og de nyeste service-packs og patches til dit operativsystem.
