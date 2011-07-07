@@ -13419,6 +13419,29 @@
         <integer>650</integer>
         <integer>490</integer>
         <integer>0</integer>
-      </array>    </map>
+      </array>    
+    </map>
+   <key>HelpFloaterOpen</key>
+    <map>
+      <key>Comment</key>
+      <string>Show Help Floater on login?</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+     <key>ShowHelpOnFirstLogin</key>
+    <map>
+      <key>Comment</key>
+      <string>Show Help Floater on first login</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
 </map>
 </llsd>
