@@ -5458,8 +5458,24 @@ void LLFloaterModelPreview::toggleCalculateButton()
 void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 {
 	mCalculateBtn->setVisible(visible);
+
+	bool uploadingSkin		     = childGetValue("upload_skin").asBoolean();
+	bool uploadingJointPositions = childGetValue("upload_joints").asBoolean();
+	if ( uploadingSkin )
+	{
+		//Disable the calculate button *if* the rig is invalid - which is determined during the critiquing process
+		if ( uploadingJointPositions && !mModelPreview->isRigValidForJointPositionUpload() )
+		{
+			mCalculateBtn->setVisible( false );
+		}
+		else
+		if ( !mModelPreview->isLegacyRigValid() )
+		{			
+			mCalculateBtn->setVisible( false );
+		}
+	}
+	
 	mUploadBtn->setVisible(!visible);
-	//mUploadBtn->setEnabled(mHasUploadPerm);
 	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
 
 	if (visible)
