@@ -101,8 +101,9 @@ void LLViewerHelp::showTopic(const std::string &topic)
 
 	// work out the URL for this topic and display it 
 	showHelp();
+	
 	std::string helpURL = LLViewerHelpUtil::buildHelpURL( help_topic );
-	setRawURL( helpURL );
+	setRawURL(helpURL);
 }
 
 std::string LLViewerHelp::defaultTopic()

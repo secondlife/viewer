@@ -76,6 +76,7 @@
 #include "lluserrelations.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
+#include "llviewerhelp.h"
 #include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
 #include "llwindow.h"
@@ -1692,9 +1693,20 @@ bool idle_startup()
 				gViewerThrottle.setMaxBandwidth(FAST_RATE_BPS / 1024.f);
 			}
 
+			if (gSavedSettings.getBOOL("ShowHelpOnFirstLogin"))
+			{
+				gSavedSettings.setBOOL("HelpFloaterOpen", TRUE);
+			}
+
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
+		}
+
+		if (gSavedSettings.getBOOL("HelpFloaterOpen"))
+		{
+			// show default topic
+			LLViewerHelp::instance().showTopic("");
 		}
 
 		// We're successfully logged in.
