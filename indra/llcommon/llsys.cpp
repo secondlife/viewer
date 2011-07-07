@@ -58,7 +58,8 @@ using namespace llsd;
 #	define WIN32_LEAN_AND_MEAN
 #	include <winsock2.h>
 #	include <windows.h>
-#   include <psapi.h>
+#   include <psapi.h>               // GetPerformanceInfo() et al.
+#   include <kfuncs.h>              // GetCurrentProcess()
 #elif LL_DARWIN
 #	include <errno.h>
 #	include <sys/sysctl.h>
@@ -640,6 +641,26 @@ void LLCPUInfo::stream(std::ostream& s) const
 	s << "->mCPUString:  " << mCPUString << std::endl;
 }
 
+// Helper class for LLMemoryInfo: accumulate stats in the array-of-pair-arrays
+// form we store for LLMemoryInfo::getStatsArray().
+class StatsArray
+{
+public:
+	StatsArray():
+		mStats(LLSD::emptyArray())
+	{}
+
+	void add(const LLSD::String& name, LLSD::Integer value)
+	{
+		mStats.append(LLSDArray(name)(value));
+	}
+
+	LLSD get() const { return mStats; }
+
+private:
+	LLSD mStats;
+};
+
 LLMemoryInfo::LLMemoryInfo()
 {
 	refresh();
@@ -859,39 +880,54 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 LLSD LLMemoryInfo::loadStatsArray()
 {
 	// This implementation is derived from stream() code (as of 2011-06-29).
-	LLSD statsArray(LLSD::emptyArray());
+	StatsArray stats;
 
 #if LL_WINDOWS
 	MEMORYSTATUSEX state;
 	state.dwLength = sizeof(state);
 	GlobalMemoryStatusEx(&state);
 
-	statsArray.append(LLSDArray("Percent Memory use")(LLSD::Integer(state.dwMemoryLoad)));
-	statsArray.append(LLSDArray("Total Physical KB") (LLSD::Integer(state.ullTotalPhys/1024)));
-	statsArray.append(LLSDArray("Avail Physical KB") (LLSD::Integer(state.ullAvailPhys/1024)));
-	statsArray.append(LLSDArray("Total page KB")     (LLSD::Integer(state.ullTotalPageFile/1024)));
-	statsArray.append(LLSDArray("Avail page KB")     (LLSD::Integer(state.ullAvailPageFile/1024)));
-	statsArray.append(LLSDArray("Total Virtual KB")  (LLSD::Integer(state.ullTotalVirtual/1024)));
-	statsArray.append(LLSDArray("Avail Virtual KB")  (LLSD::Integer(state.ullAvailVirtual/1024)));
+	stats.add("Percent Memory use", state.dwMemoryLoad);
+	stats.add("Total Physical KB",  state.ullTotalPhys/1024);
+	stats.add("Avail Physical KB",  state.ullAvailPhys/1024);
+	stats.add("Total page KB",      state.ullTotalPageFile/1024);
+	stats.add("Avail page KB",      state.ullAvailPageFile/1024);
+	stats.add("Total Virtual KB",   state.ullTotalVirtual/1024);
+	stats.add("Avail Virtual KB",   state.ullAvailVirtual/1024);
 
 	PERFORMANCE_INFORMATION perf;
 	perf.cb = sizeof(perf);
 	GetPerformanceInfo(&perf, sizeof(perf));
 
 	SIZE_T pagekb(perf.PageSize/1024);
-	statsArray.append(LLSDArray("CommitTotal KB")	(LLSD::Integer(perf.CommitTotal * pagekb)));
-	statsArray.append(LLSDArray("CommitLimit KB")	(LLSD::Integer(perf.CommitLimit * pagekb)));
-	statsArray.append(LLSDArray("CommitPeak KB")	(LLSD::Integer(perf.CommitPeak * pagekb)));
-	statsArray.append(LLSDArray("PhysicalTotal KB") (LLSD::Integer(perf.PhysicalTotal * pagekb)));
-	statsArray.append(LLSDArray("PhysicalAvail KB") (LLSD::Integer(perf.PhysicalAvailable * pagekb)));
-	statsArray.append(LLSDArray("SystemCache KB")	(LLSD::Integer(perf.SystemCache * pagekb)));
-	statsArray.append(LLSDArray("KernelTotal KB")	(LLSD::Integer(perf.KernelTotal * pagekb)));
-	statsArray.append(LLSDArray("KernelPaged KB")	(LLSD::Integer(perf.KernelPaged * pagekb)));
-	statsArray.append(LLSDArray("KernelNonpaged KB")(LLSD::Integer(perf.KernelNonpaged * pagekb)));
-	statsArray.append(LLSDArray("PageSize KB")		(LLSD::Integer(pagekb)));
-	statsArray.append(LLSDArray("HandleCount")		(LLSD::Integer(perf.HandleCount)));
-	statsArray.append(LLSDArray("ProcessCount")		(LLSD::Integer(perf.ProcessCount)));
-	statsArray.append(LLSDArray("ThreadCount")		(LLSD::Integer(perf.ThreadCount)));
+	stats.add("CommitTotal KB",     perf.CommitTotal * pagekb);
+	stats.add("CommitLimit KB",     perf.CommitLimit * pagekb);
+	stats.add("CommitPeak KB",      perf.CommitPeak * pagekb);
+	stats.add("PhysicalTotal KB",   perf.PhysicalTotal * pagekb);
+	stats.add("PhysicalAvail KB",   perf.PhysicalAvailable * pagekb);
+	stats.add("SystemCache KB",     perf.SystemCache * pagekb);
+	stats.add("KernelTotal KB",     perf.KernelTotal * pagekb);
+	stats.add("KernelPaged KB",     perf.KernelPaged * pagekb);
+	stats.add("KernelNonpaged KB",  perf.KernelNonpaged * pagekb);
+	stats.add("PageSize KB",        pagekb);
+	stats.add("HandleCount",        perf.HandleCount);
+	stats.add("ProcessCount",       perf.ProcessCount);
+	stats.add("ThreadCount",        perf.ThreadCount);
+
+	PROCESS_MEMORY_COUNTERS_EX pmem;
+	pmem.cb = sizeof(pmem);
+	GetProcessMemoryInfo(GetCurrentProcess(), &pmem, sizeof(pmem));
+
+	stats.add("Page Fault Count",              pmem.PageFaultCount);
+	stats.add("PeakWorkingSetSize KB",         pmem.PeakWorkingSetSize/1024);
+	stats.add("WorkingSetSize KB",             pmem.WorkingSetSize/1024);
+	stats.add("QutaPeakPagedPoolUsage KB",     pmem.QuotaPeakPagedPoolUsage/1024);
+	stats.add("QuotaPagedPoolUsage KB",        pmem.QuotaPagedPoolUsage/1024);
+	stats.add("QuotaPeakNonPagedPoolUsage KB", pmem.QuotaPeakNonPagedPoolUsage/1024);
+	stats.add("QuotaNonPagedPoolUsage KB",     pmem.QuotaNonPagedPoolUsage/1024);
+	stats.add("PagefileUsage KB",              pmem.PagefileUsage/1024);
+	stats.add("PeakPagefileUsage KB",          pmem.PeakPagefileUsage/1024);
+	stats.add("PrivateUsage KB",               pmem.PrivateUsage/1024);
 
 #elif LL_DARWIN
 	uint64_t phys = 0;
@@ -900,7 +936,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 	
 	if (sysctlbyname("hw.memsize", &phys, &len, NULL, 0) == 0)
 	{
-		statsArray.append(LLSDArray("Total Physical KB")(LLSD::Integer(phys/1024)));
+		stats.add("Total Physical KB", phys/1024);
 	}
 	else
 	{
@@ -962,7 +998,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 											 << "' in vm_stat line: " << line << LL_ENDL;
 					continue;
 				}
-				statsArray.append(LLSDArray("page size")(pagesizekb));
+				stats.add("page size", pagesizekb);
 			}
 			else if (boost::regex_match(line, matched, stat_rx))
 			{
@@ -988,7 +1024,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 					continue;
 				}
 				// Store this statistic.
-				statsArray.append(LLSDArray(key)(value));
+				stats.add(key, value);
 				// Is this in units of pages? If so, convert to Kb.
 				static const LLSD::String pages("Pages ");
 				if (key.substr(0, pages.length()) == pages)
@@ -996,7 +1032,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 					// Synthesize a new key with kb in place of Pages
 					LLSD::String kbkey("kb ");
 					kbkey.append(key.substr(pages.length()));
-					statsArray.append(LLSDArray(kbkey)(value * pagesizekb));
+					stats.add(kbkey, value * pagesizekb);
 				}
 			}
 			else if (boost::regex_match(line, matched, cache_rx))
@@ -1018,7 +1054,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 												 << "' in vm_stat line: " << line << LL_ENDL;
 						continue;
 					}
-					statsArray.append(LLSDArray(cache_keys[i])(value));
+					stats.add(cache_keys[i], value);
 				}
 			}
 			else
@@ -1034,7 +1070,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 
 	phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
 
-	statsArray.append(LLSDArray("Total Physical KB")(phys));
+	stats.add("Total Physical KB", phys);
 
 #elif LL_LINUX
 	std::ifstream meminfo(MEMINFO_FILE);
@@ -1085,7 +1121,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 					continue;
 				}
 				// Store this statistic.
-				statsArray.append(LLSDArray(key)(value));
+				stats.add(key, value);
 			}
 			else
 			{
@@ -1104,7 +1140,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 
 #endif
 
-	return statsArray;
+	return stats.get();
 }
 
 LLSD LLMemoryInfo::loadStatsMap(const LLSD& statsArray)
