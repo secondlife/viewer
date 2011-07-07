@@ -220,10 +220,10 @@ public:
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();
-	void				rebuildViewsFor(const LLUUID& id); // Given the id and the parent, build all of the folder views.
+	LLFolderViewItem*	rebuildViewsFor(const LLUUID& id); // Given the id and the parent, build all of the folder views.
 
 	virtual void		buildFolderView(const LLInventoryPanel::Params& params);
-	virtual void		buildNewViews(const LLUUID& id);
+	LLFolderViewItem*	buildNewViews(const LLUUID& id);
 	BOOL				getIsHiddenFolderType(LLFolderType::EType folder_type) const;
 	
 	virtual LLFolderView*		createFolderView(LLInvFVBridge * bridge, bool useLabelSuffix);
