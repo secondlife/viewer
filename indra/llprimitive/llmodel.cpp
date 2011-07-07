@@ -1347,7 +1347,8 @@ LLSD LLModel::writeModel(
 	const LLModel::Decomposition& decomp,
 	BOOL upload_skin,
 	BOOL upload_joints,
-	BOOL nowrite)
+	BOOL nowrite,
+	BOOL as_slm)
 {
 	LLSD mdl;
 
@@ -1371,8 +1372,8 @@ LLSD LLModel::writeModel(
 		!decomp.mHull.empty())		
 	{
 		mdl["physics_convex"] = decomp.asLLSD();
-		if (!decomp.mHull.empty())
-		{ //convex decomposition exists, physics mesh will not be used
+		if (!decomp.mHull.empty() && !as_slm)
+		{ //convex decomposition exists, physics mesh will not be used (unless this is an slm file)
 			model[LLModel::LOD_PHYSICS] = NULL;
 		}
 	}

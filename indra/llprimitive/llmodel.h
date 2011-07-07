@@ -137,7 +137,8 @@ public:
 		const LLModel::Decomposition& decomp,
 		BOOL upload_skin,
 		BOOL upload_joints,
-		BOOL nowrite = FALSE);
+		BOOL nowrite = FALSE,
+		BOOL as_slm = FALSE);
 
 	static LLSD writeModelToStream(
 		std::ostream& ostr,

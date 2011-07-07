@@ -2034,12 +2034,6 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 		return false;
 	}
 
-	if (model[LLModel::LOD_PHYSICS].empty())
-	{ //no explicit physics block, copy HIGH_LOD into physics array to recover convex decomp
-		model[LLModel::LOD_PHYSICS] = model[LLModel::LOD_HIGH];
-	}
-
-
 	//load instance list
 	model_instance_list instance_list;
 
@@ -3248,7 +3242,7 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 				instance.mLOD[LLModel::LOD_LOW], 
 				instance.mLOD[LLModel::LOD_IMPOSTOR], 
 				decomp, 
-				save_skinweights, save_joint_positions);
+				save_skinweights, save_joint_positions, FALSE, TRUE);
 
 			
 			data["mesh"][instance.mModel->mLocalID] = str.str();
