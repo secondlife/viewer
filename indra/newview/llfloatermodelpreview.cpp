@@ -602,6 +602,8 @@ void LLFloaterModelPreview::onImportScaleCommit(LLUICtrl*,void* userdata)
 		return;
 	}
 
+	fp->mModelPreview->mDirty = true;
+
 	fp->toggleCalculateButton(true);
 
 	fp->mModelPreview->refresh();
@@ -615,6 +617,8 @@ void LLFloaterModelPreview::onPelvisOffsetCommit( LLUICtrl*, void* userdata )
 	{
 		return;
 	}
+
+	fp->mModelPreview->mDirty = true;
 
 	fp->toggleCalculateButton(true);
 
