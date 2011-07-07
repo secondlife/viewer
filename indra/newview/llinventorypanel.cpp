@@ -814,6 +814,7 @@ void LLInventoryPanel::openStartFolderOrMyInventory()
 		{
 			const std::string& child_name = child->getName();
 			mFolderRoot->openFolder(child_name);
+			mFolderRoot->clearSelection();	// No need to keep it selected though!
 			break;
 		}
 	}
