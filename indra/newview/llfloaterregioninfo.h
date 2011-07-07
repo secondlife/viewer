@@ -34,6 +34,8 @@
 #include "llhost.h"
 #include "llpanel.h"
 
+#include "llenvmanager.h" // for LLEnvironmentSettings
+
 class LLAvatarName;
 class LLDispatcher;
 class LLLineEditor;
@@ -431,7 +433,7 @@ private:
 	void setApplyProgress(bool started);
 	void setDirty(bool dirty);
 
-	void sendRegionSunUpdate(F32 sun_angle);
+	void sendRegionSunUpdate();
 
 	void populateWaterPresetsList();
 	void populateSkyPresetsList();
@@ -453,6 +455,9 @@ private:
 
 	void onRegionSettingschange();
 	void onRegionSettingsApplied(bool ok);
+
+	/// New environment settings that are being applied to the region.
+	LLEnvironmentSettings	mNewRegionSettings;
 
 	bool			mEnableEditing;
 

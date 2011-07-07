@@ -317,11 +317,8 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 // static
 void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 {
-	LL_DEBUGS("Windlight") << "Processing region info" << LL_ENDL;
-
 	LLPanel* panel;
 	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-	llinfos << "LLFloaterRegionInfo::processRegionInfo" << llendl;
 	if(!floater)
 	{
 		return;
@@ -330,6 +327,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	// We need to re-request environment setting here,
 	// otherwise after we apply (send) updated region settings we won't get them back,
 	// so our environment won't be updated.
+	// This is also the way to know about externally changed region environment.
 	LLEnvManagerNew::instance().requestRegionSettings();
 	
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
@@ -3249,29 +3247,30 @@ void LLPanelEnvironmentInfo::setDirty(bool dirty)
 	getChildView("cancel_btn")->setEnabled(dirty);
 }
 
-void LLPanelEnvironmentInfo::sendRegionSunUpdate(F32 sun_angle)
+void LLPanelEnvironmentInfo::sendRegionSunUpdate()
 {
 	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
-	bool region_use_fixed_sky = sun_angle >= 0.f;
 
-	// Set sun hour.
+	// If the region is being switched to fixed sky,
+	// change the region's sun hour according to the (fixed) sun position.
+	// This is needed for llGetSunDirection() LSL function to work properly (STORM-1330).
+	const LLSD& sky_map = mNewRegionSettings.getSkyMap();
+	bool region_use_fixed_sky = sky_map.size() == 1;
 	if (region_use_fixed_sky)
 	{
 		LLWLParamSet param_set;
-		LLSD params;
-		std::string unused;
-		if (!getSelectedSkyParams(params, unused))
-		{
-			return;
-		}
-		param_set.setAll(params);
+		llassert(sky_map.isMap());
+		param_set.setAll(sky_map.beginMap()->second);
+		F32 sun_angle = param_set.getSunAngle();
 
+		LL_DEBUGS("Windlight Sync") << "Old sun hour: " << region_info.mSunHour << LL_ENDL;
 		// convert value range from 0..2pi to 6..30
 		region_info.mSunHour = fmodf((sun_angle / F_TWO_PI) * 24.f, 24.f) + 6.f;
 	}
 
 	region_info.setUseFixedSun(region_use_fixed_sky);
 	region_info.mUseEstateSun = !region_use_fixed_sky;
+	LL_DEBUGS("Windlight Sync") << "Sun hour: " << region_info.mSunHour << LL_ENDL;
 
 	region_info.sendRegionTerrain(LLFloaterRegionInfo::getLastInvoice());
 }
@@ -3555,7 +3554,6 @@ void LLPanelEnvironmentInfo::onBtnApply()
 	LLSD day_cycle;
 	LLSD sky_map;
 	LLSD water_params;
-	F32 sun_angle = -1.f; // invalid value meaning no fixed sky
 
 	if (use_defaults)
 	{
@@ -3588,9 +3586,6 @@ void LLPanelEnvironmentInfo::onBtnApply()
 			param_set.setAll(params);
 			refs[LLWLParamKey(preset_name, LLEnvKey::SCOPE_LOCAL)] = param_set; // scope doesn't matter here
 			sky_map = LLWLParamManager::createSkyMap(refs);
-
-			// Remember the sun angle to set fixed region sun hour below.
-			sun_angle = param_set.getSunAngle();
 		}
 		else // use day cycle
 		{
@@ -3611,16 +3606,6 @@ void LLPanelEnvironmentInfo::onBtnApply()
 				LL_DEBUGS("Windlight") << "Fixing negative time" << LL_ENDL;
 				day_cycle[0][0] = 0.0f;
 			}
-
-			// If the day cycle contains exactly one preset (i.e it's effectively a fixed sky),
-			// remember the preset's sun angle to set fixed region sun hour below.
-			if (sky_map.size() == 1)
-			{
-				LLWLParamSet param_set;
-				llassert(sky_map.isMap());
-				param_set.setAll(sky_map.beginMap()->second);
-				sun_angle = param_set.getSunAngle();
-			}
 		}
 
 		// Get water params.
@@ -3640,8 +3625,9 @@ void LLPanelEnvironmentInfo::onBtnApply()
 		return;
 	}
 
-	// Set the region sun phase/flags according to the chosen new preferences.
-	sendRegionSunUpdate(sun_angle);
+	// When the settings get applied, we'll also send the region sun position update.
+	// To determine the sun angle we're going to need the new settings.
+	mNewRegionSettings = new_region_settings;
 
 	// Start spinning the progress indicator.
 	setApplyProgress(true);
@@ -3672,10 +3658,18 @@ void LLPanelEnvironmentInfo::onRegionSettingschange()
 
 void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
 {
-	LL_DEBUGS("Windlight") << "Applying region settings finished, stopping indicator" << LL_ENDL;
 	// If applying new settings has failed, stop the indicator right away.
 	// Otherwise it will be stopped when we receive the updated settings from server.
-	if (!ok)
+	if (ok)
+	{
+		// Set the region sun phase/flags according to the chosen new preferences.
+		//
+		// If we do this earlier we may get jerky transition from fixed sky to a day cycle (STORM-1481).
+		// That is caused by the simulator re-sending the region info, which in turn makes us
+		// re-request and display old region environment settings while the new ones haven't been applied yet.
+		sendRegionSunUpdate();
+	}
+	else
 	{
 		setApplyProgress(false);
 
