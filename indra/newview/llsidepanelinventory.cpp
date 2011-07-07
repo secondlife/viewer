@@ -165,6 +165,13 @@ void handleInventoryDisplayInboxChanged()
 	sidepanel_inventory->enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
 }
 
+void handleInventoryDisplayOutboxChanged()
+{
+	LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+
+	sidepanel_inventory->enableOutbox(gSavedSettings.getBOOL("InventoryDisplayOutbox"));
+}
+
 BOOL LLSidepanelInventory::postBuild()
 {
 	// UI elements from inventory panel
@@ -258,6 +265,7 @@ BOOL LLSidepanelInventory::postBuild()
 	}
 
 	gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
+	gSavedSettings.getControl("InventoryDisplayOutbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayOutboxChanged));
 
 	return TRUE;
 }
@@ -284,12 +292,18 @@ void LLSidepanelInventory::handleLoginComplete()
 	if (!inbox_id.isNull())
 	{
 		observeInboxModifications(inbox_id);
+
+		// Enable the display of the inbox if it exists
+		enableInbox(true);
 	}
 	
 	// Set up observer for outbox changes, if we have an outbox already
 	if (!outbox_id.isNull())
 	{
 		observeOutboxModifications(outbox_id);
+
+		// Enable the display of the outbox if it exists
+		enableOutbox(true);
 	}
 }
 
