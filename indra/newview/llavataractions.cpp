@@ -49,6 +49,7 @@
 #include "llfloaterpay.h"
 #include "llfloaterwebcontent.h"
 #include "llfloaterworldmap.h"
+#include "llfolderview.h"
 #include "llgiveinventory.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
@@ -69,6 +70,7 @@
 #include "lltrans.h"
 #include "llcallingcard.h"
 #include "llslurl.h"			// IDEVO
+#include "llsidepanelinventory.h"
 
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
@@ -312,7 +314,9 @@ static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarNa
 	std::string url = getProfileURL(username);
 
 	// PROFILES: open in webkit window
-	LLWeb::loadWebURLInternal(url, "", agent_id.asString());
+	const bool show_chrome = false;
+	static LLCachedControl<LLRect> profile_rect(gSavedSettings, "WebProfileRect");
+	LLFloaterWebContent::create(url, "", agent_id.asString(), show_chrome, profile_rect);
 }
 
 // static
@@ -444,8 +448,6 @@ void LLAvatarActions::share(const LLUUID& id)
 
 namespace action_give_inventory
 {
-	typedef std::set<LLUUID> uuid_set_t;
-
 	/**
 	 * Returns a pointer to 'Add More' inventory panel of Edit Outfit SP.
 	 */
@@ -475,18 +477,16 @@ namespace action_give_inventory
 	/**
 	 * Checks My Inventory visibility.
 	 */
+
 	static bool is_give_inventory_acceptable()
 	{
-		LLInventoryPanel* active_panel = get_active_inventory_panel();
-		if (!active_panel) return false;
-
 		// check selection in the panel
-		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
+		const std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs();
 		if (inventory_selected_uuids.empty()) return false; // nothing selected
 
 		bool acceptable = false;
-		uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
-		const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
+		std::set<LLUUID>::const_iterator it = inventory_selected_uuids.begin();
+		const std::set<LLUUID>::const_iterator it_end = inventory_selected_uuids.end();
 		for (; it != it_end; ++it)
 		{
 			LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
@@ -529,12 +529,12 @@ namespace action_give_inventory
 		}
 	}
 
-	static void build_items_string(const uuid_set_t& inventory_selected_uuids , std::string& items_string)
+	static void build_items_string(const std::set<LLUUID>& inventory_selected_uuids , std::string& items_string)
 	{
 		llassert(inventory_selected_uuids.size() > 0);
 
 		const std::string& separator = LLTrans::getString("words_separator");
-		for (uuid_set_t::const_iterator it = inventory_selected_uuids.begin(); ; )
+		for (std::set<LLUUID>::const_iterator it = inventory_selected_uuids.begin(); ; )
 		{
 			LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
 			if (NULL != inv_cat)
@@ -570,10 +570,7 @@ namespace action_give_inventory
 			return;
 		}
 
-		LLInventoryPanel* active_panel = get_active_inventory_panel();
-		if (!active_panel) return;
-
-		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
+		const std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs();
 		if (inventory_selected_uuids.empty())
 		{
 			return;
@@ -590,8 +587,8 @@ namespace action_give_inventory
 			// We souldn't open IM session, just calculate session ID for logging purpose. See EXT-6710
 			const LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, avatar_uuid);
 
-			uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
-			const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
+			std::set<LLUUID>::const_iterator it = inventory_selected_uuids.begin();
+			const std::set<LLUUID>::const_iterator it_end = inventory_selected_uuids.end();
 
 			const std::string& separator = LLTrans::getString("words_separator");
 			std::string noncopy_item_names;
@@ -654,10 +651,7 @@ namespace action_give_inventory
 	{
 		llassert(avatar_names.size() == avatar_uuids.size());
 
-		LLInventoryPanel* active_panel = get_active_inventory_panel();
-		if (!active_panel) return;
-
-		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
+		const std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs();
 		if (inventory_selected_uuids.empty())
 		{
 			return;
@@ -676,6 +670,33 @@ namespace action_give_inventory
 		LLShareInfo::instance().mAvatarUuids = avatar_uuids;
 		LLNotificationsUtil::add("ShareItemsConfirmation", substitutions, LLSD(), &give_inventory_cb);
 	}
+}
+
+
+
+//static
+std::set<LLUUID> LLAvatarActions::getInventorySelectedUUIDs()
+{
+	std::set<LLUUID> inventory_selected_uuids;
+
+	LLInventoryPanel* active_panel = action_give_inventory::get_active_inventory_panel();
+	if (active_panel)
+	{
+		inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
+	}
+
+	if (inventory_selected_uuids.empty())
+	{
+		LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
+		LLInventoryPanel * inbox = sidepanel_inventory->findChild<LLInventoryPanel>("inventory_inbox");
+		if (inbox)
+		{
+			inventory_selected_uuids = inbox->getRootFolder()->getSelectionList();
+		}
+
+	}
+
+	return inventory_selected_uuids;
 }
 
 //static
@@ -705,12 +726,12 @@ bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NUL
 
 	// check selection in the panel
 	LLFolderView* root_folder = inv_panel->getRootFolder();
-	const uuid_set_t inventory_selected_uuids = root_folder->getSelectionList();
+	const std::set<LLUUID> inventory_selected_uuids = root_folder->getSelectionList();
 	if (inventory_selected_uuids.empty()) return false; // nothing selected
 
 	bool can_share = true;
-	uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
-	const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
+	std::set<LLUUID>::const_iterator it = inventory_selected_uuids.begin();
+	const std::set<LLUUID>::const_iterator it_end = inventory_selected_uuids.end();
 	for (; it != it_end; ++it)
 	{
 		LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);

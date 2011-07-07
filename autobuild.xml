@@ -1206,9 +1206,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>82798d0da3ac3d97c91517a575d9ea1c</string>
+              <string>a7c80fd8516df3b879b669b2b220067f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/231093/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110526.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/232420/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110608.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1230,9 +1230,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f0708d18943a05013493f69ab7dc6429</string>
+              <string>b9cc0333cc274c9cc40256ab7146b4fc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/231093/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110526.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/232420/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110608.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1570,9 +1570,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e19576af3c0affc71293d8f0bcce2606</string>
+              <string>24e735ae005f3ce7a21a09cc02cece17</string>
               <key>url</key>
-              <string> http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-darwin-20110120.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/231678/arch/Darwin/installer/slvoice-3.2.0002.10426-darwin-20110601.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1582,9 +1582,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>53fefed8120d7c6a0eb6778edae6fa32</string>
+              <string>8a0bc982367d6fdc20a28b391cd40566</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-linux-20110120.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/231678/arch/Linux/installer/slvoice-3.2.0002.10426-linux-20110601.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1594,9 +1594,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>44f84b3b45f7067a104a7c34d50d62f0</string>
+              <string>1e821cc7d25eabad013b7f3db260dd6b</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/slvoice-3.2.0002.9361-windows-20110120.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/231678/arch/CYGWIN/installer/slvoice-3.2.0002.10426-windows-20110601.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
