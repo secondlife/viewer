@@ -623,7 +623,7 @@ void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
 {
 	// Destroy the old view for this ID so we can rebuild it.
 	LLFolderViewItem* old_view = mFolderRoot->getItemByID(id);
-	if (old_view && old_view != mFolderRoot)
+	if (old_view)
 	{
 		old_view->destroyView();
 	}

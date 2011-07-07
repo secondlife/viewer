@@ -1804,7 +1804,7 @@ void LLFolderViewFolder::destroyView()
 		folderp->destroyView(); // removes entry from mFolders
 	}
 
-	deleteAllChildren();
+	//deleteAllChildren();
 
 	if (mParentFolder)
 	{
