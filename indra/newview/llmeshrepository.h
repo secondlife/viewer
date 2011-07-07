@@ -92,6 +92,7 @@ public:
 	LLPointer<LLViewerFetchedTexture> mDiffuseMap;
 	std::string mDiffuseMapFilename;
 	std::string mDiffuseMapLabel;
+	std::string mBinding;
 	LLColor4 mDiffuseColor;
 	bool mFullbright;
 
@@ -120,9 +121,9 @@ public:
 	S32 mLocalMeshID;
 
 	LLMatrix4 mTransform;
-	std::vector<LLImportMaterial> mMaterial;
+	std::map<std::string, LLImportMaterial> mMaterial;
 
-	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, std::vector<LLImportMaterial>& materials)
+	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, std::map<std::string, LLImportMaterial>& materials)
 		: mModel(model), mLabel(label), mTransform(transform), mMaterial(materials)
 	{
 		mLocalMeshID = -1;

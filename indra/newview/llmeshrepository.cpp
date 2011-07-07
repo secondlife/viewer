@@ -36,7 +36,6 @@
 #include "llbufferstream.h"
 #include "llcurl.h"
 #include "lldatapacker.h"
-#include "llfasttimer.h"
 #include "llfloatermodelpreview.h"
 #include "llfloaterperms.h"
 #include "lleconomy.h"
@@ -71,9 +70,6 @@
 #endif
 
 #include <queue>
-
-LLFastTimer::DeclareTimer FTM_MESH_UPDATE("Mesh Update");
-LLFastTimer::DeclareTimer FTM_LOAD_MESH("Load Mesh");
 
 LLMeshRepository gMeshRepo;
 
@@ -1410,12 +1406,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 			for (S32 face_num = 0; face_num < data.mBaseModel->getNumVolumeFaces(); face_num++)
 			{
-				if(face_num >= instance.mMaterial.size())
-				{
-					break ;
-				}
-
-				LLImportMaterial& material = instance.mMaterial[face_num];
+				LLImportMaterial& material = instance.mMaterial[data.mBaseModel->mMaterialList[face_num]];
 				LLSD face_entry = LLSD::emptyMap();
 				LLViewerFetchedTexture *texture = material.mDiffuseMap.get();
 				
@@ -1579,9 +1570,6 @@ void LLMeshUploadThread::requestWholeModelFee()
 	// Currently a no-op.
 	mFinished = true;
 }
-
-static LLFastTimer::DeclareTimer FTM_NOTIFY_MESH_LOADED("Notify Loaded");
-static LLFastTimer::DeclareTimer FTM_NOTIFY_MESH_UNAVAILABLE("Notify Unavailable");
 
 void LLMeshRepoThread::notifyLoadedMeshes()
 {
@@ -2146,8 +2134,6 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 		return detail;
 	}
 
-	LLFastTimer t(FTM_LOAD_MESH); 
-
 	{
 		LLMutexLock lock(mMeshMutex);
 		//add volume to list of loading meshes
@@ -2223,11 +2209,6 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 	return detail;
 }
 
-static LLFastTimer::DeclareTimer FTM_START_MESH_THREAD("Start Thread");
-static LLFastTimer::DeclareTimer FTM_LOAD_MESH_LOD("Load LOD");
-static LLFastTimer::DeclareTimer FTM_MESH_LOCK1("Lock 1");
-static LLFastTimer::DeclareTimer FTM_MESH_LOCK2("Lock 2");
-
 void LLMeshRepository::notifyLoadedMeshes()
 { //called from main thread
 
@@ -2293,18 +2274,9 @@ void LLMeshRepository::notifyLoadedMeshes()
 		}
 	}
 
-	LLFastTimer t(FTM_MESH_UPDATE);
-
-	{
-		LLFastTimer t(FTM_MESH_LOCK1);
-		mMeshMutex->lock();	
-	}
-
-	{
-		LLFastTimer t(FTM_MESH_LOCK2);
-		mThread->mMutex->lock();
-	}
-	
+	mMeshMutex->lock();	
+	mThread->mMutex->lock();
+		
 	//popup queued error messages from background threads
 	while (!mUploadErrorQ.empty())
 	{
@@ -2356,7 +2328,6 @@ void LLMeshRepository::notifyLoadedMeshes()
 
 		while (!mPendingRequests.empty() && push_count > 0)
 		{
-			LLFastTimer t(FTM_LOAD_MESH_LOD);
 			LLMeshRepoThread::LODRequest& request = mPendingRequests.front();
 			mThread->loadMeshLOD(request.mMeshParams, request.mLOD);
 			mPendingRequests.erase(mPendingRequests.begin());
@@ -2755,6 +2726,11 @@ bool LLImportMaterial::operator<(const LLImportMaterial &rhs) const
 	if (mDiffuseColor != rhs.mDiffuseColor)
 	{
 		return mDiffuseColor < rhs.mDiffuseColor;
+	}
+
+	if (mBinding != rhs.mBinding)
+	{
+		return mBinding < rhs.mBinding;
 	}
 
 	return mFullbright < rhs.mFullbright;
@@ -3391,7 +3367,8 @@ LLModelInstance::LLModelInstance(LLSD& data)
 
 	for (U32 i = 0; i < data["material"].size(); ++i)
 	{
-		mMaterial.push_back(LLImportMaterial(data["material"][i]));
+		LLImportMaterial mat(data["material"][i]);
+		mMaterial[mat.mBinding] = mat;
 	}
 }
 
@@ -3404,9 +3381,10 @@ LLSD LLModelInstance::asLLSD()
 	ret["label"] = mLabel;
 	ret["transform"] = mTransform.getValue();
 	
-	for (U32 i = 0; i < mMaterial.size(); ++i)
+	U32 i = 0;
+	for (std::map<std::string, LLImportMaterial>::iterator iter = mMaterial.begin(); iter != mMaterial.end(); ++iter)
 	{
-		ret["material"][i] = mMaterial[i].asLLSD();
+		ret["material"][i++] = iter->second.asLLSD();
 	}
 
 	return ret;
@@ -3418,6 +3396,7 @@ LLImportMaterial::LLImportMaterial(LLSD& data)
 	mDiffuseMapLabel = data["diffuse"]["label"].asString();
 	mDiffuseColor.setValue(data["diffuse"]["color"]);
 	mFullbright = data["fullbright"].asBoolean();
+	mBinding = data["binding"].asString();
 }
 
 
@@ -3429,7 +3408,8 @@ LLSD LLImportMaterial::asLLSD()
 	ret["diffuse"]["label"] = mDiffuseMapLabel;
 	ret["diffuse"]["color"] = mDiffuseColor.getValue();
 	ret["fullbright"] = mFullbright;
-	
+	ret["binding"] = mBinding;
+
 	return ret;
 }
 
