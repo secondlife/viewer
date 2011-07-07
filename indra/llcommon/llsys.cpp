@@ -59,7 +59,6 @@ using namespace llsd;
 #	include <winsock2.h>
 #	include <windows.h>
 #   include <psapi.h>               // GetPerformanceInfo() et al.
-#   include <kfuncs.h>              // GetCurrentProcess()
 #elif LL_DARWIN
 #	include <errno.h>
 #	include <sys/sysctl.h>
