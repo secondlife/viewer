@@ -4888,7 +4888,7 @@ BOOL LLModelPreview::render()
 			}
 		}
 
-		//DEBUG -- make sure material lists all match
+		//make sure material lists all match
 		for (U32 i = 0; i < LLModel::NUM_LODS; i++)
 		{
 			if (mBaseModel.size() == mModel[i].size())
