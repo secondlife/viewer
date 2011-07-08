@@ -303,7 +303,8 @@ void LLSidepanelInventory::handleLoginComplete()
 		observeOutboxModifications(outbox_id);
 
 		// Enable the display of the outbox if it exists
-		enableOutbox(true);
+		//enableOutbox(true);
+		// leslie NOTE: Disabling outbox until we support it officially.
 	}
 }
 
