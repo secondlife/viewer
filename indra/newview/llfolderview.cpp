@@ -1910,7 +1910,14 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	// by the folder which is the hierarchy root.
 	if (!handled && !hasVisibleChildren())
 	{
-		handled = mFolders.front()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+		if (mFolders.empty())
+		{
+			handled = handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+		}
+		else
+		{
+			handled = mFolders.front()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+		}
 	}
 
 	if (handled)
