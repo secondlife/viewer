@@ -1907,11 +1907,8 @@
             <map>
               <key>build</key>
               <map>
-                <key>arguments</key>
+                <key>filters</key>
                 <array>
-                  <string>|</string>
-                  <string>grep</string>
-                  <string>-v</string>
                   <string>setenv</string>
                 </array>
                 <key>command</key>
@@ -1964,11 +1961,8 @@
             <map>
               <key>build</key>
               <map>
-                <key>arguments</key>
+                <key>filters</key>
                 <array>
-                  <string>|</string>
-                  <string>grep</string>
-                  <string>-v</string>
                   <string>setenv</string>
                 </array>
                 <key>command</key>
@@ -2023,11 +2017,8 @@
             <map>
               <key>build</key>
               <map>
-                <key>arguments</key>
+                <key>filters</key>
                 <array>
-                  <string>|</string>
-                  <string>grep</string>
-                  <string>-v</string>
                   <string>setenv</string>
                 </array>
                 <key>command</key>

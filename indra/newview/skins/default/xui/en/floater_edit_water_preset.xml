@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="375"
+ layout="topleft"
+ name="Edit Water Preset"
+ help_topic="water_preset"
+ save_rect="true"
+ title="Edit Water Preset"
+ width="725">
+
+  <string name="title_new">Create a New Water Preset</string>
+  <string name="title_edit">Edit a Water Preset</string>
+  <string name="hint_new">Name your preset, adjust the controls to create it, and click "Save".</string>
+  <string name="hint_edit">To edit your water preset, adjust the controls and click "Save".</string>
+  <string name="combo_label">-Select a preset-</string>
+
+  <text
+   follows="top|left|right"
+   height="10"
+   layout="topleft"
+   left="30"
+   name="hint"
+   top="25"
+   width="680">
+   	To edit your preset, adjust the controls then click "Save"
+   </text>
+   
+   <text
+   follows="top|left|right"
+   font="SansSerif"
+   height="10"
+   layout="topleft"
+   left="30"
+   name="label"
+   top_pad="25"
+   width="120">
+   	Preset Name:
+   </text>
+   
+   <combo_box
+   	allow_text_entry="true"
+   	follows="top|left"
+   	layout="topleft"
+   	left_pad="10"
+   	max_chars="100"
+   	name="water_preset_combo"
+   	top_delta="-5"
+   	width="200"/>
+
+   <line_editor
+    height="20"
+    left_delta="0"
+    name="water_preset_name"
+    top_delta="0"
+    width="200" />
+   
+   <text
+   follows="top|left|right"
+   height="40"
+   layout="topleft"
+   left_pad="10"
+   name="note"
+   top_delta="0"
+   width="340"
+   wrap="true">
+   	Note: if you change the name of your preset, you will be creating a new preset and the existing preset will not be changed.
+   </text>
+ 
+ <!--======== Controls panel ========-->
+ <panel
+  border="false"
+  bevel_style="none"
+  follows="top|left"
+  height="230"
+  layout="topleft"
+  left="10"
+  name="panel_water_preset"
+  top="100"
+  width="700">
+ 
+<!--======== I conlumn of controls ========-->   
+   <text
+    follows="left|top|right"
+    height="10"
+    font="SansSerif"
+    layout="topleft"
+    left="10"    
+    name="water_color_label"
+    top="5"
+    width="215">
+       Water Fog Color
+   </text>
+   <color_swatch
+    can_apply_immediately="true"
+    follows="left|top"
+    height="37"
+    label_height="0"
+    layout="topleft"
+    left_delta="15"
+    name="WaterFogColor"
+    top_pad="8"
+    width="60" />
+    
+    
+   <text
+    follows="left|top|right"
+    font="SansSerif"
+    layout="topleft"
+    left_delta="-15"
+    top_pad="10"
+    name="water_fog_density_label"
+    width="215">
+    	Fog Density Exponent
+   </text>
+   <slider
+    decimal_digits="1"
+    follows="left|top"
+    height="10"
+    initial_value="0"
+    layout="topleft"
+    left_delta="15"
+    max_val="10"
+    name="WaterFogDensity"
+    top_pad="10"
+    width="200"/>
+    
+    
+   <text
+    follows="left|top|right"
+    font="SansSerif"
+    layout="topleft"
+    left_delta="-15"
+    top_pad="15"
+    name="underwater_fog_modifier_label"
+    width="215">
+    	Underwater Fog Modifier
+   </text>
+   <slider
+    decimal_digits="1"
+    follows="left|top"
+    height="10"
+    initial_value="0"
+    layout="topleft"
+    left_delta="15"
+    max_val="10"
+    name="WaterUnderWaterFogMod"
+    top_pad="10"
+    width="200"/>
+    
+    
+    <text
+     follows="left|top|right"
+     font="SansSerif"
+     layout="topleft"
+     left_delta="-15"
+     name="BHText"
+     top_pad="15"
+     width="215">
+        Big Wave Direction
+    </text>    
+    <slider
+     control_name="WaterWave1DirX"
+     decimal_digits="2"
+     follows="left|top"
+     increment="0.01"
+     initial_value="0.7"
+     label="X"
+     layout="topleft"             
+     max_val="4"
+     min_val="-4"
+     name="WaterWave1DirX"
+     top_pad="10"
+     width="216"/>    
+    <slider
+     control_name="WaterWave1DirY"
+     decimal_digits="2"
+     follows="left|top"
+     increment="0.01"
+     initial_value="0.7"
+     label="Y"
+     layout="topleft"
+     max_val="4"
+     min_val="-4"
+     name="WaterWave1DirY"
+     top_pad="5"
+     width="216"/>
+    
+<!--======== II conlumn of controls ========-->    
+    
+    <text
+     follows="left|top|right"
+     font="SansSerif"
+     height="10"
+     layout="topleft"
+     left_pad="20"
+     name="BDensText"
+     top="5"
+     width="215">
+        Reflection Wavelet Scale
+    </text>
+    <slider
+     control_name="WaterNormalScaleX"
+     decimal_digits="1"
+     follows="left|top"
+     initial_value="0.7"
+     layout="topleft"
+     left_delta="15"
+     max_val="10"
+     name="WaterNormalScaleX"
+     top_pad="10"
+     width="200"/>
+    <slider
+     control_name="WaterNormalScaleY"
+     decimal_digits="1"
+     follows="left|top"
+     initial_value="0.7"
+     layout="topleft"
+     max_val="10"
+     name="WaterNormalScaleY"
+     top_pad="6"
+     width="200"/>
+    <slider
+     control_name="WaterNormalScaleZ"
+     decimal_digits="1"
+     follows="left|top"
+     initial_value="0.7"
+     layout="topleft"
+     max_val="10"
+     name="WaterNormalScaleZ"
+     top_pad="6"
+     width="200"/>
+    
+    
+    <text
+     follows="left|top|right"
+     font="SansSerif"
+     layout="topleft"
+     left_delta="-15"
+     name="HDText"
+     top_pad="16"
+     width="215">
+        Fresnel Scale
+    </text>
+    <slider
+     control_name="WaterFresnelScale"
+     decimal_digits="2"
+     follows="left|top"
+     height="10"
+     increment="0.01"
+     initial_value="0.7"
+     layout="topleft"
+     left_delta="15"
+     name="WaterFresnelScale"
+     top_pad="10"
+     width="200"/>
+    <text
+     follows="left|top|right"
+     font="SansSerif"
+     layout="topleft"
+     left_delta="-15"
+     name="FresnelOffsetText"
+     top_pad="15"
+     width="215">
+        Fresnel Offset
+    </text>
+    <slider
+     control_name="WaterFresnelOffset"
+     decimal_digits="2"
+     follows="left"
+     increment="0.01"
+     initial_value="0.7"
+     layout="topleft"
+     left_delta="15"
+     name="WaterFresnelOffset"
+     top_pad="10"
+     width="200"/>
+     
+     
+     <text
+      follows="left|top|right"
+      font="SansSerif"
+      layout="topleft"
+      left_delta="-15"
+      name="BHText2"
+      top_pad="15"
+      width="215">
+         Little Wave Direction
+     </text>
+     <slider
+      control_name="WaterWave2DirX"
+      decimal_digits="2"
+      follows="left|top"
+      increment="0.01"
+      initial_value="0.7"
+      label="X"
+      layout="topleft"
+      max_val="4"
+      min_val="-4"
+      name="WaterWave2DirX"
+      top_pad="10"
+      width="216" />
+     <slider
+      control_name="WaterWave2DirY"
+      decimal_digits="2"
+      follows="left|top"
+      increment="0.01"
+      initial_value="0.7"
+      label="Y"
+      layout="topleft"
+      max_val="4"
+      min_val="-4"
+      name="WaterWave2DirY"
+      top_pad="6"
+      width="216" />
+
+<!--======== III conlumn of contorls ========-->
+
+	 <text
+      follows="left|top|right"
+      font="SansSerif"
+      height="16"
+      layout="topleft"
+      left_pad="20"
+      name="DensMultText"
+      top="5"
+      width="215">
+         Refract Scale Above
+     </text>
+     <slider
+      control_name="WaterScaleAbove"
+      decimal_digits="2"
+      follows="left|top"
+      increment="0.01"
+      initial_value="0.1"
+      layout="topleft"
+      left_delta="15"
+      name="WaterScaleAbove"
+      top_pad="5"
+      width="200" />
+     
+     <text
+      type="string"
+      length="1"
+      follows="left|top|right"
+      font="SansSerif"
+      height="16"
+      layout="topleft"
+      left_delta="-15"
+      name="WaterScaleBelowText"
+      top_pad="15"
+      width="215">
+         Refract Scale Below
+     </text>
+     <slider
+      control_name="WaterScaleBelow"
+      decimal_digits="2"
+      follows="left|top"
+      height="10"
+      increment="0.01"
+      initial_value="0"
+      layout="topleft"
+      left_delta="15"
+      name="WaterScaleBelow"
+      top_pad="5"
+      width="200"/>
+     
+     <text
+      follows="left|top|right"
+      font="SansSerif"
+      height="16"
+      layout="topleft"
+      left_delta="-15"
+      name="MaxAltText"
+      top_pad="15"
+      width="215">
+         Blur Multiplier
+     </text>
+     <slider
+      control_name="WaterBlurMult"
+      follows="left|top"
+      height="10"
+      increment="0.001"
+      initial_value="0"
+      layout="topleft"
+      left_delta="15"
+      max_val="0.16"
+      name="WaterBlurMult"
+      top_pad="5"
+      width="200"/>
+      
+      <text
+       follows="left|top|right"
+       font="SansSerif"
+       height="16"
+       layout="topleft"
+       left_delta="-15"
+       name="BHText3"
+       top_pad="15"
+       width="215">
+          Normal Map
+      </text>
+      <texture_picker
+       height="80"
+       layout="topleft"
+       left_delta="15"
+       name="WaterNormalMap"
+       top_pad="5"
+       width="100" />
+	</panel>
+<!--======== End of Controls panel ========-->	
+
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="0"
+     layout="topleft"
+     left="10"
+     name="horiz_separator"
+     top_pad="5"
+     width="700"/>
+	<check_box
+	 follows="top|left"
+	 height="10"
+	 label="Make this preset my new water setting"
+	 layout="topleft"
+	 left="275"
+	 name="make_default_cb"
+	 top_pad="20"
+	 width="280"/>
+	<button
+	 follows="bottom|right"
+	 height="23"
+	 label="Save"
+	 layout="topleft"
+	 left_pad="0"
+	 name="save"
+	 width="70"/>	 
+	<button
+	 follows="bottom|right"
+	 height="23"
+	 label="Cancel"
+	 layout="topleft"
+	 left_pad="15"
+	 name="cancel"
+	 width="70"/>
+	
+ </floater>

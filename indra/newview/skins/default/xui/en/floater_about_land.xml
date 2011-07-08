@@ -414,7 +414,7 @@
              right="-10"
              name="Cancel Land Sale"
              left_pad="5"
-             top_pad="-15"
+             top_pad="7"
              width="180" />
             <text
              type="string"
@@ -488,6 +488,7 @@
              width="186">
                 0
             </text>
+
             <button
              enabled="false"
              follows="left|top"
@@ -495,9 +496,20 @@
              label="Buy Land"
              layout="topleft"
              left_delta="52"
+			 top_pad="5"
              name="Buy Land..."
-             top_pad="7"
              width="130" />
+			<button
+             enabled="false"
+             follows="left|top"
+             height="23"
+             label="Linden Sale"
+             layout="topleft"
+             left="10"
+             name="Linden Sale..."
+             tool_tip="Land must be owned, set content, and not already for auction."
+             top_pad="-23"
+             width="150" />
             <button
              enabled="true"
              follows="left|top"
@@ -545,18 +557,7 @@
              layout="topleft"
              left_delta="0"
              name="Reclaim Land..."
-             top_delta="-50"
-             width="180" />
-            <button
-             enabled="false"
-             follows="left|top"
-             height="23"
-             label="Linden Sale"
-             layout="topleft"
-             left_delta="0"
-             name="Linden Sale..."
-             tool_tip="Land must be owned, set content, and not already for auction."
-             top_pad="2"
+             top_delta="-25"
              width="180" />
         </panel>
         <panel

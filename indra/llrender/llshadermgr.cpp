@@ -462,7 +462,11 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	GLcharARB* text[1024];
 	GLuint count = 0;
 
-	if (gGLManager.mGLVersion < 3.f)
+	if (gGLManager.mGLVersion < 2.1f)
+	{
+		text[count++] = strdup("#version 110\n");
+	}
+	else if (gGLManager.mGLVersion < 3.f)
 	{
 		//set version to 1.20
 		text[count++] = strdup("#version 120\n");
@@ -524,7 +528,12 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		text[count++] = strdup("{\n");
 		
 		
-		if (gGLManager.mGLVersion >= 3.f)
+		if (texture_index_channels == 1)
+		{ //don't use flow control, that's silly
+			text[count++] = strdup("return texture2D(tex0, texcoord);\n");
+			text[count++] = strdup("}\n");
+		}
+		else if (gGLManager.mGLVersion >= 3.f)
 		{ 
 			text[count++] = strdup("\tswitch (int(vary_texture_index+0.25))\n");
 			text[count++] = strdup("\t{\n");
@@ -537,6 +546,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			}
 
 			text[count++] = strdup("\t}\n");
+			text[count++] = strdup("\treturn vec4(0,0,0,0);\n");
+			text[count++] = strdup("}\n");
 		}
 		else
 		{
@@ -557,10 +568,10 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				std::string if_str = llformat("if (ti == %d) return texture2D(tex%d, texcoord);\n", i, i);
 				text[count++] = strdup(if_str.c_str());
 			}
-		}			
 
-		text[count++] = strdup("\treturn vec4(0,0,0,0);\n");
-		text[count++] = strdup("}\n");
+			text[count++] = strdup("\treturn vec4(0,0,0,0);\n");
+			text[count++] = strdup("}\n");
+		}			
 	}
 
 	//copy file into memory
@@ -605,11 +616,6 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		}
 	}
 		
-	//free memory
-	for (GLuint i = 0; i < count; i++)
-	{
-		free(text[i]);
-	}
 	if (error == GL_NO_ERROR)
 	{
 		//check for errors
@@ -623,6 +629,16 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				//an error occured, print log
 				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
 				dumpObjectLog(ret);
+
+				std::stringstream ostr;
+				//dump shader source for debugging
+				for (GLuint i = 0; i < count; i++)
+				{
+					ostr << i << ": " << text[i];
+				}
+
+				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+
 				ret = 0;
 			}
 		}
@@ -632,6 +648,12 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		ret = 0;
 	}
 	stop_glerror();
+
+	//free memory
+	for (GLuint i = 0; i < count; i++)
+	{
+		free(text[i]);
+	}
 
 	//successfully loaded, save results
 	if (ret)
