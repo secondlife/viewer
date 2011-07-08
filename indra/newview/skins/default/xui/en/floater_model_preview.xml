@@ -15,7 +15,7 @@
   <string name="low">Low</string>
   <string name="lowest">Lowest</string>
   <string name="mesh_status_good">Ship it!</string>
-  <string name="mesh_status_na">N/A</string>
+  <string name="mesh_status_na">N/A<c/string>
   <string name="mesh_status_none">None</string>
   <string name="mesh_status_submesh_mismatch">Levels of detail have a different number of textureable faces.</string>
   <string name="mesh_status_mesh_mismatch">Levels of detail have a different number of mesh instances.</string>
@@ -93,7 +93,7 @@
      top_pad="5"
      wrap="true"
      visible="false">
-     You will not be able to complete the final upload of this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to get certifed for mesh model uploads.
+     You will not be able to complete the final upload of this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to get enabled for mesh model uploads.
     </text>
 
   <tab_container
