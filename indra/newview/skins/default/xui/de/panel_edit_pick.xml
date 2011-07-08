@@ -29,7 +29,7 @@
 			<layout_panel name="layout_panel1">
 				<button label="Auswahl speichern" name="save_changes_btn"/>
 			</layout_panel>
-			<layout_panel name="layout_panel1">
+			<layout_panel name="layout_panel2">
 				<button label="Abbrechen" name="cancel_btn"/>
 			</layout_panel>
 		</layout_stack>
