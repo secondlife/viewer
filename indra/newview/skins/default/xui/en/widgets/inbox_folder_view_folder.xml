@@ -6,5 +6,5 @@
   item_top_pad="4"
   selection_image="Rounded_Square"
   >
-	<new_badge label="New" location="right" location_percent_hcenter="70" />
+	<new_badge label="New" location="right" padding_horiz="4" padding_vert="2" location_percent_hcenter="70" />
 </inbox_folder_view_folder>

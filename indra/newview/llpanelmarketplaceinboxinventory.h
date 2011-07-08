@@ -68,9 +68,17 @@ public:
 	~LLInboxFolderViewFolder();
 	
 	void draw();
+
+	time_t getCreationDate() const;
+
+	void updateFlag() const;
+	void selectItem();
+	void toggleOpen();
 	
 protected:
-	bool	mFresh;
+	void setCreationDate(time_t creation_date_utc) const;
+
+	mutable bool	mFresh;
 };
 
 

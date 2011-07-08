@@ -402,6 +402,16 @@ static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
 // This view grows and shinks to enclose all of its children items and folders.
 S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_generation )
 {
+	if (getListener()->getUUID().notNull())
+	{
+		if (mNeedsSort)
+		{
+			mFolders.sort(mSortFunction);
+			mItems.sort(mSortFunction);
+			mNeedsSort = false;
+		}
+	}
+
 	LLFastTimer t2(FTM_ARRANGE);
 
 	filter_generation = mFilter->getMinRequiredGeneration();

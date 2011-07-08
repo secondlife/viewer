@@ -286,7 +286,7 @@ void LLFolderViewItem::refreshFromListener()
 		time_t creation_date = mListener->getCreationDate();
 		if (mCreationDate != creation_date)
 		{
-			mCreationDate = mListener->getCreationDate();
+			setCreationDate(mListener->getCreationDate());
 			dirtyFilter();
 		}
 		if (mRoot->useLabelSuffix())
@@ -1162,7 +1162,7 @@ BOOL LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder, LLFolderView* r
 // Finds width and height of this object and it's children.  Also
 // makes sure that this view and it's children are the right size.
 S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
-{
+{	
 	// sort before laying out contents
 	if (mNeedsSort)
 	{
@@ -2426,7 +2426,7 @@ time_t LLFolderViewFolder::getCreationDate() const
 			
 			if (item_creation_date)
 			{
-				mCreationDate = item_creation_date;
+				setCreationDate(item_creation_date);
 				break;
 			}
 		}
@@ -2442,7 +2442,7 @@ time_t LLFolderViewFolder::getCreationDate() const
 				
 				if (folder_creation_date)
 				{
-					mCreationDate = folder_creation_date;
+					setCreationDate(folder_creation_date);
 					break;
 				}
 			}

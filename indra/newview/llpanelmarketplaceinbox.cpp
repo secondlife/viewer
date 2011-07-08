@@ -33,6 +33,7 @@
 #include "llinventorypanel.h"
 #include "llfolderview.h"
 #include "llsidepanelinventory.h"
+#include "llviewercontrol.h"
 
 
 #define SUPPORTING_FRESH_ITEM_COUNT	0
@@ -54,6 +55,7 @@ LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
 
 LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 {
+	gSavedSettings.setString("InboxFreshnessDate", LLDate::now().asString());
 }
 
 // virtual
