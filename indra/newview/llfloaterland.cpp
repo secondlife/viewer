@@ -1972,7 +1972,7 @@ void LLPanelLandOptions::refresh()
 		mPushRestrictionCtrl->set(FALSE);
 		mPushRestrictionCtrl->setEnabled(FALSE);
 
-		mSeeAvatarsCtrl->set(TRUE);				// NOTE - reversed FALSE/TRUE for 'see avatars' prototype
+		mSeeAvatarsCtrl->set(TRUE);
 		mSeeAvatarsCtrl->setEnabled(FALSE);
 
 		mLandingTypeCombo->setCurrentByIndex(0);

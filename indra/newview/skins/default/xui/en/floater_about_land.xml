@@ -1207,8 +1207,7 @@ Only large parcels can be listed in search.
             </panel.string>
             <panel.string
              name="see_avs_text">
-                 Allow avatars on other parcels to see
- and chat with avatars on this parcel
+                 See and chat with residents on this parcel
             </panel.string>
             <text
              type="string"
@@ -1516,14 +1515,27 @@ Only large parcels can be listed in search.
              fallback_image="default_land_picture.j2c" 
              tool_tip="Click to choose a picture"
              width="195" />
-            <check_box
-             height="32"
-             label="See Avatars"
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             text_color="white"
+             height="16"
              layout="topleft"
              left="230"
-             top="164"
+             top="174"
+             name="allow_label5"
+             width="278">
+              Allow Residents on other parcels to:
+            </text>
+            <check_box
+             height="16"
+             label="See Avatars"
+             follows="top"
+             layout="topleft"
+             left="230"
              name="SeeAvatarsCheck"
-             tool_tip="Allows avatars on other parcels to see and chat with avatars on this parcel, and you to see and chat with them."
+             tool_tip="Allows residents on other parcels to see and chat with residents on this parcel, and you to see and chat with them."
              width="120" />
             <text
              type="string"
