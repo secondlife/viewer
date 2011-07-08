@@ -66,16 +66,16 @@ Chcesz spotkać ludzi? Spróbuj [secondlife:///app/worldmap Mapa Świata].
 			<layout_panel name="view_profile_btn_lp">
 				<button label="Profil" name="view_profile_btn" tool_tip="Pokaż zdjęcie, grupy i inne informacje o Rezydencie"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="im_btn_lp">
 				<button label="IM" name="im_btn" tool_tip="Otwórz wiadomości IM"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="call_btn_lp">
 				<button label="Dzwoń" name="call_btn" tool_tip="Zadzwoń do tego Rezydenta"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="share_btn_lp">
 				<button label="Udostępnij" name="share_btn" tool_tip="Udostępnij obiekt z Szafy"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="teleport_btn_lp">
 				<button label="Teleportuj" name="teleport_btn" tool_tip="Zaproponuj teleport"/>
 			</layout_panel>
 		</layout_stack>

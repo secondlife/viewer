@@ -168,7 +168,9 @@
         top="0"/>
     </layout_panel>
     <layout_panel name="status_bar" 
-                  height="23">
+                  height="23"
+                  auto_resize="false"
+                  user_resize="false">
       <text
         type="string"
         length="200"

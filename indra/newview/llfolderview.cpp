@@ -1936,8 +1936,11 @@ void LLFolderView::deleteAllChildren()
 	closeRenamer();
 	LLView::deleteViewByHandle(mPopupMenuHandle);
 	mPopupMenuHandle = LLHandle<LLView>();
-	mRenamer = NULL;
+	mScrollContainer = NULL;
 	mRenameItem = NULL;
+	mRenamer = NULL;
+	mStatusTextBox = NULL;
+	
 	clearSelection();
 	LLView::deleteAllChildren();
 }

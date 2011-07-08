@@ -1092,7 +1092,7 @@ public:
 
 BOOL LLTextureCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
-	getWindow()->setCursor(UI_CURSOR_HAND);
+	getWindow()->setCursor(mBorder->parentPointInView(x,y) ? UI_CURSOR_HAND : UI_CURSOR_ARROW);
 	return TRUE;
 }
 
@@ -1101,7 +1101,7 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLUICtrl::handleMouseDown( x, y , mask );
 
-	if( !handled )
+	if (!handled && mBorder->parentPointInView(x, y))
 	{
 		showPicker(FALSE);
 		//grab textures first...

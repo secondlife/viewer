@@ -2252,6 +2252,9 @@ Returns a string with the requested data about the region
 	<string name="IMMainland">mainland</string>
 	<string name="IMTeen">teen</string>
 
+    <!-- floater about land -->
+    <string name="Anyone">anyone</string>
+
 	<!-- floater region info -->
 	<!-- The following will replace variable [ALL_ESTATES] in notifications EstateAllowed*, EstateBanned*, EstateManager* -->
 	<string name="RegionInfoError">error</string>
@@ -2353,6 +2356,10 @@ Returns a string with the requested data about the region
 	<!--Region Details-->
 	<string name="GroupOwned">Group Owned</string>
 	<string name="Public">Public</string>
+
+	<!-- Environment settings -->
+	<string name="LocalSettings">Local Settings</string>
+	<string name="RegionSettings">Region Settings</string>
 
 	<!-- panel classified -->
 	<string name="ClassifiedClicksTxt">Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile</string>

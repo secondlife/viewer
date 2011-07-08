@@ -3,14 +3,13 @@
  legacy_header_height="18"
  can_resize="true"
  can_minimize="false" 
- height="360"
+ height="460"
  layout="topleft"
  min_height="360"
- left="645"
+ left="10000"
  top="10" 
- min_width="345"
+ min_width="335"
  name="floater_help_browser"
- save_rect="true"
  single_instance="true"
  title="HOW TO"
  width="335">
@@ -22,7 +21,7 @@
      name="done_text">
     </floater.string>
     <layout_stack
-     bottom="360"
+     bottom="460"
      follows="left|right|top|bottom"
      layout="topleft"
      left="5"
@@ -38,7 +37,7 @@
          user_resize="false"
          width="325">
             <web_browser
-              trusted_content="true" 
+              trusted_content="true"  
              bottom="-5"
              follows="left|right|top|bottom"
              layout="topleft"

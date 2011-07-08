@@ -471,7 +471,8 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			{
 				view_item->destroyView();
 			}
-			buildNewViews(item_id);
+			view_item = buildNewViews(item_id);
+			view_folder = dynamic_cast<LLFolderViewFolder *>(view_item);
 		}
 
 		//////////////////////////////
@@ -524,7 +525,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			//////////////////////////////
 			// STRUCTURE Operation
 			// This item already exists in both memory and UI.  It was probably reparented.
-			if (model_item && view_item)
+			else if (model_item && view_item)
 			{
 				// Don't process the item if it is the root
 				if (view_item->getRoot() != view_item)
@@ -552,7 +553,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			//////////////////////////////
 			// REMOVE Operation
 			// This item has been removed from memory, but its associated UI element still exists.
-			if (!model_item && view_item)
+			else if (!model_item && view_item)
 			{
 				// Remove the item's UI.
 				view_item->destroyView();
@@ -619,16 +620,16 @@ void LLInventoryPanel::initializeViews()
 	}
 }
 
-void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
+LLFolderViewItem* LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
 {
 	// Destroy the old view for this ID so we can rebuild it.
 	LLFolderViewItem* old_view = mFolderRoot->getItemByID(id);
-	if (old_view && old_view != mFolderRoot)
+	if (old_view)
 	{
 		old_view->destroyView();
 	}
 
-	buildNewViews(id);
+	return buildNewViews(id);
 }
 
 LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool useLabelSuffix)
@@ -695,19 +696,19 @@ LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge
 	return LLUICtrlFactory::create<LLFolderViewItem>(params);
 }
 
-void LLInventoryPanel::buildNewViews(const LLUUID& id)
+LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
  	LLInventoryObject const* objectp = gInventory.getObject(id);
  	LLUUID root_id = mFolderRoot->getListener()->getUUID();
  	LLFolderViewFolder* parent_folder = NULL;
- 
+	LLFolderViewItem* itemp = NULL;
+	
  	if (id == root_id)
  	{
  		parent_folder = mFolderRoot;
  	}
  	else if (objectp)
  	{
- 		LLFolderViewItem* itemp = NULL;
  		const LLUUID &parent_id = objectp->getParentUUID();
  		parent_folder = (LLFolderViewFolder*)mFolderRoot->getItemByID(parent_id);
   		
@@ -719,7 +720,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
   				llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : "
   						<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
   						<< llendl;
-  				return;
+  				return NULL;
   			}
   		
   			if ((objectp->getType() == LLAssetType::AT_CATEGORY) &&
@@ -796,6 +797,8 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 		}
 		mInventory->unlockDirectDescendentArrays(id);
 	}
+	
+	return itemp;
 }
 
 // bit of a hack to make sure the inventory is open.
@@ -811,6 +814,7 @@ void LLInventoryPanel::openStartFolderOrMyInventory()
 		{
 			const std::string& child_name = child->getName();
 			mFolderRoot->openFolder(child_name);
+			mFolderRoot->clearSelection();	// No need to keep it selected though!
 			break;
 		}
 	}

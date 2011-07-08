@@ -95,6 +95,7 @@ set(llui_SOURCE_FILES
     lltextparser.cpp
     lltextutil.cpp
     lltextvalidate.cpp
+    lltimectrl.cpp
     lltransutil.cpp
     lltoggleablemenu.cpp
     lltooltip.cpp
@@ -195,6 +196,7 @@ set(llui_HEADER_FILES
     lltextparser.h
     lltextutil.h
     lltextvalidate.h
+    lltimectrl.h
     lltoggleablemenu.h
     lltooltip.h
     lltransutil.h

@@ -509,22 +509,22 @@
 	  reference="DkGray2" />
     <color
      name="MultiSliderDisabledThumbColor"
-     reference="Unused?" />
+     reference="Black" />
     <color
      name="MultiSliderThumbCenterColor"
-     reference="Unused?" />
+     reference="White" />
     <color
      name="MultiSliderThumbCenterSelectedColor"
-     reference="Unused?" />
+     reference="Green" />
     <color
      name="MultiSliderThumbOutlineColor"
      reference="Unused?" />
     <color
      name="MultiSliderTrackColor"
-     reference="Unused?" />
+     reference="LtGray" />
     <color
      name="MultiSliderTriangleColor"
-     reference="Unused?" />
+     reference="Yellow" />
   <!--
     <color
       name="NameTagBackground"

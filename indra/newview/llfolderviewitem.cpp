@@ -1162,7 +1162,7 @@ BOOL LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder, LLFolderView* r
 // Finds width and height of this object and it's children.  Also
 // makes sure that this view and it's children are the right size.
 S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
-{	
+{
 	// sort before laying out contents
 	if (mNeedsSort)
 	{
@@ -1804,7 +1804,7 @@ void LLFolderViewFolder::destroyView()
 		folderp->destroyView(); // removes entry from mFolders
 	}
 
-	deleteAllChildren();
+	//deleteAllChildren();
 
 	if (mParentFolder)
 	{
