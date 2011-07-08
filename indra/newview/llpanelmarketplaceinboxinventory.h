@@ -68,9 +68,7 @@ public:
 	~LLInboxFolderViewFolder();
 	
 	void draw();
-
-	time_t getCreationDate() const;
-
+	
 	void updateFlag() const;
 	void selectItem();
 	void toggleOpen();

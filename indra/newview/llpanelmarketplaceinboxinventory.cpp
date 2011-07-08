@@ -191,46 +191,4 @@ void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc) const
 }
 
 
-time_t LLInboxFolderViewFolder::getCreationDate() const
-{
-	// folders have no creation date try to create one from an item somewhere in our folder hierarchy
-	if (!mCreationDate)
-	{
-		for (items_t::const_iterator iit = mItems.begin();
-			iit != mItems.end(); ++iit)
-		{
-			LLFolderViewItem* itemp = (*iit);
-
-			const time_t item_creation_date = itemp->getCreationDate();
-
-			if (item_creation_date)
-			{
-				mCreationDate = item_creation_date;
-				updateFlag();
-				break;
-			}
-		}
-
-		if (!mCreationDate)
-		{
-			for (folders_t::const_iterator fit = mFolders.begin();
-				fit != mFolders.end(); ++fit)
-			{
-				LLFolderViewFolder* folderp = (*fit);
-
-				const time_t folder_creation_date = folderp->getCreationDate();
-
-				if (folder_creation_date)
-				{
-					mCreationDate = folder_creation_date;
-					updateFlag();
-					break;
-				}
-			}
-		}
-	}
-
-	return llmax<time_t>(mCreationDate, mSubtreeCreationDate);
-}
-
 // eof
