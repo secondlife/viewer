@@ -1422,6 +1422,7 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			if (folder->getFiltered() || folder->hasFilteredDescendants(filter.getMinRequiredGeneration()))
 			{
 				mMostFilteredDescendantGeneration = filter_generation;
+				requestArrange();
 			}
 			// just skip it, it has already been filtered
 			continue;
@@ -1434,6 +1435,7 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 		if (folder->getFiltered() || folder->hasFilteredDescendants(filter_generation))
 		{
 			mMostFilteredDescendantGeneration = filter_generation;
+			requestArrange();
 			if (getRoot()->needsAutoSelect() && autoopen_folders)
 			{
 				folder->setOpenArrangeRecursively(TRUE);
@@ -1455,6 +1457,7 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			if (item->getFiltered())
 			{
 				mMostFilteredDescendantGeneration = filter_generation;
+				requestArrange();
 			}
 			continue;
 		}
@@ -1473,6 +1476,7 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 		if (item->getFiltered(filter.getMinRequiredGeneration()))
 		{
 			mMostFilteredDescendantGeneration = filter_generation;
+			requestArrange();
 		}
 	}
 
