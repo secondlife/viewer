@@ -1206,7 +1206,8 @@ Only large parcels can be listed in search.
             </panel.string>
             <panel.string
              name="see_avs_text">
-                See and chat with avatars on this parcel
+                 Allow avatars on other parcels to see
+ and chat with avatars on this parcel
             </panel.string>
             <text
              type="string"
@@ -1218,9 +1219,18 @@ Only large parcels can be listed in search.
              left="10"
              name="allow_label"
              top="10"
-             width="270">
+             width="278">
                 Allow other Residents to:
             </text>
+            <check_box
+             height="16"
+             label="Edit Terrain"
+             layout="topleft"
+             left="14"
+             name="edit land check"
+             tool_tip="If checked, anyone can terraform your land. It is best to leave this unchecked, as you can always edit your own land."
+             top_pad="4"
+             width="147i" />
             <check_box
              height="16"
              label="Fly"
@@ -1228,7 +1238,7 @@ Only large parcels can be listed in search.
              name="check fly"
              tool_tip="If checked, Residents can fly on your land. If unchecked, they can only fly into and over your land."
              left_pad="4"
-             width="128" />
+             width="150" />
             <text
              type="string"
              length="1"
@@ -1308,15 +1318,6 @@ Only large parcels can be listed in search.
              name="check group scripts"
              top_delta="0"
              width="70" />
-          <check_box
-             height="16"
-             label="See Avatars"
-             layout="topleft"
-             left="14"
-             name="SeeAvatarsCheck"
-             tool_tip="Allow avatars on other parcels to see and chat with avatars on this parcel."
-             top_pad="5"
-             width="119" />
            <text
              type="string"
              text_color="white"
@@ -1337,7 +1338,7 @@ Only large parcels can be listed in search.
              name="check safe"
              tool_tip="If checked, sets the land to Safe, disabling damage combat. If cleared, damage combat is enabled."
              top_pad="5"
-             width="280" />
+             width="200" />
             <check_box
              height="16"
              label="No Pushing"
@@ -1354,7 +1355,7 @@ Only large parcels can be listed in search.
              left="14"
              name="ShowDirectoryCheck"
              tool_tip="Let people see this parcel in search results"
-             width="280" />
+             width="430" />
             <combo_box
              enabled="false"
              height="23"
@@ -1514,14 +1515,23 @@ Only large parcels can be listed in search.
              fallback_image="default_land_picture.j2c" 
              tool_tip="Click to choose a picture"
              width="195" />
+            <check_box
+             height="32"
+             label="See Avatars"
+             layout="topleft"
+             left="230"
+             top="164"
+             name="SeeAvatarsCheck"
+             tool_tip="Allows avatars on other parcels to see and chat with avatars on this parcel, and you to see and chat with them."
+             width="120" />
             <text
              type="string"
              length="1"
              follows="left|top"
              height="16"
              layout="topleft"
-             left="220"
-             top="180"
+             left="230"
+             top="230"
              text_color="white"
              name="landing_point"
              word_wrap="true"
@@ -1535,7 +1545,7 @@ Only large parcels can be listed in search.
              label_selected="Set"
              layout="topleft"
              name="Set"
-             right="-68"
+             left="230"
              tool_tip="Sets the landing point where visitors arrive. Sets to your avatar&apos;s location inside this parcel."
              width="50" />
             <button
@@ -1547,7 +1557,6 @@ Only large parcels can be listed in search.
              left_pad="5"
              name="Clear"
              tool_tip="Clear the landing point"
-             right="-10"
              width="55" />
             <text
              type="string"
@@ -1556,7 +1565,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="220"
+             left="230"
              top_pad="10"
              name="Teleport Routing: "
              width="200">
