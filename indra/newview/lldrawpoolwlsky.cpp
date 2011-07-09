@@ -60,13 +60,24 @@ LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 		llerrs << "Error: Failed to load cloud noise image " << cloudNoiseFilename << llendl;
 	}
 
-	cloudNoiseFile->load(cloudNoiseFilename);
+	if(cloudNoiseFile->load(cloudNoiseFilename))
+	{
+		sCloudNoiseRawImage = new LLImageRaw();
 
-	sCloudNoiseRawImage = new LLImageRaw();
+		if(cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f))
+		{
+			//debug use			
+			llinfos << "cloud noise raw image width: " << sCloudNoiseRawImage->getWidth() << " : height: " << sCloudNoiseRawImage->getHeight() << " : components: " << 
+				(S32)sCloudNoiseRawImage->getComponents() << " : data size: " << sCloudNoiseRawImage->getDataSize() << llendl ;
+			llassert_always(sCloudNoiseRawImage->getData()) ;
 
-	cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f);
-
-	sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+			sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+		}
+		else
+		{
+			sCloudNoiseRawImage = NULL ;
+		}
+	}
 
 	LLWLParamManager::instance()->propagateParameters();
 }
@@ -201,7 +212,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 
 void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
 {
-	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS))
+	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
 	{
 		LLGLEnable blend(GL_BLEND);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
@@ -373,5 +384,8 @@ void LLDrawPoolWLSky::cleanupGL()
 //static
 void LLDrawPoolWLSky::restoreGL()
 {
-	sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+	if(sCloudNoiseRawImage.notNull())
+	{
+		sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+	}
 }
