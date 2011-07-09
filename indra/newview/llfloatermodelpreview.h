@@ -202,7 +202,7 @@ public:
 	// called when error occurs during permissions request
 	/*virtual*/ void setPermissonsErrorStatus(U32 status, const std::string& reason);
 
-	/*virtual*/ void onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url);
+	/*virtual*/ void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url);
 
 	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
 

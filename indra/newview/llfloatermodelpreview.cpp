@@ -5486,18 +5486,23 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 	{
 		std::string tbd = getString("tbd");
 		childSetTextArg("weights", "[EQ]", tbd);
+		childSetTextArg("weights", "[ST]", tbd);
+		childSetTextArg("weights", "[SIM]", tbd);
 		childSetTextArg("weights", "[PH]", tbd);
-		childSetTextArg("weights", "[FEE]", tbd);
+		childSetTextArg("upload_fee", "[FEE]", tbd);
 	}
 }
 
-void LLFloaterModelPreview::onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url)
+void LLFloaterModelPreview::onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url)
 {
 	mUploadModelUrl = upload_url;
-	childSetTextArg("weights", "[EQ]", llformat("%d", mModelPreview->mResourceCost));
-	childSetTextArg("weights", "[PH]", llformat("%.3f", physics));
-	childSetTextArg("weights", "[FEE]", llformat("%d", fee));
+	childSetTextArg("weights", "[EQ]", llformat("%0.3f", result["resource_cost"].asReal()));
+	childSetTextArg("weights", "[ST]", llformat("%0.3f", result["model_streaming_cost"].asReal()));
+	childSetTextArg("weights", "[SIM]", llformat("%0.3f", result["simulation_cost"].asReal()));
+	childSetTextArg("weights", "[PH]", llformat("%0.3f", result["physics_cost"].asReal()));
+	childSetTextArg("upload_fee", "[FEE]", llformat("%d", result["upload_price"].asInteger()));
 	childSetVisible("weights", true);
+	childSetVisible("upload_fee", true);
 	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
 }
 

@@ -369,10 +369,8 @@ public:
 
 			if (observer)
 			{
-				S32 fee = cc["upload_price"].asInteger();
-				F64 phys = cc["data"]["physics_cost"].asReal();
-
-				observer->onModelPhysicsFeeReceived(phys, fee, mThread->mWholeModelUploadURL);
+				cc["data"]["upload_price"] = cc["upload_price"];
+				observer->onModelPhysicsFeeReceived(cc["data"], mThread->mWholeModelUploadURL);
 			}
 		}
 		else

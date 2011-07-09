@@ -74,27 +74,49 @@
     follows="all"/>
     
     <text
-     follows="top|left"
      font="SansSerif"
+	 bottom_delta="15"
      left_delta="0"
      name="warning_title"
      text_color="Yellow"
-     top_pad="10"
      visible="false">
      WARNING:
     </text>
     <text
-     follows="top|left"
      text_color="White"
      height="50"
+	 width="290"
+	 top_delta="15"
      left_delta="0"
      name="warning_message"
      parse_urls="true"
-     top_pad="5"
      wrap="true"
      visible="false">
      You will not be able to complete the final upload of this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to get enabled for mesh model uploads.
     </text>
+
+  <text
+	height="50"
+	top_delta="55"
+	left_delta="0"
+	name="weights"
+	width="290"
+	word_wrap="true" 
+	>
+	<text
+		follows="top|left"
+	>Test0: [EQ]
+	</text>
+	<text
+	>Test: [ST]
+	</text>
+Streaming: [ST]
+Simulation: [SIM]
+Physics: [PH]
+Prim equivs: [EQ]
+  </text>
+  
+
 
   <tab_container
     follows="right|top|bottom"
@@ -407,12 +429,14 @@
 
   <text
 	height="16"
-	left="310"
-	name="weights"
+	left_delta="5"
+	bottom_delta="30"
+	name="upload_fee"
 	width="300"
+	follows="bottom|right"
 	word_wrap="true" 
-	top_pad="7">
-	    Prim equivs: [EQ] Physics: [PH] Upload fee: [FEE] L$
+	>
+	    Upload fee: L$ [FEE]
   </text>
   
   <button bottom="540" left="10"  follows="bottom|left" height="20" label="Set to defaults"
