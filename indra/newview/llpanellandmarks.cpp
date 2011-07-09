@@ -46,6 +46,7 @@
 #include "llfolderviewitem.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
+#include "llinventoryfunctions.h"
 #include "lllandmarkactions.h"
 #include "llmenubutton.h"
 #include "llplacesinventorybridge.h"
@@ -529,7 +530,7 @@ void LLLandmarksPanel::setParcelID(const LLUUID& parcel_id)
 // virtual
 void LLLandmarksPanel::setErrorStatus(U32 status, const std::string& reason)
 {
-	llerrs<< "Can't handle remote parcel request."<< " Http Status: "<< status << ". Reason : "<< reason<<llendl;
+	llwarns << "Can't handle remote parcel request."<< " Http Status: "<< status << ". Reason : "<< reason<<llendl;
 }
 
 
@@ -645,7 +646,7 @@ void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLPlacesI
 	// Start background fetch, mostly for My Inventory and Library
 	if (expanded)
 	{
-		const LLUUID &cat_id = inventory_list->getStartFolderID();
+		const LLUUID &cat_id = inventory_list->getRootFolderID();
 		// Just because the category itself has been fetched, doesn't mean its child folders have.
 		/*
 		  if (!gInventory.isCategoryComplete(cat_id))
@@ -1414,7 +1415,7 @@ static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::strin
 
 static bool category_has_descendents(LLPlacesInventoryPanel* inventory_list)
 {
-	LLViewerInventoryCategory* category = gInventory.getCategory(inventory_list->getStartFolderID());
+	LLViewerInventoryCategory* category = gInventory.getCategory(inventory_list->getRootFolderID());
 	if (category)
 	{
 		return category->getDescendentCount() > 0;

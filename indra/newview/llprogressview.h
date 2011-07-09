@@ -28,6 +28,7 @@
 #define LL_LLPROGRESSVIEW_H
 
 #include "llpanel.h"
+#include "llmediactrl.h"
 #include "llframetimer.h"
 #include "llevents.h"
 
@@ -35,7 +36,10 @@ class LLImageRaw;
 class LLButton;
 class LLProgressBar;
 
-class LLProgressView : public LLPanel
+class LLProgressView : 
+	public LLPanel,
+	public LLViewerMediaObserver
+
 {
 public:
 	LLProgressView();
@@ -49,25 +53,35 @@ public:
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ void setVisible(BOOL visible);
 
+	// inherited from LLViewerMediaObserver
+	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+
 	void setText(const std::string& text);
 	void setPercent(const F32 percent);
 
 	// Set it to NULL when you want to eliminate the message.
 	void setMessage(const std::string& msg);
 	
+	// turns on (under certain circumstances) the into video after login
+	void revealIntroPanel();
+
 	void setCancelButtonVisible(BOOL b, const std::string& label);
 
 	static void onCancelButtonClicked( void* );
 	static void onClickMessage(void*);
 	bool onAlertModal(const LLSD& sd);
 
+	// note - this is not just hiding the intro panel - it also hides the parent panel
+	// and is used when the intro is finished and we want to show the world
+	void removeIntroPanel();
+
 protected:
 	LLProgressBar* mProgressBar;
+	LLMediaCtrl* mMediaCtrl;
 	F32 mPercentDone;
 	std::string mMessage;
 	LLButton*	mCancelBtn;
-	LLFrameTimer	mFadeTimer;
-	LLFrameTimer mProgressTimer;
+	LLFrameTimer mFadeToWorldTimer;
 	LLRect mOutlineRect;
 	bool mMouseDownInActiveArea;
 
