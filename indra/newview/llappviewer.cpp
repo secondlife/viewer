@@ -4519,7 +4519,7 @@ void LLAppViewer::idleShutdown()
 
 void LLAppViewer::sendLogoutRequest()
 {
-	if(!mLogoutRequestSent)
+	if(!mLogoutRequestSent && gMessageSystem)
 	{
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_LogoutRequest);
