@@ -1209,8 +1209,21 @@ void LLModel::generateNormals(F32 angle_cutoff)
 			LLVolumeFace::VertexData v;
 			new_face.mPositions[i] = vol_face.mPositions[idx];
 			new_face.mNormals[i].clear();
-			new_face.mTexCoords[i] = vol_face.mTexCoords[idx];
 			new_face.mIndices[i] = i;
+		}
+
+		if (vol_face.mTexCoords)
+		{
+			for (U32 i = 0; i < vol_face.mNumIndices; i++)
+			{
+				U32 idx = vol_face.mIndices[i];
+				new_face.mTexCoords[i] = vol_face.mTexCoords[idx];
+			}
+		}
+		else
+		{
+			ll_aligned_free_16(new_face.mTexCoords);
+			new_face.mTexCoords = NULL;
 		}
 
 		//generate normals for new face
