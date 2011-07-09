@@ -109,6 +109,7 @@
 #include "lltrans.h"
 #include "lleconomy.h"
 #include "lltoolgrab.h"
+#include "llwindow.h"
 #include "boost/unordered_map.hpp"
 
 using namespace LLVOAvatarDefines;

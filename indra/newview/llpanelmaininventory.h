@@ -57,7 +57,7 @@ class LLPanelMainInventory : public LLPanel, LLInventoryObserver
 public:
 	friend class LLFloaterInventoryFinder;
 
-	LLPanelMainInventory();
+	LLPanelMainInventory(const LLPanel::Params& p = getDefaultParams());
 	~LLPanelMainInventory();
 
 	BOOL postBuild();
@@ -113,6 +113,8 @@ protected:
 	void saveTexture(const LLSD& userdata);
 	bool isSaveTextureEnabled(const LLSD& userdata);
 	void updateItemcountText();
+
+	void onFocusReceived();
 
 private:
 	LLFloaterInventoryFinder* getFinder();

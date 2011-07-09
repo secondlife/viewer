@@ -38,6 +38,7 @@
 #include "llviewermedia.h"
 #include "llviewertexture.h"
 #include "llviewerwindow.h"
+#include "lldebugmessagebox.h"
 #include "llweb.h"
 #include "llrender.h"
 #include "llpluginclassmedia.h"
@@ -708,6 +709,8 @@ LLPluginClassMedia* LLMediaCtrl::getMediaPlugin()
 //
 void LLMediaCtrl::draw()
 {
+	F32 alpha = getDrawContext().mAlpha;
+
 	if ( gRestoreGL == 1 )
 	{
 		LLRect r = getRect();
@@ -746,21 +749,11 @@ void LLMediaCtrl::draw()
 		}
 	}
 	
-//	if(mHidingInitialLoad)
-//	{
-//		// If we're hiding loading, don't draw at all.
-//		draw_media = false;
-//	}
-	
 	bool background_visible = isBackgroundVisible();
 	bool background_opaque = isBackgroundOpaque();
 	
 	if(draw_media)
 	{
-		// alpha off for this
-		LLGLSUIDefault gls_ui;
-		LLGLDisable gls_alphaTest( GL_ALPHA_TEST );
-
 		gGL.pushUIMatrix();
 		{
 			if (mIgnoreUIScale)
@@ -775,7 +768,8 @@ void LLMediaCtrl::draw()
 
 			// scale texture to fit the space using texture coords
 			gGL.getTexUnit(0)->bind(media_texture);
-			gGL.color4fv( LLColor4::white.mV );
+			LLColor4 media_color = LLColor4::white % alpha;
+			gGL.color4fv( media_color.mV );
 			F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();
 			F32 max_v = ( F32 )media_plugin->getHeight() / ( F32 )media_plugin->getTextureHeight();
 
@@ -827,7 +821,6 @@ void LLMediaCtrl::draw()
 			}
 
 			// draw the browser
-			gGL.setSceneBlendType(LLRender::BT_REPLACE);
 			gGL.begin( LLRender::QUADS );
 			if (! media_plugin->getTextureCoordsOpenGL())
 			{
@@ -860,7 +853,6 @@ void LLMediaCtrl::draw()
 				gGL.vertex2i( x_offset + width, y_offset );
 			}
 			gGL.end();
-			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		}
 		gGL.popUIMatrix();
 	

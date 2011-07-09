@@ -181,7 +181,7 @@
     <binding key="PAD_DIVIDE" mask="CTL_ALT_SHIFT" command="start_gesture"/>
   </third_person>
 
-  # Basic editing camera control
+  <!-- Basic editing camera control -->
   <edit>
     <binding key="A" mask="NONE" command="spin_around_cw"/>
     <binding key="D" mask="NONE" command="spin_around_ccw"/>
