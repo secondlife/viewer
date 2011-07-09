@@ -1008,6 +1008,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 			LLMemType mt_v(LLMemType::MTYPE_VERTEX_MAP_BUFFER_VERTICES);
 			setBuffer(0, type);
 			mVertexLocked = TRUE;
+			sMappedCount++;
 			stop_glerror();	
 
 			if(sDisableVBOMapping)
@@ -1082,7 +1083,6 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 					llerrs << "memory allocation for vertex data failed." << llendl ;
 				}
 			}
-			sMappedCount++;
 		}
 	}
 	else
@@ -1152,6 +1152,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 
 			setBuffer(0, TYPE_INDEX);
 			mIndexLocked = TRUE;
+			sMappedCount++;
 			stop_glerror();	
 
 			if(sDisableVBOMapping)
@@ -1211,8 +1212,6 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 				llerrs << "memory allocation for Index data failed. " << llendl ;
 			}
 		}
-
-		sMappedCount++;
 	}
 	else
 	{
