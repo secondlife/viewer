@@ -664,13 +664,6 @@ public:
 	LLGrassPartition();
 };
 
-//spatial partition for clouds (implemented in LLVOClouds.cpp)
-class LLCloudPartition : public LLParticlePartition
-{
-public:
-	LLCloudPartition();
-};
-
 //class for wrangling geometry out of volumes (implemented in LLVOVolume.cpp)
 class LLVolumeGeometryManager: public LLGeometryManager
 {

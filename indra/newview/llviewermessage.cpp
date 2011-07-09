@@ -4271,8 +4271,8 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 	LLWorld::getInstance()->setSpaceTimeUSec(space_time_usec);
 
-	//LL_DEBUGS("Messaging") << "time_synch() - " << sun_direction << ", " << sun_ang_velocity
-	//		 << ", " << phase << LL_ENDL;
+	LL_DEBUGS("Windlight Sync") << "time_synch() - " << sun_direction << ", " << sun_ang_velocity
+		<< ", " << phase << LL_ENDL;
 
 	gSky.setSunPhase(phase);
 	gSky.setSunTargetDirection(sun_direction, sun_ang_velocity);
