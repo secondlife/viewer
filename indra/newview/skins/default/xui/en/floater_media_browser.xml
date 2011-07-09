@@ -5,7 +5,7 @@
  height="440"
  layout="topleft"
  min_height="140"
- min_width="467"
+ min_width="0"
  name="floater_about"
  help_topic="floater_about"
  save_rect="true"

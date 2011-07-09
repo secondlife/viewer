@@ -119,8 +119,7 @@ public:
 	void scrollEvent(int x, int y, MASK modifiers);
 
 	// Javascript <-> viewer events
-	void jsExposeObjectEvent( bool expose );
-	void jsValuesValidEvent( bool valid );
+	void jsEnableObject( bool enable );
 	void jsAgentLocationEvent( double x, double y, double z );
 	void jsAgentGlobalLocationEvent( double x, double y, double z );
 	void jsAgentOrientationEvent( double angle );

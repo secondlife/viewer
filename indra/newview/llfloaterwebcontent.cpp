@@ -99,7 +99,7 @@ void LLFloaterWebContent::initializeURLHistory()
 }
 
 //static
-void LLFloaterWebContent::create( const std::string &url, const std::string& target, const std::string& uuid )
+void LLFloaterWebContent::create( const std::string &url, const std::string& target, const std::string& uuid,  bool show_chrome, const LLRect& preferred_media_size)
 {
 	lldebugs << "url = " << url << ", target = " << target << ", uuid = " << uuid << llendl;
 
@@ -155,6 +155,20 @@ void LLFloaterWebContent::create( const std::string &url, const std::string& tar
 		// tell the browser instance to load the specified URL
 		browser->open_media(url, target);
 		LLViewerMedia::proxyWindowOpened(target, uuid);
+
+		browser->getChild<LLLayoutPanel>("status_bar")->setVisible(show_chrome);
+		browser->getChild<LLLayoutPanel>("nav_controls")->setVisible(show_chrome);
+
+		if (!show_chrome)
+		{
+			browser->setResizeLimits(100, 100);
+		}
+
+		if (!preferred_media_size.isEmpty())
+		{
+			//ignore x, y for now
+			browser->geometryChanged(browser->getRect().mLeft, browser->getRect().mBottom, preferred_media_size.getWidth(), preferred_media_size.getHeight());
+		}
 	}
 }
 
@@ -210,7 +224,7 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 
 	lldebugs << "geometry change: " << geom << llendl;
 
-	handleReshape(geom,false);
+	setShape(geom);
 }
 
 void LLFloaterWebContent::open_media(const std::string& web_url, const std::string& target)

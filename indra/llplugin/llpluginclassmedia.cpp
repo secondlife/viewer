@@ -436,27 +436,15 @@ std::string LLPluginClassMedia::translateModifiers(MASK modifiers)
 	return result;
 }
 
-void LLPluginClassMedia::jsExposeObjectEvent( bool expose )
+void LLPluginClassMedia::jsEnableObject( bool enable )
 {
 	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
 	{
 		return;
 	}
 
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_expose_object");
-	message.setValueBoolean( "expose", expose );
-	sendMessage( message );
-}
-
-void LLPluginClassMedia::jsValuesValidEvent( bool valid )
-{
-	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
-	{
-		return;
-	}
-
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_values_valid");
-	message.setValueBoolean( "valid", valid );
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_enable_object");
+	message.setValueBoolean( "enable", enable );
 	sendMessage( message );
 }
 

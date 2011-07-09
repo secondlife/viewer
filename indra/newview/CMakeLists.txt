@@ -120,7 +120,6 @@ set(viewer_SOURCE_FILES
     llchiclet.cpp
     llclassifiedinfo.cpp
     llclassifiedstatsresponder.cpp
-    llcloud.cpp
     llcofwearables.cpp
     llcolorswatch.cpp
     llcommanddispatcherlistener.cpp
@@ -131,6 +130,7 @@ set(viewer_SOURCE_FILES
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldateutil.cpp
+    lldaycyclemanager.cpp
     lldebugmessagebox.cpp
     lldebugview.cpp
     lldelayedgestureerror.cpp
@@ -150,6 +150,7 @@ set(viewer_SOURCE_FILES
     lldrawpoolwlsky.cpp
     lldriverparam.cpp
     lldynamictexture.cpp
+    llenvmanager.cpp
     llemote.cpp
     lleventnotifier.cpp
     lleventpoll.cpp
@@ -179,9 +180,12 @@ set(viewer_SOURCE_FILES
     llfloaterbuyland.cpp
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
-    llfloaterdaycycle.cpp
+    llfloaterdeleteenvpreset.cpp
     llfloaterdisplayname.cpp
-    llfloaterenvsettings.cpp
+    llfloatereditdaycycle.cpp
+    llfloatereditsky.cpp
+    llfloatereditwater.cpp
+    llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
@@ -235,10 +239,8 @@ set(viewer_SOURCE_FILES
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
-    llfloaterwater.cpp
     llfloaterwebcontent.cpp
     llfloaterwhitelistentry.cpp
-    llfloaterwindlight.cpp
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
     llfolderview.cpp
@@ -362,6 +364,9 @@ set(viewer_SOURCE_FILES
     llpanellogin.cpp
     llpanelloginlistener.cpp
     llpanelmaininventory.cpp
+    llpanelmarketplaceinbox.cpp
+    llpanelmarketplaceinboxinventory.cpp
+    llpanelmarketplaceoutbox.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
@@ -412,6 +417,7 @@ set(viewer_SOURCE_FILES
     llproductinforequest.cpp
     llprogressview.cpp
     llrecentpeople.cpp
+    llregioninfomodel.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
@@ -521,7 +527,7 @@ set(viewer_SOURCE_FILES
     llviewerfloaterreg.cpp
     llviewerfoldertype.cpp
     llviewergenericmessage.cpp
-    llviewergesture.cpp    
+    llviewergesture.cpp
     llviewerhelp.cpp
     llviewerhelputil.cpp
     llviewerhome.cpp
@@ -568,7 +574,6 @@ set(viewer_SOURCE_FILES
     llvoavatardefines.cpp
     llvoavatarself.cpp
     llvocache.cpp
-    llvoclouds.cpp
     llvograss.cpp
     llvoground.cpp
     llvoicecallhandler.cpp
@@ -597,6 +602,7 @@ set(viewer_SOURCE_FILES
     llwind.cpp
     llwlanimator.cpp
     llwldaycycle.cpp
+    llwlhandlers.cpp
     llwlparammanager.cpp
     llwlparamset.cpp
     llworld.cpp
@@ -675,7 +681,6 @@ set(viewer_HEADER_FILES
     llchiclet.h
     llclassifiedinfo.h
     llclassifiedstatsresponder.h
-    llcloud.h
     llcofwearables.h
     llcolorswatch.h
     llcommanddispatcherlistener.h
@@ -686,6 +691,7 @@ set(viewer_HEADER_FILES
     llcurrencyuimanager.h
     llcylinder.h
     lldateutil.h
+    lldaycyclemanager.h
     lldebugmessagebox.h
     lldebugview.h
     lldelayedgestureerror.h
@@ -696,7 +702,6 @@ set(viewer_HEADER_FILES
     lldrawpoolalpha.h
     lldrawpoolavatar.h
     lldrawpoolbump.h
-    lldrawpoolclouds.h
     lldrawpoolground.h
     lldrawpoolsimple.h
     lldrawpoolsky.h
@@ -707,6 +712,7 @@ set(viewer_HEADER_FILES
     lldriverparam.h
     lldynamictexture.h
     llemote.h
+    llenvmanager.h
     lleventnotifier.h
     lleventpoll.h
     llexpandabletextbox.h
@@ -735,9 +741,12 @@ set(viewer_HEADER_FILES
     llfloaterbuyland.h
     llfloatercamera.h
     llfloatercolorpicker.h
-    llfloaterdaycycle.h
+    llfloaterdeleteenvpreset.h
     llfloaterdisplayname.h
-    llfloaterenvsettings.h
+    llfloatereditdaycycle.h
+    llfloatereditsky.h
+    llfloatereditwater.h
+    llfloaterenvironmentsettings.h
     llfloaterevent.h
     llfloaterfonttest.h
     llfloatergesture.h
@@ -791,10 +800,8 @@ set(viewer_HEADER_FILES
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h
-    llfloaterwater.h
     llfloaterwebcontent.h
     llfloaterwhitelistentry.h
-    llfloaterwindlight.h
     llfloaterwindowsize.h
     llfloaterworldmap.h
     llfolderview.h
@@ -912,6 +919,9 @@ set(viewer_HEADER_FILES
     llpanellogin.h
     llpanelloginlistener.h
     llpanelmaininventory.h
+    llpanelmarketplaceinbox.h
+    llpanelmarketplaceinboxinventory.h
+    llpanelmarketplaceoutbox.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
@@ -962,6 +972,7 @@ set(viewer_HEADER_FILES
     llproductinforequest.h
     llprogressview.h
     llrecentpeople.h
+    llregioninfomodel.h
     llregionposition.h
     llremoteparcelrequest.h
     llresourcedata.h
@@ -1001,7 +1012,7 @@ set(viewer_HEADER_FILES
     llsurface.h
     llsurfacepatch.h
     llsyswellitem.h
-    llsyswellwindow.h    
+    llsyswellwindow.h
     lltable.h
     llteleporthistory.h
     llteleporthistorystorage.h
@@ -1074,7 +1085,7 @@ set(viewer_HEADER_FILES
     llviewerfloaterreg.h
     llviewerfoldertype.h
     llviewergenericmessage.h
-    llviewergesture.h    
+    llviewergesture.h
     llviewerhelp.h
     llviewerhome.h
     llviewerinventory.h
@@ -1118,7 +1129,6 @@ set(viewer_HEADER_FILES
     llvoavatardefines.h
     llvoavatarself.h
     llvocache.h
-    llvoclouds.h
     llvograss.h
     llvoground.h
     llvoicechannel.h
@@ -1147,6 +1157,7 @@ set(viewer_HEADER_FILES
     llwind.h
     llwlanimator.h
     llwldaycycle.h
+    llwlhandlers.h
     llwlparammanager.h
     llwlparamset.h
     llworld.h
@@ -1229,7 +1240,7 @@ if (WINDOWS)
     # precompiled header configuration
     # llviewerprecompiledheaders.cpp generates
     # the .pch file.
-    # All sources added to viewer_SOURCE_FILES 
+    # All sources added to viewer_SOURCE_FILES
     # at this point use it.
     if(USE_PRECOMPILED_HEADERS)
         set_source_files_properties(llviewerprecompiledheaders.cpp
@@ -1238,7 +1249,7 @@ if (WINDOWS)
             )
         set(viewer_SOURCE_FILES "${viewer_SOURCE_FILES}" llviewerprecompiledheaders.cpp)
     endif(USE_PRECOMPILED_HEADERS)
-    
+
     # Add resource files to the project.
     # viewerRes.rc is the only buildable file, but
     # the rest are all dependencies of it.
@@ -1283,8 +1294,8 @@ if (WINDOWS)
     set_source_files_properties(${viewer_RESOURCE_FILES}
                                 PROPERTIES HEADER_FILE_ONLY TRUE)
 
-    set(viewer_RESOURCE_FILES 
-        res/viewerRes.rc 
+    set(viewer_RESOURCE_FILES
+        res/viewerRes.rc
         ${viewer_RESOURCE_FILES}
         )
 
@@ -1292,7 +1303,7 @@ if (WINDOWS)
 
     if (NOT STANDALONE)
         list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
-    endif (NOT STANDALONE)      
+    endif (NOT STANDALONE)
 
     find_library(DINPUT_LIBRARY dinput8 ${DIRECTX_LIBRARY_DIR})
     find_library(DXGUID_LIBRARY dxguid ${DIRECTX_LIBRARY_DIR})
@@ -1469,7 +1480,7 @@ set(PACKAGE ON CACHE BOOL
     "Add a package target that builds an installer package.")
 
 if (WINDOWS)
-	set_target_properties(${VIEWER_BINARY_NAME}
+    set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
         #LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:\"__tcmalloc\""
@@ -1501,7 +1512,7 @@ if (WINDOWS)
         ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
         )
      endif(USE_GOOGLE_PERFTOOLS)
- 
+
 
     set(COPY_INPUT_DEPENDENCIES
       # The following commented dependencies are determined at variably at build time. Can't do this here.
@@ -1599,24 +1610,24 @@ if (WINDOWS)
         --grid=${GRID}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
-      DEPENDS 
+      DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         stage_third_party_libs
         ${COPY_INPUT_DEPENDENCIES}
       COMMENT "Performing viewer_manifest copy"
       )
-    
-    add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat) 
+
+    add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat)
 
     add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest)
-    
+
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
-        
-    add_dependencies(${VIEWER_BINARY_NAME} 
-      SLPlugin 
-      windows-updater 
+
+    add_dependencies(${VIEWER_BINARY_NAME}
+      SLPlugin
+      windows-updater
       windows-crash-logger
       )
 
@@ -1626,7 +1637,7 @@ if (WINDOWS)
             TARGET ${VIEWER_BINARY_NAME} POST_BUILD
             COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
             ARGS
-              --solution 
+              --solution
               ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
               --workingdir
               ${VIEWER_BINARY_NAME}
@@ -1644,12 +1655,12 @@ if (WINDOWS)
           ${CMAKE_CURRENT_SOURCE_DIR}/..
           ${CMAKE_CURRENT_BINARY_DIR}
           ${CMAKE_CFG_INTDIR}
-        DEPENDS 
-          lleventhost 
+        DEPENDS
+          lleventhost
           ${EVENT_HOST_SCRIPTS}
           ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
         )
-    
+
       add_custom_command(
         OUTPUT ${CMAKE_CFG_INTDIR}/touched.bat
         COMMAND ${PYTHON_EXECUTABLE}
@@ -1665,15 +1676,15 @@ if (WINDOWS)
           --login_channel=${VIEWER_LOGIN_CHANNEL}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
           --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
-        DEPENDS 
-            ${VIEWER_BINARY_NAME} 
+        DEPENDS
+            ${VIEWER_BINARY_NAME}
             ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
             ${COPY_INPUT_DEPENDENCIES}
         )
 
-      add_custom_target(package ALL DEPENDS 
+      add_custom_target(package ALL DEPENDS
         ${CMAKE_CFG_INTDIR}/touched.bat
-        windows-setup-build-all 
+        windows-setup-build-all
         )
         # temporarily disable packaging of event_host until hg subrepos get
         # sorted out on the parabuild cluster...
@@ -1741,7 +1752,7 @@ else (USE_KDU)
         ${LLIMAGEJ2COJ_LIBRARIES}
         )
 endif (USE_KDU)
-    
+
 build_version(viewer)
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
@@ -1800,13 +1811,13 @@ if (LINUX)
       --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
       --grid=${GRID}
       --source=${CMAKE_CURRENT_SOURCE_DIR}
-    DEPENDS 
+    DEPENDS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       ${COPY_INPUT_DEPENDENCIES}
     COMMENT "Performing viewer_manifest copy"
     )
-    
-  add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched) 
+
+  add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched)
 
   if (PACKAGE)
     add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
@@ -1851,7 +1862,7 @@ if (DARWIN)
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit mac-updater mac-crash-logger)
 
   if (PACKAGE)
-      add_custom_target(package ALL DEPENDS ${VIEWER_BINARY_NAME}) 
+      add_custom_target(package ALL DEPENDS ${VIEWER_BINARY_NAME})
 
       add_custom_command(
         TARGET package POST_BUILD
@@ -1946,7 +1957,7 @@ if (LL_TESTS)
   )
 
   ##################################################
-  # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS 
+  # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS
   ##################################################
   # if(USE_PRECOMPILED_HEADERS)
   #     set_source_files_properties(
@@ -1960,33 +1971,33 @@ if (LL_TESTS)
   #set(TEST_DEBUG on)
   set(test_sources llcapabilitylistener.cpp)
   ##################################################
-  # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS 
+  # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS
   ##################################################
   # if(USE_PRECOMPILED_HEADERS)
   #     set(test_sources "${test_sources}" llviewerprecompiledheaders.cpp)
   # endif(USE_PRECOMPILED_HEADERS)
-  set(test_libs 
-    ${LLMESSAGE_LIBRARIES} 
-    ${WINDOWS_LIBRARIES} 
+  set(test_libs
+    ${LLMESSAGE_LIBRARIES}
+    ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
-    ${LLCOMMON_LIBRARIES} 
+    ${LLCOMMON_LIBRARIES}
     ${GOOGLEMOCK_LIBRARIES}
     )
 
-  LL_ADD_INTEGRATION_TEST(llcapabilitylistener 
-    "${test_sources}" 
+  LL_ADD_INTEGRATION_TEST(llcapabilitylistener
+    "${test_sources}"
     "${test_libs}"
     ${PYTHON_EXECUTABLE}
     "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
     )
 
-  set(test_libs 
-    ${LLMESSAGE_LIBRARIES} 
-    ${WINDOWS_LIBRARIES} 
+  set(test_libs
+    ${LLMESSAGE_LIBRARIES}
+    ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
-    ${LLCOMMON_LIBRARIES} 
+    ${LLCOMMON_LIBRARIES}
     ${GOOGLEMOCK_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
@@ -2033,6 +2044,22 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
   #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
+
+include(LLAddBuildTest)
+SET(viewer_TEST_SOURCE_FILES
+  llagentaccess.cpp
+  llwlparammanager.cpp
+  # Not *actually* a unit test, it's an integration test.
+  # Because it won't work in the new unit test iface, i've commented out
+  # and notified Nat. Delete this when it's replaced!
+  # + poppy & brad 2009-06-05
+  # llcapabilitylistener.cpp
+  )
+set_source_files_properties(
+  ${viewer_TEST_SOURCE_FILES}
+  PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
+  )
 
 endif (LL_TESTS)
 

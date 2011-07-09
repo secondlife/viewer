@@ -87,7 +87,8 @@ LLPanel::Params::Params()
 	filename("filename"),
 	class_name("class"),
 	help_topic("help_topic"),
-	visible_callback("visible_callback")
+	visible_callback("visible_callback"),
+	accepts_badge("accepts_badge")
 {
 	name = "panel";
 	addSynonym(background_visible, "bg_visible");
@@ -113,7 +114,8 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mCommitCallbackRegistrar(false),
 	mEnableCallbackRegistrar(false),
 	mXMLFilename(p.filename),
-	mVisibleSignal(NULL)
+	mVisibleSignal(NULL),
+	mAcceptsBadge(p.accepts_badge)
 	// *NOTE: Be sure to also change LLPanel::initFromParams().  We have too
 	// many classes derived from LLPanel to retrofit them all to pass in params.
 {
@@ -485,6 +487,8 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	mBgAlphaImage = p.bg_alpha_image();
 	mBgOpaqueImageOverlay = p.bg_opaque_image_overlay;
 	mBgAlphaImageOverlay = p.bg_alpha_image_overlay;
+
+	mAcceptsBadge = p.accepts_badge;
 }
 
 static LLFastTimer::DeclareTimer FTM_PANEL_SETUP("Panel Setup");

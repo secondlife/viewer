@@ -77,7 +77,8 @@ public:
 											push_icon,
 											build_icon,
 											scripts_icon,
-											damage_icon;
+											damage_icon,
+											see_avatars_icon;
 		Optional<LLTextBox::Params>			damage_text;
 		Params();
 	};
@@ -109,12 +110,13 @@ private:
 	enum EParcelIcon
 	{
 		VOICE_ICON = 0,
-		FLY_ICON,
-		PUSH_ICON,
-		BUILD_ICON,
-		SCRIPTS_ICON,
-		DAMAGE_ICON,
-		ICON_COUNT
+		FLY_ICON,			// 1
+		PUSH_ICON,			// 2
+		BUILD_ICON,			// 3
+		SCRIPTS_ICON,		// 4
+		DAMAGE_ICON,		// 5
+		SEE_AVATARS_ICON,   // 6
+		ICON_COUNT			// 7 total
 	};
 
 	friend class LLUICtrlFactory;
