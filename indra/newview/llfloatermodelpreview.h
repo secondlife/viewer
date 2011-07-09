@@ -184,8 +184,6 @@ public:
 	
 	static void refresh(LLUICtrl* ctrl, void* data);
 	
-	void updateResourceCost();
-	
 	void			loadModel(S32 lod);
 	void 			loadModel(S32 lod, const std::string& file_name, bool force_disable_slm = false);
 	
