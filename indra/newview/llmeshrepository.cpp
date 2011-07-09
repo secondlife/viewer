@@ -1532,6 +1532,8 @@ void LLMeshUploadThread::doWholeModelUpload()
 		do
 		{
 			mCurlRequest->process();
+			//sleep for 10ms to prevent eating a whole core
+			apr_sleep(10000);
 		} while (mCurlRequest->getQueued() > 0);
 	}
 
@@ -1562,6 +1564,8 @@ void LLMeshUploadThread::requestWholeModelFee()
 	do
 	{
 		mCurlRequest->process();
+		//sleep for 10ms to prevent eating a whole core
+		apr_sleep(10000);
 	} while (mCurlRequest->getQueued() > 0);
 
 	delete mCurlRequest;
@@ -2018,10 +2022,9 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 
 				if (remaining < 0 || remaining > 4096)
 				{
-					llerrs << "Bad padding of mesh asset cache entry." << llendl;
+					llwarns << "Bad padding of mesh asset cache entry." << llendl;
 				}
-
-				if (remaining > 0)
+				else if (remaining > 0)
 				{
 					file.write(block, remaining);
 				}
