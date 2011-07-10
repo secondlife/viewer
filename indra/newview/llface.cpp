@@ -1064,7 +1064,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	S32 num_vertices = (S32)vf.mNumVertices;
 	S32 num_indices = (S32) vf.mNumIndices;
 	
-	bool map_range = gGLManager.mHasMapBufferRange;
+	bool map_range = gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange;
 
 	if (mVertexBuffer.notNull())
 	{

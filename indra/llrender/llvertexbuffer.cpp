@@ -968,7 +968,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 	if (useVBOs())
 	{
 
-		if (sDisableVBOMapping || gGLManager.mHasMapBufferRange)
+		if (sDisableVBOMapping || gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange)
 		{
 			if (count == -1)
 			{
@@ -1019,28 +1019,43 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 			else
 			{
 				U8* src = NULL;
-#ifdef GL_ARB_map_buffer_range
 				if (gGLManager.mHasMapBufferRange)
 				{
 					if (map_range)
 					{
+#ifdef GL_ARB_map_buffer_range
 						S32 offset = mOffsets[type] + sTypeSize[type]*index;
 						S32 length = (sTypeSize[type]*count+0xF) & ~0xF;
 						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, offset, length, GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT | GL_MAP_INVALIDATE_RANGE_BIT);
+#endif
 					}
 					else
 					{
+#ifdef GL_ARB_map_buffer_range
 						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, 0, mSize, GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+#endif
+					}
+				}
+				else if (gGLManager.mHasFlushBufferRange)
+				{
+					if (map_range)
+					{
+						glBufferParameteriAPPLE(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SERIALIZED_MODIFY_APPLE, GL_FALSE);
+						glBufferParameteriAPPLE(GL_ARRAY_BUFFER_ARB, GL_BUFFER_FLUSHING_UNMAP_APPLE, GL_FALSE);
+						src = (U8*) glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+					}
+					else
+					{
+						src = (U8*) glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 					}
 				}
 				else
-#else
-				llassert_always(!gGLManager.mHasMapBufferRange);
-#endif
 				{
 					map_range = false;
 					src = (U8*) glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 				}
+
+				llassert(src != NULL);
 
 				mMappedData = LL_NEXT_ALIGNED_ADDRESS<U8>(src);
 				mAlignedOffset = mMappedData - src;
@@ -1090,7 +1105,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 		map_range = false;
 	}
 	
-	if (map_range && !sDisableVBOMapping)
+	if (map_range && gGLManager.mHasMapBufferRange && !sDisableVBOMapping)
 	{
 		return mMappedData;
 	}
@@ -1114,7 +1129,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 
 	if (useVBOs())
 	{
-		if (sDisableVBOMapping || gGLManager.mHasMapBufferRange)
+		if (sDisableVBOMapping || gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange)
 		{
 			if (count == -1)
 			{
@@ -1163,28 +1178,44 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 			else
 			{
 				U8* src = NULL;
-#ifdef GL_ARB_map_buffer_range
 				if (gGLManager.mHasMapBufferRange)
 				{
 					if (map_range)
 					{
+#ifdef GL_ARB_map_buffer_range
 						S32 offset = sizeof(U16)*index;
 						S32 length = sizeof(U16)*count;
 						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length, GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT | GL_MAP_INVALIDATE_RANGE_BIT);
+#endif
 					}
 					else
 					{
+#ifdef GL_ARB_map_buffer_range
 						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, sizeof(U16)*mNumIndices, GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+#endif
+					}
+				}
+				else if (gGLManager.mHasFlushBufferRange)
+				{
+					if (map_range)
+					{
+						glBufferParameteriAPPLE(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_BUFFER_SERIALIZED_MODIFY_APPLE, GL_FALSE);
+						glBufferParameteriAPPLE(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_BUFFER_FLUSHING_UNMAP_APPLE, GL_FALSE);
+						src = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+					}
+					else
+					{
+						src = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 					}
 				}
 				else
-#else
-				llassert_always(!gGLManager.mHasMapBufferRange);
-#endif
 				{
 					map_range = false;
 					src = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 				}
+
+				llassert(src != NULL);
+
 
 				mMappedIndexData = src; //LL_NEXT_ALIGNED_ADDRESS<U8>(src);
 				mAlignedIndexOffset = mMappedIndexData - src;
@@ -1218,7 +1249,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 		map_range = false;
 	}
 
-	if (map_range && !sDisableVBOMapping)
+	if (map_range && gGLManager.mHasMapBufferRange && !sDisableVBOMapping)
 	{
 		return mMappedIndexData;
 	}
@@ -1267,8 +1298,7 @@ void LLVertexBuffer::unmapBuffer(S32 type)
 		}
 		else
 		{
-#ifdef GL_ARB_map_buffer_range
-			if (gGLManager.mHasMapBufferRange)
+			if (gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange)
 			{
 				if (!mMappedVertexRegions.empty())
 				{
@@ -1278,16 +1308,22 @@ void LLVertexBuffer::unmapBuffer(S32 type)
 						const MappedRegion& region = mMappedVertexRegions[i];
 						S32 offset = region.mIndex >= 0 ? mOffsets[region.mType]+sTypeSize[region.mType]*region.mIndex : 0;
 						S32 length = sTypeSize[region.mType]*region.mCount;
-						glFlushMappedBufferRange(GL_ARRAY_BUFFER_ARB, offset, length);
+						if (gGLManager.mHasMapBufferRange)
+						{
+#ifdef GL_ARB_map_buffer_range
+							glFlushMappedBufferRange(GL_ARRAY_BUFFER_ARB, offset, length);
+#endif
+						}
+						else if (gGLManager.mHasFlushBufferRange)
+						{
+							glFlushMappedBufferRangeAPPLE(GL_ARRAY_BUFFER_ARB, offset, length);
+						}
 						stop_glerror();
 					}
 
 					mMappedVertexRegions.clear();
 				}
 			}
-#else
-			llassert_always(!gGLManager.mHasMapBufferRange);
-#endif
 			stop_glerror();
 			glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
 			stop_glerror();
@@ -1325,8 +1361,7 @@ void LLVertexBuffer::unmapBuffer(S32 type)
 		}
 		else
 		{
-#ifdef GL_ARB_map_buffer_range
-			if (gGLManager.mHasMapBufferRange)
+			if (gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange)
 			{
 				if (!mMappedIndexRegions.empty())
 				{
@@ -1335,16 +1370,22 @@ void LLVertexBuffer::unmapBuffer(S32 type)
 						const MappedRegion& region = mMappedIndexRegions[i];
 						S32 offset = region.mIndex >= 0 ? sizeof(U16)*region.mIndex : 0;
 						S32 length = sizeof(U16)*region.mCount;
-						glFlushMappedBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length);
+						if (gGLManager.mHasMapBufferRange)
+						{
+#ifdef GL_ARB_map_buffer_range
+							glFlushMappedBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length);
+#endif
+						}
+						else if (gGLManager.mHasFlushBufferRange)
+						{
+							glFlushMappedBufferRangeAPPLE(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length);
+						}
 						stop_glerror();
 					}
 
 					mMappedIndexRegions.clear();
 				}
 			}
-#else
-			llassert_always(!gGLManager.mHasMapBufferRange);
-#endif
 			stop_glerror();
 			glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
 			stop_glerror();
