@@ -65,6 +65,50 @@ S32	LLVertexBuffer::sWeight4Loc = -1;
 std::vector<U32> LLVertexBuffer::sDeleteList;
 
 
+const U32 FENCE_WAIT_TIME_NANOSECONDS = 10000;  //1 ms
+
+class LLGLSyncFence : public LLGLFence
+{
+public:
+	GLsync mSync;
+	
+	LLGLSyncFence()
+	{
+		mSync = 0;
+	}
+
+	~LLGLSyncFence()
+	{
+		if (mSync)
+		{
+			glDeleteSync(mSync);
+		}
+	}
+
+	void placeFence()
+	{
+		if (mSync)
+		{
+			glDeleteSync(mSync);
+		}
+		mSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	}
+
+	void wait()
+	{
+		if (mSync)
+		{
+			while (glClientWaitSync(mSync, 0, FENCE_WAIT_TIME_NANOSECONDS) == GL_TIMEOUT_EXPIRED)
+			{ //track the number of times we've waited here
+				static S32 waits = 0;
+				waits++;
+			}
+		}
+	}
+
+
+};
+
 S32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 {
 	sizeof(LLVector4), // TYPE_VERTEX,
@@ -309,6 +353,7 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
 		idx);
 	stop_glerror();
+	placeFence();
 }
 
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
@@ -340,6 +385,7 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 	glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
 		((U16*) getIndicesPointer()) + indices_offset);
 	stop_glerror();
+	placeFence();
 }
 
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
@@ -365,6 +411,7 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 	stop_glerror();
 	glDrawArrays(sGLMode[mode], first, count);
 	stop_glerror();
+	placeFence();
 }
 
 //static
@@ -444,9 +491,11 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	mFilthy(FALSE),
 	mEmpty(TRUE),
 	mResized(FALSE),
-	mDynamicSize(FALSE)
+	mDynamicSize(FALSE),
+	mFence(NULL)
 {
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_CONSTRUCTOR);
+	mFence = NULL;
 	if (!sEnableVBOs)
 	{
 		mUsage = 0 ; 
@@ -527,8 +576,39 @@ LLVertexBuffer::~LLVertexBuffer()
 	destroyGLIndices();
 	sCount--;
 
+	if (mFence)
+	{
+		delete mFence;
+	}
+	
+	mFence = NULL;
+
 	llassert_always(!mMappedData && !mMappedIndexData) ;
 };
+
+void LLVertexBuffer::placeFence() const
+{
+	/*if (!mFence && useVBOs())
+	{
+		if (gGLManager.mHasSync)
+		{
+			mFence = new LLGLSyncFence();
+		}
+	}
+
+	if (mFence)
+	{
+		mFence->placeFence();
+	}*/
+}
+
+void LLVertexBuffer::waitFence() const
+{
+	/*if (mFence)
+	{
+		mFence->wait();
+	}*/
+}
 
 //----------------------------------------------------------------------------
 
@@ -967,7 +1047,6 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 		
 	if (useVBOs())
 	{
-
 		if (sDisableVBOMapping || gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange)
 		{
 			if (count == -1)
@@ -1019,6 +1098,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 			else
 			{
 				U8* src = NULL;
+				waitFence();
 				if (gGLManager.mHasMapBufferRange)
 				{
 					if (map_range)
@@ -1026,13 +1106,20 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 #ifdef GL_ARB_map_buffer_range
 						S32 offset = mOffsets[type] + sTypeSize[type]*index;
 						S32 length = (sTypeSize[type]*count+0xF) & ~0xF;
-						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, offset, length, GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT | GL_MAP_INVALIDATE_RANGE_BIT);
+						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, offset, length, 
+							GL_MAP_WRITE_BIT | 
+							GL_MAP_FLUSH_EXPLICIT_BIT | 
+							GL_MAP_INVALIDATE_RANGE_BIT | 
+							GL_MAP_UNSYNCHRONIZED_BIT);
 #endif
 					}
 					else
 					{
 #ifdef GL_ARB_map_buffer_range
-						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, 0, mSize, GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, 0, mSize, 
+							GL_MAP_WRITE_BIT | 
+							GL_MAP_FLUSH_EXPLICIT_BIT |
+							GL_MAP_UNSYNCHRONIZED_BIT);
 #endif
 					}
 				}
@@ -1178,6 +1265,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 			else
 			{
 				U8* src = NULL;
+				waitFence();
 				if (gGLManager.mHasMapBufferRange)
 				{
 					if (map_range)
@@ -1185,13 +1273,20 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 #ifdef GL_ARB_map_buffer_range
 						S32 offset = sizeof(U16)*index;
 						S32 length = sizeof(U16)*count;
-						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length, GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT | GL_MAP_INVALIDATE_RANGE_BIT);
+						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length, 
+							GL_MAP_WRITE_BIT | 
+							GL_MAP_FLUSH_EXPLICIT_BIT | 
+							GL_MAP_INVALIDATE_RANGE_BIT |
+							GL_MAP_UNSYNCHRONIZED_BIT);
 #endif
 					}
 					else
 					{
 #ifdef GL_ARB_map_buffer_range
-						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, sizeof(U16)*mNumIndices, GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, sizeof(U16)*mNumIndices, 
+							GL_MAP_WRITE_BIT | 
+							GL_MAP_FLUSH_EXPLICIT_BIT |
+							GL_MAP_UNSYNCHRONIZED_BIT);
 #endif
 					}
 				}
@@ -1378,7 +1473,9 @@ void LLVertexBuffer::unmapBuffer(S32 type)
 						}
 						else if (gGLManager.mHasFlushBufferRange)
 						{
+#ifdef GL_APPLE_flush_buffer_range
 							glFlushMappedBufferRangeAPPLE(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length);
+#endif
 						}
 						stop_glerror();
 					}
