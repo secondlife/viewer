@@ -5490,6 +5490,11 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 		childSetTextArg("weights", "[SIM]", tbd);
 		childSetTextArg("weights", "[PH]", tbd);
 		childSetTextArg("upload_fee", "[FEE]", tbd);
+		childSetTextArg("price_breakdown", "[STREAMING]", tbd);
+		childSetTextArg("price_breakdown", "[PHYSICS]", tbd);
+		childSetTextArg("price_breakdown", "[INSTANCES]", tbd);
+		childSetTextArg("price_breakdown", "[TEXTURES]", tbd);
+		childSetTextArg("price_breakdown", "[MODEL]", tbd);
 	}
 }
 
@@ -5501,8 +5506,14 @@ void LLFloaterModelPreview::onModelPhysicsFeeReceived(const LLSD& result, std::s
 	childSetTextArg("weights", "[SIM]", llformat("%0.3f", result["simulation_cost"].asReal()));
 	childSetTextArg("weights", "[PH]", llformat("%0.3f", result["physics_cost"].asReal()));
 	childSetTextArg("upload_fee", "[FEE]", llformat("%d", result["upload_price"].asInteger()));
+	childSetTextArg("price_breakdown", "[STREAMING]", llformat("%d", result["upload_price_breakdown"]["mesh_streaming"].asInteger()));
+	childSetTextArg("price_breakdown", "[PHYSICS]", llformat("%d", result["upload_price_breakdown"]["mesh_physics"].asInteger()));
+	childSetTextArg("price_breakdown", "[INSTANCES]", llformat("%d", result["upload_price_breakdown"]["mesh_instance"].asInteger()));
+	childSetTextArg("price_breakdown", "[TEXTURES]", llformat("%d", result["upload_price_breakdown"]["texture"].asInteger()));
+	childSetTextArg("price_breakdown", "[MODEL]", llformat("%d", result["upload_price_breakdown"]["model"].asInteger()));
 	childSetVisible("weights", true);
 	childSetVisible("upload_fee", true);
+	childSetVisible("price_breakdown", true);
 	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
 }
 

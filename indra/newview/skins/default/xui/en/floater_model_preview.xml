@@ -84,7 +84,7 @@
     </text>
     <text
      text_color="White"
-     height="50"
+     height="40"
 	 width="290"
 	 top_delta="15"
      left_delta="0"
@@ -92,31 +92,67 @@
      parse_urls="true"
      wrap="true"
      visible="false">
-     You will not be able to complete the final upload of this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to get enabled for mesh model uploads.
-    </text>
+     You will not be able to complete the final upload of this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to get enabled for mesh model uploads.</text>
 
   <text
-	height="50"
-	top_delta="55"
+	height="65"
+	top_delta="45"
 	left_delta="0"
-	name="weights"
-	width="290"
+	name="weights_text"
+	width="80"
 	word_wrap="true" 
 	>
-	<text
-		follows="top|left"
-	>Test0: [EQ]
-	</text>
-	<text
-	>Test: [ST]
-	</text>
-Streaming: [ST]
-Simulation: [SIM]
-Physics: [PH]
-Prim equivs: [EQ]
+Streaming:
+Physics:
+Simulation:
+
+Prim equivs:
+  </text>
+
+  <text
+	height="65"
+	top_delta="0"
+	left_delta="80"
+	name="weights"
+	width="70"
+	word_wrap="true" 
+	>
+[ST]
+[PH]
+[SIM]
+
+[EQ]
   </text>
   
+  <text
+	height="65"
+	top_delta="0"
+	left_delta="70"
+	name="price_breakdown_text"
+	width="80"
+	word_wrap="true" 
+	>
+Streaming:
+Physics:
+Instances:
+Textures:
+Model:
+  </text>
 
+  <text
+	height="65"
+	top_delta="0"
+	left_delta="80"
+	name="price_breakdown"
+	width="65"
+	word_wrap="true" 
+	>
+L$ [STREAMING]
+L$ [PHYSICS]
+L$ [INSTANCES]
+L$ [TEXTURES]
+L$ [MODEL]
+  </text>
 
   <tab_container
     follows="right|top|bottom"
