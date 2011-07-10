@@ -231,8 +231,7 @@ public:
 	mesh_header_map mMeshHeader;
 	
 	std::map<LLUUID, U32> mMeshHeaderSize;
-	std::map<LLUUID, U32> mMeshResourceCost;
-
+	
 	class HeaderRequest
 	{ 
 	public:
@@ -335,8 +334,7 @@ public:
 
 	void notifyLoadedMeshes();
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
-	U32 getResourceCost(const LLUUID& mesh_params);
-
+	
 	void loadMeshSkinInfo(const LLUUID& mesh_id);
 	void loadMeshDecomposition(const LLUUID& mesh_id);
 	void loadMeshPhysicsShape(const LLUUID& mesh_id);
@@ -466,8 +464,6 @@ public:
 
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 	static S32 getActualMeshLOD(LLSD& header, S32 lod);
-	U32 calcResourceCost(LLSD& header);
-	U32 getResourceCost(const LLUUID& mesh_params);
 	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id, LLVOVolume* requesting_obj);
 	LLModel::Decomposition* getDecomposition(const LLUUID& mesh_id);
 	void fetchPhysicsShape(const LLUUID& mesh_id);

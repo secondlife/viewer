@@ -2078,10 +2078,7 @@
              label="Show Upload Cost"
              layout="topleft"
              name="Show Upload Cost">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="DebugShowUploadCost" />
-            <menu_item_check.on_click
+          <menu_item_check.on_click
              function="ToggleControl"
              parameter="DebugShowUploadCost" />
           </menu_item_check>

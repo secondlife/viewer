@@ -407,7 +407,6 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childSetTextArg("status", "[STATUS]", getString("status_idle"));
 
-	//childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d",sUploadAmount));
 	childSetAction("ok_btn", onUpload, this);
 	childDisable("ok_btn");
 
@@ -780,15 +779,6 @@ void LLFloaterModelPreview::draw()
 		childSetVisible("decompose_cancel", false);
 	}
 	
-	U32 resource_cost = mModelPreview->mResourceCost*10;
-
-	if (childGetValue("upload_textures").asBoolean())
-	{
-		resource_cost += mModelPreview->mTextureSet.size()*10;
-	}
-
-	childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d", resource_cost));
-
 	if (mModelPreview)
 	{
 		gGL.color3f(1.f, 1.f, 1.f);
@@ -3012,7 +3002,6 @@ U32 LLModelPreview::calcResourceCost()
 		//ok_btn should not have been changed unless something was wrong with joint list
 	}
 	
-	U32 cost = 0;
 	std::set<LLModel*> accounted;
 	U32 num_points = 0;
 	U32 num_hulls = 0;
@@ -3060,8 +3049,7 @@ U32 LLModelPreview::calcResourceCost()
 					   mFMP->childGetValue("upload_skin").asBoolean(),
 					   mFMP->childGetValue("upload_joints").asBoolean(),
 					   TRUE);
-			cost += gMeshRepo.calcResourceCost(ret);
-
+			
 			num_hulls += decomp.mHull.size();
 			for (U32 i = 0; i < decomp.mHull.size(); ++i)
 			{
@@ -3093,7 +3081,7 @@ U32 LLModelPreview::calcResourceCost()
 
 	updateStatusMessages();
 
-	return cost;
+	return streaming_cost;
 }
 
 void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)
@@ -5403,12 +5391,6 @@ void LLFloaterModelPreview::refresh(LLUICtrl* ctrl, void* user_data)
 {
 	sInstance->toggleCalculateButton(true);
 	sInstance->mModelPreview->mDirty = true;
-}
-
-void LLFloaterModelPreview::updateResourceCost()
-{
-	U32 cost = mModelPreview->mResourceCost;
-	childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d",cost));
 }
 
 //static
