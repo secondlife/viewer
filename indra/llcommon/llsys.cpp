@@ -51,6 +51,9 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_float.hpp>
 
 using namespace llsd;
 
@@ -649,7 +652,24 @@ public:
 		mStats(LLSD::emptyArray())
 	{}
 
-	void add(const LLSD::String& name, LLSD::Integer value)
+	// Store every integer type as LLSD::Integer.
+	template <class T>
+	void add(const LLSD::String& name, const T& value,
+			 typename boost::enable_if<boost::is_integral<T> >::type* = 0)
+	{
+		mStats.append(LLSDArray(name)(LLSD::Integer(value)));
+	}
+
+	// Store every floating-point type as LLSD::Real.
+	template <class T>
+	void add(const LLSD::String& name, const T& value,
+			 typename boost::enable_if<boost::is_float<T> >::type* = 0)
+	{
+		mStats.append(LLSDArray(name)(LLSD::Real(value)));
+	}
+
+	// Hope that LLSD::Date values are sufficiently unambiguous.
+	void add(const LLSD::String& name, const LLSD::Date& value)
 	{
 		mStats.append(LLSDArray(name)(value));
 	}
@@ -847,9 +867,16 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	// Now stream stats
 	BOOST_FOREACH(LLSD pair, inArray(mStatsArray))
 	{
-		s << pfx << std::setw(key_width+1) << (pair[0].asString() + ':')
-		  << ' '
-		  << std::setw(12) << pair[1].asInteger() << std::endl;
+		s << pfx << std::setw(key_width+1) << (pair[0].asString() + ':') << ' ';
+		if (pair[1].isInteger())
+			s << std::setw(12) << pair[1].asInteger();
+		else if (pair[1].isReal())
+			s << std::fixed << std::setprecision(1) << pair[1].asReal();
+		else if (pair[1].isDate())
+			pair[1].asDate().toStream(s);
+		else
+			s << pair[1];           // just use default LLSD formatting
+		s << std::endl;
 	}
 }
 
@@ -880,6 +907,9 @@ LLSD LLMemoryInfo::loadStatsArray()
 {
 	// This implementation is derived from stream() code (as of 2011-06-29).
 	StatsArray stats;
+
+	// associate timestamp for analysis over time
+	stats.add("timestamp", LLDate::now());
 
 #if LL_WINDOWS
 	MEMORYSTATUSEX state;
