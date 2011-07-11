@@ -1209,8 +1209,21 @@ void LLModel::generateNormals(F32 angle_cutoff)
 			LLVolumeFace::VertexData v;
 			new_face.mPositions[i] = vol_face.mPositions[idx];
 			new_face.mNormals[i].clear();
-			new_face.mTexCoords[i] = vol_face.mTexCoords[idx];
 			new_face.mIndices[i] = i;
+		}
+
+		if (vol_face.mTexCoords)
+		{
+			for (U32 i = 0; i < vol_face.mNumIndices; i++)
+			{
+				U32 idx = vol_face.mIndices[i];
+				new_face.mTexCoords[i] = vol_face.mTexCoords[idx];
+			}
+		}
+		else
+		{
+			ll_aligned_free_16(new_face.mTexCoords);
+			new_face.mTexCoords = NULL;
 		}
 
 		//generate normals for new face
@@ -1375,6 +1388,14 @@ LLSD LLModel::writeModel(
 		if (!decomp.mHull.empty() && !as_slm)
 		{ //convex decomposition exists, physics mesh will not be used (unless this is an slm file)
 			model[LLModel::LOD_PHYSICS] = NULL;
+		}
+	}
+
+	if (as_slm)
+	{ //save material list names
+		for (U32 i = 0; i < high->mMaterialList.size(); ++i)
+		{
+			mdl["material_list"][i] = high->mMaterialList[i];
 		}
 	}
 
@@ -1565,16 +1586,21 @@ LLSD LLModel::writeModel(
 		}
 	}
 	
-	return writeModelToStream(ostr, mdl, nowrite);
+	return writeModelToStream(ostr, mdl, nowrite, as_slm);
 }
 
-LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite)
+LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BOOL as_slm)
 {
 	U32 bytes = 0;
 	
 	std::string::size_type cur_offset = 0;
 
 	LLSD header;
+
+	if (as_slm && mdl.has("material_list"))
+	{ //save material binding names to header
+		header["material_list"] = mdl["material_list"];
+	}
 
 	std::string skin;
 
@@ -1769,6 +1795,15 @@ bool LLModel::loadModel(std::istream& is)
 		}
 	}
 	
+	if (header.has("material_list"))
+	{ //load material list names
+		mMaterialList.clear();
+		for (U32 i = 0; i < header["material_list"].size(); ++i)
+		{
+			mMaterialList.push_back(header["material_list"][i].asString());
+		}
+	}
+
 	std::string nm[] = 
 	{
 		"lowest_lod",
@@ -1853,6 +1888,57 @@ bool LLModel::loadModel(std::istream& is)
 
 	return false;
 
+}
+
+void LLModel::matchMaterialOrder(LLModel* ref)
+{
+	llassert(ref->mMaterialList.size() == mMaterialList.size());
+
+	std::map<std::string, U32> index_map;
+	
+	//build a map of material slot names to face indexes
+	bool reorder = false;
+	std::set<std::string> base_mat;
+	std::set<std::string> cur_mat;
+
+	for (U32 i = 0; i < mMaterialList.size(); i++)
+	{
+		index_map[ref->mMaterialList[i]] = i;
+		if (!reorder)
+		{ //if any material name does not match reference, we need to reorder
+			reorder = ref->mMaterialList[i] != mMaterialList[i];
+		}
+		base_mat.insert(ref->mMaterialList[i]);
+		cur_mat.insert(mMaterialList[i]);
+	}
+
+
+	if (reorder && 
+		base_mat == cur_mat) //don't reorder if material name sets don't match
+	{
+		std::vector<LLVolumeFace> new_face_list;
+		new_face_list.resize(mVolumeFaces.size());
+
+		std::vector<std::string> new_material_list;
+		new_material_list.resize(mVolumeFaces.size());
+
+		//rebuild face list so materials have the same order 
+		//as the reference model
+		for (U32 i = 0; i < mMaterialList.size(); ++i)
+		{ 
+			U32 ref_idx = index_map[mMaterialList[i]];
+			new_face_list[ref_idx] = mVolumeFaces[i];
+
+			new_material_list[ref_idx] = mMaterialList[i];
+		}
+
+		llassert(new_material_list == ref->mMaterialList);
+		
+		mVolumeFaces = new_face_list;
+	}
+
+	//override material list with reference model ordering
+	mMaterialList = ref->mMaterialList;
 }
 
 

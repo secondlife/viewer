@@ -75,7 +75,7 @@ const U8 PARCEL_AUCTION		= 0x05;
 // unused 0x06
 // unused 0x07
 // flag, unused 0x08
-// flag, unused 0x10
+const U8 PARCEL_HIDDENAVS   = 0x10;	// avatars not visible outside of parcel.  Used for 'see avs' feature, but must be off for compatibility
 const U8 PARCEL_SOUND_LOCAL = 0x20;
 const U8 PARCEL_WEST_LINE	= 0x40;	// flag, property line on west edge
 const U8 PARCEL_SOUTH_LINE	= 0x80;	// flag, property line on south edge
@@ -130,6 +130,12 @@ class LLSD;
 class LLAccessEntry
 {
 public:
+	LLAccessEntry()
+	:	mID(),
+		mTime(0),
+		mFlags(0)
+	{}
+
 	LLUUID		mID;		// Agent ID
 	S32			mTime;		// Time (unix seconds) when entry expires
 	U32			mFlags;		// Not used - currently should always be zero
@@ -265,6 +271,8 @@ public:
 	void setUserLocation(const LLVector3& pos)	{ mUserLocation = pos; }
 	void setUserLookAt(const LLVector3& rot)	{ mUserLookAt = rot; }
 	void setLandingType(const ELandingType type) { mLandingType = type; }
+	void setSeeAVs(BOOL see_avs)	{ mSeeAVs = see_avs;	}
+	void setHaveNewParcelLimitData(bool have_new_parcel_data)		{ mHaveNewParcelLimitData = have_new_parcel_data;		}		// Remove this once hidden AV feature is fully available grid-wide
 
 	void setAuctionID(U32 auction_id) { mAuctionID = auction_id;}
 
@@ -291,6 +299,8 @@ public:
 	void	setDenyAnonymous(BOOL b) { setParcelFlag(PF_DENY_ANONYMOUS, b); }
 	void	setDenyAgeUnverified(BOOL b) { setParcelFlag(PF_DENY_AGEUNVERIFIED, b); }
 	void	setRestrictPushObject(BOOL b) { setParcelFlag(PF_RESTRICT_PUSHOBJECT, b); }
+	void	setAllowGroupAVSounds(BOOL b)	{ mAllowGroupAVSounds = b;		}
+	void	setAllowAnyAVSounds(BOOL b)		{ mAllowAnyAVSounds = b;		}
 
 	void	setDrawDistance(F32 dist)	{ mDrawDistance = dist; }
 	void	setSalePrice(S32 price)		{ mSalePrice = price; }
@@ -367,6 +377,8 @@ public:
 	const LLVector3& getUserLocation() const	{ return mUserLocation; }
 	const LLVector3& getUserLookAt() const	{ return mUserLookAt; }
 	ELandingType getLandingType() const	{ return mLandingType; }
+	BOOL getSeeAVs() const			{ return mSeeAVs;		}
+	BOOL getHaveNewParcelLimitData() const		{ return mHaveNewParcelLimitData;	}
 
 	// User-specified snapshot
 	const LLUUID&	getSnapshotID() const		{ return mSnapshotID; }
@@ -496,6 +508,9 @@ public:
 	BOOL	getRegionDenyAgeUnverifiedOverride() const
 					{ return mRegionDenyAgeUnverifiedOverride; }
 
+	BOOL	getAllowGroupAVSounds()	const	{ return mAllowGroupAVSounds;	} 
+	BOOL	getAllowAnyAVSounds()	const	{ return mAllowAnyAVSounds;		}
+
 	F32		getDrawDistance() const			{ return mDrawDistance; }
 	S32		getSalePrice() const			{ return mSalePrice; }
 	time_t	getClaimDate() const			{ return mClaimDate; }
@@ -606,6 +621,8 @@ protected:
 	LLVector3 mUserLocation;
 	LLVector3 mUserLookAt;
 	ELandingType mLandingType;
+	BOOL mSeeAVs;							// Avatars on this parcel are visible from outside it
+	BOOL mHaveNewParcelLimitData;			// Remove once hidden AV feature is grid-wide
 	LLTimer mSaleTimerExpires;
 	LLTimer mMediaResetTimer;
 
@@ -661,6 +678,8 @@ protected:
 	BOOL				mRegionPushOverride;
 	BOOL				mRegionDenyAnonymousOverride;
 	BOOL				mRegionDenyAgeUnverifiedOverride;
+	BOOL				mAllowGroupAVSounds;
+	BOOL				mAllowAnyAVSounds;
 	
 	ParcelQuota			mQuota;
 	

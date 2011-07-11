@@ -29,7 +29,6 @@
 #include "llwaterparamset.h"
 #include "llsd.h"
 
-#include "llfloaterwater.h"
 #include "llwaterparammanager.h"
 #include "lluictrlfactory.h"
 #include "llsliderctrl.h"
@@ -224,3 +223,46 @@ F32 LLWaterParamSet::getFloat(const std::string& paramName, bool& error)
 	return 0;
 }
 
+// Added for interpolation effect in DEV-33645
+// Based on LLWLParamSet::mix, but written by Jacob without an intimate knowledge of how WindLight works.
+// The function definition existed in the header but was never implemented.  If you think there is something
+// wrong with this, you're probably right.  Ask Jacob, Q, or a member of the original WindLight team.
+void LLWaterParamSet::mix(LLWaterParamSet& src, LLWaterParamSet& dest, F32 weight)
+{
+	// Setup
+	LLSD srcVal, destVal;													// LLSD holders for get/set calls, reusable
+
+	// Iterate through values
+	for(LLSD::map_iterator iter = mParamValues.beginMap(); iter != mParamValues.endMap(); ++iter)
+	{
+		// If param exists in both src and dest, set the holder variables, otherwise skip
+		if(src.mParamValues.has(iter->first) && dest.mParamValues.has(iter->first))
+		{
+			srcVal = src.mParamValues[iter->first];
+			destVal = dest.mParamValues[iter->first];
+		}
+		else
+		{
+			continue;
+		}
+		
+		if(iter->second.isReal())									// If it's a real, interpolate directly
+		{
+			iter->second = srcVal.asReal() + ((destVal.asReal() - srcVal.asReal()) * weight);
+		}		
+		else if(iter->second.isArray() && iter->second[0].isReal()	// If it's an array of reals, loop through the reals and interpolate on those
+				&& iter->second.size() == srcVal.size() && iter->second.size() == destVal.size())
+		{
+			// Actually do interpolation: old value + (difference in values * factor)
+			for(int i=0; i < iter->second.size(); ++i) 
+			{
+				// iter->second[i] = (1.f-weight)*(F32)srcVal[i].asReal() + weight*(F32)destVal[i].asReal();	// old way of doing it -- equivalent but one more operation
+				iter->second[i] = srcVal[i].asReal() + ((destVal[i].asReal() - srcVal[i].asReal()) * weight);
+			}
+		}
+		else														// Else, skip
+		{
+			continue;
+		}
+	}
+}

@@ -64,7 +64,9 @@
 #include "llappviewer.h"
 #include "lllogininstance.h" 
 //#include "llfirstuse.h"
+#include "llviewernetwork.h"
 #include "llwindow.h"
+
 
 #include "llfloatermediabrowser.h"	// for handling window close requests and geometry change requests in media browser windows.
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
@@ -1360,6 +1362,34 @@ void LLViewerMedia::removeCookie(const std::string &name, const std::string &dom
 }
 
 
+class LLInventoryUserStatusResponder : public LLHTTPClient::Responder
+{
+public:
+	LLInventoryUserStatusResponder()
+		: LLCurl::Responder()
+	{
+	}
+
+	void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+			// Complete success
+			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
+		}
+		else if (status == 401)
+		{
+			// API is available for use but OpenID authorization failed
+			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
+		}
+		else
+		{
+			// API in unavailable
+			llinfos << "Marketplace API is unavailable -- Inbox may be disabled, status = " << status << ", reason = " << reason << llendl;
+		}
+	}
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::setOpenIDCookie()
@@ -1406,6 +1436,25 @@ void LLViewerMedia::setOpenIDCookie()
 		LLHTTPClient::get(profile_url,  
 			new LLViewerMediaWebProfileResponder(raw_profile_url.getAuthority()),
 			headers);
+
+		std::string url = "https://marketplace.secondlife.com/";
+
+		if (!LLGridManager::getInstance()->isInProductionGrid())
+		{
+			std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
+			url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
+		}
+	
+		url += "api/1/users/";
+		url += gAgent.getID().getString();
+		url += "/user_status";
+
+		headers = LLSD::emptyMap();
+		headers["Accept"] = "*/*";
+		headers["Cookie"] = sOpenIDCookie;
+		headers["User-Agent"] = getCurrentUserAgent();
+
+		LLHTTPClient::get(url, new LLInventoryUserStatusResponder(), headers);
 	}
 }
 
@@ -2349,15 +2398,13 @@ void LLViewerMediaImpl::updateJavascriptObject()
 	if ( mMediaSource )
 	{
 		// flag to expose this information to internal browser or not.
-		bool expose_javascript_object = gSavedSettings.getBOOL("BrowserEnableJSObject");
-		mMediaSource->jsExposeObjectEvent( expose_javascript_object );
+		bool enable = gSavedSettings.getBOOL("BrowserEnableJSObject");
+		mMediaSource->jsEnableObject( enable );
 
-		// indicate if the values we have are valid (currently do this blanket-fashion for
-		// everything depending on whether you are logged in or not - this may require a 
-		// more granular approach once variables are added that ARE valid before login
+		// these values are only menaingful after login so don't set them before
 		bool logged_in = LLLoginInstance::getInstance()->authSuccess();
-		mMediaSource->jsValuesValidEvent( logged_in );
-
+		if ( logged_in )
+		{
 		// current location within a region
 		LLVector3 agent_pos = gAgent.getPositionAgent();
 		double x = agent_pos.mV[ VX ];
@@ -2386,6 +2433,7 @@ void LLViewerMediaImpl::updateJavascriptObject()
 			region_name = region->getName();
 		};
 		mMediaSource->jsAgentRegionEvent( region_name );
+		}
 
 		// language code the viewer is set to
 		mMediaSource->jsAgentLanguageEvent( LLUI::getLanguage() );

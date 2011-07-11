@@ -41,7 +41,7 @@ public:
 
 	virtual void onPermissionsReceived(const LLSD& result) = 0;
 
-	virtual void onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url) = 0;
+	virtual void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url) = 0;
 
 	virtual void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason) = 0;
 

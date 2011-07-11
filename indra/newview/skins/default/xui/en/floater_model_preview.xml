@@ -74,27 +74,85 @@
     follows="all"/>
     
     <text
-     follows="top|left"
      font="SansSerif"
+	 bottom_delta="15"
      left_delta="0"
      name="warning_title"
      text_color="Yellow"
-     top_pad="10"
      visible="false">
      WARNING:
     </text>
     <text
-     follows="top|left"
      text_color="White"
-     height="50"
+     height="40"
+	 width="290"
+	 top_delta="15"
      left_delta="0"
      name="warning_message"
      parse_urls="true"
-     top_pad="5"
      wrap="true"
      visible="false">
-     You will not be able to complete the final upload of this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to get certifed for mesh model uploads.
-    </text>
+     You will not be able to complete the final upload of this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to get enabled for mesh model uploads.</text>
+
+  <text
+	height="65"
+	top_delta="45"
+	left_delta="0"
+	name="weights_text"
+	width="80"
+	word_wrap="true" 
+	>
+Streaming:
+Physics:
+Simulation:
+
+Prim equivs:
+  </text>
+
+  <text
+	height="65"
+	top_delta="0"
+	left_delta="80"
+	name="weights"
+	width="70"
+	word_wrap="true" 
+	>
+[ST]
+[PH]
+[SIM]
+
+[EQ]
+  </text>
+  
+  <text
+	height="65"
+	top_delta="0"
+	left_delta="70"
+	name="price_breakdown_text"
+	width="80"
+	word_wrap="true" 
+	>
+Streaming:
+Physics:
+Instances:
+Textures:
+Model:
+  </text>
+
+  <text
+	height="65"
+	top_delta="0"
+	left_delta="80"
+	name="price_breakdown"
+	width="65"
+	word_wrap="true" 
+	>
+L$ [STREAMING]
+L$ [PHYSICS]
+L$ [INSTANCES]
+L$ [TEXTURES]
+L$ [MODEL]
+  </text>
 
   <tab_container
     follows="right|top|bottom"
@@ -407,12 +465,14 @@
 
   <text
 	height="16"
-	left="310"
-	name="weights"
+	left_delta="5"
+	bottom_delta="30"
+	name="upload_fee"
 	width="300"
+	follows="bottom|right"
 	word_wrap="true" 
-	top_pad="7">
-	    Prim equivs: [EQ] Physics: [PH] Upload fee: [FEE] L$
+	>
+	    Upload fee: L$ [FEE]
   </text>
   
   <button bottom="540" left="10"  follows="bottom|left" height="20" label="Set to defaults"

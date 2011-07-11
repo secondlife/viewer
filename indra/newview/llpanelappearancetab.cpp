@@ -31,6 +31,7 @@
 
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "llviewerinventory.h"
 
 //virtual
 bool LLPanelAppearanceTab::canTakeOffSelected()

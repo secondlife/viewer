@@ -488,7 +488,7 @@ void LLFloaterModelWizard::setPermissonsErrorStatus(U32 status, const std::strin
 }
 
 /*virtual*/
-void LLFloaterModelWizard::onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url)
+void LLFloaterModelWizard::onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url)
 {
 	swap_controls(mCalculateWeightsBtn, mCalculatingWeightsBtn, true);
 
@@ -498,6 +498,7 @@ void LLFloaterModelWizard::onModelPhysicsFeeReceived(F64 physics, S32 fee, std::
 
 	mUploadModelUrl = upload_url;
 
+	S32 fee = result["upload_price"].asInteger();
 	childSetTextArg("review_fee", "[FEE]", llformat("%d", fee));
 	childSetTextArg("charged_fee", "[FEE]", llformat("%d", fee));
 

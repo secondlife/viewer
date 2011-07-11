@@ -1168,19 +1168,11 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				authResponse(message_in);
 			}
 			else
-			if(message_name == "js_expose_object")
+			if(message_name == "js_enable_object")
 			{
 #if LLQTWEBKIT_API_VERSION >= 9
-				bool expose_object = message_in.getValueBoolean( "expose" );
-				LLQtWebKit::getInstance()->setExposeObject( expose_object );
-#endif
-			}
-			else
-			if(message_name == "js_values_valid")
-			{
-#if LLQTWEBKIT_API_VERSION >= 9
-				bool valid = message_in.getValueBoolean( "valid" );
-				LLQtWebKit::getInstance()->setValuesValid( valid );
+				bool enable = message_in.getValueBoolean( "enable" );
+				LLQtWebKit::getInstance()->setSLObjectEnabled( enable );
 #endif
 			}
 			else
@@ -1191,6 +1183,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				F32 y = message_in.getValueReal("y");
 				F32 z = message_in.getValueReal("z");
 				LLQtWebKit::getInstance()->setAgentLocation( x, y, z );
+				LLQtWebKit::getInstance()->emitLocation();
 #endif
 			}
 			else
@@ -1201,6 +1194,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				F32 y = message_in.getValueReal("y");
 				F32 z = message_in.getValueReal("z");
 				LLQtWebKit::getInstance()->setAgentGlobalLocation( x, y, z );
+				LLQtWebKit::getInstance()->emitLocation();
 #endif
 			}
 			else			
@@ -1209,6 +1203,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 #if LLQTWEBKIT_API_VERSION >= 9
 				F32 angle = message_in.getValueReal("angle");
 				LLQtWebKit::getInstance()->setAgentOrientation( angle );
+				LLQtWebKit::getInstance()->emitLocation();
 #endif
 			}
 			else
@@ -1217,14 +1212,25 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 #if LLQTWEBKIT_API_VERSION >= 9
 				const std::string& region = message_in.getValue("region");
 				LLQtWebKit::getInstance()->setAgentRegion( region );
+				LLQtWebKit::getInstance()->emitLocation();
 #endif
 			}
 			else
-			if(message_name == "js_agent_maturity")
+				if(message_name == "js_agent_maturity")
+				{
+#if LLQTWEBKIT_API_VERSION >= 9
+					const std::string& maturity = message_in.getValue("maturity");
+					LLQtWebKit::getInstance()->setAgentMaturity( maturity );
+					LLQtWebKit::getInstance()->emitMaturity();
+#endif
+				}
+			else
+			if(message_name == "js_agent_language")
 			{
 #if LLQTWEBKIT_API_VERSION >= 9
-				const std::string& maturity = message_in.getValue("maturity");
-				LLQtWebKit::getInstance()->setAgentMaturity( maturity );
+				const std::string& language = message_in.getValue("language");
+				LLQtWebKit::getInstance()->setAgentLanguage( language );
+				LLQtWebKit::getInstance()->emitLanguage();
 #endif
 			}
 			else
@@ -1384,3 +1390,5 @@ int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func, void
 
 	return 0;
 }
+
+

@@ -726,19 +726,6 @@ public:
 			}
 		}				
 
-		if (gSavedSettings.getBOOL("DebugShowUploadCost"))
-		{
-			addText(xpos, ypos, llformat("       Meshes: L$%d", gPipeline.mDebugMeshUploadCost));
-			ypos += y_inc/2;
-			addText(xpos, ypos, llformat("    Sculpties: L$%d", gPipeline.mDebugSculptUploadCost));
-			ypos += y_inc/2;
-			addText(xpos, ypos, llformat("     Textures: L$%d", gPipeline.mDebugTextureUploadCost));
-			ypos += y_inc/2;
-			addText(xpos, ypos, "Upload Cost: ");
-						
-			ypos += y_inc;
-		}
-
 		//temporary hack to give feedback on mesh upload progress
 		if (!gMeshRepo.mUploads.empty())
 		{
@@ -1977,7 +1964,10 @@ void LLViewerWindow::shutdownViews()
 	
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
+	if (LLNavigationBar::instanceExists())
+	{
 	delete LLNavigationBar::getInstance();
+	}
 
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
@@ -4514,6 +4504,14 @@ void LLViewerWindow::setup3DViewport(S32 x_offset, S32 y_offset)
 	gGLViewport[2] = mWorldViewRectRaw.getWidth();
 	gGLViewport[3] = mWorldViewRectRaw.getHeight();
 	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
+}
+
+void LLViewerWindow::revealIntroPanel()
+{
+	if (mProgressView)
+	{
+		mProgressView->revealIntroPanel();
+	}
 }
 
 void LLViewerWindow::setShowProgress(const BOOL show)

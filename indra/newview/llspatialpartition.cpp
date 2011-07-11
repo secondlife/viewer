@@ -2785,7 +2785,7 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 						gGL.color4f(0,1,1,1);
 						break;
 				case LLViewerObject::LL_VO_CLOUDS:
-						gGL.color4f(0.5f,0.5f,0.5f,1.0f);
+						// no longer used
 						break;
 				case LLViewerObject::LL_VO_PART_GROUP:
 				case LLViewerObject::LL_VO_HUD_PART_GROUP:

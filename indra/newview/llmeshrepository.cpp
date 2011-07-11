@@ -36,7 +36,6 @@
 #include "llbufferstream.h"
 #include "llcurl.h"
 #include "lldatapacker.h"
-#include "llfasttimer.h"
 #include "llfloatermodelpreview.h"
 #include "llfloaterperms.h"
 #include "lleconomy.h"
@@ -71,9 +70,6 @@
 #endif
 
 #include <queue>
-
-LLFastTimer::DeclareTimer FTM_MESH_UPDATE("Mesh Update");
-LLFastTimer::DeclareTimer FTM_LOAD_MESH("Load Mesh");
 
 LLMeshRepository gMeshRepo;
 
@@ -373,10 +369,8 @@ public:
 
 			if (observer)
 			{
-				S32 fee = cc["upload_price"].asInteger();
-				F64 phys = cc["data"]["physics_cost"].asReal();
-
-				observer->onModelPhysicsFeeReceived(phys, fee, mThread->mWholeModelUploadURL);
+				cc["data"]["upload_price"] = cc["upload_price"];
+				observer->onModelPhysicsFeeReceived(cc["data"], mThread->mWholeModelUploadURL);
 			}
 		}
 		else
@@ -668,7 +662,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 	}
 
 	U32 header_size = mMeshHeaderSize[mesh_id];
-
+	
 	if (header_size > 0)
 	{
 		S32 version = mMeshHeader[mesh_id]["version"].asInteger();
@@ -688,7 +682,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 				U8* buffer = new U8[size];
 				file.read(buffer, size);
 
-				//make sure buffer isn't all 0's (reserved block but not written)
+				//make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
 				bool zero = true;
 				for (S32 i = 0; i < llmin(size, 1024) && zero; ++i)
 				{
@@ -761,7 +755,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 				U8* buffer = new U8[size];
 				file.read(buffer, size);
 
-				//make sure buffer isn't all 0's (reserved block but not written)
+				//make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
 				bool zero = true;
 				for (S32 i = 0; i < llmin(size, 1024) && zero; ++i)
 				{
@@ -834,7 +828,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 				U8* buffer = new U8[size];
 				file.read(buffer, size);
 
-				//make sure buffer isn't all 0's (reserved block but not written)
+				//make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
 				bool zero = true;
 				for (S32 i = 0; i < llmin(size, 1024) && zero; ++i)
 				{
@@ -891,9 +885,9 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
 		S32 size = file.getSize();
 
 		if (size > 0)
-		{
-			U8 buffer[1024];
-			S32 bytes = llmin(size, 1024);
+		{ //NOTE -- if the header size is ever more than 4KB, this will break
+			U8 buffer[4096];
+			S32 bytes = llmin(size, 4096);
 			LLMeshRepository::sCacheBytesRead += bytes;	
 			file.read(buffer, bytes);
 			if (headerReceived(mesh_params, buffer, bytes))
@@ -915,6 +909,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
 		retval = true;
 		//grab first 4KB if we're going to bother with a fetch.  Cache will prevent future fetches if a full mesh fits
 		//within the first 4KB
+		//NOTE -- this will break of headers ever exceed 4KB
 		LLMeshRepository::sHTTPRequestCount++;
 		mCurlRequest->getByteRange(http_url, headers, 0, 4096, new LLMeshHeaderResponder(mesh_params));
 	}
@@ -951,7 +946,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 				U8* buffer = new U8[size];
 				file.read(buffer, size);
 
-				//make sure buffer isn't all 0's (reserved block but not written)
+				//make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
 				bool zero = true;
 				for (S32 i = 0; i < llmin(size, 1024) && zero; ++i)
 				{
@@ -1037,14 +1032,11 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 	}
 
 	{
-		U32 cost = gMeshRepo.calcResourceCost(header);
-
 		LLUUID mesh_id = mesh_params.getSculptID();
 		
 		mHeaderMutex->lock();
 		mMeshHeaderSize[mesh_id] = header_size;
 		mMeshHeader[mesh_id] = header;
-		mMeshResourceCost[mesh_id] = cost;
 		mHeaderMutex->unlock();
 
 		//check for pending requests
@@ -1410,12 +1402,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 			for (S32 face_num = 0; face_num < data.mBaseModel->getNumVolumeFaces(); face_num++)
 			{
-				if(face_num >= instance.mMaterial.size())
-				{
-					break ;
-				}
-
-				LLImportMaterial& material = instance.mMaterial[face_num];
+				LLImportMaterial& material = instance.mMaterial[data.mBaseModel->mMaterialList[face_num]];
 				LLSD face_entry = LLSD::emptyMap();
 				LLViewerFetchedTexture *texture = material.mDiffuseMap.get();
 				
@@ -1541,6 +1528,8 @@ void LLMeshUploadThread::doWholeModelUpload()
 		do
 		{
 			mCurlRequest->process();
+			//sleep for 10ms to prevent eating a whole core
+			apr_sleep(10000);
 		} while (mCurlRequest->getQueued() > 0);
 	}
 
@@ -1571,6 +1560,8 @@ void LLMeshUploadThread::requestWholeModelFee()
 	do
 	{
 		mCurlRequest->process();
+		//sleep for 10ms to prevent eating a whole core
+		apr_sleep(10000);
 	} while (mCurlRequest->getQueued() > 0);
 
 	delete mCurlRequest;
@@ -1579,9 +1570,6 @@ void LLMeshUploadThread::requestWholeModelFee()
 	// Currently a no-op.
 	mFinished = true;
 }
-
-static LLFastTimer::DeclareTimer FTM_NOTIFY_MESH_LOADED("Notify Loaded");
-static LLFastTimer::DeclareTimer FTM_NOTIFY_MESH_UNAVAILABLE("Notify Unavailable");
 
 void LLMeshRepoThread::notifyLoadedMeshes()
 {
@@ -1679,19 +1667,6 @@ S32 LLMeshRepository::getActualMeshLOD(LLSD& header, S32 lod)
 	//header exists and no good lod found, treat as 404
 	header["404"] = 1;
 	return -1;
-}
-
-U32 LLMeshRepoThread::getResourceCost(const LLUUID& mesh_id)
-{
-	LLMutexLock lock(mHeaderMutex);
-	
-	std::map<LLUUID, U32>::iterator iter = mMeshResourceCost.find(mesh_id);
-	if (iter != mMeshResourceCost.end())
-	{
-		return iter->second;
-	}
-
-	return 0;
 }
 
 void LLMeshRepository::cacheOutgoingMesh(LLMeshUploadData& data, LLSD& header)
@@ -2028,11 +2003,6 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 
 				S32 remaining = bytes-file.tell();
 
-				if (remaining < 0 || remaining > 4096)
-				{
-					llerrs << "Bad padding of mesh asset cache entry." << llendl;
-				}
-
 				if (remaining > 0)
 				{
 					file.write(block, remaining);
@@ -2146,8 +2116,6 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 		return detail;
 	}
 
-	LLFastTimer t(FTM_LOAD_MESH); 
-
 	{
 		LLMutexLock lock(mMeshMutex);
 		//add volume to list of loading meshes
@@ -2223,11 +2191,6 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 	return detail;
 }
 
-static LLFastTimer::DeclareTimer FTM_START_MESH_THREAD("Start Thread");
-static LLFastTimer::DeclareTimer FTM_LOAD_MESH_LOD("Load LOD");
-static LLFastTimer::DeclareTimer FTM_MESH_LOCK1("Lock 1");
-static LLFastTimer::DeclareTimer FTM_MESH_LOCK2("Lock 2");
-
 void LLMeshRepository::notifyLoadedMeshes()
 { //called from main thread
 
@@ -2293,18 +2256,9 @@ void LLMeshRepository::notifyLoadedMeshes()
 		}
 	}
 
-	LLFastTimer t(FTM_MESH_UPDATE);
-
-	{
-		LLFastTimer t(FTM_MESH_LOCK1);
-		mMeshMutex->lock();	
-	}
-
-	{
-		LLFastTimer t(FTM_MESH_LOCK2);
-		mThread->mMutex->lock();
-	}
-	
+	mMeshMutex->lock();	
+	mThread->mMutex->lock();
+		
 	//popup queued error messages from background threads
 	while (!mUploadErrorQ.empty())
 	{
@@ -2356,7 +2310,6 @@ void LLMeshRepository::notifyLoadedMeshes()
 
 		while (!mPendingRequests.empty() && push_count > 0)
 		{
-			LLFastTimer t(FTM_LOAD_MESH_LOD);
 			LLMeshRepoThread::LODRequest& request = mPendingRequests.front();
 			mThread->loadMeshLOD(request.mMeshParams, request.mLOD);
 			mPendingRequests.erase(mPendingRequests.begin());
@@ -2504,25 +2457,6 @@ void LLMeshRepository::notifyMeshUnavailable(const LLVolumeParams& mesh_params, 
 S32 LLMeshRepository::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 { 
 	return mThread->getActualMeshLOD(mesh_params, lod);
-}
-
-U32 LLMeshRepository::calcResourceCost(LLSD& header)
-{
-	U32 bytes = 0;
-
-	for (U32 i = 0; i < 4; i++)
-	{
-		bytes += header[header_lod[i]]["size"].asInteger();
-	}
-
-	bytes += header["skin"]["size"].asInteger();
-
-	return bytes/4096 + 1;
-}
-
-U32 LLMeshRepository::getResourceCost(const LLUUID& mesh_id)
-{
-	return mThread->getResourceCost(mesh_id);
 }
 
 const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, LLVOVolume* requesting_obj)
@@ -2755,6 +2689,11 @@ bool LLImportMaterial::operator<(const LLImportMaterial &rhs) const
 	if (mDiffuseColor != rhs.mDiffuseColor)
 	{
 		return mDiffuseColor < rhs.mDiffuseColor;
+	}
+
+	if (mBinding != rhs.mBinding)
+	{
+		return mBinding < rhs.mBinding;
 	}
 
 	return mFullbright < rhs.mFullbright;
@@ -3391,7 +3330,8 @@ LLModelInstance::LLModelInstance(LLSD& data)
 
 	for (U32 i = 0; i < data["material"].size(); ++i)
 	{
-		mMaterial.push_back(LLImportMaterial(data["material"][i]));
+		LLImportMaterial mat(data["material"][i]);
+		mMaterial[mat.mBinding] = mat;
 	}
 }
 
@@ -3404,9 +3344,10 @@ LLSD LLModelInstance::asLLSD()
 	ret["label"] = mLabel;
 	ret["transform"] = mTransform.getValue();
 	
-	for (U32 i = 0; i < mMaterial.size(); ++i)
+	U32 i = 0;
+	for (std::map<std::string, LLImportMaterial>::iterator iter = mMaterial.begin(); iter != mMaterial.end(); ++iter)
 	{
-		ret["material"][i] = mMaterial[i].asLLSD();
+		ret["material"][i++] = iter->second.asLLSD();
 	}
 
 	return ret;
@@ -3418,6 +3359,7 @@ LLImportMaterial::LLImportMaterial(LLSD& data)
 	mDiffuseMapLabel = data["diffuse"]["label"].asString();
 	mDiffuseColor.setValue(data["diffuse"]["color"]);
 	mFullbright = data["fullbright"].asBoolean();
+	mBinding = data["binding"].asString();
 }
 
 
@@ -3429,7 +3371,8 @@ LLSD LLImportMaterial::asLLSD()
 	ret["diffuse"]["label"] = mDiffuseMapLabel;
 	ret["diffuse"]["color"] = mDiffuseColor.getValue();
 	ret["fullbright"] = mFullbright;
-	
+	ret["binding"] = mBinding;
+
 	return ret;
 }
 

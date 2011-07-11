@@ -92,6 +92,7 @@ public:
 	LLPointer<LLViewerFetchedTexture> mDiffuseMap;
 	std::string mDiffuseMapFilename;
 	std::string mDiffuseMapLabel;
+	std::string mBinding;
 	LLColor4 mDiffuseColor;
 	bool mFullbright;
 
@@ -120,9 +121,9 @@ public:
 	S32 mLocalMeshID;
 
 	LLMatrix4 mTransform;
-	std::vector<LLImportMaterial> mMaterial;
+	std::map<std::string, LLImportMaterial> mMaterial;
 
-	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, std::vector<LLImportMaterial>& materials)
+	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, std::map<std::string, LLImportMaterial>& materials)
 		: mModel(model), mLabel(label), mTransform(transform), mMaterial(materials)
 	{
 		mLocalMeshID = -1;
@@ -230,8 +231,7 @@ public:
 	mesh_header_map mMeshHeader;
 	
 	std::map<LLUUID, U32> mMeshHeaderSize;
-	std::map<LLUUID, U32> mMeshResourceCost;
-
+	
 	class HeaderRequest
 	{ 
 	public:
@@ -334,8 +334,7 @@ public:
 
 	void notifyLoadedMeshes();
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
-	U32 getResourceCost(const LLUUID& mesh_params);
-
+	
 	void loadMeshSkinInfo(const LLUUID& mesh_id);
 	void loadMeshDecomposition(const LLUUID& mesh_id);
 	void loadMeshPhysicsShape(const LLUUID& mesh_id);
@@ -465,8 +464,6 @@ public:
 
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 	static S32 getActualMeshLOD(LLSD& header, S32 lod);
-	U32 calcResourceCost(LLSD& header);
-	U32 getResourceCost(const LLUUID& mesh_params);
 	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id, LLVOVolume* requesting_obj);
 	LLModel::Decomposition* getDecomposition(const LLUUID& mesh_id);
 	void fetchPhysicsShape(const LLUUID& mesh_id);

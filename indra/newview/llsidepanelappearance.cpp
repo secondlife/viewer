@@ -32,6 +32,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llfolderview.h"
 #include "llinventorypanel.h"
 #include "llfiltereditor.h"
 #include "llfloaterreg.h"

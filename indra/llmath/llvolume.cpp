@@ -3303,7 +3303,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 		{
 			F32 area = sculptGetSurfaceArea();
 
-			const F32 SCULPT_MAX_AREA = 32.f;
+			const F32 SCULPT_MAX_AREA = 384.f;
 
 			if (area < SCULPT_MIN_AREA || area > SCULPT_MAX_AREA)
 			{

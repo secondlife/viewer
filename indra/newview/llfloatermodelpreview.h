@@ -109,7 +109,7 @@ public:
 
 	void loadTextures() ; //called in the main thread.
 	void processElement(daeElement* element, bool& badElement);
-	std::vector<LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
+	std::map<std::string, LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
 	LLImportMaterial profileToMaterial(domProfile_COMMON* material);
 	std::string getElementLabel(daeElement *element);
 	LLColor4 getDaeColor(daeElement* element);
@@ -182,11 +182,7 @@ public:
 
 	static void onUpload(void* data);
 	
-	static void onClearMaterials(void* data);
-	
 	static void refresh(LLUICtrl* ctrl, void* data);
-	
-	void updateResourceCost();
 	
 	void			loadModel(S32 lod);
 	void 			loadModel(S32 lod, const std::string& file_name, bool force_disable_slm = false);
@@ -204,7 +200,7 @@ public:
 	// called when error occurs during permissions request
 	/*virtual*/ void setPermissonsErrorStatus(U32 status, const std::string& reason);
 
-	/*virtual*/ void onModelPhysicsFeeReceived(F64 physics, S32 fee, std::string upload_url);
+	/*virtual*/ void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url);
 
 	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
 
@@ -330,7 +326,6 @@ public:
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
-	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();
 	void saveUploadData(bool save_skinweights, bool save_joint_poisitions);
