@@ -86,6 +86,8 @@ public:
 	 */
 	void start();
 
+	void reset() { mCurImageIdx = 0; }
+
 private:
 	LLLoadingIndicator(const Params&);
 	void initFromParams(const Params&);

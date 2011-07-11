@@ -54,6 +54,7 @@
 #include "llfloaterreporter.h"
 #include "llfloaterregioninfo.h"
 #include "llhttpnode.h"
+#include "llregioninfomodel.h"
 #include "llsdutil.h"
 #include "llstartup.h"
 #include "lltrans.h"
@@ -64,7 +65,6 @@
 #include "llvlmanager.h"
 #include "llvlcomposition.h"
 #include "llvocache.h"
-#include "llvoclouds.h"
 #include "llworld.h"
 #include "llspatialpartition.h"
 #include "stringize.h"
@@ -315,7 +315,6 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mImpl->mObjectPartition.push_back(new LLWaterPartition());		//PARTITION_WATER
 	mImpl->mObjectPartition.push_back(new LLTreePartition());		//PARTITION_TREE
 	mImpl->mObjectPartition.push_back(new LLParticlePartition());	//PARTITION_PARTICLE
-	mImpl->mObjectPartition.push_back(new LLCloudPartition());		//PARTITION_CLOUD
 	mImpl->mObjectPartition.push_back(new LLGrassPartition());		//PARTITION_GRASS
 	mImpl->mObjectPartition.push_back(new LLVolumePartition());	//PARTITION_VOLUME
 	mImpl->mObjectPartition.push_back(new LLBridgePartition());	//PARTITION_BRIDGE
@@ -350,7 +349,6 @@ LLViewerRegion::~LLViewerRegion()
 	// Can't do this on destruction, because the neighbor pointers might be invalid.
 	// This should be reference counted...
 	disconnectAllNeighbors();
-	mCloudLayer.destroy();
 	LLViewerPartSim::getInstance()->cleanupRegion(this);
 
 	gObjectList.killObjects(this);
@@ -486,7 +484,6 @@ void LLViewerRegion::setOriginGlobal(const LLVector3d &origin_global)
 	updateRenderMatrix();
 	mImpl->mLandp->setOriginGlobal(origin_global);
 	mWind.setOriginGlobal(origin_global);
-	mCloudLayer.setOriginGlobal(origin_global);
 	calculateCenterGlobal();
 }
 
@@ -647,6 +644,8 @@ std::string LLViewerRegion::accessToShortString(U8 sim_access)
 void LLViewerRegion::processRegionInfo(LLMessageSystem* msg, void**)
 {
 	// send it to 'observers'
+	// *TODO: switch the floaters to using LLRegionInfoModel
+	LLRegionInfoModel::instance().update(msg);
 	LLFloaterGodTools::processRegionInfo(msg);
 	LLFloaterRegionInfo::processRegionInfo(msg);
 	LLFloaterReporter::processRegionInfo(msg);
@@ -709,14 +708,12 @@ void LLViewerRegion::forceUpdate()
 void LLViewerRegion::connectNeighbor(LLViewerRegion *neighborp, U32 direction)
 {
 	mImpl->mLandp->connectNeighbor(neighborp->mImpl->mLandp, direction);
-	mCloudLayer.connectNeighbor(&(neighborp->mCloudLayer), direction);
 }
 
 
 void LLViewerRegion::disconnectAllNeighbors()
 {
 	mImpl->mLandp->disconnectAllNeighbors();
-	mCloudLayer.disconnectAllNeighbors();
 }
 
 LLVLComposition * LLViewerRegion::getComposition() const
@@ -1504,6 +1501,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("DispatchRegionInfo");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
+	capabilityNames.append("EnvironmentSettings");
 	capabilityNames.append("ObjectMedia");
 	capabilityNames.append("ObjectMediaNavigate");
 
@@ -1525,6 +1523,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("LandResources");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
+	capabilityNames.append("MeshUploadFlag");
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("ParcelPropertiesUpdate");
 	capabilityNames.append("ParcelMediaURLFilterList");
@@ -1660,6 +1659,21 @@ bool LLViewerRegion::capabilitiesReceived() const
 void LLViewerRegion::setCapabilitiesReceived(bool received)
 {
 	mCapabilitiesReceived = received;
+
+	// Tell interested parties that we've received capabilities,
+	// so that they can safely use getCapability().
+	if (received)
+	{
+		mCapabilitiesReceivedSignal(getRegionID());
+
+		// This is a single-shot signal. Forget callbacks to save resources.
+		mCapabilitiesReceivedSignal.disconnect_all_slots();
+	}
+}
+
+boost::signals2::connection LLViewerRegion::setCapabilitiesReceivedCallback(const caps_received_signal_t::slot_type& cb)
+{
+	return mCapabilitiesReceivedSignal.connect(cb);
 }
 
 void LLViewerRegion::logActiveCapabilities() const

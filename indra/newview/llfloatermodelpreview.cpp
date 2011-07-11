@@ -71,6 +71,7 @@
 #include "llmatrix4a.h"
 #include "llmenubutton.h"
 #include "llmeshrepository.h"
+#include "llnotificationsutil.h"
 #include "llsdutil_math.h"
 #include "lltextbox.h"
 #include "lltoolmgr.h"
@@ -101,6 +102,9 @@
 #include "llviewerobjectlist.h"
 #include "llanimationstates.h"
 #include "glod/glod.h"
+
+
+const S32 SLM_SUPPORTED_VERSION = 2;
 
 //static
 S32 LLFloaterModelPreview::sUploadAmount = 10;
@@ -353,13 +357,16 @@ void LLMeshFilePicker::notify(const std::string& filename)
 // LLFloaterModelPreview()
 //-----------------------------------------------------------------------------
 LLFloaterModelPreview::LLFloaterModelPreview(const LLSD& key) :
-LLFloater(key)
+LLFloaterModelUploadBase(key),
+mUploadBtn(NULL),
+mCalculateBtn(NULL)
 {
 	sInstance = this;
 	mLastMouseX = 0;
 	mLastMouseY = 0;
 	mGLName = 0;
 	mStatusLock = new LLMutex(NULL);
+	mModelPreview = NULL;
 
 	mLODMode[LLModel::LOD_HIGH] = 0;
 	for (U32 i = 0; i < LLModel::LOD_HIGH; i++)
@@ -394,15 +401,16 @@ BOOL LLFloaterModelPreview::postBuild()
 	childSetCommitCallback("border_mode", onLODParamCommit, this);
 	childSetCommitCallback("share_tolerance", onLODParamCommit, this);
 
+	childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
+	childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
+	childSetCommitCallback("upload_textures", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
+
 	childSetTextArg("status", "[STATUS]", getString("status_idle"));
 
-	//childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d",sUploadAmount));
 	childSetAction("ok_btn", onUpload, this);
 	childDisable("ok_btn");
 
 	childSetAction("reset_btn", onReset, this);
-
-	childSetAction("clear_materials", onClearMaterials, this);
 
 	childSetCommitCallback("preview_lod_combo", onPreviewLODCommit, this);
 
@@ -422,8 +430,6 @@ BOOL LLFloaterModelPreview::postBuild()
 	
 	childDisable("ok_btn");
 
-	childSetCommitCallback("confirm_checkbox", refresh, this);
-
 	mViewOptionMenuButton = getChild<LLMenuButton>("options_gear_btn");
 
 	mCommitCallbackRegistrar.add("ModelImport.ViewOption.Action", boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _2));
@@ -441,9 +447,7 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	mPreviewRect = preview_panel->getRect();
 
-	mModelPreview = new LLModelPreview(512, 512, this );
-	mModelPreview->setPreviewTarget(16.f);
-	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
+	initModelPreview();
 
 	//set callbacks for left click on line editor rows
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
@@ -473,6 +477,13 @@ BOOL LLFloaterModelPreview::postBuild()
 		}
 	}
 
+	mUploadBtn = getChild<LLButton>("ok_btn");
+	mCalculateBtn = getChild<LLButton>("calculate_btn");
+
+	mCalculateBtn->setClickedCallback(boost::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
+
+	toggleCalculateButton(true);
+
 	return TRUE;
 }
 
@@ -495,6 +506,19 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 
 	delete mStatusLock;
 	mStatusLock = NULL;
+}
+
+void LLFloaterModelPreview::initModelPreview()
+{
+	if (mModelPreview)
+	{
+		delete mModelPreview;
+	}
+
+	mModelPreview = new LLModelPreview(512, 512, this );
+	mModelPreview->setPreviewTarget(16.f);
+	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
+	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, _1));
 }
 
 void LLFloaterModelPreview::onViewOptionChecked(const LLSD& userdata)
@@ -544,6 +568,30 @@ void LLFloaterModelPreview::loadModel(S32 lod)
 	(new LLMeshFilePicker(mModelPreview, lod))->getFile();
 }
 
+void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name, bool force_disable_slm)
+{
+	mModelPreview->mLoading = true;
+
+	mModelPreview->loadModel(file_name, lod, force_disable_slm);
+}
+
+void LLFloaterModelPreview::onClickCalculateBtn()
+{
+	mModelPreview->rebuildUploadData();
+
+	bool upload_skinweights = childGetValue("upload_skin").asBoolean();
+	bool upload_joint_positions = childGetValue("upload_joints").asBoolean();
+
+	mUploadModelUrl.clear();
+
+	gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
+			childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mUploadModelUrl, false,
+						  getWholeModelFeeObserverHandle());
+
+	toggleCalculateButton(false);
+	mUploadBtn->setEnabled(false);
+}
+
 //static
 void LLFloaterModelPreview::onImportScaleCommit(LLUICtrl*,void* userdata)
 {
@@ -554,7 +602,10 @@ void LLFloaterModelPreview::onImportScaleCommit(LLUICtrl*,void* userdata)
 		return;
 	}
 
-	fp->mModelPreview->calcResourceCost();
+	fp->mModelPreview->mDirty = true;
+
+	fp->toggleCalculateButton(true);
+
 	fp->mModelPreview->refresh();
 }
 //static
@@ -566,7 +617,11 @@ void LLFloaterModelPreview::onPelvisOffsetCommit( LLUICtrl*, void* userdata )
 	{
 		return;
 	}
-	fp->mModelPreview->calcResourceCost();
+
+	fp->mModelPreview->mDirty = true;
+
+	fp->toggleCalculateButton(true);
+
 	fp->mModelPreview->refresh();
 }
 
@@ -615,8 +670,6 @@ void LLFloaterModelPreview::onUploadSkinCommit(LLUICtrl*,void* userdata)
 	{
 		return;
 	}
-	
-	fp->mModelPreview->calcResourceCost();
 	fp->mModelPreview->refresh();
 	fp->mModelPreview->resetPreviewTarget();
 	fp->mModelPreview->clearBuffers();
@@ -669,6 +722,7 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 void LLFloaterModelPreview::onLODParamCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
+
 	fp->mModelPreview->onLODParamCommit(false);
 }
 
@@ -707,6 +761,8 @@ void LLFloaterModelPreview::draw()
 		}
 	}
 
+	childSetEnabled("ok_btn", mHasUploadPerm && !mUploadModelUrl.empty());
+
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
 
@@ -723,15 +779,6 @@ void LLFloaterModelPreview::draw()
 		childSetVisible("decompose_cancel", false);
 	}
 	
-	U32 resource_cost = mModelPreview->mResourceCost*10;
-
-	if (childGetValue("upload_textures").asBoolean())
-	{
-		resource_cost += mModelPreview->mTextureSet.size()*10;
-	}
-
-	childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d", resource_cost));
-
 	if (mModelPreview)
 	{
 		gGL.color3f(1.f, 1.f, 1.f);
@@ -862,6 +909,12 @@ BOOL LLFloaterModelPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	}
 
 	return TRUE;
+}
+
+/*virtual*/
+void LLFloaterModelPreview::onOpen(const LLSD& key)
+{
+	requestAgentUploadPermissions();
 }
 
 //static
@@ -1883,8 +1936,11 @@ bool LLModelLoader::doLoadModel()
 								mesh_scale *= transformation;
 								transformation = mesh_scale;
 								
-								std::vector<LLImportMaterial> materials;
-								materials.resize(model->getNumVolumeFaces());
+								std::map<std::string, LLImportMaterial> materials;
+								for (U32 i = 0; i < model->mMaterialList.size(); ++i)
+								{
+									materials[model->mMaterialList[i]] = LLImportMaterial();
+								}
 								mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
 								stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
 							}
@@ -1946,6 +2002,11 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 	//build model list for each LoD
 	model_list model[LLModel::NUM_LODS];
 
+	if (data["version"].asInteger() != SLM_SUPPORTED_VERSION)
+	{  //unsupported version
+		return false;
+	}
+
 	LLSD& mesh = data["mesh"];
 
 	LLVolumeParams volume_params;
@@ -1967,10 +2028,6 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 					//check to see if rig is valid					
 					mPreview->critiqueRigForUploadApplicability( loaded_model->mSkinInfo.mJointNames );					
 				}
-			}
-			else
-			{
-				return false;
 			}
 		}
 	}	
@@ -2267,14 +2324,17 @@ void LLModelLoader::loadTextures()
 	{
 		for(U32 i = 0 ; i < iter->second.size(); i++)
 		{
-			for(U32 j = 0 ; j < iter->second[i].mMaterial.size() ; j++)
+			for(std::map<std::string, LLImportMaterial>::iterator j = iter->second[i].mMaterial.begin();
+				j != iter->second[i].mMaterial.end(); ++j)
 			{
-				if(!iter->second[i].mMaterial[j].mDiffuseMapFilename.empty())
+				LLImportMaterial& material = j->second;
+
+				if(!material.mDiffuseMapFilename.empty())
 				{
-					iter->second[i].mMaterial[j].mDiffuseMap = 
-						LLViewerTextureManager::getFetchedTextureFromUrl("file://" + iter->second[i].mMaterial[j].mDiffuseMapFilename, TRUE, LLViewerTexture::BOOST_PREVIEW);
-					iter->second[i].mMaterial[j].mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, mPreview, NULL, FALSE);
-					iter->second[i].mMaterial[j].mDiffuseMap->forceToSaveRawImage(0, F32_MAX);
+					material.mDiffuseMap = 
+						LLViewerTextureManager::getFetchedTextureFromUrl("file://" + material.mDiffuseMapFilename, TRUE, LLViewerTexture::BOOST_PREVIEW);
+					material.mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, mPreview, NULL, FALSE);
+					material.mDiffuseMap->forceToSaveRawImage(0, F32_MAX);
 					mNumOfFetchingTextures++ ;
 				}
 			}
@@ -2574,7 +2634,7 @@ void LLModelLoader::processElement( daeElement* element, bool& badElement )
 				{
 					LLMatrix4 transformation = mTransform;
 
-					std::vector<LLImportMaterial> materials = getMaterials(model, instance_geo);
+					std::map<std::string, LLImportMaterial> materials = getMaterials(model, instance_geo);
 
 					// adjust the transformation to compensate for mesh normalization
 					LLVector3 mesh_scale_vector;
@@ -2630,9 +2690,9 @@ void LLModelLoader::processElement( daeElement* element, bool& badElement )
 	}
 }
 
-std::vector<LLImportMaterial> LLModelLoader::getMaterials(LLModel* model, domInstance_geometry* instance_geo)
+std::map<std::string, LLImportMaterial> LLModelLoader::getMaterials(LLModel* model, domInstance_geometry* instance_geo)
 {
-	std::vector<LLImportMaterial> materials;
+	std::map<std::string, LLImportMaterial> materials;
 	for (int i = 0; i < model->mMaterialList.size(); i++)
 	{
 		LLImportMaterial import_material;
@@ -2679,7 +2739,8 @@ std::vector<LLImportMaterial> LLModelLoader::getMaterials(LLModel* model, domIns
 			}
 		}
 
-		materials.push_back(import_material);
+		import_material.mBinding = model->mMaterialList[i];
+		materials[model->mMaterialList[i]] = import_material;
 	}
 
 	return materials;
@@ -2919,8 +2980,7 @@ U32 LLModelPreview::calcResourceCost()
 
 	if (mFMP && mModelLoader)
 	{
-		const BOOL confirmed_checkbox = mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean();
-		if ( getLoadState() < LLModelLoader::ERROR_PARSING && confirmed_checkbox )
+		if ( getLoadState() < LLModelLoader::ERROR_PARSING)
 		{
 			mFMP->childEnable("ok_btn");
 		}
@@ -2942,7 +3002,6 @@ U32 LLModelPreview::calcResourceCost()
 		//ok_btn should not have been changed unless something was wrong with joint list
 	}
 	
-	U32 cost = 0;
 	std::set<LLModel*> accounted;
 	U32 num_points = 0;
 	U32 num_hulls = 0;
@@ -2990,8 +3049,7 @@ U32 LLModelPreview::calcResourceCost()
 					   mFMP->childGetValue("upload_skin").asBoolean(),
 					   mFMP->childGetValue("upload_joints").asBoolean(),
 					   TRUE);
-			cost += gMeshRepo.calcResourceCost(ret);
-
+			
 			num_hulls += decomp.mHull.size();
 			for (U32 i = 0; i < decomp.mHull.size(); ++i)
 			{
@@ -3011,7 +3069,7 @@ U32 LLModelPreview::calcResourceCost()
 			F32 z_length = z_transformed.normalize();
 			LLVector3 scale = LLVector3(x_length, y_length, z_length);
 
-			F32 radius = scale.length()*debug_scale;
+			F32 radius = scale.length()*0.5f*debug_scale;
 
 			streaming_cost += LLMeshRepository::getStreamingCost(ret, radius);
 		}
@@ -3023,7 +3081,7 @@ U32 LLModelPreview::calcResourceCost()
 
 	updateStatusMessages();
 
-	return cost;
+	return streaming_cost;
 }
 
 void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)
@@ -3031,8 +3089,6 @@ void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, 
 	childSetTextArg("import_dimensions", "[X]", llformat("%.3f", x));
 	childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", y));
 	childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", z));
-	childSetTextArg("streaming cost", "[COST]", llformat("%.3f", streaming_cost));
-	childSetTextArg("physics cost", "[COST]", llformat("%.3f", physics_cost));	
 }
 
 
@@ -3062,10 +3118,22 @@ void LLModelPreview::rebuildUploadData()
 
 	F32 max_scale = 0.f;
 
-	const BOOL confirmed_checkbox = mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean();
-	if ( mBaseScene.size() > 0 && confirmed_checkbox )
+	if ( mBaseScene.size() > 0)
 	{
 		mFMP->childEnable("ok_btn");
+	}
+
+	//reorder materials to match mBaseModel
+	for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+	{
+		if (mBaseModel.size() == mModel[i].size())
+		{
+			for (U32 j = 0; j < mBaseModel.size(); ++j)
+			{
+				mModel[i][j]->matchMaterialOrder(mBaseModel[j]);
+				llassert(mModel[i][j]->mMaterialList == mBaseModel[j]->mMaterialList);
+			}
+		}
 	}
 
 	for (LLModelLoader::scene::iterator iter = mBaseScene.begin(); iter != mBaseScene.end(); ++iter)
@@ -3166,6 +3234,8 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 
 	LLSD data;
 
+	data["version"] = SLM_SUPPORTED_VERSION;
+
 	S32 mesh_id = 0;
 
 	//build list of unique models and initialize local id
@@ -3192,7 +3262,7 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 				instance.mLOD[LLModel::LOD_LOW], 
 				instance.mLOD[LLModel::LOD_IMPOSTOR], 
 				decomp, 
-				save_skinweights, save_joint_positions);
+				save_skinweights, save_joint_positions, FALSE, TRUE);
 
 			
 			data["mesh"][instance.mModel->mLocalID] = str.str();
@@ -3219,7 +3289,7 @@ void LLModelPreview::clearModel(S32 lod)
 	mScene[lod].clear();
 }
 
-void LLModelPreview::loadModel(std::string filename, S32 lod)
+void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable_slm)
 {
 	assert_main_thread();
 
@@ -3255,6 +3325,11 @@ void LLModelPreview::loadModel(std::string filename, S32 lod)
 	}
 
 	mModelLoader = new LLModelLoader(filename, lod, this, mJointTransformMap, mJointsFromNode );
+
+	if (force_disable_slm)
+	{
+		mModelLoader->mTrySLM = false;
+	}
 
 	mModelLoader->start();
 
@@ -3470,7 +3545,17 @@ void LLModelPreview::loadModelCallback(S32 lod)
 
 	mLoading = false;
 	if (mFMP)
+	{
 		mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->set(FALSE);
+		if (!mBaseModel.empty())
+		{
+			if (mFMP->getChild<LLUICtrl>("description_form")->getValue().asString().empty())
+			{
+				const std::string& model_name = mBaseModel[0]->getName();
+				mFMP->getChild<LLUICtrl>("description_form")->setValue(model_name);
+			}
+		}
+	}
 	refresh();
 
 	mModelLoadedSignal();
@@ -3524,43 +3609,6 @@ void LLModelPreview::generateNormals()
 	mVertexBuffer[which_lod].clear();
 	refresh();
 	updateStatusMessages();
-}
-
-void LLModelPreview::clearMaterials()
-{
-	for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
-	{ //for each transform in current scene
-		for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
-		{ //for each instance with that transform
-			LLModelInstance& source_instance = *model_iter;
-			LLModel* source = source_instance.mModel;
-
-			for (S32 i = 0; i < source->getNumVolumeFaces(); ++i)
-			{ //for each face in instance
-				LLImportMaterial& source_material = source_instance.mMaterial[i];
-
-				//clear material info
-				source_material.mDiffuseColor = LLColor4(1,1,1,1);
-				source_material.mDiffuseMap = NULL;
-				source_material.mDiffuseMapFilename.clear();
-				source_material.mDiffuseMapLabel.clear();
-				source_material.mFullbright = false;
-			}
-		}
-	}
-
-	mVertexBuffer[mPreviewLOD].clear();
-
-	if (mPreviewLOD == LLModel::LOD_HIGH)
-	{
-		mBaseScene = mScene[mPreviewLOD];
-		mBaseModel = mModel[mPreviewLOD];
-		clearGLODGroup();
-		mVertexBuffer[5].clear();
-	}
-
-	mResourceCost = calcResourceCost();
-	refresh();
 }
 
 void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
@@ -4178,8 +4226,7 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
-	const BOOL confirmed_checkbox = mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->getValue().asBoolean();
-	if ( upload_ok && !errorStateFromLoader && skinAndRigOk && !has_degenerate && confirmed_checkbox)
+	if ( upload_ok && !errorStateFromLoader && skinAndRigOk && !has_degenerate)
 	{
 		mFMP->childEnable("ok_btn");
 	}
@@ -4426,6 +4473,8 @@ void LLModelPreview::updateStatusMessages()
 		mFMP->childSetColor("crease_label", LLColor4::white);
 		crease->forceSetValue(mRequestedCreaseAngle[mPreviewLOD]);
 	}
+
+	mModelUpdatedSignal(true);
 
 }
 
@@ -4751,7 +4800,18 @@ BOOL LLModelPreview::render()
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	LLRect preview_rect = mFMP->getChildView("preview_panel")->getRect();
+	LLRect preview_rect;
+
+	LLFloaterModelWizard* floater_wizard = dynamic_cast<LLFloaterModelWizard*>(mFMP);
+	if (floater_wizard)
+	{
+		preview_rect = floater_wizard->getPreviewRect();
+	}
+	else
+	{
+		preview_rect = mFMP->getChildView("preview_panel")->getRect();
+	}
+
 	F32 aspect = (F32) preview_rect.getWidth()/preview_rect.getHeight();
 
 	LLViewerCamera::getInstance()->setAspect(aspect);
@@ -4820,6 +4880,19 @@ BOOL LLModelPreview::render()
 			}
 		}
 
+		//make sure material lists all match
+		for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+		{
+			if (mBaseModel.size() == mModel[i].size())
+			{
+				for (U32 j = 0; j < mBaseModel.size(); ++j)
+				{
+					mModel[i][j]->matchMaterialOrder(mBaseModel[j]);
+					llassert(mModel[i][j]->mMaterialList == mBaseModel[j]->mMaterialList);
+				}
+			}
+		}
+
 		if (regen)
 		{
 			genBuffers(mPreviewLOD, skin_weight);
@@ -4851,13 +4924,18 @@ BOOL LLModelPreview::render()
 
 					if (textures)
 					{
-						glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
-						if (i < instance.mMaterial.size() && instance.mMaterial[i].mDiffuseMap.notNull())
+						const std::string& binding = instance.mModel->mMaterialList[i];
+						const LLImportMaterial& material = instance.mMaterial[binding];
+
+						llassert(binding == model->mMaterialList[i]);
+						
+						glColor4fv(material.mDiffuseColor.mV);
+						if (material.mDiffuseMap.notNull())
 						{
-							if (instance.mMaterial[i].mDiffuseMap->getDiscardLevel() > -1)
+							if (material.mDiffuseMap->getDiscardLevel() > -1)
 							{
-								gGL.getTexUnit(0)->bind(instance.mMaterial[i].mDiffuseMap, true);
-								mTextureSet.insert(instance.mMaterial[i].mDiffuseMap.get());
+								gGL.getTexUnit(0)->bind(material.mDiffuseMap, true);
+								mTextureSet.insert(material.mDiffuseMap.get());
 							}
 						}
 					}
@@ -5157,8 +5235,10 @@ BOOL LLModelPreview::render()
 								position[j] = v;
 							}
 
+							const std::string& binding = instance.mModel->mMaterialList[i];
+							const LLImportMaterial& material = instance.mMaterial[binding];
 							buffer->setBuffer(type_mask & buffer->getTypeMask());
-							glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
+							glColor4fv(material.mDiffuseColor.mV);
 							gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 							buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
 							glColor3f(0.4f, 0.4f, 0.4f);
@@ -5278,7 +5358,12 @@ void LLFloaterModelPreview::onReset(void* user_data)
 	LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) user_data;
 	LLModelPreview* mp = fmp->mModelPreview;
 	std::string filename = mp->mLODFile[3]; 
-	mp->loadModel(filename,3);
+
+	//reset model preview
+	fmp->initModelPreview();
+
+	mp = fmp->mModelPreview;
+	mp->loadModel(filename,3,true);
 }
 
 //static
@@ -5296,29 +5381,16 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
 
 	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
-						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions);
-
-	mp->closeFloater(false);
+						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mp->mUploadModelUrl,
+						  true, LLHandle<LLWholeModelFeeObserver>(), mp->getWholeModelUploadObserverHandle());
 }
 
-
-//static
-void LLFloaterModelPreview::onClearMaterials(void* user_data)
-{
-	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
-	mp->mModelPreview->clearMaterials();
-}
 
 //static
 void LLFloaterModelPreview::refresh(LLUICtrl* ctrl, void* user_data)
 {
+	sInstance->toggleCalculateButton(true);
 	sInstance->mModelPreview->mDirty = true;
-}
-
-void LLFloaterModelPreview::updateResourceCost()
-{
-	U32 cost = mModelPreview->mResourceCost;
-	childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d",cost));
 }
 
 //static
@@ -5364,6 +5436,87 @@ void LLFloaterModelPreview::setStatusMessage(const std::string& msg)
 	mStatusMessage = msg;
 }
 
+void LLFloaterModelPreview::toggleCalculateButton()
+{
+	toggleCalculateButton(true);
+}
+
+void LLFloaterModelPreview::toggleCalculateButton(bool visible)
+{
+	mCalculateBtn->setVisible(visible);
+
+	bool uploadingSkin		     = childGetValue("upload_skin").asBoolean();
+	bool uploadingJointPositions = childGetValue("upload_joints").asBoolean();
+	if ( uploadingSkin )
+	{
+		//Disable the calculate button *if* the rig is invalid - which is determined during the critiquing process
+		if ( uploadingJointPositions && !mModelPreview->isRigValidForJointPositionUpload() )
+		{
+			mCalculateBtn->setVisible( false );
+		}
+		else
+		if ( !mModelPreview->isLegacyRigValid() )
+		{			
+			mCalculateBtn->setVisible( false );
+		}
+	}
+	
+	mUploadBtn->setVisible(!visible);
+	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
+
+	if (visible)
+	{
+		std::string tbd = getString("tbd");
+		childSetTextArg("weights", "[EQ]", tbd);
+		childSetTextArg("weights", "[ST]", tbd);
+		childSetTextArg("weights", "[SIM]", tbd);
+		childSetTextArg("weights", "[PH]", tbd);
+		childSetTextArg("upload_fee", "[FEE]", tbd);
+		childSetTextArg("price_breakdown", "[STREAMING]", tbd);
+		childSetTextArg("price_breakdown", "[PHYSICS]", tbd);
+		childSetTextArg("price_breakdown", "[INSTANCES]", tbd);
+		childSetTextArg("price_breakdown", "[TEXTURES]", tbd);
+		childSetTextArg("price_breakdown", "[MODEL]", tbd);
+	}
+}
+
+void LLFloaterModelPreview::onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url)
+{
+	mUploadModelUrl = upload_url;
+	childSetTextArg("weights", "[EQ]", llformat("%0.3f", result["resource_cost"].asReal()));
+	childSetTextArg("weights", "[ST]", llformat("%0.3f", result["model_streaming_cost"].asReal()));
+	childSetTextArg("weights", "[SIM]", llformat("%0.3f", result["simulation_cost"].asReal()));
+	childSetTextArg("weights", "[PH]", llformat("%0.3f", result["physics_cost"].asReal()));
+	childSetTextArg("upload_fee", "[FEE]", llformat("%d", result["upload_price"].asInteger()));
+	childSetTextArg("price_breakdown", "[STREAMING]", llformat("%d", result["upload_price_breakdown"]["mesh_streaming"].asInteger()));
+	childSetTextArg("price_breakdown", "[PHYSICS]", llformat("%d", result["upload_price_breakdown"]["mesh_physics"].asInteger()));
+	childSetTextArg("price_breakdown", "[INSTANCES]", llformat("%d", result["upload_price_breakdown"]["mesh_instance"].asInteger()));
+	childSetTextArg("price_breakdown", "[TEXTURES]", llformat("%d", result["upload_price_breakdown"]["texture"].asInteger()));
+	childSetTextArg("price_breakdown", "[MODEL]", llformat("%d", result["upload_price_breakdown"]["model"].asInteger()));
+	childSetVisible("weights", true);
+	childSetVisible("upload_fee", true);
+	childSetVisible("price_breakdown", true);
+	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
+}
+
+void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason)
+{
+	toggleCalculateButton(true);
+	llwarns << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << llendl;
+}
+
+/*virtual*/ 
+void LLFloaterModelPreview::onModelUploadSuccess()
+{
+	closeFloater(false);
+}
+
+/*virtual*/ 
+void LLFloaterModelPreview::onModelUploadFailure()
+{
+	toggleCalculateButton(true);
+}
+
 S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32 p1, S32 p2)
 {
 	if (mContinue)
@@ -5402,4 +5555,26 @@ void LLFloaterModelPreview::DecompRequest::completed()
 	{
 		llassert(sInstance->mCurRequest.find(this) == sInstance->mCurRequest.end());
 	}
+}
+
+void dump_llsd_to_file(const LLSD& content, std::string filename);
+
+void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
+{
+	dump_llsd_to_file(result,"perm_received.xml");
+	std::string upload_status = result["mesh_upload_status"].asString();
+	// BAP HACK: handle "" for case that  MeshUploadFlag cap is broken.
+	mHasUploadPerm = (("" == upload_status) || ("valid" == upload_status));
+
+	//mUploadBtn->setEnabled(mHasUploadPerm);
+	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
+	getChild<LLTextBox>("warning_title")->setVisible(!mHasUploadPerm);
+	getChild<LLTextBox>("warning_message")->setVisible(!mHasUploadPerm);
+}
+
+void LLFloaterModelPreview::setPermissonsErrorStatus(U32 status, const std::string& reason)
+{
+	llwarns << "LLFloaterModelPreview::setPermissonsErrorStatus(" << status << " : " << reason << ")" << llendl;
+
+	LLNotificationsUtil::add("MeshUploadPermError");
 }

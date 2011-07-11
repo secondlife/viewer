@@ -423,8 +423,7 @@ void LLFloaterTools::refresh()
 	// Refresh object and prim count labels
 	LLLocale locale(LLLocale::USER_LOCALE);
 
-#if 0
-	if (gMeshRepo.meshRezEnabled())
+	if (!gMeshRepo.meshRezEnabled())
 	{		
 		std::string obj_count_string;
 		LLResMgr::getInstance()->getIntegerString(obj_count_string, LLSelectMgr::getInstance()->getSelection()->getRootObjectCount());
@@ -448,34 +447,37 @@ void LLFloaterTools::refresh()
 		getChildView("RenderingCost")->setEnabled(have_selection && sShowObjectCost);
 	}
 	else
-#endif
 	{
 		F32 link_phys_cost  = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetPhysicsCost();
 		F32 link_cost  = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
 		S32 prim_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 		S32 link_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
 
-		LLStringUtil::format_map_t args;
-		args["OBJ_COUNT"] = llformat("%.1d", link_count);
-		args["PRIM_COUNT"] = llformat("%.1d", prim_count);
+		LLStringUtil::format_map_t selection_args;
+		selection_args["OBJ_COUNT"] = llformat("%.1d", link_count);
+		selection_args["PRIM_COUNT"] = llformat("%.1d", prim_count);
 
 		std::ostringstream selection_info;
-		selection_info << getString("status_selectcount", args);
 
-		bool show_prim_equiv = (link_cost != prim_count) && link_cost;
 		bool show_adv_weight = gSavedSettings.getBOOL("ShowAdvancedBuilderOptions");
 		bool show_mesh_cost = gMeshRepo.meshRezEnabled();
 
-		if (show_prim_equiv && show_mesh_cost)
+		if (show_mesh_cost)
 		{
-			selection_info << ": ";
-			args["SEL_WEIGHT"] = llformat("%.1f", link_cost);
-			selection_info << getString("status_selectprimequiv", args);
+			LLStringUtil::format_map_t prim_equiv_args;
+			prim_equiv_args["SEL_WEIGHT"] = llformat("%.1d", (S32)link_cost);
+			selection_args["PE_STRING"] = getString("status_selectprimequiv", prim_equiv_args);
 		}
+		else
+		{
+			selection_args["PE_STRING"] = "";
+		}
+
+		selection_info << getString("status_selectcount", selection_args);
 
 		if (show_adv_weight)
 		{
-			show_prim_equiv ? (selection_info << ",") : (selection_info << ".");
+			selection_info << ",";
 
 			childSetTextArg("selection_weight", "[PHYS_WEIGHT]", llformat("%.1f", link_phys_cost));
 			childSetTextArg("selection_weight", "[DISP_WEIGHT]", llformat("%.1d", calcRenderCost()));

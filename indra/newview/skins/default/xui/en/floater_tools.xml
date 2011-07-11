@@ -48,11 +48,11 @@
     </floater.string>
     <floater.string
      name="status_selectcount">
-        [OBJ_COUNT] objects ( [PRIM_COUNT] prims ) selected
+        [OBJ_COUNT] objects ( [PRIM_COUNT] prims[PE_STRING] ) selected
     </floater.string>
     <floater.string
      name="status_selectprimequiv">
-        PE weight [SEL_WEIGHT]
+        , [SEL_WEIGHT] prim equivs
     </floater.string>
     <button
      follows="left|top"
@@ -271,18 +271,6 @@
 	  <button.commit_callback
 	     function="BuildTool.UnlinkObjects"/>
     </button>
-    <text
-	   text_color="LtGray_50"
-	   follows="top|left"
-	   halign="left"
-	   left_pad="3"
-	   name="RenderingCost"
-	   tool_tip="Shows the rendering cost calculated for this object"
-	   top_delta="11"
-	   type="string"
-	   width="100">
-	   þ: [COUNT]
-	   </text>
     <check_box
      control_name="ScaleUniform"
      height="19"
@@ -754,7 +742,7 @@
 	  top_pad="0"
 	  visible="false"
 	  width="280">
-	  Physics weight [PHYS_WEIGHT], Display weight [DISP_WEIGHT].
+	  Physics weight [PHYS_WEIGHT], Render Cost [DISP_WEIGHT].
 	</text>
     <!-- <text -->
     <!-- text_color="LtGray_50" -->

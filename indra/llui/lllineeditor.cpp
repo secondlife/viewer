@@ -81,6 +81,7 @@ LLLineEditor::Params::Params()
 :	max_length(""),
     keystroke_callback("keystroke_callback"),
 	prevalidate_callback("prevalidate_callback"),
+	prevalidate_input_callback("prevalidate_input_callback"),
 	background_image("background_image"),
 	background_image_disabled("background_image_disabled"),
 	background_image_focused("background_image_focused"),
@@ -173,6 +174,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	updateTextPadding();
 	setCursor(mText.length());
 
+	setPrevalidateInput(p.prevalidate_input_callback());
 	setPrevalidate(p.prevalidate_callback());
 
 	LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>
@@ -405,23 +407,15 @@ void LLLineEditor::setText(const LLStringExplicit &new_text)
 // Picks a new cursor position based on the actual screen size of text being drawn.
 void LLLineEditor::setCursorAtLocalPos( S32 local_mouse_x )
 {
-	const llwchar* wtext = mText.getWString().c_str();
-	LLWString asterix_text;
-	if (mDrawAsterixes)
-	{
-		for (S32 i = 0; i < mText.length(); i++)
-		{
-			asterix_text += utf8str_to_wstring(PASSWORD_ASTERISK);
-		}
-		wtext = asterix_text.c_str();
-	}
+	S32 cursor_pos = calcCursorPos(local_mouse_x);
 
-	S32 cursor_pos =
-		mScrollHPos + 
-		mGLFont->charFromPixelOffset(
-			wtext, mScrollHPos,
-			(F32)(local_mouse_x - mTextLeftEdge),
-			(F32)(mTextRightEdge - mTextLeftEdge + 1)); // min-max range is inclusive
+	S32 left_pos = llmin( mSelectionStart, cursor_pos );
+	S32 length = llabs( mSelectionStart - cursor_pos );
+	const LLWString& substr = mText.getWString().substr(left_pos, length);
+
+	if (mIsSelecting && !prevalidateInput(substr))
+		return;
+
 	setCursor(cursor_pos);
 }
 
@@ -505,6 +499,11 @@ BOOL LLLineEditor::canSelectAll() const
 
 void LLLineEditor::selectAll()
 {
+	if (!prevalidateInput(mText.getWString()))
+	{
+		return;
+	}
+
 	mSelectionStart = mText.length();
 	mSelectionEnd = 0;
 	setCursor(mSelectionEnd);
@@ -590,6 +589,9 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 
 		if (mask & MASK_SHIFT)
 		{
+			// assume we're starting a drag select
+			mIsSelecting = TRUE;
+
 			// Handle selection extension
 			S32 old_cursor_pos = getCursor();
 			setCursorAtLocalPos(x);
@@ -624,8 +626,6 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 				mSelectionStart = old_cursor_pos;
 				mSelectionEnd = getCursor();
 			}
-			// assume we're starting a drag select
-			mIsSelecting = TRUE;
 		}
 		else
 		{
@@ -796,6 +796,9 @@ void LLLineEditor::removeChar()
 {
 	if( getCursor() > 0 )
 	{
+		if (!prevalidateInput(mText.getWString().substr(getCursor()-1, 1)))
+			return;
+
 		mText.erase(getCursor() - 1, 1);
 
 		setCursor(getCursor() - 1);
@@ -816,6 +819,9 @@ void LLLineEditor::addChar(const llwchar uni_char)
 	}
 	else if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
 	{
+		if (!prevalidateInput(mText.getWString().substr(getCursor(), 1)))
+			return;
+
 		mText.erase(getCursor(), 1);
 	}
 
@@ -864,6 +870,13 @@ void LLLineEditor::extendSelection( S32 new_cursor_pos )
 		startSelection();
 	}
 	
+	S32 left_pos = llmin( mSelectionStart, new_cursor_pos );
+	S32 selection_length = llabs( mSelectionStart - new_cursor_pos );
+	const LLWString& selection = mText.getWString().substr(left_pos, selection_length);
+
+	if (!prevalidateInput(selection))
+		return;
+
 	setCursor(new_cursor_pos);
 	mSelectionEnd = getCursor();
 }
@@ -994,8 +1007,12 @@ void LLLineEditor::deleteSelection()
 {
 	if( !mReadOnly && hasSelection() )
 	{
-		S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
-		S32 selection_length = llabs( mSelectionStart - mSelectionEnd );
+		S32 left_pos, selection_length;
+		getSelectionRange(&left_pos, &selection_length);
+		const LLWString& selection = mText.getWString().substr(left_pos, selection_length);
+
+		if (!prevalidateInput(selection))
+			return;
 
 		mText.erase(left_pos, selection_length);
 		deselect();
@@ -1013,12 +1030,16 @@ void LLLineEditor::cut()
 {
 	if( canCut() )
 	{
+		S32 left_pos, length;
+		getSelectionRange(&left_pos, &length);
+		const LLWString& selection = mText.getWString().substr(left_pos, length);
+
+		if (!prevalidateInput(selection))
+			return;
+
 		// Prepare for possible rollback
 		LLLineEditorRollback rollback( this );
 
-
-		S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
-		S32 length = llabs( mSelectionStart - mSelectionEnd );
 		gClipboard.copyFromSubstring( mText.getWString(), left_pos, length );
 		deleteSelection();
 
@@ -1098,6 +1119,9 @@ void LLLineEditor::pasteHelper(bool is_primary)
 
 		if (!paste.empty())
 		{
+			if (!prevalidateInput(paste))
+				return;
+
 			// Prepare for possible rollback
 			LLLineEditorRollback rollback(this);
 			
@@ -1445,6 +1469,13 @@ BOOL LLLineEditor::handleUnicodeCharHere(llwchar uni_char)
 
 		LLLineEditorRollback rollback( this );
 
+		{
+			LLWString u_char;
+			u_char.assign(1, uni_char);
+			if (!prevalidateInput(u_char))
+				return handled;
+		}
+
 		addChar(uni_char);
 
 		mKeystrokeTimer.reset();
@@ -1496,6 +1527,15 @@ void LLLineEditor::doDelete()
 		}
 		else if ( getCursor() < mText.length())
 		{	
+			const LLWString& text_to_delete = mText.getWString().substr(getCursor(), 1);
+
+			if (!prevalidateInput(text_to_delete))
+			{
+				if( mKeystrokeCallback )
+					mKeystrokeCallback( this );
+
+				return;
+			}
 			setCursor(getCursor() + 1);
 			removeChar();
 		}
@@ -1843,6 +1883,27 @@ S32 LLLineEditor::findPixelNearestPos(const S32 cursor_offset) const
 	return result;
 }
 
+S32 LLLineEditor::calcCursorPos(S32 mouse_x)
+{
+	const llwchar* wtext = mText.getWString().c_str();
+	LLWString asterix_text;
+	if (mDrawAsterixes)
+	{
+		for (S32 i = 0; i < mText.length(); i++)
+		{
+			asterix_text += utf8str_to_wstring(PASSWORD_ASTERISK);
+		}
+		wtext = asterix_text.c_str();
+	}
+
+	S32 cur_pos = mScrollHPos +
+			mGLFont->charFromPixelOffset(
+				wtext, mScrollHPos,
+				(F32)(mouse_x - mTextLeftEdge),
+				(F32)(mTextRightEdge - mTextLeftEdge + 1)); // min-max range is inclusive
+
+	return cur_pos;
+}
 //virtual
 void LLLineEditor::clear()
 {
@@ -1934,6 +1995,22 @@ void LLLineEditor::setPrevalidate(LLTextValidate::validate_func_t func)
 {
 	mPrevalidateFunc = func;
 	updateAllowingLanguageInput();
+}
+
+void LLLineEditor::setPrevalidateInput(LLTextValidate::validate_func_t func)
+{
+	mPrevalidateInputFunc = func;
+	updateAllowingLanguageInput();
+}
+
+bool LLLineEditor::prevalidateInput(const LLWString& wstr)
+{
+	if (mPrevalidateInputFunc && !mPrevalidateInputFunc(wstr))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 // static

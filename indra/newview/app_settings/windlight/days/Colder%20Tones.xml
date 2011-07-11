@@ -1,0 +1,28 @@
+<llsd>
+    <array>
+        <array>
+            <real>0</real>
+            <string>Midnight</string>
+        </array>
+        <array>
+            <real>0.24999989569187164</real>
+            <string>Purple</string>
+        </array>
+        <array>
+            <real>0.49999979138374329</real>
+            <string>Blue Midday</string>
+        </array>
+        <array>
+            <real>0.74999970197677612</real>
+            <string>Blizzard</string>
+        </array>
+        <array>
+            <real>0.87499958276748657</real>
+            <string>Ghost</string>
+        </array>
+        <array>
+            <real>0.99999958276748657</real>
+            <string>Midnight</string>
+        </array>
+    </array>
+</llsd>

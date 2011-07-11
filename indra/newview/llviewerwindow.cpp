@@ -528,8 +528,8 @@ public:
 				addText(xpos,ypos, llformat("%s streaming cost: %.1f", label, cost));
 				ypos += y_inc;
 
-				addText(xpos, ypos, llformat("    %.1f KTris, %.1f/%.1f KB, %d objects",
-										count/1024.f, visible_bytes/1024.f, total_bytes/1024.f, object_count));
+				addText(xpos, ypos, llformat("    %.3f KTris, %.1f/%.1f KB, %d objects",
+										count/1000.f, visible_bytes/1024.f, total_bytes/1024.f, object_count));
 				ypos += y_inc;
 			
 			}
@@ -726,19 +726,6 @@ public:
 			}
 		}				
 
-		if (gSavedSettings.getBOOL("DebugShowUploadCost"))
-		{
-			addText(xpos, ypos, llformat("       Meshes: L$%d", gPipeline.mDebugMeshUploadCost));
-			ypos += y_inc/2;
-			addText(xpos, ypos, llformat("    Sculpties: L$%d", gPipeline.mDebugSculptUploadCost));
-			ypos += y_inc/2;
-			addText(xpos, ypos, llformat("     Textures: L$%d", gPipeline.mDebugTextureUploadCost));
-			ypos += y_inc/2;
-			addText(xpos, ypos, "Upload Cost: ");
-						
-			ypos += y_inc;
-		}
-
 		//temporary hack to give feedback on mesh upload progress
 		if (!gMeshRepo.mUploads.empty())
 		{
@@ -747,10 +734,8 @@ public:
 			{
 				LLMeshUploadThread* thread = *iter;
 
-				addText(xpos, ypos, llformat("Mesh Upload -- price quote: %d:%d | upload: %d:%d | create: %d", 
-								thread->mPendingConfirmations, thread->mUploadQ.size()+thread->mTextureQ.size(),
-								thread->mPendingUploads, thread->mConfirmedQ.size()+thread->mConfirmedTextureQ.size(),
-								thread->mInstanceQ.size()));
+				addText(xpos, ypos, llformat("Mesh Uploads: %d", 
+								thread->mPendingUploads));
 				ypos += y_inc;
 			}
 		}
@@ -1979,7 +1964,10 @@ void LLViewerWindow::shutdownViews()
 	
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
+	if (LLNavigationBar::instanceExists())
+	{
 	delete LLNavigationBar::getInstance();
+	}
 
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
@@ -4516,6 +4504,14 @@ void LLViewerWindow::setup3DViewport(S32 x_offset, S32 y_offset)
 	gGLViewport[2] = mWorldViewRectRaw.getWidth();
 	gGLViewport[3] = mWorldViewRectRaw.getHeight();
 	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
+}
+
+void LLViewerWindow::revealIntroPanel()
+{
+	if (mProgressView)
+	{
+		mProgressView->revealIntroPanel();
+	}
 }
 
 void LLViewerWindow::setShowProgress(const BOOL show)

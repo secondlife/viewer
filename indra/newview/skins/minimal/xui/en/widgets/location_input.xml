@@ -113,6 +113,14 @@
 	  font="SansSerifSmall"
 	  text_color="TextFgColor"
 	/>
+  <see_avatars_icon
+    name="see_avatars_icon"
+    width="0"
+    height="0"
+    visible="false" 
+    top="21"
+    follows="right|top"
+    />
   <combo_button
 		name="Location History"
                 label=""

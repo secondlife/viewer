@@ -957,8 +957,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			iter != idle_list.end(); iter++)
 		{
 			objectp = *iter;
-			if (objectp->getPCode() == LLViewerObject::LL_VO_CLOUDS ||
-				objectp->isAvatar())
+			if (objectp->isAvatar())
 			{
 				objectp->idleUpdate(agent, world, frame_time);
 			}
@@ -1395,6 +1394,10 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 {
+	if (!object->isRoot())
+	{ //always fetch cost for the parent when fetching cost for children
+		mStaleObjectCost.insert(((LLViewerObject*)object->getParent())->getID());
+	}
 	mStaleObjectCost.insert(object->getID());
 }
 

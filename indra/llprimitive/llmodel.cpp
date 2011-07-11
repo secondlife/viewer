@@ -1209,8 +1209,21 @@ void LLModel::generateNormals(F32 angle_cutoff)
 			LLVolumeFace::VertexData v;
 			new_face.mPositions[i] = vol_face.mPositions[idx];
 			new_face.mNormals[i].clear();
-			new_face.mTexCoords[i] = vol_face.mTexCoords[idx];
 			new_face.mIndices[i] = i;
+		}
+
+		if (vol_face.mTexCoords)
+		{
+			for (U32 i = 0; i < vol_face.mNumIndices; i++)
+			{
+				U32 idx = vol_face.mIndices[i];
+				new_face.mTexCoords[i] = vol_face.mTexCoords[idx];
+			}
+		}
+		else
+		{
+			ll_aligned_free_16(new_face.mTexCoords);
+			new_face.mTexCoords = NULL;
 		}
 
 		//generate normals for new face
@@ -1347,7 +1360,8 @@ LLSD LLModel::writeModel(
 	const LLModel::Decomposition& decomp,
 	BOOL upload_skin,
 	BOOL upload_joints,
-	BOOL nowrite)
+	BOOL nowrite,
+	BOOL as_slm)
 {
 	LLSD mdl;
 
@@ -1371,9 +1385,17 @@ LLSD LLModel::writeModel(
 		!decomp.mHull.empty())		
 	{
 		mdl["physics_convex"] = decomp.asLLSD();
-		if (!decomp.mHull.empty())
-		{ //convex decomposition exists, physics mesh will not be used
+		if (!decomp.mHull.empty() && !as_slm)
+		{ //convex decomposition exists, physics mesh will not be used (unless this is an slm file)
 			model[LLModel::LOD_PHYSICS] = NULL;
+		}
+	}
+
+	if (as_slm)
+	{ //save material list names
+		for (U32 i = 0; i < high->mMaterialList.size(); ++i)
+		{
+			mdl["material_list"][i] = high->mMaterialList[i];
 		}
 	}
 
@@ -1564,16 +1586,21 @@ LLSD LLModel::writeModel(
 		}
 	}
 	
-	return writeModelToStream(ostr, mdl, nowrite);
+	return writeModelToStream(ostr, mdl, nowrite, as_slm);
 }
 
-LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite)
+LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BOOL as_slm)
 {
 	U32 bytes = 0;
 	
 	std::string::size_type cur_offset = 0;
 
 	LLSD header;
+
+	if (as_slm && mdl.has("material_list"))
+	{ //save material binding names to header
+		header["material_list"] = mdl["material_list"];
+	}
 
 	std::string skin;
 
@@ -1768,6 +1795,15 @@ bool LLModel::loadModel(std::istream& is)
 		}
 	}
 	
+	if (header.has("material_list"))
+	{ //load material list names
+		mMaterialList.clear();
+		for (U32 i = 0; i < header["material_list"].size(); ++i)
+		{
+			mMaterialList.push_back(header["material_list"][i].asString());
+		}
+	}
+
 	std::string nm[] = 
 	{
 		"lowest_lod",
@@ -1798,7 +1834,7 @@ bool LLModel::loadModel(std::istream& is)
 		is.seekg(cur_pos);
 	}
 
-	if (lod == LLModel::LOD_PHYSICS)
+	if (lod == LLModel::LOD_HIGH || lod == LLModel::LOD_PHYSICS)
 	{
 		std::ios::pos_type cur_pos = is.tellg();
 		loadDecomposition(header, is);
@@ -1852,6 +1888,57 @@ bool LLModel::loadModel(std::istream& is)
 
 	return false;
 
+}
+
+void LLModel::matchMaterialOrder(LLModel* ref)
+{
+	llassert(ref->mMaterialList.size() == mMaterialList.size());
+
+	std::map<std::string, U32> index_map;
+	
+	//build a map of material slot names to face indexes
+	bool reorder = false;
+	std::set<std::string> base_mat;
+	std::set<std::string> cur_mat;
+
+	for (U32 i = 0; i < mMaterialList.size(); i++)
+	{
+		index_map[ref->mMaterialList[i]] = i;
+		if (!reorder)
+		{ //if any material name does not match reference, we need to reorder
+			reorder = ref->mMaterialList[i] != mMaterialList[i];
+		}
+		base_mat.insert(ref->mMaterialList[i]);
+		cur_mat.insert(mMaterialList[i]);
+	}
+
+
+	if (reorder && 
+		base_mat == cur_mat) //don't reorder if material name sets don't match
+	{
+		std::vector<LLVolumeFace> new_face_list;
+		new_face_list.resize(mVolumeFaces.size());
+
+		std::vector<std::string> new_material_list;
+		new_material_list.resize(mVolumeFaces.size());
+
+		//rebuild face list so materials have the same order 
+		//as the reference model
+		for (U32 i = 0; i < mMaterialList.size(); ++i)
+		{ 
+			U32 ref_idx = index_map[mMaterialList[i]];
+			new_face_list[ref_idx] = mVolumeFaces[i];
+
+			new_material_list[ref_idx] = mMaterialList[i];
+		}
+
+		llassert(new_material_list == ref->mMaterialList);
+		
+		mVolumeFaces = new_face_list;
+	}
+
+	//override material list with reference model ordering
+	mMaterialList = ref->mMaterialList;
 }
 
 
@@ -2015,7 +2102,7 @@ LLModel::Decomposition::Decomposition(LLSD& data)
 
 void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 {
-	if (decomp.has("HullList"))
+	if (decomp.has("HullList") && decomp.has("Positions"))
 	{
 		// updated for const-correctness. gcc is picky about this type of thing - Nyx
 		const LLSD::Binary& hulls = decomp["HullList"].asBinary();
@@ -2171,6 +2258,8 @@ LLSD LLModel::Decomposition::asLLSD() const
 	ret["Min"] = min.getValue();
 	ret["Max"] = max.getValue();
 
+	LLVector3 range = max-min;
+
 	if (!hulls.empty())
 	{
 		ret["HullList"] = hulls;
@@ -2179,10 +2268,6 @@ LLSD LLModel::Decomposition::asLLSD() const
 	if (total > 0)
 	{
 		LLSD::Binary p(total*3*2);
-
-		LLVector3 min(-0.5f, -0.5f, -0.5f);
-		LLVector3 max(0.5f, 0.5f, 0.5f);
-		LLVector3 range = max-min;
 
 		U32 vert_idx = 0;
 		
@@ -2195,11 +2280,11 @@ LLSD LLModel::Decomposition::asLLSD() const
 			for (U32 j = 0; j < mHull[i].size(); ++j)
 			{
 				U64 test = 0;
+				const F32* src = mHull[i][j].mV;
+
 				for (U32 k = 0; k < 3; k++)
 				{
-					F32* src = (F32*) (mHull[i][j].mV);
-
-					llassert(src[k] <= 0.501f && src[k] >= -0.501f);
+					llassert(src[k] <= 0.51f && src[k] >= -0.51f);
 
 					//convert to 16-bit normalized across domain
 					U16 val = (U16) (((src[k]-min.mV[k])/range.mV[k])*65535);
@@ -2239,19 +2324,17 @@ LLSD LLModel::Decomposition::asLLSD() const
 	{
 		LLSD::Binary p(mBaseHull.size()*3*2);
 
-		LLVector3 min(-0.5f, -0.5f, -0.5f);
-		LLVector3 max(0.5f, 0.5f, 0.5f);
-		LLVector3 range = max-min;
-
 		U32 vert_idx = 0;
 		for (U32 j = 0; j < mBaseHull.size(); ++j)
 		{
+			const F32* v = mBaseHull[j].mV;
+
 			for (U32 k = 0; k < 3; k++)
 			{
-				llassert(mBaseHull[j].mV[k] <= 0.51f && mBaseHull[j].mV[k] >= -0.51f);
+				llassert(v[k] <= 0.51f && v[k] >= -0.51f);
 
 				//convert to 16-bit normalized across domain
-				U16 val = (U16) (((mBaseHull[j].mV[k]-min.mV[k])/range.mV[k])*65535);
+				U16 val = (U16) (((v[k]-min.mV[k])/range.mV[k])*65535);
 
 				U8* buff = (U8*) &val;
 				//write to binary buffer

@@ -55,6 +55,7 @@
 #include "llrender.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
+#include "lltrans.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -457,7 +458,7 @@ void LLFloaterAuction::onClickSellToAnyone(void* data)
 		LLSD args;
 		args["LAND_SIZE"] = llformat("%d", area);
 		args["SALE_PRICE"] = llformat("%d", sale_price);
-		args["NAME"] = "Anyone";
+		args["NAME"] = LLTrans::getString("Anyone");
 
 		LLNotification::Params params("ConfirmLandSaleChange");	// Re-use existing dialog
 		params.substitutions(args)
