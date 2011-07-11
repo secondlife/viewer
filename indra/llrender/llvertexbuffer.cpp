@@ -79,23 +79,28 @@ public:
 
 	~LLGLSyncFence()
 	{
+#ifdef GL_ARB_sync
 		if (mSync)
 		{
 			glDeleteSync(mSync);
 		}
+#endif
 	}
 
 	void placeFence()
 	{
+#ifdef GL_ARB_sync
 		if (mSync)
 		{
 			glDeleteSync(mSync);
 		}
 		mSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+#endif
 	}
 
 	void wait()
 	{
+#ifdef GL_ARB_sync
 		if (mSync)
 		{
 			while (glClientWaitSync(mSync, 0, FENCE_WAIT_TIME_NANOSECONDS) == GL_TIMEOUT_EXPIRED)
@@ -103,6 +108,7 @@ public:
 				static S32 waits = 0;
 				waits++;
 			}
+#endif
 		}
 	}
 
