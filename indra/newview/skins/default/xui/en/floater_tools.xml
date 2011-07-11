@@ -267,7 +267,7 @@
      layout="topleft"
      left_pad="2"
      name="unlink_btn"
-     width="105">
+     width="90">
 	  <button.commit_callback
 	     function="BuildTool.UnlinkObjects"/>
     </button>
