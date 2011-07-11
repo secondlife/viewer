@@ -239,7 +239,7 @@
      height="10"
      layout="topleft"
      left="30"
-     name="Software updates:"
+     name="Proxy Settings:"
      mouse_opaque="false"
      top_pad="5"
      width="300">
