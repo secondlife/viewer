@@ -978,17 +978,11 @@ BOOL LLVertexBuffer::useVBOs() const
 {
 	//it's generally ineffective to use VBO for things that are streaming on apple
 		
-#if LL_DARWIN
-	if (!mUsage || mUsage == GL_STREAM_DRAW_ARB)
-	{
-		return FALSE;
-	}
-#else
 	if (!mUsage)
 	{
 		return FALSE;
 	}
-#endif
+
 	return TRUE;
 }
 

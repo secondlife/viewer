@@ -1529,6 +1529,11 @@ BOOL LLDrawable::isAnimating() const
 		return TRUE;
 	}
 
+	if (!LLVertexBuffer::sUseStreamDraw && mVObjp->isFlexible())
+	{
+		return TRUE;
+	}
+
 	return FALSE;
 }
 

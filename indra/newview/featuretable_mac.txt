@@ -1,4 +1,4 @@
-version 27
+version 28
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -64,7 +64,7 @@ RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 WatchdogDisabled				1	1
-RenderUseStreamVBO			1	1
+RenderUseStreamVBO			1	0
 RenderFSAASamples			1	16
 
 //
