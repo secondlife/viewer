@@ -3081,7 +3081,7 @@ U32 LLModelPreview::calcResourceCost()
 
 	updateStatusMessages();
 
-	return streaming_cost;
+	return (U32) streaming_cost;
 }
 
 void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)
