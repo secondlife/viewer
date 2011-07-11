@@ -70,11 +70,15 @@ const U32 FENCE_WAIT_TIME_NANOSECONDS = 10000;  //1 ms
 class LLGLSyncFence : public LLGLFence
 {
 public:
+#ifdef GL_ARB_sync
 	GLsync mSync;
+#endif
 	
 	LLGLSyncFence()
 	{
+#ifdef GL_ARB_sync
 		mSync = 0;
+#endif
 	}
 
 	~LLGLSyncFence()
@@ -108,8 +112,8 @@ public:
 				static S32 waits = 0;
 				waits++;
 			}
-#endif
 		}
+#endif
 	}
 
 
