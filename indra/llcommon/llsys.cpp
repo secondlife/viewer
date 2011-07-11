@@ -68,6 +68,8 @@ using namespace llsd;
 #	include <sys/utsname.h>
 #	include <stdint.h>
 #	include <Carbon/Carbon.h>
+#   include <sys/wait.h>
+#   include <string.h>
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
@@ -979,11 +981,23 @@ LLSD LLMemoryInfo::loadStatsArray()
 	}
 
 	FILE* pout = popen("vm_stat 2>&1", "r");
-	if (! pout)
+	if (! pout)                     // popen() couldn't run vm_stat
 	{
-		LL_WARNS("LLMemoryInfo") << "Unable to collect vm_stat memory information" << LL_ENDL;
+		// Save errno right away.
+		int popen_errno(errno);
+		LL_WARNS("LLMemoryInfo") << "Unable to collect vm_stat memory information: ";
+		char buffer[256];
+		if (0 == strerror_r(popen_errno, buffer, sizeof(buffer)))
+		{
+			LL_CONT << buffer;
+		}
+		else
+		{
+			LL_CONT << "errno " << popen_errno;
+		}
+		LL_CONT << LL_ENDL;
 	}
-	else
+	else                            // popen() launched vm_stat
 	{
 		// Mach Virtual Memory Statistics: (page size of 4096 bytes)
 		// Pages free:					 462078.
@@ -1097,7 +1111,47 @@ LLSD LLMemoryInfo::loadStatsArray()
 				LL_WARNS("LLMemoryInfo") << "unrecognized vm_stat line: " << line << LL_ENDL;
 			}
 		}
-		fclose(pout);
+		int status(pclose(pout));
+		if (status == -1)           // pclose() couldn't retrieve rc
+		{
+			// Save errno right away.
+			int pclose_errno(errno);
+			// The ECHILD error happens so frequently that unless filtered,
+			// the warning below spams the log file. This is too bad, because
+			// sometimes the logic above fails to produce any output derived
+			// from vm_stat, but we've been unable to observe any specific
+			// error indicating the problem.
+			if (pclose_errno != ECHILD)
+			{
+				LL_WARNS("LLMemoryInfo") << "Unable to obtain vm_stat termination code: ";
+				char buffer[256];
+				if (0 == strerror_r(pclose_errno, buffer, sizeof(buffer)))
+				{
+					LL_CONT << buffer;
+				}
+				else
+				{
+					LL_CONT << "errno " << pclose_errno;
+				}
+				LL_CONT << LL_ENDL;
+			}
+		}
+		else                        // pclose() retrieved rc; analyze
+		{
+			if (WIFEXITED(status))
+			{
+				int rc(WEXITSTATUS(status));
+				if (rc != 0)
+				{
+					LL_WARNS("LLMemoryInfo") << "vm_stat terminated with rc " << rc << LL_ENDL;
+				}
+			}
+			else if (WIFSIGNALED(status))
+			{
+				LL_WARNS("LLMemoryInfo") << "vm_stat terminated by signal " << WTERMSIG(status)
+										 << LL_ENDL;
+			}
+		}
 	}
 
 #elif LL_SOLARIS
