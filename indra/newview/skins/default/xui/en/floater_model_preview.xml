@@ -102,9 +102,9 @@
 	width="80"
 	word_wrap="true" 
 	>
-Streaming:
+Download:
 Physics:
-Simulation:
+Server:
 
 Prim equivs:
   </text>
@@ -123,7 +123,8 @@ Prim equivs:
 
 [EQ]
   </text>
-  
+
+<!--
   <text
 	height="65"
 	top_delta="0"
@@ -153,6 +154,7 @@ L$ [INSTANCES]
 L$ [TEXTURES]
 L$ [MODEL]
   </text>
+    -->
 
   <tab_container
     follows="right|top|bottom"
