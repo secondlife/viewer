@@ -5496,7 +5496,17 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 
 void LLFloaterModelPreview::onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url)
 {
-	mUploadModelUrl = upload_url;
+	mModelPhysicsFee = result;
+	mModelPhysicsFee["url"] = upload_url;
+
+	doOnIdleOneTime(boost::bind(&LLFloaterModelPreview::handleModelPhysicsFeeReceived,this));
+}
+
+void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
+{
+	const LLSD& result = mModelPhysicsFee;
+	mUploadModelUrl = result["url"].asString();
+
 	childSetTextArg("weights", "[EQ]", llformat("%0.3f", result["resource_cost"].asReal()));
 	childSetTextArg("weights", "[ST]", llformat("%0.3f", result["model_streaming_cost"].asReal()));
 	childSetTextArg("weights", "[SIM]", llformat("%0.3f", result["simulation_cost"].asReal()));
