@@ -230,7 +230,7 @@ public:
 	const LLHTTPClient::ResponderPtr getHttpResponderPtr() const;
 
 	// Get/set named capability URLs for this region.
-	void setSeedCapability(const std::string& url);
+	void setSeedCapability(const std::string& url, S32 retry = 0);
 	void setCapability(const std::string& name, const std::string& url);
 	// implements LLCapabilityProvider
     virtual std::string getCapability(const std::string& name) const;
