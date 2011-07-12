@@ -755,11 +755,11 @@ U32 LLMemoryInfo::getPhysicalMemoryClamped() const
 //static
 void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb)
 {
+#if LL_WINDOWS
 	// Sigh, this shouldn't be a static method, then we wouldn't have to
 	// reload this data separately from refresh()
 	LLSD statsMap(loadStatsMap(loadStatsArray()));
 
-#if LL_WINDOWS
 	avail_physical_mem_kb = statsMap["Avail Physical KB"].asInteger();
 	avail_virtual_mem_kb  = statsMap["Avail Virtual KB"].asInteger();
 
