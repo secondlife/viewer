@@ -422,7 +422,7 @@ void LLFloaterTools::refresh()
 
 	// Refresh object and prim count labels
 	LLLocale locale(LLLocale::USER_LOCALE);
-
+#if 0
 	if (!gMeshRepo.meshRezEnabled())
 	{		
 		std::string obj_count_string;
@@ -447,6 +447,7 @@ void LLFloaterTools::refresh()
 		getChildView("RenderingCost")->setEnabled(have_selection && sShowObjectCost);
 	}
 	else
+#endif
 	{
 		F32 link_phys_cost  = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetPhysicsCost();
 		F32 link_cost  = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
