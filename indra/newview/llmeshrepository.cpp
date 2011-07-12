@@ -34,6 +34,7 @@
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llbufferstream.h"
+#include "llcallbacklist.h"
 #include "llcurl.h"
 #include "lldatapacker.h"
 #include "llfloatermodelpreview.h"
@@ -355,7 +356,6 @@ public:
 			cc = llsd_from_file("fake_upload_error.xml");
 		}
 			
-		llinfos << "completed" << llendl;
 		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_fee_response_",dump_num));
 
@@ -364,7 +364,6 @@ public:
 		if (isGoodStatus(status) &&
 			cc["state"].asString() == "upload")
 		{
-			llinfos << "fee request succeeded" << llendl;
 			mThread->mWholeModelUploadURL = cc["uploader"].asString();
 
 			if (observer)
@@ -414,8 +413,7 @@ public:
 		//assert_main_thread();
 		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_upload_response_",dump_num));
-		llinfos << "LLWholeModelUploadResponder content: " << cc << llendl;
-
+		
 		LLWholeModelUploadObserver* observer = mObserverHandle.get();
 
 		// requested "mesh" asset type isn't actually the type
@@ -423,13 +421,12 @@ public:
 		if (isGoodStatus(status) &&
 			cc["state"].asString() == "complete")
 		{
-			llinfos << "upload succeeded" << llendl;
 			mModelData["asset_type"] = "object";
 			gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mModelData,cc));
 
 			if (observer)
 			{
-				observer->onModelUploadSuccess();
+				doOnIdleOneTime(boost::bind(&LLWholeModelUploadObserver::onModelUploadSuccess, observer));
 			}
 		}
 		else
@@ -440,7 +437,7 @@ public:
 
 			if (observer)
 			{
-				observer->onModelUploadFailure();
+				doOnIdleOneTime(boost::bind(&LLWholeModelUploadObserver::onModelUploadFailure, observer));
 			}
 		}
 	}
