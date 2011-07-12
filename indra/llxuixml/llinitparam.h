@@ -34,6 +34,8 @@
 #include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "llerror.h"
+
 namespace LLInitParam
 {
 	template<typename T> const T& defaultValue() { static T value; return value; }
@@ -302,8 +304,9 @@ namespace LLInitParam
 	private:
 		friend class BaseBlock;
 
-		U16			mEnclosingBlockOffset;
-		bool		mIsProvided;
+		U32		mEnclosingBlockOffset:31;
+		U32		mIsProvided:1;
+
 	};
 
 	// various callbacks and constraints associated with an individual param

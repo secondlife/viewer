@@ -1172,9 +1172,6 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	<string name="InvFolder My Inventory">
 		Meu inventário
 	</string>
-	<string name="InvFolder My Favorites">
-		Meus favoritos
-	</string>
 	<string name="InvFolder Library">
 		Biblioteca
 	</string>
@@ -1233,10 +1230,10 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 		Gestos
 	</string>
 	<string name="InvFolder Favorite">
-		Favoritos
+		Meus favoritos
 	</string>
 	<string name="InvFolder favorite">
-		Favoritos
+		Meus favoritos
 	</string>
 	<string name="InvFolder Current Outfit">
 		Look atual

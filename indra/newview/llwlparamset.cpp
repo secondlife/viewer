@@ -29,8 +29,8 @@
 #include "llwlparamset.h"
 #include "llwlanimator.h"
 
-#include "llfloaterwindlight.h"
 #include "llwlparammanager.h"
+#include "llglslshader.h"
 #include "lluictrlfactory.h"
 #include "llsliderctrl.h"
 
@@ -94,7 +94,7 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 			
 			shader->uniform4fv(param, 1, val.mV);	
 		} 
-		else 
+		else // param is the uniform name
 		{
 			LLVector4 val;
 			
@@ -118,7 +118,6 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 			{
 				val.mV[0] = i->second.asBoolean();
 			}
-			
 			
 			shader->uniform4fv(param, 1, val.mV);
 		}
@@ -260,7 +259,6 @@ void LLWLParamSet::setEastAngle(float val)
 void LLWLParamSet::mix(LLWLParamSet& src, LLWLParamSet& dest, F32 weight)
 {
 	// set up the iterators
-	LLSD::map_iterator cIt = mParamValues.beginMap();
 
 	// keep cloud positions and coverage the same
 	/// TODO masking will do this later
@@ -273,55 +271,39 @@ void LLWLParamSet::mix(LLWLParamSet& src, LLWLParamSet& dest, F32 weight)
 	LLSD srcVal;
 	LLSD destVal;
 
-	// do the interpolation for all the ones saved as vectors
-	// skip the weird ones
-	for(; cIt != mParamValues.endMap(); cIt++) {
+	// Iterate through values
+	for(LLSD::map_iterator iter = mParamValues.beginMap(); iter != mParamValues.endMap(); ++iter)
+	{
 
-		// check params to make sure they're actually there
-		if(src.mParamValues.has(cIt->first))
+		// If param exists in both src and dest, set the holder variables, otherwise skip
+		if(src.mParamValues.has(iter->first) && dest.mParamValues.has(iter->first))
 		{
-			srcVal = src.mParamValues[cIt->first];
+			srcVal = src.mParamValues[iter->first];
+			destVal = dest.mParamValues[iter->first];
 		}
 		else
 		{
 			continue;
 		}
 		
-		if(dest.mParamValues.has(cIt->first))
+		if(iter->second.isReal())									// If it's a real, interpolate directly
 		{
-			destVal = dest.mParamValues[cIt->first];
+			iter->second = srcVal.asReal() + ((destVal.asReal() - srcVal.asReal()) * weight);
 		}
-		else
+		else if(iter->second.isArray() && iter->second[0].isReal()	// If it's an array of reals, loop through the reals and interpolate on those
+				&& iter->second.size() == srcVal.size() && iter->second.size() == destVal.size())
+		{
+			// Actually do interpolation: old value + (difference in values * factor)
+			for(int i=0; i < iter->second.size(); ++i) 
+			{
+				// iter->second[i] = (1.f-weight)*(F32)srcVal[i].asReal() + weight*(F32)destVal[i].asReal();	// old way of doing it -- equivalent but one more operation
+				iter->second[i] = srcVal[i].asReal() + ((destVal[i].asReal() - srcVal[i].asReal()) * weight);
+			}
+		}
+		else														// Else, skip
 		{
 			continue;
 		}		
-				
-		// skip if not a vector
-		if(!cIt->second.isArray()) 
-		{
-			continue;
-		}
-
-		// only Real vectors allowed
-		if(!cIt->second[0].isReal()) 
-		{
-			continue;
-		}
-		
-		// make sure all the same size
-		if(	cIt->second.size() != srcVal.size() ||
-			cIt->second.size() != destVal.size())
-		{
-			continue;
-		}
-		
-		// more error checking might be necessary;
-		
-		for(int i=0; i < cIt->second.size(); ++i) 
-		{
-			cIt->second[i] = (1.0f - weight) * (F32) srcVal[i].asReal() + 
-				weight * (F32) destVal[i].asReal();
-		}
 	}
 
 	// now mix the extra parameters

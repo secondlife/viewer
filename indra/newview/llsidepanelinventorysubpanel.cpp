@@ -46,8 +46,8 @@
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLSidepanelInventorySubpanel::LLSidepanelInventorySubpanel()
-  : LLPanel(),
+LLSidepanelInventorySubpanel::LLSidepanelInventorySubpanel(const LLPanel::Params& p)
+  : LLPanel(p),
 	mIsDirty(TRUE),
 	mIsEditing(FALSE),
 	mCancelBtn(NULL),

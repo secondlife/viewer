@@ -34,7 +34,6 @@
 #include "v4color.h"
 #include "llviewershadermgr.h"
 
-class LLFloaterWater;
 class LLWaterParamSet;
 
 /// A class representing a set of parameter values for the Water shaders.

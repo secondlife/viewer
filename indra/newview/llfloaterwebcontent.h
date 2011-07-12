@@ -46,7 +46,7 @@ public:
 
 	void initializeURLHistory();
 
-	static void create(const std::string &url, const std::string& target, const std::string& uuid = LLStringUtil::null);
+	static void create(const std::string &url, const std::string& target, const std::string& uuid = LLStringUtil::null, bool show_chrome = true, const LLRect& preferred_media_size = LLRect() );
 
 	static void closeRequest(const std::string &uuid);
 	static void geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height);

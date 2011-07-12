@@ -76,6 +76,7 @@
 #include "lluserrelations.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
+#include "llviewerhelp.h"
 #include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
 #include "llwindow.h"
@@ -164,7 +165,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
-#include "llvoclouds.h"
 #include "llweb.h"
 #include "llworld.h"
 #include "llworldmapmessage.h"
@@ -1202,8 +1202,6 @@ bool idle_startup()
 
 		// init the shader managers
 		LLPostProcess::initClass();
-		LLWLParamManager::initClass();
-		LLWaterParamManager::initClass();
 
 		LLViewerObject::initVOClasses();
 
@@ -1723,9 +1721,20 @@ bool idle_startup()
 				gViewerThrottle.setMaxBandwidth(FAST_RATE_BPS / 1024.f);
 			}
 
+			if (gSavedSettings.getBOOL("ShowHelpOnFirstLogin"))
+			{
+				gSavedSettings.setBOOL("HelpFloaterOpen", TRUE);
+			}
+
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
+		}
+
+		if (gSavedSettings.getBOOL("HelpFloaterOpen"))
+		{
+			// show default topic
+			LLViewerHelp::instance().showTopic("");
 		}
 
 		// We're successfully logged in.
@@ -1984,7 +1993,8 @@ bool idle_startup()
 		gViewerWindow->getWindow()->resetBusyCount();
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 		LL_DEBUGS("AppInit") << "Done releasing bitmap" << LL_ENDL;
-		gViewerWindow->setShowProgress(FALSE);
+		gViewerWindow->revealIntroPanel();
+		//gViewerWindow->setShowProgress(FALSE);  // reveal intro video now handles this
 		gViewerWindow->setProgressCancelButtonVisible(FALSE);
 
 		// We're not away from keyboard, even though login might have taken
@@ -3287,11 +3297,6 @@ bool process_login_success_response()
 			gMoonTextureID = id;
 		}
 
-		id = global_textures["cloud_texture_id"];
-		if(id.notNull())
-		{
-			gCloudTextureID = id;
-		}
 	}
 
 	// Set the location of the snapshot sharing config endpoint

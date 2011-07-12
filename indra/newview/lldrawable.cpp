@@ -387,7 +387,6 @@ void LLDrawable::makeActive()
 			pcode == LLViewerObject::LL_VO_SURFACE_PATCH ||
 			pcode == LLViewerObject::LL_VO_PART_GROUP ||
 			pcode == LLViewerObject::LL_VO_HUD_PART_GROUP ||
-			pcode == LLViewerObject::LL_VO_CLOUDS ||
 			pcode == LLViewerObject::LL_VO_GROUND ||
 			pcode == LLViewerObject::LL_VO_SKY)
 		{
@@ -1516,10 +1515,6 @@ BOOL LLDrawable::isAnimating() const
 		return TRUE;
 	}
 	if (mVObjp->getPCode() == LLViewerObject::LL_VO_HUD_PART_GROUP)
-	{
-		return TRUE;
-	}
-	if (mVObjp->getPCode() == LLViewerObject::LL_VO_CLOUDS)
 	{
 		return TRUE;
 	}

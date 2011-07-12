@@ -4257,6 +4257,28 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>InventoryDisplayInbox</key>
+    <map>
+        <key>Comment</key>
+        <string>Override received items inventory inbox display</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
+    <key>InventoryDisplayOutbox</key>
+    <map>
+        <key>Comment</key>
+        <string>Override merchant inventory outbox display</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
 	<key>InventoryLinking</key>
 	<map>
 		<key>Comment</key>
@@ -4498,6 +4520,17 @@
         <string>F32</string>
       <key>Value</key>
         <real>2.0</real>
+    </map>
+    <key>LastInventoryInboxExpand</key>
+    <map>
+        <key>Comment</key>
+        <string>The last time the received items inbox was expanded.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string />
     </map>
     <key>LCDDestination</key>
     <map>
@@ -6623,7 +6656,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-
+   <key>PostFirstLoginIntroURL</key>
+   <map>
+     <key>Comment</key>
+     <string>URL of intro presenatation after first time users first login</string>
+     <key>Persist</key>
+     <integer>1</integer>
+     <key>Type</key>
+     <string>String</string>
+     <key>Value</key>
+     <string></string>
+   </map>
+  <key>PostFirstLoginIntroViewed</key>
+  <map>
+    <key>Comment</key>
+    <string>Flag indicating if user has seen intro presenatation after first time users first login</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <string>0</string>
+  </map>
     <key>PrecachingDelay</key>
     <map>
       <key>Comment</key>
@@ -7259,7 +7313,7 @@
     </array>
   </map>
 
-  <key>RenderAnisotropic</key>
+    <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
       <string>Render textures using anisotropic filtering</string>
@@ -9704,7 +9758,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ShowSnapshotButton</key>
     <map>
@@ -10314,17 +10368,6 @@
       <key>Value</key>
       <real>0.300000011921</real>
     </map>
-    <key>SkyEditPresets</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to be able to edit the sky defaults or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>SkyNightColorShift</key>
     <map>
       <key>Comment</key>
@@ -10365,17 +10408,6 @@
         <real>0.0</real>
         <real>0.1</real>
       </array>
-    </map>
-    <key>SkyUseClassicClouds</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to use the old Second Life particle clouds or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>SnapEnabled</key>
     <map>
@@ -10991,7 +11023,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>-2</real>
+      <real>-1</real>
     </map>
     <key>UIExtraTriangleWidth</key>
     <map>
@@ -11002,7 +11034,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>2</real>
+      <real>4</real>
     </map>
     <key>UIFloaterCloseBoxSize</key>
     <map>
@@ -11994,6 +12026,61 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>UseEnvironmentFromRegion</key>
+    <map>
+      <key>Comment</key>
+      <string>Choose whether to use the region's environment settings, or override them with the local settings.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>UseDayCycle</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether to use use a day cycle or a fixed sky.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>WaterPresetName</key>
+    <map>
+      <key>Comment</key>
+      <string>Water preset to use. May be superseded by region settings.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>Default</string>
+    </map>
+    <key>SkyPresetName</key>
+    <map>
+      <key>Comment</key>
+      <string>Sky preset to use. May be superseded by region settings or by a day cycle (see DayCycleName).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>Default</string>
+    </map>
+    <key>DayCycleName</key>
+    <map>
+      <key>Comment</key>
+      <string>Day cycle to use. May be superseded by region settings.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>Default</string>
+    </map>
     <key>UseExternalBrowser</key>
     <map>
       <key>Comment</key>
@@ -12575,44 +12662,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>20</integer>
-    </map>
-    <key>WaterEditPresets</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to be able to edit the water defaults or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>WaterFogColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Water fog color</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0863</real>
-        <real>0.168</real>
-        <real>0.212</real>
-        <real>0</real>
-      </array>
-    </map>
-    <key>WaterFogDensity</key>
-    <map>
-      <key>Comment</key>
-      <string>Water fog density</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>16.0</real>
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>
@@ -13427,6 +13476,44 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+     <key>WebProfileRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Web profile dimensions</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>0</integer>
+        <integer>650</integer>
+        <integer>490</integer>
+        <integer>0</integer>
+      </array>    
+    </map>
+   <key>HelpFloaterOpen</key>
+    <map>
+      <key>Comment</key>
+      <string>Show Help Floater on login?</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+     <key>ShowHelpOnFirstLogin</key>
+    <map>
+      <key>Comment</key>
+      <string>Show Help Floater on first login</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
 </map>
 </llsd>

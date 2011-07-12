@@ -7270,9 +7270,9 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			llinfos << "Re-requesting AvatarAppearance for object: "  << getID() << llendl;
 			LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
 			mRuthTimer.reset();
-	}
-	else
-	{
+		}
+		else
+		{
 			llinfos << "That's okay, we already have a non-default shape for object: "  << getID() << llendl;
 			// we don't really care.
 		}
