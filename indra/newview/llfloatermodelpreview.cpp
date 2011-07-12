@@ -101,7 +101,9 @@
 #include "llcallbacklist.h"
 #include "llviewerobjectlist.h"
 #include "llanimationstates.h"
+#include "llviewernetwork.h"
 #include "glod/glod.h"
+#include <boost/algorithm/string.hpp>
 
 
 const S32 SLM_SUPPORTED_VERSION = 2;
@@ -476,6 +478,18 @@ BOOL LLFloaterModelPreview::postBuild()
 			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
 		}
 	}
+	std::string current_grid = LLGridManager::getInstance()->getGridLabel();
+	std::transform(current_grid.begin(),current_grid.end(),current_grid.begin(),::tolower);
+	std::string validate_url;
+	if (current_grid == "agni")
+	{
+		validate_url = "http://secondlife.com/my/account/mesh.php";
+	}
+	else
+	{
+		validate_url = llformat("http://secondlife.%s.lindenlab.com/my/account/mesh.php",current_grid.c_str());
+	}
+	getChild<LLTextBox>("warning_message")->setTextArg("[VURL]", validate_url);
 
 	mUploadBtn = getChild<LLButton>("ok_btn");
 	mCalculateBtn = getChild<LLButton>("calculate_btn");
