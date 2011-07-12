@@ -30,8 +30,6 @@
 
 #include "linden_common.h"
 
-#include "boost/tokenizer.hpp"
-
 #include "indra_constants.h"	// CRASH_BEHAVIOR_ASK, CRASH_SETTING_NAME
 #include "llerror.h"
 #include "llfile.h"

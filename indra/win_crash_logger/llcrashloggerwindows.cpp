@@ -354,7 +354,7 @@ bool LLCrashLoggerWindows::mainLoop()
 
 void LLCrashLoggerWindows::updateApplication(const std::string& message)
 {
-	LLCrashLogger::updateApplication();
+	LLCrashLogger::updateApplication(message);
 	if(!message.empty()) show_progress(message);
 	update_messages();
 }
@@ -370,6 +370,3 @@ bool LLCrashLoggerWindows::cleanup()
 	PostQuitMessage(0);
 	return true;
 }
-
-
-

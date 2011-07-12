@@ -361,7 +361,7 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 	}
 	else
 	{
-		const S32 cb = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
+		const S32 cb = gCrashSettings.getS32("CrashSubmitBehavior");
 
 		// Always generate the report, have the logger do the asking, and
 		// don't wait for the logger before exiting (-> total cleanup).
