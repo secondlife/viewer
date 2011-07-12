@@ -66,12 +66,16 @@ public:
 	
 	LLInboxFolderViewFolder(const Params& p);
 	~LLInboxFolderViewFolder();
+
+	time_t getCreationDate() const;
 	
 	void draw();
 	
 	void updateFlag() const;
 	void selectItem();
 	void toggleOpen();
+
+	bool isFresh() const { return mFresh; }
 	
 protected:
 	void setCreationDate(time_t creation_date_utc) const;

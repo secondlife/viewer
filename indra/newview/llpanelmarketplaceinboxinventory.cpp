@@ -141,13 +141,26 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 LLInboxFolderViewFolder::LLInboxFolderViewFolder(const Params& p)
 	: LLFolderViewFolder(p)
 	, LLBadgeOwner(getHandle())
-	, mFresh(false)
+	, mFresh(true)
 {
 	initBadgeParams(p.new_badge());
 }
 
 LLInboxFolderViewFolder::~LLInboxFolderViewFolder()
 {
+}
+
+// virtual
+time_t LLInboxFolderViewFolder::getCreationDate() const
+{
+	time_t ret_val = LLFolderViewFolder::getCreationDate();
+
+	if (!mCreationDate)
+	{
+		updateFlag();
+	}
+
+	return ret_val;
 }
 
 // virtual
@@ -166,10 +179,7 @@ void LLInboxFolderViewFolder::draw()
 void LLInboxFolderViewFolder::updateFlag() const
 {
 	LLDate saved_freshness_date = LLDate(gSavedSettings.getString("InboxFreshnessDate"));
-	if (getCreationDate() > saved_freshness_date.secondsSinceEpoch())
-	{
-		mFresh = true;
-	}
+	mFresh = (mCreationDate > saved_freshness_date.secondsSinceEpoch());
 }
 
 void LLInboxFolderViewFolder::selectItem()

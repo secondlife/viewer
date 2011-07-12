@@ -125,6 +125,9 @@ public:
 	 /*virtual*/ void onFocusLost();
 	 /*virtual*/ void onFocusReceived();
 
+	// LLBadgeHolder methods
+	bool addBadge(LLBadge * badge);
+
 	// Call this method to set the selection.
 	void openAllFolders();
 	void setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus);

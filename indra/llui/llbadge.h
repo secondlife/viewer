@@ -104,6 +104,9 @@ public:
 		Optional< std::string >			label;
 		Optional< LLUIColor >			label_color;
 
+		Optional< S32 >					label_offset_horiz;
+		Optional< S32 >					label_offset_vert;
+
 		Optional< LLRelPos::Location >	location;
 		Optional< U32 >					location_percent_hcenter;
 		Optional< U32 >					location_percent_vcenter;
@@ -123,7 +126,9 @@ protected:
 public:
 
 	~LLBadge();
-	
+
+	bool				addToView(LLView * view);
+
 	virtual void		draw();
 
 	const std::string	getLabel() const { return wstring_to_utf8str(mLabel); }
@@ -140,6 +145,9 @@ private:
 	
 	LLUIString				mLabel;
 	LLUIColor				mLabelColor;
+
+	S32						mLabelOffsetHoriz;
+	S32						mLabelOffsetVert;
 
 	LLRelPos::Location		mLocation;
 	F32						mLocationPercentHCenter;
