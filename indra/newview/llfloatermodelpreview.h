@@ -201,7 +201,7 @@ public:
 	/*virtual*/ void setPermissonsErrorStatus(U32 status, const std::string& reason);
 
 	/*virtual*/ void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url);
-
+				void handleModelPhysicsFeeReceived();
 	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
 
 	/*virtual*/ void onModelUploadSuccess();
@@ -272,6 +272,8 @@ protected:
 	LLMenuButton* mViewOptionMenuButton;
 	LLToggleableMenu* mViewOptionMenu;
 	LLMutex* mStatusLock;
+
+	LLSD mModelPhysicsFee;
 
 private:
 	void onClickCalculateBtn();
