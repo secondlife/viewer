@@ -1211,9 +1211,6 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="InvFolder My Inventory">
 		Mi Inventario
 	</string>
-	<string name="InvFolder My Favorites">
-		Mis Favoritos
-	</string>
 	<string name="InvFolder Library">
 		Biblioteca
 	</string>
@@ -1272,10 +1269,10 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		Gestos
 	</string>
 	<string name="InvFolder Favorite">
-		Favoritos
+		Mis Favoritos
 	</string>
 	<string name="InvFolder favorite">
-		Favoritos
+		Mis Favoritos
 	</string>
 	<string name="InvFolder Current Outfit">
 		Vestuario actual

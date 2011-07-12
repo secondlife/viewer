@@ -1209,9 +1209,6 @@ Prøv venligst om lidt igen.
 	<string name="InvFolder My Inventory">
 		Min beholdning
 	</string>
-	<string name="InvFolder My Favorites">
-		Mine favoritter
-	</string>
 	<string name="InvFolder Library">
 		Bibliotek
 	</string>
@@ -1270,10 +1267,10 @@ Prøv venligst om lidt igen.
 		Bevægelser
 	</string>
 	<string name="InvFolder Favorite">
-		Favoritter
+		Mine favoritter
 	</string>
 	<string name="InvFolder favorite">
-		Favoritter
+		Mine favoritter
 	</string>
 	<string name="InvFolder Current Outfit">
 		Nuværende sæt
