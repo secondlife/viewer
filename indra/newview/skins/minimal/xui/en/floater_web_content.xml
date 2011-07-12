@@ -17,6 +17,7 @@
     follows="left|right|top|bottom"
     layout="topleft"
     left="5"
+    animate="false"
     name="stack1"
     orientation="vertical"
     top="20"
@@ -155,14 +156,20 @@
       name="external_controls"
       top_delta="0"
       user_resize="false"
+      auto_resize="true"
       width="585">
       <web_browser
-        bottom="-22"
+        bottom="-2"
         follows="all"
         layout="topleft"
         left="0"
         name="webbrowser"
         top="0"/>
+      </layout_panel>
+    <layout_panel name="status_bar" 
+                  height="23"
+                  auto_resize="false"
+                  user_resize="false">
       <text
         type="string"
         length="200"
@@ -173,7 +180,7 @@
         name="statusbartext"
         parse_urls="false"
         text_color="0.4 0.4 0.4 1"
-        top_pad="5"
+        top_pad="3"
         width="495"/>
       <progress_bar
         color_bar="0.3 1.0 0.3 1"

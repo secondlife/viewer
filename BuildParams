@@ -159,4 +159,10 @@ viewer-asset-delivery-metrics.email = monty@lindenlab.com
 viewer-asset-delivery-metrics.build_server = false
 viewer-asset-delivery-metrics.build_server_tests = false
 
+# ========================================
+# Simon says
+# ========================================
+simon_viewer-dev-private.public_build = false
+
+
 # eof

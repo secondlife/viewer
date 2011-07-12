@@ -1070,7 +1070,7 @@ void LLFloaterWorldMap::onComboTextEntry()
 	// Reset the tracking whenever we start typing into any of the search fields,
 	// so that hitting <enter> does an auto-complete versus teleporting us to the
 	// previously selected landmark/friend.
-	LLTracker::clearFocus();
+	LLTracker::stopTracking(NULL);
 }
 
 void LLFloaterWorldMap::onSearchTextEntry( )

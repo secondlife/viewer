@@ -56,6 +56,7 @@
 #include "llallocator.h"
 #include "llares.h" 
 #include "llcurl.h"
+#include "llcalc.h"
 #include "lltexturestats.h"
 #include "lltexturestats.h"
 #include "llviewerwindow.h"
@@ -1518,7 +1519,9 @@ bool LLAppViewer::cleanup()
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be deleted.
 
 	LLWorldMap::getInstance()->reset(); // release any images
-	
+
+	LLCalc::cleanUp();
+
 	llinfos << "Global stuff deleted" << llendflush;
 
 	if (gAudiop)

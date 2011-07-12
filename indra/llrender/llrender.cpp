@@ -294,7 +294,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
 		glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
 		texture->updateBindStats(texture->mTextureMemory);		
 		mHasMipMaps = texture->mHasMipMaps;
-		if (mIndex == 0 && texture->mTexOptionsDirty)
+		if (texture->mTexOptionsDirty)
 		{
 			texture->mTexOptionsDirty = false;
 			setTextureAddressMode(texture->mAddressMode);
