@@ -168,7 +168,8 @@ L$ [MODEL]
     <panel
       border="true"
       label="Level of Detail"
-      name="lod_panel">
+      name="lod_panel"
+      help_topic="upload_model_lod">
 
       <text left="10" width="240" bottom="20" height="15" follows="left|top" name="lod_table_header">
         Select Level of Detail:
@@ -291,7 +292,8 @@ L$ [MODEL]
     <panel
       border="true"
       label="Physics"
-      name="physics_panel">
+      name="physics_panel"
+      help_topic="upload_model_physics">
 
       <!-- PHYSICS GEOMETRY-->
       <panel
@@ -432,7 +434,9 @@ L$ [MODEL]
     <panel
       border="true"
       label="Modifiers"
-      name="modifiers_panel">
+      name="modifiers_panel"
+      help_topic="upload_model_modifiers">
+
       <text left="10" width="90" bottom="30" follows="top|left" height="15">
         Scale:
       </text>
