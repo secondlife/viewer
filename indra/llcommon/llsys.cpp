@@ -70,11 +70,13 @@ using namespace llsd;
 #	include <Carbon/Carbon.h>
 #   include <sys/wait.h>
 #   include <string.h>
+#   include <stdexcept>
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
 #	include <unistd.h>
 #	include <sys/sysinfo.h>
+#   include <stdexcept>
 const char MEMINFO_FILE[] = "/proc/meminfo";
 #elif LL_SOLARIS
 #	include <stdio.h>
@@ -682,6 +684,38 @@ private:
 	LLSD mStats;
 };
 
+// Wrap boost::regex_match() with a function that doesn't throw.
+template <typename S, typename M, typename R>
+static bool regex_match_no_exc(const S& string, M& match, const R& regex)
+{
+    try
+    {
+        return boost::regex_match(string, match, regex);
+    }
+    catch (const std::runtime_error& e)
+    {
+        LL_WARNS("LLMemoryInfo") << "error matching with '" << regex.str() << "': "
+                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
+        return false;
+    }
+}
+
+// Wrap boost::regex_search() with a function that doesn't throw.
+template <typename S, typename M, typename R>
+static bool regex_search_no_exc(const S& string, M& match, const R& regex)
+{
+    try
+    {
+        return boost::regex_search(string, match, regex);
+    }
+    catch (const std::runtime_error& e)
+    {
+        LL_WARNS("LLMemoryInfo") << "error searching with '" << regex.str() << "': "
+                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
+        return false;
+    }
+}
+
 LLMemoryInfo::LLMemoryInfo()
 {
 	refresh();
@@ -1012,6 +1046,10 @@ LLSD LLMemoryInfo::loadStatsArray()
 		// Pageouts:					  41759.
 		// Object cache: 841598 hits of 7629869 lookups (11% hit rate)
 
+		// Intentionally don't pass the boost::no_except flag. These
+		// boost::regex objects are constructed with string literals, so they
+		// should be valid every time. If they become invalid, we WANT an
+		// exception, hopefully even before the dev checks in.
 		boost::regex pagesize_rx("\\(page size of ([0-9]+) bytes\\)");
 		boost::regex stat_rx("(.+): +([0-9]+)\\.");
 		boost::regex cache_rx("Object cache: ([0-9]+) hits of ([0-9]+) lookups "
@@ -1031,7 +1069,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 				line[--linelen] = '\0';
 			}
 			LL_DEBUGS("LLMemoryInfo") << line << LL_ENDL;
-			if (boost::regex_search(line, matched, pagesize_rx))
+			if (regex_search_no_exc(line, matched, pagesize_rx))
 			{
 				// "Mach Virtual Memory Statistics: (page size of 4096 bytes)"
 				std::string pagesize_str(matched[1].first, matched[1].second);
@@ -1049,7 +1087,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 				}
 				stats.add("page size", pagesizekb);
 			}
-			else if (boost::regex_match(line, matched, stat_rx))
+			else if (regex_match_no_exc(line, matched, stat_rx))
 			{
 				// e.g. "Pages free:					 462078."
 				// Strip double-quotes off certain statistic names
@@ -1084,7 +1122,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 					stats.add(kbkey, value * pagesizekb);
 				}
 			}
-			else if (boost::regex_match(line, matched, cache_rx))
+			else if (regex_match_no_exc(line, matched, cache_rx))
 			{
 				// e.g. "Object cache: 841598 hits of 7629869 lookups (11% hit rate)"
 				static const char* cache_keys[] = { "cache hits", "cache lookups", "cache hit%" };
@@ -1185,6 +1223,10 @@ LLSD LLMemoryInfo::loadStatsArray()
 		// DirectMap4k:		 434168 kB
 		// DirectMap2M:		 477184 kB
 
+		// Intentionally don't pass the boost::no_except flag. This
+		// boost::regex object is constructed with a string literal, so it
+		// should be valid every time. If it becomes invalid, we WANT an
+		// exception, hopefully even before the dev checks in.
 		boost::regex stat_rx("(.+): +([0-9]+)( kB)?");
 		boost::smatch matched;
 
@@ -1192,7 +1234,7 @@ LLSD LLMemoryInfo::loadStatsArray()
 		while (std::getline(meminfo, line))
 		{
 			LL_DEBUGS("LLMemoryInfo") << line << LL_ENDL;
-			if (boost::regex_match(line, matched, stat_rx))
+			if (regex_match_no_exc(line, matched, stat_rx))
 			{
 				// e.g. "MemTotal:		4108424 kB"
 				LLSD::String key(matched[1].first, matched[1].second);
