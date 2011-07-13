@@ -12578,13 +12578,13 @@
     <key>WatchdogEnabled</key>
     <map>
       <key>Comment</key>
-      <string>Controls whether the thread watchdog timer is activated.</string>
+      <string>Controls whether the thread watchdog timer is activated. Value is watchdog timeout in seconds. Set to -1 to disable.</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>20</integer>
+      <integer>60</integer>
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>
