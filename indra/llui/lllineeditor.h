@@ -221,6 +221,7 @@ public:
 	void			deleteSelection();
 
 	void			setSelectAllonFocusReceived(BOOL b);
+	void			setSelectAllonCommit(BOOL b) { mSelectAllonCommit = b; }
 	
 	typedef boost::function<void (LLLineEditor* caller, void* user_data)> callback_t;
 	void			setKeystrokeCallback(callback_t callback, void* user_data);
@@ -241,6 +242,7 @@ public:
 	static BOOL		postvalidateFloat(const std::string &str);
 
 	bool			prevalidateInput(const LLWString& wstr);
+	BOOL			evaluateFloat();
 
 	// line history support:
 	void			setEnableLineHistory( BOOL enabled ) { mHaveHistory = enabled; } // switches line history on or off 
@@ -340,6 +342,7 @@ protected:
 	BOOL		mDrawAsterixes;
 
 	BOOL		mSelectAllonFocusReceived;
+	BOOL		mSelectAllonCommit;
 	BOOL		mPassDelete;
 
 	BOOL		mReadOnly;

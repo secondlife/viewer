@@ -258,7 +258,7 @@ void LLFloaterDeleteEnvPreset::populateDayCyclesList()
 void LLFloaterDeleteEnvPreset::postPopulate()
 {
 	// Handle empty list and empty selection.
-	bool has_selection = mPresetCombo->getItemCount() > 1 && mPresetCombo->getSelectedValue().isDefined();
+	bool has_selection = mPresetCombo->getItemCount() > 0 && mPresetCombo->getSelectedValue().isDefined();
 
 	if (!has_selection)
 	{
