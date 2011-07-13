@@ -49,6 +49,8 @@
 
 #define SOCKS_VERSION 0x05 // we are using SOCKS 5
 
+#define SOCKS_HEADER_SIZE 10
+
 // SOCKS 5 address/hostname types
 #define ADDRESS_IPV4     0x01
 #define ADDRESS_HOSTNAME 0x03
@@ -139,7 +141,7 @@ struct proxywrap_t {
 #pragma pack(pop) /* restore original alignment from stack */
 
 
-// Currently selected http proxy type
+// Currently selected HTTP proxy type
 enum LLHttpProxyType
 {
 	LLPROXY_SOCKS = 0,
