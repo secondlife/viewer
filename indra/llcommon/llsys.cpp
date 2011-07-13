@@ -647,13 +647,13 @@ void LLCPUInfo::stream(std::ostream& s) const
 	s << "->mCPUString:  " << mCPUString << std::endl;
 }
 
-// Helper class for LLMemoryInfo: accumulate stats in the array-of-pair-arrays
-// form we store for LLMemoryInfo::getStatsArray().
-class StatsArray
+// Helper class for LLMemoryInfo: accumulate stats in the form we store for
+// LLMemoryInfo::getStatsMap().
+class Stats
 {
 public:
-	StatsArray():
-		mStats(LLSD::emptyArray())
+	Stats():
+		mStats(LLSD::emptyMap())
 	{}
 
 	// Store every integer type as LLSD::Integer.
@@ -661,7 +661,7 @@ public:
 	void add(const LLSD::String& name, const T& value,
 			 typename boost::enable_if<boost::is_integral<T> >::type* = 0)
 	{
-		mStats.append(LLSDArray(name)(LLSD::Integer(value)));
+		mStats[name] = LLSD::Integer(value);
 	}
 
 	// Store every floating-point type as LLSD::Real.
@@ -669,13 +669,13 @@ public:
 	void add(const LLSD::String& name, const T& value,
 			 typename boost::enable_if<boost::is_float<T> >::type* = 0)
 	{
-		mStats.append(LLSDArray(name)(LLSD::Real(value)));
+		mStats[name] = LLSD::Real(value);
 	}
 
 	// Hope that LLSD::Date values are sufficiently unambiguous.
 	void add(const LLSD::String& name, const LLSD::Date& value)
 	{
-		mStats.append(LLSDArray(name)(value));
+		mStats[name] = value;
 	}
 
 	LLSD get() const { return mStats; }
@@ -792,7 +792,7 @@ void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_v
 #if LL_WINDOWS
 	// Sigh, this shouldn't be a static method, then we wouldn't have to
 	// reload this data separately from refresh()
-	LLSD statsMap(loadStatsMap(loadStatsArray()));
+	LLSD statsMap(loadStatsMap());
 
 	avail_physical_mem_kb = statsMap["Avail Physical KB"].asInteger();
 	avail_virtual_mem_kb  = statsMap["Avail Virtual KB"].asInteger();
@@ -884,16 +884,11 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	// introducer line, then read subsequent lines, etc...
 	std::string pfx(LLError::utcTime() + " <mem> ");
 
-	// Most of the reason we even store mStatsArray is to preserve the
-	// original order in which we obtained these stats from the OS. So use
-	// mStatsArray in this method rather than mStatsMap, which should present
-	// the same information but in arbitrary order.
-
 	// Max key length
 	size_t key_width(0);
-	BOOST_FOREACH(LLSD pair, inArray(mStatsArray))
+	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
 	{
-		size_t len(pair[0].asString().length());
+		size_t len(pair.first.length());
 		if (len > key_width)
 		{
 			key_width = len;
@@ -901,17 +896,18 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	}
 
 	// Now stream stats
-	BOOST_FOREACH(LLSD pair, inArray(mStatsArray))
+	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
 	{
-		s << pfx << std::setw(key_width+1) << (pair[0].asString() + ':') << ' ';
-		if (pair[1].isInteger())
-			s << std::setw(12) << pair[1].asInteger();
-		else if (pair[1].isReal())
-			s << std::fixed << std::setprecision(1) << pair[1].asReal();
-		else if (pair[1].isDate())
-			pair[1].asDate().toStream(s);
+		s << pfx << std::setw(key_width+1) << (pair.first + ':') << ' ';
+		LLSD value(pair.second);
+		if (value.isInteger())
+			s << std::setw(12) << value.asInteger();
+		else if (value.isReal())
+			s << std::fixed << std::setprecision(1) << value.asReal();
+		else if (value.isDate())
+			value.asDate().toStream(s);
 		else
-			s << pair[1];           // just use default LLSD formatting
+			s << value;           // just use default LLSD formatting
 		s << std::endl;
 	}
 }
@@ -921,16 +917,9 @@ LLSD LLMemoryInfo::getStatsMap() const
 	return mStatsMap;
 }
 
-LLSD LLMemoryInfo::getStatsArray() const
-{
-	return mStatsArray;
-}
-
 LLMemoryInfo& LLMemoryInfo::refresh()
 {
-	mStatsArray = loadStatsArray();
-	// Recast same data as mStatsMap for easy access
-	mStatsMap = loadStatsMap(mStatsArray);
+	mStatsMap = loadStatsMap();
 
 	LL_DEBUGS("LLMemoryInfo") << "Populated mStatsMap:\n";
 	LLSDSerialize::toPrettyXML(mStatsMap, LL_CONT);
@@ -939,10 +928,10 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 	return *this;
 }
 
-LLSD LLMemoryInfo::loadStatsArray()
+LLSD LLMemoryInfo::loadStatsMap()
 {
 	// This implementation is derived from stream() code (as of 2011-06-29).
-	StatsArray stats;
+	Stats stats;
 
 	// associate timestamp for analysis over time
 	stats.add("timestamp", LLDate::now());
@@ -1272,19 +1261,6 @@ LLSD LLMemoryInfo::loadStatsArray()
 #endif
 
 	return stats.get();
-}
-
-LLSD LLMemoryInfo::loadStatsMap(const LLSD& statsArray)
-{
-	LLSD statsMap;
-
-	BOOST_FOREACH(LLSD pair, inArray(statsArray))
-	{
-		// Specify asString() to disambiguate map indexing from array
-		// subscripting.
-		statsMap[pair[0].asString()] = pair[1];
-	}
-	return statsMap;
 }
 
 std::ostream& operator<<(std::ostream& s, const LLOSInfo& info)

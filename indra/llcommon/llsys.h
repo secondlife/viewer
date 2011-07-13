@@ -120,35 +120,23 @@ public:
 	static void getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb);
 
 	// Retrieve a map of memory statistics. The keys of the map are platform-
-	// dependent. The values are in kilobytes.
+	// dependent. The values are in kilobytes to try to avoid integer overflow.
 	LLSD getStatsMap() const;
 
-	// Retrieve memory statistics: an array of pair arrays [name, value]. This
-	// is the same data as presented in getStatsMap(), but it preserves the
-	// order in which we retrieved it from the OS in case that's useful. The
-	// set of statistics names is platform-dependent. The values are in
-	// kilobytes to try to avoid integer overflow.
-	LLSD getStatsArray() const;
-
-	// Re-fetch memory data (as reported by stream() and getStats*()) from the
+	// Re-fetch memory data (as reported by stream() and getStatsMap()) from the
 	// system. Normally this is fetched at construction time. Return (*this)
 	// to permit usage of the form:
 	// @code
 	// LLMemoryInfo info;
 	// ...
-	// info.refresh().getStatsArray();
+	// info.refresh().getStatsMap();
 	// @endcode
 	LLMemoryInfo& refresh();
 
 private:
-	// These methods are used to set mStatsArray and mStatsMap.
-	static LLSD loadStatsArray();
-	static LLSD loadStatsMap(const LLSD&);
+	// set mStatsMap
+	static LLSD loadStatsMap();
 
-	// Memory stats for getStatsArray(). It's straightforward to convert that
-	// to getStatsMap() form, less so to reconstruct the original order when
-	// converting the other way.
-	LLSD mStatsArray;
 	// Memory stats for getStatsMap().
 	LLSD mStatsMap;
 };
