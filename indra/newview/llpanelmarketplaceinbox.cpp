@@ -37,9 +37,6 @@
 #include "llviewercontrol.h"
 
 
-#define SUPPORTING_FRESH_ITEM_COUNT	1
-
-
 static LLRegisterPanelClassWrapper<LLPanelMarketplaceInbox> t_panel_marketplace_inbox("panel_marketplace_inbox");
 
 const LLPanelMarketplaceInbox::Params& LLPanelMarketplaceInbox::getDefaultParams() 

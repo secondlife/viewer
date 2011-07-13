@@ -143,7 +143,9 @@ LLInboxFolderViewFolder::LLInboxFolderViewFolder(const Params& p)
 	, LLBadgeOwner(getHandle())
 	, mFresh(true)
 {
+#if SUPPORTING_FRESH_ITEM_COUNT
 	initBadgeParams(p.new_badge());
+#endif
 }
 
 LLInboxFolderViewFolder::~LLInboxFolderViewFolder()
@@ -166,12 +168,14 @@ time_t LLInboxFolderViewFolder::getCreationDate() const
 // virtual
 void LLInboxFolderViewFolder::draw()
 {
+#if SUPPORTING_FRESH_ITEM_COUNT
 	if (!badgeHasParent())
 	{
 		addBadgeToParentPanel();
 	}
 	
 	setBadgeVisibility(mFresh);
+#endif
 
 	LLFolderViewFolder::draw();
 }

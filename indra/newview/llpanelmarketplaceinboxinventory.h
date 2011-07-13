@@ -32,6 +32,11 @@
 #include "llinventorypanel.h"
 #include "llfolderviewitem.h"
 
+
+#define SUPPORTING_FRESH_ITEM_COUNT	0
+
+
+
 class LLInboxInventoryPanel : public LLInventoryPanel
 {
 public:
