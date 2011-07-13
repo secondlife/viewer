@@ -2827,7 +2827,6 @@ bool LLStartUp::handleSocksProxy()
 		// If status != SOCKS_OK, stopProxy() will already have been called when startProxy() returns.
 		int status = LLProxy::getInstance()->startProxy(gSavedSettings.getString("Socks5ProxyHost"), gSavedSettings.getU32("Socks5ProxyPort"));
 		LLSD subs;
-		LLSD payload;
 		subs["HOST"] = gSavedSettings.getString("Socks5ProxyHost");
 		subs["PORT"] = (S32)gSavedSettings.getU32("Socks5ProxyPort");
 

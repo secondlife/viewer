@@ -206,7 +206,7 @@ namespace boost
 	
 	void intrusive_ptr_release(LLCurl::Responder* p)
 	{
-		if(p && 0 == --p->mReferenceCount)
+		if (p && 0 == --p->mReferenceCount)
 		{
 			delete p;
 		}
@@ -406,11 +406,11 @@ const char* LLCurl::Easy::getErrorBuffer()
 
 void LLCurl::Easy::setCA()
 {
-	if(!sCAPath.empty())
+	if (!sCAPath.empty())
 	{
 		setoptString(CURLOPT_CAPATH, sCAPath);
 	}
-	if(!sCAFile.empty())
+	if (!sCAFile.empty())
 	{
 		setoptString(CURLOPT_CAINFO, sCAFile);
 	}
@@ -546,7 +546,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
 		{
 			setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-			if(LLProxy::getInstance()->getSelectedAuthMethod() == METHOD_PASSWORD)
+			if (LLProxy::getInstance()->getSelectedAuthMethod() == METHOD_PASSWORD)
 			{
 				setoptString(CURLOPT_PROXYUSERPWD, LLProxy::getInstance()->getProxyUserPwdCURL());
 			}
@@ -568,7 +568,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	setopt(CURLOPT_HEADERDATA, (void*)this);
 
 	// Allow up to five redirects
-	if(responder && responder->followRedir())
+	if (responder && responder->followRedir())
 	{
 		setopt(CURLOPT_FOLLOWLOCATION, 1);
 		setopt(CURLOPT_MAXREDIRS, MAX_REDIRECTS);

@@ -840,28 +840,6 @@
       <key>Value</key>
       <integer>1080</integer>
     </map>
-     <key>Socks5Username</key>
-    <map>
-      <key>Comment</key>
-      <string>Socks 5 Username</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
-    <key>Socks5Password</key>
-    <map>
-      <key>Comment</key>
-      <string>Socks 5 Password</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
     <key>Socks5AuthType</key>
     <map>
       <key>Comment</key>

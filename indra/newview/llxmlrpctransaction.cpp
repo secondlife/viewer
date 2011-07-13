@@ -318,7 +318,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
 		{
 			mCurlRequest->setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-			if(LLProxy::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)
+			if (LLProxy::getInstance()->getSelectedAuthMethod()==METHOD_PASSWORD)
 			{
 				mCurlRequest->setoptString(CURLOPT_PROXYUSERPWD,LLProxy::getInstance()->getProxyUserPwdCURL());
 			}

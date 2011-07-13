@@ -191,7 +191,7 @@ public:
 	void enableHTTPProxy(LLHost httpHost, LLHttpProxyType type);
 
 	// Stop proxying HTTP packets
-	void disableHTTPProxy() { sHTTPProxyEnabled = false; };
+	void disableHTTPProxy() { sHTTPProxyEnabled = false; }
 
 	// Get the UDP proxy address and port
 	LLHost getUDPProxy() const { return mUDPProxy; }

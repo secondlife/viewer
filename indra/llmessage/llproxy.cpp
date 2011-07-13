@@ -110,7 +110,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 
 		authmethod_password_reply_t password_reply;
 
-		result = tcp_handshake(mProxyControlChannel, password_auth, request_size, (char*)&password_reply, sizeof(authmethod_password_reply_t));
+		result = tcp_handshake(mProxyControlChannel, password_auth, request_size, (char*)&password_reply, sizeof(password_reply));
 		delete[] password_auth;
 
 		if (result != 0)
@@ -142,7 +142,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 	// "If the client is not in possession of the information at the time of the UDP ASSOCIATE,
 	//  the client MUST use a port number and address of all zeros. RFC 1928"
 
-	result = tcp_handshake(mProxyControlChannel, (char*)&connect_request, sizeof(socks_command_request_t), (char*)&connect_reply, sizeof(socks_command_response_t));
+	result = tcp_handshake(mProxyControlChannel, (char*)&connect_request, sizeof(connect_request), (char*)&connect_reply, sizeof(connect_reply));
 	if (result != 0)
 	{
 		LL_WARNS("Proxy") << "SOCKS connect request failed, error on TCP control channel : " << result << LL_ENDL;
@@ -202,7 +202,7 @@ void LLProxy::stopProxy()
 	// then we must shut down any HTTP proxy operations. But it is allowable if web
 	// proxy is being used to continue proxying HTTP.
 
-	if(LLPROXY_SOCKS == mProxyType)
+	if (LLPROXY_SOCKS == mProxyType)
 	{
 		sHTTPProxyEnabled = false;
 	}

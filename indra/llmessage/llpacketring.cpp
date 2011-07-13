@@ -237,6 +237,8 @@ S32 LLPacketRing::receivePacket (S32 socket, char *datap)
 				proxywrap_t * header = reinterpret_cast<proxywrap_t *>(buffer);
 				mLastSender.setAddress(header->addr);
 				mLastSender.setPort(ntohs(header->port));
+
+				packet_size -= SOCKS_HEADER_SIZE; // The unwrapped packet size
 			}
 			else
 			{
