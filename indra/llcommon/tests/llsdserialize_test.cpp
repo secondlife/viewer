@@ -25,13 +25,18 @@
  * $/LicenseInfo$
  */
 
-#if !LL_WINDOWS
+
+#include "linden_common.h"
+
+#if LL_WINDOWS
+#include <winsock2.h>
+typedef U32 uint32_t;
+#else
 #include <netinet/in.h>
 #include <errno.h>
 #include <sys/wait.h>
 #endif
 
-#include "linden_common.h"
 #include "../llsd.h"
 #include "../llsdserialize.h"
 #include "../llformat.h"
@@ -39,11 +44,6 @@
 #include "../test/lltut.h"
 #include "llprocesslauncher.h"
 #include "stringize.h"
-
-#if LL_WINDOWS
-#include <winsock2.h>
-typedef U32 uint32_t;
-#endif
 
 std::vector<U8> string_to_vector(const std::string& str)
 {
