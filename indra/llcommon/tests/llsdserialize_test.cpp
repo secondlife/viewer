@@ -25,33 +25,26 @@
  * $/LicenseInfo$
  */
 
-#if !LL_WINDOWS
-#include <netinet/in.h>
-#endif
-
 #include "linden_common.h"
 #include "../llsd.h"
 #include "../llsdserialize.h"
 #include "../llformat.h"
 
 #include "../test/lltut.h"
-
+#include "llprocesslauncher.h"
+#include "stringize.h"
 
 #if LL_WINDOWS
 #include <winsock2.h>
 typedef U32 uint32_t;
+#else
+#include <netinet/in.h>
+#include <errno.h>
 #endif
 
-std::vector<U8> string_to_vector(std::string str)
+std::vector<U8> string_to_vector(const std::string& str)
 {
-	// bc LLSD can't...
-	size_t len = (size_t)str.length();
-	std::vector<U8> v(len);
-	for (size_t i = 0; i < len ; i++)
-	{
-		v[i] = str[i];
-	}
-	return v;
+	return std::vector<U8>(str.begin(), str.end());
 }
 
 namespace tut
@@ -1494,5 +1487,79 @@ namespace tut
 		ensureBinaryAndNotation("map", test);
 		ensureBinaryAndXML("map", test);
 	}
-}
 
+    struct TestPythonCompatible
+    {
+        TestPythonCompatible() {}
+        ~TestPythonCompatible() {}
+
+        void python(const std::string& desc, const std::string& script, F32 timeout=5)
+        {
+            const char* PYTHON(getenv("PYTHON"));
+            ensure("Set $PYTHON to the Python interpreter", PYTHON);
+            LLProcessLauncher py;
+            py.setExecutable(PYTHON);
+            py.addArgument("-c");
+            py.addArgument(script);
+            ensure_equals(STRINGIZE("Couldn't launch " << desc << " script"), py.launch(), 0);
+
+#if LL_WINDOWS
+            ensure_equals(STRINGIZE(desc << " script ran beyond "
+                                    << std::fixed << std::setprecision(1)
+                                    << timeout << " seconds"),
+                          WaitForSingleObject(py.getProcessHandle(), DWORD(timeout * 1000)),
+                          WAIT_OBJECT_0);
+            DWORD rc(0);
+            GetExitCodeProcess(py.getProcessHandle(), &rc);
+            ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, 0);
+#else
+            // Implementing timeout would mean messing with alarm() and
+            // catching SIGALRM... later maybe...
+            int status(0);
+            if (waitpid(py.getProcessID(), &status, 0) == -1)
+            {
+                int waitpid_errno(errno);
+                ensure_equals(STRINGIZE("Couldn't retrieve rc from " << desc << " script: "
+                                        "waitpid() errno " << waitpid_errno),
+                              waitpid_errno, ECHILD);
+            }
+            else
+            {
+                if (WIFEXITED(status))
+                {
+                    int rc(WEXITSTATUS(status));
+                    ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, 0);
+                }
+                else if (WIFSIGNALED(status))
+                {
+                    ensure(STRINGIZE(desc << " script terminated by signal " << WTERMSIG(status)),
+                           false);
+                }
+                else
+                {
+                    ensure(STRINGIZE(desc << " script produced impossible status " << status),
+                           false);
+                }
+            }
+#endif
+        }
+    };
+
+    typedef tut::test_group<TestPythonCompatible> TestPythonCompatibleGroup;
+    typedef TestPythonCompatibleGroup::object TestPythonCompatibleObject;
+    TestPythonCompatibleGroup pycompat("LLSD serialize Python compatibility");
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<1>()
+    {
+        python("hello", "print 'Hello, world!'");
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<2>()
+    {
+        python("platform",
+"import sys\n"
+"print 'Running on', sys.platform");
+    }
+}
