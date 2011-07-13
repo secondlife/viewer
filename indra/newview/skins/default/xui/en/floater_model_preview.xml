@@ -92,7 +92,7 @@
      parse_urls="true"
      wrap="true"
      visible="false">
-     You will not be able to complete the final upload of this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to get enabled for mesh model uploads.</text>
+     You will not be able to complete the final upload of this model to the Second Life servers. [[VURL] Find out how] to get enabled for mesh model uploads.</text>
 
   <text
 	height="65"
@@ -102,9 +102,9 @@
 	width="80"
 	word_wrap="true" 
 	>
-Streaming:
+Download:
 Physics:
-Simulation:
+Server:
 
 Prim equivs:
   </text>
@@ -123,7 +123,8 @@ Prim equivs:
 
 [EQ]
   </text>
-  
+
+<!--
   <text
 	height="65"
 	top_delta="0"
@@ -153,6 +154,7 @@ L$ [INSTANCES]
 L$ [TEXTURES]
 L$ [MODEL]
   </text>
+    -->
 
   <tab_container
     follows="right|top|bottom"
@@ -168,7 +170,8 @@ L$ [MODEL]
     <panel
       border="true"
       label="Level of Detail"
-      name="lod_panel">
+      name="lod_panel"
+      help_topic="upload_model_lod">
 
       <text left="10" width="240" bottom="20" height="15" follows="left|top" name="lod_table_header">
         Select Level of Detail:
@@ -291,7 +294,8 @@ L$ [MODEL]
     <panel
       border="true"
       label="Physics"
-      name="physics_panel">
+      name="physics_panel"
+      help_topic="upload_model_physics">
 
       <!-- PHYSICS GEOMETRY-->
       <panel
@@ -432,7 +436,9 @@ L$ [MODEL]
     <panel
       border="true"
       label="Modifiers"
-      name="modifiers_panel">
+      name="modifiers_panel"
+      help_topic="upload_model_modifiers">
+
       <text left="10" width="90" bottom="30" follows="top|left" height="15">
         Scale:
       </text>
