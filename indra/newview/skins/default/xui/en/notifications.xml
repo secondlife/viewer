@@ -4997,7 +4997,7 @@ Note this will launch your web browser.
 [_URL]
     <tag>confirm</tag>
     <url option="0" name="url">
-	    https://secondlife.com/account/verification.php
+	    https://secondlife.com/my/account/verification.php
     </url>
     <usetemplate
      ignoretext="I have not verified my age"
