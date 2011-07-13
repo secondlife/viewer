@@ -48,6 +48,7 @@
 #include "llthread.h"
 #include "llvfile.h"
 #include "llviewercontrol.h"
+#include "llviewerinventory.h"
 #include "llviewermenufile.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
@@ -1304,6 +1305,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	LLSD res;
 	result["folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
+	result["texture_folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE);
 	result["asset_type"] = "mesh";
 	result["inventory_type"] = "object";
 	result["description"] = "(No Description)";
@@ -2223,6 +2225,38 @@ void LLMeshRepository::notifyLoadedMeshes()
 			LLAssetType::EType asset_type = LLAssetType::lookup(data.mPostData["asset_type"].asString());
 			LLInventoryType::EType inventory_type = LLInventoryType::lookup(data.mPostData["inventory_type"].asString());
 
+			// Handle addition of texture, if any.
+			if ( data.mResponse.has("new_texture_folder_id") )
+			{
+				const LLUUID& folder_id = data.mResponse["new_texture_folder_id"].asUUID();
+
+				if ( folder_id.notNull() )
+				{
+					LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE);
+
+					std::string name;
+					// Check if the server built a different name for the texture folder
+					if ( data.mResponse.has("new_texture_folder_name") )
+					{
+						name = data.mResponse["new_texture_folder_name"].asString();
+					}
+					else
+					{
+						name = data.mPostData["name"].asString();
+					}
+
+					// Add the category to the internal representation
+					LLPointer<LLViewerInventoryCategory> cat = 
+						new LLViewerInventoryCategory(folder_id, parent_id, 
+							LLFolderType::FT_NONE, name, gAgent.getID());
+					cat->setVersion(LLViewerInventoryCategory::VERSION_UNKNOWN);
+
+					LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
+					gInventory.accountForUpdate(update);
+					gInventory.updateCategory(cat);
+				}
+			}
+
 			on_new_single_inventory_upload_complete(
 				asset_type,
 				inventory_type,
@@ -2232,6 +2266,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 				data.mPostData["description"],
 				data.mResponse,
 				data.mResponse["upload_price"]);
+			//}
 			
 			mInventoryQ.pop();
 		}
