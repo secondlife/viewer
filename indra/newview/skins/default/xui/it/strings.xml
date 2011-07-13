@@ -1217,9 +1217,6 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="InvFolder My Inventory">
 		Il mio inventario
 	</string>
-	<string name="InvFolder My Favorites">
-		I miei preferiti
-	</string>
 	<string name="InvFolder Library">
 		Libreria
 	</string>
@@ -1278,10 +1275,10 @@ Prova ad accedere nuovamente tra un minuto.
 		Gesture
 	</string>
 	<string name="InvFolder Favorite">
-		Preferiti
+		I miei preferiti
 	</string>
 	<string name="InvFolder favorite">
-		Preferiti
+		I miei preferiti
 	</string>
 	<string name="InvFolder Current Outfit">
 		Abbigliamento attuale

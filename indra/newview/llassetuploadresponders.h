@@ -112,6 +112,7 @@ private:
 struct LLBakedUploadData;
 class LLSendTexLayerResponder : public LLAssetUploadResponder
 {
+	LOG_CLASS(LLSendTexLayerResponder);
 public:
 	LLSendTexLayerResponder(const LLSD& post_data,
 							const LLUUID& vfile_id,
