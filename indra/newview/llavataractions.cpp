@@ -316,7 +316,11 @@ static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarNa
 	// PROFILES: open in webkit window
 	const bool show_chrome = false;
 	static LLCachedControl<LLRect> profile_rect(gSavedSettings, "WebProfileRect");
-	LLFloaterWebContent::create(url, "", agent_id.asString(), show_chrome, profile_rect);
+	LLFloaterWebContent::create(LLFloaterWebContent::Params().
+							url(url).
+							id(agent_id).
+							show_chrome(show_chrome).
+							preferred_media_size(profile_rect));
 }
 
 // static

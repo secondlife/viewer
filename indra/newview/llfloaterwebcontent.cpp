@@ -40,8 +40,16 @@
 
 #include "llfloaterwebcontent.h"
 
+LLFloaterWebContent::_Params::_Params()
+:	url("url"),
+	target("target"),
+	id("id"),
+	show_chrome("show_chrome", true),
+	preferred_media_size("preferred_media_size")
+{}
+
 LLFloaterWebContent::LLFloaterWebContent( const LLSD& key )
-	: LLFloater( key )
+: LLFloater( key )
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -75,6 +83,12 @@ BOOL LLFloaterWebContent::postBuild()
 	return TRUE;
 }
 
+bool LLFloaterWebContent::matchesKey(const LLSD& key)
+{
+	return key["target"].asString() == mKey["target"].asString();
+}
+
+
 void LLFloaterWebContent::initializeURLHistory()
 {
 	// start with an empty list
@@ -99,30 +113,23 @@ void LLFloaterWebContent::initializeURLHistory()
 }
 
 //static
-void LLFloaterWebContent::create( const std::string &url, const std::string& target, const std::string& uuid,  bool show_chrome, const LLRect& preferred_media_size)
+void LLFloaterWebContent::create( Params p)
 {
-	lldebugs << "url = " << url << ", target = " << target << ", uuid = " << uuid << llendl;
+	lldebugs << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id().asString() << llendl;
 
-	std::string tag = target;
-
-	if(target.empty() || target == "_blank")
+	if (!p.id.isProvided())
 	{
-		if(!uuid.empty())
-		{
-			tag = uuid;
-		}
-		else
-		{
-			// create a unique tag for this instance
-			LLUUID id;
-			id.generate();
-			tag = id.asString();
-		}
+		p.id = LLUUID::generateNewID();
+	}
+
+	if(!p.target.isProvided() || p.target() == "_blank")
+	{
+		p.target = p.id().asString();
 	}
 
 	S32 browser_window_limit = gSavedSettings.getS32("WebContentWindowLimit");
 
-	if(LLFloaterReg::findInstance("web_content", tag) != NULL)
+	if(LLFloaterReg::findInstance("web_content", p.target()) != NULL)
 	{
 		// There's already a web browser for this tag, so we won't be opening a new window.
 	}
@@ -136,7 +143,7 @@ void LLFloaterWebContent::create( const std::string &url, const std::string& tar
 
 		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
 		{
-			lldebugs << "    " << (*iter)->getKey() << llendl;
+			lldebugs << "    " << (*iter)->getKey()["target"] << llendl;
 		}
 
 		if(instances.size() >= (size_t)browser_window_limit)
@@ -146,30 +153,7 @@ void LLFloaterWebContent::create( const std::string &url, const std::string& tar
 		}
 	}
 
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::showInstance("web_content", tag));
-	llassert(browser);
-	if(browser)
-	{
-		browser->mUUID = uuid;
-
-		// tell the browser instance to load the specified URL
-		browser->open_media(url, target);
-		LLViewerMedia::proxyWindowOpened(target, uuid);
-
-		browser->getChild<LLLayoutPanel>("status_bar")->setVisible(show_chrome);
-		browser->getChild<LLLayoutPanel>("nav_controls")->setVisible(show_chrome);
-
-		if (!show_chrome)
-		{
-			browser->setResizeLimits(100, 100);
-		}
-
-		if (!preferred_media_size.isEmpty())
-		{
-			//ignore x, y for now
-			browser->geometryChanged(browser->getRect().mLeft, browser->getRect().mBottom, preferred_media_size.getWidth(), preferred_media_size.getHeight());
-		}
-	}
+	LLFloaterReg::showInstance("web_content", p);
 }
 
 //static
@@ -227,13 +211,45 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 	setShape(geom);
 }
 
-void LLFloaterWebContent::open_media(const std::string& web_url, const std::string& target)
+void LLFloaterWebContent::open_media(const Params& p)
 {
 	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
-	mWebBrowser->setHomePageUrl(web_url, "text/html");
-	mWebBrowser->setTarget(target);
-	mWebBrowser->navigateTo(web_url, "text/html");
-	set_current_url(web_url);
+	LLViewerMedia::proxyWindowOpened(p.target(), p.id().asString());
+	mWebBrowser->setHomePageUrl(p.url, "text/html");
+	mWebBrowser->setTarget(p.target);
+	mWebBrowser->navigateTo(p.url, "text/html");
+	set_current_url(p.url);
+
+	getChild<LLLayoutPanel>("status_bar")->setVisible(p.show_chrome);
+	getChild<LLLayoutPanel>("nav_controls")->setVisible(p.show_chrome);
+
+	if (!p.show_chrome)
+	{
+		setResizeLimits(100, 100);
+	}
+
+	if (!p.preferred_media_size().isEmpty())
+	{
+		//ignore x, y for now
+		geometryChanged(getRect().mLeft, getRect().mBottom, p.preferred_media_size().getWidth(), p.preferred_media_size().getHeight());
+	}
+
+}
+
+void LLFloaterWebContent::onOpen(const LLSD& key)
+{
+	Params params(key);
+
+	if (!params.validateBlock())
+	{
+		closeFloater();
+		return;
+	}
+
+	mUUID = params.id().asString();
+
+	// tell the browser instance to load the specified URL
+	open_media(params);
 }
 
 //virtual
