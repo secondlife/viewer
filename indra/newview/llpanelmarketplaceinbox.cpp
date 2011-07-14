@@ -55,7 +55,7 @@ LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
 
 LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 {
-	gSavedSettings.setString("InboxFreshnessDate", LLDate::now().asString());
+	gSavedPerAccountSettings.setString("LastInventoryInboxExpand", LLDate::now().asString());
 }
 
 // virtual

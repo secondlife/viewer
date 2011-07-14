@@ -4446,17 +4446,6 @@
       <key>Value</key>
         <real>2.0</real>
     </map>
-    <key>LastInventoryInboxExpand</key>
-    <map>
-        <key>Comment</key>
-        <string>The last time the received items inbox was expanded.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>String</string>
-        <key>Value</key>
-        <string />
-    </map>
     <key>LCDDestination</key>
     <map>
       <key>Comment</key>
@@ -13421,17 +13410,6 @@
         <integer>490</integer>
         <integer>0</integer>
         </array>
-        </map>
-        <key>InboxFreshnessDate</key>
-        <map>
-            <key>Comment</key>
-            <string>Last time the inbox was opened</string>
-            <key>Persist</key>
-            <integer>1</integer>
-            <key>Type</key>
-            <string>String</string>
-            <key>Value</key>
-            <string />
         </map>
     <key>HelpFloaterOpen</key>
     <map>

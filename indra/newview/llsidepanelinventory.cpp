@@ -463,7 +463,7 @@ void LLSidepanelInventory::onToggleInboxBtn()
 	if (inboxExpanded)
 	{
 		// Save current time as a setting for future new-ness tests
-		gSavedSettings.setString(INBOX_EXPAND_TIME_SETTING, LLDate::now().asString());
+		gSavedPerAccountSettings.setString(INBOX_EXPAND_TIME_SETTING, LLDate::now().asString());
 	}
 }
 
