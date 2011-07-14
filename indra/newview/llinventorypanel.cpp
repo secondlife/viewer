@@ -902,6 +902,18 @@ void LLInventoryPanel::onFocusReceived()
 	LLPanel::onFocusReceived();
 }
 
+bool LLInventoryPanel::addBadge(LLBadge * badge)
+{
+	bool badge_added = false;
+
+	if (acceptsBadge())
+	{
+		badge_added = badge->addToView(mFolderRoot);
+	}
+
+	return badge_added;
+}
+
 void LLInventoryPanel::openAllFolders()
 {
 	mFolderRoot->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_DOWN);

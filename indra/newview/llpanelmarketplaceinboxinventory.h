@@ -32,6 +32,11 @@
 #include "llinventorypanel.h"
 #include "llfolderviewitem.h"
 
+
+#define SUPPORTING_FRESH_ITEM_COUNT	0
+
+
+
 class LLInboxInventoryPanel : public LLInventoryPanel
 {
 public:
@@ -66,12 +71,16 @@ public:
 	
 	LLInboxFolderViewFolder(const Params& p);
 	~LLInboxFolderViewFolder();
+
+	time_t getCreationDate() const;
 	
 	void draw();
 	
 	void updateFlag() const;
 	void selectItem();
 	void toggleOpen();
+
+	bool isFresh() const { return mFresh; }
 	
 protected:
 	void setCreationDate(time_t creation_date_utc) const;

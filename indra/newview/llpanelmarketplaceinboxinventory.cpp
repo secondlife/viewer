@@ -141,9 +141,11 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 LLInboxFolderViewFolder::LLInboxFolderViewFolder(const Params& p)
 	: LLFolderViewFolder(p)
 	, LLBadgeOwner(getHandle())
-	, mFresh(false)
+	, mFresh(true)
 {
+#if SUPPORTING_FRESH_ITEM_COUNT
 	initBadgeParams(p.new_badge());
+#endif
 }
 
 LLInboxFolderViewFolder::~LLInboxFolderViewFolder()
@@ -151,14 +153,29 @@ LLInboxFolderViewFolder::~LLInboxFolderViewFolder()
 }
 
 // virtual
+time_t LLInboxFolderViewFolder::getCreationDate() const
+{
+	time_t ret_val = LLFolderViewFolder::getCreationDate();
+
+	if (!mCreationDate)
+	{
+		updateFlag();
+	}
+
+	return ret_val;
+}
+
+// virtual
 void LLInboxFolderViewFolder::draw()
 {
+#if SUPPORTING_FRESH_ITEM_COUNT
 	if (!badgeHasParent())
 	{
 		addBadgeToParentPanel();
 	}
 	
 	setBadgeVisibility(mFresh);
+#endif
 
 	LLFolderViewFolder::draw();
 }
@@ -166,10 +183,7 @@ void LLInboxFolderViewFolder::draw()
 void LLInboxFolderViewFolder::updateFlag() const
 {
 	LLDate saved_freshness_date = LLDate(gSavedPerAccountSettings.getString("LastInventoryInboxExpand"));
-	if (getCreationDate() > saved_freshness_date.secondsSinceEpoch())
-	{
-		mFresh = true;
-	}
+	mFresh = (mCreationDate > saved_freshness_date.secondsSinceEpoch());
 }
 
 void LLInboxFolderViewFolder::selectItem()

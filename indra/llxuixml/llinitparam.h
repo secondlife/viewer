@@ -1775,8 +1775,8 @@ namespace LLInitParam
 
 		void serializeBlock(Parser& parser, Parser::name_stack_t name_stack = Parser::name_stack_t(), const BaseBlock* diff_block = NULL) const
 		{
-			const self_t& typed_param = static_cast<const self_t&>(*this);
-			const self_t* diff_param = static_cast<const self_t*>(diff_block);
+			const derived_t& typed_param = static_cast<const derived_t&>(*this);
+			const derived_t* diff_param = static_cast<const derived_t*>(diff_block);
 			
 			std::string key = typed_param.getValueName();
 
@@ -1801,6 +1801,8 @@ namespace LLInitParam
 					// be exported as <color green="1"/>, since it was probably the intent of the user to 
 					// be specific about the RGB color values.  This also fixes an issue where we distinguish
 					// between rect.left not being provided and rect.left being explicitly set to 0 (same as default)
+					const_cast<derived_t&>(typed_param).updateBlockFromValue();
+
 					block_t::serializeBlock(parser, name_stack, NULL);
 				}
 			}
@@ -1863,7 +1865,7 @@ namespace LLInitParam
 			mValueAge = VALUE_AUTHORITATIVE;
 			mValue = val;
 			typed_param.clearValueName();
-			static_cast<derived_t*>(const_cast<self_t*>(this))->updateBlockFromValue();
+			static_cast<derived_t*>(this)->updateBlockFromValue();
 		}
 
 		value_assignment_t getValue() const

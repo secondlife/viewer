@@ -28,7 +28,7 @@
 #ifndef LL_LLFLOATERSEARCH_H
 #define LL_LLFLOATERSEARCH_H
 
-#include "llfloater.h"
+#include "llfloaterwebcontent.h"
 #include "llviewermediaobserver.h"
 
 #include <string>
@@ -43,11 +43,20 @@ class LLMediaCtrl;
 /// so that the user can click on teleport links in search results.
 ///
 class LLFloaterSearch : 
-	public LLFloater, 
-	public LLViewerMediaObserver
+	public LLFloaterWebContent
 {
 public:
-	LLFloaterSearch(const LLSD& key);
+	struct _Params : public LLInitParam::Block<_Params, LLFloaterWebContent::Params>
+	{
+		Optional<std::string> category;
+		Optional<std::string> query;
+
+		_Params();
+	};
+
+	typedef LLSDParamAdapter<_Params> Params;
+
+	LLFloaterSearch(const Params& key);
 
 	/// show the search floater with a new search
 	/// see search() for details on the key parameter.
@@ -70,10 +79,6 @@ public:
 private:
 	/*virtual*/ BOOL postBuild();
 
-	// inherited from LLViewerMediaObserver
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event);
-
-	LLMediaCtrl *mBrowser;
 	LLSD        mCategoryPaths;
 	U8          mSearchGodLevel;
 };
