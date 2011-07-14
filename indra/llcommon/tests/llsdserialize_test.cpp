@@ -31,24 +31,79 @@
 #if LL_WINDOWS
 #include <winsock2.h>
 typedef U32 uint32_t;
+#include <process.h>
 #else
 #include <netinet/in.h>
 #include <errno.h>
 #include <sys/wait.h>
+#include "llprocesslauncher.h"
 #endif
+
+// As we're not trying to preserve compatibility with old Boost.Filesystem
+// code, but rather writing brand-new code, use the newest available
+// Filesystem API.
+#define BOOST_FILESYSTEM_VERSION 3
+#include "boost/filesystem.hpp"
+#include "boost/filesystem/v3/fstream.hpp"
+#include "boost/range.hpp"
+#include "boost/foreach.hpp"
 
 #include "../llsd.h"
 #include "../llsdserialize.h"
 #include "../llformat.h"
 
 #include "../test/lltut.h"
-#include "llprocesslauncher.h"
 #include "stringize.h"
 
 std::vector<U8> string_to_vector(const std::string& str)
 {
 	return std::vector<U8>(str.begin(), str.end());
 }
+
+// boost::filesystem::temp_directory_path() isn't yet in Boost 1.45! :-(
+// Switch to that one as soon as we update to a Boost that contains it.
+boost::filesystem::path temp_directory_path()
+{
+#if LL_WINDOWS
+    char buffer[PATH_MAX];
+    GetTempPath(sizeof(buffer), buffer);
+    return boost::filesystem::path(buffer);
+
+#else  // LL_DARWIN, LL_LINUX
+    static const char* vars[] = { "TMPDIR", "TMP", "TEMP", "TEMPDIR" };
+    BOOST_FOREACH(const char* var, vars)
+    {
+        const char* found = getenv(var);
+        if (found)
+            return boost::filesystem::path(found);
+    }
+    return boost::filesystem::path("/tmp");
+#endif // LL_DARWIN, LL_LINUX
+}
+
+// Create a Python script file with specified content "somewhere in the
+// filesystem," cleaning up when it goes out of scope.
+class NamedTempScript
+{
+public:
+    NamedTempScript(const std::string& content):
+        mPath(/*boost::filesystem*/::temp_directory_path() /
+              boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%.py"))
+    {
+        boost::filesystem::ofstream file(mPath);
+        file << content << '\n';
+    }
+
+    ~NamedTempScript()
+    {
+        boost::filesystem::remove(mPath);
+    }
+
+    std::string getName() const { return mPath.native(); }
+
+private:
+    boost::filesystem::path mPath;
+};
 
 namespace tut
 {
@@ -1496,26 +1551,34 @@ namespace tut
         TestPythonCompatible() {}
         ~TestPythonCompatible() {}
 
-        void python(const std::string& desc, const std::string& script, F32 timeout=5)
+        void python(const std::string& desc, const std::string& script /*, F32 timeout=5 */)
         {
             const char* PYTHON(getenv("PYTHON"));
             ensure("Set $PYTHON to the Python interpreter", PYTHON);
-            LLProcessLauncher py;
-            py.setExecutable(PYTHON);
-            py.addArgument("-c");
-            py.addArgument(script);
-            ensure_equals(STRINGIZE("Couldn't launch " << desc << " script"), py.launch(), 0);
+
+            NamedTempScript scriptfile(script);
 
 #if LL_WINDOWS
-            ensure_equals(STRINGIZE(desc << " script ran beyond "
-                                    << std::fixed << std::setprecision(1)
-                                    << timeout << " seconds"),
-                          WaitForSingleObject(py.getProcessHandle(), DWORD(timeout * 1000)),
-                          WAIT_OBJECT_0);
-            DWORD rc(0);
-            GetExitCodeProcess(py.getProcessHandle(), &rc);
-            ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, 0);
-#else
+            std::string q("\"");
+            std::string qPYTHON(q + PYTHON + q);
+            std::string qscript(q + scriptfile.getName() + q);
+            int rc(_spawnl(_P_WAIT, PYTHON, qPYTHON.c_str(), qscript.c_str(), NULL));
+            if (rc == -1)
+            {
+                char buffer[256];
+                strerror_s(buffer, errno); // C++ can infer the buffer size!  :-O
+                ensure(STRINGIZE("Couldn't run Python " << desc << "script: " << buffer), false);
+            }
+            else
+            {
+                ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, 0);
+            }
+
+#else  // LL_DARWIN, LL_LINUX
+            LLProcessLauncher py;
+            py.setExecutable(PYTHON);
+            py.addArgument(scriptfile.getName());
+            ensure_equals(STRINGIZE("Couldn't launch " << desc << " script"), py.launch(), 0);
             // Implementing timeout would mean messing with alarm() and
             // catching SIGALRM... later maybe...
             int status(0);
