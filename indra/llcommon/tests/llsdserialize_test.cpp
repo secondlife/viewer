@@ -101,7 +101,8 @@ std::string native_to_string(const std::string& in)
 inline
 std::string native_to_string(const std::wstring& in)
 {
-    return wstring_to_utf8str(in);
+    // So actually, wstring_to_utf8str() accepts LLWString rather than std::wstring...
+    return wstring_to_utf8str(LLWString(in.begin(), in.end()));
 }
 
 // Create a Python script file with specified content "somewhere in the
