@@ -103,6 +103,7 @@ class LLSDParamAdapter : public T
 		}
 		
 		LLSDParamAdapter(const T& val)
+		: T(val)
 		{
 			T::operator=(val);
 		}

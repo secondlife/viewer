@@ -45,10 +45,12 @@ LLFloaterWebContent::_Params::_Params()
 	target("target"),
 	id("id"),
 	show_chrome("show_chrome", true),
-	preferred_media_size("preferred_media_size")
+	allow_address_entry("allow_address_entry", true),
+	preferred_media_size("preferred_media_size"),
+	trusted_content("trusted_content", false)
 {}
 
-LLFloaterWebContent::LLFloaterWebContent( const LLSD& key )
+LLFloaterWebContent::LLFloaterWebContent( const Params& key )
 : LLFloater( key )
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
@@ -218,10 +220,12 @@ void LLFloaterWebContent::open_media(const Params& p)
 	mWebBrowser->setHomePageUrl(p.url, "text/html");
 	mWebBrowser->setTarget(p.target);
 	mWebBrowser->navigateTo(p.url, "text/html");
+
 	set_current_url(p.url);
 
 	getChild<LLLayoutPanel>("status_bar")->setVisible(p.show_chrome);
 	getChild<LLLayoutPanel>("nav_controls")->setVisible(p.show_chrome);
+	getChild<LLUICtrl>("address")->setEnabled(p.allow_address_entry && !p.trusted_content);
 
 	if (!p.show_chrome)
 	{
@@ -247,6 +251,7 @@ void LLFloaterWebContent::onOpen(const LLSD& key)
 	}
 
 	mUUID = params.id().asString();
+	mWebBrowser->setTrustedContent(params.trusted_content);
 
 	// tell the browser instance to load the specified URL
 	open_media(params);

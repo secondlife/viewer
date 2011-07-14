@@ -49,7 +49,9 @@ public:
 		Optional<std::string>	url,
 								target;
 		Optional<LLUUID>		id;
-		Optional<bool>			show_chrome;
+		Optional<bool>			show_chrome,
+								allow_address_entry,
+								trusted_content;
 		Optional<LLRect>		preferred_media_size;
 
 		_Params();
@@ -57,7 +59,7 @@ public:
 
 	typedef LLSDParamAdapter<_Params> Params;
 
-	LLFloaterWebContent(const LLSD& key);
+	LLFloaterWebContent(const Params& key);
 
 	void initializeURLHistory();
 

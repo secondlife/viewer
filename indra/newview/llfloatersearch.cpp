@@ -84,10 +84,13 @@ LLSearchHandler gSearchHandler;
 LLFloaterSearch::_Params::_Params()
 :	category("category", ""),
 	query("query")
-{}
+{
+	trusted_content = true;
+	allow_address_entry = false;
+}
 
 
-LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
+LLFloaterSearch::LLFloaterSearch(const Params& key) :
 	LLFloaterWebContent(key),
 	mSearchGodLevel(0)
 {

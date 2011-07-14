@@ -46,7 +46,7 @@ class LLFloaterSearch :
 	public LLFloaterWebContent
 {
 public:
-	struct _Params : public LLInitParam::Block<_Params, LLFloaterWebContent::_Params>
+	struct _Params : public LLInitParam::Block<_Params, LLFloaterWebContent::Params>
 	{
 		Optional<std::string> category;
 		Optional<std::string> query;
@@ -56,7 +56,7 @@ public:
 
 	typedef LLSDParamAdapter<_Params> Params;
 
-	LLFloaterSearch(const LLSD& key);
+	LLFloaterSearch(const Params& key);
 
 	/// show the search floater with a new search
 	/// see search() for details on the key parameter.

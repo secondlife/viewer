@@ -129,7 +129,10 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 				}
 					
 				// Note: key should eventually be a non optional LLFloater arg; for now, set mKey to be safe
-				res->mKey = key;
+				if (res->mKey.isUndefined()) 
+				{
+						res->mKey = key;
+				}
 				res->setInstanceName(name);
 				res->applySavedVariables(); // Can't apply rect and dock state until setting instance name
 				if (res->mAutoTile && !res->getHost() && index > 0)
@@ -221,7 +224,7 @@ LLFloater* LLFloaterReg::showInstance(const std::string& name, const LLSD& key, 
 	LLFloater* instance = getInstance(name, key); 
 	if (instance) 
 	{
-		instance->openFloater(key);
+		instance->openFloater(instance->mKey);
 		if (focus)
 			instance->setFocus(TRUE);
 	}
