@@ -32,15 +32,17 @@
 #include <winsock2.h>
 typedef U32 uint32_t;
 #include <process.h>
+#include <io.h>
 #else
 #include <unistd.h>
 #include <netinet/in.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <sys/wait.h>
-#include <sys/stat.h>
 #include "llprocesslauncher.h"
 #endif
+
+#include <fcntl.h>
+#include <sys/stat.h>
 
 /*==========================================================================*|
 // Whoops, seems Linden's Boost package and the viewer are built with
@@ -100,7 +102,7 @@ std::string temp_directory_path()
 // Windows names because they're less likely than the Posix names to collide
 // with any other names in this source.
 #if LL_WINDOWS
-#define _remove   DeleteFile
+#define _remove   DeleteFileA
 #else  // ! LL_WINDOWS
 #define _open     open
 #define _write    write
@@ -155,8 +157,8 @@ public:
             // loop back to try another filename
         }
         // File is open, its name is in mPath: write it and close it.
-        _write(fd, content.c_str(), content.length());
-        _write(fd, "\n", 1);
+        (void)_write(fd, content.c_str(), content.length());
+        (void)_write(fd, "\n", 1);
         _close(fd);
     }
 
