@@ -2284,8 +2284,6 @@ LLSD LLModel::Decomposition::asLLSD() const
 
 				for (U32 k = 0; k < 3; k++)
 				{
-					llassert(src[k] <= 0.51f && src[k] >= -0.51f);
-
 					//convert to 16-bit normalized across domain
 					U16 val = (U16) (((src[k]-min.mV[k])/range.mV[k])*65535);
 
