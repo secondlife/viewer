@@ -74,8 +74,8 @@
 		両側を延ばす
 	</text>
 	<check_box initial_value="true" label="テクスチャを引き延ばす" name="checkbox stretch textures"/>
-	<check_box initial_value="true" label="グリッドにスナップ" left_delta="27" name="checkbox snap to grid"/>
-	<combo_box left_delta="60" name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択します" width="76">
+	<check_box initial_value="true" label="グリッドにスナップ" name="checkbox snap to grid"/>
+	<combo_box name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択します" >
 		<combo_box.item label="インワールドグリッド" name="World"/>
 		<combo_box.item label="ローカルグリッド" name="Local"/>
 		<combo_box.item label="リファレンスグリッド" name="Reference"/>
@@ -137,7 +137,7 @@
 	<text name="object_cost" tool_tip="[prims] / [physics complexity] として現在選択されているオブジェクトのコスト">
 		料金： [COST] / [PHYSICS]
 	</text>
-	<tab_container name="Object Info Tabs" tab_max_width="150" tab_min_width="30">
+	<tab_container name="Object Info Tabs" >
 		<panel label="一般" name="General">
 			<panel.string name="text deed continued">
 				譲渡
@@ -379,22 +379,22 @@
 				オブジェクトの特徴を編集：
 			</text>
 			<check_box label="フレキシブルパス" name="Flexible1D Checkbox Ctrl" tool_tip="Z 軸を中心にオブジェクトの屈曲を有効にします（クライアント側のみ）"/>
-			<spinner label="柔軟性" label_width="72" name="FlexNumSections" width="135"/>
-			<spinner label="重力" label_width="72" name="FlexGravity" width="135"/>
-			<spinner label="ドラッグ" label_width="72" name="FlexFriction" width="135"/>
-			<spinner label="風" label_width="72" name="FlexWind" width="135"/>
-			<spinner label="緊張" label_width="72" name="FlexTension" width="135"/>
-			<spinner label="X 軸方向の力" label_width="72" name="FlexForceX" width="135"/>
-			<spinner label="Y 軸方向の力" label_width="72" name="FlexForceY" width="135"/>
-			<spinner label="Z 軸方向の力" label_width="72" name="FlexForceZ" width="135"/>
+			<spinner label="柔軟性" name="FlexNumSections" />
+			<spinner label="重力" name="FlexGravity" />
+			<spinner label="ドラッグ" name="FlexFriction" />
+			<spinner label="風" name="FlexWind" />
+			<spinner label="緊張" name="FlexTension" />
+			<spinner label="X 軸方向の力" name="FlexForceX" />
+			<spinner label="Y 軸方向の力" name="FlexForceY" />
+			<spinner label="Z 軸方向の力" name="FlexForceZ" />
 			<check_box label="光" name="Light Checkbox Ctrl" tool_tip="オブジェクトが発光します"/>
-			<color_swatch label="" left_delta="74" name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
+			<color_swatch label="" name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
 			<texture_picker label="" name="light texture control" tool_tip="クリックで投影画を選択します（遅延レンダリング有効時のみ）"/>
-			<spinner label="輝度" label_width="72" name="Light Intensity" width="135"/>
+			<spinner label="輝度" name="Light Intensity" />
 			<spinner label="FOV" name="Light FOV"/>
-			<spinner label="半径" label_width="72" name="Light Radius" width="135"/>
+			<spinner label="半径" name="Light Radius" />
 			<spinner label="焦点" name="Light Focus"/>
-			<spinner label="弱まる" label_width="72" name="Light Falloff" width="135"/>
+			<spinner label="弱まる" name="Light Falloff" />
 			<spinner label="環境" name="Light Ambiance"/>
 			<text name="label physicsshapetype">
 				実像の種類：
@@ -496,18 +496,18 @@
 			</panel>
 		</panel>
 		<panel label="中身" name="Contents">
-			<button label="新しいスクリプト" label_selected="新規スクリプト" name="button new script" width="120"/>
-			<button label="権限" left_delta="130" name="button permissions" width="80"/>
+			<button label="新しいスクリプト" label_selected="新規スクリプト" name="button new script" />
+			<button label="権限" name="button permissions" />
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
 		<text name="label_parcel_info">
 			区画情報
 		</text>
-		<text name="label_area_price" width="200">
+		<text name="label_area_price" >
 			価格： [AREA] 平方メートル L$ [PRICE]
 		</text>
-		<text name="label_area" width="200">
+		<text name="label_area" >
 			面積： [AREA] 平方メートル
 		</text>
 		<button label="土地情報" label_selected="土地情報" name="button about land"/>

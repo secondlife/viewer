@@ -60,7 +60,7 @@
 			m
 		</text>
 		<slider label="Max. Partikelzahl:" name="MaxParticleCount"/>
-		<slider label="Max. Anzahl an voll dargestellten Avataren:" name="MaxNumberAvatarDrawn"/>
+		<slider label="Max. Anzahl an voll dargestellten Avataren:" label_width="230" name="MaxNumberAvatarDrawn" width="315"/>
 		<slider label="Post-Processing-Qualität:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Darstellungsgrad:
