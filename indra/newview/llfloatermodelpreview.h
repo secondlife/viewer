@@ -365,9 +365,6 @@ public:
 	
 	void setLoadState( U32 state ) { mLoadState = state; }
 	U32 getLoadState() { return mLoadState; }
-	//setRestJointFlag: If an asset comes through that changes the joints, we want the reset to persist
-	void setResetJointFlag( bool state ) { if ( !mResetJoints ) mResetJoints = state; }
-	const bool getResetJointFlag( void ) const { return mResetJoints; }
 	void setRigWithSceneParity( bool state ) { mRigParityWithScene = state; }
 	const bool getRigWithSceneParity( void ) const { return mRigParityWithScene; }
 	
