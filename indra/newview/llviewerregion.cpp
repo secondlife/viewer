@@ -186,8 +186,8 @@ class BaseCapabilitiesComplete : public LLHTTPClient::Responder
 {
 	LOG_CLASS(BaseCapabilitiesComplete);
 public:
-    BaseCapabilitiesComplete(LLViewerRegion* region)
-		: mRegion(region)
+    BaseCapabilitiesComplete(LLViewerRegion* region, S32 retry = 0)
+		: mRegion(region), mRetry(retry)
     { }
 	virtual ~BaseCapabilitiesComplete()
 	{
@@ -206,9 +206,24 @@ public:
     {
 		LL_WARNS2("AppInit", "Capabilities") << statusNum << ": " << reason << LL_ENDL;
 		
-		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
+		const S32 MAX_RETRIES = 5;
+
+		if (mRetry < MAX_RETRIES)
 		{
-			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
+			std::string url = mRegion->getCapability("Seed");
+
+			mRetry++;
+
+			llinfos << "retry " << mRetry << " posting to seed " << url << llendl;
+
+			mRegion->setSeedCapability(url, mRetry);
+		}
+		else
+		{
+			if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
+			{
+				LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
+			}
 		}
     }
 
@@ -242,14 +257,15 @@ public:
 	}
 
     static boost::intrusive_ptr<BaseCapabilitiesComplete> build(
-								LLViewerRegion* region)
+								LLViewerRegion* region, S32 retry)
     {
 		return boost::intrusive_ptr<BaseCapabilitiesComplete>(
-							 new BaseCapabilitiesComplete(region));
+							 new BaseCapabilitiesComplete(region, retry));
     }
 
 private:
 	LLViewerRegion* mRegion;
+	S32 mRetry;
 };
 
 
@@ -1477,9 +1493,9 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->sendReliable(host);
 }
 
-void LLViewerRegion::setSeedCapability(const std::string& url)
+void LLViewerRegion::setSeedCapability(const std::string& url, S32 retry)
 {
-	if (getCapability("Seed") == url)
+	if (retry == 0 && getCapability("Seed") == url)
     {
 		// llwarns << "Ignoring duplicate seed capability" << llendl;
 		return;
@@ -1569,7 +1585,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 
 	llinfos << "posting to seed " << url << llendl;
 
-	mImpl->mHttpResponderPtr = BaseCapabilitiesComplete::build(this) ;
+	mImpl->mHttpResponderPtr = BaseCapabilitiesComplete::build(this, retry) ;
 	LLHTTPClient::post(url, capabilityNames, mImpl->mHttpResponderPtr);
 }
 

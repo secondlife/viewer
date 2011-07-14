@@ -780,19 +780,6 @@ void LLFloaterModelPreview::draw()
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
 
-	if (!mCurRequest.empty())
-	{
-		LLMutexLock lock(mStatusLock);
-		childSetTextArg("status", "[STATUS]", mStatusMessage);
-	}
-	else
-	{
-		childSetVisible("Simplify", true);
-		childSetVisible("simplify_cancel", false);
-		childSetVisible("Decompose", true);
-		childSetVisible("decompose_cancel", false);
-	}
-	
 	if (mModelPreview)
 	{
 		gGL.color3f(1.f, 1.f, 1.f);
@@ -992,12 +979,14 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 			sInstance->setStatusMessage(sInstance->getString("decomposing"));
 			sInstance->childSetVisible("Decompose", false);
 			sInstance->childSetVisible("decompose_cancel", true);
+			sInstance->childDisable("Simplify");
 		}
 		else if (stage == "Simplify")
 		{
 			sInstance->setStatusMessage(sInstance->getString("simplifying"));
 			sInstance->childSetVisible("Simplify", false);
 			sInstance->childSetVisible("simplify_cancel", true);
+			sInstance->childDisable("Decompose");
 		}
 	}
 }
@@ -4344,6 +4333,24 @@ void LLModelPreview::updateStatusMessages()
 		{
 			child->setEnabled(enable);
 			child = panel->findNextSibling(child);
+		}
+
+		if (fmp->mCurRequest.empty())
+		{
+			fmp->childSetVisible("Simplify", true);
+			fmp->childSetVisible("simplify_cancel", false);
+			fmp->childSetVisible("Decompose", true);
+			fmp->childSetVisible("decompose_cancel", false);
+
+			if (phys_hulls > 0)
+			{
+				fmp->childEnable("Simplify");
+			}
+		
+			if (phys_tris || phys_hulls > 0)
+			{
+				fmp->childEnable("Decompose");
+			}
 		}
 	}
 
