@@ -53,7 +53,10 @@ LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
 
 LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 {
-	gSavedPerAccountSettings.setString("LastInventoryInboxExpand", LLDate::now().asString());
+	if (getChild<LLButton>("inbox_btn")->getToggleState())
+	{
+		gSavedPerAccountSettings.setString("LastInventoryInboxExpand", LLDate::now().asString());
+	}
 }
 
 // virtual
