@@ -1396,6 +1396,8 @@ bool LLModelLoader::doLoadModel()
 	
 	if (!dom)
 	{
+		llinfos<<" Error with dae - traditionally indicates a corrupt file."<<llendl;
+		setLoadState( ERROR_PARSING );
 		return false;
 	}
 
@@ -3339,6 +3341,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 	if ( getLoadState() >= LLModelLoader::ERROR_PARSING )
 	{
 		mFMP->childDisable("ok_btn");
+		mFMP->childDisable( "calculate_btn" );
 	}
 	
 	if (lod == mPreviewLOD)
