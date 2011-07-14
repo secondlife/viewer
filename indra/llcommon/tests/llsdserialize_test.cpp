@@ -33,11 +33,26 @@
 typedef U32 uint32_t;
 #include <process.h>
 #else
+#include <unistd.h>
 #include <netinet/in.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include "llprocesslauncher.h"
 #endif
+
+/*==========================================================================*|
+// Whoops, seems Linden's Boost package and the viewer are built with
+// different settings of VC's /Zc:wchar_t switch! Using Boost.Filesystem
+// pathname operations produces Windows link errors:
+// unresolved external symbol "private: static class std::codecvt<unsigned short,
+// char,int> const * & __cdecl boost::filesystem3::path::wchar_t_codecvt_facet()"
+// unresolved external symbol "void __cdecl boost::filesystem3::path_traits::convert()"
+// See:
+// http://boost.2283326.n4.nabble.com/filesystem-v3-unicode-and-std-codecvt-linker-error-td3455549.html
+// which points to:
+// http://msdn.microsoft.com/en-us/library/dh8che7s%28v=VS.100%29.aspx
 
 // As we're not trying to preserve compatibility with old Boost.Filesystem
 // code, but rather writing brand-new code, use the newest available
@@ -45,6 +60,7 @@ typedef U32 uint32_t;
 #define BOOST_FILESYSTEM_VERSION 3
 #include "boost/filesystem.hpp"
 #include "boost/filesystem/v3/fstream.hpp"
+|*==========================================================================*/
 #include "boost/range.hpp"
 #include "boost/foreach.hpp"
 
@@ -54,7 +70,6 @@ typedef U32 uint32_t;
 
 #include "../test/lltut.h"
 #include "stringize.h"
-#include "llstring.h"
 
 std::vector<U8> string_to_vector(const std::string& str)
 {
@@ -62,13 +77,12 @@ std::vector<U8> string_to_vector(const std::string& str)
 }
 
 // boost::filesystem::temp_directory_path() isn't yet in Boost 1.45! :-(
-// Switch to that one as soon as we update to a Boost that contains it.
-boost::filesystem::path temp_directory_path()
+std::string temp_directory_path()
 {
 #if LL_WINDOWS
     char buffer[4096];
     GetTempPathA(sizeof(buffer), buffer);
-    return boost::filesystem::path(buffer);
+    return buffer;
 
 #else  // LL_DARWIN, LL_LINUX
     static const char* vars[] = { "TMPDIR", "TMP", "TEMP", "TEMPDIR" };
@@ -76,34 +90,28 @@ boost::filesystem::path temp_directory_path()
     {
         const char* found = getenv(var);
         if (found)
-            return boost::filesystem::path(found);
+            return found;
     }
-    return boost::filesystem::path("/tmp");
+    return "/tmp";
 #endif // LL_DARWIN, LL_LINUX
 }
 
-// We want a std::string from a boost::filesystem::path::native() call. While
-// there is a boost::filesystem::path::string() call as well, invoking that
-// (at least in this test-program context) produces unresolved externals for
-// boost::filesystem::path conversion machinery even though we can resolve
-// other boost::filesystem symbols. Possibly those conversion routines aren't
-// being built for Linden's Boost package. But that's okay, llstring.h
-// provides conversion machinery we can use instead.
-// On Posix platforms, boost::filesystem::path::native() returns std::string.
-inline
-std::string native_to_string(const std::string& in)
-{
-    return in;
-}
-
-// On Windows, though, boost::filesystem::path::native() returns std::wstring.
-// Make sure the right conversion happens.
-inline
-std::string native_to_string(const std::wstring& in)
-{
-    // So actually, wstring_to_utf8str() accepts LLWString rather than std::wstring...
-    return wstring_to_utf8str(LLWString(in.begin(), in.end()));
-}
+// Windows presents a kinda sorta compatibility layer. Code to the yucky
+// Windows names because they're less likely than the Posix names to collide
+// with any other names in this source.
+#if LL_WINDOWS
+#define _remove   DeleteFile
+#else  // ! LL_WINDOWS
+#define _open     open
+#define _write    write
+#define _close    close
+#define _remove   remove
+#define _O_WRONLY O_WRONLY
+#define _O_CREAT  O_CREAT
+#define _O_EXCL   O_EXCL
+#define _S_IWRITE S_IWUSR
+#define _S_IREAD  S_IRUSR
+#endif  // ! LL_WINDOWS
 
 // Create a Python script file with specified content "somewhere in the
 // filesystem," cleaning up when it goes out of scope.
@@ -111,22 +119,56 @@ class NamedTempScript
 {
 public:
     NamedTempScript(const std::string& content):
-        mPath(/*boost::filesystem*/::temp_directory_path() /
-              boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%.py"))
+        mPath(temp_directory_path())
     {
-        boost::filesystem::ofstream file(mPath);
-        file << content << '\n';
+        // Make sure mPath ends with a directory separator, if it doesn't already.
+        if (mPath.empty() ||
+            ! (mPath[mPath.length() - 1] == '\\' || mPath[mPath.length() - 1] == '/'))
+        {
+            mPath.append("/");
+        }
+
+        // Open a file with a unique name in the mPath directory.
+        int fd(-1);
+        for (int i(0);; ++i)
+        {
+            // Append an integer name to mPath. It need not be zero-filled,
+            // but I think it's neater that way.
+            std::string testname(STRINGIZE(mPath
+                                           << std::setw(8) << std::setfill('0') << i
+                                           << ".py"));
+            // The key to this whole loop is the _O_CREAT | _O_EXCL bitmask,
+            // which requests an error if the file already exists. A proper
+            // implementation will check atomically, ensuring that racing
+            // processes will end up with two different filenames.
+            fd = _open(testname.c_str(),
+                       _O_WRONLY | _O_CREAT | _O_EXCL,
+                       _S_IREAD | _S_IWRITE);
+            if (fd != -1)           // managed to open the file
+            {
+                mPath = testname;   // remember its actual name
+                break;
+            }
+            // it's a problem if the open() failed for any other reason but
+            // the existence of a file by the same name
+            assert(errno == EEXIST);
+            // loop back to try another filename
+        }
+        // File is open, its name is in mPath: write it and close it.
+        _write(fd, content.c_str(), content.length());
+        _write(fd, "\n", 1);
+        _close(fd);
     }
 
     ~NamedTempScript()
     {
-        boost::filesystem::remove(mPath);
+        _remove(mPath.c_str());
     }
 
-    std::string getName() const { return native_to_string(mPath.native()); }
+    std::string getName() const { return mPath; }
 
 private:
-    boost::filesystem::path mPath;
+    std::string mPath;
 };
 
 namespace tut
