@@ -33,7 +33,7 @@
 #include "llfolderviewitem.h"
 
 
-#define SUPPORTING_FRESH_ITEM_COUNT	0
+#define SUPPORTING_FRESH_ITEM_COUNT	1
 
 
 
