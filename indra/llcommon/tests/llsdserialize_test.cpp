@@ -66,7 +66,7 @@ boost::filesystem::path temp_directory_path()
 {
 #if LL_WINDOWS
     char buffer[4096];
-    GetTempPath(sizeof(buffer), buffer);
+    GetTempPathA(sizeof(buffer), buffer);
     return boost::filesystem::path(buffer);
 
 #else  // LL_DARWIN, LL_LINUX
@@ -99,7 +99,7 @@ public:
         boost::filesystem::remove(mPath);
     }
 
-    std::string getName() const { return mPath.native(); }
+    std::string getName() const { return mPath.string(); }
 
 private:
     boost::filesystem::path mPath;
