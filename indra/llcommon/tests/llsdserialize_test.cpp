@@ -54,6 +54,7 @@ typedef U32 uint32_t;
 
 #include "../test/lltut.h"
 #include "stringize.h"
+#include "llstring.h"
 
 std::vector<U8> string_to_vector(const std::string& str)
 {
@@ -81,6 +82,28 @@ boost::filesystem::path temp_directory_path()
 #endif // LL_DARWIN, LL_LINUX
 }
 
+// We want a std::string from a boost::filesystem::path::native() call. While
+// there is a boost::filesystem::path::string() call as well, invoking that
+// (at least in this test-program context) produces unresolved externals for
+// boost::filesystem::path conversion machinery even though we can resolve
+// other boost::filesystem symbols. Possibly those conversion routines aren't
+// being built for Linden's Boost package. But that's okay, llstring.h
+// provides conversion machinery we can use instead.
+// On Posix platforms, boost::filesystem::path::native() returns std::string.
+inline
+std::string native_to_string(const std::string& in)
+{
+    return in;
+}
+
+// On Windows, though, boost::filesystem::path::native() returns std::wstring.
+// Make sure the right conversion happens.
+inline
+std::string native_to_string(const std::wstring& in)
+{
+    return wstring_to_utf8str(in);
+}
+
 // Create a Python script file with specified content "somewhere in the
 // filesystem," cleaning up when it goes out of scope.
 class NamedTempScript
@@ -99,7 +122,7 @@ public:
         boost::filesystem::remove(mPath);
     }
 
-    std::string getName() const { return mPath.string(); }
+    std::string getName() const { return native_to_string(mPath.native()); }
 
 private:
     boost::filesystem::path mPath;
