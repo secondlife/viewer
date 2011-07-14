@@ -65,7 +65,7 @@ std::vector<U8> string_to_vector(const std::string& str)
 boost::filesystem::path temp_directory_path()
 {
 #if LL_WINDOWS
-    char buffer[PATH_MAX];
+    char buffer[4096];
     GetTempPath(sizeof(buffer), buffer);
     return boost::filesystem::path(buffer);
 
