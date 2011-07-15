@@ -87,14 +87,8 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 			<text name="Owner:">
 				Ejer:
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				Gruppe:
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="Vælg" name="Set..."/>
 			<check_box label="Tillad dedikering til gruppe" name="check deed" tool_tip="En gruppe administrator kan dedikere denne jord til gruppen, så det vil blive støttet af gruppen&apos;s jord tildeling."/>
@@ -318,17 +312,17 @@ Kun større parceller kan vises i søgning.
 			</text>
 			<check_box label="Redigere terræn" name="edit land check" tool_tip="Hvis dette er valg, kan enhver redigere dit land. Det er bedst ikke at vælge her, da det altid er muligt for dig som ejer at ændre terræn på dit eget land."/>
 			<check_box label="Flyve" name="check fly" tool_tip="Hvis valgt, kan beboere flyve på dit land. Hvis ikke valgt kan beboere kun flyve ind på dit land og over dit land."/>
-			<text left="194" name="allow_label2">
+			<text name="allow_label2">
 				Lave objekter:
 			</text>
 			<check_box label="Alle beboere" name="edit objects check"/>
 			<check_box label="Gruppe" name="edit group objects check"/>
-			<text left="170" name="allow_label3">
+			<text name="allow_label3">
 				Anbringe objekter:
 			</text>
 			<check_box label="Alle beboere" name="all object entry check"/>
 			<check_box label="Gruppe" name="group object entry check"/>
-			<text left="200" name="allow_label4">
+			<text name="allow_label4">
 				Køre scripts:
 			</text>
 			<check_box label="Alle beboere" name="check other scripts"/>
@@ -352,6 +346,7 @@ Kun større parceller kan vises i søgning.
 				<combo_box.item label="Parker &amp; natur" name="item9"/>
 				<combo_box.item label="Beboelse" name="item10"/>
 				<combo_box.item label="Indkøb" name="item11"/>
+				<combo_box.item label="Leje" name="item13"/>
 				<combo_box.item label="Andet" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -366,6 +361,7 @@ Kun større parceller kan vises i søgning.
 				<combo_box.item label="Parker &amp; natur" name="item9"/>
 				<combo_box.item label="Beboelse" name="item10"/>
 				<combo_box.item label="Indkøb" name="item11"/>
+				<combo_box.item label="Leje" name="item13"/>
 				<combo_box.item label="Andet" name="item12"/>
 			</combo_box>
 			<check_box label="Mature indhold" name="MatureCheck" tool_tip=""/>
@@ -396,7 +392,6 @@ Kun større parceller kan vises i søgning.
 				Hjemmeside:
 			</text>
 			<button label="Vælg" name="set_media_url"/>
-			<check_box label="Skjul medie URL" name="hide_media_url" tool_tip="Klik her for at skjule medie adressen så det kun er dig og evt. parcel gruppens ejer/administratorer der kan se den."/>
 			<text left="4" name="Description:">
 				Beskrivelse:
 			</text>
@@ -424,7 +419,6 @@ Kun større parceller kan vises i søgning.
 			<check_box label="Gentag afspil" name="media_loop" tool_tip="Gentager automatisk medie, når det er færdigt med at spille starter det automatisk forfra."/>
 		</panel>
 		<panel label="LYD" name="land_audio_panel">
-			<check_box label="Skjul URL" name="hide_music_url" tool_tip="Ved at vælge her, vil musik URL skjules for alle ikke autoriserede brugere der læser denne parcels information."/>
 			<check_box label="Tillad stemmer" name="parcel_enable_voice_channel"/>
 			<check_box label="Tillad stemmer (håndteret af estate)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Begræns stemme chat til denne parcel" name="parcel_enable_voice_channel_local"/>
@@ -434,7 +428,7 @@ Kun større parceller kan vises i søgning.
 				(Defineret via estate)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Tillad adgang for alle ([MATURITY])
+				Tillad offentlig adgang ([MATURITY]) (Bemærk: Ellers oprettes blokeringslinier)
 			</panel.string>
 			<panel.string name="estate_override">
 				En eller flere af disse valg er indstillet på estate niveau

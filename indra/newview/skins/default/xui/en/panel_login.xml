@@ -47,8 +47,8 @@ auto_resize="false"
 follows="left|bottom"
 name="login"
 layout="topleft"
-width="695"
-min_width="695"
+width="705"
+min_width="705"
 user_resize="false"
 height="80">
 <text
@@ -67,8 +67,7 @@ follows="left|bottom"
 height="22"
 left_delta="0"
 max_chars="128"
-prevalidate_callback="ascii"
-select_on_focus="true"
+combo_editor.prevalidate_callback="ascii"
 tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
 top_pad="0"
 name="username_combo"
@@ -118,13 +117,40 @@ label="Remember password"
   name="connect_btn"
   top="35"
   width="90" />
+ <text
+  follows="left|bottom"
+  font="SansSerifSmall"
+  height="15"
+  left_pad="10"
+  name="mode_selection_text"
+  top="20"
+  width="130">
+       Mode:
+ </text>
+<combo_box
+  follows="left|bottom"
+  height="23"
+  max_chars="128"
+  tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
+  top_pad="0"
+  name="mode_combo"
+  width="110">
+<combo_box.item
+  label="Basic"
+  name="Basic"
+  value="settings_minimal.xml" />
+<combo_box.item
+  label="Advanced"
+  name="Advanced"
+  value="" />
+</combo_box>
   <text
   follows="left|bottom"
   font="SansSerifSmall"
   height="15"
-  left_pad="18"
+  left_pad="8"
   name="start_location_text"
-top="20"
+  top="20"
   width="130">
        Start at:
  </text>
@@ -136,7 +162,7 @@ control_name="NextLoginLocation"
 max_chars="128"
 top_pad="0"
 name="start_location_combo"
-     width="170">
+     width="165">
 <combo_box.item
 label="My last location"
 name="MyLastLocation"

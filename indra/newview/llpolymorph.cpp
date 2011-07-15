@@ -59,6 +59,37 @@ LLPolyMorphData::LLPolyMorphData(const std::string& morph_name)
 	mMesh = NULL;
 }
 
+LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
+	mName(rhs.mName),
+	mNumIndices(rhs.mNumIndices),
+	mTotalDistortion(rhs.mTotalDistortion),
+	mAvgDistortion(rhs.mAvgDistortion),
+	mMaxDistortion(rhs.mMaxDistortion),
+	mVertexIndices(NULL),
+	mCoords(NULL),
+	mNormals(NULL),
+	mBinormals(NULL),
+	mTexCoords(NULL)
+{
+	const S32 numVertices = mNumIndices;
+
+	mCoords = new LLVector3[numVertices];
+	mNormals = new LLVector3[numVertices];
+	mBinormals = new LLVector3[numVertices];
+	mTexCoords = new LLVector2[numVertices];
+	mVertexIndices = new U32[numVertices];
+	
+	for (S32 v=0; v < numVertices; v++)
+	{
+		mCoords[v] = rhs.mCoords[v];
+		mNormals[v] = rhs.mNormals[v];
+		mBinormals[v] = rhs.mBinormals[v];
+		mTexCoords[v] = rhs.mTexCoords[v];
+		mVertexIndices[v] = rhs.mVertexIndices[v];
+	}
+}
+
+
 //-----------------------------------------------------------------------------
 // ~LLPolyMorphData()
 //-----------------------------------------------------------------------------
@@ -287,10 +318,22 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 		}
 	}
 
-	mMorphData = mMesh->getMorphData(getInfo()->mMorphName);
+	std::string morph_param_name = getInfo()->mMorphName;
+	
+	mMorphData = mMesh->getMorphData(morph_param_name);
 	if (!mMorphData)
 	{
-		llwarns << "No morph target named " << getInfo()->mMorphName << " found in mesh." << llendl;
+		const std::string driven_tag = "_Driven";
+		U32 pos = morph_param_name.find(driven_tag);
+		if (pos > 0)
+		{
+			morph_param_name = morph_param_name.substr(0,pos);
+			mMorphData = mMesh->getMorphData(morph_param_name);
+		}
+	}
+	if (!mMorphData)
+	{
+		llwarns << "No morph target named " << morph_param_name << " found in mesh." << llendl;
 		return FALSE;  // Continue, ignoring this tag
 	}
 	return TRUE;
@@ -447,6 +490,16 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 
 	mLastSex = avatar_sex;
 
+	// Check for NaN condition (NaN is detected if a variable doesn't equal itself.
+	if (mCurWeight != mCurWeight)
+	{
+		mCurWeight = 0.0;
+	}
+	if (mLastWeight != mLastWeight)
+	{
+		mLastWeight = mCurWeight+.001;
+	}
+
 	// perform differential update of morph
 	F32 delta_weight = ( getSex() & avatar_sex ) ? (mCurWeight - mLastWeight) : (getDefaultWeight() - mLastWeight);
 	// store last weight
@@ -455,10 +508,10 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 	if (delta_weight != 0.f)
 	{
 		llassert(!mMesh->isLOD());
-		LLVector3 *coords = mMesh->getWritableCoords();
+		LLVector4 *coords = mMesh->getWritableCoords();
 
 		LLVector3 *scaled_normals = mMesh->getScaledNormals();
-		LLVector3 *normals = mMesh->getWritableNormals();
+		LLVector4 *normals = mMesh->getWritableNormals();
 
 		LLVector3 *scaled_binormals = mMesh->getScaledBinormals();
 		LLVector3 *binormals = mMesh->getWritableBinormals();
@@ -478,7 +531,8 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 				maskWeight = maskWeightArray[vert_index_morph];
 			}
 
-			coords[vert_index_mesh] += mMorphData->mCoords[vert_index_morph] * delta_weight * maskWeight;
+			coords[vert_index_mesh] += LLVector4(mMorphData->mCoords[vert_index_morph] * delta_weight * maskWeight);
+
 			if (getInfo()->mIsClothingMorph && clothing_weights)
 			{
 				LLVector3 clothing_offset = mMorphData->mCoords[vert_index_morph] * delta_weight * maskWeight;
@@ -493,7 +547,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 			scaled_normals[vert_index_mesh] += mMorphData->mNormals[vert_index_morph] * delta_weight * maskWeight * NORMAL_SOFTEN_FACTOR;
 			LLVector3 normalized_normal = scaled_normals[vert_index_mesh];
 			normalized_normal.normVec();
-			normals[vert_index_mesh] = normalized_normal;
+			normals[vert_index_mesh] = LLVector4(normalized_normal);
 
 			// calculate new binormals
 			scaled_binormals[vert_index_mesh] += mMorphData->mBinormals[vert_index_morph] * delta_weight * maskWeight * NORMAL_SOFTEN_FACTOR;
@@ -542,7 +596,7 @@ void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S3
 
 		if (maskWeights)
 		{
-			LLVector3 *coords = mMesh->getWritableCoords();
+			LLVector4 *coords = mMesh->getWritableCoords();
 			LLVector3 *scaled_normals = mMesh->getScaledNormals();
 			LLVector3 *scaled_binormals = mMesh->getScaledBinormals();
 			LLVector2 *tex_coords = mMesh->getWritableTexCoords();
@@ -553,7 +607,7 @@ void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S3
 				S32 out_vert = mMorphData->mVertexIndices[vert];
 
 				// remove effect of existing masked morph
-				coords[out_vert] -= mMorphData->mCoords[vert] * lastMaskWeight;
+				coords[out_vert] -= LLVector4(mMorphData->mCoords[vert]) * lastMaskWeight;
 				scaled_normals[out_vert] -= mMorphData->mNormals[vert] * lastMaskWeight * NORMAL_SOFTEN_FACTOR;
 				scaled_binormals[out_vert] -= mMorphData->mBinormals[vert] * lastMaskWeight * NORMAL_SOFTEN_FACTOR;
 				tex_coords[out_vert] -= mMorphData->mTexCoords[vert] * lastMaskWeight;

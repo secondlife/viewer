@@ -118,6 +118,100 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/index.php?lang=pt-BR
 	</string>
+	<string name="LoginFailedViewerNotPermitted">
+		O visualizador utilizado já não é compatível com o Second Life.  Visite a página abaixo para baixar uma versão atual: http://secondlife.com/download
+
+Para saber mais, visite as perguntas frequentes abaixo: http://secondlife.com/viewer-access-faq
+	</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">
+		Existe uma versão atualizada do seu visualizador: [VERSION]
+	</string>
+	<string name="LoginFailedRequiredUpdate">
+		Atualização de visualizador obrigatória: [VERSION]
+	</string>
+	<string name="LoginFailedAlreadyLoggedIn">
+		Este agente já fez login.
+	</string>
+	<string name="LoginFailedAuthenticationFailed">
+		Desculpe! Não foi possível fazer seu login. Verifique se digitou o nome de usuário correto* (como kiki45 ou astro.física) * e senha. Verifique também que a tecla Maiúscula está desativada.
+	</string>
+	<string name="LoginFailedPasswordChanged">
+		Como medida de precaução, sua senha foi alterada.  Visite sua conta em http://secondlife.com/password e responda a pergunta de segurança para mudar sua senha. Lamentamos qualquer inconveniente.
+	</string>
+	<string name="LoginFailedPasswordReset">
+		Fizemos algumas alterações a seu sistema. Você precisa selecionar outra senha.  Visite sua conta em http://secondlife.com/password e responda a pergunta de segurança para mudar sua senha. Lamentamos qualquer inconveniente.
+	</string>
+	<string name="LoginFailedEmployeesOnly">
+		O Second Life está fechado para manutenção no momento.  Somente funcionários podem acessá-lo.  Consulte www.secondlife.com/status para as últimas atualizações.
+	</string>
+	<string name="LoginFailedPremiumOnly">
+		O acesso ao Second Life está sendo restrito por alguns instantes para que todos tenham a melhor experiência possível. 
+	 	
+Titulares de contas gratuitas não poderão acessar o Second Life para acomodar os assinantes do Second Life.
+	</string>
+	<string name="LoginFailedComputerProhibited">
+		O Second Life não pode ser acessado deste computador.  Se você acredita que houve algum equívoco, contate support@secondlife.com.
+	</string>
+	<string name="LoginFailedAcountSuspended">
+		Sua conta não está disponível para acesso até [TIME], horário do Pacífico nos EUA (GMT-08).
+	</string>
+	<string name="LoginFailedAccountDisabled">
+		Não é possível concluir a solicitação neste momento. Para obter mais ajuda, conte o suporte em http://secondlife.com/support. Caso você não possa mudar sua senha, ligue para (866) 476-9763.
+	</string>
+	<string name="LoginFailedTransformError">
+		Dados discrepantes detectados durante o login.  Contate support@secondlife.com.
+	</string>
+	<string name="LoginFailedAccountMaintenance">
+		Sua conta está passando por um breve período de manutenção.  Sua conta não está disponível para acesso até [TIME], horário do Pacífico nos EUA (GMT-08).  Se você acredita que houve algum equívoco, contate support@secondlife.com.
+	</string>
+	<string name="LoginFailedPendingLogoutFault">
+		Reação à solicitação de saída foi uma falha do simulador.
+	</string>
+	<string name="LoginFailedPendingLogout">
+		O sistema está passando para o modo offline.  Sua conta não está disponível para acesso até [TIME], horário do Pacífico nos EUA (GMT-08).
+	</string>
+	<string name="LoginFailedUnableToCreateSession">
+		Impossível criar sessão válida.
+	</string>
+	<string name="LoginFailedUnableToConnectToSimulator">
+		Não foi possível conectar o simulador.
+	</string>
+	<string name="LoginFailedRestrictedHours">
+		Sua conta possui acesso ao Second Life das [START] às [END], horário da costa leste dos EUA. Volte novamente durante seu horário de acesso.  Se você acredita que houve algum equívoco, contate support@secondlife.com.
+	</string>
+	<string name="LoginFailedIncorrectParameters">
+		Parâmetros incorretos. Se você acredita que houve algum equívoco, contate support@secondlife.com.
+	</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">
+		O parâmetro de primeiro nome deve ser alfanumérico.  Se você acredita que houve algum equívoco, contate support@secondlife.com.
+	</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">
+		O parâmetro de sobrenome deve ser alfanumérico.  Se você acredita que houve algum equívoco, contate support@secondlife.com.
+	</string>
+	<string name="LogoutFailedRegionGoingOffline">
+		Região passando para modo offline.  Tente novamente dentro de alguns instantes.
+	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		Não há agente na região.  Tente novamente dentro de alguns instantes.
+	</string>
+	<string name="LogoutFailedPendingLogin">
+		A região estava acessada por outra sessão.  Tente novamente dentro de alguns instantes.
+	</string>
+	<string name="LogoutFailedLoggingOut">
+		A região estava passando para o modo offline na sessão anterior.  Tente novamente dentro de alguns instantes.
+	</string>
+	<string name="LogoutFailedStillLoggingOut">
+		A região estava passando para o modo offline na sessão anterior.  Tente novamente dentro de alguns instantes.
+	</string>
+	<string name="LogoutSucceeded">
+		A região passou para o modo offline na última sessão.  Tente novamente dentro de alguns instantes.
+	</string>
+	<string name="LogoutFailedLogoutBegun">
+		A região inicou o modo offline.  Tente novamente dentro de alguns instantes.
+	</string>
+	<string name="LoginFailedLoggingOutSession">
+		O sistema iniciou o modo offline em sua sessão anterior.  Tente novamente dentro de alguns instantes.
+	</string>
 	<string name="AgentLostConnection">
 		Esta região pode estar passando por problemas. Por favor, verifique sua conexão com a internet.
 	</string>
@@ -425,6 +519,9 @@
 	</string>
 	<string name="symbolic folder link">
 		link da pasta
+	</string>
+	<string name="mesh">
+		mesh
 	</string>
 	<string name="AvatarAway">
 		Distante
@@ -855,6 +952,9 @@
 	<string name="tattoo">
 		Tatuagem
 	</string>
+	<string name="physics">
+		Físico
+	</string>
 	<string name="invalid">
 		Inválido
 	</string>
@@ -893,6 +993,9 @@
 	</string>
 	<string name="tattoo_not_worn">
 		Tatuagem não usada
+	</string>
+	<string name="physics_not_worn">
+		Físico não usado
 	</string>
 	<string name="invalid_not_worn">
 		inválido
@@ -941,6 +1044,9 @@
 	</string>
 	<string name="create_new_tattoo">
 		Criar nova tatuagem
+	</string>
+	<string name="create_new_physics">
+		Criar novo físico
 	</string>
 	<string name="create_new_invalid">
 		inválido
@@ -1040,7 +1146,7 @@
 	</string>
 	<string name="WornOnAttachmentPoint" value="(vestido em [ATTACHMENT_POINT])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (ativado)"/>
-	<string name="Chat" value="Bate papo"/>
+	<string name="Chat Message" value="Bate-papo:"/>
 	<string name="Sound" value="Som"/>
 	<string name="Wait" value="--- Aguarde"/>
 	<string name="AnimFlagStop" value="Parar animação"/>
@@ -1065,9 +1171,6 @@
 	<string name="Since Logoff" value="- Desde desligado"/>
 	<string name="InvFolder My Inventory">
 		Meu inventário
-	</string>
-	<string name="InvFolder My Favorites">
-		Meus favoritos
 	</string>
 	<string name="InvFolder Library">
 		Biblioteca
@@ -1127,10 +1230,10 @@
 		Gestos
 	</string>
 	<string name="InvFolder Favorite">
-		Favoritos
+		Meus favoritos
 	</string>
 	<string name="InvFolder favorite">
-		Favoritos
+		Meus favoritos
 	</string>
 	<string name="InvFolder Current Outfit">
 		Look atual
@@ -1143,6 +1246,9 @@
 	</string>
 	<string name="InvFolder Accessories">
 		Acessórios
+	</string>
+	<string name="InvFolder Meshes">
+		Meshes:
 	</string>
 	<string name="InvFolder Friends">
 		Amigos
@@ -1457,8 +1563,8 @@
 	<string name="Unknown">
 		(Desconhecido)
 	</string>
-	<string name="SummaryForTheWeek" value="Resumo para esta semana, com início em"/>
-	<string name="NextStipendDay" value="Próximo dia de salário é"/>
+	<string name="SummaryForTheWeek" value="Resumo para esta semana, com início em "/>
+	<string name="NextStipendDay" value=". Próximo dia de salário é "/>
 	<string name="GroupIndividualShare" value="Grupo       Divisão individualI"/>
 	<string name="GroupColumn" value="Grupo"/>
 	<string name="Balance">
@@ -1822,12 +1928,6 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="accel-win-shift">
 		Shift+
 	</string>
-	<string name="Esc">
-		Esc
-	</string>
-	<string name="Home">
-		Início
-	</string>
 	<string name="FileSaved">
 		Arquivo salvo
 	</string>
@@ -1847,7 +1947,7 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 		PDT
 	</string>
 	<string name="Direction_Forward">
-		Avante
+		Frente
 	</string>
 	<string name="Direction_Left">
 		Esquerda
@@ -1871,10 +1971,10 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 		Leste
 	</string>
 	<string name="Direction_Up">
-		Acima
+		P/ cima
 	</string>
 	<string name="Direction_Down">
-		Abaixo
+		P/ baixo
 	</string>
 	<string name="Any Category">
 		Qualquer categoria
@@ -1944,6 +2044,9 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="Other">
 		Outros
+	</string>
+	<string name="Rental">
+		Aluguel
 	</string>
 	<string name="Any">
 		Qualquer
@@ -2180,6 +2283,114 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Bulbous Nose">
 		Nariz em bulbo
 	</string>
+	<string name="Breast Physics Mass">
+		Seios - massa
+	</string>
+	<string name="Breast Physics Smoothing">
+		Seios - suavização
+	</string>
+	<string name="Breast Physics Gravity">
+		Seios - gravidade
+	</string>
+	<string name="Breast Physics Drag">
+		Seios - resistência do ar
+	</string>
+	<string name="Breast Physics InOut Max Effect">
+		Efeito máximo
+	</string>
+	<string name="Breast Physics InOut Spring">
+		Vibração
+	</string>
+	<string name="Breast Physics InOut Gain">
+		Ganho
+	</string>
+	<string name="Breast Physics InOut Damping">
+		Duração
+	</string>
+	<string name="Breast Physics UpDown Max Effect">
+		Efeito máximo
+	</string>
+	<string name="Breast Physics UpDown Spring">
+		Vibração
+	</string>
+	<string name="Breast Physics UpDown Gain">
+		Ganho
+	</string>
+	<string name="Breast Physics UpDown Damping">
+		Duração
+	</string>
+	<string name="Breast Physics LeftRight Max Effect">
+		Efeito máximo
+	</string>
+	<string name="Breast Physics LeftRight Spring">
+		Vibração
+	</string>
+	<string name="Breast Physics LeftRight Gain">
+		Ganho
+	</string>
+	<string name="Breast Physics LeftRight Damping">
+		Duração
+	</string>
+	<string name="Belly Physics Mass">
+		Barriga - massa
+	</string>
+	<string name="Belly Physics Smoothing">
+		Barriga - suavização
+	</string>
+	<string name="Belly Physics Gravity">
+		Barriga - gravidade
+	</string>
+	<string name="Belly Physics Drag">
+		Barriga - resistência do ar
+	</string>
+	<string name="Belly Physics UpDown Max Effect">
+		Efeito máximo
+	</string>
+	<string name="Belly Physics UpDown Spring">
+		Vibração
+	</string>
+	<string name="Belly Physics UpDown Gain">
+		Ganho
+	</string>
+	<string name="Belly Physics UpDown Damping">
+		Duração
+	</string>
+	<string name="Butt Physics Mass">
+		Nádegas - massa
+	</string>
+	<string name="Butt Physics Smoothing">
+		Nádegas - suavização
+	</string>
+	<string name="Butt Physics Gravity">
+		Nádegas - gravidade
+	</string>
+	<string name="Butt Physics Drag">
+		Nádegas - resistência do ar
+	</string>
+	<string name="Butt Physics UpDown Max Effect">
+		Efeito máximo
+	</string>
+	<string name="Butt Physics UpDown Spring">
+		Vibração
+	</string>
+	<string name="Butt Physics UpDown Gain">
+		Ganho
+	</string>
+	<string name="Butt Physics UpDown Damping">
+		Duração
+	</string>
+	<string name="Butt Physics LeftRight Max Effect">
+		Efeito máximo
+	</string>
+	<string name="Butt Physics LeftRight Spring">
+		Vibração
+	</string>
+	<string name="Butt Physics LeftRight Gain">
+		Ganho
+	</string>
+	<string name="Butt Physics LeftRight Damping">
+		Duração
+	</string>
 	<string name="Bushy Eyebrows">
 		Sobrancelhas grossas
 	</string>
@@ -2188,6 +2399,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Butt Size">
 		Tamanho do traseiro
+	</string>
+	<string name="Butt Gravity">
+		Nádegas - gravidade
 	</string>
 	<string name="bustle skirt">
 		Saia armada
@@ -3470,6 +3684,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="conference-title-incoming">
 		Conversa com [AGENT_NAME]
 	</string>
+	<string name="inventory_item_offered-im">
+		Oferta de item de inventário
+	</string>
 	<string name="no_session_message">
 		(Sessão de MI inexistente)
 	</string>
@@ -3541,6 +3758,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="session_initialization_timed_out_error">
 		A inicialização da sessão expirou
+	</string>
+	<string name="Home position set.">
+		Posição inicial definida.
 	</string>
 	<string name="voice_morphing_url">
 		http://secondlife.com/landing/voicemorphing
@@ -3663,6 +3883,9 @@ Denunciar abuso
 	</string>
 	<string name="New Tattoo">
 		Nova tatuagem
+	</string>
+	<string name="New Physics">
+		Novo físico
 	</string>
 	<string name="Invalid Wearable">
 		Item inválido
@@ -3863,7 +4086,7 @@ Denunciar abuso
 	<string name="Notices">
 		Avisos
 	</string>
-	<string name="Chat">
+	<string name="Chat" value="Bate papo">
 		Bate-papo
 	</string>
 	<string name="DeleteItems">
@@ -3874,5 +4097,349 @@ Denunciar abuso
 	</string>
 	<string name="EmptyOutfitText">
 		Este look não possui nenhuma peça
+	</string>
+	<string name="ExternalEditorNotSet">
+		Selecione um editor utilizando a configuração ExternalEditor.
+	</string>
+	<string name="ExternalEditorNotFound">
+		O editor externo especificado não foi localizado.
+Tente colocar o caminho do editor entre aspas.
+(ex. &quot;/caminho para/editor&quot; &quot;%s&quot;)
+	</string>
+	<string name="ExternalEditorCommandParseError">
+		Error ao analisar o comando do editor externo.
+	</string>
+	<string name="ExternalEditorFailedToRun">
+		Falha de execução do editor externo.
+	</string>
+	<string name="Esc">
+		Esc
+	</string>
+	<string name="Space">
+		Space
+	</string>
+	<string name="Enter">
+		Enter
+	</string>
+	<string name="Tab">
+		Tab
+	</string>
+	<string name="Ins">
+		Ins
+	</string>
+	<string name="Del">
+		Del
+	</string>
+	<string name="Backsp">
+		Backsp
+	</string>
+	<string name="Shift">
+		Shift
+	</string>
+	<string name="Ctrl">
+		Ctrl
+	</string>
+	<string name="Alt">
+		Alt
+	</string>
+	<string name="CapsLock">
+		CapsLock
+	</string>
+	<string name="Home">
+		Início
+	</string>
+	<string name="End">
+		End
+	</string>
+	<string name="PgUp">
+		PgUp
+	</string>
+	<string name="PgDn">
+		PgDn
+	</string>
+	<string name="F1">
+		F1
+	</string>
+	<string name="F2">
+		F2
+	</string>
+	<string name="F3">
+		F3
+	</string>
+	<string name="F4">
+		F4
+	</string>
+	<string name="F5">
+		F5
+	</string>
+	<string name="F6">
+		F6
+	</string>
+	<string name="F7">
+		F7
+	</string>
+	<string name="F8">
+		F8
+	</string>
+	<string name="F9">
+		F9
+	</string>
+	<string name="F10">
+		F10
+	</string>
+	<string name="F11">
+		F11
+	</string>
+	<string name="F12">
+		F12
+	</string>
+	<string name="Add">
+		Adicionar
+	</string>
+	<string name="Subtract">
+		Subtrair
+	</string>
+	<string name="Multiply">
+		Multiplicar
+	</string>
+	<string name="Divide">
+		Dividir
+	</string>
+	<string name="PAD_DIVIDE">
+		PAD_DIVIDE
+	</string>
+	<string name="PAD_LEFT">
+		PAD_LEFT
+	</string>
+	<string name="PAD_RIGHT">
+		PAD_RIGHT
+	</string>
+	<string name="PAD_DOWN">
+		PAD_DOWN
+	</string>
+	<string name="PAD_UP">
+		PAD_UP
+	</string>
+	<string name="PAD_HOME">
+		PAD_HOME
+	</string>
+	<string name="PAD_END">
+		PAD_END
+	</string>
+	<string name="PAD_PGUP">
+		PAD_PGUP
+	</string>
+	<string name="PAD_PGDN">
+		PAD_PGDN
+	</string>
+	<string name="PAD_CENTER">
+		PAD_CENTER
+	</string>
+	<string name="PAD_INS">
+		PAD_INS
+	</string>
+	<string name="PAD_DEL">
+		PAD_DEL
+	</string>
+	<string name="PAD_Enter">
+		PAD_Enter
+	</string>
+	<string name="PAD_BUTTON0">
+		PAD_BUTTON0
+	</string>
+	<string name="PAD_BUTTON1">
+		PAD_BUTTON1
+	</string>
+	<string name="PAD_BUTTON2">
+		PAD_BUTTON2
+	</string>
+	<string name="PAD_BUTTON3">
+		PAD_BUTTON3
+	</string>
+	<string name="PAD_BUTTON4">
+		PAD_BUTTON4
+	</string>
+	<string name="PAD_BUTTON5">
+		PAD_BUTTON5
+	</string>
+	<string name="PAD_BUTTON6">
+		PAD_BUTTON6
+	</string>
+	<string name="PAD_BUTTON7">
+		PAD_BUTTON7
+	</string>
+	<string name="PAD_BUTTON8">
+		PAD_BUTTON8
+	</string>
+	<string name="PAD_BUTTON9">
+		PAD_BUTTON9
+	</string>
+	<string name="PAD_BUTTON10">
+		PAD_BUTTON10
+	</string>
+	<string name="PAD_BUTTON11">
+		PAD_BUTTON11
+	</string>
+	<string name="PAD_BUTTON12">
+		PAD_BUTTON12
+	</string>
+	<string name="PAD_BUTTON13">
+		PAD_BUTTON13
+	</string>
+	<string name="PAD_BUTTON14">
+		PAD_BUTTON14
+	</string>
+	<string name="PAD_BUTTON15">
+		PAD_BUTTON15
+	</string>
+	<string name="-">
+		-
+	</string>
+	<string name="=">
+		=
+	</string>
+	<string name="`">
+		`
+	</string>
+	<string name=";">
+		;
+	</string>
+	<string name="[">
+		[
+	</string>
+	<string name="]">
+		]
+	</string>
+	<string name="\">
+		\
+	</string>
+	<string name="0">
+		0
+	</string>
+	<string name="1">
+		1
+	</string>
+	<string name="2">
+		2
+	</string>
+	<string name="3">
+		3
+	</string>
+	<string name="4">
+		4
+	</string>
+	<string name="5">
+		5
+	</string>
+	<string name="6">
+		6
+	</string>
+	<string name="7">
+		7
+	</string>
+	<string name="8">
+		8
+	</string>
+	<string name="9">
+		9
+	</string>
+	<string name="A">
+		A
+	</string>
+	<string name="B">
+		B
+	</string>
+	<string name="C">
+		C
+	</string>
+	<string name="D">
+		D
+	</string>
+	<string name="E">
+		E
+	</string>
+	<string name="F">
+		F
+	</string>
+	<string name="G">
+		G
+	</string>
+	<string name="H">
+		H
+	</string>
+	<string name="I">
+		I
+	</string>
+	<string name="J">
+		J
+	</string>
+	<string name="K">
+		K
+	</string>
+	<string name="L">
+		L
+	</string>
+	<string name="M">
+		M
+	</string>
+	<string name="N">
+		N
+	</string>
+	<string name="O">
+		O
+	</string>
+	<string name="P">
+		P
+	</string>
+	<string name="Q">
+		Q
+	</string>
+	<string name="R">
+		R
+	</string>
+	<string name="S">
+		S
+	</string>
+	<string name="T">
+		T
+	</string>
+	<string name="U">
+		U
+	</string>
+	<string name="V">
+		V
+	</string>
+	<string name="W">
+		W
+	</string>
+	<string name="X">
+		X
+	</string>
+	<string name="Y">
+		Y
+	</string>
+	<string name="Z">
+		Z
+	</string>
+	<string name="BeaconParticle">
+		Vendo balizas de partículas (azul)
+	</string>
+	<string name="BeaconPhysical">
+		Vendo balizas de objetos físicos (verde)
+	</string>
+	<string name="BeaconScripted">
+		Vendo balizas de objetos com script (vermelho)
+	</string>
+	<string name="BeaconScriptedTouch">
+		Vendo objeto com script com balizas com funcionalidade de toque (vermelho)
+	</string>
+	<string name="BeaconSound">
+		Vendo balizas de som (amarelo)
+	</string>
+	<string name="BeaconMedia">
+		Vendo balizas de mídia (branco)
+	</string>
+	<string name="ParticleHiding">
+		Ocultar partículas
 	</string>
 </strings>

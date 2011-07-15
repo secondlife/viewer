@@ -150,7 +150,7 @@
      top_pad="20" 
      left="30" 
      height="10"
-     width="180">
+     width="400">
       Enable incoming chat popups:
       </text>
     <check_box
@@ -180,14 +180,14 @@
      increment="1"
      initial_value="23"
      label="Nearby chat toasts life time:"
-     label_width="190"
+     label_width="285"
      layout="topleft"
      left="45"
      max_val="60"
      min_val="1"
      name="nearby_toasts_lifetime"
      top_pad="10"
-     width="230" />
+     width="325" />
     <spinner
      control_name="NearbyToastFadingTime"
      decimal_digits="0"
@@ -196,27 +196,39 @@
      increment="1"
      initial_value="3"
      label="Nearby chat toasts fading time:"
-     label_width="190"
+     label_width="285"
      layout="topleft"
      left_delta="0"
      max_val="60"
      min_val="0"
      name="nearby_toasts_fadingtime"
      top_pad="3"
-     width="230" />
+     width="325" />
     
     <check_box
      control_name="TranslateChat"
      enabled="true"
-     height="16"
-     label="Use machine translation while chatting (powered by Google)"
+     height="16"     
      layout="topleft"
      left="30"
      name="translate_chat_checkbox"
-     bottom_delta="30"
+     top_pad="5"
      width="400" />
+     <!-- *HACK 
+     	After storm-1109 will be fixed: instead of using this text_box, word_wrap should be applied for "translate_chat_checkbox" check_box's label.-->
+     <text
+      follows="top|left"
+      height="15"
+      layout="topleft"
+      left="50"
+      name="translate_chb_label"
+      top_delta="1"
+      width="450"
+      wrap="true">
+      Use machine translation while chatting (powered by Google)
+     </text>
     <text
-     bottom_delta="30"
+     top_pad="20"
      name="translate_language_text"
      follows="left|top"
      layout="topleft"

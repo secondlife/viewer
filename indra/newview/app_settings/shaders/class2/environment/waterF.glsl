@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+
 
 vec3 scaleSoftClip(vec3 inColor);
 vec3 atmosTransport(vec3 inColor);

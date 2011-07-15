@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+
 
 vec3 atmosAmbient(vec3 light)
 {

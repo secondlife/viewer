@@ -29,11 +29,16 @@
 
 // newview includes
 #include "llagent.h" 	// gAgent		
+#include "llslurl.h"
+#include "lluicolor.h"
 #include "lluicolortable.h"
 #include "llviewercontrol.h" // gSavedSettings
+#include "llviewerregion.h"
+#include "llworld.h"
 #include "llinstantmessage.h" //SYSTEM_FROM
 
 // LLViewerChat
+LLViewerChat::font_change_signal_t LLViewerChat::sChatFontChangedSignal;
 
 //static 
 void LLViewerChat::getChatColor(const LLChat& chat, LLColor4& r_color)
@@ -75,6 +80,10 @@ void LLViewerChat::getChatColor(const LLChat& chat, LLColor4& r_color)
 				{
 					r_color = LLUIColorTable::instance().getColor("llOwnerSayChatColor");
 				}
+				else if ( chat.mChatType == CHAT_TYPE_DIRECT )
+				{
+					r_color = LLUIColorTable::instance().getColor("DirectChatColor");
+				}
 				else
 				{
 					r_color = LLUIColorTable::instance().getColor("ObjectChatColor");
@@ -87,8 +96,9 @@ void LLViewerChat::getChatColor(const LLChat& chat, LLColor4& r_color)
 		if (!chat.mPosAgent.isExactlyZero())
 		{
 			LLVector3 pos_agent = gAgent.getPositionAgent();
-			F32 distance = dist_vec(pos_agent, chat.mPosAgent);
-			if (distance > gAgent.getNearChatRadius())
+			F32 distance_squared = dist_vec_squared(pos_agent, chat.mPosAgent);
+			F32 dist_near_chat = gAgent.getNearChatRadius();
+			if (distance_squared > dist_near_chat * dist_near_chat)
 			{
 				// diminish far-off chat
 				r_color.mV[VALPHA] = 0.8f;
@@ -140,6 +150,10 @@ void LLViewerChat::getChatColor(const LLChat& chat, std::string& r_color_name, F
 				{
 					r_color_name = "llOwnerSayChatColor";
 				}
+				else if ( chat.mChatType == CHAT_TYPE_DIRECT )
+				{
+					r_color_name = "DirectChatColor";
+				}
 				else
 				{
 					r_color_name = "ObjectChatColor";
@@ -152,8 +166,9 @@ void LLViewerChat::getChatColor(const LLChat& chat, std::string& r_color_name, F
 		if (!chat.mPosAgent.isExactlyZero())
 		{
 			LLVector3 pos_agent = gAgent.getPositionAgent();
-			F32 distance = dist_vec(pos_agent, chat.mPosAgent);
-			if (distance > gAgent.getNearChatRadius())
+			F32 distance_squared = dist_vec_squared(pos_agent, chat.mPosAgent);
+			F32 dist_near_chat = gAgent.getNearChatRadius();
+			if (distance_squared > dist_near_chat * dist_near_chat)
 			{
 				// diminish far-off chat
 				r_color_alpha = 0.8f; 
@@ -214,3 +229,56 @@ void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
 
 }
 
+//static
+std::string LLViewerChat::getSenderSLURL(const LLChat& chat, const LLSD& args)
+{
+	switch (chat.mSourceType)
+	{
+	case CHAT_SOURCE_AGENT:
+		return LLSLURL("agent", chat.mFromID, "about").getSLURLString();
+
+	case CHAT_SOURCE_OBJECT:
+		return getObjectImSLURL(chat, args);
+
+	default:
+		llwarns << "Getting SLURL for an unsupported sender type: " << chat.mSourceType << llendl;
+	}
+
+	return LLStringUtil::null;
+}
+
+//static
+std::string LLViewerChat::getObjectImSLURL(const LLChat& chat, const LLSD& args)
+{
+	std::string url = LLSLURL("objectim", chat.mFromID, "").getSLURLString();
+	url += "?name=" + chat.mFromName;
+	url += "&owner=" + chat.mOwnerID.asString();
+
+	std::string slurl = args["slurl"].asString();
+	if (slurl.empty())
+	{
+		LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
+		if(region)
+		{
+			LLSLURL region_slurl(region->getName(), chat.mPosAgent);
+			slurl = region_slurl.getLocationString();
+		}
+	}
+
+	url += "&slurl=" + LLURI::escape(slurl);
+
+	return url;
+}
+
+//static 
+boost::signals2::connection LLViewerChat::setFontChangedCallback(const font_change_signal_t::slot_type& cb)
+{
+	return sChatFontChangedSignal.connect(cb);
+}
+
+//static
+void LLViewerChat::signalChatFontChanged()
+{
+	// Notify all observers that our font has changed
+	sChatFontChangedSignal(getChatFont());
+}

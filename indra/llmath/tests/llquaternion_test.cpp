@@ -29,12 +29,12 @@
 #include "linden_common.h"
 #include "../test/lltut.h"
 
-#include "../llquaternion.h"
 #include "../v4math.h"
 #include "../v3math.h"
 #include "../v3dmath.h"
 #include "../m4math.h"
 #include "../m3math.h"
+#include "../llquaternion.h"
 
 namespace tut
 {

@@ -76,7 +76,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      follows="all"
      height="383"
      layout="topleft"
-     left="5"
+     left="3"
      name="tabs"
      tab_group="1"
      tab_min_width="70"
@@ -84,10 +84,10 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      tab_position="top"
      top_pad="10"
      halign="center"
-     width="317">
+     width="319">
      	<panel
          background_opaque="true"
-       background_visible="true"
+         background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
          follows="all"
@@ -99,28 +99,55 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          name="nearby_panel"
          top="0"
          width="313">
-			<net_map
-			 bg_color="NetMapBackgroundColor"
-			 follows="top|left|right"
-			 layout="topleft"
-			 left="3"
-			 mouse_opaque="false"
-			 name="Net Map"
-			 width="307"
-			 height="140"
-			 top="0"/>
-			<avatar_list
-             allow_select="true"
-             follows="top|left|bottom|right"
-             height="216"
-             ignore_online_status="true"
+         <layout_stack
+           clip="false"
+           follows="all"
+           height="355"
+           layout="topleft"
+           mouse_opaque="false"
+           orientation="vertical"
+           width="313">
+           <layout_panel
+             height="142"
              layout="topleft"
-             left="3"
-             multi_select="true"
-             name="avatar_list"
-             top="145"
-             width="307" />
-            <panel
+             min_dim="100"
+             mouse_opaque="false"
+             user_resize="true"
+             visibility_control="NearbyListShowMap"
+             width="313">
+             <net_map
+               bg_color="NetMapBackgroundColor"
+               follows="all"
+               height="140"
+               layout="topleft"
+               left="3"
+               mouse_opaque="false"
+               name="Net Map"
+               top="4"
+               width="305"/>
+           </layout_panel>
+           <layout_panel
+             height="213"
+             layout="topleft"
+             min_dim="100"
+             mouse_opaque="false"
+             user_resize="true"
+             width="313">
+             <avatar_list
+               allow_select="true"
+               follows="all"
+               height="211"
+               ignore_online_status="true"
+               layout="topleft"
+               left="3"
+               keep_one_selected="false"
+               multi_select="true"
+               name="avatar_list"
+               top="2"
+               width="306" />
+           </layout_panel>
+         </layout_stack>
+         <panel
              background_visible="true"
              follows="left|right|bottom"
              height="27"
@@ -165,7 +192,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              layout="topleft"
              left_pad="1"
              name="dummy_icon"
-             width="241"
+             width="243"
              />
             </panel>
         </panel>
@@ -251,7 +278,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				   top_pad="1"
 				   left="0"
 				   name="bottom_panel"
-				   width="305">
+				   width="308">
 				      <layout_panel
 				       auto_resize="false"
 				       height="25"
@@ -300,7 +327,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				       layout="topleft"
 				       name="dummy_panel"
 				       user_resize="false"
-				       width="212">
+				       width="210">
 				          <icon
 				           follows="bottom|left|right"
 				           height="25"
@@ -309,7 +336,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				           left="0"
 				           top="0"
 				           name="dummy_icon"
-				           width="211" />
+				           width="210" />
 				      </layout_panel>
 				      <layout_panel
 				       auto_resize="false"
@@ -471,7 +498,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              	 layout="topleft"
              	 left_pad="1"
              	 name="dummy_icon"
-             	 width="209"
+             	 width="212"
              />
             </panel>
         </panel>
@@ -506,7 +533,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              height="27"
              label="bottom_panel"
              layout="topleft"
-             left="0"
+             left="3"
              name="bottom_panel"
              top_pad="0"
              width="313">
@@ -544,7 +571,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              	 layout="topleft"
              	 left_pad="1"
              	 name="dummy_icon"
-             	 width="241"
+             	 width="244"
              />
             </panel>
         </panel>
@@ -595,7 +622,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="im_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="41">
@@ -616,7 +643,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="call_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="52">
@@ -637,7 +664,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="share_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="66">
@@ -658,7 +685,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="teleport_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="77">

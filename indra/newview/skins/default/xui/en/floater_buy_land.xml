@@ -204,7 +204,7 @@ supports [AMOUNT2] objects
      follows="left|top"
      height="14"
      layout="topleft"
-     left_delta="110"
+     left_delta="125"
      name="region_name_text"
      top_delta="0"
      use_ellipses="true"
@@ -237,7 +237,7 @@ supports [AMOUNT2] objects
      follows="left|top"
      height="14"
      layout="topleft"
-     left_delta="110"
+     left_delta="125"
      name="region_type_text"
      top_delta="0"
      width="175">
@@ -262,7 +262,7 @@ supports [AMOUNT2] objects
      follows="left|top"
      height="14"
      layout="topleft"
-     left_delta="110"
+     left_delta="125"
      name="estate_name_text"
      top_delta="0"
      width="175">
@@ -276,8 +276,8 @@ supports [AMOUNT2] objects
      layout="topleft"
      left="440"
      name="estate_owner_label"
-     right="550"
-     width="100"
+     right="565"
+     width="120"
      word_wrap="true">
         Estate Owner:
     </text>
@@ -287,7 +287,7 @@ supports [AMOUNT2] objects
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="110"
+     left_delta="125"
      name="estate_owner_text"
      top_delta="0"
      width="175">

@@ -134,6 +134,21 @@ BOOL LLVector3::clampLength( F32 length_limit )
 	return changed;
 }
 
+BOOL LLVector3::clamp(const LLVector3 &min_vec, const LLVector3 &max_vec)
+{
+	BOOL ret = FALSE;
+
+	if (mV[0] < min_vec[0]) { mV[0] = min_vec[0]; ret = TRUE; }
+	if (mV[1] < min_vec[1]) { mV[1] = min_vec[1]; ret = TRUE; }
+	if (mV[2] < min_vec[2]) { mV[2] = min_vec[2]; ret = TRUE; }
+
+	if (mV[0] > max_vec[0]) { mV[0] = max_vec[0]; ret = TRUE; }
+	if (mV[1] > max_vec[1]) { mV[1] = max_vec[1]; ret = TRUE; }
+	if (mV[2] > max_vec[2]) { mV[2] = max_vec[2]; ret = TRUE; }
+
+	return ret;
+}
+
 
 // Sets all values to absolute value of their original values
 // Returns TRUE if data changed
@@ -190,6 +205,28 @@ const LLVector3&	LLVector3::rotVec(const LLQuaternion &q)
 	*this = *this * q;
 	return *this;
 }
+
+const LLVector3& LLVector3::transVec(const LLMatrix4& mat)
+{
+	setVec(
+			mV[VX] * mat.mMatrix[VX][VX] + 
+			mV[VY] * mat.mMatrix[VX][VY] + 
+			mV[VZ] * mat.mMatrix[VX][VZ] +
+			mat.mMatrix[VX][VW],
+			 
+			mV[VX] * mat.mMatrix[VY][VX] + 
+			mV[VY] * mat.mMatrix[VY][VY] + 
+			mV[VZ] * mat.mMatrix[VY][VZ] +
+			mat.mMatrix[VY][VW],
+
+			mV[VX] * mat.mMatrix[VZ][VX] + 
+			mV[VY] * mat.mMatrix[VZ][VY] + 
+			mV[VZ] * mat.mMatrix[VZ][VZ] +
+			mat.mMatrix[VZ][VW]);
+
+	return *this;
+}
+
 
 const LLVector3&	LLVector3::rotVec(F32 angle, const LLVector3 &vec)
 {

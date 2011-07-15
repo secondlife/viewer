@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+
 
 /////////////////////////////////////////////////////////////////////////
 // The fragment shader for the sky

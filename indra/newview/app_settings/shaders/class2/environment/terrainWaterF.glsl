@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+
 
 uniform sampler2D detail_0;
 uniform sampler2D detail_1;

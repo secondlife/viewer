@@ -21,6 +21,7 @@
      width="20" />
     <chiclet_im_p2p.avatar_icon
      bottom="3"
+     color="white"
      follows="left|top|bottom"
      height="20"
      left="2"

@@ -4,13 +4,13 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+
 
 #extension GL_ARB_texture_rectangle : enable
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
-
-uniform float gi_dist_cutoff;
 
 varying vec2 vary_fragcoord;
 
@@ -22,7 +22,7 @@ uniform vec2 screen_res;
 
 float getDepth(vec2 pos_screen)
 {
-	float z = texture2DRect(depthMap, pos_screen.xy).a;
+	float z = texture2DRect(depthMap, pos_screen.xy).r;
 	z = z*2.0-1.0;
 	vec4 ndc = vec4(0.0, 0.0, z, 1.0);
 	vec4 p = inv_proj*ndc;

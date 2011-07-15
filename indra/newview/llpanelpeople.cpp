@@ -158,9 +158,8 @@ protected:
 		const LLVector3d& me_pos = gAgent.getPositionGlobal();
 		const LLVector3d& item1_pos = mAvatarsPositions.find(item1->getAvatarId())->second;
 		const LLVector3d& item2_pos = mAvatarsPositions.find(item2->getAvatarId())->second;
-		F32 dist1 = dist_vec(item1_pos, me_pos);
-		F32 dist2 = dist_vec(item2_pos, me_pos);
-		return dist1 < dist2;
+		
+		return dist_vec_squared(item1_pos, me_pos) < dist_vec_squared(item2_pos, me_pos);
 	}
 private:
 	id_to_pos_map_t mAvatarsPositions;
@@ -383,6 +382,16 @@ private:
 		/*virtual*/ void changed(U32 mask)
 		{
 			lldebugs << "Inventory changed: " << mask << llendl;
+
+			static bool synchronize_friends_folders = true;
+			if (synchronize_friends_folders)
+			{
+				// Checks whether "Friends" and "Friends/All" folders exist in "Calling Cards" folder,
+				// fetches their contents if needed and synchronizes it with buddies list.
+				// If the folders are not found they are created.
+				LLFriendCardsManager::instance().syncFriendCardsFolders();
+				synchronize_friends_folders = false;
+			}
 
 			// *NOTE: deleting of InventoryItem is performed via moving to Trash. 
 			// That means LLInventoryObserver::STRUCTURE is present in MASK instead of LLInventoryObserver::REMOVE
@@ -750,18 +759,23 @@ void LLPanelPeople::updateFriendList()
 	all_friendsp.clear();
 	online_friendsp.clear();
 
-	LLFriendCardsManager::folderid_buddies_map_t listMap;
+	uuid_vec_t buddies_uuids;
+	LLAvatarTracker::buddy_map_t::const_iterator buddies_iter;
 
-	// *NOTE: For now collectFriendsLists returns data only for Friends/All folder. EXT-694.
-	LLFriendCardsManager::instance().collectFriendsLists(listMap);
-	if (listMap.size() > 0)
+	// Fill the avatar list with friends UUIDs
+	for (buddies_iter = all_buddies.begin(); buddies_iter != all_buddies.end(); ++buddies_iter)
 	{
-		lldebugs << "Friends Cards were found, count: " << listMap.begin()->second.size() << llendl;
-		all_friendsp = listMap.begin()->second;
+		buddies_uuids.push_back(buddies_iter->first);
+	}
+
+	if (buddies_uuids.size() > 0)
+	{
+		lldebugs << "Friends added to the list: " << buddies_uuids.size() << llendl;
+		all_friendsp = buddies_uuids;
 	}
 	else
 	{
-		lldebugs << "Friends Cards were not found" << llendl;
+		lldebugs << "No friends found" << llendl;
 	}
 
 	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();

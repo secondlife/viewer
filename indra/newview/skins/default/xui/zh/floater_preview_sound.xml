@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_sound">
+	<floater.string name="Title">
+		Sound: [NAME]
+	</floater.string>
+	<text name="desc txt">
+		描述：
+	</text>
+	<button label="Play Inworld" label_selected="Play Inworld" name="Sound play btn" tool_tip="Play this sound so that others can hear it"/>
+	<button label="Play Locally" label_selected="Play Locally" name="Sound audition btn" tool_tip="Play this sound so that only you can hear it"/>
+</floater>

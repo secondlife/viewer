@@ -5,6 +5,7 @@
 	<check_box label="Kleidung" name="check_clothing"/>
 	<check_box label="Gesten" name="check_gesture"/>
 	<check_box label="Landmarken" name="check_landmark"/>
+	<check_box label="Netze" name="check_mesh"/>
 	<check_box label="Notizkarten" name="check_notecard"/>
 	<check_box label="Objekte" name="check_object"/>
 	<check_box label="Skripts" name="check_script"/>

@@ -22,20 +22,23 @@
 	<text name="text_box5">
 		Errores
 	</text>
+	<text name="text_box10">
+		Directo
+	</text>
 	<text name="text_box7">
 		Propietario
 	</text>
 	<text name="text_box9">
-		URL
+		URLs
 	</text>
 	<text name="bubble_chat">
 		Color de fondo de la etiqueta del nombre (afectará también a los bocadillos del chat):
 	</text>
-	<color_swatch name="background" tool_tip="Seleccionar el color de la etiqueta del nombre"/>
-	<slider label="Opacidad:" name="bubble_chat_opacity" tool_tip="Seleccionar opacidad de la etiqueta del nombre"/>
+	<color_swatch name="background" tool_tip="Elige el color de las etiquetas de nombre"/>
+	<slider label="Opacidad:" name="bubble_chat_opacity" tool_tip="Elige la opacidad de las etiquetas de nombre"/>
 	<text name="floater_opacity">
 		Opacidad de la ventana:
 	</text>
-	<slider label="Activo:" name="active"/>
-	<slider label="Inactivo:" name="inactive"/>
+	<slider label="Activa:" name="active"/>
+	<slider label="Inactiva:" name="inactive"/>
 </panel>

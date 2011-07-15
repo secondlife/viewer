@@ -34,8 +34,10 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llui.h" // getRootView(), resolvePath()
 #include "lluictrl.h"
 #include "llerror.h"
+
 
 LLUIListener::LLUIListener():
     LLEventAPI("UI",
@@ -47,6 +49,12 @@ LLUIListener::LLUIListener():
         "as if from a user gesture on a menu -- or a button click.",
         &LLUIListener::call,
         LLSD().with("function", LLSD()));
+
+    add("getValue",
+        "For the UI control identified by the path in [\"path\"], return the control's\n"
+        "current value as [\"value\"] reply.",
+        &LLUIListener::getValue,
+        LLSDMap("path", LLSD())("reply", LLSD()));
 }
 
 void LLUIListener::call(const LLSD& event) const
@@ -70,4 +78,24 @@ void LLUIListener::call(const LLSD& event) const
         // the first parameter.
         (*func)(NULL, event["parameter"]);
     }
+}
+
+void LLUIListener::getValue(const LLSD&event) const
+{
+    LLSD reply = LLSD::emptyMap();
+
+    const LLView* root = LLUI::getRootView();
+    const LLView* view = LLUI::resolvePath(root, event["path"].asString());
+    const LLUICtrl* ctrl(dynamic_cast<const LLUICtrl*>(view));
+
+    if (ctrl) 
+    {
+        reply["value"] = ctrl->getValue();
+    }
+    else
+    {
+        // *TODO: ??? return something indicating failure to resolve
+    }
+    
+    sendReply(reply, event);
 }

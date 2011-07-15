@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_buy_contents" title="COMPRAR CONTEÚDO">
 	<text name="contains_text">
-		[NAME] contém:
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; contains:
 	</text>
 	<text name="buy_text">
 		Comprar por L$[AMOUNT] de(a) [NAME]?

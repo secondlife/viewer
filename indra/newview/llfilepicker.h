@@ -82,6 +82,8 @@ public:
 		FFLOAD_XML = 6,
 		FFLOAD_SLOBJECT = 7,
 		FFLOAD_RAW = 8,
+		FFLOAD_MODEL = 9,
+		FFLOAD_COLLADA = 10,
 	};
 
 	enum ESaveFilter
@@ -105,7 +107,7 @@ public:
 
 	// open the dialog. This is a modal operation
 	BOOL getSaveFile( ESaveFilter filter = FFSAVE_ALL, const std::string& filename = LLStringUtil::null );
-	BOOL getOpenFile( ELoadFilter filter = FFLOAD_ALL );
+	BOOL getOpenFile( ELoadFilter filter = FFLOAD_ALL, bool blocking = true  );
 	BOOL getMultipleOpenFiles( ELoadFilter filter = FFLOAD_ALL );
 
 	// Get the filename(s) found. getFirstFile() sets the pointer to
@@ -189,5 +191,7 @@ public:
 	LLFilePicker();
 	~LLFilePicker();
 };
+
+const std::string upload_pick(void* data);
 
 #endif

@@ -1,4 +1,4 @@
-version 25
+version 30
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -26,6 +26,7 @@ list all
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
+RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxVisible      1   12
 RenderAvatarVP				1	1
 RenderCubeMap				1	1
@@ -36,6 +37,7 @@ RenderFogRatio				1	4.0
 RenderGamma					1	0
 RenderGlowResolutionPow		1	9
 RenderGround				1	1
+RenderLocalLights			1	1
 RenderMaxPartCount			1	8192
 RenderNightBrightness		1	1.0
 RenderObjectBump			1	1
@@ -46,6 +48,7 @@ RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderUseImpostors			1	1
 RenderVBOEnable				1	1
+RenderVBOMappingDisable		1	1
 RenderVolumeLODFactor		1	2.0
 UseStartScreen				1	1
 UseOcclusion				1	1
@@ -56,13 +59,12 @@ Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
 RenderShaderLightingMaxLevel	1	3
-SkyUseClassicClouds			1	1
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-RenderUseFBO				1	1
 WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
+RenderFSAASamples			1	16
 
 //
 // Low Graphics Settings
@@ -71,11 +73,13 @@ list Low
 RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
+RenderAvatarPhysicsLODFactor 1	0
 RenderAvatarMaxVisible      1   3
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
 RenderGlowResolutionPow		1	8
+RenderLocalLights			1	0
 RenderMaxPartCount			1	0
 RenderObjectBump			1	0
 RenderReflectionDetail		1	0
@@ -88,11 +92,10 @@ RenderVolumeLODFactor		1	0.5
 VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
-SkyUseClassicClouds			1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-RenderUseFBO				1	0
+RenderFSAASamples			1	0
 
 //
 // Mid Graphics Settings
@@ -101,10 +104,12 @@ list Mid
 RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0.5
+RenderAvatarPhysicsLODFactor 1	0.75
 RenderAvatarVP				1	1
 RenderFarClip				1	96
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	8
+RenderLocalLights			1	1
 RenderMaxPartCount			1	2048
 RenderObjectBump			1	1
 RenderReflectionDetail		1	0
@@ -120,7 +125,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-RenderUseFBO				1	0
+RenderFSAASamples			1	0
 
 //
 // High Graphics Settings (purty)
@@ -129,10 +134,12 @@ list High
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
+RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
+RenderLocalLights			1	1
 RenderMaxPartCount			1	4096
 RenderObjectBump			1	1
 RenderReflectionDetail		1	0
@@ -147,8 +154,8 @@ WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
-RenderUseFBO				1	0
+RenderShadowDetail			1	2
+RenderFSAASamples			1	4
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -157,10 +164,12 @@ list Ultra
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
+RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
 RenderFarClip				1	256
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
+RenderLocalLights			1	1
 RenderMaxPartCount			1	8192
 RenderObjectBump			1	1
 RenderReflectionDetail		1	4
@@ -175,8 +184,8 @@ WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
-RenderUseFBO				1	0
+RenderShadowDetail			1	2
+RenderFSAASamples			1	8
 
 //
 // Class Unknown Hardware (unknown)
@@ -235,6 +244,13 @@ RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 
 //
+// No GL_ARB_map_buffer_range
+//
+list NoMapBufferRange
+RenderVBOMappingDisable		1	0
+
+
+//
 // "Default" setups for safe, low, medium, high
 //
 list safe
@@ -251,7 +267,6 @@ WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
-RenderUseFBO				1	0
 
 //
 // CPU based feature masks
@@ -273,8 +288,12 @@ RenderObjectBump			0	0
 list OpenGLPre15
 RenderVBOEnable				1	0
 
+list OpenGLPre30
+RenderDeferred				0	0
+
 list Intel
 RenderAnisotropic			1	0
+RenderVBOEnable				1	0
 
 list GeForce2
 RenderAnisotropic			1	0
@@ -459,6 +478,10 @@ RenderAvatarCloth			0	0
 
 list ATI
 RenderUseStreamVBO			1	0
+
+// Disable vertex buffer objects by default for ATI cards with little video memory
+list ATIVramLT256
+RenderVBOEnable				1	0
 
 /// Tweaked NVIDIA
 

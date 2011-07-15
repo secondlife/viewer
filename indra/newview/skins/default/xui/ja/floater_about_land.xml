@@ -87,14 +87,8 @@
 			<text name="Owner:">
 				所有者：
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				グループ：
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="設定" label_selected="設定..." name="Set..."/>
 			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。グループの土地割り当てによってサポートされます。"/>
@@ -355,6 +349,7 @@
 				<combo_box.item label="公園と自然" name="item9"/>
 				<combo_box.item label="住宅用" name="item10"/>
 				<combo_box.item label="ショッピング" name="item11"/>
+				<combo_box.item label="レンタル" name="item13"/>
 				<combo_box.item label="その他" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -369,6 +364,7 @@
 				<combo_box.item label="公園と自然" name="item9"/>
 				<combo_box.item label="住宅用" name="item10"/>
 				<combo_box.item label="ショッピング" name="item11"/>
+				<combo_box.item label="レンタル" name="item13"/>
 				<combo_box.item label="その他" name="item12"/>
 			</combo_box>
 			<check_box label="「Moderate」コンテンツ" name="MatureCheck" tool_tip=""/>
@@ -399,7 +395,6 @@
 				ホームページ：
 			</text>
 			<button label="設定" name="set_media_url"/>
-			<check_box label="URL を非表示" name="hide_media_url" tool_tip="このオプションをオンにすると、許可なしでこの区画情報にアクセスしているユーザーにはメディア URL が表示されません。 これは HTML タイプには使用できませんのでご注意ください。"/>
 			<text name="Description:">
 				説明：
 			</text>
@@ -429,7 +424,6 @@
 			<text name="MusicURL:">
 				音楽 URL：
 			</text>
-			<check_box label="URL を非表示にする" name="hide_music_url" tool_tip="このオプションにチェックを入れると、権限のない人が区画情報を見たときに音楽の URL が隠れます。"/>
 			<text name="Sound:">
 				サウンド：
 			</text>
@@ -446,7 +440,7 @@
 				（エステートに限定）
 			</panel.string>
 			<panel.string name="allow_public_access">
-				パブリックアクセスを許可 （[MATURITY]）
+				パブリックアクセスを許可 （[MATURITY]）（注意：このオプションをオフにすると立入禁止ラインが作成されます）
 			</panel.string>
 			<panel.string name="estate_override">
 				1 つ以上のオプションが、不動産レベルで設定されています。

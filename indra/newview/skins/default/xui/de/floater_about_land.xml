@@ -86,14 +86,8 @@
 			<text name="Owner:">
 				Eigentümer:
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				Gruppe:
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="Festlegen" label_selected="Einstellen..." name="Set..." width="90"/>
 			<check_box label="Übertragung an Gruppe zulassen" name="check deed" tool_tip="Ein Gruppen-Officer kann dieses Land der Gruppe übertragen. Das Land wird dann über die Landzuteilung der Gruppe verwaltet."/>
@@ -109,17 +103,17 @@
 				Preis: [PRICE] L$ ([PRICE_PER_SQM]L$/m²)
 			</text>
 			<text name="SalePending"/>
-			<button bottom="-222" label="Land verkaufen" label_selected="Land verkaufen..." name="Sell Land..."/>
+			<button label="Land verkaufen" label_selected="Land verkaufen..." name="Sell Land..."/>
 			<text name="For sale to">
 				Zum Verkauf an: [BUYER]
 			</text>
-			<text left_delta="-50" name="Sell with landowners objects in parcel." width="240">
+			<text name="Sell with landowners objects in parcel.">
 				Objekte sind im Verkauf eingeschlossen
 			</text>
-			<text name="Selling with no objects in parcel." width="260">
+			<text name="Selling with no objects in parcel.">
 				Objekte sind im Verkauf nicht eingeschlossen
 			</text>
-			<button bottom="-222" label="Landverkauf abbrechen" label_selected="Landverkauf abbrechen" name="Cancel Land Sale"/>
+			<button label="Landverkauf abbrechen" label_selected="Landverkauf abbrechen" name="Cancel Land Sale"/>
 			<text name="Claimed:">
 				Gekauft am:
 			</text>
@@ -225,38 +219,38 @@ werden.
 			<text name="objects_available">
 				[COUNT] von [MAX] ([AVAILABLE] verfügbar)
 			</text>
-			<text name="Primitives parcel supports:" width="200">
+			<text name="Primitives parcel supports:">
 				Von Parzelle unterstützte Prims:
 			</text>
-			<text left="204" name="object_contrib_text" width="152">
+			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
 				Prims auf Parzelle:
 			</text>
-			<text left="204" name="total_objects_text" width="48">
+			<text name="total_objects_text">
 				[COUNT]
 			</text>
-			<text left="14" name="Owned by parcel owner:" width="200">
+			<text name="Owned by parcel owner:" width="200">
 				Im Eigentum des Parzellenbesitzers:
 			</text>
-			<text left="204" left_delta="200" name="owner_objects_text" width="48">
+			<text left_delta="204" name="owner_objects_text">
 				[COUNT]
 			</text>
-			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOwner" right="-135" width="60"/>
-			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnOwner..." right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119"/>
-			<text left="14" name="Set to group:">
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOwner"/>
+			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnOwner..." tool_tip="Objekte an ihre Eigentümer zurückgeben."/>
+			<text name="Set to group:">
 				Der Gruppe zugeordnet:
 			</text>
-			<text left="204" name="group_objects_text" width="48">
+			<text name="group_objects_text">
 				[COUNT]
 			</text>
-			<button label="Anzeigen" label_selected="Anzeigen" name="ShowGroup" right="-135" width="60"/>
-			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnGroup..." right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119"/>
-			<text left="14" name="Owned by others:" width="128">
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowGroup"/>
+			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnGroup..." tool_tip="Objekte an ihre Eigentümer zurückgeben."/>
+			<text name="Owned by others:">
 				Im Eigentum anderer:
 			</text>
-			<text left="204" name="other_objects_text" width="48">
+			<text name="other_objects_text">
 				[COUNT]
 			</text>
 			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOther"/>
@@ -354,6 +348,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				<combo_box.item label="Parks und Natur" name="item9"/>
 				<combo_box.item label="Wohngebiet" name="item10"/>
 				<combo_box.item label="Shopping" name="item11"/>
+				<combo_box.item label="Vermietung" name="item13"/>
 				<combo_box.item label="Sonstige" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -368,6 +363,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				<combo_box.item label="Parks und Natur" name="item9"/>
 				<combo_box.item label="Wohngebiet" name="item10"/>
 				<combo_box.item label="Shopping" name="item11"/>
+				<combo_box.item label="Vermietung" name="item13"/>
 				<combo_box.item label="Sonstige" name="item12"/>
 			</combo_box>
 			<check_box label="Moderater Inhalt" name="MatureCheck" tool_tip=""/>
@@ -398,7 +394,6 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				Homepage:
 			</text>
 			<button label="Festlegen" name="set_media_url"/>
-			<check_box label="URL ausblenden" name="hide_media_url" tool_tip="Aktivieren Sie diese Option, wenn Sie nicht möchten, dass unautorisierte Personen die Medien-URL sehen können. Diese Option ist für HTML-Medien nicht verfügbar."/>
 			<text name="Description:">
 				Inhalt:
 			</text>
@@ -428,7 +423,6 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="MusicURL:">
 				Musik-URL:
 			</text>
-			<check_box label="URL ausblenden" name="hide_music_url" tool_tip="Aktivieren Sie diese Option, wenn Sie nicht möchten, dass unautorisierte Personen die Musik-URL sehen können"/>
 			<text name="Sound:">
 				Sound:
 			</text>
@@ -445,7 +439,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				(Durch Grundbesitz festgelegt)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Öffentlichen Zugang erlauben ([MATURITY])
+				Öffentlichen Zugang erlauben ([MATURITY]) (Hinweis: Bei Deaktivierung dieser Option werden Bannlinien generiert)
 			</panel.string>
 			<panel.string name="estate_override">
 				Eine oder mehrere dieser Optionen gelten auf Grundbesitzebene

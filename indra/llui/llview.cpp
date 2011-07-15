@@ -114,7 +114,8 @@ LLView::Params::Params()
 }
 
 LLView::LLView(const LLView::Params& p)
-:	mName(p.name),
+:	mVisible(p.visible),
+	mName(p.name),
 	mParentView(NULL),
 	mReshapeFlags(FOLLOWS_NONE),
 	mFromXUI(p.from_xui),
@@ -123,7 +124,6 @@ LLView::LLView(const LLView::Params& p)
 	mNextInsertionOrdinal(0),
 	mHoverCursor(getCursorFromString(p.hover_cursor)),
 	mEnabled(p.enabled),
-	mVisible(p.visible),
 	mMouseOpaque(p.mouse_opaque),
 	mSoundFlags(p.sound_flags),
 	mUseBoundingRect(p.use_bounding_rect),
@@ -338,7 +338,7 @@ void LLView::removeChild(LLView* child)
 	}
 	else
 	{
-		llerrs << "LLView::removeChild called with non-child" << llendl;
+		llwarns << child->getName() << "is not a child of " << getName() << llendl;
 	}
 	updateBoundingRect();
 }
@@ -1299,9 +1299,7 @@ void LLView::drawChildren()
 {
 	if (!mChildList.empty())
 	{
-		LLRect rootRect = getRootView()->getRect();
-		LLRect screenRect;
-
+		LLView* rootp = LLUI::getRootView();		
 		++sDepth;
 
 		for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend();)  // ++child_iter)
@@ -1311,9 +1309,8 @@ void LLView::drawChildren()
 
 			if (viewp->getVisible() && viewp->getRect().isValid())
 			{
-				// Only draw views that are within the root view
-				localRectToScreen(viewp->getRect(),&screenRect);
-				if ( rootRect.overlaps(screenRect)  && LLUI::sDirtyRect.overlaps(screenRect))
+				LLRect screen_rect = viewp->calcScreenRect();
+				if ( rootp->getLocalRect().overlaps(screen_rect)  && LLUI::sDirtyRect.overlaps(screen_rect))
 				{
 					LLUI::pushMatrix();
 					{
@@ -1958,7 +1955,7 @@ void LLView::centerWithin(const LLRect& bounds)
 	translate( left - getRect().mLeft, bottom - getRect().mBottom );
 }
 
-BOOL LLView::localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, LLView* other_view) const
+BOOL LLView::localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, const LLView* other_view) const
 {
 	const LLView* cur_view = this;
 	const LLView* root_view = NULL;
@@ -2001,7 +1998,7 @@ BOOL LLView::localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, LL
 	return FALSE;
 }
 
-BOOL LLView::localRectToOtherView( const LLRect& local, LLRect* other, LLView* other_view ) const
+BOOL LLView::localRectToOtherView( const LLRect& local, LLRect* other, const LLView* other_view ) const
 {
 	LLRect cur_rect = local;
 	const LLView* cur_view = this;

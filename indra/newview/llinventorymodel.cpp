@@ -631,6 +631,14 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 		return mask;
 	}
 
+	// We're hiding mesh types
+#if 0
+	if (item->getType() == LLAssetType::AT_MESH)
+	{
+		return mask;
+	}
+#endif
+
 	LLViewerInventoryItem* old_item = getItem(item->getUUID());
 	LLPointer<LLViewerInventoryItem> new_item;
 	if(old_item)
@@ -1059,12 +1067,11 @@ void LLInventoryModel::idleNotifyObservers()
 	{
 		return;
 	}
-	notifyObservers("");
+	notifyObservers();
 }
 
 // Call this method when it's time to update everyone on a new state.
-// The optional argument 'service_name' is used by Agent Inventory Service [DEV-20328]
-void LLInventoryModel::notifyObservers(const std::string service_name)
+void LLInventoryModel::notifyObservers()
 {
 	if (mIsNotifyObservers)
 	{
@@ -1081,15 +1088,7 @@ void LLInventoryModel::notifyObservers(const std::string service_name)
 	{
 		LLInventoryObserver* observer = *iter;
 		
-		if (service_name.empty())
-		{
-			observer->changed(mModifyMask);
-		}
-		else
-		{
-			observer->mMessageName = service_name;
-			observer->changed(mModifyMask);
-		}
+		observer->changed(mModifyMask);
 
 		// safe way to increment since changed may delete entries! (@!##%@!@&*!)
 		iter = mObservers.upper_bound(observer); 
@@ -1187,7 +1186,7 @@ void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
 	{
 		changes |= gInventory.updateItem(*it);
 	}
-	gInventory.notifyObservers("fetchinventory");
+	gInventory.notifyObservers();
 	gViewerWindow->getWindow()->decBusyCount();
 }
 
@@ -1196,7 +1195,7 @@ void LLInventoryModel::fetchInventoryResponder::error(U32 status, const std::str
 {
 	llinfos << "fetchInventory::error "
 		<< status << ": " << reason << llendl;
-	gInventory.notifyObservers("fetchinventory");
+	gInventory.notifyObservers();
 }
 
 bool LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id) const
@@ -1272,6 +1271,12 @@ void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 	//llinfos << "LLInventoryModel::addCategory()" << llendl;
 	if(category)
 	{
+		// We aren't displaying the Meshes folder
+		if (category->mPreferredType == LLFolderType::FT_MESH)
+		{
+			return;
+		}
+
 		// try to localize default names first. See EXT-8319, EXT-7051.
 		category->localizeName();
 
@@ -2584,7 +2589,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 		LLInventoryState::sWearNewClothing = FALSE;
 	}
 
-	if (tid == LLInventoryState::sWearNewClothingTransactionID)
+	if (tid.notNull() && tid == LLInventoryState::sWearNewClothingTransactionID)
 	{
 		count = wearable_ids.size();
 		for (i = 0; i < count; ++i)

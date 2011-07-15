@@ -43,11 +43,12 @@ class LLButton;
 class LLCheckBoxCtrl;
 class LLRadioGroup;
 class LLComboBox;
-class LLNameListCtrl;
-class LLSpinCtrl;
 class LLLineEditor;
+class LLMessageSystem;
+class LLNameListCtrl;
 class LLRadioGroup;
 class LLParcelSelectionObserver;
+class LLSpinCtrl;
 class LLTabContainer;
 class LLTextBox;
 class LLTextEditor;
@@ -347,6 +348,7 @@ private:
 
 	LLCheckBoxCtrl		*mMatureCtrl;
 	LLCheckBoxCtrl		*mPushRestrictionCtrl;
+	LLCheckBoxCtrl		*mSeeAvatarsCtrl;
 
 	LLSafeHandle<LLParcelSelection>&	mParcel;
 };

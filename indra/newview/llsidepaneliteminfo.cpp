@@ -39,6 +39,7 @@
 #include "llinventoryobserver.h"
 #include "lllineeditor.h"
 #include "llradiogroup.h"
+#include "llslurl.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewerobjectlist.h"
@@ -129,9 +130,10 @@ void LLObjectInventoryObserver::inventoryChanged(LLViewerObject* object,
 static LLRegisterPanelClassWrapper<LLSidepanelItemInfo> t_item_info("sidepanel_item_info");
 
 // Default constructor
-LLSidepanelItemInfo::LLSidepanelItemInfo()
-  : mItemID(LLUUID::null)
-  , mObjectInventoryObserver(NULL)
+LLSidepanelItemInfo::LLSidepanelItemInfo(const LLPanel::Params& p)
+	: LLSidepanelInventorySubpanel(p)
+	, mItemID(LLUUID::null)
+	, mObjectInventoryObserver(NULL)
 {
 	mPropertiesObserver = new LLItemPropertiesObserver(this);
 }

@@ -80,7 +80,7 @@
 						<text name="region_rating_label" value="レーティング："/>
 						<text name="region_rating" value="Adult"/>
 						<text name="region_owner_label" value="所有者："/>
-						<text name="region_owner" value="moose Van Moose"/>
+						<text name="region_owner" value="moose Van Moose extra long name moose"/>
 						<text name="region_group_label" value="グループ："/>
 						<text name="region_group">
 							The Mighty Moose of mooseville soundvillemoose
@@ -93,6 +93,7 @@
 						<text name="estate_name_label" value="エステート："/>
 						<text name="estate_rating_label" value="レーティング："/>
 						<text name="estate_owner_label" value="所有者："/>
+						<text name="estate_owner" value="長い所有者の名前をテスト"/>
 						<text name="covenant_label" value="約款："/>
 					</panel>
 				</accordion_tab>

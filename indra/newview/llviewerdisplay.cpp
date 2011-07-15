@@ -115,8 +115,7 @@ void display_startup()
 {
 	if (   !gViewerWindow->getActive()
 		|| !gViewerWindow->mWindow->getVisible() 
-		|| gViewerWindow->mWindow->getMinimized()
-		|| gNoRender )
+		|| gViewerWindow->mWindow->getMinimized() )
 	{
 		return; 
 	}
@@ -179,8 +178,8 @@ void display_update_camera()
 	gViewerWindow->setup3DRender();
 	
 	// update all the sky/atmospheric/water settings
-	LLWLParamManager::instance()->update(LLViewerCamera::getInstance());
-	LLWaterParamManager::instance()->update(LLViewerCamera::getInstance());
+	LLWLParamManager::getInstance()->update(LLViewerCamera::getInstance());
+	LLWaterParamManager::getInstance()->update(LLViewerCamera::getInstance());
 
 	// Update land visibility too
 	LLWorld::getInstance()->setLandFarClip(final_far);
@@ -295,7 +294,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Logic for forcing window updates if we're in drone mode.
 	//
 
-	if (gNoRender) 
+	// *TODO: Investigate running display() during gHeadlessClient.  See if this early exit is needed DK 2011-02-18
+	if (gHeadlessClient) 
 	{
 #if LL_WINDOWS
 		static F32 last_update_time = 0.f;
@@ -583,6 +583,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			LLMemType mt_ug(LLMemType::MTYPE_DISPLAY_UPDATE_GEOM);
 			const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds; // 50 ms/second update time
 			gPipeline.createObjects(max_geom_update_time);
+			gPipeline.processPartitionQ();
 			gPipeline.updateGeom(max_geom_update_time);
 			stop_glerror();
 		}
@@ -617,10 +618,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				&& gSavedSettings.getBOOL("UseOcclusion") 
 				&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
 
-		if (LLPipeline::sUseOcclusion && LLPipeline::sRenderDeferred)
-		{ //force occlusion on for all render types if doing deferred render
+		/*if (LLPipeline::sUseOcclusion && LLPipeline::sRenderDeferred)
+		{ //force occlusion on for all render types if doing deferred render (tighter shadow frustum)
 			LLPipeline::sUseOcclusion = 3;
-		}
+		}*/
 
 		LLPipeline::sAutoMaskAlphaDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaDeferred");
 		LLPipeline::sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");
@@ -759,7 +760,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 			LLMemType mt_ss(LLMemType::MTYPE_DISPLAY_STATE_SORT);
-			gPipeline.sAllowRebuildPriorityGroup = TRUE ;
 			gPipeline.stateSort(*LLViewerCamera::getInstance(), result);
 			stop_glerror();
 				
@@ -831,17 +831,18 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//}
 
 		LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? TRUE : FALSE;
-		LLPipeline::updateRenderDeferred();
+		LLPipeline::refreshRenderDeferred();
 		
 		stop_glerror();
 
 		if (to_texture)
 		{
 			gGL.setColorMask(true, true);
+					
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 			{
 				gPipeline.mDeferredScreen.bindTarget();
-				glClearColor(0,0,0,0);
+				glClearColor(1,0,1,1);
 				gPipeline.mDeferredScreen.clear();
 			}
 			else
@@ -890,10 +891,26 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 			{
 				gPipeline.mDeferredScreen.flush();
+				if(LLRenderTarget::sUseFBO)
+				{
+					LLRenderTarget::copyContentsToFramebuffer(gPipeline.mDeferredScreen, 0, 0, gPipeline.mDeferredScreen.getWidth(), 
+															  gPipeline.mDeferredScreen.getHeight(), 0, 0, 
+															  gPipeline.mDeferredScreen.getWidth(), 
+															  gPipeline.mDeferredScreen.getHeight(), 
+															  GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+				}
 			}
 			else
 			{
 				gPipeline.mScreen.flush();
+				if(LLRenderTarget::sUseFBO)
+				{				
+					LLRenderTarget::copyContentsToFramebuffer(gPipeline.mScreen, 0, 0, gPipeline.mScreen.getWidth(), 
+															  gPipeline.mScreen.getHeight(), 0, 0, 
+															  gPipeline.mScreen.getWidth(), 
+															  gPipeline.mScreen.getHeight(), 
+															  GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+				}
 			}
 		}
 
@@ -911,9 +928,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			render_ui();
 		}
 
-		gPipeline.rebuildGroups();
-
+		
 		LLSpatialGroup::sNoDelete = FALSE;
+		gPipeline.clearReferences();
+
+		gPipeline.rebuildGroups();
 	}
 
 	LLAppViewer::instance()->pingMainloopTimeout("Display:FrameStats");
@@ -982,8 +1001,7 @@ void render_hud_attachments()
 
 		S32 use_occlusion = LLPipeline::sUseOcclusion;
 		LLPipeline::sUseOcclusion = 0;
-		LLPipeline::sDisableShaders = TRUE;
-		
+				
 		//cull, sort, and render hud objects
 		static LLCullResult result;
 		LLSpatialGroup::sNoDelete = TRUE;
@@ -1011,6 +1029,7 @@ void render_hud_attachments()
 		gPipeline.renderGeom(hud_cam);
 
 		LLSpatialGroup::sNoDelete = FALSE;
+		//gPipeline.clearReferences();
 
 		render_hud_elements();
 
@@ -1022,7 +1041,6 @@ void render_hud_attachments()
 			gPipeline.toggleRenderDebugFeature((void*) LLPipeline::RENDER_DEBUG_FEATURE_UI);
 		}
 		LLPipeline::sUseOcclusion = use_occlusion;
-		LLPipeline::sDisableShaders = FALSE;
 	}
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -1071,8 +1089,8 @@ bool get_hud_matrices(const LLRect& screen_region, glh::matrix4f &proj, glh::mat
 		F32 scale_y = (F32)gViewerWindow->getWorldViewHeightScaled() / (F32)screen_region.getHeight();
 		mat.set_scale(glh::vec3f(scale_x, scale_y, 1.f));
 		mat.set_translate(
-			glh::vec3f(clamp_rescale((F32)screen_region.getCenterX(), 0.f, (F32)gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
-					   clamp_rescale((F32)screen_region.getCenterY(), 0.f, (F32)gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
+			glh::vec3f(clamp_rescale((F32)(screen_region.getCenterX() - screen_region.mLeft), 0.f, (F32)gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
+					   clamp_rescale((F32)(screen_region.getCenterY() - screen_region.mBottom), 0.f, (F32)gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
 					   0.f));
 		proj *= mat;
 		

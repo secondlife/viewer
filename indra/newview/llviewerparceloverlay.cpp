@@ -833,7 +833,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 	U8* colorp;
 	bool render_hidden = LLSelectMgr::sRenderHiddenSelections && LLFloaterReg::instanceVisible("build");
 
-	const F32 PROPERTY_LINE_CLIP_DIST = 256.f;
+	const F32 PROPERTY_LINE_CLIP_DIST_SQUARED = 256.f * 256.f;
 
 	for (i = 0; i < mVertexCount; i += vertex_per_edge)
 	{
@@ -844,7 +844,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 		vertex.mV[VY] = *(vertexp+1);
 		vertex.mV[VZ] = *(vertexp+2);
 
-		if (dist_vec_squared2D(vertex, camera_region) > PROPERTY_LINE_CLIP_DIST*PROPERTY_LINE_CLIP_DIST)
+		if (dist_vec_squared2D(vertex, camera_region) > PROPERTY_LINE_CLIP_DIST_SQUARED)
 		{
 			continue;
 		}

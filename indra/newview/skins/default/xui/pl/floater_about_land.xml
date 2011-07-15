@@ -87,14 +87,8 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<text name="Owner:">
 				Właściciel:
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
 			<text name="Group:">
 				Grupa:
-			</text>
-			<text name="GroupText">
-				Leyla Linden
 			</text>
 			<button label="Ustaw" name="Set..."/>
 			<check_box label="Udostępnij przypisywanie na Grupę" name="check deed" tool_tip="Oficer Grupy ma prawo przepisać prawo własności Posiadłości na Grupę. Posiadłość wspierana jest przez przydziały pochodzące od członków Grupy."/>
@@ -355,6 +349,7 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 				<combo_box.item label="Park i natura" name="item9"/>
 				<combo_box.item label="Mieszkalna" name="item10"/>
 				<combo_box.item label="Zakupy" name="item11"/>
+				<combo_box.item label="Opłata za wynajęcie" name="item13"/>
 				<combo_box.item label="Inna" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
@@ -369,6 +364,7 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 				<combo_box.item label="Parki i natura" name="item9"/>
 				<combo_box.item label="Mieszkalna" name="item10"/>
 				<combo_box.item label="Zakupy" name="item11"/>
+				<combo_box.item label="Opłata za wynajęcie" name="item13"/>
 				<combo_box.item label="Inna" name="item12"/>
 			</combo_box>
 			<check_box label="Treść &apos;Mature&apos;" name="MatureCheck" tool_tip=""/>
@@ -399,7 +395,6 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 				URL mediów:
 			</text>
 			<button label="Ustaw" name="set_media_url"/>
-			<check_box label="Ukryj URL mediów" name="hide_media_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów wszystkim nieautoryzowanym Rezydentom. Nie dotyczy to jednak typów HTML."/>
 			<text name="Description:">
 				Opis:
 			</text>
@@ -428,7 +423,6 @@ Mediów:
 			<check_box label="Powtórka Odtwarzania" name="media_loop" tool_tip="Odtwarzaj media z powtórką. Po wyświetleniu materialu, rozpocznie się odtwarzanie od początku."/>
 		</panel>
 		<panel label="DŹWIĘK" name="land_audio_panel">
-			<check_box label="Ukryj URL muzyki" name="hide_music_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów muzycznych w posiadłości wszystkim nieautoryzowanym Użytkownikom"/>
 			<check_box label="Rozmowy dozwolone" name="parcel_enable_voice_channel"/>
 			<check_box label="Rozmowy dozwolone (ustawione przez Majątek)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Ogranicz komunikację głosową w tej Posiadłości." name="parcel_enable_voice_channel_local"/>
@@ -438,7 +432,7 @@ Mediów:
 				(Zdefiniowane przez Majątek)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Udostępnij publicznie ([MATURITY])
+				Udostępniaj publicznie ([MATURITY]) (Pamiętaj: w przypadku braku zaznaczenia tej opcji widoczne będą linie bana.)
 			</panel.string>
 			<panel.string name="estate_override">
 				Jedna lub więcej z tych opcji ustawiona jest z poziomu Posiadłości

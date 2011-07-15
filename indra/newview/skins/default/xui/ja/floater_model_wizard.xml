@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Wizard" title="モデルウィザードをアップロード">
+	<button label="5. アップロード" name="upload_btn"/>
+	<button label="4. 確認" name="review_btn"/>
+	<button label="3. 物理効果" name="physics2_btn"/>
+	<button label="3. 物理効果" name="physics_btn"/>
+	<button label="2. 最適化" name="optimize_btn"/>
+	<button label="1. ファイルを選択" name="choose_file_btn"/>
+	<panel name="choose_file_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				モデルをアップロード
+			</text>
+		</panel>
+		<text name="description">
+			このウィザードを使うと、メッシュモデルを簡単にSecond Lifeにインポートできます。まず、インポートするモデルを含むファイルを指定します。Second Life は COLLADA (.dae) ファイルをサポートします。
+		</text>
+		<panel name="content">
+			<text name="Cache location">
+				ファイル名：
+			</text>
+			<button label="参照" label_selected="参照" name="browse"/>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="optimize_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				最適化
+			</text>
+		</panel>
+		<text name="description">
+			ウィザードがモデルを最適化し、パフォーマンスを改善しました。以下で最適化プロセスの結果を変更するか、「次へ」をクリックして続けます。
+		</text>
+		<panel name="content">
+			<text name="high_detail_text">
+				次の描画詳細度を作成：高
+			</text>
+			<text name="medium_detail_text">
+				次の描画詳細度を作成：中
+			</text>
+			<text name="low_detail_text">
+				次の描画詳細度を作成：低
+			</text>
+			<text name="lowest_detail_text">
+				次の描画詳細度を作成：最低
+			</text>
+		</panel>
+		<panel name="content2">
+			<text name="lod_label">
+				モデルのプレビュー：
+			</text>
+			<combo_box name="preview_lod_combo2" tool_tip="プレビュー表示のLOD設定">
+				<combo_item name="high">
+					高
+				</combo_item>
+				<combo_item name="medium">
+					中
+				</combo_item>
+				<combo_item name="low">
+					低
+				</combo_item>
+				<combo_item name="lowest">
+					最低
+				</combo_item>
+			</combo_box>
+			<text name="streaming cost">
+				リソース料金：    [COST]
+			</text>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				物理効果
+			</text>
+		</panel>
+		<text name="description">
+			ウィザードが作成する実像によって、オブジェクトが他のオブジェクトやアバターとどのようにインタラクションするかが決まります。オブジェクトの用途に最適な描画詳細度にスライダーを設定してください：
+		</text>
+		<panel name="content">
+			<text name="streaming cost">
+				リソース料金：       [COST]
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics2_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				物理効果
+			</text>
+		</panel>
+		<text name="description">
+			下の実像をプレビューし、「次へ」をクリックして続けます。実像を修正するには「戻る」ボタンをクリックします。
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				モデルのプレビュー：
+			</text>
+			<combo_box name="preview_lod_combo3" tool_tip="プレビュー表示のLOD設定">
+				<combo_item name="high">
+					高
+				</combo_item>
+				<combo_item name="medium">
+					中
+				</combo_item>
+				<combo_item name="low">
+					低
+				</combo_item>
+				<combo_item name="lowest">
+					最低
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+			<text name="streaming cost">
+				リソース料金：       [COST]
+			</text>
+		</panel>
+	</panel>
+	<panel name="review_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				確認
+			</text>
+		</panel>
+		<text name="description">
+			以下の詳細を確認してから、「アップロード」をクリックするとモデルがアップロードされます。「アップロード」をクリックした際に、料金があなたの L$ 残高から差し引かれます。
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				モデルのプレビュー：
+			</text>
+			<combo_box name="preview_lod_combo" tool_tip="プレビュー表示のLOD設定">
+				<combo_item name="high">
+					高
+				</combo_item>
+				<combo_item name="medium">
+					中
+				</combo_item>
+				<combo_item name="low">
+					低
+				</combo_item>
+				<combo_item name="lowest">
+					最低
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+		<text name="streaming cost">
+			リソース料金：         [COST]
+		</text>
+		<text name="physics cost">
+			物理効果料金：        [COST]
+		</text>
+	</panel>
+	<panel name="upload_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				アップロード完了！
+			</text>
+		</panel>
+		<text name="description">
+			おめでとうございます！モデルがアップロードされました。アップロードされたモデルは、持ち物の「オブジェクト」フォルダにあります。
+		</text>
+	</panel>
+	<button label="&lt;&lt; 戻る" name="back"/>
+	<button label="次へ&gt;&gt;" name="next"/>
+	<button label="アップロード" name="upload" tool_tip="シミュレーターにアップロード"/>
+	<button label="取り消し" name="cancel"/>
+	<button label="閉じる" name="close"/>
+	<spinner name="import_scale" value="1.0"/>
+	<string name="status_idle">
+		待機状態
+	</string>
+	<string name="status_reading_file">
+		ローディング...
+	</string>
+	<string name="status_generating_meshes">
+		メッシュを作成中
+	</string>
+	<string name="status_vertex_number_overflow">
+		エラー：頂点の数が65534を超過したので中止されました。
+	</string>
+	<string name="high">
+		高
+	</string>
+	<string name="medium">
+		中
+	</string>
+	<string name="low">
+		低
+	</string>
+	<string name="lowest">
+		最低
+	</string>
+	<string name="mesh_status_good">
+		発送
+	</string>
+	<string name="mesh_status_na">
+		該当なし
+	</string>
+	<string name="mesh_status_none">
+		なし
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		テクスチャ編集可能な面の数は描画詳細度に応じて異なります。
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		メッシュインスタンスの数は描画詳細度に応じて異なります。
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		描画詳細度に対して頂点の数が多すぎます。
+	</string>
+	<string name="mesh_status_missing_lod">
+		必要な描画詳細度が見つかりません。
+	</string>
+	<string name="layer_all">
+		全て
+	</string>
+</floater>

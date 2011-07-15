@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+
 
 // varying param funcs
 void setSunlitColor(vec3 v);

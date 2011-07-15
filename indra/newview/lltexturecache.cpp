@@ -942,7 +942,7 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL texture_cache
 	max_size -= sCacheMaxTexturesSize;
 	
 	LL_INFOS("TextureCache") << "Headers: " << sCacheMaxEntries
-			<< " Textures size: " << sCacheMaxTexturesSize/(1024*1024) << " MB" << LL_ENDL;
+			<< " Textures size: " << sCacheMaxTexturesSize / (1024 * 1024) << " MB" << LL_ENDL;
 
 	setDirNames(location);
 	
@@ -1412,22 +1412,21 @@ void LLTextureCache::readHeaderCache()
 					}
 				}
 			}
-			if (num_entries > sCacheMaxEntries)
+			if (num_entries - empty_entries > sCacheMaxEntries)
 			{
 				// Special case: cache size was reduced, need to remove entries
 				// Note: After we prune entries, we will call this again and create the LRU
-				U32 entries_to_purge = (num_entries-empty_entries) - sCacheMaxEntries;
+				U32 entries_to_purge = (num_entries - empty_entries) - sCacheMaxEntries;
 				llinfos << "Texture Cache Entries: " << num_entries << " Max: " << sCacheMaxEntries << " Empty: " << empty_entries << " Purging: " << entries_to_purge << llendl;
-				if (entries_to_purge > 0)
+				// We can exit the following loop with the given condition, since if we'd reach the end of the lru set we'd have:
+				// purge_list.size() = lru.size() = num_entries - empty_entries = entries_to_purge + sCacheMaxEntries >= entries_to_purge
+				// So, it's certain that iter will never reach lru.end() first.
+				std::set<lru_data_t>::iterator iter = lru.begin();
+				while (purge_list.size() < entries_to_purge)
 				{
-					for (std::set<lru_data_t>::iterator iter = lru.begin(); iter != lru.end(); ++iter)
-					{
-						purge_list.insert(iter->second);
-						if (purge_list.size() >= entries_to_purge)
-							break;
-					}
+					purge_list.insert(iter->second);
+					++iter;
 				}
-				llassert_always(purge_list.size() >= entries_to_purge);
 			}
 			else
 			{
@@ -1507,12 +1506,12 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 	{
 		const char* subdirs = "0123456789abcdef";
 		std::string delem = gDirUtilp->getDirDelimiter();
-		std::string mask = delem + "*";
+		std::string mask = "*";
 		for (S32 i=0; i<16; i++)
 		{
 			std::string dirname = mTexturesDirName + delem + subdirs[i];
 			llinfos << "Deleting files in directory: " << dirname << llendl;
-			gDirUtilp->deleteFilesInDir(dirname,mask);
+			gDirUtilp->deleteFilesInDir(dirname, mask);
 			if (purge_directories)
 			{
 				LLFile::rmdir(dirname);
@@ -1649,7 +1648,7 @@ void LLTextureCache::purgeTextures(bool validate)
 	LL_INFOS("TextureCache") << "TEXTURE CACHE:"
 			<< " PURGED: " << purge_count
 			<< " ENTRIES: " << num_entries
-			<< " CACHE SIZE: " << mTexturesSizeTotal / 1024*1024 << " MB"
+			<< " CACHE SIZE: " << mTexturesSizeTotal / (1024 * 1024) << " MB"
 			<< llendl;
 }
 

@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+
 
 float calcDirectionalLight(vec3 n, vec3 l);
 

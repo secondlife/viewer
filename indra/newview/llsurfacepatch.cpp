@@ -854,8 +854,10 @@ void LLSurfacePatch::updateVisibility()
 	F32 stride_per_distance = DEFAULT_DELTA_ANGLE / mSurfacep->getMetersPerGrid();
 	U32 grids_per_patch_edge = mSurfacep->getGridsPerPatchEdge();
 
-	LLVector3 center = mCenterRegion + mSurfacep->getOriginAgent();
-	LLVector3 radius = LLVector3(mRadius, mRadius, mRadius);
+	LLVector4a center;
+	center.load3( (mCenterRegion + mSurfacep->getOriginAgent()).mV);
+	LLVector4a radius;
+	radius.splat(mRadius);
 
 	// sphere in frustum on global coordinates
 	if (LLViewerCamera::getInstance()->AABBInFrustumNoFarClip(center, radius))

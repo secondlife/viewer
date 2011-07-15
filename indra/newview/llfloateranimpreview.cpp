@@ -993,6 +993,7 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 						    LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
 						    name,
 						    callback, expected_upload_cost, userdata);
+
 			}
 			else
 			{
@@ -1031,7 +1032,6 @@ LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLViewerDynamicT
 	mDummyAvatar->updateGeometry(mDummyAvatar->mDrawable);
 	mDummyAvatar->startMotion(ANIM_AGENT_STAND, BASE_ANIM_TIME_OFFSET);
 	mDummyAvatar->hideSkirt();
-	gPipeline.markVisible(mDummyAvatar->mDrawable, *LLViewerCamera::getInstance());
 
 	// stop extraneous animations
 	mDummyAvatar->stopMotion( ANIM_AGENT_HEAD_ROT, TRUE );

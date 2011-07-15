@@ -32,6 +32,7 @@
 #include "llcoord.h"
 //#include "llgl.h"
 
+#include "llagent.h"
 #include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -84,6 +85,8 @@
 #include "llviewerwindow.h"
 #include "llvovolume.h"
 #include "lluictrlfactory.h"
+#include "llaccountingquotamanager.h"
+#include "llmeshrepository.h"
 
 // Globals
 LLFloaterTools *gFloaterTools = NULL;
@@ -220,6 +223,8 @@ BOOL	LLFloaterTools::postBuild()
 	mRadioGroupEdit		= getChild<LLRadioGroup>("edit_radio_group");
 	mBtnGridOptions		= getChild<LLButton>("Options...");
 	mTitleMedia			= getChild<LLMediaCtrl>("title_media");
+	mBtnLink			= getChild<LLButton>("link_btn");
+	mBtnUnlink			= getChild<LLButton>("unlink_btn");
 	
 	mCheckSelectIndividual	= getChild<LLCheckBoxCtrl>("checkbox edit linked parts");	
 	getChild<LLUICtrl>("checkbox edit linked parts")->setValue((BOOL)gSavedSettings.getBOOL("EditLinkedParts"));
@@ -315,6 +320,9 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mBtnRotateReset(NULL),
 	mBtnRotateRight(NULL),
 
+	mBtnLink(NULL),
+	mBtnUnlink(NULL),
+
 	mBtnDelete(NULL),
 	mBtnDuplicate(NULL),
 	mBtnDuplicateInPlace(NULL),
@@ -341,7 +349,7 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mNeedMediaTitle(TRUE)
 {
 	gFloaterTools = this;
-	
+
 	setAutoFocus(FALSE);
 	mFactoryMap["General"] = LLCallbackMap(createPanelPermissions, this);//LLPanelPermissions
 	mFactoryMap["Object"] = LLCallbackMap(createPanelObject, this);//LLPanelObject
@@ -365,6 +373,9 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mCommitCallbackRegistrar.add("BuildTool.AddMedia",			boost::bind(&LLFloaterTools::onClickBtnAddMedia,this));
 	mCommitCallbackRegistrar.add("BuildTool.DeleteMedia",		boost::bind(&LLFloaterTools::onClickBtnDeleteMedia,this));
 	mCommitCallbackRegistrar.add("BuildTool.EditMedia",			boost::bind(&LLFloaterTools::onClickBtnEditMedia,this));
+
+	mCommitCallbackRegistrar.add("BuildTool.LinkObjects",		boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()));
+	mCommitCallbackRegistrar.add("BuildTool.UnlinkObjects",		boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
 
 }
 
@@ -412,27 +423,83 @@ void LLFloaterTools::refresh()
 
 	// Refresh object and prim count labels
 	LLLocale locale(LLLocale::USER_LOCALE);
-	std::string obj_count_string;
-	LLResMgr::getInstance()->getIntegerString(obj_count_string, LLSelectMgr::getInstance()->getSelection()->getRootObjectCount());
-	getChild<LLUICtrl>("obj_count")->setTextArg("[COUNT]", obj_count_string);	
-	std::string prim_count_string;
-	LLResMgr::getInstance()->getIntegerString(prim_count_string, LLSelectMgr::getInstance()->getSelection()->getObjectCount());
-	getChild<LLUICtrl>("prim_count")->setTextArg("[COUNT]", prim_count_string);
 
-	// calculate selection rendering cost
-	if (sShowObjectCost)
+	if (!gMeshRepo.meshRezEnabled())
+	{		
+		std::string obj_count_string;
+		LLResMgr::getInstance()->getIntegerString(obj_count_string, LLSelectMgr::getInstance()->getSelection()->getRootObjectCount());
+		getChild<LLUICtrl>("obj_count")->setTextArg("[COUNT]", obj_count_string);	
+		std::string prim_count_string;
+		LLResMgr::getInstance()->getIntegerString(prim_count_string, LLSelectMgr::getInstance()->getSelection()->getObjectCount());
+		getChild<LLUICtrl>("prim_count")->setTextArg("[COUNT]", prim_count_string);
+
+		// calculate selection rendering cost
+		if (sShowObjectCost)
+		{
+			std::string prim_cost_string;
+			LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
+			getChild<LLUICtrl>("RenderingCost")->setTextArg("[COUNT]", prim_cost_string);
+		}
+		
+		// disable the object and prim counts if nothing selected
+		bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
+		getChildView("obj_count")->setEnabled(have_selection);
+		getChildView("prim_count")->setEnabled(have_selection);
+		getChildView("RenderingCost")->setEnabled(have_selection && sShowObjectCost);
+	}
+	else
 	{
-		std::string prim_cost_string;
-		LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
-		getChild<LLUICtrl>("RenderingCost")->setTextArg("[COUNT]", prim_cost_string);
+		// Get the number of objects selected
+		std::string root_object_count_string;
+		std::string object_count_string;
+
+		LLResMgr::getInstance()->getIntegerString(
+			root_object_count_string,
+			LLSelectMgr::getInstance()->getSelection()->getRootObjectCount());
+		LLResMgr::getInstance()->getIntegerString(
+			object_count_string,
+			LLSelectMgr::getInstance()->getSelection()->getObjectCount());
+
+		F32 obj_cost =
+			LLSelectMgr::getInstance()->getSelection()->getSelectedObjectCost();
+		F32 link_cost =
+			LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
+		F32 obj_physics_cost =
+			LLSelectMgr::getInstance()->getSelection()->getSelectedPhysicsCost();
+		F32 link_physics_cost =
+			LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetPhysicsCost();
+
+		// Update the text for the counts
+		childSetTextArg(
+			"linked_set_count",
+			"[COUNT]",
+			root_object_count_string);
+		childSetTextArg("object_count", "[COUNT]", object_count_string);
+
+		// Update the text for the resource costs
+		childSetTextArg("linked_set_cost","[COST]",llformat("%.1f", link_cost));
+		childSetTextArg("object_cost", "[COST]", llformat("%.1f", obj_cost));
+		childSetTextArg("linked_set_cost","[PHYSICS]",llformat("%.1f", link_physics_cost));
+		childSetTextArg("object_cost", "[PHYSICS]", llformat("%.1f", obj_physics_cost));
+
+		// Display rendering cost if needed
+		if (sShowObjectCost)
+		{
+			std::string prim_cost_string;
+			LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
+			getChild<LLUICtrl>("RenderingCost")->setTextArg("[COUNT]", prim_cost_string);
+		}
+
+
+		// disable the object and prim counts if nothing selected
+		bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
+		childSetEnabled("linked_set_count", have_selection);
+		childSetEnabled("object_count", have_selection);
+		childSetEnabled("linked_set_cost", have_selection);
+		childSetEnabled("object_cost", have_selection);
+		getChildView("RenderingCost")->setEnabled(have_selection && sShowObjectCost);
 	}
 
-
-	// disable the object and prim counts if nothing selected
-	bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
-	getChildView("obj_count")->setEnabled(have_selection);
-	getChildView("prim_count")->setEnabled(have_selection);
-	getChildView("RenderingCost")->setEnabled(have_selection && sShowObjectCost);
 
 	// Refresh child tabs
 	mPanelPermissions->refresh();
@@ -565,6 +632,12 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	mRadioGroupEdit->setVisible( edit_visible );
 	bool linked_parts = gSavedSettings.getBOOL("EditLinkedParts");
 	getChildView("RenderingCost")->setVisible( !linked_parts && (edit_visible || focus_visible || move_visible) && sShowObjectCost);
+
+	mBtnLink->setVisible(edit_visible);
+	mBtnUnlink->setVisible(edit_visible);
+
+	mBtnLink->setEnabled(LLSelectMgr::instance().enableLinkObjects());
+	mBtnUnlink->setEnabled(LLSelectMgr::instance().enableUnlinkObjects());
 
 	if (mCheckSelectIndividual)
 	{
@@ -716,8 +789,16 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 		getChildView("Strength:")->setVisible( land_visible);
 	}
 
-	getChildView("obj_count")->setVisible( !land_visible);
-	getChildView("prim_count")->setVisible( !land_visible);
+	bool show_mesh_cost = gMeshRepo.meshRezEnabled();
+
+	getChildView("obj_count")->setVisible( !land_visible && !show_mesh_cost);
+	getChildView("prim_count")->setVisible( !land_visible && !show_mesh_cost);
+	getChildView("linked_set_count")->setVisible( !land_visible && show_mesh_cost);
+	getChildView("linked_set_cost")->setVisible( !land_visible && show_mesh_cost);
+	getChildView("object_count")->setVisible( !land_visible && show_mesh_cost);
+	getChildView("object_cost")->setVisible( !land_visible && show_mesh_cost);
+	getChildView("RenderingCost")->setVisible( !land_visible && sShowObjectCost);
+	
 	mTab->setVisible(!land_visible);
 	mPanelLandInfo->setVisible(land_visible);
 }
@@ -974,29 +1055,32 @@ void LLFloaterTools::onClickGridOptions()
 
 S32 LLFloaterTools::calcRenderCost()
 {
-	S32 cost = 0;
-	std::set<LLUUID> textures;
+       S32 cost = 0;
+       std::set<LLUUID> textures;
 
-	for (LLObjectSelection::iterator selection_iter = LLSelectMgr::getInstance()->getSelection()->begin();
-		  selection_iter != LLSelectMgr::getInstance()->getSelection()->end();
-		  ++selection_iter)
-	{
-		LLSelectNode *select_node = *selection_iter;
-		if (select_node)
-		{
-			LLVOVolume *viewer_volume = (LLVOVolume*)select_node->getObject();
-			if (viewer_volume)
-			{
-				cost += viewer_volume->getRenderCost(textures);
-				cost += textures.size() * LLVOVolume::ARC_TEXTURE_COST;
-				textures.clear();
-			}
-		}
-	}
+       for (LLObjectSelection::iterator selection_iter = LLSelectMgr::getInstance()->getSelection()->begin();
+                 selection_iter != LLSelectMgr::getInstance()->getSelection()->end();
+                 ++selection_iter)
+       {
+               LLSelectNode *select_node = *selection_iter;
+               if (select_node)
+               {
+                       LLViewerObject *vobj = select_node->getObject();
+                       if (vobj->getVolume())
+                       {
+                               LLVOVolume* volume = (LLVOVolume*) vobj;
+
+                               cost += volume->getRenderCost(textures);
+							   cost += textures.size() * LLVOVolume::ARC_TEXTURE_COST;
+							   textures.clear();
+                       }
+               }
+       }
 
 
-	return cost;
+       return cost;
 }
+
 
 // static
 void LLFloaterTools::setEditTool(void* tool_pointer)

@@ -42,6 +42,10 @@
 
 #include <stack>
 
+#include <stack>
+
+#include <stack>
+
 class LLViewerTexture;
 class LLEdge;
 class LLFace;
@@ -54,6 +58,9 @@ class LLCubeMap;
 class LLCullResult;
 class LLVOAvatar;
 class LLGLSLShader;
+class LLCurlRequest;
+
+class LLMeshResponder;
 
 typedef enum e_avatar_skinning_method
 {
@@ -107,11 +114,11 @@ public:
 	void resizeScreenTexture();
 	void releaseGLBuffers();
 	void createGLBuffers();
-	void allocateScreenBuffer(U32 resX, U32 resY);
 
+	void allocateScreenBuffer(U32 resX, U32 resY);
+	void allocatePhysicsBuffer();
+	
 	void resetVertexBuffers(LLDrawable* drawable);
-	void setUseVBO(BOOL use_vbo);
-	void setDisableVBOMapping(BOOL no_vbo_mapping);
 	void generateImpostor(LLVOAvatar* avatar);
 	void bindScreenToTexture();
 	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
@@ -150,7 +157,8 @@ public:
 	void		markGLRebuild(LLGLUpdate* glu);
 	void		markRebuild(LLSpatialGroup* group, BOOL priority = FALSE);
 	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL, BOOL priority = FALSE);
-		
+	void		markPartitionMove(LLDrawable* drawablep);
+
 	//get the object between start and end that's closest to start.
 	LLViewerObject* lineSegmentIntersectInWorld(const LLVector3& start, const LLVector3& end,
 												BOOL pick_transparent,
@@ -201,9 +209,10 @@ public:
 	BOOL visibleObjectsInFrustum(LLCamera& camera);
 	BOOL getVisibleExtents(LLCamera& camera, LLVector3 &min, LLVector3& max);
 	BOOL getVisiblePointCloud(LLCamera& camera, LLVector3 &min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir = LLVector3(0,0,0));
-	void updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip = 0);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
+	void updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip = 0, LLPlane* plane = NULL);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
 	void createObjects(F32 max_dtime);
 	void createObject(LLViewerObject* vobj);
+	void processPartitionQ();
 	void updateGeom(F32 max_dtime);
 	void updateGL();
 	void rebuildPriorityGroups();
@@ -211,6 +220,7 @@ public:
 
 	//calculate pixel area of given box from vantage point of given camera
 	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
+	static F32 calcPixelArea(const LLVector4a& center, const LLVector4a& size, LLCamera &camera);
 
 	void stateSort(LLCamera& camera, LLCullResult& result);
 	void stateSort(LLSpatialGroup* group, LLCamera& camera);
@@ -223,6 +233,14 @@ public:
 	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture);
 
 	void grabReferences(LLCullResult& result);
+	void clearReferences();
+
+	//check references will assert that there are no references in sCullResult to the provided data
+	void checkReferences(LLFace* face);
+	void checkReferences(LLDrawable* drawable);
+	void checkReferences(LLDrawInfo* draw_info);
+	void checkReferences(LLSpatialGroup* group);
+
 
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
 	void renderGeomDeferred(LLCamera& camera);
@@ -245,6 +263,7 @@ public:
 	void generateGI(LLCamera& camera, LLVector3& lightDir, std::vector<LLVector3>& vpc);
 	void renderHighlights();
 	void renderDebug();
+	void renderPhysicsDisplay();
 
 	void rebuildPools(); // Rebuild pools
 
@@ -260,6 +279,7 @@ public:
 	void enableLightsStatic();
 	void enableLightsDynamic();
 	void enableLightsAvatar();
+	void enableLightsPreview();
 	void enableLightsAvatarEdit(const LLColor4& color);
 	void enableLightsFullbright(const LLColor4& color);
 	void disableLights();
@@ -303,6 +323,7 @@ public:
 	static BOOL toggleRenderTypeControlNegated(void* data);
 	static BOOL toggleRenderDebugControl(void* data);
 	static BOOL toggleRenderDebugFeatureControl(void* data);
+	static void setRenderDebugFeatureControl(U32 bit, bool value);
 
 	static void setRenderParticleBeacons(BOOL val);
 	static void toggleRenderParticleBeacons(void* data);
@@ -311,6 +332,10 @@ public:
 	static void setRenderSoundBeacons(BOOL val);
 	static void toggleRenderSoundBeacons(void* data);
 	static BOOL getRenderSoundBeacons(void* data);
+
+	static void setRenderMOAPBeacons(BOOL val);
+	static void toggleRenderMOAPBeacons(void * data);
+	static BOOL getRenderMOAPBeacons(void * data);
 
 	static void setRenderPhysicalBeacons(BOOL val);
 	static void toggleRenderPhysicalBeacons(void* data);
@@ -333,8 +358,11 @@ public:
 	static BOOL getRenderHighlights(void* data);
 
 	static void updateRenderDeferred();
+	static void refreshRenderDeferred();
 
 	static void throttleNewMemoryAllocation(BOOL disable);
+
+	void addDebugBlip(const LLVector3& position, const LLColor4& color);
 
 private:
 	void unloadShaders();
@@ -428,6 +456,9 @@ public:
 		RENDER_DEBUG_BUILD_QUEUE		= 0x0200000,
 		RENDER_DEBUG_AGENT_TARGET       = 0x0400000,
 		RENDER_DEBUG_UPDATE_TYPE		= 0x0800000,
+		RENDER_DEBUG_PHYSICS_SHAPES     = 0x1000000,
+		RENDER_DEBUG_NORMALS	        = 0x2000000,
+		RENDER_DEBUG_LOD_INFO	        = 0x4000000,
 	};
 
 public:
@@ -450,6 +481,10 @@ public:
 	S32						 mNumVisibleNodes;
 	S32						 mVerticesRelit;
 
+	S32						 mDebugTextureUploadCost;
+	S32						 mDebugSculptUploadCost;
+	S32						 mDebugMeshUploadCost;
+
 	S32						 mLightingChanges;
 	S32						 mGeometryChanges;
 
@@ -465,6 +500,8 @@ public:
 	static BOOL				sAutoMaskAlphaNonDeferred;
 	static BOOL				sDisableShaders; // if TRUE, rendering will be done without shaders
 	static BOOL				sRenderBump;
+	static BOOL				sBakeSunlight;
+	static BOOL				sNoAlpha;
 	static BOOL				sUseTriStrips;
 	static BOOL				sUseFarClip;
 	static BOOL				sShadowRender;
@@ -480,7 +517,6 @@ public:
 	static BOOL				sRenderAttachedLights;
 	static BOOL				sRenderAttachedParticles;
 	static BOOL				sRenderDeferred;
-	static BOOL             sAllowRebuildPriorityGroup;
 	static BOOL             sMemAllocationThrottled;
 	static S32				sVisibleLightCount;
 	static F32				sMinRenderSize;	
@@ -495,11 +531,11 @@ public:
 	LLRenderTarget			mEdgeMap;
 	LLRenderTarget			mDeferredDepth;
 	LLRenderTarget			mDeferredLight[3];
-	LLMultisampleBuffer		mSampleBuffer;
 	LLRenderTarget			mGIMap;
 	LLRenderTarget			mGIMapPost[2];
 	LLRenderTarget			mLuminanceMap;
 	LLRenderTarget			mHighlight;
+	LLRenderTarget			mPhysicsDisplay;
 
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
@@ -608,6 +644,11 @@ protected:
 	LLSpatialGroup::sg_vector_t		mGroupQ1; //priority
 	LLSpatialGroup::sg_vector_t		mGroupQ2; // non-priority
 
+	LLDrawable::drawable_list_t		mPartitionQ; //drawables that need to update their spatial partition radius 
+
+	bool mGroupQ2Locked;
+	bool mGroupQ1Locked;
+
 	LLViewerObject::vobj_list_t		mCreateQ;
 		
 	LLDrawable::drawable_set_t		mRetexturedList;
@@ -694,6 +735,20 @@ public:
 protected:
 	std::vector<LLFace*>		mSelectedFaces;
 
+	class DebugBlip
+	{
+	public:
+		LLColor4 mColor;
+		LLVector3 mPosition;
+		F32 mAge;
+
+		DebugBlip(const LLVector3& position, const LLColor4& color)
+			: mColor(color), mPosition(position), mAge(0.f)
+		{ }
+	};
+
+	std::list<DebugBlip> mDebugBlips;
+
 	LLPointer<LLViewerFetchedTexture>	mFaceSelectImagep;
 	
 	U32						mLightMask;
@@ -701,6 +756,7 @@ protected:
 	S32						mLightingDetail;
 		
 	static BOOL				sRenderPhysicalBeacons;
+	static BOOL				sRenderMOAPBeacons;
 	static BOOL				sRenderScriptedTouchBeacons;
 	static BOOL				sRenderScriptedBeacons;
 	static BOOL				sRenderParticleBeacons;

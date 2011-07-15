@@ -35,6 +35,7 @@
 #include "llkeyboard.h"			// for the MASK constants
 #include "llcontrol.h"
 #include "lluictrlfactory.h"
+#include "lluiimage.h"
 
 #include <sstream>
 
@@ -510,7 +511,7 @@ void LLMultiSlider::draw()
 				mIt->second.mTop + extra_triangle_height,
 				mIt->second.mLeft + mIt->second.getWidth() / 2, 
 				mIt->second.mBottom - extra_triangle_height,
-				mTriangleColor.get(), TRUE);
+				mTriangleColor.get() % opacity, TRUE);
 		}
 	}
 	else if (!thumb_imagep)

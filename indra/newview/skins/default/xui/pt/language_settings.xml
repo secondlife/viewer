@@ -4,6 +4,7 @@
 
 	<!-- Locale Information -->
 	<string name="MicrosoftLocale">portuguese</string>
+	<string name="MacLocale">pt_PT.UTF-8</string>
 	<string name="DarwinLocale">pt_PT.UTF-8</string>
 	<string name="LinuxLocale">pt_PT.UTF-8</string>
 	

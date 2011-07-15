@@ -30,6 +30,7 @@
 
 #include "llvertexbuffer.h"
 #include "llcubemap.h"
+#include "llglslshader.h"
 #include "llimagegl.h"
 #include "llrendertarget.h"
 #include "lltexture.h"
@@ -46,13 +47,15 @@ S32	gGLViewport[4];
 U32 LLRender::sUICalls = 0;
 U32 LLRender::sUIVerts = 0;
 
-static const U32 LL_NUM_TEXTURE_LAYERS = 16; 
+static const U32 LL_NUM_TEXTURE_LAYERS = 32; 
+static const U32 LL_NUM_LIGHT_UNITS = 8;
 
 static GLenum sGLTextureType[] =
 {
 	GL_TEXTURE_2D,
 	GL_TEXTURE_RECTANGLE_ARB,
-	GL_TEXTURE_CUBE_MAP_ARB
+	GL_TEXTURE_CUBE_MAP_ARB,
+	GL_TEXTURE_2D_MULTISAMPLE
 };
 
 static GLint sGLAddressMode[] =
@@ -118,14 +121,29 @@ void LLTexUnit::refreshState(void)
 	gGL.flush();
 	
 	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+
+	//
+	// Per apple spec, don't call glEnable/glDisable when index exceeds max texture units
+	// http://www.mailinglistarchive.com/html/mac-opengl@lists.apple.com/2008-07/msg00653.html
+	//
+	bool enableDisable = (mIndex < gGLManager.mNumTextureUnits) && mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE;
+		
 	if (mCurrTexType != TT_NONE)
 	{
-		glEnable(sGLTextureType[mCurrTexType]);
+		if (enableDisable)
+		{
+			glEnable(sGLTextureType[mCurrTexType]);
+		}
+		
 		glBindTexture(sGLTextureType[mCurrTexType], mCurrTexture);
 	}
 	else
 	{
-		glDisable(GL_TEXTURE_2D);
+		if (enableDisable)
+		{
+			glDisable(GL_TEXTURE_2D);
+		}
+		
 		glBindTexture(GL_TEXTURE_2D, 0);	
 	}
 
@@ -166,7 +184,11 @@ void LLTexUnit::enable(eTextureType type)
 		mCurrTexType = type;
 
 		gGL.flush();
-		glEnable(sGLTextureType[type]);
+		if (type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
+			mIndex < gGLManager.mNumTextureUnits)
+		{
+			glEnable(sGLTextureType[type]);
+		}
 	}
 }
 
@@ -179,7 +201,12 @@ void LLTexUnit::disable(void)
 		activate();
 		unbind(mCurrTexType);
 		gGL.flush();
-		glDisable(sGLTextureType[mCurrTexType]);
+		if (mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
+			mIndex < gGLManager.mNumTextureUnits)
+		{
+			glDisable(sGLTextureType[mCurrTexType]);
+		}
+		
 		mCurrTexType = TT_NONE;
 	}
 }
@@ -377,6 +404,7 @@ void LLTexUnit::unbind(eTextureType type)
 		activate();
 		mCurrTexture = 0;
 		glBindTexture(sGLTextureType[type], 0);
+		stop_glerror();
 	}
 }
 
@@ -398,7 +426,7 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 
 void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option)
 {
-	if (mIndex < 0 || mCurrTexture == 0) return;
+	if (mIndex < 0 || mCurrTexture == 0 || mCurrTexType == LLTexUnit::TT_MULTISAMPLE_TEXTURE) return;
 
 	gGL.flush();
 
@@ -747,6 +775,130 @@ void LLTexUnit::debugTextureUnit(void)
 	}
 }
 
+LLLightState::LLLightState(S32 index)
+: mIndex(index),
+  mEnabled(false),
+  mConstantAtten(1.f),
+  mLinearAtten(0.f),
+  mQuadraticAtten(0.f),
+  mSpotExponent(0.f),
+  mSpotCutoff(180.f)
+{
+	if (mIndex == 0)
+	{
+		mDiffuse.set(1,1,1,1);
+		mSpecular.set(1,1,1,1);
+	}
+
+	mAmbient.set(0,0,0,1);
+	mPosition.set(0,0,1,0);
+	mSpotDirection.set(0,0,-1);
+
+}
+
+void LLLightState::enable()
+{
+	if (!mEnabled)
+	{
+		glEnable(GL_LIGHT0+mIndex);
+		mEnabled = true;
+	}
+}
+
+void LLLightState::disable()
+{
+	if (mEnabled)
+	{
+		glDisable(GL_LIGHT0+mIndex);
+		mEnabled = false;
+	}
+}
+
+void LLLightState::setDiffuse(const LLColor4& diffuse)
+{
+	if (mDiffuse != diffuse)
+	{
+		mDiffuse = diffuse;
+		glLightfv(GL_LIGHT0+mIndex, GL_DIFFUSE, mDiffuse.mV);
+	}
+}
+
+void LLLightState::setAmbient(const LLColor4& ambient)
+{
+	if (mAmbient != ambient)
+	{
+		mAmbient = ambient;
+		glLightfv(GL_LIGHT0+mIndex, GL_AMBIENT, mAmbient.mV);
+	}
+}
+
+void LLLightState::setSpecular(const LLColor4& specular)
+{
+	if (mSpecular != specular)
+	{
+		mSpecular = specular;
+		glLightfv(GL_LIGHT0+mIndex, GL_SPECULAR, mSpecular.mV);
+	}
+}
+
+void LLLightState::setPosition(const LLVector4& position)
+{
+	//always set position because modelview matrix may have changed
+	mPosition = position;
+	glLightfv(GL_LIGHT0+mIndex, GL_POSITION, mPosition.mV);
+}
+
+void LLLightState::setConstantAttenuation(const F32& atten)
+{
+	if (mConstantAtten != atten)
+	{
+		mConstantAtten = atten;
+		glLightf(GL_LIGHT0+mIndex, GL_CONSTANT_ATTENUATION, atten);
+	}
+}
+
+void LLLightState::setLinearAttenuation(const F32& atten)
+{
+	if (mLinearAtten != atten)
+	{
+		mLinearAtten = atten;
+		glLightf(GL_LIGHT0+mIndex, GL_LINEAR_ATTENUATION, atten);
+	}
+}
+
+void LLLightState::setQuadraticAttenuation(const F32& atten)
+{
+	if (mQuadraticAtten != atten)
+	{
+		mQuadraticAtten = atten;
+		glLightf(GL_LIGHT0+mIndex, GL_QUADRATIC_ATTENUATION, atten);
+	}
+}
+
+void LLLightState::setSpotExponent(const F32& exponent)
+{
+	if (mSpotExponent != exponent)
+	{
+		mSpotExponent = exponent;
+		glLightf(GL_LIGHT0+mIndex, GL_SPOT_EXPONENT, exponent);
+	}
+}
+
+void LLLightState::setSpotCutoff(const F32& cutoff)
+{
+	if (mSpotCutoff != cutoff)
+	{
+		mSpotCutoff = cutoff;
+		glLightf(GL_LIGHT0+mIndex, GL_SPOT_CUTOFF, cutoff);
+	}
+}
+
+void LLLightState::setSpotDirection(const LLVector3& direction)
+{
+	//always set direction because modelview matrix may have changed
+	mSpotDirection = direction;
+	glLightfv(GL_LIGHT0+mIndex, GL_SPOT_DIRECTION, direction.mV);
+}
 
 LLRender::LLRender()
   : mDirty(false),
@@ -761,6 +913,11 @@ LLRender::LLRender()
 		mTexUnits.push_back(new LLTexUnit(i));
 	}
 	mDummyTexUnit = new LLTexUnit(-1);
+
+	for (U32 i = 0; i < LL_NUM_LIGHT_UNITS; ++i)
+	{
+		mLightState.push_back(new LLLightState(i));
+	}
 
 	for (U32 i = 0; i < 4; i++)
 	{
@@ -800,6 +957,12 @@ void LLRender::shutdown()
 	mTexUnits.clear();
 	delete mDummyTexUnit;
 	mDummyTexUnit = NULL;
+
+	for (U32 i = 0; i < mLightState.size(); ++i)
+	{
+		delete mLightState[i];
+	}
+	mLightState.clear();
 	mBuffer = NULL ;
 }
 
@@ -904,7 +1067,7 @@ LLVector3 LLRender::getUITranslation()
 {
 	if (mUIOffset.empty())
 	{
-		return LLVector3::zero;
+		return LLVector3(0,0,0);
 	}
 	return mUIOffset.back();
 }
@@ -913,7 +1076,7 @@ LLVector3 LLRender::getUIScale()
 {
 	if (mUIScale.empty())
 	{
-		return LLVector3(1.f, 1.f, 1.f);
+		return LLVector3(1,1,1);
 	}
 	return mUIScale.back();
 }
@@ -938,15 +1101,21 @@ void LLRender::setColorMask(bool writeColorR, bool writeColorG, bool writeColorB
 {
 	flush();
 
-	mCurrColorMask[0] = writeColorR;
-	mCurrColorMask[1] = writeColorG;
-	mCurrColorMask[2] = writeColorB;
-	mCurrColorMask[3] = writeAlpha;
+	if (mCurrColorMask[0] != writeColorR ||
+		mCurrColorMask[1] != writeColorG ||
+		mCurrColorMask[2] != writeColorB ||
+		mCurrColorMask[3] != writeAlpha)
+	{
+		mCurrColorMask[0] = writeColorR;
+		mCurrColorMask[1] = writeColorG;
+		mCurrColorMask[2] = writeColorB;
+		mCurrColorMask[3] = writeAlpha;
 
-	glColorMask(writeColorR ? GL_TRUE : GL_FALSE, 
-				writeColorG ? GL_TRUE : GL_FALSE,
-				writeColorB ? GL_TRUE : GL_FALSE,
-				writeAlpha ? GL_TRUE : GL_FALSE);
+		glColorMask(writeColorR ? GL_TRUE : GL_FALSE, 
+					writeColorG ? GL_TRUE : GL_FALSE,
+					writeColorB ? GL_TRUE : GL_FALSE,
+					writeAlpha ? GL_TRUE : GL_FALSE);
+	}
 }
 
 void LLRender::setSceneBlendType(eBlendType type)
@@ -984,15 +1153,19 @@ void LLRender::setAlphaRejectSettings(eCompareFunc func, F32 value)
 {
 	flush();
 
-	mCurrAlphaFunc = func;
-	mCurrAlphaFuncVal = value;
-	if (func == CF_DEFAULT)
+	if (mCurrAlphaFunc != func ||
+		mCurrAlphaFuncVal != value)
 	{
-		glAlphaFunc(GL_GREATER, 0.01f);
-	} 
-	else
-	{
-		glAlphaFunc(sGLCompareFunc[func], value);
+		mCurrAlphaFunc = func;
+		mCurrAlphaFuncVal = value;
+		if (func == CF_DEFAULT)
+		{
+			glAlphaFunc(GL_GREATER, 0.01f);
+		} 
+		else
+		{
+			glAlphaFunc(sGLCompareFunc[func], value);
+		}
 	}
 }
 
@@ -1049,6 +1222,16 @@ LLTexUnit* LLRender::getTexUnit(U32 index)
 		lldebugs << "Non-existing texture unit layer requested: " << index << llendl;
 		return mDummyTexUnit;
 	}
+}
+
+LLLightState* LLRender::getLight(U32 index)
+{
+	if (index < mLightState.size())
+	{
+		return mLightState[index];
+	}
+	
+	return NULL;
 }
 
 bool LLRender::verifyTexUnitActive(U32 unitToVerify)

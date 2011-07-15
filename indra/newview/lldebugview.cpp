@@ -39,7 +39,9 @@
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "llmemoryview.h"
+#include "llsceneview.h"
 #include "llviewertexture.h"
+
 //
 // Globals
 //
@@ -60,7 +62,8 @@ void LLDebugView::init()
 	LLRect r;
 	LLRect rect = getLocalRect();
 
-	r.set(10, rect.getHeight() - 100, rect.getWidth()/2, 100);
+	// Rectangle to draw debug data in (full height, 3/4 width)
+	r.set(10, rect.getHeight() - 100, ((rect.getWidth()*3)/4), 100);
 	LLConsole::Params cp;
 	cp.name("debug console");
 	cp.max_lines(20);
@@ -83,6 +86,13 @@ void LLDebugView::init()
 	addChild(mFastTimerView);
 	mFastTimerView->setRect(rect);
 
+	gSceneView = new LLSceneView(r);
+	gSceneView->setFollowsTop();
+	gSceneView->setFollowsLeft();
+	gSceneView->setVisible(FALSE);
+	addChild(gSceneView);
+	gSceneView->setRect(rect);
+	
 	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
 									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
 	LLMemoryView::Params mp;
@@ -102,6 +112,9 @@ void LLDebugView::init()
 	gTextureView = LLUICtrlFactory::create<LLTextureView>(tvp);
 	addChild(gTextureView);
 	//gTextureView->reshape(r.getWidth(), r.getHeight(), TRUE);
+
+	
+
 
 	if(gAuditTexture)
 	{
@@ -133,6 +146,7 @@ LLDebugView::~LLDebugView()
 	// These have already been deleted.  Fix the globals appropriately.
 	gDebugView = NULL;
 	gTextureView = NULL;
+	gSceneView = NULL;
 	gTextureSizeView = NULL;
 	gTextureCategoryView = NULL;
 }

@@ -36,6 +36,12 @@
 #include <sched.h>
 #endif
 
+#if !LL_DARWIN
+U32 ll_thread_local local_thread_ID = 0;
+#endif 
+
+U32 LLThread::sIDIter = 0;
+
 //----------------------------------------------------------------------------
 // Usage:
 // void run_func(LLThread* thread)
@@ -56,6 +62,15 @@
 // 
 //----------------------------------------------------------------------------
 
+LL_COMMON_API void assert_main_thread()
+{
+	static U32 s_thread_id = LLThread::currentID();
+	if (LLThread::currentID() != s_thread_id)
+	{
+		llerrs << "Illegal execution outside main thread." << llendl;
+	}
+}
+
 //
 // Handed to the APR thread creation function
 //
@@ -63,13 +78,17 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 {
 	LLThread *threadp = (LLThread *)datap;
 
+#if !LL_DARWIN
+	local_thread_ID = threadp->mID;
+#endif
+
 	// Create a thread local data.
 	LLThreadLocalData::create(threadp);
 
 	// Run the user supplied function
 	threadp->run();
 
-	llinfos << "LLThread::staticRun() Exiting: " << threadp->mName << llendl;
+	//llinfos << "LLThread::staticRun() Exiting: " << threadp->mName << llendl;
 	
 	// We're done with the run function, this thread is done executing now.
 	threadp->mStatus = STOPPED;
@@ -85,6 +104,8 @@ LLThread::LLThread(std::string const& name) :
 	mStatus(STOPPED),
 	mThreadLocalData(NULL)
 {
+	mID = ++sIDIter; //flaw: assume this is called only in the main thread!
+
 	mRunCondition = new LLCondition;
 }
 
@@ -106,7 +127,7 @@ void LLThread::shutdown()
 			// First, set the flag that indicates that we're ready to die
 			setQuitting();
 
-			llinfos << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << llendl;
+			//llinfos << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << llendl;
 			// Now wait a bit for the thread to exit
 			// It's unclear whether I should even bother doing this - this destructor
 			// should netver get called unless we're already stopped, really...
@@ -128,7 +149,7 @@ void LLThread::shutdown()
 		if (!isStopped())
 		{
 			// This thread just wouldn't stop, even though we gave it time
-			llwarns << "LLThread::shutdown() exiting thread before clean exit!" << llendl;
+			//llwarns << "LLThread::shutdown() exiting thread before clean exit!" << llendl;
 			// Put a stake in its heart.
 			apr_thread_exit(mAPRThreadp, -1);
 			return;
@@ -354,6 +375,44 @@ void LLCondition::broadcast()
 }
 
 //============================================================================
+LLMutexBase::LLMutexBase() :
+	mLockingThread(NO_THREAD),
+	mCount(0)
+{
+}
+
+void LLMutexBase::lock() 
+{ 
+#if LL_DARWIN
+	if (mLockingThread == LLThread::currentID())
+#else
+	if (mLockingThread == local_thread_ID)
+#endif
+	{ //redundant lock
+		mCount++;
+		return;
+	}
+
+	apr_thread_mutex_lock(mAPRMutexp); 
+
+#if LL_DARWIN
+	mLockingThread = LLThread::currentID();
+#else
+	mLockingThread = local_thread_ID;
+#endif
+}
+
+void LLMutexBase::unlock() 
+{ 
+	if (mCount > 0)
+	{ //not the root unlock
+		mCount--;
+		return;
+	}
+	mLockingThread = NO_THREAD;
+
+	apr_thread_mutex_unlock(mAPRMutexp); 
+}
 
 //----------------------------------------------------------------------------
 

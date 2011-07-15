@@ -7,7 +7,7 @@
 		</menu_item_call>
 		<menu_item_call label="Comprar L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Mi perfil" name="Profile"/>
-		<menu_item_call label="Cambiar vestuario" name="ChangeOutfit"/>
+		<menu_item_call label="Mi apariencia" name="ChangeOutfit"/>
 		<menu_item_check label="Mi Inventario" name="Inventory"/>
 		<menu_item_check label="Mi Inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mis gestos" name="Gestures"/>
@@ -35,6 +35,7 @@
 	<menu label="Mundo" name="World">
 		<menu_item_check label="Minimapa" name="Mini-Map"/>
 		<menu_item_check label="Mapa del mundo" name="World Map"/>
+		<menu_item_check label="Buscar" name="Search"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Crear un hito de este sitio" name="Create Landmark Here"/>
 		<menu label="Perfil del lugar" name="Land">
@@ -119,6 +120,8 @@
 			<menu_item_call label="Imagen ([COST] L$)..." name="Upload Image"/>
 			<menu_item_call label="Sonido ([COST] L$)..." name="Upload Sound"/>
 			<menu_item_call label="Animación ([COST] L$)..." name="Upload Animation"/>
+			<menu_item_call label="Modelo..." name="Upload Model"/>
+			<menu_item_call label="Asistente de modelo..." name="Upload Model Wizard"/>
 			<menu_item_call label="Masivo ([COST] L$ por archivo)..." name="Bulk Upload"/>
 		</menu>
 		<menu_item_call label="Deshacer" name="Undo"/>
@@ -145,7 +148,7 @@
 			<menu_item_check label="Estadísticas" name="Statistics Bar"/>
 			<menu_item_check label="Mostrar cuánto cuesta renderizar el avatar" name="Avatar Rendering Cost"/>
 		</menu>
-		<menu label="Realzando y Visibilidad" name="Highlighting and Visibility">
+		<menu label="Realzado y Visibilidad" name="Highlighting and Visibility">
 			<menu_item_check label="Baliza con destellos" name="Cheesy Beacon"/>
 			<menu_item_check label="Ocultar las partículas" name="Hide Particles"/>
 			<menu_item_check label="Ocultar lo seleccionado" name="Hide Selected"/>
@@ -158,7 +161,7 @@
 			<menu_item_check label="Alfa" name="Alpha"/>
 			<menu_item_check label="Árbol" name="Tree"/>
 			<menu_item_check label="Avatares" name="Character"/>
-			<menu_item_check label="Superficie del terreno" name="SurfacePath"/>
+			<menu_item_check label="Parche de superficie" name="Surface Patch"/>
 			<menu_item_check label="Cielo" name="Sky"/>
 			<menu_item_check label="Agua" name="Water"/>
 			<menu_item_check label="Terreno" name="Ground"/>
@@ -216,6 +219,7 @@
 			<menu_item_check label="Texture Category Console" name="Texture Category"/>
 			<menu_item_check label="Fast Timers" name="Fast Timers"/>
 			<menu_item_check label="Memory" name="Memory"/>
+			<menu_item_check label="Datos de la escena" name="Scene Statistics"/>
 			<menu_item_call label="Region Info to Debug Console" name="Region Info to Debug Console"/>
 			<menu_item_check label="Camera" name="Camera"/>
 			<menu_item_check label="Wind" name="Wind"/>
@@ -223,8 +227,11 @@
 		</menu>
 		<menu label="Show Info" name="Display Info">
 			<menu_item_check label="Show Time" name="Show Time"/>
+			<menu_item_check label="Mostrar coste de carga" name="Show Upload Cost"/>
 			<menu_item_check label="Show Render Info" name="Show Render Info"/>
+			<menu_item_check label="Mostrar información de textura" name="Show Texture Info"/>
 			<menu_item_check label="Show Color Under Cursor" name="Show Color Under Cursor"/>
+			<menu_item_check label="Mostrar la memoria" name="Show Memory"/>
 			<menu_item_check label="Show Updates to Objects" name="Show Updates"/>
 		</menu>
 		<menu label="Force an Error" name="Force Errors">
@@ -241,6 +248,14 @@
 			<menu_item_check label="Camera Offset" name="Camera Offset"/>
 			<menu_item_check label="Randomize Framerate" name="Randomize Framerate"/>
 			<menu_item_check label="Frame Test" name="Frame Test"/>
+		</menu>
+		<menu label="Render Metadata" name="Render Metadata">
+			<menu_item_check label="Normales" name="Normals"/>
+			<menu_item_check label="Formas del físico" name="Physics Shapes"/>
+			<menu_item_check label="Actualizar el tipo" name="Update Type"/>
+			<menu_item_check label="Información sobre el nivel de detalle" name="LOD Info"/>
+			<menu_item_check label="Crear cola" name="Build Queue"/>
+			<menu_item_check label="Esculpir" name="Sculpt"/>
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
@@ -306,6 +321,7 @@
 			<menu_item_call label="Debug Avatar Textures" name="Debug Avatar Textures"/>
 		</menu>
 		<menu_item_check label="HTTP Textures" name="HTTP Textures"/>
+		<menu_item_check label="Inventario HTTP" name="HTTP Inventory"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
 		<menu_item_call label="Request Admin Status" name="Request Admin Options"/>
 		<menu_item_call label="Leave Admin Status" name="Leave Admin Options"/>
@@ -329,5 +345,10 @@
 			<menu_item_call label="Save Region State" name="Save Region State"/>
 		</menu>
 		<menu_item_call label="God Tools" name="God Tools"/>
+	</menu>
+	<menu label="Admin" name="Deprecated">
+		<menu label="Take Off Clothing" name="Take Off Clothing">
+			<menu_item_call label="Física" name="Physics"/>
+		</menu>
 	</menu>
 </menu_bar>

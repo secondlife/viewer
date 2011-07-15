@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="queue" title="RESET PROGRESS">
+	<floater.string name="Starting">
+		Starting [START] of [COUNT] items.
+	</floater.string>
+	<floater.string name="Done">
+		Done.
+	</floater.string>
+	<floater.string name="Resetting">
+		Resetting
+	</floater.string>
+	<floater.string name="Running">
+		Running
+	</floater.string>
+	<floater.string name="NotRunning">
+		Not running
+	</floater.string>
+	<button label="關閉" label_selected="關閉" name="close"/>
+</floater>

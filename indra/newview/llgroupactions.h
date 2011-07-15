@@ -87,7 +87,7 @@ public:
 	/**
 	 * Start group instant messaging session.
 	 */
-	static void startIM(const LLUUID& group_id);
+	static LLUUID startIM(const LLUUID& group_id);
 
 	/**
 	 * End group instant messaging session.

@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+
 
 //////////////////////////////////////////////////////////
 // The fragment shader for the terrain atmospherics

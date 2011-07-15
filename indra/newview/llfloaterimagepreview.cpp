@@ -63,7 +63,7 @@ const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
-const S32 PREVIEW_TEXTURE_HEIGHT = 300;
+const S32 PREVIEW_TEXTURE_HEIGHT = 320;
 
 //-----------------------------------------------------------------------------
 // LLFloaterImagePreview()
@@ -325,122 +325,51 @@ void LLFloaterImagePreview::draw()
 bool LLFloaterImagePreview::loadImage(const std::string& src_filename)
 {
 	std::string exten = gDirUtilp->getExtension(src_filename);
-	
-	U32 codec = IMG_CODEC_INVALID;
-	std::string temp_str;
-	if( exten == "bmp")
-	{
-		codec = IMG_CODEC_BMP;
-	}
-	else if( exten == "tga")
-	{
-		codec = IMG_CODEC_TGA;
-	}
-	else if( exten == "jpg" || exten == "jpeg")
-	{
-		codec = IMG_CODEC_JPEG;
-	}
-	else if( exten == "png" )
-	{
-		codec = IMG_CODEC_PNG;
-	}
+	U32 codec = LLImageBase::getCodecFromExtension(exten);
 
 	LLImageDimensionsInfo image_info;
-	if(!image_info.load(src_filename,codec))
+	if (!image_info.load(src_filename,codec))
 	{
 		mImageLoadError = image_info.getLastError();
 		return false;
 	}
 
 	S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
-	S32 max_heigh = gSavedSettings.getS32("max_texture_dimension_Y");
+	S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
 
-	if(image_info.getWidth() > max_width|| image_info.getHeight() > max_heigh)
+	if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
 	{
 		LLStringUtil::format_map_t args;
 		args["WIDTH"] = llformat("%d", max_width);
-		args["HEIGHT"] = llformat("%d", max_heigh);
+		args["HEIGHT"] = llformat("%d", max_height);
 
 		mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
 		return false;
 	}
 	
-
-	LLPointer<LLImageRaw> raw_image = new LLImageRaw;
-
-	switch (codec)
+	// Load the image
+	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
+	if (image.isNull())
 	{
-	case IMG_CODEC_BMP:
-		{
-			LLPointer<LLImageBMP> bmp_image = new LLImageBMP;
-
-			if (!bmp_image->load(src_filename))
-			{
-				return false;
-			}
-			
-			if (!bmp_image->decode(raw_image, 0.0f))
-			{
-				return false;
-			}
-		}
-		break;
-	case IMG_CODEC_TGA:
-		{
-			LLPointer<LLImageTGA> tga_image = new LLImageTGA;
-
-			if (!tga_image->load(src_filename))
-			{
-				return false;
-			}
-			
-			if (!tga_image->decode(raw_image))
-			{
-				return false;
-			}
-
-			if(	(tga_image->getComponents() != 3) &&
-				(tga_image->getComponents() != 4) )
-			{
-				tga_image->setLastError( "Image files with less than 3 or more than 4 components are not supported." );
-				return false;
-			}
-		}
-		break;
-	case IMG_CODEC_JPEG:
-		{
-			LLPointer<LLImageJPEG> jpeg_image = new LLImageJPEG;
-
-			if (!jpeg_image->load(src_filename))
-			{
-				return false;
-			}
-			
-			if (!jpeg_image->decode(raw_image, 0.0f))
-			{
-				return false;
-			}
-		}
-		break;
-	case IMG_CODEC_PNG:
-		{
-			LLPointer<LLImagePNG> png_image = new LLImagePNG;
-
-			if (!png_image->load(src_filename))
-			{
-				return false;
-			}
-			
-			if (!png_image->decode(raw_image, 0.0f))
-			{
-				return false;
-			}
-		}
-		break;
-	default:
 		return false;
 	}
-
+	if (!image->load(src_filename))
+	{
+		return false;
+	}
+	// Decompress or expand it in a raw image structure
+	LLPointer<LLImageRaw> raw_image = new LLImageRaw;
+	if (!image->decode(raw_image, 0.0f))
+	{
+		return false;
+	}
+	// Check the image constraints
+	if ((image->getComponents() != 3) && (image->getComponents() != 4))
+	{
+		image->setLastError("Image files with less than 3 or more than 4 components are not supported.");
+		return false;
+	}
+	
 	raw_image->biasedScaleToPowerOfTwo(1024);
 	mRawImagep = raw_image;
 	
@@ -858,8 +787,8 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	}
 
 	const LLVolumeFace &vf = mVolume->getVolumeFace(0);
-	U32 num_indices = vf.mIndices.size();
-	U32 num_vertices = vf.mVertices.size();
+	U32 num_indices = vf.mNumIndices;
+	U32 num_vertices = vf.mNumVertices;
 
 	mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL, 0);
 	mVertexBuffer->allocateBuffer(num_vertices, num_indices, TRUE);
@@ -873,10 +802,16 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	mVertexBuffer->getIndexStrider(index_strider);
 
 	// build vertices and normals
+	LLStrider<LLVector3> pos;
+	pos = (LLVector3*) vf.mPositions; pos.setStride(16);
+	LLStrider<LLVector3> norm;
+	norm = (LLVector3*) vf.mNormals; norm.setStride(16);
+		
+
 	for (U32 i = 0; i < num_vertices; i++)
 	{
-		*(vertex_strider++) = vf.mVertices[i].mPosition;
-		LLVector3 normal = vf.mVertices[i].mNormal;
+		*(vertex_strider++) = *pos++;
+		LLVector3 normal = *norm++;
 		normal.normalize();
 		*(normal_strider++) = normal;
 	}
@@ -895,7 +830,6 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 BOOL LLImagePreviewSculpted::render()
 {
 	mNeedsUpdate = FALSE;
-
 	LLGLSUIDefault def;
 	LLGLDisable no_blend(GL_BLEND);
 	LLGLEnable cull(GL_CULL_FACE);
@@ -940,7 +874,7 @@ BOOL LLImagePreviewSculpted::render()
 	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
 
 	const LLVolumeFace &vf = mVolume->getVolumeFace(0);
-	U32 num_indices = vf.mIndices.size();
+	U32 num_indices = vf.mNumIndices;
 	
 	mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL);
 
@@ -953,7 +887,6 @@ BOOL LLImagePreviewSculpted::render()
 	mVertexBuffer->draw(LLRender::TRIANGLES, num_indices, 0);
 
 	gGL.popMatrix();
-		
 	return TRUE;
 }
 

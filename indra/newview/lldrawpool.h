@@ -47,14 +47,14 @@ public:
 	{
 		// Correspond to LLPipeline render type
 		POOL_SIMPLE = 1,
-		POOL_TERRAIN,	
-		POOL_TREE,
-		POOL_SKY,
-		POOL_WL_SKY,
 		POOL_GROUND,
-		POOL_GRASS,
 		POOL_FULLBRIGHT,
 		POOL_BUMP,
+		POOL_TERRAIN,	
+		POOL_SKY,
+		POOL_WL_SKY,
+		POOL_TREE,
+		POOL_GRASS,
 		POOL_INVISIBLE, // see below *
 		POOL_AVATAR,
 		POOL_VOIDWATER,
@@ -146,8 +146,8 @@ public:
 	void resetDrawOrders() { }
 
 	static void applyModelMatrix(LLDrawInfo& params);
-	virtual void pushBatches(U32 type, U32 mask, BOOL texture = TRUE);
-	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture);
+	virtual void pushBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
+	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
 	virtual void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 	virtual void renderGroups(U32 type, U32 mask, BOOL texture = TRUE);
 	virtual void renderTexture(U32 type, U32 mask);
@@ -181,8 +181,6 @@ public:
 	
 	virtual void resetDrawOrders();
 	void resetAll();
-
-	BOOL moveFace(LLFace *face, LLDrawPool *poolp, BOOL copy_data = FALSE);
 
 	void destroy();
 

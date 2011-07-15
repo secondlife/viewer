@@ -115,6 +115,71 @@ void LLCallbackList::callFunctions()
 	}
 }
 
+// Shim class to allow arbitrary boost::bind
+// expressions to be run as one-time idle callbacks.
+class OnIdleCallbackOneTime
+{
+public:
+	OnIdleCallbackOneTime(nullary_func_t callable):
+		mCallable(callable)
+	{
+	}
+	static void onIdle(void *data)
+	{
+		gIdleCallbacks.deleteFunction(onIdle, data);
+		OnIdleCallbackOneTime* self = reinterpret_cast<OnIdleCallbackOneTime*>(data);
+		self->call();
+		delete self;
+	}
+	void call()
+	{
+		mCallable();
+	}
+private:
+	nullary_func_t mCallable;
+};
+
+void doOnIdleOneTime(nullary_func_t callable)
+{
+	OnIdleCallbackOneTime* cb_functor = new OnIdleCallbackOneTime(callable);
+	gIdleCallbacks.addFunction(&OnIdleCallbackOneTime::onIdle,cb_functor);
+}
+
+// Shim class to allow generic boost functions to be run as
+// recurring idle callbacks.  Callable should return true when done,
+// false to continue getting called.
+class OnIdleCallbackRepeating
+{
+public:
+	OnIdleCallbackRepeating(bool_func_t callable):
+		mCallable(callable)
+	{
+	}
+	// Will keep getting called until the callable returns true.
+	static void onIdle(void *data)
+	{
+		OnIdleCallbackRepeating* self = reinterpret_cast<OnIdleCallbackRepeating*>(data);
+		bool done = self->call();
+		if (done)
+		{
+			gIdleCallbacks.deleteFunction(onIdle, data);
+			delete self;
+		}
+	}
+	bool call()
+	{
+		return mCallable();
+	}
+private:
+	bool_func_t mCallable;
+};
+
+void doOnIdleRepeating(bool_func_t callable)
+{
+	OnIdleCallbackRepeating* cb_functor = new OnIdleCallbackRepeating(callable);
+	gIdleCallbacks.addFunction(&OnIdleCallbackRepeating::onIdle,cb_functor);
+}
+
 #ifdef _DEBUG
 
 void test1(void *data)

@@ -289,7 +289,9 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 {
 	BOOL handled = FALSE;
 
-	if (cargo_type == DAD_TEXTURE)
+	bool is_mesh = cargo_type == DAD_MESH;
+
+	if ((cargo_type == DAD_TEXTURE) || is_mesh)
 	{
 		LLInventoryItem *item = (LLInventoryItem *)cargo_data;
 
@@ -418,7 +420,6 @@ BOOL LLFloaterTexturePicker::postBuild()
 		mInventoryPanel->setFilterPermMask(mImmediateFilterPermMask);
 		mInventoryPanel->setSelectCallback(boost::bind(&LLFloaterTexturePicker::onSelectionChange, this, _1, _2));
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-		mInventoryPanel->setAllowMultiSelect(FALSE);
 
 		// Disable auto selecting first filtered item because it takes away
 		// selection from the item set by LLTextureCtrl owning this floater.
@@ -1091,7 +1092,7 @@ public:
 
 BOOL LLTextureCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
-	getWindow()->setCursor(UI_CURSOR_HAND);
+	getWindow()->setCursor(mBorder->parentPointInView(x,y) ? UI_CURSOR_HAND : UI_CURSOR_ARROW);
 	return TRUE;
 }
 
@@ -1100,7 +1101,7 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLUICtrl::handleMouseDown( x, y , mask );
 
-	if( !handled )
+	if (!handled && mBorder->parentPointInView(x, y))
 	{
 		showPicker(FALSE);
 		//grab textures first...
@@ -1206,7 +1207,11 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	// returns true, then the cast was valid, and we can perform
 	// the third test without problems.
 	LLInventoryItem* item = (LLInventoryItem*)cargo_data; 
-	if (getEnabled() && (cargo_type == DAD_TEXTURE) && allowDrop(item))
+	bool is_mesh = cargo_type == DAD_MESH;
+
+	if (getEnabled() &&
+		((cargo_type == DAD_TEXTURE) || is_mesh) &&
+		 allowDrop(item))
 	{
 		if (drop)
 		{

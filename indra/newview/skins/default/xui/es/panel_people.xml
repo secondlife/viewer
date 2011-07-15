@@ -18,6 +18,8 @@
 	<string name="groups_filter_label" value="Filtrar a los grupos"/>
 	<string name="no_filtered_groups_msg" value="¿No encuentras lo que buscas? Prueba con [secondlife:///app/search/groups/[SEARCH_TERM] Buscar]."/>
 	<string name="no_groups_msg" value="¿Buscas grupos en que participar? Prueba la [secondlife:///app/search/groups Búsqueda]."/>
+	<string name="MiniMapToolTipMsg" value="[REGION](Pulsa dos veces para abrir el mapa, pulsa mayús y arrastra para obtener una panorámica)"/>
+	<string name="AltMiniMapToolTipMsg" value="[REGION](Pulsa dos veces para teleportarte, pulsa mayús y arrastra para obtener una panorámica)"/>
 	<filter_editor label="Filtrar" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="CERCANA" name="nearby_panel">
@@ -64,16 +66,16 @@
 			<layout_panel name="view_profile_btn_lp">
 				<button label="Perfil" name="view_profile_btn" tool_tip="Mostrar imágenes, grupos y otra información del Residente"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="im_btn_lp">
 				<button label="MI" name="im_btn" tool_tip="Abrir una sesión de mensajes instantáneos"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="call_btn_lp">
 				<button label="Llamar" name="call_btn" tool_tip="Llamar a este Residente"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="share_btn_lp">
 				<button label="Compartir" name="share_btn" tool_tip="Compartir un objeto del inventario"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="teleport_btn_lp">
 				<button label="Teleporte" name="teleport_btn" tool_tip="Ofrecer teleporte"/>
 			</layout_panel>
 		</layout_stack>

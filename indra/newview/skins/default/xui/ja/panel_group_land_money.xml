@@ -24,6 +24,7 @@
 			<scroll_list.columns label="地域" name="location"/>
 			<scroll_list.columns label="種類" name="type"/>
 			<scroll_list.columns label="面積" name="area"/>
+			<scroll_list.columns label="非表示" name="hidden"/>
 		</scroll_list>
 		<text name="total_contributed_land_label">
 			寄付合計：

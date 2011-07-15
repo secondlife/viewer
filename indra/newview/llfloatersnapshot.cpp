@@ -53,6 +53,7 @@
 #include "llfloaterpostcard.h"
 #include "llcheckboxctrl.h"
 #include "llradiogroup.h"
+#include "llslurl.h"
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
 #include "llwebsharing.h"

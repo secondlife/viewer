@@ -36,6 +36,7 @@
 
 class LLInventoryPanel;
 
+
 /**
  * Friend-related actions (add, remove, offer teleport, etc)
  */
@@ -93,6 +94,8 @@ public:
 	 * Show avatar profile.
 	 */
 	static void showProfile(const LLUUID& id);
+	static void hideProfile(const LLUUID& id);
+	static bool profileVisible(const LLUUID& id);
 
 	/**
 	 * Show avatar on world map.
@@ -193,6 +196,8 @@ public:
 	 * @return false if the selected items cannot be shared or the active inventory panel cannot be obtained
 	 */
 	static bool canShareSelectedItems(LLInventoryPanel* inv_panel = NULL);
+
+	static std::set<LLUUID> getInventorySelectedUUIDs();
 
 private:
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);

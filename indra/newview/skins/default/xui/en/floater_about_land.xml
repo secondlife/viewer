@@ -220,9 +220,10 @@
              layout="topleft"
              left_pad="2"
              name="OwnerText"
+             translate="false"
              use_ellipses="true" 
              width="360">
-                Leyla Linden
+                TestString PleaseIgnore
             </text>
              <button
      follows="right"
@@ -260,8 +261,10 @@
              left_pad="2"
              layout="topleft"
              name="GroupText"
+             translate="false"
              width="240">
-Leyla Linden               </text>
+                TestString PleaseIgnore
+            </text>
                  <button
      follows="right"
      height="23"
@@ -411,7 +414,7 @@ Leyla Linden               </text>
              right="-10"
              name="Cancel Land Sale"
              left_pad="5"
-             top_pad="-15"
+             top_pad="7"
              width="180" />
             <text
              type="string"
@@ -485,6 +488,7 @@ Leyla Linden               </text>
              width="186">
                 0
             </text>
+
             <button
              enabled="false"
              follows="left|top"
@@ -492,9 +496,20 @@ Leyla Linden               </text>
              label="Buy Land"
              layout="topleft"
              left_delta="52"
+			 top_pad="5"
              name="Buy Land..."
-             top_pad="7"
              width="130" />
+			<button
+             enabled="false"
+             follows="left|top"
+             height="23"
+             label="Linden Sale"
+             layout="topleft"
+             left="10"
+             name="Linden Sale..."
+             tool_tip="Land must be owned, set content, and not already for auction."
+             top_pad="-23"
+             width="150" />
             <button
              enabled="true"
              follows="left|top"
@@ -542,18 +557,7 @@ Leyla Linden               </text>
              layout="topleft"
              left_delta="0"
              name="Reclaim Land..."
-             top_delta="-50"
-             width="180" />
-            <button
-             enabled="false"
-             follows="left|top"
-             height="23"
-             label="Linden Sale"
-             layout="topleft"
-             left_delta="0"
-             name="Linden Sale..."
-             tool_tip="Land must be owned, set content, and not already for auction."
-             top_pad="2"
+             top_delta="-25"
              width="180" />
         </panel>
         <panel
@@ -1201,6 +1205,10 @@ Only large parcels can be listed in search.
              name="push_restrict_region_text">
                 No Pushing (Region Override)
             </panel.string>
+            <panel.string
+             name="see_avs_text">
+                 See and chat with residents on this parcel
+            </panel.string>
             <text
              type="string"
              length="1"
@@ -1310,7 +1318,7 @@ Only large parcels can be listed in search.
              name="check group scripts"
              top_delta="0"
              width="70" />
-            <text
+           <text
              type="string"
              text_color="white"
              length="1"
@@ -1405,6 +1413,10 @@ Only large parcels can be listed in search.
                  name="item11"
                  value="shopping" />
                 <combo_box.item
+                 label="Rental"
+                 name="item13"
+                 value="rental" />
+                <combo_box.item
                  label="Other"
                  name="item12"
                  value="other" />
@@ -1462,6 +1474,10 @@ Only large parcels can be listed in search.
                  name="item11"
                  value="shopping" />
                 <combo_box.item
+                 label="Rental"
+                 name="item13"
+                 value="rental" />
+                <combo_box.item
                  label="Other"
                  name="item12"
                  value="other" />
@@ -1503,10 +1519,32 @@ Only large parcels can be listed in search.
              type="string"
              length="1"
              follows="left|top"
+             text_color="white"
              height="16"
              layout="topleft"
-             left="220"
-             top="180"
+             left="230"
+             top="174"
+             name="allow_label5"
+             width="278">
+              Allow Residents on other parcels to:
+            </text>
+            <check_box
+             height="16"
+             label="See Avatars"
+             follows="top"
+             layout="topleft"
+             left="230"
+             name="SeeAvatarsCheck"
+             tool_tip="Allows residents on other parcels to see and chat with residents on this parcel, and you to see and chat with them."
+             width="120" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="230"
+             top="230"
              text_color="white"
              name="landing_point"
              word_wrap="true"
@@ -1520,7 +1558,7 @@ Only large parcels can be listed in search.
              label_selected="Set"
              layout="topleft"
              name="Set"
-             right="-68"
+             left="230"
              tool_tip="Sets the landing point where visitors arrive. Sets to your avatar&apos;s location inside this parcel."
              width="50" />
             <button
@@ -1532,7 +1570,6 @@ Only large parcels can be listed in search.
              left_pad="5"
              name="Clear"
              tool_tip="Clear the landing point"
-             right="-10"
              width="55" />
             <text
              type="string"
@@ -1541,7 +1578,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="220"
+             left="230"
              top_pad="10"
              name="Teleport Routing: "
              width="200">
@@ -1638,16 +1675,6 @@ Only large parcels can be listed in search.
              name="set_media_url"
              width="70"
              top_delta="0"/>
-            <check_box
-             follows="top|left"
-             height="16"
-             label="Hide URL"
-             layout="topleft"
-             left="110"
-             name="hide_media_url"
-             tool_tip="Checking this option will hide the media url to any non-authorized viewers of this parcel information. Note this is not available for HTML types."
-             width="50"
-             top_pad="5"/>
             <text
              type="string"
              length="1"
@@ -1825,15 +1852,6 @@ Only large parcels can be listed in search.
              top_delta="0"
              right="-15"
              select_on_focus="true" />
-			<check_box
-             height="16"
-             label="Hide URL"
-             layout="topleft"
-             name="hide_music_url"
-			 tool_tip="Checking this option will hide the music url to any non-authorized viewers of this parcel information."
-			 left_delta="10"
-             top_pad="5"
-             width="292" /> 
             <text
              type="string"
              length="1"
@@ -1853,6 +1871,34 @@ Only large parcels can be listed in search.
              name="check sound local"
              left_pad="0"
              width="292" />
+          <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="Avatar Sounds:"
+             top_pad="10"
+             width="100">
+               Avatar Sounds:
+          </text>
+          <check_box
+             height="16"
+             label="Everyone"
+             layout="topleft"
+             left_pad="0"
+             name="all av sound check"
+             top_delta="0"
+             width="130" />
+          <check_box
+             height="16"
+             label="Group"
+             layout="topleft"
+             left_pad="0"
+             name="group av sound check"
+             top_delta="0"
+             width="70" />
             <text
              type="string"
              length="1"
@@ -2078,7 +2124,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="10"
              name="remove_allowed"
-             right="-1"
+             right="-10"
              width="100" />
              </panel>
             <panel
@@ -2128,7 +2174,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="10"
              name="remove_banned"
-             right="-1"
+             right="-10"
              width="100" />
              </panel>
         </panel>

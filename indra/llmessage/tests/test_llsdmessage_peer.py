@@ -38,7 +38,7 @@ mydir = os.path.dirname(__file__)       # expected to be .../indra/llmessage/tes
 sys.path.insert(0, os.path.join(mydir, os.pardir, os.pardir, "lib", "python"))
 from indra.util.fastest_elementtree import parse as xml_parse
 from indra.base import llsd
-from testrunner import run, debug
+from testrunner import freeport, run, debug, VERBOSE
 
 class TestHTTPRequestHandler(BaseHTTPRequestHandler):
     """This subclass of BaseHTTPRequestHandler is to receive and echo
@@ -72,10 +72,10 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
 ##         # assuming that the underlying XML parser reads its input file
 ##         # incrementally. Unfortunately I haven't been able to make it work.
 ##         tree = xml_parse(self.rfile)
-##         debug("Finished raw parse\n")
-##         debug("parsed XML tree %s\n" % tree)
-##         debug("parsed root node %s\n" % tree.getroot())
-##         debug("root node tag %s\n" % tree.getroot().tag)
+##         debug("Finished raw parse")
+##         debug("parsed XML tree %s", tree)
+##         debug("parsed root node %s", tree.getroot())
+##         debug("root node tag %s", tree.getroot().tag)
 ##         return llsd.to_python(tree.getroot())
 
     def do_GET(self):
@@ -88,8 +88,10 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
         self.answer(self.read_xml())
 
     def answer(self, data):
+        debug("%s.answer(%s): self.path = %r", self.__class__.__name__, data, self.path)
         if "fail" not in self.path:
             response = llsd.format_xml(data.get("reply", llsd.LLSD("success")))
+            debug("success: %s", response)
             self.send_response(200)
             self.send_header("Content-type", "application/llsd+xml")
             self.send_header("Content-Length", str(len(response)))
@@ -97,27 +99,48 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(response)
         else:                           # fail requested
             status = data.get("status", 500)
+            # self.responses maps an int status to a (short, long) pair of
+            # strings. We want the longer string. That's why we pass a string
+            # pair to get(): the [1] will select the second string, whether it
+            # came from self.responses or from our default pair.
             reason = data.get("reason",
                                self.responses.get(status,
                                                   ("fail requested",
                                                    "Your request specified failure status %s "
                                                    "without providing a reason" % status))[1])
+            debug("fail requested: %s: %r", status, reason)
             self.send_error(status, reason)
 
-    def log_request(self, code, size=None):
-        # For present purposes, we don't want the request splattered onto
-        # stderr, as it would upset devs watching the test run
-        pass
+    if not VERBOSE:
+        # When VERBOSE is set, skip both these overrides because they exist to
+        # suppress output.
 
-    def log_error(self, format, *args):
-        # Suppress error output as well
-        pass
+        def log_request(self, code, size=None):
+            # For present purposes, we don't want the request splattered onto
+            # stderr, as it would upset devs watching the test run
+            pass
 
-class TestHTTPServer(Thread):
-    def run(self):
-        httpd = HTTPServer(('127.0.0.1', 8000), TestHTTPRequestHandler)
-        debug("Starting HTTP server...\n")
-        httpd.serve_forever()
+        def log_error(self, format, *args):
+            # Suppress error output as well
+            pass
+
+class Server(HTTPServer):
+    # This pernicious flag is on by default in HTTPServer. But proper
+    # operation of freeport() absolutely depends on it being off.
+    allow_reuse_address = False
 
 if __name__ == "__main__":
-    sys.exit(run(server=TestHTTPServer(name="httpd"), *sys.argv[1:]))
+    # Instantiate a Server(TestHTTPRequestHandler) on the first free port
+    # in the specified port range. Doing this inline is better than in a
+    # daemon thread: if it blows up here, we'll get a traceback. If it blew up
+    # in some other thread, the traceback would get eaten and we'd run the
+    # subject test program anyway.
+    httpd, port = freeport(xrange(8000, 8020),
+                           lambda port: Server(('127.0.0.1', port), TestHTTPRequestHandler))
+    # Pass the selected port number to the subject test program via the
+    # environment. We don't want to impose requirements on the test program's
+    # command-line parsing -- and anyway, for C++ integration tests, that's
+    # performed in TUT code rather than our own.
+    os.environ["PORT"] = str(port)
+    debug("$PORT = %s", port)
+    sys.exit(run(server=Thread(name="httpd", target=httpd.serve_forever), *sys.argv[1:]))

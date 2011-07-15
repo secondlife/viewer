@@ -42,8 +42,11 @@ public:
 	bool hasWaterFog; // implies no gamma
 	bool hasTransport; // implies no lighting (it's possible to have neither though)
 	bool hasSkinning;	
+	bool hasObjectSkinning;
 	bool hasAtmospherics;
 	bool hasGamma;
+	S32 mIndexedTextureChannels;
+	bool disableTextureIndex;
 
 	// char numLights;
 	
@@ -62,6 +65,8 @@ public:
 	};
 	
 	LLGLSLShader();
+
+	static GLhandleARB sCurBoundShader;
 
 	void unload();
 	BOOL createShader(std::vector<std::string> * attributes,
@@ -103,7 +108,7 @@ public:
 	void vertexAttrib4fv(U32 index, GLfloat* v);
 	
 	GLint getUniformLocation(const std::string& uniform);
-	
+	GLint getAttribLocation(U32 attrib);
 	GLint mapUniformTextureChannel(GLint location, GLenum type);
 	
 

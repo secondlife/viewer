@@ -37,6 +37,7 @@
 #include "llviewerinventory.h"
 
 class LLMultiGesture;
+class LLGestureListener;
 class LLGestureStep;
 class LLUUID;
 class LLVFS;
@@ -158,6 +159,17 @@ protected:
 						   LLAssetType::EType type,
 						   void* user_data, S32 status, LLExtStat ext_status);
 
+	// Used by playGesture to load an asset file
+	// required to play a gesture step
+	static void onAssetLoadComplete(LLVFS *vfs,
+									const LLUUID& asset_uuid,
+									LLAssetType::EType type,
+									void* user_data, S32 status, LLExtStat ext_status);
+
+	// Checks whether all animation and sound assets
+	// needed to play a gesture are loaded.
+	static bool hasLoadingAssets(LLMultiGesture* gesture);
+
 private:
 	// Active gestures.
 	// NOTE: The gesture pointer CAN BE NULL.  This means that
@@ -172,6 +184,11 @@ private:
 	callback_map_t mCallbackMap;
 	std::vector<LLMultiGesture*> mPlaying;	
 	BOOL mValid;
+
+	std::set<LLUUID> mLoadingAssets;
+
+	// LLEventHost interface
+	boost::shared_ptr<LLGestureListener> mListener;
 };
 
 #endif

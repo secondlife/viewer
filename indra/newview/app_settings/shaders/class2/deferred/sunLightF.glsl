@@ -4,6 +4,8 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
  */
+ 
+
 
 #extension GL_ARB_texture_rectangle : enable
 
@@ -17,9 +19,6 @@ uniform sampler2DRectShadow shadowMap2;
 uniform sampler2DRectShadow shadowMap3;
 uniform sampler2DShadow shadowMap4;
 uniform sampler2DShadow shadowMap5;
-uniform sampler2D noiseMap;
-
-uniform sampler2D		lightFunc;
 
 
 // Inputs
@@ -46,7 +45,7 @@ uniform float spot_shadow_offset;
 
 vec4 getPosition(vec2 pos_screen)
 {
-	float depth = texture2DRect(depthMap, pos_screen.xy).a;
+	float depth = texture2DRect(depthMap, pos_screen.xy).r;
 	vec2 sc = pos_screen.xy*2.0;
 	sc /= screen_res;
 	sc -= vec2(1.0,1.0);

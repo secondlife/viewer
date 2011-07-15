@@ -30,6 +30,7 @@
 #include "llpanelface.h"
  
 // library includes
+#include "llcalc.h"
 #include "llerror.h"
 #include "llfocusmgr.h"
 #include "llrect.h"
@@ -376,6 +377,11 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
 			return true;
 		}
 
+		if (facep->getViewerObject()->getVolume()->getNumVolumeFaces() <= te)
+		{
+			return true;
+		}
+
 		bool set_aligned = true;
 		if (facep == mCenterFace)
 		{
@@ -418,6 +424,12 @@ struct LLPanelFaceGetIsAlignedTEFunctor : public LLSelectedTEFunctor
 		{
 			return false;
 		}
+
+		if (facep->getViewerObject()->getVolume()->getNumVolumeFaces() <= te)
+		{ //volume face does not exist, can't be aligned
+			return false;
+		}
+
 		if (facep == mCenterFace)
 		{
 			return true;
@@ -915,6 +927,16 @@ void LLPanelFace::getState()
 				getChildView("button apply")->setEnabled(enabled);
 			}
 		}
+
+		// Set variable values for numeric expressions
+		LLCalc* calcp = LLCalc::getInstance();
+		calcp->setVar(LLCalc::TEX_U_SCALE, childGetValue("TexScaleU").asReal());
+		calcp->setVar(LLCalc::TEX_V_SCALE, childGetValue("TexScaleV").asReal());
+		calcp->setVar(LLCalc::TEX_U_OFFSET, childGetValue("TexOffsetU").asReal());
+		calcp->setVar(LLCalc::TEX_V_OFFSET, childGetValue("TexOffsetV").asReal());
+		calcp->setVar(LLCalc::TEX_ROTATION, childGetValue("TexRot").asReal());
+		calcp->setVar(LLCalc::TEX_TRANSPARENCY, childGetValue("ColorTrans").asReal());
+		calcp->setVar(LLCalc::TEX_GLOW, childGetValue("glow").asReal());
 	}
 	else
 	{
@@ -950,6 +972,16 @@ void LLPanelFace::getState()
 		//getChildView("has media")->setEnabled(FALSE);
 		//getChildView("media info set")->setEnabled(FALSE);
 		
+
+		// Set variable values for numeric expressions
+		LLCalc* calcp = LLCalc::getInstance();
+		calcp->clearVar(LLCalc::TEX_U_SCALE);
+		calcp->clearVar(LLCalc::TEX_V_SCALE);
+		calcp->clearVar(LLCalc::TEX_U_OFFSET);
+		calcp->clearVar(LLCalc::TEX_V_OFFSET);
+		calcp->clearVar(LLCalc::TEX_ROTATION);
+		calcp->clearVar(LLCalc::TEX_TRANSPARENCY);
+		calcp->clearVar(LLCalc::TEX_GLOW);		
 	}
 }
 

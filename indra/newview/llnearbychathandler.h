@@ -29,6 +29,8 @@
 
 #include "llnotificationhandler.h"
 
+class LLEventPump;
+
 //add LLNearbyChatHandler to LLNotificationsUI namespace
 namespace LLNotificationsUI{
 
@@ -44,6 +46,8 @@ public:
 protected:
 	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
+
+	static boost::scoped_ptr<LLEventPump> sChatWatcher;
 };
 
 }

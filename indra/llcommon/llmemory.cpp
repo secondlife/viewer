@@ -61,6 +61,10 @@ BOOL LLMemory::sEnableMemoryFailurePrevention = FALSE;
 LLPrivateMemoryPoolManager::mem_allocation_info_t LLPrivateMemoryPoolManager::sMemAllocationTracker;
 #endif
 
+#ifndef _USE_PRIVATE_MEM_POOL_
+#define _USE_PRIVATE_MEM_POOL_ 0
+#endif
+
 //static
 void LLMemory::initClass()
 {
@@ -222,11 +226,6 @@ void* ll_allocate (size_t size)
 		llerrs << "Out of memory Error" << llendl;
 	}
 	return p;
-}
-
-void ll_release (void *p)
-{
-	free(p);
 }
 
 //----------------------------------------------------------------------------
@@ -415,7 +414,7 @@ LLMemTracker::LLMemTracker()
 	mDrawnIndex = 0 ;
 	mPaused = FALSE ;
 
-	mMutexp = new LLMutex(NULL) ;
+	mMutexp = new LLMutex() ;
 	mStringBuffer = new char*[128] ;
 	mStringBuffer[0] = new char[mCapacity * 128] ;
 	for(S32 i = 1 ; i < mCapacity ; i++)
@@ -1899,6 +1898,7 @@ char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size,
 //static 
 char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size) 
 {
+#if _USE_PRIVATE_MEM_POOL_
 	if(!poolp)
 	{
 		return new char[size] ;
@@ -1907,6 +1907,9 @@ char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size)
 	{
 		return poolp->allocate(size) ;
 	}
+#else
+	return (char*)malloc(size) ;
+#endif
 }
 #endif
 
@@ -1922,6 +1925,7 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	sMemAllocationTracker.erase((char*)addr) ;
 #endif
 
+#if _USE_PRIVATE_MEM_POOL_
 	if(poolp)
 	{
 		poolp->freeMem(addr) ;
@@ -1930,6 +1934,9 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	{
 		delete[] (char*)addr ;
 	}
+#else
+	free(addr) ;
+#endif
 }
 
 //--------------------------------------------------------------------

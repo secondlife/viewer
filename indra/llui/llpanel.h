@@ -32,6 +32,7 @@
 #include "llcallbackmap.h"
 #include "lluictrl.h"
 #include "llviewborder.h"
+#include "lluiimage.h"
 #include "lluistring.h"
 #include "v4color.h"
 #include <list>
@@ -88,6 +89,8 @@ public:
 		Multiple<LocalizedString>	strings;
 		
 		Optional<CommitCallbackParam> visible_callback;
+
+		Optional<bool>			accepts_badge;
 		
 		Params();
 	};
@@ -249,6 +252,8 @@ public:
 	
 	boost::signals2::connection setVisibleCallback( const commit_signal_t::slot_type& cb );
 
+	bool acceptsBadge() const { return mAcceptsBadge; }
+
 protected:
 	// Override to set not found list
 	LLButton*		getDefaultButton() { return mDefaultBtn; }
@@ -263,6 +268,7 @@ protected:
 	static factory_stack_t	sFactoryStack;
 	
 private:
+	bool			mAcceptsBadge;
 	BOOL			mBgVisible;				// any background at all?
 	BOOL			mBgOpaque;				// use opaque color or image
 	LLUIColor		mBgOpaqueColor;

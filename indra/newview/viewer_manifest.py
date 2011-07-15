@@ -114,6 +114,16 @@ class ViewerManifest(LLManifest):
             # Files in the newview/ directory
             self.path("gpu_table.txt")
 
+            # The summary.json file gets left in the base checkout dir by
+            # build.sh. It's only created for a build.sh build, therefore we
+            # have to check whether it exists.  :-P
+            summary_json = "summary.json"
+            summary_json_path = os.path.join(os.pardir, os.pardir, summary_json)
+            if os.path.exists(os.path.join(self.get_src_prefix(), summary_json_path)):
+                self.path(summary_json_path, summary_json)
+            else:
+                print "No %s" % os.path.join(self.get_src_prefix(), summary_json_path)
+
     def login_channel(self):
         """Channel reported for login and upgrade purposes ONLY;
         used for A/B testing"""
@@ -221,22 +231,25 @@ class WindowsManifest(ViewerManifest):
         else:
             print "Doesn't exist:", src
         
-    def enable_crt_manifest_check(self):
-        if self.is_packaging_viewer():
-           WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
+    ### DISABLED MANIFEST CHECKING for vs2010.  we may need to reenable this
+    # shortly.  If this hasn't been reenabled by the 2.9 viewer release then it
+    # should be deleted -brad
+    #def enable_crt_manifest_check(self):
+    #    if self.is_packaging_viewer():
+    #       WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
 
-    def enable_no_crt_manifest_check(self):
-        if self.is_packaging_viewer():
-            WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
+    #def enable_no_crt_manifest_check(self):
+    #    if self.is_packaging_viewer():
+    #        WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
 
-    def disable_manifest_check(self):
-        if self.is_packaging_viewer():
-            del WindowsManifest.copy_action
+    #def disable_manifest_check(self):
+    #    if self.is_packaging_viewer():
+    #        del WindowsManifest.copy_action
 
     def construct(self):
         super(WindowsManifest, self).construct()
 
-        self.enable_crt_manifest_check()
+        #self.enable_crt_manifest_check()
 
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
@@ -247,27 +260,40 @@ class WindowsManifest(ViewerManifest):
                                'llplugin', 'slplugin', self.args['configuration'], "slplugin.exe"),
                   "slplugin.exe")
         
-        self.disable_manifest_check()
+        #self.disable_manifest_check()
 
         self.path(src="../viewer_components/updater/scripts/windows/update_install.bat", dst="update_install.bat")
-
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
-            self.enable_crt_manifest_check()
-
+            #self.enable_crt_manifest_check()
+            
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
                 self.path('llcommon.dll')
                 self.path('libapr-1.dll')
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
+                
             except RuntimeError, err:
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
-            self.disable_manifest_check()
+            #self.disable_manifest_check()
+
+            # Mesh 3rd party libs needed for auto LOD and collada reading
+            try:
+                if self.args['configuration'].lower() == 'debug':
+                    self.path("libcollada14dom22-d.dll")
+                else:
+                    self.path("libcollada14dom22.dll")
+                    
+                self.path("glod.dll")
+            except RuntimeError, err:
+                print err.message
+                print "Skipping COLLADA and GLOD libraries (assumming linked statically)"
+
 
             # Get fmod dll, continue if missing
             try:
@@ -284,13 +310,11 @@ class WindowsManifest(ViewerManifest):
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
             if self.args['configuration'].lower() == 'debug':
-                self.path("msvcr80d.dll")
-                self.path("msvcp80d.dll")
-                self.path("Microsoft.VC80.DebugCRT.manifest")
+                 self.path("msvcr100d.dll")
+                 self.path("msvcp100d.dll")
             else:
-                self.path("msvcr80.dll")
-                self.path("msvcp80.dll")
-                self.path("Microsoft.VC80.CRT.manifest")
+                 self.path("msvcr100.dll")
+                 self.path("msvcp100.dll")
 
             # Vivox runtimes
             self.path("SLVoice.exe")
@@ -300,6 +324,10 @@ class WindowsManifest(ViewerManifest):
             self.path("zlib1.dll")
             self.path("vivoxplatform.dll")
             self.path("vivoxoal.dll")
+            
+            # Security
+            self.path("ssleay32.dll")
+            self.path("libeay32.dll")
 
             # For google-perftools tcmalloc allocator.
             try:
@@ -316,11 +344,8 @@ class WindowsManifest(ViewerManifest):
         self.path("featuretable.txt")
         self.path("featuretable_xp.txt")
 
-        # For use in crash reporting (generates minidumps)
-        self.path("dbghelp.dll")
+        #self.enable_no_crt_manifest_check()
 
-        self.enable_no_crt_manifest_check()
-        
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_quicktime.dll")
@@ -332,13 +357,13 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # winmm.dll shim
-        if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst="llplugin"):
+        if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst=""):
             self.path("winmm.dll")
             self.end_prefix()
 
 
         if self.args['configuration'].lower() == 'debug':
-            if self.prefix(src=os.path.join(os.pardir, os.pardir, 'libraries', 'i686-win32', 'lib', 'debug'),
+            if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'debug'),
                            dst="llplugin"):
                 self.path("libeay32.dll")
                 self.path("qtcored4.dll")
@@ -369,7 +394,7 @@ class WindowsManifest(ViewerManifest):
 
                 self.end_prefix()
         else:
-            if self.prefix(src=os.path.join(os.pardir, os.pardir, 'libraries', 'i686-win32', 'lib', 'release'),
+            if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release'),
                            dst="llplugin"):
                 self.path("libeay32.dll")
                 self.path("qtcore4.dll")
@@ -400,7 +425,7 @@ class WindowsManifest(ViewerManifest):
 
                 self.end_prefix()
 
-        self.disable_manifest_check()
+        #self.disable_manifest_check()
 
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
@@ -568,7 +593,7 @@ class DarwinManifest(ViewerManifest):
             self.path("Info-SecondLife.plist", dst="Info.plist")
 
             # copy additional libs in <bundle>/Contents/MacOS/
-            self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
+            self.path("../packages/lib/release/libndofdev.dylib", dst="Resources/libndofdev.dylib")
 
             self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
 
@@ -610,15 +635,7 @@ class DarwinManifest(ViewerManifest):
                 self.path("uk.lproj")
                 self.path("zh-Hans.lproj")
 
-                # SLVoice and vivox lols
-                self.path("vivox-runtime/universal-darwin/libsndfile.dylib", "libsndfile.dylib")
-                self.path("vivox-runtime/universal-darwin/libvivoxoal.dylib", "libvivoxoal.dylib")
-                self.path("vivox-runtime/universal-darwin/libortp.dylib", "libortp.dylib")
-                self.path("vivox-runtime/universal-darwin/libvivoxsdk.dylib", "libvivoxsdk.dylib")
-                self.path("vivox-runtime/universal-darwin/libvivoxplatform.dylib", "libvivoxplatform.dylib")
-                self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
-
-                libdir = "../../libraries/universal-darwin/lib_release"
+                libdir = "../packages/lib/release"
                 dylibs = {}
 
                 # Need to get the llcommon dll from any of the build directories as well
@@ -638,13 +655,20 @@ class DarwinManifest(ViewerManifest):
                     dylibs[lib] = True
 
                 if dylibs["llcommon"]:
-                    for libfile in ("libapr-1.0.3.7.dylib",
-                                    "libaprutil-1.0.3.8.dylib",
-                                    "libexpat.0.5.0.dylib",
+                    for libfile in ("libapr-1.0.dylib",
+                                    "libaprutil-1.0.dylib",
+                                    "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
+                                    "libGLOD.dylib",
+                                    "libcollada14dom.dylib"
                                     ):
                         self.path(os.path.join(libdir, libfile), libfile)
 
+                # SLVoice and vivox lols
+                for libfile in ('libsndfile.dylib', 'libvivoxoal.dylib', 'libortp.dylib', \
+                    'libvivoxsdk.dylib', 'libvivoxplatform.dylib', 'SLVoice') :
+                     self.path(os.path.join(libdir, libfile), libfile)
+                
                 try:
                     # FMOD for sound
                     self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
@@ -664,10 +688,12 @@ class DarwinManifest(ViewerManifest):
                     mac_updater_res_path = self.dst_path_of("mac-updater.app/Contents/Resources")
                     slplugin_res_path = self.dst_path_of("SLPlugin.app/Contents/Resources")
                     for libfile in ("libllcommon.dylib",
-                                    "libapr-1.0.3.7.dylib",
-                                    "libaprutil-1.0.3.8.dylib",
-                                    "libexpat.0.5.0.dylib",
+                                    "libapr-1.0.dylib",
+                                    "libaprutil-1.0.dylib",
+                                    "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
+                                    "libGLOD.dylib",
+				    "libcollada14dom.dylib"
                                     ):
                         target_lib = os.path.join('../../..', libfile)
                         self.run_command("ln -sf %(target)r %(link)r" % 
@@ -687,7 +713,7 @@ class DarwinManifest(ViewerManifest):
                 if self.prefix(src="", dst="llplugin"):
                     self.path("../media_plugins/quicktime/" + self.args['configuration'] + "/media_plugin_quicktime.dylib", "media_plugin_quicktime.dylib")
                     self.path("../media_plugins/webkit/" + self.args['configuration'] + "/media_plugin_webkit.dylib", "media_plugin_webkit.dylib")
-                    self.path("../../libraries/universal-darwin/lib_release/libllqtwebkit.dylib", "libllqtwebkit.dylib")
+                    self.path("../packages/lib/release/libllqtwebkit.dylib", "libllqtwebkit.dylib")
 
                     self.end_prefix("llplugin")
 
@@ -706,6 +732,7 @@ class DarwinManifest(ViewerManifest):
             "unpacked" in self.args['actions']):
             self.run_command('strip -S %(viewer_binary)r' %
                              { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
+
 
     def copy_finish(self):
         # Force executable permissions to be set for scripts
@@ -803,7 +830,7 @@ class DarwinManifest(ViewerManifest):
                 self.run_command('SetFile -a V %r' % pathname)
 
             # Create the alias file (which is a resource file) from the .r
-            self.run_command('rez %r -o %r' %
+            self.run_command('Rez %r -o %r' %
                              (self.src_path_of("installers/darwin/release-dmg/Applications-alias.r"),
                               os.path.join(volpath, "Applications")))
 
@@ -927,21 +954,42 @@ class Linux_i686Manifest(LinuxManifest):
     def construct(self):
         super(Linux_i686Manifest, self).construct()
 
-        if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
+        if self.prefix("../packages/lib/release", dst="lib"):
+            self.path("libapr-1.so")
             self.path("libapr-1.so.0")
+            self.path("libapr-1.so.0.4.2")
+            self.path("libaprutil-1.so")
             self.path("libaprutil-1.so.0")
-            self.path("libbreakpad_client.so.0.0.0", "libbreakpad_client.so.0")
-            self.path("libdb-4.2.so")
-            self.path("libcrypto.so.0.9.7")
-            self.path("libexpat.so.1")
-            self.path("libssl.so.0.9.7")
-            self.path("libuuid.so.1")
-            self.path("libSDL-1.2.so.0")
-            self.path("libELFIO.so")
-            self.path("libopenjpeg.so.1.3.0", "libopenjpeg.so.1.3")
+            self.path("libaprutil-1.so.0.3.10")
+            self.path("libbreakpad_client.so.0.0.0")
+            self.path("libbreakpad_client.so.0")
+            self.path("libbreakpad_client.so")
+	    self.path("libcollada14dom.so")
+            self.path("libdb-5.1.so")
+            self.path("libdb-5.so")
+            self.path("libdb.so")
+            self.path("libcrypto.so.1.0.0")
+            self.path("libexpat.so.1.5.2")
+            self.path("libssl.so.1.0.0")
+	    self.path("libglod.so")
+	    self.path("libminizip.so")
+            self.path("libuuid.so")
+            self.path("libuuid.so.16")
+            self.path("libuuid.so.16.0.22")
+            self.path("libSDL-1.2.so.0.11.3")
+            self.path("libdirectfb-1.4.so.5.0.4")
+            self.path("libfusion-1.4.so.5.0.4")
+            self.path("libdirect-1.4.so.5.0.4")
+            self.path("libopenjpeg.so.1.4.0")
+            self.path("libopenjpeg.so.1")
+            self.path("libopenjpeg.so")
             self.path("libalut.so")
             self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
+            self.path("libfontconfig.so.1.4.4")
+            self.path("libtcmalloc.so", "libtcmalloc.so") #formerly called google perf tools
+            self.path("libtcmalloc.so.0", "libtcmalloc.so.0") #formerly called google perf tools
+            self.path("libtcmalloc.so.0.1.0", "libtcmalloc.so.0.1.0") #formerly called google perf tools
             try:
                     self.path("libfmod-3.75.so")
                     pass
@@ -951,16 +999,21 @@ class Linux_i686Manifest(LinuxManifest):
             self.end_prefix("lib")
 
             # Vivox runtimes
-            if self.prefix(src="vivox-runtime/i686-linux", dst="bin"):
+            if self.prefix(src="../packages/lib/release", dst="bin"):
                     self.path("SLVoice")
                     self.end_prefix()
-            if self.prefix(src="vivox-runtime/i686-linux", dst="lib"):
+            if self.prefix(src="../packages/lib/release", dst="lib"):
                     self.path("libortp.so")
                     self.path("libsndfile.so.1")
                     #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
                     self.path("libvivoxsdk.so")
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
+
+            if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
+                    print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
+                    self.run_command("find %(d)r/bin %(d)r/lib -type f \\! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+
 
 class Linux_x86_64Manifest(LinuxManifest):
     def construct(self):

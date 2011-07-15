@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Configuração de dispositivos" name="device_settings_panel">
+	<panel.string name="default_text">
+		Padrão
+	</panel.string>
+	<text name="Input">
+		Entrada
+	</text>
+	<text name="My volume label">
+		Meu volume:
+	</text>
+	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Mude o volume usando o controle deslizante"/>
+	<text name="wait_text">
+		Aguarde
+	</text>
+	<text name="Output">
+		Saída
+	</text>
+</panel>

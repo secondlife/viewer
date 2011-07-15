@@ -112,10 +112,6 @@ BOOL LLNetMap::postBuild()
 	registrar.add("Minimap.Tracker", boost::bind(&LLNetMap::handleStopTracking, this, _2));
 
 	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	if (mPopupMenu && !LLTracker::isTracking(0))
-	{
-		mPopupMenu->setItemEnabled ("Stop Tracking", false);
-	}
 	return TRUE;
 }
 
@@ -334,8 +330,8 @@ void LLNetMap::draw()
 		//localMouse(&local_mouse_x, &local_mouse_y);
 		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
 		mClosestAgentToCursor.setNull();
-		F32 closest_dist = F32_MAX;
-		F32 min_pick_dist = mDotRadius * MIN_PICK_SCALE; 
+		F32 closest_dist_squared = F32_MAX; // value will be overridden in the loop
+		F32 min_pick_dist_squared = (mDotRadius * MIN_PICK_SCALE) * (mDotRadius * MIN_PICK_SCALE);
 
 		// Draw avatars
 		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
@@ -414,11 +410,11 @@ void LLNetMap::draw()
 					}
 				}
 
-				F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+				F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
 											  LLVector2(local_mouse_x,local_mouse_y));
-				if(dist_to_cursor < min_pick_dist && dist_to_cursor < closest_dist)
+				if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
 				{
-					closest_dist = dist_to_cursor;
+					closest_dist_squared = dist_to_cursor_squared;
 					mClosestAgentToCursor = regionp->mMapAvatarIDs.get(i);
 				}
 			}
@@ -455,9 +451,9 @@ void LLNetMap::draw()
 					  dot_width,
 					  dot_width);
 
-			F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+			F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
 										  LLVector2(local_mouse_x,local_mouse_y));
-			if(dist_to_cursor < min_pick_dist && dist_to_cursor < closest_dist)
+			if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
 			{
 				mClosestAgentToCursor = gAgent.getID();
 			}
@@ -510,13 +506,6 @@ void LLNetMap::draw()
 	gGL.popUIMatrix();
 
 	LLUICtrl::draw();
-
-	if (LLTracker::isTracking(0))
-	{
-		mPopupMenu->setItemEnabled ("Stop Tracking", true);
-	}
-	
-
 }
 
 void LLNetMap::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -886,6 +875,7 @@ BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		mPopupMenu->buildDrawLabels();
 		mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
+		mPopupMenu->setItemEnabled("Stop Tracking", LLTracker::isTracking(0));
 		LLMenuGL::showPopup(this, mPopupMenu, x, y);
 	}
 	return TRUE;
@@ -904,23 +894,29 @@ BOOL LLNetMap::handleClick(S32 x, S32 y, MASK mask)
 BOOL LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	LLVector3d pos_global = viewPosToGlobal(x, y);
-	
-	// If we're not tracking a beacon already, double-click will set one 
-	if (!LLTracker::isTracking(NULL))
+
+	bool double_click_teleport = gSavedSettings.getBOOL("DoubleClickTeleport");
+	bool double_click_show_world_map = gSavedSettings.getBOOL("DoubleClickShowWorldMap");
+
+	if (double_click_teleport || double_click_show_world_map)
 	{
-		LLFloaterWorldMap* world_map = LLFloaterWorldMap::getInstance();
-		if (world_map)
+		// If we're not tracking a beacon already, double-click will set one 
+		if (!LLTracker::isTracking(NULL))
 		{
-			world_map->trackLocation(pos_global);
+			LLFloaterWorldMap* world_map = LLFloaterWorldMap::getInstance();
+			if (world_map)
+			{
+				world_map->trackLocation(pos_global);
+			}
 		}
 	}
-	
-	if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+
+	if (double_click_teleport)
 	{
 		// If DoubleClickTeleport is on, double clicking the minimap will teleport there
 		gAgent.teleportViaLocationLookAt(pos_global);
 	}
-	else 
+	else if (double_click_show_world_map)
 	{
 		LLFloaterReg::showInstance("world_map");
 	}

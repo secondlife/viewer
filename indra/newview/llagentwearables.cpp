@@ -33,7 +33,6 @@
 #include "llagentwearablesfetch.h"
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
-#include "llfolderview.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -45,6 +44,7 @@
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltexlayer.h"
+#include "lltooldraganddrop.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llwearable.h"
@@ -821,7 +821,7 @@ void LLAgentWearables::popWearable(const LLWearableType::EType type, U32 index)
 	}
 }
 
-U32	LLAgentWearables::getWearableIndex(LLWearable *wearable)
+U32	LLAgentWearables::getWearableIndex(const LLWearable *wearable) const
 {
 	if (wearable == NULL)
 	{
@@ -2045,8 +2045,9 @@ void LLAgentWearables::editWearable(const LLUUID& item_id)
 		return;
 	}
 
+	const BOOL disable_camera_switch = LLWearableType::getDisableCameraSwitch(wearable->getType());
 	LLPanel* panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
-	LLSidepanelAppearance::editWearable(wearable, panel);
+	LLSidepanelAppearance::editWearable(wearable, panel, disable_camera_switch);
 }
 
 // Request editing the item after it gets worn.

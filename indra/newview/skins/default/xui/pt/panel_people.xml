@@ -18,6 +18,8 @@ Em busca de alguém para conversar? Procure no [secondlife:///app/worldmap Mapa-
 	<string name="groups_filter_label" value="Filtro de grupos"/>
 	<string name="no_filtered_groups_msg" value="Não encontrou o que procura? Tente buscar no [secondlife:///app/search/groups/[SEARCH_TERM] Search]."/>
 	<string name="no_groups_msg" value="À procura de grupos interessantes? Tente fazer uma [secondlife:///app/search/groups Busca]."/>
+	<string name="MiniMapToolTipMsg" value="[REGION](Clique duas vezes para abrir o mapa, shift+arraste para a visão pan)"/>
+	<string name="AltMiniMapToolTipMsg" value="[REGION](Clique duas vezes para teletransportar, shift+arraste para a visão pan)"/>
 	<filter_editor label="Filtro" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="PROXIMIDADE" name="nearby_panel">
@@ -64,16 +66,16 @@ Em busca de alguém para conversar? Procure no [secondlife:///app/worldmap Mapa-
 			<layout_panel name="view_profile_btn_lp">
 				<button label="Perfil" name="view_profile_btn" tool_tip="Exibir fotografia, grupos e outras informações dos residentes"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="im_btn_lp">
 				<button label="MI" name="im_btn" tool_tip="Abrir sessão de mensagem instantânea"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="call_btn_lp">
 				<button label="Ligar" name="call_btn" tool_tip="Ligar para este residente"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="share_btn_lp">
 				<button label="Compartilhar" name="share_btn" tool_tip="Compartilhar item de inventário"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="teleport_btn_lp">
 				<button label="Teletransportar" name="teleport_btn" tool_tip="Oferecer teletransporte"/>
 			</layout_panel>
 		</layout_stack>

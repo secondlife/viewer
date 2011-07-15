@@ -36,6 +36,7 @@
 
 // project includes
 #include "llviewerobject.h"
+#include "llaccountingquota.h"
 
 class LLCamera;
 class LLNetMap;
@@ -85,9 +86,29 @@ public:
 	void updateApparentAngles(LLAgent &agent);
 	void update(LLAgent &agent, LLWorld &world);
 
+	void fetchObjectCosts();
+	void fetchPhysicsFlags();
+
+	void updateObjectCost(LLViewerObject* object);
+	void updateObjectCost(const LLUUID& object_id, F32 object_cost, F32 link_cost, F32 physics_cost, F32 link_physics_cost);
+	void onObjectCostFetchFailure(const LLUUID& object_id);
+
+	void updatePhysicsFlags(const LLViewerObject* object);
+	void onPhysicsFlagsFetchFailure(const LLUUID& object_id);
+	void updatePhysicsShapeType(const LLUUID& object_id, S32 type);
+	void updatePhysicsProperties(const LLUUID& object_id,
+									F32 density,
+									F32 friction,
+									F32 restitution,
+									F32 gravity_multiplier);
+
+	void updateQuota( const LLUUID& objectId, const SelectionQuota& costs );
+	
 	void shiftObjects(const LLVector3 &offset);
+	void repartitionObjects();
 
 	bool hasMapObjectInRegion(LLViewerRegion* regionp) ;
+	void clearAllMapObjectsInRegion(LLViewerRegion* regionp) ;
 	void renderObjectsForMap(LLNetMap &netmap);
 	void renderObjectBounds(const LLVector3 &center);
 
@@ -181,10 +202,17 @@ protected:
 
 	vobj_list_t mMapObjects;
 
-	typedef std::map<LLUUID, LLPointer<LLViewerObject> > vo_map;
-	vo_map mDeadObjects;	// Need to keep multiple entries per UUID
+	std::set<LLUUID> mDeadObjects;	
 
 	std::map<LLUUID, LLPointer<LLViewerObject> > mUUIDObjectMap;
+
+	//set of objects that need to update their cost
+	std::set<LLUUID> mStaleObjectCost;
+	std::set<LLUUID> mPendingObjectCost;
+
+	//set of objects that need to update their physics flags
+	std::set<LLUUID> mStalePhysicsFlags;
+	std::set<LLUUID> mPendingPhysicsFlags;
 
 	std::vector<LLDebugBeacon> mDebugBeacons;
 

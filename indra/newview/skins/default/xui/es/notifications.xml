@@ -73,7 +73,7 @@ Detalles del error: la notificación de nombre &apos;[_NAME]&apos; no se ha enco
 	</notification>
 	<notification name="LoginFailedNoNetwork">
 		No se puede conectar con [SECOND_LIFE_GRID].
-&apos;[DIAGNOSTIC]&apos;
+    &apos;[DIAGNOSTIC]&apos;
 Asegúrate de que tu conexión a Internet está funcionando adecuadamente.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -329,13 +329,6 @@ Necesitas una cuenta para acceder a [SECOND_LIFE]. ¿Te gustaría crear una ahor
 	</notification>
 	<notification name="InvalidCredentialFormat">
 		Escribe el nombre de usuario o el nombre y el apellido de tu avatar en el campo Nombre de usuario e inicia sesión otra vez.
-	</notification>
-	<notification name="AddClassified">
-		Los anuncios clasificados aparecen durante una semana en la sección &apos;Clasificados&apos; de la búsqueda y en [http://secondlife.com/community/classifieds secondlife.com].
-Rellena tu anuncio y pulsa &apos;Publicar...&apos; para añadirlo al directorio.
-Cuando pulses Publicar, se te preguntará por un precio a pagar.
-El pagar más hará que tu anuncio aparezca más arriba en la lista, y que también aparezca más arriba en la lista cuando la gente busque por palabras clave.
-		<usetemplate ignoretext="Cómo crear un anuncio clasificado nuevo." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="DeleteClassified">
 		¿Borrar el clasificado &apos;[NAME]&apos;?
@@ -1768,11 +1761,11 @@ Puedes pulsar &apos;Cambiar las Preferencias&apos; para incrementar las preferen
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="SetClassifiedMature">
-		¿Este anuncio tiene contenido &apos;Moderado&apos;?
+		¿Este anuncio tiene contenido moderado?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="SetGroupMature">
-		¿Este grupo tiene contenido &apos;Moderado&apos;?
+		¿Este grupo tiene contenido moderado?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification label="Confirmar el reinicio" name="ConfirmRestart">
@@ -2173,6 +2166,12 @@ Esto puede influir en tu contraseña.
 	<notification name="RezItemNoPermissions">
 		No tienes permisos suficientes para renderizar el objeto.
 	</notification>
+	<notification name="IMAcrossParentEstates">
+		No se pueden enviar mensajes instantáneos entre propiedades principales.
+	</notification>
+	<notification name="TransferInventoryAcrossParentEstates">
+		No se puede transferir el inventario entre propiedades principales.
+	</notification>
 	<notification name="UnableToLoadNotecard">
 		En este momento no se puede cargar la nota.
 	</notification>
@@ -2251,7 +2250,7 @@ Inténtalo seleccionando un trozo más pequeño de terreno.
 		Se han excluido algunos términos de tu búsqueda debido a restricciones en el contenido, según se especifica en las Normas de la Comunidad.
 	</notification>
 	<notification name="NoContentToSearch">
-		Por favor, elige al menos un tipo de contenido a buscar (&apos;PG&apos;, &apos;Mature&apos;, o &apos;Adult&apos;).
+		Por favor, elige al menos un tipo de contenido a buscar (General, Moderado o Adulto;).
 	</notification>
 	<notification name="SystemMessage">
 		[MESSAGE]
@@ -2365,6 +2364,9 @@ Por favor, dirígete a la Base de Conocimientos para más detalles sobre el acce
 	</notification>
 	<notification name="ImproperPaymentStatus">
 		No tienes el estado de pago adecuado para entrar a esta región.
+	</notification>
+	<notification name="MustGetAgeRgion">
+		Debes tener verificada la edad para entrar a esta región
 	</notification>
 	<notification name="MustGetAgeParcel">
 		Debes haber verificado tu edad para entrar a esta parcela.
@@ -2745,6 +2747,10 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 		Un moderador ha silenciado tu voz.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UploadCostConfirmation">
+		Esta carga te costará [PRECIO] L$. ¿Deseas continuar?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Subir"/>
+	</notification>
 	<notification name="ConfirmClearTeleportHistory">
 		¿Estás seguro de que quieres borrar tu historial de teleportes?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
@@ -2755,6 +2761,9 @@ Se mostrará cuando haya suficiente espacio.
 	</notification>
 	<notification name="ShareNotification">
 		Selecciona los residentes con quienes deseas compartir.
+	</notification>
+	<notification name="MeshUploadError">
+		No se ha cargado [ETIQUETA]: [MENSAJE] [IDENTIFICADOR] [IDENTIFICADOR_FALTA_VALIDEZ]
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		¿Estás seguro de que quieres compartir los elementos siguientes?
@@ -2771,6 +2780,19 @@ Con los siguientes residentes:
 	</notification>
 	<notification name="DeedToGroupFail">
 		Error de transferencia a grupo.
+	</notification>
+	<notification name="ReleaseLandThrottled">
+		La parcela [NOMBRE_PARCELA] no se puede abandonar en este momento.
+	</notification>
+	<notification name="ReleasedLandWithReclaim">
+		Ya está disponible la parcela [NOMBRE_PARCELA] de [ÁREA] m².
+
+Dispondrás de [PERÍODO_DE_RECLAMACIÓN] horas para reclamar la cantidad de 0 L$ antes de que se ponga en venta.
+	</notification>
+	<notification name="ReleasedLandNoReclaim">
+		Ya está disponible la parcela [NOMBRE_PARCELA] de [ÁREA] m².
+
+Ya está en venta.
 	</notification>
 	<notification name="AvatarRezNotification">
 		( [EXISTENCE] segundos vivo)
@@ -2848,11 +2870,15 @@ Si lo haces, todos los residentes que se unan posteriormente a la llamada tambi�
 	<notification label="Levantarme" name="HintSit">
 		Para levantarte y salir de la posición de sentado, haz clic en el botón Levantarme.
 	</notification>
+	<notification label="Hablar" name="HintSpeak">
+		Pulsa en el botón: Hablar para conectar y desconectar el micrófono.
+
+Pulsa en el cursor arriba para ver el panel de control de voz.
+
+Al ocultar el botón Hablar se desactiva la función de voz.
+	</notification>
 	<notification label="Explora el mundo" name="HintDestinationGuide">
 		La Guía de destinos contiene miles de nuevos lugares por descubrir. Selecciona una ubicación y elige Teleportarme para iniciar la exploración.
-	</notification>
-	<notification label="Cambiar de apariencia" name="HintAvatarPicker">
-		¿Te gustaría cambiar de apariencia? Haz clic en el botón que aparece a continuación para ver más avatares.
 	</notification>
 	<notification label="Panel lateral" name="HintSidePanel">
 		Accede de manera rápida a tu inventario, así como a tu ropa, los perfiles y el resto de la información disponible en el panel lateral.
@@ -2860,11 +2886,13 @@ Si lo haces, todos los residentes que se unan posteriormente a la llamada tambi�
 	<notification label="Mover" name="HintMove">
 		Si deseas caminar o correr, abre el panel Mover y utiliza las flechas de dirección para navegar. También puedes utilizar las flechas de dirección del teclado.
 	</notification>
+	<notification label="" name="HintMoveClick">
+		1. Pulsa para caminar: Pulsa en cualquier punto del terreno para ir a él.
+
+2. Pulsa y arrastra para girar la vista: Pulsa y arrastra el cursor a cualquier parte del mundo para girar la vista.
+	</notification>
 	<notification label="Nombre mostrado" name="HintDisplayName">
 		Configura y personaliza aquí tu nombre mostrado. Esto se añadirá a tu nombre de usuario personal, que no puedes modificar. Puedes cambiar la manera en que ves los nombres de otras personas en tus preferencias.
-	</notification>
-	<notification label="Mover" name="HintMoveArrows">
-		Para caminar, utiliza las flechas de dirección del teclado. Para correr, pulsa dos veces la flecha hacia arriba.
 	</notification>
 	<notification label="Visión" name="HintView">
 		Para cambiar la vista de la cámara, utiliza los controles Orbital y Panorámica. Para restablecer tu vista, pulsa Esc o camina.
@@ -2891,9 +2919,54 @@ Si lo haces, todos los residentes que se unan posteriormente a la llamada tambi�
 			<button name="cancel" text="Cancelar"/>
 		</form>
 	</notification>
-	<global name="UnsupportedCPU">
-		- La velocidad de tu CPU no cumple los requerimientos mínimos.
-	</global>
+	<notification label="" name="ModeChange">
+		Para cambiar de modo tienes que salir y reiniciar.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoClassifieds">
+		La creación y edición de clasificados sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoGroupInfo">
+		La creación y edición de grupos sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoPlaceInfo">
+		La opción de consulta del perfil del lugar solo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoPicks">
+		La creación y edición de Destacados sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoWorldMap">
+		La visualización del mapa del mundo sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoVoiceCall">
+		Las llamadas de voz sólo están disponibles en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoAvatarShare">
+		Compartir sólo está disponible en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoAvatarPay">
+		El pago a otros residentes sólo está disponible en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoInventory">
+		La opción de consulta del inventario solo está disponible en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoAppearance">
+		El editor de apariencia solo está disponible en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="NoSearch">
+		Las búsquedas solo están disponibles en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
+		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
 	<global name="UnsupportedGLRequirements">
 		Parece que no tienes el hardware apropiado para [APP_NAME]. [APP_NAME] requiere una tarjeta gráfica OpenGL que admita texturas múltiples (&apos;multitexture support&apos;). Si la tienes, comprueba que tienes los últimos &apos;drivers&apos; para tu tarjeta gráfica, así como los últimos parches y &apos;service packs&apos; para tu sistema operativo.
 

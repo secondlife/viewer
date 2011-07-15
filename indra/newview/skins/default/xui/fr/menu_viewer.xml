@@ -7,7 +7,7 @@
 		</menu_item_call>
 		<menu_item_call label="Acheter des L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Mon profil" name="Profile"/>
-		<menu_item_call label="Changer de tenue" name="ChangeOutfit"/>
+		<menu_item_call label="Mon apparence" name="ChangeOutfit"/>
 		<menu_item_check label="Mon inventaire" name="Inventory"/>
 		<menu_item_check label="Mon inventaire" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mes gestes" name="Gestures"/>
@@ -35,6 +35,7 @@
 	<menu label="Monde" name="World">
 		<menu_item_check label="Mini-carte" name="Mini-Map"/>
 		<menu_item_check label="Carte du monde" name="World Map"/>
+		<menu_item_check label="Rechercher" name="Search"/>
 		<menu_item_call label="Photo" name="Take Snapshot"/>
 		<menu_item_call label="Créer un repère pour ce lieu" name="Create Landmark Here"/>
 		<menu label="Profil du lieu" name="Land">
@@ -119,6 +120,8 @@
 			<menu_item_call label="Image ([COST] L$)..." name="Upload Image"/>
 			<menu_item_call label="Son ([COST] L$)..." name="Upload Sound"/>
 			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
+			<menu_item_call label="Modèle..." name="Upload Model"/>
+			<menu_item_call label="Assistant Modèle..." name="Upload Model Wizard"/>
 			<menu_item_call label="Lot ([COST] L$ par fichier)..." name="Bulk Upload"/>
 		</menu>
 		<menu_item_call label="Annuler" name="Undo"/>
@@ -158,6 +161,7 @@
 			<menu_item_check label="Alpha" name="Alpha"/>
 			<menu_item_check label="Arbre" name="Tree"/>
 			<menu_item_check label="Avatars" name="Character"/>
+			<menu_item_check label="Patch de surface" name="Surface Patch"/>
 			<menu_item_check label="Ciel" name="Sky"/>
 			<menu_item_check label="Eau" name="Water"/>
 			<menu_item_check label="Sol" name="Ground"/>
@@ -216,6 +220,7 @@
 			<menu_item_check label="Console des catégories de textures" name="Texture Category"/>
 			<menu_item_check label="Chronos" name="Fast Timers"/>
 			<menu_item_check label="Mémoire" name="Memory"/>
+			<menu_item_check label="Statistiques de la scène" name="Scene Statistics"/>
 			<menu_item_call label="Infos de région vers la console de débogage" name="Region Info to Debug Console"/>
 			<menu_item_call label="Infos de groupe vers la console de débogage" name="Group Info to Debug Console"/>
 			<menu_item_call label="Infos de capacités vers la console de débogage" name="Capabilities Info to Debug Console"/>
@@ -226,9 +231,12 @@
 		</menu>
 		<menu label="Afficher les infos" name="Display Info">
 			<menu_item_check label="Afficher l&apos;heure" name="Show Time"/>
+			<menu_item_check label="Afficher le coût du chargement" name="Show Upload Cost"/>
 			<menu_item_check label="Afficher les infos de rendu" name="Show Render Info"/>
+			<menu_item_check label="Afficher les infos de texture" name="Show Texture Info"/>
 			<menu_item_check label="Afficher les matrices" name="Show Matrices"/>
 			<menu_item_check label="Afficher la couleur sous le curseur" name="Show Color Under Cursor"/>
+			<menu_item_check label="Afficher la mémoire" name="Show Memory"/>
 			<menu_item_check label="Afficher les mises à jour des objets" name="Show Updates"/>
 		</menu>
 		<menu label="Forcer une erreur" name="Force Errors">
@@ -249,17 +257,23 @@
 		</menu>
 		<menu label="Métadonnées de rendu" name="Render Metadata">
 			<menu_item_check label="Cadres" name="Bounding Boxes"/>
+			<menu_item_check label="Normales" name="Normals"/>
 			<menu_item_check label="Octree" name="Octree"/>
 			<menu_item_check label="Shadow Frusta" name="Shadow Frusta"/>
+			<menu_item_check label="Formes physiques" name="Physics Shapes"/>
 			<menu_item_check label="Occlusion" name="Occlusion"/>
 			<menu_item_check label="Lots de rendu" name="Render Batches"/>
+			<menu_item_check label="Type de mise à jour" name="Update Type"/>
 			<menu_item_check label="Texture Anim" name="Texture Anim"/>
 			<menu_item_check label="Priorité de la texture" name="Texture Priority"/>
 			<menu_item_check label="Zone de texture" name="Texture Area"/>
 			<menu_item_check label="Zone de face" name="Face Area"/>
+			<menu_item_check label="Infos sur le niveau de détail" name="LOD Info"/>
+			<menu_item_check label="File d&apos;attente pour la construction" name="Build Queue"/>
 			<menu_item_check label="Lumières" name="Lights"/>
 			<menu_item_check label="Squelette de collision" name="Collision Skeleton"/>
 			<menu_item_check label="Rayons" name="Raycast"/>
+			<menu_item_check label="Sculpture" name="Sculpt"/>
 		</menu>
 		<menu label="Rendu" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
@@ -267,7 +281,6 @@
 			<menu_item_call label="Base des infos de la texture sélectionnée" name="Selected Texture Info Basis"/>
 			<menu_item_check label="Filaire" name="Wireframe"/>
 			<menu_item_check label="Occlusion objet-objet" name="Object-Object Occlusion"/>
-			<menu_item_check label="Objets de mémoire vidéo" name="Framebuffer Objects"/>
 			<menu_item_check label="Éclairage et ombres" name="Lighting and Shadows"/>
 			<menu_item_check label="Ombres du soleil/de la lune/des projecteurs" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO et lissage des ombres" name="SSAO and Shadow Smoothing"/>
@@ -366,6 +379,7 @@
 			<menu_item_call label="Dump Local Textures" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_check label="Textures HTTP" name="HTTP Textures"/>
+		<menu_item_check label="Inventaire HTTP" name="HTTP Inventory"/>
 		<menu_item_call label="Compresser les images" name="Compress Images"/>
 		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
@@ -408,6 +422,7 @@
 			<menu_item_call label="Jupe" name="Skirt"/>
 			<menu_item_call label="Alpha" name="Alpha"/>
 			<menu_item_call label="Tatouage" name="Tattoo"/>
+			<menu_item_call label="Propriétés physiques" name="Physics"/>
 			<menu_item_call label="Tous les habits" name="All Clothes"/>
 		</menu>
 		<menu label="Aide" name="Help">

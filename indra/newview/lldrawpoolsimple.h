@@ -98,9 +98,9 @@ public:
 	LLDrawPoolFullbright();
 	
 	/*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
-	/*virtual*/ void beginPostDeferredPass(S32 pass) { beginRenderPass(pass); }
-	/*virtual*/ void endPostDeferredPass(S32 pass) { endRenderPass(pass); }
-	/*virtual*/ void renderPostDeferred(S32 pass) { render(pass); }
+	/*virtual*/ void beginPostDeferredPass(S32 pass);
+	/*virtual*/ void endPostDeferredPass(S32 pass);
+	/*virtual*/ void renderPostDeferred(S32 pass);
 
 	/*virtual*/ void beginRenderPass(S32 pass);
 	/*virtual*/ void endRenderPass(S32 pass);
@@ -126,12 +126,12 @@ public:
 	virtual void prerender() { }
 
 	/*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
-	/*virtual*/ void beginPostDeferredPass(S32 pass) { beginRenderPass(pass); }
-	/*virtual*/ void endPostDeferredPass(S32 pass) { endRenderPass(pass); }
-	/*virtual*/ void renderPostDeferred(S32 pass) { render(pass); }
+	/*virtual*/ void beginPostDeferredPass(S32 pass); 
+	/*virtual*/ void endPostDeferredPass(S32 pass);
+	/*virtual*/ void renderPostDeferred(S32 pass);
 
 	void render(S32 pass = 0);
-	void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture = TRUE);
+	void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
 
 };
 

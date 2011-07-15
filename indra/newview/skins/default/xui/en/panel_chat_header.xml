@@ -35,9 +35,10 @@
       text_color="white"
       bg_readonly_color="black"
       top="0"
+      translate="false"
       use_ellipses="true"
       valign="bottom" 
-      value="Ericag Vader" />
+      value="TestString PleaseIgnore" />
   <text
     allow_scroll="false"
     font="SansSerifSmall"

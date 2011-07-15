@@ -48,6 +48,8 @@ using std::pair;
 using std::make_pair;
 using std::string;
 
+GLhandleARB LLGLSLShader::sCurBoundShader = 0;
+
 BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
 {
 	return v1 != v2;
@@ -55,8 +57,8 @@ BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
 
 LLShaderFeatures::LLShaderFeatures()
 : calculatesLighting(false), isShiny(false), isFullbright(false), hasWaterFog(false),
-hasTransport(false), hasSkinning(false), hasAtmospherics(false), isSpecular(false),
-hasGamma(false), hasLighting(false), calculatesAtmospherics(false)
+hasTransport(false), hasSkinning(false), hasObjectSkinning(false), hasAtmospherics(false), isSpecular(false),
+hasGamma(false), hasLighting(false), calculatesAtmospherics(false), mIndexedTextureChannels(0), disableTextureIndex(false)
 {
 }
 
@@ -107,18 +109,18 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	// Create program
 	mProgramObject = glCreateProgramObjectARB();
 	
-	// Attach existing objects
-	if (!LLShaderMgr::instance()->attachShaderFeatures(this))
-	{
-		return FALSE;
+	if (gGLManager.mGLVersion < 3.1f)
+	{ //force indexed texture channels to 1 if GL version is old (performance improvement for drivers with poor branching shader model support)
+		mFeatures.mIndexedTextureChannels = llmin(mFeatures.mIndexedTextureChannels, 1);
 	}
 
+	//compile new source
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
 	for ( ; fileIter != mShaderFiles.end(); fileIter++ )
 	{
-		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second);
+		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, mFeatures.mIndexedTextureChannels);
 		LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
-		if (mShaderLevel > 0)
+		if (shaderhandle > 0)
 		{
 			attachObject(shaderhandle);
 		}
@@ -126,6 +128,17 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 		{
 			success = FALSE;
 		}
+	}
+
+	// Attach existing objects
+	if (!LLShaderMgr::instance()->attachShaderFeatures(this))
+	{
+		return FALSE;
+	}
+
+	if (gGLManager.mGLVersion < 3.1f)
+	{ //attachShaderFeatures may have set the number of indexed texture channels, so set to 1 again
+		mFeatures.mIndexedTextureChannels = llmin(mFeatures.mIndexedTextureChannels, 1);
 	}
 
 	// Map attributes and uniforms
@@ -149,6 +162,29 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 			return createShader(attributes,uniforms);
 		}
 	}
+	else if (mFeatures.mIndexedTextureChannels > 0)
+	{ //override texture channels for indexed texture rendering
+		bind();
+		S32 channel_count = mFeatures.mIndexedTextureChannels;
+
+		for (S32 i = 0; i < channel_count; i++)
+		{
+			uniform1i(llformat("tex%d", i), i);
+		}
+
+		S32 cur_tex = channel_count; //adjust any texture channels that might have been overwritten
+		for (U32 i = 0; i < mTexture.size(); i++)
+		{
+			if (mTexture[i] > -1 && mTexture[i] < channel_count)
+			{
+				llassert(cur_tex < gGLManager.mNumTextureImageUnits);
+				uniform1i(i, cur_tex);
+				mTexture[i] = cur_tex++;
+			}
+		}
+		unbind();
+	}
+
 	return success;
 }
 
@@ -293,7 +329,8 @@ void LLGLSLShader::mapUniform(GLint index, const vector<string> * uniforms)
 
 GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 {
-	if (type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB)
+	if (type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB ||
+		type == GL_SAMPLER_2D_MULTISAMPLE)
 	{	//this here is a texture
 		glUniform1iARB(location, mActiveTextureChannels);
 		LL_DEBUGS("ShaderLoading") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
@@ -342,7 +379,7 @@ void LLGLSLShader::bind()
 	if (gGLManager.mHasShaderObjects)
 	{
 		glUseProgramObjectARB(mProgramObject);
-
+		sCurBoundShader = mProgramObject;
 		if (mUniformsDirty)
 		{
 			LLShaderMgr::instance()->updateShaderUniforms(this);
@@ -365,6 +402,7 @@ void LLGLSLShader::unbind()
 			}
 		}
 		glUseProgramObjectARB(0);
+		sCurBoundShader = 0;
 		stop_glerror();
 	}
 }
@@ -372,6 +410,7 @@ void LLGLSLShader::unbind()
 void LLGLSLShader::bindNoShader(void)
 {
 	glUseProgramObjectARB(0);
+	sCurBoundShader = 0;
 }
 
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)
@@ -698,17 +737,46 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
 
 GLint LLGLSLShader::getUniformLocation(const string& uniform)
 {
+	GLint ret = -1;
 	if (mProgramObject > 0)
 	{
 		std::map<string, GLint>::iterator iter = mUniformMap.find(uniform);
 		if (iter != mUniformMap.end())
 		{
-			llassert(iter->second == glGetUniformLocationARB(mProgramObject, uniform.c_str()));
-			return iter->second;
+			if (gDebugGL)
+			{
+				stop_glerror();
+				if (iter->second != glGetUniformLocationARB(mProgramObject, uniform.c_str()))
+				{
+					llerrs << "Uniform does not match." << llendl;
+				}
+				stop_glerror();
+			}
+			ret = iter->second;
 		}
 	}
 
-	return -1;
+	/*if (gDebugGL)
+	{
+		if (ret == -1 && ret != glGetUniformLocationARB(mProgramObject, uniform.c_str()))
+		{
+			llerrs << "Uniform map invalid." << llendl;
+		}
+	}*/
+
+	return ret;
+}
+
+GLint LLGLSLShader::getAttribLocation(U32 attrib)
+{
+	if (attrib < mAttribute.size())
+	{
+		return mAttribute[attrib];
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 void LLGLSLShader::uniform1i(const string& uniform, GLint v)
@@ -882,7 +950,9 @@ void LLGLSLShader::uniformMatrix4fv(const string& uniform, U32 count, GLboolean 
 				
 	if (location >= 0)
 	{
+		stop_glerror();
 		glUniformMatrix4fvARB(location, count, transpose, v);
+		stop_glerror();
 	}
 }
 

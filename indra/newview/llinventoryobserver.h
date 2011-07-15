@@ -63,7 +63,6 @@ public:
 	LLInventoryObserver();
 	virtual ~LLInventoryObserver();
 	virtual void changed(U32 mask) = 0;
-	std::string mMessageName; // used by Agent Inventory Service only. [DEV-20328]
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -217,6 +216,28 @@ protected:
 	virtual void done() = 0;
 
 	uuid_vec_t mAdded;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInventoryCategoryAddedObserver
+//
+//   Base class for doing something when a new category is created in the
+//   inventory.
+//   It does not watch for a certain UUID, rather it acts when anything is added
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLInventoryCategoryAddedObserver : public LLInventoryObserver
+{
+public:
+	
+	typedef std::vector<LLViewerInventoryCategory*>	cat_vec_t;
+	
+	LLInventoryCategoryAddedObserver() : mAddedCategories() {}
+	/*virtual*/ void changed(U32 mask);
+	
+protected:
+	virtual void done() = 0;
+	
+	cat_vec_t	mAddedCategories;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

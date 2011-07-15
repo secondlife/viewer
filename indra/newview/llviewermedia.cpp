@@ -54,13 +54,19 @@
 #include "llfilepicker.h"
 #include "llnotifications.h"
 #include "lldir.h"
+#include "lldiriterator.h"
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
 #include "lluuid.h"
 #include "llkeyboard.h"
 #include "llmutelist.h"
+#include "llpanelprofile.h"
+#include "llappviewer.h"
+#include "lllogininstance.h" 
 //#include "llfirstuse.h"
+#include "llviewernetwork.h"
 #include "llwindow.h"
+
 
 #include "llfloatermediabrowser.h"	// for handling window close requests and geometry change requests in media browser windows.
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
@@ -291,6 +297,43 @@ public:
 	}
 
 };
+
+class LLViewerMediaWebProfileResponder : public LLHTTPClient::Responder
+{
+LOG_CLASS(LLViewerMediaWebProfileResponder);
+public:
+	LLViewerMediaWebProfileResponder(std::string host)
+	{
+		mHost = host;
+	}
+
+	~LLViewerMediaWebProfileResponder()
+	{
+	}
+
+	/* virtual */ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+	{
+		LL_WARNS("MediaAuth") << "status = " << status << ", reason = " << reason << LL_ENDL;
+		LL_WARNS("MediaAuth") << content << LL_ENDL;
+
+		std::string cookie = content["set-cookie"].asString();
+
+		LLViewerMedia::getCookieStore()->setCookiesFromHost(cookie, mHost);
+	}
+
+	 void completedRaw(
+		U32 status,
+		const std::string& reason,
+		const LLChannelDescriptors& channels,
+		const LLIOPipe::buffer_ptr_t& buffer)
+	{
+		// This is just here to disable the default behavior (attempting to parse the response as llsd).
+		// We don't care about the content of the response, only the set-cookie header.
+	}
+
+	std::string mHost;
+};
+
 
 LLPluginCookieStore *LLViewerMedia::sCookieStore = NULL;
 LLURL LLViewerMedia::sOpenIDURL;
@@ -874,7 +917,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 				
 				// Set the low priority size for downsampling to approximately the size the texture is displayed at.
 				{
-					F32 approximate_interest_dimension = fsqrtf(pimpl->getInterest());
+					F32 approximate_interest_dimension = (F32) sqrt(pimpl->getInterest());
 					
 					pimpl->setLowPrioritySizeLimit(llround(approximate_interest_dimension));
 				}
@@ -1115,7 +1158,8 @@ void LLViewerMedia::clearAllCookies()
 	}
 	
 	// the hard part: iterate over all user directories and delete the cookie file from each one
-	while(gDirUtilp->getNextFileInDir(base_dir, "*_*", filename))
+	LLDirIterator dir_iter(base_dir, "*_*");
+	while (dir_iter.next(filename))
 	{
 		target = base_dir;
 		target += filename;
@@ -1318,6 +1362,34 @@ void LLViewerMedia::removeCookie(const std::string &name, const std::string &dom
 }
 
 
+class LLInventoryUserStatusResponder : public LLHTTPClient::Responder
+{
+public:
+	LLInventoryUserStatusResponder()
+		: LLCurl::Responder()
+	{
+	}
+
+	void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+			// Complete success
+			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
+		}
+		else if (status == 401)
+		{
+			// API is available for use but OpenID authorization failed
+			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
+		}
+		else
+		{
+			// API in unavailable
+			llinfos << "Marketplace API is unavailable -- Inbox may be disabled, status = " << status << ", reason = " << reason << llendl;
+		}
+	}
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::setOpenIDCookie()
@@ -1351,6 +1423,38 @@ void LLViewerMedia::setOpenIDCookie()
 
 		// *HACK: Doing this here is nasty, find a better way.
 		LLWebSharing::instance().setOpenIDCookie(sOpenIDCookie);
+
+		// Do a web profile get so we can store the cookie 
+		LLSD headers = LLSD::emptyMap();
+		headers["Accept"] = "*/*";
+		headers["Cookie"] = sOpenIDCookie;
+		headers["User-Agent"] = getCurrentUserAgent();
+
+		std::string profile_url = getProfileURL("");
+		LLURL raw_profile_url( profile_url.c_str() );
+
+		LLHTTPClient::get(profile_url,  
+			new LLViewerMediaWebProfileResponder(raw_profile_url.getAuthority()),
+			headers);
+
+		std::string url = "https://marketplace.secondlife.com/";
+
+		if (!LLGridManager::getInstance()->isInProductionGrid())
+		{
+			std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
+			url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
+		}
+	
+		url += "api/1/users/";
+		url += gAgent.getID().getString();
+		url += "/user_status";
+
+		headers = LLSD::emptyMap();
+		headers["Accept"] = "*/*";
+		headers["Cookie"] = sOpenIDCookie;
+		headers["User-Agent"] = getCurrentUserAgent();
+
+		LLHTTPClient::get(url, new LLInventoryUserStatusResponder(), headers);
 	}
 }
 
@@ -1833,17 +1937,12 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 			media_source->ignore_ssl_cert_errors(true);
 		}
 
-		// NOTE: Removed as per STORM-927 - SSL handshake failed - setting local self-signed certs like this 
-		//       seems to screw things up big time. For now, devs will need to add these certs locally and Qt will pick them up.
-//		// start by assuming the default CA file will be used
-//		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "lindenlab.pem" );
-//		// default turned off so pick up the user specified path
-//		if( ! gSavedSettings.getBOOL("BrowserUseDefaultCAFile"))
-//		{
-//			ca_path = gSavedSettings.getString("BrowserCAFilePath");
-//		}
-//		// set the path to the CA.pem file
-//		media_source->addCertificateFilePath( ca_path );
+		// the correct way to deal with certs it to load ours from CA.pem and append them to the ones
+		// Qt/WebKit loads from your system location.
+		// Note: This needs the new CA.pem file with the Equifax Secure Certificate Authority 
+		// cert at the bottom: (MIIDIDCCAomgAwIBAgIENd70zzANBg)
+		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "CA.pem" );
+		media_source->addCertificateFilePath( ca_path );
 
 		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 		
@@ -2294,6 +2393,64 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::updateJavascriptObject()
+{
+	if ( mMediaSource )
+	{
+		// flag to expose this information to internal browser or not.
+		bool enable = gSavedSettings.getBOOL("BrowserEnableJSObject");
+		mMediaSource->jsEnableObject( enable );
+
+		// these values are only menaingful after login so don't set them before
+		bool logged_in = LLLoginInstance::getInstance()->authSuccess();
+		if ( logged_in )
+		{
+		// current location within a region
+		LLVector3 agent_pos = gAgent.getPositionAgent();
+		double x = agent_pos.mV[ VX ];
+		double y = agent_pos.mV[ VY ];
+		double z = agent_pos.mV[ VZ ];
+		mMediaSource->jsAgentLocationEvent( x, y, z );
+
+		// current location within the grid
+		LLVector3d agent_pos_global = gAgent.getLastPositionGlobal();
+		double global_x = agent_pos_global.mdV[ VX ];
+		double global_y = agent_pos_global.mdV[ VY ];
+		double global_z = agent_pos_global.mdV[ VZ ];
+		mMediaSource->jsAgentGlobalLocationEvent( global_x, global_y, global_z );
+
+		// current agent orientation
+		double rotation = atan2( gAgent.getAtAxis().mV[VX], gAgent.getAtAxis().mV[VY] );
+		double angle = rotation * RAD_TO_DEG;
+		if ( angle < 0.0f ) angle = 360.0f + angle;	// TODO: has to be a better way to get orientation!
+		mMediaSource->jsAgentOrientationEvent( angle );
+
+		// current region agent is in
+		std::string region_name("");
+		LLViewerRegion* region = gAgent.getRegion();
+		if ( region )
+		{
+			region_name = region->getName();
+		};
+		mMediaSource->jsAgentRegionEvent( region_name );
+		}
+
+		// language code the viewer is set to
+		mMediaSource->jsAgentLanguageEvent( LLUI::getLanguage() );
+
+		// maturity setting the agent has selected
+		if ( gAgent.prefersAdult() )
+			mMediaSource->jsAgentMaturityEvent( "GMA" );	// Adult means see adult, mature and general content
+		else
+		if ( gAgent.prefersMature() )
+			mMediaSource->jsAgentMaturityEvent( "GM" );	// Mature means see mature and general content
+		else
+		if ( gAgent.prefersPG() )
+			mMediaSource->jsAgentMaturityEvent( "G" );	// PG means only see General content
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 std::string LLViewerMediaImpl::getName() const 
 { 
 	if (mMediaSource)
@@ -2496,23 +2653,7 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 		// Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
 		if( MASK_CONTROL & mask )
 		{
-			if( 'C' == key )
-			{
-				mMediaSource->copy();
-				result = true;
-			}
-			else
-			if( 'V' == key )
-			{
-				mMediaSource->paste();
-				result = true;
-			}
-			else
-			if( 'X' == key )
-			{
-				mMediaSource->cut();
-				result = true;
-			}
+			result = true;
 		}
 		
 		if(!result)
@@ -2606,6 +2747,9 @@ void LLViewerMediaImpl::update()
 	else
 	{
 		updateVolume();
+
+		// TODO: this is updated every frame - is this bad?
+		updateJavascriptObject();
 
 		// If we didn't just create the impl, it may need to get cookie updates.
 		if(!sUpdatedCookies.empty())
@@ -2953,7 +3097,8 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is: " << plugin->getClickURL() << LL_ENDL; 
 			std::string url = plugin->getClickURL();
-			LLURLDispatcher::dispatch(url, NULL, mTrustedBrowser);
+			std::string nav_type = plugin->getClickNavType();
+			LLURLDispatcher::dispatch(url, nav_type, NULL, mTrustedBrowser);
 		}
 		break;
 		case MEDIA_EVENT_CLICK_LINK_HREF:

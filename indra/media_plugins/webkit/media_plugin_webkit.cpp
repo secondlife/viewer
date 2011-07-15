@@ -492,6 +492,15 @@ private:
 
 	////////////////////////////////////////////////////////////////////////////////
 	// virtual
+	void onNavigateErrorPage(const EventType& event)
+	{
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_error_page");
+		message.setValueS32("status_code", event.getIntValue());
+		sendMessage(message);
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
 	void onLocationChange(const EventType& event)
 	{
 		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
@@ -519,6 +528,11 @@ private:
 	{
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_nofollow");
 		message.setValue("uri", event.getEventUri());
+#if LLQTWEBKIT_API_VERSION >= 7
+		message.setValue("nav_type", event.getNavigationType());
+#else
+		message.setValue("nav_type", "clicked");
+#endif
 		sendMessage(message);
 	}
 	
@@ -1154,6 +1168,72 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				authResponse(message_in);
 			}
 			else
+			if(message_name == "js_enable_object")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				bool enable = message_in.getValueBoolean( "enable" );
+				LLQtWebKit::getInstance()->setSLObjectEnabled( enable );
+#endif
+			}
+			else
+			if(message_name == "js_agent_location")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				F32 x = message_in.getValueReal("x");
+				F32 y = message_in.getValueReal("y");
+				F32 z = message_in.getValueReal("z");
+				LLQtWebKit::getInstance()->setAgentLocation( x, y, z );
+				LLQtWebKit::getInstance()->emitLocation();
+#endif
+			}
+			else
+			if(message_name == "js_agent_global_location")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				F32 x = message_in.getValueReal("x");
+				F32 y = message_in.getValueReal("y");
+				F32 z = message_in.getValueReal("z");
+				LLQtWebKit::getInstance()->setAgentGlobalLocation( x, y, z );
+				LLQtWebKit::getInstance()->emitLocation();
+#endif
+			}
+			else			
+			if(message_name == "js_agent_orientation")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				F32 angle = message_in.getValueReal("angle");
+				LLQtWebKit::getInstance()->setAgentOrientation( angle );
+				LLQtWebKit::getInstance()->emitLocation();
+#endif
+			}
+			else
+			if(message_name == "js_agent_region")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				const std::string& region = message_in.getValue("region");
+				LLQtWebKit::getInstance()->setAgentRegion( region );
+				LLQtWebKit::getInstance()->emitLocation();
+#endif
+			}
+			else
+				if(message_name == "js_agent_maturity")
+				{
+#if LLQTWEBKIT_API_VERSION >= 9
+					const std::string& maturity = message_in.getValue("maturity");
+					LLQtWebKit::getInstance()->setAgentMaturity( maturity );
+					LLQtWebKit::getInstance()->emitMaturity();
+#endif
+				}
+			else
+			if(message_name == "js_agent_language")
+			{
+#if LLQTWEBKIT_API_VERSION >= 9
+				const std::string& language = message_in.getValue("language");
+				LLQtWebKit::getInstance()->setAgentLanguage( language );
+				LLQtWebKit::getInstance()->emitLanguage();
+#endif
+			}
+			else
 			{
 //				std::cerr << "MediaPluginWebKit::receiveMessage: unknown media message: " << message_string << std::endl;
 			}
@@ -1231,7 +1311,9 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				std::string url = message_in.getValue("url");
 				if ( 404 == code )	// browser lib only supports 404 right now
 				{
-					LLQtWebKit::getInstance()->set404RedirectUrl( mBrowserWindowId, url );
+#if LLQTWEBKIT_API_VERSION < 8
+				 	LLQtWebKit::getInstance()->set404RedirectUrl( mBrowserWindowId, url );
+#endif
 				};
 			}
 			else if(message_name == "set_user_agent")
@@ -1308,4 +1390,5 @@ int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func, void
 
 	return 0;
 }
+
 

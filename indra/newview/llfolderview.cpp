@@ -167,13 +167,23 @@ void LLCloseAllFoldersFunctor::doItem(LLFolderViewItem* item)
 ///----------------------------------------------------------------------------
 /// Class LLFolderView
 ///----------------------------------------------------------------------------
+LLFolderView::Params::Params()
+:	task_id("task_id"),
+	title("title"),
+	use_label_suffix("use_label_suffix"),
+	allow_multiselect("allow_multiselect", true),
+	show_load_status("show_load_status", true),
+	use_ellipses("use_ellipses", false)
+{
+}
+
 
 // Default constructor
 LLFolderView::LLFolderView(const Params& p)
 :	LLFolderViewFolder(p),
 	mScrollContainer( NULL ),
 	mPopupMenuHandle(),
-	mAllowMultiSelect(TRUE),
+	mAllowMultiSelect(p.allow_multiselect),
 	mShowFolderHierarchy(FALSE),
 	mSourceID(p.task_id),
 	mRenameItem( NULL ),
@@ -194,10 +204,14 @@ LLFolderView::LLFolderView(const Params& p)
 	mDragAndDropThisFrame(FALSE),
 	mCallbackRegistrar(NULL),
 	mParentPanel(p.parent_panel),
-	mUseEllipses(false),
+	mUseEllipses(p.use_ellipses),
 	mDraggingOverItem(NULL),
 	mStatusTextBox(NULL)
 {
+	mRoot = this;
+
+	mShowLoadStatus = p.show_load_status();
+
 	LLRect rect = p.rect;
 	LLRect new_rect(rect.mLeft, rect.mBottom + getRect().getHeight(), rect.mLeft + getRect().getWidth(), rect.mBottom);
 	setRect( rect );
@@ -263,6 +277,7 @@ LLFolderView::LLFolderView(const Params& p)
 	menu->setBackgroundColor(LLUIColorTable::instance().getColor("MenuPopupBgColor"));
 	mPopupMenuHandle = menu->getHandle();
 
+	mListener->openItem();
 }
 
 // Destroys the object
@@ -301,18 +316,6 @@ BOOL LLFolderView::canFocusChildren() const
 	return FALSE;
 }
 
-void LLFolderView::checkTreeResortForModelChanged()
-{
-	if (mSortOrder & LLInventoryFilter::SO_DATE && !(mSortOrder & LLInventoryFilter::SO_FOLDERS_BY_NAME))
-	{
-		// This is the case where something got added or removed.  If we are date sorting
-		// everything including folders, then we need to rebuild the whole tree.
-		// Just set to something not SO_DATE to force the folder most resent date resort.
-		mSortOrder = mSortOrder & ~LLInventoryFilter::SO_DATE;
-		setSortOrder(mSortOrder | LLInventoryFilter::SO_DATE);
-	}
-}
-
 static LLFastTimer::DeclareTimer FTM_SORT("Sort Inventory");
 
 void LLFolderView::setSortOrder(U32 order)
@@ -320,15 +323,10 @@ void LLFolderView::setSortOrder(U32 order)
 	if (order != mSortOrder)
 	{
 		LLFastTimer t(FTM_SORT);
+		
 		mSortOrder = order;
 
-		for (folders_t::iterator iter = mFolders.begin();
-			 iter != mFolders.end();)
-		{
-			folders_t::iterator fit = iter++;
-			(*fit)->sortBy(order);
-		}
-
+		sortBy(order);
 		arrangeAll();
 	}
 }
@@ -354,7 +352,7 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	{
 		recursiveIncrementNumDescendantsSelected(folder->numSelected());
 	}
-	folder->setShowLoadStatus(true);
+	folder->setShowLoadStatus(mShowLoadStatus);
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
 	folder->setVisible(FALSE);
@@ -436,11 +434,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 									(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))); // passed filter or has descendants that passed filter
 		}
 
-		// Need to call arrange regardless of visibility, since children's visibility
-		// might need to be changed too (e.g. even though a folder is invisible, its
-		// children also need to be set invisible for state-tracking purposes, e.g.
-		// llfolderviewitem::filter).
-		// if (folderp->getVisible())
+		if (folderp->getVisible())
 		{
 			S32 child_height = 0;
 			S32 child_width = 0;
@@ -776,7 +770,7 @@ void LLFolderView::sanitizeSelection()
 		}
 
 		// Don't allow invisible items (such as root folders) to be selected.
-		if (item->getHidden())
+		if (item == getRoot())
 		{
 			items_to_remove.push_back(item);
 		}
@@ -799,7 +793,7 @@ void LLFolderView::sanitizeSelection()
 				parent_folder;
 				parent_folder = parent_folder->getParentFolder())
 			{
-				if (parent_folder->potentiallyVisible() && !parent_folder->getHidden())
+				if (parent_folder->potentiallyVisible())
 				{
 					// give initial selection to first ancestor folder that potentially passes the filter
 					if (!new_selection)
@@ -818,13 +812,7 @@ void LLFolderView::sanitizeSelection()
 		}
 		else
 		{
-			// nothing selected to start with, so pick "My Inventory" as best guess
-			new_selection = getItemByID(gInventory.getRootFolderID());
-			// ... except if it's hidden from the UI.
-			if (new_selection && new_selection->getHidden())
-			{
-				new_selection = NULL;
-			}
+			new_selection = NULL;
 		}
 
 		if (new_selection)
@@ -943,14 +931,15 @@ void LLFolderView::draw()
 		if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
 		{
 			mStatusText = LLTrans::getString("Searching");
-			//font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 		else
 		{
-			LLStringUtil::format_map_t args;
-			args["[SEARCH_TERM]"] = LLURI::escape(getFilter()->getFilterSubStringOrig());
-			mStatusText = LLTrans::getString(getFilter()->getEmptyLookupMessage(), args);
-			//font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
+			if (getFilter())
+			{
+				LLStringUtil::format_map_t args;
+				args["[SEARCH_TERM]"] = LLURI::escape(getFilter()->getFilterSubStringOrig());
+				mStatusText = LLTrans::getString(getFilter()->getEmptyLookupMessage(), args);
+			}
 		}
 		mStatusTextBox->setValue(mStatusText);
 		mStatusTextBox->setVisible( TRUE );
@@ -974,7 +963,9 @@ void LLFolderView::draw()
 		
 	}
 
-	LLFolderViewFolder::draw();
+	// skip over LLFolderViewFolder::draw since we don't want the folder icon, label, 
+	// and arrow for the root folder
+	LLView::draw();
 
 	mDragAndDropThisFrame = FALSE;
 }
@@ -1654,11 +1645,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			LLFolderViewItem* parent_folder = last_selected->getParentFolder();
 			if (!last_selected->isOpen() && parent_folder && parent_folder->getParentFolder())
 			{
-				// Don't change selectin to hidden folder. See EXT-5328.
-				if (!parent_folder->getHidden())
-				{
-					setSelection(parent_folder, FALSE, TRUE);
-				}
+				setSelection(parent_folder, FALSE, TRUE);
 			}
 			else
 			{
@@ -1923,7 +1910,14 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	// by the folder which is the hierarchy root.
 	if (!handled && !hasVisibleChildren())
 	{
-		handled = mFolders.front()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+		if (mFolders.empty())
+		{
+			handled = handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+		}
+		else
+		{
+			handled = mFolders.front()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+		}
 	}
 
 	if (handled)
@@ -1939,8 +1933,11 @@ void LLFolderView::deleteAllChildren()
 	closeRenamer();
 	LLView::deleteViewByHandle(mPopupMenuHandle);
 	mPopupMenuHandle = LLHandle<LLView>();
-	mRenamer = NULL;
+	mScrollContainer = NULL;
 	mRenameItem = NULL;
+	mRenamer = NULL;
+	mStatusTextBox = NULL;
+	
 	clearSelection();
 	LLView::deleteAllChildren();
 }
@@ -2043,7 +2040,7 @@ void LLFolderView::removeItemID(const LLUUID& id)
 
 LLFolderViewItem* LLFolderView::getItemByID(const LLUUID& id)
 {
-	if (id.isNull())
+	if (id == getListener()->getUUID())
 	{
 		return this;
 	}
@@ -2060,7 +2057,7 @@ LLFolderViewItem* LLFolderView::getItemByID(const LLUUID& id)
 
 LLFolderViewFolder* LLFolderView::getFolderByID(const LLUUID& id)
 {
-	if (id.isNull())
+	if (id == getListener()->getUUID())
 	{
 		return this;
 	}
@@ -2185,7 +2182,7 @@ void LLFolderView::doIdle()
 	// filter to determine visiblity before arranging
 	filterFromRoot();
 
-	// automatically show matching items, and select first one
+	// automatically show matching items, and select first one if we had a selection
 	// do this every frame until user puts keyboard focus into the inventory window
 	// signaling the end of the automatic update
 	// only do this when mNeedsFilter is set, meaning filtered items have
@@ -2195,7 +2192,7 @@ void LLFolderView::doIdle()
 		LLFastTimer t3(FTM_AUTO_SELECT);
 		// select new item only if a filtered item not currently selected
 		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
-		if ((!selected_itemp || !selected_itemp->getFiltered()) && !mAutoSelectOverride)
+		if ((selected_itemp && !selected_itemp->getFiltered()) && !mAutoSelectOverride)
 		{
 			// select first filtered item
 			LLSelectFirstFilteredItem filter;
@@ -2506,11 +2503,6 @@ PermissionMask LLFolderView::getFilterPermissions() const
 BOOL LLFolderView::isFilterModified()
 {
 	return mFilter->isNotDefault();
-}
-
-BOOL LLFolderView::getAllowMultiSelect()
-{
-	return mAllowMultiSelect;
 }
 
 void delete_selected_item(void* user_data)

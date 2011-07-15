@@ -65,7 +65,7 @@ void LLCommandDispatcherListener::dispatch(const LLSD& params) const
         trusted_browser = params["trusted"].asBoolean();
     }
     LLCommandDispatcher::dispatch(params["cmd"], params["params"], params["query"], NULL,
-                                  trusted_browser);
+                                  "clicked", trusted_browser);
 }
 
 void LLCommandDispatcherListener::enumerate(const LLSD& params) const

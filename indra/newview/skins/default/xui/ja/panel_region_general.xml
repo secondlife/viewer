@@ -25,6 +25,7 @@
 	<check_box label="土地の再販を許可" name="allow_land_resell_check"/>
 	<check_box label="土地の統合・分割を許可" name="allow_parcel_changes_check"/>
 	<check_box label="土地の検索表示をブロック" name="block_parcel_search_check" tool_tip="検索結果で、この地域と区画を表示するかどうかの設定です"/>
+	<check_box label="メッシュオブジェクトを許可" name="mesh_rez_enabled_check" tool_tip="このリージョンでメッシュオブジェクトの Rez を許可する"/>
 	<spinner label="アバター数上限" name="agent_limit_spin"/>
 	<spinner label="物体ボーナス" name="object_bonus_spin"/>
 	<text label="成人指定" name="access_text">

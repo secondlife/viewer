@@ -73,6 +73,7 @@
 #include "llslider.h"
 #include "message.h"
 #include "llwindow.h"			// copyTextToClipboard()
+#include <algorithm>
 
 //---------------------------------------------------------------------------
 // Constants
@@ -84,6 +85,16 @@ static const F32 MAP_ZOOM_TIME = 0.2f;
 // sessions and doesn't prevent the user to pan the world if it was to grow a lot beyond that limit.
 // Currently (01/26/09), this value allows the whole grid to be visible in a 1024x1024 window.
 static const S32 MAX_VISIBLE_REGIONS = 512;
+
+// It would be more logical to have this inside the method where it is used but to compile under gcc this
+// struct has to be here.
+struct SortRegionNames
+{
+	inline bool operator ()(std::pair <U64, LLSimInfo*> const& _left, std::pair <U64, LLSimInfo*> const& _right)
+	{
+		return(LLStringUtil::compareInsensitive(_left.second->getName(), _right.second->getName()) < 0);
+	}
+};
 
 enum EPanDirection
 {
@@ -110,6 +121,12 @@ public:
 	bool handle(const LLSD& params, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableWorldMap"))
+		{
+			LLNotificationsUtil::add("NoWorldMap", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+			return true;
+		}
+
 		if (params.size() == 0)
 		{
 			// support the secondlife:///app/worldmap SLapp
@@ -142,6 +159,12 @@ public:
 	
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
 	{
+		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableWorldMap"))
+		{
+			LLNotificationsUtil::add("NoWorldMap", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+			return true;
+		}
+		
 		//Make sure we have some parameters
 		if (params.size() == 0)
 		{
@@ -1047,7 +1070,7 @@ void LLFloaterWorldMap::onComboTextEntry()
 	// Reset the tracking whenever we start typing into any of the search fields,
 	// so that hitting <enter> does an auto-complete versus teleporting us to the
 	// previously selected landmark/friend.
-	LLTracker::clearFocus();
+	LLTracker::stopTracking(NULL);
 }
 
 void LLFloaterWorldMap::onSearchTextEntry( )
@@ -1471,10 +1494,13 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 	S32 name_length = mCompletingRegionName.length();
 	
 	LLSD match;
-	
+
 	S32 num_results = 0;
-	std::map<U64, LLSimInfo*>::const_iterator it;
-	for (it = LLWorldMap::getInstance()->getRegionMap().begin(); it != LLWorldMap::getInstance()->getRegionMap().end(); ++it)
+
+	std::vector<std::pair <U64, LLSimInfo*> > sim_info_vec(LLWorldMap::getInstance()->getRegionMap().begin(), LLWorldMap::getInstance()->getRegionMap().end());
+	std::sort(sim_info_vec.begin(), sim_info_vec.end(), SortRegionNames());
+
+	for (std::vector<std::pair <U64, LLSimInfo*> >::const_iterator it = sim_info_vec.begin(); it != sim_info_vec.end(); ++it)
 	{
 		LLSimInfo* info = it->second;
 		std::string sim_name_lower = info->getName();
@@ -1501,17 +1527,24 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 		mCompletingRegionName = "";
 	}
 	
-	// if match found, highlight it and go
-	if (!match.isUndefined())
+	if (num_results > 0)
 	{
-		list->selectByValue(match);
+		// if match found, highlight it and go
+		if (!match.isUndefined())
+		{
+			list->selectByValue(match);
+		}
+		// else select first found item
+		else
+		{
+			list->selectFirstItem();
+		}
 		getChild<LLUICtrl>("search_results")->setFocus(TRUE);
 		onCommitSearchResult();
 	}
-	
-	// if we found nothing, say "none"
-	if (num_results == 0)
+	else
 	{
+		// if we found nothing, say "none"
 		list->setCommentText(LLTrans::getString("worldmap_results_none_found"));
 		list->operateOnAll(LLCtrlListInterface::OP_DESELECT);
 	}

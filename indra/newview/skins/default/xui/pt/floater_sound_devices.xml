@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_sound_devices" title="Dispositivos de áudio">
+	<text name="voice_label">
+		Bate-papo de voz
+	</text>
+	<check_box label="Ativado" name="enable_voice"/>
+</floater>

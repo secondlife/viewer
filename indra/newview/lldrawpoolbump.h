@@ -35,6 +35,7 @@
 class LLImageRaw;
 class LLSpatialGroup;
 class LLDrawInfo;
+class LLGLSLShader;
 class LLViewerFetchedTexture;
 
 class LLDrawPoolBump : public LLRenderPass
@@ -54,7 +55,7 @@ public:
 	virtual void endRenderPass( S32 pass );
 	virtual S32	 getNumPasses();
 	/*virtual*/ void prerender();
-	/*virtual*/ void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture);
+	/*virtual*/ void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
 
 	void renderBump(U32 type, U32 mask);
 	void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture);
@@ -73,6 +74,9 @@ public:
 	void renderBump(U32 pass = LLRenderPass::PASS_BUMP);
 	void endBump(U32 pass = LLRenderPass::PASS_BUMP);
 
+	static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible);
+	static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible);
+
 	virtual S32 getNumDeferredPasses();
 	/*virtual*/ void beginDeferredPass(S32 pass);
 	/*virtual*/ void endDeferredPass(S32 pass);
@@ -83,7 +87,12 @@ public:
 	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass);
 
-	BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
+	static BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
+	static BOOL bindBumpMap(LLFace* face, S32 channel = -2);
+
+private:
+	static BOOL bindBumpMap(U8 bump_code, LLViewerTexture* tex, F32 vsize, S32 channel);
+
 };
 
 enum EBumpEffect

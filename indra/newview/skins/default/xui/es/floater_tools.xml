@@ -58,12 +58,14 @@
 		<radio_item label="Horizontal (Ctrl+Shift)" name="radio spin"/>
 	</radio_group>
 	<radio_group name="edit_radio_group">
-		<radio_item label="Moverse" name="radio position"/>
+		<radio_item label="Mover" name="radio position"/>
 		<radio_item label="Girar (Ctrl)" name="radio rotate"/>
 		<radio_item label="Estirar (Ctrl+Shift)" name="radio stretch"/>
 		<radio_item label="Elegir la cara" name="radio select face"/>
 	</radio_group>
 	<check_box label="Editar las partes enlazadas" name="checkbox edit linked parts"/>
+	<button label="Enlazar" name="link_btn"/>
+	<button label="Desenlazar" name="unlink_btn" width="95"/>
 	<text name="RenderingCost" tool_tip="Muestra cuánto se calcula que cuesta renderizar este objeto">
 		þ: [COUNT]
 	</text>
@@ -123,6 +125,18 @@
 	<text left="134" name="prim_count">
 		Primitivas: [COUNT]
 	</text>
+	<text name="linked_set_count">
+		Conjuntos con enlaces: [RECUENTO]
+	</text>
+	<text name="linked_set_cost" tool_tip="Coste de los conjuntos con enlaces actualmente seleccionados como [prims], [complejidad física]">
+		Coste: [COSTE] / [FÍSICO]
+	</text>
+	<text name="object_count">
+		Objetos: [RECUENTO]
+	</text>
+	<text name="object_cost" tool_tip="Coste de los objetos actualmente seleccionados como [prims] / [complejidad física]">
+		Coste: [COSTE] / [FÍSICO]
+	</text>
 	<tab_container name="Object Info Tabs" tab_max_width="62" tab_min_width="30" width="288">
 		<panel label="General" name="General">
 			<panel.string name="text deed continued">
@@ -170,14 +184,8 @@
 			<text name="Creator:">
 				Creador:
 			</text>
-			<text name="Creator Name">
-				Dª Esbee Linden (esbee.linden)
-			</text>
 			<text name="Owner:">
 				Propietario:
-			</text>
-			<text name="Owner Name">
-				Dª Erica &quot;Moose&quot; Linden (erica.linden)
 			</text>
 			<text name="Group:">
 				Grupo:
@@ -273,15 +281,6 @@
 				<combo_box.item label="Cono truncado" name="Ring"/>
 				<combo_box.item label="Sculpted" name="Sculpted"/>
 			</combo_box>
-			<combo_box name="material">
-				<combo_box.item label="Piedra" name="Stone"/>
-				<combo_box.item label="Metal" name="Metal"/>
-				<combo_box.item label="Vidrio" name="Glass"/>
-				<combo_box.item label="Madera" name="Wood"/>
-				<combo_box.item label="Carne" name="Flesh"/>
-				<combo_box.item label="Plástico" name="Plastic"/>
-				<combo_box.item label="Goma" name="Rubber"/>
-			</combo_box>
 			<text name="text cut">
 				Corte (inicio/fin)
 			</text>
@@ -354,9 +353,19 @@
 				<combo_box.item label="Toroide" name="Torus"/>
 				<combo_box.item label="Plano" name="Plane"/>
 				<combo_box.item label="Cilindro" name="Cylinder"/>
+				<combo_box.item label="Red" name="Mesh"/>
 			</combo_box>
 		</panel>
 		<panel label="Caracter." name="Features">
+			<panel.string name="None">
+				Ninguno
+			</panel.string>
+			<panel.string name="Prim">
+				Prim
+			</panel.string>
+			<panel.string name="Convex Hull">
+				Apariencia convexa
+			</panel.string>
 			<text name="select_single">
 				Selecciona un sólo prim para editarlo.
 			</text>
@@ -381,6 +390,23 @@
 			<spinner label="Visión" name="Light Focus"/>
 			<spinner label="Atenuación" name="Light Falloff"/>
 			<spinner label="Ambiental" name="Light Ambiance"/>
+			<text name="label physicsshapetype">
+				Tipo de forma física:
+			</text>
+			<combo_box name="Physics Shape Type Combo Ctrl" tool_tip="Selecciona el tipo de forma física"/>
+			<combo_box name="material">
+				<combo_box.item label="Piedra" name="Stone"/>
+				<combo_box.item label="Metal" name="Metal"/>
+				<combo_box.item label="Cristal" name="Glass"/>
+				<combo_box.item label="Madera" name="Wood"/>
+				<combo_box.item label="Carne" name="Flesh"/>
+				<combo_box.item label="Plástico" name="Plastic"/>
+				<combo_box.item label="Goma" name="Rubber"/>
+			</combo_box>
+			<spinner label="Gravedad" name="Physics Gravity"/>
+			<spinner label="Fricción" name="Physics Friction"/>
+			<spinner label="Densidad" name="Physics Density"/>
+			<spinner label="Reemplazo" name="Physics Restitution"/>
 		</panel>
 		<panel label="Textura" name="Texture">
 			<panel.string name="string repeats per meter">
@@ -484,7 +510,7 @@
 			Modificar la parcela
 		</text>
 		<button label="Dividir" label_selected="Dividir" name="button subdivide land"/>
-		<button label="Inscribirse" label_selected="Inscribirse" name="button join land"/>
+		<button label="Unir" label_selected="Unir" name="button join land"/>
 		<text name="label_parcel_trans">
 			Transacciones de terreno
 		</text>

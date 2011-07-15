@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Image Preview">
+	<text name="name_label">
+		名稱：
+	</text>
+	<text name="description_label">
+		描述：
+	</text>
+	<text name="preview_label">
+		預覽圖像為：
+	</text>
+	<combo_box label="服裝類型" name="clothing_type_combo">
+		<item label="圖像" name="Image" value="圖像"/>
+		<item label="頭髮" name="Hair" value="頭髮"/>
+		<item label="Female Head" name="FemaleHead" value="Female Head"/>
+		<item label="Female Upper Body" name="FemaleUpperBody" value="Female Upper Body"/>
+		<item label="Female Lower Body" name="FemaleLowerBody" value="Female Lower Body"/>
+		<item label="Male Head" name="MaleHead" value="Male Head"/>
+		<item label="Male Upper Body" name="MaleUpperBody" value="Male Upper Body"/>
+		<item label="Male Lower Body" name="MaleLowerBody" value="Male Lower Body"/>
+		<item label="裙子" name="Skirt" value="裙子"/>
+		<item label="Sculpted Prim" name="SculptedPrim" value="Sculpted Prim"/>
+	</combo_box>
+	<text name="bad_image_text">
+		無法讀取圖像。
+
+請嘗試儲存圖像為 24 位元 Targa（.tga）格式。
+	</text>
+	<check_box label="Use lossless compression" name="lossless_check"/>
+	<button label="取消" name="cancel_btn"/>
+	<button label="上傳（L$[AMOUNT]）" name="ok_btn"/>
+</floater>

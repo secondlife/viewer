@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="left|top|right|bottom"
- height="408"
+ height="418"
  label="Graphics"
  layout="topleft"
  left="102"
@@ -193,8 +193,18 @@
 		 left_delta="0"
 		 name="BumpShiny"
 		 top_pad="1"
+		width="256" />
+    <check_box
+		control_name="RenderLocalLights"
+		height="16"
+		initial_value="true"
+		label="Local Lights"
+		layout="topleft"
+		left_delta="0"
+		name="LocalLights"
+		 top_pad="1"
 		 width="256" />
-		<check_box
+		  <check_box
 		 control_name="VertexShaderEnable"
 		 height="16"
 		 initial_value="true"
@@ -221,7 +231,6 @@
 			<check_box.commit_callback
 			 function="Pref.VertexShaderEnable" />
 		</check_box>
-<!-- DISABLED UNTIL WE REALLY WANT TO SUPPORT THIS
     	<check_box
 		 control_name="RenderDeferred"
 		 height="16"
@@ -248,6 +257,19 @@
          	<check_box.commit_callback
 			 function="Pref.VertexShaderEnable" />
     	</check_box>
+      <check_box
+		 control_name="RenderDepthOfField"
+		 height="16"
+		 initial_value="true"
+		 label="Depth of Field"
+		 layout="topleft"
+		 left_delta="0"
+		 name="UseDoF"
+		 top_pad="1"
+		 width="256">
+        <check_box.commit_callback
+     function="Pref.VertexShaderEnable" />
+      </check_box>
 
         <text
          type="string"
@@ -283,7 +305,7 @@
             name="2"
             value="2"/>
         </combo_box>
--->
+
         <text
          type="string"
          length="1"
@@ -327,6 +349,37 @@
              value="4"/>
         </combo_box>
     
+        <slider
+        control_name="RenderAvatarPhysicsLODFactor"
+        follows="left|top"
+        height="16"
+        initial_value="100"
+	increment=".05"
+        label="  Avatar Physics:"
+        label_width="85"
+        layout="topleft"
+        left_delta="-16"
+        name="AvatarPhysicsDetail"
+        show_text="false"
+        top_pad="12"
+        width="160">
+           <slider.commit_callback
+            function="Pref.UpdateSliderText"
+            parameter="AvatarPhysicsDetailText" />
+        </slider>
+        <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="12"
+        layout="topleft"
+        left_delta="165"
+        name="AvatarPhysicsDetailText"
+        top_pad="-16"
+        width="128">
+           Low
+        </text>
+
 		<slider
 		 control_name="RenderFarClip"
 		 decimal_digits="0"
@@ -618,6 +671,7 @@
          width="128">
             Low
         </text>
+
         <text
          type="string"
          length="1"
@@ -628,7 +682,7 @@
          name="AvatarRenderingText"
          top_pad="18"
          width="128">
-            Avatar rendering:
+        Avatar Rendering:
       </text>
       <check_box
        control_name="RenderUseImpostors"
@@ -669,10 +723,10 @@
        follows="left|top"
        height="12"
        layout="topleft"
-       left="358"
+       left="407"
        left_pad="-30"
        name="TerrainDetailText"
-       top="226"
+        top="250"
        width="155">
           Terrain detail:
       </text>
@@ -681,7 +735,7 @@
        draw_border="false"
        height="38"
        layout="topleft"
-       left_delta="0"
+       left_delta="5"
        name="TerrainDetailRadio"
        top_pad="5"
        width="70">
@@ -710,7 +764,7 @@
      layout="topleft"
      left="10"
      name="Apply"
-     top="383"
+     top="390"
      width="115">
         <button.commit_callback
          function="Pref.Apply" />
@@ -722,7 +776,7 @@
      layout="topleft"
      left_pad="3"
      name="Defaults"
-     top="383"
+     top="390"
      width="115">
         <button.commit_callback
          function="Pref.HardwareDefaults" />

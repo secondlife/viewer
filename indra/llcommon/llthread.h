@@ -41,6 +41,12 @@ class LLThread;
 class LLMutex;
 class LLCondition;
 
+#if LL_WINDOWS
+#define ll_thread_local __declspec(thread)
+#else
+#define ll_thread_local __thread
+#endif
+
 class LL_COMMON_API LLThreadLocalData
 {
 private:
@@ -59,6 +65,9 @@ public:
 
 class LL_COMMON_API LLThread
 {
+private:
+	static U32 sIDIter;
+
 public:
 	typedef enum e_thread_status
 	{
@@ -111,7 +120,8 @@ protected:
 
 	apr_thread_t		*mAPRThreadp;
 	EThreadStatus		mStatus;
-
+	U32					mID;
+	
 	friend void LLThreadLocalData::create(LLThread* threadp);
 	LLThreadLocalData*	mThreadLocalData;
 
@@ -154,8 +164,15 @@ protected:
 class LL_COMMON_API LLMutexBase
 {
 public:
-	void lock() { apr_thread_mutex_lock(mAPRMutexp); }
-	void unlock() { apr_thread_mutex_unlock(mAPRMutexp); }
+	typedef enum
+	{
+		NO_THREAD = 0xFFFFFFFF
+	} e_locking_thread;
+
+	LLMutexBase() ;
+
+	void lock() ;
+	void unlock() ;
 	// Returns true if lock was obtained successfully.
 	bool trylock() { return !APR_STATUS_IS_EBUSY(apr_thread_mutex_trylock(mAPRMutexp)); }
 
@@ -165,6 +182,8 @@ public:
 protected:
 	// mAPRMutexp is initialized and uninitialized in the derived class.
 	apr_thread_mutex_t* mAPRMutexp;
+	mutable U32			mCount;
+	mutable U32			mLockingThread;
 };
 
 class LL_COMMON_API LLMutex : public LLMutexBase

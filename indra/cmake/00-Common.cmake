@@ -7,10 +7,10 @@ include(Variables)
 # Portable compilation flags.
 set(CMAKE_CXX_FLAGS_DEBUG "-D_DEBUG -DLL_DEBUG=1")
 set(CMAKE_CXX_FLAGS_RELEASE
-    "-DLL_RELEASE=1 -DLL_RELEASE_FOR_DOWNLOAD=1 -D_SECURE_SCL=0 -DNDEBUG") 
+    "-DLL_RELEASE=1 -DLL_RELEASE_FOR_DOWNLOAD=1 -DNDEBUG") 
 
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-    "-DLL_RELEASE=1 -D_SECURE_SCL=0 -DNDEBUG -DLL_RELEASE_WITH_DEBUG_INFO=1")
+    "-DLL_RELEASE=1 -DNDEBUG -DLL_RELEASE_WITH_DEBUG_INFO=1")
 
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
@@ -36,13 +36,20 @@ if (WINDOWS)
   # Don't build DLLs.
   set(BUILD_SHARED_LIBS OFF)
 
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi /MDd /MP"
+  # for "backwards compatibility", cmake sneaks in the Zm1000 option which royally
+  # screws incredibuild. this hack disables it.
+  # for details see: http://connect.microsoft.com/VisualStudio/feedback/details/368107/clxx-fatal-error-c1027-inconsistent-values-for-ym-between-creation-and-use-of-precompiled-headers
+  # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015
+  # http://www.cmake.org/pipermail/cmake/2009-September/032143.html
+  string(REPLACE "/Zm1000" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi /MDd /MP -D_SCL_SECURE_NO_WARNINGS=1"
       CACHE STRING "C++ compiler debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /MD /MP /Ob2"
+      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /MD /MP /Ob2 -D_SECURE_STL=0"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /O2 /Zi /MD /MP /Ob2"
+      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /O2 /Zi /MD /MP /Ob2 -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
       CACHE STRING "C++ compiler release options" FORCE)
 
   set(CMAKE_CXX_STANDARD_LIBRARIES "")
@@ -50,27 +57,20 @@ if (WINDOWS)
 
   add_definitions(
       /DLL_WINDOWS=1
+      /DDOM_DYNAMIC
       /DUNICODE
       /D_UNICODE 
       /GS
       /TP
-      /W3
+      /W2
       /c
       /Zc:forScope
       /nologo
       /Oy-
+      /Zc:wchar_t-
+      /arch:SSE2
       )
      
-  if(MSVC80 OR MSVC90)
-    set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
-      CACHE STRING "C++ compiler release options" FORCE)
-   
-    add_definitions(
-      /Zc:wchar_t-
-      )
-  endif (MSVC80 OR MSVC90)
-  
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_definitions(/WX)
@@ -143,6 +143,8 @@ if (LINUX)
       -fno-strict-aliasing
       -fsigned-char
       -g
+      -msse2
+      -mfpmath=sse
       -pthread
       )
 
@@ -162,10 +164,6 @@ if (LINUX)
       link_directories(/usr/lib/mysql4/mysql)
     endif (EXISTS /usr/lib/mysql4/mysql)
 
-    add_definitions(
-        -msse2
-        -mfpmath=sse
-        )
   endif (SERVER)
 
   if (VIEWER)
@@ -173,6 +171,8 @@ if (LINUX)
     add_definitions(-fvisibility=hidden)
     # don't catch SIGCHLD in our base application class for the viewer - some of our 3rd party libs may need their *own* SIGCHLD handler to work.  Sigh!  The viewer doesn't need to catch SIGCHLD anyway.
     add_definitions(-DLL_IGNORE_SIGCHLD)
+    add_definitions(-march=pentium4 -mfpmath=sse)
+    #add_definitions(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
     if (NOT STANDALONE)
       # this stops us requiring a really recent glibc at runtime
       add_definitions(-fno-stack-protector)
@@ -212,7 +212,7 @@ if (LINUX OR DARWIN)
     set(GCC_WARNINGS "${GCC_WARNINGS} -Werror")
   endif (NOT GCC_DISABLE_FATAL_WARNINGS)
 
-  set(GCC_CXX_WARNINGS "${GCC_WARNINGS} -Wno-reorder -Wno-non-virtual-dtor -Woverloaded-virtual")
+  set(GCC_CXX_WARNINGS "${GCC_WARNINGS} -Wno-reorder -Wno-non-virtual-dtor")
 
   set(CMAKE_C_FLAGS "${GCC_WARNINGS} ${CMAKE_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${GCC_CXX_WARNINGS} ${CMAKE_CXX_FLAGS}")

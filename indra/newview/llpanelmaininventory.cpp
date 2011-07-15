@@ -1,6 +1,6 @@
 /** 
- * @file llsidepanelmaininventory.cpp
- * @brief Implementation of llsidepanelmaininventory.
+ * @file llpanelmaininventory.cpp
+ * @brief Implementation of llpanelmaininventory.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -81,7 +81,6 @@ public:
 	BOOL getCheckSinceLogoff();
 
 	static void onTimeAgo(LLUICtrl*, void *);
-	static void onCheckSinceLogoff(LLUICtrl*, void *);
 	static void onCloseBtn(void* user_data);
 	static void selectAllTypes(void* user_data);
 	static void selectNoTypes(void* user_data);
@@ -96,8 +95,8 @@ private:
 /// LLPanelMainInventory
 ///----------------------------------------------------------------------------
 
-LLPanelMainInventory::LLPanelMainInventory()
-	: LLPanel(),
+LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
+	: LLPanel(p),
 	  mActivePanel(NULL),
 	  mSavedFolderState(NULL),
 	  mFilterText(""),
@@ -140,6 +139,7 @@ BOOL LLPanelMainInventory::postBuild()
 		mActivePanel->getFilter()->markDefault();
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 		mActivePanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mActivePanel, _1, _2));
+		mResortActivePanel = true;
 	}
 	LLInventoryPanel* recent_items_panel = getChild<LLInventoryPanel>("Recent Items");
 	if (recent_items_panel)
@@ -192,6 +192,9 @@ BOOL LLPanelMainInventory::postBuild()
 	mMenuAdd->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", upload_cost);
 	mMenuAdd->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", upload_cost);
 	mMenuAdd->getChild<LLMenuItemGL>("Bulk Upload")->setLabelArg("[COST]", upload_cost);
+
+	// Trigger callback for focus received so we can deselect items in inbox/outbox
+	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMainInventory::onFocusReceived, this));
 
 	return TRUE;
 }
@@ -529,6 +532,17 @@ void LLPanelMainInventory::draw()
 	{
 		mFilterEditor->setText(mFilterSubString);
 	}	
+	if (mActivePanel && mResortActivePanel)
+	{
+		// EXP-756: Force resorting of the list the first time we draw the list: 
+		// In the case of date sorting, we don't have enough information at initialization time
+		// to correctly sort the folders. Later manual resort doesn't do anything as the order value is 
+		// set correctly. The workaround is to reset the order to alphabetical (or anything) then to the correct order.
+		U32 order = mActivePanel->getSortOrder();
+		mActivePanel->setSortOrder(LLInventoryFilter::SO_NAME);
+		mActivePanel->setSortOrder(order);
+		mResortActivePanel = false;
+	}
 	LLPanel::draw();
 	updateItemcountText();
 }
@@ -559,6 +573,27 @@ void LLPanelMainInventory::updateItemcountText()
 		text = getString("ItemcountUnknown");
 	}
 	getChild<LLUICtrl>("ItemcountText")->setValue(text);
+}
+
+void LLPanelMainInventory::onFocusReceived()
+{
+	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
+
+	LLInventoryPanel * inbox_panel = sidepanel_inventory->findChild<LLInventoryPanel>("inventory_inbox");
+
+	if (inbox_panel)
+	{
+		inbox_panel->clearSelection();
+	}
+
+	LLInventoryPanel * outbox_panel = sidepanel_inventory->findChild<LLInventoryPanel>("inventory_outbox");
+
+	if (outbox_panel)
+	{
+		outbox_panel->clearSelection();
+	}
+
+	sidepanel_inventory->updateVerbs();
 }
 
 void LLPanelMainInventory::setFilterTextFromFilter() 
@@ -619,20 +654,6 @@ LLFloaterInventoryFinder::LLFloaterInventoryFinder(LLPanelMainInventory* invento
 	updateElementsFromFilter();
 }
 
-
-void LLFloaterInventoryFinder::onCheckSinceLogoff(LLUICtrl *ctrl, void *user_data)
-{
-	LLFloaterInventoryFinder *self = (LLFloaterInventoryFinder *)user_data;
-	if (!self) return;
-
-	bool since_logoff= self->getChild<LLUICtrl>("check_since_logoff")->getValue();
-	
-	if (!since_logoff && 
-	    !(  self->mSpinSinceDays->get() ||  self->mSpinSinceHours->get() ) )
-	{
-		self->mSpinSinceHours->set(1.0f);
-	}	
-}
 BOOL LLFloaterInventoryFinder::postBuild()
 {
 	const LLRect& viewrect = mPanelMainInventory->getRect();
@@ -647,9 +668,6 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	mSpinSinceDays = getChild<LLSpinCtrl>("spin_days_ago");
 	childSetCommitCallback("spin_days_ago", onTimeAgo, this);
 
-	//	mCheckSinceLogoff   = getChild<LLSpinCtrl>("check_since_logoff");
-	childSetCommitCallback("check_since_logoff", onCheckSinceLogoff, this);
-
 	childSetAction("Close", onCloseBtn, this);
 
 	updateElementsFromFilter();
@@ -660,12 +678,10 @@ void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)
 	LLFloaterInventoryFinder *self = (LLFloaterInventoryFinder *)user_data;
 	if (!self) return;
 	
-	bool since_logoff=true;
 	if ( self->mSpinSinceDays->get() ||  self->mSpinSinceHours->get() )
 	{
-		since_logoff = false;
+		self->getChild<LLUICtrl>("check_since_logoff")->setValue(false);
 	}
-	self->getChild<LLUICtrl>("check_since_logoff")->setValue(since_logoff);
 }
 
 void LLFloaterInventoryFinder::changeFilter(LLInventoryFilter* filter)
@@ -694,6 +710,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	getChild<LLUICtrl>("check_clothing")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_WEARABLE));
 	getChild<LLUICtrl>("check_gesture")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_GESTURE));
 	getChild<LLUICtrl>("check_landmark")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LANDMARK));
+	getChild<LLUICtrl>("check_mesh")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_MESH));
 	getChild<LLUICtrl>("check_notecard")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_NOTECARD));
 	getChild<LLUICtrl>("check_object")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_OBJECT));
 	getChild<LLUICtrl>("check_script")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LSL));
@@ -742,6 +759,12 @@ void LLFloaterInventoryFinder::draw()
 
 	{
 		filter &= ~(0x1 << LLInventoryType::IT_LANDMARK);
+		filtered_by_all_types = FALSE;
+	}
+
+	if (!getChild<LLUICtrl>("check_mesh")->getValue())
+	{
+		filter &= ~(0x1 << LLInventoryType::IT_MESH);
 		filtered_by_all_types = FALSE;
 	}
 
@@ -841,6 +864,7 @@ void LLFloaterInventoryFinder::selectAllTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_clothing")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_gesture")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_landmark")->setValue(TRUE);
+	self->getChild<LLUICtrl>("check_mesh")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_notecard")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_object")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_script")->setValue(TRUE);
@@ -860,6 +884,7 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_clothing")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_gesture")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_landmark")->setValue(FALSE);
+	self->getChild<LLUICtrl>("check_mesh")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_notecard")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_object")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_script")->setValue(FALSE);

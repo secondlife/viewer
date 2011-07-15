@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_object">
+	<string name="Creator">
+		Von [CREATOR]
+	</string>
+	<string name="CreatorAndOwner">
+		Von [CREATOR]
+Besitzer [OWNER]
+	</string>
+	<string name="Price">
+		[AMOUNT] L$
+	</string>
+	<string name="PriceFree">
+		Kostenlos!
+	</string>
+	<string name="Touch">
+		Berühren
+	</string>
+	<string name="Sit">
+		Sitzen
+	</string>
+	<text name="object_name" value="Test für ein Objektname der sehr lange ist und über zwei Zeilen geht."/>
+	<text name="object_creator">
+		von secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+Besitzer secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+	</text>
+	<text name="price_text">
+		30.000 L$
+	</text>
+	<text name="object_description">
+		Dies ist eine wirklich lange Beschreibung für ein Objekt, mindestens 80 Zeichen lang oder jetzt schon mindestens 120 Zeichen lang und länger als der englische Originaltext. Niemand weiß es genau.
+	</text>
+	<text name="object_media_url">
+		http://www.superdupertest.com
+	</text>
+	<button label="Kaufen" name="buy_btn"/>
+	<button label="Bezahlen" name="pay_btn"/>
+	<button label="Kopie nehmen" name="take_free_copy_btn" width="100"/>
+	<button label="Berühren" name="touch_btn"/>
+	<button label="Sitzen" name="sit_btn"/>
+	<button label="Öffnen" name="open_btn"/>
+	<icon name="secure_browsing" tool_tip="Sicheres Browsen"/>
+	<button label="Mehr" name="more_info_btn"/>
+</floater>

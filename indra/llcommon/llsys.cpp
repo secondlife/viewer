@@ -46,6 +46,7 @@
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
 #	include <stdint.h>
+#	include <Carbon/Carbon.h>
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
@@ -187,22 +188,30 @@ LLOSInfo::LLOSInfo() :
 				 if(osvi.wProductType == VER_NT_WORKSTATION)
 					mOSStringSimple = "Microsoft Windows XP x64 Edition ";
 				 else
-					 mOSStringSimple = "Microsoft Windows Server 2003 ";
+					mOSStringSimple = "Microsoft Windows Server 2003 ";
 			}
-			else if(osvi.dwMajorVersion == 6 && osvi.dwMinorVersion <= 1)
+			else if(osvi.dwMajorVersion == 6 && osvi.dwMinorVersion <= 2)
 			{
 				if(osvi.dwMinorVersion == 0)
 				{
-					mOSStringSimple = "Microsoft Windows Vista ";
+					if(osvi.wProductType == VER_NT_WORKSTATION)
+						mOSStringSimple = "Microsoft Windows Vista ";
+					else
+						mOSStringSimple = "Windows Server 2008 ";
 				}
 				else if(osvi.dwMinorVersion == 1)
 				{
-					mOSStringSimple = "Microsoft Windows 7 ";
+					if(osvi.wProductType == VER_NT_WORKSTATION)
+						mOSStringSimple = "Microsoft Windows 7 ";
+					else
+						mOSStringSimple = "Windows Server 2008 R2 ";
 				}
-
-				if(osvi.wProductType != VER_NT_WORKSTATION)
+				else if(osvi.dwMinorVersion == 2)
 				{
-					mOSStringSimple += "Server ";
+					if(osvi.wProductType == VER_NT_WORKSTATION)
+						mOSStringSimple = "Microsoft Windows 8 ";
+					else
+						mOSStringSimple = "Windows Server 2012 ";
 				}
 
 				///get native system info if available..
@@ -307,8 +316,7 @@ LLOSInfo::LLOSInfo() :
 	std::string compatibility_mode;
 	if(got_shell32_version)
 	{
-		if(osvi.dwMajorVersion != shell32_major 
-			|| osvi.dwMinorVersion != shell32_minor)
+		if(osvi.dwMajorVersion != shell32_major || osvi.dwMinorVersion != shell32_minor)
 		{
 			compatibility_mode = llformat(" compatibility mode. real ver: %d.%d (Build %d)", 
 											shell32_major,
@@ -318,7 +326,58 @@ LLOSInfo::LLOSInfo() :
 	}
 	mOSString += compatibility_mode;
 
+#elif LL_DARWIN
+	
+	// Initialize mOSStringSimple to something like:
+	// "Mac OS X 10.6.7"
+	{
+		const char * DARWIN_PRODUCT_NAME = "Mac OS X";
+		
+		SInt32 major_version, minor_version, bugfix_version;
+		OSErr r1 = Gestalt(gestaltSystemVersionMajor, &major_version);
+		OSErr r2 = Gestalt(gestaltSystemVersionMinor, &minor_version);
+		OSErr r3 = Gestalt(gestaltSystemVersionBugFix, &bugfix_version);
+
+		if((r1 == noErr) && (r2 == noErr) && (r3 == noErr))
+		{
+			mMajorVer = major_version;
+			mMinorVer = minor_version;
+			mBuild = bugfix_version;
+
+			std::stringstream os_version_string;
+			os_version_string << DARWIN_PRODUCT_NAME << " " << mMajorVer << "." << mMinorVer << "." << mBuild;
+			
+			// Put it in the OS string we are compiling
+			mOSStringSimple.append(os_version_string.str());
+		}
+		else
+		{
+			mOSStringSimple.append("Unable to collect OS info");
+		}
+	}
+	
+	// Initialize mOSString to something like:
+	// "Mac OS X 10.6.7 Darwin Kernel Version 10.7.0: Sat Jan 29 15:17:16 PST 2011; root:xnu-1504.9.37~1/RELEASE_I386 i386"
+	struct utsname un;
+	if(uname(&un) != -1)
+	{		
+		mOSString = mOSStringSimple;
+		mOSString.append(" ");
+		mOSString.append(un.sysname);
+		mOSString.append(" ");
+		mOSString.append(un.release);
+		mOSString.append(" ");
+		mOSString.append(un.version);
+		mOSString.append(" ");
+		mOSString.append(un.machine);
+	}
+	else
+	{
+		mOSString = mOSStringSimple;
+	}
+	
 #else
+	
 	struct utsname un;
 	if(uname(&un) != -1)
 	{
@@ -334,15 +393,7 @@ LLOSInfo::LLOSInfo() :
 
 		// Simplify 'Simple'
 		std::string ostype = mOSStringSimple.substr(0, mOSStringSimple.find_first_of(" ", 0));
-		if (ostype == "Darwin")
-		{
-			// Only care about major Darwin versions, truncate at first '.'
-			S32 idx1 = mOSStringSimple.find_first_of(".", 0);
-			std::string simple = mOSStringSimple.substr(0, idx1);
-			if (simple.length() > 0)
-				mOSStringSimple = simple;
-		}
-		else if (ostype == "Linux")
+		if (ostype == "Linux")
 		{
 			// Only care about major and minor Linux versions, truncate at second '.'
 			std::string::size_type idx1 = mOSStringSimple.find_first_of(".", 0);

@@ -56,6 +56,8 @@
 #include "llviewerstats.h"
 #include "llviewerregion.h"
 #include "llappearancemgr.h"
+#include "llmeshrepository.h"
+#include "llvovolume.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -623,6 +625,7 @@ BOOL LLVOAvatarSelf::updateCharacter(LLAgent &agent)
 		mScreenp->updateWorldMatrixChildren();
 		resetHUDAttachments();
 	}
+	
 	return LLVOAvatar::updateCharacter(agent);
 }
 
@@ -648,7 +651,11 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 	}
 	return LLVOAvatar::getJoint(name);
 }
-
+//virtual
+void LLVOAvatarSelf::resetJointPositions( void )
+{
+	return LLVOAvatar::resetJointPositions();
+}
 // virtual
 BOOL LLVOAvatarSelf::setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL upload_bake )
 {
@@ -1017,6 +1024,13 @@ void LLVOAvatarSelf::wearableUpdated( LLWearableType::EType type, BOOL upload_re
 			}
 		}
 	}
+	
+	// Physics type has no associated baked textures, but change of params needs to be sent to
+	// other avatars.
+	if (type == LLWearableType::WT_PHYSICS)
+	  {
+	    gAgent.sendAgentSetAppearance();
+	  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1132,6 +1146,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 		LLAppearanceMgr::instance().registerAttachment(attachment_id);
 		// Clear any pending requests once the attachment arrives.
 		removeAttachmentRequest(attachment_id);
+		updateLODRiggedAttachments();		
 	}
 
 	return attachment;
@@ -1141,8 +1156,10 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 {
 	const LLUUID attachment_id = viewer_object->getAttachmentItemID();
-	if (LLVOAvatar::detachObject(viewer_object))
+	if ( LLVOAvatar::detachObject(viewer_object) )
 	{
+		LLVOAvatar::cleanupAttachedMesh( viewer_object );
+		
 		// the simulator should automatically handle permission revocation
 		
 		stopMotionFromSource(attachment_id);
@@ -2506,10 +2523,6 @@ bool LLVOAvatarSelf::sendAppearanceMessage(LLMessageSystem *mesgsys) const
 //------------------------------------------------------------------------
 BOOL LLVOAvatarSelf::needsRenderBeam()
 {
-	if (gNoRender)
-	{
-		return FALSE;
-	}
 	LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
 
 	BOOL is_touching_or_grabbing = (tool == LLToolGrab::getInstance() && LLToolGrab::getInstance()->isEditing());
