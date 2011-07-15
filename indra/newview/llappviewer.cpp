@@ -2823,7 +2823,7 @@ bool LLAppViewer::initWindow()
 	// Need to load feature table before cheking to start watchdog.
 	bool use_watchdog = false;
 	int watchdog_enabled_setting = gSavedSettings.getS32("WatchdogEnabled");
-	if(watchdog_enabled_setting == -1)
+	if (watchdog_enabled_setting == -1)
 	{
 		use_watchdog = !LLFeatureManager::getInstance()->isFeatureAvailable("WatchdogDisabled");
 	}
@@ -2833,8 +2833,7 @@ bool LLAppViewer::initWindow()
 		use_watchdog = bool(watchdog_enabled_setting);
 	}
 
-	bool send_reports = gCrashSettings.getS32("CrashSubmitBehavior") != CRASH_BEHAVIOR_NEVER_SEND;
-	if(use_watchdog && send_reports)
+	if (use_watchdog)
 	{
 		LLWatchdog::getInstance()->init(watchdog_killer_callback);
 	}
