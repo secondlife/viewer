@@ -157,8 +157,12 @@ public:
             // loop back to try another filename
         }
         // File is open, its name is in mPath: write it and close it.
-        (void)_write(fd, content.c_str(), content.length());
-        (void)_write(fd, "\n", 1);
+        // Truthfully, we'd just as soon ignore the return value from
+        // _write(), but Linux gcc generates fatal warnings if we do.
+        bool ok(true);
+        ok = ok && (content.length() == _write(fd, content.c_str(), content.length()));
+        ok = ok && (1                == _write(fd, "\n", 1));
+        assert(ok);
         _close(fd);
     }
 
