@@ -43,6 +43,7 @@ typedef U32 uint32_t;
 
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sstream>
 
 /*==========================================================================*|
 // Whoops, seems Linden's Boost package and the viewer are built with
@@ -65,6 +66,14 @@ typedef U32 uint32_t;
 |*==========================================================================*/
 #include "boost/range.hpp"
 #include "boost/foreach.hpp"
+#include "boost/function.hpp"
+#include "boost/lambda/lambda.hpp"
+namespace lambda = boost::lambda;
+/*==========================================================================*|
+// Aaaarrgh, Linden's Boost package doesn't even include Boost.Iostreams!
+#include "boost/iostreams/stream.hpp"
+#include "boost/iostreams/device/file_descriptor.hpp"
+|*==========================================================================*/
 
 #include "../llsd.h"
 #include "../llsdserialize.h"
@@ -115,13 +124,37 @@ std::string temp_directory_path()
 #define _S_IREAD  S_IRUSR
 #endif  // ! LL_WINDOWS
 
-// Create a Python script file with specified content "somewhere in the
+// Create a text file with specified content "somewhere in the
 // filesystem," cleaning up when it goes out of scope.
-class NamedTempScript
+class NamedTempFile
 {
 public:
-    NamedTempScript(const std::string& content):
+    // Function that accepts an ostream ref and (presumably) writes stuff to
+    // it, e.g.:
+    // (lambda::_1 << "the value is " << 17 << '\n')
+    typedef boost::function<void(std::ostream&)> Streamer;
+
+    NamedTempFile(const std::string& ext, const std::string& content):
         mPath(temp_directory_path())
+    {
+        createFile(ext, lambda::_1 << content);
+    }
+
+    NamedTempFile(const std::string& ext, const Streamer& func):
+        mPath(temp_directory_path())
+    {
+        createFile(ext, func);
+    }
+
+    ~NamedTempFile()
+    {
+        _remove(mPath.c_str());
+    }
+
+    std::string getName() const { return mPath; }
+
+private:
+    void createFile(const std::string& ext, const Streamer& func)
     {
         // Make sure mPath ends with a directory separator, if it doesn't already.
         if (mPath.empty() ||
@@ -138,11 +171,11 @@ public:
             // but I think it's neater that way.
             std::string testname(STRINGIZE(mPath
                                            << std::setw(8) << std::setfill('0') << i
-                                           << ".py"));
+                                           << ext));
             // The key to this whole loop is the _O_CREAT | _O_EXCL bitmask,
-            // which requests an error if the file already exists. A proper
-            // implementation will check atomically, ensuring that racing
-            // processes will end up with two different filenames.
+            // which requests error EEXIST if the file already exists. A
+            // proper implementation will check atomically, ensuring that
+            // racing processes will end up with two different filenames.
             fd = _open(testname.c_str(),
                        _O_WRONLY | _O_CREAT | _O_EXCL,
                        _S_IREAD | _S_IWRITE);
@@ -151,29 +184,40 @@ public:
                 mPath = testname;   // remember its actual name
                 break;
             }
-            // it's a problem if the open() failed for any other reason but
-            // the existence of a file by the same name
-            assert(errno == EEXIST);
+            // This loop is specifically coded to handle EEXIST. Any other
+            // error is a problem.
+            llassert_always(errno == EEXIST);
             // loop back to try another filename
         }
-        // File is open, its name is in mPath: write it and close it.
-        // Truthfully, we'd just as soon ignore the return value from
-        // _write(), but Linux gcc generates fatal warnings if we do.
-        bool ok(true);
-        ok = ok && (content.length() == _write(fd, content.c_str(), content.length()));
-        ok = ok && (1                == _write(fd, "\n", 1));
-        assert(ok);
-        _close(fd);
+        // fd is open, its name is in mPath: write it and close it.
+
+/*==========================================================================*|
+        // Define an ostream on the open fd. Tell it to close fd on destruction.
+        boost::iostreams::stream<boost::iostreams::file_descriptor_sink>
+            out(fd, boost::iostreams::close_handle);
+|*==========================================================================*/
+        std::ostringstream out;
+        // Stream stuff to it.
+        func(out);
+        // toss in a final newline for good measure
+        out << '\n';
+
+        std::string data(out.str());
+        int written(_write(fd, data.c_str(), data.length()));
+        int closed(_close(fd));
+        llassert_always(written == data.length() && closed == 0);
     }
 
-    ~NamedTempScript()
+    void peep()
     {
-        _remove(mPath.c_str());
+        std::cout << "File '" << mPath << "' contains:\n";
+        std::ifstream reader(mPath.c_str());
+        std::string line;
+        while (std::getline(reader, line))
+            std::cout << line << '\n';
+        std::cout << "---\n";
     }
 
-    std::string getName() const { return mPath; }
-
-private:
     std::string mPath;
 };
 
@@ -1628,7 +1672,7 @@ namespace tut
             const char* PYTHON(getenv("PYTHON"));
             ensure("Set $PYTHON to the Python interpreter", PYTHON);
 
-            NamedTempScript scriptfile(script);
+            NamedTempFile scriptfile(".py", script);
 
 #if LL_WINDOWS
             std::string q("\"");
@@ -1690,14 +1734,18 @@ namespace tut
     template<> template<>
     void TestPythonCompatibleObject::test<1>()
     {
-        python("hello", "print 'Hello, world!'");
+        set_test_name("verify python()");
+        python("hello",
+               "import sys\n"
+               "sys.exit(0)");
     }
 
     template<> template<>
     void TestPythonCompatibleObject::test<2>()
     {
+        set_test_name("verify NamedTempFile");
         python("platform",
-"import sys\n"
-"print 'Running on', sys.platform");
+               "import sys\n"
+               "print 'Running on', sys.platform");
     }
 }
