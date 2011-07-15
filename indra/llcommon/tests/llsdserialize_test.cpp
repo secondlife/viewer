@@ -1852,7 +1852,8 @@ namespace tut
         ensure_equals("Failed to read LLSD::Real from Python",
                       LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
                       1);
-        ensure_approximately_equals(F32(item.asReal()), 3.14, 7); // 7 bits ~= 0.01
+        ensure_approximately_equals("Bad LLSD::Real value from Python",
+                                    item.asReal(), 3.14, 7); // 7 bits ~= 0.01
         ensure_equals("Failed to read LLSD::String from Python",
                       LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
                       1);
