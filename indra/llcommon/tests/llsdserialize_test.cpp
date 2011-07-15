@@ -1802,7 +1802,10 @@ namespace tut
 
         python("read C++ notation",
                lambda::_1 <<
-               "from llbase import llsd\n"
+               "try:\n"
+               "    from llbase import llsd\n"
+               "except ImportError:\n"
+               "    from indra.base import llsd\n"
                "def parse_each(iterable):\n"
                "    for item in iterable:\n"
                "        yield llsd.parse(item)\n" <<
@@ -1823,7 +1826,10 @@ namespace tut
         python("write Python notation",
                lambda::_1 <<
                "from __future__ import with_statement\n"
-               "from llbase import llsd\n"
+               "try:\n"
+               "    from llbase import llsd\n"
+               "except ImportError:\n"
+               "    from indra.base import llsd\n"
                "DATA = [\n"
                "    17,\n"
                "    3.14,\n"
