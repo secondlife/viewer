@@ -1673,8 +1673,20 @@ namespace tut
 
     struct TestPythonCompatible
     {
-        TestPythonCompatible() {}
+        TestPythonCompatible():
+            import_llsd("import os.path\n"
+                        "import sys\n"
+                        "sys.path.insert(0,\n"
+                        "    os.path.join(os.path.dirname(__file__),\n"
+                        "                 os.pardir, os.pardir, 'lib', 'python'))\n"
+                        "try:\n"
+                        "    from llbase import llsd\n"
+                        "except ImportError:\n"
+                        "    from indra.base import llsd\n")
+        {}
         ~TestPythonCompatible() {}
+
+        std::string import_llsd;
 
         template <typename CONTENT>
         void python(const std::string& desc, const CONTENT& script, int expect=0)
@@ -1802,10 +1814,7 @@ namespace tut
 
         python("read C++ notation",
                lambda::_1 <<
-               "try:\n"
-               "    from llbase import llsd\n"
-               "except ImportError:\n"
-               "    from indra.base import llsd\n"
+               import_llsd <<
                "def parse_each(iterable):\n"
                "    for item in iterable:\n"
                "        yield llsd.parse(item)\n" <<
@@ -1825,11 +1834,8 @@ namespace tut
 
         python("write Python notation",
                lambda::_1 <<
-               "from __future__ import with_statement\n"
-               "try:\n"
-               "    from llbase import llsd\n"
-               "except ImportError:\n"
-               "    from indra.base import llsd\n"
+               "from __future__ import with_statement\n" <<
+               import_llsd <<
                "DATA = [\n"
                "    17,\n"
                "    3.14,\n"
