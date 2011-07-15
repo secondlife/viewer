@@ -68,6 +68,7 @@ typedef U32 uint32_t;
 #include "boost/foreach.hpp"
 #include "boost/function.hpp"
 #include "boost/lambda/lambda.hpp"
+#include "boost/lambda/bind.hpp"
 namespace lambda = boost::lambda;
 /*==========================================================================*|
 // Aaaarrgh, Linden's Boost package doesn't even include Boost.Iostreams!
@@ -77,6 +78,7 @@ namespace lambda = boost::lambda;
 
 #include "../llsd.h"
 #include "../llsdserialize.h"
+#include "llsdutil.h"
 #include "../llformat.h"
 
 #include "../test/lltut.h"
@@ -135,6 +137,13 @@ public:
     typedef boost::function<void(std::ostream&)> Streamer;
 
     NamedTempFile(const std::string& ext, const std::string& content):
+        mPath(temp_directory_path())
+    {
+        createFile(ext, lambda::_1 << content);
+    }
+
+    // Disambiguate when passing string literal
+    NamedTempFile(const std::string& ext, const char* content):
         mPath(temp_directory_path())
     {
         createFile(ext, lambda::_1 << content);
@@ -1667,7 +1676,8 @@ namespace tut
         TestPythonCompatible() {}
         ~TestPythonCompatible() {}
 
-        void python(const std::string& desc, const std::string& script /*, F32 timeout=5 */)
+        template <typename CONTENT>
+        void python(const std::string& desc, const CONTENT& script, int expect=0)
         {
             const char* PYTHON(getenv("PYTHON"));
             ensure("Set $PYTHON to the Python interpreter", PYTHON);
@@ -1687,7 +1697,7 @@ namespace tut
             }
             else
             {
-                ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, 0);
+                ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, expect);
             }
 
 #else  // LL_DARWIN, LL_LINUX
@@ -1710,7 +1720,8 @@ namespace tut
                 if (WIFEXITED(status))
                 {
                     int rc(WEXITSTATUS(status));
-                    ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, 0);
+                    ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc),
+                                  rc, expect);
                 }
                 else if (WIFSIGNALED(status))
                 {
@@ -1737,7 +1748,8 @@ namespace tut
         set_test_name("verify python()");
         python("hello",
                "import sys\n"
-               "sys.exit(0)");
+               "sys.exit(17)",
+               17);                 // expect nonzero rc
     }
 
     template<> template<>
@@ -1747,5 +1759,50 @@ namespace tut
         python("platform",
                "import sys\n"
                "print 'Running on', sys.platform");
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<3>()
+    {
+        set_test_name("verify sequence to Python");
+
+        LLSD cdata(LLSDArray(17)(3.14)
+                  ("This string\n"
+                   "has several\n"
+                   "lines."));
+
+        const char pydata[] =
+            "def verify(iterable):\n"
+            "    it = iter(iterable)\n"
+            "    assert it.next() == 17\n"
+            "    assert abs(it.next() - 3.14) < 0.01\n"
+            "    assert it.next() == '''\\\n"
+            "This string\n"
+            "has several\n"
+            "lines.'''\n"
+            "    try:\n"
+            "        it.next()\n"
+            "    except StopIteration:\n"
+            "        pass\n"
+            "    else:\n"
+            "        assert False, 'Too many data items'\n";
+
+        // Create a something.llsd file containing 'data' serialized to notation.
+        // Avoid final newline because NamedTempFile implicitly adds one.
+        NamedTempFile file(".llsd",
+                           (lambda::bind(LLSDSerialize::toNotation, cdata[0], lambda::_1),
+                            lambda::_1 << '\n',
+                            lambda::bind(LLSDSerialize::toNotation, cdata[1], lambda::_1),
+                            lambda::_1 << '\n',
+                            lambda::bind(LLSDSerialize::toNotation, cdata[2], lambda::_1)));
+
+        python("read C++ notation",
+               lambda::_1 <<
+               "from llbase import llsd\n"
+               "def parse_each(iterable):\n"
+               "    for item in iterable:\n"
+               "        yield llsd.parse(item)\n" <<
+               pydata <<
+               "verify(parse_each(open('" << file.getName() << "')))\n");
     }
 }
