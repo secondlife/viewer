@@ -1787,8 +1787,12 @@ namespace tut
             "    else:\n"
             "        assert False, 'Too many data items'\n";
 
-        // Create a something.llsd file containing 'data' serialized to notation.
-        // Avoid final newline because NamedTempFile implicitly adds one.
+        // Create a something.llsd file containing 'data' serialized to
+        // notation. It's important to separate with newlines because Python's
+        // llsd module doesn't support parsing from a file stream, only from a
+        // string, so we have to know how much of the file to read into a
+        // string. Avoid final newline because NamedTempFile implicitly adds
+        // one.
         NamedTempFile file(".llsd",
                            (lambda::bind(LLSDSerialize::toNotation, cdata[0], lambda::_1),
                             lambda::_1 << '\n',
@@ -1804,5 +1808,57 @@ namespace tut
                "        yield llsd.parse(item)\n" <<
                pydata <<
                "verify(parse_each(open('" << file.getName() << "')))\n");
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<4>()
+    {
+        set_test_name("verify sequence from Python");
+
+        // Create an empty data file. This is just a placeholder for our
+        // script to write into. Create it to establish a unique name that
+        // we know.
+        NamedTempFile file(".llsd", "");
+
+        python("write Python notation",
+               lambda::_1 <<
+               "from __future__ import with_statement\n"
+               "from llbase import llsd\n"
+               "DATA = [\n"
+               "    17,\n"
+               "    3.14,\n"
+               "    '''\\\n"
+               "This string\n"
+               "has several\n"
+               "lines.''',\n"
+               "]\n"
+               // N.B. Using 'print' implicitly adds newlines.
+               "with open('" << file.getName() << "', 'w') as f:\n"
+               "    for item in DATA:\n"
+               "        print >>f, llsd.format_notation(item)\n");
+
+        std::ifstream inf(file.getName().c_str());
+        LLSD item;
+        // Notice that we're not doing anything special to parse out the
+        // newlines: LLSDSerialize::fromNotation ignores them. While it would
+        // seem they're not strictly necessary, going in this direction, we
+        // want to ensure that notation-separated-by-newlines works in both
+        // directions -- since in practice, a given file might be read by
+        // either language.
+        ensure_equals("Failed to read LLSD::Integer from Python",
+                      LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
+                      1);
+        ensure_equals(item.asInteger(), 17);
+        ensure_equals("Failed to read LLSD::Real from Python",
+                      LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
+                      1);
+        ensure_approximately_equals(item.asReal(), 3.14, 7); // 7 bits ~= 0.01
+        ensure_equals("Failed to read LLSD::String from Python",
+                      LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
+                      1);
+        ensure_equals(item.asString(), 
+                      "This string\n"
+                      "has several\n"
+                      "lines.");
     }
 }
