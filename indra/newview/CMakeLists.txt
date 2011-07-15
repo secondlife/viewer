@@ -150,8 +150,9 @@ set(viewer_SOURCE_FILES
     lldrawpoolwlsky.cpp
     lldriverparam.cpp
     lldynamictexture.cpp
-    llenvmanager.cpp
     llemote.cpp
+    llenvmanager.cpp
+    llestateinfomodel.cpp
     lleventnotifier.cpp
     lleventpoll.cpp
     llexpandabletextbox.cpp
@@ -711,6 +712,7 @@ set(viewer_HEADER_FILES
     lldynamictexture.h
     llemote.h
     llenvmanager.h
+    llestateinfomodel.h
     lleventnotifier.h
     lleventpoll.h
     llexpandabletextbox.h
