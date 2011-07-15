@@ -126,8 +126,8 @@ void LLWatchdogTimeout::start(const std::string& state)
 	// Order of operation is very impmortant here.
 	// After LLWatchdogEntry::start() is called
 	// LLWatchdogTimeout::isAlive() will be called asynchronously. 
-	mTimer.start(); 
 	ping(state);
+	mTimer.start(); 
 	LLWatchdogEntry::start();
 }
 
