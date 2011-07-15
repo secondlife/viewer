@@ -67,7 +67,7 @@ public:
 };
 
 LLCrashLogger::LLCrashLogger() :
-	mCrashBehavior(CRASH_BEHAVIOR_ASK),
+	mCrashBehavior(CRASH_BEHAVIOR_ALWAYS_SEND),
 	mCrashInPreviousExec(false),
 	mCrashSettings("CrashSettings"),
 	mSentCrashLogs(false),
@@ -274,12 +274,19 @@ const char* const CRASH_SETTINGS_FILE = "settings_crash_behavior.xml";
 
 S32 LLCrashLogger::loadCrashBehaviorSetting()
 {
+	// First check user_settings (in the user's home dir)
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
+	if (! mCrashSettings.loadFromFile(filename))
+	{
+		// Next check app_settings (in the SL program dir)
+		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, CRASH_SETTINGS_FILE);
+		mCrashSettings.loadFromFile(filename);
+	}
 
-	mCrashSettings.loadFromFile(filename);
-
+	// If we didn't load any files above, this will return the default
 	S32 value = mCrashSettings.getS32("CrashSubmitBehavior");
 
+	// Whatever value we got, make sure it's valid
 	switch (value)
 	{
 	case CRASH_BEHAVIOR_NEVER_SEND:
@@ -391,14 +398,14 @@ bool LLCrashLogger::init()
 	// Set the log file to crashreport.log
 	LLError::logToFile(log_file);
 	
-	mCrashSettings.declareS32("CrashSubmitBehavior", CRASH_BEHAVIOR_ASK,
+	mCrashSettings.declareS32("CrashSubmitBehavior", CRASH_BEHAVIOR_ALWAYS_SEND,
 							  "Controls behavior when viewer crashes "
 							  "(0 = ask before sending crash report, "
 							  "1 = always send crash report, "
 							  "2 = never send crash report)");
 
-	llinfos << "Loading crash behavior setting" << llendl;
-	mCrashBehavior = loadCrashBehaviorSetting();
+	// llinfos << "Loading crash behavior setting" << llendl;
+	// mCrashBehavior = loadCrashBehaviorSetting();
 
 	// If user doesn't want to send, bail out
 	if (mCrashBehavior == CRASH_BEHAVIOR_NEVER_SEND)
