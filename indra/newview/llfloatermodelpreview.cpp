@@ -1385,6 +1385,8 @@ bool LLModelLoader::doLoadModel()
 	
 	if (!dom)
 	{
+		llinfos<<" Error with dae - traditionally indicates a corrupt file."<<llendl;
+		setLoadState( ERROR_PARSING );
 		return false;
 	}
 
@@ -2185,15 +2187,11 @@ void LLModelPreview::critiqueRigForUploadApplicability( const std::vector<std::s
 		setRigValidForJointPositionUpload( true );
 	}
 
-	if ( isRigLegacyOK )
-	{
+	if ( isRigLegacyOK) 
+	{	
 		setLegacyRigValid( true );
 	}
 
-	if ( getRigWithSceneParity() && isJointPositionUploadOK )
-	{
-		setResetJointFlag( true );
-	}
 }
 //-----------------------------------------------------------------------------
 // critiqueJointToNodeMappingFromScene()
@@ -2233,12 +2231,7 @@ void LLModelPreview::critiqueJointToNodeMappingFromScene( void  )
 	//2. Partial rig but w/o parity between the scene and joint array
 	if ( result )
 	{		
-		setResetJointFlag( true );
 		setRigWithSceneParity( true );
-	}
-	else
-	{
-		setResetJointFlag( false );
 	}	
 }
 //-----------------------------------------------------------------------------
@@ -2996,13 +2989,7 @@ U32 LLModelPreview::calcResourceCost()
 		if ( uploadingJointPositions && !isRigValidForJointPositionUpload() )
 		{
 			mFMP->childDisable("ok_btn");		
-		}
-		else
-		if ( !isLegacyRigValid() )
-		{
-			mFMP->childDisable("ok_btn");
-		}
-		//ok_btn should not have been changed unless something was wrong with joint list
+		}		
 	}
 	
 	std::set<LLModel*> accounted;
@@ -3343,6 +3330,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 	if ( getLoadState() >= LLModelLoader::ERROR_PARSING )
 	{
 		mFMP->childDisable("ok_btn");
+		mFMP->childDisable( "calculate_btn" );
 	}
 	
 	if (lod == mPreviewLOD)
@@ -4213,12 +4201,7 @@ void LLModelPreview::updateStatusMessages()
 		if ( uploadingJointPositions && !isRigValidForJointPositionUpload() )
 		{
 			skinAndRigOk = false;
-		}
-		else
-		if ( !isLegacyRigValid() )
-		{
-			skinAndRigOk = false;
-		}
+		}	
 	}
 	
 	if(upload_ok && mModelLoader)
@@ -4814,8 +4797,12 @@ BOOL LLModelPreview::render()
 		mFMP->childSetValue("upload_joints", false);
 		upload_joints = false;		
 	}	
-	
-	mFMP->childSetEnabled("upload_joints", upload_skin);
+		
+	//Only enable joint offsets if it passed the earlier critiquing
+	if ( isRigValidForJointPositionUpload() )  
+	{
+		mFMP->childSetEnabled("upload_joints", upload_skin);
+	}
 
 	F32 explode = mFMP->childGetValue("physics_explode").asReal();
 
@@ -5473,11 +5460,6 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 		//Disable the calculate button *if* the rig is invalid - which is determined during the critiquing process
 		if ( uploadingJointPositions && !mModelPreview->isRigValidForJointPositionUpload() )
 		{
-			mCalculateBtn->setVisible( false );
-		}
-		else
-		if ( !mModelPreview->isLegacyRigValid() )
-		{			
 			mCalculateBtn->setVisible( false );
 		}
 	}
