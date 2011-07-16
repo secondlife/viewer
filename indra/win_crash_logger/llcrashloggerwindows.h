@@ -41,7 +41,6 @@ public:
 	virtual void updateApplication(const std::string& message = LLStringUtil::null);
 	virtual bool cleanup();
 	virtual void gatherPlatformSpecificFiles();
-	//void annotateCallStack();
 	void setHandle(HINSTANCE hInst) { mhInst = hInst; }
 private:
 	void ProcessDlgItemText(HWND hWnd, int nIDDlgItem);
