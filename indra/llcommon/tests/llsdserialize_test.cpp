@@ -1674,10 +1674,16 @@ namespace tut
     struct TestPythonCompatible
     {
         TestPythonCompatible():
+            // Note the peculiar insertion of __FILE__ into this string.
+            // Normally I like to make a Python script navigate relative to
+            // its own placement in the repo directory tree (__file__) -- but
+            // in this case, the script is being written into a platform-
+            // dependent temp directory! So locate indra/lib/python relative
+            // to this C++ source file rather than the Python module.
             import_llsd("import os.path\n"
                         "import sys\n"
                         "sys.path.insert(0,\n"
-                        "    os.path.join(os.path.dirname(__file__),\n"
+                        "    os.path.join(os.path.dirname('" __FILE__ "'),\n"
                         "                 os.pardir, os.pardir, 'lib', 'python'))\n"
                         "try:\n"
                         "    from llbase import llsd\n"
