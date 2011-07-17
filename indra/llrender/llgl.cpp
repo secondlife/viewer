@@ -1379,6 +1379,8 @@ void LLGLState::checkStates(const std::string& msg)
 	glGetIntegerv(GL_BLEND_SRC, &src);
 	glGetIntegerv(GL_BLEND_DST, &dst);
 	
+	stop_glerror();
+
 	BOOL error = FALSE;
 
 	if (src != GL_SRC_ALPHA || dst != GL_ONE_MINUS_SRC_ALPHA)
@@ -1399,7 +1401,9 @@ void LLGLState::checkStates(const std::string& msg)
 	{
 		LLGLenum state = iter->first;
 		LLGLboolean cur_state = iter->second;
+		stop_glerror();
 		LLGLboolean gl_state = glIsEnabled(state);
+		stop_glerror();
 		if(cur_state != gl_state)
 		{
 			dumpStates();
@@ -1424,11 +1428,11 @@ void LLGLState::checkStates(const std::string& msg)
 
 void LLGLState::checkTextureChannels(const std::string& msg)
 {
+#if 0
 	if (!gDebugGL)
 	{
 		return;
 	}
-
 	stop_glerror();
 
 	GLint activeTexture;
@@ -1594,6 +1598,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 			LL_GL_ERRS << "GL texture state corruption detected.  " << msg << LL_ENDL;
 		}
 	}
+#endif
 }
 
 void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
@@ -1710,7 +1715,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 		}
 	}
 
-	if (glIsEnabled(GL_TEXTURE_2D))
+	/*if (glIsEnabled(GL_TEXTURE_2D))
 	{
 		if (!(data_mask & 0x0008))
 		{
@@ -1733,7 +1738,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 				gFailLog << "GL does not have GL_TEXTURE_2D enabled on channel 1." << std::endl;
 			}
 		}
-	}
+	}*/
 
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	gGL.getTexUnit(0)->activate();

@@ -49,6 +49,8 @@ void LLDrawPoolGlow::beginPostDeferredPass(S32 pass)
 	gDeferredFullbrightProgram.bind();
 }
 
+static LLFastTimer::DeclareTimer FTM_RENDER_GLOW_PUSH("Glow Push");
+
 void LLDrawPoolGlow::renderPostDeferred(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_GLOW);
@@ -62,7 +64,11 @@ void LLDrawPoolGlow::renderPostDeferred(S32 pass)
 	
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	gGL.setColorMask(false, true);
-	pushBatches(LLRenderPass::PASS_GLOW, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+
+	{
+		LLFastTimer t(FTM_RENDER_GLOW_PUSH);
+		pushBatches(LLRenderPass::PASS_GLOW, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+	}
 	
 	gGL.setColorMask(true, false);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);	
@@ -374,16 +380,22 @@ void LLDrawPoolFullbright::endRenderPass(S32 pass)
 	LLFastTimer t(FTM_RENDER_FULLBRIGHT);
 	LLRenderPass::endRenderPass(pass);
 
+	stop_glerror();
+
 	if (mVertexShaderLevel > 0)
 	{
 		fullbright_shader->unbind();
 	}
+
+	stop_glerror();
 }
 
 void LLDrawPoolFullbright::render(S32 pass)
 { //render fullbright
 	LLFastTimer t(FTM_RENDER_FULLBRIGHT);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+	stop_glerror();
 
 	if (mVertexShaderLevel > 0)
 	{
@@ -398,6 +410,8 @@ void LLDrawPoolFullbright::render(S32 pass)
 		U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR;
 		renderTexture(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask);
 	}
+
+	stop_glerror();
 }
 
 S32 LLDrawPoolFullbright::getNumPasses()

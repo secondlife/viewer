@@ -67,6 +67,7 @@ public:
 	LLGLSLShader();
 
 	static GLhandleARB sCurBoundShader;
+	static bool sNoFixedFunction;
 
 	void unload();
 	BOOL createShader(std::vector<std::string> * attributes,

@@ -35,6 +35,8 @@
 #include "llmemtype.h"
 #include "llrender.h"
 #include "llvector4a.h"
+#include "llglslshader.h"
+
 
 //============================================================================
 
@@ -1113,8 +1115,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, offset, length, 
 							GL_MAP_WRITE_BIT | 
 							GL_MAP_FLUSH_EXPLICIT_BIT | 
-							GL_MAP_INVALIDATE_RANGE_BIT | 
-							GL_MAP_UNSYNCHRONIZED_BIT);
+							GL_MAP_INVALIDATE_RANGE_BIT);
 #endif
 					}
 					else
@@ -1122,8 +1123,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 #ifdef GL_ARB_map_buffer_range
 						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, 0, mSize, 
 							GL_MAP_WRITE_BIT | 
-							GL_MAP_FLUSH_EXPLICIT_BIT |
-							GL_MAP_UNSYNCHRONIZED_BIT);
+							GL_MAP_FLUSH_EXPLICIT_BIT);
 #endif
 					}
 				}
@@ -1280,8 +1280,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length, 
 							GL_MAP_WRITE_BIT | 
 							GL_MAP_FLUSH_EXPLICIT_BIT | 
-							GL_MAP_INVALIDATE_RANGE_BIT |
-							GL_MAP_UNSYNCHRONIZED_BIT);
+							GL_MAP_INVALIDATE_RANGE_BIT);
 #endif
 					}
 					else
@@ -1289,8 +1288,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 #ifdef GL_ARB_map_buffer_range
 						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, sizeof(U16)*mNumIndices, 
 							GL_MAP_WRITE_BIT | 
-							GL_MAP_FLUSH_EXPLICIT_BIT |
-							GL_MAP_UNSYNCHRONIZED_BIT);
+							GL_MAP_FLUSH_EXPLICIT_BIT);
 #endif
 					}
 				}

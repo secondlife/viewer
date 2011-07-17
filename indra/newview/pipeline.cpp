@@ -1983,6 +1983,14 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
+	bool bound_shader = false;
+	if (gPipeline.canUseVertexShaders() && LLGLSLShader::sCurBoundShader == 0)
+	{ //if no shader is currently bound, use the occlusion shader instead of fixed function if we can
+		// (shadow render uses a special shader that clamps to clip planes)
+		bound_shader = true;
+		gOcclusionProgram.bind();
+	}
+	
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -2008,6 +2016,11 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 				}
 			}
 		}
+	}
+
+	if (bound_shader)
+	{
+		gOcclusionProgram.unbind();
 	}
 
 	camera.disableUserClipPlane();
@@ -2133,7 +2146,12 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
 		LLGLDisable cull(GL_CULL_FACE);
-		
+
+		if (canUseVertexShaders())
+		{
+			gOcclusionProgram.bind();
+		}
+
 		for (LLCullResult::sg_list_t::iterator iter = sCull->beginOcclusionGroups(); iter != sCull->endOcclusionGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
@@ -2141,6 +2159,11 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			group->clearOcclusionState(LLSpatialGroup::ACTIVE_OCCLUSION);
 		}
 	
+		if (canUseVertexShaders())
+		{
+			gOcclusionProgram.unbind();
+		}
+
 		gGL.setColorMask(true, false);
 	}
 }
@@ -3249,6 +3272,11 @@ void render_hud_elements()
 	gGL.color4f(1,1,1,1);
 	if (!LLPipeline::sReflectionRender && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.bind();
+		}
+
 		LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 		gViewerWindow->renderSelections(FALSE, FALSE, FALSE); // For HUD version in render_ui_3d()
 	
@@ -3262,6 +3290,10 @@ void render_hud_elements()
 	
 		// Render name tags.
 		LLHUDObject::renderAll();
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.unbind();
+		}
 	}
 	else if (gForceRenderLandFence)
 	{
@@ -3599,8 +3631,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 						check_stack_depth(stack_depth);
 						std::string msg = llformat("pass %d", i);
 						LLGLState::checkStates(msg);
-						LLGLState::checkTextureChannels(msg);
-						LLGLState::checkClientArrays(msg);
+						//LLGLState::checkTextureChannels(msg);
+						//LLGLState::checkClientArrays(msg);
 					}
 				}
 			}
@@ -3638,16 +3670,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
-
-	
-
-	stop_glerror();
-		
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
+	//LLGLState::checkTextureChannels();
+	//LLGLState::checkClientArrays();
 
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderHighlights");
 
@@ -3701,8 +3725,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	LLVertexBuffer::unbind();
 
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
+//	LLGLState::checkTextureChannels();
+//	LLGLState::checkClientArrays();
 }
 
 void LLPipeline::renderGeomDeferred(LLCamera& camera)
@@ -6449,30 +6473,39 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		LLGLDisable blend(GL_BLEND);
 
-		//tex unit 0
-		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
-	
-		gGL.getTexUnit(0)->bind(&mGlow[1]);
-		gGL.getTexUnit(1)->activate();
-		gGL.getTexUnit(1)->enable(LLTexUnit::TT_RECT_TEXTURE);
-
-
-		//tex unit 1
-		gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_ADD, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gGlowCombineProgram.bind();
+		}
+		else
+		{
+			//tex unit 0
+			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
+			//tex unit 1
+			gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_ADD, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
+		}
 		
+		gGL.getTexUnit(0)->bind(&mGlow[1]);
 		gGL.getTexUnit(1)->bind(&mScreen);
-		gGL.getTexUnit(1)->activate();
 		
 		LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 		
 		buff->setBuffer(mask);
 		buff->drawArrays(LLRender::TRIANGLE_STRIP, 0, 3);
 		
-		gGL.getTexUnit(1)->disable();
-		gGL.getTexUnit(1)->setTextureBlendType(LLTexUnit::TB_MULT);
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gGlowCombineProgram.unbind();
+		}
+		else
+		{
+			gGL.getTexUnit(1)->disable();
+			gGL.getTexUnit(1)->setTextureBlendType(LLTexUnit::TB_MULT);
 
-		gGL.getTexUnit(0)->activate();
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+			gGL.getTexUnit(0)->activate();
+			gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		}
+		
 	}
 
 	if (LLRenderTarget::sUseFBO)
@@ -6485,6 +6518,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
 	{
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.bind();
+		}
+
 		gGL.setColorMask(true, false);
 
 		LLVector2 tc1(0,0);
@@ -6508,6 +6546,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		
 		gGL.end();
 		gGL.flush();
+
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.unbind();
+		}
+
 	}
 
 	glMatrixMode(GL_PROJECTION);
@@ -8063,8 +8107,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		LLViewerCamera::getInstance()->setUserClipPlane(npnorm);
 		
 		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
-		LLGLState::checkClientArrays();
+		//LLGLState::checkTextureChannels();
+		//LLGLState::checkClientArrays();
 
 		if (!skip_avatar_update)
 		{
@@ -8197,6 +8241,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	LLVertexBuffer::unbind();
 
 	{
+		if (!use_shader)
+		{ //occlusion program is general purpose depth-only no-textures
+			gOcclusionProgram.bind();
+		}
 		LLFastTimer ftm(FTM_SHADOW_SIMPLE);
 		LLGLDisable test(GL_ALPHA_TEST);
 		gGL.getTexUnit(0)->disable();
@@ -8205,6 +8253,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 			renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, FALSE);
 		}
 		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+		if (!use_shader)
+		{
+			gOcclusionProgram.unbind();
+		}
 	}
 	
 	if (use_shader)
