@@ -1827,7 +1827,8 @@ namespace tut
                "    for item in iterable:\n"
                "        yield llsd.parse(item)\n" <<
                pydata <<
-               "verify(parse_each(open('" << file.getName() << "')))\n");
+               // Don't forget raw-string syntax for Windows pathnames.
+               "verify(parse_each(open(r'" << file.getName() << "')))\n");
     }
 
     template<> template<>
@@ -1852,8 +1853,9 @@ namespace tut
                "has several\n"
                "lines.''',\n"
                "]\n"
+               // Don't forget raw-string syntax for Windows pathnames.
                // N.B. Using 'print' implicitly adds newlines.
-               "with open('" << file.getName() << "', 'w') as f:\n"
+               "with open(r'" << file.getName() << "', 'w') as f:\n"
                "    for item in DATA:\n"
                "        print >>f, llsd.format_notation(item)\n");
 
