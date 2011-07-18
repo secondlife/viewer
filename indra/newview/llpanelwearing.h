@@ -60,6 +60,8 @@ public:
 
 	/*virtual*/ void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
 
+	/*virtual*/ void copyToClipboard();
+
 	boost::signals2::connection setSelectionChangeCallback(commit_callback_t cb);
 
 	bool hasItemSelected();
