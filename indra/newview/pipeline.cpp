@@ -2147,9 +2147,18 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 
 		LLGLDisable cull(GL_CULL_FACE);
 
-		if (canUseVertexShaders())
+		
+		bool bind_shader = LLGLSLShader::sNoFixedFunction && LLGLSLShader::sCurBoundShader == 0;
+		if (bind_shader)
 		{
-			gOcclusionProgram.bind();
+			if (LLPipeline::sShadowRender)
+			{
+				gDeferredShadowProgram.bind();
+			}
+			else
+			{
+				gOcclusionProgram.bind();
+			}
 		}
 
 		for (LLCullResult::sg_list_t::iterator iter = sCull->beginOcclusionGroups(); iter != sCull->endOcclusionGroups(); ++iter)
@@ -2159,9 +2168,16 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			group->clearOcclusionState(LLSpatialGroup::ACTIVE_OCCLUSION);
 		}
 	
-		if (canUseVertexShaders())
+		if (bind_shader)
 		{
-			gOcclusionProgram.unbind();
+			if (LLPipeline::sShadowRender)
+			{
+				gDeferredShadowProgram.unbind();
+			}
+			else
+			{
+				gOcclusionProgram.unbind();
+			}
 		}
 
 		gGL.setColorMask(true, false);
