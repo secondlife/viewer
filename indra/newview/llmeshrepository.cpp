@@ -1399,7 +1399,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 			instance_entry["face_list"] = LLSD::emptyArray();
 
-			for (S32 face_num = 0; face_num < data.mBaseModel->getNumVolumeFaces(); face_num++)
+			S32 end = llmin((S32)data.mBaseModel->mMaterialList.size(), data.mBaseModel->getNumVolumeFaces()) ;
+			for (S32 face_num = 0; face_num < end; face_num++)
 			{
 				LLImportMaterial& material = instance.mMaterial[data.mBaseModel->mMaterialList[face_num]];
 				LLSD face_entry = LLSD::emptyMap();
