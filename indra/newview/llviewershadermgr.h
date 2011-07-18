@@ -289,16 +289,12 @@ extern LLVector4			gShinyOrigin;
 
 //utility shaders
 extern LLGLSLShader			gOcclusionProgram;
-extern LLGLSLShader			gUIProgram;
 extern LLGLSLShader			gCustomAlphaProgram;
 extern LLGLSLShader			gGlowCombineProgram;
 
 //output tex0[tc0] + tex1[tc1]
 extern LLGLSLShader			gTwoTextureAddProgram;
 								
-//output vec4(color.rgb,color.a*tex0[tc0].a)
-extern LLGLSLShader			gSolidColorProgram;
-
 //object shaders
 extern LLGLSLShader			gObjectSimpleProgram;
 extern LLGLSLShader			gObjectSimpleWaterProgram;

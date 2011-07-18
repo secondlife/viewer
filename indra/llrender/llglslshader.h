@@ -142,4 +142,10 @@ public:
 	std::string mName;
 };
 
+//UI shader (declared here so llui_libtest will link properly)
+extern LLGLSLShader			gUIProgram;
+//output vec4(color.rgb,color.a*tex0[tc0].a)
+extern LLGLSLShader			gSolidColorProgram;
+
+
 #endif

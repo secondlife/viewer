@@ -63,11 +63,9 @@ LLVector4			gShinyOrigin;
 
 //utility shaders
 LLGLSLShader	gOcclusionProgram;
-LLGLSLShader	gUIProgram;
 LLGLSLShader	gCustomAlphaProgram;
 LLGLSLShader	gGlowCombineProgram;
 LLGLSLShader	gTwoTextureAddProgram;
-LLGLSLShader	gSolidColorProgram;
 
 //object shaders
 LLGLSLShader		gObjectSimpleProgram;
