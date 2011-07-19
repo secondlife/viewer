@@ -282,7 +282,7 @@ private:
                 NULL,
                 GetLastError(),
                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                LPTSTR(&lpMsgBuf),
+                LPTSTR(&msgptr),
                 0, NULL );
             LL_ERRS("NamedTempFile") << "GetTempFileName(\"" << mPath << "\", \""
                                      << (ext.c_str() + pfx_offset) << "\") failed: "
