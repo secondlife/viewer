@@ -1621,6 +1621,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	if (rebuild_pos)
 	{
+		llassert(num_vertices > 0);
+		
 		mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount, map_range);
 		vertices = (LLVector4a*) vert.get();
 	
@@ -1649,7 +1651,15 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			index_dst += 4;
 		}
 		while (index_dst < index_end);
-
+		
+		S32 aligned_pad_vertices = mGeomCount - num_vertices;
+		LLVector4a* last_vec = end - 1;
+		while (aligned_pad_vertices > 0)
+		{
+			--aligned_pad_vertices;
+			*dst++ = *last_vec;
+		}
+		
 		if (map_range)
 		{
 			mVertexBuffer->setBuffer(0);

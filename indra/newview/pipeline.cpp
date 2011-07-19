@@ -3686,8 +3686,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
-	//LLGLState::checkTextureChannels();
-	//LLGLState::checkClientArrays();
 
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderHighlights");
 
@@ -3825,8 +3823,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 						llerrs << "GL matrix stack corrupted!" << llendl;
 					}
 					LLGLState::checkStates();
-					LLGLState::checkTextureChannels();
-					LLGLState::checkClientArrays();
 				}
 			}
 		}
@@ -3919,8 +3915,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 						llerrs << "GL matrix stack corrupted!" << llendl;
 					}
 					LLGLState::checkStates();
-					LLGLState::checkTextureChannels();
-					LLGLState::checkClientArrays();
 				}
 			}
 		}
@@ -3995,8 +3989,6 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 				LLVertexBuffer::unbind();
 
 				LLGLState::checkStates();
-				LLGLState::checkTextureChannels();
-				LLGLState::checkClientArrays();
 			}
 		}
 		else
@@ -8123,8 +8115,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		LLViewerCamera::getInstance()->setUserClipPlane(npnorm);
 		
 		LLGLState::checkStates();
-		//LLGLState::checkTextureChannels();
-		//LLGLState::checkClientArrays();
 
 		if (!skip_avatar_update)
 		{
