@@ -37,12 +37,12 @@ typedef U32 uint32_t;
 #include <unistd.h>
 #include <netinet/in.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include "llprocesslauncher.h"
 #endif
 
-#include <fcntl.h>
-#include <sys/stat.h>
 #include <sstream>
 
 /*==========================================================================*|
@@ -89,6 +89,45 @@ std::vector<U8> string_to_vector(const std::string& str)
 	return std::vector<U8>(str.begin(), str.end());
 }
 
+#if ! LL_WINDOWS
+// We want to call strerror_r(), but alarmingly, there are two different
+// variants. The one that returns int always populates the passed buffer
+// (except in case of error), whereas the other one always returns a valid
+// char* but might or might not populate the passed buffer. How do we know
+// which one we're getting? Define adapters for each and let the compiler
+// select the applicable adapter.
+
+// strerror_r() returns char*
+std::string message_from(int /*orig_errno*/, const char* /*buffer*/, const char* strerror_ret)
+{
+    return strerror_ret;
+}
+
+// strerror_r() returns int
+std::string message_from(int orig_errno, const char* buffer, int strerror_ret)
+{
+    if (strerror_ret == 0)
+    {
+        return buffer;
+    }
+    // Here strerror_r() has set errno. Since strerror_r() has already failed,
+    // seems like a poor bet to call it again to diagnose its own error...
+    int stre_errno = errno;
+    if (stre_errno == ERANGE)
+    {
+        return STRINGIZE("strerror_r() can't explain errno " << orig_errno
+                         << " (buffer too small)");
+    }
+    if (stre_errno == EINVAL)
+    {
+        return STRINGIZE("unknown errno " << orig_errno);
+    }
+    // Here we don't even understand the errno from strerror_r()!
+    return STRINGIZE("strerror_r() can't explain errno " << orig_errno
+                     << " (error " << stre_errno << ')');
+}
+#endif  // ! LL_WINDOWS
+
 // boost::filesystem::temp_directory_path() isn't yet in Boost 1.45! :-(
 std::string temp_directory_path()
 {
@@ -119,11 +158,6 @@ std::string temp_directory_path()
 #define _write    write
 #define _close    close
 #define _remove   remove
-#define _O_WRONLY O_WRONLY
-#define _O_CREAT  O_CREAT
-#define _O_EXCL   O_EXCL
-#define _S_IWRITE S_IWUSR
-#define _S_IREAD  S_IRUSR
 #endif  // ! LL_WINDOWS
 
 // Create a text file with specified content "somewhere in the
@@ -165,6 +199,11 @@ public:
 private:
     void createFile(const std::string& ext, const Streamer& func)
     {
+        // Silly maybe, but use 'ext' as the name prefix. Strip off a leading
+        // '.' if present.
+        int pfx_offset = ((! ext.empty()) && ext[0] == '.')? 1 : 0;
+
+#if ! LL_WINDOWS
         // Make sure mPath ends with a directory separator, if it doesn't already.
         if (mPath.empty() ||
             ! (mPath[mPath.length() - 1] == '\\' || mPath[mPath.length() - 1] == '/'))
@@ -172,49 +211,92 @@ private:
             mPath.append("/");
         }
 
-        // Open a file with a unique name in the mPath directory.
-        int fd(-1);
-        for (int i(0);; ++i)
+        // mkstemp() accepts and modifies a char* template string. Generate
+        // the template string, then copy to modifiable storage.
+        // mkstemp() requires its template string to end in six X's.
+        mPath += ext.substr(pfx_offset) + "XXXXXX";
+        // Copy to vector<char>
+        std::vector<char> pathtemplate(mPath.begin(), mPath.end());
+        // append a nul byte for classic-C semantics
+        pathtemplate.push_back('\0');
+        // std::vector promises that a pointer to the 0th element is the same
+        // as a pointer to a contiguous classic-C array
+        int fd(mkstemp(&pathtemplate[0]));
+        if (fd == -1)
         {
-            // Append an integer name to mPath. It need not be zero-filled,
-            // but I think it's neater that way.
-            std::string testname(STRINGIZE(mPath
-                                           << std::setw(8) << std::setfill('0') << i
-                                           << ext));
-            // The key to this whole loop is the _O_CREAT | _O_EXCL bitmask,
-            // which requests error EEXIST if the file already exists. A
-            // proper implementation will check atomically, ensuring that
-            // racing processes will end up with two different filenames.
-            fd = _open(testname.c_str(),
-                       _O_WRONLY | _O_CREAT | _O_EXCL,
-                       _S_IREAD | _S_IWRITE);
-            if (fd != -1)           // managed to open the file
+            // The documented errno values (http://linux.die.net/man/3/mkstemp)
+            // are used in a somewhat unusual way, so provide context-specific
+            // errors.
+            if (errno == EEXIST)
             {
-                mPath = testname;   // remember its actual name
-                break;
+                LL_ERRS("NamedTempFile") << "mkstemp(\"" << mPath
+                                         << "\") could not create unique file " << LL_ENDL;
             }
-            // This loop is specifically coded to handle EEXIST. Any other
-            // error is a problem.
-            llassert_always(errno == EEXIST);
-            // loop back to try another filename
+            if (errno == EINVAL)
+            {
+                LL_ERRS("NamedTempFile") << "bad mkstemp() file path template '"
+                                         << mPath << "'" << LL_ENDL;
+            }
+            // Shrug, something else
+            int mkst_errno = errno;
+            char buffer[256];
+            LL_ERRS("NamedTempFile") << "mkstemp(\"" << mPath << "\") failed: "
+                                     << message_from(mkst_errno, buffer,
+                                                     strerror_r(mkst_errno, buffer, sizeof(buffer)))
+                                     << LL_ENDL;
         }
-        // fd is open, its name is in mPath: write it and close it.
+        // mkstemp() seems to have worked! Capture the modified filename.
+        // Avoid the nul byte we appended.
+        mPath.assign(pathtemplate.begin(), (pathtemplate.end()-1));
 
 /*==========================================================================*|
         // Define an ostream on the open fd. Tell it to close fd on destruction.
         boost::iostreams::stream<boost::iostreams::file_descriptor_sink>
             out(fd, boost::iostreams::close_handle);
 |*==========================================================================*/
+
+        // Write desired content.
         std::ostringstream out;
         // Stream stuff to it.
         func(out);
-        // toss in a final newline for good measure
-        out << '\n';
 
         std::string data(out.str());
         int written(_write(fd, data.c_str(), data.length()));
         int closed(_close(fd));
         llassert_always(written == data.length() && closed == 0);
+
+#else // LL_WINDOWS
+        // GetTempFileName() is documented to require a MAX_PATH buffer.
+        char tempname[MAX_PATH];
+        // Use 'ext' as filename prefix, but skip leading '.' if any.
+        // The 0 param is very important: requests iterating until we get a
+        // unique name.
+        if (0 == GetTempFileNameA(mPath.c_str(), ext.c_str() + pfx_offset, 0, tempname))
+        {
+            // I always have to look up this call...  :-P
+            LPVOID msgptr;
+            FormatMessageA(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL,
+                GetLastError(),
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                LPTSTR(&lpMsgBuf),
+                0, NULL );
+            LL_ERRS("NamedTempFile") << "GetTempFileName(\"" << mPath << "\", \""
+                                     << (ext.c_str() + pfx_offset) << "\") failed: "
+                                     << msgptr << LL_ENDL;
+            LocalFree(msgptr);
+        }
+        // GetTempFileName() appears to have worked! Capture the actual
+        // filename.
+        mPath = tempname;
+        // Open the file and stream content to it. Destructor will close.
+        std::ofstream out(tempname);
+        func(out);
+
+#endif  // LL_WINDOWS
     }
 
     void peep()
@@ -1674,14 +1756,13 @@ namespace tut
     struct TestPythonCompatible
     {
         TestPythonCompatible():
-            // Note the peculiar insertion of __FILE__ into this string.
-            // Normally I like to make a Python script navigate relative to
-            // its own placement in the repo directory tree (__file__) -- but
-            // in this case, the script is being written into a platform-
-            // dependent temp directory! So locate indra/lib/python relative
-            // to this C++ source file rather than the Python module.
-            // Use Python raw-string syntax so Windows pathname backslashes
-            // won't mislead Python's string scanner.
+            // Note the peculiar insertion of __FILE__ into this string. Since
+            // this script is being written into a platform-dependent temp
+            // directory, we can't locate indra/lib/python relative to
+            // Python's __file__. Use __FILE__ instead, navigating relative
+            // to this C++ source file. Use Python raw-string syntax so
+            // Windows pathname backslashes won't mislead Python's string
+            // scanner.
             import_llsd("import os.path\n"
                         "import sys\n"
                         "sys.path.insert(0,\n"
@@ -1708,7 +1789,7 @@ namespace tut
             std::string q("\"");
             std::string qPYTHON(q + PYTHON + q);
             std::string qscript(q + scriptfile.getName() + q);
-            int rc(_spawnl(_P_WAIT, PYTHON, qPYTHON.c_str(), qscript.c_str(), NULL));
+            int rc = _spawnl(_P_WAIT, PYTHON, qPYTHON.c_str(), qscript.c_str(), NULL);
             if (rc == -1)
             {
                 char buffer[256];
@@ -1768,7 +1849,7 @@ namespace tut
         set_test_name("verify python()");
         python("hello",
                "import sys\n"
-               "sys.exit(17)",
+               "sys.exit(17)\n",
                17);                 // expect nonzero rc
     }
 
@@ -1778,7 +1859,7 @@ namespace tut
         set_test_name("verify NamedTempFile");
         python("platform",
                "import sys\n"
-               "print 'Running on', sys.platform");
+               "print 'Running on', sys.platform\n");
     }
 
     template<> template<>
@@ -1811,14 +1892,20 @@ namespace tut
         // notation. It's important to separate with newlines because Python's
         // llsd module doesn't support parsing from a file stream, only from a
         // string, so we have to know how much of the file to read into a
-        // string. Avoid final newline because NamedTempFile implicitly adds
-        // one.
+        // string.
         NamedTempFile file(".llsd",
+                           // NamedTempFile's boost::function constructor
+                           // takes a callable. To this callable it passes the
+                           // std::ostream with which it's writing the
+                           // NamedTempFile. This lambda-based expression
+                           // first calls LLSD::Serialize() with that ostream,
+                           // then streams a newline to it, etc.
                            (lambda::bind(LLSDSerialize::toNotation, cdata[0], lambda::_1),
                             lambda::_1 << '\n',
                             lambda::bind(LLSDSerialize::toNotation, cdata[1], lambda::_1),
                             lambda::_1 << '\n',
-                            lambda::bind(LLSDSerialize::toNotation, cdata[2], lambda::_1)));
+                            lambda::bind(LLSDSerialize::toNotation, cdata[2], lambda::_1),
+                            lambda::_1 << '\n'));
 
         python("read C++ notation",
                lambda::_1 <<
