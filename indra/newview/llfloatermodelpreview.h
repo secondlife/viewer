@@ -109,7 +109,7 @@ public:
 
 	void loadTextures() ; //called in the main thread.
 	void processElement(daeElement* element, bool& badElement);
-	std::vector<LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
+	std::map<std::string, LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
 	LLImportMaterial profileToMaterial(domProfile_COMMON* material);
 	std::string getElementLabel(daeElement *element);
 	LLColor4 getDaeColor(daeElement* element);
@@ -140,7 +140,7 @@ private:
 	static bool isAlive(LLModelLoader* loader) ;
 };
 
-class LLFloaterModelPreview : public LLFloater
+class LLFloaterModelPreview : public LLFloaterModelUploadBase
 {
 public:
 	
@@ -162,11 +162,15 @@ public:
 	
 	virtual BOOL postBuild();
 	
+	void initModelPreview();
+
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
 	
+	/*virtual*/ void onOpen(const LLSD& key);
+
 	static void onMouseCaptureLostModelPreview(LLMouseHandler*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 
@@ -178,13 +182,10 @@ public:
 
 	static void onUpload(void* data);
 	
-	static void onClearMaterials(void* data);
-	
 	static void refresh(LLUICtrl* ctrl, void* data);
 	
-	void updateResourceCost();
-	
 	void			loadModel(S32 lod);
+	void 			loadModel(S32 lod, const std::string& file_name, bool force_disable_slm = false);
 	
 	void onViewOptionChecked(const LLSD& userdata);
 	bool isViewOptionChecked(const LLSD& userdata);
@@ -192,6 +193,20 @@ public:
 	void setViewOptionEnabled(const std::string& option, bool enabled);
 	void enableViewOption(const std::string& option);
 	void disableViewOption(const std::string& option);
+
+	// shows warning message if agent has no permissions to upload model
+	/*virtual*/ void onPermissionsReceived(const LLSD& result);
+
+	// called when error occurs during permissions request
+	/*virtual*/ void setPermissonsErrorStatus(U32 status, const std::string& reason);
+
+	/*virtual*/ void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url);
+				void handleModelPhysicsFeeReceived();
+	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
+
+	/*virtual*/ void onModelUploadSuccess();
+
+	/*virtual*/ void onModelUploadFailure();
 
 protected:
 	friend class LLModelPreview;
@@ -258,6 +273,17 @@ protected:
 	LLToggleableMenu* mViewOptionMenu;
 	LLMutex* mStatusLock;
 
+	LLSD mModelPhysicsFee;
+
+private:
+	void onClickCalculateBtn();
+	void toggleCalculateButton();
+
+	// Toggles between "Calculate weights & fee" and "Upload" buttons.
+	void toggleCalculateButton(bool visible);
+
+	LLButton* mUploadBtn;
+	LLButton* mCalculateBtn;
 };
 
 class LLMeshFilePicker : public LLFilePickerThread
@@ -276,6 +302,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 {	
 	typedef boost::signals2::signal<void (F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)> details_signal_t;
 	typedef boost::signals2::signal<void (void)> model_loaded_signal_t;
+	typedef boost::signals2::signal<void (bool)> model_updated_signal_t;
 
 public:
 	LLModelPreview(S32 width, S32 height, LLFloater* fmp);
@@ -297,11 +324,10 @@ public:
 	virtual BOOL needsRender() { return mNeedsUpdate; }
 	void setPreviewLOD(S32 lod);
 	void clearModel(S32 lod);
-	void loadModel(std::string filename, S32 lod);
+	void loadModel(std::string filename, S32 lod, bool force_disable_slm = false);
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
-	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();
 	void saveUploadData(bool save_skinweights, bool save_joint_poisitions);
@@ -335,6 +361,7 @@ public:
 	
 	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }
 	boost::signals2::connection setModelLoadedCallback( const model_loaded_signal_t::slot_type& cb ){  return mModelLoadedSignal.connect(cb);  }
+	boost::signals2::connection setModelUpdatedCallback( const model_updated_signal_t::slot_type& cb ){  return mModelUpdatedSignal.connect(cb);  }
 	
 	void setLoadState( U32 state ) { mLoadState = state; }
 	U32 getLoadState() { return mLoadState; }
@@ -420,6 +447,7 @@ private:
 
 	details_signal_t mDetailsSignal;
 	model_loaded_signal_t mModelLoadedSignal;
+	model_updated_signal_t mModelUpdatedSignal;
 	
 	LLVector3	mModelPivot;
 	bool		mHasPivot;

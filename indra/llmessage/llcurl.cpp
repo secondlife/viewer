@@ -244,7 +244,7 @@ public:
 	U32 report(CURLcode);
 	void getTransferInfo(LLCurl::TransferInfo* info);
 
-	void prepRequest(const std::string& url, const std::vector<std::string>& headers, ResponderPtr, bool post = false);
+	void prepRequest(const std::string& url, const std::vector<std::string>& headers, ResponderPtr, S32 time_out = 0, bool post = false);
 	
 	const char* getErrorBuffer();
 
@@ -525,7 +525,7 @@ size_t curlHeaderCallback(void* data, size_t size, size_t nmemb, void* user_data
 
 void LLCurl::Easy::prepRequest(const std::string& url,
 							   const std::vector<std::string>& headers,
-							   ResponderPtr responder, bool post)
+							   ResponderPtr responder, S32 time_out, bool post)
 {
 	resetState();
 	
@@ -558,7 +558,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	
 	//don't verify host name so urls with scrubbed host names will work (improves DNS performance)
 	setopt(CURLOPT_SSL_VERIFYHOST, 0);
-	setopt(CURLOPT_TIMEOUT, CURL_REQUEST_TIMEOUT);
+	setopt(CURLOPT_TIMEOUT, llmax(time_out, CURL_REQUEST_TIMEOUT));
 
 	setoptString(CURLOPT_URL, url);
 
@@ -855,14 +855,14 @@ bool LLCurlRequest::getByteRange(const std::string& url,
 bool LLCurlRequest::post(const std::string& url,
 						 const headers_t& headers,
 						 const LLSD& data,
-						 LLCurl::ResponderPtr responder)
+						 LLCurl::ResponderPtr responder, S32 time_out)
 {
 	LLCurl::Easy* easy = allocEasy();
 	if (!easy)
 	{
 		return false;
 	}
-	easy->prepRequest(url, headers, responder);
+	easy->prepRequest(url, headers, responder, time_out);
 
 	LLSDSerialize::toXML(data, easy->getInput());
 	S32 bytes = easy->getInput().str().length();
@@ -882,14 +882,14 @@ bool LLCurlRequest::post(const std::string& url,
 bool LLCurlRequest::post(const std::string& url,
 						 const headers_t& headers,
 						 const std::string& data,
-						 LLCurl::ResponderPtr responder)
+						 LLCurl::ResponderPtr responder, S32 time_out)
 {
 	LLCurl::Easy* easy = allocEasy();
 	if (!easy)
 	{
 		return false;
 	}
-	easy->prepRequest(url, headers, responder);
+	easy->prepRequest(url, headers, responder, time_out);
 
 	easy->getInput().write(data.data(), data.size());
 	S32 bytes = easy->getInput().str().length();

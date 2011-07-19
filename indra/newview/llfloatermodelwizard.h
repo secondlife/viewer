@@ -30,12 +30,13 @@
 #include "llmeshrepository.h"
 #include "llmodel.h"
 #include "llthread.h"
+#include "llfloatermodeluploadbase.h"
 
 
 class LLModelPreview;
 
 
-class LLFloaterModelWizard : public LLFloater
+class LLFloaterModelWizard : public LLFloaterModelUploadBase
 {
 public:
 	
@@ -62,13 +63,29 @@ public:
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
-	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
+	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 
 	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
 	void modelLoadedCallback();
-	void onPhysicsChanged();
+	void modelChangedCallback();
 	void initDecompControls();
 	
+	// shows warning message if agent has no permissions to upload model
+	/*virtual*/ void onPermissionsReceived(const LLSD& result);
+
+	// called when error occurs during permissions request
+	/*virtual*/ void setPermissonsErrorStatus(U32 status, const std::string& reason);
+
+	/*virtual*/ void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url);
+
+	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
+
+	/*virtual*/ void onModelUploadSuccess();
+
+	/*virtual*/ void onModelUploadFailure();
+
+	const LLRect& getPreviewRect() const { return mPreviewRect; }
+
 	LLPhysicsDecomp::decomp_params mDecompParams;
 	std::set<LLPointer<DecompRequest> > mCurRequest;
 	std::string mStatusMessage;
@@ -80,13 +97,16 @@ private:
 		CHOOSE_FILE = 0,
 		OPTIMIZE,
 		PHYSICS,
-		PHYSICS2,
 		REVIEW,
 		UPLOAD
 	};
 
 	void setState(int state);
 	void updateButtons();
+	void onClickSwitchToAdvanced();
+	void onClickRecalculateGeometry();
+	void onClickRecalculatePhysics();
+	void onClickCalculateUploadFee();
 	void onClickCancel();
 	void onClickBack();
 	void onClickNext();
@@ -94,7 +114,6 @@ private:
 	bool onEnableBack();
 	void loadModel();
 	void onPreviewLODCommit(LLUICtrl*);
-	void onAccuracyPerformance(const LLSD& data);
 	void onUpload();
 
 	LLModelPreview*	mModelPreview;
@@ -106,7 +125,15 @@ private:
 
 	U32			    mLastEnabledState;
 
+	LLButton*		mRecalculateGeometryBtn;
+	LLButton*		mRecalculatePhysicsBtn;
+	LLButton*		mRecalculatingPhysicsBtn;
+	LLButton*		mCalculateWeightsBtn;
+	LLButton*		mCalculatingWeightsBtn;
 
+	LLView*		mChooseFilePreviewPanel;
+	LLView*		mOptimizePreviewPanel;
+	LLView*		mPhysicsPreviewPanel;
 };
 
 
