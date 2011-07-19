@@ -49,24 +49,6 @@
 	 top="32"
 	 left="210"
 	 height="32"
-	 name="physics2_btn"
-	 label="3. Physics"
-	 tab_stop="false"
-	 enabled="false"
-	 border="false"
-	 image_unselected="BreadCrumbBtn_Middle_Off"
-	 image_selected="BreadCrumbBtn_Middle_Press"
-	 image_hover_unselected="BreadCrumbBtn_Middle_Over"
-	 image_disabled="BreadCrumbBtn_Middle_Disabled"
-	 image_disabled_selected="BreadCrumbBtn_Middle_Disabled"
-	 width="110">
-		<button.commit_callback
-		function="Wizard.Physics2"/>
-	</button>
-	<button
-	 top="32"
-	 left="210"
-	 height="32"
 	 name="physics_btn"
 	 label="3. Physics"
 	 tab_stop="false"
@@ -140,41 +122,50 @@
 			 height="10"
 			 font="SansSerifBig"
 			 layout="topleft">
-				Upload Model
+				Choose model file
 			</text>
 		</panel>
-		<text
-		 top_pad="14"
-		 width="460"
-		 height="20"
-		 name="description"
-		 font="SansSerifSmall"
-		 layout="topleft"
-		 word_wrap="true"
-		 left_delta="5">
-			This wizard will help you import mesh models to Second Life.  First specify a file containing the model you wish to import.  Second Life supports COLLADA (.dae) files.
-		</text>
 		<panel
-		 top_delta="40"
+		 top_pad="14"
 		 left="15"
-		 height="270"
+		 height="310"
 		 width="505"
 		 name="content"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
 		 background_opaque="true">
+            <text
+			 height="32"
+			 left="10"
+			 name="advanced_users_text"
+			 text_color="White"
+			 top="15"
+			 width="320"
+			 word_wrap="true">
+				Advanced users: If you are familiar with 3D content creation tools you may wish to use the Advanced Uploader.
+			</text>
+			<button
+			 follows="left|top"
+			 height="20"
+			 label="Switch to Advanced"
+			 layout="topleft"
+			 left_delta="0"
+			 name="switch_to_advanced"
+			 top_pad="5"
+			 width="130">
+			</button>
 			<text
 			 type="string"
 			 length="1"
 			 text_color="White" 
 			 follows="left|top"
-			 top="10"
+			 top_pad="30"
 			 height="10"
 			 layout="topleft"
-			 left_delta="10"
+			 left_delta="0"
 			 name="Cache location"
-			 width="300">
-				Filename:
+			 width="320">
+				Choose model file to upload
 			</text>
 			<line_editor
 			 border_style="line"
@@ -187,7 +178,7 @@
 			 max_length="4096"
 			 name="lod_file"
 			 top_pad="5"
-			 width="220" />
+			 width="230" />
 			<button
 			 follows="left|top"
 			 height="23"
@@ -200,23 +191,27 @@
 			 width="85">
 			</button>
 			<text
-			 top_delta="-15"
-			 width="200"
-			 height="15"
-			 font="SansSerifSmall"
+			 type="string"
+			 length="1"
+			 text_color="White" 
+			 follows="left|top"
+			 top_pad="5"
+			 height="10"
 			 layout="topleft"
-			 text_color="White"
-			 left_pad="19">
-				Model Preview:
+			 left="10"
+			 name="Cache location"
+			 width="320">
+				Second Life supports COLLADA (.dae) files
 			</text>
 			<!-- Placeholder panel for 3D preview render -->
 			<panel
-			 left_delta="0"
-			 top_pad="0"
-			 name="preview_panel"
+			 top="30"
+			 right="-10"
+			 name="choose_file_preview_panel"
 			 bevel_style="none"
 			 highlight_light_color="0.09 0.09 0.09 1"
 			 border="true"
+			 border_style="line"
 			 height="150"
 			 follows="all"
 			 width="150">
@@ -225,7 +220,7 @@
 			 top_pad="10"
 			 width="130"
 			 height="14"
-			 left="340"
+			 left_delta="0"
 			 text_color="White"
 			 word_wrap="true">
 				Dimensions (meters):
@@ -238,15 +233,7 @@
 			 text_color="White"
 			 name="dimensions"
 			 left_delta="0">
-				X:         Y:         Z: 
-			</text>
-			<text
-			 top_delta="0"
-			 width="160"
-			 height="15"
-			 name="dimension_dividers"
-			 left_delta="41">
-				 |               |   
+				X         Y         Z 
 			</text>
 			<text
 			 top_delta="0"
@@ -266,23 +253,26 @@
 			 height="15"
 			 name="dimension_z"
 			 left="450"/>
-			<text
-			 top="100"
-			 width="320"
-			 height="15"
-			 left="10"
-			 text_color="White" 
-			 word_wrap="true">
-				Note:
-			</text>
-			<text
-			 top_pad="0"
-			 width="320"
-			 height="40"
-			 left="10"
-			 word_wrap="true">
-Advanced users familiar with 3d content creation tools may prefer to use the [secondlife:///app/floater/upload_model Advanced Mesh Import Window] .
-			</text>
+            <text
+             height="16"
+             left="10"
+             name="warning_label"
+             text_color="Yellow"
+             top="200"
+             visible="false"
+             width="320">
+                WARNING:
+            </text>
+            <text
+             height="50"
+             left="10"
+             name="warning_text"
+             top_pad="0"
+             visible="false"
+             width="320"
+             word_wrap="true">
+                You will not be able to complete the final step of uploading this model to the Second Life servers. [secondlife:///app/floater/learn_more Find out how] to set up your account for mesh model uploads. 
+            </text>
 		</panel>
 	</panel>
 
@@ -291,7 +281,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 height="388"
 		 top_delta="0"
 		 name="optimize_panel"
-		 visible="false"
+		 visible="true"
 		 width="535"
 		 left="0">
 		<panel
@@ -312,7 +302,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 			 height="10"
 			 font="SansSerifBig"
 			 layout="topleft">
-				Optimize
+				Optimize model
 			</text>
 		</panel>
 		<text
@@ -324,7 +314,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 name="description"
 		 word_wrap="true"
 		 left_delta="5">
-			This wizard has optimized your model to improve performance. You may adjust the results of the optimization process bellow or click Next to continue.
+			We have optimized the model for performance. Adjust it further if you wish.
 		</text>
 		<panel
 		 top_delta="40"
@@ -411,28 +401,66 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				 bg_opaque_color="DkGray2"
 				 background_visible="true"
 				 background_opaque="true">
-			<text top="10" left="10" width="85" text_color="White" follows="left|top" height="15" name="lod_label">
-				Model Preview:
+			<text top="69" left="10" text_color="White" font="SansSerifSmallBold" width="120" height="16" wrap="true">Performance</text>
+			<text top="85" left="10" width="120" word_wrap="true" font="SansSerifSmall" height="40">Faster rendering
+Less detail
+Lower prim weight</text>
+			<text top="69" left="184" text_color="White" font="SansSerifSmallBold" width="120" height="16" wrap="true">Accuracy</text>
+			<text top="85" left="184" width="120" word_wrap="true" font="SansSerifSmall" height="40">Slower rendering
+More detail
+Higher prim weight</text>
+
+          <slider
+		   follows="left|top"
+		   height="20"
+		   increment="1"
+		   layout="topleft"
+		   left="10"
+		   max_val="2"
+		   initial_value="1"
+		   min_val="0"
+		   name="accuracy_slider"
+		   show_text="false"
+		   top="130"
+		   width="290" />
+          <text 
+			font="SansSerifSmall" 
+			top_pad="0"  
+			width="5" 
+			left_delta="6" 
+			height="4">'  
+          </text>
+          <text 
+			font="SansSerifSmall" 
+			top_delta="0"  
+			width="5" 
+			left_delta="137" 
+			height="4">'  
+          </text>
+          <text 
+			font="SansSerifSmall" 
+			top_delta="0"  
+			width="5" 
+			left_delta="137" 
+			height="4">'  
+          </text>
+          <button
+			follows="left|top"
+			height="20"
+			label="Recalculate Geometry"
+			layout="topleft"
+			left="80"
+			name="recalculate_geometry_btn"
+			top_pad="15"
+            width="150">
+          </button>
+			<text top="10" right="-10" width="185" text_color="White" follows="left|top" height="15" name="lod_label">
+				Geometry preview
 			</text>
-			<combo_box left_pad="5" top_delta="-5"  follows="left|top" list_position="below" height="22"
-	     name="preview_lod_combo2" width="90" tool_tip="LOD to view in preview render">
-				<combo_item name="high">
-					High
-				</combo_item>
-				<combo_item name="medium">
-					Medium
-				</combo_item>
-				<combo_item name="low">
-					Low
-				</combo_item>
-				<combo_item name="lowest">
-					Lowest
-				</combo_item>
-			</combo_box>
 			<panel
-				 left="10"
-				 top_pad="5"
-				 name="preview_panel"
+				 right="-10"
+				 top="32"
+				 name="optimize_preview_panel"
 				 bevel_style="none"
 				 highlight_light_color="0.09 0.09 0.09 1"
 				 border_style="line"
@@ -441,86 +469,21 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				 follows="all"
 				 width="185">
 			</panel>
-			<text top="45" left="214" text_color="White" font="SansSerifSmallBold" halign="center" width="110" height="30" wrap="true">Higher Performance</text>
-			<text top="75" left="204" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">Faster rendering but less detailed; lowers Resource (prim) cost.</text>
-			<text top="45" left="378" text_color="White" font="SansSerifSmallBold" halign="center" width="90" height="30" wrap="true">Higher Accuracy</text>
-			<text top="75" left="364" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">More detailed model but slower; increases Resource (prim) cost.</text>
-
-			<slider
-		   follows="left|top"
-		   height="20"
-		   increment="1"
-		   layout="topleft"
-		   left="204"
-		   max_val="3"
-		   initial_value="2"
-		   min_val="0"
-		   name="accuracy_slider"
-		   show_text="false"
-		   top="130"
-		   width="290" />
-			<text 
-			font="SansSerifSmall" 
-			top_pad="0"  
-			width="300" 
-			left_delta="6" 
-			height="4">'  
-      </text>
-
-
-			<icon
-				 top_pad="14"
-				 left_delta="0"
-				 width="280"
-				 height="2"
-				 image_name="model_wizard\divider_line.png"/>
-	
-			<text top_delta="20" width="200" text_color="White" left_delta="50" name="streaming cost"  height="20">Resource Cost:    [COST]</text>
-			<text
-						 top_pad="15"
-						 width="130"
-						 height="14"
-						 left="10"
-						 text_color="White"
-						 word_wrap="true">
-				Dimensions (meters):
-			</text>
-			<text
-			 top_pad="0"
-			 width="160"
-			 height="15"
-			 font="SansSerifSmallBold"
-			 text_color="White"
-			 name="dimensions"
-			 left_delta="0">
-				X:         Y:         Z:
-			</text>
-			<text
-			 top_delta="0"
-			 width="160"
-			 height="15"
-			 name="dimension_dividers"
-			 left_delta="41">
-				|               |
-			</text>
-			<text
-			 top_delta="0"
-			 width="160"
-			 height="15"
-			 name="dimension_x"
-			 left_delta="-25"/>
-			<text
-			 top_delta="0"
-			 width="160"
-			 height="15"
-			 name="dimension_y"
-			 left_delta="46"/>
-			<text
-			 top_delta="0"
-			 width="160"
-			 height="15"
-			 name="dimension_z"
-			 left_delta="46"/>
+			<combo_box left_delta="75" top_pad="10"  follows="left|top" list_position="below" height="22"
+	     name="preview_lod_combo" width="110" tool_tip="LOD to view in preview render">
+				<combo_item name="high">
+					High detail
+				</combo_item>
+				<combo_item name="medium">
+					Medium detail
+				</combo_item>
+				<combo_item name="low">
+					Low detail
+				</combo_item>
+				<combo_item name="lowest">
+					Lowest detail
+				</combo_item>
+			</combo_box>
 		</panel>
 	</panel>
 
@@ -549,7 +512,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 			 font="SansSerifBig"
 			 text_color="White" 
 			 layout="topleft">
-				Physics
+				Adjust physics
 			</text>
 		</panel>
 		<text
@@ -561,7 +524,7 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 name="description"
 		 word_wrap="true"
 		 left_delta="5">
-			The wizard will create a physical shape, which determines how the object interacts with other objects and avatars. Set the slider to the detail level most appropriate for how your object will be used:
+			We will create a shape for the outer hull of the model. Adjust the shape's detail level as needed for the intended purpose of your model.
 		</text>
     <panel
 		 top_delta="44"
@@ -572,172 +535,94 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
 		 background_opaque="true">
-      <text top="15" left="20" text_color="White" font="SansSerifSmallBold" width="110" height="30" wrap="true" halign="center">Higher Performance</text>
-      <text top="45" left="10" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">Faster rendering but less detailed; lowers Resource (prim) cost.</text>
-      <text top="15" left="372" text_color="White" font="SansSerifSmallBold" width="90" height="30" wrap="true" halign="center">Higher Accuracy</text>
-      <text top="45" left="360" halign="center" width="130" word_wrap="true"   font="SansSerifSmall" height="80">More detailed model but slower; increases Resource (prim) cost.</text>
+      <text top="10" left="10" text_color="White" font="SansSerifSmallBold" width="120" halign="right" height="16" wrap="true">Performance</text>
+      <text top="26" left="10" width="120" word_wrap="true" font="SansSerifSmall" halign="right" height="40">Faster rendering
+Less detail
+Lower prim weight</text>
+      <text top="174" left="10" text_color="White" font="SansSerifSmallBold" width="120" halign="right" height="16" wrap="true">Accuracy</text>
+      <text top="190" left="10" width="120" word_wrap="true" font="SansSerifSmall" halign="right" height="40">Slower rendering
+More detail
+Higher prim weight</text>
 
       <slider
 		   follows="left|top"
-		   height="22"
+		   height="190"
 		   increment=".1"
 		   layout="topleft"
-		   left="20"
+		   left="140"
 		   max_val="1"
 		   initial_value="0.5"
 		   min_val="0"
 		   name="physics_slider"
+		   orientation="vertical"
 		   show_text="false"
-		   top="90"
-		   width="440" />
-      <text
-			font="SansSerifSmall"
-			top_pad="0"
-			width="500"
-			left_delta="6"
-			height="4">'             '             '             '             '              '             '             '             '              '             '</text>
-      <text top_pad="10" width="110" halign="center" word_wrap="true" left="25"  height="40">Recommended for solid objects</text>
-      <text top_delta="0" width="110" halign="center" word_wrap="true" left="190"  height="40">Recommended for buildings</text>
-      <text top_delta="0" width="110" halign="center" word_wrap="true" left="350"  height="40">Recommended for vehicles</text>
-
-
-		<icon
-			 top_pad="5"
-			 left="15"
-			 width="470"
-			 height="2"
-			 image_name="model_wizard\divider_line.png"/>
-		
-	<text top_delta="30" width="180" text_color="White" left="160" name="streaming cost"  height="20">Resource Cost:       [COST]</text>
- 
-    </panel>
-	</panel>
-
-	<panel
-		 height="388"
-		 top_delta="0"
-		 name="physics2_panel"
-		 visible="true"
-		 width="535"
-		 left="0">
-		<panel
-		 height="22"
-		 top_pad="15"
-		 name="header_panel"
-		 width="505"
-		 bg_opaque_color="DkGray2"
-		 background_visible="true"
-		 background_opaque="true"
-		 left="15">
-			<text
-			 width="200"
-			 left="10"
-			 name="header_text"
-			 text_color="White"
-			 top="3"
-			 height="10"
-			 font="SansSerifBig"
-			 layout="topleft">
-				Physics
+		   top="25"
+		   width="22" />
+      <text top="10" width="120" word_wrap="true" left_pad="10" height="50">Examples:
+Moving objects
+Flying objects
+Vehicles</text>
+      <text top="95" width="120" word_wrap="true" left_delta="0" height="50">Examples:
+Small static objects
+Less detailed objects
+Simple furniture</text>
+      <text top="180" width="120" word_wrap="true" left_delta="0" height="50">Examples:
+Static objects
+Detailed objects
+Buildings</text>
+          <button
+			follows="left|top"
+			height="20"
+			label="Recalculate physics"
+			layout="topleft"
+			left="80"
+			name="recalculate_physics_btn"
+			top_pad="10"
+            width="150">
+          </button>
+          <button
+            enabled="false"
+			follows="left|top"
+			height="20"
+			label="Recalculating..."
+			layout="topleft"
+			left_delta="0"
+			name="recalculating_physics_btn"
+			top_delta="0"
+			visible="false"
+            width="150">
+          </button>
+			<text top="10" right="-10" width="185" text_color="White" follows="left|top" height="15" name="lod_label">
+				Physics preview
 			</text>
-		</panel>
-		<text
-		 top_pad="14"
-		 width="475"
-		 height="50"
-		 font="SansSerifSmall"
-		 layout="topleft"
-		 name="description"
-		 word_wrap="true"
-		 left_delta="5">
-			Preview the physics shape below then click Next to continue.  To modify the physics shape, click the Back button.
-		</text>
-		<panel
-			 top_delta="40"
-			 left="15"
-			 height="270"
-			 width="505"
-			 name="content"
-			 bg_opaque_color="DkGray2"
-			 background_visible="true"
-			 background_opaque="true">
-			<text top="10" left="10" width="85" text_color="White" follows="left|top" height="15" name="lod_label">
-				Model Preview:
-			</text>
-			<combo_box left_pad="5" top_delta="-5"  follows="left|top" list_position="below" height="22"
-			   name="preview_lod_combo3" width="90" tool_tip="LOD to view in preview render">
+			<panel
+				 right="-10"
+				 top="32"
+				 name="physics_preview_panel"
+				 bevel_style="none"
+				 highlight_light_color="0.09 0.09 0.09 1"
+				 border_style="line"
+				 border="true"
+				 height="185"
+				 follows="all"
+				 width="185">
+			</panel>
+			<combo_box left_delta="75" top_pad="10"  follows="left|top" list_position="below" height="22"
+	     name="preview_lod_combo2" width="110" tool_tip="LOD to view in preview render">
 				<combo_item name="high">
-					High
+					High detail
 				</combo_item>
 				<combo_item name="medium">
-					Medium
+					Medium detail
 				</combo_item>
 				<combo_item name="low">
-					Low
+					Low detail
 				</combo_item>
 				<combo_item name="lowest">
-					Lowest
+					Lowest detail
 				</combo_item>
 			</combo_box>
-			<panel
-					   left="10"
-					   top_pad="10"
-					   name="preview_panel"
-					   bevel_style="none"
-					   highlight_light_color="0.09 0.09 0.09 1"
-					   border_style="line"
-					   border="true"
-					   height="190"
-					   follows="all"
-					   width="190">
-			</panel>
-			<text
-						 top_pad="8"
-						 width="130"
-						 height="14"
-						 left="10"
-						 text_color="White"
-						 word_wrap="true">
-				Dimensions (meters):
-			</text>
-			<text
-			 top_pad="0"
-			 width="160"
-			 height="15"
-			 font="SansSerifSmallBold"
-			 text_color="White"
-			 name="dimensions"
-			 left_delta="0">
-				X:         Y:         Z:
-			</text>
-			<text
-			 top_delta="0"
-			 width="160"
-			 height="15"
-			 name="dimension_dividers"
-			 left_delta="41">
-				|               |
-			</text>
-			<text
-			 top_delta="0"
-			 width="160"
-			 height="15"
-			 name="dimension_x"
-			 left_delta="-25"/>
-			<text
-			 top_delta="0"
-			 width="160"
-			 height="15"
-			 name="dimension_y"
-			 left_delta="46"/>
-			<text
-			 top_delta="0"
-			 width="160"
-			 height="15"
-			 name="dimension_z"
-			 left_delta="46"/>
-			<text top="60" width="180" text_color="White" left="225" name="streaming cost"  height="20">Resource Cost:       [COST]</text>
-		</panel>
+    </panel>
 	</panel>
 
 	<panel
@@ -768,162 +653,44 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 				Review
 			</text>
 		</panel>
-		<text
+		<panel
 		 top_pad="14"
-		 width="470"
-		 height="24"
-		 font="SansSerifSmall"
-		 layout="topleft"
-		 name="description"
-		 word_wrap="true"
-		 left_delta="5">
-			Review the details below then click. Upload to upload your model. Your L$ balance will be charged when you click Upload.
-		</text>
-		<icon
-			 top_pad="10"
-			 left="20"
-			 width="495"
-			 height="2"
-			 image_name="model_wizard\divider_line.png"/>
-    <panel
-		 top_pad="5"
 		 left="15"
-		 height="270"
+		 height="310"
 		 width="505"
-		 name="content">
-      <text top="10" left="10" width="85" text_color="White" follows="left|top" height="15" name="lod_label">
-        Model Preview:
-      </text>
-      <combo_box left_pad="5" top_delta="-5"  follows="left|top" list_position="below" height="22"
-	     name="preview_lod_combo" width="90" tool_tip="LOD to view in preview render">
-        <combo_item name="high">
-          High
-        </combo_item>
-        <combo_item name="medium">
-          Medium
-        </combo_item>
-        <combo_item name="low">
-          Low
-        </combo_item>
-        <combo_item name="lowest">
-          Lowest
-        </combo_item>
-      </combo_box>
-      <panel
-				 left="10"
-				 top_pad="10"
-				 name="preview_panel"
-				 bevel_style="none"
-				 highlight_light_color="0.09 0.09 0.09 1"
-				 border_style="line"
-				 border="true"
-				 height="190"
-				 follows="all"
-				 width="190">
-			</panel>
-		<text
-					 top_pad="8"
-					 width="130"
-					 height="14"
-					 left="10"
-					 text_color="White"
-					 word_wrap="true">
-			Dimensions (meters):
-		</text>
-		<text
-		 top_pad="0"
-		 width="160"
-		 height="15"
-		 font="SansSerifSmallBold"
-		 text_color="White"
-		 name="dimensions"
-		 left_delta="0">
-			X:         Y:         Z:
-		</text>
-		<text
-		 top_delta="0"
-		 width="160"
-		 height="15"
-		 name="dimension_dividers"
-		 left_delta="41">
-			|               |
-		</text>
-		<text
-		 top_delta="0"
-		 width="160"
-		 height="15"
-		 name="dimension_x"
-		 left_delta="-25"/>
-		<text
-		 top_delta="0"
-		 width="160"
-		 height="15"
-		 name="dimension_y"
-		 left_delta="46"/>
-		<text
-		 top_delta="0"
-		 width="160"
-		 height="15"
-		 name="dimension_z"
-		 left_delta="46"/>
+		 name="content"
+		 bg_opaque_color="DkGray2"
+		 background_visible="true"
+		 background_opaque="true">
+			<text
+			 top="20"
+			 width="485"
+			 font="SansSerifMedium"
+			 text_color="White"
+			 left="10"
+			 name="review_prim_equiv"
+			 height="16">Impact to parcel/region: [EQUIV] prim equivalents
+			</text>
+			<text
+			 top_pad="20"
+			 width="485"
+			 font="SansSerifMedium"
+			 text_color="White"
+			 left="10"
+			 name="review_fee"
+			 height="16">Your account will be charged an upload fee of L$ [FEE].
+			</text>
+			<text 
+			 top_pad="20"
+			 width="485"
+			 font="SansSerifMedium"
+			 text_color="White"
+			 left="10"
+			 name="review_confirmation"
+			 height="32"
+			 word_wrap="true">By clicking the upload button, you confirm that you have the appropriate rights to the material contained in the model.
+			</text>
       </panel>
-    <text
-      width="300"
-      height="12"
-      top="125" 
-	  name="streaming cost" 
-      left="230" 
-      font="SansSerifSmallBold" 
-      text_color="White">Resource Cost:         [COST]</text>
-    <text
-      width="285"
-      height="30"
-      top_pad="0"
-      left_delta="0"
-      word_wrap="true"
-      font="SansSerifItalic">This is the cost to your Region's prim/object limit, at default scale</text>
-	<text
-	 width="300"
-	 height="12"
-	 name="physics cost" 
-	 top_pad="10"
-		 left_delta="0"
-	 font="SansSerifSmallBold"
-	 text_color="White">Physics Cost:        [COST]</text>
-	<text
-	  width="285"
-	  height="30"
-	  top_pad="0"
-		  left_delta="0"
-	  word_wrap="true"
-	  font="SansSerifItalic">This is the cost to your Region's prim/object limit, at default scale</text>
-		<text
-		 width="200"
-		 height="12"
-		 top_pad="10"
-		left_delta="0"
-		 font="SansSerifSmallBold"
-		 text_color="White">Upload Fee:</text>
-		<text
-		  width="285"
-		  height="26"
-		  top_pad="0"
-		  left_delta="0"
-		  word_wrap="true"
-		  font="SansSerifItalic">This is the amount the upload will cost.</text>
-		<check_box
-			height="16"
-			layout="topleft"
-			left_delta="0"
-			name="confirm_checkbox"
-			top_pad="15"
-			width="16" />
-		<text
-		  height="100"
-		  width="240"
-		  word_wrap="true" 
-		  left_delta="25"
-		  top_delta="0">I confirm that I have the appropriate rights to the material contained in this model. [secondlife:///app/floater/learn_more Learn more]</text>
 	</panel>
 
 
@@ -954,45 +721,78 @@ Advanced users familiar with 3d content creation tools may prefer to use the [se
 			 height="10"
 			 font="SansSerifBig"
 			 layout="topleft">
-				Upload Complete!
+				Upload complete
 			</text>
 		</panel>
 		<text
 		 top_pad="14"
-		 width="474"
-		 height="20"
-		 font="SansSerifSmall"
+		 width="495"
+		 height="16"
+		 font="SansSerifMedium"
 		 layout="topleft"
-		 name="description"
+		 name="model_uploaded_text"
+		 text_color="White"
 		 word_wrap="true"
-		 left_delta="5">
-			Congratulations! Your model has been sucessfully uploaded.  You will find the model in the Objects folder in your inventory.
+		 left="25">
+			Your model has been uploaded.
 		</text>
-		<icon
-			 top_pad="15"
-			 left_delta="0"
-			 width="495"
-			 height="2"
-			 image_name="model_wizard\divider_line.png"/>
+		<text
+		 top_pad="5"
+		 width="495"
+		 height="16"
+		 font="SansSerifMedium"
+		 layout="topleft"
+		 name="inventory_text"
+		 text_color="White"
+		 word_wrap="true"
+		 left="25">
+			You will find it in the Objects folder in your inventory.
+		</text>
+		<text
+		 top_pad="20"
+		 width="495"
+		 font="SansSerifMedium"
+		 text_color="White"
+		 left="25"
+		 name="charged_fee"
+		 height="16">Your account has been charged L$ [FEE].
+		</text>
 	</panel>
 
 
 
 	<button
 	 top="440"
-	 right="-245"
+	 right="-285"
 	 width="90"
 	 height="22"
 	 name="back"
 	 label="&lt;&lt; Back" />
 	<button
 	 top_delta="0"
-	 right="-150"
+	 right="-190"
 	 width="90"
 	 height="22"
 	 name="next"
 	 label="Next &gt;&gt; " />
 	<button
+	 top_delta="0"
+	 left_delta="0"
+	 width="160"
+	 height="22"
+	 name="calculate"
+	 label="Calculate weights &amp; fee &gt;&gt; " />
+	<button
+	 enabled="false"
+	 visible="false"
+	 top_delta="0"
+	 left_delta="0"
+	 width="160"
+	 height="22"
+	 name="calculating"
+	 label="Calculating... " />
+	<button
+	 enabled="false"
 	 top_delta="0"
 	 right="-150"
 	 width="90"

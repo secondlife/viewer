@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="true" can_drag_on_left="false" can_minimize="false"
      can_resize="true" height="550" min_height="550" min_width="620"
-     name="Model Preview" title="Upload Model" width="620">
+     name="Model Preview" title="Upload Model" width="620"
+      help_topic="upload_model" >
 
   <string name="status_idle">Idle</string>
   <string name="status_parse_error">Dae parsing issue - see log for details.</string>
@@ -23,6 +24,7 @@
   <string name="layer_all">All</string> <!-- Text to display in physics layer combo box for "all layers" -->
   <string name="decomposing">Analyzing...</string>
   <string name="simplifying">Simplifying...</string>
+  <string name="tbd">TBD</string>
   
 
   <text left="15" bottom="25" follows="top|left" height="15" name="name_label">
@@ -70,43 +72,89 @@
     width="290"
     height="290"
     follows="all"/>
-
-  <text bottom_delta="25" left="25" width="100" follows="bottom|left">Upload Details</text>
-  <panel top_pad="5" border="true" left="15" width="290" height="70" follows="bottom|left"
-          bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
-    <text left="25" follows="bottom|left" width="140" height="15" name="streaming cost">
-      Resource Cost: [COST]
+    
+    <text
+     font="SansSerif"
+	 bottom_delta="15"
+     left_delta="0"
+     name="warning_title"
+     text_color="Yellow"
+     visible="false">
+     WARNING:
     </text>
-    <text left="25" top_pad="5" width="140" follows="bottom|left" height="15" name="physics cost">
-      Physics Cost: [COST]
-    </text>
-    <text left="25" top_pad="5" follows="bottom|left" height="15" name="upload fee">
-      Upload Fee: N/A
-    </text>
-  </panel>
-
-  <check_box
-	height="16"
-	left_delta="0"
-	name="confirm_checkbox"
-	top_pad="15"
-	follows="bottom|left"
-	width="16" />
+    <text
+     text_color="White"
+     height="40"
+	 width="290"
+	 top_delta="15"
+     left_delta="0"
+     name="warning_message"
+     parse_urls="true"
+     wrap="true"
+     visible="false">
+     You will not be able to complete the final upload of this model to the Second Life servers. [[VURL] Find out how] to get enabled for mesh model uploads.</text>
 
   <text
-	height="30"
-	width="570"
+	height="65"
+	top_delta="45"
+	left_delta="0"
+	name="weights_text"
+	width="80"
 	word_wrap="true" 
-	left_delta="25"
-	top_delta="0">I confirm that I have the appropriate rights to the material contained in this model. [secondlife:///app/floater/learn_more Learn more]</text>
-  <text left="10" bottom="540" width="290" height="15" follows="bottom|left|right" name="status">[STATUS]</text>
+	>
+Download:
+Physics:
+Server:
 
-  
-  <button bottom="540" left="300"  follows="bottom|right" height="20" label="Defaults"
-	     width="80" name="reset_btn" tool_tip="Reset to defaults"/>
-  <button bottom="540" left="430"  follows="bottom|right" height="20" label="Upload"
-	     width="80" name="ok_btn" tool_tip="Upload to simulator"/>
-  <button left_pad="10" follows="right|bottom" height="20" width="80" label="Cancel" name="cancel_btn"/>
+Prim equivs:
+  </text>
+
+  <text
+	height="65"
+	top_delta="0"
+	left_delta="80"
+	name="weights"
+	width="70"
+	word_wrap="true" 
+	>
+[ST]
+[PH]
+[SIM]
+
+[EQ]
+  </text>
+
+<!--
+  <text
+	height="65"
+	top_delta="0"
+	left_delta="70"
+	name="price_breakdown_text"
+	width="80"
+	word_wrap="true" 
+	>
+Streaming:
+Physics:
+Instances:
+Textures:
+Model:
+  </text>
+
+  <text
+	height="65"
+	top_delta="0"
+	left_delta="80"
+	name="price_breakdown"
+	width="65"
+	word_wrap="true" 
+	>
+L$ [STREAMING]
+L$ [PHYSICS]
+L$ [INSTANCES]
+L$ [TEXTURES]
+L$ [MODEL]
+  </text>
+    -->
 
   <tab_container
     follows="right|top|bottom"
@@ -122,7 +170,8 @@
     <panel
       border="true"
       label="Level of Detail"
-      name="lod_panel">
+      name="lod_panel"
+      help_topic="upload_model_lod">
 
       <text left="10" width="240" bottom="20" height="15" follows="left|top" name="lod_table_header">
         Select Level of Detail:
@@ -245,7 +294,8 @@
     <panel
       border="true"
       label="Physics"
-      name="physics_panel">
+      name="physics_panel"
+      help_topic="upload_model_physics">
 
       <!-- PHYSICS GEOMETRY-->
       <panel
@@ -386,7 +436,9 @@
     <panel
       border="true"
       label="Modifiers"
-      name="modifiers_panel">
+      name="modifiers_panel"
+      help_topic="upload_model_modifiers">
+
       <text left="10" width="90" bottom="30" follows="top|left" height="15">
         Scale:
       </text>
@@ -416,6 +468,26 @@
 
     </panel>
   </tab_container>
+
+  <text
+	height="16"
+	left_delta="5"
+	bottom_delta="30"
+	name="upload_fee"
+	width="300"
+	follows="bottom|right"
+	word_wrap="true" 
+	>
+	    Upload fee: L$ [FEE]
+  </text>
+  
+  <button bottom="540" left="10"  follows="bottom|left" height="20" label="Set to defaults"
+	     width="100" name="reset_btn" tool_tip="Set to defaults"/>
+  <button left="310"  follows="bottom|right" height="20" label="Calculate weights &amp; fee"
+	     width="150" name="calculate_btn" tool_tip="Calculate weights &amp; fee" top_delta="0"/>
+  <button bottom="540" left="310"  follows="bottom|right" height="20" label="Upload"
+	     width="80" name="ok_btn" tool_tip="Upload to simulator" visible="false"/>
+  <button right="-10" follows="right|bottom" height="20" width="80" label="Cancel" name="cancel_btn" top_delta="0"/>
   
   <!--
   <button bottom_delta="0" left="10" width="120" name="auto fill" label="Generate LOD" tool_tip="Automatically generate levels of detail"/>
