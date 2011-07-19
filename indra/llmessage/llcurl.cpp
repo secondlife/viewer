@@ -46,8 +46,8 @@
 #endif
 
 #include "llbufferstream.h"
-#include "llsdserialize.h"
 #include "llproxy.h"
+#include "llsdserialize.h"
 #include "llstl.h"
 #include "llthread.h"
 #include "lltimer.h"
@@ -215,73 +215,6 @@ namespace boost
 
 
 //////////////////////////////////////////////////////////////////////////////
-
-
-class LLCurl::Easy
-{
-	LOG_CLASS(Easy);
-
-private:
-	Easy();
-	
-public:
-	static Easy* getEasy();
-	~Easy();
-
-	CURL* getCurlHandle() const { return mCurlEasyHandle; }
-
-	void setErrorBuffer();
-	void setCA();
-	
-	void setopt(CURLoption option, S32 value);
-	// These assume the setter does not free value!
-	void setopt(CURLoption option, void* value);
-	void setopt(CURLoption option, char* value);
-	// Copies the string so that it is gauranteed to stick around
-	void setoptString(CURLoption option, const std::string& value);
-	
-	void slist_append(const char* str);
-	void setHeaders();
-	
-	U32 report(CURLcode);
-	void getTransferInfo(LLCurl::TransferInfo* info);
-
-	void prepRequest(const std::string& url, const std::vector<std::string>& headers, ResponderPtr, bool post = false);
-	
-	const char* getErrorBuffer();
-
-	std::stringstream& getInput() { return mInput; }
-	std::stringstream& getHeaderOutput() { return mHeaderOutput; }
-	LLIOPipe::buffer_ptr_t& getOutput() { return mOutput; }
-	const LLChannelDescriptors& getChannels() { return mChannels; }
-	
-	void resetState();
-
-	static CURL* allocEasyHandle();
-	static void releaseEasyHandle(CURL* handle);
-
-private:	
-	friend class LLCurl;
-
-	CURL*				mCurlEasyHandle;
-	struct curl_slist*	mHeaders;
-	
-	std::stringstream	mRequest;
-	LLChannelDescriptors mChannels;
-	LLIOPipe::buffer_ptr_t mOutput;
-	std::stringstream	mInput;
-	std::stringstream	mHeaderOutput;
-	char				mErrorBuffer[CURL_ERROR_SIZE];
-
-	// Note: char*'s not strings since we pass pointers to curl
-	std::vector<char*>	mStrings;
-	
-	ResponderPtr		mResponder;
-
-	static std::set<CURL*> sFreeHandles;
-	static std::set<CURL*> sActiveHandles;
-	static LLMutex* sHandleMutex;
-};
 
 std::set<CURL*> LLCurl::Easy::sFreeHandles;
 std::set<CURL*> LLCurl::Easy::sActiveHandles;
@@ -537,25 +470,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	setopt(CURLOPT_NOSIGNAL, 1);
 
 	// Set the CURL options for either Socks or HTTP proxy
-	if (LLProxy::getInstance()->isHTTPProxyEnabled())
-	{
-		std::string address = LLProxy::getInstance()->getHTTPProxy().getIPString();
-		U16 port = LLProxy::getInstance()->getHTTPProxy().getPort();
-		setoptString(CURLOPT_PROXY, address.c_str());
-		setopt(CURLOPT_PROXYPORT, port);
-		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
-		{
-			setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-			if (LLProxy::getInstance()->getSelectedAuthMethod() == METHOD_PASSWORD)
-			{
-				setoptString(CURLOPT_PROXYUSERPWD, LLProxy::getInstance()->getProxyUserPwdCURL());
-			}
-		}
-		else
-		{
-			setopt(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-		}
-	}
+	LLProxy::getInstance()->applyProxySettings(this);
 
 	mOutput.reset(new LLBufferArray);
 	setopt(CURLOPT_WRITEFUNCTION, (void*)&curlWriteCallback);
@@ -601,40 +516,6 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 }
 
 ////////////////////////////////////////////////////////////////////////////
-
-class LLCurl::Multi
-{
-	LOG_CLASS(Multi);
-public:
-	
-	Multi();
-	~Multi();
-
-	Easy* allocEasy();
-	bool addEasy(Easy* easy);
-	
-	void removeEasy(Easy* easy);
-
-	S32 process();
-	S32 perform();
-	
-	CURLMsg* info_read(S32* msgs_in_queue);
-
-	S32 mQueued;
-	S32 mErrorCount;
-	
-private:
-	void easyFree(Easy*);
-	
-	CURLM* mCurlMultiHandle;
-
-	typedef std::set<Easy*> easy_active_list_t;
-	easy_active_list_t mEasyActiveList;
-	typedef std::map<CURL*, Easy*> easy_active_map_t;
-	easy_active_map_t mEasyActiveMap;
-	typedef std::set<Easy*> easy_free_list_t;
-	easy_free_list_t mEasyFreeList;
-};
 
 LLCurl::Multi::Multi()
 	: mQueued(0),
@@ -981,6 +862,8 @@ LLCurlEasyRequest::LLCurlEasyRequest()
 	{
 		mEasy->setErrorBuffer();
 		mEasy->setCA();
+		// Set proxy settings if configured to do so.
+		LLProxy::getInstance()->applyProxySettings(mEasy);
 	}
 }
 

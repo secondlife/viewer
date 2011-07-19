@@ -27,6 +27,7 @@
 #ifndef LL_PROXY_H
 #define LL_PROXY_H
 
+#include "llcurl.h"
 #include "llhost.h"
 #include "lliosocket.h"
 #include "llmemory.h"
@@ -211,6 +212,11 @@ public:
 	std::string getSocksPwd() const { return mSocksPassword; }
 	std::string getSocksUser() const { return mSocksUsername; }
 
+	// Apply the current proxy settings to a curl request. Doesn't do anything if sHTTPProxyEnabled is false.
+	void applyProxySettings(CURL* handle);
+	void applyProxySettings(LLCurl::Easy* handle);
+	void applyProxySettings(LLCurlEasyRequest* handle);
+
 private:
 
 	// Open a communication channel to the SOCKS 5 proxy proxy, at port messagePort
@@ -241,6 +247,10 @@ private:
 	std::string mSocksUsername;
 	// SOCKS 5 password
 	std::string mSocksPassword;
+
+	// Vectors to store valid pointers to string options that have been passed to CURL requests.
+	std::vector<char*> mSOCKSAuthStrings;
+	std::vector<char*> mSOCKSAddrStrings;
 
 	// APR pool for the socket
 	apr_pool_t* mPool;

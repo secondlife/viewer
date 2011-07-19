@@ -28,9 +28,12 @@
 
 #include "llproxy.h"
 
+#include <algorithm>
 #include <string>
+#include <curl/curl.h>
 
 #include "llapr.h"
+#include "llcurl.h"
 #include "llhost.h"
 #include "message.h"
 #include "net.h"
@@ -65,6 +68,10 @@ LLProxy::~LLProxy()
 	stopProxy();
 	sUDPProxyEnabled  = false;
 	sHTTPProxyEnabled = false;
+
+	// Delete c_str versions of the addresses and credentials.
+	for_each(mSOCKSAuthStrings.begin(), mSOCKSAuthStrings.end(), DeletePointerArray());
+	for_each(mSOCKSAddrStrings.begin(), mSOCKSAddrStrings.end(), DeletePointerArray());
 }
 
 // Perform a SOCKS 5 authentication and UDP association to the proxy
@@ -223,6 +230,11 @@ void LLProxy::setAuthPassword(const std::string &username, const std::string &pa
 	mAuthMethodSelected = METHOD_PASSWORD;
 	mSocksUsername      = username;
 	mSocksPassword      = password;
+
+	U32 size = username.length() + password.length() + 2;
+	char* curl_auth_string  = new char[size];
+	snprintf(curl_auth_string, size, "%s:%s", username.c_str(), password.c_str());
+	mSOCKSAuthStrings.push_back(curl_auth_string);
 }
 
 void LLProxy::enableHTTPProxy(LLHost httpHost, LLHttpProxyType type)
@@ -230,12 +242,88 @@ void LLProxy::enableHTTPProxy(LLHost httpHost, LLHttpProxyType type)
 	sHTTPProxyEnabled = true;
 	mHTTPProxy        = httpHost;
 	mProxyType        = type;
+
+	U32 size = httpHost.getIPString().length() + 1;
+	char* socks_addr_string = new char[size];
+	strncpy(socks_addr_string, httpHost.getIPString().c_str(), size);
+	mSOCKSAddrStrings.push_back(socks_addr_string);
 }
 
 //static
 void LLProxy::cleanupClass()
 {
 	LLProxy::getInstance()->stopProxy();
+}
+
+// Apply proxy settings to CuRL request if either type of HTTP proxy is enabled.
+void LLProxy::applyProxySettings(LLCurl::Easy* handle)
+{
+	if (LLProxy::getInstance()->isHTTPProxyEnabled())
+	{
+		std::string address = LLProxy::getInstance()->getHTTPProxy().getIPString();
+		U16 port = LLProxy::getInstance()->getHTTPProxy().getPort();
+		handle->setoptString(CURLOPT_PROXY, address.c_str());
+		handle->setopt(CURLOPT_PROXYPORT, port);
+		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
+		{
+			handle->setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+			if (LLProxy::getInstance()->getSelectedAuthMethod() == METHOD_PASSWORD)
+			{
+				handle->setoptString(CURLOPT_PROXYUSERPWD, LLProxy::getInstance()->getProxyUserPwdCURL());
+			}
+		}
+		else
+		{
+			handle->setopt(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+		}
+	}
+}
+
+void LLProxy::applyProxySettings(LLCurlEasyRequest* handle)
+{
+	if (LLProxy::getInstance()->isHTTPProxyEnabled())
+	{
+		std::string address = LLProxy::getInstance()->getHTTPProxy().getIPString();
+		U16 port = LLProxy::getInstance()->getHTTPProxy().getPort();
+		handle->setoptString(CURLOPT_PROXY, address.c_str());
+		handle->setopt(CURLOPT_PROXYPORT, port);
+		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
+		{
+			handle->setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+			if (LLProxy::getInstance()->getSelectedAuthMethod() == METHOD_PASSWORD)
+			{
+				handle->setoptString(CURLOPT_PROXYUSERPWD, LLProxy::getInstance()->getProxyUserPwdCURL());
+			}
+		}
+		else
+		{
+			handle->setopt(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+		}
+	}
+}
+
+void LLProxy::applyProxySettings(CURL* handle)
+{
+	if (LLProxy::getInstance()->isHTTPProxyEnabled())
+	{
+		check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXY, mSOCKSAddrStrings.back()));
+
+		U16 port = LLProxy::getInstance()->getHTTPProxy().getPort();
+		check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, port));
+
+		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
+		{
+			check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5));
+			if (LLProxy::getInstance()->getSelectedAuthMethod() == METHOD_PASSWORD)
+			{
+				check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, mSOCKSAuthStrings.back()));
+			}
+		}
+		else
+		{
+			check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP));
+		}
+	}
 }
 
 static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen)
