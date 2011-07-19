@@ -274,7 +274,7 @@ private:
         if (0 == GetTempFileNameA(mPath.c_str(), ext.c_str() + pfx_offset, 0, tempname))
         {
             // I always have to look up this call...  :-P
-            LPVOID msgptr;
+            LPSTR msgptr;
             FormatMessageA(
                 FORMAT_MESSAGE_ALLOCATE_BUFFER | 
                 FORMAT_MESSAGE_FROM_SYSTEM |
@@ -282,7 +282,7 @@ private:
                 NULL,
                 GetLastError(),
                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                LPTSTR(&msgptr),
+                LPSTR(&msgptr),     // have to cast (char**) to (char*)
                 0, NULL );
             LL_ERRS("NamedTempFile") << "GetTempFileName(\"" << mPath << "\", \""
                                      << (ext.c_str() + pfx_offset) << "\") failed: "
