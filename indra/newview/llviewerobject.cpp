@@ -4877,6 +4877,10 @@ void LLViewerObject::adjustAudioGain(const F32 gain)
 
 bool LLViewerObject::unpackParameterEntry(U16 param_type, LLDataPacker *dp)
 {
+	if (LLNetworkData::PARAMS_MESH == param_type)
+	{
+		param_type = LLNetworkData::PARAMS_SCULPT;
+	}
 	ExtraParameter* param = getExtraParameterEntryCreate(param_type);
 	if (param)
 	{
