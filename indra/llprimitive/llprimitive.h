@@ -103,6 +103,7 @@ public:
 		PARAMS_LIGHT    = 0x20,
 		PARAMS_SCULPT   = 0x30,
 		PARAMS_LIGHT_IMAGE = 0x40,
+		PARAMS_MESH     = 0x50,
 	};
 	
 public:
