@@ -8029,7 +8029,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 			static LLCullResult ref_result;
 
-			if (LLDrawPoolWater::sNeedsDistortionUpdate)
+			if (LLDrawPoolWater::sNeedsReflectionUpdate)
 			{
 				//initial sky pass (no user clip plane)
 				{ //mask out everything but the sky
