@@ -456,7 +456,7 @@ void LLSidepanelInventory::onToggleInboxBtn()
 	LLButton* otherButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
 	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
 
-	bool inboxExpanded = manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
+	manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
 
 	gSavedPerAccountSettings.setString("LastInventoryInboxExpand", LLDate::now().asString());
 }
