@@ -62,7 +62,7 @@ LLPrivateMemoryPoolManager::mem_allocation_info_t LLPrivateMemoryPoolManager::sM
 #endif
 
 #ifndef _USE_PRIVATE_MEM_POOL_
-#define _USE_PRIVATE_MEM_POOL_ 0
+#define _USE_PRIVATE_MEM_POOL_ 1
 #endif
 
 //static
@@ -535,6 +535,9 @@ const char* LLMemTracker::getNextLine()
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
+//minimum slot size and minimal slot size interval
+const U32 ATOMIC_MEM_SLOT = 16 ; //bytes
+
 //minimum block sizes (page size) for small allocation, medium allocation, large allocation 
 const U32 MIN_BLOCK_SIZES[LLPrivateMemoryPool::SUPER_ALLOCATION] = {2 << 10, 4 << 10, 16 << 10} ; //
 
@@ -542,13 +545,29 @@ const U32 MIN_BLOCK_SIZES[LLPrivateMemoryPool::SUPER_ALLOCATION] = {2 << 10, 4 <
 const U32 MAX_BLOCK_SIZES[LLPrivateMemoryPool::SUPER_ALLOCATION] = {64 << 10, 1 << 20, 4 << 20} ;
 
 //minimum slot sizes for small allocation, medium allocation, large allocation 
-const U32 MIN_SLOT_SIZES[LLPrivateMemoryPool::SUPER_ALLOCATION]  = {8, 2 << 10, 512 << 10};
+const U32 MIN_SLOT_SIZES[LLPrivateMemoryPool::SUPER_ALLOCATION]  = {ATOMIC_MEM_SLOT, 2 << 10, 512 << 10};
 
 //maximum slot sizes for small allocation, medium allocation, large allocation 
-const U32 MAX_SLOT_SIZES[LLPrivateMemoryPool::SUPER_ALLOCATION]  = {(2 << 10) - 8, (512 - 2) << 10, 4 << 20};
+const U32 MAX_SLOT_SIZES[LLPrivateMemoryPool::SUPER_ALLOCATION]  = {(2 << 10) - ATOMIC_MEM_SLOT, (512 - 2) << 10, 4 << 20};
 
 //size of a block with multiple slots can not exceed CUT_OFF_SIZE
 const U32 CUT_OFF_SIZE = (64 << 10) ; //64 KB
+
+//max number of slots in a block
+const U32 MAX_NUM_SLOTS_IN_A_BLOCK = llmin(MIN_BLOCK_SIZES[0] / ATOMIC_MEM_SLOT, ATOMIC_MEM_SLOT * 8) ;
+
+//-------------------------------------------------------------
+//align val to be integer times of ATOMIC_MEM_SLOT
+U32 align(U32 val)
+{
+	U32 aligned = (val / ATOMIC_MEM_SLOT) * ATOMIC_MEM_SLOT ;
+	if(aligned < val)
+	{
+		aligned += ATOMIC_MEM_SLOT ;
+	}
+
+	return aligned ;
+}
 
 //-------------------------------------------------------------
 //class LLPrivateMemoryPool::LLMemoryBlock
@@ -575,35 +594,36 @@ void LLPrivateMemoryPool::LLMemoryBlock::init(char* buffer, U32 buffer_size, U32
 	mSlotSize = slot_size ;
 	mTotalSlots = buffer_size / mSlotSize ;	
 	
-	llassert_always(buffer_size / mSlotSize <= 256) ; //max number is 256
+	llassert_always(buffer_size / mSlotSize <= MAX_NUM_SLOTS_IN_A_BLOCK) ; //max number is 128
 	
 	mAllocatedSlots = 0 ;
+	mDummySize = 0 ;
 
 	//init the bit map.
-	//mark free bits
-	S32 usage_bit_len = (mTotalSlots + 31) / 32 ;
-	mDummySize = usage_bit_len - 1 ; //if the mTotalSlots more than 32, needs extra space for bit map
-	if(mDummySize > 0) //reserve extra space from mBuffer to store bitmap if needed.
+	//mark free bits	
+	if(mTotalSlots > 32) //reserve extra space from mBuffer to store bitmap if needed.
 	{
-		mTotalSlots -= (mDummySize * sizeof(mUsageBits) + mSlotSize - 1) / mSlotSize ;
-		usage_bit_len = (mTotalSlots + 31) / 32 ;
-		mDummySize = usage_bit_len - 1 ;//number of 32bits reserved from mBuffer for bitmap
+		mDummySize = ATOMIC_MEM_SLOT ;		
+		mTotalSlots -= (mDummySize + mSlotSize - 1) / mSlotSize ;
+		mUsageBits = 0 ;
 
-		if(mDummySize > 0)
+		S32 usage_bit_len = (mTotalSlots + 31) / 32 ;
+		
+		for(S32 i = 0 ; i < usage_bit_len - 1 ; i++)
 		{
-			mUsageBits = 0 ;
-			for(S32 i = 0 ; i < mDummySize ; i++)
-			{
-				*((U32*)mBuffer + i) = 0 ;
-			}
-			if(mTotalSlots & 31)
-			{
-				*((U32*)mBuffer + mDummySize - 1) = (0xffffffff << (mTotalSlots & 31)) ;
-			}
+			*((U32*)mBuffer + i) = 0 ;
 		}
-	}
-	
-	if(mDummySize < 1)//no extra bitmap space reserved
+		for(S32 i = usage_bit_len - 1 ; i < mDummySize / sizeof(U32) ; i++)
+		{
+			*((U32*)mBuffer + i) = 0xffffffff ;
+		}
+
+		if(mTotalSlots & 31)
+		{
+			*((U32*)mBuffer + usage_bit_len - 2) = (0xffffffff << (mTotalSlots & 31)) ;
+		}		
+	}	
+	else//no extra bitmap space reserved
 	{
 		mUsageBits = 0 ;
 		if(mTotalSlots & 31)
@@ -642,7 +662,7 @@ char* LLPrivateMemoryPool::LLMemoryBlock::allocate()
 	}
 	else if(mDummySize > 0)//go to extra space
 	{		
-		for(S32 i = 0 ; i < mDummySize; i++)
+		for(S32 i = 0 ; i < mDummySize / sizeof(U32); i++)
 		{
 			if(*((U32*)mBuffer + i) != 0xffffffff)
 			{
@@ -668,14 +688,14 @@ char* LLPrivateMemoryPool::LLMemoryBlock::allocate()
 
 	mAllocatedSlots++ ;
 	
-	return mBuffer + mDummySize * sizeof(U32) + (k * 32 + idx) * mSlotSize ;
+	return mBuffer + mDummySize + (k * 32 + idx) * mSlotSize ;
 }
 
 //free a slot
 void  LLPrivateMemoryPool::LLMemoryBlock::freeMem(void* addr) 
 {
 	//bit index
-	U32 idx = ((U32)addr - (U32)mBuffer - mDummySize * sizeof(U32)) / mSlotSize ;
+	U32 idx = ((U32)addr - (U32)mBuffer - mDummySize) / mSlotSize ;
 
 	U32* bits = &mUsageBits ;
 	if(idx >= 32)
@@ -699,7 +719,7 @@ void  LLPrivateMemoryPool::LLMemoryBlock::freeMem(void* addr)
 //for debug use: reset the entire bitmap.
 void  LLPrivateMemoryPool::LLMemoryBlock::resetBitMap()
 {
-	for(S32 i = 0 ; i < mDummySize ; i++)
+	for(S32 i = 0 ; i < mDummySize / sizeof(U32) ; i++)
 	{
 		*((U32*)mBuffer + i) = 0 ;
 	}
@@ -742,7 +762,10 @@ void LLPrivateMemoryPool::LLMemoryChunk::init(char* buffer, U32 buffer_size, U32
 	
 	//data buffer, which can be used for allocation
 	mDataBuffer = (char*)mFreeSpaceList + sizeof(LLMemoryBlock*) * mPartitionLevels ;
-
+	
+	//alignmnet
+	mDataBuffer = mBuffer + align(mDataBuffer - mBuffer) ;
+	
 	//init
 	for(U32 i = 0 ; i < mBlockLevels; i++)
 	{
@@ -1306,7 +1329,7 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 	//if the asked size larger than MAX_BLOCK_SIZE, fetch from heap directly, the pool does not manage it
 	if(size >= CHUNK_SIZE)
 	{
-		return new char[size] ;
+		return (char*)malloc(size) ;
 	}
 
 	char* p = NULL ;
@@ -1367,7 +1390,7 @@ void LLPrivateMemoryPool::freeMem(void* addr)
 	
 	if(!chunk)
 	{
-		delete[] (char*)addr ; //release from heap
+		free(addr) ; //release from heap
 	}
 	else
 	{
@@ -1503,7 +1526,7 @@ LLPrivateMemoryPool::LLMemoryChunk* LLPrivateMemoryPool::addChunk(S32 chunk_inde
 	checkSize(preferred_size + overhead) ;
 	mReservedPoolSize += preferred_size + overhead ;
 
-	char* buffer = new(std::nothrow) char[preferred_size + overhead] ;
+	char* buffer = (char*)malloc(preferred_size + overhead) ;
 	if(!buffer)
 	{
 		return NULL ;
@@ -1571,7 +1594,7 @@ void LLPrivateMemoryPool::removeChunk(LLMemoryChunk* chunk)
 	mReservedPoolSize -= chunk->getBufferSize() ;
 	
 	//release memory
-	delete[] chunk->getBuffer() ;
+	free(chunk->getBuffer()) ;
 }
 
 U16 LLPrivateMemoryPool::findHashKey(const char* addr)
@@ -1875,7 +1898,7 @@ char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size,
 
 	if(!poolp)
 	{
-		p = new char[size] ;
+		p = (char*)malloc(size) ;
 	}
 	else
 	{
@@ -1901,7 +1924,7 @@ char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size)
 #if _USE_PRIVATE_MEM_POOL_
 	if(!poolp)
 	{
-		return new char[size] ;
+		return (char*)malloc(size) ;
 	}
 	else
 	{
@@ -1932,7 +1955,7 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	}
 	else
 	{
-		delete[] (char*)addr ;
+		free(addr) ;
 	}
 #else
 	free(addr) ;
@@ -1942,6 +1965,7 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 //--------------------------------------------------------------------
 //class LLPrivateMemoryPoolTester
 //--------------------------------------------------------------------
+#if 0
 LLPrivateMemoryPoolTester* LLPrivateMemoryPoolTester::sInstance = NULL ;
 LLPrivateMemoryPool* LLPrivateMemoryPoolTester::sPool = NULL ;
 LLPrivateMemoryPoolTester::LLPrivateMemoryPoolTester()
@@ -2168,5 +2192,5 @@ void LLPrivateMemoryPoolTester::fragmentationtest()
 	//every time when asking for a new chunk during correctness test, and performance test,
 	//print out the chunk usage statistices.
 }
-
+#endif
 //--------------------------------------------------------------------

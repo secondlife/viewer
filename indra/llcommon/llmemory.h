@@ -226,7 +226,7 @@ public:
 		U32   mUsageBits ;
 		U8    mTotalSlots ;
 		U8    mAllocatedSlots ;
-		U8    mDummySize ; //size of extra U32 reserved for mUsageBits.
+		U8    mDummySize ; //size of extra bytes reserved for mUsageBits.
 
 	public:
 		LLMemoryBlock* mPrev ;
@@ -256,7 +256,7 @@ public:
 		char* allocate(U32 size) ;
 		void  freeMem(void* addr) ;
 
-		const char* getBuffer() const {return mBuffer;}
+		char* getBuffer() const {return mBuffer;}
 		U32 getBufferSize() const {return mBufferSize;}
 		U32 getAllocatedSize() const {return mAlloatedSize;}
 
@@ -408,9 +408,11 @@ public:
 #endif
 #define FREE_MEM(poolp, addr) LLPrivateMemoryPoolManager::freeMem((poolp), (addr))
 //-------------------------------------------------------------------------------------
+
 //
 //the below singleton is used to test the private memory pool.
 //
+#if 0
 class LL_COMMON_API LLPrivateMemoryPoolTester
 {
 private:
@@ -480,6 +482,7 @@ void  LLPrivateMemoryPoolTester::operator delete[](void* addr)
 {
 	sPool->free(addr) ;
 }
+#endif
 #endif
 // LLRefCount moved to llrefcount.h
 
