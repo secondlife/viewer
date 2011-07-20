@@ -1032,6 +1032,11 @@ void LLFloaterModelPreview::onPhysicsStageCancel(LLUICtrl* ctrl, void*data)
 		}
 
 		sInstance->mCurRequest.clear();
+
+		if (sInstance->mModelPreview)
+		{
+			sInstance->mModelPreview->updateStatusMessages();
+		}
 	}
 }
 
@@ -4296,7 +4301,7 @@ void LLModelPreview::updateStatusMessages()
 
 		//fmp->childSetEnabled("physics_optimize", !use_hull);
 
-		bool enable = phys_tris > 0 || phys_hulls > 0;
+		bool enable = (phys_tris > 0 || phys_hulls > 0) && fmp->mCurRequest.empty();
 		//enable = enable && !use_hull && fmp->childGetValue("physics_optimize").asBoolean();
 
 		//enable/disable "analysis" UI
@@ -4308,7 +4313,7 @@ void LLModelPreview::updateStatusMessages()
 			child = panel->findNextSibling(child);
 		}
 
-		enable = phys_hulls > 0;
+		enable = phys_hulls > 0 && fmp->mCurRequest.empty();
 		//enable/disable "simplification" UI
 		panel = fmp->getChild<LLPanel>("physics simplification");
 		child = panel->getFirstChild();
@@ -4334,6 +4339,11 @@ void LLModelPreview::updateStatusMessages()
 			{
 				fmp->childEnable("Decompose");
 			}
+		}
+		else
+		{
+			fmp->childEnable("simplify_cancel");
+			fmp->childEnable("decompose_cancel");
 		}
 	}
 
