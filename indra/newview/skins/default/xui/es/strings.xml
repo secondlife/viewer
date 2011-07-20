@@ -1171,6 +1171,12 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="InventoryNoTexture">
 		No tienes en tu inventario una copia de esta textura
 	</string>
+	<string name="InventoryInboxNoItems">
+		Aquí se entregarán los objetos comprados en el mercado.
+	</string>
+	<string name="InventoryOutboxNoItems">
+		Arrastra objetos aquí para preparar una lista del escaparate de tu mercado.
+	</string>
 	<string name="no_transfer" value="(no transferible)"/>
 	<string name="no_modify" value="(no modificable)"/>
 	<string name="no_copy" value="(no copiable)"/>
@@ -1294,6 +1300,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="InvFolder All">
 		Todas
+	</string>
+	<string name="no_attachments">
+		No tienes puestos anexos
 	</string>
 	<string name="Buy">
 		Comprar
@@ -1630,6 +1639,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="IMTeen">
 		teen
 	</string>
+	<string name="Anyone">
+		cualquiera
+	</string>
 	<string name="RegionInfoError">
 		error
 	</string>
@@ -1845,6 +1857,12 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="Public">
 		Público
+	</string>
+	<string name="LocalSettings">
+		Configuración local
+	</string>
+	<string name="RegionSettings">
+		Configuración de la región
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Clics: [TELEPORT] teleportes, [MAP] mapa, [PROFILE] perfil
@@ -3636,6 +3654,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
 		Región General
+	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		Los avatares están visibles y está permitido el chat fuera de esta parcela
 	</string>
 	<string name="UpdaterWindowTitle">
 		Actualizar [APP_NAME]
