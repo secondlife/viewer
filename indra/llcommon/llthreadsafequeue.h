@@ -30,9 +30,9 @@
 
 #include <string>
 #include <stdexcept>
+#include "llaprpool.h"
 
 
-struct apr_pool_t; // From apr_pools.h
 class LLThreadSafeQueueImplementation; // See below.
 
 
@@ -75,7 +75,7 @@ struct apr_queue_t; // From apr_queue.h
 class LL_COMMON_API LLThreadSafeQueueImplementation
 {
 public:
-	LLThreadSafeQueueImplementation(apr_pool_t * pool, unsigned int capacity);
+	LLThreadSafeQueueImplementation(unsigned int capacity);
 	~LLThreadSafeQueueImplementation();
 	void pushFront(void * element);
 	bool tryPushFront(void * element);
@@ -84,8 +84,7 @@ public:
 	size_t size();
 	
 private:
-	bool mOwnsPool;
-	apr_pool_t * mPool;
+	LLAPRPool mPool;			// The pool used for mQueue.
 	apr_queue_t * mQueue;
 };
 
@@ -99,9 +98,8 @@ class LLThreadSafeQueue
 public:
 	typedef ElementT value_type;
 	
-	// If the pool is set to NULL one will be allocated and managed by this
-	// queue.
-	LLThreadSafeQueue(apr_pool_t * pool = 0, unsigned int capacity = 1024);
+	// Constructor.
+	LLThreadSafeQueue(unsigned int capacity = 1024);
 	
 	// Add an element to the front of queue (will block if the queue has
 	// reached capacity).
@@ -139,8 +137,8 @@ private:
 
 
 template<typename ElementT>
-LLThreadSafeQueue<ElementT>::LLThreadSafeQueue(apr_pool_t * pool, unsigned int capacity):
-	mImplementation(pool, capacity)
+LLThreadSafeQueue<ElementT>::LLThreadSafeQueue(unsigned int capacity) :
+	mImplementation(capacity)
 {
 	; // No op.
 }

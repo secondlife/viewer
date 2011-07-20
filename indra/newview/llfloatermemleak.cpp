@@ -90,6 +90,11 @@ LLFloaterMemLeak::~LLFloaterMemLeak()
 
 void LLFloaterMemLeak::release()
 {
+	if(mLeakedMem.empty())
+	{
+		return ;
+	}
+
 	for(S32 i = 0 ; i < (S32)mLeakedMem.size() ; i++)
 	{
 		delete[] mLeakedMem[i] ;

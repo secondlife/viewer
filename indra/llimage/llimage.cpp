@@ -39,6 +39,7 @@
 #include "llimagepng.h"
 #include "llimagedxt.h"
 #include "llimageworker.h"
+#include "llmemory.h"
 
 //---------------------------------------------------------------------------
 // LLImage
@@ -47,11 +48,14 @@
 //static
 std::string LLImage::sLastErrorMessage;
 LLMutex* LLImage::sMutex = NULL;
+LLPrivateMemoryPool* LLImageBase::sPrivatePoolp = NULL ;
 
 //static
 void LLImage::initClass()
 {
-	sMutex = new LLMutex(NULL);
+	sMutex = new LLMutex;
+
+	LLImageBase::createPrivatePool() ;
 }
 
 //static
@@ -59,6 +63,8 @@ void LLImage::cleanupClass()
 {
 	delete sMutex;
 	sMutex = NULL;
+
+	LLImageBase::destroyPrivatePool() ;
 }
 
 //static
@@ -97,6 +103,25 @@ LLImageBase::~LLImageBase()
 	deleteData(); // virtual
 }
 
+//static 
+void LLImageBase::createPrivatePool() 
+{
+	if(!sPrivatePoolp)
+	{
+		sPrivatePoolp = LLPrivateMemoryPoolManager::getInstance()->newPool(LLPrivateMemoryPool::STATIC_THREADED) ;
+	}
+}
+	
+//static 
+void LLImageBase::destroyPrivatePool() 
+{
+	if(sPrivatePoolp)
+	{
+		LLPrivateMemoryPoolManager::getInstance()->deletePool(sPrivatePoolp) ;
+		sPrivatePoolp = NULL ;
+	}
+}
+
 // virtual
 void LLImageBase::dump()
 {
@@ -130,7 +155,7 @@ void LLImageBase::sanityCheck()
 // virtual
 void LLImageBase::deleteData()
 {
-	delete[] mData;
+	FREE_MEM(sPrivatePoolp, mData) ;
 	mData = NULL;
 	mDataSize = 0;
 }
@@ -167,7 +192,7 @@ U8* LLImageBase::allocateData(S32 size)
 	{
 		deleteData(); // virtual
 		mBadBufferAllocation = false ;
-		mData = new U8[size];
+		mData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 		if (!mData)
 		{
 			llwarns << "allocate image data: " << size << llendl;
@@ -185,7 +210,7 @@ U8* LLImageBase::allocateData(S32 size)
 U8* LLImageBase::reallocateData(S32 size)
 {
 	LLMemType mt1(mMemType);
-	U8 *new_datap = new U8[size];
+	U8 *new_datap = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 	if (!new_datap)
 	{
 		llwarns << "Out of memory in LLImageBase::reallocateData" << llendl;
@@ -195,7 +220,7 @@ U8* LLImageBase::reallocateData(S32 size)
 	{
 		S32 bytes = llmin(mDataSize, size);
 		memcpy(new_datap, mData, bytes);	/* Flawfinder: ignore */
-		delete[] mData;
+		FREE_MEM(sPrivatePoolp, mData) ;
 	}
 	mData = new_datap;
 	mDataSize = size;
@@ -341,6 +366,7 @@ BOOL LLImageRaw::resize(U16 width, U16 height, S8 components)
 	return TRUE;
 }
 
+#if 0
 U8 * LLImageRaw::getSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height) const
 {
 	LLMemType mt1(mMemType);
@@ -361,6 +387,7 @@ U8 * LLImageRaw::getSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height) const
 	}
 	return data;
 }
+#endif
 
 BOOL LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 							 const U8 *data, U32 stride, BOOL reverse_y)
@@ -830,6 +857,7 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 	}
 }
 
+#if 0
 //scale down image by not blending a pixel with its neighbors.
 BOOL LLImageRaw::scaleDownWithoutBlending( S32 new_width, S32 new_height)
 {
@@ -853,7 +881,7 @@ BOOL LLImageRaw::scaleDownWithoutBlending( S32 new_width, S32 new_height)
 	ratio_x -= 1.0f ;
 	ratio_y -= 1.0f ;
 
-	U8* new_data = new U8[new_data_size] ;
+	U8* new_data = allocateMemory(new_data_size) ;
 	llassert_always(new_data != NULL) ;
 
 	U8* old_data = getData() ;
@@ -875,6 +903,7 @@ BOOL LLImageRaw::scaleDownWithoutBlending( S32 new_width, S32 new_height)
 	
 	return TRUE ;
 }
+#endif
 
 BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 {
@@ -1506,6 +1535,7 @@ void LLImageFormatted::setData(U8 *data, S32 size)
 	{
 		deleteData();
 		setDataAndSize(data, size); // Access private LLImageBase members
+
 		sGlobalFormattedMemory += getDataSize();
 	}
 }
@@ -1524,7 +1554,7 @@ void LLImageFormatted::appendData(U8 *data, S32 size)
 			S32 newsize = cursize + size;
 			reallocateData(newsize);
 			memcpy(getData() + cursize, data, size);
-			delete[] data;
+			FREE_MEM(LLImageBase::getPrivatePool(), data);
 		}
 	}
 }
@@ -1536,8 +1566,7 @@ BOOL LLImageFormatted::load(const std::string &filename)
 	resetLastError();
 
 	S32 file_size = 0;
-	LLAPRFile infile ;
-	infile.open(filename, LL_APR_RB, NULL, &file_size);
+	LLAPRFile infile(filename, LL_APR_RB, &file_size);
 	apr_file_t* apr_file = infile.getFileHandle();
 	if (!apr_file)
 	{
@@ -1572,8 +1601,7 @@ BOOL LLImageFormatted::save(const std::string &filename)
 {
 	resetLastError();
 
-	LLAPRFile outfile ;
-	outfile.open(filename, LL_APR_WB);
+	LLAPRFile outfile(filename, LL_APR_WB);
 	if (!outfile.getFileHandle())
 	{
 		setLastError("Unable to open file for writing", filename);

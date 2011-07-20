@@ -127,6 +127,12 @@ void LLWorld::destroyClass()
 		LLVOCache::getInstance()->destroyClass() ;
 	}
 	LLViewerPartSim::getInstance()->destroyClass();
+
+	mDefaultWaterTexturep = NULL ;
+	for (S32 i = 0; i < 8; i++)
+	{
+		mEdgeWaterObjects[i] = NULL;
+	}
 }
 
 

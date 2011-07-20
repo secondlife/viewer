@@ -73,7 +73,7 @@ protected:
 
 //============================================================================
 // base class 
-
+class LLPrivateMemoryPool ;
 class LLVertexBuffer : public LLRefCount
 {
 public:
@@ -269,6 +269,9 @@ protected:
 
 	std::vector<MappedRegion> mMappedVertexRegions;
 	std::vector<MappedRegion> mMappedIndexRegions;
+
+private:
+	static LLPrivateMemoryPool* sPrivatePoolp ;
 
 public:
 	static S32 sCount;

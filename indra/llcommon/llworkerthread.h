@@ -94,7 +94,6 @@ public:
 
 private:
 	void deleteWorker(LLWorkerClass* workerclass); // schedule for deletion
-	
 };
 
 //============================================================================
@@ -194,7 +193,7 @@ protected:
 	U32 mRequestPriority; // last priority set
 
 private:
-	LLMutex mMutex;
+	LLMutexRootPool mMutex;		// Use LLMutexRootPool since this object is created and destructed by multiple threads.
 	LLAtomicU32 mWorkFlags;
 };
 

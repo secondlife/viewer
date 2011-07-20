@@ -1924,6 +1924,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>DebugShowPrivateMem</key>
+    <map>
+      <key>Comment</key>
+      <string>Show Private Mem Info</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DebugShowRenderInfo</key>
     <map>
       <key>Comment</key>
@@ -5413,6 +5424,17 @@
       <key>Value</key>
       <real>48.0</real>
     </map>
+    <key>MaxHeapSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum heap size (GB)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.6</real>
+    </map>
     <key>MaxSelectDistance</key>
     <map>
       <key>Comment</key>
@@ -5527,6 +5549,17 @@
   <map>
     <key>Comment</key>
     <string>This is a tentative flag that may be temporarily set off by the user, until she teleports</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MemeoyFailurePreventionEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>If set, the viewer will quit to avoid crash when memory failure happens</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>

@@ -359,7 +359,7 @@ LLFloater(key)
 	mLastMouseX = 0;
 	mLastMouseY = 0;
 	mGLName = 0;
-	mStatusLock = new LLMutex(NULL);
+	mStatusLock = new LLMutex();
 
 	mLODMode[LLModel::LOD_HIGH] = 0;
 	for (U32 i = 0; i < LLModel::LOD_HIGH; i++)
@@ -2814,7 +2814,7 @@ LLColor4 LLModelLoader::getDaeColor(daeElement* element)
 //-----------------------------------------------------------------------------
 
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
-: LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
+: LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex()
 , mPelvisZOffset( 0.0f )
 , mLegacyRigValid( false )
 , mRigValidJointUpload( false )

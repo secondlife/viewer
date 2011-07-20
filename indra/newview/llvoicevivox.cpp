@@ -942,7 +942,7 @@ void LLVivoxVoiceClient::stateMachine()
 
 				if(!mSocket)
 				{
-					mSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);	
+					mSocket = LLSocket::create(LLSocket::STREAM_TCP);	
 				}
 				
 				mConnected = mSocket->blockingConnect(mDaemonHost);
