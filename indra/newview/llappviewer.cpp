@@ -1069,7 +1069,7 @@ void LLAppViewer::initMaxHeapSize()
 
 	//F32 max_heap_size_gb = llmin(1.6f, (F32)gSavedSettings.getF32("MaxHeapSize")) ;
 	F32 max_heap_size_gb = gSavedSettings.getF32("MaxHeapSize") ;
-	BOOL enable_mem_failure_prevention = (BOOL)gSavedSettings.getBOOL("MemeoyFailurePreventionEnabled") ;
+	BOOL enable_mem_failure_prevention = (BOOL)gSavedSettings.getBOOL("MemoryFailurePreventionEnabled") ;
 
 	LLMemory::initMaxHeapSizeGB(max_heap_size_gb, enable_mem_failure_prevention) ;
 }
