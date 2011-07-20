@@ -110,7 +110,10 @@ void LLMemory::updateMemoryInfo()
 
 	sAllocatedMemInKB = (U32)(counters.WorkingSetSize / 1024) ;
 	sAllocatedPageSizeInKB = (U32)(counters.PagefileUsage / 1024) ;
-	sMaxPhysicalMemInKB = llmin(LLMemoryInfo::getAvailableMemoryKB() + sAllocatedMemInKB, sMaxHeapSizeInKB);
+
+	U32 avail_phys, avail_virtual;
+	LLMemoryInfo::getAvailableMemoryKB(avail_phys, avail_virtual) ;
+	sMaxPhysicalMemInKB = llmin(avail_phys + sAllocatedMemInKB, sMaxHeapSizeInKB);
 
 	if(sMaxPhysicalMemInKB > sAllocatedMemInKB)
 	{
