@@ -686,6 +686,8 @@ bool LLAppViewer::init()
 	//set the max heap size.
 	initMaxHeapSize() ;
 
+	LLPrivateMemoryPoolManager::initClass((BOOL)gSavedSettings.getBOOL("MemoryPrivatePoolEnabled")) ;
+
 	// write Google Breakpad minidump files to our log directory
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 	logdir += gDirUtilp->getDirDelimiter();

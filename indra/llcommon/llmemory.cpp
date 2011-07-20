@@ -61,10 +61,6 @@ BOOL LLMemory::sEnableMemoryFailurePrevention = FALSE;
 LLPrivateMemoryPoolManager::mem_allocation_info_t LLPrivateMemoryPoolManager::sMemAllocationTracker;
 #endif
 
-#ifndef _USE_PRIVATE_MEM_POOL_
-#define _USE_PRIVATE_MEM_POOL_ 1
-#endif
-
 //static
 void LLMemory::initClass()
 {
@@ -1386,7 +1382,7 @@ void LLPrivateMemoryPool::freeMem(void* addr)
 	{
 		return ;
 	}
-
+	
 	lock() ;
 	
 	LLMemoryChunk* chunk = findChunk((char*)addr) ;
@@ -1789,7 +1785,7 @@ bool LLPrivateMemoryPool::fillHashTable(U16 start, U16 end, LLMemoryChunk* chunk
 //--------------------------------------------------------------------
 LLPrivateMemoryPoolManager* LLPrivateMemoryPoolManager::sInstance = NULL ;
 
-LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager() 
+LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager(BOOL enabled) 
 {
 	mPoolList.resize(LLPrivateMemoryPool::MAX_TYPES) ;
 
@@ -1797,6 +1793,8 @@ LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager()
 	{
 		mPoolList[i] = NULL ;
 	}
+
+	mPrivatePoolEnabled = enabled ;
 }
 
 LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager() 
@@ -1839,12 +1837,20 @@ LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager()
 }
 
 //static 
+void LLPrivateMemoryPoolManager::initClass(BOOL enabled) 
+{
+	llassert_always(!sInstance) ;
+
+	sInstance = new LLPrivateMemoryPoolManager(enabled) ;
+}
+
+//static 
 LLPrivateMemoryPoolManager* LLPrivateMemoryPoolManager::getInstance() 
 {
-	if(!sInstance)
-	{
-		sInstance = new LLPrivateMemoryPoolManager() ;
-	}
+	//if(!sInstance)
+	//{
+	//	sInstance = new LLPrivateMemoryPoolManager(FALSE) ;
+	//}
 	return sInstance ;
 }
 	
@@ -1860,6 +1866,11 @@ void LLPrivateMemoryPoolManager::destroyClass()
 
 LLPrivateMemoryPool* LLPrivateMemoryPoolManager::newPool(S32 type) 
 {
+	if(!mPrivatePoolEnabled)
+	{
+		return NULL ;
+	}
+
 	if(!mPoolList[type])
 	{
 		mPoolList[type] = new LLPrivateMemoryPool(type) ;
@@ -1870,7 +1881,7 @@ LLPrivateMemoryPool* LLPrivateMemoryPoolManager::newPool(S32 type)
 
 void LLPrivateMemoryPoolManager::deletePool(LLPrivateMemoryPool* pool) 
 {
-	if(pool->isEmpty())
+	if(pool && pool->isEmpty())
 	{
 		mPoolList[pool->getType()] = NULL ;
 		delete pool;
@@ -1907,7 +1918,7 @@ char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size,
 	{
 		p = poolp->allocate(size) ;
 	}
-
+	
 	if(p)
 	{
 		char num[16] ;
@@ -1924,18 +1935,14 @@ char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size,
 //static 
 char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size) 
 {
-#if _USE_PRIVATE_MEM_POOL_
-	if(!poolp)
+	if(poolp)
 	{
-		return (char*)malloc(size) ;
+		return poolp->allocate(size) ;		
 	}
 	else
 	{
-		return poolp->allocate(size) ;
+		return (char*)malloc(size) ;
 	}
-#else
-	return (char*)malloc(size) ;
-#endif
 }
 #endif
 
@@ -1951,7 +1958,6 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	sMemAllocationTracker.erase((char*)addr) ;
 #endif
 
-#if _USE_PRIVATE_MEM_POOL_
 	if(poolp)
 	{
 		poolp->freeMem(addr) ;
@@ -1959,10 +1965,7 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	else
 	{
 		free(addr) ;
-	}
-#else
-	free(addr) ;
-#endif
+	}	
 }
 
 //--------------------------------------------------------------------

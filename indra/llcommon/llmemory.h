@@ -367,11 +367,12 @@ private:
 class LL_COMMON_API LLPrivateMemoryPoolManager
 {
 private:
-	LLPrivateMemoryPoolManager() ;
+	LLPrivateMemoryPoolManager(BOOL enabled) ;
 	~LLPrivateMemoryPoolManager() ;
 
-public:
+public:	
 	static LLPrivateMemoryPoolManager* getInstance() ;
+	static void initClass(BOOL enabled) ;
 	static void destroyClass() ;
 
 	LLPrivateMemoryPool* newPool(S32 type) ;
@@ -380,6 +381,7 @@ public:
 private:
 	static LLPrivateMemoryPoolManager* sInstance ;
 	std::vector<LLPrivateMemoryPool*> mPoolList ;
+	BOOL mPrivatePoolEnabled;
 
 public:
 	//debug and statistics info.
