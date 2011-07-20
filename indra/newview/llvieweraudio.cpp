@@ -36,6 +36,7 @@
 #include "llviewerwindow.h"
 #include "llvoiceclient.h"
 #include "llviewermedia.h"
+#include "llprogressview.h"
 
 /////////////////////////////////////////////////////////
 
@@ -101,7 +102,16 @@ void audio_update_volume(bool force_update)
 {
 	F32 master_volume = gSavedSettings.getF32("AudioLevelMaster");
 	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
-	if (!gViewerWindow->getActive() && (gSavedSettings.getBOOL("MuteWhenMinimized")))
+
+	LLProgressView* progress = gViewerWindow->getProgressView();
+	BOOL progress_view_visible = FALSE;
+
+	if (progress)
+	{
+		progress_view_visible = progress->getVisible();
+	}
+
+	if (!gViewerWindow->getActive() && gSavedSettings.getBOOL("MuteWhenMinimized"))
 	{
 		mute_audio = TRUE;
 	}
@@ -114,7 +124,7 @@ void audio_update_volume(bool force_update)
 
 		gAudiop->setDopplerFactor(gSavedSettings.getF32("AudioLevelDoppler"));
 		gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
-		gAudiop->setMuted(mute_audio);
+		gAudiop->setMuted(mute_audio || progress_view_visible);
 		
 		if (force_update)
 		{
@@ -136,7 +146,7 @@ void audio_update_volume(bool force_update)
 		F32 music_volume = gSavedSettings.getF32("AudioLevelMusic");
 		BOOL music_muted = gSavedSettings.getBOOL("MuteMusic");
 		music_volume = mute_volume * master_volume * music_volume;
-		gAudiop->setInternetStreamGain ( music_muted ? 0.f : music_volume );
+		gAudiop->setInternetStreamGain ( music_muted || progress_view_visible ? 0.f : music_volume );
 	
 	}
 
