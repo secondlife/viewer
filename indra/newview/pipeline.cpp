@@ -336,10 +336,10 @@ static const U32 gl_cube_face[] =
 void validate_framebuffer_object();
 
 
-void addDeferredAttachments(LLRenderTarget& target)
+bool addDeferredAttachments(LLRenderTarget& target)
 {
-	target.addColorAttachment(GL_RGBA); //specular
-	target.addColorAttachment(GL_RGBA); //normal+z	
+	return target.addColorAttachment(GL_RGBA) && //specular
+			target.addColorAttachment(GL_RGBA); //normal+z	
 }
 
 LLPipeline::LLPipeline() :
@@ -586,18 +586,61 @@ void LLPipeline::allocatePhysicsBuffer()
 
 void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
+	U32 samples = gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples"));
+
+	if (gGLManager.mIsATI)
+	{ //ATI doesn't like the way we use multisample texture
+		samples = 0;
+	}
+
+	//try to allocate screen buffers at requested resolution and samples
+	// - on failure, shrink number of samples and try again
+	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
+	// Make sure to call "releaseScreenBuffers" after each failure to cleanup the partially loaded state
+
+	if (!allocateScreenBuffer(resX, resY, samples))
+	{
+		releaseScreenBuffers();
+		//reduce number of samples 
+		while (samples > 0)
+		{
+			samples /= 2;
+			if (allocateScreenBuffer(resX, resY, samples))
+			{ //success
+				return;
+			}
+			releaseScreenBuffers();
+		}
+
+		//reduce resolution
+		while (resY > 0 && resX > 0)
+		{
+			resY /= 2;
+			if (allocateScreenBuffer(resX, resY, samples))
+			{
+				return;
+			}
+			releaseScreenBuffers();
+
+			resX /= 2;
+			if (allocateScreenBuffer(resX, resY, samples))
+			{
+				return;
+			}
+			releaseScreenBuffers();
+		}
+
+		llwarns << "Unable to allocate screen buffer at any resolution!" << llendl;
+	}
+}
+
+
+bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
+{
 	// remember these dimensions
 	mScreenWidth = resX;
 	mScreenHeight = resY;
 	
-	//cap samples at 4 for render targets to avoid out of memory errors
-	U32 samples = gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples"));
-
-	if (gGLManager.mIsATI)
-	{ //disable multisampling of render targets where ATI is involved
-		samples = 0;
-	}
-
 	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
 
 	if (res_mod > 1 && res_mod < resX && res_mod < resY)
@@ -608,7 +651,10 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 	if (gSavedSettings.getBOOL("RenderUIBuffer"))
 	{
-		mUIScreen.allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		if (!mUIScreen.allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE))
+		{
+			return false;
+		}
 	}	
 
 	if (LLPipeline::sRenderDeferred)
@@ -618,22 +664,22 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		bool gi = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED);
 
 		//allocate deferred rendering color buffers
-		mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples);
-		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples);
-		addDeferredAttachments(mDeferredScreen);
+		if (!mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!addDeferredAttachments(mDeferredScreen)) return false;
 	
-		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples);		
+		if (!mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		
 #if LL_DARWIN
 		// As of OS X 10.6.7, Apple doesn't support multiple color formats in a single FBO
-		mEdgeMap.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		if (!mEdgeMap.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 #else
-		mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		if (!mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 #endif
 
 		if (shadow_detail > 0 || ssao)
 		{ //only need mDeferredLight[0] for shadows OR ssao
-			mDeferredLight[0].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+			if (!mDeferredLight[0].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 		}
 		else
 		{
@@ -642,7 +688,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		if (ssao)
 		{ //only need mDeferredLight[1] for ssao
-			mDeferredLight[1].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, false);
+			if (!mDeferredLight[1].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, false)) return false;
 		}
 		else
 		{
@@ -651,14 +697,14 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		if (gi)
 		{ //only need mDeferredLight[2] and mGIMapPost for gi
-			mDeferredLight[2].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, false);
+			if (!mDeferredLight[2].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, false)) return false;
 			for (U32 i = 0; i < 2; i++)
 			{
 #if LL_DARWIN
 				// As of OS X 10.6.7, Apple doesn't support multiple color formats in a single FBO
-				mGIMapPost[i].allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+				if (!mGIMapPost[i].allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
 #else
-				mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+				if (!mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
 #endif
 			}
 		}
@@ -685,7 +731,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		{ //allocate 4 sun shadow maps
 			for (U32 i = 0; i < 4; i++)
 			{
-				mShadow[i].allocate(U32(resX*scale),U32(resY*scale), shadow_fmt, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+				if (!mShadow[i].allocate(U32(resX*scale),U32(resY*scale), shadow_fmt, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
 			}
 		}
 		else
@@ -703,7 +749,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		{ //allocate two spot shadow maps
 			for (U32 i = 4; i < 6; i++)
 			{
-				mShadow[i].allocate(width, height, shadow_fmt, TRUE, FALSE);
+				if (!mShadow[i].allocate(width, height, shadow_fmt, TRUE, FALSE)) return false;
 			}
 		}
 		else
@@ -716,7 +762,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		width = nhpo2(resX)/2;
 		height = nhpo2(resY)/2;
-		mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE);
+		if (!mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE)) return false;
 	}
 	else
 	{
@@ -738,7 +784,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		mEdgeMap.release();
 		mLuminanceMap.release();
 		
-		mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;		
 	}
 	
 	if (LLPipeline::sRenderDeferred)
@@ -750,6 +796,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 	stop_glerror();
 
+	return true;
 }
 
 //static
@@ -800,9 +847,23 @@ void LLPipeline::releaseGLBuffers()
 
 	mWaterRef.release();
 	mWaterDis.release();
+	
+	for (U32 i = 0; i < 3; i++)
+	{
+		mGlow[i].release();
+	}
+
+	releaseScreenBuffers();
+
+	gBumpImageList.destroyGL();
+	LLVOAvatar::resetImpostors();
+}
+
+void LLPipeline::releaseScreenBuffers()
+{
+	mUIScreen.release();
 	mScreen.release();
 	mPhysicsDisplay.release();
-	mUIScreen.release();
 	mDeferredScreen.release();
 	mDeferredDepth.release();
 	for (U32 i = 0; i < 3; i++)
@@ -821,15 +882,8 @@ void LLPipeline::releaseGLBuffers()
 	{
 		mShadow[i].release();
 	}
-
-	for (U32 i = 0; i < 3; i++)
-	{
-		mGlow[i].release();
-	}
-
-	gBumpImageList.destroyGL();
-	LLVOAvatar::resetImpostors();
 }
+
 
 void LLPipeline::createGLBuffers()
 {
