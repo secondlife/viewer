@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_im_control_panel">
-	<text name="avatar_name" value="Unbekannt"/>
 	<layout_stack name="button_stack">
 		<layout_panel name="view_profile_btn_panel">
 			<button label="Profil" name="view_profile_btn"/>
@@ -11,20 +10,20 @@
 		<layout_panel name="teleport_btn_panel">
 			<button label="Teleportieren" name="teleport_btn" tool_tip="Dieser Person einen Teleport anbieten"/>
 		</layout_panel>
-		<layout_panel name="share_btn_panel">
-			<button label="Teilen" name="share_btn"/>
-		</layout_panel>
-		<layout_panel name="pay_btn_panel">
-			<button label="Bezahlen" name="pay_btn"/>
-		</layout_panel>
 		<layout_panel name="call_btn_panel">
 			<button label="Anrufen" name="call_btn"/>
 		</layout_panel>
 		<layout_panel name="end_call_btn_panel">
 			<button label="Anruf beenden" name="end_call_btn"/>
 		</layout_panel>
-		<layout_panel name="voice_ctrls_btn_panel">
-			<button label="Voice-Steuerung" name="voice_ctrls_btn"/>
+		<layout_panel name="block_btn_panel">
+			<button label="Ignorieren" name="block_btn"/>
+		</layout_panel>
+		<layout_panel name="unblock_btn_panel">
+			<button label="Freischalten" name="unblock_btn"/>
+		</layout_panel>
+		<layout_panel name="volume_ctrl_panel">
+			<slider name="volume_slider" tool_tip="Anrufvolumen" value="0,5"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

@@ -135,12 +135,12 @@
 				0
 			</text>
 			<button label="Acheter du terrain" label_selected="Acheter le terrain..." left_delta="60" name="Buy Land..." width="125"/>
+			<button label="Vente Linden" label_selected="Vente Linden..." name="Linden Sale..." tool_tip="Le terrain doit être la propriété d&apos;un résident, avoir un contenu défini et ne pas être aux enchères."/>
 			<button label="Infos sur les scripts" name="Scripts..." width="110"/>
 			<button label="Acheter pour le groupe" label_selected="Acheter pour le groupe..." name="Buy For Group..."/>
 			<button label="Acheter un pass" label_selected="Acheter un pass..." left_delta="-127" name="Buy Pass..." tool_tip="Un pass vous donne un accès temporaire à ce terrain." width="125"/>
 			<button label="Abandonner le terrain" label_selected="Abandonner le terrain..." name="Abandon Land..."/>
 			<button label="Récupérer le terrain" label_selected="Redemander le terrain…" name="Reclaim Land..."/>
-			<button label="Vente Linden" label_selected="Vente Linden..." name="Linden Sale..." tool_tip="Le terrain doit être la propriété d&apos;un résident, avoir un contenu défini et ne pas être aux enchères."/>
 		</panel>
 		<panel label="RÈGLEMENT" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -312,6 +312,9 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			<panel.string name="push_restrict_region_text">
 				Pas de bousculades (les règles de la région priment)
 			</panel.string>
+			<panel.string name="see_avs_text">
+				Voir et chatter avec les résidents sur cette parcelle
+			</panel.string>
 			<text name="allow_label">
 				Autoriser les autres résidents à :
 			</text>
@@ -374,6 +377,10 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				Photo :
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image"/>
+			<text name="allow_label5">
+				Autoriser les résidents sur les autres parcelles à :
+			</text>
+			<check_box label="Voir les avatars" name="SeeAvatarsCheck" tool_tip="Permettre aux résidents présents sur d&apos;autres parcelles de voir et chatter avec les résidents présents sur cette parcelle et vous permettre de les voir et de chatter avec eux."/>
 			<text name="landing_point">
 				Lieu d&apos;arrivée : [LANDING]
 			</text>
@@ -434,6 +441,11 @@ musique :
 				Son :
 			</text>
 			<check_box label="Limiter les gestes et sons d&apos;objet à cette parcelle" name="check sound local"/>
+			<text name="Avatar Sounds:">
+				Sons d&apos;avatar :
+			</text>
+			<check_box label="Tout le monde" name="all av sound check"/>
+			<check_box label="Groupe" name="group av sound check"/>
 			<text name="Voice settings:">
 				Voix :
 			</text>

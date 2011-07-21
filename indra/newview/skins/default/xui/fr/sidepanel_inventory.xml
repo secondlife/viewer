@@ -1,6 +1,38 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Choses" name="objects panel">
 	<panel label="" name="sidepanel__inventory_panel">
+		<layout_stack name="inventory_layout_stack">
+			<layout_panel name="inbox_layout_panel">
+				<panel label="" name="marketplace_inbox">
+					<string name="InboxLabelWithArg">
+						Articles reçus ([NUM])
+					</string>
+					<string name="InboxLabelNoArg">
+						Articles reçus
+					</string>
+					<button label="Articles reçus" name="inbox_btn"/>
+					<text name="inbox_fresh_new_count">
+						[NUM] nouv.
+					</text>
+					<panel tool_tip="Drag and drop items to your inventory to manage and use them">
+						<text name="inbox_inventory_placeholder">
+							Ici seront livrés les achats effectués sur la Place du marché.
+						</text>
+					</panel>
+				</panel>
+			</layout_panel>
+			<layout_panel name="outbox_layout_panel">
+				<panel label="" name="marketplace_outbox">
+					<button label="Boîte d&apos;envoi vendeur" name="outbox_btn"/>
+					<button label="" name="outbox_sync_btn" tool_tip="Vers ma vitrine de la Place du marché"/>
+					<panel tool_tip="Drag and drop items here to prepare them for sale on your storefront">
+						<text name="outbox_inventory_placeholder">
+							Configurez votre compte de vendeur de façon à pouvoir utiliser cette fonctionnalité.
+						</text>
+					</panel>
+				</panel>
+			</layout_panel>
+		</layout_stack>
 		<panel name="button_panel">
 			<layout_stack name="button_panel_ls">
 				<layout_panel name="info_btn_lp">

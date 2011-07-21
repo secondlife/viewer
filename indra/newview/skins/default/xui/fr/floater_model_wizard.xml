@@ -193,6 +193,9 @@
 	<string name="status_idle">
 		Inactif
 	</string>
+	<string name="status_parse_error">
+		Problème d&apos;analyse de fichier .dae ; reportez-vous au journal pour plus de détails.
+	</string>
 	<string name="status_reading_file">
 		Chargement...
 	</string>
@@ -201,6 +204,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		Erreur : valeur de sommet supérieure à 65534. Opération abandonnée.
+	</string>
+	<string name="bad_element">
+		Erreur : élément non valide
 	</string>
 	<string name="high">
 		Élevé

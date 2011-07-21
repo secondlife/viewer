@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Outfits">
+	<accordion name="outfits_accordion">
+		<no_matched_tabs_text name="no_matched_outfits_msg" value="お探しのものは見つかりましたか？[secondlife:///app/search/all/[SEARCH_TERM] 検索] をお試しください。"/>
+		<no_visible_tabs_text name="no_outfits_msg" value="アウトフィットがまだありません。[secondlife:///app/search/all 検索] をお試しください。"/>
+	</accordion>
 	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="オプションを表示します"/>
+		<menu_button name="options_gear_btn" tool_tip="オプションを表示します"/>
 		<button name="trash_btn" tool_tip="選択したアウトフィットを削除する"/>
 	</panel>
 </panel>

@@ -31,6 +31,7 @@
 		<menu_item_call label="Meus grupos" name="My Groups"/>
 		<menu_item_check label="Bate-papo local" name="Nearby Chat"/>
 		<menu_item_call label="Pessoas por perto" name="Active Speakers"/>
+		<menu_item_check label="Voz por perto" name="Nearby Voice"/>
 	</menu>
 	<menu label="Mundo" name="World">
 		<menu_item_check label="Mini Mapa" name="Mini-Map"/>
@@ -63,8 +64,24 @@
 			<menu_item_call label="Meio-dia" name="Noon"/>
 			<menu_item_call label="Pôr-do-Sol" name="Sunset"/>
 			<menu_item_call label="Meia-noite" name="Midnight"/>
-			<menu_item_call label="Horário da propriedade" name="Revert to Region Default"/>
-			<menu_item_call label="Editor de ambiente" name="Environment Editor"/>
+		</menu>
+		<menu label="Editor de ambientes" name="Enviroment Editor">
+			<menu_item_call label="Configurações de ambiente..." name="Enviroment Settings"/>
+			<menu label="Pré-configurações de água" name="Water Presets">
+				<menu_item_call label="Nova pré-configuração..." name="new_water_preset"/>
+				<menu_item_call label="Editar pré-configuração..." name="edit_water_preset"/>
+				<menu_item_call label="Excluir pré-configuração..." name="delete_water_preset"/>
+			</menu>
+			<menu label="Pré-configurações de céu" name="Sky Presets">
+				<menu_item_call label="Nova pré-configuração..." name="new_sky_preset"/>
+				<menu_item_call label="Editar pré-configuração..." name="edit_sky_preset"/>
+				<menu_item_call label="Excluir pré-configuração..." name="delete_sky_preset"/>
+			</menu>
+			<menu label="Pré-configurações de dias" name="Day Presets">
+				<menu_item_call label="Nova pré-configuração..." name="new_day_preset"/>
+				<menu_item_call label="Editar pré-configuração..." name="edit_day_preset"/>
+				<menu_item_call label="Excluir pré-configuração..." name="delete_day_preset"/>
+			</menu>
 		</menu>
 	</menu>
 	<menu label="Construir" name="BuildTools">

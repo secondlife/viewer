@@ -3,6 +3,9 @@
 	<string name="status_idle">
 		Pausa
 	</string>
+	<string name="status_parse_error">
+		Problema nell&apos;elaborazione DAE - vedi il registro per informazioni al riguardo.
+	</string>
 	<string name="status_reading_file">
 		Caricamento in corso...
 	</string>
@@ -11,6 +14,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		Errore: numero di vertici maggiore di 65534, annullato.
+	</string>
+	<string name="bad_element">
+		Errore: elemento non valido
 	</string>
 	<string name="high">
 		Alto
