@@ -3743,6 +3743,11 @@ bool can_batch_texture(LLFace* facep)
 		return false;
 	}
 
+	if (facep->getTexture() && facep->getTexture()->getPrimaryFormat() == GL_ALPHA)
+	{ //can't batch invisiprims
+		return false;
+	}
+
 	if (facep->isState(LLFace::TEXTURE_ANIM) && facep->getVirtualSize() > MIN_TEX_ANIM_SIZE)
 	{ //texture animation breaks batches
 		return false;
@@ -4711,6 +4716,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			}
 
 			const LLTextureEntry* te = facep->getTextureEntry();
+			tex = facep->getTexture();
 
 			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
