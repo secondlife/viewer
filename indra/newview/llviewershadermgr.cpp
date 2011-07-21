@@ -173,6 +173,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gWLCloudProgram);
 	mShaderList.push_back(&gAvatarProgram);
 	mShaderList.push_back(&gObjectShinyProgram);
+	mShaderList.push_back(&gObjectShinyNonIndexedProgram);
 	mShaderList.push_back(&gWaterProgram);
 	mShaderList.push_back(&gAvatarEyeballProgram); 
 	mShaderList.push_back(&gObjectSimpleProgram);
@@ -187,7 +188,9 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gObjectFullbrightShinyProgram);
 	mShaderList.push_back(&gObjectFullbrightShinyWaterProgram);
 	mShaderList.push_back(&gObjectSimpleNonIndexedProgram);
+	mShaderList.push_back(&gObjectSimpleNonIndexedWaterProgram);
 	mShaderList.push_back(&gObjectFullbrightNonIndexedProgram);
+	mShaderList.push_back(&gObjectFullbrightNonIndexedWaterProgram);
 	mShaderList.push_back(&gObjectFullbrightShinyNonIndexedProgram);
 	mShaderList.push_back(&gObjectFullbrightShinyNonIndexedWaterProgram);
 	mShaderList.push_back(&gSkinnedObjectSimpleProgram);
@@ -204,6 +207,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gObjectFullbrightWaterProgram);
 	mShaderList.push_back(&gAvatarWaterProgram);
 	mShaderList.push_back(&gObjectShinyWaterProgram);
+	mShaderList.push_back(&gObjectShinyNonIndexedWaterProgram);
 	mShaderList.push_back(&gUnderWaterProgram);
 	mShaderList.push_back(&gDeferredSunProgram);
 	mShaderList.push_back(&gDeferredBlurLightProgram);
