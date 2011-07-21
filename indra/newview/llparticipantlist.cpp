@@ -798,11 +798,19 @@ void LLParticipantList::LLParticipantListMenu::toggleMuteVoice(const LLSD& userd
 
 bool LLParticipantList::LLParticipantListMenu::isGroupModerator()
 {
-	// Agent is in Group Call
+	if (!mParent.mSpeakerMgr)
+	{
+		llwarns << "Speaker manager is missing" << llendl;
+		return false;
+	}
+
+	// Is session a group call/chat?
 	if(gAgent.isInGroup(mParent.mSpeakerMgr->getSessionID()))
 	{
-		// Agent is Moderator
-		return mParent.mSpeakerMgr->findSpeaker(gAgentID)->mIsModerator;
+		LLSpeaker* speaker = mParent.mSpeakerMgr->findSpeaker(gAgentID).get();
+
+		// Is agent a moderator?
+		return speaker && speaker->mIsModerator;
 	}
 	return false;
 }
