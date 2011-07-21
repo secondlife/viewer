@@ -579,11 +579,18 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 
 ////////////////////////////////////////////////////////////////////////////
 
-class LLCurl::Multi
+class LLCurl::Multi : public LLThread
 {
 	LOG_CLASS(Multi);
 public:
-	
+
+	typedef enum
+	{
+		PERFORM_STATE_READY=0,
+		PERFORM_STATE_PERFORMING=1,
+		PERFORM_STATE_COMPLETED=2
+	} ePerformState;
+
 	Multi();
 	~Multi();
 
@@ -593,13 +600,17 @@ public:
 	void removeEasy(Easy* easy);
 
 	S32 process();
-	S32 perform();
+	void perform();
 	
+	virtual void run();
+
 	CURLMsg* info_read(S32* msgs_in_queue);
 
 	S32 mQueued;
 	S32 mErrorCount;
 	
+	S32 mPerformState;
+
 private:
 	void easyFree(Easy*);
 	
@@ -614,8 +625,10 @@ private:
 };
 
 LLCurl::Multi::Multi()
-	: mQueued(0),
-	  mErrorCount(0)
+	: LLThread("Curl Multi"),
+	  mQueued(0),
+	  mErrorCount(0),
+	  mPerformState(PERFORM_STATE_READY)
 {
 	mCurlMultiHandle = curl_multi_init();
 	if (!mCurlMultiHandle)
@@ -630,6 +643,7 @@ LLCurl::Multi::Multi()
 
 LLCurl::Multi::~Multi()
 {
+	llassert(isStopped());
 	// Clean up active
 	for(easy_active_list_t::iterator iter = mEasyActiveList.begin();
 		iter != mEasyActiveList.end(); ++iter)
@@ -655,8 +669,16 @@ CURLMsg* LLCurl::Multi::info_read(S32* msgs_in_queue)
 	return curlmsg;
 }
 
+void LLCurl::Multi::perform()
+{
+	if (mPerformState == PERFORM_STATE_READY)
+	{
+		mPerformState = PERFORM_STATE_PERFORMING;
+		start();
+	}
+}
 
-S32 LLCurl::Multi::perform()
+void LLCurl::Multi::run()
 {
 	S32 q = 0;
 	for (S32 call_count = 0;
@@ -672,13 +694,18 @@ S32 LLCurl::Multi::perform()
 	
 	}
 	mQueued = q;
-	return q;
+	mPerformState = PERFORM_STATE_COMPLETED;
 }
 
 S32 LLCurl::Multi::process()
 {
 	perform();
-	
+
+	if (mPerformState != PERFORM_STATE_COMPLETED)
+	{
+		return 0;
+	}
+
 	CURLMsg* msg;
 	int msgs_in_queue;
 
@@ -709,6 +736,8 @@ S32 LLCurl::Multi::process()
 			}
 		}
 	}
+
+	mPerformState = PERFORM_STATE_READY;
 	return processed;
 }
 
@@ -923,6 +952,12 @@ S32 LLCurlRequest::process()
 		if (multi != mActiveMulti && tres == 0 && multi->mQueued == 0)
 		{
 			mMultiSet.erase(curiter);
+
+			while (!multi->isStopped())
+			{
+				apr_sleep(1000);
+			}
+
 			delete multi;
 		}
 	}
@@ -963,6 +998,10 @@ LLCurlEasyRequest::LLCurlEasyRequest()
 
 LLCurlEasyRequest::~LLCurlEasyRequest()
 {
+	while (!mMulti->isStopped())
+	{
+		apr_sleep(1000);
+	}
 	delete mMulti;
 }
 	
@@ -1059,14 +1098,20 @@ void LLCurlEasyRequest::requestComplete()
 	}
 }
 
-S32 LLCurlEasyRequest::perform()
+void LLCurlEasyRequest::perform()
 {
-	return mMulti->perform();
+	mMulti->perform();
 }
 
 // Usage: Call getRestult until it returns false (no more messages)
 bool LLCurlEasyRequest::getResult(CURLcode* result, LLCurl::TransferInfo* info)
 {
+	if (mMulti->mPerformState != LLCurl::Multi::PERFORM_STATE_COMPLETED)
+	{ //we're busy, try again later
+		return false;
+	}
+	mMulti->mPerformState = LLCurl::Multi::PERFORM_STATE_READY;
+
 	if (!mEasy)
 	{
 		// Special case - we failed to initialize a curl_easy (can happen if too many open files)
