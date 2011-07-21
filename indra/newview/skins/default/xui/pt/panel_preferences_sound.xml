@@ -19,6 +19,7 @@
 	<check_box label="Ativado" name="enable_voice_check"/>
 	<check_box label="Autorizar auto-play de mídias" name="media_auto_play_btn" tool_tip="Marque esta opção para auto-executar mídias, se elas quiserem" value="true"/>
 	<check_box label="Tocar mídia anexada em outros avatares" name="media_show_on_others_btn" tool_tip="Desmarque esta opção para ocultar mídias anexadas em avatares por perto" value="true"/>
+	<check_box label="Tocar áudio de gestos" name="gesture_audio_play_btn" tool_tip="Selecione para ouvir o áudio de gestos" value="verdadeiro"/>
 	<text name="voice_chat_settings">
 		Configuração de bate-papo de voz
 	</text>
@@ -35,28 +36,5 @@
 	<button label="Definir chave" name="set_voice_hotkey_button"/>
 	<button name="set_voice_middlemouse_button" tool_tip="Redefinir como botão do meio do mouse"/>
 	<button label="Controles de entrada/saída" name="device_settings_btn" width="180"/>
-	<panel label="Configuração dos dispositivo" name="device_settings_panel">
-		<panel.string name="default_text">
-			Padrão
-		</panel.string>
-		<panel.string name="default system device">
-			Dispositivo padrão do sistema
-		</panel.string>
-		<panel.string name="no device">
-			Nenhum
-		</panel.string>
-		<text name="Input">
-			Entrada
-		</text>
-		<text name="My volume label">
-			Meu volume:
-		</text>
-		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Mude o volume usando o controle deslizante"/>
-		<text name="wait_text">
-			Aguarde
-		</text>
-		<text name="Output">
-			Saída
-		</text>
-	</panel>
+	<panel label="Configuração dos dispositivo" name="device_settings_panel"/>
 </panel>

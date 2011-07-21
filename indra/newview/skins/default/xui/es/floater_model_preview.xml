@@ -3,6 +3,9 @@
 	<string name="status_idle">
 		Inactivo
 	</string>
+	<string name="status_parse_error">
+		Problema de análisis de DAE - consulta los datos en el registro.
+	</string>
 	<string name="status_reading_file">
 		Cargando...
 	</string>
@@ -11,6 +14,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		Error: El número de intersección es superior a 65534. Cancelado.
+	</string>
+	<string name="bad_element">
+		Error: el elemento no es válido
 	</string>
 	<string name="high">
 		Alto

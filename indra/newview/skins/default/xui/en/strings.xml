@@ -18,6 +18,7 @@
 	<string name="StartupClearingCache">Clearing cache...</string>
 	<string name="StartupInitializingTextureCache">Initializing Texture Cache...</string>
 	<string name="StartupInitializingVFS">Initializing VFS...</string>
+  <string name="StartupRequireDriverUpdate">Graphics Initialization Failed. Please Update Your Graphics Driver!</string>
 
 	<!--  progress -->
 	<string name="ProgressRestoring">Restoring...</string>

@@ -405,7 +405,7 @@
 			</combo_box>
 			<spinner label="Gravidade" name="Physics Gravity"/>
 			<spinner label="Fricção" name="Physics Friction"/>
-			<spinner label="Densidade" name="Physics Density"/>
+			<spinner label="Densidade em 100 kg/m^3" name="Physics Density"/>
 			<spinner label="Restituição" name="Physics Restitution"/>
 		</panel>
 		<panel label="Textura" name="Texture">
