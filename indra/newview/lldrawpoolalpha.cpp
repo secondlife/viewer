@@ -295,16 +295,24 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 	if (sShowDebugAlpha)
 	{
-		if(gPipeline.canUseWindLightShaders()) 
+		BOOL shaders = gPipeline.canUseVertexShaders();
+		if(shaders) 
 		{
-			LLGLSLShader::bindNoShader();
+			gObjectFullbrightNonIndexedProgram.bind();
 		}
-		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+		else
+		{
+			gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+		}
 		glColor4f(1,0,0,1);
 		LLViewerFetchedTexture::sSmokeImagep->addTextureStats(1024.f*1024.f);
 		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sSmokeImagep, TRUE) ;
 		renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_TEXCOORD0);
+		if(shaders) 
+		{
+			gObjectFullbrightNonIndexedProgram.unbind();
+		}
 	}
 }
 
@@ -359,7 +367,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 			bool draw_glow_for_this_partition = mVertexShaderLevel > 0 && // no shaders = no glow.
 				// All particle systems seem to come off the wire with texture entries which claim that they glow.  This is probably a bug in the data.  Suppress.
 				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_PARTICLE &&
-				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_CLOUD &&
 				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD_PARTICLE;
 
 			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];

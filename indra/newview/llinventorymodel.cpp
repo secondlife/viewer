@@ -2589,7 +2589,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 		LLInventoryState::sWearNewClothing = FALSE;
 	}
 
-	if (tid == LLInventoryState::sWearNewClothingTransactionID)
+	if (tid.notNull() && tid == LLInventoryState::sWearNewClothingTransactionID)
 	{
 		count = wearable_ids.size();
 		for (i = 0; i < count; ++i)

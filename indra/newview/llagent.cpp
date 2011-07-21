@@ -41,6 +41,7 @@
 #include "llcapabilitylistener.h"
 #include "llchannelmanager.h"
 #include "llconsole.h"
+#include "llenvmanager.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloaterreg.h"
@@ -84,6 +85,7 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
+#include "stringize.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -608,6 +610,8 @@ void LLAgent::standUp()
 //-----------------------------------------------------------------------------
 void LLAgent::setRegion(LLViewerRegion *regionp)
 {
+	bool teleport = true;
+
 	llassert(regionp);
 	if (mRegionp != regionp)
 	{
@@ -645,6 +649,8 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 				gSky.mVOGroundp->setRegion(regionp);
 			}
 
+			// Notify windlight managers
+			teleport = (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE);
 		}
 		else
 		{
@@ -685,6 +691,15 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	LLSelectMgr::getInstance()->updateSelectionCenter();
 
 	LLFloaterMove::sUpdateFlyingStatus();
+
+	if (teleport)
+	{
+		LLEnvManagerNew::instance().onTeleport();
+	}
+	else
+	{
+		LLEnvManagerNew::instance().onRegionCrossing();
+	}
 }
 
 
@@ -3334,6 +3349,9 @@ bool LLAgent::teleportCore(bool is_local)
 
 	// hide land floater too - it'll be out of date
 	LLFloaterReg::hideInstance("about_land");
+
+	// hide the Region/Estate floater
+	LLFloaterReg::hideInstance("region_info");
 
 	// hide the search floater (EXT-8276)
 	LLFloaterReg::hideInstance("search");

@@ -40,7 +40,7 @@ class LLInventoryItem;
 class LLSidepanelInventorySubpanel : public LLPanel
 {
 public:
-	LLSidepanelInventorySubpanel();
+	LLSidepanelInventorySubpanel(const LLPanel::Params& p = getDefaultParams());
 	virtual ~LLSidepanelInventorySubpanel();
 
 	/*virtual*/ void setVisible(BOOL visible);

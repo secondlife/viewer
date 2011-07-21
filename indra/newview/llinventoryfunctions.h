@@ -28,9 +28,9 @@
 #ifndef LL_LLINVENTORYFUNCTIONS_H
 #define LL_LLINVENTORYFUNCTIONS_H
 
-#include "llinventorytype.h"
-#include "llfolderview.h"
-#include "llfolderviewitem.h"
+#include "llinventorymodel.h"
+#include "llinventory.h"
+#include "llwearabletype.h"
 
 /********************************************************************************
  **                                                                            **
@@ -417,6 +417,24 @@ public:
 /**                    Inventory Collector Functions
  **                                                                            **
  *******************************************************************************/
+class LLFolderViewItem;
+class LLFolderViewFolder;
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFolderViewFunctor
+//
+// Simple abstract base class for applying a functor to folders and
+// items in a folder view hierarchy. This is suboptimal for algorithms
+// that only work folders or only work on items, but I'll worry about
+// that later when it's determined to be too slow.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFolderViewFunctor
+{
+public:
+	virtual ~LLFolderViewFunctor() {}
+	virtual void doFolder(LLFolderViewFolder* folder) = 0;
+	virtual void doItem(LLFolderViewItem* item) = 0;
+};
 
 class LLInventoryState
 {

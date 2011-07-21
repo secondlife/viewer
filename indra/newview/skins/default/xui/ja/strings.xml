@@ -1238,9 +1238,6 @@ support@secondlife.com にお問い合わせください。
 	<string name="InvFolder My Inventory">
 		持ち物
 	</string>
-	<string name="InvFolder My Favorites">
-		お気に入り
-	</string>
 	<string name="InvFolder Library">
 		ライブラリ
 	</string>
@@ -3821,7 +3818,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		アドホックコンファレンス
 	</string>
 	<string name="conference-title-incoming">
-		[AGENT_NAME]とコンファレンスする
+		[AGENT_NAME] とコンファレンスする
 	</string>
 	<string name="inventory_item_offered-im">
 		持ち物アイテムを送りました
