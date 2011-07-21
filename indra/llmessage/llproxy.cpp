@@ -59,7 +59,10 @@ LLProxy::LLProxy():
 		mAuthMethodSelected(METHOD_NOAUTH),
 		mSocksUsername(),
 		mSocksPassword(),
-		mPool(gAPRPoolp)
+		mPool(gAPRPoolp),
+		mSOCKSAuthStrings(),
+		mHTTPProxyAddrStrings(),
+		mProxyMutex(0)
 {
 }
 
@@ -71,7 +74,7 @@ LLProxy::~LLProxy()
 
 	// Delete c_str versions of the addresses and credentials.
 	for_each(mSOCKSAuthStrings.begin(), mSOCKSAuthStrings.end(), DeletePointerArray());
-	for_each(mSOCKSAddrStrings.begin(), mSOCKSAddrStrings.end(), DeletePointerArray());
+	for_each(mHTTPProxyAddrStrings.begin(), mHTTPProxyAddrStrings.end(), DeletePointerArray());
 }
 
 // Perform a SOCKS 5 authentication and UDP association to the proxy
@@ -211,7 +214,7 @@ void LLProxy::stopProxy()
 
 	if (LLPROXY_SOCKS == mProxyType)
 	{
-		sHTTPProxyEnabled = false;
+		void disableHTTPProxy();
 	}
 
 	if (mProxyControlChannel)
@@ -234,42 +237,61 @@ void LLProxy::setAuthPassword(const std::string &username, const std::string &pa
 	U32 size = username.length() + password.length() + 2;
 	char* curl_auth_string  = new char[size];
 	snprintf(curl_auth_string, size, "%s:%s", username.c_str(), password.c_str());
+
+	LLMutexLock lock(&mProxyMutex);
 	mSOCKSAuthStrings.push_back(curl_auth_string);
 }
 
 void LLProxy::enableHTTPProxy(LLHost httpHost, LLHttpProxyType type)
 { 
+	LLMutexLock lock(&mProxyMutex);
+
 	sHTTPProxyEnabled = true;
 	mHTTPProxy        = httpHost;
 	mProxyType        = type;
 
 	U32 size = httpHost.getIPString().length() + 1;
-	char* socks_addr_string = new char[size];
-	strncpy(socks_addr_string, httpHost.getIPString().c_str(), size);
-	mSOCKSAddrStrings.push_back(socks_addr_string);
+	char* http_addr_string = new char[size];
+	strncpy(http_addr_string, httpHost.getIPString().c_str(), size);
+	mHTTPProxyAddrStrings.push_back(http_addr_string);
+}
+
+void LLProxy::enableHTTPProxy()
+{
+	LLMutexLock lock(&mProxyMutex);
+
+	sHTTPProxyEnabled = true;
+}
+
+void LLProxy::disableHTTPProxy()
+{
+	LLMutexLock lock(&mProxyMutex);
+
+	sHTTPProxyEnabled = false;
 }
 
 //static
 void LLProxy::cleanupClass()
 {
-	LLProxy::getInstance()->stopProxy();
+	getInstance()->stopProxy();
+	deleteSingleton();
 }
 
 // Apply proxy settings to CuRL request if either type of HTTP proxy is enabled.
 void LLProxy::applyProxySettings(LLCurl::Easy* handle)
 {
-	if (LLProxy::getInstance()->isHTTPProxyEnabled())
+	if (sHTTPProxyEnabled)
 	{
-		std::string address = LLProxy::getInstance()->getHTTPProxy().getIPString();
-		U16 port = LLProxy::getInstance()->getHTTPProxy().getPort();
+		std::string address = mHTTPProxy.getIPString();
+		U16 port = mHTTPProxy.getPort();
 		handle->setoptString(CURLOPT_PROXY, address.c_str());
 		handle->setopt(CURLOPT_PROXYPORT, port);
-		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
+		if (mProxyType == LLPROXY_SOCKS)
 		{
 			handle->setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-			if (LLProxy::getInstance()->getSelectedAuthMethod() == METHOD_PASSWORD)
+			if (mAuthMethodSelected == METHOD_PASSWORD)
 			{
-				handle->setoptString(CURLOPT_PROXYUSERPWD, LLProxy::getInstance()->getProxyUserPwdCURL());
+				handle->setoptString(CURLOPT_PROXYUSERPWD, getProxyUserPwdCURL());
 			}
 		}
 		else
@@ -281,18 +303,18 @@ void LLProxy::applyProxySettings(LLCurl::Easy* handle)
 
 void LLProxy::applyProxySettings(LLCurlEasyRequest* handle)
 {
-	if (LLProxy::getInstance()->isHTTPProxyEnabled())
+	if (sHTTPProxyEnabled)
 	{
-		std::string address = LLProxy::getInstance()->getHTTPProxy().getIPString();
-		U16 port = LLProxy::getInstance()->getHTTPProxy().getPort();
+		std::string address = mHTTPProxy.getIPString();
+		U16 port = mHTTPProxy.getPort();
 		handle->setoptString(CURLOPT_PROXY, address.c_str());
 		handle->setopt(CURLOPT_PROXYPORT, port);
-		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
+		if (mProxyType == LLPROXY_SOCKS)
 		{
 			handle->setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-			if (LLProxy::getInstance()->getSelectedAuthMethod() == METHOD_PASSWORD)
+			if (mAuthMethodSelected == METHOD_PASSWORD)
 			{
-				handle->setoptString(CURLOPT_PROXYUSERPWD, LLProxy::getInstance()->getProxyUserPwdCURL());
+				handle->setoptString(CURLOPT_PROXYUSERPWD, getProxyUserPwdCURL());
 			}
 		}
 		else
@@ -304,17 +326,17 @@ void LLProxy::applyProxySettings(LLCurlEasyRequest* handle)
 
 void LLProxy::applyProxySettings(CURL* handle)
 {
-	if (LLProxy::getInstance()->isHTTPProxyEnabled())
+	LLMutexLock lock(&mProxyMutex);
+	if (sHTTPProxyEnabled)
 	{
-		check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXY, mSOCKSAddrStrings.back()));
-
-		U16 port = LLProxy::getInstance()->getHTTPProxy().getPort();
+		check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXY, mHTTPProxyAddrStrings.back()));
+		U16 port = mHTTPProxy.getPort();
 		check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, port));
 
-		if (LLProxy::getInstance()->getHTTPProxyType() == LLPROXY_SOCKS)
+		if (mProxyType == LLPROXY_SOCKS)
 		{
 			check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5));
-			if (LLProxy::getInstance()->getSelectedAuthMethod() == METHOD_PASSWORD)
+			if (mAuthMethodSelected == METHOD_PASSWORD)
 			{
 				check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, mSOCKSAuthStrings.back()));
 			}

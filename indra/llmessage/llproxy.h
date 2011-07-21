@@ -32,6 +32,7 @@
 #include "lliosocket.h"
 #include "llmemory.h"
 #include "llsingleton.h"
+#include "llthread.h"
 #include <string>
 
 // Error codes returned from the StartProxy method
@@ -190,9 +191,10 @@ public:
 	// Proxy HTTP packets via httpHost, which can be a SOCKS 5 or a HTTP proxy
 	// as specified in type
 	void enableHTTPProxy(LLHost httpHost, LLHttpProxyType type);
+	void enableHTTPProxy();
 
 	// Stop proxying HTTP packets
-	void disableHTTPProxy() { sHTTPProxyEnabled = false; }
+	void disableHTTPProxy();
 
 	// Get the UDP proxy address and port
 	LLHost getUDPProxy() const { return mUDPProxy; }
@@ -218,16 +220,17 @@ public:
 	void applyProxySettings(LLCurlEasyRequest* handle);
 
 private:
-
 	// Open a communication channel to the SOCKS 5 proxy proxy, at port messagePort
 	S32 proxyHandshake(LLHost proxy, U32 messagePort);
 
+private:
 	// socket handle to proxy TCP control channel
 	LLSocket::ptr_t mProxyControlChannel;
 
-	// is the UDP proxy enabled?
+	// Is the UDP proxy enabled?
 	static bool sUDPProxyEnabled;
-	// is the http proxy enabled?
+	// Is the HTTP proxy enabled? 
+	// Do not toggle directly, use enableHTTPProxy() and disableHTTPProxy()
 	static bool sHTTPProxyEnabled;
 
 	// currently selected http proxy type
@@ -235,7 +238,7 @@ private:
 
 	// UDP proxy address and port
 	LLHost mUDPProxy;
-	// TCP Proxy control channel address and port
+	// TCP proxy control channel address and port
 	LLHost mTCPProxy;
 	// HTTP proxy address and port
 	LLHost mHTTPProxy;
@@ -248,9 +251,13 @@ private:
 	// SOCKS 5 password
 	std::string mSocksPassword;
 
-	// Vectors to store valid pointers to string options that have been passed to CURL requests.
+	// Vectors to store valid pointers to string options that might have been set on CURL requests.
+	// This results in a behavior similar to LLCurl::Easy::setoptstring()
 	std::vector<char*> mSOCKSAuthStrings;
-	std::vector<char*> mSOCKSAddrStrings;
+	std::vector<char*> mHTTPProxyAddrStrings;
+
+	// Mutex to protect members in cross-thread calls to applyProxySettings()
+	LLMutex mProxyMutex;
 
 	// APR pool for the socket
 	apr_pool_t* mPool;
