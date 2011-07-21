@@ -83,6 +83,26 @@ mesh-development.build_CYGWIN_Debug = false
 mesh-development.build_viewer_update_version_manager = false
 
 # ========================================
+# mesh-development-release-1-candidate
+# ========================================
+mesh-development-release-1-candidate.viewer_channel = "Project Viewer - Mesh"
+mesh-development-release-1-candidate.login_channel = "Project Viewer - Mesh"
+mesh-development-release-1-candidate.viewer_grid = agni
+mesh-development-release-1-candidate.build_debug_release_separately = true
+mesh-development-release-1-candidate.build_CYGWIN_Debug = false
+mesh-development-release-1-candidate.build_viewer_update_version_manager = false
+
+# ========================================
+# mesh-development-rc
+# ========================================
+mesh-development-rc.viewer_channel = "Project Viewer - Mesh"
+mesh-development-rc.login_channel = "Project Viewer - Mesh"
+mesh-development-rc.viewer_grid = agni
+mesh-development-rc.build_debug_release_separately = true
+mesh-development-rc.build_CYGWIN_Debug = false
+mesh-development-rc.build_viewer_update_version_manager = false
+
+# ========================================
 # mesh-asset-deprecation
 # ========================================
 mesh-asset-deprecation.viewer_channel = "Project Viewer - Mesh Asset Deprecation"
