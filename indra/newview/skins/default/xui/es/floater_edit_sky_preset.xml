@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Sky Preset" title="Editar cielo predefinido">
+	<string name="title_new">
+		Crear un nuevo cielo predefinido
+	</string>
+	<string name="title_edit">
+		Editar cielo predefinido
+	</string>
+	<string name="hint_new">
+		Asigna un nombre al valor predefinido, ajusta los controles para crearlo y selecciona &quot;Guardar&quot;.
+	</string>
+	<string name="hint_edit">
+		Para editar el cielo predefinido, ajusta los controles y selecciona &quot;Guardar&quot;.
+	</string>
+	<string name="combo_label">
+		-Selecciona un valor predefinido-
+	</string>
+	<text name="hint">
+		Para editar el valor predefinido, ajusta los controles y selecciona &quot;Guardar&quot;.
+	</text>
+	<text name="label">
+		Nombre predefinido:
+	</text>
+	<text name="note">
+		Nota: Si cambias el nombre del valor predefinido, crearás un predefinido nuevo y el actual no se modificará.
+	</text>
+	<tab_container name="WindLight Tabs">
+		<panel label="ATMÓSFERA" name="Atmosphere">
+			<text name="BHText">
+				Horizonte azul
+			</text>
+			<text name="BDensText">
+				Cantidad de bruma
+			</text>
+			<text name="BDensText2">
+				Saturación
+			</text>
+			<text name="HDText">
+				Densidad de la bruma
+			</text>
+			<text name="DensMultText">
+				Densidad
+			</text>
+			<text name="WLDistanceMultText">
+				Distancia
+			</text>
+			<text name="MaxAltText">
+				Altitud máx.
+			</text>
+		</panel>
+		<panel label="LUZ" name="Lighting">
+			<text name="SLCText">
+				Color del sol y de la luna
+			</text>
+			<text name="WLAmbientText">
+				Ambiental
+			</text>
+			<text name="SunGlowText">
+				Resplandor del sol
+			</text>
+			<slider label="Visión" name="WLGlowB"/>
+			<slider label="Tamaño" name="WLGlowR"/>
+			<text name="WLStarText">
+				Brillo de las estrellas
+			</text>
+			<text name="SceneGammaText">
+				Gamma de la escena
+			</text>
+			<text name="TODText">
+				Posición del sol y la luna
+			</text>
+			<multi_slider initial_value="0" name="WLSunPos"/>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<text name="WL12am">
+				12 AM
+			</text>
+			<text name="WL6am">
+				6 AM
+			</text>
+			<text name="WL12pmHash">
+				12 PM
+			</text>
+			<text name="WL6pm">
+				6 PM
+			</text>
+			<text name="WL12am2">
+				12 AM
+			</text>
+			<time name="WLDayTime" value="6:00 AM"/>
+			<text name="WLEastAngleText">
+				Ángulo de elevación
+			</text>
+		</panel>
+		<panel label="NUBES" name="Clouds">
+			<text name="WLCloudColorText">
+				Color de las nubes
+			</text>
+			<text name="WLCloudColorText2">
+				Posición/Densidad de las nubes
+			</text>
+			<slider label="X" name="WLCloudX"/>
+			<slider label="Y" name="WLCloudY"/>
+			<slider label="D" name="WLCloudDensity"/>
+			<text name="WLCloudCoverageText">
+				Nubosidad
+			</text>
+			<text name="WLCloudScaleText">
+				Altitud de las nubes
+			</text>
+			<text name="WLCloudDetailText">
+				Detalle de las nubes (Posición/Densidad)
+			</text>
+			<slider label="X" name="WLCloudDetailX"/>
+			<slider label="Y" name="WLCloudDetailY"/>
+			<slider label="D" name="WLCloudDetailDensity"/>
+			<text name="WLCloudScrollXText">
+				Velocidad de las nubes: X
+			</text>
+			<check_box label="Lock" name="WLCloudLockX"/>
+			<text name="WLCloudScrollYText">
+				Velocidad de las nubes: Y
+			</text>
+			<check_box label="Lock" name="WLCloudLockY"/>
+		</panel>
+	</tab_container>
+	<check_box label="Convertir este valor predefinido en mi nueva configuración de cielo" name="make_default_cb"/>
+	<button label="Guardar" name="save"/>
+	<button label="Cancelar" name="cancel"/>
+</floater>

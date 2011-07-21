@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Sky Preset" title="空の事前設定を編集">
+	<string name="title_new">
+		新しい空の事前設定を作成
+	</string>
+	<string name="title_edit">
+		空の事前設定を編集
+	</string>
+	<string name="hint_new">
+		新しい事前設定に名前をつけ、希望の設定に調節して、「保存」をクリックします。
+	</string>
+	<string name="hint_edit">
+		空の事前設定を編集するには、希望の設定に調節して、「保存」をクリックします。
+	</string>
+	<string name="combo_label">
+		- 事前設定を選択 -
+	</string>
+	<text name="hint">
+		事前設定を編集するには、希望の設定に調節して、「保存」をクリックします。
+	</text>
+	<text name="label">
+		事前設定の名前：
+	</text>
+	<text name="note">
+		注意：自分で作成した事前設定の名前を変更すると、新しい事前設定が別に作成されるだけで、元の事前設定は変更されません。
+	</text>
+	<tab_container name="WindLight Tabs">
+		<panel label="大気" name="Atmosphere">
+			<text name="BHText">
+				空の配色
+			</text>
+			<text name="BDensText">
+				空と遠景の露光
+			</text>
+			<text name="BDensText2">
+				空の配色と濃度
+			</text>
+			<text name="HDText">
+				大気の不透明度
+			</text>
+			<text name="DensMultText">
+				大気の不透明度の増幅
+			</text>
+			<text name="WLDistanceMultText">
+				視界の増幅
+			</text>
+			<text name="MaxAltText">
+				最大高度
+			</text>
+		</panel>
+		<panel label="ライティング" name="Lighting">
+			<text name="SLCText">
+				太陽/月の色
+			</text>
+			<text name="WLAmbientText">
+				風
+			</text>
+			<text name="SunGlowText">
+				太陽の輝き
+			</text>
+			<slider label="焦点" name="WLGlowB"/>
+			<slider label="サイズ" name="WLGlowR"/>
+			<text name="WLStarText">
+				星の輝き
+			</text>
+			<text name="SceneGammaText">
+				風景ガンマ
+			</text>
+			<text name="TODText">
+				太陽/月の位置
+			</text>
+			<multi_slider initial_value="0" name="WLSunPos"/>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<text name="WL12am">
+				12am
+			</text>
+			<text name="WL6am">
+				6am
+			</text>
+			<text name="WL12pmHash">
+				12pm
+			</text>
+			<text name="WL6pm">
+				6pm
+			</text>
+			<text name="WL12am2">
+				12am
+			</text>
+			<time name="WLDayTime" value="6:00 AM"/>
+			<text name="WLEastAngleText">
+				東の角度
+			</text>
+		</panel>
+		<panel label="雲" name="Clouds">
+			<text name="WLCloudColorText">
+				雲の色
+			</text>
+			<text name="WLCloudColorText2">
+				雲のXY/密度
+			</text>
+			<slider label="X" name="WLCloudX"/>
+			<slider label="Y" name="WLCloudY"/>
+			<slider label="D" name="WLCloudDensity"/>
+			<text name="WLCloudCoverageText">
+				雲の量
+			</text>
+			<text name="WLCloudScaleText">
+				雲のスケール
+			</text>
+			<text name="WLCloudDetailText">
+				雲の詳細（XY/密度）
+			</text>
+			<slider label="X" name="WLCloudDetailX"/>
+			<slider label="Y" name="WLCloudDetailY"/>
+			<slider label="D" name="WLCloudDetailDensity"/>
+			<text name="WLCloudScrollXText">
+				雲の移動速度（X方向）
+			</text>
+			<check_box label="ロック" name="WLCloudLockX"/>
+			<text name="WLCloudScrollYText">
+				雲の移動速度（Y 方向）
+			</text>
+			<check_box label="ロック" name="WLCloudLockY"/>
+		</panel>
+	</tab_container>
+	<check_box label="この事前設定を新しい空の設定にする" name="make_default_cb"/>
+	<button label="保存" name="save"/>
+	<button label="取り消し" name="cancel"/>
+</floater>

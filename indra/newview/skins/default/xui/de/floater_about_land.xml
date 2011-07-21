@@ -133,12 +133,12 @@
 				0
 			</text>
 			<button label="Land kaufen" label_selected="Land kaufen..." name="Buy Land..."/>
+			<button label="Linden-Verkauf" label_selected="Linden-Verkauf..." name="Linden Sale..." tool_tip="Land muss Eigentum und auf Inhalt gesetzt sein und nicht zur Auktion stehen."/>
 			<button label="Skriptinfo" name="Scripts..."/>
 			<button label="Für Gruppe kaufen" label_selected="Für Gruppe kaufen..." name="Buy For Group..."/>
 			<button label="Pass kaufen" label_selected="Pass kaufen..." name="Buy Pass..." tool_tip="Ein Pass gibt Ihnen zeitbegrenzten Zugang zu diesem Land."/>
 			<button label="Land aufgeben" label_selected="Land aufgeben..." name="Abandon Land..."/>
 			<button label="Land in Besitz nehmen" label_selected="Land in Besitz nehmen..." name="Reclaim Land..."/>
-			<button label="Linden-Verkauf" label_selected="Linden-Verkauf..." name="Linden Sale..." tool_tip="Land muss Eigentum und auf Inhalt gesetzt sein und nicht zur Auktion stehen."/>
 		</panel>
 		<panel label="VERTRAG" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -309,6 +309,9 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<panel.string name="push_restrict_region_text">
 				Kein Stoßen (regional)
 			</panel.string>
+			<panel.string name="see_avs_text">
+				Auf dieser Parzelle Einwohner sehen und mit ihnen chatten
+			</panel.string>
 			<text name="allow_label">
 				Anderen Einwohnern gestatten:
 			</text>
@@ -371,6 +374,10 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				Foto:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<text name="allow_label5">
+				Einwohnern auf anderen Parzellen Folgendes gestatten:
+			</text>
+			<check_box label="Avatare sehen" name="SeeAvatarsCheck" tool_tip="Gestattet sowohl Einwohnern auf anderen Parzellen, Einwohner auf dieser Parzelle zu sehen und mit ihnen zu chatten, als auch Ihnen, diese Einwohner auf anderen Parzellen zu sehen und mit ihnen zu chatten."/>
 			<text name="landing_point">
 				Landepunkt: [LANDING]
 			</text>
@@ -427,6 +434,11 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				Sound:
 			</text>
 			<check_box label="Gesten- und Objektgeräusche auf diese Parzelle beschränken" name="check sound local"/>
+			<text name="Avatar Sounds:">
+				Avatarsounds:
+			</text>
+			<check_box label="Jeder" name="all av sound check"/>
+			<check_box label="Gruppe" name="group av sound check"/>
 			<text name="Voice settings:">
 				Voice:
 			</text>

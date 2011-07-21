@@ -64,6 +64,8 @@
 						<text name="scripts_value" value="Ligado"/>
 						<text name="damage_label" value="Dano:"/>
 						<text name="damage_value" value="Desligado"/>
+						<text name="see_avatars_label" value="Ver avatares:"/>
+						<text name="see_avatars_value" value="Desligar"/>
 						<button label="Sobre o terreno" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>

@@ -19,6 +19,7 @@
 	<check_box label="Abilitato" name="enable_voice_check"/>
 	<check_box label="Consenti riproduzione multimediale automatica" name="media_auto_play_btn" tool_tip="Seleziona qui per consentire la riproduzione multimediale automatica" value="true"/>
 	<check_box label="Riproduci media in uso da altri avatar" name="media_show_on_others_btn" tool_tip="Deseleziona qui per nascondere i media in uso dagli altri avatar nei dintorni" value="true"/>
+	<check_box label="Riproduci suoni dai gesti" name="gesture_audio_play_btn" tool_tip="Seleziona per ascoltare i suoni dai gesti" value="true"/>
 	<text name="voice_chat_settings">
 		Impostazioni Chat vocale
 	</text>
@@ -35,28 +36,5 @@
 	<button label="Imposta tasto" name="set_voice_hotkey_button"/>
 	<button name="set_voice_middlemouse_button" tool_tip="Reimposta sul pulsante centrale del mouse"/>
 	<button label="Dispositivi di Input/Output" name="device_settings_btn" width="165"/>
-	<panel label="Impostazioni del dispositivo" name="device_settings_panel">
-		<panel.string name="default_text">
-			Predefinito
-		</panel.string>
-		<panel.string name="default system device">
-			Dispositivo di sistema predefinito
-		</panel.string>
-		<panel.string name="no device">
-			Nessun dispositivo
-		</panel.string>
-		<text name="Input">
-			Input
-		</text>
-		<text name="My volume label">
-			Il mio volume:
-		</text>
-		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Cambia il volume utilizzando questa barra"/>
-		<text name="wait_text">
-			Attendi
-		</text>
-		<text name="Output">
-			Output
-		</text>
-	</panel>
+	<panel label="Impostazioni del dispositivo" name="device_settings_panel"/>
 </panel>
