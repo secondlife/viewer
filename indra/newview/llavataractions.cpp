@@ -335,7 +335,9 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 //static 
 bool LLAvatarActions::profileVisible(const LLUUID& id)
 {
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", id.asString()));
+	LLSD sd;
+	sd["id"] = id;
+	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", sd));
 	return browser && browser->isShown();
 }
 
@@ -343,7 +345,9 @@ bool LLAvatarActions::profileVisible(const LLUUID& id)
 //static 
 void LLAvatarActions::hideProfile(const LLUUID& id)
 {
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", id.asString()));
+	LLSD sd;
+	sd["id"] = id;
+	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", sd));
 	if (browser)
 	{
 		browser->closeFloater();

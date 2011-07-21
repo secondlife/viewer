@@ -87,7 +87,15 @@ BOOL LLFloaterWebContent::postBuild()
 
 bool LLFloaterWebContent::matchesKey(const LLSD& key)
 {
-	return key["target"].asString() == mKey["target"].asString();
+	LLUUID id = key["id"];
+	if (id.notNull())
+	{
+		return id == mKey["id"].asUUID();
+	}
+	else
+	{
+		return key["target"].asString() == mKey["target"].asString();
+	}
 }
 
 
@@ -250,6 +258,10 @@ void LLFloaterWebContent::onOpen(const LLSD& key)
 		return;
 	}
 
+	if (params.target() == params.id().asString())
+	{
+		setRectControl("");
+	}
 	mUUID = params.id().asString();
 	mWebBrowser->setTrustedContent(params.trusted_content);
 
