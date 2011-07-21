@@ -56,7 +56,7 @@ LLProgressView* LLProgressView::sInstance = NULL;
 
 S32 gStartImageWidth = 1;
 S32 gStartImageHeight = 1;
-const F32 FADE_TO_WORLD_TIME = 1.5f;
+const F32 FADE_TO_WORLD_TIME = 1.0f;
 
 static LLRegisterPanelClassWrapper<LLProgressView> r("progress_view");
 
