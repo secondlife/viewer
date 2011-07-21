@@ -209,7 +209,7 @@ do
       end_section BuildParallel
     else
       begin_section "Build$variant"
-      build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | grep --line-buffered "^##teamcity"
+      build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
       if `cat "$build_dir/build_ok"`
       then
         echo so far so good.
@@ -238,7 +238,7 @@ then
     begin_section "Build$variant"
     build_dir=`build_dir_$arch $variant`
     build_dir_stubs="$build_dir/win_setup/$variant"
-    tee -a $build_log < "$build_dir/build.log" | grep --line-buffered "^##teamcity"
+    tee -a $build_log < "$build_dir/build.log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
     if `cat "$build_dir/build_ok"`
     then
       echo so far so good.
