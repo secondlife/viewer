@@ -195,7 +195,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	origin.mV[VX] -= llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
 	origin.mV[VY] -= llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
 
-	// don't forget to do the depth translation, too. -Zi
+	// don't forget to do the depth translation, too.
 	gGL.translatef(0.f,0.f,sCurOrigin.mZ);
 
 	S32 chars_drawn = 0;
