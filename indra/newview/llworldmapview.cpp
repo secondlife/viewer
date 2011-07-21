@@ -1752,13 +1752,13 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 		case MAP_ITEM_LAND_FOR_SALE_ADULT:
 			{
 				LLFloaterReg::hideInstance("world_map");
-				LLFloaterReg::showInstance("search", LLSD().with("category", "destinations").with("id", id));
+				LLFloaterReg::showInstance("search", LLSD().with("category", "destinations").with("query", id));
 				break;
 			}
 		case MAP_ITEM_CLASSIFIED:
 			{
 				LLFloaterReg::hideInstance("world_map");
-				LLFloaterReg::showInstance("search", LLSD().with("category", "classifieds").with("id", id));
+				LLFloaterReg::showInstance("search", LLSD().with("category", "classifieds").with("query", id));
 				break;
 			}
 		default:

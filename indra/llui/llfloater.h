@@ -253,7 +253,7 @@ public:
 
 	LLHandle<LLFloater> getHandle() const { return mHandle; }
 	const LLSD& 	getKey() { return mKey; }
-	BOOL		 	matchesKey(const LLSD& key) { return mSingleInstance || KeyCompare::equate(key, mKey); }
+	virtual bool	matchesKey(const LLSD& key) { return mSingleInstance || KeyCompare::equate(key, mKey); }
 	
 	const std::string& getInstanceName() { return mInstanceName; }
 	

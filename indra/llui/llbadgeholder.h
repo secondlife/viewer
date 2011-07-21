@@ -1,6 +1,6 @@
 /** 
- * @file llbadgeowner.h
- * @brief Header for badge owners
+ * @file llbadgeholder.h
+ * @brief Header for badge holders
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,38 +24,33 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBADGEOWNER_H
-#define LL_LLBADGEOWNER_H
-
-#include "llbadge.h"
-#include "llview.h"
+#ifndef LL_LLBADGEHOLDER_H
+#define LL_LLBADGEHOLDER_H
 
 //
 // Classes
 //
 
-class LLBadgeOwner
+class LLBadge;
+
+class LLBadgeHolder
 {
 public:
 
-	LLBadgeOwner(LLHandle< LLView > viewHandle);
+	LLBadgeHolder(bool acceptsBadge)
+		: mAcceptsBadge(acceptsBadge)
+	{
+	}
 
-	void initBadgeParams(const LLBadge::Params& p);
-	bool addBadgeToParentPanel();
-	
-	bool badgeHasParent() const { return (mBadge && mBadge->getParent()); }
+	void setAcceptsBadge(bool acceptsBadge) { mAcceptsBadge = acceptsBadge; }
+	bool acceptsBadge() const { return mAcceptsBadge; }
 
-	void setBadgeLabel(const LLStringExplicit& label);
-	void setBadgeVisibility(bool visible);
-
-private:
-
-	LLBadge* createBadge(const LLBadge::Params& p);
+	virtual bool addBadge(LLBadge * badge);
 
 private:
 
-	LLBadge*			mBadge;
-	LLHandle< LLView >	mBadgeOwnerView;
+	bool		mAcceptsBadge;
+
 };
 
-#endif  // LL_LLBADGEOWNER_H
+#endif  // LL_LLBADGEHOLDER_H

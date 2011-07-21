@@ -105,7 +105,7 @@ BOOL LLInventoryModelBackgroundFetch::backgroundFetchActive() const
 
 void LLInventoryModelBackgroundFetch::start(const LLUUID& cat_id, BOOL recursive)
 {
-	if (!mAllFoldersFetched)
+	if (!mAllFoldersFetched || cat_id.notNull())
 	{
 		LL_DEBUGS("InventoryFetch") << "Start fetching category: " << cat_id << ", recursive: " << recursive << LL_ENDL;
 
@@ -211,7 +211,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 			// Double timeouts on failure.
 			mMinTimeBetweenFetches = llmin(mMinTimeBetweenFetches * 2.f, 10.f);
 			mMaxTimeBetweenFetches = llmin(mMaxTimeBetweenFetches * 2.f, 120.f);
-			llinfos << "Inventory fetch times grown to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << llendl;
+			lldebugs << "Inventory fetch times grown to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << llendl;
 			// fetch is no longer considered "timely" although we will wait for full time-out.
 			mTimelyFetchPending = FALSE;
 		}
@@ -280,7 +280,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 					// Shrink timeouts based on success.
 					mMinTimeBetweenFetches = llmax(mMinTimeBetweenFetches * 0.8f, 0.3f);
 					mMaxTimeBetweenFetches = llmax(mMaxTimeBetweenFetches * 0.8f, 10.f);
-					//llinfos << "Inventory fetch times shrunk to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << llendl;
+					lldebugs << "Inventory fetch times shrunk to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << llendl;
 				}
 
 				mTimelyFetchPending = FALSE;
