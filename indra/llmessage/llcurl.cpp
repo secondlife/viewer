@@ -611,6 +611,9 @@ public:
 	
 	S32 mPerformState;
 
+	LLCondition* mSignal;
+	bool mQuitting;
+
 private:
 	void easyFree(Easy*);
 	
@@ -630,6 +633,9 @@ LLCurl::Multi::Multi()
 	  mErrorCount(0),
 	  mPerformState(PERFORM_STATE_READY)
 {
+	mQuitting = false;
+	mSignal = new LLCondition(NULL);
+
 	mCurlMultiHandle = curl_multi_init();
 	if (!mCurlMultiHandle)
 	{
@@ -644,6 +650,10 @@ LLCurl::Multi::Multi()
 LLCurl::Multi::~Multi()
 {
 	llassert(isStopped());
+
+	delete mSignal;
+	mSignal = NULL;
+
 	// Clean up active
 	for(easy_active_list_t::iterator iter = mEasyActiveList.begin();
 		iter != mEasyActiveList.end(); ++iter)
@@ -674,27 +684,31 @@ void LLCurl::Multi::perform()
 	if (mPerformState == PERFORM_STATE_READY)
 	{
 		mPerformState = PERFORM_STATE_PERFORMING;
-		start();
+		mSignal->signal();
 	}
 }
 
 void LLCurl::Multi::run()
 {
-	S32 q = 0;
-	for (S32 call_count = 0;
-		 call_count < MULTI_PERFORM_CALL_REPEAT;
-		 call_count += 1)
+	while (!mQuitting)
 	{
-		CURLMcode code = curl_multi_perform(mCurlMultiHandle, &q);
-		if (CURLM_CALL_MULTI_PERFORM != code || q == 0)
+		mSignal->wait();
+		S32 q = 0;
+		for (S32 call_count = 0;
+			 call_count < MULTI_PERFORM_CALL_REPEAT;
+			 call_count += 1)
 		{
-			check_curl_multi_code(code);
-			break;
-		}
+			CURLMcode code = curl_multi_perform(mCurlMultiHandle, &q);
+			if (CURLM_CALL_MULTI_PERFORM != code || q == 0)
+			{
+				check_curl_multi_code(code);
+				break;
+			}
 	
+		}
+		mQueued = q;
+		mPerformState = PERFORM_STATE_COMPLETED;
 	}
-	mQueued = q;
-	mPerformState = PERFORM_STATE_COMPLETED;
 }
 
 S32 LLCurl::Multi::process()
@@ -823,6 +837,7 @@ void LLCurlRequest::addMulti()
 {
 	llassert_always(mThreadID == LLThread::currentID());
 	LLCurl::Multi* multi = new LLCurl::Multi();
+	multi->start();
 	mMultiSet.insert(multi);
 	mActiveMulti = multi;
 	mActiveRequestCount = 0;
@@ -952,9 +967,10 @@ S32 LLCurlRequest::process()
 		if (multi != mActiveMulti && tres == 0 && multi->mQueued == 0)
 		{
 			mMultiSet.erase(curiter);
-
+			multi->mQuitting = true;
 			while (!multi->isStopped())
 			{
+				multi->mSignal->signal();
 				apr_sleep(1000);
 			}
 
@@ -988,6 +1004,7 @@ LLCurlEasyRequest::LLCurlEasyRequest()
 	  mResultReturned(false)
 {
 	mMulti = new LLCurl::Multi();
+	mMulti->start();
 	mEasy = mMulti->allocEasy();
 	if (mEasy)
 	{
@@ -998,8 +1015,10 @@ LLCurlEasyRequest::LLCurlEasyRequest()
 
 LLCurlEasyRequest::~LLCurlEasyRequest()
 {
+	mMulti->mQuitting = true;
 	while (!mMulti->isStopped())
 	{
+		mMulti->mSignal->signal();
 		apr_sleep(1000);
 	}
 	delete mMulti;
