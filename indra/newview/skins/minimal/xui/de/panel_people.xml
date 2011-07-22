@@ -48,13 +48,13 @@
 			<layout_panel name="view_profile_btn_lp">
 				<button label="Profil" name="view_profile_btn" tool_tip="Bilder, Gruppen und andere Einwohner-Informationen anzeigen"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="im_btn_lp">
 				<button label="IM" name="im_btn" tool_tip="Instant Messenger öffnen"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="call_btn_lp">
 				<button label="Anrufen" name="call_btn" tool_tip="Diesen Einwohner anrufen"/>
 			</layout_panel>
-			<layout_panel name="chat_btn_lp">
+			<layout_panel name="teleport_btn_lp">
 				<button label="Teleportieren" name="teleport_btn" tool_tip="Teleport anbieten"/>
 			</layout_panel>
 		</layout_stack>
