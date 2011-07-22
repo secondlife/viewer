@@ -415,6 +415,15 @@ void LLExpandableTextBox::onTopLost()
 	LLUICtrl::onTopLost();
 }
 
+void LLExpandableTextBox::updateTextShape()
+{
+	// I guess this should be done on every reshape(),
+	// but adding this code to reshape() currently triggers bug VWR-26455,
+	// which makes the text virtually unreadable.
+	llassert(!mExpanded);
+	updateTextBoxRect();
+}
+
 void LLExpandableTextBox::setValue(const LLSD& value)
 {
 	collapseTextBox();

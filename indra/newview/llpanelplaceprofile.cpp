@@ -32,6 +32,7 @@
 #include "llparcel.h"
 #include "message.h"
 
+#include "llexpandabletextbox.h"
 #include "lliconctrl.h"
 #include "lllineeditor.h"
 #include "lltextbox.h"
@@ -226,6 +227,34 @@ void LLPanelPlaceProfile::setInfoType(EInfoType type)
 	mParcelOwner->setVisible(is_info_type_agent);
 
 	getChild<LLAccordionCtrl>("advanced_info_accordion")->setVisible(is_info_type_agent);
+
+	// If we came from search we want larger description area, approx. 10 lines (see STORM-1311).
+	// Don't use the maximum available space because that leads to nasty artifacts
+	// in text editor and expandable text box.
+	{
+		const S32 SEARCH_DESC_HEIGHT = 150;
+
+		// Remember original geometry (once).
+		static const S32 sOrigDescVPad = getChildView("parcel_title")->getRect().mBottom - mDescEditor->getRect().mTop;
+		static const S32 sOrigDescHeight = mDescEditor->getRect().getHeight();
+		static const S32 sOrigMRIconVPad = mDescEditor->getRect().mBottom - mMaturityRatingIcon->getRect().mTop;
+		static const S32 sOrigMRTextVPad = mDescEditor->getRect().mBottom - mMaturityRatingText->getRect().mTop;
+
+		// Resize the description.
+		const S32 desc_height = is_info_type_agent ? sOrigDescHeight : SEARCH_DESC_HEIGHT;
+		const S32 desc_top = getChildView("parcel_title")->getRect().mBottom - sOrigDescVPad;
+		LLRect desc_rect = mDescEditor->getRect();
+		desc_rect.setOriginAndSize(desc_rect.mLeft, desc_top - desc_height, desc_rect.getWidth(), desc_height);
+		mDescEditor->reshape(desc_rect.getWidth(), desc_rect.getHeight());
+		mDescEditor->setRect(desc_rect);
+		mDescEditor->updateTextShape();
+
+		// Move the maturity rating icon/text accordingly.
+		const S32 mr_icon_bottom = mDescEditor->getRect().mBottom - sOrigMRIconVPad - mMaturityRatingIcon->getRect().getHeight();
+		const S32 mr_text_bottom = mDescEditor->getRect().mBottom - sOrigMRTextVPad - mMaturityRatingText->getRect().getHeight();
+		mMaturityRatingIcon->setOrigin(mMaturityRatingIcon->getRect().mLeft, mr_icon_bottom);
+		mMaturityRatingText->setOrigin(mMaturityRatingText->getRect().mLeft, mr_text_bottom);
+	}
 
 	switch(type)
 	{
