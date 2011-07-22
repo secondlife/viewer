@@ -693,21 +693,25 @@ void LLCurl::Multi::run()
 	while (!mQuitting)
 	{
 		mSignal->wait();
-		S32 q = 0;
-		for (S32 call_count = 0;
-			 call_count < MULTI_PERFORM_CALL_REPEAT;
-			 call_count += 1)
+
+		if (!mQuitting)
 		{
-			CURLMcode code = curl_multi_perform(mCurlMultiHandle, &q);
-			if (CURLM_CALL_MULTI_PERFORM != code || q == 0)
+			S32 q = 0;
+			for (S32 call_count = 0;
+				 call_count < MULTI_PERFORM_CALL_REPEAT;
+				 call_count += 1)
 			{
-				check_curl_multi_code(code);
-				break;
-			}
+				CURLMcode code = curl_multi_perform(mCurlMultiHandle, &q);
+				if (CURLM_CALL_MULTI_PERFORM != code || q == 0)
+				{
+					check_curl_multi_code(code);
+					break;
+				}
 	
+			}
+			mQueued = q;
+			mPerformState = PERFORM_STATE_COMPLETED;
 		}
-		mQueued = q;
-		mPerformState = PERFORM_STATE_COMPLETED;
 	}
 }
 
@@ -830,6 +834,18 @@ LLCurlRequest::LLCurlRequest() :
 LLCurlRequest::~LLCurlRequest()
 {
 	llassert_always(mThreadID == LLThread::currentID());
+
+	//stop all Multi handle background threads
+	for (curlmulti_set_t::iterator iter = mMultiSet.begin(); iter != mMultiSet.end(); ++iter)
+	{
+		LLCurl::Multi* multi = *iter;
+		multi->mQuitting = true;
+		while (!multi->isStopped())
+		{
+			multi->mSignal->signal();
+			apr_sleep(1000);
+		}
+	}
 	for_each(mMultiSet.begin(), mMultiSet.end(), DeletePointer());
 }
 
