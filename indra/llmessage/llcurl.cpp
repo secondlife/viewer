@@ -683,7 +683,6 @@ void LLCurl::Multi::perform()
 {
 	if (mPerformState == PERFORM_STATE_READY)
 	{
-		mPerformState = PERFORM_STATE_PERFORMING;
 		mSignal->signal();
 	}
 }
@@ -693,7 +692,7 @@ void LLCurl::Multi::run()
 	while (!mQuitting)
 	{
 		mSignal->wait();
-
+		mPerformState = PERFORM_STATE_PERFORMING;
 		if (!mQuitting)
 		{
 			S32 q = 0;
