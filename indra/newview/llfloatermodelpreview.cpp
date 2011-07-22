@@ -3098,6 +3098,7 @@ void LLModelPreview::rebuildUploadData()
 
 	std::string requested_name = mFMP->getChild<LLUICtrl>("description_form")->getValue().asString();
 
+	std::string metric = mFMP->getChild<LLUICtrl>("model_category_combo")->getValue().asString();
 
 	LLSpinCtrl* scale_spinner = mFMP->getChild<LLSpinCtrl>("import_scale");
 
@@ -3159,6 +3160,7 @@ void LLModelPreview::rebuildUploadData()
 			if (base_model)
 			{
 				base_model->mRequestedLabel = requested_name;
+				base_model->mMetric = metric;
 			}
 
 			S32 idx = 0;
@@ -5593,6 +5595,10 @@ void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
 	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
 	getChild<LLTextBox>("warning_title")->setVisible(!mHasUploadPerm);
 	getChild<LLTextBox>("warning_message")->setVisible(!mHasUploadPerm);
+
+	// Hide the accounting info if upload is not permitted.
+	getChild<LLTextBox>("weights_text")->setVisible(mHasUploadPerm);
+	getChild<LLTextBox>("weights")->setVisible(mHasUploadPerm);
 }
 
 void LLFloaterModelPreview::setPermissonsErrorStatus(U32 status, const std::string& reason)
