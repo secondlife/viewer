@@ -46,8 +46,8 @@
 	</panel>
 	<panel name="save_revert_button_bar">
 		<layout_stack name="button_bar_ls">
-			<layout_panel name="save_btn_lp">
-				<button label="Speichern" name="save_btn"/>
+			<layout_panel name="save_btn_lp" width="61">
+				<button label="Speichern" name="save_btn" width="60" />
 			</layout_panel>
 			<layout_panel name="revert_btn_lp">
 				<button label="Änderungen rückgängig machen" name="revert_btn" tool_tip="Zur zuletzt gespeicherten Version zurückkehren"/>
