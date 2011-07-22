@@ -247,7 +247,7 @@ RenderShadowDetail			0	0
 // GL_ARB_map_buffer_range exists
 //
 list MapBufferRange
-RenderVBOMappingDisable		1	0
+RenderVBOMappingDisable		1	1
 
 
 //

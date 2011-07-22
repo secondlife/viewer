@@ -1051,6 +1051,13 @@ bool LLFace::canRenderAsMask()
 
 
 static LLFastTimer::DeclareTimer FTM_FACE_GET_GEOM("Face Geom");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_POSITION("Position");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_NORMAL("Normal");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_TEXTURE("Texture");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_COLOR("Color");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_WEIGHTS("Weights");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_BINORMAL("Binormal");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX("Index");
 
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							   const S32 &f,
@@ -1184,6 +1191,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	// INDICES
 	if (full_rebuild)
 	{
+		LLFastTimer t(FTM_FACE_GEOM_INDEX);
 		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex, mIndicesCount, map_range);
 
 		__m128i* dst = (__m128i*) indicesp.get();
@@ -1220,6 +1228,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	if (rebuild_tcoord)
 	{
+		LLFastTimer t(FTM_FACE_GEOM_TEXTURE);
 		bool do_xform;
 			
 		if (tep)
@@ -1621,6 +1630,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	if (rebuild_pos)
 	{
+		LLFastTimer t(FTM_FACE_GEOM_POSITION);
 		llassert(num_vertices > 0);
 		
 		mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount, map_range);
@@ -1668,6 +1678,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 	if (rebuild_normal)
 	{
+		LLFastTimer t(FTM_FACE_GEOM_NORMAL);
 		mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount, map_range);
 		normals = (LLVector4a*) norm.get();
 	
@@ -1687,6 +1698,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 	if (rebuild_binormal)
 	{
+		LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
 		mVertexBuffer->getBinormalStrider(binorm, mGeomIndex, mGeomCount, map_range);
 		binormals = (LLVector4a*) binorm.get();
 		
@@ -1706,6 +1718,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 	if (rebuild_weights && vf.mWeights)
 	{
+		LLFastTimer t(FTM_FACE_GEOM_WEIGHTS);
 		mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount, map_range);
 		weights = (LLVector4a*) wght.get();
 		LLVector4a::memcpyNonAliased16((F32*) weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
@@ -1717,6 +1730,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	if (rebuild_color)
 	{
+		LLFastTimer t(FTM_FACE_GEOM_COLOR);
 		mVertexBuffer->getColorStrider(colors, mGeomIndex, mGeomCount, map_range);
 
 		LLVector4a src;

@@ -1,4 +1,4 @@
-version 31
+version 32
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -247,7 +247,7 @@ RenderShadowDetail			0	0
 // GL_ARB_map_buffer_range exists
 //
 list MapBufferRange
-RenderVBOMappingDisable		1	0
+RenderVBOMappingDisable		1	1
 
 
 //
