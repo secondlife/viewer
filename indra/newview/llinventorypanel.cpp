@@ -185,7 +185,7 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 		}
 	}
 	// leslie -- temporary HACK to work around sim not creating inbox and outbox with proper system folder type
-	else if (preferred_type == LLFolderType::FT_OUTBOX)
+	/*else if (preferred_type == LLFolderType::FT_OUTBOX)
 	{
 		LLInventoryModel::cat_array_t* cats;
 		LLInventoryModel::item_array_t* items;
@@ -204,7 +204,7 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 				}
 			}
 		}
-	}
+	}*/
 	// leslie -- end temporary HACK
 	else
 	{
@@ -281,6 +281,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 
 	// hide inbox
 	getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
+	getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_OUTBOX));
 
 	// Initialize base class params.
 	LLPanel::initFromParams(params);
