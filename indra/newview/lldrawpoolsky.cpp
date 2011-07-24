@@ -82,6 +82,10 @@ void LLDrawPoolSky::render(S32 pass)
 		mShader = &gObjectFullbrightWaterProgram;
 		mShader->bind();
 	}
+	else if (LLGLSLShader::sNoFixedFunction)
+	{ //just use the UI shader (generic single texture no lighting)
+		gUIProgram.bind();
+	}
 	else
 	{
 		// don't use shaders!
@@ -139,6 +143,7 @@ void LLDrawPoolSky::renderSkyCubeFace(U8 side)
 
 	if (LLSkyTex::doInterpolate())
 	{
+		
 		LLGLEnable blend(GL_BLEND);
 		mSkyTex[side].bindTexture(FALSE);
 		glColor4f(1, 1, 1, LLSkyTex::getInterpVal()); // lighting is disabled

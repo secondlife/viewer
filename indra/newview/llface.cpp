@@ -1051,6 +1051,13 @@ bool LLFace::canRenderAsMask()
 
 
 static LLFastTimer::DeclareTimer FTM_FACE_GET_GEOM("Face Geom");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_POSITION("Position");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_NORMAL("Normal");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_TEXTURE("Texture");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_COLOR("Color");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_WEIGHTS("Weights");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_BINORMAL("Binormal");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX("Index");
 
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							   const S32 &f,
@@ -1064,6 +1071,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	S32 num_vertices = (S32)vf.mNumVertices;
 	S32 num_indices = (S32) vf.mNumIndices;
 	
+	bool map_range = gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange;
+
 	if (mVertexBuffer.notNull())
 	{
 		if (num_indices + (S32) mIndicesIndex > mVertexBuffer->getNumIndices())
@@ -1182,7 +1191,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	// INDICES
 	if (full_rebuild)
 	{
-		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex, mIndicesCount, true);
+		LLFastTimer t(FTM_FACE_GEOM_INDEX);
+		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex, mIndicesCount, map_range);
 
 		__m128i* dst = (__m128i*) indicesp.get();
 		__m128i* src = (__m128i*) vf.mIndices;
@@ -1201,7 +1211,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			indicesp[i] = vf.mIndices[i]+index_offset;
 		}
 
-		mVertexBuffer->setBuffer(0);
+		if (map_range)
+		{
+			mVertexBuffer->setBuffer(0);
+		}
 	}
 	
 	LLMatrix4a mat_normal;
@@ -1215,6 +1228,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	if (rebuild_tcoord)
 	{
+		LLFastTimer t(FTM_FACE_GEOM_TEXTURE);
 		bool do_xform;
 			
 		if (tep)
@@ -1422,11 +1436,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				}
 			}
 
-			mVertexBuffer->setBuffer(0);
+			if (map_range)
+			{
+				mVertexBuffer->setBuffer(0);
+			}
 		}
 		else
 		{ //either bump mapped or in atlas, just do the whole expensive loop
-			mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex, mGeomCount, true);
+			mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex, mGeomCount, map_range);
 
 			std::vector<LLVector2> bump_tc;
 		
@@ -1566,12 +1583,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				}
 			}
 
-			mVertexBuffer->setBuffer(0);
-
+			if (map_range)
+			{
+				mVertexBuffer->setBuffer(0);
+			}
 
 			if (do_bump)
 			{
-				mVertexBuffer->getTexCoord1Strider(tex_coords2, mGeomIndex, mGeomCount, true);
+				mVertexBuffer->getTexCoord1Strider(tex_coords2, mGeomIndex, mGeomCount, map_range);
 		
 				for (S32 i = 0; i < num_vertices; i++)
 				{
@@ -1601,14 +1620,20 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					*tex_coords2++ = tc;
 				}
 
-				mVertexBuffer->setBuffer(0);
+				if (map_range)
+				{
+					mVertexBuffer->setBuffer(0);
+				}
 			}
 		}
 	}
 
 	if (rebuild_pos)
 	{
-		mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount, true);
+		LLFastTimer t(FTM_FACE_GEOM_POSITION);
+		llassert(num_vertices > 0);
+		
+		mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount, map_range);
 		vertices = (LLVector4a*) vert.get();
 	
 		LLMatrix4a mat_vert;
@@ -1636,13 +1661,25 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			index_dst += 4;
 		}
 		while (index_dst < index_end);
-
-		mVertexBuffer->setBuffer(0);
+		
+		S32 aligned_pad_vertices = mGeomCount - num_vertices;
+		LLVector4a* last_vec = end - 1;
+		while (aligned_pad_vertices > 0)
+		{
+			--aligned_pad_vertices;
+			*dst++ = *last_vec;
+		}
+		
+		if (map_range)
+		{
+			mVertexBuffer->setBuffer(0);
+		}
 	}
 		
 	if (rebuild_normal)
 	{
-		mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount, true);
+		LLFastTimer t(FTM_FACE_GEOM_NORMAL);
+		mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount, map_range);
 		normals = (LLVector4a*) norm.get();
 	
 		for (S32 i = 0; i < num_vertices; i++)
@@ -1653,12 +1690,16 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			normals[i] = normal;
 		}
 
-		mVertexBuffer->setBuffer(0);
+		if (map_range)
+		{
+			mVertexBuffer->setBuffer(0);
+		}
 	}
 		
 	if (rebuild_binormal)
 	{
-		mVertexBuffer->getBinormalStrider(binorm, mGeomIndex, mGeomCount, true);
+		LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
+		mVertexBuffer->getBinormalStrider(binorm, mGeomIndex, mGeomCount, map_range);
 		binormals = (LLVector4a*) binorm.get();
 		
 		for (S32 i = 0; i < num_vertices; i++)
@@ -1669,20 +1710,28 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			binormals[i] = binormal;
 		}
 
-		mVertexBuffer->setBuffer(0);
+		if (map_range)
+		{
+			mVertexBuffer->setBuffer(0);
+		}
 	}
 	
 	if (rebuild_weights && vf.mWeights)
 	{
-		mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount, true);
+		LLFastTimer t(FTM_FACE_GEOM_WEIGHTS);
+		mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount, map_range);
 		weights = (LLVector4a*) wght.get();
 		LLVector4a::memcpyNonAliased16((F32*) weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
-		mVertexBuffer->setBuffer(0);
+		if (map_range)
+		{
+			mVertexBuffer->setBuffer(0);
+		}
 	}
 
 	if (rebuild_color)
 	{
-		mVertexBuffer->getColorStrider(colors, mGeomIndex, mGeomCount, true);
+		LLFastTimer t(FTM_FACE_GEOM_COLOR);
+		mVertexBuffer->getColorStrider(colors, mGeomIndex, mGeomCount, map_range);
 
 		LLVector4a src;
 
@@ -1703,7 +1752,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			dst[i] = src;
 		}
 
-		mVertexBuffer->setBuffer(0);
+		if (map_range)
+		{
+			mVertexBuffer->setBuffer(0);
+		}
 	}
 
 	if (rebuild_tcoord)
