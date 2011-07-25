@@ -4967,18 +4967,22 @@ BOOL LLModelPreview::render()
 
 					if (textures)
 					{
-						const std::string& binding = instance.mModel->mMaterialList[i];
-						const LLImportMaterial& material = instance.mMaterial[binding];
-
-						llassert(binding == model->mMaterialList[i]);
-						
-						glColor4fv(material.mDiffuseColor.mV);
-						if (material.mDiffuseMap.notNull())
+						int materialCnt = instance.mModel->mMaterialList.size();
+						if ( i < materialCnt )
 						{
-							if (material.mDiffuseMap->getDiscardLevel() > -1)
+							const std::string& binding = instance.mModel->mMaterialList[i];						
+							const LLImportMaterial& material = instance.mMaterial[binding];
+
+							llassert(binding == model->mMaterialList[i]);
+						
+							glColor4fv(material.mDiffuseColor.mV);
+							if (material.mDiffuseMap.notNull())
 							{
-								gGL.getTexUnit(0)->bind(material.mDiffuseMap, true);
-								mTextureSet.insert(material.mDiffuseMap.get());
+								if (material.mDiffuseMap->getDiscardLevel() > -1)
+								{
+									gGL.getTexUnit(0)->bind(material.mDiffuseMap, true);
+									mTextureSet.insert(material.mDiffuseMap.get());
+								}
 							}
 						}
 					}
