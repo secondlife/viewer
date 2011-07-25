@@ -477,7 +477,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 		
 	// Render label
 	{
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 		for(std::vector<LLHUDTextSegment>::iterator segment_iter = mLabelSegments.begin();
 			segment_iter != mLabelSegments.end(); ++segment_iter )

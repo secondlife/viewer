@@ -236,7 +236,7 @@ public:
 	void slist_append(const char* str);
 	void sendRequest(const std::string& url);
 	void requestComplete();
-	S32 perform();
+	void perform();
 	bool getResult(CURLcode* result, LLCurl::TransferInfo* info = NULL);
 	std::string getErrorString();
 
