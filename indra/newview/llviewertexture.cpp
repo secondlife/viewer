@@ -599,7 +599,7 @@ bool LLViewerTexture::bindDefaultImage(S32 stage)
 	}
 	if (!res && LLViewerTexture::sNullImagep.notNull() && (this != LLViewerTexture::sNullImagep))
 	{
-		res = gGL.getTexUnit(stage)->bind(LLViewerTexture::sNullImagep) ;
+		res = gGL.getTexUnit(stage)->bind(LLViewerTexture::sNullImagep);
 	}
 	if (!res)
 	{

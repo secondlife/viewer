@@ -323,7 +323,8 @@ LLMutex::LLMutex(apr_pool_t *poolp) :
 LLMutex::~LLMutex()
 {
 #if MUTEX_DEBUG
-	llassert_always(!isLocked()); // better not be locked!
+	//bad assertion, the subclass LLSignal might be "locked", and that's OK
+	//llassert_always(!isLocked()); // better not be locked!
 #endif
 	apr_thread_mutex_destroy(mAPRMutexp);
 	mAPRMutexp = NULL;

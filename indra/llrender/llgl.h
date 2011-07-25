@@ -88,7 +88,9 @@ public:
 		
 	// ARB Extensions
 	BOOL mHasVertexBufferObject;
+	BOOL mHasSync;
 	BOOL mHasMapBufferRange;
+	BOOL mHasFlushBufferRange;
 	BOOL mHasPBuffer;
 	BOOL mHasShaderObjects;
 	BOOL mHasVertexShader;

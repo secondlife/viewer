@@ -70,6 +70,12 @@ protected:
 	}
 };
 
+class LLGLFence
+{
+public:
+	virtual void placeFence() = 0;
+	virtual void wait() = 0;
+};
 
 //============================================================================
 // base class 
@@ -269,6 +275,12 @@ protected:
 
 	std::vector<MappedRegion> mMappedVertexRegions;
 	std::vector<MappedRegion> mMappedIndexRegions;
+
+	mutable LLGLFence* mFence;
+
+	void placeFence() const;
+	void waitFence() const;
+
 
 public:
 	static S32 sCount;
