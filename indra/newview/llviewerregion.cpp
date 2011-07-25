@@ -560,9 +560,8 @@ const std::string LLViewerRegion::getSimAccessString() const
 
 std::string LLViewerRegion::getLocalizedSimProductName() const
 {
-	const std::string& spn = getSimProductName();
 	std::string localized_spn;
-	return LLTrans::findString(localized_spn, spn) ? localized_spn : spn;
+	return LLTrans::findString(localized_spn, mProductName) ? localized_spn : mProductName;
 }
 
 // static
