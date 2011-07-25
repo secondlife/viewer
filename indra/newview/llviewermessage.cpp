@@ -1852,14 +1852,6 @@ void LLOfferInfo::initRespondFunctionMap()
 
 void inventory_offer_handler(LLOfferInfo* info)
 {
-	//Until throttling is implmented, busy mode should reject inventory instead of silently
-	//accepting it.  SEE SL-39554
-	if (gAgent.getBusy())
-	{
-		info->forceResponse(IOR_BUSY);
-		return;
-	}
-	
 	//If muted, don't even go through the messaging stuff.  Just curtail the offer here.
 	if (LLMuteList::getInstance()->isMuted(info->mFromID, info->mFromName))
 	{
@@ -2670,6 +2662,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				// Same as closing window
 				info->forceResponse(IOR_DECLINE);
+			}
+			else if (is_busy && dialog != IM_TASK_INVENTORY_OFFERED) // busy mode must not affect interaction with objects (STORM-565)
+			{
+				// Until throttling is implemented, busy mode should reject inventory instead of silently
+				// accepting it.  SEE SL-39554
+				info->forceResponse(IOR_BUSY);
 			}
 			else
 			{
