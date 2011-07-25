@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Water Preset" title="水の事前設定を編集">
+	<string name="title_new">
+		新しい水の事前設定を作成
+	</string>
+	<string name="title_edit">
+		水の事前設定を編集
+	</string>
+	<string name="hint_new">
+		新しい事前設定に名前をつけ、希望の設定に調節して、「保存」をクリックします。
+	</string>
+	<string name="hint_edit">
+		水の事前設定を編集するには、希望の設定に調節して、「保存」をクリックします。
+	</string>
+	<string name="combo_label">
+		- 事前設定を選択 -
+	</string>
+	<text name="hint">
+		事前設定を編集するには、希望の設定に調節して、「保存」をクリックします。
+	</text>
+	<text name="label">
+		事前設定の名前：
+	</text>
+	<text name="note">
+		注意：自分で作成した事前設定の名前を変更すると、新しい事前設定が別に作成されるだけで、元の事前設定は変更されません。
+	</text>
+	<panel name="panel_water_preset">
+		<text name="water_color_label">
+			水中のフォグ効果の色
+		</text>
+		<text name="water_fog_density_label">
+			水中の透明度指数
+		</text>
+		<text name="underwater_fog_modifier_label">
+			水中のフォグ効果加減
+		</text>
+		<text name="BHText">
+			大波の方向
+		</text>
+		<slider label="X" name="WaterWave1DirX"/>
+		<slider label="Y" name="WaterWave1DirY"/>
+		<text name="BDensText">
+			さざ波の反射スケール
+		</text>
+		<text name="HDText">
+			フレネル・スケール
+		</text>
+		<text name="FresnelOffsetText">
+			フレネル・オフセット
+		</text>
+		<text name="BHText2">
+			小波の方向
+		</text>
+		<slider label="X" name="WaterWave2DirX"/>
+		<slider label="Y" name="WaterWave2DirY"/>
+		<text name="DensMultText">
+			水面の屈折スケール
+		</text>
+		<text name="WaterScaleBelowText">
+			水中の屈折スケール
+		</text>
+		<text name="MaxAltText">
+			不透明度の増幅
+		</text>
+		<text name="BHText3">
+			ノーマル・マップ
+		</text>
+	</panel>
+	<check_box label="この事前設定を新しい水の設定にする" name="make_default_cb"/>
+	<button label="保存" name="save"/>
+	<button label="取り消し" name="cancel"/>
+</floater>

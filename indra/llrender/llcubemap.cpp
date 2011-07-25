@@ -259,7 +259,7 @@ void LLCubeMap::setMatrix(S32 stage)
 	
 	if (mMatrixStage < 0) return;
 	
-	if (stage > 0)
+	//if (stage > 0)
 	{
 		gGL.getTexUnit(stage)->activate();
 	}
@@ -278,17 +278,17 @@ void LLCubeMap::setMatrix(S32 stage)
 	glLoadMatrixf((F32 *)trans.mMatrix);
 	glMatrixMode(GL_MODELVIEW);
 	
-	if (stage > 0)
+	/*if (stage > 0)
 	{
 		gGL.getTexUnit(0)->activate();
-	}
+	}*/
 }
 
 void LLCubeMap::restoreMatrix()
 {
 	if (mMatrixStage < 0) return;
 
-	if (mMatrixStage > 0)
+	//if (mMatrixStage > 0)
 	{
 		gGL.getTexUnit(mMatrixStage)->activate();
 	}
@@ -296,10 +296,10 @@ void LLCubeMap::restoreMatrix()
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	
-	if (mMatrixStage > 0)
+	/*if (mMatrixStage > 0)
 	{
 		gGL.getTexUnit(0)->activate();
-	}
+	}*/
 }
 
 void LLCubeMap::setReflection (void)

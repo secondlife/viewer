@@ -189,16 +189,31 @@ void LLDrawPoolWLSky::renderStars(void) const
 	glRotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
 	// gl_FragColor.rgb = gl_Color.rgb;
 	// gl_FragColor.a = gl_Color.a * star_alpha.a;
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
-	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT_X2, LLTexUnit::TBS_CONST_ALPHA, LLTexUnit::TBS_TEX_ALPHA);
-	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, star_alpha.mV);
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gCustomAlphaProgram.bind();
+		gCustomAlphaProgram.uniform1f("custom_alpha", star_alpha.mV[3]);
+	}
+	else
+	{
+		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
+		gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT_X2, LLTexUnit::TBS_CONST_ALPHA, LLTexUnit::TBS_TEX_ALPHA);
+		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, star_alpha.mV);
+	}
 
 	gSky.mVOWLSkyp->drawStars();
 
 	gGL.popMatrix();
-	
-	// and disable the combiner states
-	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gCustomAlphaProgram.unbind();
+	}
+	else
+	{
+		// and disable the combiner states
+		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+	}
 }
 
 void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
@@ -242,6 +257,10 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 	if (gSky.mVOSkyp->getMoon().getDraw() && face->getGeomCount())
 	{
+		if (gPipeline.canUseVertexShaders())
+		{
+			gUIProgram.bind();
+		}
 		// *NOTE: even though we already bound this texture above for the
 		// stars register combiners, we bind again here for defensive reasons,
 		// since LLImageGL::bind detects that it's a noop, and optimizes it out.
@@ -257,6 +276,11 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
 		face->renderIndexed();
+
+		if (gPipeline.canUseVertexShaders())
+		{
+			gUIProgram.unbind();
+		}
 	}
 }
 

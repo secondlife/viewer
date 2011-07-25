@@ -557,6 +557,9 @@
 	     	 	 	<menu_item_call.on_click
 	     	 	 	function="World.EnvPreset"
 	     	 	 	parameter="delete_water"/>
+	     	 	 	<menu_item_call.on_enable
+	     	 	 	function="World.EnableEnvPreset"
+	     	 	 	parameter="delete_water"/>
 	     	 	</menu_item_call>
 	     	</menu>
 	     	
@@ -583,6 +586,9 @@
 	     	 	 	<menu_item_call.on_click
 	     	 	 	function="World.EnvPreset"
 	     	 	 	parameter="delete_sky"/>
+	     	 	 	<menu_item_call.on_enable
+	     	 	 	function="World.EnableEnvPreset"
+	     	 	 	parameter="delete_sky"/>
 	     	 	</menu_item_call>
 	     	</menu>
 	     	
@@ -608,6 +614,9 @@
 	     	 	 name="delete_day_preset">
 	     	 	 	<menu_item_call.on_click
 	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="delete_day_cycle"/>
+	     	 	 	<menu_item_call.on_enable
+	     	 	 	function="World.EnableEnvPreset"
 	     	 	 	parameter="delete_day_cycle"/>
 	     	 	</menu_item_call>
 	     	</menu>
@@ -2919,18 +2928,6 @@
                 <menu_item_call.on_click
                  function="Advanced.PrintTextureMemoryStats" />
             </menu_item_call>
-            <menu_item_check
-             label="Region Debug Console"
-             name="Region Debug Console"
-             shortcut="control|shift|`"
-             use_mac_ctrl="true">
-                <menu_item_check.on_check
-                 function="Floater.Visible"
-                 parameter="region_debug_console" />
-                <menu_item_check.on_click
-                 function="Floater.Toggle"
-                 parameter="region_debug_console" />
-            </menu_item_check>
             <menu_item_check
              label="Region Debug Console"
              name="Region Debug Console"

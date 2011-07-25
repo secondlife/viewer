@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Sky Preset" title="Himmel-Voreinstellung bearbeiten">
+	<string name="title_new">
+		Neue Himmel-Voreinstellung erstellen
+	</string>
+	<string name="title_edit">
+		Himmel-Voreinstellung bearbeiten
+	</string>
+	<string name="hint_new">
+		Geben Sie einen Namen für die Voreinstellung ein, passen Sie die Steuerungen an, um die Voreinstellung zu erstellen, und klicken Sie dann auf „Speichern“.
+	</string>
+	<string name="hint_edit">
+		Um Ihre Himmel-Voreinstellung zu bearbeiten, passen Sie die Steuerungen an und klicken Sie auf „Speichern“.
+	</string>
+	<string name="combo_label">
+		-Voreinstellung auswählen-
+	</string>
+	<text name="hint">
+		Um Ihre Voreinstellung zu bearbeiten, passen Sie die Steuerungen an und klicken Sie auf „Speichern“.
+	</text>
+	<text name="label">
+		Name der Voreinstellung:
+	</text>
+	<text name="note">
+		Hinweis: Wenn Sie den Namen Ihrer Voreinstellung ändern, entsteht eine neue Voreinstellung; die vorhandene Voreinstellung wird nicht geändert.
+	</text>
+	<tab_container name="WindLight Tabs">
+		<panel label="ATMOSPHÄRE" name="Atmosphere">
+			<text name="BHText">
+				Blauer Horizont
+			</text>
+			<text name="BDensText">
+				Horizonttrübung
+			</text>
+			<text name="BDensText2">
+				Farbintensität
+			</text>
+			<text name="HDText">
+				Trübungsintensität
+			</text>
+			<text name="DensMultText">
+				Dichtemultiplikator
+			</text>
+			<text name="WLDistanceMultText">
+				Entfernungsmultiplikator
+			</text>
+			<text name="MaxAltText">
+				Max. Höhe
+			</text>
+		</panel>
+		<panel label="BELEUCHTUNG" name="Lighting">
+			<text name="SLCText">
+				Sonne/Mond-Farbe
+			</text>
+			<text name="WLAmbientText">
+				Umgebung
+			</text>
+			<text name="SunGlowText">
+				Sonnenleuchtkraft
+			</text>
+			<slider label="Fokus" name="WLGlowB"/>
+			<slider label="Größe" name="WLGlowR"/>
+			<text name="WLStarText">
+				Sternenleuchtkraft
+			</text>
+			<text name="SceneGammaText">
+				Gamma in Szene
+			</text>
+			<text name="TODText">
+				Sonne/Mond-Stand
+			</text>
+			<multi_slider initial_value="0" name="WLSunPos"/>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<text name="WL12am">
+				0:00
+			</text>
+			<text name="WL6am">
+				3:00
+			</text>
+			<text name="WL12pmHash">
+				12:00
+			</text>
+			<text name="WL6pm">
+				18:00
+			</text>
+			<text name="WL12am2">
+				0:00
+			</text>
+			<time name="WLDayTime" value="6:00"/>
+			<text name="WLEastAngleText">
+				Ostausrichtung
+			</text>
+		</panel>
+		<panel label="WOLKEN" name="Clouds">
+			<text name="WLCloudColorText">
+				Wolkenfarbe
+			</text>
+			<text name="WLCloudColorText2">
+				Wolken-XY/Dichte
+			</text>
+			<slider label="X" name="WLCloudX"/>
+			<slider label="Y" name="WLCloudY"/>
+			<slider label="D" name="WLCloudDensity"/>
+			<text name="WLCloudCoverageText">
+				Wolkendichte
+			</text>
+			<text name="WLCloudScaleText">
+				Wolkenskalierung
+			</text>
+			<text name="WLCloudDetailText">
+				Wolkendetails (XY/Dichte)
+			</text>
+			<slider label="X" name="WLCloudDetailX"/>
+			<slider label="Y" name="WLCloudDetailY"/>
+			<slider label="D" name="WLCloudDetailDensity"/>
+			<text name="WLCloudScrollXText">
+				Wolkenbewegung X
+			</text>
+			<check_box label="Sperren" name="WLCloudLockX"/>
+			<text name="WLCloudScrollYText">
+				Wolkenbewegung Y
+			</text>
+			<check_box label="Sperren" name="WLCloudLockY"/>
+		</panel>
+	</tab_container>
+	<check_box label="Diese Voreinstellung zu meiner neuen Himmeleinstellung machen" name="make_default_cb"/>
+	<button label="Speichern" name="save"/>
+	<button label="Abbrechen" name="cancel"/>
+</floater>

@@ -3,6 +3,9 @@
 	<string name="status_idle">
 		Inaktiv
 	</string>
+	<string name="status_parse_error">
+		DAE-Parsing-Fehler. Details siehe Protokoll.
+	</string>
 	<string name="status_reading_file">
 		Laden...
 	</string>
@@ -11,6 +14,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		Fehler: Anzahl von Vertices überschreitet 65534. Operation abgebrochen.
+	</string>
+	<string name="bad_element">
+		Fehler: ungültiges Element.
 	</string>
 	<string name="high">
 		Hoch

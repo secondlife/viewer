@@ -66,30 +66,30 @@ public:
 	static bool sUseFBO; 
 
 	LLRenderTarget();
-	virtual ~LLRenderTarget();
+	~LLRenderTarget();
 
 	//allocate resources for rendering
 	//must be called before use
 	//multiple calls will release previously allocated resources
-	void allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, bool use_fbo = false, S32 samples = 0);
+	bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, bool use_fbo = false, S32 samples = 0);
 
 	//add color buffer attachment
 	//limit of 4 color attachments per render target
-	virtual void addColorAttachment(U32 color_fmt);
+	bool addColorAttachment(U32 color_fmt);
 
 	//allocate a depth texture
-	virtual void allocateDepth();
+	bool allocateDepth();
 
 	//share depth buffer with provided render target
-	virtual void shareDepthBuffer(LLRenderTarget& target);
+	void shareDepthBuffer(LLRenderTarget& target);
 
 	//free any allocated resources
 	//safe to call redundantly
-	virtual void release();
+	void release();
 
 	//bind target for rendering
 	//applies appropriate viewport
-	virtual void bindTarget();
+	void bindTarget();
 
 	//unbind target for rendering
 	static void unbindTarget();

@@ -68,6 +68,8 @@
 						<text name="scripts_value" value="オン"/>
 						<text name="damage_label" value="ダメージ："/>
 						<text name="damage_value" value="オフ"/>
+						<text name="see_avatars_label" value="アバターを表示："/>
+						<text name="see_avatars_value" value="オフ"/>
 						<button label="土地情報" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
