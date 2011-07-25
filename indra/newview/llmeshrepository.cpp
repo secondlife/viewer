@@ -3502,8 +3502,7 @@ void LLMeshRepository::buildPhysicsMesh(LLModel::Decomposition& decomp)
 bool LLMeshRepository::meshUploadEnabled()
 {
 	LLViewerRegion *region = gAgent.getRegion();
-	if(gSavedSettings.getBOOL("MeshEnabled") && 
-	   LLViewerParcelMgr::getInstance()->allowAgentBuild() &&
+	if(gSavedSettings.getBOOL("MeshEnabled") &&
 	   region)
 	{
 		return region->meshUploadEnabled();
