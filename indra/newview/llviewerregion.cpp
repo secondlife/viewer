@@ -558,6 +558,12 @@ const std::string LLViewerRegion::getSimAccessString() const
 	return accessToString(mSimAccess);
 }
 
+std::string LLViewerRegion::getLocalizedSimProductName() const
+{
+	const std::string& spn = getSimProductName();
+	std::string localized_spn;
+	return LLTrans::findString(localized_spn, spn) ? localized_spn : spn;
+}
 
 // static
 std::string LLViewerRegion::regionFlagsToString(U32 flags)

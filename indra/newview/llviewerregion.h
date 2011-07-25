@@ -193,6 +193,7 @@ public:
 	const std::string& getSimColoName()    const { return mColoName; }
 	const std::string& getSimProductSKU()  const { return mProductSKU; }
 	const std::string& getSimProductName() const { return mProductName; }
+	std::string getLocalizedSimProductName() const;
 
 	// Returns "Sandbox", "Expensive", etc.
 	static std::string regionFlagsToString(U32 flags);

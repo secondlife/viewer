@@ -336,7 +336,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	LLViewerRegion* region = gAgent.getRegion();
 	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
 
-	// *TODO: Replace parcing msg with accessing the region info model.
+	// *TODO: Replace parsing msg with accessing the region info model.
 	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
 
 	// extract message
@@ -368,6 +368,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 		msg->getSize("RegionInfo2", "ProductName") > 0)
 	{
 		msg->getString("RegionInfo2", "ProductName", sim_type);
+		LLTrans::findString(sim_type, sim_type); // try localizing sim product name
 	}
 
 	// GENERAL PANEL
@@ -2409,11 +2410,7 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 	}
 	
 	LLTextBox* region_landtype = getChild<LLTextBox>("region_landtype_text");
-	if (region_landtype)
-	{
-		region_landtype->setText(region->getSimProductName());
-	}
-	
+	region_landtype->setText(region->getLocalizedSimProductName());
 	
 	// let the parent class handle the general data collection. 
 	bool rv = LLPanelRegionInfo::refreshFromRegion(region);
