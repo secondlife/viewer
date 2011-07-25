@@ -1543,8 +1543,7 @@ bool LLModelLoader::doLoadModel()
 							
 							LLMatrix4 trans = normalized_transformation;
 							trans *= skin_info.mBindShapeMatrix;
-							skin_info.mBindShapeMatrix = trans;
-							
+							skin_info.mBindShapeMatrix = trans;							
 						}
 										
 											
@@ -1747,15 +1746,15 @@ bool LLModelLoader::doLoadModel()
 												}
 											}
 											
-											model->mSkinInfo.mInvBindMatrix.push_back(mat);
+											model->mSkinInfo.mInvBindMatrix.push_back(mat);											
 										}
 									}
 								}
 							}
 						}
 						
-						//Now that we've parsed the joint array, let's determine if we have a full rig
-						//(which means we have all the joints that are required for an avatar versus
+						//Now that we've parsed the jointa werray, let's determine if we have a full rig
+						//(which means we have all the joint sthat are required for an avatar versus
 						//a skinned asset attached to a node in a file that contains an entire skeleton,
 						//but does not use the skeleton).						
 						buildJointToNodeMappingFromScene( root );
@@ -2159,15 +2158,29 @@ void LLModelLoader::processJointToNodeMapping( domNode* pNode )
 			mJointsFromNode.push_front( pNode->getName() );
 		}
 		//2. Handle the kiddo's
-		daeTArray< daeSmartRef<daeElement> > childOfChild = pNode->getChildren();
-		S32 childOfChildCount = childOfChild.getCount();
-		for (S32 i = 0; i < childOfChildCount; ++i)
+		processChildJoints( pNode );
+	}
+	else
+	{
+		//Determine if the're any children wrt to this failed node.
+		//This occurs when an armature is exported and ends up being what essentially amounts to
+		//as the root for the visual_scene
+		processChildJoints( pNode );
+	}
+}
+//-----------------------------------------------------------------------------
+// processChildJoint()
+//-----------------------------------------------------------------------------
+void LLModelLoader::processChildJoints( domNode* pParentNode )
+{	
+	daeTArray< daeSmartRef<daeElement> > childOfChild = pParentNode->getChildren();
+	S32 childOfChildCount = childOfChild.getCount();
+	for (S32 i = 0; i < childOfChildCount; ++i)
+	{
+		domNode* pChildNode = daeSafeCast<domNode>( childOfChild[i] );
+		if ( pChildNode )
 		{
-			domNode* pChildNode = daeSafeCast<domNode>( childOfChild[i] );
-			if ( pChildNode )
-			{
-				processJointToNodeMapping( pChildNode );
-			}
+			processJointToNodeMapping( pChildNode );
 		}
 	}
 }
@@ -2353,8 +2366,20 @@ void LLModelLoader::loadTextures()
 //-----------------------------------------------------------------------------
 bool LLModelLoader::isNodeAJoint( domNode* pNode )
 {
-	if ( !pNode || pNode->getName() == NULL)
+	if ( !pNode )
 	{
+		llinfos<<"Created node is NULL"<<llendl;
+		return false;
+	}
+	
+	if ( pNode->getName() == NULL )
+	{
+		llinfos<<"Parsed node has no name "<<llendl;
+		//Attempt to write the node id, if possible (aids in debugging the visual scene)
+		if ( pNode->getId() )
+		{
+			llinfos<<"Parsed node ID: "<<pNode->getId()<<llendl;
+		}
 		return false;
 	}
 
