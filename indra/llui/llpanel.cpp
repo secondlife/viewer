@@ -99,6 +99,7 @@ LLPanel::Params::Params()
 
 LLPanel::LLPanel(const LLPanel::Params& p)
 :	LLUICtrl(p),
+	LLBadgeHolder(p.accepts_badge),
 	mBgVisible(p.background_visible),
 	mBgOpaque(p.background_opaque),
 	mBgOpaqueColor(p.bg_opaque_color()),
@@ -114,8 +115,7 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mCommitCallbackRegistrar(false),
 	mEnableCallbackRegistrar(false),
 	mXMLFilename(p.filename),
-	mVisibleSignal(NULL),
-	mAcceptsBadge(p.accepts_badge)
+	mVisibleSignal(NULL)
 	// *NOTE: Be sure to also change LLPanel::initFromParams().  We have too
 	// many classes derived from LLPanel to retrofit them all to pass in params.
 {
@@ -488,7 +488,7 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	mBgOpaqueImageOverlay = p.bg_opaque_image_overlay;
 	mBgAlphaImageOverlay = p.bg_alpha_image_overlay;
 
-	mAcceptsBadge = p.accepts_badge;
+	setAcceptsBadge(p.accepts_badge);
 }
 
 static LLFastTimer::DeclareTimer FTM_PANEL_SETUP("Panel Setup");
@@ -515,9 +515,6 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 
 		if (!xml_filename.empty())
 		{
-			LLUICtrlFactory::instance().pushFileName(xml_filename);
-
-			LLFastTimer timer(FTM_EXTERNAL_PANEL_LOAD);
 			if (output_node)
 			{
 				//if we are exporting, we want to export the current xml
@@ -530,6 +527,9 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 				return TRUE;
 			}
 		
+			LLUICtrlFactory::instance().pushFileName(xml_filename);
+
+			LLFastTimer timer(FTM_EXTERNAL_PANEL_LOAD);
 			if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
 			{
 				llwarns << "Couldn't parse panel from: " << xml_filename << llendl;

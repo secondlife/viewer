@@ -111,7 +111,7 @@ namespace LLInitParam
 	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateValueFromBlock()
 	{}
 	
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue()
+	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue(bool)
 	{}
 
 	bool ParamCompare<const LLFontGL*, false>::equals(const LLFontGL* a, const LLFontGL* b)
@@ -127,7 +127,7 @@ namespace LLInitParam
 	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateValueFromBlock()
 	{}
 	
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue()
+	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue(bool)
 	{}
 
 	void TypeValues<LLFontGL::HAlign>::declareValues()
@@ -142,7 +142,7 @@ namespace LLInitParam
 	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateValueFromBlock()
 	{}
 	
-	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateBlockFromValue()
+	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateBlockFromValue(bool)
 	{}
 	
 	bool ParamCompare<LLUIImage*, false>::equals(

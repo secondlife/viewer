@@ -172,15 +172,15 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateBlockFromValue()
+	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateBlockFromValue(bool make_block_authoritative)
 	{
 		if (getValue() == NULL)
 		{
-			name.set("none", false);
+			name.set("none", make_block_authoritative);
 		}
 		else
 		{
-			name.set(getValue()->getName(), false);
+			name.set(getValue()->getName(), make_block_authoritative);
 		}
 	}
 

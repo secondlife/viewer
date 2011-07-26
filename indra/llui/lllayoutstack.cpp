@@ -713,10 +713,7 @@ void LLLayoutStack::createResizeBars()
 //static 
 void LLLayoutStack::updateClass()
 {
-	LLInstanceTrackerScopedGuard guard;
-	for (LLLayoutStack::instance_iter it = guard.beginInstances();
-	     it != guard.endInstances();
-	     ++it)
+	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 	{
 		it->updateLayout();
 	}

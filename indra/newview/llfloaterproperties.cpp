@@ -887,18 +887,14 @@ void LLFloaterProperties::dirtyAll()
 LLMultiProperties::LLMultiProperties()
 	: LLMultiFloater(LLSD())
 {
-	// *TODO: There should be a .xml file for this
-	const LLRect& nextrect = LLFloaterReg::getFloaterRect("properties"); // place where the next properties should show up
-	if (nextrect.getWidth() > 0)
+	// start with a small rect in the top-left corner ; will get resized
+	LLRect rect;
+	rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeightScaled(), 20, 20);
+	setRect(rect);
+	LLFloater* last_floater = LLFloaterReg::getLastFloaterInGroup("properties");
+	if (last_floater)
 	{
-		setRect(nextrect);
-	}
-	else
-	{
-		// start with a small rect in the top-left corner ; will get resized
-		LLRect rect;
-		rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeightScaled(), 20, 20);
-		setRect(rect);
+		stackWith(*last_floater);
 	}
 	setTitle(LLTrans::getString("MultiPropertiesTitle"));
 	buildTabContainer();
