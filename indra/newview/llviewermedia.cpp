@@ -344,6 +344,8 @@ static LLViewerMedia::impl_id_map sViewerMediaTextureIDMap;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
 static F32 sGlobalVolume = 1.0f;
+static bool sForceUpdate = false;
+static LLUUID sOnlyAudibleTextureID = LLUUID::null;
 static F64 sLowestLoadableImplInterest = 0.0f;
 static bool sAnyMediaShowing = false;
 static boost::signals2::connection sTeleportFinishConnection;
@@ -606,7 +608,7 @@ bool LLViewerMedia::textureHasMedia(const LLUUID& texture_id)
 // static
 void LLViewerMedia::setVolume(F32 volume)
 {
-	if(volume != sGlobalVolume)
+	if(volume != sGlobalVolume || sForceUpdate)
 	{
 		sGlobalVolume = volume;
 		impl_list::iterator iter = sViewerMediaImplList.begin();
@@ -617,6 +619,8 @@ void LLViewerMedia::setVolume(F32 volume)
 			LLViewerMediaImpl* pimpl = *iter;
 			pimpl->updateVolume();
 		}
+
+		sForceUpdate = false;
 	}
 }
 
@@ -1626,6 +1630,15 @@ void LLViewerMedia::onTeleportFinished()
 	gSavedSettings.setBOOL("MediaTentativeAutoPlay", true);
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::setOnlyAudibleMediaTextureID(const LLUUID& texture_id)
+{
+	sOnlyAudibleTextureID = texture_id;
+	sForceUpdate = true;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLViewerMediaImpl
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2188,7 +2201,14 @@ void LLViewerMediaImpl::updateVolume()
 			}
 		}
 
-		mMediaSource->setVolume(volume);
+		if (sOnlyAudibleTextureID == LLUUID::null || sOnlyAudibleTextureID == mTextureId)
+		{
+			mMediaSource->setVolume(volume);
+		}
+		else
+		{
+			mMediaSource->setVolume(0.0f);
+		}
 	}
 }
 

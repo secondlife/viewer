@@ -160,6 +160,8 @@ public:
 	
 	static void createSpareBrowserMediaSource();
 	static LLPluginClassMedia* getSpareBrowserMediaSource();
+
+	static void setOnlyAudibleMediaTextureID(const LLUUID& texture_id);
 	
 private:
 	static void setOpenIDCookie();
