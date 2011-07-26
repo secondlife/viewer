@@ -1,0 +1,72 @@
+<llsd>
+    <array>
+        <array>
+            <real>0</real>
+            <string>Sheer Surreality</string>
+        </array>
+        <array>
+            <real>0.062499973922967911</real>
+            <string>A-12AM</string>
+        </array>
+        <array>
+            <real>0.12499994784593582</real>
+            <string>Sheer Surreality</string>
+        </array>
+        <array>
+            <real>0.18749992549419403</real>
+            <string>A-3AM</string>
+        </array>
+        <array>
+            <real>0.24999989569187164</real>
+            <string>Sheer Surreality</string>
+        </array>
+        <array>
+            <real>0.31249985098838806</real>
+            <string>A-6AM</string>
+        </array>
+        <array>
+            <real>0.37499985098838806</real>
+            <string>Sheer Surreality</string>
+        </array>
+        <array>
+            <real>0.43749979138374329</real>
+            <string>A-9AM</string>
+        </array>
+        <array>
+            <real>0.49999979138374329</real>
+            <string>Sheer Surreality</string>
+        </array>
+        <array>
+            <real>0.5624997615814209</real>
+            <string>A-12PM</string>
+        </array>
+        <array>
+            <real>0.62499970197677612</real>
+            <string>Sheer Surreality</string>
+        </array>
+        <array>
+            <real>0.68749970197677612</real>
+            <string>A-3PM</string>
+        </array>
+        <array>
+            <real>0.74999970197677612</real>
+            <string>Sheer Surreality</string>
+        </array>
+        <array>
+            <real>0.81249970197677612</real>
+            <string>A-6PM</string>
+        </array>
+        <array>
+            <real>0.87499958276748657</real>
+            <string>Sheer Surreality</string>
+        </array>
+        <array>
+            <real>0.93749958276748657</real>
+            <string>A-9PM</string>
+        </array>
+        <array>
+            <real>0.99999958276748657</real>
+            <string>Sheer Surreality</string>
+        </array>
+    </array>
+</llsd>

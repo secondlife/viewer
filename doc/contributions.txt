@@ -158,6 +158,8 @@ Ann Congrejo
 	CT-193
 Ansariel Hiller
 	STORM-1101
+	VWR-25480
+	VWR-26150
 Ardy Lay
 	STORM-859
 	VWR-19499
@@ -446,6 +448,7 @@ Jonathan Yap
 	STORM-1313
 	STORM-899
 	STORM-1273
+	STORM-1462
 Kage Pixel
 	VWR-11
 Ken March

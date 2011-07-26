@@ -547,7 +547,7 @@ public:
 	//
 	typedef enum e_vo_types
 	{
-		LL_VO_CLOUDS =				LL_PCODE_APP | 0x20,
+		LL_VO_CLOUDS =				LL_PCODE_APP | 0x20, // no longer used
 		LL_VO_SURFACE_PATCH =		LL_PCODE_APP | 0x30,
 		LL_VO_WL_SKY =				LL_PCODE_APP | 0x40,
 		LL_VO_SQUARE_TORUS =		LL_PCODE_APP | 0x50,

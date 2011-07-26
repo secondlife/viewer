@@ -33,6 +33,8 @@
 // in viewer.
 // It is used to precompile headers for improved build speed.
 
+#include <boost/coroutine/coroutine.hpp>
+
 #include "linden_common.h"
 
 // Work around stupid Microsoft STL warning

@@ -70,7 +70,7 @@ public:
 private:
 	// private helper functions to wrap some asserts
 	LLPointer<LLJointState>& getJointState(U32 index);
-	LLJoint* getJoint(U32 index);
+	LLJoint* getJoint(U32 index );
 	
 public:
 	//-------------------------------------------------------------------------

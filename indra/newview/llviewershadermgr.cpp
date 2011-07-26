@@ -722,6 +722,11 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	shaders.reserve(13);
 	S32 ch = gGLManager.mNumTextureImageUnits-1;
 
+	if (gGLManager.mGLVersion < 3.1f)
+	{ //force to 1 texture index channel for old drivers
+		ch = 1;
+	}
+
 	std::vector<S32> index_channels;
 	index_channels.push_back(-1);	 shaders.push_back( make_pair( "windlight/atmosphericsVarsF.glsl",		mVertexShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);	 shaders.push_back( make_pair( "windlight/gammaF.glsl",					mVertexShaderLevel[SHADER_WINDLIGHT]) );
@@ -1209,7 +1214,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		{
 			if (multisample)
 			{
-				fragment = "deferred/sunlightSSAOMSF.glsl";
+				fragment = "deferred/sunLightSSAOMSF.glsl";
 			}
 			else
 			{
@@ -1220,7 +1225,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		{
 			if (multisample)
 			{
-				fragment = "deferred/sunlightMSF.glsl";
+				fragment = "deferred/sunLightMSF.glsl";
 			}
 			else
 			{
@@ -2184,6 +2189,16 @@ std::string LLViewerShaderMgr::getShaderDirPrefix(void)
 
 void LLViewerShaderMgr::updateShaderUniforms(LLGLSLShader * shader)
 {
-	LLWLParamManager::instance()->updateShaderUniforms(shader);
-	LLWaterParamManager::instance()->updateShaderUniforms(shader);
+	LLWLParamManager::getInstance()->updateShaderUniforms(shader);
+	LLWaterParamManager::getInstance()->updateShaderUniforms(shader);
+}
+
+LLViewerShaderMgr::shader_iter LLViewerShaderMgr::beginShaders() const
+{
+	return mShaderList.begin();
+}
+
+LLViewerShaderMgr::shader_iter LLViewerShaderMgr::endShaders() const
+{
+	return mShaderList.end();
 }
