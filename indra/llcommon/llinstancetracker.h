@@ -235,27 +235,6 @@ public:
 	static instance_iter beginInstances() {	return instance_iter(getSet_().begin()); }
 	static instance_iter endInstances() { return instance_iter(getSet_().end()); }
 
-	// DEPRECATED: iterators now increment and decrement iteration depth
-	// Instantiate this to get access to iterators for this type.  It's a 'guard' in the sense
-	// that it treats deletes of this type as errors as long as there is an instance of
-	// this class alive in scope somewhere (i.e. deleting while iterating is bad).
-	class LLInstanceTrackerScopedGuard
-	{
-	public:
-		LLInstanceTrackerScopedGuard()
-		{
-			++sIterationNestDepth;
-		}
-
-		~LLInstanceTrackerScopedGuard()
-		{
-			--sIterationNestDepth;
-		}
-
-		static instance_iter beginInstances() {	return instance_iter(getSet_().begin()); }
-		static instance_iter endInstances() { return instance_iter(getSet_().end()); }
-	};
-
 protected:
 	LLInstanceTracker()
 	{

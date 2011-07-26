@@ -156,8 +156,7 @@ namespace tut
         keys.insert(&two);
         keys.insert(&three);
 	{
-		Unkeyed::LLInstanceTrackerScopedGuard guard;
-		for (Unkeyed::key_iter ki(guard.beginKeys()), kend(guard.endKeys());
+		for (Unkeyed::key_iter ki(beginKeys()), kend(endKeys());
 		     ki != kend; ++ki)
 		{
 			ensure_equals("spurious key", keys.erase(*ki), 1);
@@ -170,9 +169,7 @@ namespace tut
         instances.insert(&two);
         instances.insert(&three);
 	{
-		Unkeyed::LLInstanceTrackerScopedGuard guard;
-		for (Unkeyed::instance_iter ii(guard.beginInstances()), iend(guard.endInstances());
-		     ii != iend; ++ii)
+		for (Unkeyed::instance_iter ii(beginInstances()), iend(endInstances()); ii != iend; ++ii)
 		{
 			Unkeyed& ref = *ii;
 			ensure_equals("spurious instance", instances.erase(&ref), 1);
