@@ -73,6 +73,7 @@ public:
 	{
 		NO_ERRORS = 0,
 		VERTEX_NUMBER_OVERFLOW, //vertex number is >= 65535.
+		BAD_ELEMENT,
 		INVALID_STATUS
 	} ;
 
@@ -106,6 +107,7 @@ public:
 		Decomposition(LLSD& data);
 		void fromLLSD(LLSD& data);
 		LLSD asLLSD() const;
+		bool hasHullList() const;
 
 		void merge(const Decomposition* rhs);
 
@@ -135,12 +137,13 @@ public:
 		const LLModel::Decomposition& decomp,
 		BOOL upload_skin,
 		BOOL upload_joints,
-		BOOL nowrite = FALSE);
+		BOOL nowrite = FALSE,
+		BOOL as_slm = FALSE);
 
 	static LLSD writeModelToStream(
 		std::ostream& ostr,
 		LLSD& mdl,
-		BOOL nowrite = FALSE);
+		BOOL nowrite = FALSE, BOOL as_slm = FALSE);
 
 	static LLModel* loadModelFromDomMesh(domMesh* mesh);
 	static std::string getElementLabel(daeElement* element);
@@ -169,6 +172,11 @@ public:
 	void optimizeVolumeFaces();
 	void offsetMesh( const LLVector3& pivotPoint );
 	void getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out);
+	
+	//reorder face list based on mMaterialList in this and reference so 
+	//order matches that of reference (material ordering touchup)
+	void matchMaterialOrder(LLModel* reference);
+
 	std::vector<std::string> mMaterialList;
 
 	//data used for skin weights

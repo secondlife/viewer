@@ -180,14 +180,14 @@
      increment="1"
      initial_value="23"
      label="Nearby chat toasts life time:"
-     label_width="190"
+     label_width="285"
      layout="topleft"
      left="45"
      max_val="60"
      min_val="1"
      name="nearby_toasts_lifetime"
      top_pad="10"
-     width="230" />
+     width="325" />
     <spinner
      control_name="NearbyToastFadingTime"
      decimal_digits="0"
@@ -196,14 +196,14 @@
      increment="1"
      initial_value="3"
      label="Nearby chat toasts fading time:"
-     label_width="190"
+     label_width="285"
      layout="topleft"
      left_delta="0"
      max_val="60"
      min_val="0"
      name="nearby_toasts_fadingtime"
      top_pad="3"
-     width="230" />
+     width="325" />
     
     <check_box
      control_name="TranslateChat"

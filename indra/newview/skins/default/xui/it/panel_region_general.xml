@@ -25,6 +25,7 @@
 	<check_box label="Abilita la rivendita del terreno" name="allow_land_resell_check"/>
 	<check_box label="Abilita unione/suddivisione del terreno" name="allow_parcel_changes_check"/>
 	<check_box label="Proibisci che il terreno appaia nelle ricerche" name="block_parcel_search_check" tool_tip="Permetti che le persone vedano questa regione e le sue suddivisioni nei risultati delle ricerche"/>
+	<check_box label="Consenti oggetti con reticolo" name="mesh_rez_enabled_check" tool_tip="Permetti alle persone di rezzare oggetti con reticolo su questa regione"/>
 	<spinner label="Limite massimo di avatar" label_width="135" name="agent_limit_spin" width="190"/>
 	<spinner label="Bonus di oggetti" label_width="135" name="object_bonus_spin" width="190"/>
 	<text label="Maturità" name="access_text" width="120">

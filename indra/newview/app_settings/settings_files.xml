@@ -20,7 +20,8 @@
           file_name="settings.xml"
           file_name_setting="ClientSettingsFile"/>
     <file name="CrashSettings"
-          file_name="settings_crash_behavior"/>
+          file_name="settings_crash_behavior.xml"
+          file_name_setting="CrashSettingsFile"/>
     <file name="Warnings"
           file_name="ignorable_dialogs.xml"
           file_name_setting="WarningSettingsFile"/>

@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
   
-#version 120
+
 
 float calcDirectionalLightSpecular(inout vec4 specular, vec3 view, vec3 n, vec3 l, vec3 lightCol, float da);
 vec3 atmosAmbient(vec3 light);

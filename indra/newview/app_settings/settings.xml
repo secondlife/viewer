@@ -708,6 +708,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>BrowserEnableJSObject</key>
+    <map>
+      <key>Comment</key>
+      <string>(WARNING: Advanced feature. Use if you are aware of the implications). Enable or disable the viewer to Javascript bridge object.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>BlockAvatarAppearanceMessages</key>
         <map>
         <key>Comment</key>
@@ -1924,17 +1935,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>DebugShowUploadCost</key>
-  <map>
-    <key>Comment</key>
-    <string>Show what it would cost to upload assets in current scene</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
   <key>DebugShowRenderMatrices</key>
   <map>
     <key>Comment</key>
@@ -1968,6 +1968,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>DebugShowUploadCost</key>
+  <map>
+    <key>Comment</key>
+    <string>Show mesh upload cost</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>DebugShowXUINames</key>
     <map>
       <key>Comment</key>
@@ -3047,6 +3058,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>EnableGestureSounds</key>
+    <map>
+      <key>Comment</key>
+      <string>Play sounds from gestures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>EnableMouselook</key>
     <map>
       <key>Comment</key>
@@ -3238,17 +3260,6 @@
     <map>
       <key>Comment</key>
       <string>Display only results of find places that have pictures</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FirstLoginThisInstall</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifies that you have not successfully logged in since you installed the latest update</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3980,18 +3991,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
-    </map>
-    <key>SearchURLBeta</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for Search website, displayed in the Find floater</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://beta.search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
+      <string>http://search-beta.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
     <key>WebProfileURL</key>
     <map>
@@ -4179,6 +4179,28 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.0</real>
+    </map>
+    <key>InventoryDisplayInbox</key>
+    <map>
+        <key>Comment</key>
+        <string>Override received items inventory inbox display</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
+    <key>InventoryDisplayOutbox</key>
+    <map>
+        <key>Comment</key>
+        <string>Override merchant inventory outbox display</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
     </map>
 	<key>InventoryLinking</key>
 	<map>
@@ -4421,6 +4443,17 @@
         <string>F32</string>
       <key>Value</key>
         <real>2.0</real>
+    </map>
+    <key>LastInventoryInboxExpand</key>
+    <map>
+        <key>Comment</key>
+        <string>The last time the received items inbox was expanded.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string />
     </map>
     <key>LCDDestination</key>
     <map>
@@ -4839,7 +4872,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string />
+      <string>http://viewer-login.agni.lindenlab.com/</string>
     </map>
     <key>LosslessJ2CUpload</key>
     <map>
@@ -4861,7 +4894,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>20.0</real>
+      <real>60.0</real>
     </map>
     <key>MapOverlayIndex</key>
     <map>
@@ -5587,18 +5620,40 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <real>0</real>
+    <real>1</real>
   </map>
-  <key>MeshUseWholeModelUpload</key>
+  <key>MeshUploadLogXML</key>
   <map>
     <key>Comment</key>
-    <string>Upload model in its entirety instead of mesh-by-mesh (new caps)</string>
+    <string>Verbose XML logging on mesh upload</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
     <real>0</real>
+  </map>
+  <key>MeshUploadFakeErrors</key>
+  <map>
+    <key>Comment</key>
+    <string>Force upload errors (for testing)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  <key>MeshUploadTimeOut</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum time in seconds for llcurl to execute a mesh uoloading request</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <real>600</real>
   </map>
   <key>MigrateCacheDirectory</key>
     <map>
@@ -6535,7 +6590,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-
+   <key>PostFirstLoginIntroURL</key>
+   <map>
+     <key>Comment</key>
+     <string>URL of intro presenatation after first time users first login</string>
+     <key>Persist</key>
+     <integer>1</integer>
+     <key>Type</key>
+     <string>String</string>
+     <key>Value</key>
+     <string></string>
+   </map>
+  <key>PostFirstLoginIntroViewed</key>
+  <map>
+    <key>Comment</key>
+    <string>Flag indicating if user has seen intro presenatation after first time users first login</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <string>0</string>
+  </map>
     <key>PrecachingDelay</key>
     <map>
       <key>Comment</key>
@@ -7102,6 +7178,75 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+
+  <key>OctreeMaxNodeCapacity</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum number of elements to store in a single octree node</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>128</integer>
+  </map>
+
+  <key>OctreeStaticObjectSizeFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier on static object size for determining octree node size </string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>4</integer>
+  </map>
+
+  <key>OctreeAlphaDistanceFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier on alpha object distance for determining octree node size </string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>0.1</real>
+      <real>0.0</real>
+      <real>0.0</real>
+    </array>
+  </map>
+
+  <key>OctreeAttachmentSizeFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier on attachment size for determining octree node size </string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>4</integer>
+  </map>
+
+  <key>OctreeDistanceFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier on distance for determining octree node size </string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>0.01</real>
+      <real>0.0</real>
+      <real>0.0</real>
+    </array>
+  </map>
+
     <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
@@ -7281,7 +7426,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>1.0</integer>
+      <real>1.0</real>
     </map>
     <key>RenderAvatarVP</key>
     <map>
@@ -7537,6 +7682,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>RenderMaxTextureIndex</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum texture index to use for indexed texture rendering.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>6</integer>
+  </map>
     <key>RenderDebugTextureBind</key>
     <map>
       <key>Comment</key>
@@ -8682,7 +8838,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>8192</integer>
+    <integer>65536</integer>
   </map>
     <key>RenderMaxVBOSize</key>
     <map>
@@ -8960,17 +9116,6 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderUseTriStrips</key>
-  <map>
-    <key>Comment</key>
-    <string>Use triangle strips for rendering prims.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
     <key>RenderUseFarClip</key>
     <map>
       <key>Comment</key>
@@ -9035,7 +9180,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
   <key>RenderUseStreamVBO</key>
   <map>
@@ -9136,28 +9281,51 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-  <key>MeshStreamingCostScaler</key>
+  <key>MeshTriangleBudget</key>
   <map>
     <key>Comment</key>
-    <string>DEBUG</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>3.0</real>
-  </map>
-  <key>MeshThreadCount</key>
-  <map>
-    <key>Comment</key>
-    <string>Number of threads to use for loading meshes.</string>
+    <string>Target visible triangle budget to use when estimating streaming cost.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>8</integer>
+    <real>250000</real>
   </map>
+  <key>MeshMetaDataDiscount</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of bytes to deduct for metadata when determining streaming cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>384</real>
+  </map>
+  <key>MeshMinimumByteSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Minimum number of bytes per LoD block when determining streaming cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>16</real>
+  </map>
+  <key>MeshBytesPerTriangle</key>
+  <map>
+    <key>Comment</key>
+    <string>Approximation of bytes per triangle to use for determining mesh streaming cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>16</real>
+  </map>
+
   <key>MeshMaxConcurrentRequests</key>
   <map>
     <key>Comment</key>
@@ -9382,6 +9550,17 @@
     <map>
       <key>Comment</key>
       <string>Newly created objects are shared with the currently active group</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowAdvancedBuilderOptions</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows physics and display weight</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9629,7 +9808,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ShowSnapshotButton</key>
     <map>
@@ -9734,6 +9913,17 @@
     <map>
       <key>Comment</key>
       <string>Show/hide permission icons in the friend list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>NearbyListShowMap</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide map above nearby people list</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -10228,17 +10418,6 @@
       <key>Value</key>
       <real>0.300000011921</real>
     </map>
-    <key>SkyEditPresets</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to be able to edit the sky defaults or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>SkyNightColorShift</key>
     <map>
       <key>Comment</key>
@@ -10279,17 +10458,6 @@
         <real>0.0</real>
         <real>0.1</real>
       </array>
-    </map>
-    <key>SkyUseClassicClouds</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to use the old Second Life particle clouds or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>SnapEnabled</key>
     <map>
@@ -10905,7 +11073,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>-2</real>
+      <real>-1</real>
     </map>
     <key>UIExtraTriangleWidth</key>
     <map>
@@ -10916,7 +11084,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>2</real>
+      <real>4</real>
     </map>
     <key>UIFloaterCloseBoxSize</key>
     <map>
@@ -11908,6 +12076,61 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>UseEnvironmentFromRegion</key>
+    <map>
+      <key>Comment</key>
+      <string>Choose whether to use the region's environment settings, or override them with the local settings.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>UseDayCycle</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether to use use a day cycle or a fixed sky.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>WaterPresetName</key>
+    <map>
+      <key>Comment</key>
+      <string>Water preset to use. May be superseded by region settings.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>Default</string>
+    </map>
+    <key>SkyPresetName</key>
+    <map>
+      <key>Comment</key>
+      <string>Sky preset to use. May be superseded by region settings or by a day cycle (see DayCycleName).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>Default</string>
+    </map>
+    <key>DayCycleName</key>
+    <map>
+      <key>Comment</key>
+      <string>Day cycle to use. May be superseded by region settings.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>Default</string>
+    </map>
     <key>UseExternalBrowser</key>
     <map>
       <key>Comment</key>
@@ -12482,51 +12705,13 @@
     <key>WatchdogEnabled</key>
     <map>
       <key>Comment</key>
-      <string>Controls whether the thread watchdog timer is activated.</string>
+      <string>Controls whether the thread watchdog timer is activated. Value is boolean. Set to -1 to defer to built-in default.</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>WaterEditPresets</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to be able to edit the water defaults or not</string>
-      <key>Persist</key>
       <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>WaterFogColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Water fog color</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0863</real>
-        <real>0.168</real>
-        <real>0.212</real>
-        <real>0</real>
-      </array>
-    </map>
-    <key>WaterFogDensity</key>
-    <map>
-      <key>Comment</key>
-      <string>Water fog density</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>16.0</real>
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>
@@ -12836,6 +13021,17 @@
 		<key>Value</key>
 		<integer>1</integer>
 	</map>
+    <key>SLURLPassToOtherInstance</key>
+    <map>
+    <key>Comment</key>
+    <string>Pass execution to prevoius viewer instances if there is a given slurl</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+    </map>
     <key>soundsbeacon</key>
     <map>
       <key>Comment</key>
@@ -13330,6 +13526,44 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+     <key>WebProfileRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Web profile dimensions</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>0</integer>
+        <integer>650</integer>
+        <integer>490</integer>
+        <integer>0</integer>
+      </array>    
+    </map>
+   <key>HelpFloaterOpen</key>
+    <map>
+      <key>Comment</key>
+      <string>Show Help Floater on login?</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+     <key>ShowHelpOnFirstLogin</key>
+    <map>
+      <key>Comment</key>
+      <string>Show Help Floater on first login</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
 </map>
 </llsd>

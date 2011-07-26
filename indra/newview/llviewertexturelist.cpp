@@ -76,7 +76,6 @@ LLStat LLViewerTextureList::sFormattedMemStat(32, TRUE);
 LLViewerTextureList gTextureList;
 static LLFastTimer::DeclareTimer FTM_PROCESS_IMAGES("Process Images");
 
-U32 LLViewerTextureList::sRenderThreadID = 0 ;
 ///////////////////////////////////////////////////////////////////////////////
 
 LLViewerTextureList::LLViewerTextureList() 
@@ -89,15 +88,12 @@ LLViewerTextureList::LLViewerTextureList()
 }
 
 void LLViewerTextureList::init()
-{
-	sRenderThreadID = LLThread::currentID() ;
-
+{			
 	mInitialized = TRUE ;
 	sNumImages = 0;
+	mUpdateStats = TRUE;
 	mMaxResidentTexMemInMegaBytes = 0;
 	mMaxTotalTextureMemInMegaBytes = 0 ;
-	
-	mUpdateStats = TRUE;
 	
 	// Update how much texture RAM we're allowed to use.
 	updateMaxResidentTexMem(0); // 0 = use current
@@ -283,6 +279,8 @@ void LLViewerTextureList::shutdown()
 	mUUIDMap.clear();
 	
 	mImageList.clear();
+
+	mInitialized = FALSE ; //prevent loading textures again.
 }
 
 void LLViewerTextureList::dump()
@@ -330,6 +328,11 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
 												   LLGLenum primary_format, 
 												   const LLUUID& force_id)
 {
+	if(!mInitialized)
+	{
+		return NULL ;
+	}
+
 	std::string full_path = gDirUtilp->findSkinnedFilename("textures", filename);
 	if (full_path.empty())
 	{
@@ -350,6 +353,11 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 												   LLGLenum primary_format, 
 												   const LLUUID& force_id)
 {
+	if(!mInitialized)
+	{
+		return NULL ;
+	}
+
 	// generate UUID based on hash of filename
 	LLUUID new_id;
 	if (force_id.notNull())
@@ -409,6 +417,11 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 												   LLGLenum primary_format,
 												   LLHost request_from_host)
 {
+	if(!mInitialized)
+	{
+		return NULL ;
+	}
+
 	// Return the image with ID image_id
 	// If the image is not found, creates new image and
 	// enqueues a request for transmission
@@ -487,10 +500,9 @@ LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id)
 	return iter->second;
 }
 
-void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image, U32 thread_id)
+void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 {
 	llassert_always(mInitialized) ;
-	llassert_always(sRenderThreadID == thread_id);
 	llassert(image);
 	if (image->isInImageList())
 	{
@@ -504,10 +516,9 @@ void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image, U32 thre
 	image->setInImageList(TRUE) ;
 }
 
-void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image, U32 thread_id)
+void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 {
 	llassert_always(mInitialized) ;
-	llassert_always(sRenderThreadID == thread_id);
 	llassert(image);
 	if (!image->isInImageList())
 	{
@@ -644,10 +655,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			const F32 LAZY_FLUSH_TIMEOUT = 30.f; // stop decoding
 			const F32 MAX_INACTIVE_TIME  = 50.f; // actually delete
 			S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
-			if (imagep->hasCallbacks())
-			{
-				min_refs++; // Add an extra reference if we're on the loaded callback list
-			}
+			
 			S32 num_refs = imagep->getNumRefs();
 			if (num_refs == min_refs)
 			{
@@ -704,9 +712,9 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			if ((decode_priority_test < old_priority_test * .8f) ||
 				(decode_priority_test > old_priority_test * 1.25f))
 			{
-				removeImageFromList(imagep, sRenderThreadID);
+				removeImageFromList(imagep);
 				imagep->setDecodePriority(decode_priority);
-				addImageToList(imagep, sRenderThreadID);
+				addImageToList(imagep);
 			}
 			update_counter--;
 		}
@@ -877,8 +885,6 @@ void LLViewerTextureList::updateImagesUpdateStats()
 void LLViewerTextureList::decodeAllImages(F32 max_time)
 {
 	LLTimer timer;
-
-	llassert_always(sRenderThreadID == LLThread::currentID());
 
 	// Update texture stats and priorities
 	std::vector<LLPointer<LLViewerFetchedTexture> > image_list;

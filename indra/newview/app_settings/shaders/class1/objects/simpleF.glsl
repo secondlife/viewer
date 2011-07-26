@@ -5,8 +5,6 @@
  * $/LicenseInfo$
  */
  
-#version 120
-
 void default_lighting();
 
 void main() 

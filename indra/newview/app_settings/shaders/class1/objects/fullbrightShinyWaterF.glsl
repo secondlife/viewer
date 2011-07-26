@@ -5,7 +5,7 @@
  * $License$
  */
  
-#version 120
+
 
 void fullbright_shiny_lighting_water();
 

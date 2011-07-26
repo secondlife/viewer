@@ -57,6 +57,7 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
+#include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llparcel.h"
 #include "llkeyboard.h"
@@ -182,6 +183,21 @@ static bool handleReleaseGLBufferChanged(const LLSD& newvalue)
 	{
 		gPipeline.releaseGLBuffers();
 		gPipeline.createGLBuffers();
+	}
+	return true;
+}
+
+static bool handleFSAASamplesChanged(const LLSD& newvalue)
+{
+	if (gPipeline.isInit())
+	{
+		gPipeline.releaseGLBuffers();
+		gPipeline.createGLBuffers();
+
+		if (LLPipeline::sRenderDeferred)
+		{
+			LLViewerShaderMgr::instance()->setShaders();
+		}
 	}
 	return true;
 }
@@ -360,6 +376,16 @@ static bool handleResetVertexBuffersChanged(const LLSD&)
 	return true;
 }
 
+static bool handleRepartition(const LLSD&)
+{
+	if (gPipeline.isInit())
+	{
+		gOctreeMaxCapacity = gSavedSettings.getU32("OctreeMaxNodeCapacity");
+		gObjectList.repartitionObjects();
+	}
+	return true;
+}
+
 static bool handleRenderDynamicLODChanged(const LLSD& newvalue)
 {
 	LLPipeline::sDynamicLOD = newvalue.asBoolean();
@@ -381,7 +407,7 @@ static bool handleRenderDeferredChanged(const LLSD& newvalue)
 		gPipeline.releaseGLBuffers();
 		gPipeline.createGLBuffers();
 		gPipeline.resetVertexBuffers();
-		if (LLPipeline::sRenderDeferred && LLRenderTarget::sUseFBO)
+		if (LLPipeline::sRenderDeferred == (BOOL)LLRenderTarget::sUseFBO)
 		{
 			LLViewerShaderMgr::instance()->setShaders();
 		}
@@ -543,7 +569,7 @@ bool toggle_show_object_render_cost(const LLSD& newvalue)
 	return true;
 }
 
-void toggle_updater_service_active(LLControlVariable* control, const LLSD& new_value)
+void toggle_updater_service_active(const LLSD& new_value)
 {
     if(new_value.asInteger())
     {
@@ -563,6 +589,12 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("FirstPersonAvatarVisible")->getSignal()->connect(boost::bind(&handleRenderAvatarMouselookChanged, _2));
 	gSavedSettings.getControl("RenderFarClip")->getSignal()->connect(boost::bind(&handleRenderFarClipChanged, _2));
 	gSavedSettings.getControl("RenderTerrainDetail")->getSignal()->connect(boost::bind(&handleTerrainDetailChanged, _2));
+	gSavedSettings.getControl("OctreeStaticObjectSizeFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
+	gSavedSettings.getControl("OctreeDistanceFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
+	gSavedSettings.getControl("OctreeMaxNodeCapacity")->getSignal()->connect(boost::bind(&handleRepartition, _2));
+	gSavedSettings.getControl("OctreeAlphaDistanceFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
+	gSavedSettings.getControl("OctreeAttachmentSizeFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
+	gSavedSettings.getControl("RenderMaxTextureIndex")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderUseTriStrips")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAnimateTrees")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAvatarVP")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
@@ -571,7 +603,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderSpecularResX")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularResY")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularExponent")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
-	gSavedSettings.getControl("RenderFSAASamples")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	gSavedSettings.getControl("RenderFSAASamples")->getSignal()->connect(boost::bind(&handleFSAASamplesChanged, _2));
 	gSavedSettings.getControl("RenderAnisotropic")->getSignal()->connect(boost::bind(&handleAnisotropicChanged, _2));
 	gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
@@ -707,7 +739,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
 	gSavedSettings.getControl("ShowMiniLocationPanel")->getSignal()->connect(boost::bind(&toggle_show_mini_location_panel, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
-	gSavedSettings.getControl("UpdaterServiceSetting")->getSignal()->connect(&toggle_updater_service_active);
+	gSavedSettings.getControl("UpdaterServiceSetting")->getSignal()->connect(boost::bind(&toggle_updater_service_active, _2));
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
 	gSavedSettings.getControl("RenderTransparentWater")->getSignal()->connect(boost::bind(&handleRenderTransparentWaterChanged, _2));
 }

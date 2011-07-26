@@ -295,23 +295,44 @@ void create_console()
 	// redirect unbuffered STDOUT to the console
 	l_std_handle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
 	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
-	fp = _fdopen( h_con_handle, "w" );
-	*stdout = *fp;
-	setvbuf( stdout, NULL, _IONBF, 0 );
+	if (h_con_handle == -1)
+	{
+		llwarns << "create_console() failed to open stdout handle" << llendl;
+	}
+	else
+	{
+		fp = _fdopen( h_con_handle, "w" );
+		*stdout = *fp;
+		setvbuf( stdout, NULL, _IONBF, 0 );
+	}
 
 	// redirect unbuffered STDIN to the console
 	l_std_handle = (long)GetStdHandle(STD_INPUT_HANDLE);
 	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
-	fp = _fdopen( h_con_handle, "r" );
-	*stdin = *fp;
-	setvbuf( stdin, NULL, _IONBF, 0 );
+	if (h_con_handle == -1)
+	{
+		llwarns << "create_console() failed to open stdin handle" << llendl;
+	}
+	else
+	{
+		fp = _fdopen( h_con_handle, "r" );
+		*stdin = *fp;
+		setvbuf( stdin, NULL, _IONBF, 0 );
+	}
 
 	// redirect unbuffered STDERR to the console
 	l_std_handle = (long)GetStdHandle(STD_ERROR_HANDLE);
 	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
-	fp = _fdopen( h_con_handle, "w" );
-	*stderr = *fp;
-	setvbuf( stderr, NULL, _IONBF, 0 );
+	if (h_con_handle == -1)
+	{
+		llwarns << "create_console() failed to open stderr handle" << llendl;
+	}
+	else
+	{
+		fp = _fdopen( h_con_handle, "w" );
+		*stderr = *fp;
+		setvbuf( stderr, NULL, _IONBF, 0 );
+	}
 }
 
 LLAppViewerWin32::LLAppViewerWin32(const char* cmd_line) :
@@ -497,11 +518,7 @@ void LLAppViewerWin32::handleCrashReporting(bool reportFreeze)
 	}
 	else
 	{
-		S32 cb = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
-		if(cb != CRASH_BEHAVIOR_NEVER_SEND)
-		{
-			_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str, NULL);
-		}
+		_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str, NULL);
 	}
 }
 

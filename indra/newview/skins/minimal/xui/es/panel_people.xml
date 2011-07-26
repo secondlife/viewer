@@ -53,6 +53,9 @@
 				<button label="MI" name="im_btn" tool_tip="Abrir una sesión de mensajes instantáneos"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
+				<button label="Llamar" name="call_btn" tool_tip="Llamar a este Residente"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
 				<button label="Teleporte" name="teleport_btn" tool_tip="Ofrecer teleporte"/>
 			</layout_panel>
 		</layout_stack>

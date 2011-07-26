@@ -5,7 +5,7 @@
  * $/LicenseInfo$
  */
 
-#version 120
+
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 void calcAtmospherics(vec3 inPositionEye);
@@ -23,6 +23,7 @@ varying vec3 vary_fragcoord;
 varying vec3 vary_position;
 varying vec3 vary_light;
 varying vec3 vary_pointlight_col;
+varying float vary_texture_index;
 
 uniform float near_clip;
 uniform float shadow_offset;
@@ -36,19 +37,24 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 	//get distance
 	float d = length(lv);
 	
-	//normalize light vector
-	lv *= 1.0/d;
+	float da = 0.0;
+
+	if (d > 0.0 && la > 0.0 && fa > 0.0)
+	{
+		//normalize light vector
+		lv *= 1.0/d;
 	
-	//distance attenuation
-	float dist2 = d*d/(la*la);
-	float da = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
+		//distance attenuation
+		float dist2 = d*d/(la*la);
+		da = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
 
-	// spotlight coefficient.
-	float spot = max(dot(-ln, lv), is_pointlight);
-	da *= spot*spot; // GL_SPOT_EXPONENT=2
+		// spotlight coefficient.
+		float spot = max(dot(-ln, lv), is_pointlight);
+		da *= spot*spot; // GL_SPOT_EXPONENT=2
 
-	//angular attenuation
-	da *= calcDirectionalLight(n, lv);
+		//angular attenuation
+		da *= calcDirectionalLight(n, lv);
+	}
 
 	return da;	
 }
@@ -56,11 +62,13 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 void main()
 {
 	//transform vertex
-	gl_Position = ftransform(); 
+	vec4 vert = vec4(gl_Vertex.xyz, 1.0);
+	vary_texture_index = gl_Vertex.w;
+	gl_Position = gl_ModelViewProjectionMatrix * vert; 
 	
 	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 	
-	vec4 pos = (gl_ModelViewMatrix * gl_Vertex);
+	vec4 pos = (gl_ModelViewMatrix * vert);
 	vec3 norm = normalize(gl_NormalMatrix * gl_Normal);
 	
 	float dp_directional_light = max(0.0, dot(norm, gl_LightSource[0].position.xyz));
@@ -97,7 +105,7 @@ void main()
 
 	gl_FogFragCoord = pos.z;
 	
-	pos = gl_ModelViewProjectionMatrix * gl_Vertex;
+	pos = gl_ModelViewProjectionMatrix * vert;
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 	
 }

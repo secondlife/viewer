@@ -127,6 +127,15 @@ void on_new_single_inventory_upload_complete(
 			group_perms,
 			next_owner_perms);
 
+		U32 inventory_item_flags = 0;
+		if (server_response.has("inventory_flags"))
+		{
+			inventory_item_flags = (U32) server_response["inventory_flags"].asInteger();
+			if (inventory_item_flags != 0)
+			{
+				llinfos << "inventory_item_flags " << inventory_item_flags << llendl;
+			}
+		}
 		S32 creation_date_now = time_corrected();
 		LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem(
 			server_response["new_inventory_item"].asUUID(),
@@ -138,7 +147,7 @@ void on_new_single_inventory_upload_complete(
 			item_name,
 			item_description,
 			LLSaleInfo::DEFAULT,
-			LLInventoryItemFlags::II_FLAGS_NONE,
+			inventory_item_flags,
 			creation_date_now);
 
 		gInventory.updateItem(item);
@@ -384,18 +393,18 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		// Continuing the horrible hack above, we need to extract the originally requested permissions data, if any,
 		// and use them for each next file to be uploaded. Note the requested perms are not the same as the
 		U32 everyone_perms =
-			content.has("everyone_mask") ?
-			content["everyone_mask"].asInteger() :
+			content.has("new_everyone_mask") ?
+			content["new_everyone_mask"].asInteger() :
 			PERM_NONE;
 
 		U32 group_perms =
-			content.has("group_mask") ?
-			content["group_mask"].asInteger() :
+			content.has("new_group_mask") ?
+			content["new_group_mask"].asInteger() :
 			PERM_NONE;
 
 		U32 next_owner_perms =
-			content.has("next_owner_mask") ?
-			content["next_owner_mask"].asInteger() :
+			content.has("new_next_owner_mask") ?
+			content["new_next_owner_mask"].asInteger() :
 			PERM_NONE;
 
 		std::string display_name = LLStringUtil::null;
@@ -449,7 +458,7 @@ void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
 	std::string result = content["state"];
 	LLUUID new_id = content["new_asset"];
 
-	llinfos << "result: " << result << "new_id:" << new_id << llendl;
+	llinfos << "result: " << result << " new_id: " << new_id << llendl;
 	if (result == "complete"
 		&& mBakedUploadData != NULL)
 	{	// Invoke 

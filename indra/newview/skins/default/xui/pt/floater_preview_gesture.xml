@@ -37,25 +37,24 @@
 	<text name="key_label">
 		Atalho:
 	</text>
-	<combo_box label="Nenhum" left="116" name="modifier_combo" width="76"/>
-	<combo_box label="Nenhum" left_delta="80" name="key_combo" width="76"/>
+	<combo_box label="Nenhum" name="modifier_combo" width="68"/>
+	<combo_box label="Nenhum" name="key_combo" width="48"/>
 	<text name="library_label">
 		Biblioteca:
 	</text>
-	<scroll_list name="library_list" width="84">
+	<scroll_list name="library_list">
 		<scroll_list.rows name="action_animation" value="Animação"/>
 		<scroll_list.rows name="action_sound" value="Som"/>
 		<scroll_list.rows name="action_chat" value="Bate-papo"/>
 		<scroll_list.rows name="action_wait" value="Espere"/>
 	</scroll_list>
-	<button label="Incluir" left="118" name="add_btn" width="87"/>
+	<button label="Incluir" name="add_btn"/>
 	<text name="steps_label">
 		Passos:
-	</text>
-	<scroll_list left="226" name="step_list" width="205"/>
-	<button label="P/ cima" left_delta="-13" name="up_btn" width="114"/>
-	<button label="P/ baixo" name="down_btn" width="114"/>
-	<button label="Remover" left_delta="13" name="delete_btn" width="84"/>
+	</text>	
+	<button label="P/ cima" name="up_btn" />
+	<button label="P/ baixo" name="down_btn"/>
+	<button label="Remover" name="delete_btn"/>
 	<text name="options_text">
 		(opções)
 	</text>
@@ -63,9 +62,9 @@
 		<radio_item label="Iniciar" name="start"/>
 		<radio_item label="Parar" name="stop"/>
 	</radio_group>
-	<check_box bottom_delta="34" label="até que as animações estejam  concluídas" name="wait_anim_check"/>
-	<check_box bottom_delta="-30" label="segundos:" name="wait_time_check"/>
-	<line_editor left_delta="130" name="wait_time_editor"/>
+	<check_box label="até que as animações estejam  concluídas" name="wait_anim_check"/>
+	<check_box label="segundos:" name="wait_time_check"/>
+	<line_editor name="wait_time_editor"/>
 	<text name="help_label">
 		Se não incluir uma pausa, todas as etapas ocorrem ao mesmo tempo.
 	</text>

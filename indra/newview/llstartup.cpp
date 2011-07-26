@@ -76,6 +76,7 @@
 #include "lluserrelations.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
+#include "llviewerhelp.h"
 #include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
 #include "llwindow.h"
@@ -163,7 +164,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
-#include "llvoclouds.h"
 #include "llweb.h"
 #include "llworld.h"
 #include "llworldmapmessage.h"
@@ -995,6 +995,7 @@ bool idle_startup()
 
 	if(STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState()) 
 	{
+		// Generic failure message
 		std::ostringstream emsg;
 		emsg << LLTrans::getString("LoginFailed") << "\n";
 		if(LLLoginInstance::getInstance()->authFailure())
@@ -1003,24 +1004,32 @@ bool idle_startup()
 			                      << LLLoginInstance::getInstance()->getResponse() << LL_ENDL;
 			LLSD response = LLLoginInstance::getInstance()->getResponse();
 			// Still have error conditions that may need some 
-			// sort of handling.
+			// sort of handling - dig up specific message
 			std::string reason_response = response["reason"];
 			std::string message_response = response["message"];
-	
-			if(!message_response.empty())
+			std::string message_id = response["message_id"];
+			std::string message; // actual string to show the user
+
+			if(!message_id.empty() && LLTrans::findString(message, message_id, response["message_args"]))
 			{
-				// XUI: fix translation for strings returned during login
-				// We need a generic table for translations
-				std::string big_reason = LLAgent::sTeleportErrorMessages[ message_response ];
-				if ( big_reason.size() == 0 )
-				{
-					emsg << message_response;
-				}
-				else
-				{
-					emsg << big_reason;
-				}
+				// message will be filled in with the template and arguments
 			}
+			else if(!message_response.empty())
+			{
+				// *HACK: "no_inventory_host" sent as the message itself.
+				// Remove this clause when server is sending message_id as well.
+				message = LLAgent::sTeleportErrorMessages[ message_response ];
+			}
+
+			if (message.empty())
+			{
+				// Fallback to server-supplied string; necessary since server
+				// may add strings that this viewer is not yet aware of
+				message = message_response;
+			}
+
+			emsg << message;
+
 
 			if(reason_response == "key")
 			{
@@ -1162,8 +1171,6 @@ bool idle_startup()
 
 		// init the shader managers
 		LLPostProcess::initClass();
-		LLWLParamManager::initClass();
-		LLWaterParamManager::initClass();
 
 		LLViewerObject::initVOClasses();
 
@@ -1235,6 +1242,25 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if(STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 	{
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(gFirstSimHandle);
+		if (regionp->capabilitiesReceived())
+		{
+			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
+		}
+		else
+		{
+			U32 num_retries = regionp->getNumSeedCapRetries();
+			if (num_retries > 0)
+			{
+				LLStringUtil::format_map_t args;
+				args["[NUMBER]"] = llformat("%d", num_retries + 1);
+				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args), gAgent.mMOTD);
+			}
+			else
+			{
+				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"), gAgent.mMOTD);
+			}
+		}
 		return FALSE;
 	}
 
@@ -1683,9 +1709,20 @@ bool idle_startup()
 				gViewerThrottle.setMaxBandwidth(FAST_RATE_BPS / 1024.f);
 			}
 
+			if (gSavedSettings.getBOOL("ShowHelpOnFirstLogin"))
+			{
+				gSavedSettings.setBOOL("HelpFloaterOpen", TRUE);
+			}
+
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
+		}
+
+		if (gSavedSettings.getBOOL("HelpFloaterOpen"))
+		{
+			// show default topic
+			LLViewerHelp::instance().showTopic("");
 		}
 
 		// We're successfully logged in.
@@ -1944,7 +1981,8 @@ bool idle_startup()
 		gViewerWindow->getWindow()->resetBusyCount();
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 		LL_DEBUGS("AppInit") << "Done releasing bitmap" << LL_ENDL;
-		gViewerWindow->setShowProgress(FALSE);
+		gViewerWindow->revealIntroPanel();
+		//gViewerWindow->setShowProgress(FALSE);  // reveal intro video now handles this
 		gViewerWindow->setProgressCancelButtonVisible(FALSE);
 
 		// We're not away from keyboard, even though login might have taken
@@ -1961,7 +1999,6 @@ bool idle_startup()
 		// Start automatic replay if the flag is set.
 		if (gSavedSettings.getBOOL("StatsAutoRun") || gAgentPilot.getReplaySession())
 		{
-			LLUUID id;
 			LL_DEBUGS("AppInit") << "Starting automatic playback" << LL_ENDL;
 			gAgentPilot.startPlayback();
 		}
@@ -3142,11 +3179,6 @@ bool process_login_success_response()
 			gMoonTextureID = id;
 		}
 
-		id = global_textures["cloud_texture_id"];
-		if(id.notNull())
-		{
-			gCloudTextureID = id;
-		}
 	}
 
 	// Set the location of the snapshot sharing config endpoint

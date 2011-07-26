@@ -94,7 +94,9 @@ void LLDrawable::init()
 	mRenderType = 0;
 	mCurrentScale = LLVector3(1,1,1);
 	mDistanceWRTCamera = 0.0f;
-
+	mPositionGroup.clear();
+	mExtents[0].clear();
+	mExtents[1].clear();
 	mQuietCount = 0;
 
 	mState     = 0;
@@ -385,7 +387,6 @@ void LLDrawable::makeActive()
 			pcode == LLViewerObject::LL_VO_SURFACE_PATCH ||
 			pcode == LLViewerObject::LL_VO_PART_GROUP ||
 			pcode == LLViewerObject::LL_VO_HUD_PART_GROUP ||
-			pcode == LLViewerObject::LL_VO_CLOUDS ||
 			pcode == LLViewerObject::LL_VO_GROUND ||
 			pcode == LLViewerObject::LL_VO_SKY)
 		{
@@ -587,7 +588,10 @@ void LLDrawable::setRadius(F32 radius)
 
 void LLDrawable::moveUpdatePipeline(BOOL moved)
 {
-	makeActive();
+	if (moved)
+	{
+		makeActive();
+	}
 	
 	// Update the face centers.
 	for (S32 i = 0; i < getNumFaces(); i++)
@@ -695,7 +699,8 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 {
 	if (LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
-		llerrs << "WTF?" << llendl;
+		llwarns << "Attempted to update distance for non-world camera." << llendl;
+		return;
 	}
 
 	//switch LOD with the spatial group to avoid artifacts
@@ -1510,10 +1515,6 @@ BOOL LLDrawable::isAnimating() const
 		return TRUE;
 	}
 	if (mVObjp->getPCode() == LLViewerObject::LL_VO_HUD_PART_GROUP)
-	{
-		return TRUE;
-	}
-	if (mVObjp->getPCode() == LLViewerObject::LL_VO_CLOUDS)
 	{
 		return TRUE;
 	}

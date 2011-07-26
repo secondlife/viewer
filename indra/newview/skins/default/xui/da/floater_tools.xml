@@ -64,6 +64,8 @@
 		<radio_item label="Vælg overflade" name="radio select face"/>
 	</radio_group>
 	<check_box label="Redigér lænkede" name="checkbox edit linked parts"/>
+	<button label="Sammenkæd" name="link_btn"/>
+	<button label="Adskil" name="unlink_btn"/>
 	<text name="RenderingCost" tool_tip="Hvis beregnede rendering omkostninger for dette objekt">
 		þ: [COUNT]
 	</text>
@@ -119,6 +121,18 @@
 	</text>
 	<text name="prim_count">
 		Prims: [COUNT]
+	</text>
+	<text name="linked_set_count">
+		Lænkede sæt: [COUNT]
+	</text>
+	<text name="linked_set_cost" tool_tip="Pris for nuværende valgte lænkede sæt som [prims] / [physics complexity]">
+		Pris: [COST] / [PHYSICS]
+	</text>
+	<text name="object_count">
+		Objekter: [COUNT]
+	</text>
+	<text name="object_cost" tool_tip="Pris for nuværende valgte objekter som [prims] / [physics complexity]">
+		Pris: [COST] / [PHYSICS]
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Generelt" name="General">
@@ -264,15 +278,6 @@
 				<combo_box.item label="Ring" name="Ring"/>
 				<combo_box.item label="Sculpted" name="Sculpted"/>
 			</combo_box>
-			<combo_box name="material">
-				<combo_box.item label="Sten" name="Stone"/>
-				<combo_box.item label="Metal" name="Metal"/>
-				<combo_box.item label="Glas" name="Glass"/>
-				<combo_box.item label="Træ" name="Wood"/>
-				<combo_box.item label="Kød" name="Flesh"/>
-				<combo_box.item label="Plastik" name="Plastic"/>
-				<combo_box.item label="Gummi" name="Rubber"/>
-			</combo_box>
 			<text name="text cut">
 				Snit Z-akse (start/slut)
 			</text>
@@ -345,9 +350,19 @@
 				<combo_box.item label="Kuglering" name="Torus"/>
 				<combo_box.item label="Plan" name="Plane"/>
 				<combo_box.item label="Cylinder" name="Cylinder"/>
+				<combo_box.item label="Mesh" name="Mesh"/>
 			</combo_box>
 		</panel>
 		<panel label="Features" name="Features">
+			<panel.string name="None">
+				Ingen
+			</panel.string>
+			<panel.string name="Prim">
+				Prim
+			</panel.string>
+			<panel.string name="Convex Hull">
+				Konveks skrog
+			</panel.string>
 			<text name="select_single">
 				Vælg kun én prim for at ændre egenskaber.
 			</text>
@@ -372,6 +387,23 @@
 			<spinner label="Fokus" name="Light Focus"/>
 			<spinner label="Udfasning" name="Light Falloff"/>
 			<spinner label="Omgivelser" name="Light Ambiance"/>
+			<text name="label physicsshapetype">
+				Fysisk form type:
+			</text>
+			<combo_box name="Physics Shape Type Combo Ctrl" tool_tip="Vælg fysisk form type"/>
+			<combo_box name="material">
+				<combo_box.item label="Sten" name="Stone"/>
+				<combo_box.item label="Metal" name="Metal"/>
+				<combo_box.item label="Glas" name="Glass"/>
+				<combo_box.item label="Træ" name="Wood"/>
+				<combo_box.item label="Kød" name="Flesh"/>
+				<combo_box.item label="Plastik" name="Plastic"/>
+				<combo_box.item label="Gummi" name="Rubber"/>
+			</combo_box>
+			<spinner label="Tyngde" name="Physics Gravity"/>
+			<spinner label="Friktion" name="Physics Friction"/>
+			<spinner label="Tæthed" name="Physics Density"/>
+			<spinner label="Restitution" name="Physics Restitution"/>
 		</panel>
 		<panel label="Tekstur" name="Texture">
 			<panel.string name="string repeats per meter">

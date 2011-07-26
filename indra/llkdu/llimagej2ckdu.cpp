@@ -73,7 +73,7 @@ void set_default_colour_weights(kdu_params *siz);
 
 const char* engineInfoLLImageJ2CKDU()
 {
-	std::string version = llformat("KDU %s", KDU_CORE_VERSION);
+	static std::string version = llformat("KDU %s", KDU_CORE_VERSION);
 	return version.c_str();
 }
 

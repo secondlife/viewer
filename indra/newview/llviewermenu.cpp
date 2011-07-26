@@ -45,6 +45,7 @@
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
+#include "llenvmanager.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloaterbuy.h"
@@ -60,6 +61,7 @@
 #include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
+#include "llfloaterbuildoptions.h"
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
@@ -106,6 +108,8 @@
 #include "llappearancemgr.h"
 #include "lltrans.h"
 #include "lleconomy.h"
+#include "lltoolgrab.h"
+#include "llwindow.h"
 #include "boost/unordered_map.hpp"
 
 using namespace LLVOAvatarDefines;
@@ -1000,9 +1004,9 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_AGENT_TARGET;
 	}
-	else if ("rendercomplexity" == info_display)
+	else if ("sculpt" == info_display)
 	{
-		return LLPipeline::RENDER_DEBUG_RENDER_COMPLEXITY;
+		return LLPipeline::RENDER_DEBUG_SCULPTED;
 	}
 	else
 	{
@@ -2420,49 +2424,22 @@ class LLObjectEnableReportAbuse : public view_listener_t
 	}
 };
 
+
 void handle_object_touch()
 {
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		if (!object) return;
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	if (!object) return;
 
-		LLPickInfo pick = LLToolPie::getInstance()->getPick();
+	LLPickInfo pick = LLToolPie::getInstance()->getPick();
 
-		LLMessageSystem	*msg = gMessageSystem;
-
-		msg->newMessageFast(_PREHASH_ObjectGrab);
-		msg->nextBlockFast( _PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast( _PREHASH_ObjectData);
-		msg->addU32Fast(    _PREHASH_LocalID, object->mLocalID);
-		msg->addVector3Fast(_PREHASH_GrabOffset, LLVector3::zero );
-		msg->nextBlock("SurfaceInfo");
-		msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
-		msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
-		msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
-		msg->addVector3("Position", pick.mIntersection);
-		msg->addVector3("Normal", pick.mNormal);
-		msg->addVector3("Binormal", pick.mBinormal);
-		msg->sendMessage( object->getRegion()->getHost());
-
-		// *NOTE: Hope the packets arrive safely and in order or else
-		// there will be some problems.
-		// *TODO: Just fix this bad assumption.
-		msg->newMessageFast(_PREHASH_ObjectDeGrab);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast(_PREHASH_ObjectData);
-		msg->addU32Fast(_PREHASH_LocalID, object->mLocalID);
-		msg->nextBlock("SurfaceInfo");
-		msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
-		msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
-		msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
-		msg->addVector3("Position", pick.mIntersection);
-		msg->addVector3("Normal", pick.mNormal);
-		msg->addVector3("Binormal", pick.mBinormal);
-		msg->sendMessage(object->getRegion()->getHost());
+	// *NOTE: Hope the packets arrive safely and in order or else
+	// there will be some problems.
+	// *TODO: Just fix this bad assumption.
+	send_ObjectGrab_message(object, pick, LLVector3::zero);
+	send_ObjectDeGrab_message(object, pick);
 }
+
+
 
 static void init_default_item_label(const std::string& item_name)
 {
@@ -7185,9 +7162,11 @@ class LLToolsUseSelectionForGrid : public view_listener_t
 		} func;
 		LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 		LLSelectMgr::getInstance()->setGridMode(GRID_MODE_REF_OBJECT);
-		if (gFloaterTools)
+
+		LLFloaterBuildOptions* build_options_floater = LLFloaterReg::getTypedInstance<LLFloaterBuildOptions>("build_options");
+		if (build_options_floater && build_options_floater->getVisible())
 		{
-			gFloaterTools->mComboGridMode->setCurrentByIndex((S32)GRID_MODE_REF_OBJECT);
+			build_options_floater->setGridMode(GRID_MODE_REF_OBJECT);
 		}
 		return true;
 	}
@@ -7608,74 +7587,85 @@ class LLWorldEnvSettings : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string tod = userdata.asString();
-		LLVector3 sun_direction;
 		
 		if (tod == "editor")
 		{
-			// if not there or is hidden, show it
 			LLFloaterReg::toggleInstance("env_settings");
 			return true;
 		}
-		
+
 		if (tod == "sunrise")
 		{
-			// set the value, turn off animation
-			LLWLParamManager::instance()->mAnimator.setDayTime(0.25);
-			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
-
-			// then call update once
-			LLWLParamManager::instance()->mAnimator.update(
-				LLWLParamManager::instance()->mCurParams);
+			LLEnvManagerNew::instance().setUseSkyPreset("Sunrise");
 		}
 		else if (tod == "noon")
 		{
-			// set the value, turn off animation
-			LLWLParamManager::instance()->mAnimator.setDayTime(0.567);
-			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
-
-			// then call update once
-			LLWLParamManager::instance()->mAnimator.update(
-				LLWLParamManager::instance()->mCurParams);
+			LLEnvManagerNew::instance().setUseSkyPreset("Midday");
 		}
 		else if (tod == "sunset")
 		{
-			// set the value, turn off animation
-			LLWLParamManager::instance()->mAnimator.setDayTime(0.75);
-			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
-
-			// then call update once
-			LLWLParamManager::instance()->mAnimator.update(
-				LLWLParamManager::instance()->mCurParams);
+			LLEnvManagerNew::instance().setUseSkyPreset("Sunset");
 		}
 		else if (tod == "midnight")
 		{
-			// set the value, turn off animation
-			LLWLParamManager::instance()->mAnimator.setDayTime(0.0);
-			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
-
-			// then call update once
-			LLWLParamManager::instance()->mAnimator.update(
-				LLWLParamManager::instance()->mCurParams);
+			LLEnvManagerNew::instance().setUseSkyPreset("Midnight");
 		}
 		else
 		{
-			LLWLParamManager::instance()->mAnimator.mIsRunning = true;
-			LLWLParamManager::instance()->mAnimator.mUseLindenTime = true;	
+			LLEnvManagerNew::instance().setUseDayCycle(LLEnvManagerNew::instance().getDayCycleName());
 		}
+
 		return true;
 	}
 };
 
-/// Water Menu callbacks
-class LLWorldWaterSettings : public view_listener_t
-{	
+class LLWorldEnvPreset : public view_listener_t
+{
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::toggleInstance("env_water");
+		std::string item = userdata.asString();
+
+		if (item == "new_water")
+		{
+			LLFloaterReg::showInstance("env_edit_water", "new");
+		}
+		else if (item == "edit_water")
+		{
+			LLFloaterReg::showInstance("env_edit_water", "edit");
+		}
+		else if (item == "delete_water")
+		{
+			LLFloaterReg::showInstance("env_delete_preset", "water");
+		}
+		else if (item == "new_sky")
+		{
+			LLFloaterReg::showInstance("env_edit_sky", "new");
+		}
+		else if (item == "edit_sky")
+		{
+			LLFloaterReg::showInstance("env_edit_sky", "edit");
+		}
+		else if (item == "delete_sky")
+		{
+			LLFloaterReg::showInstance("env_delete_preset", "sky");
+		}
+		else if (item == "new_day_cycle")
+		{
+			LLFloaterReg::showInstance("env_edit_day_cycle", "new");
+		}
+		else if (item == "edit_day_cycle")
+		{
+			LLFloaterReg::showInstance("env_edit_day_cycle", "edit");
+		}
+		else if (item == "delete_day_cycle")
+		{
+			LLFloaterReg::showInstance("env_delete_preset", "day_cycle");
+		}
+		else
+		{
+			llwarns << "Unknown item selected" << llendl;
+		}
+
 		return true;
 	}
 };
@@ -7686,16 +7676,6 @@ class LLWorldPostProcess : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterReg::showInstance("env_post_process");
-		return true;
-	}
-};
-
-/// Day Cycle callbacks
-class LLWorldDayCycle : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterReg::showInstance("env_day_cycle");
 		return true;
 	}
 };
@@ -7928,9 +7908,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldCheckAlwaysRun(), "World.CheckAlwaysRun");
 	
 	view_listener_t::addMenu(new LLWorldEnvSettings(), "World.EnvSettings");
-	view_listener_t::addMenu(new LLWorldWaterSettings(), "World.WaterSettings");
+	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
-	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
 
 	view_listener_t::addMenu(new LLWorldToggleMovementControls(), "World.Toggle.MovementControls");
 	view_listener_t::addMenu(new LLWorldToggleCameraControls(), "World.Toggle.CameraControls");

@@ -55,7 +55,7 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
 	// Check if path exists.
 	if (!fs::exists(dir_path))
 	{
-		llerrs << "Invalid path: \"" << dir_path.string() << "\"" << llendl;
+		llwarns << "Invalid path: \"" << dir_path.string() << "\"" << llendl;
 		return;
 	}
 
@@ -100,7 +100,7 @@ bool LLDirIterator::Impl::next(std::string &fname)
 
 	if (!mIsValid)
 	{
-		llerrs << "The iterator is not correctly initialized." << llendl;
+		llwarns << "The iterator is not correctly initialized." << llendl;
 		return false;
 	}
 
@@ -121,6 +121,14 @@ bool LLDirIterator::Impl::next(std::string &fname)
 	return found;
 }
 
+/**
+Converts the incoming glob into a regex. This involves
+converting incoming glob expressions to regex equivilents and
+at the same time, escaping any regex meaningful characters which
+do not have glob meaning, i.e.
+            .()+|^$ 
+in the input.
+*/
 std::string glob_to_regex(const std::string& glob)
 {
 	std::string regex;
@@ -135,9 +143,6 @@ std::string glob_to_regex(const std::string& glob)
 
 		switch (c)
 		{
-			case '.':
-				regex+="\\.";
-				break;
 			case '*':
 				if (glob.begin() == i)
 				{
@@ -170,8 +175,16 @@ std::string glob_to_regex(const std::string& glob)
 			case '!':
 				regex+= square_brace_open ? '^' : c;
 				break;
+			case '.': // This collection have different regex meaning
+			case '^': // and so need escaping.
+			case '(': 
+			case ')':
+			case '+':
+			case '|':
+			case '$':
+				regex += '\\'; 
 			default:
-				regex+=c;
+				regex += c;
 				break;
 		}
 

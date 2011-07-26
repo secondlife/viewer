@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_web_content" title="">
+	<layout_stack name="stack1">
+		<layout_panel name="nav_controls">
+			<button name="back" tool_tip="前へ"/>
+			<button name="forward" tool_tip="次へ"/>
+			<button name="stop" tool_tip="ナビゲーションを停止"/>
+			<button name="reload" tool_tip="ページを更新"/>
+			<combo_box name="address" tool_tip="ここに URL を入力"/>
+			<icon name="media_secure_lock_flag" tool_tip="安全な閲覧"/>
+			<button name="popexternal" tool_tip="この URL をブラウザで開く"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

@@ -958,8 +958,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			iter != idle_list.end(); iter++)
 		{
 			objectp = *iter;
-			if (objectp->getPCode() == LLViewerObject::LL_VO_CLOUDS ||
-				objectp->isAvatar())
+			if (objectp->isAvatar())
 			{
 				objectp->idleUpdate(agent, world, frame_time);
 			}
@@ -1076,10 +1075,12 @@ void LLViewerObjectList::fetchObjectCosts()
 				LLSD id_list;
 				U32 object_index = 0;
 
+				U32 count = 0;
+
 				for (
 					std::set<LLUUID>::iterator iter = mStaleObjectCost.begin();
 					iter != mStaleObjectCost.end();
-					++iter)
+					)
 				{
 					// Check to see if a request for this object
 					// has already been made.
@@ -1089,13 +1090,15 @@ void LLViewerObjectList::fetchObjectCosts()
 						mPendingObjectCost.insert(*iter);
 						id_list[object_index++] = *iter;
 					}
+
+					mStaleObjectCost.erase(iter++);
+
+					if (count++ >= 450)
+					{
+						break;
+					}
 				}
-
-				// id_list should now contain all
-				// requests in mStaleObjectCost before, so clear
-				// it now
-				mStaleObjectCost.clear();
-
+									
 				if ( id_list.size() > 0 )
 				{
 					LLSD post_data = LLSD::emptyMap();
@@ -1399,6 +1402,10 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 {
+	if (!object->isRoot())
+	{ //always fetch cost for the parent when fetching cost for children
+		mStaleObjectCost.insert(((LLViewerObject*)object->getParent())->getID());
+	}
 	mStaleObjectCost.insert(object->getID());
 }
 
@@ -1420,6 +1427,15 @@ void LLViewerObjectList::onObjectCostFetchFailure(const LLUUID& object_id)
 {
 	//llwarns << "Failed to fetch object cost for object: " << object_id << llendl;
 	mPendingObjectCost.erase(object_id);
+}
+
+void LLViewerObjectList::updateQuota( const LLUUID& objectId, const SelectionQuota& quota  )
+{
+	LLViewerObject* pVO = findObject( objectId );
+	if ( pVO )
+	{
+		pVO->updateQuota( quota );
+	}
 }
 
 void LLViewerObjectList::updatePhysicsFlags(const LLViewerObject* object)
@@ -1490,6 +1506,24 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 
 	gPipeline.shiftObjects(offset);
 	LLWorld::getInstance()->shiftRegions(offset);
+}
+
+void LLViewerObjectList::repartitionObjects()
+{
+	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+	{
+		LLViewerObject* objectp = *iter;
+		if (!objectp->isDead())
+		{
+			LLDrawable* drawable = objectp->mDrawable;
+			if (drawable && !drawable->isDead())
+			{
+				drawable->updateBinRadius();
+				drawable->updateSpatialExtents();
+				drawable->movePartition();
+			}
+		}
+	}
 }
 
 //debug code

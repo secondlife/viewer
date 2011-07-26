@@ -134,6 +134,7 @@
      top="190"
      width="80" />
 	<check_box
+     visible="FALSE"
      height="20"
      label="Allow Mesh Objects"
      layout="topleft"

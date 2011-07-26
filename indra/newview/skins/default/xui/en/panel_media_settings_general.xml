@@ -196,7 +196,7 @@
    initial_val="256" 
    label="" 
    label_width="0"
-   left_delta="40" 
+   left_delta="68" 
    max_val="2048" 
    min_val="0" 
    mouse_opaque="true"

@@ -4,6 +4,8 @@
 		<menu_item_call label="Immagine ([COST]L$)..." name="Upload Image"/>
 		<menu_item_call label="Suono ([COST]L$)..." name="Upload Sound"/>
 		<menu_item_call label="Animazione ([COST]L$)..." name="Upload Animation"/>
+		<menu_item_call label="Modella..." name="Upload Model"/>
+		<menu_item_call label="Procedura guidata modellazione..." name="Upload Model Wizard"/>
 		<menu_item_call label="In blocco ([COST]L$ per file)..." name="Bulk Upload"/>
 		<menu_item_call label="Definisci diritti di caricamento predefiniti" name="perm prefs"/>
 	</menu>
@@ -23,6 +25,7 @@
 		<menu_item_call label="Nuovi slip" name="New Underpants"/>
 		<menu_item_call label="Nuovo Alfa (trasparenza)" name="New Alpha"/>
 		<menu_item_call label="Nuovo tatuaggio" name="New Tattoo"/>
+		<menu_item_call label="Nuova fisica" name="New Physics"/>
 	</menu>
 	<menu label="Nuove parti del corpo" name="New Body Parts">
 		<menu_item_call label="Nuova figura corporea" name="New Shape"/>

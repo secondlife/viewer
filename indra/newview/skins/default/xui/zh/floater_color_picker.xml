@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ColorPicker" title="顏色挑選器">
+	<text name="r_val_text">
+		紅色：
+	</text>
+	<text name="g_val_text">
+		綠色：
+	</text>
+	<text name="b_val_text">
+		藍色：
+	</text>
+	<text name="h_val_text">
+		Hue:
+	</text>
+	<text name="s_val_text">
+		Sat:
+	</text>
+	<text name="l_val_text">
+		Lum:
+	</text>
+	<check_box label="立即套用" name="apply_immediate"/>
+	<button label="確定" label_selected="確定" name="select_btn"/>
+	<button label="取消" label_selected="取消" name="cancel_btn"/>
+	<text name="Current color:">
+		目前顏色：
+	</text>
+	<text name="(Drag below to save.)">
+		(Drag below to save)
+	</text>
+</floater>

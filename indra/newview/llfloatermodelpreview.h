@@ -50,6 +50,7 @@ class domProfile_COMMON;
 class domInstance_geometry;
 class domNode;
 class domTranslate;
+class domController;
 class LLMenuButton;
 class LLToggleableMenu;
 
@@ -107,8 +108,8 @@ public:
 	void loadModelCallback();
 
 	void loadTextures() ; //called in the main thread.
-	void processElement(daeElement* element);
-	std::vector<LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
+	void processElement(daeElement* element, bool& badElement);
+	std::map<std::string, LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
 	LLImportMaterial profileToMaterial(domProfile_COMMON* material);
 	std::string getElementLabel(daeElement *element);
 	LLColor4 getDaeColor(daeElement* element);
@@ -124,19 +125,22 @@ public:
 
 	void buildJointToNodeMappingFromScene( daeElement* pRoot );
 	void processJointToNodeMapping( domNode* pNode );
-
+	void processChildJoints( domNode* pParentNode );
 
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	std::map<std::string, std::string> mJointMap;
 	JointTransformMap& mJointList;	
 	std::deque<std::string>& mJointsFromNode;
 
+	S32 mNumOfFetchingTextures ; //updated in the main thread
+	bool areTexturesReady() { return !mNumOfFetchingTextures; } //called in the main thread.
+
 private:
 	static std::list<LLModelLoader*> sActiveLoaderList;
 	static bool isAlive(LLModelLoader* loader) ;
 };
 
-class LLFloaterModelPreview : public LLFloater
+class LLFloaterModelPreview : public LLFloaterModelUploadBase
 {
 public:
 	
@@ -158,11 +162,15 @@ public:
 	
 	virtual BOOL postBuild();
 	
+	void initModelPreview();
+
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
 	
+	/*virtual*/ void onOpen(const LLSD& key);
+
 	static void onMouseCaptureLostModelPreview(LLMouseHandler*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 
@@ -174,13 +182,10 @@ public:
 
 	static void onUpload(void* data);
 	
-	static void onClearMaterials(void* data);
-	
 	static void refresh(LLUICtrl* ctrl, void* data);
 	
-	void updateResourceCost();
-	
 	void			loadModel(S32 lod);
+	void 			loadModel(S32 lod, const std::string& file_name, bool force_disable_slm = false);
 	
 	void onViewOptionChecked(const LLSD& userdata);
 	bool isViewOptionChecked(const LLSD& userdata);
@@ -188,6 +193,20 @@ public:
 	void setViewOptionEnabled(const std::string& option, bool enabled);
 	void enableViewOption(const std::string& option);
 	void disableViewOption(const std::string& option);
+
+	// shows warning message if agent has no permissions to upload model
+	/*virtual*/ void onPermissionsReceived(const LLSD& result);
+
+	// called when error occurs during permissions request
+	/*virtual*/ void setPermissonsErrorStatus(U32 status, const std::string& reason);
+
+	/*virtual*/ void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url);
+				void handleModelPhysicsFeeReceived();
+	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
+
+	/*virtual*/ void onModelUploadSuccess();
+
+	/*virtual*/ void onModelUploadFailure();
 
 protected:
 	friend class LLModelPreview;
@@ -199,6 +218,8 @@ protected:
 	static void		onUploadJointsCommit(LLUICtrl*,void*);
 	static void		onUploadSkinCommit(LLUICtrl*,void*);
 	
+	static void		onPhysicsLoadRadioCommit(LLUICtrl*,void *data);
+
 	static void		onPreviewLODCommit(LLUICtrl*,void*);
 	
 	static void		onGenerateNormalsCommit(LLUICtrl*,void*);
@@ -252,6 +273,17 @@ protected:
 	LLToggleableMenu* mViewOptionMenu;
 	LLMutex* mStatusLock;
 
+	LLSD mModelPhysicsFee;
+
+private:
+	void onClickCalculateBtn();
+	void toggleCalculateButton();
+
+	// Toggles between "Calculate weights & fee" and "Upload" buttons.
+	void toggleCalculateButton(bool visible);
+
+	LLButton* mUploadBtn;
+	LLButton* mCalculateBtn;
 };
 
 class LLMeshFilePicker : public LLFilePickerThread
@@ -270,6 +302,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 {	
 	typedef boost::signals2::signal<void (F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)> details_signal_t;
 	typedef boost::signals2::signal<void (void)> model_loaded_signal_t;
+	typedef boost::signals2::signal<void (bool)> model_updated_signal_t;
 
 public:
 	LLModelPreview(S32 width, S32 height, LLFloater* fmp);
@@ -291,11 +324,10 @@ public:
 	virtual BOOL needsRender() { return mNeedsUpdate; }
 	void setPreviewLOD(S32 lod);
 	void clearModel(S32 lod);
-	void loadModel(std::string filename, S32 lod);
+	void loadModel(std::string filename, S32 lod, bool force_disable_slm = false);
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
 	void generateNormals();
-	void clearMaterials();
 	U32 calcResourceCost();
 	void rebuildUploadData();
 	void saveUploadData(bool save_skinweights, bool save_joint_poisitions);
@@ -309,9 +341,6 @@ public:
 	void setHasPivot( bool val ) { mHasPivot = val; }
 	void setModelPivot( const LLVector3& pivot ) { mModelPivot = pivot; }
 
-	//Sets the current avatars joints to new positions
-	//Makes in world go to shit, however
-	void changeAvatarsJointPositions( LLModel* pModel );
 	//Determines the viability of an asset to be used as an avatar rig (w or w/o joint upload caps)
 	void critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset );
 	void critiqueJointToNodeMappingFromScene( void  );
@@ -325,21 +354,29 @@ public:
 	//Accessors for the legacy rigs
 	const bool isLegacyRigValid( void ) const { return mLegacyRigValid; }
 	void setLegacyRigValid( bool rigValid ) { mLegacyRigValid = rigValid; }	
+	//Verify that a controller matches vertex counts
+	bool verifyController( domController* pController );
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 	
 	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }
 	boost::signals2::connection setModelLoadedCallback( const model_loaded_signal_t::slot_type& cb ){  return mModelLoadedSignal.connect(cb);  }
+	boost::signals2::connection setModelUpdatedCallback( const model_updated_signal_t::slot_type& cb ){  return mModelUpdatedSignal.connect(cb);  }
 	
 	void setLoadState( U32 state ) { mLoadState = state; }
 	U32 getLoadState() { return mLoadState; }
-	//setRestJointFlag: If an asset comes through that changes the joints, we want the reset to persist
-	void setResetJointFlag( bool state ) { if ( !mResetJoints ) mResetJoints = state; }
-	const bool getResetJointFlag( void ) const { return mResetJoints; }
 	void setRigWithSceneParity( bool state ) { mRigParityWithScene = state; }
 	const bool getRigWithSceneParity( void ) const { return mRigParityWithScene; }
 	
 	LLVector3 getTranslationForJointOffset( std::string joint );
+
+private:
+	//Utility function for controller vertex compare
+	bool verifyCount( int expected, int result );
+	//Creates the dummy avatar for the preview window
+	void		createPreviewAvatar( void );
+	//Accessor for the dummy avatar
+	LLVOAvatar* getPreviewAvatar( void ) { return mPreviewAvatar; }
 
  protected:
 	friend class LLModelLoader;
@@ -407,6 +444,7 @@ public:
 
 	details_signal_t mDetailsSignal;
 	model_loaded_signal_t mModelLoadedSignal;
+	model_updated_signal_t mModelUpdatedSignal;
 	
 	LLVector3	mModelPivot;
 	bool		mHasPivot;
@@ -422,6 +460,7 @@ public:
 	std::deque<std::string> mMasterLegacyJointList;
 	std::deque<std::string> mJointsFromNode;
 	JointTransformMap		mJointTransformMap;
+	LLPointer<LLVOAvatar>	mPreviewAvatar;
 };
 
 #endif  // LL_LLFLOATERMODELPREVIEW_H

@@ -29,7 +29,7 @@
 			<layout_panel name="layout_panel1">
 				<button label="ピックを保存" name="save_changes_btn"/>
 			</layout_panel>
-			<layout_panel name="layout_panel1">
+			<layout_panel name="layout_panel2">
 				<button label="取り消し" name="cancel_btn"/>
 			</layout_panel>
 		</layout_stack>

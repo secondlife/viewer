@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Wizard" title="ASSISTENT ZUM HOCHLADEN VON MODELLEN">
+	<button label="5. Hochladen" name="upload_btn"/>
+	<button label="4. Überprüfen" name="review_btn"/>
+	<button label="3. Physik" name="physics2_btn"/>
+	<button label="3. Physik" name="physics_btn"/>
+	<button label="2. Optimieren" name="optimize_btn"/>
+	<button label="1. Datei auswählen" name="choose_file_btn"/>
+	<panel name="choose_file_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Modell hochladen
+			</text>
+		</panel>
+		<text name="description">
+			Mit diesem Assistenten können Sie Netzmodelle in Second Life hochladen.  Geben Sie zuerst die Datei mit dem zu importierenden Modell an.  Second Life unterstützt COLLADA-Dateien (.dae).
+		</text>
+		<panel name="content">
+			<text name="Cache location">
+				Dateiname:
+			</text>
+			<button label="Durchsuchen..." label_selected="Durchsuchen..." name="browse"/>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="optimize_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Optimieren
+			</text>
+		</panel>
+		<text name="description">
+			Dieser Assistent hat Ihr Modell optimiert, um die Leistung zu erhöhen. Sie können die Optimierungsergebnisse unten ändern oder zum Fortfahren auf „Weiter“ klicken.
+		</text>
+		<panel name="content">
+			<text name="high_detail_text">
+				Detailstufe generieren: Hoch
+			</text>
+			<text name="medium_detail_text">
+				Detailstufe generieren: Mittel
+			</text>
+			<text name="low_detail_text">
+				Detailstufe generieren: Niedrig
+			</text>
+			<text name="lowest_detail_text">
+				Detailstufe generieren: Niedrigste
+			</text>
+		</panel>
+		<panel name="content2">
+			<text name="lod_label">
+				Modellvorschau:
+			</text>
+			<combo_box name="preview_lod_combo2" tool_tip="Detailstufe zur Anzeige in Vorschaudarstellung">
+				<combo_item name="high">
+					Hoch
+				</combo_item>
+				<combo_item name="medium">
+					Mittel
+				</combo_item>
+				<combo_item name="low">
+					Niedrig
+				</combo_item>
+				<combo_item name="lowest">
+					Niedrigste
+				</combo_item>
+			</combo_box>
+			<text name="streaming cost">
+				Ressourcenkosten:    [COST]
+			</text>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Physik
+			</text>
+		</panel>
+		<text name="description">
+			Der Assistent erstellt eine physische Form, die die Interaktionen des Objekts mit anderen Objekten und Avataren bestimmt. Setzen Sie den Schieber auf die Detailstufe, die für Ihr Objekt am besten geeignet ist:
+		</text>
+		<panel name="content">
+			<text name="streaming cost">
+				Ressourcenkosten:       [COST]
+			</text>
+		</panel>
+	</panel>
+	<panel name="physics2_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Physik
+			</text>
+		</panel>
+		<text name="description">
+			Überprüfen Sie die physische Form unten und klicken Sie dann auf „Weiter“.  Um die physische Form zu ändern, klicken Sie auf „Zurück“.
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				Modellvorschau:
+			</text>
+			<combo_box name="preview_lod_combo3" tool_tip="Detailstufe zur Anzeige in Vorschaudarstellung">
+				<combo_item name="high">
+					Hoch
+				</combo_item>
+				<combo_item name="medium">
+					Mittel
+				</combo_item>
+				<combo_item name="low">
+					Niedrig
+				</combo_item>
+				<combo_item name="lowest">
+					Niedrigste
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+			<text name="streaming cost">
+				Ressourcenkosten:       [COST]
+			</text>
+		</panel>
+	</panel>
+	<panel name="review_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Überprüfen
+			</text>
+		</panel>
+		<text name="description">
+			Überprüfen Sie die Details unten und klicken Sie dann auf „Hochladen“, um das Modell hochzuladen. Die Kosten werden von Ihrem L$-Kontostand abgezogen.
+		</text>
+		<panel name="content">
+			<text name="lod_label">
+				Modellvorschau:
+			</text>
+			<combo_box name="preview_lod_combo" tool_tip="Detailstufe zur Anzeige in Vorschaudarstellung">
+				<combo_item name="high">
+					Hoch
+				</combo_item>
+				<combo_item name="medium">
+					Mittel
+				</combo_item>
+				<combo_item name="low">
+					Niedrig
+				</combo_item>
+				<combo_item name="lowest">
+					Niedrigste
+				</combo_item>
+			</combo_box>
+			<text name="dimensions">
+				X:         Y:         Z:
+			</text>
+			<text name="dimension_dividers">
+				|               |
+			</text>
+		</panel>
+		<text name="streaming cost">
+			Ressourcenkosten:         [COST]
+		</text>
+		<text name="physics cost">
+			Physikkosten:        [COST]
+		</text>
+	</panel>
+	<panel name="upload_panel">
+		<panel name="header_panel">
+			<text name="header_text">
+				Upload abgeschlossen
+			</text>
+		</panel>
+		<text name="description">
+			Herzlichen Glückwunsch! Ihr Modell wurde erfolgreich hochgeladen.  Sie finden das Modell im Objektordner Ihres Inventars.
+		</text>
+	</panel>
+	<button label="&lt;&lt; Zurück" name="back"/>
+	<button label="Weiter &gt;&gt;" name="next"/>
+	<button label="Hochladen" name="upload" tool_tip="An Simulator hochladen"/>
+	<button label="Abbrechen" name="cancel"/>
+	<button label="Schließen" name="close"/>
+	<spinner name="import_scale" value="1,0"/>
+	<string name="status_idle">
+		Inaktiv
+	</string>
+	<string name="status_reading_file">
+		Laden...
+	</string>
+	<string name="status_generating_meshes">
+		Netze werden generiert...
+	</string>
+	<string name="status_vertex_number_overflow">
+		Fehler: Anzahl von Vertices überschreitet 65534. Operation abgebrochen.
+	</string>
+	<string name="high">
+		Hoch
+	</string>
+	<string name="medium">
+		Mittel
+	</string>
+	<string name="low">
+		Niedrig
+	</string>
+	<string name="lowest">
+		Niedrigste
+	</string>
+	<string name="mesh_status_good">
+		Ausliefern
+	</string>
+	<string name="mesh_status_na">
+		--
+	</string>
+	<string name="mesh_status_none">
+		Keine
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		Detailstufen haben unterschiedliche Anzahl texturfähiger Flächen.
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		Detailstufen haben unterschiedliche Anzahl von Netzinstanzen.
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		Detailstufe hat zu viele Vertices.
+	</string>
+	<string name="mesh_status_missing_lod">
+		Erforderliche Detailstufe fehlt.
+	</string>
+	<string name="layer_all">
+		Alle
+	</string>
+</floater>

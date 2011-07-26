@@ -3698,6 +3698,19 @@ Join me in [REGION]
 
   <notification
    icon="alertmodal.tga"
+   name="TooManyTeleportOffers"
+   type="alertmodal">
+You attempted to make [OFFERS] teleport offers
+which exceeds the limit of [LIMIT].
+    <tag>group</tag>
+    <tag>fail</tag>
+  <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OfferTeleportFromGod"
    type="alertmodal">
 God summon Resident to your location?
@@ -4763,6 +4776,18 @@ Are you sure you want to delete your travel, web, and search history?
      notext="Cancel"
      yestext="OK"/>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmClearCache"
+   type="alertmodal">
+Are you sure you want to clear your viewer cache?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -4829,18 +4854,6 @@ Do you wish to overwrite the saved preset?
 
   <notification
    icon="alertmodal.tga"
-   name="WLDeletePresetAlert"
-   type="alertmodal">
-Do you wish to delete [SKY]?
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="No"
-     yestext="Yes"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="WLNoEditDefault"
    type="alertmodal">
 You cannot edit or delete a default preset.
@@ -4857,6 +4870,46 @@ This day cycle file references a missing sky file: [SKY].
 
   <notification
    icon="alertmodal.tga"
+   name="WLRegionApplyFail"
+   type="alertmodal">
+Sorry, the settings couldn't be applied to the region.  Leaving the region and then returning may help rectify the problem.  The reason given was: [FAIL_REASON]
+  </notification>
+
+  <notification
+   functor="GenericAcknowledge"
+   icon="alertmodal.tga"
+   name="EnvCannotDeleteLastDayCycleKey"
+   type="alertmodal">
+Unable to delete the last key in this day cycle because you cannot have an empty day cycle.  You should modify the last remaining key instead of attempting to delete it and then to create a new one.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   functor="GenericAcknowledge"
+   icon="alertmodal.tga"
+   name="DayCycleTooManyKeyframes"
+   type="alertmodal">
+You cannot add any more keyframes to this day cycle.  The maximum number of keyframes for day cycles of [SCOPE] scope is [MAX].
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   functor="GenericAcknowledge"
+   icon="alertmodal.tga"
+   name="EnvUpdateRate"
+   type="alertmodal">
+    You may only update region environmental settings every [WAIT] seconds.  Wait at least that long and then try again.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="PPSaveEffectAlert"
    type="alertmodal">
 PostProcess Effect exists. Do you still wish overwrite it?
@@ -4864,74 +4917,6 @@ PostProcess Effect exists. Do you still wish overwrite it?
      name="okcancelbuttons"
      notext="No"
      yestext="Yes"/>
-  </notification>
-
-  <notification
-   icon="alert.tga"
-   name="NewSkyPreset"
-   type="alert">
-Give me a name for the new sky.
-    <tag>confirm</tag>
-    <form name="form">
-      <input name="message" type="text">
-New Preset
-      </input>
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-      <button
-       index="1"
-       name="Cancel"
-       text="Cancel"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="ExistsSkyPresetAlert"
-   type="alertmodal">
-Preset already exists!
-  <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alert.tga"
-   name="NewWaterPreset"
-   type="alert">
-Give me a name for the new water preset.
-    <tag>confirm</tag>
-    <form name="form">
-      <input name="message" type="text">
-New Preset
-      </input>
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-      <button
-       index="1"
-       name="Cancel"
-       text="Cancel"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="ExistsWaterPresetAlert"
-   type="alertmodal">
-Preset already exists!
-  <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="WaterNoEditDefault"
-   type="alertmodal">
-You cannot edit or delete a default preset.
-  <tag>fail</tag>
   </notification>
 
   <notification
@@ -5223,6 +5208,20 @@ You don&apos;t have permission to view this notecard.
    type="notifytip">
 Insufficient permissions to rez object.
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="IMAcrossParentEstates"
+   type="notifytip">
+Unable to send IM across parent estates.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="TransferInventoryAcrossParentEstates"
+   type="notifytip">
+Unable to transfer inventory across parent estates.
   </notification>
 
   <notification
@@ -5625,6 +5624,15 @@ This area has voice chat disabled. You won&apos;t be able to hear anyone talking
    type="notify"
    unique="true">
 This area has building disabled. You can&apos;t build or rez objects here.
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="SeeAvatars"
+   persist="true"
+   type="notify"
+   unique="true">
+This parcel hides avatars and text chat from another parcel.   You can&apos;t see other residents outside the parcel, and those outside are not able to see you.  Regular text chat on channel 0 is also blocked.
   </notification>
 
   <notification
@@ -6797,7 +6805,23 @@ Select residents to share with.
     name="MeshUploadError"
     icon="alert.tga"
     type="alert">
-    [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+    [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] 
+
+See the log file for details.
+  </notification>
+   
+   <notification
+    name="MeshUploadPermError"
+    icon="alert.tga"
+    type="alert">
+    Error while requesting mesh upload permissons.
+  </notification>
+  
+  <notification
+    name="RegionCapabilityRequestError"
+    icon="alert.tga"
+    type="alert">
+    Could not get region capability &apos;[CAPABILITY]&apos;.
   </notification>
    
   <notification
@@ -7316,8 +7340,6 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    yestext="Quit"
    notext="Don't Quit"/>
   </notification>
-
-  </global>
 
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
