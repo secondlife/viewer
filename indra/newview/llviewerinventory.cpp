@@ -418,6 +418,9 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 BOOL LLViewerInventoryItem::unpackMessage(LLSD item)
 {
 	BOOL rv = LLInventoryItem::fromLLSD(item);
+
+	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
+
 	mIsComplete = TRUE;
 	return rv;
 }
