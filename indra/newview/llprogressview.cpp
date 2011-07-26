@@ -50,6 +50,7 @@
 #include "llappviewer.h"
 #include "llweb.h"
 #include "lluictrlfactory.h"
+#include "llpanellogin.h"
 
 LLProgressView* LLProgressView::sInstance = NULL;
 
@@ -66,7 +67,9 @@ LLProgressView::LLProgressView()
 	mMediaCtrl( NULL ),
 	mMouseDownInActiveArea( false ),
 	mUpdateEvents("LLProgressView"),
-	mFadeToWorldTimer()
+	mFadeToWorldTimer(),
+	mFadeFromLoginTimer(),
+	mStartupComplete(false)
 {
 	mUpdateEvents.listen("self", boost::bind(&LLProgressView::handleUpdate, this, _1));
 }
@@ -79,10 +82,13 @@ BOOL LLProgressView::postBuild()
 	mMediaCtrl = getChild<LLMediaCtrl>("login_media_panel");
 	mMediaCtrl->setVisible( false );		// hidden initially
 	mMediaCtrl->addObserver( this );		// watch events
+	
+	LLViewerMedia::setOnlyAudibleMediaTextureID(mMediaCtrl->getTextureID());
 
 	mCancelBtn = getChild<LLButton>("cancel_btn");
 	mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked, NULL );
 	mFadeToWorldTimer.stop();
+	mFadeFromLoginTimer.stop();
 
 	getChild<LLTextBox>("title_text")->setText(LLStringExplicit(LLAppViewer::instance()->getSecondLifeTitle()));
 
@@ -130,18 +136,34 @@ void LLProgressView::revealIntroPanel()
 	// if user hasn't yet seen intro video
 	std::string intro_url = gSavedSettings.getString("PostFirstLoginIntroURL");
 	if ( intro_url.length() > 0 && 
+			gSavedSettings.getBOOL("BrowserJavascriptEnabled") &&
 			gSavedSettings.getBOOL("PostFirstLoginIntroViewed" ) == FALSE )
 	{
+		// hide the progress bar
+		getChild<LLView>("stack1")->setVisible(false);
+		
 		// navigate to intro URL and reveal widget 
 		mMediaCtrl->navigateTo( intro_url );	
 		mMediaCtrl->setVisible( TRUE );
 
+
 		// flag as having seen the new user post login intro
 		gSavedSettings.setBOOL("PostFirstLoginIntroViewed", TRUE );
+
+		mMediaCtrl->setFocus(TRUE);
 	}
-	else
+
+	mFadeFromLoginTimer.start();
+}
+
+void LLProgressView::setStartupComplete()
+{
+	mStartupComplete = true;
+
+	// if we are not showing a video, fade into world
+	if (!mMediaCtrl->getVisible())
 	{
-		// start the timer that will control the fade through to the world view 
+		mFadeFromLoginTimer.stop();
 		mFadeToWorldTimer.start();
 	}
 }
@@ -162,17 +184,15 @@ void LLProgressView::setVisible(BOOL visible)
 	} 
 }
 
-void LLProgressView::draw()
-{
-	static LLTimer timer;
 
-	// Paint bitmap if we've got one
+void LLProgressView::drawStartTexture(F32 alpha)
+{
 	glPushMatrix();	
 	if (gStartTexture)
 	{
 		LLGLSUIDefault gls_ui;
 		gGL.getTexUnit(0)->bind(gStartTexture.get());
-		gGL.color4f(1.f, 1.f, 1.f, 1.f);
+		gGL.color4f(1.f, 1.f, 1.f, alpha);
 		F32 image_aspect = (F32)gStartImageWidth / (F32)gStartImageHeight;
 		S32 width = getRect().getWidth();
 		S32 height = getRect().getHeight();
@@ -198,6 +218,33 @@ void LLProgressView::draw()
 		gl_rect_2d(getRect());
 	}
 	glPopMatrix();
+}
+
+
+void LLProgressView::draw()
+{
+	static LLTimer timer;
+
+	if (mFadeFromLoginTimer.getStarted())
+	{
+		F32 alpha = clamp_rescale(mFadeFromLoginTimer.getElapsedTimeF32(), 0.f, FADE_TO_WORLD_TIME, 0.f, 1.f);
+		LLViewDrawContext context(alpha);
+
+		if (!mMediaCtrl->getVisible())
+		{
+			drawStartTexture(alpha);
+		}
+		
+		LLPanel::draw();
+
+		if (mFadeFromLoginTimer.getElapsedTimeF32() > FADE_TO_WORLD_TIME )
+		{
+			mFadeFromLoginTimer.stop();
+			LLPanelLogin::closePanel();
+		}
+
+		return;
+	}
 
 	// handle fade out to world view when we're asked to
 	if (mFadeToWorldTimer.getStarted())
@@ -205,12 +252,16 @@ void LLProgressView::draw()
 		// draw fading panel
 		F32 alpha = clamp_rescale(mFadeToWorldTimer.getElapsedTimeF32(), 0.f, FADE_TO_WORLD_TIME, 1.f, 0.f);
 		LLViewDrawContext context(alpha);
+				
+		drawStartTexture(alpha);
 		LLPanel::draw();
 
 		// faded out completely - remove panel and reveal world
 		if (mFadeToWorldTimer.getElapsedTimeF32() > FADE_TO_WORLD_TIME )
 		{
 			mFadeToWorldTimer.stop();
+
+			LLViewerMedia::setOnlyAudibleMediaTextureID(LLUUID::null);
 
 			// Fade is complete, release focus
 			gFocusMgr.releaseFocusIfNeeded( this );
@@ -235,6 +286,7 @@ void LLProgressView::draw()
 		return;
 	}
 
+	drawStartTexture(1.0f);
 	// draw children
 	LLPanel::draw();
 }
@@ -349,9 +401,26 @@ bool LLProgressView::onAlertModal(const LLSD& notify)
 
 void LLProgressView::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 {
+	// the intro web content calls javascript::window.close() when it's done
 	if( event == MEDIA_EVENT_CLOSE_REQUEST )
 	{
-		// the intro web content calls javascript::window.close() when it's done
-		mFadeToWorldTimer.start();
+		if (mStartupComplete)
+		{
+			//make sure other timer has stopped
+			mFadeFromLoginTimer.stop();
+			mFadeToWorldTimer.start();
+		}
+		else
+		{
+			// hide the media ctrl and wait for startup to be completed before fading to world
+			mMediaCtrl->setVisible(false);
+			if (mMediaCtrl->getMediaPlugin())
+			{
+				mMediaCtrl->getMediaPlugin()->stop();
+			}
+
+			// show the progress bar
+			getChild<LLView>("stack1")->setVisible(true);
+		}
 	}
 }

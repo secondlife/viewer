@@ -166,6 +166,8 @@ public:
 		// Incoming media event dispatcher
 		virtual void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
+		LLUUID getTextureID() {return mMediaTextureID;}
+
 	protected:
 		void convertInputCoords(S32& x, S32& y);
 

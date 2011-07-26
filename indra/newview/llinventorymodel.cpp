@@ -2168,6 +2168,9 @@ void LLInventoryModel::registerCallbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_RemoveInventoryFolder,
 						processRemoveInventoryFolder,
 						NULL);
+	msg->setHandlerFuncFast(_PREHASH_RemoveInventoryObjects,
+							processRemoveInventoryObjects,
+							NULL);	
 	//msg->setHandlerFuncFast(_PREHASH_ExchangeCallingCard,
 	//						processExchangeCallingcard,
 	//						NULL);
@@ -2284,17 +2287,9 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
 }
 
 // 	static
-void LLInventoryModel::processRemoveInventoryItem(LLMessageSystem* msg, void**)
+void LLInventoryModel::removeInventoryItem(LLUUID agent_id, LLMessageSystem* msg)
 {
-	lldebugs << "LLInventoryModel::processRemoveInventoryItem()" << llendl;
-	LLUUID agent_id, item_id;
-	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
-	if(agent_id != gAgent.getID())
-	{
-		llwarns << "Got a RemoveInventoryItem for the wrong agent."
-				<< llendl;
-		return;
-	}
+	LLUUID item_id;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
 	uuid_vec_t item_ids;
 	update_map_t update;
@@ -2316,6 +2311,21 @@ void LLInventoryModel::processRemoveInventoryItem(LLMessageSystem* msg, void**)
 	{
 		gInventory.deleteObject(*it);
 	}
+}
+
+// 	static
+void LLInventoryModel::processRemoveInventoryItem(LLMessageSystem* msg, void**)
+{
+	lldebugs << "LLInventoryModel::processRemoveInventoryItem()" << llendl;
+	LLUUID agent_id, item_id;
+	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
+	if(agent_id != gAgent.getID())
+	{
+		llwarns << "Got a RemoveInventoryItem for the wrong agent."
+				<< llendl;
+		return;
+	}
+	LLInventoryModel::removeInventoryItem(agent_id, msg);
 	gInventory.notifyObservers();
 }
 
@@ -2380,18 +2390,10 @@ void LLInventoryModel::processUpdateInventoryFolder(LLMessageSystem* msg,
 }
 
 // 	static
-void LLInventoryModel::processRemoveInventoryFolder(LLMessageSystem* msg,
-													void**)
+void LLInventoryModel::removeInventoryFolder(LLUUID agent_id,
+											 LLMessageSystem* msg)
 {
-	lldebugs << "LLInventoryModel::processRemoveInventoryFolder()" << llendl;
-	LLUUID agent_id, folder_id;
-	msg->getUUIDFast(_PREHASH_FolderData, _PREHASH_AgentID, agent_id);
-	if(agent_id != gAgent.getID())
-	{
-		llwarns << "Got a RemoveInventoryFolder for the wrong agent."
-				<< llendl;
-		return;
-	}
+	LLUUID folder_id;
 	uuid_vec_t folder_ids;
 	update_map_t update;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_FolderData);
@@ -2410,6 +2412,42 @@ void LLInventoryModel::processRemoveInventoryFolder(LLMessageSystem* msg,
 	{
 		gInventory.deleteObject(*it);
 	}
+}
+
+// 	static
+void LLInventoryModel::processRemoveInventoryFolder(LLMessageSystem* msg,
+													void**)
+{
+	lldebugs << "LLInventoryModel::processRemoveInventoryFolder()" << llendl;
+	LLUUID agent_id, session_id;
+	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
+	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_SessionID, session_id);
+	if(agent_id != gAgent.getID())
+	{
+		llwarns << "Got a RemoveInventoryFolder for the wrong agent."
+		<< llendl;
+		return;
+	}
+	LLInventoryModel::removeInventoryFolder( agent_id, msg );
+	gInventory.notifyObservers();
+}
+
+// 	static
+void LLInventoryModel::processRemoveInventoryObjects(LLMessageSystem* msg,
+													void**)
+{
+	lldebugs << "LLInventoryModel::processRemoveInventoryObjects()" << llendl;
+	LLUUID agent_id, session_id;
+	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
+	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_SessionID, session_id);
+	if(agent_id != gAgent.getID())
+	{
+		llwarns << "Got a RemoveInventoryObjects for the wrong agent."
+		<< llendl;
+		return;
+	}
+	LLInventoryModel::removeInventoryFolder( agent_id, msg );
+	LLInventoryModel::removeInventoryItem( agent_id, msg );
 	gInventory.notifyObservers();
 }
 
