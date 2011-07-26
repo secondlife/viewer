@@ -37,6 +37,7 @@
 #include "llgl.h"
 #include "lltimer.h"
 
+#include "llcalc.h"
 //#include "llclipboard.h"
 #include "llcontrol.h"
 #include "llbutton.h"
@@ -133,6 +134,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mIgnoreTab( p.ignore_tab ),
 	mDrawAsterixes( p.is_password ),
 	mSelectAllonFocusReceived( p.select_on_focus ),
+	mSelectAllonCommit( TRUE ),
 	mPassDelete(FALSE),
 	mReadOnly(FALSE),
 	mBgImage( p.background_image ),
@@ -230,7 +232,10 @@ void LLLineEditor::onCommit()
 
 	setControlValue(getValue());
 	LLUICtrl::onCommit();
-	selectAll();
+
+	// Selection on commit needs to be turned off when evaluating maths
+	// expressions, to allow indication of the error position
+	if (mSelectAllonCommit) selectAll();
 }
 
 // Returns TRUE if user changed value at all
@@ -2068,6 +2073,32 @@ BOOL LLLineEditor::postvalidateFloat(const std::string &str)
 
 	// Gotta have at least one
 	success = has_digit;
+
+	return success;
+}
+
+BOOL LLLineEditor::evaluateFloat()
+{
+	bool success;
+	F32 result = 0.f;
+	std::string expr = getText();
+	LLStringUtil::toUpper(expr);
+
+	success = LLCalc::getInstance()->evalString(expr, result);
+
+	if (!success)
+	{
+		// Move the cursor to near the error on failure
+		setCursor(LLCalc::getInstance()->getLastErrorPos());
+		// *TODO: Translated error message indicating the type of error? Select error text?
+	}
+	else
+	{
+		// Replace the expression with the result
+		std::string result_str = llformat("%f",result);
+		setText(result_str);
+		selectAll();
+	}
 
 	return success;
 }

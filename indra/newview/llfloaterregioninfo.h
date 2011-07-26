@@ -34,6 +34,8 @@
 #include "llhost.h"
 #include "llpanel.h"
 
+#include "llenvmanager.h" // for LLEnvironmentSettings
+
 class LLAvatarName;
 class LLDispatcher;
 class LLLineEditor;
@@ -302,23 +304,9 @@ public:
 	virtual BOOL postBuild();
 	virtual void updateChild(LLUICtrl* child_ctrl);
 	virtual void refresh();
-	
-	U32 computeEstateFlags();
-	void setEstateFlags(U32 flags);
-	
-	BOOL getGlobalTime();
-	void setGlobalTime(bool b);
 
-	BOOL getFixedSun();				// *TODO: deprecated
-
-	F32 getSunHour();				// *TODO: deprecated
-	void setSunHour(F32 sun_hour);	// *TODO: deprecated
+	void refreshFromEstate();
 	
-	const std::string getEstateName() const;
-	void setEstateName(const std::string& name);
-
-	U32 getEstateID() const { return mEstateID; }
-	void setEstateID(U32 estate_id) { mEstateID = estate_id; }
 	static bool isLindenEstate();
 	
 	const std::string getOwnerName() const;
@@ -332,8 +320,6 @@ protected:
 	// confirmation dialog callback
 	bool callbackChangeLindenEstate(const LLSD& notification, const LLSD& response);
 
-	void commitEstateInfoDataserver();
-	bool commitEstateInfoCaps();
 	void commitEstateAccess();
 	void commitEstateManagers();
 	
@@ -431,7 +417,8 @@ private:
 	void setApplyProgress(bool started);
 	void setDirty(bool dirty);
 
-	void sendRegionSunUpdate(F32 sun_angle);
+	void sendRegionSunUpdate();
+	void fixEstateSun();
 
 	void populateWaterPresetsList();
 	void populateSkyPresetsList();
@@ -453,6 +440,9 @@ private:
 
 	void onRegionSettingschange();
 	void onRegionSettingsApplied(bool ok);
+
+	/// New environment settings that are being applied to the region.
+	LLEnvironmentSettings	mNewRegionSettings;
 
 	bool			mEnableEditing;
 

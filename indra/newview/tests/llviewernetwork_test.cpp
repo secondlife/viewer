@@ -164,7 +164,7 @@ namespace tut
 					  std::string("https://secondlife.com/helpers/"));
 		ensure_equals("Agni login page is correct",
 					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
-					  std::string("http://secondlife.com/app/login/"));
+					  std::string("http://viewer-login.agni.lindenlab.com/"));
 		ensure("Agni is a favorite",
 			   grid.has(GRID_IS_FAVORITE_VALUE));
 		ensure("Agni is a system grid", 
@@ -208,7 +208,7 @@ namespace tut
 					  std::string("https://secondlife.com/helpers/"));
 		ensure_equals("Agni login page the same after grid file", 
 					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
-					  std::string("http://secondlife.com/app/login/"));
+					  std::string("http://viewer-login.agni.lindenlab.com/"));
 		ensure("Agni still a favorite after grid file", 
 			   grid.has(GRID_IS_FAVORITE_VALUE));
 		ensure("Agni system grid still set after grid file", 
@@ -310,7 +310,7 @@ namespace tut
 					  std::string("http://aditi-secondlife.webdev.lindenlab.com/helpers/"));
 		ensure_equals("Override known grid login uri: login page is not set",
 					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
-					  std::string("http://secondlife.com/app/login/"));		
+					  std::string("http://viewer-login.agni.lindenlab.com/"));		
 		
 		// Override with loginuri
 		// override custom grid
@@ -359,7 +359,7 @@ namespace tut
 					  std::string("https://my.helper.uri/mycustomhelpers"));
 		ensure_equals("Override known grid helper uri: login page is not changed",
 					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
-					  std::string("http://secondlife.com/app/login/"));		
+					  std::string("http://viewer-login.agni.lindenlab.com/"));		
 		
 		// Override with helperuri
 		// override custom grid
@@ -451,9 +451,9 @@ namespace tut
 		ensure_equals("getHelperURI", LLGridManager::getInstance()->getHelperURI(), 
 					  std::string("https://secondlife.com/helpers/"));
 		ensure_equals("getLoginPage", LLGridManager::getInstance()->getLoginPage(), 
-					  std::string("http://secondlife.com/app/login/"));
+					  std::string("http://viewer-login.agni.lindenlab.com/"));
 		ensure_equals("getLoginPage2", LLGridManager::getInstance()->getLoginPage("util.agni.lindenlab.com"), 
-					  std::string("http://secondlife.com/app/login/"));
+					  std::string("http://viewer-login.agni.lindenlab.com/"));
 		ensure("Is Agni a production grid", LLGridManager::getInstance()->isInProductionGrid());		
 		std::vector<std::string> uris;
 		LLGridManager::getInstance()->getLoginURIs(uris);

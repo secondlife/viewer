@@ -449,7 +449,7 @@ void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
 	std::string result = content["state"];
 	LLUUID new_id = content["new_asset"];
 
-	llinfos << "result: " << result << "new_id:" << new_id << llendl;
+	llinfos << "result: " << result << " new_id: " << new_id << llendl;
 	if (result == "complete"
 		&& mBakedUploadData != NULL)
 	{	// Invoke 

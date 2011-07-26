@@ -1578,6 +1578,25 @@ LLViewerWindow::LLViewerWindow(
 		ignore_pixel_depth,
 		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
 
+	if (NULL == mWindow)
+	{
+		LLSplashScreen::update(LLTrans::getString("StartupRequireDriverUpdate"));
+	
+		LL_WARNS("Window") << "Failed to create window, to be shutting Down, be sure your graphics driver is updated." << llendl ;
+
+		ms_sleep(5000) ; //wait for 5 seconds.
+
+		LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
+#if LL_LINUX || LL_SOLARIS
+		llwarns << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt or README-solaris.txt for further information."
+				<< llendl;
+#else
+		LL_WARNS("Window") << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
+				<< LL_ENDL;
+#endif
+        LLAppViewer::instance()->fastQuit(1);
+	}
+	
 	if (!LLAppViewer::instance()->restoreErrorTrap())
 	{
 		LL_WARNS("Window") << " Someone took over my signal/exception handler (post createWindow)!" << LL_ENDL;
@@ -1593,19 +1612,6 @@ LLViewerWindow::LLViewerWindow(
 		gSavedSettings.setS32("FullScreenHeight",scr.mY);
     }
 
-	if (NULL == mWindow)
-	{
-		LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
-#if LL_LINUX || LL_SOLARIS
-		llwarns << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt or README-solaris.txt for further information."
-				<< llendl;
-#else
-		LL_WARNS("Window") << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
-				<< LL_ENDL;
-#endif
-        LLAppViewer::instance()->fastQuit(1);
-	}
-	
 	// Get the real window rect the window was created with (since there are various OS-dependent reasons why
 	// the size of a window or fullscreen context may have been adjusted slightly...)
 	F32 ui_scale_factor = gSavedSettings.getF32("UIScaleFactor");

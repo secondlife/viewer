@@ -1,6 +1,6 @@
 /** 
  * @file llsys.cpp
- * @brief Impelementation of the basic system query functions.
+ * @brief Implementation of the basic system query functions.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,6 +24,10 @@
  * $/LicenseInfo$
  */
 
+#if LL_WINDOWS
+#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
+#endif
+
 #include "linden_common.h"
 
 #include "llsys.h"
@@ -36,22 +40,43 @@
 #endif
 
 #include "llprocessor.h"
+#include "llerrorcontrol.h"
+#include "llevents.h"
+#include "lltimer.h"
+#include "llsdserialize.h"
+#include "llsdutil.h"
+#include <boost/bind.hpp>
+#include <boost/circular_buffer.hpp>
+#include <boost/regex.hpp>
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/range.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_float.hpp>
+
+using namespace llsd;
 
 #if LL_WINDOWS
 #	define WIN32_LEAN_AND_MEAN
 #	include <winsock2.h>
 #	include <windows.h>
+#   include <psapi.h>               // GetPerformanceInfo() et al.
 #elif LL_DARWIN
 #	include <errno.h>
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
 #	include <stdint.h>
 #	include <Carbon/Carbon.h>
+#   include <sys/wait.h>
+#   include <string.h>
+#   include <stdexcept>
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
 #	include <unistd.h>
 #	include <sys/sysinfo.h>
+#   include <stdexcept>
 const char MEMINFO_FILE[] = "/proc/meminfo";
 #elif LL_SOLARIS
 #	include <stdio.h>
@@ -69,6 +94,15 @@ extern int errno;
 
 static const S32 CPUINFO_BUFFER_SIZE = 16383;
 LLCPUInfo gSysCPU;
+
+// Don't log memory info any more often than this. It also serves as our
+// framerate sample size.
+static const F32 MEM_INFO_THROTTLE = 20;
+// Sliding window of samples. We intentionally limit the length of time we
+// remember "the slowest" framerate because framerate is very slow at login.
+// If we only triggered FrameWatcher logging when the session framerate
+// dropped below the login framerate, we'd have very little additional data.
+static const F32 MEM_INFO_WINDOW = 10*60;
 
 #if LL_WINDOWS
 #ifndef DLLVERSIONINFO
@@ -613,8 +647,78 @@ void LLCPUInfo::stream(std::ostream& s) const
 	s << "->mCPUString:  " << mCPUString << std::endl;
 }
 
+// Helper class for LLMemoryInfo: accumulate stats in the form we store for
+// LLMemoryInfo::getStatsMap().
+class Stats
+{
+public:
+	Stats():
+		mStats(LLSD::emptyMap())
+	{}
+
+	// Store every integer type as LLSD::Integer.
+	template <class T>
+	void add(const LLSD::String& name, const T& value,
+			 typename boost::enable_if<boost::is_integral<T> >::type* = 0)
+	{
+		mStats[name] = LLSD::Integer(value);
+	}
+
+	// Store every floating-point type as LLSD::Real.
+	template <class T>
+	void add(const LLSD::String& name, const T& value,
+			 typename boost::enable_if<boost::is_float<T> >::type* = 0)
+	{
+		mStats[name] = LLSD::Real(value);
+	}
+
+	// Hope that LLSD::Date values are sufficiently unambiguous.
+	void add(const LLSD::String& name, const LLSD::Date& value)
+	{
+		mStats[name] = value;
+	}
+
+	LLSD get() const { return mStats; }
+
+private:
+	LLSD mStats;
+};
+
+// Wrap boost::regex_match() with a function that doesn't throw.
+template <typename S, typename M, typename R>
+static bool regex_match_no_exc(const S& string, M& match, const R& regex)
+{
+    try
+    {
+        return boost::regex_match(string, match, regex);
+    }
+    catch (const std::runtime_error& e)
+    {
+        LL_WARNS("LLMemoryInfo") << "error matching with '" << regex.str() << "': "
+                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
+        return false;
+    }
+}
+
+// Wrap boost::regex_search() with a function that doesn't throw.
+template <typename S, typename M, typename R>
+static bool regex_search_no_exc(const S& string, M& match, const R& regex)
+{
+    try
+    {
+        return boost::regex_search(string, match, regex);
+    }
+    catch (const std::runtime_error& e)
+    {
+        LL_WARNS("LLMemoryInfo") << "error searching with '" << regex.str() << "': "
+                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
+        return false;
+    }
+}
+
 LLMemoryInfo::LLMemoryInfo()
 {
+	refresh();
 }
 
 #if LL_WINDOWS
@@ -638,11 +742,7 @@ static U32 LLMemoryAdjustKBResult(U32 inKB)
 U32 LLMemoryInfo::getPhysicalMemoryKB() const
 {
 #if LL_WINDOWS
-	MEMORYSTATUSEX state;
-	state.dwLength = sizeof(state);
-	GlobalMemoryStatusEx(&state);
-
-	return LLMemoryAdjustKBResult((U32)(state.ullTotalPhys >> 10));
+	return LLMemoryAdjustKBResult(mStatsMap["Total Physical KB"].asInteger());
 
 #elif LL_DARWIN
 	// This might work on Linux as well.  Someone check...
@@ -690,12 +790,82 @@ U32 LLMemoryInfo::getPhysicalMemoryClamped() const
 void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb)
 {
 #if LL_WINDOWS
-	MEMORYSTATUSEX state;
-	state.dwLength = sizeof(state);
-	GlobalMemoryStatusEx(&state);
+	// Sigh, this shouldn't be a static method, then we wouldn't have to
+	// reload this data separately from refresh()
+	LLSD statsMap(loadStatsMap());
 
-	avail_physical_mem_kb = (U32)(state.ullAvailPhys/1024) ;
-	avail_virtual_mem_kb = (U32)(state.ullAvailVirtual/1024) ;
+	avail_physical_mem_kb = statsMap["Avail Physical KB"].asInteger();
+	avail_virtual_mem_kb  = statsMap["Avail Virtual KB"].asInteger();
+
+#elif LL_DARWIN
+	// mStatsMap is derived from vm_stat, look for (e.g.) "kb free":
+	// $ vm_stat
+	// Mach Virtual Memory Statistics: (page size of 4096 bytes)
+	// Pages free:                   462078.
+	// Pages active:                 142010.
+	// Pages inactive:               220007.
+	// Pages wired down:             159552.
+	// "Translation faults":      220825184.
+	// Pages copy-on-write:         2104153.
+	// Pages zero filled:         167034876.
+	// Pages reactivated:             65153.
+	// Pageins:                     2097212.
+	// Pageouts:                      41759.
+	// Object cache: 841598 hits of 7629869 lookups (11% hit rate)
+	avail_physical_mem_kb = -1 ;
+	avail_virtual_mem_kb = -1 ;
+
+#elif LL_LINUX
+	// mStatsMap is derived from MEMINFO_FILE:
+	// $ cat /proc/meminfo
+	// MemTotal:        4108424 kB
+	// MemFree:         1244064 kB
+	// Buffers:           85164 kB
+	// Cached:          1990264 kB
+	// SwapCached:            0 kB
+	// Active:          1176648 kB
+	// Inactive:        1427532 kB
+	// Active(anon):     529152 kB
+	// Inactive(anon):    15924 kB
+	// Active(file):     647496 kB
+	// Inactive(file):  1411608 kB
+	// Unevictable:          16 kB
+	// Mlocked:              16 kB
+	// HighTotal:       3266316 kB
+	// HighFree:         721308 kB
+	// LowTotal:         842108 kB
+	// LowFree:          522756 kB
+	// SwapTotal:       6384632 kB
+	// SwapFree:        6384632 kB
+	// Dirty:                28 kB
+	// Writeback:             0 kB
+	// AnonPages:        528820 kB
+	// Mapped:            89472 kB
+	// Shmem:             16324 kB
+	// Slab:             159624 kB
+	// SReclaimable:     145168 kB
+	// SUnreclaim:        14456 kB
+	// KernelStack:        2560 kB
+	// PageTables:         5560 kB
+	// NFS_Unstable:          0 kB
+	// Bounce:                0 kB
+	// WritebackTmp:          0 kB
+	// CommitLimit:     8438844 kB
+	// Committed_AS:    1271596 kB
+	// VmallocTotal:     122880 kB
+	// VmallocUsed:       65252 kB
+	// VmallocChunk:      52356 kB
+	// HardwareCorrupted:     0 kB
+	// HugePages_Total:       0
+	// HugePages_Free:        0
+	// HugePages_Rsvd:        0
+	// HugePages_Surp:        0
+	// Hugepagesize:       2048 kB
+	// DirectMap4k:      434168 kB
+	// DirectMap2M:      477184 kB
+	// (could also run 'free', but easier to read a file than run a program)
+	avail_physical_mem_kb = -1 ;
+	avail_virtual_mem_kb = -1 ;
 
 #else
 	//do not know how to collect available memory info for other systems.
@@ -708,56 +878,389 @@ void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_v
 
 void LLMemoryInfo::stream(std::ostream& s) const
 {
+	// We want these memory stats to be easy to grep from the log, along with
+	// the timestamp. So preface each line with the timestamp and a
+	// distinctive marker. Without that, we'd have to search the log for the
+	// introducer line, then read subsequent lines, etc...
+	std::string pfx(LLError::utcTime() + " <mem> ");
+
+	// Max key length
+	size_t key_width(0);
+	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
+	{
+		size_t len(pair.first.length());
+		if (len > key_width)
+		{
+			key_width = len;
+		}
+	}
+
+	// Now stream stats
+	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
+	{
+		s << pfx << std::setw(key_width+1) << (pair.first + ':') << ' ';
+		LLSD value(pair.second);
+		if (value.isInteger())
+			s << std::setw(12) << value.asInteger();
+		else if (value.isReal())
+			s << std::fixed << std::setprecision(1) << value.asReal();
+		else if (value.isDate())
+			value.asDate().toStream(s);
+		else
+			s << value;           // just use default LLSD formatting
+		s << std::endl;
+	}
+}
+
+LLSD LLMemoryInfo::getStatsMap() const
+{
+	return mStatsMap;
+}
+
+LLMemoryInfo& LLMemoryInfo::refresh()
+{
+	mStatsMap = loadStatsMap();
+
+	LL_DEBUGS("LLMemoryInfo") << "Populated mStatsMap:\n";
+	LLSDSerialize::toPrettyXML(mStatsMap, LL_CONT);
+	LL_ENDL;
+
+	return *this;
+}
+
+LLSD LLMemoryInfo::loadStatsMap()
+{
+	// This implementation is derived from stream() code (as of 2011-06-29).
+	Stats stats;
+
+	// associate timestamp for analysis over time
+	stats.add("timestamp", LLDate::now());
+
 #if LL_WINDOWS
 	MEMORYSTATUSEX state;
 	state.dwLength = sizeof(state);
 	GlobalMemoryStatusEx(&state);
 
-	s << "Percent Memory use: " << (U32)state.dwMemoryLoad << '%' << std::endl;
-	s << "Total Physical KB:  " << (U32)(state.ullTotalPhys/1024) << std::endl;
-	s << "Avail Physical KB:  " << (U32)(state.ullAvailPhys/1024) << std::endl;
-	s << "Total page KB:      " << (U32)(state.ullTotalPageFile/1024) << std::endl;
-	s << "Avail page KB:      " << (U32)(state.ullAvailPageFile/1024) << std::endl;
-	s << "Total Virtual KB:   " << (U32)(state.ullTotalVirtual/1024) << std::endl;
-	s << "Avail Virtual KB:   " << (U32)(state.ullAvailVirtual/1024) << std::endl;
+	stats.add("Percent Memory use", state.dwMemoryLoad);
+	stats.add("Total Physical KB",  state.ullTotalPhys/1024);
+	stats.add("Avail Physical KB",  state.ullAvailPhys/1024);
+	stats.add("Total page KB",      state.ullTotalPageFile/1024);
+	stats.add("Avail page KB",      state.ullAvailPageFile/1024);
+	stats.add("Total Virtual KB",   state.ullTotalVirtual/1024);
+	stats.add("Avail Virtual KB",   state.ullAvailVirtual/1024);
+
+	PERFORMANCE_INFORMATION perf;
+	perf.cb = sizeof(perf);
+	GetPerformanceInfo(&perf, sizeof(perf));
+
+	SIZE_T pagekb(perf.PageSize/1024);
+	stats.add("CommitTotal KB",     perf.CommitTotal * pagekb);
+	stats.add("CommitLimit KB",     perf.CommitLimit * pagekb);
+	stats.add("CommitPeak KB",      perf.CommitPeak * pagekb);
+	stats.add("PhysicalTotal KB",   perf.PhysicalTotal * pagekb);
+	stats.add("PhysicalAvail KB",   perf.PhysicalAvailable * pagekb);
+	stats.add("SystemCache KB",     perf.SystemCache * pagekb);
+	stats.add("KernelTotal KB",     perf.KernelTotal * pagekb);
+	stats.add("KernelPaged KB",     perf.KernelPaged * pagekb);
+	stats.add("KernelNonpaged KB",  perf.KernelNonpaged * pagekb);
+	stats.add("PageSize KB",        pagekb);
+	stats.add("HandleCount",        perf.HandleCount);
+	stats.add("ProcessCount",       perf.ProcessCount);
+	stats.add("ThreadCount",        perf.ThreadCount);
+
+	PROCESS_MEMORY_COUNTERS_EX pmem;
+	pmem.cb = sizeof(pmem);
+	// GetProcessMemoryInfo() is documented to accept either
+	// PROCESS_MEMORY_COUNTERS* or PROCESS_MEMORY_COUNTERS_EX*, presumably
+	// using the redundant size info to distinguish. But its prototype
+	// specifically accepts PROCESS_MEMORY_COUNTERS*, and since this is a
+	// classic-C API, PROCESS_MEMORY_COUNTERS_EX isn't a subclass. Cast the
+	// pointer.
+	GetProcessMemoryInfo(GetCurrentProcess(), PPROCESS_MEMORY_COUNTERS(&pmem), sizeof(pmem));
+
+	stats.add("Page Fault Count",              pmem.PageFaultCount);
+	stats.add("PeakWorkingSetSize KB",         pmem.PeakWorkingSetSize/1024);
+	stats.add("WorkingSetSize KB",             pmem.WorkingSetSize/1024);
+	stats.add("QutaPeakPagedPoolUsage KB",     pmem.QuotaPeakPagedPoolUsage/1024);
+	stats.add("QuotaPagedPoolUsage KB",        pmem.QuotaPagedPoolUsage/1024);
+	stats.add("QuotaPeakNonPagedPoolUsage KB", pmem.QuotaPeakNonPagedPoolUsage/1024);
+	stats.add("QuotaNonPagedPoolUsage KB",     pmem.QuotaNonPagedPoolUsage/1024);
+	stats.add("PagefileUsage KB",              pmem.PagefileUsage/1024);
+	stats.add("PeakPagefileUsage KB",          pmem.PeakPagefileUsage/1024);
+	stats.add("PrivateUsage KB",               pmem.PrivateUsage/1024);
+
 #elif LL_DARWIN
 	uint64_t phys = 0;
 
 	size_t len = sizeof(phys);	
 	
-	if(sysctlbyname("hw.memsize", &phys, &len, NULL, 0) == 0)
+	if (sysctlbyname("hw.memsize", &phys, &len, NULL, 0) == 0)
 	{
-		s << "Total Physical KB:  " << phys/1024 << std::endl;
+		stats.add("Total Physical KB", phys/1024);
 	}
 	else
 	{
-		s << "Unable to collect memory information";
+		LL_WARNS("LLMemoryInfo") << "Unable to collect hw.memsize memory information" << LL_ENDL;
 	}
-#elif LL_SOLARIS
-        U64 phys = 0;
 
-        phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
-
-        s << "Total Physical KB:  " << phys << std::endl;
-#else
-	// *NOTE: This works on linux. What will it do on other systems?
-	LLFILE* meminfo = LLFile::fopen(MEMINFO_FILE,"rb");
-	if(meminfo)
+	FILE* pout = popen("vm_stat 2>&1", "r");
+	if (! pout)                     // popen() couldn't run vm_stat
 	{
-		char line[MAX_STRING];		/* Flawfinder: ignore */
-		memset(line, 0, MAX_STRING);
-		while(fgets(line, MAX_STRING, meminfo))
+		// Save errno right away.
+		int popen_errno(errno);
+		LL_WARNS("LLMemoryInfo") << "Unable to collect vm_stat memory information: ";
+		char buffer[256];
+		if (0 == strerror_r(popen_errno, buffer, sizeof(buffer)))
 		{
-			line[strlen(line)-1] = ' ';		 /*Flawfinder: ignore*/
-			s << line;
+			LL_CONT << buffer;
 		}
-		fclose(meminfo);
+		else
+		{
+			LL_CONT << "errno " << popen_errno;
+		}
+		LL_CONT << LL_ENDL;
+	}
+	else                            // popen() launched vm_stat
+	{
+		// Mach Virtual Memory Statistics: (page size of 4096 bytes)
+		// Pages free:					 462078.
+		// Pages active:				 142010.
+		// Pages inactive:				 220007.
+		// Pages wired down:			 159552.
+		// "Translation faults":	  220825184.
+		// Pages copy-on-write:			2104153.
+		// Pages zero filled:		  167034876.
+		// Pages reactivated:			  65153.
+		// Pageins:						2097212.
+		// Pageouts:					  41759.
+		// Object cache: 841598 hits of 7629869 lookups (11% hit rate)
+
+		// Intentionally don't pass the boost::no_except flag. These
+		// boost::regex objects are constructed with string literals, so they
+		// should be valid every time. If they become invalid, we WANT an
+		// exception, hopefully even before the dev checks in.
+		boost::regex pagesize_rx("\\(page size of ([0-9]+) bytes\\)");
+		boost::regex stat_rx("(.+): +([0-9]+)\\.");
+		boost::regex cache_rx("Object cache: ([0-9]+) hits of ([0-9]+) lookups "
+							  "\\(([0-9]+)% hit rate\\)");
+		boost::cmatch matched;
+		LLSD::Integer pagesizekb(4096/1024);
+
+		// Here 'pout' is vm_stat's stdout. Search it for relevant data.
+		char line[100];
+		line[sizeof(line)-1] = '\0';
+		while (fgets(line, sizeof(line)-1, pout))
+		{
+			size_t linelen(strlen(line));
+			// Truncate any trailing newline
+			if (line[linelen - 1] == '\n')
+			{
+				line[--linelen] = '\0';
+			}
+			LL_DEBUGS("LLMemoryInfo") << line << LL_ENDL;
+			if (regex_search_no_exc(line, matched, pagesize_rx))
+			{
+				// "Mach Virtual Memory Statistics: (page size of 4096 bytes)"
+				std::string pagesize_str(matched[1].first, matched[1].second);
+				try
+				{
+					// Reasonable to assume that pagesize will always be a
+					// multiple of 1Kb?
+					pagesizekb = boost::lexical_cast<LLSD::Integer>(pagesize_str)/1024;
+				}
+				catch (const boost::bad_lexical_cast&)
+				{
+					LL_WARNS("LLMemoryInfo") << "couldn't parse '" << pagesize_str
+											 << "' in vm_stat line: " << line << LL_ENDL;
+					continue;
+				}
+				stats.add("page size", pagesizekb);
+			}
+			else if (regex_match_no_exc(line, matched, stat_rx))
+			{
+				// e.g. "Pages free:					 462078."
+				// Strip double-quotes off certain statistic names
+				const char *key_begin(matched[1].first), *key_end(matched[1].second);
+				if (key_begin[0] == '"' && key_end[-1] == '"')
+				{
+					++key_begin;
+					--key_end;
+				}
+				LLSD::String key(key_begin, key_end);
+				LLSD::String value_str(matched[2].first, matched[2].second);
+				LLSD::Integer value(0);
+				try
+				{
+					value = boost::lexical_cast<LLSD::Integer>(value_str);
+				}
+				catch (const boost::bad_lexical_cast&)
+				{
+					LL_WARNS("LLMemoryInfo") << "couldn't parse '" << value_str
+											 << "' in vm_stat line: " << line << LL_ENDL;
+					continue;
+				}
+				// Store this statistic.
+				stats.add(key, value);
+				// Is this in units of pages? If so, convert to Kb.
+				static const LLSD::String pages("Pages ");
+				if (key.substr(0, pages.length()) == pages)
+				{
+					// Synthesize a new key with kb in place of Pages
+					LLSD::String kbkey("kb ");
+					kbkey.append(key.substr(pages.length()));
+					stats.add(kbkey, value * pagesizekb);
+				}
+			}
+			else if (regex_match_no_exc(line, matched, cache_rx))
+			{
+				// e.g. "Object cache: 841598 hits of 7629869 lookups (11% hit rate)"
+				static const char* cache_keys[] = { "cache hits", "cache lookups", "cache hit%" };
+				std::vector<LLSD::Integer> cache_values;
+				for (size_t i = 0; i < (sizeof(cache_keys)/sizeof(cache_keys[0])); ++i)
+				{
+					LLSD::String value_str(matched[i+1].first, matched[i+1].second);
+					LLSD::Integer value(0);
+					try
+					{
+						value = boost::lexical_cast<LLSD::Integer>(value_str);
+					}
+					catch (boost::bad_lexical_cast&)
+					{
+						LL_WARNS("LLMemoryInfo") << "couldn't parse '" << value_str
+												 << "' in vm_stat line: " << line << LL_ENDL;
+						continue;
+					}
+					stats.add(cache_keys[i], value);
+				}
+			}
+			else
+			{
+				LL_WARNS("LLMemoryInfo") << "unrecognized vm_stat line: " << line << LL_ENDL;
+			}
+		}
+		int status(pclose(pout));
+		if (status == -1)           // pclose() couldn't retrieve rc
+		{
+			// Save errno right away.
+			int pclose_errno(errno);
+			// The ECHILD error happens so frequently that unless filtered,
+			// the warning below spams the log file. This is too bad, because
+			// sometimes the logic above fails to produce any output derived
+			// from vm_stat, but we've been unable to observe any specific
+			// error indicating the problem.
+			if (pclose_errno != ECHILD)
+			{
+				LL_WARNS("LLMemoryInfo") << "Unable to obtain vm_stat termination code: ";
+				char buffer[256];
+				if (0 == strerror_r(pclose_errno, buffer, sizeof(buffer)))
+				{
+					LL_CONT << buffer;
+				}
+				else
+				{
+					LL_CONT << "errno " << pclose_errno;
+				}
+				LL_CONT << LL_ENDL;
+			}
+		}
+		else                        // pclose() retrieved rc; analyze
+		{
+			if (WIFEXITED(status))
+			{
+				int rc(WEXITSTATUS(status));
+				if (rc != 0)
+				{
+					LL_WARNS("LLMemoryInfo") << "vm_stat terminated with rc " << rc << LL_ENDL;
+				}
+			}
+			else if (WIFSIGNALED(status))
+			{
+				LL_WARNS("LLMemoryInfo") << "vm_stat terminated by signal " << WTERMSIG(status)
+										 << LL_ENDL;
+			}
+		}
+	}
+
+#elif LL_SOLARIS
+	U64 phys = 0;
+
+	phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
+
+	stats.add("Total Physical KB", phys);
+
+#elif LL_LINUX
+	std::ifstream meminfo(MEMINFO_FILE);
+	if (meminfo.is_open())
+	{
+		// MemTotal:		4108424 kB
+		// MemFree:			1244064 kB
+		// Buffers:			  85164 kB
+		// Cached:			1990264 kB
+		// SwapCached:			  0 kB
+		// Active:			1176648 kB
+		// Inactive:		1427532 kB
+		// ...
+		// VmallocTotal:	 122880 kB
+		// VmallocUsed:		  65252 kB
+		// VmallocChunk:	  52356 kB
+		// HardwareCorrupted:	  0 kB
+		// HugePages_Total:		  0
+		// HugePages_Free:		  0
+		// HugePages_Rsvd:		  0
+		// HugePages_Surp:		  0
+		// Hugepagesize:	   2048 kB
+		// DirectMap4k:		 434168 kB
+		// DirectMap2M:		 477184 kB
+
+		// Intentionally don't pass the boost::no_except flag. This
+		// boost::regex object is constructed with a string literal, so it
+		// should be valid every time. If it becomes invalid, we WANT an
+		// exception, hopefully even before the dev checks in.
+		boost::regex stat_rx("(.+): +([0-9]+)( kB)?");
+		boost::smatch matched;
+
+		std::string line;
+		while (std::getline(meminfo, line))
+		{
+			LL_DEBUGS("LLMemoryInfo") << line << LL_ENDL;
+			if (regex_match_no_exc(line, matched, stat_rx))
+			{
+				// e.g. "MemTotal:		4108424 kB"
+				LLSD::String key(matched[1].first, matched[1].second);
+				LLSD::String value_str(matched[2].first, matched[2].second);
+				LLSD::Integer value(0);
+				try
+				{
+					value = boost::lexical_cast<LLSD::Integer>(value_str);
+				}
+				catch (const boost::bad_lexical_cast&)
+				{
+					LL_WARNS("LLMemoryInfo") << "couldn't parse '" << value_str
+											 << "' in " << MEMINFO_FILE << " line: "
+											 << line << LL_ENDL;
+					continue;
+				}
+				// Store this statistic.
+				stats.add(key, value);
+			}
+			else
+			{
+				LL_WARNS("LLMemoryInfo") << "unrecognized " << MEMINFO_FILE << " line: "
+										 << line << LL_ENDL;
+			}
+		}
 	}
 	else
 	{
-		s << "Unable to collect memory information";
+		LL_WARNS("LLMemoryInfo") << "Unable to collect memory information" << LL_ENDL;
 	}
+
+#else
+	LL_WARNS("LLMemoryInfo") << "Unknown system; unable to collect memory information" << LL_ENDL;
+
 #endif
+
+	return stats.get();
 }
 
 std::ostream& operator<<(std::ostream& s, const LLOSInfo& info)
@@ -777,6 +1280,143 @@ std::ostream& operator<<(std::ostream& s, const LLMemoryInfo& info)
 	info.stream(s);
 	return s;
 }
+
+class FrameWatcher
+{
+public:
+    FrameWatcher():
+        // Hooking onto the "mainloop" event pump gets us one call per frame.
+        mConnection(LLEventPumps::instance()
+                    .obtain("mainloop")
+                    .listen("FrameWatcher", boost::bind(&FrameWatcher::tick, this, _1))),
+        // Initializing mSampleStart to an invalid timestamp alerts us to skip
+        // trying to compute framerate on the first call.
+        mSampleStart(-1),
+        // Initializing mSampleEnd to 0 ensures that we treat the first call
+        // as the completion of a sample window.
+        mSampleEnd(0),
+        mFrames(0),
+        // Both MEM_INFO_WINDOW and MEM_INFO_THROTTLE are in seconds. We need
+        // the number of integer MEM_INFO_THROTTLE sample slots that will fit
+        // in MEM_INFO_WINDOW. Round up.
+        mSamples(int((MEM_INFO_WINDOW / MEM_INFO_THROTTLE) + 0.7)),
+        // Initializing to F32_MAX means that the first real frame will become
+        // the slowest ever, which sounds like a good idea.
+        mSlowest(F32_MAX)
+    {}
+
+    bool tick(const LLSD&)
+    {
+        F32 timestamp(mTimer.getElapsedTimeF32());
+
+        // Count this frame in the interval just completed.
+        ++mFrames;
+
+        // Have we finished a sample window yet?
+        if (timestamp < mSampleEnd)
+        {
+            // no, just keep waiting
+            return false;
+        }
+
+        // Set up for next sample window. Capture values for previous frame in
+        // local variables and reset data members.
+        U32 frames(mFrames);
+        F32 sampleStart(mSampleStart);
+        // No frames yet in next window
+        mFrames = 0;
+        // which starts right now
+        mSampleStart = timestamp;
+        // and ends MEM_INFO_THROTTLE seconds in the future
+        mSampleEnd = mSampleStart + MEM_INFO_THROTTLE;
+
+        // On the very first call, that's all we can do, no framerate
+        // computation is possible.
+        if (sampleStart < 0)
+        {
+            return false;
+        }
+
+        // How long did this actually take? As framerate slows, the duration
+        // of the frame we just finished could push us WELL beyond our desired
+        // sample window size.
+        F32 elapsed(timestamp - sampleStart);
+        F32 framerate(frames/elapsed);
+
+        // Remember previous slowest framerate because we're just about to
+        // update it.
+        F32 slowest(mSlowest);
+        // Remember previous number of samples.
+        boost::circular_buffer<F32>::size_type prevSize(mSamples.size());
+
+        // Capture new framerate in our samples buffer. Once the buffer is
+        // full (after MEM_INFO_WINDOW seconds), this will displace the oldest
+        // sample. ("So they all rolled over, and one fell out...")
+        mSamples.push_back(framerate);
+
+        // Calculate the new minimum framerate. I know of no way to update a
+        // rolling minimum without ever rescanning the buffer. But since there
+        // are only a few tens of items in this buffer, rescanning it is
+        // probably cheaper (and certainly easier to reason about) than
+        // attempting to optimize away some of the scans.
+        mSlowest = framerate;       // pick an arbitrary entry to start
+        for (boost::circular_buffer<F32>::const_iterator si(mSamples.begin()), send(mSamples.end());
+             si != send; ++si)
+        {
+            if (*si < mSlowest)
+            {
+                mSlowest = *si;
+            }
+        }
+
+        // We're especially interested in memory as framerate drops. Only log
+        // when framerate drops below the slowest framerate we remember.
+        // (Should always be true for the end of the very first sample
+        // window.)
+        if (framerate >= slowest)
+        {
+            return false;
+        }
+        // Congratulations, we've hit a new low.  :-P
+
+        LL_INFOS("FrameWatcher") << ' ';
+        if (! prevSize)
+        {
+            LL_CONT << "initial framerate ";
+        }
+        else
+        {
+            LL_CONT << "slowest framerate for last " << int(prevSize * MEM_INFO_THROTTLE)
+                    << " seconds ";
+        }
+        LL_CONT << std::fixed << std::setprecision(1) << framerate << '\n'
+                << LLMemoryInfo() << LL_ENDL;
+
+        return false;
+    }
+
+private:
+    // Storing the connection in an LLTempBoundListener ensures it will be
+    // disconnected when we're destroyed.
+    LLTempBoundListener mConnection;
+    // Track elapsed time
+    LLTimer mTimer;
+    // Some of what you see here is in fact redundant with functionality you
+    // can get from LLTimer. Unfortunately the LLTimer API is missing the
+    // feature we need: has at least the stated interval elapsed, and if so,
+    // exactly how long has passed? So we have to do it by hand, sigh.
+    // Time at start, end of sample window
+    F32 mSampleStart, mSampleEnd;
+    // Frames this sample window
+    U32 mFrames;
+    // Sliding window of framerate samples
+    boost::circular_buffer<F32> mSamples;
+    // Slowest framerate in mSamples
+    F32 mSlowest;
+};
+
+// Need an instance of FrameWatcher before it does any good
+static FrameWatcher sFrameWatcher;
 
 BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 {

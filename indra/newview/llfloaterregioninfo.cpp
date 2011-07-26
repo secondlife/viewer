@@ -54,6 +54,7 @@
 #include "llcombobox.h"
 #include "lldaycyclemanager.h"
 #include "llenvmanager.h"
+#include "llestateinfomodel.h"
 #include "llfilepicker.h"
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
 #include "llfloatertopobjects.h" // added to fix SL-32336
@@ -317,11 +318,8 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 // static
 void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 {
-	LL_DEBUGS("Windlight") << "Processing region info" << LL_ENDL;
-
 	LLPanel* panel;
 	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-	llinfos << "LLFloaterRegionInfo::processRegionInfo" << llendl;
 	if(!floater)
 	{
 		return;
@@ -330,6 +328,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	// We need to re-request environment setting here,
 	// otherwise after we apply (send) updated region settings we won't get them back,
 	// so our environment won't be updated.
+	// This is also the way to know about externally changed region environment.
 	LLEnvManagerNew::instance().requestRegionSettings();
 	
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
@@ -1365,6 +1364,9 @@ LLPanelEstateInfo::LLPanelEstateInfo()
 :	LLPanelRegionInfo(),
 	mEstateID(0)	// invalid
 {
+	LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+	estate_info.setCommitCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+	estate_info.setUpdateCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
 }
 
 // static
@@ -1386,29 +1388,6 @@ void LLPanelEstateInfo::initDispatch(LLDispatcher& dispatch)
 
 	estate_dispatch_initialized = true;
 }
-
-#ifndef TMP_DISABLE_WLES
-// Disables the sun-hour slider and the use fixed time check if the use global time is check
-void LLPanelEstateInfo::onChangeUseGlobalTime()
-{
-	bool enabled = !getChild<LLUICtrl>("use_global_time_check")->getValue().asBoolean();
-	getChildView("sun_hour_slider")->setEnabled(enabled);
-	getChildView("fixed_sun_check")->setEnabled(enabled);
-	getChild<LLUICtrl>("fixed_sun_check")->setValue(LLSD(FALSE));
-	enableButton("apply_btn");
-}
-
-// Enables the sun-hour slider if the fixed-sun checkbox is set
-void LLPanelEstateInfo::onChangeFixedSun()
-{
-	bool enabled = !getChild<LLUICtrl>("fixed_sun_check")->getValue().asBoolean();
-	getChildView("use_global_time_check")->setEnabled(enabled);
-	getChild<LLUICtrl>("use_global_time_check")->setValue(LLSD(FALSE));
-	enableButton("apply_btn");
-}
-#endif // TMP_DISABLE_WLES
-
-
 
 //---------------------------------------------------------------------------
 // Add/Remove estate access button callbacks
@@ -1612,10 +1591,7 @@ std::string all_estates_text()
 // static
 bool LLPanelEstateInfo::isLindenEstate()
 {
-	LLPanelEstateInfo* panel = LLFloaterRegionInfo::getPanelEstate();
-	if (!panel) return false;
-
-	U32 estate_id = panel->getEstateID();
+	U32 estate_id = LLEstateInfoModel::instance().getID();
 	return (estate_id <= ESTATE_LAST_LINDEN);
 }
 
@@ -1977,7 +1953,7 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	// Can't ban people from mainland, orientation islands, etc. because this
 	// creates much network traffic and server load.
 	// Disable their accounts in CSR tool instead.
-	bool linden_estate = (getEstateID() <= ESTATE_LAST_LINDEN);
+	bool linden_estate = isLindenEstate();
 	bool enable_ban = (god || owner || manager) && !linden_estate;
 	getChildView("add_banned_avatar_btn")->setEnabled(enable_ban);
 	getChildView("remove_banned_avatar_btn")->setEnabled(enable_ban);
@@ -1989,6 +1965,8 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	getChildView("add_estate_manager_btn")->setEnabled(god || owner);
 	getChildView("remove_estate_manager_btn")->setEnabled(god || owner);
 	getChildView("estate_manager_name_list")->setEnabled(god || owner);
+
+	refresh();
 }
 
 bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
@@ -2095,16 +2073,52 @@ BOOL LLPanelEstateInfo::postBuild()
 
 void LLPanelEstateInfo::refresh()
 {
+	// Disable access restriction controls if they make no sense.
 	bool public_access = getChild<LLUICtrl>("externally_visible_check")->getValue().asBoolean();
+
 	getChildView("Only Allow")->setEnabled(public_access);
 	getChildView("limit_payment")->setEnabled(public_access);
 	getChildView("limit_age_verified")->setEnabled(public_access);
+
 	// if this is set to false, then the limit fields are meaningless and should be turned off
 	if (public_access == false)
 	{
 		getChild<LLUICtrl>("limit_payment")->setValue(false);
 		getChild<LLUICtrl>("limit_age_verified")->setValue(false);
 	}
+}
+
+void LLPanelEstateInfo::refreshFromEstate()
+{
+	const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+
+	getChild<LLUICtrl>("estate_name")->setValue(estate_info.getName());
+	setOwnerName(LLSLURL("agent", estate_info.getOwnerID(), "inspect").getSLURLString());
+
+	getChild<LLUICtrl>("externally_visible_check")->setValue(estate_info.getIsExternallyVisible());
+	getChild<LLUICtrl>("voice_chat_check")->setValue(estate_info.getAllowVoiceChat());
+	getChild<LLUICtrl>("allow_direct_teleport")->setValue(estate_info.getAllowDirectTeleport());
+	getChild<LLUICtrl>("limit_payment")->setValue(estate_info.getDenyAnonymous());
+	getChild<LLUICtrl>("limit_age_verified")->setValue(estate_info.getDenyAgeUnverified());
+
+	// If visible from mainland, disable the access allowed
+	// UI, as anyone can teleport there.
+	// However, gods need to be able to edit the access list for
+	// linden estates, regardless of visibility, to allow object
+	// and L$ transfers.
+	{
+		bool visible_from_mainland = estate_info.getIsExternallyVisible();
+		bool god = gAgent.isGodlike();
+		bool linden_estate = isLindenEstate();
+
+		bool enable_agent = (!visible_from_mainland || (god && linden_estate));
+		bool enable_group = enable_agent;
+		bool enable_ban = !linden_estate;
+
+		setAccessAllowedEnabled(enable_agent, enable_group, enable_ban);
+	}
+
+	refresh();
 }
 
 BOOL LLPanelEstateInfo::sendUpdate()
@@ -2114,7 +2128,7 @@ BOOL LLPanelEstateInfo::sendUpdate()
 	LLNotification::Params params("ChangeLindenEstate");
 	params.functor.function(boost::bind(&LLPanelEstateInfo::callbackChangeLindenEstate, this, _1, _2));
 
-	if (getEstateID() <= ESTATE_LAST_LINDEN)
+	if (isLindenEstate())
 	{
 		// trying to change reserved estate, warn
 		LLNotifications::instance().add(params);
@@ -2133,13 +2147,21 @@ bool LLPanelEstateInfo::callbackChangeLindenEstate(const LLSD& notification, con
 	switch(option)
 	{
 	case 0:
-		// send the update
-		if (!commitEstateInfoCaps())
 		{
-			// the caps method failed, try the old way
-			LLFloaterRegionInfo::nextInvoice();
-			commitEstateInfoDataserver();
+			LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+
+			// update model
+			estate_info.setUseFixedSun(false); // we don't support fixed sun estates anymore
+			estate_info.setIsExternallyVisible(getChild<LLUICtrl>("externally_visible_check")->getValue().asBoolean());
+			estate_info.setAllowDirectTeleport(getChild<LLUICtrl>("allow_direct_teleport")->getValue().asBoolean());
+			estate_info.setDenyAnonymous(getChild<LLUICtrl>("limit_payment")->getValue().asBoolean());
+			estate_info.setDenyAgeUnverified(getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean());
+			estate_info.setAllowVoiceChat(getChild<LLUICtrl>("voice_chat_check")->getValue().asBoolean());
+
+			// send the update to sim
+			estate_info.sendEstateInfo();
 		}
+
 		// we don't want to do this because we'll get it automatically from the sim
 		// after the spaceserver processes it
 //		else
@@ -2196,6 +2218,8 @@ public:
 	// if we get a normal response, handle it here
 	virtual void result(const LLSD& content)
 	{
+		LL_INFOS("Windlight") << "Successfully committed estate info" << llendl;
+
 	    // refresh the panel from the database
 		LLPanelEstateInfo* panel = dynamic_cast<LLPanelEstateInfo*>(mpPanel.get());
 		if (panel)
@@ -2211,178 +2235,6 @@ public:
 private:
 	LLHandle<LLPanel> mpPanel;
 };
-
-// tries to send estate info using a cap; returns true if it succeeded
-bool LLPanelEstateInfo::commitEstateInfoCaps()
-{
-	std::string url = gAgent.getRegion()->getCapability("EstateChangeInfo");
-	
-	if (url.empty())
-	{
-		// whoops, couldn't find the cap, so bail out
-		return false;
-	}
-	
-	LLSD body;
-	body["estate_name"] = getEstateName();
-
-	body["is_externally_visible"] = getChild<LLUICtrl>("externally_visible_check")->getValue().asBoolean();
-	body["allow_direct_teleport"] = getChild<LLUICtrl>("allow_direct_teleport")->getValue().asBoolean();
-	body["deny_anonymous"       ] = getChild<LLUICtrl>("limit_payment")->getValue().asBoolean();
-	body["deny_age_unverified"  ] = getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean();
-	body["allow_voice_chat"     ] = getChild<LLUICtrl>("voice_chat_check")->getValue().asBoolean();
-	body["invoice"              ] = LLFloaterRegionInfo::getLastInvoice();
-
-	// block fly is in estate database but not in estate UI, so we're not supporting it
-	//body["block_fly"            ] = getChild<LLUICtrl>("")->getValue().asBoolean();
-
-	F32 sun_hour = getSunHour();
-	if (getChild<LLUICtrl>("use_global_time_check")->getValue().asBoolean())
-	{
-		sun_hour = 0.f;			// 0 = global time
-	}
-	body["sun_hour"] = sun_hour;
-
-	// we use a responder so that we can re-get the data after committing to the database
-	LLHTTPClient::post(url, body, new LLEstateChangeInfoResponder(this));
-    return true;
-}
-
-/* This is the old way of doing things, is deprecated, and should be 
-   deleted when the dataserver model can be removed */
-// key = "estatechangeinfo"
-// strings[0] = str(estate_id) (added by simulator before relay - not here)
-// strings[1] = estate_name
-// strings[2] = str(estate_flags)
-// strings[3] = str((S32)(sun_hour * 1024.f))
-void LLPanelEstateInfo::commitEstateInfoDataserver()
-{
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessage("EstateOwnerMessage");
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
-
-	msg->nextBlock("MethodData");
-	msg->addString("Method", "estatechangeinfo");
-	msg->addUUID("Invoice", LLFloaterRegionInfo::getLastInvoice());
-
-	msg->nextBlock("ParamList");
-	msg->addString("Parameter", getEstateName());
-
-	std::string buffer;
-	buffer = llformat("%u", computeEstateFlags());
-	msg->nextBlock("ParamList");
-	msg->addString("Parameter", buffer);
-
-	F32 sun_hour = getSunHour();
-	if (getChild<LLUICtrl>("use_global_time_check")->getValue().asBoolean())
-	{
-		sun_hour = 0.f;	// 0 = global time
-	}
-
-	buffer = llformat("%d", (S32)(sun_hour*1024.0f));
-	msg->nextBlock("ParamList");
-	msg->addString("Parameter", buffer);
-
-	gAgent.sendMessage();
-}
-
-void LLPanelEstateInfo::setEstateFlags(U32 flags)
-{
-	getChild<LLUICtrl>("externally_visible_check")->setValue(LLSD(flags & REGION_FLAGS_EXTERNALLY_VISIBLE ? TRUE : FALSE) );
-	getChild<LLUICtrl>("voice_chat_check")->setValue(
-		LLSD(flags & REGION_FLAGS_ALLOW_VOICE ? TRUE : FALSE));
-	getChild<LLUICtrl>("allow_direct_teleport")->setValue(LLSD(flags & REGION_FLAGS_ALLOW_DIRECT_TELEPORT ? TRUE : FALSE) );
-	getChild<LLUICtrl>("limit_payment")->setValue(LLSD(flags & REGION_FLAGS_DENY_ANONYMOUS ? TRUE : FALSE) );
-	getChild<LLUICtrl>("limit_age_verified")->setValue(LLSD(flags & REGION_FLAGS_DENY_AGEUNVERIFIED ? TRUE : FALSE) );
-
-	refresh();
-}
-
-U32 LLPanelEstateInfo::computeEstateFlags()
-{
-	U32 flags = 0;
-
-	if (getChild<LLUICtrl>("externally_visible_check")->getValue().asBoolean())
-	{
-		flags |= REGION_FLAGS_EXTERNALLY_VISIBLE;
-	}
-
-	if ( getChild<LLUICtrl>("voice_chat_check")->getValue().asBoolean() )
-	{
-		flags |= REGION_FLAGS_ALLOW_VOICE;
-	}
-	
-	if (getChild<LLUICtrl>("allow_direct_teleport")->getValue().asBoolean())
-	{
-		flags |= REGION_FLAGS_ALLOW_DIRECT_TELEPORT;
-	}
-
-	if (getChild<LLUICtrl>("limit_payment")->getValue().asBoolean())
-	{
-		flags |= REGION_FLAGS_DENY_ANONYMOUS;
-	}
-	
-	if (getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean())
-	{
-		flags |= REGION_FLAGS_DENY_AGEUNVERIFIED;
-	}
-
-	
-	return flags;
-}
-
-BOOL LLPanelEstateInfo::getGlobalTime()
-{
-	return getChild<LLUICtrl>("use_global_time_check")->getValue().asBoolean();
-}
-
-void LLPanelEstateInfo::setGlobalTime(bool b)
-{
-	getChild<LLUICtrl>("use_global_time_check")->setValue(LLSD(b));
-	getChildView("fixed_sun_check")->setEnabled(LLSD(!b));
-	getChildView("sun_hour_slider")->setEnabled(LLSD(!b));
-	if (b)
-	{
-		getChild<LLUICtrl>("sun_hour_slider")->setValue(LLSD(0.f));
-	}
-}
-
-
-BOOL LLPanelEstateInfo::getFixedSun()
-{
-	return getChild<LLUICtrl>("fixed_sun_check")->getValue().asBoolean();
-}
-
-void LLPanelEstateInfo::setSunHour(F32 sun_hour)
-{
-	if(sun_hour < 6.0f)
-	{
-		sun_hour = 24.0f + sun_hour;
-	}
-	getChild<LLUICtrl>("sun_hour_slider")->setValue(LLSD(sun_hour));
-}
-
-F32 LLPanelEstateInfo::getSunHour()
-{
-	if (getChildView("sun_hour_slider")->getEnabled())
-	{
-		return (F32)getChild<LLUICtrl>("sun_hour_slider")->getValue().asReal();
-	}
-	return 0.f;
-}
-
-const std::string LLPanelEstateInfo::getEstateName() const
-{
-	return getChild<LLUICtrl>("estate_name")->getValue().asString();
-}
-
-void LLPanelEstateInfo::setEstateName(const std::string& name)
-{
-	getChild<LLUICtrl>("estate_name")->setValue(LLSD(name));
-}
 
 const std::string LLPanelEstateInfo::getOwnerName() const
 {
@@ -2886,55 +2738,10 @@ bool LLDispatchEstateUpdateInfo::operator()(
 {
 	lldebugs << "Received estate update" << llendl;
 
-	LLPanelEstateInfo* panel = LLFloaterRegionInfo::getPanelEstate();
-	if (!panel) return true;
-
-	// NOTE: LLDispatcher extracts strings with an extra \0 at the
-	// end.  If we pass the std::string direct to the UI/renderer
-	// it draws with a weird character at the end of the string.
-	std::string estate_name = strings[0].c_str(); // preserve c_str() call!
-	panel->setEstateName(estate_name);
-	
-	LLViewerRegion* regionp = gAgent.getRegion();
-
-	LLUUID owner_id(strings[1]);
-	regionp->setOwner(owner_id);
-	// Update estate owner name in UI
-	std::string owner_name = LLSLURL("agent", owner_id, "inspect").getSLURLString();
-	panel->setOwnerName(owner_name);
-
-	U32 estate_id = strtoul(strings[2].c_str(), NULL, 10);
-	panel->setEstateID(estate_id);
-
-	U32 flags = strtoul(strings[3].c_str(), NULL, 10);
-	panel->setEstateFlags(flags);
-
-	F32 sun_hour = ((F32)(strtod(strings[4].c_str(), NULL)))/1024.0f;
-	if(sun_hour == 0 && (flags & REGION_FLAGS_SUN_FIXED ? FALSE : TRUE))
-	{
-		lldebugs << "Estate uses global time" << llendl;
-		panel->setGlobalTime(TRUE);
-	} 
-	else
-	{
-		lldebugs << "Estate sun hour: " << sun_hour << llendl;
-		panel->setGlobalTime(FALSE);
-		panel->setSunHour(sun_hour);
-	}
-
-	bool visible_from_mainland = (bool)(flags & REGION_FLAGS_EXTERNALLY_VISIBLE);
-	bool god = gAgent.isGodlike();
-	bool linden_estate = (estate_id <= ESTATE_LAST_LINDEN);
-
-	// If visible from mainland, disable the access allowed
-	// UI, as anyone can teleport there.
-	// However, gods need to be able to edit the access list for
-	// linden estates, regardless of visibility, to allow object
-	// and L$ transfers.
-	bool enable_agent = (!visible_from_mainland || (god && linden_estate));
-	bool enable_group = enable_agent;
-	bool enable_ban = !linden_estate;
-	panel->setAccessAllowedEnabled(enable_agent, enable_group, enable_ban);
+	// Update estate info model.
+	// This will call LLPanelEstateInfo::refreshFromEstate().
+	// *TODO: Move estate message handling stuff to llestateinfomodel.cpp.
+	LLEstateInfoModel::instance().update(strings);
 
 	return true;
 }
@@ -3249,31 +3056,46 @@ void LLPanelEnvironmentInfo::setDirty(bool dirty)
 	getChildView("cancel_btn")->setEnabled(dirty);
 }
 
-void LLPanelEnvironmentInfo::sendRegionSunUpdate(F32 sun_angle)
+void LLPanelEnvironmentInfo::sendRegionSunUpdate()
 {
 	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
-	bool region_use_fixed_sky = sun_angle >= 0.f;
 
-	// Set sun hour.
+	// If the region is being switched to fixed sky,
+	// change the region's sun hour according to the (fixed) sun position.
+	// This is needed for llGetSunDirection() LSL function to work properly (STORM-1330).
+	const LLSD& sky_map = mNewRegionSettings.getSkyMap();
+	bool region_use_fixed_sky = sky_map.size() == 1;
 	if (region_use_fixed_sky)
 	{
 		LLWLParamSet param_set;
-		LLSD params;
-		std::string unused;
-		if (!getSelectedSkyParams(params, unused))
-		{
-			return;
-		}
-		param_set.setAll(params);
+		llassert(sky_map.isMap());
+		param_set.setAll(sky_map.beginMap()->second);
+		F32 sun_angle = param_set.getSunAngle();
 
+		LL_DEBUGS("Windlight Sync") << "Old sun hour: " << region_info.mSunHour << LL_ENDL;
 		// convert value range from 0..2pi to 6..30
 		region_info.mSunHour = fmodf((sun_angle / F_TWO_PI) * 24.f, 24.f) + 6.f;
 	}
 
 	region_info.setUseFixedSun(region_use_fixed_sky);
 	region_info.mUseEstateSun = !region_use_fixed_sky;
+	LL_DEBUGS("Windlight Sync") << "Sun hour: " << region_info.mSunHour << LL_ENDL;
 
 	region_info.sendRegionTerrain(LLFloaterRegionInfo::getLastInvoice());
+}
+
+void LLPanelEnvironmentInfo::fixEstateSun()
+{
+	// We don't support fixed sun estates anymore and need to fix
+	// such estates for region day cycle to take effect.
+	// *NOTE: Assuming that current estate settings have arrived already.
+	LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+	if (estate_info.getUseFixedSun())
+	{
+		llinfos << "Switching estate to global sun" << llendl;
+		estate_info.setUseFixedSun(false);
+		estate_info.sendEstateInfo();
+	}
 }
 
 void LLPanelEnvironmentInfo::populateWaterPresetsList()
@@ -3555,7 +3377,6 @@ void LLPanelEnvironmentInfo::onBtnApply()
 	LLSD day_cycle;
 	LLSD sky_map;
 	LLSD water_params;
-	F32 sun_angle = -1.f; // invalid value meaning no fixed sky
 
 	if (use_defaults)
 	{
@@ -3588,9 +3409,6 @@ void LLPanelEnvironmentInfo::onBtnApply()
 			param_set.setAll(params);
 			refs[LLWLParamKey(preset_name, LLEnvKey::SCOPE_LOCAL)] = param_set; // scope doesn't matter here
 			sky_map = LLWLParamManager::createSkyMap(refs);
-
-			// Remember the sun angle to set fixed region sun hour below.
-			sun_angle = param_set.getSunAngle();
 		}
 		else // use day cycle
 		{
@@ -3611,16 +3429,6 @@ void LLPanelEnvironmentInfo::onBtnApply()
 				LL_DEBUGS("Windlight") << "Fixing negative time" << LL_ENDL;
 				day_cycle[0][0] = 0.0f;
 			}
-
-			// If the day cycle contains exactly one preset (i.e it's effectively a fixed sky),
-			// remember the preset's sun angle to set fixed region sun hour below.
-			if (sky_map.size() == 1)
-			{
-				LLWLParamSet param_set;
-				llassert(sky_map.isMap());
-				param_set.setAll(sky_map.beginMap()->second);
-				sun_angle = param_set.getSunAngle();
-			}
 		}
 
 		// Get water params.
@@ -3640,8 +3448,9 @@ void LLPanelEnvironmentInfo::onBtnApply()
 		return;
 	}
 
-	// Set the region sun phase/flags according to the chosen new preferences.
-	sendRegionSunUpdate(sun_angle);
+	// When the settings get applied, we'll also send the region sun position update.
+	// To determine the sun angle we're going to need the new settings.
+	mNewRegionSettings = new_region_settings;
 
 	// Start spinning the progress indicator.
 	setApplyProgress(true);
@@ -3672,10 +3481,21 @@ void LLPanelEnvironmentInfo::onRegionSettingschange()
 
 void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
 {
-	LL_DEBUGS("Windlight") << "Applying region settings finished, stopping indicator" << LL_ENDL;
 	// If applying new settings has failed, stop the indicator right away.
 	// Otherwise it will be stopped when we receive the updated settings from server.
-	if (!ok)
+	if (ok)
+	{
+		// Set the region sun phase/flags according to the chosen new preferences.
+		//
+		// If we do this earlier we may get jerky transition from fixed sky to a day cycle (STORM-1481).
+		// That is caused by the simulator re-sending the region info, which in turn makes us
+		// re-request and display old region environment settings while the new ones haven't been applied yet.
+		sendRegionSunUpdate();
+
+		// Switch estate to not using fixed sun for the region day cycle to work properly (STORM-1506).
+		fixEstateSun();
+	}
+	else
 	{
 		setApplyProgress(false);
 

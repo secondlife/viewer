@@ -36,6 +36,7 @@
 //  llinfos << info << llendl;
 //
 
+#include "llsd.h"
 #include <iosfwd>
 #include <string>
 
@@ -117,6 +118,27 @@ public:
 
 	//get the available memory infomation in KiloBytes.
 	static void getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb);
+
+	// Retrieve a map of memory statistics. The keys of the map are platform-
+	// dependent. The values are in kilobytes to try to avoid integer overflow.
+	LLSD getStatsMap() const;
+
+	// Re-fetch memory data (as reported by stream() and getStatsMap()) from the
+	// system. Normally this is fetched at construction time. Return (*this)
+	// to permit usage of the form:
+	// @code
+	// LLMemoryInfo info;
+	// ...
+	// info.refresh().getStatsMap();
+	// @endcode
+	LLMemoryInfo& refresh();
+
+private:
+	// set mStatsMap
+	static LLSD loadStatsMap();
+
+	// Memory stats for getStatsMap().
+	LLSD mStatsMap;
 };
 
 
