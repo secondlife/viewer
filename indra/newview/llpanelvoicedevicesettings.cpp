@@ -68,9 +68,12 @@ BOOL LLPanelVoiceDeviceSettings::postBuild()
 	// set mic volume tuning slider based on last mic volume setting
 	volume_slider->setValue(mMicVolume);
 
-	getChild<LLComboBox>("voice_input_device")->setCommitCallback(
+	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
+	mCtrlOutputDevices = getChild<LLComboBox>("voice_output_device");
+
+	mCtrlInputDevices->setCommitCallback(
 		boost::bind(&LLPanelVoiceDeviceSettings::onCommitInputDevice, this));
-	getChild<LLComboBox>("voice_output_device")->setCommitCallback(
+	mCtrlOutputDevices->setCommitCallback(
 		boost::bind(&LLPanelVoiceDeviceSettings::onCommitOutputDevice, this));
 	
 	return TRUE;
@@ -188,9 +191,6 @@ void LLPanelVoiceDeviceSettings::refresh()
 	LLVoiceClient::getInstance()->tuningSetMicVolume(current_volume);
 
 	// Fill in popup menus
-	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
-	mCtrlOutputDevices = getChild<LLComboBox>("voice_output_device");
-
 	bool device_settings_available = LLVoiceClient::getInstance()->deviceSettingsAvailable();
 
 	if (mCtrlInputDevices)
@@ -297,7 +297,7 @@ void LLPanelVoiceDeviceSettings::onCommitInputDevice()
 	if(LLVoiceClient::getInstance())
 	{
 		LLVoiceClient::getInstance()->setCaptureDevice(
-			getChild<LLComboBox>("voice_input_device")->getValue().asString());
+			mCtrlInputDevices->getValue().asString());
 	}
 }
 
@@ -306,6 +306,6 @@ void LLPanelVoiceDeviceSettings::onCommitOutputDevice()
 	if(LLVoiceClient::getInstance())
 	{
 		LLVoiceClient::getInstance()->setRenderDevice(
-			getChild<LLComboBox>("voice_output_device")->getValue().asString());
+			mCtrlInputDevices->getValue().asString());
 	}
 }
