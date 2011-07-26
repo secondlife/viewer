@@ -69,7 +69,7 @@ LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 		if(cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f))
 		{
 			//debug use			
-			llinfos << "cloud noise raw image width: " << sCloudNoiseRawImage->getWidth() << " : height: " << sCloudNoiseRawImage->getHeight() << " : components: " << 
+			lldebugs << "cloud noise raw image width: " << sCloudNoiseRawImage->getWidth() << " : height: " << sCloudNoiseRawImage->getHeight() << " : components: " << 
 				(S32)sCloudNoiseRawImage->getComponents() << " : data size: " << sCloudNoiseRawImage->getDataSize() << llendl ;
 			llassert_always(sCloudNoiseRawImage->getData()) ;
 
