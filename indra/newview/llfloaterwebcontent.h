@@ -39,7 +39,8 @@ class LLIconCtrl;
 
 class LLFloaterWebContent :
 	public LLFloater,
-	public LLViewerMediaObserver
+	public LLViewerMediaObserver,
+	public LLInstanceTracker<LLFloaterWebContent, LLUUID>
 {
 public:
     LOG_CLASS(LLFloaterWebContent);
@@ -47,7 +48,8 @@ public:
 	struct _Params : public LLInitParam::Block<_Params>
 	{
 		Optional<std::string>	url,
-								target;
+								target,
+								window_class;
 		Optional<LLUUID>		id;
 		Optional<bool>			show_chrome,
 								allow_address_entry,
@@ -59,11 +61,11 @@ public:
 
 	typedef LLSDParamAdapter<_Params> Params;
 
-	LLFloaterWebContent(const Params& key);
+	LLFloaterWebContent(const Params& params);
 
 	void initializeURLHistory();
 
-	static void create(Params);
+	static LLFloater* create(Params);
 
 	static void closeRequest(const std::string &uuid);
 	static void geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height);

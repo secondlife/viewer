@@ -320,6 +320,7 @@ static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarNa
 							url(url).
 							id(agent_id).
 							show_chrome(show_chrome).
+							window_class("profile").
 							preferred_media_size(profile_rect));
 }
 

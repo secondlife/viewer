@@ -52,13 +52,68 @@ class LLInstanceTracker : public LLInstanceTrackerBase
 {
 	typedef typename std::map<KEY, T*> InstanceMap;
 	typedef LLInstanceTracker<T, KEY> MyT;
-	typedef boost::function<const KEY&(typename InstanceMap::value_type&)> KeyGetter;
-	typedef boost::function<T*(typename InstanceMap::value_type&)> InstancePtrGetter;
 public:
-	/// Dereferencing key_iter gives you a const KEY&
-	typedef boost::transform_iterator<KeyGetter, typename InstanceMap::iterator> key_iter;
-	/// Dereferencing instance_iter gives you a T&
-	typedef boost::indirect_iterator< boost::transform_iterator<InstancePtrGetter, typename InstanceMap::iterator> > instance_iter;
+	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
+	{
+	public:
+		instance_iter(typename InstanceMap::iterator& it)
+		:	mIterator(it)
+		{
+			++sIterationNestDepth;
+		}
+
+		~instance_iter()
+		{
+			--sIterationNestDepth;
+		}
+
+	private:
+		friend class boost::iterator_core_access;
+
+		void increment() { mIterator++; }
+		bool equal(instance_iter const& other) const
+		{
+			return mIterator == other.m_iterator;
+		}
+
+		T& dereference() const
+		{
+			return mIterator->second;
+		}
+
+		typename InstanceMap::iterator mIterator;
+	};
+
+	class key_iter : public boost::iterator_facade<key_iter, KEY, boost::forward_traversal_tag>
+	{
+	public:
+		key_iter(typename InstanceMap::iterator& it)
+			:	mIterator(it)
+		{
+			++sIterationNestDepth;
+		}
+
+		~key_iter()
+		{
+			--sIterationNestDepth;
+		}
+
+	private:
+		friend class boost::iterator_core_access;
+
+		void increment() { mIterator++; }
+		bool equal(instance_iter const& other) const
+		{
+			return mIterator == other.m_iterator;
+		}
+
+		KEY& dereference() const
+		{
+			return mIterator->first;
+		}
+
+		typename InstanceMap::iterator mIterator;
+	};
 
 	static T* getInstance(const KEY& k)
 	{
@@ -66,42 +121,47 @@ public:
 		return (found == getMap_().end()) ? NULL : found->second;
 	}
 
+	static instance_iter beginInstances() 
+	{	
+		return instance_iter(getMap_().begin()); 
+	}
+
+	static instance_iter endInstances() 
+	{
+		return instance_iter(getMap_().end());
+	}
+
+	static S32 instanceCount() { return getMap_().size(); }
+
 	static key_iter beginKeys()
 	{
-		return boost::make_transform_iterator(getMap_().begin(),
-											  boost::bind(&InstanceMap::value_type::first, _1));
+		return key_iter(getMap_().begin());
 	}
 	static key_iter endKeys()
 	{
-		return boost::make_transform_iterator(getMap_().end(),
-											  boost::bind(&InstanceMap::value_type::first, _1));
+		return key_iter(getMap_().end());
 	}
-	static instance_iter beginInstances()
-	{
-		return instance_iter(boost::make_transform_iterator(getMap_().begin(),
-															boost::bind(&InstanceMap::value_type::second, _1)));
-	}
-	static instance_iter endInstances()
-	{
-		return instance_iter(boost::make_transform_iterator(getMap_().end(),
-															boost::bind(&InstanceMap::value_type::second, _1)));
-	}
-	static S32 instanceCount() { return getMap_().size(); }
+
 protected:
 	LLInstanceTracker(KEY key) { add_(key); }
-	virtual ~LLInstanceTracker() { remove_(); }
+	virtual ~LLInstanceTracker() 
+	{ 
+		// it's unsafe to delete instances of this type while all instances are being iterated over.
+		llassert(sIterationNestDepth == 0);
+		remove_(); 		
+	}
 	virtual void setKey(KEY key) { remove_(); add_(key); }
-	virtual const KEY& getKey() const { return mKey; }
+	virtual const KEY& getKey() const { return mInstanceKey; }
 
 private:
 	void add_(KEY key) 
 	{ 
-		mKey = key; 
+		mInstanceKey = key; 
 		getMap_()[key] = static_cast<T*>(this); 
 	}
 	void remove_()
 	{
-		getMap_().erase(mKey);
+		getMap_().erase(mInstanceKey);
 	}
 
     static InstanceMap& getMap_()
@@ -116,8 +176,11 @@ private:
 
 private:
 
-	KEY mKey;
+	KEY mInstanceKey;
+	static S32 sIterationNestDepth;
 };
+
+template <typename T, typename KEY> S32 LLInstanceTracker<T, KEY>::sIterationNestDepth = 0;
 
 /// explicit specialization for default case where KEY is T*
 /// use a simple std::set<T*>
@@ -127,15 +190,52 @@ class LLInstanceTracker<T, T*> : public LLInstanceTrackerBase
 	typedef typename std::set<T*> InstanceSet;
 	typedef LLInstanceTracker<T, T*> MyT;
 public:
-	/// Dereferencing key_iter gives you a T* (since T* is the key)
-	typedef typename InstanceSet::iterator key_iter;
-	/// Dereferencing instance_iter gives you a T&
-	typedef boost::indirect_iterator<key_iter> instance_iter;
 
 	/// for completeness of analogy with the generic implementation
 	static T* getInstance(T* k) { return k; }
 	static S32 instanceCount() { return getSet_().size(); }
 
+	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
+	{
+	public:
+		instance_iter(typename InstanceSet::iterator& it)
+		:	mIterator(it)
+		{
+			++sIterationNestDepth;
+		}
+
+		instance_iter(const instance_iter& other)
+		:	mIterator(other.mIterator)
+		{
+			++sIterationNestDepth;
+		}
+
+		~instance_iter()
+		{
+			--sIterationNestDepth;
+		}
+
+	private:
+		friend class boost::iterator_core_access;
+
+		void increment() { mIterator++; }
+		bool equal(instance_iter const& other) const
+		{
+			return mIterator == other.mIterator;
+		}
+
+		T& dereference() const
+		{
+			return **mIterator;
+		}
+
+		typename InstanceSet::iterator mIterator;
+	};
+
+	static instance_iter beginInstances() {	return instance_iter(getSet_().begin()); }
+	static instance_iter endInstances() { return instance_iter(getSet_().end()); }
+
+	// DEPRECATED: iterators now increment and decrement iteration depth
 	// Instantiate this to get access to iterators for this type.  It's a 'guard' in the sense
 	// that it treats deletes of this type as errors as long as there is an instance of
 	// this class alive in scope somewhere (i.e. deleting while iterating is bad).
@@ -154,15 +254,12 @@ public:
 
 		static instance_iter beginInstances() {	return instance_iter(getSet_().begin()); }
 		static instance_iter endInstances() { return instance_iter(getSet_().end()); }
-		static key_iter beginKeys() { return getSet_().begin(); }
-		static key_iter endKeys()   { return getSet_().end(); }
 	};
 
 protected:
 	LLInstanceTracker()
 	{
 		// it's safe but unpredictable to create instances of this type while all instances are being iterated over.  I hate unpredictable.  This assert will probably be turned on early in the next development cycle.
-		//llassert(sIterationNestDepth == 0);
 		getSet_().insert(static_cast<T*>(this));
 	}
 	virtual ~LLInstanceTracker()
@@ -174,7 +271,6 @@ protected:
 
 	LLInstanceTracker(const LLInstanceTracker& other)
 	{
-		//llassert(sIterationNestDepth == 0);
 		getSet_().insert(static_cast<T*>(this));
 	}
 

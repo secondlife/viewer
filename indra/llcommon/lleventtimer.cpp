@@ -58,19 +58,15 @@ LLEventTimer::~LLEventTimer()
 void LLEventTimer::updateClass() 
 {
 	std::list<LLEventTimer*> completed_timers;
-
+	for (instance_iter iter = beginInstances(); iter != endInstances(); ) 
 	{
-		LLInstanceTrackerScopedGuard guard;
-		for (instance_iter iter = guard.beginInstances(); iter != guard.endInstances(); ) 
-		{
-			LLEventTimer& timer = *iter++;
-			F32 et = timer.mEventTimer.getElapsedTimeF32();
-			if (timer.mEventTimer.getStarted() && et > timer.mPeriod) {
-				timer.mEventTimer.reset();
-				if ( timer.tick() )
-				{
-					completed_timers.push_back( &timer );
-				}
+		LLEventTimer& timer = *iter++;
+		F32 et = timer.mEventTimer.getElapsedTimeF32();
+		if (timer.mEventTimer.getStarted() && et > timer.mPeriod) {
+			timer.mEventTimer.reset();
+			if ( timer.tick() )
+			{
+				completed_timers.push_back( &timer );
 			}
 		}
 	}

@@ -515,9 +515,6 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 
 		if (!xml_filename.empty())
 		{
-			LLUICtrlFactory::instance().pushFileName(xml_filename);
-
-			LLFastTimer timer(FTM_EXTERNAL_PANEL_LOAD);
 			if (output_node)
 			{
 				//if we are exporting, we want to export the current xml
@@ -530,6 +527,9 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 				return TRUE;
 			}
 		
+			LLUICtrlFactory::instance().pushFileName(xml_filename);
+
+			LLFastTimer timer(FTM_EXTERNAL_PANEL_LOAD);
 			if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
 			{
 				llwarns << "Couldn't parse panel from: " << xml_filename << llendl;

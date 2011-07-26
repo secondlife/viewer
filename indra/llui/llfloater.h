@@ -265,6 +265,8 @@ public:
 
 	virtual void    setTornOff(bool torn_off) { mTornOff = torn_off; }
 
+	void			stackWith(LLFloater& other);
+
 	// Return a closeable floater, if any, given the current focus.
 	static LLFloater* getClosableFloaterFromFocus(); 
 
@@ -289,9 +291,6 @@ public:
 	void			updateTransparency(ETypeTransparency transparency_type);
 		
 protected:
-
-	void			setRectControl(const std::string& rectname) { mRectControl = rectname; };
-
 	virtual void    applySavedVariables();
 
 	void			applyRectControl();
@@ -455,8 +454,6 @@ protected:
 public:
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	void reshapeFloater(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical);
-
 	/*virtual*/ void draw();
 	/*virtual*/ LLRect getSnapRect() const;
 	/*virtual*/ void refresh();
