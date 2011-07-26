@@ -11,6 +11,14 @@
       name="default_text">
         Default
     </panel.string>
+    <string
+     name="name_no_device">
+        No Device
+    </string>
+    <string
+     name="name_default_system_device">
+        Default System Device
+    </string>
     <icon
      follows="left|top"
      height="18"
