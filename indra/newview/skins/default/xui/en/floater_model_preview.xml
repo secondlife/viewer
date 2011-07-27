@@ -111,32 +111,47 @@
      You will not be able to complete the final upload of this model to the Second Life servers. [[VURL] Find out how] to get enabled for mesh model uploads.</text>
 
   <text
-	height="65"
-	top_delta="0"
+	height="26"
+	top_pad="5"
 	left_delta="0"
-	name="weights_text"
+	name="weights_text_left"
 	width="80"
 	word_wrap="true" 
 	>
 Download:
 Physics:
-Server:
-
-Prim equivs:
   </text>
-
   <text
-	height="65"
+	height="26"
 	top_delta="0"
-	left_delta="80"
-	name="weights"
+	left_pad="0"
+	name="weights_left"
 	width="70"
 	word_wrap="true" 
 	>
 [ST]
 [PH]
+  </text>
+  <text
+	height="26"
+	top_delta="0"
+	left_pad="0"
+	name="weights_text_right"
+	width="80"
+	word_wrap="true" 
+	>
+Server:
+Prim equivs:
+  </text>
+  <text
+	height="26"
+	top_delta="0"
+	left_pad="0"
+	name="weights_right"
+	width="70"
+	word_wrap="true" 
+	>
 [SIM]
-
 [EQ]
   </text>
 

@@ -5482,10 +5482,10 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 	if (visible)
 	{
 		std::string tbd = getString("tbd");
-		childSetTextArg("weights", "[EQ]", tbd);
-		childSetTextArg("weights", "[ST]", tbd);
-		childSetTextArg("weights", "[SIM]", tbd);
-		childSetTextArg("weights", "[PH]", tbd);
+		childSetTextArg("weights_right", "[EQ]", tbd);
+		childSetTextArg("weights_left", "[ST]", tbd);
+		childSetTextArg("weights_right", "[SIM]", tbd);
+		childSetTextArg("weights_left", "[PH]", tbd);
 		childSetTextArg("upload_fee", "[FEE]", tbd);
 		childSetTextArg("price_breakdown", "[STREAMING]", tbd);
 		childSetTextArg("price_breakdown", "[PHYSICS]", tbd);
@@ -5508,17 +5508,16 @@ void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
 	const LLSD& result = mModelPhysicsFee;
 	mUploadModelUrl = result["url"].asString();
 
-	childSetTextArg("weights", "[EQ]", llformat("%0.3f", result["resource_cost"].asReal()));
-	childSetTextArg("weights", "[ST]", llformat("%0.3f", result["model_streaming_cost"].asReal()));
-	childSetTextArg("weights", "[SIM]", llformat("%0.3f", result["simulation_cost"].asReal()));
-	childSetTextArg("weights", "[PH]", llformat("%0.3f", result["physics_cost"].asReal()));
+	childSetTextArg("weights_right", "[EQ]", llformat("%0.3f", result["resource_cost"].asReal()));
+	childSetTextArg("weights_left", "[ST]", llformat("%0.3f", result["model_streaming_cost"].asReal()));
+	childSetTextArg("weights_right", "[SIM]", llformat("%0.3f", result["simulation_cost"].asReal()));
+	childSetTextArg("weights_left", "[PH]", llformat("%0.3f", result["physics_cost"].asReal()));
 	childSetTextArg("upload_fee", "[FEE]", llformat("%d", result["upload_price"].asInteger()));
 	childSetTextArg("price_breakdown", "[STREAMING]", llformat("%d", result["upload_price_breakdown"]["mesh_streaming"].asInteger()));
 	childSetTextArg("price_breakdown", "[PHYSICS]", llformat("%d", result["upload_price_breakdown"]["mesh_physics"].asInteger()));
 	childSetTextArg("price_breakdown", "[INSTANCES]", llformat("%d", result["upload_price_breakdown"]["mesh_instance"].asInteger()));
 	childSetTextArg("price_breakdown", "[TEXTURES]", llformat("%d", result["upload_price_breakdown"]["texture"].asInteger()));
 	childSetTextArg("price_breakdown", "[MODEL]", llformat("%d", result["upload_price_breakdown"]["model"].asInteger()));
-	childSetVisible("weights", true);
 	childSetVisible("upload_fee", true);
 	childSetVisible("price_breakdown", true);
 	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
@@ -5595,10 +5594,6 @@ void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
 	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
 	getChild<LLTextBox>("warning_title")->setVisible(!mHasUploadPerm);
 	getChild<LLTextBox>("warning_message")->setVisible(!mHasUploadPerm);
-
-	// Hide the accounting info if upload is not permitted.
-	getChild<LLTextBox>("weights_text")->setVisible(mHasUploadPerm);
-	getChild<LLTextBox>("weights")->setVisible(mHasUploadPerm);
 }
 
 void LLFloaterModelPreview::setPermissonsErrorStatus(U32 status, const std::string& reason)
