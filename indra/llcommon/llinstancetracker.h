@@ -69,12 +69,6 @@ public:
 			--sIterationNestDepth;
 		}
 
-		instance_iter& operator =(const instance_iter& other)
-		{
-			mIterator = other.mIterator;
-			++sIterationNestDepth;
-			super_t::operator=(other);
-		}
 
 	private:
 		friend class boost::iterator_core_access;
@@ -108,13 +102,6 @@ public:
 			:	mIterator(other.mIterator)
 		{
 			++sIterationNestDepth;
-		}
-
-		key_iter& operator =(const key_iter& other)
-		{
-			mIterator = other.mIterator;
-			++sIterationNestDepth;
-			super_t::operator=(other);
 		}
 
 		~key_iter()
