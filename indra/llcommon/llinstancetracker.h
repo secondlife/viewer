@@ -58,7 +58,7 @@ public:
 	public:
 		typedef boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag> super_t;
 		
-		instance_iter(typename const InstanceMap::iterator& it)
+		instance_iter(const typename InstanceMap::iterator& it)
 		:	mIterator(it)
 		{
 			++sIterationNestDepth;
@@ -210,7 +210,7 @@ public:
 	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
 	{
 	public:
-		instance_iter(typename const InstanceSet::iterator& it)
+		instance_iter(const typename InstanceSet::iterator& it)
 		:	mIterator(it)
 		{
 			++sIterationNestDepth;
