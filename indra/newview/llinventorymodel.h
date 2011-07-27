@@ -492,7 +492,7 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	static void processUpdateCreateInventoryItem(LLMessageSystem* msg, void**);
-	static void removeInventoryItem(LLUUID agent_id, LLMessageSystem* msg);
+	static void removeInventoryItem(LLUUID agent_id, LLMessageSystem* msg, const char* msg_label);
 	static void processRemoveInventoryItem(LLMessageSystem* msg, void**);
 	static void processUpdateInventoryFolder(LLMessageSystem* msg, void**);
 	static void removeInventoryFolder(LLUUID agent_id, LLMessageSystem* msg);

@@ -2287,18 +2287,21 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
 }
 
 // 	static
-void LLInventoryModel::removeInventoryItem(LLUUID agent_id, LLMessageSystem* msg)
+void LLInventoryModel::removeInventoryItem(LLUUID agent_id, LLMessageSystem* msg, const char* msg_label)
 {
 	LLUUID item_id;
-	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
+	S32 count = msg->getNumberOfBlocksFast(msg_label);
+	lldebugs << "Message has " << count << " item blocks" << llendl;
 	uuid_vec_t item_ids;
 	update_map_t update;
 	for(S32 i = 0; i < count; ++i)
 	{
-		msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_ItemID, item_id, i);
+		msg->getUUIDFast(msg_label, _PREHASH_ItemID, item_id, i);
+		lldebugs << "Checking for item-to-be-removed " << item_id << llendl;
 		LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
 		if(itemp)
 		{
+		lldebugs << "Item will be removed " << item_id << llendl;
 			// we only bother with the delete and account if we found
 			// the item - this is usually a back-up for permissions,
 			// so frequently the item will already be gone.
@@ -2309,6 +2312,7 @@ void LLInventoryModel::removeInventoryItem(LLUUID agent_id, LLMessageSystem* msg
 	gInventory.accountForUpdate(update);
 	for(uuid_vec_t::iterator it = item_ids.begin(); it != item_ids.end(); ++it)
 	{
+		lldebugs << "Calling deleteObject " << *it << llendl;
 		gInventory.deleteObject(*it);
 	}
 }
@@ -2325,7 +2329,7 @@ void LLInventoryModel::processRemoveInventoryItem(LLMessageSystem* msg, void**)
 				<< llendl;
 		return;
 	}
-	LLInventoryModel::removeInventoryItem(agent_id, msg);
+	LLInventoryModel::removeInventoryItem(agent_id, msg, _PREHASH_InventoryData);
 	gInventory.notifyObservers();
 }
 
@@ -2447,7 +2451,7 @@ void LLInventoryModel::processRemoveInventoryObjects(LLMessageSystem* msg,
 		return;
 	}
 	LLInventoryModel::removeInventoryFolder( agent_id, msg );
-	LLInventoryModel::removeInventoryItem( agent_id, msg );
+	LLInventoryModel::removeInventoryItem( agent_id, msg, _PREHASH_ItemData );
 	gInventory.notifyObservers();
 }
 
