@@ -53,7 +53,7 @@ LLFloaterWebContent::_Params::_Params()
 
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 :	LLFloater( params ),
-	LLInstanceTracker(params.id()),
+	LLInstanceTracker<LLFloaterWebContent, LLUUID>(params.id()),
 	mUUID(params.id().asString())
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
