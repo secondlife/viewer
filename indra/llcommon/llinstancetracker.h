@@ -73,12 +73,12 @@ public:
 		void increment() { mIterator++; }
 		bool equal(instance_iter const& other) const
 		{
-			return mIterator == other.m_iterator;
+			return mIterator == other.mIterator;
 		}
 
 		T& dereference() const
 		{
-			return mIterator->second;
+			return *(mIterator->second);
 		}
 
 		typename InstanceMap::iterator mIterator;
@@ -102,14 +102,14 @@ public:
 		friend class boost::iterator_core_access;
 
 		void increment() { mIterator++; }
-		bool equal(instance_iter const& other) const
+		bool equal(key_iter const& other) const
 		{
-			return mIterator == other.m_iterator;
+			return mIterator == other.mIterator;
 		}
 
 		KEY& dereference() const
 		{
-			return mIterator->first;
+			return const_cast<KEY&>(mIterator->first);
 		}
 
 		typename InstanceMap::iterator mIterator;

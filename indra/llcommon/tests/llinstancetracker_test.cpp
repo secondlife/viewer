@@ -151,25 +151,13 @@ namespace tut
     {
         Unkeyed one, two, three;
         typedef std::set<Unkeyed*> KeySet;
-        KeySet keys;
-        keys.insert(&one);
-        keys.insert(&two);
-        keys.insert(&three);
-	{
-		for (Unkeyed::key_iter ki(beginKeys()), kend(endKeys());
-		     ki != kend; ++ki)
-		{
-			ensure_equals("spurious key", keys.erase(*ki), 1);
-		}
-	}
-        ensure_equals("unreported key", keys.size(), 0);
-
+    
         KeySet instances;
         instances.insert(&one);
         instances.insert(&two);
         instances.insert(&three);
 	{
-		for (Unkeyed::instance_iter ii(beginInstances()), iend(endInstances()); ii != iend; ++ii)
+		for (Unkeyed::instance_iter ii(Unkeyed::beginInstances()), iend(Unkeyed::endInstances()); ii != iend; ++ii)
 		{
 			Unkeyed& ref = *ii;
 			ensure_equals("spurious instance", instances.erase(&ref), 1);
