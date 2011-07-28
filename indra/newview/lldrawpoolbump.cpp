@@ -1073,8 +1073,8 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 		if (!src_image->hasCallbacks())
 		{ //if image has no callbacks but resolutions don't match, trigger raw image loaded callback again
 			if (src_image->getWidth() != bump->getWidth() ||
-				src_image->getHeight() != bump->getHeight() ||
-				(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
+				src_image->getHeight() != bump->getHeight())// ||
+				//(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
 			{
 				src_image->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
 				src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()), NULL );
