@@ -41,6 +41,7 @@
 #include "llbuffer.h"
 #include "lliopipe.h"
 #include "llsd.h"
+#include "llthread.h"
 
 class LLMutex;
 
@@ -250,10 +251,17 @@ private:
 	static LLMutex* sHandleMutex;
 };
 
-class LLCurl::Multi
+class LLCurl::Multi : public LLThread
 {
 	LOG_CLASS(Multi);
 public:
+
+	typedef enum
+	{
+		PERFORM_STATE_READY=0,
+		PERFORM_STATE_PERFORMING=1,
+		PERFORM_STATE_COMPLETED=2
+	} ePerformState;
 
 	Multi();
 	~Multi();
@@ -264,12 +272,19 @@ public:
 	void removeEasy(Easy* easy);
 
 	S32 process();
-	S32 perform();
+	void perform();
+
+	virtual void run();
 
 	CURLMsg* info_read(S32* msgs_in_queue);
 
 	S32 mQueued;
 	S32 mErrorCount;
+
+	S32 mPerformState;
+
+	LLCondition* mSignal;
+	bool mQuitting;
 
 private:
 	void easyFree(Easy*);
@@ -336,7 +351,7 @@ public:
 	void slist_append(const char* str);
 	void sendRequest(const std::string& url);
 	void requestComplete();
-	S32 perform();
+	void perform();
 	bool getResult(CURLcode* result, LLCurl::TransferInfo* info = NULL);
 	std::string getErrorString();
 

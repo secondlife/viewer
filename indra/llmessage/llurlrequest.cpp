@@ -270,6 +270,8 @@ LLIOPipe::EStatus LLURLRequest::handleError(
 	return status;
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST("URL Request");
+
 // virtual
 LLIOPipe::EStatus LLURLRequest::process_impl(
 	const LLChannelDescriptors& channels,
@@ -278,6 +280,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_URL_REQUEST);
 	PUMP_DEBUG;
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	//llinfos << "LLURLRequest::process_impl()" << llendl;
@@ -288,6 +291,8 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	const S32 MIN_ACCUMULATION = 100000;
 	if(pump && (mDetail->mByteAccumulator > MIN_ACCUMULATION))
 	{
+		static LLFastTimer::DeclareTimer FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
+		LLFastTimer t(FTM_URL_ADJUST_TIMEOUT);
 		 // This is a pretty sloppy calculation, but this
 		 // tries to make the gross assumption that if data
 		 // is coming in at 56kb/s, then this transfer will
@@ -335,16 +340,30 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	{
 		PUMP_DEBUG;
 		LLIOPipe::EStatus status = STATUS_BREAK;
-		mDetail->mCurlRequest->perform();
+		static LLFastTimer::DeclareTimer FTM_URL_PERFORM("Perform");
+		{
+			LLFastTimer t(FTM_URL_PERFORM);
+			mDetail->mCurlRequest->perform();
+		}
+
 		while(1)
 		{
 			CURLcode result;
-			bool newmsg = mDetail->mCurlRequest->getResult(&result);
+
+			static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
+
+			bool newmsg = false;
+			{
+				LLFastTimer t(FTM_PROCESS_URL_REQUEST_GET_RESULT);
+				newmsg = mDetail->mCurlRequest->getResult(&result);
+			}
+		
 			if(!newmsg)
 			{
 				// keep processing
 				break;
 			}
+		
 
 			mState = STATE_HAVE_RESPONSE;
 			context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
@@ -370,7 +389,11 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 						link.mChannels = LLBufferArray::makeChannelConsumer(
 							channels);
 						chain.push_back(link);
-						pump->respond(chain, buffer, context);
+						static LLFastTimer::DeclareTimer FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
+						{
+							LLFastTimer t(FTM_PROCESS_URL_PUMP_RESPOND);
+							pump->respond(chain, buffer, context);
+						}
 						mCompletionCallback = NULL;
 					}
 					break;
@@ -423,8 +446,11 @@ void LLURLRequest::initialize()
 	mResponseTransferedBytes = 0;
 }
 
+static LLFastTimer::DeclareTimer FTM_URL_REQUEST_CONFIGURE("URL Configure");
 bool LLURLRequest::configure()
 {
+	LLFastTimer t(FTM_URL_REQUEST_CONFIGURE);
+	
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	bool rv = false;
 	S32 bytes = mDetail->mResponseBuffer->countAfter(
@@ -625,6 +651,7 @@ static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 	return header_len;
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_URL_EXTRACTOR("URL Extractor");
 /**
  * LLContextURLExtractor
  */
@@ -636,6 +663,7 @@ LLIOPipe::EStatus LLContextURLExtractor::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_URL_EXTRACTOR);
 	PUMP_DEBUG;
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	// The destination host is in the context.
@@ -714,6 +742,7 @@ void LLURLRequestComplete::responseStatus(LLIOPipe::EStatus status)
 	mRequestStatus = status;
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_URL_COMPLETE("URL Complete");
 // virtual
 LLIOPipe::EStatus LLURLRequestComplete::process_impl(
 	const LLChannelDescriptors& channels,
@@ -722,6 +751,7 @@ LLIOPipe::EStatus LLURLRequestComplete::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_URL_COMPLETE);
 	PUMP_DEBUG;
 	complete(channels, buffer);
 	return STATUS_OK;

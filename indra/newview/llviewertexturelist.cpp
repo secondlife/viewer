@@ -115,7 +115,7 @@ void LLViewerTextureList::doPreloadImages()
 	
 	// Set the "white" image
 	LLViewerFetchedTexture::sWhiteImagep = LLViewerTextureManager::getFetchedTextureFromFile("white.tga", MIPMAP_NO, LLViewerFetchedTexture::BOOST_UI);
-	
+	LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
 	LLUIImageList* image_list = LLUIImageList::getInstance();
 
 	image_list->initFromFile();

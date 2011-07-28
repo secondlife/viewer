@@ -4006,6 +4006,8 @@ public:
 
 static LLFastTimer::DeclareTimer FTM_AUDIO_UPDATE("Update Audio");
 static LLFastTimer::DeclareTimer FTM_CLEANUP("Cleanup");
+static LLFastTimer::DeclareTimer FTM_CLEANUP_DRAWABLES("Drawables");
+static LLFastTimer::DeclareTimer FTM_CLEANUP_OBJECTS("Objects");
 static LLFastTimer::DeclareTimer FTM_IDLE_CB("Idle Callbacks");
 static LLFastTimer::DeclareTimer FTM_LOD_UPDATE("Update LOD");
 static LLFastTimer::DeclareTimer FTM_OBJECTLIST_UPDATE("Update Objectlist");
@@ -4282,8 +4284,14 @@ void LLAppViewer::idle()
 
 	{
 		LLFastTimer t(FTM_CLEANUP);
-		gObjectList.cleanDeadObjects();
-		LLDrawable::cleanupDeadDrawables();
+		{
+			LLFastTimer t(FTM_CLEANUP_OBJECTS);
+			gObjectList.cleanDeadObjects();
+		}
+		{
+			LLFastTimer t(FTM_CLEANUP_DRAWABLES);
+			LLDrawable::cleanupDeadDrawables();
+		}
 	}
 	
 	//

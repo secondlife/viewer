@@ -3903,7 +3903,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://www.xstreetsl.com/modules.php?name=Marketplace&amp;CategoryID=233</string>
+      <string>https://marketplace.secondlife.com/products/search?search[category_id]=200&amp;search[maturity][]=General&amp;search[page]=1&amp;search[per_page]=12</string>
     </map>
     <key>GridCrossSections</key>
     <map>
