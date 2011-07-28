@@ -25,22 +25,23 @@
  */
 
 #include "linden_common.h"
-
 #include "llcrashloggermac.h"
 
 int main(int argc, char **argv)
 {
-	//time(&gLaunchTime);
-	
-	llinfos << "Starting Second Life Viewer Crash Reporter" << llendl;
+	llinfos << "Starting crash reporter." << llendl;
 
 	LLCrashLoggerMac app;
 	app.parseCommandOptions(argc, argv);
-	if(!app.init())
+
+	if (! app.init())
 	{
-		return 0;
+		llwarns << "Unable to initialize application." << llendl;
+		return 1;
 	}
+
 	app.mainLoop();
-		
+	app.cleanup();
+	llinfos << "Crash reporter finished normally." << llendl;
 	return 0;
 }

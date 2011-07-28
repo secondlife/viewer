@@ -70,7 +70,7 @@
 #include "llappviewer.h"
 #include "llmapimagetype.h"
 #include "llweb.h"
-#include "llslider.h"
+#include "llsliderctrl.h"
 #include "message.h"
 #include "llwindow.h"			// copyTextToClipboard()
 #include <algorithm>
@@ -1029,7 +1029,7 @@ void LLFloaterWorldMap::adjustZoomSliderBounds()
 	
 	F32 min_power = log(pixels_per_region/256.f)/log(2.f);
 	
-	getChild<LLSlider>("zoom slider")->setMinValue(min_power);
+	getChild<LLSliderCtrl>("zoom slider")->setMinValue(min_power);
 }
 
 
@@ -1070,7 +1070,7 @@ void LLFloaterWorldMap::onComboTextEntry()
 	// Reset the tracking whenever we start typing into any of the search fields,
 	// so that hitting <enter> does an auto-complete versus teleporting us to the
 	// previously selected landmark/friend.
-	LLTracker::clearFocus();
+	LLTracker::stopTracking(NULL);
 }
 
 void LLFloaterWorldMap::onSearchTextEntry( )

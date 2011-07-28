@@ -66,15 +66,4 @@ protected:
 	bool mSentCrashLogs;
 };
 
-class LLCrashLoggerText : public LLCrashLogger
-{
-public:
-	LLCrashLoggerText(void) {}
-	~LLCrashLoggerText(void) {}
-
-	virtual bool mainLoop();
-	virtual void updateApplication(const std::string& message = LLStringUtil::null);
-};
-
-
 #endif //LLCRASHLOGGER_H

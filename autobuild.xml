@@ -138,9 +138,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6299f1fd01147820e05195b84a3fe1d7</string>
+              <string>e6caaeea16131e1f2343ecd7765e3147</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/233053/arch/Darwin/installer/ares-1.7.4-darwin-20110616.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-darwin-20110217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -150,9 +150,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b62efd5a68e5dd38314f60a20e651d43</string>
+              <string>0745872db83d45f4ab3bdc697d98e264</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/233053/arch/Linux/installer/ares-1.7.4-linux-20110616.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/223275/arch/Linux/installer/ares-1.7.1-linux-20110310.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -162,9 +162,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c2f4ea23619f3d453e799d6e89ff6930</string>
+              <string>1dcec6babd249a2597114d4ac226c461</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/233053/arch/CYGWIN/installer/ares-1.7.4-windows-20110616.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares/rev/220963/arch/CYGWIN/installer/ares-1.7.1-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -282,9 +282,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>463e4cc99ec8659eeee518beb41f31b6</string>
+              <string>aaea644191807f51051cefa2fac11069</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/236200/arch/Darwin/installer/curl-7.21.1-darwin-20110719.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.21.1-darwin-20110316.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -306,9 +306,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>23d603a7bb864d0a8b6001f19a1b7335</string>
+              <string>fea96aa2a7d513397317194f3d6c979b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/236200/arch/CYGWIN/installer/curl-7.21.1-windows-20110719.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.21.1-windows-20110211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1206,9 +1206,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c6c28da2f262b4a146a90724b635f13f</string>
+              <string>a7c80fd8516df3b879b669b2b220067f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/236284/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110720.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/232420/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110608.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1218,9 +1218,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>67505bb5e72ed5912c818d506e9eac22</string>
+              <string>c05a33ee8b6f253b5a744596dfc3707d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/236284/arch/Linux/installer/llqtwebkit-4.7.1-linux-20110720.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-qt4.6-20101013.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1230,9 +1230,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>433e15cbb4d59aae9be10c18d19b094e</string>
+              <string>b9cc0333cc274c9cc40256ab7146b4fc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/236284/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110720.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/232420/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110608.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1359,6 +1359,54 @@
           </map>
         </map>
       </map>
+      <key>openSSL</key>
+      <map>
+        <key>license</key>
+        <string>openSSL</string>
+        <key>license_file</key>
+        <string>LICENSES/openssl.txt</string>
+        <key>name</key>
+        <string>openSSL</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>facee34b8bd57ad602157e65a5af1a49</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openssl-0.9.8q-darwin-20110211.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3d40be8566fa4b9df9a38e2a0f9ea467</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/226882/arch/Linux/installer/openssl-1.0.0d-linux-20110418.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>774c7f0a0312bee3054757a623e227bc</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/220986/arch/CYGWIN/installer/openssl-0.9.8q-windows-20110211.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
       <key>openal_soft</key>
       <map>
         <key>license</key>
@@ -1441,54 +1489,6 @@
               <string>ca5765af55f798724d601720afdf6953</string>
               <key>url</key>
               <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.4-windows-20110302.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>openssl</key>
-      <map>
-        <key>license</key>
-        <string>openssl</string>
-        <key>license_file</key>
-        <string>LICENSES/openssl.txt</string>
-        <key>name</key>
-        <string>openssl</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>1aecd89fee54741f2c4fd65c082d2604</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/227862/arch/Darwin/installer/openssl-1.0.0d-darwin-20110427.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>eab3a49d1ef77a651a3896d1d4864a78</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/227862/arch/Linux/installer/openssl-1.0.0d-linux-20110427.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>8ba049ecc76bb1adf3ab3e5bad64c39e</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/227862/arch/CYGWIN/installer/openssl-1.0.0d-windows-20110427.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1907,12 +1907,12 @@
             <map>
               <key>build</key>
               <map>
-                <key>command</key>
-                <string>xcodebuild</string>
                 <key>filters</key>
                 <array>
                   <string>setenv</string>
                 </array>
+                <key>command</key>
+                <string>xcodebuild</string>
                 <key>options</key>
                 <array>
                   <string>-configuration Debug</string>
@@ -1961,12 +1961,12 @@
             <map>
               <key>build</key>
               <map>
-                <key>command</key>
-                <string>xcodebuild</string>
                 <key>filters</key>
                 <array>
                   <string>setenv</string>
                 </array>
+                <key>command</key>
+                <string>xcodebuild</string>
                 <key>options</key>
                 <array>
                   <string>-configuration RelWithDebInfo</string>
@@ -2017,12 +2017,12 @@
             <map>
               <key>build</key>
               <map>
-                <key>command</key>
-                <string>xcodebuild</string>
                 <key>filters</key>
                 <array>
                   <string>setenv</string>
                 </array>
+                <key>command</key>
+                <string>xcodebuild</string>
                 <key>options</key>
                 <array>
                   <string>-configuration Release</string>

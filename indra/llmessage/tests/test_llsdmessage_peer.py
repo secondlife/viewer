@@ -124,14 +124,19 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
             # Suppress error output as well
             pass
 
+class Server(HTTPServer):
+    # This pernicious flag is on by default in HTTPServer. But proper
+    # operation of freeport() absolutely depends on it being off.
+    allow_reuse_address = False
+
 if __name__ == "__main__":
-    # Instantiate an HTTPServer(TestHTTPRequestHandler) on the first free port
+    # Instantiate a Server(TestHTTPRequestHandler) on the first free port
     # in the specified port range. Doing this inline is better than in a
     # daemon thread: if it blows up here, we'll get a traceback. If it blew up
     # in some other thread, the traceback would get eaten and we'd run the
     # subject test program anyway.
     httpd, port = freeport(xrange(8000, 8020),
-                           lambda port: HTTPServer(('127.0.0.1', port), TestHTTPRequestHandler))
+                           lambda port: Server(('127.0.0.1', port), TestHTTPRequestHandler))
     # Pass the selected port number to the subject test program via the
     # environment. We don't want to impose requirements on the test program's
     # command-line parsing -- and anyway, for C++ integration tests, that's

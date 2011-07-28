@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 This file contains metadata about how to load, display, and scale textures for rendering in the UI.
 Images do *NOT* have to appear in this file in order to use them as textures in the UI...simply refer
 to them by filename (relative to textures directory).
@@ -390,6 +390,10 @@ with the same filename but different name
  <texture name="Parcel_ScriptsNo_Dark" file_name="icons/Parcel_ScriptsNo_Dark.png" preload="false" />
  <texture name="Parcel_Voice_Dark" file_name="icons/Parcel_Voice_Dark.png" preload="false" />
  <texture name="Parcel_VoiceNo_Dark" file_name="icons/Parcel_VoiceNo_Dark.png" preload="false" />
+ <texture name="Parcel_SeeAVsOff_Dark" file_name="icons/Parcel_SeeAVsOff_Dark.png" preload="false" />
+ <texture name="Parcel_SeeAVsOn_Dark" file_name="icons/Parcel_SeeAVsOn_Dark.png" preload="false" />
+ <texture name="Parcel_SeeAVsOff_Light" file_name="icons/Parcel_SeeAVsOff_Light.png" preload="false" />
+ <texture name="Parcel_SeeAVsOn_Light" file_name="icons/Parcel_SeeAVsOn_Light.png" preload="false" />
 
  <texture name="Parcel_BuildNo_Light" file_name="icons/Parcel_BuildNo_Light.png" preload="false" />
  <texture name="Parcel_FlyNo_Light" file_name="icons/Parcel_FlyNo_Light.png" preload="false" />

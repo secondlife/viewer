@@ -2500,37 +2500,43 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			{
 				U16* n = (U16*) &(norm[0]);
-				for (U32 j = 0; j < num_verts; ++j)
+				if(n)
 				{
-					norm_out->set((F32) n[0], (F32) n[1], (F32) n[2]);
-					norm_out->div(65535.f);
-					norm_out->mul(2.f);
-					norm_out->sub(1.f);
-					norm_out++;
-					n += 3;
+					for (U32 j = 0; j < num_verts; ++j)
+					{
+						norm_out->set((F32) n[0], (F32) n[1], (F32) n[2]);
+						norm_out->div(65535.f);
+						norm_out->mul(2.f);
+						norm_out->sub(1.f);
+						norm_out++;
+						n += 3;
+					}
 				}
 			}
 
 			{
 				U16* t = (U16*) &(tc[0]);
-				for (U32 j = 0; j < num_verts; j+=2)
+				if(t)
 				{
-					if (j < num_verts-1)
+					for (U32 j = 0; j < num_verts; j+=2)
 					{
-						tc_out->set((F32) t[0], (F32) t[1], (F32) t[2], (F32) t[3]);
+						if (j < num_verts-1)
+						{
+							tc_out->set((F32) t[0], (F32) t[1], (F32) t[2], (F32) t[3]);
+						}
+						else
+						{
+							tc_out->set((F32) t[0], (F32) t[1], 0.f, 0.f);
+						}
+
+						t += 4;
+
+						tc_out->div(65535.f);
+						tc_out->mul(tc_range);
+						tc_out->add(min_tc4);
+
+						tc_out++;
 					}
-					else
-					{
-						tc_out->set((F32) t[0], (F32) t[1], 0.f, 0.f);
-					}
-
-					t += 4;
-
-					tc_out->div(65535.f);
-					tc_out->mul(tc_range);
-					tc_out->add(min_tc4);
-
-					tc_out++;
 				}
 			}
 
@@ -3253,7 +3259,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 		{
 			F32 area = sculptGetSurfaceArea();
 
-			const F32 SCULPT_MAX_AREA = 32.f;
+			const F32 SCULPT_MAX_AREA = 384.f;
 
 			if (area < SCULPT_MIN_AREA || area > SCULPT_MAX_AREA)
 			{

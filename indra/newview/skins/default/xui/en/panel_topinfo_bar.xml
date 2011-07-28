@@ -88,6 +88,16 @@
     visible="false"
     width="14"
     />
+  <icon
+    follows="right|top"
+    height="13"
+    image_name="Parcel_SeeAVsOff_Light"
+    left="2"
+    name="see_avatars_icon"
+    top="3"
+    visible="false"
+    width="14"
+    />
   <text
     follows="right|top"
     font="SansSerifSmall"

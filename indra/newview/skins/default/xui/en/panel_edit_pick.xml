@@ -220,7 +220,7 @@
 			  height="23"
 			  layout="topleft"
 			  left_pad="4"
-			  name="layout_panel1"
+			  name="layout_panel2"
 		      user_resize="false" 
 		      auto_resize="true"
 			  width="146">

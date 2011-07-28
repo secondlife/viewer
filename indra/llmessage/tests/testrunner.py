@@ -27,6 +27,8 @@ Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
 
+from __future__ import with_statement
+
 import os
 import sys
 import re
@@ -79,9 +81,14 @@ def freeport(portlist, expr):
 
     Example:
 
+    class Server(HTTPServer):
+        # If you use BaseHTTPServer.HTTPServer, turning off this flag is
+        # essential for proper operation of freeport()!
+        allow_reuse_address = False
+    # ...
     server, port = freeport(xrange(8000, 8010),
-                            lambda port: HTTPServer(("localhost", port),
-                                                    MyRequestHandler))
+                            lambda port: Server(("localhost", port),
+                                                MyRequestHandler))
     # pass 'port' to client code
     # call server.serve_forever()
     """
@@ -164,3 +171,92 @@ def run(*args, **kwds):
     rc = os.spawnv(os.P_WAIT, args[0], args)
     debug("%s returned %s", args[0], rc)
     return rc
+
+# ****************************************************************************
+#   test code -- manual at this point, see SWAT-564
+# ****************************************************************************
+def test_freeport():
+    # ------------------------------- Helpers --------------------------------
+    from contextlib import contextmanager
+    # helper Context Manager for expecting an exception
+    # with exc(SomeError):
+    #     raise SomeError()
+    # raises AssertionError otherwise.
+    @contextmanager
+    def exc(exception_class, *args):
+        try:
+            yield
+        except exception_class, err:
+            for i, expected_arg in enumerate(args):
+                assert expected_arg == err.args[i], \
+                       "Raised %s, but args[%s] is %r instead of %r" % \
+                       (err.__class__.__name__, i, err.args[i], expected_arg)
+            print "Caught expected exception %s(%s)" % \
+                  (err.__class__.__name__, ', '.join(repr(arg) for arg in err.args))
+        else:
+            assert False, "Failed to raise " + exception_class.__class__.__name__
+
+    # helper to raise specified exception
+    def raiser(exception):
+        raise exception
+
+    # the usual
+    def assert_equals(a, b):
+        assert a == b, "%r != %r" % (a, b)
+
+    # ------------------------ Sanity check the above ------------------------
+    class SomeError(Exception): pass
+    # Without extra args, accept any err.args value
+    with exc(SomeError):
+        raiser(SomeError("abc"))
+    # With extra args, accept only the specified value
+    with exc(SomeError, "abc"):
+        raiser(SomeError("abc"))
+    with exc(AssertionError):
+        with exc(SomeError, "abc"):
+            raiser(SomeError("def"))
+    with exc(AssertionError):
+        with exc(socket.error, errno.EADDRINUSE):
+            raiser(socket.error(errno.ECONNREFUSED, 'Connection refused'))
+
+    # ----------- freeport() without engaging socket functionality -----------
+    # If portlist is empty, freeport() raises StopIteration.
+    with exc(StopIteration):
+        freeport([], None)
+
+    assert_equals(freeport([17], str), ("17", 17))
+
+    # This is the magic exception that should prompt us to retry
+    inuse = socket.error(errno.EADDRINUSE, 'Address already in use')
+    # Get the iterator to our ports list so we can check later if we've used all
+    ports = iter(xrange(5))
+    with exc(socket.error, errno.EADDRINUSE):
+        freeport(ports, lambda port: raiser(inuse))
+    # did we entirely exhaust 'ports'?
+    with exc(StopIteration):
+        ports.next()
+
+    ports = iter(xrange(2))
+    # Any exception but EADDRINUSE should quit immediately
+    with exc(SomeError):
+        freeport(ports, lambda port: raiser(SomeError()))
+    assert_equals(ports.next(), 1)
+
+    # ----------- freeport() with platform-dependent socket stuff ------------
+    # This is what we should've had unit tests to begin with (see CHOP-661).
+    def newbind(port):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(('127.0.0.1', port))
+        return sock
+
+    bound0, port0 = freeport(xrange(7777, 7780), newbind)
+    assert_equals(port0, 7777)
+    bound1, port1 = freeport(xrange(7777, 7780), newbind)
+    assert_equals(port1, 7778)
+    bound2, port2 = freeport(xrange(7777, 7780), newbind)
+    assert_equals(port2, 7779)
+    with exc(socket.error, errno.EADDRINUSE):
+        bound3, port3 = freeport(xrange(7777, 7780), newbind)
+
+if __name__ == "__main__":
+    test_freeport()

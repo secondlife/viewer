@@ -1099,9 +1099,6 @@
 	<string name="InvFolder My Inventory">
 		我的收納區
 	</string>
-	<string name="InvFolder My Favorites">
-		My Favorites
-	</string>
 	<string name="InvFolder Library">
 		Library
 	</string>
@@ -1160,10 +1157,10 @@
 		姿勢
 	</string>
 	<string name="InvFolder Favorite">
-		Favorites
+		My Favorites
 	</string>
 	<string name="InvFolder favorite">
-		Favorites
+		My Favorites
 	</string>
 	<string name="InvFolder Current Outfit">
 		目前裝扮

@@ -1192,6 +1192,12 @@ support@secondlife.com にお問い合わせください。
 	<string name="InventoryNoTexture">
 		「持ち物」内にこのテクスチャのコピーがありません
 	</string>
+	<string name="InventoryInboxNoItems">
+		マーケットプレイスで購入した商品はここに配達されます。
+	</string>
+	<string name="InventoryOutboxNoItems">
+		マーケットプレイス店頭に掲載するための準備として、ここに商品をドラッグします。
+	</string>
 	<string name="no_transfer" value=" （再販・プレゼント不可）"/>
 	<string name="no_modify" value=" （編集不可）"/>
 	<string name="no_copy" value=" （コピー不可）"/>
@@ -1237,9 +1243,6 @@ support@secondlife.com にお問い合わせください。
 	<string name="Since Logoff" value=" - ログオフ以来"/>
 	<string name="InvFolder My Inventory">
 		持ち物
-	</string>
-	<string name="InvFolder My Favorites">
-		お気に入り
 	</string>
 	<string name="InvFolder Library">
 		ライブラリ
@@ -1324,6 +1327,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="InvFolder All">
 		全員
+	</string>
+	<string name="no_attachments">
+		着用しているアタッチメントはありません
 	</string>
 	<string name="Buy">
 		買う
@@ -1660,6 +1666,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="IMTeen">
 		ティーン
 	</string>
+	<string name="Anyone">
+		全員
+	</string>
 	<string name="RegionInfoError">
 		エラー
 	</string>
@@ -1881,6 +1890,12 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="Public">
 		パブリック
+	</string>
+	<string name="LocalSettings">
+		ローカル設定
+	</string>
+	<string name="RegionSettings">
+		リージョン（地域）の設定
 	</string>
 	<string name="ClassifiedClicksTxt">
 		クリック数： [TELEPORT] テレポート、 [MAP] 地図、 [PROFILE] プロフィール
@@ -3726,6 +3741,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
 		General リージョン
+	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		この区画外にアバターを見えるようにして、チャットも許可
 	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] アップデート

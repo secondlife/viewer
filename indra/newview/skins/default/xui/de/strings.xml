@@ -1192,6 +1192,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
+	<string name="InventoryInboxNoItems">
+		Objekte, die auf dem Marktplatz gekauft wurden, werden hierher geliefert.
+	</string>
+	<string name="InventoryOutboxNoItems">
+		Objekte hierher ziehen, um Sie in Ihrer Marktplatz-Storefront zum Verkauf anzubieten.
+	</string>
 	<string name="no_transfer" value=" (kein Transferieren)"/>
 	<string name="no_modify" value=" (kein Bearbeiten)"/>
 	<string name="no_copy" value=" (kein Kopieren)"/>
@@ -1237,9 +1243,6 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="Since Logoff" value=" - Seit Abmeldung"/>
 	<string name="InvFolder My Inventory">
 		Mein Inventar
-	</string>
-	<string name="InvFolder My Favorites">
-		Meine Favoriten
 	</string>
 	<string name="InvFolder Library">
 		Bibliothek
@@ -1299,10 +1302,10 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Gesten
 	</string>
 	<string name="InvFolder Favorite">
-		Favoriten
+		Meine Favoriten
 	</string>
 	<string name="InvFolder favorite">
-		Favoriten
+		Meine Favoriten
 	</string>
 	<string name="InvFolder Current Outfit">
 		Aktuelles Outfit
@@ -1324,6 +1327,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="InvFolder All">
 		Alle
+	</string>
+	<string name="no_attachments">
+		Keine Anhänge getragen
 	</string>
 	<string name="Buy">
 		Kaufen
@@ -1660,6 +1666,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="IMTeen">
 		Teen
 	</string>
+	<string name="Anyone">
+		jeder
+	</string>
 	<string name="RegionInfoError">
 		Fehler
 	</string>
@@ -1881,6 +1890,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="Public">
 		Öffentlich
+	</string>
+	<string name="LocalSettings">
+		Lokale Einstellungen
+	</string>
+	<string name="RegionSettings">
+		Regionseinstellungen
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Klicks: [TELEPORT] teleportieren, [MAP] Karte, [PROFILE] Profil
@@ -3726,6 +3741,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
 		Generelle Region
+	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		Avatare sichtbar; Chat außerhalb dieser Parzelle gestattet
 	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Aktualisierung

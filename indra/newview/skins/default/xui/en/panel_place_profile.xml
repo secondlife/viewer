@@ -153,6 +153,14 @@
      name="icon_DamageNo"
      translate="false"
      value="Parcel_DamageNo_Dark" />
+    <string
+     name="icon_SeeAVs_Off"
+     translate="false"
+     value="Parcel_SeeAVsOff_Dark" />
+    <string
+     name="icon_SeeAVs_On"
+     translate="false"
+     value="Parcel_SeeAVsOn_Dark" />
     <button
      follows="top|left"
      height="24"
@@ -354,7 +362,7 @@
                  title="Parcel">
                     <panel
                      follows="all"
-                     height="175"
+                     height="200"
                      layout="topleft"
                      left="0"
                      name="parcel_characteristics_panel"
@@ -541,6 +549,31 @@
                          left_pad="0"
                          name="damage_value"
                          top_delta="0"
+                         value="Off"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="Parcel_SeeAVsOff_Dark"
+                         layout="topleft"
+                         left="10"
+                         name="see_avatars_icon"
+                         top_pad="7"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="8"
+                         name="see_avatars_label"
+                         value="See Avatars:"
+                         width="90" />
+                        <text
+                         follows="left|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="0"
+                         name="see_avatars_value"
                          value="Off"
                          width="60" />
                         <button

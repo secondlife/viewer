@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Environment Editor Floater" title="CONFIGURACIÓN DE ENTORNO">
+	<text name="note">
+		Puedes personalizar la configuración del entorno de tu visor con las opciones siguientes.
+	</text>
+	<radio_group name="region_settings_radio_group">
+		<radio_item label="Usar configuración de región" name="use_region_settings"/>
+		<radio_item label="Personalizar mi entorno" name="use_my_settings"/>
+	</radio_group>
+	<panel name="user_environment_settings">
+		<text name="note">
+			Nota: La configuración personalizada no estará visible para otros usuarios.
+		</text>
+		<text name="water_settings_title">
+			Configuración de agua
+		</text>
+		<combo_box name="water_settings_preset_combo">
+			<combo_box.item label="-Selecciona un valor predefinido-" name="item0"/>
+		</combo_box>
+		<text name="sky_dayc_settings_title">
+			Cielo/Ciclo del día
+		</text>
+		<radio_group name="sky_dayc_settings_radio_group">
+			<radio_item label="Cielo invariable" name="my_sky_settings"/>
+			<radio_item label="Ciclo del día" name="my_dayc_settings"/>
+		</radio_group>
+		<combo_box name="sky_settings_preset_combo">
+			<combo_box.item label="-Selecciona un valor predefinido-" name="item0"/>
+		</combo_box>
+		<combo_box name="dayc_settings_preset_combo">
+			<combo_box.item label="-Selecciona un valor predefinido-" name="item0"/>
+		</combo_box>
+	</panel>
+	<button label="OK" name="ok_btn"/>
+	<button label="Cancelar" name="cancel_btn"/>
+</floater>

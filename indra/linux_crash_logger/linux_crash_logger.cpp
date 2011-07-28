@@ -24,16 +24,24 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
 #include "llcrashloggerlinux.h"
 
 int main(int argc, char **argv)
 {
+	llinfos << "Starting crash reporter." << llendl;
+
 	LLCrashLoggerLinux app;
 	app.parseCommandOptions(argc, argv);
-	app.init();
+
+	if (! app.init())
+	{
+		llwarns << "Unable to initialize application." << llendl;
+		return 1;
+	}
+
 	app.mainLoop();
 	app.cleanup();
+	llinfos << "Crash reporter finished normally." << llendl;
 	return 0;
 }
-
-

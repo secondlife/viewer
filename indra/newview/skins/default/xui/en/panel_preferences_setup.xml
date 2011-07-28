@@ -268,7 +268,7 @@
      height="23"
      layout="topleft"
      left_delta="50"
-	 top_pad="5"
+     top_pad="5"
      name="updater_service_combobox"
      width="300">
         <combo_box.item

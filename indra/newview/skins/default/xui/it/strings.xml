@@ -1177,6 +1177,12 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="InventoryNoTexture">
 		Non hai una copia di questa texture nel tuo inventario
 	</string>
+	<string name="InventoryInboxNoItems">
+		Gli elementi acquistati attraverso il mercato verranno consegnati qui
+	</string>
+	<string name="InventoryOutboxNoItems">
+		Trascina gli elementi qui per poi elencarli nel tuo mercato.
+	</string>
 	<string name="no_transfer" value="(nessun trasferimento)"/>
 	<string name="no_modify" value="(nessuna modifica)"/>
 	<string name="no_copy" value="(nessuna copia)"/>
@@ -1216,9 +1222,6 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="Since Logoff" value="- Dall&apos;uscita"/>
 	<string name="InvFolder My Inventory">
 		Il mio inventario
-	</string>
-	<string name="InvFolder My Favorites">
-		I miei preferiti
 	</string>
 	<string name="InvFolder Library">
 		Libreria
@@ -1278,10 +1281,10 @@ Prova ad accedere nuovamente tra un minuto.
 		Gesture
 	</string>
 	<string name="InvFolder Favorite">
-		Preferiti
+		I miei preferiti
 	</string>
 	<string name="InvFolder favorite">
-		Preferiti
+		I miei preferiti
 	</string>
 	<string name="InvFolder Current Outfit">
 		Abbigliamento attuale
@@ -1303,6 +1306,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="InvFolder All">
 		Tutto
+	</string>
+	<string name="no_attachments">
+		Nessun allegato indossato
 	</string>
 	<string name="Buy">
 		Acquista
@@ -1639,6 +1645,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="IMTeen">
 		teen
 	</string>
+	<string name="Anyone">
+		chiunque
+	</string>
 	<string name="RegionInfoError">
 		errore
 	</string>
@@ -1854,6 +1863,12 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="Public">
 		Pubblica
+	</string>
+	<string name="LocalSettings">
+		Impostazioni locali
+	</string>
+	<string name="RegionSettings">
+		Impostazioni regione
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Clicca: [TELEPORT] teleport, [MAP] mappa, [PROFILE] profilo
@@ -3642,6 +3657,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
 		Regione generale
+	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		Avatar visibili e chat consentita fuori di questo lotto
 	</string>
 	<string name="UpdaterWindowTitle">
 		Aggiornamento [APP_NAME]

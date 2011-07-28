@@ -1205,6 +1205,10 @@ Only large parcels can be listed in search.
              name="push_restrict_region_text">
                 No Pushing (Region Override)
             </panel.string>
+            <panel.string
+             name="see_avs_text">
+                 See and chat with residents on this parcel
+            </panel.string>
             <text
              type="string"
              length="1"
@@ -1314,7 +1318,7 @@ Only large parcels can be listed in search.
              name="check group scripts"
              top_delta="0"
              width="70" />
-            <text
+           <text
              type="string"
              text_color="white"
              length="1"
@@ -1515,10 +1519,32 @@ Only large parcels can be listed in search.
              type="string"
              length="1"
              follows="left|top"
+             text_color="white"
              height="16"
              layout="topleft"
-             left="220"
-             top="180"
+             left="230"
+             top="174"
+             name="allow_label5"
+             width="278">
+              Allow Residents on other parcels to:
+            </text>
+            <check_box
+             height="16"
+             label="See Avatars"
+             follows="top"
+             layout="topleft"
+             left="230"
+             name="SeeAvatarsCheck"
+             tool_tip="Allows residents on other parcels to see and chat with residents on this parcel, and you to see and chat with them."
+             width="120" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="230"
+             top="230"
              text_color="white"
              name="landing_point"
              word_wrap="true"
@@ -1532,7 +1558,7 @@ Only large parcels can be listed in search.
              label_selected="Set"
              layout="topleft"
              name="Set"
-             right="-68"
+             left="230"
              tool_tip="Sets the landing point where visitors arrive. Sets to your avatar&apos;s location inside this parcel."
              width="50" />
             <button
@@ -1544,7 +1570,6 @@ Only large parcels can be listed in search.
              left_pad="5"
              name="Clear"
              tool_tip="Clear the landing point"
-             right="-10"
              width="55" />
             <text
              type="string"
@@ -1553,7 +1578,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="220"
+             left="230"
              top_pad="10"
              name="Teleport Routing: "
              width="200">
@@ -1846,6 +1871,34 @@ Only large parcels can be listed in search.
              name="check sound local"
              left_pad="0"
              width="292" />
+          <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="Avatar Sounds:"
+             top_pad="10"
+             width="100">
+               Avatar Sounds:
+          </text>
+          <check_box
+             height="16"
+             label="Everyone"
+             layout="topleft"
+             left_pad="0"
+             name="all av sound check"
+             top_delta="0"
+             width="130" />
+          <check_box
+             height="16"
+             label="Group"
+             layout="topleft"
+             left_pad="0"
+             name="group av sound check"
+             top_delta="0"
+             width="70" />
             <text
              type="string"
              length="1"

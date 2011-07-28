@@ -18,6 +18,7 @@
 	<string name="StartupClearingCache">Clearing cache...</string>
 	<string name="StartupInitializingTextureCache">Initializing Texture Cache...</string>
 	<string name="StartupInitializingVFS">Initializing VFS...</string>
+  <string name="StartupRequireDriverUpdate">Graphics Initialization Failed. Please Update Your Graphics Driver!</string>
 
 	<!--  progress -->
 	<string name="ProgressRestoring">Restoring...</string>
@@ -1759,10 +1760,10 @@ integer llGetParcelMaxPrims(vector pos, integer sim_wide)
 Returns the maximum number of prims allowed on the parcel at pos
 	</string>
 	<string name="LSLTipText_llGetParcelDetails" translate="false">
-list llGetParcelDetails(vector pos, list params)
-Returns the parcel details specified in params for the parcel at pos.
-Params is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA
-	</string>
+    list llGetParcelDetails(vector pos, list params)
+    Returns the parcel details specified in params for the parcel at pos.
+    Params is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS
+  </string>
 	<string name="LSLTipText_llSetLinkPrimitiveParams" translate="false">
 llSetLinkPrimitiveParams(integer linknumber, list rules)
 Sets primitive parameters for linknumber based on rules
@@ -2069,7 +2070,6 @@ Returns a string with the requested data about the region
 
 	<!-- inventory folder -->
 	<string name="InvFolder My Inventory">My Inventory</string>
-	<string name="InvFolder My Favorites">My Favorites</string>
 	<string name="InvFolder Library">Library</string>
 	<string name="InvFolder Textures">Textures</string>
 	<string name="InvFolder Sounds">Sounds</string>
@@ -2089,10 +2089,10 @@ Returns a string with the requested data about the region
 	<string name="InvFolder Uncompressed Sounds">Uncompressed Sounds</string>
 	<string name="InvFolder Animations">Animations</string>
 	<string name="InvFolder Gestures">Gestures</string>
-	<string name="InvFolder Favorite">Favorites</string>
+	<string name="InvFolder Favorite">My Favorites</string>
   <!-- historically default name of the Favorites folder can start from either "f" or "F" letter.
   We should localize both of them with the same value -->
-	<string name="InvFolder favorite">Favorites</string>
+	<string name="InvFolder favorite">My Favorites</string>
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder Initial Outfits">Initial Outfits</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
@@ -2238,6 +2238,7 @@ Returns a string with the requested data about the region
 	<string name="Unknown">(Unknown)</string>
 	<string name="SummaryForTheWeek"    value="Summary for this week, beginning on " />
 	<string name="NextStipendDay"       value="The next stipend day is " />
+	<string name="GroupPlanningDate">[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]</string>
 	<string name="GroupIndividualShare" value="                      Group       Individual Share" />
 	<string name="GroupColumn"          value="                      Group" />
 	<string name="Balance">Balance</string>
@@ -2394,6 +2395,7 @@ Returns a string with the requested data about the region
 	<string name="GroupMoneyBalance">Balance</string>
 	<string name="GroupMoneyCredits">Credits</string>
 	<string name="GroupMoneyDebits">Debits</string>
+	<string name="GroupMoneyDate">[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]</string>
 
 	<!-- viewer object -->
 	<string name="ViewerObjectContents">Contents</string>
@@ -3142,6 +3144,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlAdultIconTooltip">Adult Region</string>
   <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
   <string name="LocationCtrlGeneralIconTooltip">General Region</string>
+  <string name="LocationCtrlSeeAVsTooltip">Avatars visible and chat allowed outside of this parcel</string>
 
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">

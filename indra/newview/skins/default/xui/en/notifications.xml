@@ -5628,6 +5628,15 @@ This area has building disabled. You can&apos;t build or rez objects here.
 
   <notification
    icon="notify.tga"
+   name="SeeAvatars"
+   persist="true"
+   type="notify"
+   unique="true">
+This parcel hides avatars and text chat from another parcel.   You can&apos;t see other residents outside the parcel, and those outside are not able to see you.  Regular text chat on channel 0 is also blocked.
+  </notification>
+
+  <notification
+   icon="notify.tga"
    name="ScriptsStopped"
    persist="true"
    type="notify">

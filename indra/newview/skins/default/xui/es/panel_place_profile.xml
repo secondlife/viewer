@@ -64,6 +64,8 @@
 						<text name="scripts_value" value="Sí"/>
 						<text name="damage_label" value="Daño:"/>
 						<text name="damage_value" value="No"/>
+						<text name="see_avatars_label" value="Ver los avatares:"/>
+						<text name="see_avatars_value" value="No"/>
 						<button label="Acerca del terreno" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>

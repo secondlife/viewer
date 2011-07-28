@@ -2512,6 +2512,11 @@ void LLFolderBridge::folderOptionsMenu()
 		}
 	}
 
+	if (!isItemRemovable())
+	{
+		mDisabledItems.push_back(std::string("Delete"));
+	}
+
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	if (LLFolderType::lookupIsProtectedType(type))
 	{

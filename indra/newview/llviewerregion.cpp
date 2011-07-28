@@ -645,6 +645,7 @@ void LLViewerRegion::processRegionInfo(LLMessageSystem* msg, void**)
 {
 	// send it to 'observers'
 	// *TODO: switch the floaters to using LLRegionInfoModel
+	llinfos << "Processing region info" << llendl;
 	LLRegionInfoModel::instance().update(msg);
 	LLFloaterGodTools::processRegionInfo(msg);
 	LLFloaterRegionInfo::processRegionInfo(msg);

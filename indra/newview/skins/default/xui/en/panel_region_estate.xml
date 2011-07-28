@@ -79,13 +79,22 @@
         (unknown)
     </text>
 
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="95"
+     layout="topleft"
+     left="10"
+     top_pad="5"
+     width="470" />
+
     <check_box
      height="20"
      label="Allow Public Access"
      layout="topleft"
-     left="10"
+     left="20"
      name="externally_visible_check"
-     top_pad="6"
+     top_delta="5"
      width="200" />
 
     <check_box
@@ -104,6 +113,16 @@
      name="allow_direct_teleport"
      top_pad="4"
      width="80" />
+    <button
+     enabled="false"
+     follows="left|top"
+     height="23"
+     label="Apply"
+     layout="topleft"
+     name="apply_btn"
+     top_pad="15"
+     left_delta="0"
+     width="97" />
 
     <text
      type="string"
@@ -111,9 +130,9 @@
      follows="top|left"
      height="16"
      layout="topleft"
-     left="32"
+     left="20"
      name="Only Allow"
-     top_delta="0"
+     top_delta="-30"
      width="278">
         Restrict Access to accounts verified by:
     </text>
@@ -146,7 +165,7 @@
      height="20"
      layout="topleft"
      name="estate_manager_label"
-     top_pad="10"
+     top_pad="30"
      left="10"
      width="200">
         Estate Managers:

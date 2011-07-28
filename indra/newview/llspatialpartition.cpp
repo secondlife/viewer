@@ -47,6 +47,7 @@
 #include "llvoavatar.h"
 #include "llvolumemgr.h"
 #include "lltextureatlas.h"
+#include "llglslshader.h"
 
 static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
 static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
@@ -3176,6 +3177,8 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				glColor4fv(line_color.mV);
 				LLVertexBuffer::unbind();
 
+				llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
+
 				glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
 				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
 				
@@ -3257,7 +3260,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		if (phys_volume->mHullPoints && phys_volume->mHullIndices)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			
+			llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
 			LLVertexBuffer::unbind();
 			glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
 			glColor4fv(line_color.mV);

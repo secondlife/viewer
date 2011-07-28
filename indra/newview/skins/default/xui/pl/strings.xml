@@ -1072,9 +1072,6 @@
 	<string name="InvFolder My Inventory">
 		Moja Szafa
 	</string>
-	<string name="InvFolder My Favorites">
-		Moje ulubione
-	</string>
 	<string name="InvFolder Library">
 		Biblioteka
 	</string>
@@ -1133,10 +1130,10 @@
 		Gesturki
 	</string>
 	<string name="InvFolder Favorite">
-		Ulubione
+		Moje ulubione
 	</string>
 	<string name="InvFolder favorite">
-		Ulubione
+		Moje ulubione
 	</string>
 	<string name="InvFolder Current Outfit">
 		Obecny strój
