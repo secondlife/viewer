@@ -1006,6 +1006,10 @@ S32 LLCurlRequest::getQueued()
 		curlmulti_set_t::iterator curiter = iter++;
 		LLCurl::Multi* multi = *curiter;
 		queued += multi->mQueued;
+		if (multi->mPerformState != LLCurl::Multi::PERFORM_STATE_READY)
+		{
+			++queued;
+		}
 	}
 	return queued;
 }
