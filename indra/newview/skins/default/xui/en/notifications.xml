@@ -7207,6 +7207,17 @@ Click and drag anywhere on the world to rotate your view
      name="okbutton"
      yestext="OK"/>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_UNKNOWN_STATUS"
+   type="alertmodal">
+	Unknown SOCKS error with server "[HOST]:[PORT]"
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"

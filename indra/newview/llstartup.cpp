@@ -2793,8 +2793,8 @@ bool LLStartUp::handleSocksProxy()
 		LLProxy::getInstance()->disableHTTPProxy();
 	}
 	
-	bool use_socks_proxy = gSavedSettings.getBOOL("Socks5ProxyEnabled");
-	if (use_socks_proxy)
+	// Set up SOCKS proxy (if needed)
+	if (gSavedSettings.getBOOL("Socks5ProxyEnabled"))
 	{	
 
 		// Determine and update LLProxy with the saved authentication system
@@ -2826,45 +2826,54 @@ bool LLStartUp::handleSocksProxy()
 		// Start the proxy and check for errors
 		// If status != SOCKS_OK, stopProxy() will already have been called when startProxy() returns.
 		int status = LLProxy::getInstance()->startProxy(gSavedSettings.getString("Socks5ProxyHost"), gSavedSettings.getU32("Socks5ProxyPort"));
-		LLSD subs;
-		subs["HOST"] = gSavedSettings.getString("Socks5ProxyHost");
-		subs["PORT"] = (S32)gSavedSettings.getU32("Socks5ProxyPort");
 
-		std::string error_string;
-
-		switch(status)
+		if (status == SOCKS_OK)
 		{
-			case SOCKS_OK:
-				return true;
-				break;
-
-			case SOCKS_CONNECT_ERROR: // TCP Fail
-				error_string = "SOCKS_CONNECT_ERROR";
-				break;
-
-			case SOCKS_NOT_PERMITTED: // SOCKS 5 server rule set refused connection
-				error_string = "SOCKS_NOT_PERMITTED";
-				break;
-					
-			case SOCKS_NOT_ACCEPTABLE: // Selected authentication is not acceptable to server
-				error_string = "SOCKS_NOT_ACCEPTABLE";
-				break;
-
-			case SOCKS_AUTH_FAIL: // Authentication failed
-				error_string = "SOCKS_AUTH_FAIL";
-				break;
-
-			case SOCKS_UDP_FWD_NOT_GRANTED: // UDP forward request failed
-				error_string = "SOCKS_UDP_FWD_NOT_GRANTED";
-				break;
-
-			case SOCKS_HOST_CONNECT_FAILED: // Failed to open a TCP channel to the socks server
-				error_string = "SOCKS_HOST_CONNECT_FAILED";
-				break;
+			return true;
 		}
+		else
+		{
+			LLSD subs;
+			subs["HOST"] = gSavedSettings.getString("Socks5ProxyHost");
+			subs["PORT"] = (S32)gSavedSettings.getU32("Socks5ProxyPort");
 
-		LLNotificationsUtil::add(error_string, subs);
-		return false;
+			std::string error_string;
+
+			switch(status)
+			{
+				case SOCKS_CONNECT_ERROR: // TCP Fail
+					error_string = "SOCKS_CONNECT_ERROR";
+					break;
+
+				case SOCKS_NOT_PERMITTED: // SOCKS 5 server rule set refused connection
+					error_string = "SOCKS_NOT_PERMITTED";
+					break;
+
+				case SOCKS_NOT_ACCEPTABLE: // Selected authentication is not acceptable to server
+					error_string = "SOCKS_NOT_ACCEPTABLE";
+					break;
+
+				case SOCKS_AUTH_FAIL: // Authentication failed
+					error_string = "SOCKS_AUTH_FAIL";
+					break;
+
+				case SOCKS_UDP_FWD_NOT_GRANTED: // UDP forward request failed
+					error_string = "SOCKS_UDP_FWD_NOT_GRANTED";
+					break;
+
+				case SOCKS_HOST_CONNECT_FAILED: // Failed to open a TCP channel to the socks server
+					error_string = "SOCKS_HOST_CONNECT_FAILED";
+					break;
+
+				default:
+					error_string = "SOCKS_UNKNOWN_STATUS"; // Something strange happened,
+					LL_WARNS("Proxy") << "Unknown return from LLProxy::startProxy(): " << status << LL_ENDL;
+					break;
+			}
+
+			LLNotificationsUtil::add(error_string, subs);
+			return false;
+		}
 	}
 	else
 	{

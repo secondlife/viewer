@@ -355,6 +355,8 @@ public:
 	bool getResult(CURLcode* result, LLCurl::TransferInfo* info = NULL);
 	std::string getErrorString();
 
+	LLCurl::Easy* getEasy() const { return mEasy; }
+
 private:
 	CURLMsg* info_read(S32* queue, LLCurl::TransferInfo* info);
 	

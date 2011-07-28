@@ -278,50 +278,15 @@ void LLProxy::cleanupClass()
 }
 
 // Apply proxy settings to CuRL request if either type of HTTP proxy is enabled.
-void LLProxy::applyProxySettings(LLCurl::Easy* handle)
-{
-	if (sHTTPProxyEnabled)
-	{
-		std::string address = mHTTPProxy.getIPString();
-		U16 port = mHTTPProxy.getPort();
-		handle->setoptString(CURLOPT_PROXY, address.c_str());
-		handle->setopt(CURLOPT_PROXYPORT, port);
-		if (mProxyType == LLPROXY_SOCKS)
-		{
-			handle->setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-			if (mAuthMethodSelected == METHOD_PASSWORD)
-			{
-				handle->setoptString(CURLOPT_PROXYUSERPWD, getProxyUserPwdCURL());
-			}
-		}
-		else
-		{
-			handle->setopt(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-		}
-	}
-}
-
 void LLProxy::applyProxySettings(LLCurlEasyRequest* handle)
 {
-	if (sHTTPProxyEnabled)
-	{
-		std::string address = mHTTPProxy.getIPString();
-		U16 port = mHTTPProxy.getPort();
-		handle->setoptString(CURLOPT_PROXY, address.c_str());
-		handle->setopt(CURLOPT_PROXYPORT, port);
-		if (mProxyType == LLPROXY_SOCKS)
-		{
-			handle->setopt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-			if (mAuthMethodSelected == METHOD_PASSWORD)
-			{
-				handle->setoptString(CURLOPT_PROXYUSERPWD, getProxyUserPwdCURL());
-			}
-		}
-		else
-		{
-			handle->setopt(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-		}
-	}
+	applyProxySettings(handle->getEasy());
+}
+
+
+void LLProxy::applyProxySettings(LLCurl::Easy* handle)
+{
+	applyProxySettings(handle->getCurlHandle());
 }
 
 void LLProxy::applyProxySettings(CURL* handle)
