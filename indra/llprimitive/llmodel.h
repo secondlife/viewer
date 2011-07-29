@@ -225,7 +225,7 @@ public:
 		bool areEqual( double a, double b )
 		{
 			const float epsilon = 1e-5f;
-			return (abs(a - b) > epsilon) && (a < b);
+			return (abs((int)(a - b)) > epsilon) && (a < b);
 		}
 		//Make sure that we return false for any values that are within the tolerance for equivalence
 		bool operator() ( const LLVector3& a, const LLVector3& b )
