@@ -463,7 +463,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	}
 
 	mRegionNameText->setText(region->getName());
-	mRegionTypeText->setText(region->getSimProductName());
+	mRegionTypeText->setText(region->getLocalizedSimProductName());
 
 	// Determine parcel owner
 	if (parcel->isPublic())
