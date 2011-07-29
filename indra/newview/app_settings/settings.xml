@@ -4894,7 +4894,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>20.0</real>
+      <real>60.0</real>
     </map>
     <key>MapOverlayIndex</key>
     <map>
@@ -12584,7 +12584,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>-1</integer>
+      <integer>1</integer>
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>
