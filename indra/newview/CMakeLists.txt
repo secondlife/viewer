@@ -213,6 +213,7 @@ set(viewer_SOURCE_FILES
     llfloatermodelwizard.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
+    llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
@@ -775,6 +776,7 @@ set(viewer_HEADER_FILES
     llfloatermodelwizard.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
+    llfloaterobjectweights.h
     llfloateropenobject.h
     llfloaterpay.h
     llfloaterperms.h
