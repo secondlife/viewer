@@ -318,7 +318,7 @@ static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarNa
 	static LLCachedControl<LLRect> profile_rect(gSavedSettings, "WebProfileRect");
 	LLFloaterWebContent::create(LLFloaterWebContent::Params().
 							url(url).
-							id(agent_id).
+							id(agent_id.asString()).
 							show_chrome(show_chrome).
 							window_class("profile").
 							preferred_media_size(profile_rect));

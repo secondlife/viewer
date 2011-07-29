@@ -40,7 +40,7 @@ class LLIconCtrl;
 class LLFloaterWebContent :
 	public LLFloater,
 	public LLViewerMediaObserver,
-	public LLInstanceTracker<LLFloaterWebContent, LLUUID>
+	public LLInstanceTracker<LLFloaterWebContent, std::string>
 {
 public:
     LOG_CLASS(LLFloaterWebContent);
@@ -49,8 +49,8 @@ public:
 	{
 		Optional<std::string>	url,
 								target,
-								window_class;
-		Optional<LLUUID>		id;
+								window_class,
+								id;
 		Optional<bool>			show_chrome,
 								allow_address_entry,
 								trusted_content;

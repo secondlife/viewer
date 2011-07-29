@@ -53,8 +53,8 @@ LLFloaterWebContent::_Params::_Params()
 
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 :	LLFloater( params ),
-	LLInstanceTracker<LLFloaterWebContent, LLUUID>(params.id()),
-	mUUID(params.id().asString())
+	LLInstanceTracker<LLFloaterWebContent, std::string>(params.id()),
+	mUUID(params.id())
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -126,16 +126,16 @@ void LLFloaterWebContent::initializeURLHistory()
 //static
 LLFloater* LLFloaterWebContent::create( Params p)
 {
-	lldebugs << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id().asString() << llendl;
+	lldebugs << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id() << llendl;
 
 	if (!p.id.isProvided())
 	{
-		p.id = LLUUID::generateNewID();
+		p.id = LLUUID::generateNewID().asString();
 	}
 
-	if(!p.target.isProvided() || p.target() == "_blank")
+	if(p.target().empty() || p.target() == "_blank")
 	{
-		p.target = p.id().asString();
+		p.target = p.id();
 	}
 
 	S32 browser_window_limit = gSavedSettings.getS32("WebContentWindowLimit");
@@ -172,7 +172,7 @@ LLFloater* LLFloaterWebContent::create( Params p)
 //static
 void LLFloaterWebContent::closeRequest(const std::string &uuid)
 {
-	LLFloaterWebContent* floaterp = getInstance(LLUUID(uuid));
+	LLFloaterWebContent* floaterp = getInstance(uuid);
 	if (floaterp)
 	{
 		floaterp->closeFloater(false);
@@ -182,7 +182,7 @@ void LLFloaterWebContent::closeRequest(const std::string &uuid)
 //static
 void LLFloaterWebContent::geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height)
 {
-	LLFloaterWebContent* floaterp = getInstance(LLUUID(uuid));
+	LLFloaterWebContent* floaterp = getInstance(uuid);
 	if (floaterp)
 	{
 		floaterp->geometryChanged(x, y, width, height);
@@ -219,7 +219,7 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 void LLFloaterWebContent::open_media(const Params& p)
 {
 	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
-	LLViewerMedia::proxyWindowOpened(p.target(), p.id().asString());
+	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
 	mWebBrowser->setHomePageUrl(p.url, "text/html");
 	mWebBrowser->setTarget(p.target);
 	mWebBrowser->navigateTo(p.url, "text/html");
