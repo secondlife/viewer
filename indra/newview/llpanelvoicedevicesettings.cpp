@@ -41,6 +41,7 @@
 
 
 static LLRegisterPanelClassWrapper<LLPanelVoiceDeviceSettings> t_panel_group_general("panel_voice_device_settings");
+static const std::string DEFAULT_DEVICE("Default");
 
 
 LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
@@ -68,10 +69,17 @@ BOOL LLPanelVoiceDeviceSettings::postBuild()
 	// set mic volume tuning slider based on last mic volume setting
 	volume_slider->setValue(mMicVolume);
 
-	getChild<LLComboBox>("voice_input_device")->setCommitCallback(
+	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
+	mCtrlOutputDevices = getChild<LLComboBox>("voice_output_device");
+
+	mCtrlInputDevices->setCommitCallback(
 		boost::bind(&LLPanelVoiceDeviceSettings::onCommitInputDevice, this));
-	getChild<LLComboBox>("voice_output_device")->setCommitCallback(
+	mCtrlOutputDevices->setCommitCallback(
 		boost::bind(&LLPanelVoiceDeviceSettings::onCommitOutputDevice, this));
+
+	mLocalizedDeviceNames[DEFAULT_DEVICE]				= getString("default_text");
+	mLocalizedDeviceNames["No Device"]					= getString("name_no_device");
+	mLocalizedDeviceNames["Default System Device"]		= getString("name_default_system_device");
 	
 	return TRUE;
 }
@@ -138,14 +146,14 @@ void LLPanelVoiceDeviceSettings::apply()
 	std::string s;
 	if(mCtrlInputDevices)
 	{
-		s = mCtrlInputDevices->getSimple();
+		s = mCtrlInputDevices->getValue().asString();
 		gSavedSettings.setString("VoiceInputAudioDevice", s);
 		mInputDevice = s;
 	}
 
 	if(mCtrlOutputDevices)
 	{
-		s = mCtrlOutputDevices->getSimple();
+		s = mCtrlOutputDevices->getValue().asString();
 		gSavedSettings.setString("VoiceOutputAudioDevice", s);
 		mOutputDevice = s;
 	}
@@ -166,10 +174,10 @@ void LLPanelVoiceDeviceSettings::cancel()
 	gSavedSettings.setString("VoiceOutputAudioDevice", mOutputDevice);
 
 	if(mCtrlInputDevices)
-		mCtrlInputDevices->setSimple(mInputDevice);
+		mCtrlInputDevices->setValue(mInputDevice);
 
 	if(mCtrlOutputDevices)
-		mCtrlOutputDevices->setSimple(mOutputDevice);
+		mCtrlOutputDevices->setValue(mOutputDevice);
 
 	gSavedSettings.setF32("AudioLevelMic", mMicVolume);
 	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
@@ -188,9 +196,6 @@ void LLPanelVoiceDeviceSettings::refresh()
 	LLVoiceClient::getInstance()->tuningSetMicVolume(current_volume);
 
 	// Fill in popup menus
-	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
-	mCtrlOutputDevices = getChild<LLComboBox>("voice_output_device");
-
 	bool device_settings_available = LLVoiceClient::getInstance()->deviceSettingsAvailable();
 
 	if (mCtrlInputDevices)
@@ -212,14 +217,14 @@ void LLPanelVoiceDeviceSettings::refresh()
 		if(mCtrlInputDevices)
 		{
 			mCtrlInputDevices->removeall();
-			mCtrlInputDevices->add( mInputDevice, ADD_BOTTOM );
-			mCtrlInputDevices->setSimple(mInputDevice);
+			mCtrlInputDevices->add(getLocalizedDeviceName(mInputDevice), mInputDevice, ADD_BOTTOM);
+			mCtrlInputDevices->setValue(mInputDevice);
 		}
 		if(mCtrlOutputDevices)
 		{
 			mCtrlOutputDevices->removeall();
-			mCtrlOutputDevices->add( mOutputDevice, ADD_BOTTOM );
-			mCtrlOutputDevices->setSimple(mOutputDevice);
+			mCtrlOutputDevices->add(getLocalizedDeviceName(mOutputDevice), mOutputDevice, ADD_BOTTOM);
+			mCtrlOutputDevices->setValue(mOutputDevice);
 		}
 		mDevicesUpdated = FALSE;
 	}
@@ -230,35 +235,41 @@ void LLPanelVoiceDeviceSettings::refresh()
 		if(mCtrlInputDevices)
 		{
 			mCtrlInputDevices->removeall();
-			mCtrlInputDevices->add( getString("default_text"), ADD_BOTTOM );
+			mCtrlInputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
 
 			for(iter=LLVoiceClient::getInstance()->getCaptureDevices().begin(); 
 				iter != LLVoiceClient::getInstance()->getCaptureDevices().end();
 				iter++)
 			{
-				mCtrlInputDevices->add( *iter, ADD_BOTTOM );
+				mCtrlInputDevices->add(getLocalizedDeviceName(*iter), *iter, ADD_BOTTOM);
 			}
 
-			if(!mCtrlInputDevices->setSimple(mInputDevice))
+			// Fix invalid input audio device preference.
+			if (!mCtrlInputDevices->setSelectedByValue(mInputDevice, TRUE))
 			{
-				mCtrlInputDevices->setSimple(getString("default_text"));
+				mCtrlInputDevices->setValue(DEFAULT_DEVICE);
+				gSavedSettings.setString("VoiceInputAudioDevice", DEFAULT_DEVICE);
+				mInputDevice = DEFAULT_DEVICE;
 			}
 		}
 		
 		if(mCtrlOutputDevices)
 		{
 			mCtrlOutputDevices->removeall();
-			mCtrlOutputDevices->add( getString("default_text"), ADD_BOTTOM );
+			mCtrlOutputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
 
 			for(iter= LLVoiceClient::getInstance()->getRenderDevices().begin(); 
 				iter !=  LLVoiceClient::getInstance()->getRenderDevices().end(); iter++)
 			{
-				mCtrlOutputDevices->add( *iter, ADD_BOTTOM );
+				mCtrlOutputDevices->add(getLocalizedDeviceName(*iter), *iter, ADD_BOTTOM);
 			}
 
-			if(!mCtrlOutputDevices->setSimple(mOutputDevice))
+			// Fix invalid output audio device preference.
+			if (!mCtrlOutputDevices->setSelectedByValue(mOutputDevice, TRUE))
 			{
-				mCtrlOutputDevices->setSimple(getString("default_text"));
+				mCtrlOutputDevices->setValue(DEFAULT_DEVICE);
+				gSavedSettings.setString("VoiceOutputAudioDevice", DEFAULT_DEVICE);
+				mOutputDevice = DEFAULT_DEVICE;
 			}
 		}
 		mDevicesUpdated = TRUE;
@@ -292,12 +303,19 @@ void LLPanelVoiceDeviceSettings::cleanup()
 	}
 }
 
+// returns English name if no translation found
+std::string LLPanelVoiceDeviceSettings::getLocalizedDeviceName(const std::string& en_dev_name)
+{
+	std::map<std::string, std::string>::const_iterator it = mLocalizedDeviceNames.find(en_dev_name);
+	return it != mLocalizedDeviceNames.end() ? it->second : en_dev_name;
+}
+
 void LLPanelVoiceDeviceSettings::onCommitInputDevice()
 {
 	if(LLVoiceClient::getInstance())
 	{
 		LLVoiceClient::getInstance()->setCaptureDevice(
-			getChild<LLComboBox>("voice_input_device")->getValue().asString());
+			mCtrlInputDevices->getValue().asString());
 	}
 }
 
@@ -306,6 +324,6 @@ void LLPanelVoiceDeviceSettings::onCommitOutputDevice()
 	if(LLVoiceClient::getInstance())
 	{
 		LLVoiceClient::getInstance()->setRenderDevice(
-			getChild<LLComboBox>("voice_output_device")->getValue().asString());
+			mCtrlInputDevices->getValue().asString());
 	}
 }
