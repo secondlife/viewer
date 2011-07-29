@@ -4872,7 +4872,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string />
+      <string>http://viewer-login.agni.lindenlab.com/</string>
     </map>
     <key>LosslessJ2CUpload</key>
     <map>

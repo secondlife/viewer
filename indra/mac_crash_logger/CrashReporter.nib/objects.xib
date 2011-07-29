@@ -15,7 +15,7 @@
       <string name="bounds">414 390 434 487 </string>
     </object>
     <object class="IBCarbonStaticText" id="181">
-      <string name="title">Second Life appears to have crashed or frozen the last time it ran.&#10;&#10;This crash reporter collects information about your computer&apos;s hardware configuration, operating system, and some Second Life logs, all of which are used for debugging purposes only.&#10;&#10;In the space below, please briefly describe what you were doing or trying to do just prior to the crash. Thank you for your help!&#10;&#10;This report is NOT read by Customer Support. If you have billing or other questions, please go to: http://www.secondlife.com/support/&#10;&#10;If you don&apos;t wish to send Linden Lab a crash report, press Cancel.&#10;</string>
+      <string name="title">Second Life appears to have crashed or frozen the last time it ran.&#10;&#10;This crash reporter collects information about your computer&apos;s hardware configuration, operating system, and some Second Life logs, all of which are used for debugging purposes only.&#10;&#10;In the space below, please briefly describe what you were doing or trying to do just prior to the crash. Thank you for your help!&#10;&#10;This report is NOT read by Customer Support. If you have billing or other questions, please go to: http://www.secondlife.com/support/&#10;&#10;If you don&apos;t wish to send Linden Lab a crash report, press Don&apos;t Send.&#10;</string>
       <string name="bounds">20 20 231 487 </string>
     </object>
     <object class="IBCarbonWindow" id="166">

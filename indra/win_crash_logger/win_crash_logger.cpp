@@ -24,51 +24,30 @@
  * $/LicenseInfo$
  */
 
-// win_crash_logger.cpp : Defines the entry point for the application.
-//
-
-// Must be first include, precompiled headers.
 #include "linden_common.h"
-
 #include "stdafx.h"
-
 #include <stdlib.h>
-
 #include "llcrashloggerwindows.h"
-
-
-
-//
-// Implementation
-//
 
 int APIENTRY WinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPSTR     lpCmdLine,
                      int       nCmdShow)
 {
-	llinfos << "Starting crash reporter" << llendl;
+	llinfos << "Starting crash reporter." << llendl;
 
 	LLCrashLoggerWindows app;
 	app.setHandle(hInstance);
-	bool ok = app.init();
-	if(!ok)
+	app.parseCommandOptions(__argc, __argv);
+
+	if (! app.init())
 	{
 		llwarns << "Unable to initialize application." << llendl;
 		return -1;
 	}
 
-		// Run the application main loop
-	if(!LLApp::isQuitting()) app.mainLoop();
-
-	if (!app.isError())
-	{
-		//
-		// We don't want to do cleanup here if the error handler got called -
-		// the assumption is that the error handler is responsible for doing
-		// app cleanup if there was a problem.
-		//
-		app.cleanup();
-	}
+	app.mainLoop();
+	app.cleanup();
+	llinfos << "Crash reporter finished normally." << llendl;
 	return 0;
 }

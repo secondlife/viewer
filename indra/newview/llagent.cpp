@@ -577,7 +577,10 @@ void LLAgent::setFlying(BOOL fly)
 // static
 void LLAgent::toggleFlying()
 {
-	LLToolPie::instance().stopClickToWalk();
+	if ( gAgent.mAutoPilot )
+	{
+		LLToolPie::instance().stopClickToWalk();
+	}
 
 	BOOL fly = !gAgent.getFlying();
 
