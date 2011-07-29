@@ -46,12 +46,17 @@ class LLFloaterSearch :
 	public LLFloaterWebContent
 {
 public:
-	struct _Params : public LLInitParam::Block<_Params, LLFloaterWebContent::Params>
+	struct SearchQuery : public LLInitParam::Block<SearchQuery>
 	{
 		Optional<std::string> category;
 		Optional<std::string> query;
 
-		_Params();
+		SearchQuery();
+	};
+
+	struct _Params : public LLInitParam::Block<_Params, LLFloaterWebContent::Params>
+	{
+		Optional<SearchQuery> search;
 	};
 
 	typedef LLSDParamAdapter<_Params> Params;
@@ -69,7 +74,7 @@ public:
 	///  - "id": specifies the text phrase to search for
 	///  - "category": one of "all" (default), "people", "places",
 	///    "events", "groups", "wiki", "destinations", "classifieds"
-	void search(const LLSD &key);
+	void search(const SearchQuery &query);
 
 	/// changing godmode can affect the search results that are
 	/// returned by the search website - use this method to tell the

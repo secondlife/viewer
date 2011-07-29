@@ -214,7 +214,7 @@ LLFloater* LLFloaterReg::showInstance(const std::string& name, const LLSD& key, 
 	LLFloater* instance = getInstance(name, key); 
 	if (instance) 
 	{
-		instance->openFloater(instance->mKey);
+		instance->openFloater(key);
 		if (focus)
 			instance->setFocus(TRUE);
 	}
