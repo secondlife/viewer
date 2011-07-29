@@ -68,7 +68,7 @@ LLProxy::LLProxy():
 
 LLProxy::~LLProxy()
 {
-	stopProxy();
+	stopSOCKSProxy();
 	sUDPProxyEnabled  = false;
 	sHTTPProxyEnabled = false;
 
@@ -95,14 +95,14 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 	if (result != 0)
 	{
 		LL_WARNS("Proxy") << "SOCKS authentication request failed, error on TCP control channel : " << result << LL_ENDL;
-		stopProxy();
+		stopSOCKSProxy();
 		return SOCKS_CONNECT_ERROR;
 	}
 
 	if (socks_auth_response.method == AUTH_NOT_ACCEPTABLE)
 	{
 		LL_WARNS("Proxy") << "SOCKS 5 server refused all our authentication methods" << LL_ENDL;
-		stopProxy();
+		stopSOCKSProxy();
 		return SOCKS_NOT_ACCEPTABLE;
 	}
 
@@ -126,14 +126,14 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 		if (result != 0)
 		{
 			LL_WARNS("Proxy") << "SOCKS authentication failed, error on TCP control channel : " << result << LL_ENDL;
-			stopProxy();
+			stopSOCKSProxy();
 			return SOCKS_CONNECT_ERROR;
 		}
 
 		if (password_reply.status != AUTH_SUCCESS)
 		{
 			LL_WARNS("Proxy") << "SOCKS authentication failed" << LL_ENDL;
-			stopProxy();
+			stopSOCKSProxy();
 			return SOCKS_AUTH_FAIL;
 		}
 	}
@@ -156,14 +156,14 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 	if (result != 0)
 	{
 		LL_WARNS("Proxy") << "SOCKS connect request failed, error on TCP control channel : " << result << LL_ENDL;
-		stopProxy();
+		stopSOCKSProxy();
 		return SOCKS_CONNECT_ERROR;
 	}
 
 	if (connect_reply.reply != REPLY_REQUEST_GRANTED)
 	{
 		LL_WARNS("Proxy") << "Connection to SOCKS 5 server failed, UDP forward request not granted" << LL_ENDL;
-		stopProxy();
+		stopSOCKSProxy();
 		return SOCKS_UDP_FWD_NOT_GRANTED;
 	}
 
@@ -174,37 +174,49 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 	return SOCKS_OK;
 }
 
-S32 LLProxy::startProxy(std::string host, U32 port)
+S32 LLProxy::startSOCKSProxy(LLHost host)
 {
-	mTCPProxy.setHostByName(host);
-	mTCPProxy.setPort(port);
+	S32 status = SOCKS_OK;
 
-	S32 status;
+	if (host.isOk())
+	{
+		mTCPProxy = host;
+	}
+	else
+	{
+		status = SOCKS_INVALID_HOST;
+	}
 
-	if (mProxyControlChannel)
+	if (mProxyControlChannel && status == SOCKS_OK)
 	{
 		tcp_close_channel(&mProxyControlChannel);
 	}
 
-	mProxyControlChannel = tcp_open_channel(mPool, mTCPProxy);
-	if (!mProxyControlChannel)
+	if (status == SOCKS_OK)
 	{
-		return SOCKS_HOST_CONNECT_FAILED;
+		mProxyControlChannel = tcp_open_channel(mPool, mTCPProxy);
+		if (!mProxyControlChannel)
+		{
+			status = SOCKS_HOST_CONNECT_FAILED;
+		}
 	}
-	status = proxyHandshake(mTCPProxy, (U32)gMessageSystem->mPort);
+
+	if (status == SOCKS_OK)
+	{
+		status = proxyHandshake(mTCPProxy, (U32)gMessageSystem->mPort);
+	}
 	if (status == SOCKS_OK)
 	{
 		sUDPProxyEnabled = true;
 	}
 	else
 	{
-		stopProxy();
+		stopSOCKSProxy();
 	}
 	return status;
-
 }
 
-void LLProxy::stopProxy()
+void LLProxy::stopSOCKSProxy()
 {
 	sUDPProxyEnabled = false;
 
@@ -228,8 +240,15 @@ void LLProxy::setAuthNone()
 	mAuthMethodSelected = METHOD_NOAUTH;
 }
 
-void LLProxy::setAuthPassword(const std::string &username, const std::string &password)
+bool LLProxy::setAuthPassword(const std::string &username, const std::string &password)
 {
+	if (username.length() > SOCKSMAXUSERNAMELEN || password.length() > SOCKSMAXPASSWORDLEN ||
+			username.length() < SOCKSMINUSERNAMELEN || password.length() < SOCKSMINPASSWORDLEN)
+	{
+		LL_WARNS("Proxy") << "Invalid SOCKS 5 password or username length." << LL_ENDL;
+		return false;
+	}
+
 	mAuthMethodSelected = METHOD_PASSWORD;
 	mSocksUsername      = username;
 	mSocksPassword      = password;
@@ -240,10 +259,18 @@ void LLProxy::setAuthPassword(const std::string &username, const std::string &pa
 
 	LLMutexLock lock(&mProxyMutex);
 	mSOCKSAuthStrings.push_back(curl_auth_string);
+
+	return true;
 }
 
-void LLProxy::enableHTTPProxy(LLHost httpHost, LLHttpProxyType type)
-{ 
+bool LLProxy::enableHTTPProxy(LLHost httpHost, LLHttpProxyType type)
+{
+	if (httpHost.isOk())
+	{
+		LL_WARNS("Proxy") << "Invalid SOCKS 5 Server" << LL_ENDL;
+		return false;
+	}
+
 	LLMutexLock lock(&mProxyMutex);
 
 	sHTTPProxyEnabled = true;
@@ -254,13 +281,17 @@ void LLProxy::enableHTTPProxy(LLHost httpHost, LLHttpProxyType type)
 	char* http_addr_string = new char[size];
 	strncpy(http_addr_string, httpHost.getIPString().c_str(), size);
 	mHTTPProxyAddrStrings.push_back(http_addr_string);
+
+	return true;
 }
 
-void LLProxy::enableHTTPProxy()
+bool LLProxy::enableHTTPProxy()
 {
 	LLMutexLock lock(&mProxyMutex);
 
 	sHTTPProxyEnabled = true;
+
+	return true;
 }
 
 void LLProxy::disableHTTPProxy()
@@ -273,7 +304,7 @@ void LLProxy::disableHTTPProxy()
 //static
 void LLProxy::cleanupClass()
 {
-	getInstance()->stopProxy();
+	getInstance()->stopSOCKSProxy();
 	deleteSingleton();
 }
 

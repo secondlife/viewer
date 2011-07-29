@@ -44,10 +44,18 @@
 #define SOCKS_AUTH_FAIL (-4)
 #define SOCKS_UDP_FWD_NOT_GRANTED (-5)
 #define SOCKS_HOST_CONNECT_FAILED (-6)
+#define SOCKS_INVALID_HOST (-7)
+
 
 #ifndef MAXHOSTNAMELEN
 #define	MAXHOSTNAMELEN (255 + 1) /* socks5: 255, +1 for len. */
 #endif
+
+#define SOCKSMAXUSERNAMELEN 255
+#define SOCKSMAXPASSWORDLEN 255
+
+#define SOCKSMINUSERNAMELEN 1
+#define SOCKSMINPASSWORDLEN 1
 
 #define SOCKS_VERSION 0x05 // we are using SOCKS 5
 
@@ -165,16 +173,16 @@ public:
 	~LLProxy();
 
 	// Start a connection to the SOCKS 5 proxy
-	S32 startProxy(std::string host, U32 port);
+	S32 startSOCKSProxy(LLHost host);
 
 	// Disconnect and clean up any connection to the SOCKS 5 proxy
-	void stopProxy();
+	void stopSOCKSProxy();
 
 	// Delete LLProxy singleton, destroying the APR pool used by the control channel.
 	static void cleanupClass();
 
 	// Set up to use Password auth when connecting to the SOCKS proxy
-	void setAuthPassword(const std::string &username, const std::string &password);
+	bool setAuthPassword(const std::string &username, const std::string &password);
 
 	// Set up to use No Auth when connecting to the SOCKS proxy
 	void setAuthNone();
@@ -190,8 +198,8 @@ public:
 
 	// Proxy HTTP packets via httpHost, which can be a SOCKS 5 or a HTTP proxy
 	// as specified in type
-	void enableHTTPProxy(LLHost httpHost, LLHttpProxyType type);
-	void enableHTTPProxy();
+	bool enableHTTPProxy(LLHost httpHost, LLHttpProxyType type);
+	bool enableHTTPProxy();
 
 	// Stop proxying HTTP packets
 	void disableHTTPProxy();

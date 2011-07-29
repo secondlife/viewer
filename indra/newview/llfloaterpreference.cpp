@@ -618,10 +618,10 @@ void LLFloaterPreference::cancel()
 		updateDoubleClickControls();
 		mDoubleClickActionDirty = false;
 	}
-	LLFloaterPreferenceProxy * advanced_socks_settings = LLFloaterReg::findTypedInstance<LLFloaterPreferenceProxy>("prefs_socks5_advanced");
-	if (advanced_socks_settings)
+	LLFloaterPreferenceProxy * advanced_proxy_settings = LLFloaterReg::findTypedInstance<LLFloaterPreferenceProxy>("prefs_proxy");
+	if (advanced_proxy_settings)
 	{
-		advanced_socks_settings->cancel();
+		advanced_proxy_settings->cancel();
 	}
 }
 
@@ -1937,6 +1937,10 @@ LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
 BOOL LLFloaterPreferenceProxy::postBuild()
 {
 	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
+	if (!socksAuth)
+	{
+		return FALSE;
+	}
 	if (socksAuth->getSelectedValue().asString() == "None")
 	{
 		getChild<LLLineEditor>("socks5_username")->setEnabled(false);

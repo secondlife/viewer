@@ -7218,6 +7218,50 @@ Click and drag anywhere on the world to rotate your view
      name="okbutton"
      yestext="OK"/>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_INVALID_HOST"
+   type="alertmodal">
+	Invalid SOCKS proxy address or port "[HOST]:[PORT]".
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_BAD_CREDS"
+   type="alertmodal">
+	Invalid SOCKS 5 username or password.
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="PROXY_INVALID_HTTP_HOST"
+   type="alertmodal">
+    Invalid HTTP proxy address or port "[HOST]:[PORT]".
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PROXY_INVALID_SOCKS_HOST"
+   type="alertmodal">
+	Invalid SOCKS proxy address or port "[HOST]:[PORT]".
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
