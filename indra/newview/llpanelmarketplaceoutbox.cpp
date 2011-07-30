@@ -147,11 +147,11 @@ BOOL LLPanelMarketplaceOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL d
 	if (!handled && mInventoryPanel->getRootFolder())
 	{
 		handled = mInventoryPanel->getRootFolder()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
-	}
 
-	if (handled && mInventoryPanel->getRootFolder())
-	{
-		mInventoryPanel->getRootFolder()->setDragAndDropThisFrame();
+		if (handled)
+		{
+			mInventoryPanel->getRootFolder()->setDragAndDropThisFrame();
+		}
 	}
 
 	return handled;
