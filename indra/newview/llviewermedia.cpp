@@ -1394,6 +1394,17 @@ public:
 	}
 };
 
+
+LLSD LLViewerMedia::getHeaders()
+{
+	LLSD headers = LLSD::emptyMap();
+	headers["Accept"] = "*/*";
+	headers["Cookie"] = sOpenIDCookie;
+	headers["User-Agent"] = getCurrentUserAgent();
+
+	return headers;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::setOpenIDCookie()

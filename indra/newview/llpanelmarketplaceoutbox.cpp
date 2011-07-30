@@ -38,6 +38,9 @@
 #include "llsidepanelinventory.h"
 #include "llsidetray.h"
 #include "lltimer.h"
+#include "llviewernetwork.h"
+#include "llagent.h"
+#include "llviewermedia.h"
 #include "llfolderview.h"
 
 static LLRegisterPanelClassWrapper<LLPanelMarketplaceOutbox> t_panel_marketplace_outbox("panel_marketplace_outbox");
@@ -190,10 +193,46 @@ void timeDelay(LLCoros::self& self, LLPanelMarketplaceOutbox* outboxPanel)
 	gTimeDelayDebugFunc = "";
 }
 
+
+class LLInventorySyncResponder : public LLHTTPClient::Responder
+{
+public:
+	LLInventorySyncResponder()
+		: LLCurl::Responder()
+	{
+	}
+
+	void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+			// Complete success
+			llinfos << "sync complete" << llendl;
+		}	
+		else
+		{
+			llwarns << "sync failed" << llendl;
+		}
+	}
+};
+
 void LLPanelMarketplaceOutbox::onSyncButtonClicked()
 {	
-	// TODO: Actually trigger sync to marketplace
-	
+	std::string url = "http://pdp24.lindenlab.com/3000"; /*"https://marketplace.secondlife.com/";
+
+	if (!LLGridManager::getInstance()->isInProductionGrid())
+	{
+		std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
+		url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
+	}
+	*/
+	url += "api/1/users/";
+	url += gAgent.getID().getString();
+	url += "/inventory_import";
+
+	LLHTTPClient::get(url, new LLInventorySyncResponder(), LLViewerMedia::getHeaders());
+
+
 	mSyncInProgress = true;
 	updateSyncButtonStatus();
 
