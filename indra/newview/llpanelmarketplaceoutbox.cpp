@@ -38,7 +38,7 @@
 #include "llsidepanelinventory.h"
 #include "llsidetray.h"
 #include "lltimer.h"
-
+#include "llfolderview.h"
 
 static LLRegisterPanelClassWrapper<LLPanelMarketplaceOutbox> t_panel_marketplace_outbox("panel_marketplace_outbox");
 
@@ -136,6 +136,27 @@ void LLPanelMarketplaceOutbox::setupInventoryPanel()
 	outbox_inventory_placeholder->setVisible(FALSE);
 }
 
+BOOL LLPanelMarketplaceOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+								   EDragAndDropType cargo_type,
+								   void* cargo_data,
+								   EAcceptance* accept,
+								   std::string& tooltip_msg)
+{
+	BOOL handled = LLPanel::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+
+	if (!handled && mInventoryPanel->getRootFolder())
+	{
+		handled = mInventoryPanel->getRootFolder()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+	}
+
+	if (handled && mInventoryPanel->getRootFolder())
+	{
+		mInventoryPanel->getRootFolder()->setDragAndDropThisFrame();
+	}
+
+	return handled;
+}
+
 bool LLPanelMarketplaceOutbox::isOutboxEmpty() const
 {
 	// TODO: Check for contents of outbox
@@ -170,9 +191,9 @@ void timeDelay(LLCoros::self& self, LLPanelMarketplaceOutbox* outboxPanel)
 }
 
 void LLPanelMarketplaceOutbox::onSyncButtonClicked()
-{
+{	
 	// TODO: Actually trigger sync to marketplace
-
+	
 	mSyncInProgress = true;
 	updateSyncButtonStatus();
 

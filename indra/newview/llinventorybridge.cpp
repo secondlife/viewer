@@ -573,7 +573,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	}
 
 	// Don't allow items to be pasted directly into the COF or the inbox
-	if (!isCOFFolder() && !isInboxFolder())
+	if (!isCOFFolder() && !isInboxFolder() && !isOutboxFolder())
 	{
 		items.push_back(std::string("Paste"));
 	}
@@ -793,6 +793,20 @@ BOOL LLInvFVBridge::isInboxFolder() const
 	
 	return gInventory.isObjectDescendentOf(mUUID, inbox_id);
 }
+
+
+BOOL LLInvFVBridge::isOutboxFolder() const
+{
+	const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+
+	if (outbox_id.isNull())
+	{
+		return FALSE;
+	}
+
+	return gInventory.isObjectDescendentOf(mUUID, outbox_id);
+}
+
 
 BOOL LLInvFVBridge::isItemPermissive() const
 {
@@ -1648,6 +1662,55 @@ BOOL LLFolderBridge::isClipboardPasteableAsLink() const
 
 }
 
+static BOOL can_move_to_outbox(LLInventoryItem* inv_item)
+{
+	return inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+}
+
+
+void LLFolderBridge::dropFolderToOutbox(LLInventoryCategory* inv_cat)
+{
+	LLUUID dest_folder_id = gInventory.createNewCategory(mUUID, LLFolderType::FT_NONE, inv_cat->getName());
+
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(inv_cat->getUUID(),cat_array,item_array);
+
+	for (LLInventoryModel::item_array_t::iterator iter = item_array->begin(); iter != item_array->end(); iter++)
+	{
+		LLInventoryItem* item = *iter;
+		if (item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+		{
+			//LLPointer<LLInventoryCallback> cb = new OutboxMoveCallback();
+			copy_inventory_item(
+				gAgent.getID(),
+				item->getPermissions().getOwner(),
+				item->getUUID(),
+				dest_folder_id,
+				item->getName(),
+				LLPointer<LLInventoryCallback>(NULL));
+
+		}
+		else
+		{	
+			LLSD args;
+			args["ITEM_NAME"] = item->getName();
+			LLSD payload;
+			payload["item_id"] = item->getUUID();
+			payload["dest_folder_id"] = dest_folder_id;
+			LLNotificationsUtil::add("ConfirmNoCopyToOutbox", args, payload, boost::bind(&LLFolderBridge::moveToOutbox, this, _1, _2));
+		}
+
+	}
+	/*
+	// we need to also drill down recursively
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array->begin(); iter != cat_array->end(); iter++)
+	{
+		LLViewerInventoryCategory* category = gInventory.getCategory(dest_folder_id);
+	}
+	*/
+}
+
 BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 											BOOL drop)
 {
@@ -1674,10 +1737,12 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		const LLUUID &cat_id = inv_cat->getUUID();
 		const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
 		const LLUUID &landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false);
-		
+		const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+
 		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
 		const BOOL move_is_into_outfit = getCategory() && (getCategory()->getPreferredType() == LLFolderType::FT_OUTFIT);
 		const BOOL move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
+		const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id); 
 
 		//--------------------------------------------------------------------------------
 		// Determine if folder can be moved.
@@ -1727,6 +1792,18 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				{
 					is_movable = FALSE;
 					break; // It's generally movable, but not into Landmarks.
+				}
+			}
+		}
+		if (move_is_into_outbox)
+		{
+			for (S32 i=0; i < descendent_items.count(); ++i)
+			{
+				LLInventoryItem* item = descendent_items[i];
+				if (!can_move_to_outbox(item))
+				{
+					is_movable = FALSE;
+					break; 
 				}
 			}
 		}
@@ -1796,6 +1873,10 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					}
 #endif
 				}
+			}
+			if (move_is_into_outbox)
+			{
+				dropFolderToOutbox(inv_cat);
 			}
 			else
 			{
@@ -2635,7 +2716,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		// Not sure what the right thing is to do here.
 		if (!isCOFFolder() && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
 		{
-			if (!isInboxFolder()) // don't allow creation in inbox
+			if (!isInboxFolder() && !isOutboxFolder()) // don't allow creation in inbox
 			{
 				// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
 				if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
@@ -3003,6 +3084,67 @@ static BOOL can_move_to_landmarks(LLInventoryItem* inv_item)
 	return LLAssetType::AT_LANDMARK == inv_item->getType();
 }
 
+void LLFolderBridge::dropToOutbox(LLInventoryItem* inv_item)
+{
+	if (inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+	{
+		LLUUID dest_folder_id = mUUID;
+
+		// when moving item directly into outbox create folder with that name
+		if (mUUID == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
+		{
+			dest_folder_id = gInventory.createNewCategory(mUUID,  LLFolderType::FT_NONE, inv_item->getName());
+		}
+
+		copy_inventory_item(
+				gAgent.getID(),
+				inv_item->getPermissions().getOwner(),
+				inv_item->getUUID(),
+				dest_folder_id,
+				inv_item->getName(),
+				LLPointer<LLInventoryCallback>(NULL));
+	
+	}
+	else
+	{	
+		LLSD args;
+		args["ITEM_NAME"] = inv_item->getName();
+		LLSD payload;
+		payload["item_id"] = inv_item->getUUID();
+		payload["dest_folder_id"] = mUUID;
+		LLNotificationsUtil::add("ConfirmNoCopyToOutbox", args, payload, boost::bind(&LLFolderBridge::moveToOutbox, this, _1, _2));
+	}
+}
+
+
+void LLFolderBridge::moveToOutbox(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0) return; // canceled
+
+
+	LLInventoryModel* model = getInventoryModel();
+	LLViewerInventoryItem * viitem = gInventory.getItem(notification["payload"]["item_id"].asUUID());
+	LLUUID dest_folder_id = notification["payload"]["dest_folder_id"].asUUID();
+
+	if (viitem)
+	{	
+
+		// when moving item directly into outbox create folder with that name
+		if (dest_folder_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
+		{
+			dest_folder_id = gInventory.createNewCategory(mUUID,  LLFolderType::FT_NONE, viitem->getName());
+		}
+
+		LLInvFVBridge::changeItemParent(
+			model,
+			viitem,
+			dest_folder_id,
+			false);
+	}
+	
+}
+
 void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item)
 {
 	// use callback to rearrange favorite landmarks after adding
@@ -3060,11 +3202,13 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 	const LLUUID &favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE, false);
 	const LLUUID &landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false);
+	const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 
 	const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 	const BOOL move_is_into_favorites = (mUUID == favorites_id);
 	const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
 	const BOOL move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
+	const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id); //(mUUID == outbox_id);
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
@@ -3130,6 +3274,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		{
 			accept = can_move_to_landmarks(inv_item);
 		}
+		else if (move_is_into_outbox)
+		{
+			accept = can_move_to_outbox(inv_item);
+		}
 
 		if(accept && drop)
 		{
@@ -3179,6 +3327,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			else if (move_is_into_current_outfit || move_is_into_outfit)
 			{
 				dropToOutfit(inv_item, move_is_into_current_outfit);
+			}
+			else if (move_is_into_outbox)
+			{
+				dropToOutbox(inv_item);
 			}
 			// NORMAL or TRASH folder
 			// (move the item, restamp if into trash)
