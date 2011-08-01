@@ -26,6 +26,7 @@
  * $/LicenseInfo$
  */
 
+
 #if LL_WINDOWS
 #define SAFE_SSL 1
 #elif LL_DARWIN
@@ -84,6 +85,8 @@ S32 gCurlMultiCount = 0;
 std::vector<LLMutex*> LLCurl::sSSLMutex;
 std::string LLCurl::sCAPath;
 std::string LLCurl::sCAFile;
+bool LLCurl::sMultiThreaded = false;
+
 
 void check_curl_code(CURLcode code)
 {
@@ -601,6 +604,7 @@ public:
 
 	S32 process();
 	void perform();
+	void doPerform();
 	
 	virtual void run();
 
@@ -634,7 +638,14 @@ LLCurl::Multi::Multi()
 	  mPerformState(PERFORM_STATE_READY)
 {
 	mQuitting = false;
-	mSignal = new LLCondition(NULL);
+	if (LLCurl::sMultiThreaded)
+	{
+		mSignal = new LLCondition(NULL);
+	}
+	else
+	{
+		mSignal = NULL;
+	}
 
 	mCurlMultiHandle = curl_multi_init();
 	if (!mCurlMultiHandle)
@@ -681,37 +692,51 @@ CURLMsg* LLCurl::Multi::info_read(S32* msgs_in_queue)
 
 void LLCurl::Multi::perform()
 {
-	if (mPerformState == PERFORM_STATE_READY)
+	if (LLCurl::sMultiThreaded)
 	{
-		mSignal->signal();
+		if (mPerformState == PERFORM_STATE_READY)
+		{
+			mSignal->signal();
+		}
+	}
+	else
+	{
+		doPerform();
 	}
 }
 
 void LLCurl::Multi::run()
 {
+	llassert(LLCurl::sMultiThreaded);
+
 	while (!mQuitting)
 	{
 		mSignal->wait();
 		mPerformState = PERFORM_STATE_PERFORMING;
 		if (!mQuitting)
 		{
-			S32 q = 0;
-			for (S32 call_count = 0;
-				 call_count < MULTI_PERFORM_CALL_REPEAT;
-				 call_count += 1)
-			{
-				CURLMcode code = curl_multi_perform(mCurlMultiHandle, &q);
-				if (CURLM_CALL_MULTI_PERFORM != code || q == 0)
-				{
-					check_curl_multi_code(code);
-					break;
-				}
-	
-			}
-			mQueued = q;
-			mPerformState = PERFORM_STATE_COMPLETED;
+			doPerform();
 		}
 	}
+}
+
+void LLCurl::Multi::doPerform()
+{
+	S32 q = 0;
+	for (S32 call_count = 0;
+			call_count < MULTI_PERFORM_CALL_REPEAT;
+			call_count += 1)
+	{
+		CURLMcode code = curl_multi_perform(mCurlMultiHandle, &q);
+		if (CURLM_CALL_MULTI_PERFORM != code || q == 0)
+		{
+			check_curl_multi_code(code);
+			break;
+		}
+	
+	}
+	mQueued = q;
+	mPerformState = PERFORM_STATE_COMPLETED;
 }
 
 S32 LLCurl::Multi::process()
@@ -839,10 +864,13 @@ LLCurlRequest::~LLCurlRequest()
 	{
 		LLCurl::Multi* multi = *iter;
 		multi->mQuitting = true;
-		while (!multi->isStopped())
+		if (LLCurl::sMultiThreaded)
 		{
-			multi->mSignal->signal();
-			apr_sleep(1000);
+			while (!multi->isStopped())
+			{
+				multi->mSignal->signal();
+				apr_sleep(1000);
+			}
 		}
 	}
 	for_each(mMultiSet.begin(), mMultiSet.end(), DeletePointer());
@@ -852,7 +880,10 @@ void LLCurlRequest::addMulti()
 {
 	llassert_always(mThreadID == LLThread::currentID());
 	LLCurl::Multi* multi = new LLCurl::Multi();
-	multi->start();
+	if (LLCurl::sMultiThreaded)
+	{
+		multi->start();
+	}
 	mMultiSet.insert(multi);
 	mActiveMulti = multi;
 	mActiveRequestCount = 0;
@@ -983,10 +1014,13 @@ S32 LLCurlRequest::process()
 		{
 			mMultiSet.erase(curiter);
 			multi->mQuitting = true;
-			while (!multi->isStopped())
+			if (LLCurl::sMultiThreaded)
 			{
-				multi->mSignal->signal();
-				apr_sleep(1000);
+				while (!multi->isStopped())
+				{
+					multi->mSignal->signal();
+					apr_sleep(1000);
+				}
 			}
 
 			delete multi;
@@ -1023,7 +1057,10 @@ LLCurlEasyRequest::LLCurlEasyRequest()
 	  mResultReturned(false)
 {
 	mMulti = new LLCurl::Multi();
-	mMulti->start();
+	if (LLCurl::sMultiThreaded)
+	{
+		mMulti->start();
+	}
 	mEasy = mMulti->allocEasy();
 	if (mEasy)
 	{
@@ -1035,10 +1072,13 @@ LLCurlEasyRequest::LLCurlEasyRequest()
 LLCurlEasyRequest::~LLCurlEasyRequest()
 {
 	mMulti->mQuitting = true;
-	while (!mMulti->isStopped())
+	if (LLCurl::sMultiThreaded)
 	{
-		mMulti->mSignal->signal();
-		apr_sleep(1000);
+		while (!mMulti->isStopped())
+		{
+			mMulti->mSignal->signal();
+			apr_sleep(1000);
+		}
 	}
 	delete mMulti;
 }
@@ -1234,8 +1274,9 @@ unsigned long LLCurl::ssl_thread_id(void)
 }
 #endif
 
-void LLCurl::initClass()
+void LLCurl::initClass(bool multi_threaded)
 {
+	sMultiThreaded = multi_threaded;
 	// Do not change this "unless you are familiar with and mean to control 
 	// internal operations of libcurl"
 	// - http://curl.haxx.se/libcurl/c/curl_global_init.html

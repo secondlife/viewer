@@ -55,6 +55,8 @@ public:
 	class Easy;
 	class Multi;
 
+	static bool sMultiThreaded;
+
 	struct TransferInfo
 	{
 		TransferInfo() : mSizeDownload(0.0), mTotalTime(0.0), mSpeedDownload(0.0) {}
@@ -159,7 +161,7 @@ public:
 	/**
 	 * @ brief Initialize LLCurl class
 	 */
-	static void initClass();
+	static void initClass(bool multi_threaded = false);
 
 	/**
 	 * @ brief Cleanup LLCurl class
