@@ -267,34 +267,49 @@ void main()
 	float da = max(dot(norm.xyz, vary_light.xyz), 0.0);
 	
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
-	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
-	
-	vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
-	float scol = max(scol_ambocc.r, diffuse.a); 
-	float ambocc = scol_ambocc.g;
-	
-	calcAtmospherics(pos.xyz, ambocc);
-	
-	vec3 col = atmosAmbient(vec3(0));
-	col += atmosAffectDirectionalLight(max(min(da, scol), diffuse.a));
-	
-	col *= diffuse.rgb;
-	
-	if (spec.a > 0.0) // specular reflection
-	{
-		// the old infinite-sky shiny reflection
-		//
-		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
-		float sa = dot(refnormpersp, vary_light.xyz);
-		vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*texture2D(lightFunc, vec2(sa, spec.a)).a;
 
-		// add the two types of shiny together
-		col += dumbshiny * spec.rgb;
-	}
+	vec3 col;
+	float bloom = 0.0;
+
+	if (diffuse.a < 0.9)
+	{
+		vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
+		
+		vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
+		float scol = max(scol_ambocc.r, diffuse.a); 
+		float ambocc = scol_ambocc.g;
 	
-	col = atmosLighting(col);
-	col = scaleSoftClip(col);
+		calcAtmospherics(pos.xyz, ambocc);
+	
+		col = atmosAmbient(vec3(0));
+		col += atmosAffectDirectionalLight(max(min(da, scol), diffuse.a));
+	
+		col *= diffuse.rgb;
+	
+		if (spec.a > 0.0) // specular reflection
+		{
+			// the old infinite-sky shiny reflection
+			//
+			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+			float sa = dot(refnormpersp, vary_light.xyz);
+			vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*texture2D(lightFunc, vec2(sa, spec.a)).a;
+
+			// add the two types of shiny together
+			vec3 spec_contrib = dumbshiny * spec.rgb;
+			bloom = dot(spec_contrib, spec_contrib);
+			col += spec_contrib;
+		}
+			
+		col = atmosLighting(col);
+		col = scaleSoftClip(col);
+
+		col = mix(col, diffuse.rgb, diffuse.a);
+	}
+	else
+	{
+		col = diffuse.rgb;
+	}
 		
 	gl_FragColor.rgb = col;
-	gl_FragColor.a = 0.0;
+	gl_FragColor.a = bloom;
 }
