@@ -29,6 +29,9 @@
 
 #include "llfloater.h"
 
+class LLLandImpactsObserver;
+class LLObjectSelection;
+class LLParcelSelection;
 class LLTextBox;
 
 class LLFloaterObjectWeights : public LLFloater
@@ -36,15 +39,25 @@ class LLFloaterObjectWeights : public LLFloater
 public:
 	LOG_CLASS(LLFloaterObjectWeights);
 
+	typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
+	typedef LLSafeHandle<LLParcelSelection> LLParcelSelectionHandle;
+
 	LLFloaterObjectWeights(const LLSD& key);
 	~LLFloaterObjectWeights();
 
 	/*virtual*/ BOOL postBuild();
 
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onClose(bool app_quitting);
+
+	void updateLandImpacts();
 
 private:
-	void toggleLoadingIndicators(bool visible);
+	void refresh();
+
+	void toggleWeightsLoadingIndicators(bool visible);
+	void toggleLandImpactsLoadingIndicators(bool visible);
+
 	void updateIfNothingSelected();
 
 	LLTextBox		*mSelectedObjects;
@@ -59,6 +72,13 @@ private:
 	LLTextBox		*mRezzedOnLand;
 	LLTextBox		*mRemainingCapacity;
 	LLTextBox		*mTotalCapacity;
+
+	LLLandImpactsObserver		*mLandImpactsObserver;
+
+	LLObjectSelectionHandle		mObjectSelection;
+	LLParcelSelectionHandle		mParcelSelection;
+
+	boost::signals2::connection	mSelectMgrConnection;
 };
 
 #endif //LL_LLFLOATEROBJECTWEIGHTS_H

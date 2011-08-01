@@ -27,7 +27,33 @@
 
 #include "llfloaterobjectweights.h"
 
+#include "llparcel.h"
+
+#include "llfloaterreg.h"
 #include "lltextbox.h"
+
+#include "llselectmgr.h"
+#include "llviewerparcelmgr.h"
+
+/**
+ * Class LLLandImpactsObserver
+ *
+ * An observer class to monitor parcel selection and update
+ * the land impacts data from a parcel containing the selected object.
+ */
+class LLLandImpactsObserver : public LLParcelObserver
+{
+public:
+	virtual void changed()
+	{
+		LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::getTypedInstance<LLFloaterObjectWeights>("object_weights");
+		if(object_weights_floater)
+		{
+			object_weights_floater->updateLandImpacts();
+		}
+	}
+};
+
 
 LLFloaterObjectWeights::LLFloaterObjectWeights(const LLSD& key)
 :	LLFloater(key),
@@ -40,12 +66,22 @@ LLFloaterObjectWeights::LLFloaterObjectWeights(const LLSD& key)
 	mSelectedOnLand(NULL),
 	mRezzedOnLand(NULL),
 	mRemainingCapacity(NULL),
-	mTotalCapacity(NULL)
+	mTotalCapacity(NULL),
+	mLandImpactsObserver(NULL)
 {
+	mLandImpactsObserver = new LLLandImpactsObserver();
+	LLViewerParcelMgr::getInstance()->addObserver(mLandImpactsObserver);
 }
 
 LLFloaterObjectWeights::~LLFloaterObjectWeights()
 {
+	mObjectSelection = NULL;
+	mParcelSelection = NULL;
+
+	mSelectMgrConnection.disconnect();
+
+	LLViewerParcelMgr::getInstance()->removeObserver(mLandImpactsObserver);
+	delete mLandImpactsObserver;
 }
 
 // virtual
@@ -59,10 +95,10 @@ BOOL LLFloaterObjectWeights::postBuild()
 	mSelectedServerWeight = getChild<LLTextBox>("server");
 	mSelectedDisplayWeight = getChild<LLTextBox>("display");
 
-	mSelectedOnLand = getChild<LLTextBox>("used_download_weight");
-	mRezzedOnLand = getChild<LLTextBox>("used_download_weight");
-	mRemainingCapacity = getChild<LLTextBox>("used_download_weight");
-	mTotalCapacity = getChild<LLTextBox>("used_download_weight");
+	mSelectedOnLand = getChild<LLTextBox>("selected");
+	mRezzedOnLand = getChild<LLTextBox>("rezzed_on_land");
+	mRemainingCapacity = getChild<LLTextBox>("remaining_capacity");
+	mTotalCapacity = getChild<LLTextBox>("total_capacity");
 
 	return TRUE;
 }
@@ -70,15 +106,94 @@ BOOL LLFloaterObjectWeights::postBuild()
 // virtual
 void LLFloaterObjectWeights::onOpen(const LLSD& key)
 {
-	updateIfNothingSelected();
+	mSelectMgrConnection = LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLFloaterObjectWeights::refresh, this));
+
+	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+	mParcelSelection = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
+
+	refresh();
 }
 
-void LLFloaterObjectWeights::toggleLoadingIndicators(bool visible)
+// virtual
+void LLFloaterObjectWeights::onClose(bool app_quitting)
+{
+	mSelectMgrConnection.disconnect();
+
+	mObjectSelection = NULL;
+	mParcelSelection = NULL;
+}
+
+void LLFloaterObjectWeights::updateLandImpacts()
+{
+	LLParcel *parcel = mParcelSelection->getParcel();
+	if (!parcel || LLSelectMgr::getInstance()->getSelection()->isEmpty())
+	{
+		updateIfNothingSelected();
+	}
+	else
+	{
+		S32 selected_prims = parcel->getSelectedPrimCount();
+		S32 rezzed_prims = parcel->getSimWidePrimCount();
+		S32 total_capacity = parcel->getSimWideMaxPrimCapacity();
+
+		mSelectedOnLand->setText(llformat("%d", selected_prims));
+		mRezzedOnLand->setText(llformat("%d", rezzed_prims));
+		mRemainingCapacity->setText(llformat("%d", total_capacity - rezzed_prims));
+		mTotalCapacity->setText(llformat("%d", total_capacity));
+
+		toggleLandImpactsLoadingIndicators(false);
+	}
+}
+
+void LLFloaterObjectWeights::refresh()
+{
+	if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
+	{
+		updateIfNothingSelected();
+	}
+	else
+	{
+		S32 prim_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+		S32 link_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
+
+		mSelectedObjects->setText(llformat("%d", link_count));
+		mSelectedPrims->setText(llformat("%d", prim_count));
+
+		LLViewerObject* selected_object = mObjectSelection->getPrimaryObject();
+		if (selected_object)
+		{
+			// Select a parcel at the currently selected object's position.
+			LLViewerParcelMgr::getInstance()->selectParcelAt(selected_object->getPositionGlobal());
+
+			toggleLandImpactsLoadingIndicators(true);
+		}
+	}
+}
+
+void LLFloaterObjectWeights::toggleWeightsLoadingIndicators(bool visible)
 {
 	childSetVisible("download_loading_indicator", visible);
 	childSetVisible("physics_loading_indicator", visible);
 	childSetVisible("server_loading_indicator", visible);
 	childSetVisible("display_loading_indicator", visible);
+
+	mSelectedDownloadWeight->setVisible(!visible);
+	mSelectedPhysicsWeight->setVisible(!visible);
+	mSelectedServerWeight->setVisible(!visible);
+	mSelectedDisplayWeight->setVisible(!visible);
+}
+
+void LLFloaterObjectWeights::toggleLandImpactsLoadingIndicators(bool visible)
+{
+	childSetVisible("selected_loading_indicator", visible);
+	childSetVisible("rezzed_on_land_loading_indicator", visible);
+	childSetVisible("remaining_capacity_loading_indicator", visible);
+	childSetVisible("total_capacity_loading_indicator", visible);
+
+	mSelectedOnLand->setVisible(!visible);
+	mRezzedOnLand->setVisible(!visible);
+	mRemainingCapacity->setVisible(!visible);
+	mTotalCapacity->setVisible(!visible);
 }
 
 void LLFloaterObjectWeights::updateIfNothingSelected()
@@ -94,6 +209,10 @@ void LLFloaterObjectWeights::updateIfNothingSelected()
 	mSelectedDisplayWeight->setText(text);
 
 	mSelectedOnLand->setText(text);
+	mRezzedOnLand->setText(text);
+	mRemainingCapacity->setText(text);
+	mTotalCapacity->setText(text);
 
-	toggleLoadingIndicators(false);
+	toggleWeightsLoadingIndicators(false);
+	toggleLandImpactsLoadingIndicators(false);
 }
