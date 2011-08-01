@@ -704,19 +704,22 @@ BOOL LLVOVolume::isVisible() const
 	return FALSE ;
 }
 
-void LLVOVolume::updateTextureVirtualSize()
+void LLVOVolume::updateTextureVirtualSize(bool forced)
 {
 	LLFastTimer ftm(FTM_VOLUME_TEXTURES);
 	// Update the pixel area of all faces
 
-	if(!isVisible())
+	if(!forced)
 	{
-		return ;
-	}
+		if(!isVisible())
+		{
+			return ;
+		}
 
-	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SIMPLE))
-	{
-		return;
+		if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SIMPLE))
+		{
+			return;
+		}
 	}
 
 	static LLCachedControl<bool> dont_load_textures(gSavedSettings,"TextureDisable");
@@ -3995,7 +3998,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 
 		llassert_always(vobj);
-		vobj->updateTextureVirtualSize();
+		vobj->updateTextureVirtualSize(true);
 		vobj->preRebuild();
 
 		drawablep->clearState(LLDrawable::HAS_ALPHA);
