@@ -27,10 +27,13 @@
 #define LLBADGE_CPP
 #include "llbadge.h"
 
+#include "llscrollcontainer.h"
 #include "lluictrlfactory.h"
 
 
 static LLDefaultChildRegistry::Register<LLBadge> r("badge");
+
+static const S32 BADGE_OFFSET_NOT_SPECIFIED = 0x7FFFFFFF;
 
 // Compiler optimization, generate extern template
 template class LLBadge* LLView::getChild<class LLBadge>(const std::string& name, BOOL recurse) const;
@@ -46,6 +49,8 @@ LLBadge::Params::Params()
 	, label_offset_horiz("label_offset_horiz")
 	, label_offset_vert("label_offset_vert")
 	, location("location", LLRelPos::TOP_LEFT)
+	, location_offset_hcenter("location_offset_hcenter")
+	, location_offset_vcenter("location_offset_vcenter")
 	, location_percent_hcenter("location_percent_hcenter")
 	, location_percent_vcenter("location_percent_vcenter")
 	, padding_horiz("padding_horiz")
@@ -70,6 +75,8 @@ bool LLBadge::Params::equals(const Params& a) const
 	comp &= (label_offset_horiz() == a.label_offset_horiz());
 	comp &= (label_offset_vert() == a.label_offset_vert());
 	comp &= (location() == a.location());
+	comp &= (location_offset_hcenter() == a.location_offset_hcenter());
+	comp &= (location_offset_vcenter() == a.location_offset_vcenter());
 	comp &= (location_percent_hcenter() == a.location_percent_hcenter());
 	comp &= (location_percent_vcenter() == a.location_percent_vcenter());
 	comp &= (padding_horiz() == a.padding_horiz());
@@ -91,14 +98,27 @@ LLBadge::LLBadge(const LLBadge::Params& p)
 	, mLabelOffsetHoriz(p.label_offset_horiz)
 	, mLabelOffsetVert(p.label_offset_vert)
 	, mLocation(p.location)
+	, mLocationOffsetHCenter(BADGE_OFFSET_NOT_SPECIFIED)
+	, mLocationOffsetVCenter(BADGE_OFFSET_NOT_SPECIFIED)
 	, mLocationPercentHCenter(0.5f)
 	, mLocationPercentVCenter(0.5f)
 	, mPaddingHoriz(p.padding_horiz)
 	, mPaddingVert(p.padding_vert)
+	, mParentScroller(NULL)
 {
 	if (mImage.isNull())
 	{
 		llwarns << "Badge: " << getName() << " with no image!" << llendl;
+	}
+
+	if (p.location_offset_hcenter.isProvided())
+	{
+		mLocationOffsetHCenter = p.location_offset_hcenter();
+	}
+
+	if (p.location_offset_vcenter.isProvided())
+	{
+		mLocationOffsetVCenter = p.location_offset_vcenter();
 	}
 
 	//
@@ -144,6 +164,15 @@ bool LLBadge::addToView(LLView * view)
 	if (child_added)
 	{
 		setShape(view->getLocalRect());
+
+		// Find a parent scroll container, if there is one in case we need it for positioning
+
+		LLView * parent = mOwner.get();
+
+		while ((parent != NULL) && ((mParentScroller = dynamic_cast<LLScrollContainer *>(parent)) == NULL))
+		{
+			parent = parent->getParent();
+		}
 	}
 
 	return child_added;
@@ -201,21 +230,11 @@ void LLBadge::draw()
 		if (owner_view)
 		{
 			//
-			// Calculate badge position based on owner
-			//
-			
-			LLRect owner_rect;
-			owner_view->localRectToOtherView(owner_view->getLocalRect(), & owner_rect, this);
-			
-			F32 badge_center_x = owner_rect.mLeft + owner_rect.getWidth() * mLocationPercentHCenter;
-			F32 badge_center_y = owner_rect.mBottom + owner_rect.getHeight() * mLocationPercentVCenter;
-
-			//
 			// Calculate badge size based on label text
 			//
 
 			LLWString badge_label_wstring = mLabel;
-			
+
 			S32 badge_label_begin_offset = 0;
 			S32 badge_char_length = S32_MAX;
 			S32 badge_pixel_length = S32_MAX;
@@ -226,6 +245,77 @@ void LLBadge::draw()
 				mGLFont->getWidthF32(badge_label_wstring.c_str(), badge_label_begin_offset, badge_char_length);
 
 			F32 badge_height = (2.0f * mPaddingVert) + mGLFont->getLineHeight();
+
+			//
+			// Calculate badge position based on owner
+			//
+			
+			LLRect owner_rect;
+			owner_view->localRectToOtherView(owner_view->getLocalRect(), & owner_rect, this);
+
+			S32 location_offset_horiz = mLocationOffsetHCenter;
+			S32 location_offset_vert = mLocationOffsetVCenter;
+
+			// If we're in a scroll container, do some math to keep us in the same place on screen if applicable
+			if (mParentScroller != NULL)
+			{
+				LLRect visibleRect = mParentScroller->getVisibleContentRect();
+
+				if (mLocationOffsetHCenter != BADGE_OFFSET_NOT_SPECIFIED)
+				{
+					if (LLRelPos::IsRight(mLocation))
+					{
+						location_offset_horiz += visibleRect.mRight;
+					}
+					else if (LLRelPos::IsLeft(mLocation))
+					{
+						location_offset_horiz += visibleRect.mLeft;
+					}
+					else // center
+					{
+						location_offset_horiz += (visibleRect.mLeft + visibleRect.mRight) / 2;
+					}
+				}
+
+				if (mLocationOffsetVCenter != BADGE_OFFSET_NOT_SPECIFIED)
+				{
+					if (LLRelPos::IsTop(mLocation))
+					{
+						location_offset_vert += visibleRect.mTop;
+					}
+					else if (LLRelPos::IsBottom(mLocation))
+					{
+						location_offset_vert += visibleRect.mBottom;
+					}
+					else // center
+					{
+						location_offset_vert += (visibleRect.mBottom + visibleRect.mTop) / 2;
+					}
+				}
+			}
+			
+			F32 badge_center_x;
+			F32 badge_center_y;
+
+			// Compute x position
+			if (mLocationOffsetHCenter == BADGE_OFFSET_NOT_SPECIFIED)
+			{
+				badge_center_x = owner_rect.mLeft + owner_rect.getWidth() * mLocationPercentHCenter;
+			}
+			else
+			{
+				badge_center_x = location_offset_horiz;
+			}
+
+			// Compute y position
+			if (mLocationOffsetVCenter == BADGE_OFFSET_NOT_SPECIFIED)
+			{
+				badge_center_y = owner_rect.mBottom + owner_rect.getHeight() * mLocationPercentVCenter;
+			}
+			else
+			{
+				badge_center_y = location_offset_vert;
+			}
 
 			//
 			// Draw button image, if available.

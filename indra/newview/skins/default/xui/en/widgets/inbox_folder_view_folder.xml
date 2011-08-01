@@ -11,8 +11,8 @@
         label_offset_horiz="-1"
         location="right" 
         padding_horiz="4" 
-        padding_vert="1" 
-        location_percent_hcenter="70"
+        padding_vert="1"
+        location_offset_hcenter="-15"
         border_image=""
         image="Badge_Background_New"
         />
