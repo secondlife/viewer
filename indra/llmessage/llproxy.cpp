@@ -382,14 +382,15 @@ static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outl
 	handle->setBlocking(1000);
 
   	rv = apr_socket_send(apr_socket, dataout, &outlen);
-	if (APR_SUCCESS != rv || expected_len != outlen)
+	if (APR_SUCCESS != rv)
 	{
-		LL_WARNS("Proxy") << "Error sending data to proxy control channel" << LL_ENDL;
+		LL_WARNS("Proxy") << "Error sending data to proxy control channel, status: " << rv << LL_ENDL;
 		ll_apr_warn_status(rv);
 	}
 	else if (expected_len != outlen)
 	{
-		LL_WARNS("Proxy") << "Error sending data to proxy control channel" << LL_ENDL;
+		LL_WARNS("Proxy") << "Incorrect data length sent. Expected: " << expected_len <<
+				" Sent: " << outlen << LL_ENDL;
 		rv = -1;
 	}
 
@@ -402,9 +403,10 @@ static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outl
 			LL_WARNS("Proxy") << "Error receiving data from proxy control channel, status: " << rv << LL_ENDL;
 			ll_apr_warn_status(rv);
 		}
-		else if (expected_len != maxinlen)
+		else if (expected_len < maxinlen)
 		{
-			LL_WARNS("Proxy") << "Received incorrect amount of data in proxy control channel" << LL_ENDL;
+			LL_WARNS("Proxy") << "Incorrect data length received. Expected: " << expected_len <<
+					" Received: " << maxinlen << LL_ENDL;
 			rv = -1;
 		}
 	}

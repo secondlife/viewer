@@ -598,6 +598,9 @@ bool idle_startup()
 		// connection if the user is using SOCKS 5
 		// We need to do this early in case the user is using
 		// socks for HTTP so we get the login screen via SOCKS
+		// We don't do anything if proxy setup was
+		// unsuccessful, since the user can configure their
+		// proxy settings before starting to log in.
 		//-------------------------------------------------
 
 		LLStartUp::handleSocksProxy();
@@ -820,23 +823,16 @@ bool idle_startup()
 		// Post login screen, we should see if any settings have changed that may
 		// require us to either start/stop or change the socks proxy. As various communications
 		// past this point may require the proxy to be up.
-		if ( gSavedSettings.getBOOL("Socks5ProxyEnabled") )
+		if (!LLStartUp::handleSocksProxy())
 		{
-			if (!LLStartUp::handleSocksProxy())
-			{
-				// Proxy start up failed, we should now bail the state machine
-				// handleSocksProxy() will have reported an error to the user
-				// already, so we just go back to the login screen. The user
-				// could then change the preferences to fix the issue. 
-				LLStartUp::setStartupState(STATE_LOGIN_SHOW);
-				return FALSE;
-			}
+			// Proxy start up failed, we should now bail the state machine
+			// handleSocksProxy() will have reported an error to the user
+			// already, so we just go back to the login screen. The user
+			// could then change the preferences to fix the issue.
+
+			LLStartUp::setStartupState(STATE_LOGIN_SHOW);
+			return FALSE;
 		}
-		else
-		{
-			LLProxy::getInstance()->stopSOCKSProxy();
-		}
-		
 
 		// reset the values that could have come in from a slurl
 		// DEV-42215: Make sure they're not empty -- gUserCredential
@@ -2771,6 +2767,7 @@ void LLStartUp::setStartSLURL(const LLSLURL& slurl)
 
 bool LLStartUp::handleSocksProxy()
 {
+	bool proxy_ok = true;
 	std::string httpProxyType = gSavedSettings.getString("Socks5HttpProxyType");
 
 	// Determine the HTTP proxy type (if any)
@@ -2785,7 +2782,7 @@ bool LLStartUp::handleSocksProxy()
 			subs["HOST"] = http_host.getIPString();
 			subs["PORT"] = (S32)http_host.getPort();
 			LLNotificationsUtil::add("PROXY_INVALID_HTTP_HOST", subs);
-			return false;
+			proxy_ok = false;
 		}
 	}
 	else if ((httpProxyType.compare("Socks") == 0) && gSavedSettings.getBOOL("Socks5ProxyEnabled"))
@@ -2799,7 +2796,7 @@ bool LLStartUp::handleSocksProxy()
 			subs["HOST"] = socks_host.getIPString();
 			subs["PORT"] = (S32)socks_host.getPort();
 			LLNotificationsUtil::add("PROXY_INVALID_SOCKS_HOST", subs);
-			return false;
+			proxy_ok = false;
 		}
 	}
 	else if (httpProxyType.compare("None") == 0)
@@ -2814,7 +2811,7 @@ bool LLStartUp::handleSocksProxy()
 	}
 
 	// Set up SOCKS proxy (if needed)
-	if (gSavedSettings.getBOOL("Socks5ProxyEnabled"))
+	if (gSavedSettings.getBOOL("Socks5ProxyEnabled") && proxy_ok)
 	{	
 		// Determine and update LLProxy with the saved authentication system
 		std::string auth_type = gSavedSettings.getString("Socks5AuthType");
@@ -2830,7 +2827,7 @@ bool LLStartUp::handleSocksProxy()
 			if (!ok)
 			{
 				LLNotificationsUtil::add("SOCKS_BAD_CREDS");
-				return false;
+				proxy_ok = false;
 			}
 		}
 		else if (auth_type.compare("None") == 0)
@@ -2849,63 +2846,63 @@ bool LLStartUp::handleSocksProxy()
 			LLProxy::getInstance()->setAuthNone();
 		}
 
-		// Start the proxy and check for errors
-		// If status != SOCKS_OK, stopSOCKSProxy() will already have been called when startSOCKSProxy() returns.
-		LLHost socks_host;
-		socks_host.setHostByName(gSavedSettings.getString("Socks5ProxyHost"));
-		socks_host.setPort(gSavedSettings.getU32("Socks5ProxyPort"));
-		int status = LLProxy::getInstance()->startSOCKSProxy(socks_host);
-
-		if (status == SOCKS_OK)
+		if (proxy_ok)
 		{
-			return true;
-		}
-		else
-		{
-			LLSD subs;
-			subs["HOST"] = gSavedSettings.getString("Socks5ProxyHost");
-			subs["PORT"] = (S32)gSavedSettings.getU32("Socks5ProxyPort");
 
-			std::string error_string;
+			// Start the proxy and check for errors
+			// If status != SOCKS_OK, stopSOCKSProxy() will already have been called when startSOCKSProxy() returns.
+			LLHost socks_host;
+			socks_host.setHostByName(gSavedSettings.getString("Socks5ProxyHost"));
+			socks_host.setPort(gSavedSettings.getU32("Socks5ProxyPort"));
+			int status = LLProxy::getInstance()->startSOCKSProxy(socks_host);
 
-			switch(status)
+			if (status != SOCKS_OK)
 			{
-				case SOCKS_CONNECT_ERROR: // TCP Fail
-					error_string = "SOCKS_CONNECT_ERROR";
-					break;
+				LLSD subs;
+				subs["HOST"] = gSavedSettings.getString("Socks5ProxyHost");
+				subs["PORT"] = (S32)gSavedSettings.getU32("Socks5ProxyPort");
 
-				case SOCKS_NOT_PERMITTED: // SOCKS 5 server rule set refused connection
-					error_string = "SOCKS_NOT_PERMITTED";
-					break;
+				std::string error_string;
 
-				case SOCKS_NOT_ACCEPTABLE: // Selected authentication is not acceptable to server
-					error_string = "SOCKS_NOT_ACCEPTABLE";
-					break;
+				switch(status)
+				{
+					case SOCKS_CONNECT_ERROR: // TCP Fail
+						error_string = "SOCKS_CONNECT_ERROR";
+						break;
 
-				case SOCKS_AUTH_FAIL: // Authentication failed
-					error_string = "SOCKS_AUTH_FAIL";
-					break;
+					case SOCKS_NOT_PERMITTED: // SOCKS 5 server rule set refused connection
+						error_string = "SOCKS_NOT_PERMITTED";
+						break;
 
-				case SOCKS_UDP_FWD_NOT_GRANTED: // UDP forward request failed
-					error_string = "SOCKS_UDP_FWD_NOT_GRANTED";
-					break;
+					case SOCKS_NOT_ACCEPTABLE: // Selected authentication is not acceptable to server
+						error_string = "SOCKS_NOT_ACCEPTABLE";
+						break;
 
-				case SOCKS_HOST_CONNECT_FAILED: // Failed to open a TCP channel to the socks server
-					error_string = "SOCKS_HOST_CONNECT_FAILED";
-					break;
+					case SOCKS_AUTH_FAIL: // Authentication failed
+						error_string = "SOCKS_AUTH_FAIL";
+						break;
 
-				case SOCKS_INVALID_HOST: // Improperly formatted host address or port.
-					error_string = "SOCKS_INVALID_HOST";
-					break;
+					case SOCKS_UDP_FWD_NOT_GRANTED: // UDP forward request failed
+						error_string = "SOCKS_UDP_FWD_NOT_GRANTED";
+						break;
 
-				default:
-					error_string = "SOCKS_UNKNOWN_STATUS"; // Something strange happened,
-					LL_WARNS("Proxy") << "Unknown return from LLProxy::startProxy(): " << status << LL_ENDL;
-					break;
+					case SOCKS_HOST_CONNECT_FAILED: // Failed to open a TCP channel to the socks server
+						error_string = "SOCKS_HOST_CONNECT_FAILED";
+						break;
+
+					case SOCKS_INVALID_HOST: // Improperly formatted host address or port.
+						error_string = "SOCKS_INVALID_HOST";
+						break;
+
+					default:
+						error_string = "SOCKS_UNKNOWN_STATUS"; // Something strange happened,
+						LL_WARNS("Proxy") << "Unknown return from LLProxy::startProxy(): " << status << LL_ENDL;
+						break;
+				}
+
+				LLNotificationsUtil::add(error_string, subs);
+				proxy_ok = false;
 			}
-
-			LLNotificationsUtil::add(error_string, subs);
-			return false;
 		}
 	}
 	else
@@ -2913,7 +2910,7 @@ bool LLStartUp::handleSocksProxy()
 		LLProxy::getInstance()->stopSOCKSProxy(); // ensure no UDP proxy is running and it's all cleaned up
 	}
 
-	return true;
+	return proxy_ok;
 }
 
 bool login_alert_done(const LLSD& notification, const LLSD& response)

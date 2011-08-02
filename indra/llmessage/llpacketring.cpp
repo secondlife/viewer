@@ -225,7 +225,7 @@ S32 LLPacketRing::receivePacket (S32 socket, char *datap)
 	else
 	{
 		// no delay, pull straight from net
-		if (LLProxy::isEnabled())
+		if (LLProxy::isSOCKSProxyEnabled())
 		{
 			U8 buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];
 			packet_size = receive_packet(socket, reinterpret_cast<char *>(buffer));
@@ -348,7 +348,7 @@ BOOL LLPacketRing::sendPacket(int h_socket, char * send_buffer, S32 buf_size, LL
 BOOL LLPacketRing::sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host)
 {
 	
-	if (!LLProxy::isEnabled())
+	if (!LLProxy::isSOCKSProxyEnabled())
 	{
 		return send_packet(h_socket, send_buffer, buf_size, host.getAddress(), host.getPort());
 	}

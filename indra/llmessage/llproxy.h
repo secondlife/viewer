@@ -191,7 +191,7 @@ public:
 	LLSocks5AuthType getSelectedAuthMethod() const;
 
 	// static check for enabled status for UDP packets
-	static bool isEnabled() { return sUDPProxyEnabled; }
+	static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled; }
 
 	// check for enabled status for HTTP packets
 	// mHTTPProxyEnabled is atomic, so no locking is required for thread safety.
