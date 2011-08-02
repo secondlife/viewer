@@ -26,6 +26,8 @@
  */
  
 #include "llviewerprecompiledheaders.h"
+#include <iostream>
+#include <fstream>
 
 #include "llfloaterabout.h"
 
@@ -108,8 +110,11 @@ BOOL LLFloaterAbout::postBuild()
 	LLViewerTextEditor *support_widget = 
 		getChild<LLViewerTextEditor>("support_editor", true);
 
-	LLViewerTextEditor *credits_widget = 
-		getChild<LLViewerTextEditor>("credits_editor", true);
+	LLViewerTextEditor *contrib_names_widget = 
+		getChild<LLViewerTextEditor>("contrib_names", true);
+
+	LLViewerTextEditor *trans_names_widget = 
+		getChild<LLViewerTextEditor>("trans_names", true);
 
 	getChild<LLUICtrl>("copy_btn")->setCommitCallback(
 		boost::bind(&LLFloaterAbout::onClickCopyToClipboard, this));
@@ -190,8 +195,41 @@ BOOL LLFloaterAbout::postBuild()
 	support_widget->setEnabled(FALSE);
 	support_widget->startOfDoc();
 
-	credits_widget->setEnabled(FALSE);
-	credits_widget->startOfDoc();
+	// Get the names of contributors, extracted from .../doc/contributions.txt by viewer_manifest.py at build time
+	std::string contributors_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"contributors.txt");
+	llifstream contrib_file;
+	std::string contributors;
+	contrib_file.open(contributors_path);		/* Flawfinder: ignore */
+	if (contrib_file.is_open())
+	{
+		std::getline(contrib_file, contributors); // all names are on a single line
+		contrib_file.close();
+	}
+	else
+	{
+		LL_WARNS("AboutInit") << "Could not read contributors file at " << contributors_path << LL_ENDL;
+	}
+	contrib_names_widget->setText(contributors);
+	contrib_names_widget->setEnabled(FALSE);
+	contrib_names_widget->startOfDoc();
+
+	// Get the names of translators, extracted from .../doc/tranlations.txt by viewer_manifest.py at build time
+	std::string translators_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"translators.txt");
+	llifstream trans_file;
+	std::string translators;
+	trans_file.open(translators_path);		/* Flawfinder: ignore */
+	if (trans_file.is_open())
+	{
+		std::getline(trans_file, translators); // all names are on a single line
+		trans_file.close();
+	}
+	else
+	{
+		LL_WARNS("AboutInit") << "Could not read translators file at " << translators_path << LL_ENDL;
+	}
+	trans_names_widget->setText(translators);
+	trans_names_widget->setEnabled(FALSE);
+	trans_names_widget->startOfDoc();
 
 	return TRUE;
 }

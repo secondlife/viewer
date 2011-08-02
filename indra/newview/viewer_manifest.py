@@ -31,6 +31,7 @@ import os.path
 import re
 import tarfile
 import time
+import random
 viewer_dir = os.path.dirname(__file__)
 # add llmanifest library to our path so we don't have to muck with PYTHONPATH
 sys.path.append(os.path.join(viewer_dir, '../lib/python/indra/util'))
@@ -62,6 +63,12 @@ class ViewerManifest(LLManifest):
 
                 # include the entire shaders directory recursively
                 self.path("shaders")
+                # inclue the extracted lists of contributors
+                contributor_names = self.extract_names("../../doc/contributions.txt")
+                self.put_in_file(contributor_names, "contributors.txt")
+                # inclue the extracted lists of translators
+                translator_names = self.extract_names("../../doc/translations.txt")
+                self.put_in_file(translator_names, "translators.txt")
                 # ... and the entire windlight directory
                 self.path("windlight")
                 self.end_prefix("app_settings")
@@ -174,6 +181,28 @@ class ViewerManifest(LLManifest):
                                                 
         return " ".join((channel_flags, grid_flags, setting_flags)).strip()
 
+    def extract_names(self,src):
+        try:
+            contrib_file = open(src,'r')
+        except IOError:
+            print "Failed to open '%s'" % src
+            raise
+        lines = contrib_file.readlines()
+        contrib_file.close()
+
+        # All lines up to and including the first blank line are the file header; skip them
+        lines.reverse() # so that pop will pull from first to last line
+        while not re.match("\s*$", lines.pop()) :
+            pass # do nothing
+
+        # A line that starts with a non-whitespace character is a name; all others describe contributions, so collect the names
+        names = []
+        for line in lines :
+            if re.match("\S", line) :
+                names.append(line.rstrip())
+        # It's not fair to always put the same people at the head of the list
+        random.shuffle(names)
+        return ', '.join(names)
 
 class WindowsManifest(ViewerManifest):
     def final_exe(self):
