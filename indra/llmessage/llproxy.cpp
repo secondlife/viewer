@@ -1,6 +1,6 @@
 /**
- * @file llsocks5.cpp
- * @brief SOCKS 5 implementation
+ * @file llproxy.cpp
+ * @brief UDP and HTTP proxy communications
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -28,7 +28,6 @@
 
 #include "llproxy.h"
 
-#include <algorithm>
 #include <string>
 #include <curl/curl.h>
 
@@ -44,7 +43,6 @@
 // incoming packet just to do a simple bool test. The getter for this
 // member is also static
 bool LLProxy::sUDPProxyEnabled = false;
-bool LLProxy::sHTTPProxyEnabled = false;
 
 // Some helpful TCP functions
 static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host); // Open a TCP channel to a given host
@@ -52,17 +50,16 @@ static void tcp_close_channel(LLSocket::ptr_t* handle_ptr); // Close an open TCP
 static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
 
 LLProxy::LLProxy():
-		mProxyType(LLPROXY_SOCKS),
+		mHTTPProxyEnabled(false),
+		mProxyMutex(0),
 		mUDPProxy(),
 		mTCPProxy(),
+		mPool(gAPRPoolp),
 		mHTTPProxy(),
+		mProxyType(LLPROXY_SOCKS),
 		mAuthMethodSelected(METHOD_NOAUTH),
 		mSocksUsername(),
-		mSocksPassword(),
-		mPool(gAPRPoolp),
-		mSOCKSAuthStrings(),
-		mHTTPProxyAddrStrings(),
-		mProxyMutex(0)
+		mSocksPassword()
 {
 }
 
@@ -70,11 +67,7 @@ LLProxy::~LLProxy()
 {
 	stopSOCKSProxy();
 	sUDPProxyEnabled  = false;
-	sHTTPProxyEnabled = false;
-
-	// Delete c_str versions of the addresses and credentials.
-	for_each(mSOCKSAuthStrings.begin(), mSOCKSAuthStrings.end(), DeletePointerArray());
-	for_each(mHTTPProxyAddrStrings.begin(), mHTTPProxyAddrStrings.end(), DeletePointerArray());
+	mHTTPProxyEnabled = false;
 }
 
 // Perform a SOCKS 5 authentication and UDP association to the proxy
@@ -89,7 +82,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 
 	socks_auth_request.version     = SOCKS_VERSION;       // SOCKS version 5
 	socks_auth_request.num_methods = 1;                   // Sending 1 method.
-	socks_auth_request.methods     = mAuthMethodSelected; // Send only the selected method.
+	socks_auth_request.methods     = getSelectedAuthMethod(); // Send only the selected method.
 
 	result = tcp_handshake(mProxyControlChannel, (char*)&socks_auth_request, sizeof(socks_auth_request), (char*)&socks_auth_response, sizeof(socks_auth_response));
 	if (result != 0)
@@ -110,13 +103,15 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 	if (socks_auth_response.method == METHOD_PASSWORD)
 	{
 		// The server has requested a username/password combination
-		U32 request_size = mSocksUsername.size() + mSocksPassword.size() + 3;
+		std::string socks_username(getSocksUser());
+		std::string socks_password(getSocksPwd());
+		U32 request_size = socks_username.size() + socks_password.size() + 3;
 		char * password_auth = new char[request_size];
 		password_auth[0] = 0x01;
-		password_auth[1] = mSocksUsername.size();
-		memcpy(&password_auth[2], mSocksUsername.c_str(), mSocksUsername.size());
-		password_auth[mSocksUsername.size() + 2] = mSocksPassword.size();
-		memcpy(&password_auth[mSocksUsername.size()+3], mSocksPassword.c_str(), mSocksPassword.size());
+		password_auth[1] = socks_username.size();
+		memcpy(&password_auth[2], socks_username.c_str(), socks_username.size());
+		password_auth[socks_username.size() + 2] = socks_password.size();
+		memcpy(&password_auth[socks_username.size()+3], socks_password.c_str(), socks_password.size());
 
 		authmethod_password_reply_t password_reply;
 
@@ -224,7 +219,7 @@ void LLProxy::stopSOCKSProxy()
 	// then we must shut down any HTTP proxy operations. But it is allowable if web
 	// proxy is being used to continue proxying HTTP.
 
-	if (LLPROXY_SOCKS == mProxyType)
+	if (LLPROXY_SOCKS == getHTTPProxyType())
 	{
 		void disableHTTPProxy();
 	}
@@ -237,6 +232,8 @@ void LLProxy::stopSOCKSProxy()
 
 void LLProxy::setAuthNone()
 {
+	LLMutexLock lock(&mProxyMutex);
+
 	mAuthMethodSelected = METHOD_NOAUTH;
 }
 
@@ -249,23 +246,18 @@ bool LLProxy::setAuthPassword(const std::string &username, const std::string &pa
 		return false;
 	}
 
+	LLMutexLock lock(&mProxyMutex);
+
 	mAuthMethodSelected = METHOD_PASSWORD;
 	mSocksUsername      = username;
 	mSocksPassword      = password;
-
-	U32 size = username.length() + password.length() + 2;
-	char* curl_auth_string  = new char[size];
-	snprintf(curl_auth_string, size, "%s:%s", username.c_str(), password.c_str());
-
-	LLMutexLock lock(&mProxyMutex);
-	mSOCKSAuthStrings.push_back(curl_auth_string);
 
 	return true;
 }
 
 bool LLProxy::enableHTTPProxy(LLHost httpHost, LLHttpProxyType type)
 {
-	if (httpHost.isOk())
+	if (!httpHost.isOk())
 	{
 		LL_WARNS("Proxy") << "Invalid SOCKS 5 Server" << LL_ENDL;
 		return false;
@@ -273,14 +265,10 @@ bool LLProxy::enableHTTPProxy(LLHost httpHost, LLHttpProxyType type)
 
 	LLMutexLock lock(&mProxyMutex);
 
-	sHTTPProxyEnabled = true;
 	mHTTPProxy        = httpHost;
 	mProxyType        = type;
 
-	U32 size = httpHost.getIPString().length() + 1;
-	char* http_addr_string = new char[size];
-	strncpy(http_addr_string, httpHost.getIPString().c_str(), size);
-	mHTTPProxyAddrStrings.push_back(http_addr_string);
+	mHTTPProxyEnabled = true;
 
 	return true;
 }
@@ -289,7 +277,7 @@ bool LLProxy::enableHTTPProxy()
 {
 	LLMutexLock lock(&mProxyMutex);
 
-	sHTTPProxyEnabled = true;
+	mHTTPProxyEnabled = true;
 
 	return true;
 }
@@ -298,7 +286,40 @@ void LLProxy::disableHTTPProxy()
 {
 	LLMutexLock lock(&mProxyMutex);
 
-	sHTTPProxyEnabled = false;
+	mHTTPProxyEnabled = false;
+}
+
+// Get the HTTP proxy address and port
+LLHost LLProxy::getHTTPProxy() const
+{
+	LLMutexLock lock(&mProxyMutex);
+	return mHTTPProxy;
+}
+
+// Get the currently selected HTTP proxy type
+LLHttpProxyType LLProxy::getHTTPProxyType() const
+{
+	LLMutexLock lock(&mProxyMutex);
+	return mProxyType;
+}
+
+std::string LLProxy::getSocksPwd() const
+{
+	LLMutexLock lock(&mProxyMutex);
+	return mSocksPassword;
+}
+
+std::string LLProxy::getSocksUser() const
+{
+	LLMutexLock lock(&mProxyMutex);
+	return mSocksUsername;
+}
+
+// get the currently selected auth method
+LLSocks5AuthType LLProxy::getSelectedAuthMethod() const
+{
+	LLMutexLock lock(&mProxyMutex);
+	return mAuthMethodSelected;
 }
 
 //static
@@ -322,24 +343,30 @@ void LLProxy::applyProxySettings(LLCurl::Easy* handle)
 
 void LLProxy::applyProxySettings(CURL* handle)
 {
-	LLMutexLock lock(&mProxyMutex);
-	if (sHTTPProxyEnabled)
+	// Do a faster unlocked check to see if we are supposed to proxy.
+	if (mHTTPProxyEnabled)
 	{
-		check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXY, mHTTPProxyAddrStrings.back()));
-		U16 port = mHTTPProxy.getPort();
-		check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, port));
+		// We think we should proxy, lock the proxy mutex.
+		LLMutexLock lock(&mProxyMutex);
+		// Now test again to verify that the proxy wasn't disabled between the first check and the lock.
+		if (mHTTPProxyEnabled)
+		{
+			check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXY, mHTTPProxy.getIPString().c_str()));
+			check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, mHTTPProxy.getPort()));
 
-		if (mProxyType == LLPROXY_SOCKS)
-		{
-			check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5));
-			if (mAuthMethodSelected == METHOD_PASSWORD)
+			if (mProxyType == LLPROXY_SOCKS)
 			{
-				check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, mSOCKSAuthStrings.back()));
+				check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5));
+				if (mAuthMethodSelected == METHOD_PASSWORD)
+				{
+					std::string auth_string = mSocksUsername + ":" + mSocksPassword;
+					check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, auth_string.c_str()));
+				}
 			}
-		}
-		else
-		{
-			check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP));
+			else
+			{
+				check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP));
+			}
 		}
 	}
 }

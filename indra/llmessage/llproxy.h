@@ -1,6 +1,6 @@
 /**
- * @file llsocks5.h
- * @brief Socks 5 implementation
+ * @file llproxy.h
+ * @brief UDP and HTTP proxy communications
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -188,13 +188,14 @@ public:
 	void setAuthNone();
 
 	// get the currently selected auth method
-	LLSocks5AuthType getSelectedAuthMethod() const { return mAuthMethodSelected; }
+	LLSocks5AuthType getSelectedAuthMethod() const;
 
 	// static check for enabled status for UDP packets
 	static bool isEnabled() { return sUDPProxyEnabled; }
 
-	// static check for enabled status for http packets
-	static bool isHTTPProxyEnabled() { return sHTTPProxyEnabled; }
+	// check for enabled status for HTTP packets
+	// mHTTPProxyEnabled is atomic, so no locking is required for thread safety.
+	bool isHTTPProxyEnabled() const { return mHTTPProxyEnabled; }
 
 	// Proxy HTTP packets via httpHost, which can be a SOCKS 5 or a HTTP proxy
 	// as specified in type
@@ -204,6 +205,11 @@ public:
 	// Stop proxying HTTP packets
 	void disableHTTPProxy();
 
+	// Apply the current proxy settings to a curl request. Doesn't do anything if mHTTPProxyEnabled is false.
+	void applyProxySettings(CURL* handle);
+	void applyProxySettings(LLCurl::Easy* handle);
+	void applyProxySettings(LLCurlEasyRequest* handle);
+
 	// Get the UDP proxy address and port
 	LLHost getUDPProxy() const { return mUDPProxy; }
 
@@ -211,45 +217,50 @@ public:
 	LLHost getTCPProxy() const { return mTCPProxy; }
 
 	// Get the HTTP proxy address and port
-	LLHost getHTTPProxy() const { return mHTTPProxy; }
+	LLHost getHTTPProxy() const;
 
 	// Get the currently selected HTTP proxy type
-	LLHttpProxyType getHTTPProxyType() const { return mProxyType; }
+	LLHttpProxyType getHTTPProxyType() const;
 
-	// Get the username password in a curl compatible format
-	std::string getProxyUserPwdCURL() const { return (mSocksUsername + ":" + mSocksPassword); }
-
-	std::string getSocksPwd() const { return mSocksPassword; }
-	std::string getSocksUser() const { return mSocksUsername; }
-
-	// Apply the current proxy settings to a curl request. Doesn't do anything if sHTTPProxyEnabled is false.
-	void applyProxySettings(CURL* handle);
-	void applyProxySettings(LLCurl::Easy* handle);
-	void applyProxySettings(LLCurlEasyRequest* handle);
+	std::string getSocksPwd() const;
+	std::string getSocksUser() const;
 
 private:
 	// Open a communication channel to the SOCKS 5 proxy proxy, at port messagePort
 	S32 proxyHandshake(LLHost proxy, U32 messagePort);
 
 private:
-	// socket handle to proxy TCP control channel
-	LLSocket::ptr_t mProxyControlChannel;
+	// Is the HTTP proxy enabled?
+	// Safe to read in any thread, do not write directly,
+	// use enableHTTPProxy() and disableHTTPProxy() instead.
+	mutable LLAtomic32<bool> mHTTPProxyEnabled;
+
+	// Mutex to protect shared members in non-main thread calls to applyProxySettings()
+	mutable LLMutex mProxyMutex;
+
+	// MEMBERS READ AND WRITTEN ONLY IN THE MAIN THREAD. DO NOT SHARE!
 
 	// Is the UDP proxy enabled?
 	static bool sUDPProxyEnabled;
-	// Is the HTTP proxy enabled? 
-	// Do not toggle directly, use enableHTTPProxy() and disableHTTPProxy()
-	static bool sHTTPProxyEnabled;
-
-	// currently selected http proxy type
-	LLHttpProxyType mProxyType;
 
 	// UDP proxy address and port
 	LLHost mUDPProxy;
 	// TCP proxy control channel address and port
 	LLHost mTCPProxy;
+
+	// socket handle to proxy TCP control channel
+	LLSocket::ptr_t mProxyControlChannel;
+
+	// APR pool for the socket
+	apr_pool_t* mPool;
+
+	// MEMBERS WRITTEN IN MAIN THREAD AND READ IN ANY THREAD. ONLY READ OR WRITE AFTER LOCKING mProxyMutex!
+
 	// HTTP proxy address and port
 	LLHost mHTTPProxy;
+
+	// Currently selected HTTP proxy type. Can be web or socks.
+	LLHttpProxyType mProxyType;
 
 	// SOCKS 5 auth method selected
 	LLSocks5AuthType mAuthMethodSelected;
@@ -258,17 +269,6 @@ private:
 	std::string mSocksUsername;
 	// SOCKS 5 password
 	std::string mSocksPassword;
-
-	// Vectors to store valid pointers to string options that might have been set on CURL requests.
-	// This results in a behavior similar to LLCurl::Easy::setoptstring()
-	std::vector<char*> mSOCKSAuthStrings;
-	std::vector<char*> mHTTPProxyAddrStrings;
-
-	// Mutex to protect members in cross-thread calls to applyProxySettings()
-	LLMutex mProxyMutex;
-
-	// APR pool for the socket
-	apr_pool_t* mPool;
 };
 
 #endif

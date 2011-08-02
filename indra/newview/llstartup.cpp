@@ -2785,6 +2785,7 @@ bool LLStartUp::handleSocksProxy()
 			subs["HOST"] = http_host.getIPString();
 			subs["PORT"] = (S32)http_host.getPort();
 			LLNotificationsUtil::add("PROXY_INVALID_HTTP_HOST", subs);
+			return false;
 		}
 	}
 	else if ((httpProxyType.compare("Socks") == 0) && gSavedSettings.getBOOL("Socks5ProxyEnabled"))
@@ -2798,9 +2799,8 @@ bool LLStartUp::handleSocksProxy()
 			subs["HOST"] = socks_host.getIPString();
 			subs["PORT"] = (S32)socks_host.getPort();
 			LLNotificationsUtil::add("PROXY_INVALID_SOCKS_HOST", subs);
+			return false;
 		}
-
-
 	}
 	else if (httpProxyType.compare("None") == 0)
 	{
@@ -2816,7 +2816,6 @@ bool LLStartUp::handleSocksProxy()
 	// Set up SOCKS proxy (if needed)
 	if (gSavedSettings.getBOOL("Socks5ProxyEnabled"))
 	{	
-
 		// Determine and update LLProxy with the saved authentication system
 		std::string auth_type = gSavedSettings.getString("Socks5AuthType");
 
@@ -2826,13 +2825,13 @@ bool LLStartUp::handleSocksProxy()
 			std::string socks_user = socks_cred->getIdentifier()["username"].asString();
 			std::string socks_password = socks_cred->getAuthenticator()["creds"].asString();
 
-			bool ok;
-			ok = LLProxy::getInstance()->setAuthPassword(socks_user, socks_password);
+			bool ok = LLProxy::getInstance()->setAuthPassword(socks_user, socks_password);
+
 			if (!ok)
 			{
 				LLNotificationsUtil::add("SOCKS_BAD_CREDS");
+				return false;
 			}
-
 		}
 		else if (auth_type.compare("None") == 0)
 		{
