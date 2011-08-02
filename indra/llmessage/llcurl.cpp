@@ -75,6 +75,7 @@ static const S32 MULTI_PERFORM_CALL_REPEAT	= 5;
 static const S32 CURL_REQUEST_TIMEOUT = 30; // seconds
 static const S32 MAX_ACTIVE_REQUEST_COUNT = 100;
 
+static 
 // DEBUG //
 S32 gCurlEasyCount = 0;
 S32 gCurlMultiCount = 0;
@@ -86,8 +87,8 @@ std::vector<LLMutex*> LLCurl::sSSLMutex;
 std::string LLCurl::sCAPath;
 std::string LLCurl::sCAFile;
 
-bool ll_thread_local LLCurl::sMultiThreaded = false;
-
+bool LLCurl::sMultiThreaded = false;
+static U32 sMainThreadID = 0;
 
 void check_curl_code(CURLcode code)
 {
@@ -618,6 +619,7 @@ public:
 
 	LLCondition* mSignal;
 	bool mQuitting;
+	bool mThreaded;
 
 private:
 	void easyFree(Easy*);
@@ -639,7 +641,9 @@ LLCurl::Multi::Multi()
 	  mPerformState(PERFORM_STATE_READY)
 {
 	mQuitting = false;
-	if (LLCurl::sMultiThreaded)
+
+	mThreaded = LLCurl::sMultiThreaded && LLThread::currentID() == sMainThreadID;
+	if (mThreaded)
 	{
 		mSignal = new LLCondition(NULL);
 	}
@@ -693,7 +697,7 @@ CURLMsg* LLCurl::Multi::info_read(S32* msgs_in_queue)
 
 void LLCurl::Multi::perform()
 {
-	if (LLCurl::sMultiThreaded)
+	if (mThreaded)
 	{
 		if (mPerformState == PERFORM_STATE_READY)
 		{
@@ -708,7 +712,7 @@ void LLCurl::Multi::perform()
 
 void LLCurl::Multi::run()
 {
-	llassert(LLCurl::sMultiThreaded);
+	llassert(mThreaded);
 
 	while (!mQuitting)
 	{
@@ -865,7 +869,7 @@ LLCurlRequest::~LLCurlRequest()
 	{
 		LLCurl::Multi* multi = *iter;
 		multi->mQuitting = true;
-		if (LLCurl::sMultiThreaded)
+		if (multi->mThreaded)
 		{
 			while (!multi->isStopped())
 			{
@@ -881,7 +885,7 @@ void LLCurlRequest::addMulti()
 {
 	llassert_always(mThreadID == LLThread::currentID());
 	LLCurl::Multi* multi = new LLCurl::Multi();
-	if (LLCurl::sMultiThreaded)
+	if (multi->mThreaded)
 	{
 		multi->start();
 	}
@@ -1015,7 +1019,7 @@ S32 LLCurlRequest::process()
 		{
 			mMultiSet.erase(curiter);
 			multi->mQuitting = true;
-			if (LLCurl::sMultiThreaded)
+			if (multi->mThreaded)
 			{
 				while (!multi->isStopped())
 				{
@@ -1058,7 +1062,7 @@ LLCurlEasyRequest::LLCurlEasyRequest()
 	  mResultReturned(false)
 {
 	mMulti = new LLCurl::Multi();
-	if (LLCurl::sMultiThreaded)
+	if (mMulti->mThreaded)
 	{
 		mMulti->start();
 	}
@@ -1073,7 +1077,7 @@ LLCurlEasyRequest::LLCurlEasyRequest()
 LLCurlEasyRequest::~LLCurlEasyRequest()
 {
 	mMulti->mQuitting = true;
-	if (LLCurl::sMultiThreaded)
+	if (mMulti->mThreaded)
 	{
 		while (!mMulti->isStopped())
 		{
@@ -1277,6 +1281,7 @@ unsigned long LLCurl::ssl_thread_id(void)
 
 void LLCurl::initClass(bool multi_threaded)
 {
+	sMainThreadID = LLThread::currentID();
 	sMultiThreaded = multi_threaded;
 	// Do not change this "unless you are familiar with and mean to control 
 	// internal operations of libcurl"

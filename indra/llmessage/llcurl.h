@@ -56,7 +56,7 @@ public:
 	class Easy;
 	class Multi;
 
-	static bool ll_thread_local sMultiThreaded;
+	static bool sMultiThreaded;
 
 	struct TransferInfo
 	{
