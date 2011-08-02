@@ -56,7 +56,9 @@ public:
 	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
 	{
 	public:
-		instance_iter(typename InstanceMap::iterator& it)
+		typedef boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag> super_t;
+		
+		instance_iter(const typename InstanceMap::iterator& it)
 		:	mIterator(it)
 		{
 			++sIterationNestDepth;
@@ -66,6 +68,7 @@ public:
 		{
 			--sIterationNestDepth;
 		}
+
 
 	private:
 		friend class boost::iterator_core_access;
@@ -87,8 +90,16 @@ public:
 	class key_iter : public boost::iterator_facade<key_iter, KEY, boost::forward_traversal_tag>
 	{
 	public:
+		typedef boost::iterator_facade<key_iter, KEY, boost::forward_traversal_tag> super_t;
+
 		key_iter(typename InstanceMap::iterator& it)
 			:	mIterator(it)
+		{
+			++sIterationNestDepth;
+		}
+
+		key_iter(const key_iter& other)
+			:	mIterator(other.mIterator)
 		{
 			++sIterationNestDepth;
 		}
@@ -97,6 +108,7 @@ public:
 		{
 			--sIterationNestDepth;
 		}
+
 
 	private:
 		friend class boost::iterator_core_access;
@@ -198,7 +210,7 @@ public:
 	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
 	{
 	public:
-		instance_iter(typename InstanceSet::iterator& it)
+		instance_iter(const typename InstanceSet::iterator& it)
 		:	mIterator(it)
 		{
 			++sIterationNestDepth;
