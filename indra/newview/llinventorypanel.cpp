@@ -163,49 +163,6 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 	{
 		root_id = gInventory.getLibraryRootFolderID();
 	}
-	// leslie -- temporary HACK to work around sim not creating inbox and outbox with proper system folder type
-	else if (preferred_type == LLFolderType::FT_INBOX)
-	{
-		LLInventoryModel::cat_array_t* cats;
-		LLInventoryModel::item_array_t* items;
-		
-		gInventory.getDirectDescendentsOf(gInventory.getRootFolderID(), cats, items);
-		
-		if (cats)
-		{
-			for (LLInventoryModel::cat_array_t::const_iterator cat_it = cats->begin(); cat_it != cats->end(); ++cat_it)
-			{
-				LLInventoryCategory* cat = *cat_it;
-				
-				if (cat->getName() == "Received Items")
-				{
-					root_id = cat->getUUID();
-				}
-			}
-		}
-	}
-	// leslie -- temporary HACK to work around sim not creating inbox and outbox with proper system folder type
-	/*else if (preferred_type == LLFolderType::FT_OUTBOX)
-	{
-		LLInventoryModel::cat_array_t* cats;
-		LLInventoryModel::item_array_t* items;
-		
-		gInventory.getDirectDescendentsOf(gInventory.getRootFolderID(), cats, items);
-		
-		if (cats)
-		{
-			for (LLInventoryModel::cat_array_t::const_iterator cat_it = cats->begin(); cat_it != cats->end(); ++cat_it)
-			{
-				LLInventoryCategory* cat = *cat_it;
-				
-				if (cat->getName() == "Merchant Outbox")
-				{
-					root_id = cat->getUUID();
-				}
-			}
-		}
-	}*/
-	// leslie -- end temporary HACK
 	else
 	{
 		root_id = (preferred_type != LLFolderType::FT_NONE)

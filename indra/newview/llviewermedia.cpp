@@ -1378,13 +1378,18 @@ public:
 	{
 		if (isGoodStatus(status))
 		{
+			std::string merchantStatus = content[gAgent.getID().getString()].asString();
+			llinfos << "Marketplace merchant status: " << merchantStatus << llendl;
+
 			// Complete success
 			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
+			gSavedSettings.setBOOL("InventoryDisplayOutbox", (merchantStatus == "merchant"));
 		}
 		else if (status == 401)
 		{
 			// API is available for use but OpenID authorization failed
 			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
+			//gSavedSettings.setBOOL("InventoryDisplayOutbox", true);
 		}
 		else
 		{
@@ -1393,6 +1398,28 @@ public:
 		}
 	}
 };
+
+
+void doOnetimeEarlyHTTPRequests()
+{
+	std::string url = "https://marketplace.secondlife.com/";
+
+	if (!LLGridManager::getInstance()->isInProductionGrid())
+	{
+		std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
+		url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
+
+		// TEMP for Jim's pdp
+		//url = "http://pdp24.lindenlab.com:3000/";
+	}
+	
+	url += "api/1/users/";
+	url += gAgent.getID().getString();
+	url += "/user_status";
+
+	llinfos << "http get: " << url << llendl;
+	LLHTTPClient::get(url, new LLInventoryUserStatusResponder(), LLViewerMedia::getHeaders());
+}
 
 
 LLSD LLViewerMedia::getHeaders()
@@ -1452,24 +1479,7 @@ void LLViewerMedia::setOpenIDCookie()
 			new LLViewerMediaWebProfileResponder(raw_profile_url.getAuthority()),
 			headers);
 
-		std::string url = "https://marketplace.secondlife.com/";
-
-		if (!LLGridManager::getInstance()->isInProductionGrid())
-		{
-			std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
-			url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
-		}
-	
-		url += "api/1/users/";
-		url += gAgent.getID().getString();
-		url += "/user_status";
-
-		headers = LLSD::emptyMap();
-		headers["Accept"] = "*/*";
-		headers["Cookie"] = sOpenIDCookie;
-		headers["User-Agent"] = getCurrentUserAgent();
-
-		LLHTTPClient::get(url, new LLInventoryUserStatusResponder(), headers);
+		doOnetimeEarlyHTTPRequests();
 	}
 }
 

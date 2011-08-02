@@ -54,7 +54,11 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
+	/*virtual*/ void draw();
+
 	void setupInventoryPanel();
+
+	U32 getTotalItemCount() const;
 
 	bool isOutboxEmpty() const;
 	bool isSyncInProgress() const;

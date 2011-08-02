@@ -4,7 +4,7 @@
     start_folder="Outbox"
     follows="all" layout="topleft"
     top="0" left="0" height="165" width="308"
-	top_pad="0"
+    top_pad="0"
     bg_opaque_color="DkGray2"
     bg_alpha_color="DkGray2"
     background_visible="true"
