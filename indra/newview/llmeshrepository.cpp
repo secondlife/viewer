@@ -1482,6 +1482,10 @@ void LLMeshUploadThread::generateHulls()
 			{
 				physics = data.mModel[LLModel::LOD_PHYSICS];
 			}
+			else if (data.mModel[LLModel::LOD_LOW].notNull())
+			{
+				physics = data.mModel[LLModel::LOD_LOW];
+			}
 			else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
 			{
 				physics = data.mModel[LLModel::LOD_MEDIUM];
