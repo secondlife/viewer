@@ -139,7 +139,35 @@ public:
 		mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
 		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
 		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
-		
+
+		//common
+		mInventoryItemsDict["/bow"]						= LLTrans::getString("/bow");
+		mInventoryItemsDict["/clap"]					= LLTrans::getString("/clap");
+		mInventoryItemsDict["/count"]					= LLTrans::getString("/count");
+		mInventoryItemsDict["/extinguish"]				= LLTrans::getString("/extinguish");
+		mInventoryItemsDict["/kmb"]						= LLTrans::getString("/kmb");
+		mInventoryItemsDict["/muscle"]					= LLTrans::getString("/muscle");
+		mInventoryItemsDict["/no"]						= LLTrans::getString("/no");
+		mInventoryItemsDict["/no!"]						= LLTrans::getString("/no!");
+		mInventoryItemsDict["/paper"]					= LLTrans::getString("/paper");
+		mInventoryItemsDict["/pointme"]					= LLTrans::getString("/pointme");
+		mInventoryItemsDict["/pointyou"]				= LLTrans::getString("/pointyou");
+		mInventoryItemsDict["/rock"]					= LLTrans::getString("/rock");
+		mInventoryItemsDict["/scissor"]					= LLTrans::getString("/scissor");
+		mInventoryItemsDict["/smoke"]					= LLTrans::getString("/smoke");
+		mInventoryItemsDict["/stretch"]					= LLTrans::getString("/stretch");
+		mInventoryItemsDict["/whistle"]					= LLTrans::getString("/whistle");
+		mInventoryItemsDict["/yes"]						= LLTrans::getString("/yes");
+		mInventoryItemsDict["/yes!"]					= LLTrans::getString("/yes!");
+		mInventoryItemsDict["afk"]						= LLTrans::getString("afk");
+		mInventoryItemsDict["dance1"]					= LLTrans::getString("dance1");
+		mInventoryItemsDict["dance2"]					= LLTrans::getString("dance2");
+		mInventoryItemsDict["dance3"]					= LLTrans::getString("dance3");
+		mInventoryItemsDict["dance4"]					= LLTrans::getString("dance4");
+		mInventoryItemsDict["dance5"]					= LLTrans::getString("dance5");
+		mInventoryItemsDict["dance6"]					= LLTrans::getString("dance6");
+		mInventoryItemsDict["dance7"]					= LLTrans::getString("dance7");
+		mInventoryItemsDict["dance8"]					= LLTrans::getString("dance8");
 	}
 
 	/**
