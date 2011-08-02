@@ -36,7 +36,6 @@
 
 // project includes
 #include "llviewerobject.h"
-#include "llaccountingquota.h"
 
 class LLCamera;
 class LLNetMap;
@@ -102,8 +101,6 @@ public:
 									F32 restitution,
 									F32 gravity_multiplier);
 
-	void updateQuota( const LLUUID& objectId, const SelectionQuota& costs );
-	
 	void shiftObjects(const LLVector3 &offset);
 	void repartitionObjects();
 

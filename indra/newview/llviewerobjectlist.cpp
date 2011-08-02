@@ -1425,15 +1425,6 @@ void LLViewerObjectList::onObjectCostFetchFailure(const LLUUID& object_id)
 	mPendingObjectCost.erase(object_id);
 }
 
-void LLViewerObjectList::updateQuota( const LLUUID& objectId, const SelectionQuota& quota  )
-{
-	LLViewerObject* pVO = findObject( objectId );
-	if ( pVO )
-	{
-		pVO->updateQuota( quota );
-	}
-}
-
 void LLViewerObjectList::updatePhysicsFlags(const LLViewerObject* object)
 {
 	mStalePhysicsFlags.insert(object->getID());

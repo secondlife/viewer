@@ -100,7 +100,6 @@
 #include "lltrans.h"
 #include "llsdutil.h"
 #include "llmediaentry.h"
-#include "llaccountingquota.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -5785,9 +5784,3 @@ public:
 LLHTTPRegistration<ObjectPhysicsProperties>
 	gHTTPRegistrationObjectPhysicsProperties("/message/ObjectPhysicsProperties");
 
-
-void LLViewerObject::updateQuota( const SelectionQuota& quota )
-{
-	//update quotas
-	mSelectionQuota = quota;
-}

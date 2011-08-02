@@ -43,7 +43,6 @@
 #include "v3dmath.h"
 #include "v3math.h"
 #include "llvertexbuffer.h"
-#include "llaccountingquota.h"
 #include "llbbox.h"
 
 class LLAgent;			// TODO: Get rid of this.
@@ -655,9 +654,7 @@ protected:
 	void setParticleSource(const LLPartSysData& particle_parameters, const LLUUID& owner_id);
 	
 public:
-	void  updateQuota(  const SelectionQuota& quota );
-	const SelectionQuota& getQuota( void ) { return mSelectionQuota; }
-	
+		
 private:
 	void setNameValueList(const std::string& list);		// clears nv pairs and then individually adds \n separated NV pairs from \0 terminated string
 	void deleteTEImages(); // correctly deletes list of images
@@ -719,8 +716,6 @@ protected:
 	F32 mPhysicsCost;
 	F32 mLinksetPhysicsCost;
 
-	SelectionQuota mSelectionQuota;
-	
 	bool mCostStale;
 	mutable bool mPhysicsShapeUnknown;
 
