@@ -3741,52 +3741,55 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
 
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderHighlights");
-
-	if (!sReflectionRender)
+	if (!LLPipeline::sImpostorRender)
 	{
-		renderHighlights();
-	}
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderHighlights");
 
-	// Contains a list of the faces of objects that are physical or
-	// have touch-handlers.
-	mHighlightFaces.clear();
-
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDebug");
-	
-	renderDebug();
-
-	LLVertexBuffer::unbind();
-	
-	if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred)
-	{
-		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+		if (!sReflectionRender)
 		{
-			// Render debugging beacons.
-			gObjectList.renderObjectBeacons();
-			gObjectList.resetObjectBeacons();
+			renderHighlights();
+		}
+
+		// Contains a list of the faces of objects that are physical or
+		// have touch-handlers.
+		mHighlightFaces.clear();
+
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDebug");
+	
+		renderDebug();
+
+		LLVertexBuffer::unbind();
+	
+		if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred)
+		{
+			if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+			{
+				// Render debugging beacons.
+				gObjectList.renderObjectBeacons();
+				gObjectList.resetObjectBeacons();
+			}
+			else
+			{
+				// Make sure particle effects disappear
+				LLHUDObject::renderAllForTimer();
+			}
 		}
 		else
 		{
 			// Make sure particle effects disappear
 			LLHUDObject::renderAllForTimer();
 		}
-	}
-	else
-	{
-		// Make sure particle effects disappear
-		LLHUDObject::renderAllForTimer();
-	}
 
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomEnd");
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomEnd");
 
-	//HACK: preserve/restore matrices around HUD render
-	if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
-	{
-		for (U32 i = 0; i < 16; i++)
+		//HACK: preserve/restore matrices around HUD render
+		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 		{
-			gGLModelView[i] = saved_modelview[i];
-			gGLProjection[i] = saved_projection[i];
+			for (U32 i = 0; i < 16; i++)
+			{
+				gGLModelView[i] = saved_modelview[i];
+				gGLProjection[i] = saved_projection[i];
+			}
 		}
 	}
 

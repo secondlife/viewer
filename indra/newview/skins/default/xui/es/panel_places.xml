@@ -24,7 +24,7 @@
 						<menu_button label="▼" name="overflow_btn" tool_tip="Ver más opciones"/>
 					</layout_panel>
 				</layout_stack>
-				<layout_stack name="bottom_bar_ls3">
+				<layout_stack name="bottom_bar_profile_ls">
 					<layout_panel name="profile_btn_lp">
 						<button label="Perfil" name="profile_btn" tool_tip="Mostrar el perfil del lugar"/>
 					</layout_panel>
