@@ -41,6 +41,7 @@
 #include "llbuffer.h"
 #include "lliopipe.h"
 #include "llsd.h"
+#include "llthread.h"
 
 class LLMutex;
 
@@ -55,7 +56,7 @@ public:
 	class Easy;
 	class Multi;
 
-	static bool sMultiThreaded;
+	static bool ll_thread_local sMultiThreaded;
 
 	struct TransferInfo
 	{

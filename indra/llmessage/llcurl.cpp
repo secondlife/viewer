@@ -85,7 +85,8 @@ S32 gCurlMultiCount = 0;
 std::vector<LLMutex*> LLCurl::sSSLMutex;
 std::string LLCurl::sCAPath;
 std::string LLCurl::sCAFile;
-bool LLCurl::sMultiThreaded = false;
+
+bool ll_thread_local LLCurl::sMultiThreaded = false;
 
 
 void check_curl_code(CURLcode code)
