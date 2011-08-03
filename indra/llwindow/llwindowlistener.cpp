@@ -41,10 +41,10 @@ LLWindowListener::LLWindowListener(LLWindowCallbacks *window, const KeyboardGett
 	std::string keySomething =
 		"Given [\"keysym\"], [\"keycode\"] or [\"char\"], inject the specified ";
 	std::string keyExplain =
-		"(integer keycode values, or keysym \"XXXX\" from any KEY_XXXX, in\n"
-		"http://hg.secondlife.com/viewer-development/src/tip/indra/llcommon/indra_constants.h )";
+		"(integer keycode values, or keysym string from any addKeyName() call in\n"
+		"http://hg.secondlife.com/viewer-development/src/tip/indra/llwindow/llkeyboard.cpp )";
 	std::string mask =
-		"Specify optional [\"mask\"] as an array containing any of \"CONTROL\", \"ALT\",\n"
+		"Specify optional [\"mask\"] as an array containing any of \"CTL\", \"ALT\",\n"
 		"\"SHIFT\" or \"MAC_CONTROL\"; the corresponding modifier bits will be combined\n"
 		"to form the mask used with the event.";
 
@@ -104,118 +104,41 @@ protected:
 	}
 };
 
-// for WhichKeysym. KeyProxy is like the typedef KEY, except that KeyProxy()
-// (default-constructed) is guaranteed to have the value KEY_NONE.
-class KeyProxy
+// helper for getMask()
+static MASK lookupMask_(const std::string& maskname)
 {
-public:
-	KeyProxy(KEY k): mKey(k) {}
-	KeyProxy(): mKey(KEY_NONE) {}
-	operator KEY() const { return mKey; }
-
-private:
-	KEY mKey;
-};
-
-struct WhichKeysym: public StringLookup<KeyProxy>
-{
-	WhichKeysym(): StringLookup<KeyProxy>("keysym")
+	// It's unclear to me whether MASK_MAC_CONTROL is important, but it's not
+	// supported by maskFromString(). Handle that specially.
+	if (maskname == "MAC_CONTROL")
 	{
-		add("RETURN",		KEY_RETURN);
-		add("LEFT",			KEY_LEFT);
-		add("RIGHT",		KEY_RIGHT);
-		add("UP",			KEY_UP);
-		add("DOWN",			KEY_DOWN);
-		add("ESCAPE",		KEY_ESCAPE);
-		add("BACKSPACE",	KEY_BACKSPACE);
-		add("DELETE",		KEY_DELETE);
-		add("SHIFT",		KEY_SHIFT);
-		add("CONTROL",		KEY_CONTROL);
-		add("ALT",			KEY_ALT);
-		add("HOME",			KEY_HOME);
-		add("END",			KEY_END);
-		add("PAGE_UP",		KEY_PAGE_UP);
-		add("PAGE_DOWN",	KEY_PAGE_DOWN);
-		add("HYPHEN",		KEY_HYPHEN);
-		add("EQUALS",		KEY_EQUALS);
-		add("INSERT",		KEY_INSERT);
-		add("CAPSLOCK",		KEY_CAPSLOCK);
-		add("TAB",			KEY_TAB);
-		add("ADD",			KEY_ADD);
-		add("SUBTRACT",		KEY_SUBTRACT);
-		add("MULTIPLY",		KEY_MULTIPLY);
-		add("DIVIDE",		KEY_DIVIDE);
-		add("F1",			KEY_F1);
-		add("F2",			KEY_F2);
-		add("F3",			KEY_F3);
-		add("F4",			KEY_F4);
-		add("F5",			KEY_F5);
-		add("F6",			KEY_F6);
-		add("F7",			KEY_F7);
-		add("F8",			KEY_F8);
-		add("F9",			KEY_F9);
-		add("F10",			KEY_F10);
-		add("F11",			KEY_F11);
-		add("F12",			KEY_F12);
-
-		add("PAD_UP",		KEY_PAD_UP);
-		add("PAD_DOWN",		KEY_PAD_DOWN);
-		add("PAD_LEFT",		KEY_PAD_LEFT);
-		add("PAD_RIGHT",	KEY_PAD_RIGHT);
-		add("PAD_HOME",		KEY_PAD_HOME);
-		add("PAD_END",		KEY_PAD_END);
-		add("PAD_PGUP",		KEY_PAD_PGUP);
-		add("PAD_PGDN",		KEY_PAD_PGDN);
-		add("PAD_CENTER",	KEY_PAD_CENTER); // the 5 in the middle
-		add("PAD_INS",		KEY_PAD_INS);
-		add("PAD_DEL",		KEY_PAD_DEL);
-		add("PAD_RETURN",	KEY_PAD_RETURN);
-		add("PAD_ADD",		KEY_PAD_ADD); // not used
-		add("PAD_SUBTRACT", KEY_PAD_SUBTRACT); // not used
-		add("PAD_MULTIPLY", KEY_PAD_MULTIPLY); // not used
-		add("PAD_DIVIDE",	KEY_PAD_DIVIDE); // not used
-
-		add("BUTTON0",		KEY_BUTTON0);
-		add("BUTTON1",		KEY_BUTTON1);
-		add("BUTTON2",		KEY_BUTTON2);
-		add("BUTTON3",		KEY_BUTTON3);
-		add("BUTTON4",		KEY_BUTTON4);
-		add("BUTTON5",		KEY_BUTTON5);
-		add("BUTTON6",		KEY_BUTTON6);
-		add("BUTTON7",		KEY_BUTTON7);
-		add("BUTTON8",		KEY_BUTTON8);
-		add("BUTTON9",		KEY_BUTTON9);
-		add("BUTTON10",		KEY_BUTTON10);
-		add("BUTTON11",		KEY_BUTTON11);
-		add("BUTTON12",		KEY_BUTTON12);
-		add("BUTTON13",		KEY_BUTTON13);
-		add("BUTTON14",		KEY_BUTTON14);
-		add("BUTTON15",		KEY_BUTTON15);
+		return MASK_MAC_CONTROL;
 	}
-};
-static WhichKeysym keysyms;
-
-struct WhichMask: public StringLookup<MASK>
-{
-	WhichMask(): StringLookup<MASK>("shift mask")
+	else
 	{
-		add("NONE",			MASK_NONE);
-		add("CONTROL",		MASK_CONTROL); // Mapped to cmd on Macs
-		add("ALT",			MASK_ALT);
-		add("SHIFT",		MASK_SHIFT);
-		add("MAC_CONTROL",	MASK_MAC_CONTROL); // Un-mapped Ctrl key on Macs, not used on Windows
+		// In case of lookup failure, return MASK_NONE, which won't affect our
+		// caller's OR.
+		MASK mask(MASK_NONE);
+		LLKeyboard::maskFromString(maskname, &mask);
+		return mask;
 	}
-};
-static WhichMask masks;
+}
 
 static MASK getMask(const LLSD& event)
 {
-	MASK mask(MASK_NONE);
 	LLSD masknames(event["mask"]);
+	if (! masknames.isArray())
+	{
+		// If event["mask"] is a single string, perform normal lookup on it.
+		return lookupMask_(masknames);
+	}
+
+	// Here event["mask"] is an array of mask-name strings. OR together their
+	// corresponding bits.
+	MASK mask(MASK_NONE);
 	for (LLSD::array_const_iterator ai(masknames.beginArray()), aend(masknames.endArray());
 		 ai != aend; ++ai)
 	{
-		mask |= masks.lookup(*ai);
+		mask |= lookupMask_(*ai);
 	}
 	return mask;
 }
@@ -224,7 +147,11 @@ static KEY getKEY(const LLSD& event)
 {
     if (event.has("keysym"))
 	{
-		return keysyms.lookup(event["keysym"]);
+		// Initialize to KEY_NONE; that way we can ignore the bool return from
+		// keyFromString() and, in the lookup-fail case, simply return KEY_NONE.
+		KEY key(KEY_NONE);
+		LLKeyboard::keyFromString(event["keysym"], &key);
+		return key;
 	}
 	else if (event.has("keycode"))
 	{
