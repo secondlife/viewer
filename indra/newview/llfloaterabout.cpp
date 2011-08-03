@@ -110,6 +110,9 @@ BOOL LLFloaterAbout::postBuild()
 	LLViewerTextEditor *support_widget = 
 		getChild<LLViewerTextEditor>("support_editor", true);
 
+	LLViewerTextEditor *linden_names_widget = 
+		getChild<LLViewerTextEditor>("linden_names", true);
+
 	LLViewerTextEditor *contrib_names_widget = 
 		getChild<LLViewerTextEditor>("contrib_names", true);
 
@@ -194,6 +197,24 @@ BOOL LLFloaterAbout::postBuild()
 	// Fix views
 	support_widget->setEnabled(FALSE);
 	support_widget->startOfDoc();
+
+	// Get the names of Lindens, added by viewer_manifest.py at build time
+	std::string lindens_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"lindens.txt");
+	llifstream linden_file;
+	std::string lindens;
+	linden_file.open(lindens_path);		/* Flawfinder: ignore */
+	if (linden_file.is_open())
+	{
+		std::getline(linden_file, lindens); // all names are on a single line
+		linden_file.close();
+		linden_names_widget->setText(lindens);
+	}
+	else
+	{
+		LL_INFOS("AboutInit") << "Could not read lindens file at " << lindens_path << LL_ENDL;
+	}
+	linden_names_widget->setEnabled(FALSE);
+	linden_names_widget->startOfDoc();
 
 	// Get the names of contributors, extracted from .../doc/contributions.txt by viewer_manifest.py at build time
 	std::string contributors_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"contributors.txt");
