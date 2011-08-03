@@ -1679,6 +1679,19 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BO
 
 LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 {
+	//1. If a vertex has been weighted then we'll find it via pos and return it's weight list
+	weight_map::iterator iterPos = mSkinWeights.begin();
+	weight_map::iterator iterEnd = mSkinWeights.end();
+	
+	for ( ; iterPos!=iterEnd; ++iterPos )
+	{
+		if ( jointPositionalLookup( iterPos->first, pos ) )
+		{
+			return iterPos->second;
+		}
+	}
+	
+	//2. Otherwise we'll use the older implementation
 	weight_map::iterator iter = mSkinWeights.find(pos);
 	
 	if (iter != mSkinWeights.end())
