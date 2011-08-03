@@ -193,6 +193,9 @@
 	<string name="status_idle">
 		Inativo
 	</string>
+	<string name="status_parse_error">
+		Dae parsing - erro, detalhes no log.
+	</string>
 	<string name="status_reading_file">
 		Carregando...
 	</string>
@@ -201,6 +204,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		Erro: Número de Vertex acima de 65534. Abortado.
+	</string>
+	<string name="bad_element">
+		Erro: elemento inválido
 	</string>
 	<string name="high">
 		Alto

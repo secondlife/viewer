@@ -25,34 +25,292 @@
  * $/LicenseInfo$
  */
 
-#if !LL_WINDOWS
-#include <netinet/in.h>
-#endif
 
 #include "linden_common.h"
-#include "../llsd.h"
-#include "../llsdserialize.h"
-#include "../llformat.h"
-
-#include "../test/lltut.h"
-
 
 #if LL_WINDOWS
 #include <winsock2.h>
 typedef U32 uint32_t;
+#include <process.h>
+#include <io.h>
+#else
+#include <unistd.h>
+#include <netinet/in.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include "llprocesslauncher.h"
 #endif
 
-std::vector<U8> string_to_vector(std::string str)
+#include <sstream>
+
+/*==========================================================================*|
+// Whoops, seems Linden's Boost package and the viewer are built with
+// different settings of VC's /Zc:wchar_t switch! Using Boost.Filesystem
+// pathname operations produces Windows link errors:
+// unresolved external symbol "private: static class std::codecvt<unsigned short,
+// char,int> const * & __cdecl boost::filesystem3::path::wchar_t_codecvt_facet()"
+// unresolved external symbol "void __cdecl boost::filesystem3::path_traits::convert()"
+// See:
+// http://boost.2283326.n4.nabble.com/filesystem-v3-unicode-and-std-codecvt-linker-error-td3455549.html
+// which points to:
+// http://msdn.microsoft.com/en-us/library/dh8che7s%28v=VS.100%29.aspx
+
+// As we're not trying to preserve compatibility with old Boost.Filesystem
+// code, but rather writing brand-new code, use the newest available
+// Filesystem API.
+#define BOOST_FILESYSTEM_VERSION 3
+#include "boost/filesystem.hpp"
+#include "boost/filesystem/v3/fstream.hpp"
+|*==========================================================================*/
+#include "boost/range.hpp"
+#include "boost/foreach.hpp"
+#include "boost/function.hpp"
+#include "boost/lambda/lambda.hpp"
+#include "boost/lambda/bind.hpp"
+namespace lambda = boost::lambda;
+/*==========================================================================*|
+// Aaaarrgh, Linden's Boost package doesn't even include Boost.Iostreams!
+#include "boost/iostreams/stream.hpp"
+#include "boost/iostreams/device/file_descriptor.hpp"
+|*==========================================================================*/
+
+#include "../llsd.h"
+#include "../llsdserialize.h"
+#include "llsdutil.h"
+#include "../llformat.h"
+
+#include "../test/lltut.h"
+#include "stringize.h"
+
+std::vector<U8> string_to_vector(const std::string& str)
 {
-	// bc LLSD can't...
-	size_t len = (size_t)str.length();
-	std::vector<U8> v(len);
-	for (size_t i = 0; i < len ; i++)
-	{
-		v[i] = str[i];
-	}
-	return v;
+	return std::vector<U8>(str.begin(), str.end());
 }
+
+#if ! LL_WINDOWS
+// We want to call strerror_r(), but alarmingly, there are two different
+// variants. The one that returns int always populates the passed buffer
+// (except in case of error), whereas the other one always returns a valid
+// char* but might or might not populate the passed buffer. How do we know
+// which one we're getting? Define adapters for each and let the compiler
+// select the applicable adapter.
+
+// strerror_r() returns char*
+std::string message_from(int /*orig_errno*/, const char* /*buffer*/, const char* strerror_ret)
+{
+    return strerror_ret;
+}
+
+// strerror_r() returns int
+std::string message_from(int orig_errno, const char* buffer, int strerror_ret)
+{
+    if (strerror_ret == 0)
+    {
+        return buffer;
+    }
+    // Here strerror_r() has set errno. Since strerror_r() has already failed,
+    // seems like a poor bet to call it again to diagnose its own error...
+    int stre_errno = errno;
+    if (stre_errno == ERANGE)
+    {
+        return STRINGIZE("strerror_r() can't explain errno " << orig_errno
+                         << " (buffer too small)");
+    }
+    if (stre_errno == EINVAL)
+    {
+        return STRINGIZE("unknown errno " << orig_errno);
+    }
+    // Here we don't even understand the errno from strerror_r()!
+    return STRINGIZE("strerror_r() can't explain errno " << orig_errno
+                     << " (error " << stre_errno << ')');
+}
+#endif  // ! LL_WINDOWS
+
+// boost::filesystem::temp_directory_path() isn't yet in Boost 1.45! :-(
+std::string temp_directory_path()
+{
+#if LL_WINDOWS
+    char buffer[4096];
+    GetTempPathA(sizeof(buffer), buffer);
+    return buffer;
+
+#else  // LL_DARWIN, LL_LINUX
+    static const char* vars[] = { "TMPDIR", "TMP", "TEMP", "TEMPDIR" };
+    BOOST_FOREACH(const char* var, vars)
+    {
+        const char* found = getenv(var);
+        if (found)
+            return found;
+    }
+    return "/tmp";
+#endif // LL_DARWIN, LL_LINUX
+}
+
+// Windows presents a kinda sorta compatibility layer. Code to the yucky
+// Windows names because they're less likely than the Posix names to collide
+// with any other names in this source.
+#if LL_WINDOWS
+#define _remove   DeleteFileA
+#else  // ! LL_WINDOWS
+#define _open     open
+#define _write    write
+#define _close    close
+#define _remove   remove
+#endif  // ! LL_WINDOWS
+
+// Create a text file with specified content "somewhere in the
+// filesystem," cleaning up when it goes out of scope.
+class NamedTempFile
+{
+public:
+    // Function that accepts an ostream ref and (presumably) writes stuff to
+    // it, e.g.:
+    // (lambda::_1 << "the value is " << 17 << '\n')
+    typedef boost::function<void(std::ostream&)> Streamer;
+
+    NamedTempFile(const std::string& ext, const std::string& content):
+        mPath(temp_directory_path())
+    {
+        createFile(ext, lambda::_1 << content);
+    }
+
+    // Disambiguate when passing string literal
+    NamedTempFile(const std::string& ext, const char* content):
+        mPath(temp_directory_path())
+    {
+        createFile(ext, lambda::_1 << content);
+    }
+
+    NamedTempFile(const std::string& ext, const Streamer& func):
+        mPath(temp_directory_path())
+    {
+        createFile(ext, func);
+    }
+
+    ~NamedTempFile()
+    {
+        _remove(mPath.c_str());
+    }
+
+    std::string getName() const { return mPath; }
+
+private:
+    void createFile(const std::string& ext, const Streamer& func)
+    {
+        // Silly maybe, but use 'ext' as the name prefix. Strip off a leading
+        // '.' if present.
+        int pfx_offset = ((! ext.empty()) && ext[0] == '.')? 1 : 0;
+
+#if ! LL_WINDOWS
+        // Make sure mPath ends with a directory separator, if it doesn't already.
+        if (mPath.empty() ||
+            ! (mPath[mPath.length() - 1] == '\\' || mPath[mPath.length() - 1] == '/'))
+        {
+            mPath.append("/");
+        }
+
+        // mkstemp() accepts and modifies a char* template string. Generate
+        // the template string, then copy to modifiable storage.
+        // mkstemp() requires its template string to end in six X's.
+        mPath += ext.substr(pfx_offset) + "XXXXXX";
+        // Copy to vector<char>
+        std::vector<char> pathtemplate(mPath.begin(), mPath.end());
+        // append a nul byte for classic-C semantics
+        pathtemplate.push_back('\0');
+        // std::vector promises that a pointer to the 0th element is the same
+        // as a pointer to a contiguous classic-C array
+        int fd(mkstemp(&pathtemplate[0]));
+        if (fd == -1)
+        {
+            // The documented errno values (http://linux.die.net/man/3/mkstemp)
+            // are used in a somewhat unusual way, so provide context-specific
+            // errors.
+            if (errno == EEXIST)
+            {
+                LL_ERRS("NamedTempFile") << "mkstemp(\"" << mPath
+                                         << "\") could not create unique file " << LL_ENDL;
+            }
+            if (errno == EINVAL)
+            {
+                LL_ERRS("NamedTempFile") << "bad mkstemp() file path template '"
+                                         << mPath << "'" << LL_ENDL;
+            }
+            // Shrug, something else
+            int mkst_errno = errno;
+            char buffer[256];
+            LL_ERRS("NamedTempFile") << "mkstemp(\"" << mPath << "\") failed: "
+                                     << message_from(mkst_errno, buffer,
+                                                     strerror_r(mkst_errno, buffer, sizeof(buffer)))
+                                     << LL_ENDL;
+        }
+        // mkstemp() seems to have worked! Capture the modified filename.
+        // Avoid the nul byte we appended.
+        mPath.assign(pathtemplate.begin(), (pathtemplate.end()-1));
+
+/*==========================================================================*|
+        // Define an ostream on the open fd. Tell it to close fd on destruction.
+        boost::iostreams::stream<boost::iostreams::file_descriptor_sink>
+            out(fd, boost::iostreams::close_handle);
+|*==========================================================================*/
+
+        // Write desired content.
+        std::ostringstream out;
+        // Stream stuff to it.
+        func(out);
+
+        std::string data(out.str());
+        int written(_write(fd, data.c_str(), data.length()));
+        int closed(_close(fd));
+        llassert_always(written == data.length() && closed == 0);
+
+#else // LL_WINDOWS
+        // GetTempFileName() is documented to require a MAX_PATH buffer.
+        char tempname[MAX_PATH];
+        // Use 'ext' as filename prefix, but skip leading '.' if any.
+        // The 0 param is very important: requests iterating until we get a
+        // unique name.
+        if (0 == GetTempFileNameA(mPath.c_str(), ext.c_str() + pfx_offset, 0, tempname))
+        {
+            // I always have to look up this call...  :-P
+            LPSTR msgptr;
+            FormatMessageA(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL,
+                GetLastError(),
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                LPSTR(&msgptr),     // have to cast (char**) to (char*)
+                0, NULL );
+            LL_ERRS("NamedTempFile") << "GetTempFileName(\"" << mPath << "\", \""
+                                     << (ext.c_str() + pfx_offset) << "\") failed: "
+                                     << msgptr << LL_ENDL;
+            LocalFree(msgptr);
+        }
+        // GetTempFileName() appears to have worked! Capture the actual
+        // filename.
+        mPath = tempname;
+        // Open the file and stream content to it. Destructor will close.
+        std::ofstream out(tempname);
+        func(out);
+
+#endif  // LL_WINDOWS
+    }
+
+    void peep()
+    {
+        std::cout << "File '" << mPath << "' contains:\n";
+        std::ifstream reader(mPath.c_str());
+        std::string line;
+        while (std::getline(reader, line))
+            std::cout << line << '\n';
+        std::cout << "---\n";
+    }
+
+    std::string mPath;
+};
 
 namespace tut
 {
@@ -1494,5 +1752,223 @@ namespace tut
 		ensureBinaryAndNotation("map", test);
 		ensureBinaryAndXML("map", test);
 	}
-}
 
+    struct TestPythonCompatible
+    {
+        TestPythonCompatible():
+            // Note the peculiar insertion of __FILE__ into this string. Since
+            // this script is being written into a platform-dependent temp
+            // directory, we can't locate indra/lib/python relative to
+            // Python's __file__. Use __FILE__ instead, navigating relative
+            // to this C++ source file. Use Python raw-string syntax so
+            // Windows pathname backslashes won't mislead Python's string
+            // scanner.
+            import_llsd("import os.path\n"
+                        "import sys\n"
+                        "sys.path.insert(0,\n"
+                        "    os.path.join(os.path.dirname(r'" __FILE__ "'),\n"
+                        "                 os.pardir, os.pardir, 'lib', 'python'))\n"
+                        "try:\n"
+                        "    from llbase import llsd\n"
+                        "except ImportError:\n"
+                        "    from indra.base import llsd\n")
+        {}
+        ~TestPythonCompatible() {}
+
+        std::string import_llsd;
+
+        template <typename CONTENT>
+        void python(const std::string& desc, const CONTENT& script, int expect=0)
+        {
+            const char* PYTHON(getenv("PYTHON"));
+            ensure("Set $PYTHON to the Python interpreter", PYTHON);
+
+            NamedTempFile scriptfile(".py", script);
+
+#if LL_WINDOWS
+            std::string q("\"");
+            std::string qPYTHON(q + PYTHON + q);
+            std::string qscript(q + scriptfile.getName() + q);
+            int rc = _spawnl(_P_WAIT, PYTHON, qPYTHON.c_str(), qscript.c_str(), NULL);
+            if (rc == -1)
+            {
+                char buffer[256];
+                strerror_s(buffer, errno); // C++ can infer the buffer size!  :-O
+                ensure(STRINGIZE("Couldn't run Python " << desc << "script: " << buffer), false);
+            }
+            else
+            {
+                ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, expect);
+            }
+
+#else  // LL_DARWIN, LL_LINUX
+            LLProcessLauncher py;
+            py.setExecutable(PYTHON);
+            py.addArgument(scriptfile.getName());
+            ensure_equals(STRINGIZE("Couldn't launch " << desc << " script"), py.launch(), 0);
+            // Implementing timeout would mean messing with alarm() and
+            // catching SIGALRM... later maybe...
+            int status(0);
+            if (waitpid(py.getProcessID(), &status, 0) == -1)
+            {
+                int waitpid_errno(errno);
+                ensure_equals(STRINGIZE("Couldn't retrieve rc from " << desc << " script: "
+                                        "waitpid() errno " << waitpid_errno),
+                              waitpid_errno, ECHILD);
+            }
+            else
+            {
+                if (WIFEXITED(status))
+                {
+                    int rc(WEXITSTATUS(status));
+                    ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc),
+                                  rc, expect);
+                }
+                else if (WIFSIGNALED(status))
+                {
+                    ensure(STRINGIZE(desc << " script terminated by signal " << WTERMSIG(status)),
+                           false);
+                }
+                else
+                {
+                    ensure(STRINGIZE(desc << " script produced impossible status " << status),
+                           false);
+                }
+            }
+#endif
+        }
+    };
+
+    typedef tut::test_group<TestPythonCompatible> TestPythonCompatibleGroup;
+    typedef TestPythonCompatibleGroup::object TestPythonCompatibleObject;
+    TestPythonCompatibleGroup pycompat("LLSD serialize Python compatibility");
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<1>()
+    {
+        set_test_name("verify python()");
+        python("hello",
+               "import sys\n"
+               "sys.exit(17)\n",
+               17);                 // expect nonzero rc
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<2>()
+    {
+        set_test_name("verify NamedTempFile");
+        python("platform",
+               "import sys\n"
+               "print 'Running on', sys.platform\n");
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<3>()
+    {
+        set_test_name("verify sequence to Python");
+
+        LLSD cdata(LLSDArray(17)(3.14)
+                  ("This string\n"
+                   "has several\n"
+                   "lines."));
+
+        const char pydata[] =
+            "def verify(iterable):\n"
+            "    it = iter(iterable)\n"
+            "    assert it.next() == 17\n"
+            "    assert abs(it.next() - 3.14) < 0.01\n"
+            "    assert it.next() == '''\\\n"
+            "This string\n"
+            "has several\n"
+            "lines.'''\n"
+            "    try:\n"
+            "        it.next()\n"
+            "    except StopIteration:\n"
+            "        pass\n"
+            "    else:\n"
+            "        assert False, 'Too many data items'\n";
+
+        // Create a something.llsd file containing 'data' serialized to
+        // notation. It's important to separate with newlines because Python's
+        // llsd module doesn't support parsing from a file stream, only from a
+        // string, so we have to know how much of the file to read into a
+        // string.
+        NamedTempFile file(".llsd",
+                           // NamedTempFile's boost::function constructor
+                           // takes a callable. To this callable it passes the
+                           // std::ostream with which it's writing the
+                           // NamedTempFile. This lambda-based expression
+                           // first calls LLSD::Serialize() with that ostream,
+                           // then streams a newline to it, etc.
+                           (lambda::bind(LLSDSerialize::toNotation, cdata[0], lambda::_1),
+                            lambda::_1 << '\n',
+                            lambda::bind(LLSDSerialize::toNotation, cdata[1], lambda::_1),
+                            lambda::_1 << '\n',
+                            lambda::bind(LLSDSerialize::toNotation, cdata[2], lambda::_1),
+                            lambda::_1 << '\n'));
+
+        python("read C++ notation",
+               lambda::_1 <<
+               import_llsd <<
+               "def parse_each(iterable):\n"
+               "    for item in iterable:\n"
+               "        yield llsd.parse(item)\n" <<
+               pydata <<
+               // Don't forget raw-string syntax for Windows pathnames.
+               "verify(parse_each(open(r'" << file.getName() << "')))\n");
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<4>()
+    {
+        set_test_name("verify sequence from Python");
+
+        // Create an empty data file. This is just a placeholder for our
+        // script to write into. Create it to establish a unique name that
+        // we know.
+        NamedTempFile file(".llsd", "");
+
+        python("write Python notation",
+               lambda::_1 <<
+               "from __future__ import with_statement\n" <<
+               import_llsd <<
+               "DATA = [\n"
+               "    17,\n"
+               "    3.14,\n"
+               "    '''\\\n"
+               "This string\n"
+               "has several\n"
+               "lines.''',\n"
+               "]\n"
+               // Don't forget raw-string syntax for Windows pathnames.
+               // N.B. Using 'print' implicitly adds newlines.
+               "with open(r'" << file.getName() << "', 'w') as f:\n"
+               "    for item in DATA:\n"
+               "        print >>f, llsd.format_notation(item)\n");
+
+        std::ifstream inf(file.getName().c_str());
+        LLSD item;
+        // Notice that we're not doing anything special to parse out the
+        // newlines: LLSDSerialize::fromNotation ignores them. While it would
+        // seem they're not strictly necessary, going in this direction, we
+        // want to ensure that notation-separated-by-newlines works in both
+        // directions -- since in practice, a given file might be read by
+        // either language.
+        ensure_equals("Failed to read LLSD::Integer from Python",
+                      LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
+                      1);
+        ensure_equals(item.asInteger(), 17);
+        ensure_equals("Failed to read LLSD::Real from Python",
+                      LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
+                      1);
+        ensure_approximately_equals("Bad LLSD::Real value from Python",
+                                    item.asReal(), 3.14, 7); // 7 bits ~= 0.01
+        ensure_equals("Failed to read LLSD::String from Python",
+                      LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
+                      1);
+        ensure_equals(item.asString(), 
+                      "This string\n"
+                      "has several\n"
+                      "lines.");
+    }
+}

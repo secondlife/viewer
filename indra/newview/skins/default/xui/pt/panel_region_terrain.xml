@@ -7,21 +7,56 @@
 		nenhum
 	</text>
 	<spinner label="Altura da água" name="water_height_spin"/>
-	<button label="?" name="water_height_help"/>
-	<spinner label="Limite do aumento do &#10;terreno" name="terrain_raise_spin"/>
-	<button label="?" name="terrain_raise_help"/>
-	<spinner label="Limite mais baixo do &#10;terreno" name="terrain_lower_spin" bottom_delta="-34"/>
-	<button label="?" name="terrain_lower_help"/>
-	<check_box label="Usar o sol da propriedade" name="use_estate_sun_check"/>
-	<button label="?" name="use_estate_sun_help"/>
-	<check_box label="Sol fixo" name="fixed_sun_check"/>
-	<button label="?" name="fixed_sun_help"/>
-	<slider label="Fase" name="sun_hour_slider"/>
-	<button label="Aplicar" name="apply_btn"/>
+	<spinner label="Limite do aumento do 
+terreno" name="terrain_raise_spin"/>
+	<spinner bottom_delta="-34" label="Limite mais baixo do 
+terreno" name="terrain_lower_spin"/>
+	<text name="detail_texture_text">
+		Texturas de terreno (exige arquivos .tga 512x512, 24 bit)
+	</text>
+	<text name="height_text_lbl">
+		1 (Baixo)
+	</text>
+	<text name="height_text_lbl2">
+		2
+	</text>
+	<text name="height_text_lbl3">
+		3
+	</text>
+	<text name="height_text_lbl4">
+		4 (Alto)
+	</text>
+	<text name="height_text_lbl5">
+		Intervalos de elevação de textura
+	</text>
+	<text name="height_text_lbl10">
+		Os valores representam o intervalo de mistura das texturas acima.
+	</text>
+	<text name="height_text_lbl11">
+		Em metros, o valor BAIXO é a altura MÁXIMA da Textura 1, e HIGH é a altura MÍNIMA da Textura 4.
+	</text>
+	<text name="height_text_lbl6">
+		Noroeste
+	</text>
+	<text name="height_text_lbl7">
+		Nordeste
+	</text>
+	<spinner label="Baixo" name="height_start_spin_1"/>
+	<spinner label="Baixo" name="height_start_spin_3"/>
+	<spinner label="Alto" name="height_range_spin_1"/>
+	<spinner label="Alto" name="height_range_spin_3"/>
+	<text name="height_text_lbl8">
+		Sudoeste
+	</text>
+	<text name="height_text_lbl9">
+		Sudeste
+	</text>
+	<spinner label="Baixo" name="height_start_spin_0"/>
+	<spinner label="Baixo" name="height_start_spin_2"/>
+	<spinner label="Alto" name="height_range_spin_0"/>
+	<spinner label="Alto" name="height_range_spin_2"/>
 	<button label="Download de terreno RAW..." name="download_raw_btn" tool_tip="Não disponível aos gerentes, somente aos proprietários."/>
-	<button label="?" name="download_raw_help"/>
 	<button label="Upload de terreno RAW..." name="upload_raw_btn" tool_tip="Não disponível aos gerentes, somente aos proprietários."/>
-	<button label="?" name="upload_raw_help"/>
-	<button width="170" label="Nivelar o terreno" name="bake_terrain_btn" tool_tip="Ajustar terreno atual como o ponto médio para os limites de aumento/decréscimo"/>
-	<button left="190" label="?" name="bake_terrain_help"/>
+	<button label="Nivelar o terreno" name="bake_terrain_btn" tool_tip="Ajustar terreno atual como o ponto médio para os limites de aumento/decréscimo" width="170"/>
+	<button label="Aplicar" name="apply_btn"/>
 </panel>

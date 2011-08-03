@@ -31,6 +31,7 @@
 		<menu_item_call label="Meine Gruppen" name="My Groups"/>
 		<menu_item_check label="Chat in der Nähe" name="Nearby Chat"/>
 		<menu_item_call label="Leute in der Nähe" name="Active Speakers"/>
+		<menu_item_check label="Stimme in der Nähe" name="Nearby Voice"/>
 	</menu>
 	<menu label="Welt" name="World">
 		<menu_item_check label="Minikarte" name="Mini-Map"/>
@@ -63,8 +64,24 @@
 			<menu_item_call label="Mittag" name="Noon"/>
 			<menu_item_call label="Sonnenuntergang" name="Sunset"/>
 			<menu_item_call label="Mitternacht" name="Midnight"/>
-			<menu_item_call label="Grundbesitzzeit" name="Revert to Region Default"/>
-			<menu_item_call label="Umwelt-Editor" name="Environment Editor"/>
+		</menu>
+		<menu label="Umgebungs-Editor" name="Enviroment Editor">
+			<menu_item_call label="Umgebungseinstellungen..." name="Enviroment Settings"/>
+			<menu label="Wasser-Voreinstellungen" name="Water Presets">
+				<menu_item_call label="Neue Voreinstellung..." name="new_water_preset"/>
+				<menu_item_call label="Voreinstellung bearbeiten..." name="edit_water_preset"/>
+				<menu_item_call label="Voreinstellung löschen..." name="delete_water_preset"/>
+			</menu>
+			<menu label="Himmel-Voreinstellungen" name="Sky Presets">
+				<menu_item_call label="Neue Voreinstellung..." name="new_sky_preset"/>
+				<menu_item_call label="Voreinstellung bearbeiten..." name="edit_sky_preset"/>
+				<menu_item_call label="Voreinstellung löschen..." name="delete_sky_preset"/>
+			</menu>
+			<menu label="Tag-Voreinstellungen" name="Day Presets">
+				<menu_item_call label="Neue Voreinstellung..." name="new_day_preset"/>
+				<menu_item_call label="Voreinstellung bearbeiten..." name="edit_day_preset"/>
+				<menu_item_call label="Voreinstellung löschen..." name="delete_day_preset"/>
+			</menu>
 		</menu>
 	</menu>
 	<menu label="Bauen" name="BuildTools">

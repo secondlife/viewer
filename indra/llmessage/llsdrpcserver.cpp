@@ -97,6 +97,8 @@ void LLSDRPCServer::clearLock()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_SDRPC_SERVER("SDRPC Server");
+
 // virtual
 LLIOPipe::EStatus LLSDRPCServer::process_impl(
 	const LLChannelDescriptors& channels,
@@ -105,6 +107,7 @@ LLIOPipe::EStatus LLSDRPCServer::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_SDRPC_SERVER);
 	PUMP_DEBUG;
 	LLMemType m1(LLMemType::MTYPE_IO_SD_SERVER);
 //	lldebugs << "LLSDRPCServer::process_impl" << llendl;

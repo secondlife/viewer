@@ -454,6 +454,7 @@ Købsprisen for dette land er ikke refunderet til ejeren. Hvis en dedikeret parv
 Dediker disse [AREA] m² land til gruppen &apos;[GROUP_NAME]&apos;?
 	</notification>
 	<notification name="ErrorMessage">
+		[ERROR_MESSAGE]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarMovedDesired">

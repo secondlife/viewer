@@ -66,7 +66,7 @@
 	<check_box label="Verknüpfte Teile bearbeiten" name="checkbox edit linked parts"/>
 	<button label="Link" name="link_btn" width="30"/>
 	<button label="Verknüpfung auflösen" name="unlink_btn" width="126"/>
-	<text name="RenderingCost" tool_tip="Zeigt die errechneten Wiedergabekosten für dieses Objekt" left_pad="0">
+	<text left_pad="0" name="RenderingCost" tool_tip="Zeigt die errechneten Wiedergabekosten für dieses Objekt">
 		þ: [COUNT]
 	</text>
 	<check_box label="" name="checkbox uniform"/>
@@ -408,7 +408,7 @@
 			</combo_box>
 			<spinner label="Schwerkraft" name="Physics Gravity"/>
 			<spinner label="Reibung" name="Physics Friction"/>
-			<spinner label="Dichte" name="Physics Density"/>
+			<spinner label="Dichte in 100 kg/m^3" name="Physics Density"/>
 			<spinner label="Restitution" name="Physics Restitution"/>
 		</panel>
 		<panel label="Textur" name="Texture">

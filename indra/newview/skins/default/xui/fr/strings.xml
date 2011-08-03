@@ -1192,6 +1192,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InventoryNoTexture">
 		Vous n&apos;avez pas de copie de cette texture dans votre inventaire
 	</string>
+	<string name="InventoryInboxNoItems">
+		Ici seront livrés les articles achetés sur la Place du marché.
+	</string>
+	<string name="InventoryOutboxNoItems">
+		Faites glisser des articles ici en vue de les publier sur votre vitrine de la Place du marché.
+	</string>
 	<string name="no_transfer" value=" (pas de transfert)"/>
 	<string name="no_modify" value=" (pas de modification)"/>
 	<string name="no_copy" value=" (pas de copie)"/>
@@ -1321,6 +1327,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="InvFolder All">
 		Tout
+	</string>
+	<string name="no_attachments">
+		Aucun élément attaché porté
 	</string>
 	<string name="Buy">
 		Acheter
@@ -1657,6 +1666,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="IMTeen">
 		teen
 	</string>
+	<string name="Anyone">
+		n&apos;importe qui
+	</string>
 	<string name="RegionInfoError">
 		erreur
 	</string>
@@ -1878,6 +1890,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="Public">
 		Public
+	</string>
+	<string name="LocalSettings">
+		Réglages locaux
+	</string>
+	<string name="RegionSettings">
+		Réglages de la région
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Clics : [TELEPORT] téléportation, [MAP] carte, [PROFILE] profil
@@ -3723,6 +3741,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
 		Région de type Général
+	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		Avatars visibles et chat autorisé en dehors de cette parcelle
 	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] - Mise à jour
