@@ -100,19 +100,44 @@ Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number
       name="credits_panel">
       <text
           follows="top|left|right"
-          height="15"
+          height="10"
           layout="topleft"
           left="5"
-          name="contrib_intro"
-          top="15"
+          name="linden_intro"
+          top="10"
           width="435"
           wrap="true">
-Second Life is brought to you by the Lindens, with open source contributions from:
+Second Life is brought to you by the Lindens:
       </text>
       <text_editor
        enabled="false" 
        follows="top|left"
-       height="180"
+       height="98"
+       bg_readonly_color="Transparent"
+       left="5"
+       text_color="LtGray"
+       max_length="65536"
+       name="linden_names"
+       top_pad="10"
+       width="435"
+       word_wrap="true">
+Philip, Tessa, Andrew, Cory, Ian, James, Phoenix, Ryan, Haney, Dan, Char, Ben, John, Tanya, Eddie, Richard, Mitch, Doug, Eric, Frank, Bruce, Aaron, Peter, Alice, Charlie, Debra, Eileen, Helen, Janet, Steffan, Steve, Tom, Mark, Hunter, Xenon, Burgess, Bill, Jim, Lee, Hamlet, Daniel, Jeff, Todd, Sarah, Tim, Stephanie, Colin, Michael, Evan, Nicolas, Catherine, Rachelle, Dave, Holly, Bub, Kelly, Ramzi, Don, Sabin, Jill, Rheya, Jeska, Torley, Kona, Callum, Charity, Jack, Vektor, Chris, Nicole, Mick, Reuben, Blue, Babbage, Yedwab, Deana, Lauren, Brent, Pathfinder, Chadrick, Jesse, David, Tess, Lizzie, Patsy, Isaac, Lawrence, Cyn, Bo, Gia, Annette, Marius, Tbone, Jonathan, Karen, Ginsu, Yuko, Makiko, Thomas, Harry, Seth, Brian, Guy, Runitai, Ethan, Data, Cornelius, Kenny, Swiss, Zero, Brad, Natria, Wendy, Stephen, Teeple, Thumper, Lucy, Dee, Mia, Liana, Warren, Branka, Aura, Beez, Milo, Hermia, Red, Thrax, Gulliver, Joe, Sally, Paul, Jose, Rejean, Dore, Henrik, Lexie, Amber, Logan, Xan, Nora, Morpheus, Donovan, Leyla, MichaelFrancis, Beast, Cube, Bucky, Joshua, Stryfe, Harmony, Teresa, Claudia, Walker, Glenn, Fritz, Fordak, June, Cleopetra, Ivy, Betsy, Roosevelt, Spike, Ken, Which, Tofu, Chiyo, Rob, Zee, Dustin, George, Del, Matthew, Cat, Jacqui, Adrian, Viola, Alfred, Noel, Irfan, Yool, Rika, Jane, Frontier, Neo, Siobhan, Yoz, Justin, Elle, Qarl, Benjamin, Isabel, Everett, Christopher, Izzy, Stephany, Garry, Sejong, Sean, Tobin, Iridium, Meta, Jeremy, JP, Jake, Anthony, Maurice, Madhavi, Leopard, Kyle, Joon, Bert, Belinda, Jon, Kristi, Bridie, Pramod, Socrates, Maria, Aric, Adreanne, Jay, Kari, Ceren, Coco, Durl, Jenny, Periapse, Kartic, Storrs, Lotte, Sandy, Colossus, Zen, BigPapi, Pastrami, Kurz, Mani, Neuro, Mel, Sardonyx, MJ, Rowan, Sgt, Elvis, Samuel, Leo, Bryan, Niko, Austin, Soft, Poppy, Rachel, Aki, Banzai, Alexa, Sue, Bender, CG, Angelo, Gillian, Pelle, Nick, Echo, Zara, Christine, Shamiran, Emma, Blake, Keiko, Plexus, Joppa, Sidewinder, Erica, Ashlei, Twilight, Kristen, Brett, Q, Enus, Simon, Bevis, Kraft, Kip, Chandler, Ron, LauraP, Ram, KyleJM, Scouse, Prospero, Melissa, Marty, Nat, Hamilton, Kend, Lordan, Jimmy, Kosmo, Seraph, Green, Ekim, Wiggo, JT, Rome, Doris, Miz, Benoc, Whump, Trinity, Patch, Kate, TJ, Bao, Joohwan, Christy, Sofia, Matias, Cogsworth, Johan, Oreh, Cheah, Angela, Brandy, Mango, Lan, Aleks, Gloria, Mitchell, Space, Colton, Bambers, Einstein, Maggie, Malbers, Rose, Rothman, Niall, Marin, Allison, Katie, Dawn, Dusty, Katt, Judy, Andrea, Ambroff, Infinity, Rico, Gail, Kalpana, Raymond, Yi, William, Christa, M, Teagan, Scout, Molly, Dante, Corr, Dynamike, Usi, Kaylee, Lil, Danica, Sascha, Kelv, Jacob, Nya, Rodney, Brandon, Elsie, Blondin, Grant, Katrin, Nyx, Gabriel, Locklainn, Claire, Devin, Minerva, Monty, Bradford, Si, Keira, H, Caitlin, Dita, Makai, Jenn, Ann, Meredith, Clare, Joy, Praveen, Cody, Edmund, Ruthe, Sirena, Gayathri, Spider, FJ, Davidoff, Tian, Jennie, Louise, Oskar, Landon, Noelle, Jarv, Ingrid, Al, Sommer, Doc, Aria, Huin, Gray, Lili, Vir, DJ, Maestro, Simone, Yang, T, Shannon, Nelson, Khanh, Scott, Courtney, Charlene, Quixote, Susan, Zed, Amanda, Katelin, Enkidu, Roxie, Esbee, JoRoan, Scarlet, Tay, Kevin, Wolfgang, Johnny, Ray, Andren, Merov, Bob, Rand, Howard, Callen, Heff, Galen, Newell, Dessie, Les, Michon, Jenelle, Geo, Siz, Shapiro, Pete, Calyle, Selene, Allen, Phoebe, Goldin, Kimmora, Dakota, Slaton, Lindquist, Zoey, Hari, Othello, Rohit, Sheldon, Petra, Viale, Gordon, Kaye, Pink, Ferny, Emerson, Davy, Bri, Chan, Juan, Robert, Terrence, Nathan, Carl, Ashley, JessieAnn, Huseby, Karina, Paris, Kurt, Rick, Lis, Kotler, Theeba, Lynx, Murphy, Doten, Taka, Norm, Jillian, Marcus, Mae, Novack, Esther, Perry, Dana, Ducot, Javier, Porter, Madison, Gecko, Dough, JR, Gisele, Crimp, Norie, Arch, Kimi, Fisher, Barbara, Jason, Peggy, Bernard, Jules, Leroy, Eva, Khederian, Campbell, Vogt, Masido, Karel, Torres, Lo, Breezer, Delby, Rountree, Anna, Servus, Rue, Itiaes, Chuck, Luna, Novella, Zaza, Wen, Gino, Lex, Cassandra, Limey, Nancy, Anukul, Silver, Brodesky, Jinsai, Squid, Gez, Rakesh, Ladan, Edelman, Marcet, Squire, Tatem, Tony, Jerm, Tia, Falcon, BK, Tiggs, Driscoll, Bacon, Timothee, Cru, Carmilla, Coyot, Webb, Kazu, Rudas, LJ, Sea, Ali Wallace, Bewest, Pup, Drub, Dragon, Inoshiro, Byron, Rhett, Xandix, Aimee, Fredrik, Thor, Teddy, Baron, Nelly, Ghengis, Epic, Eli, Stone, Grapes, Irie, Prep, Scobu, Valerie, Alain, Jenn, Oz, Log, and many others.
+      </text_editor>
+      <text
+          follows="top|left"
+          height="10"
+          layout="topleft"
+          left="5"
+          name="contrib_intro"
+          top_pad="10"
+          width="435"
+          wrap="true">
+with open source contributions from:
+      </text>
+      <text_editor
+       enabled="false" 
+       follows="top|left"
+       height="98"
        bg_readonly_color="Transparent"
        left="5"
        text_color="LtGray"
@@ -125,7 +150,7 @@ Dummy Name replaced at run time
       </text_editor>
       <text
           follows="top|left"
-          height="15"
+          height="10"
           layout="topleft"
           left="5"
           name="trans_intro"
@@ -137,7 +162,7 @@ and translations from:
       <text_editor
        enabled="false" 
        follows="top|left"
-       height="180"
+       height="98"
        bg_readonly_color="Transparent"
        left="5"
        text_color="LtGray"
