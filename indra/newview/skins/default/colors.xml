@@ -134,7 +134,7 @@
      reference="AvatarListItemIconOfflineColor" />
     <color
      name="BadgeImageColor"
-     value="0.44 0.69 0.56 1.0" />
+     value="1.0 0.40 0.0 1.0" />
     <color
      name="BadgeBorderColor"
      value="0.9 0.9 0.9 1.0" />

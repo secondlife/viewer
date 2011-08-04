@@ -2483,8 +2483,6 @@ void LLFolderBridge::staticFolderOptionsMenu()
 
 void LLFolderBridge::folderOptionsMenu()
 {
-	menuentry_vec_t disabled_items;
-
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return;
 
@@ -2516,7 +2514,7 @@ void LLFolderBridge::folderOptionsMenu()
 
 	if (!isItemRemovable())
 	{
-		disabled_items.push_back(std::string("Delete"));
+		mDisabledItems.push_back(std::string("Delete"));
 	}
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -2557,18 +2555,18 @@ void LLFolderBridge::folderOptionsMenu()
 		mItems.push_back(std::string("Remove From Outfit"));
 		if (!LLAppearanceMgr::getCanRemoveFromCOF(mUUID))
 		{
-			disabled_items.push_back(std::string("Remove From Outfit"));
+			mDisabledItems.push_back(std::string("Remove From Outfit"));
 		}
 		if (!LLAppearanceMgr::instance().getCanReplaceCOF(mUUID))
 		{
-			disabled_items.push_back(std::string("Replace Outfit"));
+			mDisabledItems.push_back(std::string("Replace Outfit"));
 		}
 		mItems.push_back(std::string("Outfit Separator"));
 	}
 	LLMenuGL* menup = dynamic_cast<LLMenuGL*>(mMenu.get());
 	if (menup)
 	{
-		hide_context_entries(*menup, mItems, disabled_items, TRUE);
+		hide_context_entries(*menup, mItems, mDisabledItems, TRUE);
 
 		// Reposition the menu, in case we're adding items to an existing menu.
 		menup->needsArrange();

@@ -316,7 +316,12 @@ static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarNa
 	// PROFILES: open in webkit window
 	const bool show_chrome = false;
 	static LLCachedControl<LLRect> profile_rect(gSavedSettings, "WebProfileRect");
-	LLFloaterWebContent::create(url, "", agent_id.asString(), show_chrome, profile_rect);
+	LLFloaterWebContent::create(LLFloaterWebContent::Params().
+							url(url).
+							id(agent_id.asString()).
+							show_chrome(show_chrome).
+							window_class("profile").
+							preferred_media_size(profile_rect));
 }
 
 // static
@@ -331,7 +336,9 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 //static 
 bool LLAvatarActions::profileVisible(const LLUUID& id)
 {
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", id.asString()));
+	LLSD sd;
+	sd["id"] = id;
+	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("profile", sd));
 	return browser && browser->isShown();
 }
 
@@ -339,7 +346,9 @@ bool LLAvatarActions::profileVisible(const LLUUID& id)
 //static 
 void LLAvatarActions::hideProfile(const LLUUID& id)
 {
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", id.asString()));
+	LLSD sd;
+	sd["id"] = id;
+	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("profile", sd));
 	if (browser)
 	{
 		browser->closeFloater();

@@ -219,11 +219,8 @@ LLFastTimer::DeclareTimer::DeclareTimer(const std::string& name)
 // static
 void LLFastTimer::DeclareTimer::updateCachedPointers()
 {
-	DeclareTimer::LLInstanceTrackerScopedGuard guard;
 	// propagate frame state pointers to timer declarations
-	for (DeclareTimer::instance_iter it = guard.beginInstances();
-		it != guard.endInstances();
-		++it)
+	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 	{
 		// update cached pointer
 		it->mFrameState = &it->mTimer.getFrameState();
@@ -396,10 +393,7 @@ void LLFastTimer::NamedTimer::buildHierarchy()
 
 	// set up initial tree
 	{
-		NamedTimer::LLInstanceTrackerScopedGuard guard;
-		for (instance_iter it = guard.beginInstances();
-		     it != guard.endInstances();
-		     ++it)
+		for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 		{
 			NamedTimer& timer = *it;
 			if (&timer == NamedTimerFactory::instance().getRootTimer()) continue;
@@ -527,10 +521,7 @@ void LLFastTimer::NamedTimer::resetFrame()
 		LLSD sd;
 
 		{
-			NamedTimer::LLInstanceTrackerScopedGuard guard;
-			for (NamedTimer::instance_iter it = guard.beginInstances();
-			     it != guard.endInstances();
-			     ++it)
+			for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 			{
 				NamedTimer& timer = *it;
 				FrameState& info = timer.getFrameState();
@@ -567,7 +558,7 @@ void LLFastTimer::NamedTimer::resetFrame()
 		llassert_always(timerp->mFrameStateIndex < (S32)getFrameStateList().size());
 	}
 
-	// sort timers by dfs traversal order to improve cache coherency
+	// sort timers by DFS traversal order to improve cache coherency
 	std::sort(getFrameStateList().begin(), getFrameStateList().end(), SortTimersDFS());
 
 	// update pointers into framestatelist now that we've sorted it
@@ -575,10 +566,7 @@ void LLFastTimer::NamedTimer::resetFrame()
 
 	// reset for next frame
 	{
-		NamedTimer::LLInstanceTrackerScopedGuard guard;
-		for (NamedTimer::instance_iter it = guard.beginInstances();
-		     it != guard.endInstances();
-		     ++it)
+		for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 		{
 			NamedTimer& timer = *it;
 			
@@ -622,10 +610,7 @@ void LLFastTimer::NamedTimer::reset()
 
 	// reset all history
 	{
-		NamedTimer::LLInstanceTrackerScopedGuard guard;
-		for (NamedTimer::instance_iter it = guard.beginInstances();
-		     it != guard.endInstances();
-		     ++it)
+		for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 		{
 			NamedTimer& timer = *it;
 			if (&timer != NamedTimerFactory::instance().getRootTimer()) 
@@ -873,7 +858,7 @@ std::string LLFastTimer::sClockType = "rdtsc";
 
 #else
 //LL_COMMON_API U64 get_clock_count(); // in lltimer.cpp
-// These use QueryPerformanceCounter, which is arguably fine and also works on amd architectures.
+// These use QueryPerformanceCounter, which is arguably fine and also works on AMD architectures.
 U32 LLFastTimer::getCPUClockCount32()
 {
 	return (U32)(get_clock_count()>>8);
