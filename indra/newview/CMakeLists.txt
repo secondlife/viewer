@@ -1248,6 +1248,31 @@ if (WINDOWS)
         set(viewer_SOURCE_FILES "${viewer_SOURCE_FILES}" llviewerprecompiledheaders.cpp)
     endif(USE_PRECOMPILED_HEADERS)
 
+    # Replace the icons with the appropriate ones for the channel
+    set(ICON_PATH "test")
+    string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
+    if(channel_lower MATCHES "^(release|beta|development)")
+        set(ICON_PATH ${channel_lower})
+    elseif(channel_lower MATCHES "^(project.*)")
+        set(ICON_PATH "project")
+    endif()
+    message("Copying icons for ${ICON_PATH}")
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/secondlife.ico"
+        "${CMAKE_CURRENT_SOURCE_DIR}/res/ll_icon.ico"
+      )
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/secondlife_256.BMP"
+        "${CMAKE_CURRENT_SOURCE_DIR}/res/ll_icon.BMP"
+      )
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/secondlife_256.BMP"
+        "${CMAKE_CURRENT_SOURCE_DIR}/res-sdl/ll_icon.BMP"
+      )
+
     # Add resource files to the project.
     # viewerRes.rc is the only buildable file, but
     # the rest are all dependencies of it.
@@ -1277,6 +1302,7 @@ if (WINDOWS)
         res/lltooltranslate.cur
         res/lltoolzoomin.cur
         res/lltoolzoomout.cur
+        res-sdl/ll_icon.BMP
         res/ll_icon.BMP
         res/ll_icon.ico
         res/resource.h
