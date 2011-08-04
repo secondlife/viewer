@@ -143,6 +143,19 @@ class ViewerManifest(LLManifest):
     def channel_lowerword(self):
         return self.channel_oneword().lower()
 
+    def icon_path(self):
+        icon_path="icons/"
+        channel_type=self.channel_lowerword()
+        if channel_type == 'release' \
+        or channel_type == 'beta' \
+        or channel_type == 'project' \
+        or channel_type == 'development' \
+        :
+            icon_path += channel_type
+        else :
+            icon_path += 'test'
+        return icon_path
+
     def flags_list(self):
         """ Convenience function that returns the command-line flags
         for the grid"""
@@ -509,8 +522,8 @@ class WindowsManifest(ViewerManifest):
                 grid_vars_template = """
                 OutFile "%(installer_file)s"
                 !define INSTFLAGS "%(flags)s"
-                !define INSTNAME   "SecondLifeViewer2"
-                !define SHORTCUT   "Second Life Viewer 2"
+                !define INSTNAME   "SecondLifeViewer"
+                !define SHORTCUT   "Second Life Viewer"
                 !define URLNAME   "secondlife"
                 Caption "Second Life ${VERSION}"
                 """
@@ -609,12 +622,15 @@ class DarwinManifest(ViewerManifest):
                 self.path("featuretable_mac.txt")
                 self.path("SecondLife.nib")
 
-                # If we are not using the default channel, use the 'Firstlook
-                # icon' to show that it isn't a stable release.
-                if self.default_channel() and self.default_grid():
-                    self.path("secondlife.icns")
-                else:
-                    self.path("secondlife_firstlook.icns", "secondlife.icns")
+                icon_path = self.icon_path()
+                if self.prefix(src=icon_path, dst="") :
+                    test_path = os.path.join(self.get_src_prefix(), "secondlife.icns")
+                    if os.path.exists(test_path) :
+                        self.path("secondlife.icns")
+                    else :
+                        raise Exception("Icon not found '%s'" % test_path)
+                    self.end_prefix(icon_path)
+
                 self.path("SecondLife.nib")
                 
                 # Translations
@@ -741,7 +757,7 @@ class DarwinManifest(ViewerManifest):
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
-        channel_standin = 'Second Life Viewer 2'  # hah, our default channel is not usable on its own
+        channel_standin = 'Second Life Viewer'  # hah, our default channel is not usable on its own
         if not self.default_channel():
             channel_standin = self.channel()
 
@@ -795,9 +811,7 @@ class DarwinManifest(ViewerManifest):
             # will use the release .DS_Store, and will look broken.
             # - Ambroff 2008-08-20
             dmg_template = os.path.join(
-                'installers', 
-                'darwin',
-                '%s-dmg' % "".join(self.channel_unique().split()).lower())
+                'installers', 'darwin', '%s-dmg' % self.channel_lowerword())
 
             if not os.path.exists (self.src_path_of(dmg_template)):
                 dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
@@ -853,7 +867,14 @@ class LinuxManifest(ViewerManifest):
     def construct(self):
         super(LinuxManifest, self).construct()
         self.path("licenses-linux.txt","licenses.txt")
-        self.path("res/ll_icon.png","secondlife_icon.png")
+        icon_path = self.icon_path()
+        if self.prefix(src=icon_path, dst="") :
+            test_path = os.path.join(self.get_src_prefix(), "secondlife_256.png")
+            if os.path.exists(test_path) :
+                self.path("secondlife_256.png","secondlife_icon.png")
+            else :
+                raise Exception("Icon not found '%s'" % test_path)
+            self.end_prefix(icon_path)
         if self.prefix("linux_tools", dst=""):
             self.path("client-readme.txt","README-linux.txt")
             self.path("client-readme-voice.txt","README-linux-voice.txt")
