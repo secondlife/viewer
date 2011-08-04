@@ -286,7 +286,7 @@ void LLFolderViewItem::refreshFromListener()
 		time_t creation_date = mListener->getCreationDate();
 		if (mCreationDate != creation_date)
 		{
-			mCreationDate = mListener->getCreationDate();
+			setCreationDate(mListener->getCreationDate());
 			dirtyFilter();
 		}
 		if (mRoot->useLabelSuffix())
@@ -2430,7 +2430,7 @@ time_t LLFolderViewFolder::getCreationDate() const
 			
 			if (item_creation_date)
 			{
-				mCreationDate = item_creation_date;
+				setCreationDate(item_creation_date);
 				break;
 			}
 		}
@@ -2446,7 +2446,7 @@ time_t LLFolderViewFolder::getCreationDate() const
 				
 				if (folder_creation_date)
 				{
-					mCreationDate = folder_creation_date;
+					setCreationDate(folder_creation_date);
 					break;
 				}
 			}

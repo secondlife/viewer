@@ -4538,6 +4538,14 @@ void LLViewerWindow::setShowProgress(const BOOL show)
 	}
 }
 
+void LLViewerWindow::setStartupComplete()
+{
+	if (mProgressView)
+	{
+		mProgressView->setStartupComplete();
+	}
+}
+
 BOOL LLViewerWindow::getShowProgress() const
 {
 	return (mProgressView && mProgressView->getVisible());

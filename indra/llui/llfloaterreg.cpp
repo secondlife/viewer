@@ -57,7 +57,7 @@ void LLFloaterReg::add(const std::string& name, const std::string& filename, con
 }
 
 //static
-LLRect LLFloaterReg::getFloaterRect(const std::string& name)
+LLFloater* LLFloaterReg::getLastFloaterInGroup(const std::string& name)
 {
 	LLRect rect;
 	const std::string& groupname = sGroupMap[name];
@@ -66,20 +66,10 @@ LLRect LLFloaterReg::getFloaterRect(const std::string& name)
 		instance_list_t& list = sInstanceMap[groupname];
 		if (!list.empty())
 		{
-			static LLUICachedControl<S32> floater_offset ("UIFloaterOffset", 16);
-			LLFloater* last_floater = list.back();
-			if (last_floater->getHost())
-			{
-				rect = last_floater->getHost()->getRect();
-			}
-			else
-			{
-				rect = last_floater->getRect();
-			}
-			rect.translate(floater_offset, -floater_offset);
+			return list.back();
 		}
 	}
-	return rect;
+	return NULL;
 }
 
 //static
@@ -129,17 +119,20 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 				}
 					
 				// Note: key should eventually be a non optional LLFloater arg; for now, set mKey to be safe
-				res->mKey = key;
+				if (res->mKey.isUndefined()) 
+				{
+						res->mKey = key;
+				}
 				res->setInstanceName(name);
 				res->applySavedVariables(); // Can't apply rect and dock state until setting instance name
 				if (res->mAutoTile && !res->getHost() && index > 0)
 				{
-					const LLRect& cur_rect = res->getRect();
-					LLRect next_rect = getFloaterRect(groupname);
-					next_rect.setLeftTopAndSize(next_rect.mLeft, next_rect.mTop, cur_rect.getWidth(), cur_rect.getHeight());
-					res->setRect(next_rect);
-					res->setRectControl(LLStringUtil::null); // don't save rect of tiled floaters
-					gFloaterView->adjustToFitScreen(res, true);
+					LLFloater* last_floater = getLastFloaterInGroup(groupname);
+					if (last_floater)
+					{
+						res->stackWith(*last_floater);
+						gFloaterView->adjustToFitScreen(res, true);
+					}
 				}
 				else
 				{

@@ -43,6 +43,8 @@ LLBadge::Params::Params()
 	, image_color("image_color")
 	, label("label")
 	, label_color("label_color")
+	, label_offset_horiz("label_offset_horiz")
+	, label_offset_vert("label_offset_vert")
 	, location("location", LLRelPos::TOP_LEFT)
 	, location_percent_hcenter("location_percent_hcenter")
 	, location_percent_vcenter("location_percent_vcenter")
@@ -65,6 +67,8 @@ bool LLBadge::Params::equals(const Params& a) const
 	comp &= (image_color() == a.image_color());
 	comp &= (label() == a.label());
 	comp &= (label_color() == a.label_color());
+	comp &= (label_offset_horiz() == a.label_offset_horiz());
+	comp &= (label_offset_vert() == a.label_offset_vert());
 	comp &= (location() == a.location());
 	comp &= (location_percent_hcenter() == a.location_percent_hcenter());
 	comp &= (location_percent_vcenter() == a.location_percent_vcenter());
@@ -84,6 +88,8 @@ LLBadge::LLBadge(const LLBadge::Params& p)
 	, mImageColor(p.image_color)
 	, mLabel(p.label)
 	, mLabelColor(p.label_color)
+	, mLabelOffsetHoriz(p.label_offset_horiz)
+	, mLabelOffsetVert(p.label_offset_vert)
 	, mLocation(p.location)
 	, mLocationPercentHCenter(0.5f)
 	, mLocationPercentVCenter(0.5f)
@@ -129,6 +135,18 @@ LLBadge::LLBadge(const LLBadge::Params& p)
 
 LLBadge::~LLBadge()
 {
+}
+
+bool LLBadge::addToView(LLView * view)
+{
+	bool child_added = view->addChild(this);
+
+	if (child_added)
+	{
+		setShape(view->getLocalRect());
+	}
+
+	return child_added;
 }
 
 void LLBadge::setLabel(const LLStringExplicit& label)
@@ -241,8 +259,10 @@ void LLBadge::draw()
 			// Draw the label
 			//
 
-			mGLFont->render(badge_label_wstring, badge_label_begin_offset,
-							badge_center_x, badge_center_y,
+			mGLFont->render(badge_label_wstring,
+							badge_label_begin_offset,
+							badge_center_x + mLabelOffsetHoriz,
+							badge_center_y + mLabelOffsetVert,
 							mLabelColor % alpha,
 							LLFontGL::HCENTER, LLFontGL::VCENTER, // centered around the position
 							LLFontGL::NORMAL, // normal text (not bold, italics, etc.)
