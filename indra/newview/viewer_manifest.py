@@ -148,10 +148,11 @@ class ViewerManifest(LLManifest):
         channel_type=self.channel_lowerword()
         if channel_type == 'release' \
         or channel_type == 'beta' \
-        or channel_type == 'project' \
         or channel_type == 'development' \
         :
             icon_path += channel_type
+        elif re.match('project.*',channel_type) :
+            icon_path += 'project'
         else :
             icon_path += 'test'
         return icon_path
@@ -624,11 +625,7 @@ class DarwinManifest(ViewerManifest):
 
                 icon_path = self.icon_path()
                 if self.prefix(src=icon_path, dst="") :
-                    test_path = os.path.join(self.get_src_prefix(), "secondlife.icns")
-                    if os.path.exists(test_path) :
-                        self.path("secondlife.icns")
-                    else :
-                        raise Exception("Icon not found '%s'" % test_path)
+                    self.path("secondlife.icns")
                     self.end_prefix(icon_path)
 
                 self.path("SecondLife.nib")
@@ -867,14 +864,6 @@ class LinuxManifest(ViewerManifest):
     def construct(self):
         super(LinuxManifest, self).construct()
         self.path("licenses-linux.txt","licenses.txt")
-        icon_path = self.icon_path()
-        if self.prefix(src=icon_path, dst="") :
-            test_path = os.path.join(self.get_src_prefix(), "secondlife_256.png")
-            if os.path.exists(test_path) :
-                self.path("secondlife_256.png","secondlife_icon.png")
-            else :
-                raise Exception("Icon not found '%s'" % test_path)
-            self.end_prefix(icon_path)
         if self.prefix("linux_tools", dst=""):
             self.path("client-readme.txt","README-linux.txt")
             self.path("client-readme-voice.txt","README-linux-voice.txt")
@@ -899,6 +888,15 @@ class LinuxManifest(ViewerManifest):
             self.path("*")
             # recurse
             self.end_prefix("res-sdl")
+
+        # Get the icons based on the channel
+        icon_path = self.icon_path()
+        if self.prefix(src=icon_path, dst="") :
+            self.path("secondlife_256.png","secondlife_icon.png")
+            if self.prefix(src="",dst="res-sdl") :
+                self.path("secondlife_256.BMP","ll_icon.BMP")
+                self.end_prefix("res-sdl")
+            self.end_prefix(icon_path)
 
         self.path("../viewer_components/updater/scripts/linux/update_install", "bin/update_install")
 
