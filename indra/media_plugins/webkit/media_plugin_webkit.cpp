@@ -1332,7 +1332,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			else if(message_name == "add_certificate_file_path")
 			{
 #if LLQTWEBKIT_API_VERSION >= 6
-				LLQtWebKit::getInstance()->addCAFile( message_in.getValue("path") );
+				LLQtWebKit::getInstance()->setCAFile( message_in.getValue("path") );
 #else
 				llwarns << "Ignoring add_certificate_file_path message (llqtwebkit version is too old)." << llendl;
 #endif
