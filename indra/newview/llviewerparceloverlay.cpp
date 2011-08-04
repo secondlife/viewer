@@ -173,6 +173,33 @@ bool LLViewerParcelOverlay::encroachesOwned(const std::vector<LLBBox>& boxes) co
 	}
 	return false;
 }
+bool LLViewerParcelOverlay::encroachesOnUnowned(const std::vector<LLBBox>& boxes) const
+{
+	// boxes are expected to already be axis aligned
+	for (U32 i = 0; i < boxes.size(); ++i)
+	{
+		LLVector3 min = boxes[i].getMinAgent();
+		LLVector3 max = boxes[i].getMaxAgent();
+		
+		S32 left   = S32(llclamp((min.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		S32 right  = S32(llclamp((max.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		S32 top    = S32(llclamp((min.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		S32 bottom = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		
+		for (S32 row = top; row <= bottom; row++)
+		{
+			for (S32 column = left; column <= right; column++)
+			{
+				U8 type = ownership(row, column);
+				if ((PARCEL_SELF != type))
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
 
 BOOL LLViewerParcelOverlay::isSoundLocal(const LLVector3& pos) const
 {

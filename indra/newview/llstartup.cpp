@@ -1242,6 +1242,25 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if(STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 	{
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(gFirstSimHandle);
+		if (regionp->capabilitiesReceived())
+		{
+			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
+		}
+		else
+		{
+			U32 num_retries = regionp->getNumSeedCapRetries();
+			if (num_retries > 0)
+			{
+				LLStringUtil::format_map_t args;
+				args["[NUMBER]"] = llformat("%d", num_retries + 1);
+				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args), gAgent.mMOTD);
+			}
+			else
+			{
+				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"), gAgent.mMOTD);
+			}
+		}
 		return FALSE;
 	}
 

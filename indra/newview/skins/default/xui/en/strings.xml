@@ -44,6 +44,8 @@
 	<string name="LoginInitializingQuicktime">Initializing QuickTime...</string>
 	<string name="LoginQuicktimeNotFound">QuickTime not found - unable to initialize.</string>
 	<string name="LoginQuicktimeOK">QuickTime initialized successfully.</string>
+	<string name="LoginRequestSeedCapGrant">Requesting region capabilities...</string>
+	<string name="LoginRetrySeedCapGrant">Requesting region capabilities, attempt [NUMBER]...</string>
 	<string name="LoginWaitingForRegionHandshake">Waiting for region handshake...</string>
 	<string name="LoginConnectingToRegion">Connecting to region...</string>
 	<string name="LoginDownloadingClothing">Downloading clothing...</string>

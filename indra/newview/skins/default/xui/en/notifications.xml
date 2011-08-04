@@ -6810,6 +6810,20 @@ Select residents to share with.
 See the log file for details.
   </notification>
    
+   <notification
+    name="MeshUploadPermError"
+    icon="alert.tga"
+    type="alert">
+    Error while requesting mesh upload permissons.
+  </notification>
+  
+  <notification
+    name="RegionCapabilityRequestError"
+    icon="alert.tga"
+    type="alert">
+    Could not get region capability &apos;[CAPABILITY]&apos;.
+  </notification>
+   
   <notification
    icon="notifytip.tga"
    name="ShareItemsConfirmation"

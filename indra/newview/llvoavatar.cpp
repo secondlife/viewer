@@ -1123,14 +1123,20 @@ void LLVOAvatar::initClass()
 	// Process XML data
 
 	// avatar_skeleton.xml
-	llassert(!sAvatarSkeletonInfo);
+	if (sAvatarSkeletonInfo)
+	{ //this can happen if a login attempt failed
+		delete sAvatarSkeletonInfo;
+	}
 	sAvatarSkeletonInfo = new LLVOAvatarSkeletonInfo;
 	if (!sAvatarSkeletonInfo->parseXml(sSkeletonXMLTree.getRoot()))
 	{
 		llerrs << "Error parsing skeleton XML file: " << skeleton_path << llendl;
 	}
 	// parse avatar_lad.xml
-	llassert(!sAvatarXmlInfo);
+	if (sAvatarXmlInfo)
+	{ //this can happen if a login attempt failed
+		deleteAndClear(sAvatarXmlInfo);
+	}
 	sAvatarXmlInfo = new LLVOAvatarXmlInfo;
 	if (!sAvatarXmlInfo->parseXmlSkeletonNode(root))
 	{
