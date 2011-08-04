@@ -2,27 +2,84 @@
 <floater
  legacy_header_height="18"
  follows="right"
- height="170"
+ height="198"
  layout="topleft"
  name="build options floater"
  help_topic="build_options_floater"
  save_rect="true"
  title="GRID OPTIONS"
  width="264">
+ 	<floater.string
+     name="grid_screen_text">
+        Screen
+    </floater.string>
+    <floater.string
+     name="grid_local_text">
+        Local
+    </floater.string>
+    <floater.string
+     name="grid_world_text">
+        World
+    </floater.string>
+    <floater.string
+     name="grid_reference_text">
+        Reference
+    </floater.string>
+    <floater.string
+     name="grid_attachment_text">
+        Attachment
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="10"
+     tool_tip="Grid opacity"
+     name="grid_opacity_label"
+     top_pad="30"
+     width="123">
+        Mode
+    </text>
+    <combo_box
+     height="23"
+     layout="topleft"
+     left_pad="9"
+     follows="left|top"
+     name="combobox grid mode"
+     tool_tip="Choose the type of grid ruler for positioning the object"
+     top_delta="-3"
+     width="108">
+      <combo_box.item
+       label="World grid"
+       name="World"
+       value="World" />
+      <combo_box.item
+       label="Local grid"
+       name="Local"
+       value="Local" />
+      <combo_box.item
+       label="Reference grid"
+       name="Reference"
+       value="Reference" />
+       <combo_box.commit_callback
+      function="GridOptions.gridMode"/>
+    </combo_box>
     <spinner
      control_name="GridResolution"
      follows="left|top"
      height="23"
      initial_value="1"
-     label="Grid Units (meters)"
-     label_width="160"
+     label="Units (meters)"
+     label_width="130"
      layout="topleft"
      left="10"
      max_val="5"
      min_val="0.01"
      name="GridResolution"
-     top="25"
-     width="230" />
+     top_pad="4"
+     width="200" />
     <spinner
      control_name="GridDrawSize"
      decimal_digits="1"
@@ -30,15 +87,15 @@
      height="23"
      increment="0.5"
      initial_value="5"
-     label="Grid Extents (meters)"
-     label_width="160"
+     label="Extents (meters)"
+     label_width="130"
      layout="topleft"
      left_delta="0"
      max_val="50"
      min_val="1"
      name="GridDrawSize"
      top_pad="0"
-     width="230" />
+     width="200" />
     <check_box
      control_name="GridSubUnit"
      height="16"
