@@ -592,10 +592,10 @@ bool idle_startup()
 		}
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
-		
+
 		//-------------------------------------------------
 		// Init the SOCKS 5 proxy and open the control TCP
-		// connection if the user is using SOCKS 5
+		// connection if the user has configured a Proxy
 		// We need to do this early in case the user is using
 		// socks for HTTP so we get the login screen via SOCKS
 		// We don't do anything if proxy setup was
@@ -604,6 +604,11 @@ bool idle_startup()
 		//-------------------------------------------------
 
 		LLStartUp::handleSocksProxy();
+		// If we started a proxy, try to grab the table files again.
+		if (LLProxy::getInstance()->isHTTPProxyEnabled())
+		{
+			LLFeatureManager::getInstance()->fetchHTTPTables();
+		}
 
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog

@@ -168,6 +168,7 @@ enum LLSocks5AuthType
 
 class LLProxy: public LLSingleton<LLProxy>
 {
+	LOG_CLASS(LLProxy);
 public:
 	LLProxy();
 	~LLProxy();

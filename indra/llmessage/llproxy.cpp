@@ -85,7 +85,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 	socks_auth_request.methods     = getSelectedAuthMethod(); // Send only the selected method.
 
 	result = tcp_handshake(mProxyControlChannel, (char*)&socks_auth_request, sizeof(socks_auth_request), (char*)&socks_auth_response, sizeof(socks_auth_response));
-	if (result != 0)
+	if (result != APR_SUCCESS)
 	{
 		LL_WARNS("Proxy") << "SOCKS authentication request failed, error on TCP control channel : " << result << LL_ENDL;
 		stopSOCKSProxy();
@@ -118,7 +118,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 		result = tcp_handshake(mProxyControlChannel, password_auth, request_size, (char*)&password_reply, sizeof(password_reply));
 		delete[] password_auth;
 
-		if (result != 0)
+		if (result != APR_SUCCESS)
 		{
 			LL_WARNS("Proxy") << "SOCKS authentication failed, error on TCP control channel : " << result << LL_ENDL;
 			stopSOCKSProxy();
@@ -148,7 +148,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy, U32 message_port)
 	//  the client MUST use a port number and address of all zeros. RFC 1928"
 
 	result = tcp_handshake(mProxyControlChannel, (char*)&connect_request, sizeof(connect_request), (char*)&connect_reply, sizeof(connect_reply));
-	if (result != 0)
+	if (result != APR_SUCCESS)
 	{
 		LL_WARNS("Proxy") << "SOCKS connect request failed, error on TCP control channel : " << result << LL_ENDL;
 		stopSOCKSProxy();
@@ -335,7 +335,6 @@ void LLProxy::applyProxySettings(LLCurlEasyRequest* handle)
 	applyProxySettings(handle->getEasy());
 }
 
-
 void LLProxy::applyProxySettings(LLCurl::Easy* handle)
 {
 	applyProxySettings(handle->getCurlHandle());
@@ -373,7 +372,6 @@ void LLProxy::applyProxySettings(CURL* handle)
 
 static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen)
 {
-
 	apr_socket_t* apr_socket = handle->getSocket();
 	apr_status_t rv = APR_SUCCESS;
 
