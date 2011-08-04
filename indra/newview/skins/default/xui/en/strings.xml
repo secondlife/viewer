@@ -3414,6 +3414,34 @@ Abuse Report</string>
   <string name="Female - Stick tougue out">Female - Stick tougue out</string>
   <string name="Female - Wow">Female - Wow</string>
 
+  <string name="/bow">/bow</string>
+  <string name="/clap">/clap</string>
+  <string name="/count">/count</string>
+  <string name="/extinguish">/extinguish</string>
+  <string name="/kmb">/kmb</string>
+  <string name="/muscle">/muscle</string>
+  <string name="/no">/no</string>
+  <string name="/no!">/no!</string>
+  <string name="/paper">/paper</string>
+  <string name="/pointme">/pointme</string>
+  <string name="/pointyou">/pointyou</string>
+  <string name="/rock">/rock</string>
+  <string name="/scissor">/scissor</string>
+  <string name="/smoke">/smoke</string>
+  <string name="/stretch">/stretch</string>
+  <string name="/whistle">/whistle</string>
+  <string name="/yes">/yes</string>
+  <string name="/yes!">/yes!</string>
+  <string name="afk">afk</string>
+  <string name="dance1">dance1</string>
+  <string name="dance2">dance2</string>
+  <string name="dance3">dance3</string>
+  <string name="dance4">dance4</string>
+  <string name="dance5">dance5</string>
+  <string name="dance6">dance6</string>
+  <string name="dance7">dance7</string>
+  <string name="dance8">dance8</string>
+
   <!-- birth date format shared by avatar inspector and profile panels -->
   <string name="AvatarBirthDateFormat">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
   
