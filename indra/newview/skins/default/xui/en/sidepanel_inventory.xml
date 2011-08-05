@@ -35,7 +35,7 @@
                  width="330"
                  follows="bottom|left|right"
                  user_resize="false"
-                 height="480">
+                 height="300">
                  <panel
                       class="panel_main_inventory"
                       filename="panel_main_inventory.xml"
@@ -45,7 +45,7 @@
                       name="panel_main_inventory"
                       top="0"
                       label=""
-                      height="480"
+                      height="300"
                       width="330" />
              </layout_panel>
 					   <layout_panel
@@ -59,7 +59,7 @@
                  min_dim="70"
                  max_dim="235"
                  expanded_min_dim="125"
-                 height="70">
+                 height="235">
 							 <layout_stack
 										follows="left|right|top|bottom"
 										layout="topleft"
@@ -162,7 +162,7 @@
                  min_dim="35"
                  max_dim="200"
                  expanded_min_dim="90"
-                 height="200">
+                 height="35">
                  <panel
                       follows="all"
                       layout="topleft"
