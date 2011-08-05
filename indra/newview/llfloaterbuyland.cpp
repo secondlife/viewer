@@ -530,6 +530,7 @@ void LLFloaterBuyLandUI::updateCovenantInfo()
 	if (region_type)
 	{
 		region_type->setText(region->getLocalizedSimProductName());
+		region_type->setToolTip(region->getLocalizedSimProductName());
 	}
 	
 	LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");
@@ -619,7 +620,8 @@ void LLFloaterBuyLandUI::updateFloaterCovenantText(const std::string &string, co
 void LLFloaterBuyLandUI::updateFloaterEstateName(const std::string& name)
 {
 	LLTextBox* box = getChild<LLTextBox>("estate_name_text");
-	if (box) box->setText(name);
+	box->setText(name);
+	box->setToolTip(name);
 }
 
 void LLFloaterBuyLandUI::updateFloaterLastModified(const std::string& text)

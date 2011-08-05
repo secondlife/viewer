@@ -240,7 +240,8 @@ supports [AMOUNT2] objects
      left_delta="125"
      name="region_type_text"
      top_delta="0"
-     width="175">
+     use_ellipses="true"
+     width="170">
         (unknown)
     </text>
     <text
@@ -265,7 +266,8 @@ supports [AMOUNT2] objects
      left_delta="125"
      name="estate_name_text"
      top_delta="0"
-     width="175">
+     use_ellipses="true"
+     width="170">
         (unknown)
     </text>
     <text
@@ -290,7 +292,8 @@ supports [AMOUNT2] objects
      left_delta="125"
      name="estate_owner_text"
      top_delta="0"
-     width="175">
+     use_ellipses="true"
+     width="170">
         (unknown)
     </text>
     <text
