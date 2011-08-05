@@ -30,6 +30,7 @@
               width="330">
              <layout_panel
                  name="main_inventory_layout_panel"
+								 layout="topleft"
                  min_dim="150"
                  width="330"
                  follows="bottom|left|right"
@@ -47,11 +48,33 @@
                       height="480"
                       width="330" />
              </layout_panel>
-             <layout_panel
+					   <layout_panel
                  width="330"
+								 layout="topleft"
                  auto_resize="true"
                  user_resize="false"
                  follows="bottom|left|right"
+                 name="inbox_outbox_layout_panel"
+                 visible="false"
+                 min_dim="70"
+                 max_dim="235"
+                 expanded_min_dim="125"
+                 height="70">
+							 <layout_stack
+										follows="left|right|top|bottom"
+										layout="topleft"
+										left="0"
+										top="0"
+										orientation="vertical"
+										name="inbox_outbox_layout_stack"
+										height="235"
+										width="330">
+								 <layout_panel
+                 width="330"
+								 layout="topleft"
+                 auto_resize="true"
+                 user_resize="false"
+                 follows="left|right|top"
                  name="inbox_layout_panel"
                  visible="false"
                  min_dim="35"
@@ -72,6 +95,7 @@
                      <string name="InboxLabelNoArg">Received Items</string>
                      <button
                         label="Received Items"
+												font="SansSerifMedium"
                         name="inbox_btn"
                         height="35"
                         width="308"
@@ -96,7 +120,6 @@
                         name="inbox_fresh_new_count"
                         font="SansSerifMedium"
                         halign="right"
-                        text_color="EmphasisColor"
                         top_pad="0"
                         width="300">
                         [NUM] New
@@ -130,9 +153,10 @@
              </layout_panel>
              <layout_panel
                  width="330"
+								 layout="topleft"
                  auto_resize="true"
                  user_resize="false"
-                 follows="bottom|left|right"
+                 follows="all"
                  name="outbox_layout_panel"
                  visible="false"
                  min_dim="35"
@@ -153,6 +177,7 @@
                      <string name="OutboxLabelNoArg">Merchant Outbox</string>
                      <button
                         label="Merchant Outbox"
+												font="SansSerifMedium"
                         name="outbox_btn"
                         height="35"
                         width="308"
@@ -233,6 +258,8 @@
                     </panel>
                  </panel>
              </layout_panel>
+						 </layout_stack>
+						 </layout_panel>
          </layout_stack>
 		<panel
 		     follows="bottom|left|right"

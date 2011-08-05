@@ -66,7 +66,7 @@ void LLInboxInventoryPanel::buildFolderView(const LLInventoryPanel::Params& para
 	
 	LLUUID root_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false);
 	
-	// leslie -- temporary HACK to work around sim not creating inbox and outbox with proper system folder type
+	// leslie -- temporary HACK to work around sim not creating inbox with proper system folder type
 	if (root_id.isNull())
 	{
 		std::string start_folder_name(params.start_folder());
@@ -182,7 +182,7 @@ void LLInboxFolderViewFolder::draw()
 
 void LLInboxFolderViewFolder::updateFlag() const
 {
-	LLDate saved_freshness_date = LLDate(gSavedPerAccountSettings.getString("LastInventoryInboxExpand"));
+	LLDate saved_freshness_date = LLDate(gSavedPerAccountSettings.getString("LastInventoryInboxCollapse"));
 	mFresh = (mCreationDate > saved_freshness_date.secondsSinceEpoch());
 }
 

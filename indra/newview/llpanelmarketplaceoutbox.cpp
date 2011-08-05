@@ -123,6 +123,8 @@ void LLPanelMarketplaceOutbox::setupInventoryPanel()
 		LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_outbox_inventory.xml",
 														  outbox_inventory_parent,
 														  LLInventoryPanel::child_registry_t::instance());
+
+	llassert(mInventoryPanel);
 	
 	// Reshape the inventory to the proper size
 	LLRect inventory_placeholder_rect = outbox_inventory_placeholder->getRect();

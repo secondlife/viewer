@@ -10,10 +10,12 @@
         label="New" 
         label_offset_horiz="-1"
         location="right" 
-        padding_horiz="4" 
-        padding_vert="1"
-        location_offset_hcenter="-15"
-        border_image=""
-        image="Badge_Background_New"
+        padding_horiz="12.5" 
+        padding_vert="2"
+        location_offset_hcenter="-23"
+        border_image="New_Tag_Border"
+				border_color="DkGray2"
+        image="New_Tag_Background"
+				image_color="Black"
         />
 </inbox_folder_view_folder>

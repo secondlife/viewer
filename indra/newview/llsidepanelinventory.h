@@ -29,11 +29,13 @@
 
 #include "llpanel.h"
 
+class LLButton;
 class LLFolderViewItem;
 class LLInboxOutboxAddedObserver;
 class LLInventoryCategoriesObserver;
 class LLInventoryItem;
 class LLInventoryPanel;
+class LLLayoutPanel;
 class LLPanelMainInventory;
 class LLSidepanelItemInfo;
 class LLSidepanelTaskInfo;
@@ -89,6 +91,8 @@ protected:
 
 	void onInboxChanged(const LLUUID& inbox_id);
 	void onOutboxChanged(const LLUUID& outbox_id);
+
+	bool manageInboxOutboxPanels(LLButton * pressedButton, LLLayoutPanel * pressedPanel, LLButton * otherButton, LLLayoutPanel * otherPanel);
 
 	//
 	// UI Elements

@@ -55,7 +55,7 @@ LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 {
 	if (getChild<LLButton>("inbox_btn")->getToggleState())
 	{
-		gSavedPerAccountSettings.setString("LastInventoryInboxExpand", LLDate::now().asString());
+		gSavedPerAccountSettings.setString("LastInventoryInboxCollapse", LLDate::now().asString());
 	}
 }
 
@@ -92,6 +92,8 @@ void LLPanelMarketplaceInbox::setupInventoryPanel()
 		LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_inbox_inventory.xml",
 														  inbox_inventory_parent,
 														  LLInventoryPanel::child_registry_t::instance());
+
+	llassert(mInventoryPanel);
 	
 	// Reshape the inventory to the proper size
 	LLRect inventory_placeholder_rect = inbox_inventory_placeholder->getRect();

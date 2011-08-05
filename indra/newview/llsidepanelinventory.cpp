@@ -66,11 +66,14 @@ static const char * const OUTBOX_BUTTON_NAME = "outbox_btn";
 
 static const char * const INBOX_LAYOUT_PANEL_NAME = "inbox_layout_panel";
 static const char * const OUTBOX_LAYOUT_PANEL_NAME = "outbox_layout_panel";
+
+static const char * const INBOX_OUTBOX_LAYOUT_PANEL_NAME = "inbox_outbox_layout_panel";
 static const char * const MAIN_INVENTORY_LAYOUT_PANEL_NAME = "main_inventory_layout_panel";
 
 static const char * const INBOX_INVENTORY_PANEL = "inventory_inbox";
 static const char * const OUTBOX_INVENTORY_PANEL = "inventory_outbox";
 
+static const char * const INBOX_OUTBOX_LAYOUT_STACK_NAME = "inbox_outbox_layout_stack";
 static const char * const INVENTORY_LAYOUT_STACK_NAME = "inventory_layout_stack";
 
 static const char * const MARKETPLACE_INBOX_PANEL = "marketplace_inbox";
@@ -233,16 +236,20 @@ BOOL LLSidepanelInventory::postBuild()
 	
 	// Marketplace inbox/outbox setup
 	{
-		LLLayoutStack* stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
+		LLLayoutStack* inv_stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
 
 		// Disable user_resize on main inventory panel by default
-		stack->setPanelUserResize(MAIN_INVENTORY_LAYOUT_PANEL_NAME, false);
-		stack->setPanelUserResize(INBOX_LAYOUT_PANEL_NAME, false);
-		stack->setPanelUserResize(OUTBOX_LAYOUT_PANEL_NAME, false);
+		inv_stack->setPanelUserResize(MAIN_INVENTORY_LAYOUT_PANEL_NAME, false);
+		inv_stack->setPanelUserResize(INBOX_OUTBOX_LAYOUT_PANEL_NAME, false);
+
+		// Collapse marketplace panel by default
+		inv_stack->collapsePanel(getChild<LLLayoutPanel>(INBOX_OUTBOX_LAYOUT_PANEL_NAME), true);
+		
+		LLLayoutStack* inout_stack = getChild<LLLayoutStack>(INBOX_OUTBOX_LAYOUT_STACK_NAME);
 
 		// Collapse both inbox and outbox panels
-		stack->collapsePanel(getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME), true);
-		stack->collapsePanel(getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME), true);
+		inout_stack->collapsePanel(getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME), true);
+		inout_stack->collapsePanel(getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME), true);
 		
 		// Set up button states and callbacks
 		LLButton * inbox_button = getChild<LLButton>(INBOX_BUTTON_NAME);
@@ -386,12 +393,22 @@ void LLSidepanelInventory::enableInbox(bool enabled)
 {
 	mInboxEnabled = enabled;
 	getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME)->setVisible(enabled);
+
+	if (mInboxEnabled)
+	{
+		getChild<LLLayoutPanel>(INBOX_OUTBOX_LAYOUT_PANEL_NAME)->setVisible(TRUE);
+	}
 }
 
 void LLSidepanelInventory::enableOutbox(bool enabled)
 {
 	mOutboxEnabled = enabled;
 	getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME)->setVisible(enabled);
+
+	if (mOutboxEnabled)
+	{
+		getChild<LLLayoutPanel>(INBOX_OUTBOX_LAYOUT_PANEL_NAME)->setVisible(TRUE);
+	}
 }
 
 void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
@@ -410,65 +427,88 @@ void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
 
 void LLSidepanelInventory::onOutboxChanged(const LLUUID& outbox_id)
 {
-	// Perhaps use this to track outbox changes?
+	// Expand the outbox since we have new items in it
+	LLPanelMarketplaceInbox * outbox = findChild<LLPanelMarketplaceInbox>(MARKETPLACE_OUTBOX_PANEL);
+	if (outbox)
+	{
+		getChild<LLButton>(OUTBOX_BUTTON_NAME)->setToggleState(true);
+		onToggleOutboxBtn();
+	}	
 }
 
-bool manageInboxOutboxPanels(LLLayoutStack * stack,
-							 LLButton * pressedButton, LLLayoutPanel * pressedPanel,
-							 LLButton * otherButton, LLLayoutPanel * otherPanel)
+bool LLSidepanelInventory::manageInboxOutboxPanels(LLButton * pressedButton, LLLayoutPanel * pressedPanel,
+												   LLButton * otherButton, LLLayoutPanel * otherPanel)
 {
 	bool expand = pressedButton->getToggleState();
 	bool otherExpanded = otherButton->getToggleState();
 
-	//
-	// NOTE: Ideally we could have two panel sizes stored for a collapsed and expanded minimum size.
-	//       For now, leave this code disabled because it creates some bad artifacts when expanding
-	//       and collapsing the inbox/outbox.
-	//
-	//S32 smallMinSize = (expand ? pressedPanel->getMinDim() : otherPanel->getMinDim());
-	//S32 pressedMinSize = (expand ? 2 * smallMinSize : smallMinSize);
-	//otherPanel->setMinDim(smallMinSize);
-	//pressedPanel->setMinDim(pressedMinSize);
+	LLLayoutStack* inv_stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
+	LLLayoutStack* inout_stack = getChild<LLLayoutStack>(INBOX_OUTBOX_LAYOUT_STACK_NAME);
+	LLLayoutPanel* inout_panel = getChild<LLLayoutPanel>(INBOX_OUTBOX_LAYOUT_PANEL_NAME);
 
+	// Enable user_resize on main inventory panel only when a marketplace box is expanded
+	inv_stack->setPanelUserResize(MAIN_INVENTORY_LAYOUT_PANEL_NAME, expand);
+	inv_stack->collapsePanel(inout_panel, !expand);
+
+	// Collapse other marketplace panel if it is expanded
 	if (expand && otherExpanded)
 	{
 		// Reshape pressedPanel to the otherPanel's height so we preserve the marketplace panel size
 		pressedPanel->reshape(pressedPanel->getRect().getWidth(), otherPanel->getRect().getHeight());
 
-		stack->collapsePanel(otherPanel, true);
+		inout_stack->collapsePanel(otherPanel, true);
 		otherButton->setToggleState(false);
 	}
+	else
+	{
+		// NOTE: This is an attempt to reshape the inventory panel to the proper size but it doesn't seem to propagate
+		// propery to the child panels.
 
-	stack->collapsePanel(pressedPanel, !expand);
+		S32 new_height = inout_panel->getRect().getHeight();
 
-	// Enable user_resize on main inventory panel only when a marketplace box is expanded
-	stack->setPanelUserResize(MAIN_INVENTORY_LAYOUT_PANEL_NAME, expand);
+		if (otherPanel->getVisible())
+		{
+			new_height -= otherPanel->getMinDim();
+		}
+
+		pressedPanel->reshape(pressedPanel->getRect().getWidth(), new_height);
+	}
+
+	// Expand/collapse the indicated panel
+	inout_stack->collapsePanel(pressedPanel, !expand);
 
 	return expand;
 }
 
 void LLSidepanelInventory::onToggleInboxBtn()
 {
-	LLLayoutStack* stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
 	LLButton* pressedButton = getChild<LLButton>(INBOX_BUTTON_NAME);
 	LLLayoutPanel* pressedPanel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
 	LLButton* otherButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
 	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
 
-	manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
+	bool inbox_expanded = manageInboxOutboxPanels(pressedButton, pressedPanel, otherButton, otherPanel);
 
-	gSavedPerAccountSettings.setString("LastInventoryInboxExpand", LLDate::now().asString());
+	if (!inbox_expanded)
+	{
+		gSavedPerAccountSettings.setString("LastInventoryInboxCollapse", LLDate::now().asString());
+	}
 }
 
 void LLSidepanelInventory::onToggleOutboxBtn()
 {
-	LLLayoutStack* stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
 	LLButton* pressedButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
 	LLLayoutPanel* pressedPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
 	LLButton* otherButton = getChild<LLButton>(INBOX_BUTTON_NAME);
 	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
 
-	manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
+	bool inbox_was_expanded = otherButton->getToggleState();
+	manageInboxOutboxPanels(pressedButton, pressedPanel, otherButton, otherPanel);
+
+	if (inbox_was_expanded)
+	{
+		gSavedPerAccountSettings.setString("LastInventoryInboxCollapse", LLDate::now().asString());
+	}
 }
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
