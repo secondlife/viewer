@@ -1882,7 +1882,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="RegionNoCovenantOtherOwner">
 		Für diesen Grundbesitz liegt kein Vertrag vor. Das Land auf diesem Grundbesitz wird vom Grundbesitzer und nicht von Linden Lab verkauft.  Für Informationen zum Verkauf setzen Sie sich bitte mit dem Grundbesitzer in Verbindung.
 	</string>
-	<string name="covenant_last_modified" value="Zuletzt geändert:"/>
+	<string name="covenant_last_modified" value="Zuletzt geändert: "/>
 	<string name="none_text" value=" (keiner) "/>
 	<string name="never_text" value=" (nie) "/>
 	<string name="GroupOwned">
