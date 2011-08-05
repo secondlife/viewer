@@ -508,7 +508,9 @@ void LLFloaterBuyLandUI::updateCovenantInfo()
 
 		LLIconCtrl* rating_icon = getChild<LLIconCtrl>("rating_icon");
 		LLRect rect = rating_icon->getRect();
-		S32 icon_left_pad = region_name->getRect().mLeft + region_name->getTextBoundingRect().getWidth() + ICON_PAD;
+		S32 region_name_width = llmin(region_name->getRect().getWidth(), region_name->getTextBoundingRect().getWidth());
+		S32 icon_left_pad = region_name->getRect().mLeft + region_name_width + ICON_PAD;
+		region_name->setToolTip(region_name->getText());
 		rating_icon->setRect(rect.setOriginAndSize(icon_left_pad, rect.mBottom, rect.getWidth(), rect.getHeight()));
 
 		switch(sim_access)
