@@ -3106,6 +3106,7 @@ U32 LLModelPreview::calcResourceCost()
 
 void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)
 {
+	assert_main_thread();
 	childSetTextArg("import_dimensions", "[X]", llformat("%.3f", x));
 	childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", y));
 	childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", z));
@@ -5569,19 +5570,21 @@ void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
 
 void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason)
 {
-	toggleCalculateButton(true);
 	llwarns << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << llendl;
+	doOnIdleOneTime(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, true));
 }
 
 /*virtual*/ 
 void LLFloaterModelPreview::onModelUploadSuccess()
 {
+	assert_main_thread();
 	closeFloater(false);
 }
 
 /*virtual*/ 
 void LLFloaterModelPreview::onModelUploadFailure()
 {
+	assert_main_thread();
 	toggleCalculateButton(true);
 }
 

@@ -411,7 +411,6 @@ public:
 			cc = llsd_from_file("fake_upload_error.xml");
 		}
 
-		//assert_main_thread();
 		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_upload_response_",dump_num));
 		
