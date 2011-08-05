@@ -348,11 +348,10 @@ supports [AMOUNT2] objects
      follows="left|top"
      height="12"
      layout="topleft"
-     left="500"
      name="covenant_timestamp_text"
-     right="725"
+     right="-15"
      top="175"
-     width="275"
+     width="281"
      word_wrap="true" />
     <text_editor
      type="string"
