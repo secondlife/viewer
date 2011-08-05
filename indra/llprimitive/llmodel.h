@@ -219,20 +219,17 @@ public:
 	};
 
 	
-	struct JointPositionalCompare
+	//Are the doubles the same w/in epsilon specified tolerance
+	bool areEqual( double a, double b ) 
 	{
-		//Are the doubles the same w/in epsilon specified tolerance
-		bool areEqual( double a, double b )
-		{
-			const float epsilon = 1e-5f;
-			return (abs((int)(a - b)) < epsilon) && (a < b);
-		}
-		//Make sure that we return false for any values that are within the tolerance for equivalence
-		bool operator() ( const LLVector3& a, const LLVector3& b )
-		{
-			 return ( areEqual( a[0],b[0]) && areEqual( a[1],b[1] ) && areEqual( a[2],b[2]) ) ? false : true;		
-		}
-	};
+		const float epsilon = 1e-5f;
+		return (fabs((a - b)) < epsilon) ? true : false ;
+	}
+	//Make sure that we return false for any values that are within the tolerance for equivalence
+	bool jointPositionalLookup( const LLVector3& a, const LLVector3& b ) 
+	{
+		 return ( areEqual( a[0],b[0]) && areEqual( a[1],b[1] ) && areEqual( a[2],b[2]) ) ? true : false;
+	}
 
 	//copy of position array for this model -- mPosition[idx].mV[X,Y,Z]
 	std::vector<LLVector3> mPosition;
