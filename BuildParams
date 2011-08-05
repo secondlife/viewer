@@ -125,6 +125,8 @@ oz_viewer-devreview.codeticket_add_context = false
 
 oz_project-1.build_debug_release_separately = true
 oz_project-1.codeticket_add_context = false
+oz_project-1.viewer_channel = "Second Life Release"
+oz_project-1.login_channel  = "Second Life Release"
 oz_project-2.build_debug_release_separately = true
 oz_project-2.codeticket_add_context = false
 oz_project-3.build_debug_release_separately = true
