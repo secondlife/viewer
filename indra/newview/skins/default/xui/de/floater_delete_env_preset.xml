@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Delete Env Preset" title="UMGEB.VOREINST. LÖSCHEN">
+	<string name="title_water">
+		Wasser-Voreinstellung löschen
+	</string>
+	<string name="title_sky">
+		Hilmmel-Voreinstellung löschen
+	</string>
+	<string name="title_day_cycle">
+		Tageszyklus löschen
+	</string>
+	<string name="label_water">
+		Voreinstellung:
+	</string>
+	<string name="label_sky">
+		Voreinstellung:
+	</string>
+	<string name="label_day_cycle">
+		Tageszyklus:
+	</string>
+	<string name="msg_confirm_deletion">
+		Möchten Sie die ausgewählte Voreinstellung wirklich löschen?
+	</string>
+	<string name="msg_sky_is_referenced">
+		Eine Voreinstellung, auf die sich ein Tageszyklus bezieht, kann nicht gelöscht werden.
+	</string>
+	<string name="combo_label">
+		-Voreinstellung auswählen-
+	</string>
+	<text name="label">
+		Voreinstellung:
+	</text>
+	<button label="Löschen" name="delete"/>
+	<button label="Abbrechen" name="cancel"/>
+</floater>

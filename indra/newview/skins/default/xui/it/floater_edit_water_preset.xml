@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Water Preset" title="Modifica un valore predefinito acqua">
+	<string name="title_new">
+		Crea un nuovo valore predefinito per l&apos;acqua
+	</string>
+	<string name="title_edit">
+		Modifica un valore predefinito per l&apos;acqua
+	</string>
+	<string name="hint_new">
+		Dai un nome al valore predefinito, modifica i controlli per crearlo e fai clic su &quot;Salva&quot;.
+	</string>
+	<string name="hint_edit">
+		Per modificare il valore predefinito per l&apos;acqua, modifica i controlli e fai clic su &quot;Salva&quot;.
+	</string>
+	<string name="combo_label">
+		-Seleziona un valore predefinito-
+	</string>
+	<text name="hint">
+		Per modificare i valori predefiniti, modifica i controlli e quindi fai clic su &quot;Salva&quot;
+	</text>
+	<text name="label">
+		Nome predefinito:
+	</text>
+	<text name="note">
+		Nota: se cambi il nome del valore predefinito, in realtà ne crei uno nuovo e quello esistente non viene cambiato.
+	</text>
+	<panel name="panel_water_preset">
+		<text name="water_color_label">
+			Colore nebbia acqua
+		</text>
+		<text name="water_fog_density_label">
+			Esponente densità nebbia
+		</text>
+		<text name="underwater_fog_modifier_label">
+			Modificatore nebbia sott&apos;acqua
+		</text>
+		<text name="BHText">
+			Direzione onda grande
+		</text>
+		<slider label="X" name="WaterWave1DirX"/>
+		<slider label="Y" name="WaterWave1DirY"/>
+		<text name="BDensText">
+			Scala wavelet riflesso
+		</text>
+		<text name="HDText">
+			Scala Fresnel
+		</text>
+		<text name="FresnelOffsetText">
+			Spostamento Fresnel
+		</text>
+		<text name="BHText2">
+			Direzione onda piccola
+		</text>
+		<slider label="X" name="WaterWave2DirX"/>
+		<slider label="Y" name="WaterWave2DirY"/>
+		<text name="DensMultText">
+			Scala wavelet sopra
+		</text>
+		<text name="WaterScaleBelowText">
+			Scala wavelet sotto
+		</text>
+		<text name="MaxAltText">
+			Fattore moltiplicativo blu
+		</text>
+		<text name="BHText3">
+			Mappa normale
+		</text>
+	</panel>
+	<check_box label="Usa questo valore predefinito come nuova impostazione per l&apos;acqua" name="make_default_cb"/>
+	<button label="Salva" name="save"/>
+	<button label="Annulla" name="cancel"/>
+</floater>

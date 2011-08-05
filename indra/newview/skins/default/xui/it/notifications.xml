@@ -1555,6 +1555,11 @@ Riprova più tardi.
 			<button name="Cancel" text="Annulla"/>
 		</form>
 	</notification>
+	<notification name="TooManyTeleportOffers">
+		Hai cercato di fare [OFFERS] offerte di teleport,
+più del limite [LIMIT].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OfferTeleportFromGod">
 		Chiedere, in qualità di Admin, al residente di raggiungerti?
 		<form name="form">
@@ -1977,6 +1982,10 @@ Desideri abbandonare la modalità &apos;Occupato&apos; prima di completare quest
 		Vuoi veramente eliminare la cronologia viaggi, web e ricerche fatte?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
+	<notification name="ConfirmClearCache">
+		Sei sicuro di volere cancellare la cache del viewer?
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmClearCookies">
 		Confermi di volere cancellare i tuoi cookie?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Si"/>
@@ -2002,48 +2011,30 @@ Inseriscilo in una pagina web per dare ad altri un accesso facile a questa ubica
 		Vuoi sovrascrivere le preimpostazioni salvate?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Si"/>
 	</notification>
-	<notification name="WLDeletePresetAlert">
-		Vuoi cancellare [SKY]?
-		<usetemplate name="okcancelbuttons" notext="No" yestext="Si"/>
-	</notification>
 	<notification name="WLNoEditDefault">
 		Non puoi modificare o cancellare una preimpostazione di fabbrica.
 	</notification>
 	<notification name="WLMissingSky">
 		Questo file di ciclo giornaliero fa riferimento ad un file di cielo mancante: [SKY].
 	</notification>
+	<notification name="WLRegionApplyFail">
+		Queste impostazioni non possono essere applicare alla regione.  Uscendo dalla regione e ritornandoci potrebbe risolvere il problema.  Il motivo fornito: [FAIL_REASON]
+	</notification>
+	<notification name="EnvCannotDeleteLastDayCycleKey">
+		Impossibile cancellare l&apos;ultima chiave in questo ciclo giornata. Il ciclo giornata non può essere vuoto.  Invece di cancellare la chiave restante, modificala e quindi creane una nuova.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="DayCycleTooManyKeyframes">
+		Non puoi aggiungere altri frame chiave a questo ciclo giornata.  Il numero massimo di frame chiave per i cicli giornata nell&apos;ambito [SCOPE] è [MAX].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="EnvUpdateRate">
+		Puoi aggiornare le impostazioni dell&apos;ambiente della regione ogni [WAIT] secondi.  Attendi e riprova.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="PPSaveEffectAlert">
 		Effetto di post elaborazione già presente. Vuoi sovrascrivere?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Si"/>
-	</notification>
-	<notification name="NewSkyPreset">
-		Fornisci il nome per il nuovo cielo.
-		<form name="form">
-			<input name="message">
-				Nuova preimpostazione
-			</input>
-			<button name="OK" text="OK"/>
-			<button name="Cancel" text="Annulla"/>
-		</form>
-	</notification>
-	<notification name="ExistsSkyPresetAlert">
-		La preimpostazione esiste già!
-	</notification>
-	<notification name="NewWaterPreset">
-		Fornisci il nome per la nuova preregolazione del livello dell&apos;acqua.
-		<form name="form">
-			<input name="message">
-				Nuova preimpostazione
-			</input>
-			<button name="OK" text="OK"/>
-			<button name="Cancel" text="Annulla"/>
-		</form>
-	</notification>
-	<notification name="ExistsWaterPresetAlert">
-		La preimpostazione esiste già!
-	</notification>
-	<notification name="WaterNoEditDefault">
-		Non puoi modificare o cancellare una preimpostazione.
 	</notification>
 	<notification name="ChatterBoxSessionStartError">
 		Impossibile iniziare una nuova sessione di chat con [RECIPIENT].
@@ -2333,6 +2324,9 @@ Qui non puoi volare.
 	</notification>
 	<notification name="NoBuild">
 		In questa zona è proibita la costruzione. Qui non puoi costruire né rezzare oggetti.
+	</notification>
+	<notification name="SeeAvatars">
+		In questo lotto non si possono vedere avatar e chat di testo presenti in altri lotti.   Non puoi vedere altri residenti fuori dal lotto e loro non possono vederti.  Viene bloccata anche la normale chat di testo sul canale 0.
 	</notification>
 	<notification name="ScriptsStopped">
 		Un amministratore ha temporaneamente disabilitato gli script in questa regione.
@@ -2758,7 +2752,9 @@ Il pulsante verrà visualizzato quando lo spazio sarà sufficiente.
 		Scegli i residenti con i quali condividere.
 	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] non è stato caricato: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+		[LABEL] non è stato caricato: [MESSAGE] [IDENTIFIER] 
+
+Per informazioni dettagliate, vedi il file del registro.
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Sei sicuro di volere condividere gli oggetti
