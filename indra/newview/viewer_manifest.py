@@ -63,12 +63,25 @@ class ViewerManifest(LLManifest):
 
                 # include the entire shaders directory recursively
                 self.path("shaders")
-                # inclue the extracted lists of contributors
+                # include the extracted list of contributors
                 contributor_names = self.extract_names("../../doc/contributions.txt")
                 self.put_in_file(contributor_names, "contributors.txt")
-                # inclue the extracted lists of translators
+                # include the extracted list of translators
                 translator_names = self.extract_names("../../doc/translations.txt")
                 self.put_in_file(translator_names, "translators.txt")
+                # include the list of Lindens (if any)
+                #   see https://wiki.lindenlab.com/wiki/Generated_Linden_Credits
+                linden_names_path = os.getenv("linden_credits")
+                if linden_names_path :
+                    try:
+                        linden_file = open(linden_names_path,'r')
+                        linden_names = linden_file.readlines() # all names are on one line
+                        self.put_in_file(linden_names, "lindens.txt")
+                        linden_file.close()
+                    except IOError:
+                        print "No Linden names found at '%s', using built-in list" % linden_names_path
+                        pass
+
                 # ... and the entire windlight directory
                 self.path("windlight")
                 self.end_prefix("app_settings")
