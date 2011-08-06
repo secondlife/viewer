@@ -34,6 +34,15 @@
 
 #include "llselectmgr.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
+
+struct LLCrossParcelFunctor : public LLSelectedObjectFunctor
+{
+	/*virtual*/ bool apply(LLViewerObject* obj)
+	{
+		return obj->crossesParcelBounds();
+	}
+};
 
 /**
  * Class LLLandImpactsObserver
@@ -159,13 +168,30 @@ void LLFloaterObjectWeights::refresh()
 		mSelectedObjects->setText(llformat("%d", link_count));
 		mSelectedPrims->setText(llformat("%d", prim_count));
 
-		LLViewerObject* selected_object = mObjectSelection->getPrimaryObject();
-		if (selected_object)
+		LLCrossParcelFunctor func;
+		if (LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, true))
 		{
-			// Select a parcel at the currently selected object's position.
-			LLViewerParcelMgr::getInstance()->selectParcelAt(selected_object->getPositionGlobal());
+			// Some of the selected objects cross parcel bounds.
+			// We don't display land impacts in this case.
+			const std::string text = getString("nothing_selected");
 
-			toggleLandImpactsLoadingIndicators(true);
+			mSelectedOnLand->setText(text);
+			mRezzedOnLand->setText(text);
+			mRemainingCapacity->setText(text);
+			mTotalCapacity->setText(text);
+
+			toggleLandImpactsLoadingIndicators(false);
+		}
+		else
+		{
+			LLViewerObject* selected_object = mObjectSelection->getFirstObject();
+			if (selected_object)
+			{
+				// Select a parcel at the currently selected object's position.
+				LLViewerParcelMgr::getInstance()->selectParcelAt(selected_object->getPositionGlobal());
+
+				toggleLandImpactsLoadingIndicators(true);
+			}
 		}
 	}
 }
