@@ -536,6 +536,9 @@ public:
 	LLRenderTarget			mHighlight;
 	LLRenderTarget			mPhysicsDisplay;
 
+	//utility buffer for rendering post effects, gets abused by renderDeferredLighting
+	LLPointer<LLVertexBuffer> mDeferredVB;
+
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
 	std::vector<LLVector3>	mShadowFrustPoints[4];
@@ -581,6 +584,7 @@ public:
 
 	LLColor4				mSunDiffuse;
 	LLVector3				mSunDir;
+	LLVector3				mTransformedSunDir;
 
 	BOOL					mInitialized;
 	BOOL					mVertexShadersEnabled;

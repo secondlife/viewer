@@ -362,8 +362,8 @@ void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 {
 	if (align)
 	{
-		//allocate vertices in blocks of 4 for alignment
-		num_vertices = (num_vertices + 0x3) & ~0x3;
+		//allocate vertices in blocks of 16 for alignment
+		num_vertices = (num_vertices + 0xF) & ~0xF;
 	}
 	
 	if (mGeomCount != num_vertices ||
@@ -503,7 +503,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 			glMultMatrixf((GLfloat*)mDrawablep->getRegion()->mRenderMatrix.mMatrix);
 		}
 
-		glColor4fv(color.mV);
+		gGL.diffuseColor4fv(color.mV);
 	
 		if (mDrawablep->isState(LLDrawable::RIGGED))
 		{
@@ -1055,6 +1055,7 @@ static LLFastTimer::DeclareTimer FTM_FACE_GEOM_POSITION("Position");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_NORMAL("Normal");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_TEXTURE("Texture");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_COLOR("Color");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_EMISSIVE("Emissive");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_WEIGHTS("Weights");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_BINORMAL("Binormal");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX("Index");
@@ -1124,6 +1125,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 	bool rebuild_pos = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_POSITION);
 	bool rebuild_color = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_COLOR);
+	bool rebuild_emissive = rebuild_color && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE);
 	bool rebuild_tcoord = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
 	bool rebuild_normal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
 	bool rebuild_binormal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_BINORMAL);
@@ -1758,6 +1760,44 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 	}
 
+	if (rebuild_emissive)
+	{
+		LLFastTimer t(FTM_FACE_GEOM_EMISSIVE);
+		LLStrider<U8> emissive;
+		mVertexBuffer->getEmissiveStrider(emissive, mGeomIndex, mGeomCount, map_range);
+
+		U8 glow = (U8) llclamp((S32) (getTextureEntry()->getGlow()*255), 0, 255);
+
+		LLVector4a src;
+
+		
+		U32 glow32 = glow |
+					 (glow << 8) |
+					 (glow << 16) |
+					 (glow << 24);
+
+		U32 vec[4];
+		vec[0] = vec[1] = vec[2] = vec[3] = glow32;
+		
+		src.loadua((F32*) vec);
+
+		LLVector4a* dst = (LLVector4a*) emissive.get();
+		S32 num_vecs = num_vertices/16;
+		if (num_vertices%16 > 0)
+		{
+			++num_vecs;
+		}
+
+		for (S32 i = 0; i < num_vecs; i++)
+		{	
+			dst[i] = src;
+		}
+
+		if (map_range)
+		{
+			mVertexBuffer->setBuffer(0);
+		}
+	}
 	if (rebuild_tcoord)
 	{
 		mTexExtents[0].setVec(0,0);
@@ -2095,7 +2135,7 @@ void LLFace::renderSetColor() const
 	{
 		const LLColor4* color = &(getRenderColor());
 		
-		glColor4fv(color->mV);
+		gGL.diffuseColor4fv(color->mV);
 	}
 }
 

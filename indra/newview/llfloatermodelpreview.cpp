@@ -4826,7 +4826,7 @@ BOOL LLModelPreview::render()
 
 					if (textures)
 					{
-						glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
+						gGL.diffuseColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
 						if (i < instance.mMaterial.size() && instance.mMaterial[i].mDiffuseMap.notNull())
 						{
 							if (instance.mMaterial[i].mDiffuseMap->getDiscardLevel() > -1)
@@ -4838,12 +4838,12 @@ BOOL LLModelPreview::render()
 					}
 					else
 					{
-						glColor4f(1,1,1,1);
+						gGL.diffuseColor4f(1,1,1,1);
 					}
 
 					buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-					glColor3f(0.4f, 0.4f, 0.4f);
+					gGL.diffuseColor3f(0.4f, 0.4f, 0.4f);
 
 					if (edges)
 					{
@@ -4945,11 +4945,11 @@ BOOL LLModelPreview::render()
 
 							buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 							gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-							glColor4f(0.4f, 0.4f, 0.0f, 0.4f);
+							gGL.diffuseColor4f(0.4f, 0.4f, 0.0f, 0.4f);
 
 							buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 
-							glColor3f(1.f, 1.f, 0.f);
+							gGL.diffuseColor3f(1.f, 1.f, 0.f);
 
 							glLineWidth(2.f);
 							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -4969,7 +4969,7 @@ BOOL LLModelPreview::render()
 				//show degenerate triangles
 				LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
 				LLGLDisable cull(GL_CULL_FACE);
-				glColor4f(1.f,0.f,0.f,1.f);
+				gGL.diffuseColor4f(1.f,0.f,0.f,1.f);
 				const LLVector4a scale(0.5f);
 
 				for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
@@ -5133,10 +5133,10 @@ BOOL LLModelPreview::render()
 							}
 
 							buffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0);
-							glColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
+							gGL.diffuseColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
 							gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 							buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
-							glColor3f(0.4f, 0.4f, 0.4f);
+							gGL.diffuseColor3f(0.4f, 0.4f, 0.4f);
 
 							if (edges)
 							{

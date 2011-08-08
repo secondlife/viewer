@@ -130,6 +130,7 @@ S32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 	sizeof(LLVector2), // TYPE_TEXCOORD2,
 	sizeof(LLVector2), // TYPE_TEXCOORD3,
 	sizeof(LLColor4U), // TYPE_COLOR,
+	sizeof(U8),		   // TYPE_EMISSIVE
 	sizeof(LLVector4), // TYPE_BINORMAL,
 	sizeof(F32),	   // TYPE_WEIGHT,
 	sizeof(LLVector4), // TYPE_WEIGHT4,
@@ -156,36 +157,79 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 		llerrs << "Cannot use LLGLImmediate and LLVertexBuffer simultaneously!" << llendl;
 	}*/
 
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
 	if (sLastMask != data_mask)
 	{
+		llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+		static LLGLSLShader* last_shader = LLGLSLShader::sCurBoundShaderPtr;
+		llassert(sLastMask == 0 || last_shader == shader);
+		last_shader = shader;
+
 		U32 mask[] =
 		{
 			MAP_VERTEX,
 			MAP_NORMAL,
 			MAP_TEXCOORD0,
 			MAP_COLOR,
+			MAP_EMISSIVE,
+			MAP_WEIGHT,
+			MAP_WEIGHT4,
+			MAP_BINORMAL,
+			MAP_CLOTHWEIGHT,
 		};
 		
+		U32 type[] =
+		{
+			TYPE_VERTEX,
+			TYPE_NORMAL,
+			TYPE_TEXCOORD0,
+			TYPE_COLOR,
+			TYPE_EMISSIVE,
+			TYPE_WEIGHT,
+			TYPE_WEIGHT4,
+			TYPE_BINORMAL,
+			TYPE_CLOTHWEIGHT,
+		};
+
 		GLenum array[] =
 		{
 			GL_VERTEX_ARRAY,
 			GL_NORMAL_ARRAY,
 			GL_TEXTURE_COORD_ARRAY,
 			GL_COLOR_ARRAY,
+			0,
+			0,
+			0,
+			0,
+			0,
 		};
 
 		BOOL error = FALSE;
-		for (U32 i = 0; i < 4; ++i)
+		for (U32 i = 0; i < 9; ++i)
 		{
+			S32 loc = -1;
+			if (shader)
+			{
+				loc = shader->getAttribLocation(type[i]);
+			}
+
 			if (sLastMask & mask[i])
 			{ //was enabled
-				if (!(data_mask & mask[i]) && i > 0)
+				if (!(data_mask & mask[i]))
 				{ //needs to be disabled
-					glDisableClientState(array[i]);
+					if (loc >= 0)
+					{
+						glDisableVertexAttribArrayARB(loc);
+					}
+					else if (!shader)
+					{
+						glDisableClientState(array[i]);
+					}
 				}
-				else if (gDebugGL)
-				{ //needs to be enabled, make sure it was (DEBUG TEMPORARY)
-					if (i > 0 && !glIsEnabled(array[i]))
+				else if (gDebugGL && !shader && array[i])
+				{ //needs to be enabled, make sure it was (DEBUG)
+					if (loc < 0 && !glIsEnabled(array[i]))
 					{
 						if (gDebugSession)
 						{
@@ -201,11 +245,18 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 			}
 			else 
 			{	//was disabled
-				if (data_mask & mask[i] && i > 0)
+				if (data_mask & mask[i])
 				{ //needs to be enabled
-					glEnableClientState(array[i]);
+					if (loc >= 0)
+					{
+						glEnableVertexAttribArrayARB(loc);
+					}
+					else if (!shader)
+					{
+						glEnableClientState(array[i]);
+					}
 				}
-				else if (gDebugGL && i > 0 && glIsEnabled(array[i]))
+				else if (!shader && array[i] && gDebugGL && glIsEnabled(array[i]))
 				{ //needs to be disabled, make sure it was (DEBUG TEMPORARY)
 					if (gDebugSession)
 					{
@@ -232,62 +283,71 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 			MAP_TEXCOORD3
 		};
 
+		U32 type_tc[] = 
+		{
+			TYPE_TEXCOORD1,
+			TYPE_TEXCOORD2,
+			TYPE_TEXCOORD3
+		};
+
 		for (U32 i = 0; i < 3; i++)
 		{
+			S32 loc = -1;
+			if (shader)
+			{
+				loc = shader->getAttribLocation(type_tc[i]);
+			}
+
 			if (sLastMask & map_tc[i])
 			{
 				if (!(data_mask & map_tc[i]))
-				{
-					glClientActiveTextureARB(GL_TEXTURE1_ARB+i);
-					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-					glClientActiveTextureARB(GL_TEXTURE0_ARB);
+				{ //disable
+					if (loc >= 0)
+					{
+						glDisableVertexAttribArrayARB(loc);
+					}
+					else if (!shader)
+					{
+						glClientActiveTextureARB(GL_TEXTURE1_ARB+i);
+						glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+						glClientActiveTextureARB(GL_TEXTURE0_ARB);
+					}
 				}
 			}
 			else if (data_mask & map_tc[i])
 			{
-				glClientActiveTextureARB(GL_TEXTURE1_ARB+i);
+				if (loc >= 0)
+				{
+					glEnableVertexAttribArrayARB(loc);
+				}
+				else if (!shader)
+				{
+					glClientActiveTextureARB(GL_TEXTURE1_ARB+i);
+					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+					glClientActiveTextureARB(GL_TEXTURE0_ARB);
+				}
+			}
+		}
+
+		if (!shader)
+		{
+			if (sLastMask & MAP_BINORMAL)
+			{
+				if (!(data_mask & MAP_BINORMAL))
+				{
+					glClientActiveTextureARB(GL_TEXTURE2_ARB);
+					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+					glClientActiveTextureARB(GL_TEXTURE0_ARB);
+				}
+			}
+			else if (data_mask & MAP_BINORMAL)
+			{
+				glClientActiveTextureARB(GL_TEXTURE2_ARB);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glClientActiveTextureARB(GL_TEXTURE0_ARB);
 			}
 		}
-
-		if (sLastMask & MAP_BINORMAL)
-		{
-			if (!(data_mask & MAP_BINORMAL))
-			{
-				glClientActiveTextureARB(GL_TEXTURE2_ARB);
-				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glClientActiveTextureARB(GL_TEXTURE0_ARB);
-			}
-		}
-		else if (data_mask & MAP_BINORMAL)
-		{
-			glClientActiveTextureARB(GL_TEXTURE2_ARB);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glClientActiveTextureARB(GL_TEXTURE0_ARB);
-		}
-	
-		if (sLastMask & MAP_WEIGHT4)
-		{
-			if (sWeight4Loc < 0)
-			{
-				llerrs << "Weighting disabled but vertex buffer still bound!" << llendl;
-			}
-
-			if (!(data_mask & MAP_WEIGHT4))
-			{ //disable 4-component skin weight			
-				glDisableVertexAttribArrayARB(sWeight4Loc);
-			}
-		}
-		else if (data_mask & MAP_WEIGHT4)
-		{
-			if (sWeight4Loc >= 0)
-			{ //enable 4-component skin weight
-				glEnableVertexAttribArrayARB(sWeight4Loc);
-			}
-		}
-				
-
+		
 		sLastMask = data_mask;
 	}
 }
@@ -1592,6 +1652,10 @@ bool LLVertexBuffer::getColorStrider(LLStrider<LLColor4U>& strider, S32 index, S
 {
 	return VertexBufferStrider<LLColor4U,TYPE_COLOR>::get(*this, strider, index, count, map_range);
 }
+bool LLVertexBuffer::getEmissiveStrider(LLStrider<U8>& strider, S32 index, S32 count, bool map_range)
+{
+	return VertexBufferStrider<U8,TYPE_EMISSIVE>::get(*this, strider, index, count, map_range);
+}
 bool LLVertexBuffer::getWeightStrider(LLStrider<F32>& strider, S32 index, S32 count, bool map_range)
 {
 	return VertexBufferStrider<F32,TYPE_WEIGHT>::get(*this, strider, index, count, map_range);
@@ -1810,46 +1874,166 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 		llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
 	}
 
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	//assert that fixed function is allowed OR a shader is currently bound
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
 	if (data_mask & MAP_NORMAL)
 	{
-		glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
+		S32 loc = -1;
+		if (shader)
+		{
+			loc = shader->getAttribLocation(TYPE_NORMAL);
+		}
+
+		if (loc >= 0)
+		{
+			glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
+		}
+		else if (!shader)
+		{
+			glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
+		}
 	}
 	if (data_mask & MAP_TEXCOORD3)
 	{
-		glClientActiveTextureARB(GL_TEXTURE3_ARB);
-		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD3], (void*)(base + mOffsets[TYPE_TEXCOORD3]));
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		S32 loc = -1;
+		if (shader)
+		{
+			loc = shader->getAttribLocation(TYPE_TEXCOORD3);
+		}
+
+		if (loc >= 0)
+		{
+			glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD3], (void*)(base + mOffsets[TYPE_TEXCOORD3]));
+		}
+		else if (!shader)
+		{
+			glClientActiveTextureARB(GL_TEXTURE3_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD3], (void*)(base + mOffsets[TYPE_TEXCOORD3]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
 	}
 	if (data_mask & MAP_TEXCOORD2)
 	{
-		glClientActiveTextureARB(GL_TEXTURE2_ARB);
-		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD2], (void*)(base + mOffsets[TYPE_TEXCOORD2]));
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		S32 loc = -1;
+		if (shader)
+		{
+			loc = shader->getAttribLocation(TYPE_TEXCOORD2);
+		}
+
+		if (loc >= 0)
+		{
+			glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD2], (void*)(base + mOffsets[TYPE_TEXCOORD2]));
+		}
+		else if (!shader)
+		{
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD2], (void*)(base + mOffsets[TYPE_TEXCOORD2]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
 	}
 	if (data_mask & MAP_TEXCOORD1)
 	{
-		glClientActiveTextureARB(GL_TEXTURE1_ARB);
-		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		S32 loc = -1;
+		if (shader)
+		{
+			loc = shader->getAttribLocation(TYPE_TEXCOORD1);
+		}
+
+		if (loc >= 0)
+		{
+			glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
+		}
+		else if (!shader)
+		{
+			glClientActiveTextureARB(GL_TEXTURE1_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
 	}
 	if (data_mask & MAP_BINORMAL)
 	{
-		glClientActiveTextureARB(GL_TEXTURE2_ARB);
-		glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		S32 loc = -1;
+		if (shader)
+		{
+			loc = shader->getAttribLocation(TYPE_BINORMAL);
+		}
+
+		if (loc >= 0)
+		{
+			glVertexAttribPointerARB(loc, 3,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
+		}
+		else if (!shader)
+		{
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
 	}
 	if (data_mask & MAP_TEXCOORD0)
 	{
-		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+		S32 loc = -1;
+		if (shader)
+		{
+			loc = shader->getAttribLocation(TYPE_TEXCOORD0);
+		}
+
+		if (loc >= 0)
+		{
+			glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+		}
+		else if (!shader)
+		{
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+		}
 	}
 	if (data_mask & MAP_COLOR)
 	{
-		glColorPointer(4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeSize[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
+		S32 loc = -1;
+		if (shader)
+		{
+			loc = shader->getAttribLocation(TYPE_COLOR);
+		}
+
+		if (loc >= 0)
+		{
+			glVertexAttribPointerARB(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
+		}
+		else if (!shader)
+		{
+			glColorPointer(4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeSize[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
+		}
 	}
-	
+	if (data_mask & MAP_EMISSIVE)
+	{
+		S32 loc = -1;
+		if (shader)
+		{
+			loc = shader->getAttribLocation(TYPE_EMISSIVE);
+		}
+
+		if (loc >= 0)
+		{
+			glVertexAttribPointerARB(loc, 1, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], (void*)(base + mOffsets[TYPE_EMISSIVE]));
+		}
+	}
 	if (data_mask & MAP_WEIGHT)
 	{
-		glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
+		S32 loc = -1;
+		if (shader)
+		{
+			loc = shader->getAttribLocation(TYPE_WEIGHT);
+		}
+
+		if (loc < 0)
+		{ //legacy behavior, some shaders have weight hardcoded to location 1
+			loc = 1;
+		}
+		
+		glVertexAttribPointerARB(loc, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
+		
 	}
 
 	if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
@@ -1859,17 +2043,47 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 
 	if (data_mask & MAP_CLOTHWEIGHT)
 	{
-		glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+		S32 loc = -1;
+		if (shader)
+		{
+			loc = shader->getAttribLocation(TYPE_CLOTHWEIGHT);
+		}
+
+		if (loc < 0)
+		{ //legacy behavior, some shaders have weight hardcoded to location 4
+			loc = 4;
+		}
+		glVertexAttribPointerARB(loc, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
 	}
 	if (data_mask & MAP_VERTEX)
 	{
-		if (data_mask & MAP_TEXTURE_INDEX)
+		S32 loc = -1;
+		if (shader)
 		{
-			glVertexPointer(4,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+			loc = shader->getAttribLocation(TYPE_VERTEX);
 		}
-		else
+
+		if (loc >= 0)
 		{
-			glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+			if (data_mask & MAP_TEXTURE_INDEX)
+			{
+				glVertexAttribPointerARB(loc, 4,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+			}
+			else
+			{
+				glVertexAttribPointerARB(loc, 3,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+			}
+		}
+		else if (!shader)
+		{
+			if (data_mask & MAP_TEXTURE_INDEX)
+			{
+				glVertexPointer(4,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+			}
+			else
+			{
+				glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+			}
 		}
 	}
 

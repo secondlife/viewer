@@ -59,6 +59,12 @@ public:
 	// virtual
 	void setupVertexBuffer(U32 data_mask) const
 	{	
+		if (LLGLSLShader::sNoFixedFunction)
+		{ //just use default if shaders are in play
+			LLVertexBuffer::setupVertexBuffer(data_mask & ~(MAP_TEXCOORD2 | MAP_TEXCOORD3));
+			return;
+		}
+
 		U8* base = useVBOs() ? (U8*) mAlignedOffset : mMappedData;
 
 		//assume tex coords 2 and 3 are present

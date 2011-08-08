@@ -31,6 +31,7 @@
 #include "llshadermgr.h"
 #include "llfile.h"
 #include "llrender.h"
+#include "llvertexbuffer.h"
 
 #if LL_DARWIN
 #include "OpenGL/OpenGL.h"
@@ -386,6 +387,7 @@ void LLGLSLShader::bind()
 	gGL.flush();
 	if (gGLManager.mHasShaderObjects)
 	{
+		LLVertexBuffer::unbind();
 		glUseProgramObjectARB(mProgramObject);
 		sCurBoundShader = mProgramObject;
 		sCurBoundShaderPtr = this;
@@ -411,6 +413,7 @@ void LLGLSLShader::unbind()
 				stop_glerror();
 			}
 		}
+		LLVertexBuffer::unbind();
 		glUseProgramObjectARB(0);
 		sCurBoundShader = 0;
 		sCurBoundShaderPtr = NULL;
@@ -420,6 +423,7 @@ void LLGLSLShader::unbind()
 
 void LLGLSLShader::bindNoShader(void)
 {
+	LLVertexBuffer::unbind();
 	glUseProgramObjectARB(0);
 	sCurBoundShader = 0;
 	sCurBoundShaderPtr = NULL;
