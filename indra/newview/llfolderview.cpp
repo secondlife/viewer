@@ -369,16 +369,6 @@ void LLFolderView::closeAllFolders()
 	arrangeAll();
 }
 
-void LLFolderView::openFolder(const std::string& foldername)
-{
-	LLFolderViewFolder* inv = findChild<LLFolderViewFolder>(foldername);
-	if (inv)
-	{
-		setSelection(inv, FALSE, FALSE);
-		inv->setOpen(TRUE);
-	}
-}
-
 void LLFolderView::openTopLevelFolders()
 {
 	for (folders_t::iterator iter = mFolders.begin();
@@ -720,8 +710,10 @@ void LLFolderView::extendSelection(LLFolderViewItem* selection, LLFolderViewItem
 	mSignalSelectCallback = SIGNAL_KEYBOARD_FOCUS;
 }
 
+static LLFastTimer::DeclareTimer FTM_SANITIZE_SELECTION("Sanitize Selection");
 void LLFolderView::sanitizeSelection()
 {
+	LLFastTimer _(FTM_SANITIZE_SELECTION);
 	// store off current item in case it is automatically deselected
 	// and we want to preserve context
 	LLFolderViewItem* original_selected_item = getCurSelectedItem();
