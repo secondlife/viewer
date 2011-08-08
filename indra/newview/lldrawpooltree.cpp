@@ -65,17 +65,18 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 		
 	if (LLPipeline::sUnderWaterRender)
 	{
-		shader = &gObjectAlphaMaskNonIndexedWaterProgram;
+		shader = &gTreeWaterProgram;
 	}
 	else
 	{
-		shader = &gObjectAlphaMaskNonIndexedProgram;
+		shader = &gTreeProgram;
 	}
 
 	if (gPipeline.canUseVertexShaders())
 	{
 		shader->bind();
 		shader->setAlphaRange(0.5f, 1.f);
+		gGL.diffuseColor4f(1,1,1,1);
 	}
 	else
 	{

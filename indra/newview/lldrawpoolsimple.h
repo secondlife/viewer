@@ -118,7 +118,8 @@ public:
 	enum
 	{
 		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_TEXCOORD0
+							LLVertexBuffer::MAP_TEXCOORD0 |
+							LLVertexBuffer::MAP_EMISSIVE
 	};
 
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
@@ -129,6 +130,8 @@ public:
 	/*virtual*/ void beginPostDeferredPass(S32 pass); 
 	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass);
+
+	/*virtual*/ S32 getNumPasses();
 
 	void render(S32 pass = 0);
 	void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);

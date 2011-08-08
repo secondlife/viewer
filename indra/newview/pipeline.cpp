@@ -138,7 +138,7 @@ const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
 const S32 MAX_OFFSCREEN_GEOMETRY_CHANGES_PER_FRAME = 10;
 const U32 REFLECTION_MAP_RES = 128;
-
+const U32 DEFERRED_VB_MASK = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1;
 // Max number of occluders to search for. JC
 const S32 MAX_OCCLUDER_COUNT = 2;
 
@@ -457,6 +457,8 @@ void LLPipeline::init()
 		mSpotLightFade[i] = 1.f;
 	}
 
+	mDeferredVB = new LLVertexBuffer(DEFERRED_VB_MASK, 0);
+	mDeferredVB->allocateBuffer(3, 0, true);
 	setLightingDetail(-1);
 }
 
@@ -535,6 +537,8 @@ void LLPipeline::cleanup()
 	mMovedBridge.clear();
 
 	mInitialized = FALSE;
+
+	mDeferredVB = NULL;
 }
 
 //============================================================================
@@ -6926,6 +6930,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, LLRen
 	shader.uniform1f("lum_scale", gSavedSettings.getF32("RenderLuminanceScale"));
 	shader.uniform1f("sun_lum_scale", gSavedSettings.getF32("RenderSunLuminanceScale"));
 	shader.uniform1f("sun_lum_offset", gSavedSettings.getF32("RenderSunLuminanceOffset"));
+	shader.uniform3fv("sun_dir", 1, mTransformedSunDir.mV);
 	shader.uniform1f("lum_lod", gSavedSettings.getF32("RenderLuminanceDetail"));
 	shader.uniform1f("gi_range", gSavedSettings.getF32("RenderGIRange"));
 	shader.uniform1f("gi_brightness", gSavedSettings.getF32("RenderGIBrightness"));
@@ -7000,21 +7005,23 @@ void LLPipeline::renderDeferredLighting()
 
 		glh::matrix4f mat = glh_copy_matrix(gGLModelView);
 
-		F32 vert[] = 
-		{
-			-1,1,
-			-1,-3,
-			3,1,
-		};
-		glVertexPointer(2, GL_FLOAT, 0, vert);
-		glColor3f(1,1,1);
+		LLStrider<LLVector3> vert; 
+		mDeferredVB->getVertexStrider(vert);
+		LLStrider<LLVector2> tc0;
+		LLStrider<LLVector2> tc1;
+		mDeferredVB->getTexCoord0Strider(tc0);
+		mDeferredVB->getTexCoord1Strider(tc1);
 
+		vert[0].set(-1,1,0);
+		vert[1].set(-1,-3,0);
+		vert[2].set(3,1,0);
+		
 		{
 			setupHWLights(NULL); //to set mSunDir;
 			LLVector4 dir(mSunDir, 0.f);
 			glh::vec4f tc(dir.mV);
 			mat.mult_matrix_vec(tc);
-			glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], 0);
+			mTransformedSunDir.set(dir.mV);
 		}
 
 		glPushMatrix();
@@ -7278,10 +7285,10 @@ void LLPipeline::renderDeferredLighting()
 				glPushMatrix();
 				glLoadIdentity();
 
-				glVertexPointer(2, GL_FLOAT, 0, vert);
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 				
-				glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-				
+				mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
 				glPopMatrix();
 				glMatrixMode(GL_MODELVIEW);
 				glPopMatrix();
@@ -7290,7 +7297,7 @@ void LLPipeline::renderDeferredLighting()
 			unbindDeferredShader(gDeferredSoftenProgram);
 		}
 
-		{ //render sky
+		{ //render non-deferred geometry (fullbright, alpha, etc)
 			LLGLDisable blend(GL_BLEND);
 			LLGLDisable stencil(GL_STENCIL_TEST);
 			gGL.setSceneBlendType(LLRender::BT_ALPHA);
@@ -7419,7 +7426,7 @@ void LLPipeline::renderDeferredLighting()
 							
 							LLFastTimer ftm(FTM_LOCAL_LIGHTS);
 							glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], s*s);
-							glColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
+							gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
 							glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
 								GL_UNSIGNED_BYTE, get_box_fan_indices_ptr(camera, center));
 							stop_glerror();
@@ -7485,7 +7492,7 @@ void LLPipeline::renderDeferredLighting()
 					v[21] = c[0]+s; v[22] = c[1]+s; v[23] = c[2]+s; // 7 - 0111
 
 					glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], s*s);
-					glColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
+					gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
 					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
 							GL_UNSIGNED_BYTE, get_box_fan_indices_ptr(camera, center));
 				}
@@ -7496,6 +7503,8 @@ void LLPipeline::renderDeferredLighting()
 			{
 				bindDeferredShader(gDeferredMultiLightProgram);
 			
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+
 				LLGLDepthTest depth(GL_FALSE);
 
 				//full screen blit
@@ -7511,7 +7520,7 @@ void LLPipeline::renderDeferredLighting()
 				LLVector4 light[max_count];
 				LLVector4 col[max_count];
 
-				glVertexPointer(2, GL_FLOAT, 0, vert);
+//				glVertexPointer(2, GL_FLOAT, 0, vert);
 
 				F32 far_z = 0.f;
 
@@ -7534,7 +7543,8 @@ void LLPipeline::renderDeferredLighting()
 						gDeferredMultiLightProgram.uniform1f("far_z", far_z);
 						far_z = 0.f;
 						count = 0;
-						glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+						
+						mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 					}
 				}
 				
@@ -7566,7 +7576,7 @@ void LLPipeline::renderDeferredLighting()
 					col *= volume->getLightIntensity();
 
 					glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], s*s);
-					glColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
+					gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
 					glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
 				}
 
@@ -7603,8 +7613,8 @@ void LLPipeline::renderDeferredLighting()
 
 				LLVertexBuffer::unbind();
 
-				glVertexPointer(2, GL_FLOAT, 0, vert);
-				glColor3f(1,1,1);
+//				glVertexPointer(2, GL_FLOAT, 0, vert);
+				gGL.diffuseColor3f(1,1,1);
 
 				glPushMatrix();
 				glLoadIdentity();
@@ -8240,7 +8250,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			
-	glColor4f(1,1,1,1);
+	gGL.diffuseColor4f(1,1,1,1);
 	
 	stop_glerror();
 
@@ -8284,7 +8294,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gDeferredShadowAlphaMaskProgram.bind();
 		gDeferredShadowAlphaMaskProgram.setAlphaRange(0.6f, 1.f);
 		renderObjects(LLRenderPass::PASS_ALPHA_SHADOW, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR, TRUE);
-		glColor4f(1,1,1,1);
+		gGL.diffuseColor4f(1,1,1,1);
 		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
 	}
 

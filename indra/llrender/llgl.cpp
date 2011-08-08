@@ -1329,8 +1329,6 @@ void LLGLState::initClass()
 
 	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
 	glDisable(GL_MULTISAMPLE_ARB);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
 }
 
 //static
@@ -1604,7 +1602,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 
 void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 {
-	if (!gDebugGL)
+	if (!gDebugGL || LLGLSLShader::sNoFixedFunction)
 	{
 		return;
 	}
@@ -1661,7 +1659,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 	};
 
 
-	for (S32 j = 0; j < 4; j++)
+	for (S32 j = 1; j < 4; j++)
 	{
 		if (glIsEnabled(value[j]))
 		{
@@ -1874,79 +1872,6 @@ void LLGLManager::initGLStates()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void enable_vertex_weighting(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glEnableVertexAttribArrayARB(index);	// vertex weights
-#endif
-}
-
-void disable_vertex_weighting(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glDisableVertexAttribArrayARB(index);	// vertex weights
-#endif
-}
-
-void enable_binormals(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0)
-	{
-		glEnableVertexAttribArrayARB(index);	// binormals
-	}
-#endif
-}
-
-void disable_binormals(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0)
-	{
-		glDisableVertexAttribArrayARB(index);	// binormals
-	}
-#endif
-}
-
-
-void enable_cloth_weights(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0)	glEnableVertexAttribArrayARB(index);
-#endif
-}
-
-void disable_cloth_weights(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glDisableVertexAttribArrayARB(index);
-#endif
-}
-
-void set_vertex_weights(const S32 index, const U32 stride, const F32 *weights)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glVertexAttribPointerARB(index, 1, GL_FLOAT, FALSE, stride, weights);
-	stop_glerror();
-#endif
-}
-
-void set_vertex_clothing_weights(const S32 index, const U32 stride, const LLVector4 *weights)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glVertexAttribPointerARB(index, 4, GL_FLOAT, TRUE, stride, weights);
-	stop_glerror();
-#endif
-}
-
-void set_binormals(const S32 index, const U32 stride,const LLVector3 *binormals)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glVertexAttribPointerARB(index, 3, GL_FLOAT, FALSE, stride, binormals);
-	stop_glerror();
-#endif
-}
 
 void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific )
 {

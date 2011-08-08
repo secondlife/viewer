@@ -133,6 +133,12 @@ public:
 	static S32 calcOffsets(const U32& typemask, S32* offsets, S32 num_vertices);		
 
 	
+	//WARNING -- when updating these enums you MUST 
+	// 1 - update LLVertexBuffer::sTypeSize
+	// 2 - add a strider accessor
+	// 3 - modify LLVertexBuffer::setupVertexBuffer
+	// 4 - modify LLVertexBuffer::setupClientArray
+	// 5 - modify LLViewerShaderMgr::mReservedAttribs
 	enum {
 		TYPE_VERTEX,
 		TYPE_NORMAL,
@@ -141,6 +147,7 @@ public:
 		TYPE_TEXCOORD2,
 		TYPE_TEXCOORD3,
 		TYPE_COLOR,
+		TYPE_EMISSIVE,
 		// These use VertexAttribPointer and should possibly be made generic
 		TYPE_BINORMAL,
 		TYPE_WEIGHT,
@@ -160,6 +167,7 @@ public:
 		MAP_TEXCOORD2 = (1<<TYPE_TEXCOORD2),
 		MAP_TEXCOORD3 = (1<<TYPE_TEXCOORD3),
 		MAP_COLOR = (1<<TYPE_COLOR),
+		MAP_EMISSIVE = (1<<TYPE_EMISSIVE),
 		// These use VertexAttribPointer and should possibly be made generic
 		MAP_BINORMAL = (1<<TYPE_BINORMAL),
 		MAP_WEIGHT = (1<<TYPE_WEIGHT),
@@ -218,10 +226,12 @@ public:
 	bool getNormalStrider(LLStrider<LLVector3>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	bool getBinormalStrider(LLStrider<LLVector3>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	bool getColorStrider(LLStrider<LLColor4U>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getEmissiveStrider(LLStrider<U8>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	bool getWeightStrider(LLStrider<F32>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	bool getWeight4Strider(LLStrider<LLVector4>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	bool getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	
+
 	BOOL isEmpty() const					{ return mEmpty; }
 	BOOL isLocked() const					{ return mVertexLocked || mIndexLocked; }
 	S32 getNumVerts() const					{ return mNumVerts; }
