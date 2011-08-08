@@ -115,7 +115,7 @@ set(llcommon_HEADER_FILES
     indra_constants.h
     linden_common.h
     linked_lists.h
-    llaccountingquota.h
+    llaccountingcost.h
     llallocator.h
     llallocator_heap_profile.h
     llagentconstants.h

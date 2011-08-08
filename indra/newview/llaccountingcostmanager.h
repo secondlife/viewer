@@ -27,29 +27,29 @@
 #ifndef LL_ACCOUNTINGQUOTAMANAGER_H
 #define LL_ACCOUNTINGQUOTAMANAGER_H
 //===============================================================================
-#include "llaccountingquota.h"
+#include "llaccountingcost.h"
 //===============================================================================
-class LLAccountingQuotaManager : public LLSingleton<LLAccountingQuotaManager>
+class LLAccountingCostManager : public LLSingleton<LLAccountingCostManager>
 {
 public:
 	//Ctor
-	LLAccountingQuotaManager();
+	LLAccountingCostManager();
 	//Store an object that will be eventually fetched
-	void updateObjectCost( const LLUUID& objectID );
+	void addObject( const LLUUID& objectID );
 	//Request quotas for object list
-	void fetchQuotas( const std::string& url );
+	void fetchCosts( eSelectionType selectionType, const std::string& url );
 	//Delete a specific object from the pending list
-	void removePendingObjectQuota( const LLUUID& objectID );
+	void removePendingObject( const LLUUID& objectID );
 	
 private:
-	//Set of objects that need to update their cost
-	std::set<LLUUID> mUpdateObjectQuota;
-	//During fetchQuota we move object into a the pending set to signify that 
+	//Set of objects that will be used to generate a cost
+	std::set<LLUUID> mObjectList;
+	//During fetchCosts we move object into a the pending set to signify that 
 	//a fetch has been instigated.
 	std::set<LLUUID> mPendingObjectQuota;
 	typedef std::set<LLUUID>::iterator IDIt;
 };
 //===============================================================================
 
-#endif // LLACCOUNTINGQUOTAMANAGER
+#endif // LLACCOUNTINGCOSTMANAGER
 

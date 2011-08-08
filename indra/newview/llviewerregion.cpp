@@ -1484,8 +1484,6 @@ void LLViewerRegion::unpackRegionHandshake()
 	
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
-	capabilityNames.append("AccountingParcel");
-	capabilityNames.append("AccountingSelection");
 	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("AvatarPickerSearch");
 	capabilityNames.append("ChatSessionRequest");
@@ -1525,6 +1523,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ProvisionVoiceAccountRequest");
 	capabilityNames.append("RemoteParcelRequest");
 	capabilityNames.append("RequestTextureDownload");
+	capabilityNames.append("ResourceCostSelected");
 	capabilityNames.append("SearchStatRequest");
 	capabilityNames.append("SearchStatTracking");
 	capabilityNames.append("SendPostcard");
@@ -1550,10 +1549,6 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
-	//prep# Finalize these!!!!!!!!!
-	//capabilityNames.append("AccountingVO");	
-	capabilityNames.append("AccountingParcel");
-	capabilityNames.append("AccountingRegion");
 	
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.

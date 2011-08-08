@@ -34,7 +34,6 @@
 #include "llpermissions.h"
 #include "lltimer.h"
 #include "v3math.h"
-#include "llaccountingquota.h"
 
 // Grid out of which parcels taken is stepped every 4 meters.
 const F32 PARCEL_GRID_STEP_METERS	= 4.f;
@@ -603,9 +602,6 @@ public:
 	BOOL	getSellWithObjects() const		{ return (mParcelFlags & PF_SELL_PARCEL_OBJECTS) ? TRUE : FALSE; }
 	
 	
-			void		 updateQuota( const LLUUID& objectId, const ParcelQuota& quota );
-	const	ParcelQuota& getQuota( void ) { return mQuota; }	
-	
 protected:
 	LLUUID mID;
 	LLUUID				mOwnerID;
@@ -681,7 +677,6 @@ protected:
 	BOOL				mAllowGroupAVSounds;
 	BOOL				mAllowAnyAVSounds;
 	
-	ParcelQuota			mQuota;
 	
 public:
 	// HACK, make private

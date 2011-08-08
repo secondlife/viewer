@@ -125,7 +125,7 @@ public:
 
 	void buildJointToNodeMappingFromScene( daeElement* pRoot );
 	void processJointToNodeMapping( domNode* pNode );
-
+	void processChildJoints( domNode* pParentNode );
 
 	//map of avatar joints as named in COLLADA assets to internal joint names
 	std::map<std::string, std::string> mJointMap;

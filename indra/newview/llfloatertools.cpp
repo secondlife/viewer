@@ -84,7 +84,6 @@
 #include "llviewerwindow.h"
 #include "llvovolume.h"
 #include "lluictrlfactory.h"
-#include "llaccountingquotamanager.h"
 #include "llmeshrepository.h"
 
 // Globals

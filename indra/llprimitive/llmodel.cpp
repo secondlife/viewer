@@ -1679,6 +1679,19 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BO
 
 LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 {
+	//1. If a vertex has been weighted then we'll find it via pos and return it's weight list
+	weight_map::iterator iterPos = mSkinWeights.begin();
+	weight_map::iterator iterEnd = mSkinWeights.end();
+	
+	for ( ; iterPos!=iterEnd; ++iterPos )
+	{
+		if ( jointPositionalLookup( iterPos->first, pos ) )
+		{
+			return iterPos->second;
+		}
+	}
+	
+	//2. Otherwise we'll use the older implementation
 	weight_map::iterator iter = mSkinWeights.find(pos);
 	
 	if (iter != mSkinWeights.end())
@@ -1692,13 +1705,13 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	}
 	else
 	{  //no exact match found, get closest point
-		const F32 epsilon = 2.f/65536;
+		const F32 epsilon = 1e-5f;
 		weight_map::iterator iter_up = mSkinWeights.lower_bound(pos);
 		weight_map::iterator iter_down = ++iter_up;
 
 		weight_map::iterator best = iter_up;
 
-		F32 min_dist = (iter->first - pos).magVecSquared();
+		F32 min_dist = (iter->first - pos).magVec();
 
 		bool done = false;
 		while (!done)
@@ -1709,7 +1722,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 			if (iter_up != mSkinWeights.end() && ++iter_up != mSkinWeights.end())
 			{
 				done = false;
-				F32 dist = (iter_up->first - pos).magVecSquared();
+				F32 dist = (iter_up->first - pos).magVec();
 
 				if (dist < epsilon)
 				{
@@ -1727,7 +1740,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 			{
 				done = false;
 
-				F32 dist = (iter_down->first - pos).magVecSquared();
+				F32 dist = (iter_down->first - pos).magVec();
 
 				if (dist < epsilon)
 				{

@@ -411,7 +411,6 @@ public:
 			cc = llsd_from_file("fake_upload_error.xml");
 		}
 
-		//assert_main_thread();
 		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_upload_response_",dump_num));
 		
@@ -1471,47 +1470,53 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 void LLMeshUploadThread::generateHulls()
 {
+	bool has_valid_requests = false ;
+
 	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
+	{
+		LLMeshUploadData data;
+		data.mBaseModel = iter->first;
+
+		LLModelInstance& instance = *(iter->second.begin());
+
+		for (S32 i = 0; i < 5; i++)
 		{
-			LLMeshUploadData data;
-			data.mBaseModel = iter->first;
-
-			LLModelInstance& instance = *(iter->second.begin());
-
-			for (S32 i = 0; i < 5; i++)
-			{
-				data.mModel[i] = instance.mLOD[i];
-			}
-
-			//queue up models for hull generation
-			LLModel* physics = NULL;
-
-			if (data.mModel[LLModel::LOD_PHYSICS].notNull())
-			{
-				physics = data.mModel[LLModel::LOD_PHYSICS];
-			}
-			else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
-			{
-				physics = data.mModel[LLModel::LOD_MEDIUM];
-			}
-			else
-			{
-				physics = data.mModel[LLModel::LOD_HIGH];
-			}
-
-			llassert(physics != NULL);
-
-			DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
-			if(request->isValid())
-			{
-				gMeshRepo.mDecompThread->submitRequest(request);
-			}
+			data.mModel[i] = instance.mLOD[i];
 		}
 
+		//queue up models for hull generation
+		LLModel* physics = NULL;
+
+		if (data.mModel[LLModel::LOD_PHYSICS].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_PHYSICS];
+		}
+		else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_MEDIUM];
+		}
+		else
+		{
+			physics = data.mModel[LLModel::LOD_HIGH];
+		}
+
+		llassert(physics != NULL);
+
+		DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
+		if(request->isValid())
+		{
+			gMeshRepo.mDecompThread->submitRequest(request);
+			has_valid_requests = true ;
+		}
+	}
+		
+	if(has_valid_requests)
+	{
 		while (!mPhysicsComplete)
 		{
 			apr_sleep(100);
 		}
+	}	
 }
 
 void LLMeshUploadThread::doWholeModelUpload()
