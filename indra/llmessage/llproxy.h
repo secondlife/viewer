@@ -35,7 +35,7 @@
 #include "llthread.h"
 #include <string>
 
-// Error codes returned from the StartProxy method
+// SOCKS error codes returned from the StartProxy method
 
 #define SOCKS_OK 0
 #define SOCKS_CONNECT_ERROR (-1)
@@ -166,11 +166,86 @@ enum LLSocks5AuthType
 	METHOD_PASSWORD = 0x02 	// Client supports username/password
 };
 
+/**
+ * @brief Manage SOCKS 5 UDP proxy and HTTP proxy.
+ *
+ * This class is responsible for managing two interconnected tasks,
+ * connecting to a SOCKS 5 proxy for use by LLPacketRing to send UDP
+ * packets and managing proxy settings for HTTP requests.
+ *
+ * <h1>Threading:</h1>
+ * Because HTTP requests can be generated in threads outside the
+ * main thread, it is necessary for some of the information stored
+ * by this class to be available to other threads. The members that
+ * need to be read across threads are in a labeled section below.
+ * To protect those members, a mutex, mProxyMutex should be locked
+ * before reading or writing those members.  Methods that can lock
+ * mProxyMutex are in a labeled section below. Those methods should
+ * not be called while the mutex is already locked.
+ *
+ * There is also a LLAtomic type flag (mHTTPProxyEnabled) that is used
+ * to track whether the HTTP proxy is currently enabled. This allows
+ * for faster unlocked checks to see if the proxy is enabled.  This
+ * allows us to cut down on the performance hit when the proxy is
+ * disabled compared to before this class was introduced.
+ *
+ * <h1>UDP Proxying:</h1>
+ * UDP datagrams are proxied via a SOCKS 5 proxy with the UDP associate
+ * command.  To initiate the proxy, a TCP socket connection is opened
+ * to the SOCKS 5 host, and after a handshake exchange, the server
+ * returns a port and address to send the UDP traffic that is to be
+ * proxied to. The LLProxy class tracks this address and port after the
+ * exchange and provides it to LLPacketRing when required to. All UDP
+ * proxy management occurs in the main thread.
+ *
+ * <h1>HTTP Proxying:</h1>
+ * This class allows all viewer HTTP packets to be sent through a proxy.
+ * The user can select whether to send HTTP packets through a standard
+ * "web" HTTP proxy, through a SOCKS 5 proxy, or to not proxy HTTP
+ * communication. This class does not manage the integrated web browser
+ * proxy, which is handled in llviewermedia.cpp.
+ *
+ * The implementation of HTTP proxying is handled by libcurl. LLProxy
+ * is responsible for managing the HTTP proxy options and provides a
+ * thread-safe method to apply those options to a curl request
+ * (LLProxy::applyProxySettings()). This method is overloaded
+ * to accommodate the various abstraction libcurl layers that exist
+ * throughout the viewer (LLCurlEasyRequest, LLCurl::Easy, and CURL).
+ *
+ * If you are working with LLCurl or LLCurlEasyRequest objects,
+ * the configured proxy settings will be applied in the constructors
+ * of those request handles.  If you are working with CURL objects
+ * directly, you will need to pass the handle of the request to
+ * applyProxySettings() before issuing the request.
+ *
+ * To ensure thread safety, all LLProxy members that relate to the HTTP
+ * proxy require the LLProxyMutex to be locked before accessing.
+ */
 class LLProxy: public LLSingleton<LLProxy>
 {
 	LOG_CLASS(LLProxy);
 public:
+	// METHODS THAT DO NOT LOCK mProxyMutex!
+
 	LLProxy();
+
+	// static check for enabled status for UDP packets
+	static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled; }
+
+	// check for enabled status for HTTP packets
+	// mHTTPProxyEnabled is atomic, so no locking is required for thread safety.
+	bool isHTTPProxyEnabled() const { return mHTTPProxyEnabled; }
+
+	// Get the UDP proxy address and port
+	LLHost getUDPProxy() const { return mUDPProxy; }
+
+	// Get the SOCKS 5 TCP control channel address and port
+	LLHost getTCPProxy() const { return mTCPProxy; }
+
+	// END OF NON-LOCKING METHODS
+
+	// METHODS THAT DO LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
+
 	~LLProxy();
 
 	// Start a connection to the SOCKS 5 proxy
@@ -188,15 +263,8 @@ public:
 	// Set up to use No Auth when connecting to the SOCKS proxy
 	void setAuthNone();
 
-	// get the currently selected auth method
+	// Get the currently selected auth method.
 	LLSocks5AuthType getSelectedAuthMethod() const;
-
-	// static check for enabled status for UDP packets
-	static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled; }
-
-	// check for enabled status for HTTP packets
-	// mHTTPProxyEnabled is atomic, so no locking is required for thread safety.
-	bool isHTTPProxyEnabled() const { return mHTTPProxyEnabled; }
 
 	// Proxy HTTP packets via httpHost, which can be a SOCKS 5 or a HTTP proxy
 	// as specified in type
@@ -211,12 +279,6 @@ public:
 	void applyProxySettings(LLCurl::Easy* handle);
 	void applyProxySettings(LLCurlEasyRequest* handle);
 
-	// Get the UDP proxy address and port
-	LLHost getUDPProxy() const { return mUDPProxy; }
-
-	// Get the SOCKS 5 TCP control channel address and port
-	LLHost getTCPProxy() const { return mTCPProxy; }
-
 	// Get the HTTP proxy address and port
 	LLHost getHTTPProxy() const;
 
@@ -226,9 +288,10 @@ public:
 	std::string getSocksPwd() const;
 	std::string getSocksUser() const;
 
+	// END OF LOCKING METHODS
 private:
 	// Open a communication channel to the SOCKS 5 proxy proxy, at port messagePort
-	S32 proxyHandshake(LLHost proxy, U32 messagePort);
+	S32 proxyHandshake(LLHost proxy);
 
 private:
 	// Is the HTTP proxy enabled?
@@ -255,6 +318,8 @@ private:
 	// APR pool for the socket
 	apr_pool_t* mPool;
 
+	// END OF UNSHARED MEMBERS
+
 	// MEMBERS WRITTEN IN MAIN THREAD AND READ IN ANY THREAD. ONLY READ OR WRITE AFTER LOCKING mProxyMutex!
 
 	// HTTP proxy address and port
@@ -270,6 +335,8 @@ private:
 	std::string mSocksUsername;
 	// SOCKS 5 password
 	std::string mSocksPassword;
+
+	// END OF SHARED MEMBERS
 };
 
 #endif

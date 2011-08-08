@@ -387,6 +387,14 @@ bool idle_startup()
 			LLNotificationsUtil::add(gViewerWindow->getInitAlert());
 		}
 			
+		//-------------------------------------------------
+		// Init the SOCKS 5 proxy if the user has configured
+		// one. We need to do this early in case the user
+		// is using SOCKS for HTTP so we get the login
+		// screen and HTTP tables via SOCKS.
+		//-------------------------------------------------
+		LLStartUp::startLLProxy();
+
 		gSavedSettings.setS32("LastFeatureVersion", LLFeatureManager::getInstance()->getVersion());
 		gSavedSettings.setS32("LastGPUClass", LLFeatureManager::getInstance()->getGPUClass());
 
@@ -592,23 +600,6 @@ bool idle_startup()
 		}
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
-
-		//-------------------------------------------------
-		// Init the SOCKS 5 proxy and open the control TCP
-		// connection if the user has configured a Proxy
-		// We need to do this early in case the user is using
-		// socks for HTTP so we get the login screen via SOCKS
-		// We don't do anything if proxy setup was
-		// unsuccessful, since the user can configure their
-		// proxy settings before starting to log in.
-		//-------------------------------------------------
-
-		LLStartUp::handleSocksProxy();
-		// If we started a proxy, try to grab the table files again.
-		if (LLProxy::getInstance()->isHTTPProxyEnabled())
-		{
-			LLFeatureManager::getInstance()->fetchHTTPTables();
-		}
 
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
@@ -828,10 +819,10 @@ bool idle_startup()
 		// Post login screen, we should see if any settings have changed that may
 		// require us to either start/stop or change the socks proxy. As various communications
 		// past this point may require the proxy to be up.
-		if (!LLStartUp::handleSocksProxy())
+		if (!LLStartUp::startLLProxy())
 		{
 			// Proxy start up failed, we should now bail the state machine
-			// handleSocksProxy() will have reported an error to the user
+			// startLLProxy() will have reported an error to the user
 			// already, so we just go back to the login screen. The user
 			// could then change the preferences to fix the issue.
 
@@ -2770,53 +2761,22 @@ void LLStartUp::setStartSLURL(const LLSLURL& slurl)
     }
 }
 
-bool LLStartUp::handleSocksProxy()
+/**
+ * Read all proxy configuration settings and set up both the HTTP proxy and
+ * SOCKS proxy as needed.
+ *
+ * Any errors that are encountered will result in showing the user a notification.
+ * When an error is encountered,
+ *
+ * @return Returns true if setup was successful, false if an error was encountered.
+ */
+bool LLStartUp::startLLProxy()
 {
 	bool proxy_ok = true;
 	std::string httpProxyType = gSavedSettings.getString("Socks5HttpProxyType");
 
-	// Determine the HTTP proxy type (if any)
-	if ((httpProxyType.compare("Web") == 0) && gSavedSettings.getBOOL("BrowserProxyEnabled"))
-	{
-		LLHost http_host;
-		http_host.setHostByName(gSavedSettings.getString("BrowserProxyAddress"));
-		http_host.setPort(gSavedSettings.getS32("BrowserProxyPort"));
-		if (!LLProxy::getInstance()->enableHTTPProxy(http_host, LLPROXY_HTTP))
-		{
-			LLSD subs;
-			subs["HOST"] = http_host.getIPString();
-			subs["PORT"] = (S32)http_host.getPort();
-			LLNotificationsUtil::add("PROXY_INVALID_HTTP_HOST", subs);
-			proxy_ok = false;
-		}
-	}
-	else if ((httpProxyType.compare("Socks") == 0) && gSavedSettings.getBOOL("Socks5ProxyEnabled"))
-	{
-		LLHost socks_host;
-		socks_host.setHostByName(gSavedSettings.getString("Socks5ProxyHost"));
-		socks_host.setPort(gSavedSettings.getU32("Socks5ProxyPort"));
-		if (!LLProxy::getInstance()->enableHTTPProxy(socks_host, LLPROXY_SOCKS))
-		{
-			LLSD subs;
-			subs["HOST"] = socks_host.getIPString();
-			subs["PORT"] = (S32)socks_host.getPort();
-			LLNotificationsUtil::add("PROXY_INVALID_SOCKS_HOST", subs);
-			proxy_ok = false;
-		}
-	}
-	else if (httpProxyType.compare("None") == 0)
-	{
-		LLProxy::getInstance()->disableHTTPProxy();
-	}
-	else
-	{
-		LL_WARNS("Proxy") << "Invalid HTTP proxy configuration."<< LL_ENDL;
-		gSavedSettings.setString("Socks5HttpProxyType", "None");
-		LLProxy::getInstance()->disableHTTPProxy();
-	}
-
 	// Set up SOCKS proxy (if needed)
-	if (gSavedSettings.getBOOL("Socks5ProxyEnabled") && proxy_ok)
+	if (gSavedSettings.getBOOL("Socks5ProxyEnabled"))
 	{	
 		// Determine and update LLProxy with the saved authentication system
 		std::string auth_type = gSavedSettings.getString("Socks5AuthType");
@@ -2913,6 +2873,53 @@ bool LLStartUp::handleSocksProxy()
 	else
 	{
 		LLProxy::getInstance()->stopSOCKSProxy(); // ensure no UDP proxy is running and it's all cleaned up
+	}
+
+	if (proxy_ok)
+	{
+		// Determine the HTTP proxy type (if any)
+		if ((httpProxyType.compare("Web") == 0) && gSavedSettings.getBOOL("BrowserProxyEnabled"))
+		{
+			LLHost http_host;
+			http_host.setHostByName(gSavedSettings.getString("BrowserProxyAddress"));
+			http_host.setPort(gSavedSettings.getS32("BrowserProxyPort"));
+			if (!LLProxy::getInstance()->enableHTTPProxy(http_host, LLPROXY_HTTP))
+			{
+				LLSD subs;
+				subs["HOST"] = http_host.getIPString();
+				subs["PORT"] = (S32)http_host.getPort();
+				LLNotificationsUtil::add("PROXY_INVALID_HTTP_HOST", subs);
+				proxy_ok = false;
+			}
+		}
+		else if ((httpProxyType.compare("Socks") == 0) && gSavedSettings.getBOOL("Socks5ProxyEnabled"))
+		{
+			LLHost socks_host;
+			socks_host.setHostByName(gSavedSettings.getString("Socks5ProxyHost"));
+			socks_host.setPort(gSavedSettings.getU32("Socks5ProxyPort"));
+			if (!LLProxy::getInstance()->enableHTTPProxy(socks_host, LLPROXY_SOCKS))
+			{
+				LLSD subs;
+				subs["HOST"] = socks_host.getIPString();
+				subs["PORT"] = (S32)socks_host.getPort();
+				LLNotificationsUtil::add("PROXY_INVALID_SOCKS_HOST", subs);
+				proxy_ok = false;
+			}
+		}
+		else if (httpProxyType.compare("None") == 0)
+		{
+			LLProxy::getInstance()->disableHTTPProxy();
+		}
+		else
+		{
+			LL_WARNS("Proxy") << "Invalid HTTP proxy configuration."<< LL_ENDL;
+
+			// Set the missing or wrong configuration back to something valid.
+			gSavedSettings.setString("Socks5HttpProxyType", "None");
+			LLProxy::getInstance()->disableHTTPProxy();
+
+			// Leave proxy_ok alone, since this isn't necessarily fatal.
+		}
 	}
 
 	return proxy_ok;

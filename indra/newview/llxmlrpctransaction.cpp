@@ -41,8 +41,6 @@
 #include "llappviewer.h"
 #include "lltrans.h"
 
-#include "llproxy.h"
-
 // Static instance of LLXMLRPCListener declared here so that every time we
 // bring in this code, we instantiate a listener. If we put the static
 // instance of LLXMLRPCListener into llxmlrpclistener.cpp, the linker would
@@ -308,8 +306,6 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 		mCurlRequest = new LLCurlEasyRequest();
 	}
 	mErrorCert = NULL;
-	
-	LLProxy::getInstance()->applyProxySettings(mCurlRequest);
 
 //	mCurlRequest->setopt(CURLOPT_VERBOSE, 1); // useful for debugging
 	mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
