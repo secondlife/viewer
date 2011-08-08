@@ -691,7 +691,7 @@ BOOL LLImagePreviewAvatar::render()
 	LLVertexBuffer::unbind();
 	avatarp->updateLOD();
 	
-
+	
 	if (avatarp->mDrawable.notNull())
 	{
 		LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
@@ -699,7 +699,7 @@ BOOL LLImagePreviewAvatar::render()
 		LLGLDisable no_blend(GL_BLEND);
 
 		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)avatarp->mDrawable->getFace(0)->getPool();
-		
+		gPipeline.enableLightsPreview();
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 

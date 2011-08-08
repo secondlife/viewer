@@ -5,7 +5,10 @@
  * $/LicenseInfo$
  */
  
-
+attribute vec3 position;
+attribute vec4 diffuse_color;
+attribute vec3 normal;
+attribute vec2 texcoord0;
 
 mat4 getSkinnedTransform();
 
@@ -15,28 +18,28 @@ varying vec3 vary_normal;
 
 void main()
 {
-	gl_TexCoord[0] = gl_MultiTexCoord0;
+	gl_TexCoord[0] = vec4(texcoord0,0,1);
 				
 	vec4 pos;
 	vec3 norm;
 	
+	vec4 pos_in = vec4(position.xyz, 1.0);
 	mat4 trans = getSkinnedTransform();
-	pos.x = dot(trans[0], gl_Vertex);
-	pos.y = dot(trans[1], gl_Vertex);
-	pos.z = dot(trans[2], gl_Vertex);
+	pos.x = dot(trans[0], pos_in);
+	pos.y = dot(trans[1], pos_in);
+	pos.z = dot(trans[2], pos_in);
 	pos.w = 1.0;
 	
-	norm.x = dot(trans[0].xyz, gl_Normal);
-	norm.y = dot(trans[1].xyz, gl_Normal);
-	norm.z = dot(trans[2].xyz, gl_Normal);
+	norm.x = dot(trans[0].xyz, normal);
+	norm.y = dot(trans[1].xyz, normal);
+	norm.z = dot(trans[2].xyz, normal);
 	norm = normalize(norm);
 	
 	vary_normal = norm;
 	
 	gl_Position = gl_ProjectionMatrix * pos;
-	//gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;	
-	
-	gl_FrontColor = gl_Color;
+		
+	gl_FrontColor = diffuse_color;
 }
 
 

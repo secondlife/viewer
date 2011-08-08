@@ -3830,8 +3830,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		}
 	}
 	
-	U8 glow = (U8) (facep->getTextureEntry()->getGlow() * 255);
-
 	if (idx >= 0 && 
 		draw_vec[idx]->mVertexBuffer == facep->getVertexBuffer() &&
 		draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
@@ -3840,7 +3838,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= (U32) gGLManager.mGLMaxVertexRange &&
 		draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
 #endif
-		draw_vec[idx]->mGlowColor.mV[3] == glow &&
 		draw_vec[idx]->mFullbright == fullbright &&
 		draw_vec[idx]->mBump == bump &&
 		draw_vec[idx]->mTextureMatrix == tex_mat &&
@@ -3872,7 +3869,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec.push_back(draw_info);
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
-		draw_info->mGlowColor.setVec(0,0,0,glow);
 		if (type == LLRenderPass::PASS_ALPHA)
 		{ //for alpha sorting
 			facep->setDrawInfo(draw_info);
@@ -3971,6 +3967,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
 	U32 cur_total = 0;
+
+	bool emissive = false;
 
 	//get all the faces into a list
 	for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
@@ -4183,6 +4181,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				}
 			}
 
+
 			if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
 			{
 				facep->clearVertexBuffer();
@@ -4195,6 +4194,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			{
 				const LLTextureEntry* te = facep->getTextureEntry();
 				LLViewerTexture* tex = facep->getTexture();
+
+				if (te->getGlow() >= 1.f/255.f)
+				{
+					emissive = true;
+				}
 
 				if (facep->isState(LLFace::TEXTURE_ANIM))
 				{
@@ -4311,6 +4315,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 alpha_mask = simple_mask | 0x80000000; //hack to give alpha verts their own VBO
 	U32 bump_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 	U32 fullbright_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
+
+	if (emissive)
+	{ //emissive faces are present, include emissive byte to preserve batching
+		simple_mask = simple_mask | LLVertexBuffer::MAP_EMISSIVE;
+		alpha_mask = alpha_mask | LLVertexBuffer::MAP_EMISSIVE;
+		bump_mask = bump_mask | LLVertexBuffer::MAP_EMISSIVE;
+		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_EMISSIVE;
+	}
 
 	bool batch_textures = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
 
@@ -4454,10 +4466,6 @@ struct CompareBatchBreakerModified
 		else if (lte->getFullbright() != rte->getFullbright())
 		{
 			return lte->getFullbright() < rte->getFullbright();
-		}
-		else  if (lte->getGlow() != rte->getGlow())
-		{
-			return lte->getGlow() < rte->getGlow();
 		}
 		else
 		{

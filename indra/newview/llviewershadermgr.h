@@ -186,16 +186,10 @@ public:
 
 	typedef enum
 	{
-		AVATAR_WEIGHT = END_RESERVED_ATTRIBS,
-		AVATAR_CLOTHING,
+		AVATAR_MATRIX = END_RESERVED_UNIFORMS,
 		AVATAR_WIND,
 		AVATAR_SINWAVE,
-		AVATAR_GRAVITY
-	} eAvatarAttribs;
-
-	typedef enum
-	{
-		AVATAR_MATRIX = END_RESERVED_UNIFORMS
+		AVATAR_GRAVITY,
 	} eAvatarUniforms;
 
 	// simple model of forward iterator
@@ -265,9 +259,6 @@ private:
 
 	std::vector<std::string> mGlowExtractUniforms;
 
-	//avatar shader parameter tables
-	std::vector<std::string> mAvatarAttribs;
-
 	std::vector<std::string> mAvatarUniforms;
 
 	// the list of shaders we need to propagate parameters to.
@@ -294,7 +285,9 @@ extern LLGLSLShader			gGlowCombineProgram;
 
 //output tex0[tc0] + tex1[tc1]
 extern LLGLSLShader			gTwoTextureAddProgram;
-								
+						
+extern LLGLSLShader			gOneTextureNoColorProgram;
+
 //object shaders
 extern LLGLSLShader			gObjectSimpleProgram;
 extern LLGLSLShader			gObjectSimpleAlphaMaskProgram;
@@ -304,13 +297,21 @@ extern LLGLSLShader			gObjectSimpleNonIndexedProgram;
 extern LLGLSLShader			gObjectSimpleNonIndexedWaterProgram;
 extern LLGLSLShader			gObjectAlphaMaskNonIndexedProgram;
 extern LLGLSLShader			gObjectAlphaMaskNonIndexedWaterProgram;
+extern LLGLSLShader			gObjectAlphaMaskNoColorProgram;
+extern LLGLSLShader			gObjectAlphaMaskNoColorWaterProgram;
 extern LLGLSLShader			gObjectFullbrightProgram;
 extern LLGLSLShader			gObjectFullbrightWaterProgram;
+extern LLGLSLShader			gObjectFullbrightNoColorProgram;
+extern LLGLSLShader			gObjectFullbrightNoColorWaterProgram;
+extern LLGLSLShader			gObjectEmissiveProgram;
+extern LLGLSLShader			gObjectEmissiveWaterProgram;
 extern LLGLSLShader			gObjectFullbrightAlphaMaskProgram;
 extern LLGLSLShader			gObjectFullbrightWaterAlphaMaskProgram;
 extern LLGLSLShader			gObjectFullbrightNonIndexedProgram;
 extern LLGLSLShader			gObjectFullbrightNonIndexedWaterProgram;
 extern LLGLSLShader			gObjectBumpProgram;
+extern LLGLSLShader			gTreeProgram;
+extern LLGLSLShader			gTreeWaterProgram;
 
 extern LLGLSLShader			gObjectSimpleLODProgram;
 extern LLGLSLShader			gObjectFullbrightLODProgram;

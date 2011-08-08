@@ -3458,7 +3458,7 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 						glScalef(scale, scale, scale);
 
 						LLColor4 color(vovolume->getLightColor(), .5f);
-						glColor4fv(color.mV);
+						gGL.diffuseColor4fv(color.mV);
 					
 						F32 pixel_area = 100000.f;
 						// Render Outside
