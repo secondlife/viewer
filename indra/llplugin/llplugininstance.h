@@ -39,7 +39,7 @@
 class LLPluginInstanceMessageListener
 {
 public:
-	virtual ~LLPluginInstanceMessageListener();
+	~LLPluginInstanceMessageListener();
    /** Plugin receives message from plugin loader shell. */
 	virtual void receivePluginMessage(const std::string &message) = 0;
 };

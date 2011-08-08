@@ -3669,6 +3669,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 				occlude = FALSE;
 				gGLLastMatrix = NULL;
 				glLoadMatrixd(gGLModelView);
+				LLGLSLShader::bindNoShader();
 				doOcclusion(camera);
 			}
 
@@ -3734,6 +3735,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 			occlude = FALSE;
 			gGLLastMatrix = NULL;
 			glLoadMatrixd(gGLModelView);
+			LLGLSLShader::bindNoShader();
 			doOcclusion(camera);
 		}
 	}
@@ -3934,6 +3936,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 			occlude = FALSE;
 			gGLLastMatrix = NULL;
 			glLoadMatrixd(gGLModelView);
+			LLGLSLShader::bindNoShader();
 			doOcclusion(camera);
 			gGL.setColorMask(true, false);
 		}
@@ -3999,6 +4002,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 		occlude = FALSE;
 		gGLLastMatrix = NULL;
 		glLoadMatrixd(gGLModelView);
+		LLGLSLShader::bindNoShader();
 		doOcclusion(camera);
 		gGLLastMatrix = NULL;
 		glLoadMatrixd(gGLModelView);
@@ -6182,7 +6186,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		gGlowExtractProgram.uniform1f("warmthAmount", warmthAmount);
 		LLGLEnable blend_on(GL_BLEND);
 		LLGLEnable test(GL_ALPHA_TEST);
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		
 		gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 		
 		mScreen.bindTexture(0, 0);
@@ -8252,7 +8256,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 			gOcclusionProgram.bind();
 		}
 		LLFastTimer ftm(FTM_SHADOW_SIMPLE);
-		LLGLDisable test(GL_ALPHA_TEST);
 		gGL.getTexUnit(0)->disable();
 		for (U32 i = 0; i < sizeof(types)/sizeof(U32); ++i)
 		{
@@ -8278,12 +8281,11 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
 	{
 		LLFastTimer ftm(FTM_SHADOW_ALPHA);
-		LLGLEnable test(GL_ALPHA_TEST);
-		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.6f);
+		gDeferredShadowAlphaMaskProgram.bind();
+		gDeferredShadowAlphaMaskProgram.setAlphaRange(0.6f, 1.f);
 		renderObjects(LLRenderPass::PASS_ALPHA_SHADOW, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR, TRUE);
 		glColor4f(1,1,1,1);
 		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
 
 	//glCullFace(GL_BACK);
@@ -8768,6 +8770,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 					LLPipeline::RENDER_TYPE_WATER,
 					LLPipeline::RENDER_TYPE_VOIDWATER,
 					LLPipeline::RENDER_TYPE_PASS_ALPHA_SHADOW,
+					LLPipeline::RENDER_TYPE_PASS_GRASS,
 					LLPipeline::RENDER_TYPE_PASS_SIMPLE,
 					LLPipeline::RENDER_TYPE_PASS_BUMP,
 					LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT,
