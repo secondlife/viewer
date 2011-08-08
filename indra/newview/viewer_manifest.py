@@ -147,7 +147,7 @@ class ViewerManifest(LLManifest):
         icon_path="icons/"
         channel_type=self.channel_lowerword()
         if channel_type == 'release' \
-        or channel_type == 'beta' \
+        or channel_type == 'betaviewer' \
         or channel_type == 'development' \
         :
             icon_path += channel_type
