@@ -1017,6 +1017,9 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 	if (is404)
 	{
 		setIcon(LLViewerTextureManager::getFetchedTextureFromFile("icons/Inv_Mesh.png", TRUE, LLViewerTexture::BOOST_UI));
+		//render prim proxy when mesh loading attempts give up
+		volume_params.setSculptID(LLUUID::null, LL_SCULPT_TYPE_NONE);
+
 	}
 
 	if ((LLPrimitive::setVolume(volume_params, lod, (mVolumeImpl && mVolumeImpl->isVolumeUnique()))) || mSculptChanged)
@@ -3096,7 +3099,7 @@ U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 
 F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes)
 {
-	F32 radius = getScale().length();
+	F32 radius = getScale().length()*0.5f;
 
 	if (isMesh())
 	{	

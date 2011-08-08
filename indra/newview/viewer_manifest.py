@@ -143,6 +143,20 @@ class ViewerManifest(LLManifest):
     def channel_lowerword(self):
         return self.channel_oneword().lower()
 
+    def icon_path(self):
+        icon_path="icons/"
+        channel_type=self.channel_lowerword()
+        if channel_type == 'release' \
+        or channel_type == 'beta' \
+        or channel_type == 'development' \
+        :
+            icon_path += channel_type
+        elif re.match('project.*',channel_type) :
+            icon_path += 'project'
+        else :
+            icon_path += 'test'
+        return icon_path
+
     def flags_list(self):
         """ Convenience function that returns the command-line flags
         for the grid"""
@@ -609,12 +623,11 @@ class DarwinManifest(ViewerManifest):
                 self.path("featuretable_mac.txt")
                 self.path("SecondLife.nib")
 
-                # If we are not using the default channel, use the 'Firstlook
-                # icon' to show that it isn't a stable release.
-                if self.default_channel() and self.default_grid():
+                icon_path = self.icon_path()
+                if self.prefix(src=icon_path, dst="") :
                     self.path("secondlife.icns")
-                else:
-                    self.path("secondlife_firstlook.icns", "secondlife.icns")
+                    self.end_prefix(icon_path)
+
                 self.path("SecondLife.nib")
                 
                 # Translations
@@ -795,9 +808,7 @@ class DarwinManifest(ViewerManifest):
             # will use the release .DS_Store, and will look broken.
             # - Ambroff 2008-08-20
             dmg_template = os.path.join(
-                'installers', 
-                'darwin',
-                '%s-dmg' % "".join(self.channel_unique().split()).lower())
+                'installers', 'darwin', '%s-dmg' % self.channel_lowerword())
 
             if not os.path.exists (self.src_path_of(dmg_template)):
                 dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
@@ -853,7 +864,6 @@ class LinuxManifest(ViewerManifest):
     def construct(self):
         super(LinuxManifest, self).construct()
         self.path("licenses-linux.txt","licenses.txt")
-        self.path("res/ll_icon.png","secondlife_icon.png")
         if self.prefix("linux_tools", dst=""):
             self.path("client-readme.txt","README-linux.txt")
             self.path("client-readme-voice.txt","README-linux-voice.txt")
@@ -878,6 +888,15 @@ class LinuxManifest(ViewerManifest):
             self.path("*")
             # recurse
             self.end_prefix("res-sdl")
+
+        # Get the icons based on the channel
+        icon_path = self.icon_path()
+        if self.prefix(src=icon_path, dst="") :
+            self.path("secondlife_256.png","secondlife_icon.png")
+            if self.prefix(src="",dst="res-sdl") :
+                self.path("secondlife_256.BMP","ll_icon.BMP")
+                self.end_prefix("res-sdl")
+            self.end_prefix(icon_path)
 
         self.path("../viewer_components/updater/scripts/linux/update_install", "bin/update_install")
 

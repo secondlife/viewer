@@ -920,7 +920,7 @@ bool idle_startup()
 		if (show_connect_box)
 		{
 			LLSLURL slurl;
-			LLPanelLogin::closePanel();
+			//LLPanelLogin::closePanel();
 		}
 
 		
@@ -966,6 +966,8 @@ bool idle_startup()
 		// Display the startup progress bar.
 		gViewerWindow->setShowProgress(TRUE);
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, LLTrans::getString("Quit"));
+
+		gViewerWindow->revealIntroPanel();
 
 		// Poke the VFS, which could potentially block for a while if
 		// Windows XP is acting up
@@ -1265,6 +1267,25 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if(STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 	{
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(gFirstSimHandle);
+		if (regionp->capabilitiesReceived())
+		{
+			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
+		}
+		else
+		{
+			U32 num_retries = regionp->getNumSeedCapRetries();
+			if (num_retries > 0)
+			{
+				LLStringUtil::format_map_t args;
+				args["[NUMBER]"] = llformat("%d", num_retries + 1);
+				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args), gAgent.mMOTD);
+			}
+			else
+			{
+				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"), gAgent.mMOTD);
+			}
+		}
 		return FALSE;
 	}
 
@@ -1985,8 +2006,8 @@ bool idle_startup()
 		gViewerWindow->getWindow()->resetBusyCount();
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 		LL_DEBUGS("AppInit") << "Done releasing bitmap" << LL_ENDL;
-		gViewerWindow->revealIntroPanel();
-		//gViewerWindow->setShowProgress(FALSE);  // reveal intro video now handles this
+		//gViewerWindow->revealIntroPanel();
+		gViewerWindow->setStartupComplete(); 
 		gViewerWindow->setProgressCancelButtonVisible(FALSE);
 
 		// We're not away from keyboard, even though login might have taken

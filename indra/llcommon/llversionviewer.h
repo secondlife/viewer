@@ -27,9 +27,9 @@
 #ifndef LL_LLVERSIONVIEWER_H
 #define LL_LLVERSIONVIEWER_H
 
-const S32 LL_VERSION_MAJOR = 2;
-const S32 LL_VERSION_MINOR = 8;
-const S32 LL_VERSION_PATCH = 3;
+const S32 LL_VERSION_MAJOR = 3;
+const S32 LL_VERSION_MINOR = 0;
+const S32 LL_VERSION_PATCH = 1;
 const S32 LL_VERSION_BUILD = 0;
 
 const char * const LL_CHANNEL = "Second Life Developer";

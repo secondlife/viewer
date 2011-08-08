@@ -56,6 +56,8 @@ public:
 	class Easy;
 	class Multi;
 
+	static bool sMultiThreaded;
+
 	struct TransferInfo
 	{
 		TransferInfo() : mSizeDownload(0.0), mTotalTime(0.0), mSpeedDownload(0.0) {}
@@ -160,7 +162,7 @@ public:
 	/**
 	 * @ brief Initialize LLCurl class
 	 */
-	static void initClass();
+	static void initClass(bool multi_threaded = false);
 
 	/**
 	 * @ brief Cleanup LLCurl class
@@ -214,7 +216,7 @@ public:
 	U32 report(CURLcode);
 	void getTransferInfo(LLCurl::TransferInfo* info);
 
-	void prepRequest(const std::string& url, const std::vector<std::string>& headers, ResponderPtr, bool post = false);
+	void prepRequest(const std::string& url, const std::vector<std::string>& headers, ResponderPtr, S32 time_out = 0, bool post = false);
 
 	const char* getErrorBuffer();
 
@@ -268,27 +270,29 @@ public:
 
 	Easy* allocEasy();
 	bool addEasy(Easy* easy);
-
+	
 	void removeEasy(Easy* easy);
 
 	S32 process();
 	void perform();
-
+	void doPerform();
+	
 	virtual void run();
 
 	CURLMsg* info_read(S32* msgs_in_queue);
 
 	S32 mQueued;
 	S32 mErrorCount;
-
+	
 	S32 mPerformState;
 
 	LLCondition* mSignal;
 	bool mQuitting;
+	bool mThreaded;
 
 private:
 	void easyFree(Easy*);
-
+	
 	CURLM* mCurlMultiHandle;
 
 	typedef std::set<Easy*> easy_active_list_t;
@@ -316,8 +320,8 @@ public:
 
 	void get(const std::string& url, LLCurl::ResponderPtr responder);
 	bool getByteRange(const std::string& url, const headers_t& headers, S32 offset, S32 length, LLCurl::ResponderPtr responder);
-	bool post(const std::string& url, const headers_t& headers, const LLSD& data, LLCurl::ResponderPtr responder);
-	bool post(const std::string& url, const headers_t& headers, const std::string& data, LLCurl::ResponderPtr responder);
+	bool post(const std::string& url, const headers_t& headers, const LLSD& data, LLCurl::ResponderPtr responder, S32 time_out = 0);
+	bool post(const std::string& url, const headers_t& headers, const std::string& data, LLCurl::ResponderPtr responder, S32 time_out = 0);
 	
 	S32  process();
 	S32  getQueued();

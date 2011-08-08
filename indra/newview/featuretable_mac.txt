@@ -1,4 +1,4 @@
-version 29
+version 30
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
