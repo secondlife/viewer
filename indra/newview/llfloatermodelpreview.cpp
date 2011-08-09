@@ -1402,8 +1402,8 @@ bool LLModelLoader::doLoadModel()
 	if ( docVersion != VERSIONTYPE_1_4_0 )
 	{
 		llinfos<<" Error with dae - unsupported dae version "<<llendl;
-		setLoadState( ERROR_PARSING );
-		return false;
+		//setLoadState( ERROR_PARSING );
+		//return false;
 		
 	}
 	
