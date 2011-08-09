@@ -768,6 +768,7 @@ void LLFloaterModelPreview::draw()
 		if ( mModelPreview->getLoadState() == LLModelLoader::ERROR_PARSING )
 		{
 			childSetTextArg("status", "[STATUS]", getString("status_parse_error"));
+			toggleCalculateButton(false);
 		}
 		else
 		{
@@ -776,7 +777,7 @@ void LLFloaterModelPreview::draw()
 	}
 
 	childSetEnabled("ok_btn", mHasUploadPerm && !mUploadModelUrl.empty());
-
+	
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
 
@@ -1395,6 +1396,18 @@ bool LLModelLoader::doLoadModel()
 		return false;
 	}
 
+	//determine if this dae is a valid version.
+	domVersionType docVersion = dom->getVersion();
+
+	if ( docVersion != VERSIONTYPE_1_4_0 )
+	{
+		llinfos<<" Error with dae - unsupported dae version "<<llendl;
+		setLoadState( ERROR_PARSING );
+		return false;
+		
+	}
+	
+	
 	daeDatabase* db = dae.getDatabase();
 	
 	daeInt count = db->getElementCount(NULL, COLLADA_TYPE_MESH);
