@@ -25,6 +25,46 @@
   <string name="new_voice_effect">
     (New!)
   </string>
+
+  <!--  effect names begin -->
+  <string name="effect_Arena">Arena</string>
+  <string name="effect_Beast">Beast</string>
+  <string name="effect_Buff">Buff</string>
+  <string name="effect_Buzz">Buzz</string>
+  <string name="effect_Camille">Camille</string>
+  <string name="effect_Creepy">Creepy</string>
+  <string name="effect_CreepyBot">CreepyBot</string>
+  <string name="effect_Cyber">Cyber</string>
+  <string name="effect_DeepBot">DeepBot</string>
+  <string name="effect_Demon">Demon</string>
+  <string name="effect_Flirty">Flirty</string>
+  <string name="effect_Foxy">Foxy</string>
+  <string name="effect_Halloween_2010_Bonus">Halloween_2010_Bonus</string>
+  <string name="effect_Helium">Helium</string>
+  <string name="effect_Husky">Husky</string>
+  <string name="effect_Intercom">Intercom</string>
+  <string name="effect_Macho">Macho</string>
+  <string name="effect_Micro">Micro</string>
+  <string name="effect_Mini">Mini</string>
+  <string name="effect_Nano">Nano</string>
+  <string name="effect_Nightmare">Nightmare</string>
+  <string name="effect_PopBot">PopBot</string>
+  <string name="effect_Rachel">Rachel</string>
+  <string name="effect_Radio">Radio</string>
+  <string name="effect_Robot">Robot</string>
+  <string name="effect_Roxanne">Roxanne</string>
+  <string name="effect_Sabrina">Sabrina</string>
+  <string name="effect_Samantha">Samantha</string>
+  <string name="effect_Sexy">Sexy</string>
+  <string name="effect_Shorty">Shorty</string>
+  <string name="effect_Sneaky">Sneaky</string>
+  <string name="effect_Stallion">Stallion</string>
+  <string name="effect_Sultry">Sultry</string>
+  <string name="effect_Thunder">Thunder</string>
+  <string name="effect_Vixen">Vixen</string>
+  <string name="effect_WhinyBot">WhinyBot</string>
+  <!--  effect names end -->
+
  <text
    height="16"
    word_wrap="true"
