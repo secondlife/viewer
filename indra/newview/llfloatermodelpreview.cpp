@@ -1629,7 +1629,7 @@ bool LLModelLoader::doLoadModel()
 								{
 									//Build a joint for the resolver to work with
 									char str[64]={0};
-									sprintf(str,"./%s",(*jointIt).second.c_str() );
+									sprintf(str,"./%s",(*jointIt).first.c_str() );
 									//llwarns<<"Joint "<< str <<llendl;
 									
 									//Setup the resolver
