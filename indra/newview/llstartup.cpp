@@ -720,7 +720,13 @@ bool idle_startup()
 
 		timeout_count = 0;
 
-		initialize_edit_menu();
+		// Login screen needs menus for preferences, but we can enter
+		// this startup phase more than once.
+		if (gLoginMenuBarView == NULL)
+		{
+			initialize_edit_menu();
+			init_menus();
+		}
 
 		if (show_connect_box)
 		{
@@ -755,19 +761,6 @@ bool idle_startup()
 			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		}
 
-		// *NOTE: This is where LLViewerParcelMgr::getInstance() used to get allocated before becoming LLViewerParcelMgr::getInstance().
-
-		// *NOTE: This is where gHUDManager used to bet allocated before becoming LLHUDManager::getInstance().
-
-		// *NOTE: This is where gMuteList used to get allocated before becoming LLMuteList::getInstance().
-
-		// Login screen needs menus for preferences, but we can enter
-		// this startup phase more than once.
-		if (gLoginMenuBarView == NULL)
-		{
-			init_menus();
-		}
-		
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
