@@ -581,11 +581,6 @@ void LLDrawPoolAvatar::beginImpostor()
 
 	gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 	sDiffuseChannel = 0;
-
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
 }
 
 void LLDrawPoolAvatar::endImpostor()
@@ -595,10 +590,6 @@ void LLDrawPoolAvatar::endImpostor()
 		gImpostorProgram.unbind();
 	}
 	gPipeline.enableLightsDynamic();
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.unbind();
-	}
 }
 
 void LLDrawPoolAvatar::beginRigid()
