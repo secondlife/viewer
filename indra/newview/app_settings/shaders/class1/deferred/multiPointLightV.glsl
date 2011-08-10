@@ -7,7 +7,6 @@
 
 
 attribute vec3 position;
-attribute vec4 diffuse_color;
 
 varying vec4 vary_fragcoord;
 
@@ -18,5 +17,4 @@ void main()
 	vary_fragcoord = pos;
 
 	gl_Position = pos;
-	gl_FrontColor = diffuse_color;
 }

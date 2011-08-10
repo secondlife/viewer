@@ -46,7 +46,7 @@ static LLFastTimer::DeclareTimer FTM_RENDER_GRASS_DEFERRED("Deferred Grass");
 
 void LLDrawPoolGlow::beginPostDeferredPass(S32 pass)
 {
-	gDeferredFullbrightProgram.bind();
+	gDeferredEmissiveProgram.bind();
 }
 
 static LLFastTimer::DeclareTimer FTM_RENDER_GLOW_PUSH("Glow Push");
@@ -76,7 +76,7 @@ void LLDrawPoolGlow::renderPostDeferred(S32 pass)
 
 void LLDrawPoolGlow::endPostDeferredPass(S32 pass)
 {
-	gDeferredFullbrightProgram.unbind();
+	gDeferredEmissiveProgram.unbind();
 	LLRenderPass::endRenderPass(pass);
 }
 
@@ -255,6 +255,7 @@ void LLDrawPoolGrass::prerender()
 void LLDrawPoolGrass::beginRenderPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_GRASS);
+	stop_glerror();
 
 	if (LLPipeline::sUnderWaterRender)
 	{

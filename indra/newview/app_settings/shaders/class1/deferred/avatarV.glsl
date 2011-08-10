@@ -6,7 +6,6 @@
  */
  
 attribute vec3 position;
-attribute vec4 diffuse_color;
 attribute vec3 normal;
 attribute vec2 texcoord0;
 
@@ -38,8 +37,6 @@ void main()
 	vary_normal = norm;
 	
 	gl_Position = gl_ProjectionMatrix * pos;
-		
-	gl_FrontColor = diffuse_color;
 }
 
 

@@ -176,6 +176,7 @@ public:
 		RIGGED_FULLBRIGHT_SHINY_MASK = RIGGED_SIMPLE_MASK,							 
 		RIGGED_GLOW_MASK = LLVertexBuffer::MAP_VERTEX | 
 							 LLVertexBuffer::MAP_TEXCOORD0 |
+							 LLVertexBuffer::MAP_EMISSIVE |
 							 LLVertexBuffer::MAP_WEIGHT4,
 		RIGGED_ALPHA_MASK = RIGGED_SIMPLE_MASK,
 		RIGGED_FULLBRIGHT_ALPHA_MASK = RIGGED_FULLBRIGHT_MASK,
@@ -214,7 +215,6 @@ class LLVertexBufferAvatar : public LLVertexBuffer
 {
 public:
 	LLVertexBufferAvatar();
-	virtual void setupVertexBuffer(U32 data_mask) const;
 };
 
 extern S32 AVATAR_OFFSET_POS;

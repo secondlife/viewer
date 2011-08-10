@@ -71,15 +71,6 @@ public:
 		SHADER_COUNT
 	};
 
-	typedef enum 
-	{
-		MATERIAL_COLOR = 0,
-		SPECULAR_COLOR,
-		BINORMAL,
-		OBJECT_WEIGHT,
-		END_RESERVED_ATTRIBS
-	} eGLSLReservedAttribs;
-	
 	typedef enum
 	{
 		DIFFUSE_MAP = 0,
@@ -309,6 +300,8 @@ extern LLGLSLShader			gObjectFullbrightAlphaMaskProgram;
 extern LLGLSLShader			gObjectFullbrightWaterAlphaMaskProgram;
 extern LLGLSLShader			gObjectFullbrightNonIndexedProgram;
 extern LLGLSLShader			gObjectFullbrightNonIndexedWaterProgram;
+extern LLGLSLShader			gObjectEmissiveNonIndexedProgram;
+extern LLGLSLShader			gObjectEmissiveNonIndexedWaterProgram;
 extern LLGLSLShader			gObjectBumpProgram;
 extern LLGLSLShader			gTreeProgram;
 extern LLGLSLShader			gTreeWaterProgram;
@@ -328,11 +321,13 @@ extern LLGLSLShader			gObjectShinyNonIndexedWaterProgram;
 
 extern LLGLSLShader			gSkinnedObjectSimpleProgram;
 extern LLGLSLShader			gSkinnedObjectFullbrightProgram;
+extern LLGLSLShader			gSkinnedObjectEmissiveProgram;
 extern LLGLSLShader			gSkinnedObjectFullbrightShinyProgram;
 extern LLGLSLShader			gSkinnedObjectShinySimpleProgram;
 
 extern LLGLSLShader			gSkinnedObjectSimpleWaterProgram;
 extern LLGLSLShader			gSkinnedObjectFullbrightWaterProgram;
+extern LLGLSLShader			gSkinnedObjectEmissiveWaterProgram;
 extern LLGLSLShader			gSkinnedObjectFullbrightShinyWaterProgram;
 extern LLGLSLShader			gSkinnedObjectShinySimpleWaterProgram;
 
@@ -368,6 +363,7 @@ extern LLGLSLShader			gDeferredWaterProgram;
 extern LLGLSLShader			gDeferredDiffuseProgram;
 extern LLGLSLShader			gDeferredDiffuseAlphaMaskProgram;
 extern LLGLSLShader			gDeferredNonIndexedDiffuseAlphaMaskProgram;
+extern LLGLSLShader			gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 extern LLGLSLShader			gDeferredNonIndexedDiffuseProgram;
 extern LLGLSLShader			gDeferredSkinnedDiffuseProgram;
 extern LLGLSLShader			gDeferredSkinnedBumpProgram;
@@ -375,6 +371,7 @@ extern LLGLSLShader			gDeferredSkinnedAlphaProgram;
 extern LLGLSLShader			gDeferredBumpProgram;
 extern LLGLSLShader			gDeferredTerrainProgram;
 extern LLGLSLShader			gDeferredTreeProgram;
+extern LLGLSLShader			gDeferredTreeShadowProgram;
 extern LLGLSLShader			gDeferredLightProgram;
 extern LLGLSLShader			gDeferredMultiLightProgram;
 extern LLGLSLShader			gDeferredSpotLightProgram;
@@ -394,15 +391,13 @@ extern LLGLSLShader			gDeferredAvatarShadowProgram;
 extern LLGLSLShader			gDeferredAttachmentShadowProgram;
 extern LLGLSLShader			gDeferredAlphaProgram;
 extern LLGLSLShader			gDeferredFullbrightProgram;
+extern LLGLSLShader			gDeferredEmissiveProgram;
 extern LLGLSLShader			gDeferredAvatarEyesProgram;
 extern LLGLSLShader			gDeferredAvatarAlphaProgram;
 extern LLGLSLShader			gDeferredWLSkyProgram;
 extern LLGLSLShader			gDeferredWLCloudProgram;
 extern LLGLSLShader			gDeferredStarProgram;
 extern LLGLSLShader			gLuminanceGatherProgram;
-
-//current avatar shader parameter pointer
-extern GLint				gAvatarMatrixParam;
 
 
 #endif

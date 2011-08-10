@@ -306,5 +306,6 @@ void main()
 	}
 
 	gl_FragColor.rgb = col;
+
 	gl_FragColor.a = bloom;
 }

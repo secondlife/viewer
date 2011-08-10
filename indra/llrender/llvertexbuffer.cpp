@@ -62,7 +62,6 @@ U32 LLVertexBuffer::sAllocatedBytes = 0;
 BOOL LLVertexBuffer::sMapped = FALSE;
 BOOL LLVertexBuffer::sUseStreamDraw = TRUE;
 BOOL LLVertexBuffer::sPreferStreamDraw = FALSE;
-S32	LLVertexBuffer::sWeight4Loc = -1;
 
 std::vector<U32> LLVertexBuffer::sDeleteList;
 
@@ -355,6 +354,8 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 //static
 void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm)
 {
+	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+
 	U32 count = pos.size();
 	llassert_always(norm.size() >= pos.size());
 	llassert_always(count > 0) ;
@@ -367,6 +368,49 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, con
 	glNormalPointer(GL_FLOAT, 0, norm[0].mV);
 
 	glDrawArrays(sGLMode[mode], 0, count);
+}
+
+//static
+void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp)
+{
+	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+
+	U32 mask = LLVertexBuffer::MAP_VERTEX;
+	if (tc)
+	{
+		mask = mask | LLVertexBuffer::MAP_TEXCOORD0;
+	}
+
+	unbind();
+	
+	setupClientArrays(mask);
+
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	if (shader)
+	{
+		S32 loc = shader->getAttribLocation(LLVertexBuffer::TYPE_VERTEX);
+		if (loc > -1)
+		{
+			glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, 16, pos);
+
+			if (tc)
+			{
+				loc = shader->getAttribLocation(LLVertexBuffer::TYPE_TEXCOORD0);
+				if (loc > -1)
+				{
+					glVertexAttribPointerARB(loc, 2, GL_FLOAT, GL_FALSE, 0, tc);
+				}
+			}
+		}
+	}
+	else
+	{
+		glTexCoordPointer(2, GL_FLOAT, 0, tc);
+		glVertexPointer(3, GL_FLOAT, 16, pos);
+	}
+
+	glDrawElements(sGLMode[mode], num_indices, GL_UNSIGNED_SHORT, indicesp);
 }
 
 void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_offset) const
@@ -403,6 +447,7 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 	validateRange(start, end, count, indices_offset);
 
 	llassert(mRequestedNumVerts >= 0);
+	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
 
 	if (mGLIndices != sGLRenderIndices)
 	{
@@ -431,6 +476,8 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
+	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+
 	llassert(mRequestedNumIndices >= 0);
 	if (indices_offset >= (U32) mRequestedNumIndices ||
 	    indices_offset + count > (U32) mRequestedNumIndices)
@@ -463,6 +510,8 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
+	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+
 	llassert(mRequestedNumVerts >= 0);
 	if (first >= (U32) mRequestedNumVerts ||
 	    first + count > (U32) mRequestedNumVerts)
@@ -2037,9 +2086,16 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 		
 	}
 
-	if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
+	if (data_mask & MAP_WEIGHT4)
 	{
-		glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
+		if (shader)
+		{
+			S32 loc = shader->getAttribLocation(TYPE_WEIGHT4);
+			if (loc > -1)
+			{
+				glVertexAttribPointerARB(loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
+			}
+		}
 	}
 
 	if (data_mask & MAP_CLOTHWEIGHT)

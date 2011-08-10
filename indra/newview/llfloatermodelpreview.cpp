@@ -3623,6 +3623,15 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 	LLVertexBuffer::unbind();
 
+	bool no_ff = LLGLSLShader::sNoFixedFunction;
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	LLGLSLShader::sNoFixedFunction = false;
+
+	if (shader)
+	{
+		shader->unbind();
+	}
+	
 	stop_gloderror();
 	static U32 cur_name = 1;
 
@@ -4002,6 +4011,13 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	}
 
 	mResourceCost = calcResourceCost();
+
+	LLVertexBuffer::unbind();
+	LLGLSLShader::sNoFixedFunction = no_ff;
+	if (shader)
+	{
+		shader->bind();
+	}
 
 	/*if (which_lod == -1 && mScene[LLModel::LOD_PHYSICS].empty())
 	 { //build physics scene
@@ -4950,7 +4966,7 @@ BOOL LLModelPreview::render()
 
 						llassert(binding == model->mMaterialList[i]);
 						
-						gGL.diffuseColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
+						gGL.diffuseColor4fv(material.mDiffuseColor.mV);
 
 						if (material.mDiffuseMap.notNull())
 						{
@@ -5261,7 +5277,7 @@ BOOL LLModelPreview::render()
 							const LLImportMaterial& material = instance.mMaterial[binding];
 
 							buffer->setBuffer(type_mask & buffer->getTypeMask());
-							gGL.diffuseColor4fv(instance.mMaterial[i].mDiffuseColor.mV);
+							gGL.diffuseColor4fv(material.mDiffuseColor.mV);
 							gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 							buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
 							gGL.diffuseColor3f(0.4f, 0.4f, 0.4f);

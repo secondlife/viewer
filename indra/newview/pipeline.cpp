@@ -458,7 +458,7 @@ void LLPipeline::init()
 	}
 
 	mDeferredVB = new LLVertexBuffer(DEFERRED_VB_MASK, 0);
-	mDeferredVB->allocateBuffer(3, 0, true);
+	mDeferredVB->allocateBuffer(8, 0, true);
 	setLightingDetail(-1);
 }
 
@@ -3494,7 +3494,7 @@ void LLPipeline::renderHighlights()
 	if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 	{
 		gHighlightProgram.bind();
-		gHighlightProgram.vertexAttrib4f(LLViewerShaderMgr::MATERIAL_COLOR,1,1,1,0.5f);
+		gHighlightProgram.uniform4f("highlight_color",1,1,1,0.5f);
 	}
 	
 	if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED))
@@ -3526,7 +3526,7 @@ void LLPipeline::renderHighlights()
 		color.setVec(1.f, 0.f, 0.f, 0.5f);
 		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 		{
-			gHighlightProgram.vertexAttrib4f(LLViewerShaderMgr::MATERIAL_COLOR,1,0,0,0.5f);
+			gHighlightProgram.uniform4f("highlight_color",1,0,0,0.5f);
 		}
 		int count = mHighlightFaces.size();
 		for (S32 i = 0; i < count; i++)
@@ -7021,7 +7021,7 @@ void LLPipeline::renderDeferredLighting()
 			LLVector4 dir(mSunDir, 0.f);
 			glh::vec4f tc(dir.mV);
 			mat.mult_matrix_vec(tc);
-			mTransformedSunDir.set(dir.mV);
+			mTransformedSunDir.set(tc.v);
 		}
 
 		glPushMatrix();
@@ -7036,7 +7036,7 @@ void LLPipeline::renderDeferredLighting()
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
 				LLFastTimer ftm(FTM_SUN_SHADOW);
 				bindDeferredShader(gDeferredSunProgram, 0);
-
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 				glClearColor(1,1,1,1);
 				mDeferredLight[0].clear(GL_COLOR_BUFFER_BIT);
 				glClearColor(0,0,0,0);
@@ -7067,7 +7067,7 @@ void LLPipeline::renderDeferredLighting()
 					LLGLDisable blend(GL_BLEND);
 					LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
 					stop_glerror();
-					glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+					mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 					stop_glerror();
 				}
 				
@@ -7091,7 +7091,8 @@ void LLPipeline::renderDeferredLighting()
 					gDeferredEdgeProgram.bind();
 					mEdgeMap.bindTarget();
 					bindDeferredShader(gDeferredEdgeProgram);
-					glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+					mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+					mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 					unbindDeferredShader(gDeferredEdgeProgram);
 					mEdgeMap.flush();
 				}
@@ -7113,7 +7114,8 @@ void LLPipeline::renderDeferredLighting()
 						gLuminanceGatherProgram.uniform2f("screen_res", mDeferredLight[0].getWidth(), mDeferredLight[0].getHeight());
 						mLuminanceMap.bindTarget();
 						bindDeferredShader(gLuminanceGatherProgram);
-						glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+						mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 						unbindDeferredShader(gLuminanceGatherProgram);
 						mLuminanceMap.flush();
 						gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLuminanceMap.getTexture(), true);
@@ -7131,7 +7133,8 @@ void LLPipeline::renderDeferredLighting()
 					mGIMapPost[0].bindTarget();
 
 					bindDeferredShader(gDeferredGIProgram, 0, &mGIMap, 0, mTrueNoiseMap);
-					glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+					mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+					mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 					unbindDeferredShader(gDeferredGIProgram);
 					mGIMapPost[0].flush();
 				}
@@ -7156,7 +7159,8 @@ void LLPipeline::renderDeferredLighting()
 						LLGLDisable blend(GL_BLEND);
 						LLGLDepthTest depth(GL_FALSE);
 						stop_glerror();
-						glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+						mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 						stop_glerror();
 					}
 					
@@ -7171,7 +7175,8 @@ void LLPipeline::renderDeferredLighting()
 						LLGLDisable blend(GL_BLEND);
 						LLGLDepthTest depth(GL_FALSE);
 						stop_glerror();
-						glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+						mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 						stop_glerror();
 					}
 					mGIMapPost[0].flush();
@@ -7185,13 +7190,12 @@ void LLPipeline::renderDeferredLighting()
 			LLFastTimer ftm(FTM_SOFTEN_SHADOW);
 			//blur lightmap
 			mDeferredLight[1].bindTarget();
-
 			glClearColor(1,1,1,1);
 			mDeferredLight[1].clear(GL_COLOR_BUFFER_BIT);
 			glClearColor(0,0,0,0);
 			
 			bindDeferredShader(gDeferredBlurLightProgram);
-
+			mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 			LLVector3 go = gSavedSettings.getVector3("RenderShadowGaussian");
 			const U32 kern_length = 4;
 			F32 blur_size = gSavedSettings.getF32("RenderShadowBlurSize");
@@ -7219,7 +7223,7 @@ void LLPipeline::renderDeferredLighting()
 				LLGLDisable blend(GL_BLEND);
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
 				stop_glerror();
-				glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+				mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 				stop_glerror();
 			}
 			
@@ -7227,6 +7231,7 @@ void LLPipeline::renderDeferredLighting()
 			unbindDeferredShader(gDeferredBlurLightProgram);
 
 			bindDeferredShader(gDeferredBlurLightProgram, 1);
+			mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 			mDeferredLight[0].bindTarget();
 
 			gDeferredBlurLightProgram.uniform2f("delta", 0.f, 1.f);
@@ -7235,7 +7240,7 @@ void LLPipeline::renderDeferredLighting()
 				LLGLDisable blend(GL_BLEND);
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
 				stop_glerror();
-				glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+				mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 				stop_glerror();
 			}
 			mDeferredLight[0].flush();
@@ -7338,12 +7343,12 @@ void LLPipeline::renderDeferredLighting()
 			std::list<LLVector4> light_colors;
 
 			LLVertexBuffer::unbind();
+			LLVector4a* v = (LLVector4a*) vert.get();
 
-			F32 v[24];
-			glVertexPointer(3, GL_FLOAT, 0, v);
-			
 			{
 				bindDeferredShader(gDeferredLightProgram);
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 				for (LLDrawable::drawable_set_t::iterator iter = mLights.begin(); iter != mLights.end(); ++iter)
 				{
@@ -7398,15 +7403,15 @@ void LLPipeline::renderDeferredLighting()
 					//correspond to their axis facing, with bit position 3,2,1 matching
 					//axis facing x,y,z, bit set meaning positive facing, bit clear 
 					//meaning negative facing
-					v[0] = c[0]-s; v[1]  = c[1]-s; v[2]  = c[2]-s;  // 0 - 0000 
-					v[3] = c[0]-s; v[4]  = c[1]-s; v[5]  = c[2]+s;  // 1 - 0001
-					v[6] = c[0]-s; v[7]  = c[1]+s; v[8]  = c[2]-s;  // 2 - 0010
-					v[9] = c[0]-s; v[10] = c[1]+s; v[11] = c[2]+s;  // 3 - 0011
+					v[0].set(c[0]-s,c[1]-s,c[2]-s);  // 0 - 0000 
+					v[1].set(c[0]-s,c[1]-s,c[2]+s);  // 1 - 0001
+					v[2].set(c[0]-s,c[1]+s,c[2]-s);  // 2 - 0010
+					v[3].set(c[0]-s,c[1]+s,c[2]+s);  // 3 - 0011
 																									   
-					v[12] = c[0]+s; v[13] = c[1]-s; v[14] = c[2]-s; // 4 - 0100
-					v[15] = c[0]+s; v[16] = c[1]-s; v[17] = c[2]+s; // 5 - 0101
-					v[18] = c[0]+s; v[19] = c[1]+s; v[20] = c[2]-s; // 6 - 0110
-					v[21] = c[0]+s; v[22] = c[1]+s; v[23] = c[2]+s; // 7 - 0111
+					v[4].set(c[0]+s,c[1]-s,c[2]-s); // 4 - 0100
+					v[5].set(c[0]+s,c[1]-s,c[2]+s); // 5 - 0101
+					v[6].set(c[0]+s,c[1]+s,c[2]-s); // 6 - 0110
+					v[7].set(c[0]+s,c[1]+s,c[2]+s); // 7 - 0111
 
 					if (camera->getOrigin().mV[0] > c[0] + s + 0.2f ||
 						camera->getOrigin().mV[0] < c[0] - s - 0.2f ||
@@ -7425,8 +7430,12 @@ void LLPipeline::renderDeferredLighting()
 							}
 							
 							LLFastTimer ftm(FTM_LOCAL_LIGHTS);
-							glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], s*s);
-							gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
+							//glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], s*s);
+							gDeferredLightProgram.uniform3fv("center", 1, tc.v);
+							gDeferredLightProgram.uniform1f("size", s*s);
+							gDeferredLightProgram.uniform3fv("color", 1, col.mV);
+							gDeferredLightProgram.uniform1f("falloff", volume->getLightFalloff()*0.5f);
+							//gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
 							glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
 								GL_UNSIGNED_BYTE, get_box_fan_indices_ptr(camera, center));
 							stop_glerror();
@@ -7452,6 +7461,8 @@ void LLPipeline::renderDeferredLighting()
 			{
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 				bindDeferredShader(gDeferredSpotLightProgram);
+
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
 				gDeferredSpotLightProgram.enableTexture(LLViewerShaderMgr::DEFERRED_PROJECTION);
 
@@ -7481,24 +7492,31 @@ void LLPipeline::renderDeferredLighting()
 					//correspond to their axis facing, with bit position 3,2,1 matching
 					//axis facing x,y,z, bit set meaning positive facing, bit clear 
 					//meaning negative facing
-					v[0] = c[0]-s; v[1]  = c[1]-s; v[2]  = c[2]-s;  // 0 - 0000 
-					v[3] = c[0]-s; v[4]  = c[1]-s; v[5]  = c[2]+s;  // 1 - 0001
-					v[6] = c[0]-s; v[7]  = c[1]+s; v[8]  = c[2]-s;  // 2 - 0010
-					v[9] = c[0]-s; v[10] = c[1]+s; v[11] = c[2]+s;  // 3 - 0011
+					v[0].set(c[0]-s,c[1]-s,c[2]-s);  // 0 - 0000 
+					v[1].set(c[0]-s,c[1]-s,c[2]+s);  // 1 - 0001
+					v[2].set(c[0]-s,c[1]+s,c[2]-s);  // 2 - 0010
+					v[3].set(c[0]-s,c[1]+s,c[2]+s);  // 3 - 0011
 																									   
-					v[12] = c[0]+s; v[13] = c[1]-s; v[14] = c[2]-s; // 4 - 0100
-					v[15] = c[0]+s; v[16] = c[1]-s; v[17] = c[2]+s; // 5 - 0101
-					v[18] = c[0]+s; v[19] = c[1]+s; v[20] = c[2]-s; // 6 - 0110
-					v[21] = c[0]+s; v[22] = c[1]+s; v[23] = c[2]+s; // 7 - 0111
-
-					glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], s*s);
-					gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
+					v[4].set(c[0]+s,c[1]-s,c[2]-s); // 4 - 0100
+					v[5].set(c[0]+s,c[1]-s,c[2]+s); // 5 - 0101
+					v[6].set(c[0]+s,c[1]+s,c[2]-s); // 6 - 0110
+					v[7].set(c[0]+s,c[1]+s,c[2]+s); // 7 - 0111
+					
+					gDeferredSpotLightProgram.uniform3fv("center", 1, tc.v);
+					gDeferredSpotLightProgram.uniform1f("size", s*s);
+					gDeferredSpotLightProgram.uniform3fv("color", 1, col.mV);
+					gDeferredSpotLightProgram.uniform1f("falloff", volume->getLightFalloff()*0.5f);
 					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
 							GL_UNSIGNED_BYTE, get_box_fan_indices_ptr(camera, center));
 				}
 				gDeferredSpotLightProgram.disableTexture(LLViewerShaderMgr::DEFERRED_PROJECTION);
 				unbindDeferredShader(gDeferredSpotLightProgram);
 			}
+
+			//reset mDeferredVB to fullscreen triangle
+			vert[0].set(-1,1,0);
+			vert[1].set(-1,-3,0);
+			vert[2].set(3,1,0);
 
 			{
 				bindDeferredShader(gDeferredMultiLightProgram);
@@ -7554,6 +7572,8 @@ void LLPipeline::renderDeferredLighting()
 
 				gDeferredMultiSpotLightProgram.enableTexture(LLViewerShaderMgr::DEFERRED_PROJECTION);
 
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+
 				for (LLDrawable::drawable_list_t::iterator iter = fullscreen_spot_lights.begin(); iter != fullscreen_spot_lights.end(); ++iter)
 				{
 					LLFastTimer ftm(FTM_PROJECTORS);
@@ -7575,9 +7595,11 @@ void LLPipeline::renderDeferredLighting()
 					LLColor3 col = volume->getLightColor();
 					col *= volume->getLightIntensity();
 
-					glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], s*s);
-					gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
-					glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+					gDeferredMultiSpotLightProgram.uniform3fv("center", 1, tc.v);
+					gDeferredMultiSpotLightProgram.uniform1f("size", s*s);
+					gDeferredMultiSpotLightProgram.uniform3fv("color", 1, col.mV);
+					gDeferredMultiSpotLightProgram.uniform1f("falloff", volume->getLightFalloff()*0.5f);
+					mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 				}
 
 				gDeferredMultiSpotLightProgram.disableTexture(LLViewerShaderMgr::DEFERRED_PROJECTION);
@@ -7610,7 +7632,7 @@ void LLPipeline::renderDeferredLighting()
 				bindDeferredShader(gDeferredPostProgram, 0, &mGIMapPost[0]);
 
 				gDeferredPostProgram.bind();
-
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 				LLVertexBuffer::unbind();
 
 //				glVertexPointer(2, GL_FLOAT, 0, vert);
@@ -7622,8 +7644,8 @@ void LLPipeline::renderDeferredLighting()
 				glPushMatrix();
 				glLoadIdentity();
 
-				glDrawArrays(GL_TRIANGLES, 0, 3);
-
+				mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+				
 				glPopMatrix();
 				glMatrixMode(GL_MODELVIEW);
 				glPopMatrix();
@@ -8294,12 +8316,14 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gDeferredShadowAlphaMaskProgram.bind();
 		gDeferredShadowAlphaMaskProgram.setAlphaRange(0.6f, 1.f);
 		renderObjects(LLRenderPass::PASS_ALPHA_SHADOW, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR, TRUE);
-		gGL.diffuseColor4f(1,1,1,1);
+		gDeferredTreeShadowProgram.bind();
+		gDeferredTreeShadowProgram.setAlphaRange(0.6f, 1.f);
 		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
 	}
 
 	//glCullFace(GL_BACK);
 
+	gDeferredShadowProgram.bind();
 	gGLLastMatrix = NULL;
 	glLoadMatrixd(gGLModelView);
 	doOcclusion(shadow_cam);
@@ -9676,6 +9700,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 		static const F32 clip_plane = 0.99999f;
 
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.bind();
+		}
+
 		gGL.color4ub(64,64,64,255);
 		gGL.begin(LLRender::QUADS);
 		gGL.vertex3f(-1, -1, clip_plane);
@@ -9684,6 +9713,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		gGL.vertex3f(-1, 1, clip_plane);
 		gGL.end();
 		gGL.flush();
+
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.unbind();
+		}
 
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);

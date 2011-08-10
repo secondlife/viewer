@@ -934,7 +934,9 @@ void LLGLSLShader::uniform4fv(const string& uniform, U32 count, const GLfloat* v
 		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
 		if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
 		{
+			stop_glerror();
 			glUniform4fvARB(location, count, v);
+			stop_glerror();
 			mValue[location] = vec;
 		}
 	}

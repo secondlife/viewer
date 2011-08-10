@@ -492,7 +492,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 				
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
-				if (draw_glow_for_this_partition &&
+				if (current_shader && 
+					draw_glow_for_this_partition &&
 					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
 				{
 					// install glow-accumulating blend mode

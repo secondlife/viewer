@@ -7,7 +7,6 @@
  
 attribute vec3 position;
 attribute vec3 normal;
-attribute vec4 diffuse_color;
 attribute vec2 texcoord0;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
@@ -86,9 +85,7 @@ void main()
 	
 	calcAtmospherics(pos.xyz);
 
-	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
-
-	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
+	vec4 col = vec4(0.0, 0.0, 0.0, 1.0);
 
 	// Collect normal lights
 	col.rgb += gl_LightSource[2].diffuse.rgb*calcPointLightOrSpotLight(pos.xyz, norm, gl_LightSource[2].position, gl_LightSource[2].spotDirection.xyz, gl_LightSource[2].linearAttenuation, gl_LightSource[2].quadraticAttenuation, gl_LightSource[2].specular.a);
@@ -98,17 +95,17 @@ void main()
 	col.rgb += gl_LightSource[6].diffuse.rgb*calcPointLightOrSpotLight(pos.xyz, norm, gl_LightSource[6].position, gl_LightSource[6].spotDirection.xyz, gl_LightSource[6].linearAttenuation, gl_LightSource[6].quadraticAttenuation, gl_LightSource[6].specular.a);
 	col.rgb += gl_LightSource[7].diffuse.rgb*calcPointLightOrSpotLight(pos.xyz, norm, gl_LightSource[7].position, gl_LightSource[7].spotDirection.xyz, gl_LightSource[7].linearAttenuation, gl_LightSource[7].quadraticAttenuation, gl_LightSource[7].specular.a);
 	
-	vary_pointlight_col = col.rgb*diffuse_color.rgb;
+	vary_pointlight_col = col.rgb;
 
 	col.rgb = vec3(0,0,0);
 
 	// Add windlight lights
 	col.rgb = atmosAmbient(vec3(0.));
 	
-	vary_ambient = col.rgb*diffuse_color.rgb;
-	vary_directional = diffuse_color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, gl_LightSource[0].position.xyz), (1.0-diffuse_color.a)*(1.0-diffuse_color.a)));
+	vary_ambient = col.rgb;
+	vary_directional = atmosAffectDirectionalLight(max(calcDirectionalLight(norm, gl_LightSource[0].position.xyz), 0.0));
 	
-	col.rgb = min(col.rgb*diffuse_color.rgb, 1.0);
+	col.rgb = min(col.rgb, 1.0);
 	
 	gl_FrontColor = col;
 

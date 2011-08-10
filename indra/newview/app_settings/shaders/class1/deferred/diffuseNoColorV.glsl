@@ -1,5 +1,5 @@
 /** 
- * @file treeV.glsl
+ * @file diffuseNoColorV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * $/LicenseInfo$
@@ -11,6 +11,7 @@ attribute vec3 normal;
 attribute vec2 texcoord0;
 
 varying vec3 vary_normal;
+varying float vary_texture_index;
 
 void main()
 {
@@ -19,6 +20,4 @@ void main()
 	gl_TexCoord[0] = gl_TextureMatrix[0] * vec4(texcoord0,0,1);
 	
 	vary_normal = normalize(gl_NormalMatrix * normal);
-
-	gl_FrontColor = vec4(1,1,1,1);
 }

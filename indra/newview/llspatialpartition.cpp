@@ -4248,7 +4248,7 @@ public:
 		LLVector3 local_start = mStart;
 		LLVector3 local_end = mEnd;
 
-		if (!gPipeline.hasRenderType(drawable->getRenderType()) || !drawable->isVisible())
+		if (!drawable || !gPipeline.hasRenderType(drawable->getRenderType()) || !drawable->isVisible())
 		{
 			return false;
 		}

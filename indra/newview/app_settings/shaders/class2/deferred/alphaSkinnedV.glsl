@@ -68,11 +68,11 @@ void main()
 	
 	mat = gl_ModelViewMatrix * mat;
 	
-	vec3 pos = (mat*position).xyz;
+	vec3 pos = (mat*vec4(position, 1.0)).xyz;
 	
 	gl_Position = gl_ProjectionMatrix * vec4(pos, 1.0);
 	
-	vec4 n = position;
+	vec4 n = vec4(position, 1.0);
 	n.xyz += normal.xyz;
 	n.xyz = (mat*n).xyz;
 	n.xyz = normalize(n.xyz-pos.xyz);

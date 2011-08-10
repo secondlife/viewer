@@ -1519,6 +1519,7 @@ void LLManipTranslate::renderSnapGuides()
 		
 		F32 sz = mGridSizeMeters;
 		F32 tiles = sz;
+
 		glMatrixMode(GL_TEXTURE);
 		gGL.pushMatrix();
 		usc = 1.0f/usc;
@@ -2243,7 +2244,7 @@ void LLManipTranslate::renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_
 		glRotatef(rot, axis.mV[0], axis.mV[1], axis.mV[2]);
 		glScalef(mArrowScales.mV[index], mArrowScales.mV[index], mArrowScales.mV[index] * 1.5f);
 
-		gCone.render(CONE_LOD_HIGHEST);
+		gCone.render();
 
 		gGL.popMatrix();
 	}
