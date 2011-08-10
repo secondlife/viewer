@@ -1543,6 +1543,12 @@ bool idle_startup()
  			}
  		}
 
+		LLSD inv_basic = response["inventory-basic"];
+ 		if(inv_basic.isDefined())
+ 		{
+			llinfos << "Basic inventory root folder id is " << inv_basic["folder_id"] << llendl;
+ 		}
+
 		LLSD buddy_list = response["buddy-list"];
  		if(buddy_list.isDefined())
  		{
