@@ -118,6 +118,7 @@ LLGLSLShader		gAvatarProgram;
 LLGLSLShader		gAvatarWaterProgram;
 LLGLSLShader		gAvatarEyeballProgram;
 LLGLSLShader		gAvatarPickProgram;
+LLGLSLShader		gImpostorProgram;
 
 // WindLight shader handles
 LLGLSLShader			gWLSkyProgram;
@@ -186,6 +187,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gWaterProgram);
 	mShaderList.push_back(&gAvatarEyeballProgram); 
 	mShaderList.push_back(&gObjectSimpleProgram);
+	mShaderList.push_back(&gImpostorProgram);
 	mShaderList.push_back(&gObjectSimpleAlphaMaskProgram);
 	mShaderList.push_back(&gObjectBumpProgram);
 	mShaderList.push_back(&gUIProgram);
@@ -638,6 +640,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gSolidColorProgram.unload();
 
 	gObjectSimpleProgram.unload();
+	gImpostorProgram.unload();
 	gObjectSimpleAlphaMaskProgram.unload();
 	gObjectBumpProgram.unload();
 	gObjectSimpleWaterProgram.unload();
@@ -1678,6 +1681,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightShinyWaterProgram.unload();
 		gObjectShinyWaterProgram.unload();
 		gObjectSimpleProgram.unload();
+		gImpostorProgram.unload();
 		gObjectSimpleAlphaMaskProgram.unload();
 		gObjectBumpProgram.unload();
 		gObjectSimpleWaterProgram.unload();
@@ -1872,6 +1876,17 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightShinyNonIndexedWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		gObjectFullbrightShinyNonIndexedWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		success = gObjectFullbrightShinyNonIndexedWaterProgram.createShader(NULL, &mShinyUniforms);
+	}
+
+	if (success)
+	{
+		gImpostorProgram.mName = "Impostor Shader";
+		gImpostorProgram.mFeatures.disableTextureIndex = true;
+		gImpostorProgram.mShaderFiles.clear();
+		gImpostorProgram.mShaderFiles.push_back(make_pair("objects/impostorV.glsl", GL_VERTEX_SHADER_ARB));
+		gImpostorProgram.mShaderFiles.push_back(make_pair("objects/impostorF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gImpostorProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		success = gImpostorProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

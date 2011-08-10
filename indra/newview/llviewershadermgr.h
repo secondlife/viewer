@@ -351,6 +351,7 @@ extern LLGLSLShader			gAvatarProgram;
 extern LLGLSLShader			gAvatarWaterProgram;
 extern LLGLSLShader			gAvatarEyeballProgram;
 extern LLGLSLShader			gAvatarPickProgram;
+extern LLGLSLShader			gImpostorProgram;
 
 // WindLight shader handles
 extern LLGLSLShader			gWLSkyProgram;
