@@ -86,7 +86,7 @@ public:
 					const std::string& groupname = LLStringUtil::null);
 
 	// Helpers
-	static LLRect getFloaterRect(const std::string& name);
+	static LLFloater* getLastFloaterInGroup(const std::string& name);
 	
 	// Find / get (create) / remove / destroy
 	static LLFloater* findInstance(const std::string& name, const LLSD& key = LLSD());

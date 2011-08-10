@@ -52,8 +52,20 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
 {
 	fs::path dir_path(dirname);
 
-	// Check if path exists.
-	if (!fs::exists(dir_path))
+	bool is_dir = false;
+
+	// Check if path is a directory.
+	try
+	{
+		is_dir = fs::is_directory(dir_path);
+	}
+	catch (fs::basic_filesystem_error<fs::path>& e)
+	{
+		llwarns << e.what() << llendl;
+		return;
+	}
+
+	if (!is_dir)
 	{
 		llwarns << "Invalid path: \"" << dir_path.string() << "\"" << llendl;
 		return;
@@ -66,7 +78,7 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
 	}
 	catch (fs::basic_filesystem_error<fs::path>& e)
 	{
-		llerrs << e.what() << llendl;
+		llwarns << e.what() << llendl;
 		return;
 	}
 
@@ -82,7 +94,7 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
 	}
 	catch (boost::regex_error& e)
 	{
-		llerrs << "\"" << exp << "\" is not a valid regular expression: "
+		llwarns << "\"" << exp << "\" is not a valid regular expression: "
 				<< e.what() << llendl;
 		return;
 	}

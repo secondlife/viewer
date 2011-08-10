@@ -1541,6 +1541,10 @@ Por favor volte mais tarde.
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
+	<notification name="TooManyTeleportOffers">
+		Você fez [OFFERS] ofertas de teletransporte, porém o seu limite é [LIMIT].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OfferTeleportFromGod">
 		Convocar residente à sua localização com poderes de deus?
 		<form name="form">
@@ -1962,6 +1966,10 @@ Você gostaria de deixar o modo Ocupado antes de completar esta transação?
 		Tem certeza de que quer apagar todo o histórico de viagens, web e buscas?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="OK"/>
 	</notification>
+	<notification name="ConfirmClearCache">
+		Tem certeza que deseja apagar o cache do visualizador?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmClearCookies">
 		Você tem certeza de que deseja limpar os cookies?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sim"/>
@@ -1987,48 +1995,30 @@ Inclua um link para facilitar o acesso para visitantes. Teste o link na barra de
 		Você deseja substituir a pré-configuração salva?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
-	<notification name="WLDeletePresetAlert">
-		Você deseja apagar [SKY]?
-		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
-	</notification>
 	<notification name="WLNoEditDefault">
 		Você não pode editar ou excluir um padrão predefinido.
 	</notification>
 	<notification name="WLMissingSky">
 		Este arquivo de ciclo de dia se refere a um arquivo de céu faltando: [SKY].
 	</notification>
+	<notification name="WLRegionApplyFail">
+		As configurações não podem ser aplicadas à região.   Talvez sair e votlar à região resolva.   Motivo:  [FAIL_REASON]
+	</notification>
+	<notification name="EnvCannotDeleteLastDayCycleKey">
+		Impossível excluir a última chave do ciclo pois um ciclo não pode ficar vazio.   Modifique a última chave em vez de tentar apagá-la, depois crie uma chave nova.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="DayCycleTooManyKeyframes">
+		Não é possível adicionar mais chaves de quadro a este ciclo.   O máximo de chaves de quadro para ciclos de dia de [SCOPE] é [MAX].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="EnvUpdateRate">
+		Cada configuração de ambiente só pode ser atualizada a cada [WAIT] segundos.   Aguarde pelo menos isso e tente novamente.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="PPSaveEffectAlert">
 		Existe efeito de Pós-Processamento. Você deseja substituí-lo?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
-	</notification>
-	<notification name="NewSkyPreset">
-		Me dê o nome para o novo céu.
-		<form name="form">
-			<input name="message">
-				Novo padrão
-			</input>
-			<button name="OK" text="OK"/>
-			<button name="Cancel" text="Cancelar"/>
-		</form>
-	</notification>
-	<notification name="ExistsSkyPresetAlert">
-		Este padrão já existe!
-	</notification>
-	<notification name="NewWaterPreset">
-		Dê o nome para o novo padrão de água.
-		<form name="form">
-			<input name="message">
-				Nova Apresentação
-			</input>
-			<button name="OK" text="OK"/>
-			<button name="Cancel" text="Cancelar"/>
-		</form>
-	</notification>
-	<notification name="ExistsWaterPresetAlert">
-		Este padrão já existe!
-	</notification>
-	<notification name="WaterNoEditDefault">
-		Você não pode editar ou apagar um padrão predefinido.
 	</notification>
 	<notification name="ChatterBoxSessionStartError">
 		Não foi possível iniciar uma nova sessão bate-papo com [RECIPIENT].
@@ -2315,6 +2305,9 @@ Logo, não é possível voar aqui.
 	</notification>
 	<notification name="NoBuild">
 		Esta área desativou a opção de construir.  Não é possível construir ou fazer rez de objetos nesta área.
+	</notification>
+	<notification name="SeeAvatars">
+		Este terreno oculta os avatares e bate-papo de outro terreno.    Não é possível ver residentes fora do terreno e vice-versa.   O bate-papo por texto no canal 0 também está bloqueado.
 	</notification>
 	<notification name="ScriptsStopped">
 		Um administrador não permitiu scripts temporariamente nesta região.
@@ -2740,7 +2733,9 @@ O botão será exibido quando houver espaço suficente.
 		Selecione os residentes com quem compartilhar.
 	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] não foi carregado: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+		[LABEL] não foi carregado: [MESSAGE] [IDENTIFIER] 
+
+Mais detalhes no log.
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Tem certeza de que quer compartilhar os itens abaixo?

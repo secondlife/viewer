@@ -7,21 +7,56 @@
 		sconosciuto
 	</text>
 	<spinner label="Altezza dell&apos;acqua" name="water_height_spin"/>
-	<button label="?" name="water_height_help"/>
-	<spinner label="Limite di altezza del &#10;terreno" name="terrain_raise_spin"/>
-	<button label="?" name="terrain_raise_help"/>
-	<spinner label="Limite di abbassamento &#10;del terreno" name="terrain_lower_spin" bottom_delta="-34"/>
-	<button label="?" name="terrain_lower_help"/>
-	<check_box label="Usa il sole della regione" name="use_estate_sun_check"/>
-	<button label="?" name="use_estate_sun_help"/>
-	<check_box label="Sole fisso" name="fixed_sun_check"/>
-	<button label="?" name="fixed_sun_help"/>
-	<slider label="Fase" name="sun_hour_slider"/>
-	<button label="Applica" name="apply_btn"/>
+	<spinner label="Limite di altezza del 
+terreno" name="terrain_raise_spin"/>
+	<spinner bottom_delta="-34" label="Limite di abbassamento 
+del terreno" name="terrain_lower_spin"/>
+	<text name="detail_texture_text">
+		Texture terreno (richiede file 512x512, 24 bit .tga)
+	</text>
+	<text name="height_text_lbl">
+		1 (basso)
+	</text>
+	<text name="height_text_lbl2">
+		2
+	</text>
+	<text name="height_text_lbl3">
+		3
+	</text>
+	<text name="height_text_lbl4">
+		4 (Alto)
+	</text>
+	<text name="height_text_lbl5">
+		Intervalli altitudine texture
+	</text>
+	<text name="height_text_lbl10">
+		Questi valori indicano la gamma di miscele per le texture di cui sopra.
+	</text>
+	<text name="height_text_lbl11">
+		Misurato in metri, il valore BASSO è la MASSIMA altezza della texture n. 1, e il valore ALTO è l&apos;altezza MINIMA della texture n. 4.
+	</text>
+	<text name="height_text_lbl6">
+		Nordovest
+	</text>
+	<text name="height_text_lbl7">
+		Nordest
+	</text>
+	<spinner label="Basso" name="height_start_spin_1"/>
+	<spinner label="Basso" name="height_start_spin_3"/>
+	<spinner label="Alto" name="height_range_spin_1"/>
+	<spinner label="Alto" name="height_range_spin_3"/>
+	<text name="height_text_lbl8">
+		Sudovest
+	</text>
+	<text name="height_text_lbl9">
+		Sudest
+	</text>
+	<spinner label="Basso" name="height_start_spin_0"/>
+	<spinner label="Basso" name="height_start_spin_2"/>
+	<spinner label="Alto" name="height_range_spin_0"/>
+	<spinner label="Alto" name="height_range_spin_2"/>
 	<button label="Scarica terreno RAW..." name="download_raw_btn" tool_tip="Disponibile solo per i proprietari del terreno, non per i manager"/>
-	<button label="?" name="download_raw_help"/>
 	<button label="Carica terreno RAW..." name="upload_raw_btn" tool_tip="Disponibile solo per i proprietari del terreno, non per i manager"/>
-	<button label="?" name="upload_raw_help"/>
-	<button width="170" label="Trasforma il terreno" name="bake_terrain_btn" tool_tip="Imposta il terreno corrente come punto medio per i limiti di innalzamento/abbassamento"/>
-	<button left="190" label="?" name="bake_terrain_help"/>
+	<button label="Trasforma il terreno" name="bake_terrain_btn" tool_tip="Imposta il terreno corrente come punto medio per i limiti di innalzamento/abbassamento" width="170"/>
+	<button label="Applica" name="apply_btn"/>
 </panel>

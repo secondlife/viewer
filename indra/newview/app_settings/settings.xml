@@ -16,8 +16,10 @@
     <key>AFKTimeout</key>
     <map>
       <key>Comment</key>
-      <string>Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never). 
-        Valid values are: 0, 120, 300, 600, 1800</string>
+            <string>
+                Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
+                Valid values are: 0, 120, 300, 600, 1800
+</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1803,6 +1805,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>CurlUseMultipleThreads</key>
+  <map>
+    <key>Comment</key>
+    <string>Use background threads for executing curl_multi_perform (requires restart)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>Cursor3D</key>
     <map>
       <key>Comment</key>
@@ -3848,7 +3861,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://www.xstreetsl.com/modules.php?name=Marketplace&amp;CategoryID=233</string>
+      <string>https://marketplace.secondlife.com/products/search?search[category_id]=200&amp;search[maturity][]=General&amp;search[page]=1&amp;search[per_page]=12</string>
     </map>
     <key>GridCrossSections</key>
     <map>
@@ -4444,17 +4457,6 @@
       <key>Value</key>
         <real>2.0</real>
     </map>
-    <key>LastInventoryInboxExpand</key>
-    <map>
-        <key>Comment</key>
-        <string>The last time the received items inbox was expanded.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>String</string>
-        <key>Value</key>
-        <string />
-    </map>
     <key>LCDDestination</key>
     <map>
       <key>Comment</key>
@@ -4872,7 +4874,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://viewer-login.agni.lindenlab.com/</string>
+      <string/>
     </map>
     <key>LosslessJ2CUpload</key>
     <map>
@@ -6065,10 +6067,12 @@
     <key>ToastButtonWidth</key>
     <map>
       <key>Comment</key>
-      <string>Default width of buttons in the toast. 
+            <string>
+                Default width of buttons in the toast.
       Notes:
       If required width will be less then this one, a button will be reshaped to default size , otherwise to required
-      Change of this parameter will affect the layout of buttons in notification toast.</string>
+                Change of this parameter will affect the layout of buttons in notification toast.
+</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6610,7 +6614,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <string>0</string>
+      <integer>0</integer>
   </map>
     <key>PrecachingDelay</key>
     <map>
@@ -7360,8 +7364,10 @@
     <key>RenderPerformanceTest</key>
     <map>
       <key>Comment</key>
-      <string>Disable rendering of everything but in-world content for 
-        performance testing</string>
+            <string>
+                Disable rendering of everything but in-world content for
+                performance testing
+</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12629,7 +12635,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>
@@ -13459,9 +13465,9 @@
         <integer>650</integer>
         <integer>490</integer>
         <integer>0</integer>
-      </array>    
-    </map>
-   <key>HelpFloaterOpen</key>
+        </array>
+        </map>
+    <key>HelpFloaterOpen</key>
     <map>
       <key>Comment</key>
       <string>Show Help Floater on login?</string>

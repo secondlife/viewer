@@ -69,6 +69,20 @@ namespace LLDateUtil
 	//std::string ageFromDateISO(const std::string& date_string);
 
 	//std::string ageFromDate(S32 born_year, S32 born_month, S32 born_day, const LLDate& now);
+
+	/**
+	 * Convert a string of a specified date format into seconds since the Epoch.
+	 *
+	 * Many of the format flags are those used by strftime(...), but not all.
+	 * For the full list of supported time format specifiers
+	 * see http://www.boost.org/doc/libs/1_47_0/doc/html/date_time/date_time_io.html#date_time.format_flags
+	 *
+	 * @param format Format characters string. Example: "%A %b %d, %Y"
+	 * @param str    Date string containing the time in specified format.
+	 *
+	 * @return Number of seconds since 01/01/1970 UTC.
+	 */
+	S32 secondsSinceEpochFromString(const std::string& format, const std::string& str);
 }
 
 #endif

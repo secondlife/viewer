@@ -27,9 +27,15 @@
 
 #include "lldateutil.h"
 
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/posix_time/ptime.hpp>
+
 // Linden libraries
 #include "lltrans.h"
 #include "llui.h"
+
+using namespace boost::gregorian;
+using namespace boost::posix_time;
 
 static S32 DAYS_PER_MONTH_NOLEAP[] =
 	{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
@@ -186,3 +192,24 @@ std::string LLDateUtil::ageFromDate(const std::string& date_string)
 //{
 //	return ageFromDateISO(date_string, LLDate::now());
 //}
+
+S32 LLDateUtil::secondsSinceEpochFromString(const std::string& format, const std::string& str)
+{
+	date_input_facet *facet = new date_input_facet(format);
+
+	std::stringstream ss;
+	ss << str;
+	ss.imbue(std::locale(ss.getloc(), facet));
+
+	date d;
+	ss >> d;
+
+	ptime time_t_date(d);
+	ptime time_t_epoch(date(1970,1,1));
+
+	// We assume that the date defined by str is in UTC, so the difference
+	// is calculated with no time zone corrections.
+	time_duration diff = time_t_date - time_t_epoch;
+
+	return diff.total_seconds();
+}

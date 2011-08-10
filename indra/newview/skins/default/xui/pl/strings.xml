@@ -1695,7 +1695,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		Brak umowy dla tego majątku. Każda posiadłość w tym majątku została sprzedana przez właściciela majątku nie Linden Lab. Skontaktuj się z właścicielem majątku w celu uzuskania szczegółów sprzedaży.
 	</string>
-	<string name="covenant_last_modified" value="Ostatnio modyfikowano:"/>
+	<string name="covenant_last_modified" value="Ostatnio modyfikowano: "/>
 	<string name="none_text" value=" (żadne) "/>
 	<string name="never_text" value=" (nigdy) "/>
 	<string name="GroupOwned">

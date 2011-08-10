@@ -1766,7 +1766,7 @@ bool LLModelLoader::doLoadModel()
 							}
 						}
 						
-						//Now that we've parsed the jointa werray, let's determine if we have a full rig
+						//Now that we've parsed the joint array, let's determine if we have a full rig
 						//(which means we have all the joint sthat are required for an avatar versus
 						//a skinned asset attached to a node in a file that contains an entire skeleton,
 						//but does not use the skeleton).						

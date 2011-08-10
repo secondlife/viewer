@@ -2749,7 +2749,7 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 		LLPointer<LLInventoryObject> obj;
 		obj = new LLInventoryObject(object->mID, LLUUID::null,
 									LLAssetType::AT_CATEGORY,
-									LLTrans::getString("ViewerObjectContents").c_str());
+									"Contents");
 		object->mInventory->push_front(obj);
 		object->doInventoryCallback();
 		delete ft;
@@ -2816,7 +2816,7 @@ void LLViewerObject::loadTaskInvFile(const std::string& filename)
 			{
 				LLPointer<LLInventoryObject> inv = new LLInventoryObject;
 				inv->importLegacyStream(ifs);
-				inv->rename(LLTrans::getString("ViewerObjectContents").c_str());
+				inv->rename("Contents");
 				mInventory->push_front(inv);
 			}
 			else

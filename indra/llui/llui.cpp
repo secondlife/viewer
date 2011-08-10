@@ -95,7 +95,6 @@ static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("
 // register other widgets which otherwise may not be linked in
 static LLDefaultChildRegistry::Register<LLLoadingIndicator> register_loading_indicator("loading_indicator");
 
-
 //
 // Functions
 //
@@ -524,8 +523,15 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 	
 	if (solid_color)
 	{
-		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
-		gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gSolidColorProgram.bind();
+		}
+		else
+		{
+			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+			gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
+		}
 	}
 
 	gGL.getTexUnit(0)->bind(image);
@@ -699,7 +705,14 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 
 	if (solid_color)
 	{
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.bind();
+		}
+		else
+		{
+			gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		}
 	}
 }
 
@@ -2082,7 +2095,7 @@ namespace LLInitParam
 		alpha("alpha"),
 		control("")
 	{
-		updateBlockFromValue();
+		updateBlockFromValue(false);
 	}
 
 	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateValueFromBlock()
@@ -2097,14 +2110,14 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue()
+	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue(bool make_block_authoritative)
 	{
 		LLColor4 color = getValue();
-		red.set(color.mV[VRED], false);
-		green.set(color.mV[VGREEN], false);
-		blue.set(color.mV[VBLUE], false);
-		alpha.set(color.mV[VALPHA], false);
-		control.set("", false);
+		red.set(color.mV[VRED], make_block_authoritative);
+		green.set(color.mV[VGREEN], make_block_authoritative);
+		blue.set(color.mV[VBLUE], make_block_authoritative);
+		alpha.set(color.mV[VALPHA], make_block_authoritative);
+		control.set("", make_block_authoritative);
 	}
 
 	bool ParamCompare<const LLFontGL*, false>::equals(const LLFontGL* a, const LLFontGL* b)
@@ -2124,7 +2137,7 @@ namespace LLInitParam
 			updateValue(LLFontGL::getFontDefault());
 		}
 		addSynonym(name, "");
-		updateBlockFromValue();
+		updateBlockFromValue(false);
 	}
 
 	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateValueFromBlock()
@@ -2150,13 +2163,13 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue()
+	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue(bool make_block_authoritative)
 	{
 		if (getValue())
 		{
-			name.set(LLFontGL::nameFromFont(getValue()), false);
-			size.set(LLFontGL::sizeFromFont(getValue()), false);
-			style.set(LLFontGL::getStringFromStyle(getValue()->getFontDesc().getStyle()), false);
+			name.set(LLFontGL::nameFromFont(getValue()), make_block_authoritative);
+			size.set(LLFontGL::sizeFromFont(getValue()), make_block_authoritative);
+			style.set(LLFontGL::getStringFromStyle(getValue()->getFontDesc().getStyle()), make_block_authoritative);
 		}
 	}
 
@@ -2169,7 +2182,7 @@ namespace LLInitParam
 		width("width"),
 		height("height")
 	{
-		updateBlockFromValue();
+		updateBlockFromValue(false);
 	}
 
 	void ParamValue<LLRect, TypeValues<LLRect> >::updateValueFromBlock()
@@ -2236,19 +2249,19 @@ namespace LLInitParam
 		updateValue(rect);
 	}
 	
-	void ParamValue<LLRect, TypeValues<LLRect> >::updateBlockFromValue()
+	void ParamValue<LLRect, TypeValues<LLRect> >::updateBlockFromValue(bool make_block_authoritative)
 	{
 		// because of the ambiguity in specifying a rect by position and/or dimensions
-		// we clear the "provided" flag so that values from xui/etc have priority
-		// over those calculated from the rect object
-
+		// we use the lowest priority pairing so that any valid pairing in xui 
+		// will override those calculated from the rect object
+		// in this case, that is left+width and bottom+height
 		LLRect& value = getValue();
-		left.set(value.mLeft, false);
-		right.set(value.mRight, false);
-		bottom.set(value.mBottom, false);
-		top.set(value.mTop, false);
-		width.set(value.getWidth(), false);
-		height.set(value.getHeight(), false);
+
+		left.set(value.mLeft, make_block_authoritative);
+		width.set(value.getWidth(), make_block_authoritative);
+
+		bottom.set(value.mBottom, make_block_authoritative);
+		height.set(value.getHeight(), make_block_authoritative);
 	}
 
 	ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::ParamValue(const LLCoordGL& coord)
@@ -2256,7 +2269,7 @@ namespace LLInitParam
 		x("x"),
 		y("y")
 	{
-		updateBlockFromValue();
+		updateBlockFromValue(false);
 	}
 
 	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateValueFromBlock()
@@ -2264,10 +2277,10 @@ namespace LLInitParam
 		updateValue(LLCoordGL(x, y));
 	}
 	
-	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateBlockFromValue()
+	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateBlockFromValue(bool make_block_authoritative)
 	{
-		x.set(getValue().mX, false);
-		y.set(getValue().mY, false);
+		x.set(getValue().mX, make_block_authoritative);
+		y.set(getValue().mY, make_block_authoritative);
 	}
 
 
