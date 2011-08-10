@@ -1488,8 +1488,6 @@ void LLViewerRegion::unpackRegionHandshake()
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
-void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
-{
 	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("AvatarPickerSearch");
 	capabilityNames.append("ChatSessionRequest");
