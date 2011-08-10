@@ -35,21 +35,30 @@ class LLMenuButton
 : public LLButton
 {
 public:
-	struct Params 
-	:	public LLInitParam::Block<Params, LLButton::Params>
-	{
-		// filename for it's toggleable menu
-		Optional<std::string>	menu_filename;
-	
-		Params();
-	};
-
 	typedef enum e_menu_position
 	{
 		MP_TOP_LEFT,
 		MP_TOP_RIGHT,
 		MP_BOTTOM_LEFT
 	} EMenuPosition;
+
+	struct MenuPositions
+		:	public LLInitParam::TypeValuesHelper<EMenuPosition, MenuPositions>
+	{
+		static void declareValues();
+	};
+
+	struct Params 
+	:	public LLInitParam::Block<Params, LLButton::Params>
+	{
+		// filename for it's toggleable menu
+		Optional<std::string>	menu_filename;
+		Optional<EMenuPosition>	position;
+	
+		Params();
+	};
+
+
 	
 	boost::signals2::connection setMouseDownCallback( const mouse_signal_t::slot_type& cb );
 
