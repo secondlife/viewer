@@ -2040,8 +2040,10 @@ void LLFolderView::removeItemID(const LLUUID& id)
 	mItemMap.erase(id);
 }
 
+LLFastTimer::DeclareTimer FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
 LLFolderViewItem* LLFolderView::getItemByID(const LLUUID& id)
 {
+	LLFastTimer _(FTM_GET_ITEM_BY_ID);
 	if (id == getListener()->getUUID())
 	{
 		return this;
