@@ -75,7 +75,8 @@ class ViewerManifest(LLManifest):
                 if linden_names_path :
                     try:
                         linden_file = open(linden_names_path,'r')
-                        linden_names = linden_file.readlines() # all names are on one line
+                         # all names should be one line, but the join below also converts to a string
+                        linden_names = ', '.join(linden_file.readlines())
                         self.put_in_file(linden_names, "lindens.txt")
                         linden_file.close()
                     except IOError:
