@@ -184,6 +184,13 @@ std::string lod_label_name[NUM_LOD+1] =
 	"I went off the end of the lod_label_name array.  Me so smart."
 };
 
+std::string colladaVersion[VERSIONTYPE_COUNT+1] = 
+{
+	"1.4.0",
+	"1.4.1",
+	"Unsupported"
+};
+
 
 #define LL_DEGENERACY_TOLERANCE  1e-7f
 
@@ -1395,17 +1402,20 @@ bool LLModelLoader::doLoadModel()
 		setLoadState( ERROR_PARSING );
 		return false;
 	}
-
-	//determine if this dae is a valid version.
+	//Dom version
+	daeString domVersion = dae.getDomVersion();
+	std::string sldom(domVersion);
+	llinfos<<"Collada Importer Version: "<<sldom<<llendl;
+	//Dae version
 	domVersionType docVersion = dom->getVersion();
-
-	if ( docVersion != VERSIONTYPE_1_4_0 )
-	{
-		llinfos<<" Error with dae - unsupported dae version "<<llendl;
-		//setLoadState( ERROR_PARSING );
-		//return false;
-		
+	//0=1.4
+	//1=1.4.1
+	//2=Currently unsupported, however may work
+	if (docVersion > 1 ) 
+	{ 
+		docVersion = VERSIONTYPE_COUNT;
 	}
+	llinfos<<"Dae version "<<colladaVersion[docVersion]<<llendl;
 	
 	
 	daeDatabase* db = dae.getDatabase();
@@ -1640,15 +1650,22 @@ bool LLModelLoader::doLoadModel()
                                     if ( pJoint )
                                     {
 										//Pull out the translate id and store it in the jointTranslations map
-										daeSIDResolver jointResolver( pJoint, "./translate" );
-										domTranslate* pTranslate = daeSafeCast<domTranslate>( jointResolver.getElement() );
+										daeSIDResolver jointResolverA( pJoint, "./translate" );
+										domTranslate* pTranslateA = daeSafeCast<domTranslate>( jointResolverA.getElement() );
+										daeSIDResolver jointResolverB( pJoint, "./location" );
+										domTranslate* pTranslateB = daeSafeCast<domTranslate>( jointResolverB.getElement() );
 										
 										LLMatrix4 workingTransform;
 										
 										//Translation via SID
-										if ( pTranslate )
+										if ( pTranslateA )
 										{
-											extractTranslation( pTranslate, workingTransform );
+											extractTranslation( pTranslateA, workingTransform );
+										}
+										else
+										if ( pTranslateB )
+										{
+											extractTranslation( pTranslateB, workingTransform );
 										}
 										else
 										{
@@ -2525,13 +2542,20 @@ void LLModelLoader::processJointNode( domNode* pNode, JointTransformMap& jointTr
 	LLMatrix4 workingTransform;
 
 	//Pull out the translate id and store it in the jointTranslations map
-	daeSIDResolver jointResolver( pNode, "./translate" );
-	domTranslate* pTranslate = daeSafeCast<domTranslate>( jointResolver.getElement() );
+	daeSIDResolver jointResolverA( pNode, "./translate" );
+	domTranslate* pTranslateA = daeSafeCast<domTranslate>( jointResolverA.getElement() );
+	daeSIDResolver jointResolverB( pNode, "./location" );
+	domTranslate* pTranslateB = daeSafeCast<domTranslate>( jointResolverB.getElement() );
 
 	//Translation via SID was successful
-	if ( pTranslate )
+	if ( pTranslateA )
 	{
-		extractTranslation( pTranslate, workingTransform );
+		extractTranslation( pTranslateA, workingTransform );
+	}
+	else
+	if ( pTranslateB )
+	{
+		extractTranslation( pTranslateB, workingTransform );
 	}
 	else
 	{
