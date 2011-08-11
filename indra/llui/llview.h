@@ -516,6 +516,9 @@ protected:
 	void			drawDebugRect();
 	void			drawChild(LLView* childp, S32 x_offset = 0, S32 y_offset = 0, BOOL force_draw = FALSE);
 	void			drawChildren();
+	bool			visibleAndContains(S32 local_x, S32 local_Y);
+	bool			visibleEnabledAndContains(S32 local_x, S32 local_y);
+	void			logMouseEvent();
 
 	LLView*	childrenHandleKey(KEY key, MASK mask);
 	LLView* childrenHandleUnicodeChar(llwchar uni_char);
@@ -540,6 +543,20 @@ protected:
 	ECursorType mHoverCursor;
 	
 private:
+
+	template <typename METHOD, typename XDATA>
+	LLView* childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra);
+
+	template <typename METHOD, typename CHARTYPE>
+	LLView* childrenHandleCharEvent(const std::string& desc, const METHOD& method,
+									CHARTYPE c, MASK mask);
+
+	// adapter to blur distinction between handleKey() and handleUnicodeChar()
+	// for childrenHandleCharEvent()
+	BOOL	handleUnicodeCharWithDummyMask(llwchar uni_char, MASK /* dummy */, BOOL from_parent)
+	{
+		return handleUnicodeChar(uni_char, from_parent);
+	}
 
 	LLView*		mParentView;
 	child_list_t mChildList;

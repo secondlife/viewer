@@ -32,6 +32,7 @@
 
 #include <cassert>
 #include <boost/tokenizer.hpp>
+#include <boost/foreach.hpp>
 
 #include "llrender.h"
 #include "llevent.h"
@@ -346,13 +347,11 @@ void LLView::removeChild(LLView* child)
 LLView::ctrl_list_t LLView::getCtrlList() const
 {
 	ctrl_list_t controls;
-	for(child_list_const_iter_t iter = mChildList.begin();
-		iter != mChildList.end();
-		iter++)
+	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
-		if((*iter)->isCtrl())
+		if(viewp->isCtrl())
 		{
-			controls.push_back(static_cast<LLUICtrl*>(*iter));
+			controls.push_back(static_cast<LLUICtrl*>(viewp));
 		}
 	}
 	return controls;
@@ -574,9 +573,8 @@ void LLView::deleteAllChildren()
 
 void LLView::setAllChildrenEnabled(BOOL b)
 {
-	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
-		LLView* viewp = *child_it;
 		viewp->setEnabled(b);
 	}
 }
@@ -602,9 +600,8 @@ void LLView::setVisible(BOOL visible)
 // virtual
 void LLView::handleVisibilityChange ( BOOL new_visibility )
 {
-	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
-		LLView* viewp = *child_it;
 		// only views that are themselves visible will have their overall visibility affected by their ancestors
 		if (viewp->getVisible())
 		{
@@ -646,39 +643,71 @@ void LLView::onMouseLeave(S32 x, S32 y, MASK mask)
 	//llinfos << "Mouse left " << getName() << llendl;
 }
 
-
-LLView* LLView::childrenHandleToolTip(S32 x, S32 y, MASK mask)
+bool LLView::visibleAndContains(S32 local_x, S32 local_y)
 {
-	LLView* handled_view = NULL;
-	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	return pointInView(local_x, local_y)
+		&& getVisible();
+}
+
+bool LLView::visibleEnabledAndContains(S32 local_x, S32 local_y)
+{
+	return visibleAndContains(local_x, local_y)
+		&& getEnabled();
+}
+
+void LLView::logMouseEvent()
+{
+	if (sDebugMouseHandling)
 	{
-		LLView* viewp = *child_it;
+		sMouseHandlerMessage = std::string("/") + mName + sMouseHandlerMessage;
+	}
+}
+
+// XDATA might be MASK, or S32 clicks
+template <typename METHOD, typename XDATA>
+LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra)
+{
+	BOOST_FOREACH(LLView* viewp, mChildList)
+	{
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
-		if(!viewp->pointInView(local_x, local_y) 
-			|| !viewp->getVisible())
+
+		if (!viewp->visibleEnabledAndContains(local_x, local_y))
 		{
 			continue;
 		}
 
-		if (viewp->handleToolTip(local_x, local_y, mask) )
+		if ((viewp->*method)( local_x, local_y, extra )
+			|| viewp->blockMouseEvent( local_x, local_y ))
 		{
-			if (sDebugMouseHandling)
-			{
-				sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
-			}
-
-			handled_view = viewp;
-			break;
-		}
-
-		if (viewp->blockMouseEvent(local_x, local_y))
-		{
-			handled_view = viewp;
-			break;
+			viewp->logMouseEvent();
+			return viewp;
 		}
 	}
-	return handled_view;
+	return NULL;
+}
+
+LLView* LLView::childrenHandleToolTip(S32 x, S32 y, MASK mask)
+{
+	BOOST_FOREACH(LLView* viewp, mChildList)
+	{
+		S32 local_x = x - viewp->getRect().mLeft;
+		S32 local_y = y - viewp->getRect().mBottom;
+		// Differs from childrenHandleMouseEvent() in that we want to offer
+		// tooltips even for disabled widgets.
+		if(!viewp->visibleAndContains(local_x, local_y))
+		{
+			continue;
+		}
+
+		if (viewp->handleToolTip(local_x, local_y, mask) 
+			|| viewp->blockMouseEvent(local_x, local_y))
+		{
+			viewp->logMouseEvent();
+			return viewp;
+		}
+	}
+	return NULL;
 }
 
 
@@ -686,13 +715,11 @@ LLView*	LLView::childFromPoint(S32 x, S32 y)
 {
 	if (!getVisible()  )
 		return false;
-	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
-		LLView* viewp = *child_it;
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
-		if (!viewp->pointInView(local_x, local_y) 
-			|| !viewp->getVisible() )
+		if (!viewp->visibleAndContains(local_x, local_y))
 		{
 			continue;
 		}
@@ -822,36 +849,31 @@ LLView* LLView::childrenHandleDragAndDrop(S32 x, S32 y, MASK mask,
 									   EAcceptance* accept,
 									   std::string& tooltip_msg)
 {
-	LLView* handled_view = NULL;
-	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	// default to not accepting drag and drop, will be overridden by handler
+	*accept = ACCEPT_NO;
+
+	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
-		LLView* viewp = *child_it;
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
-		if( !viewp->pointInView(local_x, local_y) ||
-			!viewp->getVisible() ||
-			!viewp->getEnabled())
+		if( !viewp->visibleEnabledAndContains(local_x, local_y))
 		{
 			continue;
 		}
+
+		// Differs from childrenHandleMouseEvent() simply in that this virtual
+		// method call diverges pretty radically from the usual (x, y, int).
 		if (viewp->handleDragAndDrop(local_x, local_y, mask, drop,
 									 cargo_type,
 									 cargo_data,
 									 accept,
-									 tooltip_msg))
+									 tooltip_msg)
+			|| viewp->blockMouseEvent(local_x, local_y))
 		{
-			handled_view = viewp;
-			break;
-		}
-
-		if (viewp->blockMouseEvent(x, y))
-		{
-			*accept = ACCEPT_NO;
-			handled_view = viewp;
-			break;
+			return viewp;
 		}
 	}
-	return handled_view;
+	return NULL;
 }
 
 void LLView::onMouseCaptureLost()
@@ -906,388 +928,100 @@ BOOL LLView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 
 LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	LLView* handled_view = NULL;
-	if (getVisible() && getEnabled() )
-	{
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->getRect().mLeft;
-			S32 local_y = y - viewp->getRect().mBottom;
-			if (!viewp->pointInView(local_x, local_y) 
-				|| !viewp->getVisible()
-				|| !viewp->getEnabled())
-			{
-				continue;
-			}
-
-			if (viewp->handleScrollWheel( local_x, local_y, clicks ))
-			{
-				if (sDebugMouseHandling)
-				{
-					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
-				}
-
-				handled_view = viewp;
-				break;
-			}
-		}
-	}
-	return handled_view;
+	return childrenHandleMouseEvent(&LLView::handleScrollWheel, x, y, clicks);
 }
 
 LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 {
-	LLView* handled_view = NULL;
-	if (getVisible() && getEnabled() )
+	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+		S32 local_x = x - viewp->getRect().mLeft;
+		S32 local_y = y - viewp->getRect().mBottom;
+		if(!viewp->visibleEnabledAndContains(local_x, local_y))
 		{
-			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->getRect().mLeft;
-			S32 local_y = y - viewp->getRect().mBottom;
-			if(!viewp->pointInView(local_x, local_y) 
-				|| !viewp->getVisible() 
-				|| !viewp->getEnabled())
-			{
-				continue;
-			}
+			continue;
+		}
 
-			if (viewp->handleHover(local_x, local_y, mask) )
+		// This call differentiates this method from childrenHandleMouseEvent().
+		LLUI::sWindow->setCursor(viewp->getHoverCursor());
+
+		if (viewp->handleHover(local_x, local_y, mask)
+			|| viewp->blockMouseEvent(local_x, local_y))
+		{
+			viewp->logMouseEvent();
+			return viewp;
+		}
+	}
+	return NULL;
+}
+
+template <typename METHOD, typename CHARTYPE>
+LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& method,
+										CHARTYPE c, MASK mask)
+{
+	if ( getVisible() && getEnabled() )
+	{
+		BOOST_FOREACH(LLView* viewp, mChildList)
+		{
+			if ((viewp->*method)(c, mask, TRUE))
 			{
-				if (sDebugMouseHandling)
+				if (LLView::sDebugKeys)
 				{
-					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
+					llinfos << desc << " handled by " << viewp->getName() << llendl;
 				}
-
-				handled_view = viewp;
-				break;
-			}
-
-			if (viewp->blockMouseEvent(local_x, local_y))
-			{
-				LLUI::sWindow->setCursor(viewp->getHoverCursor());
-
-				handled_view = viewp;
-				break;
+				return viewp;
 			}
 		}
 	}
-	return handled_view;
+    return NULL;
 }
 
 // Called during downward traversal
 LLView* LLView::childrenHandleKey(KEY key, MASK mask)
 {
-	LLView* handled_view = NULL;
-
-	if ( getVisible() && getEnabled() )
-	{
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			if (viewp->handleKey(key, mask, TRUE))
-			{
-				if (LLView::sDebugKeys)
-				{
-					llinfos << "Key handled by " << viewp->getName() << llendl;
-				}
-				handled_view = viewp;
-				break;
-			}
-		}
-	}
-
-	return handled_view;
+	return childrenHandleCharEvent("Key", &LLView::handleKey, key, mask);
 }
 
 // Called during downward traversal
 LLView* LLView::childrenHandleUnicodeChar(llwchar uni_char)
 {
-	LLView* handled_view = NULL;
-
-	if ( getVisible() && getEnabled() )
-	{
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			if (viewp->handleUnicodeChar(uni_char, TRUE))
-			{
-				if (LLView::sDebugKeys)
-				{
-					llinfos << "Unicode character handled by " << viewp->getName() << llendl;
-				}
-				handled_view = viewp;
-				break;
-			}
-		}
-	}
-
-	return handled_view;
+	return childrenHandleCharEvent("Unicode character", &LLView::handleUnicodeCharWithDummyMask,
+								   uni_char, MASK_NONE);
 }
 
 LLView* LLView::childrenHandleMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLView* handled_view = NULL;
-
-	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-	{
-		LLView* viewp = *child_it;
-		S32 local_x = x - viewp->getRect().mLeft;
-		S32 local_y = y - viewp->getRect().mBottom;
-
-		if (!viewp->pointInView(local_x, local_y) 
-			|| !viewp->getVisible() 
-			|| !viewp->getEnabled())
-		{
-			continue;
-		}
-
-		if(viewp->handleMouseDown( local_x, local_y, mask ))
-		{
-			if (sDebugMouseHandling)
-			{
-				sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
-			}
-			handled_view = viewp;
-			break;
-		}
-
-		if(viewp->blockMouseEvent(local_x, local_y))
-		{
-			handled_view = viewp;
-			break;
-		}
-	}
-	return handled_view;
+	return childrenHandleMouseEvent(&LLView::handleMouseDown, x, y, mask);
 }
 
 LLView* LLView::childrenHandleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLView* handled_view = NULL;
-
-	if (getVisible() && getEnabled() )
-	{
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->getRect().mLeft;
-			S32 local_y = y - viewp->getRect().mBottom;
-
-			if (!viewp->pointInView(local_x, local_y)
-				|| !viewp->getVisible() 
-				|| !viewp->getEnabled())
-			{
-				continue;
-			}
-
-			if (viewp->handleRightMouseDown( local_x, local_y, mask ))
-			{
-				if (sDebugMouseHandling)
-				{
-					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
-				}
-
-				handled_view = viewp;
-				break;
-			}
-
-			if (viewp->blockMouseEvent(local_x, local_y))
-			{
-				handled_view = viewp;
-				break;
-			}
-		}
-	}
-	return handled_view;
+	return childrenHandleMouseEvent(&LLView::handleRightMouseDown, x, y, mask);
 }
 
 LLView* LLView::childrenHandleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLView* handled_view = NULL;
-
-	if (getVisible() && getEnabled() )
-	{
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->getRect().mLeft;
-			S32 local_y = y - viewp->getRect().mBottom;
-			if (!viewp->pointInView(local_x, local_y)
-				|| !viewp->getVisible() 
-				|| !viewp->getEnabled())
-			{
-				continue;
-			}
-
-			if(viewp->handleMiddleMouseDown( local_x, local_y, mask ))
-			{
-				if (sDebugMouseHandling)
-				{
-					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
-				}
-				handled_view = viewp;
-				break;
-			}
-
-			if (viewp->blockMouseEvent(local_x, local_y))
-			{
-				handled_view = viewp;
-				break;
-			}
-		}
-	}
-	return handled_view;
+	return childrenHandleMouseEvent(&LLView::handleMiddleMouseDown, x, y, mask);
 }
 
 LLView* LLView::childrenHandleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	LLView* handled_view = NULL;
-
-	if (getVisible() && getEnabled() )
-	{
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->getRect().mLeft;
-			S32 local_y = y - viewp->getRect().mBottom;
-
-			if (!viewp->pointInView(local_x, local_y) 
-				|| !viewp->getVisible() 
-				|| !viewp->getEnabled())
-			{
-				continue;
-			}
-
-			if (viewp->handleDoubleClick( local_x, local_y, mask ))
-			{
-				if (sDebugMouseHandling)
-				{
-					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
-				}
-				handled_view = viewp;
-				break;
-			}
-
-			if (viewp->blockMouseEvent(local_x, local_y))
-			{
-				handled_view = viewp;
-				break;
-			}
-		}
-	}
-	return handled_view;
+	return childrenHandleMouseEvent(&LLView::handleDoubleClick, x, y, mask);
 }
 
 LLView* LLView::childrenHandleMouseUp(S32 x, S32 y, MASK mask)
 {
-	LLView* handled_view = NULL;
-	if( getVisible() && getEnabled() )
-	{
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->getRect().mLeft;
-			S32 local_y = y - viewp->getRect().mBottom;
-			if (!viewp->pointInView(local_x, local_y)
-				|| !viewp->getVisible()
-				|| !viewp->getEnabled())
-			{
-				continue;
-			}
-			
-			if (viewp->handleMouseUp( local_x, local_y, mask ))
-			{
-				if (sDebugMouseHandling)
-				{
-					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
-				}
-				handled_view = viewp;
-				break;
-			}
-
-			if (viewp->blockMouseEvent(local_x, local_y))
-			{
-				handled_view = viewp;
-				break;
-			}
-		}
-	}
-	return handled_view;
+	return childrenHandleMouseEvent(&LLView::handleMouseUp, x, y, mask);
 }
 
 LLView* LLView::childrenHandleRightMouseUp(S32 x, S32 y, MASK mask)
 {
-	LLView* handled_view = NULL;
-	if( getVisible() && getEnabled() )
-	{
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->getRect().mLeft;
-			S32 local_y = y - viewp->getRect().mBottom;
-			if (!viewp->pointInView(local_x, local_y) 
-				|| !viewp->getVisible() 
-				|| !viewp->getEnabled() )
-			{
-				continue;
-			}
-
-			if(viewp->handleRightMouseUp( local_x, local_y, mask ))
-			{
-				if (sDebugMouseHandling)
-				{
-					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
-				}
-				handled_view = viewp;
-				break;
-			}
-
-			if(viewp->blockMouseEvent(local_x, local_y))
-			{
-				handled_view = viewp;
-				break;
-			}
-		}
-	}
-	return handled_view;
+	return childrenHandleMouseEvent(&LLView::handleRightMouseUp, x, y, mask);
 }
 
 LLView* LLView::childrenHandleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
-	LLView* handled_view = NULL;
-	if( getVisible() && getEnabled() )
-	{
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->getRect().mLeft;
-			S32 local_y = y - viewp->getRect().mBottom;
-			if (!viewp->pointInView(local_x, local_y) 
-				|| !viewp->getVisible() 
-				|| !viewp->getEnabled())
-			{
-				continue;
-			}
-				
-			if(viewp->handleMiddleMouseUp( local_x, local_y, mask ))
-			{
-				if (sDebugMouseHandling)
-				{
-					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
-				}
-				handled_view = viewp;
-				break;
-			}
-
-			if (viewp->blockMouseEvent(local_x, local_y))
-			{
-				handled_view = viewp;
-				break;
-			}
-		}
-	}
-	return handled_view;
+	return childrenHandleMouseEvent(&LLView::handleMiddleMouseUp, x, y, mask);
 }
 
 void LLView::draw()
@@ -1460,9 +1194,8 @@ void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		mRect.mTop = getRect().mBottom + height;
 
 		// move child views according to reshape flags
-		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+		BOOST_FOREACH(LLView* viewp, mChildList)
 		{
-			LLView* viewp = *child_it;
 			LLRect child_rect( viewp->mRect );
 
 			if (viewp->followsRight() && viewp->followsLeft())
@@ -1525,10 +1258,8 @@ LLRect LLView::calcBoundingRect()
 {
 	LLRect local_bounding_rect = LLRect::null;
 
-	child_list_const_iter_t child_it;
-	for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	BOOST_FOREACH(LLView* childp, mChildList)
 	{
-		LLView* childp = *child_it;
 		// ignore invisible and "top" children when calculating bounding rect
 		// such as combobox popups
 		if (!childp->getVisible() || childp == gFocusMgr.getTopCtrl()) 
@@ -1689,11 +1420,9 @@ LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
 	//richard: should we allow empty names?
 	//if(name.empty())
 	//	return NULL;
-	child_list_const_iter_t child_it;
 	// Look for direct children *first*
-	for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	BOOST_FOREACH(LLView* childp, mChildList)
 	{
-		LLView* childp = *child_it;
 		llassert(childp);
 		if (childp->getName() == name)
 		{
@@ -1703,9 +1432,8 @@ LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
 	if (recurse)
 	{
 		// Look inside each child as well.
-		for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+		BOOST_FOREACH(LLView* childp, mChildList)
 		{
-			LLView* childp = *child_it;
 			llassert(childp);
 			LLView* viewp = childp->findChildView(name, recurse);
 			if ( viewp )
@@ -2811,9 +2539,9 @@ S32	LLView::notifyParent(const LLSD& info)
 bool	LLView::notifyChildren(const LLSD& info)
 {
 	bool ret = false;
-	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	BOOST_FOREACH(LLView* childp, mChildList)
 	{
-		ret |= (*child_it)->notifyChildren(info);
+		ret = ret || childp->notifyChildren(info);
 	}
 	return ret;
 }
