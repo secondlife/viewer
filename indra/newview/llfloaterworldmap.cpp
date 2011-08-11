@@ -1221,6 +1221,12 @@ void LLFloaterWorldMap::onLocationCommit()
 	{	// Set the value in the UI if any spaces were removed
 		getChild<LLUICtrl>("location")->setValue(str);
 	}
+
+	// Don't try completing empty name (STORM-1427).
+	if (str.empty())
+	{
+		return;
+	}
 	
 	LLStringUtil::toLower(str);
 	mCompletingRegionName = str;
