@@ -54,7 +54,7 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	void setupInventoryPanel();
+	LLInventoryPanel * setupInventoryPanel();
 
 	bool isOutboxEmpty() const;
 	bool isSyncInProgress() const;

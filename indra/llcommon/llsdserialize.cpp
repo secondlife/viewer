@@ -313,8 +313,10 @@ LLSDParser::LLSDParser()
 LLSDParser::~LLSDParser()
 { }
 
+LLFastTimer::DeclareTimer FTM_SD_PARSE("LLSD Parsing");
 S32 LLSDParser::parse(std::istream& istr, LLSD& data, S32 max_bytes)
 {
+	LLFastTimer _(FTM_SD_PARSE);
 	mCheckLimits = (LLSDSerialize::SIZE_UNLIMITED == max_bytes) ? false : true;
 	mMaxBytesLeft = max_bytes;
 	return doParse(istr, data);

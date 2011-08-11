@@ -369,16 +369,6 @@ void LLFolderView::closeAllFolders()
 	arrangeAll();
 }
 
-void LLFolderView::openFolder(const std::string& foldername)
-{
-	LLFolderViewFolder* inv = findChild<LLFolderViewFolder>(foldername);
-	if (inv)
-	{
-		setSelection(inv, FALSE, FALSE);
-		inv->setOpen(TRUE);
-	}
-}
-
 void LLFolderView::openTopLevelFolders()
 {
 	for (folders_t::iterator iter = mFolders.begin();
@@ -720,8 +710,10 @@ void LLFolderView::extendSelection(LLFolderViewItem* selection, LLFolderViewItem
 	mSignalSelectCallback = SIGNAL_KEYBOARD_FOCUS;
 }
 
+static LLFastTimer::DeclareTimer FTM_SANITIZE_SELECTION("Sanitize Selection");
 void LLFolderView::sanitizeSelection()
 {
+	LLFastTimer _(FTM_SANITIZE_SELECTION);
 	// store off current item in case it is automatically deselected
 	// and we want to preserve context
 	LLFolderViewItem* original_selected_item = getCurSelectedItem();
@@ -1926,8 +1918,8 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		}
 		else
 		{
-		handled = mFolders.front()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
-	}
+			handled = mFolders.front()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+		}
 	}
 
 	if (handled)
@@ -2048,8 +2040,10 @@ void LLFolderView::removeItemID(const LLUUID& id)
 	mItemMap.erase(id);
 }
 
+LLFastTimer::DeclareTimer FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
 LLFolderViewItem* LLFolderView::getItemByID(const LLUUID& id)
 {
+	LLFastTimer _(FTM_GET_ITEM_BY_ID);
 	if (id == getListener()->getUUID())
 	{
 		return this;
