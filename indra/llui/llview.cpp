@@ -663,6 +663,27 @@ void LLView::logMouseEvent()
 	}
 }
 
+template <typename METHOD, typename CHARTYPE>
+LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& method,
+										CHARTYPE c, MASK mask)
+{
+	if ( getVisible() && getEnabled() )
+	{
+		BOOST_FOREACH(LLView* viewp, mChildList)
+		{
+			if ((viewp->*method)(c, mask, TRUE))
+			{
+				if (LLView::sDebugKeys)
+				{
+					llinfos << desc << " handled by " << viewp->getName() << llendl;
+				}
+				return viewp;
+			}
+		}
+	}
+    return NULL;
+}
+
 // XDATA might be MASK, or S32 clicks
 template <typename METHOD, typename XDATA>
 LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra)
@@ -710,6 +731,63 @@ LLView* LLView::childrenHandleToolTip(S32 x, S32 y, MASK mask)
 	return NULL;
 }
 
+LLView* LLView::childrenHandleDragAndDrop(S32 x, S32 y, MASK mask,
+									   BOOL drop,
+									   EDragAndDropType cargo_type,
+									   void* cargo_data,
+									   EAcceptance* accept,
+									   std::string& tooltip_msg)
+{
+	// default to not accepting drag and drop, will be overridden by handler
+	*accept = ACCEPT_NO;
+
+	BOOST_FOREACH(LLView* viewp, mChildList)
+	{
+		S32 local_x = x - viewp->getRect().mLeft;
+		S32 local_y = y - viewp->getRect().mBottom;
+		if( !viewp->visibleEnabledAndContains(local_x, local_y))
+		{
+			continue;
+		}
+
+		// Differs from childrenHandleMouseEvent() simply in that this virtual
+		// method call diverges pretty radically from the usual (x, y, int).
+		if (viewp->handleDragAndDrop(local_x, local_y, mask, drop,
+									 cargo_type,
+									 cargo_data,
+									 accept,
+									 tooltip_msg)
+			|| viewp->blockMouseEvent(local_x, local_y))
+		{
+			return viewp;
+		}
+	}
+	return NULL;
+}
+
+LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
+{
+	BOOST_FOREACH(LLView* viewp, mChildList)
+	{
+		S32 local_x = x - viewp->getRect().mLeft;
+		S32 local_y = y - viewp->getRect().mBottom;
+		if(!viewp->visibleEnabledAndContains(local_x, local_y))
+		{
+			continue;
+		}
+
+		// This call differentiates this method from childrenHandleMouseEvent().
+		LLUI::sWindow->setCursor(viewp->getHoverCursor());
+
+		if (viewp->handleHover(local_x, local_y, mask)
+			|| viewp->blockMouseEvent(local_x, local_y))
+		{
+			viewp->logMouseEvent();
+			return viewp;
+		}
+	}
+	return NULL;
+}
 
 LLView*	LLView::childFromPoint(S32 x, S32 y)
 {
@@ -842,40 +920,6 @@ BOOL LLView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return childrenHandleDragAndDrop( x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg) != NULL;
 }
 
-LLView* LLView::childrenHandleDragAndDrop(S32 x, S32 y, MASK mask,
-									   BOOL drop,
-									   EDragAndDropType cargo_type,
-									   void* cargo_data,
-									   EAcceptance* accept,
-									   std::string& tooltip_msg)
-{
-	// default to not accepting drag and drop, will be overridden by handler
-	*accept = ACCEPT_NO;
-
-	BOOST_FOREACH(LLView* viewp, mChildList)
-	{
-		S32 local_x = x - viewp->getRect().mLeft;
-		S32 local_y = y - viewp->getRect().mBottom;
-		if( !viewp->visibleEnabledAndContains(local_x, local_y))
-		{
-			continue;
-		}
-
-		// Differs from childrenHandleMouseEvent() simply in that this virtual
-		// method call diverges pretty radically from the usual (x, y, int).
-		if (viewp->handleDragAndDrop(local_x, local_y, mask, drop,
-									 cargo_type,
-									 cargo_data,
-									 accept,
-									 tooltip_msg)
-			|| viewp->blockMouseEvent(local_x, local_y))
-		{
-			return viewp;
-		}
-	}
-	return NULL;
-}
-
 void LLView::onMouseCaptureLost()
 {
 }
@@ -925,55 +969,9 @@ BOOL LLView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 	return childrenHandleMiddleMouseUp( x, y, mask ) != NULL;
 }
 
-
 LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	return childrenHandleMouseEvent(&LLView::handleScrollWheel, x, y, clicks);
-}
-
-LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
-{
-	BOOST_FOREACH(LLView* viewp, mChildList)
-	{
-		S32 local_x = x - viewp->getRect().mLeft;
-		S32 local_y = y - viewp->getRect().mBottom;
-		if(!viewp->visibleEnabledAndContains(local_x, local_y))
-		{
-			continue;
-		}
-
-		// This call differentiates this method from childrenHandleMouseEvent().
-		LLUI::sWindow->setCursor(viewp->getHoverCursor());
-
-		if (viewp->handleHover(local_x, local_y, mask)
-			|| viewp->blockMouseEvent(local_x, local_y))
-		{
-			viewp->logMouseEvent();
-			return viewp;
-		}
-	}
-	return NULL;
-}
-
-template <typename METHOD, typename CHARTYPE>
-LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& method,
-										CHARTYPE c, MASK mask)
-{
-	if ( getVisible() && getEnabled() )
-	{
-		BOOST_FOREACH(LLView* viewp, mChildList)
-		{
-			if ((viewp->*method)(c, mask, TRUE))
-			{
-				if (LLView::sDebugKeys)
-				{
-					llinfos << desc << " handled by " << viewp->getName() << llendl;
-				}
-				return viewp;
-			}
-		}
-	}
-    return NULL;
 }
 
 // Called during downward traversal
