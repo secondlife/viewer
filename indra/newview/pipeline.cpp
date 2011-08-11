@@ -673,6 +673,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
 	
 		if (!mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mFXAABuffer.allocate(nhpo2(resX), nhpo2(resY), GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
 		
 #if LL_DARWIN
 		// As of OS X 10.6.7, Apple doesn't support multiple color formats in a single FBO
@@ -782,6 +783,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		{
 			mShadow[i].release();
 		}
+		mFXAABuffer.release();
 		mScreen.release();
 		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
 		mDeferredDepth.release();
@@ -867,6 +869,7 @@ void LLPipeline::releaseScreenBuffers()
 {
 	mUIScreen.release();
 	mScreen.release();
+	mFXAABuffer.release();
 	mPhysicsDisplay.release();
 	mDeferredScreen.release();
 	mDeferredDepth.release();
@@ -4231,6 +4234,11 @@ void LLPipeline::renderDebug()
 		}
 	}
 
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
 	{
 		LLVertexBuffer::unbind();
@@ -4455,6 +4463,10 @@ void LLPipeline::renderDebug()
 	}
 
 	gGL.flush();
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.unbind();
+	}
 
 	gPipeline.renderPhysicsDisplay();
 }
@@ -6300,7 +6312,31 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	if (LLPipeline::sRenderDeferred)
 	{
 		bool dof_enabled = !LLViewerCamera::getInstance()->cameraUnderWater();
+		{
+			//bake out texture2D with RGBL for FXAA shader
+			mFXAABuffer.bindTarget();
+			
+			S32 width = mScreen.getWidth();
+			S32 height = mScreen.getHeight();
+			glViewport(0, 0, width, height);
 
+			gGlowCombineFXAAProgram.bind();
+			gGlowCombineFXAAProgram.uniform2f("screen_res", width, height);
+
+			gGL.getTexUnit(0)->bind(&mGlow[1]);
+			gGL.getTexUnit(1)->bind(&mScreen);
+
+			gGL.begin(LLRender::TRIANGLE_STRIP);
+			gGL.vertex2f(-1,-1);
+			gGL.vertex2f(-1,3);
+			gGL.vertex2f(3,-1);
+			gGL.end();
+
+			gGlowCombineFXAAProgram.unbind();
+			mFXAABuffer.flush();
+			gViewerWindow->setup3DViewport();
+		}
+				
 		LLGLSLShader* shader = &gDeferredPostProgram;
 		if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 2)
 		{
@@ -6316,6 +6352,16 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		
 		LLGLDisable blend(GL_BLEND);
 		bindDeferredShader(*shader);
+
+		S32 width = mScreen.getWidth();
+		S32 height = mScreen.getHeight();
+		
+		F32 scale_x = (F32) width/mFXAABuffer.getWidth();
+		F32 scale_y = (F32) height/mFXAABuffer.getHeight();
+		shader->uniform2f("tc_scale", scale_x, scale_y);
+		shader->uniform2f("rcp_screen_res", 1.f/width*scale_x, 1.f/height*scale_y);
+		shader->uniform4f("rcp_frame_opt", -0.5f/width*scale_x, -0.5f/height*scale_y, 0.5f/width*scale_x, 0.5f/height*scale_y);
+		shader->uniform4f("rcp_frame_opt2", -2.f/width*scale_x, -2.f/height*scale_y, 2.f/width*scale_x, 2.f/height*scale_y);
 
 		if (dof_enabled)
 		{
@@ -6429,17 +6475,13 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			shader->uniform1f("magnification", magnification);
 		}
 
-		S32 channel = shader->enableTexture(LLViewerShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
+		S32 channel = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP, mFXAABuffer.getUsage());
 		if (channel > -1)
 		{
-			mScreen.bindTexture(0, channel);
+			mFXAABuffer.bindTexture(0, channel);
+			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 		}
-		//channel = shader->enableTexture(LLViewerShaderMgr::DEFERRED_DEPTH, LLTexUnit::TT_RECT_TEXTURE);
-		//if (channel > -1)
-		//{
-			//gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
-		//}
-
+	
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 		gGL.vertex2f(-1,-1);

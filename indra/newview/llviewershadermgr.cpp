@@ -65,11 +65,13 @@ LLVector4			gShinyOrigin;
 LLGLSLShader	gOcclusionProgram;
 LLGLSLShader	gCustomAlphaProgram;
 LLGLSLShader	gGlowCombineProgram;
+LLGLSLShader	gGlowCombineFXAAProgram;
 LLGLSLShader	gTwoTextureAddProgram;
 LLGLSLShader	gOneTextureNoColorProgram;
 
 //object shaders
 LLGLSLShader		gObjectSimpleProgram;
+LLGLSLShader		gObjectPreviewProgram;
 LLGLSLShader		gObjectSimpleWaterProgram;
 LLGLSLShader		gObjectSimpleAlphaMaskProgram;
 LLGLSLShader		gObjectSimpleWaterAlphaMaskProgram;
@@ -200,6 +202,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gWaterProgram);
 	mShaderList.push_back(&gAvatarEyeballProgram); 
 	mShaderList.push_back(&gObjectSimpleProgram);
+	mShaderList.push_back(&gObjectPreviewProgram);
 	mShaderList.push_back(&gImpostorProgram);
 	mShaderList.push_back(&gObjectFullbrightNoColorProgram);
 	mShaderList.push_back(&gObjectFullbrightNoColorWaterProgram);
@@ -208,6 +211,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gUIProgram);
 	mShaderList.push_back(&gCustomAlphaProgram);
 	mShaderList.push_back(&gGlowCombineProgram);
+	mShaderList.push_back(&gGlowCombineFXAAProgram);
 	mShaderList.push_back(&gTwoTextureAddProgram);
 	mShaderList.push_back(&gOneTextureNoColorProgram);
 	mShaderList.push_back(&gSolidColorProgram);
@@ -669,6 +673,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gUIProgram.unload();
 	gCustomAlphaProgram.unload();
 	gGlowCombineProgram.unload();
+	gGlowCombineFXAAProgram.unload();
 	gTwoTextureAddProgram.unload();
 	gOneTextureNoColorProgram.unload();
 	gSolidColorProgram.unload();
@@ -676,6 +681,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gObjectFullbrightNoColorProgram.unload();
 	gObjectFullbrightNoColorWaterProgram.unload();
 	gObjectSimpleProgram.unload();
+	gObjectPreviewProgram.unload();
 	gImpostorProgram.unload();
 	gObjectSimpleAlphaMaskProgram.unload();
 	gObjectBumpProgram.unload();
@@ -1767,6 +1773,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightNoColorProgram.unload();
 		gObjectFullbrightNoColorWaterProgram.unload();
 		gObjectSimpleProgram.unload();
+		gObjectPreviewProgram.unload();
 		gImpostorProgram.unload();
 		gObjectSimpleAlphaMaskProgram.unload();
 		gObjectBumpProgram.unload();
@@ -2115,6 +2122,23 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gImpostorProgram.mShaderFiles.push_back(make_pair("objects/impostorF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gImpostorProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		success = gImpostorProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gObjectPreviewProgram.mName = "Simple Shader";
+		gObjectPreviewProgram.mFeatures.calculatesLighting = true;
+		gObjectPreviewProgram.mFeatures.calculatesAtmospherics = true;
+		gObjectPreviewProgram.mFeatures.hasGamma = true;
+		gObjectPreviewProgram.mFeatures.hasAtmospherics = true;
+		gObjectPreviewProgram.mFeatures.hasLighting = true;
+		gObjectPreviewProgram.mFeatures.mIndexedTextureChannels = 0;
+		gObjectPreviewProgram.mFeatures.disableTextureIndex = true;
+		gObjectPreviewProgram.mShaderFiles.clear();
+		gObjectPreviewProgram.mShaderFiles.push_back(make_pair("objects/previewV.glsl", GL_VERTEX_SHADER_ARB));
+		gObjectPreviewProgram.mShaderFiles.push_back(make_pair("objects/simpleF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gObjectPreviewProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		success = gObjectPreviewProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2705,6 +2729,24 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 			gGlowCombineProgram.unbind();
 		}
 	}
+
+	if (success)
+	{
+		gGlowCombineFXAAProgram.mName = "Glow CombineFXAA Shader";
+		gGlowCombineFXAAProgram.mShaderFiles.clear();
+		gGlowCombineFXAAProgram.mShaderFiles.push_back(make_pair("interface/glowcombineFXAAV.glsl", GL_VERTEX_SHADER_ARB));
+		gGlowCombineFXAAProgram.mShaderFiles.push_back(make_pair("interface/glowcombineFXAAF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gGlowCombineFXAAProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gGlowCombineFXAAProgram.createShader(NULL, NULL);
+		if (success)
+		{
+			gGlowCombineFXAAProgram.bind();
+			gGlowCombineFXAAProgram.uniform1i("glowMap", 0);
+			gGlowCombineFXAAProgram.uniform1i("screenMap", 1);
+			gGlowCombineFXAAProgram.unbind();
+		}
+	}
+
 
 	if (success)
 	{

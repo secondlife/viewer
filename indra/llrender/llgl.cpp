@@ -582,6 +582,8 @@ bool LLGLManager::initGL()
 		glGetIntegerv(GL_MAX_SAMPLE_MASK_WORDS, &mMaxSampleMaskWords);
 	}
 
+	//HACK always disable texture multisample, use FXAA instead
+	mHasTextureMultisample = FALSE;
 #if LL_WINDOWS
 	if (mIsATI)
 	{ //using multisample textures on ATI results in black screen for some reason

@@ -273,6 +273,7 @@ extern LLVector4			gShinyOrigin;
 extern LLGLSLShader			gOcclusionProgram;
 extern LLGLSLShader			gCustomAlphaProgram;
 extern LLGLSLShader			gGlowCombineProgram;
+extern LLGLSLShader			gGlowCombineFXAAProgram;
 
 //output tex0[tc0] + tex1[tc1]
 extern LLGLSLShader			gTwoTextureAddProgram;
@@ -281,6 +282,7 @@ extern LLGLSLShader			gOneTextureNoColorProgram;
 
 //object shaders
 extern LLGLSLShader			gObjectSimpleProgram;
+extern LLGLSLShader			gObjectPreviewProgram;
 extern LLGLSLShader			gObjectSimpleAlphaMaskProgram;
 extern LLGLSLShader			gObjectSimpleWaterProgram;
 extern LLGLSLShader			gObjectSimpleWaterAlphaMaskProgram;
