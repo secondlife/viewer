@@ -1,8 +1,8 @@
-Linden Lab would like to acknowledge source code contributions from the
+Linden Lab would like to acknowledge contributions from the
 following residents. The Second Life resident name is given below,
-along with the issue identifier corresponding to the patches we've
-received from them.
+along with the issue identifiers to which they have contributed.
 
+45ms Zhong
 Able Whitman
 	VWR-650
 	VWR-1460
@@ -11,10 +11,14 @@ Able Whitman
 	VWR-1813
 Adam Marker
 	VWR-2755
+Adeon Writer
+Aeonix Aeon
 Agathos Frascati
 	CT-246
 	CT-317
 	CT-352
+Ai Austin
+Aiko Ying
 Aimee Trescothick
 	SNOW-227
 	SNOW-570
@@ -154,14 +158,18 @@ Alissa Sabre
 	VWR-12620
 	VWR-12789
 	SNOW-322
+Alliez Mysterio
 Angus Boyd
 	VWR-592
 Ann Congrejo
 	CT-193
+Annie Milestone
+Annika Genezzia
 Ansariel Hiller
 	STORM-1101
 	VWR-25480
 	VWR-26150
+Aralara Rajal
 Ardy Lay
 	STORM-859
 	VWR-19499
@@ -170,16 +178,30 @@ Argent Stonecutter
 	VWR-68
 Armin Weatherwax
 	VWR-8436
+ArminasX Saiman
+Arya Braveheart
+Asaeda Meltingdots
+Asturkon Jua
 Asuka Neely
 	VWR-3434
 	VWR-8179
+Aura Dirval
+Avallyn Oakleaf
+Avatar Quinzet
+BabyA Littlething
+Bacchus Ireto
 Balp Allen
 	VWR-4157
+Bazaar
 Be Holder
 	SNOW-322
 	SNOW-397
+Beansy Twine
 Benja Kepler
 	VWR-746
+Benjamin Bigdipper
+Beth Walcher
+Bezilon Kasei
 Biancaluce Robbiani
 	CT-225
 	CT-226
@@ -190,6 +212,7 @@ Biancaluce Robbiani
 	CT-231
 	CT-321
 	CT-352
+Bill Walach
 Blakar Ogre
 	VWR-418
 	VWR-881
@@ -199,6 +222,8 @@ Blakar Ogre
 	VWR-2164
 blino Nakamura
 	VWR-17
+Blitzckreed Levenque
+Borg Capalini
 Boroondas Gupte
 	OPEN-29
 	OPEN-39
@@ -222,6 +247,8 @@ Boroondas Gupte
 	VWR-26066
 	VWR-26458
 	WEB-262
+Bryn Oh
+Buckaroo Mu
 Bulli Schumann
 	CT-218
 	CT-219
@@ -236,6 +263,9 @@ Bulli Schumann
 bushing Spatula
 	VWR-119
 	VWR-424
+blakopal Galicia
+Callipygian Christensen
+Cap Carver
 Carjay McGinnis
 	VWR-3737
 	VWR-4070
@@ -243,37 +273,64 @@ Carjay McGinnis
 	VWR-6154
 	VWR-9400
 	VWR-9620
+Carla Broek
+Carr Arbenlow
 Catherine Pfeffer
 	VWR-1282
 	VWR-8624
 	VWR-10854
+Cayu Cluny
 Celierra Darling
 	VWR-1274
 	VWR-6975
+Chantal Harvey
+Charles Courtois
+Charlie Sazaland
+Cherry Cheevers
+ChickyBabes Zuzu
+Christopher  Organiser
+Ciaran Laval
+Clara Young
 Coaldust Numbers
     VWR-1095
+Colpo Wexler
+Corinne Helendale
+Corro Moseley
+Coughdrop Littlething
 Cron Stardust
 	VWR-10579
 	VWR-25120
 	STORM-1075
 Cypren Christenson
 	STORM-417
+Dante Tucker
 Dale Glass
 	VWR-120
 	VWR-560
 	VWR-2502
 	VWR-1358
 	VWR-2041
+Darien Caldwell
+Dartagan Shepherd
+Debs Regent
+Decro Schmooz
+Denim Kamachi
+DiJodi Dubratt
+Dil Spitz
+Dimitrio Lewis
+Dirk
 Draconis Neurocam
 	STORM-1259
 Drew Dri
 	VWR-19683
+Drew Dwi
 Drewan Keats
 	VWR-28
 	VWR-248
 	VWR-412
 	VWR-638
 	VWR-660
+Dusan Writer
 Dylan Haskell
 	VWR-72
 Dzonatas Sol
@@ -296,28 +353,51 @@ Eddy Stryker
 	VWR-23
 	VWR-1468
 	VWR-1475
+Edgware Marker
+Egehan Dryke
+Ellla McMahon
+Elric Anatine
+Emma Portilo
+Emmie Fairymeadow
 EponymousDylan Ra
 	VWR-1289
 	VWR-1465
 Eva Nowicka
 	CT-324
 	CT-352
+Eva Rau
+Evangelista Emerald
+Faelon Swordthain
 Farallon Greyskin
 	VWR-2036
 Feep Larsson
 	VWR-447
 	VWR-1314
 	VWR-4444
+Fiachra Lach
 Flemming Congrejo
 	CT-193
 	CT-318
+Flower Ducatillon
 Fluf Fredriksson
 	VWR-3450
 Fremont Cunningham
 	VWR-1147
+FreeSL Aeon
+Frenchimmo Sabra
+Frontera Thor
+Fury Rosewood
+Gaberoonie Zanzibar
+Ganymedes Costagravas
+Gene Frostbite
+GeneJ Composer
 Geneko Nemeth
 	CT-117
 	VWR-11069
+Gentle Heron
+Gentle Welinder
+gwampa Lomu
+Giggles Littlebird
 Gigs Taggart
 	SVC-493
 	VWR-6
@@ -343,20 +423,31 @@ Gigs Taggart
 	VWR-8783
 Ginko Bayliss
 	VWR-4
+Grady Echegaray
 Grazer Kline
 	VWR-1092
 	VWR-2113
 Gudmund Shepherd
 	VWR-1594
 	VWR-1873
+Guni Greenstein
+Gwyneth Llewelyn
+Gypsy Tripsa
+Hackshaven Harford
+Ham Rambler
 Hamncheese Omlet
 	VWR-333
+Han Shuffle
+Hanglow Short
 HappySmurf Papp
 	CT-193
+Harleen Gretzky
+Hatzfeld Runo
 Henri Beauchamp
 	VWR-1320
 	VWR-1406
 	VWR-4157
+herina Bode
 Hikkoshi Sakai
 	VWR-429
 Hiro Sommambulist
@@ -369,23 +460,33 @@ Hiro Sommambulist
 	VWR-132
 	VWR-136
 	VWR-143
+Holger Gilruth
+Horatio Freund
 Hoze Menges
 	VWR-255
+Hydra Shaftoe
+Hypatia Callisto
+Hypatia Pickens
 Ian Kas
 	VWR-8780 (Russian localization)
 	[NO JIRA] (Ukranian localization)
 	CT-322
 	CT-325
+Identity Euler
 Ima Mechanique
 	OPEN-50
 	OPEN-61
 	STORM-1175
+Imnotgoing Sideways
+Inma Rau
+Innula Zenovka
 Irene Muni
 	CT-324
 	CT-352
 Iskar Ariantho
 	VWR-1223
 	VWR-11759
+Iyoba Tarantal
 Jacek Antonelli
 	SNOW-388
 	VWR-165
@@ -399,9 +500,18 @@ Jacek Antonelli
 	VWR-2948
 	VWR-3605
 	VWR-8617
+Jack Abraham
+Jagga Meredith
 JB Kraft
 	VWR-5283
 	VWR-7802
+Jennifer Boyle
+Jeremy Marquez
+Jessica Qin
+Jinx Nordberg
+Jo Bernandes
+Jocial Sonnenkern
+Joel Savard
 Joghert LeSabre
 	VWR-64
 Jonathan Yap
@@ -457,17 +567,31 @@ Jonathan Yap
 	STORM-1459
 Kadah Coba
     STORM-1060
+Jondan Lundquist
+Josef Munster
+Josette Windlow
+Juilan Tripsa
+Juro Kothari
+Justin RiversRunRed
 Kage Pixel
 	VWR-11
+Kagehi Kohn
+Kaimen Takahe
+Keklily Longfall
+Ken Lavender
 Ken March
 	CT-245
+Kestral Karas
 Kerutsen Sellery
 	VWR-1350
+Khisme Nitely
 Khyota Wulluf
 	VWR-2085
 	VWR-8885
 	VWR-9256
 	VWR-9966
+Kimar Coba
+Kithrak Kirkorian
 Kitty Barnett
 	VWR-19699
 	STORM-288
@@ -476,6 +600,9 @@ Kitty Barnett
 	STORM-1001
 	STORM-1175
     VWR-24217
+Kolor Fall
+Komiko Okamoto
+Korvel Noh
 Kunnis Basiat
 	VWR-82
 	VWR-102
@@ -485,6 +612,7 @@ Latif Khalifa
 	VWR-5370
 leliel Mirihi
 	STORM-1100
+len Starship
 Lisa Lowe
 	CT-218
 	CT-219
@@ -496,16 +624,40 @@ Lisa Lowe
 	CT-319
 Lockhart Cordoso
 	VWR-108
+LSL Scientist
+Lamorna Proctor
+Lares Carter
+Larry Pixel
+Laurent Bechir
+Leal Choche
+Lenae Munz
+Lexi Frua
+Lillie Cordeaux
+Lilly Zenovka
+Lizzy Macarthur
+Luban Yiyuan
+Luc Starsider
+Lunita Savira
+Maccus McCullough
 maciek marksman
 	CT-86
+Madison Blanc
+Maggie Darwin
 Magnus Balczo
 	CT-138
+Malarthi Behemoth
+Mallory Destiny
 Malwina Dollinger
 	CT-138
+Manx Wharton
 march Korda
 	SVC-1020
+Marc Claridge
+Marc2 Sands
+Marianne McCann
 Marine Kelley
     STORM-281
+Matthew Anthony
 Matthew Dowd
 	VWR-1344
 	VWR-1651
@@ -513,6 +665,8 @@ Matthew Dowd
 	VWR-1737
 	VWR-1761
 	VWR-2681
+Matto Destiny
+Maxim RiversRunRed
 McCabe Maxsted
 	SNOW-387
 	VWR-1318
@@ -526,6 +680,10 @@ McCabe Maxsted
 	VWR-8454
 	VWR-8689
 	VWR-9007
+Medhue Simoni
+Mel Vanbeeck
+Melinda Latynina
+Mencius Watts
 Michelle2 Zenovka
     STORM-477
 	VWR-2652
@@ -544,6 +702,12 @@ Michelle2 Zenovka
 	VWR-8310
 	VWR-9499
     STORM-1060
+Michi Lumin
+Midian Farspire
+Miles Glaz
+Mindy Mathy
+Minerva Memel
+Mitch Wagner
 Mm Alder
 	SNOW-376
 	VWR-197
@@ -551,8 +715,20 @@ Mm Alder
 	VWR-4232
 	VWR-4794
 	VWR-13578
+Mo Hax
+Mourna Biziou
 Mr Greggan
 	VWR-445
+Nao Noe
+naofan Teardrop
+Naomah Beaumont
+Nathiel Siamendes
+Nber Medici
+Neko Link
+Netpat Igaly
+Neutron Chesnokov
+Newfie Pendragon
+Nicholai Laviscu
 Nicholaz Beresford
 	VWR-132
 	VWR-176
@@ -623,12 +799,19 @@ Nicholaz Beresford
 	VWR-2412
 	VWR-2682
 	VWR-2684
+Nick Rhodes
 Nicky Perian
 	OPEN-1
 	STORM-1087
 	STORM-1090
+Nicoladie Gymnast
 Nounouch Hapmouche
 	VWR-238
+Ollie Kubrick
+Orenj Marat
+Orion Delphis
+Oryx Tempel
+Parvati Silverweb
 Patric Mills
 	VWR-2645
 Paul Churchill
@@ -651,6 +834,9 @@ Peekay Semyorka
 	VWR-79
 Peter Lameth
 	VWR-7331
+PeterPunk Mooney
+Pixel Gausman
+Pixel Scientist
 Pf Shan
 	CT-225
 	CT-226
@@ -661,15 +847,29 @@ Pf Shan
 	CT-231
 	CT-321
 	SNOW-422
+Polo Gufler
+Pounce Teazle
 princess niven
 	VWR-5733
 	CT-85
 	CT-320
 	CT-352
+Professor Noarlunga
+Psi Merlin
+Quantum Destiny
+Questar Utu
+Quicksilver Hermes
+RAT Quan
+Radio Signals
+Ralf Setsuko
+RedMokum Bravin
 Renault Clio
 	VWR-1976
 resu Ampan
 	SNOW-93
+Revolution Perenti
+Rezit Sideways
+Rich Grainger
 Ringo Tuxing
 	CT-225
 	CT-226
@@ -679,6 +879,7 @@ Ringo Tuxing
 	CT-230
 	CT-231
 	CT-321
+Riva
 Robin Cornelius
 	SNOW-108
 	SNOW-204
@@ -710,9 +911,17 @@ Robin Cornelius
 	VWR-12763
 	VWR-12995
 	VWR-20911
+Rosco Teardrop
+Rose Evans
+Rudee Voom
+RufusTT Horsefly
 Ryozu Kojima
 	VWR-53
 	VWR-287
+Sachi Vixen
+Sahkolihaa Contepomi
+Saii Hallard
+SaintLEOlions Zimer
 Salahzar Stenvaag
 	CT-225
 	CT-226
@@ -722,11 +931,15 @@ Salahzar Stenvaag
 	CT-230
 	CT-231
 	CT-321
+Samm Larkham
 Sammy Frederix
 	VWR-6186
+Sasy Scarborough
+Satanello Miami
 Satomi Ahn
 	STORM-501
 	STORM-229
+Scrim Pinion
 Scrippy Scofield
 	VWR-3748
 Seg Baphomet
@@ -746,11 +959,16 @@ Sergen Davies
 	CT-230
 	CT-231
 	CT-321
+SexySteven Morrisey
 Shawn Kaufmat
 	SNOW-240
+Sheet Spotter
+Shnurui Troughton
 Siana Gearz
 	STORM-960
 	STORM-1088
+sicarius Thorne
+Sicarius Toxx
 SignpostMarv Martin
 	VWR-153
 	VWR-154
@@ -760,6 +978,10 @@ SignpostMarv Martin
 	VWR-8357
 Simon Nolan
 	VWR-409
+Sini Nubalo
+Sitearm Madonna
+SLB Wirefly
+snowy Sidran
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -772,8 +994,13 @@ SpacedOut Frye
 	VWR-1823
 Sporked Friis
 	VWR-4903
+Soupa Segura
+Squirrel Wood
+ST Mensing
+Starshine Halasy
 Stevex Janus
 	VWR-1182
+Stickman Ingmann
 Still Defiant
 	VWR-207
 	VWR-227
@@ -789,8 +1016,13 @@ Strife Onizuka
 	VWR-2265
 	VWR-4111
 	SNOW-691
+Sudane Erato
+Synystyr Texan
+Takeda Terrawyng
 TankMaster Finesmith
 	STORM-1100
+Talamasca
+Tali Rosca
 Tayra Dagostino
 	SNOW-517
 	SNOW-543
@@ -821,8 +1053,10 @@ Techwolf Lupindo
 	SNOW-746
 	VWR-12385
 	VWR-20893
+Templar Merlin
 tenebrous pau
 	VWR-247
+Tezcatlipoca Bisiani
 Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
@@ -845,16 +1079,23 @@ Thickbrick Sleaford
 Thraxis Epsilon
 	SVC-371
 	VWR-383
+Tiel Stonecutter
 tiamat bingyi
 	CT-246
 Tofu Buzzard
 	CTS-411
 	STORM-546
 	VWR-24509
+Tony Kembia
+Torben Trautman
+TouchaHoney Perhaps
 TraductoresAnonimos Alter
 	CT-324
+Trey Reanimator
 TriloByte Zanzibar
 	STORM-1100
+Trinity Dechou
+Trinity Dejavu
 Tue Torok
 	CT-68
 	CT-69
@@ -870,13 +1111,26 @@ Twisted Laws
 	STORM-643
 	STORM-954
 	STORM-1103
+Unlikely Quintessa
+UsikuFarasi Kanarik
 Vadim Bigbear
 	VWR-2681
 Vector Hastings
 	VWR-8726
+Veritas Raymaker
+Vex Streeter
+Viaticus Speculaas
+Vick Forcella
+Villain Baroque
 Vixen Heron
 	VWR-2710
 	CT-88
+Vixie Durant
+Void Singer
+Watty Berkson
+Westley Schridde
+Westley Streeter
+Whimsy Winx
 Whoops Babii
 	VWR-631
 	VWR-1640
@@ -902,6 +1156,7 @@ Whoops Babii
 	VWR-8296
 	VWR-8297
 	VWR-8298
+Winter Ventura
 Wilton Lundquist
 	VWR-7682
 WolfPup Lowenhar
@@ -926,10 +1181,19 @@ WolfPup Lowenhar
 	STORM-1098
 	VWR-20741
 	VWR-20933
+Wundur Primbee
+Xiki Luik
+xstorm Radek
+YongYong Francois
+Zak Westminster
 Zai Lynch
 	VWR-19505
+Zana Kohime
+Zaren Alexander
 Zarkonnen Decosta
 	VWR-253
+Zeja Pyle
+ZenMondo Wormser
 Zi Ree
 	VWR-423
 	VWR-671
@@ -940,4 +1204,8 @@ Zi Ree
 Zipherius Turas
 	VWR-76
 	VWR-77
+Zoex Flanagan
+
+
+
 
