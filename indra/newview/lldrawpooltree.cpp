@@ -65,17 +65,18 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 		
 	if (LLPipeline::sUnderWaterRender)
 	{
-		shader = &gObjectAlphaMaskNonIndexedWaterProgram;
+		shader = &gTreeWaterProgram;
 	}
 	else
 	{
-		shader = &gObjectAlphaMaskNonIndexedProgram;
+		shader = &gTreeProgram;
 	}
 
 	if (gPipeline.canUseVertexShaders())
 	{
 		shader->bind();
 		shader->setAlphaRange(0.5f, 1.f);
+		gGL.diffuseColor4f(1,1,1,1);
 	}
 	else
 	{
@@ -141,7 +142,7 @@ void LLDrawPoolTree::beginDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_TREES);
 		
-	shader = &gDeferredNonIndexedDiffuseAlphaMaskProgram;
+	shader = &gDeferredTreeProgram;
 	shader->bind();
 	shader->setAlphaRange(0.5f, 1.f);
 }
@@ -168,8 +169,8 @@ void LLDrawPoolTree::beginShadowPass(S32 pass)
 	glPolygonOffset(gSavedSettings.getF32("RenderDeferredTreeShadowOffset"),
 					gSavedSettings.getF32("RenderDeferredTreeShadowBias"));
 
-	gDeferredShadowAlphaMaskProgram.bind();
-	gDeferredShadowAlphaMaskProgram.setAlphaRange(0.5f, 1.f);
+	gDeferredTreeShadowProgram.bind();
+	gDeferredTreeShadowProgram.setAlphaRange(0.5f, 1.f);
 }
 
 void LLDrawPoolTree::renderShadow(S32 pass)
@@ -183,6 +184,7 @@ void LLDrawPoolTree::endShadowPass(S32 pass)
 	
 	glPolygonOffset(gSavedSettings.getF32("RenderDeferredSpotShadowOffset"),
 						gSavedSettings.getF32("RenderDeferredSpotShadowBias"));
+	gDeferredTreeShadowProgram.unbind();
 }
 
 

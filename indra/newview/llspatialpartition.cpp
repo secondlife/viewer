@@ -2436,8 +2436,7 @@ void pushVerts(LLVolume* volume)
 	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 	{
 		const LLVolumeFace& face = volume->getVolumeFace(i);
-		glVertexPointer(3, GL_FLOAT, 16, face.mPositions);
-		glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
+		LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, NULL, face.mNumIndices, face.mIndices);
 	}
 }
 
@@ -2503,7 +2502,7 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 		{
 			params = *j;
 			LLRenderPass::applyModelMatrix(*params);
-			glColor4f(colors[col].mV[0], colors[col].mV[1], colors[col].mV[2], 0.5f);
+			gGL.diffuseColor4f(colors[col].mV[0], colors[col].mV[1], colors[col].mV[2], 0.5f);
 			params->mVertexBuffer->setBuffer(mask);
 			params->mVertexBuffer->drawRange(params->mParticle ? LLRender::POINTS : LLRender::TRIANGLES,
 				params->mStart, params->mEnd, params->mCount, params->mOffset);
@@ -2560,11 +2559,11 @@ void renderOctree(LLSpatialGroup* group)
 					{
 						if (gFrameTimeSeconds - face->mLastUpdateTime < 0.5f)
 						{
-							glColor4f(0, 1, 0, group->mBuilt);
+							gGL.diffuseColor4f(0, 1, 0, group->mBuilt);
 						}
 						else if (gFrameTimeSeconds - face->mLastMoveTime < 0.5f)
 						{
-							glColor4f(1, 0, 0, group->mBuilt);
+							gGL.diffuseColor4f(1, 0, 0, group->mBuilt);
 						}
 						else
 						{
@@ -2661,7 +2660,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 	if (render_objects)
 	{
 		LLGLDepthTest depth_under(GL_TRUE, GL_FALSE, GL_GREATER);
-		glColor4f(0, 0.5f, 0, 0.5f);
+		gGL.diffuseColor4f(0, 0.5f, 0, 0.5f);
 		gGL.color4f(0, 0.5f, 0, 0.5f);
 		pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
 	}
@@ -2671,7 +2670,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 
 		if (render_objects)
 		{
-			glColor4f(0.f, 0.5f, 0.f,1.f);
+			gGL.diffuseColor4f(0.f, 0.5f, 0.f,1.f);
 			gGL.color4f(0.f, 0.5f, 0.f, 1.f);
 			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
 		}
@@ -2680,7 +2679,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 
 		if (render_objects)
 		{
-			glColor4f(0.f, 0.75f, 0.f,0.5f);
+			gGL.diffuseColor4f(0.f, 0.75f, 0.f,0.5f);
 			gGL.color4f(0.f, 0.75f, 0.f, 0.5f);
 			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
 		}
@@ -2689,11 +2688,11 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 			LLVertexBuffer::unbind();
 			group->mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
 			
-			glColor4f(1.0f, 0.f, 0.f, 0.5f);
+			gGL.diffuseColor4f(1.0f, 0.f, 0.f, 0.5f);
 			group->mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, group->mBounds[0]));
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			
-			glColor4f(1.0f, 1.f, 1.f, 1.0f);
+			gGL.diffuseColor4f(1.0f, 1.f, 1.f, 1.0f);
 			group->mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, group->mBounds[0]));
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}*/
@@ -2726,23 +2725,23 @@ void renderUpdateType(LLDrawable* drawablep)
 	switch (vobj->getLastUpdateType())
 	{
 	case OUT_FULL:
-		glColor4f(0,1,0,0.5f);
+		gGL.diffuseColor4f(0,1,0,0.5f);
 		break;
 	case OUT_TERSE_IMPROVED:
-		glColor4f(0,1,1,0.5f);
+		gGL.diffuseColor4f(0,1,1,0.5f);
 		break;
 	case OUT_FULL_COMPRESSED:
 		if (vobj->getLastUpdateCached())
 		{
-			glColor4f(1,0,0,0.5f);
+			gGL.diffuseColor4f(1,0,0,0.5f);
 		}
 		else
 		{
-			glColor4f(1,1,0,0.5f);
+			gGL.diffuseColor4f(1,1,0,0.5f);
 		}
 		break;
 	case OUT_FULL_CACHED:
-		glColor4f(0,0,1,0.5f);
+		gGL.diffuseColor4f(0,0,1,0.5f);
 		break;
 	default:
 		llwarns << "Unknown update_type " << vobj->getLastUpdateType() << llendl;
@@ -2936,7 +2935,7 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLCo
 	{		
 		if (!decomp->mBaseHullMesh.empty())
 		{
-			glColor4fv(color.mV);
+			gGL.diffuseColor4fv(color.mV);
 			LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mBaseHullMesh.mPositions, decomp->mBaseHullMesh.mNormals);
 		}
 		else
@@ -2956,13 +2955,13 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLCo
 
 void render_hull(LLModel::PhysicsMesh& mesh, const LLColor4& color, const LLColor4& line_color)
 {
-	glColor4fv(color.mV);
+	gGL.diffuseColor4fv(color.mV);
 	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions, mesh.mNormals);
 	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glPolygonOffset(3.f, 3.f);
 	glLineWidth(3.f);
-	glColor4fv(line_color.mV);
+	gGL.diffuseColor4fv(line_color.mV);
 	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions, mesh.mNormals);
 	glLineWidth(1.f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -3044,11 +3043,11 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			else if (!decomp->mPhysicsShapeMesh.empty())
 			{ 
 				//decomp has physics mesh, render that mesh
-				glColor4fv(color.mV);
+				gGL.diffuseColor4fv(color.mV);
 				LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions, decomp->mPhysicsShapeMesh.mNormals);
 								
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				glColor4fv(line_color.mV);
+				gGL.diffuseColor4fv(line_color.mV);
 				LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions, decomp->mPhysicsShapeMesh.mNormals);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
@@ -3174,17 +3173,17 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				
-				glColor4fv(line_color.mV);
+				gGL.diffuseColor4fv(line_color.mV);
 				LLVertexBuffer::unbind();
 
 				llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
-
-				glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
-				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+							
+				LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
 				
-				glColor4fv(color.mV);
+				gGL.diffuseColor4fv(color.mV);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+				LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
+				
 			}
 			else
 			{
@@ -3216,7 +3215,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		volume_params.setShear	( 0, 0 );
 		LLVolume* sphere = LLPrimitive::sVolumeManager->refVolume(volume_params, 3);
 		
-		glColor4fv(color.mV);
+		gGL.diffuseColor4fv(color.mV);
 		pushVerts(sphere);
 		LLPrimitive::sVolumeManager->unrefVolume(sphere);
 	}
@@ -3230,7 +3229,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		volume_params.setShear	( 0, 0 );
 		LLVolume* cylinder = LLPrimitive::sVolumeManager->refVolume(volume_params, 3);
 		
-		glColor4fv(color.mV);
+		gGL.diffuseColor4fv(color.mV);
 		pushVerts(cylinder);
 		LLPrimitive::sVolumeManager->unrefVolume(cylinder);
 	}
@@ -3242,10 +3241,10 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		LLVolume* phys_volume = LLPrimitive::sVolumeManager->refVolume(volume_params, detail);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
-		glColor4fv(line_color.mV);
+		gGL.diffuseColor4fv(line_color.mV);
 		pushVerts(phys_volume);
 		
-		glColor4fv(color.mV);
+		gGL.diffuseColor4fv(color.mV);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		pushVerts(phys_volume);
 		LLPrimitive::sVolumeManager->unrefVolume(phys_volume);
@@ -3263,10 +3262,10 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
 			LLVertexBuffer::unbind();
 			glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
-			glColor4fv(line_color.mV);
+			gGL.diffuseColor4fv(line_color.mV);
 			glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
 			
-			glColor4fv(color.mV);
+			gGL.diffuseColor4fv(color.mV);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);			
 		}
@@ -3290,10 +3289,10 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	gGL.popMatrix();
 
 	/*{ //analytical shape, just push visual rep.
-		glColor3fv(color.mV);
+		gGL.diffuseColor3fv(color.mV);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		pushVerts(drawable, data_mask);
-		glColor4fv(color.mV);
+		gGL.diffuseColor4fv(color.mV);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		pushVerts(drawable, data_mask);
 	}*/
@@ -3335,10 +3334,10 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 						buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
-						glColor3f(0.2f, 0.5f, 0.3f);
+						gGL.diffuseColor3f(0.2f, 0.5f, 0.3f);
 						buff->draw(LLRender::TRIANGLES, buff->getRequestedIndices(), 0);
 									
-						glColor3f(0.2f, 1.f, 0.3f);
+						gGL.diffuseColor3f(0.2f, 1.f, 0.3f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 						buff->draw(LLRender::TRIANGLES, buff->getRequestedIndices(), 0);
 					}
@@ -3430,7 +3429,7 @@ void renderTextureAnim(LLDrawInfo* params)
 	}
 	
 	LLGLEnable blend(GL_BLEND);
-	glColor4f(1,1,0,0.5f);
+	gGL.diffuseColor4f(1,1,0,0.5f);
 	pushVerts(params, LLVertexBuffer::MAP_VERTEX);
 }
 
@@ -3456,22 +3455,22 @@ void renderShadowFrusta(LLDrawInfo* params)
 
 	if (gPipeline.mShadowCamera[4].AABBInFrustum(center, size))
 	{
-		glColor3f(1,0,0);
+		gGL.diffuseColor3f(1,0,0);
 		pushVerts(params, LLVertexBuffer::MAP_VERTEX);
 	}
 	if (gPipeline.mShadowCamera[5].AABBInFrustum(center, size))
 	{
-		glColor3f(0,1,0);
+		gGL.diffuseColor3f(0,1,0);
 		pushVerts(params, LLVertexBuffer::MAP_VERTEX);
 	}
 	if (gPipeline.mShadowCamera[6].AABBInFrustum(center, size))
 	{
-		glColor3f(0,0,1);
+		gGL.diffuseColor3f(0,0,1);
 		pushVerts(params, LLVertexBuffer::MAP_VERTEX);
 	}
 	if (gPipeline.mShadowCamera[7].AABBInFrustum(center, size))
 	{
-		glColor3f(1,0,1);
+		gGL.diffuseColor3f(1,0,1);
 		pushVerts(params, LLVertexBuffer::MAP_VERTEX);
 	}
 
@@ -3489,7 +3488,7 @@ void renderLights(LLDrawable* drawablep)
 	if (drawablep->getNumFaces())
 	{
 		LLGLEnable blend(GL_BLEND);
-		glColor4f(0,1,1,0.5f);
+		gGL.diffuseColor4f(0,1,1,0.5f);
 
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 		{
@@ -3657,7 +3656,7 @@ void renderRaycast(LLDrawable* drawablep)
 					{
 						//render face positions
 						LLVertexBuffer::unbind();
-						glColor4f(0,1,1,0.5f);
+						gGL.diffuseColor4f(0,1,1,0.5f);
 						glVertexPointer(3, GL_FLOAT, sizeof(LLVector4a), face.mPositions);
 						glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
 					}
@@ -4115,6 +4114,11 @@ void LLSpatialPartition::renderDebug()
 		return;
 	}
 	
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
 	{
 		//sLastMaxTexPriority = lerp(sLastMaxTexPriority, sCurMaxTexPriority, gFrameIntervalSeconds);
@@ -4143,6 +4147,11 @@ void LLSpatialPartition::renderDebug()
 
 	LLOctreeRenderNonOccluded render_debug(camera);
 	render_debug.traverse(mOctree);
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.unbind();
+	}
 }
 
 void LLSpatialGroup::drawObjectBox(LLColor4 col)
@@ -4248,7 +4257,7 @@ public:
 		LLVector3 local_start = mStart;
 		LLVector3 local_end = mEnd;
 
-		if (!gPipeline.hasRenderType(drawable->getRenderType()) || !drawable->isVisible())
+		if (!drawable || !gPipeline.hasRenderType(drawable->getRenderType()) || !drawable->isVisible())
 		{
 			return false;
 		}

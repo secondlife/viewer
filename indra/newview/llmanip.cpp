@@ -466,11 +466,11 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 		feedback_string = llformat("X: %.3f", vec.mV[VX]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *font, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -102.f, (F32)vertical_offset, LLColor4(1.f, 0.5f, 0.5f, 1.f), FALSE);
 
-		glColor3f(0.5f, 1.f, 0.5f);
+		gGL.diffuseColor3f(0.5f, 1.f, 0.5f);
 		feedback_string = llformat("Y: %.3f", vec.mV[VY]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *font, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -27.f, (F32)vertical_offset, LLColor4(0.5f, 1.f, 0.5f, 1.f), FALSE);
 		
-		glColor3f(0.5f, 0.5f, 1.f);
+		gGL.diffuseColor3f(0.5f, 0.5f, 1.f);
 		feedback_string = llformat("Z: %.3f", vec.mV[VZ]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *font, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, 48.f, (F32)vertical_offset, LLColor4(0.5f, 0.5f, 1.f, 1.f), FALSE);
 	}

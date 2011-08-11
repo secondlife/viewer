@@ -100,12 +100,12 @@ void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 {
 	sky_shader =
 		LLPipeline::sUnderWaterRender ?
-			&gObjectSimpleWaterProgram :
+			&gObjectFullbrightNoColorWaterProgram :
 			&gWLSkyProgram;
 
 	cloud_shader =
 			LLPipeline::sUnderWaterRender ?
-				&gObjectSimpleWaterProgram :
+				&gObjectFullbrightNoColorWaterProgram :
 				&gWLCloudProgram;
 }
 

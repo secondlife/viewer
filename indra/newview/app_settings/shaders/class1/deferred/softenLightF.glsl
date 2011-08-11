@@ -45,7 +45,7 @@ uniform vec3 env_mat[3];
 //uniform vec4 shadow_clip;
 uniform mat3 ssao_effect_mat;
 
-varying vec4 vary_light;
+uniform vec3 sun_dir;
 varying vec2 vary_fragcoord;
 
 vec3 vary_PositionEye;
@@ -265,7 +265,7 @@ void main()
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	//vec3 nz = texture2D(noiseMap, vary_fragcoord.xy/128.0).xyz;
 	
-	float da = max(dot(norm.xyz, vary_light.xyz), 0.0);
+	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 	
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
 	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
@@ -286,7 +286,7 @@ void main()
 			// the old infinite-sky shiny reflection
 			//
 			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
-			float sa = dot(refnormpersp, vary_light.xyz);
+			float sa = dot(refnormpersp, sun_dir.xyz);
 			vec3 dumbshiny = vary_SunlitColor*texture2D(lightFunc, vec2(sa, spec.a)).a;
 			
 			// add the two types of shiny together
@@ -306,5 +306,6 @@ void main()
 	}
 
 	gl_FragColor.rgb = col;
+
 	gl_FragColor.a = bloom;
 }

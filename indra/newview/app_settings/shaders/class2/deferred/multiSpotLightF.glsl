@@ -36,7 +36,10 @@ uniform float sun_wash;
 uniform int proj_shadow_idx;
 uniform float shadow_fade;
 
-varying vec4 vary_light;
+uniform vec3 center;
+uniform float size;
+uniform vec3 color;
+uniform float falloff;
 
 varying vec4 vary_fragcoord;
 uniform vec2 screen_res;
@@ -110,9 +113,9 @@ void main()
 	frag.xy *= screen_res;
 	
 	vec3 pos = getPosition(frag.xy).xyz;
-	vec3 lv = vary_light.xyz-pos.xyz;
+	vec3 lv = center.xyz-pos.xyz;
 	float dist2 = dot(lv,lv);
-	dist2 /= vary_light.w;
+	dist2 /= size;
 	if (dist2 > 1.0)
 	{
 		discard;
@@ -143,7 +146,7 @@ void main()
 	
 	proj_tc.xyz /= proj_tc.w;
 	
-	float fa = gl_Color.a+1.0;
+	float fa = falloff+1.0;
 	float dist_atten = min(1.0-(dist2-1.0*(1.0-fa))/fa, 1.0);
 	if (dist_atten <= 0.0)
 	{
@@ -175,7 +178,7 @@ void main()
 			
 			vec4 plcol = texture2DLodDiffuse(projectionMap, proj_tc.xy, lod);
 		
-			vec3 lcol = gl_Color.rgb * plcol.rgb * plcol.a;
+			vec3 lcol = color.rgb * plcol.rgb * plcol.a;
 			
 			lit = da * dist_atten * noise;
 			
@@ -192,7 +195,7 @@ void main()
 			
 		amb_da = min(amb_da, 1.0-lit);
 			
-		col += amb_da*gl_Color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
+		col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
 	}
 	
 	
@@ -225,7 +228,7 @@ void main()
 					stc.y > 0.0)
 				{
 					vec4 scol = texture2DLodSpecular(projectionMap, stc.xy, proj_lod-spec.a*proj_lod);
-					col += dist_atten*scol.rgb*gl_Color.rgb*scol.a*spec.rgb*shadow;
+					col += dist_atten*scol.rgb*color.rgb*scol.a*spec.rgb*shadow;
 				}
 			}
 		}

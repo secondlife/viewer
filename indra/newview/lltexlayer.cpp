@@ -295,6 +295,8 @@ BOOL LLTexLayerSetBuffer::render()
 	
 	BOOL success = TRUE;
 
+	LLVertexBuffer::unbind();
+
 	//hack to use fixed function when updating tex layer sets
 	bool no_ff = LLGLSLShader::sNoFixedFunction;
 	LLGLSLShader::sNoFixedFunction = false;
@@ -304,6 +306,7 @@ BOOL LLTexLayerSetBuffer::render()
 	success &= mTexLayerSet->render( mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight );
 	gGL.flush();
 
+	LLVertexBuffer::unbind();
 	LLGLSLShader::sNoFixedFunction = no_ff;
 	
 	if(upload_now)

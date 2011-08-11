@@ -5,7 +5,10 @@
  * $/LicenseInfo$
  */
  
-
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec4 diffuse_color;
+attribute vec2 texcoord0;
 
 void calcAtmospherics(vec3 inPositionEye);
 
@@ -14,14 +17,14 @@ uniform vec4 origin;
 void main()
 {
 	//transform vertex
-	gl_Position = ftransform();
+	vec4 pos = (gl_ModelViewMatrix * vec4(position.xyz, 1.0));
+	gl_Position = gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
 	
-	vec4 pos = (gl_ModelViewMatrix * gl_Vertex);
-	vec3 norm = normalize(gl_NormalMatrix * gl_Normal);
+	vec3 norm = normalize(gl_NormalMatrix * normal);
 
 	calcAtmospherics(pos.xyz);
 	
-	gl_FrontColor = gl_Color;
+	gl_FrontColor = diffuse_color;
 	
 	vec3 ref = reflect(pos.xyz, -norm);
 	

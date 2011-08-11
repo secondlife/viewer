@@ -1580,6 +1580,105 @@ void LLRender::color3fv(const GLfloat* c)
 	color4f(c[0],c[1],c[2],1);
 }
 
+void LLRender::diffuseColor3f(F32 r, F32 g, F32 b)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	S32 loc = -1;
+	if (shader)
+	{
+		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_COLOR);
+	}
+
+	if (loc >= 0)
+	{
+		glVertexAttrib3fARB(loc, r,g,b);
+	}
+	else
+	{
+		glColor3f(r,g,b);
+	}
+}
+
+void LLRender::diffuseColor3fv(const F32* c)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	S32 loc = -1;
+	if (shader)
+	{
+		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_COLOR);
+	}
+
+	if (loc >= 0)
+	{
+		glVertexAttrib3fvARB(loc, c);
+	}
+	else
+	{
+		glColor3fv(c);
+	}
+}
+
+void LLRender::diffuseColor4f(F32 r, F32 g, F32 b, F32 a)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	S32 loc = -1;
+	if (shader)
+	{
+		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_COLOR);
+	}
+
+	if (loc >= 0)
+	{
+		glVertexAttrib4fARB(loc, r,g,b,a);
+	}
+	else
+	{
+		glColor4f(r,g,b,a);
+	}
+
+}
+
+void LLRender::diffuseColor4fv(const F32* c)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	S32 loc = -1;
+	if (shader)
+	{
+		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_COLOR);
+	}
+
+	if (loc >= 0)
+	{
+		glVertexAttrib4fvARB(loc, c);
+	}
+	else
+	{
+		glColor4fv(c);
+	}
+}
+
+void LLRender::diffuseColor4ubv(const U8* c)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	S32 loc = -1;
+	if (shader)
+	{
+		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_COLOR);
+	}
+
+	if (loc >= 0)
+	{
+		glVertexAttrib4ubvARB(loc, c);
+	}
+	else
+	{
+		glColor4ubv(c);
+	}
+}
+
+
+
+
 void LLRender::debugTexUnits(void)
 {
 	LL_INFOS("TextureUnit") << "Active TexUnit: " << mCurrTextureUnitIndex << LL_ENDL;
