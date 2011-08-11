@@ -1132,6 +1132,12 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	<string name="InventoryNoTexture">
 		Você não possui uma cópia desta textura no seu inventário
 	</string>
+	<string name="InventoryInboxNoItems">
+		Compras do marketplace serão entregues aqui.
+	</string>
+	<string name="InventoryOutboxNoItems">
+		Arraste seus itens aqui para preparar sua listagem na sua vitrine do Marketplace.
+	</string>
 	<string name="no_transfer" value="(não transferível)"/>
 	<string name="no_modify" value="(não modificável)"/>
 	<string name="no_copy" value="(não copiável)"/>
@@ -1255,6 +1261,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	</string>
 	<string name="InvFolder All">
 		Tudo
+	</string>
+	<string name="no_attachments">
+		Nenhum anexo vestido
 	</string>
 	<string name="Buy">
 		Comprar
@@ -1591,6 +1600,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	<string name="IMTeen">
 		adolescente
 	</string>
+	<string name="Anyone">
+		qualquer um
+	</string>
 	<string name="RegionInfoError">
 		erro
 	</string>
@@ -1806,6 +1818,12 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	</string>
 	<string name="Public">
 		Público
+	</string>
+	<string name="LocalSettings">
+		Configurações locais
+	</string>
+	<string name="RegionSettings">
+		Configurações da região
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Cliques: [TELEPORT] teletransporte, [MAP] mapa, [PROFILE] perfil
@@ -3593,6 +3611,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
 		Região em geral
+	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		Avatar visíveis e bate-papo permitido fora deste terreno
 	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Atualização

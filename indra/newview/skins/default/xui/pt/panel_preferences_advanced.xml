@@ -3,6 +3,19 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
+	<text name="Cache:">
+		Cache:
+	</text>
+	<spinner label="Cache (64 - 9984 MB)" name="cachesizespinner"/>
+	<text name="text_box5">
+		MB
+	</text>
+	<button label="Limpar cache" label_selected="Limpar cache" name="clear_cache"/>
+	<text name="Cache location">
+		Localização do cache:
+	</text>
+	<button label="Navegar" label_selected="Navegar" name="set_cache"/>
+	<button label="Localização padrão" label_selected="Localização padrão" name="default_cache_location"/>
 	<text name="UI Size:">
 		Interface:
 	</text>

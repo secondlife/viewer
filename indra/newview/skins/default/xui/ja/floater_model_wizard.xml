@@ -193,6 +193,9 @@
 	<string name="status_idle">
 		待機状態
 	</string>
+	<string name="status_parse_error">
+		Dae に問題が見つかりました - 詳細についてはログをご参照ください。
+	</string>
 	<string name="status_reading_file">
 		ローディング...
 	</string>
@@ -201,6 +204,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		エラー：頂点の数が65534を超過したので中止されました。
+	</string>
+	<string name="bad_element">
+		エラー：要素が無効です
 	</string>
 	<string name="high">
 		高

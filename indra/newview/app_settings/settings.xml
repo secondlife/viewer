@@ -3848,7 +3848,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://www.xstreetsl.com/modules.php?name=Marketplace&amp;CategoryID=233</string>
+      <string>https://marketplace.secondlife.com/products/search?search[category_id]=200&amp;search[maturity][]=General&amp;search[page]=1&amp;search[per_page]=12</string>
     </map>
     <key>GridCrossSections</key>
     <map>
@@ -4872,7 +4872,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://viewer-login.agni.lindenlab.com/</string>
+      <string/>
     </map>
     <key>LosslessJ2CUpload</key>
     <map>
@@ -12578,13 +12578,21 @@
     <key>WatchdogEnabled</key>
     <map>
       <key>Comment</key>
+<<<<<<< local
       <string>Controls whether the thread watchdog timer is activated.</string>
+=======
+      <string>Controls whether the thread watchdog timer is activated. Value is boolean. Set to -1 to defer to built-in default.</string>
+>>>>>>> other
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
+<<<<<<< local
+      <integer>-1</integer>
+=======
       <integer>0</integer>
+>>>>>>> other
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>

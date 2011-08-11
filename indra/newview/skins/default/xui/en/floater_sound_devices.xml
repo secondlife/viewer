@@ -15,14 +15,14 @@
  layout="topleft"
  name="floater_sound_devices"
  title="Sound Devices"
- width="315">
+ width="490">
   <panel
     layout="topleft"
     follows="all"
     filename="panel_sound_devices.xml"
     name="device_settings_panel"
     width="400"
-    left="2"
+    left="10"
     top="26"
     class="panel_voice_device_settings"/>
   <text

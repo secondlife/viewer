@@ -308,6 +308,7 @@ LLFilterSD2XMLRPCResponse::~LLFilterSD2XMLRPCResponse()
 }
 
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_SD2XMLRPC_RESPONSE("SD2XMLRPC Response");
 // virtual
 LLIOPipe::EStatus LLFilterSD2XMLRPCResponse::process_impl(
 	const LLChannelDescriptors& channels,
@@ -316,6 +317,8 @@ LLIOPipe::EStatus LLFilterSD2XMLRPCResponse::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_SD2XMLRPC_RESPONSE);
+
 	PUMP_DEBUG;
 	// This pipe does not work if it does not have everyting. This
 	// could be addressed by making a stream parser for llsd which
@@ -382,6 +385,8 @@ LLFilterSD2XMLRPCRequest::~LLFilterSD2XMLRPCRequest()
 {
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_SD2XMLRPC_REQUEST("S22XMLRPC Request");
+
 // virtual
 LLIOPipe::EStatus LLFilterSD2XMLRPCRequest::process_impl(
 	const LLChannelDescriptors& channels,
@@ -390,6 +395,7 @@ LLIOPipe::EStatus LLFilterSD2XMLRPCRequest::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_SD2XMLRPC_REQUEST);
 	// This pipe does not work if it does not have everyting. This
 	// could be addressed by making a stream parser for llsd which
 	// handled partial information.
@@ -586,6 +592,8 @@ LLFilterXMLRPCResponse2LLSD::~LLFilterXMLRPCResponse2LLSD()
 {
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_XMLRPC2LLSD_RESPONSE("XMLRPC2LLSD Response");
+
 LLIOPipe::EStatus LLFilterXMLRPCResponse2LLSD::process_impl(
 	const LLChannelDescriptors& channels,
 	buffer_ptr_t& buffer,
@@ -593,6 +601,8 @@ LLIOPipe::EStatus LLFilterXMLRPCResponse2LLSD::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_XMLRPC2LLSD_RESPONSE);
+
 	PUMP_DEBUG;
 	if(!eos) return STATUS_BREAK;
 	if(!buffer) return STATUS_ERROR;
@@ -668,6 +678,7 @@ LLFilterXMLRPCRequest2LLSD::~LLFilterXMLRPCRequest2LLSD()
 {
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_XMLRPC2LLSD_REQUEST("XMLRPC2LLSD Request");
 LLIOPipe::EStatus LLFilterXMLRPCRequest2LLSD::process_impl(
 	const LLChannelDescriptors& channels,
 	buffer_ptr_t& buffer,
@@ -675,6 +686,7 @@ LLIOPipe::EStatus LLFilterXMLRPCRequest2LLSD::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_XMLRPC2LLSD_REQUEST);
 	PUMP_DEBUG;
 	if(!eos) return STATUS_BREAK;
 	if(!buffer) return STATUS_ERROR;

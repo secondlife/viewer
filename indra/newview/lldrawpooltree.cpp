@@ -73,7 +73,7 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 		shader = &gObjectSimpleNonIndexedProgram;
 	}
 
-	if (gPipeline.canUseWindLightShadersOnObjects())
+	if (gPipeline.canUseVertexShaders())
 	{
 		shader->bind();
 	}

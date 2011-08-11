@@ -68,6 +68,8 @@
 						<text name="scripts_value" value="Ein"/>
 						<text name="damage_label" value="Schaden:"/>
 						<text name="damage_value" value="Aus"/>
+						<text name="see_avatars_label" value="Avatare sehen:"/>
+						<text name="see_avatars_value" value="Aus"/>
 						<button label="Über Land" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
