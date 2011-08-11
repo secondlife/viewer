@@ -78,6 +78,7 @@
      width="55" />
   </panel>
   <menu_button
+     follows="right|top"    
     image_color="0 0 0 0"
     hover_glow_amount="0"
     left_pad="2"

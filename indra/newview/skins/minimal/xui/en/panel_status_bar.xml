@@ -34,6 +34,7 @@
         L$ [AMT]
     </panel.string>
   <menu_button
+     follows="right|top"    
     image_color="0 0 0 0"
     hover_glow_amount="0"
     left="2"
