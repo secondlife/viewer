@@ -62,6 +62,7 @@
 #include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
+#include "llfloaterbuildoptions.h"
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
@@ -847,17 +848,17 @@ class LLAdvancedToggleFeature : public view_listener_t
 class LLAdvancedCheckFeature : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
+{
+	U32 feature = feature_from_string( userdata.asString() );
+	bool new_value = false;
+
+	if ( feature != 0 )
 	{
-		U32 feature = feature_from_string( userdata.asString() );
-		bool new_value = false;
-
-		if ( feature != 0 )
-		{
-			new_value = LLPipeline::toggleRenderDebugFeatureControl( (void*)feature );
-		}
-
-		return new_value;
+		new_value = LLPipeline::toggleRenderDebugFeatureControl( (void*)feature );
 	}
+
+	return new_value;
+}
 };
 
 void toggle_destination_and_avatar_picker(const LLSD& show)
@@ -7165,9 +7166,11 @@ class LLToolsUseSelectionForGrid : public view_listener_t
 		} func;
 		LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 		LLSelectMgr::getInstance()->setGridMode(GRID_MODE_REF_OBJECT);
-		if (gFloaterTools)
+
+		LLFloaterBuildOptions* build_options_floater = LLFloaterReg::getTypedInstance<LLFloaterBuildOptions>("build_options");
+		if (build_options_floater && build_options_floater->getVisible())
 		{
-			gFloaterTools->mComboGridMode->setCurrentByIndex((S32)GRID_MODE_REF_OBJECT);
+			build_options_floater->setGridMode(GRID_MODE_REF_OBJECT);
 		}
 		return true;
 	}

@@ -113,7 +113,7 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 void LLPanelMarketplaceInbox::onFocusReceived()
 {
 	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
-	
+
 	sidepanel_inventory->clearSelections(true, false, true);
 }
 

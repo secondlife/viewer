@@ -266,7 +266,7 @@ void main()
 	vec2 tc = vary_fragcoord.xy;
 	ivec2 itc = ivec2(tc);
 
-	vec3 fcol = vec3(0,0,0);
+	vec4 fcol = vec4(0,0,0,0);
 
 	for (int i = 0; i < samples; ++i)
 	{
@@ -280,17 +280,16 @@ void main()
 		float da = max(dot(norm.xyz, vary_light.xyz), 0.0);
 	
 		vec4 diffuse = texelFetch(diffuseRect, itc, i);
-		if (diffuse.a >= 1.0)
-		{
-			fcol += diffuse.rgb;
-		}
-		else
+		vec3 col;
+		float bloom = 0.0;
+
+		if (diffuse.a < 0.9)
 		{
 			vec4 spec = texelFetch(specularRect, itc, i);
 	
 			calcAtmospherics(pos.xyz, 1.0);
 	
-			vec3 col = atmosAmbient(vec3(0));
+			col = atmosAmbient(vec3(0));
 			col += atmosAffectDirectionalLight(max(min(da, 1.0), diffuse.a));
 	
 			col *= diffuse.rgb;
@@ -304,15 +303,22 @@ void main()
 				vec3 dumbshiny = vary_SunlitColor*texture2D(lightFunc, vec2(sa, spec.a)).a;
 
 				// add the two types of shiny together
-				col += dumbshiny * spec.rgb;
+				vec3 spec_contrib = dumbshiny * spec.rgb;
+				bloom = dot(spec_contrib, spec_contrib);
+				col += spec_contrib;
 			}
 
 			col = atmosLighting(col);
 			col = scaleSoftClip(col);
-			fcol += col;
+			col = mix(col, diffuse.rgb, diffuse.a);
 		}
+		else
+		{
+			col = diffuse.rgb;
+		}
+
+		fcol += vec4(col, bloom);
 	}
 				
-	gl_FragColor.rgb = fcol.rgb/samples;
-	gl_FragColor.a = 0.0;
+	gl_FragColor = fcol/samples;
 }
