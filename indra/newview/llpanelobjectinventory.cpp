@@ -83,6 +83,7 @@ protected:
 	LLAssetType::EType mAssetType;	
 	LLInventoryType::EType mInventoryType;
 
+	LLInventoryObject* findInvObject() const;
 	LLInventoryItem* findItem() const;
 
 public:
@@ -162,14 +163,20 @@ LLTaskInvFVBridge::LLTaskInvFVBridge(
 	}
 }
 
-LLInventoryItem* LLTaskInvFVBridge::findItem() const
+LLInventoryObject* LLTaskInvFVBridge::findInvObject() const
 {
 	LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
-	if(object)
+	if (object)
 	{
-		return dynamic_cast<LLInventoryItem*>(object->getInventoryObject(mUUID));
+		return object->getInventoryObject(mUUID);
 	}
 	return NULL;
+}
+
+
+LLInventoryItem* LLTaskInvFVBridge::findItem() const
+{
+	return dynamic_cast<LLInventoryItem*>(findInvObject());
 }
 
 void LLTaskInvFVBridge::showProperties()
@@ -295,21 +302,15 @@ const std::string& LLTaskInvFVBridge::getDisplayName() const
 
 	if(item)
 	{
-		if(item->getParentUUID().isNull())
+		mDisplayName.assign(item->getName());
+
+		// Localize "New Script", "New Script 1", "New Script 2", etc.
+		if (item->getType() == LLAssetType::AT_LSL_TEXT &&
+			LLStringUtil::startsWith(item->getName(), "New Script"))
 		{
-			if(item->getName() == "Contents")
-			{
-				mDisplayName.assign(LLTrans::getString("ViewerObjectContents"));
-			}
-			else
-			{
-				mDisplayName.assign(item->getName());
-			}
+			LLStringUtil::replaceString(mDisplayName, "New Script", LLTrans::getString("PanelContentsNewScript"));
 		}
-		else
-		{
-			mDisplayName.assign(item->getName());
-		}
+
 		const LLPermissions& perm(item->getPermissions());
 		BOOL copy = gAgent.allowOperation(PERM_COPY, perm, GP_OBJECT_MANIPULATE);
 		BOOL mod  = gAgent.allowOperation(PERM_MODIFY, perm, GP_OBJECT_MANIPULATE);
@@ -700,7 +701,7 @@ public:
 		const std::string& name);
 
 	virtual LLUIImagePtr getIcon() const;
-	virtual const std::string& getDisplayName() const { return getName(); }
+	virtual const std::string& getDisplayName() const;
 	virtual BOOL isItemRenameable() const;
 	// virtual BOOL isItemCopyable() const { return FALSE; }
 	virtual BOOL renameItem(const std::string& new_name);
@@ -726,6 +727,27 @@ LLTaskCategoryBridge::LLTaskCategoryBridge(
 LLUIImagePtr LLTaskCategoryBridge::getIcon() const
 {
 	return LLUI::getUIImage("Inv_FolderClosed");
+}
+
+// virtual
+const std::string& LLTaskCategoryBridge::getDisplayName() const
+{
+	LLInventoryObject* cat = findInvObject();
+
+	if (cat)
+	{
+		// Localize "Contents" folder.
+		if (cat->getParentUUID().isNull() && cat->getName() == "Contents")
+		{
+			mDisplayName.assign(LLTrans::getString("ViewerObjectContents"));
+		}
+		else
+		{
+			mDisplayName.assign(cat->getName());
+		}
+	}
+
+	return mDisplayName;
 }
 
 BOOL LLTaskCategoryBridge::isItemRenameable() const
