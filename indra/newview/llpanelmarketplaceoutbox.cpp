@@ -42,6 +42,7 @@
 #include "llagent.h"
 #include "llviewermedia.h"
 #include "llfolderview.h"
+#include "llinventoryfunctions.h"
 
 static LLRegisterPanelClassWrapper<LLPanelMarketplaceOutbox> t_panel_marketplace_outbox("panel_marketplace_outbox");
 
@@ -198,7 +199,13 @@ public:
 		{
 			// Complete success
 			llinfos << "success" << llendl;
-
+			LLSD imported_list = content["imported"];
+			LLSD::array_const_iterator it = imported_list.beginArray();
+			for ( ; it != imported_list.endArray(); ++it)
+			{
+				LLUUID imported_folder = (*it).asUUID();
+				remove_category(&gInventory, imported_folder);
+			}
 		}	
 		else
 		{
