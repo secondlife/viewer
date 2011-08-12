@@ -141,7 +141,7 @@ public:
 		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
 
 		//common
-		mInventoryItemsDict["/bow"]						= LLTrans::getString("/bow");
+		mInventoryItemsDict["/bow1"]					= LLTrans::getString("/bow1");
 		mInventoryItemsDict["/clap"]					= LLTrans::getString("/clap");
 		mInventoryItemsDict["/count"]					= LLTrans::getString("/count");
 		mInventoryItemsDict["/extinguish"]				= LLTrans::getString("/extinguish");
