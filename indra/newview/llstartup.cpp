@@ -2557,22 +2557,32 @@ void init_start_screen(S32 location_id)
 	else if(!start_image_bmp->load(temp_str) )
 	{
 		LL_WARNS("AppInit") << "Bitmap load failed" << LL_ENDL;
-		return;
-	}
-
-	gStartImageWidth = start_image_bmp->getWidth();
-	gStartImageHeight = start_image_bmp->getHeight();
-
-	LLPointer<LLImageRaw> raw = new LLImageRaw;
-	if (!start_image_bmp->decode(raw, 0.0f))
-	{
-		LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
 		gStartTexture = NULL;
-		return;
+	}
+	else
+	{
+		gStartImageWidth = start_image_bmp->getWidth();
+		gStartImageHeight = start_image_bmp->getHeight();
+
+		LLPointer<LLImageRaw> raw = new LLImageRaw;
+		if (!start_image_bmp->decode(raw, 0.0f))
+		{
+			LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
+			gStartTexture = NULL;
+		}
+		else
+		{
+			raw->expandToPowerOfTwo();
+			gStartTexture = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE) ;
+		}
 	}
 
-	raw->expandToPowerOfTwo();
-	gStartTexture = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE) ;
+	if(gStartTexture.isNull())
+	{
+		gStartTexture = LLViewerTexture::sBlackImagep ;
+		gStartImageWidth = gStartTexture->getWidth() ;
+		gStartImageHeight = gStartTexture->getHeight() ;
+	}
 }
 
 
