@@ -1972,7 +1972,7 @@ void LLFloaterPreferenceProxy::onClose(bool app_quitting)
 		// it will not be updated until next restart.
 		if (LLStartUp::getStartupState()>STATE_LOGIN_WAIT)
 		{
-			LLNotifications::instance().add("ChangeSocks5Settings", LLSD(), LLSD());
+			LLNotifications::instance().add("ChangeProxySettings", LLSD(), LLSD());
 			mSocksSettingsDirty = false; // we have notified the user now be quiet again
 		}
 	}

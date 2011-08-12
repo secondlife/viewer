@@ -4,7 +4,7 @@
  height="500"
  layout="topleft"
  name="Proxy Settings Floater"
- help_topic="proxy_settings_floater"
+ help_topic="proxysettings"
  title="Proxy Settings"
  width="500">
 	<check_box
