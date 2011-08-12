@@ -318,7 +318,7 @@ static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarNa
 	static LLCachedControl<LLRect> profile_rect(gSavedSettings, "WebProfileRect");
 	LLFloaterWebContent::create(LLFloaterWebContent::Params().
 							url(url).
-							id(agent_id).
+							id(agent_id.asString()).
 							show_chrome(show_chrome).
 							window_class("profile").
 							preferred_media_size(profile_rect));
@@ -338,7 +338,7 @@ bool LLAvatarActions::profileVisible(const LLUUID& id)
 {
 	LLSD sd;
 	sd["id"] = id;
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", sd));
+	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("profile", sd));
 	return browser && browser->isShown();
 }
 
@@ -348,7 +348,7 @@ void LLAvatarActions::hideProfile(const LLUUID& id)
 {
 	LLSD sd;
 	sd["id"] = id;
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("web_content", sd));
+	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("profile", sd));
 	if (browser)
 	{
 		browser->closeFloater();
@@ -697,12 +697,8 @@ std::set<LLUUID> LLAvatarActions::getInventorySelectedUUIDs()
 	if (inventory_selected_uuids.empty())
 	{
 		LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
-		LLInventoryPanel * inbox = sidepanel_inventory->findChild<LLInventoryPanel>("inventory_inbox");
-		if (inbox)
-		{
-			inventory_selected_uuids = inbox->getRootFolder()->getSelectionList();
-		}
 
+		inventory_selected_uuids = sidepanel_inventory->getInboxOrOutboxSelectionList();
 	}
 
 	return inventory_selected_uuids;

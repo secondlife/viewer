@@ -56,7 +56,7 @@ public:
 
 	/*virtual*/ void draw();
 
-	void setupInventoryPanel();
+	LLInventoryPanel * setupInventoryPanel();
 
 	U32 getTotalItemCount() const;
 

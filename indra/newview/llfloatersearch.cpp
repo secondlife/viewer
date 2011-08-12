@@ -71,8 +71,8 @@ public:
 
 		// create the LLSD arguments for the search floater
 		LLFloaterSearch::Params p;
-		p.category = category;
-		p.query = LLURI::unescape(search_text);
+		p.search.category = category;
+		p.search.query = LLURI::unescape(search_text);
 
 		// open the search floater and perform the requested search
 		LLFloaterReg::showInstance("search", p);
@@ -81,14 +81,10 @@ public:
 };
 LLSearchHandler gSearchHandler;
 
-LLFloaterSearch::_Params::_Params()
+LLFloaterSearch::SearchQuery::SearchQuery()
 :	category("category", ""),
 	query("query")
-{
-	trusted_content = true;
-	allow_address_entry = false;
-}
-
+{}
 
 LLFloaterSearch::LLFloaterSearch(const Params& key) :
 	LLFloaterWebContent(key),
@@ -117,8 +113,12 @@ BOOL LLFloaterSearch::postBuild()
 
 void LLFloaterSearch::onOpen(const LLSD& key)
 {
-	LLFloaterWebContent::onOpen(key);
-	search(key);
+	Params p(key);
+	p.trusted_content = true;
+	p.allow_address_entry = false;
+
+	LLFloaterWebContent::onOpen(p);
+	search(p.search);
 }
 
 void LLFloaterSearch::onClose(bool app_quitting)
@@ -141,10 +141,8 @@ void LLFloaterSearch::godLevelChanged(U8 godlevel)
 	//getChildView("refresh_search")->setVisible( (godlevel != mSearchGodLevel));
 }
 
-void LLFloaterSearch::search(const LLSD &key)
+void LLFloaterSearch::search(const SearchQuery &p)
 {
-	Params p(key);
-	
 	if (! mWebBrowser || !p.validateBlock())
 	{
 		return;

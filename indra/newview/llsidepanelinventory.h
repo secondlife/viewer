@@ -61,6 +61,9 @@ public:
 	LLPanelMainInventory* getMainInventoryPanel() const { return mPanelMainInventory; }
 	BOOL isMainInventoryPanelActive() const;
 
+	void clearSelections(bool clearMain, bool clearInbox, bool clearOutbox);
+	std::set<LLUUID> getInboxOrOutboxSelectionList();
+
 	void showItemInfoPanel();
 	void showTaskInfoPanel();
 	void showInventoryPanel();
@@ -99,6 +102,8 @@ protected:
 	//
 private:
 	LLPanel*					mInventoryPanel; // Main inventory view
+	LLInventoryPanel*			mInventoryPanelInbox;
+	LLInventoryPanel*			mInventoryPanelOutbox;
 	LLSidepanelItemInfo*		mItemPanel; // Individual item view
 	LLSidepanelTaskInfo*		mTaskPanel; // Individual in-world object view
 	LLPanelMainInventory*		mPanelMainInventory;

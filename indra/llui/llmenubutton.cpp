@@ -35,9 +35,16 @@
 
 static LLDefaultChildRegistry::Register<LLMenuButton> r("menu_button");
 
+void LLMenuButton::MenuPositions::declareValues()
+{
+	declare("topleft", MP_TOP_LEFT);
+	declare("topright", MP_TOP_RIGHT);
+	declare("bottomleft", MP_BOTTOM_LEFT);
+}
 
 LLMenuButton::Params::Params()
-:	menu_filename("menu_filename")
+:	menu_filename("menu_filename"),
+	position("position", MP_BOTTOM_LEFT)
 {
 }
 
@@ -45,7 +52,7 @@ LLMenuButton::Params::Params()
 LLMenuButton::LLMenuButton(const LLMenuButton::Params& p)
 :	LLButton(p),
 	mIsMenuShown(false),
-	mMenuPosition(MP_BOTTOM_LEFT)
+	mMenuPosition(p.position)
 {
 	std::string menu_filename = p.menu_filename;
 

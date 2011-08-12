@@ -125,7 +125,7 @@ void LLWeb::loadURLInternal(const std::string &url, const std::string& target, c
 // Explicitly open a Web URL using the Web content floater
 void LLWeb::loadWebURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
 {
-	LLFloaterWebContent::create(LLFloaterWebContent::Params().url(url).target(target).id(LLUUID(uuid)));
+	LLFloaterWebContent::create(LLFloaterWebContent::Params().url(url).target(target).id(uuid));
 }
 
 // static

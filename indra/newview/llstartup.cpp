@@ -720,7 +720,13 @@ bool idle_startup()
 
 		timeout_count = 0;
 
+		// Login screen needs menus for preferences, but we can enter
+		// this startup phase more than once.
+		if (gLoginMenuBarView == NULL)
+		{
 		initialize_edit_menu();
+			init_menus();
+		}
 
 		if (show_connect_box)
 		{
@@ -755,19 +761,6 @@ bool idle_startup()
 			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		}
 
-		// *NOTE: This is where LLViewerParcelMgr::getInstance() used to get allocated before becoming LLViewerParcelMgr::getInstance().
-
-		// *NOTE: This is where gHUDManager used to bet allocated before becoming LLHUDManager::getInstance().
-
-		// *NOTE: This is where gMuteList used to get allocated before becoming LLMuteList::getInstance().
-
-		// Login screen needs menus for preferences, but we can enter
-		// this startup phase more than once.
-		if (gLoginMenuBarView == NULL)
-		{
-			init_menus();
-		}
-		
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
@@ -1244,6 +1237,25 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if(STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 	{
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(gFirstSimHandle);
+		if (regionp->capabilitiesReceived())
+		{
+			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
+		}
+		else
+		{
+			U32 num_retries = regionp->getNumSeedCapRetries();
+			if (num_retries > 0)
+			{
+				LLStringUtil::format_map_t args;
+				args["[NUMBER]"] = llformat("%d", num_retries + 1);
+				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args), gAgent.mMOTD);
+			}
+			else
+			{
+				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"), gAgent.mMOTD);
+			}
+		}
 		return FALSE;
 	}
 
@@ -1541,6 +1553,12 @@ bool idle_startup()
  			{
  				LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
  			}
+ 		}
+
+		LLSD inv_basic = response["inventory-basic"];
+ 		if(inv_basic.isDefined())
+ 		{
+			llinfos << "Basic inventory root folder id is " << inv_basic["folder_id"] << llendl;
  		}
 
 		LLSD buddy_list = response["buddy-list"];

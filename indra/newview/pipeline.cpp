@@ -3741,52 +3741,55 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
 
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderHighlights");
-
-	if (!sReflectionRender)
+	if (!LLPipeline::sImpostorRender)
 	{
-		renderHighlights();
-	}
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderHighlights");
 
-	// Contains a list of the faces of objects that are physical or
-	// have touch-handlers.
-	mHighlightFaces.clear();
-
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDebug");
-	
-	renderDebug();
-
-	LLVertexBuffer::unbind();
-	
-	if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred)
-	{
-		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+		if (!sReflectionRender)
 		{
-			// Render debugging beacons.
-			gObjectList.renderObjectBeacons();
-			gObjectList.resetObjectBeacons();
+			renderHighlights();
+		}
+
+		// Contains a list of the faces of objects that are physical or
+		// have touch-handlers.
+		mHighlightFaces.clear();
+
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDebug");
+	
+		renderDebug();
+
+		LLVertexBuffer::unbind();
+	
+		if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred)
+		{
+			if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+			{
+				// Render debugging beacons.
+				gObjectList.renderObjectBeacons();
+				gObjectList.resetObjectBeacons();
+			}
+			else
+			{
+				// Make sure particle effects disappear
+				LLHUDObject::renderAllForTimer();
+			}
 		}
 		else
 		{
 			// Make sure particle effects disappear
 			LLHUDObject::renderAllForTimer();
 		}
-	}
-	else
-	{
-		// Make sure particle effects disappear
-		LLHUDObject::renderAllForTimer();
-	}
 
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomEnd");
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomEnd");
 
-	//HACK: preserve/restore matrices around HUD render
-	if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
-	{
-		for (U32 i = 0; i < 16; i++)
+		//HACK: preserve/restore matrices around HUD render
+		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 		{
-			gGLModelView[i] = saved_modelview[i];
-			gGLProjection[i] = saved_projection[i];
+			for (U32 i = 0; i < 16; i++)
+			{
+				gGLModelView[i] = saved_modelview[i];
+				gGLProjection[i] = saved_projection[i];
+			}
 		}
 	}
 
@@ -4218,63 +4221,6 @@ void LLPipeline::renderDebug()
 			bridge->renderDebug();
 			glPopMatrix();
 		}
-	}
-
-	if (gSavedSettings.getBOOL("DebugShowUploadCost"))
-	{
-		std::set<LLUUID> textures;
-		std::set<LLUUID> sculpts;
-		std::set<LLUUID> meshes;
-		
-		BOOL selected = TRUE;
-		if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
-		{
-			selected = FALSE;
-		}
-			
-		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
-		{
-			LLSpatialGroup* group = *iter;
-			LLSpatialGroup::OctreeNode* node = group->mOctreeNode;
-			for (LLSpatialGroup::OctreeNode::element_iter elem = node->getData().begin(); elem != node->getData().end(); ++elem)
-			{
-				LLDrawable* drawable = *elem;
-				LLVOVolume* volume = drawable->getVOVolume();
-				if (volume && volume->isSelected() == selected)
-				{
-					for (U32 i = 0; i < volume->getNumTEs(); ++i)
-					{
-						LLTextureEntry* te = volume->getTE(i);
-						textures.insert(te->getID());
-					}
-
-					if (volume->isSculpted())
-					{
-						LLUUID sculpt_id = volume->getVolume()->getParams().getSculptID();
-						if (volume->isMesh())
-						{
-							meshes.insert(sculpt_id);
-						}
-						else
-						{
-							sculpts.insert(sculpt_id);
-						}
-					}
-				}
-			}
-		}
-
-		gPipeline.mDebugTextureUploadCost = textures.size() * 10;
-		gPipeline.mDebugSculptUploadCost = sculpts.size()*10;
-		
-		U32 mesh_cost = 0;
-
-		for (std::set<LLUUID>::iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
-		{
-			mesh_cost += gMeshRepo.getResourceCost(*iter)*10;
-		}
-
-		gPipeline.mDebugMeshUploadCost = mesh_cost;
 	}
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))

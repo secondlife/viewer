@@ -328,6 +328,8 @@ public:
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
 
+	virtual LLView* findChildView(const std::string& name, BOOL recurse) const { return NULL; }
+
 	//	virtual void handleDropped();
 	virtual void draw();
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,

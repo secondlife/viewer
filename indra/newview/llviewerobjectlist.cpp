@@ -1071,10 +1071,12 @@ void LLViewerObjectList::fetchObjectCosts()
 				LLSD id_list;
 				U32 object_index = 0;
 
+				U32 count = 0;
+
 				for (
 					std::set<LLUUID>::iterator iter = mStaleObjectCost.begin();
 					iter != mStaleObjectCost.end();
-					++iter)
+					)
 				{
 					// Check to see if a request for this object
 					// has already been made.
@@ -1084,13 +1086,15 @@ void LLViewerObjectList::fetchObjectCosts()
 						mPendingObjectCost.insert(*iter);
 						id_list[object_index++] = *iter;
 					}
+
+					mStaleObjectCost.erase(iter++);
+
+					if (count++ >= 450)
+					{
+						break;
+					}
 				}
-
-				// id_list should now contain all
-				// requests in mStaleObjectCost before, so clear
-				// it now
-				mStaleObjectCost.clear();
-
+									
 				if ( id_list.size() > 0 )
 				{
 					LLSD post_data = LLSD::emptyMap();
@@ -1410,6 +1414,10 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 {
+	if (!object->isRoot())
+	{ //always fetch cost for the parent when fetching cost for children
+		mStaleObjectCost.insert(((LLViewerObject*)object->getParent())->getID());
+	}
 	mStaleObjectCost.insert(object->getID());
 }
 

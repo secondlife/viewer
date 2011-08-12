@@ -3108,3 +3108,4 @@ void LLFloater::stackWith(LLFloater& other)
 	mRectControl.clear(); // don't save rect of stacked floaters
 	setShape(next_rect);
 }
+

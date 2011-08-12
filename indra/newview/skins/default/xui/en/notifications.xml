@@ -199,8 +199,8 @@ Save changes to current clothing/body part?
      yestext="Save"/>
   </notification>
 
-    <notification
-     icon="alertmodal.tga"
+  <notification
+   icon="alertmodal.tga"
      name="ConfirmNoCopyToOutbox"
      type="alertmodal">
         You don't have permission to copy this item to the Marketplace Outbox. Are you sure you want to move the following item?
@@ -6822,6 +6822,20 @@ Select residents to share with.
     [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] 
 
 See the log file for details.
+  </notification>
+   
+  <notification
+    name="MeshUploadPermError"
+    icon="alert.tga"
+    type="alert">
+    Error while requesting mesh upload permissons.
+  </notification>
+  
+  <notification
+    name="RegionCapabilityRequestError"
+    icon="alert.tga"
+    type="alert">
+    Could not get region capability &apos;[CAPABILITY]&apos;.
   </notification>
    
   <notification
