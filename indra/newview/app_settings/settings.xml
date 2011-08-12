@@ -12578,21 +12578,13 @@
     <key>WatchdogEnabled</key>
     <map>
       <key>Comment</key>
-<<<<<<< local
-      <string>Controls whether the thread watchdog timer is activated.</string>
-=======
       <string>Controls whether the thread watchdog timer is activated. Value is boolean. Set to -1 to defer to built-in default.</string>
->>>>>>> other
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-<<<<<<< local
-      <integer>-1</integer>
-=======
       <integer>0</integer>
->>>>>>> other
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>
