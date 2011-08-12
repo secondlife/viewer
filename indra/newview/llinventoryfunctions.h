@@ -71,6 +71,10 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 // Generates a string containing the path to the item specified by item_id.
 void append_path(const LLUUID& id, std::string& path);
 
+void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder);
+
+void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_folder);
+
 /**                    Miscellaneous global functions
  **                                                                            **
  *******************************************************************************/
