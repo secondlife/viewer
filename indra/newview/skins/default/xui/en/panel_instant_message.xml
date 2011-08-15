@@ -63,6 +63,7 @@
          layout="topleft"
          left_pad="5"
          name="user_name"
+         parse_urls="false"
          text_color="white"
          top="8"
          translate="false"
