@@ -159,7 +159,6 @@
 		<menu_item_check label="Désactiver les contraintes de la caméra" name="Disable Camera Distance"/>
 		<menu_item_check label="Photo haute résolution" name="HighResSnapshot"/>
 		<menu_item_check label="Photos discrètes sur disque" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="Compresser les photos sur disque" name="CompressSnapshotsToDisk"/>
 		<menu label="Outils de performance" name="Performance Tools">
 			<menu_item_call label="Mesure du lag" name="Lag Meter"/>
 			<menu_item_check label="Barre de statistiques" name="Statistics Bar"/>
