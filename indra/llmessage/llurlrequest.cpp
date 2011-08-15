@@ -438,7 +438,6 @@ void LLURLRequest::initialize()
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mState = STATE_INITIALIZED;
 	mDetail = new LLURLRequestDetail;
-	LLProxy::getInstance()->applyProxySettings(mDetail->mCurlRequest);
 	mDetail->mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
 	mDetail->mCurlRequest->setWriteCallback(&downCallback, (void*)this);
 	mDetail->mCurlRequest->setReadCallback(&upCallback, (void*)this);
