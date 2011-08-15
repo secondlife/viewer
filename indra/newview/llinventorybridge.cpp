@@ -1678,7 +1678,7 @@ static BOOL can_move_to_outbox(LLInventoryItem* inv_item)
 
 void LLFolderBridge::dropFolderToOutbox(LLInventoryCategory* inv_cat)
 {
-	copy_folder_to_outbox(inv_cat, getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false));	
+	copy_folder_to_outbox(inv_cat, getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false), inv_cat->getUUID());	
 }
 
 BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
@@ -3247,7 +3247,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 			else if (move_is_into_outbox)
 			{
-				copy_item_to_outbox(inv_item, outbox_id);
+				copy_item_to_outbox(inv_item, outbox_id, LLUUID::null);
 			}
 			// NORMAL or TRASH folder
 			// (move the item, restamp if into trash)

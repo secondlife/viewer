@@ -488,7 +488,7 @@ void move_to_outbox_cb(const LLSD& notification, const LLSD& response)
 			dest_folder_id = gInventory.createNewCategory(dest_folder_id,  LLFolderType::FT_NONE, viitem->getName());
 		}
 
-		//LLUUID old_parent = viitem->getParentUUID();
+		LLUUID parent = viitem->getParentUUID();
 
 		change_item_parent(
 			&gInventory,
@@ -496,18 +496,45 @@ void move_to_outbox_cb(const LLSD& notification, const LLSD& response)
 			dest_folder_id,
 			false);
 
-		//LLInventoryModel::cat_array_t* cat_array;
-		//LLInventoryModel::item_array_t* item_array;
-		//gInventory.getDirectDescendentsOf(old_parent,cat_array,item_array);
+		LLUUID top_level_folder = notification["payload"]["top_level_folder"].asUUID();
 
-		//if (cat_array->empty() && item_array->empty())
-		//{
-		//	remove_category(&gInventory, old_parent);
-		//}
+		if (top_level_folder != LLUUID::null)
+		{
+			LLViewerInventoryCategory* category;
+			
+			while (parent.notNull())
+			{
+				LLInventoryModel::cat_array_t* cat_array;
+				LLInventoryModel::item_array_t* item_array;
+				gInventory.getDirectDescendentsOf(parent,cat_array,item_array);
+
+				LLUUID next_parent;
+
+				category = gInventory.getCategory(parent);
+
+				if (!category) break;
+
+				next_parent = category->getParentUUID();
+
+				if (cat_array->empty() && item_array->empty())
+				{
+					remove_category(&gInventory, parent);
+				}
+
+				if (parent == top_level_folder)
+				{
+					break;
+				}
+
+				parent = next_parent;
+			}
+		}
+
 	}
 }
 
-void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder)
+
+void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LLUUID& top_level_folder)
 {
 	if (inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
 	{
@@ -532,11 +559,12 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder)
 		LLSD payload;
 		payload["item_id"] = inv_item->getUUID();
 		payload["dest_folder_id"] = dest_folder;
+		payload["top_level_folder"] = top_level_folder;
 		LLNotificationsUtil::add("ConfirmNoCopyToOutbox", args, payload, boost::bind(&move_to_outbox_cb, _1, _2));
 	}
 }
 
-void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_folder)
+void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, const LLUUID& top_level_folder)
 {
 	LLUUID new_folder_id = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, inv_cat->getName());
 
@@ -550,7 +578,7 @@ void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_fold
 	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
 	{
 		LLInventoryItem* item = *iter;
-		copy_item_to_outbox(item, new_folder_id);
+		copy_item_to_outbox(item, new_folder_id, top_level_folder);
 	}
 
 	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
@@ -558,7 +586,7 @@ void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_fold
 	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
 	{
 		LLViewerInventoryCategory* category = *iter;
-		copy_folder_to_outbox(category, new_folder_id);
+		copy_folder_to_outbox(category, new_folder_id, top_level_folder);
 	}
 
 	// delete the folder if we have emptied it
