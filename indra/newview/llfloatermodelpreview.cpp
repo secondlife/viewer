@@ -2080,7 +2080,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 	std::string name = data["name"];
 	if (!name.empty())
 	{
-		model[LLModel::LOD_HIGH][0]->mLabel = data["name"];
+		model[LLModel::LOD_HIGH][0]->mLabel = name;
 	}
 	
 
