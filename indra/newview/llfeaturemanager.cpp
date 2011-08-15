@@ -769,6 +769,10 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("TexUnit8orLess");
 	}
+	if (gGLManager.mHasMapBufferRange)
+	{
+		maskFeatures("MapBufferRange");
+	}
 
 	// now mask by gpu string
 	// Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces

@@ -14,8 +14,8 @@ public_build = true
 # skip windows debug build until we can get a fix in.
 build_CYGWIN_Debug = false
 
-# Update Public Inworld Build Status Indicators
-email_status_this_is_os = false
+# Update Public Inworld Build Status Indicators (setting should mirror "public_build")
+email_status_this_is_os = true
 
 # Limit extent of codeticket updates to revisions after...
 codeticket_since = 2.2.0-release
@@ -83,6 +83,26 @@ mesh-development.build_CYGWIN_Debug = false
 mesh-development.build_viewer_update_version_manager = false
 
 # ========================================
+# mesh-development-release-1-candidate
+# ========================================
+mesh-development-release-1-candidate.viewer_channel = "Project Viewer - Mesh"
+mesh-development-release-1-candidate.login_channel = "Project Viewer - Mesh"
+mesh-development-release-1-candidate.viewer_grid = agni
+mesh-development-release-1-candidate.build_debug_release_separately = true
+mesh-development-release-1-candidate.build_CYGWIN_Debug = false
+mesh-development-release-1-candidate.build_viewer_update_version_manager = false
+
+# ========================================
+# mesh-development-rc
+# ========================================
+mesh-development-rc.viewer_channel = "Project Viewer - Mesh"
+mesh-development-rc.login_channel = "Project Viewer - Mesh"
+mesh-development-rc.viewer_grid = agni
+mesh-development-rc.build_debug_release_separately = true
+mesh-development-rc.build_CYGWIN_Debug = false
+mesh-development-rc.build_viewer_update_version_manager = false
+
+# ========================================
 # mesh-asset-deprecation
 # ========================================
 mesh-asset-deprecation.viewer_channel = "Project Viewer - Mesh Asset Deprecation"
@@ -120,10 +140,6 @@ cg_viewer-development_lenny.email = cg@lindenlab.com
 # oz
 # ================
 
-snowstorm_project-windlight.build_debug_release_separately = true
-snowstorm_project-windlight.viewer_channel = "Second Life Project Windlight Region"
-snowstorm_project-windlight.login_channel  = "Second Life Project Windlight Region"
-
 oz_viewer-devreview.build_debug_release_separately = true
 oz_viewer-devreview.codeticket_add_context = false
 
@@ -138,6 +154,8 @@ oz_project-4.codeticket_add_context = false
 
 oz_viewer-beta-review.build_debug_release_separately = true
 oz_viewer-beta-review.codeticket_add_context = false
+oz_viewer-beta-review.viewer_channel = "Second Life Beta Viewer"
+oz_viewer-beta-review.login_channel = "Second Life Beta Viewer"
 
 oz_viewer-poreview.build_debug_release_separately = true
 oz_viewer-poreview.codeticket_add_context = false
@@ -163,6 +181,7 @@ viewer-asset-delivery-metrics.build_server_tests = false
 # Simon says
 # ========================================
 simon_viewer-dev-private.public_build = false
+simon_viewer-dev-private.email_status_this_is_os = false
 
 
 # eof

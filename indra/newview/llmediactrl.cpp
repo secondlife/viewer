@@ -1164,3 +1164,12 @@ void LLMediaCtrl::hideNotification()
 		mWindowShade->hide();
 	}
 }
+
+void LLMediaCtrl::setTrustedContent(bool trusted)
+{
+	mTrusted = trusted;
+	if (mMediaSource)
+	{
+		mMediaSource->setTrustedBrowser(trusted);
+	}
+}

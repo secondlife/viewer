@@ -1110,9 +1110,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>17083fdd18176c9f0ab0ee6d74527ec2</string>
+              <string>0db10480362168f075c2af0ae302cb74</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition/rev/236242/arch/Darwin/installer/llconvexdecomposition-0.1-darwin-20110719.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition/rev/234943/arch/Darwin/installer/llconvexdecomposition-0.1-darwin-20110707.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1122,9 +1122,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dce8a5fa75fd95b546c1c7c5b4e58f50</string>
+              <string>f3c667dc159c0537a9122ce6e72e16db</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition/rev/236242/arch/Linux/installer/llconvexdecomposition-0.1-linux-20110720.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition/rev/234943/arch/Linux/installer/llconvexdecomposition-0.1-linux-20110707.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1134,9 +1134,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bd1791928b31212ef6d64446456dbfbc</string>
+              <string>46cac4d667446bbbc9b5023f2848a5ac</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition/rev/236242/arch/CYGWIN/installer/llconvexdecomposition-0.1-windows-20110719.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition/rev/234943/arch/CYGWIN/installer/llconvexdecomposition-0.1-windows-20110707.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

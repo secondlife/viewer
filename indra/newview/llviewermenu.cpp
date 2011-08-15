@@ -44,6 +44,7 @@
 #include "llbottomtray.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
+#include "lldaycyclemanager.h"
 #include "lldebugview.h"
 #include "llenvmanager.h"
 #include "llfilepicker.h"
@@ -101,6 +102,7 @@
 #include "llworldmap.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
+#include "llwaterparammanager.h"
 #include "llwlanimator.h"
 #include "llwlparammanager.h"
 #include "llfloatercamera.h"
@@ -7670,6 +7672,40 @@ class LLWorldEnvPreset : public view_listener_t
 	}
 };
 
+class LLWorldEnableEnvPreset : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string item = userdata.asString();
+
+		if (item == "delete_water")
+		{
+			LLWaterParamManager::preset_name_list_t user_waters;
+			LLWaterParamManager::instance().getUserPresetNames(user_waters);
+			return !user_waters.empty();
+		}
+		else if (item == "delete_sky")
+		{
+			LLWLParamManager::preset_name_list_t user_skies;
+			LLWLParamManager::instance().getUserPresetNames(user_skies);
+			return !user_skies.empty();
+		}
+		else if (item == "delete_day_cycle")
+		{
+			LLDayCycleManager::preset_name_list_t user_days;
+			LLDayCycleManager::instance().getUserPresetNames(user_days);
+			return !user_days.empty();
+		}
+		else
+		{
+			llwarns << "Unknown item" << llendl;
+		}
+
+		return false;
+	}
+};
+
+
 /// Post-Process callbacks
 class LLWorldPostProcess : public view_listener_t
 {
@@ -7909,6 +7945,7 @@ void initialize_menus()
 	
 	view_listener_t::addMenu(new LLWorldEnvSettings(), "World.EnvSettings");
 	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
+	view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
 
 	view_listener_t::addMenu(new LLWorldToggleMovementControls(), "World.Toggle.MovementControls");

@@ -4991,19 +4991,19 @@ Would you like to automatically wear the clothing you are about to create?
    name="NotAgeVerified"
    type="alertmodal">
    <tag>fail</tag>
-You must be age-verified to visit this area.  Do you want to go to the [SECOND_LIFE] website and verify your age?
+To access adult content and areas in Second Life you must be at least 18 years old. Please visit our age verification page to confirm you are over 18. 
+Note this will launch your web browser.
 
 [_URL]
     <tag>confirm</tag>
     <url option="0" name="url">
-
-	    https://secondlife.com/account/verification.php
+	    https://secondlife.com/my/account/verification.php
     </url>
     <usetemplate
      ignoretext="I have not verified my age"
      name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
+     notext="Cancel"
+     yestext="Go to Age Verification"/>
   </notification>
 
   <notification

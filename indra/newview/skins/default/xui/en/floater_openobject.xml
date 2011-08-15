@@ -22,6 +22,7 @@
      layout="topleft"
      left="10"
      name="object_name"
+     parse_urls="false"
      top="20"
      width="284">
         [DESC]:

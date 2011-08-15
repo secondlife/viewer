@@ -184,6 +184,13 @@ std::string lod_label_name[NUM_LOD+1] =
 	"I went off the end of the lod_label_name array.  Me so smart."
 };
 
+std::string colladaVersion[VERSIONTYPE_COUNT+1] = 
+{
+	"1.4.0",
+	"1.4.1",
+	"Unsupported"
+};
+
 
 #define LL_DEGENERACY_TOLERANCE  1e-7f
 
@@ -766,6 +773,7 @@ void LLFloaterModelPreview::draw()
 		if ( mModelPreview->getLoadState() == LLModelLoader::ERROR_PARSING )
 		{
 			childSetTextArg("status", "[STATUS]", getString("status_parse_error"));
+			toggleCalculateButton(false);
 		}
 		else
 		{
@@ -1390,7 +1398,22 @@ bool LLModelLoader::doLoadModel()
 		setLoadState( ERROR_PARSING );
 		return false;
 	}
-
+	//Dom version
+	daeString domVersion = dae.getDomVersion();
+	std::string sldom(domVersion);
+	llinfos<<"Collada Importer Version: "<<sldom<<llendl;
+	//Dae version
+	domVersionType docVersion = dom->getVersion();
+	//0=1.4
+	//1=1.4.1
+	//2=Currently unsupported, however may work
+	if (docVersion > 1 ) 
+	{ 
+		docVersion = VERSIONTYPE_COUNT;
+	}
+	llinfos<<"Dae version "<<colladaVersion[docVersion]<<llendl;
+	
+	
 	daeDatabase* db = dae.getDatabase();
 	
 	daeInt count = db->getElementCount(NULL, COLLADA_TYPE_MESH);
@@ -1612,7 +1635,7 @@ bool LLModelLoader::doLoadModel()
 								{
 									//Build a joint for the resolver to work with
 									char str[64]={0};
-									sprintf(str,"./%s",(*jointIt).second.c_str() );
+									sprintf(str,"./%s",(*jointIt).first.c_str() );
 									//llwarns<<"Joint "<< str <<llendl;
 									
 									//Setup the resolver
@@ -1623,15 +1646,22 @@ bool LLModelLoader::doLoadModel()
                                     if ( pJoint )
                                     {
 										//Pull out the translate id and store it in the jointTranslations map
-										daeSIDResolver jointResolver( pJoint, "./translate" );
-										domTranslate* pTranslate = daeSafeCast<domTranslate>( jointResolver.getElement() );
+										daeSIDResolver jointResolverA( pJoint, "./translate" );
+										domTranslate* pTranslateA = daeSafeCast<domTranslate>( jointResolverA.getElement() );
+										daeSIDResolver jointResolverB( pJoint, "./location" );
+										domTranslate* pTranslateB = daeSafeCast<domTranslate>( jointResolverB.getElement() );
 										
 										LLMatrix4 workingTransform;
 										
 										//Translation via SID
-										if ( pTranslate )
+										if ( pTranslateA )
 										{
-											extractTranslation( pTranslate, workingTransform );
+											extractTranslation( pTranslateA, workingTransform );
+										}
+										else
+										if ( pTranslateB )
+										{
+											extractTranslation( pTranslateB, workingTransform );
 										}
 										else
 										{
@@ -1749,7 +1779,7 @@ bool LLModelLoader::doLoadModel()
 							}
 						}
 						
-						//Now that we've parsed the jointa werray, let's determine if we have a full rig
+						//Now that we've parsed the joint array, let's determine if we have a full rig
 						//(which means we have all the joint sthat are required for an avatar versus
 						//a skinned asset attached to a node in a file that contains an entire skeleton,
 						//but does not use the skeleton).						
@@ -2508,13 +2538,20 @@ void LLModelLoader::processJointNode( domNode* pNode, JointTransformMap& jointTr
 	LLMatrix4 workingTransform;
 
 	//Pull out the translate id and store it in the jointTranslations map
-	daeSIDResolver jointResolver( pNode, "./translate" );
-	domTranslate* pTranslate = daeSafeCast<domTranslate>( jointResolver.getElement() );
+	daeSIDResolver jointResolverA( pNode, "./translate" );
+	domTranslate* pTranslateA = daeSafeCast<domTranslate>( jointResolverA.getElement() );
+	daeSIDResolver jointResolverB( pNode, "./location" );
+	domTranslate* pTranslateB = daeSafeCast<domTranslate>( jointResolverB.getElement() );
 
 	//Translation via SID was successful
-	if ( pTranslate )
+	if ( pTranslateA )
 	{
-		extractTranslation( pTranslate, workingTransform );
+		extractTranslation( pTranslateA, workingTransform );
+	}
+	else
+	if ( pTranslateB )
+	{
+		extractTranslation( pTranslateB, workingTransform );
 	}
 	else
 	{

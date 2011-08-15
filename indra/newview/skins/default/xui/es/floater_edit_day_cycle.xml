@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Day cycle" title="Editar ciclo del día">
+	<string name="title_new">
+		Crear un ciclo del día nuevo
+	</string>
+	<string name="title_edit">
+		Editar ciclo del día
+	</string>
+	<string name="hint_new">
+		Asigna un nombre al ciclo del día, ajusta los controles para crearlo y selecciona &quot;Guardar&quot;.
+	</string>
+	<string name="hint_edit">
+		Para editar el ciclo del día, ajusta los controles siguientes y selecciona &quot;Guardar&quot;.
+	</string>
+	<string name="combo_label">
+		-Selecciona un valor predefinido-
+	</string>
+	<text name="label">
+		Nombre predefinido:
+	</text>
+	<text name="note">
+		Nota: Si cambias el nombre del valor predefinido, crearás un predefinido nuevo y el actual no se modificará.
+	</text>
+	<text name="hint_item1">
+		- Pulsa en una pestaña para editar la configuración y el tiempo de un cielo determinado.
+	</text>
+	<text name="hint_item2">
+		- Pulsa y arrastra las pestañas para ajustar los tiempos de transición.
+	</text>
+	<text name="hint_item3">
+		- Usa el depurador para obtener una vista previa del ciclo del día.
+	</text>
+	<panel name="day_cycle_slider_panel">
+		<multi_slider initial_value="0" name="WLTimeSlider"/>
+		<multi_slider initial_value="0" name="WLDayCycleKeys"/>
+		<button label="Añadir clave" label_selected="Añadir clave" name="WLAddKey"/>
+		<button label="Eliminar clave" label_selected="Eliminar clave" name="WLDeleteKey"/>
+		<text name="WL12am">
+			12 AM
+		</text>
+		<text name="WL3am">
+			3 AM
+		</text>
+		<text name="WL6am">
+			6 AM
+		</text>
+		<text name="WL9amHash">
+			9 AM
+		</text>
+		<text name="WL12pmHash">
+			12 PM
+		</text>
+		<text name="WL3pm">
+			3 PM
+		</text>
+		<text name="WL6pm">
+			6 PM
+		</text>
+		<text name="WL9pm">
+			9 PM
+		</text>
+		<text name="WL12am2">
+			12 AM
+		</text>
+		<text name="WL12amHash">
+			|
+		</text>
+		<text name="WL3amHash">
+			I
+		</text>
+		<text name="WL6amHash">
+			|
+		</text>
+		<text name="WL9amHash2">
+			I
+		</text>
+		<text name="WL12pmHash2">
+			|
+		</text>
+		<text name="WL3pmHash">
+			I
+		</text>
+		<text name="WL6pmHash">
+			|
+		</text>
+		<text name="WL9pmHash">
+			I
+		</text>
+		<text name="WL12amHash2">
+			|
+		</text>
+	</panel>
+	<text name="WLCurKeyPresetText">
+		Configuración del cielo:
+	</text>
+	<combo_box label="Predefinido" name="WLSkyPresets"/>
+	<text name="WLCurKeyTimeText">
+		Hora:
+	</text>
+	<time name="time" value="6 AM"/>
+	<check_box label="Convertir en mi nuevo ciclo del día" name="make_default_cb"/>
+	<button label="Guardar" name="save"/>
+	<button label="Cancelar" name="cancel"/>
+</floater>

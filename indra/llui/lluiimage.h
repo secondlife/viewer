@@ -103,12 +103,12 @@ namespace LLInitParam
 		ParamValue(LLUIImage* const& image)
 		:	super_t(image)
 		{
-			updateBlockFromValue();
+			updateBlockFromValue(false);
 			addSynonym(name, "name");
 		}
 
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 
 	// Need custom comparison function for our test app, which only loads

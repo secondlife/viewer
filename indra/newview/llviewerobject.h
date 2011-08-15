@@ -44,6 +44,7 @@
 #include "v3math.h"
 #include "llvertexbuffer.h"
 #include "llbbox.h"
+#include "llbbox.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;

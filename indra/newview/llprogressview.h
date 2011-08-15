@@ -48,6 +48,7 @@ public:
 	BOOL postBuild();
 
 	/*virtual*/ void draw();
+	void drawStartTexture(F32 alpha);
 
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
@@ -64,6 +65,8 @@ public:
 	
 	// turns on (under certain circumstances) the into video after login
 	void revealIntroPanel();
+
+	void setStartupComplete();
 
 	void setCancelButtonVisible(BOOL b, const std::string& label);
 
@@ -82,8 +85,10 @@ protected:
 	std::string mMessage;
 	LLButton*	mCancelBtn;
 	LLFrameTimer mFadeToWorldTimer;
+	LLFrameTimer mFadeFromLoginTimer;
 	LLRect mOutlineRect;
 	bool mMouseDownInActiveArea;
+	bool mStartupComplete;
 
 	// The LLEventStream mUpdateEvents depends upon this class being a singleton
 	// to avoid pump name conflicts.

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="Gear Wearing">
+<toggleable_menu name="Gear Wearing">
 	<menu_item_call label="Editar look" name="edit"/>
 	<menu_item_call label="Tirar" name="takeoff"/>
-</menu>
+	<menu_item_call label="Copiar lista do look para a área de transferência" name="copy"/>
+</toggleable_menu>

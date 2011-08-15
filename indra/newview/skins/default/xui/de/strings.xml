@@ -1192,6 +1192,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
+	<string name="InventoryInboxNoItems">
+		Objekte, die auf dem Marktplatz gekauft wurden, werden hierher geliefert.
+	</string>
+	<string name="InventoryOutboxNoItems">
+		Objekte hierher ziehen, um Sie in Ihrer Marktplatz-Storefront zum Verkauf anzubieten.
+	</string>
 	<string name="no_transfer" value=" (kein Transferieren)"/>
 	<string name="no_modify" value=" (kein Bearbeiten)"/>
 	<string name="no_copy" value=" (kein Kopieren)"/>
@@ -1321,6 +1327,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="InvFolder All">
 		Alle
+	</string>
+	<string name="no_attachments">
+		Keine Anhänge getragen
 	</string>
 	<string name="Buy">
 		Kaufen
@@ -1657,6 +1666,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="IMTeen">
 		Teen
 	</string>
+	<string name="Anyone">
+		jeder
+	</string>
 	<string name="RegionInfoError">
 		Fehler
 	</string>
@@ -1870,7 +1882,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="RegionNoCovenantOtherOwner">
 		Für diesen Grundbesitz liegt kein Vertrag vor. Das Land auf diesem Grundbesitz wird vom Grundbesitzer und nicht von Linden Lab verkauft.  Für Informationen zum Verkauf setzen Sie sich bitte mit dem Grundbesitzer in Verbindung.
 	</string>
-	<string name="covenant_last_modified" value="Zuletzt geändert:"/>
+	<string name="covenant_last_modified" value="Zuletzt geändert: "/>
 	<string name="none_text" value=" (keiner) "/>
 	<string name="never_text" value=" (nie) "/>
 	<string name="GroupOwned">
@@ -1878,6 +1890,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="Public">
 		Öffentlich
+	</string>
+	<string name="LocalSettings">
+		Lokale Einstellungen
+	</string>
+	<string name="RegionSettings">
+		Regionseinstellungen
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Klicks: [TELEPORT] teleportieren, [MAP] Karte, [PROFILE] Profil
@@ -3723,6 +3741,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
 		Generelle Region
+	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		Avatare sichtbar; Chat außerhalb dieser Parzelle gestattet
 	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Aktualisierung

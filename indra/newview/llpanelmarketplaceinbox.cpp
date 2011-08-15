@@ -27,15 +27,14 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanelmarketplaceinbox.h"
+#include "llpanelmarketplaceinboxinventory.h"
 
 #include "llappviewer.h"
 #include "llbutton.h"
 #include "llinventorypanel.h"
 #include "llfolderview.h"
 #include "llsidepanelinventory.h"
-
-
-#define SUPPORTING_FRESH_ITEM_COUNT	0
+#include "llviewercontrol.h"
 
 
 static LLRegisterPanelClassWrapper<LLPanelMarketplaceInbox> t_panel_marketplace_inbox("panel_marketplace_inbox");
@@ -54,6 +53,10 @@ LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
 
 LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 {
+	if (getChild<LLButton>("inbox_btn")->getToggleState())
+	{
+		gSavedPerAccountSettings.setString("LastInventoryInboxExpand", LLDate::now().asString());
+	}
 }
 
 // virtual
@@ -157,10 +160,10 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 
 			for (; folders_it != folders_end; ++folders_it)
 			{
-				const LLFolderViewFolder * folder = *folders_it;
+				const LLFolderViewFolder * folder_view = *folders_it;
+				const LLInboxFolderViewFolder * inbox_folder_view = dynamic_cast<const LLInboxFolderViewFolder*>(folder_view);
 
-				// TODO: Replace this check with new "fresh" flag
-				if (folder->getCreationDate() > 1500)
+				if (inbox_folder_view && inbox_folder_view->isFresh())
 				{
 					fresh_item_count++;
 				}
