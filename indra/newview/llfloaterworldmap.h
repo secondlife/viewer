@@ -39,6 +39,7 @@
 #include "lltracker.h"
 #include "llslurl.h"
 
+class LLCtrlListInterface;
 class LLFriendObserver;
 class LLInventoryModel;
 class LLInventoryObserver;
@@ -190,6 +191,10 @@ private:
 	std::string				mTrackedSimName;
 	std::string				mTrackedAvatarName;
 	LLSLURL  				mSLURL;
+
+	LLCtrlListInterface *	mListFriendCombo;
+	LLCtrlListInterface *	mListLandmarkCombo;
+	LLCtrlListInterface *	mListSearchResults;
 };
 
 extern LLFloaterWorldMap* gFloaterWorldMap;
