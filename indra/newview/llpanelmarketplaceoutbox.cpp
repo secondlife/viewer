@@ -83,25 +83,8 @@ void LLPanelMarketplaceOutbox::handleLoginComplete()
 void LLPanelMarketplaceOutbox::onFocusReceived()
 {
 	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
-
-	if (sidepanel_inventory)
-	{
-		LLInventoryPanel * inv_panel = sidepanel_inventory->getActivePanel();
-
-		if (inv_panel)
-		{
-			inv_panel->clearSelection();
-		}
-
-		LLInventoryPanel * inbox_panel = sidepanel_inventory->findChild<LLInventoryPanel>("inventory_inbox");
-
-		if (inbox_panel)
-		{
-			inbox_panel->clearSelection();
-		}
-		
-		sidepanel_inventory->updateVerbs();
-	}
+	
+	sidepanel_inventory->clearSelections(true, true, false);
 }
 
 void LLPanelMarketplaceOutbox::onSelectionChange()
@@ -111,7 +94,7 @@ void LLPanelMarketplaceOutbox::onSelectionChange()
 	sidepanel_inventory->updateVerbs();
 }
 
-void LLPanelMarketplaceOutbox::setupInventoryPanel()
+LLInventoryPanel * LLPanelMarketplaceOutbox::setupInventoryPanel()
 {
 	LLView * outbox_inventory_placeholder = getChild<LLView>("outbox_inventory_placeholder");
 	LLView * outbox_inventory_parent = outbox_inventory_placeholder->getParent();
@@ -134,6 +117,8 @@ void LLPanelMarketplaceOutbox::setupInventoryPanel()
 	
 	// Hide the placeholder text
 	outbox_inventory_placeholder->setVisible(FALSE);
+	
+	return mInventoryPanel;
 }
 
 bool LLPanelMarketplaceOutbox::isOutboxEmpty() const

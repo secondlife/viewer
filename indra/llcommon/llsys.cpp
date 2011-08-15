@@ -68,9 +68,11 @@ using namespace llsd;
 #	include <sys/utsname.h>
 #	include <stdint.h>
 #	include <Carbon/Carbon.h>
-#   include <sys/wait.h>
-#   include <string.h>
 #   include <stdexcept>
+#	include <mach/host_info.h>
+#	include <mach/mach_host.h>
+#	include <mach/task.h>
+#	include <mach/task_info.h>
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
@@ -990,17 +992,89 @@ LLSD LLMemoryInfo::loadStatsMap()
 	stats.add("PrivateUsage KB",               pmem.PrivateUsage/1024);
 
 #elif LL_DARWIN
-	uint64_t phys = 0;
 
-	size_t len = sizeof(phys);	
+	const vm_size_t pagekb(vm_page_size / 1024);
 	
-	if (sysctlbyname("hw.memsize", &phys, &len, NULL, 0) == 0)
+	//
+	// Collect the vm_stat's
+	//
+	
 	{
-		stats.add("Total Physical KB", phys/1024);
+		vm_statistics_data_t vmstat;
+		mach_msg_type_number_t vmstatCount = HOST_VM_INFO_COUNT;
+
+		if (host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t) &vmstat, &vmstatCount) != KERN_SUCCESS)
+	{
+			LL_WARNS("LLMemoryInfo") << "Unable to collect memory information" << LL_ENDL;
+		}
+		else
+		{
+			stats.add("Pages free KB",		pagekb * vmstat.free_count);
+			stats.add("Pages active KB",	pagekb * vmstat.active_count);
+			stats.add("Pages inactive KB",	pagekb * vmstat.inactive_count);
+			stats.add("Pages wired KB",		pagekb * vmstat.wire_count);
+
+			stats.add("Pages zero fill",		vmstat.zero_fill_count);
+			stats.add("Page reactivations",		vmstat.reactivations);
+			stats.add("Page-ins",				vmstat.pageins);
+			stats.add("Page-outs",				vmstat.pageouts);
+			
+			stats.add("Faults",					vmstat.faults);
+			stats.add("Faults copy-on-write",	vmstat.cow_faults);
+			
+			stats.add("Cache lookups",			vmstat.lookups);
+			stats.add("Cache hits",				vmstat.hits);
+			
+			stats.add("Page purgeable count",	vmstat.purgeable_count);
+			stats.add("Page purges",			vmstat.purges);
+			
+			stats.add("Page speculative reads",	vmstat.speculative_count);
+		}
 	}
-	else
-	{
-		LL_WARNS("LLMemoryInfo") << "Unable to collect hw.memsize memory information" << LL_ENDL;
+
+	//
+	// Collect the misc task info
+	//
+
+		{
+		task_events_info_data_t taskinfo;
+		unsigned taskinfoSize = sizeof(taskinfo);
+		
+		if (task_info(mach_task_self(), TASK_EVENTS_INFO, (task_info_t) &taskinfo, &taskinfoSize) != KERN_SUCCESS)
+					{
+			LL_WARNS("LLMemoryInfo") << "Unable to collect task information" << LL_ENDL;
+			}
+			else
+			{
+			stats.add("Task page-ins",					taskinfo.pageins);
+			stats.add("Task copy-on-write faults",		taskinfo.cow_faults);
+			stats.add("Task messages sent",				taskinfo.messages_sent);
+			stats.add("Task messages received",			taskinfo.messages_received);
+			stats.add("Task mach system call count",	taskinfo.syscalls_mach);
+			stats.add("Task unix system call count",	taskinfo.syscalls_unix);
+			stats.add("Task context switch count",		taskinfo.csw);
+			}
+	}	
+	
+	//
+	// Collect the basic task info
+	//
+
+		{
+		task_basic_info_64_data_t taskinfo;
+		unsigned taskinfoSize = sizeof(taskinfo);
+		
+		if (task_info(mach_task_self(), TASK_BASIC_INFO_64, (task_info_t) &taskinfo, &taskinfoSize) != KERN_SUCCESS)
+			{
+			LL_WARNS("LLMemoryInfo") << "Unable to collect task information" << LL_ENDL;
+				}
+				else
+				{
+			stats.add("Basic suspend count",					taskinfo.suspend_count);
+			stats.add("Basic virtual memory KB",				taskinfo.virtual_size / 1024);
+			stats.add("Basic resident memory KB",				taskinfo.resident_size / 1024);
+			stats.add("Basic new thread policy",				taskinfo.policy);
+		}
 	}
 
 #elif LL_SOLARIS

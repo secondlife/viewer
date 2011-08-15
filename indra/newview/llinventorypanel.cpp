@@ -812,9 +812,7 @@ void LLInventoryPanel::openStartFolderOrMyInventory()
 			&& fchild->getListener()
 				&& fchild->getListener()->getUUID() == gInventory.getRootFolderID())
 		{
-			const std::string& child_name = child->getName();
-			mFolderRoot->openFolder(child_name);
-			mFolderRoot->clearSelection();	// No need to keep it selected though!
+			fchild->setOpen(TRUE);
 			break;
 		}
 	}

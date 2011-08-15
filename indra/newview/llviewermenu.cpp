@@ -832,7 +832,8 @@ U32 feature_from_string(std::string feature)
 };
 
 
-class LLAdvancedToggleFeature : public view_listener_t{
+class LLAdvancedToggleFeature : public view_listener_t
+{
 	bool handleEvent(const LLSD& userdata)
 	{
 		U32 feature = feature_from_string( userdata.asString() );
@@ -845,7 +846,8 @@ class LLAdvancedToggleFeature : public view_listener_t{
 };
 
 class LLAdvancedCheckFeature : public view_listener_t
-{bool handleEvent(const LLSD& userdata)
+{
+	bool handleEvent(const LLSD& userdata)
 {
 	U32 feature = feature_from_string( userdata.asString() );
 	bool new_value = false;
@@ -7777,6 +7779,55 @@ class LLToggleUIHints : public view_listener_t
 	}
 };
 
+class LLCheckSessionsSettings : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string expected = userdata.asString();
+		return gSavedSettings.getString("SessionSettingsFile") == expected;
+	}
+};
+
+class LLChangeMode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string mode = userdata.asString();
+		if (mode == "basic")
+		{
+			if (gSavedSettings.getString("SessionSettingsFile") != "settings_minimal.xml")
+			{
+				LLNotificationsUtil::add("ModeChange", LLSD(), LLSD(), boost::bind(onModeChangeConfirm, "settings_minimal.xml", _1, _2));
+			}
+			return true;
+		}
+		else if (mode == "advanced")
+		{
+			if (gSavedSettings.getString("SessionSettingsFile") != "")
+			{
+				LLNotificationsUtil::add("ModeChange", LLSD(), LLSD(), boost::bind(onModeChangeConfirm, "", _1, _2));
+			}
+			return true;
+		}
+		return false;
+	}	
+	
+	static void onModeChangeConfirm(const std::string& new_session_settings_file, const LLSD& notification, const LLSD& response)
+	{
+		S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+		switch (option)
+		{
+		case 0:
+			gSavedSettings.getControl("SessionSettingsFile")->set(new_session_settings_file);
+			LLAppViewer::instance()->forceQuit();
+			break;
+		case 1:
+		default:
+			break;
+		}
+	}
+};
+
 void LLUploadCostCalculator::calculateCost()
 {
 	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
@@ -8266,6 +8317,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+	view_listener_t::addMenu(new LLCheckSessionsSettings(), "CheckSessionSettings");
+	view_listener_t::addMenu(new LLChangeMode(), "ChangeMode");
 
 	commit.add("Destination.show", boost::bind(&toggle_destination_and_avatar_picker, 0));
 	commit.add("Avatar.show", boost::bind(&toggle_destination_and_avatar_picker, 1));
