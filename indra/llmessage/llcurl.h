@@ -41,6 +41,7 @@
 #include "llbuffer.h"
 #include "lliopipe.h"
 #include "llsd.h"
+#include "llthread.h"
 
 class LLMutex;
 
@@ -54,6 +55,8 @@ class LLCurl
 public:
 	class Easy;
 	class Multi;
+
+	static bool sMultiThreaded;
 
 	struct TransferInfo
 	{
@@ -159,7 +162,7 @@ public:
 	/**
 	 * @ brief Initialize LLCurl class
 	 */
-	static void initClass();
+	static void initClass(bool multi_threaded = false);
 
 	/**
 	 * @ brief Cleanup LLCurl class
@@ -236,7 +239,7 @@ public:
 	void slist_append(const char* str);
 	void sendRequest(const std::string& url);
 	void requestComplete();
-	S32 perform();
+	void perform();
 	bool getResult(CURLcode* result, LLCurl::TransferInfo* info = NULL);
 	std::string getErrorString();
 

@@ -136,12 +136,12 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 				0
 			</text>
 			<button label="Acquista il terreno..." label_selected="Acquista il terreno..." left="130" name="Buy Land..." width="125"/>
+			<button label="Vendita Linden" name="Linden Sale..." tool_tip="La terra deve essere di proprietà, con contenuto impostato, e non già messa all&apos;asta."/>
 			<button label="Informazioni script" name="Scripts..."/>
 			<button label="Acquista per il gruppo" name="Buy For Group..."/>
 			<button label="Compra Pass..." label_selected="Compra Pass..." left="130" name="Buy Pass..." tool_tip="Un pass ti da un accesso temporaneo in questo territorio." width="125"/>
 			<button label="Abbandona la terra" name="Abandon Land..."/>
 			<button label="Reclama la terra" name="Reclaim Land..."/>
-			<button label="Vendita Linden" name="Linden Sale..." tool_tip="La terra deve essere di proprietà, con contenuto impostato, e non già messa all&apos;asta."/>
 		</panel>
 		<panel label="REGOLAMENTO" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -313,6 +313,9 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			<panel.string name="push_restrict_region_text">
 				Nessuna spinta (Impostazione regionale)
 			</panel.string>
+			<panel.string name="see_avs_text">
+				Vedi i residenti in questo lotto e chatta con loro
+			</panel.string>
 			<text name="allow_label">
 				Permetti ad altri residenti di:
 			</text>
@@ -375,6 +378,10 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Fotografia:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clicca per scegliere una immagine"/>
+			<text name="allow_label5">
+				Permetti ai residenti in altri lotti di:
+			</text>
+			<check_box label="Vedi avatar" name="SeeAvatarsCheck" tool_tip="Consente ai residenti in altri lotti di vedere i residenti in questo lotto e chattare con loro, e ti consente di vederli e chattare con loro."/>
 			<text name="landing_point">
 				Punto di atterraggio: [LANDING]
 			</text>
@@ -434,6 +441,11 @@ Media:
 				Audio:
 			</text>
 			<check_box label="Limita l&apos;audio per oggetti e gesture a questo lotto" name="check sound local"/>
+			<text name="Avatar Sounds:">
+				Suoni avatar:
+			</text>
+			<check_box label="Tutti" name="all av sound check"/>
+			<check_box label="Gruppo" name="group av sound check"/>
 			<text name="Voice settings:">
 				Voce:
 			</text>

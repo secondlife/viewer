@@ -49,6 +49,11 @@ using std::make_pair;
 using std::string;
 
 GLhandleARB LLGLSLShader::sCurBoundShader = 0;
+bool LLGLSLShader::sNoFixedFunction = false;
+
+//UI shader -- declared here so llui_libtest will link properly
+LLGLSLShader	gUIProgram;
+LLGLSLShader	gSolidColorProgram;
 
 BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
 {
@@ -376,6 +381,7 @@ BOOL LLGLSLShader::link(BOOL suppress_errors)
 
 void LLGLSLShader::bind()
 {
+	gGL.flush();
 	if (gGLManager.mHasShaderObjects)
 	{
 		glUseProgramObjectARB(mProgramObject);
@@ -390,6 +396,7 @@ void LLGLSLShader::bind()
 
 void LLGLSLShader::unbind()
 {
+	gGL.flush();
 	if (gGLManager.mHasShaderObjects)
 	{
 		stop_glerror();

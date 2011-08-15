@@ -84,7 +84,6 @@
 #include "llviewerwindow.h"
 #include "llvovolume.h"
 #include "lluictrlfactory.h"
-#include "llaccountingquotamanager.h"
 #include "llmeshrepository.h"
 
 // Globals
@@ -827,6 +826,9 @@ void LLFloaterTools::onClose(bool app_quitting)
 
 	//gMenuBarView->setItemVisible("BuildTools", FALSE);
 	LLFloaterReg::hideInstance("media_settings");
+
+	// hide the advanced object weights floater
+	LLFloaterReg::hideInstance("object_weights");
 }
 
 void click_popup_info(void*)

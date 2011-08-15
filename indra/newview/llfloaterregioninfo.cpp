@@ -172,30 +172,9 @@ bool estate_dispatch_initialized = false;
 LLUUID LLFloaterRegionInfo::sRequestInvoice;
 
 
-void LLFloaterRegionInfo::onConsoleReplyReceived(const std::string& output)
-{
-	llwarns << "here is what they're giving us:  " << output << llendl;
-
-	if (output.find("FALSE") != std::string::npos)
-	{
-		getChild<LLUICtrl>("mesh_rez_enabled_check")->setValue(FALSE);
-	}
-	else
-	{
-		getChild<LLUICtrl>("mesh_rez_enabled_check")->setValue(TRUE);
-	}
-}
-
-
 LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
 	: LLFloater(seed)
-{
-	mConsoleReplySignalConnection = LLFloaterRegionDebugConsole::setConsoleReplyCallback(
-	boost::bind(
-		&LLFloaterRegionInfo::onConsoleReplyReceived,
-		this,
-		_1));
-}
+{}
 
 BOOL LLFloaterRegionInfo::postBuild()
 {
@@ -246,9 +225,7 @@ BOOL LLFloaterRegionInfo::postBuild()
 }
 
 LLFloaterRegionInfo::~LLFloaterRegionInfo()
-{
-	mConsoleReplySignalConnection.disconnect();
-}
+{}
 
 void LLFloaterRegionInfo::onOpen(const LLSD& key)
 {
@@ -336,7 +313,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	LLViewerRegion* region = gAgent.getRegion();
 	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
 
-	// *TODO: Replace parcing msg with accessing the region info model.
+	// *TODO: Replace parsing msg with accessing the region info model.
 	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
 
 	// extract message
@@ -368,6 +345,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 		msg->getSize("RegionInfo2", "ProductName") > 0)
 	{
 		msg->getString("RegionInfo2", "ProductName", sim_type);
+		LLTrans::findString(sim_type, sim_type); // try localizing sim product name
 	}
 
 	// GENERAL PANEL
@@ -637,9 +615,6 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
 	getChildView("im_btn")->setEnabled(allow_modify);
 	getChildView("manage_telehub_btn")->setEnabled(allow_modify);
 
-	const bool enable_mesh = gMeshRepo.meshRezEnabled();
-	getChildView("mesh_rez_enabled_check")->setVisible(enable_mesh);
-	getChildView("mesh_rez_enabled_check")->setEnabled(getChildView("mesh_rez_enabled_check")->getEnabled() && enable_mesh);
 	// Data gets filled in by processRegionInfo
 
 	return LLPanelRegionInfo::refreshFromRegion(region);
@@ -658,7 +633,6 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	initCtrl("access_combo");
 	initCtrl("restrict_pushobject");
 	initCtrl("block_parcel_search_check");
-	initCtrl("mesh_rez_enabled_check");
 
 	childSetAction("kick_btn", boost::bind(&LLPanelRegionGeneralInfo::onClickKick, this));
 	childSetAction("kick_all_btn", onClickKickAll, this);
@@ -873,27 +847,6 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 		sendEstateOwnerMessage(gMessageSystem, "setregioninfo", invoice, strings);
 	}
-
-	std::string sim_console_url = gAgent.getRegion()->getCapability("SimConsoleAsync");
-
-	if (!sim_console_url.empty())
-	{
-		std::string update_str = "set mesh_rez_enabled ";
-		if (getChild<LLUICtrl>("mesh_rez_enabled_check")->getValue().asBoolean())
-		{
-			update_str += "true";
-		}
-		else
-		{
-			update_str += "false";
-		}
-
-		LLHTTPClient::post(
-			sim_console_url,
-			LLSD(update_str),
-			new ConsoleUpdateResponder);
-	}
-
 
 	// if we changed access levels, tell user about it
 	LLViewerRegion* region = gAgent.getRegion();
@@ -2409,11 +2362,7 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 	}
 	
 	LLTextBox* region_landtype = getChild<LLTextBox>("region_landtype_text");
-	if (region_landtype)
-	{
-		region_landtype->setText(region->getSimProductName());
-	}
-	
+	region_landtype->setText(region->getLocalizedSimProductName());
 	
 	// let the parent class handle the general data collection. 
 	bool rv = LLPanelRegionInfo::refreshFromRegion(region);

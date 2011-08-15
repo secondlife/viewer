@@ -1835,7 +1835,7 @@ Prøv venligst om lidt igen.
 	<string name="RegionNoCovenantOtherOwner">
 		Der er ingen regler for dette estate. Land på dette estate sælges af estate ejeren, ikke af Linden Lab.  Kontakt venligst estate ejeren for detaljer om salg.
 	</string>
-	<string name="covenant_last_modified" value="Sidst rettet:"/>
+	<string name="covenant_last_modified" value="Sidst rettet: "/>
 	<string name="none_text" value=" (ingen) "/>
 	<string name="never_text" value=" (aldrig) "/>
 	<string name="GroupOwned">

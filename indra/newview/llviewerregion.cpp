@@ -567,6 +567,11 @@ const std::string LLViewerRegion::getSimAccessString() const
 	return accessToString(mSimAccess);
 }
 
+std::string LLViewerRegion::getLocalizedSimProductName() const
+{
+	std::string localized_spn;
+	return LLTrans::findString(localized_spn, mProductName) ? localized_spn : mProductName;
+}
 
 // static
 std::string LLViewerRegion::regionFlagsToString(U32 flags)
@@ -1481,11 +1486,8 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->sendReliable(host);
 }
 
-	
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
-	capabilityNames.append("AccountingParcel");
-	capabilityNames.append("AccountingSelection");
 	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("AvatarPickerSearch");
 	capabilityNames.append("ChatSessionRequest");
@@ -1525,6 +1527,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ProvisionVoiceAccountRequest");
 	capabilityNames.append("RemoteParcelRequest");
 	capabilityNames.append("RequestTextureDownload");
+	capabilityNames.append("ResourceCostSelected");
 	capabilityNames.append("SearchStatRequest");
 	capabilityNames.append("SearchStatTracking");
 	capabilityNames.append("SendPostcard");
@@ -1550,10 +1553,6 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
-	//prep# Finalize these!!!!!!!!!
-	//capabilityNames.append("AccountingVO");	
-	capabilityNames.append("AccountingParcel");
-	capabilityNames.append("AccountingRegion");
 	
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.

@@ -365,6 +365,8 @@ void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gestur
 		element["columns"][3]["font"]["style"] = font_style;
 	}
 
+	LL_DEBUGS("Gesture") << "Added gesture [" << item_name << "]" << LL_ENDL;
+
 	LLScrollListItem* sl_item = list->addElement(element, ADD_BOTTOM);
 	if(sl_item)
 	{

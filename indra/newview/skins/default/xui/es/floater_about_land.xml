@@ -133,12 +133,12 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				0
 			</text>
 			<button label="Comprar terreno" left="130" name="Buy Land..." width="125"/>
+			<button label="Venta Linden" name="Linden Sale..." tool_tip="El terreno debe estar en propiedad, con contenido, y no estar en subasta."/>
 			<button label="Información de scripts" name="Scripts..."/>
 			<button label="Comprar para el grupo" name="Buy For Group..."/>
 			<button label="Comprar un pase" left="130" name="Buy Pass..." tool_tip="Un pase le da acceso temporal a este terreno." width="125"/>
 			<button label="Abandonar el terreno" name="Abandon Land..."/>
 			<button label="Reclamar el terreno" name="Reclaim Land..."/>
-			<button label="Venta Linden" name="Linden Sale..." tool_tip="El terreno debe estar en propiedad, con contenido, y no estar en subasta."/>
 		</panel>
 		<panel label="CONTRATO" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -308,6 +308,9 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			<panel.string name="push_restrict_region_text">
 				Sin &apos;empujones&apos; (prevalece lo marcado en la región)
 			</panel.string>
+			<panel.string name="see_avs_text">
+				Ver a los residentes de esta parcela y chatear con ellos
+			</panel.string>
 			<text name="allow_label">
 				Permitir a otros Residentes:
 			</text>
@@ -370,6 +373,10 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Foto:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Pulse para elegir una imagen"/>
+			<text name="allow_label5">
+				Permitir a los residentes de otras parcelas:
+			</text>
+			<check_box label="Ver los avatares" name="SeeAvatarsCheck" tool_tip="Permite que los residentes de otras parcelas vean a los residentes de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos."/>
 			<text name="landing_point">
 				Punto de llegada: [LANDING]
 			</text>
@@ -429,6 +436,11 @@ los media:
 				Sonido:
 			</text>
 			<check_box label="Restringir sonidos de objetos y gestos a esta parcela" name="check sound local"/>
+			<text name="Avatar Sounds:">
+				Sonidos de avatar:
+			</text>
+			<check_box label="Todos" name="all av sound check"/>
+			<check_box label="Grupo" name="group av sound check"/>
 			<text name="Voice settings:">
 				Voz:
 			</text>

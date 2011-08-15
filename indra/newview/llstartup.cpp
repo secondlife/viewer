@@ -897,7 +897,7 @@ bool idle_startup()
 		if (show_connect_box)
 		{
 			LLSLURL slurl;
-			LLPanelLogin::closePanel();
+			//LLPanelLogin::closePanel();
 		}
 
 		
@@ -943,6 +943,8 @@ bool idle_startup()
 		// Display the startup progress bar.
 		gViewerWindow->setShowProgress(TRUE);
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, LLTrans::getString("Quit"));
+
+		gViewerWindow->revealIntroPanel();
 
 		// Poke the VFS, which could potentially block for a while if
 		// Windows XP is acting up
@@ -1981,8 +1983,8 @@ bool idle_startup()
 		gViewerWindow->getWindow()->resetBusyCount();
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 		LL_DEBUGS("AppInit") << "Done releasing bitmap" << LL_ENDL;
-		gViewerWindow->revealIntroPanel();
-		//gViewerWindow->setShowProgress(FALSE);  // reveal intro video now handles this
+		//gViewerWindow->revealIntroPanel();
+		gViewerWindow->setStartupComplete(); 
 		gViewerWindow->setProgressCancelButtonVisible(FALSE);
 
 		// We're not away from keyboard, even though login might have taken

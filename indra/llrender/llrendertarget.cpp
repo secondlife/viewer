@@ -72,11 +72,11 @@ LLRenderTarget::~LLRenderTarget()
 	release();
 }
 
-void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo, S32 samples)
+bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo, S32 samples)
 {
 	stop_glerror();
-	
 	release();
+	stop_glerror();
 
 	mResX = resx;
 	mResY = resy;
@@ -103,9 +103,11 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 	{
 		if (depth)
 		{
-			stop_glerror();
-			allocateDepth();
-			stop_glerror();
+			if (!allocateDepth())
+			{
+				llwarns << "Failed to allocate depth buffer for render target." << llendl;
+				return false;
+			}
 		}
 
 		glGenFramebuffers(1, (GLuint *) &mFBO);
@@ -131,14 +133,14 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 		stop_glerror();
 	}
 
-	addColorAttachment(color_fmt);
+	return addColorAttachment(color_fmt);
 }
 
-void LLRenderTarget::addColorAttachment(U32 color_fmt)
+bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 {
 	if (color_fmt == 0)
 	{
-		return;
+		return true;
 	}
 
 	U32 offset = mTex.size();
@@ -158,14 +160,26 @@ void LLRenderTarget::addColorAttachment(U32 color_fmt)
 #ifdef GL_ARB_texture_multisample
 	if (mSamples > 1)
 	{
+		clear_glerror();
 		glTexImage2DMultisample(LLTexUnit::getInternalType(mUsage), mSamples, color_fmt, mResX, mResY, GL_TRUE);
+		if (glGetError() != GL_NO_ERROR)
+		{
+			llwarns << "Could not allocate multisample color buffer for render target." << llendl;
+			return false;
+		}
 	}
 	else
 #else
 	llassert_always(mSamples <= 1);
 #endif
 	{
+		clear_glerror();
 		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		if (glGetError() != GL_NO_ERROR)
+		{
+			llwarns << "Could not allocate color buffer for render target." << llendl;
+			return false;
+		}
 	}
 	
 	stop_glerror();
@@ -217,15 +231,18 @@ void LLRenderTarget::addColorAttachment(U32 color_fmt)
 		flush();
 	}
 
+	return true;
 }
 
-void LLRenderTarget::allocateDepth()
+bool LLRenderTarget::allocateDepth()
 {
 	if (mStencil)
 	{
 		//use render buffers where stencil buffers are in play
 		glGenRenderbuffers(1, (GLuint *) &mDepth);
 		glBindRenderbuffer(GL_RENDERBUFFER, mDepth);
+		stop_glerror();
+		clear_glerror();
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mResX, mResY);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
@@ -237,17 +254,29 @@ void LLRenderTarget::allocateDepth()
 		{
 			U32 internal_type = LLTexUnit::getInternalType(mUsage);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+			stop_glerror();
+			clear_glerror();
 			LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT32, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 		}
 #ifdef GL_ARB_texture_multisample
 		else
 		{
+			stop_glerror();
+			clear_glerror();
 			glTexImage2DMultisample(LLTexUnit::getInternalType(mUsage), mSamples, GL_DEPTH_COMPONENT32, mResX, mResY, GL_TRUE);
 		}
 #else
 		llassert_always(mSamples <= 1);
 #endif
 	}
+
+	if (glGetError() != GL_NO_ERROR)
+	{
+		llwarns << "Unable to allocate depth buffer for render target." << llendl;
+		return false;
+	}
+
+	return true;
 }
 
 void LLRenderTarget::shareDepthBuffer(LLRenderTarget& target)

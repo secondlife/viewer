@@ -742,7 +742,7 @@
 	  top_pad="0"
 	  visible="false"
 	  width="280">
-	  Physics weight [PHYS_WEIGHT], Render Cost [DISP_WEIGHT].
+	  Physics weight [PHYS_WEIGHT], Render Cost [DISP_WEIGHT]. [secondlife:///app/openfloater/object_weights More info]
 	</text>
     <!-- <text -->
     <!-- text_color="LtGray_50" -->

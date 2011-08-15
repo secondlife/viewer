@@ -411,7 +411,6 @@ public:
 			cc = llsd_from_file("fake_upload_error.xml");
 		}
 
-		//assert_main_thread();
 		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_upload_response_",dump_num));
 		
@@ -1321,6 +1320,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	std::map<LLModel*,S32> mesh_index;
 	std::string model_name;
+	std::string model_metric;
 
 	S32 instance_num = 0;
 	
@@ -1340,6 +1340,11 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			if (model_name.empty())
 			{
 				model_name = data.mBaseModel->getName();
+			}
+
+			if (model_metric.empty())
+			{
+				model_metric = data.mBaseModel->getMetric();
 			}
 
 			std::stringstream ostr;
@@ -1455,6 +1460,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	if (model_name.empty()) model_name = "mesh model";
 	result["name"] = model_name;
+	if (model_metric.empty()) model_metric = "MUT_Other";
+	result["metric"] = model_metric;
 	result["asset_resources"] = res;
 	dump_llsd_to_file(result,make_dump_name("whole_model_",dump_num));
 
@@ -1463,47 +1470,57 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 void LLMeshUploadThread::generateHulls()
 {
+	bool has_valid_requests = false ;
+
 	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
+	{
+		LLMeshUploadData data;
+		data.mBaseModel = iter->first;
+
+		LLModelInstance& instance = *(iter->second.begin());
+
+		for (S32 i = 0; i < 5; i++)
 		{
-			LLMeshUploadData data;
-			data.mBaseModel = iter->first;
-
-			LLModelInstance& instance = *(iter->second.begin());
-
-			for (S32 i = 0; i < 5; i++)
-			{
-				data.mModel[i] = instance.mLOD[i];
-			}
-
-			//queue up models for hull generation
-			LLModel* physics = NULL;
-
-			if (data.mModel[LLModel::LOD_PHYSICS].notNull())
-			{
-				physics = data.mModel[LLModel::LOD_PHYSICS];
-			}
-			else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
-			{
-				physics = data.mModel[LLModel::LOD_MEDIUM];
-			}
-			else
-			{
-				physics = data.mModel[LLModel::LOD_HIGH];
-			}
-
-			llassert(physics != NULL);
-
-			DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
-			if(request->isValid())
-			{
-				gMeshRepo.mDecompThread->submitRequest(request);
-			}
+			data.mModel[i] = instance.mLOD[i];
 		}
 
+		//queue up models for hull generation
+		LLModel* physics = NULL;
+
+		if (data.mModel[LLModel::LOD_PHYSICS].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_PHYSICS];
+		}
+		else if (data.mModel[LLModel::LOD_LOW].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_LOW];
+		}
+		else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_MEDIUM];
+		}
+		else
+		{
+			physics = data.mModel[LLModel::LOD_HIGH];
+		}
+
+		llassert(physics != NULL);
+
+		DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
+		if(request->isValid())
+		{
+			gMeshRepo.mDecompThread->submitRequest(request);
+			has_valid_requests = true ;
+		}
+	}
+		
+	if(has_valid_requests)
+	{
 		while (!mPhysicsComplete)
 		{
 			apr_sleep(100);
 		}
+	}	
 }
 
 void LLMeshUploadThread::doWholeModelUpload()
@@ -3131,32 +3148,33 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 		llwarns << "Could not execute decomposition stage when attempting to create single hull." << llendl;
 		make_box(mCurRequest);
 	}
-
-	mMutex->lock();
-	mCurRequest->mHull.clear();
-	mCurRequest->mHull.resize(1);
-	mCurRequest->mHullMesh.clear();
-	mMutex->unlock();
-
-	std::vector<LLVector3> p;
-	LLCDHull hull;
-		
-	// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
-	decomp->getSingleHull(&hull);
-
-	const F32* v = hull.mVertexBase;
-
-	for (S32 j = 0; j < hull.mNumVertices; ++j)
+	else
 	{
-		LLVector3 vert(v[0], v[1], v[2]); 
-		p.push_back(vert);
-		v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
-	}
+		mMutex->lock();
+		mCurRequest->mHull.clear();
+		mCurRequest->mHull.resize(1);
+		mCurRequest->mHullMesh.clear();
+		mMutex->unlock();
+
+		std::vector<LLVector3> p;
+		LLCDHull hull;
+		
+		// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
+		decomp->getSingleHull(&hull);
+
+		const F32* v = hull.mVertexBase;
+
+		for (S32 j = 0; j < hull.mNumVertices; ++j)
+		{
+			LLVector3 vert(v[0], v[1], v[2]); 
+			p.push_back(vert);
+			v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
+		}
 						
-	mMutex->lock();
-	mCurRequest->mHull[0] = p;
-	mMutex->unlock();	
-			
+		mMutex->lock();
+		mCurRequest->mHull[0] = p;
+		mMutex->unlock();	
+	}		
 #else
 	setMeshData(mesh, false);
 
@@ -3494,8 +3512,7 @@ void LLMeshRepository::buildPhysicsMesh(LLModel::Decomposition& decomp)
 bool LLMeshRepository::meshUploadEnabled()
 {
 	LLViewerRegion *region = gAgent.getRegion();
-	if(gSavedSettings.getBOOL("MeshEnabled") && 
-	   LLViewerParcelMgr::getInstance()->allowAgentBuild() &&
+	if(gSavedSettings.getBOOL("MeshEnabled") &&
 	   region)
 	{
 		return region->meshUploadEnabled();

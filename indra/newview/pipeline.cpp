@@ -336,10 +336,10 @@ static const U32 gl_cube_face[] =
 void validate_framebuffer_object();
 
 
-void addDeferredAttachments(LLRenderTarget& target)
+bool addDeferredAttachments(LLRenderTarget& target)
 {
-	target.addColorAttachment(GL_RGBA); //specular
-	target.addColorAttachment(GL_RGBA); //normal+z	
+	return target.addColorAttachment(GL_RGBA) && //specular
+			target.addColorAttachment(GL_RGBA); //normal+z	
 }
 
 LLPipeline::LLPipeline() :
@@ -586,18 +586,61 @@ void LLPipeline::allocatePhysicsBuffer()
 
 void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
+	U32 samples = gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples"));
+
+	if (gGLManager.mIsATI)
+	{ //ATI doesn't like the way we use multisample texture
+		samples = 0;
+	}
+
+	//try to allocate screen buffers at requested resolution and samples
+	// - on failure, shrink number of samples and try again
+	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
+	// Make sure to call "releaseScreenBuffers" after each failure to cleanup the partially loaded state
+
+	if (!allocateScreenBuffer(resX, resY, samples))
+	{
+		releaseScreenBuffers();
+		//reduce number of samples 
+		while (samples > 0)
+		{
+			samples /= 2;
+			if (allocateScreenBuffer(resX, resY, samples))
+			{ //success
+				return;
+			}
+			releaseScreenBuffers();
+		}
+
+		//reduce resolution
+		while (resY > 0 && resX > 0)
+		{
+			resY /= 2;
+			if (allocateScreenBuffer(resX, resY, samples))
+			{
+				return;
+			}
+			releaseScreenBuffers();
+
+			resX /= 2;
+			if (allocateScreenBuffer(resX, resY, samples))
+			{
+				return;
+			}
+			releaseScreenBuffers();
+		}
+
+		llwarns << "Unable to allocate screen buffer at any resolution!" << llendl;
+	}
+}
+
+
+bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
+{
 	// remember these dimensions
 	mScreenWidth = resX;
 	mScreenHeight = resY;
 	
-	//cap samples at 4 for render targets to avoid out of memory errors
-	U32 samples = gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples"));
-
-	if (gGLManager.mIsATI)
-	{ //disable multisampling of render targets where ATI is involved
-		samples = 0;
-	}
-
 	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
 
 	if (res_mod > 1 && res_mod < resX && res_mod < resY)
@@ -608,7 +651,10 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 	if (gSavedSettings.getBOOL("RenderUIBuffer"))
 	{
-		mUIScreen.allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		if (!mUIScreen.allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE))
+		{
+			return false;
+		}
 	}	
 
 	if (LLPipeline::sRenderDeferred)
@@ -618,22 +664,22 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		bool gi = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED);
 
 		//allocate deferred rendering color buffers
-		mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples);
-		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples);
-		addDeferredAttachments(mDeferredScreen);
+		if (!mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!addDeferredAttachments(mDeferredScreen)) return false;
 	
-		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples);		
+		if (!mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		
 #if LL_DARWIN
 		// As of OS X 10.6.7, Apple doesn't support multiple color formats in a single FBO
-		mEdgeMap.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		if (!mEdgeMap.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 #else
-		mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		if (!mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 #endif
 
 		if (shadow_detail > 0 || ssao)
 		{ //only need mDeferredLight[0] for shadows OR ssao
-			mDeferredLight[0].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+			if (!mDeferredLight[0].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 		}
 		else
 		{
@@ -642,7 +688,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		if (ssao)
 		{ //only need mDeferredLight[1] for ssao
-			mDeferredLight[1].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, false);
+			if (!mDeferredLight[1].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, false)) return false;
 		}
 		else
 		{
@@ -651,14 +697,14 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		if (gi)
 		{ //only need mDeferredLight[2] and mGIMapPost for gi
-			mDeferredLight[2].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, false);
+			if (!mDeferredLight[2].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, false)) return false;
 			for (U32 i = 0; i < 2; i++)
 			{
 #if LL_DARWIN
 				// As of OS X 10.6.7, Apple doesn't support multiple color formats in a single FBO
-				mGIMapPost[i].allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+				if (!mGIMapPost[i].allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
 #else
-				mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+				if (!mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
 #endif
 			}
 		}
@@ -685,7 +731,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		{ //allocate 4 sun shadow maps
 			for (U32 i = 0; i < 4; i++)
 			{
-				mShadow[i].allocate(U32(resX*scale),U32(resY*scale), shadow_fmt, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+				if (!mShadow[i].allocate(U32(resX*scale),U32(resY*scale), shadow_fmt, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
 			}
 		}
 		else
@@ -703,7 +749,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		{ //allocate two spot shadow maps
 			for (U32 i = 4; i < 6; i++)
 			{
-				mShadow[i].allocate(width, height, shadow_fmt, TRUE, FALSE);
+				if (!mShadow[i].allocate(width, height, shadow_fmt, TRUE, FALSE)) return false;
 			}
 		}
 		else
@@ -716,7 +762,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		width = nhpo2(resX)/2;
 		height = nhpo2(resY)/2;
-		mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE);
+		if (!mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE)) return false;
 	}
 	else
 	{
@@ -738,7 +784,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		mEdgeMap.release();
 		mLuminanceMap.release();
 		
-		mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;		
 	}
 	
 	if (LLPipeline::sRenderDeferred)
@@ -750,6 +796,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 	stop_glerror();
 
+	return true;
 }
 
 //static
@@ -800,9 +847,23 @@ void LLPipeline::releaseGLBuffers()
 
 	mWaterRef.release();
 	mWaterDis.release();
+	
+	for (U32 i = 0; i < 3; i++)
+	{
+		mGlow[i].release();
+	}
+
+	releaseScreenBuffers();
+
+	gBumpImageList.destroyGL();
+	LLVOAvatar::resetImpostors();
+}
+
+void LLPipeline::releaseScreenBuffers()
+{
+	mUIScreen.release();
 	mScreen.release();
 	mPhysicsDisplay.release();
-	mUIScreen.release();
 	mDeferredScreen.release();
 	mDeferredDepth.release();
 	for (U32 i = 0; i < 3; i++)
@@ -821,15 +882,8 @@ void LLPipeline::releaseGLBuffers()
 	{
 		mShadow[i].release();
 	}
-
-	for (U32 i = 0; i < 3; i++)
-	{
-		mGlow[i].release();
-	}
-
-	gBumpImageList.destroyGL();
-	LLVOAvatar::resetImpostors();
 }
+
 
 void LLPipeline::createGLBuffers()
 {
@@ -1983,6 +2037,14 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
+	bool bound_shader = false;
+	if (gPipeline.canUseVertexShaders() && LLGLSLShader::sCurBoundShader == 0)
+	{ //if no shader is currently bound, use the occlusion shader instead of fixed function if we can
+		// (shadow render uses a special shader that clamps to clip planes)
+		bound_shader = true;
+		gOcclusionProgram.bind();
+	}
+	
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -2008,6 +2070,11 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 				}
 			}
 		}
+	}
+
+	if (bound_shader)
+	{
+		gOcclusionProgram.unbind();
 	}
 
 	camera.disableUserClipPlane();
@@ -2133,7 +2200,21 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
 		LLGLDisable cull(GL_CULL_FACE);
+
 		
+		bool bind_shader = LLGLSLShader::sNoFixedFunction && LLGLSLShader::sCurBoundShader == 0;
+		if (bind_shader)
+		{
+			if (LLPipeline::sShadowRender)
+			{
+				gDeferredShadowProgram.bind();
+			}
+			else
+			{
+				gOcclusionProgram.bind();
+			}
+		}
+
 		for (LLCullResult::sg_list_t::iterator iter = sCull->beginOcclusionGroups(); iter != sCull->endOcclusionGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
@@ -2141,6 +2222,18 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			group->clearOcclusionState(LLSpatialGroup::ACTIVE_OCCLUSION);
 		}
 	
+		if (bind_shader)
+		{
+			if (LLPipeline::sShadowRender)
+			{
+				gDeferredShadowProgram.unbind();
+			}
+			else
+			{
+				gOcclusionProgram.unbind();
+			}
+		}
+
 		gGL.setColorMask(true, false);
 	}
 }
@@ -3249,6 +3342,11 @@ void render_hud_elements()
 	gGL.color4f(1,1,1,1);
 	if (!LLPipeline::sReflectionRender && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.bind();
+		}
+
 		LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 		gViewerWindow->renderSelections(FALSE, FALSE, FALSE); // For HUD version in render_ui_3d()
 	
@@ -3262,6 +3360,10 @@ void render_hud_elements()
 	
 		// Render name tags.
 		LLHUDObject::renderAll();
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.unbind();
+		}
 	}
 	else if (gForceRenderLandFence)
 	{
@@ -3599,8 +3701,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 						check_stack_depth(stack_depth);
 						std::string msg = llformat("pass %d", i);
 						LLGLState::checkStates(msg);
-						LLGLState::checkTextureChannels(msg);
-						LLGLState::checkClientArrays(msg);
+						//LLGLState::checkTextureChannels(msg);
+						//LLGLState::checkClientArrays(msg);
 					}
 				}
 			}
@@ -3638,71 +3740,64 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
 
-	
-
-	stop_glerror();
-		
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
-
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderHighlights");
-
-	if (!sReflectionRender)
+	if (!LLPipeline::sImpostorRender)
 	{
-		renderHighlights();
-	}
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderHighlights");
 
-	// Contains a list of the faces of objects that are physical or
-	// have touch-handlers.
-	mHighlightFaces.clear();
-
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDebug");
-	
-	renderDebug();
-
-	LLVertexBuffer::unbind();
-	
-	if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred)
-	{
-		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+		if (!sReflectionRender)
 		{
-			// Render debugging beacons.
-			gObjectList.renderObjectBeacons();
-			gObjectList.resetObjectBeacons();
+			renderHighlights();
+		}
+
+		// Contains a list of the faces of objects that are physical or
+		// have touch-handlers.
+		mHighlightFaces.clear();
+
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDebug");
+	
+		renderDebug();
+
+		LLVertexBuffer::unbind();
+	
+		if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred)
+		{
+			if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+			{
+				// Render debugging beacons.
+				gObjectList.renderObjectBeacons();
+				gObjectList.resetObjectBeacons();
+			}
+			else
+			{
+				// Make sure particle effects disappear
+				LLHUDObject::renderAllForTimer();
+			}
 		}
 		else
 		{
 			// Make sure particle effects disappear
 			LLHUDObject::renderAllForTimer();
 		}
-	}
-	else
-	{
-		// Make sure particle effects disappear
-		LLHUDObject::renderAllForTimer();
-	}
 
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomEnd");
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomEnd");
 
-	//HACK: preserve/restore matrices around HUD render
-	if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
-	{
-		for (U32 i = 0; i < 16; i++)
+		//HACK: preserve/restore matrices around HUD render
+		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 		{
-			gGLModelView[i] = saved_modelview[i];
-			gGLProjection[i] = saved_projection[i];
+			for (U32 i = 0; i < 16; i++)
+			{
+				gGLModelView[i] = saved_modelview[i];
+				gGLProjection[i] = saved_projection[i];
+			}
 		}
 	}
 
 	LLVertexBuffer::unbind();
 
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
+//	LLGLState::checkTextureChannels();
+//	LLGLState::checkClientArrays();
 }
 
 void LLPipeline::renderGeomDeferred(LLCamera& camera)
@@ -3785,8 +3880,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 						llerrs << "GL matrix stack corrupted!" << llendl;
 					}
 					LLGLState::checkStates();
-					LLGLState::checkTextureChannels();
-					LLGLState::checkClientArrays();
 				}
 			}
 		}
@@ -3879,8 +3972,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 						llerrs << "GL matrix stack corrupted!" << llendl;
 					}
 					LLGLState::checkStates();
-					LLGLState::checkTextureChannels();
-					LLGLState::checkClientArrays();
 				}
 			}
 		}
@@ -3955,8 +4046,6 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 				LLVertexBuffer::unbind();
 
 				LLGLState::checkStates();
-				LLGLState::checkTextureChannels();
-				LLGLState::checkClientArrays();
 			}
 		}
 		else
@@ -6392,30 +6481,39 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		LLGLDisable blend(GL_BLEND);
 
-		//tex unit 0
-		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
-	
-		gGL.getTexUnit(0)->bind(&mGlow[1]);
-		gGL.getTexUnit(1)->activate();
-		gGL.getTexUnit(1)->enable(LLTexUnit::TT_RECT_TEXTURE);
-
-
-		//tex unit 1
-		gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_ADD, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gGlowCombineProgram.bind();
+		}
+		else
+		{
+			//tex unit 0
+			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
+			//tex unit 1
+			gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_ADD, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
+		}
 		
+		gGL.getTexUnit(0)->bind(&mGlow[1]);
 		gGL.getTexUnit(1)->bind(&mScreen);
-		gGL.getTexUnit(1)->activate();
 		
 		LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 		
 		buff->setBuffer(mask);
 		buff->drawArrays(LLRender::TRIANGLE_STRIP, 0, 3);
 		
-		gGL.getTexUnit(1)->disable();
-		gGL.getTexUnit(1)->setTextureBlendType(LLTexUnit::TB_MULT);
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gGlowCombineProgram.unbind();
+		}
+		else
+		{
+			gGL.getTexUnit(1)->disable();
+			gGL.getTexUnit(1)->setTextureBlendType(LLTexUnit::TB_MULT);
 
-		gGL.getTexUnit(0)->activate();
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+			gGL.getTexUnit(0)->activate();
+			gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		}
+		
 	}
 
 	if (LLRenderTarget::sUseFBO)
@@ -6428,6 +6526,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
 	{
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.bind();
+		}
+
 		gGL.setColorMask(true, false);
 
 		LLVector2 tc1(0,0);
@@ -6451,6 +6554,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		
 		gGL.end();
 		gGL.flush();
+
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.unbind();
+		}
+
 	}
 
 	glMatrixMode(GL_PROJECTION);
@@ -7866,7 +7975,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 			static LLCullResult ref_result;
 
-			if (LLDrawPoolWater::sNeedsDistortionUpdate)
+			if (LLDrawPoolWater::sNeedsReflectionUpdate)
 			{
 				//initial sky pass (no user clip plane)
 				{ //mask out everything but the sky
@@ -8006,8 +8115,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		LLViewerCamera::getInstance()->setUserClipPlane(npnorm);
 		
 		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
-		LLGLState::checkClientArrays();
 
 		if (!skip_avatar_update)
 		{
@@ -8140,6 +8247,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	LLVertexBuffer::unbind();
 
 	{
+		if (!use_shader)
+		{ //occlusion program is general purpose depth-only no-textures
+			gOcclusionProgram.bind();
+		}
 		LLFastTimer ftm(FTM_SHADOW_SIMPLE);
 		LLGLDisable test(GL_ALPHA_TEST);
 		gGL.getTexUnit(0)->disable();
@@ -8148,6 +8259,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 			renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, FALSE);
 		}
 		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+		if (!use_shader)
+		{
+			gOcclusionProgram.unbind();
+		}
 	}
 	
 	if (use_shader)
