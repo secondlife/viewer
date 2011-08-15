@@ -1195,12 +1195,15 @@ Zarkonnen Decosta
 Zeja Pyle
 ZenMondo Wormser
 Zi Ree
+	SH-489
 	VWR-423
 	VWR-671
 	VWR-682
 	VWR-684
 	VWR-9127
 	VWR-1140
+	VWR-24017
+	VWR-25588
 Zipherius Turas
 	VWR-76
 	VWR-77
