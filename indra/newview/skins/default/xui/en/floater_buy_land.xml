@@ -208,7 +208,7 @@ supports [AMOUNT2] objects
      name="region_name_text"
      top_delta="0"
      use_ellipses="true"
-     width="155">
+     width="150">
         (unknown)
     </text>
     <icon
@@ -240,7 +240,8 @@ supports [AMOUNT2] objects
      left_delta="125"
      name="region_type_text"
      top_delta="0"
-     width="175">
+     use_ellipses="true"
+     width="170">
         (unknown)
     </text>
     <text
@@ -265,7 +266,8 @@ supports [AMOUNT2] objects
      left_delta="125"
      name="estate_name_text"
      top_delta="0"
-     width="175">
+     use_ellipses="true"
+     width="170">
         (unknown)
     </text>
     <text
@@ -290,7 +292,8 @@ supports [AMOUNT2] objects
      left_delta="125"
      name="estate_owner_text"
      top_delta="0"
-     width="175">
+     use_ellipses="true"
+     width="170">
         (unknown)
     </text>
     <text
@@ -348,11 +351,10 @@ supports [AMOUNT2] objects
      follows="left|top"
      height="12"
      layout="topleft"
-     left="500"
      name="covenant_timestamp_text"
-     right="725"
+     right="-15"
      top="175"
-     width="275"
+     width="281"
      word_wrap="true" />
     <text_editor
      type="string"

@@ -1855,7 +1855,7 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="RegionNoCovenantOtherOwner">
 		Non esiste alcun regolamento per questa proprietà. Il terreno di questa proprietà è messo in vendita dal proprietario, non dalla Linden Lab.  Contatta il proprietario del terreno per i dettagli della vendita.
 	</string>
-	<string name="covenant_last_modified" value="Ultima modifica:"/>
+	<string name="covenant_last_modified" value="Ultima modifica: "/>
 	<string name="none_text" value="(nessuno)"/>
 	<string name="never_text" value="(mai)"/>
 	<string name="GroupOwned">
