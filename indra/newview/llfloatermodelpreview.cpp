@@ -106,7 +106,7 @@
 #include <boost/algorithm/string.hpp>
 
 
-const S32 SLM_SUPPORTED_VERSION = 2;
+const S32 SLM_SUPPORTED_VERSION = 3;
 
 //static
 S32 LLFloaterModelPreview::sUploadAmount = 10;
@@ -2072,6 +2072,14 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 		return false;
 	}
 
+	// Set name.
+	std::string name = data["name"];
+	if (!name.empty())
+	{
+		model[LLModel::LOD_HIGH][0]->mLabel = name;
+	}
+	
+
 	//load instance list
 	model_instance_list instance_list;
 
@@ -3278,6 +3286,10 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 	LLSD data;
 
 	data["version"] = SLM_SUPPORTED_VERSION;
+	if (!mBaseModel.empty())
+	{
+		data["name"] = mBaseModel[0]->getName();
+	}
 
 	S32 mesh_id = 0;
 
