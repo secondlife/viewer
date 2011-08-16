@@ -486,6 +486,7 @@ void move_to_outbox_cb(const LLSD& notification, const LLSD& response)
 		if (dest_folder_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
 		{
 			dest_folder_id = gInventory.createNewCategory(dest_folder_id,  LLFolderType::FT_NONE, viitem->getName());
+			gInventory.notifyObservers();
 		}
 
 		LLUUID parent = viitem->getParentUUID();
@@ -542,6 +543,7 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 		if (dest_folder == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
 		{
 			dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, inv_item->getName());
+			gInventory.notifyObservers();
 		}
 
 		copy_inventory_item(
@@ -567,6 +569,7 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, const LLUUID& top_level_folder)
 {
 	LLUUID new_folder_id = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, inv_cat->getName());
+	gInventory.notifyObservers();
 
 	LLInventoryModel::cat_array_t* cat_array;
 	LLInventoryModel::item_array_t* item_array;
