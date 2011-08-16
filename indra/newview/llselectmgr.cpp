@@ -6522,32 +6522,32 @@ U32 LLObjectSelection::getSelectedObjectTriangleCount()
 	return count;
 }
 
-/*S32 LLObjectSelection::getSelectedObjectRenderCost()
+S32 LLObjectSelection::getSelectedObjectRenderCost()
 {
        S32 cost = 0;
-       LLVOVolume::texture_cost_t textures;
-       for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+       std::set<LLUUID> textures;
+
+       for (list_t::iterator selection_iter = mList.begin(); selection_iter != mList.end();
+                 ++selection_iter)
        {
-               LLSelectNode* node = *iter;
-               LLVOVolume* object = (LLVOVolume*)node->getObject();
-
-               if (object)
+               LLSelectNode *select_node = *selection_iter;
+               if (select_node)
                {
-                       cost += object->getRenderCost(textures);
-               }
+                       LLViewerObject *vobj = select_node->getObject();
+                       if (vobj->getVolume())
+                       {
+                               LLVOVolume* volume = (LLVOVolume*) vobj;
 
-               for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
-               {
-                       // add the cost of each individual texture in the linkset
-                       cost += iter->second;
+                               cost += volume->getRenderCost(textures);
+							   cost += textures.size() * LLVOVolume::ARC_TEXTURE_COST;
+							   textures.clear();
+                       }
                }
-               textures.clear();
        }
 
 
        return cost;
-}*/
-
+}
 
 //-----------------------------------------------------------------------------
 // getTECount()

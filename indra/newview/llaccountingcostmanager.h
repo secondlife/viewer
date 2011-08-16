@@ -27,7 +27,23 @@
 #ifndef LL_ACCOUNTINGQUOTAMANAGER_H
 #define LL_ACCOUNTINGQUOTAMANAGER_H
 //===============================================================================
+#include "llhandle.h"
+
 #include "llaccountingcost.h"
+//===============================================================================
+// An interface class for panels which display the parcel accounting information.
+class LLAccountingCostObserver
+{
+public:
+	LLAccountingCostObserver() { mObserverHandle.bind(this); }
+	virtual ~LLAccountingCostObserver() {}
+	virtual void onWeightsUpdate(const SelectionCost& selection_cost) = 0;
+	virtual void setErrorStatus(U32 status, const std::string& reason) = 0;
+	const LLHandle<LLAccountingCostObserver>& getObserverHandle() const { return mObserverHandle; }
+
+protected:
+	LLRootHandle<LLAccountingCostObserver> mObserverHandle;
+};
 //===============================================================================
 class LLAccountingCostManager : public LLSingleton<LLAccountingCostManager>
 {
@@ -37,7 +53,8 @@ public:
 	//Store an object that will be eventually fetched
 	void addObject( const LLUUID& objectID );
 	//Request quotas for object list
-	void fetchCosts( eSelectionType selectionType, const std::string& url );
+	void fetchCosts( eSelectionType selectionType, const std::string& url,
+			const LLHandle<LLAccountingCostObserver>& observer_handle );
 	//Delete a specific object from the pending list
 	void removePendingObject( const LLUUID& objectID );
 	
@@ -52,4 +69,3 @@ private:
 //===============================================================================
 
 #endif // LLACCOUNTINGCOSTMANAGER
-
