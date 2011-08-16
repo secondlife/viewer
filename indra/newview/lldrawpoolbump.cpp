@@ -1078,6 +1078,7 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 			{
 				src_image->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
 				src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()), NULL );
+				src_image->forceToSaveRawImage(0) ;
 			}
 		}
 	}
