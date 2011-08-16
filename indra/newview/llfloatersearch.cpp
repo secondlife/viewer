@@ -27,16 +27,26 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llappviewer.h"
+#include "llbase64.h"
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
 #include "llfloatersearch.h"
 #include "llmediactrl.h"
 #include "llnotificationsutil.h"
+#include "llparcel.h"
+#include "llplugincookiestore.h"
 #include "lllogininstance.h"
 #include "lluri.h"
 #include "llagent.h"
+#include "llsdserialize.h"
 #include "llui.h"
 #include "llviewercontrol.h"
+#include "llviewerregion.h"
+#include "llversioninfo.h"
+#include "llviewermedia.h"
+#include "llviewernetwork.h"
+#include "llviewerparcelmgr.h"
 #include "llweb.h"
 
 // support secondlife:///app/search/{CATEGORY}/{QUERY} SLapps
@@ -168,12 +178,14 @@ void LLFloaterSearch::search(const SearchQuery &p)
 
 	// add the permissions token that login.cgi gave us
 	// We use "search_token", and fallback to "auth_token" if not present.
+	LLSD search_cookie;
+
 	LLSD search_token = LLLoginInstance::getInstance()->getResponse("search_token");
 	if (search_token.asString().empty())
 	{
 		search_token = LLLoginInstance::getInstance()->getResponse("auth_token");
 	}
-	subs["AUTH_TOKEN"] = search_token.asString();
+	search_cookie["AUTH_TOKEN"] = search_token.asString();
 
 	// add the user's preferred maturity (can be changed via prefs)
 	std::string maturity;
@@ -189,10 +201,57 @@ void LLFloaterSearch::search(const SearchQuery &p)
 	{
 		maturity = "13";  // PG
 	}
-	subs["MATURITY"] = maturity;
+	search_cookie["MATURITY"] = maturity;
 
 	// add the user's god status
-	subs["GODLIKE"] = gAgent.isGodlike() ? "1" : "0";
+	search_cookie["GODLIKE"] = gAgent.isGodlike() ? "1" : "0";
+	search_cookie["VERSION"] = LLVersionInfo::getVersion();
+	search_cookie["VERSION_MAJOR"] = LLVersionInfo::getMajor();
+	search_cookie["VERSION_MINOR"] = LLVersionInfo::getMinor();
+	search_cookie["VERSION_PATCH"] = LLVersionInfo::getPatch();
+	search_cookie["VERSION_BUILD"] = LLVersionInfo::getBuild();
+	search_cookie["CHANNEL"] = LLVersionInfo::getChannel();
+	search_cookie["GRID"] = LLGridManager::getInstance()->getGridLabel();
+	search_cookie["OS"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+	search_cookie["SESSION_ID"] = gAgent.getSessionID();
+	search_cookie["FIRST_LOGIN"] = gAgent.isFirstLogin();
+
+	std::string lang = LLUI::getLanguage();
+	if (lang == "en-us")
+	{
+		lang = "en";
+	}
+	search_cookie["LANGUAGE"] = lang;
+
+	// find the region ID
+	LLUUID region_id;
+	LLViewerRegion *region = gAgent.getRegion();
+	if (region)
+	{
+		region_id = region->getRegionID();
+	}
+	search_cookie["REGION_ID"] = region_id;
+
+	// find the parcel local ID
+	S32 parcel_id = 0;
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (parcel)
+	{
+		parcel_id = parcel->getLocalID();
+	}
+	search_cookie["PARCEL_ID"] = llformat("%d", parcel_id);
+
+	std::stringstream cookie_string_stream;
+	LLSDSerialize::toXML(search_cookie, cookie_string_stream);
+	std::string cookie_string = cookie_string_stream.str();
+
+	U8* cookie_string_buffer = (U8*)cookie_string.c_str();
+	std::string cookie_value = LLBase64::encode(cookie_string_buffer, cookie_string.size());
+
+	// for staging services
+	LLViewerMedia::getCookieStore()->setCookiesFromHost(std::string("viewer_session_info=") + cookie_value, ".lindenlab.com");
+	// for live services
+	LLViewerMedia::getCookieStore()->setCookiesFromHost(std::string("viewer_session_info=") + cookie_value, ".secondlife.com");
 
 	// get the search URL and expand all of the substitutions
 	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
