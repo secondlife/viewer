@@ -453,6 +453,7 @@ void LLFloaterTools::refresh()
 		F32 link_cost  = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
 		S32 prim_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 		S32 link_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
+		S32 draw_weight = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectRenderCost();
 
 		LLStringUtil::format_map_t selection_args;
 		selection_args["OBJ_COUNT"] = llformat("%.1d", link_count);
@@ -481,7 +482,7 @@ void LLFloaterTools::refresh()
 			selection_info << ",";
 
 			childSetTextArg("selection_weight", "[PHYS_WEIGHT]", llformat("%.1f", link_phys_cost));
-			childSetTextArg("selection_weight", "[DISP_WEIGHT]", llformat("%.1d", calcRenderCost()));
+			childSetTextArg("selection_weight", "[DISP_WEIGHT]", llformat("%.1d", draw_weight));
 		}
 		else
 		{

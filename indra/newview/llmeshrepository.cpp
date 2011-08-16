@@ -2509,7 +2509,7 @@ S32 LLMeshRepository::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lo
 	return mThread->getActualMeshLOD(mesh_params, lod);
 }
 
-const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, LLVOVolume* requesting_obj)
+const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj)
 {
 	if (mesh_id.notNull())
 	{
@@ -2765,7 +2765,7 @@ void LLMeshRepository::uploadError(LLSD& args)
 }
 
 //static
-F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod)
+F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
 {
 	F32 max_distance = 512.f;
 
@@ -2853,6 +2853,11 @@ F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32
 					   triangles_mid*mid_area +
 					   triangles_low*low_area +
 					  triangles_lowest*lowest_area;
+
+	if (unscaled_value)
+	{
+		*unscaled_value = weighted_avg;
+	}
 
 	return weighted_avg/gSavedSettings.getU32("MeshTriangleBudget")*15000.f;
 }

@@ -2995,7 +2995,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	static const F32 ARC_WEIGHTED_MESH = 1.2f; // tested based on performance
 
 	static const F32 ARC_PLANAR_COST = 1.0f; // tested based on performance to have negligible impact
-	static const F32 ARC_ANIM_TEX_COST = 1.4f; // 1.4x max
+	static const F32 ARC_ANIM_TEX_COST = 4.f; // tested based on performance
 	static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
 
 	F32 shame = 0;
@@ -3023,26 +3023,18 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		path_params = volume_params.getPathParams();
 		profile_params = volume_params.getProfileParams();
 
-		F32 radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
-		S32 default_detail = llclamp((S32) (sqrtf(radius)*LLVOVolume::sLODFactor*4.f), 0, 3);
-		if (default_detail == getLOD())
+		F32 weighted_triangles = -1.0;
+		getStreamingCost(NULL, NULL, &weighted_triangles);
+
+		if (weighted_triangles > 0.0)
 		{
-			num_triangles = getTriangleCount();
+			num_triangles = (U32)weighted_triangles;
 		}
-		else
-		{
-			LLVolume* default_volume = LLPrimitive::getVolumeManager()->refVolume(volume_params, default_detail);
-			if(default_volume != NULL)
-			{
-				num_triangles = default_volume->getNumTriangles();
-				LLPrimitive::getVolumeManager()->unrefVolume(default_volume);
-				default_volume = NULL;
-			}
-			else
-			{
-				has_volume = false;
-			}
-		}
+	}
+
+	if (num_triangles == 0)
+	{
+		num_triangles = 4;
 	}
 
 	if (isSculpted())
@@ -3054,18 +3046,12 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(),3);
 			if ( size > 0)
 			{
-				num_triangles = (U32)(size / 10.f); // avg 1 triangle per 10 bytes
-				if (gMeshRepo.getSkinInfo(volume_params.getSculptID()))
+				if (gMeshRepo.getSkinInfo(volume_params.getSculptID(), this))
 				{
 					// weighted attachment - 1 point for every 3 bytes
 					weighted_mesh = 1;
 				}
 
-				if (num_triangles == 0)
-				{
-					// someone made a really tiny mesh. Approximate with a tetrahedron.
-					num_triangles = 4;
-				}
 			}
 			else
 			{
@@ -3231,7 +3217,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	return (U32)shame;
 }
 
-F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes)
+F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
 {
 	F32 radius = getScale().length()*0.5f;
 
@@ -3239,7 +3225,7 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes)
 	{	
 		LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
 
-		return LLMeshRepository::getStreamingCost(header, radius, bytes, visible_bytes, mLOD);
+		return LLMeshRepository::getStreamingCost(header, radius, bytes, visible_bytes, mLOD, unscaled_value);
 	}
 	else
 	{
@@ -3253,7 +3239,7 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes)
 		header["medium_lod"]["size"] = counts[2] * 10;
 		header["high_lod"]["size"] = counts[3] * 10;
 
-		return LLMeshRepository::getStreamingCost(header, radius);
+		return LLMeshRepository::getStreamingCost(header, radius, NULL, NULL, -1, unscaled_value);
 	}	
 }
 
