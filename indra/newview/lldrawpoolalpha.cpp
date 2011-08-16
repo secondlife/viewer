@@ -138,6 +138,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 		gPipeline.mDeferredDepth.bindTarget();
 		simple_shader = NULL;
 		fullbright_shader = NULL;
+		gObjectFullbrightProgram.bind();
 	}
 
 	deferred_render = TRUE;
@@ -156,6 +157,7 @@ void LLDrawPoolAlpha::endPostDeferredPass(S32 pass)
 	{
 		gPipeline.mDeferredDepth.flush();
 		gPipeline.mScreen.bindTarget();
+		gObjectFullbrightProgram.unbind();
 	}
 
 	deferred_render = FALSE;
@@ -238,7 +240,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 				fullbright_shader->bind();
 			}
 			pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-			LLGLSLShader::bindNoShader();
+			//LLGLSLShader::bindNoShader();
 		}
 		else
 		{

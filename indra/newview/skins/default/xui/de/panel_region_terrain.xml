@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Terrain" name="Terrain">
 	<text name="region_text_lbl">
 		Region:
@@ -6,25 +6,55 @@
 	<text name="region_text">
 		unbekannt
 	</text>
-	<spinner label="Wasserhöhe" name="water_height_spin" />
-	<button label="?" name="water_height_help" />
-	<spinner label="Obere Terraingrenze" name="terrain_raise_spin" />
-	<button label="?" name="terrain_raise_help" />
-	<spinner label="Untere Terraingrenze" name="terrain_lower_spin" />
-	<button label="?" name="terrain_lower_help" />
-	<check_box label="Grundbesitzsonne verwenden" name="use_estate_sun_check" />
-	<button label="?" name="use_estate_sun_help" />
-	<check_box label="Sonne fest" name="fixed_sun_check" />
-	<button label="?" name="fixed_sun_help" />
-	<slider label="Phase" name="sun_hour_slider" />
-	<button label="Übernehmen" name="apply_btn" />
-	<button label="RAW-Terrain herunterladen..." name="download_raw_btn"
-	     tool_tip="Nur für Grundbesitzeigentümer verfügbar, nicht für Verwalter" />
-	<button label="?" name="download_raw_help" />
-	<button label="RAW-Terrain hochladen..." name="upload_raw_btn"
-	     tool_tip="Nur für Grundbesitzeigentümer verfügbar, nicht für Verwalter" />
-	<button label="?" name="upload_raw_help" />
-	<button label="Terrain formen" name="bake_terrain_btn"
-	     tool_tip="Das aktuelle Terrain zum Mittelpunkt für die oberen/unteren Terraingrenzen machen" />
-	<button label="?" name="bake_terrain_help" />
+	<spinner label="Wasserhöhe" name="water_height_spin"/>
+	<spinner label="Obere Terraingrenze" name="terrain_raise_spin"/>
+	<spinner label="Untere Terraingrenze" name="terrain_lower_spin"/>
+	<text name="detail_texture_text">
+		Terraintexturen (erfordert 24-Bit-.tga-Dateien mit einer Größe von 512x512)
+	</text>
+	<text name="height_text_lbl">
+		1 (niedrig)
+	</text>
+	<text name="height_text_lbl2">
+		2
+	</text>
+	<text name="height_text_lbl3">
+		3
+	</text>
+	<text name="height_text_lbl4">
+		4 (Hoch)
+	</text>
+	<text name="height_text_lbl5">
+		Texturhöhenbereich
+	</text>
+	<text name="height_text_lbl10">
+		Diese Werte geben den Mischungsgrad für die obigen Texturen an.
+	</text>
+	<text name="height_text_lbl11">
+		In Metern gemessen. Der Wert „Niedrig“ ist die maximale Höhe von Textur 1, der Wert „Hoch“ die Mindesthöhe von Textur 4.
+	</text>
+	<text name="height_text_lbl6">
+		Nordwest
+	</text>
+	<text name="height_text_lbl7">
+		Nordost
+	</text>
+	<spinner label="Niedrig" name="height_start_spin_1"/>
+	<spinner label="Niedrig" name="height_start_spin_3"/>
+	<spinner label="Hoch" name="height_range_spin_1"/>
+	<spinner label="Hoch" name="height_range_spin_3"/>
+	<text name="height_text_lbl8">
+		Südwest
+	</text>
+	<text name="height_text_lbl9">
+		Südost
+	</text>
+	<spinner label="Niedrig" name="height_start_spin_0"/>
+	<spinner label="Niedrig" name="height_start_spin_2"/>
+	<spinner label="Hoch" name="height_range_spin_0"/>
+	<spinner label="Hoch" name="height_range_spin_2"/>
+	<button label="RAW-Terrain herunterladen..." name="download_raw_btn" tool_tip="Nur für Grundbesitzeigentümer verfügbar, nicht für Verwalter"/>
+	<button label="RAW-Terrain hochladen..." name="upload_raw_btn" tool_tip="Nur für Grundbesitzeigentümer verfügbar, nicht für Verwalter"/>
+	<button label="Terrain formen" name="bake_terrain_btn" tool_tip="Das aktuelle Terrain zum Mittelpunkt für die oberen/unteren Terraingrenzen machen"/>
+	<button label="Übernehmen" name="apply_btn"/>
 </panel>

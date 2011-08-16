@@ -301,6 +301,8 @@ LLIOSocketReader::~LLIOSocketReader()
 	//lldebugs << "Destroying LLIOSocketReader" << llendl;
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_SOCKET_READER("Socket Reader");
+
 // virtual
 LLIOPipe::EStatus LLIOSocketReader::process_impl(
 	const LLChannelDescriptors& channels,
@@ -309,6 +311,7 @@ LLIOPipe::EStatus LLIOSocketReader::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_SOCKET_READER);
 	PUMP_DEBUG;
 	LLMemType m1(LLMemType::MTYPE_IO_TCP);
 	if(!mSource) return STATUS_PRECONDITION_NOT_MET;
@@ -401,6 +404,7 @@ LLIOSocketWriter::~LLIOSocketWriter()
 	//lldebugs << "Destroying LLIOSocketWriter" << llendl;
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_SOCKET_WRITER("Socket Writer");
 // virtual
 LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 	const LLChannelDescriptors& channels,
@@ -409,6 +413,7 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_SOCKET_WRITER);
 	PUMP_DEBUG;
 	LLMemType m1(LLMemType::MTYPE_IO_TCP);
 	if(!mDestination) return STATUS_PRECONDITION_NOT_MET;
@@ -555,6 +560,7 @@ void LLIOServerSocket::setResponseTimeout(F32 timeout_secs)
 	mResponseTimeout = timeout_secs;
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_SERVER_SOCKET("Server Socket");
 // virtual
 LLIOPipe::EStatus LLIOServerSocket::process_impl(
 	const LLChannelDescriptors& channels,
@@ -563,6 +569,7 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_SERVER_SOCKET);
 	PUMP_DEBUG;
 	LLMemType m1(LLMemType::MTYPE_IO_TCP);
 	if(!pump)

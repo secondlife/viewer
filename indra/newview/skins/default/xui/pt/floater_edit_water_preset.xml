@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Water Preset" title="Editar pré-configuração da água">
+	<string name="title_new">
+		Criar nova pré-configuração de água
+	</string>
+	<string name="title_edit">
+		Editar pré-configuração da água
+	</string>
+	<string name="hint_new">
+		Dê um nome à sua pré-configuração, ajuste os controles para criá-la e clique em &quot;Salvar&quot;.
+	</string>
+	<string name="hint_edit">
+		Para editar sua pré-configuração de água, ajuste os controles e clique em &quot;Salvar&quot;.
+	</string>
+	<string name="combo_label">
+		-Selecione uma pré-configuração-
+	</string>
+	<text name="hint">
+		Para editar sua pré-configuração, ajuste os controles e clique em &quot;Salvar&quot;.
+	</text>
+	<text name="label">
+		Nome da pré-configuração:
+	</text>
+	<text name="note">
+		Observação: trocar o nome de uma pré-configuração criará uma nova sem modificar a configuração atual.
+	</text>
+	<panel name="panel_water_preset">
+		<text name="water_color_label">
+			Cor da névoa da água
+		</text>
+		<text name="water_fog_density_label">
+			Expoente da densidade da névoa
+		</text>
+		<text name="underwater_fog_modifier_label">
+			Modificador de névoa submerso
+		</text>
+		<text name="BHText">
+			Direção de onda grande
+		</text>
+		<slider label="X" name="WaterWave1DirX"/>
+		<slider label="Y" name="WaterWave1DirY"/>
+		<text name="BDensText">
+			Escala de ondas de reflexo
+		</text>
+		<text name="HDText">
+			Escala de Fresnel
+		</text>
+		<text name="FresnelOffsetText">
+			Recuo de Fresnel
+		</text>
+		<text name="BHText2">
+			Direção de onda pequena
+		</text>
+		<slider label="X" name="WaterWave2DirX"/>
+		<slider label="Y" name="WaterWave2DirY"/>
+		<text name="DensMultText">
+			Escala de refração acima
+		</text>
+		<text name="WaterScaleBelowText">
+			Escala de refração abaixo
+		</text>
+		<text name="MaxAltText">
+			Multiplicador de distorção
+		</text>
+		<text name="BHText3">
+			Mapa normal
+		</text>
+	</panel>
+	<check_box label="Usar esta pré-configuração na minha água" name="make_default_cb"/>
+	<button label="Salvar" name="save"/>
+	<button label="Cancelar" name="cancel"/>
+</floater>

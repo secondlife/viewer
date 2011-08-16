@@ -529,7 +529,7 @@ void LLFloaterBuyLandUI::updateCovenantInfo()
 	LLTextBox* region_type = getChild<LLTextBox>("region_type_text");
 	if (region_type)
 	{
-		region_type->setText(region->getSimProductName());
+		region_type->setText(region->getLocalizedSimProductName());
 	}
 	
 	LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");

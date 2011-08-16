@@ -19,6 +19,7 @@
 	<check_box label="有効" name="enable_voice_check"/>
 	<check_box label="メディアを自動再生する" name="media_auto_play_btn" tool_tip="ここにチェックを入れてメディアの自動再生を許可します" value="true"/>
 	<check_box label="他のアバターに取り付けられたメディアを再生する" name="media_show_on_others_btn" tool_tip="このチェックを外すと、近くにいる他のアバターに取り付けられたメディアを非表示にします" value="true"/>
+	<check_box label="ジェスチャーの音を再生" name="gesture_audio_play_btn" tool_tip="ジェスチャーの音を聞くにはこれを選択" value="true"/>
 	<text name="voice_chat_settings">
 		ボイスチャットの設定
 	</text>
@@ -35,28 +36,5 @@
 	<button label="キー設定" name="set_voice_hotkey_button"/>
 	<button name="set_voice_middlemouse_button" tool_tip="マウスの中央ボタンにリセット"/>
 	<button label="入力・出力機器" name="device_settings_btn"/>
-	<panel label="機器の設定" name="device_settings_panel">
-		<panel.string name="default_text">
-			デフォルト
-		</panel.string>
-		<panel.string name="default system device">
-			デフォルトのシステム機器
-		</panel.string>
-		<panel.string name="no device">
-			機器が設定されていません
-		</panel.string>
-		<text name="Input">
-			入力
-		</text>
-		<text name="My volume label">
-			私の音量：
-		</text>
-		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="スライダーを使って音量を調節します"/>
-		<text name="wait_text">
-			しばらくお待ちください。
-		</text>
-		<text name="Output">
-			出力
-		</text>
-	</panel>
+	<panel label="機器の設定" name="device_settings_panel"/>
 </panel>

@@ -33,6 +33,7 @@
 #include "llrect.h"
 #include "llcontrol.h"
 #include "llcoord.h"
+#include "llglslshader.h"
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "lluicolor.h"
@@ -46,6 +47,7 @@
 
 // for initparam specialization
 #include "llfontgl.h"
+
 
 class LLColor4; 
 class LLVector3;
@@ -483,5 +485,8 @@ namespace LLInitParam
 		void updateBlockFromValue();
 	};
 }
+
+extern LLGLSLShader gSolidColorProgram;
+extern LLGLSLShader gUIProgram;
 
 #endif

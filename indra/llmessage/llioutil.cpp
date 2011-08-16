@@ -43,6 +43,8 @@ LLIOPipe::EStatus LLIOFlush::process_impl(
 	return STATUS_OK;
 }
 
+
+static LLFastTimer::DeclareTimer FTM_PROCESS_SLEEP("IO Sleep");
 /** 
  * @class LLIOSleep
  */
@@ -53,6 +55,7 @@ LLIOPipe::EStatus LLIOSleep::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_SLEEP);
 	if(mSeconds > 0.0)
 	{
 		if(pump) pump->sleepChain(mSeconds);
@@ -62,6 +65,7 @@ LLIOPipe::EStatus LLIOSleep::process_impl(
 	return STATUS_DONE;
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_ADD_CHAIN("Add Chain");
 /** 
  * @class LLIOAddChain
  */
@@ -72,6 +76,7 @@ LLIOPipe::EStatus LLIOAddChain::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_ADD_CHAIN);
 	pump->addChain(mChain, mTimeout);
 	return STATUS_DONE;
 }
