@@ -40,6 +40,7 @@
 	     name="model_category_combo"  width="200">
     <combo_box.drop_down_button
       label_color="White"/>
+    <combo_item name="Choose one" label="Choose One..." value="MUT_Unspecified"/>
     <combo_item name="Avatar shape" label="Avatar shape" value="MUT_AvatarShape"/>
     <combo_item name="Avatar attachment" label="Avatar attachment" value="MUT_AvatarAttachment"/>
     <combo_item name="Building Component" label="Building Component" value="MUT_BuildingComponent"/>
