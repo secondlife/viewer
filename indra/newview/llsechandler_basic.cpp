@@ -1209,12 +1209,12 @@ void LLSecAPIBasicHandler::init()
 		// with the product
 		std::string ca_file_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
 		llinfos << "app path " << ca_file_path << llendl;
-		LLBasicCertificateStore app_ca_store = LLBasicCertificateStore(ca_file_path);	
+		LLPointer<LLBasicCertificateStore> app_ca_store = new LLBasicCertificateStore(ca_file_path);
 		
 		// push the applicate CA files into the store, therefore adding any new CA certs that 
 		// updated
-		for(LLCertificateVector::iterator i = app_ca_store.begin();
-			i != app_ca_store.end();
+		for(LLCertificateVector::iterator i = app_ca_store->begin();
+			i != app_ca_store->end();
 			i++)
 		{
 			mStore->add(*i);
