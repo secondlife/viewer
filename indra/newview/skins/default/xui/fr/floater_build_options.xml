@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="OPTIONS DE LA GRILLE">
+	<floater.string name="grid_screen_text">
+		Écran
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Locale
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Monde
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Référence
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Élément attaché
+	</floater.string>
+	<text name="grid_mode_label" tool_tip="Opacité de la grille">
+		Mode
+	</text>
+	<combo_box name="combobox grid mode" tool_tip="Choisir le type d&apos;axe de grille pour le positionnement de l&apos;objet.">
+		<combo_box.item label="Grille du monde" name="World"/>
+		<combo_box.item label="Grille locale" name="Local"/>
+		<combo_box.item label="Grille de référence" name="Reference"/>
+	</combo_box>
 	<spinner label="Unités (mètres)" name="GridResolution"/>
-	<spinner label="Mesures (mètres)" name="GridDrawSize"/>
+	<spinner label="Étendue (mètres)" name="GridDrawSize"/>
 	<check_box label="Fixation des sous-unités" name="GridSubUnit"/>
 	<check_box label="Afficher les sections transversales" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="Opacité de la grille">

@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="OPÇÕES DE GRADE">
-	<spinner label="Unidade da grade (metros)" name="GridResolution"/>
-	<spinner label="Ext. da Grade (metros)" name="GridDrawSize"/>
+	<floater.string name="grid_screen_text">
+		Tela
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Local
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Mundo
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Referência
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Anexo
+	</floater.string>
+	<text name="grid_mode_label" tool_tip="Opacidade da grade">
+		Modo
+	</text>
+	<combo_box name="combobox grid mode" tool_tip="Selecione o tipo de régua da grade onde o objeto será colocado">
+		<combo_box.item label="Grid SL" name="World"/>
+		<combo_box.item label="Grid local" name="Local"/>
+		<combo_box.item label="Grid de referência" name="Reference"/>
+	</combo_box>
+	<spinner label="Unidades (metros):" name="GridResolution"/>
+	<spinner label="Extensões (metros)" name="GridDrawSize"/>
 	<check_box label="Encaixar em sub-unidades" name="GridSubUnit"/>
 	<check_box label="Ver corte transversal" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="Opacidade da grade">

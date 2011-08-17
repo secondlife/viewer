@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="OPZIONI DELLA GRIGLIA">
-	<spinner label="Unità griglia (metri)" label_width="192" name="GridResolution" width="250"/>
-	<spinner label="Estensione della griglia (metri)" label_width="192" name="GridDrawSize" width="250"/>
+	<floater.string name="grid_screen_text">
+		Schermo
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Locale
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Mondo
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Riferimento
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Allegato
+	</floater.string>
+	<text name="grid_mode_label" tool_tip="Opacità della griglia">
+		Modalità
+	</text>
+	<combo_box name="combobox grid mode" tool_tip="Scegli il tipo di righello per posizionare l&apos;oggetto">
+		<combo_box.item label="Griglia del mondo" name="World"/>
+		<combo_box.item label="Griglia locale" name="Local"/>
+		<combo_box.item label="Griglia di riferimento" name="Reference"/>
+	</combo_box>
+	<spinner label="Unità (metri)" label_width="192" name="GridResolution" width="250"/>
+	<spinner label="Ampiezza (metri)" label_width="192" name="GridDrawSize" width="250"/>
 	<check_box label="Usa sottounità" name="GridSubUnit"/>
 	<check_box label="Guarda le sezioni trasversali" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="Opacità della griglia">

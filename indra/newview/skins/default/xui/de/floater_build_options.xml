@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="RASTER-OPTIONEN">
-	<spinner label="Raster-Einheiten (Meter)" name="GridResolution"/>
-	<spinner label="Rastergröße (Meter)" name="GridDrawSize"/>
+	<floater.string name="grid_screen_text">
+		Bildschirm
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Lokal
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Welt
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Referenz
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Anhang
+	</floater.string>
+	<text name="grid_mode_label" tool_tip="Rasteropazität">
+		Modus
+	</text>
+	<combo_box name="combobox grid mode" tool_tip="Wählen Sie das gewünschte Rasterlineal zum Positionieren des Objekts aus.">
+		<combo_box.item label="Globales Raster" name="World"/>
+		<combo_box.item label="Lokales Raster" name="Local"/>
+		<combo_box.item label="Referenzraster" name="Reference"/>
+	</combo_box>
+	<spinner label="Einheiten (m)" name="GridResolution"/>
+	<spinner label="Rastergröße (meter)" name="GridDrawSize"/>
 	<check_box label="An Untereinheiten ausrichten" name="GridSubUnit"/>
 	<check_box label="Überschneidungen anzeigen" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="Raster-Deckkraft">

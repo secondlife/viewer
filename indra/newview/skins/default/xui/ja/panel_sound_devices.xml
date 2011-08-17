@@ -3,8 +3,17 @@
 	<panel.string name="default_text">
 		デフォルト
 	</panel.string>
+	<string name="name_no_device">
+		機器が設定されていません
+	</string>
+	<string name="name_default_system_device">
+		デフォルトのシステム機器
+	</string>
 	<text name="Input">
 		入力
+	</text>
+	<text name="Output">
+		出力
 	</text>
 	<text name="My volume label">
 		私の音量：
@@ -12,8 +21,5 @@
 	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="スライダーを使って音量を調節します"/>
 	<text name="wait_text">
 		しばらくお待ちください。
-	</text>
-	<text name="Output">
-		出力
 	</text>
 </panel>

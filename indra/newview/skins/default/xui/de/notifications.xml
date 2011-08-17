@@ -2072,13 +2072,14 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 		<usetemplate ignoretext="Die Kleidung, die während dem Bearbeiten meines Aussehens erstellt wird, sofort anziehen" name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		Sie müssen altersüberprüft sein, um diesen Bereich betreten zu können.  Möchten Sie auf der [SECOND_LIFE]-Webseite Ihr Alter verifizieren lassen?
+		Um auf Adult-Inhalte und –Bereiche in Second Life zuzugreifen, müssen Sie mindestens 18 Jahre alt sein. Bitte besuchen Sie die Altersüberprüfungsseite, um zu bestätigen, dass Sie mindestens 18 Jahre alt sind. 
+Hierzu wird Ihr Webbrowser geöffnet.
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php?lang=de
+			https://secondlife.com/my/account/verification.php
 		</url>
-		<usetemplate ignoretext="Ich habe mein Alter nicht verifizieren lassen" name="okcancelignore" notext="Nein" yestext="Ja"/>
+		<usetemplate ignoretext="Ich habe mein Alter nicht verifizieren lassen" name="okcancelignore" notext="Abbrechen" yestext="Zur Altersüberprüfung"/>
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Um diesen Bereich besuchen zu können, müssen Ihre Zahlungsinformationen gespeichert sein.  Möchten Sie diese Einstellung auf der [SECOND_LIFE]-Webseite einrichten?
@@ -2768,6 +2769,12 @@ Die Schaltfläche wird angezeigt, wenn genügend Platz vorhanden ist.
 		[LABEL] konnte nicht hochgeladen werden: [MESSAGE] [IDENTIFIER] 
 
 Details finden Sie in der Protokolldatei.
+	</notification>
+	<notification name="MeshUploadPermError">
+		Fehler beim Anfordern der Berechtigungen zum Hochladen des Netzes
+	</notification>
+	<notification name="RegionCapabilityRequestError">
+		Regionsfähigkeit „[CAPABILITY]“ konnte nicht abgerufen werden.
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Möchten Sie wirklich die folgenden Objekte:
