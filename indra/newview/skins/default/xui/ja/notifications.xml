@@ -2466,7 +2466,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="ObjectGiveItem">
 		[NAME_SLURL] が所有する &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; という名前のオブジェクトが、あなたに [OBJECTTYPE] を渡しました：
-[ITEM_SLURL]
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
 		<form name="form">
 			<button name="Keep" text="受け取る"/>
 			<button name="Discard" text="破棄"/>

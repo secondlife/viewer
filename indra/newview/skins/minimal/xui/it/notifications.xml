@@ -2418,7 +2418,7 @@ Riprova tra qualche istante.
 		Non è stato trovato nessun territorio valido.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Un oggetto denominato &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; di proprietà di [NAME_SLURL] ti ha offerto [ITEM_SLURL]:  Per usare questo oggetto è necessario passare alla modalità Avanzata e cercarlo nell&apos;Inventario. Per passare alla modalità Avanzata, esci e riavvia l&apos;applicazione e cambia le impostazioni della modalità nella schermata di accesso.
+		Un oggetto denominato &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; di proprietà di &lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt; ti ha offerto [ITEM_SLURL]:  Per usare questo oggetto è necessario passare alla modalità Avanzata e cercarlo nell&apos;Inventario. Per passare alla modalità Avanzata, esci e riavvia l&apos;applicazione e cambia le impostazioni della modalità nella schermata di accesso.
 		<form name="form">
 			<button name="Keep" text="Mantieni oggetto"/>
 			<button name="Discard" text="Rifiuta oggetto"/>

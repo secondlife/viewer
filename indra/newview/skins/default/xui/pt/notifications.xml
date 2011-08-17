@@ -2400,7 +2400,7 @@ Por favor, tente novamente em alguns instantes.
 	</notification>
 	<notification name="ObjectGiveItem">
 		Um objeto chamado &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, de [NAME_SLURL], lhe deu este(a) [OBJECTTYPE]:
-[ITEM_SLURL]
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
 		<form name="form">
 			<button name="Keep" text="Segure"/>
 			<button name="Discard" text="Descarte"/>
