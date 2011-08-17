@@ -29,12 +29,14 @@
 
 #include "llfloater.h"
 
+#include "llaccountingcostmanager.h"
+
 class LLLandImpactsObserver;
 class LLObjectSelection;
 class LLParcelSelection;
 class LLTextBox;
 
-class LLFloaterObjectWeights : public LLFloater
+class LLFloaterObjectWeights : public LLFloater, LLAccountingCostObserver
 {
 public:
 	LOG_CLASS(LLFloaterObjectWeights);
@@ -49,6 +51,9 @@ public:
 
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
+
+	/*virtual*/ void onWeightsUpdate(const SelectionCost& selection_cost);
+	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
 
 	void updateLandImpacts();
 
