@@ -96,6 +96,7 @@
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "lltoggleablemenu.h"
+#include "lltrans.h"
 #include "llvfile.h"
 #include "llvfs.h"
 #include "llcallbacklist.h"
@@ -1154,7 +1155,11 @@ void LLFloaterModelPreview::initDecompControls()
 						//llinfos << param[i].mDetails.mEnumValues.mEnumsArray[k].mValue
 						//	<< " - " << param[i].mDetails.mEnumValues.mEnumsArray[k].mName << llendl;
 
-						combo_box->add(param[i].mDetails.mEnumValues.mEnumsArray[k].mName,
+						std::string name(param[i].mDetails.mEnumValues.mEnumsArray[k].mName);
+						std::string localized_name;
+						bool is_localized = LLTrans::findString(localized_name, name);
+
+						combo_box->add(is_localized ? localized_name : name,
 							LLSD::Integer(param[i].mDetails.mEnumValues.mEnumsArray[k].mValue));
 					}
 					combo_box->setValue(param[i].mDefault.mIntOrEnumValue);
