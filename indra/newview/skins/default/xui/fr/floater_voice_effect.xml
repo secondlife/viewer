@@ -12,6 +12,114 @@
 	<string name="new_voice_effect">
 		(Nouveau !)
 	</string>
+	<string name="effect_Arena">
+		Stade
+	</string>
+	<string name="effect_Beast">
+		Brute
+	</string>
+	<string name="effect_Buff">
+		Nasal
+	</string>
+	<string name="effect_Buzz">
+		Friture
+	</string>
+	<string name="effect_Camille">
+		Camille
+	</string>
+	<string name="effect_Creepy">
+		Effrayant
+	</string>
+	<string name="effect_CreepyBot">
+		BotEffrayant
+	</string>
+	<string name="effect_Cyber">
+		Cyber
+	</string>
+	<string name="effect_DeepBot">
+		BotGrave
+	</string>
+	<string name="effect_Demon">
+		Démon
+	</string>
+	<string name="effect_Flirty">
+		Flirt
+	</string>
+	<string name="effect_Foxy">
+		Séduction
+	</string>
+	<string name="effect_Halloween_2010_Bonus">
+		Halloween_2010_Bonus
+	</string>
+	<string name="effect_Helium">
+		Hélium
+	</string>
+	<string name="effect_Husky">
+		Rauque
+	</string>
+	<string name="effect_Intercom">
+		Interphone
+	</string>
+	<string name="effect_Macho">
+		Macho
+	</string>
+	<string name="effect_Micro">
+		Micro
+	</string>
+	<string name="effect_Mini">
+		Mini
+	</string>
+	<string name="effect_Nano">
+		Nano
+	</string>
+	<string name="effect_Nightmare">
+		Cauchemar
+	</string>
+	<string name="effect_PopBot">
+		BotPop
+	</string>
+	<string name="effect_Rachel">
+		Rachel
+	</string>
+	<string name="effect_Radio">
+		Radio
+	</string>
+	<string name="effect_Robot">
+		Robot
+	</string>
+	<string name="effect_Roxanne">
+		Roxanne
+	</string>
+	<string name="effect_Sabrina">
+		Sabrina
+	</string>
+	<string name="effect_Samantha">
+		Samantha
+	</string>
+	<string name="effect_Sexy">
+		Sexy
+	</string>
+	<string name="effect_Shorty">
+		Petite voix
+	</string>
+	<string name="effect_Sneaky">
+		Sournois
+	</string>
+	<string name="effect_Stallion">
+		Étalon
+	</string>
+	<string name="effect_Sultry">
+		Sensuel
+	</string>
+	<string name="effect_Thunder">
+		Tonnerre
+	</string>
+	<string name="effect_Vixen">
+		Mégère
+	</string>
+	<string name="effect_WhinyBot">
+		BotPleurnichard
+	</string>
 	<text name="preview_text">
 		Aperçu
 	</text>

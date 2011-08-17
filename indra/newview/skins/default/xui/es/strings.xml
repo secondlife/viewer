@@ -25,6 +25,9 @@
 	<string name="StartupInitializingVFS">
 		Iniciando VFS...
 	</string>
+	<string name="StartupRequireDriverUpdate">
+		Error de inicialización de gráficos. Actualiza tu controlador de gráficos.
+	</string>
 	<string name="ProgressRestoring">
 		Restaurando...
 	</string>
@@ -78,6 +81,12 @@
 	</string>
 	<string name="LoginQuicktimeOK">
 		QuickTime se ha iniciado adecuadamente.
+	</string>
+	<string name="LoginRequestSeedCapGrant">
+		Solicitando capacidades de la región...
+	</string>
+	<string name="LoginRetrySeedCapGrant">
+		Solicitando capacidades de la región, intento [NUMBER]...
 	</string>
 	<string name="LoginWaitingForRegionHandshake">
 		Esperando la conexión con la región...
@@ -1613,6 +1622,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="SummaryForTheWeek" value="Resumen de esta semana, empezando el "/>
 	<string name="NextStipendDay" value=". El próximo día de pago es el "/>
+	<string name="GroupPlanningDate">
+		[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]
+	</string>
 	<string name="GroupIndividualShare" value="Grupo       Aportaciones individuales"/>
 	<string name="GroupColumn" value="Grupo"/>
 	<string name="Balance">
@@ -1935,6 +1947,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="GroupMoneyDebits">
 		Débitos
+	</string>
+	<string name="GroupMoneyDate">
+		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
 	</string>
 	<string name="ViewerObjectContents">
 		Contenidos
@@ -4073,6 +4088,87 @@ Denuncia de infracción
 	</string>
 	<string name="Female - Wow">
 		Mujer - Admiración
+	</string>
+	<string name="/bow">
+		/reverencia
+	</string>
+	<string name="/clap">
+		/aplaudir
+	</string>
+	<string name="/count">
+		/contar
+	</string>
+	<string name="/extinguish">
+		/apagar
+	</string>
+	<string name="/kmb">
+		/bmc
+	</string>
+	<string name="/muscle">
+		/músculo
+	</string>
+	<string name="/no">
+		/no
+	</string>
+	<string name="/no!">
+		/¡no!
+	</string>
+	<string name="/paper">
+		/papel
+	</string>
+	<string name="/pointme">
+		/señalarme
+	</string>
+	<string name="/pointyou">
+		/señalarte
+	</string>
+	<string name="/rock">
+		/piedra
+	</string>
+	<string name="/scissor">
+		/tijera
+	</string>
+	<string name="/smoke">
+		/fumar
+	</string>
+	<string name="/stretch">
+		/estirar
+	</string>
+	<string name="/whistle">
+		/silbar
+	</string>
+	<string name="/yes">
+		/sí
+	</string>
+	<string name="/yes!">
+		/¡sí!
+	</string>
+	<string name="afk">
+		ausente
+	</string>
+	<string name="dance1">
+		baile1
+	</string>
+	<string name="dance2">
+		baile2
+	</string>
+	<string name="dance3">
+		baile3
+	</string>
+	<string name="dance4">
+		baile4
+	</string>
+	<string name="dance5">
+		baile5
+	</string>
+	<string name="dance6">
+		baile6
+	</string>
+	<string name="dance7">
+		baile7
+	</string>
+	<string name="dance8">
+		baile8
 	</string>
 	<string name="AvatarBirthDateFormat">
 		[day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]

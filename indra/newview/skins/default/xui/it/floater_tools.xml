@@ -24,20 +24,11 @@
 	<floater.string name="status_selectland">
 		Clicca e trascina per selezionare il terreno
 	</floater.string>
-	<floater.string name="grid_screen_text">
-		Schermo
+	<floater.string name="status_selectcount">
+		[OBJ_COUNT] oggetti ( [PRIM_COUNT] prim [PE_STRING] ) selezionati
 	</floater.string>
-	<floater.string name="grid_local_text">
-		Locale
-	</floater.string>
-	<floater.string name="grid_world_text">
-		Globale
-	</floater.string>
-	<floater.string name="grid_reference_text">
-		Riferimento
-	</floater.string>
-	<floater.string name="grid_attachment_text">
-		Accessorio
+	<floater.string name="status_selectprimequiv">
+		, [SEL_WEIGHT] prim equivalenti
 	</floater.string>
 	<button label="" label_selected="" name="button focus" tool_tip="Ingrandisci"/>
 	<button label="" label_selected="" name="button move" tool_tip="Sposta"/>
@@ -66,20 +57,12 @@
 	<check_box label="Modifica parti collegate" name="checkbox edit linked parts"/>
 	<button label="Collegamento" name="link_btn"/>
 	<button label="Scollega" name="unlink_btn"/>
-	<text name="RenderingCost" tool_tip="Mostra il costo di rendering calcolato per questo oggetto">
-		þ: [COUNT]
-	</text>
 	<check_box label="" name="checkbox uniform"/>
 	<text label="Allunga entrambi i lati" name="checkbox uniform label">
 		Allunga entrambi i lati
 	</text>
 	<check_box initial_value="true" label="Ridimensiona le texture" name="checkbox stretch textures"/>
-	<check_box initial_value="true" label="Posiziona nella griglia" name="checkbox snap to grid"/>
-	<combo_box name="combobox grid mode" tool_tip="Scegli il tipo di righello per posizionare l&apos;oggetto">
-		<combo_box.item label="Rete del mondo" name="World"/>
-		<combo_box.item label="Rete locale" name="Local"/>
-		<combo_box.item label="Griglia di riferimento" name="Reference"/>
-	</combo_box>
+	<check_box initial_value="true" label="Scatto" name="checkbox snap to grid"/>
 	<button label="Opzioni..." label_selected="Opzioni..." name="Options..." tool_tip="Vedi più opzioni della griglia"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Cubo"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisma"/>
@@ -120,23 +103,11 @@
 		Potenza
 	</text>
 	<button label="Applica" label_selected="Applica" name="button apply to selection" tool_tip="Modifica il terreno selezionato"/>
-	<text name="obj_count">
-		Oggetti: [COUNT]
+	<text name="selection_empty">
+		Nessuna selezione.
 	</text>
-	<text name="prim_count">
-		Prim: [COUNT]
-	</text>
-	<text name="linked_set_count">
-		Set collegati: [COUNT]
-	</text>
-	<text name="linked_set_cost" tool_tip="Costo dei set collegati attualmente selezionati come [prim],[complessità fisica]">
-		Costo: [COST] / [PHYSICS]
-	</text>
-	<text name="object_count">
-		Oggetti: [COUNT]
-	</text>
-	<text name="object_cost" tool_tip="Costo degli oggetti attualmente selezionati come [prim] / [complessità fisica]">
-		Costo: [COST] / [PHYSICS]
+	<text name="selection_weight">
+		Peso fisica [PHYS_WEIGHT], costo rendering [DISP_WEIGHT].
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Generale" name="General">
@@ -360,7 +331,6 @@
 				<combo_box.item label="Toroidale" name="Torus"/>
 				<combo_box.item label="Piana" name="Plane"/>
 				<combo_box.item label="Cilindrica" name="Cylinder"/>
-				<combo_box.item label="Reticolo" name="Mesh"/>
 			</combo_box>
 		</panel>
 		<panel label="Caratteristiche" name="Features">
