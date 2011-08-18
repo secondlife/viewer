@@ -1887,6 +1887,7 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 
 void LLImageGL::setCategory(S32 category) 
 {
+#if 0 //turn this off temporarily because it is not in use now.
 	if(!gAuditTexture)
 	{
 		return ;
@@ -1907,6 +1908,7 @@ void LLImageGL::setCategory(S32 category)
 			mCategory = -1 ;
 		}
 	}
+#endif
 }
 
 //for debug use 
