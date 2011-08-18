@@ -7819,7 +7819,7 @@ class LLChangeMode : public view_listener_t
 		{
 		case 0:
 			gSavedSettings.getControl("SessionSettingsFile")->set(new_session_settings_file);
-			LLAppViewer::instance()->forceQuit();
+			LLAppViewer::instance()->requestQuit();
 			break;
 		case 1:
 		default:
