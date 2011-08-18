@@ -2,190 +2,216 @@
 <floater name="Model Wizard" title="CARREGAR ASSISTENTE DE MODELAGEM">
 	<button label="5. Carregar" name="upload_btn"/>
 	<button label="4. Revisar" name="review_btn"/>
-	<button label="3. Física" name="physics2_btn"/>
 	<button label="3. Física" name="physics_btn"/>
 	<button label="2. Otimizar" name="optimize_btn"/>
 	<button label="1. Selecionra arquivo" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Carregar modelo
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
+				Escolher arquivo de modelo
 			</text>
 		</panel>
-		<text name="description">
-			O assistente ajuda você a importar modelos mesh para o Second Life.  Para começar, especifique o arquivo com o modelo a ser importado.  O Second Life suporta arquivos COLLADA (.dae).
-		</text>
-		<panel name="content">
-			<text name="Cache location">
-				Nome do arquivo:
+		<panel name="choose_file_content_panel">
+			<text name="advanced_users_text">
+				Usuários avançados: se você estiver familiarizado com ferramentas de criação de conteúdo 3D, use o Advanced Uploader.
+			</text>
+			<button label="Trocar para avançado" name="switch_to_advanced"/>
+			<text name="choose_model_file_label">
+				Escolha o arquivo de modelo para upload
 			</text>
 			<button label="Procurar..." label_selected="Procurar..." name="browse"/>
-			<text name="dimensions">
-				X         Y:         Z:
+			<text name="support_collada_text">
+				O Second Life oferece suporte a arquivos COLLADA (.dae)
 			</text>
-			<text name="dimension_dividers">
-				|               |
+			<text name="dimensions_label">
+				Dimensões (metros):
+			</text>
+			<text name="dimensions">
+				X         Y         Z
+			</text>
+			<text name="warning_label">
+				AVISO:
+			</text>
+			<text name="warning_text">
+				Não será possível concluir a etapa final do upload desse modelo para os servidores do Second Life. [secondlife:///app/floater/learn_more Saiba como] configurar sua conta para uploads de modelos mesh.
 			</text>
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Otimizar
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
+				Otimizar modelo
 			</text>
 		</panel>
-		<text name="description">
-			O assistente otimizou seu modelo para melhorar o desempenho.  Ajuste os resultados da otimização abaixou ou clique em Próximo para prosseguir.
+		<text name="optimize_hint">
+			O modelo foi ajustado para desempenho. Faça novos ajustes, se desejar.
 		</text>
-		<panel name="content">
+		<panel name="optimize_content_panel">
+			<text name="generating_lod_label">
+				Gerar nível de detalhes
+			</text>
 			<text name="high_detail_text">
-				Gerar nível de detalhamento: Alto
+				Gerar nível de detalhes: Alto
 			</text>
 			<text name="medium_detail_text">
-				Gerar nível de detalhamento: Médio
+				Gerar nível de detalhes: Médio
 			</text>
 			<text name="low_detail_text">
-				Gerar nível de detalhamento: Baixo
+				Gerar nível de detalhes: Baixo
 			</text>
 			<text name="lowest_detail_text">
-				Gerar nível de detalhamento: Mais baixo
+				Gerar nível de detalhes: mais baixo
 			</text>
 		</panel>
 		<panel name="content2">
-			<text name="lod_label">
-				Visualizar modelo:
+			<text name="optimize_performance_text">
+				Desempenho
 			</text>
-			<combo_box name="preview_lod_combo2" tool_tip="LOD para ver no renderizador de pré-visualização">
-				<combo_item name="high">
-					Alto
+			<text name="optimize_faster_rendering_text">
+				Renderização mais rápida
+Menos detalhes
+Peso menor do prim
+			</text>
+			<text name="optimize_accuracy_text">
+				Precisão
+			</text>
+			<text name="optimize_slower_rendering_text">
+				Renderização mais lenta
+Mais detalhes
+Peso maior do prim
+			</text>
+			<text name="accuracy_slider_mark1">
+				&apos;
+			</text>
+			<text name="accuracy_slider_mark2">
+				&apos;
+			</text>
+			<text name="accuracy_slider_mark3">
+				&apos;
+			</text>
+			<button label="Recalcular geometria" name="recalculate_geometry_btn"/>
+			<text name="geometry_preview_label">
+				Visualização da geometria
+			</text>
+			<combo_box name="preview_lod_combo" tool_tip="LOD para exibir na renderização de visualização">
+				<combo_item name="preview_lod_high">
+					Máximo de detalhes
 				</combo_item>
-				<combo_item name="medium">
-					Médio
+				<combo_item name="preview_lod_medium">
+					Detalhes médios
 				</combo_item>
-				<combo_item name="low">
-					Baixo
+				<combo_item name="preview_lod_low">
+					Poucos detalhes
 				</combo_item>
-				<combo_item name="lowest">
-					Mais baixo
+				<combo_item name="preview_lod_lowest">
+					Mínimo de detalhes
 				</combo_item>
 			</combo_box>
-			<text name="streaming cost">
-				Custo do recurso:    [COST]
-			</text>
-			<text name="dimensions">
-				X         Y:         Z:
-			</text>
-			<text name="dimension_dividers">
-				|               |
-			</text>
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Física
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
+				Ajustar físico
 			</text>
 		</panel>
-		<text name="description">
-			O assistente cria uma forma física que determina como o objeto interage com outros objetos e avatares.  Ajuste a barra para o nível de detalhamento mais apropriado para a finalidade do seu objeto:
+		<text name="physics_hint">
+			Criaremos uma forma para o corpo externo do modelo. Ajuste o nível de detalhes como necessário para a finalidade desejada de seu modelo.
 		</text>
-		<panel name="content">
-			<text name="streaming cost">
-				Custo do recurso:       [COST]
+		<panel name="physics_content_panel">
+			<text name="physics_performance_text">
+				Desempenho
 			</text>
-		</panel>
-	</panel>
-	<panel name="physics2_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Física
+			<text name="physics_faster_rendering_text">
+				Renderização mais rápida
+Menos detalhes
+Peso menor do prim
 			</text>
-		</panel>
-		<text name="description">
-			Veja a forma física abaixo e clique em Próximo para prosseguir.   Para modificar o formato físico, clique em Anterior.
-		</text>
-		<panel name="content">
-			<text name="lod_label">
-				Visualizar modelo:
+			<text name="physics_accuracy_text">
+				Precisão
 			</text>
-			<combo_box name="preview_lod_combo3" tool_tip="LOD para ver no renderizador de pré-visualização">
-				<combo_item name="high">
-					Alto
+			<text name="physics_slower_dendering_text">
+				Renderização mais lenta
+Mais detalhes
+Peso maior do prim
+			</text>
+			<text name="physics_example_1">
+				Exemplos:
+Objetos em movimento
+Objetos voadores
+Veículos
+			</text>
+			<text name="physics_example_2">
+				Exemplos:
+Objetos estáticos pequenos
+Objetos menos detalhados
+Mobília simples
+			</text>
+			<text name="physics_example_3">
+				Exemplos:
+Objetos estáticos
+Objetos detalhados
+Construções
+			</text>
+			<button label="Recalcular físico" name="recalculate_physics_btn"/>
+			<button label="Recalculando..." name="recalculating_physics_btn"/>
+			<text name="physics_preview_label">
+				Visualização do físico
+			</text>
+			<combo_box name="preview_lod_combo2" tool_tip="LOD para exibir na renderização de visualização">
+				<combo_item name="preview_lod2_high">
+					Máximo de detalhes
 				</combo_item>
-				<combo_item name="medium">
-					Médio
+				<combo_item name="preview_lod2_medium">
+					Detalhes médios
 				</combo_item>
-				<combo_item name="low">
-					Baixo
+				<combo_item name="preview_lod2_low">
+					Poucos detalhes
 				</combo_item>
-				<combo_item name="lowest">
-					Mais baixo
+				<combo_item name="preview_lod2_lowest">
+					Mínimo de detalhes
 				</combo_item>
 			</combo_box>
-			<text name="dimensions">
-				X         Y:         Z:
-			</text>
-			<text name="dimension_dividers">
-				|               |
-			</text>
-			<text name="streaming cost">
-				Custo do recurso:       [COST]
-			</text>
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				Revisar
 			</text>
 		</panel>
-		<text name="description">
-			Veja os detalhes abaixo e clique em  Carregar para carregar seu modelo. Seu saldo L$ será cobrado quando você clicar em Carregar.
-		</text>
-		<panel name="content">
-			<text name="lod_label">
-				Visualizar modelo:
+		<panel name="review_content_panel">
+			<text name="review_prim_equiv">
+				Impacto no lote/região: [EQUIV] equivalentes de prim
 			</text>
-			<combo_box name="preview_lod_combo" tool_tip="LOD para ver no renderizador de pré-visualização">
-				<combo_item name="high">
-					Alto
-				</combo_item>
-				<combo_item name="medium">
-					Médio
-				</combo_item>
-				<combo_item name="low">
-					Baixo
-				</combo_item>
-				<combo_item name="lowest">
-					Mais baixo
-				</combo_item>
-			</combo_box>
-			<text name="dimensions">
-				X         Y:         Z:
+			<text name="review_fee">
+				Uma tarifa de upload de L$ [FEE] será debitada da sua conta.
 			</text>
-			<text name="dimension_dividers">
-				|               |
+			<text name="review_confirmation">
+				Ao clicar no botão de upload, você confirma que detém os direitos apropriados sobre o material contido no modelo.
 			</text>
 		</panel>
-		<text name="streaming cost">
-			Custo do recurso:         [COST]
-		</text>
-		<text name="physics cost">
-			Custo físico:        [COST]
-		</text>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Carregado!
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
+				Upload concluído
 			</text>
 		</panel>
-		<text name="description">
-			Parabéns! Seu modelo foi carregado com êxito.   Procure-o na pasta Objetos de seu inventário.
+		<text name="model_uploaded_text">
+			Seu modelo foi carregado.
+		</text>
+		<text name="inventory_text">
+			Disponível na pasta Objetos do seu inventário.
+		</text>
+		<text name="charged_fee">
+			L$ [FEE] foram debitados da sua conta.
 		</text>
 	</panel>
 	<button label="&lt;&lt; Voltar" name="back"/>
 	<button label="Próximo &gt;&gt;" name="next"/>
+	<button label="Calcular pesos e tarifa &gt;&gt;" name="calculate"/>
+	<button label="Calculando..." name="calculating"/>
 	<button label="Carregar" name="upload" tool_tip="Carregar no simulador"/>
 	<button label="Cancelar" name="cancel"/>
 	<button label="Fechar" name="close"/>

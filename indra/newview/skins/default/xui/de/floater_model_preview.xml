@@ -60,6 +60,9 @@
 	<string name="simplifying">
 		Vereinfachung läuft...
 	</string>
+	<string name="tbd">
+		noch nicht festgelegt
+	</string>
 	<text name="name_label">
 		Name:
 	</text>
@@ -80,23 +83,26 @@
 			Detailstufe: Niedrigste
 		</combo_item>
 	</combo_box>
-	<panel>
-		<text name="streaming cost">
-			Ressourcenkosten: [COST]
-		</text>
-		<text name="physics cost">
-			Physikkosten: [COST]
-		</text>
-		<text name="upload fee">
-			Gebühr für Hochladen: --
-		</text>
-	</panel>
-	<text name="status">
-		[STATUS]
+	<text name="warning_title">
+		ACHTUNG:
 	</text>
-	<button label="Standardwerte" name="reset_btn" tool_tip="Standardwerte wiederherstellen"/>
-	<button label="Hochladen" name="ok_btn" tool_tip="An Simulator hochladen"/>
-	<button label="Abbrechen" name="cancel_btn"/>
+	<text name="warning_message">
+		Sie können dieses Modell nicht auf die Second Life-Server hochladen. [[VURL] Weitere Infos], wie Sie das Hochladen von Netzmodellen freischalten können.
+	</text>
+	<text name="weights_text">
+		Herunterladen:
+Physik:
+Server:
+
+Prim-Äquivalenz:
+	</text>
+	<text name="weights">
+		[ST]
+[PH]
+[SIM]
+
+[EQ]
+	</text>
 	<tab_container name="import_tab">
 		<panel label="Detailstufe" name="lod_panel">
 			<text name="lod_table_header">
@@ -234,4 +240,11 @@
 			<spinner name="pelvis_offset" value="0,0"/>
 		</panel>
 	</tab_container>
+	<text name="upload_fee">
+		Gebühr für Hochladen: [FEE] L$
+	</text>
+	<button label="Auf Standardwerte setzen" name="reset_btn" tool_tip="Auf Standardwerte setzen"/>
+	<button label="Gewichte und Gebühr berechnen" name="calculate_btn" tool_tip="Gewichte und Gebühr berechnen"/>
+	<button label="Hochladen" name="ok_btn" tool_tip="An Simulator hochladen"/>
+	<button label="Abbrechen" name="cancel_btn"/>
 </floater>

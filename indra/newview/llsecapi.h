@@ -160,7 +160,7 @@ public:
 // base class for a list of certificates.
 
 
-class LLCertificateVector : public LLRefCount
+class LLCertificateVector : public LLThreadSafeRefCount
 {
 	
 public:

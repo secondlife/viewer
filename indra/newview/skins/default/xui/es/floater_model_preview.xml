@@ -60,6 +60,9 @@
 	<string name="simplifying">
 		Simplificando...
 	</string>
+	<string name="tbd">
+		TBD
+	</string>
 	<text name="name_label">
 		Nombre:
 	</text>
@@ -80,23 +83,26 @@
 			Nivel de detalle: Mínimo
 		</combo_item>
 	</combo_box>
-	<panel>
-		<text name="streaming cost">
-			Coste de recursos: [COSTE]
-		</text>
-		<text name="physics cost">
-			Coste físico: [COSTE]
-		</text>
-		<text name="upload fee">
-			Cuota de carga: N/A
-		</text>
-	</panel>
-	<text name="status">
-		[ESTADO]
+	<text name="warning_title">
+		ATENCIÓN:
 	</text>
-	<button label="Valores predeterminados" name="reset_btn" tool_tip="Restablecer valores predeterminados"/>
-	<button label="Subir" name="ok_btn" tool_tip="Cargar al simulador"/>
-	<button label="Cancelar" name="cancel_btn"/>
+	<text name="warning_message">
+		No podrás terminar de subir este modelo a los servidores de Second Life. [[VURL] Averigua cómo] puedes obtener autorización para subir modelos de malla.
+	</text>
+	<text name="weights_text">
+		Descargar:
+Física:
+Servidor:
+
+Equiv. en prims:
+	</text>
+	<text name="weights">
+		[ST]
+[PH]
+[SIM]
+
+[EQ]
+	</text>
 	<tab_container name="import_tab">
 		<panel label="Nivel de detalle" name="lod_panel">
 			<text name="lod_table_header">
@@ -234,4 +240,11 @@
 			<spinner name="pelvis_offset" value="0.0"/>
 		</panel>
 	</tab_container>
+	<text name="upload_fee">
+		Precio de subida: L$ [FEE]
+	</text>
+	<button label="Establecer en valores predeterminados" name="reset_btn" tool_tip="Establecer en valores predeterminados"/>
+	<button label="Calcular pesos y precio" name="calculate_btn" tool_tip="Calcular pesos y precio"/>
+	<button label="Subir" name="ok_btn" tool_tip="Cargar al simulador"/>
+	<button label="Cancelar" name="cancel_btn"/>
 </floater>

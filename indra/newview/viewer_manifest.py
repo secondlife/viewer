@@ -750,7 +750,7 @@ class DarwinManifest(ViewerManifest):
                                     "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
                                     "libGLOD.dylib",
-				    "libcollada14dom.dylib"
+                                    "libcollada14dom.dylib"
                                     ):
                         target_lib = os.path.join('../../..', libfile)
                         self.run_command("ln -sf %(target)r %(link)r" % 
@@ -1027,15 +1027,15 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libbreakpad_client.so.0.0.0")
             self.path("libbreakpad_client.so.0")
             self.path("libbreakpad_client.so")
-	    self.path("libcollada14dom.so")
+            self.path("libcollada14dom.so")
             self.path("libdb-5.1.so")
             self.path("libdb-5.so")
             self.path("libdb.so")
             self.path("libcrypto.so.1.0.0")
             self.path("libexpat.so.1.5.2")
             self.path("libssl.so.1.0.0")
-	    self.path("libglod.so")
-	    self.path("libminizip.so")
+            self.path("libglod.so")
+            self.path("libminizip.so")
             self.path("libuuid.so")
             self.path("libuuid.so.16")
             self.path("libuuid.so.16.0.22")
