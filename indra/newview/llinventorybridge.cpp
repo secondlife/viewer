@@ -1666,10 +1666,19 @@ BOOL LLFolderBridge::isClipboardPasteableAsLink() const
 
 }
 
-static BOOL can_move_to_outbox(LLInventoryItem* inv_item)
+static BOOL can_move_to_outbox(LLInventoryItem* inv_item, std::string& tooltip_msg)
 {
 	bool worn = get_is_item_worn(inv_item->getUUID());
 	bool allow_transfer = inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+
+	if (!allow_transfer)
+	{
+		tooltip_msg = LLTrans::getString("TooltipOutboxNoTransfer");
+	}
+	else if(worn)
+	{
+		tooltip_msg = LLTrans::getString("TooltipOutboxWorn");
+	}
 	
 	return !worn && allow_transfer;
 }
@@ -1681,8 +1690,53 @@ void LLFolderBridge::dropFolderToOutbox(LLInventoryCategory* inv_cat)
 	copy_folder_to_outbox(inv_cat, getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false), inv_cat->getUUID());	
 }
 
+
+
+int get_folder_levels(LLInventoryCategory* inv_cat)
+{
+	LLInventoryModel::cat_array_t* cats;
+	LLInventoryModel::item_array_t* items;
+	gInventory.getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
+
+	int max_child_levels = 0;
+
+	for (S32 i=0; i < cats->count(); ++i)
+	{
+		LLInventoryCategory* category = cats->get(i);
+		max_child_levels = max(max_child_levels, get_folder_levels(category));
+	}
+
+	return 1 + max_child_levels;
+}
+
+int get_folder_path_length(const LLUUID& ancestor_id, const LLUUID& descendant_id)
+{
+	int depth = 0;
+
+	if (ancestor_id == descendant_id) return depth;
+
+	const LLInventoryCategory* category = gInventory.getCategory(descendant_id);
+
+	while(category)
+	{
+		LLUUID parent_id = category->getParentUUID();
+
+		if (parent_id.isNull()) break;
+
+		depth++;
+
+		if (parent_id == ancestor_id) return depth;
+
+		category = gInventory.getCategory(parent_id);
+	}
+
+	llwarns << "get_folder_path_length() couldn't trace a path from the descendant to the ancestor" << llendl;
+	return -1;
+}
+
 BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
-											BOOL drop)
+											BOOL drop,
+											std::string& tooltip_msg)
 {
 
 	LLInventoryModel* model = getInventoryModel();
@@ -1770,12 +1824,21 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			for (S32 i=0; i < descendent_items.count(); ++i)
 			{
 				LLInventoryItem* item = descendent_items[i];
-				if (!can_move_to_outbox(item))
+				if (!can_move_to_outbox(item, tooltip_msg))
 				{
 					is_movable = FALSE;
 					break; 
 				}
 			}
+
+			int nested_folder_levels = get_folder_path_length(outbox_id, mUUID) + get_folder_levels(inv_cat);
+
+			if (nested_folder_levels > 4)
+			{
+				tooltip_msg = LLTrans::getString("TooltipOutboxFolderLevels");
+				is_movable = FALSE;
+			}
+			
 		}
 
 		// 
@@ -2805,7 +2868,8 @@ BOOL LLFolderBridge::hasChildren() const
 
 BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 								EDragAndDropType cargo_type,
-								void* cargo_data)
+								void* cargo_data,
+								std::string& tooltip_msg)
 {
 	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
 
@@ -2825,7 +2889,7 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_ANIMATION:
 		case DAD_GESTURE:
 		case DAD_MESH:
-			accept = dragItemIntoFolder(inv_item, drop);
+			accept = dragItemIntoFolder(inv_item, drop, tooltip_msg);
 			break;
 		case DAD_LINK:
 			// DAD_LINK type might mean one of two asset types: AT_LINK or AT_LINK_FOLDER.
@@ -2836,12 +2900,12 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 				LLInventoryCategory* linked_category = gInventory.getCategory(inv_item->getLinkedUUID());
 				if (linked_category)
 				{
-					accept = dragCategoryIntoFolder((LLInventoryCategory*)linked_category, drop);
+					accept = dragCategoryIntoFolder((LLInventoryCategory*)linked_category, drop, tooltip_msg);
 				}
 			}
 			else
 			{
-				accept = dragItemIntoFolder(inv_item, drop);
+				accept = dragItemIntoFolder(inv_item, drop, tooltip_msg);
 			}
 			break;
 		case DAD_CATEGORY:
@@ -2851,7 +2915,7 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 			}
 			else
 			{
-				accept = dragCategoryIntoFolder((LLInventoryCategory*)cargo_data, drop);
+				accept = dragCategoryIntoFolder((LLInventoryCategory*)cargo_data, drop, tooltip_msg);
 			}
 			break;
 		case DAD_ROOT_CATEGORY:
@@ -3108,7 +3172,8 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 // into the folder, as well as performing the actual drop, depending
 // if drop == TRUE.
 BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
-										BOOL drop)
+										BOOL drop,
+										std::string& tooltip_msg)
 {
 	LLInventoryModel* model = getInventoryModel();
 
@@ -3193,7 +3258,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 		else if (move_is_into_outbox)
 		{
-			accept = can_move_to_outbox(inv_item);
+			accept = can_move_to_outbox(inv_item, tooltip_msg);
 		}
 
 		if(accept && drop)
@@ -3869,7 +3934,8 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 									 EDragAndDropType cargo_type,
-									 void* cargo_data)
+									 void* cargo_data,
+									 std::string& tooltip_msg)
 {
 	LLViewerInventoryItem* item = getItem();
 	BOOL rv = FALSE;

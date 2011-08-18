@@ -115,7 +115,8 @@ public:
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
-							void* cargo_data) { return FALSE; }
+							void* cargo_data,
+							std::string& tooltip_msg) { return FALSE; }
 	virtual LLInventoryType::EType getInventoryType() const { return mInvType; }
 	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
 
@@ -229,8 +230,9 @@ public:
 		mCallingCards(FALSE),
 		mWearables(FALSE)
 	{}
-	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop);
-	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop);
+		
+	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg);
+	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop, std::string& tooltip_msg);
 
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void openItem();
@@ -256,7 +258,8 @@ public:
 	virtual BOOL hasChildren() const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
-							void* cargo_data);
+							void* cargo_data,
+							std::string& tooltip_msg);
 
 	virtual BOOL isItemRemovable() const;
 	virtual BOOL isItemMovable() const ;
@@ -381,7 +384,8 @@ public:
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
-							void* cargo_data);
+							void* cargo_data,
+							std::string& tooltip_msg);
 	void refreshFolderViewItem();
 protected:
 	LLCallingCardObserver* mObserver;

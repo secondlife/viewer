@@ -840,7 +840,7 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	BOOL handled = FALSE;
 	if(mListener)
 	{
-		accepted = mListener->dragOrDrop(mask,drop,cargo_type,cargo_data);
+		accepted = mListener->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
 		handled = accepted;
 		if (accepted)
 		{
@@ -2162,7 +2162,7 @@ BOOL LLFolderViewFolder::handleDragAndDropFromChild(MASK mask,
 													EAcceptance* accept,
 													std::string& tooltip_msg)
 {
-	BOOL accepted = mListener && mListener->dragOrDrop(mask,drop,c_type,cargo_data);
+	BOOL accepted = mListener && mListener->dragOrDrop(mask,drop,c_type,cargo_data, tooltip_msg);
 	if (accepted) 
 	{
 		mDragAndDropTarget = TRUE;
@@ -2254,7 +2254,7 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 
 	if (!handled)
 	{
-		BOOL accepted = mListener && mListener->dragOrDrop(mask, drop,cargo_type,cargo_data);
+		BOOL accepted = mListener && mListener->dragOrDrop(mask, drop,cargo_type,cargo_data, tooltip_msg);
 
 		if (accepted) 
 		{
