@@ -222,6 +222,14 @@
      top_pad="3"
      value="--"
      width="40" />
+    <loading_indicator
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="34"
+     name="selected_loading_indicator"
+     top_delta="0"
+     width="16" />
     <text
      follows="left|top"
      height="16"
@@ -241,6 +249,14 @@
      top_pad="3"
      value="--"
      width="40" />
+    <loading_indicator
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="34"
+     name="rezzed_on_land_loading_indicator"
+     top_delta="0"
+     width="16" />
     <text
      follows="left|top"
      height="16"
@@ -260,12 +276,20 @@
      top_pad="3"
      value="--"
      width="40" />
+    <loading_indicator
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="34"
+     name="remaining_capacity_loading_indicator"
+     top_delta="0"
+     width="16" />
     <text
      follows="left|top"
      height="16"
      layout="topleft"
      left_pad="10"
-     name="remaining_capacity"
+     name="remaining_capacity_label"
      top_delta="0"
      value="Remaining capacity"
      width="130" />
@@ -279,12 +303,20 @@
      top_pad="3"
      value="--"
      width="40" />
+    <loading_indicator
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="34"
+     name="total_capacity_loading_indicator"
+     top_delta="0"
+     width="16" />
     <text
      follows="left|top"
      height="16"
      layout="topleft"
      left_pad="10"
-     name="total_capacity"
+     name="total_capacity_label"
      top_delta="0"
      value="Total capacity"
      width="130" />
@@ -303,7 +335,7 @@
      height="16"
      layout="topleft"
      left="10"
-     name="total_capacity"
+     name="help_SLURL"
      top_pad="10"
      value="[secondlife:///www.secondlife.com What is all this?...]"
      width="180" />

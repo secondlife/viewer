@@ -40,6 +40,7 @@
 	     name="model_category_combo"  width="200">
     <combo_box.drop_down_button
       label_color="White"/>
+    <combo_item name="Choose one" label="Choose One..." value="MUT_Unspecified"/>
     <combo_item name="Avatar shape" label="Avatar shape" value="MUT_AvatarShape"/>
     <combo_item name="Avatar attachment" label="Avatar attachment" value="MUT_AvatarAttachment"/>
     <combo_item name="Building Component" label="Building Component" value="MUT_BuildingComponent"/>
@@ -220,9 +221,9 @@ L$ [MODEL]
         Select Level of Detail:
       </text>
      
-      <text valign="center" halign="center" bg_visible="true" bottom_delta="16" left="75" width="65" height="18" follows="left|top" value="Triangles"/>
-      <text valign="center" halign="center" bg_visible="true" left_pad="0" width="65" height="18" follows="left|top" value="Vertices"/>
-      <text valign="center" halign="center" left_pad="0" width="65" bg_visible="true" height="18" follows="left|top" value="Status"/>
+      <text valign="center" halign="center" bg_visible="true" bottom_delta="16" left="75" name="triangles" width="65" height="18" follows="left|top" value="Triangles"/>
+      <text valign="center" halign="center" bg_visible="true" left_pad="0" width="65" name="vertices" height="18" follows="left|top" value="Vertices"/>
+      <text valign="center" halign="center" left_pad="0" name="status" width="65" bg_visible="true" height="18" follows="left|top" value="Status"/>
       
       <text valign="center" halign="center" bg_visible="true" name="high_label" left="10" top_pad="0" width="65" height="18" follows="left|top" value="High"/>
       <text valign="center" halign="center" bg_visible="true" name="high_triangles" left_pad="0" width="65" height="18" follows="left|top" value="0"/>
@@ -268,7 +269,7 @@ L$ [MODEL]
         border="true"
         bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
 
-      <text top_pad="5" left="10" height="15" follows="left|top">
+      <text top_pad="5" left="10" name="mesh_label" height="15" follows="left|top">
         Mesh
       </text>
 
@@ -350,7 +351,7 @@ L$ [MODEL]
         border="true"
         bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
 
-      <text left="10" top_pad="5" follows="top|left" width="240" height="15">
+      <text left="10" name="gen_normals_label" top_pad="5" follows="top|left" width="240" height="15">
         Generate Normals
       </text>
       <text left="35" top_pad="5" follows="top|left" width="100" height="15" name="crease_label">
@@ -422,15 +423,15 @@ L$ [MODEL]
        border="true"
        bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
 
-        <text follows="left|top" bottom="40" height="30" left="10" font="SansSerifBig">
+        <text follows="left|top" bottom="40" height="30" left="10" name="method_label" font="SansSerifBig">
           Step 1: Analysis
         </text>
         
-        <text top_pad="5" width="50" follows="top|left" height="15">
+        <text name="analysis_method_label" top_pad="5" width="50" follows="top|left" height="15">
           Method:
         </text>
         <combo_box name="Method" follows="top|left" left_pad="5" bottom_delta="2" height="20" width="80"/>
-        <text left="160" bottom_delta="-2" width="50" follows="top|left" height="15">
+        <text left="160" name="quality_label" bottom_delta="-2" width="50" follows="top|left" height="15">
           Quality:
         </text>
         <combo_box name="Decompose Quality" bottom_delta="2" follows="top|left" left_pad="5" height="20" width="80"/>
@@ -456,11 +457,11 @@ L$ [MODEL]
        border="true"
        bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
 
-        <text follows="left|top" bottom="40" height="30" left="10" font="SansSerifBig">
+        <text follows="left|top" bottom="40" height="30" left="10" name="second_step_label" font="SansSerifBig">
           Step 2: Simplification
         </text>
 
-        <text left="10" top_pad="5" height="15" width="140" follows="top|left">
+        <text left="10" name="simp_method_header" top_pad="5" height="15" width="140" follows="top|left">
           Method:
         </text>
         
@@ -509,10 +510,10 @@ L$ [MODEL]
       name="modifiers_panel"
       help_topic="upload_model_modifiers">
 
-      <text left="10" width="90" bottom="30" follows="top|left" height="15">
+      <text left="10" name="scale_label" width="90" bottom="30" follows="top|left" height="15">
         Scale:
       </text>
-      <text left_pad="5" width="140" follows="top|left" height="15">
+      <text left_pad="5" name="dimensions_label" width="140" follows="top|left" height="15">
         Dimensions:
       </text>
 
@@ -522,7 +523,7 @@ L$ [MODEL]
         [X] x [Y] x [Z] m
       </text>
 
-      <text left="10" top_pad="20" follows="top|left" height="15">
+      <text left="10" name="include_label" top_pad="20" follows="top|left" height="15">
         Include:
       </text>
 
@@ -530,7 +531,7 @@ L$ [MODEL]
       <check_box top_pad="5" name="upload_skin" height="15" follows="top|left" label="Skin weight"/>
       <check_box top_pad="5" left="20" name="upload_joints" height="15" follows="top|left" label="Joint positions"/>
 
-      <text left="10" top_pad="4" width="90" bottom="30" follows="top|left" height="15">
+      <text left="10" name="pelvis_offset_label" top_pad="4" width="90" bottom="30" follows="top|left" height="15">
         Pelvis Z Offset:
       </text>
 

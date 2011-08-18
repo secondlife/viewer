@@ -29,12 +29,20 @@
 
 #include "llfloater.h"
 
+#include "llaccountingcostmanager.h"
+
+class LLLandImpactsObserver;
+class LLObjectSelection;
+class LLParcelSelection;
 class LLTextBox;
 
-class LLFloaterObjectWeights : public LLFloater
+class LLFloaterObjectWeights : public LLFloater, LLAccountingCostObserver
 {
 public:
 	LOG_CLASS(LLFloaterObjectWeights);
+
+	typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
+	typedef LLSafeHandle<LLParcelSelection> LLParcelSelectionHandle;
 
 	LLFloaterObjectWeights(const LLSD& key);
 	~LLFloaterObjectWeights();
@@ -42,9 +50,19 @@ public:
 	/*virtual*/ BOOL postBuild();
 
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onClose(bool app_quitting);
+
+	/*virtual*/ void onWeightsUpdate(const SelectionCost& selection_cost);
+	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
+
+	void updateLandImpacts();
 
 private:
-	void toggleLoadingIndicators(bool visible);
+	void refresh();
+
+	void toggleWeightsLoadingIndicators(bool visible);
+	void toggleLandImpactsLoadingIndicators(bool visible);
+
 	void updateIfNothingSelected();
 
 	LLTextBox		*mSelectedObjects;
@@ -59,6 +77,13 @@ private:
 	LLTextBox		*mRezzedOnLand;
 	LLTextBox		*mRemainingCapacity;
 	LLTextBox		*mTotalCapacity;
+
+	LLLandImpactsObserver		*mLandImpactsObserver;
+
+	LLObjectSelectionHandle		mObjectSelection;
+	LLParcelSelectionHandle		mParcelSelection;
+
+	boost::signals2::connection	mSelectMgrConnection;
 };
 
 #endif //LL_LLFLOATEROBJECTWEIGHTS_H

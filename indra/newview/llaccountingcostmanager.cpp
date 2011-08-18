@@ -29,7 +29,6 @@
 #include "llagent.h"
 #include "llcurl.h"
 #include "llhttpclient.h"
-
 //===============================================================================
 LLAccountingCostManager::LLAccountingCostManager()
 {	
@@ -38,8 +37,9 @@ LLAccountingCostManager::LLAccountingCostManager()
 class LLAccountingCostResponder : public LLCurl::Responder
 {
 public:
-	LLAccountingCostResponder( const LLSD& objectIDs )
-	: mObjectIDs( objectIDs )
+	LLAccountingCostResponder( const LLSD& objectIDs, const LLHandle<LLAccountingCostObserver>& observer_handle )
+	: mObjectIDs( objectIDs ),
+	  mObserverHandle( observer_handle )
 	{
 	}
 		
@@ -55,6 +55,12 @@ public:
 	{
 		llwarns	<< "Transport error "<<reason<<llendl;	
 		clearPendingRequests();
+
+		LLAccountingCostObserver* observer = mObserverHandle.get();
+		if (observer)
+		{
+			observer->setErrorStatus(statusNum, reason);
+		}
 	}
 	
 	void result( const LLSD& content )
@@ -63,43 +69,43 @@ public:
 		if ( !content.isMap() || content.has("error") )
 		{
 			llwarns	<< "Error on fetched data"<< llendl;
-			clearPendingRequests();
-			return;
 		}
-		
-		bool containsSelection = content.has("selected");
-		if ( containsSelection )
+		else if (content.has("selected"))
 		{
-			S32 dataCount = content["selected"].size();
+			F32 physicsCost		= 0.0f;
+			F32 networkCost		= 0.0f;
+			F32 simulationCost	= 0.0f;
+
+			//LLTransactionID transactionID;
 				
-			for(S32 i = 0; i < dataCount; i++)
+			//transactionID	= content["selected"][i]["local_id"].asUUID();
+			physicsCost		= content["selected"]["physics"].asReal();
+			networkCost		= content["selected"]["streaming"].asReal();
+			simulationCost	= content["selected"]["simulation"].asReal();
+				
+			SelectionCost selectionCost( /*transactionID,*/ physicsCost, networkCost, simulationCost );
+
+			LLAccountingCostObserver* observer = mObserverHandle.get();
+			if (observer)
 			{
-				
-				F32 physicsCost		= 0.0f;
-				F32 networkCost		= 0.0f;
-				F32 simulationCost	= 0.0f;
-					
-				//LLTransactionID transactionID;
-					
-				//transactionID	= content["selected"][i]["local_id"].asUUID();
-				physicsCost		= content["selected"][i]["physics"].asReal();
-				networkCost		= content["selected"][i]["streaming"].asReal();
-				simulationCost	= content["selected"][i]["simulation"].asReal();
-					
-				SelectionCost selectionCost( /*transactionID,*/ physicsCost, networkCost, simulationCost );
-					
-				//How do you want to handle the updating of the invoking object/ui element?
-				
+				observer->onWeightsUpdate(selectionCost);
 			}
 		}
+
+		clearPendingRequests();
 	}
 	
 private:
 	//List of posted objects
 	LLSD mObjectIDs;
+
+	// Cost update observer handle
+	LLHandle<LLAccountingCostObserver> mObserverHandle;
 };
 //===============================================================================
-void LLAccountingCostManager::fetchCosts( eSelectionType selectionType, const std::string& url )
+void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
+										  const std::string& url,
+										  const LLHandle<LLAccountingCostObserver>& observer_handle )
 {
 	// Invoking system must have already determined capability availability
 	if ( !url.empty() )
@@ -115,7 +121,7 @@ void LLAccountingCostManager::fetchCosts( eSelectionType selectionType, const st
 			// Check to see if a request for this object has already been made.
 			if ( mPendingObjectQuota.find( *IDIter ) ==	mPendingObjectQuota.end() )
 			{
-				mObjectList.insert( *IDIter );	
+				mPendingObjectQuota.insert( *IDIter );
 				objectList[objectIndex++] = *IDIter;
 			}
 		}
@@ -133,7 +139,7 @@ void LLAccountingCostManager::fetchCosts( eSelectionType selectionType, const st
 			else
 			if ( selectionType == Prims ) 
 			{ 
-				keystr="prim_roots"; 
+				keystr="selected_prims";
 			}
 			else 
 			{
@@ -146,7 +152,7 @@ void LLAccountingCostManager::fetchCosts( eSelectionType selectionType, const st
 			LLSD dataToPost = LLSD::emptyMap();		
 			dataToPost[keystr.c_str()] = objectList;
 
-			LLHTTPClient::post( url, dataToPost, new LLAccountingCostResponder( objectList ));
+			LLHTTPClient::post( url, dataToPost, new LLAccountingCostResponder( objectList, observer_handle ));
 		}
 	}
 	else

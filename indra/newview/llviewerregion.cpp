@@ -1783,6 +1783,11 @@ bool LLViewerRegion::childrenObjectReturnable( const std::vector<LLBBox>& boxes 
 	return result;
 }
 
+bool LLViewerRegion::objectsCrossParcel(const std::vector<LLBBox>& boxes) const
+{
+	return mParcelOverlay && mParcelOverlay->encroachesOnNearbyParcel(boxes);
+}
+
 void LLViewerRegion::getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions )
 {
 	mImpl->mLandp->getNeighboringRegions( uniqueRegions );
