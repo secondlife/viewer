@@ -2705,6 +2705,12 @@ void LLModelLoader::processElement( daeElement* element, bool& badElement )
 				{
 					LLMatrix4 transformation = mTransform;
 
+					if (mTransform.determinant() < 0)
+					{ //negative scales are not supported
+						llinfos << "Negative scale detected, unsupported transform.  domInstance_geometry: " << LLModel::getElementLabel(instance_geo) << llendl;
+						badElement = true;
+					}
+					
 					std::map<std::string, LLImportMaterial> materials = getMaterials(model, instance_geo);
 
 					// adjust the transformation to compensate for mesh normalization
