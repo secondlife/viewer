@@ -8354,6 +8354,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 		}
 	}
 
+
 	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -8384,7 +8385,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 							LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
 							if (child)
 							{
-								cost += volume->getRenderCost(textures);
+								cost += child->getRenderCost(textures);
 							}
 						}
 
