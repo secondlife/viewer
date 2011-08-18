@@ -17,31 +17,31 @@ Textures
 			<panel name="scroll_content_panel">
 				<texture_picker label="頭髮" name="hair-baked"/>
 				<texture_picker label="頭髮" name="hair_grain"/>
-				<texture_picker label="Hair Alpha" name="hair_alpha"/>
+				<texture_picker label="頭髮半透明" name="hair_alpha"/>
 				<texture_picker label="頭部" name="head-baked"/>
-				<texture_picker label="Makeup" name="head_bodypaint"/>
-				<texture_picker label="Head Alpha" name="head_alpha"/>
+				<texture_picker label="化妝" name="head_bodypaint"/>
+				<texture_picker label="頭部半透明" name="head_alpha"/>
 				<texture_picker label="頭部刺青" name="head_tattoo"/>
 				<texture_picker label="眼睛" name="eyes-baked"/>
 				<texture_picker label="眼睛" name="eyes_iris"/>
-				<texture_picker label="Eyes Alpha" name="eyes_alpha"/>
-				<texture_picker label="Upper Body" name="upper-baked"/>
-				<texture_picker label="Upper BodyPaint" name="upper_bodypaint"/>
+				<texture_picker label="眼睛半透明" name="eyes_alpha"/>
+				<texture_picker label="上半身半透明" name="upper-baked"/>
+				<texture_picker label="上半身身體部位" name="upper_bodypaint"/>
 				<texture_picker label="內衣" name="upper_undershirt"/>
 				<texture_picker label="手套" name="upper_gloves"/>
 				<texture_picker label="襯衫" name="upper_shirt"/>
-				<texture_picker label="Upper Jacket" name="upper_jacket"/>
-				<texture_picker label="Upper Alpha" name="upper_alpha"/>
-				<texture_picker label="Upper Tattoo" name="upper_tattoo"/>
-				<texture_picker label="Lower Body" name="lower-baked"/>
-				<texture_picker label="Lower BodyPaint" name="lower_bodypaint"/>
+				<texture_picker label="上半身夾克" name="upper_jacket"/>
+				<texture_picker label="上半身半透明" name="upper_alpha"/>
+				<texture_picker label="上半身刺青" name="upper_tattoo"/>
+				<texture_picker label="下半身" name="lower-baked"/>
+				<texture_picker label="下半身身體部位" name="lower_bodypaint"/>
 				<texture_picker label="內褲" name="lower_underpants"/>
 				<texture_picker label="襪子" name="lower_socks"/>
 				<texture_picker label="鞋子" name="lower_shoes"/>
 				<texture_picker label="褲子" name="lower_pants"/>
 				<texture_picker label="夾克" name="lower_jacket"/>
-				<texture_picker label="Lower Alpha" name="lower_alpha"/>
-				<texture_picker label="Lower Tattoo" name="lower_tattoo"/>
+				<texture_picker label="下半身半透明" name="lower_alpha"/>
+				<texture_picker label="下半身刺青" name="lower_tattoo"/>
 				<texture_picker label="裙子" name="skirt-baked"/>
 				<texture_picker label="裙子" name="skirt"/>
 			</panel>

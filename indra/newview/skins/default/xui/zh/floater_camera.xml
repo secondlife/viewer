@@ -10,56 +10,56 @@
 		Move Camera Up and Down, Left and Right
 	</floater.string>
 	<floater.string name="camera_modes_title">
-		Camera modes
+		攝影機模式
 	</floater.string>
 	<floater.string name="pan_mode_title">
-		Orbit Zoom Pan
+		環繞縮放平移
 	</floater.string>
 	<floater.string name="presets_mode_title">
-		Preset Views
+		預設視角
 	</floater.string>
 	<floater.string name="free_mode_title">
-		View Object
+		視角物件
 	</floater.string>
 	<panel name="controls">
 		<panel name="preset_views_list">
 			<panel_camera_item name="front_view">
 				<panel_camera_item.text name="front_view_text">
-					Front View
+					前視視角
 				</panel_camera_item.text>
 			</panel_camera_item>
 			<panel_camera_item name="group_view">
 				<panel_camera_item.text name="side_view_text">
-					Side View
+					側視視角
 				</panel_camera_item.text>
 			</panel_camera_item>
 			<panel_camera_item name="rear_view">
 				<panel_camera_item.text name="rear_view_text">
-					Rear View
+					後視視角
 				</panel_camera_item.text>
 			</panel_camera_item>
 		</panel>
 		<panel name="camera_modes_list">
 			<panel_camera_item name="object_view">
 				<panel_camera_item.text name="object_view_text">
-					Object View
+					物件視角
 				</panel_camera_item.text>
 			</panel_camera_item>
 			<panel_camera_item name="mouselook_view">
 				<panel_camera_item.text name="mouselook_view_text">
-					Mouselook View
+					第一人稱視角
 				</panel_camera_item.text>
 			</panel_camera_item>
 		</panel>
 		<panel name="zoom">
 			<joystick_rotate name="cam_rotate_stick" tool_tip="Orbit camera around focus"/>
 			<slider_bar name="zoom_slider" tool_tip="Zoom camera toward focus"/>
-			<joystick_track name="cam_track_stick" tool_tip="Move camera up and down, left and right"/>
+			<joystick_track name="cam_track_stick" tool_tip="移動攝影機上下左右"/>
 		</panel>
 	</panel>
 	<panel name="buttons">
-		<button label="" name="presets_btn" tool_tip="Preset Views"/>
+		<button label="" name="presets_btn" tool_tip="預設視角"/>
 		<button label="" name="pan_btn" tool_tip="Orbit Zoom Pan"/>
-		<button label="" name="avatarview_btn" tool_tip="Camera modes"/>
+		<button label="" name="avatarview_btn" tool_tip="攝影機模式"/>
 	</panel>
 </floater>

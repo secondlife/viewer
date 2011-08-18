@@ -52,7 +52,7 @@
 				</text>
 				<check_box label="覆製" name="CheckEveryoneCopy"/>
 				<text name="GroupLabel">
-					社團：
+					群組：
 				</text>
 				<check_box label="分享" name="CheckShareWithGroup" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."/>
 				<text name="NextOwnerLabel">

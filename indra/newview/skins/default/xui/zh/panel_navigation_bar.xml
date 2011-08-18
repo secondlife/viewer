@@ -9,8 +9,8 @@
 			<combo_editor label="搜尋 [SECOND_LIFE]" name="search_combo_editor"/>
 		</search_combo_box>
 	</panel>
-	<favorites_bar name="favorite" tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!">
-		<label name="favorites_bar_label" tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!">
+	<favorites_bar name="favorite" tool_tip="拖曳傳送地標到此以便讓你在第二人生中能快速傳送到你最愛的地點!!">
+		<label name="favorites_bar_label" tool_tip="拖曳傳送地標到此以便讓你在第二人生中能快速傳送到你最愛的地點!!">
 			最愛列
 		</label>
 		<chevron_button name="&gt;&gt;" tool_tip="顯示更多我的最愛"/>

@@ -6,6 +6,6 @@
 		儲存我正在穿的為新裝扮：
 	</text>
 	<line_editor name="name ed">
-		[DESC] (new)
+		[DESC] （新）
 	</line_editor>
 </floater>

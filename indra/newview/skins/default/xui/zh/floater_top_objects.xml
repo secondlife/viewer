@@ -22,7 +22,7 @@
 		積分
 	</floater.string>
 	<floater.string name="none_descriptor">
-		None found.
+		未發現。
 	</floater.string>
 	<text name="title_text">
 		載入中...
@@ -39,7 +39,7 @@
 	<text name="id_text">
 		物件 ID:
 	</text>
-	<button label="Show Beacon" name="show_beacon_btn"/>
+	<button label="顯示指標" name="show_beacon_btn"/>
 	<text name="obj_name_text">
 		物件名稱：
 	</text>

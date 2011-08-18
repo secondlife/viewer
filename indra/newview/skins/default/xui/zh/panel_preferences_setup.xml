@@ -21,7 +21,7 @@
 		快取位置：
 	</text>
 	<button label="瀏覽" label_selected="瀏覽" name="set_cache"/>
-	<button label="重設" label_selected="重設" name="reset_cache"/>
+	<button label="" label_selected="重設" name="reset_cache"/>
 	<text name="Web:">
 		網頁：
 	</text>

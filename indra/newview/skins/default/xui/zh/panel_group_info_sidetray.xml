@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="社團檔案" name="GroupInfo">
+<panel label="群組檔案" name="GroupInfo">
 	<panel.string name="default_needs_apply_text">
-		There are unsaved changes
+		變更未儲存
 	</panel.string>
 	<panel.string name="want_apply_text">
-		Do you want to save these changes?
+		你要儲存這些變更嗎？
 	</panel.string>
 	<panel.string name="group_join_btn">
-		Join (L$[AMOUNT])
+		加入（L$[AMOUNT]）
 	</panel.string>
 	<panel.string name="group_join_free">
-		Free
+		免費
 	</panel.string>
 	<panel name="group_info_top">
 		<text_editor name="group_name" value="（載入中...）"/>
-		<line_editor label="Type your new group name here" name="group_name_editor"/>
+		<line_editor label="在此輸入你的新群組名稱" name="group_name_editor"/>
 	</panel>
 	<layout_stack name="layout">
 		<layout_panel name="group_accordions">
@@ -31,11 +31,11 @@
 			<button label="聊天" name="btn_chat"/>
 		</layout_panel>
 		<layout_panel name="call_btn_lp">
-			<button label="Group Call" name="btn_call" tool_tip="Call this group"/>
+			<button label="群組通話" name="btn_call" tool_tip="與此群組進行通話"/>
 		</layout_panel>
 		<layout_panel name="btn_apply_lp">
 			<button label="儲存" label_selected="儲存" name="btn_apply"/>
-			<button label="創造社團" name="btn_create" tool_tip="創造一個新社團"/>
+			<button label="創造群組" name="btn_create" tool_tip="創造一個新群組"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

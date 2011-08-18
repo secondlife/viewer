@@ -40,7 +40,7 @@
 	<combo_box label="無" name="modifier_combo"/>
 	<combo_box label="無" name="key_combo"/>
 	<text name="library_label">
-		Library:
+		資源庫：
 	</text>
 	<scroll_list name="library_list">
 		<scroll_list.rows name="action_animation" value="動作"/>
@@ -48,7 +48,7 @@
 		<scroll_list.rows name="action_chat" value="聊天"/>
 		<scroll_list.rows name="action_wait" value="等待"/>
 	</scroll_list>
-	<button label="Add &gt;&gt;" name="add_btn"/>
+	<button label="添加 &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		Steps:
 	</text>

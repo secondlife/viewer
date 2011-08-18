@@ -26,7 +26,7 @@
 	</menu>
 	<menu label="溝通" name="Communicate">
 		<menu_item_call label="我的朋友" name="My Friends"/>
-		<menu_item_call label="我的社團" name="My Groups"/>
+		<menu_item_call label="我的群組" name="My Groups"/>
 		<menu_item_check label="附近的聊天" name="Nearby Chat"/>
 		<menu_item_call label="附近的人群" name="Active Speakers"/>
 	</menu>
@@ -96,7 +96,7 @@
 		<menu label="腳本" name="Scripts">
 			<menu_item_call label="重新編譯腳本（Mono）" name="Mono"/>
 			<menu_item_call label="重新編譯腳本（LSL）" name="LSL"/>
-			<menu_item_call label="Reset Scripts" name="Reset Scripts"/>
+			<menu_item_call label="重設腳本" name="Reset Scripts"/>
 			<menu_item_call label="設定腳本為執行中" name="Set Scripts to Running"/>
 			<menu_item_call label="設定腳本為非執行中" name="Set Scripts to Not Running"/>
 		</menu>
@@ -155,7 +155,7 @@
 		</menu>
 		<menu label="Rendering Types" name="Rendering Types">
 			<menu_item_check label="Simple" name="Simple"/>
-			<menu_item_check label="Alpha" name="Alpha"/>
+			<menu_item_check label="半透明" name="Alpha"/>
 			<menu_item_check label="Tree" name="Tree"/>
 			<menu_item_check label="Avatars" name="Character"/>
 			<menu_item_check label="SurfacePath" name="SurfacePath"/>
@@ -179,21 +179,21 @@
 			<menu_item_check label="Flexible Objects" name="Flexible Objects"/>
 		</menu>
 		<menu_item_check label="Use Plugin Read Thread" name="Use Plugin Read Thread"/>
-		<menu_item_call label="Clear Group Cache" name="ClearGroupCache"/>
-		<menu_item_check label="Mouse Smoothing" name="Mouse Smoothing"/>
+		<menu_item_call label="清除群組快取資料" name="ClearGroupCache"/>
+		<menu_item_check label="滑鼠平滑移動" name="Mouse Smoothing"/>
 		<menu label="快速鍵" name="Shortcuts">
 			<menu_item_call label="圖像（L$[COST]）..." name="Upload Image"/>
 			<menu_item_check label="搜尋" name="Search"/>
 			<menu_item_call label="釋出按鍵" name="Release Keys"/>
 			<menu_item_call label="設定使用者界面大小至預設值" name="Set UI Size to Default"/>
-			<menu_item_check label="Show Advanced Menu - legacy shortcut" name="Show Advanced Menu - legacy shortcut"/>
+			<menu_item_check label="顯示進階選單 － 舊版捷徑" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="關閉視窗" name="Close Window"/>
 			<menu_item_call label="關閉全部視窗" name="Close All Windows"/>
-			<menu_item_call label="Snapshot to Disk" name="Snapshot to Disk"/>
+			<menu_item_call label="拍攝快照到硬碟" name="Snapshot to Disk"/>
 			<menu_item_call label="第一人稱視角" name="Mouselook"/>
 			<menu_item_check label="Joystick Flycam" name="Joystick Flycam"/>
-			<menu_item_call label="Reset View" name="Reset View"/>
-			<menu_item_call label="Look at Last Chatter" name="Look at Last Chatter"/>
+			<menu_item_call label="重設視角" name="Reset View"/>
+			<menu_item_call label="注視上一位聊天者" name="Look at Last Chatter"/>
 			<menu label="選擇建造工具" name="Select Tool">
 				<menu_item_call label="聚焦工具" name="Focus"/>
 				<menu_item_call label="移動工具" name="Move"/>
@@ -218,10 +218,10 @@
 			<menu_item_check label="Fast Timers" name="Fast Timers"/>
 			<menu_item_check label="記憶體" name="Memory"/>
 			<menu_item_call label="Region Info to Debug Console" name="Region Info to Debug Console"/>
-			<menu_item_call label="Group Info to Debug Console" name="Group Info to Debug Console"/>
+			<menu_item_call label="群組資訊至除錯控制台" name="Group Info to Debug Console"/>
 			<menu_item_call label="Capabilities Info to Debug Console" name="Capabilities Info to Debug Console"/>
 			<menu_item_check label="Camera" name="Camera"/>
-			<menu_item_check label="Wind" name="Wind"/>
+			<menu_item_check label="風力" name="Wind"/>
 			<menu_item_check label="FOV" name="FOV"/>
 			<menu_item_check label="Badge" name="Badge"/>
 		</menu>
@@ -232,17 +232,17 @@
 			<menu_item_check label="Show Matrices" name="Show Matrices"/>
 			<menu_item_check label="Show Color Under Cursor" name="Show Color Under Cursor"/>
 			<menu_item_check label="顯示記憶體" name="Show Memory"/>
-			<menu_item_check label="Show Updates to Objects" name="Show Updates"/>
+			<menu_item_check label="顯示更新到物件" name="Show Updates"/>
 		</menu>
-		<menu label="Force an Error" name="Force Errors">
-			<menu_item_call label="Force Breakpoint" name="Force Breakpoint"/>
-			<menu_item_call label="Force LLError And Crash" name="Force LLError And Crash"/>
-			<menu_item_call label="Force Bad Memory Access" name="Force Bad Memory Access"/>
-			<menu_item_call label="Force Infinite Loop" name="Force Infinite Loop"/>
-			<menu_item_call label="Force Driver Crash" name="Force Driver Carsh"/>
-			<menu_item_call label="Force Software Exception" name="Force Software Exception"/>
-			<menu_item_call label="Force Disconnect Viewer" name="Force Disconnect Viewer"/>
-			<menu_item_call label="Simulate a Memory Leak" name="Memory Leaking Simulation"/>
+		<menu label="強制錯誤" name="Force Errors">
+			<menu_item_call label="強制中斷點" name="Force Breakpoint"/>
+			<menu_item_call label="強制腳本錯誤並崩潰" name="Force LLError And Crash"/>
+			<menu_item_call label="強制不良的記憶體存取" name="Force Bad Memory Access"/>
+			<menu_item_call label="強制無限迴圈" name="Force Infinite Loop"/>
+			<menu_item_call label="強制驅動程式崩潰" name="Force Driver Carsh"/>
+			<menu_item_call label="強制軟體例外異常" name="Force Software Exception"/>
+			<menu_item_call label="強制瀏覽器斷線" name="Force Disconnect Viewer"/>
+			<menu_item_call label="模擬記憶體不足" name="Memory Leaking Simulation"/>
 		</menu>
 		<menu label="Render Tests" name="Render Tests">
 			<menu_item_check label="Camera Offset" name="Camera Offset"/>
@@ -278,8 +278,8 @@
 			<menu_item_check label="Global Illumination (experimental)" name="Global Illumination"/>
 			<menu_item_check label="Debug GL" name="Debug GL"/>
 			<menu_item_check label="Debug Pipeline" name="Debug Pipeline"/>
-			<menu_item_check label="Automatic Alpha Masks (deferred)" name="Automatic Alpha Masks (deferred)"/>
-			<menu_item_check label="Automatic Alpha Masks (non-deferred)" name="Automatic Alpha Masks (non-deferred)"/>
+			<menu_item_check label="自動半透明遮罩（遞延）" name="Automatic Alpha Masks (deferred)"/>
+			<menu_item_check label="自動半透明遮罩（非遞延）" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Animation Textures" name="Animation Textures"/>
 			<menu_item_check label="Disable Textures" name="Disable Textures"/>
 			<menu_item_check label="Full Res Textures" name="Rull Res Textures"/>
@@ -310,7 +310,7 @@
 			<menu_item_check label="Sim Sun Override" name="Sim Sun Override"/>
 			<menu_item_check label="Cheesy Beacon" name="Cheesy Beacon"/>
 			<menu_item_check label="Fixed Weather" name="Fixed Weather"/>
-			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
+			<menu_item_call label="傾印地區物件快取" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI" name="UI">
 			<menu_item_call label="Media Browser Test" name="Web Browser Test"/>
@@ -325,10 +325,10 @@
 			<menu_item_check label="Region Debug Console" name="Region Debug Console"/>
 			<menu_item_check label="Debug SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
-			<menu_item_check label="Debug Views" name="Debug Views"/>
+			<menu_item_check label="視角除錯" name="Debug Views"/>
 			<menu_item_check label="Debug Name Tooltips" name="Debug Name Tooltips"/>
-			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>
-			<menu_item_check label="Debug Keys" name="Debug Keys"/>
+			<menu_item_check label="滑鼠事件除錯" name="Debug Mouse Events"/>
+			<menu_item_check label="按鍵除錯" name="Debug Keys"/>
 			<menu_item_check label="Debug WindowProc" name="Debug WindowProc"/>
 		</menu>
 		<menu label="XUI" name="XUI">
@@ -336,7 +336,7 @@
 			<menu_item_call label="Show Font Test" name="Show Font Test"/>
 			<menu_item_check label="Show XUI Names" name="Show XUI Names"/>
 			<menu_item_call label="送出測試 IMs" name="Send Test IMs"/>
-			<menu_item_call label="Flush Names Caches" name="Flush Names Caches"/>
+			<menu_item_call label="沖洗名稱快取資料" name="Flush Names Caches"/>
 		</menu>
 		<menu label="化身" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
@@ -380,14 +380,14 @@
 	<menu label="Admin" name="Admin">
 		<menu label="Object">
 			<menu_item_call label="取得副本" name="Take Copy"/>
-			<menu_item_call label="Force Owner To Me" name="Force Owner To Me"/>
+			<menu_item_call label="強制擁有者為我" name="Force Owner To Me"/>
 			<menu_item_call label="Force Owner Permissive" name="Force Owner Permissive"/>
 			<menu_item_call label="刪除" name="Delete"/>
 			<menu_item_call label="Lock" name="Lock"/>
 			<menu_item_call label="Get Assets IDs" name="Get Assets IDs"/>
 		</menu>
 		<menu label="地段" name="Parcel">
-			<menu_item_call label="Force Owner To Me" name="Owner To Me"/>
+			<menu_item_call label="強制擁有者為我" name="Owner To Me"/>
 			<menu_item_call label="Set to Linden Content" name="Set to Linden Content"/>
 			<menu_item_call label="Claim Public Land" name="Claim Public Land"/>
 		</menu>
@@ -410,9 +410,9 @@
 			<menu_item_call label="內衣" name="Menu Undershirt"/>
 			<menu_item_call label="內褲" name="Menu Underpants"/>
 			<menu_item_call label="裙子" name="Skirt"/>
-			<menu_item_call label="Alpha" name="Alpha"/>
-			<menu_item_call label="Tattoo" name="Tattoo"/>
-			<menu_item_call label="Physics" name="Physics"/>
+			<menu_item_call label="半透明" name="Alpha"/>
+			<menu_item_call label="刺青" name="Tattoo"/>
+			<menu_item_call label="身體物理" name="Physics"/>
 			<menu_item_call label="全部衣服" name="All Clothes"/>
 		</menu>
 		<menu label="幫助" name="Help">

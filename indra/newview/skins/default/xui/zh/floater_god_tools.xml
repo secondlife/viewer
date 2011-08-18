@@ -2,25 +2,25 @@
 <floater name="godtools floater" title="神之工具">
 	<tab_container name="GodTools Tabs">
 		<panel label="網格" name="grid">
-			<button label="Flush This Region&apos;s Map Visibility Caches" label_selected="Flush This Region&apos;s Map Visibility Caches" name="Flush This Region&apos;s Map Visibility Caches"/>
+			<button label="刷新這個地區的地圖可視快取" label_selected="刷新這個地區的地圖可視快取" name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="地區" name="region">
 			<text name="Region Name:">
 				地區名稱：
 			</text>
 			<check_box label="Prelude" name="check prelude" tool_tip="Set this to make the region a prelude"/>
-			<check_box label="Fixed Sun" name="check fixed sun" tool_tip="Fix the sun position (like in Region/Estate &gt; Terrain"/>
+			<check_box label="固定太陽" name="check fixed sun" tool_tip="Fix the sun position (like in Region/Estate &gt; Terrain"/>
 			<check_box label="Reset Home On Teleport" name="check reset home" tool_tip="When Resident teleports out, reset their home to the destination position."/>
 			<check_box label="Visible" name="check visible" tool_tip="Set this to make the region visible to non-gods"/>
-			<check_box label="Damage" name="check damage" tool_tip="Set this to enable damage in this region"/>
-			<check_box label="Block Traffic Tracking" name="block dwell" tool_tip="Set this to make the region not compute traffic"/>
-			<check_box label="Block Terraform" name="block terraform" tool_tip="Set this to disallow people terraforming their land"/>
-			<check_box label="Sandbox" name="is sandbox" tool_tip="Toggle whether this is a sandbox region"/>
-			<button label="Bake Terrain" label_selected="Bake Terrain" name="Bake Terrain" tool_tip="Save the current terrain as default"/>
+			<check_box label="傷害" name="check damage" tool_tip="Set this to enable damage in this region"/>
+			<check_box label="阻止流量追蹤" name="block dwell" tool_tip="Set this to make the region not compute traffic"/>
+			<check_box label="阻止變形" name="block terraform" tool_tip="Set this to disallow people terraforming their land"/>
+			<check_box label="沙盒" name="is sandbox" tool_tip="Toggle whether this is a sandbox region"/>
+			<button label="Bake Terrain" label_selected="Bake Terrain" name="Bake Terrain" tool_tip="儲存目前的地形為預設"/>
 			<button label="Revert Terrain" label_selected="Revert Terrain" name="Revert Terrain" tool_tip="Replace the current terrain with default"/>
 			<button label="Swap Terrain" label_selected="Swap Terrain" name="Swap Terrain" tool_tip="Swap current terrain with default"/>
 			<text name="estate id">
-				Estate ID:
+				領地 ID：
 			</text>
 			<text name="parent id">
 				Parent ID:
@@ -40,14 +40,14 @@
 			<text name="land cost text">
 				L$ per m²:
 			</text>
-			<button label="Refresh" label_selected="Refresh" name="Refresh" tool_tip="Click here to refresh the above information"/>
-			<button label="套用" label_selected="套用" name="Apply" tool_tip="Click here to apply any changes from above"/>
+			<button label="重新整理" label_selected="重新整理" name="Refresh" tool_tip="Click here to refresh the above information"/>
+			<button label="套用" label_selected="套用" name="Apply" tool_tip="點擊此處以接受套用上述變更"/>
 			<button label="選擇地區" label_selected="選擇地區" name="Select Region" tool_tip="Select the whole region with the land tool"/>
 			<button label="立即自動儲存" label_selected="立即自動儲存" name="Autosave now" tool_tip="Save gzipped state to autosave directory"/>
 		</panel>
 		<panel label="物件" name="objects">
 			<panel.string name="no_target">
-				(no target)
+				（無目標）
 			</panel.string>
 			<text name="Region Name:">
 				地區名稱：
@@ -61,7 +61,7 @@
 			<button label="套用" label_selected="套用" name="Apply" tool_tip="Click here to apply any changes from above"/>
 			<button label="Set Target" label_selected="Set Target" name="Set Target" tool_tip="Set the target avatar for object deletion"/>
 			<text name="target_avatar_name">
-				(no target)
+				（無目標）
 			</text>
 			<button label="Delete Target&apos;s Scripted Objects On Others Land" label_selected="Delete Target&apos;s Scripted Objects On Others Land" name="Delete Target&apos;s Scripted Objects On Others Land" tool_tip="Delete all scripted objects owned by the target on land not owned by the target. (no copy) objects will be returned."/>
 			<button label="Delete Target&apos;s Scripted Objects On *Any* Land" label_selected="Delete Target&apos;s Scripted Objects On *Any* Land" name="Delete Target&apos;s Scripted Objects On *Any* Land" tool_tip="Delete all scripted objects owned by the target in this region. (no copy) objects will be returned."/>
