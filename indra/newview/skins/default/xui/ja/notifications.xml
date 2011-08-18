@@ -2105,13 +2105,14 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		<usetemplate ignoretext="「容姿」を編集中に、作成する衣類を装着するとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		年齢確認を済ませていないとこの区画を訪れることができません。  [SECOND_LIFE] サイトで年齢の確認を行いますか？
+		Second Life で Adult 指定のコンテンツや領域にアクセスできるのは 18 歳以上のユーザーのみです。年齢確認ページで 18 歳以上であることを証明してください。 
+これをクリックするとウェブブラウザが開きます。
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php?lang=ja
+			https://secondlife.com/my/account/verification.php
 		</url>
-		<usetemplate ignoretext="年齢の確認を済ませていないとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
+		<usetemplate ignoretext="年齢の確認を済ませていないとき" name="okcancelignore" notext="取り消し" yestext="年齢確認ページを開く"/>
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		支払情報が登録されていないとこのエリアを訪れることができません。  [SECOND_LIFE] サイトで登録を行いますか？
@@ -2799,6 +2800,12 @@ M キーを押して変更します。
 		[LABEL] をアップロードできませんでした：[MESSAGE] [IDENTIFIER] 
 
 詳細についてはログをご覧ください。
+	</notification>
+	<notification name="MeshUploadPermError">
+		メッシュのアップロード許可をリクエスト中にエラーが発生しました。
+	</notification>
+	<notification name="RegionCapabilityRequestError">
+		リージョンの &apos;[CAPABILITY]&apos; という機能を取得できませんでした。
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		次のアイテムを共有しますか？

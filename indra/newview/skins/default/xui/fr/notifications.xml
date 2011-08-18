@@ -2057,13 +2057,14 @@ Liez-la à partir d&apos;une page web pour permettre aux autres résidents d&apo
 		<usetemplate ignoretext="Porter automatiquement tout en modifiant mon apparence" name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		Pour pouvoir pénétrer dans cette zone, vous devez avoir procédé à la vérification de votre âge.  Souhaitez-vous aller sur [SECOND_LIFE] et procéder à la vérification de votre âge ?
+		Vous devez avoir au moins 18 ans pour accéder au contenu et aux zones Adulte dans Second Life. Visitez la page de vérification de l&apos;âge afin de confirmer que vous avez plus de 18 ans. 
+Cette opération lancera votre navigateur Web.
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php?lang=fr
+			https://secondlife.com/my/account/verification.php
 		</url>
-		<usetemplate ignoretext="Je n&apos;ai pas procédé à la vérification de mon âge" name="okcancelignore" notext="Non" yestext="Oui"/>
+		<usetemplate ignoretext="Je n&apos;ai pas procédé à la vérification de mon âge" name="okcancelignore" notext="Annuler" yestext="Accéder à la page de vérification de l&apos;âge"/>
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Pour pouvoir pénétrer dans cette zone, vous devez avoir enregistré vos informations de paiement.  Souhaitez-vous aller sur [SECOND_LIFE] et enregistrer vos informations de paiement ?
@@ -2753,6 +2754,12 @@ Le bouton sera affiché quand il y aura suffisamment de place.
 		Échec de chargement de [LABEL] : [MESSAGE] [IDENTIFIER] 
 
 Voir le fichier journal pour plus de détails.
+	</notification>
+	<notification name="MeshUploadPermError">
+		Erreur lors de la demande des autorisations de chargement de maillage.
+	</notification>
+	<notification name="RegionCapabilityRequestError">
+		Impossible d&apos;obtenir la capacité de région : [CAPABILITY].
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Voulez-vous vraiment partager les articles suivants :

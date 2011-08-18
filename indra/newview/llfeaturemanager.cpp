@@ -106,7 +106,7 @@ BOOL LLFeatureList::isFeatureAvailable(const std::string& name)
 		return mFeatures[name].mAvailable;
 	}
 
-	LL_WARNS("RenderInit") << "Feature " << name << " not on feature list!" << LL_ENDL;
+	LL_WARNS_ONCE("RenderInit") << "Feature " << name << " not on feature list!" << LL_ENDL;
 	
 	// changing this to TRUE so you have to explicitly disable 
 	// something for it to be disabled
@@ -120,7 +120,7 @@ F32 LLFeatureList::getRecommendedValue(const std::string& name)
 		return mFeatures[name].mRecommendedLevel;
 	}
 
-	LL_WARNS("RenderInit") << "Feature " << name << " not on feature list or not available!" << LL_ENDL;
+	LL_WARNS_ONCE("RenderInit") << "Feature " << name << " not on feature list or not available!" << LL_ENDL;
 	return 0;
 }
 

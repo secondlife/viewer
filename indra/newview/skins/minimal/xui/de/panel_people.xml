@@ -49,7 +49,7 @@
 				<button label="Profil" name="view_profile_btn" tool_tip="Bilder, Gruppen und andere Einwohner-Informationen anzeigen"/>
 			</layout_panel>
 			<layout_panel name="im_btn_lp">
-				<button label="IM" name="im_btn" tool_tip="Instant Messenger öffnen"/>
+				<button label="IM" name="im_btn" tool_tip="IM-Sitzung öffnen"/>
 			</layout_panel>
 			<layout_panel name="call_btn_lp">
 				<button label="Anrufen" name="call_btn" tool_tip="Diesen Einwohner anrufen"/>
