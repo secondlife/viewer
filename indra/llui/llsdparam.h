@@ -93,8 +93,17 @@ class LLSDParamAdapter : public T
 			LLParamSDParser parser;
 			parser.readSD(sd, *this);
 		}
+
+		operator LLSD() const
+		{
+			LLParamSDParser parser;
+			LLSD sd;
+			parser.writeSD(sd, *this);
+			return sd;
+		}
 		
 		LLSDParamAdapter(const T& val)
+		: T(val)
 		{
 			T::operator=(val);
 		}

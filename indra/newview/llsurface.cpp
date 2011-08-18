@@ -334,6 +334,17 @@ void LLSurface::setOriginGlobal(const LLVector3d &origin_global)
 	}
 }
 
+void LLSurface::getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions )
+{
+	S32 i;
+	for (i = 0; i < 8; i++)
+	{
+		if ( mNeighbors[i] != NULL )
+		{
+			uniqueRegions.push_back( mNeighbors[i]->getRegion() );
+		}
+	}	
+}
 
 void LLSurface::connectNeighbor(LLSurface *neighborp, U32 direction)
 {

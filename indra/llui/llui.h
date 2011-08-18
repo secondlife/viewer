@@ -410,7 +410,7 @@ namespace LLInitParam
 		ParamValue(const LLRect& value);
 
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 
 	template<>
@@ -428,7 +428,7 @@ namespace LLInitParam
 
 		ParamValue(const LLUIColor& color);
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 
 	template<>
@@ -443,7 +443,7 @@ namespace LLInitParam
 
 		ParamValue(const LLFontGL* value);
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 
 	template<>
@@ -482,7 +482,7 @@ namespace LLInitParam
 
 		ParamValue(const LLCoordGL& val);
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 }
 

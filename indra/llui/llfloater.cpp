@@ -766,7 +766,6 @@ void LLFloater::closeFloater(bool app_quitting)
 void LLFloater::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLPanel::reshape(width, height, called_from_parent);
-	storeRectControl();
 }
 
 void LLFloater::releaseFocus()
@@ -967,6 +966,11 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 {
 	const LLRect old_rect = getRect();
 	LLView::handleReshape(new_rect, by_user);
+
+	if (by_user)
+	{
+		storeRectControl();
+	}
 
 	// if not minimized, adjust all snapped dependents to new shape
 	if (!isMinimized())
@@ -2048,7 +2052,6 @@ static LLDefaultChildRegistry::Register<LLFloaterView> r("floater_view");
 
 LLFloaterView::LLFloaterView (const Params& p)
 :	LLUICtrl (p),
-
 	mFocusCycleMode(FALSE),
 	mMinimizePositionVOffset(0),
 	mSnapOffsetBottom(0),
@@ -2058,12 +2061,6 @@ LLFloaterView::LLFloaterView (const Params& p)
 
 // By default, adjust vertical.
 void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
-{
-	reshapeFloater(width, height, called_from_parent, ADJUST_VERTICAL_YES);
-}
-
-// When reshaping this view, make the floaters follow their closest edge.
-void LLFloaterView::reshapeFloater(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical)
 {
 	S32 old_width = getRect().getWidth();
 	S32 old_height = getRect().getHeight();
@@ -2109,11 +2106,7 @@ void LLFloaterView::reshapeFloater(S32 width, S32 height, BOOL called_from_paren
 			// "No vertical adjustment" usually means that the bottom of the view
 			// has been pushed up or down.  Hence we want the floaters to follow
 			// the top.
-			if (!adjust_vertical)
-			{
-				follow_flags |= FOLLOWS_TOP;
-			}
-			else if (top_offset < bottom_offset)
+			if (top_offset < bottom_offset)
 			{
 				follow_flags |= FOLLOWS_TOP;
 			}
@@ -2847,7 +2840,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mAutoTile = p.auto_tile;
 	mOpenCentered = p.open_centered;
 
-	if (p.save_rect)
+	if (p.save_rect && mRectControl.empty())
 	{
 		mRectControl = "t"; // flag to build mRectControl name once mInstanceName is set
 	}
@@ -2885,12 +2878,53 @@ boost::signals2::connection LLFloater::setCloseCallback( const commit_signal_t::
 }
 
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
+static LLFastTimer::DeclareTimer FTM_EXTERNAL_FLOATER_LOAD("Load Extern Floater Reference");
 
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
-	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
+	Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
+	Params params(default_params);
+
 	LLXUIParser parser;
 	parser.readXUI(node, params, filename); // *TODO: Error checking
+
+	std::string xml_filename = params.filename;
+
+	if (!xml_filename.empty())
+	{
+		LLXMLNodePtr referenced_xml;
+
+		if (output_node)
+		{
+			//if we are exporting, we want to export the current xml
+			//not the referenced xml
+			Params output_params;
+			parser.readXUI(node, output_params, LLUICtrlFactory::getInstance()->getCurFileName());
+			setupParamsForExport(output_params, parent);
+			output_node->setName(node->getName()->mString);
+			parser.writeXUI(output_node, output_params, &default_params);
+			return TRUE;
+		}
+
+		LLUICtrlFactory::instance().pushFileName(xml_filename);
+
+		LLFastTimer _(FTM_EXTERNAL_FLOATER_LOAD);
+		if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
+		{
+			llwarns << "Couldn't parse panel from: " << xml_filename << llendl;
+
+			return FALSE;
+		}
+
+		parser.readXUI(referenced_xml, params, LLUICtrlFactory::getInstance()->getCurFileName());
+
+		// add children using dimensions from referenced xml for consistent layout
+		setShape(params.rect);
+		LLUICtrlFactory::createChildren(this, referenced_xml, child_registry_t::instance());
+
+		LLUICtrlFactory::instance().popFileName();
+	}
+
 
 	if (output_node)
 	{
@@ -2912,7 +2946,6 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 	{
 		params.rect.left.set(0);
 	}
-
 	params.from_xui = true;
 	applyXUILayout(params, parent);
  	initFromParams(params);
@@ -3054,3 +3087,25 @@ bool LLFloater::buildFromFile(const std::string& filename, LLXMLNodePtr output_n
 	
 	return res;
 }
+
+void LLFloater::stackWith(LLFloater& other)
+{
+	static LLUICachedControl<S32> floater_offset ("UIFloaterOffset", 16);
+
+	LLRect next_rect;
+	if (other.getHost())
+	{
+		next_rect = other.getHost()->getRect();
+	}
+	else
+	{
+		next_rect = other.getRect();
+	}
+	next_rect.translate(floater_offset, -floater_offset);
+
+	next_rect.setLeftTopAndSize(next_rect.mLeft, next_rect.mTop, getRect().getWidth(), getRect().getHeight());
+	
+	mRectControl.clear(); // don't save rect of stacked floaters
+	setShape(next_rect);
+}
+

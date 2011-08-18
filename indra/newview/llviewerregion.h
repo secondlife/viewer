@@ -226,11 +226,12 @@ public:
 
 	U32	getPacketsLost() const;
 
-	void setHttpResponderPtrNULL();
-	const LLHTTPClient::ResponderPtr getHttpResponderPtr() const;
+	S32 getHttpResponderID() const;
 
 	// Get/set named capability URLs for this region.
 	void setSeedCapability(const std::string& url);
+	void failedSeedCapability();
+	S32 getNumSeedCapRetries();
 	void setCapability(const std::string& name, const std::string& url);
 	// implements LLCapabilityProvider
     virtual std::string getCapability(const std::string& name) const;
@@ -320,6 +321,10 @@ public:
 	LLSpatialPartition* getSpatialPartition(U32 type);
 
 	bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
+	bool childrenObjectReturnable( const std::vector<LLBBox>& boxes ) const;
+
+	void getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions );
+	
 public:
 	struct CompareDistance
 	{
