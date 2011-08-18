@@ -927,6 +927,7 @@ void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 				}
 				
 				// Send initial sleep time
+				llassert_always(mSleepTime != 0.f);
 				setSleepTime(mSleepTime, true);			
 
 				setState(STATE_RUNNING);

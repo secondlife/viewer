@@ -24,20 +24,11 @@
 	<floater.string name="status_selectland">
 		Klicken und ziehen, um Land auszuwählen
 	</floater.string>
-	<floater.string name="grid_screen_text">
-		Bildschirm
+	<floater.string name="status_selectcount">
+		[OBJ_COUNT] Objekte ([PRIM_COUNT] Prims [PE_STRING]) ausgewählt
 	</floater.string>
-	<floater.string name="grid_local_text">
-		Lokal
-	</floater.string>
-	<floater.string name="grid_world_text">
-		Welt
-	</floater.string>
-	<floater.string name="grid_reference_text">
-		Referenz
-	</floater.string>
-	<floater.string name="grid_attachment_text">
-		Anhang
+	<floater.string name="status_selectprimequiv">
+		, Prim-Äquivalenz [SEL_WEIGHT]
 	</floater.string>
 	<button label="" label_selected="" name="button focus" tool_tip="Fokus"/>
 	<button label="" label_selected="" name="button move" tool_tip="Verschieben"/>
@@ -66,20 +57,12 @@
 	<check_box label="Verknüpfte Teile bearbeiten" name="checkbox edit linked parts"/>
 	<button label="Link" name="link_btn" width="30"/>
 	<button label="Verknüpfung auflösen" name="unlink_btn" width="126"/>
-	<text left_pad="0" name="RenderingCost" tool_tip="Zeigt die errechneten Wiedergabekosten für dieses Objekt">
-		þ: [COUNT]
-	</text>
 	<check_box label="" name="checkbox uniform"/>
 	<text label="Beide Seiten dehnen" name="checkbox uniform label">
 		Beide Seiten dehnen
 	</text>
 	<check_box initial_value="true" label="Texturen dehnen" name="checkbox stretch textures" top_pad="-5"/>
-	<check_box initial_value="true" label="An Raster ausrichten" name="checkbox snap to grid" top_pad="15"/>
-	<combo_box name="combobox grid mode" tool_tip="Wählen Sie ein Rasterlineal zum Positionieren des Objekts aus.">
-		<combo_box.item label="Globales Raster" name="World"/>
-		<combo_box.item label="Lokales Raster" name="Local"/>
-		<combo_box.item label="Referenzraster" name="Reference"/>
-	</combo_box>
+	<check_box initial_value="true" label="Einrasten" name="checkbox snap to grid" top_pad="15"/>
 	<button label="Optionen..." label_selected="Optionen..." name="Options..." tool_tip="Mehr Raster-Optionen anzeigen"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Würfel"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisma"/>
@@ -119,23 +102,11 @@
 		Stärke
 	</text>
 	<button label="Übernehmen" label_selected="Übernehmen" name="button apply to selection" tool_tip="Ausgewähltes Land bearbeiten"/>
-	<text name="obj_count">
-		Objekte: [COUNT]
+	<text name="selection_empty">
+		Nichts ausgewählt.
 	</text>
-	<text name="prim_count">
-		Primitive: [COUNT]
-	</text>
-	<text name="linked_set_count">
-		Verknüpfte Sätze: [COUNT]
-	</text>
-	<text name="linked_set_cost" tool_tip="Kosten der gegenwärtig ausgewählten verknüpften Sätze als [Prims],[Komplexität der Physik]">
-		Kosten: [COST] / [PHYSICS]
-	</text>
-	<text name="object_count">
-		Objekte: [COUNT]
-	</text>
-	<text name="object_cost" tool_tip="Kosten der gegenwärtig ausgewählten Objekte als [Prims] / [Komplexität der Physik]">
-		Kosten: [COST] / [PHYSICS]
+	<text name="selection_weight">
+		Physikgewicht [PHYS_WEIGHT], Darstellungskosten [DISP_WEIGHT].
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Allgemein" name="General">
@@ -356,7 +327,6 @@
 				<combo_box.item label="Torus" name="Torus"/>
 				<combo_box.item label="Fläche" name="Plane"/>
 				<combo_box.item label="Zylinder" name="Cylinder"/>
-				<combo_box.item label="Netz" name="Mesh"/>
 			</combo_box>
 		</panel>
 		<panel label="Eigenschaften" name="Features">

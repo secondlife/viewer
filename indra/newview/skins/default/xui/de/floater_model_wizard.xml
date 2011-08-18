@@ -2,42 +2,54 @@
 <floater name="Model Wizard" title="ASSISTENT ZUM HOCHLADEN VON MODELLEN">
 	<button label="5. Hochladen" name="upload_btn"/>
 	<button label="4. Überprüfen" name="review_btn"/>
-	<button label="3. Physik" name="physics2_btn"/>
 	<button label="3. Physik" name="physics_btn"/>
 	<button label="2. Optimieren" name="optimize_btn"/>
 	<button label="1. Datei auswählen" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Modell hochladen
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
+				Modelldatei auswählen
 			</text>
 		</panel>
-		<text name="description">
-			Mit diesem Assistenten können Sie Netzmodelle in Second Life hochladen.  Geben Sie zuerst die Datei mit dem zu importierenden Modell an.  Second Life unterstützt COLLADA-Dateien (.dae).
-		</text>
-		<panel name="content">
-			<text name="Cache location">
-				Dateiname:
+		<panel name="choose_file_content_panel">
+			<text name="advanced_users_text">
+				Fortgeschrittene Benutzer: Wenn Sie bereits mit Tools zur Erstellung von 3D-Inhalten vertraut sind, können Sie den erweiterten Uploader verwenden.
+			</text>
+			<button label="Auf Erweitert wechseln" name="switch_to_advanced"/>
+			<text name="choose_model_file_label">
+				Hochzuladende Modelldatei auswählen
 			</text>
 			<button label="Durchsuchen..." label_selected="Durchsuchen..." name="browse"/>
-			<text name="dimensions">
-				X:         Y:         Z:
+			<text name="support_collada_text">
+				Second Life unterstützt COLLADA-Dateien (.dae).
 			</text>
-			<text name="dimension_dividers">
-				|               |
+			<text name="dimensions_label">
+				Abmessungen (m):
+			</text>
+			<text name="dimensions">
+				X         Y         Z
+			</text>
+			<text name="warning_label">
+				ACHTUNG:
+			</text>
+			<text name="warning_text">
+				Sie können den letzten Schritt nicht abschließen (Modell auf Second Life-Server hochladen). [secondlife:///app/floater/learn_more Weitere Infos], wie Sie Ihr Konto zum Hochladen von Netzmodellen einrichten.
 			</text>
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Optimieren
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
+				Modell optimieren
 			</text>
 		</panel>
-		<text name="description">
-			Dieser Assistent hat Ihr Modell optimiert, um die Leistung zu erhöhen. Sie können die Optimierungsergebnisse unten ändern oder zum Fortfahren auf „Weiter“ klicken.
+		<text name="optimize_hint">
+			Wir haben das Modell auf Leistung optimiert. Sie können es bei Bedarf weiter anpassen.
 		</text>
-		<panel name="content">
+		<panel name="optimize_content_panel">
+			<text name="generating_lod_label">
+				Detailstufe generieren
+			</text>
 			<text name="high_detail_text">
 				Detailstufe generieren: Hoch
 			</text>
@@ -52,140 +64,154 @@
 			</text>
 		</panel>
 		<panel name="content2">
-			<text name="lod_label">
-				Modellvorschau:
+			<text name="optimize_performance_text">
+				Leistung
 			</text>
-			<combo_box name="preview_lod_combo2" tool_tip="Detailstufe zur Anzeige in Vorschaudarstellung">
-				<combo_item name="high">
-					Hoch
+			<text name="optimize_faster_rendering_text">
+				Schnellere Darstellung
+Weniger Details
+Niedrigeres Prim-Gewicht
+			</text>
+			<text name="optimize_accuracy_text">
+				Genauigkeit
+			</text>
+			<text name="optimize_slower_rendering_text">
+				Langsamere Darstellung
+Mehr Details
+Höheres Prim-Gewicht
+			</text>
+			<text name="accuracy_slider_mark1">
+				&apos;
+			</text>
+			<text name="accuracy_slider_mark2">
+				&apos;
+			</text>
+			<text name="accuracy_slider_mark3">
+				&apos;
+			</text>
+			<button label="Geometrie neu berechnen" name="recalculate_geometry_btn"/>
+			<text name="geometry_preview_label">
+				Geometrievorschau
+			</text>
+			<combo_box name="preview_lod_combo" tool_tip="Detailstufe zur Anzeige in Vorschaudarstellung">
+				<combo_item name="preview_lod_high">
+					Viel Details
 				</combo_item>
-				<combo_item name="medium">
-					Mittel
+				<combo_item name="preview_lod_medium">
+					Mittlere Details
 				</combo_item>
-				<combo_item name="low">
-					Niedrig
+				<combo_item name="preview_lod_low">
+					Wenig Details
 				</combo_item>
-				<combo_item name="lowest">
-					Niedrigste
+				<combo_item name="preview_lod_lowest">
+					Wenigste Details
 				</combo_item>
 			</combo_box>
-			<text name="streaming cost">
-				Ressourcenkosten:    [COST]
-			</text>
-			<text name="dimensions">
-				X:         Y:         Z:
-			</text>
-			<text name="dimension_dividers">
-				|               |
-			</text>
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Physik
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
+				Physik anpassen
 			</text>
 		</panel>
-		<text name="description">
-			Der Assistent erstellt eine physische Form, die die Interaktionen des Objekts mit anderen Objekten und Avataren bestimmt. Setzen Sie den Schieber auf die Detailstufe, die für Ihr Objekt am besten geeignet ist:
+		<text name="physics_hint">
+			Wir erstellen eine Form für die Außenhülle des Modells. Passen Sie die Detailstufe der Form wie für den beabsichtigten Zweck erforderlich an.
 		</text>
-		<panel name="content">
-			<text name="streaming cost">
-				Ressourcenkosten:       [COST]
+		<panel name="physics_content_panel">
+			<text name="physics_performance_text">
+				Leistung
 			</text>
-		</panel>
-	</panel>
-	<panel name="physics2_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Physik
+			<text name="physics_faster_rendering_text">
+				Schnellere Darstellung
+Weniger Details
+Niedrigeres Prim-Gewicht
 			</text>
-		</panel>
-		<text name="description">
-			Überprüfen Sie die physische Form unten und klicken Sie dann auf „Weiter“.  Um die physische Form zu ändern, klicken Sie auf „Zurück“.
-		</text>
-		<panel name="content">
-			<text name="lod_label">
-				Modellvorschau:
+			<text name="physics_accuracy_text">
+				Genauigkeit
 			</text>
-			<combo_box name="preview_lod_combo3" tool_tip="Detailstufe zur Anzeige in Vorschaudarstellung">
-				<combo_item name="high">
-					Hoch
+			<text name="physics_slower_dendering_text">
+				Langsamere Darstellung
+Mehr Details
+Höheres Prim-Gewicht
+			</text>
+			<text name="physics_example_1">
+				Beispiele:
+Mobile Objekte
+Fliegende Objekte
+Fahrzeuge
+			</text>
+			<text name="physics_example_2">
+				Beispiele:
+Kleine statische Objekte
+Objekte mit weniger Details
+Einfache Möbel
+			</text>
+			<text name="physics_example_3">
+				Beispiele:
+Statische Objekte
+Objekte mit viel Details
+Gebäude
+			</text>
+			<button label="Physik neu berechnen" name="recalculate_physics_btn"/>
+			<button label="Neu berechnen..." name="recalculating_physics_btn"/>
+			<text name="physics_preview_label">
+				Physikvorschau
+			</text>
+			<combo_box name="preview_lod_combo2" tool_tip="Detailstufe zur Anzeige in Vorschaudarstellung">
+				<combo_item name="preview_lod2_high">
+					Viel Details
 				</combo_item>
-				<combo_item name="medium">
-					Mittel
+				<combo_item name="preview_lod2_medium">
+					Mittlere Details
 				</combo_item>
-				<combo_item name="low">
-					Niedrig
+				<combo_item name="preview_lod2_low">
+					Wenig Details
 				</combo_item>
-				<combo_item name="lowest">
-					Niedrigste
+				<combo_item name="preview_lod2_lowest">
+					Wenigste Details
 				</combo_item>
 			</combo_box>
-			<text name="dimensions">
-				X:         Y:         Z:
-			</text>
-			<text name="dimension_dividers">
-				|               |
-			</text>
-			<text name="streaming cost">
-				Ressourcenkosten:       [COST]
-			</text>
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				Überprüfen
 			</text>
 		</panel>
-		<text name="description">
-			Überprüfen Sie die Details unten und klicken Sie dann auf „Hochladen“, um das Modell hochzuladen. Die Kosten werden von Ihrem L$-Kontostand abgezogen.
-		</text>
-		<panel name="content">
-			<text name="lod_label">
-				Modellvorschau:
+		<panel name="review_content_panel">
+			<text name="review_prim_equiv">
+				Auswirkung auf Parzelle/Region: Prim-Äquivalenzwert [EQUIV]
 			</text>
-			<combo_box name="preview_lod_combo" tool_tip="Detailstufe zur Anzeige in Vorschaudarstellung">
-				<combo_item name="high">
-					Hoch
-				</combo_item>
-				<combo_item name="medium">
-					Mittel
-				</combo_item>
-				<combo_item name="low">
-					Niedrig
-				</combo_item>
-				<combo_item name="lowest">
-					Niedrigste
-				</combo_item>
-			</combo_box>
-			<text name="dimensions">
-				X:         Y:         Z:
+			<text name="review_fee">
+				Die für das Hochladen anfallende Gebühr in Höhe von [FEE] L$ wird von Ihrem Konto abgebucht.
 			</text>
-			<text name="dimension_dividers">
-				|               |
+			<text name="review_confirmation">
+				Durch Klicken auf „Hochladen“ bestätigen Sie, dass Sie die erforderlichen Rechte für das im Modell enthaltene Material besitzen.
 			</text>
 		</panel>
-		<text name="streaming cost">
-			Ressourcenkosten:         [COST]
-		</text>
-		<text name="physics cost">
-			Physikkosten:        [COST]
-		</text>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
 				Upload abgeschlossen
 			</text>
 		</panel>
-		<text name="description">
-			Herzlichen Glückwunsch! Ihr Modell wurde erfolgreich hochgeladen.  Sie finden das Modell im Objektordner Ihres Inventars.
+		<text name="model_uploaded_text">
+			Ihr Modell wurde hochgeladen.
+		</text>
+		<text name="inventory_text">
+			Sie finden das Modell im Objektordner Ihres Inventars.
+		</text>
+		<text name="charged_fee">
+			Von Ihrem Konto wurden [FEE] L$ abgebucht.
 		</text>
 	</panel>
 	<button label="&lt;&lt; Zurück" name="back"/>
 	<button label="Weiter &gt;&gt;" name="next"/>
+	<button label="Gewichte und Gebühr berechnen &gt;&gt;" name="calculate"/>
+	<button label="Berechnen..." name="calculating"/>
 	<button label="Hochladen" name="upload" tool_tip="An Simulator hochladen"/>
 	<button label="Abbrechen" name="cancel"/>
 	<button label="Schließen" name="close"/>

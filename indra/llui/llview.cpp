@@ -1655,15 +1655,19 @@ BOOL LLView::hasAncestor(const LLView* parentp) const
 
 BOOL LLView::childHasKeyboardFocus( const std::string& childname ) const
 {
-	LLView *child = findChildView(childname, TRUE);
-	if (child)
+	LLView *focus = dynamic_cast<LLView *>(gFocusMgr.getKeyboardFocus());
+	
+	while (focus != NULL)
 	{
-		return gFocusMgr.childHasKeyboardFocus(child);
+		if (focus->getName() == childname)
+		{
+			return TRUE;
+		}
+		
+		focus = focus->getParent();
 	}
-	else
-	{
-		return FALSE;
-	}
+	
+	return FALSE;
 }
 
 //-----------------------------------------------------------------------------

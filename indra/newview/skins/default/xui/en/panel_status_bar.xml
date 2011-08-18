@@ -77,6 +77,18 @@
      top="0"
      width="55" />
   </panel>
+  <menu_button
+     follows="right|top"    
+    image_color="0 0 0 0"
+    hover_glow_amount="0"
+    left_pad="2"
+    top="0"
+    width="55"
+    height="18"
+    label="Mode ▼"
+    tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
+    menu_filename="menu_mode_change.xml"
+    />
     <text
      type="string"
      font="SansSerifSmall"
@@ -89,7 +101,7 @@
      left_pad="0"
      name="TimeText"
      tool_tip="Current time (Pacific)"
-     width="145">
+     width="70">
         24:00 AM PST
     </text>
     <button

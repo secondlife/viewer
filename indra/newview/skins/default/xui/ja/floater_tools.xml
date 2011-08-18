@@ -24,20 +24,11 @@
 	<floater.string name="status_selectland">
 		土地をクリックし、ドラッグして選択
 	</floater.string>
-	<floater.string name="grid_screen_text">
-		画面
+	<floater.string name="status_selectcount">
+		[OBJ_COUNT] 個のオブジェクト（[PRIM_COUNT] 個のプリム [PE_STRING]）が選択されています
 	</floater.string>
-	<floater.string name="grid_local_text">
-		ローカル
-	</floater.string>
-	<floater.string name="grid_world_text">
-		インワールド
-	</floater.string>
-	<floater.string name="grid_reference_text">
-		レファレンス
-	</floater.string>
-	<floater.string name="grid_attachment_text">
-		アタッチメント
+	<floater.string name="status_selectprimequiv">
+		, [SEL_WEIGHT] プリム換算値
 	</floater.string>
 	<button label="" label_selected="" name="button focus" tool_tip="フォーカス"/>
 	<button label="" label_selected="" name="button move" tool_tip="動かす"/>
@@ -66,21 +57,13 @@
 	<check_box label="リンク部分を編集" name="checkbox edit linked parts"/>
 	<button label="リンク" name="link_btn"/>
 	<button label="リンクを外す" name="unlink_btn"/>
-	<text name="RenderingCost" tool_tip="このオブジェクトにかかるレンダリングコストを表示">
-		þ: [COUNT]
-	</text>
 	<check_box label="" name="checkbox uniform"/>
 	<text label="両側を延ばす" name="checkbox uniform label">
 		両側を延ばす
 	</text>
 	<check_box initial_value="true" label="テクスチャを引き延ばす" name="checkbox stretch textures"/>
-	<check_box initial_value="true" label="グリッドにスナップ" name="checkbox snap to grid"/>
-	<combo_box name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択します">
-		<combo_box.item label="インワールドグリッド" name="World"/>
-		<combo_box.item label="ローカルグリッド" name="Local"/>
-		<combo_box.item label="リファレンスグリッド" name="Reference"/>
-	</combo_box>
-	<button label="オプション" label_selected="オプション" name="Options..." tool_tip="グリッドオプションを表示します"/>
+	<check_box initial_value="true" label="スナップ" name="checkbox snap to grid"/>
+	<button label="オプション..." label_selected="オプション" name="Options..." tool_tip="グリッドオプションを表示します"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="キューブ"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="プリズム"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="ピラミッド"/>
@@ -119,23 +102,11 @@
 		強度
 	</text>
 	<button label="適用" label_selected="適用" name="button apply to selection" tool_tip="選択した土地を修正します"/>
-	<text name="obj_count">
-		オブジェクト： [COUNT]
+	<text name="selection_empty">
+		何も選択されていません。
 	</text>
-	<text name="prim_count">
-		プリム： [COUNT]
-	</text>
-	<text name="linked_set_count">
-		リンクセット：[COUNT]
-	</text>
-	<text name="linked_set_cost" tool_tip="[prims] / [physics complexity] として現在選択されているリンクセットのコスト">
-		料金： [COST] / [PHYSICS]
-	</text>
-	<text name="object_count">
-		オブジェクト： [COUNT]
-	</text>
-	<text name="object_cost" tool_tip="[prims] / [physics complexity] として現在選択されているオブジェクトのコスト">
-		料金： [COST] / [PHYSICS]
+	<text name="selection_weight">
+		物理演算ウェイト [PHYS_WEIGHT]、レンダリングコスト [DISP_WEIGHT]。
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="一般" name="General">
@@ -359,7 +330,6 @@
 				<combo_box.item label="トーラス" name="Torus"/>
 				<combo_box.item label="平面" name="Plane"/>
 				<combo_box.item label="シリンダー" name="Cylinder"/>
-				<combo_box.item label="メッシュ" name="Mesh"/>
 			</combo_box>
 		</panel>
 		<panel label="特徴" name="Features">
