@@ -214,7 +214,7 @@
 	   Other HTTP traffic proxy:
 	</text>
 	<radio_group
-	 control_name="Socks5HttpProxyType"
+	 control_name="HttpProxyType"
 	 height="60"
 	 layout="topleft"
 	 top_pad="9"

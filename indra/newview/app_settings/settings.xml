@@ -809,7 +809,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>Socks5HttpProxyType</key>
+    <key>HttpProxyType</key>
     <map>
       <key>Comment</key>
       <string>Proxy type to use for HTTP operations</string>

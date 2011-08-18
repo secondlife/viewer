@@ -2794,7 +2794,7 @@ void LLStartUp::setStartSLURL(const LLSLURL& slurl)
 bool LLStartUp::startLLProxy()
 {
 	bool proxy_ok = true;
-	std::string httpProxyType = gSavedSettings.getString("Socks5HttpProxyType");
+	std::string httpProxyType = gSavedSettings.getString("HttpProxyType");
 
 	// Set up SOCKS proxy (if needed)
 	if (gSavedSettings.getBOOL("Socks5ProxyEnabled"))
@@ -2822,6 +2822,8 @@ bool LLStartUp::startLLProxy()
 		}
 		else
 		{
+			LL_WARNS("Proxy") << "Invalid SOCKS 5 authentication type."<< LL_ENDL;
+
 			// Unknown or missing setting.
 			gSavedSettings.setString("Socks5AuthType", "None");
 
@@ -2834,7 +2836,6 @@ bool LLStartUp::startLLProxy()
 
 		if (proxy_ok)
 		{
-
 			// Start the proxy and check for errors
 			// If status != SOCKS_OK, stopSOCKSProxy() will already have been called when startSOCKSProxy() returns.
 			LLHost socks_host;
@@ -2933,10 +2934,10 @@ bool LLStartUp::startLLProxy()
 		}
 		else
 		{
-			LL_WARNS("Proxy") << "Invalid HTTP proxy configuration."<< LL_ENDL;
+			LL_WARNS("Proxy") << "Invalid other HTTP proxy configuration."<< LL_ENDL;
 
 			// Set the missing or wrong configuration back to something valid.
-			gSavedSettings.setString("Socks5HttpProxyType", "None");
+			gSavedSettings.setString("HttpProxyType", "None");
 			LLProxy::getInstance()->disableHTTPProxy();
 
 			// Leave proxy_ok alone, since this isn't necessarily fatal.
