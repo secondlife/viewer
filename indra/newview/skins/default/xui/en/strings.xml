@@ -2238,6 +2238,7 @@ Returns a string with the requested data about the region
 	<string name="Unknown">(Unknown)</string>
 	<string name="SummaryForTheWeek"    value="Summary for this week, beginning on " />
 	<string name="NextStipendDay"       value="The next stipend day is " />
+	<string name="GroupPlanningDate">[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]</string>
 	<string name="GroupIndividualShare" value="                      Group       Individual Share" />
 	<string name="GroupColumn"          value="                      Group" />
 	<string name="Balance">Balance</string>
@@ -2394,6 +2395,7 @@ Returns a string with the requested data about the region
 	<string name="GroupMoneyBalance">Balance</string>
 	<string name="GroupMoneyCredits">Credits</string>
 	<string name="GroupMoneyDebits">Debits</string>
+	<string name="GroupMoneyDate">[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]</string>
 
 	<!-- viewer object -->
 	<string name="ViewerObjectContents">Contents</string>

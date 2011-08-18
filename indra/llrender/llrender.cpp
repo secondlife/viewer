@@ -46,6 +46,7 @@ S32	gGLViewport[4];
 
 U32 LLRender::sUICalls = 0;
 U32 LLRender::sUIVerts = 0;
+U32 LLTexUnit::sWhiteTexture = 0;
 
 static const U32 LL_NUM_TEXTURE_LAYERS = 32; 
 static const U32 LL_NUM_LIGHT_UNITS = 8;
@@ -126,7 +127,8 @@ void LLTexUnit::refreshState(void)
 	// Per apple spec, don't call glEnable/glDisable when index exceeds max texture units
 	// http://www.mailinglistarchive.com/html/mac-opengl@lists.apple.com/2008-07/msg00653.html
 	//
-	bool enableDisable = (mIndex < gGLManager.mNumTextureUnits) && mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE;
+	bool enableDisable = !LLGLSLShader::sNoFixedFunction && 
+		(mIndex < gGLManager.mNumTextureUnits) && mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE;
 		
 	if (mCurrTexType != TT_NONE)
 	{
@@ -184,7 +186,8 @@ void LLTexUnit::enable(eTextureType type)
 		mCurrTexType = type;
 
 		gGL.flush();
-		if (type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
+		if (!LLGLSLShader::sNoFixedFunction && 
+			type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
 			glEnable(sGLTextureType[type]);
@@ -201,7 +204,8 @@ void LLTexUnit::disable(void)
 		activate();
 		unbind(mCurrTexType);
 		gGL.flush();
-		if (mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
+		if (!LLGLSLShader::sNoFixedFunction &&
+			mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
 			glDisable(sGLTextureType[mCurrTexType]);
@@ -403,7 +407,14 @@ void LLTexUnit::unbind(eTextureType type)
 
 		activate();
 		mCurrTexture = 0;
-		glBindTexture(sGLTextureType[type], 0);
+		if (LLGLSLShader::sNoFixedFunction && type == LLTexUnit::TT_TEXTURE)
+		{
+			glBindTexture(sGLTextureType[type], sWhiteTexture);
+		}
+		else
+		{
+			glBindTexture(sGLTextureType[type], 0);
+		}
 		stop_glerror();
 	}
 }
@@ -474,6 +485,11 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 
 void LLTexUnit::setTextureBlendType(eTextureBlendType type)
 {
+	if (LLGLSLShader::sNoFixedFunction)
+	{ //texture blend type means nothing when using shaders
+		return;
+	}
+
 	if (mIndex < 0) return;
 
 	// Do nothing if it's already correctly set.
@@ -594,6 +610,11 @@ GLint LLTexUnit::getTextureSourceType(eTextureBlendSrc src, bool isAlpha)
 
 void LLTexUnit::setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2, bool isAlpha)
 {
+	if (LLGLSLShader::sNoFixedFunction)
+	{ //register combiners do nothing when not using fixed function
+		return;
+	}	
+
 	if (mIndex < 0) return;
 
 	activate();

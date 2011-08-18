@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Environment Editor Floater" title="AMBIENTE">
+	<text name="note">
+		Use as opções abaixo para personalizar as configurações de ambiente no visualizador.
+	</text>
+	<radio_group name="region_settings_radio_group">
+		<radio_item label="Usar configurações da região" name="use_region_settings"/>
+		<radio_item label="Personalizar meu ambiente" name="use_my_settings"/>
+	</radio_group>
+	<panel name="user_environment_settings">
+		<text name="note">
+			Observação: suas configurações não se aplicam aos outros usuários.
+		</text>
+		<text name="water_settings_title">
+			Configuração de água
+		</text>
+		<combo_box name="water_settings_preset_combo">
+			<combo_box.item label="-Selecione uma pré-configuração-" name="item0"/>
+		</combo_box>
+		<text name="sky_dayc_settings_title">
+			Ciclo céu / dia
+		</text>
+		<radio_group name="sky_dayc_settings_radio_group">
+			<radio_item label="Céu fixo" name="my_sky_settings"/>
+			<radio_item label="Ciclo dia" name="my_dayc_settings"/>
+		</radio_group>
+		<combo_box name="sky_settings_preset_combo">
+			<combo_box.item label="-Selecione uma pré-configuração-" name="item0"/>
+		</combo_box>
+		<combo_box name="dayc_settings_preset_combo">
+			<combo_box.item label="-Selecione uma pré-configuração-" name="item0"/>
+		</combo_box>
+	</panel>
+	<button label="OK" name="ok_btn"/>
+	<button label="Cancelar" name="cancel_btn"/>
+</floater>

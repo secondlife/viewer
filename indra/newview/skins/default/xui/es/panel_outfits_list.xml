@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Outfits">
+	<accordion name="outfits_accordion">
+		<no_matched_tabs_text name="no_matched_outfits_msg" value="¿No encuentras lo que buscas? Inténtalo con [secondlife:///app/search/all/[SEARCH_TERM] Buscar]."/>
+		<no_visible_tabs_text name="no_outfits_msg" value="Todavía no tienes vestuario. Inténtalo con [secondlife:///app/search/all/ Buscar]"/>
+	</accordion>
 	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Ver más opciones"/>
+		<menu_button name="options_gear_btn" tool_tip="Ver más opciones"/>
 		<button name="trash_btn" tool_tip="Eliminar el vestuario seleccionado"/>
 	</panel>
 </panel>

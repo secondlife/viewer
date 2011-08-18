@@ -133,12 +133,12 @@ Vá para o menu Mundo &gt; Sobre o terreno ou selecione outro lote para mostrar 
 				0
 			</text>
 			<button label="Comprar terreno..." label_selected="Comprar terreno..." left="130" name="Buy Land..." width="125"/>
+			<button label="Venda Linden" name="Linden Sale..." tool_tip="O terreno precisa ser possuído, estar com o conteúdo configurado e não estar pronto para leilão."/>
 			<button label="Dados do script" name="Scripts..."/>
 			<button label="Comprar para o grupo" name="Buy For Group..."/>
 			<button label="Comprar passe..." label_selected="Comprar passe..." left="130" name="Buy Pass..." tool_tip="Um passe concede a você acesso temporário a este terreno." width="125"/>
 			<button label="Abandonar terreno..." label_selected="Abandonar terreno..." name="Abandon Land..."/>
 			<button label="Pedir terreno" name="Reclaim Land..."/>
-			<button label="Venda Linden" name="Linden Sale..." tool_tip="O terreno precisa ser possuído, estar com o conteúdo configurado e não estar pronto para leilão."/>
 		</panel>
 		<panel label="CONTRATO" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -308,6 +308,9 @@ Apenas lotes maiores podem ser listados na busca.
 			<panel.string name="push_restrict_region_text">
 				Proibido empurrar (regulamento da região)
 			</panel.string>
+			<panel.string name="see_avs_text">
+				Veja e bata papo com os residentes deste terreno
+			</panel.string>
 			<text name="allow_label">
 				Autorizar outros residentes a:
 			</text>
@@ -370,6 +373,10 @@ Apenas lotes maiores podem ser listados na busca.
 				Foto:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clique para escolher uma imagem"/>
+			<text name="allow_label5">
+				Permitir que residentes de outros terrenos:
+			</text>
+			<check_box label="Ver avatares" name="SeeAvatarsCheck" tool_tip="Permite que residentes de outros terrenos vejam e conversem com os residentes deste terreno e vice-versa."/>
 			<text name="landing_point">
 				Ponto de Aterrissagem: [LANDING]
 			</text>
@@ -429,6 +436,11 @@ Mídia:
 				Som:
 			</text>
 			<check_box label="Limitar sons de gestos e objetos a esta parcela" name="check sound local"/>
+			<text name="Avatar Sounds:">
+				Áudio de avatares:
+			</text>
+			<check_box label="Todos" name="all av sound check"/>
+			<check_box label="Grupo" name="group av sound check"/>
 			<text name="Voice settings:">
 				Voz:
 			</text>

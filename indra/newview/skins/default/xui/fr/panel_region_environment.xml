@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Environnement" name="panel_env_info">
+	<text name="water_settings_title">
+		Sélectionnez les réglages d&apos;eau et de ciel/cycle du jour que vous souhaitez afficher pour tous les résidents visitant votre région. En savoir plus
+	</text>
+	<radio_group name="region_settings_radio_group">
+		<radio_item label="Utiliser les réglages par défaut de Second Life" name="use_sl_default_settings"/>
+		<radio_item label="Utiliser les réglages suivants" name="use_my_settings"/>
+	</radio_group>
+	<panel name="user_environment_settings">
+		<text name="water_settings_title">
+			Réglage de l&apos;eau
+		</text>
+		<combo_box name="water_settings_preset_combo">
+			<combo_box.item label="-Effectuer une sélection-" name="item0"/>
+		</combo_box>
+		<text name="sky_dayc_settings_title">
+			Ciel / Cycle du jour
+		</text>
+		<radio_group name="sky_dayc_settings_radio_group">
+			<radio_item label="Ciel fixe" name="my_sky_settings"/>
+			<radio_item label="Cycle du jour" name="my_dayc_settings"/>
+		</radio_group>
+		<combo_box name="sky_settings_preset_combo">
+			<combo_box.item label="-Effectuer une sélection-" name="item0"/>
+		</combo_box>
+		<combo_box name="dayc_settings_preset_combo">
+			<combo_box.item label="-Effectuer une sélection-" name="item0"/>
+		</combo_box>
+	</panel>
+	<button label="Appliquer" name="apply_btn"/>
+	<button label="Annuler" name="cancel_btn"/>
+</panel>
