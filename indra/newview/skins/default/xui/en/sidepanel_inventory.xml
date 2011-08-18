@@ -171,7 +171,7 @@
                       class="panel_marketplace_outbox"
                       top="0"
                       label=""
-                      height="200"
+                      height="35"
                       width="330">
                      <string name="OutboxLabelWithArg">Merchant Outbox ([NUM])</string>
                      <string name="OutboxLabelNoArg">Merchant Outbox</string>
@@ -250,7 +250,7 @@
 							top="0"
 							left="0"
 							width="308"
-							height="165"
+							height="0"
 							wrap="true"
 							halign="center">
 							Set up your merchant account to use this feature.
