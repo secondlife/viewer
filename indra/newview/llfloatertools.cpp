@@ -460,7 +460,6 @@ void LLFloaterTools::refresh()
 
 		std::ostringstream selection_info;
 
-		bool show_adv_weight = gSavedSettings.getBOOL("ShowAdvancedBuilderOptions");
 		bool show_mesh_cost = gMeshRepo.meshRezEnabled();
 
 		if (show_mesh_cost)
@@ -476,24 +475,19 @@ void LLFloaterTools::refresh()
 
 		selection_info << getString("status_selectcount", selection_args);
 
-		if (show_adv_weight)
-		{
-			selection_info << ",";
 
-			S32 render_cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectRenderCost();
+		selection_info << ",";
 
-			childSetTextArg("selection_weight", "[PHYS_WEIGHT]", llformat("%.1f", link_phys_cost));
-			childSetTextArg("selection_weight", "[DISP_WEIGHT]", llformat("%.1d", render_cost));
-		}
-		else
-		{
-			selection_info<<".";
-		}
+		S32 render_cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectRenderCost();
+
+		childSetTextArg("selection_weight", "[PHYS_WEIGHT]", llformat("%.1f", link_phys_cost));
+		childSetTextArg("selection_weight", "[DISP_WEIGHT]", llformat("%.1d", render_cost));
+
 		getChild<LLTextBox>("selection_count")->setText(selection_info.str());
 
 		bool have_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
 		childSetVisible("selection_count",  have_selection);
-		childSetVisible("selection_weight", have_selection && show_adv_weight);
+		childSetVisible("selection_weight", have_selection);
 		childSetVisible("selection_empty", !have_selection);
 	}
 
@@ -764,7 +758,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	bool have_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
 
 	getChildView("selection_count")->setVisible(!land_visible && have_selection);
-	getChildView("selection_weight")->setVisible(!land_visible && have_selection && gSavedSettings.getBOOL("ShowAdvancedBuilderOptions"));
+	getChildView("selection_weight")->setVisible(!land_visible && have_selection);
 	getChildView("selection_empty")->setVisible(!land_visible && !have_selection);
 	
 	mTab->setVisible(!land_visible);
