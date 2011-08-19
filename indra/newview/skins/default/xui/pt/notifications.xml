@@ -2047,13 +2047,14 @@ Inclua um link para facilitar o acesso para visitantes. Teste o link na barra de
 		<usetemplate ignoretext="Vestir as roupas que eu criar enquanto edito minha aparência" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		Área restrita a residentes com idade comprovada.   Deseja ir ao site do [SECOND_LIFE] para comprovar sua idade? 
+		Você deve ter no mínimo 18 anos para acessar conteúdo e áreas adultas no Second Life. Visite nossa página de verificação de idade para confirmar que você tem mais de 18 anos. 
+Isso abrirá o seu navegador.
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php?lang=pt
+			https://secondlife.com/my/account/verification.php
 		</url>
-		<usetemplate ignoretext="Ainda não comprovei minha idade" name="okcancelignore" notext="Não" yestext="Sim"/>
+		<usetemplate ignoretext="Ainda não comprovei minha idade" name="okcancelignore" notext="Cancelar" yestext="Ir para verificação de idade"/>
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Área restrita a residentes que já cadastraram seus dados de pagamento  Deseja ir ao site do [SECOND_LIFE] para cuidar disso? 
@@ -2736,6 +2737,12 @@ O botão será exibido quando houver espaço suficente.
 		[LABEL] não foi carregado: [MESSAGE] [IDENTIFIER] 
 
 Mais detalhes no log.
+	</notification>
+	<notification name="MeshUploadPermError">
+		Erro ao solicitar permissões de upload de mesh.
+	</notification>
+	<notification name="RegionCapabilityRequestError">
+		Não foi possível obter o recurso &apos;[CAPABILITY]&apos; da região.
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Tem certeza de que quer compartilhar os itens abaixo?

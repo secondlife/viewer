@@ -2066,13 +2066,14 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 		<usetemplate ignoretext="Ponerme la ropa que estoy creando mientras modifico mi apariencia" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		Debes haber verificado tu edad para visitar este sitio.  ¿Quieres ir al sitio web de [SECOND_LIFE] y verificarla?
+		Para acceder al contenido Adulto y los lugares de Second Life con dicho carácter, debes tener por lo menos 18 años. Visita la página de verificación de edad para confirmar que tienes más de 18 años. 
+Al hacerlo se iniciará el navegador web.
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php?lang=es
+			https://secondlife.com/my/account/verification.php
 		</url>
-		<usetemplate ignoretext="No he verificado mi edad" name="okcancelignore" notext="No" yestext="Sí"/>
+		<usetemplate ignoretext="No he verificado mi edad" name="okcancelignore" notext="Cancelar" yestext="Ir a Verificación de la edad"/>
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Para visitar este sitio debes haber aportado información de pago en tu cuenta.  ¿Quieres ir al sitio web de [SECOND_LIFE] y configurar esto?
@@ -2760,6 +2761,12 @@ Se mostrará cuando haya suficiente espacio.
 		[LABEL] no se pudo subir: [MESSAGE] [IDENTIFIER] 
 
 Consulta los detalles en el archivo de registro.
+	</notification>
+	<notification name="MeshUploadPermError">
+		Error al solicitar los permisos para subir la malla.
+	</notification>
+	<notification name="RegionCapabilityRequestError">
+		No se ha podido obtener la capacidad de la región &apos;[CAPABILITY]&apos;.
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		¿Estás seguro de que quieres compartir los elementos siguientes?

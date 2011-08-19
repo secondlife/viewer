@@ -3,8 +3,17 @@
 	<panel.string name="default_text">
 		Standard
 	</panel.string>
+	<string name="name_no_device">
+		Kein Gerät
+	</string>
+	<string name="name_default_system_device">
+		Standardsystemgerät
+	</string>
 	<text name="Input">
 		Eingabe
+	</text>
+	<text name="Output">
+		Ausgabe
 	</text>
 	<text name="My volume label">
 		Meine Lautstärke:
@@ -12,8 +21,5 @@
 	<slider_bar initial_value="1,0" name="mic_volume_slider" tool_tip="Lautstärke mit diesem Regler ändern"/>
 	<text name="wait_text">
 		Bitte warten
-	</text>
-	<text name="Output">
-		Ausgabe
 	</text>
 </panel>

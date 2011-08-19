@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="グリッドオプション">
-	<spinner label="グリッド単位（メートル）" name="GridResolution"/>
-	<spinner label="グリッドﾞ範囲（メートル）" name="GridDrawSize"/>
+	<floater.string name="grid_screen_text">
+		画面
+	</floater.string>
+	<floater.string name="grid_local_text">
+		ローカル
+	</floater.string>
+	<floater.string name="grid_world_text">
+		世界
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		リファレンス
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		アタッチメント
+	</floater.string>
+	<text name="grid_mode_label" tool_tip="グリッドの不透明度">
+		モード
+	</text>
+	<combo_box name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択">
+		<combo_box.item label="インワールドグリッド" name="World"/>
+		<combo_box.item label="ローカルグリッド" name="Local"/>
+		<combo_box.item label="リファレンスグリッド" name="Reference"/>
+	</combo_box>
+	<spinner label="単位（メートル）" name="GridResolution"/>
+	<spinner label="範囲（メートル）" name="GridDrawSize"/>
 	<check_box label="より細かい単位でスナップフィット" name="GridSubUnit"/>
 	<check_box label="横断面を表示" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="グリッドの不透明度">

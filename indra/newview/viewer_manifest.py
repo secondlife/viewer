@@ -31,6 +31,7 @@ import os.path
 import re
 import tarfile
 import time
+import random
 viewer_dir = os.path.dirname(__file__)
 # add llmanifest library to our path so we don't have to muck with PYTHONPATH
 sys.path.append(os.path.join(viewer_dir, '../lib/python/indra/util'))
@@ -62,6 +63,26 @@ class ViewerManifest(LLManifest):
 
                 # include the entire shaders directory recursively
                 self.path("shaders")
+                # include the extracted list of contributors
+                contributor_names = self.extract_names("../../doc/contributions.txt")
+                self.put_in_file(contributor_names, "contributors.txt")
+                # include the extracted list of translators
+                translator_names = self.extract_names("../../doc/translations.txt")
+                self.put_in_file(translator_names, "translators.txt")
+                # include the list of Lindens (if any)
+                #   see https://wiki.lindenlab.com/wiki/Generated_Linden_Credits
+                linden_names_path = os.getenv("linden_credits")
+                if linden_names_path :
+                    try:
+                        linden_file = open(linden_names_path,'r')
+                         # all names should be one line, but the join below also converts to a string
+                        linden_names = ', '.join(linden_file.readlines())
+                        self.put_in_file(linden_names, "lindens.txt")
+                        linden_file.close()
+                    except IOError:
+                        print "No Linden names found at '%s', using built-in list" % linden_names_path
+                        pass
+
                 # ... and the entire windlight directory
                 self.path("windlight")
                 self.end_prefix("app_settings")
@@ -189,6 +210,28 @@ class ViewerManifest(LLManifest):
                                                 
         return " ".join((channel_flags, grid_flags, setting_flags)).strip()
 
+    def extract_names(self,src):
+        try:
+            contrib_file = open(src,'r')
+        except IOError:
+            print "Failed to open '%s'" % src
+            raise
+        lines = contrib_file.readlines()
+        contrib_file.close()
+
+        # All lines up to and including the first blank line are the file header; skip them
+        lines.reverse() # so that pop will pull from first to last line
+        while not re.match("\s*$", lines.pop()) :
+            pass # do nothing
+
+        # A line that starts with a non-whitespace character is a name; all others describe contributions, so collect the names
+        names = []
+        for line in lines :
+            if re.match("\S", line) :
+                names.append(line.rstrip())
+        # It's not fair to always put the same people at the head of the list
+        random.shuffle(names)
+        return ', '.join(names)
 
 class WindowsManifest(ViewerManifest):
     def final_exe(self):
@@ -707,7 +750,7 @@ class DarwinManifest(ViewerManifest):
                                     "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
                                     "libGLOD.dylib",
-				    "libcollada14dom.dylib"
+                                    "libcollada14dom.dylib"
                                     ):
                         target_lib = os.path.join('../../..', libfile)
                         self.run_command("ln -sf %(target)r %(link)r" % 
@@ -984,15 +1027,15 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libbreakpad_client.so.0.0.0")
             self.path("libbreakpad_client.so.0")
             self.path("libbreakpad_client.so")
-	    self.path("libcollada14dom.so")
+            self.path("libcollada14dom.so")
             self.path("libdb-5.1.so")
             self.path("libdb-5.so")
             self.path("libdb.so")
             self.path("libcrypto.so.1.0.0")
             self.path("libexpat.so.1.5.2")
             self.path("libssl.so.1.0.0")
-	    self.path("libglod.so")
-	    self.path("libminizip.so")
+            self.path("libglod.so")
+            self.path("libminizip.so")
             self.path("libuuid.so")
             self.path("libuuid.so.16")
             self.path("libuuid.so.16.0.22")

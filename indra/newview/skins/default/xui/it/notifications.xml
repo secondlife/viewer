@@ -2063,13 +2063,14 @@ Inseriscilo in una pagina web per dare ad altri un accesso facile a questa ubica
 		<usetemplate ignoretext="Indossare gli abiti che creo mentre modifico il mio aspetto" name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		Per entrare in questa zona, devi avere eseguito la verifica dell&apos;età.  Vuoi andare sul sito di [SECOND_LIFE] per verificare la tua età?
+		Per accedere ai contenuti e alle aree per adulti in Second Life devi avere almeno 18 anni. Visita la pagina di verifica dell&apos;età per confermare di avere almeno 18 anni. 
+Verrà avviato il browser Web.
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php?lang=it
+			https://secondlife.com/my/account/verification.php
 		</url>
-		<usetemplate ignoretext="Non ho verificato la mia età" name="okcancelignore" notext="No" yestext="Si"/>
+		<usetemplate ignoretext="Non ho verificato la mia età" name="okcancelignore" notext="Annulla" yestext="Passa alla verifica dell&apos;età"/>
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Per poter visitare questa zona devi avere devi aver fornito informazioni di pagamento a Linden Lab.  Vuoi andare sul sito di [SECOND_LIFE] ed impostarle?
@@ -2755,6 +2756,12 @@ Il pulsante verrà visualizzato quando lo spazio sarà sufficiente.
 		[LABEL] non è stato caricato: [MESSAGE] [IDENTIFIER] 
 
 Per informazioni dettagliate, vedi il file del registro.
+	</notification>
+	<notification name="MeshUploadPermError">
+		Errore durante la richiesta di autorizzazione al caricamento del reticolo.
+	</notification>
+	<notification name="RegionCapabilityRequestError">
+		Non è stata ottenuta la capacità della regione &apos;[CAPABILITY]&apos;.
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Sei sicuro di volere condividere gli oggetti

@@ -229,10 +229,8 @@ void LLFloaterWebContent::open_media(const Params& p)
 	getChild<LLLayoutPanel>("status_bar")->setVisible(p.show_chrome);
 	getChild<LLLayoutPanel>("nav_controls")->setVisible(p.show_chrome);
 	bool address_entry_enabled = p.allow_address_entry && !p.trusted_content;
-	// disable components of combo box so that we can still select and copy text from address bar (a disabled line editor still allows this, but not if its parent is disabled)
-	getChildView("address")->getChildView("Combo Text Entry")->setEnabled(address_entry_enabled);
-	getChildView("address")->getChildView("Combobox Button")->setEnabled(address_entry_enabled);
-	getChildView("address")->getChildView("ComboBox")->setEnabled(address_entry_enabled);
+	getChildView("address")->setEnabled(address_entry_enabled);
+	getChildView("popexternal")->setEnabled(address_entry_enabled);
 
 	if (!address_entry_enabled)
 	{

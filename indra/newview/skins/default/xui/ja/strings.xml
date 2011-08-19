@@ -34,6 +34,9 @@
 	<string name="StartupInitializingVFS">
 		VFS を初期化中です...
 	</string>
+	<string name="StartupRequireDriverUpdate">
+		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
+	</string>
 	<string name="ProgressRestoring">
 		復元中です...
 	</string>
@@ -90,6 +93,12 @@
 	</string>
 	<string name="LoginQuicktimeOK">
 		QuickTime が正常に初期化されました。
+	</string>
+	<string name="LoginRequestSeedCapGrant">
+		リージョンの機能をリクエストしています...
+	</string>
+	<string name="LoginRetrySeedCapGrant">
+		リージョンの機能をリクエスト、試行 [NUMBER] 回....
 	</string>
 	<string name="LoginWaitingForRegionHandshake">
 		リージョンのハンドシェイクを待っています...
@@ -1640,6 +1649,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="SummaryForTheWeek" value="今週のまとめ。開始日は"/>
 	<string name="NextStipendDay" value="です。次回のお小遣い支給日："/>
+	<string name="GroupPlanningDate">
+		[year,datetime,utc]/[mthnum,datetime,utc]/[day,datetime,utc]
+	</string>
 	<string name="GroupIndividualShare" value="                      グループ       個人の割り当て"/>
 	<string name="GroupColumn" value="グループの設定"/>
 	<string name="Balance">
@@ -1968,6 +1980,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="GroupMoneyDebits">
 		支出
+	</string>
+	<string name="GroupMoneyDate">
+		[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日[weekday,datetime,utc]
 	</string>
 	<string name="ViewerObjectContents">
 		内容
@@ -4169,6 +4184,87 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Female - Wow">
 		女性 - Wow
+	</string>
+	<string name="/bow">
+		/おじぎする
+	</string>
+	<string name="/clap">
+		/拍手
+	</string>
+	<string name="/count">
+		/数える
+	</string>
+	<string name="/extinguish">
+		/消す
+	</string>
+	<string name="/kmb">
+		/くそくらえ
+	</string>
+	<string name="/muscle">
+		/筋肉もりもり
+	</string>
+	<string name="/no">
+		/いいえ
+	</string>
+	<string name="/no!">
+		/だめ！
+	</string>
+	<string name="/paper">
+		/パー
+	</string>
+	<string name="/pointme">
+		/自分を指差す
+	</string>
+	<string name="/pointyou">
+		/相手を指差す
+	</string>
+	<string name="/rock">
+		/グー
+	</string>
+	<string name="/scissor">
+		/チョキ
+	</string>
+	<string name="/smoke">
+		/タバコを吸う
+	</string>
+	<string name="/stretch">
+		/伸びをする
+	</string>
+	<string name="/whistle">
+		/口笛を吹く
+	</string>
+	<string name="/yes">
+		/はい
+	</string>
+	<string name="/yes!">
+		/イエス！
+	</string>
+	<string name="afk">
+		一時退席中
+	</string>
+	<string name="dance1">
+		ダンス1
+	</string>
+	<string name="dance2">
+		ダンス2
+	</string>
+	<string name="dance3">
+		ダンス3
+	</string>
+	<string name="dance4">
+		ダンス4
+	</string>
+	<string name="dance5">
+		ダンス5
+	</string>
+	<string name="dance6">
+		ダンス6
+	</string>
+	<string name="dance7">
+		ダンス7
+	</string>
+	<string name="dance8">
+		ダンス8
 	</string>
 	<string name="AvatarBirthDateFormat">
 		[year,datetime,slt]/[mthnum,datetime,slt]/[day,datetime,slt]

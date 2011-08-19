@@ -12,6 +12,114 @@
 	<string name="new_voice_effect">
 		(¡Nuevo!)
 	</string>
+	<string name="effect_Arena">
+		Campo
+	</string>
+	<string name="effect_Beast">
+		Bestia
+	</string>
+	<string name="effect_Buff">
+		Musculoso
+	</string>
+	<string name="effect_Buzz">
+		Murmullo
+	</string>
+	<string name="effect_Camille">
+		Camila
+	</string>
+	<string name="effect_Creepy">
+		Aterrador
+	</string>
+	<string name="effect_CreepyBot">
+		Robot aterrador
+	</string>
+	<string name="effect_Cyber">
+		Cyber
+	</string>
+	<string name="effect_DeepBot">
+		Robot profundo
+	</string>
+	<string name="effect_Demon">
+		Diablo
+	</string>
+	<string name="effect_Flirty">
+		Coqueta
+	</string>
+	<string name="effect_Foxy">
+		Astuto
+	</string>
+	<string name="effect_Halloween_2010_Bonus">
+		Halloween_2010_Bonus
+	</string>
+	<string name="effect_Helium">
+		Helio
+	</string>
+	<string name="effect_Husky">
+		Corpulento
+	</string>
+	<string name="effect_Intercom">
+		Intercom
+	</string>
+	<string name="effect_Macho">
+		Macho
+	</string>
+	<string name="effect_Micro">
+		Micro
+	</string>
+	<string name="effect_Mini">
+		Mini
+	</string>
+	<string name="effect_Nano">
+		Nano
+	</string>
+	<string name="effect_Nightmare">
+		Pesadilla
+	</string>
+	<string name="effect_PopBot">
+		Robot pop
+	</string>
+	<string name="effect_Rachel">
+		Raquel
+	</string>
+	<string name="effect_Radio">
+		Radio
+	</string>
+	<string name="effect_Robot">
+		Robot
+	</string>
+	<string name="effect_Roxanne">
+		Roxana
+	</string>
+	<string name="effect_Sabrina">
+		Sabrina
+	</string>
+	<string name="effect_Samantha">
+		Samanta
+	</string>
+	<string name="effect_Sexy">
+		Sexy
+	</string>
+	<string name="effect_Shorty">
+		Bajito
+	</string>
+	<string name="effect_Sneaky">
+		Furtivo
+	</string>
+	<string name="effect_Stallion">
+		Mujeriego
+	</string>
+	<string name="effect_Sultry">
+		Sensual
+	</string>
+	<string name="effect_Thunder">
+		Trueno
+	</string>
+	<string name="effect_Vixen">
+		Tigresa
+	</string>
+	<string name="effect_WhinyBot">
+		Robot llorica
+	</string>
 	<text name="preview_text">
 		Para probarla
 	</text>

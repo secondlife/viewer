@@ -1256,11 +1256,13 @@ if (WINDOWS)
     # ('test' is the default)
     set(ICON_PATH "test")
     string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
-    if(channel_lower MATCHES "^(release|development)")
-        set(ICON_PATH ${channel_lower})
-    elseif(channel_lower MATCHES "^(beta.*)")
+    if(channel_lower MATCHES "^second life release")
+        set(ICON_PATH "release")
+    elseif(channel_lower MATCHES "^second life beta viewer")
         set(ICON_PATH "beta")
-    elseif(channel_lower MATCHES "^(project.*)")
+    elseif(channel_lower MATCHES "^second life development")
+        set(ICON_PATH "development")
+    elseif(channel_lower MATCHES "project")
         set(ICON_PATH "project")
     endif()
     message("Copying icons for ${ICON_PATH}")
@@ -1732,7 +1734,7 @@ endif (WINDOWS)
 # that they depend upon. -brad
 target_link_libraries(${VIEWER_BINARY_NAME}
     ${UPDATER_LIBRARIES}
-	${GOOGLE_PERFTOOLS_LIBRARIES}
+    ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
@@ -1795,14 +1797,14 @@ if (LINUX)
 
   # These are the generated targets that are copied to package/
   set(COPY_INPUT_DEPENDENCIES
-	${VIEWER_BINARY_NAME}
-	linux-crash-logger
-	linux-updater
-	SLPlugin
-	media_plugin_webkit
-	media_plugin_gstreamer010
-	llcommon
-	)
+        ${VIEWER_BINARY_NAME}
+        linux-crash-logger
+        linux-updater
+        SLPlugin
+        media_plugin_webkit
+        media_plugin_gstreamer010
+        llcommon
+        )
 
   add_custom_command(
       OUTPUT ${product}.tar.bz2
@@ -2051,24 +2053,24 @@ if (LL_TESTS)
 
 
   LL_ADD_INTEGRATION_TEST(llslurl
-     "${llslurl_test_sources}"
+    "${llslurl_test_sources}"
     "${test_libs}"
-    )
+  )
 
   LL_ADD_INTEGRATION_TEST(llviewernetwork
-     llviewernetwork.cpp
+    llviewernetwork.cpp
     "${test_libs}"
-    )
+  )
 
   LL_ADD_INTEGRATION_TEST(llsimplestat
-	""
+    ""
     "${test_libs}"
-    )
+  )
 
   LL_ADD_INTEGRATION_TEST(llviewerassetstats
-	llviewerassetstats.cpp
+    llviewerassetstats.cpp
     "${test_libs}"
-    )
+  )
 
   #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
   #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
