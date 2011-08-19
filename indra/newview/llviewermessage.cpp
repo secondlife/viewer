@@ -1049,12 +1049,13 @@ void start_new_inventory_observer()
 class LLDiscardAgentOffer : public LLInventoryFetchItemsObserver
 {
 	LOG_CLASS(LLDiscardAgentOffer);
+
 public:
 	LLDiscardAgentOffer(const LLUUID& folder_id, const LLUUID& object_id) :
 		LLInventoryFetchItemsObserver(object_id),
 		mFolderID(folder_id),
 		mObjectID(object_id) {}
-	virtual ~LLDiscardAgentOffer() {}
+
 	virtual void done()
 	{
 		LL_DEBUGS("Messaging") << "LLDiscardAgentOffer::done()" << LL_ENDL;
@@ -1063,6 +1064,7 @@ public:
 		gInventory.removeObserver(this);
 		delete this;
 	}
+
 protected:
 	LLUUID mFolderID;
 	LLUUID mObjectID;
