@@ -1767,6 +1767,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		const BOOL move_is_into_outfit = getCategory() && (getCategory()->getPreferredType() == LLFolderType::FT_OUTFIT);
 		const BOOL move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
 		const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id); 
+		const BOOL move_is_from_outbox = model->isObjectDescendentOf(inv_cat->getUUID(), outbox_id);
 
 		//--------------------------------------------------------------------------------
 		// Determine if folder can be moved.
@@ -1907,7 +1908,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 #endif
 				}
 			}
-			if (move_is_into_outbox)
+			if (move_is_into_outbox && !move_is_from_outbox)
 			{
 				dropFolderToOutbox(inv_cat);
 			}
@@ -3191,6 +3192,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
 	const BOOL move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
 	const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id); //(mUUID == outbox_id);
+	const BOOL move_is_from_outbox = model->isObjectDescendentOf(inv_item->getUUID(), outbox_id);
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
@@ -3310,7 +3312,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			{
 				dropToOutfit(inv_item, move_is_into_current_outfit);
 			}
-			else if (move_is_into_outbox)
+			else if (move_is_into_outbox && !move_is_from_outbox)
 			{
 				copy_item_to_outbox(inv_item, outbox_id, LLUUID::null);
 			}
