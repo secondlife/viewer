@@ -2000,25 +2000,21 @@ even though the user gets a free copy.
              visible="false"
              width="150">
                 <combo_box.item
-                 label="(none)"
-                 name="None"
-                 value="None" />
-                <combo_box.item
                  label="Sphere"
                  name="Sphere"
-                 value="Sphere" />
+                 value="1" />
                 <combo_box.item
                  label="Torus"
                  name="Torus"
-                 value="Torus" />
+                 value="2" />
                 <combo_box.item
                  label="Plane"
                  name="Plane"
-                 value="Plane" />
+                 value="3" />
                 <combo_box.item
                  label="Cylinder"
                  name="Cylinder"
-                 value="Cylinder" />
+                 value="4" />
               </combo_box>
         </panel>
         <panel

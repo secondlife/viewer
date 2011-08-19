@@ -96,6 +96,7 @@
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "lltoggleablemenu.h"
+#include "lltrans.h"
 #include "llvfile.h"
 #include "llvfs.h"
 #include "llcallbacklist.h"
@@ -436,8 +437,6 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childDisable("upload_skin");
 	childDisable("upload_joints");
-	
-	childDisable("ok_btn");
 
 	mViewOptionMenuButton = getChild<LLMenuButton>("options_gear_btn");
 
@@ -783,8 +782,6 @@ void LLFloaterModelPreview::draw()
 		}
 	}
 
-	childSetEnabled("ok_btn", mHasUploadPerm && !mUploadModelUrl.empty());
-	
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
 
@@ -1158,7 +1155,11 @@ void LLFloaterModelPreview::initDecompControls()
 						//llinfos << param[i].mDetails.mEnumValues.mEnumsArray[k].mValue
 						//	<< " - " << param[i].mDetails.mEnumValues.mEnumsArray[k].mName << llendl;
 
-						combo_box->add(param[i].mDetails.mEnumValues.mEnumsArray[k].mName,
+						std::string name(param[i].mDetails.mEnumValues.mEnumsArray[k].mName);
+						std::string localized_name;
+						bool is_localized = LLTrans::findString(localized_name, name);
+
+						combo_box->add(is_localized ? localized_name : name,
 							LLSD::Integer(param[i].mDetails.mEnumValues.mEnumsArray[k].mValue));
 					}
 					combo_box->setValue(param[i].mDefault.mIntOrEnumValue);
@@ -3055,14 +3056,6 @@ U32 LLModelPreview::calcResourceCost()
 
 	rebuildUploadData();
 
-	if (mFMP && mModelLoader)
-	{
-		if ( getLoadState() < LLModelLoader::ERROR_PARSING)
-		{
-			mFMP->childEnable("ok_btn");
-		}
-	}
-
 	//Upload skin is selected BUT check to see if the joints coming in from the asset were malformed.
 	if ( mFMP && mFMP->childGetValue("upload_skin").asBoolean() )
 	{
@@ -3185,11 +3178,6 @@ void LLModelPreview::rebuildUploadData()
 	scale_mat.initScale(LLVector3(scale, scale, scale));
 
 	F32 max_scale = 0.f;
-
-	if ( mBaseScene.size() > 0)
-	{
-		mFMP->childEnable("ok_btn");
-	}
 
 	//reorder materials to match mBaseModel
 	for (U32 i = 0; i < LLModel::NUM_LODS; i++)
@@ -4302,11 +4290,7 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
-	if ( upload_ok && !errorStateFromLoader && skinAndRigOk && !has_degenerate)
-	{
-		mFMP->childEnable("ok_btn");
-	}
-	else
+	if (!upload_ok || errorStateFromLoader || !skinAndRigOk || has_degenerate)
 	{
 		mFMP->childDisable("ok_btn");
 	}
@@ -5495,6 +5479,8 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 
 	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
 
+	mp->mUploadBtn->setEnabled(false);
+
 	mp->mModelPreview->rebuildUploadData();
 
 	bool upload_skinweights = mp->childGetValue("upload_skin").asBoolean();
@@ -5643,6 +5629,7 @@ void LLFloaterModelPreview::onModelUploadFailure()
 {
 	assert_main_thread();
 	toggleCalculateButton(true);
+	mUploadBtn->setEnabled(true);
 }
 
 S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32 p1, S32 p2)

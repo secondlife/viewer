@@ -27,7 +27,74 @@
 
 #include "llfloaterobjectweights.h"
 
+#include "llparcel.h"
+
+#include "llfloaterreg.h"
 #include "lltextbox.h"
+
+#include "llagent.h"
+#include "llselectmgr.h"
+#include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
+
+/**
+ * struct LLCrossParcelFunctor
+ *
+ * A functor that checks whether a bounding box for all
+ * selected objects crosses a region or parcel bounds.
+ */
+struct LLCrossParcelFunctor : public LLSelectedObjectFunctor
+{
+	/*virtual*/ bool apply(LLViewerObject* obj)
+	{
+		// Add the root object box.
+		mBoundingBox.addBBoxAgent(LLBBox(obj->getPositionRegion(), obj->getRotationRegion(), obj->getScale() * -0.5f, obj->getScale() * 0.5f).getAxisAligned());
+
+		// Extend the bounding box across all the children.
+		LLViewerObject::const_child_list_t children = obj->getChildren();
+		for (LLViewerObject::const_child_list_t::const_iterator iter = children.begin();
+			 iter != children.end(); iter++)
+		{
+			LLViewerObject* child = *iter;
+			mBoundingBox.addBBoxAgent(LLBBox(child->getPositionRegion(), child->getRotationRegion(), child->getScale() * -0.5f, child->getScale() * 0.5f).getAxisAligned());
+		}
+
+		bool result = false;
+
+		LLViewerRegion* region = obj->getRegion();
+		if (region)
+		{
+			std::vector<LLBBox> boxes;
+			boxes.push_back(mBoundingBox);
+			result = region->objectsCrossParcel(boxes);
+		}
+
+		return result;
+	}
+
+private:
+	LLBBox	mBoundingBox;
+};
+
+/**
+ * Class LLLandImpactsObserver
+ *
+ * An observer class to monitor parcel selection and update
+ * the land impacts data from a parcel containing the selected object.
+ */
+class LLLandImpactsObserver : public LLParcelObserver
+{
+public:
+	virtual void changed()
+	{
+		LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::getTypedInstance<LLFloaterObjectWeights>("object_weights");
+		if(object_weights_floater)
+		{
+			object_weights_floater->updateLandImpacts();
+		}
+	}
+};
+
 
 LLFloaterObjectWeights::LLFloaterObjectWeights(const LLSD& key)
 :	LLFloater(key),
@@ -40,12 +107,22 @@ LLFloaterObjectWeights::LLFloaterObjectWeights(const LLSD& key)
 	mSelectedOnLand(NULL),
 	mRezzedOnLand(NULL),
 	mRemainingCapacity(NULL),
-	mTotalCapacity(NULL)
+	mTotalCapacity(NULL),
+	mLandImpactsObserver(NULL)
 {
+	mLandImpactsObserver = new LLLandImpactsObserver();
+	LLViewerParcelMgr::getInstance()->addObserver(mLandImpactsObserver);
 }
 
 LLFloaterObjectWeights::~LLFloaterObjectWeights()
 {
+	mObjectSelection = NULL;
+	mParcelSelection = NULL;
+
+	mSelectMgrConnection.disconnect();
+
+	LLViewerParcelMgr::getInstance()->removeObserver(mLandImpactsObserver);
+	delete mLandImpactsObserver;
 }
 
 // virtual
@@ -59,10 +136,10 @@ BOOL LLFloaterObjectWeights::postBuild()
 	mSelectedServerWeight = getChild<LLTextBox>("server");
 	mSelectedDisplayWeight = getChild<LLTextBox>("display");
 
-	mSelectedOnLand = getChild<LLTextBox>("used_download_weight");
-	mRezzedOnLand = getChild<LLTextBox>("used_download_weight");
-	mRemainingCapacity = getChild<LLTextBox>("used_download_weight");
-	mTotalCapacity = getChild<LLTextBox>("used_download_weight");
+	mSelectedOnLand = getChild<LLTextBox>("selected");
+	mRezzedOnLand = getChild<LLTextBox>("rezzed_on_land");
+	mRemainingCapacity = getChild<LLTextBox>("remaining_capacity");
+	mTotalCapacity = getChild<LLTextBox>("total_capacity");
 
 	return TRUE;
 }
@@ -70,15 +147,163 @@ BOOL LLFloaterObjectWeights::postBuild()
 // virtual
 void LLFloaterObjectWeights::onOpen(const LLSD& key)
 {
-	updateIfNothingSelected();
+	mSelectMgrConnection = LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLFloaterObjectWeights::refresh, this));
+
+	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+	mParcelSelection = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
+
+	refresh();
 }
 
-void LLFloaterObjectWeights::toggleLoadingIndicators(bool visible)
+// virtual
+void LLFloaterObjectWeights::onClose(bool app_quitting)
+{
+	mSelectMgrConnection.disconnect();
+
+	mObjectSelection = NULL;
+	mParcelSelection = NULL;
+}
+
+// virtual
+void LLFloaterObjectWeights::onWeightsUpdate(const SelectionCost& selection_cost)
+{
+	mSelectedDownloadWeight->setText(llformat("%.1f", selection_cost.mNetworkCost));
+	mSelectedPhysicsWeight->setText(llformat("%.1f", selection_cost.mPhysicsCost));
+	mSelectedServerWeight->setText(llformat("%.1f", selection_cost.mSimulationCost));
+
+	S32 render_cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectRenderCost();
+	mSelectedDisplayWeight->setText(llformat("%d", render_cost));
+
+	toggleWeightsLoadingIndicators(false);
+}
+
+//virtual
+void LLFloaterObjectWeights::setErrorStatus(U32 status, const std::string& reason)
+{
+	const std::string text = getString("nothing_selected");
+
+	mSelectedDownloadWeight->setText(text);
+	mSelectedPhysicsWeight->setText(text);
+	mSelectedServerWeight->setText(text);
+	mSelectedDisplayWeight->setText(text);
+
+	toggleWeightsLoadingIndicators(false);
+}
+
+void LLFloaterObjectWeights::updateLandImpacts()
+{
+	LLParcel *parcel = mParcelSelection->getParcel();
+	if (!parcel || LLSelectMgr::getInstance()->getSelection()->isEmpty())
+	{
+		updateIfNothingSelected();
+	}
+	else
+	{
+		S32 rezzed_prims = parcel->getSimWidePrimCount();
+		S32 total_capacity = parcel->getSimWideMaxPrimCapacity();
+
+		mRezzedOnLand->setText(llformat("%d", rezzed_prims));
+		mRemainingCapacity->setText(llformat("%d", total_capacity - rezzed_prims));
+		mTotalCapacity->setText(llformat("%d", total_capacity));
+
+		toggleLandImpactsLoadingIndicators(false);
+	}
+}
+
+void LLFloaterObjectWeights::refresh()
+{
+	LLSelectMgr* sel_mgr = LLSelectMgr::getInstance();
+
+	if (sel_mgr->getSelection()->isEmpty())
+	{
+		updateIfNothingSelected();
+	}
+	else
+	{
+		S32 prim_count = sel_mgr->getSelection()->getObjectCount();
+		S32 link_count = sel_mgr->getSelection()->getRootObjectCount();
+		F32 prim_equiv = sel_mgr->getSelection()->getSelectedLinksetCost();
+
+		mSelectedObjects->setText(llformat("%d", link_count));
+		mSelectedPrims->setText(llformat("%d", prim_count));
+		mSelectedOnLand->setText(llformat("%.1d", (S32)prim_equiv));
+
+		LLCrossParcelFunctor func;
+		if (sel_mgr->getSelection()->applyToRootObjects(&func, true))
+		{
+			// Some of the selected objects cross parcel bounds.
+			// We don't display object weights and land impacts in this case.
+			const std::string text = getString("nothing_selected");
+
+			mRezzedOnLand->setText(text);
+			mRemainingCapacity->setText(text);
+			mTotalCapacity->setText(text);
+
+			toggleLandImpactsLoadingIndicators(false);
+		}
+		else
+		{
+			LLViewerObject* selected_object = mObjectSelection->getFirstObject();
+			if (selected_object)
+			{
+				// Select a parcel at the currently selected object's position.
+				LLViewerParcelMgr::getInstance()->selectParcelAt(selected_object->getPositionGlobal());
+
+				toggleLandImpactsLoadingIndicators(true);
+			}
+			else
+			{
+				llwarns << "Failed to get selected object" << llendl;
+			}
+		}
+
+		LLViewerRegion* region = gAgent.getRegion();
+		if (region && region->capabilitiesReceived())
+		{
+			for (LLObjectSelection::valid_root_iterator iter = sel_mgr->getSelection()->valid_root_begin();
+					iter != sel_mgr->getSelection()->valid_root_end(); ++iter)
+			{
+				LLAccountingCostManager::getInstance()->addObject((*iter)->getObject()->getID());
+			}
+
+			std::string url = region->getCapability("ResourceCostSelected");
+			if (!url.empty())
+			{
+				LLAccountingCostManager::getInstance()->fetchCosts(Roots, url, getObserverHandle());
+				toggleWeightsLoadingIndicators(true);
+			}
+		}
+		else
+		{
+			llwarns << "Failed to get region capabilities" << llendl;
+		}
+	}
+}
+
+void LLFloaterObjectWeights::toggleWeightsLoadingIndicators(bool visible)
 {
 	childSetVisible("download_loading_indicator", visible);
 	childSetVisible("physics_loading_indicator", visible);
 	childSetVisible("server_loading_indicator", visible);
 	childSetVisible("display_loading_indicator", visible);
+
+	mSelectedDownloadWeight->setVisible(!visible);
+	mSelectedPhysicsWeight->setVisible(!visible);
+	mSelectedServerWeight->setVisible(!visible);
+	mSelectedDisplayWeight->setVisible(!visible);
+}
+
+void LLFloaterObjectWeights::toggleLandImpactsLoadingIndicators(bool visible)
+{
+	childSetVisible("selected_loading_indicator", visible);
+	childSetVisible("rezzed_on_land_loading_indicator", visible);
+	childSetVisible("remaining_capacity_loading_indicator", visible);
+	childSetVisible("total_capacity_loading_indicator", visible);
+
+	mSelectedOnLand->setVisible(!visible);
+	mRezzedOnLand->setVisible(!visible);
+	mRemainingCapacity->setVisible(!visible);
+	mTotalCapacity->setVisible(!visible);
 }
 
 void LLFloaterObjectWeights::updateIfNothingSelected()
@@ -94,6 +319,10 @@ void LLFloaterObjectWeights::updateIfNothingSelected()
 	mSelectedDisplayWeight->setText(text);
 
 	mSelectedOnLand->setText(text);
+	mRezzedOnLand->setText(text);
+	mRemainingCapacity->setText(text);
+	mTotalCapacity->setText(text);
 
-	toggleLoadingIndicators(false);
+	toggleWeightsLoadingIndicators(false);
+	toggleLandImpactsLoadingIndicators(false);
 }
