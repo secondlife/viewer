@@ -1703,7 +1703,7 @@ int get_folder_levels(LLInventoryCategory* inv_cat)
 	for (S32 i=0; i < cats->count(); ++i)
 	{
 		LLInventoryCategory* category = cats->get(i);
-		max_child_levels = max(max_child_levels, get_folder_levels(category));
+		max_child_levels = llmax(max_child_levels, get_folder_levels(category));
 	}
 
 	return 1 + max_child_levels;
