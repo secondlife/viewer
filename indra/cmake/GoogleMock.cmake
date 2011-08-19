@@ -8,7 +8,7 @@ set(GOOGLEMOCK_INCLUDE_DIRS
     ${LIBS_PREBUILT_DIR}/include)
 
 if (LINUX)
-	# VWR-24366: gmock is underlinked, it needs gtest.
+    # VWR-24366: gmock is underlinked, it needs gtest.
     set(GOOGLEMOCK_LIBRARIES 
         gmock -Wl,--no-as-needed
         gtest -Wl,--as-needed)

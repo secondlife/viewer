@@ -8,21 +8,21 @@ if (STANDALONE)
   include(${QT_USE_FILE})
   set(QTDIR $ENV{QTDIR})
   if (QTDIR AND NOT "${QT_BINARY_DIR}" STREQUAL "${QTDIR}/bin")
-	message(FATAL_ERROR "\"${QT_BINARY_DIR}\" is unequal \"${QTDIR}/bin\"; "
-	  "Qt is found by looking for qmake in your PATH. "
-	  "Please set your PATH such that 'qmake' is found in \$QTDIR/bin, "
-	  "or unset QTDIR if the found Qt is correct.")
-	endif (QTDIR AND NOT "${QT_BINARY_DIR}" STREQUAL "${QTDIR}/bin")
+    message(FATAL_ERROR "\"${QT_BINARY_DIR}\" is unequal \"${QTDIR}/bin\"; "
+      "Qt is found by looking for qmake in your PATH. "
+      "Please set your PATH such that 'qmake' is found in \$QTDIR/bin, "
+      "or unset QTDIR if the found Qt is correct.")
+    endif (QTDIR AND NOT "${QT_BINARY_DIR}" STREQUAL "${QTDIR}/bin")
   find_package(LLQtWebkit REQUIRED QUIET)
   # Add the plugins.
   set(QT_PLUGIN_LIBRARIES)
   foreach(qlibname qgif qjpeg)
-	find_library(QT_PLUGIN_${qlibname} ${qlibname} PATHS ${QT_PLUGINS_DIR}/imageformats NO_DEFAULT_PATH)
-	if (QT_PLUGIN_${qlibname})
-	  list(APPEND QT_PLUGIN_LIBRARIES ${QT_PLUGIN_${qlibname}})
-	else (QT_PLUGIN_${qtlibname})
-	  message(FATAL_ERROR "Could not find the Qt plugin ${qlibname} in \"${QT_PLUGINS_DIR}/imageformats\"!")
-	endif (QT_PLUGIN_${qlibname})
+    find_library(QT_PLUGIN_${qlibname} ${qlibname} PATHS ${QT_PLUGINS_DIR}/imageformats NO_DEFAULT_PATH)
+    if (QT_PLUGIN_${qlibname})
+      list(APPEND QT_PLUGIN_LIBRARIES ${QT_PLUGIN_${qlibname}})
+    else (QT_PLUGIN_${qtlibname})
+      message(FATAL_ERROR "Could not find the Qt plugin ${qlibname} in \"${QT_PLUGINS_DIR}/imageformats\"!")
+    endif (QT_PLUGIN_${qlibname})
   endforeach(qlibname)
   # qjpeg depends on libjpeg
   list(APPEND QT_PLUGIN_LIBRARIES jpeg)
