@@ -34,6 +34,7 @@
 #include "lleventcoro.h"
 #include "llinventorypanel.h"
 #include "llloadingindicator.h"
+#include "llnotificationsutil.h"
 #include "llpanelmarketplaceinbox.h"
 #include "llsidepanelinventory.h"
 #include "llsidetray.h"
@@ -100,7 +101,7 @@ void LLPanelMarketplaceOutbox::onSelectionChange()
 
 LLInventoryPanel * LLPanelMarketplaceOutbox::setupInventoryPanel()
 {
-	LLView * outbox_inventory_placeholder = getChild<LLView>("outbox_inventory_placeholder");
+	LLView * outbox_inventory_placeholder = getChild<LLView>("outbox_inventory_placeholder_panel");
 	LLView * outbox_inventory_parent = outbox_inventory_placeholder->getParent();
 	
 	mInventoryPanel = 
@@ -150,9 +151,7 @@ BOOL LLPanelMarketplaceOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL d
 
 bool LLPanelMarketplaceOutbox::isOutboxEmpty() const
 {
-	// TODO: Check for contents of outbox
-
-	return false;
+	return (getTotalItemCount() == 0);
 }
 
 bool LLPanelMarketplaceOutbox::isSyncInProgress() const
@@ -176,7 +175,7 @@ void timeDelay(LLCoros::self& self, LLPanelMarketplaceOutbox* outboxPanel)
 		waitForEventOn(self, "mainloop");
 	}
 
-	outboxPanel->onSyncComplete();
+	outboxPanel->onSyncComplete(true, LLSD::emptyMap());
 
 	gTimeDelayDebugFunc = "";
 }
@@ -193,7 +192,7 @@ public:
 
 	void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llinfos << "inventory_import complete status: " << status << llendl;
+		llinfos << "inventory_import complete status: " << status << ", reason: " << reason << llendl;
 
 		if (isGoodStatus(status))
 		{
@@ -212,7 +211,7 @@ public:
 			llwarns << "failed" << llendl;
 		}
 
-		mOutboxPanel->onSyncComplete();
+		mOutboxPanel->onSyncComplete(isGoodStatus(status), content);
 	}
 
 private:
@@ -248,10 +247,19 @@ void LLPanelMarketplaceOutbox::onSyncButtonClicked()
     //gTimeDelayDebugFunc = LLCoros::instance().launch("LLPanelMarketplaceOutbox timeDelay", boost::bind(&timeDelay, _1, this));
 }
 
-void LLPanelMarketplaceOutbox::onSyncComplete()
+void LLPanelMarketplaceOutbox::onSyncComplete(bool goodStatus, const LLSD& content)
 {
 	mSyncInProgress = false;
 	updateSyncButtonStatus();
+	
+	if (goodStatus)
+	{
+		LLNotificationsUtil::add("OutboxUploadComplete", LLSD::emptyMap(), LLSD::emptyMap());
+	}
+	else
+	{
+		LLNotificationsUtil::add("OutboxUploadHadErrors", LLSD::emptyMap(), LLSD::emptyMap());
+	}
 }
 
 void LLPanelMarketplaceOutbox::updateSyncButtonStatus()
@@ -293,9 +301,10 @@ U32 LLPanelMarketplaceOutbox::getTotalItemCount() const
 
 void LLPanelMarketplaceOutbox::draw()
 {
-	U32 item_count = getTotalItemCount();
+	const U32 item_count = getTotalItemCount();
+	const bool not_empty = (item_count > 0);
 
-	if (item_count > 0)
+	if (not_empty)
 	{
 		std::string item_count_str = llformat("%d", item_count);
 
@@ -307,6 +316,11 @@ void LLPanelMarketplaceOutbox::draw()
 	{
 		getChild<LLButton>("outbox_btn")->setLabel(getString("OutboxLabelNoArg"));
 	}
-
+	
+	if (!isSyncInProgress())
+	{
+		mSyncButton->setEnabled(not_empty);
+	}
+	
 	LLPanel::draw();
 }

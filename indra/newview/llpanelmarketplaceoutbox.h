@@ -63,7 +63,7 @@ public:
 	bool isOutboxEmpty() const;
 	bool isSyncInProgress() const;
 
-	void onSyncComplete();
+	void onSyncComplete(bool goodStatus, const LLSD& content);
 
 	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,

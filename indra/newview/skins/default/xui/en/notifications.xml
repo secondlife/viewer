@@ -211,6 +211,26 @@ Save changes to current clothing/body part?
          yestext="Yes"/>
     </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="OutboxUploadComplete"
+   type="alertmodal">
+Marketplace upload complete.
+        <usetemplate
+         name="okbutton"
+         yestext="Hooray!"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="OutboxUploadHadErrors"
+   type="alertmodal">
+Marketplace upload completed with errors!  Please correct the problems in your outbox and retry.  Thanks.
+        <usetemplate
+         name="okbutton"
+         yestext="Boo!"/>
+  </notification>
+
     
 
     <notification
@@ -5103,7 +5123,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOnline"
    type="notifytip">
     <tag>friendship</tag>
-&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Online
+[NAME] is Online
   </notification>
 
   <notification
@@ -5111,7 +5131,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOffline"
    type="notifytip">
     <tag>friendship</tag>
-&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Offline
+[NAME] is Offline
   </notification>
 
   <notification
@@ -6848,7 +6868,7 @@ Are you sure you want to share the following items:
 
 With the following Residents:
 
-&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
+[RESIDENTS]
   <tag>confirm</tag>
 	<usetemplate
      name="okcancelbuttons"

@@ -56,7 +56,7 @@
                  follows="bottom|left|right"
                  name="inbox_outbox_layout_panel"
                  visible="false"
-                 min_dim="70"
+                 min_dim="35"
                  max_dim="235"
                  expanded_min_dim="125"
                  height="235">
@@ -153,7 +153,7 @@
              </layout_panel>
              <layout_panel
                  width="330"
-								 layout="topleft"
+                 layout="topleft"
                  auto_resize="true"
                  user_resize="false"
                  follows="all"
@@ -162,7 +162,7 @@
                  min_dim="35"
                  max_dim="200"
                  expanded_min_dim="90"
-                 height="35">
+                 height="200">
                  <panel
                       follows="all"
                       layout="topleft"
@@ -171,13 +171,13 @@
                       class="panel_marketplace_outbox"
                       top="0"
                       label=""
-                      height="35"
+                      height="200"
                       width="330">
                      <string name="OutboxLabelWithArg">Merchant Outbox ([NUM])</string>
                      <string name="OutboxLabelNoArg">Merchant Outbox</string>
                      <button
                         label="Merchant Outbox"
-												font="SansSerifMedium"
+                        font="SansSerifMedium"
                         name="outbox_btn"
                         height="35"
                         width="308"
@@ -240,21 +240,45 @@
                         bg_opaque_color="InventoryBackgroundColor"
                         background_visible="true"
                         background_opaque="true"
-                        tool_tip="Drag and drop items here to prepare them for sale on your storefront"
                         >
-                        <text
-							name="outbox_inventory_placeholder"
-							type="string"
+						<panel
+							name="outbox_inventory_placeholder_panel"
 							follows="all"
 							layout="topleft"
 							top="0"
 							left="0"
 							width="308"
-							height="0"
-							wrap="true"
-							halign="center">
-							Set up your merchant account to use this feature.
-						</text>
+							height="165"
+							bg_opaque_color="InventoryBackgroundColor"
+							background_visible="true"
+							background_opaque="true"
+							>
+							<text
+								name="outbox_inventory_placeholder_title"
+								type="string"
+								follows="all"
+								layout="topleft"
+								top="10"
+								left="0"
+								width="308"
+								height="25"
+								wrap="true"
+								halign="center"
+								font="SansSerifBold">
+								Loading...
+							</text>
+							<text
+								name="outbox_inventory_placeholder_text"
+								type="string"
+								follows="all"
+								layout="topleft"
+								top="35"
+								left="0"
+								width="308"
+								height="130"
+								wrap="true"
+								halign="left" />
+						</panel>
                     </panel>
                  </panel>
              </layout_panel>

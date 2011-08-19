@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<inventory_panel
+<outbox_inventory_panel
     name="inventory_outbox"
     start_folder="Outbox"
     follows="all" layout="topleft"
@@ -12,6 +12,7 @@
     border="false"
     bevel_style="none"
     show_item_link_overlays="true"
+    tool_tip="Drag and drop items here to prepare them for sale on your storefront"
     >
     <scroll reserve_scroll_corner="false" />
-</inventory_panel>
+</outbox_inventory_panel>

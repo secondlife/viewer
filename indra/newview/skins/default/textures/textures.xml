@@ -72,10 +72,11 @@ with the same filename but different name
   <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
   <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
 
-	<texture name="New_Tag_Background" file_name="widgets/New_Tag_Background.png" preload="true" scale.left="12" scale.top="2" scale.right="36" scale.bottom="2" />
-	<texture name="New_Tag_Border" file_name="widgets/New_Tag_Border.png" preload="true" scale.left="12" scale.top="2" scale.right="36" scale.bottom="2" />
+  <texture name="Error_Tag_Background" file_name="widgets/Error_Tag_Background.png" preload="true" scale.left="12" scale.top="2" scale.right="36" scale.bottom="2" />
+  <texture name="New_Tag_Background" file_name="widgets/New_Tag_Background.png" preload="true" scale.left="12" scale.top="2" scale.right="36" scale.bottom="2" />
+  <texture name="New_Tag_Border" file_name="widgets/New_Tag_Border.png" preload="true" scale.left="12" scale.top="2" scale.right="36" scale.bottom="2" />
 
-	<texture name="Badge_Background" file_name="widgets/Badge_Background.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
+  <texture name="Badge_Background" file_name="widgets/Badge_Background.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
   <texture name="Badge_Border" file_name="widgets/Badge_Border.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
 
   <texture name="Blank" file_name="Blank.png" preload="false" />

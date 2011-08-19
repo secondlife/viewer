@@ -14,8 +14,8 @@
         padding_vert="2"
         location_offset_hcenter="-23"
         border_image="New_Tag_Border"
-				border_color="DkGray2"
+        border_color="DkGray2"
         image="New_Tag_Background"
-				image_color="Black"
+        image_color="Black"
         />
 </inbox_folder_view_folder>

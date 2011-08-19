@@ -52,7 +52,10 @@
 #include "llsidepaneltaskinfo.h"
 #include "llstring.h"
 #include "lltabcontainer.h"
+#include "lltextbox.h"
+#include "lltrans.h"
 #include "llviewermedia.h"
+#include "llviewernetwork.h"
 #include "llweb.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
@@ -394,22 +397,48 @@ void LLSidepanelInventory::observeOutboxModifications(const LLUUID& outboxID)
 void LLSidepanelInventory::enableInbox(bool enabled)
 {
 	mInboxEnabled = enabled;
-	getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME)->setVisible(enabled);
+	
+	LLLayoutPanel * inbox_layout_panel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
+	inbox_layout_panel->setVisible(enabled);
 
 	if (mInboxEnabled)
 	{
-		getChild<LLLayoutPanel>(INBOX_OUTBOX_LAYOUT_PANEL_NAME)->setVisible(TRUE);
+		LLLayoutPanel * inout_layout_panel = getChild<LLLayoutPanel>(INBOX_OUTBOX_LAYOUT_PANEL_NAME);
+
+		inout_layout_panel->setVisible(TRUE);
+		
+		if (mOutboxEnabled)
+		{
+			S32 inbox_min_dim = inbox_layout_panel->getMinDim();
+			S32 outbox_min_dim = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME)->getMinDim();
+			
+			inout_layout_panel->setMinDim(inbox_min_dim + outbox_min_dim);
+		}
 	}
 }
 
 void LLSidepanelInventory::enableOutbox(bool enabled)
 {
 	mOutboxEnabled = enabled;
-	getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME)->setVisible(enabled);
+	
+	LLLayoutPanel * outbox_layout_panel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
+	outbox_layout_panel->setVisible(enabled);
 
 	if (mOutboxEnabled)
 	{
-		getChild<LLLayoutPanel>(INBOX_OUTBOX_LAYOUT_PANEL_NAME)->setVisible(TRUE);
+		LLLayoutPanel * inout_layout_panel = getChild<LLLayoutPanel>(INBOX_OUTBOX_LAYOUT_PANEL_NAME);
+		
+		inout_layout_panel->setVisible(TRUE);
+		
+		if (mInboxEnabled)
+		{
+			S32 inbox_min_dim = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME)->getMinDim();
+			S32 outbox_min_dim = outbox_layout_panel->getMinDim();
+			
+			inout_layout_panel->setMinDim(inbox_min_dim + outbox_min_dim);
+		}
+		
+		updateOutboxUserStatus();
 	}
 }
 
@@ -417,10 +446,18 @@ void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
 {
 	// Trigger a load of the entire inbox so we always know the contents and their creation dates for sorting
 	LLInventoryModelBackgroundFetch::instance().start(inbox_id);
+
+	// If the outbox is expanded, don't auto-expand the inbox
+	if (mOutboxEnabled)
+	{
+		if (getChild<LLButton>(OUTBOX_BUTTON_NAME)->getToggleState())
+		{
+			return;
+		}
+	}
 	
-	// Expand the inbox since we have fresh items
-	LLPanelMarketplaceInbox * inbox = findChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
-	if (inbox)
+	// Expand the inbox since we have fresh items and the outbox is not expanded
+	if (mInboxEnabled)
 	{
 		getChild<LLButton>(INBOX_BUTTON_NAME)->setToggleState(true);
 		onToggleInboxBtn();
@@ -430,8 +467,7 @@ void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
 void LLSidepanelInventory::onOutboxChanged(const LLUUID& outbox_id)
 {
 	// Expand the outbox since we have new items in it
-	LLPanelMarketplaceInbox * outbox = findChild<LLPanelMarketplaceInbox>(MARKETPLACE_OUTBOX_PANEL);
-	if (outbox)
+	if (mOutboxEnabled)
 	{
 		getChild<LLButton>(OUTBOX_BUTTON_NAME)->setToggleState(true);
 		onToggleOutboxBtn();
@@ -673,6 +709,77 @@ void LLSidepanelInventory::showInventoryPanel()
 		mTaskPanel->setVisible(FALSE);
 	mInventoryPanel->setVisible(TRUE);
 	updateVerbs();
+}
+
+void LLSidepanelInventory::updateOutboxUserStatus()
+{
+	const bool isMerchant = (gSavedSettings.getString("InventoryMarketplaceUserStatus") == "merchant");
+	const bool hasOutbox = !gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false).isNull();
+	
+	LLView * outbox_placeholder = getChild<LLView>("outbox_inventory_placeholder_panel");
+	LLView * outbox_placeholder_parent = outbox_placeholder->getParent();
+	
+	LLTextBox * outbox_title_box = outbox_placeholder->getChild<LLTextBox>("outbox_inventory_placeholder_title");
+	LLTextBox * outbox_text_box = outbox_placeholder->getChild<LLTextBox>("outbox_inventory_placeholder_text");
+
+	std::string outbox_text;
+	std::string outbox_title;
+	std::string outbox_tooltip;
+
+	if (isMerchant)
+	{
+		if (hasOutbox)
+		{
+			outbox_text = LLTrans::getString("InventoryOutboxNoItems");
+			outbox_title = LLTrans::getString("InventoryOutboxNoItemsTitle");
+			outbox_tooltip = LLTrans::getString("InventoryOutboxNoItemsTooltip");
+		}
+		else
+		{
+			outbox_text = LLTrans::getString("InventoryOutboxCreationError");
+			outbox_title = LLTrans::getString("InventoryOutboxCreationErrorTitle");
+			outbox_tooltip = LLTrans::getString("InventoryOutboxCreationErrorTooltip");
+		}
+	}
+	else
+	{
+		//
+		// The string to become a merchant contains 3 URL's which need the domain name patched in.
+		//
+		
+		std::string domain = "secondlife.com";
+		
+		if (!LLGridManager::getInstance()->isInProductionGrid())
+		{
+			std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
+			domain = llformat("%s.lindenlab.com", utf8str_tolower(gridLabel).c_str());
+		}
+		
+		LLStringUtil::format_map_t domain_arg;
+		domain_arg["[DOMAIN_NAME]"] = domain;
+
+		std::string marketplace_url = LLTrans::getString("MarketplaceURL", domain_arg);
+		std::string marketplace_url_create = LLTrans::getString("MarketplaceURL_CreateStore", domain_arg);
+		std::string marketplace_url_info = LLTrans::getString("MarketplaceURL_LearnMore", domain_arg);
+		
+		LLStringUtil::format_map_t args1, args2, args3;
+		args1["[MARKETPLACE_URL]"] = marketplace_url;
+		args2["[LEARN_MORE_URL]"] = marketplace_url_info;
+		args3["[CREATE_STORE_URL]"] = marketplace_url_create;
+		
+		// NOTE: This is dumb, ridiculous and very finicky.  The order of these is very important
+		//       to have these three string substitutions work properly.
+		outbox_text = LLTrans::getString("InventoryOutboxNotMerchant", args1);
+		LLStringUtil::format(outbox_text, args2);
+		LLStringUtil::format(outbox_text, args3);
+
+		outbox_title = LLTrans::getString("InventoryOutboxNotMerchantTitle");
+		outbox_tooltip = LLTrans::getString("InventoryOutboxNotMerchantTooltip");
+	}
+	
+	outbox_text_box->setValue(outbox_text);
+	outbox_title_box->setValue(outbox_title);
+	outbox_placeholder_parent->setToolTip(outbox_tooltip);
 }
 
 void LLSidepanelInventory::updateVerbs()

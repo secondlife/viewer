@@ -76,10 +76,11 @@ public:
 
 	void enableInbox(bool enabled);
 	void enableOutbox(bool enabled);
-
+	
 	bool isInboxEnabled() const { return mInboxEnabled; }
 	bool isOutboxEnabled() const { return mOutboxEnabled; }
 
+	void updateOutboxUserStatus();
 	void updateVerbs();
 
 protected:

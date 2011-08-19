@@ -1381,15 +1381,17 @@ public:
 			std::string merchantStatus = content[gAgent.getID().getString()].asString();
 			llinfos << "Marketplace merchant status: " << merchantStatus << llendl;
 
+			// Save the merchant status before turning on the display
+			gSavedSettings.setString("InventoryMarketplaceUserStatus", merchantStatus);
+
 			// Complete success
 			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
-			gSavedSettings.setBOOL("InventoryDisplayOutbox", (merchantStatus == "merchant"));
+			gSavedSettings.setBOOL("InventoryDisplayOutbox", true);
 		}
 		else if (status == 401)
 		{
 			// API is available for use but OpenID authorization failed
 			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
-			//gSavedSettings.setBOOL("InventoryDisplayOutbox", true);
 		}
 		else
 		{
