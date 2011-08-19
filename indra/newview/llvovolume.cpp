@@ -2981,6 +2981,9 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	static const U32 ARC_PARTICLE_COST = 1; // determined experimentally
 	static const U32 ARC_PARTICLE_MAX = 2048; // default values
 	static const U32 ARC_TEXTURE_COST = 16; // multiplier for texture resolution - performance tested
+	static const U32 ARC_LIGHT_COST = 500; // static cost for light-producing prims 
+	static const U32 ARC_MEDIA_FACE_COST = 1500; // static cost per media-enabled face 
+
 
 	// per-prim multipliers
 	static const F32 ARC_GLOW_MULT = 1.5f; // tested based on performance
@@ -3006,6 +3009,8 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	U32 bump = 0;
 	U32 planar = 0;
 	U32 weighted_mesh = 0;
+	U32 produces_light = 0;
+	U32 media_faces = 0;
 
 	// these multipliers are variable and can be floating point
 	F32 scale = 0.f;
@@ -3024,7 +3029,8 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 		if (weighted_triangles > 0.0)
 		{
-			num_triangles = (U32)weighted_triangles;
+			num_triangles = (U32)(weighted_triangles * 2); // scale weighted triangles to match the recorded scale.
+															// a complex prim (tortured torus, sculptie) should be 1000-1200 points @ 5 m
 		}
 	}
 
@@ -3080,6 +3086,11 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		particles = 1;
 	}
 
+	if (getIsLight())
+	{
+		produces_light = 1;
+	}
+
 	const LLVector3& sc = getScale();
 	scale += (sc.mV[0] + sc.mV[1] + sc.mV[2]) / 4.f; // scale to 1/4 the sum of the size
 	// enforce scale multiplier to be in the range [1,7] (7 was determined to experimentally be a reasonable max)
@@ -3108,6 +3119,10 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		else if (img && img->getPrimaryFormat() == GL_ALPHA)
 		{
 			invisi = 1;
+		}
+		if (face->hasMedia())
+		{
+			media_faces++;
 		}
 
 		if (te)
@@ -3203,6 +3218,16 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		num_particles = num_particles > ARC_PARTICLE_MAX ? ARC_PARTICLE_MAX : num_particles;
 		F32 part_size = (llmax(part_data->mStartScale[0], part_data->mEndScale[0]) + llmax(part_data->mStartScale[1], part_data->mEndScale[1])) / 2.f;
 		shame += num_particles * part_size * ARC_PARTICLE_COST;
+	}
+
+	if (produces_light)
+	{
+		shame += ARC_LIGHT_COST;
+	}
+
+	if (media_faces)
+	{
+		shame += media_faces * ARC_MEDIA_FACE_COST;
 	}
 
 	if (shame > mRenderComplexity_current)
