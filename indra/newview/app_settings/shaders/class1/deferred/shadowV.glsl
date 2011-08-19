@@ -23,14 +23,14 @@
  * $/LicenseInfo$
  */
  
-
+attribute vec3 position;
 
 varying vec4 post_pos;
 
 void main()
 {
 	//transform vertex
-	vec4 pos = gl_ModelViewProjectionMatrix*gl_Vertex;
+	vec4 pos = gl_ModelViewProjectionMatrix*vec4(position.xyz, 1.0);
 	
 	post_pos = pos;
 	

@@ -531,9 +531,9 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 
 	//we can't have any lines longer than 1024 characters 
-	//or any shaders longer than 1024 lines... deal - DaveP
+	//or any shaders longer than 4096 lines... deal - DaveP
 	GLcharARB buff[1024];
-	GLcharARB* text[1024];
+	GLcharARB* text[4096];
 	GLuint count = 0;
 
 	if (gGLManager.mGLVersion < 2.1f)
@@ -649,7 +649,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 
 	//copy file into memory
-	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(buff) ) 
+	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(text) ) 
 	{
 		text[count++] = (GLcharARB *)strdup((char *)buff); 
 	}
@@ -709,6 +709,13 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				for (GLuint i = 0; i < count; i++)
 				{
 					ostr << i << ": " << text[i];
+
+					if (i % 128 == 0)
+					{ //dump every 128 lines
+						LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+						ostr = std::stringstream();
+					}
+
 				}
 
 				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;

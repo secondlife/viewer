@@ -178,6 +178,11 @@ BOOL LLVisualParamHint::render()
 	gGL.pushMatrix();
 	glLoadIdentity();
 
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+
 	LLGLSUIDefault gls_ui;
 	//LLGLState::verify(TRUE);
 	mBackgroundp->draw(0, 0, mFullWidth, mFullHeight);
