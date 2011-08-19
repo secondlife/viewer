@@ -1168,6 +1168,11 @@ void LLRender::setAlphaRejectSettings(eCompareFunc func, F32 value)
 {
 	flush();
 
+	if (LLGLSLShader::sNoFixedFunction)
+	{ //glAlphaFunc is deprecated in OpenGL 3.3
+		return;
+	}
+
 	if (mCurrAlphaFunc != func ||
 		mCurrAlphaFuncVal != value)
 	{
@@ -1180,6 +1185,30 @@ void LLRender::setAlphaRejectSettings(eCompareFunc func, F32 value)
 		else
 		{
 			glAlphaFunc(sGLCompareFunc[func], value);
+		}
+	}
+
+	if (gDebugGL)
+	{ //make sure cached state is correct
+		GLint cur_func = 0;
+		glGetIntegerv(GL_ALPHA_TEST_FUNC, &cur_func);
+
+		if (func == CF_DEFAULT)
+		{
+			func = CF_GREATER;
+		}
+
+		if (cur_func != sGLCompareFunc[func])
+		{
+			llerrs << "Alpha test function corrupted!" << llendl;
+		}
+
+		F32 ref = 0.f;
+		glGetFloatv(GL_ALPHA_TEST_REF, &ref);
+
+		if (ref != value)
+		{
+			llerrs << "Alpha test value corrupted!" << llendl;
 		}
 	}
 }
