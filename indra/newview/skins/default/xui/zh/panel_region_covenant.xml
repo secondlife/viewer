@@ -36,7 +36,7 @@
 	<text_editor name="covenant_editor">
 		There is no Covenant provided for this Estate.
 	</text_editor>
-	<button label="Reset" name="reset_covenant"/>
+	<button label="重設" name="reset_covenant"/>
 	<text name="covenant_help_text">
 		Changes to the covenant will show on all parcels in the estate.
 	</text>
@@ -62,7 +62,7 @@
 		分級：
 	</text>
 	<text name="region_maturity_text">
-		成人
+		完全成人
 	</text>
 	<text name="resellable_lbl">
 		轉售：

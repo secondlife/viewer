@@ -4,7 +4,7 @@
 		載入中...
 	</floater.string>
 	<floater.string name="playing">
-		(Playing)
+		（播放中）
 	</floater.string>
 	<floater.string name="copy_name">
 		Copy of [COPY_NAME]

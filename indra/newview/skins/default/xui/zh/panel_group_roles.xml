@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="成員與角色" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		There are unsaved changes
+		未儲存的設定
 	</panel.string>
 	<panel.string name="want_apply_text">
-		Do you want to save your changes?
+		你要儲存你的變更嗎？
 	</panel.string>
 	<tab_container name="roles_tab_container">
 		<panel label="成員" name="members_sub_tab" tool_tip="成員">
 			<panel.string name="help_text">
-				You can add or remove Roles assigned to Members.
-Select multiple Members by holding the Ctrl key and
-clicking on their names.
+				你可以添加或移除一個角色指派給成員。
+選責多個成員時同時按著 Ctrl 鍵且
+使用滑鼠左鍵點擊他們的名字。
 			</panel.string>
 			<panel.string name="donation_area">
 				[AREA] m²
@@ -55,12 +55,12 @@ things in this group. There&apos;s a broad variety of Abilities.
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
-			Assigned Roles
+			指派角色
 		</text>
 		<text name="static2">
-			Allowed Abilities
+			允許的能力
 		</text>
-		<scroll_list name="member_allowed_actions" tool_tip="For details of each allowed ability see the abilities tab"/>
+		<scroll_list name="member_allowed_actions" tool_tip="想瞭解有關於允許的能力的細節請查閱能力頁籤"/>
 	</panel>
 	<panel name="roles_footer">
 		<text name="static">
@@ -73,23 +73,23 @@ things in this group. There&apos;s a broad variety of Abilities.
 			描述
 		</text>
 		<text name="static4">
-			Assigned Members
+			指派角色
 		</text>
 		<check_box label="Reveal members" name="role_visible_in_list" tool_tip="Sets whether members of this role are visible in the General tab to people outside of the group."/>
 		<text name="static5">
-			Allowed Abilities
+			允許的能力
 		</text>
-		<scroll_list name="role_allowed_actions" tool_tip="For details of each allowed ability see the abilities tab"/>
+		<scroll_list name="role_allowed_actions" tool_tip="想瞭解有關於每一項允許的能力的細節請查閱能力頁籤"/>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">
 			This Ability is &apos;Eject Members from this Group&apos;. Only an Owner can eject another Owner.
 		</text_editor>
 		<text name="static2">
-			Roles with this ability
+			有此能力的角色
 		</text>
 		<text name="static3">
-			Members with this ability
+			有此能力的成員
 		</text>
 	</panel>
 </panel>

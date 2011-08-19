@@ -18,10 +18,10 @@
 	<text name="region_type">
 		未知
 	</text>
-	<check_box label="Block Terraform" name="block_terraform_check"/>
-	<check_box label="Block Fly" name="block_fly_check"/>
-	<check_box label="Allow Damage" name="allow_damage_check"/>
-	<check_box label="Restrict Pushing" name="restrict_pushobject"/>
+	<check_box label="阻止變形" name="block_terraform_check"/>
+	<check_box label="阻止飛行" name="block_fly_check"/>
+	<check_box label="允許傷害" name="allow_damage_check"/>
+	<check_box label="限制推撞" name="restrict_pushobject"/>
 	<check_box label="允許土地轉售" name="allow_land_resell_check"/>
 	<check_box label="允許土地 合併/分割" name="allow_parcel_changes_check"/>
 	<check_box label="阻擋土地顯示於搜尋中" name="block_parcel_search_check" tool_tip="Let people see this region and its parcels in search results"/>
@@ -30,13 +30,13 @@
 	<text label="Maturity" name="access_text">
 		分級：
 	</text>
-	<icons_combo_box label="Moderate" name="access_combo">
-		<icons_combo_box.item label="成人" name="Adult" value="42"/>
-		<icons_combo_box.item label="Moderate" name="Mature" value="21"/>
-		<icons_combo_box.item label="一般" name="PG" value="13"/>
+	<icons_combo_box label="適度成人" name="access_combo">
+		<icons_combo_box.item label="完全成人" name="Adult" value="42"/>
+		<icons_combo_box.item label="適度成人" name="Mature" value="21"/>
+		<icons_combo_box.item label="一般普級" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="套用" name="apply_btn"/>
-	<button label="強制瞬間傳送一位居民回家..." name="kick_btn"/>
+	<button label="強制瞬間傳送一個居民回家..." name="kick_btn"/>
 	<button label="強制瞬間傳送所有居民回家..." name="kick_all_btn"/>
 	<button label="送出訊息到地區..." name="im_btn"/>
 	<button label="管理瞬間傳送中心..." name="manage_telehub_btn"/>

@@ -27,7 +27,7 @@
 					<button label="地圖" name="show_on_map_btn" tool_tip="Show the Resident on the map"/>
 				</layout_panel>
 				<layout_panel name="teleport_btn_lp">
-					<button label="瞬間傳送" name="teleport" tool_tip="Offer teleport"/>
+					<button label="瞬間傳送" name="teleport" tool_tip="發給瞬間傳送請求"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
