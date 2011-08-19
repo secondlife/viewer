@@ -35,7 +35,4 @@ void main()
 	post_pos = pos;
 	
 	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
-	
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-	gl_FrontColor = gl_Color;
 }

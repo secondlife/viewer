@@ -282,6 +282,7 @@ public:
 
 	LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part);
 
+	BOOL isHUDGroup() ;
 	BOOL isDead()							{ return isState(DEAD); }
 	BOOL isState(U32 state) const;	
 	BOOL isOcclusionState(U32 state) const	{ return mOcclusionState[LLViewerCamera::sCurCameraID] & state ? TRUE : FALSE; }
@@ -470,6 +471,7 @@ public:
 	S32 cull(LLCamera &camera, std::vector<LLDrawable *>* results = NULL, BOOL for_select = FALSE); // Cull on arbitrary frustum
 	
 	BOOL isVisible(const LLVector3& v);
+	bool isHUDPartition() ;
 	
 	virtual LLSpatialBridge* asBridge() { return NULL; }
 	virtual BOOL isBridge() { return asBridge() != NULL; }
