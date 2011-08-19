@@ -624,6 +624,14 @@ namespace tut
 		subcount = LLStringUtil::format(s, fmt_map);
 		ensure_equals("LLStringUtil::format: Assorted Test2 result", s, "?Am I not a long string?short[A]bbbaaaba[A]");
 		ensure_equals("LLStringUtil::format: Assorted Test2 result count", 9, subcount);
+		
+		// Test on nested brackets
+		std::string srcs6 = "[[TRICK1]][[A]]";
+		s = srcs6;
+		subcount = LLStringUtil::format(s, fmt_map);
+		ensure_equals("LLStringUtil::format: Assorted Test2 result", s, "[[A]][a]");
+		ensure_equals("LLStringUtil::format: Assorted Test2 result count", 2, subcount);
+
 
 		// Test an assorted substitution
 		std::string srcs8 = "foo[DELETE]bar?";
