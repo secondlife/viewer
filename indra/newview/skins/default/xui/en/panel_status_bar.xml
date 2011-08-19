@@ -81,7 +81,7 @@
      follows="right|top"    
     image_color="0 0 0 0"
     hover_glow_amount="0"
-    left_pad="2"
+    left_pad="5"
     top="0"
     width="55"
     height="18"
@@ -94,14 +94,14 @@
      font="SansSerifSmall"
      text_readonly_color="TimeTextColor"
      follows="right|top"
-     halign="right"
+     halign="center"
      height="16"
      top="5"
      layout="topleft"
-     left_pad="0"
+     left_pad="5"
      name="TimeText"
      tool_tip="Current time (Pacific)"
-     width="70">
+     width="90">
         24:00 AM PST
     </text>
     <button
@@ -112,7 +112,7 @@
      image_pressed="Pause_Press"
      image_pressed_selected="Play_Press"
      is_toggle="true"
-     left_pad="15"
+     left_pad="10"
      top="1"
      name="media_toggle_btn"
      tool_tip="Start/Stop All Media (Music, Video, Web pages)"
