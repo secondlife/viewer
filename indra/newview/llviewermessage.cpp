@@ -1495,6 +1495,13 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	LLChat chat;
 	std::string log_message;
 	S32 button = LLNotificationsUtil::getSelectedOption(notification, response);
+
+	// The offer notification has no Busy button,
+	// so if we're in busy mode, assume busy response (STORM-1543).
+	if (gAgent.getBusy())
+	{
+		button = IOR_BUSY;
+	}
 	
 	LLInventoryObserver* opener = NULL;
 	LLViewerInventoryCategory* catp = NULL;
@@ -2667,7 +2674,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				// Until throttling is implemented, busy mode should reject inventory instead of silently
 				// accepting it.  SEE SL-39554
-				info->forceResponse(IOR_BUSY);
+				info->forceResponse(IOR_DECLINE);
 			}
 			else
 			{
