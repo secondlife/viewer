@@ -1,9 +1,9 @@
 /** 
- * @file shadowF.glsl
+ * @file lightAlphaMaskNonIndexedF.glsl
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,12 +24,28 @@
  */
  
 
+uniform float minimum_alpha;
+uniform float maximum_alpha;
 
-varying vec4 post_pos;
 
-void main() 
+uniform sampler2D diffuseMap;
+
+vec3 atmosLighting(vec3 light);
+vec3 scaleSoftClip(vec3 light);
+
+void default_lighting() 
 {
-	gl_FragColor = vec4(1,1,1,1);
-	
-	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
+	vec4 color = texture2D(diffuseMap,gl_TexCoord[0].xy) * gl_Color;
+
+	if (color.a < minimum_alpha || color.a > maximum_alpha)
+	{
+		discard;
+	}
+
+	color.rgb = atmosLighting(color.rgb);
+
+	color.rgb = scaleSoftClip(color.rgb);
+
+	gl_FragColor = color;
 }
+

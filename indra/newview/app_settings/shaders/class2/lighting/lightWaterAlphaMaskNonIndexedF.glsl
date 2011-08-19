@@ -1,9 +1,9 @@
 /** 
- * @file shadowF.glsl
+ * @file lightWaterAlphaMaskNonIndexedF.glsl
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,13 +23,27 @@
  * $/LicenseInfo$
  */
  
+uniform float minimum_alpha;
+uniform float maximum_alpha;
 
+uniform sampler2D diffuseMap;
 
-varying vec4 post_pos;
+vec3 atmosLighting(vec3 light);
+vec4 applyWaterFog(vec4 color);
 
-void main() 
+void default_lighting_water()
 {
-	gl_FragColor = vec4(1,1,1,1);
+	vec4 color = texture2D(diffuseMap,gl_TexCoord[0].xy) * gl_Color;
+
+	if (color.a < minimum_alpha || color.a > maximum_alpha)
+	{
+		discard;
+	}
+
+	color.rgb = atmosLighting(color.rgb);
+
+	color = applyWaterFog(color);
 	
-	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
+	gl_FragColor = color;
 }
+

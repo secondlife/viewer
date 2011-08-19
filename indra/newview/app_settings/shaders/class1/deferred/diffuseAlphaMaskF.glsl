@@ -1,9 +1,9 @@
 /** 
- * @file shadowF.glsl
+ * @file diffuseF.glsl
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,12 +24,25 @@
  */
  
 
+uniform float minimum_alpha;
+uniform float maximum_alpha;
 
-varying vec4 post_pos;
+uniform sampler2D diffuseMap;
+
+varying vec3 vary_normal;
 
 void main() 
 {
-	gl_FragColor = vec4(1,1,1,1);
+	vec4 col = gl_Color * texture2D(diffuseMap, gl_TexCoord[0].xy) * gl_Color;
 	
-	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
+	if (col.a < minimum_alpha || col.a > maximum_alpha)
+	{
+		discard;
+	}
+
+	gl_FragData[0] = vec4(col.rgb, 0.0);
+	gl_FragData[1] = vec4(0,0,0,0); // spec
+	vec3 nvn = normalize(vary_normal);
+	gl_FragData[2] = vec4(nvn.xy * 0.5 + 0.5, nvn.z, 0.0);
 }
+
