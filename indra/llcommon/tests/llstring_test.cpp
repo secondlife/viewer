@@ -626,11 +626,11 @@ namespace tut
 		ensure_equals("LLStringUtil::format: Assorted Test2 result count", 9, subcount);
 		
 		// Test on nested brackets
-		std::string srcs6 = "[[TRICK1]][[A]]";
+		std::string srcs6 = "[[TRICK1]][[A]][[B]][[AAA]][[BBB]][[TRICK2]][[KEYLONGER]][[KEYSHORTER]]?[[DELETE]]";
 		s = srcs6;
 		subcount = LLStringUtil::format(s, fmt_map);
-		ensure_equals("LLStringUtil::format: Assorted Test2 result", s, "[[A]][a]");
-		ensure_equals("LLStringUtil::format: Assorted Test2 result count", 2, subcount);
+		ensure_equals("LLStringUtil::format: Assorted Test2 result", s, "[[A]][a][b][aaa][bbb][[A]][short][Am I not a long string?]?[]");
+		ensure_equals("LLStringUtil::format: Assorted Test2 result count", 9, subcount);
 
 
 		// Test an assorted substitution
