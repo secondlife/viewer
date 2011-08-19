@@ -1058,37 +1058,9 @@ public:
 	virtual void done()
 	{
 		LL_DEBUGS("Messaging") << "LLDiscardAgentOffer::done()" << LL_ENDL;
-		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		bool notify = false;
-		if(trash_id.notNull() && mObjectID.notNull())
-		{
-			LLInventoryModel::update_list_t update;
-			LLInventoryModel::LLCategoryUpdate old_folder(mFolderID, -1);
-			update.push_back(old_folder);
-			LLInventoryModel::LLCategoryUpdate new_folder(trash_id, 1);
-			update.push_back(new_folder);
-			gInventory.accountForUpdate(update);
-			gInventory.moveObject(mObjectID, trash_id);
-			LLInventoryObject* obj = gInventory.getObject(mObjectID);
-			if(obj)
-			{
-				// no need to restamp since this is already a freshly
-				// stamped item.
-				obj->updateParentOnServer(FALSE);
-				notify = true;
-			}
-		}
-		else
-		{
-			LL_WARNS("Messaging") << "DiscardAgentOffer unable to find: "
-					<< (trash_id.isNull() ? "trash " : "")
-					<< (mObjectID.isNull() ? "object" : "") << LL_ENDL;
-		}
+
+		LLAppViewer::instance()->addOnIdleCallback(boost::bind(&LLInventoryModel::removeItem, &gInventory, mObjectID));
 		gInventory.removeObserver(this);
-		if(notify)
-		{
-			gInventory.notifyObservers();
-		}
 		delete this;
 	}
 protected:
