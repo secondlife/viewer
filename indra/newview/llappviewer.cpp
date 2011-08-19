@@ -731,6 +731,23 @@ bool LLAppViewer::init()
     initThreads();
 	LL_INFOS("InitInfo") << "Threads initialized." << LL_ENDL ;
 
+	// Initialize settings early so that the defaults for ignorable dialogs are
+	// picked up and then correctly re-saved after launching the updater (STORM-1268).
+	LLUI::settings_map_t settings_map;
+	settings_map["config"] = &gSavedSettings;
+	settings_map["ignores"] = &gWarningSettings;
+	settings_map["floater"] = &gSavedSettings; // *TODO: New settings file
+	settings_map["account"] = &gSavedPerAccountSettings;
+
+	LLUI::initClass(settings_map,
+		LLUIImageList::getInstance(),
+		ui_audio_callback,
+		&LLUI::sGLScaleFactor);
+	LL_INFOS("InitInfo") << "UI initialized." << LL_ENDL ;
+
+	LLNotifications::instance();
+	LL_INFOS("InitInfo") << "Notifications initialized." << LL_ENDL ;
+
     writeSystemInfo();
 
 	// Initialize updater service (now that we have an io pump)
@@ -772,19 +789,8 @@ bool LLAppViewer::init()
 	{
 		LLError::setPrintLocation(true);
 	}
-	
-	// Widget construction depends on LLUI being initialized
-	LLUI::settings_map_t settings_map;
-	settings_map["config"] = &gSavedSettings;
-	settings_map["ignores"] = &gWarningSettings;
-	settings_map["floater"] = &gSavedSettings; // *TODO: New settings file
-	settings_map["account"] = &gSavedPerAccountSettings;
 
-	LLUI::initClass(settings_map,
-		LLUIImageList::getInstance(),
-		ui_audio_callback,
-		&LLUI::sGLScaleFactor);
-	
+
 	// Setup paths and LLTrans after LLUI::initClass has been called
 	LLUI::setupPaths();
 	LLTransUtil::parseStrings("strings.xml", default_trans_args);		
