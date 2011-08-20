@@ -42,6 +42,7 @@ snowstorm_viewer-development.viewer_channel = "Second Life Development"
 snowstorm_viewer-development.login_channel = "Second Life Development"
 snowstorm_viewer-development.build_viewer_update_version_manager = false
 snowstorm_viewer-development.email = viewer-development-builds@lists.secondlife.com
+snowstorm_viewer-development.build_enforce_coding_policy = true
 
 # ========================================
 # Viewer Beta
@@ -142,6 +143,7 @@ cg_viewer-development_lenny.email = cg@lindenlab.com
 
 oz_viewer-devreview.build_debug_release_separately = true
 oz_viewer-devreview.codeticket_add_context = false
+oz_viewer-devreview.build_enforce_coding_policy = true
 
 oz_project-1.build_debug_release_separately = true
 oz_project-1.codeticket_add_context = false
@@ -158,7 +160,10 @@ oz_viewer-beta-review.viewer_channel = "Second Life Beta Viewer"
 oz_viewer-beta-review.login_channel = "Second Life Beta Viewer"
 
 oz_viewer-poreview.build_debug_release_separately = true
-oz_viewer-poreview.codeticket_add_context = false
+oz_viewer-poreview.codeticket_add_context = true
+oz_viewer-poreview.viewer_channel = "Project Viewer - Snowstorm Team"
+oz_viewer-poreview.login_channel = "Project Viewer - Snowstorm Team"
+
 
 # =================================================================
 # asset delivery 2010 projects
