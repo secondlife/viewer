@@ -2418,7 +2418,7 @@ Veuillez réessayer dans quelques minutes.
 	</notification>
 	<notification name="ObjectGiveItem">
 		Un objet nommé &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; appartenant à [NAME_SLURL] vous a donné un objet de type [OBJECTTYPE] :
-[ITEM_SLURL]
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
 		<form name="form">
 			<button name="Keep" text="Garder"/>
 			<button name="Discard" text="Jeter"/>

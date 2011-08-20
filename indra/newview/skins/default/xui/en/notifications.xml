@@ -5903,7 +5903,7 @@ No valid parcel could be found.
    name="ObjectGiveItem"
    type="offer">
 An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
-[ITEM_SLURL]
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
     <form name="form">
       <button
        index="0"
