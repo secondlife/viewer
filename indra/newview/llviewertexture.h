@@ -330,6 +330,7 @@ public:
 	static BOOL sUseTextureAtlas ;
 
 	static LLPointer<LLViewerTexture> sNullImagep; // Null texture for non-textured objects.
+	static LLPointer<LLViewerTexture> sBlackImagep;	// Texture to show NOTHING (pure black)
 };
 
 
