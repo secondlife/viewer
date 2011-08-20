@@ -1629,17 +1629,6 @@
         <string />
       </array>
     </map>
-    <key>CompressSnapshotsToDisk</key>
-    <map>
-      <key>Comment</key>
-      <string>Compress snapshots saved to disk (Using JPEG 2000)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>    
     <key>ConnectAsGod</key>
     <map>
       <key>Comment</key>
