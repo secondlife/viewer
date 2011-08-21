@@ -38,7 +38,10 @@ uniform sampler2DRect depthMap;
 uniform vec3 env_mat[3];
 uniform float sun_wash;
 
-varying vec4 vary_light;
+uniform vec3 center;
+uniform vec3 color;
+uniform float falloff;
+uniform float size;
 
 varying vec4 vary_fragcoord;
 uniform vec2 screen_res;
@@ -67,9 +70,9 @@ void main()
 	frag.xy *= screen_res;
 	
 	vec3 pos = getPosition(frag.xy).xyz;
-	vec3 lv = vary_light.xyz-pos;
+	vec3 lv = center.xyz-pos;
 	float dist2 = dot(lv,lv);
-	dist2 /= vary_light.w;
+	dist2 /= size;
 	if (dist2 > 1.0)
 	{
 		discard;
@@ -90,11 +93,11 @@ void main()
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	
 	vec3 col = texture2DRect(diffuseRect, frag.xy).rgb;
-	float fa = gl_Color.a+1.0;
+	float fa = falloff+1.0;
 	float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
 	float lit = da * dist_atten * noise;
 	
-	col = gl_Color.rgb*lit*col;
+	col = color.rgb*lit*col;
 
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	if (spec.a > 0.0)
@@ -104,7 +107,7 @@ void main()
 		{
 			sa = texture2D(lightFunc, vec2(sa, spec.a)).a * min(dist_atten*4.0, 1.0);
 			sa *= noise;
-			col += da*sa*gl_Color.rgb*spec.rgb;
+			col += da*sa*color.rgb*spec.rgb;
 		}
 	}
 	

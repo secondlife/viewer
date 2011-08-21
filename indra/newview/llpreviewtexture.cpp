@@ -169,7 +169,7 @@ void LLPreviewTexture::draw()
 				saveAs();
 			}
 			// Draw the texture
-			glColor3f( 1.f, 1.f, 1.f );
+			gGL.diffuseColor3f( 1.f, 1.f, 1.f );
 			gl_draw_scaled_image(interior.mLeft,
 								interior.mBottom,
 								interior.getWidth(),

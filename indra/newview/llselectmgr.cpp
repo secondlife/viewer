@@ -89,6 +89,7 @@
 #include "llvoavatarself.h"
 #include "llvovolume.h"
 #include "pipeline.h"
+#include "llviewershadermgr.h"
 
 #include "llglheaders.h"
 
@@ -5570,8 +5571,7 @@ void pushWireframe(LLDrawable* drawable)
 				for (S32 i = 0; i < rigged_volume->getNumVolumeFaces(); ++i)
 				{
 					const LLVolumeFace& face = rigged_volume->getVolumeFace(i);
-					glVertexPointer(3, GL_FLOAT, 16, face.mPositions);
-					glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
+					LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, face.mTexCoords, face.mNumIndices, face.mIndices);
 				}
 				gGL.popMatrix();
 			}
@@ -5584,7 +5584,7 @@ void pushWireframe(LLDrawable* drawable)
 			LLFace* face = drawable->getFace(i);
 			if (face->verify())
 			{
-				pushVerts(face, LLVertexBuffer::MAP_VERTEX);
+				pushVerts(face, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
 			}
 		}
 	}
@@ -5602,6 +5602,13 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 	if(!drawable)
 	{
 		return;
+	}
+
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	if (shader)
+	{
+		gHighlightProgram.bind();
 	}
 
 	glMatrixMode(GL_MODELVIEW);
@@ -5627,26 +5634,41 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 	if (LLSelectMgr::sRenderHiddenSelections) // && gFloaterTools && gFloaterTools->getVisible())
 	{
 		gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
-		LLGLEnable fog(GL_FOG);
-		glFogi(GL_FOG_MODE, GL_LINEAR);
-		float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
-		LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgentCamera.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
-		glFogf(GL_FOG_START, d);
-		glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
-		glFogfv(GL_FOG_COLOR, fogCol.mV);
-
 		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		if (shader)
 		{
-			glColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+			gHighlightProgram.uniform4f("highlight_color", color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
 			pushWireframe(drawable);
+		}
+		else
+		{
+			LLGLEnable fog(GL_FOG);
+			glFogi(GL_FOG_MODE, GL_LINEAR);
+			float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
+			LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgentCamera.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
+			glFogf(GL_FOG_START, d);
+			glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
+			glFogfv(GL_FOG_COLOR, fogCol.mV);
+
+			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+			{
+				gGL.diffuseColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+				pushWireframe(drawable);
+			}
 		}
 	}
 
 	gGL.flush();
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-	glColor4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
+	if (shader)
+	{
+		gHighlightProgram.uniform4f("highlight_color", color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
+	}
+	else
+	{
+		gGL.diffuseColor4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
+	}
 	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonOffset(3.f, 3.f);
 	glLineWidth(3.f);
@@ -5654,6 +5676,11 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 	glLineWidth(1.f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	gGL.popMatrix();
+
+	if (shader)
+	{
+		shader->bind();
+	}
 }
 
 //-----------------------------------------------------------------------------
