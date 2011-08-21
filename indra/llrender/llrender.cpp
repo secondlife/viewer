@@ -1586,12 +1586,12 @@ void LLRender::diffuseColor3f(F32 r, F32 g, F32 b)
 	S32 loc = -1;
 	if (shader)
 	{
-		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_COLOR);
+		loc = shader->getUniformLocation("color");
 	}
 
 	if (loc >= 0)
 	{
-		glVertexAttrib3fARB(loc, r,g,b);
+		shader->uniform4f(loc, r,g,b,1.f);
 	}
 	else
 	{
@@ -1605,12 +1605,12 @@ void LLRender::diffuseColor3fv(const F32* c)
 	S32 loc = -1;
 	if (shader)
 	{
-		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_COLOR);
+		loc = shader->getUniformLocation("color");
 	}
 
 	if (loc >= 0)
 	{
-		glVertexAttrib3fvARB(loc, c);
+		shader->uniform4f(loc, c[0], c[1], c[2], 1.f);
 	}
 	else
 	{
@@ -1624,12 +1624,12 @@ void LLRender::diffuseColor4f(F32 r, F32 g, F32 b, F32 a)
 	S32 loc = -1;
 	if (shader)
 	{
-		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_COLOR);
+		loc = shader->getUniformLocation("color");
 	}
 
 	if (loc >= 0)
 	{
-		glVertexAttrib4fARB(loc, r,g,b,a);
+		shader->uniform4f(loc, r,g,b,a);
 	}
 	else
 	{
@@ -1644,12 +1644,12 @@ void LLRender::diffuseColor4fv(const F32* c)
 	S32 loc = -1;
 	if (shader)
 	{
-		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_COLOR);
+		loc = shader->getUniformLocation("color");
 	}
 
 	if (loc >= 0)
 	{
-		glVertexAttrib4fvARB(loc, c);
+		shader->uniform4fv(loc, 1, c);
 	}
 	else
 	{
@@ -1663,12 +1663,12 @@ void LLRender::diffuseColor4ubv(const U8* c)
 	S32 loc = -1;
 	if (shader)
 	{
-		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_COLOR);
+		loc = shader->getUniformLocation("color");
 	}
 
 	if (loc >= 0)
 	{
-		glVertexAttrib4ubvARB(loc, c);
+		shader->uniform4f(loc, c[0]/255.f, c[1]/255.f, c[2]/255.f, c[3]/255.f);
 	}
 	else
 	{

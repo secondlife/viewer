@@ -65,9 +65,11 @@ LLVector4			gShinyOrigin;
 LLGLSLShader	gOcclusionProgram;
 LLGLSLShader	gCustomAlphaProgram;
 LLGLSLShader	gGlowCombineProgram;
+LLGLSLShader	gSplatTextureRectProgram;
 LLGLSLShader	gGlowCombineFXAAProgram;
 LLGLSLShader	gTwoTextureAddProgram;
 LLGLSLShader	gOneTextureNoColorProgram;
+LLGLSLShader	gDebugProgram;
 
 //object shaders
 LLGLSLShader		gObjectSimpleProgram;
@@ -216,6 +218,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gOneTextureNoColorProgram);
 	mShaderList.push_back(&gSolidColorProgram);
 	mShaderList.push_back(&gOcclusionProgram);
+	mShaderList.push_back(&gDebugProgram);
 	mShaderList.push_back(&gObjectEmissiveProgram);
 	mShaderList.push_back(&gObjectEmissiveWaterProgram);
 	mShaderList.push_back(&gObjectFullbrightProgram);
@@ -670,9 +673,11 @@ void LLViewerShaderMgr::setShaders()
 void LLViewerShaderMgr::unloadShaders()
 {
 	gOcclusionProgram.unload();
+	gDebugProgram.unload();
 	gUIProgram.unload();
 	gCustomAlphaProgram.unload();
 	gGlowCombineProgram.unload();
+	gSplatTextureRectProgram.unload();
 	gGlowCombineFXAAProgram.unload();
 	gTwoTextureAddProgram.unload();
 	gOneTextureNoColorProgram.unload();
@@ -2715,6 +2720,22 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 
 	if (success)
 	{
+		gSplatTextureRectProgram.mName = "Splat Texture Rect Shader";
+		gSplatTextureRectProgram.mShaderFiles.clear();
+		gSplatTextureRectProgram.mShaderFiles.push_back(make_pair("interface/splattexturerectV.glsl", GL_VERTEX_SHADER_ARB));
+		gSplatTextureRectProgram.mShaderFiles.push_back(make_pair("interface/splattexturerectF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gSplatTextureRectProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gSplatTextureRectProgram.createShader(NULL, NULL);
+		if (success)
+		{
+			gSplatTextureRectProgram.bind();
+			gSplatTextureRectProgram.uniform1i("screenMap", 0);
+			gSplatTextureRectProgram.unbind();
+		}
+	}
+
+	if (success)
+	{
 		gGlowCombineProgram.mName = "Glow Combine Shader";
 		gGlowCombineProgram.mShaderFiles.clear();
 		gGlowCombineProgram.mShaderFiles.push_back(make_pair("interface/glowcombineV.glsl", GL_VERTEX_SHADER_ARB));
@@ -2803,6 +2824,16 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gOcclusionProgram.mShaderFiles.push_back(make_pair("interface/occlusionF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gOcclusionProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
 		success = gOcclusionProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDebugProgram.mName = "Debug Shader";
+		gDebugProgram.mShaderFiles.clear();
+		gDebugProgram.mShaderFiles.push_back(make_pair("interface/debugV.glsl", GL_VERTEX_SHADER_ARB));
+		gDebugProgram.mShaderFiles.push_back(make_pair("interface/debugF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDebugProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gDebugProgram.createShader(NULL, NULL);
 	}
 
 	if( !success )

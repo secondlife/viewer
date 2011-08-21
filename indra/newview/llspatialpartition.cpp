@@ -2876,10 +2876,9 @@ void renderNormals(LLDrawable* drawablep)
 		{
 			const LLVolumeFace& face = volume->getVolumeFace(i);
 
-			gGL.begin(LLRender::LINES);
-			
 			for (S32 j = 0; j < face.mNumVertices; ++j)
 			{
+				gGL.begin(LLRender::LINES);
 				LLVector4a n,p;
 				
 				n.setMul(face.mNormals[j], scale);
@@ -2898,9 +2897,8 @@ void renderNormals(LLDrawable* drawablep)
 					gGL.vertex3fv(face.mPositions[j].getF32ptr());
 					gGL.vertex3fv(p.getF32ptr());
 				}	
+				gGL.end();
 			}
-
-			gGL.end();
 		}
 
 		gGL.popMatrix();

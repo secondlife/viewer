@@ -4126,6 +4126,11 @@ void LLPipeline::renderPhysicsDisplay()
 
 	gGL.setColorMask(true, false);
 
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gDebugProgram.bind();
+	}
+
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -4155,8 +4160,13 @@ void LLPipeline::renderPhysicsDisplay()
 		}
 	}
 
-
 	gGL.flush();
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gDebugProgram.unbind();
+	}
+
 	mPhysicsDisplay.flush();
 }
 
@@ -6137,8 +6147,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 {
 	LLMemType mt_ru(LLMemType::MTYPE_PIPELINE_RENDER_BLOOM);
 	if (!(gPipeline.canUseVertexShaders() &&
-		sRenderGlow) ||
-		(!sRenderDeferred && hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES)))
+		sRenderGlow))
 	{
 		return;
 	}
@@ -6569,19 +6578,13 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		
 	}
 
-	if (LLRenderTarget::sUseFBO)
-	{ //copy depth buffer from mScreen to framebuffer
-		LLRenderTarget::copyContentsToFramebuffer(mScreen, 0, 0, mScreen.getWidth(), mScreen.getHeight(), 
-			0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	}
-	
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
 	{
 		if (LLGLSLShader::sNoFixedFunction)
 		{
-			gUIProgram.bind();
+			gSplatTextureRectProgram.bind();
 		}
 
 		gGL.setColorMask(true, false);
@@ -6595,7 +6598,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		gGL.getTexUnit(0)->bind(&mPhysicsDisplay);
 
-		gGL.begin(LLRender::TRIANGLE_STRIP);
+		gGL.begin(LLRender::TRIANGLES);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 		gGL.vertex2f(-1,-1);
 		
@@ -6610,10 +6613,17 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		if (LLGLSLShader::sNoFixedFunction)
 		{
-			gUIProgram.unbind();
+			gSplatTextureRectProgram.unbind();
 		}
-
 	}
+
+	
+	if (LLRenderTarget::sUseFBO)
+	{ //copy depth buffer from mScreen to framebuffer
+		LLRenderTarget::copyContentsToFramebuffer(mScreen, 0, 0, mScreen.getWidth(), mScreen.getHeight(), 
+			0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	}
+	
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();

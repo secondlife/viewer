@@ -273,7 +273,9 @@ extern LLVector4			gShinyOrigin;
 extern LLGLSLShader			gOcclusionProgram;
 extern LLGLSLShader			gCustomAlphaProgram;
 extern LLGLSLShader			gGlowCombineProgram;
+extern LLGLSLShader			gSplatTextureRectProgram;
 extern LLGLSLShader			gGlowCombineFXAAProgram;
+extern LLGLSLShader		gDebugProgram;
 
 //output tex0[tc0] + tex1[tc1]
 extern LLGLSLShader			gTwoTextureAddProgram;
