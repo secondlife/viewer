@@ -1172,8 +1172,39 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 		// First we try and get a 32 bit depth pixel format
 		BOOL result = wglChoosePixelFormatARB(mhDC, attrib_list, NULL, 256, pixel_formats, &num_formats);
+		
+		while(!result && mFSAASamples > 0) 
+		{
+			llwarns << "FSAASamples: " << mFSAASamples << " not supported." << llendl ;
+
+			mFSAASamples /= 2 ; //try to decrease sample pixel number until to disable anti-aliasing
+			if(mFSAASamples < 2)
+			{
+				mFSAASamples = 0 ;
+			}
+
+			if (mFSAASamples > 0)
+			{
+				attrib_list[end_attrib + 3] = mFSAASamples;
+			}
+			else
+			{
+				cur_attrib = end_attrib ;
+				end_attrib = 0 ;
+				attrib_list[cur_attrib++] = 0 ; //end
+			}
+			result = wglChoosePixelFormatARB(mhDC, attrib_list, NULL, 256, pixel_formats, &num_formats);
+
+			if(result)
+			{
+				llwarns << "Only support FSAASamples: " << mFSAASamples << llendl ;
+			}
+		}
+
 		if (!result)
 		{
+			llwarns << "mFSAASamples: " << mFSAASamples << llendl ;
+
 			close();
 			show_window_creation_error("Error after wglChoosePixelFormatARB 32-bit");
 			return FALSE;

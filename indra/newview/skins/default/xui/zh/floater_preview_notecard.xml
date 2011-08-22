@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview notecard" title="記事卡：">
 	<floater.string name="no_object">
-		Unable to find object containing this notecard.
+		未發現物件包含此記事卡。
 	</floater.string>
 	<floater.string name="not_allowed">
-		You do not have permission to view this notecard.
+		你並沒有權限去察看此記事卡。
 	</floater.string>
 	<floater.string name="Title">
 		記事卡： [NAME]

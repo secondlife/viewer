@@ -159,7 +159,6 @@
 		<menu_item_check label="カメラの距離移動を制限しない" name="Disable Camera Distance"/>
 		<menu_item_check label="高解像度スナップショット" name="HighResSnapshot"/>
 		<menu_item_check label="シャッター音とアニメーションなしでスナップショットをディスクに保存する" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="圧縮してスナップショットをディスクに保存する" name="CompressSnapshotsToDisk"/>
 		<menu label="パフォーマンスツール" name="Performance Tools">
 			<menu_item_call label="ラグ計測器" name="Lag Meter"/>
 			<menu_item_check label="統計バー" name="Statistics Bar"/>

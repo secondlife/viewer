@@ -233,8 +233,7 @@ void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
 	{
 		LLGLEnable blend(GL_BLEND);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-
+		
 		gGL.getTexUnit(0)->bind(sCloudNoiseTexture);
 
 		cloud_shader->bind();

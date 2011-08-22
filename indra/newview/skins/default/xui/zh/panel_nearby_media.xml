@@ -30,9 +30,9 @@
 		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="全部" name="All"/>
-			<combo_box.item label="In this Parcel" name="WithinParcel"/>
-			<combo_box.item label="Outside this Parcel" name="OutsideParcel"/>
-			<combo_box.item label="On other Avatars" name="OnOthers"/>
+			<combo_box.item label="在此地段內" name="WithinParcel"/>
+			<combo_box.item label="在此地段外部" name="OutsideParcel"/>
+			<combo_box.item label="在其他化身身上" name="OnOthers"/>
 		</combo_box>
 		<scroll_list name="media_list">
 			<scroll_list.columns label="Proximity" name="media_proximity"/>
@@ -53,10 +53,10 @@
 					<button name="pause_btn" tool_tip="暫停所選擇的媒體"/>
 				</layout_panel>
 				<layout_panel name="volume_slider_ctrl">
-					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Audio volume for selected media"/>
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="所選擇的媒體之音頻音量"/>
 				</layout_panel>
 				<layout_panel name="mute">
-					<button name="mute_btn" tool_tip="Mute audio on selected media"/>
+					<button name="mute_btn" tool_tip="靜音所選擇的媒體音頻"/>
 				</layout_panel>
 				<layout_panel name="zoom">
 					<button name="zoom_btn" tool_tip="Zoom into selected media"/>

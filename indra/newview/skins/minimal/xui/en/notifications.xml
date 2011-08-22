@@ -24,7 +24,7 @@
    icon="notify.tga"
    name="ObjectGiveItem"
    type="offer">
-    An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLURL] is offering you [ITEM_SLURL].  Using this item requires you to switch to Advanced mode where you will find the item in your Inventory. To switch to Advanced mode, quit and restart this application and change the mode setting on the login screen.
+    An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLURL] is offering you &lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;.  Using this item requires you to switch to Advanced mode where you will find the item in your Inventory. To switch to Advanced mode, quit and restart this application and change the mode setting on the login screen.
     <form name="form">
       <button
        index="0"

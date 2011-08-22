@@ -2,45 +2,45 @@
 <floater name="worldmap" title="世界地圖">
 	<panel name="layout_panel_1">
 		<text name="events_label">
-			Legend
+			圖例
 		</text>
 	</panel>
 	<panel name="layout_panel_2">
-		<button name="Show My Location" tool_tip="Center map on my avatar&apos;s location"/>
+		<button name="Show My Location" tool_tip="以我的化身所在位置居中地圖"/>
 		<text name="me_label">
-			Me
+			自己
 		</text>
 		<text name="person_label">
 			人
 		</text>
 		<text name="infohub_label">
-			Infohub
+			資訊中心
 		</text>
 		<text name="land_sale_label">
-			Land Sale
+			土地出售
 		</text>
 		<text name="auction_label">
-			land auction
+			土地拍賣
 		</text>
 		<text name="by_owner_label">
-			by owner
+			依擁有者
 		</text>
 		<button name="Go Home" tool_tip="瞬間傳送到我的家位置"/>
 		<text name="Home_label">
 			家
 		</text>
 		<text name="events_label">
-			Events:
+			事件：
 		</text>
 		<text name="pg_label">
-			一般
+			一般普級
 		</text>
 		<check_box initial_value="true" name="events_mature_chk"/>
 		<text name="events_mature_label">
-			Moderate
+			適度成人
 		</text>
 		<text name="events_adult_label">
-			成人
+			完全成人
 		</text>
 	</panel>
 	<panel name="layout_panel_3">
@@ -55,8 +55,8 @@
 		<combo_box label="我的地標" name="landmark combo" tool_tip="將地標位置顯示在地圖上">
 			<combo_box.item label="我的地標" name="item1"/>
 		</combo_box>
-		<search_editor label="Regions by Name" name="location" tool_tip="輸入一個地區的名稱"/>
-		<button label="Find" name="DoSearch" tool_tip="Search for region"/>
+		<search_editor label="地區依名稱" name="location" tool_tip="輸入一個地區的名稱"/>
+		<button label="尋找" name="DoSearch" tool_tip="搜尋地區"/>
 		<button name="Clear" tool_tip="Clear tracking lines and reset map"/>
 		<text name="events_label">
 			位置：

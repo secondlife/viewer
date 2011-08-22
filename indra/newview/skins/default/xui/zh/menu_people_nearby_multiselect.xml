@@ -6,5 +6,5 @@
 	<menu_item_call label="通話" name="Call"/>
 	<menu_item_call label="分享" name="Share"/>
 	<menu_item_call label="支付" name="Pay"/>
-	<menu_item_call label="Offer Teleport" name="teleport"/>
+	<menu_item_call label="發給瞬間傳送請求" name="teleport"/>
 </context_menu>

@@ -4925,31 +4925,22 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 // static
 void LLWearableBridge::removeAllClothesFromAvatar()
 {
-	// Remove COF links.
-	for (S32 itype = LLWearableType::WT_SHAPE; itype < LLWearableType::WT_COUNT; ++itype)
+	// Fetch worn clothes (i.e. the ones in COF).
+	LLInventoryModel::item_array_t clothing_items;
+	LLInventoryModel::cat_array_t dummy;
+	LLIsType is_clothing(LLAssetType::AT_CLOTHING);
+	gInventory.collectDescendentsIf(LLAppearanceMgr::instance().getCOF(),
+									dummy,
+									clothing_items,
+									LLInventoryModel::EXCLUDE_TRASH,
+									is_clothing,
+									false);
+
+	// Take them off by removing from COF.
+	for (LLInventoryModel::item_array_t::const_iterator it = clothing_items.begin(); it != clothing_items.end(); ++it)
 	{
-		if (itype == LLWearableType::WT_SHAPE || itype == LLWearableType::WT_SKIN || itype == LLWearableType::WT_HAIR || itype == LLWearableType::WT_EYES)
-			continue;
-
-		for (S32 index = gAgentWearables.getWearableCount(itype)-1; index >= 0 ; --index)
-		{
-			LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(
-				gAgentWearables.getWearableInventoryItem((LLWearableType::EType)itype, index));
-			if (!item)
-				continue;
-			const LLUUID &item_id = item->getUUID();
-			const LLWearable *wearable = gAgentWearables.getWearableFromItemID(item_id);
-			if (!wearable)
-				continue;
-	
-			// Find and remove this item from the COF.
-			LLAppearanceMgr::instance().removeCOFItemLinks(item_id,false);
-		}
+		LLAppearanceMgr::instance().removeItemFromAvatar((*it)->getUUID());
 	}
-	gInventory.notifyObservers();
-
-	// Remove wearables from gAgentWearables
-	LLAgentWearables::userRemoveAllClothes();
 }
 
 // static

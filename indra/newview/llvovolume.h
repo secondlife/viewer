@@ -208,7 +208,7 @@ public:
 	/*virtual*/ BOOL	updateLOD();
 				void	updateRadius();
 	/*virtual*/ void	updateTextures();
-				void	updateTextureVirtualSize();
+				void	updateTextureVirtualSize(bool forced = false);
 
 				void	updateFaceFlags();
 				void	regenFaces();

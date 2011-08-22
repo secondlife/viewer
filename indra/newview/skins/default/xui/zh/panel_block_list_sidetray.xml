@@ -3,8 +3,8 @@
 	<text name="title_text">
 		封鎖清單
 	</text>
-	<scroll_list name="blocked" tool_tip="List of currently blocked Residents"/>
-	<button label="Block person" name="Block resident..." tool_tip="Pick a Resident to block"/>
-	<button label="Block object by name" name="Block object by name..." tool_tip="Pick an object to block by name"/>
-	<button label="Unblock" name="Unblock" tool_tip="Remove Resident or object from blocked list"/>
+	<scroll_list name="blocked" tool_tip="目前封鎖的居民清單"/>
+	<button label="封鎖他人" name="Block resident..." tool_tip="挑選一位居民以進行封鎖"/>
+	<button label="依名稱封鎖物件" name="Block object by name..." tool_tip="依名稱挑選一個物件進行封鎖"/>
+	<button label="解除封鎖" name="Unblock" tool_tip="將居民或物件由封鎖清單中移除"/>
 </panel>
