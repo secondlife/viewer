@@ -704,6 +704,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
 				dumpObjectLog(ret);
 
+#if LL_WINDOWS
 				std::stringstream ostr;
 				//dump shader source for debugging
 				for (GLuint i = 0; i < count; i++)
@@ -719,6 +720,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				}
 
 				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+#endif // LL_WINDOWS
 
 				ret = 0;
 			}

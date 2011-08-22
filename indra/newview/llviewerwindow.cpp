@@ -3456,7 +3456,7 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 						LLColor4 color(vovolume->getLightColor(), .5f);
 						gGL.color4fv(color.mV);
 					
-						F32 pixel_area = 100000.f;
+						//F32 pixel_area = 100000.f;
 						// Render Outside
 						gSphere.render();
 
