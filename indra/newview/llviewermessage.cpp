@@ -1060,6 +1060,10 @@ public:
 	{
 		LL_DEBUGS("Messaging") << "LLDiscardAgentOffer::done()" << LL_ENDL;
 
+		// We're invoked from LLInventoryModel::notifyObservers().
+		// If we now try to remove the inventory item, it will cause a nested
+		// notifyObservers() call, which won't work.
+		// So defer moving the item to trash until viewer gets idle (in a moment).
 		LLAppViewer::instance()->addOnIdleCallback(boost::bind(&LLInventoryModel::removeItem, &gInventory, mObjectID));
 		gInventory.removeObserver(this);
 		delete this;

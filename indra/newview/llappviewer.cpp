@@ -332,13 +332,11 @@ const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
  * Tasks added to this list will be executed in the next LLAppViewer::idle() iteration.
  * All tasks are executed only once.
  */
-class LLDeferredTaskList:
-	public LLSingleton<LLDeferredTaskList>,
-	private LLDestroyClass<LLDeferredTaskList>
+class LLDeferredTaskList: public LLSingleton<LLDeferredTaskList>
 {
 	LOG_CLASS(LLDeferredTaskList);
+
 	friend class LLAppViewer;
-	friend class LLDestroyClass<LLDeferredTaskList>;
 	typedef boost::signals2::signal<void()> signal_t;
 
 	void addTask(const signal_t::slot_type& cb)
@@ -348,15 +346,11 @@ class LLDeferredTaskList:
 
 	void run()
 	{
-		if (mSignal.empty()) return;
-
-		mSignal();
-		mSignal.disconnect_all_slots();
-	}
-
-	static void destroyClass()
-	{
-		instance().mSignal.disconnect_all_slots();
+		if (!mSignal.empty())
+		{
+			mSignal();
+			mSignal.disconnect_all_slots();
+		}
 	}
 
 	signal_t mSignal;
@@ -4460,6 +4454,7 @@ void LLAppViewer::idle()
 		}
 	}
 
+	// Execute deferred tasks.
 	LLDeferredTaskList::instance().run();
 	
 	// Handle shutdown process, for example, 
