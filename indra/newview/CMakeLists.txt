@@ -1734,7 +1734,7 @@ endif (WINDOWS)
 # that they depend upon. -brad
 target_link_libraries(${VIEWER_BINARY_NAME}
     ${UPDATER_LIBRARIES}
-    ${GOOGLE_PERFTOOLS_LIBRARIES}
+	${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
@@ -1797,14 +1797,14 @@ if (LINUX)
 
   # These are the generated targets that are copied to package/
   set(COPY_INPUT_DEPENDENCIES
-    ${VIEWER_BINARY_NAME}
-    linux-crash-logger
-    linux-updater
-    SLPlugin
-    media_plugin_webkit
-    media_plugin_gstreamer010
-    llcommon
-    )
+	${VIEWER_BINARY_NAME}
+	linux-crash-logger
+	linux-updater
+	SLPlugin
+	media_plugin_webkit
+	media_plugin_gstreamer010
+	llcommon
+	)
 
   add_custom_command(
       OUTPUT ${product}.tar.bz2
@@ -2063,12 +2063,12 @@ if (LL_TESTS)
     )
 
   LL_ADD_INTEGRATION_TEST(llsimplestat
-    ""
+	""
     "${test_libs}"
     )
 
   LL_ADD_INTEGRATION_TEST(llviewerassetstats
-    llviewerassetstats.cpp
+	llviewerassetstats.cpp
     "${test_libs}"
     )
 
