@@ -30,19 +30,30 @@
 #include "llfloater.h"
 
 #include "llaccountingcostmanager.h"
+#include "llselectmgr.h"
 
-class LLLandImpactsObserver;
-class LLObjectSelection;
-class LLParcelSelection;
+class LLParcel;
 class LLTextBox;
+
+/**
+ * struct LLCrossParcelFunctor
+ *
+ * A functor that checks whether a bounding box for all
+ * selected objects crosses a region or parcel bounds.
+ */
+struct LLCrossParcelFunctor : public LLSelectedObjectFunctor
+{
+	/*virtual*/ bool apply(LLViewerObject* obj);
+
+private:
+	LLBBox	mBoundingBox;
+};
+
 
 class LLFloaterObjectWeights : public LLFloater, LLAccountingCostObserver
 {
 public:
 	LOG_CLASS(LLFloaterObjectWeights);
-
-	typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
-	typedef LLSafeHandle<LLParcelSelection> LLParcelSelectionHandle;
 
 	LLFloaterObjectWeights(const LLSD& key);
 	~LLFloaterObjectWeights();
@@ -50,16 +61,14 @@ public:
 	/*virtual*/ BOOL postBuild();
 
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
 
 	/*virtual*/ void onWeightsUpdate(const SelectionCost& selection_cost);
 	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
 
-	void updateLandImpacts();
-
-private:
+	void updateLandImpacts(const LLParcel* parcel);
 	void refresh();
 
+private:
 	void toggleWeightsLoadingIndicators(bool visible);
 	void toggleLandImpactsLoadingIndicators(bool visible);
 
@@ -77,13 +86,6 @@ private:
 	LLTextBox		*mRezzedOnLand;
 	LLTextBox		*mRemainingCapacity;
 	LLTextBox		*mTotalCapacity;
-
-	LLLandImpactsObserver		*mLandImpactsObserver;
-
-	LLObjectSelectionHandle		mObjectSelection;
-	LLParcelSelectionHandle		mParcelSelection;
-
-	boost::signals2::connection	mSelectMgrConnection;
 };
 
 #endif //LL_LLFLOATEROBJECTWEIGHTS_H

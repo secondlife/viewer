@@ -41,6 +41,7 @@
 #include "llfloaterbuildoptions.h"
 #include "llfloatermediasettings.h"
 #include "llfloateropenobject.h"
+#include "llfloaterobjectweights.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llmediaentry.h"
@@ -54,6 +55,7 @@
 #include "llpanelobject.h"
 #include "llpanelvolume.h"
 #include "llpanelpermissions.h"
+#include "llparcel.h"
 #include "llradiogroup.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -117,6 +119,24 @@ void commit_radio_group_edit(LLUICtrl* ctrl);
 void commit_radio_group_land(LLUICtrl* ctrl);
 void commit_slider_zoom(LLUICtrl *ctrl);
 
+/**
+ * Class LLLandImpactsObserver
+ *
+ * An observer class to monitor parcel selection and update
+ * the land impacts data from a parcel containing the selected object.
+ */
+class LLLandImpactsObserver : public LLParcelObserver
+{
+public:
+	virtual void changed()
+	{
+		LLFloaterTools* tools_floater = LLFloaterReg::getTypedInstance<LLFloaterTools>("build");
+		if(tools_floater)
+		{
+			tools_floater->updateLandImpacts();
+		}
+	}
+};
 
 //static
 void*	LLFloaterTools::createPanelPermissions(void* data)
@@ -344,6 +364,9 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 
 	mCostTextBorder(NULL),
 	mTabLand(NULL),
+
+	mLandImpactsObserver(NULL),
+
 	mDirty(TRUE),
 	mNeedMediaTitle(TRUE)
 {
@@ -375,12 +398,17 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mCommitCallbackRegistrar.add("BuildTool.LinkObjects",		boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()));
 	mCommitCallbackRegistrar.add("BuildTool.UnlinkObjects",		boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
 
+	mLandImpactsObserver = new LLLandImpactsObserver();
+	LLViewerParcelMgr::getInstance()->addObserver(mLandImpactsObserver);
 }
 
 LLFloaterTools::~LLFloaterTools()
 {
 	// children automatically deleted
 	gFloaterTools = NULL;
+
+	LLViewerParcelMgr::getInstance()->removeObserver(mLandImpactsObserver);
+	delete mLandImpactsObserver;
 }
 
 void LLFloaterTools::setStatusText(const std::string& text)
@@ -449,45 +477,44 @@ void LLFloaterTools::refresh()
 	else
 #endif
 	{
-		F32 link_phys_cost  = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetPhysicsCost();
 		F32 link_cost  = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
-		S32 prim_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 		S32 link_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
 
-		LLStringUtil::format_map_t selection_args;
-		selection_args["OBJ_COUNT"] = llformat("%.1d", link_count);
-		selection_args["PRIM_COUNT"] = llformat("%.1d", prim_count);
-
-		std::ostringstream selection_info;
-
-		bool show_mesh_cost = gMeshRepo.meshRezEnabled();
-
-		if (show_mesh_cost)
+		LLCrossParcelFunctor func;
+		if (LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, true))
 		{
-			LLStringUtil::format_map_t prim_equiv_args;
-			prim_equiv_args["SEL_WEIGHT"] = llformat("%.1d", (S32)link_cost);
-			selection_args["PE_STRING"] = getString("status_selectprimequiv", prim_equiv_args);
+			// Selection crosses parcel bounds.
+			// We don't display remaining land capacity in this case.
+			const LLStringExplicit empty_str("");
+			childSetTextArg("remaining_capacity", "[CAPACITY_STRING]", empty_str);
 		}
 		else
 		{
-			selection_args["PE_STRING"] = "";
+			LLViewerObject* selected_object = mObjectSelection->getFirstObject();
+			if (selected_object)
+			{
+				// Select a parcel at the currently selected object's position.
+				LLViewerParcelMgr::getInstance()->selectParcelAt(selected_object->getPositionGlobal());
+			}
+			else
+			{
+				llwarns << "Failed to get selected object" << llendl;
+			}
 		}
 
+		LLStringUtil::format_map_t selection_args;
+		selection_args["OBJ_COUNT"] = llformat("%.1d", link_count);
+		selection_args["LAND_IMPACT"] = llformat("%.1d", (S32)link_cost);
+
+		std::ostringstream selection_info;
+
 		selection_info << getString("status_selectcount", selection_args);
-
-
-		selection_info << ",";
-
-		S32 render_cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectRenderCost();
-
-		childSetTextArg("selection_weight", "[PHYS_WEIGHT]", llformat("%.1f", link_phys_cost));
-		childSetTextArg("selection_weight", "[DISP_WEIGHT]", llformat("%.1d", render_cost));
 
 		getChild<LLTextBox>("selection_count")->setText(selection_info.str());
 
 		bool have_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
 		childSetVisible("selection_count",  have_selection);
-		childSetVisible("selection_weight", have_selection);
+		childSetVisible("remaining_capacity", have_selection);
 		childSetVisible("selection_empty", !have_selection);
 	}
 
@@ -500,6 +527,13 @@ void LLFloaterTools::refresh()
 	refreshMedia();
 	mPanelContents->refresh();
 	mPanelLandInfo->refresh();
+
+	// Refresh the advanced weights floater
+	LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::getTypedInstance<LLFloaterObjectWeights>("object_weights");
+	if(object_weights_floater && object_weights_floater->getVisible())
+	{
+		object_weights_floater->refresh();
+	}
 }
 
 void LLFloaterTools::draw()
@@ -758,7 +792,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	bool have_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
 
 	getChildView("selection_count")->setVisible(!land_visible && have_selection);
-	getChildView("selection_weight")->setVisible(!land_visible && have_selection);
+	getChildView("remaining_capacity")->setVisible(!land_visible && have_selection);
 	getChildView("selection_empty")->setVisible(!land_visible && !have_selection);
 	
 	mTab->setVisible(!land_visible);
@@ -1084,6 +1118,37 @@ bool LLFloaterTools::selectedMediaEditable()
 	};
 	
 	return selected_Media_editable;
+}
+
+void LLFloaterTools::updateLandImpacts()
+{
+	LLParcel *parcel = mParcelSelection->getParcel();
+	if (!parcel)
+	{
+		return;
+	}
+
+	S32 rezzed_prims = parcel->getSimWidePrimCount();
+	S32 total_capacity = parcel->getSimWideMaxPrimCapacity();
+
+	std::string remaining_capacity_str = "";
+
+	bool show_mesh_cost = gMeshRepo.meshRezEnabled();
+	if (show_mesh_cost)
+	{
+		LLStringUtil::format_map_t remaining_capacity_args;
+		remaining_capacity_args["LAND_CAPACITY"] = llformat("%d", total_capacity - rezzed_prims);
+		remaining_capacity_str = getString("status_remaining_capacity", remaining_capacity_args);
+	}
+
+	childSetTextArg("remaining_capacity", "[CAPACITY_STRING]", remaining_capacity_str);
+
+	// Update land impacts info in the weights floater
+	LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::getTypedInstance<LLFloaterObjectWeights>("object_weights");
+	if(object_weights_floater)
+	{
+		object_weights_floater->updateLandImpacts(parcel);
+	}
 }
 
 void LLFloaterTools::getMediaState()

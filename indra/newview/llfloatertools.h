@@ -47,6 +47,7 @@ class LLMediaCtrl;
 class LLTool;
 class LLParcelSelection;
 class LLObjectSelection;
+class LLLandImpactsObserver;
 
 typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
 
@@ -103,6 +104,7 @@ public:
 	void updateMediaTitle();
 	void navigateToTitleMedia( const std::string url );
 	bool selectedMediaEditable();
+	void updateLandImpacts();
 
 private:
 	void refresh();
@@ -179,6 +181,8 @@ public:
 	LLViewBorder*			mCostTextBorder;
 
 	LLTabContainer*			mTabLand;
+
+	LLLandImpactsObserver*  mLandImpactsObserver;
 
 	LLParcelSelectionHandle	mParcelSelection;
 	LLObjectSelectionHandle	mObjectSelection;
