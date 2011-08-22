@@ -41,8 +41,13 @@ public:
 	: mObjectIDs( objectIDs ),
 	  mObserverHandle( observer_handle )
 	{
+		LLAccountingCostObserver* observer = mObserverHandle.get();
+		if (observer)
+		{
+			mTransactionID = observer->getTransactionID();
+		}
 	}
-		
+
 	void clearPendingRequests ( void )
 	{
 		for ( LLSD::array_iterator iter = mObjectIDs.beginArray(); iter != mObjectIDs.endArray(); ++iter )
@@ -57,7 +62,7 @@ public:
 		clearPendingRequests();
 
 		LLAccountingCostObserver* observer = mObserverHandle.get();
-		if (observer)
+		if (observer && observer->getTransactionID() == mTransactionID)
 		{
 			observer->setErrorStatus(statusNum, reason);
 		}
@@ -86,7 +91,7 @@ public:
 			SelectionCost selectionCost( /*transactionID,*/ physicsCost, networkCost, simulationCost );
 
 			LLAccountingCostObserver* observer = mObserverHandle.get();
-			if (observer)
+			if (observer && observer->getTransactionID() == mTransactionID)
 			{
 				observer->onWeightsUpdate(selectionCost);
 			}
@@ -98,6 +103,9 @@ public:
 private:
 	//List of posted objects
 	LLSD mObjectIDs;
+
+	// Current request ID
+	LLUUID mTransactionID;
 
 	// Cost update observer handle
 	LLHandle<LLAccountingCostObserver> mObserverHandle;

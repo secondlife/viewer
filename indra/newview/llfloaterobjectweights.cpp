@@ -198,6 +198,9 @@ void LLFloaterObjectWeights::refresh()
 			std::string url = region->getCapability("ResourceCostSelected");
 			if (!url.empty())
 			{
+				// Update the transaction id before the new fetch request
+				generateTransactionID();
+
 				LLAccountingCostManager::getInstance()->fetchCosts(Roots, url, getObserverHandle());
 				toggleWeightsLoadingIndicators(true);
 			}
@@ -207,6 +210,12 @@ void LLFloaterObjectWeights::refresh()
 			llwarns << "Failed to get region capabilities" << llendl;
 		}
 	}
+}
+
+// virtual
+void LLFloaterObjectWeights::generateTransactionID()
+{
+	mTransactionID.generate();
 }
 
 void LLFloaterObjectWeights::toggleWeightsLoadingIndicators(bool visible)

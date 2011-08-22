@@ -69,6 +69,8 @@ public:
 	void refresh();
 
 private:
+	/*virtual*/ void generateTransactionID();
+
 	void toggleWeightsLoadingIndicators(bool visible);
 	void toggleLandImpactsLoadingIndicators(bool visible);
 
