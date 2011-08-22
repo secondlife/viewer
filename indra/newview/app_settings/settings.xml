@@ -3993,7 +3993,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://search-beta.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]</string>
+      <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]</string>
     </map>
     <key>WebProfileURL</key>
     <map>
