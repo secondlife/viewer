@@ -1798,15 +1798,15 @@ if (LINUX)
   set(product SecondLife-${ARCH}-${viewer_VERSION})
 
   # These are the generated targets that are copied to package/
-  set(COPY_INPUT_DEPENDENCIES
-        ${VIEWER_BINARY_NAME}
-        linux-crash-logger
-        linux-updater
-        SLPlugin
-        media_plugin_webkit
-        media_plugin_gstreamer010
-        llcommon
-        )
+  set(COPY_INPUT_DEPENDENCIES 
+    ${VIEWER_BINARY_NAME}
+    linux-crash-logger
+    linux-updater
+    SLPlugin
+    media_plugin_webkit
+    media_plugin_gstreamer010
+    llcommon
+    )
 
   add_custom_command(
       OUTPUT ${product}.tar.bz2
@@ -2055,24 +2055,24 @@ if (LL_TESTS)
 
 
   LL_ADD_INTEGRATION_TEST(llslurl
-    "${llslurl_test_sources}"
+     "${llslurl_test_sources}"
     "${test_libs}"
-  )
+    )
 
   LL_ADD_INTEGRATION_TEST(llviewernetwork
-    llviewernetwork.cpp
+     llviewernetwork.cpp
     "${test_libs}"
-  )
+    )
 
   LL_ADD_INTEGRATION_TEST(llsimplestat
     ""
     "${test_libs}"
-  )
+    )
 
   LL_ADD_INTEGRATION_TEST(llviewerassetstats
     llviewerassetstats.cpp
     "${test_libs}"
-  )
+    )
 
   #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
   #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)

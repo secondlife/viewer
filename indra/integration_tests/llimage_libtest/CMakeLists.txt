@@ -59,15 +59,15 @@ endif (DARWIN)
 # Libraries on which this application depends on
 # Sort by high-level to low-level
 target_link_libraries(llimage_libtest
-	${LLCOMMON_LIBRARIES}
-	${LLVFS_LIBRARIES}
+    ${LLCOMMON_LIBRARIES}
+    ${LLVFS_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
     ${LLKDU_LIBRARIES}
     ${KDU_LIBRARY}
     ${LLIMAGEJ2COJ_LIBRARIES}
     ${OS_LIBRARIES}
     )
-	
+    
 if (DARWIN)
   # Path inside the app bundle where we'll need to copy libraries
   set(LLIMAGE_LIBTEST_DESTINATION_DIR
