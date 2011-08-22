@@ -26,6 +26,7 @@
 
 #include "linden_common.h"
 
+#include "llbadgeholder.h"
 #include "llbadgeowner.h"
 #include "llpanel.h"
 
@@ -81,40 +82,44 @@ void LLBadgeOwner::setBadgeVisibility(bool visible)
 	}
 }
 
-void LLBadgeOwner::addBadgeToParentPanel()
+bool LLBadgeOwner::addBadgeToParentPanel()
 {
+	bool badge_added = false;
+
 	LLView * owner_view = mBadgeOwnerView.get();
 	
 	if (mBadge && owner_view)
 	{
-		// Badge parent is badge owner by default
-		LLView * badge_parent = owner_view;
+		LLBadgeHolder * badge_holder = NULL;
 
-		// Find the appropriate parent for the badge
+		// Find the appropriate holder for the badge
 		LLView * parent = owner_view->getParent();
 
 		while (parent)
 		{
-			LLPanel * parent_panel = dynamic_cast<LLPanel *>(parent);
+			LLBadgeHolder * badge_holder_panel = dynamic_cast<LLBadgeHolder *>(parent);
 
-			if (parent_panel && parent_panel->acceptsBadge())
+			if (badge_holder_panel && badge_holder_panel->acceptsBadge())
 			{
-				badge_parent = parent;
+				badge_holder = badge_holder_panel;
 				break;
 			}
 
 			parent = parent->getParent();
 		}
 
-		if (badge_parent)
+		if (badge_holder)
 		{
-			badge_parent->addChild(mBadge);
+			badge_added = badge_holder->addBadge(mBadge);
 		}
 		else
 		{
-			llwarns << "Unable to find parent panel for badge " << mBadge->getName() << " on " << owner_view->getName() << llendl;
+			// Badge parent is fallback badge owner if no valid holder exists in the hierarchy
+			badge_added = mBadge->addToView(owner_view);
 		}
 	}
+
+	return badge_added;
 }
 
 LLBadge* LLBadgeOwner::createBadge(const LLBadge::Params& p)

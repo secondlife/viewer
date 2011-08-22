@@ -7,11 +7,14 @@
        image="Badge_Background"
        image_color="BadgeImageColor"
        label_color="BadgeLabelColor"
+       label_offset_horiz="0"
+       label_offset_vert="0"
        location="top_left"
        location_percent_hcenter="85"
        location_percent_vcenter="85"
        padding_horiz="7"
        padding_vert="4"
        requests_front="true"
+       mouse_opaque="false"
        >
 </badge>

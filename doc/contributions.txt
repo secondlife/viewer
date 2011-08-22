@@ -454,6 +454,8 @@ Jonathan Yap
 	STORM-1273
 	STORM-1462
 	STORM-1459
+Kadah Coba
+    STORM-1060
 Kage Pixel
 	VWR-11
 Ken March
@@ -540,6 +542,7 @@ Michelle2 Zenovka
 	VWR-8889
 	VWR-8310
 	VWR-9499
+    STORM-1060
 Mm Alder
 	SNOW-376
 	VWR-197
