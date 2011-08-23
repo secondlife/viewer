@@ -2062,6 +2062,12 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 			return ACCEPT_NO;
 		}
 
+		const LLUUID &outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+		if(gInventory.isObjectDescendentOf(category->getUUID(), outbox_id))
+		{
+			return ACCEPT_NO;
+		}
+
 		if(drop)
 		{
 			BOOL append = ( (mask & MASK_SHIFT) ? TRUE : FALSE );
