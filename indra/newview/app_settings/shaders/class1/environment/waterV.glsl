@@ -57,19 +57,20 @@ void main()
 	float d = length(oEyeVec.xy);
 	float ld = min(d, 2560.0);
 	
-	position.xy = eyeVec.xy + oEyeVec.xy/d*ld;
+	vec3 lpos = position;
+	lpos.xy = eyeVec.xy + oEyeVec.xy/d*ld;
 	view.xyz = oEyeVec;
 		
 	d = clamp(ld/1536.0-0.5, 0.0, 1.0);	
 	d *= d;
 		
-	oPosition = vec4(position, 1.0);
+	oPosition = vec4(lpos, 1.0);
 	oPosition.z = mix(oPosition.z, max(eyeVec.z*0.75, 0.0), d);
 	oPosition = modelViewProj * oPosition;
 	refCoord.xyz = oPosition.xyz + vec3(0,0,0.2);
 	
 	//get wave position parameter (create sweeping horizontal waves)
-	vec3 v = position.xyz;
+	vec3 v = lpos;
 	v.x += (cos(v.x*0.08/*+time*0.01*/)+sin(v.y*0.02))*6.0;
 	    
 	//push position for further horizon effect.
