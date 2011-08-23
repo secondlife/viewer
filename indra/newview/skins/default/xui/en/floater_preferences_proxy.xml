@@ -138,7 +138,6 @@
 	 name="socks5_auth_type"
 	 top_pad="10"
 	 width="120"
-	 border="1"
 	 commit_callback.function="Proxy.Change" >
 		<radio_item
 		 height="16"
@@ -215,17 +214,18 @@
 	</text>
 	<radio_group
 	 control_name="HttpProxyType"
+	 name="other_http_proxy_type"
 	 height="60"
 	 layout="topleft"
 	 top_pad="9"
 	 width="120"
-	 border="1"
 	 left_delta="15" 
 	 commit_callback.function="Proxy.Change" >
 		<radio_item
 		 height="16"
 		 label="Do not proxy"
 		 layout="topleft"
+		 name="OtherNoProxy"
 		 value="None"
 		 width="120"
 		 tool_tip="Non-web HTTP traffic will NOT be sent to any proxy."/>
@@ -233,6 +233,7 @@
 		 height="16"
 		 label="Use HTTP Proxy"
 		 layout="topleft"
+		 name="OtherHTTPProxy"
 		 value="Web"
 		 width="120"
 		 enabled_control="BrowserProxyEnabled"
@@ -241,6 +242,7 @@
 		 height="16"
 		 label="Use SOCKS 5 Proxy"
 		 layout="topleft"
+		 name="OtherSocksProxy"
 		 value="Socks"
 		 width="120"
 		 enabled_control="Socks5ProxyEnabled"
@@ -268,6 +270,4 @@
 	 top_delta="0"
 	 width="90"
 	 commit_callback.function="Proxy.Cancel" />
-	 
-	 
 </floater>
