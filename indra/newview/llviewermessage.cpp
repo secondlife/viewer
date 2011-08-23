@@ -6544,8 +6544,22 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 		rtn_text = LLNotification::getSelectedOptionName(response);
 	}
 
-	// Didn't click "Ignore"
-	if (button_idx != -1)
+	// Button -2 = Mute
+	// Button -1 = Ignore - no processing needed for this button
+	// Buttons 0 and above = dialog choices
+
+	if (-2 == button_idx)
+	{
+		std::string object_name = notification["payload"]["object_name"].asString();
+		LLUUID object_id = notification["payload"]["object_id"].asUUID();
+		LLMute mute(object_id, object_name, LLMute::OBJECT);
+		if (LLMuteList::getInstance()->add(mute))
+		{
+			LLPanelBlockedList::showPanelAndSelect(object_id);
+		}
+	}
+
+	if (0 <= button_idx)
 	{
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessage("ScriptDialogReply");
@@ -6588,12 +6602,12 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	std::string message; 
 	std::string first_name;
 	std::string last_name;
-	std::string title;
+	std::string object_name;
 
 	S32 chat_channel;
 	msg->getString("Data", "FirstName", first_name);
 	msg->getString("Data", "LastName", last_name);
-	msg->getString("Data", "ObjectName", title);
+	msg->getString("Data", "ObjectName", object_name);
 	msg->getString("Data", "Message", message);
 	msg->getS32("Data", "ChatChannel", chat_channel);
 
@@ -6604,6 +6618,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	payload["sender"] = msg->getSender().getIPandPort();
 	payload["object_id"] = object_id;
 	payload["chat_channel"] = chat_channel;
+	payload["object_name"] = object_name;
 
 	// build up custom form
 	S32 button_count = msg->getNumberOfBlocks("Buttons");
@@ -6622,7 +6637,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	}
 
 	LLSD args;
-	args["TITLE"] = title;
+	args["TITLE"] = object_name;
 	args["MESSAGE"] = message;
 	LLNotificationPtr notification;
 	if (!first_name.empty())
