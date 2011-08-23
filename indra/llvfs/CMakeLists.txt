@@ -83,13 +83,13 @@ if (LL_TESTS)
     include(LLAddBuildTest)
     # UNIT TESTS
     SET(llvfs_TEST_SOURCE_FILES
-	lldiriterator.cpp
-	)
+    lldiriterator.cpp
+    )
 
     set_source_files_properties(lldiriterator.cpp
-	PROPERTIES
-	LL_TEST_ADDITIONAL_LIBRARIES "${vfs_BOOST_LIBRARIES}"
-	)
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${vfs_BOOST_LIBRARIES}"
+    )
     LL_ADD_PROJECT_UNIT_TESTS(llvfs "${llvfs_TEST_SOURCE_FILES}")
 
     # INTEGRATION TESTS

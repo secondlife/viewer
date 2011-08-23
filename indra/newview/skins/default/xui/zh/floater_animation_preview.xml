@@ -35,7 +35,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
 		Cannot get JOINT name.
 	</floater.string>
 	<floater.string name="E_ST_NO_OFFSET">
-		Cannot find OFFSET.
+		無法尋找位移。
 	</floater.string>
 	<floater.string name="E_ST_NO_CHANNELS">
 		Cannot find CHANNELS.

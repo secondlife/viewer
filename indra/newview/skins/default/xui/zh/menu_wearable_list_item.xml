@@ -2,7 +2,7 @@
 <context_menu name="Outfit Wearable Context Menu">
 	<menu_item_call label="取代" name="wear_replace"/>
 	<menu_item_call label="Wear" name="wear_wear"/>
-	<menu_item_call label="Add" name="wear_add"/>
+	<menu_item_call label="添加" name="wear_add"/>
 	<menu_item_call label="Take Off / Detach" name="take_off_or_detach"/>
 	<menu_item_call label="卸下" name="detach"/>
 	<context_menu label="Attach to" name="wearable_attach_to"/>

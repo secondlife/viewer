@@ -17,8 +17,8 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLPLUGIN_INCLUDE_DIRS}
-	${LLVFS_INCLUDE_DIRS}
-	${CURL_INCLUDE_DIRS}
+    ${LLVFS_INCLUDE_DIRS}
+    ${CURL_INCLUDE_DIRS}
     )
 
 set(updater_service_SOURCE_FILES
@@ -51,7 +51,7 @@ target_link_libraries(llupdaterservice
     ${LLCOMMON_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLPLUGIN_LIBRARIES}
-	${LLVFS_LIBRARIES}
+    ${LLVFS_LIBRARIES}
     )
 
 if(LL_TESTS)

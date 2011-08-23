@@ -9,7 +9,7 @@
 	<floater.string name="Title">
 		腳本：[NAME]
 	</floater.string>
-	<button label="Reset" label_selected="Reset" name="Reset"/>
-	<check_box initial_value="true" label="Running" name="running"/>
+	<button label="重設" label_selected="重設" name="Reset"/>
+	<check_box initial_value="true" label="執行中" name="running"/>
 	<check_box initial_value="true" label="Mono" name="mono"/>
 </floater>

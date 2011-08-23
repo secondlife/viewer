@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="EDIT CONTENT PERMISSIONS">
+<floater name="floaterbulkperms" title="編輯內容物權限">
 	<floater.string name="nothing_to_modify_text">
-		Selection contains no editable contents.
+		選擇未包含可編輯的內容物。
 	</floater.string>
 	<floater.string name="status_text">
-		Setting permissions on [NAME]
+		設定權限於 [NAME]
 	</floater.string>
 	<floater.string name="start_text">
-		Starting permission change requests...
+		開始進行權限變更要求...
 	</floater.string>
 	<floater.string name="done_text">
-		Finished permission change requests.
+		權限變更要求已完成。
 	</floater.string>
 	<icon name="icon_animation" tool_tip="動作"/>
 	<icon name="icon_bodypart" tool_tip="身體部位"/>
@@ -24,10 +24,10 @@
 	<button label="√ 全部" name="check_all"/>
 	<button label="清除" label_selected="無" name="check_none"/>
 	<text name="newperms">
-		New Content Permissions
+		新內容物權限
 	</text>
 	<text name="GroupLabel">
-		社團：
+		群組：
 	</text>
 	<check_box label="分享" name="share_with_group"/>
 	<text name="AnyoneLabel">
@@ -39,7 +39,7 @@
 	</text>
 	<check_box label="修改" name="next_owner_modify"/>
 	<check_box label="覆製" name="next_owner_copy"/>
-	<check_box initial_value="true" label="轉移" name="next_owner_transfer" tool_tip="Next owner can give away or resell this object"/>
+	<check_box initial_value="true" label="轉移" name="next_owner_transfer" tool_tip="下一個擁有者能送出或轉售這個物件"/>
 	<button label="確定" name="apply"/>
 	<button label="取消" name="close"/>
 </floater>

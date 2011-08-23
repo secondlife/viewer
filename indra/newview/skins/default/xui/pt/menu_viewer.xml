@@ -159,7 +159,6 @@
 		<menu_item_check label="Disable Camera Constraints" name="Disable Camera Distance"/>
 		<menu_item_check label="Foto de alta resolução" name="HighResSnapshot"/>
 		<menu_item_check label="Compactar fotos para HD" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="Compactar fotos para HD" name="CompressSnapshotsToDisk"/>
 		<menu label="Ferramentas de desempenho" name="Performance Tools">
 			<menu_item_call label="Medidor de lag" name="Lag Meter"/>
 			<menu_item_check label="Barra de estatísticas" name="Statistics Bar"/>

@@ -10,7 +10,7 @@ You can turn off Notices on the General tab.
 	</panel.string>
 	<text name="lbl2">
 		通知保留 14 天。
-每個社團一天最多 200 則
+每個群組一天最多 200 則
 	</text>
 	<scroll_list name="notice_list">
 		<scroll_list.columns label="主旨" name="subject"/>

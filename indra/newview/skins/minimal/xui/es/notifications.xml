@@ -9,7 +9,7 @@
 		</form>
 	</notification>
 	<notification name="ObjectGiveItem">
-		Un objeto de nombre &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, propiedad de [NAME_SLURL], te ofrece un/a [ITEM_SLURL]. Para utilizar este ítem, cambia al modo Avanzado y búscalo en el inventario. Para cambiar al modo Avanzado, sal de la aplicación, reiníciala y cambia el ajuste de modo en la pantalla de inicio de sesión.
+		Un objeto de nombre &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, propiedad de [NAME_SLURL], te ofrece un/a &lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;. Para utilizar este ítem, cambia al modo Avanzado y búscalo en el inventario. Para cambiar al modo Avanzado, sal de la aplicación, reiníciala y cambia el ajuste de modo en la pantalla de inicio de sesión.
 		<form name="form">
 			<button name="Keep" text="Conservar ítem"/>
 			<button name="Discard" text="Rechazar ítem"/>

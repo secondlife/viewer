@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <role_actions>
 	<action_set description="These Abilities include powers to add and remove group Members, and allow new Members to join without an invitation." name="Membership">
-		<action description="Invite People to this Group" longdescription="Invite People to this Group using the &apos;Invite&apos; button in the Roles section &gt; Members tab." name="member invite" value="1"/>
-		<action description="將會員由這個社團中踢出" longdescription="Eject Members from this Group using the &apos;Eject&apos; button in the Roles section &gt; Members tab. An Owner can eject anyone except another Owner. If you&apos;re not an Owner, a Member can be ejected from a group if, and only if, they&apos;re only in the Everyone Role, and NO other Roles. To remove Members from Roles, you need to have the &apos;Remove Members from Roles&apos; Ability." name="member eject" value="2"/>
+		<action description="邀請他人加入這個群組" longdescription="邀請他人加入這個群組，請按下於角色區段中的成員頁籤中的 &apos;邀請&apos; 按鈕。" name="member invite" value="1"/>
+		<action description="將會員由這個群組中踢出" longdescription="Eject Members from this Group using the &apos;Eject&apos; button in the Roles section &gt; Members tab. An Owner can eject anyone except another Owner. If you&apos;re not an Owner, a Member can be ejected from a group if, and only if, they&apos;re only in the Everyone Role, and NO other Roles. To remove Members from Roles, you need to have the &apos;Remove Members from Roles&apos; Ability." name="member eject" value="2"/>
 		<action description="Toggle &apos;Open Enrollment&apos; and change &apos;Enrollment fee&apos;" longdescription="Toggle &apos;Open Enrollment&apos; to let new Members join without an invitation, and change the &apos;Enrollment fee&apos; in the General section." name="member options" value="3"/>
 	</action_set>
 	<action_set description="These Abilities include powers to add, remove, and change group Roles, add and remove Members in Roles, and assign Abilities to Roles." name="Roles">
-		<action description="Create new Roles" longdescription="Create new Roles in the Roles section &gt; Roles tab." name="role create" value="4"/>
+		<action description="創立一個新角色" longdescription="創立一個新角色於角色區段 &gt; 角色頁籤。" name="role create" value="4"/>
 		<action description="刪除角色" longdescription="Delete Roles in the Roles section &gt; Roles tab." name="role delete" value="5"/>
 		<action description="Change Role names, titles, descriptions, and whether Role members are publicly revealed" longdescription="Change Role names, titles, descriptions, and whether Role members are publicly revealed. This is done at the bottom of the the Roles section &gt; Roles tab after selecting a Role." name="role properties" value="6"/>
 		<action description="Assign Members to Assigner&apos;s Roles" longdescription="Assign Members to Roles in the list of Assigned Roles (Roles section &gt; Members tab). A Member with this Ability can only add Members to a Role that the assigner is already in." name="role assign member limited" value="7"/>
@@ -50,7 +50,7 @@
 	<action_set description="These Abilities include powers to allow members to return objects and place and move Linden plants. This is useful for Members to clean up litter and do landscaping, but it should also be used with care, because there&apos;s no undo for returning objects." name="Parcel Content">
 		<action description="Return objects owned by group" longdescription="Return objects on group-owned parcels that are owned by the group in About Land &gt; Objects tab." name="land return group owned" value="48"/>
 		<action description="Return objects set to group" longdescription="Return objects on group-owned parcels that are set to the group in About Land &gt; Objects tab." name="land return group set" value="33"/>
-		<action description="Return non-group objects" longdescription="Return objects on group-owned parcels that are non-group in About Land &gt; Objects tab." name="land return non group" value="34"/>
+		<action description="退回非群組物件" longdescription="Return objects on group-owned parcels that are non-group in About Land &gt; Objects tab." name="land return non group" value="34"/>
 		<action description="Landscaping using Linden plants" longdescription="Landscaping ability to place and move Linden trees, plants, and grasses. These items can be found in your inventory&apos;s Library &gt; Objects folder, or they can be created via the Build menu." name="land gardening" value="35"/>
 	</action_set>
 	<action_set description="These Abilities include powers to deed, modify, and sell group-owned objects. These changes are done in the Build Tools &gt; General tab. Right-click an object and Edit to see its settings." name="Object Management">
@@ -66,8 +66,8 @@
 		<action description="接收通知與察看過去通知" longdescription="Members in a Role with this Ability can receive Notices and view past Notices in Group &gt; Notices section." name="notices receive" value="43"/>
 	</action_set>
 	<action_set description="These Abilities include powers to allow or restrict access to group chat sessions and group voice chat." name="Chat">
-		<action description="Join Group Chat" longdescription="Members in a Role with this Ability can join group chat sessions, for text and voice." name="join group chat" value="16"/>
-		<action description="Join Group Voice Chat" longdescription="Members in a Role with this Ability can join group voice chat sessions.  NOTE: The Join Group Chat ability is required to access the voice chat session." name="join voice chat" value="27"/>
-		<action description="Moderate Group Chat" longdescription="Members in a Role with this Ability can control access and participation in group voice and text chat sessions." name="moderate group chat" value="37"/>
+		<action description="加入群組聊天" longdescription="Members in a Role with this Ability can join group chat sessions, for text and voice." name="join group chat" value="16"/>
+		<action description="加入群組語音聊天" longdescription="Members in a Role with this Ability can join group voice chat sessions.  NOTE: The Join Group Chat ability is required to access the voice chat session." name="join voice chat" value="27"/>
+		<action description="適度成人內容的群組聊天" longdescription="Members in a Role with this Ability can control access and participation in group voice and text chat sessions." name="moderate group chat" value="37"/>
 	</action_set>
 </role_actions>

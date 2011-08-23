@@ -11,7 +11,7 @@
 	<menu_item_call label="清空 Lost and Found" name="empty_lostnfound"/>
 	<menu_item_call label="儲存材質為" name="Save Texture As"/>
 	<menu_item_call label="分享" name="Share"/>
-	<menu_item_call label="Find Original" name="Find Original"/>
-	<menu_item_call label="Find All Links" name="Find All Links"/>
+	<menu_item_call label="尋找原件" name="Find Original"/>
+	<menu_item_call label="尋找全部聯結" name="Find All Links"/>
 	<menu_item_call label="清空垃圾筒" name="empty_trash"/>
 </toggleable_menu>

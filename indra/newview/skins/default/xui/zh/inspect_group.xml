@@ -5,16 +5,16 @@
 -->
 <floater name="inspect_group">
 	<string name="PrivateGroup">
-		私人社團
+		私人群組
 	</string>
 	<string name="FreeToJoin">
 		免費加入
 	</string>
 	<string name="CostToJoin">
-		L$[AMOUNT] to join
+		花費 L$[AMOUNT] 加入
 	</string>
 	<string name="YouAreMember">
-		You are a member
+		你是成員
 	</string>
 	<text name="group_subtitle">
 		123 members

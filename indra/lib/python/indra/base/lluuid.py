@@ -163,7 +163,7 @@ class UUID(object):
     def setFromMemoryDump(self, gdb_string):
         """
         We expect to get gdb_string as four hex units. eg:
-        0x147d54db		0xc34b3f1b		0x714f989b		0x0a892fd2
+        0x147d54db      0xc34b3f1b      0x714f989b      0x0a892fd2
         Which will be translated to:
         db547d14-1b3f4bc3-9b984f71-d22f890a
         Returns self.
@@ -187,7 +187,7 @@ class UUID(object):
     def getAsString(self):
         """
         Return a different string representation of the form
-        AAAAAAAA-AAAABBBB-BBBBBBBB-BBCCCCCC	 (a 128-bit number in hex)
+        AAAAAAAA-AAAABBBB-BBBBBBBB-BBCCCCCC  (a 128-bit number in hex)
         where A=network address, B=timestamp, C=random.
         """
         i1 = _binstr2int(self._bits[0:4])
@@ -233,7 +233,7 @@ NULL = UUID()
 def printTranslatedMemory(four_hex_uints):
     """
     We expect to get the string as four hex units. eg:
-    0x147d54db		0xc34b3f1b		0x714f989b		0x0a892fd2
+    0x147d54db      0xc34b3f1b      0x714f989b      0x0a892fd2
     Which will be translated to:
     db547d14-1b3f4bc3-9b984f71-d22f890a
     """

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Inventory Finder" title="最近_收納區_物品">
 	<check_box label="動作" name="check_animation"/>
-	<check_box label="Calling Cards" name="check_calling_card"/>
+	<check_box label="名片" name="check_calling_card"/>
 	<check_box label="服裝" name="check_clothing"/>
 	<check_box label="姿勢" name="check_gesture"/>
 	<check_box label="地標" name="check_landmark"/>
