@@ -2095,7 +2095,7 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 	}
 
 	// Check for invalid states for the other HTTP proxy radio
-	LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("other_http_proxy_selection");
+	LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("HttpProxyType");
 	if ((otherHttpProxy->getSelectedValue().asString() == "Socks" &&
 			getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == FALSE )||(
 					otherHttpProxy->getSelectedValue().asString() == "Web" &&
