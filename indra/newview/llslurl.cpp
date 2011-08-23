@@ -273,11 +273,11 @@ LLSLURL::LLSLURL(const std::string& slurl)
 			mRegion = LLURI::unescape(path_array[0].asString());
 			path_array.erase(0);
 			
-			// parse the x, y, z
-			if(path_array.size() >= 3)
+			// parse the x, y, and optionally z
+			if(path_array.size() >= 2)
 			{	
 			  
-			  mPosition = LLVector3(path_array);
+			  mPosition = LLVector3(path_array); // this construction handles LLSD without all components (values default to 0.f)
 			  if((F32(mPosition[VX]) < 0.f) || 
                              (mPosition[VX] > REGION_WIDTH_METERS) ||
 			     (F32(mPosition[VY]) < 0.f) || 
