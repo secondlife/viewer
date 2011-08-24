@@ -5570,10 +5570,10 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 	if (visible)
 	{
 		std::string tbd = getString("tbd");
-		childSetTextArg("weights_right", "[EQ]", tbd);
-		childSetTextArg("weights_left", "[ST]", tbd);
-		childSetTextArg("weights_right", "[SIM]", tbd);
-		childSetTextArg("weights_left", "[PH]", tbd);
+		childSetTextArg("prim_weight", "[EQ]", tbd);
+		childSetTextArg("download_weight", "[ST]", tbd);
+		childSetTextArg("server_weight", "[SIM]", tbd);
+		childSetTextArg("physics_weight", "[PH]", tbd);
 		childSetTextArg("upload_fee", "[FEE]", tbd);
 		childSetTextArg("price_breakdown", "[STREAMING]", tbd);
 		childSetTextArg("price_breakdown", "[PHYSICS]", tbd);
@@ -5596,10 +5596,10 @@ void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
 	const LLSD& result = mModelPhysicsFee;
 	mUploadModelUrl = result["url"].asString();
 
-	childSetTextArg("weights_right", "[EQ]", llformat("%0.3f", result["resource_cost"].asReal()));
-	childSetTextArg("weights_left", "[ST]", llformat("%0.3f", result["model_streaming_cost"].asReal()));
-	childSetTextArg("weights_right", "[SIM]", llformat("%0.3f", result["simulation_cost"].asReal()));
-	childSetTextArg("weights_left", "[PH]", llformat("%0.3f", result["physics_cost"].asReal()));
+	childSetTextArg("prim_weight", "[EQ]", llformat("%0.3f", result["resource_cost"].asReal()));
+	childSetTextArg("download_weight", "[ST]", llformat("%0.3f", result["model_streaming_cost"].asReal()));
+	childSetTextArg("server_weight", "[SIM]", llformat("%0.3f", result["simulation_cost"].asReal()));
+	childSetTextArg("physics_weight", "[PH]", llformat("%0.3f", result["physics_cost"].asReal()));
 	childSetTextArg("upload_fee", "[FEE]", llformat("%d", result["upload_price"].asInteger()));
 	childSetTextArg("price_breakdown", "[STREAMING]", llformat("%d", result["upload_price_breakdown"]["mesh_streaming"].asInteger()));
 	childSetTextArg("price_breakdown", "[PHYSICS]", llformat("%d", result["upload_price_breakdown"]["mesh_physics"].asInteger()));
