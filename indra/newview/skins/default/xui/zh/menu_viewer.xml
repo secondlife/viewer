@@ -139,7 +139,6 @@
 		<menu_item_check label="Disable Camera Constraints" name="Disable Camera Distance"/>
 		<menu_item_check label="高解析度快照" name="HighResSnapshot"/>
 		<menu_item_check label="靜音拍攝快照到硬碟" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="壓縮快照存到硬碟" name="CompressSnapshotsToDisk"/>
 		<menu label="效能工具" name="Performance Tools">
 			<menu_item_call label="Lag Meter" name="Lag Meter"/>
 			<menu_item_check label="統計列" name="Statistics Bar"/>
