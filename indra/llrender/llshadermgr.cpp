@@ -544,10 +544,13 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	{
 		//set version to 1.20
 		text[count++] = strdup("#version 120\n");
+		text[count++] = strdup("#define FXAA_GLSL_120 1\n");
+		text[count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
 	}
 	else
 	{  //set version to 1.30
 		text[count++] = strdup("#version 130\n");
+		text[count++] = strdup("#define FXAA_GLSL_130 1\n");
 	}
 
 	//copy preprocessor definitions into buffer

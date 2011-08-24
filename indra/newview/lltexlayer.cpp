@@ -306,9 +306,6 @@ BOOL LLTexLayerSetBuffer::render()
 	success &= mTexLayerSet->render( mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight );
 	gGL.flush();
 
-	LLVertexBuffer::unbind();
-	LLGLSLShader::sNoFixedFunction = no_ff;
-	
 	if(upload_now)
 	{
 		if (!success)
@@ -338,6 +335,9 @@ BOOL LLTexLayerSetBuffer::render()
 		doUpdate();
 	}
 
+	LLVertexBuffer::unbind();
+	LLGLSLShader::sNoFixedFunction = no_ff;
+	
 	// reset GL state
 	gGL.setColorMask(true, true);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);

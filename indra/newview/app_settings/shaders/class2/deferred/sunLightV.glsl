@@ -1,5 +1,5 @@
 /** 
- * @file sunLightF.glsl
+ * @file sunLightV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,8 +25,6 @@
  
 attribute vec3 position;
 
-
-varying vec4 vary_light;
 varying vec2 vary_fragcoord;
 
 uniform vec2 screen_res;
