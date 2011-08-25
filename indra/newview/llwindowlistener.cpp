@@ -31,6 +31,7 @@
 #include "llcoord.h"
 #include "llkeyboard.h"
 #include "llwindowcallbacks.h"
+#include "llui.h"
 #include <map>
 
 LLWindowListener::LLWindowListener(LLWindowCallbacks *window, const KeyboardGetter& kbgetter)
@@ -42,35 +43,47 @@ LLWindowListener::LLWindowListener(LLWindowCallbacks *window, const KeyboardGett
 		"Given [\"keysym\"], [\"keycode\"] or [\"char\"], inject the specified ";
 	std::string keyExplain =
 		"(integer keycode values, or keysym string from any addKeyName() call in\n"
-		"http://hg.secondlife.com/viewer-development/src/tip/indra/llwindow/llkeyboard.cpp )";
+		"http://hg.secondlife.com/viewer-development/src/tip/indra/llwindow/llkeyboard.cpp )\n";
 	std::string mask =
 		"Specify optional [\"mask\"] as an array containing any of \"CTL\", \"ALT\",\n"
 		"\"SHIFT\" or \"MAC_CONTROL\"; the corresponding modifier bits will be combined\n"
 		"to form the mask used with the event.";
 
-	std::string mouseSomething =
-		"Given [\"button\"], [\"x\"] and [\"y\"], inject the given mouse ";
-	std::string mouseExplain =
-		"(button values \"LEFT\", \"MIDDLE\", \"RIGHT\")";
+	std::string given = "Given ";
+	std::string mouseParams =
+		"optional [\"path\"], optional [\"x\"] and [\"y\"], inject the requested mouse ";
+	std::string buttonParams =
+		std::string("[\"button\"], ") + mouseParams;
+	std::string buttonExplain =
+		"(button values \"LEFT\", \"MIDDLE\", \"RIGHT\")\n";
+	std::string paramsExplain =
+		"[\"path\"] is as for LLUI::resolvePath(), described in\n"
+		"http://hg.secondlife.com/viewer-development/src/tip/indra/llui/llui.h\n"
+		"If you omit [\"path\"], you must specify both [\"x\"] and [\"y\"].\n"
+		"If you specify [\"path\"] without both [\"x\"] and [\"y\"], will synthesize (x, y)\n"
+		"in the center of the LLView selected by [\"path\"].\n"
+		"You may specify [\"path\"] with both [\"x\"] and [\"y\"], will use your (x, y).\n"
+		"This may cause the LLView selected by [\"path\"] to reject the event.\n"
+		"Optional [\"reply\"] requests a reply event on the named LLEventPump.\n"
+		"reply[\"error\"] isUndefined (None) on success, else an explanatory message.\n";
 
 	add("keyDown",
-		keySomething + "keypress event.\n" + keyExplain + '\n' + mask,
+		keySomething + "keypress event.\n" + keyExplain + mask,
 		&LLWindowListener::keyDown);
 	add("keyUp",
-		keySomething + "key release event.\n" + keyExplain + '\n' + mask,
+		keySomething + "key release event.\n" + keyExplain + mask,
 		&LLWindowListener::keyUp);
 	add("mouseDown",
-		mouseSomething + "click event.\n" + mouseExplain + '\n' + mask,
+		given + buttonParams + "click event.\n" + buttonExplain + paramsExplain + mask,
 		&LLWindowListener::mouseDown);
 	add("mouseUp",
-		mouseSomething + "release event.\n" + mouseExplain + '\n' + mask,
+		given + buttonParams + "release event.\n" + buttonExplain + paramsExplain + mask,
 		&LLWindowListener::mouseUp);
 	add("mouseMove",
-		std::string("Given [\"x\"] and [\"y\"], inject the given mouse movement event.\n") +
-		mask,
+		given + mouseParams + "movement event.\n" + paramsExplain + mask,
 		&LLWindowListener::mouseMove);
 	add("mouseScroll",
-		"Given an integer number of [\"clicks\"], inject the given mouse scroll event.\n"
+		"Given an integer number of [\"clicks\"], inject the requested mouse scroll event.\n"
 		"(positive clicks moves downward through typical content)",
 		&LLWindowListener::mouseScroll);
 }

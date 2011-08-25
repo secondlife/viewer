@@ -599,6 +599,7 @@ set(viewer_SOURCE_FILES
     llweb.cpp
     llwebsharing.cpp
     llwind.cpp
+    llwindowlistener.cpp
     llwlanimator.cpp
     llwldaycycle.cpp
     llwlhandlers.cpp
@@ -1153,6 +1154,7 @@ set(viewer_HEADER_FILES
     llweb.h
     llwebsharing.h
     llwind.h
+    llwindowlistener.h
     llwlanimator.h
     llwldaycycle.h
     llwlhandlers.h

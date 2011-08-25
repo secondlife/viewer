@@ -36,6 +36,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <boost/lambda/core.hpp>
 
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -198,6 +199,7 @@
 #include "llfloaternotificationsconsole.h"
 
 #include "llnearbychat.h"
+#include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
 
@@ -1552,7 +1554,12 @@ LLViewerWindow::LLViewerWindow(
 	mResDirty(false),
 	mStatesDirty(false),
 	mCurrResolutionIndex(0),
-    mViewerWindowListener(new LLViewerWindowListener(this)),
+	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
+	// pass its value right now. Instead, pass it a nullary function that
+	// will, when we later need it, return the value of gKeyboard.
+	// boost::lambda::var() constructs such a functor on the fly.
+	mWindowListener(new LLWindowListener(this, boost::lambda::var(gKeyboard))),
+	mViewerWindowListener(new LLViewerWindowListener(this)),
 	mProgressView(NULL)
 {
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
