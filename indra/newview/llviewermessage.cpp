@@ -1474,13 +1474,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	std::string log_message;
 	S32 button = LLNotificationsUtil::getSelectedOption(notification, response);
 
-	// The offer notification has no Busy button,
-	// so if we're in busy mode, assume busy response (STORM-1543).
-	if (gAgent.getBusy())
-	{
-		button = IOR_BUSY;
-	}
-	
 	LLInventoryObserver* opener = NULL;
 	LLViewerInventoryCategory* catp = NULL;
 	catp = (LLViewerInventoryCategory*)gInventory.getCategory(mObjectID);
@@ -1512,7 +1505,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// TODO: when task inventory offers can also be handled the new way, migrate the code that sets these strings here:
 	from_string = chatHistory_string = mFromName;
 	
-	bool busy=FALSE;
+	bool busy = gAgent.getBusy();
 	
 	switch(button)
 	{
@@ -1571,9 +1564,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		}
 		break;
 
-	case IOR_BUSY:
-		//Busy falls through to decline.  Says to make busy message.
-		busy=TRUE;
 	case IOR_MUTE:
 		// MUTE falls through to decline
 	case IOR_DECLINE:
@@ -1719,7 +1709,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		from_string = chatHistory_string = mFromName;
 	}
 	
-	bool busy=FALSE;
+	bool busy = gAgent.getBusy();
 	
 	switch(button)
 	{
@@ -1765,9 +1755,6 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		}	// end switch (mIM)
 			break;
 			
-		case IOR_BUSY:
-			//Busy falls through to decline.  Says to make busy message.
-			busy=TRUE;
 		case IOR_MUTE:
 			// MUTE falls through to decline
 		case IOR_DECLINE:
