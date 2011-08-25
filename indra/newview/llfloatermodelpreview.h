@@ -187,7 +187,7 @@ public:
 	void			loadModel(S32 lod);
 	void 			loadModel(S32 lod, const std::string& file_name, bool force_disable_slm = false);
 	
-	void onViewOptionChecked(const LLSD& userdata);
+	void onViewOptionChecked(LLUICtrl* ctrl);
 	bool isViewOptionChecked(const LLSD& userdata);
 	bool isViewOptionEnabled(const LLSD& userdata);
 	void setViewOptionEnabled(const std::string& option, bool enabled);
@@ -269,8 +269,6 @@ protected:
 	// 2 - None
 	S32 mLODMode[4];
 
-	LLMenuButton* mViewOptionMenuButton;
-	LLToggleableMenu* mViewOptionMenu;
 	LLMutex* mStatusLock;
 
 	LLSD mModelPhysicsFee;
@@ -281,6 +279,9 @@ private:
 
 	// Toggles between "Calculate weights & fee" and "Upload" buttons.
 	void toggleCalculateButton(bool visible);
+
+	// resets display options of model preview to their defaults.
+	void resetDisplayOptions();
 
 	LLButton* mUploadBtn;
 	LLButton* mCalculateBtn;

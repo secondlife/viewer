@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="true" can_drag_on_left="false" can_minimize="false"
-     can_resize="true" height="650" min_height="550" min_width="620"
+     can_resize="false" height="480" min_height="480" min_width="840"
      name="Model Preview" title="Upload Model" width="840"
       help_topic="upload_model" >
 
@@ -27,8 +27,8 @@
   <string name="tbd">TBD</string>
 
 <panel
-  follows="all"
-  height="625"
+  follows="top|left"
+  height="455"
   layout="topleft"
   left="3"
   name="left_panel"
@@ -49,7 +49,7 @@
           name="name_label"
           top="0"
           width="290">
-          Name:
+          Model name:
         </text>
         <line_editor
           follows="top|left"
@@ -69,7 +69,7 @@
           text_color="White"
           top="0"
           width="200">
-          What does this model represent?
+          This model represent...
         </text>
         <combo_box
           follows="left|top"
@@ -91,13 +91,12 @@
          </combo_box>
     </panel>
     <tab_container
-      follows="all"
+      follows="top|left"
       top_pad="15"
       left="0"
-      height="470"
+      height="300"
       width="525"
       name="import_tab"
-      border="true"
       tab_position="top">
       <!-- LOD PANEL -->
     <panel
@@ -105,7 +104,7 @@
       label="Level of Detail"
       name="lod_panel"
       help_topic="upload_model_lod">
-    <!-- LOD TABLE-->
+     LOD TABLE
     <panel
       follows="top|left"
       name="lod table"
@@ -157,7 +156,7 @@
     <text left_pad="5" width="230" height="28" follows="left|top" top_pad="-15" wrap="true" name="lod_status_message_text"/>
     </panel>
     
-    <!-- LOD MESH-->
+     LOD MESH
     <panel
       follows="top|left"
       name="mesh"
@@ -239,7 +238,7 @@
     <spinner follows="left|top" name="share_tolerance" left_pad="5" width="100" decimal_digits="5" initial_value="0.00001" height="20"/>
     </panel>
     
-    <!-- LOD GENERATE NORMALS-->
+     LOD GENERATE NORMALS
     <panel
       follows="top|left"
       name="generate normals"
@@ -262,22 +261,28 @@
       </panel>
       <!-- PHYSYCS PANEL -->
       <panel
-        border="true"
         label="Physics"
         name="physics_panel"
         help_topic="upload_model_physics">
-    
-        <!-- PHYSICS GEOMETRY-->
+         <view_border
+          bevel_style="none"
+          follows="top|left"
+          height="275"
+          layout="topleft"
+          left="3"
+          name="physics_tab_border"
+          top_pad="0"
+          width="519"/>
+         PHYSICS GEOMETRY
         <panel
           follows="top|left"
           name="physics geometry"
-          left="0"
+          left="3"
           top="0"
           width="300"
           height="65"
           visible="true"
-          border="true"
-          bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
+          bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
     
           <radio_group follows="top|left" top="10" width="240" height="40" name="physics_load_radio" value="physics_load_from_file">
             <radio_item bottom="0" name="physics_load_from_file" label="File:"/>
@@ -303,14 +308,14 @@
           <line_editor follows="left|top" top_pad="5" width="140" left="60" value="" name="physics_file" height="20"/>
           <button left_pad="10" name="physics_browse" label="Browse..." follows="left|top" width="70" height="20"/>
     
-          <!--
+          
           <check_box name="physics_optimize" follows="left|top" width="130" left="10" top_pad="5" height="20" label="Optimize"/>
           <check_box name="physics_use_hull" follows="left|top" width="130" left_pad="5" height="20" label="Use Convex Hull"/>
-          -->
+          
        </panel>
     
     
-        <!-- PHYSICS ANALYSIS-->
+         PHYSICS ANALYSIS
         <panel
          follows="top|left"
          name="physics analysis"
@@ -319,8 +324,7 @@
          width="300"
          height="130"
          visible="true"
-         border="true"
-         bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
+         bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
     
           <text follows="left|top" bottom="40" height="30" left="10" name="method_label" font="SansSerifBig">
             Step 1: Analysis
@@ -344,7 +348,7 @@
         </panel>
         
     
-        <!-- PHYSICS SIMPLIFICATION -->
+         PHYSICS SIMPLIFICATION 
        <panel
          follows="top|left"
          name="physics simplification"
@@ -353,8 +357,7 @@
          width="300"
          height="150"
          visible="true"
-         border="true"
-         bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
+         bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
     
           <text follows="left|top" bottom="40" height="30" left="10" name="second_step_label" font="SansSerifBig">
             Step 2: Simplification
@@ -374,7 +377,7 @@
           
         </panel>
     
-        <!-- INFO PANEL -->
+         INFO PANEL 
         <panel
           left="0"
           top_pad="0"
@@ -383,8 +386,7 @@
           follows="left|top"
           name="physics info"
           visible="true"
-          border="true" 
-          bevel_style="none" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
+          bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
           
           <text follows="top|left" name="physics_triangles" top_pad="10" height="15" left="10">
             Triangles: [TRIANGLES]
@@ -401,43 +403,107 @@
       </panel>
       <!-- MODIFIERS PANEL -->
       <panel
-       border="true"
        label="Modifiers"
        name="modifiers_panel"
        help_topic="upload_model_modifiers">
-         <text left="10" name="scale_label" width="90" bottom="30" follows="top|left" height="15">
-           Scale:
-         </text>
-         <text left_pad="5" name="dimensions_label" width="140" follows="top|left" height="15">
-           Dimensions:
-         </text>
-         
-         <spinner left="10" height="20" follows="top|left" width="80" top_pad="5" value="1.0" min_val="0.01" max_val="64.0" name="import_scale"/>
-         
-         <text left_pad="20" height="15" width="140" name="import_dimensions" follows="top|left">
-           [X] x [Y] x [Z] m
-         </text>
-         
-         <text left="10" name="include_label" top_pad="20" follows="top|left" height="15">
-           Include:
-         </text>
-         
-         <check_box top_pad="5" name="upload_textures" height="15" follows="top|left" label="Textures"/>
-         <check_box top_pad="5" name="upload_skin" height="15" follows="top|left" label="Skin weight"/>
-         <check_box top_pad="5" left="20" name="upload_joints" height="15" follows="top|left" label="Joint positions"/>
-         
-         <text left="10" name="pelvis_offset_label" top_pad="4" width="90" bottom="30" follows="top|left" height="15">
-           Pelvis Z Offset:
-         </text>
-         
-         <spinner left="10" top_pad="4" height="20" follows="top|left" width="80" value="0.0" min_val="-3.00" max_val="3.0" name="pelvis_offset"/>
-      </panel>
+         <view_border
+          bevel_style="none"  
+          follows="top|left"
+          height="275"
+          layout="topleft"
+          left="3"
+          name="border"
+          top_pad="0"
+          width="519"/>
+           <text
+             follows="top|left"
+             height="16"
+             left="10"
+             name="scale_label"
+             top="25"
+             width="140">
+             Scale (1=no change):
+           </text>
+           <spinner
+             height="20"
+             follows="top|left"
+             left_pad="10"
+             max_val="64.0"
+             min_val="0.01"
+             name="import_scale"
+             top_delta="-4"
+             value="1.0"
+             width="80"/>
+           <text
+             follows="top|left"
+             height="15"
+             left_pad="5"
+             name="dimensions_label"
+             width="90">
+             Dimensions:
+           </text>
+           <text
+             follows="top|left"
+             height="15"
+             left_pad="0"
+             name="import_dimensions"
+             width="140">
+             [X] X [Y] X [Z]
+           </text>
+           <text
+             follows="top|left"
+             height="15"
+             left="10"
+             name="include_label"
+             top_pad="20"
+             width="150">
+             Include in upload:
+           </text>
+           <check_box
+             height="15"
+             follows="top|left"
+             name="upload_textures"
+             label="Textures"
+             left_delta="0"
+             top_pad="10"/>
+           <check_box
+             follows="top|left"
+             height="15"
+             label="Skin weight"
+             name="upload_skin"
+             top_pad="10"/>
+           <check_box
+             follows="top|left"
+             height="15"
+             label="Joint positions"
+             name="upload_joints"
+             top_pad="10"/>
+           <text
+             follows="top|left"
+             height="15"
+             layout="topleft"
+             left="200"
+             name="pelvis_offset_label"
+             top="61"
+             width="200">
+             Z Offset (for avatar shapes only):
+           </text>
+           <spinner
+             follows="top|left"
+             height="20"
+             min_val="-3.00"
+             max_val="3.0"
+             name="pelvis_offset"
+             top_pad="10"
+             value="0.0"
+             width="80"/>
+       </panel>
     </tab_container>
     <panel
-     follows="all"
+     follows="top|left"
      height="80"
      layout="top|left"
-     left="3"
+     left="0"
      name="weights_and_warning_panel"
      top_pad="3"
      width="525">
@@ -573,7 +639,7 @@
 <panel
  border="true"
  bevel_style="none"
- follows="all"
+ follows="top|left"
  name="preview_panel"
  top_pad="4"
  width="290"
@@ -592,30 +658,18 @@
       height="18"
       layout="topleft"
       name="preview_lod_combo"
-      width="120"
+      width="150"
       tool_tip="LOD to view in preview render">
         <combo_item name="high">   High  LoD   </combo_item>
         <combo_item name="medium"> Medium LoD  </combo_item>
         <combo_item name="low">    Low LoD     </combo_item>
         <combo_item name="lowest"> Lowest  LoD </combo_item>
     </combo_box>
-    <menu_button
-      follows="top|left"
-      image_hover_unselected="Toolbar_Left_Over"
-      image_overlay="OptionsMenu_Off"
-      image_selected="Toolbar_Left_Selected"
-      image_unselected="Toolbar_Left_Off"
-      layout="topleft"
-      left_pad="5"
-      top_delta="0"
-      name="options_gear_btn"
-      width="31"
-      height="25"/>
     <text
       follows="top|left"
       layout="topleft"
       top="5"
-      left_pad="10"
+      left_pad="20"
       name="label_display"
       width="50">
       Display...
@@ -625,35 +679,35 @@
       label="Edges"
       layout="topleft"
       left_delta="0"
-      name="disp_edges_chb"
+      name="show_edges"
       top_pad="8">
     </check_box>
     <check_box
       follows="top|left"
       label="Physics"
       layout="topleft"
-      name="disp_physics_chb"
+      name="show_physics"
       top_pad="8">
     </check_box>
     <check_box
       follows="top|left"
       label="Textures"
       layout="topleft"
-      name="disp_textures_chb"
+      name="show_textures"
       top_pad="8">
     </check_box>
     <check_box
       follows="top|left"
       label="Skin weights"
       layout="topleft"
-      name="disp_skin_chb"
+      name="show_skin_weight"
       top_pad="8">
     </check_box>
     <check_box
       follows="top|left"
       label="Joints"
       layout="topleft"
-      name="disp_joints_chb"
+      name="show_joint_positions"
       top_pad="8">
     </check_box>
     <text
@@ -661,7 +715,8 @@
       layout="topleft"
       left="2"
       name="physics_explode_label"
-      top="85">
+      top="85"
+      width="150">
       Preview Spread:
     </text>
     <slider

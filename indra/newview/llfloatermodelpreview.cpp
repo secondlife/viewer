@@ -435,19 +435,14 @@ BOOL LLFloaterModelPreview::postBuild()
 	//childSetCommitCallback("physics_optimize", refresh, this);
 	//childSetCommitCallback("physics_use_hull", refresh, this);
 
+	getChild<LLCheckBoxCtrl>("show_edges")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+	getChild<LLCheckBoxCtrl>("show_physics")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+	getChild<LLCheckBoxCtrl>("show_textures")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+	getChild<LLCheckBoxCtrl>("show_skin_weight")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+	getChild<LLCheckBoxCtrl>("show_joint_positions")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+
 	childDisable("upload_skin");
 	childDisable("upload_joints");
-
-	mViewOptionMenuButton = getChild<LLMenuButton>("options_gear_btn");
-
-	mCommitCallbackRegistrar.add("ModelImport.ViewOption.Action", boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _2));
-	mEnableCallbackRegistrar.add("ModelImport.ViewOption.Check", boost::bind(&LLFloaterModelPreview::isViewOptionChecked, this, _2));
-	mEnableCallbackRegistrar.add("ModelImport.ViewOption.Enabled", boost::bind(&LLFloaterModelPreview::isViewOptionEnabled, this, _2));
-
-
-
-	mViewOptionMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_model_import_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mViewOptionMenuButton->setMenu(mViewOptionMenu, LLMenuButton::MP_BOTTOM_LEFT);
 
 	initDecompControls();
 
@@ -541,11 +536,11 @@ void LLFloaterModelPreview::initModelPreview()
 	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, _1));
 }
 
-void LLFloaterModelPreview::onViewOptionChecked(const LLSD& userdata)
+void LLFloaterModelPreview::onViewOptionChecked(LLUICtrl* ctrl)
 {
 	if (mModelPreview)
 	{
-		mModelPreview->mViewOption[userdata.asString()] = !mModelPreview->mViewOption[userdata.asString()];
+		mModelPreview->mViewOption[ctrl->getName()] = !mModelPreview->mViewOption[ctrl->getName()];
 		
 		mModelPreview->refresh();
 	}
@@ -563,12 +558,12 @@ bool LLFloaterModelPreview::isViewOptionChecked(const LLSD& userdata)
 
 bool LLFloaterModelPreview::isViewOptionEnabled(const LLSD& userdata)
 {
-	return !mViewOptionDisabled[userdata.asString()];
+	return childIsEnabled(userdata.asString());
 }
 
 void LLFloaterModelPreview::setViewOptionEnabled(const std::string& option, bool enabled)
 {
-	mViewOptionDisabled[option] = !enabled;
+	childSetEnabled(option, enabled);
 }
 
 void LLFloaterModelPreview::enableViewOption(const std::string& option)
@@ -4357,12 +4352,14 @@ void LLModelPreview::updateStatusMessages()
 			{
 				fmp->enableViewOption("show_physics");
 				mViewOption["show_physics"] = true;
+				fmp->childSetValue("show_physics", true);
 			}
 		}
 		else
 		{
 			fmp->disableViewOption("show_physics");
 			mViewOption["show_physics"] = false;
+			fmp->childSetValue("show_physics", false);
 
 		}
 
@@ -5465,6 +5462,7 @@ void LLFloaterModelPreview::onReset(void* user_data)
 	LLModelPreview* mp = fmp->mModelPreview;
 	std::string filename = mp->mLODFile[3]; 
 
+	fmp->resetDisplayOptions();
 	//reset model preview
 	fmp->initModelPreview();
 
@@ -5580,6 +5578,17 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 		childSetTextArg("price_breakdown", "[INSTANCES]", tbd);
 		childSetTextArg("price_breakdown", "[TEXTURES]", tbd);
 		childSetTextArg("price_breakdown", "[MODEL]", tbd);
+	}
+}
+
+void LLFloaterModelPreview::resetDisplayOptions()
+{
+	std::map<std::string,bool>::iterator option_it = mModelPreview->mViewOption.begin();
+
+	for(;option_it != mModelPreview->mViewOption.end(); ++option_it)
+	{
+		LLUICtrl* ctrl = getChild<LLUICtrl>(option_it->first);
+		ctrl->setValue(false);
 	}
 }
 
