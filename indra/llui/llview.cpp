@@ -33,6 +33,7 @@
 #include <cassert>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
+#include <boost/bind.hpp>
 
 #include "llrender.h"
 #include "llevent.h"
@@ -67,6 +68,8 @@ S32		LLView::sLastLeftXML = S32_MIN;
 S32		LLView::sLastBottomXML = S32_MIN;
 std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
 
+LLView::DrilldownFunc LLView::sDrilldown =
+	boost::bind(&LLView::pointInView, _1, _2, _3, HIT_TEST_USE_BOUNDING_RECT);
 
 //#if LL_DEBUG
 BOOL LLView::sIsDrawing = FALSE;
@@ -645,7 +648,7 @@ void LLView::onMouseLeave(S32 x, S32 y, MASK mask)
 
 bool LLView::visibleAndContains(S32 local_x, S32 local_y)
 {
-	return pointInView(local_x, local_y)
+	return sDrilldown(this, local_x, local_y)
 		&& getVisible();
 }
 
@@ -789,10 +792,11 @@ LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 	return NULL;
 }
 
-LLView*	LLView::childFromPoint(S32 x, S32 y)
+LLView*	LLView::childFromPoint(S32 x, S32 y, bool recur)
 {
-	if (!getVisible()  )
+	if (!getVisible())
 		return false;
+
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
 		S32 local_x = x - viewp->getRect().mLeft;
@@ -800,6 +804,14 @@ LLView*	LLView::childFromPoint(S32 x, S32 y)
 		if (!viewp->visibleAndContains(local_x, local_y))
 		{
 			continue;
+		}
+		// Here we've found the first (frontmost) visible child at this level
+		// containing the specified point. Is the caller asking us to drill
+		// down and return the innermost leaf child at this point, or just the
+		// top-level child?
+		if (recur)
+		{
+			return viewp->childFromPoint(local_x, local_y, recur);
 		}
 		return viewp;
 

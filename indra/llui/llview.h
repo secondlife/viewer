@@ -50,6 +50,7 @@
 #include "llfocusmgr.h"
 
 #include <list>
+#include <boost/function.hpp>
 
 class LLSD;
 
@@ -437,7 +438,7 @@ public:
 	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
 	/*virtual*/ void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
 
-	virtual		LLView*	childFromPoint(S32 x, S32 y);
+	virtual		LLView*	childFromPoint(S32 x, S32 y, bool recur=false);
 
 	// view-specific handlers 
 	virtual void	onMouseEnter(S32 x, S32 y, MASK mask);
@@ -599,7 +600,35 @@ private:
 
 	LLView& getDefaultWidgetContainer() const;
 
+	// This allows special mouse-event targeting logic for testing.
+	typedef boost::function<bool(const LLView*, S32 x, S32 y)> DrilldownFunc;
+	static DrilldownFunc sDrilldown;
+
 public:
+	// This is the only public accessor to alter sDrilldown. This is not
+	// an accident. The intended usage pattern is like:
+	// {
+	//     LLView::TemporaryDrilldownFunc scoped_func(myfunctor);
+	//     // ... test with myfunctor ...
+	// } // exiting block restores original LLView::sDrilldown
+	class TemporaryDrilldownFunc
+	{
+	public:
+		TemporaryDrilldownFunc(const DrilldownFunc& func):
+			mOldDrilldown(sDrilldown)
+		{
+			sDrilldown = func;
+		}
+
+		~TemporaryDrilldownFunc()
+		{
+			sDrilldown = mOldDrilldown;
+		}
+
+	private:
+		DrilldownFunc mOldDrilldown;
+	};
+
 	// Depth in view hierarchy during rendering
 	static S32	sDepth;
 
