@@ -1796,7 +1796,7 @@ if (LINUX)
   set(product SecondLife-${ARCH}-${viewer_VERSION})
 
   # These are the generated targets that are copied to package/
-  set(COPY_INPUT_DEPENDENCIES 
+  set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
     linux-crash-logger
     linux-updater
