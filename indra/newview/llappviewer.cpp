@@ -137,6 +137,7 @@
 #include "lltoolmgr.h"
 #include "llassetstorage.h"
 #include "llpolymesh.h"
+#include "llproxy.h"
 #include "llaudioengine.h"
 #include "llstreamingaudio.h"
 #include "llviewermenu.h"
@@ -1840,6 +1841,8 @@ bool LLAppViewer::cleanup()
 		LLWeb::loadURLExternal( gLaunchFileOnQuit, false );
 		llinfos << "File launched." << llendflush;
 	}
+	llinfos << "Cleaning up LLProxy." << llendl;
+	LLProxy::cleanupClass();
 
 	LLMainLoopRepeater::instance().stop();
 
