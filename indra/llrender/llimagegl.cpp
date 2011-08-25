@@ -1424,7 +1424,7 @@ void LLImageGL::deleteDeadTextures()
 		{
 			LLTexUnit* tex_unit = gGL.getTexUnit(i);
 
-			if (tex_unit->getCurrTexture() == tex)
+			if (tex_unit && tex_unit->getCurrTexture() == tex)
 			{
 				tex_unit->unbind(tex_unit->getCurrType());
 				stop_glerror();
@@ -1887,6 +1887,7 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 
 void LLImageGL::setCategory(S32 category) 
 {
+#if 0 //turn this off temporarily because it is not in use now.
 	if(!gAuditTexture)
 	{
 		return ;
@@ -1907,6 +1908,7 @@ void LLImageGL::setCategory(S32 category)
 			mCategory = -1 ;
 		}
 	}
+#endif
 }
 
 //for debug use 
