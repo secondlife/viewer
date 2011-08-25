@@ -8,7 +8,7 @@
 	<menu_item_call label="通話" name="Call"/>
 	<menu_item_call label="分享" name="Share"/>
 	<menu_item_call label="支付" name="Pay"/>
-	<menu_item_check label="View People Icons" name="View Icons"/>
+	<menu_item_check label="察看人群圖示" name="View Icons"/>
 	<menu_item_check label="Block Voice" name="Block/Unblock"/>
 	<menu_item_check label="Block Text" name="MuteText"/>
 	<context_menu label="Moderator Options" name="Moderator Options">

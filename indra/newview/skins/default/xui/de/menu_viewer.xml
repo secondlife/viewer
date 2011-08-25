@@ -159,7 +159,6 @@
 		<menu_item_check label="Kamerabeschränkungen deaktivieren" name="Disable Camera Distance"/>
 		<menu_item_check label="Foto (hohe Auflösung)" name="HighResSnapshot"/>
 		<menu_item_check label="Fotos auf Festplatte leise speichern" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="Fotos auf Festplatte komprimieren" name="CompressSnapshotsToDisk"/>
 		<menu label="Performance Tools" name="Performance Tools">
 			<menu_item_call label="Lag-Anzeige" name="Lag Meter"/>
 			<menu_item_check label="Statistikleiste" name="Statistics Bar"/>

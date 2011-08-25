@@ -2,12 +2,12 @@
 <panel name="edit_physics_panel">
 	<panel label="" name="accordion_panel">
 		<accordion name="physics_accordion">
-			<accordion_tab name="physics_breasts_updown_tab" title="Breasts Bounce"/>
-			<accordion_tab name="physics_breasts_inout_tab" title="Breasts Cleavage"/>
-			<accordion_tab name="physics_breasts_leftright_tab" title="Breasts Sway"/>
-			<accordion_tab name="physics_belly_tab" title="Belly Bounce"/>
-			<accordion_tab name="physics_butt_tab" title="Butt Bounce"/>
-			<accordion_tab name="physics_butt_leftright_tab" title="Butt Sway"/>
+			<accordion_tab name="physics_breasts_updown_tab" title="乳房彈性"/>
+			<accordion_tab name="physics_breasts_inout_tab" title="乳溝深淺"/>
+			<accordion_tab name="physics_breasts_leftright_tab" title="乳房搖擺"/>
+			<accordion_tab name="physics_belly_tab" title="腹部彈性"/>
+			<accordion_tab name="physics_butt_tab" title="臀部彈性"/>
+			<accordion_tab name="physics_butt_leftright_tab" title="臀部搖擺"/>
 			<accordion_tab name="physics_advanced_tab" title="進階參數"/>
 		</accordion>
 	</panel>

@@ -90,79 +90,79 @@ namespace tut
         ensure_equals(Keyed::instanceCount(), 0);
     }
 
-  //  template<> template<>
-  //  void object::test<2>()
-  //  {
-  //      ensure_equals(Unkeyed::instanceCount(), 0);
-  //      {
-  //          Unkeyed one;
-  //          ensure_equals(Unkeyed::instanceCount(), 1);
-  //          Unkeyed* found = Unkeyed::getInstance(&one);
-  //          ensure_equals(found, &one);
-  //          {
-  //              boost::scoped_ptr<Unkeyed> two(new Unkeyed);
-  //              ensure_equals(Unkeyed::instanceCount(), 2);
-  //              Unkeyed* found = Unkeyed::getInstance(two.get());
-  //              ensure_equals(found, two.get());
-  //          }
-  //          ensure_equals(Unkeyed::instanceCount(), 1);
-  //      }
-  //      ensure_equals(Unkeyed::instanceCount(), 0);
-  //  }
+    template<> template<>
+    void object::test<2>()
+    {
+        ensure_equals(Unkeyed::instanceCount(), 0);
+        {
+            Unkeyed one;
+            ensure_equals(Unkeyed::instanceCount(), 1);
+            Unkeyed* found = Unkeyed::getInstance(&one);
+            ensure_equals(found, &one);
+            {
+                boost::scoped_ptr<Unkeyed> two(new Unkeyed);
+                ensure_equals(Unkeyed::instanceCount(), 2);
+                Unkeyed* found = Unkeyed::getInstance(two.get());
+                ensure_equals(found, two.get());
+            }
+            ensure_equals(Unkeyed::instanceCount(), 1);
+        }
+        ensure_equals(Unkeyed::instanceCount(), 0);
+    }
 
-  //  template<> template<>
-  //  void object::test<3>()
-  //  {
-  //      Keyed one("one"), two("two"), three("three");
-  //      // We don't want to rely on the underlying container delivering keys
-  //      // in any particular order. That allows us the flexibility to
-  //      // reimplement LLInstanceTracker using, say, a hash map instead of a
-  //      // std::map. We DO insist that every key appear exactly once.
-  //      typedef std::vector<std::string> StringVector;
-  //      StringVector keys(Keyed::beginKeys(), Keyed::endKeys());
-  //      std::sort(keys.begin(), keys.end());
-  //      StringVector::const_iterator ki(keys.begin());
-  //      ensure_equals(*ki++, "one");
-  //      ensure_equals(*ki++, "three");
-  //      ensure_equals(*ki++, "two");
-  //      // Use ensure() here because ensure_equals would want to display
-  //      // mismatched values, and frankly that wouldn't help much.
-  //      ensure("didn't reach end", ki == keys.end());
+    template<> template<>
+    void object::test<3>()
+    {
+        Keyed one("one"), two("two"), three("three");
+        // We don't want to rely on the underlying container delivering keys
+        // in any particular order. That allows us the flexibility to
+        // reimplement LLInstanceTracker using, say, a hash map instead of a
+        // std::map. We DO insist that every key appear exactly once.
+        typedef std::vector<std::string> StringVector;
+        StringVector keys(Keyed::beginKeys(), Keyed::endKeys());
+        std::sort(keys.begin(), keys.end());
+        StringVector::const_iterator ki(keys.begin());
+        ensure_equals(*ki++, "one");
+        ensure_equals(*ki++, "three");
+        ensure_equals(*ki++, "two");
+        // Use ensure() here because ensure_equals would want to display
+        // mismatched values, and frankly that wouldn't help much.
+        ensure("didn't reach end", ki == keys.end());
 
-  //      // Use a somewhat different approach to order independence with
-  //      // beginInstances(): explicitly capture the instances we know in a
-  //      // set, and delete them as we iterate through.
-  //      typedef std::set<Keyed*> InstanceSet;
-  //      InstanceSet instances;
-  //      instances.insert(&one);
-  //      instances.insert(&two);
-  //      instances.insert(&three);
-  //      for (Keyed::instance_iter ii(Keyed::beginInstances()), iend(Keyed::endInstances());
-  //           ii != iend; ++ii)
-  //      {
-  //          Keyed& ref = *ii;
-  //          ensure_equals("spurious instance", instances.erase(&ref), 1);
-  //      }
-  //      ensure_equals("unreported instance", instances.size(), 0);
-  //  }
+        // Use a somewhat different approach to order independence with
+        // beginInstances(): explicitly capture the instances we know in a
+        // set, and delete them as we iterate through.
+        typedef std::set<Keyed*> InstanceSet;
+        InstanceSet instances;
+        instances.insert(&one);
+        instances.insert(&two);
+        instances.insert(&three);
+        for (Keyed::instance_iter ii(Keyed::beginInstances()), iend(Keyed::endInstances());
+             ii != iend; ++ii)
+        {
+            Keyed& ref = *ii;
+            ensure_equals("spurious instance", instances.erase(&ref), 1);
+        }
+        ensure_equals("unreported instance", instances.size(), 0);
+    }
 
-  //  template<> template<>
-  //  void object::test<4>()
-  //  {
-  //      Unkeyed one, two, three;
-  //      typedef std::set<Unkeyed*> KeySet;
-  //  
-  //      KeySet instances;
-  //      instances.insert(&one);
-  //      instances.insert(&two);
-  //      instances.insert(&three);
-	
-		//for (Unkeyed::instance_iter ii(Unkeyed::beginInstances()), iend(Unkeyed::endInstances()); ii != iend; ++ii)
-		//{
-		//	Unkeyed& ref = *ii;
-		//	ensure_equals("spurious instance", instances.erase(&ref), 1);
-		//}
-	
-  //      ensure_equals("unreported instance", instances.size(), 0);
-  //  }
+    template<> template<>
+    void object::test<4>()
+    {
+        Unkeyed one, two, three;
+        typedef std::set<Unkeyed*> KeySet;
+    
+        KeySet instances;
+        instances.insert(&one);
+        instances.insert(&two);
+        instances.insert(&three);
+
+		for (Unkeyed::instance_iter ii(Unkeyed::beginInstances()), iend(Unkeyed::endInstances()); ii != iend; ++ii)
+		{
+			Unkeyed& ref = *ii;
+			ensure_equals("spurious instance", instances.erase(&ref), 1);
+		}
+
+        ensure_equals("unreported instance", instances.size(), 0);
+    }
 } // namespace tut

@@ -16,15 +16,15 @@ if (FMOD)
     include(FindFMOD)
   else (STANDALONE)
     if (FMOD_LIBRARY AND FMOD_INCLUDE_DIR)
-	  # If the path have been specified in the arguments, use that
+      # If the path have been specified in the arguments, use that
       set(FMOD_LIBRARIES ${FMOD_LIBRARY})
-	  MESSAGE(STATUS "Using FMOD path: ${FMOD_LIBRARIES}, ${FMOD_INCLUDE_DIR}")
+      MESSAGE(STATUS "Using FMOD path: ${FMOD_LIBRARIES}, ${FMOD_INCLUDE_DIR}")
     else (FMOD_LIBRARY AND FMOD_INCLUDE_DIR)
-	  # If not, we're going to try to get the package listed in autobuild.xml
-	  # Note: if you're not using INSTALL_PROPRIETARY, the package URL should be local (file:/// URL) 
-	  # as accessing the private LL location will fail if you don't have the credential
-	  include(Prebuilt)
-	  use_prebuilt_binary(fmod)    
+      # If not, we're going to try to get the package listed in autobuild.xml
+      # Note: if you're not using INSTALL_PROPRIETARY, the package URL should be local (file:/// URL) 
+      # as accessing the private LL location will fail if you don't have the credential
+      include(Prebuilt)
+      use_prebuilt_binary(fmod)    
       if (WINDOWS)
         set(FMOD_LIBRARY fmod)
       elseif (DARWIN)

@@ -23,9 +23,9 @@
 		我想要能進出內容分級的地區為：
 	</text>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item label="General, Moderate, Adult" name="Desired_Adult"/>
-		<combo_box.item label="General and Moderate" name="Desired_Mature"/>
-		<combo_box.item label="一般" name="Desired_PG"/>
+		<combo_box.item label="一般普級，適度成人，完全成人" name="Desired_Adult"/>
+		<combo_box.item label="一般普級與適度成人" name="Desired_Mature"/>
+		<combo_box.item label="一般普級" name="Desired_PG"/>
 	</combo_box>
 	<text name="start_location_textbox">
 		開始位置：
@@ -45,9 +45,9 @@
 	</radio_group>
 	<check_box label="我的名字" name="show_my_name_checkbox1"/>
 	<check_box label="使用者名稱" name="show_slids" tool_tip="顯示使用者名稱，就像 bobsmith123 這類的"/>
-	<check_box label="社團頭銜" name="show_all_title_checkbox1" tool_tip="顯示社團頭銜，像是 Officer 或成員"/>
-	<check_box label="高亮顯示朋友" name="show_friends" tool_tip="高亮顯示你朋友的名稱標籤"/>
-	<check_box label="View Display Names" name="display_names_check" tool_tip="Check to use display names in chat, IM, name tags, etc."/>
+	<check_box label="群組頭銜" name="show_all_title_checkbox1" tool_tip="顯示群組頭銜，像是 Officer 或成員"/>
+	<check_box label="高亮標示朋友" name="show_friends" tool_tip="高亮顯示你朋友的名稱標籤"/>
+	<check_box label="察看顯示名稱" name="display_names_check" tool_tip="Check to use display names in chat, IM, name tags, etc."/>
 	<text name="inworld_typing_rg_label">
 		按下字母鍵：
 	</text>

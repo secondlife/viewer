@@ -7,19 +7,19 @@
 		Deed
 	</panel.string>
 	<panel.string name="text modify info 1">
-		You can modify this object
+		你可以修改這個物件
 	</panel.string>
 	<panel.string name="text modify info 2">
-		You can modify these objects
+		你可以修改這些物件
 	</panel.string>
 	<panel.string name="text modify info 3">
-		You can&apos;t modify this object
+		你不可以修改這個物件
 	</panel.string>
 	<panel.string name="text modify info 4">
-		You can&apos;t modify these objects
+		你不可以修改這些物件
 	</panel.string>
 	<panel.string name="text modify warning">
-		This object has linked parts
+		這個物件有聯結到其他部分
 	</panel.string>
 	<panel.string name="Cost Default">
 		價格： L$
@@ -28,13 +28,13 @@
 		總價： L$
 	</panel.string>
 	<panel.string name="Cost Per Unit">
-		Price Per: L$
+		單價： L$
 	</panel.string>
 	<panel.string name="Cost Mixed">
-		Mixed Price
+		混合價格
 	</panel.string>
 	<panel.string name="Sale Mixed">
-		Mixed Sale
+		混合銷售
 	</panel.string>
 	<text name="title" value="物件檔案"/>
 	<text name="where" value="(Inworld)"/>
@@ -52,9 +52,9 @@
 			擁有者：
 		</text>
 		<text name="Group_label">
-			社團：
+			群組：
 		</text>
-		<button name="button set group" tool_tip="Choose a group to share this object&apos;s permissions"/>
+		<button name="button set group" tool_tip="選擇一個群組以分享這個物件的權限"/>
 		<name_box initial_value="載入中..." name="Group Name Proxy"/>
 		<button label="Deed" label_selected="Deed" name="button deed" tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."/>
 		<text name="label click action">
@@ -77,7 +77,7 @@
 			<check_box label="覆製" name="checkbox allow everyone copy"/>
 			<check_box label="移動" name="checkbox allow everyone move"/>
 			<text name="GroupLabel">
-				社團：
+				群組：
 			</text>
 			<check_box label="分享" name="checkbox share with group" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."/>
 			<text name="NextOwnerLabel">
