@@ -6555,6 +6555,8 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 		LLMute mute(object_id, object_name, LLMute::OBJECT);
 		if (LLMuteList::getInstance()->add(mute))
 		{
+			// This call opens the sidebar, displays the block list, and highlights the newly blocked
+			// object in the list so the user can see that their block click has taken effect.
 			LLPanelBlockedList::showPanelAndSelect(object_id);
 		}
 	}
