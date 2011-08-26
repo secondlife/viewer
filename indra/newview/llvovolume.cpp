@@ -3012,9 +3012,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	U32 produces_light = 0;
 	U32 media_faces = 0;
 
-	// these multipliers are variable and can be floating point
-	F32 scale = 0.f;
-
 	const LLDrawable* drawablep = mDrawable;
 	U32 num_faces = drawablep->getNumFaces();
 
@@ -3029,8 +3026,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 		if (weighted_triangles > 0.0)
 		{
-			num_triangles = (U32)(weighted_triangles * 2); // scale weighted triangles to match the recorded scale.
-															// a complex prim (tortured torus, sculptie) should be 1000-1200 points @ 5 m
+			num_triangles = (U32)(weighted_triangles); 
 		}
 	}
 
@@ -3091,12 +3087,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		produces_light = 1;
 	}
 
-	const LLVector3& sc = getScale();
-	scale += (sc.mV[0] + sc.mV[1] + sc.mV[2]) / 4.f; // scale to 1/4 the sum of the size
-	// enforce scale multiplier to be in the range [1,7] (7 was determined to experimentally be a reasonable max)
-	scale = scale > 7.f ? 7.f : scale;
-	scale = scale < 1.f ? 1.f : scale;
-
 	for (S32 i = 0; i < num_faces; ++i)
 	{
 		const LLFace* face = drawablep->getFace(i);
@@ -3154,11 +3144,8 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	}
 
 	// shame currently has the "base" cost of 1 point per 15 triangles, min 2.
-	shame = num_triangles / 15.f;
+	shame = num_triangles  * 5.f;
 	shame = shame < 2.f ? 2.f : shame;
-
-	// factor in scale
-	shame *= scale;
 
 	// multiply by per-face modifiers
 	if (planar)
