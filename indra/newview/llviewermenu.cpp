@@ -4010,23 +4010,21 @@ void handle_god_request_avatar_geometry(void *)
 	}
 }
 
-
-void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
+static bool get_derezzable_objects(
+	EDeRezDestination dest,
+	std::string& error,
+	LLViewerRegion*& first_region,
+	LLDynamicArray<LLViewerObject*>* derez_objectsp,
+	bool only_check = false)
 {
-	if(gAgentCamera.cameraMouselook())
-	{
-		gAgentCamera.changeCameraToDefault();
-	}
-	//gInventoryView->setPanelOpen(TRUE);
+	bool found = false;
 
-	std::string error;
-	LLDynamicArray<LLViewerObject*> derez_objects;
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 	
 	// Check conditions that we can't deal with, building a list of
 	// everything that we'll actually be derezzing.
-	LLViewerRegion* first_region = NULL;
-	for (LLObjectSelection::valid_root_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); iter++)
+	for (LLObjectSelection::valid_root_iterator iter = selection->valid_root_begin();
+		 iter != selection->valid_root_end(); iter++)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -4093,8 +4091,52 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 		}
 		if(can_derez_current)
 		{
-			derez_objects.put(object);
+			found = true;
+
+			if (derez_objectsp)
+				derez_objectsp->put(object);
+
+			if (only_check)
+				// one found, no need to traverse to the end
+				break;
 		}
+	}
+
+	return found;
+}
+
+static bool can_derez(EDeRezDestination dest)
+{
+	LLViewerRegion* first_region = NULL;
+	std::string error;
+	return get_derezzable_objects(dest, error, first_region, NULL, true);
+}
+
+static void derez_objects(
+	EDeRezDestination dest,
+	const LLUUID& dest_id,
+	LLViewerRegion*& first_region,
+	std::string& error,
+	LLDynamicArray<LLViewerObject*>* objectsp)
+{
+	LLDynamicArray<LLViewerObject*> derez_objects;
+
+	if (!objectsp) // if objects to derez not specified
+	{
+		// get them from selection
+		if (!get_derezzable_objects(dest, error, first_region, &derez_objects, false))
+		{
+			llwarns << "No objects to derez" << llendl;
+			return;
+		}
+
+		objectsp = &derez_objects;
+	}
+
+
+	if(gAgentCamera.cameraMouselook())
+	{
+		gAgentCamera.changeCameraToDefault();
 	}
 
 	// This constant is based on (1200 - HEADER_SIZE) / 4 bytes per
@@ -4104,13 +4146,13 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	// satisfy anybody.
 	const S32 MAX_ROOTS_PER_PACKET = 250;
 	const S32 MAX_PACKET_COUNT = 254;
-	F32 packets = ceil((F32)derez_objects.count() / (F32)MAX_ROOTS_PER_PACKET);
+	F32 packets = ceil((F32)objectsp->count() / (F32)MAX_ROOTS_PER_PACKET);
 	if(packets > (F32)MAX_PACKET_COUNT)
 	{
 		error = "AcquireErrorTooManyObjects";
 	}
 
-	if(error.empty() && derez_objects.count() > 0)
+	if(error.empty() && objectsp->count() > 0)
 	{
 		U8 d = (U8)dest;
 		LLUUID tid;
@@ -4135,11 +4177,11 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 			msg->addU8Fast(_PREHASH_PacketCount, packet_count);
 			msg->addU8Fast(_PREHASH_PacketNumber, packet_number);
 			objects_in_packet = 0;
-			while((object_index < derez_objects.count())
+			while((object_index < objectsp->count())
 				  && (objects_in_packet++ < MAX_ROOTS_PER_PACKET))
 
 			{
-				LLViewerObject* object = derez_objects.get(object_index++);
+				LLViewerObject* object = objectsp->get(object_index++);
 				msg->nextBlockFast(_PREHASH_ObjectData);
 				msg->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
 				// VEFFECT: DerezObject
@@ -4164,6 +4206,13 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	}
 }
 
+static void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
+{
+	LLViewerRegion* first_region = NULL;
+	std::string error;
+	derez_objects(dest, dest_id, first_region, error, NULL);
+}
+
 void handle_take_copy()
 {
 	if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return;
@@ -4175,12 +4224,17 @@ void handle_take_copy()
 // You can return an object to its owner if it is on your land.
 class LLObjectReturn : public view_listener_t
 {
+public:
+	LLObjectReturn() : mFirstRegion(NULL) {}
+
+private:
 	bool handleEvent(const LLSD& userdata)
 	{
 		if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return true;
 		
 		mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 
+		get_derezzable_objects(DRD_RETURN_TO_OWNER, mError, mFirstRegion, &mDerezzableObjects);
 		LLNotificationsUtil::add("ReturnToOwner", LLSD(), LLSD(), boost::bind(&LLObjectReturn::onReturnToOwner, this, _1, _2));
 		return true;
 	}
@@ -4191,16 +4245,23 @@ class LLObjectReturn : public view_listener_t
 		if (0 == option)
 		{
 			// Ignore category ID for this derez destination.
-			derez_objects(DRD_RETURN_TO_OWNER, LLUUID::null);
+			derez_objects(DRD_RETURN_TO_OWNER, LLUUID::null, mFirstRegion, mError, &mDerezzableObjects);
 		}
+
+		mDerezzableObjects.clear();
+		mError.clear();
+		mFirstRegion = NULL;
 
 		// drop reference to current selection
 		mObjectSelection = NULL;
 		return false;
 	}
 
-protected:
 	LLObjectSelectionHandle mObjectSelection;
+
+	LLDynamicArray<LLViewerObject*> mDerezzableObjects;
+	std::string mError;
+	LLViewerRegion* mFirstRegion;
 };
 
 
@@ -4225,29 +4286,7 @@ class LLObjectEnableReturn : public view_listener_t
 		}
 		else
 		{
-			LLViewerRegion* region = gAgent.getRegion();
-			if (region)
-			{
-				// Estate owners and managers can always return objects.
-				if (region->canManageEstate())
-				{
-					new_value = true;
-				}
-				else
-				{
-					struct f : public LLSelectedObjectFunctor
-					{
-						virtual bool apply(LLViewerObject* obj)
-						{
-							return 
-								obj->permModify() ||
-								obj->isReturnable();
-						}
-					} func;
-					const bool firstonly = true;
-					new_value = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
-				}
-			}
+			new_value = can_derez(DRD_RETURN_TO_OWNER);
 		}
 #endif
 		return new_value;
