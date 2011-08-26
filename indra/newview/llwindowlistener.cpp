@@ -29,9 +29,13 @@
 #include "llwindowlistener.h"
 
 #include "llcoord.h"
+#include "llfocusmgr.h"
 #include "llkeyboard.h"
 #include "llwindowcallbacks.h"
 #include "llui.h"
+#include "llview.h"
+#include "llviewerwindow.h"
+#include "llrootview.h"
 #include <map>
 
 LLWindowListener::LLWindowListener(LLWindowCallbacks *window, const KeyboardGetter& kbgetter)
@@ -117,8 +121,10 @@ protected:
 	}
 };
 
+namespace {
+
 // helper for getMask()
-static MASK lookupMask_(const std::string& maskname)
+MASK lookupMask_(const std::string& maskname)
 {
 	// It's unclear to me whether MASK_MAC_CONTROL is important, but it's not
 	// supported by maskFromString(). Handle that specially.
@@ -136,7 +142,7 @@ static MASK lookupMask_(const std::string& maskname)
 	}
 }
 
-static MASK getMask(const LLSD& event)
+MASK getMask(const LLSD& event)
 {
 	LLSD masknames(event["mask"]);
 	if (! masknames.isArray())
@@ -156,7 +162,7 @@ static MASK getMask(const LLSD& event)
 	return mask;
 }
 
-static KEY getKEY(const LLSD& event)
+KEY getKEY(const LLSD& event)
 {
     if (event.has("keysym"))
 	{
@@ -176,13 +182,36 @@ static KEY getKEY(const LLSD& event)
 	}
 }
 
+} // namespace
+
 void LLWindowListener::keyDown(LLSD const & evt)
 {
-	mKbGetter()->handleTranslatedKeyDown(getKEY(evt), getMask(evt));
+	if (evt.has("path"))
+	{
+		LLView * target_view = 
+			LLUI::resolvePath(gViewerWindow->getRootView(), evt["path"]);
+		if ((target_view != 0) && target_view->isAvailable())
+		{
+			gFocusMgr.setKeyboardFocus(target_view);
+			KEY key = getKEY(evt);
+			MASK mask = getMask(evt);
+			if (!target_view->handleKey(key, mask, true)) target_view->handleUnicodeChar(key, true);
+		}
+		else 
+		{
+			; // TODO: Don't silently fail if target not available.
+		}
+	}
+	else 
+	{
+		mKbGetter()->handleTranslatedKeyDown(getKEY(evt), getMask(evt));
+	}
 }
 
 void LLWindowListener::keyUp(LLSD const & evt)
 {
+	if (evt.has("path")) return; // LLView only handles key down.
+
 	mKbGetter()->handleTranslatedKeyUp(getKEY(evt), getMask(evt));
 }
 
