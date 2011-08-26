@@ -133,6 +133,27 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 	return LLUICtrlFactory::create<LLInboxFolderViewFolder>(params);
 }
 
+LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge)
+{
+	LLFolderViewItem::Params params;
+
+	params.name = bridge->getDisplayName();
+	params.icon = bridge->getIcon();
+	params.icon_open = bridge->getOpenIcon();
+
+	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
+	{
+		params.icon_overlay = LLUI::getUIImage("Inv_Link");
+	}
+
+	params.creation_date = bridge->getCreationDate();
+	params.root = mFolderRoot;
+	params.listener = bridge;
+	params.rect = LLRect (0, 0, 0, 0);
+	params.tool_tip = params.name;
+
+	return LLUICtrlFactory::create<LLInboxFolderViewItem>(params);
+}
 
 //
 // LLInboxFolderViewFolder Implementation
@@ -182,8 +203,12 @@ void LLInboxFolderViewFolder::draw()
 
 void LLInboxFolderViewFolder::updateFlag() const
 {
-	LLDate saved_freshness_date = LLDate(gSavedPerAccountSettings.getString("LastInventoryInboxCollapse"));
-	mFresh = (mCreationDate > saved_freshness_date.secondsSinceEpoch());
+	const std::string& last_collapse = gSavedPerAccountSettings.getString("LastInventoryInboxCollapse");
+	if (!last_collapse.empty())
+	{
+		LLDate saved_freshness_date = LLDate(last_collapse);
+		mFresh = (mCreationDate > saved_freshness_date.secondsSinceEpoch());
+	}
 }
 
 void LLInboxFolderViewFolder::selectItem()
@@ -204,5 +229,13 @@ void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc) const
 	updateFlag();
 }
 
+//
+// LLInboxFolderViewItem Implementation
+//
+
+BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	return TRUE;
+}
 
 // eof

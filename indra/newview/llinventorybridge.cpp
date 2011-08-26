@@ -107,6 +107,23 @@ bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
 static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
 
+// Helper functions
+
+bool isAddAction(const std::string& action)
+{
+	return ("wear" == action || "attach" == action || "activate" == action);
+}
+
+bool isRemoveAction(const std::string& action)
+{
+	return ("take_off" == action || "detach" == action || "deactivate" == action);
+}
+
+bool isMarketplaceCopyAction(const std::string& action)
+{
+	return (("copy_to_outbox" == action) || ("move_to_outbox" == action));
+}
+
 // +=================================================+
 // |        LLInvFVBridge                            |
 // +=================================================+
@@ -538,10 +555,14 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			{
 				items.push_back(std::string("Find Links"));
 			}
-			items.push_back(std::string("Rename"));
-			if (!isItemRenameable() || (flags & FIRST_SELECTED_ITEM) == 0)
+
+			if (!isInboxFolder())
 			{
-				disabled_items.push_back(std::string("Rename"));
+				items.push_back(std::string("Rename"));
+				if (!isItemRenameable() || (flags & FIRST_SELECTED_ITEM) == 0)
+				{
+					disabled_items.push_back(std::string("Rename"));
+				}
 			}
 			
 			if (show_asset_id)
@@ -568,6 +589,26 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			if (!isItemCopyable())
 			{
 				disabled_items.push_back(std::string("Copy"));
+			}
+
+			if (canListOnMarketplace())
+			{
+				items.push_back(std::string("Marketplace Separator"));
+
+				bool copyable = true;
+				LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
+				if (inv_item)
+				{
+					copyable = inv_item->getPermissions().allowCopyBy(gAgent.getID());
+				}
+
+				const std::string merchant_action = ((copyable == true) ? "Merchant Copy" : "Merchant Move");
+				items.push_back(merchant_action);
+
+				if (!canListOnMarketplaceNow())
+				{
+					disabled_items.push_back(merchant_action);
+				}
 			}
 		}
 	}
@@ -798,10 +839,9 @@ BOOL LLInvFVBridge::isInboxFolder() const
 	return gInventory.isObjectDescendentOf(mUUID, inbox_id);
 }
 
-
 BOOL LLInvFVBridge::isOutboxFolder() const
 {
-	const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+	const LLUUID outbox_id = getOutboxFolder();
 
 	if (outbox_id.isNull())
 	{
@@ -811,6 +851,12 @@ BOOL LLInvFVBridge::isOutboxFolder() const
 	return gInventory.isObjectDescendentOf(mUUID, outbox_id);
 }
 
+const LLUUID LLInvFVBridge::getOutboxFolder() const
+{
+	const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+
+	return outbox_id;
+}
 
 BOOL LLInvFVBridge::isItemPermissive() const
 {
@@ -956,9 +1002,14 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			new_listener = new LLMeshBridge(inventory, root, uuid);
 			break;
 
+		case LLAssetType::AT_IMAGE_TGA:
+		case LLAssetType::AT_IMAGE_JPEG:
+			//llwarns << LLAssetType::lookup(asset_type) << " asset type is unhandled for uuid " << uuid << llendl;
+			break;
+
 		default:
 			llinfos << "Unhandled asset type (llassetstorage.h): "
-					<< (S32)asset_type << llendl;
+					<< (S32)asset_type << " (" << LLAssetType::lookup(asset_type) << ")" << llendl;
 			break;
 	}
 
@@ -1006,6 +1057,50 @@ BOOL LLInvFVBridge::canShare() const
 
 	return FALSE;
 }
+
+BOOL LLInvFVBridge::canListOnMarketplace() const
+{
+	LLInventoryModel * model = getInventoryModel();
+	const LLViewerInventoryCategory * cat = model->getCategory(mUUID);
+	if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
+	{
+		return FALSE;
+	}
+
+	if (!isAgentInventory())
+	{
+		return FALSE;
+	}
+	
+	if (getOutboxFolder().isNull())
+	{
+		return FALSE;
+	}
+
+	if (isInboxFolder() || isOutboxFolder())
+	{
+		return FALSE;
+	}
+
+	LLViewerInventoryItem * item = model->getItem(mUUID);
+	if (item && !item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL LLInvFVBridge::canListOnMarketplaceNow() const
+{
+	if (get_is_item_worn(mUUID))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 
 // +=================================================+
 // |        InventoryFVBridgeBuilder                 |
@@ -1103,6 +1198,16 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 
 		folder_view_itemp->getListener()->pasteLinkFromClipboard();
 		return;
+	}
+	else if (isMarketplaceCopyAction(action))
+	{
+		llinfos << "Copy item to marketplace action!" << llendl;
+
+		LLInventoryItem* itemp = model->getItem(mUUID);
+		if (!itemp) return;
+
+		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+		copy_item_to_outbox(itemp, outbox_id, LLUUID::null);
 	}
 }
 
@@ -1244,7 +1349,7 @@ std::string LLItemBridge::getLabelSuffix() const
 {
 	// String table is loaded before login screen and inventory items are
 	// loaded after login, so LLTrans should be ready.
-	static std::string NO_COPY =LLTrans::getString("no_copy");
+	static std::string NO_COPY = LLTrans::getString("no_copy");
 	static std::string NO_MOD = LLTrans::getString("no_modify");
 	static std::string NO_XFER = LLTrans::getString("no_transfer");
 	static std::string LINK = LLTrans::getString("link");
@@ -1308,6 +1413,11 @@ BOOL LLItemBridge::isItemRenameable() const
 		}
 
 		if (!item->isFinished()) // EXT-8662
+		{
+			return FALSE;
+		}
+
+		if (isInboxFolder())
 		{
 			return FALSE;
 		}
@@ -1473,16 +1583,6 @@ BOOL LLItemBridge::isItemPermissive() const
 		return item->getIsFullPerm();
 	}
 	return FALSE;
-}
-
-bool LLItemBridge::isAddAction(std::string action) const
-{
-	return ("wear" == action || "attach" == action || "activate" == action);
-}
-
-bool LLItemBridge::isRemoveAction(std::string action) const
-{
-	return ("take_off" == action || "detach" == action || "deactivate" == action);
 }
 
 // +=================================================+
@@ -2324,6 +2424,16 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		removeSystemFolder();
 	}
 #endif
+	else if (isMarketplaceCopyAction(action))
+	{
+		llinfos << "Copy folder to marketplace action!" << llendl;
+
+		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
+		if (!cat) return;
+
+		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+		copy_folder_to_outbox(cat, outbox_id, cat->getUUID());
+	}
 }
 
 void LLFolderBridge::openItem()

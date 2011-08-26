@@ -2,4 +2,7 @@
 <scroll_container color="black"
                   opaque="false"
                   min_auto_scroll_rate="120"
-                  max_auto_scroll_rate="500"/>
+                  max_auto_scroll_rate="500"
+                  tab_stop="false"
+                  name="scroll_container"
+                  mouse_opaque="true" />

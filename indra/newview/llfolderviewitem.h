@@ -159,6 +159,7 @@ protected:
 	BOOL                        mIsLoading;
 	LLTimer                     mTimeSinceRequestStart;
 	bool						mShowLoadStatus;
+	bool						mIsMouseOverTitle;
 
 	// helper function to change the selection from the root.
 	void changeSelectionFromRoot(LLFolderViewItem* selection, BOOL selected);
@@ -327,6 +328,8 @@ public:
 	virtual BOOL handleHover( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
+
+	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
 	virtual LLView* findChildView(const std::string& name, BOOL recurse) const { return NULL; }
 

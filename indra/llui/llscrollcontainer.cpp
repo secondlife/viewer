@@ -75,9 +75,6 @@ LLScrollContainer::Params::Params()
 	max_auto_scroll_rate("max_auto_scroll_rate", 1000),
 	reserve_scroll_corner("reserve_scroll_corner", false)
 {
-	name = "scroll_container";
-	mouse_opaque(true);
-	tab_stop(false);
 }
 
 

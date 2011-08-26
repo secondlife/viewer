@@ -132,7 +132,8 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mIconOpen(p.icon_open),
 	mIconOverlay(p.icon_overlay),
 	mListener(p.listener),
-	mShowLoadStatus(false)
+	mShowLoadStatus(false),
+	mIsMouseOverTitle(false)
 {
 }
 
@@ -724,6 +725,8 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 {
+	mIsMouseOverTitle = (y > (getRect().getHeight() - mItemHeight));
+
 	if( hasMouseCapture() && isMovable() )
 	{
 		S32 screen_x;
@@ -830,6 +833,11 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 	return TRUE;
 }
 
+void LLFolderViewItem::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	mIsMouseOverTitle = false;
+}
+
 BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										 EDragAndDropType cargo_type,
 										 void* cargo_data,
@@ -879,6 +887,7 @@ void LLFolderViewItem::draw()
 	static LLUIColor sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
 	static LLUIColor sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
 	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
+	static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
 	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const S32 TOP_PAD = default_params.item_top_pad;
@@ -959,6 +968,14 @@ void LLFolderViewItem::draw()
 						   sHighlightBgColor, TRUE);
 			}
 		}
+	}
+	else if (mIsMouseOverTitle)
+	{
+		gl_rect_2d(FOCUS_LEFT,
+			focus_top, 
+			getRect().getWidth() - 2,
+			focus_bottom,
+			sMouseOverColor, FALSE);
 	}
 
 	//--------------------------------------------------------------------------------//
@@ -2299,6 +2316,8 @@ BOOL LLFolderViewFolder::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewFolder::handleHover(S32 x, S32 y, MASK mask)
 {
+	mIsMouseOverTitle = (y > (getRect().getHeight() - mItemHeight));
+
 	BOOL handled = LLView::handleHover(x, y, mask);
 
 	if (!handled)

@@ -48,7 +48,8 @@ public:
 	void buildFolderView(const LLInventoryPanel::Params& params);
 
 	// virtual
-	class LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge);
+	LLFolderViewFolder *	createFolderViewFolder(LLInvFVBridge * bridge);
+	LLFolderViewItem *		createFolderViewItem(LLInvFVBridge * bridge);
 };
 
 
@@ -60,7 +61,7 @@ public:
 		Optional<LLBadge::Params>	error_badge;
 		
 		Params()
-		: error_badge("error_badge")
+			: error_badge("error_badge")
 		{
 		}
 	};
@@ -69,13 +70,29 @@ public:
 	~LLOutboxFolderViewFolder();
 
 	void draw();
+
+	void setErrorString(const std::string& errorString);
+	void setError(S32 errorCode);
 	
-	bool hasError() const { return mError; }
+	bool hasError() const { return (mError != 0); }
 
 protected:
 	void setCreationDate(time_t creation_date_utc) const;
 	
-	bool mError;
+	S32 mError;
+};
+
+
+class LLOutboxFolderViewItem : public LLFolderViewItem
+{
+public:
+	LLOutboxFolderViewItem(const Params& p)
+		: LLFolderViewItem(p)
+	{
+	}
+
+	// virtual
+	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 };
 
 

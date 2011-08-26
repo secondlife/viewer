@@ -52,7 +52,8 @@ public:
 	void buildFolderView(const LLInventoryPanel::Params& params);
 
 	// virtual
-	class LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge);
+	LLFolderViewFolder * createFolderViewFolder(LLInvFVBridge * bridge);
+	LLFolderViewItem * createFolderViewItem(LLInvFVBridge * bridge);
 };
 
 
@@ -88,5 +89,16 @@ protected:
 	mutable bool	mFresh;
 };
 
+
+class LLInboxFolderViewItem : public LLFolderViewItem
+{
+public:
+	LLInboxFolderViewItem(const Params& p)
+		: LLFolderViewItem(p)
+	{
+	}
+
+	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+};
 
 #endif //LL_INBOXINVENTORYPANEL_H

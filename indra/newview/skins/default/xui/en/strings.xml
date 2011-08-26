@@ -2041,7 +2041,17 @@ Returns a string with the requested data about the region
 	<string name="InventoryOutboxNoItemsTitle">A new way to send items to the Marketplace</string>
 	<string name="InventoryOutboxNoItemsTooltip">Drag and drop items here to prepare them for sale on the Marketplace</string>
 	<string name="InventoryOutboxNoItems">Drag items or folders that you wish to sell into this area.  A copy of the item will appear, leaving your inventory unchanged, unless you have dragged a no-copy item.  When you are ready to send the items to the Marketplace, click the Upload button. Once your items have been moved to your Marketplace Inventory, they will disappear from this folder.</string>
-    <!-- use value="" because they have preceding spaces -->
+
+	<string name="Marketplace Error None">No errors</string>
+	<string name="Marketplace Error Not Merchant">Error: Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
+	<string name="Marketplace Error Empty Folder">Error: This folder has no contents.</string>
+	<string name="Marketplace Error Unassociated Products">Error: This item failed to upload because your merchant account has too many items unassociated with products.  To fix this error, login to the marketplace website and reduce your unassociated item count.</string>
+	<string name="Marketplace Error Object Limit">Error: This item contains too many objects.  Fix this error by placing objects together in boxes to reduce the total count to less than 200.</string>
+	<string name="Marketplace Error Folder Depth">Error: This item contains too many levels of nested folders.  Reorganize it to a maximum of 3 levels of nested folders.</string>
+	<string name="Marketplace Error Unsellable Item">Error: This item can not be sold on the marketplace.</string>
+	<string name="Marketplace Error Internal Import">Error: There was a problem with this item.  Try again later.</string>
+
+	<!-- use value="" because they have preceding spaces -->
 	<string name="no_transfer" value=" (no transfer)" />
 	<string name="no_modify"   value=" (no modify)" />
 	<string name="no_copy"     value=" (no copy)" />

@@ -30,6 +30,9 @@
 	 name="LtGray"
 	 value="0.75 0.75 0.75 1" />
 	<color
+	 name="LtGray_35"
+	 value="0.75 0.75 0.75 0.35" />
+	<color
 	 name="LtGray_50"
 	 value="0.75 0.75 0.75 0.50" />
 	<color
@@ -427,11 +430,14 @@
      name="InventoryItemLinkColor"
      reference="LtGray_50" />
     <color
+     name="InventoryMouseOverColor"
+     reference="LtGray_35" />
+    <color
      name="InventorySearchStatusColor"
      reference="EmphasisColor" />
     <color
      name="LabelDisabledColor"
-	 reference="White_25" />
+     reference="White_25" />
     <color
      name="LabelSelectedColor"
      reference="White" />

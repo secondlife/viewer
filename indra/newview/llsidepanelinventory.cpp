@@ -520,14 +520,14 @@ bool LLSidepanelInventory::manageInboxOutboxPanels(LLButton * pressedButton, LLL
 
 void LLSidepanelInventory::onToggleInboxBtn()
 {
-	LLButton* pressedButton = getChild<LLButton>(INBOX_BUTTON_NAME);
-	LLLayoutPanel* pressedPanel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
-	LLButton* otherButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
-	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
+	LLButton* inboxButton = getChild<LLButton>(INBOX_BUTTON_NAME);
+	LLLayoutPanel* inboxPanel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
+	LLButton* outboxButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
+	LLLayoutPanel* outboxPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
 
-	bool inbox_expanded = manageInboxOutboxPanels(pressedButton, pressedPanel, otherButton, otherPanel);
+	bool inbox_expanded = manageInboxOutboxPanels(inboxButton, inboxPanel, outboxButton, outboxPanel);
 
-	if (!inbox_expanded)
+	if (!inbox_expanded && inboxPanel->getVisible())
 	{
 		gSavedPerAccountSettings.setString("LastInventoryInboxCollapse", LLDate::now().asString());
 	}
@@ -535,15 +535,15 @@ void LLSidepanelInventory::onToggleInboxBtn()
 
 void LLSidepanelInventory::onToggleOutboxBtn()
 {
-	LLButton* pressedButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
-	LLLayoutPanel* pressedPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
-	LLButton* otherButton = getChild<LLButton>(INBOX_BUTTON_NAME);
-	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
+	LLButton* inboxButton = getChild<LLButton>(INBOX_BUTTON_NAME);
+	LLLayoutPanel* inboxPanel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
+	LLButton* outboxButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
+	LLLayoutPanel* outboxPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
 
-	bool inbox_was_expanded = otherButton->getToggleState();
-	manageInboxOutboxPanels(pressedButton, pressedPanel, otherButton, otherPanel);
+	bool inbox_was_expanded = inboxButton->getToggleState();
+	manageInboxOutboxPanels(outboxButton, outboxPanel, inboxButton, inboxPanel);
 
-	if (inbox_was_expanded)
+	if (inbox_was_expanded && inboxPanel->getVisible())
 	{
 		gSavedPerAccountSettings.setString("LastInventoryInboxCollapse", LLDate::now().asString());
 	}

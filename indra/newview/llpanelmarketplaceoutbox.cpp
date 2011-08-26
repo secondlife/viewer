@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanelmarketplaceoutbox.h"
+#include "llpanelmarketplaceoutboxinventory.h"
 
 #include "llappviewer.h"
 #include "llbutton.h"
@@ -36,6 +37,7 @@
 #include "llloadingindicator.h"
 #include "llnotificationsutil.h"
 #include "llpanelmarketplaceinbox.h"
+#include "llsdutil.h"
 #include "llsidepanelinventory.h"
 #include "llsidetray.h"
 #include "lltimer.h"
@@ -198,13 +200,6 @@ public:
 		{
 			// Complete success
 			llinfos << "success" << llendl;
-			LLSD imported_list = content["imported"];
-			LLSD::array_const_iterator it = imported_list.beginArray();
-			for ( ; it != imported_list.endArray(); ++it)
-			{
-				LLUUID imported_folder = (*it).asUUID();
-				remove_category(&gInventory, imported_folder);
-			}
 		}	
 		else
 		{
@@ -252,13 +247,48 @@ void LLPanelMarketplaceOutbox::onSyncComplete(bool goodStatus, const LLSD& conte
 	mSyncInProgress = false;
 	updateSyncButtonStatus();
 	
-	if (goodStatus)
+	const LLSD& errors_list = content["errors"];
+
+	if (goodStatus && (errors_list.size() == 0))
 	{
 		LLNotificationsUtil::add("OutboxUploadComplete", LLSD::emptyMap(), LLSD::emptyMap());
 	}
 	else
 	{
 		LLNotificationsUtil::add("OutboxUploadHadErrors", LLSD::emptyMap(), LLSD::emptyMap());
+	}
+
+	llinfos << "Marketplace upload llsd:" << llendl;
+	llinfos << ll_pretty_print_sd(content) << llendl;
+	llinfos << llendl;
+
+	const LLSD& imported_list = content["imported"];
+	LLSD::array_const_iterator it = imported_list.beginArray();
+	for ( ; it != imported_list.endArray(); ++it)
+	{
+		LLUUID imported_folder = (*it).asUUID();
+		llinfos << "Successfully uploaded folder " << imported_folder.asString() << " to marketplace." << llendl;
+	}
+
+	for (it = errors_list.beginArray(); it != errors_list.endArray(); ++it)
+	{
+		const LLSD& item_error_map = (*it);
+
+		LLUUID error_folder = item_error_map["folder_id"].asUUID();
+		const std::string& error_string = item_error_map["identifier"].asString();
+		LLUUID error_item = item_error_map["item_id"].asUUID();
+		const std::string& error_item_name = item_error_map["item_name"].asString();
+		const std::string& error_message = item_error_map["message"].asString();
+
+		llinfos << "Error item " << error_folder.asString() << ", " << error_string << ", "
+				<< error_item.asString() << ", " << error_item_name << ", " << error_message << llendl;
+		
+		LLFolderViewFolder * item_folder = mInventoryPanel->getRootFolder()->getFolderByID(error_folder);
+		LLOutboxFolderViewFolder * outbox_item_folder = dynamic_cast<LLOutboxFolderViewFolder *>(item_folder);
+
+		llassert(outbox_item_folder);
+
+		outbox_item_folder->setErrorString(error_string);
 	}
 }
 

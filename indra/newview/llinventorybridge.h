@@ -52,7 +52,7 @@ typedef std::vector<std::string> menuentry_vec_t;
 //
 // You'll want to call LLInvItemFVELister::createBridge() to actually create
 // an instance of this class. This helps encapsulate the
-// funcationality a bit. (except for folders, you can create those
+// functionality a bit. (except for folders, you can create those
 // manually...)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLInvFVBridge : public LLFolderViewEventListener
@@ -70,6 +70,8 @@ public:
 	virtual ~LLInvFVBridge() {}
 
 	BOOL canShare() const;
+	BOOL canListOnMarketplace() const;
+	BOOL canListOnMarketplaceNow() const;
 
 	//--------------------------------------------------------------------
 	// LLInvFVBridge functionality
@@ -141,7 +143,9 @@ protected:
 	BOOL isAgentInventory() const; // false if lost or in the inventory library
 	BOOL isCOFFolder() const; // true if COF or descendent of
 	BOOL isInboxFolder() const; // true if COF or descendent of marketplace inbox
-	BOOL isOutboxFolder() const; // true if COF or descendent of marketplace inbox
+	BOOL isOutboxFolder() const; // true if COF or descendent of marketplace outbox
+	const LLUUID getOutboxFolder() const;
+
 	virtual BOOL isItemPermissive() const;
 	static void changeItemParent(LLInventoryModel* model,
 								 LLViewerInventoryItem* item,
@@ -210,8 +214,7 @@ public:
 	/*virtual*/ void clearDisplayName() { mDisplayName.clear(); }
 
 	LLViewerInventoryItem* getItem() const;
-	bool isAddAction(std::string action) const;
-	bool isRemoveAction(std::string action) const;
+
 protected:
 	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
 	virtual BOOL isItemPermissive() const;
