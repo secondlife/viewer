@@ -592,11 +592,6 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
 	U32 samples = gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples"));
 
-	if (gGLManager.mIsATI)
-	{ //ATI doesn't like the way we use multisample texture
-		samples = 0;
-	}
-
 	//try to allocate screen buffers at requested resolution and samples
 	// - on failure, shrink number of samples and try again
 	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
@@ -673,7 +668,14 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
 	
 		if (!mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
-		if (!mFXAABuffer.allocate(nhpo2(resX), nhpo2(resY), GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
+		if (samples > 0)
+		{
+			if (!mFXAABuffer.allocate(nhpo2(resX), nhpo2(resY), GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
+		}
+		else
+		{
+			mFXAABuffer.release();
+		}
 		
 #if LL_DARWIN
 		// As of OS X 10.6.7, Apple doesn't support multiple color formats in a single FBO
@@ -6322,6 +6324,9 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	if (LLPipeline::sRenderDeferred)
 	{
 		bool dof_enabled = !LLViewerCamera::getInstance()->cameraUnderWater();
+		bool multisample = gSavedSettings.getU32("RenderFSAASamples") > 1;
+
+		if (multisample)
 		{
 			//bake out texture2D with RGBL for FXAA shader
 			mFXAABuffer.bindTarget();
@@ -6344,8 +6349,9 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 			gGlowCombineFXAAProgram.unbind();
 			mFXAABuffer.flush();
-			gViewerWindow->setup3DViewport();
 		}
+
+		gViewerWindow->setup3DViewport();
 				
 		LLGLSLShader* shader = &gDeferredPostProgram;
 		if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 2)
@@ -6358,8 +6364,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			shader = &gDeferredPostNoDoFProgram;
 			dof_enabled = false;
 		}
-		
-		
+				
 		LLGLDisable blend(GL_BLEND);
 		bindDeferredShader(*shader);
 
@@ -6485,12 +6490,24 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			shader->uniform1f("magnification", magnification);
 		}
 
-		S32 channel = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP, mFXAABuffer.getUsage());
-		if (channel > -1)
+		if (multisample)
 		{
-			mFXAABuffer.bindTexture(0, channel);
-			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+			S32 channel = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP, mFXAABuffer.getUsage());
+			if (channel > -1)
+			{
+				mFXAABuffer.bindTexture(0, channel);
+				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+			}
 		}
+		else
+		{
+			S32 channel = shader->enableTexture(LLViewerShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
+			if (channel > -1)
+			{
+				mScreen.bindTexture(0, channel);
+			}
+		}
+
 	
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);

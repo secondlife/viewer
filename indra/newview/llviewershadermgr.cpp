@@ -1159,8 +1159,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	BOOL success = TRUE;
 
-	U32 samples = gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples"));
-	bool multisample = samples > 1 && gGLManager.mHasTextureMultisample;
+	U32 samples = gSavedSettings.getU32("RenderFSAASamples");
+	bool multisample = samples > 1;
 
 	if (success)
 	{
@@ -1295,84 +1295,41 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	}
 
 	if (success)
-	{
-		std::string fragment;
-
-		if (multisample)
-		{
-			fragment = "deferred/pointLightMSF.glsl";
-		}
-		else
-		{
-			fragment = "deferred/pointLightF.glsl";
-		}
-
+	{		
 		gDeferredLightProgram.mName = "Deferred Light Shader";
 		gDeferredLightProgram.mShaderFiles.clear();
 		gDeferredLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredLightProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
+		gDeferredLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredLightProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
 	{
-		std::string fragment;
-		if (multisample)
-		{
-			fragment = "deferred/multiPointLightMSF.glsl";
-		}
-		else
-		{
-			fragment = "deferred/multiPointLightF.glsl";
-		}
-
 		gDeferredMultiLightProgram.mName = "Deferred MultiLight Shader";
 		gDeferredMultiLightProgram.mShaderFiles.clear();
 		gDeferredMultiLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredMultiLightProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
+		gDeferredMultiLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredMultiLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredMultiLightProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
 	{
-		std::string fragment;
-
-		if (multisample)
-		{
-			fragment = "deferred/spotLightMSF.glsl";
-		}
-		else
-		{
-			fragment = "deferred/multiSpotLightF.glsl";
-		}
-
 		gDeferredSpotLightProgram.mName = "Deferred SpotLight Shader";
 		gDeferredSpotLightProgram.mShaderFiles.clear();
 		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
+		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiSpotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSpotLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredSpotLightProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
 	{
-		std::string fragment;
-
-		if (multisample)
-		{
-			fragment = "deferred/multiSpotLightMSF.glsl";
-		}
-		else
-		{
-			fragment = "deferred/multiSpotLightF.glsl";
-		}
-
 		gDeferredMultiSpotLightProgram.mName = "Deferred MultiSpotLight Shader";
 		gDeferredMultiSpotLightProgram.mShaderFiles.clear();
 		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
+		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiSpotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredMultiSpotLightProgram.createShader(NULL, NULL);
 	}
@@ -1383,25 +1340,11 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{
-			if (multisample)
-			{
-				fragment = "deferred/sunLightSSAOMSF.glsl";
-			}
-			else
-			{
-				fragment = "deferred/sunLightSSAOF.glsl";
-			}
+			fragment = "deferred/sunLightSSAOF.glsl";
 		}
 		else
 		{
-			if (multisample)
-			{
-				fragment = "deferred/sunLightMSF.glsl";
-			}
-			else
-			{
-				fragment = "deferred/sunLightF.glsl";
-			}
+			fragment = "deferred/sunLightF.glsl";
 		}
 
 		gDeferredSunProgram.mName = "Deferred Sun Shader";
@@ -1414,21 +1357,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		std::string fragment;
-
-		if (multisample)
-		{
-			fragment = "deferred/blurLightMSF.glsl";
-		}
-		else
-		{
-			fragment = "deferred/blurLightF.glsl";
-		}
-
 		gDeferredBlurLightProgram.mName = "Deferred Blur Light Shader";
 		gDeferredBlurLightProgram.mShaderFiles.clear();
 		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
+		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredBlurLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredBlurLightProgram.createShader(NULL, NULL);
 	}
@@ -1516,21 +1448,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		std::string fragment;
-
-		if (multisample)
-		{
-			fragment = "deferred/softenLightMSF.glsl";
-		}
-		else
-		{
-			fragment = "deferred/softenLightF.glsl";
-		}
-
 		gDeferredSoftenProgram.mName = "Deferred Soften Shader";
 		gDeferredSoftenProgram.mShaderFiles.clear();
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
+		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 
 		gDeferredSoftenProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 
@@ -1627,11 +1548,11 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		std::string fragment;
 		if (multisample)
 		{
-			fragment = "deferred/postDeferredMSF.glsl";
+			fragment = "deferred/postDeferredF.glsl";
 		}
 		else
 		{
-			fragment = "deferred/postDeferredF.glsl";
+			fragment = "deferred/postDeferredNoFXAAF.glsl";
 		}
 
 		gDeferredPostProgram.mName = "Deferred Post Shader";
@@ -1647,11 +1568,11 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		std::string fragment;
 		if (multisample)
 		{
-			fragment = "deferred/postDeferredNoDoFMSF.glsl";
+			fragment = "deferred/postDeferredNoDoFF.glsl";
 		}
 		else
 		{
-			fragment = "deferred/postDeferredNoDoFF.glsl";
+			fragment = "deferred/postDeferredNoDoFNoFXAAF.glsl";
 		}
 
 		gDeferredPostNoDoFProgram.mName = "Deferred Post Shader";
@@ -1700,20 +1621,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		if (success)
 		{
-			std::string fragment;
-			if (multisample)
-			{
-				fragment = "deferred/edgeMSF.glsl";
-			}
-			else
-			{
-				fragment = "deferred/edgeF.glsl";
-			}
-
 			gDeferredEdgeProgram.mName = "Deferred Edge Shader";
 			gDeferredEdgeProgram.mShaderFiles.clear();
 			gDeferredEdgeProgram.mShaderFiles.push_back(make_pair("deferred/edgeV.glsl", GL_VERTEX_SHADER_ARB));
-			gDeferredEdgeProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
+			gDeferredEdgeProgram.mShaderFiles.push_back(make_pair("deferred/edgeF.glsl", GL_FRAGMENT_SHADER_ARB));
 			gDeferredEdgeProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 			success = gDeferredEdgeProgram.createShader(NULL, NULL);
 		}
