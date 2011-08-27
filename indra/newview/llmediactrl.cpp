@@ -1065,6 +1065,12 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			mHoverTextChanged = true;
 		};
 		break;
+
+		case MEDIA_EVENT_DEBUG_MESSAGE:
+		{
+			LL_INFOS("media") << self->getDebugMessageText() << LL_ENDL; 
+		};
+		break;
 	};
 
 	// chain all events to any potential observers of this object.

@@ -5437,6 +5437,17 @@
       <key>Value</key>
       <real>60.0</real>
     </map>
+  <key>MediaPluginDebugging</key>
+  <map>
+    <key>Comment</key>
+    <string>Turn on debugging messages that may help diagnosing media issues (WARNING: May reduce performance).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>MediaControlFadeTime</key>
   <map>
     <key>Comment</key>

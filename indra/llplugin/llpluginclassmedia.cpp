@@ -842,6 +842,14 @@ void LLPluginClassMedia::setJavascriptEnabled(const bool enabled)
 	sendMessage(message);
 }
 
+
+void LLPluginClassMedia::enableMediaPluginDebugging( bool enable )
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "enable_media_plugin_debugging");
+	message.setValueBoolean( "enable", enable );
+	sendMessage( message );
+}
+
 void LLPluginClassMedia::setTarget(const std::string &target)
 {
 	mTarget = target;
@@ -1066,6 +1074,12 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			mAuthURL = message.getValue("url");
 			mAuthRealm = message.getValue("realm");
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_AUTH_REQUEST);
+		}		
+		else if(message_name == "debug_message")
+		{
+			mDebugMessageText = message.getValue("message_text");
+			mDebugMessageLevel = message.getValue("message_level");
+			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_DEBUG_MESSAGE);
 		}
 		else
 		{
