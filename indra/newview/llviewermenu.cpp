@@ -116,6 +116,8 @@
 
 using namespace LLVOAvatarDefines;
 
+typedef LLPointer<LLViewerObject> LLViewerObjectPtr;
+
 static boost::unordered_map<std::string, LLStringExplicit> sDefaultItemLabels;
 
 BOOL enable_land_build(void*);
@@ -4014,7 +4016,7 @@ static bool get_derezzable_objects(
 	EDeRezDestination dest,
 	std::string& error,
 	LLViewerRegion*& first_region,
-	LLDynamicArray<LLViewerObject*>* derez_objectsp,
+	LLDynamicArray<LLViewerObjectPtr>* derez_objectsp,
 	bool only_check = false)
 {
 	bool found = false;
@@ -4093,12 +4095,13 @@ static bool get_derezzable_objects(
 		{
 			found = true;
 
-			if (derez_objectsp)
-				derez_objectsp->put(object);
-
 			if (only_check)
 				// one found, no need to traverse to the end
 				break;
+
+			if (derez_objectsp)
+				derez_objectsp->put(object);
+
 		}
 	}
 
@@ -4117,9 +4120,9 @@ static void derez_objects(
 	const LLUUID& dest_id,
 	LLViewerRegion*& first_region,
 	std::string& error,
-	LLDynamicArray<LLViewerObject*>* objectsp)
+	LLDynamicArray<LLViewerObjectPtr>* objectsp)
 {
-	LLDynamicArray<LLViewerObject*> derez_objects;
+	LLDynamicArray<LLViewerObjectPtr> derez_objects;
 
 	if (!objectsp) // if objects to derez not specified
 	{
@@ -4234,7 +4237,9 @@ private:
 		
 		mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 
-		get_derezzable_objects(DRD_RETURN_TO_OWNER, mError, mFirstRegion, &mDerezzableObjects);
+		// Save selected objects, so that we still know what to return after the confirmation dialog resets selection.
+		get_derezzable_objects(DRD_RETURN_TO_OWNER, mError, mFirstRegion, &mReturnableObjects);
+
 		LLNotificationsUtil::add("ReturnToOwner", LLSD(), LLSD(), boost::bind(&LLObjectReturn::onReturnToOwner, this, _1, _2));
 		return true;
 	}
@@ -4245,10 +4250,10 @@ private:
 		if (0 == option)
 		{
 			// Ignore category ID for this derez destination.
-			derez_objects(DRD_RETURN_TO_OWNER, LLUUID::null, mFirstRegion, mError, &mDerezzableObjects);
+			derez_objects(DRD_RETURN_TO_OWNER, LLUUID::null, mFirstRegion, mError, &mReturnableObjects);
 		}
 
-		mDerezzableObjects.clear();
+		mReturnableObjects.clear();
 		mError.clear();
 		mFirstRegion = NULL;
 
@@ -4259,7 +4264,7 @@ private:
 
 	LLObjectSelectionHandle mObjectSelection;
 
-	LLDynamicArray<LLViewerObject*> mDerezzableObjects;
+	LLDynamicArray<LLViewerObjectPtr> mReturnableObjects;
 	std::string mError;
 	LLViewerRegion* mFirstRegion;
 };
