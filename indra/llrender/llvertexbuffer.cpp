@@ -364,8 +364,26 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, con
 	
 	setupClientArrays(MAP_VERTEX | MAP_NORMAL);
 
-	glVertexPointer(3, GL_FLOAT, 0, pos[0].mV);
-	glNormalPointer(GL_FLOAT, 0, norm[0].mV);
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	if (shader)
+	{
+		S32 loc = shader->getAttribLocation(LLVertexBuffer::TYPE_VERTEX);
+		if (loc > -1)
+		{
+			glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, 0, pos[0].mV);
+		}
+		loc = shader->getAttribLocation(LLVertexBuffer::TYPE_NORMAL);
+		if (loc > -1)
+		{
+			glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, 0, norm[0].mV);
+		}
+	}
+	else
+	{
+		glVertexPointer(3, GL_FLOAT, 0, pos[0].mV);
+		glNormalPointer(GL_FLOAT, 0, norm[0].mV);
+	}
 
 	glDrawArrays(sGLMode[mode], 0, count);
 }
@@ -1729,6 +1747,34 @@ void LLVertexBuffer::setBuffer(U32 data_mask, S32 type)
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_SET_BUFFER);
 	//set up pointers if the data mask is different ...
 	BOOL setup = (sLastMask != data_mask);
+
+	if (gDebugGL && data_mask != 0)
+	{
+		LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+		if (shader)
+		{
+			U32 required_mask = 0;
+			for (U32 i = 0; i < LLVertexBuffer::TYPE_MAX; ++i)
+			{
+				if (shader->getAttribLocation(i) > -1)
+				{
+					U32 required = 1 << i;
+					if ((data_mask & required) == 0)
+					{
+						llwarns << "Missing attribute: " << i << llendl;
+					}
+
+					required_mask |= required;
+
+				}
+			}
+
+			if ((data_mask & required_mask) != required_mask)
+			{
+				llerrs << "Shader consumption mismatches data provision." << llendl;
+			}
+		}
+	}
 
 	if (useVBOs())
 	{

@@ -24,10 +24,10 @@
  */
  
 
-uniform vec4 highlight_color;
+uniform vec4 color;
 uniform sampler2D diffuseMap;
 
 void main() 
 {
-	gl_FragColor = highlight_color*texture2D(diffuseMap, gl_TexCoord[0].xy);
+	gl_FragColor = color*texture2D(diffuseMap, gl_TexCoord[0].xy);
 }

@@ -4480,8 +4480,6 @@ void LLPipeline::renderDebug()
 	{
 		gUIProgram.unbind();
 	}
-
-	gPipeline.renderPhysicsDisplay();
 }
 
 void LLPipeline::rebuildPools()

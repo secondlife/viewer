@@ -27,7 +27,7 @@ attribute vec3 position;
 attribute vec4 diffuse_color;
 attribute vec3 normal;
 attribute vec2 texcoord0;
-attribute vec2 texcoord2;
+attribute vec3 binormal;
 
 varying vec3 vary_mat0;
 varying vec3 vary_mat1;
@@ -40,7 +40,7 @@ void main()
 	gl_TexCoord[0] = gl_TextureMatrix[0] * vec4(texcoord0,0,1);
 	
 	vec3 n = normalize(gl_NormalMatrix * normal);
-	vec3 b = normalize(gl_NormalMatrix * vec4(texcoord2,0,1).xyz);
+	vec3 b = normalize(gl_NormalMatrix * binormal);
 	vec3 t = cross(b, n);
 	
 	vary_mat0 = vec3(t.x, b.x, n.x);

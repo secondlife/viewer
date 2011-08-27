@@ -5637,7 +5637,7 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
 		if (shader)
 		{
-			gHighlightProgram.uniform4f("highlight_color", color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+			gGL.diffuseColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
 			pushWireframe(drawable);
 		}
 		else
@@ -5661,14 +5661,8 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 	gGL.flush();
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-	if (shader)
-	{
-		gHighlightProgram.uniform4f("highlight_color", color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
-	}
-	else
-	{
-		gGL.diffuseColor4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
-	}
+	gGL.diffuseColor4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
+	
 	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonOffset(3.f, 3.f);
 	glLineWidth(3.f);

@@ -1583,15 +1583,11 @@ void LLRender::color3fv(const GLfloat* c)
 void LLRender::diffuseColor3f(F32 r, F32 g, F32 b)
 {
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-	S32 loc = -1;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
 	if (shader)
 	{
-		loc = shader->getUniformLocation("color");
-	}
-
-	if (loc >= 0)
-	{
-		shader->uniform4f(loc, r,g,b,1.f);
+		shader->uniform4f("color", r,g,b,1.f);
 	}
 	else
 	{
@@ -1602,15 +1598,11 @@ void LLRender::diffuseColor3f(F32 r, F32 g, F32 b)
 void LLRender::diffuseColor3fv(const F32* c)
 {
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-	S32 loc = -1;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
 	if (shader)
 	{
-		loc = shader->getUniformLocation("color");
-	}
-
-	if (loc >= 0)
-	{
-		shader->uniform4f(loc, c[0], c[1], c[2], 1.f);
+		shader->uniform4f("color", c[0], c[1], c[2], 1.f);
 	}
 	else
 	{
@@ -1621,35 +1613,26 @@ void LLRender::diffuseColor3fv(const F32* c)
 void LLRender::diffuseColor4f(F32 r, F32 g, F32 b, F32 a)
 {
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-	S32 loc = -1;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
 	if (shader)
 	{
-		loc = shader->getUniformLocation("color");
-	}
-
-	if (loc >= 0)
-	{
-		shader->uniform4f(loc, r,g,b,a);
+		shader->uniform4f("color", r,g,b,a);
 	}
 	else
 	{
 		glColor4f(r,g,b,a);
 	}
-
 }
 
 void LLRender::diffuseColor4fv(const F32* c)
 {
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-	S32 loc = -1;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
 	if (shader)
 	{
-		loc = shader->getUniformLocation("color");
-	}
-
-	if (loc >= 0)
-	{
-		shader->uniform4fv(loc, 1, c);
+		shader->uniform4fv("color", 1, c);
 	}
 	else
 	{
@@ -1660,24 +1643,17 @@ void LLRender::diffuseColor4fv(const F32* c)
 void LLRender::diffuseColor4ubv(const U8* c)
 {
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-	S32 loc = -1;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
 	if (shader)
 	{
-		loc = shader->getUniformLocation("color");
-	}
-
-	if (loc >= 0)
-	{
-		shader->uniform4f(loc, c[0]/255.f, c[1]/255.f, c[2]/255.f, c[3]/255.f);
+		shader->uniform4f("color", c[0]/255.f, c[1]/255.f, c[2]/255.f, c[3]/255.f);
 	}
 	else
 	{
 		glColor4ubv(c);
 	}
 }
-
-
-
 
 void LLRender::debugTexUnits(void)
 {

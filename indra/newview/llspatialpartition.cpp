@@ -2944,7 +2944,7 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLCo
 		else
 		{
 			gMeshRepo.buildPhysicsMesh(*decomp);
-			gGL.color3f(0,1,1);
+			gGL.diffuseColor4f(0,1,1,1);
 			drawBoxOutline(center, size);
 		}
 
@@ -3078,7 +3078,6 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		{
 			renderMeshBaseHull(volume, data_mask, color, line_color);
 		}
-#if LL_WINDOWS 
 		else
 		{
 			LLVolumeParams volume_params = volume->getVolume()->getParams();
@@ -3190,13 +3189,12 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			}
 			else
 			{
-				gGL.color3f(1,0,1);
+				gGL.diffuseColor4f(1,0,1,1);
 				drawBoxOutline(center, size);
 			}
 
 			LLPrimitive::sVolumeManager->unrefVolume(phys_volume);
 		}
-#endif //LL_WINDOWS			
 	}
 	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::BOX)
 	{
@@ -3210,7 +3208,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	}
 	else if	(type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::SPHERE)
 	{
-		LLVolumeParams volume_params;
+		/*LLVolumeParams volume_params;
 		volume_params.setType( LL_PCODE_PROFILE_CIRCLE_HALF, LL_PCODE_PATH_CIRCLE );
 		volume_params.setBeginAndEndS( 0.f, 1.f );
 		volume_params.setBeginAndEndT( 0.f, 1.f );
@@ -3220,7 +3218,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		
 		gGL.diffuseColor4fv(color.mV);
 		pushVerts(sphere);
-		LLPrimitive::sVolumeManager->unrefVolume(sphere);
+		LLPrimitive::sVolumeManager->unrefVolume(sphere);*/
 	}
 	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::CYLINDER)
 	{
@@ -3290,15 +3288,6 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	}
 
 	gGL.popMatrix();
-
-	/*{ //analytical shape, just push visual rep.
-		gGL.diffuseColor3fv(color.mV);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		pushVerts(drawable, data_mask);
-		gGL.diffuseColor4fv(color.mV);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		pushVerts(drawable, data_mask);
-	}*/
 }
 
 void renderPhysicsShapes(LLSpatialGroup* group)

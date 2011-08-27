@@ -322,13 +322,12 @@ void LLDrawPoolAlpha::render(S32 pass)
 		if(shaders) 
 		{
 			gHighlightProgram.bind();
-			gHighlightProgram.uniform4f("highlight_color", 1,0,0,1);
 		}
 		else
 		{
 			gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
-			gGL.diffuseColor4f(1,0,0,1);
 		}
+		gGL.diffuseColor4f(1,0,0,1);
 		
 		LLViewerFetchedTexture::sSmokeImagep->addTextureStats(1024.f*1024.f);
 		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sSmokeImagep, TRUE) ;
