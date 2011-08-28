@@ -209,6 +209,7 @@ set(viewer_SOURCE_FILES
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
     llfloatermodelpreview.cpp
+    llfloatermodeluploadbase.cpp
     llfloatermodelwizard.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
@@ -503,6 +504,7 @@ set(viewer_SOURCE_FILES
     lltranslate.cpp
     lluilistener.cpp
     lluploaddialog.cpp
+    lluploadfloaterobservers.cpp
     llurl.cpp
     llurldispatcher.cpp
     llurldispatcherlistener.cpp
@@ -769,6 +771,7 @@ set(viewer_HEADER_FILES
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloatermodelpreview.h
+    llfloatermodeluploadbase.h
     llfloatermodelwizard.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
@@ -1060,6 +1063,7 @@ set(viewer_HEADER_FILES
     lluiconstants.h
     lluilistener.h
     lluploaddialog.h
+    lluploadfloaterobservers.h
     llurl.h
     llurldispatcher.h
     llurldispatcherlistener.h
@@ -1248,6 +1252,36 @@ if (WINDOWS)
         set(viewer_SOURCE_FILES "${viewer_SOURCE_FILES}" llviewerprecompiledheaders.cpp)
     endif(USE_PRECOMPILED_HEADERS)
 
+    # Replace the icons with the appropriate ones for the channel
+    # ('test' is the default)
+    set(ICON_PATH "test")
+    string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
+    if(channel_lower MATCHES "^second life release")
+        set(ICON_PATH "release")
+    elseif(channel_lower MATCHES "^second life beta viewer")
+        set(ICON_PATH "beta")
+    elseif(channel_lower MATCHES "^second life development")
+        set(ICON_PATH "development")
+    elseif(channel_lower MATCHES "project")
+        set(ICON_PATH "project")
+    endif()
+    message("Copying icons for ${ICON_PATH}")
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/secondlife.ico"
+        "${CMAKE_CURRENT_SOURCE_DIR}/res/ll_icon.ico"
+      )
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/secondlife_256.BMP"
+        "${CMAKE_CURRENT_SOURCE_DIR}/res/ll_icon.BMP"
+      )
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/secondlife_256.BMP"
+        "${CMAKE_CURRENT_SOURCE_DIR}/res-sdl/ll_icon.BMP"
+      )
+
     # Add resource files to the project.
     # viewerRes.rc is the only buildable file, but
     # the rest are all dependencies of it.
@@ -1277,6 +1311,7 @@ if (WINDOWS)
         res/lltooltranslate.cur
         res/lltoolzoomin.cur
         res/lltoolzoomout.cur
+        res-sdl/ll_icon.BMP
         res/ll_icon.BMP
         res/ll_icon.ico
         res/resource.h

@@ -16,8 +16,10 @@
     <key>AFKTimeout</key>
     <map>
       <key>Comment</key>
-      <string>Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never). 
-        Valid values are: 0, 120, 300, 600, 1800</string>
+            <string>
+                Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
+                Valid values are: 0, 120, 300, 600, 1800
+</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1803,6 +1805,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>CurlUseMultipleThreads</key>
+  <map>
+    <key>Comment</key>
+    <string>Use background threads for executing curl_multi_perform (requires restart)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>Cursor3D</key>
     <map>
       <key>Comment</key>
@@ -1935,17 +1948,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>DebugShowUploadCost</key>
-  <map>
-    <key>Comment</key>
-    <string>Show what it would cost to upload assets in current scene</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
   <key>DebugShowRenderMatrices</key>
   <map>
     <key>Comment</key>
@@ -1979,6 +1981,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>DebugShowUploadCost</key>
+  <map>
+    <key>Comment</key>
+    <string>Show mesh upload cost</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>DebugShowXUINames</key>
     <map>
       <key>Comment</key>
@@ -4444,17 +4457,6 @@
       <key>Value</key>
         <real>2.0</real>
     </map>
-    <key>LastInventoryInboxExpand</key>
-    <map>
-        <key>Comment</key>
-        <string>The last time the received items inbox was expanded.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>String</string>
-        <key>Value</key>
-        <string />
-    </map>
     <key>LCDDestination</key>
     <map>
       <key>Comment</key>
@@ -5609,7 +5611,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <real>0</real>
+    <real>1</real>
   </map>
   <key>MeshImportUseSLM</key>
   <map>
@@ -5620,7 +5622,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <real>0</real>
+    <real>1</real>
   </map>
   <key>MeshUploadLogXML</key>
   <map>
@@ -5643,6 +5645,17 @@
     <string>S32</string>
     <key>Value</key>
     <real>0</real>
+  </map>
+  <key>MeshUploadTimeOut</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum time in seconds for llcurl to execute a mesh uoloading request</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <real>600</real>
   </map>
   <key>MigrateCacheDirectory</key>
     <map>
@@ -6054,10 +6067,12 @@
     <key>ToastButtonWidth</key>
     <map>
       <key>Comment</key>
-      <string>Default width of buttons in the toast. 
+            <string>
+                Default width of buttons in the toast.
       Notes:
       If required width will be less then this one, a button will be reshaped to default size , otherwise to required
-      Change of this parameter will affect the layout of buttons in notification toast.</string>
+                Change of this parameter will affect the layout of buttons in notification toast.
+</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6599,7 +6614,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <string>0</string>
+      <integer>0</integer>
   </map>
     <key>PrecachingDelay</key>
     <map>
@@ -7349,8 +7364,10 @@
     <key>RenderPerformanceTest</key>
     <map>
       <key>Comment</key>
-      <string>Disable rendering of everything but in-world content for 
-        performance testing</string>
+            <string>
+                Disable rendering of everything but in-world content for
+                performance testing
+</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9188,28 +9205,51 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-  <key>MeshStreamingCostScaler</key>
+  <key>MeshTriangleBudget</key>
   <map>
     <key>Comment</key>
-    <string>DEBUG</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>2.0</real>
-  </map>
-  <key>MeshThreadCount</key>
-  <map>
-    <key>Comment</key>
-    <string>Number of threads to use for loading meshes.</string>
+    <string>Target visible triangle budget to use when estimating streaming cost.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>8</integer>
+    <real>250000</real>
   </map>
+  <key>MeshMetaDataDiscount</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of bytes to deduct for metadata when determining streaming cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>384</real>
+  </map>
+  <key>MeshMinimumByteSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Minimum number of bytes per LoD block when determining streaming cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>16</real>
+  </map>
+  <key>MeshBytesPerTriangle</key>
+  <map>
+    <key>Comment</key>
+    <string>Approximation of bytes per triangle to use for determining mesh streaming cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>16</real>
+  </map>
+
   <key>MeshMaxConcurrentRequests</key>
   <map>
     <key>Comment</key>
@@ -9434,6 +9474,17 @@
     <map>
       <key>Comment</key>
       <string>Newly created objects are shared with the currently active group</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowAdvancedBuilderOptions</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows physics and display weight</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13414,9 +13465,9 @@
         <integer>650</integer>
         <integer>490</integer>
         <integer>0</integer>
-      </array>    
-    </map>
-   <key>HelpFloaterOpen</key>
+        </array>
+        </map>
+    <key>HelpFloaterOpen</key>
     <map>
       <key>Comment</key>
       <string>Show Help Floater on login?</string>

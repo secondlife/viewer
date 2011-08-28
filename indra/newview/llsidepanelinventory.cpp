@@ -61,8 +61,6 @@ static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_
 // Constants
 //
 
-static const char * const INBOX_EXPAND_TIME_SETTING = "LastInventoryInboxExpand";
-
 static const char * const INBOX_BUTTON_NAME = "inbox_btn";
 static const char * const OUTBOX_BUTTON_NAME = "outbox_btn";
 
@@ -404,7 +402,7 @@ void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
 	
 	// Expand the inbox since we have fresh items
 	LLPanelMarketplaceInbox * inbox = findChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
-	if (inbox && (inbox->getFreshItemCount() > 0))
+	if (inbox)
 	{
 		getChild<LLButton>(INBOX_BUTTON_NAME)->setToggleState(true);
 		onToggleInboxBtn();
@@ -458,13 +456,9 @@ void LLSidepanelInventory::onToggleInboxBtn()
 	LLButton* otherButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
 	LLLayoutPanel* otherPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
 
-	bool inboxExpanded = manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
+	manageInboxOutboxPanels(stack, pressedButton, pressedPanel, otherButton, otherPanel);
 
-	if (inboxExpanded)
-	{
-		// Save current time as a setting for future new-ness tests
-		gSavedSettings.setString(INBOX_EXPAND_TIME_SETTING, LLDate::now().asString());
-	}
+	gSavedPerAccountSettings.setString("LastInventoryInboxExpand", LLDate::now().asString());
 }
 
 void LLSidepanelInventory::onToggleOutboxBtn()
