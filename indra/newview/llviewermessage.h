@@ -57,7 +57,6 @@ enum InventoryOfferResponse
 	IOR_ACCEPT,
 	IOR_DECLINE,
 	IOR_MUTE,
-	IOR_BUSY,
 	IOR_SHOW
 };
 

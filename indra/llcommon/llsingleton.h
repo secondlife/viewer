@@ -100,12 +100,6 @@ private:
 		DELETED
 	} EInitState;
 	
-	static void deleteSingleton()
-	{
-		delete getData().mSingletonInstance;
-		getData().mSingletonInstance = NULL;
-	}
-	
 	// stores pointer to singleton instance
 	// and tracks initialization state of singleton
 	struct SingletonInstanceData
@@ -120,7 +114,11 @@ private:
 
 		~SingletonInstanceData()
 		{
-			deleteSingleton();
+			SingletonInstanceData& data = getData();
+			if (data.mInitState != DELETED)
+			{
+				deleteSingleton();
+			}
 		}
 	};
 	
@@ -130,6 +128,14 @@ public:
 		SingletonInstanceData& data = getData();
 		data.mSingletonInstance = NULL;
 		data.mInitState = DELETED;
+	}
+
+	// Can be used to control when the singleton is deleted.  Not normally needed.
+	static void deleteSingleton()
+	{
+		delete getData().mSingletonInstance;
+		getData().mSingletonInstance = NULL;
+		getData().mInitState = DELETED;
 	}
 
 	static SingletonInstanceData& getData()

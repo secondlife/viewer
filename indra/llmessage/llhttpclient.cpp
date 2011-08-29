@@ -428,6 +428,9 @@ static LLSD blocking_request(
 	std::string body_str;
 	
 	// other request method checks root cert first, we skip?
+
+	// Apply configured proxy settings
+	LLProxy::getInstance()->applyProxySettings(curlp);
 	
 	// * Set curl handle options
 	curl_easy_setopt(curlp, CURLOPT_NOSIGNAL, 1);	// don't use SIGALRM for timeouts
@@ -436,7 +439,7 @@ static LLSD blocking_request(
 	curl_easy_setopt(curlp, CURLOPT_WRITEDATA, &http_buffer);
 	curl_easy_setopt(curlp, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curlp, CURLOPT_ERRORBUFFER, curl_error_buffer);
-	
+
 	// * Setup headers (don't forget to free them after the call!)
 	curl_slist* headers_list = NULL;
 	if (headers.isMap())
