@@ -34,10 +34,19 @@
 #include "llwindowcallbacks.h"
 #include "llui.h"
 #include "llview.h"
+#include "llviewinject.h"
 #include "llviewerwindow.h"
 #include "llviewerkeyboard.h"
 #include "llrootview.h"
+#include "llsdutil.h"
+#include "stringize.h"
+#include <typeinfo>
 #include <map>
+#include <boost/scoped_ptr.hpp>
+#include <boost/lambda/core.hpp>
+#include <boost/lambda/bind.hpp>
+
+namespace bll = boost::lambda;
 
 LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter& kbgetter)
 	: LLEventAPI("LLWindow", "Inject input events into the LLWindow instance"),
@@ -233,12 +242,12 @@ void LLWindowListener::keyUp(LLSD const & evt)
 }
 
 // for WhichButton
-typedef BOOL (LLWindowCallbacks::*MouseFunc)(LLWindow *, LLCoordGL, MASK);
+typedef BOOL (LLWindowCallbacks::*MouseMethod)(LLWindow *, LLCoordGL, MASK);
 struct Actions
 {
-	Actions(const MouseFunc& d, const MouseFunc& u): down(d), up(u), valid(true) {}
+	Actions(const MouseMethod& d, const MouseMethod& u): down(d), up(u), valid(true) {}
 	Actions(): valid(false) {}
-	MouseFunc down, up;
+	MouseMethod down, up;
 	bool valid;
 };
 
@@ -256,38 +265,196 @@ struct WhichButton: public StringLookup<Actions>
 };
 static WhichButton buttons;
 
-static LLCoordGL getPos(const LLSD& event)
+struct Response
 {
-	return LLCoordGL(event["x"].asInteger(), event["y"].asInteger());
+	Response(const LLSD& seed, const LLSD& request, const LLSD::String& replyKey="reply"):
+		mResp(seed),
+		mReq(request),
+		mKey(replyKey)
+	{}
+
+	~Response()
+	{
+		// When you instantiate a stack Response object, if the original
+		// request requested a reply, send it when we leave this block, no
+		// matter how.
+		sendReply(mResp, mReq, mKey);
+	}
+
+	void warn(const std::string& warning)
+	{
+		LL_WARNS("LLWindowListener") << warning << LL_ENDL;
+		mResp["warnings"].append(warning);
+	}
+
+	void error(const std::string& error)
+	{
+		// Use LL_WARNS rather than LL_ERROR: we don't want the viewer to shut
+		// down altogether.
+		LL_WARNS("LLWindowListener") << error << LL_ENDL;
+
+		mResp["error"] = error;
+	}
+
+	// set other keys...
+	LLSD& operator[](const LLSD::String& key) { return mResp[key]; }
+
+	LLSD mResp, mReq;
+	LLSD::String mKey;
+};
+
+typedef boost::function<bool(LLCoordGL, MASK)> MouseFunc;
+
+static void mouseEvent(const MouseFunc& func, const LLSD& request)
+{
+	// Ensure we send response
+	Response response(LLSD(), request);
+	// We haven't yet established whether the incoming request has "x" and "y",
+	// but capture this anyway, with 0 for omitted values.
+	LLCoordGL pos(request["x"].asInteger(), request["y"].asInteger());
+	bool has_pos(request.has("x") && request.has("y"));
+
+	boost::scoped_ptr<LLView::TemporaryDrilldownFunc> tempfunc;
+
+	// Documentation for mouseDown(), mouseUp() and mouseMove() claims you
+	// must either specify ["path"], or both of ["x"] and ["y"]. You MAY
+	// specify all. Let's say that passing "path" as an empty string is
+	// equivalent to not passing it at all.
+	std::string path(request["path"]);
+	if (path.empty())
+	{
+		// Without "path", you must specify both "x" and "y".
+		if (! has_pos)
+		{
+			return response.error(STRINGIZE(request["op"].asString() << " request "
+											"without \"path\" must specify both \"x\" and \"y\": "
+											<< request));
+		}
+	}
+	else // ! path.empty()
+	{
+		LLView* root   = LLUI::getRootView();
+		LLView* target = LLUI::resolvePath(root, path);
+		if (! target)
+		{
+			return response.error(STRINGIZE(request["op"].asString() << " request "
+											"specified invalid \"path\": '" << path << "'"));
+			return;
+		}
+
+		// Get info about this LLView* for when we send response.
+		response["path"] = target->getPathname();
+		response["class"] = typeid(*target).name();
+		bool visible_chain(target->isInVisibleChain());
+		bool enabled_chain(target->isInEnabledChain());
+		response["visible"] = target->getVisible();
+		response["visible_chain"] = visible_chain;
+		response["enabled"] = target->getEnabled();
+		response["enabled_chain"] = enabled_chain;
+		response["available"] = target->isAvailable();
+		// Don't show caller the LLView's own relative rectangle; that only
+		// tells its dimensions. Provide actual location on screen.
+		LLRect rect(target->calcScreenRect());
+		response["rect"] = LLSDMap("left", rect.mLeft)("top", rect.mTop)("right", rect.mRight)("bottom", rect.mBottom);
+
+		// The intent of this test is to prevent trying to drill down to a
+		// widget in a hidden floater, or on a tab that's not current, etc.
+		if (! visible_chain)
+		{
+			return response.error(STRINGIZE(request["op"].asString() << " request "
+											"specified \"path\" not currently visible: '"
+											<< path << "'"));
+		}
+
+		// This test isn't folded in with the above error case since you can
+		// (e.g.) pop up a tooltip even for a disabled widget.
+		if (! enabled_chain)
+		{
+			response.warn(STRINGIZE(request["op"].asString() << " request "
+									"specified \"path\" not currently enabled: '"
+									<< path << "'"));
+		}
+
+		if (! has_pos)
+		{
+			pos.set(rect.getCenterX(), rect.getCenterY());
+			// nonstandard warning tactic: probably usual case; we want event
+			// sender to know synthesized (x, y), but maybe don't need to log?
+			response["warnings"].append(STRINGIZE("using center point ("
+												  << pos.mX << ", " << pos.mY << ")"));
+		}
+
+		// recursive childFromPoint() should give us the frontmost, leafmost
+		// widget at the specified (x, y).
+		LLView* frontmost = root->childFromPoint(pos.mX, pos.mY, true);
+		if (frontmost != target)
+		{
+			response.warn(STRINGIZE(request["op"].asString() << " request "
+									"specified \"path\" = '" << path
+									<< "', but frontmost LLView at (" << pos.mX << ", " << pos.mY
+									<< ") is '" << frontmost->getPathname() << "'"));
+		}
+
+		// Instantiate a TemporaryDrilldownFunc to route incoming mouse events
+		// to the target LLView*. But put it on the heap since "path" is
+		// optional. Nonetheless, manage it with a boost::scoped_ptr so it
+		// will be destroyed when we leave.
+		tempfunc.reset(new LLView::TemporaryDrilldownFunc(llview::TargetEvent(target)));
+	}
+
+	// The question of whether the requested LLView actually handled the
+	// specified event is important enough, and its handling unclear enough,
+	// to warrant a separate response attribute. Instead of deciding here to
+	// make it a warning, or an error, let caller decide.
+	response["handled"] = func(pos, getMask(request));
+
+	// On exiting this scope, response will send, tempfunc will restore the
+	// normal pointInView(x, y) containment logic, etc.
 }
 
-void LLWindowListener::mouseDown(LLSD const & evt)
+void LLWindowListener::mouseDown(LLSD const & request)
 {
-	Actions actions(buttons.lookup(evt["button"]));
+	Actions actions(buttons.lookup(request["button"]));
 	if (actions.valid)
 	{
-		(mWindow->*(actions.down))(NULL, getPos(evt), getMask(evt));
+		// Normally you can pass NULL to an LLWindow* without compiler
+		// complaint, but going through boost::lambda::bind() evidently
+		// bypasses that special case: it only knows you're trying to pass an
+		// int to a pointer. Explicitly cast NULL to the desired pointer type.
+		mouseEvent(bll::bind(actions.down, mWindow,
+							 static_cast<LLWindow*>(NULL), bll::_1, bll::_2),
+				   request);
 	}
 }
 
-void LLWindowListener::mouseUp(LLSD const & evt)
+void LLWindowListener::mouseUp(LLSD const & request)
 {
-	Actions actions(buttons.lookup(evt["button"]));
+	Actions actions(buttons.lookup(request["button"]));
 	if (actions.valid)
 	{
-		(mWindow->*(actions.up))(NULL, getPos(evt), getMask(evt));
+		mouseEvent(bll::bind(actions.up, mWindow,
+							 static_cast<LLWindow*>(NULL), bll::_1, bll::_2),
+				   request);
 	}
 }
 
-void LLWindowListener::mouseMove(LLSD const & evt)
+void LLWindowListener::mouseMove(LLSD const & request)
 {
-	mWindow->handleMouseMove(NULL, getPos(evt), getMask(evt));
+	// We want to call the same central mouseEvent() routine for
+	// handleMouseMove() as for button clicks. But handleMouseMove() returns
+	// void, whereas mouseEvent() accepts a function returning bool -- and
+	// uses that bool return. Use (void-lambda-expression, true) to construct
+	// a callable that returns bool anyway. Pass 'true' because we expect that
+	// our caller will usually treat 'false' as a problem.
+	mouseEvent((bll::bind(&LLWindowCallbacks::handleMouseMove, mWindow,
+						  static_cast<LLWindow*>(NULL), bll::_1, bll::_2),
+				true),
+			   request);
 }
 
-void LLWindowListener::mouseScroll(LLSD const & evt)
+void LLWindowListener::mouseScroll(LLSD const & request)
 {
-	S32 clicks = evt["clicks"].asInteger();
+	S32 clicks = request["clicks"].asInteger();
 
 	mWindow->handleScrollWheel(NULL, clicks);
 }
-
