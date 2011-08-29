@@ -33,6 +33,7 @@
 
 #include "indra_constants.h"
 #include "message.h"
+#include "llproxy.h"
 #include "llvfile.h"
 #include "llvfs.h"
 
@@ -232,6 +233,10 @@ void LLHTTPAssetRequest::setupCurlHandle()
 {
 	// *NOTE: Similar code exists in mapserver/llcurlutil.cpp  JC
 	mCurlHandle = curl_easy_init();
+
+	// Apply proxy settings if configured to do so
+	LLProxy::getInstance()->applyProxySettings(mCurlHandle);
+
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mURLBuffer.c_str());

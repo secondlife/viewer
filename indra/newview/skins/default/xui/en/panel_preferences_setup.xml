@@ -70,7 +70,7 @@
    layout="topleft"
    left="77"
    name="connection_port_enabled"
-   top_pad="20"
+   top_pad="10"
    width="256">
     <check_box.commit_callback
      function="Notification.Show"
@@ -79,7 +79,7 @@
   <spinner
    control_name="ConnectionPort"
    enabled_control="ConnectionPortEnabled"
- decimal_digits="0"
+   decimal_digits="0"
    follows="left|top"
    height="23"
    increment="1"
@@ -195,60 +195,6 @@
     name="media_popup_enabled"
     width="400"           
     top_pad="5"/>
-  <check_box
-    top_delta="4"
-    enabled="true"
-    follows="left|top"
-    height="14"
-    initial_value="false"
-    control_name="BrowserProxyEnabled"
-    label="Enable Web Proxy"
-    left_delta="0"
-    mouse_opaque="true"
-    name="web_proxy_enabled"
-    radio_style="false"
-    width="400"           top_pad="5"/>
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="10"
-   layout="topleft"
-   left_delta="20"
-   name="Proxy location"
-   top_delta="16"
-   width="300">
-    Proxy location:
-  </text>
-  <line_editor
-   control_name="BrowserProxyAddress"
-   enabled_control="BrowserProxyEnabled"
- follows="left|top"
-   font="SansSerif"
-   height="23"
-   layout="topleft"
-   left_delta="0"
-   name="web_proxy_editor"
-   tool_tip="The name or IP address of the proxy you would like to use"
-   top_pad="4"
-   width="200" />
-  <spinner
-   control_name="BrowserProxyPort"
-   enabled_control="BrowserProxyEnabled"
- decimal_digits="0"
-   follows="left|top"
-   height="23"
-   increment="1"
-   initial_value="80"
-   label="Port number:"
-   label_width="95"
-   layout="topleft"
-   left_delta="210"
-   max_val="12000"
-   min_val="10"
-   name="web_proxy_port"
-   top_delta="0"
-   width="145" />
   <text
      type="string"
      length="1"
@@ -286,4 +232,31 @@
          name="Install_manual"
          value="0" />
   </combo_box>
+  <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name="Proxy Settings:"
+     mouse_opaque="false"
+     top_pad="5"
+     width="300">
+		Proxy Settings:
+  </text>
+  <button
+	label="Adjust proxy settings"
+    follows="left|top"
+    height="23"
+	width="140" 
+    label_selected="Browse"
+    layout="topleft"
+    left_delta="50"
+    name="set_proxy"
+    top_pad="5"
+    >
+		<button.commit_callback
+		  function="Pref.Proxy" />
+  </button>
 </panel>

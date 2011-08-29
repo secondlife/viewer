@@ -1193,6 +1193,7 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 	eCacheUpdateResult result = CACHE_UPDATE_ADDED;
 	if (mImpl->mCacheMap.size() > MAX_OBJECT_CACHE_ENTRIES)
 	{
+		delete mImpl->mCacheMap.begin()->second ;
 		mImpl->mCacheMap.erase(mImpl->mCacheMap.begin());
 		result = CACHE_UPDATE_REPLACED;
 		
