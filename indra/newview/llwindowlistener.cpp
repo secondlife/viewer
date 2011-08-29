@@ -35,10 +35,11 @@
 #include "llui.h"
 #include "llview.h"
 #include "llviewerwindow.h"
+#include "llviewerkeyboard.h"
 #include "llrootview.h"
 #include <map>
 
-LLWindowListener::LLWindowListener(LLWindowCallbacks *window, const KeyboardGetter& kbgetter)
+LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter& kbgetter)
 	: LLEventAPI("LLWindow", "Inject input events into the LLWindow instance"),
 	  mWindow(window),
 	  mKbGetter(kbgetter)
@@ -195,7 +196,8 @@ void LLWindowListener::keyDown(LLSD const & evt)
 			gFocusMgr.setKeyboardFocus(target_view);
 			KEY key = getKEY(evt);
 			MASK mask = getMask(evt);
-			if (!target_view->handleKey(key, mask, true)) target_view->handleUnicodeChar(key, true);
+			gViewerKeyboard.handleKey(key, mask, false);
+			if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
 		}
 		else 
 		{
@@ -210,9 +212,24 @@ void LLWindowListener::keyDown(LLSD const & evt)
 
 void LLWindowListener::keyUp(LLSD const & evt)
 {
-	if (evt.has("path")) return; // LLView only handles key down.
-
-	mKbGetter()->handleTranslatedKeyUp(getKEY(evt), getMask(evt));
+	if (evt.has("path"))
+	{
+		LLView * target_view = 
+			LLUI::resolvePath(gViewerWindow->getRootView(), evt["path"]);
+		if ((target_view != 0) && target_view->isAvailable())
+		{
+			gFocusMgr.setKeyboardFocus(target_view);
+			mKbGetter()->handleTranslatedKeyUp(getKEY(evt), getMask(evt));
+		}
+		else 
+		{
+			; // TODO: Don't silently fail if target not available.
+		}
+	}
+	else 
+	{
+		mKbGetter()->handleTranslatedKeyUp(getKEY(evt), getMask(evt));
+	}
 }
 
 // for WhichButton
