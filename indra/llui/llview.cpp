@@ -31,6 +31,7 @@
 #include "llview.h"
 
 #include <cassert>
+#include <sstream>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
@@ -428,6 +429,24 @@ BOOL LLView::isInEnabledChain() const
 	}
 	
 	return enabled;
+}
+
+static void buildPathname(std::ostream& out, const LLView* view)
+{
+	if (view)
+	{
+		// While we're not yet at root level, keep recurring towards top
+		buildPathname(out, view->getParent());
+	}
+	// Build pathname into ostream on the way back from recursion.
+	out << '/' << view->getName();
+}
+
+std::string LLView::getPathname() const
+{
+	std::ostringstream out;
+	buildPathname(out, this);
+	return out.str();
 }
 
 // virtual

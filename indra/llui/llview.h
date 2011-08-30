@@ -444,6 +444,7 @@ public:
 	virtual void	onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void	onMouseLeave(S32 x, S32 y, MASK mask);
 
+	std::string getPathname() const;
 
 	template <class T> T* findChild(const std::string& name, BOOL recurse = TRUE) const
 	{
