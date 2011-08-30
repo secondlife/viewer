@@ -1959,6 +1959,7 @@ bool LLModel::matchMaterialOrder(LLModel* ref, int& refFaceCnt, int& modelFaceCn
 	bool isASubset = isMaterialListSubset( ref );
 	if ( !isASubset )
 	{
+		llinfos<<"Material of model is not a subset of reference."<<llendl;
 		return false;
 	}
 	
