@@ -2734,7 +2734,7 @@ void LLVolume::cacheOptimize()
 
 S32	LLVolume::getNumFaces() const
 {
-	return (S32)mProfilep->mFaces.size();
+	return mIsMeshAssetLoaded ? getNumVolumeFaces() : (S32)mProfilep->mFaces.size();
 }
 
 

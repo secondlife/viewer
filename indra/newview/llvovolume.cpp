@@ -1660,11 +1660,16 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 			compiled = TRUE;
 			sNumLODChanges += new_num_faces ;
 	
+			if((S32)getNumTEs() != getVolume()->getNumFaces())
+			{
+				setNumTEs(getVolume()->getNumFaces()); //mesh loading may change number of faces.
+			}
+
 			drawable->setState(LLDrawable::REBUILD_VOLUME); // for face->genVolumeTriangles()
 
 			{
 				LLFastTimer t(FTM_GEN_TRIANGLES);
-				if (new_num_faces != old_num_faces)
+				if (new_num_faces != old_num_faces || mNumFaces != (S32)getNumTEs())
 				{
 					regenFaces();
 				}
