@@ -445,6 +445,8 @@ public:
 	virtual void	onMouseLeave(S32 x, S32 y, MASK mask);
 
 	std::string getPathname() const;
+	// static method handles NULL pointer too
+	static std::string getPathname(const LLView*);
 
 	template <class T> T* findChild(const std::string& name, BOOL recurse = TRUE) const
 	{

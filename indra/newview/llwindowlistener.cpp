@@ -273,7 +273,7 @@ void LLWindowListener::keyDown(LLSD const & evt)
 		else 
 		{
 			response.error(STRINGIZE(evt["op"].asString() << " request "
-											"element specified byt \"path\": '" << path << "'" 
+											"element specified by \"path\": '" << path << "'" 
 											<< " is not visible"));
 		}
 	}
@@ -421,7 +421,7 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
 			response.warn(STRINGIZE(request["op"].asString() << " request "
 									"specified \"path\" = '" << path
 									<< "', but frontmost LLView at (" << pos.mX << ", " << pos.mY
-									<< ") is '" << frontmost->getPathname() << "'"));
+									<< ") is '" << LLView::getPathname(frontmost) << "'"));
 		}
 
 		// Instantiate a TemporaryDrilldownFunc to route incoming mouse events

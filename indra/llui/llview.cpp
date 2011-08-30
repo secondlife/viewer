@@ -433,20 +433,15 @@ BOOL LLView::isInEnabledChain() const
 
 static void buildPathname(std::ostream& out, const LLView* view)
 {
-	if (view == 0) return;
-
-	if (view->getParent() != 0)
+	if (! (view && view->getParent()))
 	{
-		buildPathname(out, view->getParent());
-
-		// Build pathname into ostream on the way back from recursion.
-		out << '/' << view->getName();
-	}
-	else 
-	{
-		; // Don't include root in the path.
+		return; // Don't include root in the path.
 	}
 
+	buildPathname(out, view->getParent());
+
+	// Build pathname into ostream on the way back from recursion.
+	out << '/' << view->getName();
 }
 
 std::string LLView::getPathname() const
@@ -454,6 +449,16 @@ std::string LLView::getPathname() const
 	std::ostringstream out;
 	buildPathname(out, this);
 	return out.str();
+}
+
+//static
+std::string LLView::getPathname(const LLView* view)
+{
+    if (! view)
+    {
+        return "NULL";
+    }
+    return view->getPathname();
 }
 
 // virtual
