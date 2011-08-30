@@ -1010,6 +1010,33 @@ void LLFolderView::removeSelectedItems( void )
 	LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLFolderView::onItemsRemovalConfirmation, this, _1, _2));
 }
 
+bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFolderViewItem*>& selectedItems)
+{
+	LLFolderViewItem* item_parent = dynamic_cast<LLFolderViewItem*>(item->getParent());
+
+	if (item_parent)
+	{
+		for(std::vector<LLFolderViewItem*>::const_iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+		{
+			const LLFolderViewItem* const selected_item = (*it);
+
+			LLFolderViewItem* parent = item_parent;
+
+			while (parent)
+			{
+				if (selected_item == parent)
+				{
+					return true;
+				}
+
+				parent = dynamic_cast<LLFolderViewItem*>(parent->getParent());
+			}
+		}
+	}
+
+	return false;
+}
+
 void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -1084,7 +1111,7 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 			if (!new_selection)
 			{
 				new_selection = last_item->getPreviousOpenNode(FALSE);
-				while (new_selection && new_selection->isSelected())
+				while (new_selection && (new_selection->isSelected() || isDescendantOfASelectedItem(new_selection, items)))
 				{
 					new_selection = new_selection->getPreviousOpenNode(FALSE);
 				}
