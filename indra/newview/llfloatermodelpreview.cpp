@@ -2204,7 +2204,15 @@ void LLModelLoader::processJointToNodeMapping( domNode* pNode )
 		//Determine if the're any children wrt to this failed node.
 		//This occurs when an armature is exported and ends up being what essentially amounts to
 		//as the root for the visual_scene
-		processChildJoints( pNode );
+		if ( pNode ) 
+		{
+			processChildJoints( pNode );
+		}
+		else 
+		{
+			llinfos<<"Node is NULL"<<llendl;
+		}
+
 	}
 }
 //-----------------------------------------------------------------------------
