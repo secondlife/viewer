@@ -258,7 +258,7 @@ void LLStatusBar::onModeChangeConfirm(const LLSD& original_value, const LLSD& ne
 	{
 	case 0:
 		gSavedSettings.getControl("SessionSettingsFile")->set(new_value);
-		LLAppViewer::instance()->forceQuit();
+		LLAppViewer::instance()->requestQuit();
 		break;
 	case 1:
 		// revert to original value
