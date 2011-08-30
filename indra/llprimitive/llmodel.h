@@ -176,8 +176,10 @@ public:
 	
 	//reorder face list based on mMaterialList in this and reference so 
 	//order matches that of reference (material ordering touchup)
-	void matchMaterialOrder(LLModel* reference);
-
+	bool matchMaterialOrder(LLModel* ref, int& refFaceCnt, int& modelFaceCnt );
+	bool isMaterialListSubset( LLModel* ref );
+	bool needToAddFaces( LLModel* ref, int& refFaceCnt, int& modelFaceCnt );
+	
 	std::vector<std::string> mMaterialList;
 
 	//data used for skin weights
