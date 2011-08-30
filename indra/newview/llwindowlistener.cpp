@@ -134,6 +134,57 @@ protected:
 
 namespace {
 
+class Response
+{
+public:
+	Response(const LLSD& seed, const LLSD& request, const LLSD::String& replyKey="reply"):
+		mResp(seed),
+		mReq(request),
+		mKey(replyKey)
+	{}
+
+	~Response()
+	{
+		// When you instantiate a stack Response object, if the original
+		// request requested a reply, send it when we leave this block, no
+		// matter how.
+		sendReply(mResp, mReq, mKey);
+	}
+
+	void warn(const std::string& warning)
+	{
+		LL_WARNS("LLWindowListener") << warning << LL_ENDL;
+		mResp["warnings"].append(warning);
+	}
+
+	void error(const std::string& error)
+	{
+		// Use LL_WARNS rather than LL_ERROR: we don't want the viewer to shut
+		// down altogether.
+		LL_WARNS("LLWindowListener") << error << LL_ENDL;
+
+		mResp["error"] = error;
+	}
+
+	// set other keys...
+	LLSD& operator[](const LLSD::String& key) { return mResp[key]; }
+
+	LLSD mResp, mReq;
+	LLSD::String mKey;
+};
+
+void insertViewInformation(Response & response, LLView * target)
+{
+	// Get info about this LLView* for when we send response.
+	response["path"] = target->getPathname();
+	response["class"] = typeid(*target).name();
+	response["visible"] = target->getVisible();
+	response["visible_chain"] = target->isInVisibleChain();
+	response["enabled"] = target->getEnabled();
+	response["enabled_chain"] = target->isInEnabledChain();
+	response["available"] = target->isAvailable();
+}
+
 // helper for getMask()
 MASK lookupMask_(const std::string& maskname)
 {
@@ -197,12 +248,22 @@ KEY getKEY(const LLSD& event)
 
 void LLWindowListener::keyDown(LLSD const & evt)
 {
+	Response response(LLSD(), evt);
+	
 	if (evt.has("path"))
 	{
+		std::string path(evt["path"]);
 		LLView * target_view = 
-			LLUI::resolvePath(gViewerWindow->getRootView(), evt["path"]);
-		if ((target_view != 0) && target_view->isAvailable())
+			LLUI::resolvePath(gViewerWindow->getRootView(), path);
+		if (target_view == 0) 
 		{
+			response.error(STRINGIZE(evt["op"].asString() << " request "
+											"specified invalid \"path\": '" << path << "'"));
+		}
+		else if(target_view->isAvailable())
+		{
+			insertViewInformation(response, target_view);
+			
 			gFocusMgr.setKeyboardFocus(target_view);
 			KEY key = getKEY(evt);
 			MASK mask = getMask(evt);
@@ -211,7 +272,9 @@ void LLWindowListener::keyDown(LLSD const & evt)
 		}
 		else 
 		{
-			; // TODO: Don't silently fail if target not available.
+			response.error(STRINGIZE(evt["op"].asString() << " request "
+											"element specified byt \"path\": '" << path << "'" 
+											<< " is not visible"));
 		}
 	}
 	else 
@@ -222,18 +285,30 @@ void LLWindowListener::keyDown(LLSD const & evt)
 
 void LLWindowListener::keyUp(LLSD const & evt)
 {
+	Response response(LLSD(), evt);
+
 	if (evt.has("path"))
 	{
+		std::string path(evt["path"]);
 		LLView * target_view = 
-			LLUI::resolvePath(gViewerWindow->getRootView(), evt["path"]);
-		if ((target_view != 0) && target_view->isAvailable())
+			LLUI::resolvePath(gViewerWindow->getRootView(), path);
+		if (target_view == 0 )
 		{
+			response.error(STRINGIZE(evt["op"].asString() << " request "
+											"specified invalid \"path\": '" << path << "'"));
+		}
+		else if (target_view->isAvailable())
+		{
+			insertViewInformation(response, target_view);
+
 			gFocusMgr.setKeyboardFocus(target_view);
 			mKbGetter()->handleTranslatedKeyUp(getKEY(evt), getMask(evt));
 		}
 		else 
 		{
-			; // TODO: Don't silently fail if target not available.
+			response.error(STRINGIZE(evt["op"].asString() << " request "
+											"element specified byt \"path\": '" << path << "'" 
+											<< " is not visible"));
 		}
 	}
 	else 
@@ -265,44 +340,6 @@ struct WhichButton: public StringLookup<Actions>
 	}
 };
 static WhichButton buttons;
-
-struct Response
-{
-	Response(const LLSD& seed, const LLSD& request, const LLSD::String& replyKey="reply"):
-		mResp(seed),
-		mReq(request),
-		mKey(replyKey)
-	{}
-
-	~Response()
-	{
-		// When you instantiate a stack Response object, if the original
-		// request requested a reply, send it when we leave this block, no
-		// matter how.
-		sendReply(mResp, mReq, mKey);
-	}
-
-	void warn(const std::string& warning)
-	{
-		LL_WARNS("LLWindowListener") << warning << LL_ENDL;
-		mResp["warnings"].append(warning);
-	}
-
-	void error(const std::string& error)
-	{
-		// Use LL_WARNS rather than LL_ERROR: we don't want the viewer to shut
-		// down altogether.
-		LL_WARNS("LLWindowListener") << error << LL_ENDL;
-
-		mResp["error"] = error;
-	}
-
-	// set other keys...
-	LLSD& operator[](const LLSD::String& key) { return mResp[key]; }
-
-	LLSD mResp, mReq;
-	LLSD::String mKey;
-};
 
 typedef boost::function<bool(LLCoordGL, MASK)> MouseFunc;
 
@@ -340,19 +377,10 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
 		{
 			return response.error(STRINGIZE(request["op"].asString() << " request "
 											"specified invalid \"path\": '" << path << "'"));
-			return;
 		}
 
-		// Get info about this LLView* for when we send response.
-		response["path"] = target->getPathname();
-		response["class"] = typeid(*target).name();
-		bool visible_chain(target->isInVisibleChain());
-		bool enabled_chain(target->isInEnabledChain());
-		response["visible"] = target->getVisible();
-		response["visible_chain"] = visible_chain;
-		response["enabled"] = target->getEnabled();
-		response["enabled_chain"] = enabled_chain;
-		response["available"] = target->isAvailable();
+		insertViewInformation(response, target);
+
 		// Don't show caller the LLView's own relative rectangle; that only
 		// tells its dimensions. Provide actual location on screen.
 		LLRect rect(target->calcScreenRect());
@@ -360,7 +388,7 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
 
 		// The intent of this test is to prevent trying to drill down to a
 		// widget in a hidden floater, or on a tab that's not current, etc.
-		if (! visible_chain)
+		if (! target->isInVisibleChain())
 		{
 			return response.error(STRINGIZE(request["op"].asString() << " request "
 											"specified \"path\" not currently visible: '"
@@ -369,7 +397,7 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
 
 		// This test isn't folded in with the above error case since you can
 		// (e.g.) pop up a tooltip even for a disabled widget.
-		if (! enabled_chain)
+		if (! target->isInEnabledChain())
 		{
 			response.warn(STRINGIZE(request["op"].asString() << " request "
 									"specified \"path\" not currently enabled: '"
