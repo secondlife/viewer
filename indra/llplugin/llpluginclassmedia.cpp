@@ -1312,6 +1312,13 @@ void LLPluginClassMedia::setBrowserUserAgent(const std::string& user_agent)
 	sendMessage(message);
 }
 
+void LLPluginClassMedia::showWebInspector( bool show )
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "show_web_inspector");
+	message.setValueBoolean("show", true);	// only open for now - closed manually by user
+	sendMessage(message);
+}
+
 void LLPluginClassMedia::proxyWindowOpened(const std::string &target, const std::string &uuid)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "proxy_window_opened");

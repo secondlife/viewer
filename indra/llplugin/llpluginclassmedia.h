@@ -212,6 +212,7 @@ public:
 	void browse_forward();
 	void browse_back();
 	void setBrowserUserAgent(const std::string& user_agent);
+	void showWebInspector( bool show );
 	void proxyWindowOpened(const std::string &target, const std::string &uuid);
 	void proxyWindowClosed(const std::string &uuid);
 	void ignore_ssl_cert_errors(bool ignore);

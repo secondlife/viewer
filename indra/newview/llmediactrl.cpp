@@ -319,6 +319,11 @@ BOOL LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
 	if (mContextMenu)
 	{
+		// hide/show debugging options
+		bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
+		mContextMenu->setItemVisible("open_webinspector", media_plugin_debugging_enabled );
+		mContextMenu->setItemVisible("debug_separator", media_plugin_debugging_enabled );
+
 		mContextMenu->show(x, y);
 		LLMenuGL::showPopup(this, mContextMenu, x, y);
 	}
@@ -385,10 +390,20 @@ void LLMediaCtrl::onFocusLost()
 //
 BOOL LLMediaCtrl::postBuild ()
 {
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registar;
+	registar.add("Open.WebInspector", boost::bind(&LLMediaCtrl::onOpenWebInspector, this));
+
 	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_media_ctrl.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChange, this, _2));
+
 	return TRUE;
+}
+
+void LLMediaCtrl::onOpenWebInspector()
+{
+	if (mMediaSource && mMediaSource->hasMedia())
+		mMediaSource->getMediaPlugin()->showWebInspector( true );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
