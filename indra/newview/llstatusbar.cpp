@@ -162,6 +162,8 @@ BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLStatusBar::postBuild()
 {
+	LLControlVariablePtr mode_control = gSavedSettings.getControl("SessionSettingsFile");
+
 	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
 	mTextTime = getChild<LLTextBox>("TimeText" );
@@ -233,7 +235,38 @@ BOOL LLStatusBar::postBuild()
 
 	mScriptOut = getChildView("scriptout");
 
+	LLUICtrl& mode_combo = getChildRef<LLUICtrl>("mode_combo");
+	mode_combo.setValue(gSavedSettings.getString("SessionSettingsFile"));
+	mode_combo.setCommitCallback(boost::bind(&LLStatusBar::onModeChange, this, getChild<LLUICtrl>("mode_combo")->getValue(), _2));
+
+
 	return TRUE;
+}
+
+void LLStatusBar::onModeChange(const LLSD& original_value, const LLSD& new_value)
+{
+	if (original_value.asString() != new_value.asString())
+	{
+		LLNotificationsUtil::add("ModeChange", LLSD(), LLSD(), boost::bind(&LLStatusBar::onModeChangeConfirm, this, original_value, new_value, _1, _2));
+	}
+}
+
+void LLStatusBar::onModeChangeConfirm(const LLSD& original_value, const LLSD& new_value, const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	switch (option)
+	{
+	case 0:
+		gSavedSettings.getControl("SessionSettingsFile")->set(new_value);
+		LLAppViewer::instance()->forceQuit();
+		break;
+	case 1:
+		// revert to original value
+		getChild<LLUICtrl>("mode_combo")->setValue(original_value);
+		break;
+	default:
+		break;
+	}
 }
 
 // Per-frame updates of visibility

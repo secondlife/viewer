@@ -12,7 +12,7 @@
  name="status"
  top="19"
  tab_stop="false"
- width="120">
+ width="160">
     <panel.string
      name="packet_loss_tooltip">
         Packet Loss
@@ -33,18 +33,27 @@
      name="buycurrencylabel">
         L$ [AMT]
     </panel.string>
-  <menu_button
-     follows="right|top"    
-    image_color="0 0 0 0"
-    hover_glow_amount="0"
-    left="5"
-    top="7"
-    width="55"  
-    height="18"
-    label="Mode ▼"
-    tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
-    menu_filename="menu_mode_change.xml"
-    />
+  <combo_box
+   follows="right|top"
+   left="5"
+   drop_down_button.image_color="0 0 0 0"
+   drop_down_button.hover_glow_amount="0"
+   drop_down_button.pad_right="0"
+   top="7"
+   width="95"
+   height="20"
+   name="mode_combo"
+   tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
+    >
+    <combo_box.item
+      label="Basic Mode"
+      name="Basic"
+      value="settings_minimal.xml" />
+    <combo_box.item
+      label="Advanced Mode"
+      name="Advanced"
+      value="" />
+  </combo_box>
      <button
      follows="right|top"
      height="16"
@@ -53,7 +62,7 @@
      image_pressed="Pause_Press"
      image_pressed_selected="Play_Press"
      is_toggle="true"
-     left="65"
+     left_pad="5"
      top="7"
      name="media_toggle_btn"
      tool_tip="Start/Stop All Media (Music, Video, Web pages)"
