@@ -1098,6 +1098,13 @@ BOOL LLInvFVBridge::canListOnMarketplaceNow() const
 		return FALSE;
 	}
 
+	// Loop through all items worn by avatar and check to see if they are descendants
+	// of the item we are trying to list on the marketplace
+	if (get_is_parent_to_worn_item(mUUID))
+	{
+		return FALSE;
+	}
+
 	return TRUE;
 }
 

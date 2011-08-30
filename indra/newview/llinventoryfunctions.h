@@ -37,6 +37,9 @@
  **                    MISCELLANEOUS GLOBAL FUNCTIONS
  **/
 
+// Is this a parent folder to a worn item
+BOOL get_is_parent_to_worn_item(const LLUUID& id);
+
 // Is this item or its baseitem is worn, attached, etc...
 BOOL get_is_item_worn(const LLUUID& id);
 

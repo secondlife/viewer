@@ -211,6 +211,58 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 	model->notifyObservers();
 }
 
+class LLInventoryCollectAllItems : public LLInventoryCollectFunctor
+{
+public:
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+	{
+		return true;
+	}
+};
+
+BOOL get_is_parent_to_worn_item(const LLUUID& id)
+{
+	const LLViewerInventoryCategory* cat = gInventory.getCategory(id);
+	if (!cat)
+	{
+		return FALSE;
+	}
+
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLInventoryCollectAllItems collect_all;
+	gInventory.collectDescendentsIf(LLAppearanceMgr::instance().getCOF(), cats, items, LLInventoryModel::EXCLUDE_TRASH, collect_all);
+
+	for (LLInventoryModel::item_array_t::const_iterator it = items.begin(); it != items.end(); ++it)
+	{
+		const LLViewerInventoryItem * const item = *it;
+
+		llassert(item->getIsLinkType());
+
+		LLUUID linked_id = item->getLinkedUUID();
+		const LLViewerInventoryItem * const linked_item = gInventory.getItem(linked_id);
+
+		if (linked_item)
+		{
+			LLUUID parent_id = linked_item->getParentUUID();
+
+			while (!parent_id.isNull())
+			{
+				LLInventoryCategory * parent_cat = gInventory.getCategory(parent_id);
+
+				if (cat == parent_cat)
+				{
+					return TRUE;
+				}
+
+				parent_id = parent_cat->getParentUUID();
+			}
+		}
+	}
+
+	return FALSE;
+}
+
 BOOL get_is_item_worn(const LLUUID& id)
 {
 	const LLViewerInventoryItem* item = gInventory.getItem(id);
