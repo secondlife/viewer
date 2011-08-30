@@ -201,7 +201,8 @@ public:
 };
 
 LLBottomTray::LLBottomTray(const LLSD&)
-:	mChicletPanel(NULL),
+:	mDesiredNearbyChatWidth(0),
+	mChicletPanel(NULL),
 	mSpeakPanel(NULL),
 	mSpeakBtn(NULL),
 	mNearbyChatBar(NULL),
@@ -1095,7 +1096,9 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 	if (still_should_be_processed)
 	{
 		processShrinkButtons(delta_width, buttons_freed_width);
+		still_should_be_processed = delta_width < 0;
 	}
+
 	// 3. Decreasing width of nearby chat.
 	const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mChatBarContainer);
 	const S32 chatbar_panel_width = mChatBarContainer->getRect().getWidth();
