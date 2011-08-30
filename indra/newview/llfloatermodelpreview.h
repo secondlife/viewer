@@ -336,7 +336,8 @@ public:
 	void updateStatusMessages();
 	void clearGLODGroup();
 	void onLODParamCommit(bool enforce_tri_limit);
-
+	void addEmptyFace( LLModel* pTarget );
+	
 	const bool getModelPivot( void ) const { return mHasPivot; }
 	void setHasPivot( bool val ) { mHasPivot = val; }
 	void setModelPivot( const LLVector3& pivot ) { mModelPivot = pivot; }
