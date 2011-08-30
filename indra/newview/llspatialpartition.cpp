@@ -523,6 +523,11 @@ void LLSpatialGroup::clearDrawMap()
 	mDrawMap.clear();
 }
 
+BOOL LLSpatialGroup::isHUDGroup() 
+{
+	return mSpatialPartition && mSpatialPartition->isHUDPartition() ; 
+}
+
 BOOL LLSpatialGroup::isRecentlyVisible() const
 {
 	return (LLDrawable::getCurrentFrame() - mVisible[LLViewerCamera::sCurCameraID]) < LLDrawable::getMinVisFrameRange() ;
@@ -4269,6 +4274,10 @@ void LLSpatialGroup::drawObjectBox(LLColor4 col)
 	drawBox(mObjectBounds[0], size);
 }
 
+bool LLSpatialPartition::isHUDPartition() 
+{ 
+	return mPartitionType == LLViewerRegion::PARTITION_HUD ;
+} 
 
 BOOL LLSpatialPartition::isVisible(const LLVector3& v)
 {

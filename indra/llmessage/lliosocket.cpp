@@ -251,10 +251,12 @@ LLSocket::~LLSocket()
 	{
 		ll_debug_socket("Destroying socket", mSocket);
 		apr_socket_close(mSocket);
+		mSocket = NULL;
 	}
 	if(mPool)
 	{
 		apr_pool_destroy(mPool);
+		mPool = NULL;
 	}
 }
 

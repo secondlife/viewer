@@ -30,11 +30,11 @@
 
 #include <queue>
 
-#include "llpacketbuffer.h"
 #include "llhost.h"
-#include "net.h"
+#include "llpacketbuffer.h"
+#include "llproxy.h"
 #include "llthrottle.h"
-
+#include "net.h"
 
 class LLPacketRing
 {
@@ -82,6 +82,12 @@ protected:
 
 	LLHost mLastSender;
 	LLHost mLastReceivingIF;
+
+
+	U8 mProxyWrappedSendBuffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];
+
+private:
+	BOOL sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host);
 };
 
 

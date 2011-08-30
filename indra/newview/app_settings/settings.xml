@@ -798,6 +798,61 @@
       <key>Value</key>
       <integer>5</integer>
     </map>
+    <key>Socks5ProxyEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Use Socks5 Proxy</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>HttpProxyType</key>
+    <map>
+      <key>Comment</key>
+      <string>Proxy type to use for HTTP operations</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>Socks</string>
+    </map>
+    <key>Socks5ProxyHost</key>
+    <map>
+      <key>Comment</key>
+      <string>Socks 5 Proxy Host</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
+    <key>Socks5ProxyPort</key>
+    <map>
+      <key>Comment</key>
+      <string>Socks 5 Proxy Port</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1080</integer>
+    </map>
+    <key>Socks5AuthType</key>
+    <map>
+      <key>Comment</key>
+      <string>Selected Auth mechanism for Socks5</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>None</string>
+    </map>
     <key>BuildAxisDeadZone0</key>
     <map>
       <key>Comment</key>
@@ -3993,7 +4048,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://search-beta.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]</string>
+      <string>http://search.secondlife.com/viewer/[CATEGORY]/?q=[QUERY]</string>
     </map>
     <key>WebProfileURL</key>
     <map>
