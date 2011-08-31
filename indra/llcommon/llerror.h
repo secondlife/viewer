@@ -296,5 +296,4 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 		Such computation is done iff the message will be logged.
 	*/
 
-
 #endif // LL_LLERROR_H

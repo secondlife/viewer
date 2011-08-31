@@ -7139,6 +7139,20 @@ Click and drag anywhere on the world to rotate your view
     <tag>funds</tag>
   </notification>
 
+   <notification
+   icon="alertmodal.tga"
+   name="LowMemory"
+   type="alertmodal">
+    Your memory pool is low. Some functions of SL are disabled to avoid crash. Please close other applications. Restart SL if this persists.
+  </notification>
+
+  <notification
+     icon="alertmodal.tga"
+     name="ForceQuitDueToLowMemory"
+     type="alertmodal">
+    SL will quit in 30 seconds due to out of memory.
+  </notification>
+
   <notification
   name="PopupAttempt"
   icon="Popup_Caution"
