@@ -98,7 +98,7 @@ private:
 	};
 	typedef std::list<creation_info> creation_list_t;
 	creation_list_t mCreationList;
-	LLMutex* mCreationMutex;
+	LLMutex mCreationMutex;
 };
 
 #endif

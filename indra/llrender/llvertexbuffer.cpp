@@ -25,7 +25,6 @@
  */
 
 #include "linden_common.h"
-#include "llmemory.h"
 
 #include <boost/static_assert.hpp>
 #include "llsys.h"
@@ -36,6 +35,7 @@
 #include "llrender.h"
 #include "llvector4a.h"
 #include "llglslshader.h"
+#include "llmemory.h"
 
 
 //============================================================================
@@ -46,6 +46,7 @@ LLVBOPool LLVertexBuffer::sDynamicVBOPool;
 LLVBOPool LLVertexBuffer::sStreamIBOPool;
 LLVBOPool LLVertexBuffer::sDynamicIBOPool;
 
+LLPrivateMemoryPool* LLVertexBuffer::sPrivatePoolp = NULL ;
 U32 LLVertexBuffer::sBindCount = 0;
 U32 LLVertexBuffer::sSetCount = 0;
 S32 LLVertexBuffer::sCount = 0;
@@ -443,6 +444,11 @@ void LLVertexBuffer::initClass(bool use_vbo, bool no_vbo_mapping)
 	}
 
 	sDisableVBOMapping = sEnableVBOs && no_vbo_mapping ;
+
+	if(!sPrivatePoolp)
+	{
+		sPrivatePoolp = LLPrivateMemoryPoolManager::getInstance()->newPool(LLPrivateMemoryPool::STATIC) ;
+	}
 }
 
 //static 
@@ -472,7 +478,11 @@ void LLVertexBuffer::cleanupClass()
 	unbind();
 	clientCopy(); // deletes GL buffers
 
-	//llassert_always(!sCount) ;
+	if(sPrivatePoolp)
+	{
+		LLPrivateMemoryPoolManager::getInstance()->deletePool(sPrivatePoolp) ;
+		sPrivatePoolp = NULL ;
+	}
 }
 
 void LLVertexBuffer::clientCopy(F64 max_time)
@@ -722,7 +732,7 @@ void LLVertexBuffer::createGLBuffer()
 	{
 		static int gl_buffer_idx = 0;
 		mGLBuffer = ++gl_buffer_idx;
-		mMappedData = (U8*) ll_aligned_malloc_16(size);
+		mMappedData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 	}
 }
 
@@ -756,7 +766,7 @@ void LLVertexBuffer::createGLIndices()
 	}
 	else
 	{
-		mMappedIndexData = (U8*) ll_aligned_malloc_16(size);
+		mMappedIndexData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 		static int gl_buffer_idx = 0;
 		mGLIndices = ++gl_buffer_idx;
 	}
@@ -779,7 +789,7 @@ void LLVertexBuffer::destroyGLBuffer()
 		}
 		else
 		{
-			ll_aligned_free_16(mMappedData);
+			FREE_MEM(sPrivatePoolp, mMappedData) ;
 			mMappedData = NULL;
 			mEmpty = TRUE;
 		}
@@ -808,7 +818,7 @@ void LLVertexBuffer::destroyGLIndices()
 		}
 		else
 		{
-			ll_aligned_free_16(mMappedIndexData);
+			FREE_MEM(sPrivatePoolp, mMappedIndexData) ;
 			mMappedIndexData = NULL;
 			mEmpty = TRUE;
 		}
@@ -941,8 +951,8 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 			{
 				if (!useVBOs())
 				{
-					ll_aligned_free_16(mMappedData);
-					mMappedData = (U8*) ll_aligned_malloc_16(newsize);
+					FREE_MEM(sPrivatePoolp, mMappedData);
+					mMappedData = (U8*)ALLOCATE_MEM(sPrivatePoolp, newsize);
 				}
 				mResized = TRUE;
 			}
@@ -962,8 +972,8 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 			{
 				if (!useVBOs())
 				{
-					ll_aligned_free_16(mMappedIndexData);
-					mMappedIndexData = (U8*) ll_aligned_malloc_16(new_index_size);
+					FREE_MEM(sPrivatePoolp, mMappedIndexData) ;
+					mMappedIndexData = (U8*)ALLOCATE_MEM(sPrivatePoolp, new_index_size);
 				}
 				mResized = TRUE;
 			}
@@ -998,8 +1008,8 @@ void LLVertexBuffer::freeClientBuffer()
 {
 	if(useVBOs() && sDisableVBOMapping && (mMappedData || mMappedIndexData))
 	{
-		ll_aligned_free_16(mMappedData) ;
-		ll_aligned_free_16(mMappedIndexData) ;
+		FREE_MEM(sPrivatePoolp, mMappedData) ;
+		FREE_MEM(sPrivatePoolp, mMappedIndexData) ;
 		mMappedData = NULL ;
 		mMappedIndexData = NULL ;
 	}
@@ -1009,7 +1019,7 @@ void LLVertexBuffer::allocateClientVertexBuffer()
 {
 	if(!mMappedData)
 	{
-		mMappedData = (U8*)ll_aligned_malloc_16(getSize());
+		mMappedData = (U8*)ALLOCATE_MEM(sPrivatePoolp, getSize());
 	}
 }
 
@@ -1017,7 +1027,7 @@ void LLVertexBuffer::allocateClientIndexBuffer()
 {
 	if(!mMappedIndexData)
 	{
-		mMappedIndexData = (U8*)ll_aligned_malloc_16(getIndicesSize());
+		mMappedIndexData = (U8*)ALLOCATE_MEM(sPrivatePoolp, getIndicesSize());		
 	}
 }
 
@@ -1159,12 +1169,9 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 			{
 				log_glerror();
 
-				//check the availability of memory
-				U32 avail_phy_mem, avail_vir_mem;
-				LLMemoryInfo::getAvailableMemoryKB(avail_phy_mem, avail_vir_mem) ;
-				llinfos << "Available physical mwmory(KB): " << avail_phy_mem << llendl ; 
-				llinfos << "Available virtual memory(KB): " << avail_vir_mem << llendl;
-
+			//check the availability of memory
+			LLMemory::logMemoryInfo(TRUE) ; 
+			
 				if(!sDisableVBOMapping)
 				{			
 					//--------------------
@@ -1324,6 +1331,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 		if (!mMappedIndexData)
 		{
 			log_glerror();
+			LLMemory::logMemoryInfo(TRUE) ;
 
 			if(!sDisableVBOMapping)
 			{

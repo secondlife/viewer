@@ -315,9 +315,6 @@ private:
 	// socket handle to proxy TCP control channel
 	LLSocket::ptr_t mProxyControlChannel;
 
-	// APR pool for the socket
-	apr_pool_t* mPool;
-
 	// END OF UNSHARED MEMBERS
 
 	// MEMBERS WRITTEN IN MAIN THREAD AND READ IN ANY THREAD. ONLY READ OR WRITE AFTER LOCKING mProxyMutex!

@@ -28,16 +28,18 @@
 
 #if LL_GSTREAMER010_ENABLED
 
+#include "linden_common.h"
+
 #include <string>
 
 extern "C" {
 #include <gst/gst.h>
 
-#include "apr_pools.h"
 #include "apr_dso.h"
 }
 
 #include "llmediaimplgstreamertriviallogging.h"
+#include "llaprpool.h"
 
 #define LL_GST_SYM(REQ, GSTSYM, RTN, ...) RTN (*ll##GSTSYM)(__VA_ARGS__) = NULL
 #include "llmediaimplgstreamer_syms_raw.inc"
@@ -56,7 +58,7 @@ void ll_gst_debug_register_funcptr(GstDebugFuncPtr func, gchar* ptrname)
 }
 
 static bool sSymsGrabbed = false;
-static apr_pool_t *sSymGSTDSOMemoryPool = NULL;
+static LLAPRPool sSymGSTDSOMemoryPool;
 static apr_dso_handle_t *sSymGSTDSOHandleG = NULL;
 static apr_dso_handle_t *sSymGSTDSOHandleV = NULL;
 
@@ -78,11 +80,11 @@ bool grab_gst_syms(std::string gst_dso_name,
 #define LL_GST_SYM(REQ, GSTSYM, RTN, ...) do{rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll##GSTSYM, sSymGSTDSOHandle, #GSTSYM); if (rv != APR_SUCCESS) {INFOMSG("Failed to grab symbol: %s", #GSTSYM); if (REQ) sym_error = true;} else DEBUGMSG("grabbed symbol: %s from %p", #GSTSYM, (void*)ll##GSTSYM);}while(0)
 
 	//attempt to load the shared libraries
-	apr_pool_create(&sSymGSTDSOMemoryPool, NULL);
+	sSymGSTDSOMemoryPool.create();
   
 	if ( APR_SUCCESS == (rv = apr_dso_load(&sSymGSTDSOHandle,
 					       gst_dso_name.c_str(),
-					       sSymGSTDSOMemoryPool) ))
+					       sSymGSTDSOMemoryPool()) ))
 	{
 		INFOMSG("Found DSO: %s", gst_dso_name.c_str());
 #include "llmediaimplgstreamer_syms_raw.inc"
@@ -96,7 +98,7 @@ bool grab_gst_syms(std::string gst_dso_name,
 		if ( APR_SUCCESS ==
 		     (rv = apr_dso_load(&sSymGSTDSOHandle,
 					gst_dso_name_vid.c_str(),
-					sSymGSTDSOMemoryPool) ))
+					sSymGSTDSOMemoryPool()) ))
 		{
 			INFOMSG("Found DSO: %s", gst_dso_name_vid.c_str());
 #include "llmediaimplgstreamer_syms_rawv.inc"
@@ -150,8 +152,7 @@ void ungrab_gst_syms()
 	
 	if ( sSymGSTDSOMemoryPool )
 	{
-		apr_pool_destroy(sSymGSTDSOMemoryPool);
-		sSymGSTDSOMemoryPool = NULL;
+		sSymGSTDSOMemoryPool.destroy();
 	}
 	
 	// NULL-out all of the symbols we'd grabbed
