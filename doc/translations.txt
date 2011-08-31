@@ -1,7 +1,9 @@
-#List of translators who contribute to SL Viewer 2.0+ and SL web translation by language
+#List of translators who contribute to SL Viewer 2.0+ by language
 
 	Danish
 Flemming Congrejo
+	German
+Torben Trautman
 	French
 Valerie Linden
 	Polish
@@ -21,6 +23,7 @@ Lunita Savira
 Minerva Memel
 Polo Gufler
 Xiki Luik
-Perez Linden
+Shinya Tandino
+Catwise Yoshikawa
 	Traditional Chinese
 gefeit Dufaux
