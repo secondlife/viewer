@@ -6261,6 +6261,10 @@ Grant this request?
 [MESSAGE]
     <form name="form">
       <button
+       index="-2"
+       name="Mute"
+       text="Block"/>
+      <button
        index="-1"
        name="Ignore"
        text="Ignore"/>
@@ -6275,6 +6279,10 @@ Grant this request?
 [GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
     <form name="form">
+      <button
+       index="-2"
+       name="Mute"
+       text="Block"/>
       <button
        index="-1"
        name="Ignore"
