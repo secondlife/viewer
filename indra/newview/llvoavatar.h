@@ -273,6 +273,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isFullyLoaded() const;
+	bool			isTooComplex() const;
 	bool visualParamWeightsAreDefault();
 protected:
 	virtual BOOL	getIsCloud();
@@ -285,6 +286,7 @@ private:
 	BOOL			mPreviousFullyLoaded;
 	BOOL			mFullyLoadedInitialized;
 	S32				mFullyLoadedFrameCounter;
+	S32				mVisualComplexity;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
 protected:

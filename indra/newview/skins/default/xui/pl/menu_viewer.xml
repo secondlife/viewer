@@ -138,7 +138,6 @@
 		<menu_item_check label="Wyłącz ograniczenia zasięgu kamery" name="Disable Camera Distance"/>
 		<menu_item_check label="Wysoka rozdzielczość zdjęć" name="HighResSnapshot"/>
 		<menu_item_check label="Zapisuj zdjęcia na dysk twardy bez efektu dźwiękowego" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="Skompresuj zdjęcie na dysk twardy" name="CompressSnapshotsToDisk"/>
 		<menu label="Narzędzia" name="Performance Tools">
 			<menu_item_call label="Pomiar lagów" name="Lag Meter"/>
 			<menu_item_check label="Statystyki" name="Statistics Bar"/>

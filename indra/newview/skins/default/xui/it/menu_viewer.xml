@@ -159,7 +159,6 @@
 		<menu_item_check label="Disabilita vincoli fotocamera" name="Disable Camera Distance"/>
 		<menu_item_check label="Foto ad alta risoluzione" name="HighResSnapshot"/>
 		<menu_item_check label="Manda foto su disco senza avvisi" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="Comprimi le foto su disco" name="CompressSnapshotsToDisk"/>
 		<menu label="Strumenti di performance" name="Performance Tools">
 			<menu_item_call label="Misuratore lag" name="Lag Meter"/>
 			<menu_item_check label="Barra statistiche" name="Statistics Bar"/>

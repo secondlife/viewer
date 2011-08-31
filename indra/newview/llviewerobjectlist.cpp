@@ -58,6 +58,7 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerstatsrecorder.h"
+#include "llvovolume.h"
 #include "llvoavatarself.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
@@ -992,6 +993,9 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 
 	mNumSizeCulled = 0;
 	mNumVisCulled = 0;
+
+	// update max computed render cost
+	LLVOVolume::updateRenderComplexity();
 
 	// compute all sorts of time-based stats
 	// don't factor frames that were paused into the stats

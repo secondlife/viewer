@@ -35,7 +35,7 @@ Qt Webkit 版本： [QT_WEBKIT_VERSION]
 		（無）
 	</floater.string>
 	<floater.string name="AboutTraffic">
-		Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+		封包損失：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
 	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="資訊" name="support_panel">
@@ -77,7 +77,7 @@ google-perftools Copyright (c) 2005, Google Inc.
 
 All rights reserved.  See licenses.txt for details.
 
-Voice chat Audio coding: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
+語音聊天音頻編碼：Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
 			</text_editor>
 		</panel>
 	</tab_container>

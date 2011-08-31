@@ -140,7 +140,6 @@
 		<menu_item_check label="Fjern kamerabegrænsninger" name="Disable Camera Distance"/>
 		<menu_item_check label="Højopløsningsfoto" name="HighResSnapshot"/>
 		<menu_item_check label="Lydløse fotos til disk" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="Komprimér fotos til disk" name="CompressSnapshotsToDisk"/>
 		<menu label="Værktøjer til ydelse" name="Performance Tools">
 			<menu_item_call label="Lag meter" name="Lag Meter"/>
 			<menu_item_check label="Statistik bjælke" name="Statistics Bar"/>

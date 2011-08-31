@@ -110,7 +110,7 @@ def format(format_str, context):
 
 def _find_sub_matches(format_str):
     """@brief Find all of the substitution matches.
-@param format_str the RUSS conformant format string.	
+@param format_str the RUSS conformant format string.    
 @return Returns an array of depths of arrays of positional matches in input.
 """
     depth = 0

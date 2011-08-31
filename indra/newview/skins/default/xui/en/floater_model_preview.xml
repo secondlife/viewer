@@ -21,6 +21,7 @@
   <string name="mesh_status_mesh_mismatch">Levels of detail have a different number of mesh instances.</string>
   <string name="mesh_status_too_many_vertices">Level of detail has too many vertices.</string>
   <string name="mesh_status_missing_lod">Missing required level of detail.</string>
+  <string name="mesh_status_invalid_material_list">LOD materials are not a subset of reference model.</string>
   <string name="layer_all">All</string> <!-- Text to display in physics layer combo box for "all layers" -->
   <string name="decomposing">Analyzing...</string>
   <string name="simplifying">Simplifying...</string>

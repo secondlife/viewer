@@ -2426,7 +2426,7 @@ Por favor, vuelve a intentarlo en unos momentos.
 	</notification>
 	<notification name="ObjectGiveItem">
 		Un objeto de nombre &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, propiedad de [NAME_SLURL], te ha dado este [OBJECTTYPE]:
-[ITEM_SLURL]
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
 		<form name="form">
 			<button name="Keep" text="Guardar"/>
 			<button name="Discard" text="Descartar"/>

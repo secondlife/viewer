@@ -2698,7 +2698,7 @@ Probeer het alstublieft opnieuw over enkele ogenblikken.
 		Geen geldig perceel kon gevonden worden.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Een object genaamd &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, eigendom van [NAME_SLURL], heeft u een [OBJECTTYPE] genaamd [ITEM_SLURL] gegeven.
+		Een object genaamd &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, eigendom van [NAME_SLURL], heeft u een [OBJECTTYPE] genaamd &lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt; gegeven.
 		<form name="form">
 			<button name="Keep" text="Behouden"/>
 			<button name="Discard" text="Afwijzen"/>

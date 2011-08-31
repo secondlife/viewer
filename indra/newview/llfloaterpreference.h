@@ -156,6 +156,7 @@ public:
 	void applyResolution();
 	void onChangeMaturity();
 	void onClickBlockList();
+	void onClickProxySettings();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	
@@ -228,5 +229,34 @@ protected:
 	void resetDirtyChilds();
 	
 };
+
+class LLFloaterPreferenceProxy : public LLFloater
+{
+public: 
+	LLFloaterPreferenceProxy(const LLSD& key);
+	~LLFloaterPreferenceProxy();
+
+	/// show off our menu
+	static void show();
+	void cancel();
+	
+protected:
+	BOOL postBuild();
+	void onOpen(const LLSD& key);
+	void onClose(bool app_quitting);
+	void saveSettings();
+	void onBtnOk();
+	void onBtnCancel();
+
+	void onChangeSocksSettings();
+
+private:
+	
+	bool mSocksSettingsDirty;
+	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
+	control_values_map_t mSavedValues;
+
+};
+
 
 #endif  // LL_LLPREFERENCEFLOATER_H

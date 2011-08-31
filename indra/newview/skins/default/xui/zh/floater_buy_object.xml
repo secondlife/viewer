@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="contents" title="BUY COPY OF OBJECT">
+<floater name="contents" title="購買物件副本">
 	<floater.string name="title_buy_text">
 		購買
 	</floater.string>

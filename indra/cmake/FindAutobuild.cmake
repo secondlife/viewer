@@ -21,10 +21,10 @@ IF (NOT AUTOBUILD_EXECUTABLE)
       AUTOBUILD_EXECUTABLE 
       NAMES ${AUTOBUILD_EXE_NAMES}
       PATHS 
-	ENV PATH
-	${CMAKE_SOURCE_DIR}/.. 
-	${CMAKE_SOURCE_DIR}/../..
-	${CMAKE_SOURCE_DIR}/../../..
+    ENV PATH
+    ${CMAKE_SOURCE_DIR}/.. 
+    ${CMAKE_SOURCE_DIR}/../..
+    ${CMAKE_SOURCE_DIR}/../../..
       PATH_SUFFIXES "/autobuild/bin/"
     )
 
@@ -33,7 +33,7 @@ IF (NOT AUTOBUILD_EXECUTABLE)
       MESSAGE(STATUS "Using autobuild at: ${AUTOBUILD_EXECUTABLE}")
     ELSE (AUTOBUILD_EXECUTABLE)
       IF (AUTOBUILD_FIND_REQUIRED)
-	MESSAGE(FATAL_ERROR "Could not find autobuild executable")
+    MESSAGE(FATAL_ERROR "Could not find autobuild executable")
       ENDIF (AUTOBUILD_FIND_REQUIRED)
     ENDIF (AUTOBUILD_EXECUTABLE)
 

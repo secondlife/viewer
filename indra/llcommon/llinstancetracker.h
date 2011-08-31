@@ -92,7 +92,7 @@ public:
 	public:
 		typedef boost::iterator_facade<key_iter, KEY, boost::forward_traversal_tag> super_t;
 
-		key_iter(typename InstanceMap::iterator& it)
+		key_iter(typename InstanceMap::iterator it)
 			:	mIterator(it)
 		{
 			++sIterationNestDepth;

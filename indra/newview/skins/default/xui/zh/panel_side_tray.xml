@@ -13,7 +13,7 @@
 	</sidetray_tab>
 	<sidetray_tab description="Find your friends, contacts and people nearby." name="sidebar_people" tab_title="People">
 		<panel_container name="panel_container">
-			<panel label="社團檔案" name="panel_group_info_sidetray"/>
+			<panel label="群組檔案" name="panel_group_info_sidetray"/>
 			<panel label="Blocked Residents &amp; Objects" name="panel_block_list_sidetray"/>
 		</panel_container>
 	</sidetray_tab>

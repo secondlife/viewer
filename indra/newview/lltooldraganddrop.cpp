@@ -613,6 +613,7 @@ BOOL LLToolDragAndDrop::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	if (!mToolTipMsg.empty())
 	{
+		LLToolTipMgr::instance().unblockToolTips();
 		LLToolTipMgr::instance().show(LLToolTip::Params()
 			.message(mToolTipMsg)
 			.delay_time(gSavedSettings.getF32( "DragAndDropToolTipDelay" )));

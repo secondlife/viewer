@@ -46,10 +46,10 @@ S32		receive_packet(int hSocket, char * receiveBuffer);
 BOOL	send_packet(int hSocket, const char *sendBuffer, int size, U32 recipient, int nPort);	// Returns TRUE on success.
 
 //void	get_sender(char * tmp);
-LLHost  get_sender();
+LLHost	get_sender();
 U32		get_sender_port();
 U32		get_sender_ip(void);
-LLHost  get_receiving_interface();
+LLHost	get_receiving_interface();
 U32		get_receiving_interface_ip(void);
 
 const char*	u32_to_ip_string(U32 ip);					// Returns pointer to internal string buffer, "(bad IP addr)" on failure, cannot nest calls 

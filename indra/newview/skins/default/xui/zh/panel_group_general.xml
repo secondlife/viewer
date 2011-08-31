@@ -6,7 +6,7 @@
 Hover your mouse over the options for more help.
 	</panel.string>
 	<panel.string name="group_info_unchanged">
-		一般社團資訊已經被變更
+		一般群組資訊已經被變更
 	</panel.string>
 	<panel.string name="incomplete_member_data_str">
 		Retrieving member data
@@ -22,7 +22,7 @@ Hover your mouse over the options for more help.
 		<button label="現在就加入!!" name="btn_join"/>
 	</panel>
 	<text_editor name="charter">
-		Group Charter
+		群組規章
 	</text_editor>
 	<name_list name="visible_members">
 		<name_list.columns label="成員" name="name"/>
@@ -36,11 +36,11 @@ Hover your mouse over the options for more help.
 		我的頭銜：
 	</text>
 	<combo_box name="active_title" tool_tip="Sets the title that appears in your avatar&apos;s name tag when this group is active."/>
-	<check_box label="接受社團通知" name="receive_notices" tool_tip="Sets whether you want to receive Notices from this group.  Uncheck this box if this group is spamming you."/>
+	<check_box label="接受群組通知" name="receive_notices" tool_tip="Sets whether you want to receive Notices from this group.  Uncheck this box if this group is spamming you."/>
 	<check_box label="顯示在我的檔案中" name="list_groups_in_profile" tool_tip="Sets whether you want to show this group in your profile"/>
 	<panel name="preferences_container">
 		<text name="group_settngs_label">
-			社團
+			群組
 		</text>
 		<check_box label="任何人都可以加入" name="open_enrollement" tool_tip="Sets whether this group allows new members to join without being invited."/>
 		<check_box label="加入費用" name="check_enrollment_fee" tool_tip="Sets whether to require an enrollment fee to join the group"/>
@@ -49,8 +49,8 @@ Hover your mouse over the options for more help.
 			<combo_item name="select_mature">
 				- 選擇內容分級 -
 			</combo_item>
-			<combo_box.item label="Moderate Content" name="mature"/>
-			<combo_box.item label="一般內容" name="pg"/>
+			<combo_box.item label="適度成人內容" name="mature"/>
+			<combo_box.item label="一般普級內容" name="pg"/>
 		</combo_box>
 		<check_box initial_value="true" label="顯示在搜尋中" name="show_in_group_list" tool_tip="Let people see this group in search results"/>
 	</panel>

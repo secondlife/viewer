@@ -563,6 +563,7 @@ Jonathan Yap
 	STORM-1313
 	STORM-899
 	STORM-1273
+	STORM-1276
 	STORM-1462
 	STORM-1459
 Kadah Coba
@@ -939,6 +940,7 @@ Satanello Miami
 Satomi Ahn
 	STORM-501
 	STORM-229
+	VWR-24502
 Scrim Pinion
 Scrippy Scofield
 	VWR-3748
