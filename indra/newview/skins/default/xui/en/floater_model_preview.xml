@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="true" can_drag_on_left="false" can_minimize="false"
-     can_resize="false" height="480" min_height="480" min_width="840"
-     name="Model Preview" title="Upload Model" width="840"
+     can_resize="false" height="480" min_height="480" min_width="940"
+     name="Model Preview" title="Upload Model" width="940"
       help_topic="upload_model" >
 
   <string name="status_idle">Idle</string>
@@ -33,7 +33,7 @@
   left="3"
   name="left_panel"
   top_pad="10"
-  width="530">
+  width="630">
     <panel
       follows="all"
       height="50"
@@ -47,6 +47,7 @@
           height="15"
           left="15"
           name="name_label"
+          text_color="White"
           top="0"
           width="290">
           Model name:
@@ -83,8 +84,8 @@
           <combo_item name="Choose one" label="Choose One..." value="MUT_Unspecified"/>
           <combo_item name="Avatar shape" label="Avatar shape" value="MUT_AvatarShape"/>
           <combo_item name="Avatar attachment" label="Avatar attachment" value="MUT_AvatarAttachment"/>
-          <combo_item name="Building Component" label="Building Component" value="MUT_BuildingComponent"/>
           <combo_item name="Moving object (vehicle, animal)" label="Moving object (vehicle, animal)" value="MUT_MovingObject"/>
+          <combo_item name="Building Component" label="Building Component" value="MUT_BuildingComponent"/>
           <combo_item name="Large, non moving etc" label="Large, non moving etc" value="MUT_LargeStationary"/>
           <combo_item name="Smaller, non-moving etc" label="Smaller, non-moving etc" value="MUT_SmallStationary"/>
           <combo_item name="Not really any of these" label="Not really any of these" value="MUT_Other"/>
@@ -95,7 +96,7 @@
       top_pad="15"
       left="0"
       height="300"
-      width="525"
+      width="625"
       name="import_tab"
       tab_position="top">
       <!-- LOD PANEL -->
@@ -260,150 +261,356 @@
     </panel>
       </panel>
       <!-- PHYSYCS PANEL -->
-      <panel
-        label="Physics"
-        name="physics_panel"
-        help_topic="upload_model_physics">
-         <view_border
-          bevel_style="none"
-          follows="top|left"
-          height="275"
-          layout="topleft"
-          left="3"
-          name="physics_tab_border"
-          top_pad="0"
-          width="519"/>
-         PHYSICS GEOMETRY
         <panel
-          follows="top|left"
-          name="physics geometry"
-          left="3"
-          top="0"
-          width="300"
-          height="65"
-          visible="true"
-          bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
-    
-          <radio_group follows="top|left" top="10" width="240" height="40" name="physics_load_radio" value="physics_load_from_file">
-            <radio_item bottom="0" name="physics_load_from_file" label="File:"/>
-            <radio_item bottom="23" name="physics_use_lod" label="Use Level of Detail:"/>
-          </radio_group>
-    
-          <combo_box left="150" top="10" follows="left|top" height="18"
- 	         name="physics_lod_combo" width="130" tool_tip="LOD to use for physics shape">
-            <combo_item name="physics_lowest">
-              Lowest
-            </combo_item>
-            <combo_item name="physics_low">
-              Low
-            </combo_item>
-            <combo_item name="physics_medium">
-              Medium
-            </combo_item>
-            <combo_item name="physics_high">
-              High
-            </combo_item>
-          </combo_box>
-    
-          <line_editor follows="left|top" top_pad="5" width="140" left="60" value="" name="physics_file" height="20"/>
-          <button left_pad="10" name="physics_browse" label="Browse..." follows="left|top" width="70" height="20"/>
-    
-          
-          <check_box name="physics_optimize" follows="left|top" width="130" left="10" top_pad="5" height="20" label="Optimize"/>
-          <check_box name="physics_use_hull" follows="left|top" width="130" left_pad="5" height="20" label="Use Convex Hull"/>
-          
-       </panel>
-    
-    
-         PHYSICS ANALYSIS
-        <panel
-         follows="top|left"
-         name="physics analysis"
-         top_pad="0"
-         left="0"
-         width="300"
-         height="130"
-         visible="true"
-         bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
-    
-          <text follows="left|top" bottom="40" height="30" left="10" name="method_label" font="SansSerifBig">
-            Step 1: Analysis
-          </text>
-          
-          <text name="analysis_method_label" top_pad="5" width="50" follows="top|left" height="15">
-            Method:
-          </text>
-          <combo_box name="Method" follows="top|left" left_pad="5" bottom_delta="2" height="20" width="80"/>
-          <text left="160" name="quality_label" bottom_delta="-2" width="50" follows="top|left" height="15">
-            Quality:
-          </text>
-          <combo_box name="Decompose Quality" bottom_delta="2" follows="top|left" left_pad="5" height="20" width="80"/>
-    
-          <slider name="Smooth" left="10" width="280" follows="top|left" top_pad="10" height="20" label="Smooth:"/>
-    
-          <check_box name="Close Holes (Slow)" follows="top|left" top_pad="10" height="15" label="Close Holes (slow)"/>
-                  
-          <button left="200" bottom_delta="0" width="90" follows="top|left" label="Analyze" name="Decompose" height="20"/>
-          <button left="200" bottom_delta="0" width="90" follows="top|left" label="Cancel" name="decompose_cancel" visble="false" height="20"/>
+          help_topic="upload_model_physics"
+          label="Physics"
+          name="physics_panel">
+            
+            <!-- ==== STEP 1: Level of Detail ==== -->
+            <view_border
+              bevel_style="none"
+              follows="top|left"
+              height="275"
+              layout="topleft"
+              left="3"
+              name="physics_tab_border"
+              top_pad="0"
+              width="619"/>
+                <panel
+                  bg_alpha_color="0 0 0 0"
+                  bg_opaque_color="0 0 0 0.3"
+                  follows="top|left"
+                  height="21"
+                  left="18"
+                  name="physics geometry"
+                  top="15"
+                  visible="true"
+                  width="589">
+                    <text
+                      follows="top|left"
+                      font="SansSerif"
+                      height="20"
+                      layout="topleft"
+                      left="0"
+                      name="first_step_name"
+                      text_color="White"
+                      top_pad="0"
+                      width="210">
+                      Step 1: Level of Detail
+                    </text>
+                    <combo_box
+                      follows="left|top"
+                      height="18"
+                      left_pad="10"
+                      name="physics_lod_combo"
+                      width="130"
+                      tool_tip="LOD to use for physics shape">
+                        <combo_item name="physics_lowest"> Lowest </combo_item>
+                        <combo_item name="physics_low">    Low    </combo_item>
+                        <combo_item name="physics_medium"> Medium </combo_item>
+                        <combo_item name="physics_high">   High   </combo_item>
+                        <combo_item name="load_from_file"> From file   </combo_item>
+                    </combo_box>
+                    <line_editor
+                      follows="left|top"
+                      left_pad="10"
+                      value=""
+                      name="physics_file"
+                      height="20"
+                      width="154"/>
+                    <button
+                      follows="left|top"
+                      height="20"
+                      left_pad="4"
+                      name="physics_browse"
+                      label="Browse..."
+                      width="70"/>
+                    <!-- <check_box name="physics_optimize" follows="left|top" width="130" left="10" top_pad="5" height="20" label="Optimize"/>
+                    <check_box name="physics_use_hull" follows="left|top" width="130" left_pad="5" height="20" label="Use Convex Hull"/> -->
+                </panel>
+            
+            <!-- ==== STEP 2: Analyse ==== -->
+            <view_border
+              bevel_style="none"
+              follows="top|left"
+              height="0"
+              layout="topleft"
+              left="18"
+              name="physics_tab_border"
+              top_pad="15"
+              width="589"/>
+                <panel
+                  bg_alpha_color="0 0 0 0"
+                  bg_opaque_color="0 0 0 0.3"
+                  height="65"
+                  follows="top|left"
+                  left="18"
+                  name="physics analysis"
+                  top_pad="15"
+                  visible="true"
+                  width="589">
+                    <text
+                      follows="left|top"
+                      font="SansSerif"
+                      height="20"
+                      layout="topleft"
+                      left="0"
+                      name="method_label"
+                      text_color="White"
+                      top_pad="0">
+                      Step 2: Analyse
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      layout="topleft"
+                      name="analysis_method_label"
+                      top_pad="10"
+                      width="100">
+                      Method:
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      name="quality_label"
+                      layout="topleft"
+                      left_pad="15"
+                      width="100">
+                      Quality:
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      name="smooth_method_label"
+                      layout="topleft"
+                      left_pad="15"
+                      width="100">
+                      Smooth:
+                    </text>
+                    <combo_box
+                      follows="top|left"
+                      layout="topleft"
+                      left="0"
+                      name="Method"
+                      top_pad="0"
+                      height="20"
+                      width="100"/>
+                    <combo_box
+                      follows="top|left"
+                      layout="topleft"
+                      left_pad="15"
+                      name="Decompose Quality"
+                      height="20"
+                      width="100"/>
+                    <combo_box
+                      height="20"
+                      follows="top|left"
+                      layout="topleft"
+                      left_pad="15"
+                      name="Smooth"
+                      width="100"/>
+                    <check_box
+                      follows="top|left"
+                      label="Close Holes"
+                      layout="topleft"
+                      left_pad="10"
+                      name="Close Holes (Slow)"
+                      height="15"/>
+                    <button
+                      bottom="1"
+                      follows="top|right"
+                      height="20"
+                      label="Analyze"
+                      layout="bottomleft"
+                      name="Decompose"
+                      right="-1"
+                      width="90"/>
+                    <button
+                      follows="top|left"
+                      height="20"
+                      label="Cancel"
+                      layout="topleft"
+                      left_delta="0"
+                      name="decompose_cancel"
+                      visible="false"
+                      width="90"/>
+                </panel>
+            
+            <!-- ==== STEP 3: Simplify ==== -->
+            <view_border
+              bevel_style="none"
+              follows="top|left"
+              height="0"
+              layout="topleft"
+              left="18"
+              name="physics_tab_border"
+              top_pad="15"
+              width="589"/>
+                <panel
+                  bg_alpha_color="0 0 0 0"
+                  bg_opaque_color="0 0 0 0.3"
+                  follows="top|left"
+                  height="66"
+                  left="18"
+                  name="physics simplification"
+                  top_pad="15"
+                  width="589">
+                    <text
+                      text_color="White"
+                      follows="left|top"
+                      height="20"
+                      left="0"
+                      name="second_step_label"
+                      top_pad="0"
+                      font="SansSerif">
+                      Step 3: Simplify
+                    </text>
+                    <text
+                      name="simp_method_header"
+                      top_pad="10"
+                      height="15"
+                      width="100"
+                      follows="top|left">
+                      Method:
+                    </text>
+                    <text
+                      follows="top|left"
+                      left_pad="40"
+                      name="pass_method_header"
+                      height="15"
+                      width="41">
+                      Passes:
+                    </text>
+                    <text
+                      follows="top|left"
+                      left_pad="40"
+                      name="Detail Scale label"
+                      height="15"
+                      width="80">
+                      Detail scale:
+                    </text>
+                    <text
+                      follows="top|left"
+                      left_delta="0"
+                      name="Retain%_label"
+                      height="15"
+                      width="80"
+                      visible="false">
+                      Retain:
+                    </text>
+                    <combo_box
+                      follows="top|left"
+                      height="20"
+                      left="0"
+                      name="Simplify Method"
+                      top_pad="0"
+                      width="100"/>
+                    <combo_box
+                      height="20"
+                      follows="top|left"
+                      left_pad="40"
+                      name="Combine Quality"
+                      width="41"
+                      value="1">
+                    </combo_box>
+                    <spinner
+                      follows="top|left"
+                      name="Detail Scale"
+                      height="20"
+                      left_pad="40"
+                      width="60"/>
+                    <spinner
+                      name="Retain%"
+                      width="60"
+                      follows="top|left"
+                      height="20"
+                      left_delta="0"
+                      visible="false"/>
+                    <button
+                      follows="top|left"
+                      height="20"
+                      label="Simplify"
+                      left_pad="40"
+                      name="Simplify"
+                      width="90"/>
+                    <button
+                      follows="top|left"
+                      height="20"
+                      label="Cancel"
+                      layout="topleft"
+                      left_delta="0"
+                      name="simplify_cancel"
+                      width="90"/>
+                </panel>
+            
+            <!-- ==== Results ==== -->
+            <view_border
+              bevel_style="none"
+              follows="top|left"
+              height="0"
+              layout="topleft"
+              left="18"
+              name="physics_tab_border"
+              top_pad="15"
+              width="589"/>
+                <panel
+                  bg_alpha_color="0 0 0 0"
+                  bg_opaque_color="0 0 0 0.3"
+                  follows="left|top"
+                  height="16"
+                  layout="topleft"
+                  left="18"
+                  name="physics info"
+                  top_pad="15"
+                  width="589">
+                    <text
+                      follows="top|left"
+                      height="15"
+                      layout="topleft"
+                      left="0"
+                      text_color="White"
+                      top_pad="0"
+                      name="results_text"
+                      width="60">
+                      Results:
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      layout="topleft"
+                      left_pad="0"
+                      text_color="White"
+                      top_delta="0"
+                      name="physics_triangles"
+                      width="130">
+                      Triangles: [TRIANGLES],
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      layout="topleft"
+                      left_pad="0"
+                      name="physics_points"
+                      top_delta="0"
+                      text_color="White"
+                      width="105">
+                      Vertices: [POINTS],
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      layout="topleft"
+                      left_pad="0"
+                      name="physics_hulls"
+                      top_delta="0"
+                      text_color="White">
+                      Hulls: [HULLS]
+                    </text>
+                </panel>
         </panel>
-        
-    
-         PHYSICS SIMPLIFICATION 
-       <panel
-         follows="top|left"
-         name="physics simplification"
-         left="0"
-         top_pad="0"
-         width="300"
-         height="150"
-         visible="true"
-         bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
-    
-          <text follows="left|top" bottom="40" height="30" left="10" name="second_step_label" font="SansSerifBig">
-            Step 2: Simplification
-          </text>
-    
-          <text left="10" name="simp_method_header" top_pad="5" height="15" width="140" follows="top|left">
-            Method:
-          </text>
-          
-          <combo_box left_pad="5" height="20" width="120" follows="top|left" name="Simplify Method"/>
-    
-          <slider left="10" name="Combine Quality" label="Passes:" label_width="120" width="270" follows="top|left" top_pad="10" height="20"/>
-          <slider name="Detail Scale" label="Detail Scale:" label_width="120" width="270" follows="top|left" top_pad="10" height="20"/>
-          <slider name="Retain%" label="Retain:" label_width="120" width="270" follows="top|left" bottom_delta="0" left_delta="0" visible="false" height="20"/>
-          <button left="190" width="90" follows="top|left" label="Simplify" name="Simplify" height="20"/>
-          <button left="190" bottom_delta="0" width="90" follows="top|left" label="Cancel" name="simplify_cancel" height="20"/>
-          
-        </panel>
-    
-         INFO PANEL 
-        <panel
-          left="0"
-          top_pad="0"
-          width="300"
-          height="100"
-          follows="left|top"
-          name="physics info"
-          visible="true"
-          bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3">
-          
-          <text follows="top|left" name="physics_triangles" top_pad="10" height="15" left="10">
-            Triangles: [TRIANGLES]
-          </text>
-          <text follows="top|left" name="physics_points" top_pad="5" height="15">
-            Vertices: [POINTS]
-          </text>
-          <text follows="top|left" name="physics_hulls" top_pad="5" height="15">
-            Hulls: [HULLS]
-          </text>
-    
-    
-        </panel>
-      </panel>
       <!-- MODIFIERS PANEL -->
-      <panel
-       label="Modifiers"
+     <panel
+       label="Upload options"
        name="modifiers_panel"
        help_topic="upload_model_modifiers">
          <view_border
@@ -414,15 +621,16 @@
           left="3"
           name="border"
           top_pad="0"
-          width="519"/>
+          width="619"/>
            <text
              follows="top|left"
              height="16"
-             left="10"
+             left="20"
              name="scale_label"
-             top="25"
+             text_color="White"
+             top="15"
              width="140">
-             Scale (1=no change):
+             Scale (1=no scaling):
            </text>
            <spinner
              height="20"
@@ -437,8 +645,9 @@
            <text
              follows="top|left"
              height="15"
-             left_pad="5"
+             left_pad="20"
              name="dimensions_label"
+             text_color="White"
              width="90">
              Dimensions:
            </text>
@@ -447,46 +656,60 @@
              height="15"
              left_pad="0"
              name="import_dimensions"
+             text_color="White"
              width="140">
              [X] X [Y] X [Z]
-           </text>
-           <text
-             follows="top|left"
-             height="15"
-             left="10"
-             name="include_label"
-             top_pad="20"
-             width="150">
-             Include in upload:
            </text>
            <check_box
              height="15"
              follows="top|left"
              name="upload_textures"
-             label="Textures"
-             left_delta="0"
-             top_pad="10"/>
+             label="Include textures"
+             label_text.text_color="White"
+             left="20"
+             top_pad="20"/>
+           <view_border
+             bevel_style="none"
+             follows="top|left"
+             height="0"
+             layout="topleft"
+             name="border"
+             top_pad="20"
+             width="579"/>
+           <text
+             follows="top|left"
+             height="15"
+             left="20"
+             name="include_label"
+             text_color="White"
+             top_pad="20"
+             width="150">
+             For avatar models only:
+           </text>
            <check_box
              follows="top|left"
              height="15"
-             label="Skin weight"
+             label="Include skin weight"
+             label_text.text_color="White"
              name="upload_skin"
-             top_pad="10"/>
+             top_pad="15"/>
            <check_box
              follows="top|left"
              height="15"
-             label="Joint positions"
+             label="Include joint positions"
+             label_text.text_color="White"
              name="upload_joints"
-             top_pad="10"/>
+             top_pad="15"/>
            <text
              follows="top|left"
              height="15"
              layout="topleft"
-             left="200"
+             left="220"
              name="pelvis_offset_label"
-             top="61"
+             text_color="White"
+             top="134"
              width="200">
-             Z Offset (for avatar shapes only):
+             Z offset (raise or lower avatar):
            </text>
            <spinner
              follows="top|left"
@@ -497,7 +720,7 @@
              top_pad="10"
              value="0.0"
              width="80"/>
-       </panel>
+     </panel>
     </tab_container>
     <panel
      follows="top|left"
@@ -506,10 +729,11 @@
      left="0"
      name="weights_and_warning_panel"
      top_pad="3"
-     width="525">
+     width="625">
        <button
          follows="top|left"
          label="Calculate weights &amp; fee"
+         label_color="White"
          layout="topleft"
          left="3"
          name="calculate_btn"
@@ -520,6 +744,7 @@
        <button
          follows="top|left"
          label="Cancel"
+         label_color="White"
          layout="topleft"
          left_pad="6"
          name="cancel_btn"
@@ -530,6 +755,7 @@
          follows="top|left"
          label="Upload"
          layout="topleft"
+         label_color="White"
          left="35"
          name="ok_btn"
          top="3"
@@ -540,6 +766,7 @@
        <button
          follows="top|right"
          label="Clear settings &amp; reset form"
+         label_color="White"
          layout="topleft"
          name="reset_btn"
          right="-2"
@@ -553,7 +780,7 @@
          layout="topleft"
          left="5"
          name="upload_fee"
-         top_pad="8"
+         top_pad="10"
          width="130"
          word_wrap="true">
          Upload fee: L$ [FEE]
@@ -605,7 +832,7 @@
          left="6"
          name="warning_title"
          top_pad="10"
-         text_color="Yellow"
+         text_color="DrYellow"
          visible="true"
          width="40">
          NOTE:
@@ -617,7 +844,7 @@
          left_pad="1"
          name="warning_message"
          parse_urls="true"
-         top_delta="0"
+         top_delta="2"
          wrap="true"
          width="462"
          visible="true">
@@ -629,8 +856,9 @@
 <text 
  follows="left|top"
  layout="topleft"
- left="540"
+ left="640"
  name="lod_label"
+ text_color="White"
  top="13"
  height="15"
  width="290">
@@ -660,14 +888,15 @@
       name="preview_lod_combo"
       width="150"
       tool_tip="LOD to view in preview render">
-        <combo_item name="high">   High  LoD   </combo_item>
-        <combo_item name="medium"> Medium LoD  </combo_item>
-        <combo_item name="low">    Low LoD     </combo_item>
-        <combo_item name="lowest"> Lowest  LoD </combo_item>
+        <combo_item name="high">   High   </combo_item>
+        <combo_item name="medium"> Medium </combo_item>
+        <combo_item name="low">    Low    </combo_item>
+        <combo_item name="lowest"> Lowest </combo_item>
     </combo_box>
     <text
       follows="top|left"
       layout="topleft"
+      text_color="White"
       top="5"
       left_pad="20"
       name="label_display"
@@ -677,6 +906,7 @@
     <check_box
       follows="top|left"
       label="Edges"
+      label_text.text_color="White"
       layout="topleft"
       left_delta="0"
       name="show_edges"
@@ -685,6 +915,7 @@
     <check_box
       follows="top|left"
       label="Physics"
+      label_text.text_color="White"
       layout="topleft"
       name="show_physics"
       top_pad="8">
@@ -692,6 +923,7 @@
     <check_box
       follows="top|left"
       label="Textures"
+      label_text.text_color="White"
       layout="topleft"
       name="show_textures"
       top_pad="8">
@@ -699,6 +931,7 @@
     <check_box
       follows="top|left"
       label="Skin weights"
+      label_text.text_color="White"
       layout="topleft"
       name="show_skin_weight"
       top_pad="8">
@@ -706,6 +939,7 @@
     <check_box
       follows="top|left"
       label="Joints"
+      label_text.text_color="White"
       layout="topleft"
       name="show_joint_positions"
       top_pad="8">

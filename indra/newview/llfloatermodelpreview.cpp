@@ -431,7 +431,6 @@ BOOL LLFloaterModelPreview::postBuild()
 	childSetCommitCallback("pelvis_offset", onPelvisOffsetCommit, this);
 
 	childSetCommitCallback("lod_file_or_limit", refresh, this);
-	childSetCommitCallback("physics_load_radio", onPhysicsLoadRadioCommit, this);
 	//childSetCommitCallback("physics_optimize", refresh, this);
 	//childSetCommitCallback("physics_use_hull", refresh, this);
 
@@ -638,29 +637,6 @@ void LLFloaterModelPreview::onPelvisOffsetCommit( LLUICtrl*, void* userdata )
 	fp->toggleCalculateButton(true);
 
 	fp->mModelPreview->refresh();
-}
-
-//static
-void LLFloaterModelPreview::onPhysicsLoadRadioCommit( LLUICtrl*, void *userdata)
-{
-	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
-	if (fmp)
-	{
-		if (fmp->childGetValue("physics_use_lod").asBoolean())
-		{
-			onPhysicsUseLOD(NULL,NULL);
-		}
-		if (fmp->childGetValue("physics_load_from_file").asBoolean())
-		{
-			
-		}
-		LLModelPreview *model_preview = fmp->mModelPreview;
-		if (model_preview)
-		{
-			model_preview->refresh();
-			model_preview->updateStatusMessages();
-		}
-	}
 }
 
 //static
@@ -935,16 +911,20 @@ void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 
 		if (name == "Simplify Method")
 		{
-			 if (ctrl->getValue().asInteger() == 0)
-			 {
-				sInstance->childSetVisible("Retain%", true);
-				sInstance->childSetVisible("Detail Scale", false);
-			 }
-			else
+			bool show_retain = false;
+			bool show_detail = true;
+
+			if (ctrl->getValue().asInteger() == 0)
 			{
-				sInstance->childSetVisible("Retain%", false);
-				sInstance->childSetVisible("Detail Scale", true);
+				 show_retain = true;
+				 show_detail = false;
 			}
+
+			sInstance->childSetVisible("Retain%", show_retain);
+			sInstance->childSetVisible("Retain%_label", show_retain);
+
+			sInstance->childSetVisible("Detail Scale", show_detail);
+			sInstance->childSetVisible("Detail Scale label", show_detail);
 		}
 	}
 }
@@ -1001,13 +981,35 @@ void LLFloaterModelPreview::onPhysicsBrowse(LLUICtrl* ctrl, void* userdata)
 void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 {
 	S32 which_mode = 3;
+	static S32 previous_mode = which_mode;
+
 	LLCtrlSelectionInterface* iface = sInstance->childGetSelectionInterface("physics_lod_combo");
 	if (iface)
 	{
 		which_mode = iface->getFirstSelectedIndex();
 	}
 
-	sInstance->mModelPreview->setPhysicsFromLOD(which_mode);
+	S32 file_mode = iface->getItemCount() - 1;
+	bool file_browse = which_mode == file_mode;
+	bool lod_to_file = file_browse && (previous_mode != file_mode);
+	bool file_to_lod = !file_browse && (previous_mode == file_mode);
+
+	if (!lod_to_file)
+	{
+		sInstance->mModelPreview->setPhysicsFromLOD(which_mode);
+	}
+
+	if (lod_to_file || file_to_lod)
+	{
+		LLModelPreview *model_preview = sInstance->mModelPreview;
+		if (model_preview)
+		{
+			model_preview->refresh();
+			model_preview->updateStatusMessages();
+		}
+	}
+
+	previous_mode = which_mode;
 }
 
 //static 
@@ -1099,8 +1101,9 @@ void LLFloaterModelPreview::initDecompControls()
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mFloat);
 				//llinfos << "Type: float, Default: " << param[i].mDefault.mFloat << llendl;
 
-				LLSliderCtrl* slider = getChild<LLSliderCtrl>(name);
-				if (slider)
+
+				LLUICtrl* ctrl = getChild<LLUICtrl>(name);
+				if (LLSliderCtrl* slider = dynamic_cast<LLSliderCtrl*>(ctrl))
 				{
 					slider->setMinValue(param[i].mDetails.mRange.mLow.mFloat);
 					slider->setMaxValue(param[i].mDetails.mRange.mHigh.mFloat);
@@ -1108,20 +1111,39 @@ void LLFloaterModelPreview::initDecompControls()
 					slider->setValue(param[i].mDefault.mFloat);
 					slider->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 				}
+				else if (LLSpinCtrl* spinner = dynamic_cast<LLSpinCtrl*>(ctrl))
+				{
+					spinner->setMinValue(param[i].mDetails.mRange.mLow.mFloat);
+					spinner->setMaxValue(param[i].mDetails.mRange.mHigh.mFloat);
+					spinner->setIncrement(param[i].mDetails.mRange.mDelta.mFloat);
+					spinner->setValue(param[i].mDefault.mFloat);
+					spinner->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+				}
 			}
 			else if (param[i].mType == LLCDParam::LLCD_INTEGER)
 			{
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mIntOrEnumValue);
 				//llinfos << "Type: integer, Default: " << param[i].mDefault.mIntOrEnumValue << llendl;
 
-				LLSliderCtrl* slider = getChild<LLSliderCtrl>(name);
-				if (slider)
+
+				LLUICtrl* ctrl = getChild<LLUICtrl>(name);
+				if (LLSliderCtrl* slider = dynamic_cast<LLSliderCtrl*>(ctrl))
 				{
 					slider->setMinValue(param[i].mDetails.mRange.mLow.mIntOrEnumValue);
 					slider->setMaxValue(param[i].mDetails.mRange.mHigh.mIntOrEnumValue);
 					slider->setIncrement(param[i].mDetails.mRange.mDelta.mIntOrEnumValue);
 					slider->setValue(param[i].mDefault.mIntOrEnumValue);
 					slider->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+				}
+				else if (LLComboBox* combo_box = dynamic_cast<LLComboBox*>(ctrl))
+				{
+					for(int k = param[i].mDetails.mRange.mLow.mIntOrEnumValue; k<=param[i].mDetails.mRange.mHigh.mIntOrEnumValue; k+=param[i].mDetails.mRange.mDelta.mIntOrEnumValue)
+					{
+						std::string name = llformat("%.1d", k);
+						combo_box->add(name, k, ADD_BOTTOM, true);
+					}
+					combo_box->setValue(param[i].mDefault.mIntOrEnumValue);
+					combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 				}
 			}
 			else if (param[i].mType == LLCDParam::LLCD_BOOLEAN)
@@ -4528,15 +4550,13 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
-	if (mFMP->childGetValue("physics_load_from_file").asBoolean())
+	if (mFMP->childGetValue("physics_lod_combo").asString() == "From file")
 	{
-		mFMP->childDisable("physics_lod_combo");
 		mFMP->childEnable("physics_file");
 		mFMP->childEnable("physics_browse");
 	}
 	else
 	{
-		mFMP->childEnable("physics_lod_combo");
 		mFMP->childDisable("physics_file");
 		mFMP->childDisable("physics_browse");
 	}

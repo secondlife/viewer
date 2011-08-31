@@ -84,6 +84,9 @@
 	name="LtYellow"
 	value="1 1 .79 1" />
 	<color
+	name="DrYellow"
+	value="1 0.86 0 1" />
+	<color
 	name="LtOrange"
 	value="1 .85 .73 1" />
 	<color
