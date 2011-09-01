@@ -281,6 +281,8 @@ private:
 	// resets display options of model preview to their defaults.
 	void resetDisplayOptions();
 
+	void createSmoothComboBox(LLComboBox* combo_box, float min, float max);
+
 	LLButton* mUploadBtn;
 	LLButton* mCalculateBtn;
 };

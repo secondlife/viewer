@@ -70,7 +70,7 @@
           text_color="White"
           top="0"
           width="200">
-          This model represent...
+          This model represents...
         </text>
         <combo_box
           follows="left|top"
@@ -305,10 +305,10 @@
                       name="physics_lod_combo"
                       width="130"
                       tool_tip="LOD to use for physics shape">
-                        <combo_item name="physics_lowest"> Lowest </combo_item>
-                        <combo_item name="physics_low">    Low    </combo_item>
-                        <combo_item name="physics_medium"> Medium </combo_item>
                         <combo_item name="physics_high">   High   </combo_item>
+                        <combo_item name="physics_medium"> Medium </combo_item>
+                        <combo_item name="physics_low">    Low    </combo_item>
+                        <combo_item name="physics_lowest"> Lowest </combo_item>
                         <combo_item name="load_from_file"> From file   </combo_item>
                     </combo_box>
                     <line_editor
@@ -407,7 +407,7 @@
                       follows="top|left"
                       layout="topleft"
                       left_pad="15"
-                      name="Smooth"
+                      name="Cosine%"
                       width="100"/>
                     <check_box
                       follows="top|left"
@@ -571,7 +571,7 @@
                       text_color="White"
                       top_pad="0"
                       name="results_text"
-                      width="60">
+                      width="50">
                       Results:
                     </text>
                     <text
@@ -582,7 +582,7 @@
                       text_color="White"
                       top_delta="0"
                       name="physics_triangles"
-                      width="130">
+                      width="90">
                       Triangles: [TRIANGLES],
                     </text>
                     <text
@@ -593,7 +593,7 @@
                       name="physics_points"
                       top_delta="0"
                       text_color="White"
-                      width="105">
+                      width="85">
                       Vertices: [POINTS],
                     </text>
                     <text

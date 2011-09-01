@@ -980,6 +980,7 @@ void LLFloaterModelPreview::onPhysicsBrowse(LLUICtrl* ctrl, void* userdata)
 //static
 void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 {
+	S32 num_modes = 3;
 	S32 which_mode = 3;
 	static S32 previous_mode = which_mode;
 
@@ -996,6 +997,7 @@ void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 
 	if (!lod_to_file)
 	{
+		which_mode = num_modes - which_mode;
 		sInstance->mModelPreview->setPhysicsFromLOD(which_mode);
 	}
 
@@ -1119,6 +1121,29 @@ void LLFloaterModelPreview::initDecompControls()
 					spinner->setValue(param[i].mDefault.mFloat);
 					spinner->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 				}
+				else if (LLComboBox* combo_box = dynamic_cast<LLComboBox*>(ctrl))
+				{
+					float min = param[i].mDetails.mRange.mLow.mFloat;
+					float max = param[i].mDetails.mRange.mHigh.mFloat;
+					float delta = param[i].mDetails.mRange.mDelta.mFloat;
+
+					if ("Cosine%" == name)
+					{
+						createSmoothComboBox(combo_box, min, max);
+					}
+					else
+					{
+						for(float value = min; value <= max; value += delta)
+						{
+							std::string label = llformat("%.1f", value);
+							combo_box->add(label, value, ADD_BOTTOM, true);
+						}
+						combo_box->setValue(param[i].mDefault.mFloat);
+
+					}
+
+					combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+				}
 			}
 			else if (param[i].mType == LLCDParam::LLCD_INTEGER)
 			{
@@ -1190,6 +1215,23 @@ void LLFloaterModelPreview::initDecompControls()
 	}
 
 	childSetCommitCallback("physics_explode", LLFloaterModelPreview::onExplodeCommit, this);
+}
+
+void LLFloaterModelPreview::createSmoothComboBox(LLComboBox* combo_box, float min, float max)
+{
+	float combo_list_size = 10;
+	float delta = (max - min) / combo_list_size;
+	int ilabel = 0;
+
+	combo_box->add("0 (none)", ADD_BOTTOM, true);
+
+	for(float value = min + delta; value < max; value += delta)
+	{
+		std::string label = (++ilabel == combo_list_size) ? "10 (max)" : llformat("%.1d", ilabel);
+		combo_box->add(label, value, ADD_BOTTOM, true);
+	}
+
+
 }
 
 //-----------------------------------------------------------------------------
