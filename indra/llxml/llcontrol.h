@@ -185,9 +185,10 @@ protected:
 	ctrl_name_table_t mNameTable;
 	std::string mTypeString[TYPE_COUNT];
 
+public:
 	eControlType typeStringToEnum(const std::string& typestr);
 	std::string typeEnumToString(eControlType typeenum);	
-public:
+
 	LLControlGroup(const std::string& name);
 	~LLControlGroup();
 	void cleanup();
