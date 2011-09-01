@@ -12,7 +12,7 @@
  name="status"
  top="19"
  tab_stop="false"
- width="160">
+ width="185">
     <panel.string
      name="packet_loss_tooltip">
         Packet Loss
@@ -35,13 +35,13 @@
     </panel.string>
   <combo_box
    follows="right|top"
-   left="5"
-   drop_down_button.image_color="0 0 0 0"
-   drop_down_button.hover_glow_amount="0"
-   drop_down_button.pad_right="0"
-   top="7"
-   width="95"
-   height="20"
+   left_pad="5"
+   drop_down_button.pad_left="10"
+   left="0"
+   top="5"
+   pad_left="5"
+   width="120"
+   height="23"
    name="mode_combo"
    tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
     >

@@ -35,7 +35,7 @@
     </panel.string>
   <panel
     height="18"
-    left="-335"
+    left="-355"
     width="95"
     top="1"
     follows="right|top" 
@@ -78,11 +78,13 @@
      width="55" />
   </panel>
   <combo_box
-     follows="right|top"    
+    follows="right|top"   
+    drop_down_button.pad_left="10" 
     left_pad="5"
     top="0"
-    width="100"
+    width="120"
     height="20"
+    pad_left="5"
     name="mode_combo"
     tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
     >
@@ -96,6 +98,7 @@
       value="" />
   </combo_box>
     <text
+      left_pad="5"
      type="string"
      font="SansSerifSmall"
      text_readonly_color="TimeTextColor"
@@ -104,7 +107,6 @@
      height="16"
      top="5"
      layout="topleft"
-     left_pad="5"
      name="TimeText"
      tool_tip="Current time (Pacific)"
      width="75">
