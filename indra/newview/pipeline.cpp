@@ -4041,6 +4041,8 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 		pool_set_t::iterator iter2 = iter1;
 		if (hasRenderType(poolp->getType()) && poolp->getNumShadowPasses() > 0)
 		{
+			poolp->prerender() ;
+
 			gGLLastMatrix = NULL;
 			glLoadMatrixd(gGLModelView);
 		
@@ -8341,12 +8343,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	}
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			
-	gGL.diffuseColor4f(1,1,1,1);
 	
 	stop_glerror();
-
-	gGL.setColorMask(false, false);
 	
 	//glCullFace(GL_FRONT);
 
@@ -8357,6 +8355,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		{ //occlusion program is general purpose depth-only no-textures
 			gOcclusionProgram.bind();
 		}
+
+		gGL.diffuseColor4f(1,1,1,1);
+		gGL.setColorMask(false, false);
+	
 		LLFastTimer ftm(FTM_SHADOW_SIMPLE);
 		gGL.getTexUnit(0)->disable();
 		for (U32 i = 0; i < sizeof(types)/sizeof(U32); ++i)

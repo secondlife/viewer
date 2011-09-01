@@ -353,15 +353,15 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 	{
 		sVertexProgram = &gDeferredAvatarShadowProgram;
 		
-		//gGL.setAlphaRejectSettings(LLRender::CF_GREATER_EQUAL, 0.2f);
-		
-		gGL.diffuseColor4f(1,1,1,1);
+		//gGL.setAlphaRejectSettings(LLRender::CF_GREATER_EQUAL, 0.2f);		
 
 		if ((sShaderLevel > 0))  // for hardware blending
 		{
 			sRenderingSkinned = TRUE;
 			sVertexProgram->bind();
 		}
+
+		gGL.diffuseColor4f(1,1,1,1);
 	}
 	else
 	{
