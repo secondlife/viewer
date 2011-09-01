@@ -73,10 +73,10 @@ public:
 	LLInboxFolderViewFolder(const Params& p);
 	~LLInboxFolderViewFolder();
 
-	time_t getCreationDate() const;
-	
 	void draw();
 	
+	BOOL addToFolder(LLFolderViewFolder* folder, LLFolderView* root);
+
 	void updateFlag() const;
 	void selectItem();
 	void toggleOpen();

@@ -500,7 +500,7 @@ bool LLSidepanelInventory::manageInboxOutboxPanels(LLButton * pressedButton, LLL
 	else
 	{
 		// NOTE: This is an attempt to reshape the inventory panel to the proper size but it doesn't seem to propagate
-		// propery to the child panels.
+		// properly to the child panels.
 
 		S32 new_height = inout_panel->getRect().getHeight();
 
@@ -527,7 +527,7 @@ void LLSidepanelInventory::onToggleInboxBtn()
 
 	bool inbox_expanded = manageInboxOutboxPanels(inboxButton, inboxPanel, outboxButton, outboxPanel);
 
-	if (!inbox_expanded && inboxPanel->getVisible())
+	if (!inbox_expanded && inboxPanel->isInVisibleChain())
 	{
 		gSavedPerAccountSettings.setString("LastInventoryInboxCollapse", LLDate::now().asString());
 	}
@@ -543,7 +543,7 @@ void LLSidepanelInventory::onToggleOutboxBtn()
 	bool inbox_was_expanded = inboxButton->getToggleState();
 	manageInboxOutboxPanels(outboxButton, outboxPanel, inboxButton, inboxPanel);
 
-	if (inbox_was_expanded && inboxPanel->getVisible())
+	if (inbox_was_expanded && inboxPanel->isInVisibleChain())
 	{
 		gSavedPerAccountSettings.setString("LastInventoryInboxCollapse", LLDate::now().asString());
 	}

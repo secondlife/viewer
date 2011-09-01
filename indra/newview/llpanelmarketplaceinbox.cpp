@@ -53,7 +53,7 @@ LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
 
 LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 {
-	if (getVisible() && getChild<LLButton>("inbox_btn")->getToggleState())
+	if (isInVisibleChain() && getChild<LLButton>("inbox_btn")->getToggleState())
 	{
 		gSavedPerAccountSettings.setString("LastInventoryInboxCollapse", LLDate::now().asString());
 	}
