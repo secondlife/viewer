@@ -4,8 +4,8 @@
      name="Model Preview" title="Upload Model" width="620"
       help_topic="upload_model" >
 
-  <string name="status_idle">Idle</string>
-  <string name="status_parse_error">Dae parsing issue - see log for details.</string>
+  <string name="status_idle"></string>
+  <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
   <string name="status_reading_file">Loading...</string>
   <string name="status_generating_meshes">Generating Meshes...</string>
   <string name="status_vertex_number_overflow">Error: Vertex number is more than 65534, aborted!</string>
@@ -112,6 +112,8 @@
      visible="false">
      You will not be able to complete the final upload of this model to the Second Life servers. [[VURL] Find out how] to get enabled for mesh model uploads.</text>
 
+  <text text_color="Yellow" left="10" bottom_delta="0" width="290" height="15" follows="bottom|left|right" name="status">[STATUS]</text>
+  
   <text
 	height="26"
 	top_pad="5"
