@@ -162,7 +162,7 @@ LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * b
 LLInboxFolderViewFolder::LLInboxFolderViewFolder(const Params& p)
 	: LLFolderViewFolder(p)
 	, LLBadgeOwner(getHandle())
-	, mFresh(true)
+	, mFresh(false)
 {
 #if SUPPORTING_FRESH_ITEM_COUNT
 	initBadgeParams(p.new_badge());
