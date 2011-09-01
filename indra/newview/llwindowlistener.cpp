@@ -134,46 +134,7 @@ protected:
 
 namespace {
 
-class Response
-{
-public:
-	Response(const LLSD& seed, const LLSD& request, const LLSD::String& replyKey="reply"):
-		mResp(seed),
-		mReq(request),
-		mKey(replyKey)
-	{}
-
-	~Response()
-	{
-		// When you instantiate a stack Response object, if the original
-		// request requested a reply, send it when we leave this block, no
-		// matter how.
-		sendReply(mResp, mReq, mKey);
-	}
-
-	void warn(const std::string& warning)
-	{
-		LL_WARNS("LLWindowListener") << warning << LL_ENDL;
-		mResp["warnings"].append(warning);
-	}
-
-	void error(const std::string& error)
-	{
-		// Use LL_WARNS rather than LL_ERROR: we don't want the viewer to shut
-		// down altogether.
-		LL_WARNS("LLWindowListener") << error << LL_ENDL;
-
-		mResp["error"] = error;
-	}
-
-	// set other keys...
-	LLSD& operator[](const LLSD::String& key) { return mResp[key]; }
-
-	LLSD mResp, mReq;
-	LLSD::String mKey;
-};
-
-void insertViewInformation(Response & response, LLView * target)
+void insertViewInformation(LLEventAPI::Response & response, LLView * target)
 {
 	// Get info about this LLView* for when we send response.
 	response["path"] = target->getPathname();
@@ -346,7 +307,7 @@ typedef boost::function<bool(LLCoordGL, MASK)> MouseFunc;
 static void mouseEvent(const MouseFunc& func, const LLSD& request)
 {
 	// Ensure we send response
-	Response response(LLSD(), request);
+	LLEventAPI::Response response(LLSD(), request);
 	// We haven't yet established whether the incoming request has "x" and "y",
 	// but capture this anyway, with 0 for omitted values.
 	LLCoordGL pos(request["x"].asInteger(), request["y"].asInteger());
