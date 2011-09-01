@@ -43,7 +43,7 @@
 bool LLProxy::sUDPProxyEnabled = false;
 
 // Some helpful TCP static functions.
-static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
+static S32 tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
 static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host); // Open a TCP channel to a given host
 static void tcp_close_channel(LLSocket::ptr_t* handle_ptr); // Close an open TCP channel
 
@@ -88,7 +88,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 	socks_auth_request.num_methods = 1;                   // Sending 1 method.
 	socks_auth_request.methods     = getSelectedAuthMethod(); // Send only the selected method.
 
-	result = tcp_handshake(mProxyControlChannel, (char*)&socks_auth_request, sizeof(socks_auth_request), (char*)&socks_auth_response, sizeof(socks_auth_response));
+	result = tcp_blocking_handshake(mProxyControlChannel, (char*)&socks_auth_request, sizeof(socks_auth_request), (char*)&socks_auth_response, sizeof(socks_auth_response));
 	if (result != APR_SUCCESS)
 	{
 		LL_WARNS("Proxy") << "SOCKS authentication request failed, error on TCP control channel : " << result << LL_ENDL;
@@ -98,7 +98,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 
 	if (socks_auth_response.method == AUTH_NOT_ACCEPTABLE)
 	{
-		LL_WARNS("Proxy") << "SOCKS 5 server refused all our authentication methods" << LL_ENDL;
+		LL_WARNS("Proxy") << "SOCKS 5 server refused all our authentication methods." << LL_ENDL;
 		stopSOCKSProxy();
 		return SOCKS_NOT_ACCEPTABLE;
 	}
@@ -119,7 +119,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 
 		authmethod_password_reply_t password_reply;
 
-		result = tcp_handshake(mProxyControlChannel, password_auth, request_size, (char*)&password_reply, sizeof(password_reply));
+		result = tcp_blocking_handshake(mProxyControlChannel, password_auth, request_size, (char*)&password_reply, sizeof(password_reply));
 		delete[] password_auth;
 
 		if (result != APR_SUCCESS)
@@ -151,7 +151,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 	// "If the client is not in possession of the information at the time of the UDP ASSOCIATE,
 	//  the client MUST use a port number and address of all zeros. RFC 1928"
 
-	result = tcp_handshake(mProxyControlChannel, (char*)&connect_request, sizeof(connect_request), (char*)&connect_reply, sizeof(connect_reply));
+	result = tcp_blocking_handshake(mProxyControlChannel, (char*)&connect_request, sizeof(connect_request), (char*)&connect_reply, sizeof(connect_reply));
 	if (result != APR_SUCCESS)
 	{
 		LL_WARNS("Proxy") << "SOCKS connect request failed, error on TCP control channel : " << result << LL_ENDL;
@@ -214,12 +214,14 @@ S32 LLProxy::startSOCKSProxy(LLHost host)
 	{
 		status = proxyHandshake(mTCPProxy);
 	}
+
 	if (status == SOCKS_OK)
 	{
 		sUDPProxyEnabled = true;
 	}
 	else
 	{
+		// Shut down the proxy if any of the above steps failed.
 		stopSOCKSProxy();
 	}
 	return status;
@@ -474,7 +476,7 @@ void LLProxy::applyProxySettings(CURL* handle)
  * @param maxinlen		Maximum possible length of received data.  Short reads are allowed.
  * @return 				Indicates APR status code of exchange. APR_SUCCESS if exchange was successful, -1 if invalid data length was received.
  */
-static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen)
+static S32 tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen)
 {
 	apr_socket_t* apr_socket = handle->getSocket();
 	apr_status_t rv = APR_SUCCESS;

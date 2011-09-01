@@ -36,7 +36,6 @@
 #include <string>
 
 // SOCKS error codes returned from the StartProxy method
-
 #define SOCKS_OK 0
 #define SOCKS_CONNECT_ERROR (-1)
 #define SOCKS_NOT_PERMITTED (-2)
@@ -45,7 +44,6 @@
 #define SOCKS_UDP_FWD_NOT_GRANTED (-5)
 #define SOCKS_HOST_CONNECT_FAILED (-6)
 #define SOCKS_INVALID_HOST (-7)
-
 
 #ifndef MAXHOSTNAMELEN
 #define	MAXHOSTNAMELEN (255 + 1) /* socks5: 255, +1 for len. */
@@ -225,8 +223,9 @@ class LLProxy: public LLSingleton<LLProxy>
 {
 	LOG_CLASS(LLProxy);
 public:
-	// METHODS THAT DO NOT LOCK mProxyMutex!
-
+	/*###########################################################################################
+	METHODS THAT DO NOT LOCK mProxyMutex!
+	###########################################################################################*/
 	LLProxy();
 
 	// static check for enabled status for UDP packets
@@ -242,10 +241,13 @@ public:
 	// Get the SOCKS 5 TCP control channel address and port
 	LLHost getTCPProxy() const { return mTCPProxy; }
 
-	// END OF NON-LOCKING METHODS
+	/*###########################################################################################
+	END OF NON-LOCKING METHODS
+	###########################################################################################*/
 
-	// METHODS THAT DO LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
-
+	/*###########################################################################################
+	METHODS THAT DO LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
+	###########################################################################################*/
 	~LLProxy();
 
 	// Start a connection to the SOCKS 5 proxy
@@ -288,9 +290,11 @@ public:
 	std::string getSocksPwd() const;
 	std::string getSocksUser() const;
 
-	// END OF LOCKING METHODS
+	/*###########################################################################################
+	END OF LOCKING METHODS
+	###########################################################################################*/
 private:
-	// Open a communication channel to the SOCKS 5 proxy proxy, at port messagePort
+	// Open a communication channel to the SOCKS 5 proxy proxy, at port messagePort.
 	S32 proxyHandshake(LLHost proxy);
 
 private:
@@ -302,7 +306,9 @@ private:
 	// Mutex to protect shared members in non-main thread calls to applyProxySettings()
 	mutable LLMutex mProxyMutex;
 
-	// MEMBERS READ AND WRITTEN ONLY IN THE MAIN THREAD. DO NOT SHARE!
+	/*###########################################################################################
+	MEMBERS READ AND WRITTEN ONLY IN THE MAIN THREAD. DO NOT SHARE!
+	###########################################################################################*/
 
 	// Is the UDP proxy enabled?
 	static bool sUDPProxyEnabled;
@@ -318,9 +324,13 @@ private:
 	// APR pool for the socket
 	apr_pool_t* mPool;
 
-	// END OF UNSHARED MEMBERS
+	/*###########################################################################################
+	END OF UNSHARED MEMBERS
+	###########################################################################################*/
 
-	// MEMBERS WRITTEN IN MAIN THREAD AND READ IN ANY THREAD. ONLY READ OR WRITE AFTER LOCKING mProxyMutex!
+	/*###########################################################################################
+	MEMBERS WRITTEN IN MAIN THREAD AND READ IN ANY THREAD. ONLY READ OR WRITE AFTER LOCKING mProxyMutex!
+	###########################################################################################*/
 
 	// HTTP proxy address and port
 	LLHost mHTTPProxy;
@@ -328,7 +338,7 @@ private:
 	// Currently selected HTTP proxy type. Can be web or socks.
 	LLHttpProxyType mProxyType;
 
-	// SOCKS 5 auth method selected
+	// SOCKS 5 selected authentication method.
 	LLSocks5AuthType mAuthMethodSelected;
 
 	// SOCKS 5 username
@@ -336,7 +346,9 @@ private:
 	// SOCKS 5 password
 	std::string mSocksPassword;
 
-	// END OF SHARED MEMBERS
+	/*###########################################################################################
+	END OF SHARED MEMBERS
+	###########################################################################################*/
 };
 
 #endif
