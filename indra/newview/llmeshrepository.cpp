@@ -1460,8 +1460,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	if (model_name.empty()) model_name = "mesh model";
 	result["name"] = model_name;
-	if (model_metric.empty()) model_metric = "MUT_Other";
-	result["metric"] = model_metric;
+	if (model_metric.empty()) model_metric = "MUT_Unspecified";
+	res["metric"] = model_metric;
 	result["asset_resources"] = res;
 	dump_llsd_to_file(result,make_dump_name("whole_model_",dump_num));
 
