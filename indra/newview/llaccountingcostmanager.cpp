@@ -81,9 +81,6 @@ public:
 			F32 networkCost		= 0.0f;
 			F32 simulationCost	= 0.0f;
 
-			//LLTransactionID transactionID;
-				
-			//transactionID	= content["selected"][i]["local_id"].asUUID();
 			physicsCost		= content["selected"]["physics"].asReal();
 			networkCost		= content["selected"]["streaming"].asReal();
 			simulationCost	= content["selected"]["simulation"].asReal();
