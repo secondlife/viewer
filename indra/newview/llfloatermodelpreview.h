@@ -176,13 +176,13 @@ public:
 
 	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
 	
-	static void onBrowseLOD(void* data);
+	void onBrowseLOD(S32 lod);
 	
 	static void onReset(void* data);
 
 	static void onUpload(void* data);
 	
-	static void refresh(LLUICtrl* ctrl, void* data);
+	void refresh();
 	
 	void			loadModel(S32 lod);
 	void 			loadModel(S32 lod, const std::string& file_name, bool force_disable_slm = false);
@@ -222,10 +222,12 @@ protected:
 	
 	static void		onGenerateNormalsCommit(LLUICtrl*,void*);
 	
+	void toggleGenarateNormals();
+
 	static void		onAutoFillCommit(LLUICtrl*,void*);
-	static void		onLODParamCommit(LLUICtrl*,void*);
-	static void		onLODParamCommitTriangleLimit(LLUICtrl*,void*);
 	
+	void onLODParamCommit(S32 lod, bool enforce_tri_limit);
+
 	static void		onExplodeCommit(LLUICtrl*, void*);
 	
 	static void onPhysicsParamCommit(LLUICtrl* ctrl, void* userdata);
@@ -264,7 +266,7 @@ protected:
 	//store which lod mode each LOD is using
 	// 0 - load from file
 	// 1 - auto generate
-	// 2 - None
+	// 2 - use LoD above
 	S32 mLODMode[4];
 
 	LLMutex* mStatusLock;
@@ -274,6 +276,8 @@ protected:
 private:
 	void onClickCalculateBtn();
 	void toggleCalculateButton();
+
+	void onLoDSourceCommit(S32 lod);
 
 	// Toggles between "Calculate weights & fee" and "Upload" buttons.
 	void toggleCalculateButton(bool visible);
@@ -335,8 +339,9 @@ public:
 	void saveUploadData(const std::string& filename, bool save_skinweights, bool save_joint_poisitions);
 	void clearIncompatible(S32 lod);
 	void updateStatusMessages();
+	void updateLodControls(S32 lod);
 	void clearGLODGroup();
-	void onLODParamCommit(bool enforce_tri_limit);
+	void onLODParamCommit(S32 lod, bool enforce_tri_limit);
 
 	const bool getModelPivot( void ) const { return mHasPivot; }
 	void setHasPivot( bool val ) { mHasPivot = val; }
