@@ -202,6 +202,7 @@ void display_stats()
 		gMemoryAllocated = LLMemory::getCurrentRSS();
 		U32 memory = (U32)(gMemoryAllocated / (1024*1024));
 		llinfos << llformat("MEMORY: %d MB", memory) << llendl;
+		LLMemory::logMemoryInfo() ;
 		gRecentMemoryTime.reset();
 	}
 }
@@ -692,7 +693,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				glh::matrix4f mod = glh_get_current_modelview();
 				glViewport(0,0,512,512);
 				LLVOAvatar::updateFreezeCounter() ;
-				LLVOAvatar::updateImpostors();
+
+				if(!LLPipeline::sMemAllocationThrottled)
+				{		
+					LLVOAvatar::updateImpostors();
+				}
 
 				glh_set_current_projection(proj);
 				glh_set_current_modelview(mod);
