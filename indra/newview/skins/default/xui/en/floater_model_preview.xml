@@ -116,19 +116,18 @@
              top_pad="0"
              width="619" />
             <text
-             bg_visible="true"
              follows="left|top"
              height="18"
              initial_value="Source"
              layout="topleft"
              left="75"
              name="source"
+             text_color="ModelUploaderLabels"
              top="15"
              valign="center"
              value="Source"
              width="335" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="right"
              height="18"
@@ -136,12 +135,12 @@
              layout="topleft"
              left_pad="0"
              name="triangles"
+             text_color="ModelUploaderLabels"
              top_delta="0"
              valign="center"
              value="Triangles"
              width="65" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="right"
              height="18"
@@ -149,17 +148,18 @@
              layout="topleft"
              left_pad="0"
              name="vertices"
+             text_color="ModelUploaderLabels"
              valign="center"
              value="Vertices"
              width="65" />
             <text
-             bg_visible="true"
              follows="left|top"
              height="18"
              initial_value="High"
              layout="topleft"
              left="10"
              name="high_label"
+             text_color="ModelUploaderLabels"
              top_pad="10"
              valign="center"
              value="High"
@@ -236,7 +236,6 @@
              visible="false"
              width="55" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="right"
              height="18"
@@ -248,7 +247,6 @@
              value="0"
              width="65" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="right"
              height="18"
@@ -260,7 +258,6 @@
              value="0"
              width="65" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="center"
              height="18"
@@ -281,13 +278,13 @@
              top_delta="0"
              width="16" />
             <text
-             bg_visible="true"
              follows="left|top"
              height="18"
              initial_value="Medium"
              layout="topleft"
              left="10"
              name="medium_label"
+             text_color="ModelUploaderLabels"
              top_pad="15"
              valign="center"
              value="Medium"
@@ -367,7 +364,6 @@
              visible="false"
              width="55" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="right"
              height="18"
@@ -379,7 +375,6 @@
              value="0"
              width="65" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="right"
              height="18"
@@ -391,7 +386,6 @@
              value="0"
              width="65" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="center"
              height="18"
@@ -412,13 +406,13 @@
              top_delta="0"
              width="16" />
             <text
-             bg_visible="true"
              follows="left|top"
              height="18"
              initial_value="Low"
              layout="topleft"
              left="10"
              name="low_label"
+             text_color="ModelUploaderLabels"
              top_pad="15"
              valign="center"
              value="Low"
@@ -498,7 +492,6 @@
              visible="false"
              width="55" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="right"
              height="18"
@@ -510,7 +503,6 @@
              value="0"
              width="65" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="right"
              height="18"
@@ -522,7 +514,6 @@
              value="0"
              width="65" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="center"
              height="18"
@@ -543,13 +534,13 @@
              top_delta="0"
              width="16" />
             <text
-             bg_visible="true"
              follows="left|top"
              height="18"
              initial_value="Lowest"
              layout="topleft"
              left="10"
              name="lowest_label"
+             text_color="ModelUploaderLabels"
              top_pad="15"
              valign="center"
              value="Lowest"
@@ -629,7 +620,6 @@
              visible="false"
              width="55" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="right"
              height="18"
@@ -641,7 +631,6 @@
              value="0"
              width="65" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="right"
              height="18"
@@ -653,7 +642,6 @@
              value="0"
              width="65" />
             <text
-             bg_visible="true"
              follows="left|top"
              halign="center"
              height="18"
