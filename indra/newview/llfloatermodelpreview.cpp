@@ -119,6 +119,7 @@ const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PRE
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
+const double RETAIN_COEFFICIENT = 100;
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
@@ -907,7 +908,15 @@ void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 	{
 		LLCDParam* param = (LLCDParam*) data;
 		std::string name(param->mName);
-		sInstance->mDecompParams[name] = ctrl->getValue();
+
+		LLSD value = ctrl->getValue();
+
+		if("Retain%" == name)
+		{
+			value = ctrl->getValue().asReal() / RETAIN_COEFFICIENT;
+		}
+
+		sInstance->mDecompParams[name] = value;
 
 		if (name == "Simplify Method")
 		{
@@ -980,7 +989,7 @@ void LLFloaterModelPreview::onPhysicsBrowse(LLUICtrl* ctrl, void* userdata)
 //static
 void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 {
-	S32 num_modes = 3;
+	S32 num_modes = 4;
 	S32 which_mode = 3;
 	static S32 previous_mode = which_mode;
 
@@ -1115,10 +1124,13 @@ void LLFloaterModelPreview::initDecompControls()
 				}
 				else if (LLSpinCtrl* spinner = dynamic_cast<LLSpinCtrl*>(ctrl))
 				{
-					spinner->setMinValue(param[i].mDetails.mRange.mLow.mFloat);
-					spinner->setMaxValue(param[i].mDetails.mRange.mHigh.mFloat);
-					spinner->setIncrement(param[i].mDetails.mRange.mDelta.mFloat);
-					spinner->setValue(param[i].mDefault.mFloat);
+					bool is_retain_ctrl = "Retain%" == name;
+					double coefficient = is_retain_ctrl ? RETAIN_COEFFICIENT : 1.f;
+
+					spinner->setMinValue(param[i].mDetails.mRange.mLow.mFloat * coefficient);
+					spinner->setMaxValue(param[i].mDetails.mRange.mHigh.mFloat * coefficient);
+					spinner->setIncrement(param[i].mDetails.mRange.mDelta.mFloat * coefficient);
+					spinner->setValue(param[i].mDefault.mFloat * coefficient);
 					spinner->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 				}
 				else if (LLComboBox* combo_box = dynamic_cast<LLComboBox*>(ctrl))
