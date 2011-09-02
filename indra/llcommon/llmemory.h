@@ -300,8 +300,6 @@ public:
 		//form a linked list
 		LLMemoryChunk* mNext ;
 		LLMemoryChunk* mPrev ;
-
-		LLMemoryChunk* mHashNext ;
 	} ;
 
 private:
@@ -356,12 +354,30 @@ private:
 	U32  mMaxPoolSize;
 	U32  mReservedPoolSize ;	
 
-	LLMemoryChunk* mChunkList[SUPER_ALLOCATION] ; //all memory chunks reserved by this pool, sorted by address
-	std::vector<LLMemoryChunk*> mChunkHashList ;
+	LLMemoryChunk* mChunkList[SUPER_ALLOCATION] ; //all memory chunks reserved by this pool, sorted by address	
 	U16 mNumOfChunks ;
 	U16 mHashFactor ;
 
 	S32 mType ;
+
+	class LLChunkHashElement
+	{
+	public:
+		LLChunkHashElement() {mFirst = NULL ; mSecond = NULL ;}
+
+		bool add(LLMemoryChunk* chunk) ;
+		void remove(LLMemoryChunk* chunk) ;
+		LLMemoryChunk* findChunk(const char* addr) ;
+
+		bool empty() {return !mFirst && !mSecond; }
+		bool full()  {return mFirst && mSecond; }
+		bool hasElement(LLMemoryChunk* chunk) {return mFirst == chunk || mSecond == chunk;}
+
+	private:
+		LLMemoryChunk* mFirst ;
+		LLMemoryChunk* mSecond ;
+	};
+	std::vector<LLChunkHashElement> mChunkHashList ;
 };
 
 class LL_COMMON_API LLPrivateMemoryPoolManager

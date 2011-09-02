@@ -781,7 +781,6 @@ void LLPrivateMemoryPool::LLMemoryChunk::init(char* buffer, U32 buffer_size, U32
 	mBlocks[0].setBuffer(mDataBuffer, buffer_size - (mDataBuffer - mBuffer)) ;
 	addToFreeSpace(&mBlocks[0]) ;
 
-	mHashNext = NULL ;
 	mNext = NULL ;
 	mPrev = NULL ;
 }
@@ -1457,26 +1456,6 @@ void  LLPrivateMemoryPool::destroyPool()
 {
 	lock() ;
 
-#if 0
-	if(mNumOfChunks > 0) 
-	{
-		//Warn:
-		//should crash here because there is memory leaking if reach here.
-		//
-
-		for(U32 i = 0 ; i < mHashFactor; i++)
-		{
-			while(mChunkHashList[i])
-			{
-				removeChunk(mChunkHashList[i]) ;
-			}
-		}
-	}
-	
-	llassert_always(mNumOfChunks == 0) ;
-	llassert_always(mReservedPoolSize == 0) ;
-#endif
-
 	if(mNumOfChunks > 0)
 	{
 		llwarns << "There is some memory not freed when destroy the memory pool!" << llendl ;
@@ -1609,14 +1588,7 @@ LLPrivateMemoryPool::LLMemoryChunk* LLPrivateMemoryPool::findChunk(const char* a
 		return NULL ;
 	}
 
-	//check the hash value "key"
-	LLMemoryChunk* chunk = mChunkHashList[key] ;
-	while(chunk && !chunk->containsAddress(addr))
-	{
-		chunk = chunk->mHashNext ;
-	}
-
-	return chunk ;
+	return mChunkHashList[key].findChunk(addr) ;	
 }
 
 void LLPrivateMemoryPool::addToHashTable(LLMemoryChunk* chunk) 
@@ -1634,43 +1606,20 @@ void LLPrivateMemoryPool::addToHashTable(LLMemoryChunk* chunk)
 	U16 end_key = findHashKey(chunk->getBuffer() + chunk->getBufferSize() - 1) ;
 	bool need_rehash = false ;
 	
-	if(mChunkHashList[start_key])
+	if(mChunkHashList[start_key].hasElement(chunk))
 	{
-		if(mChunkHashList[start_key] == chunk) 
-		{
-			return; //already inserted.
-		}
-		
-		llassert_always(!chunk->mHashNext) ;
-
-		chunk->mHashNext = mChunkHashList[start_key] ;
-		mChunkHashList[start_key] = chunk ;
+		return; //already inserted.
 	}
-	else
-	{
-		mChunkHashList[start_key] = chunk ;
-	}
-	if(start_key == end_key)
+	need_rehash = mChunkHashList[start_key].add(chunk) ;
+	
+	if(start_key == end_key && !need_rehash)
 	{
 		return ; //done
 	}
 
 	if(!need_rehash)
 	{
-		if(mChunkHashList[end_key])
-		{
-			llassert_always(mChunkHashList[end_key] != chunk)
-			
-			need_rehash =  mChunkHashList[end_key]->mHashNext != NULL || mChunkHashList[end_key] == chunk->mHashNext;
-			if(!need_rehash)
-			{
-				mChunkHashList[end_key]->mHashNext = chunk ;
-			}			
-		}
-		else
-		{
-			mChunkHashList[end_key] = chunk ;
-		}
+		need_rehash = mChunkHashList[end_key].add(chunk) ;
 	}
 
 	if(!need_rehash)
@@ -1706,38 +1655,30 @@ void LLPrivateMemoryPool::removeFromHashTable(LLMemoryChunk* chunk)
 	U16 start_key = findHashKey(chunk->getBuffer()) ;
 	U16 end_key = findHashKey(chunk->getBuffer() + chunk->getBufferSize() - 1) ;
 	
-	mChunkHashList[start_key] = chunk->mHashNext ;
-	chunk->mHashNext = NULL ;
+	mChunkHashList[start_key].remove(chunk) ;
 	if(start_key == end_key)
 	{
 		return ; //done
 	}
 
-	if(mChunkHashList[end_key] != chunk)
-	{
-		mChunkHashList[end_key]->mHashNext = NULL ;
-	}
-	else
-	{
-		mChunkHashList[end_key] = NULL ;
-	}
-
+	mChunkHashList[end_key].remove(chunk) ;
+	
 	if(end_key < start_key)
 	{
 		for(U16 i = start_key + 1 ; i < mHashFactor; i++)
 		{
-			mChunkHashList[i] = NULL ;
+			mChunkHashList[i].remove(chunk) ;
 		}
 		for(U16 i = 0 ; i < end_key; i++)
 		{
-			mChunkHashList[i] = NULL ;
+			mChunkHashList[i].remove(chunk) ;
 		}
 	}
 	else
 	{
 		for(U16 i = start_key + 1 ; i < end_key; i++)
 		{
-			mChunkHashList[i] = NULL ;
+			mChunkHashList[i].remove(chunk) ;
 		}
 	}
 }
@@ -1747,7 +1688,7 @@ void LLPrivateMemoryPool::rehash()
 	llinfos << "new hash factor: " << mHashFactor << llendl ;
 
 	mChunkHashList.clear() ;
-	mChunkHashList.resize(mHashFactor, NULL) ;
+	mChunkHashList.resize(mHashFactor) ;
 
 	LLMemoryChunk* chunk ;
 	for(U16 i = 0 ; i < SUPER_ALLOCATION ; i++)
@@ -1755,7 +1696,6 @@ void LLPrivateMemoryPool::rehash()
 		chunk = mChunkList[i] ; 
 		while(chunk)
 		{
-			chunk->mHashNext = NULL ;
 			addToHashTable(chunk) ;
 			chunk = chunk->mNext ;
 		}
@@ -1766,18 +1706,67 @@ bool LLPrivateMemoryPool::fillHashTable(U16 start, U16 end, LLMemoryChunk* chunk
 {
 	for(U16 i = start; i < end; i++)
 	{
-		if(mChunkHashList[i]) //the slot is occupied.
-		{
-			llassert_always(mChunkHashList[i] != chunk) ;
+		if(mChunkHashList[i].add(chunk))
+		{			
 			return true ;
-		}
-		else
-		{
-			mChunkHashList[i] = chunk ;
-		}
+		}		
 	}
 
 	return false ;
+}
+
+//--------------------------------------------------------------------
+// class LLChunkHashElement
+//--------------------------------------------------------------------
+LLPrivateMemoryPool::LLMemoryChunk* LLPrivateMemoryPool::LLChunkHashElement::findChunk(const char* addr)
+{
+	if(mFirst && mFirst->containsAddress(addr))
+	{
+		return mFirst ;
+	}
+	else if(mSecond && mSecond->containsAddress(addr))
+	{
+		return mSecond ;
+	}
+
+	return NULL ;
+}
+
+//return false if successfully inserted to the hash slot.
+bool LLPrivateMemoryPool::LLChunkHashElement::add(LLPrivateMemoryPool::LLMemoryChunk* chunk)
+{
+	llassert_always(!hasElement(chunk)) ;
+
+	if(!mFirst)
+	{
+		mFirst = chunk ;
+	}
+	else if(!mSecond)
+	{
+		mSecond = chunk ;
+	}
+	else
+	{
+		return true ; //failed
+	}
+
+	return false ;
+}
+
+void LLPrivateMemoryPool::LLChunkHashElement::remove(LLPrivateMemoryPool::LLMemoryChunk* chunk)
+{
+	if(mFirst == chunk)
+	{
+		mFirst = NULL ;
+	}
+	else if(mSecond ==chunk)
+	{
+		mSecond = NULL ;
+	}
+	else
+	{
+		llerrs << "This slot does not contain this chunk!" << llendl ;
+	}
 }
 
 //--------------------------------------------------------------------
