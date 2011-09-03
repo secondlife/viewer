@@ -97,7 +97,7 @@
 	     mouse_opaque="false"
 	     name="location_combo"
 	     top_delta="0"
-	     width="266">
+	     width="226">
          <combo_list
          mouse_wheel_opaque="true"/>
 	     <!-- *TODO: Delete.  Let the location_input use the correct art sizes.
@@ -137,7 +137,7 @@
 	     name="search_combo_box"
 	     tool_tip="Search"
 	     top_delta="0"
-	     width="200" >
+	     width="244" >
          <combo_editor
           label="Search [SECOND_LIFE]"
           name="search_combo_editor"/>
