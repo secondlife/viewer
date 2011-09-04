@@ -51,6 +51,7 @@
 
 #include <list>
 #include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 
 class LLSD;
 
@@ -614,7 +615,7 @@ public:
 	//     LLView::TemporaryDrilldownFunc scoped_func(myfunctor);
 	//     // ... test with myfunctor ...
 	// } // exiting block restores original LLView::sDrilldown
-	class TemporaryDrilldownFunc
+	class TemporaryDrilldownFunc: public boost::noncopyable
 	{
 	public:
 		TemporaryDrilldownFunc(const DrilldownFunc& func):
