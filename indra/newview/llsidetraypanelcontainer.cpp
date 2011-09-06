@@ -32,10 +32,10 @@ static LLDefaultChildRegistry::Register<LLSideTrayPanelContainer> r2("panel_cont
 std::string LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME = "sub_panel_name";
 
 LLSideTrayPanelContainer::Params::Params()
- : default_panel_name("default_panel_name")
+:	default_panel_name("default_panel_name")
 {
 	// Always hide tabs.
-	hide_tabs(true);
+	changeDefault(hide_tabs, true);
 }
 
 LLSideTrayPanelContainer::LLSideTrayPanelContainer(const Params& p)

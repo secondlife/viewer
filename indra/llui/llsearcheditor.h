@@ -55,9 +55,7 @@ public:
 			search_button_visible("search_button_visible"),
 			clear_button("clear_button"), 
 			clear_button_visible("clear_button_visible")
-		{
-			name = "search_editor";
-		}
+		{}
 	};
 
 	void setCommitOnFocusLost(BOOL b)	{ if (mSearchEditor) mSearchEditor->setCommitOnFocusLost(b); }

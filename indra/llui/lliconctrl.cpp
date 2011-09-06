@@ -43,10 +43,7 @@ LLIconCtrl::Params::Params()
 	color("color"),
 	use_draw_context_alpha("use_draw_context_alpha", true),
 	scale_image("scale_image")
-{
-	tab_stop = false;
-	mouse_opaque = false;
-}
+{}
 
 LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
 :	LLUICtrl(p),

@@ -50,10 +50,7 @@ LLBadge::Params::Params()
 	, location_percent_vcenter("location_percent_vcenter")
 	, padding_horiz("padding_horiz")
 	, padding_vert("padding_vert")
-{
-	// We set a name here so the name isn't necessary in any xml files that use badges
-	name = "badge";
-}
+{}
 
 bool LLBadge::Params::equals(const Params& a) const
 {

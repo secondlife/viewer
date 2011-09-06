@@ -101,10 +101,7 @@ LLFolderViewItem::Params::Params()
 	item_height("item_height"),
 	item_top_pad("item_top_pad"),
 	creation_date()
-{
-	mouse_opaque(true);
-	follows.flags(FOLLOWS_LEFT|FOLLOWS_TOP|FOLLOWS_RIGHT);
-}
+{}
 
 // Default constructor
 LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)

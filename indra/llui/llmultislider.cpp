@@ -66,11 +66,7 @@ LLMultiSlider::Params::Params()
 	mouse_up_callback("mouse_up_callback"),
 	thumb_width("thumb_width"),
 	sliders("slider")
-{
-	name = "multi_slider_bar";
-	mouse_opaque(true);
-	follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
-}
+{}
 
 LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 :	LLF32UICtrl(p),

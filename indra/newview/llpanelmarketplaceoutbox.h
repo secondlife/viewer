@@ -40,9 +40,7 @@ class LLPanelMarketplaceOutbox : public LLPanel
 public:
 	
 	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
-	{
-		Params() {}
-	};
+	{};
 	
 	LOG_CLASS(LLPanelMarketplaceOutbox);
 

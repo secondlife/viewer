@@ -54,9 +54,7 @@ LLSlider::Params::Params()
 	track_highlight_vertical_image("track_highlight_vertical_image"),
 	mouse_down_callback("mouse_down_callback"),
 	mouse_up_callback("mouse_up_callback")
-{
-	follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
-}
+{}
 
 LLSlider::LLSlider(const LLSlider::Params& p)
 :	LLF32UICtrl(p),
