@@ -1366,6 +1366,10 @@ void LLViewerMedia::removeCookie(const std::string &name, const std::string &dom
 }
 
 
+// This is defined in two files but I don't want to create a dependence between this and llsidepanelinventory
+// just to be able to temporarily disable the outbox.
+#define ENABLE_INVENTORY_DISPLAY_OUTBOX		0	// keep in sync with ENABLE_MERCHANT_OUTBOX_PANEL
+
 class LLInventoryUserStatusResponder : public LLHTTPClient::Responder
 {
 public:
@@ -1386,7 +1390,10 @@ public:
 
 			// Complete success
 			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
+
+#if ENABLE_INVENTORY_DISPLAY_OUTBOX
 			gSavedSettings.setBOOL("InventoryDisplayOutbox", true);
+#endif
 		}
 		else if (status == 401)
 		{

@@ -67,6 +67,9 @@ static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_
 // No longer want the inbox panel to auto-expand since it creates issues with the "new" tag time stamp
 #define AUTO_EXPAND_INBOX	0
 
+// Temporarily disabling the outbox until we straighten out the API
+#define ENABLE_MERCHANT_OUTBOX_PANEL		0	// keep in sync with ENABLE_INVENTORY_DISPLAY_OUTBOX
+
 static const char * const INBOX_BUTTON_NAME = "inbox_btn";
 static const char * const OUTBOX_BUTTON_NAME = "outbox_btn";
 
@@ -310,6 +313,7 @@ void LLSidepanelInventory::handleLoginComplete()
 		enableInbox(true);
 	}
 	
+#if ENABLE_MERCHANT_OUTBOX_PANEL
 	// Set up observer for outbox changes, if we have an outbox already
 	if (!outbox_id.isNull())
 	{
@@ -318,6 +322,7 @@ void LLSidepanelInventory::handleLoginComplete()
 		// Enable the display of the outbox if it exists
 		enableOutbox(true);
 	}
+#endif
 }
 
 void LLSidepanelInventory::observeInboxOutboxCreation()
