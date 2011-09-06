@@ -1215,11 +1215,11 @@ void LLCurl::cleanupClass()
 const unsigned int LLCurl::MAX_REDIRECTS = 5;
 
 // Provide access to LLCurl free functions outside of llcurl.cpp without polluting the global namespace.
-void LLCurlFF::check_curl_code(CURLcode code)
+void LLCurlFF::check_easy_code(CURLcode code)
 {
 	check_curl_code(code);
 }
-void LLCurlFF::check_curl_multi_code(CURLMcode code)
+void LLCurlFF::check_multi_code(CURLMcode code)
 {
 	check_curl_multi_code(code);
 }

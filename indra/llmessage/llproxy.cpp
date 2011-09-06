@@ -433,21 +433,21 @@ void LLProxy::applyProxySettings(CURL* handle)
 		// Now test again to verify that the proxy wasn't disabled between the first check and the lock.
 		if (mHTTPProxyEnabled)
 		{
-			LLCurlFF::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXY, mHTTPProxy.getIPString().c_str()));
-			LLCurlFF::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, mHTTPProxy.getPort()));
+			LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXY, mHTTPProxy.getIPString().c_str()));
+			LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, mHTTPProxy.getPort()));
 
 			if (mProxyType == LLPROXY_SOCKS)
 			{
-				LLCurlFF::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5));
+				LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5));
 				if (mAuthMethodSelected == METHOD_PASSWORD)
 				{
 					std::string auth_string = mSocksUsername + ":" + mSocksPassword;
-					LLCurlFF::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, auth_string.c_str()));
+					LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, auth_string.c_str()));
 				}
 			}
 			else
 			{
-				LLCurlFF::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP));
+				LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP));
 			}
 		}
 	}
