@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="320"
+ layout="topleft"
+ name="floater_translation_settings"
+ help_topic="environment_editor_floater"
+ save_rect="true"
+ title="TRANSLATION SETTINGS"
+ width="350">
+
+ <string name="no_bing_api_key">Bing Translator requires and appID to function.</string>
+ <string name="no_google_api_key">Google Translate requires an API key to function.</string>
+
+ <check_box
+  height="16"     
+  label="Use machine translation while chatting"
+  layout="topleft"
+  left="10"
+  name="translate_chat_checkbox"
+  top="30"
+  width="20" />
+ <text
+  height="20"
+  follows="left|top"
+  layout="topleft"
+  left="10"
+  name="translate_language_label"
+  top_pad="20"
+  width="130">
+  Translate chat into: 
+ </text>
+ <combo_box
+  allow_text_entry="true"
+  follows="left|top"
+  height="23"
+  left_pad="10"
+  max_chars="135"
+  mouse_opaque="true"
+  name="translate_language_combo"
+  top_delta="-5"
+  width="190">
+  <combo_box.item
+   label="System Default"
+   name="System Default Language"
+   value="default" />
+  <combo_box.item
+   label="English"
+   name="English"
+   value="en" />
+  <!-- After "System Default" and "English", please keep the rest of these combo_box.items in alphabetical order by the first character in the string. -->
+  <combo_box.item
+   label="Dansk (Danish)"
+   name="Danish"
+   value="da" />
+  <combo_box.item
+   label="Deutsch (German)"
+   name="German"
+   value="de" />
+  <combo_box.item
+   label="Español (Spanish)"
+   name="Spanish"
+   value="es" />
+  <combo_box.item
+   label="Français (French)"
+   name="French"
+   value="fr" />
+  <combo_box.item
+   label="Italiano (Italian)"
+   name="Italian"
+   value="it" />
+  <combo_box.item
+   label="Magyar (Hungarian)"
+   name="Hungarian"
+   value="hu" />
+  <combo_box.item
+   label="Nederlands (Dutch)"
+   name="Dutch"
+   value="nl" />
+  <combo_box.item
+   label="Polski (Polish)"
+   name="Polish"
+   value="pl" />
+  <combo_box.item
+   label="Português (Portuguese)"
+   name="Portugese"
+   value="pt" />
+  <combo_box.item
+   label="Русский (Russian)"
+   name="Russian"
+   value="ru" />
+  <combo_box.item
+   label="Türkçe (Turkish)"
+   name="Turkish"
+   value="tr" />
+  <combo_box.item
+   label="Українська (Ukrainian)"
+   name="Ukrainian"
+   value="uk" />
+  <combo_box.item
+   label="中文 (简体) (Chinese)"
+   name="Chinese"
+   value="zh" />
+  <combo_box.item
+   label="日本語 (Japanese)"
+   name="Japanese"
+   value="ja" />
+  <combo_box.item
+   label="한국어 (Korean)"
+   name="Korean"
+   value="ko" />
+ </combo_box>
+
+ <text
+  follows="top|left|right"
+  height="15"
+  layout="topleft"
+  left="10"
+  name="tip"
+  top_pad="20"
+  width="330"
+  wrap="true">
+  Choose translation service to use:
+ </text>
+
+ <radio_group
+  follows="top|left"
+  height="55"
+  layout="topleft"
+  left_delta="10"
+  name="translation_service_rg"
+  top_pad="20"
+  width="320">
+  <radio_item
+   initial_value="bing"
+   label="Bing Translator"
+   layout="topleft"
+   name="bing" />
+  <radio_item
+   initial_value="google_v2"
+   label="Google Translate"
+   layout="topleft"
+   name="google_v2"
+   top_pad="20" />
+ </radio_group>
+
+ <text
+  type="string"
+  length="1"
+  follows="top|right"
+  height="20"
+  layout="topleft"
+  left="10"
+  name="bing_api_key_label"
+  top_pad="20"
+  width="100">
+  Bing [http://www.bing.com/developers/createapp.aspx AppID]:
+  </text>
+ <line_editor
+  follows="top|left"
+  height="20"
+  layout="topleft"
+  left_pad="10"
+  max_length_chars="50"
+  top_delta="-4"
+  name="bing_api_key"
+  value=""
+  width="220" />
+
+ <text
+  follows="top|right"
+  height="20"
+  layout="topleft"
+  left="10"
+  length="1"
+  name="google_api_key_label"
+  top_pad="20"
+  type="string"
+  width="100">
+  Google [http://code.google.com/apis/language/translate/v2/pricing.html API key]:
+ </text>
+ <line_editor
+  follows="top|left"
+  height="20"
+  layout="topleft"
+  left_pad="10"
+  max_length_chars="50"
+  top_delta="-4"
+  name="google_api_key"
+  width="220" />
+
+ <text
+  follows="top|right"
+  height="20"
+  layout="topleft"
+  left="155"
+  length="1"
+  name="google_pricing_link"
+  top_delta="-80"
+  type="string"
+  width="100">
+  ([http://code.google.com/apis/language/translate/v2/pricing.html pricing])
+ </text>
+
+ <button
+  follows="left|top"
+  height="23"
+  label="OK"
+  layout="topleft"
+  right="-120"
+  name="ok_btn"
+  top="-30"
+  width="100" />
+ <button
+  follows="left|top"
+  height="23"
+  label="Cancel"
+  layout="topleft"
+  left_pad="10"
+  name="cancel_btn"
+  width="100" />	
+</floater>

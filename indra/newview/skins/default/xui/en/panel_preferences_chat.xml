@@ -319,4 +319,16 @@
          name="Korean"
          value="ko" />
     </combo_box>
+  <button
+   follows="left|top"
+   height="23"
+   label="Translation Settings"
+   layout="topleft"
+   right="-50"
+   name="ok_btn"
+   top="-30"
+   width="130">
+   <button.commit_callback
+    function="Pref.TranslationSettings" />
+  </button>
 </panel>
