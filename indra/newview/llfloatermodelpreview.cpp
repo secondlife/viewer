@@ -119,7 +119,19 @@ const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PRE
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
+
+// "Retain%" decomp parameter has values from 0.0 to 1.0 by 0.01
+// But according to the UI spec for upload model floater, this parameter
+// should be represented by Retain spinner with values from 1 to 100 by 1.
+// To achieve this, RETAIN_COEFFICIENT is used while creating spinner
+// and when value is requested from spinner.
 const double RETAIN_COEFFICIENT = 100;
+
+// "Cosine%" decomp parameter has values from 0.9 to 1 by 0.001
+// But according to the UI spec for upload model floater, this parameter
+// should be represented by Smooth combobox with only 10 values.
+// So this const is used as a size of Smooth combobox list.
+const S32 SMOOTH_VALUES_NUMBER = 10;
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
@@ -1225,15 +1237,14 @@ void LLFloaterModelPreview::initDecompControls()
 
 void LLFloaterModelPreview::createSmoothComboBox(LLComboBox* combo_box, float min, float max)
 {
-	float combo_list_size = 10;
-	float delta = (max - min) / combo_list_size;
+	float delta = (max - min) / SMOOTH_VALUES_NUMBER;
 	int ilabel = 0;
 
 	combo_box->add("0 (none)", ADD_BOTTOM, true);
 
 	for(float value = min + delta; value < max; value += delta)
 	{
-		std::string label = (++ilabel == combo_list_size) ? "10 (max)" : llformat("%.1d", ilabel);
+		std::string label = (++ilabel == SMOOTH_VALUES_NUMBER) ? "10 (max)" : llformat("%.1d", ilabel);
 		combo_box->add(label, value, ADD_BOTTOM, true);
 	}
 
