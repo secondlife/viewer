@@ -64,6 +64,8 @@ public:
 
 		MEDIA_EVENT_AUTH_REQUEST,			// The plugin wants to display an auth dialog
 
+		MEDIA_EVENT_DEBUG_MESSAGE,			// plugin sending back debug information for host to process
+
 		MEDIA_EVENT_LINK_HOVERED			// Got a "link hovered" event from the plugin
 		
 	} EMediaEvent;

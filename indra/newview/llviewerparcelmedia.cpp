@@ -485,6 +485,12 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 {
 	switch(event)
 	{
+		case MEDIA_EVENT_DEBUG_MESSAGE:
+		{
+			// LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_DEBUG_MESSAGE " << LL_ENDL;
+		};
+		break;
+
 		case MEDIA_EVENT_CONTENT_UPDATED:
 		{
 			// LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CONTENT_UPDATED " << LL_ENDL;
