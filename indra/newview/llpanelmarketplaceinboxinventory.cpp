@@ -200,16 +200,13 @@ BOOL LLInboxFolderViewFolder::addToFolder(LLFolderViewFolder* folder, LLFolderVi
 
 void LLInboxFolderViewFolder::updateFlag() const
 {
-	const std::string& last_collapse = gSavedPerAccountSettings.getString("LastInventoryInboxCollapse");
+	const std::string& last_expansion = gSavedPerAccountSettings.getString("LastInventoryInboxExpansion");
 
-	if (!last_collapse.empty())
+	if (!last_expansion.empty())
 	{
-		LLDate saved_freshness_date = LLDate(last_collapse);
-		//llinfos << "Saved freshness: " << saved_freshness_date.secondsSinceEpoch() << llendl;
+		LLDate saved_freshness_date = LLDate(last_expansion);
 
 		mFresh = (mCreationDate > saved_freshness_date.secondsSinceEpoch());
-
-		//llinfos << "  Creation date: " << mCreationDate << " -- fresh -- " << mFresh << " -- this -- " << (void*)&*(this) << llendl;
 	}
 }
 

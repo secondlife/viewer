@@ -64,6 +64,9 @@ static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_
 // Constants
 //
 
+// No longer want the inbox panel to auto-expand since it creates issues with the "new" tag time stamp
+#define AUTO_EXPAND_INBOX	0
+
 static const char * const INBOX_BUTTON_NAME = "inbox_btn";
 static const char * const OUTBOX_BUTTON_NAME = "outbox_btn";
 
@@ -447,6 +450,7 @@ void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
 	// Trigger a load of the entire inbox so we always know the contents and their creation dates for sorting
 	LLInventoryModelBackgroundFetch::instance().start(inbox_id);
 
+#if AUTO_EXPAND_INBOX
 	// If the outbox is expanded, don't auto-expand the inbox
 	if (mOutboxEnabled)
 	{
@@ -455,13 +459,14 @@ void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
 			return;
 		}
 	}
-	
+
 	// Expand the inbox since we have fresh items and the outbox is not expanded
 	if (mInboxEnabled)
 	{
 		getChild<LLButton>(INBOX_BUTTON_NAME)->setToggleState(true);
 		onToggleInboxBtn();
-	}	
+	}
+#endif
 }
 
 void LLSidepanelInventory::onOutboxChanged(const LLUUID& outbox_id)
@@ -525,11 +530,11 @@ void LLSidepanelInventory::onToggleInboxBtn()
 	LLButton* outboxButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
 	LLLayoutPanel* outboxPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
 
-	bool inbox_expanded = manageInboxOutboxPanels(inboxButton, inboxPanel, outboxButton, outboxPanel);
+	const bool inbox_expanded = manageInboxOutboxPanels(inboxButton, inboxPanel, outboxButton, outboxPanel);
 
-	if (!inbox_expanded && inboxPanel->isInVisibleChain())
+	if (inbox_expanded && inboxPanel->isInVisibleChain())
 	{
-		gSavedPerAccountSettings.setString("LastInventoryInboxCollapse", LLDate::now().asString());
+		gSavedPerAccountSettings.setString("LastInventoryInboxExpansion", LLDate::now().asString());
 	}
 }
 
@@ -540,19 +545,14 @@ void LLSidepanelInventory::onToggleOutboxBtn()
 	LLButton* outboxButton = getChild<LLButton>(OUTBOX_BUTTON_NAME);
 	LLLayoutPanel* outboxPanel = getChild<LLLayoutPanel>(OUTBOX_LAYOUT_PANEL_NAME);
 
-	bool inbox_was_expanded = inboxButton->getToggleState();
 	manageInboxOutboxPanels(outboxButton, outboxPanel, inboxButton, inboxPanel);
-
-	if (inbox_was_expanded && inboxPanel->isInVisibleChain())
-	{
-		gSavedPerAccountSettings.setString("LastInventoryInboxCollapse", LLDate::now().asString());
-	}
 }
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
 	LLFirstUse::newInventory(false);
 
+#if AUTO_EXPAND_INBOX
 	// Expand the inbox if we have fresh items
 	LLPanelMarketplaceInbox * inbox = findChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
 	if (inbox && (inbox->getFreshItemCount() > 0))
@@ -560,6 +560,12 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 		getChild<LLButton>(INBOX_BUTTON_NAME)->setToggleState(true);
 		onToggleInboxBtn();
 	}
+#else
+	if (mInboxEnabled && getChild<LLButton>(INBOX_BUTTON_NAME)->getToggleState())
+	{
+		gSavedPerAccountSettings.setString("LastInventoryInboxExpansion", LLDate::now().asString());
+	}
+#endif
 
 	if(key.size() == 0)
 		return;
