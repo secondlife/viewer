@@ -3138,7 +3138,7 @@ protected:
 	{
 		// filter out non-interesting responeses
 		if ( !translation.empty()
-			&& (m_toLang != detected_language)
+			&& (mToLang != detected_language)
 			&& (LLStringUtil::compareInsensitive(translation, m_origMesg) != 0) )
 		{
 			m_chat.mText += " (" + translation + ")";
@@ -3147,9 +3147,8 @@ protected:
 		LLNotificationsUI::LLNotificationManager::instance().onChat(m_chat, m_toastArgs);
 	}
 
-	void handleFailure()
+	void handleFailure(int status, const std::string& err_msg)
 	{
-		LLTranslate::TranslationReceiver::handleFailure();
 		m_chat.mText += " (?)";
 
 		LLNotificationsUI::LLNotificationManager::instance().onChat(m_chat, m_toastArgs);
@@ -3388,7 +3387,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			const std::string from_lang = ""; // leave empty to trigger autodetect
 			const std::string to_lang = LLTranslate::getTranslateLanguage();
 
-			LLHTTPClient::ResponderPtr result = ChatTranslationReceiver::build(from_lang, to_lang, mesg, chat, args);
+			LLTranslate::TranslationReceiverPtr result = ChatTranslationReceiver::build(from_lang, to_lang, mesg, chat, args);
 			LLTranslate::translateMessage(result, from_lang, to_lang, mesg);
 		}
 		else

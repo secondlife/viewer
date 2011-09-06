@@ -30,89 +30,42 @@
 #include "llhttpclient.h"
 #include "llbufferstream.h"
 
+class LLTranslationAPIHandler;
+
 class LLTranslate
 {
 	LOG_CLASS(LLTranslate);
+
 public :
 	class TranslationReceiver: public LLHTTPClient::Responder
 	{
-	protected:
-		TranslationReceiver(const std::string &from_lang, const std::string &to_lang)
-			: m_fromLang(from_lang),
-			m_toLang(to_lang)
-		{
-		}
-
-		virtual void handleResponse(const std::string &translation, const std::string &recognized_lang) {};
-		virtual void handleFailure() {};
-
 	public:
-		~TranslationReceiver()
-		{
-		}
-
-		virtual void completedRaw(	U32 status,
-									const std::string& reason,
-									const LLChannelDescriptors& channels,
-									const LLIOPipe::buffer_ptr_t& buffer)
-		{
-			if (200 <= status && status < 300)
-			{
-				LLBufferStream istr(channels, buffer.get());
-				std::stringstream strstrm;
-				strstrm << istr.rdbuf();
-
-				const std::string result = strstrm.str();
-				std::string translation;
-				std::string detected_language;
-
-				if (!parseGoogleTranslate(result, translation, detected_language))
-				{
-					handleFailure();
-					return;
-				}
-				
-				// Fix up the response
-				LLStringUtil::replaceString(translation, "&lt;", "<");
-				LLStringUtil::replaceString(translation, "&gt;",">");
-				LLStringUtil::replaceString(translation, "&quot;","\"");
-				LLStringUtil::replaceString(translation, "&#39;","'");
-				LLStringUtil::replaceString(translation, "&amp;","&");
-				LLStringUtil::replaceString(translation, "&apos;","'");
-
-				handleResponse(translation, detected_language);
-			}
-			else
-			{
-				LL_WARNS("Translate") << "HTTP request for Google Translate failed with status " << status << ", reason: " << reason << LL_ENDL;
-				handleFailure();
-			}
-		}
+		/*virtual*/ void completedRaw(
+			U32 http_status,
+			const std::string& reason,
+			const LLChannelDescriptors& channels,
+			const LLIOPipe::buffer_ptr_t& buffer);
 
 	protected:
-		const std::string m_toLang;
-		const std::string m_fromLang;
+		friend class LLTranslate;
+
+		TranslationReceiver(const std::string& from_lang, const std::string& to_lang);
+
+		virtual void handleResponse(const std::string &translation, const std::string &recognized_lang) = 0;
+		virtual void handleFailure(int status, const std::string& err_msg) = 0;
+
+		std::string mFromLang;
+		std::string mToLang;
+		const LLTranslationAPIHandler& mHandler;
 	};
 
-	static void translateMessage(LLHTTPClient::ResponderPtr &result, const std::string &from_lang, const std::string &to_lang, const std::string &mesg);
-	static float m_GoogleTimeout;
+	typedef boost::intrusive_ptr<TranslationReceiver> TranslationReceiverPtr;
+
+	static void translateMessage(TranslationReceiverPtr &receiver, const std::string &from_lang, const std::string &to_lang, const std::string &mesg);
 	static std::string getTranslateLanguage();
 
 private:
-	static void getTranslateUrl(std::string &translate_url, const std::string &from_lang, const std::string &to_lang, const std::string &text);
-	static bool parseGoogleTranslate(const std::string& body, std::string &translation, std::string &detected_language);
-
-	static LLSD m_Header;
-	static const char* m_GoogleURL;
-	static const char* m_GoogleLangSpec;
-	static const char* m_AcceptHeader;
-	static const char* m_AcceptType;
-	static const char* m_AgentHeader;
-	static const char* m_UserAgent;
-
-	static const char* m_GoogleData;
-	static const char* m_GoogleTranslation;
-	static const char* m_GoogleLanguage;
+	static const LLTranslationAPIHandler& getPreferredHandler();
 };
 
 #endif
