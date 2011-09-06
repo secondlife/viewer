@@ -226,63 +226,68 @@ public:
 	/*###########################################################################################
 	METHODS THAT DO NOT LOCK mProxyMutex!
 	###########################################################################################*/
+	// Constructor, cannot have parameters due to LLSingleton parent class. Call from main thread only.
 	LLProxy();
 
-	// static check for enabled status for UDP packets
+	// Static check for enabled status for UDP packets. Call from main thread only.
 	static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled; }
 
-	// check for enabled status for HTTP packets
-	// mHTTPProxyEnabled is atomic, so no locking is required for thread safety.
-	bool isHTTPProxyEnabled() const { return mHTTPProxyEnabled; }
-
-	// Get the UDP proxy address and port
+	// Get the UDP proxy address and port. Call from main thread only.
 	LLHost getUDPProxy() const { return mUDPProxy; }
-
-	// Get the SOCKS 5 TCP control channel address and port
-	LLHost getTCPProxy() const { return mTCPProxy; }
 
 	/*###########################################################################################
 	END OF NON-LOCKING METHODS
 	###########################################################################################*/
 
 	/*###########################################################################################
-	METHODS THAT DO LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
+	METHODS THAT LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
 	###########################################################################################*/
+	// Destructor, closes open connections. Do not call directly, use cleanupClass().
 	~LLProxy();
 
-	// Start a connection to the SOCKS 5 proxy
-	S32 startSOCKSProxy(LLHost host);
-
-	// Disconnect and clean up any connection to the SOCKS 5 proxy
-	void stopSOCKSProxy();
-
-	// Delete LLProxy singleton, destroying the APR pool used by the control channel.
+	// Delete LLProxy singleton. Allows the apr_socket used in the SOCKS 5 control channel to be
+	// destroyed before the call to apr_terminate. Call from main thread only.
 	static void cleanupClass();
 
-	// Set up to use Password auth when connecting to the SOCKS proxy
-	bool setAuthPassword(const std::string &username, const std::string &password);
-
-	// Set up to use No Auth when connecting to the SOCKS proxy
-	void setAuthNone();
-
-	// Get the currently selected auth method.
-	LLSocks5AuthType getSelectedAuthMethod() const;
-
-	// Proxy HTTP packets via httpHost, which can be a SOCKS 5 or a HTTP proxy
-	// as specified in type
-	bool enableHTTPProxy(LLHost httpHost, LLHttpProxyType type);
-	bool enableHTTPProxy();
-
-	// Stop proxying HTTP packets
-	void disableHTTPProxy();
-
 	// Apply the current proxy settings to a curl request. Doesn't do anything if mHTTPProxyEnabled is false.
+	// Safe to call from any thread.
 	void applyProxySettings(CURL* handle);
 	void applyProxySettings(LLCurl::Easy* handle);
 	void applyProxySettings(LLCurlEasyRequest* handle);
 
-	// Get the HTTP proxy address and port
-	LLHost getHTTPProxy() const;
+	// Start a connection to the SOCKS 5 proxy. Call from main thread only.
+	S32 startSOCKSProxy(LLHost host);
+
+	// Disconnect and clean up any connection to the SOCKS 5 proxy. Call from main thread only.
+	void stopSOCKSProxy();
+
+	// Use Password auth when connecting to the SOCKS proxy. Call from main thread only.
+	bool setAuthPassword(const std::string &username, const std::string &password);
+
+	// Disable authentication when connecting to the SOCKS proxy. Call from main thread only.
+	void setAuthNone();
+
+	// Proxy HTTP packets via httpHost, which can be a SOCKS 5 or a HTTP proxy.
+	// as specified in type. Call from main thread only.
+	bool enableHTTPProxy(LLHost httpHost, LLHttpProxyType type);
+	bool enableHTTPProxy();
+
+	// Stop proxying HTTP packets. Call from main thread only.
+	void disableHTTPProxy();
+
+	/*###########################################################################################
+	END OF LOCKING METHODS
+	###########################################################################################*/
+private:
+	/*###########################################################################################
+	METHODS THAT LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
+	###########################################################################################*/
+
+	// Perform a SOCKS 5 authentication and UDP association with the proxy server.
+	S32 proxyHandshake(LLHost proxy);
+
+	// Get the currently selected auth method.
+	LLSocks5AuthType getSelectedAuthMethod() const;
 
 	// Get the currently selected HTTP proxy type
 	LLHttpProxyType getHTTPProxyType() const;
@@ -293,17 +298,13 @@ public:
 	/*###########################################################################################
 	END OF LOCKING METHODS
 	###########################################################################################*/
-private:
-	// Open a communication channel to the SOCKS 5 proxy proxy, at port messagePort.
-	S32 proxyHandshake(LLHost proxy);
 
 private:
-	// Is the HTTP proxy enabled?
-	// Safe to read in any thread, do not write directly,
-	// use enableHTTPProxy() and disableHTTPProxy() instead.
+	// Is the HTTP proxy enabled? Safe to read in any thread, but do not write directly.
+	// Instead use enableHTTPProxy() and disableHTTPProxy() instead.
 	mutable LLAtomic32<bool> mHTTPProxyEnabled;
 
-	// Mutex to protect shared members in non-main thread calls to applyProxySettings()
+	// Mutex to protect shared members in non-main thread calls to applyProxySettings().
 	mutable LLMutex mProxyMutex;
 
 	/*###########################################################################################
@@ -320,9 +321,6 @@ private:
 
 	// socket handle to proxy TCP control channel
 	LLSocket::ptr_t mProxyControlChannel;
-
-	// APR pool for the socket
-	apr_pool_t* mPool;
 
 	/*###########################################################################################
 	END OF UNSHARED MEMBERS

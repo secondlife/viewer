@@ -144,7 +144,7 @@ public:
 	 * method to destroy the singleton early can prevent these crashes.
 	 *
 	 * An example where this is needed is for a LLSingleton that has an APR
-	 * object as a member and make APR calls on destruction. The APR system is
+	 * object as a member that makes APR calls on destruction. The APR system is
 	 * shut down explicitly before main() exits. This causes a crash on exit.
 	 * Using this method before the call to apr_terminate() and NOT calling
 	 * getInstance() again will prevent the crash.
