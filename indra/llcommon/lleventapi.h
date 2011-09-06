@@ -95,7 +95,7 @@ public:
      * }
      * @endcode
      */
-    class Response
+    class LL_COMMON_API Response
     {
     public:
         /**
