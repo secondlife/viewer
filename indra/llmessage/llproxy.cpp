@@ -44,15 +44,14 @@ bool LLProxy::sUDPProxyEnabled = false;
 
 // Some helpful TCP static functions.
 static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
-static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host); // Open a TCP channel to a given host
+static LLSocket::ptr_t tcp_open_channel(LLHost host); // Open a TCP channel to a given host
 static void tcp_close_channel(LLSocket::ptr_t* handle_ptr); // Close an open TCP channel
 
 LLProxy::LLProxy():
 		mHTTPProxyEnabled(false),
-		mProxyMutex(0),
+		mProxyMutex(),
 		mUDPProxy(),
 		mTCPProxy(),
-		mPool(gAPRPoolp),
 		mHTTPProxy(),
 		mProxyType(LLPROXY_SOCKS),
 		mAuthMethodSelected(METHOD_NOAUTH),
@@ -203,7 +202,7 @@ S32 LLProxy::startSOCKSProxy(LLHost host)
 
 	if (status == SOCKS_OK)
 	{
-		mProxyControlChannel = tcp_open_channel(mPool, mTCPProxy);
+		mProxyControlChannel = tcp_open_channel(mTCPProxy);
 		if (!mProxyControlChannel)
 		{
 			status = SOCKS_HOST_CONNECT_FAILED;
@@ -527,9 +526,9 @@ static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outl
  * @param host		The host to open the connection to.
  * @return			The created socket.  Will evaluate as NULL if the connection is unsuccessful.
  */
-static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host)
+static LLSocket::ptr_t tcp_open_channel(LLHost host)
 {
-	LLSocket::ptr_t socket = LLSocket::create(pool, LLSocket::STREAM_TCP);
+	LLSocket::ptr_t socket = LLSocket::create(LLSocket::STREAM_TCP);
 	bool connected = socket->blockingConnect(host);
 	if (!connected)
 	{

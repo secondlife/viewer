@@ -6261,6 +6261,10 @@ Grant this request?
 [MESSAGE]
     <form name="form">
       <button
+       index="-2"
+       name="Mute"
+       text="Block"/>
+      <button
        index="-1"
        name="Ignore"
        text="Ignore"/>
@@ -6275,6 +6279,10 @@ Grant this request?
 [GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
     <form name="form">
+      <button
+       index="-2"
+       name="Mute"
+       text="Block"/>
       <button
        index="-1"
        name="Ignore"
@@ -7137,6 +7145,20 @@ Click and drag anywhere on the world to rotate your view
   unique="true">
     Here's your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
     <tag>funds</tag>
+  </notification>
+
+   <notification
+   icon="alertmodal.tga"
+   name="LowMemory"
+   type="alertmodal">
+    Your memory pool is low. Some functions of SL are disabled to avoid crash. Please close other applications. Restart SL if this persists.
+  </notification>
+
+  <notification
+     icon="alertmodal.tga"
+     name="ForceQuitDueToLowMemory"
+     type="alertmodal">
+    SL will quit in 30 seconds due to out of memory.
   </notification>
 
   <notification

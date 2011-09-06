@@ -30,7 +30,6 @@
 #define LL_NETWORKIO_H
 
 #include "llmemory.h"               // LLSingleton
-#include "llapr.h"
 #include "llares.h"
 #include "llpumpio.h"
 #include "llhttpclient.h"
@@ -48,14 +47,8 @@ public:
         mServicePump(NULL),
         mDone(false)
     {
-        ll_init_apr();
-        if (! gAPRPoolp)
-        {
-            throw std::runtime_error("Can't initialize APR");
-        }
-
         // Create IO Pump to use for HTTP Requests.
-        mServicePump = new LLPumpIO(gAPRPoolp);
+        mServicePump = new LLPumpIO;
         LLHTTPClient::setPump(*mServicePump);
         if (ll_init_ares() == NULL || !gAres->isInitialized())
         {
