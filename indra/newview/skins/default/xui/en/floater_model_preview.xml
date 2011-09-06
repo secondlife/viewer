@@ -270,7 +270,7 @@
              width="65" />
             <icon
              height="16"
-             image_name="lag_status_critical.tga"
+             image_name="red_x.png"
              layout="topleft"
              left_delta="20"
              mouse_opaque="true"
@@ -398,7 +398,7 @@
              width="65" />
             <icon
              height="16"
-             image_name="lag_status_critical.tga"
+             image_name="red_x.png"
              layout="topleft"
              left_delta="20"
              mouse_opaque="true"
@@ -526,7 +526,7 @@
              width="65" />
             <icon
              height="16"
-             image_name="lag_status_critical.tga"
+             image_name="red_x.png"
              layout="topleft"
              left_delta="20"
              mouse_opaque="true"
@@ -654,7 +654,7 @@
              width="65" />
             <icon
              height="16"
-             image_name="lag_status_critical.tga"
+             image_name="red_x.png"
              layout="topleft"
              left_delta="20"
              mouse_opaque="true"
