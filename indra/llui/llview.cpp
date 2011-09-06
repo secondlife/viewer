@@ -2549,7 +2549,7 @@ void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 			if (p.left_pad.isProvided())
 			{
 				// left_pad is based on prior widget's right edge
-				p.left_delta.set(p.left_pad + last_rect.getWidth(), false);
+				p.left_delta.set(p.left_pad + default_rect.getWidth(), false);
 			}
 			
 			default_rect.translate(p.left_delta, p.bottom_delta);				
