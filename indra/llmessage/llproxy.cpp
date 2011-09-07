@@ -44,12 +44,12 @@ bool LLProxy::sUDPProxyEnabled = false;
 
 // Some helpful TCP static functions.
 static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
-static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host); // Open a TCP channel to a given host
+static LLSocket::ptr_t tcp_open_channel(LLHost host); // Open a TCP channel to a given host
 static void tcp_close_channel(LLSocket::ptr_t* handle_ptr); // Close an open TCP channel
 
 LLProxy::LLProxy():
 		mHTTPProxyEnabled(false),
-		mProxyMutex(0),
+		mProxyMutex(),
 		mUDPProxy(),
 		mTCPProxy(),
 		mHTTPProxy(),
@@ -210,7 +210,7 @@ S32 LLProxy::startSOCKSProxy(LLHost host)
 	// Close any running SOCKS connection.
 	stopSOCKSProxy();
 
-	mProxyControlChannel = tcp_open_channel(gAPRPoolp, mTCPProxy);
+	mProxyControlChannel = tcp_open_channel(mTCPProxy);
 	if (!mProxyControlChannel)
 	{
 		return SOCKS_HOST_CONNECT_FAILED;
@@ -515,13 +515,12 @@ static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataou
  *
  * Checks for a successful connection, and makes sure the connection is closed if it fails.
  *
- * @param pool		APR pool to pass into the LLSocket.
  * @param host		The host to open the connection to.
  * @return			The created socket.  Will evaluate as NULL if the connection is unsuccessful.
  */
-static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host)
+static LLSocket::ptr_t tcp_open_channel(LLHost host)
 {
-	LLSocket::ptr_t socket = LLSocket::create(pool, LLSocket::STREAM_TCP);
+	LLSocket::ptr_t socket = LLSocket::create(LLSocket::STREAM_TCP);
 	bool connected = socket->blockingConnect(host);
 	if (!connected)
 	{
