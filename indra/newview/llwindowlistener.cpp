@@ -82,6 +82,7 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
 		"Optional [\"reply\"] requests a reply event on the named LLEventPump.\n"
 		"reply[\"error\"] isUndefined (None) on success, else an explanatory message.\n";
 
+	add("getInfo", "Get information about the ui element specified by [\"path\"]", &LLWindowListener::getInfo);
 	add("keyDown",
 		keySomething + "keypress event.\n" + keyExplain + mask,
 		&LLWindowListener::keyDown);
@@ -206,6 +207,35 @@ KEY getKEY(const LLSD& event)
 }
 
 } // namespace
+
+void LLWindowListener::getInfo(LLSD const & evt)
+{
+	Response response(LLSD(), evt);
+	
+	if (evt.has("path"))
+	{
+		std::string path(evt["path"]);
+		LLView * target_view = 
+			LLUI::resolvePath(gViewerWindow->getRootView(), path);
+		if (target_view != 0)
+		{
+			insertViewInformation(response, target_view);
+			LLRect rect(target_view->calcScreenRect());
+			response["rect"] = LLSDMap("left", rect.mLeft)("top", rect.mTop)
+				("right", rect.mRight)("bottom", rect.mBottom);
+		}
+		else 
+		{
+			response.error(STRINGIZE(evt["op"].asString() << " request "
+											"specified invalid \"path\": '" << path << "'"));
+		}
+	}
+	else 
+	{
+		response.error(
+			STRINGIZE(evt["op"].asString() << "request did not provide a path" ));
+	}
+}
 
 void LLWindowListener::keyDown(LLSD const & evt)
 {
