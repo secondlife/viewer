@@ -85,14 +85,14 @@ std::string LLFloaterTranslationSettings::getSelectedService() const
 	return mTranslationServiceRadioGroup->getSelectedValue().asString();
 }
 
-void LLFloaterTranslationSettings::showError(const std::string& err_name)
+void LLFloaterTranslationSettings::showError(const std::string& err_name) const
 {
 	LLSD args;
 	args["MESSAGE"] = getString(err_name);
 	LLNotificationsUtil::add("GenericAlert", args);
 }
 
-bool LLFloaterTranslationSettings::validate()
+bool LLFloaterTranslationSettings::validate() const
 {
 	bool translate_chat = mMachineTranslationCB->getValue().asBoolean();
 	if (!translate_chat) return true;

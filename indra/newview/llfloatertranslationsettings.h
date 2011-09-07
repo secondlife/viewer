@@ -43,10 +43,9 @@ public:
 
 private:
 	std::string getSelectedService() const;
-	void showError(const std::string& err_name);
-	bool validate();
+	void showError(const std::string& err_name) const;
+	bool validate() const;
 	void updateControlsEnabledState();
-	void onMachineTranslationToggle();
 	void onBtnOK();
 
 	LLCheckBoxCtrl* mMachineTranslationCB;
