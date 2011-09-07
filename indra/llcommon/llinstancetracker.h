@@ -197,7 +197,7 @@ protected:
 	virtual ~LLInstanceTracker() 
 	{ 
 		// it's unsafe to delete instances of this type while all instances are being iterated over.
-		llassert(getStatic().sIterationNestDepth == 0);
+		llassert_always(getStatic().sIterationNestDepth == 0);
 		remove_();		
 	}
 	virtual void setKey(KEY key) { remove_(); add_(key); }
@@ -287,7 +287,7 @@ protected:
 	virtual ~LLInstanceTracker()
 	{
 		// it's unsafe to delete instances of this type while all instances are being iterated over.
-		llassert(getStatic().sIterationNestDepth == 0);
+		llassert_always(getStatic().sIterationNestDepth == 0);
 		getSet_().erase(static_cast<T*>(this));
 	}
 
