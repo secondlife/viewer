@@ -31,6 +31,7 @@
 #include <curl/curl.h>
 
 #include "llbufferstream.h"
+#include "lltrans.h"
 #include "llui.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
@@ -94,21 +95,66 @@ public:
 			return false;
 		}
 
-		if (status != STATUS_OK)
+		if (!root.isObject()) // empty response? should not happen
 		{
-			const Json::Value& error = root["error"];
-			err_msg = error["message"].asString();
-			status = error["code"].asInt();
 			return false;
 		}
 
-		const Json::Value& response_data = root["data"]["translations"][0U];
-		translation = response_data["translatedText"].asString();
-		detected_lang = response_data["detectedSourceLanguage"].asString();
-		return true;
+		if (status != STATUS_OK)
+		{
+			// Request failed. Extract error message from the response.
+			parseErrorResponse(root, status, err_msg);
+			return false;
+		}
+
+		// Request succeeded, extract translation from the response.
+		return parseTranslation(root, translation, detected_lang);
 	}
 
 private:
+	static void parseErrorResponse(
+		const Json::Value& root,
+		int& status,
+		std::string& err_msg)
+	{
+		const Json::Value& error = root.get("error", 0);
+		if (!error.isObject() || !error.isMember("message") || !error.isMember("code"))
+		{
+			return;
+		}
+
+		err_msg = error["message"].asString();
+		status = error["code"].asInt();
+	}
+
+	static bool parseTranslation(
+		const Json::Value& root,
+		std::string& translation,
+		std::string& detected_lang)
+	{
+		const Json::Value& data = root.get("data", 0);
+		if (!data.isObject() || !data.isMember("translations"))
+		{
+			return false;
+		}
+
+		const Json::Value& translations = data["translations"];
+		if (!translations.isArray() || translations.size() == 0)
+		{
+			return false;
+		}
+
+		const Json::Value& first = translations[0U];
+		if (!first.isObject() || !first.isMember("translatedText"))
+		{
+			return false;
+		}
+
+		translation = first["translatedText"].asString();
+		detected_lang = first.get("detectedSourceLanguage", "").asString();
+		return true;
+	}
+
 	static std::string getAPIKey()
 	{
 		return gSavedSettings.getString("GoogleTranslateAPIKey");
@@ -143,7 +189,12 @@ public:
 	{
 		if (status != STATUS_OK)
 		{
-			size_t begin = body.find("Message: ");
+			static const std::string MSG_BEGIN_MARKER = "Message: ";
+			size_t begin = body.find(MSG_BEGIN_MARKER);
+			if (begin != std::string::npos)
+			{
+				begin += MSG_BEGIN_MARKER.size();
+			}
 			size_t end = body.find("</p>", begin);
 			err_msg = body.substr(begin, end-begin);
 			LLStringUtil::replaceString(err_msg, "&#xD;", ""); // strip CR
@@ -211,6 +262,11 @@ void LLTranslate::TranslationReceiver::completedRaw(
 	}
 	else
 	{
+		if (err_msg.empty())
+		{
+			err_msg = LLTrans::getString("TranslationResponseParseError");
+		}
+
 		llwarns << "Translation request failed: " << err_msg << llendl;
 		LL_DEBUGS("Translate") << "HTTP status: " << status << " " << reason << LL_ENDL;
 		LL_DEBUGS("Translate") << "Error response body: " << body << LL_ENDL;
