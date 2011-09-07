@@ -29,6 +29,7 @@
 #define LL_LLINSTANCETRACKER_H
 
 #include <map>
+#include <typeinfo>
 
 #include "string_table.h"
 #include <boost/utility.hpp>
@@ -37,10 +38,40 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 
+/**
+ * Base class manages "class-static" data that must actually have singleton
+ * semantics: one instance per process, rather than one instance per module as
+ * sometimes happens with data simply declared static.
+ */
 class LL_COMMON_API LLInstanceTrackerBase : public boost::noncopyable
 {
-	protected:
-		static void * & getInstances(std::type_info const & info);
+protected:
+	/// Get a process-unique void* pointer slot for the specified type_info
+	static void * & getInstances(std::type_info const & info);
+
+	/// Find or create a STATICDATA instance for the specified TRACKED class.
+	/// STATICDATA must be default-constructible.
+	template<typename STATICDATA, class TRACKED>
+	static STATICDATA& getStatic()
+	{
+		void *& instances = getInstances(typeid(TRACKED));
+		if (! instances)
+		{
+			instances = new STATICDATA;
+		}
+		return *static_cast<STATICDATA*>(instances);
+	}
+
+    /// It's not essential to derive your STATICDATA (for use with
+    /// getStatic()) from StaticBase; it's just that both known
+    /// implementations do.
+    struct StaticBase
+    {
+        StaticBase():
+            sIterationNestDepth(0)
+        {}
+        S32 sIterationNestDepth;
+    };
 };
 
 /// This mix-in class adds support for tracking all instances of the specified class parameter T
@@ -50,8 +81,15 @@ class LL_COMMON_API LLInstanceTrackerBase : public boost::noncopyable
 template<typename T, typename KEY = T*>
 class LLInstanceTracker : public LLInstanceTrackerBase
 {
-	typedef typename std::map<KEY, T*> InstanceMap;
 	typedef LLInstanceTracker<T, KEY> MyT;
+	typedef typename std::map<KEY, T*> InstanceMap;
+	struct StaticData: public StaticBase
+	{
+		InstanceMap sMap;
+	};
+	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT>(); }
+	static InstanceMap& getMap_() { return getStatic().sMap; }
+
 public:
 	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
 	{
@@ -61,12 +99,12 @@ public:
 		instance_iter(const typename InstanceMap::iterator& it)
 		:	mIterator(it)
 		{
-			++sIterationNestDepth;
+			++getStatic().sIterationNestDepth;
 		}
 
 		~instance_iter()
 		{
-			--sIterationNestDepth;
+			--getStatic().sIterationNestDepth;
 		}
 
 
@@ -95,18 +133,18 @@ public:
 		key_iter(typename InstanceMap::iterator it)
 			:	mIterator(it)
 		{
-			++sIterationNestDepth;
+			++getStatic().sIterationNestDepth;
 		}
 
 		key_iter(const key_iter& other)
 			:	mIterator(other.mIterator)
 		{
-			++sIterationNestDepth;
+			++getStatic().sIterationNestDepth;
 		}
 
 		~key_iter()
 		{
-			--sIterationNestDepth;
+			--getStatic().sIterationNestDepth;
 		}
 
 
@@ -159,8 +197,8 @@ protected:
 	virtual ~LLInstanceTracker() 
 	{ 
 		// it's unsafe to delete instances of this type while all instances are being iterated over.
-		llassert(sIterationNestDepth == 0);
-		remove_(); 		
+		llassert(getStatic().sIterationNestDepth == 0);
+		remove_();		
 	}
 	virtual void setKey(KEY key) { remove_(); add_(key); }
 	virtual const KEY& getKey() const { return mInstanceKey; }
@@ -176,31 +214,24 @@ private:
 		getMap_().erase(mInstanceKey);
 	}
 
-    static InstanceMap& getMap_()
-    {
-		void * & instances = getInstances(typeid(MyT));
-        if (! instances)
-        {
-            instances = new InstanceMap;
-        }
-        return * static_cast<InstanceMap*>(instances);
-    }
-
 private:
-
 	KEY mInstanceKey;
-	static S32 sIterationNestDepth;
 };
-
-template <typename T, typename KEY> S32 LLInstanceTracker<T, KEY>::sIterationNestDepth = 0;
 
 /// explicit specialization for default case where KEY is T*
 /// use a simple std::set<T*>
 template<typename T>
 class LLInstanceTracker<T, T*> : public LLInstanceTrackerBase
 {
-	typedef typename std::set<T*> InstanceSet;
 	typedef LLInstanceTracker<T, T*> MyT;
+	typedef typename std::set<T*> InstanceSet;
+	struct StaticData: public StaticBase
+	{
+		InstanceSet sSet;
+	};
+	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT>(); }
+	static InstanceSet& getSet_() { return getStatic().sSet; }
+
 public:
 
 	/// for completeness of analogy with the generic implementation
@@ -213,18 +244,18 @@ public:
 		instance_iter(const typename InstanceSet::iterator& it)
 		:	mIterator(it)
 		{
-			++sIterationNestDepth;
+			++getStatic().sIterationNestDepth;
 		}
 
 		instance_iter(const instance_iter& other)
 		:	mIterator(other.mIterator)
 		{
-			++sIterationNestDepth;
+			++getStatic().sIterationNestDepth;
 		}
 
 		~instance_iter()
 		{
-			--sIterationNestDepth;
+			--getStatic().sIterationNestDepth;
 		}
 
 	private:
@@ -250,13 +281,13 @@ public:
 protected:
 	LLInstanceTracker()
 	{
-		// it's safe but unpredictable to create instances of this type while all instances are being iterated over.  I hate unpredictable.  This assert will probably be turned on early in the next development cycle.
+		// it's safe but unpredictable to create instances of this type while all instances are being iterated over.  I hate unpredictable.	 This assert will probably be turned on early in the next development cycle.
 		getSet_().insert(static_cast<T*>(this));
 	}
 	virtual ~LLInstanceTracker()
 	{
 		// it's unsafe to delete instances of this type while all instances are being iterated over.
-		llassert(sIterationNestDepth == 0);
+		llassert(getStatic().sIterationNestDepth == 0);
 		getSet_().erase(static_cast<T*>(this));
 	}
 
@@ -264,20 +295,6 @@ protected:
 	{
 		getSet_().insert(static_cast<T*>(this));
 	}
-
-	static InstanceSet& getSet_()
-	{
-		void * & instances = getInstances(typeid(MyT));
-		if (! instances)
-		{
-			instances = new InstanceSet;
-		}
-		return * static_cast<InstanceSet *>(instances);
-	}
-
-	static S32 sIterationNestDepth;
 };
-
-template <typename T> S32 LLInstanceTracker<T, T*>::sIterationNestDepth = 0;
 
 #endif
