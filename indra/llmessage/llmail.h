@@ -27,15 +27,13 @@
 #ifndef LL_LLMAIL_H
 #define LL_LLMAIL_H
 
-typedef struct apr_pool_t apr_pool_t;
-
 #include "llsd.h"
 
 class LLMail
 {
 public:
 	// if hostname is NULL, then the host is resolved as 'mail'
-	static void init(const std::string& hostname, apr_pool_t* pool);
+	static void init(const std::string& hostname);
 
 	// Allow all email transmission to be disabled/enabled.
 	static void enable(bool mail_enabled);

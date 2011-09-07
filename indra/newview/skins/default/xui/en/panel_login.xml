@@ -117,12 +117,13 @@ label="Remember password"
   name="connect_btn"
   top="35"
   width="90" />
+  <!-- Utf code in label is a filled up-pointing triangle -->
   <menu_button
   left_pad="5"
   top="35"
   width="80"
   height="23"
-  label="Mode ▲"
+  label="Mode &#9650;"
   name="mode_menu"  
   tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
   menu_filename="menu_mode_change.xml"

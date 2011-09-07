@@ -963,13 +963,9 @@ private:
 
 
 // static
-LLHTTPNode& LLIOHTTPServer::create(
-	apr_pool_t* pool, LLPumpIO& pump, U16 port)
+LLHTTPNode& LLIOHTTPServer::create(LLPumpIO& pump, U16 port)
 {
-	LLSocket::ptr_t socket = LLSocket::create(
-        pool,
-        LLSocket::STREAM_TCP,
-        port);
+	LLSocket::ptr_t socket = LLSocket::create(LLSocket::STREAM_TCP, port);
     if(!socket)
     {
         llerrs << "Unable to initialize socket" << llendl;
@@ -978,7 +974,7 @@ LLHTTPNode& LLIOHTTPServer::create(
     LLHTTPResponseFactory* factory = new LLHTTPResponseFactory;
 	boost::shared_ptr<LLChainIOFactory> factory_ptr(factory);
 
-    LLIOServerSocket* server = new LLIOServerSocket(pool, socket, factory_ptr);
+    LLIOServerSocket* server = new LLIOServerSocket(socket, factory_ptr);
 
 	LLPumpIO::chain_t chain;
     chain.push_back(LLIOPipe::ptr_t(server));
