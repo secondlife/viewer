@@ -10925,18 +10925,18 @@
     <key>TranslationService</key>
     <map>
       <key>Comment</key>
-      <string>Translation API to use. (google_v1|google_v2|bing)</string>
+      <string>Translation API to use. (google|bing)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>google_v1</string>
+      <string>bing</string>
     </map>
-    <key>GoogleTranslateAPIv2Key</key>
+    <key>GoogleTranslateAPIKey</key>
     <map>
       <key>Comment</key>
-      <string>Google Translate API v2 key</string>
+      <string>Google Translate API key</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -10947,7 +10947,7 @@
     <key>BingTranslateAPIKey</key>
     <map>
       <key>Comment</key>
-      <string>Bing AppID to use with the Microsoft Translator V2 API</string>
+      <string>Bing AppID to use with the Microsoft Translator API</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

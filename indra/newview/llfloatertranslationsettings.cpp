@@ -75,7 +75,7 @@ void LLFloaterTranslationSettings::onOpen(const LLSD& key)
 	mLanguageCombo->setSelectedByValue(gSavedSettings.getString("TranslateLanguage"), TRUE);
 	mTranslationServiceRadioGroup->setSelectedByValue(gSavedSettings.getString("TranslationService"), TRUE);
 	mBingAPIKeyEditor->setText(gSavedSettings.getString("BingTranslateAPIKey"));
-	mGoogleAPIKeyEditor->setText(gSavedSettings.getString("GoogleTranslateAPIv2Key"));
+	mGoogleAPIKeyEditor->setText(gSavedSettings.getString("GoogleTranslateAPIKey"));
 
 	updateControlsEnabledState();
 }
@@ -104,7 +104,7 @@ bool LLFloaterTranslationSettings::validate()
 		return false;
 	}
 
-	if (service == "google_v2" && mGoogleAPIKeyEditor->getText().empty())
+	if (service == "google" && mGoogleAPIKeyEditor->getText().empty())
 	{
 		showError("no_google_api_key");
 		return false;
@@ -129,7 +129,7 @@ void LLFloaterTranslationSettings::updateControlsEnabledState()
 	mGoogleAPIKeyEditor->setEnabled(on);
 
 	mBingAPIKeyEditor->setEnabled(service == "bing");
-	mGoogleAPIKeyEditor->setEnabled(service == "google_v2");
+	mGoogleAPIKeyEditor->setEnabled(service == "google");
 }
 
 void LLFloaterTranslationSettings::onBtnOK()
@@ -140,7 +140,7 @@ void LLFloaterTranslationSettings::onBtnOK()
 		gSavedSettings.setString("TranslateLanguage", mLanguageCombo->getSelectedValue().asString());
 		gSavedSettings.setString("TranslationService", getSelectedService());
 		gSavedSettings.setString("BingTranslateAPIKey", mBingAPIKeyEditor->getText());
-		gSavedSettings.setString("GoogleTranslateAPIv2Key", mGoogleAPIKeyEditor->getText());
+		gSavedSettings.setString("GoogleTranslateAPIKey", mGoogleAPIKeyEditor->getText());
 		closeFloater(false);
 	}
 }

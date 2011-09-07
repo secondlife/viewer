@@ -59,57 +59,9 @@ protected:
 	static const int STATUS_OK = 200;
 };
 
-class LLGoogleV1Handler : public LLTranslationAPIHandler
+class LLGoogleHandler : public LLTranslationAPIHandler
 {
-	LOG_CLASS(LLGoogleV1Handler);
-
-public:
-	/*virtual*/ void getTranslateURL(
-		std::string &url,
-		const std::string &from_lang,
-		const std::string &to_lang,
-		const std::string &text) const
-	{
-		url = "http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q="
-			+ LLURI::escape(text)
-			+ "&langpair=" + from_lang + "%7C" + to_lang;
-	}
-
-	/*virtual*/ bool parseResponse(
-		int& status,
-		const std::string& body,
-		std::string& translation,
-		std::string& detected_lang,
-		std::string& err_msg) const
-	{
-		Json::Value root;
-		Json::Reader reader;
-
-		if (!reader.parse(body, root))
-		{
-			err_msg = reader.getFormatedErrorMessages();
-			return false;
-		}
-
-		// This API doesn't return proper status in the HTTP response header,
-		// but it is in the body.
-		status = root["responseStatus"].asInt();
-		if (status != STATUS_OK)
-		{
-			err_msg = root["responseDetails"].asString();
-			return false;
-		}
-
-		const Json::Value& response_data = root["responseData"];
-		translation = response_data.get("translatedText", "").asString();
-		detected_lang = response_data.get("detectedSourceLanguage", "").asString();
-		return true;
-	}
-};
-
-class LLGoogleV2Handler : public LLTranslationAPIHandler
-{
-	LOG_CLASS(LLGoogleV2Handler);
+	LOG_CLASS(LLGoogleHandler);
 
 public:
 	/*virtual*/ void getTranslateURL(
@@ -159,7 +111,7 @@ public:
 private:
 	static std::string getAPIKey()
 	{
-		return gSavedSettings.getString("GoogleTranslateAPIv2Key");
+		return gSavedSettings.getString("GoogleTranslateAPIKey");
 	}
 };
 
@@ -311,18 +263,13 @@ std::string LLTranslate::getTranslateLanguage()
 // static
 const LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
 {
-	static LLGoogleV1Handler	google_v1;
-	static LLGoogleV2Handler	google_v2;
-	static LLBingHandler		bing;
+	static LLGoogleHandler	google;
+	static LLBingHandler	bing;
 
 	std::string service = gSavedSettings.getString("TranslationService");
-	if (service == "google_v2")
+	if (service == "google")
 	{
-		return google_v2;
-	}
-	else if (service == "google_v1")
-	{
-		return google_v1;
+		return google;
 	}
 
 	return bing;

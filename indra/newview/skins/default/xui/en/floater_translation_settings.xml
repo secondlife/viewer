@@ -137,10 +137,10 @@
    layout="topleft"
    name="bing" />
   <radio_item
-   initial_value="google_v2"
+   initial_value="google"
    label="Google Translate"
    layout="topleft"
-   name="google_v2"
+   name="google"
    top_pad="20" />
  </radio_group>
 
