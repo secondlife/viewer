@@ -37,6 +37,8 @@
 #include "llviewerfoldertype.h"
 
 
+#define DEBUGGING_FRESHNESS	0
+
 //
 // statics
 //
@@ -188,49 +190,57 @@ void LLInboxFolderViewFolder::draw()
 	LLFolderViewFolder::draw();
 }
 
-BOOL LLInboxFolderViewFolder::addToFolder(LLFolderViewFolder* folder, LLFolderView* root)
+void LLInboxFolderViewFolder::computeFreshness()
 {
-	BOOL retval = LLFolderViewFolder::addToFolder(folder, root);
-
-	// Only mark top-level inbox folders as fresh
-	mFresh = (mParentFolder == mRoot);
-
-	return retval;
-}
-
-void LLInboxFolderViewFolder::updateFlag() const
-{
-	const std::string& last_expansion = gSavedPerAccountSettings.getString("LastInventoryInboxExpansion");
+	const std::string& last_expansion = gSavedPerAccountSettings.getString("LastInventoryInboxActivity");
 
 	if (!last_expansion.empty())
 	{
 		LLDate saved_freshness_date = LLDate(last_expansion);
 
 		mFresh = (mCreationDate > saved_freshness_date.secondsSinceEpoch());
+
+#if DEBUGGING_FRESHNESS
+		if (mFresh)
+		{
+			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << saved_freshness_date.secondsSinceEpoch() << llendl;
+		}
+#endif
 	}
+	else
+	{
+		mFresh = true;
+	}
+}
+
+void LLInboxFolderViewFolder::deFreshify()
+{
+	mFresh = false;
+
+	gSavedPerAccountSettings.setString("LastInventoryInboxActivity", LLDate::now().asString());
 }
 
 void LLInboxFolderViewFolder::selectItem()
 {
 	LLFolderViewFolder::selectItem();
 
-	mFresh = false;
+	deFreshify();
 }
 
 void LLInboxFolderViewFolder::toggleOpen()
 {
 	LLFolderViewFolder::toggleOpen();
 
-	mFresh = false;
+	deFreshify();
 }
 
-void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc) const
+void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc)
 { 
 	mCreationDate = creation_date_utc; 
 
-	if (mFresh)
+	if (mParentFolder == mRoot)
 	{
-		updateFlag();
+		computeFreshness();
 	}
 }
 

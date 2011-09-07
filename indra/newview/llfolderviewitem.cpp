@@ -2057,23 +2057,42 @@ BOOL LLFolderViewFolder::isRemovable()
 BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 {
 	mItems.push_back(item);
+	
 	if (item->isSelected())
 	{
 		recursiveIncrementNumDescendantsSelected(1);
 	}
+	
 	item->setRect(LLRect(0, 0, getRect().getWidth(), 0));
 	item->setVisible(FALSE);
-	addChild( item );
+	
+	addChild(item);
+	
 	item->dirtyFilter();
+
+	// Update the folder creation date if the child is newer than our current date
+	setCreationDate(llmax<time_t>(mCreationDate, item->getCreationDate()));
+
+	// Handle sorting
 	requestArrange();
 	requestSort();
+
+	// Traverse parent folders and update creation date and resort, if necessary
 	LLFolderViewFolder* parentp = getParentFolder();
-	while (parentp && parentp->mSortFunction.isByDate())
+	while (parentp)
 	{
-		// parent folder doesn't have a time stamp yet, so get it from us
-		parentp->requestSort();
+		// Update the folder creation date if the child is newer than our current date
+		parentp->setCreationDate(llmax<time_t>(parentp->mCreationDate, item->getCreationDate()));
+
+		if (parentp->mSortFunction.isByDate())
+		{
+			// parent folder doesn't have a time stamp yet, so get it from us
+			parentp->requestSort();
+		}
+
 		parentp = parentp->getParentFolder();
 	}
+
 	return TRUE;
 }
 
@@ -2437,41 +2456,6 @@ void LLFolderViewFolder::draw()
 
 time_t LLFolderViewFolder::getCreationDate() const
 {
-	// folders have no creation date try to create one from an item somewhere in our folder hierarchy
-	if (!mCreationDate)
-	{
-		for (items_t::const_iterator iit = mItems.begin();
-			 iit != mItems.end(); ++iit)
-		{
-			LLFolderViewItem* itemp = (*iit);
-
-			const time_t item_creation_date = itemp->getCreationDate();
-			
-			if (item_creation_date)
-			{
-				setCreationDate(item_creation_date);
-				break;
-			}
-		}
-		
-		if (!mCreationDate)
-		{
-			for (folders_t::const_iterator fit = mFolders.begin();
-				 fit != mFolders.end(); ++fit)
-			{
-				LLFolderViewFolder* folderp = (*fit);
-				
-				const time_t folder_creation_date = folderp->getCreationDate();
-				
-				if (folder_creation_date)
-				{
-					setCreationDate(folder_creation_date);
-					break;
-				}
-			}
-		}
-	}
-
 	return llmax<time_t>(mCreationDate, mSubtreeCreationDate);
 }
 

@@ -259,11 +259,6 @@ void LLOutboxFolderViewFolder::setError(S32 errorCode)
 	}
 }
 
-void LLOutboxFolderViewFolder::setCreationDate(time_t creation_date_utc) const
-{ 
-	mCreationDate = creation_date_utc; 
-}
-
 //
 // LLOutboxFolderViewItem Implementation
 //

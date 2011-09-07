@@ -33,10 +33,10 @@
         <key>Value</key>
             <string />
         </map>
-    <key>LastInventoryInboxExpansion</key>
+    <key>LastInventoryInboxActivity</key>
        <map>
             <key>Comment</key>
-            <string>The last time the received items inbox was expanded for view.</string>
+            <string>The last time the received items inbox was poked by the user.</string>
             <key>Persist</key>
             <integer>1</integer>
             <key>Type</key>

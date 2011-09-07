@@ -75,18 +75,18 @@ public:
 
 	void draw();
 	
-	BOOL addToFolder(LLFolderViewFolder* folder, LLFolderView* root);
+	void computeFreshness();
+	void deFreshify();
 
-	void updateFlag() const;
 	void selectItem();
 	void toggleOpen();
 
 	bool isFresh() const { return mFresh; }
 	
 protected:
-	void setCreationDate(time_t creation_date_utc) const;
+	void setCreationDate(time_t creation_date_utc);
 
-	mutable bool	mFresh;
+	bool mFresh;
 };
 
 

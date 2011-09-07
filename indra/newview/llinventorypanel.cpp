@@ -234,7 +234,6 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	{
 		setSortOrder(gSavedSettings.getU32(DEFAULT_SORT_ORDER));
 	}
-	mFolderRoot->setSortOrder(getFilter()->getSortOrder());
 
 	// hide inbox
 	getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
@@ -347,6 +346,10 @@ U32 LLInventoryPanel::getSortOrder() const
 	return mFolderRoot->getSortOrder(); 
 }
 
+void LLInventoryPanel::requestSort()
+{
+	mFolderRoot->requestSort();
+}
 
 void LLInventoryPanel::setSinceLogoff(BOOL sl)
 {

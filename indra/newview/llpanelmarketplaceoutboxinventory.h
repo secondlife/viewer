@@ -77,8 +77,6 @@ public:
 	bool hasError() const { return (mError != 0); }
 
 protected:
-	void setCreationDate(time_t creation_date_utc) const;
-	
 	S32 mError;
 };
 

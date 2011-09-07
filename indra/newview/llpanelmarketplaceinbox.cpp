@@ -95,8 +95,10 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 	LLRect inventory_placeholder_rect = inbox_inventory_placeholder->getRect();
 	mInventoryPanel->setShape(inventory_placeholder_rect);
 	
-	// Set the sort order newest to oldest, and a selection change callback
+	// Set the sort order newest to oldest
 	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);	
+
+	// Set selection callback for proper update of inventory status buttons
 	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
 
 	// Set up the note to display when the inbox is empty
@@ -113,6 +115,8 @@ void LLPanelMarketplaceInbox::onFocusReceived()
 	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
 
 	sidepanel_inventory->clearSelections(true, false, true);
+
+	gSavedPerAccountSettings.setString("LastInventoryInboxActivity", LLDate::now().asString());
 }
 
 BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg)
