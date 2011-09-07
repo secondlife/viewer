@@ -1806,6 +1806,7 @@ void LLViewerMediaImpl::createMediaSource()
 			LL_WARNS("Media") << "Failed to initialize media for mime type " << mMimeType << LL_ENDL;
 		}
 	}
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1910,7 +1911,10 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			// collect 'javascript enabled' setting from prefs and send to embedded browser
 			bool javascript_enabled = gSavedSettings.getBOOL( "BrowserJavascriptEnabled" );
 			media_source->setJavascriptEnabled( javascript_enabled );
-			
+		
+			bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
+			media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled );
+
 			media_source->setTarget(target);
 			
 			const std::string plugin_dir = gDirUtilp->getLLPluginDir();

@@ -496,7 +496,7 @@ public:
 		LLSideTray* side_tray = LLSideTray::getInstance();
 
 		// Check if the tab we are dragging is docked.
-		if (!side_tray->isTabAttached(getName())) return FALSE;
+		if (!side_tray->isTabAttached(mTabName)) return FALSE;
 
 		// Same value is hardcoded in LLDragHandle::handleHover().
 		const S32 undock_threshold = 12;
@@ -505,7 +505,7 @@ public:
 		if (delta_x <= -undock_threshold ||	delta_x >= undock_threshold	||
 			delta_y <= -undock_threshold ||	delta_y >= undock_threshold)
 		{
-			LLSideTrayTab* tab = side_tray->getTab(getName());
+			LLSideTrayTab* tab = side_tray->getTab(mTabName);
 			if (!tab) return FALSE;
 
 			tab->setDocked(false);
@@ -544,7 +544,12 @@ protected:
 		, mDragLastScreenX(0)
 		, mDragLastScreenY(0)
 		, mBadgeDriver(NULL)
-	{}
+	{
+		// Find out the tab name to use in handleHover().
+		size_t pos = getName().find("_button");
+		llassert(pos != std::string::npos);
+		mTabName = getName().substr(0, pos);
+	}
 
 	friend class LLUICtrlFactory;
 
@@ -562,6 +567,7 @@ private:
 	S32		mDragLastScreenX;
 	S32		mDragLastScreenY;
 
+	std::string					mTabName;
 	LLSideTrayTabBadgeDriver*	mBadgeDriver;
 };
 
@@ -679,6 +685,7 @@ LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 bool LLSideTray::isTabAttached(const std::string& name)
 {
 	LLSideTrayTab* tab = getTab(name);
+	llassert(tab);
 	if (!tab) return false;
 
 	return std::find(mTabs.begin(), mTabs.end(), tab) != mTabs.end();

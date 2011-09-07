@@ -74,8 +74,7 @@ LLScrollContainer::Params::Params()
 	min_auto_scroll_rate("min_auto_scroll_rate", 100),
 	max_auto_scroll_rate("max_auto_scroll_rate", 1000),
 	reserve_scroll_corner("reserve_scroll_corner", false)
-{
-}
+{}
 
 
 // Default constructor

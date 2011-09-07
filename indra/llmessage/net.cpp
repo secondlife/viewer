@@ -50,7 +50,6 @@
 #include "lltimer.h"
 #include "indra_constants.h"
 
-
 // Globals
 #if LL_WINDOWS
 
@@ -174,7 +173,7 @@ U32 ip_string_to_u32(const char* ip_string)
 	// use wildcard addresses. -Ambroff
 	U32 ip = inet_addr(ip_string);
 	if (ip == INADDR_NONE 
-	    && strncmp(ip_string, BROADCAST_ADDRESS_STRING, MAXADDRSTR) != 0)
+			&& strncmp(ip_string, BROADCAST_ADDRESS_STRING, MAXADDRSTR) != 0)
 	{
 		llwarns << "ip_string_to_u32() failed, Error: Invalid IP string '" << ip_string << "'" << llendl;
 		return INVALID_HOST_IP_ADDRESS;
@@ -188,11 +187,11 @@ U32 ip_string_to_u32(const char* ip_string)
 //////////////////////////////////////////////////////////////////////////////////////////
 
 #if LL_WINDOWS
- 
+
 S32 start_net(S32& socket_out, int& nPort) 
 {			
 	// Create socket, make non-blocking
-    // Init WinSock 
+	// Init WinSock
 	int nRet;
 	int hSocket;
 
@@ -201,7 +200,7 @@ S32 start_net(S32& socket_out, int& nPort)
 	int buff_size = 4;
  
 	// Initialize windows specific stuff
-	if(WSAStartup(0x0202, &stWSAData))
+	if (WSAStartup(0x0202, &stWSAData))
 	{
 		S32 err = WSAGetLastError();
 		WSACleanup();
@@ -210,8 +209,8 @@ S32 start_net(S32& socket_out, int& nPort)
 	}
 
 	// Get a datagram socket
-    hSocket = (int)socket(AF_INET, SOCK_DGRAM, 0);
-    if (hSocket == INVALID_SOCKET)
+	hSocket = (int)socket(AF_INET, SOCK_DGRAM, 0);
+	if (hSocket == INVALID_SOCKET)
 	{
 		S32 err = WSAGetLastError();
 		WSACleanup();
@@ -304,7 +303,7 @@ S32 start_net(S32& socket_out, int& nPort)
 	//  Setup a destination address
 	stDstAddr.sin_family =      AF_INET;
 	stDstAddr.sin_addr.s_addr = INVALID_HOST_IP_ADDRESS;
-    stDstAddr.sin_port =        htons(nPort);
+	stDstAddr.sin_port =        htons(nPort);
 
 	socket_out = hSocket;
 	return 0;
@@ -393,10 +392,10 @@ S32 start_net(S32& socket_out, int& nPort)
 	int rec_size = RECEIVE_BUFFER_SIZE;
 
 	socklen_t buff_size = 4;
-    
+
 	//  Create socket
-    hSocket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (hSocket < 0)
+	hSocket = socket(AF_INET, SOCK_DGRAM, 0);
+	if (hSocket < 0)
 	{
 		llwarns << "socket() failed" << llendl;
 		return 1;
@@ -429,7 +428,7 @@ S32 start_net(S32& socket_out, int& nPort)
 	}
 	else
 	{
-	    // Name the socket (assign the local port number to receive on)
+		// Name the socket (assign the local port number to receive on)
 		stLclAddr.sin_family      = AF_INET;
 		stLclAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 		stLclAddr.sin_port        = htons(nPort);
@@ -474,7 +473,7 @@ S32 start_net(S32& socket_out, int& nPort)
 		nPort = attempt_port;
 	}
 	// Set socket to be non-blocking
- 	fcntl(hSocket, F_SETFL, O_NONBLOCK);
+	fcntl(hSocket, F_SETFL, O_NONBLOCK);
 	// set a large receive buffer
 	nRet = setsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, (char *)&rec_size, buff_size);
 	if (nRet)
@@ -510,8 +509,8 @@ S32 start_net(S32& socket_out, int& nPort)
 	//  Setup a destination address
 	char achMCAddr[MAXADDRSTR] = "127.0.0.1";	/* Flawfinder: ignore */ 
 	stDstAddr.sin_family =      AF_INET;
-        stDstAddr.sin_addr.s_addr = ip_string_to_u32(achMCAddr);
-        stDstAddr.sin_port =        htons(nPort);
+	stDstAddr.sin_addr.s_addr = ip_string_to_u32(achMCAddr);
+	stDstAddr.sin_port =        htons(nPort);
 
 	socket_out = hSocket;
 	return 0;
@@ -537,7 +536,7 @@ static int recvfrom_destip( int socket, void *buf, int len, struct sockaddr *fro
 	iov[0].iov_base = buf;
 	iov[0].iov_len = len;
 
-	memset( &msg, 0, sizeof msg );
+	memset(&msg, 0, sizeof msg);
 	msg.msg_name = from;
 	msg.msg_namelen = *fromlen;
 	msg.msg_iov = iov;
@@ -545,14 +544,14 @@ static int recvfrom_destip( int socket, void *buf, int len, struct sockaddr *fro
 	msg.msg_control = &cmsg;
 	msg.msg_controllen = sizeof(cmsg);
 
-	size = recvmsg( socket, &msg, 0 );
+	size = recvmsg(socket, &msg, 0);
 
-	if( size == -1 )
+	if (size == -1)
 	{
 		return -1;
 	}
 
-	for( cmsgptr = CMSG_FIRSTHDR(&msg); cmsgptr != NULL; cmsgptr = CMSG_NXTHDR( &msg, cmsgptr ) )
+	for (cmsgptr = CMSG_FIRSTHDR(&msg); cmsgptr != NULL; cmsgptr = CMSG_NXTHDR( &msg, cmsgptr))
 	{
 		if( cmsgptr->cmsg_level == SOL_IP && cmsgptr->cmsg_type == IP_PKTINFO )
 		{
@@ -650,7 +649,7 @@ BOOL send_packet(int hSocket, const char * sendBuffer, int size, U32 recipient, 
 			}
 		}
 	}
-	while ( resend && send_attempts < 3);
+	while (resend && send_attempts < 3);
 
 	if (send_attempts >= 3)
 	{

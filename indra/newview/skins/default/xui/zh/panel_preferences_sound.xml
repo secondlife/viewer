@@ -9,7 +9,7 @@
 		最小化時靜音
 	</text>
 	<slider label="按鍵音" name="UI Volume"/>
-	<slider label="Ambient" name="Wind Volume"/>
+	<slider label="環境音" name="Wind Volume"/>
 	<slider label="音效" name="SFX Volume"/>
 	<slider label="串流音樂" name="Music Volume"/>
 	<check_box label="已啟用" name="enable_music"/>
@@ -33,7 +33,7 @@
 	<check_box label="Toggle speak on/off when I press:" name="push_to_talk_toggle_check" tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."/>
 	<line_editor label="Push-to-Speak trigger" name="modifier_combo"/>
 	<button label="設定按鍵" name="set_voice_hotkey_button"/>
-	<button name="set_voice_middlemouse_button" tool_tip="Reset to Middle Mouse Button"/>
+	<button name="set_voice_middlemouse_button" tool_tip="重設滑鼠中鍵按鈕"/>
 	<button label="輸入 / 輸出設備" name="device_settings_btn"/>
 	<panel label="設備設定" name="device_settings_panel">
 		<panel.string name="default_text">

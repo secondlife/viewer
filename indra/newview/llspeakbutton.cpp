@@ -47,12 +47,10 @@ static LLDefaultChildRegistry::Register<LLSpeakButton> t1("talk_button");
 //////////////////////////////////////////////////////////////////////////
 
 LLSpeakButton::Params::Params()
- : speak_button("speak_button")
- , show_button("show_button")
- , monitor("monitor")
-{
-	// See widgets/talk_button.xml
-}
+:	speak_button("speak_button"),
+	show_button("show_button"),
+	monitor("monitor")
+{}
 
 LLSpeakButton::LLSpeakButton(const Params& p)
 : LLUICtrl(p)

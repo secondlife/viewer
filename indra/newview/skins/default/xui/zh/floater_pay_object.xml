@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money">
 	<string name="payee_group">
-		支付社團
+		支付群組
 	</string>
 	<string name="payee_resident">
 		支付居民

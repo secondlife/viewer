@@ -155,6 +155,7 @@ void LLStandardBumpmap::addstandard()
 			LLViewerTextureManager::getFetchedTexture(LLUUID(bump_image_id));	
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setLoadedCallback(LLBumpImageList::onSourceStandardLoaded, 0, TRUE, FALSE, NULL, NULL );
+		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->forceToSaveRawImage(0) ;
 		LLStandardBumpmap::sStandardBumpmapCount++;
 	}
 
@@ -1073,11 +1074,12 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 		if (!src_image->hasCallbacks())
 		{ //if image has no callbacks but resolutions don't match, trigger raw image loaded callback again
 			if (src_image->getWidth() != bump->getWidth() ||
-				src_image->getHeight() != bump->getHeight() ||
-				(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
+				src_image->getHeight() != bump->getHeight())// ||
+				//(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
 			{
 				src_image->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
 				src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()), NULL );
+				src_image->forceToSaveRawImage(0) ;
 			}
 		}
 	}

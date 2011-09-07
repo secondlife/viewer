@@ -381,8 +381,6 @@ public:
 		{
 			addSynonym(bg_visible, "opaque");
 			addSynonym(bg_color, "color");
-
-			name = "menu";
 		}
 	};
 
@@ -650,7 +648,7 @@ public:
 	{
 		Params()
 		{
-			visible = false;
+			changeDefault(visible, false);
 		}
 	};
 
@@ -698,16 +696,7 @@ class LLMenuBarGL : public LLMenuGL
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLMenuGL::Params>
-	{
-		Params()
-		{
-			can_tear_off = false;
-			keep_fixed_size = true;
-			horizontal_layout = true;
-			visible = true;
-			drop_shadow = false;
-		}
-	};
+	{};
 	LLMenuBarGL( const Params& p );
 	virtual ~LLMenuBarGL();
 
@@ -825,13 +814,7 @@ class LLMenuItemTearOffGL : public LLMenuItemGL
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLMenuItemGL::Params>
-	{
-		Params()
-		{
-			name = "tear off";
-			label = "~~~~~~~~~~~";
-		}
-	};
+	{};
 
 	LLMenuItemTearOffGL( const Params& );
 	

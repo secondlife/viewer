@@ -12,7 +12,7 @@
 	<text name="help_text">
 		You can select multiple Residents to invite to your group. Click &apos;Open Resident Chooser&apos; to start.
 	</text>
-	<button label="Open Resident Chooser" name="add_button"/>
+	<button label="開啟居民選擇視窗" name="add_button"/>
 	<name_list name="invitee_list" tool_tip="Hold the Ctrl key and click Resident names to multi-select"/>
 	<button label="Remove Selected from List" name="remove_button" tool_tip="Removes the Residents selected above from the invite list"/>
 	<text name="role_text">
@@ -22,6 +22,6 @@
 	<button label="送出邀請" name="ok_button"/>
 	<button label="取消" name="cancel_button"/>
 	<string name="GroupInvitation">
-		社團邀請
+		群組邀請
 	</string>
 </panel>

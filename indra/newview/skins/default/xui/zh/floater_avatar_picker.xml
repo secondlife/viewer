@@ -36,7 +36,7 @@
 		</panel>
 		<panel label="接近我" name="NearMePanel">
 			<text name="InstructSelectResident">
-				選擇一位附近的人：
+				選擇一個附近的人：
 			</text>
 			<slider label="範圍" name="near_me_range"/>
 			<text name="meters">

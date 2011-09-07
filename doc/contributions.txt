@@ -476,6 +476,7 @@ Identity Euler
 Ima Mechanique
 	OPEN-50
 	OPEN-61
+	OPEN-76
 	STORM-1175
 Imnotgoing Sideways
 Inma Rau
@@ -563,8 +564,13 @@ Jonathan Yap
 	STORM-1313
 	STORM-899
 	STORM-1273
+	STORM-1276
 	STORM-1462
 	STORM-1459
+	STORM-1522
+	STORM-1567
+	STORM-1572
+	STORM-1574
 Kadah Coba
     STORM-1060
 Jondan Lundquist

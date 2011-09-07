@@ -7,7 +7,7 @@
 		You don&apos;t have permission to view group owned land
 	</panel.string>
 	<panel.string name="epmty_view_group_land_text">
-		No entries
+		沒有項目
 	</panel.string>
 	<panel.string name="cant_view_group_accounting_text">
 		You don&apos;t have permission to view the group&apos;s accounting information.
@@ -16,7 +16,7 @@
 		載入中...
 	</panel.string>
 	<panel.string name="land_contrib_error">
-		Unable to set your land contribution
+		無法設定你的土地捐獻
 	</panel.string>
 	<panel name="layout_panel_landmoney">
 		<scroll_list name="group_parcel_list">
@@ -46,7 +46,7 @@
 			[AREA] m²
 		</text>
 		<text name="your_contribution_label">
-			Your contribution:
+			你的捐獻：
 		</text>
 		<text name="your_contribution_units">
 			m²
@@ -58,7 +58,7 @@
 			More land credits are needed to support land in use
 		</text>
 		<text name="group_money_heading">
-			社團 L$
+			群組 L$
 		</text>
 	</panel>
 	<tab_container name="group_money_tab_container">

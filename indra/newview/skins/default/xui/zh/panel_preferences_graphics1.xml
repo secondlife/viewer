@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="圖形" name="Display panel">
 	<text name="QualitySpeed">
-		Quality and speed:
+		品質與速度：
 	</text>
 	<text name="FasterText">
-		Faster
+		最快
 	</text>
 	<text name="BetterText">
-		Better
+		最佳
 	</text>
 	<text name="ShadersPrefText">
-		Low
+		低
 	</text>
 	<text name="ShadersPrefText2">
-		Mid
+		中
 	</text>
 	<text name="ShadersPrefText3">
-		High
+		高
 	</text>
 	<text name="ShadersPrefText4">
-		Ultra
+		超高
 	</text>
 	<panel label="自訂圖形" name="CustomGraphics Panel">
 		<text name="ShadersText">
-			Shaders:
+			著色器：
 		</text>
-		<check_box initial_value="true" label="Transparent Water" name="TransparentWater"/>
-		<check_box initial_value="true" label="Bump mapping and shiny" name="BumpShiny"/>
-		<check_box initial_value="true" label="Basic shaders" name="BasicShaders" tool_tip="Disabling this option may prevent some graphics card drivers from crashing"/>
-		<check_box initial_value="true" label="Atmospheric shaders" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="清澈透明的水" name="TransparentWater"/>
+		<check_box initial_value="true" label="凹凸映射與光澤效果" name="BumpShiny"/>
+		<check_box initial_value="true" label="基本著色" name="BasicShaders" tool_tip="關閉此一選項可能避免部分顯示卡驅動程式損毀當機"/>
+		<check_box initial_value="true" label="大氣著色" name="WindLightUseAtmosShaders"/>
 		<text name="reflection_label">
-			Water Reflections:
+			水文反射：
 		</text>
 		<combo_box name="Reflections">
-			<combo_box.item label="Minimal" name="0"/>
-			<combo_box.item label="Terrain and trees" name="1"/>
+			<combo_box.item label="最小" name="0"/>
+			<combo_box.item label="地形與樹木" name="1"/>
 			<combo_box.item label="全部靜態物件" name="2"/>
 			<combo_box.item label="全部化身與物件" name="3"/>
-			<combo_box.item label="Everything" name="4"/>
+			<combo_box.item label="一切" name="4"/>
 		</combo_box>
-		<slider label="Avatar Physics:" name="AvatarPhysicsDetail"/>
+		<slider label="化身物理：" name="AvatarPhysicsDetail"/>
 		<text name="AvatarPhysicsDetailText">
-			Low
+			低
 		</text>
 		<slider label="描繪距離：" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
@@ -49,54 +49,54 @@
 		</text>
 		<slider label="Max. particle count:" name="MaxParticleCount"/>
 		<slider label="Max. # of non-impostor avatars:" name="MaxNumberAvatarDrawn"/>
-		<slider label="Post process quality:" name="RenderPostProcess"/>
+		<slider label="後製品質：" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
-			Mesh detail:
+			網面細節：
 		</text>
-		<slider label="Objects:" name="ObjectMeshDetail"/>
+		<slider label="物件：" name="ObjectMeshDetail"/>
 		<slider label="Flexiprims:" name="FlexibleMeshDetail"/>
-		<slider label="Trees:" name="TreeMeshDetail"/>
-		<slider label="Avatars:" name="AvatarMeshDetail"/>
-		<slider label="Terrain:" name="TerrainMeshDetail"/>
-		<slider label="Sky:" name="SkyMeshDetail"/>
+		<slider label="樹木：" name="TreeMeshDetail"/>
+		<slider label="化身：" name="AvatarMeshDetail"/>
+		<slider label="地形：" name="TerrainMeshDetail"/>
+		<slider label="天空：" name="SkyMeshDetail"/>
 		<text name="PostProcessText">
-			Low
+			低
 		</text>
 		<text name="ObjectMeshDetailText">
-			Low
+			低
 		</text>
 		<text name="FlexibleMeshDetailText">
-			Low
+			低
 		</text>
 		<text name="TreeMeshDetailText">
-			Low
+			低
 		</text>
 		<text name="AvatarMeshDetailText">
-			Low
+			低
 		</text>
 		<text name="TerrainMeshDetailText">
-			Low
+			低
 		</text>
 		<text name="SkyMeshDetailText">
-			Low
+			低
 		</text>
 		<text name="AvatarRenderingText">
 			Avatar Rendering:
 		</text>
 		<check_box initial_value="true" label="Avatar impostors" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Hardware skinning" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="Avatar cloth" name="AvatarCloth"/>
+		<check_box initial_value="true" label="化身衣服" name="AvatarCloth"/>
 		<text name="TerrainDetailText">
-			Terrain detail:
+			地形細節：
 		</text>
 		<radio_group name="TerrainDetailRadio">
-			<radio_item label="Low" name="0"/>
-			<radio_item label="High" name="2"/>
+			<radio_item label="低" name="0"/>
+			<radio_item label="高" name="2"/>
 		</radio_group>
 		--&gt;
 	</panel>
 	<button label="套用" label_selected="套用" name="Apply"/>
-	<button label="Reset" name="Defaults"/>
+	<button label="重設" name="Defaults"/>
 	<button label="進階" name="Advanced"/>
 	<button label="硬體" label_selected="硬體" name="GraphicsHardwareButton"/>
 </panel>

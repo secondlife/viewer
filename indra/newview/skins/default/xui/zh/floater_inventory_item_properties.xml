@@ -46,7 +46,7 @@
 	</text>
 	<check_box label="覆製" name="CheckEveryoneCopy"/>
 	<text name="GroupLabel">
-		社團：
+		群組：
 	</text>
 	<check_box label="分享" name="CheckShareWithGroup"/>
 	<text name="NextOwnerLabel">

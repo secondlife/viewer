@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="block by name" title="BLOCK OBJECT BY NAME">
+<floater name="block by name" title="依名稱封鎖物件">
 	<text name="message">
 		Block an object:
 	</text>
 	<line_editor name="object_name">
-		Object name
+		物件名稱
 	</line_editor>
 	<text name="note">
 		* Only blocks object text, not sounds

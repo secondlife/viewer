@@ -17,6 +17,6 @@
 		http://slurl.com/Ahern/50/50/50
 	</text>
 	<button label="地圖" name="map_btn"/>
-	<button label="Block" name="block_btn"/>
+	<button label="封鎖" name="block_btn"/>
 	<button label="關閉" name="close_btn"/>
 </floater>

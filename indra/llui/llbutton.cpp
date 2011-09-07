@@ -104,8 +104,7 @@ LLButton::Params::Params()
 	handle_right_mouse("handle_right_mouse")
 {
 	addSynonym(is_toggle, "toggle");
-	held_down_delay.seconds = 0.5f;
-	initial_value.set(LLSD(false), false);
+	changeDefault(initial_value, LLSD(false));
 }
 
 

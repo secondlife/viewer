@@ -1327,7 +1327,7 @@ Prøv igen om lidt.
 		No valid parcel could be found.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Et objekt ved navn &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; ejet af [NAME_SLURL] tilbyder dig [ITEM_SLURL].  For at bruge denne genstand skal du skifte til avanceret tilstand, hvor du kan finde genstanden i din beholdning. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
+		Et objekt ved navn &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; ejet af [NAME_SLURL] tilbyder dig &lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;.  For at bruge denne genstand skal du skifte til avanceret tilstand, hvor du kan finde genstanden i din beholdning. Ønsker du at logge ud for at skifte tilstand? Valg af tilstand findes på login skærmbilledet.
 		<form name="form">
 			<button name="Keep" text="Behold genstand"/>
 			<button name="Discard" text="Afvis genstand"/>
