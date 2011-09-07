@@ -128,8 +128,8 @@ void LLFloaterTranslationSettings::updateControlsEnabledState()
 	getChild<LLTextBox>("google_api_key_label")->setEnabled(on);
 	mGoogleAPIKeyEditor->setEnabled(on);
 
-	mBingAPIKeyEditor->setEnabled(service == "bing");
-	mGoogleAPIKeyEditor->setEnabled(service == "google");
+	mBingAPIKeyEditor->setEnabled(on && service == "bing");
+	mGoogleAPIKeyEditor->setEnabled(on && service == "google");
 }
 
 void LLFloaterTranslationSettings::onBtnOK()
