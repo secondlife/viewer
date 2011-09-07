@@ -2,7 +2,7 @@
 <toggleable_menu name="menu_group_plus">
 	<menu_item_check label="依名稱排序" name="sort_name"/>
 	<menu_item_check label="依狀態排序" name="sort_status"/>
-	<menu_item_check label="View People Icons" name="view_icons"/>
-	<menu_item_check label="View Permissions Granted" name="view_permissions"/>
-	<menu_item_call label="Show Blocked Residents &amp; Objects" name="show_blocked_list"/>
+	<menu_item_check label="察看人群圖示" name="view_icons"/>
+	<menu_item_check label="察看許可權限" name="view_permissions"/>
+	<menu_item_call label="顯示被封鎖的居民與物件" name="show_blocked_list"/>
 </toggleable_menu>

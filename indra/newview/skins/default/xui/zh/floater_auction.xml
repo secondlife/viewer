@@ -6,6 +6,6 @@
 	<check_box initial_value="true" label="Include yellow selection fence" name="fence_check"/>
 	<button label="Snapshot" label_selected="Snapshot" name="snapshot_btn"/>
 	<button label="Sell to Anyone" label_selected="Sell to Anyone" name="sell_to_anyone_btn"/>
-	<button label="Clear Settings" label_selected="Clear Settings" name="reset_parcel_btn"/>
+	<button label="清除設定" label_selected="清除設定" name="reset_parcel_btn"/>
 	<button label="Start Auction" label_selected="Start Auction" name="start_auction_btn"/>
 </floater>

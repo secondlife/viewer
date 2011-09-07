@@ -5,7 +5,7 @@
 			網頁內容
 		</label>
 		<tooltip name="web_tooltip">
-			This location has Web content
+			這位置有網頁內容
 		</tooltip>
 		<playtip name="web_playtip">
 			顯示網頁內容
@@ -35,7 +35,7 @@
 	</widgetset>
 	<widgetset name="audio">
 		<label name="audio_label">
-			Audio
+			音頻
 		</label>
 		<tooltip name="audio_tooltip">
 			There is audio at this location
@@ -61,12 +61,12 @@
 	</mimetype>
 	<mimetype name="audio/*">
 		<label name="audio2_label">
-			Audio
+			音頻
 		</label>
 	</mimetype>
 	<mimetype name="video/*">
 		<label name="video2_label">
-			Video
+			視頻
 		</label>
 	</mimetype>
 	<mimetype name="image/*">
@@ -76,7 +76,7 @@
 	</mimetype>
 	<mimetype name="video/vnd.secondlife.qt.legacy">
 		<label name="vnd.secondlife.qt.legacy_label">
-			影片（QuickTime）
+			視頻（QuickTime）
 		</label>
 	</mimetype>
 	<mimetype name="application/javascript">
@@ -86,7 +86,7 @@
 	</mimetype>
 	<mimetype name="application/ogg">
 		<label name="application/ogg_label">
-			Ogg Audio/Video
+			Ogg 音頻/視頻
 		</label>
 	</mimetype>
 	<mimetype name="application/pdf">
@@ -106,7 +106,7 @@
 	</mimetype>
 	<mimetype name="application/smil">
 		<label name="application/smil_label">
-			Synchronized Multimedia Integration Language (SMIL)
+			同步多媒體整合語言（SMIL）
 		</label>
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
@@ -121,22 +121,22 @@
 	</mimetype>
 	<mimetype name="audio/mid">
 		<label name="audio/mid_label">
-			Audio (MIDI)
+			音頻（MIDI）
 		</label>
 	</mimetype>
 	<mimetype name="audio/mpeg">
 		<label name="audio/mpeg_label">
-			Audio (MP3)
+			音頻（MP3）
 		</label>
 	</mimetype>
 	<mimetype name="audio/x-aiff">
 		<label name="audio/x-aiff_label">
-			Audio (AIFF)
+			音頻（AIFF）
 		</label>
 	</mimetype>
 	<mimetype name="audio/x-wav">
 		<label name="audio/x-wav_label">
-			Audio (WAV)
+			音頻（WAV）
 		</label>
 	</mimetype>
 	<mimetype name="image/bmp">
@@ -186,32 +186,32 @@
 	</mimetype>
 	<mimetype name="video/mpeg">
 		<label name="video/mpeg_label">
-			影片（MPEG）
+			視頻（MPEG）
 		</label>
 	</mimetype>
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
-			影片（MP4）
+			視頻（MP4）
 		</label>
 	</mimetype>
 	<mimetype name="video/quicktime">
 		<label name="video/quicktime_label">
-			影片（QuickTime）
+			視頻（QuickTime）
 		</label>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
 		<label name="video/x-ms-asf_label">
-			影片（Windows Media ASF）
+			視頻（Windows Media ASF）
 		</label>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
 		<label name="video/x-ms-wmv_label">
-			影片（Windows Media WMV）
+			視頻（Windows Media WMV）
 		</label>
 	</mimetype>
 	<mimetype name="video/x-msvideo">
 		<label name="video/x-msvideo_label">
-			影片（AVI）
+			視頻（AVI）
 		</label>
 	</mimetype>
 </mimetypes>

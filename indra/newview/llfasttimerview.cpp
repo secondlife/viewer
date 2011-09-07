@@ -252,7 +252,15 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 				x < mBarEnd[mHoverBarIndex][i])
 			{
 				mHoverID = (*it);
-				mHoverTimer = (*it);	
+				if (mHoverTimer != *it)
+				{
+					// could be that existing tooltip is for a parent and is thus
+					// covering region for this new timer, go ahead and unblock 
+					// so we can create a new tooltip
+					LLToolTipMgr::instance().unblockToolTips();
+					mHoverTimer = (*it);
+				}
+
 				mToolTipRect.set(mBarStart[mHoverBarIndex][i], 
 					mBarRect.mBottom + llround(((F32)(MAX_VISIBLE_HISTORY - mHoverBarIndex + 1)) * ((F32)mBarRect.getHeight() / ((F32)MAX_VISIBLE_HISTORY + 2.f))),
 					mBarEnd[mHoverBarIndex][i],

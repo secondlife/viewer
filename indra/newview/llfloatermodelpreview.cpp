@@ -2280,7 +2280,15 @@ void LLModelLoader::processJointToNodeMapping( domNode* pNode )
 		//Determine if the're any children wrt to this failed node.
 		//This occurs when an armature is exported and ends up being what essentially amounts to
 		//as the root for the visual_scene
-		processChildJoints( pNode );
+		if ( pNode ) 
+		{
+			processChildJoints( pNode );
+		}
+		else 
+		{
+			llinfos<<"Node is NULL"<<llendl;
+		}
+
 	}
 }
 //-----------------------------------------------------------------------------
@@ -3262,8 +3270,14 @@ void LLModelPreview::rebuildUploadData()
 		{
 			for (U32 j = 0; j < mBaseModel.size(); ++j)
 			{
-				mModel[i][j]->matchMaterialOrder(mBaseModel[j]);
-				llassert(mModel[i][j]->mMaterialList == mBaseModel[j]->mMaterialList);
+				
+				int refFaceCnt = 0;
+				int modelFaceCnt = 0;
+				
+				if ( !mModel[i][j]->matchMaterialOrder(mBaseModel[j], refFaceCnt, modelFaceCnt ) )
+				{
+					mFMP->childDisable( "calculate_btn" );
+				}
 			}
 		}
 	}
@@ -4740,6 +4754,42 @@ void LLModelPreview::createPreviewAvatar( void )
 	}
 }
 
+void LLModelPreview::addEmptyFace( LLModel* pTarget )
+{
+	U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
+	
+	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(type_mask, 0);
+	
+	buff->allocateBuffer(1, 3, true);
+	memset( buff->getMappedData(), 0, buff->getSize() );
+	memset( buff->getIndicesPointer(), 0, buff->getIndicesSize() );
+		
+	buff->validateRange( 0, buff->getNumVerts()-1, buff->getNumIndices(), 0 );
+		
+	LLStrider<LLVector3> pos;
+	LLStrider<LLVector3> norm;
+	LLStrider<LLVector2> tc;
+	LLStrider<U16> index;
+		
+	buff->getVertexStrider(pos);
+		
+	if ( type_mask & LLVertexBuffer::MAP_NORMAL )
+	{
+		buff->getNormalStrider(norm);
+	}
+	if ( type_mask & LLVertexBuffer::MAP_TEXCOORD0 )
+	{
+		buff->getTexCoord0Strider(tc);
+	}
+		
+	buff->getIndexStrider(index);
+		
+	//resize face array
+	int faceCnt = pTarget->getNumVolumeFaces();
+	pTarget->setNumVolumeFaces( faceCnt+1 );	
+	pTarget->setVolumeFaceData( faceCnt+1, pos, norm, tc, index, buff->getNumVerts(), buff->getNumIndices() );
+	
+}	
 //-----------------------------------------------------------------------------
 // render()
 //-----------------------------------------------------------------------------
@@ -4951,8 +5001,13 @@ BOOL LLModelPreview::render()
 			{
 				for (U32 j = 0; j < mBaseModel.size(); ++j)
 				{
-					mModel[i][j]->matchMaterialOrder(mBaseModel[j]);
-					llassert(mModel[i][j]->mMaterialList == mBaseModel[j]->mMaterialList);
+					int refFaceCnt = 0;
+					int modelFaceCnt = 0;
+										
+					if ( !mModel[i][j]->matchMaterialOrder(mBaseModel[j], refFaceCnt, modelFaceCnt ) )
+					{
+						mFMP->childDisable( "calculate_btn" );
+					}
 				}
 			}
 		}
@@ -4994,8 +5049,6 @@ BOOL LLModelPreview::render()
 							const std::string& binding = instance.mModel->mMaterialList[i];						
 							const LLImportMaterial& material = instance.mMaterial[binding];
 
-							llassert(binding == model->mMaterialList[i]);
-						
 							glColor4fv(material.mDiffuseColor.mV);
 							if (material.mDiffuseMap.notNull())
 							{

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_sound">
 	<floater.string name="Title">
-		Sound: [NAME]
+		聲音： [NAME]
 	</floater.string>
 	<text name="desc txt">
 		描述：

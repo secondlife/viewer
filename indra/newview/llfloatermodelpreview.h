@@ -342,7 +342,8 @@ public:
 	void updateLodControls(S32 lod);
 	void clearGLODGroup();
 	void onLODParamCommit(S32 lod, bool enforce_tri_limit);
-
+	void addEmptyFace( LLModel* pTarget );
+	
 	const bool getModelPivot( void ) const { return mHasPivot; }
 	void setHasPivot( bool val ) { mHasPivot = val; }
 	void setModelPivot( const LLVector3& pivot ) { mModelPivot = pivot; }

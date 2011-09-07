@@ -50,9 +50,9 @@
 				<stat_bar label="物件" name="simobjects"/>
 				<stat_bar label="Active Objects" name="simactiveobjects"/>
 				<stat_bar label="Active Scripts" name="simactivescripts"/>
-				<stat_bar label="Script Events" name="simscripteps"/>
-				<stat_bar label="Packets In" name="siminpps"/>
-				<stat_bar label="Packets Out" name="simoutpps"/>
+				<stat_bar label="腳本事件" name="simscripteps"/>
+				<stat_bar label="進入封包" name="siminpps"/>
+				<stat_bar label="出去封包" name="simoutpps"/>
 				<stat_bar label="擱置下載" name="simpendingdownloads"/>
 				<stat_bar label="擱置上傳" name="simpendinguploads"/>
 				<stat_bar label="Total Unacked Bytes" name="simtotalunackedbytes"/>

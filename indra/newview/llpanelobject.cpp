@@ -1116,11 +1116,11 @@ void LLPanelObject::getState( )
 				{
 					// since 'None' is no longer an option in the combo box
 					// use 'Plane' as an equivalent sculpt type
-					mCtrlSculptType->setCurrentByID(LLSD(LL_SCULPT_TYPE_PLANE));
+					mCtrlSculptType->setSelectedByValue(LLSD(LL_SCULPT_TYPE_PLANE), true);
 				}
 				else
 				{
-					mCtrlSculptType->setCurrentByID(LLSD(sculpt_stitching));
+					mCtrlSculptType->setSelectedByValue(LLSD(sculpt_stitching), true);
 				}
 				mCtrlSculptType->setEnabled(editable && !isMesh);
 			}

@@ -23,9 +23,9 @@
 		<menu_item_call label="新手套" name="New Gloves"/>
 		<menu_item_call label="新內衣" name="New Undershirt"/>
 		<menu_item_call label="新內褲" name="New Underpants"/>
-		<menu_item_call label="New Alpha Mask" name="New Alpha Mask"/>
+		<menu_item_call label="新半透明遮罩" name="New Alpha Mask"/>
 		<menu_item_call label="新刺青" name="New Tattoo"/>
-		<menu_item_call label="New Physics" name="New Physics"/>
+		<menu_item_call label="新身體物理" name="New Physics"/>
 	</menu>
 	<menu label="新身體部位" name="New Body Parts">
 		<menu_item_call label="新體形" name="New Shape"/>
@@ -51,7 +51,7 @@
 	<menu_item_call label="取代目前的裝扮" name="Replace Outfit"/>
 	<menu_item_call label="添加到目前裝扮" name="Add To Outfit"/>
 	<menu_item_call label="由目前的裝扮移除" name="Remove From Outfit"/>
-	<menu_item_call label="Find Original" name="Find Original"/>
+	<menu_item_call label="尋找原件" name="Find Original"/>
 	<menu_item_call label="Purge Item" name="Purge Item"/>
 	<menu_item_call label="Restore Item" name="Restore Item"/>
 	<menu_item_call label="開啟" name="Open"/>
@@ -71,7 +71,7 @@
 	<menu_item_call label="Play Inworld" name="Animation Play"/>
 	<menu_item_call label="Play Locally" name="Animation Audition"/>
 	<menu_item_call label="送出即時訊息" name="Send Instant Message"/>
-	<menu_item_call label="Offer Teleport..." name="Offer Teleport..."/>
+	<menu_item_call label="發給瞬間傳送請求..." name="Offer Teleport..."/>
 	<menu_item_call label="Start Conference Chat" name="Conference Chat"/>
 	<menu_item_call label="Activate" name="Activate"/>
 	<menu_item_call label="Deactivate" name="Deactivate"/>
@@ -81,7 +81,7 @@
 	<menu label="Attach To" name="Attach To"/>
 	<menu label="Attach To HUD" name="Attach To HUD"/>
 	<menu_item_call label="編輯" name="Wearable Edit"/>
-	<menu_item_call label="Add" name="Wearable Add"/>
+	<menu_item_call label="添加" name="Wearable Add"/>
 	<menu_item_call label="脫下" name="Take Off"/>
 	<menu_item_call label="-- 無選項 --" name="--no options--"/>
 </menu>

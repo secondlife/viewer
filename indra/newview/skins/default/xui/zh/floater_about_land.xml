@@ -30,7 +30,7 @@
 				Anyone
 			</panel.string>
 			<panel.string name="area_text">
-				Area
+				區域
 			</panel.string>
 			<panel.string name="area_size_text">
 				[AREA] m²
@@ -42,7 +42,7 @@
 				You must approve your purchase to modify this land.
 			</panel.string>
 			<panel.string name="group_owned_text">
-				（社團所擁有）
+				（群組所擁有）
 			</panel.string>
 			<panel.string name="profile_text">
 				檔案
@@ -81,13 +81,13 @@
 				分級：
 			</text>
 			<text name="ContentRatingText">
-				成人
+				完全成人
 			</text>
 			<text name="Owner:">
 				擁有者：
 			</text>
 			<text name="Group:">
-				社團：
+				群組：
 			</text>
 			<button label="設定" name="Set..."/>
 			<check_box label="Allow Deed to Group" name="check deed" tool_tip="A group officer can deed this land to the group, so it will be supported by the group&apos;s land allocation."/>
@@ -133,7 +133,7 @@
 			</text>
 			<button label="購買土地" name="Buy Land..."/>
 			<button label="腳本資訊" name="Scripts..."/>
-			<button label="Buy For Group" name="Buy For Group..."/>
+			<button label="為群組購買" name="Buy For Group..."/>
 			<button label="購買通行權" name="Buy Pass..." tool_tip="A pass gives you temporary access to this land."/>
 			<button label="放棄土地" name="Abandon Land..."/>
 			<button label="Reclaim Land" name="Reclaim Land..."/>
@@ -186,7 +186,7 @@
 				分級：
 			</text>
 			<text name="region_maturity_text">
-				成人
+				完全成人
 			</text>
 			<text name="resellable_lbl">
 				Resale:
@@ -238,7 +238,7 @@
 			<button label="顯示" label_selected="顯示" name="ShowOwner"/>
 			<button label="退回" name="ReturnOwner..." tool_tip="Return objects to their owners."/>
 			<text name="Set to group:">
-				Set to group:
+				設定群組：
 			</text>
 			<text name="group_objects_text">
 				[COUNT]
@@ -286,10 +286,10 @@ Only large parcels can be listed in search.
 				This option is disabled because you cannot modify this parcel&apos;s options.
 			</panel.string>
 			<panel.string name="mature_check_mature">
-				Moderate Content
+				適度成人內容
 			</panel.string>
 			<panel.string name="mature_check_adult">
-				成人內容
+				完全成人內容
 			</panel.string>
 			<panel.string name="mature_check_mature_tooltip">
 				Your parcel information or content is considered moderate.
@@ -315,17 +315,17 @@ Only large parcels can be listed in search.
 				建造：
 			</text>
 			<check_box label="任何人" name="edit objects check"/>
-			<check_box label="社團" name="edit group objects check"/>
+			<check_box label="群組" name="edit group objects check"/>
 			<text name="allow_label3">
 				物件進入：
 			</text>
 			<check_box label="任何人" name="all object entry check"/>
-			<check_box label="社團" name="group object entry check"/>
+			<check_box label="群組" name="group object entry check"/>
 			<text name="allow_label4">
 				執行腳本：
 			</text>
 			<check_box label="任何人" name="check other scripts"/>
-			<check_box label="社團" name="check group scripts"/>
+			<check_box label="群組" name="check group scripts"/>
 			<text name="land_options_label">
 				土地選項：
 			</text>
@@ -335,7 +335,7 @@ Only large parcels can be listed in search.
 			<combo_box name="land category with adult">
 				<combo_box.item label="任何類別" name="item0"/>
 				<combo_box.item label="Linden Location" name="item1"/>
-				<combo_box.item label="成人" name="item2"/>
+				<combo_box.item label="完全成人" name="item2"/>
 				<combo_box.item label="Arts &amp; Culture" name="item3"/>
 				<combo_box.item label="Business" name="item4"/>
 				<combo_box.item label="Educational" name="item5"/>
@@ -363,7 +363,7 @@ Only large parcels can be listed in search.
 				<combo_box.item label="Rental" name="item13"/>
 				<combo_box.item label="Other" name="item12"/>
 			</combo_box>
-			<check_box label="Moderate Content" name="MatureCheck" tool_tip=" "/>
+			<check_box label="適度成人內容" name="MatureCheck" tool_tip=" "/>
 			<text name="Snapshot:">
 				快照：
 			</text>
@@ -416,12 +416,12 @@ Only large parcels can be listed in search.
 			</text>
 			<check_box label="Loop" name="media_loop" tool_tip="Play media in a loop.  When the media has finished playing, it will restart from the beginning."/>
 		</panel>
-		<panel label="SOUND" name="land_audio_panel">
+		<panel label="聲音" name="land_audio_panel">
 			<text name="MusicURL:">
-				Music URL:
+				音樂 URL：
 			</text>
 			<text name="Sound:">
-				Sound:
+				聲音：
 			</text>
 			<check_box label="Restrict gesture and object sounds to this parcel" name="check sound local"/>
 			<text name="Voice settings:">
@@ -449,11 +449,11 @@ Only large parcels can be listed in search.
 			</text>
 			<check_box label="Payment Information on File [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Ban unidentified Residents."/>
 			<check_box label="年齡驗證 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Ban Residents who have not verified their age. See the [SUPPORT_SITE] for more information."/>
-			<check_box label="Allow Group Access: [GROUP]" name="GroupCheck" tool_tip="Set group in the General tab."/>
-			<check_box label="Sell passes to:" name="PassCheck" tool_tip="Allows temporary access to this parcel"/>
+			<check_box label="允許出入的群組：[GROUP]" name="GroupCheck" tool_tip="Set group in the General tab."/>
+			<check_box label="出售通行權給：" name="PassCheck" tool_tip="允許暫時出入這個地段"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="Anyone" name="Anyone"/>
-				<combo_box.item label="社團" name="Group"/>
+				<combo_box.item label="群組" name="Group"/>
 			</combo_box>
 			<spinner label="Price in L$:" name="PriceSpin"/>
 			<spinner label="Hours of access:" name="HoursSpin"/>
@@ -462,11 +462,11 @@ Only large parcels can be listed in search.
 					Allowed Residents
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] listed, [MAX] max)"/>
-				<button label="Add" name="add_allowed"/>
-				<button label="Remove" label_selected="Remove" name="remove_allowed"/>
+				<button label="添加" name="add_allowed"/>
+				<button label="移除" label_selected="移除" name="remove_allowed"/>
 			</panel>
 			<panel name="Banned_layout_panel">
-				<text label="Ban" name="BanCheck">
+				<text label="禁止" name="BanCheck">
 					被封鎖的居民
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] listed, [MAX] max)"/>

@@ -4,8 +4,8 @@
      name="Model Preview" title="Upload Model" width="940"
       help_topic="upload_model" >
 
-  <string name="status_idle">Idle</string>
-  <string name="status_parse_error">Dae parsing issue - see log for details.</string>
+  <string name="status_idle"></string>
+  <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
   <string name="status_reading_file">Loading...</string>
   <string name="status_generating_meshes">Generating Meshes...</string>
   <string name="status_vertex_number_overflow">Error: Vertex number is more than 65534, aborted!</string>
@@ -21,11 +21,14 @@
   <string name="mesh_status_mesh_mismatch">Levels of detail have a different number of mesh instances.</string>
   <string name="mesh_status_too_many_vertices">Level of detail has too many vertices.</string>
   <string name="mesh_status_missing_lod">Missing required level of detail.</string>
+  <string name="mesh_status_invalid_material_list">LOD materials are not a subset of reference model.</string>
   <string name="layer_all">All</string> <!-- Text to display in physics layer combo box for "all layers" -->
   <string name="decomposing">Analyzing...</string>
   <string name="simplifying">Simplifying...</string>
   <string name="tbd">TBD</string>
 
+  <text text_color="Yellow" left="10" bottom_delta="0" width="290" height="15" follows="bottom|left|right" name="status">[STATUS]</text>
+  
 <panel
   follows="top|left"
   height="455"
