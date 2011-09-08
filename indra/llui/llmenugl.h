@@ -372,15 +372,16 @@ public:
 			drop_shadow("drop_shadow", true),
 			bg_visible("bg_visible", true),
 			create_jump_keys("create_jump_keys", false),
+			keep_fixed_size("keep_fixed_size", false),
 			bg_color("bg_color",  LLUIColorTable::instance().getColor( "MenuDefaultBgColor" )),
 			scrollable("scrollable", false), 
 			max_scrollable_items("max_scrollable_items", U32_MAX),
 			preferred_width("preferred_width", U32_MAX),
 			shortcut_pad("shortcut_pad")
-			
 		{
 			addSynonym(bg_visible, "opaque");
 			addSynonym(bg_color, "color");
+			addSynonym(can_tear_off, "can_tear_off");
 		}
 	};
 

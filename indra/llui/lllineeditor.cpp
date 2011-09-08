@@ -107,6 +107,7 @@ LLLineEditor::Params::Params()
 	addSynonym(select_on_focus, "select_all_on_focus_received");
 	addSynonym(border, "border");
 	addSynonym(label, "watermark_text");
+	addSynonym(max_length.chars, "max_length");
 }
 
 LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)

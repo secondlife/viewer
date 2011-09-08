@@ -44,7 +44,6 @@
     background_opaque="true" 
     bg_opaque_image="bevel_background">
     <text
-     auto_resize="true"
      halign="center"
      font="SansSerifSmall"
      follows="all"
@@ -58,7 +57,6 @@
      value="L$20" 
      width="40" />
     <button
-     auto_resize="true"
      halign="center"
      font="SansSerifSmall"
      follows="right|top|bottom"
@@ -84,7 +82,6 @@
     top="0"
     width="120"
     height="20"
-    pad_left="5"
     name="mode_combo"
     tool_tip="Select your mode. Choose Basic for fast, easy exploration and chat. Choose Advanced to access more features."
     >
