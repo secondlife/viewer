@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <!-- Additional attributes:
    -->
-<badge border_image="Badge_Border"
+<badge name="badge"
+       border_image="Badge_Border"
        border_color="BadgeBorderColor"
        font="SansSerifSmall"
        image="Badge_Background"

@@ -217,10 +217,7 @@ LLTabContainer::Params::Params()
 	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
 	use_ellipses("use_ellipses"),
 	font_halign("halign")
-{
-	name(std::string("tab_container"));
-	mouse_opaque = false;
-}
+{}
 
 LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 :	LLPanel(p),

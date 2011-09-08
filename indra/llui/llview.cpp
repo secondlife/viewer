@@ -2485,7 +2485,7 @@ void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 	{
 		LLRect parent_rect = parent->getLocalRect();
 		// overwrite uninitialized rect params, using context
-		LLRect last_rect = parent->getLocalRect();
+		LLRect default_rect = parent->getLocalRect();
 
 		bool layout_topleft = (p.layout() == "topleft");
 
@@ -2509,15 +2509,13 @@ void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 			p.rect.height = MIN_WIDGET_HEIGHT;
 		}
 
-		last_rect.translate(0, last_rect.getHeight());
+		default_rect.translate(0, default_rect.getHeight());
 
 		// If there was a recently constructed child, use its rectangle
-		get_last_child_rect(parent, &last_rect);
+		get_last_child_rect(parent, &default_rect);
 
 		if (layout_topleft)
 		{
-			p.bottom_delta.setIfNotProvided(0, false);
-
 			// Invert the sense of bottom_delta for topleft layout
 			if (p.bottom_delta.isProvided())
 			{
@@ -2530,33 +2528,44 @@ void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 			else if (p.top_delta.isProvided())
 			{
 				p.bottom_delta =
-					-(p.top_delta + p.rect.height - last_rect.getHeight());
+					-(p.top_delta + p.rect.height - default_rect.getHeight());
 			}
-			else if (!p.bottom_delta.isProvided()
-					 && !p.left_delta.isProvided()
-					 && !p.top_pad.isProvided()
+			else if (!p.left_delta.isProvided()
 					 && !p.left_pad.isProvided())
 			{
 				// set default position is just below last rect
 				p.bottom_delta.set(-(p.rect.height + VPAD), false);
 			}
+			else
+			{
+				p.bottom_delta.set(0, false);
+			}
 	
 			// default to same left edge
-			p.left_delta.setIfNotProvided(0, false);
+			if (!p.left_delta.isProvided())
+			{
+				p.left_delta.set(0, false);
+			}
 			if (p.left_pad.isProvided())
 			{
 				// left_pad is based on prior widget's right edge
-				p.left_delta.set(p.left_pad + last_rect.getWidth(), false);
+				p.left_delta.set(p.left_pad + default_rect.getWidth(), false);
 			}
 			
-			last_rect.translate(p.left_delta, p.bottom_delta);				
+			default_rect.translate(p.left_delta, p.bottom_delta);				
 		}
 		else
 		{	
 			// set default position is just below last rect
-			p.bottom_delta.setIfNotProvided(-(p.rect.height + VPAD), false);
-			p.left_delta.setIfNotProvided(0, false);
-			last_rect.translate(p.left_delta, p.bottom_delta);
+			if (!p.bottom_delta.isProvided())
+			{
+				p.bottom_delta.set(-(p.rect.height + VPAD), false);
+			}
+			if (!p.left_delta.isProvided())
+			{
+				p.left_delta.set(0, false);
+			}
+			default_rect.translate(p.left_delta, p.bottom_delta);
 		}
 
 		// this handles case where *both* x and x_delta are provided
@@ -2567,12 +2576,30 @@ void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 		// selectively apply rectangle defaults, making sure that
 		// params are not flagged as having been "provided"
 		// as rect params are overconstrained and rely on provided flags
-		p.rect.left.setIfNotProvided(last_rect.mLeft, false);
-		p.rect.bottom.setIfNotProvided(last_rect.mBottom, false);
-		p.rect.top.setIfNotProvided(last_rect.mTop, false);
-		p.rect.right.setIfNotProvided(last_rect.mRight, false);
-		p.rect.width.setIfNotProvided(last_rect.getWidth(), false);
-		p.rect.height.setIfNotProvided(last_rect.getHeight(), false);
+		if (!p.rect.left.isProvided())
+		{
+			p.rect.left.set(default_rect.mLeft, false);
+		}
+		if (!p.rect.bottom.isProvided())
+		{
+			p.rect.bottom.set(default_rect.mBottom, false);
+		}
+		if (!p.rect.top.isProvided())
+		{
+			p.rect.top.set(default_rect.mTop, false);
+		}
+		if (!p.rect.right.isProvided())
+		{
+			p.rect.right.set(default_rect.mRight, false);
+		}
+		if (!p.rect.width.isProvided())
+		{
+			p.rect.width.set(default_rect.getWidth(), false);
+		}
+		if (!p.rect.height.isProvided())
+		{
+			p.rect.height.set(default_rect.getHeight(), false);
+		}
 	}
 }
 

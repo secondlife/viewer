@@ -104,14 +104,17 @@ private:
 	public:
 		ParamDefaults()
 		{
-			// recursively initialize from base class param block
-			((typename PARAM_BLOCK::base_block_t&)mPrototype).fillFrom(ParamDefaults<typename PARAM_BLOCK::base_block_t, DUMMY>::instance().get());
-			// after initializing base classes, look up template file for this param block
+			// look up template file for this param block...
 			const std::string* param_block_tag = getWidgetTag(&typeid(PARAM_BLOCK));
 			if (param_block_tag)
-			{
-				LLUICtrlFactory::loadWidgetTemplate(*param_block_tag, mPrototype);
+			{	// ...and if it exists, back fill values using the most specific template first
+				PARAM_BLOCK params;
+				LLUICtrlFactory::loadWidgetTemplate(*param_block_tag, params);
+				mPrototype.fillFrom(params);
 			}
+			// recursively fill from base class param block
+			((typename PARAM_BLOCK::base_block_t&)mPrototype).fillFrom(ParamDefaults<typename PARAM_BLOCK::base_block_t, DUMMY>::instance().get());
+
 		}
 
 		const PARAM_BLOCK& get() { return mPrototype; }

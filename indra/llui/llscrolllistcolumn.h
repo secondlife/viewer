@@ -135,7 +135,7 @@ public:
 			halign("halign", LLFontGL::LEFT)
 		{
 			// default choice to "dynamic_width"
-			width.dynamic_width = true;
+			changeDefault(width.dynamic_width, true);
 
 			addSynonym(sort_column, "sort");
 		}

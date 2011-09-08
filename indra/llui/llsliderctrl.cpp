@@ -76,8 +76,14 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 		}
 		LLRect label_rect( left, top, label_width, bottom );
 		LLTextBox::Params params(p.slider_label);
-		params.rect.setIfNotProvided(label_rect);
-		params.font.setIfNotProvided(p.font);
+		if (!params.rect.isProvided())
+		{
+			params.rect = label_rect;
+		}
+		if (!params.font.isProvided())
+		{
+			params.font = p.font;
+		}
 		params.initial_value(p.label());
 		mLabelBox = LLUICtrlFactory::create<LLTextBox> (params);
 		addChild(mLabelBox);
@@ -113,15 +119,33 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 	S32 slider_left = label_width ? label_width + sliderctrl_spacing : 0;
 	LLSlider::Params slider_p(p.slider_bar);
 	slider_p.name("slider_bar");
-	slider_p.rect.setIfNotProvided(LLRect(slider_left,top,slider_right,bottom));
-	slider_p.initial_value.setIfNotProvided(p.initial_value().asReal());
-	slider_p.min_value.setIfNotProvided(p.min_value);
-	slider_p.max_value.setIfNotProvided(p.max_value);
-	slider_p.increment.setIfNotProvided(p.increment);
-	slider_p.orientation.setIfNotProvided(p.orientation);
+	if (!slider_p.rect.isProvided())
+	{
+		slider_p.rect = LLRect(slider_left,top,slider_right,bottom);
+	}
+	if (!slider_p.initial_value.isProvided())
+	{
+		slider_p.initial_value = p.initial_value().asReal();
+	}
+	if (!slider_p.min_value.isProvided())
+	{
+		slider_p.min_value = p.min_value;
+	}
+	if (!slider_p.max_value.isProvided())
+	{
+		slider_p.max_value = p.max_value;
+	}
+	if (!slider_p.increment.isProvided())
+	{
+		slider_p.increment = p.increment;
+	}
+	if (!slider_p.orientation.isProvided())
+	{
+		slider_p.orientation = p.orientation;
+	}
 	
-	slider_p.commit_callback.function(&LLSliderCtrl::onSliderCommit);
-	slider_p.control_name(p.control_name);
+	slider_p.commit_callback.function = &LLSliderCtrl::onSliderCommit;
+	slider_p.control_name = p.control_name;
 	slider_p.mouse_down_callback( p.mouse_down_callback );
 	slider_p.mouse_up_callback( p.mouse_up_callback );
 	mSlider = LLUICtrlFactory::create<LLSlider> (slider_p);
@@ -134,8 +158,15 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 		if( p.can_edit_text() )
 		{
 			LLLineEditor::Params line_p(p.value_editor);
-			line_p.rect.setIfNotProvided(text_rect);
-			line_p.font.setIfNotProvided(p.font);
+			if (!line_p.rect.isProvided())
+			{
+				line_p.rect = text_rect;
+			}
+			if (!line_p.font.isProvided())
+			{
+				line_p.font = p.font;
+			}
+			
 			line_p.commit_callback.function(&LLSliderCtrl::onEditorCommit);
 			line_p.prevalidate_callback(&LLTextValidate::validateFloat);
 			mEditor = LLUICtrlFactory::create<LLLineEditor>(line_p);
@@ -149,8 +180,14 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 		else
 		{
 			LLTextBox::Params text_p(p.value_text);
-			text_p.rect.setIfNotProvided(text_rect);
-			text_p.font.setIfNotProvided(p.font);
+			if (!text_p.rect.isProvided())
+			{
+				text_p.rect = text_rect;
+			}
+			if (!text_p.font.isProvided())
+			{
+				text_p.font = p.font;
+			}
 			mTextBox = LLUICtrlFactory::create<LLTextBox>(text_p);
 			addChild(mTextBox);
 		}

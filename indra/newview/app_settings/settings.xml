@@ -4281,6 +4281,17 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
+    <key>InventoryMarketplaceUserStatus</key>
+    <map>
+      <key>Comment</key>
+      <string>Marketplace user status.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
     <key>InventorySortOrder</key>
     <map>
       <key>Comment</key>
