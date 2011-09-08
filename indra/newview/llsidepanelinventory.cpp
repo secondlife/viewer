@@ -68,7 +68,7 @@ static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_
 #define AUTO_EXPAND_INBOX	0
 
 // Temporarily disabling the outbox until we straighten out the API
-#define ENABLE_MERCHANT_OUTBOX_PANEL		0	// keep in sync with ENABLE_INVENTORY_DISPLAY_OUTBOX
+#define ENABLE_MERCHANT_OUTBOX_PANEL		0	// keep in sync with ENABLE_INVENTORY_DISPLAY_OUTBOX, ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU
 
 static const char * const INBOX_BUTTON_NAME = "inbox_btn";
 static const char * const OUTBOX_BUTTON_NAME = "outbox_btn";

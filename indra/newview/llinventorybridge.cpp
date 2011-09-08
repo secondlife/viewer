@@ -70,6 +70,9 @@
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
 
+// Marketplace outbox current disabled
+#define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	0	// keep in sync with ENABLE_INVENTORY_DISPLAY_OUTBOX, ENABLE_MERCHANT_OUTBOX_PANEL
+
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
 typedef std::list<two_uuids_t> two_uuids_list_t;
 
@@ -1060,6 +1063,7 @@ BOOL LLInvFVBridge::canShare() const
 
 BOOL LLInvFVBridge::canListOnMarketplace() const
 {
+#if ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU
 	LLInventoryModel * model = getInventoryModel();
 	const LLViewerInventoryCategory * cat = model->getCategory(mUUID);
 	if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
@@ -1089,10 +1093,14 @@ BOOL LLInvFVBridge::canListOnMarketplace() const
 	}
 
 	return TRUE;
+#else
+	return FALSE;
+#endif
 }
 
 BOOL LLInvFVBridge::canListOnMarketplaceNow() const
 {
+#if ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU
 	if (get_is_item_worn(mUUID))
 	{
 		return FALSE;
@@ -1106,6 +1114,9 @@ BOOL LLInvFVBridge::canListOnMarketplaceNow() const
 	}
 
 	return TRUE;
+#else
+	return FALSE;
+#endif
 }
 
 
