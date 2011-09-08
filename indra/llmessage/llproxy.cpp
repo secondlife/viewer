@@ -180,7 +180,6 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 	mUDPProxy.setAddress(proxy.getAddress());
 	// The connection was successful. We now have the UDP port to send requests that need forwarding to.
 	LL_INFOS("Proxy") << "SOCKS 5 UDP proxy connected on " << mUDPProxy << LL_ENDL;
-	sUDPProxyEnabled = true;
 
 	return SOCKS_OK;
 }
@@ -222,6 +221,11 @@ S32 LLProxy::startSOCKSProxy(LLHost host)
 	{
 		// Shut down the proxy if any of the above steps failed.
 		stopSOCKSProxy();
+	}
+	else
+	{
+		// Connection was successful.
+		sUDPProxyEnabled = true;
 	}
 
 	return status;
