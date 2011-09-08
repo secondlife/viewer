@@ -2764,6 +2764,7 @@ void LLModelLoader::processElement( daeElement* element, bool& badElement )
 
 	//process children
 	daeTArray< daeSmartRef<daeElement> > children = element->getChildren();
+	int childCount = children.getCount();
 	for (S32 i = 0; i < children.getCount(); i++)
 	{
 		processElement(children[i],badElement);
@@ -3456,6 +3457,12 @@ void LLModelPreview::setPhysicsFromLOD(S32 lod)
 
 void LLModelPreview::clearIncompatible(S32 lod)
 {
+	//Don't discard models if specified model is the physic rep
+	if ( lod == LLModel::LOD_PHYSICS )
+	{
+		return;
+	}
+
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
 	{ //clear out any entries that aren't compatible with this model
 		if (i != lod)
