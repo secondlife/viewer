@@ -101,7 +101,8 @@ LLButton::Params::Params()
 	commit_on_return("commit_on_return", true),
 	use_draw_context_alpha("use_draw_context_alpha", true),
 	badge("badge"),
-	handle_right_mouse("handle_right_mouse")
+	handle_right_mouse("handle_right_mouse"),
+	held_down_delay("held_down_delay")
 {
 	addSynonym(is_toggle, "toggle");
 	changeDefault(initial_value, LLSD(false));
