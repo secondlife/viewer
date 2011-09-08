@@ -63,7 +63,8 @@
          width="212"
          visible="false">
         <panel_camera_item
-          name="front_view">
+          name="front_view"
+          top="0">
           <panel_camera_item.mousedown_callback
             function="CameraPresets.ChangeView"
             parameter="front_view" />
@@ -78,6 +79,7 @@
         </panel_camera_item>
         <panel_camera_item
           name="group_view"
+          top="34"
           top_pad="4">
           <panel_camera_item.mousedown_callback
             function="CameraPresets.ChangeView"
@@ -93,6 +95,7 @@
         </panel_camera_item>
         <panel_camera_item
           name="rear_view"
+          top="68"
           layout="topleft"
           top_pad="4">
           <panel_camera_item.mousedown_callback
@@ -121,7 +124,8 @@
           width="212"
           visible="false">
         <panel_camera_item
-          name="object_view">
+          name="object_view"
+          top="0">
           <panel_camera_item.mousedown_callback
             function="CameraPresets.ChangeView"
             parameter="object_view" />
@@ -136,6 +140,7 @@
         </panel_camera_item>
         <panel_camera_item
           name="mouselook_view"
+          top="34"
           layout="topleft">
           <panel_camera_item.mousedown_callback
             function="CameraPresets.ChangeView"
