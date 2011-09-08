@@ -1,10 +1,11 @@
 /** 
- * @file llprocessor_test.cpp
- * @date 2010-06-01
+ * @file llsingleton_test.cpp
+ * @date 2011-08-11
+ * @brief Unit test for the LLSingleton class
  *
- * $LicenseInfo:firstyear=2010&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
