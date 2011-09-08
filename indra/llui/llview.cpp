@@ -47,6 +47,7 @@
 #include "v3color.h"
 #include "lluictrlfactory.h"
 #include "lltooltip.h"
+#include "llsdutil.h"
 
 // for ui edit hack
 #include "llbutton.h"
@@ -2605,4 +2606,25 @@ const LLViewDrawContext& LLViewDrawContext::getCurrentContext()
 		return default_context;
 		
 	return *sDrawContextStack.back();
+}
+
+LLSD LLView::getInfo(void)
+{
+	LLSD info;
+	addInfo(info);
+	return info;
+}
+
+void LLView::addInfo(LLSD & info)
+{
+	info["path"] = getPathname();
+	info["class"] = typeid(*this).name();
+	info["visible"] = getVisible();
+	info["visible_chain"] = isInVisibleChain();
+	info["enabled"] = getEnabled();
+	info["enabled_chain"] = isInEnabledChain();
+	info["available"] = isAvailable();
+	LLRect rect(calcScreenRect());
+	info["rect"] = LLSDMap("left", rect.mLeft)("top", rect.mTop)
+				("right", rect.mRight)("bottom", rect.mBottom);
 }

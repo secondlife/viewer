@@ -516,6 +516,9 @@ public:
 	virtual S32	notify(const LLSD& info) { return 0;};
 
 	static const LLViewDrawContext& getDrawContext();
+	
+	// Returns useful information about this ui widget.
+	LLSD getInfo(void);
 
 protected:
 	void			drawDebugRect();
@@ -546,7 +549,8 @@ protected:
 	LLView* childrenHandleToolTip(S32 x, S32 y, MASK mask);
 
 	ECursorType mHoverCursor;
-	
+
+	virtual void addInfo(LLSD & info);
 private:
 
 	template <typename METHOD, typename XDATA>

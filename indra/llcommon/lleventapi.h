@@ -149,6 +149,11 @@ public:
          * @endcode
          */
         LLSD& operator[](const LLSD::String& key) { return mResp[key]; }
+		
+		 /**
+		 * set the response to the given data
+		 */
+		void setResponse(LLSD const & response){ mResp = response; }
 
         LLSD mResp, mReq;
         LLSD::String mKey;

@@ -135,18 +135,6 @@ protected:
 
 namespace {
 
-void insertViewInformation(LLEventAPI::Response & response, LLView * target)
-{
-	// Get info about this LLView* for when we send response.
-	response["path"] = target->getPathname();
-	response["class"] = typeid(*target).name();
-	response["visible"] = target->getVisible();
-	response["visible_chain"] = target->isInVisibleChain();
-	response["enabled"] = target->getEnabled();
-	response["enabled_chain"] = target->isInEnabledChain();
-	response["available"] = target->isAvailable();
-}
-
 // helper for getMask()
 MASK lookupMask_(const std::string& maskname)
 {
@@ -219,10 +207,7 @@ void LLWindowListener::getInfo(LLSD const & evt)
 			LLUI::resolvePath(gViewerWindow->getRootView(), path);
 		if (target_view != 0)
 		{
-			insertViewInformation(response, target_view);
-			LLRect rect(target_view->calcScreenRect());
-			response["rect"] = LLSDMap("left", rect.mLeft)("top", rect.mTop)
-				("right", rect.mRight)("bottom", rect.mBottom);
+			response.setResponse(target_view->getInfo());
 		}
 		else 
 		{
@@ -253,7 +238,7 @@ void LLWindowListener::keyDown(LLSD const & evt)
 		}
 		else if(target_view->isAvailable())
 		{
-			insertViewInformation(response, target_view);
+			response.setResponse(target_view->getInfo());
 			
 			gFocusMgr.setKeyboardFocus(target_view);
 			KEY key = getKEY(evt);
@@ -290,7 +275,7 @@ void LLWindowListener::keyUp(LLSD const & evt)
 		}
 		else if (target_view->isAvailable())
 		{
-			insertViewInformation(response, target_view);
+			response.setResponse(target_view->getInfo());
 
 			gFocusMgr.setKeyboardFocus(target_view);
 			mKbGetter()->handleTranslatedKeyUp(getKEY(evt), getMask(evt));
@@ -370,12 +355,7 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
 											"specified invalid \"path\": '" << path << "'"));
 		}
 
-		insertViewInformation(response, target);
-
-		// Don't show caller the LLView's own relative rectangle; that only
-		// tells its dimensions. Provide actual location on screen.
-		LLRect rect(target->calcScreenRect());
-		response["rect"] = LLSDMap("left", rect.mLeft)("top", rect.mTop)("right", rect.mRight)("bottom", rect.mBottom);
+		response.setResponse(target->getInfo());
 
 		// The intent of this test is to prevent trying to drill down to a
 		// widget in a hidden floater, or on a tab that's not current, etc.
@@ -397,6 +377,7 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
 
 		if (! has_pos)
 		{
+			LLRect rect(target->calcScreenRect());
 			pos.set(rect.getCenterX(), rect.getCenterY());
 			// nonstandard warning tactic: probably usual case; we want event
 			// sender to know synthesized (x, y), but maybe don't need to log?
