@@ -3,7 +3,7 @@
  can_close="true"
  can_tear_off="false"
  height="315"
- help_topic="objects_weight_floater"
+ help_topic="object_weights"
  layout="topleft"
  name="object_weights"
  save_rect="true"
@@ -337,6 +337,6 @@
      left="10"
      name="help_SLURL"
      top_pad="10"
-     value="[secondlife:///www.secondlife.com What is all this?...]"
+     value="[secondlife:///app/help/object_weights What is all this?...]"
      width="180" />
 </floater>

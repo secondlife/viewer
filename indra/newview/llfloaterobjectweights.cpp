@@ -33,68 +33,36 @@
 #include "lltextbox.h"
 
 #include "llagent.h"
-#include "llselectmgr.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 
-/**
- * struct LLCrossParcelFunctor
- *
- * A functor that checks whether a bounding box for all
- * selected objects crosses a region or parcel bounds.
- */
-struct LLCrossParcelFunctor : public LLSelectedObjectFunctor
+// virtual
+bool LLCrossParcelFunctor::apply(LLViewerObject* obj)
 {
-	/*virtual*/ bool apply(LLViewerObject* obj)
+	// Add the root object box.
+	mBoundingBox.addBBoxAgent(LLBBox(obj->getPositionRegion(), obj->getRotationRegion(), obj->getScale() * -0.5f, obj->getScale() * 0.5f).getAxisAligned());
+
+	// Extend the bounding box across all the children.
+	LLViewerObject::const_child_list_t children = obj->getChildren();
+	for (LLViewerObject::const_child_list_t::const_iterator iter = children.begin();
+		 iter != children.end(); iter++)
 	{
-		// Add the root object box.
-		mBoundingBox.addBBoxAgent(LLBBox(obj->getPositionRegion(), obj->getRotationRegion(), obj->getScale() * -0.5f, obj->getScale() * 0.5f).getAxisAligned());
-
-		// Extend the bounding box across all the children.
-		LLViewerObject::const_child_list_t children = obj->getChildren();
-		for (LLViewerObject::const_child_list_t::const_iterator iter = children.begin();
-			 iter != children.end(); iter++)
-		{
-			LLViewerObject* child = *iter;
-			mBoundingBox.addBBoxAgent(LLBBox(child->getPositionRegion(), child->getRotationRegion(), child->getScale() * -0.5f, child->getScale() * 0.5f).getAxisAligned());
-		}
-
-		bool result = false;
-
-		LLViewerRegion* region = obj->getRegion();
-		if (region)
-		{
-			std::vector<LLBBox> boxes;
-			boxes.push_back(mBoundingBox);
-			result = region->objectsCrossParcel(boxes);
-		}
-
-		return result;
+		LLViewerObject* child = *iter;
+		mBoundingBox.addBBoxAgent(LLBBox(child->getPositionRegion(), child->getRotationRegion(), child->getScale() * -0.5f, child->getScale() * 0.5f).getAxisAligned());
 	}
 
-private:
-	LLBBox	mBoundingBox;
-};
+	bool result = false;
 
-/**
- * Class LLLandImpactsObserver
- *
- * An observer class to monitor parcel selection and update
- * the land impacts data from a parcel containing the selected object.
- */
-class LLLandImpactsObserver : public LLParcelObserver
-{
-public:
-	virtual void changed()
+	LLViewerRegion* region = obj->getRegion();
+	if (region)
 	{
-		LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::getTypedInstance<LLFloaterObjectWeights>("object_weights");
-		if(object_weights_floater)
-		{
-			object_weights_floater->updateLandImpacts();
-		}
+		std::vector<LLBBox> boxes;
+		boxes.push_back(mBoundingBox);
+		result = region->objectsCrossParcel(boxes);
 	}
-};
 
+	return result;
+}
 
 LLFloaterObjectWeights::LLFloaterObjectWeights(const LLSD& key)
 :	LLFloater(key),
@@ -107,22 +75,12 @@ LLFloaterObjectWeights::LLFloaterObjectWeights(const LLSD& key)
 	mSelectedOnLand(NULL),
 	mRezzedOnLand(NULL),
 	mRemainingCapacity(NULL),
-	mTotalCapacity(NULL),
-	mLandImpactsObserver(NULL)
+	mTotalCapacity(NULL)
 {
-	mLandImpactsObserver = new LLLandImpactsObserver();
-	LLViewerParcelMgr::getInstance()->addObserver(mLandImpactsObserver);
 }
 
 LLFloaterObjectWeights::~LLFloaterObjectWeights()
 {
-	mObjectSelection = NULL;
-	mParcelSelection = NULL;
-
-	mSelectMgrConnection.disconnect();
-
-	LLViewerParcelMgr::getInstance()->removeObserver(mLandImpactsObserver);
-	delete mLandImpactsObserver;
 }
 
 // virtual
@@ -147,21 +105,8 @@ BOOL LLFloaterObjectWeights::postBuild()
 // virtual
 void LLFloaterObjectWeights::onOpen(const LLSD& key)
 {
-	mSelectMgrConnection = LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLFloaterObjectWeights::refresh, this));
-
-	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
-	mParcelSelection = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
-
 	refresh();
-}
-
-// virtual
-void LLFloaterObjectWeights::onClose(bool app_quitting)
-{
-	mSelectMgrConnection.disconnect();
-
-	mObjectSelection = NULL;
-	mParcelSelection = NULL;
+	updateLandImpacts(LLViewerParcelMgr::getInstance()->getFloatingParcelSelection()->getParcel());
 }
 
 // virtual
@@ -190,9 +135,8 @@ void LLFloaterObjectWeights::setErrorStatus(U32 status, const std::string& reaso
 	toggleWeightsLoadingIndicators(false);
 }
 
-void LLFloaterObjectWeights::updateLandImpacts()
+void LLFloaterObjectWeights::updateLandImpacts(const LLParcel* parcel)
 {
-	LLParcel *parcel = mParcelSelection->getParcel();
 	if (!parcel || LLSelectMgr::getInstance()->getSelection()->isEmpty())
 	{
 		updateIfNothingSelected();
@@ -241,21 +185,6 @@ void LLFloaterObjectWeights::refresh()
 
 			toggleLandImpactsLoadingIndicators(false);
 		}
-		else
-		{
-			LLViewerObject* selected_object = mObjectSelection->getFirstObject();
-			if (selected_object)
-			{
-				// Select a parcel at the currently selected object's position.
-				LLViewerParcelMgr::getInstance()->selectParcelAt(selected_object->getPositionGlobal());
-
-				toggleLandImpactsLoadingIndicators(true);
-			}
-			else
-			{
-				llwarns << "Failed to get selected object" << llendl;
-			}
-		}
 
 		LLViewerRegion* region = gAgent.getRegion();
 		if (region && region->capabilitiesReceived())
@@ -269,6 +198,9 @@ void LLFloaterObjectWeights::refresh()
 			std::string url = region->getCapability("ResourceCostSelected");
 			if (!url.empty())
 			{
+				// Update the transaction id before the new fetch request
+				generateTransactionID();
+
 				LLAccountingCostManager::getInstance()->fetchCosts(Roots, url, getObserverHandle());
 				toggleWeightsLoadingIndicators(true);
 			}
@@ -278,6 +210,12 @@ void LLFloaterObjectWeights::refresh()
 			llwarns << "Failed to get region capabilities" << llendl;
 		}
 	}
+}
+
+// virtual
+void LLFloaterObjectWeights::generateTransactionID()
+{
+	mTransactionID.generate();
 }
 
 void LLFloaterObjectWeights::toggleWeightsLoadingIndicators(bool visible)

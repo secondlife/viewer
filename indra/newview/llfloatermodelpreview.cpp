@@ -120,6 +120,19 @@ const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
 
+// "Retain%" decomp parameter has values from 0.0 to 1.0 by 0.01
+// But according to the UI spec for upload model floater, this parameter
+// should be represented by Retain spinner with values from 1 to 100 by 1.
+// To achieve this, RETAIN_COEFFICIENT is used while creating spinner
+// and when value is requested from spinner.
+const double RETAIN_COEFFICIENT = 100;
+
+// "Cosine%" decomp parameter has values from 0.9 to 1 by 0.001
+// But according to the UI spec for upload model floater, this parameter
+// should be represented by Smooth combobox with only 10 values.
+// So this const is used as a size of Smooth combobox list.
+const S32 SMOOTH_VALUES_NUMBER = 10;
+
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
 
@@ -395,21 +408,23 @@ BOOL LLFloaterModelPreview::postBuild()
 		return FALSE;
 	}
 
-	childSetAction("lod_browse", onBrowseLOD, this);
-
 	childSetCommitCallback("cancel_btn", onCancel, this);
 	childSetCommitCallback("crease_angle", onGenerateNormalsCommit, this);
-	childSetCommitCallback("generate_normals", onGenerateNormalsCommit, this);
+	getChild<LLCheckBoxCtrl>("gen_normals")->setCommitCallback(boost::bind(&LLFloaterModelPreview::toggleGenarateNormals, this));
 
 	childSetCommitCallback("lod_generate", onAutoFillCommit, this);
 
-	childSetCommitCallback("lod_mode", onLODParamCommit, this);
-	childSetCommitCallback("lod_error_threshold", onLODParamCommit, this);
-	childSetCommitCallback("lod_triangle_limit", onLODParamCommitTriangleLimit, this);
-	childSetCommitCallback("build_operator", onLODParamCommit, this);
-	childSetCommitCallback("queue_mode", onLODParamCommit, this);
-	childSetCommitCallback("border_mode", onLODParamCommit, this);
-	childSetCommitCallback("share_tolerance", onLODParamCommit, this);
+	for (S32 lod = 0; lod <= LLModel::LOD_HIGH; ++lod)
+	{
+		LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
+		lod_source_combo->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLoDSourceCommit, this, lod));
+		lod_source_combo->setCurrentByIndex(mLODMode[lod]);
+
+		getChild<LLButton>("lod_browse_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onBrowseLOD, this, lod));
+		getChild<LLComboBox>("lod_mode_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, false));
+		getChild<LLSpinCtrl>("lod_error_threshold_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, false));
+		getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, true));
+	}
 
 	childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
 	childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
@@ -430,24 +445,14 @@ BOOL LLFloaterModelPreview::postBuild()
 	childSetCommitCallback("import_scale", onImportScaleCommit, this);
 	childSetCommitCallback("pelvis_offset", onPelvisOffsetCommit, this);
 
-	childSetCommitCallback("lod_file_or_limit", refresh, this);
-	childSetCommitCallback("physics_load_radio", onPhysicsLoadRadioCommit, this);
-	//childSetCommitCallback("physics_optimize", refresh, this);
-	//childSetCommitCallback("physics_use_hull", refresh, this);
+	getChild<LLCheckBoxCtrl>("show_edges")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+	getChild<LLCheckBoxCtrl>("show_physics")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+	getChild<LLCheckBoxCtrl>("show_textures")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+	getChild<LLCheckBoxCtrl>("show_skin_weight")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+	getChild<LLCheckBoxCtrl>("show_joint_positions")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
 
 	childDisable("upload_skin");
 	childDisable("upload_joints");
-
-	mViewOptionMenuButton = getChild<LLMenuButton>("options_gear_btn");
-
-	mCommitCallbackRegistrar.add("ModelImport.ViewOption.Action", boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _2));
-	mEnableCallbackRegistrar.add("ModelImport.ViewOption.Check", boost::bind(&LLFloaterModelPreview::isViewOptionChecked, this, _2));
-	mEnableCallbackRegistrar.add("ModelImport.ViewOption.Enabled", boost::bind(&LLFloaterModelPreview::isViewOptionEnabled, this, _2));
-
-
-
-	mViewOptionMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_model_import_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mViewOptionMenuButton->setMenu(mViewOptionMenu, LLMenuButton::MP_BOTTOM_LEFT);
 
 	initDecompControls();
 
@@ -541,11 +546,11 @@ void LLFloaterModelPreview::initModelPreview()
 	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, _1));
 }
 
-void LLFloaterModelPreview::onViewOptionChecked(const LLSD& userdata)
+void LLFloaterModelPreview::onViewOptionChecked(LLUICtrl* ctrl)
 {
 	if (mModelPreview)
 	{
-		mModelPreview->mViewOption[userdata.asString()] = !mModelPreview->mViewOption[userdata.asString()];
+		mModelPreview->mViewOption[ctrl->getName()] = !mModelPreview->mViewOption[ctrl->getName()];
 		
 		mModelPreview->refresh();
 	}
@@ -563,12 +568,12 @@ bool LLFloaterModelPreview::isViewOptionChecked(const LLSD& userdata)
 
 bool LLFloaterModelPreview::isViewOptionEnabled(const LLSD& userdata)
 {
-	return !mViewOptionDisabled[userdata.asString()];
+	return childIsEnabled(userdata.asString());
 }
 
 void LLFloaterModelPreview::setViewOptionEnabled(const std::string& option, bool enabled)
 {
-	mViewOptionDisabled[option] = !enabled;
+	childSetEnabled(option, enabled);
 }
 
 void LLFloaterModelPreview::enableViewOption(const std::string& option)
@@ -646,29 +651,6 @@ void LLFloaterModelPreview::onPelvisOffsetCommit( LLUICtrl*, void* userdata )
 }
 
 //static
-void LLFloaterModelPreview::onPhysicsLoadRadioCommit( LLUICtrl*, void *userdata)
-{
-	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
-	if (fmp)
-	{
-		if (fmp->childGetValue("physics_use_lod").asBoolean())
-		{
-			onPhysicsUseLOD(NULL,NULL);
-		}
-		if (fmp->childGetValue("physics_load_from_file").asBoolean())
-		{
-			
-		}
-		LLModelPreview *model_preview = fmp->mModelPreview;
-		if (model_preview)
-		{
-			model_preview->refresh();
-			model_preview->updateStatusMessages();
-		}
-	}
-}
-
-//static
 void LLFloaterModelPreview::onUploadJointsCommit(LLUICtrl*,void* userdata)
 {
 	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
@@ -722,6 +704,12 @@ void LLFloaterModelPreview::onGenerateNormalsCommit(LLUICtrl* ctrl, void* userda
 	fp->mModelPreview->generateNormals();
 }
 
+void LLFloaterModelPreview::toggleGenarateNormals()
+{
+	bool enabled = childGetValue("gen_normals").asBoolean();
+	childSetEnabled("crease_angle", enabled);
+}
+
 //static
 void LLFloaterModelPreview::onExplodeCommit(LLUICtrl* ctrl, void* userdata)
 {
@@ -738,19 +726,9 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 	fp->mModelPreview->genLODs();
 }
 
-//static
-void LLFloaterModelPreview::onLODParamCommit(LLUICtrl* ctrl, void* userdata)
+void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 {
-	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
-
-	fp->mModelPreview->onLODParamCommit(false);
-}
-
-//static
-void LLFloaterModelPreview::onLODParamCommitTriangleLimit(LLUICtrl* ctrl, void* userdata)
-{
-	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
-	fp->mModelPreview->onLODParamCommit(true);
+	mModelPreview->onLODParamCommit(lod, enforce_tri_limit);
 }
 
 
@@ -936,20 +914,32 @@ void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 	{
 		LLCDParam* param = (LLCDParam*) data;
 		std::string name(param->mName);
-		sInstance->mDecompParams[name] = ctrl->getValue();
+
+		LLSD value = ctrl->getValue();
+
+		if("Retain%" == name)
+		{
+			value = ctrl->getValue().asReal() / RETAIN_COEFFICIENT;
+		}
+
+		sInstance->mDecompParams[name] = value;
 
 		if (name == "Simplify Method")
 		{
-			 if (ctrl->getValue().asInteger() == 0)
-			 {
-				sInstance->childSetVisible("Retain%", true);
-				sInstance->childSetVisible("Detail Scale", false);
-			 }
-			else
+			bool show_retain = false;
+			bool show_detail = true;
+
+			if (ctrl->getValue().asInteger() == 0)
 			{
-				sInstance->childSetVisible("Retain%", false);
-				sInstance->childSetVisible("Detail Scale", true);
+				 show_retain = true;
+				 show_detail = false;
 			}
+
+			sInstance->childSetVisible("Retain%", show_retain);
+			sInstance->childSetVisible("Retain%_label", show_retain);
+
+			sInstance->childSetVisible("Detail Scale", show_detail);
+			sInstance->childSetVisible("Detail Scale label", show_detail);
 		}
 	}
 }
@@ -1005,14 +995,38 @@ void LLFloaterModelPreview::onPhysicsBrowse(LLUICtrl* ctrl, void* userdata)
 //static
 void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 {
+	S32 num_modes = 4;
 	S32 which_mode = 3;
+	static S32 previous_mode = which_mode;
+
 	LLCtrlSelectionInterface* iface = sInstance->childGetSelectionInterface("physics_lod_combo");
 	if (iface)
 	{
 		which_mode = iface->getFirstSelectedIndex();
 	}
 
-	sInstance->mModelPreview->setPhysicsFromLOD(which_mode);
+	S32 file_mode = iface->getItemCount() - 1;
+	bool file_browse = which_mode == file_mode;
+	bool lod_to_file = file_browse && (previous_mode != file_mode);
+	bool file_to_lod = !file_browse && (previous_mode == file_mode);
+
+	if (!lod_to_file)
+	{
+		which_mode = num_modes - which_mode;
+		sInstance->mModelPreview->setPhysicsFromLOD(which_mode);
+	}
+
+	if (lod_to_file || file_to_lod)
+	{
+		LLModelPreview *model_preview = sInstance->mModelPreview;
+		if (model_preview)
+		{
+			model_preview->refresh();
+			model_preview->updateStatusMessages();
+		}
+	}
+
+	previous_mode = which_mode;
 }
 
 //static 
@@ -1104,8 +1118,9 @@ void LLFloaterModelPreview::initDecompControls()
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mFloat);
 				//llinfos << "Type: float, Default: " << param[i].mDefault.mFloat << llendl;
 
-				LLSliderCtrl* slider = getChild<LLSliderCtrl>(name);
-				if (slider)
+
+				LLUICtrl* ctrl = getChild<LLUICtrl>(name);
+				if (LLSliderCtrl* slider = dynamic_cast<LLSliderCtrl*>(ctrl))
 				{
 					slider->setMinValue(param[i].mDetails.mRange.mLow.mFloat);
 					slider->setMaxValue(param[i].mDetails.mRange.mHigh.mFloat);
@@ -1113,20 +1128,65 @@ void LLFloaterModelPreview::initDecompControls()
 					slider->setValue(param[i].mDefault.mFloat);
 					slider->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 				}
+				else if (LLSpinCtrl* spinner = dynamic_cast<LLSpinCtrl*>(ctrl))
+				{
+					bool is_retain_ctrl = "Retain%" == name;
+					double coefficient = is_retain_ctrl ? RETAIN_COEFFICIENT : 1.f;
+
+					spinner->setMinValue(param[i].mDetails.mRange.mLow.mFloat * coefficient);
+					spinner->setMaxValue(param[i].mDetails.mRange.mHigh.mFloat * coefficient);
+					spinner->setIncrement(param[i].mDetails.mRange.mDelta.mFloat * coefficient);
+					spinner->setValue(param[i].mDefault.mFloat * coefficient);
+					spinner->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+				}
+				else if (LLComboBox* combo_box = dynamic_cast<LLComboBox*>(ctrl))
+				{
+					float min = param[i].mDetails.mRange.mLow.mFloat;
+					float max = param[i].mDetails.mRange.mHigh.mFloat;
+					float delta = param[i].mDetails.mRange.mDelta.mFloat;
+
+					if ("Cosine%" == name)
+					{
+						createSmoothComboBox(combo_box, min, max);
+					}
+					else
+					{
+						for(float value = min; value <= max; value += delta)
+						{
+							std::string label = llformat("%.1f", value);
+							combo_box->add(label, value, ADD_BOTTOM, true);
+						}
+						combo_box->setValue(param[i].mDefault.mFloat);
+
+					}
+
+					combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+				}
 			}
 			else if (param[i].mType == LLCDParam::LLCD_INTEGER)
 			{
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mIntOrEnumValue);
 				//llinfos << "Type: integer, Default: " << param[i].mDefault.mIntOrEnumValue << llendl;
 
-				LLSliderCtrl* slider = getChild<LLSliderCtrl>(name);
-				if (slider)
+
+				LLUICtrl* ctrl = getChild<LLUICtrl>(name);
+				if (LLSliderCtrl* slider = dynamic_cast<LLSliderCtrl*>(ctrl))
 				{
 					slider->setMinValue(param[i].mDetails.mRange.mLow.mIntOrEnumValue);
 					slider->setMaxValue(param[i].mDetails.mRange.mHigh.mIntOrEnumValue);
 					slider->setIncrement(param[i].mDetails.mRange.mDelta.mIntOrEnumValue);
 					slider->setValue(param[i].mDefault.mIntOrEnumValue);
 					slider->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+				}
+				else if (LLComboBox* combo_box = dynamic_cast<LLComboBox*>(ctrl))
+				{
+					for(int k = param[i].mDetails.mRange.mLow.mIntOrEnumValue; k<=param[i].mDetails.mRange.mHigh.mIntOrEnumValue; k+=param[i].mDetails.mRange.mDelta.mIntOrEnumValue)
+					{
+						std::string name = llformat("%.1d", k);
+						combo_box->add(name, k, ADD_BOTTOM, true);
+					}
+					combo_box->setValue(param[i].mDefault.mIntOrEnumValue);
+					combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 				}
 			}
 			else if (param[i].mType == LLCDParam::LLCD_BOOLEAN)
@@ -1173,6 +1233,22 @@ void LLFloaterModelPreview::initDecompControls()
 	}
 
 	childSetCommitCallback("physics_explode", LLFloaterModelPreview::onExplodeCommit, this);
+}
+
+void LLFloaterModelPreview::createSmoothComboBox(LLComboBox* combo_box, float min, float max)
+{
+	float delta = (max - min) / SMOOTH_VALUES_NUMBER;
+	int ilabel = 0;
+
+	combo_box->add("0 (none)", ADD_BOTTOM, true);
+
+	for(float value = min + delta; value < max; value += delta)
+	{
+		std::string label = (++ilabel == SMOOTH_VALUES_NUMBER) ? "10 (max)" : llformat("%.1d", ilabel);
+		combo_box->add(label, value, ADD_BOTTOM, true);
+	}
+
+
 }
 
 //-----------------------------------------------------------------------------
@@ -3428,7 +3504,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 	
 	if (lod == mPreviewLOD)
 	{
-		mFMP->childSetText("lod_file", mLODFile[mPreviewLOD]);
+		mFMP->childSetText("lod_file_" + lod_name[lod], mLODFile[lod]);
 	}
 	else if (lod == LLModel::LOD_PHYSICS)
 	{
@@ -3732,21 +3808,21 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 	U32 lod_mode = 0;
 
-	LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode");
+	LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode_" + lod_name[which_lod]);
 	if (iface)
 	{
 		lod_mode = iface->getFirstSelectedIndex();
 	}
-	mRequestedLoDMode[mPreviewLOD] = lod_mode;
+	mRequestedLoDMode[which_lod] = lod_mode;
 
-	F32 lod_error_threshold = mFMP->childGetValue("lod_error_threshold").asReal();
+	F32 lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal();
 
 	if (lod_mode == 0)
 	{
 		lod_mode = GLOD_TRIANGLE_BUDGET;
 		if (which_lod != -1)
 		{
-			limit = mFMP->childGetValue("lod_triangle_limit").asInteger();
+			limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asInteger();
 		}
 	}
 	else
@@ -3754,89 +3830,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		lod_mode = GLOD_ERROR_THRESHOLD;
 	}
 
-	U32 build_operator = 0;
-
-	iface = mFMP->childGetSelectionInterface("build_operator");
-	if (iface)
-	{
-		build_operator = iface->getFirstSelectedIndex();
-	}
-	mRequestedBuildOperator[mPreviewLOD] = build_operator; 
-
-	if (build_operator == 0)
-	{
-		build_operator = GLOD_OPERATOR_EDGE_COLLAPSE;
-	}
-	else
-	{
-		build_operator = GLOD_OPERATOR_HALF_EDGE_COLLAPSE;
-	}
-
-	U32 queue_mode=0;
-	iface = mFMP->childGetSelectionInterface("queue_mode");
-	if (iface)
-	{
-		queue_mode = iface->getFirstSelectedIndex();
-	}
-	mRequestedQueueMode[mPreviewLOD] = queue_mode;
-
-	if (queue_mode == 0)
-	{
-		queue_mode = GLOD_QUEUE_GREEDY;
-	}
-	else if (queue_mode == 1)
-	{
-		queue_mode = GLOD_QUEUE_LAZY;
-	}
-	else
-	{
-		queue_mode = GLOD_QUEUE_INDEPENDENT;
-	}
-
-	U32 border_mode = 0;
-
-	iface = mFMP->childGetSelectionInterface("border_mode");
-	if (iface)
-	{
-		border_mode = iface->getFirstSelectedIndex();
-	}
-	mRequestedBorderMode[mPreviewLOD] = border_mode;
-
-	if (border_mode == 0)
-	{
-		border_mode = GLOD_BORDER_UNLOCK;
-	}
-	else
-	{
-		border_mode = GLOD_BORDER_LOCK;
-	}
-
 	bool object_dirty = false;
-	if (border_mode != mBuildBorderMode)
-	{
-		mBuildBorderMode = border_mode;
-		object_dirty = true;
-	}
-
-	if (queue_mode != mBuildQueueMode)
-	{
-		mBuildQueueMode = queue_mode;
-		object_dirty = true;
-	}
-
-	if (build_operator != mBuildOperator)
-	{
-		mBuildOperator = build_operator;
-		object_dirty = true;
-	}
-
-	F32 share_tolerance = mFMP->childGetValue("share_tolerance").asReal();
-	if (share_tolerance != mBuildShareTolerance)
-	{
-		mBuildShareTolerance = share_tolerance;
-		object_dirty = true;
-	}
-	mRequestedShareTolerance[mPreviewLOD] = share_tolerance;
 
 	if (mGroup == 0)
 	{
@@ -3885,18 +3879,6 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 				tri_count += num_indices/3;
 				stop_gloderror();
 			}
-
-			glodObjectParameteri(mObject[mdl], GLOD_BUILD_OPERATOR, build_operator);
-			stop_gloderror();
-
-			glodObjectParameteri(mObject[mdl], GLOD_BUILD_QUEUE_MODE, queue_mode);
-			stop_gloderror();
-
-			glodObjectParameteri(mObject[mdl], GLOD_BUILD_BORDER_MODE, border_mode);
-			stop_gloderror();
-
-			glodObjectParameterf(mObject[mdl], GLOD_BUILD_SHARE_TOLERANCE, share_tolerance);
-			stop_gloderror();
 
 			glodBuildObject(mObject[mdl]);
 			stop_gloderror();
@@ -4272,6 +4254,8 @@ void LLModelPreview::updateStatusMessages()
 			icon = mFMP->getChild<LLIconCtrl>("lod_status_message_icon");
 			icon->setImage(img);
 		}
+
+		updateLodControls(lod);
 	}
 
 
@@ -4378,12 +4362,14 @@ void LLModelPreview::updateStatusMessages()
 			{
 				fmp->enableViewOption("show_physics");
 				mViewOption["show_physics"] = true;
+				fmp->childSetValue("show_physics", true);
 			}
 		}
 		else
 		{
 			fmp->disableViewOption("show_physics");
 			mViewOption["show_physics"] = false;
+			fmp->childSetValue("show_physics", false);
 
 		}
 
@@ -4437,130 +4423,13 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
-	const char* lod_controls[] =
+	if (mFMP->childGetValue("physics_lod_combo").asString() == "From file")
 	{
-		"lod_mode",
-		"lod_triangle_limit",
-		"lod_error_tolerance",
-		"build_operator_text",
-		"queue_mode_text",
-		"border_mode_text",
-		"share_tolerance_text",
-		"build_operator",
-		"queue_mode",
-		"border_mode",
-		"share_tolerance"
-	};
-	const U32 num_lod_controls = sizeof(lod_controls)/sizeof(char*);
-
-	const char* file_controls[] =
-	{
-		"lod_browse",
-		"lod_file"
-	};
-	const U32 num_file_controls = sizeof(file_controls)/sizeof(char*);
-
-	if (fmp)
-	{
-		//enable/disable controls based on radio groups
-		if (mFMP->childGetValue("lod_from_file").asBoolean())
-		{ 
-			fmp->mLODMode[mPreviewLOD] = 0;
-			for (U32 i = 0; i < num_file_controls; ++i)
-			{
-				mFMP->childEnable(file_controls[i]);
-			}
-
-			for (U32 i = 0; i < num_lod_controls; ++i)
-			{
-				mFMP->childDisable(lod_controls[i]);
-			}
-		}
-		else if (mFMP->childGetValue("lod_none").asBoolean())
-		{
-			fmp->mLODMode[mPreviewLOD] = 2;
-			for (U32 i = 0; i < num_file_controls; ++i)
-			{
-				mFMP->childDisable(file_controls[i]);
-			}
-
-			for (U32 i = 0; i < num_lod_controls; ++i)
-			{
-				mFMP->childDisable(lod_controls[i]);
-			}
-
-			if (!mModel[mPreviewLOD].empty())
-			{
-				mModel[mPreviewLOD].clear();
-				mScene[mPreviewLOD].clear();
-				mVertexBuffer[mPreviewLOD].clear();
-
-				//this can cause phasing issues with the UI, so reenter this function and return
-				updateStatusMessages();
-				return;
-			}
-		}
-		else
-		{	// auto generate, also the default case for wizard which has no radio selection
-			fmp->mLODMode[mPreviewLOD] = 1;
-
-			//don't actually regenerate lod when refreshing UI
-			mLODFrozen = true;
-
-			for (U32 i = 0; i < num_file_controls; ++i)
-			{
-				mFMP->childDisable(file_controls[i]);
-			}
-
-			for (U32 i = 0; i < num_lod_controls; ++i)
-			{
-				mFMP->childEnable(lod_controls[i]);
-			}
-
-			//if (threshold)
-			{	
-				LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold");
-				LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit");
-
-				limit->setMaxValue(mMaxTriangleLimit);
-				limit->forceSetValue(mRequestedTriangleCount[mPreviewLOD]);
-
-				threshold->forceSetValue(mRequestedErrorThreshold[mPreviewLOD]);
-
-				mFMP->getChild<LLComboBox>("lod_mode")->selectNthItem(mRequestedLoDMode[mPreviewLOD]);
-				mFMP->getChild<LLComboBox>("build_operator")->selectNthItem(mRequestedBuildOperator[mPreviewLOD]);
-				mFMP->getChild<LLComboBox>("queue_mode")->selectNthItem(mRequestedQueueMode[mPreviewLOD]);
-				mFMP->getChild<LLComboBox>("border_mode")->selectNthItem(mRequestedBorderMode[mPreviewLOD]);
-				mFMP->getChild<LLSpinCtrl>("share_tolerance")->setValue(mRequestedShareTolerance[mPreviewLOD]);
-
-				if (mRequestedLoDMode[mPreviewLOD] == 0)
-				{
-					limit->setVisible(true);
-					threshold->setVisible(false);
-
-					limit->setMaxValue(mMaxTriangleLimit);
-					limit->setIncrement(mMaxTriangleLimit/32);
-				}
-				else
-				{
-					limit->setVisible(false);
-					threshold->setVisible(true);
-				}
-			}
-
-			mLODFrozen = false;
-		}
-	}
-
-	if (mFMP->childGetValue("physics_load_from_file").asBoolean())
-	{
-		mFMP->childDisable("physics_lod_combo");
 		mFMP->childEnable("physics_file");
 		mFMP->childEnable("physics_browse");
 	}
 	else
 	{
-		mFMP->childEnable("physics_lod_combo");
 		mFMP->childDisable("physics_file");
 		mFMP->childDisable("physics_browse");
 	}
@@ -4580,6 +4449,115 @@ void LLModelPreview::updateStatusMessages()
 
 	mModelUpdatedSignal(true);
 
+}
+
+void LLModelPreview::updateLodControls(S32 lod)
+{
+	const char* lod_controls[] =
+	{
+		"lod_mode_",
+		"lod_triangle_limit_",
+		"lod_error_threshold_"
+	};
+	const U32 num_lod_controls = sizeof(lod_controls)/sizeof(char*);
+
+	const char* file_controls[] =
+	{
+		"lod_browse_",
+		"lod_file_",
+	};
+	const U32 num_file_controls = sizeof(file_controls)/sizeof(char*);
+
+	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+	if (!fmp) return;
+
+	LLComboBox* lod_combo = mFMP->findChild<LLComboBox>("lod_source_" + lod_name[lod]);
+	if (!lod_combo) return;
+
+	S32 lod_mode = lod_combo->getCurrentIndex();
+	if (lod_mode == 0) // LoD from file
+	{
+		fmp->mLODMode[lod] = 0;
+		for (U32 i = 0; i < num_file_controls; ++i)
+		{
+			mFMP->childShow(file_controls[i] + lod_name[lod]);
+		}
+
+		for (U32 i = 0; i < num_lod_controls; ++i)
+		{
+			mFMP->childHide(lod_controls[i] + lod_name[lod]);
+		}
+	}
+	else if (lod_mode == 2) // use LoD above
+	{
+		fmp->mLODMode[lod] = 2;
+		for (U32 i = 0; i < num_file_controls; ++i)
+		{
+			mFMP->childHide(file_controls[i] + lod_name[lod]);
+		}
+
+		for (U32 i = 0; i < num_lod_controls; ++i)
+		{
+			mFMP->childHide(lod_controls[i] + lod_name[lod]);
+		}
+
+		if (lod < LLModel::LOD_HIGH)
+		{
+			mModel[lod] = mModel[lod + 1];
+			mScene[lod] = mScene[lod + 1];
+			mVertexBuffer[lod].clear();
+
+			// Also update lower LoD
+			if (lod > LLModel::LOD_IMPOSTOR)
+			{
+				updateLodControls(lod - 1);
+			}
+		}
+	}
+	else // auto generate, the default case for all LoDs except High
+	{
+		fmp->mLODMode[lod] = 1;
+
+		//don't actually regenerate lod when refreshing UI
+		mLODFrozen = true;
+
+		for (U32 i = 0; i < num_file_controls; ++i)
+		{
+			mFMP->childHide(file_controls[i] + lod_name[lod]);
+		}
+
+		for (U32 i = 0; i < num_lod_controls; ++i)
+		{
+			mFMP->childShow(lod_controls[i] + lod_name[lod]);
+		}
+
+
+		LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold_" + lod_name[lod]);
+		LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod]);
+
+		limit->setMaxValue(mMaxTriangleLimit);
+		limit->forceSetValue(mRequestedTriangleCount[lod]);
+
+		threshold->forceSetValue(mRequestedErrorThreshold[lod]);
+
+		mFMP->getChild<LLComboBox>("lod_mode_" + lod_name[lod])->selectNthItem(mRequestedLoDMode[lod]);
+
+		if (mRequestedLoDMode[lod] == 0)
+		{
+			limit->setVisible(true);
+			threshold->setVisible(false);
+
+			limit->setMaxValue(mMaxTriangleLimit);
+			limit->setIncrement(mMaxTriangleLimit/32);
+		}
+		else
+		{
+			limit->setVisible(false);
+			threshold->setVisible(true);
+		}
+
+		mLODFrozen = false;
+	}
 }
 
 void LLModelPreview::setPreviewTarget(F32 distance)
@@ -5473,8 +5451,7 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 
 		LLComboBox* combo_box = mFMP->getChild<LLComboBox>("preview_lod_combo");
 		combo_box->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
-		mFMP->childSetTextArg("lod_table_footer", "[DETAIL]", mFMP->getString(lod_name[mPreviewLOD]));
-		mFMP->childSetText("lod_file", mLODFile[mPreviewLOD]);
+		mFMP->childSetText("lod_file_" + lod_name[mPreviewLOD], mLODFile[mPreviewLOD]);
 
 		// the wizard has three lod drop downs
 		LLComboBox* combo_box2 = mFMP->getChild<LLComboBox>("preview_lod_combo2");
@@ -5495,25 +5472,16 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 			mFMP->childSetColor(lod_triangles_name[i], color);
 			mFMP->childSetColor(lod_vertices_name[i], color);
 		}
-
-		LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
-		if (fmp)
-		{
-			LLRadioGroup* radio = fmp->getChild<LLRadioGroup>("lod_file_or_limit");
-			radio->selectNthItem(fmp->mLODMode[mPreviewLOD]);
-		}
 	}
 	refresh();
 	updateStatusMessages();
 }
 
-//static
-void LLFloaterModelPreview::onBrowseLOD(void* data)
+void LLFloaterModelPreview::onBrowseLOD(S32 lod)
 {
 	assert_main_thread();
 
-	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) data;
-	mp->loadModel(mp->mModelPreview->mPreviewLOD);
+	loadModel(lod);
 }
 
 //static
@@ -5525,6 +5493,7 @@ void LLFloaterModelPreview::onReset(void* user_data)
 	LLModelPreview* mp = fmp->mModelPreview;
 	std::string filename = mp->mLODFile[3]; 
 
+	fmp->resetDisplayOptions();
 	//reset model preview
 	fmp->initModelPreview();
 
@@ -5554,8 +5523,7 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 }
 
 
-//static
-void LLFloaterModelPreview::refresh(LLUICtrl* ctrl, void* user_data)
+void LLFloaterModelPreview::refresh()
 {
 	sInstance->toggleCalculateButton(true);
 	sInstance->mModelPreview->mDirty = true;
@@ -5576,12 +5544,11 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 	}
 }
 
-void LLModelPreview::onLODParamCommit(bool enforce_tri_limit)
+void LLModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 {
 	if (!mLODFrozen)
 	{
-		genLODs(mPreviewLOD, 3, enforce_tri_limit);
-		updateStatusMessages();
+		genLODs(lod, 3, enforce_tri_limit);
 		refresh();
 	}
 }
@@ -5630,16 +5597,33 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 	if (visible)
 	{
 		std::string tbd = getString("tbd");
-		childSetTextArg("weights_right", "[EQ]", tbd);
-		childSetTextArg("weights_left", "[ST]", tbd);
-		childSetTextArg("weights_right", "[SIM]", tbd);
-		childSetTextArg("weights_left", "[PH]", tbd);
+		childSetTextArg("prim_weight", "[EQ]", tbd);
+		childSetTextArg("download_weight", "[ST]", tbd);
+		childSetTextArg("server_weight", "[SIM]", tbd);
+		childSetTextArg("physics_weight", "[PH]", tbd);
 		childSetTextArg("upload_fee", "[FEE]", tbd);
 		childSetTextArg("price_breakdown", "[STREAMING]", tbd);
 		childSetTextArg("price_breakdown", "[PHYSICS]", tbd);
 		childSetTextArg("price_breakdown", "[INSTANCES]", tbd);
 		childSetTextArg("price_breakdown", "[TEXTURES]", tbd);
 		childSetTextArg("price_breakdown", "[MODEL]", tbd);
+	}
+}
+
+void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
+{
+	mModelPreview->updateLodControls(lod);
+	refresh();
+}
+
+void LLFloaterModelPreview::resetDisplayOptions()
+{
+	std::map<std::string,bool>::iterator option_it = mModelPreview->mViewOption.begin();
+
+	for(;option_it != mModelPreview->mViewOption.end(); ++option_it)
+	{
+		LLUICtrl* ctrl = getChild<LLUICtrl>(option_it->first);
+		ctrl->setValue(false);
 	}
 }
 
@@ -5656,10 +5640,10 @@ void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
 	const LLSD& result = mModelPhysicsFee;
 	mUploadModelUrl = result["url"].asString();
 
-	childSetTextArg("weights_right", "[EQ]", llformat("%0.3f", result["resource_cost"].asReal()));
-	childSetTextArg("weights_left", "[ST]", llformat("%0.3f", result["model_streaming_cost"].asReal()));
-	childSetTextArg("weights_right", "[SIM]", llformat("%0.3f", result["simulation_cost"].asReal()));
-	childSetTextArg("weights_left", "[PH]", llformat("%0.3f", result["physics_cost"].asReal()));
+	childSetTextArg("prim_weight", "[EQ]", llformat("%0.3f", result["resource_cost"].asReal()));
+	childSetTextArg("download_weight", "[ST]", llformat("%0.3f", result["model_streaming_cost"].asReal()));
+	childSetTextArg("server_weight", "[SIM]", llformat("%0.3f", result["simulation_cost"].asReal()));
+	childSetTextArg("physics_weight", "[PH]", llformat("%0.3f", result["physics_cost"].asReal()));
 	childSetTextArg("upload_fee", "[FEE]", llformat("%d", result["upload_price"].asInteger()));
 	childSetTextArg("price_breakdown", "[STREAMING]", llformat("%d", result["upload_price_breakdown"]["mesh_streaming"].asInteger()));
 	childSetTextArg("price_breakdown", "[PHYSICS]", llformat("%d", result["upload_price_breakdown"]["mesh_physics"].asInteger()));

@@ -3633,5 +3633,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Surface">Surface</string>
   <string name="Solid">Solid</string>
   <string name="Wrap">Wrap</string>
+  <string name="Preview">Preview</string>
+  <string name="Normal">Normal</string>
 
   </strings>
