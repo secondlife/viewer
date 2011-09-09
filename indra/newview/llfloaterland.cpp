@@ -566,10 +566,7 @@ void LLPanelLandGeneral::refresh()
 		if (regionp)
 		{
 			insert_maturity_into_textbox(mContentRating, gFloaterView->getParentFloater(this), MATURITY);
-
-			std::string land_type;
-			bool is_land_type_localized = LLTrans::findString(land_type, regionp->getSimProductName());
-			mLandType->setText(is_land_type_localized ? land_type : regionp->getSimProductName());
+			mLandType->setText(regionp->getLocalizedSimProductName());
 		}
 
 		// estate owner/manager cannot edit other parts of the parcel
@@ -1818,6 +1815,7 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 	mClearBtn(NULL),
 	mMatureCtrl(NULL),
 	mPushRestrictionCtrl(NULL),
+	mSeeAvatarsCtrl(NULL),
 	mParcel(parcel)
 {
 }
@@ -1859,6 +1857,9 @@ BOOL LLPanelLandOptions::postBuild()
 	
 	mPushRestrictionCtrl = getChild<LLCheckBoxCtrl>( "PushRestrictCheck");
 	childSetCommitCallback("PushRestrictCheck", onCommitAny, this);
+
+	mSeeAvatarsCtrl = getChild<LLCheckBoxCtrl>( "SeeAvatarsCheck");
+	childSetCommitCallback("SeeAvatarsCheck", onCommitAny, this);
 
 	mCheckShowDirectory = getChild<LLCheckBoxCtrl>( "ShowDirectoryCheck");
 	childSetCommitCallback("ShowDirectoryCheck", onCommitAny, this);
@@ -1952,7 +1953,7 @@ void LLPanelLandOptions::refresh()
 
 		mCheckEditLand		->set(FALSE);
 		mCheckEditLand		->setEnabled(FALSE);
-
+		
 		mCheckSafe			->set(FALSE);
 		mCheckSafe			->setEnabled(FALSE);
 
@@ -1967,6 +1968,9 @@ void LLPanelLandOptions::refresh()
 
 		mPushRestrictionCtrl->set(FALSE);
 		mPushRestrictionCtrl->setEnabled(FALSE);
+
+		mSeeAvatarsCtrl->set(TRUE);
+		mSeeAvatarsCtrl->setEnabled(FALSE);
 
 		mLandingTypeCombo->setCurrentByIndex(0);
 		mLandingTypeCombo->setEnabled(FALSE);
@@ -2001,7 +2005,7 @@ void LLPanelLandOptions::refresh()
 		BOOL can_change_terraform = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_EDIT);
 		mCheckEditLand		->set( parcel->getAllowTerraform() );
 		mCheckEditLand		->setEnabled( can_change_terraform );
-
+		
 		mCheckSafe			->set( !parcel->getAllowDamage() );
 		mCheckSafe			->setEnabled( can_change_options );
 
@@ -2026,6 +2030,10 @@ void LLPanelLandOptions::refresh()
 			mPushRestrictionCtrl->setLabel(getString("push_restrict_text"));
 			mPushRestrictionCtrl->setEnabled(can_change_options);
 		}
+
+		mSeeAvatarsCtrl->set(parcel->getSeeAVs());
+		mSeeAvatarsCtrl->setLabel(getString("see_avs_text"));
+		mSeeAvatarsCtrl->setEnabled(can_change_options && parcel->getHaveNewParcelLimitData());
 
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
 														GP_LAND_SET_LANDING_POINT);
@@ -2231,6 +2239,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL allow_publish		= FALSE;
 	BOOL mature_publish		= self->mMatureCtrl->get();
 	BOOL push_restriction	= self->mPushRestrictionCtrl->get();
+	BOOL see_avs			= self->mSeeAvatarsCtrl->get();
 	BOOL show_directory		= self->mCheckShowDirectory->get();
 	// we have to get the index from a lookup, not from the position in the dropdown!
 	S32  category_index		= LLParcel::getCategoryFromString(self->mCategoryCombo->getSelectedValue());
@@ -2264,6 +2273,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setCategory((LLParcel::ECategory)category_index);
 	parcel->setLandingType((LLParcel::ELandingType)landing_type_index);
 	parcel->setSnapshotID(snapshot_id);
+	parcel->setSeeAVs(see_avs);
 
 	// Send current parcel data upstream to server
 	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
@@ -2870,13 +2880,7 @@ void LLPanelLandCovenant::refresh()
 	}
 
 	LLTextBox* region_landtype = getChild<LLTextBox>("region_landtype_text");
-	if (region_landtype)
-	{
-		std::string land_type;
-		bool is_land_type_localized = LLTrans::findString(land_type, region->getSimProductName());
-
-		region_landtype->setText(is_land_type_localized ? land_type : region->getSimProductName());
-	}
+	region_landtype->setText(region->getLocalizedSimProductName());
 	
 	LLTextBox* region_maturity = getChild<LLTextBox>("region_maturity_text");
 	if (region_maturity)

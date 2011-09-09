@@ -34,6 +34,8 @@
 #include "llviewercamera.h"
 #include "llimage.h"
 #include "llwlparammanager.h"
+#include "llviewershadermgr.h"
+#include "llglslshader.h"
 #include "llsky.h"
 #include "llvowlsky.h"
 #include "llviewerregion.h"
@@ -60,15 +62,26 @@ LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 		llerrs << "Error: Failed to load cloud noise image " << cloudNoiseFilename << llendl;
 	}
 
-	cloudNoiseFile->load(cloudNoiseFilename);
+	if(cloudNoiseFile->load(cloudNoiseFilename))
+	{
+		sCloudNoiseRawImage = new LLImageRaw();
 
-	sCloudNoiseRawImage = new LLImageRaw();
+		if(cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f))
+		{
+			//debug use			
+			lldebugs << "cloud noise raw image width: " << sCloudNoiseRawImage->getWidth() << " : height: " << sCloudNoiseRawImage->getHeight() << " : components: " << 
+				(S32)sCloudNoiseRawImage->getComponents() << " : data size: " << sCloudNoiseRawImage->getDataSize() << llendl ;
+			llassert_always(sCloudNoiseRawImage->getData()) ;
 
-	cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f);
+			sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+		}
+		else
+		{
+			sCloudNoiseRawImage = NULL ;
+		}
+	}
 
-	sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
-
-	LLWLParamManager::instance()->propagateParameters();
+	LLWLParamManager::getInstance()->propagateParameters();
 }
 
 LLDrawPoolWLSky::~LLDrawPoolWLSky()
@@ -178,7 +191,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 	// clamping and allow the star_alpha param to brighten the stars.
 	bool error;
 	LLColor4 star_alpha(LLColor4::black);
-	star_alpha.mV[3] = LLWLParamManager::instance()->mCurParams.getFloat("star_brightness", error) / 2.f;
+	star_alpha.mV[3] = LLWLParamManager::getInstance()->mCurParams.getFloat("star_brightness", error) / 2.f;
 	llassert_always(!error);
 
 	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
@@ -187,26 +200,40 @@ void LLDrawPoolWLSky::renderStars(void) const
 	glRotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
 	// gl_FragColor.rgb = gl_Color.rgb;
 	// gl_FragColor.a = gl_Color.a * star_alpha.a;
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
-	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT_X2, LLTexUnit::TBS_CONST_ALPHA, LLTexUnit::TBS_TEX_ALPHA);
-	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, star_alpha.mV);
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gCustomAlphaProgram.bind();
+		gCustomAlphaProgram.uniform1f("custom_alpha", star_alpha.mV[3]);
+	}
+	else
+	{
+		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
+		gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT_X2, LLTexUnit::TBS_CONST_ALPHA, LLTexUnit::TBS_TEX_ALPHA);
+		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, star_alpha.mV);
+	}
 
 	gSky.mVOWLSkyp->drawStars();
 
 	gGL.popMatrix();
-	
-	// and disable the combiner states
-	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gCustomAlphaProgram.unbind();
+	}
+	else
+	{
+		// and disable the combiner states
+		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+	}
 }
 
 void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
 {
-	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS))
+	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
 	{
 		LLGLEnable blend(GL_BLEND);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-
+		
 		gGL.getTexUnit(0)->bind(sCloudNoiseTexture);
 
 		cloud_shader->bind();
@@ -240,6 +267,10 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 	if (gSky.mVOSkyp->getMoon().getDraw() && face->getGeomCount())
 	{
+		if (gPipeline.canUseVertexShaders())
+		{
+			gUIProgram.bind();
+		}
 		// *NOTE: even though we already bound this texture above for the
 		// stars register combiners, we bind again here for defensive reasons,
 		// since LLImageGL::bind detects that it's a noop, and optimizes it out.
@@ -255,6 +286,11 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
 		face->renderIndexed();
+
+		if (gPipeline.canUseVertexShaders())
+		{
+			gUIProgram.unbind();
+		}
 	}
 }
 
@@ -266,7 +302,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 	}
 	LLFastTimer ftm(FTM_RENDER_WL_SKY);
 
-	const F32 camHeightLocal = LLWLParamManager::instance()->getDomeOffset() * LLWLParamManager::instance()->getDomeRadius();
+	const F32 camHeightLocal = LLWLParamManager::getInstance()->getDomeOffset() * LLWLParamManager::getInstance()->getDomeRadius();
 
 	LLGLSNoFog disableFog;
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
@@ -313,7 +349,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 	}
 	LLFastTimer ftm(FTM_RENDER_WL_SKY);
 
-	const F32 camHeightLocal = LLWLParamManager::instance()->getDomeOffset() * LLWLParamManager::instance()->getDomeRadius();
+	const F32 camHeightLocal = LLWLParamManager::getInstance()->getDomeOffset() * LLWLParamManager::getInstance()->getDomeRadius();
 
 	LLGLSNoFog disableFog;
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
@@ -373,5 +409,8 @@ void LLDrawPoolWLSky::cleanupGL()
 //static
 void LLDrawPoolWLSky::restoreGL()
 {
-	sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+	if(sCloudNoiseRawImage.notNull())
+	{
+		sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+	}
 }

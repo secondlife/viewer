@@ -34,6 +34,9 @@
 	<string name="StartupInitializingVFS">
 		VFS wird initialisiert...
 	</string>
+	<string name="StartupRequireDriverUpdate">
+		Grafikinitialisierung fehlgeschlagen. Bitte aktualisieren Sie Ihren Grafiktreiber.
+	</string>
 	<string name="ProgressRestoring">
 		Wird wiederhergestellt...
 	</string>
@@ -90,6 +93,12 @@
 	</string>
 	<string name="LoginQuicktimeOK">
 		QuickTime wurde initialisiert.
+	</string>
+	<string name="LoginRequestSeedCapGrant">
+		Regionsfähigkeiten anfordern...
+	</string>
+	<string name="LoginRetrySeedCapGrant">
+		Regionsfähigkeiten anfordern. Versuch [NUMBER]...
 	</string>
 	<string name="LoginWaitingForRegionHandshake">
 		Region-Handshake...
@@ -1192,6 +1201,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
+	<string name="InventoryInboxNoItems">
+		Objekte, die auf dem Marktplatz gekauft wurden, werden hierher geliefert.
+	</string>
+	<string name="InventoryOutboxNoItems">
+		Objekte hierher ziehen, um Sie in Ihrer Marktplatz-Storefront zum Verkauf anzubieten.
+	</string>
 	<string name="no_transfer" value=" (kein Transferieren)"/>
 	<string name="no_modify" value=" (kein Bearbeiten)"/>
 	<string name="no_copy" value=" (kein Kopieren)"/>
@@ -1237,9 +1252,6 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="Since Logoff" value=" - Seit Abmeldung"/>
 	<string name="InvFolder My Inventory">
 		Mein Inventar
-	</string>
-	<string name="InvFolder My Favorites">
-		Meine Favoriten
 	</string>
 	<string name="InvFolder Library">
 		Bibliothek
@@ -1299,10 +1311,10 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Gesten
 	</string>
 	<string name="InvFolder Favorite">
-		Favoriten
+		Meine Favoriten
 	</string>
 	<string name="InvFolder favorite">
-		Favoriten
+		Meine Favoriten
 	</string>
 	<string name="InvFolder Current Outfit">
 		Aktuelles Outfit
@@ -1324,6 +1336,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="InvFolder All">
 		Alle
+	</string>
+	<string name="no_attachments">
+		Keine Anhänge getragen
 	</string>
 	<string name="Buy">
 		Kaufen
@@ -1634,6 +1649,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="SummaryForTheWeek" value="Zusammenfassung für diese Woche, beginnend am "/>
 	<string name="NextStipendDay" value=". Der nächste Stipendium-Tag ist "/>
+	<string name="GroupPlanningDate">
+		[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]
+	</string>
 	<string name="GroupIndividualShare" value="                      Gruppenanteil       Einzelanteil"/>
 	<string name="GroupColumn" value="Gruppe"/>
 	<string name="Balance">
@@ -1659,6 +1677,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="IMTeen">
 		Teen
+	</string>
+	<string name="Anyone">
+		jeder
 	</string>
 	<string name="RegionInfoError">
 		Fehler
@@ -1873,7 +1894,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="RegionNoCovenantOtherOwner">
 		Für diesen Grundbesitz liegt kein Vertrag vor. Das Land auf diesem Grundbesitz wird vom Grundbesitzer und nicht von Linden Lab verkauft.  Für Informationen zum Verkauf setzen Sie sich bitte mit dem Grundbesitzer in Verbindung.
 	</string>
-	<string name="covenant_last_modified" value="Zuletzt geändert:"/>
+	<string name="covenant_last_modified" value="Zuletzt geändert: "/>
 	<string name="none_text" value=" (keiner) "/>
 	<string name="never_text" value=" (nie) "/>
 	<string name="GroupOwned">
@@ -1881,6 +1902,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="Public">
 		Öffentlich
+	</string>
+	<string name="LocalSettings">
+		Lokale Einstellungen
+	</string>
+	<string name="RegionSettings">
+		Regionseinstellungen
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Klicks: [TELEPORT] teleportieren, [MAP] Karte, [PROFILE] Profil
@@ -1953,6 +1980,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="GroupMoneyDebits">
 		Soll
+	</string>
+	<string name="GroupMoneyDate">
+		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
 	</string>
 	<string name="ViewerObjectContents">
 		Inhalte
@@ -3727,6 +3757,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="LocationCtrlGeneralIconTooltip">
 		Generelle Region
 	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		Avatare sichtbar; Chat außerhalb dieser Parzelle gestattet
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Aktualisierung
 	</string>
@@ -4151,6 +4184,87 @@ Missbrauchsbericht
 	</string>
 	<string name="Female - Wow">
 		Weiblich - Wow
+	</string>
+	<string name="/bow">
+		/verbeugen
+	</string>
+	<string name="/clap">
+		/klatschen
+	</string>
+	<string name="/count">
+		/zählen
+	</string>
+	<string name="/extinguish">
+		/löschen
+	</string>
+	<string name="/kmb">
+		/lmaa
+	</string>
+	<string name="/muscle">
+		/Muskel
+	</string>
+	<string name="/no">
+		/nein
+	</string>
+	<string name="/no!">
+		/nein!
+	</string>
+	<string name="/paper">
+		/Papier
+	</string>
+	<string name="/pointme">
+		/auf mich zeigen
+	</string>
+	<string name="/pointyou">
+		/auf dich zeigen
+	</string>
+	<string name="/rock">
+		/Stein
+	</string>
+	<string name="/scissor">
+		/Schere
+	</string>
+	<string name="/smoke">
+		/rauchen
+	</string>
+	<string name="/stretch">
+		/dehnen
+	</string>
+	<string name="/whistle">
+		/pfeifen
+	</string>
+	<string name="/yes">
+		/ja
+	</string>
+	<string name="/yes!">
+		/ja!
+	</string>
+	<string name="afk">
+		afk
+	</string>
+	<string name="dance1">
+		Tanzen1
+	</string>
+	<string name="dance2">
+		Tanzen2
+	</string>
+	<string name="dance3">
+		Tanzen3
+	</string>
+	<string name="dance4">
+		Tanzen4
+	</string>
+	<string name="dance5">
+		Tanzen5
+	</string>
+	<string name="dance6">
+		Tanzen6
+	</string>
+	<string name="dance7">
+		Tanzen7
+	</string>
+	<string name="dance8">
+		Tanzen8
 	</string>
 	<string name="AvatarBirthDateFormat">
 		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]

@@ -44,7 +44,7 @@
 #include "llresmgr.h"
 #include "lluictrlfactory.h"
 
-const U32 MAX_STRING_LENGTH = 32;
+const U32 MAX_STRING_LENGTH = 255;
 
 static LLDefaultChildRegistry::Register<LLSpinCtrl> r2("spinner");
 
@@ -124,14 +124,7 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	params.max_length.bytes(MAX_STRING_LENGTH);
 	params.commit_callback.function((boost::bind(&LLSpinCtrl::onEditorCommit, this, _2)));
 	
-	if( mPrecision>0 )//should accept float numbers
-	{
-		params.prevalidate_callback(&LLTextValidate::validateFloat);
-	}
-	else //should accept int numbers
-	{
-		params.prevalidate_callback(&LLTextValidate::validateInt);
-	}
+	//*NOTE: allow entering of any chars for LLCalc, proper input will be evaluated on commit
 	
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
 	mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
@@ -140,6 +133,7 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	// than when it doesn't.  Instead, if you always have to double click to select all the text, 
 	// it's easier to understand
 	//mEditor->setSelectAllonFocusReceived(TRUE);
+	mEditor->setSelectAllonCommit(FALSE);
 	addChild(mEditor);
 
 	updateEditor();
@@ -304,9 +298,10 @@ void LLSpinCtrl::onEditorCommit( const LLSD& data )
 {
 	BOOL success = FALSE;
 	
-	std::string text = mEditor->getText();
-	if( LLLineEditor::postvalidateFloat( text ) )
+	if( mEditor->evaluateFloat() )
 	{
+		std::string text = mEditor->getText();
+
 		LLLocale locale(LLLocale::USER_LOCALE);
 		F32 val = (F32) atof(text.c_str());
 
@@ -327,7 +322,11 @@ void LLSpinCtrl::onEditorCommit( const LLSD& data )
 	}
 	updateEditor();
 
-	if( !success )
+	if( success )
+	{
+		updateEditor();
+	}
+	else
 	{
 		reportInvalidData();		
 	}

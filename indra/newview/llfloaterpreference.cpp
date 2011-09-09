@@ -105,6 +105,7 @@
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
 #include "llteleporthistorystorage.h"
+#include "llproxy.h"
 
 #include "lllogininstance.h"        // to check if logged in yet
 #include "llsdserialize.h"
@@ -158,7 +159,7 @@ BOOL LLVoiceSetKeyDialog::handleKeyHere(KEY key, MASK mask)
 {
 	BOOL result = TRUE;
 	
-	if(key == 'Q' && mask == MASK_CONTROL)
+	if (key == 'Q' && mask == MASK_CONTROL)
 	{
 		result = FALSE;
 	}
@@ -333,16 +334,17 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
-	mCommitCallbackRegistrar.add("Pref.HardwareSettings",       boost::bind(&LLFloaterPreference::onOpenHardwareSettings, this));	
-	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       boost::bind(&LLFloaterPreference::setHardwareDefaults, this));	
-	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",     boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));	
-	mCommitCallbackRegistrar.add("Pref.WindowedMod",            boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));	
-	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",       boost::bind(&LLFloaterPreference::onUpdateSliderText,this, _1,_2));	
-	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
+	mCommitCallbackRegistrar.add("Pref.HardwareSettings",		boost::bind(&LLFloaterPreference::onOpenHardwareSettings, this));
+	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",		boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
+	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));
+	mCommitCallbackRegistrar.add("Pref.WindowedMod",			boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
+	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",		boost::bind(&LLFloaterPreference::onUpdateSliderText,this, _1,_2));
+	mCommitCallbackRegistrar.add("Pref.QualityPerformance",		boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));
 	mCommitCallbackRegistrar.add("Pref.applyUIColor",			boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.getUIColor",				boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.MaturitySettings",		boost::bind(&LLFloaterPreference::onChangeMaturity, this));
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
+	mCommitCallbackRegistrar.add("Pref.Proxy",					boost::bind(&LLFloaterPreference::onClickProxySettings, this));
 	
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
@@ -457,7 +459,7 @@ BOOL LLFloaterPreference::postBuild()
 void LLFloaterPreference::onBusyResponseChanged()
 {
 	// set "BusyResponseChanged" TRUE if user edited message differs from default, FALSE otherwise
-	if(LLTrans::getString("BusyModeResponseDefault") != getChild<LLUICtrl>("busy_response")->getValue().asString())
+	if (LLTrans::getString("BusyModeResponseDefault") != getChild<LLUICtrl>("busy_response")->getValue().asString())
 	{
 		gSavedPerAccountSettings.setBOOL("BusyResponseChanged", TRUE );
 	}
@@ -539,7 +541,7 @@ void LLFloaterPreference::apply()
 	
 	LLViewerMedia::setCookiesEnabled(getChild<LLUICtrl>("cookies_enabled")->getValue());
 	
-	if(hasChild("web_proxy_enabled") &&hasChild("web_proxy_editor") && hasChild("web_proxy_port"))
+	if (hasChild("web_proxy_enabled") &&hasChild("web_proxy_editor") && hasChild("web_proxy_port"))
 	{
 		bool proxy_enable = getChild<LLUICtrl>("web_proxy_enabled")->getValue();
 		std::string proxy_address = getChild<LLUICtrl>("web_proxy_editor")->getValue();
@@ -552,13 +554,13 @@ void LLFloaterPreference::apply()
 
 	gSavedSettings.setBOOL("PlainTextChatHistory", getChild<LLUICtrl>("plain_text_chat_history")->getValue().asBoolean());
 	
-	if(mGotPersonalInfo)
+	if (mGotPersonalInfo)
 	{ 
 //		gSavedSettings.setString("BusyModeResponse2", std::string(wstring_to_utf8str(busy_response)));
 		bool new_im_via_email = getChild<LLUICtrl>("send_im_to_email")->getValue().asBoolean();
 		bool new_hide_online = getChild<LLUICtrl>("online_visibility")->getValue().asBoolean();		
 	
-		if((new_im_via_email != mOriginalIMViaEmail)
+		if ((new_im_via_email != mOriginalIMViaEmail)
 			||(new_hide_online != mOriginalHideOnlineStatus))
 		{
 			// This hack is because we are representing several different 	 
@@ -566,13 +568,13 @@ void LLFloaterPreference::apply()
 			// can only select between 2 values, we represent it as a 	 
 			// checkbox. This breaks down a little bit for liaisons, but 	 
 			// works out in the end. 	 
-			if(new_hide_online != mOriginalHideOnlineStatus) 	 
-			{ 	 
-				if(new_hide_online) mDirectoryVisibility = VISIBILITY_HIDDEN;
+			if (new_hide_online != mOriginalHideOnlineStatus)
+			{
+				if (new_hide_online) mDirectoryVisibility = VISIBILITY_HIDDEN;
 				else mDirectoryVisibility = VISIBILITY_DEFAULT;
 			 //Update showonline value, otherwise multiple applys won't work
 				mOriginalHideOnlineStatus = new_hide_online;
-			} 	 
+			}
 			gAgent.sendAgentUpdateUserInfo(new_im_via_email,mDirectoryVisibility);
 		}
 	}
@@ -615,6 +617,11 @@ void LLFloaterPreference::cancel()
 	{
 		updateDoubleClickControls();
 		mDoubleClickActionDirty = false;
+	}
+	LLFloaterPreferenceProxy * advanced_proxy_settings = LLFloaterReg::findTypedInstance<LLFloaterPreferenceProxy>("prefs_proxy");
+	if (advanced_proxy_settings)
+	{
+		advanced_proxy_settings->cancel();
 	}
 }
 
@@ -751,10 +758,7 @@ void LLFloaterPreference::onBtnOK()
 		closeFloater(false);
 
 		LLUIColorTable::instance().saveUserSettings();
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
-		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
-		// save all settings, even if equals defaults
-		gCrashSettings.saveToFile(crash_settings_filename, FALSE);
+		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
 	}
 	else
 	{
@@ -802,7 +806,7 @@ void LLFloaterPreference::onBtnCancel()
 void LLFloaterPreference::updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email)
 {
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
-	if(instance)
+	if (instance)
 	{
 		instance->setPersonalInfo(visibility, im_via_email, email);	
 	}
@@ -812,7 +816,7 @@ void LLFloaterPreference::updateUserInfo(const std::string& visibility, bool im_
 void LLFloaterPreference::refreshEnabledGraphics()
 {
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
-	if(instance)
+	if (instance)
 	{
 		instance->refresh();
 		//instance->refreshEnabledState();
@@ -1099,7 +1103,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
 
 	// if vertex shaders off, disable all shader related products
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
 	{
 		ctrl_shader_enable->setEnabled(FALSE);
 		ctrl_shader_enable->setValue(FALSE);
@@ -1130,7 +1134,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	}
 	
 	// disabled windlight
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
 	{
 		ctrl_wind_light->setEnabled(FALSE);
 		ctrl_wind_light->setValue(FALSE);
@@ -1167,28 +1171,28 @@ void LLFloaterPreference::disableUnavailableSettings()
 	}
 	
 	// disabled deferred SSAO
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO"))
 	{
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
 	}
 	
 	// disabled deferred shadows
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
 	{
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
 	}
 
 	// disabled reflections
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
 	{
 		ctrl_reflections->setEnabled(FALSE);
 		ctrl_reflections->setValue(FALSE);
 	}
 	
 	// disabled av
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP"))
 	{
 		ctrl_avatar_vp->setEnabled(FALSE);
 		ctrl_avatar_vp->setValue(FALSE);
@@ -1211,14 +1215,14 @@ void LLFloaterPreference::disableUnavailableSettings()
 	}
 
 	// disabled cloth
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarCloth"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarCloth"))
 	{
 		ctrl_avatar_cloth->setEnabled(FALSE);
 		ctrl_avatar_cloth->setValue(FALSE);
 	}
 
 	// disabled impostors
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseImpostors"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseImpostors"))
 	{
 		ctrl_avatar_impostors->setEnabled(FALSE);
 		ctrl_avatar_impostors->setValue(FALSE);
@@ -1384,12 +1388,12 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	mOriginalIMViaEmail = im_via_email;
 	mDirectoryVisibility = visibility;
 	
-	if(visibility == VISIBILITY_DEFAULT)
+	if (visibility == VISIBILITY_DEFAULT)
 	{
 		mOriginalHideOnlineStatus = false;
 		getChildView("online_visibility")->setEnabled(TRUE); 	 
 	}
-	else if(visibility == VISIBILITY_HIDDEN)
+	else if (visibility == VISIBILITY_HIDDEN)
 	{
 		mOriginalHideOnlineStatus = true;
 		getChildView("online_visibility")->setEnabled(TRUE); 	 
@@ -1437,7 +1441,7 @@ void LLFloaterPreference::onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name)
 {
 	std::string ctrl_name = name.asString();
 	
-	if((ctrl_name =="" )|| !hasChild(ctrl_name, true))
+	if ((ctrl_name =="" )|| !hasChild(ctrl_name, true))
 		return;
 	
 	LLTextBox* text_box = getChild<LLTextBox>(name.asString());
@@ -1447,7 +1451,7 @@ void LLFloaterPreference::onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name)
 
 void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box)
 {
-	if(text_box == NULL || ctrl== NULL)
+	if (text_box == NULL || ctrl== NULL)
 		return;
 	
 	// get range and points when text should change
@@ -1460,7 +1464,7 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 	F32 highPoint = min + (2.0f * range / 3.0f);
 	
 	// choose the right text
-	if(value < midPoint)
+	if (value < midPoint)
 	{
 		text_box->setText(LLTrans::getString("GraphicsQualityLow"));
 	} 
@@ -1542,6 +1546,11 @@ void LLFloaterPreference::updateDoubleClickSettings()
 		gSavedSettings.setBOOL( "DoubleClickTeleport", teleport_selected );
 		gSavedSettings.setBOOL( "DoubleClickAutoPilot", !teleport_selected );
 	}
+}
+
+void LLFloaterPreference::onClickProxySettings()
+{
+	LLFloaterReg::showInstance("prefs_proxy");
 }
 
 void LLFloaterPreference::updateDoubleClickControls()
@@ -1640,7 +1649,7 @@ BOOL LLPanelPreference::postBuild()
 {
 
 	////////////////////// PanelVoice ///////////////////
-	if(hasChild("voice_unavailable"))
+	if (hasChild("voice_unavailable"))
 	{
 		BOOL voice_disabled = gSavedSettings.getBOOL("CmdLineDisableVoice");
 		getChildView("voice_unavailable")->setVisible( voice_disabled);
@@ -1662,7 +1671,7 @@ BOOL LLPanelPreference::postBuild()
 
 	}
 
-	if(hasChild("online_visibility") && hasChild("send_im_to_email"))
+	if (hasChild("online_visibility") && hasChild("send_im_to_email"))
 	{
 		getChild<LLUICtrl>("email_address")->setValue(getString("log_in_to_change") );
 //		getChild<LLUICtrl>("busy_response")->setValue(getString("log_in_to_change"));		
@@ -1791,7 +1800,7 @@ void LLPanelPreference::cancel()
 		 iter != mSavedColors.end(); ++iter)
 	{
 		LLColorSwatchCtrl* color_swatch = findChild<LLColorSwatchCtrl>(iter->first);
-		if(color_swatch)
+		if (color_swatch)
 		{
 			color_swatch->set(iter->second);
 			color_swatch->onCommit();
@@ -1835,7 +1844,7 @@ void LLPanelPreferenceGraphics::draw()
 	
 	LLButton* button_apply = findChild<LLButton>("Apply");
 	
-	if(button_apply && button_apply->getVisible())
+	if (button_apply && button_apply->getVisible())
 	{
 		bool enable = hasDirtyChilds();
 
@@ -1855,7 +1864,7 @@ bool LLPanelPreferenceGraphics::hasDirtyChilds()
 		LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
 		if (ctrl)
 		{
-			if(ctrl->isDirty())
+			if (ctrl->isDirty())
 				return true;
 		}
 		// Push children onto the end of the work stack
@@ -1911,3 +1920,188 @@ void LLPanelPreferenceGraphics::setHardwareDefaults()
 	resetDirtyChilds();
 	LLPanelPreference::setHardwareDefaults();
 }
+
+LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
+	: LLFloater(key),
+	  mSocksSettingsDirty(false)
+{
+	mCommitCallbackRegistrar.add("Proxy.OK",                boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this));
+	mCommitCallbackRegistrar.add("Proxy.Cancel",            boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this));
+	mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
+}
+
+LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
+{
+}
+
+BOOL LLFloaterPreferenceProxy::postBuild()
+{
+	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
+	if (!socksAuth)
+	{
+		return FALSE;
+	}
+	if (socksAuth->getSelectedValue().asString() == "None")
+	{
+		getChild<LLLineEditor>("socks5_username")->setEnabled(false);
+		getChild<LLLineEditor>("socks5_password")->setEnabled(false);
+	}
+	else
+	{
+		// Populate the SOCKS 5 credential fields with protected values.
+		LLPointer<LLCredential> socks_cred = gSecAPIHandler->loadCredential("SOCKS5");
+		getChild<LLLineEditor>("socks5_username")->setValue(socks_cred->getIdentifier()["username"].asString());
+		getChild<LLLineEditor>("socks5_password")->setValue(socks_cred->getAuthenticator()["creds"].asString());
+	}
+
+	center();
+	return TRUE;
+}
+
+void LLFloaterPreferenceProxy::onOpen(const LLSD& key)
+{
+	saveSettings();
+}
+
+void LLFloaterPreferenceProxy::onClose(bool app_quitting)
+{
+	if (mSocksSettingsDirty)
+	{
+
+		// If the user plays with the Socks proxy settings after login, it's only fair we let them know
+		// it will not be updated until next restart.
+		if (LLStartUp::getStartupState()>STATE_LOGIN_WAIT)
+		{
+			LLNotifications::instance().add("ChangeProxySettings", LLSD(), LLSD());
+			mSocksSettingsDirty = false; // we have notified the user now be quiet again
+		}
+	}
+}
+
+void LLFloaterPreferenceProxy::saveSettings()
+{
+	// Save the value of all controls in the hierarchy
+	mSavedValues.clear();
+	std::list<LLView*> view_stack;
+	view_stack.push_back(this);
+	while(!view_stack.empty())
+	{
+		// Process view on top of the stack
+		LLView* curview = view_stack.front();
+		view_stack.pop_front();
+
+		LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
+		if (ctrl)
+		{
+			LLControlVariable* control = ctrl->getControlVariable();
+			if (control)
+			{
+				mSavedValues[control] = control->getValue();
+			}
+		}
+
+		// Push children onto the end of the work stack
+		for (child_list_t::const_iterator iter = curview->getChildList()->begin();
+				iter != curview->getChildList()->end(); ++iter)
+		{
+			view_stack.push_back(*iter);
+		}
+	}
+}
+
+void LLFloaterPreferenceProxy::onBtnOk()
+{
+	// commit any outstanding text entry
+	if (hasFocus())
+	{
+		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+		if (cur_focus && cur_focus->acceptsTextInput())
+		{
+			cur_focus->onCommit();
+		}
+	}
+
+	// Save SOCKS proxy credentials securely if password auth is enabled
+	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
+	if (socksAuth->getSelectedValue().asString() == "UserPass")
+	{
+		LLSD socks_id = LLSD::emptyMap();
+		socks_id["type"] = "SOCKS5";
+		socks_id["username"] = getChild<LLLineEditor>("socks5_username")->getValue().asString();
+
+		LLSD socks_authenticator = LLSD::emptyMap();
+		socks_authenticator["type"] = "SOCKS5";
+		socks_authenticator["creds"] = getChild<LLLineEditor>("socks5_password")->getValue().asString();
+
+		// Using "SOCKS5" as the "grid" argument since the same proxy
+		// settings will be used for all grids and because there is no
+		// way to specify the type of credential.
+		LLPointer<LLCredential> socks_cred = gSecAPIHandler->createCredential("SOCKS5", socks_id, socks_authenticator);
+		gSecAPIHandler->saveCredential(socks_cred, true);
+	}
+	else
+	{
+		// Clear SOCKS5 credentials since they are no longer needed.
+		LLPointer<LLCredential> socks_cred = new LLCredential("SOCKS5");
+		gSecAPIHandler->deleteCredential(socks_cred);
+	}
+
+	closeFloater(false);
+}
+
+void LLFloaterPreferenceProxy::onBtnCancel()
+{
+	if (hasFocus())
+	{
+		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+		if (cur_focus && cur_focus->acceptsTextInput())
+		{
+			cur_focus->onCommit();
+		}
+		refresh();
+	}
+
+	cancel();
+}
+
+void LLFloaterPreferenceProxy::cancel()
+{
+
+	for (control_values_map_t::iterator iter =  mSavedValues.begin();
+			iter !=  mSavedValues.end(); ++iter)
+	{
+		LLControlVariable* control = iter->first;
+		LLSD ctrl_value = iter->second;
+		control->set(ctrl_value);
+	}
+
+	closeFloater();
+}
+
+void LLFloaterPreferenceProxy::onChangeSocksSettings() 
+{
+	mSocksSettingsDirty = true;
+
+	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
+	if (socksAuth->getSelectedValue().asString() == "None")
+	{
+		getChild<LLLineEditor>("socks5_username")->setEnabled(false);
+		getChild<LLLineEditor>("socks5_password")->setEnabled(false);
+	}
+	else
+	{
+		getChild<LLLineEditor>("socks5_username")->setEnabled(true);
+		getChild<LLLineEditor>("socks5_password")->setEnabled(true);
+	}
+
+	// Check for invalid states for the other HTTP proxy radio
+	LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("other_http_proxy_type");
+	if ((otherHttpProxy->getSelectedValue().asString() == "Socks" &&
+			getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == FALSE )||(
+					otherHttpProxy->getSelectedValue().asString() == "Web" &&
+					getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get() == FALSE ) )
+	{
+		otherHttpProxy->selectFirstItem();
+	}
+
+};

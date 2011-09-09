@@ -149,6 +149,8 @@ public:
 		void showNotification(boost::shared_ptr<class LLNotification> notify);
 		void hideNotification();
 
+		void setTrustedContent(bool trusted);
+
 		// over-rides
 		virtual BOOL handleKeyHere( KEY key, MASK mask);
 		virtual void handleVisibilityChange ( BOOL new_visibility );
@@ -164,6 +166,11 @@ public:
 		// Incoming media event dispatcher
 		virtual void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
+		// right click debugging item
+		void onOpenWebInspector();
+
+		LLUUID getTextureID() {return mMediaTextureID;}
+
 	protected:
 		void convertInputCoords(S32& x, S32& y);
 
@@ -176,7 +183,7 @@ public:
 		LLViewBorder* mBorder;
 		bool mFrequentUpdates;
 		bool mForceUpdate;
-		const bool mTrusted;
+		bool mTrusted;
 		std::string mHomePageUrl;
 		std::string mHomePageMimeType;
 		std::string mCurrentNavUrl;

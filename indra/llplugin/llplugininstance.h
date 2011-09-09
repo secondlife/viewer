@@ -30,6 +30,7 @@
 
 #include "llstring.h"
 #include "llapr.h"
+#include "llaprpool.h"
 
 #include "apr_dso.h"
 
@@ -39,7 +40,7 @@
 class LLPluginInstanceMessageListener
 {
 public:
-	virtual ~LLPluginInstanceMessageListener();
+	~LLPluginInstanceMessageListener();
    /** Plugin receives message from plugin loader shell. */
 	virtual void receivePluginMessage(const std::string &message) = 0;
 };
@@ -88,6 +89,7 @@ private:
 	static void staticReceiveMessage(const char *message_string, void **user_data);
 	void receiveMessage(const char *message_string);
 
+	LLAPRPool mDSOHandlePool;
 	apr_dso_handle_t *mDSOHandle;
 	
 	void *mPluginUserData;

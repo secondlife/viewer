@@ -47,6 +47,7 @@
 #include "llvoavatar.h"
 #include "llvolumemgr.h"
 #include "lltextureatlas.h"
+#include "llglslshader.h"
 
 static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
 static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
@@ -520,6 +521,11 @@ LLTextureAtlasSlot* LLSpatialGroup::getCurUpdatingSlot(LLViewerTexture* imagep, 
 void LLSpatialGroup::clearDrawMap()
 {
 	mDrawMap.clear();
+}
+
+BOOL LLSpatialGroup::isHUDGroup() 
+{
+	return mSpatialPartition && mSpatialPartition->isHUDPartition() ; 
 }
 
 BOOL LLSpatialGroup::isRecentlyVisible() const
@@ -2785,7 +2791,7 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 						gGL.color4f(0,1,1,1);
 						break;
 				case LLViewerObject::LL_VO_CLOUDS:
-						gGL.color4f(0.5f,0.5f,0.5f,1.0f);
+						// no longer used
 						break;
 				case LLViewerObject::LL_VO_PART_GROUP:
 				case LLViewerObject::LL_VO_HUD_PART_GROUP:
@@ -3176,6 +3182,8 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				glColor4fv(line_color.mV);
 				LLVertexBuffer::unbind();
 
+				llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
+
 				glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
 				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
 				
@@ -3257,7 +3265,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		if (phys_volume->mHullPoints && phys_volume->mHullIndices)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			
+			llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
 			LLVertexBuffer::unbind();
 			glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
 			glColor4fv(line_color.mV);
@@ -4152,6 +4160,10 @@ void LLSpatialGroup::drawObjectBox(LLColor4 col)
 	drawBox(mObjectBounds[0], size);
 }
 
+bool LLSpatialPartition::isHUDPartition() 
+{ 
+	return mPartitionType == LLViewerRegion::PARTITION_HUD ;
+} 
 
 BOOL LLSpatialPartition::isVisible(const LLVector3& v)
 {

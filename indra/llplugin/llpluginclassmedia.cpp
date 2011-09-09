@@ -436,27 +436,15 @@ std::string LLPluginClassMedia::translateModifiers(MASK modifiers)
 	return result;
 }
 
-void LLPluginClassMedia::jsExposeObjectEvent( bool expose )
+void LLPluginClassMedia::jsEnableObject( bool enable )
 {
 	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
 	{
 		return;
 	}
 
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_expose_object");
-	message.setValueBoolean( "expose", expose );
-	sendMessage( message );
-}
-
-void LLPluginClassMedia::jsValuesValidEvent( bool valid )
-{
-	if( ! mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked() )
-	{
-		return;
-	}
-
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_values_valid");
-	message.setValueBoolean( "valid", valid );
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "js_enable_object");
+	message.setValueBoolean( "enable", enable );
 	sendMessage( message );
 }
 
@@ -854,6 +842,14 @@ void LLPluginClassMedia::setJavascriptEnabled(const bool enabled)
 	sendMessage(message);
 }
 
+
+void LLPluginClassMedia::enableMediaPluginDebugging( bool enable )
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "enable_media_plugin_debugging");
+	message.setValueBoolean( "enable", enable );
+	sendMessage( message );
+}
+
 void LLPluginClassMedia::setTarget(const std::string &target)
 {
 	mTarget = target;
@@ -1078,6 +1074,12 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			mAuthURL = message.getValue("url");
 			mAuthRealm = message.getValue("realm");
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_AUTH_REQUEST);
+		}		
+		else if(message_name == "debug_message")
+		{
+			mDebugMessageText = message.getValue("message_text");
+			mDebugMessageLevel = message.getValue("message_level");
+			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_DEBUG_MESSAGE);
 		}
 		else
 		{
@@ -1307,6 +1309,13 @@ void LLPluginClassMedia::setBrowserUserAgent(const std::string& user_agent)
 
 	message.setValue("user_agent", user_agent);
 
+	sendMessage(message);
+}
+
+void LLPluginClassMedia::showWebInspector( bool show )
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "show_web_inspector");
+	message.setValueBoolean("show", true);	// only open for now - closed manually by user
 	sendMessage(message);
 }
 

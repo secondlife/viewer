@@ -568,6 +568,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	else
 	{
 		requested_options.append("basic-mode");
+		//requested_options.append("inventory-basic");
 	}
 
 #endif

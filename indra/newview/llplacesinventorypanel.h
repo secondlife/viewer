@@ -46,7 +46,7 @@ public:
 	LLPlacesInventoryPanel(const Params& p);
 	~LLPlacesInventoryPanel();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void buildFolderView(const LLInventoryPanel::Params& params);
 
 	void saveFolderState();
 	void restoreFolderState();

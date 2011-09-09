@@ -49,13 +49,13 @@
 	</text>
 	<radio_group name="focus_radio_group">
 		<radio_item label="Zoom" name="radio zoom"/>
-		<radio_item label="Orbit (Ctrl)" name="radio orbit"/>
-		<radio_item label="Pan (Ctrl+Shift)" name="radio pan"/>
+		<radio_item label="環繞（Ctrl）" name="radio orbit"/>
+		<radio_item label="平移（Ctrl+Shift）" name="radio pan"/>
 	</radio_group>
 	<slider_bar initial_value="0.125" name="slider zoom"/>
 	<radio_group name="move_radio_group">
 		<radio_item label="移動" name="radio move"/>
-		<radio_item label="Lift (Ctrl)" name="radio lift"/>
+		<radio_item label="舉起（Ctrl）" name="radio lift"/>
 		<radio_item label="Spin (Ctrl+Shift)" name="radio spin"/>
 	</radio_group>
 	<radio_group name="edit_radio_group">
@@ -178,10 +178,10 @@
 				擁有者：
 			</text>
 			<text name="Group:">
-				社團：
+				群組：
 			</text>
 			<name_box initial_value="載入中..." name="Group Name Proxy"/>
-			<button name="button set group" tool_tip="選擇一個社團以分享這物件權限"/>
+			<button name="button set group" tool_tip="選擇一個群組以分享這物件權限"/>
 			<check_box label="分享" name="checkbox share with group" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."/>
 			<button label="Deed" label_selected="Deed" name="button deed" tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."/>
 			<text name="label click action">
@@ -480,7 +480,7 @@
 		<check_box label="顯示擁有者" name="checkbox show owners" tool_tip="Colorize the parcels according to the type of owner: 
 
 綠色 = 你的土地 
-水藍 = 你社團的土地 
+水藍 = 你群組的土地 
 紅色 = 其他人所有 
 黃色 = 出售 
 紫色 = 拍賣 

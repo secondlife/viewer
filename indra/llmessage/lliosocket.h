@@ -38,7 +38,6 @@
  */
 
 #include "lliopipe.h"
-#include "apr_pools.h"
 #include "apr_network_io.h"
 #include "llchainio.h"
 
@@ -88,34 +87,22 @@ public:
 	 * socket. If you intend the socket to be known to external
 	 * clients without prior port notification, do not use
 	 * PORT_EPHEMERAL.
-	 * @param pool The apr pool to use. A child pool will be created
-	 * and associated with the socket.
 	 * @param type The type of socket to create
 	 * @param port The port for the socket
 	 * @return A valid socket shared pointer if the call worked.
 	 */
 	static ptr_t create(
-		apr_pool_t* pool,
 		EType type,
 		U16 port = PORT_EPHEMERAL);
 
 	/** 
-	 * @brief Create a LLSocket when you already have an apr socket.
+	 * @brief Create a LLSocket by accepting a connection from a listen socket.
 	 *
-	 * This method assumes an ephemeral port. This is typically used
-	 * by calls which spawn a socket such as a call to
-	 * <code>accept()</code> as in the server socket. This call should
-	 * not fail if you have a valid apr socket.
-	 * Because of the nature of how accept() works, you are expected
-	 * to create a new pool for the socket, use that pool for the
-	 * accept, and pass it in here where it will be bound with the
-	 * socket and destroyed at the same time.
-	 * @param socket The apr socket to use 
-	 * @param pool The pool used to create the socket. *NOTE: The pool
-	 * passed in will be DESTROYED.
+	 * @param status Output. Status of the accept if a valid listen socket was passed.
+	 * @param listen_socket The listen socket to use.
 	 * @return A valid socket shared pointer if the call worked.
 	 */
-	static ptr_t create(apr_socket_t* socket, apr_pool_t* pool);
+	static ptr_t create(apr_status_t& status, ptr_t& listen_socket);
 
 	/** 
 	 * @brief Perform a blocking connect to a host. Do not use in production.
@@ -145,17 +132,30 @@ public:
 	 */
 	apr_socket_t* getSocket() const { return mSocket; }
 
-protected:
 	/** 
 	 * @brief Protected constructor since should only make sockets
 	 * with one of the two <code>create()</code> calls.
 	 */
-	LLSocket(apr_socket_t* socket, apr_pool_t* pool);
+	LLSocket(void);
 
 	/** 
-	 * @brief Set default socket options.
+	 * @brief Set default socket options, with SO_NONBLOCK = 0 and a timeout in us.
+	 * @param timeout Number of microseconds to wait on this socket. Any
+	 * negative number means block-forever. TIMEOUT OF 0 IS NON-PORTABLE.
 	 */
-	void setOptions();
+	void setBlocking(S32 timeout);
+
+	/**
+	 * @brief Set default socket options, with SO_NONBLOCK = 1 and timeout = 0.
+	 */
+	void setNonBlocking();
+
+protected:
+	/**
+	 * @brief Protected constructor since should only make sockets
+	 * with one of the two <code>create()</code> calls.
+	 */
+	LLSocket(apr_socket_t* socket, apr_pool_t* pool);
 
 public:
 	/** 
@@ -167,8 +167,8 @@ protected:
 	// The apr socket.
 	apr_socket_t* mSocket;
 
-	// our memory pool
-	apr_pool_t* mPool;
+	// Our memory pool.
+	LLAPRPool mPool;
 
 	// The port if we know it.
 	U16 mPort;
@@ -293,7 +293,7 @@ class LLIOServerSocket : public LLIOPipe
 public:
 	typedef LLSocket::ptr_t socket_t;
 	typedef boost::shared_ptr<LLChainIOFactory> factory_t;
-	LLIOServerSocket(apr_pool_t* pool, socket_t listener, factory_t reactor);
+	LLIOServerSocket(socket_t listener, factory_t reactor);
 	virtual ~LLIOServerSocket();
 
 	/** 
@@ -325,7 +325,6 @@ protected:
 	//@}
 
 protected:
-	apr_pool_t* mPool;
 	socket_t mListenSocket;
 	factory_t mReactor;
 	bool mInitialized;
@@ -359,8 +358,7 @@ public:
 	 */
 	LLIODataSocket(
 		U16 suggested_port,
-		U16 start_discovery_port,
-		apr_pool_t* pool);
+		U16 start_discovery_port);
 	virtual ~LLIODataSocket();
 
 protected:

@@ -1,0 +1,29 @@
+#List of translators who contribute to SL Viewer 2.0+ by language
+
+	Danish
+Flemming Congrejo
+	German
+Torben Trautman
+	French
+Valerie Linden
+	Polish
+Identity Euler
+	Portuguese
+Zaza Linden
+	Spanish
+Aralara Rajal
+Aura Dirval
+Cayu Cluny
+Eva Rau
+FreeSL Aeon
+Frontera Thor
+Inma Rau
+Irene Muni
+Lunita Savira
+Minerva Memel
+Polo Gufler
+Xiki Luik
+Shinya Tandino
+Catwise Yoshikawa
+	Traditional Chinese
+gefeit Dufaux

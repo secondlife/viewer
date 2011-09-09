@@ -31,6 +31,7 @@
 		<menu_item_call label="I miei gruppi" name="My Groups"/>
 		<menu_item_check label="Chat nei dintorni" name="Nearby Chat"/>
 		<menu_item_call label="Persone vicine" name="Active Speakers"/>
+		<menu_item_check label="Voce nei dintorni" name="Nearby Voice"/>
 	</menu>
 	<menu label="Mondo" name="World">
 		<menu_item_check label="Mini mappa" name="Mini-Map"/>
@@ -63,8 +64,24 @@
 			<menu_item_call label="Mezzogiorno" name="Noon"/>
 			<menu_item_call label="Tramonto" name="Sunset"/>
 			<menu_item_call label="Mezzanotte" name="Midnight"/>
-			<menu_item_call label="Orario della proprietà" name="Revert to Region Default"/>
-			<menu_item_call label="Editor dell&apos;ambiente" name="Environment Editor"/>
+		</menu>
+		<menu label="Editor ambiente" name="Enviroment Editor">
+			<menu_item_call label="Impostazioni ambiente..." name="Enviroment Settings"/>
+			<menu label="Valori predefiniti acqua" name="Water Presets">
+				<menu_item_call label="Nuovo valore predefinito..." name="new_water_preset"/>
+				<menu_item_call label="Modifica valori predefiniti..." name="edit_water_preset"/>
+				<menu_item_call label="Cancella valore predefinito..." name="delete_water_preset"/>
+			</menu>
+			<menu label="Valori predefiniti cielo" name="Sky Presets">
+				<menu_item_call label="Nuovo valore predefinito..." name="new_sky_preset"/>
+				<menu_item_call label="Modifica valori predefiniti..." name="edit_sky_preset"/>
+				<menu_item_call label="Cancella valore predefinito..." name="delete_sky_preset"/>
+			</menu>
+			<menu label="Valori predefiniti giornata" name="Day Presets">
+				<menu_item_call label="Nuovo valore predefinito..." name="new_day_preset"/>
+				<menu_item_call label="Modifica valori predefiniti..." name="edit_day_preset"/>
+				<menu_item_call label="Cancella valore predefinito..." name="delete_day_preset"/>
+			</menu>
 		</menu>
 	</menu>
 	<menu label="Costruisci" name="BuildTools">
@@ -142,7 +159,6 @@
 		<menu_item_check label="Disabilita vincoli fotocamera" name="Disable Camera Distance"/>
 		<menu_item_check label="Foto ad alta risoluzione" name="HighResSnapshot"/>
 		<menu_item_check label="Manda foto su disco senza avvisi" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="Comprimi le foto su disco" name="CompressSnapshotsToDisk"/>
 		<menu label="Strumenti di performance" name="Performance Tools">
 			<menu_item_call label="Misuratore lag" name="Lag Meter"/>
 			<menu_item_check label="Barra statistiche" name="Statistics Bar"/>

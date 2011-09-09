@@ -30,10 +30,10 @@
 // A ViewerRegion is a class that contains a bunch of objects and surfaces
 // that are in to a particular region.
 #include <string>
+#include <boost/signals2.hpp>
 
 #include "lldarray.h"
 #include "llwind.h"
-#include "llcloud.h"
 #include "llstat.h"
 #include "v3dmath.h"
 #include "llstring.h"
@@ -81,7 +81,6 @@ public:
 		PARTITION_WATER,
 		PARTITION_TREE,
 		PARTITION_PARTICLE,
-		PARTITION_CLOUD,
 		PARTITION_GRASS,
 		PARTITION_VOLUME,
 		PARTITION_BRIDGE,
@@ -89,6 +88,8 @@ public:
 		PARTITION_NONE,
 		NUM_PARTITIONS
 	} eObjectPartitions;
+
+	typedef boost::signals2::signal<void(const LLUUID& region_id)> caps_received_signal_t;
 
 	LLViewerRegion(const U64 &handle,
 				   const LLHost &host,
@@ -191,7 +192,7 @@ public:
 	S32 getSimCPURatio()                   const { return mCPURatio; }
 	const std::string& getSimColoName()    const { return mColoName; }
 	const std::string& getSimProductSKU()  const { return mProductSKU; }
-	const std::string& getSimProductName() const { return mProductName; }
+	std::string getLocalizedSimProductName() const;
 
 	// Returns "Sandbox", "Expensive", etc.
 	static std::string regionFlagsToString(U32 flags);
@@ -225,11 +226,12 @@ public:
 
 	U32	getPacketsLost() const;
 
-	void setHttpResponderPtrNULL();
-	const LLHTTPClient::ResponderPtr getHttpResponderPtr() const;
+	S32 getHttpResponderID() const;
 
 	// Get/set named capability URLs for this region.
 	void setSeedCapability(const std::string& url);
+	void failedSeedCapability();
+	S32 getNumSeedCapRetries();
 	void setCapability(const std::string& name, const std::string& url);
 	// implements LLCapabilityProvider
     virtual std::string getCapability(const std::string& name) const;
@@ -237,6 +239,7 @@ public:
 	// has region received its final (not seed) capability list?
 	bool capabilitiesReceived() const;
 	void setCapabilitiesReceived(bool received);
+	boost::signals2::connection setCapabilitiesReceivedCallback(const caps_received_signal_t::slot_type& cb);
 
 	static bool isSpecialCapabilityName(const std::string &name);
 	void logActiveCapabilities() const;
@@ -318,6 +321,10 @@ public:
 	LLSpatialPartition* getSpatialPartition(U32 type);
 
 	bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
+	bool childrenObjectReturnable( const std::vector<LLBBox>& boxes ) const;
+
+	void getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions );
+	
 public:
 	struct CompareDistance
 	{
@@ -336,7 +343,6 @@ protected:
 
 public:
 	LLWind  mWind;
-	LLCloudLayer mCloudLayer;
 	LLViewerParcelOverlay	*mParcelOverlay;
 
 	LLStat	mBitStat;
@@ -404,6 +410,7 @@ private:
 
 	bool	mAlive;					// can become false if circuit disconnects
 	bool	mCapabilitiesReceived;
+	caps_received_signal_t mCapabilitiesReceivedSignal;
 
 	BOOL mReleaseNotesRequested;
 	

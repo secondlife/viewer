@@ -9,7 +9,7 @@
 	  min_width="240"
 	  name="objects panel"
 	  width="333">
-	 <panel
+    <panel
 		 follows="all"
 		 layout="topleft"
 		 left="0"
@@ -19,24 +19,226 @@
 		 height="570"
 		 visible="true"
 		 width="330">
-		<panel
-			 class="panel_main_inventory"
-			 filename="panel_main_inventory.xml"
-			 follows="all"
-			 layout="topleft"
-			 left="0"
-			 name="panel_main_inventory"
-			 top="0"
-			 label=""
-			 height="545"
-			 width="330" />
+         <layout_stack
+              follows="left|right|top|bottom"
+              layout="topleft"
+              left="0"
+              top="0"
+              orientation="vertical"
+              name="inventory_layout_stack"
+              height="535"
+              width="330">
+             <layout_panel
+                 name="main_inventory_layout_panel"
+                 min_dim="150"
+                 width="330"
+                 follows="bottom|left|right"
+                 user_resize="false"
+                 height="480">
+                 <panel
+                      class="panel_main_inventory"
+                      filename="panel_main_inventory.xml"
+                      follows="all"
+                      layout="topleft"
+                      left="0"
+                      name="panel_main_inventory"
+                      top="0"
+                      label=""
+                      height="480"
+                      width="330" />
+             </layout_panel>
+             <layout_panel
+                 width="330"
+                 auto_resize="true"
+                 user_resize="false"
+                 follows="bottom|left|right"
+                 name="inbox_layout_panel"
+                 visible="false"
+                 min_dim="35"
+                 max_dim="200"
+                 expanded_min_dim="90"
+                 height="200">
+                 <panel
+                      follows="all"
+                      layout="topleft"
+                      left="0"
+                      name="marketplace_inbox"
+                      class="panel_marketplace_inbox"
+                      top="0"
+                      label=""
+                      height="200"
+                      width="330">
+                     <string name="InboxLabelWithArg">Received Items ([NUM])</string>
+                     <string name="InboxLabelNoArg">Received Items</string>
+                     <button
+                        label="Received Items"
+                        name="inbox_btn"
+                        height="35"
+                        width="308"
+                        image_unselected="MarketplaceBtn_Off"
+                        image_selected="MarketplaceBtn_Selected"
+                        halign="left"
+                        handle_right_mouse="false"
+                        follows="top|left|right"
+                        is_toggle="true"
+                        tab_stop="false"
+                        pad_left="35"
+                        top="0"
+                        left="10" />
+                     <text
+                        type="string"
+                        length="1"
+                        follows="right|top"
+                        layout="topleft"
+                        height="13"
+                        top="10"
+                        right="-20"
+                        name="inbox_fresh_new_count"
+                        font="SansSerifMedium"
+                        halign="right"
+                        text_color="EmphasisColor"
+                        top_pad="0"
+                        width="300">
+                        [NUM] New
+                     </text>
+                     <panel
+                        follows="all"
+                        left="10"
+                        bottom="200"
+                        width="308"
+                        top="35"
+                        bg_opaque_color="InventoryBackgroundColor"
+                        background_visible="true"
+                        background_opaque="true"
+                        tool_tip="Drag and drop items to your inventory to manage and use them"
+                        >
+                        <text
+							name="inbox_inventory_placeholder"
+							type="string"
+							follows="all"
+							layout="topleft"
+							top="0"
+							left="0"
+							width="308"
+							height="165"
+							wrap="true"
+							halign="center">
+							Purchases from the marketplace will be delivered here.
+						</text>
+                    </panel>
+                 </panel>
+             </layout_panel>
+             <layout_panel
+                width="330"
+                auto_resize="true"
+                user_resize="false"
+                follows="bottom|left|right"
+                name="outbox_layout_panel"
+                visible="false"
+                min_dim="35"
+                max_dim="200"
+                expanded_min_dim="90"
+                height="200">
+                 <panel
+                      follows="all"
+                      layout="topleft"
+                      left="10"
+                      name="marketplace_outbox"
+                      class="panel_marketplace_outbox"
+                      top="0"
+                      label=""
+                      height="200"
+                      width="310">
+                     <button
+                        label="Merchant Outbox"
+                        is_toggle="true"
+                        handle_right_mouse="false"
+                        name="outbox_btn"
+                        follows="top|left|right"
+                        image_unselected="MarketplaceBtn_Off"
+                        image_selected="MarketplaceBtn_Selected"
+                        height="35"
+                        tab_stop="false"
+                        width="308"
+                        halign="left"
+                        pad_left="35"
+                        top="0"
+                        left="0" />
+                     <button
+                         image_unselected="OutboxPush_Off"
+                         image_selected="OutboxPush_Selected"
+                         image_hover_selected="OutboxPush_Selected_Over"
+                         image_hover_unselected="OutboxPush_Over"
+                         image_disabled_selected="OutboxPush_Selected_Disabled"
+                         image_disabled="OutboxPush_Disabled"
+                         image_pressed="OutboxPush_Press"
+                         image_pressed_selected="OutboxPush_Selected_Press"
+                         label=""
+                         tool_tip="Push to my Marketplace Storefront"
+                         is_toggle="false"
+                         name="outbox_sync_btn"
+                         follows="top|right"
+                         tab_stop="false"
+                         halign="center"
+                         top="6"
+                         left="-50"
+                         height="23"
+                         width="32"
+                         enabled="false" />
+                     <loading_indicator
+                        follows="top|right"
+                        name="outbox_sync_indicator"
+                        top="6"
+                        left="-50"
+                        height="23"
+                        width="32"
+                        images_per_sec="1.15"
+                        tab_stop="false"
+                        visible="false">
+                         <images>
+                             <image name="OutboxPush_Progress_1"/>
+                             <image name="OutboxPush_Progress_2"/>
+                             <image name="OutboxPush_Progress_3"/>
+                             <image name="OutboxPush_Progress_4"/>
+                             <image name="OutboxPush_Progress_5"/>
+                             <image name="OutboxPush_Progress_6"/>
+                         </images>
+                     </loading_indicator>
+                     <panel
+                        follows="all"
+                        left="10"
+                        bottom="200"
+                        width="308"
+                        top="35"
+                        bg_opaque_color="InventoryBackgroundColor"
+                        background_visible="true"
+                        background_opaque="true"
+                        tool_tip="Drag and drop items here to prepare them for sale on your storefront"
+                        >
+                        <text
+							name="outbox_inventory_placeholder"
+							type="string"
+							follows="all"
+							layout="topleft"
+							top="0"
+							left="0"
+							width="308"
+							height="165"
+							wrap="true"
+							halign="center">
+							Set up your merchant account to use this feature.
+						</text>
+                    </panel>
+                 </panel>
+             </layout_panel>
+         </layout_stack>
 		<panel
 		     follows="bottom|left|right"
-			 height="25"
+			 height="30"
 			 layout="topleft"
 			 name="button_panel"
 			 left="9"
-			 top_pad="-2"
+             top_pad="7"
 			 width="308">
 			<layout_stack
      	         follows="bottom|left|right"

@@ -188,6 +188,39 @@ namespace LLTextValidate
 		return success;
 	}
 
+	bool validateNonNegativeS32NoSpace(const LLWString &str)
+	{
+		LLLocale locale(LLLocale::USER_LOCALE);
+
+		LLWString test_str = str;
+		S32 len = test_str.length();
+		bool success = TRUE;
+		if(0 < len)
+		{
+			if('-' == test_str[0])
+			{
+				success = FALSE;
+			}
+			S32 i = 0;
+			while(success && (i < len))
+			{
+				if(!LLStringOps::isDigit(test_str[i]) || LLStringOps::isSpace(test_str[i++]))
+				{
+					success = FALSE;
+				}
+			}
+		}
+		if (success)
+		{
+			S32 val = strtol(wstring_to_utf8str(test_str).c_str(), NULL, 10);
+			if (val < 0)
+			{
+				success = FALSE;
+			}
+		}
+		return success;
+	}
+
 	bool validateAlphaNum(const LLWString &str)
 	{
 		LLLocale locale(LLLocale::USER_LOCALE);

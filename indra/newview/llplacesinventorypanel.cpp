@@ -35,6 +35,7 @@
 #include "llinventoryfunctions.h"
 #include "llpanellandmarks.h"
 #include "llplacesinventorybridge.h"
+#include "llviewerfoldertype.h"
 
 static LLDefaultChildRegistry::Register<LLPlacesInventoryPanel> r("places_inventory_panel");
 
@@ -56,71 +57,43 @@ LLPlacesInventoryPanel::~LLPlacesInventoryPanel()
 	delete mSavedFolderState;
 }
 
-BOOL LLPlacesInventoryPanel::postBuild()
+void LLPlacesInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 {
-	LLInventoryPanel::postBuild();
+	// Determine the root folder in case specified, and
+	// build the views starting with that folder.
+	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(params.start_folder);
 
-	// clear Contents();
+	LLUUID root_id;
+
+	if ("LIBRARY" == params.start_folder())
 	{
-		mFolderRoot->destroyView();
-		mFolderRoot->getParent()->removeChild(mFolderRoot);
-		mFolderRoot->die();
-
-		if( mScroller )
-		{
-			removeChild( mScroller );
-			mScroller->die();
-			mScroller = NULL;
-		}
-		mFolderRoot = NULL;
+		root_id = gInventory.getLibraryRootFolderID();
+	}
+	else
+	{
+		root_id = (preferred_type != LLFolderType::FT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
 	}
 
-
-	mCommitCallbackRegistrar.pushScope(); // registered as a widget; need to push callback scope ourselves
-
-	// create root folder
-	{
-		LLRect folder_rect(0,
-			0,
-			getRect().getWidth(),
-			0);
-		LLPlacesFolderView::Params p;
-		p.name = getName();
-		p.title = getLabel();
-		p.rect = folder_rect;
-		p.parent_panel = this;
-		mFolderRoot = (LLFolderView*)LLUICtrlFactory::create<LLPlacesFolderView>(p);
-		mFolderRoot->setAllowMultiSelect(mAllowMultiSelect);
-	}
-
-	mCommitCallbackRegistrar.popScope();
-
-	mFolderRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
-
-	// scroller
-	{
-		LLRect scroller_view_rect = getRect();
-		scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
-		LLScrollContainer::Params p;
-		p.name("Inventory Scroller");
-		p.rect(scroller_view_rect);
-		p.follows.flags(FOLLOWS_ALL);
-		p.reserve_scroll_corner(true);
-		p.tab_stop(true);
-		mScroller = LLUICtrlFactory::create<LLScrollContainer>(p);
-	}
-	addChild(mScroller);
-	mScroller->addChild(mFolderRoot);
-
-	mFolderRoot->setScrollContainer(mScroller);
-	mFolderRoot->addChild(mFolderRoot->mStatusTextBox);
-
-
-	// cut subitems
-	mFolderRoot->setUseEllipses(true);
-
-	return TRUE;
+	LLRect folder_rect(0,
+		0,
+		getRect().getWidth(),
+		0);
+	LLPlacesFolderView::Params p;
+	p.name = getName();
+	p.title = getLabel();
+	p.rect = folder_rect;
+	p.listener =  mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
+													LLAssetType::AT_CATEGORY,
+													LLInventoryType::IT_CATEGORY,
+													this,
+													NULL,
+													root_id);
+	p.parent_panel = this;
+	p.allow_multiselect = mAllowMultiSelect;
+	p.use_ellipses = true;	// truncate inventory item text so remove horizontal scroller
+	mFolderRoot = (LLFolderView*)LLUICtrlFactory::create<LLPlacesFolderView>(p);
 }
+
 
 // save current folder open state
 void LLPlacesInventoryPanel::saveFolderState()

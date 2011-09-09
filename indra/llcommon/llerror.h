@@ -39,7 +39,7 @@
 
 	Information for most users:
 	
-	Code can log messages with constuctions like this:
+	Code can log messages with constructions like this:
 	
 		LL_INFOS("StringTag") << "request to fizzbip agent " << agent_id
 			<< " denied due to timeout" << LL_ENDL;
@@ -47,9 +47,9 @@
 	Messages can be logged to one of four increasing levels of concern,
 	using one of four "streams":
 
-		LL_DEBUGS("StringTag")	- debug messages that are normally supressed
-		LL_INFOS("StringTag")	- informational messages that are normall shown
-		LL_WARNS("StringTag")	- warning messages that singal a problem
+		LL_DEBUGS("StringTag")	- debug messages that are normally suppressed
+		LL_INFOS("StringTag")	- informational messages that are normal shown
+		LL_WARNS("StringTag")	- warning messages that signal a problem
 		LL_ERRS("StringTag")	- error messages that are major, unrecoverable failures
 		
 	The later (LL_ERRS("StringTag")) automatically crashes the process after the message
@@ -90,7 +90,7 @@
 	
 		WARN: LLFoo::doSomething: called with a big value for i: 283
 	
-	Which messages are logged and which are supressed can be controled at run
+	Which messages are logged and which are suppressed can be controlled at run
 	time from the live file logcontrol.xml based on function, class and/or 
 	source file.  See etc/logcontrol-dev.xml for details.
 	
@@ -106,7 +106,7 @@ namespace LLError
 	enum ELevel
 	{
 		LEVEL_ALL = 0,
-			// used to indicate that all messagess should be logged
+			// used to indicate that all messages should be logged
 			
 		LEVEL_DEBUG = 0,
 		LEVEL_INFO = 1,
@@ -220,7 +220,7 @@ namespace LLError
 	// See top of file for example of how to use this
 	
 typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
-	// Outside a class declartion, or in class without LOG_CLASS(), this
+	// Outside a class declaration, or in class without LOG_CLASS(), this
 	// typedef causes the messages to not be associated with any class.
 
 
@@ -295,6 +295,5 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 		
 		Such computation is done iff the message will be logged.
 	*/
-
 
 #endif // LL_LLERROR_H

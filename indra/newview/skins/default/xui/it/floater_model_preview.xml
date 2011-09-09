@@ -3,6 +3,9 @@
 	<string name="status_idle">
 		Pausa
 	</string>
+	<string name="status_parse_error">
+		Problema nell&apos;elaborazione DAE - vedi il registro per informazioni al riguardo.
+	</string>
 	<string name="status_reading_file">
 		Caricamento in corso...
 	</string>
@@ -11,6 +14,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		Errore: numero di vertici maggiore di 65534, annullato.
+	</string>
+	<string name="bad_element">
+		Errore: elemento non valido
 	</string>
 	<string name="high">
 		Alto
@@ -54,6 +60,9 @@
 	<string name="simplifying">
 		Semplificazione in corso...
 	</string>
+	<string name="tbd">
+		Da definire
+	</string>
 	<text name="name_label">
 		Nome:
 	</text>
@@ -74,23 +83,26 @@
 			Livello di dettaglio: Bassissimo
 		</combo_item>
 	</combo_box>
-	<panel>
-		<text name="streaming cost">
-			Costo risorsa: [COST]
-		</text>
-		<text name="physics cost">
-			Costo fisica: [COST]
-		</text>
-		<text name="upload fee">
-			Costo caricamento: N/D
-		</text>
-	</panel>
-	<text name="status">
-		[STATUS]
+	<text name="warning_title">
+		ATTENZIONE:
 	</text>
-	<button label="Predefiniti" name="reset_btn" tool_tip="Ripristina predefiniti"/>
-	<button label="Carica sul server" name="ok_btn" tool_tip="Carica al simulatore"/>
-	<button label="Annulla" name="cancel_btn"/>
+	<text name="warning_message">
+		Non sarà possibile completare il caricamento finale di questo modello sui server di Second Life. [[VURL] Scopri come] ricevere l&apos;autorizzazione per il caricamento dei modelli con reticolo.
+	</text>
+	<text name="weights_text">
+		Download:
+Fisica:
+Server:
+
+Prim equivalenti:
+	</text>
+	<text name="weights">
+		[ST]
+[PH]
+[SIM]
+
+[EQ]
+	</text>
 	<tab_container name="import_tab">
 		<panel label="Livello di dettaglio" name="lod_panel">
 			<text name="lod_table_header">
@@ -228,4 +240,11 @@
 			<spinner name="pelvis_offset" value="0.0"/>
 		</panel>
 	</tab_container>
+	<text name="upload_fee">
+		Costo caricamento: L$ [FEE]
+	</text>
+	<button label="Imposta sui valori predefiniti" name="reset_btn" tool_tip="Imposta sui valori predefiniti"/>
+	<button label="Calcolare pesi e tariffa" name="calculate_btn" tool_tip="Calcolare pesi e tariffa"/>
+	<button label="Carica sul server" name="ok_btn" tool_tip="Carica al simulatore"/>
+	<button label="Annulla" name="cancel_btn"/>
 </floater>

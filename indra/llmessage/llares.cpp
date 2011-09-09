@@ -28,6 +28,7 @@
 
 #include "linden_common.h"
 #include "llares.h"
+#include "llscopedvolatileaprpool.h"
 
 #include <ares_dns.h>
 #include <ares_version.h>
@@ -464,11 +465,6 @@ void LLAres::search(const std::string &query, LLResType type,
 
 bool LLAres::process(U64 timeout)
 {
-	if (!gAPRPoolp)
-	{
-		ll_init_apr();
-	}
-
 	ares_socket_t socks[ARES_GETSOCK_MAXNUM];
 	apr_pollfd_t aprFds[ARES_GETSOCK_MAXNUM];
 	apr_int32_t nsds = 0;	
@@ -482,10 +478,7 @@ bool LLAres::process(U64 timeout)
 		return nsds > 0;
 	}
 
-	apr_status_t status;
-	LLAPRPool pool;
-	status = pool.getStatus() ;
-	ll_apr_assert_status(status);
+	LLScopedVolatileAPRPool scoped_pool;
 
 	for (int i = 0; i < ARES_GETSOCK_MAXNUM; i++)
 	{
@@ -502,7 +495,7 @@ bool LLAres::process(U64 timeout)
 
 		apr_socket_t *aprSock = NULL;
 
-		status = apr_os_sock_put(&aprSock, (apr_os_sock_t *) &socks[i], pool.getAPRPool());
+		apr_status_t status = apr_os_sock_put(&aprSock, (apr_os_sock_t *) &socks[i], scoped_pool);
 		if (status != APR_SUCCESS)
 		{
 			ll_apr_warn_status(status);
@@ -511,7 +504,7 @@ bool LLAres::process(U64 timeout)
 
 		aprFds[nactive].desc.s = aprSock;
 		aprFds[nactive].desc_type = APR_POLL_SOCKET;
-		aprFds[nactive].p = pool.getAPRPool();
+		aprFds[nactive].p = scoped_pool;
 		aprFds[nactive].rtnevents = 0;
 		aprFds[nactive].client_data = &socks[i];
 
@@ -520,7 +513,7 @@ bool LLAres::process(U64 timeout)
 
 	if (nactive > 0)
 	{
-		status = apr_poll(aprFds, nactive, &nsds, timeout);
+		apr_status_t status = apr_poll(aprFds, nactive, &nsds, timeout);
 
 		if (status != APR_SUCCESS && status != APR_TIMEUP)
 		{

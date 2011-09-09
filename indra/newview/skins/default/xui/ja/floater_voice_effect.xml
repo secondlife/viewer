@@ -12,6 +12,114 @@
 	<string name="new_voice_effect">
 		（新登場！）
 	</string>
+	<string name="effect_Arena">
+		アリーナ
+	</string>
+	<string name="effect_Beast">
+		野獣
+	</string>
+	<string name="effect_Buff">
+		がっしり
+	</string>
+	<string name="effect_Buzz">
+		ブザー
+	</string>
+	<string name="effect_Camille">
+		カミール
+	</string>
+	<string name="effect_Creepy">
+		気味の悪い
+	</string>
+	<string name="effect_CreepyBot">
+		気味わるボット
+	</string>
+	<string name="effect_Cyber">
+		サイバー
+	</string>
+	<string name="effect_DeepBot">
+		ディープボット
+	</string>
+	<string name="effect_Demon">
+		デーモン
+	</string>
+	<string name="effect_Flirty">
+		気のありそうな
+	</string>
+	<string name="effect_Foxy">
+		魅惑的
+	</string>
+	<string name="effect_Halloween_2010_Bonus">
+		ハロウィン_2010_ボーナス
+	</string>
+	<string name="effect_Helium">
+		ヘリウム
+	</string>
+	<string name="effect_Husky">
+		ハスキー
+	</string>
+	<string name="effect_Intercom">
+		インターホン
+	</string>
+	<string name="effect_Macho">
+		マッチョ
+	</string>
+	<string name="effect_Micro">
+		ミクロ
+	</string>
+	<string name="effect_Mini">
+		ミニ
+	</string>
+	<string name="effect_Nano">
+		ナノ
+	</string>
+	<string name="effect_Nightmare">
+		悪夢
+	</string>
+	<string name="effect_PopBot">
+		ポップボット
+	</string>
+	<string name="effect_Rachel">
+		レイチェル
+	</string>
+	<string name="effect_Radio">
+		ラジオ
+	</string>
+	<string name="effect_Robot">
+		ロボット
+	</string>
+	<string name="effect_Roxanne">
+		ロクサン
+	</string>
+	<string name="effect_Sabrina">
+		サブリナ
+	</string>
+	<string name="effect_Samantha">
+		サマンサ
+	</string>
+	<string name="effect_Sexy">
+		セクシー
+	</string>
+	<string name="effect_Shorty">
+		チビ
+	</string>
+	<string name="effect_Sneaky">
+		コソコソ
+	</string>
+	<string name="effect_Stallion">
+		雄馬
+	</string>
+	<string name="effect_Sultry">
+		艶かしい
+	</string>
+	<string name="effect_Thunder">
+		サンダー
+	</string>
+	<string name="effect_Vixen">
+		性悪な
+	</string>
+	<string name="effect_WhinyBot">
+		不機嫌ボット
+	</string>
 	<text name="preview_text">
 		プレビュー
 	</text>

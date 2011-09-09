@@ -2,6 +2,8 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
+ left="10000"
+ bottom="10000"
  height="600"
  layout="topleft"
  min_height="150"

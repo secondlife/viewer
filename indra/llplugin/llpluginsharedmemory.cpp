@@ -187,7 +187,8 @@ bool LLPluginSharedMemory::create(size_t size)
 	mName += createName();
 	mSize = size;
 	
-	apr_status_t status = apr_shm_create( &(mImpl->mAprSharedMemory), mSize, mName.c_str(), gAPRPoolp );
+	mPool.create();
+	apr_status_t status = apr_shm_create( &(mImpl->mAprSharedMemory), mSize, mName.c_str(), mPool());
 	
 	if(ll_apr_warn_status(status))
 	{
@@ -210,7 +211,7 @@ bool LLPluginSharedMemory::destroy(void)
 		}
 		mImpl->mAprSharedMemory = NULL;
 	}
-	
+	mPool.destroy();
 	return true;
 }
 
@@ -219,7 +220,8 @@ bool LLPluginSharedMemory::attach(const std::string &name, size_t size)
 	mName = name;
 	mSize = size;
 	
-	apr_status_t status = apr_shm_attach( &(mImpl->mAprSharedMemory), mName.c_str(), gAPRPoolp );
+	mPool.create();
+	apr_status_t status = apr_shm_attach( &(mImpl->mAprSharedMemory), mName.c_str(), mPool() );
 	
 	if(ll_apr_warn_status(status))
 	{
@@ -241,6 +243,7 @@ bool LLPluginSharedMemory::detach(void)
 		}
 		mImpl->mAprSharedMemory = NULL;
 	}
+	mPool.destroy();
 	
 	return true;
 }

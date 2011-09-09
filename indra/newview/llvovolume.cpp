@@ -704,19 +704,22 @@ BOOL LLVOVolume::isVisible() const
 	return FALSE ;
 }
 
-void LLVOVolume::updateTextureVirtualSize()
+void LLVOVolume::updateTextureVirtualSize(bool forced)
 {
 	LLFastTimer ftm(FTM_VOLUME_TEXTURES);
 	// Update the pixel area of all faces
 
-	if(!isVisible())
+	if(!forced)
 	{
-		return ;
-	}
+		if(!isVisible())
+		{
+			return ;
+		}
 
-	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SIMPLE))
-	{
-		return;
+		if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SIMPLE))
+		{
+			return;
+		}
 	}
 
 	static LLCachedControl<bool> dont_load_textures(gSavedSettings,"TextureDisable");
@@ -1017,6 +1020,9 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 	if (is404)
 	{
 		setIcon(LLViewerTextureManager::getFetchedTextureFromFile("icons/Inv_Mesh.png", TRUE, LLViewerTexture::BOOST_UI));
+		//render prim proxy when mesh loading attempts give up
+		volume_params.setSculptID(LLUUID::null, LL_SCULPT_TYPE_NONE);
+
 	}
 
 	if ((LLPrimitive::setVolume(volume_params, lod, (mVolumeImpl && mVolumeImpl->isVolumeUnique()))) || mSculptChanged)
@@ -3096,7 +3102,7 @@ U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 
 F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes)
 {
-	F32 radius = getScale().length();
+	F32 radius = getScale().length()*0.5f;
 
 	if (isMesh())
 	{	
@@ -3743,6 +3749,11 @@ bool can_batch_texture(LLFace* facep)
 		return false;
 	}
 
+	if (facep->getTexture() && facep->getTexture()->getPrimaryFormat() == GL_ALPHA)
+	{ //can't batch invisiprims
+		return false;
+	}
+
 	if (facep->isState(LLFace::TEXTURE_ANIM) && facep->getVirtualSize() > MIN_TEX_ANIM_SIZE)
 	{ //texture animation breaks batches
 		return false;
@@ -3990,7 +4001,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 
 		llassert_always(vobj);
-		vobj->updateTextureVirtualSize();
+		vobj->updateTextureVirtualSize(true);
 		vobj->preRebuild();
 
 		drawablep->clearState(LLDrawable::HAS_ALPHA);
@@ -4361,6 +4372,8 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 		group->mBuilt = 1.f;
 		
+		std::set<LLVertexBuffer*> mapped_buffers;
+
 		for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
 		{
 			LLFastTimer t(FTM_VOLUME_GEOM_PARTIAL);
@@ -4375,35 +4388,31 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 				{
 					LLFace* face = drawablep->getFace(i);
-					if (face && face->getVertexBuffer())
+					if (face)
 					{
-						face->getGeometryVolume(*volume, face->getTEOffset(), 
-							vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex());
+						LLVertexBuffer* buff = face->getVertexBuffer();
+						if (buff)
+						{
+							face->getGeometryVolume(*volume, face->getTEOffset(), 
+								vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex());
+
+							if (buff->isLocked())
+							{
+								mapped_buffers.insert(buff);
+							}
+						}
 					}
 				}
-
+				
 				drawablep->clearState(LLDrawable::REBUILD_ALL);
 			}
 		}
 		
-		//unmap all the buffers
-		for (LLSpatialGroup::buffer_map_t::iterator i = group->mBufferMap.begin(); i != group->mBufferMap.end(); ++i)
+		for (std::set<LLVertexBuffer*>::iterator iter = mapped_buffers.begin(); iter != mapped_buffers.end(); ++iter)
 		{
-			LLSpatialGroup::buffer_texture_map_t& map = i->second;
-			for (LLSpatialGroup::buffer_texture_map_t::iterator j = map.begin(); j != map.end(); ++j)
-			{
-				LLSpatialGroup::buffer_list_t& list = j->second;
-				for (LLSpatialGroup::buffer_list_t::iterator k = list.begin(); k != list.end(); ++k)
-				{
-					LLVertexBuffer* buffer = *k;
-					if (buffer->isLocked())
-					{
-						buffer->setBuffer(0);
-					}
-				}
-			}
+			(*iter)->setBuffer(0);
 		}
-		
+
 		// don't forget alpha
 		if(group != NULL && 
 		   !group->mVertexBuffer.isNull() && 
@@ -4481,6 +4490,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		std::sort(faces.begin(), faces.end(), LLFace::CompareDistanceGreater());
 	}
 				
+	bool hud_group = group->isHUDGroup() ;
 	std::vector<LLFace*>::iterator face_iter = faces.begin();
 	
 	LLSpatialGroup::buffer_map_t buffer_map;
@@ -4495,6 +4505,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 	S32 texture_index_channels = gGLManager.mNumTextureImageUnits-1; //always reserve one for shiny for now just for simplicity
 	
+	if (gGLManager.mGLVersion < 3.1f)
+	{
+		texture_index_channels = 1;
+	}
+
 	if (LLPipeline::sRenderDeferred && distance_sort)
 	{
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
@@ -4708,6 +4723,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			}
 
 			const LLTextureEntry* te = facep->getTextureEntry();
+			tex = facep->getTexture();
 
 			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
@@ -4745,7 +4761,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					registerFace(group, facep, LLRenderPass::PASS_INVISI_SHINY);
 					registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
 				}
-				else if (LLPipeline::sRenderDeferred)
+				else if (LLPipeline::sRenderDeferred && !hud_group)
 				{ //deferred rendering
 					if (te->getFullbright())
 					{ //register in post deferred fullbright shiny pass
@@ -4783,7 +4799,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				else if (fullbright || bake_sunlight)
 				{ //fullbright
 					registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
-					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && te->getBumpmap())
+					if (LLPipeline::sRenderDeferred && !hud_group && LLPipeline::sRenderBump && te->getBumpmap())
 					{ //if this is the deferred render and a bump map is present, register in post deferred bump
 						registerFace(group, facep, LLRenderPass::PASS_POST_BUMP);
 					}
@@ -4809,7 +4825,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			}
 			
 			//not sure why this is here, and looks like it might cause bump mapped objects to get rendered redundantly -- davep 5/11/2010
-			if (!is_alpha && !LLPipeline::sRenderDeferred)
+			if (!is_alpha && (hud_group || !LLPipeline::sRenderDeferred))
 			{
 				llassert((mask & LLVertexBuffer::MAP_NORMAL) || fullbright);
 				facep->setPoolType((fullbright) ? LLDrawPool::POOL_FULLBRIGHT : LLDrawPool::POOL_SIMPLE);

@@ -370,7 +370,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mAtmHeight = ATM_HEIGHT;
 	mEarthCenter = LLVector3(mCameraPosAgent.mV[0], mCameraPosAgent.mV[1], -EARTH_RADIUS);
 
-	mSunDefaultPosition = LLVector3(LLWLParamManager::instance()->mCurParams.getVector("lightnorm", error));
+	mSunDefaultPosition = LLVector3(LLWLParamManager::getInstance()->mCurParams.getVector("lightnorm", error));
 	if (gSavedSettings.getBOOL("SkyOverrideSimSunPosition"))
 	{
 		initSunDirection(mSunDefaultPosition, LLVector3(0, 0, 0));
@@ -646,24 +646,24 @@ void LLVOSky::initAtmospherics(void)
 	bool error;
 	
 	// uniform parameters for convenience
-	dome_radius = LLWLParamManager::instance()->getDomeRadius();
-	dome_offset_ratio = LLWLParamManager::instance()->getDomeOffset();
-	sunlight_color = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("sunlight_color", error));
-	ambient = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("ambient", error));
-	//lightnorm = LLWLParamManager::instance()->mCurParams.getVector("lightnorm", error);
-	gamma = LLWLParamManager::instance()->mCurParams.getVector("gamma", error)[0];
-	blue_density = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("blue_density", error));
-	blue_horizon = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("blue_horizon", error));
-	haze_density = LLWLParamManager::instance()->mCurParams.getVector("haze_density", error)[0];
-	haze_horizon = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("haze_horizon", error));
-	density_multiplier = LLWLParamManager::instance()->mCurParams.getVector("density_multiplier", error)[0];
-	max_y = LLWLParamManager::instance()->mCurParams.getVector("max_y", error)[0];
-	glow = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("glow", error));
-	cloud_shadow = LLWLParamManager::instance()->mCurParams.getVector("cloud_shadow", error)[0];
-	cloud_color = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("cloud_color", error));
-	cloud_scale = LLWLParamManager::instance()->mCurParams.getVector("cloud_scale", error)[0];
-	cloud_pos_density1 = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("cloud_pos_density1", error));
-	cloud_pos_density2 = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("cloud_pos_density2", error));
+	dome_radius = LLWLParamManager::getInstance()->getDomeRadius();
+	dome_offset_ratio = LLWLParamManager::getInstance()->getDomeOffset();
+	sunlight_color = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("sunlight_color", error));
+	ambient = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("ambient", error));
+	//lightnorm = LLWLParamManager::getInstance()->mCurParams.getVector("lightnorm", error);
+	gamma = LLWLParamManager::getInstance()->mCurParams.getVector("gamma", error)[0];
+	blue_density = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("blue_density", error));
+	blue_horizon = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("blue_horizon", error));
+	haze_density = LLWLParamManager::getInstance()->mCurParams.getVector("haze_density", error)[0];
+	haze_horizon = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("haze_horizon", error));
+	density_multiplier = LLWLParamManager::getInstance()->mCurParams.getVector("density_multiplier", error)[0];
+	max_y = LLWLParamManager::getInstance()->mCurParams.getVector("max_y", error)[0];
+	glow = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("glow", error));
+	cloud_shadow = LLWLParamManager::getInstance()->mCurParams.getVector("cloud_shadow", error)[0];
+	cloud_color = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("cloud_color", error));
+	cloud_scale = LLWLParamManager::getInstance()->mCurParams.getVector("cloud_scale", error)[0];
+	cloud_pos_density1 = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("cloud_pos_density1", error));
+	cloud_pos_density2 = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("cloud_pos_density2", error));
 
 	// light norm is different.  We need the sun's direction, not the light direction
 	// which could be from the moon.  And we need to clamp it
@@ -755,6 +755,11 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 	// project the direction ray onto the sky dome.
 	F32 phi = acos(Pn[1]);
 	F32 sinA = sin(F_PI - phi);
+	if (fabsf(sinA) < 0.01f)
+	{ //avoid division by zero
+		sinA = 0.01f;
+	}
+
 	F32 Plen = dome_radius * sin(F_PI + phi + asin(dome_offset_ratio * sinA)) / sinA;
 
 	Pn *= Plen;
@@ -1033,7 +1038,7 @@ void LLVOSky::calcAtmospherics(void)
 	// Since WL scales everything by 2, there should always be at least a 2:1 brightness ratio
 	// between sunlight and point lights in windlight to normalize point lights.
 	F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
-	LLWLParamManager::instance()->mSceneLightStrength = 2.0f * (1.0f + sun_dynamic_range * dp);
+	LLWLParamManager::getInstance()->mSceneLightStrength = 2.0f * (1.0f + sun_dynamic_range * dp);
 
 	mSunDiffuse = vary_SunlightColor;
 	mSunAmbient = vary_AmbientColor;
@@ -2129,7 +2134,7 @@ void LLVOSky::updateFog(const F32 distance)
 		F32 depth = water_height - camera_height;
 		
 		// get the water param manager variables
-		float water_fog_density = LLWaterParamManager::instance()->getFogDensity();
+		float water_fog_density = LLWaterParamManager::getInstance()->getFogDensity();
 		LLColor4 water_fog_color = LLDrawPoolWater::sWaterFogColor.mV;
 		
 		// adjust the color based on depth.  We're doing linear approximations

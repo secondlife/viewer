@@ -93,6 +93,8 @@ LLFolderDictionary::LLFolderDictionary()
 	addEntry(LLFolderType::FT_MESH, 				new FolderEntry("mesh",	TRUE));
 
 	addEntry(LLFolderType::FT_INBOX, 				new FolderEntry("inbox",	TRUE));
+	addEntry(LLFolderType::FT_OUTBOX, 				new FolderEntry("outbox",	TRUE));
+	addEntry(LLFolderType::FT_BASIC_ROOT,			new FolderEntry("basic_rt", TRUE));
 		 
 	addEntry(LLFolderType::FT_NONE, 				new FolderEntry("-1",		FALSE));
 };

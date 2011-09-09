@@ -795,7 +795,7 @@ const char* LLTemplateMessageReader::getMessageName() const
 {
 	if (!mCurrentRMessageTemplate)
 	{
-		llwarns << "no mCurrentRMessageTemplate" << llendl;
+		// no message currently being read
 		return "";
 	}
 	return mCurrentRMessageTemplate->mName;

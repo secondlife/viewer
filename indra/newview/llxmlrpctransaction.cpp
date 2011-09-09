@@ -306,19 +306,8 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 		mCurlRequest = new LLCurlEasyRequest();
 	}
 	mErrorCert = NULL;
-	
-	if (gSavedSettings.getBOOL("BrowserProxyEnabled"))
-	{
-		mProxyAddress = gSavedSettings.getString("BrowserProxyAddress");
-		S32 port = gSavedSettings.getS32 ( "BrowserProxyPort" );
 
-		// tell curl about the settings
-		mCurlRequest->setoptString(CURLOPT_PROXY, mProxyAddress);
-		mCurlRequest->setopt(CURLOPT_PROXYPORT, port);
-		mCurlRequest->setopt(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-	}
-
-//	mCurlRequest->setopt(CURLOPT_VERBOSE, 1); // usefull for debugging
+//	mCurlRequest->setopt(CURLOPT_VERBOSE, 1); // useful for debugging
 	mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
 	mCurlRequest->setWriteCallback(&curlDownloadCallback, (void*)this);
 	BOOL vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
@@ -394,16 +383,18 @@ bool LLXMLRPCTransaction::Impl::process()
 		}
 	}
 	
-	const F32 MAX_PROCESSING_TIME = 0.05f;
-	LLTimer timer;
+	//const F32 MAX_PROCESSING_TIME = 0.05f;
+	//LLTimer timer;
 
-	while (mCurlRequest->perform() > 0)
+	mCurlRequest->perform();
+
+	/*while (mCurlRequest->perform() > 0)
 	{
 		if (timer.getElapsedTimeF32() >= MAX_PROCESSING_TIME)
 		{
 			return false;
 		}
-	}
+	}*/
 
 	while(1)
 	{

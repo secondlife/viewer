@@ -31,6 +31,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
+#include "llviewerinventory.h"
 
 
 LLFilteredWearableListManager::LLFilteredWearableListManager(LLInventoryItemsList* list, LLInventoryCollectFunctor* collector)

@@ -3,8 +3,17 @@
 	<panel.string name="default_text">
 		Predefinito
 	</panel.string>
+	<string name="name_no_device">
+		Nessun dispositivo
+	</string>
+	<string name="name_default_system_device">
+		Dispositivo di sistema predefinito
+	</string>
 	<text name="Input">
 		Input
+	</text>
+	<text name="Output">
+		Output
 	</text>
 	<text name="My volume label">
 		Il mio volume:
@@ -12,8 +21,5 @@
 	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Cambia il volume utilizzando questa barra"/>
 	<text name="wait_text">
 		Attendi
-	</text>
-	<text name="Output">
-		Output
 	</text>
 </panel>

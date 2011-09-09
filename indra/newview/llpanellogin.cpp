@@ -1040,7 +1040,7 @@ void LLPanelLogin::onModeChangeConfirm(const LLSD& original_value, const LLSD& n
 	{
 	case 0:
 		gSavedSettings.getControl("SessionSettingsFile")->set(new_value);
-		LLAppViewer::instance()->forceQuit();
+		LLAppViewer::instance()->requestQuit();
 		break;
 	case 1:
 		// revert to original value

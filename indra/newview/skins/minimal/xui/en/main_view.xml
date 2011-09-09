@@ -187,9 +187,9 @@
        name="status_bar_container"
        tab_stop="false"
        height="30"
-       left="-70"
+       left="-160"
        top="0"
-       width="70"
+       width="160"
        visible="false"/>
   <panel follows="top|bottom"
          height="500"

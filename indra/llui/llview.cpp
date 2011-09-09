@@ -1299,15 +1299,7 @@ void LLView::drawChildren()
 {
 	if (!mChildList.empty())
 	{
-		static const LLRect* rootRect = NULL;
-		
-		if (!mParentView)
-		{
-			rootRect = &mRect;
-		}
-
-		LLRect screenRect;
-
+		LLView* rootp = LLUI::getRootView();		
 		++sDepth;
 
 		for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend();)  // ++child_iter)
@@ -1317,9 +1309,8 @@ void LLView::drawChildren()
 
 			if (viewp->getVisible() && viewp->getRect().isValid())
 			{
-				// Only draw views that are within the root view
-				localRectToScreen(viewp->getRect(),&screenRect);
-				if ( rootRect->overlaps(screenRect)  && LLUI::sDirtyRect.overlaps(screenRect))
+				LLRect screen_rect = viewp->calcScreenRect();
+				if ( rootp->getLocalRect().overlaps(screen_rect)  && LLUI::sDirtyRect.overlaps(screen_rect))
 				{
 					LLUI::pushMatrix();
 					{
@@ -1664,15 +1655,19 @@ BOOL LLView::hasAncestor(const LLView* parentp) const
 
 BOOL LLView::childHasKeyboardFocus( const std::string& childname ) const
 {
-	LLView *child = findChildView(childname, TRUE);
-	if (child)
+	LLView *focus = dynamic_cast<LLView *>(gFocusMgr.getKeyboardFocus());
+	
+	while (focus != NULL)
 	{
-		return gFocusMgr.childHasKeyboardFocus(child);
+		if (focus->getName() == childname)
+		{
+			return TRUE;
+		}
+		
+		focus = focus->getParent();
 	}
-	else
-	{
-		return FALSE;
-	}
+	
+	return FALSE;
 }
 
 //-----------------------------------------------------------------------------

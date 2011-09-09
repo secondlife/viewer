@@ -601,6 +601,34 @@ void LLInventoryAddedObserver::changed(U32 mask)
 	}
 }
 
+void LLInventoryCategoryAddedObserver::changed(U32 mask)
+{
+	if (!(mask & LLInventoryObserver::ADD))
+	{
+		return;
+	}
+	
+	const LLInventoryModel::changed_items_t& changed_ids = gInventory.getChangedIDs();
+	
+	for (LLInventoryModel::changed_items_t::const_iterator cit = changed_ids.begin(); cit != changed_ids.end(); ++cit)
+	{
+		LLViewerInventoryCategory* cat = gInventory.getCategory(*cit);
+		
+		if (cat)
+		{
+			mAddedCategories.push_back(cat);
+		}
+	}
+	
+	if (!mAddedCategories.empty())
+	{
+		done();
+		
+		mAddedCategories.clear();
+	}
+}
+
+
 LLInventoryTransactionObserver::LLInventoryTransactionObserver(const LLTransactionID& transaction_id) :
 	mTransactionID(transaction_id)
 {

@@ -126,8 +126,8 @@ void LLWatchdogTimeout::start(const std::string& state)
 	// Order of operation is very impmortant here.
 	// After LLWatchdogEntry::start() is called
 	// LLWatchdogTimeout::isAlive() will be called asynchronously. 
-	mTimer.start(); 
 	ping(state);
+	mTimer.start(); 
 	LLWatchdogEntry::start();
 }
 
@@ -178,8 +178,8 @@ void LLWatchdog::init(killer_event_callback func)
 	mKillerCallback = func;
 	if(!mSuspectsAccessMutex && !mTimer)
 	{
-		mSuspectsAccessMutex = new LLMutex(NULL);
-		mTimer = new LLWatchdogTimerThread();
+		mSuspectsAccessMutex = new LLMutex;
+		mTimer = new LLWatchdogTimerThread;
 		mTimer->setSleepTime(WATCHDOG_SLEEP_TIME_USEC / 1000);
 		mLastClockCount = LLTimer::getTotalTime();
 

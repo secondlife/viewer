@@ -3,8 +3,17 @@
 	<panel.string name="default_text">
 		Valeur par défaut
 	</panel.string>
+	<string name="name_no_device">
+		Aucun périphérique
+	</string>
+	<string name="name_default_system_device">
+		Périphérique système par défaut
+	</string>
 	<text name="Input">
 		Entrée
+	</text>
+	<text name="Output">
+		Sortie
 	</text>
 	<text name="My volume label">
 		Mon volume :
@@ -12,8 +21,5 @@
 	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Régler le volume avec le curseur."/>
 	<text name="wait_text">
 		Veuillez patienter
-	</text>
-	<text name="Output">
-		Sortie
 	</text>
 </panel>

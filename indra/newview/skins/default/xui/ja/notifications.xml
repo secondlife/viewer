@@ -1590,6 +1590,11 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>
+	<notification name="TooManyTeleportOffers">
+		[OFFERS] 回にわたってテレポートを送ろうとしましたが、
+それは限度数 [LIMIT] を超えています。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OfferTeleportFromGod">
 		現在地に住人をゴッドサモンしますか？
 		<form name="form">
@@ -2018,6 +2023,10 @@ Linden Lab
 		トラベル、Web、検索の履歴をすべて削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
+	<notification name="ConfirmClearCache">
+		ビューワのキャッシュをクリアしますか？
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmClearCookies">
 		本当にクッキーをクリアしますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="はい"/>
@@ -2043,48 +2052,30 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		保存された事前設定を上書きしますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
-	<notification name="WLDeletePresetAlert">
-		「 [SKY] 」を削除しますか？
-		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
-	</notification>
 	<notification name="WLNoEditDefault">
 		デフォルトの設定を編集したり削除したりすることはできません。
 	</notification>
 	<notification name="WLMissingSky">
 		このデイサイクルのファイルは次の存在しない「空」ファイルを参照しています： [SKY]。
 	</notification>
+	<notification name="WLRegionApplyFail">
+		申し訳ございませんが、設定をリージョンに適用できませんでした。一度リージョンを出てから戻ると、問題が解決されるかもしれません。問題の発生した理由：[FAIL_REASON]
+	</notification>
+	<notification name="EnvCannotDeleteLastDayCycleKey">
+		デイサイクルを空にはできないので、このデイサイクルの最後のキーを削除することはできません。最後のキーを削除して新しいキーを作成するのではなく、最後のキーを変更してください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="DayCycleTooManyKeyframes">
+		このデイサイクルにはこれ以上キーフレームを追加できません。[SCOPE] の範囲のデイサイクルに追加できるキーフレーム数は最高 [MAX] です。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="EnvUpdateRate">
+		リージョンの自然環境の設定は [WAIT] 秒ごとにしか更新できません。その間隔を置いてからもう一度お試しください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="PPSaveEffectAlert">
 		ポストプロセス効果が存在します。 上書きしますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
-	</notification>
-	<notification name="NewSkyPreset">
-		新しい空の名前を指定してください。
-		<form name="form">
-			<input name="message">
-				新しい事前設定
-			</input>
-			<button name="OK" text="OK"/>
-			<button name="Cancel" text="キャンセル"/>
-		</form>
-	</notification>
-	<notification name="ExistsSkyPresetAlert">
-		事前設定がすでに存在します！
-	</notification>
-	<notification name="NewWaterPreset">
-		新しい水の事前設定の名前を指定してください。
-		<form name="form">
-			<input name="message">
-				新しい事前設定
-			</input>
-			<button name="OK" text="OK"/>
-			<button name="Cancel" text="キャンセル"/>
-		</form>
-	</notification>
-	<notification name="ExistsWaterPresetAlert">
-		事前設定がすでに存在します！
-	</notification>
-	<notification name="WaterNoEditDefault">
-		デフォルトの設定を編集したり削除したりすることはできません。
 	</notification>
 	<notification name="ChatterBoxSessionStartError">
 		[RECIPIENT] と新しいチャットを開始することができません。
@@ -2114,13 +2105,14 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		<usetemplate ignoretext="「容姿」を編集中に、作成する衣類を装着するとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		年齢確認を済ませていないとこの区画を訪れることができません。  [SECOND_LIFE] サイトで年齢の確認を行いますか？
+		Second Life で Adult 指定のコンテンツや領域にアクセスできるのは 18 歳以上のユーザーのみです。年齢確認ページで 18 歳以上であることを証明してください。 
+これをクリックするとウェブブラウザが開きます。
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php?lang=ja
+			https://secondlife.com/my/account/verification.php
 		</url>
-		<usetemplate ignoretext="年齢の確認を済ませていないとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
+		<usetemplate ignoretext="年齢の確認を済ませていないとき" name="okcancelignore" notext="取り消し" yestext="年齢確認ページを開く"/>
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		支払情報が登録されていないとこのエリアを訪れることができません。  [SECOND_LIFE] サイトで登録を行いますか？
@@ -2378,6 +2370,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="NoBuild">
 		このエリアでは制作が禁止されています。 オブジェクトを制作したり Rez することはできません。
 	</notification>
+	<notification name="SeeAvatars">
+		この区画にいるアバターやこの区画内で行われる文字チャットは、他の区画から見えません。あなたには、この区画外にいる住人が見えず、外の住人にはあなたの姿が見えません。チャンネル 0 での通常の文字チャットもブロックされます。
+	</notification>
 	<notification name="ScriptsStopped">
 		管理者がこのリージョンのスクリプトを一時停止しました。
 	</notification>
@@ -2472,7 +2467,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="ObjectGiveItem">
 		[NAME_SLURL] が所有する &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; という名前のオブジェクトが、あなたに [OBJECTTYPE] を渡しました：
-[ITEM_SLURL]
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
 		<form name="form">
 			<button name="Keep" text="受け取る"/>
 			<button name="Discard" text="破棄"/>
@@ -2802,7 +2797,15 @@ M キーを押して変更します。
 		共有する住人を選択します。
 	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] をアップロードできませんでした： [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+		[LABEL] をアップロードできませんでした：[MESSAGE] [IDENTIFIER] 
+
+詳細についてはログをご覧ください。
+	</notification>
+	<notification name="MeshUploadPermError">
+		メッシュのアップロード許可をリクエスト中にエラーが発生しました。
+	</notification>
+	<notification name="RegionCapabilityRequestError">
+		リージョンの &apos;[CAPABILITY]&apos; という機能を取得できませんでした。
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		次のアイテムを共有しますか？

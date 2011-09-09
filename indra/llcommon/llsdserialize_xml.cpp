@@ -354,6 +354,7 @@ static unsigned get_till_eol(std::istream& input, char *buf, unsigned bufsize)
 	return count;
 }
 
+LLFastTimer::DeclareTimer FTM_SD_PARSE_READ_STREAM("LLSD Read Stream");
 S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 {
 	XML_Status status;
@@ -373,10 +374,13 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 		{
 			break;
 		}
-		count = get_till_eol(input, (char *)buffer, BUFFER_SIZE);
-		if (!count)
-		{
-			break;
+		{ LLFastTimer _(FTM_SD_PARSE_READ_STREAM);
+		
+			count = get_till_eol(input, (char *)buffer, BUFFER_SIZE);
+			if (!count)
+			{
+				break;
+			}
 		}
 		status = XML_ParseBuffer(mParser, count, false);
 
@@ -716,6 +720,7 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 		case ELEMENT_INTEGER:
 			{
 				S32 i;
+				// sscanf okay here with different locales - ints don't change for different locale settings like floats do.
 				if ( sscanf(mCurrentContent.c_str(), "%d", &i ) == 1 )
 				{	// See if sscanf works - it's faster
 					value = i;
@@ -729,15 +734,19 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 		
 		case ELEMENT_REAL:
 			{
-				F64 r;
-				if ( sscanf(mCurrentContent.c_str(), "%lf", &r ) == 1 )
-				{	// See if sscanf works - it's faster
-					value = r;
-				}
-				else
-				{
-					value = LLSD(mCurrentContent).asReal();
-				}
+				value = LLSD(mCurrentContent).asReal();
+				// removed since this breaks when locale has decimal separator that isn't '.'
+				// investigated changing local to something compatible each time but deemed higher
+				// risk that just using LLSD.asReal() each time.
+				//F64 r;
+				//if ( sscanf(mCurrentContent.c_str(), "%lf", &r ) == 1 )
+				//{	// See if sscanf works - it's faster
+				//	value = r;
+				//}
+				//else
+				//{
+				//	value = LLSD(mCurrentContent).asReal();
+				//}
 			}
 			break;
 		

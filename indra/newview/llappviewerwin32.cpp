@@ -518,11 +518,7 @@ void LLAppViewerWin32::handleCrashReporting(bool reportFreeze)
 	}
 	else
 	{
-		S32 cb = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
-		if(cb != CRASH_BEHAVIOR_NEVER_SEND)
-		{
-			_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str, NULL);
-		}
+		_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str, NULL);
 	}
 }
 

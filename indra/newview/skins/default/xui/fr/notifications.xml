@@ -1550,6 +1550,11 @@ Veuillez réessayer ultérieurement.
 			<button name="Cancel" text="Annuler"/>
 		</form>
 	</notification>
+	<notification name="TooManyTeleportOffers">
+		Vous avez essayé d&apos;effectuer [OFFERS] offres de téléportation,
+or ce nombre dépasse la limite autorisée fixée à [LIMIT].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OfferTeleportFromGod">
 		Exiger du résident qu&apos;il vienne vous rejoindre ?
 		<form name="form">
@@ -1971,6 +1976,10 @@ Souhaitez-vous quitter le mode occupé avant de terminer cette transaction ?
 		Êtes-vous certain de vouloir supprimer l&apos;historique de vos visites et recherches ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
+	<notification name="ConfirmClearCache">
+		Voulez-vous vraiment vider le cache de votre client ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmClearCookies">
 		Êtes-vous certain de vouloir supprimer vos cookies ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Oui"/>
@@ -1996,48 +2005,30 @@ Liez-la à partir d&apos;une page web pour permettre aux autres résidents d&apo
 		Voulez-vous écraser l&apos;option précédemment enregistrée ?
 		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
 	</notification>
-	<notification name="WLDeletePresetAlert">
-		Voulez-vous supprimer [SKY] ?
-		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
-	</notification>
 	<notification name="WLNoEditDefault">
 		Vous ne pouvez pas modifier ou supprimer un préréglage par défaut.
 	</notification>
 	<notification name="WLMissingSky">
 		Une dossier semble manquer au Cycle du jour : [SKY].
 	</notification>
+	<notification name="WLRegionApplyFail">
+		Impossible d&apos;appliquer les réglages à la région. Le problème est parfois résolu en quittant la région puis en y revenant. Motif fourni : [FAIL_REASON]
+	</notification>
+	<notification name="EnvCannotDeleteLastDayCycleKey">
+		Impossible de supprimer la dernière clé de ce cycle du jour car ce dernier ne peut pas être vide. Modifiez la dernière clé restante au lieu d&apos;essayer de la supprimer puis d&apos;en créer une nouvelle.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="DayCycleTooManyKeyframes">
+		Impossible d&apos;ajouter plus d&apos;images-clés à ce cycle du jour. Un maximum de [MAX] images-clés peut être associé aux cycles du jour de type [SCOPE].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="EnvUpdateRate">
+		Vous ne pouvez mettre à jour les paramètres d&apos;environnement d&apos;une région que toutes les [WAIT] secondes. Veuillez patienter pendant au moins ce délai avant de réessayer.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="PPSaveEffectAlert">
 		Certains effets post-traitement existent. Voulez-vous quand même écraser ce fichier ?
 		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
-	</notification>
-	<notification name="NewSkyPreset">
-		Nommez le nouveau ciel.
-		<form name="form">
-			<input name="message">
-				Nouveau préréglage
-			</input>
-			<button name="OK" text="OK"/>
-			<button name="Cancel" text="Annuler"/>
-		</form>
-	</notification>
-	<notification name="ExistsSkyPresetAlert">
-		Ce préréglage existe déjà !
-	</notification>
-	<notification name="NewWaterPreset">
-		Nommez ce nouveau préréglage d&apos;eau.
-		<form name="form">
-			<input name="message">
-				Nouveau préréglage
-			</input>
-			<button name="OK" text="OK"/>
-			<button name="Cancel" text="Annuler"/>
-		</form>
-	</notification>
-	<notification name="ExistsWaterPresetAlert">
-		Ce préréglage existe déjà !
-	</notification>
-	<notification name="WaterNoEditDefault">
-		Vous ne pouvez pas modifier ou supprimer un préréglage par défaut.
 	</notification>
 	<notification name="ChatterBoxSessionStartError">
 		Impossible de démarrer une nouvelle session de chat avec [RECIPIENT].
@@ -2066,13 +2057,14 @@ Liez-la à partir d&apos;une page web pour permettre aux autres résidents d&apo
 		<usetemplate ignoretext="Porter automatiquement tout en modifiant mon apparence" name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="NotAgeVerified">
-		Pour pouvoir pénétrer dans cette zone, vous devez avoir procédé à la vérification de votre âge.  Souhaitez-vous aller sur [SECOND_LIFE] et procéder à la vérification de votre âge ?
+		Vous devez avoir au moins 18 ans pour accéder au contenu et aux zones Adulte dans Second Life. Visitez la page de vérification de l&apos;âge afin de confirmer que vous avez plus de 18 ans. 
+Cette opération lancera votre navigateur Web.
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php?lang=fr
+			https://secondlife.com/my/account/verification.php
 		</url>
-		<usetemplate ignoretext="Je n&apos;ai pas procédé à la vérification de mon âge" name="okcancelignore" notext="Non" yestext="Oui"/>
+		<usetemplate ignoretext="Je n&apos;ai pas procédé à la vérification de mon âge" name="okcancelignore" notext="Annuler" yestext="Accéder à la page de vérification de l&apos;âge"/>
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Pour pouvoir pénétrer dans cette zone, vous devez avoir enregistré vos informations de paiement.  Souhaitez-vous aller sur [SECOND_LIFE] et enregistrer vos informations de paiement ?
@@ -2329,6 +2321,9 @@ Vous ne pouvez pas voler ici.
 	<notification name="NoBuild">
 		La construction est interdite dans cette zone. Vous ne pouvez pas construite ou rezzer d&apos;objets ici.
 	</notification>
+	<notification name="SeeAvatars">
+		Cette parcelle masque les avatars et le chat écrit des autres parcelles. Vous ne pouvez pas voir les résidents qui se trouvent en dehors, et ceux qui se trouvent en dehors ne peuvent pas vous voir. Le chat écrit habituel sur le canal 0 est également bloqué.
+	</notification>
 	<notification name="ScriptsStopped">
 		Un administrateur a temporairement stoppé les scripts dans cette région.
 	</notification>
@@ -2423,7 +2418,7 @@ Veuillez réessayer dans quelques minutes.
 	</notification>
 	<notification name="ObjectGiveItem">
 		Un objet nommé &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; appartenant à [NAME_SLURL] vous a donné un objet de type [OBJECTTYPE] :
-[ITEM_SLURL]
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
 		<form name="form">
 			<button name="Keep" text="Garder"/>
 			<button name="Discard" text="Jeter"/>
@@ -2756,7 +2751,15 @@ Le bouton sera affiché quand il y aura suffisamment de place.
 		Sélectionnez les résidents avec lesquels partager l&apos;élément.
 	</notification>
 	<notification name="MeshUploadError">
-		Échec de chargement de [LABEL] : [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+		Échec de chargement de [LABEL] : [MESSAGE] [IDENTIFIER] 
+
+Voir le fichier journal pour plus de détails.
+	</notification>
+	<notification name="MeshUploadPermError">
+		Erreur lors de la demande des autorisations de chargement de maillage.
+	</notification>
+	<notification name="RegionCapabilityRequestError">
+		Impossible d&apos;obtenir la capacité de région : [CAPABILITY].
 	</notification>
 	<notification name="ShareItemsConfirmation">
 		Voulez-vous vraiment partager les articles suivants :

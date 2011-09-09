@@ -266,6 +266,7 @@ public:
 	void			setSkeletonSerialNum( U32 num )	{ mSkeletonSerialNum = num; }
 
 	static std::vector< LLCharacter* > sInstances;
+	static BOOL sAllowInstancesChange ; //debug use
 
 protected:
 	LLMotionController	mMotionController;

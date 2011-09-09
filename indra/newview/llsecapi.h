@@ -160,7 +160,7 @@ public:
 // base class for a list of certificates.
 
 
-class LLCertificateVector : public LLRefCount
+class LLCertificateVector : public LLThreadSafeRefCount
 {
 	
 public:
@@ -286,8 +286,8 @@ bool operator!=(const LLCertificateVector::iterator& _lhs, const LLCertificateVe
 #define CRED_AUTHENTICATOR_TYPE_HASH   "hash"
 //
 // LLCredential - interface for credentials providing the following functionality:
-// * persistance of credential information based on grid (for saving username/password)
-// * serialization to an OGP identifier/authenticator pair
+// * Persistence of credential information based on grid (for saving username/password)
+// * Serialization to an OGP identifier/authenticator pair
 // 
 class LLCredential  : public LLRefCount
 {

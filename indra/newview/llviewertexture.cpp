@@ -66,6 +66,7 @@
 
 // statics
 LLPointer<LLViewerTexture>        LLViewerTexture::sNullImagep = NULL;
+LLPointer<LLViewerTexture>        LLViewerTexture::sBlackImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sMissingAssetImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = NULL;
@@ -295,17 +296,23 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromHost(const 
 
 void LLViewerTextureManager::init()
 {
-	LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,3);
-	raw->clear(0x77, 0x77, 0x77, 0xFF);
-	LLViewerTexture::sNullImagep = LLViewerTextureManager::getLocalTexture(raw.get(), TRUE) ;
-
-#if 1
-	LLPointer<LLViewerFetchedTexture> imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT);
-	LLViewerFetchedTexture::sDefaultImagep = imagep;
+	{
+		LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,3);
+		raw->clear(0x77, 0x77, 0x77, 0xFF);
+		LLViewerTexture::sNullImagep = LLViewerTextureManager::getLocalTexture(raw.get(), TRUE) ;
+	}
 
 	const S32 dim = 128;
 	LLPointer<LLImageRaw> image_raw = new LLImageRaw(dim,dim,3);
 	U8* data = image_raw->getData();
+	
+	memset(data, 0, dim * dim * 3) ;
+	LLViewerTexture::sBlackImagep = LLViewerTextureManager::getLocalTexture(image_raw.get(), TRUE) ;
+
+#if 1
+	LLPointer<LLViewerFetchedTexture> imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT);
+	LLViewerFetchedTexture::sDefaultImagep = imagep;
+	
 	for (S32 i = 0; i<dim; i++)
 	{
 		for (S32 j = 0; j<dim; j++)
@@ -359,6 +366,7 @@ void LLViewerTextureManager::cleanup()
 
 	LLImageGL::sDefaultGLTexture = NULL ;
 	LLViewerTexture::sNullImagep = NULL;
+	LLViewerTexture::sBlackImagep = NULL;
 	LLViewerFetchedTexture::sDefaultImagep = NULL;	
 	LLViewerFetchedTexture::sSmokeImagep = NULL;
 	LLViewerFetchedTexture::sMissingAssetImagep = NULL;
@@ -599,7 +607,7 @@ bool LLViewerTexture::bindDefaultImage(S32 stage)
 	}
 	if (!res && LLViewerTexture::sNullImagep.notNull() && (this != LLViewerTexture::sNullImagep))
 	{
-		res = gGL.getTexUnit(stage)->bind(LLViewerTexture::sNullImagep) ;
+		res = gGL.getTexUnit(stage)->bind(LLViewerTexture::sNullImagep);
 	}
 	if (!res)
 	{
@@ -3101,9 +3109,16 @@ void LLViewerLODTexture::processTextureStats()
 	{
 		mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel) ;
 	}
+	else if(LLPipeline::sMemAllocationThrottled)//release memory of large textures by decrease their resolutions.
+	{
+		if(scaleDown())
+		{
+			mDesiredDiscardLevel = mCachedRawDiscardLevel ;
+		}
+	}
 }
 
-void LLViewerLODTexture::scaleDown()
+bool LLViewerLODTexture::scaleDown()
 {
 	if(hasGLTexture() && mCachedRawDiscardLevel > getDiscardLevel())
 	{		
@@ -3114,7 +3129,10 @@ void LLViewerLODTexture::scaleDown()
 		{
 			tester->setStablizingTime() ;
 		}
+
+		return true ;
 	}
+	return false ;
 }
 //----------------------------------------------------------------------------------------------
 //end of LLViewerLODTexture

@@ -140,6 +140,7 @@ private:
 	LLSD mHeaders;
 };
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_PIPE("HTTP Pipe");
 LLIOPipe::EStatus LLHTTPPipe::process_impl(
 	const LLChannelDescriptors& channels,
     buffer_ptr_t& buffer,
@@ -147,6 +148,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
     LLSD& context,
     LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_HTTP_PIPE);
 	PUMP_DEBUG;
     lldebugs << "LLSDHTTPServer::process_impl" << llendl;
 
@@ -428,6 +430,9 @@ protected:
 /**
  * LLHTTPResponseHeader
  */
+
+static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_HEADER("HTTP Header");
+
 // virtual
 LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 	const LLChannelDescriptors& channels,
@@ -436,6 +441,7 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_HTTP_HEADER);
 	PUMP_DEBUG;
 	LLMemType m1(LLMemType::MTYPE_IO_HTTP_SERVER);
 	if(eos)
@@ -630,6 +636,8 @@ void LLHTTPResponder::markBad(
 		<< "</body>\n</html>\n";
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_RESPONDER("HTTP Responder");
+
 // virtual
 LLIOPipe::EStatus LLHTTPResponder::process_impl(
 	const LLChannelDescriptors& channels,
@@ -638,6 +646,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_PROCESS_HTTP_RESPONDER);
 	PUMP_DEBUG;
 	LLMemType m1(LLMemType::MTYPE_IO_HTTP_SERVER);
 	LLIOPipe::EStatus status = STATUS_OK;
@@ -954,13 +963,9 @@ private:
 
 
 // static
-LLHTTPNode& LLIOHTTPServer::create(
-	apr_pool_t* pool, LLPumpIO& pump, U16 port)
+LLHTTPNode& LLIOHTTPServer::create(LLPumpIO& pump, U16 port)
 {
-	LLSocket::ptr_t socket = LLSocket::create(
-        pool,
-        LLSocket::STREAM_TCP,
-        port);
+	LLSocket::ptr_t socket = LLSocket::create(LLSocket::STREAM_TCP, port);
     if(!socket)
     {
         llerrs << "Unable to initialize socket" << llendl;
@@ -969,7 +974,7 @@ LLHTTPNode& LLIOHTTPServer::create(
     LLHTTPResponseFactory* factory = new LLHTTPResponseFactory;
 	boost::shared_ptr<LLChainIOFactory> factory_ptr(factory);
 
-    LLIOServerSocket* server = new LLIOServerSocket(pool, socket, factory_ptr);
+    LLIOServerSocket* server = new LLIOServerSocket(socket, factory_ptr);
 
 	LLPumpIO::chain_t chain;
     chain.push_back(LLIOPipe::ptr_t(server));

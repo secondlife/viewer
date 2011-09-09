@@ -3698,6 +3698,19 @@ Join me in [REGION]
 
   <notification
    icon="alertmodal.tga"
+   name="TooManyTeleportOffers"
+   type="alertmodal">
+You attempted to make [OFFERS] teleport offers
+which exceeds the limit of [LIMIT].
+    <tag>group</tag>
+    <tag>fail</tag>
+  <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OfferTeleportFromGod"
    type="alertmodal">
 God summon Resident to your location?
@@ -4841,18 +4854,6 @@ Do you wish to overwrite the saved preset?
 
   <notification
    icon="alertmodal.tga"
-   name="WLDeletePresetAlert"
-   type="alertmodal">
-Do you wish to delete [SKY]?
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="No"
-     yestext="Yes"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="WLNoEditDefault"
    type="alertmodal">
 You cannot edit or delete a default preset.
@@ -4869,6 +4870,46 @@ This day cycle file references a missing sky file: [SKY].
 
   <notification
    icon="alertmodal.tga"
+   name="WLRegionApplyFail"
+   type="alertmodal">
+Sorry, the settings couldn't be applied to the region.  Leaving the region and then returning may help rectify the problem.  The reason given was: [FAIL_REASON]
+  </notification>
+
+  <notification
+   functor="GenericAcknowledge"
+   icon="alertmodal.tga"
+   name="EnvCannotDeleteLastDayCycleKey"
+   type="alertmodal">
+Unable to delete the last key in this day cycle because you cannot have an empty day cycle.  You should modify the last remaining key instead of attempting to delete it and then to create a new one.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   functor="GenericAcknowledge"
+   icon="alertmodal.tga"
+   name="DayCycleTooManyKeyframes"
+   type="alertmodal">
+You cannot add any more keyframes to this day cycle.  The maximum number of keyframes for day cycles of [SCOPE] scope is [MAX].
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   functor="GenericAcknowledge"
+   icon="alertmodal.tga"
+   name="EnvUpdateRate"
+   type="alertmodal">
+    You may only update region environmental settings every [WAIT] seconds.  Wait at least that long and then try again.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="PPSaveEffectAlert"
    type="alertmodal">
 PostProcess Effect exists. Do you still wish overwrite it?
@@ -4876,74 +4917,6 @@ PostProcess Effect exists. Do you still wish overwrite it?
      name="okcancelbuttons"
      notext="No"
      yestext="Yes"/>
-  </notification>
-
-  <notification
-   icon="alert.tga"
-   name="NewSkyPreset"
-   type="alert">
-Give me a name for the new sky.
-    <tag>confirm</tag>
-    <form name="form">
-      <input name="message" type="text">
-New Preset
-      </input>
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-      <button
-       index="1"
-       name="Cancel"
-       text="Cancel"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="ExistsSkyPresetAlert"
-   type="alertmodal">
-Preset already exists!
-  <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alert.tga"
-   name="NewWaterPreset"
-   type="alert">
-Give me a name for the new water preset.
-    <tag>confirm</tag>
-    <form name="form">
-      <input name="message" type="text">
-New Preset
-      </input>
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-      <button
-       index="1"
-       name="Cancel"
-       text="Cancel"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="ExistsWaterPresetAlert"
-   type="alertmodal">
-Preset already exists!
-  <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="WaterNoEditDefault"
-   type="alertmodal">
-You cannot edit or delete a default preset.
-  <tag>fail</tag>
   </notification>
 
   <notification
@@ -5018,19 +4991,19 @@ Would you like to automatically wear the clothing you are about to create?
    name="NotAgeVerified"
    type="alertmodal">
    <tag>fail</tag>
-You must be age-verified to visit this area.  Do you want to go to the [SECOND_LIFE] website and verify your age?
+To access adult content and areas in Second Life you must be at least 18 years old. Please visit our age verification page to confirm you are over 18. 
+Note this will launch your web browser.
 
 [_URL]
     <tag>confirm</tag>
     <url option="0" name="url">
-
-	    https://secondlife.com/account/verification.php
+	    https://secondlife.com/my/account/verification.php
     </url>
     <usetemplate
      ignoretext="I have not verified my age"
      name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
+     notext="Cancel"
+     yestext="Go to Age Verification"/>
   </notification>
 
   <notification
@@ -5116,7 +5089,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOnline"
    type="notifytip">
     <tag>friendship</tag>
-[NAME] is Online
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Online
   </notification>
 
   <notification
@@ -5124,7 +5097,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOffline"
    type="notifytip">
     <tag>friendship</tag>
-[NAME] is Offline
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Offline
   </notification>
 
   <notification
@@ -5655,6 +5628,15 @@ This area has building disabled. You can&apos;t build or rez objects here.
 
   <notification
    icon="notify.tga"
+   name="SeeAvatars"
+   persist="true"
+   type="notify"
+   unique="true">
+This parcel hides avatars and text chat from another parcel.   You can&apos;t see other residents outside the parcel, and those outside are not able to see you.  Regular text chat on channel 0 is also blocked.
+  </notification>
+
+  <notification
+   icon="notify.tga"
    name="ScriptsStopped"
    persist="true"
    type="notify">
@@ -5921,7 +5903,7 @@ No valid parcel could be found.
    name="ObjectGiveItem"
    type="offer">
 An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
-[ITEM_SLURL]
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
     <form name="form">
       <button
        index="0"
@@ -6279,6 +6261,10 @@ Grant this request?
 [MESSAGE]
     <form name="form">
       <button
+       index="-2"
+       name="Mute"
+       text="Block"/>
+      <button
        index="-1"
        name="Ignore"
        text="Ignore"/>
@@ -6293,6 +6279,10 @@ Grant this request?
 [GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
     <form name="form">
+      <button
+       index="-2"
+       name="Mute"
+       text="Block"/>
       <button
        index="-1"
        name="Ignore"
@@ -6828,6 +6818,20 @@ Select residents to share with.
 See the log file for details.
   </notification>
    
+   <notification
+    name="MeshUploadPermError"
+    icon="alert.tga"
+    type="alert">
+    Error while requesting mesh upload permissons.
+  </notification>
+  
+  <notification
+    name="RegionCapabilityRequestError"
+    icon="alert.tga"
+    type="alert">
+    Could not get region capability &apos;[CAPABILITY]&apos;.
+  </notification>
+   
   <notification
    icon="notifytip.tga"
    name="ShareItemsConfirmation"
@@ -6838,7 +6842,7 @@ Are you sure you want to share the following items:
 
 With the following Residents:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
   <tag>confirm</tag>
 	<usetemplate
      name="okcancelbuttons"
@@ -7143,6 +7147,20 @@ Click and drag anywhere on the world to rotate your view
     <tag>funds</tag>
   </notification>
 
+   <notification
+   icon="alertmodal.tga"
+   name="LowMemory"
+   type="alertmodal">
+    Your memory pool is low. Some functions of SL are disabled to avoid crash. Please close other applications. Restart SL if this persists.
+  </notification>
+
+  <notification
+     icon="alertmodal.tga"
+     name="ForceQuitDueToLowMemory"
+     type="alertmodal">
+    SL will quit in 30 seconds due to out of memory.
+  </notification>
+
   <notification
   name="PopupAttempt"
   icon="Popup_Caution"
@@ -7158,6 +7176,138 @@ Click and drag anywhere on the world to rotate your view
               name="open"
               text="Open pop-up window"/>
     </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_NOT_PERMITTED"
+   type="alertmodal">
+	The SOCKS 5 proxy "[HOST]:[PORT]" refused the connection, not allowed by rule set.
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_CONNECT_ERROR"
+   type="alertmodal">
+	The SOCKS 5 proxy "[HOST]:[PORT]" refused the connection, could not open TCP channel.
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>	 
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_NOT_ACCEPTABLE"
+   type="alertmodal">
+	The SOCKS 5 proxy "[HOST]:[PORT]" refused the selected authentication system.
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_AUTH_FAIL"
+   type="alertmodal">
+	The SOCKS 5 proxy "[HOST]:[PORT]" reported your credentials are invalid.
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_UDP_FWD_NOT_GRANTED"
+   type="alertmodal">
+	The SOCKS 5 proxy "[HOST]:[PORT]" refused the UDP associate request.
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_HOST_CONNECT_FAILED"
+   type="alertmodal">
+	Could not connect to SOCKS 5 proxy server "[HOST]:[PORT]".
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_UNKNOWN_STATUS"
+   type="alertmodal">
+	Unknown proxy error with server "[HOST]:[PORT]".
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_INVALID_HOST"
+   type="alertmodal">
+	Invalid SOCKS proxy address or port "[HOST]:[PORT]".
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="SOCKS_BAD_CREDS"
+   type="alertmodal">
+	Invalid SOCKS 5 username or password.
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="PROXY_INVALID_HTTP_HOST"
+   type="alertmodal">
+    Invalid HTTP proxy address or port "[HOST]:[PORT]".
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PROXY_INVALID_SOCKS_HOST"
+   type="alertmodal">
+	Invalid SOCKS proxy address or port "[HOST]:[PORT]".
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ChangeProxySettings"
+   type="alert">
+	Proxy settings take effect after you restart [APP_NAME].
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification

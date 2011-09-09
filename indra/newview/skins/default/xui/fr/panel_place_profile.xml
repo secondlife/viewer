@@ -68,6 +68,8 @@
 						<text name="scripts_value" value="Activé"/>
 						<text name="damage_label" value="Dégâts :"/>
 						<text name="damage_value" value="Désactivé"/>
+						<text name="see_avatars_label" value="Voir les avatars :"/>
+						<text name="see_avatars_value" value="Désactivé"/>
 						<button label="À propos du terrain" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>

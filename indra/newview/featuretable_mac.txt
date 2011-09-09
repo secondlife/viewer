@@ -1,4 +1,4 @@
-version 26
+version 30
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -47,8 +47,8 @@ RenderTerrainLODFactor			1	2.0
 RenderTransparentWater			1	1
 RenderTreeLODFactor				1	1.0
 RenderUseImpostors				1	1
-RenderVBOEnable					1	1
-RenderVBOMappingDisable		1	1
+RenderVBOEnable					1	0
+RenderVBOMappingDisable		1	0
 RenderVolumeLODFactor			1	2.0
 UseStartScreen				1	1
 UseOcclusion					1	1
@@ -59,12 +59,11 @@ Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	0.5
 RenderShaderLightingMaxLevel	1	3
-SkyUseClassicClouds			1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 WatchdogDisabled				1	1
-RenderUseStreamVBO			1	1
+RenderUseStreamVBO			1	0
 RenderFSAASamples			1	16
 
 //
@@ -93,7 +92,6 @@ RenderVolumeLODFactor		1	0.5
 VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
-SkyUseClassicClouds			1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
@@ -244,13 +242,6 @@ WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
-
-//
-// No GL_ARB_map_buffer_range
-//
-list NoMapBufferRange
-RenderVBOMappingDisable		1	0
-
 
 //
 // "Default" setups for safe, low, medium, high

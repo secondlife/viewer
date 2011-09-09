@@ -142,6 +142,7 @@
     mouse_opaque="false"
     background_visible="true"
   >
+      <badge location="top_left" location_percent_vcenter="50" location_percent_hcenter="95" />
       <panel
         class="sidepanel_inventory"
         name="sidepanel_inventory"

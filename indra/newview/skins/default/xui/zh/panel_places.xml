@@ -11,7 +11,7 @@
 						<button label="瞬間傳送" name="teleport_btn" tool_tip="瞬間傳送到所選擇的區域"/>
 					</layout_panel>
 					<layout_panel name="chat_btn_lp">
-						<button label="地圖" name="map_btn" tool_tip="Show the corresponding area on the World Map"/>
+						<button label="地圖" name="map_btn" tool_tip="在世界地圖上顯示相對應的區域"/>
 					</layout_panel>
 				</layout_stack>
 			</layout_panel>

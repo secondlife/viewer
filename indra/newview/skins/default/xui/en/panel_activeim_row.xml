@@ -75,6 +75,7 @@
 		width="250"
 		length="1"
 		follows="right|left"
+		parse_urls="false"
 		use_ellipses="true"
 		font="SansSerifBold">
     TestString PleaseIgnore

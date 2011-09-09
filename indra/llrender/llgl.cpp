@@ -48,6 +48,7 @@
 #include "llstacktrace.h"
 
 #include "llglheaders.h"
+#include "llglslshader.h"
 
 #ifdef _DEBUG
 //#define GL_STATE_VERIFY
@@ -128,9 +129,21 @@ PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB = NULL;
 PFNGLGETBUFFERPOINTERVARBPROC		glGetBufferPointervARB = NULL;
 
 // GL_ARB_map_buffer_range
-PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;
-PFNGLFLUSHMAPPEDBUFFERRANGEPROC	glFlushMappedBufferRange;
+PFNGLMAPBUFFERRANGEPROC			glMapBufferRange = NULL;
+PFNGLFLUSHMAPPEDBUFFERRANGEPROC	glFlushMappedBufferRange = NULL;
 
+// GL_ARB_sync
+PFNGLFENCESYNCPROC				glFenceSync = NULL;
+PFNGLISSYNCPROC					glIsSync = NULL;
+PFNGLDELETESYNCPROC				glDeleteSync = NULL;
+PFNGLCLIENTWAITSYNCPROC			glClientWaitSync = NULL;
+PFNGLWAITSYNCPROC				glWaitSync = NULL;
+PFNGLGETINTEGER64VPROC			glGetInteger64v = NULL;
+PFNGLGETSYNCIVPROC				glGetSynciv = NULL;
+
+// GL_APPLE_flush_buffer_range
+PFNGLBUFFERPARAMETERIAPPLEPROC	glBufferParameteriAPPLE = NULL;
+PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC glFlushMappedBufferRangeAPPLE = NULL;
 
 // vertex object prototypes
 PFNGLNEWOBJECTBUFFERATIPROC			glNewObjectBufferATI = NULL;
@@ -334,9 +347,10 @@ LLGLManager::LLGLManager() :
 	mHasFramebufferObject(FALSE),
 	mMaxSamples(0),
 	mHasBlendFuncSeparate(FALSE),
-
+	mHasSync(FALSE),
 	mHasVertexBufferObject(FALSE),
 	mHasMapBufferRange(FALSE),
+	mHasFlushBufferRange(FALSE),
 	mHasPBuffer(FALSE),
 	mHasShaderObjects(FALSE),
 	mHasVertexShader(FALSE),
@@ -568,6 +582,13 @@ bool LLGLManager::initGL()
 		glGetIntegerv(GL_MAX_SAMPLE_MASK_WORDS, &mMaxSampleMaskWords);
 	}
 
+#if LL_WINDOWS
+	if (mIsATI)
+	{ //using multisample textures on ATI results in black screen for some reason
+		mHasTextureMultisample = FALSE;
+	}
+#endif
+
 	if (mHasFramebufferObject)
 	{
 		glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples);
@@ -767,7 +788,9 @@ void LLGLManager::initExtensions()
 	mHasOcclusionQuery = ExtensionExists("GL_ARB_occlusion_query", gGLHExts.mSysExts);
 	mHasOcclusionQuery2 = ExtensionExists("GL_ARB_occlusion_query2", gGLHExts.mSysExts);
 	mHasVertexBufferObject = ExtensionExists("GL_ARB_vertex_buffer_object", gGLHExts.mSysExts);
+	mHasSync = ExtensionExists("GL_ARB_sync", gGLHExts.mSysExts);
 	mHasMapBufferRange = ExtensionExists("GL_ARB_map_buffer_range", gGLHExts.mSysExts);
+	mHasFlushBufferRange = ExtensionExists("GL_APPLE_flush_buffer_range", gGLHExts.mSysExts);
 	mHasDepthClamp = ExtensionExists("GL_ARB_depth_clamp", gGLHExts.mSysExts) || ExtensionExists("GL_NV_depth_clamp", gGLHExts.mSysExts);
 	// mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
 #ifdef GL_ARB_framebuffer_object
@@ -961,6 +984,16 @@ void LLGLManager::initExtensions()
 		{
 			mHasVertexBufferObject = FALSE;
 		}
+	}
+	if (mHasSync)
+	{
+		glFenceSync = (PFNGLFENCESYNCPROC) GLH_EXT_GET_PROC_ADDRESS("glFenceSync");
+		glIsSync = (PFNGLISSYNCPROC) GLH_EXT_GET_PROC_ADDRESS("glIsSync");
+		glDeleteSync = (PFNGLDELETESYNCPROC) GLH_EXT_GET_PROC_ADDRESS("glDeleteSync");
+		glClientWaitSync = (PFNGLCLIENTWAITSYNCPROC) GLH_EXT_GET_PROC_ADDRESS("glClientWaitSync");
+		glWaitSync = (PFNGLWAITSYNCPROC) GLH_EXT_GET_PROC_ADDRESS("glWaitSync");
+		glGetInteger64v = (PFNGLGETINTEGER64VPROC) GLH_EXT_GET_PROC_ADDRESS("glGetInteger64v");
+		glGetSynciv = (PFNGLGETSYNCIVPROC) GLH_EXT_GET_PROC_ADDRESS("glGetSynciv");
 	}
 	if (mHasMapBufferRange)
 	{
@@ -1347,6 +1380,8 @@ void LLGLState::checkStates(const std::string& msg)
 	glGetIntegerv(GL_BLEND_SRC, &src);
 	glGetIntegerv(GL_BLEND_DST, &dst);
 	
+	stop_glerror();
+
 	BOOL error = FALSE;
 
 	if (src != GL_SRC_ALPHA || dst != GL_ONE_MINUS_SRC_ALPHA)
@@ -1367,7 +1402,9 @@ void LLGLState::checkStates(const std::string& msg)
 	{
 		LLGLenum state = iter->first;
 		LLGLboolean cur_state = iter->second;
+		stop_glerror();
 		LLGLboolean gl_state = glIsEnabled(state);
+		stop_glerror();
 		if(cur_state != gl_state)
 		{
 			dumpStates();
@@ -1392,11 +1429,11 @@ void LLGLState::checkStates(const std::string& msg)
 
 void LLGLState::checkTextureChannels(const std::string& msg)
 {
+#if 0
 	if (!gDebugGL)
 	{
 		return;
 	}
-
 	stop_glerror();
 
 	GLint activeTexture;
@@ -1562,6 +1599,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 			LL_GL_ERRS << "GL texture state corruption detected.  " << msg << LL_ENDL;
 		}
 	}
+#endif
 }
 
 void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
@@ -1678,7 +1716,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 		}
 	}
 
-	if (glIsEnabled(GL_TEXTURE_2D))
+	/*if (glIsEnabled(GL_TEXTURE_2D))
 	{
 		if (!(data_mask & 0x0008))
 		{
@@ -1701,7 +1739,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 				gFailLog << "GL does not have GL_TEXTURE_2D enabled on channel 1." << std::endl;
 			}
 		}
-	}
+	}*/
 
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	gGL.getTexUnit(0)->activate();
@@ -1744,6 +1782,16 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 	mState(state), mWasEnabled(FALSE), mIsEnabled(FALSE)
 {
+	if (LLGLSLShader::sNoFixedFunction)
+	{ //always disable state that's deprecated post GL 3.0
+		switch (state)
+		{
+			case GL_ALPHA_TEST:
+				enabled = 0;
+				break;
+		}
+	}
+
 	stop_glerror();
 	if (state)
 	{
@@ -2103,8 +2151,7 @@ void LLGLNamePool::release(GLuint name)
 void LLGLNamePool::upkeepPools()
 {
 	LLMemType mt(LLMemType::MTYPE_UPKEEP_POOLS);
-	tracker_t::LLInstanceTrackerScopedGuard guard;
-	for (tracker_t::instance_iter iter = guard.beginInstances(); iter != guard.endInstances(); ++iter)
+	for (tracker_t::instance_iter iter = beginInstances(); iter != endInstances(); ++iter)
 	{
 		LLGLNamePool & pool = *iter;
 		pool.upkeep();
@@ -2114,8 +2161,7 @@ void LLGLNamePool::upkeepPools()
 //static
 void LLGLNamePool::cleanupPools()
 {
-	tracker_t::LLInstanceTrackerScopedGuard guard;
-	for (tracker_t::instance_iter iter = guard.beginInstances(); iter != guard.endInstances(); ++iter)
+	for (tracker_t::instance_iter iter = beginInstances(); iter != endInstances(); ++iter)
 	{
 		LLGLNamePool & pool = *iter;
 		pool.cleanup();

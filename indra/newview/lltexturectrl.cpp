@@ -420,7 +420,6 @@ BOOL LLFloaterTexturePicker::postBuild()
 		mInventoryPanel->setFilterPermMask(mImmediateFilterPermMask);
 		mInventoryPanel->setSelectCallback(boost::bind(&LLFloaterTexturePicker::onSelectionChange, this, _1, _2));
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-		mInventoryPanel->setAllowMultiSelect(FALSE);
 
 		// Disable auto selecting first filtered item because it takes away
 		// selection from the item set by LLTextureCtrl owning this floater.
@@ -1093,7 +1092,7 @@ public:
 
 BOOL LLTextureCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
-	getWindow()->setCursor(UI_CURSOR_HAND);
+	getWindow()->setCursor(mBorder->parentPointInView(x,y) ? UI_CURSOR_HAND : UI_CURSOR_ARROW);
 	return TRUE;
 }
 
@@ -1102,7 +1101,7 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLUICtrl::handleMouseDown( x, y , mask );
 
-	if( !handled )
+	if (!handled && mBorder->parentPointInView(x, y))
 	{
 		showPicker(FALSE);
 		//grab textures first...

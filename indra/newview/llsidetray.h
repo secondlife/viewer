@@ -33,6 +33,13 @@
 class LLAccordionCtrl;
 class LLSideTrayTab;
 
+// Define an interface for side tab button badge values
+class LLSideTrayTabBadgeDriver
+{
+public:
+	virtual std::string getBadgeString() const = 0;
+};
+
 // Deal with LLSideTrayTab being opaque. Generic do-nothing cast...
 template <class T>
 T tab_cast(LLSideTrayTab* tab) { return tab; }
@@ -166,6 +173,8 @@ public:
 
 	bool		getCollapsed() { return mCollapsed; }
 
+	void		setTabButtonBadgeDriver(std::string tabName, LLSideTrayTabBadgeDriver* driver);
+
 public:
 	virtual ~LLSideTray(){};
 
@@ -204,8 +213,6 @@ protected:
 
 	void		createButtons	();
 
-	LLButton*	createButton	(const std::string& name,const std::string& image,const std::string& tooltip,
-									LLUICtrl::commit_callback_t callback);
 	void		arrange			();
 	void		detachTabs		();
 	void		reflectCollapseChange();
@@ -234,6 +241,8 @@ private:
 	LLPanel*						mButtonsPanel;
 	typedef std::map<std::string,LLButton*> button_map_t;
 	button_map_t					mTabButtons;
+	typedef std::map<std::string,LLSideTrayTabBadgeDriver*> badge_map_t;
+	badge_map_t						mTabButtonBadgeDrivers;
 	child_vector_t					mTabs;
 	child_vector_t					mDetachedTabs;
 	tab_order_vector_t				mOriginalTabOrder;

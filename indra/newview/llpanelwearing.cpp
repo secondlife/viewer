@@ -38,6 +38,8 @@
 #include "llsidetray.h"
 #include "llviewermenu.h"
 #include "llwearableitemslist.h"
+#include "llsdserialize.h"
+#include "llclipboard.h"
 
 // Context menu and Gear menu helper.
 static void edit_outfit()
@@ -58,6 +60,7 @@ public:
 
 		registrar.add("Gear.Edit", boost::bind(&edit_outfit));
 		registrar.add("Gear.TakeOff", boost::bind(&LLWearingGearMenu::onTakeOff, this));
+		registrar.add("Gear.Copy", boost::bind(&LLPanelWearing::copyToClipboard, mPanelWearing));
 
 		enable_registrar.add("Gear.OnEnable", boost::bind(&LLPanelWearing::isActionEnabled, mPanelWearing, _2));
 
@@ -174,8 +177,8 @@ LLPanelWearing::~LLPanelWearing()
 	if (gInventory.containsObserver(mCategoriesObserver))
 	{
 		gInventory.removeObserver(mCategoriesObserver);
-		delete mCategoriesObserver;
 	}
+	delete mCategoriesObserver;
 }
 
 BOOL LLPanelWearing::postBuild()
@@ -280,4 +283,25 @@ void LLPanelWearing::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
 	mCOFItemsList->getSelectedUUIDs(selected_uuids);
 }
 
+void LLPanelWearing::copyToClipboard()
+{
+	std::string text;
+	std::vector<LLSD> data;
+	mCOFItemsList->getValues(data);
+
+	for(std::vector<LLSD>::const_iterator iter = data.begin(); iter != data.end();)
+	{
+		LLSD uuid = (*iter);
+		LLViewerInventoryItem* item = gInventory.getItem(uuid);
+
+		iter++;
+		if (item != NULL)
+		{
+			// Append a newline to all but the last line
+			text += iter != data.end() ? item->getName() + "\n" : item->getName();
+		}
+	}
+
+	gClipboard.copyFromString(utf8str_to_wstring(text));
+}
 // EOF

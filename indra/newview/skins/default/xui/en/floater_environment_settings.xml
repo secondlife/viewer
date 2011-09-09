@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="328"
+ layout="topleft"
+ name="Environment Editor Floater"
+ help_topic="environment_editor_floater"
+ save_rect="true"
+ title="ENVIRONMENT SETTINGS"
+ width="540">
+
+ <text
+  follows="top|left|right"
+  height="15"
+  layout="topleft"
+  left="20"
+  name="note"
+  top="25"
+  width="510"
+  wrap="true">
+  Use the options below to customize the environment settings for your viewer.
+ </text>
+
+ <view_border
+  bevel_style="none"  
+  follows="top|left"
+  height="237"
+  layout="topleft"
+  left="20"
+  name="border"
+  top_pad="8"
+  width="500"/>  
+ <radio_group
+  follows="top|left"
+  height="45"
+  layout="topleft"
+  left_delta="10"
+  name="region_settings_radio_group"
+  top_delta="20"
+  width="200">
+    <radio_item
+  	 label="Use region settings"
+  	 layout="topleft"
+  	 name="use_region_settings"/>
+    <radio_item
+  	 label="Customize my environment"
+  	 layout="topleft"
+  	 name="use_my_settings"
+  	 top_pad="20"/>
+  </radio_group>
+
+ <panel
+  height="170"
+  layout="topleft"
+  left="50"
+  name="user_environment_settings"
+  top_pad="0"
+  width="470">
+
+ <text
+  follows="top|left|right"
+  font="SansSerifItalic"
+  height="15"
+  layout="topleft"
+  left_delta="0"
+  name="note"
+  top_pad="0"
+  width="470"
+  wrap="true">
+  Note: your custom settings will not be visible to other users.
+ </text>
+
+ <!-- Water Setting -->
+ <text
+  name="water_settings_title"
+  follows="top|left"
+  height="16"
+  layout="topleft"
+  left="50"
+  top="40"
+  width="200">
+  		Water Setting
+  </text>
+  <combo_box
+   follows="top|left"
+   left_pad="2"
+   name="water_settings_preset_combo"
+   top_delta="-5"
+   width="200">
+      <combo_box.item
+       label="-Select a preset-"
+       name="item0"/>
+  </combo_box>
+ 
+
+ <!-- Sky/Day Cycle Settings -->  
+ <text
+  name="sky_dayc_settings_title"
+  follows="top|left"
+  height="16"
+  layout="topleft"
+  left="50"
+  top_pad="20"
+  width="100">
+  		Sky / Day Cycle
+  </text>
+  <radio_group
+   layout="topleft"
+   left_delta="50"
+   name="sky_dayc_settings_radio_group"
+   top_pad="10"
+   height="50"
+   width="150">
+  	<radio_item
+  	 layout="topleft"
+  	 label="Fixed sky"
+  	 name="my_sky_settings"/>
+  	<radio_item
+  	 layout="topleft"
+  	 label="Day cycle"
+  	 name="my_dayc_settings"
+  	 top_pad="25"/>  	
+  </radio_group>
+  <combo_box
+   follows="top|left"
+   left_pad="2"
+   name="sky_settings_preset_combo"
+   top_delta="-7"
+   width="200">
+      <combo_box.item
+       label="-Select a preset-"
+       name="item0"/>
+  </combo_box>
+  <combo_box
+   follows="top|left"
+   name="dayc_settings_preset_combo"
+   top_delta="36"
+   width="200">
+      <combo_box.item
+       label="-Select a preset-"
+       name="item0"/>
+  </combo_box>
+  </panel>
+
+  <button
+   follows="left|top"
+   height="23"
+   label="OK"
+   layout="topleft"
+   right="-130"
+   name="ok_btn"
+   top_pad="10"
+   width="100" />
+  <button
+   follows="left|top"
+   height="23"
+   label="Cancel"
+   layout="topleft"
+   left_pad="10"
+   name="cancel_btn"
+   width="100" />	
+</floater>

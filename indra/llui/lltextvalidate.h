@@ -46,6 +46,7 @@ namespace LLTextValidate
 	bool	validateInt(const LLWString &str );
 	bool	validatePositiveS32(const LLWString &str);
 	bool	validateNonNegativeS32(const LLWString &str);
+	bool 	validateNonNegativeS32NoSpace(const LLWString &str);
 	bool	validateAlphaNum(const LLWString &str );
 	bool	validateAlphaNumSpace(const LLWString &str );
 	bool	validateASCIIPrintableNoPipe(const LLWString &str); 

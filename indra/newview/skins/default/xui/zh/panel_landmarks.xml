@@ -4,12 +4,12 @@
 		<accordion_tab name="tab_favorites" title="最愛列"/>
 		<accordion_tab name="tab_landmarks" title="我的地標"/>
 		<accordion_tab name="tab_inventory" title="我的收納區"/>
-		<accordion_tab name="tab_library" title="Library"/>
+		<accordion_tab name="tab_library" title="資源庫"/>
 	</accordion>
 	<panel name="bottom_panel">
 		<layout_stack name="bottom_panel">
 			<layout_panel name="options_gear_btn_panel">
-				<menu_button name="options_gear_btn" tool_tip="Show additional options"/>
+				<menu_button name="options_gear_btn" tool_tip="顯示額外選項"/>
 			</layout_panel>
 			<layout_panel name="add_btn_panel">
 				<button name="add_btn" tool_tip="添加新地標"/>

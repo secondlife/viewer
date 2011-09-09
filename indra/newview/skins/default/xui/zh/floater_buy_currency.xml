@@ -7,7 +7,7 @@
 		你需要更多 L$
 	</text>
 	<text name="contacting">
-		Contacting LindeX...
+		聯接到 LindeX 中...
 	</text>
 	<text name="info_buying">
 		購買 L$
@@ -28,7 +28,7 @@
 		1234
 	</line_editor>
 	<text name="buying_label">
-		For the price
+		以此價格
 	</text>
 	<text name="currency_est">
 		approx. [LOCALAMOUNT]
@@ -60,7 +60,7 @@
 	<button label="立即購買" name="buy_btn"/>
 	<button label="取消" name="cancel_btn"/>
 	<text name="info_cannot_buy">
-		Unable to Buy
+		無法購買
 	</text>
-	<button label="Continue to the Web" name="error_web"/>
+	<button label="繼續到網頁" name="error_web"/>
 </floater>

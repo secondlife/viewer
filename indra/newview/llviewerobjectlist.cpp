@@ -957,8 +957,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			iter != idle_list.end(); iter++)
 		{
 			objectp = *iter;
-			if (objectp->getPCode() == LLViewerObject::LL_VO_CLOUDS ||
-				objectp->isAvatar())
+			if (objectp->isAvatar())
 			{
 				objectp->idleUpdate(agent, world, frame_time);
 			}
@@ -1072,10 +1071,12 @@ void LLViewerObjectList::fetchObjectCosts()
 				LLSD id_list;
 				U32 object_index = 0;
 
+				U32 count = 0;
+
 				for (
 					std::set<LLUUID>::iterator iter = mStaleObjectCost.begin();
 					iter != mStaleObjectCost.end();
-					++iter)
+					)
 				{
 					// Check to see if a request for this object
 					// has already been made.
@@ -1085,13 +1086,15 @@ void LLViewerObjectList::fetchObjectCosts()
 						mPendingObjectCost.insert(*iter);
 						id_list[object_index++] = *iter;
 					}
+
+					mStaleObjectCost.erase(iter++);
+
+					if (count++ >= 450)
+					{
+						break;
+					}
 				}
-
-				// id_list should now contain all
-				// requests in mStaleObjectCost before, so clear
-				// it now
-				mStaleObjectCost.clear();
-
+									
 				if ( id_list.size() > 0 )
 				{
 					LLSD post_data = LLSD::emptyMap();
@@ -1340,18 +1343,29 @@ void LLViewerObjectList::cleanDeadObjects(BOOL use_timer)
 
 	S32 num_removed = 0;
 	LLViewerObject *objectp;
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); )
+	
+	vobj_list_t::reverse_iterator target = mObjects.rbegin();
+
+	vobj_list_t::iterator iter = mObjects.begin();
+	for ( ; iter != mObjects.end(); )
 	{
-		// Scan for all of the dead objects and remove any "global" references to them.
+		// Scan for all of the dead objects and put them all on the end of the list with no ref count ops
 		objectp = *iter;
+		if (objectp == NULL)
+		{ //we caught up to the dead tail
+			break;
+		}
+
 		if (objectp->isDead())
 		{
-			iter = mObjects.erase(iter);
+			LLPointer<LLViewerObject>::swap(*iter, *target);
+			*target = NULL;
+			++target;
 			num_removed++;
 
-			if (num_removed == mNumDeadObjects)
+			if (num_removed == mNumDeadObjects || iter->isNull())
 			{
-				// We've cleaned up all of the dead objects.
+				// We've cleaned up all of the dead objects or caught up to the dead tail
 				break;
 			}
 		}
@@ -1360,6 +1374,11 @@ void LLViewerObjectList::cleanDeadObjects(BOOL use_timer)
 			++iter;
 		}
 	}
+
+	llassert(num_removed == mNumDeadObjects);
+
+	//erase as a block
+	mObjects.erase(mObjects.begin()+(mObjects.size()-mNumDeadObjects), mObjects.end());
 
 	// We've cleaned the global object list, now let's do some paranoia testing on objects
 	// before blowing away the dead list.
@@ -1395,6 +1414,10 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 {
+	if (!object->isRoot())
+	{ //always fetch cost for the parent when fetching cost for children
+		mStaleObjectCost.insert(((LLViewerObject*)object->getParent())->getID());
+	}
 	mStaleObjectCost.insert(object->getID());
 }
 

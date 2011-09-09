@@ -2,6 +2,24 @@
  * @file softenLightF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * Second Life Viewer Source Code
+ * Copyright (C) 2007, Linden Research, Inc.
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * 
+ * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
  
@@ -266,7 +284,7 @@ void main()
 	vec2 tc = vary_fragcoord.xy;
 	ivec2 itc = ivec2(tc);
 
-	vec3 fcol = vec3(0,0,0);
+	vec4 fcol = vec4(0,0,0,0);
 
 	for (int i = 0; i < samples; ++i)
 	{
@@ -280,17 +298,16 @@ void main()
 		float da = max(dot(norm.xyz, vary_light.xyz), 0.0);
 	
 		vec4 diffuse = texelFetch(diffuseRect, itc, i);
-		if (diffuse.a >= 1.0)
-		{
-			fcol += diffuse.rgb;
-		}
-		else
+		vec3 col;
+		float bloom = 0.0;
+
+		if (diffuse.a < 0.9)
 		{
 			vec4 spec = texelFetch(specularRect, itc, i);
 	
 			calcAtmospherics(pos.xyz, 1.0);
 	
-			vec3 col = atmosAmbient(vec3(0));
+			col = atmosAmbient(vec3(0));
 			col += atmosAffectDirectionalLight(max(min(da, 1.0), diffuse.a));
 	
 			col *= diffuse.rgb;
@@ -304,15 +321,22 @@ void main()
 				vec3 dumbshiny = vary_SunlitColor*texture2D(lightFunc, vec2(sa, spec.a)).a;
 
 				// add the two types of shiny together
-				col += dumbshiny * spec.rgb;
+				vec3 spec_contrib = dumbshiny * spec.rgb;
+				bloom = dot(spec_contrib, spec_contrib);
+				col += spec_contrib;
 			}
 
 			col = atmosLighting(col);
 			col = scaleSoftClip(col);
-			fcol += col;
+			col = mix(col, diffuse.rgb, diffuse.a);
 		}
+		else
+		{
+			col = diffuse.rgb;
+		}
+
+		fcol += vec4(col, bloom);
 	}
 				
-	gl_FragColor.rgb = fcol.rgb/samples;
-	gl_FragColor.a = 0.0;
+	gl_FragColor = fcol/samples;
 }

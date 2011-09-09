@@ -38,25 +38,25 @@
 		回存中...
 	</string>
 	<string name="ProgressChangingResolution">
-		Changing Resolution...
+		變更解析度...
 	</string>
 	<string name="Fullbright">
-		Fullbright (Legacy)
+		全亮（舊版）
 	</string>
 	<string name="LoginInProgress">
-		Logging in. [APP_NAME] may appear frozen.  Please wait.
+		登入中。[APP_NAME] 可能出現凍結狀態。請耐心稍等。
 	</string>
 	<string name="LoginInProgressNoFrozen">
-		Logging in...
+		登入中...
 	</string>
 	<string name="LoginAuthenticating">
-		Authenticating
+		身份驗證中
 	</string>
 	<string name="LoginMaintenance">
-		Performing account maintenance...
+		進行帳戶維護...
 	</string>
 	<string name="LoginAttempt">
-		Previous login attempt failed. Logging in, attempt [NUMBER]
+		先前企圖嘗試登入失敗。現登入中，嘗試 [NUMBER]
 	</string>
 	<string name="LoginPrecaching">
 		世界載入中...
@@ -101,7 +101,7 @@
 		服裝下載中...
 	</string>
 	<string name="InvalidCertificate">
-		The server returned an invalid or corrupt certificate. Please contact the Grid administrator.
+		伺服器回傳一個無效果損壞的憑證。請連繫網格管理者。
 	</string>
 	<string name="CertInvalidHostname">
 		An invalid hostname was used to access the server, please check your SLURL or Grid hostname.
@@ -146,7 +146,7 @@
 		你已經被所在的地區中斷聯結。
 	</string>
 	<string name="SentToInvalidRegion">
-		You were sent to an invalid region.
+		你被傳送到一個無效的地區。
 	</string>
 	<string name="TestingDisconnect">
 		測試瀏覽器斷線
@@ -155,28 +155,28 @@
 		人
 	</string>
 	<string name="TooltipNoName">
-		(no name)
+		（無名稱）
 	</string>
 	<string name="TooltipOwner">
 		擁有者：
 	</string>
 	<string name="TooltipPublic">
-		Public
+		公開
 	</string>
 	<string name="TooltipIsGroup">
-		（社團）
+		（群組）
 	</string>
 	<string name="TooltipForSaleL$">
 		出售： L$[AMOUNT]
 	</string>
 	<string name="TooltipFlagGroupBuild">
-		Group Build
+		群組建造
 	</string>
 	<string name="TooltipFlagNoBuild">
 		禁止建造
 	</string>
 	<string name="TooltipFlagNoEdit">
-		社團建造
+		群組建造
 	</string>
 	<string name="TooltipFlagNotSafe">
 		非安全
@@ -185,7 +185,7 @@
 		禁止飛行
 	</string>
 	<string name="TooltipFlagGroupScripts">
-		社團腳本
+		群組腳本
 	</string>
 	<string name="TooltipFlagNoScripts">
 		禁止腳本
@@ -210,10 +210,10 @@
 		瞭解更多有關這個居民
 	</string>
 	<string name="TooltipAgentMute">
-		Click to mute this Resident
+		點擊以封鎖這位居民
 	</string>
 	<string name="TooltipAgentUnmute">
-		Click to unmute this Resident
+		點擊以解除封鎖這位居民
 	</string>
 	<string name="TooltipAgentIM">
 		點擊開始 IM 這位居民
@@ -222,47 +222,47 @@
 		點擊以支付這位居民
 	</string>
 	<string name="TooltipAgentOfferTeleport">
-		Click to offer a teleport request to this Resident
+		點擊以送出瞬間傳送邀請給這位居民
 	</string>
 	<string name="TooltipAgentRequestFriend">
-		Click to send a friend request to this Resident
+		點擊以送出交友邀請給這位居民
 	</string>
 	<string name="TooltipGroupUrl">
-		Click to view this group&apos;s description
+		點擊以察看這個群組的描述
 	</string>
 	<string name="TooltipEventUrl">
-		Click to view this event&apos;s description
+		點擊以察看這個活動的描述
 	</string>
 	<string name="TooltipClassifiedUrl">
 		Click to view this classified
 	</string>
 	<string name="TooltipParcelUrl">
-		Click to view this parcel&apos;s description
+		點擊以察看這個地段的描述
 	</string>
 	<string name="TooltipTeleportUrl">
-		Click to teleport to this location
+		點擊以傳送到這個位置
 	</string>
 	<string name="TooltipObjectIMUrl">
-		Click to view this object&apos;s description
+		點擊以察看這個物件的描述
 	</string>
 	<string name="TooltipMapUrl">
-		Click to view this location on a map
+		點擊以察看此處在地圖上的位置
 	</string>
 	<string name="TooltipSLAPP">
-		Click to run the secondlife:// command
+		點擊以執行 secondlife:// 指令
 	</string>
-	<string name="CurrentURL" value="CurrentURL: [CurrentURL]"/>
+	<string name="CurrentURL" value="目前網址：[CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
 		瞬間傳送到
 	</string>
 	<string name="SLurlLabelShowOnMap">
-		Show Map for
+		顯示地圖為了
 	</string>
 	<string name="SLappAgentMute">
-		Mute
+		封鎖
 	</string>
 	<string name="SLappAgentUnmute">
-		Unmute
+		解除封鎖
 	</string>
 	<string name="SLappAgentIM">
 		IM
@@ -271,7 +271,7 @@
 		支付
 	</string>
 	<string name="SLappAgentOfferTeleport">
-		Offer Teleport to
+		發給瞬間傳送請求到
 	</string>
 	<string name="SLappAgentRequestFriend">
 		交友要求
@@ -295,7 +295,7 @@
 		脫下
 	</string>
 	<string name="BUTTON_DOCK">
-		Dock
+		停泊固定
 	</string>
 	<string name="BUTTON_HELP">
 		顯示幫助
@@ -307,22 +307,22 @@
 		未發現。
 	</string>
 	<string name="RetrievingData">
-		Retrieving...
+		檢索...
 	</string>
 	<string name="ReleaseNotes">
-		Release Notes
+		釋出版本說明
 	</string>
 	<string name="LoadingData">
 		載入中...
 	</string>
 	<string name="AvatarNameNobody">
-		(nobody)
+		（沒有人）
 	</string>
 	<string name="AvatarNameWaiting">
-		(waiting)
+		（等待中）
 	</string>
 	<string name="AvatarNameMultiple">
-		(multiple)
+		（多個）
 	</string>
 	<string name="GroupNameNone">
 		（無）
@@ -334,25 +334,25 @@
 		無錯誤
 	</string>
 	<string name="AssetErrorRequestFailed">
-		Asset request: failed
+		資產請求：失敗
 	</string>
 	<string name="AssetErrorNonexistentFile">
-		Asset request: non-existent file
+		資產要求：非已存在檔案
 	</string>
 	<string name="AssetErrorNotInDatabase">
-		Asset request: asset not found in database
+		資產要求：資產並未發現於資料庫中
 	</string>
 	<string name="AssetErrorEOF">
-		End of file
+		檔案結尾
 	</string>
 	<string name="AssetErrorCannotOpenFile">
-		Cannot open file
+		無法開啟檔案
 	</string>
 	<string name="AssetErrorFileNotFound">
-		File not found
+		檔案未發現
 	</string>
 	<string name="AssetErrorTCPTimeout">
-		File transfer timeout
+		檔案傳輸逾時
 	</string>
 	<string name="AssetErrorCircuitGone">
 		Circuit gone
@@ -370,13 +370,13 @@
 		聲音
 	</string>
 	<string name="calling card">
-		calling card
+		名片
 	</string>
 	<string name="landmark">
 		地標
 	</string>
 	<string name="legacy script">
-		legacy script
+		舊版腳本
 	</string>
 	<string name="clothing">
 		服裝
@@ -427,16 +427,16 @@
 		姿勢
 	</string>
 	<string name="simstate">
-		simstate
+		模擬器狀態
 	</string>
 	<string name="favorite">
-		favorite
+		我的最愛
 	</string>
 	<string name="symbolic link">
-		link
+		聯結
 	</string>
 	<string name="symbolic folder link">
-		folder link
+		資料夾聯結
 	</string>
 	<string name="AvatarEditingAppearance">
 		（外觀編輯中）
@@ -448,13 +448,13 @@
 		忙碌
 	</string>
 	<string name="AvatarMuted">
-		Blocked
+		封鎖的
 	</string>
 	<string name="anim_express_afraid">
-		Afraid
+		害怕
 	</string>
 	<string name="anim_express_anger">
-		Angry
+		生氣
 	</string>
 	<string name="anim_away">
 		Away
@@ -472,19 +472,19 @@
 		Blow Kiss
 	</string>
 	<string name="anim_express_bored">
-		Bored
+		無聊
 	</string>
 	<string name="anim_bow">
 		Bow
 	</string>
 	<string name="anim_clap">
-		Clap
+		拍手
 	</string>
 	<string name="anim_courtbow">
 		Court Bow
 	</string>
 	<string name="anim_express_cry">
-		Cry
+		哭泣
 	</string>
 	<string name="anim_dance1">
 		Dance 1
@@ -541,19 +541,19 @@
 		Kiss My Butt
 	</string>
 	<string name="anim_express_kiss">
-		Kiss
+		親吻
 	</string>
 	<string name="anim_laugh_short">
-		Laugh
+		笑
 	</string>
 	<string name="anim_musclebeach">
 		Muscle Beach
 	</string>
 	<string name="anim_no_unhappy">
-		No (Unhappy)
+		不（不快樂）
 	</string>
 	<string name="anim_no_head">
-		No
+		不
 	</string>
 	<string name="anim_nyanya">
 		Nya-nya-nya
@@ -598,10 +598,10 @@
 		Roundhouse Kick
 	</string>
 	<string name="anim_express_sad">
-		Sad
+		傷心
 	</string>
 	<string name="anim_salute">
-		Salute
+		敬禮
 	</string>
 	<string name="anim_shout">
 		Shout
@@ -610,7 +610,7 @@
 		Shrug
 	</string>
 	<string name="anim_express_smile">
-		Smile
+		微笑
 	</string>
 	<string name="anim_smoke_idle">
 		Smoke Idle
@@ -622,7 +622,7 @@
 		Smoke Throw Down
 	</string>
 	<string name="anim_express_surprise">
-		Surprise
+		驚喜
 	</string>
 	<string name="anim_sword_strike_r">
 		Sword Strike
@@ -637,22 +637,22 @@
 		Wave
 	</string>
 	<string name="anim_whisper">
-		Whisper
+		耳語
 	</string>
 	<string name="anim_whistle">
-		Whistle
+		吹口哨
 	</string>
 	<string name="anim_express_wink">
-		Wink
+		眨眼
 	</string>
 	<string name="anim_wink_hollywood">
-		Wink (Hollywood)
+		眨眼（好萊塢）
 	</string>
 	<string name="anim_express_worry">
-		Worry
+		擔心
 	</string>
 	<string name="anim_yes_happy">
-		Yes (Happy)
+		是（快樂）
 	</string>
 	<string name="anim_yes_head">
 		是
@@ -679,25 +679,25 @@
 		Can&apos;t find ROOT or JOINT.
 	</string>
 	<string name="whisper">
-		whispers:
+		低語：
 	</string>
 	<string name="shout">
-		shouts:
+		吶喊：
 	</string>
 	<string name="ringing">
-		Connecting to in-world Voice Chat...
+		聯接到虛擬世界的語音功能中...
 	</string>
 	<string name="connected">
-		Connected
+		已聯接
 	</string>
 	<string name="unavailable">
-		Voice not available at your current location
+		語音聊天功能於你目前所在的位置無法使用
 	</string>
 	<string name="hang_up">
-		Disconnected from in-world Voice Chat
+		虛擬世界中的語音聊天中斷
 	</string>
 	<string name="reconnect_nearby">
-		You will now be reconnected to Nearby Voice Chat
+		現在你將重新聯接到附近的語音聊天
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
 		&apos;[OBJECTNAME]&apos;, an object owned by &apos;[OWNERNAME]&apos;, located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].
@@ -706,7 +706,7 @@
 		&apos;[OBJECTNAME]&apos;, an object owned by &apos;[OWNERNAME]&apos;, located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].
 	</string>
 	<string name="ScriptTakeMoney">
-		Take Linden dollars (L$) from you
+		由你身上拿走林登幣（L$）
 	</string>
 	<string name="ActOnControlInputs">
 		Act on your control inputs
@@ -730,25 +730,25 @@
 		Add and remove joints with other objects
 	</string>
 	<string name="ChangePermissions">
-		Change its permissions
+		變更它的權限
 	</string>
 	<string name="TrackYourCamera">
-		Track your camera
+		追蹤你的攝影機
 	</string>
 	<string name="ControlYourCamera">
-		Control your camera
+		控制你的攝影機
 	</string>
 	<string name="NotConnected">
-		Not Connected
+		未聯接
 	</string>
 	<string name="SIM_ACCESS_PG">
-		一般
+		一般普級
 	</string>
 	<string name="SIM_ACCESS_MATURE">
-		Moderate
+		適度成人
 	</string>
 	<string name="SIM_ACCESS_ADULT">
-		成人
+		完全成人
 	</string>
 	<string name="SIM_ACCESS_DOWN">
 		離線
@@ -796,16 +796,16 @@
 		Bitmap 圖像
 	</string>
 	<string name="avi_movie_file">
-		AVI 影片檔案
+		AVI 視頻檔案
 	</string>
 	<string name="xaf_animation_file">
 		XAF Anim File
 	</string>
 	<string name="xml_file">
-		XML File
+		XML 檔案
 	</string>
 	<string name="raw_file">
-		RAW File
+		RAW 檔案
 	</string>
 	<string name="compressed_image_files">
 		壓縮的圖像
@@ -868,13 +868,13 @@
 		裙子
 	</string>
 	<string name="alpha">
-		Alpha
+		半透明
 	</string>
 	<string name="tattoo">
 		刺青
 	</string>
 	<string name="physics">
-		Physics
+		身體物理
 	</string>
 	<string name="invalid">
 		無效
@@ -910,13 +910,13 @@
 		裙子未穿
 	</string>
 	<string name="alpha_not_worn">
-		Alpha not worn
+		半透明未穿
 	</string>
 	<string name="tattoo_not_worn">
 		刺青未穿
 	</string>
 	<string name="physics_not_worn">
-		Physics not worn
+		身體物理未穿
 	</string>
 	<string name="invalid_not_worn">
 		無效
@@ -961,13 +961,13 @@
 		創造新裙子
 	</string>
 	<string name="create_new_alpha">
-		Create new alpha
+		創造新半透明
 	</string>
 	<string name="create_new_tattoo">
 		創造新刺青
 	</string>
 	<string name="create_new_physics">
-		Create new physics
+		創造新身體物理
 	</string>
 	<string name="create_new_invalid">
 		無效
@@ -982,10 +982,10 @@
 		確定
 	</string>
 	<string name="GroupNotifyGroupNotice">
-		社團通知
+		群組通知
 	</string>
 	<string name="GroupNotifyGroupNotices">
-		社團通知
+		群組通知
 	</string>
 	<string name="GroupNotifySentBy">
 		送出由
@@ -1012,34 +1012,34 @@
 		你有約 %d 通知
 	</string>
 	<string name="BodyPartsRightArm">
-		Right Arm
+		右臂
 	</string>
 	<string name="BodyPartsHead">
 		頭部
 	</string>
 	<string name="BodyPartsLeftArm">
-		Left Arm
+		左臂
 	</string>
 	<string name="BodyPartsLeftLeg">
-		Left Leg
+		左腿
 	</string>
 	<string name="BodyPartsTorso">
 		軀幹
 	</string>
 	<string name="BodyPartsRightLeg">
-		Right Leg
+		右腿
 	</string>
 	<string name="GraphicsQualityLow">
-		Low
+		低
 	</string>
 	<string name="GraphicsQualityMid">
-		Mid
+		中
 	</string>
 	<string name="GraphicsQualityHigh">
-		High
+		高
 	</string>
 	<string name="LeaveMouselook">
-		Press ESC to return to World View
+		按下 ESC 鍵回復到世界的視角
 	</string>
 	<string name="InventoryNoMatchingItems">
 		Didn&apos;t find what you&apos;re looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].
@@ -1053,19 +1053,19 @@
 	<string name="InventoryNoTexture">
 		You do not have a copy of this texture in your inventory
 	</string>
-	<string name="no_transfer" value="(no transfer)"/>
-	<string name="no_modify" value="(no modify)"/>
-	<string name="no_copy" value="(no copy)"/>
-	<string name="worn" value="(worn)"/>
-	<string name="link" value="(link)"/>
-	<string name="broken_link" value="(broken_link)"/>
+	<string name="no_transfer" value="（禁止轉讓）"/>
+	<string name="no_modify" value="（禁止修改）"/>
+	<string name="no_copy" value="（禁止複製）"/>
+	<string name="worn" value="（已穿）"/>
+	<string name="link" value="（聯結）"/>
+	<string name="broken_link" value="（損壞的聯結）"/>
 	<string name="LoadingContents">
 		內容載入中...
 	</string>
 	<string name="NoContents">
-		No contents
+		無內容
 	</string>
-	<string name="WornOnAttachmentPoint" value="(worn on [ATTACHMENT_POINT])"/>
+	<string name="WornOnAttachmentPoint" value="（已穿 [ATTACHMENT_POINT]）"/>
 	<string name="ActiveGesture" value="[GESLABEL] (active)"/>
 	<string name="PermYes">
 		是
@@ -1084,7 +1084,7 @@
 	<string name="ViewAllGestures" value="察看全部 &gt;&gt;"/>
 	<string name="GetMoreGestures" value="取得更多 &gt;&gt;"/>
 	<string name="Animations" value="動作,"/>
-	<string name="Calling Cards" value="Calling Cards,"/>
+	<string name="Calling Cards" value="名片,"/>
 	<string name="Clothing" value="服裝,"/>
 	<string name="Gestures" value="姿勢,"/>
 	<string name="Landmarks" value="地標,"/>
@@ -1093,17 +1093,17 @@
 	<string name="Scripts" value="腳本,"/>
 	<string name="Sounds" value="聲音,"/>
 	<string name="Textures" value="材質,"/>
-	<string name="Snapshots" value="Snapshots,"/>
+	<string name="Snapshots" value="快照,"/>
 	<string name="No Filters" value="No"/>
 	<string name="Since Logoff" value="- 自上次登出"/>
 	<string name="InvFolder My Inventory">
 		我的收納區
 	</string>
 	<string name="InvFolder My Favorites">
-		My Favorites
+		我的最愛
 	</string>
 	<string name="InvFolder Library">
-		Library
+		資源庫
 	</string>
 	<string name="InvFolder Textures">
 		材質
@@ -1112,7 +1112,7 @@
 		聲音
 	</string>
 	<string name="InvFolder Calling Cards">
-		Calling Cards
+		名片
 	</string>
 	<string name="InvFolder Landmarks">
 		地標
@@ -1151,7 +1151,7 @@
 		Lost And Found
 	</string>
 	<string name="InvFolder Uncompressed Sounds">
-		Uncompressed Sounds
+		無壓縮聲音
 	</string>
 	<string name="InvFolder Animations">
 		動作
@@ -1160,10 +1160,10 @@
 		姿勢
 	</string>
 	<string name="InvFolder Favorite">
-		Favorites
+		我的最愛
 	</string>
 	<string name="InvFolder favorite">
-		Favorites
+		我的最愛
 	</string>
 	<string name="InvFolder Current Outfit">
 		目前裝扮
@@ -1220,34 +1220,34 @@
 		Ctrl
 	</string>
 	<string name="Chest">
-		Chest
+		胸部
 	</string>
 	<string name="Skull">
-		Skull
+		頭顱
 	</string>
 	<string name="Left Shoulder">
-		Left Shoulder
+		左肩
 	</string>
 	<string name="Right Shoulder">
-		Right Shoulder
+		右肩
 	</string>
 	<string name="Left Hand">
-		Left Hand
+		左手
 	</string>
 	<string name="Right Hand">
-		Right Hand
+		右手
 	</string>
 	<string name="Left Foot">
-		Left Foot
+		左腳
 	</string>
 	<string name="Right Foot">
-		Right Foot
+		右腳
 	</string>
 	<string name="Spine">
-		Spine
+		脊椎
 	</string>
 	<string name="Pelvis">
-		Pelvis
+		骨盆
 	</string>
 	<string name="Mouth">
 		嘴
@@ -1271,46 +1271,46 @@
 		鼻子
 	</string>
 	<string name="R Upper Arm">
-		R Upper Arm
+		右上臂
 	</string>
 	<string name="R Forearm">
-		R Forearm
+		右前臂
 	</string>
 	<string name="L Upper Arm">
-		L Upper Arm
+		左上臂
 	</string>
 	<string name="L Forearm">
-		L Forearm
+		左前臂
 	</string>
 	<string name="Right Hip">
-		Right Hip
+		右臀
 	</string>
 	<string name="R Upper Leg">
-		R Upper Leg
+		右大腿
 	</string>
 	<string name="R Lower Leg">
-		R Lower Leg
+		右小腿
 	</string>
 	<string name="Left Hip">
-		Left Hip
+		左臀
 	</string>
 	<string name="L Upper Leg">
-		L Upper Leg
+		左大腿
 	</string>
 	<string name="L Lower Leg">
-		L Lower Leg
+		左小腿
 	</string>
 	<string name="Stomach">
-		Stomach
+		腹肌
 	</string>
 	<string name="Left Pec">
-		Left Pec
+		左胸肌
 	</string>
 	<string name="Right Pec">
-		Right Pec
+		右胸肌
 	</string>
 	<string name="Invalid Attachment">
-		Invalid Attachment Point
+		無效的附件聯接點
 	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS] old
@@ -1328,7 +1328,7 @@
 		[AGEDAYS] old
 	</string>
 	<string name="TodayOld">
-		高日剛加入
+		今日剛加入
 	</string>
 	<string name="AgeYearsA">
 		[COUNT] 年
@@ -1397,40 +1397,40 @@
 		No Payment Info On File
 	</string>
 	<string name="AgeVerified">
-		Age-verified
+		已年齡驗證
 	</string>
 	<string name="NotAgeVerified">
-		Not Age-verified
+		未年齡驗證
 	</string>
 	<string name="Center 2">
-		Center 2
+		中央 2
 	</string>
 	<string name="Top Right">
-		Top Right
+		右上
 	</string>
 	<string name="Top">
-		Top
+		上方
 	</string>
 	<string name="Top Left">
-		Top Left
+		左上
 	</string>
 	<string name="Center">
-		Center
+		中央
 	</string>
 	<string name="Bottom Left">
-		Bottom Left
+		左下
 	</string>
 	<string name="Bottom">
-		Bottom
+		下方
 	</string>
 	<string name="Bottom Right">
-		Bottom Right
+		右下
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
-		Downloaded, now compiling
+		已下載，現在進行編譯中
 	</string>
 	<string name="CompileQueueScriptNotFound">
-		Script not found on server.
+		伺服器上未發現腳本。
 	</string>
 	<string name="CompileQueueProblemDownloading">
 		Problem downloading
@@ -1445,16 +1445,16 @@
 		Unknown failure to download
 	</string>
 	<string name="CompileQueueTitle">
-		Recompilation Progress
+		重新編譯進度
 	</string>
 	<string name="CompileQueueStart">
-		recompile
+		重新編譯
 	</string>
 	<string name="ResetQueueTitle">
-		Reset Progress
+		重設進度
 	</string>
 	<string name="ResetQueueStart">
-		reset
+		重設
 	</string>
 	<string name="RunQueueTitle">
 		設定執行中程序
@@ -1481,19 +1481,19 @@
 		腳本（物件超出範圍）
 	</string>
 	<string name="GodToolsObjectOwnedBy">
-		Object [OBJECT] owned by [OWNER]
+		物件 [OBJECT] 為 [OWNER] 所擁有
 	</string>
 	<string name="GroupsNone">
 		無
 	</string>
-	<string name="Group" value="（社團）"/>
+	<string name="Group" value="（群組）"/>
 	<string name="Unknown">
 		（未知）
 	</string>
 	<string name="SummaryForTheWeek" value="Summary for this week, beginning on"/>
 	<string name="NextStipendDay" value="The next stipend day is"/>
 	<string name="GroupIndividualShare" value="Group       Individual Share"/>
-	<string name="GroupColumn" value="社團"/>
+	<string name="GroupColumn" value="群組"/>
 	<string name="Balance">
 		Balance
 	</string>
@@ -1534,7 +1534,7 @@
 		Allowed Residents: ([ALLOWEDAGENTS], max [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		Allowed groups: ([ALLOWEDGROUPS], max [MAXACCESS])
+		允許的群群組：（[ALLOWEDGROUPS]，最大 [MAXACCESS]）
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		地段腳本記憶體
@@ -1549,7 +1549,7 @@
 		Memory used: [COUNT] kb
 	</string>
 	<string name="ScriptLimitsParcelScriptURLs">
-		Parcel Script URLs
+		地段腳本 URLs
 	</string>
 	<string name="ScriptLimitsURLsUsed">
 		URLs used: [COUNT] out of [MAX]; [AVAILABLE] available
@@ -1561,7 +1561,7 @@
 		Error requesting information
 	</string>
 	<string name="ScriptLimitsRequestNoParcelSelected">
-		No Parcel Selected
+		無地段被選擇
 	</string>
 	<string name="ScriptLimitsRequestWrongRegion">
 		Error: script information is only available in your current region
@@ -1576,46 +1576,46 @@
 		Sitting On
 	</string>
 	<string name="ATTACH_CHEST">
-		Chest
+		胸部
 	</string>
 	<string name="ATTACH_HEAD">
 		頭部
 	</string>
 	<string name="ATTACH_LSHOULDER">
-		Left Shoulder
+		左肩
 	</string>
 	<string name="ATTACH_RSHOULDER">
-		Right Shoulder
+		右肩
 	</string>
 	<string name="ATTACH_LHAND">
-		Left Hand
+		左手
 	</string>
 	<string name="ATTACH_RHAND">
-		Right Hand
+		右手
 	</string>
 	<string name="ATTACH_LFOOT">
-		Left Foot
+		左腳
 	</string>
 	<string name="ATTACH_RFOOT">
-		Right Foot
+		右腳
 	</string>
 	<string name="ATTACH_BACK">
-		Back
+		背部
 	</string>
 	<string name="ATTACH_PELVIS">
-		Pelvis
+		骨盆
 	</string>
 	<string name="ATTACH_MOUTH">
-		Mouth
+		嘴巴
 	</string>
 	<string name="ATTACH_CHIN">
 		下巴
 	</string>
 	<string name="ATTACH_LEAR">
-		Left Ear
+		左耳
 	</string>
 	<string name="ATTACH_REAR">
-		Right Ear
+		右耳
 	</string>
 	<string name="ATTACH_LEYE">
 		左眼
@@ -1627,43 +1627,43 @@
 		鼻子
 	</string>
 	<string name="ATTACH_RUARM">
-		Right Upper Arm
+		右上臂
 	</string>
 	<string name="ATTACH_RLARM">
-		Right Lower Arm
+		右前臂
 	</string>
 	<string name="ATTACH_LUARM">
-		Left Upper Arm
+		左上臂
 	</string>
 	<string name="ATTACH_LLARM">
-		Left Lower Arm
+		左前臂
 	</string>
 	<string name="ATTACH_RHIP">
-		Right Hip
+		右臀
 	</string>
 	<string name="ATTACH_RULEG">
-		Right Upper Leg
+		右大腿
 	</string>
 	<string name="ATTACH_RLLEG">
-		Right Lower Leg
+		右小腿
 	</string>
 	<string name="ATTACH_LHIP">
-		Left Hip
+		左臀
 	</string>
 	<string name="ATTACH_LULEG">
-		Left Upper Leg
+		左大腿
 	</string>
 	<string name="ATTACH_LLLEG">
-		Left Lower Leg
+		左小腿
 	</string>
 	<string name="ATTACH_BELLY">
-		Belly
+		腹部
 	</string>
 	<string name="ATTACH_RPEC">
-		Right Pec
+		右胸肌
 	</string>
 	<string name="ATTACH_LPEC">
-		Left Pec
+		左胸肌
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
 		HUD Center 2
@@ -1702,13 +1702,13 @@
 		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
 	<string name="PanelContentsTooltip">
-		Content of object
+		物件的內容
 	</string>
 	<string name="PanelContentsNewScript">
-		New Script
+		新腳本
 	</string>
 	<string name="BusyModeResponseDefault">
-		The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.
+		你傳送訊息的居民目前處於忙碌模式中，這意味著他要求不被打擾。你所傳的訊息仍將會留存並顯示於 IM 面板上供他稍後時查閱。
 	</string>
 	<string name="MuteByName">
 		（由名稱）
@@ -1720,22 +1720,22 @@
 		（物件）
 	</string>
 	<string name="MuteGroup">
-		（社團）
+		（群組）
 	</string>
 	<string name="MuteExternal">
-		(External)
+		（外部）
 	</string>
 	<string name="RegionNoCovenant">
-		There is no Covenant provided for this Estate.
+		此領地未提供任何契約要求。
 	</string>
 	<string name="RegionNoCovenantOtherOwner">
 		There is no Covenant provided for this Estate. The land on this estate is being sold by the Estate owner, not Linden Lab.  Please contact the Estate Owner for sales details.
 	</string>
-	<string name="covenant_last_modified" value="Last Modified:"/>
+	<string name="covenant_last_modified" value="最後修改於："/>
 	<string name="none_text" value="（無）"/>
 	<string name="never_text" value="（絕不）"/>
 	<string name="GroupOwned">
-		社團所擁有
+		群組所擁有
 	</string>
 	<string name="Public">
 		公開
@@ -1744,7 +1744,7 @@
 		Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
-		(will update after publish)
+		（將於發布後自動更新）
 	</string>
 	<string name="NoPicksClassifiedsText">
 		You haven&apos;t created any Picks or Classifieds. Click the Plus button below to create a Pick or Classified.
@@ -1765,10 +1765,10 @@
 		An object named
 	</string>
 	<string name="InvOfferOwnedByGroup">
-		owned by the group
+		群組所擁有
 	</string>
 	<string name="InvOfferOwnedByUnknownGroup">
-		owned by an unknown group
+		由一個未知的群組所擁有
 	</string>
 	<string name="InvOfferOwnedBy">
 		owned by
@@ -1955,7 +1955,7 @@
 		Linden Location
 	</string>
 	<string name="Adult">
-		成人
+		完全成人
 	</string>
 	<string name="Arts&amp;Culture">
 		Arts &amp; Culture
@@ -2060,7 +2060,7 @@ If this message persists, restart your computer.
 Would you like to send a crash report?
 	</string>
 	<string name="MBAlert">
-		Notification
+		通知
 	</string>
 	<string name="MBNoDirectX">
 		[APP_NAME] is unable to detect DirectX 9.0b or greater.
@@ -2069,7 +2069,7 @@ Would you like to send a crash report?
 Do you wish to continue?
 	</string>
 	<string name="MBWarning">
-		Warning
+		警告
 	</string>
 	<string name="MBNoAutoUpdate">
 		Automatic updating is not yet implemented for Linux.
@@ -2079,7 +2079,7 @@ Please download the latest version from www.secondlife.com.
 		RegisterClass failed
 	</string>
 	<string name="MBError">
-		Error
+		錯誤
 	</string>
 	<string name="MBFullScreenErr">
 		Unable to run fullscreen at [WIDTH] x [HEIGHT].
@@ -3577,13 +3577,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Health
 	</string>
 	<string name="LocationCtrlAdultIconTooltip">
-		成人地區
+		完全成人地區
 	</string>
 	<string name="LocationCtrlModerateIconTooltip">
-		Moderate Region
+		適度成人地區
 	</string>
 	<string name="LocationCtrlGeneralIconTooltip">
-		一般地區
+		一般普級地區
 	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] 更新
@@ -3640,10 +3640,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Your text chat has been disabled by a Group Moderator.
 	</string>
 	<string name="IM_default_text_label">
-		Click here to instant message.
+		點擊此處以傳送即時訊息。
 	</string>
 	<string name="IM_to_label">
-		To
+		至
 	</string>
 	<string name="IM_moderator_label">
 		(Moderator)
@@ -3742,10 +3742,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Error while moderating.
 	</string>
 	<string name="removed">
-		You have been removed from the group.
+		你已經由群組中被移除。
 	</string>
 	<string name="removed_from_group">
-		You have been removed from the group.
+		你已經由群組中被移除。
 	</string>
 	<string name="close_on_no_ability">
 		You no longer have the ability to be in the chat session.
@@ -3793,10 +3793,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		for deeding land
 	</string>
 	<string name="to create a group">
-		以創造社團
+		以創造群組
 	</string>
 	<string name="to join a group">
-		以加入社團
+		以加入群組
 	</string>
 	<string name="to upload">
 		以上傳
@@ -3826,7 +3826,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Officers
 	</string>
 	<string name="group_role_owners">
-		Owners
+		擁有者
 	</string>
 	<string name="group_member_status_online">
 		上線
@@ -3876,16 +3876,16 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		新裙子
 	</string>
 	<string name="New Alpha">
-		New Alpha
+		新半透明
 	</string>
 	<string name="New Tattoo">
 		新刺青
 	</string>
 	<string name="New Physics">
-		New Physics
+		新身體物理
 	</string>
 	<string name="Invalid Wearable">
-		Invalid Wearable
+		無效的可穿裝扮
 	</string>
 	<string name="New Gesture">
 		新姿勢

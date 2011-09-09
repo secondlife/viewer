@@ -31,6 +31,7 @@
 #include "llpermissionsflags.h"
 
 class LLFolderViewItem;
+class LLFolderViewFolder;
 
 class LLInventoryFilter
 {
@@ -81,11 +82,13 @@ public:
 	// + Parameters
 	// +-------------------------------------------------------------------+
 	void 				setFilterObjectTypes(U64 types);
-	U32 				getFilterObjectTypes() const;
+	U64 				getFilterObjectTypes() const;
+	U64					getFilterCategoryTypes() const;
 	BOOL 				isFilterObjectTypesWith(LLInventoryType::EType t) const;
 	void 				setFilterCategoryTypes(U64 types);
 	void 				setFilterUUID(const LLUUID &object_id);
 	void				setFilterWearableTypes(U64 types);
+	void				updateFilterTypes(U64 types, U64& current_types);
 
 	void 				setFilterSubString(const std::string& string);
 	const std::string& 	getFilterSubString(BOOL trim = FALSE) const;
@@ -110,6 +113,7 @@ public:
 	// + Execution And Results
 	// +-------------------------------------------------------------------+
 	BOOL 				check(const LLFolderViewItem* item);
+	bool				checkFolder(const LLFolderViewFolder* folder);
 	BOOL 				checkAgainstFilterType(const LLFolderViewItem* item) const;
 	BOOL 				checkAgainstPermissions(const LLFolderViewItem* item) const;
 	BOOL 				checkAgainstFilterLinks(const LLFolderViewItem* item) const;

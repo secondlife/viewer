@@ -40,6 +40,10 @@
 #include "llxfermanager.h"
 #include "indra_constants.h"
 #include "message.h"
+#include "llloadingindicator.h"
+#include "llradiogroup.h"
+#include "llsd.h"
+#include "llsdserialize.h"
 
 #include "llagent.h"
 #include "llappviewer.h"
@@ -48,6 +52,9 @@
 #include "llbutton.h" 
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "lldaycyclemanager.h"
+#include "llenvmanager.h"
+#include "llestateinfomodel.h"
 #include "llfilepicker.h"
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
 #include "llfloatertopobjects.h" // added to fix SL-32336
@@ -55,12 +62,12 @@
 #include "llfloaterreg.h"
 #include "llfloaterregiondebugconsole.h"
 #include "llfloatertelehub.h"
-#include "llfloaterwindlight.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "llregioninfomodel.h"
 #include "llscrolllistitem.h"
 #include "llsliderctrl.h"
 #include "llslurl.h"
@@ -80,12 +87,15 @@
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"
 #include "llvlcomposition.h"
+#include "llwaterparammanager.h"
 #include "lltrans.h"
 #include "llagentui.h"
 #include "llmeshrepository.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
+
+#define TMP_DISABLE_WLES // STORM-1180
 
 ///----------------------------------------------------------------------------
 /// Local class declaration
@@ -190,24 +200,24 @@ LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
 BOOL LLFloaterRegionInfo::postBuild()
 {
 	mTab = getChild<LLTabContainer>("region_panels");
+	mTab->setCommitCallback(boost::bind(&LLFloaterRegionInfo::onTabSelected, this, _2));
 
 	// contruct the panels
 	LLPanelRegionInfo* panel;
+	panel = new LLPanelEstateInfo;
+	mInfoPanels.push_back(panel);
+	panel->buildFromFile("panel_region_estate.xml");
+	mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
+
+	panel = new LLPanelEstateCovenant;
+	mInfoPanels.push_back(panel);
+	panel->buildFromFile("panel_region_covenant.xml");
+	mTab->addTabPanel(panel);
+
 	panel = new LLPanelRegionGeneralInfo;
 	mInfoPanels.push_back(panel);
 	panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub",	boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel));
-	
 	panel->buildFromFile("panel_region_general.xml");
-	mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
-
-	panel = new LLPanelRegionDebugInfo;
-	mInfoPanels.push_back(panel);
-	panel->buildFromFile("panel_region_debug.xml");
-	mTab->addTabPanel(panel);
-
-	panel = new LLPanelRegionTextureInfo;
-	mInfoPanels.push_back(panel);
-	panel->buildFromFile("panel_region_texture.xml");
 	mTab->addTabPanel(panel);
 
 	panel = new LLPanelRegionTerrainInfo;
@@ -215,19 +225,22 @@ BOOL LLFloaterRegionInfo::postBuild()
 	panel->buildFromFile("panel_region_terrain.xml");
 	mTab->addTabPanel(panel);
 
-	panel = new LLPanelEstateInfo;
+	panel = new LLPanelEnvironmentInfo;
 	mInfoPanels.push_back(panel);
-	panel->buildFromFile("panel_region_estate.xml");
+	panel->buildFromFile("panel_region_environment.xml");
 	mTab->addTabPanel(panel);
 
-	panel = new LLPanelEstateCovenant;
+	panel = new LLPanelRegionDebugInfo;
 	mInfoPanels.push_back(panel);
-	panel->buildFromFile("panel_region_covenant.xml");
+	panel->buildFromFile("panel_region_debug.xml");
 	mTab->addTabPanel(panel);
 
 	gMessageSystem->setHandlerFunc(
 		"EstateOwnerMessage", 
 		&processEstateOwnerRequest);
+
+	// Request region info when agent region changes.
+	LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterRegionInfo::requestRegionInfo, this));
 
 	return TRUE;
 }
@@ -307,16 +320,24 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 {
 	LLPanel* panel;
 	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-	llinfos << "LLFloaterRegionInfo::processRegionInfo" << llendl;
 	if(!floater)
 	{
 		return;
 	}
+
+	// We need to re-request environment setting here,
+	// otherwise after we apply (send) updated region settings we won't get them back,
+	// so our environment won't be updated.
+	// This is also the way to know about externally changed region environment.
+	LLEnvManagerNew::instance().requestRegionSettings();
 	
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 
 	LLViewerRegion* region = gAgent.getRegion();
 	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
+
+	// *TODO: Replace parsing msg with accessing the region info model.
+	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
 
 	// extract message
 	std::string sim_name;
@@ -347,6 +368,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 		msg->getSize("RegionInfo2", "ProductName") > 0)
 	{
 		msg->getString("RegionInfo2", "ProductName", sim_type);
+		LLTrans::findString(sim_type, sim_type); // try localizing sim product name
 	}
 
 	// GENERAL PANEL
@@ -389,15 +411,10 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel = tab->getChild<LLPanel>("Terrain");
 
 	panel->getChild<LLUICtrl>("region_text")->setValue(LLSD(sim_name));
-	panel->getChild<LLUICtrl>("water_height_spin")->setValue(LLSD(water_height));
-	panel->getChild<LLUICtrl>("terrain_raise_spin")->setValue(LLSD(terrain_raise_limit));
-	panel->getChild<LLUICtrl>("terrain_lower_spin")->setValue(LLSD(terrain_lower_limit));
-	panel->getChild<LLUICtrl>("use_estate_sun_check")->setValue(LLSD(use_estate_sun));
+	panel->getChild<LLUICtrl>("water_height_spin")->setValue(region_info.mWaterHeight);
+	panel->getChild<LLUICtrl>("terrain_raise_spin")->setValue(region_info.mTerrainRaiseLimit);
+	panel->getChild<LLUICtrl>("terrain_lower_spin")->setValue(region_info.mTerrainLowerLimit);
 
-	panel->getChild<LLUICtrl>("fixed_sun_check")->setValue(LLSD((BOOL)(region_flags & REGION_FLAGS_SUN_FIXED)));
-	panel->getChildView("fixed_sun_check")->setEnabled(allow_modify && !use_estate_sun);
-	panel->getChild<LLUICtrl>("sun_hour_slider")->setValue(LLSD(sun_hour));
-	panel->getChildView("sun_hour_slider")->setEnabled(allow_modify && !use_estate_sun);
 	panel->setCtrlsEnabled(allow_modify);
 
 	floater->refreshFromRegion( gAgent.getRegion() );
@@ -421,6 +438,29 @@ LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateCovenant* panel = (LLPanelEstateCovenant*)tab->getChild<LLPanel>("Covenant");
 	return panel;
+}
+
+// static
+LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
+{
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
+	if (!floater)
+	{
+		llassert(floater);
+		return NULL;
+	}
+
+	LLTabContainer* tab_container = floater->getChild<LLTabContainer>("region_panels");
+	LLPanelRegionTerrainInfo* panel =
+		dynamic_cast<LLPanelRegionTerrainInfo*>(tab_container->getChild<LLPanel>("Terrain"));
+	llassert(panel);
+	return panel;
+}
+
+void LLFloaterRegionInfo::onTabSelected(const LLSD& param)
+{
+	LLPanel* active_panel = getChild<LLPanel>(param.asString());
+	active_panel->onOpen(LLSD());
 }
 
 void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
@@ -503,8 +543,13 @@ void LLPanelRegionInfo::onChangeText(LLLineEditor* caller, void* user_data)
 // virtual
 BOOL LLPanelRegionInfo::postBuild()
 {
-	getChild<LLUICtrl>("apply_btn")->setCommitCallback(boost::bind(&LLPanelRegionInfo::onBtnSet, this));
-	getChildView("apply_btn")->setEnabled(FALSE);
+	// If the panel has an Apply button, set a callback for it.
+	LLUICtrl* apply_btn = findChild<LLUICtrl>("apply_btn");
+	if (apply_btn)
+	{
+		apply_btn->setCommitCallback(boost::bind(&LLPanelRegionInfo::onBtnSet, this));
+	}
+
 	refresh();
 	return TRUE;
 }
@@ -556,12 +601,14 @@ void LLPanelRegionInfo::sendEstateOwnerMessage(
 
 void LLPanelRegionInfo::enableButton(const std::string& btn_name, BOOL enable)
 {
-	getChildView(btn_name)->setEnabled(enable);
+	LLView* button = findChildView(btn_name);
+	if (button) button->setEnabled(enable);
 }
 
 void LLPanelRegionInfo::disableButton(const std::string& btn_name)
 {
-	getChildView(btn_name)->setEnabled(FALSE);
+	LLView* button = findChildView(btn_name);
+	if (button) button->setEnabled(FALSE);
 }
 
 void LLPanelRegionInfo::initCtrl(const std::string& name)
@@ -1052,131 +1099,7 @@ void LLPanelRegionDebugInfo::onClickCancelRestart(void* data)
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
-// LLPanelRegionTextureInfo
-//
-LLPanelRegionTextureInfo::LLPanelRegionTextureInfo() : LLPanelRegionInfo()
-{
-	// nothing.
-}
-
-bool LLPanelRegionTextureInfo::refreshFromRegion(LLViewerRegion* region)
-{
-	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
-	setCtrlsEnabled(allow_modify);
-	getChildView("apply_btn")->setEnabled(FALSE);
-
-	if (region)
-	{
-		getChild<LLUICtrl>("region_text")->setValue(LLSD(region->getName()));
-	}
-	else
-	{
-		getChild<LLUICtrl>("region_text")->setValue(LLSD(""));
-	}
-
-	if (!region) return LLPanelRegionInfo::refreshFromRegion(region);
-
-	LLVLComposition* compp = region->getComposition();
-	LLTextureCtrl* texture_ctrl;
-	std::string buffer;
-	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-	{
-		buffer = llformat("texture_detail_%d", i);
-		texture_ctrl = getChild<LLTextureCtrl>(buffer);
-		if(texture_ctrl)
-		{
-			lldebugs << "Detail Texture " << i << ": "
-					 << compp->getDetailTextureID(i) << llendl;
-			LLUUID tmp_id(compp->getDetailTextureID(i));
-			texture_ctrl->setImageAssetID(tmp_id);
-		}
-	}
-
-	for(S32 i = 0; i < CORNER_COUNT; ++i)
-    {
-		buffer = llformat("height_start_spin_%d", i);
-		getChild<LLUICtrl>(buffer)->setValue(LLSD(compp->getStartHeight(i)));
-		buffer = llformat("height_range_spin_%d", i);
-		getChild<LLUICtrl>(buffer)->setValue(LLSD(compp->getHeightRange(i)));
-	}
-
-	// Call the parent for common book-keeping
-	return LLPanelRegionInfo::refreshFromRegion(region);
-}
-
-
-BOOL LLPanelRegionTextureInfo::postBuild()
-{
-	LLPanelRegionInfo::postBuild();
-	std::string buffer;
-	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-	{
-		buffer = llformat("texture_detail_%d", i);
-		initCtrl(buffer);
-	}
-
-	for(S32 i = 0; i < CORNER_COUNT; ++i)
-	{
-		buffer = llformat("height_start_spin_%d", i);
-		initCtrl(buffer);
-		buffer = llformat("height_range_spin_%d", i);
-		initCtrl(buffer);
-	}
-
-//	LLButton* btn = ("dump", LLRect(0, 20, 100, 0), "", onClickDump, this);
-//	btn->setFollows(FOLLOWS_TOP|FOLLOWS_LEFT);
-//	addChild(btn);
-
-	return LLPanelRegionInfo::postBuild();
-}
-
-BOOL LLPanelRegionTextureInfo::sendUpdate()
-{
-	llinfos << "LLPanelRegionTextureInfo::sendUpdate()" << llendl;
-
-	// Make sure user hasn't chosen wacky textures.
-	if (!validateTextureSizes())
-	{
-		return FALSE;
-	}
-
-	LLTextureCtrl* texture_ctrl;
-	std::string buffer;
-	std::string id_str;
-	LLMessageSystem* msg = gMessageSystem;
-	strings_t strings;
-
-	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	
-	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-	{
-		buffer = llformat("texture_detail_%d", i);
-		texture_ctrl = getChild<LLTextureCtrl>(buffer);
-		if(texture_ctrl)
-		{
-			LLUUID tmp_id(texture_ctrl->getImageAssetID());
-			tmp_id.toString(id_str);
-			buffer = llformat("%d %s", i, id_str.c_str());
-			strings.push_back(buffer);
-		}
-	}
-	sendEstateOwnerMessage(msg, "texturedetail", invoice, strings);
-	strings.clear();
-	for(S32 i = 0; i < CORNER_COUNT; ++i)
-	{
-		buffer = llformat("height_start_spin_%d", i);
-		std::string buffer2 = llformat("height_range_spin_%d", i);
-		std::string buffer3 = llformat("%d %f %f", i, (F32)getChild<LLUICtrl>(buffer)->getValue().asReal(), (F32)getChild<LLUICtrl>(buffer2)->getValue().asReal());
-		strings.push_back(buffer3);
-	}
-	sendEstateOwnerMessage(msg, "textureheights", invoice, strings);
-	strings.clear();
-	sendEstateOwnerMessage(msg, "texturecommit", invoice, strings);
-	return TRUE;
-}
-
-BOOL LLPanelRegionTextureInfo::validateTextureSizes()
+BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 {
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 	{
@@ -1219,48 +1142,85 @@ BOOL LLPanelRegionTextureInfo::validateTextureSizes()
 	return TRUE;
 }
 
-
-// static
-void LLPanelRegionTextureInfo::onClickDump(void* data)
-{
-	llinfos << "LLPanelRegionTextureInfo::onClickDump()" << llendl;
-}
-
-
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelRegionTerrainInfo
 /////////////////////////////////////////////////////////////////////////////
+// Initialize statics
+
 BOOL LLPanelRegionTerrainInfo::postBuild()
 {
 	LLPanelRegionInfo::postBuild();
-
+	
 	initCtrl("water_height_spin");
 	initCtrl("terrain_raise_spin");
 	initCtrl("terrain_lower_spin");
 
-	initCtrl("fixed_sun_check");
-	getChild<LLUICtrl>("fixed_sun_check")->setCommitCallback(boost::bind(&LLPanelRegionTerrainInfo::onChangeFixedSun, this));
-	getChild<LLUICtrl>("use_estate_sun_check")->setCommitCallback(boost::bind(&LLPanelRegionTerrainInfo::onChangeUseEstateTime, this));
-	getChild<LLUICtrl>("sun_hour_slider")->setCommitCallback(boost::bind(&LLPanelRegionTerrainInfo::onChangeSunHour, this));
+	std::string buffer;
+	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+	{
+		buffer = llformat("texture_detail_%d", i);
+		initCtrl(buffer);
+	}
+
+	for(S32 i = 0; i < CORNER_COUNT; ++i)
+	{
+		buffer = llformat("height_start_spin_%d", i);
+		initCtrl(buffer);
+		buffer = llformat("height_range_spin_%d", i);
+		initCtrl(buffer);
+	}
 
 	childSetAction("download_raw_btn", onClickDownloadRaw, this);
 	childSetAction("upload_raw_btn", onClickUploadRaw, this);
 	childSetAction("bake_terrain_btn", onClickBakeTerrain, this);
 
-	return TRUE;
+	return LLPanelRegionInfo::postBuild();
 }
 
 // virtual
 bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 {
-	llinfos << "LLPanelRegionTerrainInfo::refreshFromRegion" << llendl;
-
 	BOOL owner_or_god = gAgent.isGodlike() 
 						|| (region && (region->getOwner() == gAgent.getID()));
 	BOOL owner_or_god_or_manager = owner_or_god
 						|| (region && region->isEstateManager());
 	setCtrlsEnabled(owner_or_god_or_manager);
+
 	getChildView("apply_btn")->setEnabled(FALSE);
+
+	if (region)
+	{
+		getChild<LLUICtrl>("region_text")->setValue(LLSD(region->getName()));
+
+		LLVLComposition* compp = region->getComposition();
+		LLTextureCtrl* texture_ctrl;
+		std::string buffer;
+		for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+		{
+			buffer = llformat("texture_detail_%d", i);
+			texture_ctrl = getChild<LLTextureCtrl>(buffer);
+			if(texture_ctrl)
+			{
+				lldebugs << "Detail Texture " << i << ": "
+						 << compp->getDetailTextureID(i) << llendl;
+				LLUUID tmp_id(compp->getDetailTextureID(i));
+				texture_ctrl->setImageAssetID(tmp_id);
+			}
+		}
+
+		for(S32 i = 0; i < CORNER_COUNT; ++i)
+    	{
+			buffer = llformat("height_start_spin_%d", i);
+			getChild<LLUICtrl>(buffer)->setValue(LLSD(compp->getStartHeight(i)));
+			buffer = llformat("height_range_spin_%d", i);
+			getChild<LLUICtrl>(buffer)->setValue(LLSD(compp->getHeightRange(i)));
+		}
+	}
+	else
+	{
+		lldebugs << "no region set" << llendl;
+		getChild<LLUICtrl>("region_text")->setValue(LLSD(""));
+	}
 
 	getChildView("download_raw_btn")->setEnabled(owner_or_god);
 	getChildView("upload_raw_btn")->setEnabled(owner_or_god);
@@ -1268,6 +1228,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 
 	return LLPanelRegionInfo::refreshFromRegion(region);
 }
+
 
 // virtual
 BOOL LLPanelRegionTerrainInfo::sendUpdate()
@@ -1277,76 +1238,62 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	strings_t strings;
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 
-	buffer = llformat("%f", (F32)getChild<LLUICtrl>("water_height_spin")->getValue().asReal());
-	strings.push_back(buffer);
-	buffer = llformat("%f", (F32)getChild<LLUICtrl>("terrain_raise_spin")->getValue().asReal());
-	strings.push_back(buffer);
-	buffer = llformat("%f", (F32)getChild<LLUICtrl>("terrain_lower_spin")->getValue().asReal());
-	strings.push_back(buffer);
-	buffer = llformat("%s", (getChild<LLUICtrl>("use_estate_sun_check")->getValue().asBoolean() ? "Y" : "N"));
-	strings.push_back(buffer);
-	buffer = llformat("%s", (getChild<LLUICtrl>("fixed_sun_check")->getValue().asBoolean() ? "Y" : "N"));
-	strings.push_back(buffer);
-	buffer = llformat("%f", (F32)getChild<LLUICtrl>("sun_hour_slider")->getValue().asReal() );
-	strings.push_back(buffer);
+	// update the model
+	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
+	region_info.mWaterHeight = (F32) getChild<LLUICtrl>("water_height_spin")->getValue().asReal();
+	region_info.mTerrainRaiseLimit = (F32) getChild<LLUICtrl>("terrain_raise_spin")->getValue().asReal();
+	region_info.mTerrainLowerLimit = (F32) getChild<LLUICtrl>("terrain_lower_spin")->getValue().asReal();
 
-	// Grab estate information in case the user decided to set the
-	// region back to estate time. JC
-	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-	if (!floater) return true;
+	// and sync the region with it
+	region_info.sendRegionTerrain(invoice);
+	
+	// =======================================
+	// Assemble and send texturedetail message
 
-	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
-	if (!tab) return true;
-
-	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)tab->getChild<LLPanel>("Estate");
-	if (!panel) return true;
-
-	BOOL estate_global_time = panel->getGlobalTime();
-	BOOL estate_fixed_sun = panel->getFixedSun();
-	F32 estate_sun_hour;
-	if (estate_global_time)
+	// Make sure user hasn't chosen wacky textures.
+	if (!validateTextureSizes())
 	{
-		estate_sun_hour = 0.f;
-	}
-	else
-	{
-		estate_sun_hour = panel->getSunHour();
+		return FALSE;
 	}
 
-	buffer = llformat("%s", (estate_global_time ? "Y" : "N") );
-	strings.push_back(buffer);
-	buffer = llformat("%s", (estate_fixed_sun ? "Y" : "N") );
-	strings.push_back(buffer);
-	buffer = llformat("%f", estate_sun_hour);
-	strings.push_back(buffer);
+	LLTextureCtrl* texture_ctrl;
+	std::string id_str;
+	LLMessageSystem* msg = gMessageSystem;
 
-	sendEstateOwnerMessage(gMessageSystem, "setregionterrain", invoice, strings);
+	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+	{
+		buffer = llformat("texture_detail_%d", i);
+		texture_ctrl = getChild<LLTextureCtrl>(buffer);
+		if(texture_ctrl)
+		{
+			LLUUID tmp_id(texture_ctrl->getImageAssetID());
+			tmp_id.toString(id_str);
+			buffer = llformat("%d %s", i, id_str.c_str());
+			strings.push_back(buffer);
+		}
+	}
+	sendEstateOwnerMessage(msg, "texturedetail", invoice, strings);
+	strings.clear();
+
+	// ========================================
+	// Assemble and send textureheights message
+
+	for(S32 i = 0; i < CORNER_COUNT; ++i)
+	{
+		buffer = llformat("height_start_spin_%d", i);
+		std::string buffer2 = llformat("height_range_spin_%d", i);
+		std::string buffer3 = llformat("%d %f %f", i, (F32)getChild<LLUICtrl>(buffer)->getValue().asReal(), (F32)getChild<LLUICtrl>(buffer2)->getValue().asReal());
+		strings.push_back(buffer3);
+	}
+	sendEstateOwnerMessage(msg, "textureheights", invoice, strings);
+	strings.clear();
+
+	// ========================================
+	// Send texturecommit message
+
+	sendEstateOwnerMessage(msg, "texturecommit", invoice, strings);
+
 	return TRUE;
-}
-
-void LLPanelRegionTerrainInfo::onChangeUseEstateTime()
-{
-	BOOL use_estate_sun = getChild<LLUICtrl>("use_estate_sun_check")->getValue().asBoolean();
-	getChildView("fixed_sun_check")->setEnabled(!use_estate_sun);
-	getChildView("sun_hour_slider")->setEnabled(!use_estate_sun);
-	if (use_estate_sun)
-	{
-		getChild<LLUICtrl>("fixed_sun_check")->setValue(LLSD(FALSE));
-		getChild<LLUICtrl>("sun_hour_slider")->setValue(LLSD(0.f));
-	}
-	getChildView("apply_btn")->setEnabled(TRUE);
-}
-
-void LLPanelRegionTerrainInfo::onChangeFixedSun()
-{
-	// Just enable the apply button.  We let the sun-hour slider be enabled
-	// for both fixed-sun and non-fixed-sun. JC
-	getChildView("apply_btn")->setEnabled(TRUE);
-}
-
-void LLPanelRegionTerrainInfo::onChangeSunHour()
-{
-	getChildView("apply_btn")->setEnabled(TRUE);
 }
 
 // static
@@ -1406,6 +1353,7 @@ bool LLPanelRegionTerrainInfo::callbackBakeTerrain(const LLSD& notification, con
 	strings.push_back("bake");
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 	sendEstateOwnerMessage(gMessageSystem, "terrain", invoice, strings);
+
 	return false;
 }
 
@@ -1417,6 +1365,9 @@ LLPanelEstateInfo::LLPanelEstateInfo()
 :	LLPanelRegionInfo(),
 	mEstateID(0)	// invalid
 {
+	LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+	estate_info.setCommitCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+	estate_info.setUpdateCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
 }
 
 // static
@@ -1439,41 +1390,9 @@ void LLPanelEstateInfo::initDispatch(LLDispatcher& dispatch)
 	estate_dispatch_initialized = true;
 }
 
-// Disables the sun-hour slider and the use fixed time check if the use global time is check
-void LLPanelEstateInfo::onChangeUseGlobalTime()
-{
-	bool enabled = !getChild<LLUICtrl>("use_global_time_check")->getValue().asBoolean();
-	getChildView("sun_hour_slider")->setEnabled(enabled);
-	getChildView("fixed_sun_check")->setEnabled(enabled);
-	getChild<LLUICtrl>("fixed_sun_check")->setValue(LLSD(FALSE));
-	enableButton("apply_btn");
-}
-
-// Enables the sun-hour slider if the fixed-sun checkbox is set
-void LLPanelEstateInfo::onChangeFixedSun()
-{
-	bool enabled = !getChild<LLUICtrl>("fixed_sun_check")->getValue().asBoolean();
-	getChildView("use_global_time_check")->setEnabled(enabled);
-	getChild<LLUICtrl>("use_global_time_check")->setValue(LLSD(FALSE));
-	enableButton("apply_btn");
-}
-
-
-
-
 //---------------------------------------------------------------------------
 // Add/Remove estate access button callbacks
 //---------------------------------------------------------------------------
-void LLPanelEstateInfo::onClickEditSky()
-{
-	LLFloaterReg::showInstance("env_windlight");
-}
-
-void LLPanelEstateInfo::onClickEditDayCycle()
-{
-	LLFloaterReg::showInstance("env_day_cycle");
-}
-
 void LLPanelEstateInfo::onClickAddAllowedAgent()
 {
 	LLCtrlListInterface *list = childGetListInterface("allowed_avatar_name_list");
@@ -1673,10 +1592,7 @@ std::string all_estates_text()
 // static
 bool LLPanelEstateInfo::isLindenEstate()
 {
-	LLPanelEstateInfo* panel = LLFloaterRegionInfo::getPanelEstate();
-	if (!panel) return false;
-
-	U32 estate_id = panel->getEstateID();
+	U32 estate_id = LLEstateInfoModel::instance().getID();
 	return (estate_id <= ESTATE_LAST_LINDEN);
 }
 
@@ -2030,7 +1946,6 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	BOOL manager = (region && region->isEstateManager());
 	setCtrlsEnabled(god || owner || manager);
 	
-	getChildView("apply_btn")->setEnabled(FALSE);
 	getChildView("add_allowed_avatar_btn")->setEnabled(god || owner || manager);
 	getChildView("remove_allowed_avatar_btn")->setEnabled(god || owner || manager);
 	getChildView("add_allowed_group_btn")->setEnabled(god || owner || manager);
@@ -2039,7 +1954,7 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	// Can't ban people from mainland, orientation islands, etc. because this
 	// creates much network traffic and server load.
 	// Disable their accounts in CSR tool instead.
-	bool linden_estate = (getEstateID() <= ESTATE_LAST_LINDEN);
+	bool linden_estate = isLindenEstate();
 	bool enable_ban = (god || owner || manager) && !linden_estate;
 	getChildView("add_banned_avatar_btn")->setEnabled(enable_ban);
 	getChildView("remove_banned_avatar_btn")->setEnabled(enable_ban);
@@ -2051,6 +1966,8 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	getChildView("add_estate_manager_btn")->setEnabled(god || owner);
 	getChildView("remove_estate_manager_btn")->setEnabled(god || owner);
 	getChildView("estate_manager_name_list")->setEnabled(god || owner);
+
+	refresh();
 }
 
 bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
@@ -2088,10 +2005,6 @@ void LLPanelEstateInfo::updateChild(LLUICtrl* child_ctrl)
 	{
 		// do nothing
 	}
-	else if (checkSunHourSlider(child_ctrl))
-	{
-		// do nothing
-	}
 }
 
 bool LLPanelEstateInfo::estateUpdate(LLMessageSystem* msg)
@@ -2105,18 +2018,11 @@ BOOL LLPanelEstateInfo::postBuild()
 {
 	// set up the callbacks for the generic controls
 	initCtrl("externally_visible_check");
-	initCtrl("use_global_time_check");
-	initCtrl("fixed_sun_check");
 	initCtrl("allow_direct_teleport");
 	initCtrl("limit_payment");
 	initCtrl("limit_age_verified");
 	initCtrl("voice_chat_check");
 
-	// set up the use global time checkbox
-	getChild<LLUICtrl>("use_global_time_check")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeUseGlobalTime, this));
-	getChild<LLUICtrl>("fixed_sun_check")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeFixedSun, this));
-	getChild<LLUICtrl>("sun_hour_slider")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));
-	
 	getChild<LLUICtrl>("allowed_avatar_name_list")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));	
 	LLNameListCtrl *avatar_name_list = getChild<LLNameListCtrl>("allowed_avatar_name_list");
 	if (avatar_name_list)
@@ -2163,24 +2069,57 @@ BOOL LLPanelEstateInfo::postBuild()
 	childSetAction("message_estate_btn", boost::bind(&LLPanelEstateInfo::onClickMessageEstate, this));
 	childSetAction("kick_user_from_estate_btn", boost::bind(&LLPanelEstateInfo::onClickKickUser, this));
 
-	childSetAction("WLEditSky", boost::bind(&LLPanelEstateInfo::onClickEditSky, this));
-	childSetAction("WLEditDayCycle", boost::bind(&LLPanelEstateInfo::onClickEditDayCycle, this));
-
 	return LLPanelRegionInfo::postBuild();
 }
 
 void LLPanelEstateInfo::refresh()
 {
+	// Disable access restriction controls if they make no sense.
 	bool public_access = getChild<LLUICtrl>("externally_visible_check")->getValue().asBoolean();
+
 	getChildView("Only Allow")->setEnabled(public_access);
 	getChildView("limit_payment")->setEnabled(public_access);
 	getChildView("limit_age_verified")->setEnabled(public_access);
+
 	// if this is set to false, then the limit fields are meaningless and should be turned off
 	if (public_access == false)
 	{
 		getChild<LLUICtrl>("limit_payment")->setValue(false);
 		getChild<LLUICtrl>("limit_age_verified")->setValue(false);
 	}
+}
+
+void LLPanelEstateInfo::refreshFromEstate()
+{
+	const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+
+	getChild<LLUICtrl>("estate_name")->setValue(estate_info.getName());
+	setOwnerName(LLSLURL("agent", estate_info.getOwnerID(), "inspect").getSLURLString());
+
+	getChild<LLUICtrl>("externally_visible_check")->setValue(estate_info.getIsExternallyVisible());
+	getChild<LLUICtrl>("voice_chat_check")->setValue(estate_info.getAllowVoiceChat());
+	getChild<LLUICtrl>("allow_direct_teleport")->setValue(estate_info.getAllowDirectTeleport());
+	getChild<LLUICtrl>("limit_payment")->setValue(estate_info.getDenyAnonymous());
+	getChild<LLUICtrl>("limit_age_verified")->setValue(estate_info.getDenyAgeUnverified());
+
+	// If visible from mainland, disable the access allowed
+	// UI, as anyone can teleport there.
+	// However, gods need to be able to edit the access list for
+	// linden estates, regardless of visibility, to allow object
+	// and L$ transfers.
+	{
+		bool visible_from_mainland = estate_info.getIsExternallyVisible();
+		bool god = gAgent.isGodlike();
+		bool linden_estate = isLindenEstate();
+
+		bool enable_agent = (!visible_from_mainland || (god && linden_estate));
+		bool enable_group = enable_agent;
+		bool enable_ban = !linden_estate;
+
+		setAccessAllowedEnabled(enable_agent, enable_group, enable_ban);
+	}
+
+	refresh();
 }
 
 BOOL LLPanelEstateInfo::sendUpdate()
@@ -2190,7 +2129,7 @@ BOOL LLPanelEstateInfo::sendUpdate()
 	LLNotification::Params params("ChangeLindenEstate");
 	params.functor.function(boost::bind(&LLPanelEstateInfo::callbackChangeLindenEstate, this, _1, _2));
 
-	if (getEstateID() <= ESTATE_LAST_LINDEN)
+	if (isLindenEstate())
 	{
 		// trying to change reserved estate, warn
 		LLNotifications::instance().add(params);
@@ -2209,13 +2148,21 @@ bool LLPanelEstateInfo::callbackChangeLindenEstate(const LLSD& notification, con
 	switch(option)
 	{
 	case 0:
-		// send the update
-		if (!commitEstateInfoCaps())
 		{
-			// the caps method failed, try the old way
-			LLFloaterRegionInfo::nextInvoice();
-			commitEstateInfoDataserver();
+			LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+
+			// update model
+			estate_info.setUseFixedSun(false); // we don't support fixed sun estates anymore
+			estate_info.setIsExternallyVisible(getChild<LLUICtrl>("externally_visible_check")->getValue().asBoolean());
+			estate_info.setAllowDirectTeleport(getChild<LLUICtrl>("allow_direct_teleport")->getValue().asBoolean());
+			estate_info.setDenyAnonymous(getChild<LLUICtrl>("limit_payment")->getValue().asBoolean());
+			estate_info.setDenyAgeUnverified(getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean());
+			estate_info.setAllowVoiceChat(getChild<LLUICtrl>("voice_chat_check")->getValue().asBoolean());
+
+			// send the update to sim
+			estate_info.sendEstateInfo();
 		}
+
 		// we don't want to do this because we'll get it automatically from the sim
 		// after the spaceserver processes it
 //		else
@@ -2272,6 +2219,8 @@ public:
 	// if we get a normal response, handle it here
 	virtual void result(const LLSD& content)
 	{
+		LL_INFOS("Windlight") << "Successfully committed estate info" << llendl;
+
 	    // refresh the panel from the database
 		LLPanelEstateInfo* panel = dynamic_cast<LLPanelEstateInfo*>(mpPanel.get());
 		if (panel)
@@ -2287,185 +2236,6 @@ public:
 private:
 	LLHandle<LLPanel> mpPanel;
 };
-
-// tries to send estate info using a cap; returns true if it succeeded
-bool LLPanelEstateInfo::commitEstateInfoCaps()
-{
-	std::string url = gAgent.getRegion()->getCapability("EstateChangeInfo");
-	
-	if (url.empty())
-	{
-		// whoops, couldn't find the cap, so bail out
-		return false;
-	}
-	
-	LLSD body;
-	body["estate_name"] = getEstateName();
-
-	body["is_externally_visible"] = getChild<LLUICtrl>("externally_visible_check")->getValue().asBoolean();
-	body["allow_direct_teleport"] = getChild<LLUICtrl>("allow_direct_teleport")->getValue().asBoolean();
-	body["is_sun_fixed"         ] = getChild<LLUICtrl>("fixed_sun_check")->getValue().asBoolean();
-	body["deny_anonymous"       ] = getChild<LLUICtrl>("limit_payment")->getValue().asBoolean();
-	body["deny_age_unverified"  ] = getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean();
-	body["allow_voice_chat"     ] = getChild<LLUICtrl>("voice_chat_check")->getValue().asBoolean();
-	body["invoice"              ] = LLFloaterRegionInfo::getLastInvoice();
-
-	// block fly is in estate database but not in estate UI, so we're not supporting it
-	//body["block_fly"            ] = getChild<LLUICtrl>("")->getValue().asBoolean();
-
-	F32 sun_hour = getSunHour();
-	if (getChild<LLUICtrl>("use_global_time_check")->getValue().asBoolean())
-	{
-		sun_hour = 0.f;			// 0 = global time
-	}
-	body["sun_hour"] = sun_hour;
-
-	// we use a responder so that we can re-get the data after committing to the database
-	LLHTTPClient::post(url, body, new LLEstateChangeInfoResponder(this));
-    return true;
-}
-
-/* This is the old way of doing things, is deprecated, and should be 
-   deleted when the dataserver model can be removed */
-// key = "estatechangeinfo"
-// strings[0] = str(estate_id) (added by simulator before relay - not here)
-// strings[1] = estate_name
-// strings[2] = str(estate_flags)
-// strings[3] = str((S32)(sun_hour * 1024.f))
-void LLPanelEstateInfo::commitEstateInfoDataserver()
-{
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessage("EstateOwnerMessage");
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
-
-	msg->nextBlock("MethodData");
-	msg->addString("Method", "estatechangeinfo");
-	msg->addUUID("Invoice", LLFloaterRegionInfo::getLastInvoice());
-
-	msg->nextBlock("ParamList");
-	msg->addString("Parameter", getEstateName());
-
-	std::string buffer;
-	buffer = llformat("%u", computeEstateFlags());
-	msg->nextBlock("ParamList");
-	msg->addString("Parameter", buffer);
-
-	F32 sun_hour = getSunHour();
-	if (getChild<LLUICtrl>("use_global_time_check")->getValue().asBoolean())
-	{
-		sun_hour = 0.f;	// 0 = global time
-	}
-
-	buffer = llformat("%d", (S32)(sun_hour*1024.0f));
-	msg->nextBlock("ParamList");
-	msg->addString("Parameter", buffer);
-
-	gAgent.sendMessage();
-}
-
-void LLPanelEstateInfo::setEstateFlags(U32 flags)
-{
-	getChild<LLUICtrl>("externally_visible_check")->setValue(LLSD(flags & REGION_FLAGS_EXTERNALLY_VISIBLE ? TRUE : FALSE) );
-	getChild<LLUICtrl>("fixed_sun_check")->setValue(LLSD(flags & REGION_FLAGS_SUN_FIXED ? TRUE : FALSE) );
-	getChild<LLUICtrl>("voice_chat_check")->setValue(
-		LLSD(flags & REGION_FLAGS_ALLOW_VOICE ? TRUE : FALSE));
-	getChild<LLUICtrl>("allow_direct_teleport")->setValue(LLSD(flags & REGION_FLAGS_ALLOW_DIRECT_TELEPORT ? TRUE : FALSE) );
-	getChild<LLUICtrl>("limit_payment")->setValue(LLSD(flags & REGION_FLAGS_DENY_ANONYMOUS ? TRUE : FALSE) );
-	getChild<LLUICtrl>("limit_age_verified")->setValue(LLSD(flags & REGION_FLAGS_DENY_AGEUNVERIFIED ? TRUE : FALSE) );
-
-	refresh();
-}
-
-U32 LLPanelEstateInfo::computeEstateFlags()
-{
-	U32 flags = 0;
-
-	if (getChild<LLUICtrl>("externally_visible_check")->getValue().asBoolean())
-	{
-		flags |= REGION_FLAGS_EXTERNALLY_VISIBLE;
-	}
-
-	if ( getChild<LLUICtrl>("voice_chat_check")->getValue().asBoolean() )
-	{
-		flags |= REGION_FLAGS_ALLOW_VOICE;
-	}
-	
-	if (getChild<LLUICtrl>("allow_direct_teleport")->getValue().asBoolean())
-	{
-		flags |= REGION_FLAGS_ALLOW_DIRECT_TELEPORT;
-	}
-
-	if (getChild<LLUICtrl>("fixed_sun_check")->getValue().asBoolean())
-	{
-		flags |= REGION_FLAGS_SUN_FIXED;
-	}
-	
-	if (getChild<LLUICtrl>("limit_payment")->getValue().asBoolean())
-	{
-		flags |= REGION_FLAGS_DENY_ANONYMOUS;
-	}
-	
-	if (getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean())
-	{
-		flags |= REGION_FLAGS_DENY_AGEUNVERIFIED;
-	}
-
-	
-	return flags;
-}
-
-BOOL LLPanelEstateInfo::getGlobalTime()
-{
-	return getChild<LLUICtrl>("use_global_time_check")->getValue().asBoolean();
-}
-
-void LLPanelEstateInfo::setGlobalTime(bool b)
-{
-	getChild<LLUICtrl>("use_global_time_check")->setValue(LLSD(b));
-	getChildView("fixed_sun_check")->setEnabled(LLSD(!b));
-	getChildView("sun_hour_slider")->setEnabled(LLSD(!b));
-	if (b)
-	{
-		getChild<LLUICtrl>("sun_hour_slider")->setValue(LLSD(0.f));
-	}
-}
-
-
-BOOL LLPanelEstateInfo::getFixedSun()
-{
-	return getChild<LLUICtrl>("fixed_sun_check")->getValue().asBoolean();
-}
-
-void LLPanelEstateInfo::setSunHour(F32 sun_hour)
-{
-	if(sun_hour < 6.0f)
-	{
-		sun_hour = 24.0f + sun_hour;
-	}
-	getChild<LLUICtrl>("sun_hour_slider")->setValue(LLSD(sun_hour));
-}
-
-F32 LLPanelEstateInfo::getSunHour()
-{
-	if (getChildView("sun_hour_slider")->getEnabled())
-	{
-		return (F32)getChild<LLUICtrl>("sun_hour_slider")->getValue().asReal();
-	}
-	return 0.f;
-}
-
-const std::string LLPanelEstateInfo::getEstateName() const
-{
-	return getChild<LLUICtrl>("estate_name")->getValue().asString();
-}
-
-void LLPanelEstateInfo::setEstateName(const std::string& name)
-{
-	getChild<LLUICtrl>("estate_name")->setValue(LLSD(name));
-}
 
 const std::string LLPanelEstateInfo::getOwnerName() const
 {
@@ -2566,17 +2336,6 @@ BOOL LLPanelEstateInfo::checkRemovalButton(std::string name)
 	return (btn_name != "");
 }
 
-BOOL LLPanelEstateInfo::checkSunHourSlider(LLUICtrl* child_ctrl)
-{
-	BOOL found_child_ctrl = FALSE;
-	if (child_ctrl->getName() == "sun_hour_slider")
-	{
-		enableButton("apply_btn");
-		found_child_ctrl = TRUE;
-	}
-	return found_child_ctrl;
-}
-
 // static
 void LLPanelEstateInfo::onClickMessageEstate(void* userdata)
 {
@@ -2651,11 +2410,7 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 	}
 	
 	LLTextBox* region_landtype = getChild<LLTextBox>("region_landtype_text");
-	if (region_landtype)
-	{
-		region_landtype->setText(region->getSimProductName());
-	}
-	
+	region_landtype->setText(region->getLocalizedSimProductName());
 	
 	// let the parent class handle the general data collection. 
 	bool rv = LLPanelRegionInfo::refreshFromRegion(region);
@@ -2978,53 +2733,12 @@ bool LLDispatchEstateUpdateInfo::operator()(
 		const LLUUID& invoice,
 		const sparam_t& strings)
 {
-	LLPanelEstateInfo* panel = LLFloaterRegionInfo::getPanelEstate();
-	if (!panel) return true;
+	lldebugs << "Received estate update" << llendl;
 
-	// NOTE: LLDispatcher extracts strings with an extra \0 at the
-	// end.  If we pass the std::string direct to the UI/renderer
-	// it draws with a weird character at the end of the string.
-	std::string estate_name = strings[0].c_str(); // preserve c_str() call!
-	panel->setEstateName(estate_name);
-	
-	LLViewerRegion* regionp = gAgent.getRegion();
-
-	LLUUID owner_id(strings[1]);
-	regionp->setOwner(owner_id);
-	// Update estate owner name in UI
-	std::string owner_name = LLSLURL("agent", owner_id, "inspect").getSLURLString();
-	panel->setOwnerName(owner_name);
-
-	U32 estate_id = strtoul(strings[2].c_str(), NULL, 10);
-	panel->setEstateID(estate_id);
-
-	U32 flags = strtoul(strings[3].c_str(), NULL, 10);
-	panel->setEstateFlags(flags);
-
-	F32 sun_hour = ((F32)(strtod(strings[4].c_str(), NULL)))/1024.0f;
-	if(sun_hour == 0 && (flags & REGION_FLAGS_SUN_FIXED ? FALSE : TRUE))
-	{
-		panel->setGlobalTime(TRUE);
-	} 
-	else
-	{
-		panel->setGlobalTime(FALSE);
-		panel->setSunHour(sun_hour);
-	}
-
-	bool visible_from_mainland = (bool)(flags & REGION_FLAGS_EXTERNALLY_VISIBLE);
-	bool god = gAgent.isGodlike();
-	bool linden_estate = (estate_id <= ESTATE_LAST_LINDEN);
-
-	// If visible from mainland, disable the access allowed
-	// UI, as anyone can teleport there.
-	// However, gods need to be able to edit the access list for
-	// linden estates, regardless of visibility, to allow object
-	// and L$ transfers.
-	bool enable_agent = (!visible_from_mainland || (god && linden_estate));
-	bool enable_group = enable_agent;
-	bool enable_ban = !linden_estate;
-	panel->setAccessAllowedEnabled(enable_agent, enable_group, enable_ban);
+	// Update estate info model.
+	// This will call LLPanelEstateInfo::refreshFromEstate().
+	// *TODO: Move estate message handling stuff to llestateinfomodel.cpp.
+	LLEstateInfoModel::instance().update(strings);
 
 	return true;
 }
@@ -3197,4 +2911,596 @@ bool LLDispatchSetEstateAccess::operator()(
 	}
 
 	return true;
+}
+
+LLPanelEnvironmentInfo::LLPanelEnvironmentInfo()
+:	mEnableEditing(false),
+	mRegionSettingsRadioGroup(NULL),
+ 	mDayCycleSettingsRadioGroup(NULL),
+ 	mWaterPresetCombo(NULL),
+ 	mSkyPresetCombo(NULL),
+ 	mDayCyclePresetCombo(NULL)
+{
+}
+
+// virtual
+BOOL LLPanelEnvironmentInfo::postBuild()
+{
+	mRegionSettingsRadioGroup = getChild<LLRadioGroup>("region_settings_radio_group");
+	mRegionSettingsRadioGroup->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSwitchRegionSettings, this));
+
+	mDayCycleSettingsRadioGroup = getChild<LLRadioGroup>("sky_dayc_settings_radio_group");
+	mDayCycleSettingsRadioGroup->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSwitchDayCycle, this));
+
+	mWaterPresetCombo = getChild<LLComboBox>("water_settings_preset_combo");
+	mWaterPresetCombo->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSelectWaterPreset, this));
+
+	mSkyPresetCombo = getChild<LLComboBox>("sky_settings_preset_combo");
+	mSkyPresetCombo->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSelectSkyPreset, this));
+
+	mDayCyclePresetCombo = getChild<LLComboBox>("dayc_settings_preset_combo");
+	mDayCyclePresetCombo->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSelectDayCycle, this));
+
+	childSetCommitCallback("apply_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnApply, this), NULL);
+	getChild<LLButton>("apply_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, LLEnvManagerNew::getInstance()));
+	childSetCommitCallback("cancel_btn", boost::bind(&LLPanelEnvironmentInfo::onBtnCancel, this), NULL);
+	getChild<LLButton>("cancel_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpPresets, LLEnvManagerNew::getInstance()));
+
+	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingschange, this));
+	LLEnvManagerNew::instance().setRegionSettingsAppliedCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingsApplied, this, _1));
+
+	LLDayCycleManager::instance().setModifyCallback(boost::bind(&LLPanelEnvironmentInfo::populateDayCyclesList, this));
+	LLWLParamManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelEnvironmentInfo::populateSkyPresetsList, this));
+	LLWaterParamManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelEnvironmentInfo::populateWaterPresetsList, this));
+
+	return TRUE;
+}
+
+// virtual
+void LLPanelEnvironmentInfo::onOpen(const LLSD& key)
+{
+	LL_DEBUGS("Windlight") << "Panel opened, refreshing" << LL_ENDL;
+	refresh();
+}
+
+// virtual
+void LLPanelEnvironmentInfo::handleVisibilityChange(BOOL new_visibility)
+{
+	// If hiding (user switched to another tab or closed the floater),
+	// display user's preferred environment.
+	if (!new_visibility)
+	{
+		LLEnvManagerNew::instance().usePrefs();
+	}
+}
+
+// virtual
+bool LLPanelEnvironmentInfo::refreshFromRegion(LLViewerRegion* region)
+{
+	LL_DEBUGS("Windlight") << "Region updated, enabling/disabling controls" << LL_ENDL;
+	BOOL owner_or_god = gAgent.isGodlike() || (region && (region->getOwner() == gAgent.getID()));
+	BOOL owner_or_god_or_manager = owner_or_god || (region && region->isEstateManager());
+
+	// Don't refresh from region settings to avoid flicker after applying new region settings.
+	mEnableEditing = owner_or_god_or_manager;
+	setControlsEnabled(mEnableEditing);
+
+	return LLPanelRegionInfo::refreshFromRegion(region);
+}
+
+void LLPanelEnvironmentInfo::refresh()
+{
+	populateWaterPresetsList();
+	populateSkyPresetsList();
+	populateDayCyclesList();
+
+	// Init radio groups.
+	const LLEnvironmentSettings& settings = LLEnvManagerNew::instance().getRegionSettings();
+	const LLSD& dc = settings.getWLDayCycle();
+	LLSD::Real first_frame_time = dc.size() > 0 ? dc[0][0].asReal() : 0.0f;
+	const bool use_fixed_sky = dc.size() == 1 && first_frame_time < 0;
+	mRegionSettingsRadioGroup->setSelectedIndex(settings.getSkyMap().size() == 0 ? 0 : 1);
+	mDayCycleSettingsRadioGroup->setSelectedIndex(use_fixed_sky ? 0 : 1);
+
+	setControlsEnabled(mEnableEditing);
+
+	setDirty(false);
+}
+
+void LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
+{
+	mRegionSettingsRadioGroup->setEnabled(enabled);
+	mDayCycleSettingsRadioGroup->setEnabled(enabled);
+
+	mWaterPresetCombo->setEnabled(enabled);
+	mSkyPresetCombo->setEnabled(enabled);
+	mDayCyclePresetCombo->setEnabled(enabled);
+
+	getChildView("apply_btn")->setEnabled(enabled);
+	getChildView("cancel_btn")->setEnabled(enabled);
+
+	if (enabled)
+	{
+		// Enable/disable some controls based on currently selected radio buttons.
+		bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
+		getChild<LLView>("user_environment_settings")->setEnabled(!use_defaults);
+
+		bool is_fixed_sky = mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
+		mSkyPresetCombo->setEnabled(is_fixed_sky);
+		mDayCyclePresetCombo->setEnabled(!is_fixed_sky);
+	}
+}
+
+void LLPanelEnvironmentInfo::setApplyProgress(bool started)
+{
+	LLLoadingIndicator* indicator = getChild<LLLoadingIndicator>("progress_indicator");
+
+	indicator->setVisible(started);
+
+	if (started)
+	{
+		indicator->start();
+	}
+	else
+	{
+		indicator->stop();
+	}
+}
+
+void LLPanelEnvironmentInfo::setDirty(bool dirty)
+{
+	getChildView("apply_btn")->setEnabled(dirty);
+	getChildView("cancel_btn")->setEnabled(dirty);
+}
+
+void LLPanelEnvironmentInfo::sendRegionSunUpdate()
+{
+	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
+
+	// If the region is being switched to fixed sky,
+	// change the region's sun hour according to the (fixed) sun position.
+	// This is needed for llGetSunDirection() LSL function to work properly (STORM-1330).
+	const LLSD& sky_map = mNewRegionSettings.getSkyMap();
+	bool region_use_fixed_sky = sky_map.size() == 1;
+	if (region_use_fixed_sky)
+	{
+		LLWLParamSet param_set;
+		llassert(sky_map.isMap());
+		param_set.setAll(sky_map.beginMap()->second);
+		F32 sun_angle = param_set.getSunAngle();
+
+		LL_DEBUGS("Windlight Sync") << "Old sun hour: " << region_info.mSunHour << LL_ENDL;
+		// convert value range from 0..2pi to 6..30
+		region_info.mSunHour = fmodf((sun_angle / F_TWO_PI) * 24.f, 24.f) + 6.f;
+	}
+
+	region_info.setUseFixedSun(region_use_fixed_sky);
+	region_info.mUseEstateSun = !region_use_fixed_sky;
+	LL_DEBUGS("Windlight Sync") << "Sun hour: " << region_info.mSunHour << LL_ENDL;
+
+	region_info.sendRegionTerrain(LLFloaterRegionInfo::getLastInvoice());
+}
+
+void LLPanelEnvironmentInfo::fixEstateSun()
+{
+	// We don't support fixed sun estates anymore and need to fix
+	// such estates for region day cycle to take effect.
+	// *NOTE: Assuming that current estate settings have arrived already.
+	LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+	if (estate_info.getUseFixedSun())
+	{
+		llinfos << "Switching estate to global sun" << llendl;
+		estate_info.setUseFixedSun(false);
+		estate_info.sendEstateInfo();
+	}
+}
+
+void LLPanelEnvironmentInfo::populateWaterPresetsList()
+{
+	mWaterPresetCombo->removeall();
+
+	// If the region already has water params, add them to the list.
+	const LLEnvironmentSettings& region_settings = LLEnvManagerNew::instance().getRegionSettings();
+	if (region_settings.getWaterParams().size() != 0)
+	{
+		const std::string& region_name = gAgent.getRegion()->getName();
+		mWaterPresetCombo->add(region_name, LLWLParamKey(region_name, LLEnvKey::SCOPE_REGION).toLLSD());
+		mWaterPresetCombo->addSeparator();
+	}
+
+	std::list<std::string> user_presets, system_presets;
+	LLWaterParamManager::instance().getPresetNames(user_presets, system_presets);
+
+	// Add local user presets first.
+	for (std::list<std::string>::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
+	{
+		mWaterPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toLLSD());
+	}
+
+	if (user_presets.size() > 0)
+	{
+		mWaterPresetCombo->addSeparator();
+	}
+
+	// Add local system presets.
+	for (std::list<std::string>::const_iterator it = system_presets.begin(); it != system_presets.end(); ++it)
+	{
+		mWaterPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toLLSD());
+	}
+
+	// There's no way to select current preset because its name is not stored on server.
+}
+
+void LLPanelEnvironmentInfo::populateSkyPresetsList()
+{
+	mSkyPresetCombo->removeall();
+
+	LLWLParamManager::preset_name_list_t region_presets;
+	LLWLParamManager::preset_name_list_t user_presets, sys_presets;
+	LLWLParamManager::instance().getPresetNames(region_presets, user_presets, sys_presets);
+
+	// Add region presets.
+	std::string region_name = gAgent.getRegion() ? gAgent.getRegion()->getName() : LLTrans::getString("Unknown");
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = region_presets.begin(); it != region_presets.end(); ++it)
+	{
+		std::string preset_name = *it;
+		std::string item_title = preset_name + " (" + region_name + ")";
+		mSkyPresetCombo->add(item_title, LLWLParamKey(preset_name, LLEnvKey::SCOPE_REGION).toStringVal());
+	}
+
+	if (!region_presets.empty())
+	{
+		mSkyPresetCombo->addSeparator();
+	}
+
+	// Add user presets.
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = user_presets.begin(); it != user_presets.end(); ++it)
+	{
+		mSkyPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
+	}
+
+	if (!user_presets.empty())
+	{
+		mSkyPresetCombo->addSeparator();
+	}
+
+	// Add system presets.
+	for (LLWLParamManager::preset_name_list_t::const_iterator it = sys_presets.begin(); it != sys_presets.end(); ++it)
+	{
+		mSkyPresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
+	}
+
+	// Select current preset.
+	LLSD sky_map = LLEnvManagerNew::instance().getRegionSettings().getSkyMap();
+	if (sky_map.size() == 1) // if the region is set to fixed sky
+	{
+		std::string preset_name = sky_map.beginMap()->first;
+		mSkyPresetCombo->selectByValue(LLWLParamKey(preset_name, LLEnvKey::SCOPE_REGION).toStringVal());
+	}
+}
+
+void LLPanelEnvironmentInfo::populateDayCyclesList()
+{
+	mDayCyclePresetCombo->removeall();
+
+	// If the region already has env. settings, add its day cycle to the list.
+	const LLSD& cur_region_dc = LLEnvManagerNew::instance().getRegionSettings().getWLDayCycle();
+	if (cur_region_dc.size() != 0)
+	{
+		LLViewerRegion* region = gAgent.getRegion();
+		llassert(region != NULL);
+
+		LLWLParamKey key(region->getName(), LLEnvKey::SCOPE_REGION);
+		mDayCyclePresetCombo->add(region->getName(), key.toStringVal());
+		mDayCyclePresetCombo->addSeparator();
+	}
+
+	// Add local user day cycles.
+	LLDayCycleManager::preset_name_list_t user_days, sys_days;
+	LLDayCycleManager::instance().getPresetNames(user_days, sys_days);
+	for (LLDayCycleManager::preset_name_list_t::const_iterator it = user_days.begin(); it != user_days.end(); ++it)
+	{
+		mDayCyclePresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
+	}
+
+	if (user_days.size() > 0)
+	{
+		mDayCyclePresetCombo->addSeparator();
+	}
+
+	// Add local system day cycles.
+	for (LLDayCycleManager::preset_name_list_t::const_iterator it = sys_days.begin(); it != sys_days.end(); ++it)
+	{
+		mDayCyclePresetCombo->add(*it, LLWLParamKey(*it, LLEnvKey::SCOPE_LOCAL).toStringVal());
+	}
+
+	// Current day cycle is already selected.
+}
+
+bool LLPanelEnvironmentInfo::getSelectedWaterParams(LLSD& water_params)
+{
+	LLWLParamKey water_key(mWaterPresetCombo->getSelectedValue());
+
+	if (water_key.scope == LLEnvKey::SCOPE_REGION)
+	{
+		water_params = LLEnvManagerNew::instance().getRegionSettings().getWaterParams();
+	}
+	else
+	{
+		LLWaterParamSet param_set;
+		if (!LLWaterParamManager::instance().getParamSet(water_key.name, param_set))
+		{
+			llwarns << "Error getting water preset: " << water_key.name << llendl;
+			return false;
+		}
+
+		water_params = param_set.getAll();
+	}
+
+	return true;
+}
+
+bool LLPanelEnvironmentInfo::getSelectedSkyParams(LLSD& sky_params, std::string& preset_name)
+{
+	std::string preset_key(mSkyPresetCombo->getValue().asString());
+	LLWLParamKey preset(preset_key);
+
+	// Get the preset sky params.
+	LLWLParamSet param_set;
+	if (!LLWLParamManager::instance().getParamSet(preset, param_set))
+	{
+		llwarns << "Error getting sky params: " << preset.toLLSD() << llendl;
+		return false;
+	}
+
+	sky_params = param_set.getAll();
+	preset_name = preset.name;
+	return true;
+}
+
+bool LLPanelEnvironmentInfo::getSelectedDayCycleParams(LLSD& day_cycle, LLSD& sky_map, short& scope)
+{
+	std::string preset_key(mDayCyclePresetCombo->getValue().asString());
+	LLWLParamKey dc(preset_key);
+	LL_DEBUGS("Windlight") << "Use day cycle: " << dc.toLLSD() << LL_ENDL;
+
+	if (dc.scope == LLEnvKey::SCOPE_REGION) // current region day cycle
+	{
+		const LLEnvironmentSettings& cur_region_settings = LLEnvManagerNew::instance().getRegionSettings();
+		day_cycle = cur_region_settings.getWLDayCycle();
+		sky_map = cur_region_settings.getSkyMap();
+	}
+	else // a local day cycle
+	{
+		if (!LLDayCycleManager::instance().getPreset(dc.name, day_cycle))
+		{
+			llwarns << "Error getting day cycle " << dc.name << llendl;
+			return false;
+		}
+
+		// Create sky map from the day cycle.
+		{
+			LLWLDayCycle tmp_day;
+			tmp_day.loadDayCycle(day_cycle, dc.scope);
+			tmp_day.getSkyMap(sky_map);
+		}
+	}
+
+	scope = dc.scope;
+
+	return true;
+}
+void LLPanelEnvironmentInfo::onSwitchRegionSettings()
+{
+	bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
+	getChild<LLView>("user_environment_settings")->setEnabled(!use_defaults);
+
+	if (use_defaults)
+	{
+		LLEnvManagerNew::instance().useDefaults();
+	}
+	else
+	{
+		onSelectWaterPreset();
+		onSwitchDayCycle();
+	}
+
+	setDirty(true);
+}
+
+void LLPanelEnvironmentInfo::onSwitchDayCycle()
+{
+	bool is_fixed_sky = mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
+
+	mSkyPresetCombo->setEnabled(is_fixed_sky);
+	mDayCyclePresetCombo->setEnabled(!is_fixed_sky);
+
+	if (is_fixed_sky)
+	{
+		onSelectSkyPreset();
+	}
+	else
+	{
+		onSelectDayCycle();
+	}
+
+	setDirty(true);
+}
+
+void LLPanelEnvironmentInfo::onSelectWaterPreset()
+{
+	LLSD water_params;
+
+	if (getSelectedWaterParams(water_params))
+	{
+		LLEnvManagerNew::instance().useWaterParams(water_params);
+	}
+
+	setDirty(true);
+}
+
+void LLPanelEnvironmentInfo::onSelectSkyPreset()
+{
+	LLSD params;
+	std::string dummy;
+
+	if (getSelectedSkyParams(params, dummy))
+	{
+		LLEnvManagerNew::instance().useSkyParams(params);
+	}
+
+	setDirty(true);
+}
+
+void LLPanelEnvironmentInfo::onSelectDayCycle()
+{
+	LLSD day_cycle;
+	LLSD sky_map; // unused
+	short scope;
+
+	if (getSelectedDayCycleParams(day_cycle, sky_map, scope))
+	{
+		LLEnvManagerNew::instance().useDayCycleParams(day_cycle, (LLEnvKey::EScope) scope);
+	}
+
+	setDirty(true);
+}
+
+void LLPanelEnvironmentInfo::onBtnApply()
+{
+	const bool use_defaults = mRegionSettingsRadioGroup->getSelectedIndex() == 0;
+	const bool use_fixed_sky = mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
+
+	LLSD day_cycle;
+	LLSD sky_map;
+	LLSD water_params;
+
+	if (use_defaults)
+	{
+		// settings will be empty
+		LL_DEBUGS("Windlight") << "Defaults" << LL_ENDL;
+	}
+	else // use custom region settings
+	{
+		if (use_fixed_sky)
+		{
+			LL_DEBUGS("Windlight") << "Use fixed sky" << LL_ENDL;
+
+			// Get selected sky params.
+			LLSD params;
+			std::string preset_name;
+			if (!getSelectedSkyParams(params, preset_name))
+			{
+				return;
+			}
+
+			// Create a day cycle consisting of a single sky preset.
+			LLSD key(LLSD::emptyArray());
+			key.append(-1.0f); // indicate that user preference is actually fixed sky, not a day cycle
+			key.append(preset_name);
+			day_cycle.append(key);
+
+			// Create a sky map consisting of only the sky preset.
+			std::map<LLWLParamKey, LLWLParamSet> refs;
+			LLWLParamSet param_set;
+			param_set.setAll(params);
+			refs[LLWLParamKey(preset_name, LLEnvKey::SCOPE_LOCAL)] = param_set; // scope doesn't matter here
+			sky_map = LLWLParamManager::createSkyMap(refs);
+		}
+		else // use day cycle
+		{
+			LL_DEBUGS("Windlight") << "Use day cycle" << LL_ENDL;
+
+			short scope; // unused
+			if (!getSelectedDayCycleParams(day_cycle, sky_map, scope))
+			{
+				return;
+			}
+
+			// If it's a special single-preset day cycle meaning using a fixed sky,
+			// reset the frame time to a non-negative value,
+			// so that the region setting is displayed in the floater as
+			// a day cycle, not a preset. (STORM-1289)
+			if (day_cycle.size() == 1 && day_cycle[0][0].asReal() < 0.0f)
+			{
+				LL_DEBUGS("Windlight") << "Fixing negative time" << LL_ENDL;
+				day_cycle[0][0] = 0.0f;
+			}
+		}
+
+		// Get water params.
+		if (!getSelectedWaterParams(water_params))
+		{
+			// *TODO: show a notification?
+			return;
+		}
+	}
+
+	// Send settings apply request.
+	LLEnvironmentSettings new_region_settings;
+	new_region_settings.saveParams(day_cycle, sky_map, water_params, 0.0f);
+	if (!LLEnvManagerNew::instance().sendRegionSettings(new_region_settings))
+	{
+		llwarns << "Error applying region environment settings" << llendl;
+		return;
+	}
+
+	// When the settings get applied, we'll also send the region sun position update.
+	// To determine the sun angle we're going to need the new settings.
+	mNewRegionSettings = new_region_settings;
+
+	// Start spinning the progress indicator.
+	setApplyProgress(true);
+}
+
+void LLPanelEnvironmentInfo::onBtnCancel()
+{
+	// Reload last saved region settings.
+	refresh();
+
+	// Apply them.
+	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
+	const LLEnvironmentSettings& cur_settings = env_mgr.getRegionSettings();
+	const LLSD& region_day_cycle = cur_settings.getWLDayCycle();
+	const LLSD& region_water = cur_settings.getWaterParams();
+	env_mgr.useWaterParams(region_water);
+	env_mgr.useDayCycleParams(region_day_cycle, LLEnvKey::SCOPE_REGION);
+}
+
+void LLPanelEnvironmentInfo::onRegionSettingschange()
+{
+	LL_DEBUGS("Windlight") << "Region settings changed, refreshing" << LL_ENDL;
+	refresh();
+
+	// Stop applying progress indicator (it may be running if it's us who initiated settings update).
+	setApplyProgress(false);
+}
+
+void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
+{
+	// If applying new settings has failed, stop the indicator right away.
+	// Otherwise it will be stopped when we receive the updated settings from server.
+	if (ok)
+	{
+		// Set the region sun phase/flags according to the chosen new preferences.
+		//
+		// If we do this earlier we may get jerky transition from fixed sky to a day cycle (STORM-1481).
+		// That is caused by the simulator re-sending the region info, which in turn makes us
+		// re-request and display old region environment settings while the new ones haven't been applied yet.
+		sendRegionSunUpdate();
+
+		// Switch estate to not using fixed sun for the region day cycle to work properly (STORM-1506).
+		fixEstateSun();
+	}
+	else
+	{
+		setApplyProgress(false);
+
+		// We need to re-request environment setting here,
+		// otherwise our subsequent attempts to change region settings will fail with the following error:
+		// "Unable to update environment settings because the last update your viewer saw was not the same
+		// as the last update sent from the simulator.  Try sending your update again, and if this
+		// does not work, try leaving and returning to the region."
+		LLEnvManagerNew::instance().requestRegionSettings();
+	}
 }

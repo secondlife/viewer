@@ -849,9 +849,6 @@
 	<string name="InvFolder My Inventory">
 		Mijn Inventaris
 	</string>
-	<string name="InvFolder My Favorites">
-		Mijn Favorieten
-	</string>
 	<string name="InvFolder Library">
 		Bibliotheek
 	</string>
@@ -910,10 +907,10 @@
 		Gebaren
 	</string>
 	<string name="InvFolder Favorite">
-		Favoriten
+		Mijn Favorieten
 	</string>
 	<string name="InvFolder favorite">
-		Favoriten
+		Mijn Favorieten
 	</string>
 	<string name="InvFolder Current Outfit">
 		Huidige Uitrusting
@@ -1303,9 +1300,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		There is no Covenant provided for this Estate. The land on this estate is being sold by the Estate owner, not Linden Lab.  Please contact the Estate Owner for sales details.
 	</string>
-	<string name="covenant_last_modified">
-		Laatst bewerkt:
-	</string>
+	<string name="covenant_last_modified" value="Laatst bewerkt: " />
 	<string name="none_text" value="(none)"/>
 	<string name="never_text" value="(never)"/>
 	<string name="GroupOwned">

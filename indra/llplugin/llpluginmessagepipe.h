@@ -40,7 +40,8 @@ class LLPluginMessagePipeOwner
 	LOG_CLASS(LLPluginMessagePipeOwner);
 public:
 	LLPluginMessagePipeOwner();
-	virtual ~LLPluginMessagePipeOwner();
+	~LLPluginMessagePipeOwner();
+
 	// called with incoming messages
 	virtual void receiveMessageRaw(const std::string &message) = 0;
 	// called when the socket has an error

@@ -7,13 +7,13 @@
 		Done.
 	</floater.string>
 	<floater.string name="Resetting">
-		Resetting
+		重設中
 	</floater.string>
 	<floater.string name="Running">
-		Running
+		執行中
 	</floater.string>
 	<floater.string name="NotRunning">
-		Not running
+		非執行中
 	</floater.string>
 	<button label="關閉" label_selected="關閉" name="close"/>
 </floater>

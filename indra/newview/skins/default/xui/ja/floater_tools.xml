@@ -24,20 +24,11 @@
 	<floater.string name="status_selectland">
 		土地をクリックし、ドラッグして選択
 	</floater.string>
-	<floater.string name="grid_screen_text">
-		画面
+	<floater.string name="status_selectcount">
+		[OBJ_COUNT] 個のオブジェクト（[PRIM_COUNT] 個のプリム [PE_STRING]）が選択されています
 	</floater.string>
-	<floater.string name="grid_local_text">
-		ローカル
-	</floater.string>
-	<floater.string name="grid_world_text">
-		インワールド
-	</floater.string>
-	<floater.string name="grid_reference_text">
-		レファレンス
-	</floater.string>
-	<floater.string name="grid_attachment_text">
-		アタッチメント
+	<floater.string name="status_selectprimequiv">
+		, [SEL_WEIGHT] プリム換算値
 	</floater.string>
 	<button label="" label_selected="" name="button focus" tool_tip="フォーカス"/>
 	<button label="" label_selected="" name="button move" tool_tip="動かす"/>
@@ -66,21 +57,13 @@
 	<check_box label="リンク部分を編集" name="checkbox edit linked parts"/>
 	<button label="リンク" name="link_btn"/>
 	<button label="リンクを外す" name="unlink_btn"/>
-	<text name="RenderingCost" tool_tip="このオブジェクトにかかるレンダリングコストを表示">
-		þ: [COUNT]
-	</text>
 	<check_box label="" name="checkbox uniform"/>
 	<text label="両側を延ばす" name="checkbox uniform label">
 		両側を延ばす
 	</text>
 	<check_box initial_value="true" label="テクスチャを引き延ばす" name="checkbox stretch textures"/>
-	<check_box initial_value="true" label="グリッドにスナップ" name="checkbox snap to grid"/>
-	<combo_box name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択します" >
-		<combo_box.item label="インワールドグリッド" name="World"/>
-		<combo_box.item label="ローカルグリッド" name="Local"/>
-		<combo_box.item label="リファレンスグリッド" name="Reference"/>
-	</combo_box>
-	<button label="オプション" label_selected="オプション" name="Options..." tool_tip="グリッドオプションを表示します"/>
+	<check_box initial_value="true" label="スナップ" name="checkbox snap to grid"/>
+	<button label="オプション..." label_selected="オプション" name="Options..." tool_tip="グリッドオプションを表示します"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="キューブ"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="プリズム"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="ピラミッド"/>
@@ -119,25 +102,13 @@
 		強度
 	</text>
 	<button label="適用" label_selected="適用" name="button apply to selection" tool_tip="選択した土地を修正します"/>
-	<text name="obj_count">
-		オブジェクト： [COUNT]
+	<text name="selection_empty">
+		何も選択されていません。
 	</text>
-	<text name="prim_count">
-		プリム： [COUNT]
+	<text name="selection_weight">
+		物理演算ウェイト [PHYS_WEIGHT]、レンダリングコスト [DISP_WEIGHT]。
 	</text>
-	<text name="linked_set_count">
-		リンクセット：[COUNT]
-	</text>
-	<text name="linked_set_cost" tool_tip="[prims] / [physics complexity] として現在選択されているリンクセットのコスト">
-		料金： [COST] / [PHYSICS]
-	</text>
-	<text name="object_count">
-		オブジェクト： [COUNT]
-	</text>
-	<text name="object_cost" tool_tip="[prims] / [physics complexity] として現在選択されているオブジェクトのコスト">
-		料金： [COST] / [PHYSICS]
-	</text>
-	<tab_container name="Object Info Tabs" >
+	<tab_container name="Object Info Tabs">
 		<panel label="一般" name="General">
 			<panel.string name="text deed continued">
 				譲渡
@@ -359,7 +330,6 @@
 				<combo_box.item label="トーラス" name="Torus"/>
 				<combo_box.item label="平面" name="Plane"/>
 				<combo_box.item label="シリンダー" name="Cylinder"/>
-				<combo_box.item label="メッシュ" name="Mesh"/>
 			</combo_box>
 		</panel>
 		<panel label="特徴" name="Features">
@@ -379,22 +349,22 @@
 				オブジェクトの特徴を編集：
 			</text>
 			<check_box label="フレキシブルパス" name="Flexible1D Checkbox Ctrl" tool_tip="Z 軸を中心にオブジェクトの屈曲を有効にします（クライアント側のみ）"/>
-			<spinner label="柔軟性" name="FlexNumSections" />
-			<spinner label="重力" name="FlexGravity" />
-			<spinner label="ドラッグ" name="FlexFriction" />
-			<spinner label="風" name="FlexWind" />
-			<spinner label="緊張" name="FlexTension" />
-			<spinner label="X 軸方向の力" name="FlexForceX" />
-			<spinner label="Y 軸方向の力" name="FlexForceY" />
-			<spinner label="Z 軸方向の力" name="FlexForceZ" />
+			<spinner label="柔軟性" name="FlexNumSections"/>
+			<spinner label="重力" name="FlexGravity"/>
+			<spinner label="ドラッグ" name="FlexFriction"/>
+			<spinner label="風" name="FlexWind"/>
+			<spinner label="緊張" name="FlexTension"/>
+			<spinner label="X 軸方向の力" name="FlexForceX"/>
+			<spinner label="Y 軸方向の力" name="FlexForceY"/>
+			<spinner label="Z 軸方向の力" name="FlexForceZ"/>
 			<check_box label="光" name="Light Checkbox Ctrl" tool_tip="オブジェクトが発光します"/>
 			<color_swatch label="" name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
 			<texture_picker label="" name="light texture control" tool_tip="クリックで投影画を選択します（遅延レンダリング有効時のみ）"/>
-			<spinner label="輝度" name="Light Intensity" />
+			<spinner label="輝度" name="Light Intensity"/>
 			<spinner label="FOV" name="Light FOV"/>
-			<spinner label="半径" name="Light Radius" />
+			<spinner label="半径" name="Light Radius"/>
 			<spinner label="焦点" name="Light Focus"/>
-			<spinner label="弱まる" name="Light Falloff" />
+			<spinner label="弱まる" name="Light Falloff"/>
 			<spinner label="環境" name="Light Ambiance"/>
 			<text name="label physicsshapetype">
 				実像の種類：
@@ -411,7 +381,7 @@
 			</combo_box>
 			<spinner label="重力" name="Physics Gravity"/>
 			<spinner label="摩擦" name="Physics Friction"/>
-			<spinner label="密度" name="Physics Density"/>
+			<spinner label="密度（100 kg/m^3）" name="Physics Density"/>
 			<spinner label="復元" name="Physics Restitution"/>
 		</panel>
 		<panel label="材質" name="Texture">
@@ -496,18 +466,18 @@
 			</panel>
 		</panel>
 		<panel label="中身" name="Contents">
-			<button label="新しいスクリプト" label_selected="新規スクリプト" name="button new script" />
-			<button label="権限" name="button permissions" />
+			<button label="新しいスクリプト" label_selected="新規スクリプト" name="button new script"/>
+			<button label="権限" name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
 		<text name="label_parcel_info">
 			区画情報
 		</text>
-		<text name="label_area_price" >
+		<text name="label_area_price">
 			価格： [AREA] 平方メートル L$ [PRICE]
 		</text>
-		<text name="label_area" >
+		<text name="label_area">
 			面積： [AREA] 平方メートル
 		</text>
 		<button label="土地情報" label_selected="土地情報" name="button about land"/>

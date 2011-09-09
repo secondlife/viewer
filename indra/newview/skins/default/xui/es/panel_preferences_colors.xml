@@ -39,6 +39,6 @@
 	<text name="floater_opacity">
 		Opacidad de la ventana:
 	</text>
-	<slider label="Activo:" name="active"/>
-	<slider label="Inactivo:" name="inactive"/>
+	<slider label="Activa:" name="active"/>
+	<slider label="Inactiva:" name="inactive"/>
 </panel>

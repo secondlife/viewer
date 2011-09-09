@@ -44,6 +44,7 @@
 #include "llcallbacklist.h"
 #include "llbuycurrencyhtml.h"
 #include "llfloaterreg.h"
+#include "llfolderview.h"
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
 #include "llinventoryfilter.h"
@@ -58,8 +59,10 @@
 #include "llselectmgr.h"
 #include "llsidetray.h"
 #include "llstatusbar.h"
+#include "lltooldraganddrop.h"
 #include "lltrans.h"
 #include "llviewerassettype.h"
+#include "llviewerinventory.h"
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"
@@ -80,6 +83,7 @@ protected:
 	LLAssetType::EType mAssetType;	
 	LLInventoryType::EType mInventoryType;
 
+	LLInventoryObject* findInvObject() const;
 	LLInventoryItem* findItem() const;
 
 public:
@@ -159,14 +163,20 @@ LLTaskInvFVBridge::LLTaskInvFVBridge(
 	}
 }
 
-LLInventoryItem* LLTaskInvFVBridge::findItem() const
+LLInventoryObject* LLTaskInvFVBridge::findInvObject() const
 {
 	LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
-	if(object)
+	if (object)
 	{
-		return dynamic_cast<LLInventoryItem*>(object->getInventoryObject(mUUID));
+		return object->getInventoryObject(mUUID);
 	}
 	return NULL;
+}
+
+
+LLInventoryItem* LLTaskInvFVBridge::findItem() const
+{
+	return dynamic_cast<LLInventoryItem*>(findInvObject());
 }
 
 void LLTaskInvFVBridge::showProperties()
@@ -292,21 +302,15 @@ const std::string& LLTaskInvFVBridge::getDisplayName() const
 
 	if(item)
 	{
-		if(item->getParentUUID().isNull())
+		mDisplayName.assign(item->getName());
+
+		// Localize "New Script", "New Script 1", "New Script 2", etc.
+		if (item->getType() == LLAssetType::AT_LSL_TEXT &&
+			LLStringUtil::startsWith(item->getName(), "New Script"))
 		{
-			if(item->getName() == "Contents")
-			{
-				mDisplayName.assign(LLTrans::getString("ViewerObjectContents"));
-			}
-			else
-			{
-				mDisplayName.assign(item->getName());
-			}
+			LLStringUtil::replaceString(mDisplayName, "New Script", LLTrans::getString("PanelContentsNewScript"));
 		}
-		else
-		{
-			mDisplayName.assign(item->getName());
-		}
+
 		const LLPermissions& perm(item->getPermissions());
 		BOOL copy = gAgent.allowOperation(PERM_COPY, perm, GP_OBJECT_MANIPULATE);
 		BOOL mod  = gAgent.allowOperation(PERM_MODIFY, perm, GP_OBJECT_MANIPULATE);
@@ -697,7 +701,7 @@ public:
 		const std::string& name);
 
 	virtual LLUIImagePtr getIcon() const;
-	virtual const std::string& getDisplayName() const { return getName(); }
+	virtual const std::string& getDisplayName() const;
 	virtual BOOL isItemRenameable() const;
 	// virtual BOOL isItemCopyable() const { return FALSE; }
 	virtual BOOL renameItem(const std::string& new_name);
@@ -723,6 +727,27 @@ LLTaskCategoryBridge::LLTaskCategoryBridge(
 LLUIImagePtr LLTaskCategoryBridge::getIcon() const
 {
 	return LLUI::getUIImage("Inv_FolderClosed");
+}
+
+// virtual
+const std::string& LLTaskCategoryBridge::getDisplayName() const
+{
+	LLInventoryObject* cat = findInvObject();
+
+	if (cat)
+	{
+		// Localize "Contents" folder.
+		if (cat->getParentUUID().isNull() && cat->getName() == "Contents")
+		{
+			mDisplayName.assign(LLTrans::getString("ViewerObjectContents"));
+		}
+		else
+		{
+			mDisplayName.assign(cat->getName());
+		}
+	}
+
+	return mDisplayName;
 }
 
 BOOL LLTaskCategoryBridge::isItemRenameable() const
@@ -761,7 +786,7 @@ void LLTaskCategoryBridge::openItem()
 BOOL LLTaskCategoryBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
 {
 	//llinfos << "LLTaskInvFVBridge::startDrag()" << llendl;
-	if(mPanel)
+	if(mPanel && mUUID.notNull())
 	{
 		LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
 		if(object)
@@ -1349,79 +1374,81 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
 	LLTaskInvFVBridge* new_bridge = NULL;
 	const LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(object);
 	const U32 itemflags = ( NULL == item ? 0 : item->getFlags() );
-	LLAssetType::EType type = object->getType();
+	LLAssetType::EType type = object ? object->getType() : LLAssetType::AT_CATEGORY;
+	LLUUID object_id = object ? object->getUUID() : LLUUID::null;
+	std::string object_name = object ? object->getName() : std::string();
 
 	switch(type)
 	{
 	case LLAssetType::AT_TEXTURE:
 		new_bridge = new LLTaskTextureBridge(panel,
-						     object->getUUID(),
-						     object->getName());
+						     object_id,
+						     object_name);
 		break;
 	case LLAssetType::AT_SOUND:
 		new_bridge = new LLTaskSoundBridge(panel,
-						   object->getUUID(),
-						   object->getName());
+						   object_id,
+						   object_name);
 		break;
 	case LLAssetType::AT_LANDMARK:
 		new_bridge = new LLTaskLandmarkBridge(panel,
-						      object->getUUID(),
-						      object->getName());
+						      object_id,
+						      object_name);
 		break;
 	case LLAssetType::AT_CALLINGCARD:
 		new_bridge = new LLTaskCallingCardBridge(panel,
-							 object->getUUID(),
-							 object->getName());
+							 object_id,
+							 object_name);
 		break;
 	case LLAssetType::AT_SCRIPT:
 		// OLD SCRIPTS DEPRECATED - JC
 		llwarns << "Old script" << llendl;
 		//new_bridge = new LLTaskOldScriptBridge(panel,
-		//									   object->getUUID(),
-		//									   object->getName());
+		//									   object_id,
+		//									   object_name);
 		break;
 	case LLAssetType::AT_OBJECT:
 		new_bridge = new LLTaskObjectBridge(panel,
-						    object->getUUID(),
-						    object->getName(),
+						    object_id,
+						    object_name,
 						    itemflags);
 		break;
 	case LLAssetType::AT_NOTECARD:
 		new_bridge = new LLTaskNotecardBridge(panel,
-						      object->getUUID(),
-						      object->getName());
+						      object_id,
+						      object_name);
 		break;
 	case LLAssetType::AT_ANIMATION:
 		new_bridge = new LLTaskAnimationBridge(panel,
-						       object->getUUID(),
-						       object->getName());
+						       object_id,
+						       object_name);
 		break;
 	case LLAssetType::AT_GESTURE:
 		new_bridge = new LLTaskGestureBridge(panel,
-						     object->getUUID(),
-						     object->getName());
+						     object_id,
+						     object_name);
 		break;
 	case LLAssetType::AT_CLOTHING:
 	case LLAssetType::AT_BODYPART:
 		new_bridge = new LLTaskWearableBridge(panel,
-						      object->getUUID(),
-						      object->getName(),
+						      object_id,
+						      object_name,
 						      itemflags);
 		break;
 	case LLAssetType::AT_CATEGORY:
 		new_bridge = new LLTaskCategoryBridge(panel,
-						      object->getUUID(),
-						      object->getName());
+						      object_id,
+						      object_name);
 		break;
 	case LLAssetType::AT_LSL_TEXT:
 		new_bridge = new LLTaskLSLBridge(panel,
-						 object->getUUID(),
-						 object->getName());
+						 object_id,
+						 object_name);
 		break;
 	case LLAssetType::AT_MESH:
 		new_bridge = new LLTaskMeshBridge(panel,
-										  object->getUUID(),
-										  object->getName());
+										  object_id,
+										  object_name);
 		break;
 	default:
 		llinfos << "Unhandled inventory type (llassetstorage.h): "
@@ -1521,6 +1548,7 @@ void LLPanelObjectInventory::reset()
 	p.task_id = getTaskUUID();
 	p.parent_panel = this;
 	p.tool_tip= LLTrans::getString("PanelContentsTooltip");
+	p.listener = LLTaskInvFVBridge::createObjectBridge(this, NULL);
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	// this ensures that we never say "searching..." or "no items found"
 	mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);

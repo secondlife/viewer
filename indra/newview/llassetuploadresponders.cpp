@@ -127,6 +127,15 @@ void on_new_single_inventory_upload_complete(
 			group_perms,
 			next_owner_perms);
 
+		U32 inventory_item_flags = 0;
+		if (server_response.has("inventory_flags"))
+		{
+			inventory_item_flags = (U32) server_response["inventory_flags"].asInteger();
+			if (inventory_item_flags != 0)
+			{
+				llinfos << "inventory_item_flags " << inventory_item_flags << llendl;
+			}
+		}
 		S32 creation_date_now = time_corrected();
 		LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem(
 			server_response["new_inventory_item"].asUUID(),
@@ -138,7 +147,7 @@ void on_new_single_inventory_upload_complete(
 			item_name,
 			item_description,
 			LLSaleInfo::DEFAULT,
-			LLInventoryItemFlags::II_FLAGS_NONE,
+			inventory_item_flags,
 			creation_date_now);
 
 		gInventory.updateItem(item);
@@ -449,7 +458,7 @@ void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
 	std::string result = content["state"];
 	LLUUID new_id = content["new_asset"];
 
-	llinfos << "result: " << result << "new_id:" << new_id << llendl;
+	llinfos << "result: " << result << " new_id: " << new_id << llendl;
 	if (result == "complete"
 		&& mBakedUploadData != NULL)
 	{	// Invoke 

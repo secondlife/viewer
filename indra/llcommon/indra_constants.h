@@ -387,8 +387,6 @@ const S32 MAP_SIM_RETURN_NULL_SIMS 	= 0x00010000;
 const S32 MAP_SIM_PRELUDE 			= 0x00020000;
 
 // Crash reporter behavior
-const char* const CRASH_SETTINGS_FILE = "settings_crash_behavior.xml";
-const char* const CRASH_BEHAVIOR_SETTING = "CrashSubmitBehavior";
 const S32 CRASH_BEHAVIOR_ASK = 0;
 const S32 CRASH_BEHAVIOR_ALWAYS_SEND = 1;
 const S32 CRASH_BEHAVIOR_NEVER_SEND = 2;

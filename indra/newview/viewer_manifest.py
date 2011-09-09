@@ -31,6 +31,7 @@ import os.path
 import re
 import tarfile
 import time
+import random
 viewer_dir = os.path.dirname(__file__)
 # add llmanifest library to our path so we don't have to muck with PYTHONPATH
 sys.path.append(os.path.join(viewer_dir, '../lib/python/indra/util'))
@@ -62,6 +63,26 @@ class ViewerManifest(LLManifest):
 
                 # include the entire shaders directory recursively
                 self.path("shaders")
+                # include the extracted list of contributors
+                contributor_names = self.extract_names("../../doc/contributions.txt")
+                self.put_in_file(contributor_names, "contributors.txt")
+                # include the extracted list of translators
+                translator_names = self.extract_names("../../doc/translations.txt")
+                self.put_in_file(translator_names, "translators.txt")
+                # include the list of Lindens (if any)
+                #   see https://wiki.lindenlab.com/wiki/Generated_Linden_Credits
+                linden_names_path = os.getenv("linden_credits")
+                if linden_names_path :
+                    try:
+                        linden_file = open(linden_names_path,'r')
+                         # all names should be one line, but the join below also converts to a string
+                        linden_names = ', '.join(linden_file.readlines())
+                        self.put_in_file(linden_names, "lindens.txt")
+                        linden_file.close()
+                    except IOError:
+                        print "No Linden names found at '%s', using built-in list" % linden_names_path
+                        pass
+
                 # ... and the entire windlight directory
                 self.path("windlight")
                 self.end_prefix("app_settings")
@@ -143,6 +164,21 @@ class ViewerManifest(LLManifest):
     def channel_lowerword(self):
         return self.channel_oneword().lower()
 
+    def icon_path(self):
+        icon_path="icons/"
+        channel_type=self.channel_lowerword()
+        if channel_type == 'release' \
+        or channel_type == 'development' \
+        :
+            icon_path += channel_type
+        elif channel_type == 'betaviewer' :
+            icon_path += 'beta'
+        elif re.match('project.*',channel_type) :
+            icon_path += 'project'
+        else :
+            icon_path += 'test'
+        return icon_path
+
     def flags_list(self):
         """ Convenience function that returns the command-line flags
         for the grid"""
@@ -174,6 +210,28 @@ class ViewerManifest(LLManifest):
                                                 
         return " ".join((channel_flags, grid_flags, setting_flags)).strip()
 
+    def extract_names(self,src):
+        try:
+            contrib_file = open(src,'r')
+        except IOError:
+            print "Failed to open '%s'" % src
+            raise
+        lines = contrib_file.readlines()
+        contrib_file.close()
+
+        # All lines up to and including the first blank line are the file header; skip them
+        lines.reverse() # so that pop will pull from first to last line
+        while not re.match("\s*$", lines.pop()) :
+            pass # do nothing
+
+        # A line that starts with a non-whitespace character is a name; all others describe contributions, so collect the names
+        names = []
+        for line in lines :
+            if re.match("\S", line) :
+                names.append(line.rstrip())
+        # It's not fair to always put the same people at the head of the list
+        random.shuffle(names)
+        return ', '.join(names)
 
 class WindowsManifest(ViewerManifest):
     def final_exe(self):
@@ -609,12 +667,11 @@ class DarwinManifest(ViewerManifest):
                 self.path("featuretable_mac.txt")
                 self.path("SecondLife.nib")
 
-                # If we are not using the default channel, use the 'Firstlook
-                # icon' to show that it isn't a stable release.
-                if self.default_channel() and self.default_grid():
+                icon_path = self.icon_path()
+                if self.prefix(src=icon_path, dst="") :
                     self.path("secondlife.icns")
-                else:
-                    self.path("secondlife_firstlook.icns", "secondlife.icns")
+                    self.end_prefix(icon_path)
+
                 self.path("SecondLife.nib")
                 
                 # Translations
@@ -693,7 +750,7 @@ class DarwinManifest(ViewerManifest):
                                     "libexpat.1.5.2.dylib",
                                     "libexception_handler.dylib",
                                     "libGLOD.dylib",
-				    "libcollada14dom.dylib"
+                                    "libcollada14dom.dylib"
                                     ):
                         target_lib = os.path.join('../../..', libfile)
                         self.run_command("ln -sf %(target)r %(link)r" % 
@@ -795,9 +852,7 @@ class DarwinManifest(ViewerManifest):
             # will use the release .DS_Store, and will look broken.
             # - Ambroff 2008-08-20
             dmg_template = os.path.join(
-                'installers', 
-                'darwin',
-                '%s-dmg' % "".join(self.channel_unique().split()).lower())
+                'installers', 'darwin', '%s-dmg' % self.channel_lowerword())
 
             if not os.path.exists (self.src_path_of(dmg_template)):
                 dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
@@ -853,7 +908,6 @@ class LinuxManifest(ViewerManifest):
     def construct(self):
         super(LinuxManifest, self).construct()
         self.path("licenses-linux.txt","licenses.txt")
-        self.path("res/ll_icon.png","secondlife_icon.png")
         if self.prefix("linux_tools", dst=""):
             self.path("client-readme.txt","README-linux.txt")
             self.path("client-readme-voice.txt","README-linux-voice.txt")
@@ -878,6 +932,15 @@ class LinuxManifest(ViewerManifest):
             self.path("*")
             # recurse
             self.end_prefix("res-sdl")
+
+        # Get the icons based on the channel
+        icon_path = self.icon_path()
+        if self.prefix(src=icon_path, dst="") :
+            self.path("secondlife_256.png","secondlife_icon.png")
+            if self.prefix(src="",dst="res-sdl") :
+                self.path("secondlife_256.BMP","ll_icon.BMP")
+                self.end_prefix("res-sdl")
+            self.end_prefix(icon_path)
 
         self.path("../viewer_components/updater/scripts/linux/update_install", "bin/update_install")
 
@@ -964,15 +1027,15 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libbreakpad_client.so.0.0.0")
             self.path("libbreakpad_client.so.0")
             self.path("libbreakpad_client.so")
-	    self.path("libcollada14dom.so")
+            self.path("libcollada14dom.so")
             self.path("libdb-5.1.so")
             self.path("libdb-5.so")
             self.path("libdb.so")
             self.path("libcrypto.so.1.0.0")
             self.path("libexpat.so.1.5.2")
             self.path("libssl.so.1.0.0")
-	    self.path("libglod.so")
-	    self.path("libminizip.so")
+            self.path("libglod.so")
+            self.path("libminizip.so")
             self.path("libuuid.so")
             self.path("libuuid.so.16")
             self.path("libuuid.so.16.0.22")

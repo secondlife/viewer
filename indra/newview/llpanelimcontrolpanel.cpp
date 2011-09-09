@@ -71,7 +71,7 @@ void LLPanelChatControlPanel::onChange(EStatusType status, const std::string &ch
 
 void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
-	updateButtons(new_state >= LLVoiceChannel::STATE_CALL_STARTED);
+	updateButtons(new_state);
 }
 
 void LLPanelChatControlPanel::updateCallButton()
@@ -96,11 +96,15 @@ void LLPanelChatControlPanel::updateCallButton()
 	getChildView("call_btn")->setEnabled(enable_connect);
 }
 
-void LLPanelChatControlPanel::updateButtons(bool is_call_started)
+void LLPanelChatControlPanel::updateButtons(LLVoiceChannel::EState state)
 {
+	bool is_call_started = state >= LLVoiceChannel::STATE_CALL_STARTED;
 	getChildView("end_call_btn_panel")->setVisible( is_call_started);
-	getChildView("voice_ctrls_btn_panel")->setVisible( is_call_started);
+	getChildView("voice_ctrls_btn_panel")->setVisible( is_call_started && findChild<LLView>("voice_ctrls_btn_panel"));
 	getChildView("call_btn_panel")->setVisible( ! is_call_started);
+	
+	getChildView("volume_ctrl_panel")->setVisible(state == LLVoiceChannel::STATE_CONNECTED);
+	
 	updateCallButton();
 	
 }
@@ -135,7 +139,7 @@ void LLPanelChatControlPanel::setSessionId(const LLUUID& session_id)
 		mVoiceChannelStateChangeConnection = voice_channel->setStateChangedCallback(boost::bind(&LLPanelChatControlPanel::onVoiceChannelStateChanged, this, _1, _2));
 		
 		//call (either p2p, group or ad-hoc) can be already in started state
-		updateButtons(voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED);
+		updateButtons(voice_channel->getState());
 	}
 }
 
@@ -156,11 +160,91 @@ BOOL LLPanelIMControlPanel::postBuild()
 	childSetAction("share_btn", boost::bind(&LLPanelIMControlPanel::onShareButtonClicked, this));
 	childSetAction("teleport_btn", boost::bind(&LLPanelIMControlPanel::onTeleportButtonClicked, this));
 	childSetAction("pay_btn", boost::bind(&LLPanelIMControlPanel::onPayButtonClicked, this));
+
+	childSetAction("mute_btn", boost::bind(&LLPanelIMControlPanel::onClickMuteVolume, this));
+	childSetAction("block_btn", boost::bind(&LLPanelIMControlPanel::onClickBlock, this));
+	childSetAction("unblock_btn", boost::bind(&LLPanelIMControlPanel::onClickUnblock, this));
+	
+	getChild<LLUICtrl>("volume_slider")->setCommitCallback(boost::bind(&LLPanelIMControlPanel::onVolumeChange, this, _2));
+
 	getChildView("add_friend_btn")->setEnabled(!LLAvatarActions::isFriend(getChild<LLAvatarIconCtrl>("avatar_icon")->getAvatarId()));
 
 	setFocusReceivedCallback(boost::bind(&LLPanelIMControlPanel::onFocusReceived, this));
 	
 	return LLPanelChatControlPanel::postBuild();
+}
+
+void LLPanelIMControlPanel::draw()
+{
+	bool is_muted = LLMuteList::getInstance()->isMuted(mAvatarID);
+
+	getChild<LLUICtrl>("block_btn_panel")->setVisible(!is_muted);
+	getChild<LLUICtrl>("unblock_btn_panel")->setVisible(is_muted);
+
+	if (getChildView("volume_ctrl_panel")->getVisible())
+	{
+
+		bool is_muted_voice = LLMuteList::getInstance()->isMuted(mAvatarID, LLMute::flagVoiceChat);
+
+		LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
+		mute_btn->setValue( is_muted_voice );
+
+		LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
+		volume_slider->setEnabled( !is_muted_voice );
+
+		F32 volume;
+
+		if (is_muted_voice)
+		{
+			// it's clearer to display their volume as zero
+			volume = 0.f;
+		}
+		else
+		{
+			// actual volume
+			volume = LLVoiceClient::getInstance()->getUserVolume(mAvatarID);
+		}
+		volume_slider->setValue( (F64)volume );
+	}
+
+	LLPanelChatControlPanel::draw();
+}
+
+void LLPanelIMControlPanel::onClickMuteVolume()
+{
+	// By convention, we only display and toggle voice mutes, not all mutes
+	LLMuteList* mute_list = LLMuteList::getInstance();
+	bool is_muted = mute_list->isMuted(mAvatarID, LLMute::flagVoiceChat);
+
+	LLMute mute(mAvatarID, getChild<LLTextBox>("avatar_name")->getText(), LLMute::AGENT);
+	if (!is_muted)
+	{
+		mute_list->add(mute, LLMute::flagVoiceChat);
+	}
+	else
+	{
+		mute_list->remove(mute, LLMute::flagVoiceChat);
+	}
+}
+
+void LLPanelIMControlPanel::onClickBlock()
+{
+	LLMute mute(mAvatarID, getChild<LLTextBox>("avatar_name")->getText(), LLMute::AGENT);
+	
+	LLMuteList::getInstance()->add(mute);
+}
+
+void LLPanelIMControlPanel::onClickUnblock()
+{
+	LLMute mute(mAvatarID, getChild<LLTextBox>("avatar_name")->getText(), LLMute::AGENT);
+
+	LLMuteList::getInstance()->remove(mute);
+}
+
+void LLPanelIMControlPanel::onVolumeChange(const LLSD& data)
+{
+	F32 volume = (F32)data.asReal();
+	LLVoiceClient::getInstance()->setUserVolume(mAvatarID, volume);
 }
 
 void LLPanelIMControlPanel::onTeleportButtonClicked()
@@ -262,6 +346,9 @@ void LLPanelIMControlPanel::onNameCache(const LLUUID& id, const std::string& ful
 		std::string avatar_name = full_name;
 		getChild<LLTextBox>("avatar_name")->setValue(avatar_name);
 		getChild<LLTextBox>("avatar_name")->setToolTip(avatar_name);
+
+		bool is_linden = LLStringUtil::endsWith(full_name, " Linden");
+		getChild<LLUICtrl>("mute_btn")->setEnabled( !is_linden);
 	}
 }
 

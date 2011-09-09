@@ -139,6 +139,7 @@ protected:
 
 	BOOL isAgentInventory() const; // false if lost or in the inventory library
 	BOOL isCOFFolder() const; // true if COF or descendent of
+	BOOL isInboxFolder() const; // true if COF or descendent of marketplace inbox
 	virtual BOOL isItemPermissive() const;
 	static void changeItemParent(LLInventoryModel* model,
 								 LLViewerInventoryItem* item,
@@ -584,6 +585,9 @@ protected:
 };
 
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Recent Inventory Panel related classes
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Overridden version of the Inventory-Folder-View-Bridge for Folders
 class LLRecentItemsFolderBridge : public LLFolderBridge

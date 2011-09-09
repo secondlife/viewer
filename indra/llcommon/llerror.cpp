@@ -379,7 +379,7 @@ namespace
 	{
 		/* This pattern, of returning a reference to a static function
 		   variable, is to ensure that this global is constructed before
-		   it is used, no matter what the global initializeation sequence
+		   it is used, no matter what the global initialization sequence
 		   is.
 		   See C++ FAQ Lite, sections 10.12 through 10.14
 		*/
@@ -865,6 +865,9 @@ You get:
 	llfoo.cpp(42) : ERROR: something
 	
 */
+
+extern apr_thread_mutex_t* gLogMutexp;
+extern apr_thread_mutex_t* gCallStacksLogMutexp;
 
 namespace {
 	bool checkLevelMap(const LevelMap& map, const std::string& key,

@@ -76,6 +76,7 @@
 #include "lluserrelations.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
+#include "llviewerhelp.h"
 #include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
 #include "llwindow.h"
@@ -125,6 +126,7 @@
 #include "llpanelgroupnotices.h"
 #include "llpreview.h"
 #include "llpreviewscript.h"
+#include "llproxy.h"
 #include "llproductinforequest.h"
 #include "llsecondlifeurls.h"
 #include "llselectmgr.h"
@@ -163,7 +165,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
-#include "llvoclouds.h"
 #include "llweb.h"
 #include "llworld.h"
 #include "llworldmapmessage.h"
@@ -386,6 +387,14 @@ bool idle_startup()
 			LLNotificationsUtil::add(gViewerWindow->getInitAlert());
 		}
 			
+		//-------------------------------------------------
+		// Init the SOCKS 5 proxy if the user has configured
+		// one. We need to do this early in case the user
+		// is using SOCKS for HTTP so we get the login
+		// screen and HTTP tables via SOCKS.
+		//-------------------------------------------------
+		LLStartUp::startLLProxy();
+
 		gSavedSettings.setS32("LastFeatureVersion", LLFeatureManager::getInstance()->getVersion());
 		gSavedSettings.setS32("LastGPUClass", LLFeatureManager::getInstance()->getGPUClass());
 
@@ -591,7 +600,7 @@ bool idle_startup()
 		}
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
-		
+
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.
@@ -720,7 +729,13 @@ bool idle_startup()
 
 		timeout_count = 0;
 
+		// Login screen needs menus for preferences, but we can enter
+		// this startup phase more than once.
+		if (gLoginMenuBarView == NULL)
+		{
 		initialize_edit_menu();
+			init_menus();
+		}
 
 		if (show_connect_box)
 		{
@@ -755,19 +770,6 @@ bool idle_startup()
 			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		}
 
-		// *NOTE: This is where LLViewerParcelMgr::getInstance() used to get allocated before becoming LLViewerParcelMgr::getInstance().
-
-		// *NOTE: This is where gHUDManager used to bet allocated before becoming LLHUDManager::getInstance().
-
-		// *NOTE: This is where gMuteList used to get allocated before becoming LLMuteList::getInstance().
-
-		// Login screen needs menus for preferences, but we can enter
-		// this startup phase more than once.
-		if (gLoginMenuBarView == NULL)
-		{
-			init_menus();
-		}
-		
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
@@ -807,7 +809,21 @@ bool idle_startup()
 
 	if (STATE_LOGIN_CLEANUP == LLStartUp::getStartupState())
 	{
-		//reset the values that could have come in from a slurl
+		// Post login screen, we should see if any settings have changed that may
+		// require us to either start/stop or change the socks proxy. As various communications
+		// past this point may require the proxy to be up.
+		if (!LLStartUp::startLLProxy())
+		{
+			// Proxy start up failed, we should now bail the state machine
+			// startLLProxy() will have reported an error to the user
+			// already, so we just go back to the login screen. The user
+			// could then change the preferences to fix the issue.
+
+			LLStartUp::setStartupState(STATE_LOGIN_SHOW);
+			return FALSE;
+		}
+
+		// reset the values that could have come in from a slurl
 		// DEV-42215: Make sure they're not empty -- gUserCredential
 		// might already have been set from gSavedSettings, and it's too bad
 		// to overwrite valid values with empty strings.
@@ -897,7 +913,7 @@ bool idle_startup()
 		if (show_connect_box)
 		{
 			LLSLURL slurl;
-			LLPanelLogin::closePanel();
+			//LLPanelLogin::closePanel();
 		}
 
 		
@@ -943,6 +959,8 @@ bool idle_startup()
 		// Display the startup progress bar.
 		gViewerWindow->setShowProgress(TRUE);
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, LLTrans::getString("Quit"));
+
+		gViewerWindow->revealIntroPanel();
 
 		// Poke the VFS, which could potentially block for a while if
 		// Windows XP is acting up
@@ -1171,8 +1189,6 @@ bool idle_startup()
 
 		// init the shader managers
 		LLPostProcess::initClass();
-		LLWLParamManager::initClass();
-		LLWaterParamManager::initClass();
 
 		LLViewerObject::initVOClasses();
 
@@ -1244,6 +1260,25 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if(STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 	{
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(gFirstSimHandle);
+		if (regionp->capabilitiesReceived())
+		{
+			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
+		}
+		else
+		{
+			U32 num_retries = regionp->getNumSeedCapRetries();
+			if (num_retries > 0)
+			{
+				LLStringUtil::format_map_t args;
+				args["[NUMBER]"] = llformat("%d", num_retries + 1);
+				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args), gAgent.mMOTD);
+			}
+			else
+			{
+				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"), gAgent.mMOTD);
+			}
+		}
 		return FALSE;
 	}
 
@@ -1543,6 +1578,12 @@ bool idle_startup()
  			}
  		}
 
+		LLSD inv_basic = response["inventory-basic"];
+ 		if(inv_basic.isDefined())
+ 		{
+			llinfos << "Basic inventory root folder id is " << inv_basic["folder_id"] << llendl;
+ 		}
+
 		LLSD buddy_list = response["buddy-list"];
  		if(buddy_list.isDefined())
  		{
@@ -1692,9 +1733,20 @@ bool idle_startup()
 				gViewerThrottle.setMaxBandwidth(FAST_RATE_BPS / 1024.f);
 			}
 
+			if (gSavedSettings.getBOOL("ShowHelpOnFirstLogin"))
+			{
+				gSavedSettings.setBOOL("HelpFloaterOpen", TRUE);
+			}
+
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
+		}
+
+		if (gSavedSettings.getBOOL("HelpFloaterOpen"))
+		{
+			// show default topic
+			LLViewerHelp::instance().showTopic("");
 		}
 
 		// We're successfully logged in.
@@ -1953,7 +2005,8 @@ bool idle_startup()
 		gViewerWindow->getWindow()->resetBusyCount();
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 		LL_DEBUGS("AppInit") << "Done releasing bitmap" << LL_ENDL;
-		gViewerWindow->setShowProgress(FALSE);
+		//gViewerWindow->revealIntroPanel();
+		gViewerWindow->setStartupComplete(); 
 		gViewerWindow->setProgressCancelButtonVisible(FALSE);
 
 		// We're not away from keyboard, even though login might have taken
@@ -2526,22 +2579,32 @@ void init_start_screen(S32 location_id)
 	else if(!start_image_bmp->load(temp_str) )
 	{
 		LL_WARNS("AppInit") << "Bitmap load failed" << LL_ENDL;
-		return;
-	}
-
-	gStartImageWidth = start_image_bmp->getWidth();
-	gStartImageHeight = start_image_bmp->getHeight();
-
-	LLPointer<LLImageRaw> raw = new LLImageRaw;
-	if (!start_image_bmp->decode(raw, 0.0f))
-	{
-		LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
 		gStartTexture = NULL;
-		return;
+	}
+	else
+	{
+		gStartImageWidth = start_image_bmp->getWidth();
+		gStartImageHeight = start_image_bmp->getHeight();
+
+		LLPointer<LLImageRaw> raw = new LLImageRaw;
+		if (!start_image_bmp->decode(raw, 0.0f))
+		{
+			LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
+			gStartTexture = NULL;
+		}
+		else
+		{
+			raw->expandToPowerOfTwo();
+			gStartTexture = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE) ;
+		}
 	}
 
-	raw->expandToPowerOfTwo();
-	gStartTexture = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE) ;
+	if(gStartTexture.isNull())
+	{
+		gStartTexture = LLViewerTexture::sBlackImagep ;
+		gStartImageWidth = gStartTexture->getWidth() ;
+		gStartImageHeight = gStartTexture->getHeight() ;
+	}
 }
 
 
@@ -2726,6 +2789,171 @@ void LLStartUp::setStartSLURL(const LLSLURL& slurl)
 			LLGridManager::getInstance()->setGridChoice(slurl.getGrid());
 			break;
     }
+}
+
+/**
+ * Read all proxy configuration settings and set up both the HTTP proxy and
+ * SOCKS proxy as needed.
+ *
+ * Any errors that are encountered will result in showing the user a notification.
+ * When an error is encountered,
+ *
+ * @return Returns true if setup was successful, false if an error was encountered.
+ */
+bool LLStartUp::startLLProxy()
+{
+	bool proxy_ok = true;
+	std::string httpProxyType = gSavedSettings.getString("HttpProxyType");
+
+	// Set up SOCKS proxy (if needed)
+	if (gSavedSettings.getBOOL("Socks5ProxyEnabled"))
+	{	
+		// Determine and update LLProxy with the saved authentication system
+		std::string auth_type = gSavedSettings.getString("Socks5AuthType");
+
+		if (auth_type.compare("UserPass") == 0)
+		{
+			LLPointer<LLCredential> socks_cred = gSecAPIHandler->loadCredential("SOCKS5");
+			std::string socks_user = socks_cred->getIdentifier()["username"].asString();
+			std::string socks_password = socks_cred->getAuthenticator()["creds"].asString();
+
+			bool ok = LLProxy::getInstance()->setAuthPassword(socks_user, socks_password);
+
+			if (!ok)
+			{
+				LLNotificationsUtil::add("SOCKS_BAD_CREDS");
+				proxy_ok = false;
+			}
+		}
+		else if (auth_type.compare("None") == 0)
+		{
+			LLProxy::getInstance()->setAuthNone();
+		}
+		else
+		{
+			LL_WARNS("Proxy") << "Invalid SOCKS 5 authentication type."<< LL_ENDL;
+
+			// Unknown or missing setting.
+			gSavedSettings.setString("Socks5AuthType", "None");
+
+			// Clear the SOCKS credentials.
+			LLPointer<LLCredential> socks_cred = new LLCredential("SOCKS5");
+			gSecAPIHandler->deleteCredential(socks_cred);
+
+			LLProxy::getInstance()->setAuthNone();
+		}
+
+		if (proxy_ok)
+		{
+			// Start the proxy and check for errors
+			// If status != SOCKS_OK, stopSOCKSProxy() will already have been called when startSOCKSProxy() returns.
+			LLHost socks_host;
+			socks_host.setHostByName(gSavedSettings.getString("Socks5ProxyHost"));
+			socks_host.setPort(gSavedSettings.getU32("Socks5ProxyPort"));
+			int status = LLProxy::getInstance()->startSOCKSProxy(socks_host);
+
+			if (status != SOCKS_OK)
+			{
+				LLSD subs;
+				subs["HOST"] = gSavedSettings.getString("Socks5ProxyHost");
+				subs["PORT"] = (S32)gSavedSettings.getU32("Socks5ProxyPort");
+
+				std::string error_string;
+
+				switch(status)
+				{
+					case SOCKS_CONNECT_ERROR: // TCP Fail
+						error_string = "SOCKS_CONNECT_ERROR";
+						break;
+
+					case SOCKS_NOT_PERMITTED: // SOCKS 5 server rule set refused connection
+						error_string = "SOCKS_NOT_PERMITTED";
+						break;
+
+					case SOCKS_NOT_ACCEPTABLE: // Selected authentication is not acceptable to server
+						error_string = "SOCKS_NOT_ACCEPTABLE";
+						break;
+
+					case SOCKS_AUTH_FAIL: // Authentication failed
+						error_string = "SOCKS_AUTH_FAIL";
+						break;
+
+					case SOCKS_UDP_FWD_NOT_GRANTED: // UDP forward request failed
+						error_string = "SOCKS_UDP_FWD_NOT_GRANTED";
+						break;
+
+					case SOCKS_HOST_CONNECT_FAILED: // Failed to open a TCP channel to the socks server
+						error_string = "SOCKS_HOST_CONNECT_FAILED";
+						break;
+
+					case SOCKS_INVALID_HOST: // Improperly formatted host address or port.
+						error_string = "SOCKS_INVALID_HOST";
+						break;
+
+					default:
+						error_string = "SOCKS_UNKNOWN_STATUS"; // Something strange happened,
+						LL_WARNS("Proxy") << "Unknown return from LLProxy::startProxy(): " << status << LL_ENDL;
+						break;
+				}
+
+				LLNotificationsUtil::add(error_string, subs);
+				proxy_ok = false;
+			}
+		}
+	}
+	else
+	{
+		LLProxy::getInstance()->stopSOCKSProxy(); // ensure no UDP proxy is running and it's all cleaned up
+	}
+
+	if (proxy_ok)
+	{
+		// Determine the HTTP proxy type (if any)
+		if ((httpProxyType.compare("Web") == 0) && gSavedSettings.getBOOL("BrowserProxyEnabled"))
+		{
+			LLHost http_host;
+			http_host.setHostByName(gSavedSettings.getString("BrowserProxyAddress"));
+			http_host.setPort(gSavedSettings.getS32("BrowserProxyPort"));
+			if (!LLProxy::getInstance()->enableHTTPProxy(http_host, LLPROXY_HTTP))
+			{
+				LLSD subs;
+				subs["HOST"] = http_host.getIPString();
+				subs["PORT"] = (S32)http_host.getPort();
+				LLNotificationsUtil::add("PROXY_INVALID_HTTP_HOST", subs);
+				proxy_ok = false;
+			}
+		}
+		else if ((httpProxyType.compare("Socks") == 0) && gSavedSettings.getBOOL("Socks5ProxyEnabled"))
+		{
+			LLHost socks_host;
+			socks_host.setHostByName(gSavedSettings.getString("Socks5ProxyHost"));
+			socks_host.setPort(gSavedSettings.getU32("Socks5ProxyPort"));
+			if (!LLProxy::getInstance()->enableHTTPProxy(socks_host, LLPROXY_SOCKS))
+			{
+				LLSD subs;
+				subs["HOST"] = socks_host.getIPString();
+				subs["PORT"] = (S32)socks_host.getPort();
+				LLNotificationsUtil::add("PROXY_INVALID_SOCKS_HOST", subs);
+				proxy_ok = false;
+			}
+		}
+		else if (httpProxyType.compare("None") == 0)
+		{
+			LLProxy::getInstance()->disableHTTPProxy();
+		}
+		else
+		{
+			LL_WARNS("Proxy") << "Invalid other HTTP proxy configuration."<< LL_ENDL;
+
+			// Set the missing or wrong configuration back to something valid.
+			gSavedSettings.setString("HttpProxyType", "None");
+			LLProxy::getInstance()->disableHTTPProxy();
+
+			// Leave proxy_ok alone, since this isn't necessarily fatal.
+		}
+	}
+
+	return proxy_ok;
 }
 
 bool login_alert_done(const LLSD& notification, const LLSD& response)
@@ -3150,11 +3378,6 @@ bool process_login_success_response()
 			gMoonTextureID = id;
 		}
 
-		id = global_textures["cloud_texture_id"];
-		if(id.notNull())
-		{
-			gCloudTextureID = id;
-		}
 	}
 
 	// Set the location of the snapshot sharing config endpoint

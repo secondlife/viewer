@@ -49,6 +49,7 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
+#include "lltimectrl.h"
 #include "llflyoutbutton.h"
 #include "llfiltereditor.h"
 #include "lllayoutstack.h"
@@ -92,6 +93,7 @@ void LLWidgetReg::initClass(bool register_widgets)
 		//LLDefaultChildRegistry::Register<LLPlaceHolderPanel> placeholder("placeholder");
 		LLDefaultChildRegistry::Register<LLTabContainer> tab_container("tab_container");
 		LLDefaultChildRegistry::Register<LLTextBox> text("text");
+		LLDefaultChildRegistry::Register<LLTimeCtrl> time("time");
 		LLDefaultChildRegistry::Register<LLTextEditor> simple_text_editor("simple_text_editor");
 		LLDefaultChildRegistry::Register<LLUICtrl> ui_ctrl("ui_ctrl");
 		LLDefaultChildRegistry::Register<LLStatView> stat_view("stat_view");

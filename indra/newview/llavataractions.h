@@ -36,6 +36,7 @@
 
 class LLInventoryPanel;
 
+
 /**
  * Friend-related actions (add, remove, offer teleport, etc)
  */
@@ -195,6 +196,8 @@ public:
 	 * @return false if the selected items cannot be shared or the active inventory panel cannot be obtained
 	 */
 	static bool canShareSelectedItems(LLInventoryPanel* inv_panel = NULL);
+
+	static std::set<LLUUID> getInventorySelectedUUIDs();
 
 private:
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);

@@ -94,7 +94,7 @@ void LLVLManager::unpackData(const S32 num_packets)
 		}
 		else if (CLOUD_LAYER_CODE == datap->mType)
 		{
-			datap->mRegionp->mCloudLayer.decompress(bit_pack, &goph);
+
 		}
 	}
 

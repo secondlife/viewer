@@ -4,16 +4,16 @@
 		A-12AM:A-12PM:A-3AM:A-3PM:A-4.30PM:A-6AM:A-6PM:A-9AM:A-9PM:Barcelona:Blizzard:Blue Midday:Coastal Afternoon:Coastal Sunset:Default:Desert Sunset:Fine Day:Fluffy Big Clouds:Foggy:Funky Funky:Funky Funky Funky:Gelatto:Ghost:Incongruent Truths:Midday 1:Midday 2:Midday 3:Midday 4:Night:Pirate:Purple:Sailor&apos;s Delight:Sheer Sensuality
 	</floater.string>
 	<text name="KeyFramePresetsText">
-		Sky Presets:
+		天空預設值：
 	</text>
 	<button label="新增" label_selected="新增" name="WLNewPreset"/>
 	<button label="儲存" label_selected="儲存" name="WLSavePreset"/>
 	<button label="刪除" label_selected="刪除" name="WLDeletePreset"/>
-	<button label="Day Cycle Editor" label_selected="Day Cycle Editor" name="WLDayCycleMenuButton"/>
+	<button label="日循環編輯器" label_selected="日循環編輯器" name="WLDayCycleMenuButton"/>
 	<tab_container name="WindLight Tabs">
-		<panel label="ATMOSPHERE" name="Atmosphere">
+		<panel label="大氣" name="Atmosphere">
 			<text name="BHText">
-				Blue Horizon
+				藍天水平線
 			</text>
 			<text name="BHText2">
 				R
@@ -28,10 +28,10 @@
 				I
 			</text>
 			<text name="BDensText">
-				Haze Horizon
+				陰霾水平線
 			</text>
 			<text name="BDensText2">
-				Blue Density
+				藍天密度
 			</text>
 			<text name="BHText6">
 				R
@@ -46,21 +46,21 @@
 				I
 			</text>
 			<text name="HDText">
-				Haze Density
+				陰霾密度
 			</text>
 			<text name="DensMultText">
-				Density Multiplier
+				密度倍增
 			</text>
 			<text name="WLDistanceMultText">
-				Distance Multiplier
+				距離倍增
 			</text>
 			<text name="MaxAltText">
-				Max Altitude
+				最大高度
 			</text>
 		</panel>
-		<panel label="LIGHTING" name="Lighting">
+		<panel label="照明" name="Lighting">
 			<text name="SLCText">
-				Sun/Moon Color
+				日／月 顏色
 			</text>
 			<text name="BHText">
 				R
@@ -75,10 +75,10 @@
 				I
 			</text>
 			<text name="TODText">
-				Sun/Moon Position
+				日／月 位置
 			</text>
 			<text name="WLAmbientText">
-				Ambient
+				環境
 			</text>
 			<text name="BHText5">
 				R
@@ -93,23 +93,23 @@
 				I
 			</text>
 			<text name="WLEastAngleText">
-				East Angle
+				東升角度
 			</text>
 			<text name="SunGlowText">
-				Sun Glow
+				太陽光輝
 			</text>
-			<slider label="Focus" name="WLGlowB"/>
+			<slider label="焦點" name="WLGlowB"/>
 			<slider label="尺寸" name="WLGlowR"/>
 			<text name="SceneGammaText">
-				Scene Gamma
+				場景 Gamma 值
 			</text>
 			<text name="WLStarText">
-				Star Brightness
+				星空量度
 			</text>
 		</panel>
-		<panel label="CLOUDS" name="Clouds">
+		<panel label="雲彩" name="Clouds">
 			<text name="WLCloudColorText">
-				Cloud Color
+				雲彩顏色
 			</text>
 			<text name="BHText">
 				R
@@ -124,7 +124,7 @@
 				I
 			</text>
 			<text name="WLCloudColorText2">
-				Cloud XY/Density
+				雲彩 XY 軸 / 密度
 			</text>
 			<text name="BHText5">
 				X
@@ -136,13 +136,13 @@
 				D
 			</text>
 			<text name="WLCloudCoverageText">
-				Cloud Coverage
+				雲彩覆蓋
 			</text>
 			<text name="WLCloudScaleText">
-				Cloud Scale
+				雲彩規模
 			</text>
 			<text name="WLCloudDetailText">
-				Cloud Detail (XY/Density)
+				雲彩細節（XY 軸 / 密度）
 			</text>
 			<text name="BHText8">
 				X
@@ -154,14 +154,14 @@
 				D
 			</text>
 			<text name="WLCloudScrollXText">
-				Cloud Scroll X
+				雲彩 X 滾軸
 			</text>
-			<check_box label="Lock" name="WLCloudLockX"/>
+			<check_box label="鎖定" name="WLCloudLockX"/>
 			<text name="WLCloudScrollYText">
-				Cloud Scroll Y
+				雲彩 Y 滾軸
 			</text>
-			<check_box label="Lock" name="WLCloudLockY"/>
-			<check_box label="Draw Classic Clouds" name="DrawClassicClouds"/>
+			<check_box label="鎖定" name="WLCloudLockY"/>
+			<check_box label="描繪傳統雲彩" name="DrawClassicClouds"/>
 		</panel>
 	</tab_container>
 </floater>

@@ -1,6 +1,6 @@
 /** 
- * @file llsidepanelmaininventory.cpp
- * @brief Implementation of llsidepanelmaininventory.
+ * @file llpanelmaininventory.cpp
+ * @brief Implementation of llpanelmaininventory.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -95,8 +95,8 @@ private:
 /// LLPanelMainInventory
 ///----------------------------------------------------------------------------
 
-LLPanelMainInventory::LLPanelMainInventory()
-	: LLPanel(),
+LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
+	: LLPanel(p),
 	  mActivePanel(NULL),
 	  mSavedFolderState(NULL),
 	  mFilterText(""),
@@ -192,6 +192,9 @@ BOOL LLPanelMainInventory::postBuild()
 	mMenuAdd->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", upload_cost);
 	mMenuAdd->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", upload_cost);
 	mMenuAdd->getChild<LLMenuItemGL>("Bulk Upload")->setLabelArg("[COST]", upload_cost);
+
+	// Trigger callback for focus received so we can deselect items in inbox/outbox
+	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMainInventory::onFocusReceived, this));
 
 	return TRUE;
 }
@@ -569,7 +572,16 @@ void LLPanelMainInventory::updateItemcountText()
 	{
 		text = getString("ItemcountUnknown");
 	}
+	
+	// *TODO: Cache the LLUICtrl* for the ItemcountText control
 	getChild<LLUICtrl>("ItemcountText")->setValue(text);
+}
+
+void LLPanelMainInventory::onFocusReceived()
+{
+	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
+	
+	sidepanel_inventory->clearSelections(false, true, true);
 }
 
 void LLPanelMainInventory::setFilterTextFromFilter() 

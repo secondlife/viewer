@@ -14,9 +14,7 @@
      background_visible="true"
      bg_alpha_color="DkGray2"
      bg_opaque_color="DkGray2"
-     no_matched_tabs_text.value="Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search]."
-     no_matched_tabs_text.v_pad="10"
-     no_visible_tabs_text.value="You don't have any outfits yet. Try [secondlife:///app/search/all/ Search]"
+
      follows="all"
      height="400"
      layout="topleft"
@@ -24,6 +22,13 @@
      name="outfits_accordion"
      top="0"
      width="309">
+       <no_matched_tabs_text
+         name="no_matched_outfits_msg"
+         value="Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search]."
+         v_pad="10"/>
+       <no_visible_tabs_text
+         name="no_outfits_msg"
+         value="You don't have any outfits yet. Try [secondlife:///app/search/all/ Search]"/>
     </accordion>
     <panel
      background_visible="true"

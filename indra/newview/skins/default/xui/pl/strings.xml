@@ -1072,9 +1072,6 @@
 	<string name="InvFolder My Inventory">
 		Moja Szafa
 	</string>
-	<string name="InvFolder My Favorites">
-		Moje ulubione
-	</string>
 	<string name="InvFolder Library">
 		Biblioteka
 	</string>
@@ -1133,10 +1130,10 @@
 		Gesturki
 	</string>
 	<string name="InvFolder Favorite">
-		Ulubione
+		Moje ulubione
 	</string>
 	<string name="InvFolder favorite">
-		Ulubione
+		Moje ulubione
 	</string>
 	<string name="InvFolder Current Outfit">
 		Obecny strój
@@ -1698,7 +1695,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		Brak umowy dla tego majątku. Każda posiadłość w tym majątku została sprzedana przez właściciela majątku nie Linden Lab. Skontaktuj się z właścicielem majątku w celu uzuskania szczegółów sprzedaży.
 	</string>
-	<string name="covenant_last_modified" value="Ostatnio modyfikowano:"/>
+	<string name="covenant_last_modified" value="Ostatnio modyfikowano: "/>
 	<string name="none_text" value=" (żadne) "/>
 	<string name="never_text" value=" (nigdy) "/>
 	<string name="GroupOwned">

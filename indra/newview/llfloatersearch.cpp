@@ -27,16 +27,26 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llappviewer.h"
+#include "llbase64.h"
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
 #include "llfloatersearch.h"
 #include "llmediactrl.h"
 #include "llnotificationsutil.h"
+#include "llparcel.h"
+#include "llplugincookiestore.h"
 #include "lllogininstance.h"
 #include "lluri.h"
 #include "llagent.h"
+#include "llsdserialize.h"
 #include "llui.h"
 #include "llviewercontrol.h"
+#include "llviewerregion.h"
+#include "llversioninfo.h"
+#include "llviewermedia.h"
+#include "llviewernetwork.h"
+#include "llviewerparcelmgr.h"
 #include "llweb.h"
 
 // support secondlife:///app/search/{CATEGORY}/{QUERY} SLapps
@@ -70,21 +80,24 @@ public:
 		}
 
 		// create the LLSD arguments for the search floater
-		LLSD args;
-		args["category"] = category;
-		args["id"] = LLURI::unescape(search_text);
+		LLFloaterSearch::Params p;
+		p.search.category = category;
+		p.search.query = LLURI::unescape(search_text);
 
 		// open the search floater and perform the requested search
-		LLFloaterReg::showInstance("search", args);
+		LLFloaterReg::showInstance("search", p);
 		return true;
 	}
 };
 LLSearchHandler gSearchHandler;
 
-LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
-	LLFloater(key),
-	LLViewerMediaObserver(),
-	mBrowser(NULL),
+LLFloaterSearch::SearchQuery::SearchQuery()
+:	category("category", ""),
+	query("query")
+{}
+
+LLFloaterSearch::LLFloaterSearch(const Params& key) :
+	LLFloaterWebContent(key),
 	mSearchGodLevel(0)
 {
 	// declare a map that transforms a category name into
@@ -102,39 +115,28 @@ LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
 
 BOOL LLFloaterSearch::postBuild()
 {
-	mBrowser = getChild<LLMediaCtrl>("browser");
-	mBrowser->addObserver(this);
+	LLFloaterWebContent::postBuild();
+	mWebBrowser->addObserver(this);
 
 	return TRUE;
 }
 
 void LLFloaterSearch::onOpen(const LLSD& key)
 {
-	search(key);
+	Params p(key);
+	p.trusted_content = true;
+	p.allow_address_entry = false;
+
+	LLFloaterWebContent::onOpen(p);
+	search(p.search);
 }
 
 void LLFloaterSearch::onClose(bool app_quitting)
 {
+	LLFloaterWebContent::onClose(app_quitting);
 	// tear down the web view so we don't show the previous search
 	// result when the floater is opened next time
 	destroy();
-}
-
-void LLFloaterSearch::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event)
-{
-	switch (event) 
-	{
-	case MEDIA_EVENT_NAVIGATE_BEGIN:
-		getChild<LLUICtrl>("status_text")->setValue(getString("loading_text"));
-		break;
-		
-	case MEDIA_EVENT_NAVIGATE_COMPLETE:
-		getChild<LLUICtrl>("status_text")->setValue(getString("done_text"));
-		break;
-
-	default:
-		break;
-	}
 }
 
 void LLFloaterSearch::godLevelChanged(U8 godlevel)
@@ -143,12 +145,15 @@ void LLFloaterSearch::godLevelChanged(U8 godlevel)
 	// changes god level, then give them a warning (we don't refresh
 	// the search as this might undo any page navigation or
 	// AJAX-driven changes since the last search).
-	getChildView("refresh_search")->setVisible( (godlevel != mSearchGodLevel));
+	
+	//FIXME: set status bar text
+
+	//getChildView("refresh_search")->setVisible( (godlevel != mSearchGodLevel));
 }
 
-void LLFloaterSearch::search(const LLSD &key)
+void LLFloaterSearch::search(const SearchQuery &p)
 {
-	if (! mBrowser)
+	if (! mWebBrowser || !p.validateBlock())
 	{
 		return;
 	}
@@ -159,10 +164,9 @@ void LLFloaterSearch::search(const LLSD &key)
 
 	// work out the subdir to use based on the requested category
 	LLSD subs;
-	std::string category = key.has("category") ? key["category"].asString() : "";
-	if (mCategoryPaths.has(category))
+	if (mCategoryPaths.has(p.category))
 	{
-		subs["CATEGORY"] = mCategoryPaths[category].asString();
+		subs["CATEGORY"] = mCategoryPaths[p.category].asString();
 	}
 	else
 	{
@@ -170,17 +174,18 @@ void LLFloaterSearch::search(const LLSD &key)
 	}
 
 	// add the search query string
-	std::string search_text = key.has("id") ? key["id"].asString() : "";
-	subs["QUERY"] = LLURI::escape(search_text);
+	subs["QUERY"] = LLURI::escape(p.query);
 
 	// add the permissions token that login.cgi gave us
 	// We use "search_token", and fallback to "auth_token" if not present.
+	LLSD search_cookie;
+
 	LLSD search_token = LLLoginInstance::getInstance()->getResponse("search_token");
 	if (search_token.asString().empty())
 	{
 		search_token = LLLoginInstance::getInstance()->getResponse("auth_token");
 	}
-	subs["AUTH_TOKEN"] = search_token.asString();
+	search_cookie["AUTH_TOKEN"] = search_token.asString();
 
 	// add the user's preferred maturity (can be changed via prefs)
 	std::string maturity;
@@ -196,10 +201,57 @@ void LLFloaterSearch::search(const LLSD &key)
 	{
 		maturity = "13";  // PG
 	}
-	subs["MATURITY"] = maturity;
+	search_cookie["MATURITY"] = maturity;
 
 	// add the user's god status
-	subs["GODLIKE"] = gAgent.isGodlike() ? "1" : "0";
+	search_cookie["GODLIKE"] = gAgent.isGodlike() ? "1" : "0";
+	search_cookie["VERSION"] = LLVersionInfo::getVersion();
+	search_cookie["VERSION_MAJOR"] = LLVersionInfo::getMajor();
+	search_cookie["VERSION_MINOR"] = LLVersionInfo::getMinor();
+	search_cookie["VERSION_PATCH"] = LLVersionInfo::getPatch();
+	search_cookie["VERSION_BUILD"] = LLVersionInfo::getBuild();
+	search_cookie["CHANNEL"] = LLVersionInfo::getChannel();
+	search_cookie["GRID"] = LLGridManager::getInstance()->getGridLabel();
+	search_cookie["OS"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+	search_cookie["SESSION_ID"] = gAgent.getSessionID();
+	search_cookie["FIRST_LOGIN"] = gAgent.isFirstLogin();
+
+	std::string lang = LLUI::getLanguage();
+	if (lang == "en-us")
+	{
+		lang = "en";
+	}
+	search_cookie["LANGUAGE"] = lang;
+
+	// find the region ID
+	LLUUID region_id;
+	LLViewerRegion *region = gAgent.getRegion();
+	if (region)
+	{
+		region_id = region->getRegionID();
+	}
+	search_cookie["REGION_ID"] = region_id;
+
+	// find the parcel local ID
+	S32 parcel_id = 0;
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (parcel)
+	{
+		parcel_id = parcel->getLocalID();
+	}
+	search_cookie["PARCEL_ID"] = llformat("%d", parcel_id);
+
+	std::stringstream cookie_string_stream;
+	LLSDSerialize::toXML(search_cookie, cookie_string_stream);
+	std::string cookie_string = cookie_string_stream.str();
+
+	U8* cookie_string_buffer = (U8*)cookie_string.c_str();
+	std::string cookie_value = LLBase64::encode(cookie_string_buffer, cookie_string.size());
+
+	// for staging services
+	LLViewerMedia::getCookieStore()->setCookiesFromHost(std::string("viewer_session_info=") + cookie_value, ".lindenlab.com");
+	// for live services
+	LLViewerMedia::getCookieStore()->setCookiesFromHost(std::string("viewer_session_info=") + cookie_value, ".secondlife.com");
 
 	// get the search URL and expand all of the substitutions
 	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
@@ -207,5 +259,5 @@ void LLFloaterSearch::search(const LLSD &key)
 	url = LLWeb::expandURLSubstitutions(url, subs);
 
 	// and load the URL in the web view
-	mBrowser->navigateTo(url, "text/html");
+	mWebBrowser->navigateTo(url, "text/html");
 }

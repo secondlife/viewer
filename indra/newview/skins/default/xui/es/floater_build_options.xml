@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="OPCIONES DE LA CUADRÍCULA">
-	<spinner label="Unidad de la cuadrícula (metros)" label_width="192" name="GridResolution" width="250"/>
-	<spinner label="Alcance de la cuadrícula (metros)" label_width="192" name="GridDrawSize" width="250"/>
+	<floater.string name="grid_screen_text">
+		Pantalla
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Local
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Mundo
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Referencia
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Adjunto
+	</floater.string>
+	<text name="grid_mode_label" tool_tip="Opacidad de la cuadrícula">
+		Modo
+	</text>
+	<combo_box name="combobox grid mode" tool_tip="Elige qué cuadricula usar para posicionar el objeto">
+		<combo_box.item label="Mundo" name="World"/>
+		<combo_box.item label="Local" name="Local"/>
+		<combo_box.item label="Referencia" name="Reference"/>
+	</combo_box>
+	<spinner label="Unidades (metros)" label_width="192" name="GridResolution" width="250"/>
+	<spinner label="Extensión (metros)" label_width="192" name="GridDrawSize" width="250"/>
 	<check_box label="Activar subunidades" name="GridSubUnit"/>
 	<check_box label="Ver la sección transversal" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="Opacidad de la cuadrícula">

@@ -33,6 +33,7 @@
 #include "llrect.h"
 #include "llcontrol.h"
 #include "llcoord.h"
+#include "llglslshader.h"
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "lluicolor.h"
@@ -46,6 +47,7 @@
 
 // for initparam specialization
 #include "llfontgl.h"
+
 
 class LLColor4; 
 class LLVector3;
@@ -408,7 +410,7 @@ namespace LLInitParam
 		ParamValue(const LLRect& value);
 
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 
 	template<>
@@ -426,7 +428,7 @@ namespace LLInitParam
 
 		ParamValue(const LLUIColor& color);
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 
 	template<>
@@ -441,7 +443,7 @@ namespace LLInitParam
 
 		ParamValue(const LLFontGL* value);
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 
 	template<>
@@ -480,8 +482,11 @@ namespace LLInitParam
 
 		ParamValue(const LLCoordGL& val);
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 }
+
+extern LLGLSLShader gSolidColorProgram;
+extern LLGLSLShader gUIProgram;
 
 #endif

@@ -27,7 +27,7 @@
 #ifndef LL_WATER_PARAMMANAGER_H
 #define LL_WATER_PARAMMANAGER_H
 
-#include <vector>
+#include <list>
 #include <map>
 #include "llwaterparamset.h"
 #include "llviewercamera.h"
@@ -212,19 +212,13 @@ struct WaterExpFloatControl
 
 
 /// WindLight parameter manager class - what controls all the wind light shaders
-class LLWaterParamManager
+class LLWaterParamManager : public LLSingleton<LLWaterParamManager>
 {
+	LOG_CLASS(LLWaterParamManager);
 public:
-
-	LLWaterParamManager();
-	~LLWaterParamManager();
-
-	/// load a preset file
-	void loadAllPresets(const std::string & fileName);
-
-	/// load an individual preset into the sky
-
-	void loadPreset(const std::string & name,bool propagate=true);
+	typedef std::list<std::string> preset_name_list_t;
+	typedef std::map<std::string, LLWaterParamSet> preset_map_t;
+	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
 	/// save the parameter presets to file
 	void savePreset(const std::string & name);
@@ -232,17 +226,14 @@ public:
 	/// send the parameters to the shaders
 	void propagateParameters(void);
 
+	// display specified water
+	void applyParams(const LLSD& params, bool interpolate);
+
 	/// update information for the shader
 	void update(LLViewerCamera * cam);
 
 	/// Update shader uniforms that have changed.
 	void updateShaderUniforms(LLGLSLShader * shader);
-
-	/// Perform global initialization for this class.
-	static void initClass(void);
-
-	// Cleanup of global data that's only inited once per class.
-	static void cleanupClass();
 
 	/// add a param to the list
 	bool addParamSet(const std::string& name, LLWaterParamSet& param);
@@ -253,6 +244,9 @@ public:
 	/// get a param from the list
 	bool getParamSet(const std::string& name, LLWaterParamSet& param);
 
+	/// check whether the preset is in the list
+	bool hasParamSet(const std::string& name);
+
 	/// set the param in the list with a new param
 	bool setParamSet(const std::string& name, LLWaterParamSet& param);
 	
@@ -262,6 +256,24 @@ public:
 	/// gets rid of a parameter and any references to it
 	/// returns true if successful
 	bool removeParamSet(const std::string& name, bool delete_from_disk);
+
+	/// @return true if the preset comes out of the box
+	bool isSystemPreset(const std::string& preset_name) const;
+
+	/// @return all named water presets.
+	const preset_map_t& getPresets() const { return mParamList; }
+
+	/// @return user and system preset names as a single list
+	void getPresetNames(preset_name_list_t& presets) const;
+
+	/// @return user and system preset names separately
+	void getPresetNames(preset_name_list_t& user_presets, preset_name_list_t& system_presets) const;
+
+	/// @return list of user presets names
+	void getUserPresetNames(preset_name_list_t& user_presets) const;
+
+	/// Emitted when a preset gets added or deleted.
+	boost::signals2::connection setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb);
 
 	/// set the normap map we want for water
 	bool setNormalMapID(const LLUUID& img);
@@ -281,12 +293,6 @@ public:
 	F32 getFogDensity(void);
 	LLColor4 getFogColor(void);
 
-	// singleton pattern implementation
-	static LLWaterParamManager * instance();
-
-private:
-	void initOverrides();
-	
 public:
 
 	LLWaterParamSet mCurParams;
@@ -308,20 +314,28 @@ public:
 	WaterFloatControl mScaleBelow;
 	WaterFloatControl mBlurMultiplier;
 	
-	// list of all the parameters, listed by name
-	std::map<std::string, LLWaterParamSet> mParamList;
-
 	F32 mDensitySliderValue;
 
 private:
+	friend class LLSingleton<LLWaterParamManager>;
+	/*virtual*/ void initSingleton();
+	LLWaterParamManager();
+	~LLWaterParamManager();
+
+	void loadAllPresets();
+	void loadPresetsFromDir(const std::string& dir);
+	bool loadPreset(const std::string& path);
+
+	static std::string getSysDir();
+	static std::string getUserDir();
+
 	LLVector4 mWaterPlane;
 	F32 mWaterFogKS;
 
-	LLColor4 mPrevFogColor;
-	F32      mPrevFogDensity;
+	// list of all the parameters, listed by name
+	preset_map_t mParamList;
 
-	// our parameter manager singleton instance
-	static LLWaterParamManager * sInstance;
+	preset_list_signal_t mPresetListChangeSignal;
 };
 
 inline void LLWaterParamManager::setDensitySliderValue(F32 val)

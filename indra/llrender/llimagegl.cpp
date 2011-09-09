@@ -1414,6 +1414,8 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 
 void LLImageGL::deleteDeadTextures()
 {
+	bool reset = false;
+
 	while (!sDeadTextureList.empty())
 	{
 		GLuint tex = sDeadTextureList.front();
@@ -1422,15 +1424,25 @@ void LLImageGL::deleteDeadTextures()
 		{
 			LLTexUnit* tex_unit = gGL.getTexUnit(i);
 
-			if (tex_unit->getCurrTexture() == tex)
+			if (tex_unit && tex_unit->getCurrTexture() == tex)
 			{
 				tex_unit->unbind(tex_unit->getCurrType());
 				stop_glerror();
+
+				if (i > 0)
+				{
+					reset = true;
+				}
 			}
 		}
 		
 		glDeleteTextures(1, &tex);
 		stop_glerror();
+	}
+
+	if (reset)
+	{
+		gGL.getTexUnit(0)->activate();
 	}
 }
 		
@@ -1875,6 +1887,7 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 
 void LLImageGL::setCategory(S32 category) 
 {
+#if 0 //turn this off temporarily because it is not in use now.
 	if(!gAuditTexture)
 	{
 		return ;
@@ -1895,6 +1908,7 @@ void LLImageGL::setCategory(S32 category)
 			mCategory = -1 ;
 		}
 	}
+#endif
 }
 
 //for debug use 

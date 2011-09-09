@@ -107,6 +107,32 @@ BOOL LLInventoryFilter::check(const LLFolderViewItem* item)
 	return passed;
 }
 
+bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
+{
+	// we're showing all folders, overriding filter
+	if (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS)
+	{
+		return true;
+	}
+
+	const LLFolderViewEventListener* listener = folder->getListener();
+	const LLUUID folder_id = listener->getUUID();
+
+	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
+	{
+		// Can only filter categories for items in your inventory
+		// (e.g. versus in-world object contents).
+		const LLViewerInventoryCategory *cat = gInventory.getCategory(folder_id);
+		if (!cat)
+			return false;
+		LLFolderType::EType cat_type = cat->getPreferredType();
+		if (cat_type != LLFolderType::FT_NONE && (1LL << cat_type & mFilterOps.mFilterCategoryTypes) == U64(0))
+			return false;
+	}
+
+	return true;
+}
+
 BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) const
 {
 	const LLFolderViewEventListener* listener = item->getListener();
@@ -137,30 +163,6 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 		}
 	}
 	
-	
-	////////////////////////////////////////////////////////////////////////////////
-	// FILTERTYPE_CATEGORY
-	// Pass if this item is a category of the filter type, or
-	// if its parent is a category of the filter type.
-	if (filterTypes & FILTERTYPE_CATEGORY)
-	{
-		// Can only filter categories for items in your inventory 
-		// (e.g. versus in-world object contents).
-		if (!object) return FALSE;
-
-		LLUUID cat_id = object_id;
-		if (listener->getInventoryType() != LLInventoryType::IT_CATEGORY)
-		{
-			cat_id = object->getParentUUID();
-		}
-		const LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
-		if (!cat) 
-			return FALSE;
-		if ((1LL << cat->getPreferredType() & mFilterOps.mFilterCategoryTypes) == U64(0))
-			return FALSE;
-	}
-
-
 	////////////////////////////////////////////////////////////////////////////////
 	// FILTERTYPE_UUID
 	// Pass if this item is the target UUID or if it links to the target UUID
@@ -171,7 +173,6 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 		if (object->getLinkedUUID() != mFilterOps.mFilterUUID)
 			return FALSE;
 	}
-
 
 	////////////////////////////////////////////////////////////////////////////////
 	// FILTERTYPE_DATE
@@ -293,15 +294,15 @@ BOOL LLInventoryFilter::isModifiedAndClear()
 	return ret;
 }
 
-void LLInventoryFilter::setFilterObjectTypes(U64 types)
+void LLInventoryFilter::updateFilterTypes(U64 types, U64& current_types)
 {
-	if (mFilterOps.mFilterObjectTypes != types)
+	if (current_types != types)
 	{
 		// keep current items only if no type bits getting turned off
-		BOOL fewer_bits_set = (mFilterOps.mFilterObjectTypes & ~types);
-		BOOL more_bits_set = (~mFilterOps.mFilterObjectTypes & types);
+		bool fewer_bits_set = (current_types & ~types) != 0;
+		bool more_bits_set = (~current_types & types) != 0;
 
-		mFilterOps.mFilterObjectTypes = types;
+		current_types = types;
 		if (more_bits_set && fewer_bits_set)
 		{
 			// neither less or more restrive, both simultaneously
@@ -318,62 +319,23 @@ void LLInventoryFilter::setFilterObjectTypes(U64 types)
 			setModified(FILTER_MORE_RESTRICTIVE);
 		}
 	}
+}
+
+void LLInventoryFilter::setFilterObjectTypes(U64 types)
+{
+	updateFilterTypes(types, mFilterOps.mFilterObjectTypes);
 	mFilterOps.mFilterTypes |= FILTERTYPE_OBJECT;
 }
 
 void LLInventoryFilter::setFilterCategoryTypes(U64 types)
 {
-	if (mFilterOps.mFilterCategoryTypes != types)
-	{
-		// keep current items only if no type bits getting turned off
-		BOOL fewer_bits_set = (mFilterOps.mFilterCategoryTypes & ~types);
-		BOOL more_bits_set = (~mFilterOps.mFilterCategoryTypes & types);
-
-		mFilterOps.mFilterCategoryTypes = types;
-		if (more_bits_set && fewer_bits_set)
-		{
-			// neither less or more restrive, both simultaneously
-			// so we need to filter from scratch
-			setModified(FILTER_RESTART);
-		}
-		else if (more_bits_set)
-		{
-			// target is only one of all requested types so more type bits == less restrictive
-			setModified(FILTER_LESS_RESTRICTIVE);
-		}
-		else if (fewer_bits_set)
-		{
-			setModified(FILTER_MORE_RESTRICTIVE);
-		}
-	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_OBJECT;
+	updateFilterTypes(types, mFilterOps.mFilterCategoryTypes);
+	mFilterOps.mFilterTypes |= FILTERTYPE_CATEGORY;
 }
 
 void LLInventoryFilter::setFilterWearableTypes(U64 types)
 {
-	if (mFilterOps.mFilterWearableTypes != types)
-	{
-		// keep current items only if no type bits getting turned off
-		BOOL fewer_bits_set = (mFilterOps.mFilterWearableTypes & ~types);
-		BOOL more_bits_set = (~mFilterOps.mFilterWearableTypes & types);
-
-		mFilterOps.mFilterWearableTypes = types;
-		if (more_bits_set && fewer_bits_set)
-		{
-			// neither less or more restrive, both simultaneously
-			// so we need to filter from scratch
-			setModified(FILTER_RESTART);
-		}
-		else if (more_bits_set)
-		{
-			// target is only one of all requested types so more type bits == less restrictive
-			setModified(FILTER_LESS_RESTRICTIVE);
-		}
-		else if (fewer_bits_set)
-		{
-			setModified(FILTER_MORE_RESTRICTIVE);
-		}
-	}
+	updateFilterTypes(types, mFilterOps.mFilterWearableTypes);
 	mFilterOps.mFilterTypes |= FILTERTYPE_WEARABLE;
 }
 
@@ -898,9 +860,14 @@ void LLInventoryFilter::fromLLSD(LLSD& data)
 	}
 }
 
-U32 LLInventoryFilter::getFilterObjectTypes() const
+U64 LLInventoryFilter::getFilterObjectTypes() const
 {
 	return mFilterOps.mFilterObjectTypes;
+}
+
+U64 LLInventoryFilter::getFilterCategoryTypes() const
+{
+	return mFilterOps.mFilterCategoryTypes;
 }
 
 BOOL LLInventoryFilter::hasFilterString() const

@@ -68,6 +68,19 @@ extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
 
+// GL_ARB_sync
+extern PFNGLFENCESYNCPROC				glFenceSync;
+extern PFNGLISSYNCPROC					glIsSync;
+extern PFNGLDELETESYNCPROC				glDeleteSync;
+extern PFNGLCLIENTWAITSYNCPROC			glClientWaitSync;
+extern PFNGLWAITSYNCPROC				glWaitSync;
+extern PFNGLGETINTEGER64VPROC			glGetInteger64v;
+extern PFNGLGETSYNCIVPROC				glGetSynciv;
+
+// GL_APPLE_flush_buffer_range
+extern PFNGLBUFFERPARAMETERIAPPLEPROC	glBufferParameteriAPPLE;
+extern PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC glFlushMappedBufferRangeAPPLE;
+
 // GL_ARB_map_buffer_range
 extern PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;
 extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC	glFlushMappedBufferRange;
@@ -310,6 +323,19 @@ extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
 
+// GL_ARB_sync
+extern PFNGLFENCESYNCPROC				glFenceSync;
+extern PFNGLISSYNCPROC					glIsSync;
+extern PFNGLDELETESYNCPROC				glDeleteSync;
+extern PFNGLCLIENTWAITSYNCPROC			glClientWaitSync;
+extern PFNGLWAITSYNCPROC				glWaitSync;
+extern PFNGLGETINTEGER64VPROC			glGetInteger64v;
+extern PFNGLGETSYNCIVPROC				glGetSynciv;
+
+// GL_APPLE_flush_buffer_range
+extern PFNGLBUFFERPARAMETERIAPPLEPROC	glBufferParameteriAPPLE;
+extern PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC glFlushMappedBufferRangeAPPLE;
+
 // GL_ARB_map_buffer_range
 extern PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;
 extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC	glFlushMappedBufferRange;
@@ -518,6 +544,19 @@ extern PFNGLMAPBUFFERARBPROC		glMapBufferARB;
 extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
+
+// GL_ARB_sync
+extern PFNGLFENCESYNCPROC				glFenceSync;
+extern PFNGLISSYNCPROC					glIsSync;
+extern PFNGLDELETESYNCPROC				glDeleteSync;
+extern PFNGLCLIENTWAITSYNCPROC			glClientWaitSync;
+extern PFNGLWAITSYNCPROC				glWaitSync;
+extern PFNGLGETINTEGER64VPROC			glGetInteger64v;
+extern PFNGLGETSYNCIVPROC				glGetSynciv;
+
+// GL_APPLE_flush_buffer_range
+extern PFNGLBUFFERPARAMETERIAPPLEPROC	glBufferParameteriAPPLE;
+extern PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC glFlushMappedBufferRangeAPPLE;
 
 // GL_ARB_map_buffer_range
 extern PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;

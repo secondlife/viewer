@@ -35,7 +35,7 @@ find_path(LLQTWEBKIT_INCLUDE_DIR llqtwebkit.h NO_SYSTEM_ENVIRONMENT_PATH HINTS $
 
 find_library(LLQTWEBKIT_LIBRARY NAMES llqtwebkit NO_SYSTEM_ENVIRONMENT_PATH HINTS ${LLQTWEBKIT_LIBRARY_DIRS})
 
-if (NOT PKG_CONFIG_FOUND OR NOT LLQTWEBKIT_FOUND)	# If pkg-config couldn't find it, pretend we don't have pkg-config.
+if (NOT PKG_CONFIG_FOUND OR NOT LLQTWEBKIT_FOUND)   # If pkg-config couldn't find it, pretend we don't have pkg-config.
    set(LLQTWEBKIT_LIBRARIES llqtwebkit)
    get_filename_component(LLQTWEBKIT_LIBRARY_DIRS ${LLQTWEBKIT_LIBRARY} PATH)
 endif (NOT PKG_CONFIG_FOUND OR NOT LLQTWEBKIT_FOUND)

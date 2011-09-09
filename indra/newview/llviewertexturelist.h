@@ -121,8 +121,8 @@ private:
 	void addImage(LLViewerFetchedTexture *image);
 	void deleteImage(LLViewerFetchedTexture *image);
 
-	void addImageToList(LLViewerFetchedTexture *image, U32 thread_id = LLThread::currentID());
-	void removeImageFromList(LLViewerFetchedTexture *image, U32 thread_id = LLThread::currentID());
+	void addImageToList(LLViewerFetchedTexture *image);
+	void removeImageFromList(LLViewerFetchedTexture *image);
 
 	LLViewerFetchedTexture * getImage(const LLUUID &image_id,									 
 									 BOOL usemipmap = TRUE,
@@ -208,9 +208,6 @@ public:
 private:
 	static S32 sNumImages;
 	static void (*sUUIDCallback)(void**, const LLUUID &);
-
-	//debug use
-	static U32 sRenderThreadID;
 };
 
 class LLUIImageList : public LLImageProviderInterface, public LLSingleton<LLUIImageList>

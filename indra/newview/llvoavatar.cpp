@@ -1123,14 +1123,20 @@ void LLVOAvatar::initClass()
 	// Process XML data
 
 	// avatar_skeleton.xml
-	llassert(!sAvatarSkeletonInfo);
+	if (sAvatarSkeletonInfo)
+	{ //this can happen if a login attempt failed
+		delete sAvatarSkeletonInfo;
+	}
 	sAvatarSkeletonInfo = new LLVOAvatarSkeletonInfo;
 	if (!sAvatarSkeletonInfo->parseXml(sSkeletonXMLTree.getRoot()))
 	{
 		llerrs << "Error parsing skeleton XML file: " << skeleton_path << llendl;
 	}
 	// parse avatar_lad.xml
-	llassert(!sAvatarXmlInfo);
+	if (sAvatarXmlInfo)
+	{ //this can happen if a login attempt failed
+		deleteAndClear(sAvatarXmlInfo);
+	}
 	sAvatarXmlInfo = new LLVOAvatarXmlInfo;
 	if (!sAvatarXmlInfo->parseXmlSkeletonNode(root))
 	{
@@ -4219,7 +4225,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		bool should_alpha_mask = shouldAlphaMask();
 		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
 		
-		if (should_alpha_mask)
+		if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
 		{
 			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 		}
@@ -4248,7 +4254,10 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			}
 		}
 
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		}
 
 		if (!LLDrawPoolAvatar::sSkipTransparent || LLPipeline::sImpostorRender)
 		{
@@ -4331,7 +4340,7 @@ U32 LLVOAvatar::renderRigid()
 	bool should_alpha_mask = shouldAlphaMask();
 	LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
 
-	if (should_alpha_mask)
+	if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 	}
@@ -4342,7 +4351,10 @@ U32 LLVOAvatar::renderRigid()
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_RIGHT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 	}
 
-	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
+	{
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	}
 	
 	return num_indices;
 }
@@ -7270,9 +7282,9 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			llinfos << "Re-requesting AvatarAppearance for object: "  << getID() << llendl;
 			LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
 			mRuthTimer.reset();
-	}
-	else
-	{
+		}
+		else
+		{
 			llinfos << "That's okay, we already have a non-default shape for object: "  << getID() << llendl;
 			// we don't really care.
 		}
@@ -7494,8 +7506,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 // static
 void LLVOAvatar::dumpArchetypeXML( void* )
 {
-	LLAPRFile outfile;
-	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"new archetype.xml"), LL_APR_WB );
+	LLAPRFile outfile(gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER, "new archetype.xml"), LL_APR_WB);
 	apr_file_t* file = outfile.getFileHandle() ;
 	if (!file)
 	{
@@ -8242,6 +8253,8 @@ U32 LLVOAvatar::getPartitionType() const
 //static
 void LLVOAvatar::updateImpostors() 
 {
+	LLCharacter::sAllowInstancesChange = FALSE ;
+
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
@@ -8251,6 +8264,8 @@ void LLVOAvatar::updateImpostors()
 			gPipeline.generateImpostor(avatar);
 		}
 	}
+
+	LLCharacter::sAllowInstancesChange = TRUE ;
 }
 
 BOOL LLVOAvatar::isImpostor() const

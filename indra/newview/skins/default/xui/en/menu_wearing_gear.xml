@@ -20,4 +20,11 @@
          function="Gear.OnEnable"
          parameter="take_off" />
     </menu_item_call>
+    <menu_item_call
+     label="Copy outfit list to clipboard"
+     layout="topleft"
+     name="copy">
+        <on_click
+         function="Gear.Copy" />
+    </menu_item_call>
 </toggleable_menu>

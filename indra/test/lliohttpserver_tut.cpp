@@ -104,11 +104,8 @@ namespace tut
 			LLPipeStringInjector* injector = new LLPipeStringInjector(httpRequest);
 			LLPipeStringExtractor* extractor = new LLPipeStringExtractor();
 			
-			apr_pool_t* pool;
-			apr_pool_create(&pool, NULL);
-
 			LLPumpIO* pump;
-			pump = new LLPumpIO(pool);
+			pump = new LLPumpIO();
 
 			LLPumpIO::chain_t chain;
 			LLSD context;
@@ -131,7 +128,6 @@ namespace tut
 
 			chain.clear();
 			delete pump;
-			apr_pool_destroy(pool);
 
 			if(mResponse.notNull() && timeout)
 			{

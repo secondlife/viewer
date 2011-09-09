@@ -385,7 +385,7 @@
 		height="18"
 		image_name="Move_Walk_Off"
 		layout="topleft"
-    left_pad="170" 
+		left_pad="170" 
 		name="avatar_icon"
 		mouse_opaque="false"
 		visible="true"
@@ -496,8 +496,8 @@
     filename="panel_sound_devices.xml"
      visiblity_control="ShowDeviceSettings"
      name="device_settings_panel"
-    top="314"
-    width="345"
+    top_pad="0"
+    width="480"
     left="18"
     class="panel_voice_device_settings"/>
     </panel>

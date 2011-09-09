@@ -195,12 +195,13 @@ static LLVivoxVoiceClientFriendsObserver *friendslist_listener = NULL;
 class LLVivoxVoiceClientCapResponder : public LLHTTPClient::Responder
 {
 public:
-	LLVivoxVoiceClientCapResponder(void){};
+	LLVivoxVoiceClientCapResponder(LLVivoxVoiceClient::state requesting_state) : mRequestingState(requesting_state) {};
 
 	virtual void error(U32 status, const std::string& reason);	// called with bad status codes
 	virtual void result(const LLSD& content);
 
 private:
+	LLVivoxVoiceClient::state mRequestingState;  // state 
 };
 
 void LLVivoxVoiceClientCapResponder::error(U32 status, const std::string& reason)
@@ -208,6 +209,7 @@ void LLVivoxVoiceClientCapResponder::error(U32 status, const std::string& reason
 	LL_WARNS("Voice") << "LLVivoxVoiceClientCapResponder::error("
 		<< status << ": " << reason << ")"
 		<< LL_ENDL;
+	LLVivoxVoiceClient::getInstance()->sessionTerminate();
 }
 
 void LLVivoxVoiceClientCapResponder::result(const LLSD& content)
@@ -216,12 +218,12 @@ void LLVivoxVoiceClientCapResponder::result(const LLSD& content)
 	
 	LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest response:" << ll_pretty_print_sd(content) << LL_ENDL;
 
+	std::string uri;
+	std::string credentials;
+	
 	if ( content.has("voice_credentials") )
 	{
 		LLSD voice_credentials = content["voice_credentials"];
-		std::string uri;
-		std::string credentials;
-
 		if ( voice_credentials.has("channel_uri") )
 		{
 			uri = voice_credentials["channel_uri"].asString();
@@ -231,7 +233,12 @@ void LLVivoxVoiceClientCapResponder::result(const LLSD& content)
 			credentials =
 				voice_credentials["channel_credentials"].asString();
 		}
-
+	}
+	
+	// set the spatial channel.  If no voice credentials or uri are 
+	// available, then we simply drop out of voice spatially.
+	if(LLVivoxVoiceClient::getInstance()->parcelVoiceInfoReceived(mRequestingState))
+	{
 		LLVivoxVoiceClient::getInstance()->setSpatialChannel(uri, credentials);
 	}
 }
@@ -551,18 +558,27 @@ void LLVivoxVoiceClient::userAuthorized(const std::string& user_id, const LLUUID
 
 void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 {
-	if ( gAgent.getRegion() && mVoiceEnabled )
+	LLViewerRegion *region = gAgent.getRegion();
+	
+	if ( region && mVoiceEnabled )
 	{
 		std::string url = 
-			gAgent.getRegion()->getCapability(
-				"ProvisionVoiceAccountRequest");
-
-		if ( url == "" ) return;
-
+		region->getCapability("ProvisionVoiceAccountRequest");
+		
+		if ( url.empty() ) 
+		{
+			// we've not received the capability yet, so return.
+			// the password will remain empty, so we'll remain in
+			// stateIdle
+			return;
+		}
+		
 		LLHTTPClient::post(
-			url,
-			LLSD(),
-			new LLVivoxVoiceAccountProvisionResponder(retries));
+						   url,
+						   LLSD(),
+						   new LLVivoxVoiceAccountProvisionResponder(retries));
+		
+		setState(stateConnectorStart);		
 	}
 }
 
@@ -673,7 +689,8 @@ std::string LLVivoxVoiceClient::state2string(LLVivoxVoiceClient::state inState)
 		CASE(stateVoiceFontsWait);
 		CASE(stateVoiceFontsReceived);
 		CASE(stateCreatingSessionGroup);
-		CASE(stateNoChannel);
+		CASE(stateNoChannel);		
+		CASE(stateRetrievingParcelVoiceInfo);
 		CASE(stateJoiningSession);
 		CASE(stateSessionJoined);
 		CASE(stateRunning);
@@ -741,42 +758,6 @@ void LLVivoxVoiceClient::stateMachine()
 		}
 	}
 	
-	// Check for parcel boundary crossing
-	{
-		LLViewerRegion *region = gAgent.getRegion();
-		LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-		
-		if(region && parcel)
-		{
-			S32 parcelLocalID = parcel->getLocalID();
-			std::string regionName = region->getName();
-			std::string capURI = region->getCapability("ParcelVoiceInfoRequest");
-		
-//			LL_DEBUGS("Voice") << "Region name = \"" << regionName << "\", parcel local ID = " << parcelLocalID << ", cap URI = \"" << capURI << "\"" << LL_ENDL;
-
-			// The region name starts out empty and gets filled in later.  
-			// Also, the cap gets filled in a short time after the region cross, but a little too late for our purposes.
-			// If either is empty, wait for the next time around.
-			if(!regionName.empty())
-			{
-				if(!capURI.empty())
-				{
-					if((parcelLocalID != mCurrentParcelLocalID) || (regionName != mCurrentRegionName))
-					{
-						// We have changed parcels.  Initiate a parcel channel lookup.
-						mCurrentParcelLocalID = parcelLocalID;
-						mCurrentRegionName = regionName;
-						
-						parcelChanged();
-					}
-				}
-				else
-				{
-					LL_WARNS_ONCE("Voice") << "region doesn't have ParcelVoiceInfoRequest capability.  This is normal for a short time after teleporting, but bad if it persists for very long." << LL_ENDL;
-				}
-			}
-		}
-	}
 
 	switch(getState())
 	{
@@ -961,7 +942,7 @@ void LLVivoxVoiceClient::stateMachine()
 
 				if(!mSocket)
 				{
-					mSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);	
+					mSocket = LLSocket::create(LLSocket::STREAM_TCP);	
 				}
 				
 				mConnected = mSocket->blockingConnect(mDaemonHost);
@@ -1026,22 +1007,9 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 			else if(!mAccountName.empty())
 			{
-				LLViewerRegion *region = gAgent.getRegion();
-				
-				if(region)
+				if ( mAccountPassword.empty() )
 				{
-					if ( region->getCapability("ProvisionVoiceAccountRequest") != "" )
-					{
-						if ( mAccountPassword.empty() )
-						{
-							requestVoiceAccountProvision();
-						}
-						setState(stateConnectorStart);
-					}
-					else
-					{
-						LL_WARNS_ONCE("Voice") << "region doesn't have ProvisionVoiceAccountRequest capability!" << LL_ENDL;
-					}
+					requestVoiceAccountProvision();
 				}
 			}
 		break;
@@ -1382,11 +1350,7 @@ void LLVivoxVoiceClient::stateMachine()
 			setState(stateCreatingSessionGroup);
 			sessionGroupCreateSendMessage();
 #else
-			// Not using session groups -- skip the stateCreatingSessionGroup state.
-			setState(stateNoChannel);
-
-			// Initial kick-off of channel lookup logic
-			parcelChanged();		
+			setState(stateNoChannel);				
 #endif
 		break;
 		
@@ -1399,19 +1363,29 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 			else if(!mMainSessionGroupHandle.empty())
 			{
-				setState(stateNoChannel);
-				
 				// Start looped recording (needed for "panic button" anti-griefing tool)
 				recordingLoopStart();
-
-				// Initial kick-off of channel lookup logic
-				parcelChanged();		
+				setState(stateNoChannel);	
 			}
 		break;
+			
+		//MARK: stateRetrievingParcelVoiceInfo
+		case stateRetrievingParcelVoiceInfo: 
+			// wait until parcel voice info is received.
+			if(mSessionTerminateRequested || !mVoiceEnabled)
+			{
+				// if a terminate request has been received,
+				// bail and go to the stateSessionTerminated
+				// state.  If the cap request is still pending,
+				// the responder will check to see if we've moved
+				// to a new session and won't change any state.
+				setState(stateSessionTerminated);
+			}
+			break;
+			
 					
 		//MARK: stateNoChannel
 		case stateNoChannel:
-			
 			LL_DEBUGS("Voice") << "State No Channel" << LL_ENDL;
 			mSpatialJoiningNum = 0;
 			// Do this here as well as inside sendPositionalUpdate().  
@@ -1431,6 +1405,16 @@ void LLVivoxVoiceClient::stateMachine()
 			else if(mCaptureBufferMode)
 			{
 				setState(stateCaptureBufferPaused);
+			}
+			else if(checkParcelChanged() || (mNextAudioSession == NULL))
+			{
+				// the parcel is changed, or we have no pending audio sessions,
+				// so try to request the parcel voice info
+				// if we have the cap, we move to the appropriate state
+				if(requestParcelVoiceInfo())
+				{
+					setState(stateRetrievingParcelVoiceInfo);
+				}
 			}
 			else if(sessionNeedsRelog(mNextAudioSession))
 			{
@@ -1466,32 +1450,28 @@ void LLVivoxVoiceClient::stateMachine()
 				notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINING);
 				setState(stateJoiningSession);
 			}
-			else if(!mSpatialSessionURI.empty())
-			{
-				// If we're not headed elsewhere and have a spatial URI, return to spatial.
-				switchChannel(mSpatialSessionURI, true, false, false, mSpatialSessionCredentials);
-			}
 		break;
-
+			
 		//MARK: stateJoiningSession
 		case stateJoiningSession:		// waiting for session handle
-		  
-		  // If this is true we have problem with connection to voice server (EXT-4313).
-		  // See descriptions of mSpatialJoiningNum and MAX_NORMAL_JOINING_SPATIAL_NUM.
-		  if(mSpatialJoiningNum == MAX_NORMAL_JOINING_SPATIAL_NUM) 
+			
+			// If this is true we have problem with connection to voice server (EXT-4313).
+			// See descriptions of mSpatialJoiningNum and MAX_NORMAL_JOINING_SPATIAL_NUM.
+			if(mSpatialJoiningNum == MAX_NORMAL_JOINING_SPATIAL_NUM) 
 		    {
-		      // Notify observers to let them know there is problem with voice
-		      notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED);
-		      llwarns << "There seems to be problem with connection to voice server. Disabling voice chat abilities." << llendl;
+				// Notify observers to let them know there is problem with voice
+				notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED);
+				llwarns << "There seems to be problem with connection to voice server. Disabling voice chat abilities." << llendl;
 		    }
-		  
-		  // Increase mSpatialJoiningNum only for spatial sessions- it's normal to reach this case for
-		  // example for p2p many times while waiting for response, so it can't be used to detect errors
-		  if(mAudioSession && mAudioSession->mIsSpatial)
+			
+			// Increase mSpatialJoiningNum only for spatial sessions- it's normal to reach this case for
+			// example for p2p many times while waiting for response, so it can't be used to detect errors
+			if(mAudioSession && mAudioSession->mIsSpatial)
 		    {
-		      mSpatialJoiningNum++;
+				
+				mSpatialJoiningNum++;
 		    }
-      
+			
 			// joinedAudioSession() will transition from here to stateSessionJoined.
 			if(!mVoiceEnabled)
 			{
@@ -1511,12 +1491,13 @@ void LLVivoxVoiceClient::stateMachine()
 					}
 				}
 			}
-		break;
-		
+			break;
+			
 		//MARK: stateSessionJoined
 		case stateSessionJoined:		// session handle received
 
-		  mSpatialJoiningNum = 0;
+
+			mSpatialJoiningNum = 0;
 			// It appears that I need to wait for BOTH the SessionGroup.AddSession response and the SessionStateChangeEvent with state 4
 			// before continuing from this state.  They can happen in either order, and if I don't wait for both, things can get stuck.
 			// For now, the SessionGroup.AddSession response handler sets mSessionHandle and the SessionStateChangeEvent handler transitions to stateSessionJoined.
@@ -1553,7 +1534,7 @@ void LLVivoxVoiceClient::stateMachine()
 					sessionMediaDisconnectSendMessage(mAudioSession);
 					setState(stateSessionTerminated);
 				}
-			}
+			}	
 		break;
 		
 		//MARK: stateRunning
@@ -1565,6 +1546,7 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 			else
 			{
+				
 				if(!inSpatialChannel())
 				{
 					// When in a non-spatial channel, never send positional updates.
@@ -1572,8 +1554,22 @@ void LLVivoxVoiceClient::stateMachine()
 				}
 				else
 				{
+					if(checkParcelChanged())
+					{
+						// if the parcel has changed, attempted to request the
+						// cap for the parcel voice info.  If we can't request it
+						// then we don't have the cap URL so we do nothing and will
+						// recheck next time around
+						if(requestParcelVoiceInfo())
+						{
+							// we did get the cap, and we made the request,
+							// so go wait for the response.
+							setState(stateRetrievingParcelVoiceInfo);
+						}
+					}
 					// Do the calculation that enforces the listener<->speaker tether (and also updates the real camera position)
 					enforceTether();
+					
 				}
 				
 				// Do notifications for expiring Voice Fonts.
@@ -3840,7 +3836,7 @@ void LLVivoxVoiceClient::participantUpdatedEvent(
 
 					// also initialize voice moderate_mode depend on Agent's participant. See EXT-6937.
 					// *TODO: remove once a way to request the current voice channel moderation mode is implemented.
-					if (gAgentID == participant->mAvatarID)
+					if (gAgent.getID() == participant->mAvatarID)
 					{
 						speaker_manager->initVoiceModerateMode();
 					}
@@ -4073,7 +4069,7 @@ void LLVivoxVoiceClient::messageEvent(
 				}
 				
 				LL_DEBUGS("Voice") << "adding message, name " << session->mName << " session " << session->mIMSessionID << ", target " << session->mCallerID << LL_ENDL;
-				gIMMgr->addMessage(session->mIMSessionID,
+				LLIMMgr::getInstance()->addMessage(session->mIMSessionID,
 						session->mCallerID,
 						session->mName.c_str(),
 						message.c_str(),
@@ -4447,24 +4443,91 @@ LLVivoxVoiceClient::participantState* LLVivoxVoiceClient::findParticipantByID(co
 }
 
 
-void LLVivoxVoiceClient::parcelChanged()
-{
-	if(getState() >= stateNoChannel)
-	{
-		// If the user is logged in, start a channel lookup.
-		LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
 
-		std::string url = gAgent.getRegion()->getCapability("ParcelVoiceInfoRequest");
-		LLSD data;
-		LLHTTPClient::post(
-			url,
-			data,
-			new LLVivoxVoiceClientCapResponder);
+// Check for parcel boundary crossing
+bool LLVivoxVoiceClient::checkParcelChanged(bool update)
+{
+	LLViewerRegion *region = gAgent.getRegion();
+	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	
+	if(region && parcel)
+	{
+		S32 parcelLocalID = parcel->getLocalID();
+		std::string regionName = region->getName();
+		
+		//			LL_DEBUGS("Voice") << "Region name = \"" << regionName << "\", parcel local ID = " << parcelLocalID << ", cap URI = \"" << capURI << "\"" << LL_ENDL;
+		
+		// The region name starts out empty and gets filled in later.  
+		// Also, the cap gets filled in a short time after the region cross, but a little too late for our purposes.
+		// If either is empty, wait for the next time around.
+		if(!regionName.empty())
+		{
+			if((parcelLocalID != mCurrentParcelLocalID) || (regionName != mCurrentRegionName))
+			{
+				// We have changed parcels.  Initiate a parcel channel lookup.
+				if (update)
+				{
+					mCurrentParcelLocalID = parcelLocalID;
+					mCurrentRegionName = regionName;
+				}
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool LLVivoxVoiceClient::parcelVoiceInfoReceived(state requesting_state)
+{
+	// pop back to the state we were in when the parcel changed and we managed to 
+	// do the request.
+	if(getState() == stateRetrievingParcelVoiceInfo)
+	{
+		setState(requesting_state);
+		return true;
 	}
 	else
 	{
-		// The transition to stateNoChannel needs to kick this off again.
-		LL_INFOS("Voice") << "not logged in yet, deferring" << LL_ENDL;
+		// we've dropped out of stateRetrievingParcelVoiceInfo
+		// before we received the cap result, due to a terminate
+		// or transition to a non-voice channel.  Don't switch channels.
+		return false;
+	}
+}
+
+
+bool LLVivoxVoiceClient::requestParcelVoiceInfo()
+{
+	LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
+
+	// grab the cap for parcel voice info from the region.  
+	LLViewerRegion * region = gAgent.getRegion();
+	if (region == NULL)
+	{
+		return false;
+	}
+	// grab the cap.
+	std::string url = gAgent.getRegion()->getCapability("ParcelVoiceInfoRequest");
+	if (!url.empty())
+	{
+		// if we've already retrieved the cap from the region, go ahead and make the request,
+		// and return true so we can go into the state that waits for the response.
+		checkParcelChanged(true);
+		LLSD data;
+		LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
+		
+		LLHTTPClient::post(
+						   url,
+						   data,
+						   new LLVivoxVoiceClientCapResponder(getState()));
+		return true;
+	}
+	else 
+	{
+		
+		// we don't have the cap yet, so return false so the caller can try again later.
+		LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest cap not yet available, deferring" << LL_ENDL;
+		return false;
 	}
 }
 
@@ -4488,6 +4551,7 @@ void LLVivoxVoiceClient::switchChannel(
 		case stateJoinSessionFailed:
 		case stateJoinSessionFailedWaiting:
 		case stateNoChannel:
+		case stateRetrievingParcelVoiceInfo:
 			// Always switch to the new URI from these states.
 			needsSwitch = true;
 		break;
@@ -4560,13 +4624,10 @@ void LLVivoxVoiceClient::switchChannel(
 			mNextAudioSession->mIsP2P = is_p2p;
 		}
 		
-		if(getState() <= stateNoChannel)
+		if(getState() >= stateRetrievingParcelVoiceInfo)
 		{
-			// We're already set up to join a channel, just needed to fill in the session URI
-		}
-		else
-		{
-			// State machine will come around and rejoin if uri/handle is not empty.
+			// If we're already in a channel, or if we're joining one, terminate
+			// so we can rejoin with the new session data.
 			sessionTerminate();
 		}
 	}
@@ -6267,13 +6328,13 @@ void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string 
 			{
 				session->mTextInvitePending = false;
 
-				// We don't need to call gIMMgr->addP2PSession() here.  The first incoming message will create the panel.				
+				// We don't need to call LLIMMgr::getInstance()->addP2PSession() here.  The first incoming message will create the panel.				
 			}
 			if(session->mVoiceInvitePending)
 			{
 				session->mVoiceInvitePending = false;
 
-				gIMMgr->inviteToSession(
+				LLIMMgr::getInstance()->inviteToSession(
 										session->mIMSessionID,
 										session->mName,
 										session->mCallerID, 
@@ -6988,6 +7049,8 @@ LLVivoxProtocolParser::~LLVivoxProtocolParser()
 		XML_ParserFree(parser);
 }
 
+static LLFastTimer::DeclareTimer FTM_VIVOX_PROCESS("Vivox Process");
+
 // virtual
 LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
 													  const LLChannelDescriptors& channels,
@@ -6996,6 +7059,7 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
 													  LLSD& context,
 													  LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_VIVOX_PROCESS);
 	LLBufferStream istr(channels, buffer.get());
 	std::ostringstream ostr;
 	while (istr.good())

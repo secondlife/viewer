@@ -38,6 +38,7 @@
 #include "llviewermedia.h"
 #include "llviewertexture.h"
 #include "llviewerwindow.h"
+#include "lldebugmessagebox.h"
 #include "llweb.h"
 #include "llrender.h"
 #include "llpluginclassmedia.h"
@@ -318,6 +319,11 @@ BOOL LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
 	if (mContextMenu)
 	{
+		// hide/show debugging options
+		bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
+		mContextMenu->setItemVisible("open_webinspector", media_plugin_debugging_enabled );
+		mContextMenu->setItemVisible("debug_separator", media_plugin_debugging_enabled );
+
 		mContextMenu->show(x, y);
 		LLMenuGL::showPopup(this, mContextMenu, x, y);
 	}
@@ -384,10 +390,20 @@ void LLMediaCtrl::onFocusLost()
 //
 BOOL LLMediaCtrl::postBuild ()
 {
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registar;
+	registar.add("Open.WebInspector", boost::bind(&LLMediaCtrl::onOpenWebInspector, this));
+
 	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_media_ctrl.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChange, this, _2));
+
 	return TRUE;
+}
+
+void LLMediaCtrl::onOpenWebInspector()
+{
+	if (mMediaSource && mMediaSource->hasMedia())
+		mMediaSource->getMediaPlugin()->showWebInspector( true );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -708,6 +724,8 @@ LLPluginClassMedia* LLMediaCtrl::getMediaPlugin()
 //
 void LLMediaCtrl::draw()
 {
+	F32 alpha = getDrawContext().mAlpha;
+
 	if ( gRestoreGL == 1 )
 	{
 		LLRect r = getRect();
@@ -746,21 +764,11 @@ void LLMediaCtrl::draw()
 		}
 	}
 	
-//	if(mHidingInitialLoad)
-//	{
-//		// If we're hiding loading, don't draw at all.
-//		draw_media = false;
-//	}
-	
 	bool background_visible = isBackgroundVisible();
 	bool background_opaque = isBackgroundOpaque();
 	
 	if(draw_media)
 	{
-		// alpha off for this
-		LLGLSUIDefault gls_ui;
-		LLGLDisable gls_alphaTest( GL_ALPHA_TEST );
-
 		gGL.pushUIMatrix();
 		{
 			if (mIgnoreUIScale)
@@ -775,7 +783,8 @@ void LLMediaCtrl::draw()
 
 			// scale texture to fit the space using texture coords
 			gGL.getTexUnit(0)->bind(media_texture);
-			gGL.color4fv( LLColor4::white.mV );
+			LLColor4 media_color = LLColor4::white % alpha;
+			gGL.color4fv( media_color.mV );
 			F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();
 			F32 max_v = ( F32 )media_plugin->getHeight() / ( F32 )media_plugin->getTextureHeight();
 
@@ -827,7 +836,6 @@ void LLMediaCtrl::draw()
 			}
 
 			// draw the browser
-			gGL.setSceneBlendType(LLRender::BT_REPLACE);
 			gGL.begin( LLRender::QUADS );
 			if (! media_plugin->getTextureCoordsOpenGL())
 			{
@@ -860,7 +868,6 @@ void LLMediaCtrl::draw()
 				gGL.vertex2i( x_offset + width, y_offset );
 			}
 			gGL.end();
-			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		}
 		gGL.popUIMatrix();
 	
@@ -1073,6 +1080,12 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			mHoverTextChanged = true;
 		};
 		break;
+
+		case MEDIA_EVENT_DEBUG_MESSAGE:
+		{
+			LL_INFOS("media") << self->getDebugMessageText() << LL_ENDL; 
+		};
+		break;
 	};
 
 	// chain all events to any potential observers of this object.
@@ -1170,5 +1183,14 @@ void LLMediaCtrl::hideNotification()
 	if (mWindowShade)
 	{
 		mWindowShade->hide();
+	}
+}
+
+void LLMediaCtrl::setTrustedContent(bool trusted)
+{
+	mTrusted = trusted;
+	if (mMediaSource)
+	{
+		mMediaSource->setTrustedBrowser(trusted);
 	}
 }

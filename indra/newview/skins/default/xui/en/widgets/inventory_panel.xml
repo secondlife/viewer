@@ -3,4 +3,12 @@
   bg_opaque_color="InventoryBackgroundColor"
   background_visible="true"
   background_opaque="true"
-  />
+  show_load_status="true"
+  >
+    <scroll
+		name="Inventory Scroller"
+        follows="all"
+		reserve_scroll_corner="true"
+        tab_stop="true"
+        />
+</panel>

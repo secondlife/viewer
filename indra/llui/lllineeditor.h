@@ -76,6 +76,7 @@ public:
 		Optional<keystroke_callback_t>	keystroke_callback;
 
 		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_callback;
+		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_input_callback;
 		
 		Optional<LLViewBorder::Params>	border;
 
@@ -220,6 +221,7 @@ public:
 	void			deleteSelection();
 
 	void			setSelectAllonFocusReceived(BOOL b);
+	void			setSelectAllonCommit(BOOL b) { mSelectAllonCommit = b; }
 	
 	typedef boost::function<void (LLLineEditor* caller, void* user_data)> callback_t;
 	void			setKeystrokeCallback(callback_t callback, void* user_data);
@@ -232,7 +234,15 @@ public:
 
 	// Prevalidation controls which keystrokes can affect the editor
 	void			setPrevalidate( LLTextValidate::validate_func_t func );
+	// This method sets callback that prevents from:
+	// - deleting, selecting, typing, cutting, pasting characters that are not valid.
+	// Also callback that this method sets differs from setPrevalidate in a way that it validates just inputed
+	// symbols, before existing text is modified, but setPrevalidate validates line after it was modified.
+	void			setPrevalidateInput(LLTextValidate::validate_func_t func);
 	static BOOL		postvalidateFloat(const std::string &str);
+
+	bool			prevalidateInput(const LLWString& wstr);
+	BOOL			evaluateFloat();
 
 	// line history support:
 	void			setEnableLineHistory( BOOL enabled ) { mHaveHistory = enabled; } // switches line history on or off 
@@ -251,6 +261,7 @@ private:
 	void			addChar(const llwchar c);
 	void			setCursorAtLocalPos(S32 local_mouse_x);
 	S32				findPixelNearestPos(S32 cursor_offset = 0) const;
+	S32				calcCursorPos(S32 mouse_x);
 	BOOL			handleSpecialKey(KEY key, MASK mask);
 	BOOL			handleSelectionKey(KEY key, MASK mask);
 	BOOL			handleControlKey(KEY key, MASK mask);
@@ -312,6 +323,7 @@ protected:
 	S32			mLastSelectionEnd;
 
 	LLTextValidate::validate_func_t mPrevalidateFunc;
+	LLTextValidate::validate_func_t mPrevalidateInputFunc;
 
 	LLFrameTimer mKeystrokeTimer;
 	LLTimer		mTripleClickTimer;
@@ -330,6 +342,7 @@ protected:
 	BOOL		mDrawAsterixes;
 
 	BOOL		mSelectAllonFocusReceived;
+	BOOL		mSelectAllonCommit;
 	BOOL		mPassDelete;
 
 	BOOL		mReadOnly;

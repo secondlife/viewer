@@ -1022,7 +1022,7 @@ void	LLAccordionCtrlTab::updateLayout	( const LLRect& child_rect )
 	S32 panel_width = child_rect.getWidth();
 
 	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
-	if(mScrollbar->getVisible() != false)
+	if(mScrollbar && mScrollbar->getVisible() != false)
 	{
 		panel_top+=mScrollbar->getDocPos();
 		panel_width-=scrollbar_size;

@@ -91,6 +91,8 @@ private:
 	LLTextBox*			mScriptsText;
 	LLIconCtrl*			mDamageIcon;
 	LLTextBox*			mDamageText;
+	LLIconCtrl*			mSeeAVsIcon;
+	LLTextBox*			mSeeAVsText;
 
 	LLTextBox*			mRegionNameText;
 	LLTextBox*			mRegionTypeText;

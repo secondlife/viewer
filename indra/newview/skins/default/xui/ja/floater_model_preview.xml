@@ -3,6 +3,9 @@
 	<string name="status_idle">
 		待機状態
 	</string>
+	<string name="status_parse_error">
+		Dae に問題が見つかりました - 詳細についてはログをご参照ください。
+	</string>
 	<string name="status_reading_file">
 		ローディング...
 	</string>
@@ -11,6 +14,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		エラー：頂点の数が65534を超過したので中止されました。
+	</string>
+	<string name="bad_element">
+		エラー：要素が無効です
 	</string>
 	<string name="high">
 		高
@@ -54,6 +60,9 @@
 	<string name="simplifying">
 		単純化
 	</string>
+	<string name="tbd">
+		未定
+	</string>
 	<text name="name_label">
 		名前：
 	</text>
@@ -74,23 +83,26 @@
 			描画詳細度：最低
 		</combo_item>
 	</combo_box>
-	<panel>
-		<text name="streaming cost">
-			リソース料金： [COST]
-		</text>
-		<text name="physics cost">
-			物理効果料金： [COST]
-		</text>
-		<text name="upload fee">
-			アップロード手数料：該当なし
-		</text>
-	</panel>
-	<text name="status">
-		[STATUS]
+	<text name="warning_title">
+		警告：
 	</text>
-	<button label="デフォルト" name="reset_btn" tool_tip="デフォルトにリセット"/>
-	<button label="アップロード" name="ok_btn" tool_tip="シミュレーターにアップロード"/>
-	<button label="取り消し" name="cancel_btn"/>
+	<text name="warning_message">
+		このモデルを Second Life サーバーにアップロードすることはできません。メッシュモデルのアップロード手順については [[VURL] こちらを参照してください]。
+	</text>
+	<text name="weights_text">
+		ダウンロード：
+物理演算：
+サーバー負荷：
+
+プリム換算：
+	</text>
+	<text name="weights">
+		[ST]
+[PH]
+[SIM]
+
+[EQ]
+	</text>
 	<tab_container name="import_tab">
 		<panel label="描画詳細度" name="lod_panel">
 			<text name="lod_table_header">
@@ -228,4 +240,11 @@
 			<spinner name="pelvis_offset" value="0.0"/>
 		</panel>
 	</tab_container>
+	<text name="upload_fee">
+		アップロード料金：L$ [FEE]
+	</text>
+	<button label="デフォルトに設定" name="reset_btn" tool_tip="デフォルトに設定"/>
+	<button label="ウェイトと料金の計算" name="calculate_btn" tool_tip="ウェイトと料金の計算"/>
+	<button label="アップロード" name="ok_btn" tool_tip="シミュレーターにアップロード"/>
+	<button label="取り消し" name="cancel_btn"/>
 </floater>

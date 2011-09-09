@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<inbox_folder_view_folder
+  folder_arrow_image="Folder_Arrow"
+  folder_indentation="8"
+  item_height="20" 
+  item_top_pad="4"
+  selection_image="Rounded_Square"
+  >
+	<new_badge 
+        label="New" 
+        label_offset_horiz="-1"
+        location="right" 
+        padding_horiz="4" 
+        padding_vert="1" 
+        location_percent_hcenter="70"
+        border_image=""
+        image="Badge_Background_New"
+        />
+</inbox_folder_view_folder>

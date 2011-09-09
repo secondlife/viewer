@@ -171,7 +171,10 @@ if (LINUX)
     add_definitions(-fvisibility=hidden)
     # don't catch SIGCHLD in our base application class for the viewer - some of our 3rd party libs may need their *own* SIGCHLD handler to work.  Sigh!  The viewer doesn't need to catch SIGCHLD anyway.
     add_definitions(-DLL_IGNORE_SIGCHLD)
-    add_definitions(-march=pentium4 -mfpmath=sse)
+    if (WORD_SIZE EQUAL 32)
+      add_definitions(-march=pentium4)
+    endif (WORD_SIZE EQUAL 32)
+    add_definitions(-mfpmath=sse)
     #add_definitions(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
     if (NOT STANDALONE)
       # this stops us requiring a really recent glibc at runtime

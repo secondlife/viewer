@@ -60,6 +60,7 @@ public:
 	// might be in another parcel. for now, we simply test axis aligned 
 	// bounding boxes which isn't perfect, but is close
 	bool encroachesOwned(const std::vector<LLBBox>& boxes) const;
+	bool encroachesOnUnowned(const std::vector<LLBBox>& boxes) const;
 	
 	BOOL			isSoundLocal(const LLVector3& pos) const;
 

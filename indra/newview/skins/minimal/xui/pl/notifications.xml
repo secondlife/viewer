@@ -2384,7 +2384,7 @@ Spróbuj ponowanie za kilka minut.
 		Nieważana posiadłość.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Obiekt o nazwie &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, którego właścicielem jest [NAME_SLURL] oferuje Tobie [ITEM_SLURL].  Korzystanie z tego obieku wymaga przelączenia się na tryb zaawansowany, w którym będzie można odszukać obiekt w Twojej Szafie. W celu przełączenia trybu życia na zaawansowany, zamknij i uruchom ponownie aplikację. Przed ponownym zalogowaniem zmień tryb życia na ekranie logowania.
+		Obiekt o nazwie &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, którego właścicielem jest [NAME_SLURL] oferuje Tobie &lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;.  Korzystanie z tego obieku wymaga przelączenia się na tryb zaawansowany, w którym będzie można odszukać obiekt w Twojej Szafie. W celu przełączenia trybu życia na zaawansowany, zamknij i uruchom ponownie aplikację. Przed ponownym zalogowaniem zmień tryb życia na ekranie logowania.
 		<form name="form">
 			<button name="Keep" text="Zaakceptuj obiekt"/>
 			<button name="Discard" text="Odrzuć obiekt"/>

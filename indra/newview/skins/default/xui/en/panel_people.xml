@@ -110,8 +110,9 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
            <layout_panel
              height="142"
              layout="topleft"
+             min_dim="100"
              mouse_opaque="false"
-             user_resize="false"
+             user_resize="true"
              visibility_control="NearbyListShowMap"
              width="313">
              <net_map
@@ -128,9 +129,9 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
            <layout_panel
              height="213"
              layout="topleft"
-             min_height="100"
+             min_dim="100"
              mouse_opaque="false"
-             user_resize="false"
+             user_resize="true"
              width="313">
              <avatar_list
                allow_select="true"
@@ -621,7 +622,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="im_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="41">
@@ -642,7 +643,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="call_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="52">
@@ -663,7 +664,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="share_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="66">
@@ -684,7 +685,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			height="23"
 			layout="bottomleft"
 			left_pad="3"
-			name="chat_btn_lp"
+			name="teleport_btn_lp"
 		    user_resize="false" 
 		    auto_resize="true"
 			width="77">

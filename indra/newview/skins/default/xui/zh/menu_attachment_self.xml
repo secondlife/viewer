@@ -9,7 +9,7 @@
 	<menu_item_call label="編輯我的裝扮" name="Edit Outfit"/>
 	<menu_item_call label="編輯我的體形" name="Edit My Shape"/>
 	<menu_item_call label="我的朋友" name="Friends..."/>
-	<menu_item_call label="我的社團" name="Groups..."/>
+	<menu_item_call label="我的群組" name="Groups..."/>
 	<menu_item_call label="我的檔案" name="Profile..."/>
 	<menu_item_call label="材質除錯" name="Debug..."/>
 	<menu_item_call label="丟棄" name="Drop"/>

@@ -13,13 +13,13 @@
 		Cloud Cover
 	</text>
 	<text name="EnvWaterColorText">
-		Water Color
+		水色
 	</text>
 	<color_swatch name="EnvWaterColor" tool_tip="Click to open color picker"/>
 	<text name="EnvWaterFogText">
-		Water Fog
+		水霧
 	</text>
 	<button label="Use Estate Time" name="EnvUseEstateTimeButton"/>
-	<button label="Advanced Sky" name="EnvAdvancedSkyButton"/>
-	<button label="Advanced Water" name="EnvAdvancedWaterButton"/>
+	<button label="進階天空" name="EnvAdvancedSkyButton"/>
+	<button label="進階水文" name="EnvAdvancedWaterButton"/>
 </floater>

@@ -226,6 +226,11 @@ void LLParcel::init(const LLUUID &owner_id,
 
 	setPreviousOwnerID(LLUUID::null);
 	setPreviouslyGroupOwned(FALSE);
+
+	setSeeAVs(TRUE);
+	setAllowGroupAVSounds(TRUE);
+	setAllowAnyAVSounds(TRUE);
+	setHaveNewParcelLimitData(FALSE);
 }
 
 void LLParcel::overrideOwner(const LLUUID& owner_id, BOOL is_group_owned)
@@ -702,7 +707,9 @@ void LLParcel::packMessage(LLSD& msg)
 	msg["user_location"] = ll_sd_from_vector3(mUserLocation);
 	msg["user_look_at"] = ll_sd_from_vector3(mUserLookAt);
 	msg["landing_type"] = (U8)mLandingType;
-
+	msg["see_avs"] = (LLSD::Boolean) getSeeAVs();
+	msg["group_av_sounds"] = (LLSD::Boolean) getAllowGroupAVSounds();
+	msg["any_av_sounds"] = (LLSD::Boolean) getAllowAnyAVSounds();
 }
 
 
@@ -721,6 +728,24 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
     msg->getStringFast( _PREHASH_ParcelData,_PREHASH_MediaURL, buffer );
     setMediaURL(buffer);
     
+	BOOL see_avs = TRUE;			// All default to true for legacy server behavior
+	BOOL any_av_sounds = TRUE;
+	BOOL group_av_sounds = TRUE;
+	bool have_new_parcel_limit_data = (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_SeeAVs) > 0);		// New version of server should send all 3 of these values
+	have_new_parcel_limit_data &= (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_AnyAVSounds) > 0);
+	have_new_parcel_limit_data &= (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_GroupAVSounds) > 0);
+	if (have_new_parcel_limit_data)
+	{
+		msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_SeeAVs, see_avs);
+		msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_AnyAVSounds, any_av_sounds);
+		msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_GroupAVSounds, group_av_sounds);
+	}
+	setSeeAVs((bool) see_avs);
+	setAllowAnyAVSounds((bool) any_av_sounds);
+	setAllowGroupAVSounds((bool) group_av_sounds);
+
+	setHaveNewParcelLimitData(have_new_parcel_limit_data);
+
     // non-optimized version
     msg->getU8 ( "ParcelData", "MediaAutoScale", mMediaAutoScale );
     

@@ -132,6 +132,9 @@ void LLConsole::setFontSize(S32 size_index)
 
 void LLConsole::draw()
 {
+	// Units in pixels
+	static const F32 padding_horizontal = 10;
+	static const F32 padding_vertical = 3;
 	LLGLSUIDefault gls_ui;
 
 	// skip lines added more than mLinePersistTime ago
@@ -176,11 +179,9 @@ void LLConsole::draw()
 	// draw remaining lines
 	F32 y_pos = 0.f;
 
-	LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Square");
+	LLUIImagePtr imagep = LLUI::getUIImage("transparent");
 
-//	F32 console_opacity = llclamp(gSavedSettings.getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
 	F32 console_opacity = llclamp(LLUI::sSettingGroups["config"]->getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
-//	LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
 	LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
 	color.mV[VALPHA] *= console_opacity;
 
@@ -188,8 +189,8 @@ void LLConsole::draw()
 
 	for(paragraph_it = mParagraphs.rbegin(); paragraph_it != mParagraphs.rend(); paragraph_it++)
 	{
-		S32 target_height = llfloor( (*paragraph_it).mLines.size() * line_height + 8);
-		S32 target_width =  llfloor( (*paragraph_it).mMaxWidth +15);
+		S32 target_height = llfloor( (*paragraph_it).mLines.size() * line_height + padding_vertical);
+		S32 target_width =  llfloor( (*paragraph_it).mMaxWidth + padding_horizontal);
 
 		y_pos += ((*paragraph_it).mLines.size()) * line_height;
 		imagep->drawSolid(-14, (S32)(y_pos + line_height - target_height), target_width, target_height, color);
@@ -234,7 +235,7 @@ void LLConsole::draw()
 				y_off += line_height;
 			}
 		}
-		y_pos  += 8;
+		y_pos  += padding_vertical;
 	}
 }
 
@@ -371,9 +372,7 @@ LLConsole::Paragraph::Paragraph (LLWString str, const LLColor4 &color, F32 add_t
 // static
 void LLConsole::updateClass()
 {	
-	LLInstanceTrackerScopedGuard guard;
-
-	for (instance_iter it = guard.beginInstances(); it != guard.endInstances(); ++it)
+	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 	{
 		it->update();
 	} 

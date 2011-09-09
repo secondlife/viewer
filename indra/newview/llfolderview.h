@@ -59,22 +59,6 @@ class LLUICtrl;
 class LLTextBox;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLFolderViewFunctor
-//
-// Simple abstract base class for applying a functor to folders and
-// items in a folder view hierarchy. This is suboptimal for algorithms
-// that only work folders or only work on items, but I'll worry about
-// that later when it's determined to be too slow.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLFolderViewFunctor
-{
-public:
-	virtual ~LLFolderViewFunctor() {}
-	virtual void doFolder(LLFolderViewFolder* folder) = 0;
-	virtual void doItem(LLFolderViewItem* item) = 0;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFolderView
 //
 // Th LLFolderView represents the root level folder view object. It
@@ -89,7 +73,12 @@ public:
 		Mandatory<LLPanel*>	    parent_panel;
 		Optional<LLUUID>        task_id;
 		Optional<std::string>   title;
-		Optional<bool>			use_label_suffix;
+		Optional<bool>			use_label_suffix,
+								allow_multiselect,
+								show_load_status,
+								use_ellipses;
+
+		Params();
 	};
 	LLFolderView(const Params&);
 	virtual ~LLFolderView( void );
@@ -102,7 +91,6 @@ public:
 	// and resort the items if necessary.
 	void setSortOrder(U32 order);
 	void setFilterPermMask(PermissionMask filter_perm_mask);
-	void setAllowMultiSelect(BOOL allow) { mAllowMultiSelect = allow; }
 	
 	typedef boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;
 	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
@@ -117,11 +105,9 @@ public:
 	//LLInventoryFilter::EFolderShow getShowFolderState();
 	U32 getSortOrder() const;
 	BOOL isFilterModified();
-	BOOL getAllowMultiSelect();
 
 	// Close all folders in the view
 	void closeAllFolders();
-	void openFolder(const std::string& foldername);
 	void openTopLevelFolders();
 
 	virtual void toggleOpen() {};
@@ -238,7 +224,6 @@ public:
 	void setShowSingleSelection(BOOL show);
 	BOOL getShowSingleSelection() { return mShowSingleSelection; }
 	F32  getSelectionFadeElapsedTime() { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
-	void setUseEllipses(bool use_ellipses) { mUseEllipses = use_ellipses; }
 	bool getUseEllipses() { return mUseEllipses; }
 
 	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
@@ -329,6 +314,7 @@ protected:
 	signal_t						mReshapeSignal;
 	S32								mSignalSelectCallback;
 	S32								mMinWidth;
+	S32								mRunningHeight;
 	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	BOOL							mDragAndDropThisFrame;
 	

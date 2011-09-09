@@ -3,6 +3,9 @@
 	<string name="status_idle">
 		Inactif
 	</string>
+	<string name="status_parse_error">
+		Problème d&apos;analyse de fichier .dae ; reportez-vous au journal pour plus de détails.
+	</string>
 	<string name="status_reading_file">
 		Chargement...
 	</string>
@@ -11,6 +14,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		Erreur : valeur de sommet supérieure à 65534. Opération abandonnée.
+	</string>
+	<string name="bad_element">
+		Erreur : élément non valide
 	</string>
 	<string name="high">
 		Élevé
@@ -54,6 +60,9 @@
 	<string name="simplifying">
 		Simplification...
 	</string>
+	<string name="tbd">
+		TBD
+	</string>
 	<text name="name_label">
 		Nom :
 	</text>
@@ -74,23 +83,26 @@
 			Niveau de détail : Le plus faible
 		</combo_item>
 	</combo_box>
-	<panel>
-		<text name="streaming cost">
-			Coût de la ressource : [COST]
-		</text>
-		<text name="physics cost">
-			Coût des propriétés physiques : [COST]
-		</text>
-		<text name="upload fee">
-			Frais de chargement : N/A
-		</text>
-	</panel>
-	<text name="status">
-		[STATUS]
+	<text name="warning_title">
+		AVERTISSEMENT :
 	</text>
-	<button label="Valeurs par défaut" name="reset_btn" tool_tip="Rétablir les valeurs par défaut."/>
-	<button label="Charger" name="ok_btn" tool_tip="Charger dans le simulateur."/>
-	<button label="Annuler" name="cancel_btn"/>
+	<text name="warning_message">
+		Vous ne pourrez pas effectuer le chargement final du modèle sur les serveurs Second Life. [[VURL] Découvrez comment] activer le chargement des modèles de maillage.
+	</text>
+	<text name="weights_text">
+		Téléchargement :
+Propriétés physiques :
+Serveur :
+
+Équiv. en prims :
+	</text>
+	<text name="weights">
+		[ST]
+[PH]
+[SIM]
+
+[EQ]
+	</text>
 	<tab_container name="import_tab">
 		<panel label="Niveau de détail" name="lod_panel">
 			<text name="lod_table_header">
@@ -228,4 +240,11 @@
 			<spinner name="pelvis_offset" value="0.0"/>
 		</panel>
 	</tab_container>
+	<text name="upload_fee">
+		Frais de chargement : [FEE] L$
+	</text>
+	<button label="Réinitialiser" name="reset_btn" tool_tip="Rétablir les paramètres par défaut."/>
+	<button label="Calculer les poids et les frais" name="calculate_btn" tool_tip="Calculer les poids et les frais."/>
+	<button label="Charger" name="ok_btn" tool_tip="Charger dans le simulateur."/>
+	<button label="Annuler" name="cancel_btn"/>
 </floater>

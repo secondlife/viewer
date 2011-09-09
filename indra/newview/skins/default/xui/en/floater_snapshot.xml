@@ -330,13 +330,13 @@
      increment="1"
      initial_value="75"
      label="Image quality"
-     label_width="100"
+     label_width="124"
      layout="topleft"
      left_delta="0"
      max_val="100"
      name="image_quality_slider"
      top_pad="5"
-     width="205" />
+     width="228" />
     <text
      type="string"
      length="1"

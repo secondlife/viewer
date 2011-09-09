@@ -52,6 +52,8 @@ class LLTexUnit
 {
 	friend class LLRender;
 public:
+	static U32 sWhiteTexture;
+
 	typedef enum
 	{
 		TT_TEXTURE = 0,			// Standard 2D Texture
@@ -308,6 +310,7 @@ public:
 
 	LLRender();
 	~LLRender();
+	void init() ;
 	void shutdown();
 	
 	// Refreshes renderer state to the cached values

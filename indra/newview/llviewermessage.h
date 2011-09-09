@@ -57,7 +57,6 @@ enum InventoryOfferResponse
 	IOR_ACCEPT,
 	IOR_DECLINE,
 	IOR_MUTE,
-	IOR_BUSY,
 	IOR_SHOW
 };
 
@@ -203,6 +202,8 @@ void open_inventory_offer(const uuid_vec_t& items, const std::string& from_name)
 bool highlight_offered_object(const LLUUID& obj_id);
 
 void set_dad_inventory_item(LLInventoryItem* inv_item, const LLUUID& into_folder_uuid);
+void set_dad_inbox_object(const LLUUID& object_id);
+
 
 class LLOfferInfo : public LLNotificationResponderInterface
 {

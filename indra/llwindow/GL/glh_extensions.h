@@ -1,5 +1,7 @@
 /*
  *  glh_extensions.h
+ * $LicenseInfo:firstyear=2006&license=mit$ (mit used here to satisfy validity checker)
+ * Copyright (C) 2006, NVIDIA
  *  From nVidia Corporation, downloaded 2006-12-18 from:
  *  http://developer.nvidia.com/attach/8196
  *  ("NVParse Library with Source (.zip) (2390 KB)")
@@ -8,6 +10,8 @@
  *  "The files bison.exe, bison.simple, and flex.exe are covered by
  *  the GPL.  All other files in this distribution can be used however
  *  you want."
+ * $/LicenseInfo$
+
  */
 
 #ifndef GLH_EXTENSIONS

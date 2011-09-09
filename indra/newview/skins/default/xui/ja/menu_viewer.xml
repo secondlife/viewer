@@ -31,6 +31,7 @@
 		<menu_item_call label="所属グループ" name="My Groups"/>
 		<menu_item_check label="近くのチャット" name="Nearby Chat"/>
 		<menu_item_call label="近くにいる人" name="Active Speakers"/>
+		<menu_item_check label="近くのボイス" name="Nearby Voice"/>
 	</menu>
 	<menu label="世界" name="World">
 		<menu_item_check label="ミニマップ" name="Mini-Map"/>
@@ -63,8 +64,24 @@
 			<menu_item_call label="正午" name="Noon"/>
 			<menu_item_call label="日没" name="Sunset"/>
 			<menu_item_call label="深夜" name="Midnight"/>
-			<menu_item_call label="エステートタイム" name="Revert to Region Default"/>
-			<menu_item_call label="自然環境エディター" name="Environment Editor"/>
+		</menu>
+		<menu label="自然環境エディター" name="Enviroment Editor">
+			<menu_item_call label="環境の設定..." name="Enviroment Settings"/>
+			<menu label="水の事前設定" name="Water Presets">
+				<menu_item_call label="新しい事前設定..." name="new_water_preset"/>
+				<menu_item_call label="事前設定を編集..." name="edit_water_preset"/>
+				<menu_item_call label="事前設定を削除..." name="delete_water_preset"/>
+			</menu>
+			<menu label="空の事前設定" name="Sky Presets">
+				<menu_item_call label="新しい事前設定..." name="new_sky_preset"/>
+				<menu_item_call label="事前設定を編集..." name="edit_sky_preset"/>
+				<menu_item_call label="事前設定を削除..." name="delete_sky_preset"/>
+			</menu>
+			<menu label="デイの事前設定" name="Day Presets">
+				<menu_item_call label="新しい事前設定..." name="new_day_preset"/>
+				<menu_item_call label="事前設定を編集..." name="edit_day_preset"/>
+				<menu_item_call label="事前設定を削除..." name="delete_day_preset"/>
+			</menu>
 		</menu>
 	</menu>
 	<menu label="制作" name="BuildTools">
@@ -142,7 +159,6 @@
 		<menu_item_check label="カメラの距離移動を制限しない" name="Disable Camera Distance"/>
 		<menu_item_check label="高解像度スナップショット" name="HighResSnapshot"/>
 		<menu_item_check label="シャッター音とアニメーションなしでスナップショットをディスクに保存する" name="QuietSnapshotsToDisk"/>
-		<menu_item_check label="圧縮してスナップショットをディスクに保存する" name="CompressSnapshotsToDisk"/>
 		<menu label="パフォーマンスツール" name="Performance Tools">
 			<menu_item_call label="ラグ計測器" name="Lag Meter"/>
 			<menu_item_check label="統計バー" name="Statistics Bar"/>

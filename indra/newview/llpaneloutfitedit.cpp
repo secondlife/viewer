@@ -36,7 +36,7 @@
 #include "lloutfitobserver.h"
 #include "llcofwearables.h"
 #include "llfilteredwearablelist.h"
-#include "llfolderviewitem.h"
+#include "llfolderview.h"
 #include "llinventory.h"
 #include "llinventoryitemslist.h"
 #include "llviewercontrol.h"

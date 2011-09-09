@@ -35,6 +35,7 @@
 #include "lluiimage.h"
 #include "lluistring.h"
 #include "v4color.h"
+#include "llbadgeholder.h"
 #include <list>
 #include <queue>
 
@@ -51,7 +52,7 @@ class LLUIImage;
  * With or without border,
  * Can contain LLUICtrls.
  */
-class LLPanel : public LLUICtrl
+class LLPanel : public LLUICtrl, public LLBadgeHolder
 {
 public:
 	struct LocalizedString : public LLInitParam::Block<LocalizedString>
@@ -89,6 +90,8 @@ public:
 		Multiple<LocalizedString>	strings;
 		
 		Optional<CommitCallbackParam> visible_callback;
+
+		Optional<bool>			accepts_badge;
 		
 		Params();
 	};
@@ -262,6 +265,9 @@ protected:
 	std::string		mHelpTopic;         // the name of this panel's help topic to display in the Help Viewer
 	typedef std::deque<const LLCallbackMap::map_t*> factory_stack_t;
 	static factory_stack_t	sFactoryStack;
+
+	// for setting the xml filename when building panel in context dependent cases
+	std::string		mXMLFilename;
 	
 private:
 	BOOL			mBgVisible;				// any background at all?
@@ -280,8 +286,6 @@ private:
 	typedef std::map<std::string, std::string> ui_string_map_t;
 	ui_string_map_t	mUIStrings;
 
-	// for setting the xml filename when building panel in context dependent cases
-	std::string		mXMLFilename;
 
 }; // end class LLPanel
 

@@ -232,6 +232,16 @@
              function="SideTray.PanelPeopleTab"
              parameter="nearby_panel" />
             </menu_item_call>
+        <menu_item_check
+         label="Nearby Voice"
+         name="Nearby Voice">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="voice_controls" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="voice_controls" />
+        </menu_item_check>
     </menu>
     <menu
      create_jump_keys="true"
@@ -470,7 +480,7 @@
 
         <menu_item_separator/>
 
-    <menu
+        <menu
          create_jump_keys="true"
          label="Sun"
          name="Environment Settings"
@@ -505,24 +515,114 @@
                  function="World.EnvSettings"
                  parameter="midnight" />
             </menu_item_call>
-            <menu_item_call
-             label="Estate Time"
-             name="Revert to Region Default">
-                <menu_item_call.on_click
-                 function="World.EnvSettings"
-                 parameter="default" />
-            </menu_item_call>
-
-            <menu_item_separator/>
-
-            <menu_item_call
-             label="Environment Editor"
-             name="Environment Editor">
-                <menu_item_call.on_click
-                 function="World.EnvSettings"
-                 parameter="editor" />
-            </menu_item_call>
         </menu>
+	    
+   
+	    <menu
+	     create_jump_keys="true"
+	     label="Enviroment Editor"
+	     name="Enviroment Editor"
+	     tear_off="true">
+	     	
+	     	<menu_item_call
+	     	 label="Enviroment Settings..."
+	     	 name="Enviroment Settings">
+	     	 	<menu_item_call.on_click
+	     	 	 function="World.EnvSettings"
+                 parameter="editor"/>
+	     	</menu_item_call>
+	     	
+	     	<menu_item_separator/>
+	     	
+	     	<menu
+	     	 name="Water Presets"
+	     	 label="Water Presets">
+	     	 	<menu_item_call
+	     	 	 label="New preset..."
+	     	 	 name="new_water_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="new_water"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Edit preset..."
+	     	 	 name="edit_water_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="edit_water"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Delete preset..."
+	     	 	 name="delete_water_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="delete_water"/>
+	     	 	 	<menu_item_call.on_enable
+	     	 	 	function="World.EnableEnvPreset"
+	     	 	 	parameter="delete_water"/>
+	     	 	</menu_item_call>
+	     	</menu>
+	     	
+	     	<menu
+	     	 name="Sky Presets"
+	     	 label="Sky Presets">
+	     	 	<menu_item_call
+	     	 	 label="New preset..."
+	     	 	 name="new_sky_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="new_sky"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Edit preset..."
+	     	 	 name="edit_sky_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="edit_sky"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Delete preset..."
+	     	 	 name="delete_sky_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="delete_sky"/>
+	     	 	 	<menu_item_call.on_enable
+	     	 	 	function="World.EnableEnvPreset"
+	     	 	 	parameter="delete_sky"/>
+	     	 	</menu_item_call>
+	     	</menu>
+	     	
+	     	<menu
+	     	 name="Day Presets"
+	     	 label="Day Presets">
+	     	 	<menu_item_call
+	     	 	 label="New preset..."
+	     	 	 name="new_day_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="new_day_cycle"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Edit preset..."
+	     	 	 name="edit_day_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="edit_day_cycle"/>
+	     	 	</menu_item_call>
+	     	 	<menu_item_call
+	     	 	 label="Delete preset..."
+	     	 	 name="delete_day_preset">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvPreset"
+	     	 	 	parameter="delete_day_cycle"/>
+	     	 	 	<menu_item_call.on_enable
+	     	 	 	function="World.EnableEnvPreset"
+	     	 	 	parameter="delete_day_cycle"/>
+	     	 	</menu_item_call>
+	     	</menu>
+	    </menu>
+    
+    
     </menu>
     <menu
      create_jump_keys="true"
@@ -983,19 +1083,7 @@
             <menu_item_call.on_visible
             function="File.VisibleUploadModel"/>
             </menu_item_call>
-			<menu_item_call
-           label="Model Wizard..."
-           layout="topleft"
-           name="Upload Model Wizard">
-				<menu_item_call.on_click
-				 function="Floater.Show"
-				 parameter="upload_model_wizard" />
-				<menu_item_call.on_enable
-				 function="File.EnableUploadModel" />
-				<menu_item_call.on_visible
-				function="File.VisibleUploadModel"/>
-			</menu_item_call>
-            <menu_item_call
+	   <menu_item_call
              label="Bulk (L$[COST] per file)..."
              layout="topleft"
              name="Bulk Upload">
@@ -1161,16 +1249,6 @@
             <menu_item_check.on_click
              function="ToggleControl"
              parameter="QuietSnapshotsToDisk" />
-        </menu_item_check>
-        <menu_item_check
-         label="Compress Snapshots to Disk"
-         name="CompressSnapshotsToDisk">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="CompressSnapshotsToDisk" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="CompressSnapshotsToDisk" />
         </menu_item_check>
 
         <menu_item_separator/>
@@ -1997,15 +2075,14 @@
             </menu_item_check>
           <menu_item_check
              label="Show Upload Cost"
-             layout="topleft"
              name="Show Upload Cost">
-            <menu_item_check.on_check
+              <menu_item_check.on_check
              function="CheckControl"
              parameter="DebugShowUploadCost" />
             <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="DebugShowUploadCost" />
-          </menu_item_check>
+                 function="ToggleControl"
+                 parameter="DebugShowUploadCost" />
+            </menu_item_check>
             <menu_item_check
              label="Show Render Info"
              name="Show Render Info">
@@ -2016,7 +2093,7 @@
                  function="ToggleControl"
                  parameter="DebugShowRenderInfo" />
             </menu_item_check>
-			<menu_item_check
+			  <menu_item_check
              label="Show Texture Info"
              name="Show Texture Info">
                 <menu_item_check.on_check
@@ -2055,6 +2132,16 @@
               <menu_item_check.on_click
                function="ToggleControl"
                parameter="DebugShowMemory" />
+            </menu_item_check>
+	     <menu_item_check
+               label="Show Private Mem Info"
+               name="Show Private Mem Info">
+              <menu_item_check.on_check
+               function="CheckControl"
+               parameter="DebugShowPrivateMem" />
+              <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="DebugShowPrivateMem" />
             </menu_item_check>
 
             <menu_item_separator/>

@@ -1,0 +1,32 @@
+<llsd>
+    <array>
+        <array>
+            <real>0.062499973922967911</real>
+            <string>Purple</string>
+        </array>
+        <array>
+            <real>0.16666659712791443</real>
+            <string>Funky Funky</string>
+        </array>
+        <array>
+            <real>0.31249985098838806</real>
+            <string>Sunrise</string>
+        </array>
+        <array>
+            <real>0.49999979138374329</real>
+            <string>Fine Day</string>
+        </array>
+        <array>
+            <real>0.66666638851165771</real>
+            <string>Desert Sunset</string>
+        </array>
+        <array>
+            <real>0.74999970197677612</real>
+            <string>Sailor&apos;s Delight</string>
+        </array>
+        <array>
+            <real>0.95833295583724976</real>
+            <string>Midnight</string>
+        </array>
+    </array>
+</llsd>

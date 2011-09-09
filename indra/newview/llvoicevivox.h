@@ -380,7 +380,8 @@ protected:
 		stateVoiceFontsWait,		// Awaiting the list of voice fonts
 		stateVoiceFontsReceived,	// List of voice fonts received
 		stateCreatingSessionGroup,	// Creating the main session group
-		stateNoChannel,				// 
+		stateNoChannel,				// Need to join a channel
+		stateRetrievingParcelVoiceInfo,    // waiting for parcel voice info request to return with spatial credentials
 		stateJoiningSession,		// waiting for session handle
 		stateSessionJoined,			// session handle received
 		stateRunning,				// in session, steady state
@@ -620,6 +621,8 @@ protected:
 	void sessionMediaDisconnectSendMessage(sessionState *session);
 	void sessionTextDisconnectSendMessage(sessionState *session);
 
+	
+	
 	// Pokes the state machine to leave the audio session next time around.
 	void sessionTerminate();	
 	
@@ -628,6 +631,12 @@ protected:
 	
 	// Does the actual work to get out of the audio session
 	void leaveAudioSession();
+	
+	// notifies the voice client that we've received parcel voice info
+	bool parcelVoiceInfoReceived(state requesting_state);
+	
+	friend class LLVivoxVoiceClientCapResponder;
+	
 	
 	void lookupName(const LLUUID &id);
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
@@ -733,9 +742,11 @@ private:
 	bool mCaptureDeviceDirty;
 	bool mRenderDeviceDirty;
 	
+	
+	bool checkParcelChanged(bool update = false);
 	// This should be called when the code detects we have changed parcels.
 	// It initiates the call to the server that gets the parcel channel.
-	void parcelChanged();
+	bool requestParcelVoiceInfo();
 	
 	void switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
 	void joinSession(sessionState *session);

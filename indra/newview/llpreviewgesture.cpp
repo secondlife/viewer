@@ -42,6 +42,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
+#include "llkeyboard.h"
 #include "llmultigesture.h"
 #include "llnotificationsutil.h"
 #include "llradiogroup.h"

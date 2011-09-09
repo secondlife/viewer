@@ -101,8 +101,9 @@ void LLViewerHelp::showTopic(const std::string &topic)
 
 	// work out the URL for this topic and display it 
 	showHelp();
+	
 	std::string helpURL = LLViewerHelpUtil::buildHelpURL( help_topic );
-	setRawURL( helpURL );
+	setRawURL(helpURL);
 }
 
 std::string LLViewerHelp::defaultTopic()
@@ -148,18 +149,7 @@ std::string LLViewerHelp::getTopicFromFocus()
 // static 
 void LLViewerHelp::showHelp()
 {
-	LLFloaterHelpBrowser* helpbrowser = dynamic_cast<LLFloaterHelpBrowser*>(LLFloaterReg::getInstance("help_browser"));
-	if (helpbrowser)
-	{
-		BOOL visible = TRUE;
-		BOOL take_focus = TRUE;
-		helpbrowser->setVisible(visible);
-		helpbrowser->setFrontmost(take_focus);
-	}
-	else
-	{
-		llwarns << "Eep, help_browser floater not found" << llendl;
-	}
+	LLFloaterReg::showInstance("help_browser");
 }
 
 // static

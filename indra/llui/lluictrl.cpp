@@ -68,6 +68,7 @@ LLUICtrl::ControlVisibility::ControlVisibility()
 LLUICtrl::Params::Params()
 :	tab_stop("tab_stop", true),
 	chrome("chrome", false),
+	requests_front("requests_front", false),
 	label("label"),
 	initial_value("value"),
 	init_callback("init_callback"),
@@ -96,9 +97,10 @@ const LLUICtrl::Params& LLUICtrl::getDefaultParams()
 
 LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel) 
 :	LLView(p),
-	mTentative(FALSE),
 	mIsChrome(FALSE),
+	mRequestsFront(p.requests_front),
 	mTabStop(FALSE),
+	mTentative(FALSE),
     mViewModel(viewmodel),
 	mControlVariable(NULL),
 	mEnabledControlVariable(NULL),
@@ -122,6 +124,8 @@ LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
 void LLUICtrl::initFromParams(const Params& p)
 {
 	LLView::initFromParams(p);
+
+	mRequestsFront = p.requests_front;
 
 	setIsChrome(p.chrome);
 	setControlName(p.control_name);
@@ -401,6 +405,36 @@ void    LLUICtrl::shareViewModelFrom(const LLUICtrl& other)
 LLViewModel* LLUICtrl::getViewModel() const
 {
 	return mViewModel;
+}
+
+//virtual
+BOOL LLUICtrl::postBuild()
+{
+	//
+	// Find all of the children that want to be in front and move them to the front
+	//
+
+	if (getChildCount() > 0)
+	{
+		std::vector<LLUICtrl*> childrenToMoveToFront;
+
+		for (LLView::child_list_const_iter_t child_it = beginChild(); child_it != endChild(); ++child_it)
+		{
+			LLUICtrl* uictrl = dynamic_cast<LLUICtrl*>(*child_it);
+
+			if (uictrl && uictrl->mRequestsFront)
+			{
+				childrenToMoveToFront.push_back(uictrl);
+			}
+		}
+
+		for (std::vector<LLUICtrl*>::iterator it = childrenToMoveToFront.begin(); it != childrenToMoveToFront.end(); ++it)
+		{
+			sendChildToFront(*it);
+		}
+	}
+
+	return LLView::postBuild();
 }
 
 bool LLUICtrl::setControlValue(const LLSD& value)

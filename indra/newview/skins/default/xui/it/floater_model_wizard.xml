@@ -2,42 +2,54 @@
 <floater name="Model Wizard" title="PROCEDURA GUIDATA CARICA MODELLO">
 	<button label="5. Carica sul server" name="upload_btn"/>
 	<button label="4. Rivedi" name="review_btn"/>
-	<button label="3. Fisica" name="physics2_btn"/>
 	<button label="3. Fisica" name="physics_btn"/>
 	<button label="2. Ottimizza" name="optimize_btn"/>
 	<button label="1. Seleziona file" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Carica modello
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
+				Seleziona file modello
 			</text>
 		</panel>
-		<text name="description">
-			Questa procedura guidata permette di importare modelli di reticoli in Second Life.  Specificare prima un  file che contiene il modello da importare.  Second Life supporta file COLLADA (.dae).
-		</text>
-		<panel name="content">
-			<text name="Cache location">
-				Nome file:
+		<panel name="choose_file_content_panel">
+			<text name="advanced_users_text">
+				Utenti avanzati: Gli utenti che hanno dimestichezza con gli strumenti di creazione 3D possono usare le opzioni di caricamento avanzate.
+			</text>
+			<button label="Passa a modalità avanzata" name="switch_to_advanced"/>
+			<text name="choose_model_file_label">
+				Scegli il file del modello da caricare
 			</text>
 			<button label="Sfoglia..." label_selected="Sfoglia..." name="browse"/>
-			<text name="dimensions">
-				X:         Y:         Z:
+			<text name="support_collada_text">
+				Second Life supporta file COLLADA (.dae)
 			</text>
-			<text name="dimension_dividers">
-				|               |
+			<text name="dimensions_label">
+				Dimensioni (metri):
+			</text>
+			<text name="dimensions">
+				X         Y         Z
+			</text>
+			<text name="warning_label">
+				ATTENZIONE:
+			</text>
+			<text name="warning_text">
+				Non sarà possibile completare il passaggio finale per il caricamento finale di questo modello sui server di Second Life. [secondlife:///app/floater/learn_more Scopri come] impostare l&apos;account per il caricamento di modelli con reticolo.
 			</text>
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Ottimizza
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
+				Ottimizza modello
 			</text>
 		</panel>
-		<text name="description">
-			Questa procedura guidata ha ottimizzato il modello per migliorare le prestazioni. Si possono variare i risultati dell&apos;ottimizzazione in basso o fare clic su Avanti per continuare.
+		<text name="optimize_hint">
+			Abbiamo ottimizzato il modello per migliorare le prestazioni. Se necessario, può essere regolato ulteriormente.
 		</text>
-		<panel name="content">
+		<panel name="optimize_content_panel">
+			<text name="generating_lod_label">
+				Generazione livello di dettaglio
+			</text>
 			<text name="high_detail_text">
 				Genera livello di dettaglio: Alto
 			</text>
@@ -52,146 +64,163 @@
 			</text>
 		</panel>
 		<panel name="content2">
-			<text name="lod_label">
-				Anteprima modello:
+			<text name="optimize_performance_text">
+				Prestazioni
 			</text>
-			<combo_box name="preview_lod_combo2" tool_tip="Livello di dettaglio per anteprima rendering">
-				<combo_item name="high">
-					Alto
+			<text name="optimize_faster_rendering_text">
+				Rendering più veloce
+Meno dettagli
+Peso prim più basso
+			</text>
+			<text name="optimize_accuracy_text">
+				Fedeltà
+			</text>
+			<text name="optimize_slower_rendering_text">
+				Rendering più lento
+Più dettagli
+Peso prim più elevato
+			</text>
+			<text name="accuracy_slider_mark1">
+				&apos;
+			</text>
+			<text name="accuracy_slider_mark2">
+				&apos;
+			</text>
+			<text name="accuracy_slider_mark3">
+				&apos;
+			</text>
+			<button label="Ricalcola geometria" name="recalculate_geometry_btn"/>
+			<text name="geometry_preview_label">
+				Anteprima geometria
+			</text>
+			<combo_box name="preview_lod_combo" tool_tip="Livello di dettaglio per anteprima rendering">
+				<combo_item name="preview_lod_high">
+					Molti dettagli
 				</combo_item>
-				<combo_item name="medium">
-					Medio
+				<combo_item name="preview_lod_medium">
+					Dettagli medi
 				</combo_item>
-				<combo_item name="low">
-					Basso
+				<combo_item name="preview_lod_low">
+					Meno dettagli
 				</combo_item>
-				<combo_item name="lowest">
-					Bassissimo
+				<combo_item name="preview_lod_lowest">
+					Dettaglio minimo
 				</combo_item>
 			</combo_box>
-			<text name="streaming cost">
-				Costo risorsa:    [COST]
-			</text>
-			<text name="dimensions">
-				X:         Y:         Z:
-			</text>
-			<text name="dimension_dividers">
-				|               |
-			</text>
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Fisica
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
+				Modifica fisica
 			</text>
 		</panel>
-		<text name="description">
-			La procedura guidata permette di creare una forma fisica che determina come l&apos;oggetto interagisce con altri oggetti e avatar. Impostare il comando a scorrimento sul livello di dettaglio appropriato per l&apos;uso dell&apos;oggetto:
+		<text name="physics_hint">
+			Verrà creata una forma per lo scafo esterno del modello. Regola il livello di dettaglio della forma in base al fine desiderato del modello.
 		</text>
-		<panel name="content">
-			<text name="streaming cost">
-				Costo risorsa:       [COST]
+		<panel name="physics_content_panel">
+			<text name="physics_performance_text">
+				Prestazioni
 			</text>
-		</panel>
-	</panel>
-	<panel name="physics2_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Fisica
+			<text name="physics_faster_rendering_text">
+				Rendering più veloce
+Meno dettagli
+Peso prim più basso
 			</text>
-		</panel>
-		<text name="description">
-			Visualizza in anteprima la forma fisica in basso, quindi fai clic su Avanti per continuare.  Per modificare la forma fisica, fare clic su Indietro.
-		</text>
-		<panel name="content">
-			<text name="lod_label">
-				Anteprima modello:
+			<text name="physics_accuracy_text">
+				Fedeltà
 			</text>
-			<combo_box name="preview_lod_combo3" tool_tip="Livello di dettaglio per anteprima rendering">
-				<combo_item name="high">
-					Alto
+			<text name="physics_slower_dendering_text">
+				Rendering più lento
+Più dettagli
+Peso prim più elevato
+			</text>
+			<text name="physics_example_1">
+				Esempi:
+Oggetti in movimento
+Oggetti in volo
+Veicoli
+			</text>
+			<text name="physics_example_2">
+				Esempi:
+Piccoli oggetti statici
+Oggetti meno dettagliati
+Mobili semplici
+			</text>
+			<text name="physics_example_3">
+				Esempi:
+Oggetti statici
+Oggetti dettagliati
+Edifici
+			</text>
+			<button label="Ricalcola fisica" name="recalculate_physics_btn"/>
+			<button label="Ricalcolo in corso..." name="recalculating_physics_btn"/>
+			<text name="physics_preview_label">
+				Anteprima fisica
+			</text>
+			<combo_box name="preview_lod_combo2" tool_tip="Livello di dettaglio per anteprima rendering">
+				<combo_item name="preview_lod2_high">
+					Molti dettagli
 				</combo_item>
-				<combo_item name="medium">
-					Medio
+				<combo_item name="preview_lod2_medium">
+					Dettagli medi
 				</combo_item>
-				<combo_item name="low">
-					Basso
+				<combo_item name="preview_lod2_low">
+					Meno dettagli
 				</combo_item>
-				<combo_item name="lowest">
-					Bassissimo
+				<combo_item name="preview_lod2_lowest">
+					Dettaglio minimo
 				</combo_item>
 			</combo_box>
-			<text name="dimensions">
-				X:         Y:         Z:
-			</text>
-			<text name="dimension_dividers">
-				|               |
-			</text>
-			<text name="streaming cost">
-				Costo risorsa:       [COST]
-			</text>
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				Rivedi
 			</text>
 		</panel>
-		<text name="description">
-			Rivedere i dettagli in basso, quindi fare clic su Carica per caricare il modello. Il tuo saldo in L$ verrà addebitato quando fai clic su Carica.
-		</text>
-		<panel name="content">
-			<text name="lod_label">
-				Anteprima modello:
+		<panel name="review_content_panel">
+			<text name="review_prim_equiv">
+				Impatto sul lotto o sulla regione: [EQUIV] prim equivalenti
 			</text>
-			<combo_box name="preview_lod_combo" tool_tip="Livello di dettaglio per anteprima rendering">
-				<combo_item name="high">
-					Alto
-				</combo_item>
-				<combo_item name="medium">
-					Medio
-				</combo_item>
-				<combo_item name="low">
-					Basso
-				</combo_item>
-				<combo_item name="lowest">
-					Bassissimo
-				</combo_item>
-			</combo_box>
-			<text name="dimensions">
-				X:         Y:         Z:
+			<text name="review_fee">
+				All&apos;account verrà accreditata una tariffa di caricamento pari a L$ [FEE].
 			</text>
-			<text name="dimension_dividers">
-				|               |
+			<text name="review_confirmation">
+				Facendo clic sul pulsante Carica, confermi di possedere i diritti relativi ai materiali contenuti nel modello.
 			</text>
 		</panel>
-		<text name="streaming cost">
-			Costo risorsa:         [COST]
-		</text>
-		<text name="physics cost">
-			Costo fisica:        [COST]
-		</text>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Caricamento completato.
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
+				Caricamento completato
 			</text>
 		</panel>
-		<text name="description">
-			Congratulazioni. Il modello è stato caricato correttamente  e ora puoi trovarlo nella cartella Oggetti nel tuo inventario.
+		<text name="model_uploaded_text">
+			Il modello è stato caricato.
+		</text>
+		<text name="inventory_text">
+			Puoi trovarlo nella cartella Oggetti nel tuo inventario.
+		</text>
+		<text name="charged_fee">
+			La somma di L$ [FEE] è stata addebitata sul tuo account.
 		</text>
 	</panel>
 	<button label="&lt;&lt; Indietro" name="back"/>
 	<button label="Avanti &gt;&gt;" name="next"/>
+	<button label="Calcolare pesi e tariffa &gt;&gt;" name="calculate"/>
+	<button label="Calcolo in corso..." name="calculating"/>
 	<button label="Carica" name="upload" tool_tip="Carica al simulatore"/>
 	<button label="Annulla" name="cancel"/>
 	<button label="Chiudi" name="close"/>
 	<spinner name="import_scale" value="1.0"/>
 	<string name="status_idle">
 		Pausa
+	</string>
+	<string name="status_parse_error">
+		Problema nell&apos;elaborazione DAE - vedi il registro per informazioni al riguardo.
 	</string>
 	<string name="status_reading_file">
 		Caricamento in corso...
@@ -201,6 +230,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		Errore: numero di vertici maggiore di 65534, annullato.
+	</string>
+	<string name="bad_element">
+		Errore: elemento non valido
 	</string>
 	<string name="high">
 		Alto

@@ -2024,8 +2024,17 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 		}
 		else if (hit_past_end_of_line && segmentp->getEnd() >= line_iter->mDocIndexEnd)
 		{
-			// segment wraps to next line, so just set doc pos to the end of the line
-			pos = llclamp(line_iter->mDocIndexEnd - 1, 0, getLength());
+			if (getLineNumFromDocIndex(line_iter->mDocIndexEnd - 1) == line_iter->mLineNum)
+			{
+				// if segment wraps to the next line we should step one char back
+				// to compensate for the space char between words
+				// which is removed due to wrapping
+				pos = llclamp(line_iter->mDocIndexEnd - 1, 0, getLength());
+			}
+			else
+			{
+				pos = llclamp(line_iter->mDocIndexEnd, 0, getLength());
+			}
 			break;
 		}
 		start_x += text_width;

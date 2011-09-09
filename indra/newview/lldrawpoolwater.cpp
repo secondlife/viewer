@@ -108,7 +108,7 @@ void LLDrawPoolWater::prerender()
 
 	// got rid of modulation by light color since it got a little too
 	// green at sunset and sl-57047 (underwater turns black at 8:00)
-	sWaterFogColor = LLWaterParamManager::instance()->getFogColor();
+	sWaterFogColor = LLWaterParamManager::instance().getFogColor();
 	sWaterFogColor.mV[3] = 0;
 
 }
@@ -527,7 +527,7 @@ void LLDrawPoolWater::shade()
 	//bind normal map
 	S32 bumpTex = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP);
 
-	LLWaterParamManager * param_mgr = LLWaterParamManager::instance();
+	LLWaterParamManager * param_mgr = &LLWaterParamManager::instance();
 
 	// change mWaterNormp if needed
 	if (mWaterNormp->getID() != param_mgr->getNormalMapID())

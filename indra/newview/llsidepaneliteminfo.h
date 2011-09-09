@@ -44,7 +44,7 @@ class LLPermissions;
 class LLSidepanelItemInfo : public LLSidepanelInventorySubpanel
 {
 public:
-	LLSidepanelItemInfo();
+	LLSidepanelItemInfo(const LLPanel::Params& p = getDefaultParams());
 	virtual ~LLSidepanelItemInfo();
 	
 	/*virtual*/ BOOL postBuild();

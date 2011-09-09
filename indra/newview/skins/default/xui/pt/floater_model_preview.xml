@@ -3,6 +3,9 @@
 	<string name="status_idle">
 		Inativo
 	</string>
+	<string name="status_parse_error">
+		Dae parsing - erro, detalhes no log.
+	</string>
 	<string name="status_reading_file">
 		Carregando...
 	</string>
@@ -11,6 +14,9 @@
 	</string>
 	<string name="status_vertex_number_overflow">
 		Erro: Número de Vertex acima de 65534. Abortado.
+	</string>
+	<string name="bad_element">
+		Erro: elemento inválido
 	</string>
 	<string name="high">
 		Alto
@@ -54,6 +60,9 @@
 	<string name="simplifying">
 		Simplificando...
 	</string>
+	<string name="tbd">
+		A ser definido
+	</string>
 	<text name="name_label">
 		Nome:
 	</text>
@@ -74,23 +83,26 @@
 			Nível de detalhamento: Mais baixo
 		</combo_item>
 	</combo_box>
-	<panel>
-		<text name="streaming cost">
-			Custo do recurso: [COST]
-		</text>
-		<text name="physics cost">
-			Custo físico: [COST]
-		</text>
-		<text name="upload fee">
-			Taxa de upload: N/D
-		</text>
-	</panel>
-	<text name="status">
-		[STATUS]
+	<text name="warning_title">
+		AVISO:
 	</text>
-	<button label="Padrão" name="reset_btn" tool_tip="Valores padrão"/>
-	<button label="Upload" name="ok_btn" tool_tip="Carregar no simulador"/>
-	<button label="Cancelar" name="cancel_btn"/>
+	<text name="warning_message">
+		Não será possível concluir o upload final desse modelo para os servidores do Second Life. [[VURL] Saiba como] ativar o upload de modelos mesh.
+	</text>
+	<text name="weights_text">
+		Download:
+Físico:
+Servidor:
+
+Equivalente em prims:
+	</text>
+	<text name="weights">
+		[ST]
+[PH]
+[SIM]
+
+[EQ]
+	</text>
 	<tab_container name="import_tab">
 		<panel label="Nível de detalhamento:" name="lod_panel">
 			<text name="lod_table_header">
@@ -228,4 +240,11 @@
 			<spinner name="pelvis_offset" value="0.0"/>
 		</panel>
 	</tab_container>
+	<text name="upload_fee">
+		Tarifa de upload: L$ [FEE]
+	</text>
+	<button label="Definir como padrão" name="reset_btn" tool_tip="Definir como padrão"/>
+	<button label="Calcular pesos e tarifa" name="calculate_btn" tool_tip="Calcular pesos e tarifa"/>
+	<button label="Upload" name="ok_btn" tool_tip="Carregar no simulador"/>
+	<button label="Cancelar" name="cancel_btn"/>
 </floater>

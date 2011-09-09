@@ -99,7 +99,9 @@ LLButton::Params::Params()
 	scale_image("scale_image", true),
 	hover_glow_amount("hover_glow_amount"),
 	commit_on_return("commit_on_return", true),
-	use_draw_context_alpha("use_draw_context_alpha", true)
+	use_draw_context_alpha("use_draw_context_alpha", true),
+	badge("badge"),
+	handle_right_mouse("handle_right_mouse")
 {
 	addSynonym(is_toggle, "toggle");
 	held_down_delay.seconds = 0.5f;
@@ -109,6 +111,7 @@ LLButton::Params::Params()
 
 LLButton::LLButton(const LLButton::Params& p)
 :	LLUICtrl(p),
+	LLBadgeOwner(LLView::getHandle()),
 	mMouseDownFrame(0),
 	mMouseHeldDownCount(0),
 	mBorderEnabled( FALSE ),
@@ -160,8 +163,8 @@ LLButton::LLButton(const LLButton::Params& p)
 	mMouseDownSignal(NULL),
 	mMouseUpSignal(NULL),
 	mHeldDownSignal(NULL),
-	mUseDrawContextAlpha(p.use_draw_context_alpha)
-
+	mUseDrawContextAlpha(p.use_draw_context_alpha),
+	mHandleRightMouse(p.handle_right_mouse)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
@@ -243,6 +246,11 @@ LLButton::LLButton(const LLButton::Params& p)
 	if (p.mouse_held_callback.isProvided())
 	{
 		setHeldDownCallback(initCommitCallback(p.mouse_held_callback));
+	}
+
+	if (p.badge.isProvided())
+	{
+		LLBadgeOwner::initBadgeParams(p.badge());
 	}
 }
 
@@ -327,8 +335,12 @@ boost::signals2::connection LLButton::setHeldDownCallback( button_callback_t cb,
 BOOL LLButton::postBuild()
 {
 	autoResize();
-	return TRUE;
+
+	addBadgeToParentPanel();
+
+	return LLUICtrl::postBuild();
 }
+
 BOOL LLButton::handleUnicodeCharHere(llwchar uni_char)
 {
 	BOOL handled = FALSE;
@@ -447,7 +459,7 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL	LLButton::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!childrenHandleRightMouseDown(x, y, mask))
+	if (mHandleRightMouse && !childrenHandleRightMouseDown(x, y, mask))
 	{
 		// Route future Mouse messages here preemptively.  (Release on mouse up.)
 		gFocusMgr.setMouseCapture( this );
@@ -460,37 +472,42 @@ BOOL	LLButton::handleRightMouseDown(S32 x, S32 y, MASK mask)
 //		if (pointInView(x, y))
 //		{
 //		}
+		// send the mouse down signal
+		LLUICtrl::handleRightMouseDown(x,y,mask);
+		// *TODO: Return result of LLUICtrl call above?  Should defer to base class
+		// but this might change the mouse handling of existing buttons in a bad way
+		// if they are not mouse opaque.
 	}
-	// send the mouse down signal
-	LLUICtrl::handleRightMouseDown(x,y,mask);
-	// *TODO: Return result of LLUICtrl call above?  Should defer to base class
-	// but this might change the mouse handling of existing buttons in a bad way
-	// if they are not mouse opaque.
+
 	return TRUE;
 }
 
 BOOL	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
-	// We only handle the click if the click both started and ended within us
-	if( hasMouseCapture() )
+	if (mHandleRightMouse)
 	{
-		// Always release the mouse
-		gFocusMgr.setMouseCapture( NULL );
+		// We only handle the click if the click both started and ended within us
+		if( hasMouseCapture() )
+		{
+			// Always release the mouse
+			gFocusMgr.setMouseCapture( NULL );
 
-//		if (pointInView(x, y))
-//		{
-//			mRightMouseUpSignal(this, x,y,mask);
-//		}
+	//		if (pointInView(x, y))
+	//		{
+	//			mRightMouseUpSignal(this, x,y,mask);
+	//		}
+		}
+		else 
+		{
+			childrenHandleRightMouseUp(x, y, mask);
+		}
+	
+		// send the mouse up signal
+		LLUICtrl::handleRightMouseUp(x,y,mask);
+		// *TODO: Return result of LLUICtrl call above?  Should defer to base class
+		// but this might change the mouse handling of existing buttons in a bad way.
+		// if they are not mouse opaque.
 	}
-	else 
-	{
-		childrenHandleRightMouseUp(x, y, mask);
-	}
-	// send the mouse up signal
-	LLUICtrl::handleRightMouseUp(x,y,mask);
-	// *TODO: Return result of LLUICtrl call above?  Should defer to base class
-	// but this might change the mouse handling of existing buttons in a bad way.
-	// if they are not mouse opaque.
 	return TRUE;
 }
 

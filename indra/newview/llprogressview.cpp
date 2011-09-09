@@ -50,28 +50,26 @@
 #include "llappviewer.h"
 #include "llweb.h"
 #include "lluictrlfactory.h"
+#include "llpanellogin.h"
 
 LLProgressView* LLProgressView::sInstance = NULL;
 
 S32 gStartImageWidth = 1;
 S32 gStartImageHeight = 1;
-const F32 FADE_IN_TIME = 1.f;
-
-const std::string ANIMATION_FILENAME = "Login Sequence ";
-const std::string ANIMATION_SUFFIX = ".jpg";
-const F32 TOTAL_LOGIN_TIME = 10.f;	// seconds, wild guess at time from GL context to actual world view
-S32 gLastStartAnimationFrame = 0;	// human-style indexing, first image = 1
-const S32 ANIMATION_FRAMES = 1; //13;
+const F32 FADE_TO_WORLD_TIME = 1.0f;
 
 static LLRegisterPanelClassWrapper<LLProgressView> r("progress_view");
-
 
 // XUI: Translate
 LLProgressView::LLProgressView() 
 :	LLPanel(),
 	mPercentDone( 0.f ),
+	mMediaCtrl( NULL ),
 	mMouseDownInActiveArea( false ),
-	mUpdateEvents("LLProgressView")
+	mUpdateEvents("LLProgressView"),
+	mFadeToWorldTimer(),
+	mFadeFromLoginTimer(),
+	mStartupComplete(false)
 {
 	mUpdateEvents.listen("self", boost::bind(&LLProgressView::handleUpdate, this, _1));
 }
@@ -80,9 +78,17 @@ BOOL LLProgressView::postBuild()
 {
 	mProgressBar = getChild<LLProgressBar>("login_progress_bar");
 
+	// media control that is used to play intro video
+	mMediaCtrl = getChild<LLMediaCtrl>("login_media_panel");
+	mMediaCtrl->setVisible( false );		// hidden initially
+	mMediaCtrl->addObserver( this );		// watch events
+	
+	LLViewerMedia::setOnlyAudibleMediaTextureID(mMediaCtrl->getTextureID());
+
 	mCancelBtn = getChild<LLButton>("cancel_btn");
 	mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked, NULL );
-	mFadeTimer.stop();
+	mFadeToWorldTimer.stop();
+	mFadeFromLoginTimer.stop();
 
 	getChild<LLTextBox>("title_text")->setText(LLStringExplicit(LLAppViewer::instance()->getSecondLifeTitle()));
 
@@ -125,35 +131,68 @@ BOOL LLProgressView::handleKeyHere(KEY key, MASK mask)
 	return TRUE;
 }
 
+void LLProgressView::revealIntroPanel()
+{
+	// if user hasn't yet seen intro video
+	std::string intro_url = gSavedSettings.getString("PostFirstLoginIntroURL");
+	if ( intro_url.length() > 0 && 
+			gSavedSettings.getBOOL("BrowserJavascriptEnabled") &&
+			gSavedSettings.getBOOL("PostFirstLoginIntroViewed" ) == FALSE )
+	{
+		// hide the progress bar
+		getChild<LLView>("stack1")->setVisible(false);
+		
+		// navigate to intro URL and reveal widget 
+		mMediaCtrl->navigateTo( intro_url );	
+		mMediaCtrl->setVisible( TRUE );
+
+
+		// flag as having seen the new user post login intro
+		gSavedSettings.setBOOL("PostFirstLoginIntroViewed", TRUE );
+
+		mMediaCtrl->setFocus(TRUE);
+	}
+
+	mFadeFromLoginTimer.start();
+}
+
+void LLProgressView::setStartupComplete()
+{
+	mStartupComplete = true;
+
+	// if we are not showing a video, fade into world
+	if (!mMediaCtrl->getVisible())
+	{
+		mFadeFromLoginTimer.stop();
+		mFadeToWorldTimer.start();
+	}
+}
+
 void LLProgressView::setVisible(BOOL visible)
 {
 	// hiding progress view
 	if (getVisible() && !visible)
 	{
-		mFadeTimer.start();
+		LLPanel::setVisible(FALSE);
 	}
 	// showing progress view
-	else if (visible && (!getVisible() || mFadeTimer.getStarted()))
+	else if (visible && (!getVisible() || mFadeToWorldTimer.getStarted()))
 	{
 		setFocus(TRUE);
-		mFadeTimer.stop();
-		mProgressTimer.start();
+		mFadeToWorldTimer.stop();
 		LLPanel::setVisible(TRUE);
 	} 
 }
 
 
-void LLProgressView::draw()
+void LLProgressView::drawStartTexture(F32 alpha)
 {
-	static LLTimer timer;
-
-	// Paint bitmap if we've got one
 	glPushMatrix();	
 	if (gStartTexture)
 	{
 		LLGLSUIDefault gls_ui;
 		gGL.getTexUnit(0)->bind(gStartTexture.get());
-		gGL.color4f(1.f, 1.f, 1.f, mFadeTimer.getStarted() ? clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, FADE_IN_TIME, 1.f, 0.f) : 1.f);
+		gGL.color4f(1.f, 1.f, 1.f, alpha);
 		F32 image_aspect = (F32)gStartImageWidth / (F32)gStartImageHeight;
 		S32 width = getRect().getWidth();
 		S32 height = getRect().getHeight();
@@ -179,23 +218,75 @@ void LLProgressView::draw()
 		gl_rect_2d(getRect());
 	}
 	glPopMatrix();
+}
 
-	// Handle fade-in animation
-	if (mFadeTimer.getStarted())
+
+void LLProgressView::draw()
+{
+	static LLTimer timer;
+
+	if (mFadeFromLoginTimer.getStarted())
 	{
-		LLPanel::draw();
-		if (mFadeTimer.getElapsedTimeF32() > FADE_IN_TIME)
+		F32 alpha = clamp_rescale(mFadeFromLoginTimer.getElapsedTimeF32(), 0.f, FADE_TO_WORLD_TIME, 0.f, 1.f);
+		LLViewDrawContext context(alpha);
+
+		if (!mMediaCtrl->getVisible())
 		{
+			drawStartTexture(alpha);
+		}
+		
+		LLPanel::draw();
+
+		if (mFadeFromLoginTimer.getElapsedTimeF32() > FADE_TO_WORLD_TIME )
+		{
+			mFadeFromLoginTimer.stop();
+			LLPanelLogin::closePanel();
+		}
+
+		return;
+	}
+
+	// handle fade out to world view when we're asked to
+	if (mFadeToWorldTimer.getStarted())
+	{
+		// draw fading panel
+		F32 alpha = clamp_rescale(mFadeToWorldTimer.getElapsedTimeF32(), 0.f, FADE_TO_WORLD_TIME, 1.f, 0.f);
+		LLViewDrawContext context(alpha);
+				
+		drawStartTexture(alpha);
+		LLPanel::draw();
+
+		// faded out completely - remove panel and reveal world
+		if (mFadeToWorldTimer.getElapsedTimeF32() > FADE_TO_WORLD_TIME )
+		{
+			mFadeToWorldTimer.stop();
+
+			LLViewerMedia::setOnlyAudibleMediaTextureID(LLUUID::null);
+
 			// Fade is complete, release focus
 			gFocusMgr.releaseFocusIfNeeded( this );
+
+			// turn off panel that hosts intro so we see the world
 			LLPanel::setVisible(FALSE);
-			mFadeTimer.stop();
+
+			// stop observing events since we no longer care
+			mMediaCtrl->remObserver( this );
+
+			// hide the intro
+			mMediaCtrl->setVisible( false );
+
+			// navigate away from intro page to something innocuous since 'unload' is broken right now
+			//mMediaCtrl->navigateTo( "about:blank" );
+
+			// FIXME: this causes a crash that i haven't been able to fix
+			mMediaCtrl->unloadMediaSource();	
 
 			gStartTexture = NULL;
 		}
 		return;
 	}
 
+	drawStartTexture(1.0f);
 	// draw children
 	LLPanel::draw();
 }
@@ -306,4 +397,30 @@ bool LLProgressView::onAlertModal(const LLSD& notify)
 		}
 	}
 	return false;
+}
+
+void LLProgressView::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
+{
+	// the intro web content calls javascript::window.close() when it's done
+	if( event == MEDIA_EVENT_CLOSE_REQUEST )
+	{
+		if (mStartupComplete)
+		{
+			//make sure other timer has stopped
+			mFadeFromLoginTimer.stop();
+			mFadeToWorldTimer.start();
+		}
+		else
+		{
+			// hide the media ctrl and wait for startup to be completed before fading to world
+			mMediaCtrl->setVisible(false);
+			if (mMediaCtrl->getMediaPlugin())
+			{
+				mMediaCtrl->getMediaPlugin()->stop();
+			}
+
+			// show the progress bar
+			getChild<LLView>("stack1")->setVisible(true);
+		}
+	}
 }

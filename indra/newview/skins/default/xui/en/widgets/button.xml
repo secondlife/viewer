@@ -25,5 +25,6 @@
         pad_bottom="3" 
         height="23"
         scale_image="true"
+        handle_right_mouse="true"
         use_draw_context_alpha="true">
 </button>
