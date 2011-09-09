@@ -32,7 +32,7 @@ include_directories(
 
 set(test_SOURCE_FILES
     io.cpp
-#    llapp_tut.cpp                      # Temporarily removed until thread issues can be solved
+    llapp_tut.cpp
     llblowfish_tut.cpp
     llbuffer_tut.cpp
     lldoubledispatch_tut.cpp
@@ -48,7 +48,7 @@ set(test_SOURCE_FILES
     llscriptresource_tut.cpp
     llsdmessagebuilder_tut.cpp
     llsdmessagereader_tut.cpp
-    llsd_new_tut.cpp			# Fails [LLSD(new), 4] fail: 'NaN to string: expected 'nan' actual '-nan''
+    llsd_new_tut.cpp
     llsdutil_tut.cpp
     llservicebuilder_tut.cpp
     llstreamtools_tut.cpp
