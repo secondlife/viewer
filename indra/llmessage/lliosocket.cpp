@@ -191,7 +191,7 @@ LLSocket::ptr_t LLSocket::create(apr_pool_t* pool, EType type, U16 port)
 		port = PORT_EPHEMERAL;
 	}
 	rv->mPort = port;
-	rv->setNonBlocking();
+	rv->setOptions();
 	return rv;
 }
 
@@ -206,7 +206,7 @@ LLSocket::ptr_t LLSocket::create(apr_socket_t* socket, apr_pool_t* pool)
 	}
 	rv = ptr_t(new LLSocket(socket, pool));
 	rv->mPort = PORT_EPHEMERAL;
-	rv->setNonBlocking();
+	rv->setOptions();
 	return rv;
 }
 
@@ -227,10 +227,10 @@ bool LLSocket::blockingConnect(const LLHost& host)
 	{
 		return false;
 	}
-	setBlocking(1000);
+	apr_socket_timeout_set(mSocket, 1000);
 	ll_debug_socket("Blocking connect", mSocket);
 	if(ll_apr_warn_status(apr_socket_connect(mSocket, sa))) return false;
-	setNonBlocking();
+	setOptions();
 	return true;
 }
 
@@ -258,27 +258,11 @@ LLSocket::~LLSocket()
 	}
 }
 
-// See http://dev.ariel-networks.com/apr/apr-tutorial/html/apr-tutorial-13.html#ss13.4
-// for an explanation of how to get non-blocking sockets and timeouts with
-// consistent behavior across platforms.
-
-void LLSocket::setBlocking(S32 timeout)
-{
-	LLMemType m1(LLMemType::MTYPE_IO_TCP);
-	// set up the socket options
-	ll_apr_warn_status(apr_socket_timeout_set(mSocket, timeout));
-	ll_apr_warn_status(apr_socket_opt_set(mSocket, APR_SO_NONBLOCK, 0));
-	ll_apr_warn_status(apr_socket_opt_set(mSocket, APR_SO_SNDBUF, LL_SEND_BUFFER_SIZE));
-	ll_apr_warn_status(apr_socket_opt_set(mSocket, APR_SO_RCVBUF, LL_RECV_BUFFER_SIZE));
-
-}
-
-void LLSocket::setNonBlocking()
+void LLSocket::setOptions()
 {
 	LLMemType m1(LLMemType::MTYPE_IO_TCP);
 	// set up the socket options
 	ll_apr_warn_status(apr_socket_timeout_set(mSocket, 0));
-	ll_apr_warn_status(apr_socket_opt_set(mSocket, APR_SO_NONBLOCK, 1));
 	ll_apr_warn_status(apr_socket_opt_set(mSocket, APR_SO_SNDBUF, LL_SEND_BUFFER_SIZE));
 	ll_apr_warn_status(apr_socket_opt_set(mSocket, APR_SO_RCVBUF, LL_RECV_BUFFER_SIZE));
 
