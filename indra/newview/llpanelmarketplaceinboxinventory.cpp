@@ -197,8 +197,8 @@ void LLInboxFolderViewFolder::computeFreshness()
 	if (!last_expansion.empty())
 	{
 		// Inventory DB timezone is hardcoded to PDT or GMT-7, which is 7 hours behind GMT
-		const time_t SEVEN_HOURS_IN_SECONDS = 7 * 60 * 60;
-		const time_t saved_freshness_inventory_db_timezone = LLDate(last_expansion).secondsSinceEpoch() - SEVEN_HOURS_IN_SECONDS;
+		const F64 SEVEN_HOURS_IN_SECONDS = 7 * 60 * 60;
+		const F64 saved_freshness_inventory_db_timezone = LLDate(last_expansion).secondsSinceEpoch() - SEVEN_HOURS_IN_SECONDS;
 
 		mFresh = (mCreationDate > saved_freshness_inventory_db_timezone);
 
