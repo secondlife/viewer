@@ -2579,26 +2579,34 @@ void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 		if (!p.rect.left.isProvided())
 		{
 			p.rect.left.set(default_rect.mLeft, false);
+			//HACK: get around the fact that setting a rect param component value won't invalidate the existing rect object value
+			p.rect.paramChanged(p.rect.left, true);
 		}
 		if (!p.rect.bottom.isProvided())
 		{
 			p.rect.bottom.set(default_rect.mBottom, false);
+			p.rect.paramChanged(p.rect.bottom, true);
 		}
 		if (!p.rect.top.isProvided())
 		{
 			p.rect.top.set(default_rect.mTop, false);
+			p.rect.paramChanged(p.rect.top, true);
 		}
 		if (!p.rect.right.isProvided())
 		{
 			p.rect.right.set(default_rect.mRight, false);
+			p.rect.paramChanged(p.rect.right, true);
+
 		}
 		if (!p.rect.width.isProvided())
 		{
 			p.rect.width.set(default_rect.getWidth(), false);
+			p.rect.paramChanged(p.rect.width, true);
 		}
 		if (!p.rect.height.isProvided())
 		{
 			p.rect.height.set(default_rect.getHeight(), false);
+			p.rect.paramChanged(p.rect.height, true);
 		}
 	}
 }

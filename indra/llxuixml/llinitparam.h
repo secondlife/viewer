@@ -864,7 +864,7 @@ namespace LLInitParam
 		// propagate changed status up to enclosing block
 		/*virtual*/ void paramChanged(const Param& changed_param, bool user_provided)
 		{ 
-			ParamValue<T, NAME_VALUE_LOOKUP>::paramChanged(changed_param, user_provided);
+			param_value_t::paramChanged(changed_param, user_provided);
 			Param::enclosingBlock().paramChanged(*this, user_provided);
 			if (user_provided)
 			{
