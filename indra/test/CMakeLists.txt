@@ -48,7 +48,7 @@ set(test_SOURCE_FILES
     llscriptresource_tut.cpp
     llsdmessagebuilder_tut.cpp
     llsdmessagereader_tut.cpp
-#    llsd_new_tut.cpp			# Fails [LLSD(new), 4] fail: 'NaN to string: expected 'nan' actual '-nan''
+    llsd_new_tut.cpp			# Fails [LLSD(new), 4] fail: 'NaN to string: expected 'nan' actual '-nan''
     llsdutil_tut.cpp
     llservicebuilder_tut.cpp
     llstreamtools_tut.cpp
