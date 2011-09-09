@@ -30,7 +30,82 @@
 #include "llhttpclient.h"
 #include "llbufferstream.h"
 
-class LLTranslationAPIHandler;
+namespace Json
+{
+    class Value;
+}
+
+class LLTranslationAPIHandler
+{
+public:
+	virtual void getTranslateURL(
+		std::string &url,
+		const std::string &from_lang,
+		const std::string &to_lang,
+		const std::string &text) const = 0;
+
+	virtual bool parseResponse(
+		int& status,
+		const std::string& body,
+		std::string& translation,
+		std::string& detected_lang,
+		std::string& err_msg) const = 0;
+
+	virtual ~LLTranslationAPIHandler() {}
+
+protected:
+	static const int STATUS_OK = 200;
+};
+
+class LLGoogleTranslationHandler : public LLTranslationAPIHandler
+{
+	LOG_CLASS(LLGoogleTranslationHandler);
+
+public:
+	/*virtual*/ void getTranslateURL(
+		std::string &url,
+		const std::string &from_lang,
+		const std::string &to_lang,
+		const std::string &text) const;
+	/*virtual*/ bool parseResponse(
+		int& status,
+		const std::string& body,
+		std::string& translation,
+		std::string& detected_lang,
+		std::string& err_msg) const;
+
+private:
+	static void parseErrorResponse(
+		const Json::Value& root,
+		int& status,
+		std::string& err_msg);
+	static bool parseTranslation(
+		const Json::Value& root,
+		std::string& translation,
+		std::string& detected_lang);
+	static std::string getAPIKey();
+};
+
+class LLBingTranslarionHandler : public LLTranslationAPIHandler
+{
+	LOG_CLASS(LLBingTranslarionHandler);
+
+public:
+	/*virtual*/ void getTranslateURL(
+		std::string &url,
+		const std::string &from_lang,
+		const std::string &to_lang,
+		const std::string &text) const;
+	/*virtual*/ bool parseResponse(
+		int& status,
+		const std::string& body,
+		std::string& translation,
+		std::string& detected_lang,
+		std::string& err_msg) const;
+private:
+	static std::string getAPIKey();
+};
+
 
 class LLTranslate
 {

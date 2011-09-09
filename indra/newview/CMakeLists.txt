@@ -1985,10 +1985,17 @@ if (LL_TESTS)
     llmediadataclient.cpp
     lllogininstance.cpp
     llremoteparcelrequest.cpp
+    lltranslate.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
     llworldmap.cpp
     llworldmipmap.cpp
+  )
+
+  set_source_files_properties(
+    lltranslate.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
   )
 
   ##################################################

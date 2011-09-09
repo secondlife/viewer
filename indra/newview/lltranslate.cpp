@@ -38,194 +38,171 @@
 
 #include "reader.h"
 
-class LLTranslationAPIHandler
+// virtual
+void LLGoogleTranslationHandler::getTranslateURL(
+	std::string &url,
+	const std::string &from_lang,
+	const std::string &to_lang,
+	const std::string &text) const
 {
-public:
-	virtual void getTranslateURL(
-		std::string &url,
-		const std::string &from_lang,
-		const std::string &to_lang,
-		const std::string &text) const = 0;
+	url = std::string("https://www.googleapis.com/language/translate/v2?key=")
+		+ getAPIKey() + "&q=" + LLURI::escape(text) + "&target=" + to_lang;
+	if (!from_lang.empty())
+	{
+		url += "&source=" + from_lang;
+	}
+}
 
-	virtual bool parseResponse(
-		int& status,
-		const std::string& body,
-		std::string& translation,
-		std::string& detected_lang,
-		std::string& err_msg) const = 0;
-
-	virtual ~LLTranslationAPIHandler() {}
-
-protected:
-	static const int STATUS_OK = 200;
-};
-
-class LLGoogleHandler : public LLTranslationAPIHandler
+// virtual
+bool LLGoogleTranslationHandler::parseResponse(
+	int& status,
+	const std::string& body,
+	std::string& translation,
+	std::string& detected_lang,
+	std::string& err_msg) const
 {
-	LOG_CLASS(LLGoogleHandler);
+	Json::Value root;
+	Json::Reader reader;
 
-public:
-	/*virtual*/ void getTranslateURL(
-		std::string &url,
-		const std::string &from_lang,
-		const std::string &to_lang,
-		const std::string &text) const
+	if (!reader.parse(body, root))
 	{
-		url = std::string("https://www.googleapis.com/language/translate/v2?key=")
-			+ getAPIKey() + "&q=" + LLURI::escape(text) + "&target=" + to_lang;
-		if (!from_lang.empty())
-		{
-			url += "&source=" + from_lang;
-		}
+		err_msg = reader.getFormatedErrorMessages();
+		return false;
 	}
 
-	/*virtual*/ bool parseResponse(
-		int& status,
-		const std::string& body,
-		std::string& translation,
-		std::string& detected_lang,
-		std::string& err_msg) const
+	if (!root.isObject()) // empty response? should not happen
 	{
-		Json::Value root;
-		Json::Reader reader;
-
-		if (!reader.parse(body, root))
-		{
-			err_msg = reader.getFormatedErrorMessages();
-			return false;
-		}
-
-		if (!root.isObject()) // empty response? should not happen
-		{
-			return false;
-		}
-
-		if (status != STATUS_OK)
-		{
-			// Request failed. Extract error message from the response.
-			parseErrorResponse(root, status, err_msg);
-			return false;
-		}
-
-		// Request succeeded, extract translation from the response.
-		return parseTranslation(root, translation, detected_lang);
+		return false;
 	}
 
-private:
-	static void parseErrorResponse(
-		const Json::Value& root,
-		int& status,
-		std::string& err_msg)
+	if (status != STATUS_OK)
 	{
-		const Json::Value& error = root.get("error", 0);
-		if (!error.isObject() || !error.isMember("message") || !error.isMember("code"))
-		{
-			return;
-		}
-
-		err_msg = error["message"].asString();
-		status = error["code"].asInt();
+		// Request failed. Extract error message from the response.
+		parseErrorResponse(root, status, err_msg);
+		return false;
 	}
 
-	static bool parseTranslation(
-		const Json::Value& root,
-		std::string& translation,
-		std::string& detected_lang)
-	{
-		const Json::Value& data = root.get("data", 0);
-		if (!data.isObject() || !data.isMember("translations"))
-		{
-			return false;
-		}
+	// Request succeeded, extract translation from the response.
+	return parseTranslation(root, translation, detected_lang);
+}
 
-		const Json::Value& translations = data["translations"];
-		if (!translations.isArray() || translations.size() == 0)
-		{
-			return false;
-		}
-
-		const Json::Value& first = translations[0U];
-		if (!first.isObject() || !first.isMember("translatedText"))
-		{
-			return false;
-		}
-
-		translation = first["translatedText"].asString();
-		detected_lang = first.get("detectedSourceLanguage", "").asString();
-		return true;
-	}
-
-	static std::string getAPIKey()
-	{
-		return gSavedSettings.getString("GoogleTranslateAPIKey");
-	}
-};
-
-class LLBingHandler : public LLTranslationAPIHandler
+// static
+void LLGoogleTranslationHandler::parseErrorResponse(
+	const Json::Value& root,
+	int& status,
+	std::string& err_msg)
 {
-	LOG_CLASS(LLBingHandler);
-
-public:
-	/*virtual*/ void getTranslateURL(
-		std::string &url,
-		const std::string &from_lang,
-		const std::string &to_lang,
-		const std::string &text) const
+	const Json::Value& error = root.get("error", 0);
+	if (!error.isObject() || !error.isMember("message") || !error.isMember("code"))
 	{
-		url = std::string("http://api.microsofttranslator.com/v2/Http.svc/Translate?appId=")
-			+ getAPIKey() + "&text=" + LLURI::escape(text) + "&to=" + to_lang;
-		if (!from_lang.empty())
-		{
-			url += "&from=" + from_lang;
-		}
+		return;
 	}
 
-	/*virtual*/ bool parseResponse(
-		int& status,
-		const std::string& body,
-		std::string& translation,
-		std::string& detected_lang,
-		std::string& err_msg) const
+	err_msg = error["message"].asString();
+	status = error["code"].asInt();
+}
+
+// static
+bool LLGoogleTranslationHandler::parseTranslation(
+	const Json::Value& root,
+	std::string& translation,
+	std::string& detected_lang)
+{
+	const Json::Value& data = root.get("data", 0);
+	if (!data.isObject() || !data.isMember("translations"))
 	{
-		if (status != STATUS_OK)
-		{
-			static const std::string MSG_BEGIN_MARKER = "Message: ";
-			size_t begin = body.find(MSG_BEGIN_MARKER);
-			if (begin != std::string::npos)
-			{
-				begin += MSG_BEGIN_MARKER.size();
-			}
-			size_t end = body.find("</p>", begin);
-			err_msg = body.substr(begin, end-begin);
-			LLStringUtil::replaceString(err_msg, "&#xD;", ""); // strip CR
-			return false;
-		}
-
-		// Sample response: <string xmlns="http://schemas.microsoft.com/2003/10/Serialization/">Hola</string>
-		size_t begin = body.find(">");
-		if (begin == std::string::npos || begin >= (body.size() - 1))
-		{
-			return false;
-		}
-
-		size_t end = body.find("</string>", ++begin);
-		if (end == std::string::npos || end < begin)
-		{
-			return false;
-		}
-
-		detected_lang = ""; // unsupported by this API
-		translation = body.substr(begin, end-begin);
-		LLStringUtil::replaceString(translation, "&#xD;", ""); // strip CR
-		return true;
+		return false;
 	}
 
-private:
-	static std::string getAPIKey()
+	const Json::Value& translations = data["translations"];
+	if (!translations.isArray() || translations.size() == 0)
 	{
-		return gSavedSettings.getString("BingTranslateAPIKey");
+		return false;
 	}
-};
+
+	const Json::Value& first = translations[0U];
+	if (!first.isObject() || !first.isMember("translatedText"))
+	{
+		return false;
+	}
+
+	translation = first["translatedText"].asString();
+	detected_lang = first.get("detectedSourceLanguage", "").asString();
+	return true;
+}
+
+// static
+std::string LLGoogleTranslationHandler::getAPIKey()
+{
+	return gSavedSettings.getString("GoogleTranslateAPIKey");
+}
+
+// virtual
+void LLBingTranslarionHandler::getTranslateURL(
+	std::string &url,
+	const std::string &from_lang,
+	const std::string &to_lang,
+	const std::string &text) const
+{
+	url = std::string("http://api.microsofttranslator.com/v2/Http.svc/Translate?appId=")
+		+ getAPIKey() + "&text=" + LLURI::escape(text) + "&to=" + to_lang;
+	if (!from_lang.empty())
+	{
+		url += "&from=" + from_lang;
+	}
+}
+
+// virtual
+bool LLBingTranslarionHandler::parseResponse(
+	int& status,
+	const std::string& body,
+	std::string& translation,
+	std::string& detected_lang,
+	std::string& err_msg) const
+{
+	if (status != STATUS_OK)
+	{
+		static const std::string MSG_BEGIN_MARKER = "Message: ";
+		size_t begin = body.find(MSG_BEGIN_MARKER);
+		if (begin != std::string::npos)
+		{
+			begin += MSG_BEGIN_MARKER.size();
+		}
+		else
+		{
+			begin = 0;
+			err_msg.clear();
+		}
+		size_t end = body.find("</p>", begin);
+		err_msg = body.substr(begin, end-begin);
+		LLStringUtil::replaceString(err_msg, "&#xD;", ""); // strip CR
+		return false;
+	}
+
+	// Sample response: <string xmlns="http://schemas.microsoft.com/2003/10/Serialization/">Hola</string>
+	size_t begin = body.find(">");
+	if (begin == std::string::npos || begin >= (body.size() - 1))
+	{
+		begin = 0;
+	}
+	else
+	{
+		++begin;
+	}
+
+	size_t end = body.find("</string>", begin);
+
+	detected_lang = ""; // unsupported by this API
+	translation = body.substr(begin, end-begin);
+	LLStringUtil::replaceString(translation, "&#xD;", ""); // strip CR
+	return true;
+}
+
+// static
+std::string LLBingTranslarionHandler::getAPIKey()
+{
+	return gSavedSettings.getString("BingTranslateAPIKey");
+}
 
 LLTranslate::TranslationReceiver::TranslationReceiver(const std::string& from_lang, const std::string& to_lang)
 :	mFromLang(from_lang)
@@ -248,6 +225,8 @@ void LLTranslate::TranslationReceiver::completedRaw(
 	const std::string body = strstrm.str();
 	std::string translation, detected_lang, err_msg;
 	int status = http_status;
+	LL_DEBUGS("Translate") << "HTTP status: " << status << " " << reason << LL_ENDL;
+	LL_DEBUGS("Translate") << "Response body: " << body << LL_ENDL;
 	if (mHandler.parseResponse(status, body, translation, detected_lang, err_msg))
 	{
 		// Fix up the response
@@ -268,8 +247,6 @@ void LLTranslate::TranslationReceiver::completedRaw(
 		}
 
 		llwarns << "Translation request failed: " << err_msg << llendl;
-		LL_DEBUGS("Translate") << "HTTP status: " << status << " " << reason << LL_ENDL;
-		LL_DEBUGS("Translate") << "Error response body: " << body << LL_ENDL;
 		handleFailure(status, err_msg);
 	}
 }
@@ -319,8 +296,8 @@ std::string LLTranslate::getTranslateLanguage()
 // static
 const LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
 {
-	static LLGoogleHandler	google;
-	static LLBingHandler	bing;
+	static LLGoogleTranslationHandler google;
+	static LLBingTranslarionHandler bing;
 
 	std::string service = gSavedSettings.getString("TranslationService");
 	if (service == "google")
