@@ -84,10 +84,9 @@ namespace tut
 	public:
 		HTTPClientTestData()
 		{
-			apr_pool_create(&mPool, NULL);
-			mServerPump = new LLPumpIO(mPool);
-			mClientPump = new LLPumpIO(mPool);
-			
+			LLCurl::initClass(false);
+			mServerPump = new LLPumpIO();
+			mClientPump = new LLPumpIO();
 			LLHTTPClient::setPump(*mClientPump);
 		}
 		
@@ -95,12 +94,11 @@ namespace tut
 		{
 			delete mServerPump;
 			delete mClientPump;
-			apr_pool_destroy(mPool);
 		}
 
 		void setupTheServer()
 		{
-			LLHTTPNode& root = LLIOHTTPServer::create(mPool, *mServerPump, 8888);
+			LLHTTPNode& root = LLIOHTTPServer::create(*mServerPump, 8888);
 
 			LLHTTPStandardServices::useServices();
 			LLHTTPRegistrar::buildAllServices(root);
