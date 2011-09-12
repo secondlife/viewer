@@ -208,6 +208,8 @@ public:
 	
 	void setSortOrder(U32 order);
 	U32 getSortOrder() const;
+	void requestSort();
+
 private:
 	std::string					mSortOrderSetting;
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <search_editor
+  name="search_editor"
   clear_button_visible="false"
   search_button_visible="true"
   text_pad_left="6" 

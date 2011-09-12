@@ -30,11 +30,12 @@
               width="330">
              <layout_panel
                  name="main_inventory_layout_panel"
+								 layout="topleft"
                  min_dim="150"
                  width="330"
                  follows="bottom|left|right"
                  user_resize="false"
-                 height="480">
+                 height="300">
                  <panel
                       class="panel_main_inventory"
                       filename="panel_main_inventory.xml"
@@ -44,14 +45,36 @@
                       name="panel_main_inventory"
                       top="0"
                       label=""
-                      height="480"
+                      height="300"
                       width="330" />
              </layout_panel>
-             <layout_panel
+					   <layout_panel
                  width="330"
+								 layout="topleft"
                  auto_resize="true"
                  user_resize="false"
                  follows="bottom|left|right"
+                 name="inbox_outbox_layout_panel"
+                 visible="false"
+                 min_dim="35"
+                 max_dim="235"
+                 expanded_min_dim="125"
+                 height="235">
+							 <layout_stack
+										follows="left|right|top|bottom"
+										layout="topleft"
+										left="0"
+										top="0"
+										orientation="vertical"
+										name="inbox_outbox_layout_stack"
+										height="235"
+										width="330">
+								 <layout_panel
+                 width="330"
+								 layout="topleft"
+                 auto_resize="true"
+                 user_resize="false"
+                 follows="left|right|top"
                  name="inbox_layout_panel"
                  visible="false"
                  min_dim="35"
@@ -72,6 +95,7 @@
                      <string name="InboxLabelNoArg">Received Items</string>
                      <button
                         label="Received Items"
+												font="SansSerifMedium"
                         name="inbox_btn"
                         height="35"
                         width="308"
@@ -96,7 +120,6 @@
                         name="inbox_fresh_new_count"
                         font="SansSerifMedium"
                         halign="right"
-                        text_color="EmphasisColor"
                         top_pad="0"
                         width="300">
                         [NUM] New
@@ -129,41 +152,45 @@
                  </panel>
              </layout_panel>
              <layout_panel
-                width="330"
-                auto_resize="true"
-                user_resize="false"
-                follows="bottom|left|right"
-                name="outbox_layout_panel"
-                visible="false"
-                min_dim="35"
-                max_dim="200"
-                expanded_min_dim="90"
-                height="200">
+                 width="330"
+                 layout="topleft"
+                 auto_resize="true"
+                 user_resize="false"
+                 follows="all"
+                 name="outbox_layout_panel"
+                 visible="false"
+                 min_dim="35"
+                 max_dim="200"
+                 expanded_min_dim="90"
+                 height="200">
                  <panel
                       follows="all"
                       layout="topleft"
-                      left="10"
+                      left="0"
                       name="marketplace_outbox"
                       class="panel_marketplace_outbox"
                       top="0"
                       label=""
                       height="200"
-                      width="310">
+                      width="330">
+                     <string name="OutboxLabelWithArg">Merchant Outbox ([NUM])</string>
+                     <string name="OutboxLabelNoArg">Merchant Outbox</string>
                      <button
                         label="Merchant Outbox"
-                        is_toggle="true"
-                        handle_right_mouse="false"
+                        font="SansSerifMedium"
                         name="outbox_btn"
-                        follows="top|left|right"
+                        height="35"
+                        width="308"
                         image_unselected="MarketplaceBtn_Off"
                         image_selected="MarketplaceBtn_Selected"
-                        height="35"
-                        tab_stop="false"
-                        width="308"
                         halign="left"
+                        handle_right_mouse="false"
+                        follows="top|left|right"
+                        is_toggle="true"
+                        tab_stop="false"
                         pad_left="35"
                         top="0"
-                        left="0" />
+                        left="10" />
                      <button
                          image_unselected="OutboxPush_Off"
                          image_selected="OutboxPush_Selected"
@@ -213,24 +240,50 @@
                         bg_opaque_color="InventoryBackgroundColor"
                         background_visible="true"
                         background_opaque="true"
-                        tool_tip="Drag and drop items here to prepare them for sale on your storefront"
                         >
-                        <text
-							name="outbox_inventory_placeholder"
-							type="string"
+						<panel
+							name="outbox_inventory_placeholder_panel"
 							follows="all"
 							layout="topleft"
 							top="0"
 							left="0"
 							width="308"
 							height="165"
-							wrap="true"
-							halign="center">
-							Set up your merchant account to use this feature.
-						</text>
+							bg_opaque_color="InventoryBackgroundColor"
+							background_visible="true"
+							background_opaque="true"
+							>
+							<text
+								name="outbox_inventory_placeholder_title"
+								type="string"
+								follows="all"
+								layout="topleft"
+								top="10"
+								left="0"
+								width="308"
+								height="25"
+								wrap="true"
+								halign="center"
+								font="SansSerifBold">
+								Loading...
+							</text>
+							<text
+								name="outbox_inventory_placeholder_text"
+								type="string"
+								follows="all"
+								layout="topleft"
+								top="35"
+								left="0"
+								width="308"
+								height="130"
+								wrap="true"
+								halign="left" />
+						</panel>
                     </panel>
                  </panel>
              </layout_panel>
+						 </layout_stack>
+						 </layout_panel>
          </layout_stack>
 		<panel
 		     follows="bottom|left|right"

@@ -52,10 +52,9 @@ protected:
 };
 
 LLSearchComboBox::Params::Params()
-: search_button("search_button")
-, dropdown_button_visible("dropdown_button_visible", false)
-{
-}
+:	search_button("search_button"),
+	dropdown_button_visible("dropdown_button_visible", false)
+{}
 
 LLSearchComboBox::LLSearchComboBox(const Params&p)
 : LLComboBox(p)

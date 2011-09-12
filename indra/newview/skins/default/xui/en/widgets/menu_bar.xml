@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu_bar
+			tear_off = "false"
+			keep_fixed_size = "true"
+			horizontal_layout = "true"
+			visible = "true"
+			drop_shadow = "false"/>

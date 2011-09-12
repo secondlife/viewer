@@ -4,7 +4,8 @@
   bg_opaque_image - image name for "in-front" panel look
   bg_alpha_image - image name for "in-back" or transparent panel look
 -->
-<panel bg_opaque_color="PanelFocusBackgroundColor"
+<panel name="panel"
+       bg_opaque_color="PanelFocusBackgroundColor"
        bg_alpha_color="PanelDefaultBackgroundColor"
        bg_opaque_image_overlay="White"
        bg_alpha_image_overlay="White"

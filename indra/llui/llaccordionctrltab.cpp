@@ -339,7 +339,7 @@ LLAccordionCtrlTab::Params::Params()
 	,fit_panel("fit_panel",true)
 	,selection_enabled("selection_enabled", false)
 {
-	mouse_opaque(false);
+	changeDefault(mouse_opaque, false);
 }
 
 LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)

@@ -57,7 +57,7 @@ public:
 		Params()
 		:	quadrant("quadrant", JQ_ORIGIN)
 		{
-			label = "";
+			changeDefault(label, "");
 		}
 	};
 	LLJoystick(const Params&);
@@ -137,7 +137,7 @@ public:
 	{
 		Params()
 		{
-			held_down_delay.seconds(0.0);
+			changeDefault(held_down_delay.seconds, 0.0);
 		}
 	};
 

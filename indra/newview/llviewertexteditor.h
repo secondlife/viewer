@@ -36,12 +36,7 @@ class LLViewerTextEditor : public LLTextEditor
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLTextEditor::Params>
-	{
-		Params()
-		{
-			name = "text_editor";
-		}
-	};
+	{};
 
 protected:
 	LLViewerTextEditor(const Params&);

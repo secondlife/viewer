@@ -50,7 +50,7 @@ public:
 			  show_label("show_label", FALSE),
 			  display_children("display_children", TRUE)
 		{
-			mouse_opaque(false);
+			changeDefault(mouse_opaque, false);
 		}
 	};
 

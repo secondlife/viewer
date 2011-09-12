@@ -30,8 +30,14 @@
 	 name="LtGray"
 	 value="0.75 0.75 0.75 1" />
 	<color
+	 name="LtGray_35"
+	 value="0.75 0.75 0.75 0.35" />
+	<color
 	 name="LtGray_50"
 	 value="0.75 0.75 0.75 0.50" />
+	<color
+	 name="Gray"
+	 value="0.5 0.5 0.5 1" />
 	<color
 	 name="DkGray"
 	 value="0.125 0.125 0.125 1" />
@@ -197,7 +203,7 @@
      reference="Black" />
     <color
      name="ColorPaletteEntry02"
-     value="0.5 0.5 0.5 1" />
+     reference="Gray" />
     <color
      name="ColorPaletteEntry03"
      value="0.5 0 0 1" />
@@ -424,11 +430,14 @@
      name="InventoryItemLinkColor"
      reference="LtGray_50" />
     <color
+     name="InventoryMouseOverColor"
+     reference="LtGray_35" />
+    <color
      name="InventorySearchStatusColor"
      reference="EmphasisColor" />
     <color
      name="LabelDisabledColor"
-	 reference="White_25" />
+     reference="White_25" />
     <color
      name="LabelSelectedColor"
      reference="White" />

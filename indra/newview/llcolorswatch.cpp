@@ -57,7 +57,6 @@ LLColorSwatchCtrl::Params::Params()
 	caption_text("caption_text"),
 	border("border")
 {
-	name = "colorswatch";
 }
 
 LLColorSwatchCtrl::LLColorSwatchCtrl(const Params& p)

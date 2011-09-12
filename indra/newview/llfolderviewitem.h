@@ -136,7 +136,7 @@ protected:
 	std::string					mSearchableLabel;
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
-	mutable time_t				mCreationDate;
+	time_t						mCreationDate;
 	LLFolderViewFolder*			mParentFolder;
 	LLFolderViewEventListener*	mListener;
 	BOOL						mIsCurSelection;
@@ -159,6 +159,7 @@ protected:
 	BOOL                        mIsLoading;
 	LLTimer                     mTimeSinceRequestStart;
 	bool						mShowLoadStatus;
+	bool						mIsMouseOverTitle;
 
 	// helper function to change the selection from the root.
 	void changeSelectionFromRoot(LLFolderViewItem* selection, BOOL selected);
@@ -173,7 +174,7 @@ protected:
 
 	static LLFontGL* getLabelFontForStyle(U8 style);
 
-	virtual void setCreationDate(time_t creation_date_utc) const { mCreationDate = creation_date_utc; }
+	virtual void setCreationDate(time_t creation_date_utc)	{ mCreationDate = creation_date_utc; }
 
 public:
 	BOOL postBuild();
@@ -327,6 +328,8 @@ public:
 	virtual BOOL handleHover( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
+
+	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
 	virtual LLView* findChildView(const std::string& name, BOOL recurse) const { return NULL; }
 
