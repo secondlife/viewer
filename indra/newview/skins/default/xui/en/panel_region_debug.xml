@@ -190,7 +190,7 @@
      name="restart_btn"
      tool_tip="Give 2 minute countdown and restart region"
      top_pad="5"
-     width="130" />
+     width="150" />
     <button
      follows="left|top"
      height="20"
@@ -200,5 +200,5 @@
      name="cancel_restart_btn"
      tool_tip="Delay region restart by one hour"
      top_pad="5"
-     width="130" />
+     width="150" />
 </panel>
