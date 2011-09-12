@@ -2841,7 +2841,7 @@ void LLModelLoader::processElement( daeElement* element, bool& badElement )
 	//process children
 	daeTArray< daeSmartRef<daeElement> > children = element->getChildren();
 	int childCount = children.getCount();
-	for (S32 i = 0; i < children.getCount(); i++)
+	for (S32 i = 0; i < childCount; i++)
 	{
 		processElement(children[i],badElement);
 	}
