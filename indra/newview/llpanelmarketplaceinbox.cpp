@@ -116,7 +116,7 @@ void LLPanelMarketplaceInbox::onFocusReceived()
 
 	sidepanel_inventory->clearSelections(true, false, true);
 
-	gSavedPerAccountSettings.setString("LastInventoryInboxActivity", LLDate::now().asString());
+	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
 BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg)
