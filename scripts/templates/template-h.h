@@ -28,4 +28,4 @@
 #'%c'%35#define LL_#filename.upper().replace('-','_')#_H
 
 
-#'%c'%35#endif LL_#filename.upper().replace('-','_')#_H
+#'%c'%35#endif // LL_#filename.upper().replace('-','_')#_H

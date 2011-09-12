@@ -26,4 +26,5 @@
 */
 
 
-#'%c'%35#include "#filename#.h"
+#'' if ( skip_h ) else '%cinclude "%s.h"' % (35,filename)#
+
