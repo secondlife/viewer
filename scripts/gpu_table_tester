@@ -62,14 +62,14 @@ die "Must specify a --gpu-table <gpu_table.txt> value"
 open(GPUS, "<$GpuTable")
     || die "Failed to open gpu table '$GpuTable':\n\t$!\n";
 
-# Parse the GPU table into these table, indexed by the name
+# Parse the GPU table into these tables, indexed by the name
 my %NameLine;       # name -> line number on which a given name was found (catches duplicate names)
 my %RecognizerLine; # name -> line number on which a given name was found (catches duplicate names)
 my %Name;           # recognizer -> name
 my %Recognizer;     # name -> recognizer
 my %Class;          # recognizer -> class
 my %Supported;      # recognizer -> supported
-my @InOrder;        # records the order of the recognizers
+my @InOrder;        # lowercased recognizers in file order - these are the ones really used to match
 
 $Name{'UNRECOGNIZED'}      = 'UNRECOGNIZED';
 $NameLine{'UNRECOGNIZED'}  = '(hard-coded)'; # use this for error messages in table parsing
@@ -126,7 +126,8 @@ while (<GPUS>)
     
     if ($errsOnLine == $ErrorsSeen) # no errors found on this line
     {
-        push @InOrder,$regex;
+        $lcregex = $regex; # the real gpu table parser lowercases each recognizer
+        push @InOrder,$lcregex;
         $NameLine{$name} = $INPUT_LINE_NUMBER;
         $RecognizerLine{$regex} = $INPUT_LINE_NUMBER;
         $Name{$regex} = $name;
@@ -142,10 +143,13 @@ print STDERR "\n" if $ErrorsSeen;
 
 exit $ErrorsSeen if $TableOnly;
 
+
 my %RecognizedBy;
-while (<>)
+while (<>) # Loop over input lines
 {
     chomp;
+    my $lowerInput = $_;
+    lc lowerInput;  # the real gpu table parser lowercases the input string
     my $recognizer;
     $RecognizedBy{$_} = 'UNRECOGNIZED';
     foreach $recognizer ( @InOrder ) # note early exit if recognized
