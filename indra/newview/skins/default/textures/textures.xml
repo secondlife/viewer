@@ -119,7 +119,7 @@ with the same filename but different name
   <texture name="Checkbox_On" file_name="widgets/Checkbox_On.png" preload="true" />
   <texture name="Checkbox_On_Press" file_name="widgets/Checkbox_On_Press.png" preload="true" />
   <texture name="Checkbox_Press" file_name="widgets/Checkbox_Press.png" preload="true" />
-  <texture name="Check_Mark" file_name="icons/check_mark" preload="true" />
+  <texture name="Check_Mark" file_name="icons/check_mark.png" preload="true" />
 
   <texture name="ComboButton_Disabled" file_name="widgets/ComboButton_Disabled.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Selected" file_name="widgets/ComboButton_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
