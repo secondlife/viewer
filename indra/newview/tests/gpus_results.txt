@@ -156,10 +156,10 @@ ATI Technologies Inc. AMD Radeon HD 6310M                                       
 ATI Technologies Inc. AMD Radeon HD 6330M                                                                supported      2   ATI Radeon HD 6300
 ATI Technologies Inc. AMD Radeon HD 6350                                                                 supported      2   ATI Radeon HD 6300
 ATI Technologies Inc. AMD Radeon HD 6370M                                                                supported      2   ATI Radeon HD 6300
-ATI Technologies Inc. AMD Radeon HD 6400M Series                                                         supported      3   ATI Radeon HD 6400
+ATI Technologies Inc. AMD Radeon HD 6400M Series                                                         supported      3   ATI Radeon HD 64xxM
 ATI Technologies Inc. AMD Radeon HD 6450                                                                 supported      3   ATI Radeon HD 6400
-ATI Technologies Inc. AMD Radeon HD 6470M                                                                supported      3   ATI Radeon HD 6400
-ATI Technologies Inc. AMD Radeon HD 6490M                                                                supported      3   ATI Radeon HD 6400
+ATI Technologies Inc. AMD Radeon HD 6470M                                                                supported      3   ATI Radeon HD 64xxM
+ATI Technologies Inc. AMD Radeon HD 6490M                                                                supported      3   ATI Radeon HD 64xxM
 ATI Technologies Inc. AMD Radeon HD 6500M/5600/5700 Series                                               supported      3   ATI Radeon HD 6500
 ATI Technologies Inc. AMD Radeon HD 6530M                                                                supported      3   ATI Radeon HD 6500
 ATI Technologies Inc. AMD Radeon HD 6550M                                                                supported      3   ATI Radeon HD 6500
@@ -180,7 +180,7 @@ ATI Technologies Inc. AMD Radeon HD 6870M                                       
 ATI Technologies Inc. AMD Radeon HD 6900 Series                                                          supported      3   ATI Radeon HD 6900
 ATI Technologies Inc. AMD Radeon HD 6970M                                                                supported      3   ATI Radeon HD 6900
 ATI Technologies Inc. AMD Radeon HD 6990                                                                 supported      3   ATI Radeon HD 6900
-ATI Technologies Inc. AMD Radeon(TM) HD 6470M                                                            supported      0   ATI Technologies
+ATI Technologies Inc. AMD Radeon(TM) HD 6470M                                                            supported      3   ATI Radeon HD 64xxM
 ATI Technologies Inc. ASUS 5870 Eyefinity 6                                                              supported      0   ATI Technologies
 ATI Technologies Inc. ASUS AH2600 Series                                                                 supported      3   ATI ASUS AH26xx
 ATI Technologies Inc. ASUS AH3450 Series                                                                 supported      1   ATI ASUS AH34xx
