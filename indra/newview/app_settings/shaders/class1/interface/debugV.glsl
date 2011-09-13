@@ -1,9 +1,9 @@
 /** 
- * @file sunLightF.glsl
+ * @file debugV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,14 +22,11 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+attribute vec3 position;
 
-//class 1, no shadow, no SSAO, should never be called
-
-#extension GL_ARB_texture_rectangle : enable
-
-void main() 
+void main()
 {
-	gl_FragColor = vec4(0,0,0,0);
+	gl_Position = gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
 }
+

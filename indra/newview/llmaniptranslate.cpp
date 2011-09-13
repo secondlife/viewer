@@ -1519,6 +1519,7 @@ void LLManipTranslate::renderSnapGuides()
 		
 		F32 sz = mGridSizeMeters;
 		F32 tiles = sz;
+
 		glMatrixMode(GL_TEXTURE);
 		gGL.pushMatrix();
 		usc = 1.0f/usc;
@@ -1665,7 +1666,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 		glStencilFunc(GL_ALWAYS, 0, stencil_mask);
 		gGL.setColorMask(false, false);
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		glColor4f(1,1,1,1);
+		gGL.diffuseColor4f(1,1,1,1);
 
 		//setup clip plane
 		normal = normal * grid_rotation;
@@ -2239,11 +2240,11 @@ void LLManipTranslate::renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_
 			break;
 		}
 
-		glColor4fv(color.mV);
+		gGL.diffuseColor4fv(color.mV);
 		glRotatef(rot, axis.mV[0], axis.mV[1], axis.mV[2]);
 		glScalef(mArrowScales.mV[index], mArrowScales.mV[index], mArrowScales.mV[index] * 1.5f);
 
-		gCone.render(CONE_LOD_HIGHEST);
+		gCone.render();
 
 		gGL.popMatrix();
 	}

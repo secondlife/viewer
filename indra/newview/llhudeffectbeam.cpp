@@ -295,12 +295,12 @@ void LLHUDEffectBeam::render()
 		F32 alpha = mFadeInterp.getCurVal()*mColor.mV[3];
 		alpha *= mInterpFade[i].getCurVal();
 		coloru.mV[3] = (U8)alpha;
-		glColor4ubv(coloru.mV);
+		gGL.color4ubv(coloru.mV);
 
 		glPushMatrix();
 		glTranslatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
 		glScalef(scale, scale, scale);
-		gSphere.render(0);
+		gSphere.render();
 		glPopMatrix();
 	}
 }

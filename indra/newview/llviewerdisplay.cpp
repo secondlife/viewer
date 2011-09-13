@@ -724,6 +724,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
 			gPipeline.generateWaterReflection(*LLViewerCamera::getInstance());
 			gPipeline.generateHighlight(*LLViewerCamera::getInstance());
+			gPipeline.renderPhysicsDisplay();
 		}
 
 		LLGLState::checkStates();
@@ -1459,6 +1460,11 @@ void render_ui_2d()
 
 void render_disconnected_background()
 {
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+
 	gGL.color4f(1,1,1,1);
 	if (!gDisconnectedImagep && gDisconnected)
 	{
@@ -1528,6 +1534,12 @@ void render_disconnected_background()
 		glPopMatrix();
 	}
 	gGL.flush();
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.unbind();
+	}
+
 }
 
 void display_cleanup()

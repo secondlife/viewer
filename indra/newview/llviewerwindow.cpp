@@ -1732,10 +1732,7 @@ void LLViewerWindow::initGLDefaults()
 	glCullFace(GL_BACK);
 
 	// RN: Need this for translation and stretch manip.
-	gCone.prerender();
 	gBox.prerender();
-	gSphere.prerender();
-	gCylinder.prerender();
 }
 
 struct MainPanel : public LLPanel
@@ -2247,6 +2244,10 @@ void LLViewerWindow::drawDebugText()
 	gGL.color4f(1,1,1,1);
 	gGL.pushMatrix();
 	gGL.pushUIMatrix();
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
 	{
 		// scale view by UI global scale factor and aspect ratio correction factor
 		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
@@ -2256,6 +2257,10 @@ void LLViewerWindow::drawDebugText()
 	gGL.popMatrix();
 
 	gGL.flush();
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.unbind();
+	}
 }
 
 void LLViewerWindow::draw()
@@ -3455,26 +3460,26 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 					if (drawable && drawable->isLight())
 					{
 						LLVOVolume* vovolume = drawable->getVOVolume();
-						glPushMatrix();
+						gGL.pushMatrix();
 
 						LLVector3 center = drawable->getPositionAgent();
-						glTranslatef(center[0], center[1], center[2]);
+						gGL.translatef(center[0], center[1], center[2]);
 						F32 scale = vovolume->getLightRadius();
-						glScalef(scale, scale, scale);
+						gGL.scalef(scale, scale, scale);
 
 						LLColor4 color(vovolume->getLightColor(), .5f);
-						glColor4fv(color.mV);
+						gGL.color4fv(color.mV);
 					
-						F32 pixel_area = 100000.f;
+						//F32 pixel_area = 100000.f;
 						// Render Outside
-						gSphere.render(pixel_area);
+						gSphere.render();
 
 						// Render Inside
 						glCullFace(GL_FRONT);
-						gSphere.render(pixel_area);
+						gSphere.render();
 						glCullFace(GL_BACK);
 					
-						glPopMatrix();
+						gGL.popMatrix();
 					}
 					return true;
 				}
@@ -4662,10 +4667,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 			gPipeline.destroyGL();
 		}
 		
-		gCone.cleanupGL();
 		gBox.cleanupGL();
-		gSphere.cleanupGL();
-		gCylinder.cleanupGL();
 		
 		if(gPostProcess)
 		{

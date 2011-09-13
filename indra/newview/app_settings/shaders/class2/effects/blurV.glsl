@@ -24,6 +24,8 @@
  */
  
 
+attribute vec3 position;
+attribute vec2 texcoord0;
 
 uniform vec2 texelSize;
 uniform vec2 blurDirection;
@@ -32,10 +34,10 @@ uniform float blurWidth;
 void main(void)
 {
 	// Transform vertex
-	gl_Position = ftransform();
+	gl_Position = gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
 	
 	vec2 blurDelta = texelSize * blurDirection * vec2(blurWidth, blurWidth);
-	vec2 s = gl_MultiTexCoord0.st - (blurDelta * 3.0);
+	vec2 s = vec4(texcoord0,0,1).st - (blurDelta * 3.0);
 	
 	// for (int i = 0; i < 7; i++) {
 		// gl_TexCoord[i].st = s + (i * blurDelta);

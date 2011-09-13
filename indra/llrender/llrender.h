@@ -351,6 +351,12 @@ public:
 	void color3fv(const GLfloat* c);
 	void color4ubv(const GLubyte* c);
 
+	void diffuseColor3f(F32 r, F32 g, F32 b);
+	void diffuseColor3fv(const F32* c);
+	void diffuseColor4f(F32 r, F32 g, F32 b, F32 a);
+	void diffuseColor4fv(const F32* c);
+	void diffuseColor4ubv(const U8* c);
+
 	void vertexBatchPreTransformed(LLVector3* verts, S32 vert_count);
 	void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count);
 	void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLColor4U*, S32 vert_count);

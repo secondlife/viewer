@@ -31,6 +31,7 @@
 #include "llshadermgr.h"
 #include "llfile.h"
 #include "llrender.h"
+#include "llvertexbuffer.h"
 
 #if LL_DARWIN
 #include "OpenGL/OpenGL.h"
@@ -116,10 +117,12 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	// Create program
 	mProgramObject = glCreateProgramObjectARB();
 	
+#if !LL_DARWIN
 	if (gGLManager.mGLVersion < 3.1f)
 	{ //force indexed texture channels to 1 if GL version is old (performance improvement for drivers with poor branching shader model support)
 		mFeatures.mIndexedTextureChannels = llmin(mFeatures.mIndexedTextureChannels, 1);
 	}
+#endif // !LL_DARWIN
 
 	//compile new source
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
@@ -386,6 +389,7 @@ void LLGLSLShader::bind()
 	gGL.flush();
 	if (gGLManager.mHasShaderObjects)
 	{
+		LLVertexBuffer::unbind();
 		glUseProgramObjectARB(mProgramObject);
 		sCurBoundShader = mProgramObject;
 		sCurBoundShaderPtr = this;
@@ -411,6 +415,7 @@ void LLGLSLShader::unbind()
 				stop_glerror();
 			}
 		}
+		LLVertexBuffer::unbind();
 		glUseProgramObjectARB(0);
 		sCurBoundShader = 0;
 		sCurBoundShaderPtr = NULL;
@@ -420,6 +425,7 @@ void LLGLSLShader::unbind()
 
 void LLGLSLShader::bindNoShader(void)
 {
+	LLVertexBuffer::unbind();
 	glUseProgramObjectARB(0);
 	sCurBoundShader = 0;
 	sCurBoundShaderPtr = NULL;
@@ -930,7 +936,9 @@ void LLGLSLShader::uniform4fv(const string& uniform, U32 count, const GLfloat* v
 		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
 		if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
 		{
+			stop_glerror();
 			glUniform4fvARB(location, count, v);
+			stop_glerror();
 			mValue[location] = vec;
 		}
 	}
