@@ -564,4 +564,22 @@ namespace tut
 		z1 = U8_to_F32(F32_to_U8(z, lowerz, upperz), lowerz, upperz);
 		ensure("2:quantize8: Fail ", is_approx_equal(x1, vec3a.mV[VX]) && is_approx_equal(y1, vec3a.mV[VY]) && is_approx_equal(z1, vec3a.mV[VZ]));
 	}
+
+	template<> template<>
+	void v3math_object::test<35>()
+	{
+		LLSD sd = LLSD::emptyArray();
+		sd[0] = 1.f;
+
+		LLVector3 parsed_1(sd);
+		ensure("1:LLSD parse: Fail ", is_approx_equal(parsed_1.mV[VX], 1.f) && is_approx_equal(parsed_1.mV[VY], 0.f) && is_approx_equal(parsed_1.mV[VZ], 0.f));
+
+		sd[1] = 2.f;
+		LLVector3 parsed_2(sd);
+		ensure("2:LLSD parse: Fail ", is_approx_equal(parsed_2.mV[VX], 1.f) && is_approx_equal(parsed_2.mV[VY], 2.f) && is_approx_equal(parsed_2.mV[VZ], 0.f));
+
+		sd[2] = 3.f;
+		LLVector3 parsed_3(sd);
+		ensure("3:LLSD parse: Fail ", is_approx_equal(parsed_3.mV[VX], 1.f) && is_approx_equal(parsed_3.mV[VY], 2.f) && is_approx_equal(parsed_3.mV[VZ], 3.f));
+	}
 }
