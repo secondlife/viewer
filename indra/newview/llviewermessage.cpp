@@ -3149,7 +3149,9 @@ protected:
 
 	void handleFailure(int status, const std::string& err_msg)
 	{
-		m_chat.mText += " (?)";
+		std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
+		LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
+		m_chat.mText += " (" + msg + ")";
 
 		LLNotificationsUI::LLNotificationManager::instance().onChat(m_chat, m_toastArgs);
 	}
