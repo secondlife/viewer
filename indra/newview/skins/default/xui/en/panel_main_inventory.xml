@@ -82,10 +82,11 @@
      left="0"
      name="All Items"
      sort_order_setting="InventorySortOrder"
-	 show_item_link_overlays="true"
+     show_item_link_overlays="true"
      top="16"
      width="288" />
     <recent_inventory_panel
+     accepts_drag_and_drop="false"
      bg_opaque_color="DkGray2"
      bg_alpha_color="DkGray2"
      background_visible="true"
@@ -99,7 +100,7 @@
      layout="topleft"
      left_delta="0"
      name="Recent Items"
-	 show_item_link_overlays="true"
+     show_item_link_overlays="true"
      width="290" />
   </tab_container>
   <layout_stack
