@@ -129,6 +129,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mScroller(NULL),
 	mSortOrderSetting(p.sort_order_setting),
 	mInventory(p.inventory),
+	mAcceptsDragAndDrop(p.accepts_drag_and_drop),
 	mAllowMultiSelect(p.allow_multi_select),
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mShowLoadStatus(p.show_load_status),
@@ -824,19 +825,24 @@ BOOL LLInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EAcceptance* accept,
 								   std::string& tooltip_msg)
 {
-	BOOL handled = LLPanel::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+	BOOL handled = FALSE;
 
-	// If folder view is empty the (x, y) point won't be in its rect
-	// so the handler must be called explicitly.
-	// but only if was not handled before. See EXT-6746.
-	if (!handled && !mFolderRoot->hasVisibleChildren())
+	if (mAcceptsDragAndDrop)
 	{
-		handled = mFolderRoot->handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-	}
+		handled = LLPanel::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 
-	if (handled)
-	{
-		mFolderRoot->setDragAndDropThisFrame();
+		// If folder view is empty the (x, y) point won't be in its rect
+		// so the handler must be called explicitly.
+		// but only if was not handled before. See EXT-6746.
+		if (!handled && !mFolderRoot->hasVisibleChildren())
+		{
+			handled = mFolderRoot->handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		}
+
+		if (handled)
+		{
+			mFolderRoot->setDragAndDropThisFrame();
+		}
 	}
 
 	return handled;
