@@ -159,6 +159,11 @@ LLSD* LLParamSDParser::getSDWriteNode(const parser_t::name_stack_t& name_stack)
 		it != name_stack.end();
 		++it)
 	{
+		if (it->first.empty())
+		{
+			continue;
+		}
+
 		bool new_array_entry = false;
 		if (prev_it == mNameStack.end())
 		{
