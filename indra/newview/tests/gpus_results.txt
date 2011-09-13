@@ -108,7 +108,7 @@ ATI Radeon HD 6300                                                              
 ATI Radeon HD 6500                                                                                       supported      3   ATI Radeon HD 6500
 ATI Radeon HD 6800                                                                                       supported      3   ATI Radeon HD 6800
 ATI Radeon HD 6900                                                                                       supported      3   ATI Radeon HD 6900
-ATI Radeon OpenGL                                                                                        supported      0   ATI Radeon
+ATI Radeon OpenGL                                                                                        unsupported    0   ATI Radeon OpenGL
 ATI Radeon RV250                                                                                         supported      0   ATI Radeon RV250
 ATI Radeon RV600                                                                                         supported      1   ATI Radeon RV600
 ATI Radeon RX9550                                                                                        supported      1   ATI Radeon RX9550
