@@ -371,7 +371,11 @@ private:
 	bool mResultReturned;
 };
 
-void check_curl_code(CURLcode code);
-void check_curl_multi_code(CURLMcode code);
+// Provide access to LLCurl free functions outside of llcurl.cpp without polluting the global namespace.
+namespace LLCurlFF
+{
+	void check_easy_code(CURLcode code);
+	void check_multi_code(CURLMcode code);
+}
 
 #endif // LL_LLCURL_H

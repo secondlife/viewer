@@ -499,7 +499,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	
 	//don't verify host name so urls with scrubbed host names will work (improves DNS performance)
 	setopt(CURLOPT_SSL_VERIFYHOST, 0);
-	setopt(CURLOPT_TIMEOUT, CURL_REQUEST_TIMEOUT);
+	setopt(CURLOPT_TIMEOUT, llmax(time_out, CURL_REQUEST_TIMEOUT));
 
 	setoptString(CURLOPT_URL, url);
 
@@ -1213,3 +1213,13 @@ void LLCurl::cleanupClass()
 }
 
 const unsigned int LLCurl::MAX_REDIRECTS = 5;
+
+// Provide access to LLCurl free functions outside of llcurl.cpp without polluting the global namespace.
+void LLCurlFF::check_easy_code(CURLcode code)
+{
+	check_curl_code(code);
+}
+void LLCurlFF::check_multi_code(CURLMcode code)
+{
+	check_curl_multi_code(code);
+}
