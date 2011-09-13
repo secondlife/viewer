@@ -5980,7 +5980,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
 [ITEM_SLURL]
     <form name="form">
       <button
-       index="4"
+       index="3"
        name="Show"
        text="Show"/>
       <button
