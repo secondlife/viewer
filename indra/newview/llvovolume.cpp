@@ -3579,7 +3579,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 		bool special_cursor = specialHoverCursor();
 		for (S32 i = start_face; i < end_face; ++i)
 		{
-			if (!special_cursor && !pick_transparent && getTE(i)->getColor().mV[3] == 0.f)
+			if (!special_cursor && !pick_transparent && getTE(i) && getTE(i)->getColor().mV[3] == 0.f)
 			{ //don't attempt to pick completely transparent faces unless
 				//pick_transparent is true
 				continue;
