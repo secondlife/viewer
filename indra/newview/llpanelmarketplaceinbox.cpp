@@ -97,6 +97,7 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 	
 	// Set the sort order newest to oldest
 	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);	
+	mInventoryPanel->getFilter()->markDefault();
 
 	// Set selection callback for proper update of inventory status buttons
 	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
