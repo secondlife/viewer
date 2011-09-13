@@ -2840,7 +2840,8 @@ void LLModelLoader::processElement( daeElement* element, bool& badElement )
 
 	//process children
 	daeTArray< daeSmartRef<daeElement> > children = element->getChildren();
-	for (S32 i = 0; i < children.getCount(); i++)
+	int childCount = children.getCount();
+	for (S32 i = 0; i < childCount; i++)
 	{
 		processElement(children[i],badElement);
 	}
@@ -3532,6 +3533,12 @@ void LLModelPreview::setPhysicsFromLOD(S32 lod)
 
 void LLModelPreview::clearIncompatible(S32 lod)
 {
+	//Don't discard models if specified model is the physic rep
+	if ( lod == LLModel::LOD_PHYSICS )
+	{
+		return;
+	}
+
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
 	{ //clear out any entries that aren't compatible with this model
 		if (i != lod)
@@ -3806,7 +3813,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		lod_mode = iface->getFirstSelectedIndex();
 	}
-	mRequestedLoDMode[mPreviewLOD] = lod_mode;
+	mRequestedLoDMode[which_lod] = lod_mode;
 
 	F32 lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal();
 
@@ -4247,6 +4254,8 @@ void LLModelPreview::updateStatusMessages()
 			icon = mFMP->getChild<LLIconCtrl>("lod_status_message_icon");
 			icon->setImage(img);
 		}
+
+		updateLodControls(lod);
 	}
 
 
@@ -4448,6 +4457,7 @@ void LLModelPreview::updateLodControls(S32 lod)
 	{
 		"lod_mode_",
 		"lod_triangle_limit_",
+		"lod_error_threshold_"
 	};
 	const U32 num_lod_controls = sizeof(lod_controls)/sizeof(char*);
 
@@ -5539,8 +5549,6 @@ void LLModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 	if (!mLODFrozen)
 	{
 		genLODs(lod, 3, enforce_tri_limit);
-		updateLodControls(lod);
-		updateStatusMessages();
 		refresh();
 	}
 }

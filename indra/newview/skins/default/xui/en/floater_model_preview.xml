@@ -1296,7 +1296,7 @@
          name="warning_title"
          top_pad="10"
          text_color="DrYellow"
-         visible="true"
+         visible="false"
          width="40">
          NOTE:
        </text>
@@ -1310,7 +1310,7 @@
          top_delta="2"
          wrap="true"
          width="462"
-         visible="true">
+         visible="false">
          You dont have rights to upload mesh models. [[VURL] Find out how] to get certified.
        </text>
     </panel>
