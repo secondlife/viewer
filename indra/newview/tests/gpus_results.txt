@@ -26,7 +26,7 @@ ATI All-in-Wonder X1900                                                         
 ATI All-in-Wonder X600                                                                                   supported      1   ATI All-in-Wonder X600
 ATI All-in-Wonder X800                                                                                   supported      2   ATI All-in-Wonder X800
 ATI Diamond X1xxx                                                                                        supported      0   ATI Radeon X1xxx
-ATI Display Adapter                                                                                                         UNRECOGNIZED
+ATI Display Adapter                                                                                      supported      0   ATI Display Adapter
 ATI FireGL                                                                                               supported      0   ATI FireGL
 ATI FireGL 5200                                                                                          supported      0   ATI FireGL
 ATI FireGL 5xxx                                                                                          supported      0   ATI FireGL
@@ -502,9 +502,9 @@ ATI Technologies Inc. HIGHTECH EXCALIBUR RADEON 9550SE Series                   
 ATI Technologies Inc. HIGHTECH EXCALIBUR X700 PRO                                                        supported      0   ATI Technologies
 ATI Technologies Inc. M21 x86/MMX/3DNow!/SSE2                                                            supported      0   ATI Technologies
 ATI Technologies Inc. M76M                                                                               supported      3   ATI M76
-ATI Technologies Inc. MOBILITY RADEON 7500 DDR x86/SSE2                                                  supported      0   ATI Mobility Radeon
-ATI Technologies Inc. MOBILITY RADEON 9000 DDR x86/SSE2                                                  supported      0   ATI Mobility Radeon
-ATI Technologies Inc. MOBILITY RADEON 9000 IGPRADEON 9100 IGP DDR x86/SSE2                               supported      0   ATI Mobility Radeon
+ATI Technologies Inc. MOBILITY RADEON 7500 DDR x86/SSE2                                                  supported      0   ATI Mobility Radeon 7xxx
+ATI Technologies Inc. MOBILITY RADEON 9000 DDR x86/SSE2                                                  supported      0   ATI Mobility Radeon Xxxx
+ATI Technologies Inc. MOBILITY RADEON 9000 IGPRADEON 9100 IGP DDR x86/SSE2                               supported      0   ATI Mobility Radeon Xxxx
 ATI Technologies Inc. MOBILITY RADEON 9600 x86/SSE2                                                      supported      0   ATI Mobility Radeon 9600
 ATI Technologies Inc. MOBILITY RADEON 9700 x86/SSE2                                                      supported      1   ATI Mobility Radeon 9700
 ATI Technologies Inc. MOBILITY RADEON X300 x86/SSE2                                                      supported      1   ATI Mobility Radeon X3xx
@@ -1453,9 +1453,9 @@ NVIDIA RIVA TNT                                                                 
 NVIDIA RIVA TNT2/AGP/SSE2                                                                                unsupported    0   NVIDIA RIVA TNT
 NVIDIA RIVA TNT2/PCI/3DNOW!                                                                              unsupported    0   NVIDIA RIVA TNT
 NVIDIA nForce                                                                                            unsupported    0   NVIDIA nForce
-NVIDIA unknown board/AGP/SSE2                                                                                               UNRECOGNIZED
-NVIDIA unknown board/PCI/SSE2                                                                                               UNRECOGNIZED
-NVIDIA unknown board/PCI/SSE2/3DNOW!                                                                                        UNRECOGNIZED
+NVIDIA unknown board/AGP/SSE2                                                                            unsupported    0   NVIDIA Generic
+NVIDIA unknown board/PCI/SSE2                                                                            unsupported    0   NVIDIA Generic
+NVIDIA unknown board/PCI/SSE2/3DNOW!                                                                     unsupported    0   NVIDIA Generic
 Parallels and ATI Technologies Inc. Parallels using ATI Radeon HD 5670 OpenGL Engine                     supported      3   ATI Radeon HD 5600
 Parallels and ATI Technologies Inc. Parallels using ATI Radeon HD 5750 OpenGL Engine                     supported      3   ATI Radeon HD 5700
 Parallels and ATI Technologies Inc. Parallels using ATI Radeon HD 5770 OpenGL Engine                     supported      3   ATI Radeon HD 5700

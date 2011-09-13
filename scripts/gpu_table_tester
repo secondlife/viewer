@@ -126,8 +126,7 @@ while (<GPUS>)
     
     if ($errsOnLine == $ErrorsSeen) # no errors found on this line
     {
-        $lcregex = $regex; # the real gpu table parser lowercases each recognizer
-        push @InOrder,$lcregex;
+        push @InOrder,$regex;
         $NameLine{$name} = $INPUT_LINE_NUMBER;
         $RecognizerLine{$regex} = $INPUT_LINE_NUMBER;
         $Name{$regex} = $name;
@@ -148,13 +147,13 @@ my %RecognizedBy;
 while (<>) # Loop over input lines
 {
     chomp;
-    my $lowerInput = $_;
-    lc lowerInput;  # the real gpu table parser lowercases the input string
+    my $lcInput = lc $_;  # the real gpu table parser lowercases the input string
     my $recognizer;
     $RecognizedBy{$_} = 'UNRECOGNIZED';
     foreach $recognizer ( @InOrder ) # note early exit if recognized
     {
-        if ( m/$recognizer/ )
+        my $lcRecognizer = lc $recognizer; # the real gpu table parser lowercases the recognizer
+        if ( $lcInput =~ m/$lcRecognizer/ )
         {
             $RecognizedBy{$_} = $recognizer;
             last; # exit recognizer loop
