@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="320"
+ height="310"
  layout="topleft"
  name="floater_translation_settings"
  help_topic="environment_editor_floater"
  save_rect="true"
  title="TRANSLATION SETTINGS"
- width="350">
+ width="480">
 
- <string name="no_bing_api_key">Bing Translator requires and appID to function.</string>
- <string name="no_google_api_key">Google Translate requires an API key to function.</string>
+ <string name="bing_api_key_not_verified">Bing appID not verified. Please try again.</string>
+ <string name="google_api_key_not_verified">Google API key not verified. Please try again.</string>
+
+ <string name="bing_api_key_verified">Bing appID verified.</string>
+ <string name="google_api_key_verified">Google API key verified.</string>
 
  <check_box
   height="16"     
@@ -125,7 +128,7 @@
 
  <radio_group
   follows="top|left"
-  height="55"
+  height="70"
   layout="topleft"
   left_delta="10"
   name="translation_service_rg"
@@ -141,7 +144,7 @@
    label="Google Translate"
    layout="topleft"
    name="google"
-   top_pad="20" />
+   top_pad="55" />
  </radio_group>
 
  <text
@@ -150,13 +153,14 @@
   follows="top|right"
   height="20"
   layout="topleft"
-  left="10"
+  left="40"
   name="bing_api_key_label"
-  top_pad="20"
+  top_pad="-45"
   width="100">
   Bing [http://www.bing.com/developers/createapp.aspx AppID]:
   </text>
  <line_editor
+  default_text="Enter Bing AppID and click &quot;Verify&quot;"
   follows="top|left"
   height="20"
   layout="topleft"
@@ -164,22 +168,31 @@
   max_length_chars="50"
   top_delta="-4"
   name="bing_api_key"
-  value=""
   width="220" />
+ <button
+  follows="left|top"
+  height="23"
+  label="Verify"
+  layout="topleft"
+  left_pad="10"
+  name="verify_bing_api_key_btn"
+  top_delta="-2"
+  width="90" />	
 
  <text
   follows="top|right"
   height="20"
   layout="topleft"
-  left="10"
+  left="40"
   length="1"
   name="google_api_key_label"
-  top_pad="20"
+  top_pad="50"
   type="string"
   width="100">
-  Google [http://code.google.com/apis/language/translate/v2/pricing.html API key]:
+  Google [http://code.google.com/apis/language/translate/v2/getting_started.html#auth API key]:
  </text>
  <line_editor
+  default_text="Enter Google API key and click &quot;Verify&quot;"
   follows="top|left"
   height="20"
   layout="topleft"
@@ -188,6 +201,15 @@
   top_delta="-4"
   name="google_api_key"
   width="220" />
+ <button
+  follows="left|top"
+  height="23"
+  label="Verify"
+  layout="topleft"
+  left_pad="10"
+  name="verify_google_api_key_btn"
+  top_delta="-2"
+  width="90" />	
 
  <text
   follows="top|right"
@@ -195,11 +217,11 @@
   layout="topleft"
   left="155"
   length="1"
-  name="google_pricing_link"
-  top_delta="-80"
+  name="google_links_text"
+  top_delta="-23"
   type="string"
   width="100">
-  ([http://code.google.com/apis/language/translate/v2/pricing.html pricing])
+  [http://code.google.com/apis/language/translate/v2/pricing.html Pricing] | [https://code.google.com/apis/console Stats] 
  </text>
 
  <button

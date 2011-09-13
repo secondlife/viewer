@@ -29,6 +29,7 @@
 
 #include "llfloater.h"
 
+class LLButton;
 class LLCheckBoxCtrl;
 class LLComboBox;
 class LLLineEditor;
@@ -41,11 +42,22 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
+	void setBingVerified(bool ok, bool alert);
+	void setGoogleVerified(bool ok, bool alert);
+
 private:
 	std::string getSelectedService() const;
-	void showError(const std::string& err_name) const;
-	bool validate() const;
+	std::string getEnteredBingKey() const;
+	std::string getEnteredGoogleKey() const;
+	void showAlert(const std::string& msg_name) const;
 	void updateControlsEnabledState();
+	void verifyKey(int service, const std::string& key, bool alert = true);
+
+	void onEditorFocused(LLFocusableElement* control);
+	void onBingKeyEdited();
+	void onGoogleKeyEdited();
+	void onBtnBingVerify();
+	void onBtnGoogleVerify();
 	void onBtnOK();
 
 	LLCheckBoxCtrl* mMachineTranslationCB;
@@ -53,6 +65,12 @@ private:
 	LLLineEditor* mBingAPIKeyEditor;
 	LLLineEditor* mGoogleAPIKeyEditor;
 	LLRadioGroup* mTranslationServiceRadioGroup;
+	LLButton* mBingVerifyBtn;
+	LLButton* mGoogleVerifyBtn;
+	LLButton* mOKBtn;
+
+	bool mBingKeyVerified;
+	bool mGoogleKeyVerified;
 };
 
 #endif // LL_LLFLOATERTRANSLATIONSETTINGS_H

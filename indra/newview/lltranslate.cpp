@@ -54,6 +54,15 @@ void LLGoogleTranslationHandler::getTranslateURL(
 }
 
 // virtual
+void LLGoogleTranslationHandler::getKeyVerificationURL(
+	std::string& url,
+	const std::string& key) const
+{
+	url = std::string("https://www.googleapis.com/language/translate/v2/languages?key=")
+		+ key + "&target=en";
+}
+
+// virtual
 bool LLGoogleTranslationHandler::parseResponse(
 	int& status,
 	const std::string& body,
@@ -150,6 +159,15 @@ void LLBingTranslarionHandler::getTranslateURL(
 	{
 		url += "&from=" + from_lang;
 	}
+}
+
+// virtual
+void LLBingTranslarionHandler::getKeyVerificationURL(
+	std::string& url,
+	const std::string& key) const
+{
+	url = std::string("http://api.microsofttranslator.com/v2/Http.svc/GetLanguagesForTranslate?appId=")
+		+ key;
 }
 
 // virtual
@@ -251,6 +269,27 @@ void LLTranslate::TranslationReceiver::completedRaw(
 	}
 }
 
+LLTranslate::KeyVerificationReceiver::KeyVerificationReceiver(EService service)
+:	mService(service)
+{
+}
+
+LLTranslate::EService LLTranslate::KeyVerificationReceiver::getService() const
+{
+	return mService;
+}
+
+// virtual
+void LLTranslate::KeyVerificationReceiver::completedRaw(
+	U32 http_status,
+	const std::string& reason,
+	const LLChannelDescriptors& channels,
+	const LLIOPipe::buffer_ptr_t& buffer)
+{
+	bool ok = (http_status == 200);
+	setVerificationStatus(ok);
+}
+
 //static
 void LLTranslate::translateMessage(
 	TranslationReceiverPtr &receiver,
@@ -261,24 +300,21 @@ void LLTranslate::translateMessage(
 	std::string url;
 	receiver->mHandler.getTranslateURL(url, from_lang, to_lang, mesg);
 
-	static const float REQUEST_TIMEOUT = 5;
-    static LLSD sHeader;
-
-	if (!sHeader.size())
-	{
-	    std::string user_agent = llformat("%s %d.%d.%d (%d)",
-			LLVersionInfo::getChannel().c_str(),
-			LLVersionInfo::getMajor(),
-			LLVersionInfo::getMinor(),
-			LLVersionInfo::getPatch(),
-			LLVersionInfo::getBuild());
-
-		sHeader.insert("Accept", "text/plain");
-		sHeader.insert("User-Agent", user_agent);
-	}
-
 	LL_DEBUGS("Translate") << "Sending translation request: " << url << LL_ENDL;
-	LLHTTPClient::get(url, receiver, sHeader, REQUEST_TIMEOUT);
+	sendRequest(url, receiver);
+}
+
+// static
+void LLTranslate::verifyKey(
+	KeyVerificationReceiverPtr& receiver,
+	const std::string& key)
+{
+	std::string url;
+	const LLTranslationAPIHandler& handler = getHandler(receiver->getService());
+	handler.getKeyVerificationURL(url, key);
+
+	LL_DEBUGS("Translate") << "Sending key verification request: " << url << LL_ENDL;
+	sendRequest(url, receiver);
 }
 
 //static
@@ -296,14 +332,49 @@ std::string LLTranslate::getTranslateLanguage()
 // static
 const LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
 {
+	EService service = SERVICE_BING;
+
+	std::string service_str = gSavedSettings.getString("TranslationService");
+	if (service_str == "google")
+	{
+		service = SERVICE_GOOGLE;
+	}
+
+	return getHandler(service);
+}
+
+// static
+const LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
+{
 	static LLGoogleTranslationHandler google;
 	static LLBingTranslarionHandler bing;
 
-	std::string service = gSavedSettings.getString("TranslationService");
-	if (service == "google")
+	if (service == SERVICE_GOOGLE)
 	{
 		return google;
 	}
 
 	return bing;
+}
+
+// static
+void LLTranslate::sendRequest(const std::string& url, LLHTTPClient::ResponderPtr responder)
+{
+	static const float REQUEST_TIMEOUT = 5;
+	static LLSD sHeader;
+
+	if (!sHeader.size())
+	{
+	    std::string user_agent = llformat("%s %d.%d.%d (%d)",
+			LLVersionInfo::getChannel().c_str(),
+			LLVersionInfo::getMajor(),
+			LLVersionInfo::getMinor(),
+			LLVersionInfo::getPatch(),
+			LLVersionInfo::getBuild());
+
+		sHeader.insert("Accept", "text/plain");
+		sHeader.insert("User-Agent", user_agent);
+	}
+
+	LLHTTPClient::get(url, responder, sHeader, REQUEST_TIMEOUT);
 }

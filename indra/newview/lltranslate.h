@@ -44,6 +44,10 @@ public:
 		const std::string &to_lang,
 		const std::string &text) const = 0;
 
+	virtual void getKeyVerificationURL(
+		std::string &url,
+		const std::string &key) const = 0;
+
 	virtual bool parseResponse(
 		int& status,
 		const std::string& body,
@@ -67,6 +71,9 @@ public:
 		const std::string &from_lang,
 		const std::string &to_lang,
 		const std::string &text) const;
+	/*virtual*/ void getKeyVerificationURL(
+		std::string &url,
+		const std::string &key) const;
 	/*virtual*/ bool parseResponse(
 		int& status,
 		const std::string& body,
@@ -96,6 +103,9 @@ public:
 		const std::string &from_lang,
 		const std::string &to_lang,
 		const std::string &text) const;
+	/*virtual*/ void getKeyVerificationURL(
+		std::string &url,
+		const std::string &key) const;
 	/*virtual*/ bool parseResponse(
 		int& status,
 		const std::string& body,
@@ -112,6 +122,12 @@ class LLTranslate
 	LOG_CLASS(LLTranslate);
 
 public :
+
+	typedef enum e_service {
+		SERVICE_BING,
+		SERVICE_GOOGLE,
+	} EService;
+
 	class TranslationReceiver: public LLHTTPClient::Responder
 	{
 	public:
@@ -134,13 +150,34 @@ public :
 		const LLTranslationAPIHandler& mHandler;
 	};
 
+	class KeyVerificationReceiver: public LLHTTPClient::Responder
+	{
+	public:
+		EService getService() const;
+
+	protected:
+		KeyVerificationReceiver(EService service);
+		/*virtual*/ void completedRaw(
+			U32 http_status,
+			const std::string& reason,
+			const LLChannelDescriptors& channels,
+			const LLIOPipe::buffer_ptr_t& buffer);
+		virtual void setVerificationStatus(bool ok) = 0;
+
+		EService mService;
+	};
+
 	typedef boost::intrusive_ptr<TranslationReceiver> TranslationReceiverPtr;
+	typedef boost::intrusive_ptr<KeyVerificationReceiver> KeyVerificationReceiverPtr;
 
 	static void translateMessage(TranslationReceiverPtr &receiver, const std::string &from_lang, const std::string &to_lang, const std::string &mesg);
+	static void verifyKey(KeyVerificationReceiverPtr& receiver, const std::string& key);
 	static std::string getTranslateLanguage();
 
 private:
 	static const LLTranslationAPIHandler& getPreferredHandler();
+	static const LLTranslationAPIHandler& getHandler(EService service);
+	static void sendRequest(const std::string& url, LLHTTPClient::ResponderPtr responder);
 };
 
 #endif
