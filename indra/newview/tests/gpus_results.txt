@@ -741,6 +741,7 @@ Intel Mobile 4 Series                                                           
 Intel Mobile 4 Series Express Chipset Family                                                             supported      0   Intel Mobile 4 Series
 Intel Mobile 45 Express Chipset Family (Microsoft Corporation - WDDM 1.1)                                                   UNRECOGNIZED
 Intel Mobile HD Graphics                                                                                 supported      2   Intel HD Graphics
+Intel Mobile Intel(R) 4 Series Express Chipset Family                                                    supported      0   Intel Mobile 4 Series
 Intel Mobile SandyBridge HD Graphics                                                                     supported      2   Intel HD Graphics
 Intel Montara                                                                                            unsupported    0   Intel Montara
 Intel Pineview                                                                                           supported      0   Intel Pineview

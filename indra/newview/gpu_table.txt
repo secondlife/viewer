@@ -283,7 +283,7 @@ Intel Cantiga					.*Intel.*Cantiga.*							0		0
 Intel Eaglelake					.*Intel.*Eaglelake.*						0		1
 Intel Graphics Media HD			.*Intel.*Graphics Media.*HD.*				0		1
 Intel HD Graphics				.*Intel.*HD Graphics.*						2		1
-Intel Mobile 4 Series			.*Intel.*Mobile *4 Series.*					0		1
+Intel Mobile 4 Series			.*Intel.*Mobile.* 4 Series.*				0		1
 Intel Media Graphics HD			.*Intel.*Media Graphics HD.*				0		1
 Intel Montara					.*Intel.*Montara.*							0		0
 Intel Pineview					.*Intel.*Pineview.*							0		1
