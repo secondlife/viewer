@@ -385,6 +385,11 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
 												  << pos.mX << ", " << pos.mY << ")"));
 		}
 
+/*==========================================================================*|
+		// NEVER MIND: the LLView tree defines priority handler layers in
+		// front of the normal widget set, so this has never yet produced
+		// anything but spam warnings. (sigh)
+
 		// recursive childFromPoint() should give us the frontmost, leafmost
 		// widget at the specified (x, y).
 		LLView* frontmost = root->childFromPoint(pos.mX, pos.mY, true);
@@ -395,6 +400,7 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
 									<< "', but frontmost LLView at (" << pos.mX << ", " << pos.mY
 									<< ") is '" << LLView::getPathname(frontmost) << "'"));
 		}
+|*==========================================================================*/
 
 		// Instantiate a TemporaryDrilldownFunc to route incoming mouse events
 		// to the target LLView*. But put it on the heap since "path" is
