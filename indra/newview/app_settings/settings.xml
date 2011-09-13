@@ -5490,7 +5490,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>64.0</real>
+      <real>128.0</real>
     </map>
     <key>MaxWearableWaitTime</key>
     <map>
