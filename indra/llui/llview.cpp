@@ -843,7 +843,12 @@ LLView*	LLView::childFromPoint(S32 x, S32 y, bool recur)
 		// top-level child?
 		if (recur)
 		{
-			return viewp->childFromPoint(local_x, local_y, recur);
+			LLView* leaf(viewp->childFromPoint(local_x, local_y, recur));
+			// Maybe viewp is already a leaf LLView, or maybe it has children
+			// but this particular (x, y) point falls between them. If the
+			// recursive call returns non-NULL, great, use that; else just use
+			// viewp.
+			return leaf? leaf : viewp;
 		}
 		return viewp;
 
