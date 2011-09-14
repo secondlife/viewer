@@ -177,6 +177,8 @@ Ardy Lay
 	VWR-24917
 Argent Stonecutter
 	VWR-68
+ArminWeatherHax
+	STORM-1532
 Armin Weatherwax
 	VWR-8436
 ArminasX Saiman
