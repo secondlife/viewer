@@ -3493,6 +3493,13 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 
 	LLMutexLock lock(this);
 
+	if (lod < LLModel::LOD_IMPOSTOR || lod > LLModel::NUM_LODS - 1)
+	{
+		llwarns << "Invalid level of detail: " << lod << llendl;
+		assert(lod >= LLModel::LOD_IMPOSTOR && lod < LLModel::NUM_LODS);
+		return;
+	}
+
 	// This triggers if you bring up the file picker and then hit CANCEL.
 	// Just use the previous model (if any) and ignore that you brought up
 	// the file picker.
@@ -3818,6 +3825,14 @@ void LLModelPreview::generateNormals()
 
 void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
 {
+	// Allow LoD from -1 to LLModel::LOD_PHYSICS
+	if (which_lod < -1 || which_lod > LLModel::NUM_LODS - 1)
+	{
+		llwarns << "Invalid level of detail: " << which_lod << llendl;
+		assert(which_lod >= -1 && which_lod < LLModel::NUM_LODS);
+		return;
+	}
+
 	if (mBaseModel.empty())
 	{
 		return;
@@ -3847,19 +3862,31 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 	U32 lod_mode = 0;
 
-	LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode_" + lod_name[which_lod]);
-	if (iface)
-	{
-		lod_mode = iface->getFirstSelectedIndex();
-	}
-	mRequestedLoDMode[which_lod] = lod_mode;
+	F32 lod_error_threshold = 0;
 
-	F32 lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal();
+	// The LoD should be in range from Lowest to High
+	if (which_lod > -1 && which_lod < NUM_LOD)
+	{
+		LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode_" + lod_name[which_lod]);
+		if (iface)
+		{
+			lod_mode = iface->getFirstSelectedIndex();
+		}
+
+		lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal();
+	}
+
+	if (which_lod != -1)
+	{
+		mRequestedLoDMode[which_lod] = lod_mode;
+	}
 
 	if (lod_mode == 0)
 	{
 		lod_mode = GLOD_TRIANGLE_BUDGET;
-		if (which_lod != -1)
+
+		// The LoD should be in range from Lowest to High
+		if (which_lod > -1 && which_lod < NUM_LOD)
 		{
 			limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asInteger();
 		}
@@ -4492,6 +4519,13 @@ void LLModelPreview::updateStatusMessages()
 
 void LLModelPreview::updateLodControls(S32 lod)
 {
+	if (lod < LLModel::LOD_IMPOSTOR || lod > LLModel::LOD_HIGH)
+	{
+		llwarns << "Invalid level of detail: " << lod << llendl;
+		assert(lod >= LLModel::LOD_IMPOSTOR && lod <= LLModel::LOD_HIGH);
+		return;
+	}
+
 	const char* lod_controls[] =
 	{
 		"lod_mode_",
