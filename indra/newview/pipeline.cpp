@@ -2018,13 +2018,13 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		gGL.setColorMask(false, false);
 	}
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixd(gGLLastProjection);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
+	gGL.loadMatrix(gGLLastProjection);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
 	gGLLastMatrix = NULL;
-	glLoadMatrixd(gGLLastModelView);
+	gGL.loadMatrix(gGLLastModelView);
 
 
 	LLVertexBuffer::unbind();
@@ -2129,10 +2129,10 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	}
 	
 	
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.popMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.popMatrix();
 
 	if (sUseOcclusion > 1)
 	{
@@ -3450,10 +3450,10 @@ void LLPipeline::renderHighlights()
 		//gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 
 		gGL.pushMatrix();
-		glLoadIdentity();
-		glMatrixMode(GL_PROJECTION);
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_PROJECTION);
 		gGL.pushMatrix();
-		glLoadIdentity();
+		gGL.loadIdentity();
 
 		gGL.getTexUnit(0)->bind(&mHighlight);
 
@@ -3513,7 +3513,7 @@ void LLPipeline::renderHighlights()
 		gGL.end();
 
 		gGL.popMatrix();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.popMatrix();
 		
 		//gGL.setSceneBlendType(LLRender::BT_ALPHA);
@@ -3629,9 +3629,9 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:ForceVBO");
 	
 	// Initialize lots of GL state to "safe" values
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_TEXTURE);
+	gGL.loadIdentity();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 	LLGLSPipeline gls_pipeline;
 	LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
@@ -3700,7 +3700,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 			{
 				occlude = FALSE;
 				gGLLastMatrix = NULL;
-				glLoadMatrixd(gGLModelView);
+				gGL.loadMatrix(gGLModelView);
 				LLGLSLShader::bindNoShader();
 				doOcclusion(camera);
 			}
@@ -3711,7 +3711,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 				LLFastTimer t(FTM_POOLRENDER);
 
 				gGLLastMatrix = NULL;
-				glLoadMatrixd(gGLModelView);
+				gGL.loadMatrix(gGLModelView);
 			
 				for( S32 i = 0; i < poolp->getNumPasses(); i++ )
 				{
@@ -3760,13 +3760,13 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		LLVertexBuffer::unbind();
 			
 		gGLLastMatrix = NULL;
-		glLoadMatrixd(gGLModelView);
+		gGL.loadMatrix(gGLModelView);
 
 		if (occlude)
 		{
 			occlude = FALSE;
 			gGLLastMatrix = NULL;
-			glLoadMatrixd(gGLModelView);
+			gGL.loadMatrix(gGLModelView);
 			LLGLSLShader::bindNoShader();
 			doOcclusion(camera);
 		}
@@ -3886,7 +3886,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 			LLFastTimer t(FTM_POOLRENDER);
 
 			gGLLastMatrix = NULL;
-			glLoadMatrixd(gGLModelView);
+			gGL.loadMatrix(gGLModelView);
 		
 			for( S32 i = 0; i < poolp->getNumDeferredPasses(); i++ )
 			{
@@ -3934,7 +3934,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 	}
 
 	gGLLastMatrix = NULL;
-	glLoadMatrixd(gGLModelView);
+	gGL.loadMatrix(gGLModelView);
 
 	gGL.setColorMask(true, false);
 }
@@ -3967,7 +3967,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 		{
 			occlude = FALSE;
 			gGLLastMatrix = NULL;
-			glLoadMatrixd(gGLModelView);
+			gGL.loadMatrix(gGLModelView);
 			LLGLSLShader::bindNoShader();
 			doOcclusion(camera);
 			gGL.setColorMask(true, false);
@@ -3979,7 +3979,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 			LLFastTimer t(FTM_POOLRENDER);
 
 			gGLLastMatrix = NULL;
-			glLoadMatrixd(gGLModelView);
+			gGL.loadMatrix(gGLModelView);
 		
 			for( S32 i = 0; i < poolp->getNumPostDeferredPasses(); i++ )
 			{
@@ -4027,17 +4027,17 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	}
 
 	gGLLastMatrix = NULL;
-	glLoadMatrixd(gGLModelView);
+	gGL.loadMatrix(gGLModelView);
 
 	if (occlude)
 	{
 		occlude = FALSE;
 		gGLLastMatrix = NULL;
-		glLoadMatrixd(gGLModelView);
+		gGL.loadMatrix(gGLModelView);
 		LLGLSLShader::bindNoShader();
 		doOcclusion(camera);
 		gGLLastMatrix = NULL;
-		glLoadMatrixd(gGLModelView);
+		gGL.loadMatrix(gGLModelView);
 	}
 }
 
@@ -4064,7 +4064,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 			poolp->prerender() ;
 
 			gGLLastMatrix = NULL;
-			glLoadMatrixd(gGLModelView);
+			gGL.loadMatrix(gGLModelView);
 		
 			for( S32 i = 0; i < poolp->getNumShadowPasses(); i++ )
 			{
@@ -4103,7 +4103,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 	}
 
 	gGLLastMatrix = NULL;
-	glLoadMatrixd(gGLModelView);
+	gGL.loadMatrix(gGLModelView);
 }
 
 
@@ -4177,10 +4177,10 @@ void LLPipeline::renderPhysicsDisplay()
 		LLSpatialBridge* bridge = *i;
 		if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
 		{
-			glPushMatrix();
-			glMultMatrixf((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
+			gGL.pushMatrix();
+			gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
 			bridge->renderPhysicsShapes();
-			glPopMatrix();
+			gGL.popMatrix();
 		}
 	}
 
@@ -4204,7 +4204,7 @@ void LLPipeline::renderDebug()
 	gGL.color4f(1,1,1,1);
 
 	gGLLastMatrix = NULL;
-	glLoadMatrixd(gGLModelView);
+	gGL.loadMatrix(gGLModelView);
 	gGL.setColorMask(true, false);
 
 	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
@@ -4264,10 +4264,10 @@ void LLPipeline::renderDebug()
 		LLSpatialBridge* bridge = *i;
 		if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
 		{
-			glPushMatrix();
-			glMultMatrixf((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
+			gGL.pushMatrix();
+			gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
 			bridge->renderDebug();
-			glPopMatrix();
+			gGL.popMatrix();
 		}
 	}
 
@@ -4455,7 +4455,7 @@ void LLPipeline::renderDebug()
 		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
 		
 		gGL.pushMatrix();
-		glLoadMatrixd(gGLModelView);
+		gGL.loadMatrix(gGLModelView);
 		gGLLastMatrix = NULL;
 
 		for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin(); iter != mGroupQ2.end(); ++iter)
@@ -4476,7 +4476,7 @@ void LLPipeline::renderDebug()
 			if (bridge)
 			{
 				gGL.pushMatrix();
-				glMultMatrixf((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
+				gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
 			}
 
 			F32 alpha = llclamp((F32) (size-count)/size, 0.f, 1.f);
@@ -4824,6 +4824,8 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 {
 	assertInitialized();
 
+	gGL.syncMatrices();
+
 	if (for_edit)
 	{
 		LLColor4 diffuse(1.f, 1.f, 1.f, 0.f);
@@ -5052,6 +5054,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 void LLPipeline::setupHWLights(LLDrawPool* pool)
 {
 	assertInitialized();
+	gGL.syncMatrices();
 
 	// Ambient
 	LLColor4 ambient = gSky.getTotalAmbientColor();
@@ -5331,6 +5334,8 @@ void LLPipeline::enableLightsAvatar()
 void LLPipeline::enableLightsPreview()
 {
 	disableLights();
+
+	gGL.syncMatrices();
 
 	glEnable(GL_LIGHTING);
 	LLColor4 ambient = gSavedSettings.getColor4("PreviewAmbientColor");
@@ -6096,10 +6101,10 @@ void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture)
 {
 	LLMemType mt_ro(LLMemType::MTYPE_PIPELINE_RENDER_OBJECTS);
 	assertInitialized();
-	glLoadMatrixd(gGLModelView);
+	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;
 	mSimplePool->pushBatches(type, mask);
-	glLoadMatrixd(gGLModelView);
+	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;		
 }
 
@@ -6108,25 +6113,25 @@ void apply_cube_face_rotation(U32 face)
 	switch (face)
 	{
 		case 0: 
-			glRotatef(90.f, 0, 1, 0);
-			glRotatef(180.f, 1, 0, 0);
+			gGL.rotatef(90.f, 0, 1, 0);
+			gGL.rotatef(180.f, 1, 0, 0);
 		break;
 		case 2: 
-			glRotatef(-90.f, 1, 0, 0);
+			gGL.rotatef(-90.f, 1, 0, 0);
 		break;
 		case 4:
-			glRotatef(180.f, 0, 1, 0);
-			glRotatef(180.f, 0, 0, 1);
+			gGL.rotatef(180.f, 0, 1, 0);
+			gGL.rotatef(180.f, 0, 0, 1);
 		break;
 		case 1: 
-			glRotatef(-90.f, 0, 1, 0);
-			glRotatef(180.f, 1, 0, 0);
+			gGL.rotatef(-90.f, 0, 1, 0);
+			gGL.rotatef(180.f, 1, 0, 0);
 		break;
 		case 3:
-			glRotatef(90, 1, 0, 0);
+			gGL.rotatef(90, 1, 0, 0);
 		break;
 		case 5: 
-			glRotatef(180, 0, 0, 1);
+			gGL.rotatef(180, 0, 0, 1);
 		break;
 	}
 }
@@ -6204,12 +6209,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	
 	enableLightsFullbright(LLColor4(1,1,1,1));
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
+	gGL.loadIdentity();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
+	gGL.loadIdentity();
 
 	LLGLDisable test(GL_ALPHA_TEST);
 
@@ -6662,10 +6667,10 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	}
 	
 
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.popMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.popMatrix();
 
 	LLVertexBuffer::unbind();
 
@@ -7116,11 +7121,11 @@ void LLPipeline::renderDeferredLighting()
 			mTransformedSunDir.set(tc.v);
 		}
 
-		glPushMatrix();
-		glLoadIdentity();
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
+		gGL.pushMatrix();
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_PROJECTION);
+		gGL.pushMatrix();
+		gGL.loadIdentity();
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO") || gSavedSettings.getS32("RenderShadowDetail") > 0)
 		{
@@ -7340,11 +7345,11 @@ void LLPipeline::renderDeferredLighting()
 		}
 
 		stop_glerror();
-		glPopMatrix();
+		gGL.popMatrix();
 		stop_glerror();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		stop_glerror();
-		glPopMatrix();
+		gGL.popMatrix();
 		stop_glerror();
 
 		//copy depth and stencil from deferred screen
@@ -7376,19 +7381,19 @@ void LLPipeline::renderDeferredLighting()
 				LLGLDisable test(GL_ALPHA_TEST);
 
 				//full screen blit
-				glPushMatrix();
-				glLoadIdentity();
-				glMatrixMode(GL_PROJECTION);
-				glPushMatrix();
-				glLoadIdentity();
+				gGL.pushMatrix();
+				gGL.loadIdentity();
+				gGL.matrixMode(LLRender::MM_PROJECTION);
+				gGL.pushMatrix();
+				gGL.loadIdentity();
 
 				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 				
 				mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
-				glPopMatrix();
-				glMatrixMode(GL_MODELVIEW);
-				glPopMatrix();
+				gGL.popMatrix();
+				gGL.matrixMode(LLRender::MM_MODELVIEW);
+				gGL.popMatrix();
 			}
 
 			unbindDeferredShader(gDeferredSoftenProgram);
@@ -7528,6 +7533,7 @@ void LLPipeline::renderDeferredLighting()
 							gDeferredLightProgram.uniform3fv("color", 1, col.mV);
 							gDeferredLightProgram.uniform1f("falloff", volume->getLightFalloff()*0.5f);
 							//gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
+							gGL.syncMatrices();
 							glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
 								GL_UNSIGNED_BYTE, get_box_fan_indices_ptr(camera, center));
 							stop_glerror();
@@ -7598,6 +7604,7 @@ void LLPipeline::renderDeferredLighting()
 					gDeferredSpotLightProgram.uniform1f("size", s*s);
 					gDeferredSpotLightProgram.uniform3fv("color", 1, col.mV);
 					gDeferredSpotLightProgram.uniform1f("falloff", volume->getLightFalloff()*0.5f);
+					gGL.syncMatrices();
 					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
 							GL_UNSIGNED_BYTE, get_box_fan_indices_ptr(camera, center));
 				}
@@ -7618,11 +7625,11 @@ void LLPipeline::renderDeferredLighting()
 				LLGLDepthTest depth(GL_FALSE);
 
 				//full screen blit
-				glPushMatrix();
-				glLoadIdentity();
-				glMatrixMode(GL_PROJECTION);
-				glPushMatrix();
-				glLoadIdentity();
+				gGL.pushMatrix();
+				gGL.loadIdentity();
+				gGL.matrixMode(LLRender::MM_PROJECTION);
+				gGL.pushMatrix();
+				gGL.loadIdentity();
 
 				U32 count = 0;
 
@@ -7697,9 +7704,9 @@ void LLPipeline::renderDeferredLighting()
 				gDeferredMultiSpotLightProgram.disableTexture(LLViewerShaderMgr::DEFERRED_PROJECTION);
 				unbindDeferredShader(gDeferredMultiSpotLightProgram);
 
-				glPopMatrix();
-				glMatrixMode(GL_MODELVIEW);
-				glPopMatrix();
+				gGL.popMatrix();
+				gGL.matrixMode(LLRender::MM_MODELVIEW);
+				gGL.popMatrix();
 			}
 		}
 
@@ -7730,17 +7737,17 @@ void LLPipeline::renderDeferredLighting()
 //				glVertexPointer(2, GL_FLOAT, 0, vert);
 				gGL.diffuseColor3f(1,1,1);
 
-				glPushMatrix();
-				glLoadIdentity();
-				glMatrixMode(GL_PROJECTION);
-				glPushMatrix();
-				glLoadIdentity();
+				gGL.pushMatrix();
+				gGL.loadIdentity();
+				gGL.matrixMode(LLRender::MM_PROJECTION);
+				gGL.pushMatrix();
+				gGL.loadIdentity();
 
 				mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 				
-				glPopMatrix();
-				glMatrixMode(GL_MODELVIEW);
-				glPopMatrix();
+				gGL.popMatrix();
+				gGL.matrixMode(LLRender::MM_MODELVIEW);
+				gGL.popMatrix();
 
 				unbindDeferredShader(gDeferredPostProgram);
 			}
@@ -8078,7 +8085,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 			stop_glerror();
 
-			glPushMatrix();
+			gGL.pushMatrix();
 
 			mat.set_scale(glh::vec3f(1,1,-1));
 			mat.set_translate(glh::vec3f(0,0,height*2.f));
@@ -8088,7 +8095,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			mat = current * mat;
 
 			glh_set_current_modelview(mat);
-			glLoadMatrixf(mat.m);
+			gGL.loadMatrix(mat.m);
 
 			LLViewerCamera::updateFrustumPlanes(camera, FALSE, TRUE);
 
@@ -8166,7 +8173,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				gPipeline.popRenderTypeMask();
 			}	
 			glCullFace(GL_BACK);
-			glPopMatrix();
+			gGL.popMatrix();
 			mWaterRef.flush();
 			glh_set_current_modelview(current);
 			LLPipeline::sUseOcclusion = occlusion;
@@ -8347,12 +8354,12 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	stateSort(shadow_cam, result);
 	
 	//generate shadow map
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixf(proj.m);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadMatrixd(gGLModelView);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
+	gGL.loadMatrix(proj.m);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
+	gGL.loadMatrix(gGLModelView);
 
 	stop_glerror();
 	gGLLastMatrix = NULL;
@@ -8417,7 +8424,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
 	gDeferredShadowProgram.bind();
 	gGLLastMatrix = NULL;
-	glLoadMatrixd(gGLModelView);
+	gGL.loadMatrix(gGLModelView);
 	doOcclusion(shadow_cam);
 
 	if (use_shader)
@@ -8427,10 +8434,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	
 	gGL.setColorMask(true, true);
 			
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.popMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.popMatrix();
 	gGLLastMatrix = NULL;
 
 	LLPipeline::sUseOcclusion = occlude;
@@ -8757,12 +8764,12 @@ void LLPipeline::generateGI(LLCamera& camera, LLVector3& lightDir, std::vector<L
 	LLGLEnable cull(GL_CULL_FACE);
 
 	//generate GI map
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixf(proj.m);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadMatrixf(view.m);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
+	gGL.loadMatrix(proj.m);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
+	gGL.loadMatrix(view.m);
 
 	stop_glerror();
 	gGLLastMatrix = NULL;
@@ -8776,10 +8783,10 @@ void LLPipeline::generateGI(LLCamera& camera, LLVector3& lightDir, std::vector<L
 
 	mGIMap.flush();
 	
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.popMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.popMatrix();
 	gGLLastMatrix = NULL;
 
 	LLPipeline::sUseOcclusion = occlude;
@@ -9564,10 +9571,10 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	{
 		glh_set_current_modelview(view[1]);
 		glh_set_current_projection(proj[1]);
-		glLoadMatrixf(view[1].m);
-		glMatrixMode(GL_PROJECTION);
-		glLoadMatrixf(proj[1].m);
-		glMatrixMode(GL_MODELVIEW);
+		gGL.loadMatrix(view[1].m);
+		gGL.matrixMode(LLRender::MM_PROJECTION);
+		gGL.loadMatrix(proj[1].m);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
 	gGL.setColorMask(true, false);
 
@@ -9699,24 +9706,24 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	tdim.mV[0] = fabsf(half_height.dot3(left).getF32());
 	tdim.mV[1] = fabsf(half_height.dot3(up).getF32());
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
 	
 	F32 distance = (pos-camera.getOrigin()).length();
 	F32 fov = atanf(tdim.mV[1]/distance)*2.f*RAD_TO_DEG;
 	F32 aspect = tdim.mV[0]/tdim.mV[1];
 	glh::matrix4f persp = gl_perspective(fov, aspect, 1.f, 256.f);
 	glh_set_current_projection(persp);
-	glLoadMatrixf(persp.m);
+	gGL.loadMatrix(persp.m);
 
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
 	glh::matrix4f mat;
 	camera.getOpenGLTransform(mat.m);
 
 	mat = glh::matrix4f((GLfloat*) OGL_TO_CFR_ROTATION) * mat;
 
-	glLoadMatrixf(mat.m);
+	gGL.loadMatrix(mat.m);
 	glh_set_current_modelview(mat);
 
 	glClearColor(0.0f,0.0f,0.0f,0.0f);
@@ -9784,11 +9791,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 		gGL.flush();
 
-		glPushMatrix();
-		glLoadIdentity();
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
+		gGL.pushMatrix();
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_PROJECTION);
+		gGL.pushMatrix();
+		gGL.loadIdentity();
 
 		static const F32 clip_plane = 0.99999f;
 
@@ -9811,9 +9818,9 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 			gUIProgram.unbind();
 		}
 
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
+		gGL.popMatrix();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
+		gGL.popMatrix();
 	}
 
 	avatar->mImpostor.flush();
@@ -9827,10 +9834,10 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	sShadowRender = FALSE;
 	popRenderTypeMask();
 
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.popMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.popMatrix();
 
 	avatar->mNeedsImpostorUpdate = FALSE;
 	avatar->cacheImpostorValues();

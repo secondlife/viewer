@@ -63,9 +63,7 @@ U32 LLVertexBuffer::sAllocatedBytes = 0;
 BOOL LLVertexBuffer::sMapped = FALSE;
 BOOL LLVertexBuffer::sUseStreamDraw = TRUE;
 BOOL LLVertexBuffer::sPreferStreamDraw = FALSE;
-
 std::vector<U32> LLVertexBuffer::sDeleteList;
-
 
 const U32 FENCE_WAIT_TIME_NANOSECONDS = 10000;  //1 ms
 
@@ -148,6 +146,7 @@ U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
 	GL_QUADS,
 	GL_LINE_LOOP,
 };
+
 
 //static
 void LLVertexBuffer::setupClientArrays(U32 data_mask)
@@ -356,6 +355,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm)
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+	gGL.syncMatrices();
 
 	U32 count = pos.size();
 	llassert_always(norm.size() >= pos.size());
@@ -393,6 +393,8 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, con
 void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp)
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+
+	gGL.syncMatrices();
 
 	U32 mask = LLVertexBuffer::MAP_VERTEX;
 	if (tc)
@@ -465,6 +467,8 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 {
 	validateRange(start, end, count, indices_offset);
 
+	gGL.syncMatrices();
+
 	llassert(mRequestedNumVerts >= 0);
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
 
@@ -496,6 +500,8 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+
+	gGL.syncMatrices();
 
 	llassert(mRequestedNumIndices >= 0);
 	if (indices_offset >= (U32) mRequestedNumIndices ||
@@ -530,7 +536,9 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
-
+	
+	gGL.syncMatrices();
+	
 	llassert(mRequestedNumVerts >= 0);
 	if (first >= (U32) mRequestedNumVerts ||
 	    first + count > (U32) mRequestedNumVerts)

@@ -197,7 +197,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 		
 	U32 indices_drawn = 0;
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
 		 iter != mDrawFace.end(); iter++)
@@ -228,8 +228,8 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 			}
 			
 			gGLLastMatrix = NULL;
-			glLoadMatrixd(gGLModelView);
-			//glPushMatrix();
+			gGL.loadMatrix(gGLModelView);
+			//gGL.pushMatrix();
 			F32 mat[16];
 			for (U32 i = 0; i < 16; i++)
 				mat[i] = (F32) gGLModelView[i];
@@ -238,7 +238,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 			
 			// Translate to tree base  HACK - adjustment in Z plants tree underground
 			const LLVector3 &pos_agent = treep->getPositionAgent();
-			//glTranslatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
+			//gGL.translatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
 			LLMatrix4 trans_mat;
 			trans_mat.setTranslation(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
 			trans_mat *= matrix;
@@ -309,7 +309,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 				indices_drawn += treep->drawBranchPipeline(scale_mat, indicesp, trunk_LOD, stop_depth, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
 			}
 			
-			//glPopMatrix();
+			//gGL.popMatrix();
 		}
 	}
 }

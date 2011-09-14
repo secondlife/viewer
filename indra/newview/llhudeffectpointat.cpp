@@ -327,7 +327,7 @@ void LLHUDEffectPointAt::render()
 		LLVector3 target = mTargetPos + mSourceObject->getRenderPosition();
 		gGL.pushMatrix();
 		gGL.translatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
-		glScalef(0.3f, 0.3f, 0.3f);
+		gGL.scalef(0.3f, 0.3f, 0.3f);
 		gGL.begin(LLRender::LINES);
 		{
 			gGL.color3f(1.f, 0.f, 0.f);

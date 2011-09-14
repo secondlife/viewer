@@ -475,8 +475,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 						{
 							tex_setup = true;
 							gGL.getTexUnit(0)->activate();
-							glMatrixMode(GL_TEXTURE);
-							glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+							gGL.matrixMode(LLRender::MM_TEXTURE);
+							gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
 							gPipeline.mTextureMatrixOps++;
 						}
 					}
@@ -517,8 +517,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 				if (tex_setup)
 				{
 					gGL.getTexUnit(0)->activate();
-					glLoadIdentity();
-					glMatrixMode(GL_MODELVIEW);
+					gGL.loadIdentity();
+					gGL.matrixMode(LLRender::MM_MODELVIEW);
 				}
 			}
 		}

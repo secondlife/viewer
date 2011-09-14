@@ -650,14 +650,14 @@ BOOL LLImagePreviewAvatar::render()
 	gGL.pushUIMatrix();
 	gGL.loadUIIdentity();
 
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
+	gGL.loadIdentity();
+	gGL.ortho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
-	glLoadIdentity();
+	gGL.loadIdentity();
 	
 
 	LLGLSUIDefault def;
@@ -670,10 +670,10 @@ BOOL LLImagePreviewAvatar::render()
 
 	gl_rect_2d_simple( mFullWidth, mFullHeight );
 
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 
 	gGL.flush();
@@ -844,14 +844,14 @@ BOOL LLImagePreviewSculpted::render()
 	LLGLEnable cull(GL_CULL_FACE);
 	LLGLDepthTest depth(GL_TRUE);
 
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
+	gGL.loadIdentity();
+	gGL.ortho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
-	glLoadIdentity();
+	gGL.loadIdentity();
 		
 	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
 
@@ -862,10 +862,10 @@ BOOL LLImagePreviewSculpted::render()
 
 	gl_rect_2d_simple( mFullWidth, mFullHeight );
 	
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 
 	glClear(GL_DEPTH_BUFFER_BIT);

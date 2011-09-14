@@ -111,9 +111,9 @@ void LLDrawPoolSky::render(S32 pass)
 	
 	LLGLDisable clip(GL_CLIP_PLANE0);
 
-	glPushMatrix();
+	gGL.pushMatrix();
 	LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
-	glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+	gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
 	S32 face_count = (S32)mDrawFace.size();
 
@@ -125,7 +125,7 @@ void LLDrawPoolSky::render(S32 pass)
 		renderSkyCubeFace(i);
 	}
 
-	glPopMatrix();
+	gGL.popMatrix();
 }
 
 void LLDrawPoolSky::renderSkyCubeFace(U8 side)

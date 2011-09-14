@@ -130,33 +130,33 @@ void LLDrawPoolWLSky::renderDome(F32 camHeightLocal, LLGLSLShader * shader) cons
 
 	llassert_always(NULL != shader);
 
-	glPushMatrix();
+	gGL.pushMatrix();
 
 	//chop off translation
 	if (LLPipeline::sReflectionRender && origin.mV[2] > 256.f)
 	{
-		glTranslatef(origin.mV[0], origin.mV[1], 256.f-origin.mV[2]*0.5f);
+		gGL.translatef(origin.mV[0], origin.mV[1], 256.f-origin.mV[2]*0.5f);
 	}
 	else
 	{
-		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 	}
 		
 
 	// the windlight sky dome works most conveniently in a coordinate system
 	// where Y is up, so permute our basis vectors accordingly.
-	glRotatef(120.f, 1.f / F_SQRT3, 1.f / F_SQRT3, 1.f / F_SQRT3);
+	gGL.rotatef(120.f, 1.f / F_SQRT3, 1.f / F_SQRT3, 1.f / F_SQRT3);
 
-	glScalef(0.333f, 0.333f, 0.333f);
+	gGL.scalef(0.333f, 0.333f, 0.333f);
 
-	glTranslatef(0.f,-camHeightLocal, 0.f);
+	gGL.translatef(0.f,-camHeightLocal, 0.f);
 	
 	// Draw WL Sky	
 	shader->uniform3f("camPosLocal", 0.f, camHeightLocal, 0.f);
 
 	gSky.mVOWLSkyp->drawDome();
 
-	glPopMatrix();
+	gGL.popMatrix();
 }
 
 void LLDrawPoolWLSky::renderSkyHaze(F32 camHeightLocal) const
@@ -197,7 +197,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
 
 	gGL.pushMatrix();
-	glRotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
+	gGL.rotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
 	// gl_FragColor.rgb = gl_Color.rgb;
 	// gl_FragColor.a = gl_Color.a * star_alpha.a;
 	if (LLGLSLShader::sNoFixedFunction)
@@ -315,10 +315,10 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 	renderSkyHaze(camHeightLocal);
 
 	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-	glPushMatrix();
+	gGL.pushMatrix();
 
 		
-		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
 		gDeferredStarProgram.bind();
 		// *NOTE: have to bind a texture here since register combiners blending in
@@ -332,7 +332,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 		
 		gDeferredStarProgram.unbind();
 
-	glPopMatrix();
+	gGL.popMatrix();
 
 	renderSkyClouds(camHeightLocal);
 
@@ -360,9 +360,9 @@ void LLDrawPoolWLSky::render(S32 pass)
 	renderSkyHaze(camHeightLocal);
 
 	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-	glPushMatrix();
+	gGL.pushMatrix();
 
-		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
 		// *NOTE: have to bind a texture here since register combiners blending in
 		// renderStars() requires something to be bound and we might as well only
@@ -374,7 +374,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 		renderStars();
 		
 
-	glPopMatrix();
+	gGL.popMatrix();
 
 	renderSkyClouds(camHeightLocal);
 

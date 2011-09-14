@@ -505,10 +505,10 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 	
 	
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
 	{
-		glTranslatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
+		gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
 		
 		draw_shockwave(1024.f, gRenderStartTime.getElapsedTimeF32(), 32, fogged_color);
 

@@ -616,12 +616,12 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	}
 	else
 	{
-		glPushMatrix();
+		gGL.pushMatrix();
 		LLMatrix4 jointToWorld = getWorldMatrix();
-		glMultMatrixf((GLfloat*)jointToWorld.mMatrix);
+		gGL.multMatrix((GLfloat*)jointToWorld.mMatrix);
 		buff->setBuffer(mask);
 		buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
-		glPopMatrix();
+		gGL.popMatrix();
 	}
 	gPipeline.addTrianglesDrawn(count);
 

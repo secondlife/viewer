@@ -457,10 +457,10 @@ void LLRenderPass::applyModelMatrix(LLDrawInfo& params)
 	if (params.mModelMatrix != gGLLastMatrix)
 	{
 		gGLLastMatrix = params.mModelMatrix;
-		glLoadMatrixd(gGLModelView);
+		gGL.loadMatrix(gGLModelView);
 		if (params.mModelMatrix)
 		{
-			glMultMatrixf((GLfloat*) params.mModelMatrix->mMatrix);
+			gGL.multMatrix((GLfloat*) params.mModelMatrix->mMatrix);
 		}
 		gPipeline.mMatrixOpCount++;
 	}
@@ -494,8 +494,8 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 				{
 					tex_setup = true;
 					gGL.getTexUnit(0)->activate();
-					glMatrixMode(GL_TEXTURE);
-					glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+					gGL.matrixMode(LLRender::MM_TEXTURE);
+					gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
 					gPipeline.mTextureMatrixOps++;
 				}
 			}
@@ -519,8 +519,8 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 
 	if (tex_setup)
 	{
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
 }
 

@@ -2552,9 +2552,9 @@ void renderOctree(LLSpatialGroup* group)
 				LLDrawable* drawable = *i;
 				if (!group->mSpatialPartition->isBridge())
 				{
-					glPushMatrix();
+					gGL.pushMatrix();
 					LLVector3 trans = drawable->getRegion()->getOriginAgent();
-					glTranslatef(trans.mV[0], trans.mV[1], trans.mV[2]);
+					gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
 				}
 				
 				for (S32 j = 0; j < drawable->getNumFaces(); j++)
@@ -2584,7 +2584,7 @@ void renderOctree(LLSpatialGroup* group)
 
 				if (!group->mSpatialPartition->isBridge())
 				{
-					glPopMatrix();
+					gGL.popMatrix();
 				}
 			}
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -2866,7 +2866,7 @@ void renderNormals(LLDrawable* drawablep)
 	{
 		LLVolume* volume = vol->getVolume();
 		gGL.pushMatrix();
-		glMultMatrixf((F32*) vol->getRelativeXform().mMatrix);
+		gGL.multMatrix((F32*) vol->getRelativeXform().mMatrix);
 		
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
@@ -3018,7 +3018,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	LLVector3 size(0.25f,0.25f,0.25f);
 
 	gGL.pushMatrix();
-	glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
+	gGL.multMatrix((F32*) volume->getRelativeXform().mMatrix);
 		
 	if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::USER_MESH)
 	{
@@ -3264,6 +3264,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			LLVertexBuffer::unbind();
 			glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
 			gGL.diffuseColor4fv(line_color.mV);
+			gGL.syncMatrices();
 			glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
 			
 			gGL.diffuseColor4fv(color.mV);
@@ -3302,7 +3303,7 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 			{
 				gGL.pushMatrix();
 				LLVector3 trans = drawable->getRegion()->getOriginAgent();
-				glTranslatef(trans.mV[0], trans.mV[1], trans.mV[2]);
+				gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
 				renderPhysicsShape(drawable, volume);
 				gGL.popMatrix();
 			}
@@ -3618,8 +3619,8 @@ void renderRaycast(LLDrawable* drawablep)
 					}
 
 					gGL.pushMatrix();
-					glTranslatef(trans.mV[0], trans.mV[1], trans.mV[2]);					
-					glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
+					gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);					
+					gGL.multMatrix((F32*) vobj->getRelativeXform().mMatrix);
 
 					LLVector3 start, end;
 					if (transform)
@@ -3650,6 +3651,7 @@ void renderRaycast(LLDrawable* drawablep)
 						LLVertexBuffer::unbind();
 						gGL.diffuseColor4f(0,1,1,0.5f);
 						glVertexPointer(3, GL_FLOAT, sizeof(LLVector4a), face.mPositions);
+						gGL.syncMatrices();
 						glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
 					}
 						
@@ -3672,15 +3674,15 @@ void renderRaycast(LLDrawable* drawablep)
 		if (drawablep->getVObj() == gDebugRaycastObject)
 		{
 			// draw intersection point
-			glPushMatrix();
-			glLoadMatrixd(gGLModelView);
+			gGL.pushMatrix();
+			gGL.loadMatrix(gGLModelView);
 			LLVector3 translate = gDebugRaycastIntersection;
-			glTranslatef(translate.mV[0], translate.mV[1], translate.mV[2]);
+			gGL.translatef(translate.mV[0], translate.mV[1], translate.mV[2]);
 			LLCoordFrame orient;
 			orient.lookDir(gDebugRaycastNormal, gDebugRaycastBinormal);
 			LLMatrix4 rotation;
 			orient.getRotMatrixToParent(rotation);
-			glMultMatrixf((float*)rotation.mMatrix);
+			gGL.multMatrix((float*)rotation.mMatrix);
 			
 			gGL.color4f(1,0,0,0.5f);
 			drawBox(LLVector3(0, 0, 0), LLVector3(0.1f, 0.022f, 0.022f));
@@ -3688,7 +3690,7 @@ void renderRaycast(LLDrawable* drawablep)
 			drawBox(LLVector3(0, 0, 0), LLVector3(0.021f, 0.1f, 0.021f));
 			gGL.color4f(0,0,1,0.5f);
 			drawBox(LLVector3(0, 0, 0), LLVector3(0.02f, 0.02f, 0.1f));
-			glPopMatrix();
+			gGL.popMatrix();
 
 			// draw bounding box of prim
 			const LLVector4a* ext = drawablep->getSpatialExtents();
@@ -3763,13 +3765,13 @@ public:
 				group->rebuildMesh();
 
 				gGL.flush();
-				glPushMatrix();
+				gGL.pushMatrix();
 				gGLLastMatrix = NULL;
-				glLoadMatrixd(gGLModelView);
+				gGL.loadMatrix(gGLModelView);
 				renderVisibility(group, mCamera);
 				stop_glerror();
 				gGLLastMatrix = NULL;
-				glPopMatrix();
+				gGL.popMatrix();
 				gGL.color4f(1,1,1,1);
 			}
 		}

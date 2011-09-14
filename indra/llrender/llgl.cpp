@@ -1195,7 +1195,7 @@ void rotate_quat(LLQuaternion& rotation)
 {
 	F32 angle_radians, x, y, z;
 	rotation.getAngleAxis(&angle_radians, &x, &y, &z);
-	glRotatef(angle_radians * RAD_TO_DEG, x, y, z);
+	gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 }
 
 void flush_glerror()
@@ -1987,20 +1987,20 @@ void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
     glh::matrix4f suffix;
     suffix.set_row(2, cplane);
     glh::matrix4f newP = suffix * P;
-    glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-    glLoadMatrixf(newP.m);
+    gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
+    gGL.loadMatrix(newP.m);
 	gGLObliqueProjectionInverse = LLMatrix4(newP.inverse().transpose().m);
-    glMatrixMode(GL_MODELVIEW);
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
 LLGLUserClipPlane::~LLGLUserClipPlane()
 {
 	if (mApply)
 	{
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_PROJECTION);
+		gGL.popMatrix();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
 }
 
@@ -2190,16 +2190,16 @@ LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f P, U32 layer)
 		P.element(2, i) = P.element(3, i) * depth;
 	}
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixf(P.m);
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
+	gGL.loadMatrix(P.m);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
 LLGLSquashToFarClip::~LLGLSquashToFarClip()
 {
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.popMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 

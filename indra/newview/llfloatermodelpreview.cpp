@@ -4746,23 +4746,23 @@ BOOL LLModelPreview::render()
 
 	{
 		//clear background to blue
-		glMatrixMode(GL_PROJECTION);
+		gGL.matrixMode(LLRender::MM_PROJECTION);
 		gGL.pushMatrix();
-		glLoadIdentity();
-		glOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
+		gGL.loadIdentity();
+		gGL.ortho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
 
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.pushMatrix();
-		glLoadIdentity();
+		gGL.loadIdentity();
 
 		gGL.color4f(0.169f, 0.169f, 0.169f, 1.f);
 
 		gl_rect_2d_simple( width, height );
 
-		glMatrixMode(GL_PROJECTION);
+		gGL.matrixMode(LLRender::MM_PROJECTION);
 		gGL.popMatrix();
 
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.popMatrix();
 	}
 
@@ -4872,7 +4872,7 @@ BOOL LLModelPreview::render()
 		refresh();
 	}
 
-	glLoadIdentity();
+	gGL.loadIdentity();
 	gPipeline.enableLightsPreview();
 
 	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) *
@@ -4951,7 +4951,7 @@ BOOL LLModelPreview::render()
 				gGL.pushMatrix();
 				LLMatrix4 mat = instance.mTransform;
 
-				glMultMatrixf((GLfloat*) mat.mMatrix);
+				gGL.multMatrix((GLfloat*) mat.mMatrix);
 
 				for (U32 i = 0; i < mVertexBuffer[mPreviewLOD][model].size(); ++i)
 				{
@@ -5018,7 +5018,7 @@ BOOL LLModelPreview::render()
 					gGL.pushMatrix();
 					LLMatrix4 mat = instance.mTransform;
 
-					glMultMatrixf((GLfloat*) mat.mMatrix);
+					gGL.multMatrix((GLfloat*) mat.mMatrix);
 
 
 					bool render_mesh = true;
@@ -5127,7 +5127,7 @@ BOOL LLModelPreview::render()
 					gGL.pushMatrix();
 					LLMatrix4 mat = instance.mTransform;
 
-					glMultMatrixf((GLfloat*) mat.mMatrix);
+					gGL.multMatrix((GLfloat*) mat.mMatrix);
 
 
 					LLPhysicsDecomp* decomp = gMeshRepo.mDecompThread;

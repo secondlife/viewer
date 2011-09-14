@@ -297,11 +297,11 @@ void LLHUDEffectBeam::render()
 		coloru.mV[3] = (U8)alpha;
 		gGL.color4ubv(coloru.mV);
 
-		glPushMatrix();
-		glTranslatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
-		glScalef(scale, scale, scale);
+		gGL.pushMatrix();
+		gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
+		gGL.scalef(scale, scale, scale);
 		gSphere.render();
-		glPopMatrix();
+		gGL.popMatrix();
 	}
 }
 
