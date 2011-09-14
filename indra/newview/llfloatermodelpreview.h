@@ -120,7 +120,8 @@ public:
 	void processJointNode( domNode* pNode, std::map<std::string,LLMatrix4>& jointTransforms );
 	void extractTranslation( domTranslate* pTranslate, LLMatrix4& transform );
 	void extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform );
-	
+	void extractTranslationViaSID( daeElement* pElement, LLMatrix4& transform );
+
 	void setLoadState(U32 state);
 
 	void buildJointToNodeMappingFromScene( daeElement* pRoot );

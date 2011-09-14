@@ -1754,9 +1754,15 @@ bool LLModelLoader::doLoadModel()
 												missingSkeletonOrScene = true;
 											}
 											else
+											if ( pTranslateElement )
 											{
 												extractTranslationViaElement( pTranslateElement, workingTransform );
 											}
+											else
+											{
+												extractTranslationViaSID( pJoint, workingTransform );
+											}
+
 										}
 										
 										//Store the joint transform w/respect to it's name.
@@ -2612,10 +2618,43 @@ void LLModelLoader::extractTranslation( domTranslate* pTranslate, LLMatrix4& tra
 //-----------------------------------------------------------------------------
 void LLModelLoader::extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform )
 {
-	domTranslate* pTranslateChild = dynamic_cast<domTranslate*>( pTranslateElement );
-	domFloat3 translateChild = pTranslateChild->getValue();
-	LLVector3 singleJointTranslation( translateChild[0], translateChild[1], translateChild[2] );
-	transform.setTranslation( singleJointTranslation );
+	if ( pTranslateElement )
+	{
+		domTranslate* pTranslateChild = dynamic_cast<domTranslate*>( pTranslateElement );
+		domFloat3 translateChild = pTranslateChild->getValue();
+		LLVector3 singleJointTranslation( translateChild[0], translateChild[1], translateChild[2] );
+		transform.setTranslation( singleJointTranslation );
+	}	
+}
+//-----------------------------------------------------------------------------
+// extractTranslationViaSID()
+//-----------------------------------------------------------------------------
+void LLModelLoader::extractTranslationViaSID( daeElement* pElement, LLMatrix4& transform )
+{
+	if ( pElement )
+	{	
+		daeSIDResolver resolver( pElement, "./transform" );
+		domMatrix* pMatrix = daeSafeCast<domMatrix>( resolver.getElement() );
+		//We are only extracting out the translational component atm
+		LLMatrix4 workingTransform;
+		if ( pMatrix )
+		{
+			domFloat4x4 domArray = pMatrix->getValue();									
+			for ( int i = 0; i < 4; i++ )
+			{
+				for( int j = 0; j < 4; j++ )
+				{
+					workingTransform.mMatrix[i][j] = domArray[i + j*4];
+				}
+			}
+			LLVector3 trans = workingTransform.getTranslation();
+			transform.setTranslation( trans );	
+		}
+	}
+	else
+	{
+		llwarns<<"Element is nonexistent - empty/unsupported node."<<llendl;
+	}
 }
 //-----------------------------------------------------------------------------
 // processJointNode()
