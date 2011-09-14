@@ -23,11 +23,13 @@
  * $/LicenseInfo$
  */
 
+attribute vec3 position;
+attribute vec2 texcoord0;
 
 
 void main() 
 {
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = gl_ModelViewProjectionMatrix * vec4(position, 1.0);
 	
-	gl_TexCoord[0].xy = gl_MultiTexCoord0.xy;
+	gl_TexCoord[0].xy = texcoord0;
 }

@@ -24,6 +24,10 @@
  */
  
 
+attribute vec3 position;
+attribute vec4 diffuse_color;
+attribute vec3 normal;
+attribute vec2 texcoord0;
 
 vec4 calcLightingSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor, vec4 baseCol);
 void calcAtmospherics(vec3 inPositionEye);
@@ -31,16 +35,17 @@ void calcAtmospherics(vec3 inPositionEye);
 void main()
 {
 	//transform vertex
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+	vec3 pos = (gl_ModelViewMatrix * vec4(position.xyz, 1.0)).xyz;
+	gl_Position = gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
+	gl_TexCoord[0] = gl_TextureMatrix[0] * vec4(texcoord0,0,1);
 	
-	vec3 pos = (gl_ModelViewMatrix * gl_Vertex).xyz;
-	vec3 norm = normalize(gl_NormalMatrix * gl_Normal);
+	
+	vec3 norm = normalize(gl_NormalMatrix * normal);
 		
 	calcAtmospherics(pos.xyz);
 
 	vec4 specular = vec4(1.0);
-	vec4 color = calcLightingSpecular(pos, norm, gl_Color, specular, vec4(0.0));	
+	vec4 color = calcLightingSpecular(pos, norm, diffuse_color, specular, vec4(0.0));	
 	gl_FrontColor = color;
 
 }

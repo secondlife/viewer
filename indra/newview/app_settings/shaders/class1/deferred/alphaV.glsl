@@ -23,7 +23,10 @@
  * $/LicenseInfo$
  */
 
-
+attribute vec4 position;
+attribute vec3 normal;
+attribute vec4 diffuse_color;
+attribute vec2 texcoord0;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 void calcAtmospherics(vec3 inPositionEye);
@@ -80,22 +83,22 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 void main()
 {
 	//transform vertex
-	vec4 vert = vec4(gl_Vertex.xyz, 1.0);
-	vary_texture_index = gl_Vertex.w;
-	gl_Position = gl_ModelViewProjectionMatrix * vert; 
-	
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-	
+	vec4 vert = vec4(position.xyz, 1.0);
+	vary_texture_index = position.w;
 	vec4 pos = (gl_ModelViewMatrix * vert);
-	vec3 norm = normalize(gl_NormalMatrix * gl_Normal);
+	gl_Position = gl_ModelViewProjectionMatrix*vec4(position.xyz, 1.0);
+	
+	gl_TexCoord[0] = gl_TextureMatrix[0] * vec4(texcoord0,0,1);
+	
+	vec3 norm = normalize(gl_NormalMatrix * normal);
 	
 	float dp_directional_light = max(0.0, dot(norm, gl_LightSource[0].position.xyz));
 	vary_position = pos.xyz + gl_LightSource[0].position.xyz * (1.0-dp_directional_light)*shadow_offset;
 		
 	calcAtmospherics(pos.xyz);
 
-	//vec4 color = calcLighting(pos.xyz, norm, gl_Color, vec4(0.));
-	vec4 col = vec4(0.0, 0.0, 0.0, gl_Color.a);
+	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
+	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
 
 	// Collect normal lights
 	col.rgb += gl_LightSource[2].diffuse.rgb*calcPointLightOrSpotLight(pos.xyz, norm, gl_LightSource[2].position, gl_LightSource[2].spotDirection.xyz, gl_LightSource[2].linearAttenuation, gl_LightSource[2].quadraticAttenuation, gl_LightSource[2].specular.a);
@@ -105,7 +108,7 @@ void main()
 	col.rgb += gl_LightSource[6].diffuse.rgb*calcPointLightOrSpotLight(pos.xyz, norm, gl_LightSource[6].position, gl_LightSource[6].spotDirection.xyz, gl_LightSource[6].linearAttenuation, gl_LightSource[6].quadraticAttenuation, gl_LightSource[6].specular.a);
 	col.rgb += gl_LightSource[7].diffuse.rgb*calcPointLightOrSpotLight(pos.xyz, norm, gl_LightSource[7].position, gl_LightSource[7].spotDirection.xyz, gl_LightSource[7].linearAttenuation, gl_LightSource[7].quadraticAttenuation, gl_LightSource[7].specular.a);
 	
-	vary_pointlight_col = col.rgb*gl_Color.rgb;
+	vary_pointlight_col = col.rgb*diffuse_color.rgb;
 
 	col.rgb = vec3(0,0,0);
 
@@ -114,10 +117,10 @@ void main()
 	
 	vary_light = gl_LightSource[0].position.xyz;
 	
-	vary_ambient = col.rgb*gl_Color.rgb;
-	vary_directional.rgb = gl_Color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, gl_LightSource[0].position.xyz), (1.0-gl_Color.a)*(1.0-gl_Color.a)));
+	vary_ambient = col.rgb*diffuse_color.rgb;
+	vary_directional.rgb = diffuse_color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, gl_LightSource[0].position.xyz), (1.0-diffuse_color.a)*(1.0-diffuse_color.a)));
 	
-	col.rgb = col.rgb*gl_Color.rgb;
+	col.rgb = col.rgb*diffuse_color.rgb;
 	
 	gl_FrontColor = col;
 

@@ -23,12 +23,14 @@
  * $/LicenseInfo$
  */
  
-
+attribute vec3 position;
+attribute vec4 diffuse_color;
+attribute vec2 texcoord0;
 
 void main()
 {
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-	gl_FrontColor = gl_Color;
-	gl_TexCoord[0] = gl_MultiTexCoord0;
+	gl_Position = gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
+	gl_FrontColor = diffuse_color;
+	gl_TexCoord[0] = vec4(texcoord0,0,1);
 }
 

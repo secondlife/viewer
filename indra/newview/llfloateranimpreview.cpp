@@ -1071,6 +1071,11 @@ BOOL	LLPreviewAnimation::render()
 	gGL.pushMatrix();
 	glLoadIdentity();
 
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+
 	LLGLSUIDefault def;
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);

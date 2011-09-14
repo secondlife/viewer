@@ -531,9 +531,9 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 
 	//we can't have any lines longer than 1024 characters 
-	//or any shaders longer than 1024 lines... deal - DaveP
+	//or any shaders longer than 4096 lines... deal - DaveP
 	GLcharARB buff[1024];
-	GLcharARB* text[1024];
+	GLcharARB* text[4096];
 	GLuint count = 0;
 
 	if (gGLManager.mGLVersion < 2.1f)
@@ -544,10 +544,13 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	{
 		//set version to 1.20
 		text[count++] = strdup("#version 120\n");
+		text[count++] = strdup("#define FXAA_GLSL_120 1\n");
+		text[count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
 	}
 	else
 	{  //set version to 1.30
 		text[count++] = strdup("#version 130\n");
+		text[count++] = strdup("#define FXAA_GLSL_130 1\n");
 	}
 
 	//copy preprocessor definitions into buffer
@@ -649,7 +652,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 
 	//copy file into memory
-	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(buff) ) 
+	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(text) ) 
 	{
 		text[count++] = (GLcharARB *)strdup((char *)buff); 
 	}
@@ -704,14 +707,23 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
 				dumpObjectLog(ret);
 
+#if LL_WINDOWS
 				std::stringstream ostr;
 				//dump shader source for debugging
 				for (GLuint i = 0; i < count; i++)
 				{
 					ostr << i << ": " << text[i];
+
+					if (i % 128 == 0)
+					{ //dump every 128 lines
+						LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+						ostr = std::stringstream();
+					}
+
 				}
 
 				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+#endif // LL_WINDOWS
 
 				ret = 0;
 			}

@@ -100,12 +100,12 @@ void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 {
 	sky_shader =
 		LLPipeline::sUnderWaterRender ?
-			&gObjectSimpleWaterProgram :
+			&gObjectFullbrightNoColorWaterProgram :
 			&gWLSkyProgram;
 
 	cloud_shader =
 			LLPipeline::sUnderWaterRender ?
-				&gObjectSimpleWaterProgram :
+				&gObjectFullbrightNoColorWaterProgram :
 				&gWLCloudProgram;
 }
 
@@ -269,7 +269,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 	{
 		if (gPipeline.canUseVertexShaders())
 		{
-			gUIProgram.bind();
+			gHighlightProgram.bind();
 		}
 		// *NOTE: even though we already bound this texture above for the
 		// stars register combiners, we bind again here for defensive reasons,
@@ -289,7 +289,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 		if (gPipeline.canUseVertexShaders())
 		{
-			gUIProgram.unbind();
+			gHighlightProgram.unbind();
 		}
 	}
 }

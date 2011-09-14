@@ -24,6 +24,8 @@
  */
  
 
+attribute vec3 position;
+attribute vec2 texcoord0;
 
 // SKY ////////////////////////////////////////////////////////////////////////
 // The vertex shader for creating the atmospheric sky
@@ -57,12 +59,12 @@ void main()
 {
 
 	// World / view / projection
-	gl_Position = ftransform();
-	gl_TexCoord[0] = gl_MultiTexCoord0;
+	gl_Position = gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
+	gl_TexCoord[0] = vec4(texcoord0,0,1);
 
 	// Get relative position
-	vec3 P = gl_Vertex.xyz - camPosLocal.xyz + vec3(0,50,0);
-	//vec3 P = gl_Vertex.xyz + vec3(0,50,0);
+	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
+	//vec3 P = position.xyz + vec3(0,50,0);
 
 	// Set altitude
 	if (P.y > 0.)

@@ -384,7 +384,7 @@ BOOL LLFacePool::LLOverrideFaceColor::sOverrideFaceColor = FALSE;
 
 void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4& color)
 {
-	glColor4fv(color.mV);
+	gGL.diffuseColor4fv(color.mV);
 }
 
 void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4U& color)
@@ -394,7 +394,7 @@ void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4U& color)
 
 void LLFacePool::LLOverrideFaceColor::setColor(F32 r, F32 g, F32 b, F32 a)
 {
-	glColor4f(r,g,b,a);
+	gGL.diffuseColor4f(r,g,b,a);
 }
 
 

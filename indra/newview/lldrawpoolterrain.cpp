@@ -106,6 +106,10 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 	{
 		return LLVertexBuffer::MAP_VERTEX;
 	}
+	else if (LLGLSLShader::sCurBoundShaderPtr)
+	{
+		return VERTEX_DATA_MASK & ~(LLVertexBuffer::MAP_TEXCOORD2 | LLVertexBuffer::MAP_TEXCOORD3);
+	}
 	else
 	{
 		return VERTEX_DATA_MASK; 
