@@ -232,6 +232,7 @@ public:
 
 private:
 	friend class LLCurl;
+	friend class LLCurl::Multi;
 
 	CURL*				mCurlEasyHandle;
 	struct curl_slist*	mHeaders;
