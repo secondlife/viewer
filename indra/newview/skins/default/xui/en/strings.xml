@@ -164,12 +164,16 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipLand">Land:</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
-
+	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred to another user.</string>
+	<string name="TooltipOutboxWorn">You are wearing one or more of these objects. Remove them from your avatar and try moving them again.</string>
+	<string name="TooltipOutboxFolderLevels">This folder has too many levels of subfolders. Rearrange the interior folders to a maximum of 4 levels deep (Root Folder contains A contains B contains C).</string>
+	<string name="TooltipOutboxTooManyObjects">This folder contains more than 200 objects. Box some of the items to reduce the object count.</string>
+	
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>
 	<string name="TooltipAgentUrl">Click to view this Resident's profile</string>
-  <string name="TooltipAgentInspect">Learn more about this Resident</string>
+	<string name="TooltipAgentInspect">Learn more about this Resident</string>
 	<string name="TooltipAgentMute">Click to mute this Resident</string>
 	<string name="TooltipAgentUnmute">Click to unmute this Resident</string>
 	<string name="TooltipAgentIM">Click to IM this Resident</string>
@@ -2025,8 +2029,29 @@ Returns a string with the requested data about the region
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="InventoryInboxNoItems">Items purchased through the marketplace will be delivered here.</string>
-	<string name="InventoryOutboxNoItems">Drag items here in preparation for listing on your marketplace storefront.</string>
-    <!-- use value="" because they have preceding spaces -->
+	<string name="MarketplaceURL">http://marketplace.[DOMAIN_NAME]</string>
+	<string name="MarketplaceURL_CreateStore">http://marketplace.[DOMAIN_NAME]/create_store</string>
+	<string name="MarketplaceURL_LearnMore">http://marketplace.[DOMAIN_NAME]/learn_more</string>
+	<string name="InventoryOutboxCreationErrorTitle">Your Merchant Outbox is not properly configured</string>
+	<string name="InventoryOutboxCreationErrorTooltip">Merchant Outbox configuration error</string>
+	<string name="InventoryOutboxCreationError">Please contact Customer Service to correct the problem.</string>
+	<string name="InventoryOutboxNotMerchantTitle">Anyone can sell items on the Marketplace</string>
+	<string name="InventoryOutboxNotMerchantTooltip">Become a merchant!</string>
+	<string name="InventoryOutboxNotMerchant">[[MARKETPLACE_URL] The Second Life Marketplace] offers more than one million virtual products for sale, all of them created by Residents. You, too, can sell items you create, as well as some of the items you have purchased. It’s easy and setup is free.  [[LEARN_MORE_URL] Learn more] or [[CREATE_STORE_URL] create a store] on the Marketplace to get started.</string>
+	<string name="InventoryOutboxNoItemsTitle">A new way to send items to the Marketplace</string>
+	<string name="InventoryOutboxNoItemsTooltip">Drag and drop items here to prepare them for sale on the Marketplace</string>
+	<string name="InventoryOutboxNoItems">Drag items or folders that you wish to sell into this area.  A copy of the item will appear, leaving your inventory unchanged, unless you have dragged a no-copy item.  When you are ready to send the items to the Marketplace, click the Upload button. Once your items have been moved to your Marketplace Inventory, they will disappear from this folder.</string>
+
+	<string name="Marketplace Error None">No errors</string>
+	<string name="Marketplace Error Not Merchant">Error: Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
+	<string name="Marketplace Error Empty Folder">Error: This folder has no contents.</string>
+	<string name="Marketplace Error Unassociated Products">Error: This item failed to upload because your merchant account has too many items unassociated with products.  To fix this error, login to the marketplace website and reduce your unassociated item count.</string>
+	<string name="Marketplace Error Object Limit">Error: This item contains too many objects.  Fix this error by placing objects together in boxes to reduce the total count to less than 200.</string>
+	<string name="Marketplace Error Folder Depth">Error: This item contains too many levels of nested folders.  Reorganize it to a maximum of 3 levels of nested folders.</string>
+	<string name="Marketplace Error Unsellable Item">Error: This item can not be sold on the marketplace.</string>
+	<string name="Marketplace Error Internal Import">Error: There was a problem with this item.  Try again later.</string>
+
+	<!-- use value="" because they have preceding spaces -->
 	<string name="no_transfer" value=" (no transfer)" />
 	<string name="no_modify"   value=" (no modify)" />
 	<string name="no_copy"     value=" (no copy)" />

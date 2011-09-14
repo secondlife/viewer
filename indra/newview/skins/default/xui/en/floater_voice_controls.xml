@@ -89,7 +89,6 @@
         <layout_panel name="leave_call_panel" height="26" auto_resize="false">
         <layout_stack
          clip="true"
-         auto_resize="false"
          follows="left|top|right"
          height="26"
          layout="topleft"

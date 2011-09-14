@@ -51,12 +51,7 @@ class LLScrollingPanelList : public LLUICtrl
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Params()
-		{
-			name = "scrolling_panel_list";
-		}
-	};
+	{};
 	LLScrollingPanelList(const Params& p)
 	:	LLUICtrl(p) 
 	{}

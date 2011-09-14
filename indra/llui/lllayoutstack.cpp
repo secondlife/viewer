@@ -115,9 +115,7 @@ LLLayoutStack::Params::Params()
 	open_time_constant("open_time_constant", 0.02f),
 	close_time_constant("close_time_constant", 0.03f),
 	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0))
-{
-	name="stack";
-}
+{}
 
 LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p) 
 :	LLView(p),

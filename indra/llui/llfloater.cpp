@@ -182,7 +182,7 @@ LLFloater::Params::Params()
 	open_callback("open_callback"),
 	close_callback("close_callback")
 {
-	visible = false;
+	changeDefault(visible, false);
 }
 
 

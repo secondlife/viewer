@@ -126,9 +126,9 @@ LLSysWellChiclet::Params::Params()
 , unread_notifications("unread_notifications")
 , max_displayed_count("max_displayed_count", 99)
 {
-	button.name("button");
-	button.tab_stop(FALSE);
-	button.label(LLStringUtil::null);
+	button.name = "button";
+	button.tab_stop = FALSE;
+	button.label = LLStringUtil::null;
 }
 
 LLSysWellChiclet::LLSysWellChiclet(const Params& p)
