@@ -303,14 +303,15 @@ LLFastTimer::NamedTimer::~NamedTimer()
 
 std::string LLFastTimer::NamedTimer::getToolTip(S32 history_idx)
 {
+	F64 ms_multiplier = 1000.0 / (F64)LLFastTimer::countsPerSecond();
 	if (history_idx < 0)
 	{
-		// by default, show average number of calls
-		return llformat("%s (%d calls)", getName().c_str(), (S32)getCallAverage());
+		// by default, show average number of call
+		return llformat("%s (%d ms, %d calls)", getName().c_str(), (S32)(getCountAverage() * ms_multiplier), (S32)getCallAverage());
 	}
 	else
 	{
-		return llformat("%s (%d calls)", getName().c_str(), (S32)getHistoricalCalls(history_idx));
+		return llformat("%s (%d ms, %d calls)", getName().c_str(), (S32)(getHistoricalCount(history_idx) * ms_multiplier), (S32)getHistoricalCalls(history_idx));
 	}
 }
 
@@ -693,17 +694,7 @@ void LLFastTimer::nextFrame()
 		llinfos << "Slow frame, fast timers inaccurate" << llendl;
 	}
 
-	if (sPauseHistory)
-	{
-		sResetHistory = true;
-	}
-	else if (sResetHistory)
-	{
-		sLastFrameIndex = 0;
-		sCurFrameIndex = 0;
-		sResetHistory = false;
-	}
-	else // not paused
+	if (!sPauseHistory)
 	{
 		NamedTimer::processTimes();
 		sLastFrameIndex = sCurFrameIndex++;
