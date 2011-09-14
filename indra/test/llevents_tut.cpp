@@ -25,7 +25,6 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-
 #if LL_WINDOWS
 #pragma warning (disable : 4675) // "resolved by ADL" -- just as I want!
 #endif
@@ -38,7 +37,6 @@
 #define testable public
 #include "llevents.h"
 #undef testable
-#include "lllistenerwrapper.h"
 // STL headers
 // std headers
 #include <iostream>
@@ -50,9 +48,95 @@
 // other Linden headers
 #include "lltut.h"
 #include "stringize.h"
-#include "tests/listener.h"
 
 using boost::assign::list_of;
+
+/*****************************************************************************
+*   test listener class
+*****************************************************************************/
+class Listener;
+std::ostream& operator<<(std::ostream&, const Listener&);
+
+class Listener
+{
+public:
+    Listener(const std::string& name):
+        mName(name)
+    {
+//      std::cout << *this << ": ctor\n";
+    }
+    Listener(const Listener& that):
+        mName(that.mName),
+        mLastEvent(that.mLastEvent)
+    {
+//      std::cout << *this << ": copy\n";
+    }
+    virtual ~Listener()
+    {
+//      std::cout << *this << ": dtor\n";
+    }
+    std::string getName() const { return mName; }
+    bool call(const LLSD& event)
+    {
+//      std::cout << *this << "::call(" << event << ")\n";
+        mLastEvent = event;
+        return false;
+    }
+    bool callstop(const LLSD& event)
+    {
+//      std::cout << *this << "::callstop(" << event << ")\n";
+        mLastEvent = event;
+        return true;
+    }
+    LLSD getLastEvent() const
+    {
+//      std::cout << *this << "::getLastEvent() -> " << mLastEvent << "\n";
+        return mLastEvent;
+    }
+    void reset(const LLSD& to = LLSD())
+    {
+//      std::cout << *this << "::reset(" << to << ")\n";
+        mLastEvent = to;
+    }
+
+private:
+    std::string mName;
+    LLSD mLastEvent;
+};
+
+std::ostream& operator<<(std::ostream& out, const Listener& listener)
+{
+    out << "Listener(" << listener.getName() /* << "@" << &listener */ << ')';
+    return out;
+}
+
+struct Collect
+{
+    bool add(const std::string& bound, const LLSD& event)
+    {
+        result.push_back(bound);
+        return false;
+    }
+    void clear() { result.clear(); }
+    typedef std::vector<std::string> StringList;
+    StringList result;
+};
+
+std::ostream& operator<<(std::ostream& out, const Collect::StringList& strings)
+{
+    out << '(';
+    Collect::StringList::const_iterator begin(strings.begin()), end(strings.end());
+    if (begin != end)
+    {
+        out << '"' << *begin << '"';
+        while (++begin != end)
+        {
+            out << ", \"" << *begin << '"';
+        }
+    }
+    out << ')';
+    return out;
+}
 
 template<typename T>
 T make(const T& value) { return value; }
@@ -106,7 +190,14 @@ namespace tut
         // default combiner is defined to return the value returned by the
         // last listener, which is meaningless if there were no listeners.
         per_frame.post(0);
-        LLBoundListener connection = listener0.listenTo(per_frame);
+        // NOTE: boost::bind() saves its arguments by VALUE! If you pass an
+        // object instance rather than a pointer, you'll end up binding to an
+        // internal copy of that instance! Use boost::ref() to capture a
+        // reference instead.
+        LLBoundListener connection = per_frame.listen(listener0.getName(),
+                                                      boost::bind(&Listener::call,
+                                                                  boost::ref(listener0),
+                                                                  _1));
         ensure("connected", connection.connected());
         ensure("not blocked", ! connection.blocked());
         per_frame.post(1);
@@ -132,10 +223,6 @@ namespace tut
         bool threw = false;
         try
         {
-            // NOTE: boost::bind() saves its arguments by VALUE! If you pass
-            // an object instance rather than a pointer, you'll end up binding
-            // to an internal copy of that instance! Use boost::ref() to
-            // capture a reference instead.
             per_frame.listen(listener0.getName(), // note bug, dup name
                              boost::bind(&Listener::call, boost::ref(listener1), _1));
         }
@@ -150,7 +237,8 @@ namespace tut
         }
         ensure("threw DupListenerName", threw);
         // do it right this time
-        listener1.listenTo(per_frame);
+        per_frame.listen(listener1.getName(),
+                         boost::bind(&Listener::call, boost::ref(listener1), _1));
         per_frame.post(5);
         check_listener("got", listener0, 5);
         check_listener("got", listener1, 5);
@@ -180,10 +268,16 @@ namespace tut
         LLEventPump& per_frame(pumps.obtain("per-frame"));
         listener0.reset(0);
         listener1.reset(0);
-        LLBoundListener bound0 = listener0.listenTo(per_frame, &Listener::callstop);
-        LLBoundListener bound1 = listener1.listenTo(per_frame, &Listener::call,
-                                                    // after listener0
-                                                    make<LLEventPump::NameList>(list_of(listener0.getName())));
+        LLBoundListener bound0 = per_frame.listen(listener0.getName(),
+                                                  boost::bind(&Listener::callstop,
+                                                              boost::ref(listener0),
+                                                              _1));
+        LLBoundListener bound1 = per_frame.listen(listener1.getName(),
+                                                  boost::bind(&Listener::call,
+                                                              boost::ref(listener1),
+                                                              _1),
+                                                  // after listener0
+                                                  make<LLEventPump::NameList>(list_of(listener0.getName())));
         ensure("enabled", per_frame.enabled());
         ensure("connected 0", bound0.connected());
         ensure("unblocked 0", ! bound0.blocked());
@@ -223,7 +317,7 @@ namespace tut
         // LLEventQueue.
         LLEventPump& mainloop(pumps.obtain("mainloop"));
         ensure("LLEventQueue leaf class", dynamic_cast<LLEventQueue*>(&login));
-        listener0.listenTo(login);
+        login.listen(listener0.getName(), boost::bind(&Listener::call, boost::ref(listener0), _1));
         listener0.reset(0);
         login.post(1);
         check_listener("waiting for queued event", listener0, 0);
@@ -276,10 +370,11 @@ namespace tut
     {
         set_test_name("stopListening()");
         LLEventPump& login(pumps.obtain("login"));
-        listener0.listenTo(login);
+        login.listen(listener0.getName(), boost::bind(&Listener::call, boost::ref(listener0), _1));
         login.stopListening(listener0.getName());
         // should not throw because stopListening() should have removed name
-        listener0.listenTo(login, &Listener::callstop);
+        login.listen(listener0.getName(),
+                     boost::bind(&Listener::callstop, boost::ref(listener0), _1));
         LLBoundListener wrong = login.getListener("bogus");
         ensure("bogus connection disconnected", ! wrong.connected());
         ensure("bogus connection blocked", wrong.blocked());
@@ -299,8 +394,10 @@ namespace tut
                         boost::bind(&LLEventPump::post, boost::ref(filter0), _1));
         upstream.listen(filter1.getName(),
                         boost::bind(&LLEventPump::post, boost::ref(filter1), _1));
-        listener0.listenTo(filter0);
-        listener1.listenTo(filter1);
+        filter0.listen(listener0.getName(),
+                       boost::bind(&Listener::call, boost::ref(listener0), _1));
+        filter1.listen(listener1.getName(),
+                       boost::bind(&Listener::call, boost::ref(listener1), _1));
         listener0.reset(0);
         listener1.reset(0);
         upstream.post(1);
@@ -455,7 +552,7 @@ namespace tut
         // Passing a string LLEventPump name to LLListenerOrPumpName
         listener0.reset(0);
         LLEventStream random("random");
-        listener0.listenTo(random);
+        random.listen(listener0.getName(), boost::bind(&Listener::call, boost::ref(listener0), _1));
         eventSource("random");
         check_listener("got by pump name", listener0, 17);
         bool threw = false;
@@ -657,33 +754,6 @@ namespace tut
         heaptest.post(2);
     }
 
-    template<> template<>
-    void events_object::test<15>()
-    {
-        // This test ensures that using an LLListenerWrapper subclass doesn't
-        // block Boost.Signals2 from recognizing a bound LLEventTrackable
-        // subclass.
-        set_test_name("listen(llwrap<LLLogListener>(boost::bind(...TempTrackableListener ref...)))");
-        bool live = false;
-        LLEventPump& heaptest(pumps.obtain("heaptest"));
-        LLBoundListener connection;
-        {
-            TempTrackableListener tempListener("temp", live);
-            ensure("TempTrackableListener constructed", live);
-            connection = heaptest.listen(tempListener.getName(),
-                                         llwrap<LLLogListener>(
-                                         boost::bind(&TempTrackableListener::call,
-                                                     boost::ref(tempListener), _1)));
-            heaptest.post(1);
-            check_listener("received", tempListener, 1);
-        } // presumably this will make tempListener go away?
-        // verify that
-        ensure("TempTrackableListener destroyed", ! live);
-        ensure("implicit disconnect", ! connection.connected());
-        // now just make sure we don't blow up trying to access a freed object!
-        heaptest.post(2);
-    }
-
     class TempSharedListener: public TempListener,
                               public boost::enable_shared_from_this<TempSharedListener>
     {
@@ -694,7 +764,7 @@ namespace tut
     };
 
     template<> template<>
-    void events_object::test<16>()
+    void events_object::test<15>()
     {
         set_test_name("listen(boost::bind(...TempSharedListener ref...))");
 #if 0
