@@ -24,7 +24,6 @@
      layout="topleft"
      left_delta="0"
      name="browser_layout"
-     orientation="vertical" 
      top_delta="0"
      width="313">
       <web_browser

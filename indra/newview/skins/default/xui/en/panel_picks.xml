@@ -72,20 +72,19 @@ bg_opaque_color="DkGray2"
     </accordion_tab>
  </accordion>
    <panel
-bg_opaque_color="DkGray2"
+       bg_opaque_color="DkGray2"
        background_visible="true"
        background_opaque="true"
-         bevel_style="none"
-         enabled="false"
-         auto_resize="false"
-         follows="bottom|left|right"
-         left="1"
-         height="27"
-         label="bottom_panel"
-         layout="bottom"
-         name="edit_panel"
-         top_pad="-2"
-         width="313">
+       bevel_style="none"
+       enabled="false"
+       follows="bottom|left|right"
+       left="1"
+       height="27"
+       label="bottom_panel"
+       layout="bottom"
+       name="edit_panel"
+       top_pad="-2"
+       width="313">
          
          <layout_stack
 		  follows="bottom|left|right"
