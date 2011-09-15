@@ -316,7 +316,8 @@ LLCurl::Responder::~Responder() {}
 void LLHTTPClient::get(const std::string&, const LLSD&, ResponderPtr, const LLSD&, const F32) {}
 void LLHTTPClient::get(const std::string&, boost::intrusive_ptr<LLCurl::Responder>, const LLSD&, const F32) {}
 
-LLBufferStream::LLBufferStream(const LLChannelDescriptors& channels, LLBufferArray* buffer) : mStreamBuf(channels, buffer) {}
+LLBufferStream::LLBufferStream(const LLChannelDescriptors& channels, LLBufferArray* buffer)
+:	std::iostream(&mStreamBuf), mStreamBuf(channels, buffer) {}
 LLBufferStream::~LLBufferStream() {}
 
 LLBufferStreamBuf::LLBufferStreamBuf(const LLChannelDescriptors&, LLBufferArray*) {}
