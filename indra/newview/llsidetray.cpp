@@ -1449,7 +1449,7 @@ void	LLSideTray::updateSidetrayVisibility()
 			parent->setVisible(new_visibility);
 
 			// Signal change of visible width.
-			llinfos << "Visible: " << new_visibility << llendl;
+			//llinfos << "Visible: " << new_visibility << llendl;
 			mVisibleWidthChangeSignal(this, new_visibility);
 		}
 	}

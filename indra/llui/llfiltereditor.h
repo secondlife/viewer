@@ -42,12 +42,7 @@ class LLFilterEditor : public LLSearchEditor
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLSearchEditor::Params>
-	{
-		Params()
-		{
-			name = "filter_editor";
-		}
-	};
+	{};
 
 protected:
 	LLFilterEditor(const Params&);

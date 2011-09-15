@@ -201,6 +201,40 @@ Save changes to current clothing/body part?
 
   <notification
    icon="alertmodal.tga"
+     name="ConfirmNoCopyToOutbox"
+     type="alertmodal">
+        You don't have permission to copy this item to the Marketplace Outbox. Are you sure you want to move the following item?
+        [ITEM_NAME]
+        <usetemplate
+         name="okcancelbuttons"
+         notext="No"
+         yestext="Yes"/>
+    </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="OutboxUploadComplete"
+   type="alertmodal">
+Marketplace upload complete.
+        <usetemplate
+         name="okbutton"
+         yestext="Hooray!"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="OutboxUploadHadErrors"
+   type="alertmodal">
+Marketplace upload completed with errors!  Please correct the problems in your outbox and retry.  Thanks.
+        <usetemplate
+         name="okbutton"
+         yestext="Boo!"/>
+  </notification>
+
+    
+
+    <notification
+   icon="alertmodal.tga"
    name="CompileQueueSaveText"
    type="alertmodal">
 There was a problem uploading the text for a script due to the following reason: [REASON]. Please try again later.
@@ -5089,7 +5123,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOnline"
    type="notifytip">
     <tag>friendship</tag>
-&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Online
+[NAME] is Online
   </notification>
 
   <notification
@@ -5097,7 +5131,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOffline"
    type="notifytip">
     <tag>friendship</tag>
-&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Offline
+[NAME] is Offline
   </notification>
 
   <notification
@@ -5916,7 +5950,25 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
       <button
        index="2"
        name="Mute"
-       text="Block"/>
+       text="Block Owner"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="OwnObjectGiveItem"
+   type="offer">
+Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you this [OBJECTTYPE]:
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
+    <form name="form">
+      <button
+       index="0"
+       name="Keep"
+       text="Keep"/>
+      <button
+       index="1"
+       name="Discard"
+       text="Discard"/>
     </form>
   </notification>
 
@@ -5928,7 +5980,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
 [ITEM_SLURL]
     <form name="form">
       <button
-       index="4"
+       index="3"
        name="Show"
        text="Show"/>
       <button
@@ -6818,7 +6870,7 @@ Select residents to share with.
 See the log file for details.
   </notification>
    
-   <notification
+  <notification
     name="MeshUploadPermError"
     icon="alert.tga"
     type="alert">
@@ -6842,7 +6894,7 @@ Are you sure you want to share the following items:
 
 With the following Residents:
 
-&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
+[RESIDENTS]
   <tag>confirm</tag>
 	<usetemplate
      name="okcancelbuttons"

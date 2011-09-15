@@ -48,7 +48,7 @@ public:
 	{
 		Params()
 		{
-			mouse_opaque = false;
+			changeDefault(mouse_opaque, false);
 		}
 	};
 	LLDebugView(const Params&);

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <!--All horizontal sliders are configured to have no highlighted track. See EXT-5939. -->
-<slider_bar track_color="SliderTrackColor"
+<slider_bar follows="left|top"
+            track_color="SliderTrackColor"
             thumb_outline_color="SliderThumbOutlineColor"
             thumb_center_color="SliderThumbCenterColor"
             thumb_image="SliderThumb_Off"

@@ -57,7 +57,6 @@ LLNameListCtrl::Params::Params()
 	allow_calling_card_drop("allow_calling_card_drop", false),
 	short_names("short_names", false)
 {
-	name = "name_list";
 }
 
 LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)

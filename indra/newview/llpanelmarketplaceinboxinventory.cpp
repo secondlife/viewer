@@ -37,6 +37,8 @@
 #include "llviewerfoldertype.h"
 
 
+#define DEBUGGING_FRESHNESS	0
+
 //
 // statics
 //
@@ -66,7 +68,7 @@ void LLInboxInventoryPanel::buildFolderView(const LLInventoryPanel::Params& para
 	
 	LLUUID root_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false);
 	
-	// leslie -- temporary HACK to work around sim not creating inbox and outbox with proper system folder type
+	// leslie -- temporary HACK to work around sim not creating inbox with proper system folder type
 	if (root_id.isNull())
 	{
 		std::string start_folder_name(params.start_folder());
@@ -133,6 +135,27 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 	return LLUICtrlFactory::create<LLInboxFolderViewFolder>(params);
 }
 
+LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge)
+{
+	LLFolderViewItem::Params params;
+
+	params.name = bridge->getDisplayName();
+	params.icon = bridge->getIcon();
+	params.icon_open = bridge->getOpenIcon();
+
+	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
+	{
+		params.icon_overlay = LLUI::getUIImage("Inv_Link");
+	}
+
+	params.creation_date = bridge->getCreationDate();
+	params.root = mFolderRoot;
+	params.listener = bridge;
+	params.rect = LLRect (0, 0, 0, 0);
+	params.tool_tip = params.name;
+
+	return LLUICtrlFactory::create<LLInboxFolderViewItem>(params);
+}
 
 //
 // LLInboxFolderViewFolder Implementation
@@ -141,7 +164,7 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 LLInboxFolderViewFolder::LLInboxFolderViewFolder(const Params& p)
 	: LLFolderViewFolder(p)
 	, LLBadgeOwner(getHandle())
-	, mFresh(true)
+	, mFresh(false)
 {
 #if SUPPORTING_FRESH_ITEM_COUNT
 	initBadgeParams(p.new_badge());
@@ -150,19 +173,6 @@ LLInboxFolderViewFolder::LLInboxFolderViewFolder(const Params& p)
 
 LLInboxFolderViewFolder::~LLInboxFolderViewFolder()
 {
-}
-
-// virtual
-time_t LLInboxFolderViewFolder::getCreationDate() const
-{
-	time_t ret_val = LLFolderViewFolder::getCreationDate();
-
-	if (!mCreationDate)
-	{
-		updateFlag();
-	}
-
-	return ret_val;
 }
 
 // virtual
@@ -180,29 +190,69 @@ void LLInboxFolderViewFolder::draw()
 	LLFolderViewFolder::draw();
 }
 
-void LLInboxFolderViewFolder::updateFlag() const
+void LLInboxFolderViewFolder::computeFreshness()
 {
-	LLDate saved_freshness_date = LLDate(gSavedPerAccountSettings.getString("LastInventoryInboxExpand"));
-	mFresh = (mCreationDate > saved_freshness_date.secondsSinceEpoch());
+	const std::string& last_expansion = gSavedPerAccountSettings.getString("LastInventoryInboxActivity");
+
+	if (!last_expansion.empty())
+	{
+		// Inventory DB timezone is hardcoded to PDT or GMT-7, which is 7 hours behind GMT
+		const F64 SEVEN_HOURS_IN_SECONDS = 7 * 60 * 60;
+		const F64 saved_freshness_inventory_db_timezone = LLDate(last_expansion).secondsSinceEpoch() - SEVEN_HOURS_IN_SECONDS;
+
+		mFresh = (mCreationDate > saved_freshness_inventory_db_timezone);
+
+#if DEBUGGING_FRESHNESS
+		if (mFresh)
+		{
+			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << saved_freshness_inventory_db_timezone << llendl;
+		}
+#endif
+	}
+	else
+	{
+		mFresh = true;
+	}
+}
+
+void LLInboxFolderViewFolder::deFreshify()
+{
+	mFresh = false;
+
+	gSavedPerAccountSettings.setString("LastInventoryInboxActivity", LLDate::now().asString());
 }
 
 void LLInboxFolderViewFolder::selectItem()
 {
-	mFresh = false;
 	LLFolderViewFolder::selectItem();
+
+	deFreshify();
 }
 
 void LLInboxFolderViewFolder::toggleOpen()
 {
-	mFresh = false;
 	LLFolderViewFolder::toggleOpen();
+
+	deFreshify();
 }
 
-void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc) const
+void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc)
 { 
 	mCreationDate = creation_date_utc; 
-	updateFlag();
+
+	if (mParentFolder == mRoot)
+	{
+		computeFreshness();
+	}
 }
 
+//
+// LLInboxFolderViewItem Implementation
+//
+
+BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	return TRUE;
+}
 
 // eof

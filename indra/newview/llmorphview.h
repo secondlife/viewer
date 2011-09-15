@@ -40,8 +40,8 @@ public:
 	{
 		Params()
 		{
-			mouse_opaque(false);
-			follows.flags(FOLLOWS_ALL);
+			changeDefault(mouse_opaque, false);
+			changeDefault(follows.flags, FOLLOWS_ALL);
 		}
 	};
 	LLMorphView(const LLMorphView::Params&);

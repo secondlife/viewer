@@ -674,7 +674,26 @@
          function="Inventory.DoToSelected"
          parameter="take_off" />
     </menu_item_call>
-    <menu_item_call
+	<menu_item_separator
+	 layout="topleft"
+	 name="Marketplace Separator" />
+	<menu_item_call
+	 label="Copy to Merchant Outbox"
+	 layout="topleft"
+	 name="Merchant Copy">
+		<menu_item_call.on_click
+		 function="Inventory.DoToSelected"
+		 parameter="copy_to_outbox" />
+	</menu_item_call>
+	<menu_item_call
+	 label="Move to Merchant Outbox"
+	 layout="topleft"
+	 name="Merchant Move">
+		<menu_item_call.on_click
+		 function="Inventory.DoToSelected"
+		 parameter="move_to_outbox" />
+	</menu_item_call>
+	<menu_item_call
      label="--no options--"
      layout="topleft"
      name="--no options--" />

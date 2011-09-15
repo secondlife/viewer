@@ -79,7 +79,6 @@ LLMediaCtrl::Params::Params()
 	trusted_content("trusted_content", false),
 	focus_on_click("focus_on_click", true)
 {
-	tab_stop(false);
 }
 
 LLMediaCtrl::LLMediaCtrl( const Params& p) :
