@@ -1912,9 +1912,20 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 	// when drop is not handled by child, it should be handled
 	// by the folder which is the hierarchy root.
-	if (!handled && getListener()->getUUID().notNull())
+	if (!handled)
 	{
-		LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		if (getListener()->getUUID().notNull())
+		{
+			LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		}
+		else
+		{
+			if (!mFolders.empty())
+			{
+				// dispatch to last folder as a hack to support "Contents" folder in object inventory
+				handled = mFolders.back()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+			}
+		}
 	}
 
 	if (handled)

@@ -1005,6 +1005,8 @@ void LLBasicCertificateStore::validate(int validation_policy,
 									   LLPointer<LLCertificateChain> cert_chain,
 									   const LLSD& validation_params)
 {
+	// If --no-verify-ssl-cert was passed on the command line, stop right now.
+	if (gSavedSettings.getBOOL("NoVerifySSLCert")) return;
 
 	if(cert_chain->size() < 1)
 	{

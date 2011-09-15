@@ -187,6 +187,122 @@ private:
 	static const unsigned int MAX_REDIRECTS;
 };
 
+class LLCurl::Easy
+{
+	LOG_CLASS(Easy);
+
+private:
+	Easy();
+
+public:
+	static Easy* getEasy();
+	~Easy();
+
+	CURL* getCurlHandle() const { return mCurlEasyHandle; }
+
+	void setErrorBuffer();
+	void setCA();
+
+	void setopt(CURLoption option, S32 value);
+	// These assume the setter does not free value!
+	void setopt(CURLoption option, void* value);
+	void setopt(CURLoption option, char* value);
+	// Copies the string so that it is guaranteed to stick around
+	void setoptString(CURLoption option, const std::string& value);
+
+	void slist_append(const char* str);
+	void setHeaders();
+
+	U32 report(CURLcode);
+	void getTransferInfo(LLCurl::TransferInfo* info);
+
+	void prepRequest(const std::string& url, const std::vector<std::string>& headers, ResponderPtr, S32 time_out = 0, bool post = false);
+
+	const char* getErrorBuffer();
+
+	std::stringstream& getInput() { return mInput; }
+	std::stringstream& getHeaderOutput() { return mHeaderOutput; }
+	LLIOPipe::buffer_ptr_t& getOutput() { return mOutput; }
+	const LLChannelDescriptors& getChannels() { return mChannels; }
+
+	void resetState();
+
+	static CURL* allocEasyHandle();
+	static void releaseEasyHandle(CURL* handle);
+
+private:
+	friend class LLCurl;
+
+	CURL*				mCurlEasyHandle;
+	struct curl_slist*	mHeaders;
+
+	std::stringstream	mRequest;
+	LLChannelDescriptors mChannels;
+	LLIOPipe::buffer_ptr_t mOutput;
+	std::stringstream	mInput;
+	std::stringstream	mHeaderOutput;
+	char				mErrorBuffer[CURL_ERROR_SIZE];
+
+	// Note: char*'s not strings since we pass pointers to curl
+	std::vector<char*>	mStrings;
+
+	ResponderPtr		mResponder;
+
+	static std::set<CURL*> sFreeHandles;
+	static std::set<CURL*> sActiveHandles;
+	static LLMutex* sHandleMutex;
+};
+
+class LLCurl::Multi : public LLThread
+{
+	LOG_CLASS(Multi);
+public:
+
+	typedef enum
+	{
+		PERFORM_STATE_READY=0,
+		PERFORM_STATE_PERFORMING=1,
+		PERFORM_STATE_COMPLETED=2
+	} ePerformState;
+
+	Multi();
+	~Multi();
+
+	Easy* allocEasy();
+	bool addEasy(Easy* easy);
+	
+	void removeEasy(Easy* easy);
+
+	S32 process();
+	void perform();
+	void doPerform();
+	
+	virtual void run();
+
+	CURLMsg* info_read(S32* msgs_in_queue);
+
+	S32 mQueued;
+	S32 mErrorCount;
+	
+	S32 mPerformState;
+
+	LLCondition* mSignal;
+	bool mQuitting;
+	bool mThreaded;
+
+private:
+	void easyFree(Easy*);
+	
+	CURLM* mCurlMultiHandle;
+
+	typedef std::set<Easy*> easy_active_list_t;
+	easy_active_list_t mEasyActiveList;
+	typedef std::map<CURL*, Easy*> easy_active_map_t;
+	easy_active_map_t mEasyActiveMap;
+	typedef std::set<Easy*> easy_free_list_t;
+	easy_free_list_t mEasyFreeList;
+};
+
 namespace boost
 {
 	void intrusive_ptr_add_ref(LLCurl::Responder* p);
@@ -243,6 +359,8 @@ public:
 	bool getResult(CURLcode* result, LLCurl::TransferInfo* info = NULL);
 	std::string getErrorString();
 
+	LLCurl::Easy* getEasy() const { return mEasy; }
+
 private:
 	CURLMsg* info_read(S32* queue, LLCurl::TransferInfo* info);
 	
@@ -252,5 +370,8 @@ private:
 	bool mRequestSent;
 	bool mResultReturned;
 };
+
+void check_curl_code(CURLcode code);
+void check_curl_multi_code(CURLMcode code);
 
 #endif // LL_LLCURL_H
