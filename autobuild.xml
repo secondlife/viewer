@@ -1811,6 +1811,25 @@
               <key>name</key>
               <string>DebugOS</string>
             </map>
+            <key>Doxygen</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>Doxyfile</string>
+                </array>
+                <key>command</key>
+                <string>doxygen</string>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>command</key>
+                <string>cmake</string>
+              </map>
+              <key>name</key>
+              <string>Doxygen</string>
+            </map>
             <key>RelWithDebInfo</key>
             <map>
               <key>build</key>
@@ -1956,6 +1975,28 @@
               </map>
               <key>name</key>
               <string>DebugOS</string>
+            </map>
+            <key>Doxygen</key>
+            <map>
+              <key>build</key>
+              <map>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
+                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
+                </array>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>Doxygen</string>
             </map>
             <key>RelWithDebInfo</key>
             <map>
@@ -2124,6 +2165,26 @@
               </map>
               <key>name</key>
               <string>DebugOS</string>
+            </map>
+            <key>Doxygen</key>
+            <map>
+              <key>build</key>
+              <map>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>'Unix Makefiles'</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>Doxygen</string>
             </map>
             <key>RelWithDebInfo</key>
             <map>
@@ -2314,6 +2375,21 @@
               </map>
               <key>name</key>
               <string>DebugOS</string>
+            </map>
+            <key>Doxygen</key>
+            <map>
+              <key>build</key>
+              <map>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>Doxygen</string>
             </map>
             <key>RelWithDebInfo</key>
             <map>
