@@ -840,7 +840,10 @@ void LLLightState::setDiffuse(const LLColor4& diffuse)
 	if (mDiffuse != diffuse)
 	{
 		mDiffuse = diffuse;
-		glLightfv(GL_LIGHT0+mIndex, GL_DIFFUSE, mDiffuse.mV);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightfv(GL_LIGHT0+mIndex, GL_DIFFUSE, mDiffuse.mV);
+		}
 	}
 }
 
@@ -849,7 +852,10 @@ void LLLightState::setAmbient(const LLColor4& ambient)
 	if (mAmbient != ambient)
 	{
 		mAmbient = ambient;
-		glLightfv(GL_LIGHT0+mIndex, GL_AMBIENT, mAmbient.mV);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightfv(GL_LIGHT0+mIndex, GL_AMBIENT, mAmbient.mV);
+		}
 	}
 }
 
@@ -858,7 +864,10 @@ void LLLightState::setSpecular(const LLColor4& specular)
 	if (mSpecular != specular)
 	{
 		mSpecular = specular;
-		glLightfv(GL_LIGHT0+mIndex, GL_SPECULAR, mSpecular.mV);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightfv(GL_LIGHT0+mIndex, GL_SPECULAR, mSpecular.mV);
+		}
 	}
 }
 
@@ -866,7 +875,20 @@ void LLLightState::setPosition(const LLVector4& position)
 {
 	//always set position because modelview matrix may have changed
 	mPosition = position;
-	glLightfv(GL_LIGHT0+mIndex, GL_POSITION, mPosition.mV);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glLightfv(GL_LIGHT0+mIndex, GL_POSITION, mPosition.mV);
+	}
+	else
+	{ //transform position by current modelview matrix
+		glh::vec4f pos(position.mV);
+
+		const glh::matrix4f& mat = gGL.getModelviewMatrix();
+		mat.mult_matrix_vec(pos);
+
+		mPosition.set(pos.v);
+	}
+
 }
 
 void LLLightState::setConstantAttenuation(const F32& atten)
@@ -874,7 +896,10 @@ void LLLightState::setConstantAttenuation(const F32& atten)
 	if (mConstantAtten != atten)
 	{
 		mConstantAtten = atten;
-		glLightf(GL_LIGHT0+mIndex, GL_CONSTANT_ATTENUATION, atten);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightf(GL_LIGHT0+mIndex, GL_CONSTANT_ATTENUATION, atten);
+		}
 	}
 }
 
@@ -883,7 +908,10 @@ void LLLightState::setLinearAttenuation(const F32& atten)
 	if (mLinearAtten != atten)
 	{
 		mLinearAtten = atten;
-		glLightf(GL_LIGHT0+mIndex, GL_LINEAR_ATTENUATION, atten);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightf(GL_LIGHT0+mIndex, GL_LINEAR_ATTENUATION, atten);
+		}
 	}
 }
 
@@ -892,7 +920,10 @@ void LLLightState::setQuadraticAttenuation(const F32& atten)
 	if (mQuadraticAtten != atten)
 	{
 		mQuadraticAtten = atten;
-		glLightf(GL_LIGHT0+mIndex, GL_QUADRATIC_ATTENUATION, atten);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightf(GL_LIGHT0+mIndex, GL_QUADRATIC_ATTENUATION, atten);
+		}
 	}
 }
 
@@ -901,7 +932,10 @@ void LLLightState::setSpotExponent(const F32& exponent)
 	if (mSpotExponent != exponent)
 	{
 		mSpotExponent = exponent;
-		glLightf(GL_LIGHT0+mIndex, GL_SPOT_EXPONENT, exponent);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightf(GL_LIGHT0+mIndex, GL_SPOT_EXPONENT, exponent);
+		}
 	}
 }
 
@@ -910,7 +944,10 @@ void LLLightState::setSpotCutoff(const F32& cutoff)
 	if (mSpotCutoff != cutoff)
 	{
 		mSpotCutoff = cutoff;
-		glLightf(GL_LIGHT0+mIndex, GL_SPOT_CUTOFF, cutoff);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightf(GL_LIGHT0+mIndex, GL_SPOT_CUTOFF, cutoff);
+		}
 	}
 }
 
@@ -918,7 +955,19 @@ void LLLightState::setSpotDirection(const LLVector3& direction)
 {
 	//always set direction because modelview matrix may have changed
 	mSpotDirection = direction;
-	glLightfv(GL_LIGHT0+mIndex, GL_SPOT_DIRECTION, direction.mV);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glLightfv(GL_LIGHT0+mIndex, GL_SPOT_DIRECTION, direction.mV);
+	}
+	else
+	{ //transform direction by current modelview matrix
+		glh::vec3f dir(direction.mV);
+
+		const glh::matrix4f& mat = gGL.getModelviewMatrix();
+		mat.mult_matrix_dir(dir);
+
+		mSpotDirection.set(direction);
+	}
 }
 
 LLRender::LLRender()
@@ -1016,6 +1065,36 @@ void LLRender::refreshState(void)
 	mDirty = false;
 }
 
+void LLRender::syncLightState()
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	if (!shader)
+	{
+		return;
+	}
+
+	LLVector4 position[8];
+	LLVector3 direction[8];
+	LLVector3 attenuation[8];
+	LLVector3 diffuse[8];
+
+	for (U32 i = 0; i < 8; i++)
+	{
+		LLLightState* light = mLightState[i];
+
+		position[i] = light->mPosition;
+		direction[i] = light->mSpotDirection;
+		attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[3]);
+		diffuse[i].set(light->mDiffuse.mV);
+	}
+
+	shader->uniform4fv("light_position", 8, position[0].mV);
+	shader->uniform3fv("light_direction", 8, direction[0].mV);
+	shader->uniform3fv("light_attenuation", 8, attenuation[0].mV);
+	shader->uniform3fv("light_diffuse", 8, diffuse[0].mV);
+}
+
 void LLRender::syncMatrices()
 {
 	stop_glerror();
@@ -1102,6 +1181,11 @@ void LLRender::syncMatrices()
 				
 				shader->uniformMatrix4fv("modelview_projection_matrix", 1, GL_FALSE, mvp.m);
 			}
+		}
+
+		if (shader->mFeatures.hasLighting || shader->mFeatures.calculatesLighting)
+		{ //also sync light state
+			syncLightState();
 		}
 	}
 	else
@@ -1272,6 +1356,11 @@ void LLRender::loadIdentity()
 {
 	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].make_identity();
 	mMatHash[mMatrixMode]++;
+}
+
+const glh::matrix4f& LLRender::getModelviewMatrix()
+{
+	return mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]];
 }
 
 void LLRender::translateUI(F32 x, F32 y, F32 z)

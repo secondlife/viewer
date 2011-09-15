@@ -239,6 +239,8 @@ public:
 	void setSpotDirection(const LLVector3& direction);
 
 protected:
+	friend class LLRender;
+
 	S32 mIndex;
 	bool mEnabled;
 	LLColor4 mDiffuse;
@@ -347,7 +349,10 @@ public:
 	void multMatrix(const GLdouble* m);
 	void matrixMode(U32 mode);	
 
+	const glh::matrix4f& getModelviewMatrix();
+
 	void syncMatrices();
+	void syncLightState();
 
 	void translateUI(F32 x, F32 y, F32 z);
 	void scaleUI(F32 x, F32 y, F32 z);

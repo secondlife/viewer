@@ -23,21 +23,21 @@
  * $/LicenseInfo$
  */
  
-
+uniform vec3 light_diffuse[8];
 
 vec3 atmosAmbient(vec3 light)
 {
-	return gl_LightModel.ambient.rgb + light;
+	return light;  //need ambient?
 }
 
 vec3 atmosAffectDirectionalLight(float lightIntensity)
 {
-	return gl_LightSource[0].diffuse.rgb * lightIntensity;
+	return light_diffuse[0].rgb * lightIntensity;
 }
 
 vec3 atmosGetDiffuseSunlightColor()
 {
-	return gl_LightSource[0].diffuse.rgb;
+	return light_diffuse[0].rgb;
 }
 
 vec3 scaleDownLight(vec3 light)

@@ -4824,8 +4824,6 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 {
 	assertInitialized();
 
-	gGL.syncMatrices();
-
 	if (for_edit)
 	{
 		LLColor4 diffuse(1.f, 1.f, 1.f, 0.f);
@@ -5054,11 +5052,13 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 void LLPipeline::setupHWLights(LLDrawPool* pool)
 {
 	assertInitialized();
-	gGL.syncMatrices();
-
+	
 	// Ambient
-	LLColor4 ambient = gSky.getTotalAmbientColor();
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient.mV);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		LLColor4 ambient = gSky.getTotalAmbientColor();
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient.mV);
+	}
 
 	// Light 0 = Sun or Moon (All objects)
 	{
@@ -5282,11 +5282,15 @@ void LLPipeline::enableLights(U32 mask)
 		{
 			glDisable(GL_LIGHTING);
 		}
-		stop_glerror();
 		mLightMask = mask;
-		LLColor4 ambient = gSky.getTotalAmbientColor();
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient.mV);
 		stop_glerror();
+
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			LLColor4 ambient = gSky.getTotalAmbientColor();
+			glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient.mV);
+		}
+		
 	}
 }
 
@@ -5335,11 +5339,12 @@ void LLPipeline::enableLightsPreview()
 {
 	disableLights();
 
-	gGL.syncMatrices();
-
-	glEnable(GL_LIGHTING);
-	LLColor4 ambient = gSavedSettings.getColor4("PreviewAmbientColor");
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient.mV);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glEnable(GL_LIGHTING);
+		LLColor4 ambient = gSavedSettings.getColor4("PreviewAmbientColor");
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient.mV);
+	}
 
 
 	LLColor4 diffuse0 = gSavedSettings.getColor4("PreviewDiffuse0");
@@ -5398,7 +5403,10 @@ void LLPipeline::enableLightsAvatarEdit(const LLColor4& color)
 	setupAvatarLights(TRUE);
 	enableLights(mask);
 
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,color.mV);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT,color.mV);
+	}
 }
 
 void LLPipeline::enableLightsFullbright(const LLColor4& color)
@@ -5407,7 +5415,10 @@ void LLPipeline::enableLightsFullbright(const LLColor4& color)
 	U32 mask = 0x1000; // Non-0 mask, set ambient
 	enableLights(mask);
 
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,color.mV);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT,color.mV);
+	}
 }
 
 void LLPipeline::disableLights()

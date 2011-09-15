@@ -24,6 +24,8 @@
  */
  
 
+uniform vec4 light_position[8];
+uniform vec3 light_diffuse[8];
 
 float calcDirectionalLight(vec3 n, vec3 l);
 
@@ -34,10 +36,10 @@ vec4 calcLightingSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularCo
 	vec4 col;
 	col.a = color.a;
 
-	col.rgb = gl_LightModel.ambient.rgb + baseCol.rgb;
+	col.rgb = baseCol.rgb;  //need ambient?
 
-	col.rgb += gl_LightSource[0].diffuse.rgb*calcDirectionalLight(norm, gl_LightSource[0].position.xyz);
-	col.rgb += gl_LightSource[1].diffuse.rgb*calcDirectionalLight(norm, gl_LightSource[1].position.xyz);
+	col.rgb += light_diffuse[0].rgb*calcDirectionalLight(norm, light_position[0].xyz);
+	col.rgb += light_diffuse[1].rgb*calcDirectionalLight(norm, light_position[1].xyz);
 
 	col.rgb = min(col.rgb*color.rgb, 1.0);
 

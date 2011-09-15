@@ -1725,7 +1725,10 @@ void LLViewerWindow::initGLDefaults()
 	// lights for objects
 	glShadeModel( GL_SMOOTH );
 
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+	}
 	
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
