@@ -786,6 +786,12 @@ bool LLAppViewer::init()
 		&LLUI::sGLScaleFactor);
 	LL_INFOS("InitInfo") << "UI initialized." << LL_ENDL ;
 
+	// Setup paths and LLTrans after LLUI::initClass has been called.
+	LLUI::setupPaths();
+	LLTransUtil::parseStrings("strings.xml", default_trans_args);
+	LLTransUtil::parseLanguageStrings("language_settings.xml");
+
+	// Setup notifications after LLUI::setupPaths() has been called.
 	LLNotifications::instance();
 	LL_INFOS("InitInfo") << "Notifications initialized." << LL_ENDL ;
 
@@ -831,12 +837,6 @@ bool LLAppViewer::init()
 		LLError::setPrintLocation(true);
 	}
 
-
-	// Setup paths and LLTrans after LLUI::initClass has been called
-	LLUI::setupPaths();
-	LLTransUtil::parseStrings("strings.xml", default_trans_args);		
-	LLTransUtil::parseLanguageStrings("language_settings.xml");
-	
 	// LLKeyboard relies on LLUI to know what some accelerator keys are called.
 	LLKeyboard::setStringTranslatorFunc( LLTrans::getKeyboardString );
 

@@ -192,10 +192,13 @@ void LLInboxFolderViewFolder::draw()
 
 void LLInboxFolderViewFolder::computeFreshness()
 {
-	const U32 last_expansion = gSavedPerAccountSettings.getU32("LastInventoryInboxActivity");
+	const U32 last_expansion_utc = gSavedPerAccountSettings.getU32("LastInventoryInboxActivity");
 
-	if (last_expansion > 0)
+	if (last_expansion_utc > 0)
 	{
+		const U32 time_offset_for_pdt = 7 * 60 * 60;
+		const U32 last_expansion = last_expansion_utc - time_offset_for_pdt;
+
 		mFresh = (mCreationDate > last_expansion);
 
 #if DEBUGGING_FRESHNESS

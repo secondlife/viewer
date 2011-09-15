@@ -83,9 +83,6 @@ protected:
 	LLHost mLastSender;
 	LLHost mLastReceivingIF;
 
-
-	U8 mProxyWrappedSendBuffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];
-
 private:
 	BOOL sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host);
 };
