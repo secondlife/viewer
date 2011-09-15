@@ -22,7 +22,11 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+uniform mat3 normal_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
 
 attribute vec3 position;
 attribute vec3 normal;
@@ -52,10 +56,10 @@ vec4 texgen_object(vec4  vpos, vec4 tc, mat4 mat, vec4 tp0, vec4 tp1)
 void main()
 {
 	//transform vertex
-	gl_Position = gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 
-	vec4 pos = gl_ModelViewMatrix * vec4(position.xyz, 1.0);
-	vec3 norm = normalize(gl_NormalMatrix * normal);
+	vec4 pos = modelview_matrix * vec4(position.xyz, 1.0);
+	vec3 norm = normalize(normal_matrix * normal);
 
 	calcAtmospherics(pos.xyz);
 
@@ -67,7 +71,7 @@ void main()
 	gl_FrontColor = color;
 
 	// Transform and pass tex coords
- 	gl_TexCoord[0].xy = texgen_object(vec4(position.xyz, 1.0), vec4(texcoord0,0,1), gl_TextureMatrix[0], gl_ObjectPlaneS[0], gl_ObjectPlaneT[0]).xy;
+ 	gl_TexCoord[0].xy = texgen_object(vec4(position.xyz, 1.0), vec4(texcoord0,0,1), texture_matrix0, gl_ObjectPlaneS[0], gl_ObjectPlaneT[0]).xy;
 	
 	vec4 t = vec4(texcoord1,0,1);
 	

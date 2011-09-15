@@ -22,7 +22,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+uniform mat4 projection_matrix;
+
 attribute vec3 position;
 attribute vec3 normal;
 attribute vec2 texcoord0;
@@ -51,9 +53,7 @@ void main()
 	norm.z = dot(trans[2].xyz, normal);
 	norm = normalize(norm);
 		
-	gl_Position = gl_ProjectionMatrix * pos;
-	
-	//gl_Position = gl_ModelViewProjectionMatrix * position;
+	gl_Position = projection_matrix * pos;
 	
 	gl_FogFragCoord = length(pos.xyz);
 

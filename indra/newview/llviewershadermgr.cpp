@@ -380,7 +380,7 @@ void LLViewerShaderMgr::initAttribsAndUniforms(void)
 		mReservedUniforms.push_back("lastNormalGIMap");
 		mReservedUniforms.push_back("lastMinpGIMap");
 		mReservedUniforms.push_back("lastMaxpGIMap");
-					
+
 		mWLUniforms.push_back("camPosLocal");
 
 		mTerrainUniforms.reserve(5);

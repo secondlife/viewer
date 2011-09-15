@@ -1018,6 +1018,8 @@ void LLRender::refreshState(void)
 
 void LLRender::syncMatrices()
 {
+	stop_glerror();
+
 	GLenum mode[] = 
 	{
 		GL_MODELVIEW,
@@ -1028,27 +1030,105 @@ void LLRender::syncMatrices()
 		GL_TEXTURE,
 	};
 
-	for (U32 i = 0; i < 2; ++i)
+	std::string name[] = 
 	{
-		if (mMatHash[i] != mCurMatHash[i])
+		"modelview_matrix",
+		"projection_matrix",
+		"texture_matrix0",
+		"texture_matrix1",
+		"texture_matrix2",
+		"texture_matrix3",
+	};
+
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	if (shader)
+	{
+		
+		llassert(shader);
+
+		bool do_normal = false;
+		bool do_mvp = false;
+
+		for (U32 i = 0; i < NUM_MATRIX_MODES; ++i)
 		{
-			glMatrixMode(mode[i]);
-			glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
-			mCurMatHash[i] = mMatHash[i];
+			if (mMatHash[i] != shader->mMatHash[i])
+			{
+				shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mMatrix[i][mMatIdx[i]].m);
+				shader->mMatHash[i] = mMatHash[i];
+
+				if (i == MM_MODELVIEW)
+				{
+					do_normal = true;
+					do_mvp = true;
+				}
+				else if (i == MM_PROJECTION)
+				{
+					do_mvp = true;
+				}
+			}
+		}
+
+		if (do_normal)
+		{
+			S32 loc = shader->getUniformLocation("normal_matrix");
+			if (loc > -1)
+			{
+				U32 i = MM_MODELVIEW;
+
+				glh::matrix4f norm = mMatrix[i][mMatIdx[i]].inverse().transpose();
+
+				F32 norm_mat[] = 
+				{
+					norm.m[0], norm.m[1], norm.m[2],
+					norm.m[4], norm.m[5], norm.m[6],
+					norm.m[8], norm.m[9], norm.m[10] 
+				};
+
+				shader->uniformMatrix3fv("normal_matrix", 1, GL_FALSE, norm_mat);
+			}
+		}
+
+		if (do_mvp)
+		{
+			S32 loc = shader->getUniformLocation("modelview_projection_matrix");
+			if (loc > -1)
+			{
+				U32 mv = MM_MODELVIEW;
+				U32 proj = MM_PROJECTION;
+
+				glh::matrix4f mvp = mMatrix[mv][mMatIdx[mv]];
+				mvp.mult_left(mMatrix[proj][mMatIdx[proj]]);
+				
+				shader->uniformMatrix4fv("modelview_projection_matrix", 1, GL_FALSE, mvp.m);
+			}
+		}
+	}
+	else
+	{
+		for (U32 i = 0; i < 2; ++i)
+		{
+			if (mMatHash[i] != mCurMatHash[i])
+			{
+				glMatrixMode(mode[i]);
+				glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
+				mCurMatHash[i] = mMatHash[i];
+			}
+		}
+
+		for (U32 i = 2; i < NUM_MATRIX_MODES; ++i)
+		{
+			if (mMatHash[i] != mCurMatHash[i])
+			{
+				gGL.getTexUnit(i-2)->activate();
+				glMatrixMode(mode[i]);
+				glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
+				mCurMatHash[i] = mMatHash[i];
+			}
 		}
 	}
 
-	for (U32 i = 2; i < NUM_MATRIX_MODES; ++i)
-	{
-		if (mMatHash[i] != mCurMatHash[i])
-		{
-			gGL.getTexUnit(i-2)->activate();
-			glMatrixMode(mode[i]);
-			glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
-			mCurMatHash[i] = mMatHash[i];
-		}
-	}
-	
+	stop_glerror();
 }
 
 void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)

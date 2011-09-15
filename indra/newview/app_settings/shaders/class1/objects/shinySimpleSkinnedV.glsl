@@ -22,6 +22,11 @@
  * $/LicenseInfo$
  */
 
+uniform mat4 projection_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 texture_matrix1;
+uniform mat4 modelview_matrix;
+
 attribute vec3 position;
 attribute vec3 normal;
 attribute vec4 diffuse_color;
@@ -35,7 +40,7 @@ void main()
 {
 	mat4 mat = getObjectSkinnedTransform();
 	
-	mat = gl_ModelViewMatrix * mat;
+	mat = modelview_matrix * mat;
 	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
 	
 	vec4 norm = vec4(position.xyz, 1.0);
@@ -45,13 +50,13 @@ void main()
 		
 	vec3 ref = reflect(pos.xyz, -norm.xyz);
 
-	gl_TexCoord[0] = gl_TextureMatrix[0] * vec4(texcoord0,0,1);
-	gl_TexCoord[1] = gl_TextureMatrix[1]*vec4(ref,1.0);
+	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
+	gl_TexCoord[1] = texture_matrix1*vec4(ref,1.0);
 
 	calcAtmospherics(pos.xyz);
 
 	vec4 color = calcLighting(pos.xyz, norm.xyz, diffuse_color, vec4(0.));
 	gl_FrontColor = color;
 	
-	gl_Position = gl_ProjectionMatrix*vec4(pos, 1.0);
+	gl_Position = projection_matrix*vec4(pos, 1.0);
 }

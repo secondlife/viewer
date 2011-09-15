@@ -22,7 +22,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
 
 attribute vec3 position;
 
@@ -46,7 +48,7 @@ float wave(vec2 v, float t, float f, vec2 d, float s)
 void main()
 {
 	//transform vertex
-	mat4 modelViewProj = gl_ModelViewProjectionMatrix;
+	mat4 modelViewProj = modelview_projection_matrix;
 	
 	vec4 oPosition;
 		    
@@ -77,7 +79,7 @@ void main()
 	vec4 pos;
 	pos.xyz = oEyeVec.xyz*(waterHeight/oEyeVec.z);
 	pos.w = 1.0;
-	pos = gl_ModelViewMatrix*pos;
+	pos = modelview_matrix*pos;
 	
 	calcAtmospherics(pos.xyz);
 	

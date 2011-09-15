@@ -21,6 +21,11 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+
+uniform mat4 projection_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
  
 attribute vec3 position;
 attribute vec3 normal;
@@ -79,15 +84,15 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 
 void main()
 {
-	gl_TexCoord[0] = gl_TextureMatrix[0] * vec4(texcoord0,0,1);
+	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
 	
 	mat4 mat = getObjectSkinnedTransform();
 	
-	mat = gl_ModelViewMatrix * mat;
+	mat = modelview_matrix * mat;
 	
 	vec3 pos = (mat*vec4(position, 1.0)).xyz;
 	
-	gl_Position = gl_ProjectionMatrix * vec4(pos, 1.0);
+	gl_Position = projection_matrix * vec4(pos, 1.0);
 	
 	vec4 n = vec4(position, 1.0);
 	n.xyz += normal.xyz;
@@ -128,7 +133,7 @@ void main()
 
 	gl_FogFragCoord = pos.z;
 	
-	pos.xyz = (gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0)).xyz;
+	pos.xyz = (modelview_projection_matrix * vec4(position.xyz, 1.0)).xyz;
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 	
 }

@@ -23,6 +23,7 @@
  * $/LicenseInfo$
  */
  
+uniform mat4 modelview_projection_matrix;
 
 attribute vec3 position;
 attribute vec2 texcoord0;
@@ -59,7 +60,7 @@ void main()
 {
 
 	// World / view / projection
-	gl_Position = gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 	gl_TexCoord[0] = vec4(texcoord0,0,1);
 
 	// Get relative position

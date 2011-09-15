@@ -23,6 +23,7 @@
  * $/LicenseInfo$
  */
  
+uniform mat4 projection_matrix;
 
 attribute vec3 position;
 attribute vec3 normal;
@@ -99,7 +100,7 @@ void main()
 	norm.z = dot(trans[2].xyz, normal);
 	norm = normalize(norm);
 		
-	gl_Position = gl_ProjectionMatrix * pos;
+	gl_Position = projection_matrix * pos;
 	
 	float dp_directional_light = max(0.0, dot(norm, gl_LightSource[0].position.xyz));
 	vary_position = pos.xyz + gl_LightSource[0].position.xyz * (1.0-dp_directional_light)*shadow_offset;

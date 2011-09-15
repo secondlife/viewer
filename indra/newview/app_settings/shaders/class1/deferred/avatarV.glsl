@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
  
+uniform mat4 projection_matrix;
+
 attribute vec3 position;
 attribute vec3 normal;
 attribute vec2 texcoord0;
@@ -54,7 +56,7 @@ void main()
 	
 	vary_normal = norm;
 	
-	gl_Position = gl_ProjectionMatrix * pos;
+	gl_Position = projection_matrix * pos;
 }
 
 

@@ -22,7 +22,12 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+uniform mat3 normal_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
+
 attribute vec4 position;
 attribute vec3 normal;
 attribute vec4 diffuse_color;
@@ -84,12 +89,12 @@ void main()
 	//transform vertex
 	vec4 vert = vec4(position.xyz, 1.0);
 	vary_texture_index = position.w;
-	vec4 pos = (gl_ModelViewMatrix * vert);
-	gl_Position = gl_ModelViewProjectionMatrix*vec4(position.xyz, 1.0);
+	vec4 pos = (modelview_matrix * vert);
+	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	
-	gl_TexCoord[0] = gl_TextureMatrix[0] * vec4(texcoord0,0,1);
+	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
 		
-	vec3 norm = normalize(gl_NormalMatrix * normal);
+	vec3 norm = normalize(normal_matrix * normal);
 	
 	float dp_directional_light = max(0.0, dot(norm, gl_LightSource[0].position.xyz));
 	vary_position = pos.xyz + gl_LightSource[0].position.xyz * (1.0-dp_directional_light)*shadow_offset;
@@ -123,7 +128,7 @@ void main()
 
 	gl_FogFragCoord = pos.z;
 	
-	pos = gl_ModelViewProjectionMatrix * vert;
+	pos = modelview_projection_matrix * vert;
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 	
 }

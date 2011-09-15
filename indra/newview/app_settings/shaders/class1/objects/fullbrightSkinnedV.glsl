@@ -22,6 +22,9 @@
  * $/LicenseInfo$
  */
 
+uniform mat4 projection_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
 
 attribute vec3 position;
 attribute vec4 diffuse_color;
@@ -33,18 +36,18 @@ mat4 getObjectSkinnedTransform();
 void main()
 {
 	//transform vertex
-	gl_TexCoord[0] = gl_TextureMatrix[0] * vec4(texcoord0,0,1);
+	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
 	
 	mat4 mat = getObjectSkinnedTransform();
 	
-	mat = gl_ModelViewMatrix * mat;
+	mat = modelview_matrix * mat;
 	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
 	
 	calcAtmospherics(pos.xyz);
 
 	gl_FrontColor = diffuse_color;
 	
-	gl_Position = gl_ProjectionMatrix*vec4(pos, 1.0);
+	gl_Position = projection_matrix*vec4(pos, 1.0);
 		
 	gl_FogFragCoord = pos.z;
 }

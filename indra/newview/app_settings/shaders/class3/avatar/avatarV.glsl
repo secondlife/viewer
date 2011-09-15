@@ -22,7 +22,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+uniform mat4 projection_matrix;
+
 attribute vec3 position;
 attribute vec3 normal;
 attribute vec2 texcoord0;
@@ -123,7 +125,7 @@ void main()
 	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0.0));			
 	gl_FrontColor = color; 
 					
-	gl_Position = gl_ProjectionMatrix * pos;
+	gl_Position = projection_matrix * pos;
 	
 	
 	gl_TexCoord[2] = vec4(pos.xyz, 1.0);

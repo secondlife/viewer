@@ -22,7 +22,12 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+uniform mat3 normal_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
+
 attribute vec3 position;
 attribute vec3 normal;
 attribute vec4 diffuse_color;
@@ -35,10 +40,10 @@ uniform vec4 origin;
 void main()
 {
 	//transform vertex
-	vec4 pos = (gl_ModelViewMatrix * vec4(position.xyz, 1.0));
-	gl_Position = gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
+	vec4 pos = (modelview_matrix * vec4(position.xyz, 1.0));
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 	
-	vec3 norm = normalize(gl_NormalMatrix * normal);
+	vec3 norm = normalize(normal_matrix * normal);
 
 	calcAtmospherics(pos.xyz);
 	
@@ -46,7 +51,7 @@ void main()
 	
 	vec3 ref = reflect(pos.xyz, -norm);
 	
-	gl_TexCoord[0] = gl_TextureMatrix[0]*vec4(ref,1.0);
+	gl_TexCoord[0] = texture_matrix0*vec4(ref,1.0);
 	
 	gl_FogFragCoord = pos.z;
 }

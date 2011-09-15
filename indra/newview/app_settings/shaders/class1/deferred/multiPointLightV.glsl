@@ -23,6 +23,7 @@
  * $/LicenseInfo$
  */
 
+uniform mat4 modelview_projection_matrix;
 
 attribute vec3 position;
 
@@ -31,7 +32,7 @@ varying vec4 vary_fragcoord;
 void main()
 {
 	//transform vertex
-	vec4 pos = gl_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
+	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
 	vary_fragcoord = pos;
 
 	gl_Position = pos;

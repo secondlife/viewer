@@ -21,7 +21,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+uniform mat4 projection_matrix;
+uniform mat4 modelview_matrix;
 
 attribute vec3 position;
 attribute vec3 normal;
@@ -86,14 +88,14 @@ void main()
 	vec3 norm;
 	
 	mat4 trans = getObjectSkinnedTransform();
-	trans = gl_ModelViewMatrix * trans;
+	trans = modelview_matrix * trans;
 	
 	pos = trans * vec4(position.xyz, 1.0);
 	
 	norm = position.xyz + normal.xyz;
-	norm = normalize(( trans*vec4(norm, 1.0) ).xyz-pos.xyz);
+	norm = normalize(( trans*vec4(norojrm, 1.0) ).xyz-pos.xyz);
 	
-	vec4 frag_pos = gl_ProjectionMatrix * pos;
+	vec4 frag_pos = projection_matrix * pos;
 	gl_Position = frag_pos;
 	
 	vary_position = pos.xyz;

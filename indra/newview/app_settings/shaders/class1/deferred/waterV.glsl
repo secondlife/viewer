@@ -22,7 +22,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
 
 attribute vec3 position;
 
@@ -50,7 +52,7 @@ void main()
 {
 	//transform vertex
 	vec4 pos = vec4(position.xyz, 1.0);
-	mat4 modelViewProj = gl_ModelViewProjectionMatrix;
+	mat4 modelViewProj = modelview_projection_matrix;
 	
 	vec4 oPosition;
 		    
@@ -69,7 +71,7 @@ void main()
 		
 	oPosition = vec4(position, 1.0);
 	oPosition.z = mix(oPosition.z, max(eyeVec.z*0.75, 0.0), d);
-	vary_position = gl_ModelViewMatrix * oPosition;
+	vary_position = modelview_matrix * oPosition;
 	oPosition = modelViewProj * oPosition;
 	
 	refCoord.xyz = oPosition.xyz + vec3(0,0,0.2);
@@ -81,7 +83,7 @@ void main()
 	//push position for further horizon effect.
 	pos.xyz = oEyeVec.xyz*(waterHeight/oEyeVec.z);
 	pos.w = 1.0;
-	pos = gl_ModelViewMatrix*pos;
+	pos = modelview_matrix*pos;
 	
 	calcAtmospherics(pos.xyz);
 		
