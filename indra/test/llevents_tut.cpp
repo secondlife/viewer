@@ -468,6 +468,33 @@ namespace tut
         {
             threw = true;
         }
+#ifdef LL_LINUX
+        catch (const std::runtime_error& ex)
+        {
+            // This clause is because on Linux, on the viewer side, LLListenerOrPumpName::Empty
+        	// exception isn't caught by the clause above. Warn the user...
+            std::cerr << "Failed to catch " << typeid(ex).name() << std::endl;
+            // But if the expected exception was thrown, allow the test to
+            // succeed anyway. Not sure how else to handle this odd case.
+            // This approach is also used in llsdmessage_test.cpp.
+            if (std::string(typeid(ex).name()) == typeid(LLListenerOrPumpName::Empty).name())
+            {
+                threw = true;
+            }
+            else
+            {
+                // We don't even recognize this exception. Let it propagate
+                // out to TUT to fail the test.
+                throw;
+            }
+        }
+        catch (...)
+        {
+            std::cerr << "Utterly failed to catch expected exception!" << std::endl;
+            // Another exception besides LLListenerOrPumpName::Empty was thrown, fail the test.
+            throw;
+        }
+#endif // LL_LINUX
         ensure("threw Empty", threw);
     }
 
