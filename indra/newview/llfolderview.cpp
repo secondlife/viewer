@@ -1723,7 +1723,7 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 	}
 
 	BOOL handled = FALSE;
-	if (gFocusMgr.childHasKeyboardFocus(getRoot()))
+	if (mParentPanel->hasFocus())
 	{
 		// SL-51858: Key presses are not being passed to the Popup menu.
 		// A proper fix is non-trivial so instead just close the menu.
