@@ -216,22 +216,22 @@ void LLTexLayerSetBuffer::cancelUpload()
 
 void LLTexLayerSetBuffer::pushProjection() const
 {
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
+	gGL.loadIdentity();
+	gGL.ortho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
-	glLoadIdentity();
+	gGL.loadIdentity();
 }
 
 void LLTexLayerSetBuffer::popProjection() const
 {
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 }
 
@@ -295,6 +295,8 @@ BOOL LLTexLayerSetBuffer::render()
 	
 	BOOL success = TRUE;
 
+	LLVertexBuffer::unbind();
+
 	//hack to use fixed function when updating tex layer sets
 	bool no_ff = LLGLSLShader::sNoFixedFunction;
 	LLGLSLShader::sNoFixedFunction = false;
@@ -304,8 +306,6 @@ BOOL LLTexLayerSetBuffer::render()
 	success &= mTexLayerSet->render( mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight );
 	gGL.flush();
 
-	LLGLSLShader::sNoFixedFunction = no_ff;
-	
 	if(upload_now)
 	{
 		if (!success)
@@ -335,6 +335,9 @@ BOOL LLTexLayerSetBuffer::render()
 		doUpdate();
 	}
 
+	LLVertexBuffer::unbind();
+	LLGLSLShader::sNoFixedFunction = no_ff;
+	
 	// reset GL state
 	gGL.setColorMask(true, true);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);

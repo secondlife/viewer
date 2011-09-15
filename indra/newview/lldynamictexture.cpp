@@ -41,6 +41,7 @@
 #include "llviewerdisplay.h"
 #include "llrender.h"
 #include "pipeline.h"
+#include "llglslshader.h"
 
 // static
 LLViewerDynamicTexture::instance_list_t LLViewerDynamicTexture::sInstances[ LLViewerDynamicTexture::ORDER_COUNT ];
@@ -207,6 +208,12 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 		return TRUE;
 	}
 
+	LLGLSLShader::bindNoShader();
+	LLVertexBuffer::unbind();
+	
+	bool no_ff = LLGLSLShader::sNoFixedFunction;
+	LLGLSLShader::sNoFixedFunction = false;
+
 	BOOL result = FALSE;
 	BOOL ret = FALSE ;
 	for( S32 order = 0; order < ORDER_COUNT; order++ )
@@ -236,6 +243,8 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 			}
 		}
 	}
+
+	LLGLSLShader::sNoFixedFunction = no_ff;
 
 	return ret;
 }

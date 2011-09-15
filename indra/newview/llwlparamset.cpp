@@ -91,8 +91,9 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 			val.mV[1] = F32(i->second[1].asReal()) + mCloudScrollYOffset;
 			val.mV[2] = (F32) i->second[2].asReal();
 			val.mV[3] = (F32) i->second[3].asReal();
-			
-			shader->uniform4fv(param, 1, val.mV);	
+			stop_glerror();
+			shader->uniform4fv(param, 1, val.mV);
+			stop_glerror();
 		} 
 		else // param is the uniform name
 		{
@@ -118,8 +119,9 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 			{
 				val.mV[0] = i->second.asBoolean();
 			}
-			
+			stop_glerror();
 			shader->uniform4fv(param, 1, val.mV);
+			stop_glerror();
 		}
 	}
 }

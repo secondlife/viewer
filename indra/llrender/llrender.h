@@ -41,12 +41,16 @@
 #include "llstrider.h"
 #include "llpointer.h"
 #include "llglheaders.h"
+#include "llmatrix4a.h"
+#include "glh/glh_linear.h"
 
 class LLVertexBuffer;
 class LLCubeMap;
 class LLImageGL;
 class LLRenderTarget;
 class LLTexture ;
+
+#define LL_MATRIX_STACK_DEPTH 32
 
 class LLTexUnit
 {
@@ -308,6 +312,18 @@ public:
 		BF_UNDEF
 	} eBlendFactor;
 
+	typedef enum
+	{
+		MM_MODELVIEW = 0,
+		MM_PROJECTION,
+		MM_TEXTURE0,
+		MM_TEXTURE1,
+		MM_TEXTURE2,
+		MM_TEXTURE3,
+		NUM_MATRIX_MODES,
+		MM_TEXTURE
+	} eMatrixMode;
+
 	LLRender();
 	~LLRender();
 	void init() ;
@@ -319,8 +335,19 @@ public:
 
 	void translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z);
 	void scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z);
+	void rotatef(const GLfloat& a, const GLfloat& x, const GLfloat& y, const GLfloat& z);
+	void ortho(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
+
 	void pushMatrix();
 	void popMatrix();
+	void loadMatrix(const GLfloat* m);
+	void loadMatrix(const GLdouble* m);
+	void loadIdentity();
+	void multMatrix(const GLfloat* m);
+	void multMatrix(const GLdouble* m);
+	void matrixMode(U32 mode);	
+
+	void syncMatrices();
 
 	void translateUI(F32 x, F32 y, F32 z);
 	void scaleUI(F32 x, F32 y, F32 z);
@@ -350,6 +377,12 @@ public:
 	void color3f(const GLfloat& r, const GLfloat& g, const GLfloat& b);
 	void color3fv(const GLfloat* c);
 	void color4ubv(const GLubyte* c);
+
+	void diffuseColor3f(F32 r, F32 g, F32 b);
+	void diffuseColor3fv(const F32* c);
+	void diffuseColor4f(F32 r, F32 g, F32 b, F32 a);
+	void diffuseColor4fv(const F32* c);
+	void diffuseColor4ubv(const U8* c);
 
 	void vertexBatchPreTransformed(LLVector3* verts, S32 vert_count);
 	void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count);
@@ -391,7 +424,14 @@ public:
 	static U32 sUIVerts;
 	
 private:
-	bool				mDirty;
+	U32 mMatrixMode;
+	U32 mMatIdx[NUM_MATRIX_MODES];
+	U32 mMatHash[NUM_MATRIX_MODES];
+	glh::matrix4f mMatrix[NUM_MATRIX_MODES][LL_MATRIX_STACK_DEPTH];
+
+	U32 mCurMatHash[NUM_MATRIX_MODES];
+	
+	bool			mDirty;
 	U32				mCount;
 	U32				mMode;
 	U32				mCurrTextureUnitIndex;

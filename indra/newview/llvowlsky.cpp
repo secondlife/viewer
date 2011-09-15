@@ -518,6 +518,7 @@ void LLVOWLSky::drawDome(void)
 
 #else
 	mStripsVerts->setBuffer(data_mask);
+	gGL.syncMatrices();
 	glDrawRangeElements(
 		GL_TRIANGLES,
 		0, mStripsVerts->getNumVerts()-1, mStripsVerts->getNumIndices(),

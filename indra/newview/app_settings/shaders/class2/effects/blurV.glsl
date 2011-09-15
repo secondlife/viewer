@@ -22,8 +22,11 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat4 modelview_projection_matrix;
+
+attribute vec3 position;
+attribute vec2 texcoord0;
 
 uniform vec2 texelSize;
 uniform vec2 blurDirection;
@@ -32,10 +35,10 @@ uniform float blurWidth;
 void main(void)
 {
 	// Transform vertex
-	gl_Position = ftransform();
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 	
 	vec2 blurDelta = texelSize * blurDirection * vec2(blurWidth, blurWidth);
-	vec2 s = gl_MultiTexCoord0.st - (blurDelta * 3.0);
+	vec2 s = vec4(texcoord0,0,1).st - (blurDelta * 3.0);
 	
 	// for (int i = 0; i < 7; i++) {
 		// gl_TexCoord[i].st = s + (i * blurDelta);

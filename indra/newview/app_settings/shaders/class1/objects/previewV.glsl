@@ -1,5 +1,5 @@
 /** 
- * @file sunLightF.glsl
+ * @file previewV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,14 +22,32 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat3 normal_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
 
-//class 1, no shadow, no SSAO, should never be called
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec2 texcoord0;
 
-#extension GL_ARB_texture_rectangle : enable
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
+void calcAtmospherics(vec3 inPositionEye);
 
-void main() 
+void main()
 {
-	gl_FragColor = vec4(0,0,0,0);
+	//transform vertex
+	vec4 pos = (modelview_matrix * vec4(position.xyz, 1.0));
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
+		
+	vec3 norm = normalize(normal_matrix * normal);
+
+	calcAtmospherics(pos.xyz);
+
+	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0.));
+	gl_FrontColor = color;
+
+	gl_FogFragCoord = pos.z;
 }

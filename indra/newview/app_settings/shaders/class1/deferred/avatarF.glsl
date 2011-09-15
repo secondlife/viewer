@@ -31,7 +31,7 @@ varying vec3 vary_normal;
 
 void main() 
 {
-	vec4 diff = gl_Color*texture2D(diffuseMap, gl_TexCoord[0].xy);
+	vec4 diff = texture2D(diffuseMap, gl_TexCoord[0].xy);
 	
 	if (diff.a < 0.2)
 	{

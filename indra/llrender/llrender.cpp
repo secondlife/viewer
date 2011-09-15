@@ -951,6 +951,15 @@ LLRender::LLRender()
 	mCurrBlendAlphaSFactor = BF_UNDEF;
 	mCurrBlendColorDFactor = BF_UNDEF;
 	mCurrBlendAlphaDFactor = BF_UNDEF;
+
+	mMatrixMode = LLRender::MM_MODELVIEW;
+	
+	for (U32 i = 0; i < NUM_MATRIX_MODES; ++i)
+	{
+		mMatIdx[i] = 0;
+		mMatHash[i] = 0;
+		mCurMatHash[i] = 0xFFFFFFFF;
+	}
 }
 
 LLRender::~LLRender()
@@ -1007,28 +1016,262 @@ void LLRender::refreshState(void)
 	mDirty = false;
 }
 
+void LLRender::syncMatrices()
+{
+	stop_glerror();
+
+	GLenum mode[] = 
+	{
+		GL_MODELVIEW,
+		GL_PROJECTION,
+		GL_TEXTURE,
+		GL_TEXTURE,
+		GL_TEXTURE,
+		GL_TEXTURE,
+	};
+
+	std::string name[] = 
+	{
+		"modelview_matrix",
+		"projection_matrix",
+		"texture_matrix0",
+		"texture_matrix1",
+		"texture_matrix2",
+		"texture_matrix3",
+	};
+
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	if (shader)
+	{
+		
+		llassert(shader);
+
+		bool do_normal = false;
+		bool do_mvp = false;
+
+		for (U32 i = 0; i < NUM_MATRIX_MODES; ++i)
+		{
+			if (mMatHash[i] != shader->mMatHash[i])
+			{
+				shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mMatrix[i][mMatIdx[i]].m);
+				shader->mMatHash[i] = mMatHash[i];
+
+				if (i == MM_MODELVIEW)
+				{
+					do_normal = true;
+					do_mvp = true;
+				}
+				else if (i == MM_PROJECTION)
+				{
+					do_mvp = true;
+				}
+			}
+		}
+
+		if (do_normal)
+		{
+			S32 loc = shader->getUniformLocation("normal_matrix");
+			if (loc > -1)
+			{
+				U32 i = MM_MODELVIEW;
+
+				glh::matrix4f norm = mMatrix[i][mMatIdx[i]].inverse().transpose();
+
+				F32 norm_mat[] = 
+				{
+					norm.m[0], norm.m[1], norm.m[2],
+					norm.m[4], norm.m[5], norm.m[6],
+					norm.m[8], norm.m[9], norm.m[10] 
+				};
+
+				shader->uniformMatrix3fv("normal_matrix", 1, GL_FALSE, norm_mat);
+			}
+		}
+
+		if (do_mvp)
+		{
+			S32 loc = shader->getUniformLocation("modelview_projection_matrix");
+			if (loc > -1)
+			{
+				U32 mv = MM_MODELVIEW;
+				U32 proj = MM_PROJECTION;
+
+				glh::matrix4f mvp = mMatrix[mv][mMatIdx[mv]];
+				mvp.mult_left(mMatrix[proj][mMatIdx[proj]]);
+				
+				shader->uniformMatrix4fv("modelview_projection_matrix", 1, GL_FALSE, mvp.m);
+			}
+		}
+	}
+	else
+	{
+		for (U32 i = 0; i < 2; ++i)
+		{
+			if (mMatHash[i] != mCurMatHash[i])
+			{
+				glMatrixMode(mode[i]);
+				glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
+				mCurMatHash[i] = mMatHash[i];
+			}
+		}
+
+		for (U32 i = 2; i < NUM_MATRIX_MODES; ++i)
+		{
+			if (mMatHash[i] != mCurMatHash[i])
+			{
+				gGL.getTexUnit(i-2)->activate();
+				glMatrixMode(mode[i]);
+				glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
+				mCurMatHash[i] = mMatHash[i];
+			}
+		}
+	}
+
+	stop_glerror();
+}
+
 void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
 	flush();
-	glTranslatef(x,y,z);
+
+	glh::matrix4f trans_mat(1,0,0,x,
+							0,1,0,y,
+							0,0,1,z,
+							0,0,0,1);
+	
+	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(trans_mat);
+	mMatHash[mMatrixMode]++;
 }
 
 void LLRender::scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
 	flush();
-	glScalef(x,y,z);
+	
+	glh::matrix4f scale_mat(x,0,0,0,
+							0,y,0,0,
+							0,0,z,0,
+							0,0,0,1);
+	
+	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(scale_mat);
+	mMatHash[mMatrixMode]++;
+}
+
+void LLRender::ortho(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar)
+{
+	flush();
+
+	glh::matrix4f ortho_mat(2.f/(right-left),0,0,	-(right+left)/(right-left),
+							0,2.f/(top-bottom),0,	-(top+bottom)/(top-bottom),
+							0,0,-2.f/(zFar-zNear),	-(zFar+zNear)/(zFar-zNear),
+							0,0,0,1);
+	
+	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(ortho_mat);
+	mMatHash[mMatrixMode]++;
+}
+
+void LLRender::rotatef(const GLfloat& a, const GLfloat& x, const GLfloat& y, const GLfloat& z)
+{
+	flush();
+	
+	F32 r = a * DEG_TO_RAD;
+
+	F32 c = cosf(r);
+	F32 s = sinf(r);
+
+	F32 ic = 1.f-c;
+
+	glh::matrix4f rot_mat(x*x*ic+c,		x*y*ic-z*s,		x*z*ic+y*s,		0,
+						  x*y*ic+z*s,	y*y*ic+c,		y*z*ic-x*s,		0,
+						  x*z*ic-y*s,	y*z*ic+x*s,		z*z*ic+c,		0,
+						  0,0,0,1);
+	
+	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(rot_mat);
+	mMatHash[mMatrixMode]++;
 }
 
 void LLRender::pushMatrix()
 {
 	flush();
-	glPushMatrix();
+	
+	if (mMatIdx[mMatrixMode] < LL_MATRIX_STACK_DEPTH-1)
+	{
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]+1] = mMatrix[mMatrixMode][mMatIdx[mMatrixMode]];
+		++mMatIdx[mMatrixMode];
+	}
+	else
+	{
+		llwarns << "Matrix stack overflow." << llendl;
+	}
 }
 
 void LLRender::popMatrix()
 {
 	flush();
-	glPopMatrix();
+	if (mMatIdx[mMatrixMode] > 0)
+	{
+		--mMatIdx[mMatrixMode];
+		mMatHash[mMatrixMode]++;
+	}
+	else
+	{
+		llwarns << "Matrix stack underflow." << llendl;
+	}
+}
+
+void LLRender::loadMatrix(const GLfloat* m)
+{
+	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].set_value((GLfloat*) m);
+	mMatHash[mMatrixMode]++;
+}
+
+void LLRender::loadMatrix(const GLdouble* dm)
+{
+	F32 m[16];
+	for (U32 i = 0; i < 16; i++)
+	{
+		m[i] = (F32) dm[i];
+	}
+
+	loadMatrix(m);
+}
+
+void LLRender::multMatrix(const GLfloat* m)
+{
+	flush();
+
+	glh::matrix4f mat((GLfloat*) m);
+	
+	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(mat);
+	mMatHash[mMatrixMode]++;
+}
+
+void LLRender::matrixMode(U32 mode)
+{
+	if (mode == MM_TEXTURE)
+	{
+		mode = MM_TEXTURE0 + gGL.getCurrentTexUnitIndex();
+	}
+
+	llassert(mode < NUM_MATRIX_MODES);
+	mMatrixMode = mode;
+}
+
+void LLRender::multMatrix(const GLdouble* dm)
+{
+	F32 m[16];
+	for (U32 i = 0; i < 16; i++)
+	{
+		m[i] = (F32) dm[i];
+	}
+
+	multMatrix(m);
+}
+
+void LLRender::loadIdentity()
+{
+	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].make_identity();
+	mMatHash[mMatrixMode]++;
 }
 
 void LLRender::translateUI(F32 x, F32 y, F32 z)
@@ -1421,12 +1664,16 @@ void LLRender::flush()
 			}
 		}
 
+		//store mCount in a local variable to avoid re-entrance (drawArrays may call flush)
+		U32 count = mCount;
+		mCount = 0;
+
 		mBuffer->setBuffer(immediate_mask);
-		mBuffer->drawArrays(mMode, 0, mCount);
+		mBuffer->drawArrays(mMode, 0, count);
 		
-		mVerticesp[0] = mVerticesp[mCount];
-		mTexcoordsp[0] = mTexcoordsp[mCount];
-		mColorsp[0] = mColorsp[mCount];
+		mVerticesp[0] = mVerticesp[count];
+		mTexcoordsp[0] = mTexcoordsp[count];
+		mColorsp[0] = mColorsp[count];
 		mCount = 0;
 	}
 }
@@ -1584,6 +1831,81 @@ void LLRender::color3f(const GLfloat& r, const GLfloat& g, const GLfloat& b)
 void LLRender::color3fv(const GLfloat* c)
 { 
 	color4f(c[0],c[1],c[2],1);
+}
+
+void LLRender::diffuseColor3f(F32 r, F32 g, F32 b)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4f("color", r,g,b,1.f);
+	}
+	else
+	{
+		glColor3f(r,g,b);
+	}
+}
+
+void LLRender::diffuseColor3fv(const F32* c)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4f("color", c[0], c[1], c[2], 1.f);
+	}
+	else
+	{
+		glColor3fv(c);
+	}
+}
+
+void LLRender::diffuseColor4f(F32 r, F32 g, F32 b, F32 a)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4f("color", r,g,b,a);
+	}
+	else
+	{
+		glColor4f(r,g,b,a);
+	}
+}
+
+void LLRender::diffuseColor4fv(const F32* c)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4fv("color", 1, c);
+	}
+	else
+	{
+		glColor4fv(c);
+	}
+}
+
+void LLRender::diffuseColor4ubv(const U8* c)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4f("color", c[0]/255.f, c[1]/255.f, c[2]/255.f, c[3]/255.f);
+	}
+	else
+	{
+		glColor4ubv(c);
+	}
 }
 
 void LLRender::debugTexUnits(void)

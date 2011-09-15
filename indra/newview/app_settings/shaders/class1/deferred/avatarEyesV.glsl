@@ -22,18 +22,25 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat3 normal_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_projection_matrix;
+
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec4 diffuse_color;
+attribute vec2 texcoord0;
 
 varying vec3 vary_normal;
 
 void main()
 {
 	//transform vertex
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex; 
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
 	
-	vary_normal = normalize(gl_NormalMatrix * gl_Normal);
+	vary_normal = normalize(normal_matrix * normal);
 
-	gl_FrontColor = gl_Color;
+	gl_FrontColor = diffuse_color;
 }

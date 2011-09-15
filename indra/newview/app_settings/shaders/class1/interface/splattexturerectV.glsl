@@ -1,9 +1,9 @@
 /** 
- * @file postDeferredF.glsl
+ * @file splattexturerectV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,34 +22,17 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat4 modelview_projection_matrix;
 
-#extension GL_ARB_texture_rectangle : enable
-#extension GL_ARB_texture_multisample : enable
+attribute vec3 position;
+attribute vec2 texcoord0;
+attribute vec4 diffuse_color;
 
-uniform sampler2DMS diffuseRect;
-uniform sampler2D bloomMap;
-
-uniform vec2 screen_res;
-varying vec2 vary_fragcoord;
-
-vec4 texture2DMS(sampler2DMS tex, ivec2 tc)
+void main()
 {
-	vec4 ret = vec4(0,0,0,0);
-
-	for (int i = 0; i < samples; ++i)
-	{
-		 ret += texelFetch(tex,tc,i);
-	}
-
-	return ret/samples;
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	gl_TexCoord[0] = vec4(texcoord0,0,1);
+	gl_FrontColor = diffuse_color;
 }
 
-void main() 
-{
-	vec4 diff = texture2DMS(diffuseRect, ivec2(vary_fragcoord.xy));
-
-	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
-	gl_FragColor = diff + bloom;
-}

@@ -23,8 +23,10 @@
  * $/LicenseInfo$
  */
 
-
-
+uniform mat4 modelview_projection_matrix;
+ 
+attribute vec3 position;
+attribute vec4 diffuse_color;
 
 varying vec2 vary_fragcoord;
 
@@ -33,9 +35,10 @@ uniform vec2 screen_res;
 void main()
 {
 	//transform vertex
-	gl_Position = ftransform(); 
-	vec4 pos = gl_ModelViewProjectionMatrix * gl_Vertex;
+	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	gl_Position = pos;
+	
 	vary_fragcoord = (pos.xy * 0.5 + 0.5)*screen_res;	
 
-	gl_FrontColor = gl_Color;
+	gl_FrontColor = diffuse_color;
 }

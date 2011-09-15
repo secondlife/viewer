@@ -22,8 +22,17 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat3 normal_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 texture_matrix1;
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
+
+attribute vec4 position;
+attribute vec2 texcoord0;
+attribute vec3 normal;
+attribute vec4 diffuse_color;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 
@@ -36,20 +45,20 @@ uniform vec4 origin;
 void main()
 {
 	//transform vertex
-	vec4 vert = vec4(gl_Vertex.xyz,1.0);
-	vary_texture_index = gl_Vertex.w;
-	gl_Position = gl_ModelViewProjectionMatrix*vert;
-	
-	vec4 pos = (gl_ModelViewMatrix * vert);
-	vec3 norm = normalize(gl_NormalMatrix * gl_Normal);
+	vec4 vert = vec4(position.xyz,1.0);
+	vary_texture_index = position.w;
+	vec4 pos = (modelview_matrix * vert);
+	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+		
+	vec3 norm = normalize(normal_matrix * normal);
 	vec3 ref = reflect(pos.xyz, -norm);
 
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-	gl_TexCoord[1] = gl_TextureMatrix[1]*vec4(ref,1.0);
+	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
+	gl_TexCoord[1] = texture_matrix1*vec4(ref,1.0);
 
 	calcAtmospherics(pos.xyz);
 
-	gl_FrontColor = calcLighting(pos.xyz, norm, gl_Color, vec4(0.0));
+	gl_FrontColor = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.0));
 
 	gl_FogFragCoord = pos.z;
 }

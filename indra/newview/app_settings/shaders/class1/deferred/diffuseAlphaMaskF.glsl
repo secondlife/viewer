@@ -1,5 +1,5 @@
 /** 
- * @file diffuseF.glsl
+ * @file diffuseAlphaMaskF.glsl
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -33,7 +33,7 @@ varying vec3 vary_normal;
 
 void main() 
 {
-	vec4 col = gl_Color * texture2D(diffuseMap, gl_TexCoord[0].xy) * gl_Color;
+	vec4 col = texture2D(diffuseMap, gl_TexCoord[0].xy) * gl_Color;
 	
 	if (col.a < minimum_alpha || col.a > maximum_alpha)
 	{

@@ -582,6 +582,8 @@ bool LLGLManager::initGL()
 		glGetIntegerv(GL_MAX_SAMPLE_MASK_WORDS, &mMaxSampleMaskWords);
 	}
 
+	//HACK always disable texture multisample, use FXAA instead
+	mHasTextureMultisample = FALSE;
 #if LL_WINDOWS
 	if (mIsATI)
 	{ //using multisample textures on ATI results in black screen for some reason
@@ -1193,7 +1195,7 @@ void rotate_quat(LLQuaternion& rotation)
 {
 	F32 angle_radians, x, y, z;
 	rotation.getAngleAxis(&angle_radians, &x, &y, &z);
-	glRotatef(angle_radians * RAD_TO_DEG, x, y, z);
+	gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 }
 
 void flush_glerror()
@@ -1329,8 +1331,6 @@ void LLGLState::initClass()
 
 	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
 	glDisable(GL_MULTISAMPLE_ARB);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
 }
 
 //static
@@ -1604,7 +1604,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 
 void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 {
-	if (!gDebugGL)
+	if (!gDebugGL || LLGLSLShader::sNoFixedFunction)
 	{
 		return;
 	}
@@ -1661,7 +1661,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 	};
 
 
-	for (S32 j = 0; j < 4; j++)
+	for (S32 j = 1; j < 4; j++)
 	{
 		if (glIsEnabled(value[j]))
 		{
@@ -1875,79 +1875,6 @@ void LLGLManager::initGLStates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void enable_vertex_weighting(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glEnableVertexAttribArrayARB(index);	// vertex weights
-#endif
-}
-
-void disable_vertex_weighting(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glDisableVertexAttribArrayARB(index);	// vertex weights
-#endif
-}
-
-void enable_binormals(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0)
-	{
-		glEnableVertexAttribArrayARB(index);	// binormals
-	}
-#endif
-}
-
-void disable_binormals(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0)
-	{
-		glDisableVertexAttribArrayARB(index);	// binormals
-	}
-#endif
-}
-
-
-void enable_cloth_weights(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0)	glEnableVertexAttribArrayARB(index);
-#endif
-}
-
-void disable_cloth_weights(const S32 index)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glDisableVertexAttribArrayARB(index);
-#endif
-}
-
-void set_vertex_weights(const S32 index, const U32 stride, const F32 *weights)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glVertexAttribPointerARB(index, 1, GL_FLOAT, FALSE, stride, weights);
-	stop_glerror();
-#endif
-}
-
-void set_vertex_clothing_weights(const S32 index, const U32 stride, const LLVector4 *weights)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glVertexAttribPointerARB(index, 4, GL_FLOAT, TRUE, stride, weights);
-	stop_glerror();
-#endif
-}
-
-void set_binormals(const S32 index, const U32 stride,const LLVector3 *binormals)
-{
-#if GL_ARB_vertex_program
-	if (index > 0) glVertexAttribPointerARB(index, 3, GL_FLOAT, FALSE, stride, binormals);
-	stop_glerror();
-#endif
-}
-
 void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific )
 {
 	// GL_VERSION returns a null-terminated string with the format: 
@@ -2060,20 +1987,20 @@ void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
     glh::matrix4f suffix;
     suffix.set_row(2, cplane);
     glh::matrix4f newP = suffix * P;
-    glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-    glLoadMatrixf(newP.m);
+    gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
+    gGL.loadMatrix(newP.m);
 	gGLObliqueProjectionInverse = LLMatrix4(newP.inverse().transpose().m);
-    glMatrixMode(GL_MODELVIEW);
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
 LLGLUserClipPlane::~LLGLUserClipPlane()
 {
 	if (mApply)
 	{
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_PROJECTION);
+		gGL.popMatrix();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
 }
 
@@ -2263,16 +2190,16 @@ LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f P, U32 layer)
 		P.element(2, i) = P.element(3, i) * depth;
 	}
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixf(P.m);
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
+	gGL.loadMatrix(P.m);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
 LLGLSquashToFarClip::~LLGLSquashToFarClip()
 {
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.popMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 

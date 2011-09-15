@@ -22,8 +22,16 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat3 normal_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_projection_matrix;
+
+attribute vec3 position;
+attribute vec4 diffuse_color;
+attribute vec3 normal;
+attribute vec2 texcoord0;
+attribute vec3 binormal;
 
 varying vec3 vary_mat0;
 varying vec3 vary_mat1;
@@ -32,16 +40,16 @@ varying vec3 vary_mat2;
 void main()
 {
 	//transform vertex
-	gl_Position = ftransform(); 
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
 	
-	vec3 n = normalize(gl_NormalMatrix * gl_Normal);
-	vec3 b = normalize(gl_NormalMatrix * gl_MultiTexCoord2.xyz);
+	vec3 n = normalize(normal_matrix * normal);
+	vec3 b = normalize(normal_matrix * binormal);
 	vec3 t = cross(b, n);
 	
 	vary_mat0 = vec3(t.x, b.x, n.x);
 	vary_mat1 = vec3(t.y, b.y, n.y);
 	vary_mat2 = vec3(t.z, b.z, n.z);
 	
-	gl_FrontColor = gl_Color;
+	gl_FrontColor = diffuse_color;
 }
