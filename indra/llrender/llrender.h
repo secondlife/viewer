@@ -429,12 +429,14 @@ public:
 	static U32 sUIVerts;
 	
 private:
+	friend class LLLightState;
+
 	U32 mMatrixMode;
 	U32 mMatIdx[NUM_MATRIX_MODES];
 	U32 mMatHash[NUM_MATRIX_MODES];
 	glh::matrix4f mMatrix[NUM_MATRIX_MODES][LL_MATRIX_STACK_DEPTH];
-
 	U32 mCurMatHash[NUM_MATRIX_MODES];
+	U32 mLightHash;
 	
 	bool			mDirty;
 	U32				mCount;

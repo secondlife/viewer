@@ -132,6 +132,7 @@ public:
 	static void bindNoShader(void);
 
 	U32 mMatHash[LLRender::NUM_MATRIX_MODES];
+	U32 mLightHash;
 
 	GLhandleARB mProgramObject;
 	std::vector<GLint> mAttribute; //lookup table of attribute enum to attribute channel

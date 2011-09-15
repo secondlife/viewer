@@ -80,6 +80,7 @@ LLGLSLShader::LLGLSLShader()
 	{
 		mMatHash[i] = 0xFFFFFFFF;
 	}
+	mLightHash = 0xFFFFFFFF;
 }
 
 void LLGLSLShader::unload()
