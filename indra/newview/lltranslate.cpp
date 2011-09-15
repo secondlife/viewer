@@ -117,6 +117,8 @@ bool LLGoogleTranslationHandler::parseTranslation(
 	std::string& translation,
 	std::string& detected_lang)
 {
+	// JsonCpp is prone to aborting the program on failed assertions,
+	// so be super-careful and verify the response format.
 	const Json::Value& data = root.get("data", 0);
 	if (!data.isObject() || !data.isMember("translations"))
 	{
@@ -147,7 +149,7 @@ std::string LLGoogleTranslationHandler::getAPIKey()
 }
 
 // virtual
-void LLBingTranslarionHandler::getTranslateURL(
+void LLBingTranslationHandler::getTranslateURL(
 	std::string &url,
 	const std::string &from_lang,
 	const std::string &to_lang,
@@ -162,7 +164,7 @@ void LLBingTranslarionHandler::getTranslateURL(
 }
 
 // virtual
-void LLBingTranslarionHandler::getKeyVerificationURL(
+void LLBingTranslationHandler::getKeyVerificationURL(
 	std::string& url,
 	const std::string& key) const
 {
@@ -171,7 +173,7 @@ void LLBingTranslarionHandler::getKeyVerificationURL(
 }
 
 // virtual
-bool LLBingTranslarionHandler::parseResponse(
+bool LLBingTranslationHandler::parseResponse(
 	int& status,
 	const std::string& body,
 	std::string& translation,
@@ -217,7 +219,7 @@ bool LLBingTranslarionHandler::parseResponse(
 }
 
 // static
-std::string LLBingTranslarionHandler::getAPIKey()
+std::string LLBingTranslationHandler::getAPIKey()
 {
 	return gSavedSettings.getString("BingTranslateAPIKey");
 }
@@ -347,7 +349,7 @@ const LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
 const LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
 {
 	static LLGoogleTranslationHandler google;
-	static LLBingTranslarionHandler bing;
+	static LLBingTranslationHandler bing;
 
 	if (service == SERVICE_GOOGLE)
 	{

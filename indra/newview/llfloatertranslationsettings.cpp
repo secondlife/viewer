@@ -253,14 +253,18 @@ void LLFloaterTranslationSettings::onEditorFocused(LLFocusableElement* control)
 
 void LLFloaterTranslationSettings::onBingKeyEdited()
 {
-	mBingAPIKeyEditor->setTentative(FALSE);
-	setBingVerified(false, false);
+	if (mBingAPIKeyEditor->isDirty())
+	{
+		setBingVerified(false, false);
+	}
 }
 
 void LLFloaterTranslationSettings::onGoogleKeyEdited()
 {
-	mGoogleAPIKeyEditor->setTentative(FALSE);
-	setGoogleVerified(false, false);
+	if (mGoogleAPIKeyEditor->isDirty())
+	{
+		setGoogleVerified(false, false);
+	}
 }
 
 void LLFloaterTranslationSettings::onBtnBingVerify()

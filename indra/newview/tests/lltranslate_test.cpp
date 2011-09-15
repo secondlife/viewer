@@ -105,7 +105,7 @@ namespace tut
 		}
 
 		LLGoogleTranslationHandler mGoogle;
-		LLBingTranslarionHandler mBing;
+		LLBingTranslationHandler mBing;
 	};
 
 	typedef test_group<translate_test> translate_test_group_t;
@@ -158,7 +158,7 @@ namespace tut
 	void translate_test_object_t::test<7>()
 	{
 		test_translation(mGoogle, 400,
-			"{\"oops\": \"invalid\"}",
+			"{\"data\": {}}",
 			"", "", "");
 	}
 
