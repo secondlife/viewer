@@ -140,6 +140,7 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 			if (!gAgentAvatarp)
 			{
 				gAgentAvatarp = new LLVOAvatarSelf(id, pcode, regionp);
+				gAgentAvatarp->initInstance();
 			}
 			else 
 			{
@@ -150,8 +151,8 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 		else
 		{
 			res = new LLVOAvatar(id, pcode, regionp); 
+			res->initInstance();
 		}
-		static_cast<LLVOAvatar*>(res)->initInstance();
 		break;
 	}
 	case LL_PCODE_LEGACY_GRASS:
