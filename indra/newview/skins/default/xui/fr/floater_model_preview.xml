@@ -131,7 +131,7 @@ Serveur :
 			<button label="Parcourir..." name="lod_browse"/>
 			<combo_box name="lod_mode">
 				<combo_item name="triangle_limit">
-					Triangles max.
+					Limite du triangle
 				</combo_item>
 				<combo_item name="error_threshold">
 					Seuil d&apos;erreur
@@ -141,7 +141,7 @@ Serveur :
 				Opér. construction :
 			</text>
 			<text name="queue_mode_text">
-				Mode file d&apos;attente :
+				Mode fil d&apos;attente :
 			</text>
 			<combo_box name="build_operator">
 				<combo_item name="edge_collapse">
@@ -244,7 +244,7 @@ Serveur :
 		Frais de chargement : [FEE] L$
 	</text>
 	<button label="Réinitialiser" name="reset_btn" tool_tip="Rétablir les paramètres par défaut."/>
-	<button label="Calculer poids et frais" name="calculate_btn" tool_tip="Calculer les poids et les frais."/>
+	<button label="Calculer les poids et les frais" name="calculate_btn" tool_tip="Calculer les poids et les frais."/>
 	<button label="Charger" name="ok_btn" tool_tip="Charger dans le simulateur."/>
 	<button label="Annuler" name="cancel_btn"/>
 </floater>
