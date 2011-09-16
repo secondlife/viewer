@@ -37,7 +37,7 @@ uniform vec2 delta;
 uniform vec3 kern[4];
 uniform float kern_scale;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;

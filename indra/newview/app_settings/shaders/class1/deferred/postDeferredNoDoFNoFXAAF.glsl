@@ -29,7 +29,7 @@ uniform sampler2DRect diffuseRect;
 uniform sampler2D bloomMap;
 
 uniform vec2 screen_res;
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 void main() 
 {

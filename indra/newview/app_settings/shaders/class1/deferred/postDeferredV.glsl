@@ -25,10 +25,10 @@
 
 uniform mat4 modelview_projection_matrix;
 
-attribute vec3 position;
+ATTRIBUTE vec3 position;
 
-varying vec2 vary_fragcoord;
-varying vec2 vary_tc;
+VARYING vec2 vary_fragcoord;
+VARYING vec2 vary_tc;
 
 uniform vec2 tc_scale;
 

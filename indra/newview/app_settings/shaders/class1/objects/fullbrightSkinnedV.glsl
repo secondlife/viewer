@@ -26,17 +26,21 @@ uniform mat4 projection_matrix;
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 
-attribute vec3 position;
-attribute vec4 diffuse_color;
-attribute vec2 texcoord0;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
 
 void calcAtmospherics(vec3 inPositionEye);
 mat4 getObjectSkinnedTransform();
 
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+VARYING float fog_depth;
+
 void main()
 {
 	//transform vertex
-	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 	mat4 mat = getObjectSkinnedTransform();
 	
@@ -45,9 +49,9 @@ void main()
 	
 	calcAtmospherics(pos.xyz);
 
-	gl_FrontColor = diffuse_color;
+	vertex_color = diffuse_color;
 	
 	gl_Position = projection_matrix*vec4(pos, 1.0);
 		
-	gl_FogFragCoord = pos.z;
+	fog_depth = pos.z;
 }

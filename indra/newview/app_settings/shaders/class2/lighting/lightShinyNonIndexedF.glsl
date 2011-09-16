@@ -23,8 +23,9 @@
  * $/LicenseInfo$
  */
  
-
-
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+VARYING vec3 vary_texcoord1;
 
 uniform samplerCube environmentMap;
 uniform sampler2D diffuseMap;
@@ -35,16 +36,16 @@ vec4 applyWaterFog(vec4 color);
 
 void shiny_lighting()
 {
-	vec4 color = texture2D(diffuseMap,gl_TexCoord[0].xy);
-	color.rgb *= gl_Color.rgb;
+	vec4 color = texture2D(diffuseMap,vary_texcoord0.xy);
+	color.rgb *= vertex_color.rgb;
 	
-	vec3 envColor = textureCube(environmentMap, gl_TexCoord[1].xyz).rgb;	
-	color.rgb = mix(color.rgb, envColor.rgb, gl_Color.a);
+	vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
+	color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a);
 
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);
-	color.a = max(color.a, gl_Color.a);
+	color.a = max(color.a, vertex_color.a);
 	gl_FragColor = color;
 }
 

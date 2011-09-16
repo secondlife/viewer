@@ -27,8 +27,10 @@
 
 uniform sampler2DRect RenderTexture;
 
+VARYING vec2 vary_texcoord0;
+
 void main(void) 
 {
-	vec3 color = vec3(texture2DRect(RenderTexture, gl_TexCoord[0].st));
+	vec3 color = vec3(texture2DRect(RenderTexture, vary_texcoord0.st));
 	gl_FragColor = vec4(1.0 - color, 1.0);
 }

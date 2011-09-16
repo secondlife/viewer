@@ -2083,8 +2083,8 @@ uniform vec2 rcp_screen_res;
 uniform vec4 rcp_frame_opt;
 uniform vec4 rcp_frame_opt2;
 uniform vec2 screen_res;
-varying vec2 vary_fragcoord;
-varying vec2 vary_tc;
+VARYING vec2 vary_fragcoord;
+VARYING vec2 vary_tc;
 
 void main() 
 {

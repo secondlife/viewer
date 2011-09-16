@@ -25,12 +25,13 @@
 
 uniform mat4 modelview_projection_matrix;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
+VARYING vec4 vertex_color;
 
 uniform vec2 screen_res;
 
-attribute vec3 position;
-attribute vec4 diffuse_color;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec4 diffuse_color;
 
 void main()
 {
@@ -40,5 +41,5 @@ void main()
 	
 	vary_fragcoord = (pos.xy * 0.5 + 0.5)*screen_res;	
 
-	gl_FrontColor = diffuse_color;
+	vertex_color = diffuse_color;
 }

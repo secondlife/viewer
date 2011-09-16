@@ -28,8 +28,10 @@
 
 uniform sampler2D diffuseMap;
 
+VARYING vec2 vary_texcoord0;
+
 void fullbright_lighting()
 {
-	gl_FragColor = texture2D(diffuseMap, gl_TexCoord[0].xy);
+	gl_FragColor = texture2D(diffuseMap, vary_texcoord0.xy);
 }
 

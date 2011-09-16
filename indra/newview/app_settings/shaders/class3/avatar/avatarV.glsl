@@ -25,10 +25,13 @@
 
 uniform mat4 projection_matrix;
 
-attribute vec3 position;
-attribute vec3 normal;
-attribute vec2 texcoord0;
-attribute vec4 clothing; 
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec2 texcoord0;
+ATTRIBUTE vec4 clothing; 
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getSkinnedTransform();
@@ -43,7 +46,7 @@ const vec4 gPiConstants	= vec4(0.159154943, 6.28318530, 3.141592653, 1.5707963);
 
 void main()
 {
-	gl_TexCoord[0] = vec4(texcoord0,0,1);
+	vary_texcoord0 = texcoord0;
 		
 	vec4 pos;
 	mat4 trans = getSkinnedTransform();
@@ -123,11 +126,11 @@ void main()
 	calcAtmospherics(pos.xyz);
 	
 	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0.0));			
-	gl_FrontColor = color; 
+	vertex_color = color; 
 					
 	gl_Position = projection_matrix * pos;
 	
 	
-	gl_TexCoord[2] = vec4(pos.xyz, 1.0);
+	vary_texcoord2 = vec4(pos.xyz, 1.0);
 
 }

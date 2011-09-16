@@ -28,12 +28,18 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
-attribute vec3 position;
-attribute vec3 normal;
-attribute vec4 diffuse_color;
-attribute vec2 texcoord0;
-attribute vec2 texcoord1;
+uniform vec4 object_plane_t;
+uniform vec4 object_plane_s;
 
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
+ATTRIBUTE vec2 texcoord1;
+
+VARYING vec4 vertex_color;
+VARYING vec4 vary_texcoord0;
+VARYING vec4 vary_texcoord1;
 
 void calcAtmospherics(vec3 inPositionEye);
 
@@ -68,15 +74,15 @@ void main()
 
 	vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0));
 	
-	gl_FrontColor = color;
+	vertex_color = color;
 
 	// Transform and pass tex coords
- 	gl_TexCoord[0].xy = texgen_object(vec4(position.xyz, 1.0), vec4(texcoord0,0,1), texture_matrix0, gl_ObjectPlaneS[0], gl_ObjectPlaneT[0]).xy;
+ 	vary_texcoord0.xy = texgen_object(vec4(position.xyz, 1.0), vec4(texcoord0,0,1), texture_matrix0, object_plane_s, object_plane_t).xy;
 	
 	vec4 t = vec4(texcoord1,0,1);
 	
-	gl_TexCoord[0].zw = t.xy;
-	gl_TexCoord[1].xy = t.xy-vec2(2.0, 0.0);
-	gl_TexCoord[1].zw = t.xy-vec2(1.0, 0.0);
+	vary_texcoord0.zw = t.xy;
+	vary_texcoord1.xy = t.xy-vec2(2.0, 0.0);
+	vary_texcoord1.zw = t.xy-vec2(1.0, 0.0);
 }
 

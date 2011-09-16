@@ -25,9 +25,9 @@
 
 uniform mat4 modelview_projection_matrix;
 
-attribute vec3 position;
+ATTRIBUTE vec3 position;
 
-varying vec4 vary_fragcoord;
+VARYING vec4 vary_fragcoord;
 
 void main()
 {

@@ -31,7 +31,7 @@
 uniform sampler2DMS depthMap;
 uniform sampler2DMS normalMap;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 uniform float depth_cutoff;
 uniform float norm_cutoff;

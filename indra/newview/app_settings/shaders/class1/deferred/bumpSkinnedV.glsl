@@ -26,21 +26,23 @@ uniform mat4 projection_matrix;
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 
-attribute vec3 position;
-attribute vec4 diffuse_color;
-attribute vec3 normal;
-attribute vec2 texcoord0;
-attribute vec2 texcoord2;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec2 texcoord0;
+ATTRIBUTE vec2 texcoord2;
 
-varying vec3 vary_mat0;
-varying vec3 vary_mat1;
-varying vec3 vary_mat2;
+VARYING vec3 vary_mat0;
+VARYING vec3 vary_mat1;
+VARYING vec3 vary_mat2;
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 mat4 getObjectSkinnedTransform();
 
 void main()
 {
-	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 	mat4 mat = getObjectSkinnedTransform();
 	
@@ -58,5 +60,5 @@ void main()
 	vary_mat2 = vec3(t.z, b.z, n.z);
 	
 	gl_Position = projection_matrix*vec4(pos, 1.0);
-	gl_FrontColor = diffuse_color;
+	vertex_color = diffuse_color;
 }

@@ -28,12 +28,16 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
-attribute vec3 position;
-attribute vec2 texcoord0;
-attribute vec3 normal;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
+ATTRIBUTE vec3 normal;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 void calcAtmospherics(vec3 inPositionEye);
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+VARYING float fog_depth;
 
 void main()
 {
@@ -41,7 +45,7 @@ void main()
 	vec4 vert = vec4(position.xyz,1.0);
 	
 	gl_Position = modelview_projection_matrix*vert;
-	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0, 0, 1);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0, 0, 1)).xy;
 	
 	vec4 pos = (modelview_matrix * vert);
 	
@@ -50,7 +54,7 @@ void main()
 	calcAtmospherics(pos.xyz);
 
 	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0.));
-	gl_FrontColor = color;
+	vertex_color = color;
 
-	gl_FogFragCoord = pos.z;
+	fog_depth = pos.z;
 }

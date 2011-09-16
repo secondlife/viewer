@@ -27,7 +27,10 @@
 
 uniform sampler2DRect screenMap;
 
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+
 void main() 
 {
-	gl_FragColor = 	texture2DRect(screenMap, gl_TexCoord[0].xy) * gl_Color;
+	gl_FragColor = 	texture2DRect(screenMap, vary_texcoord0.xy) * vertex_color;
 }

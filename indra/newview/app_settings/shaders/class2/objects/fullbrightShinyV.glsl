@@ -34,12 +34,17 @@ void calcAtmospherics(vec3 inPositionEye);
 
 uniform vec4 origin;
 
-varying float vary_texture_index;
+VARYING float vary_texture_index;
 
-attribute vec4 position;
-attribute vec3 normal;
-attribute vec4 diffuse_color;
-attribute vec2 texcoord0;
+ATTRIBUTE vec4 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+VARYING vec3 vary_texcoord1;
+VARYING float fog_depth;
 
 void main()
 {
@@ -52,12 +57,12 @@ void main()
 	vec3 norm = normalize(normal_matrix * normal);
 	vec3 ref = reflect(pos.xyz, -norm);
 
-	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
-	gl_TexCoord[1] = texture_matrix1*vec4(ref,1.0);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+	vary_texcoord1 = (texture_matrix1*vec4(ref,1.0)).xyz;
 
 	calcAtmospherics(pos.xyz);
 
-	gl_FrontColor = diffuse_color;
+	vertex_color = diffuse_color;
 
-	gl_FogFragCoord = pos.z;
+	fog_depth = pos.z;
 }

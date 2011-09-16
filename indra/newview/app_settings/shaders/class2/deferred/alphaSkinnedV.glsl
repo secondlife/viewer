@@ -27,10 +27,10 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
  
-attribute vec3 position;
-attribute vec3 normal;
-attribute vec4 diffuse_color;
-attribute vec2 texcoord0;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 void calcAtmospherics(vec3 inPositionEye);
@@ -42,11 +42,15 @@ vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 scaleDownLight(vec3 light);
 vec3 scaleUpLight(vec3 light);
 
-varying vec3 vary_ambient;
-varying vec3 vary_directional;
-varying vec3 vary_fragcoord;
-varying vec3 vary_position;
-varying vec3 vary_pointlight_col;
+VARYING vec3 vary_ambient;
+VARYING vec3 vary_directional;
+VARYING vec3 vary_fragcoord;
+VARYING vec3 vary_position;
+VARYING vec3 vary_pointlight_col;
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+VARYING float fog_depth;
 
 uniform float near_clip;
 uniform float shadow_offset;
@@ -89,7 +93,7 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 
 void main()
 {
-	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 	mat4 mat = getObjectSkinnedTransform();
 	
@@ -134,9 +138,9 @@ void main()
 	
 	col.rgb = min(col.rgb*diffuse_color.rgb, 1.0);
 	
-	gl_FrontColor = col;
+	vertex_color = col;
 
-	gl_FogFragCoord = pos.z;
+	fog_depth = pos.z;
 	
 	pos.xyz = (modelview_projection_matrix * vec4(position.xyz, 1.0)).xyz;
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);

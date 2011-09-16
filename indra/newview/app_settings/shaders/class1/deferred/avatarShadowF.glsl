@@ -27,7 +27,7 @@
 
 uniform sampler2D diffuseMap;
 
-varying vec4 post_pos;
+VARYING vec4 post_pos;
 
 void main() 
 {

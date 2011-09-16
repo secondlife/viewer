@@ -34,9 +34,11 @@ uniform vec3 lumWeights;
 uniform vec3 warmthWeights;
 uniform float warmthAmount;
 
+VARYING vec2 vary_texcoord0;
+
 void main()
 {
-	vec4 col = texture2DRect(diffuseMap, gl_TexCoord[0].xy);	
+	vec4 col = texture2DRect(diffuseMap, vary_texcoord0.xy);	
 	/// CALCULATING LUMINANCE (Using NTSC lum weights)
 	/// http://en.wikipedia.org/wiki/Luma_%28video%29
 	float lum = smoothstep(minLuminance, minLuminance+1.0, dot(col.rgb, lumWeights ) );

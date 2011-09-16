@@ -23,7 +23,8 @@
  * $/LicenseInfo$
  */
  
-
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 vec4 diffuseLookup(vec2 texcoord);
 
@@ -32,7 +33,7 @@ vec4 applyWaterFog(vec4 color);
 
 void fullbright_lighting_water()
 {
-	vec4 color = diffuseLookup(gl_TexCoord[0].xy) * gl_Color;
+	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
 
 	color.rgb = fullbrightAtmosTransport(color.rgb);
 	

@@ -31,14 +31,22 @@ uniform mat4 texture_matrix3;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
-attribute vec3 position;
-attribute vec3 normal;
-attribute vec4 diffuse_color;
-attribute vec2 texcoord0;
-attribute vec2 texcoord1;
-attribute vec2 texcoord2;
-attribute vec2 texcoord3;
+uniform vec4 object_plane_t;
+uniform vec4 object_plane_s;
 
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
+ATTRIBUTE vec2 texcoord1;
+ATTRIBUTE vec2 texcoord2;
+ATTRIBUTE vec2 texcoord3;
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
+VARYING vec2 vary_texcoord3;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 
@@ -61,15 +69,15 @@ void main()
 	//transform vertex
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 			
-	vec4 pos = modelview_matrix * position;
+	vec4 pos = modelview_matrix * vec4(position, 1.0);
 	vec3 norm = normalize(normal_matrix * normal);
 	
 	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), diffuse_color);
 	
-	gl_FrontColor = color;
+	vertex_color = color;
 	
-	gl_TexCoord[0] = texgen_object(vec4(position.xyz, 1.0),vec4(texcoord0,0,1),texture_matrix0,gl_ObjectPlaneS[0],gl_ObjectPlaneT[0]);
-	gl_TexCoord[1] = texture_matrix1*vec4(texcoord1,0,1);
-	gl_TexCoord[2] = texgen_object(vec4(position.xyz, 1.0),vec4(texcoord2,0,1),texture_matrix2,gl_ObjectPlaneS[2],gl_ObjectPlaneT[2]);
-	gl_TexCoord[3] = texture_matrix3*vec4(texcoord3,0,1);
+	vary_texcoord0 = texgen_object(vec4(position.xyz, 1.0),vec4(texcoord0,0,1),texture_matrix0,object_plane_s,object_plane_t).xy;
+	vary_texcoord1 = (texture_matrix1*vec4(texcoord1,0,1)).xy;
+	vary_texcoord2 = texgen_object(vec4(position.xyz, 1.0),vec4(texcoord2,0,1),texture_matrix2,object_plane_s,object_plane_t).xy;
+	vary_texcoord3 = (texture_matrix3*vec4(texcoord3,0,1)).xy;
 }

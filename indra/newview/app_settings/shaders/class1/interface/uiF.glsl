@@ -25,7 +25,10 @@
  
 uniform sampler2D diffuseMap;
 
+VARYING vec2 vary_texcoord0;
+VARYING vec4 vertex_color;
+
 void main() 
 {
-	gl_FragColor = gl_Color*texture2D(diffuseMap, gl_TexCoord[0].xy);
+	gl_FragColor = vertex_color*texture2D(diffuseMap, vary_texcoord0.xy);
 }

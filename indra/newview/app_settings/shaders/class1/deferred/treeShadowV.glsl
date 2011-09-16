@@ -26,10 +26,11 @@
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_projection_matrix;
  
-attribute vec3 position;
-attribute vec2 texcoord0;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
 
-varying vec4 post_pos;
+VARYING vec4 post_pos;
+VARYING vec2 vary_texcoord0;
 
 void main()
 {
@@ -40,5 +41,5 @@ void main()
 	
 	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
 	
-	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 }

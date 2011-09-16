@@ -25,9 +25,13 @@
 
 uniform mat4 projection_matrix;
 
-attribute vec3 position;
-attribute vec3 normal;
-attribute vec2 texcoord0;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec2 texcoord0;
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+VARYING float fog_depth;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getSkinnedTransform();
@@ -35,7 +39,7 @@ void calcAtmospherics(vec3 inPositionEye);
 
 void main()
 {
-	gl_TexCoord[0] = vec4(texcoord0,0,1);
+	vary_texcoord0 = texcoord0;
 				
 	vec4 pos;
 	vec3 norm;
@@ -55,12 +59,12 @@ void main()
 		
 	gl_Position = projection_matrix * pos;
 	
-	gl_FogFragCoord = length(pos.xyz);
+	fog_depth = length(pos.xyz);
 
 	calcAtmospherics(pos.xyz);
 
 	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0,0,0,0));
-	gl_FrontColor = color; 
+	vertex_color = color; 
 
 }
 

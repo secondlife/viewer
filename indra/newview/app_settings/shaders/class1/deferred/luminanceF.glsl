@@ -27,7 +27,7 @@
 
 uniform sampler2DRect diffuseMap;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 void main() 
 {

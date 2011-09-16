@@ -25,13 +25,13 @@
 
 uniform mat4 modelview_projection_matrix;
 
-attribute vec3 position;
-attribute vec2 texcoord0;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
 
 uniform vec2 screen_res;
 
-varying vec4 vary_light;
-varying vec2 vary_fragcoord;
+VARYING vec4 vary_light;
+VARYING vec2 vary_fragcoord;
 void main()
 {
 	//transform vertex

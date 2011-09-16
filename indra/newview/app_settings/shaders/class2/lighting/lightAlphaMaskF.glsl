@@ -30,9 +30,12 @@ uniform float maximum_alpha;
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
 
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+
 void default_lighting() 
 {
-	vec4 color = diffuseLookup(gl_TexCoord[0].xy) * gl_Color;
+	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
 	
 	if (color.a < minimum_alpha || color.a > maximum_alpha)
 	{

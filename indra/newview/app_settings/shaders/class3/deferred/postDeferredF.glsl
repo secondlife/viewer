@@ -53,7 +53,7 @@ uniform float gi_luminance;
 uniform vec4 sunlight_color;
 
 uniform vec2 screen_res;
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 void main() 
 {

@@ -2096,8 +2096,8 @@ uniform float magnification;
 
 uniform mat4 inv_proj;
 
-varying vec2 vary_fragcoord;
-varying vec2 vary_tc;
+VARYING vec2 vary_fragcoord;
+VARYING vec2 vary_tc;
 
 
 float getDepth(vec2 pos_screen)

@@ -316,13 +316,12 @@ void LLDrawPoolTerrain::renderFullShader()
 	gGL.getTexUnit(detail0)->bind(detail_texture0p);
 	gGL.getTexUnit(0)->activate();
 
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(shader);
+		
+	shader->uniform4fv("object_plane_s", 1, tp0.mV);
+	shader->uniform4fv("object_plane_t", 1, tp1.mV);
 
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);

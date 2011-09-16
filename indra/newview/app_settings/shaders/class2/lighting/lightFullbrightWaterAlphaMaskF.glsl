@@ -31,9 +31,12 @@ vec4 diffuseLookup(vec2 texcoord);
 vec3 fullbrightAtmosTransport(vec3 light);
 vec4 applyWaterFog(vec4 color);
 
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+
 void fullbright_lighting_water()
 {
-	vec4 color = diffuseLookup(gl_TexCoord[0].xy) * gl_Color;
+	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
 
 	if (color.a < minimum_alpha || color.a > maximum_alpha)
 	{

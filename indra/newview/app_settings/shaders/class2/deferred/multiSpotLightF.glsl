@@ -59,7 +59,7 @@ uniform float size;
 uniform vec3 color;
 uniform float falloff;
 
-varying vec4 vary_fragcoord;
+VARYING vec4 vary_fragcoord;
 uniform vec2 screen_res;
 
 uniform mat4 inv_proj;

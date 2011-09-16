@@ -27,18 +27,19 @@ uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_projection_matrix; 
 
-attribute vec3 position;
-attribute vec3 normal;
-attribute vec2 texcoord0;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec2 texcoord0;
 
-varying vec3 vary_normal;
-varying float vary_texture_index;
+VARYING vec3 vary_normal;
+VARYING float vary_texture_index;
+VARYING vec2 vary_texcoord0;
 
 void main()
 {
 	//transform vertex
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
-	gl_TexCoord[0] = texture_matrix0 * vec4(texcoord0,0,1);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 	vary_normal = normalize(normal_matrix * normal);
 }

@@ -25,11 +25,11 @@
  
 uniform mat4 modelview_projection_matrix;
 
-attribute vec3 position;
+ATTRIBUTE vec3 position;
 
 uniform vec2 screen_res;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 void main()
 {
 	//transform vertex

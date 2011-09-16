@@ -28,11 +28,13 @@ uniform float maximum_alpha;
 
 uniform sampler2D diffuseMap;
 
-varying vec4 post_pos;
+VARYING vec4 post_pos;
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	float alpha = texture2D(diffuseMap, gl_TexCoord[0].xy).a * gl_Color.a;
+	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a * vertex_color.a;
 
 	if (alpha < minimum_alpha || alpha > maximum_alpha)
 	{

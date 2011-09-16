@@ -58,10 +58,10 @@ uniform vec2 screen_res;
 uniform mat4 norm_mat; //region space to screen space
 
 //bigWave is (refCoord.w, view.w);
-varying vec4 refCoord;
-varying vec4 littleWave;
-varying vec4 view;
-varying vec4 vary_position;
+VARYING vec4 refCoord;
+VARYING vec4 littleWave;
+VARYING vec4 view;
+VARYING vec4 vary_position;
 
 void main() 
 {

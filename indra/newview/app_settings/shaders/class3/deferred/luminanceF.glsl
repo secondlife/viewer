@@ -30,7 +30,7 @@
 uniform sampler2DRect lightMap;
 uniform sampler2DRect diffuseRect;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 void main() 
 {
 	float i = texture2DRect(lightMap, vary_fragcoord.xy).r;

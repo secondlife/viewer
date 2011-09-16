@@ -33,7 +33,7 @@ uniform vec3 lumWeights;
 void main(void) 
 {
 	/// Get scene color
-	vec3 color = vec3(texture2DRect(RenderTexture, gl_TexCoord[0].st));
+	vec3 color = vec3(texture2DRect(RenderTexture, vary_texcoord0.st));
 	
 	/// Extract luminance and scale up by night vision brightness
 	float lum = smoothstep(extractLow, extractHigh, dot(color, lumWeights));

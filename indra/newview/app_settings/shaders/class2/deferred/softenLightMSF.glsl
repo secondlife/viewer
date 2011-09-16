@@ -66,8 +66,8 @@ uniform mat3 ssao_effect_mat;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-varying vec4 vary_light;
-varying vec2 vary_fragcoord;
+VARYING vec4 vary_light;
+VARYING vec2 vary_fragcoord;
 
 vec3 vary_PositionEye;
 

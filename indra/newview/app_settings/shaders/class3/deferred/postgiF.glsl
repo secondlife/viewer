@@ -40,7 +40,7 @@ uniform float kern_scale;
 uniform float gi_edge_weight;
 uniform float gi_blur_brightness;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 void main() 
 {

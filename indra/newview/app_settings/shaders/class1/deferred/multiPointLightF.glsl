@@ -45,7 +45,7 @@ uniform int light_count;
 uniform vec4 light[MAX_LIGHT_COUNT];
 uniform vec4 light_col[MAX_LIGHT_COUNT];
 
-varying vec4 vary_fragcoord;
+VARYING vec4 vary_fragcoord;
 uniform vec2 screen_res;
 
 uniform float far_z;

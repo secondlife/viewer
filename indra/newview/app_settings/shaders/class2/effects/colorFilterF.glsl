@@ -36,7 +36,7 @@ const float gamma = 2.0;
 
 void main(void) 
 {
-	vec3 color = vec3(texture2DRect(RenderTexture, gl_TexCoord[0].st));
+	vec3 color = vec3(texture2DRect(RenderTexture, vary_texcoord0.st));
 
 	/// Modulate brightness
 	color *= brightness;

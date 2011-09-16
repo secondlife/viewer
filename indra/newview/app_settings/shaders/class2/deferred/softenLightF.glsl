@@ -67,7 +67,7 @@ uniform vec2 screen_res;
 
 uniform vec3 sun_dir;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 vec3 vary_PositionEye;
 

@@ -64,7 +64,7 @@ uniform vec3 env_mat[3];
 uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 vec3 vary_PositionEye;
 
