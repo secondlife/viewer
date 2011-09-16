@@ -22,10 +22,12 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_texture_multisample : enable
+
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 //class 2 -- shadows and SSAO
 

@@ -23,7 +23,9 @@
  * $/LicenseInfo$
  */
  
-
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect RenderTexture;
 uniform sampler2D NoiseTexture;

@@ -22,10 +22,12 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-
 
 #extension GL_ARB_texture_rectangle : enable
+
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
@@ -136,10 +138,6 @@ void main()
 
 	color.rgb += diff.rgb * vary_pointlight_col.rgb;
 
-	//gl_FragColor = vertex_color;
 	gl_FragColor = color;
-	//gl_FragColor.r = 0.0;
-	//gl_FragColor = vec4(1,shadow,1,1);
-	
 }
 

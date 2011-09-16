@@ -22,7 +22,11 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
+
 #extension GL_ARB_texture_rectangle : enable
 
 uniform sampler2D glowMap;

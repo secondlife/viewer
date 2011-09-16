@@ -23,7 +23,9 @@
  * $/LicenseInfo$
  */
  
-
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 /////////////////////////////////////////////////////////////////////////
 // The fragment shader for the sky

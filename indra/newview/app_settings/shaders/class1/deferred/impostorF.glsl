@@ -22,7 +22,11 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+#ifndef gl_FragData
+out vec4 gl_FragData[3];
+#endif
+
 uniform float minimum_alpha;
 uniform float maximum_alpha;
 

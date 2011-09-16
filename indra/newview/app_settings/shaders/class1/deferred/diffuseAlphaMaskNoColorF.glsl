@@ -24,6 +24,10 @@
  */
  
 
+#ifndef gl_FragData
+out vec4 gl_FragData[3];
+#endif
+
 uniform float minimum_alpha;
 uniform float maximum_alpha;
 

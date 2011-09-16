@@ -22,7 +22,9 @@
  * $/LicenseInfo$
  */
 
-
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2D diffuseMap;
 

@@ -23,11 +23,13 @@
  * $/LicenseInfo$
  */
  
-
-
 //class 1, no shadow, no SSAO, should never be called
 
 #extension GL_ARB_texture_rectangle : enable
+
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 void main() 
 {

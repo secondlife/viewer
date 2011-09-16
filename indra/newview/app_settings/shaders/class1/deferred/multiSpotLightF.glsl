@@ -23,7 +23,9 @@
  * $/LicenseInfo$
  */
 
-
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 //class 1 -- no shadows
 

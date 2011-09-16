@@ -23,9 +23,11 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifndef gl_FragColor;
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
@@ -207,5 +209,5 @@ void main()
 	vec3 ambient = da > 0.0 ? giAmbient(pos.xyz, norm) : vec3(0);
 	
 		
-	gl_FragData[0].xyz = mix(vec3(0), ambient, da);
+	gl_FragColor.xyz = mix(vec3(0), ambient, da);
 }

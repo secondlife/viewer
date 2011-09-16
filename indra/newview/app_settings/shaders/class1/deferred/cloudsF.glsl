@@ -24,6 +24,9 @@
  */
  
 
+#ifndef gl_FragData
+out vec4 gl_FragData[3];
+#endif
 
 /////////////////////////////////////////////////////////////////////////
 // The fragment shader for the sky

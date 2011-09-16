@@ -23,9 +23,11 @@
  * $/LicenseInfo$
  */
   
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
@@ -96,5 +98,4 @@ void main()
 	col.rgb += bcol*lum;
 	
 	gl_FragColor = col;
-	//gl_FragColor.rgb = texture2DRect(giLightMap, vary_fragcoord.xy).rgb;
 }

@@ -23,8 +23,11 @@
  */
  
 
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 //class 1 -- no shadow, SSAO only
 

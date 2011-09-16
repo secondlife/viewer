@@ -24,6 +24,9 @@
  */
  
 
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect giLightMap;
 
@@ -100,7 +103,5 @@ void main()
 	
 	col = col*blur_quad.y;
 	
-	gl_FragData[0].xyz = col;
-	
-	//gl_FragColor = ccol;
+	gl_FragColor.xyz = col;
 }

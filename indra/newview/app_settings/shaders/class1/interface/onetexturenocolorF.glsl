@@ -22,7 +22,11 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
+
 uniform sampler2D tex0;
 
 VARYING vec2 vary_texcoord0;

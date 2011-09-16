@@ -23,7 +23,9 @@
  * $/LicenseInfo$
  */
  
-
+#ifndef gl_FragData
+out vec4 gl_FragData[3];
+#endif
 
 uniform sampler2D detail_0;
 uniform sampler2D detail_1;

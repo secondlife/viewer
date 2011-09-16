@@ -23,9 +23,11 @@
  * $/LicenseInfo$
  */
 
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifndef gl_FragColor
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect diffuseRect;
@@ -141,6 +143,4 @@ void main()
 	
 	gl_FragColor.rgb = out_col;
 	gl_FragColor.a = 0.0;
-	
-	//gl_FragColor = vec4(0.1, 0.025, 0.025/4.0, 0.0);
 }
