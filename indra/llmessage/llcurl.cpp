@@ -222,7 +222,7 @@ namespace boost
 std::set<CURL*> LLCurl::Easy::sFreeHandles;
 std::set<CURL*> LLCurl::Easy::sActiveHandles;
 LLMutex* LLCurl::Easy::sHandleMutex = NULL;
-
+LLMutex* LLCurl::Easy::sMultiMutex = NULL;
 
 //static
 CURL* LLCurl::Easy::allocEasyHandle()
@@ -606,6 +606,7 @@ void LLCurl::Multi::run()
 		mPerformState = PERFORM_STATE_PERFORMING;
 		if (!mQuitting)
 		{
+			LLMutexLock lock(LLCurl::Easy::sMultiMutex);
 			doPerform();
 		}
 	}
@@ -1179,6 +1180,7 @@ void LLCurl::initClass(bool multi_threaded)
 	check_curl_code(code);
 	
 	Easy::sHandleMutex = new LLMutex();
+	Easy::sMultiMutex = new LLMutex();
 
 #if SAFE_SSL
 	S32 mutex_count = CRYPTO_num_locks();
@@ -1200,6 +1202,8 @@ void LLCurl::cleanupClass()
 
 	delete Easy::sHandleMutex;
 	Easy::sHandleMutex = NULL;
+	delete Easy::sMultiMutex;
+	Easy::sMultiMutex = NULL;
 
 	for (std::set<CURL*>::iterator iter = Easy::sFreeHandles.begin(); iter != Easy::sFreeHandles.end(); ++iter)
 	{
