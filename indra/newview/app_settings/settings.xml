@@ -25,7 +25,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>0</real>
+      <real>300</real>
     </map>
     <key>AdminMenu</key>
     <map>
@@ -7109,17 +7109,6 @@
     <map>
       <key>Comment</key>
       <string>The duration allowed before quitting.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.0</real>
-    </map>
-    <key>QuitAfterSecondsOfAFK</key>
-    <map>
-      <key>Comment</key>
-      <string>The duration allowed after being AFK before quitting.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
