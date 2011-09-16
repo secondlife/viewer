@@ -150,8 +150,9 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 		}
 		else
 		{
-			res = new LLVOAvatar(id, pcode, regionp); 
-			res->initInstance();
+			LLVOAvatar *avatar = new LLVOAvatar(id, pcode, regionp); 
+			avatar->initInstance();
+			res = avatar;
 		}
 		break;
 	}
