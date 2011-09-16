@@ -26,50 +26,48 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llviewermedia.h"
+
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llviewermedia.h"
-#include "llviewermediafocus.h"
-#include "llmimetypes.h"
-#include "llmediaentry.h"
-#include "llversioninfo.h"
-#include "llviewercontrol.h"
-#include "llviewertexture.h"
-#include "llviewerparcelmedia.h"
-#include "llviewerparcelmgr.h"
-#include "llviewertexturelist.h"
-#include "llvovolume.h"
-#include "llpluginclassmedia.h"
-#include "llplugincookiestore.h"
-#include "llviewerwindow.h"
-#include "llfocusmgr.h"
-#include "llcallbacklist.h"
-#include "llparcel.h"
+#include "llappviewer.h"
 #include "llaudioengine.h"  // for gAudiop
-#include "llurldispatcher.h"
-#include "llvoavatar.h"
-#include "llvoavatarself.h"
-#include "llviewerregion.h"
-#include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
-#include "llfilepicker.h"
-#include "llnotifications.h"
+#include "llcallbacklist.h"
 #include "lldir.h"
 #include "lldiriterator.h"
 #include "llevent.h"		// LLSimpleListener
-#include "llnotificationsutil.h"
-#include "lluuid.h"
-#include "llkeyboard.h"
-#include "llmutelist.h"
-#include "llpanelprofile.h"
-#include "llappviewer.h"
-#include "lllogininstance.h" 
-//#include "llfirstuse.h"
-#include "llviewernetwork.h"
-#include "llwindow.h"
-
-
+#include "llfilepicker.h"
 #include "llfloatermediabrowser.h"	// for handling window close requests and geometry change requests in media browser windows.
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
+#include "llfocusmgr.h"
+#include "llkeyboard.h"
+#include "lllogininstance.h" 
+#include "llmarketplacefunctions.h"
+#include "llmediaentry.h"
+#include "llmimetypes.h"
+#include "llmutelist.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
+#include "llpanelprofile.h"
+#include "llparcel.h"
+#include "llpluginclassmedia.h"
+#include "llplugincookiestore.h"
+#include "llurldispatcher.h"
+#include "lluuid.h"
+#include "llversioninfo.h"
+#include "llviewercontrol.h"
+#include "llviewermediafocus.h"
+#include "llviewerparcelmedia.h"
+#include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
+#include "llviewerwindow.h"
+#include "llvoavatar.h"
+#include "llvoavatarself.h"
+#include "llvovolume.h"
+#include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
+#include "llwindow.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -1394,14 +1392,20 @@ public:
 #if ENABLE_INVENTORY_DISPLAY_OUTBOX
 			gSavedSettings.setBOOL("InventoryDisplayOutbox", true);
 #endif
+
+			setMarketplaceSyncEnabled(true);
 		}
 		else if (status == 401)
 		{
 			// API is available for use but OpenID authorization failed
 			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
+
+			setMarketplaceSyncEnabled(false);
 		}
 		else
 		{
+			setMarketplaceSyncEnabled(false);
+
 			// API in unavailable
 			llinfos << "Marketplace API is unavailable -- Inbox may be disabled, status = " << status << ", reason = " << reason << llendl;
 		}
@@ -1411,20 +1415,7 @@ public:
 
 void doOnetimeEarlyHTTPRequests()
 {
-	std::string url = "https://marketplace.secondlife.com/";
-
-	if (!LLGridManager::getInstance()->isInProductionGrid())
-	{
-		std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
-		url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
-
-		// TEMP for Jim's pdp
-		//url = "http://pdp24.lindenlab.com:3000/";
-	}
-	
-	url += "api/1/users/";
-	url += gAgent.getID().getString();
-	url += "/user_status";
+	std::string url = getMarketplaceURL_UserStatus();
 
 	llinfos << "http get: " << url << llendl;
 	LLHTTPClient::get(url, new LLInventoryUserStatusResponder(), LLViewerMedia::getHeaders());
