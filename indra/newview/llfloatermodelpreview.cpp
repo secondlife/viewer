@@ -4351,6 +4351,11 @@ void LLModelPreview::updateStatusMessages()
 		{
 			skinAndRigOk = false;
 		}	
+		else
+		if ( !getRigWithSceneParity() )
+		{
+			mFMP->childDisable("calculate_btn");
+		}
 	}
 	
 	if(upload_ok && mModelLoader)
@@ -4954,12 +4959,12 @@ BOOL LLModelPreview::render()
 
 	if (has_skin_weights)
 	{ //model has skin weights, enable view options for skin weights and joint positions
-		if (fmp)
+		if (fmp && getRigWithSceneParity() )
 		{
 			fmp->enableViewOption("show_skin_weight");
 			fmp->setViewOptionEnabled("show_joint_positions", skin_weight);	
+			mFMP->childEnable("upload_skin");
 		}
-		mFMP->childEnable("upload_skin");
 	}
 	else
 	{
