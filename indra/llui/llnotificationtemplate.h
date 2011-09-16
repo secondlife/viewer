@@ -88,10 +88,10 @@ struct LLNotificationTemplate
 	{
 	private:
 		// this idiom allows 
-		// <notification unique="true">
+		// <notification> <unique/> </notification>
 		// as well as
 		// <notification> <unique> <context></context> </unique>...
-		Optional<bool>			dummy_val;
+		Flag			dummy_val;
 	public:
 		Multiple<UniquenessContext>	contexts;
 
