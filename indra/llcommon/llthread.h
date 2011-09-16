@@ -151,15 +151,15 @@ protected:
 
 //============================================================================
 
-#define MUTEX_DEBUG (LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO)
+//#define MUTEX_DEBUG (LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO)
 
-#ifdef MUTEX_DEBUG
+//#ifdef MUTEX_DEBUG
 // We really shouldn't be using recursive locks. Make sure of that in debug mode.
 #define MUTEX_FLAG APR_THREAD_MUTEX_UNNESTED
-#else
+//#else
 // Use the fastest platform-optimal lock behavior (can be recursive or non-recursive).
-#define MUTEX_FLAG APR_THREAD_MUTEX_DEFAULT
-#endif
+//#define MUTEX_FLAG APR_THREAD_MUTEX_DEFAULT
+//#endif
 
 class LL_COMMON_API LLMutexBase
 {
