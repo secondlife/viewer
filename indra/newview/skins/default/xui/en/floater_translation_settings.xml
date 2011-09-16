@@ -128,7 +128,7 @@
 
  <radio_group
   follows="top|left"
-  height="70"
+  height="80"
   layout="topleft"
   left_delta="10"
   name="translation_service_rg"
@@ -155,7 +155,7 @@
   layout="topleft"
   left="40"
   name="bing_api_key_label"
-  top_pad="-45"
+  top_pad="-55"
   width="100">
   Bing [http://www.bing.com/developers/createapp.aspx AppID]:
   </text>
