@@ -66,7 +66,8 @@ catch (const std::runtime_error& ex)														\
 	/* This approach is also used in llsdmessage_test.cpp. 				*/					\
 	if (std::string(typeid(ex).name()) == typeid(exception).name())							\
 	{																						\
-		threw = true;																		\
+		threw = ex.what();																	\
+		/*std::cout << ex.what() << std::endl;*/											\
 	}																						\
 	else																					\
 	{																						\
@@ -83,32 +84,8 @@ catch (...)																					\
 	throw;																					\
 }
 
-#define CATCH_MISSED_LINUX_EXCEPTION_STRING(exception, threw)								\
-catch (const std::runtime_error& ex)														\
-{																							\
-	std::cerr << "Failed to catch " << typeid(ex).name() << std::endl;						\
-	if (std::string(typeid(ex).name()) == typeid(exception).name())							\
-	{																						\
-		threw = ex.what();																	\
-		/*std::cout << ex.what() << std::endl;*/											\
-	}																						\
-	else																					\
-	{																						\
-		throw;																				\
-	}																						\
-}																							\
-catch (...)																					\
-{																							\
-	std::cerr << "Utterly failed to catch expected exception " << #exception << "!" <<		\
-	std::endl;																				\
-																							\
-	throw;																					\
-}
-
 #else // LL_LINUX
 #define CATCH_MISSED_LINUX_EXCEPTION(exception, threw)										\
-	/* Not needed on other platforms */
-#define CATCH_MISSED_LINUX_EXCEPTION_STRING(exception, threw)								\
 	/* Not needed on other platforms */
 #endif // LL_LINUX
 
@@ -191,7 +168,7 @@ void events_object::test<1>()
 		per_frame.post(4);
 		check_listener("re-blocked", listener0, 3);
 	} // unblock
-	bool threw = false;
+	std::string threw;
 	try
 	{
 		// NOTE: boost::bind() saves its arguments by VALUE! If you pass
@@ -203,16 +180,14 @@ void events_object::test<1>()
 	}
 	catch (const LLEventPump::DupListenerName& e)
 	{
-		threw = true;
-		ensure_equals(
-				e.what(),
-				std::string("DupListenerName: "
-							"Attempt to register duplicate listener name '") +
-					listener0.getName() +
-					"' on " + typeid(per_frame).name() + " '" + per_frame.getName() + "'");
+		threw = e.what();
 	}
 	CATCH_MISSED_LINUX_EXCEPTION(LLEventPump::DupListenerName, threw)
-	ensure("threw DupListenerName", threw);
+	ensure_equals(threw,
+				  std::string("DupListenerName: "
+							  "Attempt to register duplicate listener name '") +
+							  listener0.getName() + "' on " + typeid(per_frame).name() +
+							  " '" + per_frame.getName() + "'");
 	// do it right this time
 	listener1.listenTo(per_frame);
 	per_frame.post(5);
@@ -418,7 +393,7 @@ void events_object::test<7>()
 		threw = e.what();
 		// std::cout << "Caught: " << e.what() << '\n';
 	}
-	CATCH_MISSED_LINUX_EXCEPTION_STRING(LLEventPump::Cycle, threw)
+	CATCH_MISSED_LINUX_EXCEPTION(LLEventPump::Cycle, threw)
 	// Obviously the specific wording of the exception text can
 	// change; go ahead and change the test to match.
 	// Establish that it contains:
@@ -456,7 +431,7 @@ void events_object::test<7>()
 		threw = e.what();
 		// std::cout << "Caught: " << e.what() << '\n';
 	}
-	CATCH_MISSED_LINUX_EXCEPTION_STRING(LLEventPump::OrderChange, threw)
+	CATCH_MISSED_LINUX_EXCEPTION(LLEventPump::OrderChange, threw)
 	// Same remarks about the specific wording of the exception. Just
 	// ensure that it contains enough information to clarify the
 	// problem and what must be done to resolve it.
@@ -478,19 +453,19 @@ void events_object::test<8>()
 	{ 	// nested scope
 		// Hand-instantiate an LLEventStream...
 		LLEventStream bob("bob");
-		bool threw = false;
+		std::string threw;
 		try
 		{
 			// then another with a duplicate name.
 			LLEventStream bob2("bob");
 		}
-		catch (const LLEventPump::DupPumpName& /*e*/)
+		catch (const LLEventPump::DupPumpName& e)
 		{
-			threw = true;
+			threw = e.what();
 			// std::cout << "Caught: " << e.what() << '\n';
 		}
 		CATCH_MISSED_LINUX_EXCEPTION(LLEventPump::DupPumpName, threw)
-		ensure("Caught DupPumpName", threw);
+		ensure("Caught DupPumpName", !threw.empty());
 	} 	// delete first 'bob'
 	LLEventStream bob("bob"); 		// should work, previous one unregistered
 	LLEventStream bob1("bob", true);// allowed to tweak name
@@ -524,19 +499,19 @@ void events_object::test<9>()
 	listener0.listenTo(random);
 	eventSource("random");
 	check_listener("got by pump name", listener0, 17);
-	bool threw = false;
+	std::string threw;
 	try
 	{
 		LLListenerOrPumpName empty;
 		empty(17);
 	}
-	catch (const LLListenerOrPumpName::Empty&)
+	catch (const LLListenerOrPumpName::Empty& e)
 	{
-		threw = true;
+		threw = e.what();
 	}
 	CATCH_MISSED_LINUX_EXCEPTION(LLListenerOrPumpName::Empty, threw)
 
-	ensure("threw Empty", threw);
+	ensure("threw Empty", !threw.empty());
 }
 
 class TempListener: public Listener
