@@ -64,7 +64,7 @@ catch (const std::runtime_error& ex)														\
 	/* But if the expected exception was thrown, allow the test to		*/					\
 	/* succeed anyway. Not sure how else to handle this odd case.		*/					\
 	/* This approach is also used in llsdmessage_test.cpp. 				*/					\
-	if (std::string(typeid(ex).name()) == typeid(LLListenerOrPumpName::Empty).name())		\
+	if (std::string(typeid(ex).name()) == typeid(exception).name())							\
 	{																						\
 		threw = true;																		\
 	}																						\
@@ -87,9 +87,10 @@ catch (...)																					\
 catch (const std::runtime_error& ex)														\
 {																							\
 	std::cerr << "Failed to catch " << typeid(ex).name() << std::endl;						\
-	if (std::string(typeid(ex).name()) == typeid(LLListenerOrPumpName::Empty).name())		\
+	if (std::string(typeid(ex).name()) == typeid(exception).name())							\
 	{																						\
 		threw = ex.what();																	\
+		/*std::cout << ex.what() << std::endl;*/											\
 	}																						\
 	else																					\
 	{																						\
@@ -455,7 +456,7 @@ void events_object::test<7>()
 		threw = e.what();
 		// std::cout << "Caught: " << e.what() << '\n';
 	}
-	CATCH_MISSED_LINUX_EXCEPTION_STRING(LLEventPump::Cycle, threw)
+	CATCH_MISSED_LINUX_EXCEPTION_STRING(LLEventPump::OrderChange, threw)
 	// Same remarks about the specific wording of the exception. Just
 	// ensure that it contains enough information to clarify the
 	// problem and what must be done to resolve it.
@@ -463,6 +464,7 @@ void events_object::test<7>()
 	ensure_contains("LLEventPump name", threw, "'button'");
 	ensure_contains("new listener name", threw, "'of'");
 	ensure_contains("prev listener name", threw, "'yellow'");
+	// std::cout << "Thrown Exception: " << threw << std::endl;
 	ensure_contains("old order", threw, "was: Mary, checked, yellow, shoelaces");
 	ensure_contains("new order", threw, "now: Mary, checked, shoelaces, of, yellow");
 	button.post(4);
