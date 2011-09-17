@@ -105,7 +105,7 @@ void main()
 	
 	vec4 frag_pos = projection_matrix * pos;
 	gl_Position = frag_pos;
-	GL
+	
 	vary_position = pos.xyz;
 	vary_normal = norm;	
 	
