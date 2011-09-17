@@ -1783,17 +1783,30 @@ LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 	mState(state), mWasEnabled(FALSE), mIsEnabled(FALSE)
 {
 	if (LLGLSLShader::sNoFixedFunction)
-	{ //always disable state that's deprecated post GL 3.0
+	{ //always ignore state that's deprecated post GL 3.0
 		switch (state)
 		{
 			case GL_ALPHA_TEST:
-				enabled = 0;
+			case GL_RESCALE_NORMAL:
+			case GL_NORMALIZE:
+			case GL_TEXTURE_GEN_R:
+			case GL_TEXTURE_GEN_S:
+			case GL_TEXTURE_GEN_T:
+			case GL_TEXTURE_GEN_Q:
+			case GL_VERTEX_PROGRAM_TWO_SIDE:
+			case GL_LIGHTING:
+			case GL_COLOR_MATERIAL:
+			case GL_CLAMP_VERTEX_COLOR:
+			case GL_CLAMP_FRAGMENT_COLOR:
+			case GL_FOG:
+			case GL_LINE_STIPPLE:
+				mState = 0;
 				break;
 		}
 	}
 
 	stop_glerror();
-	if (state)
+	if (mState)
 	{
 		mWasEnabled = sStateMap[state];
 		llassert(mWasEnabled == glIsEnabled(state));

@@ -36,7 +36,9 @@
 
 #include "llmath.h"
 #include "llgl.h"
+#include "llglslshader.h"
 #include "llrender.h"
+
 //----------------------------------------------------------------------------
 const F32 MIN_TEXTURE_LIFETIME = 10.f;
 
@@ -723,7 +725,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		}
 		else if (!is_compressed)
 		{
-			if (mAutoGenMips)
+			if (mAutoGenMips && !LLGLSLShader::sNoFixedFunction) //auto-generating mipmaps is deprecated in GL 3.0
 			{
 				glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_GENERATE_MIPMAP_SGIS, TRUE);
 				stop_glerror();

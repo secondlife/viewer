@@ -5236,7 +5236,11 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 	}
 
 	// Init GL state
-	glDisable(GL_LIGHTING);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glDisable(GL_LIGHTING);
+	}
+
 	for (S32 i = 0; i < 8; ++i)
 	{
 		gGL.getLight(i)->disable();
@@ -5257,7 +5261,10 @@ void LLPipeline::enableLights(U32 mask)
 		stop_glerror();
 		if (!mLightMask)
 		{
-			glEnable(GL_LIGHTING);
+			if (!LLGLSLShader::sNoFixedFunction)
+			{
+				glEnable(GL_LIGHTING);
+			}
 		}
 		if (mask)
 		{
@@ -5280,7 +5287,10 @@ void LLPipeline::enableLights(U32 mask)
 		}
 		else
 		{
-			glDisable(GL_LIGHTING);
+			if (!LLGLSLShader::sNoFixedFunction)
+			{
+				glDisable(GL_LIGHTING);
+			}
 		}
 		mLightMask = mask;
 		stop_glerror();

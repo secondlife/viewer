@@ -36,6 +36,7 @@
 #include "m4math.h"
 
 #include "llrender.h"
+#include "llglslshader.h"
 
 #include "llglheaders.h"
 
@@ -195,7 +196,7 @@ void LLCubeMap::enableTexture(S32 stage)
 void LLCubeMap::enableTextureCoords(S32 stage)
 {
 	mTextureCoordStage = stage;
-	if (gGLManager.mHasCubeMap && stage >= 0 && LLCubeMap::sUseCubeMaps)
+	if (!LLGLSLShader::sNoFixedFunction && gGLManager.mHasCubeMap && stage >= 0 && LLCubeMap::sUseCubeMaps)
 	{
 		if (stage > 0)
 		{
@@ -237,7 +238,7 @@ void LLCubeMap::disableTexture(void)
 
 void LLCubeMap::disableTextureCoords(void)
 {
-	if (gGLManager.mHasCubeMap && mTextureCoordStage >= 0 && LLCubeMap::sUseCubeMaps)
+	if (!LLGLSLShader::sNoFixedFunction && gGLManager.mHasCubeMap && mTextureCoordStage >= 0 && LLCubeMap::sUseCubeMaps)
 	{
 		if (mTextureCoordStage > 0)
 		{

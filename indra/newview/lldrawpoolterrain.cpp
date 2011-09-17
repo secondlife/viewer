@@ -383,14 +383,11 @@ void LLDrawPoolTerrain::renderFullShader()
 	gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(4)->disable();
 	gGL.getTexUnit(4)->activate();
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
 	
 	gGL.getTexUnit(detail3)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(3)->disable();
 	gGL.getTexUnit(3)->activate();
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
+	
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -398,8 +395,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	gGL.getTexUnit(detail2)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(2)->disable();
 	gGL.getTexUnit(2)->activate();
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
+	
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -407,8 +403,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	gGL.getTexUnit(detail1)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(1)->disable();
 	gGL.getTexUnit(1)->activate();
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
+	
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -419,8 +414,6 @@ void LLDrawPoolTerrain::renderFullShader()
 	gGL.getTexUnit(detail0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(0)->activate();
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);

@@ -2162,7 +2162,10 @@ void LLVOSky::updateFog(const F32 distance)
 
 	glFogf(GL_FOG_DENSITY, fog_density);
 
-	glHint(GL_FOG_HINT, GL_NICEST);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glHint(GL_FOG_HINT, GL_NICEST);
+	}
 	stop_glerror();
 }
 
