@@ -406,7 +406,8 @@ public:
 		       eBlendFactor alpha_sfactor, eBlendFactor alpha_dfactor);
 
 	LLLightState* getLight(U32 index);
-
+	void setAmbientLightColor(const LLColor4& color);
+	
 	LLTexUnit* getTexUnit(U32 index);
 
 	U32	getCurrentTexUnitIndex(void) const { return mCurrTextureUnitIndex; }
@@ -437,6 +438,7 @@ private:
 	glh::matrix4f mMatrix[NUM_MATRIX_MODES][LL_MATRIX_STACK_DEPTH];
 	U32 mCurMatHash[NUM_MATRIX_MODES];
 	U32 mLightHash;
+	LLColor4 mAmbientLightColor;
 	
 	bool			mDirty;
 	U32				mCount;

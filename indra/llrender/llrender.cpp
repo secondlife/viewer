@@ -1114,6 +1114,7 @@ void LLRender::syncLightState()
 		shader->uniform3fv("light_direction", 8, direction[0].mV);
 		shader->uniform3fv("light_attenuation", 8, attenuation[0].mV);
 		shader->uniform3fv("light_diffuse", 8, diffuse[0].mV);
+		shader->uniform4fv("light_ambient", 1, mAmbientLightColor.mV);
 	}
 }
 
@@ -1636,6 +1637,19 @@ LLLightState* LLRender::getLight(U32 index)
 	}
 	
 	return NULL;
+}
+
+void LLRender::setAmbientLightColor(const LLColor4& color)
+{
+	if (color != mAmbientLightColor)
+	{
+		++mLightHash;
+		mAmbientLightColor = color;
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.mV);
+		}
+	}
 }
 
 bool LLRender::verifyTexUnitActive(U32 unitToVerify)

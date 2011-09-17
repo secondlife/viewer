@@ -24,10 +24,11 @@
  */
  
 uniform vec3 light_diffuse[8];
+uniform vec4 light_ambient;
 
 vec3 atmosAmbient(vec3 light)
 {
-	return light;  //need ambient?
+	return light + light_ambient.rgb;
 }
 
 vec3 atmosAffectDirectionalLight(float lightIntensity)

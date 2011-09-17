@@ -1712,10 +1712,8 @@ void LLViewerWindow::initGLDefaults()
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
 
-	F32 ambient[4] = {0.f,0.f,0.f,0.f };
-	F32 diffuse[4] = {1.f,1.f,1.f,1.f };
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,ambient);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,LLColor4::black.mV);
+	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,LLColor4::white.mV);
 	
 	glPixelStorei(GL_PACK_ALIGNMENT,1);
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
@@ -1725,10 +1723,7 @@ void LLViewerWindow::initGLDefaults()
 	// lights for objects
 	glShadeModel( GL_SMOOTH );
 
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
-	}
+	gGL.setAmbientLightColor(LLColor4::black);
 	
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 

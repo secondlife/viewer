@@ -5057,7 +5057,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 	if (!LLGLSLShader::sNoFixedFunction)
 	{
 		LLColor4 ambient = gSky.getTotalAmbientColor();
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient.mV);
+		gGL.setAmbientLightColor(ambient);
 	}
 
 	// Light 0 = Sun or Moon (All objects)
@@ -5285,12 +5285,8 @@ void LLPipeline::enableLights(U32 mask)
 		mLightMask = mask;
 		stop_glerror();
 
-		if (!LLGLSLShader::sNoFixedFunction)
-		{
-			LLColor4 ambient = gSky.getTotalAmbientColor();
-			glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient.mV);
-		}
-		
+		LLColor4 ambient = gSky.getTotalAmbientColor();
+		gGL.setAmbientLightColor(ambient);
 	}
 }
 
@@ -5342,10 +5338,10 @@ void LLPipeline::enableLightsPreview()
 	if (!LLGLSLShader::sNoFixedFunction)
 	{
 		glEnable(GL_LIGHTING);
-		LLColor4 ambient = gSavedSettings.getColor4("PreviewAmbientColor");
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient.mV);
 	}
 
+	LLColor4 ambient = gSavedSettings.getColor4("PreviewAmbientColor");
+	gGL.setAmbientLightColor(ambient);
 
 	LLColor4 diffuse0 = gSavedSettings.getColor4("PreviewDiffuse0");
 	LLColor4 specular0 = gSavedSettings.getColor4("PreviewSpecular0");
@@ -5403,10 +5399,7 @@ void LLPipeline::enableLightsAvatarEdit(const LLColor4& color)
 	setupAvatarLights(TRUE);
 	enableLights(mask);
 
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT,color.mV);
-	}
+	gGL.setAmbientLightColor(color);
 }
 
 void LLPipeline::enableLightsFullbright(const LLColor4& color)
@@ -5415,10 +5408,7 @@ void LLPipeline::enableLightsFullbright(const LLColor4& color)
 	U32 mask = 0x1000; // Non-0 mask, set ambient
 	enableLights(mask);
 
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT,color.mV);
-	}
+	gGL.setAmbientLightColor(color);
 }
 
 void LLPipeline::disableLights()

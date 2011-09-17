@@ -522,14 +522,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Slam lighting parameters back to our defaults.
 	// Note that these are not the same as GL defaults...
 
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		stop_glerror();
-		F32 one[4] =	{1.f, 1.f, 1.f, 1.f};
-		glLightModelfv (GL_LIGHT_MODEL_AMBIENT,one);
-		stop_glerror();
-	}
-		
+	stop_glerror();
+	gGL.setAmbientLightColor(LLColor4::white);
+	stop_glerror();
+			
 	/////////////////////////////////////
 	//
 	// Render
