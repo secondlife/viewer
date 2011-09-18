@@ -1787,17 +1787,13 @@ LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 		switch (state)
 		{
 			case GL_ALPHA_TEST:
-			case GL_RESCALE_NORMAL:
 			case GL_NORMALIZE:
 			case GL_TEXTURE_GEN_R:
 			case GL_TEXTURE_GEN_S:
 			case GL_TEXTURE_GEN_T:
 			case GL_TEXTURE_GEN_Q:
-			case GL_VERTEX_PROGRAM_TWO_SIDE:
 			case GL_LIGHTING:
 			case GL_COLOR_MATERIAL:
-			case GL_CLAMP_VERTEX_COLOR:
-			case GL_CLAMP_FRAGMENT_COLOR:
 			case GL_FOG:
 			case GL_LINE_STIPPLE:
 				mState = 0;
