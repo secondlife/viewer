@@ -539,7 +539,7 @@ void LLSidepanelInventory::onToggleInboxBtn()
 
 	if (inbox_expanded && inboxPanel->isInVisibleChain())
 	{
-		gSavedPerAccountSettings.setString("LastInventoryInboxActivity", LLDate::now().asString());
+		gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 	}
 }
 
@@ -568,7 +568,7 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 #else
 	if (mInboxEnabled && getChild<LLButton>(INBOX_BUTTON_NAME)->getToggleState())
 	{
-		gSavedPerAccountSettings.setString("LastInventoryInboxActivity", LLDate::now().asString());
+		gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 	}
 #endif
 

@@ -256,16 +256,20 @@ std::string::size_type LLInventoryFilter::getStringMatchOffset() const
 // has user modified default filter params?
 BOOL LLInventoryFilter::isNotDefault() const
 {
-	return mFilterOps.mFilterObjectTypes != mDefaultFilterOps.mFilterObjectTypes 
-		|| mFilterOps.mFilterCategoryTypes != mDefaultFilterOps.mFilterCategoryTypes 
-		|| mFilterOps.mFilterWearableTypes != mDefaultFilterOps.mFilterWearableTypes 
-		|| mFilterOps.mFilterTypes != FILTERTYPE_OBJECT
-		|| mFilterOps.mFilterLinks != FILTERLINK_INCLUDE_LINKS
-		|| mFilterSubString.size() 
-		|| mFilterOps.mPermissions != mDefaultFilterOps.mPermissions
-		|| mFilterOps.mMinDate != mDefaultFilterOps.mMinDate 
-		|| mFilterOps.mMaxDate != mDefaultFilterOps.mMaxDate
-		|| mFilterOps.mHoursAgo != mDefaultFilterOps.mHoursAgo;
+	BOOL not_default = FALSE;
+
+	not_default |= (mFilterOps.mFilterObjectTypes != mDefaultFilterOps.mFilterObjectTypes);
+	not_default |= (mFilterOps.mFilterCategoryTypes != mDefaultFilterOps.mFilterCategoryTypes);
+	not_default |= (mFilterOps.mFilterWearableTypes != mDefaultFilterOps.mFilterWearableTypes);
+	not_default |= (mFilterOps.mFilterTypes != mDefaultFilterOps.mFilterTypes);
+	not_default |= (mFilterOps.mFilterLinks != mDefaultFilterOps.mFilterLinks);
+	not_default |= (mFilterSubString.size());
+	not_default |= (mFilterOps.mPermissions != mDefaultFilterOps.mPermissions);
+	not_default |= (mFilterOps.mMinDate != mDefaultFilterOps.mMinDate);
+	not_default |= (mFilterOps.mMaxDate != mDefaultFilterOps.mMaxDate);
+	not_default |= (mFilterOps.mHoursAgo != mDefaultFilterOps.mHoursAgo);
+
+	return not_default;
 }
 
 BOOL LLInventoryFilter::isActive() const
