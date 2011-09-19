@@ -4352,7 +4352,7 @@ void LLModelPreview::updateStatusMessages()
 			skinAndRigOk = false;
 		}	
 		else
-		if ( !getRigWithSceneParity() )
+		if ( !isLegacyRigValid() )
 		{
 			mFMP->childDisable("calculate_btn");
 		}
@@ -4959,7 +4959,7 @@ BOOL LLModelPreview::render()
 
 	if (has_skin_weights)
 	{ //model has skin weights, enable view options for skin weights and joint positions
-		if (fmp && getRigWithSceneParity() )
+		if (fmp && isLegacyRigValid() )
 		{
 			fmp->enableViewOption("show_skin_weight");
 			fmp->setViewOptionEnabled("show_joint_positions", skin_weight);	
