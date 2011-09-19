@@ -99,6 +99,7 @@ set(llui_SOURCE_FILES
     lltimectrl.cpp
     lltransutil.cpp
     lltoggleablemenu.cpp
+    lltoolbar.cpp
     lltooltip.cpp
     llui.cpp
     lluicolortable.cpp
@@ -200,6 +201,7 @@ set(llui_HEADER_FILES
     lltextvalidate.h
     lltimectrl.h
     lltoggleablemenu.h
+    lltoolbar.h
     lltooltip.h
     lltransutil.h
     lluicolortable.h

@@ -57,6 +57,7 @@
 #include "llfiltereditor.h"
 #include "llflyoutbutton.h"
 #include "llsearcheditor.h"
+#include "lltoolbar.h"
 
 // for XUIParse
 #include "llquaternion.h"
@@ -91,6 +92,7 @@ std::list<std::string> gUntranslated;
 static LLDefaultChildRegistry::Register<LLFilterEditor> register_filter_editor("filter_editor");
 static LLDefaultChildRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
 static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
+static LLDefaultChildRegistry::Register<LLToolBar> r1("toolbar");
 
 // register other widgets which otherwise may not be linked in
 static LLDefaultChildRegistry::Register<LLLoadingIndicator> register_loading_indicator("loading_indicator");
