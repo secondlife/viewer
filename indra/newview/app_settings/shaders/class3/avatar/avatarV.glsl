@@ -129,8 +129,4 @@ void main()
 	vertex_color = color; 
 					
 	gl_Position = projection_matrix * pos;
-	
-	
-	vary_texcoord2 = vec4(pos.xyz, 1.0);
-
 }
