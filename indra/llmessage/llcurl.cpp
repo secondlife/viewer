@@ -553,6 +553,11 @@ LLCurl::Multi::~Multi()
 {
 	llassert(isStopped());
 
+	if (LLCurl::sMultiThreaded)
+	{
+		LLCurl::Easy::sMultiMutex->lock();
+	}
+
 	delete mSignal;
 	mSignal = NULL;
 
@@ -573,6 +578,11 @@ LLCurl::Multi::~Multi()
 
 	check_curl_multi_code(curl_multi_cleanup(mCurlMultiHandle));
 	--gCurlMultiCount;
+
+	if (LLCurl::sMultiThreaded)
+	{
+		LLCurl::Easy::sMultiMutex->unlock();
+	}
 }
 
 CURLMsg* LLCurl::Multi::info_read(S32* msgs_in_queue)
