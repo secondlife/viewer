@@ -51,8 +51,8 @@ public:
 			drag_highlight_color("drag_highlight_color", LLUIColorTable::instance().getColor("DefaultHighlightLight")),
 			drag_shadow_color("drag_shadow_color", LLUIColorTable::instance().getColor("DefaultShadowDark"))
 		{
-			mouse_opaque(true);
-			follows.flags(FOLLOWS_ALL);
+			changeDefault(mouse_opaque, true);
+			changeDefault(follows.flags, FOLLOWS_ALL);
 		}
 	};
 	void initFromParams(const Params&);

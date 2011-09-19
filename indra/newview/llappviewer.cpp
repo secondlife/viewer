@@ -247,7 +247,6 @@ extern BOOL gDebugGL;
 
 ////////////////////////////////////////////////////////////
 // All from the last globals push...
-const F32 DEFAULT_AFK_TIMEOUT = 5.f * 60.f; // time with no input before user flagged as Away From Keyboard
 
 F32 gSimLastTime; // Used in LLAppViewer::init and send_stats()
 F32 gSimFrames;
@@ -430,8 +429,11 @@ static bool app_metrics_qa_mode = false;
 void idle_afk_check()
 {
 	// check idle timers
-	if (gSavedSettings.getS32("AFKTimeout") && (gAwayTriggerTimer.getElapsedTimeF32() > gSavedSettings.getS32("AFKTimeout")))
+	F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
+	F32 afk_timeout  = gSavedSettings.getS32("AFKTimeout");
+	if (afk_timeout && (current_idle > afk_timeout) && ! gAgent.getAFK())
 	{
+		LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
 		gAgent.setAFK();
 	}
 }
@@ -786,6 +788,12 @@ bool LLAppViewer::init()
 		&LLUI::sGLScaleFactor);
 	LL_INFOS("InitInfo") << "UI initialized." << LL_ENDL ;
 
+	// Setup paths and LLTrans after LLUI::initClass has been called.
+	LLUI::setupPaths();
+	LLTransUtil::parseStrings("strings.xml", default_trans_args);
+	LLTransUtil::parseLanguageStrings("language_settings.xml");
+
+	// Setup notifications after LLUI::setupPaths() has been called.
 	LLNotifications::instance();
 	LL_INFOS("InitInfo") << "Notifications initialized." << LL_ENDL ;
 
@@ -831,12 +839,6 @@ bool LLAppViewer::init()
 		LLError::setPrintLocation(true);
 	}
 
-
-	// Setup paths and LLTrans after LLUI::initClass has been called
-	LLUI::setupPaths();
-	LLTransUtil::parseStrings("strings.xml", default_trans_args);		
-	LLTransUtil::parseLanguageStrings("language_settings.xml");
-	
 	// LLKeyboard relies on LLUI to know what some accelerator keys are called.
 	LLKeyboard::setStringTranslatorFunc( LLTrans::getKeyboardString );
 
@@ -4183,18 +4185,6 @@ void LLAppViewer::idle()
 		if (gRenderStartTime.getElapsedTimeF32() > qas)
 		{
 			LLAppViewer::instance()->forceQuit();
-		}
-	}
-
-	// debug setting to quit after N seconds of being AFK - 0 to never do this
-	F32 qas_afk = gSavedSettings.getF32("QuitAfterSecondsOfAFK");
-	if (qas_afk > 0.f)
-	{
-		// idle time is more than setting
-		if ( gAwayTriggerTimer.getElapsedTimeF32() > qas_afk )
-		{
-			// go ahead and just quit gracefully
-			LLAppViewer::instance()->requestQuit();
 		}
 	}
 

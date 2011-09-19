@@ -29,7 +29,7 @@
 	 height="10"
 	 left_delta="23"
 	 layout="topleft"
-	 name="Proxy location"
+	 name="http_proxy_label"
 	 top_pad="10"
 	 width="300">
 	    HTTP Proxy:
@@ -81,7 +81,7 @@
 	 height="10"
 	 layout="topleft"
 	 left_delta="23"
-	 name="Proxy location"
+	 name="socks5_proxy_label"
 	 top_pad="10"
 	 width="300">
 	    SOCKS 5 Proxy:
@@ -125,7 +125,7 @@
 	 height="10"
 	 layout="topleft"
 	 left="40"
-	 name="Proxy location"
+	 name="socks_auth_label"
 	 top_pad="15"
 	 width="300">
 	    SOCKS Authentication:
@@ -163,6 +163,7 @@
 	 height="10"
 	 layout="topleft"
 	 left_delta="20"
+	 name="socks5_username_label"
 	 top_delta="50"
 	 width="200">
 	    Username:
@@ -174,6 +175,7 @@
 	 height="10"
 	 left_pad="15"
 	 layout="topleft"
+	 name="socks5_password_label"
 	 width="200">
 	    Password:
 	</text>
@@ -207,7 +209,7 @@
 	 height="10"
 	 layout="topleft"
 	 left="25"
-	 name="Proxy location"
+	 name="other_proxy_label"
 	 top_pad="18"
 	 width="300">
 	   Other HTTP traffic proxy:

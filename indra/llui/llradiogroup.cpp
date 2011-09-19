@@ -74,9 +74,6 @@ LLRadioGroup::Params::Params()
 {
 	addSynonym(items, "radio_item");
 
-	name = "radio_group";
-	mouse_opaque = true;
-	follows.flags = FOLLOWS_LEFT | FOLLOWS_TOP;
 	// radio items are not tabbable until they are selected
 	tab_stop = false;
 }
@@ -96,7 +93,10 @@ void LLRadioGroup::initFromParams(const Params& p)
 	{
 		LLRadioGroup::ItemParams item_params(*it);
 
-		item_params.font.setIfNotProvided(mFont); // apply radio group font by default
+		if (!item_params.font.isProvided())
+		{
+			item_params.font = mFont; // apply radio group font by default
+		}
 		item_params.commit_callback.function = boost::bind(&LLRadioGroup::onClickButton, this, _1);
 		item_params.from_xui = p.from_xui;
 		if (p.from_xui)

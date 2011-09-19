@@ -685,7 +685,6 @@ LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 bool LLSideTray::isTabAttached(const std::string& name)
 {
 	LLSideTrayTab* tab = getTab(name);
-	llassert(tab);
 	if (!tab) return false;
 
 	return std::find(mTabs.begin(), mTabs.end(), tab) != mTabs.end();
@@ -1449,7 +1448,7 @@ void	LLSideTray::updateSidetrayVisibility()
 			parent->setVisible(new_visibility);
 
 			// Signal change of visible width.
-			llinfos << "Visible: " << new_visibility << llendl;
+			//llinfos << "Visible: " << new_visibility << llendl;
 			mVisibleWidthChangeSignal(this, new_visibility);
 		}
 	}

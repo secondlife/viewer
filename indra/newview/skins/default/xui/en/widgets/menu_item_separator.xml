@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <menu_item_separator enabled_color="MenuItemEnabledColor"
-	disabled_color="MenuItemDisabledColor"
-	highlight_bg_color="MenuItemHighlightBgColor"
-  highlight_fg_color="MenuItemHighlightFgColor">
+                     name="separator"
+                     disabled_color="MenuItemDisabledColor"
+                     highlight_bg_color="MenuItemHighlightBgColor"
+                     highlight_fg_color="MenuItemHighlightFgColor"
+                     label="-----------">
 </menu_item_separator>

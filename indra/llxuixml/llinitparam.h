@@ -717,14 +717,6 @@ namespace LLInitParam
 			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
 		}
 
-		void setIfNotProvided(value_assignment_t val, bool flag_as_provided = true)
-		{
-			if (!isProvided())
-			{
-				set(val, flag_as_provided);
-			}
-		}
-
 		// implicit conversion
 		operator value_assignment_t() const { return param_value_t::getValue(); } 
 		// explicit conversion
@@ -869,18 +861,10 @@ namespace LLInitParam
 			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
 		}
 
-		void setIfNotProvided(value_assignment_t val, bool flag_as_provided = true)
-		{
-			if (!isProvided())
-			{
-				set(val, flag_as_provided);
-			}
-		}
-
 		// propagate changed status up to enclosing block
 		/*virtual*/ void paramChanged(const Param& changed_param, bool user_provided)
 		{ 
-			ParamValue<T, NAME_VALUE_LOOKUP>::paramChanged(changed_param, user_provided);
+			param_value_t::paramChanged(changed_param, user_provided);
 			Param::enclosingBlock().paramChanged(*this, user_provided);
 			if (user_provided)
 			{
@@ -1031,15 +1015,6 @@ namespace LLInitParam
 			mValues = val;
 			setProvided(flag_as_provided);
 			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
-		}
-
-
-		void setIfNotProvided(value_assignment_t val, bool flag_as_provided = true)
-		{
-			if (!isProvided())
-			{
-				set(val, flag_as_provided);
-			}
 		}
 
 		value_t& add()
@@ -1230,14 +1205,6 @@ namespace LLInitParam
 			mValues = val;
 			setProvided(flag_as_provided);
 			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
-		}
-
-		void setIfNotProvided(value_assignment_t val, bool flag_as_provided = true)
-		{
-			if (!isProvided())
-			{
-				set(val, flag_as_provided);
-			}
 		}
 
 		value_t& add()
@@ -1719,6 +1686,17 @@ namespace LLInitParam
 			static BlockDescriptor sBlockDescriptor;
 			return sBlockDescriptor;
 		}
+
+		template <typename T, typename NAME_VALUE_LOOKUP, bool multiple, bool is_block>
+		void changeDefault(TypedParam<T, NAME_VALUE_LOOKUP, multiple, is_block>& param, 
+			typename TypedParam<T, NAME_VALUE_LOOKUP, multiple, is_block>::value_assignment_t value)
+		{
+			if (!param.isProvided())
+			{
+				param.set(value, false);
+			}
+		}
+
 	};
 	
 	template<typename T>

@@ -39,8 +39,9 @@
 // Declarations
 //
 
-class LLUICtrlFactory;
 class LLFontGL;
+class LLScrollContainer;
+class LLUICtrlFactory;
 
 //
 // Relative Position Alignment
@@ -108,6 +109,8 @@ public:
 		Optional< S32 >					label_offset_vert;
 
 		Optional< LLRelPos::Location >	location;
+		Optional< S32 >					location_offset_hcenter;
+		Optional< S32 >					location_offset_vcenter;
 		Optional< U32 >					location_percent_hcenter;
 		Optional< U32 >					location_percent_vcenter;
 
@@ -150,6 +153,8 @@ private:
 	S32						mLabelOffsetVert;
 
 	LLRelPos::Location		mLocation;
+	S32						mLocationOffsetHCenter;
+	S32						mLocationOffsetVCenter;
 	F32						mLocationPercentHCenter;
 	F32						mLocationPercentVCenter;
 	
@@ -157,6 +162,8 @@ private:
 
 	F32						mPaddingHoriz;
 	F32						mPaddingVert;
+
+	LLScrollContainer*		mParentScroller;
 };
 
 // Build time optimization, generate once in .cpp file
