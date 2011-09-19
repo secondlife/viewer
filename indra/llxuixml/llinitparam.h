@@ -302,7 +302,7 @@ namespace LLInitParam
 		}
 
 	private:
-		friend BaseBlock;
+		friend class BaseBlock;
 
 		U32		mEnclosingBlockOffset:31;
 		U32		mIsProvided:1;
@@ -1604,7 +1604,7 @@ namespace LLInitParam
 
 		};
 
-		class Flag : public FlagBase
+		class Flag : public BaseBlockWithFlags::FlagBase
 		{
 		public:
 			Flag(const char* name) : FlagBase(name, DERIVED_BLOCK::selfBlockDescriptor().mCurrentBlockPtr)
