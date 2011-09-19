@@ -1885,12 +1885,7 @@ void LLViewerWindow::initWorldUI()
 	
 	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
 	{
-		navbar->showNavigationPanel(FALSE);
-	}
-
-	if (!gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"))
-	{
-		navbar->showFavoritesPanel(FALSE);
+		navbar->setVisible(FALSE);
 	}
 
 	// Top Info bar
@@ -2196,7 +2191,9 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 	LLNavigationBar* navbarp = LLUI::getRootView()->findChild<LLNavigationBar>("navigation_bar");
 	if (navbarp)
 	{
-		navbarp->setVisible( visible );
+		// when it's time to show navigation bar we need to ensure that the user wants to see it
+		// i.e. ShowNavbarNavigationPanel option is true
+		navbarp->setVisible( visible && gSavedSettings.getBOOL("ShowNavbarNavigationPanel") );
 	}
 }
 

@@ -360,7 +360,7 @@ struct LLFavoritesSort
 
 LLFavoritesBarCtrl::Params::Params()
 : image_drag_indication("image_drag_indication"),
-  chevron_button("chevron_button"),
+  more_button("more_button"),
   label("label")
 {
 }
@@ -389,9 +389,9 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	gInventory.addObserver(this);
 
 	//make chevron button                                                                                                                               
-	LLButton::Params chevron_button_params(p.chevron_button);                                         
-	chevron_button_params.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));     
-	mChevronButton = LLUICtrlFactory::create<LLButton> (chevron_button_params);
+	LLTextBox::Params more_button_params(p.more_button);
+	mChevronButton = LLUICtrlFactory::create<LLTextBox> (more_button_params);
+	mChevronButton->setClickedCallback(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
 	addChild(mChevronButton); 
 
 	LLTextBox::Params label_param(p.label);

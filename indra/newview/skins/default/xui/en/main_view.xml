@@ -16,7 +16,7 @@
                 orientation="vertical"
                 top="19">
     <layout_panel auto_resize="false"
-                  height="60"
+                  height="34"
                   mouse_opaque="false"
                   name="nav_bar_container"
                   tab_stop="false"

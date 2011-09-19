@@ -98,9 +98,6 @@ public:
 	void handleLoginComplete();
 	void clearHistoryCache();
 
-	void showNavigationPanel(BOOL visible);
-	void showFavoritesPanel(BOOL visible);
-
 	int getDefNavBarHeight();
 	int getDefFavBarHeight();
 	

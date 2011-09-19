@@ -40,7 +40,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<LLUIImage*> image_drag_indication;
-		Optional<LLButton::Params> chevron_button;
+		Optional<LLTextBox::Params> more_button;
 		Optional<LLTextBox::Params> label;
 		Params();
 	};
@@ -135,7 +135,7 @@ private:
 	BOOL mShowDragMarker;
 	LLUICtrl* mLandingTab;
 	LLUICtrl* mLastTab;
-	LLButton* mChevronButton;
+	LLTextBox* mChevronButton;
 	LLTextBox* mBarLabel;
 
 	LLUUID mDragItemId;
