@@ -102,6 +102,7 @@
 #include "llviewerobjectlist.h"
 #include "llanimationstates.h"
 #include "llviewernetwork.h"
+#include "llviewershadermgr.h"
 #include "glod/glod.h"
 #include <boost/algorithm/string.hpp>
 
@@ -4729,6 +4730,8 @@ BOOL LLModelPreview::render()
 	LLMutexLock lock(this);
 	mNeedsUpdate = FALSE;
 
+	bool use_shaders = LLGLSLShader::sNoFixedFunction;
+
 	bool edges = mViewOption["show_edges"];
 	bool joint_positions = mViewOption["show_joint_positions"];
 	bool skin_weight = mViewOption["show_skin_weight"];
@@ -4745,6 +4748,10 @@ BOOL LLModelPreview::render()
 	LLGLDisable fog(GL_FOG);
 
 	{
+		if (use_shaders)
+		{
+			gUIProgram.bind();
+		}
 		//clear background to blue
 		gGL.matrixMode(LLRender::MM_PROJECTION);
 		gGL.pushMatrix();
@@ -4764,6 +4771,10 @@ BOOL LLModelPreview::render()
 
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.popMatrix();
+		if (use_shaders)
+		{
+			gUIProgram.unbind();
+		}
 	}
 
 	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
@@ -4894,6 +4905,11 @@ BOOL LLModelPreview::render()
 	gGL.color3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
 
 	const U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
+
+	if (use_shaders)
+	{
+		gObjectPreviewProgram.bind();
+	}
 
 	LLGLEnable normalize(GL_NORMALIZE);
 
@@ -5295,6 +5311,11 @@ BOOL LLModelPreview::render()
 				}
 			}
 		}
+	}
+
+	if (use_shaders)
+	{
+		gObjectPreviewProgram.unbind();
 	}
 
 	gGL.popMatrix();

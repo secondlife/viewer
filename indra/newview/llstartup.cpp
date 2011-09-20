@@ -1919,11 +1919,6 @@ bool idle_startup()
 				LLTrans::getString("LoginPrecaching"),
 					gAgent.mMOTD);
 			display_startup();
-			if (!LLViewerShaderMgr::sInitialized)
-			{
-				LLViewerShaderMgr::sInitialized = TRUE;
-				LLViewerShaderMgr::instance()->setShaders();
-			}
 		}
 		
 		return TRUE;

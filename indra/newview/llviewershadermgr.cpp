@@ -70,6 +70,7 @@ LLGLSLShader	gGlowCombineFXAAProgram;
 LLGLSLShader	gTwoTextureAddProgram;
 LLGLSLShader	gOneTextureNoColorProgram;
 LLGLSLShader	gDebugProgram;
+LLGLSLShader	gAlphaMaskProgram;
 
 //object shaders
 LLGLSLShader		gObjectSimpleProgram;
@@ -219,6 +220,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gSolidColorProgram);
 	mShaderList.push_back(&gOcclusionProgram);
 	mShaderList.push_back(&gDebugProgram);
+	mShaderList.push_back(&gAlphaMaskProgram);
 	mShaderList.push_back(&gObjectEmissiveProgram);
 	mShaderList.push_back(&gObjectEmissiveWaterProgram);
 	mShaderList.push_back(&gObjectFullbrightProgram);
@@ -674,6 +676,7 @@ void LLViewerShaderMgr::unloadShaders()
 {
 	gOcclusionProgram.unload();
 	gDebugProgram.unload();
+	gAlphaMaskProgram.unload();
 	gUIProgram.unload();
 	gCustomAlphaProgram.unload();
 	gGlowCombineProgram.unload();
@@ -2745,6 +2748,16 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gDebugProgram.mShaderFiles.push_back(make_pair("interface/debugF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDebugProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
 		success = gDebugProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gAlphaMaskProgram.mName = "Alpha Mask Shader";
+		gAlphaMaskProgram.mShaderFiles.clear();
+		gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskV.glsl", GL_VERTEX_SHADER_ARB));
+		gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gAlphaMaskProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gAlphaMaskProgram.createShader(NULL, NULL);
 	}
 
 	if( !success )

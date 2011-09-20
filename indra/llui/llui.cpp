@@ -992,10 +992,18 @@ void gl_rect_2d_checkerboard(const LLRect& rect, GLfloat alpha)
 	// ...gray squares
 	gGL.color4f( .7f, .7f, .7f, alpha );
 	gGL.flush();
-	glPolygonStipple( checkerboard );
 
-	LLGLEnable polygon_stipple(GL_POLYGON_STIPPLE);
-	gl_rect_2d(rect);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{ //polygon stipple is deprecated
+		glPolygonStipple( checkerboard );
+
+		LLGLEnable polygon_stipple(GL_POLYGON_STIPPLE);
+		gl_rect_2d(rect);
+	}
+	else
+	{
+		gl_rect_2d(rect);
+	}
 	gGL.flush();
 }
 
