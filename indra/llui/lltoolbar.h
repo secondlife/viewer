@@ -47,7 +47,7 @@ public:
 	void draw();
 
 protected:
-	friend LLUICtrlFactory;
+	friend class LLUICtrlFactory;
 	LLToolBar(const Params&);
 	void initFromParams(const Params&);
 
