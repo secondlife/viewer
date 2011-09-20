@@ -249,6 +249,10 @@ PFNGLGETUNIFORMFVARBPROC glGetUniformfvARB = NULL;
 PFNGLGETUNIFORMIVARBPROC glGetUniformivARB = NULL;
 PFNGLGETSHADERSOURCEARBPROC glGetShaderSourceARB = NULL;
 
+#if LL_WINDOWS
+PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
+#endif
+
 // vertex shader prototypes
 #if LL_LINUX || LL_SOLARIS
 PFNGLVERTEXATTRIB1DARBPROC glVertexAttrib1dARB = NULL;
@@ -409,6 +413,15 @@ void LLGLManager::initWGL()
 		LL_WARNS("RenderInit") << "No ARB pixel format extensions" << LL_ENDL;
 	}
 
+	if (ExtensionExists("WGL_ARB_create_context",gGLHExts.mSysExts))
+	{
+		GLH_EXT_NAME(wglCreateContextAttribsARB) = (PFNWGLCREATECONTEXTATTRIBSARBPROC)GLH_EXT_GET_PROC_ADDRESS("wglCreateContextAttribsARB");
+	}
+	else
+	{
+		LL_WARNS("RenderInit") << "No ARB create context extensions" << LL_ENDL;
+	}
+	
 	if (ExtensionExists("WGL_EXT_swap_control", gGLHExts.mSysExts))
 	{
         GLH_EXT_NAME(wglSwapIntervalEXT) = (PFNWGLSWAPINTERVALEXTPROC)GLH_EXT_GET_PROC_ADDRESS("wglSwapIntervalEXT");

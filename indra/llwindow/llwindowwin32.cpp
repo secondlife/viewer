@@ -1122,6 +1122,34 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 	gGLManager.initWGL();
 
+	if (wglCreateContextAttribsARB && LLRender::sGLCoreProfile)
+	{
+		S32 attribs[] = 
+		{
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+			0
+		};
+
+		HGLRC res = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
+
+		if (!res)
+		{
+			attribs[1] = 3;
+			attribs[3] = 1;
+
+			res = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
+		}
+
+		if (res)
+		{
+			wglMakeCurrent(mhDC, res);
+			wglDeleteContext(mhRC);
+			mhRC = res;
+		}
+	}
+	
 	if (wglChoosePixelFormatARB)
 	{
 		// OK, at this point, use the ARB wglChoosePixelFormatsARB function to see if we

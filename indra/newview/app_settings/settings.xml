@@ -8591,6 +8591,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>RenderGLCoreProfile</key>
+    <map>
+      <key>Comment</key>
+      <string>Don't use a compatibility profile OpenGL context.  Requires restart.  Basic shaders MUST be enabled.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderGlow</key>
     <map>
       <key>Comment</key>

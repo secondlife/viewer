@@ -531,6 +531,8 @@ extern PFNGLSAMPLEMASKIPROC glSampleMaski;
 #include "GL/glext.h"
 #include "GL/glh_extensions.h"
 
+// WGL_ARB_create_context
+extern PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 
 // GL_ARB_vertex_buffer_object
 extern PFNGLBINDBUFFERARBPROC		glBindBufferARB;

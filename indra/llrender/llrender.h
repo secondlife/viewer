@@ -428,6 +428,7 @@ public:
 public:
 	static U32 sUICalls;
 	static U32 sUIVerts;
+	static bool sGLCoreProfile;
 	
 private:
 	friend class LLLightState;
