@@ -32,28 +32,44 @@
 #include "lllayoutstack.h"
 #include "llbutton.h"
 
+class LLToolBarButton : public LLButton
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLButton::Params>
+	{
+	};
+
+	LLToolBarButton(const Params& p) : LLButton(p) {}
+
+};
+
 class LLToolBar
 :	public LLUICtrl
 {
 public:
+
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Mandatory<LLLayoutStack::ELayoutOrientation>	orientation;
-		Multiple<LLButton::Params>						buttons;
+		Mandatory<LLLayoutStack::ELayoutOrientation, 
+				LLLayoutStack::OrientationNames>		orientation;
+		Multiple<LLToolBarButton::Params>				buttons;
 
 		Params();
 	};
 
-	void draw();
+	/*virtual*/ void draw();
 
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBar(const Params&);
 	void initFromParams(const Params&);
+	void addButton(LLToolBarButton* buttonp);
+	void updateLayout();
 
 private:
-	LLLayoutStack::ELayoutOrientation mOrientation;
-	LLLayoutStack* mStack;
+	LLLayoutStack::ELayoutOrientation	mOrientation;
+	LLLayoutStack*						mStack;
+	std::list<LLToolBarButton*>			mButtons;
 };
 
 
