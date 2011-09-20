@@ -82,7 +82,16 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
 		"Optional [\"reply\"] requests a reply event on the named LLEventPump.\n"
 		"reply[\"error\"] isUndefined (None) on success, else an explanatory message.\n";
 
-	add("getInfo", "Get information about the ui element specified by [\"path\"]", &LLWindowListener::getInfo);
+	add("getInfo",
+		"Get information about the ui element specified by [\"path\"]",
+		&LLWindowListener::getInfo,
+		LLSDMap("reply", LLSD()));
+	add("getPaths",
+		"Send on [\"reply\"] an event in which [\"paths\"] is an array of valid LLView\n"
+		"pathnames. Optional [\"under\"] pathname specifies the base node under which\n"
+		"to list; all nodes from root if no [\"under\"].",
+		&LLWindowListener::getPaths,
+		LLSDMap("reply", LLSD()));
 	add("keyDown",
 		keySomething + "keypress event.\n" + keyExplain + mask,
 		&LLWindowListener::keyDown);
@@ -203,8 +212,7 @@ void LLWindowListener::getInfo(LLSD const & evt)
 	if (evt.has("path"))
 	{
 		std::string path(evt["path"]);
-		LLView * target_view = 
-			LLUI::resolvePath(gViewerWindow->getRootView(), path);
+		LLView * target_view = LLUI::resolvePath(LLUI::getRootView(), path);
 		if (target_view != 0)
 		{
 			response.setResponse(target_view->getInfo());
@@ -222,6 +230,38 @@ void LLWindowListener::getInfo(LLSD const & evt)
 	}
 }
 
+void LLWindowListener::getPaths(LLSD const & request)
+{
+	Response response(LLSD(), request);
+	LLView *root(LLUI::getRootView()), *base(NULL);
+	// Capturing request["under"] as string means we conflate the case in
+	// which there is no ["under"] key with the case in which its value is the
+	// empty string. That seems to make sense to me.
+	std::string under(request["under"]);
+
+	// Deal with optional "under" parameter
+	if (under.empty())
+	{
+		base = root;
+	}
+	else
+	{
+		base = LLUI::resolvePath(root, under);
+		if (! base)
+		{
+			return response.error(STRINGIZE(request["op"].asString() << " request "
+											"specified invalid \"under\" path: '" << under << "'"));
+		}
+	}
+
+	// Traverse the entire subtree under 'base', collecting pathnames
+	for (LLView::tree_iterator_t ti(base->beginTreeDFS()), tend(base->endTreeDFS());
+		 ti != tend; ++ti)
+	{
+		response["paths"].append((*ti)->getPathname());
+	}
+}
+
 void LLWindowListener::keyDown(LLSD const & evt)
 {
 	Response response(LLSD(), evt);
@@ -229,8 +269,7 @@ void LLWindowListener::keyDown(LLSD const & evt)
 	if (evt.has("path"))
 	{
 		std::string path(evt["path"]);
-		LLView * target_view = 
-			LLUI::resolvePath(gViewerWindow->getRootView(), path);
+		LLView * target_view = LLUI::resolvePath(LLUI::getRootView(), path);
 		if (target_view == 0) 
 		{
 			response.error(STRINGIZE(evt["op"].asString() << " request "
@@ -266,8 +305,7 @@ void LLWindowListener::keyUp(LLSD const & evt)
 	if (evt.has("path"))
 	{
 		std::string path(evt["path"]);
-		LLView * target_view = 
-			LLUI::resolvePath(gViewerWindow->getRootView(), path);
+		LLView * target_view = LLUI::resolvePath(LLUI::getRootView(), path);
 		if (target_view == 0 )
 		{
 			response.error(STRINGIZE(evt["op"].asString() << " request "

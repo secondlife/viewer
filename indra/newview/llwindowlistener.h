@@ -40,6 +40,7 @@ public:
 	LLWindowListener(LLViewerWindow * window, const KeyboardGetter& kbgetter);
 
 	void getInfo(LLSD const & evt);
+	void getPaths(LLSD const & evt);
 	void keyDown(LLSD const & evt);
 	void keyUp(LLSD const & evt);
 	void mouseDown(LLSD const & evt);
