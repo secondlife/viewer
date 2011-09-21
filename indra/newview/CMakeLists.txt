@@ -237,6 +237,7 @@ set(viewer_SOURCE_FILES
     llfloatertools.cpp
     llfloatertopobjects.cpp
     llfloatertos.cpp
+    llfloatertoybox.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
@@ -800,6 +801,7 @@ set(viewer_HEADER_FILES
     llfloatertools.h
     llfloatertopobjects.h
     llfloatertos.h
+    llfloatertoybox.h
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h

@@ -32,6 +32,7 @@
 #include "lllayoutstack.h"
 #include "llbutton.h"
 
+
 class LLToolBarButton : public LLButton
 {
 public:
@@ -40,8 +41,43 @@ public:
 	};
 
 	LLToolBarButton(const Params& p) : LLButton(p) {}
-
 };
+
+
+namespace LLToolBarEnums
+{
+	enum ButtonType
+	{
+		BTNTYPE_ICONS_ONLY = 0,
+		BTNTYPE_ICONS_WITH_TEXT,
+	};
+
+	enum SideType
+	{
+		SIDE_NONE = 0,
+		SIDE_BOTTOM,
+		SIDE_LEFT,
+		SIDE_RIGHT,
+		SIDE_TOP,
+	};
+}
+
+// NOTE: This needs to occur before Param block declaration for proper compilation.
+namespace LLInitParam
+{
+	template<>
+	struct TypeValues<LLToolBarEnums::ButtonType> : public TypeValuesHelper<LLToolBarEnums::ButtonType>
+	{
+		static void declareValues();
+	};
+
+	template<>
+	struct TypeValues<LLToolBarEnums::SideType> : public TypeValuesHelper<LLToolBarEnums::SideType>
+	{
+		static void declareValues();
+	};
+}
+
 
 class LLToolBar
 :	public LLUICtrl
@@ -50,26 +86,29 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Mandatory<LLLayoutStack::ELayoutOrientation, 
-				LLLayoutStack::OrientationNames>		orientation;
-		Multiple<LLToolBarButton::Params>				buttons;
+		Mandatory<LLToolBarEnums::ButtonType>	button_display_mode;
+		Multiple<LLToolBarButton::Params>		buttons;
+		Mandatory<LLToolBarEnums::SideType>		side;
 
 		Params();
 	};
 
-	/*virtual*/ void draw();
+	// virtuals
+	void draw();
 
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBar(const Params&);
+
 	void initFromParams(const Params&);
 	void addButton(LLToolBarButton* buttonp);
 	void updateLayout();
 
 private:
-	LLLayoutStack::ELayoutOrientation	mOrientation;
-	LLLayoutStack*						mStack;
-	std::list<LLToolBarButton*>			mButtons;
+	std::list<LLToolBarButton*>		mButtons;
+	LLToolBarEnums::ButtonType		mButtonType;
+	LLToolBarEnums::SideType		mSideType;
+	LLLayoutStack*					mStack;
 };
 
 

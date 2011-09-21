@@ -32,23 +32,45 @@
 
 //static LLDefaultChildRegistry::Register<LLToolBar> r1("toolbar");
 
+
+namespace LLToolBarEnums
+{
+	LLLayoutStack::ELayoutOrientation getOrientation(SideType sideType)
+	{
+		LLLayoutStack::ELayoutOrientation orientation = LLLayoutStack::HORIZONTAL;
+
+		if ((sideType == SIDE_LEFT) || (sideType == SIDE_RIGHT))
+		{
+			orientation = LLLayoutStack::VERTICAL;
+		}
+
+		return orientation;
+	}
+}
+
+
 LLToolBar::Params::Params()
-:	orientation("orientation"),
-	buttons("button")
+:	button_display_mode("button_display_mode"),
+	buttons("button"),
+	side("side")
 {}
 
 LLToolBar::LLToolBar(const Params& p)
 :	LLUICtrl(p),
-	mOrientation(p.orientation),
+	mButtonType(p.button_display_mode),
+	mSideType(p.side),
 	mStack(NULL)
-{}
+{
+}
 
 void LLToolBar::initFromParams(const LLToolBar::Params& p)
 {
+	LLLayoutStack::ELayoutOrientation orientation = LLToolBarEnums::getOrientation(p.side);
+
 	LLLayoutStack::Params centering_stack_p;
 	centering_stack_p.rect = getLocalRect();
 	centering_stack_p.follows.flags = FOLLOWS_ALL;
-	centering_stack_p.orientation = p.orientation;
+	centering_stack_p.orientation = orientation;
 	centering_stack_p.name = "centering_stack";
 
 	LLLayoutPanel::Params border_panel_p;
@@ -75,8 +97,8 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	LLLayoutStack::Params stack_p;
 	stack_p.rect = getLocalRect();
 	stack_p.name = "button_stack";
-	stack_p.orientation = p.orientation;
-	stack_p.follows.flags = (mOrientation == LLLayoutStack::HORIZONTAL)
+	stack_p.orientation = orientation;
+	stack_p.follows.flags = (orientation == LLLayoutStack::HORIZONTAL)
 							? (FOLLOWS_TOP|FOLLOWS_BOTTOM)  // horizontal
 							: (FOLLOWS_LEFT|FOLLOWS_RIGHT); // vertical
 
@@ -88,7 +110,7 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 		// remove any offset from button
 		LLRect button_rect(button_p.rect);
 
-		if (mOrientation == LLLayoutStack::HORIZONTAL)
+		if (orientation == LLLayoutStack::HORIZONTAL)
 		{
 			button_rect.setOriginAndSize(0, 0, 0, getRect().getHeight());
 		}
@@ -139,7 +161,7 @@ void LLToolBar::updateLayout()
 		max_height = llmax(button->getRect().getHeight(), max_height);
 	}
 
-	if (mOrientation == LLLayoutStack::HORIZONTAL)
+	if (LLToolBarEnums::getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
 	{
 		mStack->reshape(total_width, mStack->getParent()->getRect().getHeight());
 	}
@@ -153,6 +175,24 @@ void LLToolBar::updateLayout()
 
 void LLToolBar::draw()
 {
+	//gl_rect_2d(getLocalRect(), LLColor4::blue, TRUE);
 	LLUICtrl::draw();
 }
 
+namespace LLInitParam
+{
+	void TypeValues<LLToolBarEnums::ButtonType>::declareValues()
+	{
+		declare("icons_only",		LLToolBarEnums::BTNTYPE_ICONS_ONLY);
+		declare("icons_with_text",	LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT);
+	}
+
+	void TypeValues<LLToolBarEnums::SideType>::declareValues()
+	{
+		declare("none",		LLToolBarEnums::SIDE_NONE);
+		declare("bottom",	LLToolBarEnums::SIDE_BOTTOM);
+		declare("left",		LLToolBarEnums::SIDE_LEFT);
+		declare("right",	LLToolBarEnums::SIDE_RIGHT);
+		declare("top",		LLToolBarEnums::SIDE_TOP);
+	}
+}
