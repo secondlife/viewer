@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+  can_close="true"
+  can_dock="false"
+  can_minimize="false"
+  can_resize="false"
+  default_tab_group="1"
+  height="460"
+  help_topic="toybox"
+  layout="topleft"
+  legacy_header_height="18"
+  name="Toybox"
+  open_centered="true"
+  single_instance="true"
+  title="Customize toolbars"
+  width="658">
+  <text
+    follows="left|top"
+    font="SansSerifMedium"
+    halign="left"
+    height="20"
+    layout="topleft"
+    left="40"
+    length="1"
+    name="toybox label 1"
+    right="-40"
+    top="35"
+    type="string">
+      Add or remove buttons by dragging them to or from the toolbars.
+  </text>
+  <text
+    follows="left|top"
+    font="SansSerifMedium"
+    halign="left"
+    height="20"
+    layout="topleft"
+    left="40"
+    length="1"
+    name="toybox label 2"
+    right="-40"
+    top="55"
+    type="string">
+      Buttons will appear as shown or as icon-only depending on each toolbar's settings.
+  </text>
+  <toolbar
+    bottom="395"
+    left="40"
+    right="-40"
+    top="85">
+  </toolbar>
+  <button
+    follows="left|bottom"
+    height="23"
+    label="Restore defaults"
+    label_selected="Restore defaults"
+    layout="topleft"
+    left="40"
+    name="btn_restore_defaults"
+    top="415"
+    width="130">
+    <button.commit_callback function="Toybox.RestoreDefaults" />
+  </button>
+</floater>

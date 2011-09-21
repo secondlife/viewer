@@ -192,20 +192,19 @@ void LLInboxFolderViewFolder::draw()
 
 void LLInboxFolderViewFolder::computeFreshness()
 {
-	const std::string& last_expansion = gSavedPerAccountSettings.getString("LastInventoryInboxActivity");
+	const U32 last_expansion_utc = gSavedPerAccountSettings.getU32("LastInventoryInboxActivity");
 
-	if (!last_expansion.empty())
+	if (last_expansion_utc > 0)
 	{
-		// Inventory DB timezone is hardcoded to PDT or GMT-7, which is 7 hours behind GMT
-		const F64 SEVEN_HOURS_IN_SECONDS = 7 * 60 * 60;
-		const F64 saved_freshness_inventory_db_timezone = LLDate(last_expansion).secondsSinceEpoch() - SEVEN_HOURS_IN_SECONDS;
+		const U32 time_offset_for_pdt = 7 * 60 * 60;
+		const U32 last_expansion = last_expansion_utc - time_offset_for_pdt;
 
-		mFresh = (mCreationDate > saved_freshness_inventory_db_timezone);
+		mFresh = (mCreationDate > last_expansion);
 
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
 		{
-			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << saved_freshness_inventory_db_timezone << llendl;
+			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion << llendl;
 		}
 #endif
 	}
@@ -219,7 +218,7 @@ void LLInboxFolderViewFolder::deFreshify()
 {
 	mFresh = false;
 
-	gSavedPerAccountSettings.setString("LastInventoryInboxActivity", LLDate::now().asString());
+	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
 void LLInboxFolderViewFolder::selectItem()

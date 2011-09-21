@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="Popup">
-	<menu_item_call label="URL-Info" name="about_url"/>
-	<menu_item_call label="Zu URL teleportieren" name="teleport_to_url"/>
-	<menu_item_call label="Karte" name="show_on_map"/>
-</menu>

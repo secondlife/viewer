@@ -55,6 +55,7 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
  	mMaxDim(p.max_dim), 
  	mAutoResize(p.auto_resize),
  	mUserResize(p.user_resize),
+	mFitContent(p.fit_content),
 	mCollapsed(FALSE),
 	mCollapseAmt(0.f),
 	mVisibleAmt(1.f), // default to fully visible
@@ -101,6 +102,14 @@ F32 LLLayoutPanel::getCollapseFactor(LLLayoutStack::ELayoutOrientation orientati
 		F32 collapse_amt = 
 			clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, llmin(1.f, (F32)getRelevantMinDim() / (F32)llmax(1, getRect().getHeight())));
 		return mVisibleAmt * collapse_amt;
+	}
+}
+
+void LLLayoutPanel::fitToContent()
+{
+	if (mFitContent)
+	{
+		setShape(calcBoundingRect());
 	}
 }
 
@@ -324,6 +333,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	for (panel_it = mPanels.begin(); panel_it != mPanels.end();	++panel_it)
 	{
 		LLLayoutPanel* panelp = (*panel_it);
+		panelp->fitToContent();
 		if (panelp->getVisible()) 
 		{
 			if (mAnimate)
@@ -478,7 +488,9 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 				{
 					// shrink proportionally to amount over minimum
 					// so we can do this in one pass
-					delta_size = (shrink_headroom_available > 0) ? llround((F32)pixels_to_distribute * ((F32)(cur_width - relevant_min) / (F32)shrink_headroom_available)) : 0;
+					delta_size = (shrink_headroom_available > 0) 
+						? llround((F32)pixels_to_distribute * ((F32)(cur_width - relevant_min) / (F32)shrink_headroom_available)) 
+						: 0;
 					shrink_headroom_available -= (cur_width - relevant_min);
 				}
 				else

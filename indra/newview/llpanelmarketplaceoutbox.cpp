@@ -117,8 +117,11 @@ LLInventoryPanel * LLPanelMarketplaceOutbox::setupInventoryPanel()
 	LLRect inventory_placeholder_rect = outbox_inventory_placeholder->getRect();
 	mInventoryPanel->setShape(inventory_placeholder_rect);
 	
-	// Set the sort order newest to oldest, and a selection change callback
+	// Set the sort order newest to oldest
 	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);	
+	mInventoryPanel->getFilter()->markDefault();
+
+	// Set selection callback for proper update of inventory status buttons
 	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceOutbox::onSelectionChange, this));
 	
 	// Set up the note to display when the outbox is empty
