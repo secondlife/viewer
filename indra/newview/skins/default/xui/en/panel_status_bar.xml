@@ -35,7 +35,7 @@
     </panel.string>
   <panel
     height="18"
-    left="-355"
+    left="-315"
     width="95"
     top="1"
     follows="right|top" 
@@ -76,18 +76,18 @@
      width="55" />
   </panel>
     <text
-      left_pad="5"
-     type="string"
+      type="string"
      font="SansSerifSmall"
      text_readonly_color="TimeTextColor"
      follows="right|top"
-     halign="center"
+     halign="right"
      height="16"
      top="5"
      layout="topleft"
+     left_pad="0"
      name="TimeText"
      tool_tip="Current time (Pacific)"
-     width="75">
+     width="145">
         24:00 AM PST
     </text>
     <button
@@ -98,7 +98,7 @@
      image_pressed="Pause_Press"
      image_pressed_selected="Play_Press"
      is_toggle="true"
-     left_pad="10"
+     left_pad="15"
      top="1"
      name="media_toggle_btn"
      tool_tip="Start/Stop All Media (Music, Video, Web pages)"
