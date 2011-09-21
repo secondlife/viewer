@@ -323,7 +323,7 @@ private:
 	void processExtendButtons(S32& available_width);
 
 	/**
-	 * Extends the Speak button if there is anough headroom.
+	 * Extends the Speak button if there is enough headroom.
 	 *
 	 * Unlike other buttons, the Speak buttons has only two possible widths:
 	 * the minimal one (without label) and the maximal (default) one.

@@ -63,7 +63,7 @@ width="31" />
      mouse_opaque="false"
      name="location_combo"
      top_delta="0"
-     width="390">
+     width="325">
     </location_input>
     <icon follows="right"
           height="20"

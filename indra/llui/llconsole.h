@@ -54,7 +54,7 @@ public:
 			persist_time("persist_time", 0.f), // forever
 			font_size_index("font_size_index")
 		{
-			mouse_opaque(false);
+			changeDefault(mouse_opaque, false);
 		}
 	};
 protected:

@@ -101,10 +101,7 @@ LLFolderViewItem::Params::Params()
 	item_height("item_height"),
 	item_top_pad("item_top_pad"),
 	creation_date()
-{
-	mouse_opaque(true);
-	follows.flags(FOLLOWS_LEFT|FOLLOWS_TOP|FOLLOWS_RIGHT);
-}
+{}
 
 // Default constructor
 LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
@@ -132,7 +129,8 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mIconOpen(p.icon_open),
 	mIconOverlay(p.icon_overlay),
 	mListener(p.listener),
-	mShowLoadStatus(false)
+	mShowLoadStatus(false),
+	mIsMouseOverTitle(false)
 {
 }
 
@@ -284,9 +282,9 @@ void LLFolderViewItem::refreshFromListener()
 		setToolTip(mLabel);
 		setIcon(mListener->getIcon());
 		time_t creation_date = mListener->getCreationDate();
-		if (mCreationDate != creation_date)
+		if ((creation_date > 0) && (mCreationDate != creation_date))
 		{
-			setCreationDate(mListener->getCreationDate());
+			setCreationDate(creation_date);
 			dirtyFilter();
 		}
 		if (mRoot->useLabelSuffix())
@@ -724,6 +722,8 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 {
+	mIsMouseOverTitle = (y > (getRect().getHeight() - mItemHeight));
+
 	if( hasMouseCapture() && isMovable() )
 	{
 		S32 screen_x;
@@ -830,6 +830,11 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 	return TRUE;
 }
 
+void LLFolderViewItem::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	mIsMouseOverTitle = false;
+}
+
 BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										 EDragAndDropType cargo_type,
 										 void* cargo_data,
@@ -840,7 +845,7 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	BOOL handled = FALSE;
 	if(mListener)
 	{
-		accepted = mListener->dragOrDrop(mask,drop,cargo_type,cargo_data);
+		accepted = mListener->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
 		handled = accepted;
 		if (accepted)
 		{
@@ -879,6 +884,7 @@ void LLFolderViewItem::draw()
 	static LLUIColor sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
 	static LLUIColor sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
 	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
+	static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
 	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const S32 TOP_PAD = default_params.item_top_pad;
@@ -959,6 +965,14 @@ void LLFolderViewItem::draw()
 						   sHighlightBgColor, TRUE);
 			}
 		}
+	}
+	else if (mIsMouseOverTitle)
+	{
+		gl_rect_2d(FOCUS_LEFT,
+			focus_top, 
+			getRect().getWidth() - 2,
+			focus_bottom,
+			sMouseOverColor, FALSE);
 	}
 
 	//--------------------------------------------------------------------------------//
@@ -2040,23 +2054,42 @@ BOOL LLFolderViewFolder::isRemovable()
 BOOL LLFolderViewFolder::addItem(LLFolderViewItem* item)
 {
 	mItems.push_back(item);
+	
 	if (item->isSelected())
 	{
 		recursiveIncrementNumDescendantsSelected(1);
 	}
+	
 	item->setRect(LLRect(0, 0, getRect().getWidth(), 0));
 	item->setVisible(FALSE);
-	addChild( item );
+	
+	addChild(item);
+	
 	item->dirtyFilter();
+
+	// Update the folder creation date if the child is newer than our current date
+	setCreationDate(llmax<time_t>(mCreationDate, item->getCreationDate()));
+
+	// Handle sorting
 	requestArrange();
 	requestSort();
+
+	// Traverse parent folders and update creation date and resort, if necessary
 	LLFolderViewFolder* parentp = getParentFolder();
-	while (parentp && parentp->mSortFunction.isByDate())
+	while (parentp)
 	{
-		// parent folder doesn't have a time stamp yet, so get it from us
-		parentp->requestSort();
+		// Update the folder creation date if the child is newer than our current date
+		parentp->setCreationDate(llmax<time_t>(parentp->mCreationDate, item->getCreationDate()));
+
+		if (parentp->mSortFunction.isByDate())
+		{
+			// parent folder doesn't have a time stamp yet, so get it from us
+			parentp->requestSort();
+		}
+
 		parentp = parentp->getParentFolder();
 	}
+
 	return TRUE;
 }
 
@@ -2162,7 +2195,7 @@ BOOL LLFolderViewFolder::handleDragAndDropFromChild(MASK mask,
 													EAcceptance* accept,
 													std::string& tooltip_msg)
 {
-	BOOL accepted = mListener && mListener->dragOrDrop(mask,drop,c_type,cargo_data);
+	BOOL accepted = mListener && mListener->dragOrDrop(mask,drop,c_type,cargo_data, tooltip_msg);
 	if (accepted) 
 	{
 		mDragAndDropTarget = TRUE;
@@ -2254,7 +2287,7 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 
 	if (!handled)
 	{
-		BOOL accepted = mListener && mListener->dragOrDrop(mask, drop,cargo_type,cargo_data);
+		BOOL accepted = mListener && mListener->dragOrDrop(mask, drop,cargo_type,cargo_data, tooltip_msg);
 
 		if (accepted) 
 		{
@@ -2299,6 +2332,8 @@ BOOL LLFolderViewFolder::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewFolder::handleHover(S32 x, S32 y, MASK mask)
 {
+	mIsMouseOverTitle = (y > (getRect().getHeight() - mItemHeight));
+
 	BOOL handled = LLView::handleHover(x, y, mask);
 
 	if (!handled)
@@ -2418,41 +2453,6 @@ void LLFolderViewFolder::draw()
 
 time_t LLFolderViewFolder::getCreationDate() const
 {
-	// folders have no creation date try to create one from an item somewhere in our folder hierarchy
-	if (!mCreationDate)
-	{
-		for (items_t::const_iterator iit = mItems.begin();
-			 iit != mItems.end(); ++iit)
-		{
-			LLFolderViewItem* itemp = (*iit);
-
-			const time_t item_creation_date = itemp->getCreationDate();
-			
-			if (item_creation_date)
-			{
-				setCreationDate(item_creation_date);
-				break;
-			}
-		}
-		
-		if (!mCreationDate)
-		{
-			for (folders_t::const_iterator fit = mFolders.begin();
-				 fit != mFolders.end(); ++fit)
-			{
-				LLFolderViewFolder* folderp = (*fit);
-				
-				const time_t folder_creation_date = folderp->getCreationDate();
-				
-				if (folder_creation_date)
-				{
-					setCreationDate(folder_creation_date);
-					break;
-				}
-			}
-		}
-	}
-
 	return llmax<time_t>(mCreationDate, mSubtreeCreationDate);
 }
 

@@ -132,7 +132,7 @@ protected:
 // LLCertificates are considered unmodifiable
 // Certificates are pulled out of stores, or created via
 // factory calls
-class LLCertificate : public LLRefCount
+class LLCertificate : public LLThreadSafeRefCount
 {
 	LOG_CLASS(LLCertificate);
 public:
@@ -170,7 +170,7 @@ public:
 	
 	// base iterator implementation class, providing
 	// the functionality needed for the iterator class.
-	class iterator_impl : public LLRefCount
+	class iterator_impl : public LLThreadSafeRefCount
 	{
 	public:
 		iterator_impl() {};
@@ -289,7 +289,7 @@ bool operator!=(const LLCertificateVector::iterator& _lhs, const LLCertificateVe
 // * Persistence of credential information based on grid (for saving username/password)
 // * Serialization to an OGP identifier/authenticator pair
 // 
-class LLCredential  : public LLRefCount
+class LLCredential  : public LLThreadSafeRefCount
 {
 public:
 	
@@ -424,7 +424,7 @@ protected:
 
 // LLSecAPIHandler Class
 // Interface handler class for the various security storage handlers.
-class LLSecAPIHandler : public LLRefCount
+class LLSecAPIHandler : public LLThreadSafeRefCount
 {
 public:
 	

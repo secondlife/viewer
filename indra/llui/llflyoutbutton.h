@@ -46,7 +46,7 @@ public:
 		:	action_button("action_button"),
 		    allow_text_entry("allow_text_entry")
 		{
-			LLComboBox::Params::allow_text_entry = false;
+			changeDefault(LLComboBox::Params::allow_text_entry, false);
 		}
 
 	};

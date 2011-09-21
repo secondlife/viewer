@@ -31,6 +31,7 @@ set(llcommon_SOURCE_FILES
     llallocator_heap_profile.cpp
     llapp.cpp
     llapr.cpp
+    llaprpool.cpp
     llassettype.cpp
     llavatarname.cpp
     llbase32.cpp
@@ -80,6 +81,7 @@ set(llcommon_SOURCE_FILES
     llrand.cpp
     llrefcount.cpp
     llrun.cpp
+    llscopedvolatileaprpool.h
     llsd.cpp
     llsdserialize.cpp
     llsdserialize_xml.cpp
@@ -122,6 +124,7 @@ set(llcommon_HEADER_FILES
     llavatarname.h
     llapp.h
     llapr.h
+    llaprpool.h
     llassettype.h
     llassoclist.h
     llavatarconstants.h
@@ -319,6 +322,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}"
                           "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/setpython.py")
+  LL_ADD_INTEGRATION_TEST(llsingleton "" "${test_libs}")                          
   LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")

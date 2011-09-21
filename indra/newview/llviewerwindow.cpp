@@ -240,8 +240,6 @@ BOOL				gDisplayBadge = FALSE;
 static const U8 NO_FACE = 255;
 BOOL gQuietSnapshot = FALSE;
 
-const F32 MIN_AFK_TIME = 2.f; // minimum time after setting away state before coming back
-
 static const F32 MIN_DISPLAY_SCALE = 0.75f;
 
 std::string	LLViewerWindow::sSnapshotBaseName;
@@ -662,6 +660,17 @@ public:
 			addText(xpos, ypos, llformat("%d %d %d %d", color[0], color[1], color[2], color[3]));
 			ypos += y_inc;
 		}
+
+		if (gSavedSettings.getBOOL("DebugShowPrivateMem"))
+		{
+			LLPrivateMemoryPoolManager::getInstance()->updateStatistics() ;
+			addText(xpos, ypos, llformat("Total Reserved(KB): %d", LLPrivateMemoryPoolManager::getInstance()->mTotalReservedSize / 1024));
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("Total Allocated(KB): %d", LLPrivateMemoryPoolManager::getInstance()->mTotalAllocatedSize / 1024));
+			ypos += y_inc;
+		}
+
 		// only display these messages if we are actually rendering beacons at this moment
 		if (LLPipeline::getRenderBeacons(NULL) && LLFloaterReg::instanceVisible("beacons"))
 		{
@@ -1203,7 +1212,7 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 
 	mWindow->showCursorFromMouseMove();
 
-	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
 	}
@@ -1291,7 +1300,7 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
 	LLVoiceClient::getInstance()->keyDown(key, mask);
 	
-	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
 	}
@@ -1341,6 +1350,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 	{
 		mActive = FALSE;
 				
+		// if the user has chosen to go Away automatically after some time, then go Away when minimizing
 		if (gSavedSettings.getS32("AFKTimeout"))
 		{
 			gAgent.setAFK();
@@ -1630,6 +1640,7 @@ LLViewerWindow::LLViewerWindow(
 	}
 	LLVertexBuffer::initClass(gSavedSettings.getBOOL("RenderVBOEnable"), gSavedSettings.getBOOL("RenderVBOMappingDisable"));
 	LL_INFOS("RenderInit") << "LLVertexBuffer initialization done." << LL_ENDL ;
+	gGL.init() ;
 
 	if (LLFeatureManager::getInstance()->isSafe()
 		|| (gSavedSettings.getS32("LastFeatureVersion") != LLFeatureManager::getInstance()->getVersion())
@@ -2026,15 +2037,17 @@ void LLViewerWindow::shutdownGL()
 	llinfos << "All textures and llimagegl images are destroyed!" << llendl ;
 
 	llinfos << "Cleaning up select manager" << llendl;
-	LLSelectMgr::getInstance()->cleanup();
-
-	LLVertexBuffer::cleanupClass();
+	LLSelectMgr::getInstance()->cleanup();	
 
 	llinfos << "Stopping GL during shutdown" << llendl;
 	stopGL(FALSE);
 	stop_glerror();
 
 	gGL.shutdown();
+
+	LLVertexBuffer::cleanupClass();
+
+	llinfos << "LLVertexBuffer cleaned." << llendl ;
 }
 
 // shutdownViews() and shutdownGL() need to be called first
@@ -4147,6 +4160,19 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	if (!raw)
 	{
 		return FALSE;
+	}
+	//check if there is enough memory for the snapshot image
+	if(LLPipeline::sMemAllocationThrottled)
+	{
+		return FALSE ; //snapshot taking is disabled due to memory restriction.
+	}
+	if(image_width * image_height > (1 << 22)) //if snapshot image is larger than 2K by 2K
+	{
+		if(!LLMemory::tryToAlloc(NULL, image_width * image_height * 3))
+		{
+			llwarns << "No enough memory to take the snapshot with size (w : h): " << image_width << " : " << image_height << llendl ;
+			return FALSE ; //there is no enough memory for taking this snapshot.
+		}
 	}
 
 	// PRE SNAPSHOT

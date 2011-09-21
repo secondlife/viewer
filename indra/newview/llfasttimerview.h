@@ -33,8 +33,9 @@
 class LLFastTimerView : public LLFloater
 {
 public:
-	LLFastTimerView(const LLRect& rect);
-	
+	LLFastTimerView(const LLSD&);
+	BOOL postBuild();
+
 	static BOOL sAnalyzePerformance;
 
 	static void outputAllMetrics();
@@ -44,6 +45,7 @@ private:
 	static void doAnalysisDefault(std::string baseline, std::string target, std::string output) ;
 	static LLSD analyzePerformanceLogDefault(std::istream& is) ;
 	static void exportCharts(const std::string& base, const std::string& target);
+	void onPause();
 
 public:
 
@@ -89,6 +91,7 @@ private:
 	LLFrameTimer mHighlightTimer;
 	S32 mPrintStats;
 	S32 mAverageCyclesPerTimer;
+	LLRect mGraphRect;
 };
 
 #endif

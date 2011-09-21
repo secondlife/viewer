@@ -43,7 +43,7 @@ LLWindowShade::Params::Params()
 	text_color("text_color"),
 	can_close("can_close", true)
 {
-	mouse_opaque = false;
+	changeDefault(mouse_opaque, false);
 }
 
 LLWindowShade::LLWindowShade(const LLWindowShade::Params& params)
