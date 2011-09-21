@@ -76,6 +76,7 @@
 #include "lltimer.h"
 #include "timing.h"
 #include "llviewermenu.h"
+#include "lltoolbarview.h"
 #include "lltooltip.h"
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
@@ -1778,6 +1779,14 @@ void LLViewerWindow::initBase()
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
 	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
 
+	// Update the toolbar global holder
+	// *TODO: Eventually, suppress the existence of this debug setting and turn toolbar FUI on permanently
+	if (gSavedSettings.getBOOL("DebugToolbarFUI"))
+	{
+		gToolBarView = main_view->getChild<LLToolBarView>("Toolbar View");
+	}
+
+	
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
 	gFloaterView->setFloaterSnapView(main_view->getChild<LLView>("floater_snap_region")->getHandle());
@@ -2000,6 +2009,7 @@ void LLViewerWindow::shutdownViews()
 	gIMMgr = NULL;
 	gToolTipView = NULL;
 
+	gToolBarView = NULL;
 	gFloaterView = NULL;
 	gMorphView = NULL;
 

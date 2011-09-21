@@ -2652,6 +2652,17 @@
       <key>Value</key>
       <integer>-1</integer>
     </map>
+    <key>DebugToolbarFUI</key>
+    <map>
+      <key>Comment</key>
+      <string>Turn on the FUI Toolbars</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>DebugViews</key>
     <map>
       <key>Comment</key>
