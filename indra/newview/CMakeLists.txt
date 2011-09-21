@@ -1381,11 +1381,6 @@ endif (WINDOWS)
 set(viewer_XUI_FILES
     skins/default/colors.xml
     skins/default/textures/textures.xml
-    skins/minimal/colors.xml
-    skins/minimal/textures/textures.xml
-
-
-
     )
 file(GLOB DEFAULT_XUI_FILE_GLOB_LIST
      ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/*.xml)
@@ -1424,7 +1419,6 @@ set(viewer_APPSETTINGS_FILES
     app_settings/settings_crash_behavior.xml
     app_settings/settings_files.xml
     app_settings/settings_per_account.xml
-    app_settings/settings_minimal.xml
     app_settings/std_bump.ini
     app_settings/trees.xml
     app_settings/ultra_graphics.xml

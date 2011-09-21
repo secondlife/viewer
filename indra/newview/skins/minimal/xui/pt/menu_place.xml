@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="place_overflow_menu">
-	<menu_item_call label="Criar marco" name="landmark"/>
-	<menu_item_call label="Criar destaque" name="pick"/>
-	<menu_item_call label="Comprar passe" name="pass"/>
-	<menu_item_call label="Editar" name="edit"/>
-</toggleable_menu>

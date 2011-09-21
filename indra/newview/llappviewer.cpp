@@ -2324,7 +2324,6 @@ bool LLAppViewer::initConfiguration()
 
 	if (gSavedSettings.getBOOL("FirstRunThisInstall"))
 	{
-		gSavedSettings.setString("SessionSettingsFile", "settings_minimal.xml");
 		gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
 	}
 
@@ -3519,20 +3518,6 @@ static bool finish_quit(const LLSD& notification, const LLSD& response)
 	return false;
 }
 static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_quit);
-
-static bool switch_standard_skin_and_quit(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-
-	if (option == 0)
-	{
-		gSavedSettings.setString("SessionSettingsFile", "");
-		LLAppViewer::instance()->requestQuit();
-	}
-	return false;
-}
-
-static LLNotificationFunctorRegistration standard_skin_quit_reg("SwitchToStandardSkinAndQuit", switch_standard_skin_and_quit);
 
 void LLAppViewer::userQuit()
 {
