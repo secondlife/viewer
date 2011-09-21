@@ -5928,7 +5928,7 @@ An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLU
 [ITEM_SLURL]
     <form name="form">
       <button
-       index="4"
+       index="3"
        name="Show"
        text="Show"/>
       <button
