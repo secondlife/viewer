@@ -13,7 +13,7 @@
            width="500"
            left="0"
            top="20"
-           orientation="horizontal">
+           side="top">
     <button width="0"
             auto_resize="true"
             label="Button 1"/>
@@ -30,7 +30,7 @@
            width="100"
            left="0"
            top="70"
-           orientation="vertical">
+           side="left">
     <button height="30"
             label="Button 1"/>
     <button height="50"
