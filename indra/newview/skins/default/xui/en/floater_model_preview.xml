@@ -27,8 +27,6 @@
   <string name="simplifying">Simplifying...</string>
   <string name="tbd">TBD</string>
 
-  <text text_color="Yellow" left="10" bottom_delta="0" width="290" height="15" follows="bottom|left|right" name="status">[STATUS]</text>
-  
 <panel
   follows="top|left"
   height="455"
@@ -1313,6 +1311,8 @@
          visible="false">
          You dont have rights to upload mesh models. [[VURL] Find out how] to get certified.
        </text>
+       <text text_color="Yellow" layout="topleft" top_delta="20" left="6" name="status">[STATUS]</text>
+  
     </panel>
 </panel>
 
