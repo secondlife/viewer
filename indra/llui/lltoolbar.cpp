@@ -148,7 +148,7 @@ void LLToolBar::updateLayoutAsNeeded()
 	// our terminology for orientation-agnostic layout is that
 	// length refers to a distance in the direction we stack the buttons 
 	// and girth refers to a distance in the direction buttons wrap
-	S32 total_length = 0;
+	S32 row_running_length = 0;
 	S32 max_length = (orientation == LLLayoutStack::HORIZONTAL)
 					? getRect().getWidth()
 					: getRect().getHeight();
@@ -171,7 +171,7 @@ void LLToolBar::updateLayoutAsNeeded()
 							: button_clamped_width;
 		
 		// handle wrapping
-		if (total_length + button_length > max_length 
+		if (row_running_length + button_length > max_length 
 			&& cur_start != 0) // not first button in row
 		{ // go ahead and wrap
 			if (orientation == LLLayoutStack::VERTICAL)
@@ -193,7 +193,7 @@ void LLToolBar::updateLayoutAsNeeded()
 			}
 			buttons_in_row.clear();
 
-			total_length = 0;
+			row_running_length = 0;
 			cur_start = 0;
 			cur_row += max_row_girth;
 			max_row_girth = 0;
@@ -212,8 +212,8 @@ void LLToolBar::updateLayoutAsNeeded()
 		
 		buttons_in_row.push_back(button);
 
-		total_length += button_length;
-		cur_start = total_length;
+		row_running_length += button_length;
+		cur_start = row_running_length;
 		max_row_girth = llmax(button_girth, max_row_girth);
 	}
 
