@@ -1065,7 +1065,7 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 		createGLBuffer();
 		createGLIndices();
 
-		if (gGLManager.mHasVertexArrayObject && useVBOs())
+		if (gGLManager.mHasVertexArrayObject && useVBOs() && LLRender::sGLCoreProfile)
 		{
 			glGenVertexArrays(1, &mGLArray);
 		}
