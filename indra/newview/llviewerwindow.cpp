@@ -1783,10 +1783,17 @@ void LLViewerWindow::initBase()
 	// *TODO: Eventually, suppress the existence of this debug setting and turn toolbar FUI on permanently
 	if (gSavedSettings.getBOOL("DebugToolbarFUI"))
 	{
-		gToolBarView = main_view->getChild<LLToolBarView>("Toolbar View");
+		llinfos << "Merov debug : Creating the toolbar view" << llendl;
+		// Get a pointer to the toolbar view holder
+		LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
+		llinfos << "Merov debug : panel_holder = " << panel_holder << llendl;
+		// Load the toolbar view from file 
+		gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", NULL, LLPanel::child_registry_t::instance());
+		llinfos << "Merov debug : gToolBarView = " << gToolBarView << llendl;
+		// Attach it to the toolbar view holder
+		panel_holder->addChild(gToolBarView);
 	}
 
-	
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
 	gFloaterView->setFloaterSnapView(main_view->getChild<LLView>("floater_snap_region")->getHandle());

@@ -28,6 +28,7 @@
 #include "linden_common.h"
 
 #include "lltoolbarview.h"
+#include "lltoolbar.h"
 #include "llbutton.h"
 
 LLToolBarView* gToolBarView = NULL;
@@ -41,34 +42,40 @@ LLToolBarView::LLToolBarView(const Params& p)
 
 BOOL LLToolBarView::postBuild()
 {
-	LLButton* btn = getChild<LLButton>("color_pipette");
-	btn->setVisible(TRUE);
 	LLRect ctrl_rect = getRect();
+	LLButton* btn = getChild<LLButton>("test");
 	LLRect btn_rect = btn->getRect();
 	llinfos << "Merov debug : control rect = " << ctrl_rect.mLeft << ", " << ctrl_rect.mTop << ", " << ctrl_rect.mRight << ", " << ctrl_rect.mBottom << llendl; 
-	llinfos << "Merov debug : button rect = " << btn_rect.mLeft << ", " << btn_rect.mTop << ", " << btn_rect.mRight << ", " << btn_rect.mBottom << llendl; 
-	btn_rect.mLeft = 0;
-	btn_rect.mTop = ctrl_rect.getHeight();
-	btn_rect.mRight = 28;
-	btn_rect.mBottom = btn_rect.mTop - 28;
-	btn->setRect(btn_rect);
-	btn_rect = btn->getRect();
-	llinfos << "Merov debug : button rect = " << btn_rect.mLeft << ", " << btn_rect.mTop << ", " << btn_rect.mRight << ", " << btn_rect.mBottom << llendl; 
+	llinfos << "Merov debug : test    rect = " << btn_rect.mLeft << ", " << btn_rect.mTop << ", " << btn_rect.mRight << ", " << btn_rect.mBottom << llendl; 
 	return TRUE;
 }
 
 void LLToolBarView::draw()
 {
-	LLButton* btn = getChild<LLButton>("color_pipette");
-	btn->setVisible(TRUE);
 	static bool debug_print = true;
+
+	LLToolBar* toolbar_bottom = getChild<LLToolBar>("toolbar_bottom");
+	LLToolBar* toolbar_left = getChild<LLToolBar>("toolbar_left");
+	LLToolBar* toolbar_right = getChild<LLToolBar>("toolbar_right");
+	
+	LLRect bottom_rect = toolbar_bottom->getRect();
+	LLRect left_rect = toolbar_left->getRect();
+	LLRect right_rect = toolbar_right->getRect();
+	
 	if (debug_print)
 	{
 		LLRect ctrl_rect = getRect();
-		LLRect btn_rect = btn->getRect();
 		llinfos << "Merov debug : draw control rect = " << ctrl_rect.mLeft << ", " << ctrl_rect.mTop << ", " << ctrl_rect.mRight << ", " << ctrl_rect.mBottom << llendl; 
-		llinfos << "Merov debug : draw button rect = " << btn_rect.mLeft << ", " << btn_rect.mTop << ", " << btn_rect.mRight << ", " << btn_rect.mBottom << llendl; 
+		llinfos << "Merov debug : draw bottom  rect = " << bottom_rect.mLeft << ", " << bottom_rect.mTop << ", " << bottom_rect.mRight << ", " << bottom_rect.mBottom << llendl; 
+		llinfos << "Merov debug : draw left    rect = " << left_rect.mLeft << ", " << left_rect.mTop << ", " << left_rect.mRight << ", " << left_rect.mBottom << llendl; 
+		llinfos << "Merov debug : draw right   rect = " << right_rect.mLeft << ", " << right_rect.mTop << ", " << right_rect.mRight << ", " << right_rect.mBottom << llendl; 
 		debug_print = false;
 	}
+	// Debug draw
+	gl_rect_2d(getLocalRect(), LLColor4::blue, TRUE);
+	gl_rect_2d(bottom_rect, LLColor4::red, TRUE);
+	gl_rect_2d(left_rect, LLColor4::green, TRUE);
+	gl_rect_2d(right_rect, LLColor4::yellow, TRUE);
+	
 	LLUICtrl::draw();
 }

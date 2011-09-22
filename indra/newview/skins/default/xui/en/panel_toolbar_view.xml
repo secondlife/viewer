@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<ui_ctrl
+ follows="all"
+ layout="topleft"
+ name="toolbar view"
+ height="500"
+ width="1024"
+ mouse_opaque="false"
+ tab_stop="false"
+ visible="true">
+ <toolbar
+  follows="top|bottom|left"
+  layout="topleft"
+  name="toolbar_left"
+  height="500"
+  width="30"
+  left="0"
+  top="0" 
+  button_display_mode="icons_only"
+  side="left"
+  visible="true" />
+ <toolbar
+  follows="right|bottom|left"
+  layout="topleft"
+  name="toolbar_bottom"
+  height="30"
+  width="964"
+  left="30"
+  top="470" 
+  button_display_mode="icons_with_text"
+  side="bottom"
+  visible="true" />
+ <toolbar
+  follows="top|bottom|right"
+  layout="topleft"
+  name="toolbar_right"
+  height="500"
+  width="30"
+  left="994"
+  top="0" 
+  button_display_mode="icons_only"
+  side="right"
+  visible="true" />
+ <button
+  follows="none"
+  name="test"
+  layout="topleft"
+  top="100"
+  left="100"
+  height="28"
+  width="28"
+  image_selected="eye_button_active.tga"
+  image_unselected="eye_button_inactive.tga"
+  visible="true" />
+</ui_ctrl>
