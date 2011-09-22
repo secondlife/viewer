@@ -87,14 +87,25 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Mandatory<LLToolBarEnums::ButtonType>	button_display_mode;
-		Multiple<LLToolBarButton::Params>		buttons;
 		Mandatory<LLToolBarEnums::SideType>		side;
+
+		Optional<LLToolBarButton::Params>		button_icon,
+												button_icon_and_text;
+
+		Optional<bool>							wrap;
+		Optional<S32>							min_width,
+												max_width;
+		// get rid of this
+		Multiple<LLToolBarButton::Params>		buttons;
+
+		Optional<LLUIImage*>					background_image;
 
 		Params();
 	};
 
 	// virtuals
 	void draw();
+	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 protected:
 	friend class LLUICtrlFactory;
@@ -105,10 +116,22 @@ protected:
 	void updateLayout();
 
 private:
+	void addRow();
+
 	std::list<LLToolBarButton*>		mButtons;
 	LLToolBarEnums::ButtonType		mButtonType;
+	LLLayoutStack*					mCenteringStack;
+	LLLayoutStack*					mWrapStack;
+	LLLayoutPanel*					mCenterPanel;
 	LLToolBarEnums::SideType		mSideType;
-	LLLayoutStack*					mStack;
+
+	std::vector<LLLayoutStack*>		mStacks;
+	bool							mWrap;
+	bool							mNeedsLayout;
+	S32								mMinWidth,
+									mMaxWidth;
+
+	LLUIImagePtr					mBackgroundImage;
 };
 
 

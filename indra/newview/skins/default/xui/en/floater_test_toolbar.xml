@@ -14,14 +14,11 @@
            left="0"
            top="20"
            side="top">
-    <button width="0"
-            auto_resize="true"
+    <button auto_resize="true"
             label="Button 1"/>
-    <button width="0"
-            auto_resize="true"
+    <button auto_resize="true"
             label="Button with long label"/>
-    <button width="0"
-            auto_resize="true"
+    <button auto_resize="true"
             label="Button with longest label of all"/>
   </toolbar>
   <toolbar name="test_toolbar_vertical"

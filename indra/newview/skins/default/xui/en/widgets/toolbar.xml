@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toolbar background_image = "Rounded_Rect">
+  <button_icon_and_text
+    follows="none"
+    height="30"
+    chrome="true"
+    auto_resize="true"
+    />
+  <button_icon
+  follows="none"
+  height="30"
+  chrome="true"
+  auto_resize="true"
+    />
+</toolbar>
