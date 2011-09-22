@@ -834,7 +834,7 @@
              name="Simulator primitive usage:"
              top_pad="4"
              width="364">
-               Primitive usage:
+               Region capacity:
             </text>
             <text
              type="string"
@@ -858,7 +858,7 @@
              name="Primitives parcel supports:"
              top="44"
              width="152">
-                Prims parcel supports:
+                Parcel land capacity:
             </text>
             <text
              type="string"
@@ -882,7 +882,7 @@
              name="Primitives on parcel:"
              top="64"
              width="152">
-                Prims on parcel:
+                Parcel land impact:
             </text>
             <text
              type="string"

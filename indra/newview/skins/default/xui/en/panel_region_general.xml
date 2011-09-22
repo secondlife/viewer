@@ -133,17 +133,7 @@
      tool_tip="Let people see this region and its parcels in search results"
      top="190"
      width="80" />
-	<check_box
-     visible="FALSE"
-     height="20"
-     label="Allow Mesh Objects"
-     layout="topleft"
-     left="10"
-     name="mesh_rez_enabled_check"
-     tool_tip="Let people rez mesh objects on this region"
-     top="210"
-     width="80" />
-    <spinner
+	<spinner
      decimal_digits="0"
      follows="left|top"
      height="20"

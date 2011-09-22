@@ -5501,7 +5501,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>64.0</real>
+      <real>128.0</real>
     </map>
     <key>MaxWearableWaitTime</key>
     <map>
@@ -7416,7 +7416,89 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>RenderAvatarLODFactor</key>
+  <key>RenderAvatarComplexityLimit</key>
+    <map>
+      <key>Comment</key>
+      <string>Max visual complexity of avatars in a scene</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+  <key>RenderComplexityColorMin</key>
+    <map>
+      <key>Comment</key>
+      <string>Max visual complexity of avatars in a scene</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+        <real>0.5</real>
+      </array>
+    </map>
+  <key>RenderComplexityColorMid</key>
+    <map>
+      <key>Comment</key>
+      <string>Max visual complexity of avatars in a scene</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.0</real>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>0.5</real>
+      </array>
+    </map>
+  <key>RenderComplexityColorMax</key>
+    <map>
+      <key>Comment</key>
+      <string>Max visual complexity of avatars in a scene</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>0.5</real>
+      </array>
+    </map>
+  <key>RenderComplexityThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Only color objects higher than render threshold</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+  <key>RenderComplexityStaticMax</key>
+    <map>
+      <key>Comment</key>
+      <string>Sets a static max value for scaling of RenderComplexity 
+        display (-1 for dynamic scaling)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+  <key>RenderAvatarLODFactor</key>
     <map>
       <key>Comment</key>
       <string>Controls level of detail of avatars (multiplier for current screen area when calculated level of detail)</string>
@@ -9573,17 +9655,6 @@
     <map>
       <key>Comment</key>
       <string>Newly created objects are shared with the currently active group</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowAdvancedBuilderOptions</key>
-    <map>
-      <key>Comment</key>
-      <string>Shows physics and display weight</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

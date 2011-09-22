@@ -3650,5 +3650,15 @@ Try enclosing path to the editor with double quotes.
   <string name="BeaconSound">Viewing sound beacons (yellow)</string>
   <string name="BeaconMedia">Viewing media beacons (white)</string>
   <string name="ParticleHiding">Hiding Particles</string>
+  
+  <!-- Mesh UI terms -->
+  <string name="Retain%">Retain%</string>
+  <string name="Detail">Detail</string>
+  <string name="Better Detail">Better Detail</string>
+  <string name="Surface">Surface</string>
+  <string name="Solid">Solid</string>
+  <string name="Wrap">Wrap</string>
+  <string name="Preview">Preview</string>
+  <string name="Normal">Normal</string>
 
   </strings>

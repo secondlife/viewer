@@ -100,7 +100,6 @@
 #include "lltrans.h"
 #include "llsdutil.h"
 #include "llmediaentry.h"
-#include "llaccountingquota.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -628,6 +627,20 @@ void LLViewerObject::constructAndAddReturnable( std::vector<PotentialReturnableO
 		returnableObj.pRegion	= pTargetRegion;
 		returnables.push_back( returnableObj );
 	}
+}
+
+bool LLViewerObject::crossesParcelBounds()
+{
+	std::vector<LLBBox> boxes;
+	boxes.push_back(LLBBox(getPositionRegion(), getRotationRegion(), getScale() * -0.5f, getScale() * 0.5f).getAxisAligned());
+	for (child_list_t::iterator iter = mChildList.begin();
+		 iter != mChildList.end(); iter++)
+	{
+		LLViewerObject* child = *iter;
+		boxes.push_back(LLBBox(child->getPositionRegion(), child->getRotationRegion(), child->getScale() * -0.5f, child->getScale() * 0.5f).getAxisAligned());
+	}
+
+	return mRegionp && mRegionp->objectsCrossParcel(boxes);
 }
 
 BOOL LLViewerObject::setParent(LLViewerObject* parent)
@@ -5787,9 +5800,3 @@ public:
 LLHTTPRegistration<ObjectPhysicsProperties>
 	gHTTPRegistrationObjectPhysicsProperties("/message/ObjectPhysicsProperties");
 
-
-void LLViewerObject::updateQuota( const SelectionQuota& quota )
-{
-	//update quotas
-	mSelectionQuota = quota;
-}

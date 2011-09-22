@@ -1299,30 +1299,38 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		return;
 	}
 
-	LLVertexBuffer* buffer = face->getVertexBuffer();
+	LLPointer<LLVertexBuffer> buffer = face->getVertexBuffer();
+	LLDrawable* drawable = face->getDrawable();
 
 	U32 data_mask = face->getRiggedVertexBufferDataMask();
 	
-	if (!buffer || 
+	if (buffer.isNull() || 
 		buffer->getTypeMask() != data_mask ||
-		buffer->getRequestedVerts() != vol_face.mNumVertices)
+		buffer->getRequestedVerts() != vol_face.mNumVertices ||
+		buffer->getRequestedIndices() != vol_face.mNumIndices ||
+		(drawable && drawable->isState(LLDrawable::REBUILD_ALL)))
 	{
 		face->setGeomIndex(0);
 		face->setIndicesIndex(0);
-		face->setSize(vol_face.mNumVertices, vol_face.mNumIndices, true);
-
-
-		if (sShaderLevel > 0)
-		{
-			buffer = new LLVertexBuffer(data_mask, GL_DYNAMIC_DRAW_ARB);
+		
+		if (buffer.isNull() || buffer->getTypeMask() != data_mask)
+		{ //make a new buffer
+			if (sShaderLevel > 0)
+			{
+				buffer = new LLVertexBuffer(data_mask, GL_DYNAMIC_DRAW_ARB);
+			}
+			else
+			{
+				buffer = new LLVertexBuffer(data_mask, GL_STREAM_DRAW_ARB);
+			}
+			buffer->allocateBuffer(vol_face.mNumVertices, vol_face.mNumIndices, true);
 		}
 		else
-		{
-			buffer = new LLVertexBuffer(data_mask, GL_STREAM_DRAW_ARB);
+		{ //resize existing buffer
+			buffer->resizeBuffer(vol_face.mNumVertices, vol_face.mNumIndices);
 		}
 
-		buffer->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), true);
-
+		face->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
 		face->setVertexBuffer(buffer);
 
 		U16 offset = 0;
@@ -1423,6 +1431,11 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 			}
 		}
 	}
+
+	if (drawable && (face->getTEOffset() == drawable->getNumFaces()-1))
+	{
+		drawable->clearState(LLDrawable::REBUILD_ALL);
+	}
 }
 
 void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
@@ -1453,7 +1466,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 		LLVolume* volume = vobj->getVolume();
 		S32 te = face->getTEOffset();
 
-		if (!volume || volume->getNumVolumeFaces() <= te)
+		if (!volume || volume->getNumVolumeFaces() <= te || !volume->isMeshAssetLoaded())
 		{
 			continue;
 		}
