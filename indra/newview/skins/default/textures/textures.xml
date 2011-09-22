@@ -125,6 +125,9 @@ with the same filename but different name
   <texture name="Checkbox_Press" file_name="widgets/Checkbox_Press.png" preload="true" />
   <texture name="Check_Mark" file_name="icons/check_mark" preload="true" />
 
+  <texture name="Command_Avatar_Icon" file_name="icons/SL_Logo.png" preload="true" />
+  <texture name="Command_Places_Icon" file_name="icons/SL_Logo.png" preload="true" />
+
   <texture name="ComboButton_Disabled" file_name="widgets/ComboButton_Disabled.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Selected" file_name="widgets/ComboButton_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_UpSelected" file_name="widgets/ComboButton_UpSelected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
