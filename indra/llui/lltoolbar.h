@@ -33,6 +33,9 @@
 #include "llbutton.h"
 
 
+class LLCommand;
+
+
 class LLToolBarButton : public LLButton
 {
 public:
@@ -50,6 +53,8 @@ namespace LLToolBarEnums
 	{
 		BTNTYPE_ICONS_ONLY = 0,
 		BTNTYPE_ICONS_WITH_TEXT,
+
+		BTNTYPE_COUNT
 	};
 
 	enum SideType
@@ -107,6 +112,8 @@ public:
 	void draw();
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
+	bool addCommand(LLCommand * command);
+
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBar(const Params&);
@@ -129,6 +136,8 @@ private:
 									mMaxButtonWidth;
 
 	LLUIImagePtr					mBackgroundImage;
+
+	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
 };
 
 

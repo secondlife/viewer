@@ -31,10 +31,10 @@
 
 
 class LLButton;
+class LLToolBar;
 
 
-class LLFloaterToybox
-: public LLFloater
+class LLFloaterToybox : public LLFloater
 {
 public:
 	LLFloaterToybox(const LLSD& key);
@@ -53,6 +53,7 @@ protected:
 
 public:
 	LLButton *	mBtnRestoreDefaults;
+	LLToolBar *	mToolBar;
 };
 
 #endif // LL_LLFLOATERTOYBOX_H

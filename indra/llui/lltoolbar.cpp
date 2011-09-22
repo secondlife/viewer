@@ -27,8 +27,11 @@
 
 #include "linden_common.h"
 
-#include "boost/foreach.hpp"
+#include <boost/foreach.hpp>
 #include "lltoolbar.h"
+
+#include "llcommandmanager.h"
+#include "lltrans.h"
 
 // uncomment this and remove the one in llui.cpp when there is an external reference to this translation unit
 // thanks, MSVC!
@@ -74,6 +77,8 @@ LLToolBar::LLToolBar(const Params& p)
 	mMaxButtonWidth(p.max_button_width),
 	mBackgroundImage(p.background_image)
 {
+	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
+	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
 }
 
 void LLToolBar::initFromParams(const LLToolBar::Params& p)
@@ -112,9 +117,7 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	{
 		// buttons always follow left and top, for all orientations
 		button_p.follows.flags = FOLLOWS_LEFT|FOLLOWS_TOP;
-		button_p.fillFrom((mButtonType == BTNTYPE_ICONS_ONLY)
-							? p.button_icon						// icon only
-							: p.button_icon_and_text);			// icon + text
+		button_p.fillFrom(mButtonParams[mButtonType]);
 
 		LLRect button_rect(button_p.rect);
 		{ // remove any offset from button
@@ -139,12 +142,58 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	}
 }
 
+bool LLToolBar::addCommand(LLCommand * command)
+{
+	//
+	// Init basic toolbar button params
+	//
+
+	LLToolBarButton::Params button_p;
+	button_p.fillFrom(mButtonParams[mButtonType]);
+
+	button_p.name = command->name();
+	button_p.label = LLTrans::getString(command->labelRef());
+	button_p.tool_tip = LLTrans::getString(command->tooltipRef());
+
+	//
+	// Set up the button rectangle
+	//
+
+	S32 btn_width = mMinButtonWidth;
+	S32 btn_height = mButtonParams[mButtonType].rect.height;
+
+	if ((mSideType == LLToolBarEnums::SIDE_BOTTOM) || (mSideType == LLToolBarEnums::SIDE_TOP))
+	{
+		btn_height = getRect().getHeight();
+	}
+
+	LLRect button_rect;
+	button_rect.setOriginAndSize(0, 0, btn_width, btn_height);
+
+	button_p.rect = button_rect;
+
+	//
+	// Add it to the list of buttons
+	//
+
+	LLToolBarButton * toolbar_button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
+
+	toolbar_button->reshape(llclamp(toolbar_button->getRect().getWidth(), mMinButtonWidth, mMaxButtonWidth), toolbar_button->getRect().getHeight());
+
+	mButtons.push_back(toolbar_button);
+	mCenterPanel->addChild(toolbar_button);
+
+	mNeedsLayout = true;
+
+	return true;
+}
+
 void LLToolBar::updateLayoutAsNeeded()
 {
 	if (!mNeedsLayout) return;
 
 	LLLayoutStack::ELayoutOrientation orientation = getOrientation(mSideType);
-
+	
 	// our terminology for orientation-agnostic layout is that
 	// length refers to a distance in the direction we stack the buttons 
 	// and girth refers to a distance in the direction buttons wrap
@@ -160,8 +209,8 @@ void LLToolBar::updateLayoutAsNeeded()
 
 	std::vector<LLToolBarButton*> buttons_in_row;
 
-	BOOST_FOREACH(LLToolBarButton* button, mButtons)
-	{
+		BOOST_FOREACH(LLToolBarButton* button, mButtons)
+		{
 		S32 button_clamped_width = llclamp(button->getRect().getWidth(), mMinButtonWidth, mMaxButtonWidth);
 		S32 button_length = (orientation == LLLayoutStack::HORIZONTAL)
 							? button_clamped_width
@@ -185,23 +234,23 @@ void LLToolBar::updateLayoutAsNeeded()
 				if (orientation == LLLayoutStack::HORIZONTAL)
 				{
 					button->reshape(llclamp(button->getRect().getWidth(), mMinButtonWidth, mMaxButtonWidth), max_row_girth);
-				}
+		}	
 				else // VERTICAL
-				{
+		{
 					button->reshape(max_row_girth, button->getRect().getHeight());
 				}
-			}
+		}
 			buttons_in_row.clear();
 
 			row_running_length = 0;
 			cur_start = 0;
 			cur_row += max_row_girth;
 			max_row_girth = 0;
-		}
+	}
 
 		LLRect button_rect;
 		if (orientation == LLLayoutStack::HORIZONTAL)
-		{
+	{
 			button_rect.setLeftTopAndSize(cur_start, panel_rect.mTop - cur_row, button_clamped_width, button->getRect().getHeight());
 		}
 		else // VERTICAL
@@ -209,7 +258,7 @@ void LLToolBar::updateLayoutAsNeeded()
 			button_rect.setLeftTopAndSize(cur_row, panel_rect.mTop - cur_start, button_clamped_width, button->getRect().getHeight());
 		}
 		button->setShape(button_rect);
-		
+
 		buttons_in_row.push_back(button);
 
 		row_running_length += button_length;
@@ -237,7 +286,7 @@ void LLToolBar::updateLayoutAsNeeded()
 			translate(getRect().getWidth() - total_girth, 0);
 		}
 		reshape(total_girth, getRect().getHeight());
-	}
+		}
 
 	// recenter toolbar buttons
 	mCenteringStack->updateLayout();
