@@ -1989,11 +1989,8 @@ void LLVertexBuffer::setBuffer(U32 data_mask, S32 type)
 		}
 	}
 
-	if (data_mask)
-	{
-		setupClientArrays(data_mask, ref_mask);
-	}
-	
+	setupClientArrays(data_mask, ref_mask);
+		
 	if (mGLIndices)
 	{
 		sGLRenderIndices = mGLIndices;
