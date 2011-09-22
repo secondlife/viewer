@@ -9,7 +9,7 @@
  layout="topleft"
  name="navigation_bar"
  chrome="true"
- width="600">
+ width="800">
 	<icon
 	 follows="all"
 	 image_name="NavBar_BG"
@@ -54,15 +54,15 @@
        name="nvp_stack"
        orientation="horizontal"
        top="0"
-       width="600">
+       width="800">
          <layout_panel
            follows="top|left"
            layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="400"
+           min_width="500"
            name="navigation_layout_panel"
-           width="400">
+           width="500">
              <panel
                background_visible="false"
                follows="left|top|right"
@@ -71,7 +71,7 @@
                layout="topleft"
                left="0"
                name="navigation_panel"
-               width="400">
+               width="500">
                  <pull_button
                    follows="left|top"
                    direction="down"
@@ -118,7 +118,7 @@
                    mouse_opaque="false"
                    name="location_combo"
                    top_delta="0"
-                   width="113">
+                   width="213">
                  <combo_list
                    mouse_wheel_opaque="true"/>
                  </location_input>
@@ -174,7 +174,7 @@
            user_resize="true"
            min_width="190"
            name="favorites_layout_panel"
-           width="190">
+           width="290">
              <favorites_bar
                follows="left|right|top"
                font="SansSerifSmall"
@@ -184,7 +184,7 @@
                name="favorite"
                image_drag_indication="Accordion_ArrowOpened_Off"
                tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
-               width="190">
+               width="290">
                  <label
                    follows="left|top"
                    height="15"

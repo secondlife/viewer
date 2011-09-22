@@ -135,7 +135,7 @@ private:
 	BOOL mShowDragMarker;
 	LLUICtrl* mLandingTab;
 	LLUICtrl* mLastTab;
-	LLTextBox* mChevronButton;
+	LLTextBox* mMoreTextBox;
 	LLTextBox* mBarLabel;
 
 	LLUUID mDragItemId;
