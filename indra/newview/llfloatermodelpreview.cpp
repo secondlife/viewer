@@ -4351,11 +4351,6 @@ void LLModelPreview::updateStatusMessages()
 		{
 			skinAndRigOk = false;
 		}	
-		else
-		if ( !isLegacyRigValid() )
-		{
-			mFMP->childDisable("calculate_btn");
-		}
 	}
 	
 	if(upload_ok && mModelLoader)
@@ -5071,6 +5066,8 @@ BOOL LLModelPreview::render()
 
 	if (!mModel[mPreviewLOD].empty())
 	{
+		mFMP->childEnable("reset_btn");
+
 		bool regen = mVertexBuffer[mPreviewLOD].empty();
 		if (!regen)
 		{
@@ -5568,6 +5565,7 @@ void LLFloaterModelPreview::onReset(void* user_data)
 	assert_main_thread();
 
 	LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) user_data;
+	fmp->childDisable("reset_btn");
 	LLModelPreview* mp = fmp->mModelPreview;
 	std::string filename = mp->mLODFile[3]; 
 
