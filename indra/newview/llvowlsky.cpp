@@ -485,7 +485,7 @@ void LLVOWLSky::drawStars(void)
 	if (mStarsVerts.notNull())
 	{
 		mStarsVerts->setBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK);
-		mStarsVerts->drawArrays(LLRender::QUADS, 0, getStarsNumVerts()*4);
+		mStarsVerts->drawArrays(LLRender::TRIANGLES, 0, getStarsNumVerts()*4);
 	}
 }
 
@@ -772,7 +772,7 @@ BOOL LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
 	if (mStarsVerts.isNull())
 	{
 		mStarsVerts = new LLVertexBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK, GL_DYNAMIC_DRAW);
-		mStarsVerts->allocateBuffer(getStarsNumVerts()*4, 0, TRUE);
+		mStarsVerts->allocateBuffer(getStarsNumVerts()*6, 0, TRUE);
 	}
  
 	BOOL success = mStarsVerts->getVertexStrider(verticesp)
@@ -807,13 +807,19 @@ BOOL LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
 		*(verticesp++)  = mStarVertices[vtx];
 		*(verticesp++) = mStarVertices[vtx]+left;
 		*(verticesp++) = mStarVertices[vtx]+left+up;
+		*(verticesp++) = mStarVertices[vtx]+left;
+		*(verticesp++) = mStarVertices[vtx]+left+up;
 		*(verticesp++) = mStarVertices[vtx]+up;
 
 		*(texcoordsp++) = LLVector2(0,0);
 		*(texcoordsp++) = LLVector2(0,1);
 		*(texcoordsp++) = LLVector2(1,1);
+		*(texcoordsp++) = LLVector2(0,1);
+		*(texcoordsp++) = LLVector2(1,1);
 		*(texcoordsp++) = LLVector2(1,0);
 
+		*(colorsp++)    = LLColor4U(mStarColors[vtx]);
+		*(colorsp++)    = LLColor4U(mStarColors[vtx]);
 		*(colorsp++)    = LLColor4U(mStarColors[vtx]);
 		*(colorsp++)    = LLColor4U(mStarColors[vtx]);
 		*(colorsp++)    = LLColor4U(mStarColors[vtx]);

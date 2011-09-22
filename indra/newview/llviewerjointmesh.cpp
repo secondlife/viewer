@@ -537,7 +537,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 
 	stop_glerror();
 	
-	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), mFace->getPool()->getVertexShaderLevel() > 0 ? 0.f : mShiny);
+	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), (mFace->getPool()->getVertexShaderLevel() > 0 || LLGLSLShader::sNoFixedFunction) ? 0.f : mShiny);
 
 	//----------------------------------------------------------------
 	// setup current texture

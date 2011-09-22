@@ -179,10 +179,13 @@ void LLTexUnit::enable(eTextureType type)
 
 	if ( (mCurrTexType != type || gGL.mDirty) && (type != TT_NONE) )
 	{
+		stop_glerror();
 		activate();
+		stop_glerror();
 		if (mCurrTexType != TT_NONE && !gGL.mDirty)
 		{
 			disable(); // Force a disable of a previous texture type if it's enabled.
+			stop_glerror();
 		}
 		mCurrTexType = type;
 
@@ -191,7 +194,9 @@ void LLTexUnit::enable(eTextureType type)
 			type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
+			stop_glerror();
 			glEnable(sGLTextureType[type]);
+			stop_glerror();
 		}
 	}
 }
@@ -287,25 +292,34 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
 		{
 			return bind(LLImageGL::sDefaultGLTexture) ;
 		}
+		stop_glerror();
 		return false ;
 	}
 
 	if ((mCurrTexture != texture->getTexName()) || forceBind)
 	{
 		gGL.flush();
+		stop_glerror();
 		activate();
+		stop_glerror();
 		enable(texture->getTarget());
+		stop_glerror();
 		mCurrTexture = texture->getTexName();
 		glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
+		stop_glerror();
 		texture->updateBindStats(texture->mTextureMemory);		
 		mHasMipMaps = texture->mHasMipMaps;
 		if (texture->mTexOptionsDirty)
 		{
+			stop_glerror();
 			texture->mTexOptionsDirty = false;
 			setTextureAddressMode(texture->mAddressMode);
 			setTextureFilteringOption(texture->mFilterOption);
+			stop_glerror();
 		}
 	}
+
+	stop_glerror();
 
 	return true;
 }
@@ -989,6 +1003,7 @@ void LLLightState::setSpotDirection(const LLVector3& direction)
 LLRender::LLRender()
   : mDirty(false),
     mCount(0),
+	mQuadCycle(0),
     mMode(LLRender::TRIANGLES),
     mCurrTextureUnitIndex(0),
     mMaxAnisotropy(0.f) 
@@ -1678,6 +1693,11 @@ void LLRender::begin(const GLuint& mode)
 {
 	if (mode != mMode)
 	{
+		if (mode == LLRender::QUADS)
+		{
+			mQuadCycle = 1;
+		}
+
 		if (mMode == LLRender::QUADS ||
 			mMode == LLRender::LINES ||
 			mMode == LLRender::TRIANGLES ||
@@ -1765,7 +1785,7 @@ void LLRender::flush()
 		
 		if (gDebugGL)
 		{
-			if (mMode == LLRender::QUADS)
+			if (mMode == LLRender::QUADS && !sGLCoreProfile)
 			{
 				if (mCount%4 != 0)
 				{
@@ -1794,12 +1814,30 @@ void LLRender::flush()
 		U32 count = mCount;
 		mCount = 0;
 
+		if (mBuffer->useVBOs() && !mBuffer->isLocked())
+		{ //hack to only flush the part of the buffer that was updated (relies on stream draw using buffersubdata)
+			mBuffer->getVertexStrider(mVerticesp, 0, count);
+			mBuffer->getTexCoord0Strider(mTexcoordsp, 0, count);
+			mBuffer->getColorStrider(mColorsp, 0, count);
+		}
+		
+		//only flush the part of the 
 		mBuffer->setBuffer(immediate_mask);
-		mBuffer->drawArrays(mMode, 0, count);
+
+		if (mMode == LLRender::QUADS && sGLCoreProfile)
+		{
+			mBuffer->drawArrays(LLRender::TRIANGLES, 0, count);
+			mQuadCycle = 1;
+		}
+		else
+		{
+			mBuffer->drawArrays(mMode, 0, count);
+		}
 		
 		mVerticesp[0] = mVerticesp[count];
 		mTexcoordsp[0] = mTexcoordsp[count];
 		mColorsp[0] = mColorsp[count];
+		
 		mCount = 0;
 	}
 }
@@ -1823,10 +1861,29 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 		mVerticesp[mCount] = vert;
 	}
 
+	if (mMode == LLRender::QUADS && LLRender::sGLCoreProfile)
+	{
+		mQuadCycle++;
+		if (mQuadCycle == 4)
+		{ //copy two vertices so fourth quad element will add a triangle
+			mQuadCycle = 0;
+	
+			mCount++;
+			mVerticesp[mCount] = mVerticesp[mCount-3];
+			mColorsp[mCount] = mColorsp[mCount-3];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-3];
+
+			mCount++;
+			mVerticesp[mCount] = mVerticesp[mCount-2];
+			mColorsp[mCount] = mColorsp[mCount-2];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-2];
+		}
+	}
+
 	mCount++;
 	mVerticesp[mCount] = mVerticesp[mCount-1];
 	mColorsp[mCount] = mColorsp[mCount-1];
-	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];	
 }
 
 void LLRender::vertexBatchPreTransformed(LLVector3* verts, S32 vert_count)
@@ -1837,13 +1894,50 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, S32 vert_count)
 		return;
 	}
 
-	for (S32 i = 0; i < vert_count; i++)
-	{
-		mVerticesp[mCount] = verts[i];
+	if (sGLCoreProfile && mMode == LLRender::QUADS)
+	{ //quads are deprecated, convert to triangle list
+		S32 i = 0;
+		
+		while (i < vert_count)
+		{
+			//read first three
+			mVerticesp[mCount++] = verts[i++];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
 
-		mCount++;
-		mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
-		mColorsp[mCount] = mColorsp[mCount-1];
+			mVerticesp[mCount++] = verts[i++];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			mVerticesp[mCount++] = verts[i++];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			//copy two
+			mVerticesp[mCount++] = verts[i-3];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			mVerticesp[mCount++] = verts[i-1];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+			
+			//copy last one
+			mVerticesp[mCount++] = verts[i++];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+		}
+	}
+	else
+	{
+		for (S32 i = 0; i < vert_count; i++)
+		{
+			mVerticesp[mCount] = verts[i];
+
+			mCount++;
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+		}
 	}
 
 	mVerticesp[mCount] = mVerticesp[mCount-1];
@@ -1857,13 +1951,50 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 v
 		return;
 	}
 
-	for (S32 i = 0; i < vert_count; i++)
-	{
-		mVerticesp[mCount] = verts[i];
-		mTexcoordsp[mCount] = uvs[i];
+	if (sGLCoreProfile && mMode == LLRender::QUADS)
+	{ //quads are deprecated, convert to triangle list
+		S32 i = 0;
 
-		mCount++;
-		mColorsp[mCount] = mColorsp[mCount-1];
+		while (i < vert_count)
+		{
+			//read first three
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount++] = uvs[i++];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount++] = uvs[i++];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount++] = uvs[i++];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			//copy last two
+			mVerticesp[mCount] = verts[i-3];
+			mTexcoordsp[mCount++] = uvs[i-3];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			mVerticesp[mCount] = verts[i-1];
+			mTexcoordsp[mCount++] = uvs[i-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			//copy last one
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount++] = uvs[i++];
+			mColorsp[mCount] = mColorsp[mCount-1];
+		}
+	}
+	else
+	{
+		for (S32 i = 0; i < vert_count; i++)
+		{
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+
+			mCount++;
+			mColorsp[mCount] = mColorsp[mCount-1];
+		}
 	}
 
 	mVerticesp[mCount] = mVerticesp[mCount-1];
@@ -1878,13 +2009,51 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLCol
 		return;
 	}
 
-	for (S32 i = 0; i < vert_count; i++)
-	{
-		mVerticesp[mCount] = verts[i];
-		mTexcoordsp[mCount] = uvs[i];
-		mColorsp[mCount] = colors[i];
+	
+	if (sGLCoreProfile && mMode == LLRender::QUADS)
+	{ //quads are deprecated, convert to triangle list
+		S32 i = 0;
 
-		mCount++;
+		while (i < vert_count)
+		{
+			//read first three
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+			mColorsp[mCount++] = colors[i++];
+
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+			mColorsp[mCount++] = colors[i++];
+
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+			mColorsp[mCount++] = colors[i++];
+
+			//copy last two
+			mVerticesp[mCount] = verts[i-3];
+			mTexcoordsp[mCount] = uvs[i-3];
+			mColorsp[mCount++] = colors[i-3];
+
+			mVerticesp[mCount] = verts[i-1];
+			mTexcoordsp[mCount] = uvs[i-1];
+			mColorsp[mCount++] = colors[i-1];
+
+			//copy last one
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+			mColorsp[mCount++] = colors[i++];
+		}
+	}
+	else
+	{
+		for (S32 i = 0; i < vert_count; i++)
+		{
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+			mColorsp[mCount] = colors[i];
+
+			mCount++;
+		}
 	}
 
 	mVerticesp[mCount] = mVerticesp[mCount-1];

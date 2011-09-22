@@ -533,6 +533,7 @@ extern PFNGLSAMPLEMASKIPROC glSampleMaski;
 
 // WGL_ARB_create_context
 extern PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
+extern PFNGLGETSTRINGIPROC glGetStringi;
 
 // GL_ARB_vertex_buffer_object
 extern PFNGLBINDBUFFERARBPROC		glBindBufferARB;
@@ -546,6 +547,12 @@ extern PFNGLMAPBUFFERARBPROC		glMapBufferARB;
 extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
+
+// GL_ARB_vertex_array_object
+extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+extern PFNGLISVERTEXARRAYPROC glIsVertexArray;
 
 // GL_ARB_sync
 extern PFNGLFENCESYNCPROC				glFenceSync;
@@ -736,6 +743,12 @@ extern PFNGLTEXIMAGE2DMULTISAMPLEPROC glTexImage2DMultisample;
 extern PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample;
 extern PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv;
 extern PFNGLSAMPLEMASKIPROC glSampleMaski;
+
+//GL_ARB_debug_output
+extern PFNGLDEBUGMESSAGECONTROLARBPROC glDebugMessageControlARB;
+extern PFNGLDEBUGMESSAGEINSERTARBPROC glDebugMessageInsertARB;
+extern PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARB;
+extern PFNGLGETDEBUGMESSAGELOGARBPROC glGetDebugMessageLogARB;
 
 #elif LL_DARWIN
 //----------------------------------------------------------------------------

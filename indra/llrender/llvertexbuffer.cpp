@@ -55,6 +55,7 @@ S32 LLVertexBuffer::sMappedCount = 0;
 BOOL LLVertexBuffer::sDisableVBOMapping = FALSE ;
 BOOL LLVertexBuffer::sEnableVBOs = TRUE;
 U32 LLVertexBuffer::sGLRenderBuffer = 0;
+U32 LLVertexBuffer::sGLRenderArray = 0;
 U32 LLVertexBuffer::sGLRenderIndices = 0;
 U32 LLVertexBuffer::sLastMask = 0;
 BOOL LLVertexBuffer::sVBOActive = FALSE;
@@ -149,7 +150,7 @@ U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
 
 
 //static
-void LLVertexBuffer::setupClientArrays(U32 data_mask)
+void LLVertexBuffer::setupClientArrays(U32 data_mask, U32& ref_mask)
 {
 	/*if (LLGLImmediate::sStarted)
 	{
@@ -158,13 +159,10 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
-	if (sLastMask != data_mask)
+	if (ref_mask != data_mask)
 	{
 		llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
-		static LLGLSLShader* last_shader = LLGLSLShader::sCurBoundShaderPtr;
-		llassert(sLastMask == 0 || last_shader == shader);
-		last_shader = shader;
-
+		
 		U32 mask[] =
 		{
 			MAP_VERTEX,
@@ -213,7 +211,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				loc = shader->getAttribLocation(type[i]);
 			}
 
-			if (sLastMask & mask[i])
+			if (ref_mask & mask[i])
 			{ //was enabled
 				if (!(data_mask & mask[i]))
 				{ //needs to be disabled
@@ -297,7 +295,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				loc = shader->getAttribLocation(type_tc[i]);
 			}
 
-			if (sLastMask & map_tc[i])
+			if (ref_mask & map_tc[i])
 			{
 				if (!(data_mask & map_tc[i]))
 				{ //disable
@@ -330,7 +328,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 
 		if (!shader)
 		{
-			if (sLastMask & MAP_BINORMAL)
+			if (ref_mask & MAP_BINORMAL)
 			{
 				if (!(data_mask & MAP_BINORMAL))
 				{
@@ -347,7 +345,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 			}
 		}
 		
-		sLastMask = data_mask;
+		ref_mask = data_mask;
 	}
 }
 
@@ -589,6 +587,12 @@ void LLVertexBuffer::initClass(bool use_vbo, bool no_vbo_mapping)
 //static 
 void LLVertexBuffer::unbind()
 {
+	if (sGLRenderArray)
+	{
+		glBindVertexArray(0);
+		sGLRenderArray = 0;
+	}
+
 	if (sVBOActive)
 	{
 		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
@@ -640,6 +644,8 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	mRequestedNumIndices(-1),
 	mUsage(usage),
 	mGLBuffer(0),
+	mGLArray(0),
+	mLastMask(0),
 	mGLIndices(0), 
 	mMappedData(NULL),
 	mMappedIndexData(NULL), 
@@ -669,10 +675,21 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 		mUsage = GL_STREAM_DRAW_ARB;
 	}
 
+	if (mUsage == 0 && LLRender::sGLCoreProfile)
+	{ //MUST use VBOs for all rendering
+		mUsage = GL_STREAM_DRAW_ARB;
+	}
+
 	//zero out offsets
 	for (U32 i = 0; i < TYPE_MAX; i++)
 	{
 		mOffsets[i] = 0;
+	}
+
+	//initialize cached attrib pointers
+	for (U32 i = 0; i < LL_MAX_VERTEX_ATTRIB_LOCATION; i++)
+	{
+		mLastPointer[i] = (void*) 0xFFFFFFFF;
 	}
 
 	mTypeMask = typemask;
@@ -732,6 +749,12 @@ LLVertexBuffer::~LLVertexBuffer()
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_DESTRUCTOR);
 	destroyGLBuffer();
 	destroyGLIndices();
+
+	if (mGLArray)
+	{
+		glDeleteVertexArrays(1, &mGLArray);
+	}
+
 	sCount--;
 
 	if (mFence)
@@ -1041,6 +1064,11 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 	{
 		createGLBuffer();
 		createGLIndices();
+
+		if (gGLManager.mHasVertexArrayObject && useVBOs())
+		{
+			glGenVertexArrays(1, &mGLArray);
+		}
 	}
 	
 	sAllocatedBytes += getSize() + getIndicesSize();
@@ -1762,7 +1790,8 @@ void LLVertexBuffer::setBuffer(U32 data_mask, S32 type)
 {
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_SET_BUFFER);
 	//set up pointers if the data mask is different ...
-	BOOL setup = (sLastMask != data_mask);
+	U32& ref_mask = mGLArray ? mLastMask : sLastMask;
+	BOOL setup = (ref_mask != data_mask);
 
 	if (gDebugGL && data_mask != 0)
 	{
@@ -1794,15 +1823,19 @@ void LLVertexBuffer::setBuffer(U32 data_mask, S32 type)
 
 	if (useVBOs())
 	{
+		if (mGLArray && mGLArray != sGLRenderArray)
+		{
+			glBindVertexArray(mGLArray);
+			sGLRenderArray = mGLArray;
+		}
+
 		if (mGLBuffer && (mGLBuffer != sGLRenderBuffer || !sVBOActive))
 		{
 			/*if (sMapped)
 			{
 				llerrs << "VBO bound while another VBO mapped!" << llendl;
 			}*/
-			stop_glerror();
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, mGLBuffer);
-			stop_glerror();
 			sBindCount++;
 			sVBOActive = TRUE;
 			setup = TRUE; // ... or the bound buffer changed
@@ -1813,13 +1846,12 @@ void LLVertexBuffer::setBuffer(U32 data_mask, S32 type)
 			{
 				llerrs << "VBO bound while another VBO mapped!" << llendl;
 			}*/
-			stop_glerror();
 			glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mGLIndices);
 			stop_glerror();
 			sBindCount++;
 			sIBOActive = TRUE;
 		}
-		
+
 		BOOL error = FALSE;
 		if (gDebugGL)
 		{
@@ -1957,7 +1989,10 @@ void LLVertexBuffer::setBuffer(U32 data_mask, S32 type)
 		}
 	}
 
-	setupClientArrays(data_mask);
+	if (data_mask)
+	{
+		setupClientArrays(data_mask, ref_mask);
+	}
 	
 	if (mGLIndices)
 	{
@@ -1998,10 +2033,18 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 		{
 			loc = shader->getAttribLocation(TYPE_NORMAL);
 		}
-
+		
 		if (loc >= 0)
 		{
-			glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
+			void* ptr = (void*)(base + mOffsets[TYPE_NORMAL]);
+			if (mLastPointer[loc] != ptr)
+			{
+				glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL], ptr);
+			}
+			if (mGLArray)
+			{
+				mLastPointer[loc] = ptr;
+			}
 		}
 		else if (!shader)
 		{
@@ -2018,7 +2061,15 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 
 		if (loc >= 0)
 		{
-			glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD3], (void*)(base + mOffsets[TYPE_TEXCOORD3]));
+			void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD3]);
+			if (mLastPointer[loc] != ptr)
+			{
+				glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD3], ptr);
+			}
+			if (mGLArray)
+			{
+				mLastPointer[loc] = ptr;
+			}
 		}
 		else if (!shader)
 		{
@@ -2037,7 +2088,15 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 
 		if (loc >= 0)
 		{
-			glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD2], (void*)(base + mOffsets[TYPE_TEXCOORD2]));
+			void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD2]);
+			if (mLastPointer[loc] != ptr)
+			{
+				glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD2], ptr);
+			}
+			if (mGLArray)
+			{
+				mLastPointer[loc] = ptr;
+			}
 		}
 		else if (!shader)
 		{
@@ -2056,7 +2115,15 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 
 		if (loc >= 0)
 		{
-			glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
+			void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD1]);
+			if (mLastPointer[loc] != ptr)
+			{
+				glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], ptr);
+			}
+			if (mGLArray)
+			{
+				mLastPointer[loc] = ptr;
+			}
 		}
 		else if (!shader)
 		{
@@ -2075,7 +2142,15 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 
 		if (loc >= 0)
 		{
-			glVertexAttribPointerARB(loc, 3,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
+			void* ptr = (void*)(base + mOffsets[TYPE_BINORMAL]);
+			if (mLastPointer[loc] != ptr)
+			{
+				glVertexAttribPointerARB(loc, 3,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], ptr);
+			}
+			if (mGLArray)
+			{
+				mLastPointer[loc] = ptr;
+			}
 		}
 		else if (!shader)
 		{
@@ -2094,7 +2169,15 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 
 		if (loc >= 0)
 		{
-			glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+			void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD0]);
+			if (mLastPointer[loc] != ptr)
+			{
+				glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], ptr);
+			}
+			if (mGLArray)
+			{
+				mLastPointer[loc] = ptr;
+			}
 		}
 		else if (!shader)
 		{
@@ -2111,7 +2194,15 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 
 		if (loc >= 0)
 		{
-			glVertexAttribPointerARB(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
+			void* ptr = (void*)(base + mOffsets[TYPE_COLOR]);
+			if (mLastPointer[loc] != ptr)
+			{
+				glVertexAttribPointerARB(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_COLOR], ptr);
+			}
+			if (mGLArray)
+			{
+				mLastPointer[loc] = ptr;
+			}
 		}
 		else if (!shader)
 		{
@@ -2128,7 +2219,15 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 
 		if (loc >= 0)
 		{
-			glVertexAttribPointerARB(loc, 1, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], (void*)(base + mOffsets[TYPE_EMISSIVE]));
+			void* ptr = (void*)(base + mOffsets[TYPE_EMISSIVE]);
+			if (mLastPointer[loc] != ptr)
+			{
+				glVertexAttribPointerARB(loc, 1, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], ptr);
+			}
+			if (mGLArray)
+			{
+				mLastPointer[loc] = ptr;
+			}
 		}
 	}
 	if (data_mask & MAP_WEIGHT)
@@ -2139,13 +2238,18 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 			loc = shader->getAttribLocation(TYPE_WEIGHT);
 		}
 
-		if (loc < 0)
-		{ //legacy behavior, some shaders have weight hardcoded to location 1
-			loc = 1;
+		if (loc > -1)
+		{
+			void* ptr = (void*)(base + mOffsets[TYPE_WEIGHT]);
+			if (mLastPointer[loc] != ptr)
+			{
+				glVertexAttribPointerARB(loc, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], ptr);
+			}
+			if (mGLArray)
+			{
+				mLastPointer[loc] = ptr;
+			}
 		}
-		
-		glVertexAttribPointerARB(loc, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
-		
 	}
 
 	if (data_mask & MAP_WEIGHT4)
@@ -2155,7 +2259,15 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 			S32 loc = shader->getAttribLocation(TYPE_WEIGHT4);
 			if (loc > -1)
 			{
-				glVertexAttribPointerARB(loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
+				void* ptr = (void*)(base+mOffsets[TYPE_WEIGHT4]);
+				if (mLastPointer[loc] != ptr)
+				{
+					glVertexAttribPointerARB(loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], ptr);
+				}
+				if (mGLArray)
+				{
+					mLastPointer[loc] = ptr;
+				}
 			}
 		}
 	}
@@ -2168,11 +2280,18 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 			loc = shader->getAttribLocation(TYPE_CLOTHWEIGHT);
 		}
 
-		if (loc < 0)
-		{ //legacy behavior, some shaders have weight hardcoded to location 4
-			loc = 4;
+		if (loc > -1)
+		{
+			void* ptr = (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]);
+			if (mLastPointer[loc] != ptr)
+			{
+				glVertexAttribPointerARB(loc, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], ptr);
+			}
+			if (mGLArray)
+			{
+				mLastPointer[loc] = ptr;
+			}
 		}
-		glVertexAttribPointerARB(loc, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
 	}
 	if (data_mask & MAP_VERTEX)
 	{

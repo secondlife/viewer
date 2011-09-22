@@ -88,6 +88,7 @@ public:
 		
 	// ARB Extensions
 	BOOL mHasVertexBufferObject;
+	BOOL mHasVertexArrayObject;
 	BOOL mHasSync;
 	BOOL mHasMapBufferRange;
 	BOOL mHasFlushBufferRange;
@@ -112,6 +113,7 @@ public:
 	BOOL mHasAnisotropic;
 	BOOL mHasARBEnvCombine;
 	BOOL mHasCubeMap;
+	BOOL mHasDebugOutput;
 
 	// Vendor-specific extensions
 	BOOL mIsATI;

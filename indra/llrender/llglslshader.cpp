@@ -243,6 +243,13 @@ void LLGLSLShader::attachObjects(GLhandleARB* objects, S32 count)
 
 BOOL LLGLSLShader::mapAttributes(const vector<string> * attributes)
 {
+	//before linking, make sure reserved attributes always have consistent locations
+	for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
+	{
+		const char* name = LLShaderMgr::instance()->mReservedAttribs[i].c_str();
+		glBindAttribLocationARB(mProgramObject, i, (const GLcharARB *) name);
+	}
+	
 	//link the program
 	BOOL res = link();
 

@@ -249,10 +249,7 @@ public:
 	// Scratch textures (used for compositing)
 	//--------------------------------------------------------------------
 public:
-	BOOL			bindScratchTexture(LLGLenum format);
 	static void		deleteScratchTextures();
-protected:
-	LLGLuint		getScratchTexName(LLGLenum format, S32& components, U32* texture_bytes);
 private:
 	static S32 		sScratchTexBytes;
 	static LLMap< LLGLenum, LLGLuint*> sScratchTexNames;

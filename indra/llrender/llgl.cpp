@@ -67,6 +67,22 @@ static const std::string HEADLESS_VERSION_STRING("1.0");
 
 std::ofstream gFailLog;
 
+void APIENTRY gl_debug_callback(GLenum source,
+                                GLenum type,
+                                GLuint id,
+                                GLenum severity,
+                                GLsizei length,
+                                const GLchar* message,
+                                GLvoid* userParam)
+{
+	llwarns << "----- GL ERROR --------" << llendl;
+	llwarns << "Type: " << std::hex << type << llendl;
+	llwarns << "ID: " << std::hex << id << llendl;
+	llwarns << "Severity: " << std::hex << severity << llendl;
+	llwarns << "Message: " << message << llendl;
+	llwarns << "-----------------------" << llendl;
+}
+
 void ll_init_fail_log(std::string filename)
 {
 	gFailLog.open(filename.c_str());
@@ -110,6 +126,9 @@ std::list<LLGLUpdate*> LLGLUpdate::sGLQ;
 
 #if (LL_WINDOWS || LL_LINUX || LL_SOLARIS)  && !LL_MESA_HEADLESS
 // ATI prototypes
+
+PFNGLGETSTRINGIPROC glGetStringi = NULL;
+
 // vertex blending prototypes
 PFNGLWEIGHTPOINTERARBPROC			glWeightPointerARB = NULL;
 PFNGLVERTEXBLENDARBPROC				glVertexBlendARB = NULL;
@@ -127,6 +146,12 @@ PFNGLMAPBUFFERARBPROC				glMapBufferARB = NULL;
 PFNGLUNMAPBUFFERARBPROC				glUnmapBufferARB = NULL;
 PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB = NULL;
 PFNGLGETBUFFERPOINTERVARBPROC		glGetBufferPointervARB = NULL;
+
+//GL_ARB_vertex_array_object
+PFNGLBINDVERTEXARRAYPROC glBindVertexArray = NULL;
+PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = NULL;
+PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = NULL;
+PFNGLISVERTEXARRAYPROC glIsVertexArray = NULL;
 
 // GL_ARB_map_buffer_range
 PFNGLMAPBUFFERRANGEPROC			glMapBufferRange = NULL;
@@ -197,10 +222,16 @@ PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC glRenderbufferStorageMultisample = NULL;
 PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer = NULL;
 
 //GL_ARB_texture_multisample
-PFNGLTEXIMAGE2DMULTISAMPLEPROC glTexImage2DMultisample;
-PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample;
-PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv;
-PFNGLSAMPLEMASKIPROC glSampleMaski;
+PFNGLTEXIMAGE2DMULTISAMPLEPROC glTexImage2DMultisample = NULL;
+PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample = NULL;
+PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv = NULL;
+PFNGLSAMPLEMASKIPROC glSampleMaski = NULL;
+
+//GL_ARB_debug_output
+PFNGLDEBUGMESSAGECONTROLARBPROC glDebugMessageControlARB = NULL;
+PFNGLDEBUGMESSAGEINSERTARBPROC glDebugMessageInsertARB = NULL;
+PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARB = NULL;
+PFNGLGETDEBUGMESSAGELOGARBPROC glGetDebugMessageLogARB = NULL;
 
 // GL_EXT_blend_func_separate
 PFNGLBLENDFUNCSEPARATEEXTPROC glBlendFuncSeparateEXT = NULL;
@@ -353,6 +384,7 @@ LLGLManager::LLGLManager() :
 	mHasBlendFuncSeparate(FALSE),
 	mHasSync(FALSE),
 	mHasVertexBufferObject(FALSE),
+	mHasVertexArrayObject(FALSE),
 	mHasMapBufferRange(FALSE),
 	mHasFlushBufferRange(FALSE),
 	mHasPBuffer(FALSE),
@@ -374,6 +406,7 @@ LLGLManager::LLGLManager() :
 	mHasAnisotropic(FALSE),
 	mHasARBEnvCombine(FALSE),
 	mHasCubeMap(FALSE),
+	mHasDebugOutput(FALSE),
 
 	mIsATI(FALSE),
 	mIsNVIDIA(FALSE),
@@ -451,13 +484,39 @@ bool LLGLManager::initGL()
 		LL_ERRS("RenderInit") << "Calling init on LLGLManager after already initialized!" << LL_ENDL;
 	}
 
-	GLint alpha_bits;
-	glGetIntegerv( GL_ALPHA_BITS, &alpha_bits );
-	if( 8 != alpha_bits )
+	if (!glGetStringi)
 	{
-		LL_WARNS("RenderInit") << "Frame buffer has less than 8 bits of alpha.  Avatar texture compositing will fail." << LL_ENDL;
+		glGetStringi = (PFNGLGETSTRINGIPROC) GLH_EXT_GET_PROC_ADDRESS("glGetStringi");
 	}
 
+	//reload extensions string (may have changed after using wglCreateContextAttrib)
+	if (glGetStringi)
+	{
+		std::stringstream str;
+
+		GLint count = 0;
+		glGetIntegerv(GL_NUM_EXTENSIONS, &count);
+		for (GLint i = 0; i < count; ++i)
+		{
+			str << (const char*) glGetStringi(GL_EXTENSIONS, i) << " ";
+		}
+		
+#if LL_WINDOWS
+		{
+			PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = 0;
+			wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
+			if(wglGetExtensionsStringARB)
+			{
+				str << (const char*) wglGetExtensionsStringARB(wglGetCurrentDC());
+			}
+		}
+#endif
+		free(gGLHExts.mSysExts);
+		std::string extensions = str.str();
+		gGLHExts.mSysExts = strdup(extensions.c_str());
+		
+	}
+	
 	// Extract video card strings and convert to upper case to
 	// work around driver-to-driver variation in capitalization.
 	mGLVendor = std::string((const char *)glGetString(GL_VENDOR));
@@ -593,6 +652,12 @@ bool LLGLManager::initGL()
 		glGetIntegerv(GL_MAX_DEPTH_TEXTURE_SAMPLES, &mMaxDepthTextureSamples);
 		glGetIntegerv(GL_MAX_INTEGER_SAMPLES, &mMaxIntegerSamples);
 		glGetIntegerv(GL_MAX_SAMPLE_MASK_WORDS, &mMaxSampleMaskWords);
+	}
+
+	if (mHasDebugOutput && gDebugGL)
+	{ //setup debug output callback
+		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
 
 	//HACK always disable texture multisample, use FXAA instead
@@ -789,7 +854,7 @@ void LLGLManager::initExtensions()
 	mHasVertexShader = FALSE;
 	mHasFragmentShader = FALSE;
 	mHasTextureRectangle = FALSE;
-#else // LL_MESA_HEADLESS
+#else // LL_MESA_HEADLESS //important, gGLHExts.mSysExts is uninitialized until after glh_init_extensions is called
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
 	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts);
 	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
@@ -803,6 +868,7 @@ void LLGLManager::initExtensions()
 	mHasOcclusionQuery = ExtensionExists("GL_ARB_occlusion_query", gGLHExts.mSysExts);
 	mHasOcclusionQuery2 = ExtensionExists("GL_ARB_occlusion_query2", gGLHExts.mSysExts);
 	mHasVertexBufferObject = ExtensionExists("GL_ARB_vertex_buffer_object", gGLHExts.mSysExts);
+	mHasVertexArrayObject = ExtensionExists("GL_ARB_vertex_array_object", gGLHExts.mSysExts);
 	mHasSync = ExtensionExists("GL_ARB_sync", gGLHExts.mSysExts);
 	mHasMapBufferRange = ExtensionExists("GL_ARB_map_buffer_range", gGLHExts.mSysExts);
 	mHasFlushBufferRange = ExtensionExists("GL_APPLE_flush_buffer_range", gGLHExts.mSysExts);
@@ -821,6 +887,7 @@ void LLGLManager::initExtensions()
 	mHasBlendFuncSeparate = ExtensionExists("GL_EXT_blend_func_separate", gGLHExts.mSysExts);
 	mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
 	mHasTextureMultisample = ExtensionExists("GL_ARB_texture_multisample", gGLHExts.mSysExts);
+	mHasDebugOutput = ExtensionExists("GL_ARB_debug_output", gGLHExts.mSysExts);
 #if !LL_DARWIN
 	mHasPointParameters = !mIsATI && ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
 #endif
@@ -1000,6 +1067,13 @@ void LLGLManager::initExtensions()
 			mHasVertexBufferObject = FALSE;
 		}
 	}
+	if (mHasVertexArrayObject)
+	{
+		glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC) GLH_EXT_GET_PROC_ADDRESS("glBindVertexArray");
+		glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC) GLH_EXT_GET_PROC_ADDRESS("glDeleteVertexArrays");
+		glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC) GLH_EXT_GET_PROC_ADDRESS("glGenVertexArrays");
+		glIsVertexArray = (PFNGLISVERTEXARRAYPROC) GLH_EXT_GET_PROC_ADDRESS("glIsVertexArray");
+	}
 	if (mHasSync)
 	{
 		glFenceSync = (PFNGLFENCESYNCPROC) GLH_EXT_GET_PROC_ADDRESS("glFenceSync");
@@ -1054,6 +1128,13 @@ void LLGLManager::initExtensions()
 		glGetMultisamplefv = (PFNGLGETMULTISAMPLEFVPROC) GLH_EXT_GET_PROC_ADDRESS("glGetMultisamplefv");
 		glSampleMaski = (PFNGLSAMPLEMASKIPROC) GLH_EXT_GET_PROC_ADDRESS("glSampleMaski");
 	}	
+	if (mHasDebugOutput)
+	{
+		glDebugMessageControlARB = (PFNGLDEBUGMESSAGECONTROLARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDebugMessageControlARB");
+		glDebugMessageInsertARB = (PFNGLDEBUGMESSAGEINSERTARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDebugMessageInsertARB");
+		glDebugMessageCallbackARB = (PFNGLDEBUGMESSAGECALLBACKARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDebugMessageCallbackARB");
+		glGetDebugMessageLogARB = (PFNGLGETDEBUGMESSAGELOGARBPROC) GLH_EXT_GET_PROC_ADDRESS("glGetDebugMessageLogARB");
+	}
 #if (!LL_LINUX && !LL_SOLARIS) || LL_LINUX_NV_GL_HEADERS
 	// This is expected to be a static symbol on Linux GL implementations, except if we use the nvidia headers - bah
 	glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)GLH_EXT_GET_PROC_ADDRESS("glDrawRangeElements");
@@ -1339,9 +1420,6 @@ void LLGLState::initClass()
 	// sStateMap[GL_TEXTURE_2D] = GL_TRUE;
 	
 	//make sure multisample defaults to disabled
-	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
-	glDisable(GL_MULTISAMPLE_ARB);
-
 	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
 	glDisable(GL_MULTISAMPLE_ARB);
 }

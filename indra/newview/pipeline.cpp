@@ -106,26 +106,6 @@
 #include "llnotifications.h"
 
 
-void check_stack_depth(S32 stack_depth)
-{
-	if (gDebugGL || gDebugSession)
-	{
-		GLint depth;
-		glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &depth);
-		if (depth != stack_depth)
-		{
-			if (gDebugSession)
-			{
-				ll_fail("GL matrix stack corrupted.");
-			}
-			else
-			{
-				llerrs << "GL matrix stack corrupted!" << llendl;
-			}
-		}
-	}
-}
-	
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
 //#define DEBUG_INDICES
@@ -701,7 +681,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		// As of OS X 10.6.7, Apple doesn't support multiple color formats in a single FBO
 		if (!mEdgeMap.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 #else
-		if (!mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
+		if (!mEdgeMap.allocate(resX, resY, LLRender::sGLCoreProfile ? GL_RGBA : GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 #endif
 
 		if (shadow_detail > 0 || ssao)
@@ -916,6 +896,7 @@ void LLPipeline::releaseScreenBuffers()
 
 void LLPipeline::createGLBuffers()
 {
+	stop_glerror();
 	LLMemType mt_cb(LLMemType::MTYPE_PIPELINE_CREATE_BUFFERS);
 	assertInitialized();
 
@@ -1020,7 +1001,7 @@ void LLPipeline::createGLBuffers()
 
 			LLImageGL::generateTextures(1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_ALPHA, lightResX, lightResY, GL_ALPHA, GL_UNSIGNED_BYTE, lg);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R8, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, lg);
 			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
 
@@ -3597,13 +3578,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		}
 	}
 
-	S32 stack_depth = 0;
-
-	if (gDebugGL)
-	{
-		glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &stack_depth);
-	}
-
 	///////////////////////////////////////////
 	//
 	// Sync and verify GL state
@@ -3731,7 +3705,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 					LLVertexBuffer::unbind();
 					if (gDebugGL)
 					{
-						check_stack_depth(stack_depth);
 						std::string msg = llformat("pass %d", i);
 						LLGLState::checkStates(msg);
 						//LLGLState::checkTextureChannels(msg);
@@ -3907,12 +3880,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 
 				if (gDebugGL || gDebugPipeline)
 				{
-					GLint depth;
-					glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &depth);
-					if (depth > 3)
-					{
-						llerrs << "GL matrix stack corrupted!" << llendl;
-					}
 					LLGLState::checkStates();
 				}
 			}
@@ -4000,12 +3967,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 
 				if (gDebugGL || gDebugPipeline)
 				{
-					GLint depth;
-					glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &depth);
-					if (depth > 3)
-					{
-						llerrs << "GL matrix stack corrupted!" << llendl;
-					}
 					LLGLState::checkStates();
 				}
 			}

@@ -261,7 +261,6 @@ void LLSpatialGroup::buildOcclusion()
 {
 	if (mOcclusionVerts.isNull())
 	{
-
 		mOcclusionVerts = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, 
 			LLVertexBuffer::sUseStreamDraw ? mBufferUsage : 0); //if GL has a hard time with VBOs, don't use them for occlusion culling.
 		mOcclusionVerts->allocateBuffer(8, 64, true);

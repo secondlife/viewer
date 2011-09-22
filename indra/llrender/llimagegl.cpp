@@ -725,7 +725,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		}
 		else if (!is_compressed)
 		{
-			if (mAutoGenMips) //auto-generating mipmaps is deprecated in GL 3.0
+			if (mAutoGenMips && !LLRender::sGLCoreProfile) //auto-generating mipmaps is deprecated in GL 3.0
 			{
 				glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_GENERATE_MIPMAP_SGIS, TRUE);
 				stop_glerror();
@@ -877,6 +877,9 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 
 BOOL LLImageGL::preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image)
 {
+	//not compatible with core GL profile
+	llassert(!LLRender::sGLCoreProfile);
+
 	if (gGLManager.mIsDisabled)
 	{
 		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
@@ -903,29 +906,29 @@ BOOL LLImageGL::preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image)
 	{
 		switch (mComponents)
 		{
-		  case 1:
+			case 1:
 			// Use luminance alpha (for fonts)
 			mFormatInternal = GL_LUMINANCE8;
 			mFormatPrimary = GL_LUMINANCE;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 2:
+			case 2:
 			// Use luminance alpha (for fonts)
 			mFormatInternal = GL_LUMINANCE8_ALPHA8;
 			mFormatPrimary = GL_LUMINANCE_ALPHA;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 3:
+			case 3:
 			mFormatInternal = GL_RGB8;
 			mFormatPrimary = GL_RGB;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 4:
+			case 4:
 			mFormatInternal = GL_RGBA8;
 			mFormatPrimary = GL_RGBA;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  default:
+			default:
 			llerrs << "Bad number of components for texture: " << (U32)getComponents() << llendl;
 		}
 	}
@@ -1101,8 +1104,76 @@ void LLImageGL::deleteTextures(S32 numTextures, U32 *textures, bool immediate)
 // static
 void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels)
 {
-	glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, pixels);
+	bool use_scratch = false;
+	U32* scratch = NULL;
+	if (LLRender::sGLCoreProfile)
+	{
+		if (intformat == GL_ALPHA8 && pixformat == GL_ALPHA && pixtype == GL_UNSIGNED_BYTE) 
+		{ //GL_ALPHA is deprecated, convert to RGBA
+			use_scratch = true;
+			scratch = new U32[width*height];
+
+			U32 pixel_count = (U32) (width*height);
+			for (U32 i = 0; i < pixel_count; i++)
+			{
+				U8* pix = (U8*) &scratch[i];
+				pix[0] = pix[1] = pix[2] = 0;
+				pix[3] = ((U8*) pixels)[i];
+			}				
+			
+			pixformat = GL_RGBA;
+			intformat = GL_RGBA8;
+		}
+
+		if (intformat == GL_LUMINANCE8_ALPHA8 && pixformat == GL_LUMINANCE_ALPHA && pixtype == GL_UNSIGNED_BYTE) 
+		{ //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
+			use_scratch = true;
+			scratch = new U32[width*height];
+
+			U32 pixel_count = (U32) (width*height);
+			for (U32 i = 0; i < pixel_count; i++)
+			{
+				U8 lum = ((U8*) pixels)[i*2+0];
+				U8 alpha = ((U8*) pixels)[i*2+1];
+
+				U8* pix = (U8*) &scratch[i];
+				pix[0] = pix[1] = pix[2] = lum;
+				pix[3] = alpha;
+			}				
+			
+			pixformat = GL_RGBA;
+			intformat = GL_RGBA8;
+		}
+
+		if (intformat == GL_LUMINANCE8 && pixformat == GL_LUMINANCE && pixtype == GL_UNSIGNED_BYTE) 
+		{ //GL_LUMINANCE_ALPHA is deprecated, convert to RGB
+			use_scratch = true;
+			scratch = new U32[width*height];
+
+			U32 pixel_count = (U32) (width*height);
+			for (U32 i = 0; i < pixel_count; i++)
+			{
+				U8 lum = ((U8*) pixels)[i*2+0];
+				U8 alpha = ((U8*) pixels)[i*2+1];
+
+				U8* pix = (U8*) &scratch[i];
+				pix[0] = pix[1] = pix[2] = lum;
+				pix[3] = 255;
+			}				
+			
+			pixformat = GL_RGBA;
+			intformat = GL_RGB8;
+		}
+	}
+
 	stop_glerror();
+	glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, use_scratch ? scratch : pixels);
+	stop_glerror();
+
+	if (use_scratch)
+	{
+		delete [] scratch;
+	}
 }
 
 //create an empty GL texture: just create a texture name
@@ -1169,29 +1240,29 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 	{
 		switch (mComponents)
 		{
-		  case 1:
+			case 1:
 			// Use luminance alpha (for fonts)
 			mFormatInternal = GL_LUMINANCE8;
 			mFormatPrimary = GL_LUMINANCE;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 2:
+			case 2:
 			// Use luminance alpha (for fonts)
 			mFormatInternal = GL_LUMINANCE8_ALPHA8;
 			mFormatPrimary = GL_LUMINANCE_ALPHA;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 3:
+			case 3:
 			mFormatInternal = GL_RGB8;
 			mFormatPrimary = GL_RGB;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 4:
+			case 4:
 			mFormatInternal = GL_RGBA8;
 			mFormatPrimary = GL_RGBA;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  default:
+			default:
 			llerrs << "Bad number of components for texture: " << (U32)getComponents() << llendl;
 		}
 
@@ -1214,6 +1285,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename)
 {
 	llassert(data_in);
+	stop_glerror();
 
 	if (discard_level < 0)
 	{
@@ -1242,8 +1314,11 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 		stop_glerror();
 		{
 			llverify(gGL.getTexUnit(0)->bind(this));
+			stop_glerror();
 			glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_BASE_LEVEL, 0);
+			stop_glerror();
 			glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_MAX_LEVEL,  mMaxDiscardLevel-discard_level);
+			stop_glerror();
 		}
 	}
 	if (!mTexName)

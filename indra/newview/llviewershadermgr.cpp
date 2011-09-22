@@ -443,6 +443,20 @@ void LLViewerShaderMgr::setShaders()
 		return;
 	}
 
+	if (LLRender::sGLCoreProfile)
+	{ 
+		if (!gSavedSettings.getBOOL("VertexShaderEnable"))
+		{ //vertex shaders MUST be enabled to use core profile
+			gSavedSettings.setBOOL("VertexShaderEnable", TRUE);
+		}
+		
+		if (!gSavedSettings.getBOOL("RenderTransparentWater"))
+		{ //non-transparent water uses fixed function
+			gSavedSettings.setBOOL("RenderTransparentWater", TRUE);
+		}
+	}
+
+
 	//setup preprocessor definitions
 	LLShaderMgr::instance()->mDefinitions["samples"] = llformat("%d", gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples")));
 	LLShaderMgr::instance()->mDefinitions["NUM_TEX_UNITS"] = llformat("%d", gGLManager.mNumTextureImageUnits);

@@ -38,6 +38,8 @@
 #include <vector>
 #include <list>
 
+#define LL_MAX_VERTEX_ATTRIB_LOCATION 64
+
 //============================================================================
 // NOTES
 // Threading:
@@ -49,7 +51,6 @@
 
 //============================================================================
 // gl name pools for dynamic and streaming buffers
-
 class LLVBOPool : public LLGLNamePool
 {
 protected:
@@ -116,7 +117,7 @@ public:
 
 	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
-	static void setupClientArrays(U32 data_mask);
+	static void setupClientArrays(U32 data_mask, U32& ref_mask = LLVertexBuffer::sLastMask);
 	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm);
 	static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp);
 
@@ -271,6 +272,10 @@ protected:
 	S32		mUsage;			// GL usage
 	U32		mGLBuffer;		// GL VBO handle
 	U32		mGLIndices;		// GL IBO handle
+	U32		mGLArray;		// GL VAO handle
+	U32		mLastMask;		
+	mutable void*   mLastPointer[LL_MAX_VERTEX_ATTRIB_LOCATION];
+
 	U8*		mMappedData;	// pointer to currently mapped data (NULL if unmapped)
 	U8*		mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
 	BOOL	mVertexLocked;			// if TRUE, vertex buffer is being or has been written to in client memory
@@ -307,6 +312,7 @@ public:
 	static S32 sTypeSize[TYPE_MAX];
 	static U32 sGLMode[LLRender::NUM_MODES];
 	static U32 sGLRenderBuffer;
+	static U32 sGLRenderArray;
 	static U32 sGLRenderIndices;
 	static BOOL sVBOActive;
 	static BOOL sIBOActive;

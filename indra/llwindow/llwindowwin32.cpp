@@ -41,6 +41,7 @@
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"
+#include "llglslshader.h"
 
 // System includes
 #include <commdlg.h>
@@ -1121,34 +1122,6 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	}
 
 	gGLManager.initWGL();
-
-	if (wglCreateContextAttribsARB && LLRender::sGLCoreProfile)
-	{
-		S32 attribs[] = 
-		{
-			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 0,
-			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-			0
-		};
-
-		HGLRC res = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
-
-		if (!res)
-		{
-			attribs[1] = 3;
-			attribs[3] = 1;
-
-			res = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
-		}
-
-		if (res)
-		{
-			wglMakeCurrent(mhDC, res);
-			wglDeleteContext(mhRC);
-			mhRC = res;
-		}
-	}
 	
 	if (wglChoosePixelFormatARB)
 	{
@@ -1406,7 +1379,35 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
-	if (!(mhRC = wglCreateContext(mhDC)))
+	mhRC = 0;
+	if (wglCreateContextAttribsARB)
+	{ //attempt to create a non-compatibility profile context
+		S32 attribs[] = 
+		{
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+			WGL_CONTEXT_PROFILE_MASK_ARB,  LLRender::sGLCoreProfile ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+			WGL_CONTEXT_FLAGS_ARB, gDebugGL ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
+			0
+		};
+
+		mhRC = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
+
+		if (!mhRC)
+		{
+			attribs[1] = 3;
+			attribs[3] = 3;
+
+			mhRC = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
+		}
+
+		if (mhRC)
+		{ //success, disable fixed function calls
+			LLGLSLShader::sNoFixedFunction = true;
+		}
+	}
+
+	if (!mhRC && !(mhRC = wglCreateContext(mhDC)))
 	{
 		close();
 		OSMessageBox(mCallbacks->translateString("MBGLContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
@@ -1426,7 +1427,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
 		return FALSE;
 	}
-
+	
 	// Disable vertical sync for swap
 	if (disable_vsync && wglSwapIntervalEXT)
 	{
