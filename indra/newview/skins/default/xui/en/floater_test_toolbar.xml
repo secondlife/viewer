@@ -13,15 +13,12 @@
            width="500"
            left="0"
            top="20"
-           orientation="horizontal">
-    <button width="0"
-            auto_resize="true"
+           side="top">
+    <button auto_resize="true"
             label="Button 1"/>
-    <button width="0"
-            auto_resize="true"
+    <button auto_resize="true"
             label="Button with long label"/>
-    <button width="0"
-            auto_resize="true"
+    <button auto_resize="true"
             label="Button with longest label of all"/>
   </toolbar>
   <toolbar name="test_toolbar_vertical"
@@ -30,7 +27,7 @@
            width="100"
            left="0"
            top="70"
-           orientation="vertical">
+           side="left">
     <button height="30"
             label="Button 1"/>
     <button height="50"
