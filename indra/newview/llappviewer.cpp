@@ -2326,7 +2326,7 @@ bool LLAppViewer::initConfiguration()
 
 	if (gSavedSettings.getBOOL("FirstRunThisInstall"))
 	{
-		gSavedSettings.setString("SessionSettingsFile", "settings_minimal.xml");
+		gSavedSettings.setString("SessionSettingsFile", "settings.xml");
 		gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
 	}
 

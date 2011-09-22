@@ -33,6 +33,7 @@
 
 #include "llcompilequeue.h"
 #include "llcallfloater.h"
+#include "llfasttimerview.h"
 #include "llfloaterabout.h"
 #include "llfloateranimpreview.h"
 #include "llfloaterauction.h"
@@ -160,6 +161,7 @@ void LLViewerFloaterReg::registerFloaters()
 	// *NOTE: Please keep these alphabetized for easier merges
 
 	LLFloaterAboutUtil::registerFloater();
+	LLFloaterReg::add("fast_timers", "floater_fast_timers.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFastTimerView>);
 	LLFloaterReg::add("about_land", "floater_about_land.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLand>);
 	LLFloaterReg::add("auction", "floater_auction.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAuction>);
 	LLFloaterReg::add("avatar_picker", "floater_avatar_picker.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarPicker>);

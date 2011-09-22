@@ -282,9 +282,9 @@ void LLFolderViewItem::refreshFromListener()
 		setToolTip(mLabel);
 		setIcon(mListener->getIcon());
 		time_t creation_date = mListener->getCreationDate();
-		if (mCreationDate != creation_date)
+		if ((creation_date > 0) && (mCreationDate != creation_date))
 		{
-			setCreationDate(mListener->getCreationDate());
+			setCreationDate(creation_date);
 			dirtyFilter();
 		}
 		if (mRoot->useLabelSuffix())
