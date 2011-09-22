@@ -295,7 +295,7 @@ void main()
 	{
 		vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 	
-		da = texture2D(lightFunc, vec2(da, 0.0)).a;
+		da = texture2D(lightFunc, vec2(da, 0.0)).r;
 		
 		vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
 		float scol = max(scol_ambocc.r, diffuse.a); 
@@ -314,7 +314,7 @@ void main()
 			//
 			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 			float sa = dot(refnormpersp, vary_light.xyz);
-			vec3 dumbshiny = vary_SunlitColor*scol*texture2D(lightFunc, vec2(sa, spec.a)).a;
+			vec3 dumbshiny = vary_SunlitColor*scol*texture2D(lightFunc, vec2(sa, spec.a)).r;
 		
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;

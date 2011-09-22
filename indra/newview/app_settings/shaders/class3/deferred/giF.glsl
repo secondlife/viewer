@@ -156,7 +156,7 @@ vec3 giAmbient(vec3 pos, vec3 norm)
 						if (spec.a > 0.0)
 						{
 							float sa = dot(ha,lnorm);
-							da = texture2D(lightFunc, vec2(sa, spec.a)).a;
+							da = texture2D(lightFunc, vec2(sa, spec.a)).r;
 						}
 						else
 						{
@@ -171,7 +171,7 @@ vec3 giAmbient(vec3 pos, vec3 norm)
 							if (c_spec.a > 0.0)
 							{
 								float sa = dot(ha, gi_norm);
-								da = dist_atten*texture2D(lightFunc, vec2(sa, c_spec.a)).a;
+								da = dist_atten*texture2D(lightFunc, vec2(sa, c_spec.a)).r;
 							}
 							else
 							{

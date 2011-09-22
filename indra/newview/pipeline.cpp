@@ -7472,6 +7472,7 @@ void LLPipeline::renderDeferredLighting()
 					//correspond to their axis facing, with bit position 3,2,1 matching
 					//axis facing x,y,z, bit set meaning positive facing, bit clear 
 					//meaning negative facing
+					mDeferredVB->getVertexStrider(vert);
 					v[0].set(c[0]-s,c[1]-s,c[2]-s);  // 0 - 0000 
 					v[1].set(c[0]-s,c[1]-s,c[2]+s);  // 1 - 0001
 					v[2].set(c[0]-s,c[1]+s,c[2]-s);  // 2 - 0010
@@ -7506,6 +7507,7 @@ void LLPipeline::renderDeferredLighting()
 							gDeferredLightProgram.uniform1f("falloff", volume->getLightFalloff()*0.5f);
 							//gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
 							gGL.syncMatrices();
+							mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 							glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
 								GL_UNSIGNED_BYTE, get_box_fan_indices_ptr(camera, center));
 							stop_glerror();
@@ -7562,6 +7564,7 @@ void LLPipeline::renderDeferredLighting()
 					//correspond to their axis facing, with bit position 3,2,1 matching
 					//axis facing x,y,z, bit set meaning positive facing, bit clear 
 					//meaning negative facing
+					mDeferredVB->getVertexStrider(vert);
 					v[0].set(c[0]-s,c[1]-s,c[2]-s);  // 0 - 0000 
 					v[1].set(c[0]-s,c[1]-s,c[2]+s);  // 1 - 0001
 					v[2].set(c[0]-s,c[1]+s,c[2]-s);  // 2 - 0010
@@ -7577,6 +7580,7 @@ void LLPipeline::renderDeferredLighting()
 					gDeferredSpotLightProgram.uniform3fv("color", 1, col.mV);
 					gDeferredSpotLightProgram.uniform1f("falloff", volume->getLightFalloff()*0.5f);
 					gGL.syncMatrices();
+					mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
 							GL_UNSIGNED_BYTE, get_box_fan_indices_ptr(camera, center));
 				}
@@ -7585,6 +7589,7 @@ void LLPipeline::renderDeferredLighting()
 			}
 
 			//reset mDeferredVB to fullscreen triangle
+			mDeferredVB->getVertexStrider(vert);
 			vert[0].set(-1,1,0);
 			vert[1].set(-1,-3,0);
 			vert[2].set(3,1,0);
@@ -7632,7 +7637,6 @@ void LLPipeline::renderDeferredLighting()
 						gDeferredMultiLightProgram.uniform1f("far_z", far_z);
 						far_z = 0.f;
 						count = 0;
-						
 						mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 					}
 				}

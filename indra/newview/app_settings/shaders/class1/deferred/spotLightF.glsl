@@ -35,7 +35,6 @@ uniform sampler2DRect specularRect;
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
 uniform sampler2D noiseMap;
-uniform sampler2D lightFunc;
 uniform sampler2D projectionMap;
 
 uniform mat4 proj_mat; //screen space to light space
