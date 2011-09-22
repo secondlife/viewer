@@ -41,6 +41,7 @@
 #include "llinventoryclipboard.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "lllandmarkactions.h"
 #include "llnotificationsutil.h"
@@ -1057,7 +1058,7 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 		key["type"] = "landmark";
 		key["id"] = mSelectedItemID;
 
-		LLSideTray::getInstance()->showPanel("panel_places", key);
+		LLFloaterSidePanelContainer::showPanel("places", key);
 	}
 	else if (action == "copy_slurl")
 	{

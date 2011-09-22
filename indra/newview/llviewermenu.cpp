@@ -30,6 +30,7 @@
 // linden library includes
 #include "llavatarnamecache.h"	// IDEVO
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llcombobox.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
@@ -5324,7 +5325,7 @@ class LLWorldCreateLandmark : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
+		LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
 
 		return true;
 	}
@@ -5334,7 +5335,7 @@ class LLWorldPlaceProfile : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "agent"));
+		LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "agent"));
 
 		return true;
 	}

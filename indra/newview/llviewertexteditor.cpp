@@ -32,6 +32,7 @@
 #include "llaudioengine.h"
 #include "llavataractions.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
 #include "llinventorybridge.h"
@@ -80,7 +81,7 @@ public:
 		LLSD key;
 		key["type"] = "landmark";
 		key["id"] = landmark_inv_id;
-		LLSideTray::getInstance()->showPanel("panel_places", key);
+		LLFloaterSidePanelContainer::showPanel("places", key);
 	}
 	static void processForeignLandmark(LLLandmark* landmark,
 			const LLUUID& object_id, const LLUUID& notecard_inventory_id,

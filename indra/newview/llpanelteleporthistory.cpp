@@ -39,6 +39,7 @@
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llflatlistview.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
 #include "lltoggleablemenu.h"
@@ -221,7 +222,7 @@ void LLTeleportHistoryFlatItem::showPlaceInfoPanel(S32 index)
 	params["id"] = index;
 	params["type"] = "teleport_history";
 
-	LLSideTray::getInstance()->showPanel("panel_places", params);
+	LLFloaterSidePanelContainer::showPanel("places", params);
 }
 
 void LLTeleportHistoryFlatItem::onProfileBtnClick()
@@ -389,6 +390,11 @@ LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 {
 	LLTeleportHistoryFlatItemStorage::instance().purge();
 	LLView::deleteViewByHandle(mGearMenuHandle);
+
+	if (mTeleportHistoryChangedConnection.connected())
+	{
+		mTeleportHistoryChangedConnection.disconnect();
+	}
 }
 
 BOOL LLTeleportHistoryPanel::postBuild()
@@ -396,7 +402,7 @@ BOOL LLTeleportHistoryPanel::postBuild()
 	mTeleportHistory = LLTeleportHistoryStorage::getInstance();
 	if (mTeleportHistory)
 	{
-		mTeleportHistory->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryPanel::onTeleportHistoryChange, this, _1));
+		mTeleportHistoryChangedConnection = mTeleportHistory->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryPanel::onTeleportHistoryChange, this, _1));
 	}
 
 	mHistoryAccordion = getChild<LLAccordionCtrl>("history_accordion");

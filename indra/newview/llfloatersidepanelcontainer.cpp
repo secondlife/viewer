@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 
 // newview includes
@@ -74,4 +75,13 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_na
 	}
 
 	return panel;
+}
+
+void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, const LLSD& panel_name)
+{
+	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
+	if (floaterp)
+	{
+		floaterp->openChildPanel("main_panel", panel_name);
+	}
 }

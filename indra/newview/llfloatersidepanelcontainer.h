@@ -49,6 +49,8 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	LLPanel* openChildPanel(const std::string& panel_name, const LLSD& params);
+
+	static void showPanel(const std::string& floater_name, const LLSD& panel_name);
 };
 
 #endif // LL_LLFLOATERSIDEPANELCONTAINER_H

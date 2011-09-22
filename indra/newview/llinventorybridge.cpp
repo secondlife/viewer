@@ -39,6 +39,7 @@
 #include "llavataractions.h" 
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfolderview.h"
 #include "llfriendcard.h"
@@ -3851,7 +3852,7 @@ void LLLandmarkBridge::performAction(LLInventoryModel* model, std::string action
 			key["type"] = "landmark";
 			key["id"] = item->getUUID();
 
-			LLSideTray::getInstance()->showPanel("panel_places", key);
+			LLFloaterSidePanelContainer::showPanel("places", key);
 		}
 	}
 	else
