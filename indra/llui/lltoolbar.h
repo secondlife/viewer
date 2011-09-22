@@ -93,8 +93,8 @@ public:
 												button_icon_and_text;
 
 		Optional<bool>							wrap;
-		Optional<S32>							min_width,
-												max_width;
+		Optional<S32>							min_button_width,
+												max_button_width;
 		// get rid of this
 		Multiple<LLToolBarButton::Params>		buttons;
 
@@ -112,11 +112,9 @@ protected:
 	LLToolBar(const Params&);
 
 	void initFromParams(const Params&);
-	void addButton(LLToolBarButton* buttonp);
-	void updateLayout();
 
 private:
-	void addRow();
+	void updateLayoutAsNeeded();
 
 	std::list<LLToolBarButton*>		mButtons;
 	LLToolBarEnums::ButtonType		mButtonType;
@@ -125,11 +123,10 @@ private:
 	LLLayoutPanel*					mCenterPanel;
 	LLToolBarEnums::SideType		mSideType;
 
-	std::vector<LLLayoutStack*>		mStacks;
 	bool							mWrap;
 	bool							mNeedsLayout;
-	S32								mMinWidth,
-									mMaxWidth;
+	S32								mMinButtonWidth,
+									mMaxButtonWidth;
 
 	LLUIImagePtr					mBackgroundImage;
 };
