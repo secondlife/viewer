@@ -329,7 +329,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		
 		if (glyph_count >= GLYPH_BATCH_SIZE)
 		{
-			gGL.begin(LLRender::TRIANGLES);
+			gGL.begin(LLRender::QUADS);
 			{
 				gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
 			}
