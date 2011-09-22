@@ -1409,6 +1409,7 @@ list(APPEND viewer_SOURCE_FILES ${viewer_XUI_FILES})
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
     app_settings/cmd_line.xml
+    app_settings/commands.xml
     app_settings/grass.xml
     app_settings/high_graphics.xml
     app_settings/ignorable_dialogs.xml

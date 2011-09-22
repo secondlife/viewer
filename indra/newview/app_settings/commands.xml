@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<commands>
+  <command name="avatar"
+           icon="Command_Avatar_Icon"
+           label_ref="Command_Avatar_Label"
+           tooltip_ref="Command_Avatar_Tooltip"
+           function="Floater.ToolbarToggle"
+           param="avatar"
+           />
+  <command name="places"
+           icon="Command_Places_Icon"
+           label_ref="Command_Places_Label"
+           tooltip_ref="Command_Places_Tooltip"
+           function="Floater.ToolbarToggle"
+           param="places"
+           />
+</commands>

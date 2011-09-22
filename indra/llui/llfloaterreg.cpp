@@ -453,6 +453,17 @@ void LLFloaterReg::toggleFloaterInstance(const LLSD& sdname)
 }
 
 //static
+void LLFloaterReg::toggleToolbarFloaterInstance(const LLSD& sdname)
+{
+	// Do some extra logic here for 3-state toolbar floater toggling madness :)
+
+	LLSD key;
+	std::string name = sdname.asString();
+	parse_name_key(name, key);
+	toggleInstance(name, key);
+}
+
+//static
 bool LLFloaterReg::floaterInstanceVisible(const LLSD& sdname)
 {
 	LLSD key;

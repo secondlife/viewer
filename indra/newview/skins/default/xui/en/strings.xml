@@ -3651,4 +3651,10 @@ Try enclosing path to the editor with double quotes.
   <string name="BeaconMedia">Viewing media beacons (white)</string>
   <string name="ParticleHiding">Hiding Particles</string>
 
-  </strings>
+  <!-- commands -->
+  <string name="Command_Avatar_Label">Avatar</string>
+  <string name="Command_Avatar_Tooltip">Customize your avatar</string>
+  <string name="Command_Places_Label">Places</string>
+  <string name="Command_Places_Tooltip">Destination guide</string>
+
+</strings>
