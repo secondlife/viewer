@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<panel.string name="StatBarDaysOfWeek">
-		日曜日:月曜日:火曜日:水曜日:木曜日:金曜日:土曜日
-	</panel.string>
-	<panel.string name="StatBarMonthsOfYear">
-		1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
-	</panel.string>
 	<panel.string name="packet_loss_tooltip">
 		パケット損失
 	</panel.string>
@@ -21,13 +15,10 @@
 	<panel.string name="buycurrencylabel">
 		L$ [AMT]
 	</panel.string>
-	<panel name="balance_bg">
-		<text name="balance" tool_tip="クリックして L$ 残高を更新" value="L$20"/>
-		<button label="L$ の購入" name="buyL" tool_tip="クリックして L$ を購入します"/>
-	</panel>
-	<text name="TimeText" tool_tip="現在時刻（太平洋）">
-		24:00 AM PST
-	</text>
+	<combo_box name="mode_combo" tool_tip="モードを選択します。ベーシックモードでは探索やチャットをすばやく簡単に実行でき、アドバンスモードでは、より多くの機能が利用できます。">
+		<combo_box.item label="ベーシックモード" name="Basic"/>
+		<combo_box.item label="アドバンスモード" name="Advanced"/>
+	</combo_box>
 	<button name="media_toggle_btn" tool_tip="すべてのメディアを開始・停止（音楽、ビデオ、Web ページ）"/>
 	<button name="volume_btn" tool_tip="グローバル音量設定"/>
 </panel>

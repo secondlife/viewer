@@ -85,6 +85,19 @@ Asegúrate de que tu conexión a Internet está funcionando adecuadamente.
 		¿Guardar los cambios en las ropas o partes del cuerpo actuales?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No guardarlos" yestext="Guardarlos"/>
 	</notification>
+	<notification name="ConfirmNoCopyToOutbox">
+		No tienes permiso para copiar este objeto en el Buzón de salida de comerciante. ¿Estás seguro de que quieres mover el objeto siguiente?
+        [ITEM_NAME]
+		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
+	</notification>
+	<notification name="OutboxUploadComplete">
+		Envío al mercado finalizado.
+		<usetemplate name="okbutton" yestext="¡Hurra!"/>
+	</notification>
+	<notification name="OutboxUploadHadErrors">
+		El envío al mercado ha tenido errores. Corrige los problemas de tu buzón de salida y repite la operación. Muchas gracias.
+		<usetemplate name="okbutton" yestext="Reintentar"/>
+	</notification>
 	<notification name="CompileQueueSaveText">
 		Hubo un problema al subir el texto de un script por la siguiente razón: [REASON]. Por favor, inténtalo más tarde.
 	</notification>
@@ -2430,7 +2443,15 @@ Por favor, vuelve a intentarlo en unos momentos.
 		<form name="form">
 			<button name="Keep" text="Guardar"/>
 			<button name="Discard" text="Descartar"/>
-			<button name="Mute" text="Ignorar"/>
+			<button name="Mute" text="Ignorar al propietario"/>
+		</form>
+	</notification>
+	<notification name="OwnObjectGiveItem">
+		Tu objeto de nombre &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; te ha dado este [OBJECTTYPE]:
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
+		<form name="form">
+			<button name="Keep" text="Guardar"/>
+			<button name="Discard" text="Descartar"/>
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
@@ -2574,6 +2595,7 @@ Si no confias en este objeto y en su creador, deberías rehusar esta petición.
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [NAME]
 [MESSAGE]
 		<form name="form">
+			<button name="Mute" text="Ignorar"/>
 			<button name="Ignore" text="Ignorar"/>
 		</form>
 	</notification>
@@ -2581,6 +2603,7 @@ Si no confias en este objeto y en su creador, deberías rehusar esta petición.
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [GROUPNAME]
 [MESSAGE]
 		<form name="form">
+			<button name="Mute" text="Ignorar"/>
 			<button name="Ignore" text="Ignorar"/>
 		</form>
 	</notification>
@@ -2906,12 +2929,66 @@ Al ocultar el botón Hablar se desactiva la función de voz.
 	<notification label="¡Tienes dólares Linden!" name="HintLindenDollar">
 		Éste es tu saldo actual de L$. Haz clic en Comprar L$ para comprar más dólares Linden.
 	</notification>
+	<notification name="LowMemory">
+		Tu bloque de memoria es insuficiente. Algunas funciones de SL se han desactivado para evitar una caída. Por favor cierra otras aplicaciones. Si el problema continúa, reinicia SL.
+	</notification>
+	<notification name="ForceQuitDueToLowMemory">
+		SL saldrá en 30 segundos porque no hay memoria suficiente.
+	</notification>
 	<notification name="PopupAttempt">
 		Se ha impedido que se abriera una ventana emergente.
 		<form name="form">
 			<ignore name="ignore" text="Permitir todas las ventanas emergentes"/>
 			<button name="open" text="Abrir ventana emergente"/>
 		</form>
+	</notification>
+	<notification name="SOCKS_NOT_PERMITTED">
+		El proxy SOCKS 5 &quot;[HOST]:[PORT]&quot; ha rechazado la conexión, no está permitida por el juego de reglas.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_CONNECT_ERROR">
+		El proxy SOCKS 5 &quot;[HOST]:[PORT]&quot; ha rechazado la conexión, no se ha podido abrir el canal TCP.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_NOT_ACCEPTABLE">
+		El proxy SOCKS 5 &quot;[HOST]:[PORT]&quot; ha rechazado el sistema de autenticación seleccionado.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_AUTH_FAIL">
+		El proxy SOCKS 5 &quot;[HOST]:[PORT]&quot; contestó que tus credenciales no son válidas.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_UDP_FWD_NOT_GRANTED">
+		El proxy SOCKS 5 &quot;[HOST]:[PORT]&quot; ha rechazado la petición asociada de UDP.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_HOST_CONNECT_FAILED">
+		No se pudo establecer una conexión con el servidor proxy SOCKS 5 &quot;[HOST]:[PORT]&quot;.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_UNKNOWN_STATUS">
+		Error de proxy desconocido con el servidor &quot;[HOST]:[PORT]&quot;.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_INVALID_HOST">
+		Dirección o puerto de proxy SOCKS no válidos &quot;[HOST]:[PORT]&quot;.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_BAD_CREDS">
+		Nombre de usuario o contraseña de SOCKS 5 no válidos.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PROXY_INVALID_HTTP_HOST">
+		Dirección o puerto de proxy HTTP no válidos &quot;[HOST]:[PORT]&quot;.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PROXY_INVALID_SOCKS_HOST">
+		Dirección o puerto de proxy SOCKS no válidos &quot;[HOST]:[PORT]&quot;.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ChangeProxySettings">
+		La configuración del puerto se activará cuando reinicies [APP_NAME].
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AuthRequest">
 		El sitio en &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; de la plataforma &apos;[REALM]&apos; requiere un nombre de usuario y una contraseña.
