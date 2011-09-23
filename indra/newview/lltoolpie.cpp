@@ -96,7 +96,7 @@ private:
 };
 
 LLClickToTeleportTimer::LLClickToTeleportTimer(const LLVector3d& pos)
-:	LLEventTimer(0.33) // should be greater than double click interval
+:	LLEventTimer(0.33f) // should be greater than double click interval
 ,	mTeleportPos(pos)
 {
 };
