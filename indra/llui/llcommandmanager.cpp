@@ -72,9 +72,15 @@ LLCommandManager::LLCommandManager()
 
 LLCommandManager::~LLCommandManager()
 {
+	for (CommandVector::iterator cmdIt = mCommands.begin(); cmdIt != mCommands.end(); ++cmdIt)
+	{
+		LLCommand * command = *cmdIt;
+
+		delete command;
+	}
 }
 
-U32 LLCommandManager::count() const
+U32 LLCommandManager::commandCount() const
 {
 	return mCommands.size();
 }
@@ -88,18 +94,22 @@ LLCommand * LLCommandManager::getCommand(const std::string& commandName)
 {
 	LLCommand * command_name_match = NULL;
 
-	for (CommandVector::iterator it = mCommands.begin(); it != mCommands.end(); ++it)
+	CommandIndexMap::const_iterator found = mCommandIndices.find(commandName);
+	
+	if (found != mCommandIndices.end())
 	{
-		LLCommand * command = *it;
-
-		if (command->name() == commandName)
-		{
-			command_name_match = command;
-			break;
-		}
+		command_name_match = mCommands[found->second];
 	}
 
 	return command_name_match;
+}
+
+void LLCommandManager::addCommand(LLCommand * command)
+{
+	mCommandIndices[command->name()] = mCommands.size();
+	mCommands.push_back(command);
+
+	llinfos << "Successfully added command: " << command->name() << llendl;
 }
 
 //static
@@ -129,9 +139,7 @@ bool LLCommandManager::load()
 	{
 		LLCommand * command = new LLCommand(commandParams);
 
-		mgr.mCommands.push_back(command);
-
-		llinfos << "Successfully loaded command: " << command->name() << llendl;
+		mgr.addCommand(command);
 	}
 
 	return true;

@@ -33,6 +33,9 @@
 #include "llbutton.h"
 
 
+class LLCommand;
+
+
 class LLToolBarButton : public LLButton
 {
 public:
@@ -50,6 +53,8 @@ namespace LLToolBarEnums
 	{
 		BTNTYPE_ICONS_ONLY = 0,
 		BTNTYPE_ICONS_WITH_TEXT,
+
+		BTNTYPE_COUNT
 	};
 
 	enum SideType
@@ -93,8 +98,8 @@ public:
 												button_icon_and_text;
 
 		Optional<bool>							wrap;
-		Optional<S32>							min_width,
-												max_width;
+		Optional<S32>							min_button_width,
+												max_button_width;
 		// get rid of this
 		Multiple<LLToolBarButton::Params>		buttons;
 
@@ -107,16 +112,16 @@ public:
 	void draw();
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
+	bool addCommand(LLCommand * command);
+
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBar(const Params&);
 
 	void initFromParams(const Params&);
-	void addButton(LLToolBarButton* buttonp);
-	void updateLayout();
 
 private:
-	void addRow();
+	void updateLayoutAsNeeded();
 
 	std::list<LLToolBarButton*>		mButtons;
 	LLToolBarEnums::ButtonType		mButtonType;
@@ -125,13 +130,14 @@ private:
 	LLLayoutPanel*					mCenterPanel;
 	LLToolBarEnums::SideType		mSideType;
 
-	std::vector<LLLayoutStack*>		mStacks;
 	bool							mWrap;
 	bool							mNeedsLayout;
-	S32								mMinWidth,
-									mMaxWidth;
+	S32								mMinButtonWidth,
+									mMaxButtonWidth;
 
 	LLUIImagePtr					mBackgroundImage;
+
+	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
 };
 
 

@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_COMMANDMANAGER_H
-#define LL_COMMANDMANAGER_H
+#ifndef LL_LLCOMMANDMANAGER_H
+#define LL_LLCOMMANDMANAGER_H
 
 #include "llinitparam.h"
 #include "llsingleton.h"
@@ -82,16 +82,22 @@ public:
 	LLCommandManager();
 	~LLCommandManager();
 
-	U32 count() const;
+	U32 commandCount() const;
 	LLCommand * getCommand(U32 commandIndex);
 	LLCommand * getCommand(const std::string& commandName);
 
 	static bool load();
 
+protected:
+	void addCommand(LLCommand * command);
+
 private:
+	typedef std::map<std::string, U32>	CommandIndexMap;
 	typedef std::vector<LLCommand *>	CommandVector;
-	CommandVector						mCommands;
+	
+	CommandVector	mCommands;
+	CommandIndexMap	mCommandIndices;
 };
 
 
-#endif // LL_COMMANDMANAGER_H
+#endif // LL_LLCOMMANDMANAGER_H

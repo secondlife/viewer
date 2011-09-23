@@ -7,13 +7,44 @@
  name="floater_test_toolbar"
  translate="false"
  width="500">
-  <toolbar name="test_toolbar_horizontal"
+  <toolbar name="test_toolbar_top"
            follows="left|right|top"
            height="50"
            width="500"
            left="0"
            top="20"
+           min_width="100"
            side="top">
+    <button auto_resize="true"
+            label="Button"/>
+    <button auto_resize="true"
+            label="Button with long label"/>
+    <button auto_resize="true"
+            label="Button with longest label of all"/>
+  </toolbar>
+  <toolbar name="test_toolbar_left"
+           follows="left|bottom|top"
+           height="380"
+           width="100"
+           left="0"
+           top="70"
+           min_width="100"           
+           side="left">
+    <button height="30"
+            label="Button"/>
+    <button height="50"
+            label="Button with long label"/>
+    <button height="60"
+            label="Button with longest label of all"/>
+  </toolbar>
+  <toolbar name="test_toolbar_right"
+           follows="right|bottom|top"
+           height="380"
+           width="100"
+           right="500"
+           top="70"
+           min_width="100"
+           side="right">
     <button auto_resize="true"
             label="Button 1"/>
     <button auto_resize="true"
@@ -21,19 +52,19 @@
     <button auto_resize="true"
             label="Button with longest label of all"/>
   </toolbar>
-  <toolbar name="test_toolbar_vertical"
-           follows="left|bottom|top"
-           height="430"
-           width="100"
+  <toolbar name="test_toolbar_bottom"
+           follows="left|right|bottom"
+           height="50"
+           width="500"
            left="0"
-           top="70"
-           side="left">
-    <button height="30"
-            label="Button 1"/>
-    <button height="50"
-            label="Button 2"/>
-    <button height="60"
-            label="Button 3"/>
+           bottom="500"
+           min_width="100"
+           side="bottom">
+    <button auto_resize="true"
+            label="Button"/>
+    <button auto_resize="true"
+            label="Button with long label"/>
+    <button auto_resize="true"
+            label="Button with longest label of all"/>
   </toolbar>
-
 </floater>

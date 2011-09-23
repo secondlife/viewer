@@ -29,12 +29,15 @@
 #include "llfloatertoybox.h"
 
 #include "llbutton.h"
+#include "llcommandmanager.h"
 #include "llpanel.h"
+#include "lltoolbar.h"
 
 
 LLFloaterToybox::LLFloaterToybox(const LLSD& key)
 	: LLFloater(key)
 	, mBtnRestoreDefaults(NULL)
+	, mToolBar(NULL)
 {
 	mCommitCallbackRegistrar.add("Toybox.RestoreDefaults", boost::bind(&LLFloaterToybox::onBtnRestoreDefaults, this));
 }
@@ -48,23 +51,20 @@ BOOL LLFloaterToybox::postBuild()
 	center();
 
 	mBtnRestoreDefaults = getChild<LLButton>("btn_restore_defaults");
+	mToolBar = getChild<LLToolBar>("toybox_toolbar");
 
 	//
 	// Create Buttons
 	//
-/*
-	LLToyboxButtons::load();
 
-	for (size_t i = 0; i < LLToyboxButtons::buttonCount(); i++)
+	LLCommandManager& cmdMgr = LLCommandManager::instance();
+
+	for (U32 i = 0; i < cmdMgr.commandCount(); i++)
 	{
-		LLToyboxButton * button = LLToyboxButtons::get(i);
+		LLCommand * command = cmdMgr.getCommand(i);
 
-		// Panel opacity depends on whether or not button position is established
-		LLPanel * buttonPanel = createPanelForButton(button);
-
-		mToolBar->add(buttonPanel);
+		mToolBar->addCommand(command);
 	}
-*/
 
 	return TRUE;
 }
