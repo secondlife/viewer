@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<toolbar background_image = "Rounded_Rect">
-  <button_icon_and_text
-    follows="none"
-    height="30"
-    chrome="true"
-    auto_resize="true"
-    />
-  <button_icon
-  follows="none"
-  height="30"
-  chrome="true"
-  auto_resize="true"
-    />
+<toolbar background_image = "Rounded_Rect"
+         button_height="30">
+  <button_icon_and_text follows="none"
+                        chrome="true"
+                        use_ellipses="true"
+                        auto_resize="true"/>
+  <button_icon follows="none"
+               chrome="true"
+               use_ellipses="true"
+               auto_resize="true"/>
 </toolbar>
