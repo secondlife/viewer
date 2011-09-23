@@ -1029,6 +1029,7 @@ Synystyr Texan
 Takeda Terrawyng
 TankMaster Finesmith
 	STORM-1100
+	STORM-1602
     VWR-26622
 Talamasca
 Tali Rosca
