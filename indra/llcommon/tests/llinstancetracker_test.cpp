@@ -40,6 +40,7 @@
 #include <boost/scoped_ptr.hpp>
 // other Linden headers
 #include "../test/lltut.h"
+#include "wrapllerrs.h"
 
 struct Keyed: public LLInstanceTracker<Keyed, std::string>
 {
@@ -164,5 +165,68 @@ namespace tut
 		}
 
         ensure_equals("unreported instance", instances.size(), 0);
+    }
+
+    template<> template<>
+    void object::test<5>()
+    {
+        set_test_name("delete Keyed with outstanding instance_iter");
+        std::string what;
+        Keyed* keyed = new Keyed("one");
+        {
+            WrapLL_ERRS wrapper;
+            Keyed::instance_iter i(Keyed::beginInstances());
+            try
+            {
+                delete keyed;
+            }
+            catch (const WrapLL_ERRS::FatalException& e)
+            {
+                what = e.what();
+            }
+        }
+        ensure(! what.empty());
+    }
+
+    template<> template<>
+    void object::test<6>()
+    {
+        set_test_name("delete Keyed with outstanding key_iter");
+        std::string what;
+        Keyed* keyed = new Keyed("one");
+        {
+            WrapLL_ERRS wrapper;
+            Keyed::key_iter i(Keyed::beginKeys());
+            try
+            {
+                delete keyed;
+            }
+            catch (const WrapLL_ERRS::FatalException& e)
+            {
+                what = e.what();
+            }
+        }
+        ensure(! what.empty());
+    }
+
+    template<> template<>
+    void object::test<7>()
+    {
+        set_test_name("delete Unkeyed with outstanding instance_iter");
+        std::string what;
+        Unkeyed* unkeyed = new Unkeyed;
+        {
+            WrapLL_ERRS wrapper;
+            Unkeyed::instance_iter i(Unkeyed::beginInstances());
+            try
+            {
+                delete unkeyed;
+            }
+            catch (const WrapLL_ERRS::FatalException& e)
+            {
+                what = e.what();
+            }
+        }
+        ensure(! what.empty());
     }
 } // namespace tut

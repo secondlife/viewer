@@ -9,14 +9,22 @@
      name="Me"
      tear_off="true">
         <menu_item_call
-         label="Preferences"
+         label="Preferences..."
          name="Preferences"
          shortcut="control|P">
             <menu_item_call.on_click
              function="Floater.Show"
              parameter="preferences" />
         </menu_item_call>
-         <menu_item_call
+        <menu_item_call
+         label="Toolbars..."
+         name="Toolbars"
+         shortcut="control|T">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="toybox" />
+        </menu_item_call>
+        <menu_item_call
              label="My Dashboard"
              name="Manage My Account">
                 <menu_item_call.on_click
@@ -2855,7 +2863,7 @@
                  function="ToggleControl"
                  parameter="BottomPanelNew" />
             </menu_item_check>-->
-            <menu_item_call
+          <menu_item_call
              label="Media Browser Test"
              name="Web Browser Test">
                 <menu_item_call.on_click

@@ -201,7 +201,8 @@ public:
 };
 
 LLBottomTray::LLBottomTray(const LLSD&)
-:	mChicletPanel(NULL),
+:	mDesiredNearbyChatWidth(0),
+	mChicletPanel(NULL),
 	mSpeakPanel(NULL),
 	mSpeakBtn(NULL),
 	mNearbyChatBar(NULL),
@@ -1097,33 +1098,35 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 	if (still_should_be_processed)
 	{
 		processShrinkButtons(delta_width, buttons_freed_width);
+		still_should_be_processed = delta_width < 0;
 	}
+
 	// 3. Decreasing width of nearby chat.
 	const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mChatBarContainer);
 	const S32 chatbar_panel_width = mChatBarContainer->getRect().getWidth();
 	if (still_should_be_processed && chatbar_panel_width > chatbar_panel_min_width)
 	{
 		// we have some space to decrease chatbar panel
-		S32 panel_delta_min = chatbar_panel_width - chatbar_panel_min_width;
+		S32 chatbar_shrink_headroom = chatbar_panel_width - chatbar_panel_min_width;
 
-		S32 delta_panel = llmin(-delta_width, panel_delta_min);
+		S32 shrink_by = llmin(-delta_width, chatbar_shrink_headroom);
 
 		// is chatbar panel wide enough to process resizing?
-		delta_width += panel_delta_min;
+		delta_width += chatbar_shrink_headroom;
 
 		still_should_be_processed = delta_width < 0;
 
 		// chatbar should only be shrunk here, not stretched
-		if(delta_panel > 0)
+		if (shrink_by > 0)
 		{
-			lldebugs << "Shrinking nearby chat bar by " << delta_panel << " px " << llendl;
+			//lldebugs << "Shrinking nearby chat bar by " << delta_panel << " px " << llendl;
 			//mChatBarContainer->reshape(mNearbyChatBar->getRect().getWidth() - delta_panel, mChatBarContainer->getRect().getHeight());
 		}
 
 		log(mNearbyChatBar, "after processing panel decreasing via nearby chatbar panel");
 
 		lldebugs << "RS_CHATBAR_INPUT"
-			<< ", delta_panel: " << delta_panel
+			<< ", shrink_by: " << shrink_by
 			<< ", delta_width: " << delta_width
 			<< llendl;
 	}
@@ -1202,16 +1205,16 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 		<< ", mDesiredNearbyChatWidth = " << mDesiredNearbyChatWidth << llendl;
 	if (delta_width > 0 && chatbar_panel_width < mDesiredNearbyChatWidth)
 	{
-		S32 delta_panel_max = mDesiredNearbyChatWidth - chatbar_panel_width;
-		S32 delta_panel = llmin(delta_width, delta_panel_max);
-		lldebugs << "Unprocesed delta width: " << delta_width
-			<< ", can be applied to chatbar: " << delta_panel_max
-			<< ", will be applied: " << delta_panel
+		S32 extend_by_max = mDesiredNearbyChatWidth - chatbar_panel_width;
+		S32 extend_by = llmin(delta_width, extend_by_max);
+		lldebugs << "Unprocessed delta width: " << delta_width
+			<< " px, chatbar can be extended by " << extend_by_max
+			<< " px, extending it by " << extend_by << " px"
 			<< llendl;
 
-		delta_width -= delta_panel_max;
-		lldebugs << "Extending nearby chat bar by " << delta_panel << " px " << llendl;
-		mChatBarContainer->reshape(chatbar_panel_width + delta_panel, mChatBarContainer->getRect().getHeight());
+		delta_width -= extend_by_max;
+		lldebugs << "Extending nearby chat bar by " << extend_by << " px " << llendl;
+		mChatBarContainer->reshape(chatbar_panel_width + extend_by, mChatBarContainer->getRect().getHeight());
 		log(mNearbyChatBar, "applied unprocessed delta width");
 	}
 

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="NearBy Chat Menu">
-	<menu_item_call label="Leute in der Nähe anzeigen..." name="nearby_people"/>
-	<menu_item_check label="Ignorierten Text anzeigen" name="muted_text"/>
-	<menu_item_check label="Bilder von Freunden anzeigen" name="show_buddy_icons"/>
-	<menu_item_check label="Namen anzeigen" name="show_names"/>
-	<menu_item_check label="Namen und Symbole anzeigen" name="show_icons_and_names"/>
-	<menu_item_call label="Schriftgröße" name="font_size"/>
-</menu>

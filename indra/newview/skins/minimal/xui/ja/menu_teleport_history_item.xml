@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Teleport History Item Context Menu">
-	<menu_item_call label="テレポート" name="Teleport"/>
-	<menu_item_call label="もっと詳しく" name="More Information"/>
-	<menu_item_call label="クリップボードにコピー" name="CopyToClipboard"/>
-</context_menu>

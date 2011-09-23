@@ -41,6 +41,7 @@
 #include "llgl.h"
 
 // Project includes
+#include "llcommandmanager.h"
 #include "llcontrol.h"
 #include "llui.h"
 #include "lluicolortable.h"
@@ -92,7 +93,6 @@ std::list<std::string> gUntranslated;
 static LLDefaultChildRegistry::Register<LLFilterEditor> register_filter_editor("filter_editor");
 static LLDefaultChildRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
 static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
-static LLDefaultChildRegistry::Register<LLToolBar> r1("toolbar");
 
 // register other widgets which otherwise may not be linked in
 static LLDefaultChildRegistry::Register<LLLoadingIndicator> register_loading_indicator("loading_indicator");
@@ -1617,6 +1617,7 @@ void LLUI::initClass(const settings_map_t& settings,
 
 	// Callbacks for associating controls with floater visibilty:
 	reg.add("Floater.Toggle", boost::bind(&LLFloaterReg::toggleFloaterInstance, _2));
+	reg.add("Floater.ToolbarToggle", boost::bind(&LLFloaterReg::toggleToolbarFloaterInstance, _2));
 	reg.add("Floater.Show", boost::bind(&LLFloaterReg::showFloaterInstance, _2));
 	reg.add("Floater.Hide", boost::bind(&LLFloaterReg::hideFloaterInstance, _2));
 	reg.add("Floater.InitToVisibilityControl", boost::bind(&LLFloaterReg::initUICtrlToFloaterVisibilityControl, _1, _2));
@@ -1635,6 +1636,9 @@ void LLUI::initClass(const settings_map_t& settings,
 	
 	// Used by menus along with Floater.Toggle to display visibility as a checkmark
 	LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.Visible", boost::bind(&LLFloaterReg::floaterInstanceVisible, _2));
+
+	// Parse the master list of commands
+	LLCommandManager::load();
 }
 
 void LLUI::cleanupClass()

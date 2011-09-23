@@ -161,14 +161,16 @@ public:
 								min_dim,
 								max_dim;
 		Optional<bool>			user_resize,
-								auto_resize;
+								auto_resize,
+								fit_content;
 
 		Params()
 		:	expanded_min_dim("expanded_min_dim", 0),
 			min_dim("min_dim", 0),
 			max_dim("max_dim", 0),
 			user_resize("user_resize", true),
-			auto_resize("auto_resize", true)
+			auto_resize("auto_resize", true),
+			fit_content("fit_content", false)
 		{
 			addSynonym(min_dim, "min_width");
 			addSynonym(min_dim, "min_height");
@@ -206,18 +208,20 @@ protected:
 	LLLayoutPanel(const Params& p);
 	
 	F32 getCollapseFactor(LLLayoutStack::ELayoutOrientation orientation);
+	void fitToContent();
 
-	bool mExpandedMinDimSpecified;
-	S32 mExpandedMinDim;
+	bool	mExpandedMinDimSpecified;
+	S32		mExpandedMinDim;
 	
-	S32 mMinDim;
-	S32 mMaxDim;
-	BOOL mAutoResize;
-	BOOL mUserResize;
-	BOOL mCollapsed;
+	S32		mMinDim;
+	S32		mMaxDim;
+	bool	mAutoResize;
+	bool	mUserResize;
+	bool	mCollapsed;
+	bool	mFitContent;
+	F32		mVisibleAmt;
+	F32		mCollapseAmt;
 	class LLResizeBar* mResizeBar;
-	F32 mVisibleAmt;
-	F32 mCollapseAmt;
 };
 
 

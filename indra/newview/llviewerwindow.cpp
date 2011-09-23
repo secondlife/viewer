@@ -76,6 +76,7 @@
 #include "lltimer.h"
 #include "timing.h"
 #include "llviewermenu.h"
+#include "lltoolbarview.h"
 #include "lltooltip.h"
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
@@ -1778,6 +1779,18 @@ void LLViewerWindow::initBase()
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
 	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
 
+	// Update the toolbar global holder
+	// *TODO: Eventually, suppress the existence of this debug setting and turn toolbar FUI on permanently
+	if (gSavedSettings.getBOOL("DebugToolbarFUI"))
+	{
+		// Get a pointer to the toolbar view holder
+		LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
+		// Load the toolbar view from file 
+		gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLPanel::child_registry_t::instance());
+		// Attach it to the toolbar view holder
+		//panel_holder->addChild(gToolBarView);
+	}
+
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
 	gFloaterView->setFloaterSnapView(main_view->getChild<LLView>("floater_snap_region")->getHandle());
@@ -1940,25 +1953,6 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel->setShape(buttons_panel_container->getLocalRect());
 	buttons_panel->setFollowsAll();
 	buttons_panel_container->addChild(buttons_panel);
-
-	LLView* avatar_picker_destination_guide_container = gViewerWindow->getRootView()->getChild<LLView>("avatar_picker_and_destination_guide_container");
-	avatar_picker_destination_guide_container->getChild<LLButton>("close")->setCommitCallback(boost::bind(toggle_destination_and_avatar_picker, LLSD()));
-	LLMediaCtrl* destinations = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("destination_guide_contents");
-	LLMediaCtrl* avatar_picker = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("avatar_picker_contents");
-	if (destinations)
-	{
-		destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"), "text/html");
-	}
-
-	if (avatar_picker)
-	{
-		avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
-	}
-
-	// show destinations by default
-	toggle_destination_and_avatar_picker(gSavedSettings.getS32("DestinationsAndAvatarsVisibility"));
 }
 
 // Destroy the UI
@@ -2000,6 +1994,7 @@ void LLViewerWindow::shutdownViews()
 	gIMMgr = NULL;
 	gToolTipView = NULL;
 
+	gToolBarView = NULL;
 	gFloaterView = NULL;
 	gMorphView = NULL;
 
@@ -2473,36 +2468,36 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		{
 			LLLineEditor* chat_editor = nearby_chat->getChatBox();
 		
-			// arrow keys move avatar while chatting hack
-			if (chat_editor && chat_editor->hasFocus())
+		// arrow keys move avatar while chatting hack
+		if (chat_editor && chat_editor->hasFocus())
+		{
+			// If text field is empty, there's no point in trying to move
+			// cursor with arrow keys, so allow movement
+			if (chat_editor->getText().empty() 
+				|| gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
 			{
-				// If text field is empty, there's no point in trying to move
-				// cursor with arrow keys, so allow movement
-				if (chat_editor->getText().empty() 
-					|| gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
+				// let Control-Up and Control-Down through for chat line history,
+				if (!(key == KEY_UP && mask == MASK_CONTROL)
+					&& !(key == KEY_DOWN && mask == MASK_CONTROL))
 				{
-					// let Control-Up and Control-Down through for chat line history,
-					if (!(key == KEY_UP && mask == MASK_CONTROL)
-						&& !(key == KEY_DOWN && mask == MASK_CONTROL))
+					switch(key)
 					{
-						switch(key)
-						{
-						case KEY_LEFT:
-						case KEY_RIGHT:
-						case KEY_UP:
-						case KEY_DOWN:
-						case KEY_PAGE_UP:
-						case KEY_PAGE_DOWN:
-						case KEY_HOME:
-							// when chatbar is empty or ArrowKeysAlwaysMove set,
-							// pass arrow keys on to avatar...
-							return FALSE;
-						default:
-							break;
-						}
+					case KEY_LEFT:
+					case KEY_RIGHT:
+					case KEY_UP:
+					case KEY_DOWN:
+					case KEY_PAGE_UP:
+					case KEY_PAGE_DOWN:
+					case KEY_HOME:
+						// when chatbar is empty or ArrowKeysAlwaysMove set,
+						// pass arrow keys on to avatar...
+						return FALSE;
+					default:
+						break;
 					}
 				}
 			}
+		}
 		}
 		if (keyboard_focus->handleKey(key, mask, FALSE))
 		{

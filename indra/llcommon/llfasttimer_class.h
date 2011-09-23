@@ -66,7 +66,7 @@ public:
 	public:
 		~NamedTimer();
 
-		enum { HISTORY_NUM = 60 };
+		enum { HISTORY_NUM = 300 };
 
 		const std::string& getName() const { return mName; }
 		NamedTimer* getParent() const { return mParent; }

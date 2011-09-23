@@ -3651,4 +3651,46 @@ Try enclosing path to the editor with double quotes.
   <string name="BeaconMedia">Viewing media beacons (white)</string>
   <string name="ParticleHiding">Hiding Particles</string>
 
-  </strings>
+  <!-- commands -->
+  <string name="Command_Avatar_Label">Avatar</string>
+  <string name="Command_Avatar_Tooltip">Change the appearance of your avatar</string>
+  <string name="Command_Build_Label">Build</string>
+  <string name="Command_Build_Tooltip">Building, reshaping terrain</string>
+  <string name="Command_Chat_Label">Chat</string>
+  <string name="Command_Chat_Tooltip">Chat with people nearby</string>
+  <string name="Command_Compass_Label">Compass</string>
+  <string name="Command_Compass_Tooltip"></string>
+  <string name="Command_Gestures_Label">Gestures</string>
+  <string name="Command_Gestures_Tooltip"></string>
+  <string name="Command_HowTo_Label">How To</string>
+  <string name="Command_HowTo_Tooltip"></string>
+  <string name="Command_Landmarks_Label">Landmarks</string>
+  <string name="Command_Landmarks_Tooltip"></string>
+  <string name="Command_Map_Label">Map</string>
+  <string name="Command_Map_Tooltip"></string>
+  <string name="Command_Move_Label">Move</string>
+  <string name="Command_Move_Tooltip"></string>
+  <string name="Command_MyLand_Label">My Land</string>
+  <string name="Command_MyLand_Tooltip">Information about the land you're visiting</string>
+  <string name="Command_MyStuff_Label">My Stuff</string>
+  <string name="Command_MyStuff_Tooltip">View and use your belongings</string>
+  <string name="Command_People_Label">People</string>
+  <string name="Command_People_Tooltip"></string>
+  <string name="Command_Places_Label">Places</string>
+  <string name="Command_Places_Tooltip">Destination guide</string>
+  <string name="Command_Search_Label">Search</string>
+  <string name="Command_Search_Tooltip">Find...</string>
+  <string name="Command_Settings_Label">Settings</string>
+  <string name="Command_Settings_Tooltip">Preferences</string>
+  <string name="Command_Shop_Label">Shop</string>
+  <string name="Command_Shop_Tooltip"></string>
+  <string name="Command_Snapshot_Label">Snapshot</string>
+  <string name="Command_Snapshot_Tooltip">Take a picture</string>
+  <string name="Command_Speak_Label">Speak</string>
+  <string name="Command_Speak_Tooltip">Speak with people nearby using your microphone</string>
+  <string name="Command_Upload_Label">Upload</string>
+  <string name="Command_Upload_Tooltip"></string>
+  <string name="Command_View_Label">View</string>
+  <string name="Command_View_Tooltip">Changing your view of the world</string>
+
+</strings>

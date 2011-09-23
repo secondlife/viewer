@@ -125,12 +125,12 @@ private:
 
 	// base case for recursion, there are NO base classes of LLInitParam::BaseBlock
 	template<int DUMMY>
-	class ParamDefaults<LLInitParam::BaseBlock, DUMMY> : public LLSingleton<ParamDefaults<LLInitParam::BaseBlock, DUMMY> >
+	class ParamDefaults<LLInitParam::BaseBlockWithFlags, DUMMY> : public LLSingleton<ParamDefaults<LLInitParam::BaseBlockWithFlags, DUMMY> >
 	{
 	public:
-		const LLInitParam::BaseBlock& get() { return mBaseBlock; }
+		const LLInitParam::BaseBlockWithFlags& get() { return mBaseBlock; }
 	private:
-		LLInitParam::BaseBlock mBaseBlock;
+		LLInitParam::BaseBlockWithFlags mBaseBlock;
 	};
 
 public:
@@ -172,7 +172,7 @@ public:
 	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry, LLXMLNodePtr output_node = NULL)
 	{
 		T* widget = NULL;
-
+		
 		std::string skinned_filename = findSkinnedFilename(filename);
 		instance().pushFileName(filename);
 		{
@@ -201,10 +201,10 @@ public:
 				// not of right type, so delete it
 				if (!widget) 
 				{
+					llwarns << "Widget in " << filename << " was of type " << typeid(view).name() << " instead of expected type " << typeid(T).name() << llendl;
 					delete view;
 					view = NULL;
 				}
-			
 			}
 		}
 fail:

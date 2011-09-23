@@ -35,6 +35,7 @@ set(llui_SOURCE_FILES
     llcheckboxctrl.cpp
     llclipboard.cpp
     llcombobox.cpp
+    llcommandmanager.cpp
     llconsole.cpp
     llcontainerview.cpp
     llctrlselectioninterface.cpp
@@ -100,6 +101,7 @@ set(llui_SOURCE_FILES
     lltransutil.cpp
     lltoggleablemenu.cpp
     lltoolbar.cpp
+    lltoolbarview.cpp
     lltooltip.cpp
     llui.cpp
     lluicolortable.cpp
@@ -132,6 +134,7 @@ set(llui_HEADER_FILES
     llcheckboxctrl.h
     llclipboard.h
     llcombobox.h
+    llcommandmanager.h
     llconsole.h
     llcontainerview.h
     llctrlselectioninterface.h
@@ -202,6 +205,7 @@ set(llui_HEADER_FILES
     lltimectrl.h
     lltoggleablemenu.h
     lltoolbar.h
+    lltoolbarview.h
     lltooltip.h
     lltransutil.h
     lluicolortable.h

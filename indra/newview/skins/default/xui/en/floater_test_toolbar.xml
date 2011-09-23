@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="500"
+ layout="topleft"
+ name="floater_test_toolbar"
+ translate="false"
+ width="500">
+  <toolbar name="test_toolbar_top"
+           follows="left|right|top"
+           height="50"
+           width="500"
+           left="0"
+           top="20"
+           min_width="100"
+           side="top">
+    <button auto_resize="true"
+            label="Button"/>
+    <button auto_resize="true"
+            label="Button with long label"/>
+    <button auto_resize="true"
+            label="Button with longest label of all"/>
+  </toolbar>
+  <toolbar name="test_toolbar_left"
+           follows="left|bottom|top"
+           height="380"
+           width="100"
+           left="0"
+           top="70"
+           min_width="100"           
+           side="left">
+    <button height="30"
+            label="Button"/>
+    <button height="50"
+            label="Button with long label"/>
+    <button height="60"
+            label="Button with longest label of all"/>
+  </toolbar>
+  <toolbar name="test_toolbar_right"
+           follows="right|bottom|top"
+           height="380"
+           width="100"
+           right="500"
+           top="70"
+           min_width="100"
+           side="right">
+    <button auto_resize="true"
+            label="Button 1"/>
+    <button auto_resize="true"
+            label="Button with long label"/>
+    <button auto_resize="true"
+            label="Button with longest label of all"/>
+  </toolbar>
+  <toolbar name="test_toolbar_bottom"
+           follows="left|right|bottom"
+           height="50"
+           width="500"
+           left="0"
+           bottom="500"
+           min_width="100"
+           side="bottom">
+    <button auto_resize="true"
+            label="Button"/>
+    <button auto_resize="true"
+            label="Button with long label"/>
+    <button auto_resize="true"
+            label="Button with longest label of all"/>
+  </toolbar>
+</floater>

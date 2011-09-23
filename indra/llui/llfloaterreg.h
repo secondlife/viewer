@@ -127,6 +127,7 @@ public:
 	static void showFloaterInstance(const LLSD& sdname);
 	static void hideFloaterInstance(const LLSD& sdname);
 	static void toggleFloaterInstance(const LLSD& sdname);
+	static void toggleToolbarFloaterInstance(const LLSD& sdname);
 	static bool floaterInstanceVisible(const LLSD& sdname);
 	static bool floaterInstanceMinimized(const LLSD& sdname);
 	
