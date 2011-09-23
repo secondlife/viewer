@@ -67,6 +67,12 @@ static const std::string HEADLESS_VERSION_STRING("1.0");
 
 std::ofstream gFailLog;
 
+#if GL_ARB_debug_output
+
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+
 void APIENTRY gl_debug_callback(GLenum source,
                                 GLenum type,
                                 GLuint id,
@@ -82,6 +88,7 @@ void APIENTRY gl_debug_callback(GLenum source,
 	llwarns << "Message: " << message << llendl;
 	llwarns << "-----------------------" << llendl;
 }
+#endif
 
 void ll_init_fail_log(std::string filename)
 {
@@ -127,7 +134,9 @@ std::list<LLGLUpdate*> LLGLUpdate::sGLQ;
 #if (LL_WINDOWS || LL_LINUX || LL_SOLARIS)  && !LL_MESA_HEADLESS
 // ATI prototypes
 
+#if LL_WINDOWS
 PFNGLGETSTRINGIPROC glGetStringi = NULL;
+#endif
 
 // vertex blending prototypes
 PFNGLWEIGHTPOINTERARBPROC			glWeightPointerARB = NULL;
@@ -484,6 +493,7 @@ bool LLGLManager::initGL()
 		LL_ERRS("RenderInit") << "Calling init on LLGLManager after already initialized!" << LL_ENDL;
 	}
 
+#if LL_WINDOWS
 	if (!glGetStringi)
 	{
 		glGetStringi = (PFNGLGETSTRINGIPROC) GLH_EXT_GET_PROC_ADDRESS("glGetStringi");
@@ -501,7 +511,6 @@ bool LLGLManager::initGL()
 			str << (const char*) glGetStringi(GL_EXTENSIONS, i) << " ";
 		}
 		
-#if LL_WINDOWS
 		{
 			PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = 0;
 			wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
@@ -510,12 +519,12 @@ bool LLGLManager::initGL()
 				str << (const char*) wglGetExtensionsStringARB(wglGetCurrentDC());
 			}
 		}
-#endif
+
 		free(gGLHExts.mSysExts);
 		std::string extensions = str.str();
 		gGLHExts.mSysExts = strdup(extensions.c_str());
-		
 	}
+#endif
 	
 	// Extract video card strings and convert to upper case to
 	// work around driver-to-driver variation in capitalization.
@@ -654,12 +663,14 @@ bool LLGLManager::initGL()
 		glGetIntegerv(GL_MAX_SAMPLE_MASK_WORDS, &mMaxSampleMaskWords);
 	}
 
+#if LL_WINDOWS
 	if (mHasDebugOutput && gDebugGL)
 	{ //setup debug output callback
 		glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
 		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
+#endif
 
 	//HACK always disable texture multisample, use FXAA instead
 	mHasTextureMultisample = FALSE;

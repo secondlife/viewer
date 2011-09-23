@@ -575,7 +575,9 @@ void LLVertexBuffer::unbind()
 {
 	if (sGLRenderArray)
 	{
+#if GL_ARB_vertex_array_object
 		glBindVertexArray(0);
+#endif
 		sGLRenderArray = 0;
 	}
 
@@ -733,7 +735,9 @@ LLVertexBuffer::~LLVertexBuffer()
 
 	if (mGLArray)
 	{
+#if GL_ARB_vertex_array_object
 		glDeleteVertexArrays(1, &mGLArray);
+#endif
 	}
 
 	sCount--;
@@ -1049,7 +1053,9 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 
 		if (gGLManager.mHasVertexArrayObject && useVBOs() && (LLRender::sGLCoreProfile || sUseVAO))
 		{
+#if GL_ARB_vertex_array_object
 			glGenVertexArrays(1, &mGLArray);
+#endif
 			setupVertexArray();
 		}
 	}
@@ -1128,7 +1134,9 @@ void LLVertexBuffer::setupVertexArray()
 		}
 	}
 
+#if GL_ARB_vertex_array_object
 	glBindVertexArray(0);
+#endif
 }
 
 void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
@@ -1864,7 +1872,9 @@ bool LLVertexBuffer::bindGLArray()
 {
 	if (mGLArray && sGLRenderArray != mGLArray)
 	{
+#if GL_ARB_vertex_array_object
 		glBindVertexArray(mGLArray);
+#endif
 		sGLRenderArray = mGLArray;
 		return true;
 	}
@@ -2072,7 +2082,9 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 	{	
 		if (sGLRenderArray)
 		{
+#if GL_ARB_vertex_array_object
 			glBindVertexArray(0);
+#endif
 			sGLRenderArray = 0;
 		}
 
