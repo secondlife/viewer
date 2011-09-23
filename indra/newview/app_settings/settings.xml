@@ -1493,7 +1493,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ChatBubbleOpacity</key>
     <map>

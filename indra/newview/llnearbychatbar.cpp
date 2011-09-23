@@ -411,8 +411,9 @@ LLCtrlListInterface* LLGestureComboList::getListInterface()
 	return mList;
 }
 
-LLNearbyChatBar::LLNearbyChatBar() 
-:	mChatBox(NULL)
+LLNearbyChatBar::LLNearbyChatBar(const LLSD& key)
+	: LLFloater(key),
+	mChatBox(NULL)
 {
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
@@ -457,19 +458,13 @@ void LLNearbyChatBar::onChatFontChange(LLFontGL* fontp)
 //static
 LLNearbyChatBar* LLNearbyChatBar::getInstance()
 {
-	return LLBottomTray::getInstance() ? LLBottomTray::getInstance()->getNearbyChatBar() : NULL;
-}
-
-//static
-bool LLNearbyChatBar::instanceExists()
-{
-	return LLBottomTray::instanceExists() && LLBottomTray::getInstance()->getNearbyChatBar() != NULL;
+	return LLFloaterReg::getTypedInstance<LLNearbyChatBar>("chat_bar");
 }
 
 void LLNearbyChatBar::draw()
 {
 	displaySpeakingIndicator();
-	LLPanel::draw();
+	LLFloater::draw();
 }
 
 std::string LLNearbyChatBar::getCurrentChat()
@@ -780,17 +775,12 @@ void LLNearbyChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type,
 // static 
 void LLNearbyChatBar::startChat(const char* line)
 {
-	LLBottomTray *bt = LLBottomTray::getInstance();
-
-	if (!bt)
-		return;
-
-	LLNearbyChatBar* cb = bt->getNearbyChatBar();
+	LLNearbyChatBar* cb = LLNearbyChatBar::getInstance();
 
 	if (!cb )
 		return;
 
-	bt->setVisible(TRUE);
+	cb->setVisible(TRUE);
 	cb->mChatBox->setFocus(TRUE);
 
 	if (line)
@@ -811,7 +801,7 @@ void LLNearbyChatBar::stopChat()
 	if (!bt)
 		return;
 
-	LLNearbyChatBar* cb = bt->getNearbyChatBar();
+	LLNearbyChatBar* cb = LLNearbyChatBar::getInstance();
 
 	if (!cb)
 		return;
@@ -820,6 +810,15 @@ void LLNearbyChatBar::stopChat()
 
  	// stop typing animation
  	gAgent.stopTyping();
+}
+
+void LLNearbyChatBar::onClose(bool app_quitting)
+{
+	LLFloater* nearby_chat = LLFloaterReg::findInstance("nearby_chat", LLSD());
+	if (nearby_chat)
+	{
+		nearby_chat->closeFloater(app_quitting);
+	}
 }
 
 // If input of the form "/20foo" or "/20 foo", returns "foo" and channel 20.

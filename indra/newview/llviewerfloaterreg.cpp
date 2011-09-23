@@ -127,6 +127,7 @@
 #include "llscriptfloater.h"
 #include "llfloatermodelpreview.h"
 #include "llcommandhandler.h"
+#include "llnearbychatbar.h"
 
 // *NOTE: Please add files in alphabetical order to keep merges easy.
 
@@ -177,6 +178,7 @@ void LLViewerFloaterReg::registerFloaters()
 
 	LLFloaterReg::add("camera", "floater_camera.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCamera>);
 	LLFloaterReg::add("nearby_chat", "floater_nearby_chat.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLNearbyChat>);
+	LLFloaterReg::add("chat_bar", "floater_chat_bar.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLNearbyChatBar>);
 
 	LLFloaterReg::add("compile_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCompileQueue>);
 

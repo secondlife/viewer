@@ -93,22 +93,22 @@ private:
 };
 
 class LLNearbyChatBar
-:	public LLPanel
+:	public LLFloater
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
-	LLNearbyChatBar();
+	LLNearbyChatBar(const LLSD& key);
 	~LLNearbyChatBar() {}
 
 	virtual BOOL postBuild();
 
 	static LLNearbyChatBar* getInstance();
 
-	static bool instanceExists();
-
 	LLLineEditor* getChatBox() { return mChatBox; }
 
 	virtual void draw();
+
+	virtual void onClose(bool app_quitting);
 
 	std::string getCurrentChat();
 	virtual BOOL handleKeyHere( KEY key, MASK mask );

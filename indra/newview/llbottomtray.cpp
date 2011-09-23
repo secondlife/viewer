@@ -165,13 +165,13 @@ public:
 		mChatBarContainer(NULL),
 		  mGesturePanel(NULL)
 	{
-		mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
+		//mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 		buildFromFile("panel_bottomtray_lite.xml");
 	}
 
 	BOOL postBuild()
 	{
-		mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
+		//mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
 		mChatBarContainer = getChild<LLLayoutPanel>("chat_bar_layout_panel");
 		mGesturePanel = getChild<LLPanel>("gesture_panel");
 
@@ -223,7 +223,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	// before chiclets do that.
 	LLIMMgr::getInstance()->addSessionObserver(this);
 
-	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
+	//mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 
 	buildFromFile("panel_bottomtray.xml");
 
@@ -270,7 +270,8 @@ LLBottomTray::~LLBottomTray()
 // *TODO Vadim: why void* ?
 void* LLBottomTray::createNearbyChatBar(void* userdata)
 {
-	return new LLNearbyChatBar();
+	//return new LLNearbyChatBar();
+	return NULL;
 }
 
 LLNearbyChatBar* LLBottomTray::getNearbyChatBar()
@@ -536,10 +537,10 @@ BOOL LLBottomTray::postBuild()
 	mBottomTrayContextMenu =  LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_bottomtray.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	gMenuHolder->addChild(mBottomTrayContextMenu);
 
-	mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
-	LLHints::registerHintTarget("chat_bar", mNearbyChatBar->LLView::getHandle());
+	//mNearbyChatBar = findChild<LLNearbyChatBar>("chat_bar");
+	//LLHints::registerHintTarget("chat_bar", mNearbyChatBar->LLView::getHandle());
 
-	mListener.reset(new LLNearbyChatBarListener(*mNearbyChatBar));
+	//mListener.reset(new LLNearbyChatBarListener(*mNearbyChatBar));
 
 	mChatBarContainer = getChild<LLLayoutPanel>("chat_bar_layout_panel");
 	mNearbyCharResizeHandlePanel = getChild<LLPanel>("chat_bar_resize_handle_panel");
@@ -576,7 +577,7 @@ BOOL LLBottomTray::postBuild()
 	// Registering Chat Bar to receive Voice client status change notifications.
 	LLVoiceClient::getInstance()->addObserver(this);
 
-	mNearbyChatBar->getChatBox()->setContextMenu(NULL);
+	//mNearbyChatBar->getChatBox()->setContextMenu(NULL);
 
 	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
 
@@ -881,6 +882,7 @@ void LLBottomTray::draw()
 bool LLBottomTray::onContextMenuItemEnabled(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
+	/*
 	LLLineEditor* edit_box = mNearbyChatBar->findChild<LLLineEditor>("chat_box");
 	
 	if (item == "can_cut")
@@ -902,13 +904,13 @@ bool LLBottomTray::onContextMenuItemEnabled(const LLSD& userdata)
 	else if (item == "can_select_all")
 	{
 		return edit_box->canSelectAll() && (edit_box->getLength()>0);
-	}
+	}*/
 	return true;
 }
 
 
 void LLBottomTray::onContextMenuItemClicked(const LLSD& userdata)
-{
+{/*
 	std::string item = userdata.asString();
 	LLLineEditor* edit_box = mNearbyChatBar->findChild<LLLineEditor>("chat_box");
 
@@ -932,7 +934,7 @@ void LLBottomTray::onContextMenuItemClicked(const LLSD& userdata)
 	else if (item == "select_all")
 	{
 		edit_box->selectAll();
-	}
+	}*/
 }
 
 void LLBottomTray::log(LLView* panel, const std::string& descr)
@@ -1115,7 +1117,7 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 		if(delta_panel > 0)
 		{
 			lldebugs << "Shrinking nearby chat bar by " << delta_panel << " px " << llendl;
-			mChatBarContainer->reshape(mNearbyChatBar->getRect().getWidth() - delta_panel, mChatBarContainer->getRect().getHeight());
+			//mChatBarContainer->reshape(mNearbyChatBar->getRect().getWidth() - delta_panel, mChatBarContainer->getRect().getHeight());
 		}
 
 		log(mNearbyChatBar, "after processing panel decreasing via nearby chatbar panel");
@@ -1141,8 +1143,8 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 
 		if (buttons_freed_width > 0)
 		{
-			S32 nearby_needed_width = mDesiredNearbyChatWidth - mNearbyChatBar->getRect().getWidth();
-			if (nearby_needed_width > 0)
+			S32 nearby_needed_width = mDesiredNearbyChatWidth;
+			if ( 0)
 			{
 				S32 compensative_width = nearby_needed_width > buttons_freed_width ? buttons_freed_width : nearby_needed_width; 
 				log(mNearbyChatBar, "before applying compensative width");
