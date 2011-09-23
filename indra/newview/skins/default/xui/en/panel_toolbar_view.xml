@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<ui_ctrl
+<toolbar_view
  follows="all"
  layout="topleft"
  name="toolbar view"
@@ -16,7 +16,6 @@
   width="30"
   left="0"
   top="0" 
-  button_display_mode="icons_only"
   side="left"
   visible="true" />
  <toolbar
@@ -27,7 +26,6 @@
   width="964"
   left="30"
   top="470" 
-  button_display_mode="icons_with_text"
   side="bottom"
   visible="true" />
  <toolbar
@@ -38,18 +36,20 @@
   width="30"
   left="994"
   top="0" 
-  button_display_mode="icons_only"
   side="right"
   visible="true" />
- <button
-  follows="none"
-  name="test"
+ <panel
+  follows="right|bottom|left"
   layout="topleft"
-  top="100"
-  left="100"
-  height="28"
-  width="28"
-  image_selected="eye_button_active.tga"
-  image_unselected="eye_button_inactive.tga"
+  name="sizer_left"
+  height="500"
+  width="30"
+  left="0"
+  top="0" 
+  background_opaque="false"
+  border_visible="false"
+  background_visible="true"
+  bg_opaque_image="Toast_Over"
+  bg_alpha_image="Toast_Background"
   visible="true" />
-</ui_ctrl>
+</toolbar_view>

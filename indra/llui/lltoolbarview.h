@@ -30,18 +30,22 @@
 
 #include "lluictrl.h"
 
+class LLUICtrlFactory;
+
 // Parent of all LLToolBar
 
 class LLToolBarView : public LLUICtrl
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params> {};
-	void draw();
-	/*virtual*/ BOOL postBuild();
+	virtual ~LLToolBarView();
+	virtual void draw();
 
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBarView(const Params&);
+
+	void initFromParams(const Params&);
 
 private:
 	LLHandle<LLView>	mSnapView;
