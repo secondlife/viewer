@@ -104,14 +104,23 @@ protected:
 	void setHardwareDefaults();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
-	// callback for changing double click action checkbox
-	void onDoubleClickCheckBox(LLUICtrl* ctrl);
-	// callback for selecting double click action radio-button
-	void onDoubleClickRadio();
-	// updates double-click action settings depending on controls from preferences
-	void updateDoubleClickSettings();
-	// updates double-click action controls depending on values from settings.xml
-	void updateDoubleClickControls();
+
+	// callback for clicking the "Walk to Click Point" checkbox
+	void onWalkCheckboxCommit();
+	// callback for clicking the "Teleport to Click Point" checkbox
+	void onTeleportCheckboxCommit();
+	// callback for selecting trigger for "Walk to Click Point"
+	void onWalkTriggerRadioCommit();
+	// callback for selecting trigger for "Teleport to Click Point"
+	void onTeleportTriggerRadioCommit();
+	// make sure the radio buttons have mutually exclusive values
+	void fixWalkRadioValue();
+	// make sure the radio buttons have mutually exclusive values
+	void fixTeleportRadioValue();
+	// updates click/double-click action settings depending on controls values
+	void updateClickActionSettings();
+	// updates click/double-click action controls depending on values from settings.xml
+	void updateClickActionControls();
 	
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.	
@@ -166,7 +175,7 @@ private:
 	static std::string sSkin;
 	// set true if state of double-click action checkbox or radio-group was changed by user
 	// (reset back to false on apply or cancel)
-	bool mDoubleClickActionDirty;
+	bool mClickActionDirty; ///< Set to true when the click/double-click options get changed by user.
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
 	bool mLanguageChanged;
