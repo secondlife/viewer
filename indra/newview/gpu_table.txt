@@ -63,12 +63,16 @@ ATI ASUS EAH45xx				.*ATI.*ASUS.*EAH45.*						1		1
 ATI ASUS EAH48xx				.*ATI.*ASUS.*EAH48.*						3		1
 ATI ASUS EAH57xx				.*ATI.*ASUS.*EAH57.*						3		1
 ATI ASUS EAH58xx				.*ATI.*ASUS.*EAH58.*						3		1
+ATI ASUS EAH6xxx				.*ATI.*ASUS.*EAH6.*							3		1
 ATI ASUS Radeon X1xxx			.*ATI.*ASUS.*X1.*							3		1
 ATI Radeon X7xx					.*ATI.*ASUS.*X7.*							1		1
-ATI Radeon X1xxx				.*ATI.*X1.*									0		1
-ATI Radeon X13xx				.*ATI.*Diamond X13.*						1		1
-ATI Radeon X16xx				.*ATI.*Diamond X16.*						1		1
-ATI Radeon X19xx				.*ATI.*Diamond X19.*						1		1
+ATI Radeon X19xx				.*ATI.*(Radeon|Diamond) X19.* ?.*			3		1
+ATI Radeon X18xx				.*ATI.*(Radeon|Diamond) X18.* ?.*			3		1
+ATI Radeon X17xx				.*ATI.*(Radeon|Diamond) X17.* ?.*			2		1
+ATI Radeon X16xx				.*ATI.*(Radeon|Diamond) X16.* ?.*			2		1
+ATI Radeon X15xx				.*ATI.*(Radeon|Diamond) X15.* ?.*			2		1
+ATI Radeon X13xx				.*ATI.*(Radeon|Diamond) X13.* ?.*			1		1
+ATI Radeon X1xxx				.*ATI.*(Radeon|Diamond) X1.. ?.*			1		1
 ATI Display Adapter				.*ATI.*display adapter.*					0		1
 ATI FireGL 5200					.*ATI.*FireGL V52.*							0		1
 ATI FireGL 5xxx					.*ATI.*FireGL V5.*							1		1
@@ -78,8 +82,9 @@ ATI FirePro M5800				.*ATI.*FirePro.*M58.*						3		1
 ATI FirePro M7740				.*ATI.*FirePro.*M77.*						3		1
 ATI FirePro M7820				.*ATI.*FirePro.*M78.*						3		1
 ATI FireMV						.*ATI.*FireMV.*								0		1
-ATI Geforce 9500 GT				.*ATI.*Geforce 9500 *GT						2		1
-ATI Geforce 9800 GT				.*ATI.*Geforce 9800 *GT						2		1
+ATI Geforce 9500 GT				.*ATI.*Geforce 9500 *GT.*					2		1
+ATI Geforce 9600 GT				.*ATI.*Geforce 9600 *GT.*					2		1
+ATI Geforce 9800 GT				.*ATI.*Geforce 9800 *GT.*					2		1
 ATI Generic						.*ATI.*Generic.*							0		0
 ATI Hercules 9800				.*ATI.*Hercules.*9800.*						1		1
 ATI IGP 340M					.*ATI.*IGP.*340M.*							0		0
@@ -89,7 +94,7 @@ ATI M56							.*ATI.*M56.*								1		1
 ATI M71							.*ATI.*M71.*								1		1
 ATI M72							.*ATI.*M72.*								1		1
 ATI M76							.*ATI.*M76.*								3		1
-ATI Mobility Radeon 4100		.*ATI.*Mobility.*41.*						0		1
+ATI Mobility Radeon 4100		.*ATI.*Mobility.*41.*						1		1
 ATI Mobility Radeon 7xxx		.*ATI.*Mobility.*Radeon 7.*					0		1
 ATI Mobility Radeon 8xxx		.*ATI.*Mobility.*Radeon 8.*					0		1
 ATI Mobility Radeon 9800		.*ATI.*Mobility.*98.*						1		1
@@ -116,75 +121,69 @@ ATI Mobility Radeon HD 4300		.*ATI.*Mobility.*HD *43.*					2		1
 ATI Mobility Radeon HD 4500		.*ATI.*Mobility.*HD *45.*					3		1
 ATI Mobility Radeon HD 4600		.*ATI.*Mobility.*HD *46.*					3		1
 ATI Mobility Radeon HD 4800		.*ATI.*Mobility.*HD *48.*					3		1
-ATI Mobility Radeon HD 5100		.*ATI.*Mobility.*HD *51.*					2		1
-ATI Mobility Radeon HD 5300		.*ATI.*Mobility.*HD *53.*					2		1
-ATI Mobility Radeon HD 5400		.*ATI.*Mobility.*HD *54.*					2		1
-ATI Mobility Radeon HD 5500		.*ATI.*Mobility.*HD *55.*					2		1
-ATI Mobility Radeon HD 5600		.*ATI.*Mobility.*HD *56.*					2		1
+ATI Mobility Radeon HD 5100		.*ATI.*Mobility.*HD *51.*					3		1
+ATI Mobility Radeon HD 5300		.*ATI.*Mobility.*HD *53.*					3		1
+ATI Mobility Radeon HD 5400		.*ATI.*Mobility.*HD *54.*					3		1
+ATI Mobility Radeon HD 5500		.*ATI.*Mobility.*HD *55.*					3		1
+ATI Mobility Radeon HD 5600		.*ATI.*Mobility.*HD *56.*					3		1
 ATI Mobility Radeon HD 5700		.*ATI.*Mobility.*HD *57.*					3		1
-ATI Mobility Radeon HD 6200		.*ATI.*Mobility.*HD *62.*					2		1
-ATI Mobility Radeon HD 6300		.*ATI.*Mobility.*HD *63.*					2		1
+ATI Mobility Radeon HD 6200		.*ATI.*Mobility.*HD *62.*					3		1
+ATI Mobility Radeon HD 6300		.*ATI.*Mobility.*HD *63.*					3		1
 ATI Mobility Radeon HD 6400M	.*ATI.*Mobility.*HD *64.*					3		1
 ATI Mobility Radeon HD 6500M	.*ATI.*Mobility.*HD *65.*					3		1
 ATI Mobility Radeon HD 6600M	.*ATI.*Mobility.*HD *66.*					3		1
 ATI Mobility Radeon HD 6700M	.*ATI.*Mobility.*HD *67.*					3		1
 ATI Mobility Radeon HD 6800M	.*ATI.*Mobility.*HD *68.*					3		1
 ATI Mobility Radeon HD 6900M	.*ATI.*Mobility.*HD *69.*					3		1
-ATI Mobility Radeon X1xxx		.*ATI.*Mobility.*X1.*						0		1
-ATI Mobility Radeon X2xxx		.*ATI.*Mobility.*X2.*						0		1
-ATI Mobility Radeon X3xx		.*ATI.*Mobility.*X3.*						1		1
-ATI Mobility Radeon X6xx		.*ATI.*Mobility.*X6.*						1		1
-ATI Mobility Radeon X7xx		.*ATI.*Mobility.*X7.*						1		1
-ATI Mobility Radeon Xxxx		.*ATI.*Mobility.*X.*						0		1
-ATI Mobility Radeon				.*ATI.*Mobility.*							0		1
-ATI Radeon HD 2300				.*ATI.*Radeon HD *23.*						0		1
-ATI Radeon HD 2400				.*ATI.*Radeon HD *24.*						1		1
-ATI Radeon HD 2600				.*ATI.*Radeon HD *26.*						2		1
-ATI Radeon HD 2900				.*ATI.*Radeon HD *29.*						3		1
-ATI Radeon HD 3000				.*ATI.*Radeon HD *30.*						0		1
-ATI Radeon HD 3100				.*ATI.*Radeon HD *31.*						1		1
-ATI Radeon HD 3200				.*ATI.*Radeon HD *32.*						0		1
-ATI Radeon HD 3300				.*ATI.*Radeon HD *33.*						1		1
-ATI Radeon HD 3400				.*ATI.*Radeon HD *34.*						1		1
-ATI Radeon HD 3500				.*ATI.*Radeon HD *35.*						1		1
-ATI Radeon HD 3600				.*ATI.*Radeon HD *36.*						3		1
-ATI Radeon HD 3700				.*ATI.*Radeon HD *37.*						3		1
-ATI Radeon HD 3800				.*ATI.*Radeon HD *38.*						3		1
-ATI Radeon HD 4200				.*ATI.*Radeon HD *42.*						1		1
-ATI Radeon HD 4300				.*ATI.*Radeon HD *43.*						1		1
-ATI Radeon HD 4400				.*ATI.*Radeon HD *44.*						1		1
-ATI Radeon HD 4500				.*ATI.*Radeon HD *45.*						3		1
-ATI Radeon HD 4600				.*ATI.*Radeon HD *46.*						3		1
-ATI Radeon HD 4700				.*ATI.*Radeon HD *47.*						3		1
-ATI Radeon HD 4800				.*ATI.*Radeon HD *48.*						3		1
-ATI Radeon HD 5400				.*ATI.*Radeon HD *54.*						3		1
-ATI Radeon HD 5500				.*ATI.*Radeon HD *55.*						3		1
-ATI Radeon HD 5600				.*ATI.*Radeon HD *56.*						3		1
-ATI Radeon HD 5700				.*ATI.*Radeon HD *57.*						3		1
-ATI Radeon HD 5800				.*ATI.*Radeon HD *58.*						3		1
-ATI Radeon HD 5900				.*ATI.*Radeon HD *59.*						3		1
-ATI Radeon HD 6200				.*ATI.*Radeon HD *62.*						2		1
-ATI Radeon HD 6300				.*ATI.*Radeon HD *63.*						2		1
-ATI Radeon HD 6400				.*ATI.*Radeon HD *64.*						3		1
-ATI Radeon HD 6500				.*ATI.*Radeon HD *65.*						3		1
-ATI Radeon HD 66xx				.*ATI.*Radeon HD *66.*						3		1
-ATI Radeon HD 6700				.*ATI.*Radeon HD *67.*						3		1
-ATI Radeon HD 6800				.*ATI.*Radeon HD *68.*						3		1
-ATI Radeon HD 6900				.*ATI.*Radeon HD *69.*						3		1
+ATI Radeon HD 2300				.*ATI.*Radeon HD *23..						0		1
+ATI Radeon HD 2400				.*ATI.*Radeon HD *24..						1		1
+ATI Radeon HD 2600				.*ATI.*Radeon HD *26..						2		1
+ATI Radeon HD 2900				.*ATI.*Radeon HD *29..						3		1
+ATI Radeon HD 3000				.*ATI.*Radeon HD *30..						0		1
+ATI Radeon HD 3100				.*ATI.*Radeon HD *31..						1		1
+ATI Radeon HD 3200				.*ATI.*Radeon HD *32..						1		1
+ATI Radeon HD 3300				.*ATI.*Radeon HD *33..						1		1
+ATI Radeon HD 3400				.*ATI.*Radeon HD *34..						1		1
+ATI Radeon HD 3500				.*ATI.*Radeon HD *35..						1		1
+ATI Radeon HD 3600				.*ATI.*Radeon HD *36..						3		1
+ATI Radeon HD 3700				.*ATI.*Radeon HD *37..						3		1
+ATI Radeon HD 3800				.*ATI.*Radeon HD *38..						3		1
+ATI Radeon HD 4100				.*ATI.*Radeon HD *41..						1		1
+ATI Radeon HD 4200				.*ATI.*Radeon HD *42..						1		1
+ATI Radeon HD 4300				.*ATI.*Radeon HD *43..						1		1
+ATI Radeon HD 4400				.*ATI.*Radeon HD *44..						1		1
+ATI Radeon HD 4500				.*ATI.*Radeon HD *45..						3		1
+ATI Radeon HD 4600				.*ATI.*Radeon HD *46..						3		1
+ATI Radeon HD 4700				.*ATI.*Radeon HD *47..						3		1
+ATI Radeon HD 4800				.*ATI.*Radeon HD *48..						3		1
+ATI Radeon HD 5400				.*ATI.*Radeon HD *54..						3		1
+ATI Radeon HD 5500				.*ATI.*Radeon HD *55..						3		1
+ATI Radeon HD 5600				.*ATI.*Radeon HD *56..						3		1
+ATI Radeon HD 5700				.*ATI.*Radeon HD *57..						3		1
+ATI Radeon HD 5800				.*ATI.*Radeon HD *58..						3		1
+ATI Radeon HD 5900				.*ATI.*Radeon HD *59..						3		1
+ATI Radeon HD 6200				.*ATI.*Radeon HD *62..						3		1
+ATI Radeon HD 6300				.*ATI.*Radeon HD *63..						3		1
+ATI Radeon HD 6400				.*ATI.*Radeon HD *64..						3		1
+ATI Radeon HD 6500				.*ATI.*Radeon HD *65..						3		1
+ATI Radeon HD 66xx				.*ATI.*Radeon HD *66..						3		1
+ATI Radeon HD 6700				.*ATI.*Radeon HD *67..						3		1
+ATI Radeon HD 6800				.*ATI.*Radeon HD *68..						3		1
+ATI Radeon HD 6900				.*ATI.*Radeon HD *69..						3		1
 ATI Radeon OpenGL				.*ATI.*Radeon OpenGL.*						0		0
-ATI Radeon 2100					.*ATI.*Radeon 21.*							0		1
-ATI Radeon 3000					.*ATI.*Radeon 30.*							0		1
-ATI Radeon 3100					.*ATI.*Radeon 31.*							1		1
-ATI Radeon 5xxx					.*ATI.*Radeon 5.*							3		1
-ATI Radeon 7xxx					.*ATI.*Radeon 7.*							0		1
-ATI Radeon 8xxx					.*ATI.*Radeon 8.*							0		1
-ATI Radeon 9000					.*ATI.*Radeon 90.*							0		1
-ATI Radeon 9100					.*ATI.*Radeon 91.*							0		1
-ATI Radeon 9200					.*ATI.*Radeon 92.*							0		1
-ATI Radeon 9500					.*ATI.*Radeon 95.*							0		1
-ATI Radeon 9600					.*ATI.*Radeon 96.*							0		1
-ATI Radeon 9700					.*ATI.*Radeon 97.*							1		1
-ATI Radeon 9800					.*ATI.*Radeon 98.*							1		1
+ATI Radeon 2100					.*ATI.*Radeon 21..							0		1
+ATI Radeon 3000					.*ATI.*Radeon 30..							0		1
+ATI Radeon 3100					.*ATI.*Radeon 31..							1		1
+ATI Radeon 5xxx					.*ATI.*Radeon 5...							3		1
+ATI Radeon 7xxx					.*ATI.*Radeon 7...							0		1
+ATI Radeon 8xxx					.*ATI.*Radeon 8...							0		1
+ATI Radeon 9000					.*ATI.*Radeon 90..							0		1
+ATI Radeon 9100					.*ATI.*Radeon 91..							0		1
+ATI Radeon 9200					.*ATI.*Radeon 92..							0		1
+ATI Radeon 9500					.*ATI.*Radeon 95..							0		1
+ATI Radeon 9600					.*ATI.*Radeon 96..							0		1
+ATI Radeon 9700					.*ATI.*Radeon 97..							1		1
+ATI Radeon 9800					.*ATI.*Radeon 98..							1		1
 ATI Radeon RV250				.*ATI.*RV250.*								0		1
 ATI Radeon RV600				.*ATI.*RV6.*								1		1
 ATI Radeon RX700				.*ATI.*RX70.*								1		1
@@ -192,15 +191,6 @@ ATI Radeon RX800				.*ATI.*Radeon *RX80.*						2		1
 ATI RS880M						.*ATI.*RS880M								1		1
 ATI Radeon RX9550				.*ATI.*RX9550.*								1		1
 ATI Radeon VE					.*ATI.*Radeon.*VE.*							0		0
-ATI Radeon X1000				.*ATI.*Radeon *X10.*						0		1
-ATI Radeon X1200				.*ATI.*Radeon *X12.*						0		1
-ATI Radeon X1300				.*ATI.*Radeon *X13.*						1		1
-ATI Radeon X1400				.*ATI.*Radeon *X14.*						1		1
-ATI Radeon X1500				.*ATI.*Radeon *X15.*						1		1
-ATI Radeon X1600				.*ATI.*Radeon *X16.*						1		1
-ATI Radeon X1700				.*ATI.*Radeon *X17.*						1		1
-ATI Radeon X1800				.*ATI.*Radeon *X18.*						3		1
-ATI Radeon X1900				.*ATI.*Radeon *X19.*						3		1
 ATI Radeon X300					.*ATI.*Radeon *X3.*							0		1
 ATI Radeon X400					.*ATI.*Radeon X4.*							0		1
 ATI Radeon X500					.*ATI.*Radeon X5.*							0		1
@@ -261,7 +251,7 @@ ATI FirePro M					.*ATI.*FirePro M.*							3		1
 ATI Technologies				.*ATI *Technologies.*						0		1
 // This entry is last to work around the "R300" driver problem.
 ATI R300 (9700)					.*R300.*									1		1
-ATI Radeon						.*ATI.*Radeon.*								0		1
+ATI Radeon						.*ATI.*(Diamond|Radeon).*					0		1
 Intel X3100						.*Intel.*X3100.*							0		1
 Intel 830M						.*Intel.*830M								0		0
 Intel 845G						.*Intel.*845G								0		0
