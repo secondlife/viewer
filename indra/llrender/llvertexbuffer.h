@@ -91,9 +91,7 @@ public:
 		S32 mIndex;
 		S32 mCount;
 		
-		MappedRegion(S32 type, S32 index, S32 count)
-			: mType(type), mIndex(index), mCount(count)
-		{ }	
+		MappedRegion(S32 type, S32 index, S32 count);
 	};
 
 	LLVertexBuffer(const LLVertexBuffer& rhs)
@@ -113,11 +111,12 @@ public:
 	static LLVBOPool sDynamicIBOPool;
 
 	static BOOL	sUseStreamDraw;
+	static BOOL sUseVAO;
 	static BOOL	sPreferStreamDraw;
 
 	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
-	static void setupClientArrays(U32 data_mask, U32& ref_mask = LLVertexBuffer::sLastMask);
+	static void setupClientArrays(U32 data_mask);
 	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm);
 	static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp);
 
@@ -141,7 +140,7 @@ public:
 	// 5 - modify LLViewerShaderMgr::mReservedAttribs
 	// 6 - update LLVertexBuffer::setupVertexArray
 	enum {
-		TYPE_VERTEX,
+		TYPE_VERTEX = 0,
 		TYPE_NORMAL,
 		TYPE_TEXCOORD0,
 		TYPE_TEXCOORD1,
@@ -149,14 +148,12 @@ public:
 		TYPE_TEXCOORD3,
 		TYPE_COLOR,
 		TYPE_EMISSIVE,
-		// These use VertexAttribPointer and should possibly be made generic
 		TYPE_BINORMAL,
 		TYPE_WEIGHT,
 		TYPE_WEIGHT4,
 		TYPE_CLOTHWEIGHT,
-		TYPE_MAX,
-		//no actual additional data, but indicates position.w is texture index
 		TYPE_TEXTURE_INDEX,
+		TYPE_MAX,
 		TYPE_INDEX,		
 	};
 	enum {

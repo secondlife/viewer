@@ -1153,9 +1153,8 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 			U32 pixel_count = (U32) (width*height);
 			for (U32 i = 0; i < pixel_count; i++)
 			{
-				U8 lum = ((U8*) pixels)[i*2+0];
-				U8 alpha = ((U8*) pixels)[i*2+1];
-
+				U8 lum = ((U8*) pixels)[i];
+				
 				U8* pix = (U8*) &scratch[i];
 				pix[0] = pix[1] = pix[2] = lum;
 				pix[3] = 255;

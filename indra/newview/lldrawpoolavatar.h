@@ -134,6 +134,7 @@ public:
 									  const LLMeshSkinInfo* skin, 
 									  LLVolume* volume,
 									  const LLVolumeFace& vol_face);
+	void updateRiggedVertexBuffers(LLVOAvatar* avatar);
 
 	void renderRigged(LLVOAvatar* avatar, U32 type, bool glow = false);
 	void renderRiggedSimple(LLVOAvatar* avatar);

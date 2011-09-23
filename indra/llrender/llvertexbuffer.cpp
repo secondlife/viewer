@@ -63,6 +63,7 @@ BOOL LLVertexBuffer::sIBOActive = FALSE;
 U32 LLVertexBuffer::sAllocatedBytes = 0;
 BOOL LLVertexBuffer::sMapped = FALSE;
 BOOL LLVertexBuffer::sUseStreamDraw = TRUE;
+BOOL LLVertexBuffer::sUseVAO = FALSE;
 BOOL LLVertexBuffer::sPreferStreamDraw = FALSE;
 std::vector<U32> LLVertexBuffer::sDeleteList;
 
@@ -134,6 +135,7 @@ S32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 	sizeof(F32),	   // TYPE_WEIGHT,
 	sizeof(LLVector4), // TYPE_WEIGHT4,
 	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
+	sizeof(LLVector4), // TYPE_TEXTURE_INDEX (actually exists as position.w), no extra data, but stride is 16 bytes
 };
 
 U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] = 
@@ -150,188 +152,135 @@ U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
 
 
 //static
-void LLVertexBuffer::setupClientArrays(U32 data_mask, U32& sLastMask)
+void LLVertexBuffer::setupClientArrays(U32 data_mask)
 {
-	/*if (LLGLImmediate::sStarted)
-	{
-		llerrs << "Cannot use LLGLImmediate and LLVertexBuffer simultaneously!" << llendl;
-	}*/
-
 	if (sLastMask != data_mask)
 	{
-
-		LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-
-		U32 mask[] =
-		{
-			MAP_VERTEX,
-			MAP_NORMAL,
-			MAP_TEXCOORD0,
-			MAP_COLOR,
-			MAP_EMISSIVE,
-			MAP_WEIGHT,
-			MAP_WEIGHT4,
-			MAP_BINORMAL,
-			MAP_CLOTHWEIGHT,
-			MAP_TEXTURE_INDEX,
-		};
-		
-		U32 type[] =
-		{
-			TYPE_VERTEX,
-			TYPE_NORMAL,
-			TYPE_TEXCOORD0,
-			TYPE_COLOR,
-			TYPE_EMISSIVE,
-			TYPE_WEIGHT,
-			TYPE_WEIGHT4,
-			TYPE_BINORMAL,
-			TYPE_CLOTHWEIGHT,
-			TYPE_TEXTURE_INDEX-1,
-		};
-
-		GLenum array[] =
-		{
-			GL_VERTEX_ARRAY,
-			GL_NORMAL_ARRAY,
-			GL_TEXTURE_COORD_ARRAY,
-			GL_COLOR_ARRAY,
-			0,
-			0,
-			0,
-			0,
-			0,
-			0,
-		};
-
 		BOOL error = FALSE;
-		for (U32 i = 0; i < 10; ++i)
-		{
-			S32 loc = -1;
 
-			if (LLGLSLShader::sNoFixedFunction)
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			for (U32 i = 0; i < TYPE_MAX; ++i)
 			{
-				loc = type[i];
-			}
-									
-			if (sLastMask & mask[i])
-			{ //was enabled
-				if (!(data_mask & mask[i]))
-				{ //needs to be disabled
-					if (loc >= 0)
-					{
+				S32 loc = i;
+										
+				U32 mask = 1 << i;
+
+				if (sLastMask & (1 << i))
+				{ //was enabled
+					if (!(data_mask & mask))
+					{ //needs to be disabled
 						glDisableVertexAttribArrayARB(loc);
 					}
-					else
-					{
-						glDisableClientState(array[i]);
+				}
+				else 
+				{	//was disabled
+					if (data_mask & mask)
+					{ //needs to be enabled
+						glEnableVertexAttribArrayARB(loc);
 					}
 				}
-				else if (gDebugGL && !LLGLSLShader::sNoFixedFunction && array[i])
-				{ //needs to be enabled, make sure it was (DEBUG)
-					if (loc < 0 && !glIsEnabled(array[i]))
-					{
+			}
+		}
+		else
+		{
+
+			GLenum array[] =
+			{
+				GL_VERTEX_ARRAY,
+				GL_NORMAL_ARRAY,
+				GL_TEXTURE_COORD_ARRAY,
+				GL_COLOR_ARRAY,
+			};
+
+			GLenum mask[] = 
+			{
+				MAP_VERTEX,
+				MAP_NORMAL,
+				MAP_TEXCOORD0,
+				MAP_COLOR
+			};
+
+
+
+			for (U32 i = 0; i < 4; ++i)
+			{
+				if (sLastMask & mask[i])
+				{ //was enabled
+					if (!(data_mask & mask[i]))
+					{ //needs to be disabled
+						glDisableClientState(array[i]);
+					}
+					else if (gDebugGL)
+					{ //needs to be enabled, make sure it was (DEBUG)
+						if (!glIsEnabled(array[i]))
+						{
+							if (gDebugSession)
+							{
+								error = TRUE;
+								gFailLog << "Bad client state! " << array[i] << " disabled." << std::endl;
+							}
+							else
+							{
+								llerrs << "Bad client state! " << array[i] << " disabled." << llendl;
+							}
+						}
+					}
+				}
+				else 
+				{	//was disabled
+					if (data_mask & mask[i])
+					{ //needs to be enabled
+						glEnableClientState(array[i]);
+					}
+					else if (gDebugGL && glIsEnabled(array[i]))
+					{ //needs to be disabled, make sure it was (DEBUG TEMPORARY)
 						if (gDebugSession)
 						{
 							error = TRUE;
-							gFailLog << "Bad client state! " << array[i] << " disabled." << std::endl;
+							gFailLog << "Bad client state! " << array[i] << " enabled." << std::endl;
 						}
 						else
 						{
-							llerrs << "Bad client state! " << array[i] << " disabled." << llendl;
+							llerrs << "Bad client state! " << array[i] << " enabled." << llendl;
 						}
 					}
 				}
 			}
-			else 
-			{	//was disabled
-				if (data_mask & mask[i])
-				{ //needs to be enabled
-					if (loc >= 0)
-					{
-						glEnableVertexAttribArrayARB(loc);
-					}
-					else
-					{
-						glEnableClientState(array[i]);
-					}
-				}
-				else if (!LLGLSLShader::sNoFixedFunction && array[i] && gDebugGL && glIsEnabled(array[i]))
-				{ //needs to be disabled, make sure it was (DEBUG TEMPORARY)
-					if (gDebugSession)
-					{
-						error = TRUE;
-						gFailLog << "Bad client state! " << array[i] << " enabled." << std::endl;
-					}
-					else
-					{
-						llerrs << "Bad client state! " << array[i] << " enabled." << llendl;
-					}
-				}
-			}
-		}
-
-		if (error)
-		{
-			ll_fail("LLVertexBuffer::setupClientArrays failed");
-		}
-
-		U32 map_tc[] = 
-		{
-			MAP_TEXCOORD1,
-			MAP_TEXCOORD2,
-			MAP_TEXCOORD3
-		};
-
-		U32 type_tc[] = 
-		{
-			TYPE_TEXCOORD1,
-			TYPE_TEXCOORD2,
-			TYPE_TEXCOORD3
-		};
-
-		for (U32 i = 0; i < 3; i++)
-		{
-			S32 loc = -1;
-
-			if (LLGLSLShader::sNoFixedFunction)
+		
+			U32 map_tc[] = 
 			{
-				loc = type_tc[i];
-			}
+				MAP_TEXCOORD1,
+				MAP_TEXCOORD2,
+				MAP_TEXCOORD3
+			};
 
-			if (sLastMask & map_tc[i])
+			U32 type_tc[] = 
 			{
-				if (!(data_mask & map_tc[i]))
-				{ //disable
-					if (loc >= 0)
-					{
-						glDisableVertexAttribArrayARB(loc);
-					}
-					else
-					{
+				TYPE_TEXCOORD1,
+				TYPE_TEXCOORD2,
+				TYPE_TEXCOORD3
+			};
+
+			for (U32 i = 0; i < 3; i++)
+			{
+				if (sLastMask & map_tc[i])
+				{
+					if (!(data_mask & map_tc[i]))
+					{ //disable
 						glClientActiveTextureARB(GL_TEXTURE1_ARB+i);
 						glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 						glClientActiveTextureARB(GL_TEXTURE0_ARB);
 					}
 				}
-			}
-			else if (data_mask & map_tc[i])
-			{
-				if (loc >= 0)
-				{
-					glEnableVertexAttribArrayARB(loc);
-				}
-				else
+				else if (data_mask & map_tc[i])
 				{
 					glClientActiveTextureARB(GL_TEXTURE1_ARB+i);
 					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 					glClientActiveTextureARB(GL_TEXTURE0_ARB);
 				}
 			}
-		}
 
-		if (!LLGLSLShader::sNoFixedFunction)
-		{
 			if (sLastMask & MAP_BINORMAL)
 			{
 				if (!(data_mask & MAP_BINORMAL))
@@ -348,7 +297,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask, U32& sLastMask)
 				glClientActiveTextureARB(GL_TEXTURE0_ARB);
 			}
 		}
-		
+				
 		sLastMask = data_mask;
 	}
 }
@@ -734,12 +683,12 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 S32 LLVertexBuffer::calcOffsets(const U32& typemask, S32* offsets, S32 num_vertices)
 {
 	S32 offset = 0;
-	for (S32 i=0; i<TYPE_MAX; i++)
+	for (S32 i=0; i<TYPE_TEXTURE_INDEX; i++)
 	{
 		U32 mask = 1<<i;
 		if (typemask & mask)
 		{
-			if (offsets)
+			if (offsets && LLVertexBuffer::sTypeSize[i])
 			{
 				offsets[i] = offset;
 				offset += LLVertexBuffer::sTypeSize[i]*num_vertices;
@@ -748,6 +697,8 @@ S32 LLVertexBuffer::calcOffsets(const U32& typemask, S32* offsets, S32 num_verti
 		}
 	}
 
+	offsets[TYPE_TEXTURE_INDEX] = offsets[TYPE_VERTEX] + 12;
+	
 	return offset+16;
 }
 
@@ -755,7 +706,7 @@ S32 LLVertexBuffer::calcOffsets(const U32& typemask, S32* offsets, S32 num_verti
 S32 LLVertexBuffer::calcVertexSize(const U32& typemask)
 {
 	S32 size = 0;
-	for (S32 i = 0; i < TYPE_MAX; i++)
+	for (S32 i = 0; i < TYPE_TEXTURE_INDEX; i++)
 	{
 		U32 mask = 1<<i;
 		if (typemask & mask)
@@ -1096,7 +1047,7 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 		createGLIndices();
 
 
-		if (gGLManager.mHasVertexArrayObject && useVBOs() && LLRender::sGLCoreProfile)
+		if (gGLManager.mHasVertexArrayObject && useVBOs() && (LLRender::sGLCoreProfile || sUseVAO))
 		{
 			glGenVertexArrays(1, &mGLArray);
 			setupVertexArray();
@@ -1124,6 +1075,7 @@ void LLVertexBuffer::setupVertexArray()
 		1, //TYPE_WEIGHT,
 		4, //TYPE_WEIGHT4,
 		4, //TYPE_CLOTHWEIGHT,
+		1, //TYPE_TEXTURE_INDEX
 	};
 
 	U32 attrib_type[] =
@@ -1140,6 +1092,7 @@ void LLVertexBuffer::setupVertexArray()
 		GL_FLOAT, //TYPE_WEIGHT,
 		GL_FLOAT, //TYPE_WEIGHT4,
 		GL_FLOAT, //TYPE_CLOTHWEIGHT,
+		GL_FLOAT, //TYPE_TEXTURE_INDEX
 	};
 
 	U32 attrib_normalized[] =
@@ -1156,6 +1109,7 @@ void LLVertexBuffer::setupVertexArray()
 		GL_FALSE, //TYPE_WEIGHT,
 		GL_FALSE, //TYPE_WEIGHT4,
 		GL_FALSE, //TYPE_CLOTHWEIGHT,
+		GL_FALSE, //TYPE_TEXTURE_INDEX
 	};
 
 	bindGLBuffer(true);
@@ -1174,16 +1128,6 @@ void LLVertexBuffer::setupVertexArray()
 		}
 	}
 
-	if (mTypeMask & MAP_VERTEX)
-	{ //special handling for texture index
-		S32 loc = TYPE_TEXTURE_INDEX-1;
-		glEnableVertexAttribArrayARB(loc);
-		glVertexAttribPointerARB(loc, 1, GL_FLOAT, GL_FALSE, sTypeSize[TYPE_VERTEX], (void*) (mOffsets[TYPE_VERTEX]+12));
-	}
-	else
-	{
-		glDisableVertexAttribArrayARB(TYPE_TEXTURE_INDEX-1);
-	}
 	glBindVertexArray(0);
 }
 
@@ -2162,7 +2106,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 
 	if (!mGLArray)
 	{
-		setupClientArrays(data_mask, sLastMask);
+		setupClientArrays(data_mask);
 	}
 			
 	if (mGLBuffer)
@@ -2257,7 +2201,7 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 		}
 		if (data_mask & MAP_TEXTURE_INDEX)
 		{
-			S32 loc = TYPE_TEXTURE_INDEX-1; //hack, texture index attrib location is off by one
+			S32 loc = TYPE_TEXTURE_INDEX;
 			void *ptr = (void*) (base + mOffsets[TYPE_VERTEX] + 12);
 			glVertexAttribPointerARB(loc, 1, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
 		}
@@ -2314,4 +2258,12 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 
 	llglassertok();
 }
+
+LLVertexBuffer::MappedRegion::MappedRegion(S32 type, S32 index, S32 count)
+: mType(type), mIndex(index), mCount(count)
+{ 
+	llassert(mType == LLVertexBuffer::TYPE_INDEX || 
+			mType < LLVertexBuffer::TYPE_TEXTURE_INDEX);
+}	
+
 

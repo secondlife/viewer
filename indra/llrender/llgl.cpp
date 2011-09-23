@@ -656,6 +656,7 @@ bool LLGLManager::initGL()
 
 	if (mHasDebugOutput && gDebugGL)
 	{ //setup debug output callback
+		glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
 		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}

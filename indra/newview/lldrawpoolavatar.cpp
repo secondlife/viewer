@@ -1274,9 +1274,11 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 
 	U32 data_mask = face->getRiggedVertexBufferDataMask();
 	
+	S32 num_verts = (vol_face.mNumVertices + 0xF) & ~0xF;
+
 	if (!buffer || 
 		buffer->getTypeMask() != data_mask ||
-		buffer->getRequestedVerts() != vol_face.mNumVertices)
+		buffer->getRequestedVerts() != num_verts)
 	{
 		face->setGeomIndex(0);
 		face->setIndicesIndex(0);
@@ -1310,6 +1312,8 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		LLMatrix3 mat_normal(mat3);				
 
 		face->getGeometryVolume(*volume, face->getTEOffset(), mat_vert, mat_normal, offset, true);
+
+		buffer->flush();
 	}
 
 	if (sShaderLevel <= 0 && face->mLastSkinTime < avatar->getLastSkinTime())
@@ -1441,12 +1445,12 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			continue;
 		}
 
-		stop_glerror();
+		//stop_glerror();
 
-		const LLVolumeFace& vol_face = volume->getVolumeFace(te);
-		updateRiggedFaceVertexBuffer(avatar, face, skin, volume, vol_face);
+		//const LLVolumeFace& vol_face = volume->getVolumeFace(te);
+		//updateRiggedFaceVertexBuffer(avatar, face, skin, volume, vol_face);
 		
-		stop_glerror();
+		//stop_glerror();
 
 		U32 data_mask = LLFace::getRiggedDataMask(type);
 
@@ -1482,17 +1486,15 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				data_mask &= ~LLVertexBuffer::MAP_WEIGHT4;
 			}
 
-			buff->setBuffer(data_mask);
-
 			U16 start = face->getGeomStart();
 			U16 end = start + face->getGeomCount()-1;
 			S32 offset = face->getIndicesStart();
 			U32 count = face->getIndicesCount();
 
-			if (glow)
+			/*if (glow)
 			{
 				gGL.diffuseColor4f(0,0,0,face->getTextureEntry()->getGlow());
-			}
+			}*/
 
 			gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture());
 			if (normal_channel > -1)
@@ -1504,12 +1506,14 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			{
 				gGL.matrixMode(LLRender::MM_TEXTURE);
 				gGL.loadMatrix((F32*) face->mTextureMatrix->mMatrix);
+				buff->setBuffer(data_mask);
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 				gGL.loadIdentity();
 				gGL.matrixMode(LLRender::MM_MODELVIEW);
 			}
 			else
 			{
+				buff->setBuffer(data_mask);
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);		
 			}
 		}
@@ -1518,6 +1522,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 void LLDrawPoolAvatar::renderDeferredRiggedSimple(LLVOAvatar* avatar)
 {
+	updateRiggedVertexBuffers(avatar);
 	renderRigged(avatar, RIGGED_DEFERRED_SIMPLE);
 }
 
@@ -1526,8 +1531,58 @@ void LLDrawPoolAvatar::renderDeferredRiggedBump(LLVOAvatar* avatar)
 	renderRigged(avatar, RIGGED_DEFERRED_BUMP);
 }
 
+void LLDrawPoolAvatar::updateRiggedVertexBuffers(LLVOAvatar* avatar)
+{
+	//update rigged vertex buffers
+	for (U32 type = 0; type < NUM_RIGGED_PASSES; ++type)
+	{
+		for (U32 i = 0; i < mRiggedFace[type].size(); ++i)
+		{
+			LLFace* face = mRiggedFace[type][i];
+			LLDrawable* drawable = face->getDrawable();
+			if (!drawable)
+			{
+				continue;
+			}
+
+			LLVOVolume* vobj = drawable->getVOVolume();
+
+			if (!vobj)
+			{
+				continue;
+			}
+
+			LLVolume* volume = vobj->getVolume();
+			S32 te = face->getTEOffset();
+
+			if (!volume || volume->getNumVolumeFaces() <= te)
+			{
+				continue;
+			}
+
+			LLUUID mesh_id = volume->getParams().getSculptID();
+			if (mesh_id.isNull())
+			{
+				continue;
+			}
+
+			const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id, vobj);
+			if (!skin)
+			{
+				continue;
+			}
+
+			stop_glerror();
+
+			const LLVolumeFace& vol_face = volume->getVolumeFace(te);
+			updateRiggedFaceVertexBuffer(avatar, face, skin, volume, vol_face);
+		}
+	}
+}
+
 void LLDrawPoolAvatar::renderRiggedSimple(LLVOAvatar* avatar)
 {
+	updateRiggedVertexBuffers(avatar);
 	renderRigged(avatar, RIGGED_SIMPLE);
 }
 
