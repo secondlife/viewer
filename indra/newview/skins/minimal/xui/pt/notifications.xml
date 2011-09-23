@@ -9,7 +9,7 @@
 		</form>
 	</notification>
 	<notification name="ObjectGiveItem">
-		Um objeto chamado &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, de [NAME_SLURL], está lhe oferecendo &lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;.  Esta ação requer o modo Avançado. Passe para o modo Avançado e você verá o item em seu Inventário. Para passar para o modo Avançado, feche e reinicialize esse aplicativo e mude o modo (indicado na tela de login).
+		Um objeto chamado &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;, de [NAME_SLURL], está oferecendo &lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt; a você. Esta ação requer o modo Avançado. Passe para o modo Avançado e você verá o item em seu Inventário. Para passar para o modo Avançado, feche e reinicialize esse aplicativo e mude o modo (indicado na tela de login).
 		<form name="form">
 			<button name="Keep" text="Guardar item"/>
 			<button name="Discard" text="Recusar item"/>

@@ -11,17 +11,6 @@
 	</text>
 	<check_box label="カスタムポート" name="connection_port_enabled"/>
 	<spinner label="ポート番号：" name="connection_port"/>
-	<text name="cache_size_label_l">
-		キャッシュサイズ
-	</text>
-	<text name="text_box5">
-		MB
-	</text>
-	<text name="Cache location">
-		キャッシュの保存場所：
-	</text>
-	<button label="参照" label_selected="参照" name="set_cache"/>
-	<button label="リセット" label_selected="リセット" name="reset_cache"/>
 	<text name="Web:">
 		Web：
 	</text>
@@ -33,12 +22,6 @@
 	<check_box initial_value="true" label="Cookie を受け入れる" name="cookies_enabled"/>
 	<check_box initial_value="true" label="Javascript を有効にする" name="browser_javascript_enabled"/>
 	<check_box initial_value="false" label="メディアブラウザのポップアップを有効にする" name="media_popup_enabled"/>
-	<check_box initial_value="false" label="Web プロキシを有効にする" name="web_proxy_enabled"/>
-	<text name="Proxy location">
-		プロキシ：
-	</text>
-	<line_editor name="web_proxy_editor" tool_tip="使用するプロキシのホスト名または IP アドレス"/>
-	<spinner label="ポート番号：" name="web_proxy_port"/>
 	<text name="Software updates:">
 		ソフトウェアアップデート：
 	</text>
@@ -46,4 +29,8 @@
 		<combo_box.item label="自動的にインストール" name="Install_automatically"/>
 		<combo_box.item label="手動でアップデートをダウンロード&amp;インストール" name="Install_manual"/>
 	</combo_box>
+	<text name="Proxy Settings:">
+		プロキシ設定：
+	</text>
+	<button label="プロキシ設定を調整" label_selected="参照" name="set_proxy"/>
 </panel>

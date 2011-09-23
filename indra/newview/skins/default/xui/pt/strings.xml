@@ -288,6 +288,18 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 		Apenas um item único pode ser arrastado para este local
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]"/>
+	<string name="TooltipOutboxNoTransfer">
+		Um ou mais objetos não podem ser vendidos ou transferidos para outros usuário.
+	</string>
+	<string name="TooltipOutboxWorn">
+		Você está usando um ou mais desses objetos. Remova-os de seu avatar e tente movê-los novamente.
+	</string>
+	<string name="TooltipOutboxFolderLevels">
+		Esta pasta tem muitos níveis de subpastas. Reorganize as pastas internas em até 4 níveis no máximo (Pasta raiz contém A que contém B que contém C).
+	</string>
+	<string name="TooltipOutboxTooManyObjects">
+		Esta pasta contém mais de 200 objetos. Embale alguns dos itens para reduzir a contagem de objetos.
+	</string>
 	<string name="TooltipHttpUrl">
 		Clique para ver a página web
 	</string>
@@ -1144,8 +1156,65 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	<string name="InventoryInboxNoItems">
 		Compras do marketplace serão entregues aqui.
 	</string>
+	<string name="MarketplaceURL">
+		http://marketplace.[DOMAIN_NAME]
+	</string>
+	<string name="MarketplaceURL_CreateStore">
+		http://marketplace.[DOMAIN_NAME]/create_store
+	</string>
+	<string name="MarketplaceURL_LearnMore">
+		http://marketplace.[DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryOutboxCreationErrorTitle">
+		Sua Caixa de saída do lojista não está configurada corretamente
+	</string>
+	<string name="InventoryOutboxCreationErrorTooltip">
+		Erro de configuração na Caixa de saída do lojista
+	</string>
+	<string name="InventoryOutboxCreationError">
+		Entre em contato com o Atendimento para corrigir o problema.
+	</string>
+	<string name="InventoryOutboxNotMerchantTitle">
+		Qualquer um pode vender itens no Mercado
+	</string>
+	<string name="InventoryOutboxNotMerchantTooltip">
+		Torne-se um lojista!
+	</string>
+	<string name="InventoryOutboxNotMerchant">
+		[[MARKETPLACE_URL] O Mercado do Second Life] oferece mais de um milhão de produtos virtuais para venda, todos criados pelos residentes. Você também pode vender os itens que você cria, além de alguns itens que comprou. É fácil e a configuração é gratuita. [[LEARN_MORE_URL] Saiba mais] ou [[CREATE_STORE_URL] crie uma loja] no Mercado para começar.
+	</string>
+	<string name="InventoryOutboxNoItemsTitle">
+		Uma nova maneira de vender os itens no Mercado
+	</string>
+	<string name="InventoryOutboxNoItemsTooltip">
+		Arraste e solte os itens aqui para prepará-los para venda no Mercado
+	</string>
 	<string name="InventoryOutboxNoItems">
-		Arraste seus itens aqui para preparar sua listagem na sua vitrine do Marketplace.
+		Arraste os itens ou pastas que deseja vender para esta área. Será exibida uma cópia deles, deixando seu inventário inalterado, a menos que você arraste um item que não permita cópia. Quando estiver pronto para enviar os itens para o Mercado, clique no botão Enviar. Quando os itens tiverem sido movidos para seu Inventário de mercado, eles desaparecerão desta pasta.
+	</string>
+	<string name="Marketplace Error None">
+		Sem erros
+	</string>
+	<string name="Marketplace Error Not Merchant">
+		Erro: antes de enviar os itens para o Mercado, é necessário que você se defina como um lojista (sem custos).
+	</string>
+	<string name="Marketplace Error Empty Folder">
+		Erro: esta pasta está vazia.
+	</string>
+	<string name="Marketplace Error Unassociated Products">
+		Erro: ocorreu uma falha ao enviar este item, pois sua conta de lojista tem muitos itens não associados a produtos. Para corrigir esse erro, faça o login no site do mercado e reduza a contagem de itens não associados.
+	</string>
+	<string name="Marketplace Error Object Limit">
+		Erro: este item contém muitos objetos. Corrija esse erro unindo os objetos em caixa para reduzir a contagem total a menos de 200.
+	</string>
+	<string name="Marketplace Error Folder Depth">
+		Erro: este item contém muitos níveis de pastas aninhadas. Reorganize-o em até 3 níveis de pastas aninhadas, no máximo.
+	</string>
+	<string name="Marketplace Error Unsellable Item">
+		Erro: este item não pode ser vendido no mercado.
+	</string>
+	<string name="Marketplace Error Internal Import">
+		Erro: ocorreu um problema com este item. Tente novamente mais tarde.
 	</string>
 	<string name="no_transfer" value="(não transferível)"/>
 	<string name="no_modify" value="(não modificável)"/>
@@ -4046,7 +4115,7 @@ Denunciar abuso
 	<string name="Female - Wow">
 		Wow - feminino
 	</string>
-	<string name="/bow">
+	<string name="/bow1">
 		/reverência
 	</string>
 	<string name="/clap">
