@@ -62,6 +62,7 @@ LLToolBar::Params::Params()
 	wrap("wrap", true),
 	min_button_width("min_button_width", 0),
 	max_button_width("max_button_width", S32_MAX),
+	button_height("button_height"),
 	background_image("background_image")
 {}
 
@@ -75,6 +76,7 @@ LLToolBar::LLToolBar(const Params& p)
 	mCenteringStack(NULL),
 	mMinButtonWidth(p.min_button_width),
 	mMaxButtonWidth(p.max_button_width),
+	mButtonHeight(p.button_height),
 	mBackgroundImage(p.background_image)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
@@ -123,11 +125,11 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 		{ // remove any offset from button
 			if (orientation == LLLayoutStack::HORIZONTAL)
 			{
-				button_rect.setOriginAndSize(0, 0, mMinButtonWidth, button_rect.getHeight());
+				button_rect.setOriginAndSize(0, 0, mMinButtonWidth, mButtonHeight);
 			}
 			else // VERTICAL
 			{
-				button_rect.setOriginAndSize(0, 0, mMinButtonWidth, button_rect.getHeight());
+				button_rect.setOriginAndSize(0, 0, mMinButtonWidth, mButtonHeight);
 			}
 		}
 
@@ -139,6 +141,22 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 		mCenterPanel->addChild(buttonp);
 
 		mNeedsLayout = true;
+	}
+}
+
+void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth)
+{
+	// make buttons in current row all same girth
+	BOOST_FOREACH(LLToolBarButton* button, buttons_in_row)
+	{
+		if (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
+		{
+			button->reshape(llclamp(button->getRect().getWidth(), mMinButtonWidth, mMaxButtonWidth), max_row_girth);
+		}
+		else // VERTICAL
+		{
+			button->reshape(max_row_girth, button->getRect().getHeight());
+		}
 	}
 }
 
@@ -193,14 +211,17 @@ void LLToolBar::updateLayoutAsNeeded()
 	if (!mNeedsLayout) return;
 
 	LLLayoutStack::ELayoutOrientation orientation = getOrientation(mSideType);
-	
-	// our terminology for orientation-agnostic layout is that
+
+	// our terminology for orientation-agnostic layout is such that
 	// length refers to a distance in the direction we stack the buttons 
 	// and girth refers to a distance in the direction buttons wrap
 	S32 row_running_length = 0;
 	S32 max_length = (orientation == LLLayoutStack::HORIZONTAL)
 					? getRect().getWidth()
 					: getRect().getHeight();
+	S32 max_total_girth = (orientation == LLLayoutStack::HORIZONTAL)
+					? getRect().getHeight()
+					: getRect().getWidth();
 	S32 max_row_girth = 0;
 	S32 cur_start = 0;
 	S32 cur_row = 0;
@@ -209,8 +230,8 @@ void LLToolBar::updateLayoutAsNeeded()
 
 	std::vector<LLToolBarButton*> buttons_in_row;
 
-		BOOST_FOREACH(LLToolBarButton* button, mButtons)
-		{
+	BOOST_FOREACH(LLToolBarButton* button, mButtons)
+	{
 		S32 button_clamped_width = llclamp(button->getRect().getWidth(), mMinButtonWidth, mMaxButtonWidth);
 		S32 button_length = (orientation == LLLayoutStack::HORIZONTAL)
 							? button_clamped_width
@@ -219,38 +240,29 @@ void LLToolBar::updateLayoutAsNeeded()
 							? button->getRect().getHeight()
 							: button_clamped_width;
 		
-		// handle wrapping
-		if (row_running_length + button_length > max_length 
-			&& cur_start != 0) // not first button in row
-		{ // go ahead and wrap
+		// wrap if needed
+		if (mWrap
+			&& row_running_length + button_length > max_length	// out of room...
+			&& cur_start != 0)									// ...and not first button in row
+		{
 			if (orientation == LLLayoutStack::VERTICAL)
-			{
-				// row girth is clamped to allowable button widths
+			{	// row girth (width in this case) is clamped to allowable button widths
 				max_row_girth = llclamp(max_row_girth, mMinButtonWidth, mMaxButtonWidth);
 			}
+
 			// make buttons in current row all same girth
-			BOOST_FOREACH(LLToolBarButton* button, buttons_in_row)
-			{
-				if (orientation == LLLayoutStack::HORIZONTAL)
-				{
-					button->reshape(llclamp(button->getRect().getWidth(), mMinButtonWidth, mMaxButtonWidth), max_row_girth);
-		}	
-				else // VERTICAL
-		{
-					button->reshape(max_row_girth, button->getRect().getHeight());
-				}
-		}
+			resizeButtonsInRow(buttons_in_row, max_row_girth);
 			buttons_in_row.clear();
 
 			row_running_length = 0;
 			cur_start = 0;
 			cur_row += max_row_girth;
 			max_row_girth = 0;
-	}
+		}
 
 		LLRect button_rect;
 		if (orientation == LLLayoutStack::HORIZONTAL)
-	{
+		{
 			button_rect.setLeftTopAndSize(cur_start, panel_rect.mTop - cur_row, button_clamped_width, button->getRect().getHeight());
 		}
 		else // VERTICAL
@@ -258,7 +270,7 @@ void LLToolBar::updateLayoutAsNeeded()
 			button_rect.setLeftTopAndSize(cur_row, panel_rect.mTop - cur_start, button_clamped_width, button->getRect().getHeight());
 		}
 		button->setShape(button_rect);
-
+		
 		buttons_in_row.push_back(button);
 
 		row_running_length += button_length;
@@ -267,9 +279,11 @@ void LLToolBar::updateLayoutAsNeeded()
 	}
 
 	// final resizing in "girth" direction
-	S32 total_girth = cur_row + max_row_girth; // increment by size of final row
+	S32 total_girth =	cur_row				// current row position...
+						+ max_row_girth;	// ...incremented by size of final row
+	resizeButtonsInRow(buttons_in_row, max_row_girth);
 
-	// grow and optionally shift toolbar to accomodate buttons
+	// grow and optionally shift toolbar to accommodate buttons
 	if (orientation == LLLayoutStack::HORIZONTAL)
 	{
 		if (mSideType == SIDE_TOP)
@@ -286,9 +300,9 @@ void LLToolBar::updateLayoutAsNeeded()
 			translate(getRect().getWidth() - total_girth, 0);
 		}
 		reshape(total_girth, getRect().getHeight());
-		}
+	}
 
-	// recenter toolbar buttons
+	// re-center toolbar buttons
 	mCenteringStack->updateLayout();
 
 	// don't clear flag until after we've resized ourselves, to avoid laying out every frame

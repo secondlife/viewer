@@ -99,7 +99,8 @@ public:
 
 		Optional<bool>							wrap;
 		Optional<S32>							min_button_width,
-												max_button_width;
+												max_button_width,
+												button_height;
 		// get rid of this
 		Multiple<LLToolBarButton::Params>		buttons;
 
@@ -122,6 +123,7 @@ protected:
 
 private:
 	void updateLayoutAsNeeded();
+	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
 
 	std::list<LLToolBarButton*>		mButtons;
 	LLToolBarEnums::ButtonType		mButtonType;
@@ -133,7 +135,8 @@ private:
 	bool							mWrap;
 	bool							mNeedsLayout;
 	S32								mMinButtonWidth,
-									mMaxButtonWidth;
+									mMaxButtonWidth,
+									mButtonHeight;
 
 	LLUIImagePtr					mBackgroundImage;
 
