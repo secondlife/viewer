@@ -139,6 +139,7 @@ public:
 	// 3 - modify LLVertexBuffer::setupVertexBuffer
 	// 4 - modify LLVertexBuffer::setupClientArray
 	// 5 - modify LLViewerShaderMgr::mReservedAttribs
+	// 6 - update LLVertexBuffer::setupVertexArray
 	enum {
 		TYPE_VERTEX,
 		TYPE_NORMAL,
@@ -154,10 +155,9 @@ public:
 		TYPE_WEIGHT4,
 		TYPE_CLOTHWEIGHT,
 		TYPE_MAX,
-		TYPE_INDEX,
-		
 		//no actual additional data, but indicates position.w is texture index
 		TYPE_TEXTURE_INDEX,
+		TYPE_INDEX,		
 	};
 	enum {
 		MAP_VERTEX = (1<<TYPE_VERTEX),
@@ -181,10 +181,14 @@ protected:
 
 	virtual ~LLVertexBuffer(); // use unref()
 
-	virtual void setupVertexBuffer(U32 data_mask) const; // pure virtual, called from mapBuffer()
+	virtual void setupVertexBuffer(U32 data_mask); // pure virtual, called from mapBuffer()
+	void setupVertexArray();
 	
 	void	genBuffer();
 	void	genIndices();
+	bool	bindGLBuffer(bool force_bind = false);
+	bool	bindGLIndices(bool force_bind = false);
+	bool	bindGLArray();
 	void	releaseBuffer();
 	void	releaseIndices();
 	void	createGLBuffer();
@@ -194,7 +198,7 @@ protected:
 	void	updateNumVerts(S32 nverts);
 	void	updateNumIndices(S32 nindices); 
 	virtual BOOL	useVBOs() const;
-	void	unmapBuffer(S32 type);
+	void	unmapBuffer();
 	void freeClientBuffer() ;
 	void allocateClientVertexBuffer() ;
 	void allocateClientIndexBuffer() ;
@@ -207,7 +211,8 @@ public:
 	U8*		mapIndexBuffer(S32 index, S32 count, bool map_range);
 
 	// set for rendering
-	virtual void	setBuffer(U32 data_mask, S32 type = -1); 	// calls  setupVertexBuffer() if data_mask is not 0
+	virtual void	setBuffer(U32 data_mask); 	// calls  setupVertexBuffer() if data_mask is not 0
+	void flush(); //flush pending data to GL memory
 	// allocate buffer
 	void	allocateBuffer(S32 nverts, S32 nindices, bool create);
 	virtual void resizeBuffer(S32 newnverts, S32 newnindices);
@@ -273,9 +278,7 @@ protected:
 	U32		mGLBuffer;		// GL VBO handle
 	U32		mGLIndices;		// GL IBO handle
 	U32		mGLArray;		// GL VAO handle
-	U32		mLastMask;		
-	mutable void*   mLastPointer[LL_MAX_VERTEX_ATTRIB_LOCATION];
-
+	
 	U8*		mMappedData;	// pointer to currently mapped data (NULL if unmapped)
 	U8*		mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
 	BOOL	mVertexLocked;			// if TRUE, vertex buffer is being or has been written to in client memory

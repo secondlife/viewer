@@ -317,6 +317,7 @@ void LLViewerShaderMgr::initAttribsAndUniforms(void)
 		mReservedAttribs.push_back("weight");
 		mReservedAttribs.push_back("weight4");
 		mReservedAttribs.push_back("clothing");
+		mReservedAttribs.push_back("texture_index");
 
 		mAvatarUniforms.push_back("matrixPalette");
 		mAvatarUniforms.push_back("gWindDir");

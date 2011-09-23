@@ -1216,7 +1216,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 	
@@ -1441,7 +1441,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			if (map_range)
 			{
-				mVertexBuffer->setBuffer(0);
+				mVertexBuffer->flush();
 			}
 		}
 		else
@@ -1588,7 +1588,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			if (map_range)
 			{
-				mVertexBuffer->setBuffer(0);
+				mVertexBuffer->flush();
 			}
 
 			if (do_bump)
@@ -1625,7 +1625,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 				if (map_range)
 				{
-					mVertexBuffer->setBuffer(0);
+					mVertexBuffer->flush();
 				}
 			}
 		}
@@ -1675,7 +1675,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 		
@@ -1695,7 +1695,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 		
@@ -1715,7 +1715,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 	
@@ -1727,7 +1727,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		LLVector4a::memcpyNonAliased16((F32*) weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 
@@ -1757,7 +1757,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 
@@ -1796,7 +1796,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 	if (rebuild_tcoord)

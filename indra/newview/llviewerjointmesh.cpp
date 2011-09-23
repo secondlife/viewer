@@ -817,7 +817,7 @@ void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 		}
 	}
 
-	buffer->setBuffer(0);
+	buffer->flush();
 }
 
 const U32 UPDATE_GEOMETRY_CALL_MASK			= 0x1FFF; // 8K samples before overflow

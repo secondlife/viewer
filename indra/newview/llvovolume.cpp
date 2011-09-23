@@ -4422,7 +4422,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		
 		for (std::set<LLVertexBuffer*>::iterator iter = mapped_buffers.begin(); iter != mapped_buffers.end(); ++iter)
 		{
-			(*iter)->setBuffer(0);
+			(*iter)->flush();
 		}
 
 		// don't forget alpha
@@ -4430,7 +4430,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		   !group->mVertexBuffer.isNull() && 
 		   group->mVertexBuffer->isLocked())
 		{
-			group->mVertexBuffer->setBuffer(0);
+			group->mVertexBuffer->flush();
 		}
 
 		//if not all buffers are unmapped
@@ -4446,7 +4446,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					LLVertexBuffer* buff = face->getVertexBuffer();
 					if (face && buff && buff->isLocked())
 					{
-						buff->setBuffer(0) ;
+						buff->flush();
 					}
 				}
 			} 
@@ -4852,7 +4852,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			++face_iter;
 		}
 
-		buffer->setBuffer(0);
+		buffer->flush();
 	}
 
 	group->mBufferMap[mask].clear();

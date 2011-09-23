@@ -1267,7 +1267,7 @@ void LLVOSky::updateDummyVertexBuffer()
 	LLStrider<LLVector3> vertices ;
 	mFace[FACE_DUMMY]->getVertexBuffer()->getVertexStrider(vertices,  0);
 	*vertices = mCameraPosAgent ;
-	mFace[FACE_DUMMY]->getVertexBuffer()->setBuffer(0) ;
+	mFace[FACE_DUMMY]->getVertexBuffer()->flush();
 }
 //----------------------------------
 //end of fake vertex buffer updating
@@ -1351,7 +1351,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 			*indicesp++ = index_offset + 3;
 			*indicesp++ = index_offset + 2;
 
-			buff->setBuffer(0);
+			buff->flush();
 		}
 	}
 
@@ -1516,7 +1516,7 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 	*indicesp++ = index_offset + 2;
 	*indicesp++ = index_offset + 3;
 
-	facep->getVertexBuffer()->setBuffer(0);
+	facep->getVertexBuffer()->flush();
 
 	if (is_sun)
 	{
@@ -2030,7 +2030,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 		}
 	}
 
-	face->getVertexBuffer()->setBuffer(0);
+	face->getVertexBuffer()->flush();
 }
 
 

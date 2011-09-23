@@ -326,7 +326,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 
 		buildFanBuffer(vertices, texCoords, indices);
 
-		mFanVerts->setBuffer(0);
+		mFanVerts->flush();
 	}
 
 	{
@@ -388,7 +388,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 			buildStripsBuffer(begin_stack, end_stack,  vertices, texCoords, indices);
 
 			// and unlock the buffer
-			segment->setBuffer(0);
+			segment->flush();
 		}
 	}
 #else
@@ -468,7 +468,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 		}
 	}
 
-	mStripsVerts->setBuffer(0);
+	mStripsVerts->flush();
 #endif
 
 	updateStarColors();
@@ -826,6 +826,6 @@ BOOL LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
 		*(colorsp++)    = LLColor4U(mStarColors[vtx]);
 	}
 
-	mStarsVerts->setBuffer(0);
+	mStarsVerts->flush();
 	return TRUE;
 }

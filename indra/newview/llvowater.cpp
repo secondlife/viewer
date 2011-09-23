@@ -231,7 +231,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 		}
 	}
 	
-	buff->setBuffer(0);
+	buff->flush();
 
 	mDrawable->movePartition();
 	LLPipeline::sCompiles++;

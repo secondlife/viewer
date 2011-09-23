@@ -6553,7 +6553,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		v[1] = LLVector3(-1,3,0);
 		v[2] = LLVector3(3,-1,0);
 				
-		buff->setBuffer(0);
+		buff->flush();
 
 		LLGLDisable blend(GL_BLEND);
 

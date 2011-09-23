@@ -858,7 +858,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 			slices /= 2; 
 		}
 
-		mReferenceBuffer->setBuffer(0);
+		mReferenceBuffer->flush();
 		llassert(vertex_count == max_vertices);
 		llassert(index_count == max_indices);
 	}
@@ -940,8 +940,8 @@ void LLVOTree::updateMesh()
 
 	genBranchPipeline(vertices, normals, tex_coords, indices, idx_offset, scale_mat, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, 1.0, mTwist, droop, mBranches, alpha);
 	
-	mReferenceBuffer->setBuffer(0);
-	buff->setBuffer(0);
+	mReferenceBuffer->flush();
+	buff->flush();
 }
 
 void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices, 

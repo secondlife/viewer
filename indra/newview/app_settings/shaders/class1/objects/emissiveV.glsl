@@ -27,7 +27,8 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec4 position;
+ATTRIBUTE vec3 position;
+ATTRIBUTE float texture_index;
 ATTRIBUTE float emissive;
 ATTRIBUTE vec2 texcoord0;
 
@@ -42,7 +43,7 @@ VARYING float fog_depth;
 void main()
 {
 	//transform vertex
-	vary_texture_index = position.w;
+	vary_texture_index = texture_index;
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	

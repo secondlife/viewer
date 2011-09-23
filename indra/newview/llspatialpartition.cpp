@@ -320,7 +320,7 @@ void LLSpatialGroup::buildOcclusion()
 	}
 	
 	{
-		mOcclusionVerts->setBuffer(0);
+		mOcclusionVerts->flush();
 	}
 
 	clearState(LLSpatialGroup::OCCLUSION_DIRTY);

@@ -57,7 +57,7 @@ public:
 	};
 
 	// virtual
-	void setupVertexBuffer(U32 data_mask) const
+	void setupVertexBuffer(U32 data_mask)
 	{	
 		if (LLGLSLShader::sNoFixedFunction)
 		{ //just use default if shaders are in play
@@ -1122,7 +1122,7 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 		index_offset += facep->getGeomCount();
 	}
 
-	buffer->setBuffer(0);
+	buffer->flush();
 	mFaceList.clear();
 }
 

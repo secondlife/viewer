@@ -1821,7 +1821,7 @@ void LLRender::flush()
 			mBuffer->getColorStrider(mColorsp, 0, count);
 		}
 		
-		//only flush the part of the 
+		mBuffer->flush();
 		mBuffer->setBuffer(immediate_mask);
 
 		if (mMode == LLRender::QUADS && sGLCoreProfile)

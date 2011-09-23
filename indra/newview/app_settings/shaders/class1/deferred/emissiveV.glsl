@@ -27,7 +27,8 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec4 position;
+ATTRIBUTE vec3 position;
+ATTRIBUTE float texture_index;
 ATTRIBUTE float emissive;
 ATTRIBUTE vec2 texcoord0;
 
@@ -48,7 +49,7 @@ void main()
 	//transform vertex
 	vec4 vert = vec4(position.xyz, 1.0);
 	vec4 pos = (modelview_matrix * vert);
-	vary_texture_index = position.w;
+	vary_texture_index = texture_index;
 
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	
