@@ -53,17 +53,40 @@ namespace LLToolBarEnums
 }
 using namespace LLToolBarEnums;
 
+
+namespace LLInitParam
+{
+	void TypeValues<ButtonType>::declareValues()
+	{
+		declare("icons_only",		BTNTYPE_ICONS_ONLY);
+		declare("icons_with_text",	BTNTYPE_ICONS_WITH_TEXT);
+	}
+
+	void TypeValues<SideType>::declareValues()
+	{
+		declare("bottom",	SIDE_BOTTOM);
+		declare("left",		SIDE_LEFT);
+		declare("right",	SIDE_RIGHT);
+		declare("top",		SIDE_TOP);
+	}
+}
+
 LLToolBar::Params::Params()
 :	button_display_mode("button_display_mode"),
 	buttons("button"),
-	side("side"),
+	side("side", SIDE_TOP),
 	button_icon("button_icon"),
 	button_icon_and_text("button_icon_and_text"),
 	wrap("wrap", true),
 	min_button_width("min_button_width", 0),
 	max_button_width("max_button_width", S32_MAX),
 	button_height("button_height"),
-	background_image("background_image")
+	pad_left("pad_left"),
+	pad_top("pad_top"),
+	pad_right("pad_right"),
+	pad_bottom("pad_bottom"),
+	pad_between("pad_between"),
+	button_panel("button_panel")
 {}
 
 LLToolBar::LLToolBar(const Params& p)
@@ -72,12 +95,16 @@ LLToolBar::LLToolBar(const Params& p)
 	mSideType(p.side),
 	mWrap(p.wrap),
 	mNeedsLayout(false),
-	mCenterPanel(NULL),
+	mButtonPanel(NULL),
 	mCenteringStack(NULL),
-	mMinButtonWidth(p.min_button_width),
-	mMaxButtonWidth(p.max_button_width),
+	mMinButtonWidth(llmin(p.min_button_width(), p.max_button_width())),
+	mMaxButtonWidth(llmax(p.max_button_width(), p.min_button_width())),
 	mButtonHeight(p.button_height),
-	mBackgroundImage(p.background_image)
+	mPadLeft(p.pad_left),
+	mPadRight(p.pad_right),
+	mPadTop(p.pad_top),
+	mPadBottom(p.pad_bottom),
+	mPadBetween(p.pad_between)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
@@ -110,38 +137,63 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	center_panel_p.auto_resize = false;
 	center_panel_p.user_resize = false;
 	center_panel_p.fit_content = true;
-	mCenterPanel = LLUICtrlFactory::create<LLLayoutPanel>(center_panel_p);
-	mCenteringStack->addChild(mCenterPanel);
+	LLLayoutPanel* center_panel = LLUICtrlFactory::create<LLLayoutPanel>(center_panel_p);
+	mCenteringStack->addChild(center_panel);
+
+	LLPanel::Params button_panel_p(p.button_panel);
+	button_panel_p.rect = center_panel->getLocalRect();
+	switch(p.side())
+	{
+	case SIDE_LEFT:
+		button_panel_p.follows.flags = FOLLOWS_BOTTOM|FOLLOWS_LEFT;
+		break;
+	case SIDE_RIGHT:
+		button_panel_p.follows.flags = FOLLOWS_BOTTOM|FOLLOWS_RIGHT;
+		break;
+	case SIDE_TOP:
+		button_panel_p.follows.flags = FOLLOWS_TOP|FOLLOWS_LEFT;
+		break;
+	case SIDE_BOTTOM:
+		button_panel_p.follows.flags = FOLLOWS_BOTTOM|FOLLOWS_LEFT;
+		break;
+	}
+	mButtonPanel = LLUICtrlFactory::create<LLPanel>(button_panel_p);
+	center_panel->addChild(mButtonPanel);
 	
 	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
 
 	BOOST_FOREACH (LLToolBarButton::Params button_p, p.buttons)
 	{
-		// buttons always follow left and top, for all orientations
-		button_p.follows.flags = FOLLOWS_LEFT|FOLLOWS_TOP;
 		button_p.fillFrom(mButtonParams[mButtonType]);
-
-		LLRect button_rect(button_p.rect);
-		{ // remove any offset from button
-			if (orientation == LLLayoutStack::HORIZONTAL)
-			{
-				button_rect.setOriginAndSize(0, 0, mMinButtonWidth, mButtonHeight);
-			}
-			else // VERTICAL
-			{
-				button_rect.setOriginAndSize(0, 0, mMinButtonWidth, mButtonHeight);
-			}
-		}
-
-		// use our calculated rect
-		button_p.rect = button_rect;
 		LLToolBarButton* buttonp = LLUICtrlFactory::create<LLToolBarButton>(button_p);
 
 		mButtons.push_back(buttonp);
-		mCenterPanel->addChild(buttonp);
+		mButtonPanel->addChild(buttonp);
 
 		mNeedsLayout = true;
 	}
+}
+
+bool LLToolBar::addCommand(LLCommand * command)
+{
+	//
+	// Init basic toolbar button params
+	//
+	LLToolBarButton::Params button_p(mButtonParams[mButtonType]);
+	button_p.name = command->name();
+	button_p.label = LLTrans::getString(command->labelRef());
+	button_p.tool_tip = LLTrans::getString(command->tooltipRef());
+
+	//
+	// Add it to the list of buttons
+	//
+	LLToolBarButton * toolbar_button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
+	mButtons.push_back(toolbar_button);
+	mButtonPanel->addChild(toolbar_button);
+
+	mNeedsLayout = true;
+
+	return true;
 }
 
 void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth)
@@ -160,52 +212,6 @@ void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row
 	}
 }
 
-bool LLToolBar::addCommand(LLCommand * command)
-{
-	//
-	// Init basic toolbar button params
-	//
-
-	LLToolBarButton::Params button_p;
-	button_p.fillFrom(mButtonParams[mButtonType]);
-
-	button_p.name = command->name();
-	button_p.label = LLTrans::getString(command->labelRef());
-	button_p.tool_tip = LLTrans::getString(command->tooltipRef());
-
-	//
-	// Set up the button rectangle
-	//
-
-	S32 btn_width = mMinButtonWidth;
-	S32 btn_height = mButtonParams[mButtonType].rect.height;
-
-	if ((mSideType == LLToolBarEnums::SIDE_BOTTOM) || (mSideType == LLToolBarEnums::SIDE_TOP))
-	{
-		btn_height = getRect().getHeight();
-	}
-
-	LLRect button_rect;
-	button_rect.setOriginAndSize(0, 0, btn_width, btn_height);
-
-	button_p.rect = button_rect;
-
-	//
-	// Add it to the list of buttons
-	//
-
-	LLToolBarButton * toolbar_button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
-
-	toolbar_button->reshape(llclamp(toolbar_button->getRect().getWidth(), mMinButtonWidth, mMaxButtonWidth), toolbar_button->getRect().getHeight());
-
-	mButtons.push_back(toolbar_button);
-	mCenterPanel->addChild(toolbar_button);
-
-	mNeedsLayout = true;
-
-	return true;
-}
-
 void LLToolBar::updateLayoutAsNeeded()
 {
 	if (!mNeedsLayout) return;
@@ -215,23 +221,51 @@ void LLToolBar::updateLayoutAsNeeded()
 	// our terminology for orientation-agnostic layout is such that
 	// length refers to a distance in the direction we stack the buttons 
 	// and girth refers to a distance in the direction buttons wrap
-	S32 row_running_length = 0;
-	S32 max_length = (orientation == LLLayoutStack::HORIZONTAL)
-					? getRect().getWidth()
-					: getRect().getHeight();
-	S32 max_total_girth = (orientation == LLLayoutStack::HORIZONTAL)
-					? getRect().getHeight()
-					: getRect().getWidth();
 	S32 max_row_girth = 0;
-	S32 cur_start = 0;
-	S32 cur_row = 0;
+	S32 max_row_length = 0;
 
-	LLRect panel_rect = mCenterPanel->getLocalRect();
+	S32 max_length;
+	S32 max_total_girth;
+	S32 cur_start;
+	S32 cur_row ;
+	S32 row_pad_start;
+	S32 row_pad_end;
+	S32 girth_pad_end;
+	S32 row_running_length;
+
+	if (orientation == LLLayoutStack::HORIZONTAL)
+	{
+		max_length = getRect().getWidth() - mPadLeft - mPadRight;
+		max_total_girth = getRect().getHeight() - mPadTop - mPadBottom;
+		row_pad_start = mPadLeft;
+		row_running_length = row_pad_start;
+		row_pad_end = mPadRight;
+		cur_row = mPadTop;
+		girth_pad_end = mPadBottom;
+	}
+	else // VERTICAL
+	{
+		max_length = getRect().getHeight() - mPadTop - mPadBottom;
+		max_total_girth = getRect().getWidth() - mPadLeft - mPadRight;
+		row_pad_start = mPadTop;
+		row_running_length = row_pad_start;
+		row_pad_end = mPadBottom;
+		cur_row = mPadLeft;
+		girth_pad_end = mPadRight;
+	}
+	
+	cur_start = row_pad_start;
+
+
+	LLRect panel_rect = mButtonPanel->getLocalRect();
 
 	std::vector<LLToolBarButton*> buttons_in_row;
 
 	BOOST_FOREACH(LLToolBarButton* button, mButtons)
 	{
+		button->reshape(mMinButtonWidth, mButtonHeight);
+		button->autoResize();
+
 		S32 button_clamped_width = llclamp(button->getRect().getWidth(), mMinButtonWidth, mMaxButtonWidth);
 		S32 button_length = (orientation == LLLayoutStack::HORIZONTAL)
 							? button_clamped_width
@@ -254,9 +288,10 @@ void LLToolBar::updateLayoutAsNeeded()
 			resizeButtonsInRow(buttons_in_row, max_row_girth);
 			buttons_in_row.clear();
 
-			row_running_length = 0;
-			cur_start = 0;
-			cur_row += max_row_girth;
+			max_row_length = llmax(max_row_length, row_running_length);
+			row_running_length = row_pad_start;
+			cur_start = row_pad_start;
+			cur_row += max_row_girth + mPadBetween;
 			max_row_girth = 0;
 		}
 
@@ -273,14 +308,17 @@ void LLToolBar::updateLayoutAsNeeded()
 		
 		buttons_in_row.push_back(button);
 
-		row_running_length += button_length;
+		row_running_length += button_length + mPadBetween;
 		cur_start = row_running_length;
 		max_row_girth = llmax(button_girth, max_row_girth);
 	}
 
 	// final resizing in "girth" direction
 	S32 total_girth =	cur_row				// current row position...
-						+ max_row_girth;	// ...incremented by size of final row
+						+ max_row_girth		// ...incremented by size of final row...
+						+ girth_pad_end;	// ...plus padding reserved on end
+	max_row_length = llmax(max_row_length, row_running_length - mPadBetween + row_pad_end);
+
 	resizeButtonsInRow(buttons_in_row, max_row_girth);
 
 	// grow and optionally shift toolbar to accommodate buttons
@@ -288,18 +326,18 @@ void LLToolBar::updateLayoutAsNeeded()
 	{
 		if (mSideType == SIDE_TOP)
 		{ // shift down to maintain top edge
-			translate(0, getRect().getHeight() - total_girth);
+			mButtonPanel->translate(0, mButtonPanel->getRect().getHeight() - total_girth);
 		}
 
-		reshape(getRect().getWidth(), total_girth);
+		mButtonPanel->reshape(max_row_length, total_girth);
 	}
 	else // VERTICAL
 	{
 		if (mSideType == SIDE_RIGHT)
 		{ // shift left to maintain right edge
-			translate(getRect().getWidth() - total_girth, 0);
+			mButtonPanel->translate(mButtonPanel->getRect().getWidth() - total_girth, 0);
 		}
-		reshape(total_girth, getRect().getHeight());
+		mButtonPanel->reshape(total_girth, max_row_length);
 	}
 
 	// re-center toolbar buttons
@@ -313,12 +351,6 @@ void LLToolBar::updateLayoutAsNeeded()
 void LLToolBar::draw()
 {
 	updateLayoutAsNeeded();
-
-	{	// draw background
-		LLRect bg_rect;
-		localRectToOtherView(mCenterPanel->getRect(),&bg_rect, this);
-		mBackgroundImage->draw(bg_rect);		 
-	}
 	LLUICtrl::draw();
 }
 
@@ -328,20 +360,3 @@ void LLToolBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 	mNeedsLayout = true;
 }
 
-namespace LLInitParam
-{
-	void TypeValues<ButtonType>::declareValues()
-	{
-		declare("icons_only",		BTNTYPE_ICONS_ONLY);
-		declare("icons_with_text",	BTNTYPE_ICONS_WITH_TEXT);
-	}
-
-	void TypeValues<SideType>::declareValues()
-	{
-		declare("none",		SIDE_NONE);
-		declare("bottom",	SIDE_BOTTOM);
-		declare("left",		SIDE_LEFT);
-		declare("right",	SIDE_RIGHT);
-		declare("top",		SIDE_TOP);
-	}
-}

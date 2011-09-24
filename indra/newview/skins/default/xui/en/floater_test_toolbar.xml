@@ -28,7 +28,7 @@
   <toolbar name="test_toolbar_left"
            follows="left|bottom|top"
            height="380"
-           width="100"
+           width="200"
            left="0"
            top="70"
            min_button_width="100"           
@@ -43,7 +43,7 @@
   <toolbar name="test_toolbar_right"
            follows="right|bottom|top"
            height="380"
-           width="100"
+           width="200"
            right="500"
            top="70"
            side="right">
