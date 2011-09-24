@@ -59,7 +59,6 @@ namespace LLToolBarEnums
 
 	enum SideType
 	{
-		SIDE_NONE = 0,
 		SIDE_BOTTOM,
 		SIDE_LEFT,
 		SIDE_RIGHT,
@@ -99,11 +98,18 @@ public:
 
 		Optional<bool>							wrap;
 		Optional<S32>							min_button_width,
-												max_button_width;
+												max_button_width,
+												button_height;
+		
+		Optional<S32>							pad_left,
+												pad_top,
+												pad_right,
+												pad_bottom,
+												pad_between;
 		// get rid of this
 		Multiple<LLToolBarButton::Params>		buttons;
 
-		Optional<LLUIImage*>					background_image;
+		Optional<LLPanel::Params>				button_panel;
 
 		Params();
 	};
@@ -122,20 +128,25 @@ protected:
 
 private:
 	void updateLayoutAsNeeded();
+	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
 
 	std::list<LLToolBarButton*>		mButtons;
 	LLToolBarEnums::ButtonType		mButtonType;
 	LLLayoutStack*					mCenteringStack;
 	LLLayoutStack*					mWrapStack;
-	LLLayoutPanel*					mCenterPanel;
+	LLPanel*						mButtonPanel;
 	LLToolBarEnums::SideType		mSideType;
 
 	bool							mWrap;
 	bool							mNeedsLayout;
 	S32								mMinButtonWidth,
-									mMaxButtonWidth;
-
-	LLUIImagePtr					mBackgroundImage;
+									mMaxButtonWidth,
+									mButtonHeight,
+									mPadLeft,
+									mPadRight,
+									mPadTop,
+									mPadBottom,
+									mPadBetween;
 
 	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
 };

@@ -92,7 +92,7 @@ BOOL LLNearbyChat::postBuild()
 	if (getDockControl() == NULL)
 	{
 		setDockControl(new LLDockControl(
-			LLBottomTray::getInstance()->getNearbyChatBar(), this,
+			LLFloaterReg::getInstance("chat_bar"), this,
 			getDockTongue(), LLDockControl::TOP, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
 	}
 
