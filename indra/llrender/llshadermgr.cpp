@@ -561,6 +561,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			text[count++] = strdup("#version 400\n");
 		}
 
+		text[count++] = strdup("#define DEFINE_GL_FRAGCOLOR 1\n");
 		text[count++] = strdup("#define FXAA_GLSL_130 1\n");
 
 		text[count++] = strdup("#define ATTRIBUTE in\n");

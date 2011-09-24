@@ -23,7 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef gl_FragColor
+#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 gl_FragColor;
 #endif
 
