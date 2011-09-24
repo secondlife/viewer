@@ -277,7 +277,7 @@ void LLToolBar::updateLayoutAsNeeded()
 		// wrap if needed
 		if (mWrap
 			&& row_running_length + button_length > max_length	// out of room...
-			&& cur_start != 0)									// ...and not first button in row
+			&& cur_start != row_pad_start)						// ...and not first button in row
 		{
 			if (orientation == LLLayoutStack::VERTICAL)
 			{	// row girth (width in this case) is clamped to allowable button widths
