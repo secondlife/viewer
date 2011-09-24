@@ -255,13 +255,6 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				MAP_TEXCOORD3
 			};
 
-			U32 type_tc[] = 
-			{
-				TYPE_TEXCOORD1,
-				TYPE_TEXCOORD2,
-				TYPE_TEXCOORD3
-			};
-
 			for (U32 i = 0; i < 3; i++)
 			{
 				if (sLastMask & map_tc[i])
@@ -2221,7 +2214,7 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 		{
 			S32 loc = TYPE_VERTEX;
 			void* ptr = (void*)(base + mOffsets[TYPE_VERTEX]);
-			glVertexAttribPointerARB(loc, 3,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
+			glVertexAttribPointerARB(loc, 3,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
 		}	
 	}	
 	else
