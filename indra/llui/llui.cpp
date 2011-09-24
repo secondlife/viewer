@@ -96,6 +96,7 @@ static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("
 
 // register other widgets which otherwise may not be linked in
 static LLDefaultChildRegistry::Register<LLLoadingIndicator> register_loading_indicator("loading_indicator");
+static LLDefaultChildRegistry::Register<LLToolBar> register_toolbar("toolbar");
 
 //
 // Functions

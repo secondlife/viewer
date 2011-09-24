@@ -33,7 +33,7 @@
 #include "llcommandmanager.h"
 #include "lltrans.h"
 
-static LLDefaultChildRegistry::Register<LLToolBar> r1("toolbar");
+//static LLDefaultChildRegistry::Register<LLToolBar> r1("toolbar");
 
 namespace LLToolBarEnums
 {

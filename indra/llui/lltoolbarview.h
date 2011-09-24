@@ -41,6 +41,9 @@ public:
 	virtual ~LLToolBarView();
 	virtual void draw();
 
+	// valid children for LLToolBarView are stored in this registry
+	typedef LLDefaultChildRegistry child_registry_t;
+
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBarView(const Params&);

@@ -5,6 +5,8 @@
  name="toolbar view"
  height="500"
  width="1024"
+ left="0"
+ top="0" 
  mouse_opaque="false"
  tab_stop="false"
  visible="true">
@@ -39,7 +41,7 @@
   side="right"
   visible="true" />
  <panel
-  follows="right|bottom|left"
+  follows="top|bottom|left"
   layout="topleft"
   name="sizer_left"
   height="500"

@@ -84,10 +84,10 @@ void LLToolBarView::draw()
 	// Debug draw
 	LLColor4 back_color = LLColor4::blue;
 	back_color[VALPHA] = 0.5f;
-//	gl_rect_2d(getLocalRect(), back_color, TRUE);
-//	gl_rect_2d(bottom_rect, LLColor4::red, TRUE);
-//	gl_rect_2d(left_rect, LLColor4::green, TRUE);
-//	gl_rect_2d(right_rect, LLColor4::yellow, TRUE);
+	//gl_rect_2d(getLocalRect(), back_color, TRUE);
+	//gl_rect_2d(bottom_rect, LLColor4::red, TRUE);
+	//gl_rect_2d(left_rect, LLColor4::green, TRUE);
+	//gl_rect_2d(right_rect, LLColor4::yellow, TRUE);
 	
 	LLUICtrl::draw();
 }
