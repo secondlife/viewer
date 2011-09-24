@@ -68,6 +68,12 @@ extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
 
+// GL_ARB_vertex_array_object
+extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+extern PFNGLISVERTEXARRAYPROC glIsVertexArray;
+
 // GL_ARB_sync
 extern PFNGLFENCESYNCPROC				glFenceSync;
 extern PFNGLISSYNCPROC					glIsSync;
@@ -309,6 +315,12 @@ extern PFNGLACTIVETEXTUREARBPROC	glActiveTextureARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
 extern PFNGLDRAWRANGEELEMENTSPROC 	glDrawRangeElements;
 #endif // LL_LINUX_NV_GL_HEADERS
+
+// GL_ARB_vertex_array_object
+extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+extern PFNGLISVERTEXARRAYPROC glIsVertexArray;
 
 // GL_ARB_vertex_buffer_object
 extern PFNGLBINDBUFFERARBPROC		glBindBufferARB;
