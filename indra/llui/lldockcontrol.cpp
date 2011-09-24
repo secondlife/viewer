@@ -97,6 +97,7 @@ void LLDockControl::getAllowedRect(LLRect& rect)
 
 void LLDockControl::repositionDockable()
 {
+	if (!mDockWidget) return;
 	LLRect dockRect = mDockWidget->calcScreenRect();
 	LLRect rootRect;
 	mGetAllowedRectCallback(rootRect);
