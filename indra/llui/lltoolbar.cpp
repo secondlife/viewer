@@ -33,9 +33,7 @@
 #include "llcommandmanager.h"
 #include "lltrans.h"
 
-// uncomment this and remove the one in llui.cpp when there is an external reference to this translation unit
-// thanks, MSVC!
-//static LLDefaultChildRegistry::Register<LLToolBar> r1("toolbar");
+static LLDefaultChildRegistry::Register<LLToolBar> r1("toolbar");
 
 namespace LLToolBarEnums
 {
@@ -264,8 +262,8 @@ void LLToolBar::updateLayoutAsNeeded()
 
 	std::vector<LLToolBarButton*> buttons_in_row;
 
-		BOOST_FOREACH(LLToolBarButton* button, mButtons)
-		{
+	BOOST_FOREACH(LLToolBarButton* button, mButtons)
+	{
 		button->reshape(mMinButtonWidth, mButtonHeight);
 		button->autoResize();
 
@@ -296,11 +294,11 @@ void LLToolBar::updateLayoutAsNeeded()
 			cur_start = row_pad_start;
 			cur_row += max_row_girth + mPadBetween;
 			max_row_girth = 0;
-	}
+		}
 
 		LLRect button_rect;
 		if (orientation == LLLayoutStack::HORIZONTAL)
-	{
+		{
 			button_rect.setLeftTopAndSize(cur_start, panel_rect.mTop - cur_row, button_clamped_width, button->getRect().getHeight());
 		}
 		else // VERTICAL
@@ -341,7 +339,7 @@ void LLToolBar::updateLayoutAsNeeded()
 			mButtonPanel->translate(mButtonPanel->getRect().getWidth() - total_girth, 0);
 		}
 		mButtonPanel->reshape(total_girth, max_row_length);
-		}
+	}
 
 	// re-center toolbar buttons
 	mCenteringStack->updateLayout();
