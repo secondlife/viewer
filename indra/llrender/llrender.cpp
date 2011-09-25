@@ -1052,12 +1052,13 @@ LLRender::~LLRender()
 void LLRender::init()
 {
 	llassert_always(mBuffer.isNull()) ;
-
+	stop_glerror();
 	mBuffer = new LLVertexBuffer(immediate_mask, 0);
 	mBuffer->allocateBuffer(4096, 0, TRUE);
 	mBuffer->getVertexStrider(mVerticesp);
 	mBuffer->getTexCoord0Strider(mTexcoordsp);
 	mBuffer->getColorStrider(mColorsp);
+	stop_glerror();
 }
 
 void LLRender::shutdown()

@@ -493,6 +493,8 @@ bool LLGLManager::initGL()
 		LL_ERRS("RenderInit") << "Calling init on LLGLManager after already initialized!" << LL_ENDL;
 	}
 
+	stop_glerror();
+
 #if LL_WINDOWS
 	if (!glGetStringi)
 	{
@@ -508,7 +510,9 @@ bool LLGLManager::initGL()
 		glGetIntegerv(GL_NUM_EXTENSIONS, &count);
 		for (GLint i = 0; i < count; ++i)
 		{
-			str << (const char*) glGetStringi(GL_EXTENSIONS, i) << " ";
+			std::string ext((const char*) glGetStringi(GL_EXTENSIONS, i));
+			str << ext << " ";
+			LL_DEBUGS("GLExtensions") << ext << llendl;
 		}
 		
 		{
@@ -526,6 +530,8 @@ bool LLGLManager::initGL()
 	}
 #endif
 	
+	stop_glerror();
+
 	// Extract video card strings and convert to upper case to
 	// work around driver-to-driver variation in capitalization.
 	mGLVendor = std::string((const char *)glGetString(GL_VENDOR));
@@ -612,8 +618,10 @@ bool LLGLManager::initGL()
 		mGLVendorShort = "MISC";
 	}
 	
+	stop_glerror();
 	// This is called here because it depends on the setting of mIsGF2or4MX, and sets up mHasMultitexture.
 	initExtensions();
+	stop_glerror();
 
 	if (mHasATIMemInfo)
 	{ //ask the gl how much vram is free at startup and attempt to use no more than half of that
@@ -629,7 +637,22 @@ bool LLGLManager::initGL()
 		mVRAM = dedicated_memory/1024;
 	}
 
-	if (mHasMultitexture)
+	stop_glerror();
+
+	stop_glerror();
+
+	if (mHasFragmentShader)
+	{
+		GLint num_tex_image_units;
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &num_tex_image_units);
+		mNumTextureImageUnits = llmin(num_tex_image_units, 32);
+	}
+
+	if (LLRender::sGLCoreProfile)
+	{
+		mNumTextureUnits = mNumTextureImageUnits;
+	}
+	else if (mHasMultitexture)
 	{
 		GLint num_tex_units;		
 		glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &num_tex_units);
@@ -648,12 +671,7 @@ bool LLGLManager::initGL()
 		return false;
 	}
 	
-	if (mHasFragmentShader)
-	{
-		GLint num_tex_image_units;
-		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &num_tex_image_units);
-		mNumTextureImageUnits = llmin(num_tex_image_units, 32);
-	}
+	stop_glerror();
 
 	if (mHasTextureMultisample)
 	{
@@ -663,6 +681,8 @@ bool LLGLManager::initGL()
 		glGetIntegerv(GL_MAX_SAMPLE_MASK_WORDS, &mMaxSampleMaskWords);
 	}
 
+	stop_glerror();
+
 #if LL_WINDOWS
 	if (mHasDebugOutput && gDebugGL)
 	{ //setup debug output callback
@@ -671,6 +691,8 @@ bool LLGLManager::initGL()
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
 #endif
+
+	stop_glerror();
 
 	//HACK always disable texture multisample, use FXAA instead
 	mHasTextureMultisample = FALSE;
@@ -685,10 +707,17 @@ bool LLGLManager::initGL()
 	{
 		glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples);
 	}
+
+	stop_glerror();
 	
 	setToDebugGPU();
 
+	stop_glerror();
+
 	initGLStates();
+
+	stop_glerror();
+
 	return true;
 }
 
@@ -903,10 +932,10 @@ void LLGLManager::initExtensions()
 #if !LL_DARWIN
 	mHasPointParameters = !mIsATI && ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
 #endif
-	mHasShaderObjects = ExtensionExists("GL_ARB_shader_objects", gGLHExts.mSysExts) && ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts);
+	mHasShaderObjects = ExtensionExists("GL_ARB_shader_objects", gGLHExts.mSysExts) && (LLRender::sGLCoreProfile || ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts));
 	mHasVertexShader = ExtensionExists("GL_ARB_vertex_program", gGLHExts.mSysExts) && ExtensionExists("GL_ARB_vertex_shader", gGLHExts.mSysExts)
-						&& ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts);
-	mHasFragmentShader = ExtensionExists("GL_ARB_fragment_shader", gGLHExts.mSysExts) && ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts);
+		&& (LLRender::sGLCoreProfile || ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts));
+	mHasFragmentShader = ExtensionExists("GL_ARB_fragment_shader", gGLHExts.mSysExts) && (LLRender::sGLCoreProfile || ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts));
 #endif
 
 #if LL_LINUX || LL_SOLARIS
@@ -1338,10 +1367,6 @@ void log_glerror()
 
 void do_assert_glerror()
 {
-	if (LL_UNLIKELY(!gGLManager.mInited))
-	{
-		LL_ERRS("RenderInit") << "GL not initialized" << LL_ENDL;
-	}
 	//  Create or update texture to be used with this data 
 	GLenum error;
 	error = glGetError();

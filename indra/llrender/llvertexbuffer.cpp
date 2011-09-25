@@ -1024,7 +1024,9 @@ void LLVertexBuffer::updateNumIndices(S32 nindices)
 void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 {
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_ALLOCATE_BUFFER);
-		
+	
+	stop_glerror();
+
 	if (nverts < 0 || nindices < 0 ||
 		nverts > 65536)
 	{
