@@ -534,7 +534,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 		}
 	}
 
-	gGL.getTexUnit(0)->bind(image);
+	gGL.getTexUnit(0)->bind(image, true);
 
 	gGL.color4fv(color.mV);
 	
@@ -732,7 +732,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 	LLGLSUIDefault gls_ui;
 
 
-	gGL.getTexUnit(0)->bind(image);
+	gGL.getTexUnit(0)->bind(image, true);
 
 	gGL.color4fv(color.mV);
 
@@ -785,7 +785,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
 		LLMatrix3 quat(0.f, 0.f, degrees*DEG_TO_RAD);
 		
-		gGL.getTexUnit(0)->bind(image);
+		gGL.getTexUnit(0)->bind(image, true);
 
 		gGL.color4fv(color.mV);
 		
