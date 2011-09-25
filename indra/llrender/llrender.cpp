@@ -1039,6 +1039,7 @@ LLRender::LLRender()
 		mMatIdx[i] = 0;
 		mMatHash[i] = 0;
 		mCurMatHash[i] = 0xFFFFFFFF;
+		mMatrix[i][0].make_identity();
 	}
 
 	mLightHash = 0;

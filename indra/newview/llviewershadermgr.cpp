@@ -2122,6 +2122,14 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectBumpProgram.mShaderFiles.push_back(make_pair("objects/bumpF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gObjectBumpProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		success = gObjectBumpProgram.createShader(NULL, NULL);
+
+		if (success)
+		{ //lldrawpoolbump assumes "texture0" has channel 0 and "texture1" has channel 1
+			gObjectBumpProgram.bind();
+			gObjectBumpProgram.uniform1i("texture0", 0);
+			gObjectBumpProgram.uniform1i("texture1", 1);
+			gObjectBumpProgram.unbind();
+		}
 	}
 	
 	
