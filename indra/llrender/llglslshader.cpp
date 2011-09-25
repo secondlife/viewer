@@ -76,11 +76,7 @@ hasAlphaMask(false)
 LLGLSLShader::LLGLSLShader()
 	: mProgramObject(0), mActiveTextureChannels(0), mShaderLevel(0), mShaderGroup(SG_DEFAULT), mUniformsDirty(FALSE)
 {
-	for (U32 i = 0; i < LLRender::NUM_MATRIX_MODES; ++i)
-	{
-		mMatHash[i] = 0xFFFFFFFF;
-	}
-	mLightHash = 0xFFFFFFFF;
+
 }
 
 void LLGLSLShader::unload()
@@ -116,6 +112,13 @@ void LLGLSLShader::unload()
 BOOL LLGLSLShader::createShader(vector<string> * attributes,
 								vector<string> * uniforms)
 {
+	//reloading, reset matrix hash values
+	for (U32 i = 0; i < LLRender::NUM_MATRIX_MODES; ++i)
+	{
+		mMatHash[i] = 0xFFFFFFFF;
+	}
+	mLightHash = 0xFFFFFFFF;
+
 	llassert_always(!mShaderFiles.empty());
 	BOOL success = TRUE;
 
