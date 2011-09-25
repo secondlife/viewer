@@ -167,7 +167,7 @@ void LLDrawPoolWater::render(S32 pass)
 	std::sort(mDrawFace.begin(), mDrawFace.end(), LLFace::CompareDistanceGreater());
 
 	// See if we are rendering water as opaque or not
-	if (!gSavedSettings.getBOOL("RenderTransparentWater"))
+	if (!gSavedSettings.getBOOL("RenderTransparentWater") && !LLGLSLShader::sNoFixedFunction)
 	{
 		// render water for low end hardware
 		renderOpaqueLegacyWater();
@@ -331,6 +331,11 @@ void LLDrawPoolWater::render(S32 pass)
 void LLDrawPoolWater::renderOpaqueLegacyWater()
 {
 	LLVOSky *voskyp = gSky.mVOSkyp;
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gObjectSimpleProgram.bind();
+	}
 
 	stop_glerror();
 
