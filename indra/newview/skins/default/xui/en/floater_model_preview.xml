@@ -789,7 +789,7 @@
                     <check_box name="physics_use_hull" follows="left|top" width="130" left_pad="5" height="20" label="Use Convex Hull"/> -->
                 </panel>
             
-            <!-- ==== STEP 2: Analyse ==== -->
+            <!-- ==== STEP 2: Analyze ==== -->
             <view_border
               bevel_style="none"
               follows="top|left"
@@ -818,7 +818,7 @@
                       name="method_label"
                       text_color="White"
                       top_pad="0">
-                      Step 2: Analyse
+                      Step 2: Analyze
                     </text>
                     <text
                       follows="top|left"
