@@ -31,6 +31,7 @@
 #include "lltoolbar.h"
 
 #include "llcommandmanager.h"
+#include "llmenugl.h"
 #include "lltrans.h"
 
 // uncomment this and remove the one in llui.cpp when there is an external reference to this translation unit
@@ -51,6 +52,7 @@ namespace LLToolBarEnums
 		return orientation;
 	}
 }
+
 using namespace LLToolBarEnums;
 
 
@@ -58,8 +60,8 @@ namespace LLInitParam
 {
 	void TypeValues<ButtonType>::declareValues()
 	{
-		declare("icons_only",		BTNTYPE_ICONS_ONLY);
 		declare("icons_with_text",	BTNTYPE_ICONS_WITH_TEXT);
+		declare("icons_only",		BTNTYPE_ICONS_ONLY);
 	}
 
 	void TypeValues<SideType>::declareValues()
@@ -77,6 +79,7 @@ LLToolBar::Params::Params()
 	side("side", SIDE_TOP),
 	button_icon("button_icon"),
 	button_icon_and_text("button_icon_and_text"),
+	read_only("read_only", false),
 	wrap("wrap", true),
 	min_button_width("min_button_width", 0),
 	max_button_width("max_button_width", S32_MAX),
@@ -91,6 +94,7 @@ LLToolBar::Params::Params()
 
 LLToolBar::LLToolBar(const LLToolBar::Params& p)
 :	LLUICtrl(p),
+	mReadOnly(p.read_only),
 	mButtonType(p.button_display_mode),
 	mSideType(p.side),
 	mWrap(p.wrap),
@@ -104,10 +108,47 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 	mPadRight(p.pad_right),
 	mPadTop(p.pad_top),
 	mPadBottom(p.pad_bottom),
-	mPadBetween(p.pad_between)
+	mPadBetween(p.pad_between),
+	mPopupMenuHandle()
 {
-	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
+	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
+}
+
+LLToolBar::~LLToolBar()
+{
+	LLView::deleteViewByHandle(mPopupMenuHandle);
+}
+
+BOOL LLToolBar::postBuild()
+{
+	if (!mReadOnly)
+	{
+		LLUICtrl::CommitCallbackRegistry::Registrar& commit_reg = LLUICtrl::CommitCallbackRegistry::defaultRegistrar();
+		commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onSettingEnable, this, _2));
+
+		LLUICtrl::EnableCallbackRegistry::Registrar& enable_reg = LLUICtrl::EnableCallbackRegistry::defaultRegistrar();
+		enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isSettingChecked, this, _2));
+
+		//
+		// Setup the context menu
+		//
+
+		LLMenuGL* menu = LLUICtrlFactory::instance().createFromFile<LLMenuGL>("menu_toolbars.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+
+		if (menu)
+		{
+			menu->setBackgroundColor(LLUIColorTable::instance().getColor("MenuPopupBgColor"));
+
+			mPopupMenuHandle = menu->getHandle();
+		}
+		else
+		{
+			llwarns << "Unable to load toolbars context menu." << llendl;
+		}
+	}
+
+	return TRUE;
 }
 
 void LLToolBar::initFromParams(const LLToolBar::Params& p)
@@ -199,6 +240,61 @@ bool LLToolBar::addCommand(LLCommand * command)
 	return true;
 }
 
+BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handle_it_here = !mReadOnly;
+
+	if (handle_it_here)
+	{
+		LLMenuGL * menu = (LLMenuGL *) mPopupMenuHandle.get();
+
+		if (menu)
+		{
+			LLMenuGL::showPopup(this, menu, x, y);
+		}
+	}
+
+	return handle_it_here;
+}
+
+BOOL LLToolBar::isSettingChecked(const LLSD& userdata)
+{
+	BOOL retval = FALSE;
+
+	const std::string setting_name = userdata.asString();
+
+	if (setting_name == "icons_and_labels")
+	{
+		retval = (mButtonType == BTNTYPE_ICONS_WITH_TEXT);
+	}
+	else if (setting_name == "icons_only")
+	{
+		retval = (mButtonType == BTNTYPE_ICONS_ONLY);
+	}
+
+	return retval;
+}
+
+void LLToolBar::onSettingEnable(const LLSD& userdata)
+{
+	llassert(!mReadOnly);
+
+	const std::string setting_name = userdata.asString();
+
+	const ButtonType current_button_type = mButtonType;
+
+	if (setting_name == "icons_and_labels")
+	{
+		mButtonType = BTNTYPE_ICONS_WITH_TEXT;
+	}
+	else if (setting_name == "icons_only")
+	{
+		mButtonType = BTNTYPE_ICONS_ONLY;
+	}
+
+	mNeedsLayout |= (current_button_type != mButtonType);
+}
+
 void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth)
 {
 	// make buttons in current row all same girth
@@ -264,8 +360,8 @@ void LLToolBar::updateLayoutAsNeeded()
 
 	std::vector<LLToolBarButton*> buttons_in_row;
 
-		BOOST_FOREACH(LLToolBarButton* button, mButtons)
-		{
+	BOOST_FOREACH(LLToolBarButton* button, mButtons)
+	{
 		button->reshape(mMinButtonWidth, mButtonHeight);
 		button->autoResize();
 
@@ -296,11 +392,11 @@ void LLToolBar::updateLayoutAsNeeded()
 			cur_start = row_pad_start;
 			cur_row += max_row_girth + mPadBetween;
 			max_row_girth = 0;
-	}
+		}
 
 		LLRect button_rect;
 		if (orientation == LLLayoutStack::HORIZONTAL)
-	{
+		{
 			button_rect.setLeftTopAndSize(cur_start, panel_rect.mTop - cur_row, button_clamped_width, button->getRect().getHeight());
 		}
 		else // VERTICAL
@@ -340,8 +436,9 @@ void LLToolBar::updateLayoutAsNeeded()
 		{ // shift left to maintain right edge
 			mButtonPanel->translate(mButtonPanel->getRect().getWidth() - total_girth, 0);
 		}
+
 		mButtonPanel->reshape(total_girth, max_row_length);
-		}
+	}
 
 	// re-center toolbar buttons
 	mCenteringStack->updateLayout();

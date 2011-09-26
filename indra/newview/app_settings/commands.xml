@@ -21,6 +21,7 @@
            function="Floater.ToolbarToggle"
            param="chat"
            />
+  <!-- Compass it not supported by the viewer yet
   <command name="compass"
            icon="Command_Compass_Icon"
            label_ref="Command_Compass_Label"
@@ -28,6 +29,7 @@
            function="Floater.ToolbarToggle"
            param="compass"
            />
+           -->
   <command name="gestures"
            icon="Command_Gestures_Icon"
            label_ref="Command_Gestures_Label"
@@ -55,6 +57,13 @@
            tooltip_ref="Command_Map_Tooltip"
            function="Floater.ToolbarToggle"
            param="map"
+           />
+  <command name="minimap"
+           icon="Command_MiniMap_Icon"
+           label_ref="Command_MiniMap_Label"
+           tooltip_ref="Command_MiniMap_Tooltip"
+           function="Floater.ToolbarToggle"
+           param="minimap"
            />
   <command name="move"
            icon="Command_Move_Icon"
