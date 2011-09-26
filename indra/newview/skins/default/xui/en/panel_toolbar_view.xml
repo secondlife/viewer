@@ -19,6 +19,7 @@
   left="0"
   top="0" 
   side="left"
+  button_display_mode="icons_only"
   visible="true" />
  <toolbar
   follows="right|bottom|left"
@@ -29,6 +30,7 @@
   left="30"
   top="470" 
   side="bottom"
+  button_display_mode="icons_with_text"
   visible="true" />
  <toolbar
   follows="top|bottom|right"
@@ -39,6 +41,7 @@
   left="994"
   top="0" 
   side="right"
+  button_display_mode="icons_only"
   visible="true" />
  <panel
   follows="top|bottom|left"
