@@ -1032,6 +1032,7 @@ Synystyr Texan
 Takeda Terrawyng
 TankMaster Finesmith
 	STORM-1100
+	STORM-1258
 Talamasca
 Tali Rosca
 Tayra Dagostino
