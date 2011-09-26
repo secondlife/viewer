@@ -124,7 +124,8 @@ void display_startup()
 
 	// Update images?
 	//gImageList.updateImages(0.01f);
-	
+	LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
+
 	LLGLSDefault gls_default;
 
 	// Required for HTML update in login screen
