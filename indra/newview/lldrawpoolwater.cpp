@@ -59,6 +59,8 @@ BOOL LLDrawPoolWater::sSkipScreenCopy = FALSE;
 BOOL LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
 BOOL LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
 LLColor4 LLDrawPoolWater::sWaterFogColor = LLColor4(0.2f, 0.5f, 0.5f, 0.f);
+F32 LLDrawPoolWater::sWaterFogEnd = 0.f;
+
 LLVector3 LLDrawPoolWater::sLightDir;
 
 LLDrawPoolWater::LLDrawPoolWater() :
