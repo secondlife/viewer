@@ -34,6 +34,7 @@
 #include "llmemtype.h"
 #include "llrender.h"
 #include "llvector4a.h"
+#include "llshadermgr.h"
 #include "llglslshader.h"
 #include "llmemory.h"
 
@@ -121,6 +122,7 @@ public:
 
 };
 
+//NOTE: each component must be AT LEAST 4 bytes in size to avoid a performance penalty on AMD hardware
 S32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 {
 	sizeof(LLVector4), // TYPE_VERTEX,
@@ -130,7 +132,7 @@ S32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 	sizeof(LLVector2), // TYPE_TEXCOORD2,
 	sizeof(LLVector2), // TYPE_TEXCOORD3,
 	sizeof(LLColor4U), // TYPE_COLOR,
-	sizeof(U8),		   // TYPE_EMISSIVE
+	sizeof(LLColor4U), // TYPE_EMISSIVE, only alpha is used currently
 	sizeof(LLVector4), // TYPE_BINORMAL,
 	sizeof(F32),	   // TYPE_WEIGHT,
 	sizeof(LLVector4), // TYPE_WEIGHT4,
@@ -1071,7 +1073,7 @@ void LLVertexBuffer::setupVertexArray()
 		2, //TYPE_TEXCOORD2,
 		2, //TYPE_TEXCOORD3,
 		4, //TYPE_COLOR,
-		1, //TYPE_EMISSIVE,
+		4, //TYPE_EMISSIVE,
 		3, //TYPE_BINORMAL,
 		1, //TYPE_WEIGHT,
 		4, //TYPE_WEIGHT4,
@@ -1842,9 +1844,9 @@ bool LLVertexBuffer::getColorStrider(LLStrider<LLColor4U>& strider, S32 index, S
 {
 	return VertexBufferStrider<LLColor4U,TYPE_COLOR>::get(*this, strider, index, count, map_range);
 }
-bool LLVertexBuffer::getEmissiveStrider(LLStrider<U8>& strider, S32 index, S32 count, bool map_range)
+bool LLVertexBuffer::getEmissiveStrider(LLStrider<LLColor4U>& strider, S32 index, S32 count, bool map_range)
 {
-	return VertexBufferStrider<U8,TYPE_EMISSIVE>::get(*this, strider, index, count, map_range);
+	return VertexBufferStrider<LLColor4U,TYPE_EMISSIVE>::get(*this, strider, index, count, map_range);
 }
 bool LLVertexBuffer::getWeightStrider(LLStrider<F32>& strider, S32 index, S32 count, bool map_range)
 {
@@ -1994,18 +1996,17 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 		if (shader)
 		{
 			U32 required_mask = 0;
-			for (U32 i = 0; i < LLVertexBuffer::TYPE_MAX; ++i)
+			for (U32 i = 0; i < LLVertexBuffer::TYPE_TEXTURE_INDEX; ++i)
 			{
 				if (shader->getAttribLocation(i) > -1)
 				{
 					U32 required = 1 << i;
 					if ((data_mask & required) == 0)
 					{
-						llwarns << "Missing attribute: " << i << llendl;
+						llwarns << "Missing attribute: " << LLShaderMgr::instance()->mReservedAttribs[i] << llendl;
 					}
 
 					required_mask |= required;
-
 				}
 			}
 
@@ -2186,7 +2187,7 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 		{
 			S32 loc = TYPE_EMISSIVE;
 			void* ptr = (void*)(base + mOffsets[TYPE_EMISSIVE]);
-			glVertexAttribPointerARB(loc, 1, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], ptr);
+			glVertexAttribPointerARB(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], ptr);
 		}
 		if (data_mask & MAP_WEIGHT)
 		{

@@ -725,9 +725,12 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		}
 		else if (!is_compressed)
 		{
-			if (mAutoGenMips && !LLRender::sGLCoreProfile) //auto-generating mipmaps is deprecated in GL 3.0
+			if (mAutoGenMips)
 			{
-				glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_GENERATE_MIPMAP_SGIS, TRUE);
+				if (!glGenerateMipmap)
+				{
+					glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_GENERATE_MIPMAP_SGIS, TRUE);
+				}
 				stop_glerror();
 				{
 // 					LLFastTimer t2(FTM_TEMP4);
@@ -755,6 +758,11 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
 						stop_glerror();
 					}
+				}
+
+				if (glGenerateMipmap)
+				{
+					glGenerateMipmap(LLTexUnit::getInternalType(mBindTarget));
 				}
 			}
 			else

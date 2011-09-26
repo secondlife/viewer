@@ -650,7 +650,7 @@ bool LLGLManager::initGL()
 
 	if (LLRender::sGLCoreProfile)
 	{
-		mNumTextureUnits = mNumTextureImageUnits;
+		mNumTextureUnits = llmin(mNumTextureImageUnits, MAX_GL_TEXTURE_UNITS);
 	}
 	else if (mHasMultitexture)
 	{

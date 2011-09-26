@@ -26,6 +26,9 @@
 
 VARYING float fog_depth;
 
+uniform vec4 waterFogColor;
+uniform float waterFogEnd;
+
 vec4 applyWaterFog(vec4 color)
 {
 	// GL_EXP2 Fog
@@ -33,9 +36,9 @@ vec4 applyWaterFog(vec4 color)
 	// GL_EXP Fog
 	// float fog = exp(-gl_Fog.density * fog_depth);
 	// GL_LINEAR Fog
-	float fog = (gl_Fog.end - fog_depth) * gl_Fog.scale;
+	float fog = (waterFogEnd - fog_depth) * gl_Fog.scale;
 	fog = clamp(fog, 0.0, 1.0);
-	color.rgb = mix(gl_Fog.color.rgb, color.rgb, fog);
+	color.rgb = mix(waterFogColor.rgb, color.rgb, fog);
 	return color;
 }
 

@@ -1764,7 +1764,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	if (rebuild_emissive)
 	{
 		LLFastTimer t(FTM_FACE_GEOM_EMISSIVE);
-		LLStrider<U8> emissive;
+		LLStrider<LLColor4U> emissive;
 		mVertexBuffer->getEmissiveStrider(emissive, mGeomIndex, mGeomCount, map_range);
 
 		U8 glow = (U8) llclamp((S32) (getTextureEntry()->getGlow()*255), 0, 255);
@@ -1783,8 +1783,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		src.loadua((F32*) vec);
 
 		LLVector4a* dst = (LLVector4a*) emissive.get();
-		S32 num_vecs = num_vertices/16;
-		if (num_vertices%16 > 0)
+		S32 num_vecs = num_vertices/4;
+		if (num_vertices%4 > 0)
 		{
 			++num_vecs;
 		}

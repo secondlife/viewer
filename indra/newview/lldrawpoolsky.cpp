@@ -76,13 +76,14 @@ void LLDrawPoolSky::render(S32 pass)
 		return;
 	}
 	
-	// use a shader only underwater
+	// don't render sky under water (background just gets cleared to fog color)
 	if(mVertexShaderLevel > 0 && LLPipeline::sUnderWaterRender)
 	{
-		mShader = &gObjectFullbrightWaterProgram;
-		mShader->bind();
+		return;
 	}
-	else if (LLGLSLShader::sNoFixedFunction)
+
+
+	if (LLGLSLShader::sNoFixedFunction)
 	{ //just use the UI shader (generic single texture no lighting)
 		gOneTextureNoColorProgram.bind();
 	}
