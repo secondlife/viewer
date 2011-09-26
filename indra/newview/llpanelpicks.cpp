@@ -48,11 +48,11 @@
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llpanelavatar.h"
 #include "llpanelprofile.h"
 #include "llpanelpick.h"
 #include "llpanelclassified.h"
-#include "llsidetray.h"
 
 static const std::string XML_BTN_NEW = "new_btn";
 static const std::string XML_BTN_DELETE = "trash_btn";
@@ -133,7 +133,7 @@ public:
 		params["id"] = gAgent.getID();
 		params["open_tab_name"] = "panel_picks";
 		params["show_tab_panel"] = "create_pick";
-		LLSideTray::getInstance()->showPanel("panel_me", params);
+		LLFloaterSidePanelContainer::showPanel("my_profile", params);
 	}
 
 	void editPick(LLPickData* pick_info)
@@ -146,8 +146,7 @@ public:
 		params["snapshot_id"] = pick_info->snapshot_id;
 		params["pick_name"] = pick_info->name;
 		params["pick_desc"] = pick_info->desc;
-		
-		LLSideTray::getInstance()->showPanel("panel_me", params);
+		LLFloaterSidePanelContainer::showPanel("my_profile", params);
 	}
 	
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type)
@@ -252,7 +251,7 @@ public:
 		params["id"] = gAgent.getID();
 		params["open_tab_name"] = "panel_picks";
 		params["show_tab_panel"] = "create_classified";
-		LLSideTray::getInstance()->showPanel("panel_me", params);
+		LLFloaterSidePanelContainer::showPanel("my_profile", params);
 	}
 
 	void openClassified(LLAvatarClassifiedInfo* c_info)
@@ -270,7 +269,11 @@ public:
 			params["classified_name"] = c_info->name;
 			params["classified_desc"] = c_info->description;
 			params["from_search"] = true;
-			LLSideTray::getInstance()->showPanel("panel_profile_view", params);
+			LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("people");
+			if (floaterp)
+			{
+				floaterp->openChildPanel("panel_profile_view", params);
+			}
 		}
 		else if (mRequestVerb == "edit")
 		{
@@ -283,7 +286,7 @@ public:
 				params["open_tab_name"] = "panel_picks";
 				params["show_tab_panel"] = "edit_classified";
 				params["classified_id"] = c_info->classified_id;
-				LLSideTray::getInstance()->showPanel("panel_me", params);
+				LLFloaterSidePanelContainer::showPanel("my_profile", params);
 			}
 			else
 			{

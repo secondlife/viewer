@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<floater
+ can_close="true"
+ can_resize="true"
+ height="570"
+ help_topic="sidebar_me"
+ min_width="333"
+ min_height="440"
+ name="floater_profile"
+ save_rect="true"
+ save_visibility="true"
+ title="My Profile"
+ width="333" >
+   <panel
+    class="panel_me"
+    name="main_panel"
+    filename="panel_me.xml"
+    follows="all"/>
+</floater>
