@@ -40,11 +40,11 @@ public:
 	LLViewerControlListener();
 
 private:
-	static void set(LLControlGroup *controls, LLSD const & event_data);
-	static void toggleControl(LLControlGroup *controls, LLSD const & event_data);
-	static void setDefault(LLControlGroup *controls, LLSD const & event_data);
+	static void set(LLSD const & event_data);
+	static void toggle(LLSD const & event_data);
+	static void get(LLSD const & event_data);
+	static void groups(LLSD const & event_data);
+	static void vars(LLSD const & event_data);
 };
-
-extern LLViewerControlListener gSavedSettingsListener;
 
 #endif // LL_LLVIEWERCONTROLLISTENER_H
