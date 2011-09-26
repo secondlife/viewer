@@ -60,9 +60,9 @@
            layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="500"
+           min_width="340"
            name="navigation_layout_panel"
-           width="500">
+           width="340">
              <panel
                background_visible="false"
                follows="left|top|right"
@@ -71,7 +71,7 @@
                layout="topleft"
                left="0"
                name="navigation_panel"
-               width="500">
+               width="340">
                  <pull_button
                    follows="left|top"
                    direction="down"
@@ -118,33 +118,10 @@
                    mouse_opaque="false"
                    name="location_combo"
                    top_delta="0"
-                   width="213">
+                   width="215">
                  <combo_list
                    mouse_wheel_opaque="true"/>
                  </location_input>
-                 <search_combo_box
-                   follows="top|right"
-                   halign="right"
-                   height="23"
-                   label="Search"
-                   layout="topleft"
-                   left_pad="7"
-                   mouse_opaque="false"
-                   name="search_combo_box"
-                   tool_tip="Search"
-                   top_delta="0"
-                   width="152" >
-                     <combo_editor
-                       label="Search [SECOND_LIFE]"
-                       name="search_combo_editor"/>
-                     <combo_list
-                       draw_border="true"
-                       border.highlight_light_color="FocusColor"
-                       border.highlight_dark_color="FocusColor"
-                       border.shadow_light_color="FocusColor"
-                       border.shadow_dark_color="FocusColor"
-                       mouse_wheel_opaque="true"/>
-                 </search_combo_box>
              </panel>
          </layout_panel>
          
@@ -172,9 +149,9 @@
            layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="190"
+           min_width="335"
            name="favorites_layout_panel"
-           width="290">
+           width="335">
              <favorites_bar
                follows="left|right|top"
                font="SansSerifSmall"
@@ -184,7 +161,7 @@
                name="favorite"
                image_drag_indication="Accordion_ArrowOpened_Off"
                tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
-               width="290">
+               width="331">
                  <label
                    follows="left|top"
                    height="15"
