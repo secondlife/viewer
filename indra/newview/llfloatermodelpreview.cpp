@@ -496,6 +496,11 @@ BOOL LLFloaterModelPreview::postBuild()
 	{
 		validate_url = "http://secondlife.com/my/account/mesh.php";
 	}
+	else if (current_grid == "damballah")
+	{
+		// Staging grid has its own naming scheme.
+		validate_url = "http://secondlife-staging.com/my/account/mesh.php";
+	}
 	else
 	{
 		validate_url = llformat("http://secondlife.%s.lindenlab.com/my/account/mesh.php",current_grid.c_str());
