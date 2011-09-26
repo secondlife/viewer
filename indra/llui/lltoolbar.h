@@ -51,8 +51,8 @@ namespace LLToolBarEnums
 {
 	enum ButtonType
 	{
-		BTNTYPE_ICONS_ONLY = 0,
-		BTNTYPE_ICONS_WITH_TEXT,
+		BTNTYPE_ICONS_WITH_TEXT = 0,
+		BTNTYPE_ICONS_ONLY,
 
 		BTNTYPE_COUNT
 	};
@@ -96,7 +96,9 @@ public:
 		Optional<LLToolBarButton::Params>		button_icon,
 												button_icon_and_text;
 
-		Optional<bool>							wrap;
+		Optional<bool>							read_only,
+												wrap;
+
 		Optional<S32>							min_button_width,
 												max_button_width,
 												button_height;
@@ -116,6 +118,7 @@ public:
 
 	// virtuals
 	void draw();
+	BOOL postBuild();
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	bool addCommand(LLCommand * command);
@@ -123,12 +126,19 @@ public:
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBar(const Params&);
+	~LLToolBar();
 
 	void initFromParams(const Params&);
+
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	BOOL isSettingChecked(const LLSD& userdata);
+	void onSettingEnable(const LLSD& userdata);
 
 private:
 	void updateLayoutAsNeeded();
 	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
+
+	const bool						mReadOnly;
 
 	std::list<LLToolBarButton*>		mButtons;
 	LLToolBarEnums::ButtonType		mButtonType;
@@ -149,6 +159,8 @@ private:
 									mPadBetween;
 
 	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
+
+	LLHandle<LLView>				mPopupMenuHandle;
 };
 
 

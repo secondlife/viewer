@@ -4,7 +4,8 @@
          pad_right="5"
          pad_top="5"
          pad_bottom="5"
-         pad_between="5">
+         pad_between="5"
+         read_only="false">
 
   <button_panel name="button_panel"
                 bg_opaque_image="Rounded_Rect"

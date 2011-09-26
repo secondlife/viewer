@@ -133,6 +133,7 @@ with the same filename but different name
   <texture name="Command_HowTo_Icon"     file_name="icons/SL_Logo.png" preload="true" />
   <texture name="Command_Landmarks_Icon" file_name="icons/SL_Logo.png" preload="true" />
   <texture name="Command_Map_Icon"       file_name="icons/SL_Logo.png" preload="true" />
+  <texture name="Command_MiniMap_Icon"   file_name="icons/SL_Logo.png" preload="true" />
   <texture name="Command_Move_Icon"      file_name="icons/SL_Logo.png" preload="true" />
   <texture name="Command_MyLand_Icon"    file_name="icons/SL_Logo.png" preload="true" />
   <texture name="Command_MyStuff_Icon"   file_name="icons/SL_Logo.png" preload="true" />

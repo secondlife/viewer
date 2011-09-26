@@ -45,10 +45,12 @@
   </text>
   <toolbar
     bottom="395"
+    button_display_mode="icons_with_text"
     left="40"
     max_button_width="140"
-    min_button_width="140"
+    min_button_width="70"
     name="toybox_toolbar"
+    read_only="true"
     right="-40"
     side="top"
     top="85">
