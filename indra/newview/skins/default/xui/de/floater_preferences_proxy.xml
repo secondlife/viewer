@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Proxy Settings Floater" title="Proxy-Einstellungen">
+	<check_box initial_value="false" label="HTTP-Proxy für Webseiten verwenden" name="web_proxy_enabled"/>
+	<text name="http_proxy_label">
+		HTTP-Proxy:
+	</text>
+	<line_editor name="web_proxy_editor" tool_tip="DNS-Name oder IP-Adresse des gewünschten HTTP-Proxys."/>
+	<spinner label="Portnummer:" name="web_proxy_port" tool_tip="Portnummer des gewünschten HTTP-Proxys."/>
+	<check_box label="SOCKS 5-Proxy für UDP-Verkehr verwenden" name="socks_proxy_enabled"/>
+	<text name="socks5_proxy_label">
+		SOCKS 5-Proxy:
+	</text>
+	<line_editor name="socks_proxy_editor" tool_tip="DNS-Name oder IP-Adresse des gewünschten SOCKS 5-Proxys."/>
+	<spinner label="Portnummer:" name="socks_proxy_port" tool_tip="Portnummer des gewünschten SOCKS 5-Proxys."/>
+	<text name="socks_auth_label">
+		SOCKS-Authentifizierung:
+	</text>
+	<radio_group name="socks5_auth_type">
+		<radio_item label="Keine Authentifizierung" name="Socks5NoAuth" tool_tip="SOCKS 5-Proxy erfordert keine Authentifizierung." value="Keine"/>
+		<radio_item label="Benutzername/Kennwort" name="Socks5UserPass" tool_tip="SOCKS 5-Proxy erfordert Authentifizierung per Benutzername/Kennwort." value="UserPass"/>
+	</radio_group>
+	<text name="socks5_username_label">
+		Benutzername:
+	</text>
+	<text name="socks5_password_label">
+		Kennwort:
+	</text>
+	<line_editor name="socks5_username" tool_tip="Benutzername zur Authentifizierung über Ihren SOCKS 5-Server"/>
+	<line_editor name="socks5_password" tool_tip="Kennwort zur Authentifizierung über Ihren SOCKS 5-Server"/>
+	<text name="other_proxy_label">
+		Anderer HTTP-Verkehrs-Proxy:
+	</text>
+	<radio_group name="other_http_proxy_type">
+		<radio_item label="Keinen Proxy verwenden" name="OtherNoProxy" tool_tip="Nicht-Web-HTTP-Verkehr wird an KEINEN Proxy weitergeleitet." value="Keiner"/>
+		<radio_item label="HTTP-Proxy verwenden" name="OtherHTTPProxy" tool_tip="Nicht-Web-HTTP-Verkehr wird über den konfigurierten Web-Proxy weitergeleitet." value="Web"/>
+		<radio_item label="SOCKS 5-Proxy verwenden" name="OtherSocksProxy" tool_tip="Nicht-Web-HTTP-Verkehr wird über den konfigurierten SOCKS 5-Proxy weitergeleitet." value="SOCKS"/>
+	</radio_group>
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
+</floater>

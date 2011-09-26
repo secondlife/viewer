@@ -34,15 +34,15 @@
             <string />
         </map>
     <key>LastInventoryInboxActivity</key>
-       <map>
-            <key>Comment</key>
+        <map>
+        <key>Comment</key>
             <string>The last time the received items inbox was poked by the user.</string>
-            <key>Persist</key>
+        <key>Persist</key>
             <integer>1</integer>
-            <key>Type</key>
-            <string>String</string>
-            <key>Value</key>
-            <string />
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>0</integer>
         </map>
     <key>LastLogoff</key>
         <map>

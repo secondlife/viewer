@@ -84,6 +84,19 @@
 		現在の衣類、身体部位の変更を保存しますか？
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="保存しない" yestext="保存"/>
 	</notification>
+	<notification name="ConfirmNoCopyToOutbox">
+		マーチャントのアウトボックスにこれをコピーする権限があります。次のアイテムを移動しますか？
+[ITEM_NAME]
+		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="OutboxUploadComplete">
+		マーケットプレイスへのアップロードが完了しました。
+		<usetemplate name="okbutton" yestext="やったあ！"/>
+	</notification>
+	<notification name="OutboxUploadHadErrors">
+		マーケットプレイスへのアップロードの完了時にエラーが発生しました。アウトボックスの問題を解決して、もう一度お試しください。ありがとうございます。
+		<usetemplate name="okbutton" yestext="再トライ！"/>
+	</notification>
 	<notification name="CompileQueueSaveText">
 		次の理由で、スクリプト用テキストのアップロード時に問題が起こりました。
 [REASON]
@@ -2471,7 +2484,15 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		<form name="form">
 			<button name="Keep" text="受け取る"/>
 			<button name="Discard" text="破棄"/>
-			<button name="Mute" text="ブロック"/>
+			<button name="Mute" text="所有者をブロック"/>
+		</form>
+	</notification>
+	<notification name="OwnObjectGiveItem">
+		&lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; という名前のオブジェクトが、あなたに [OBJECTTYPE] を渡しました：
+&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
+		<form name="form">
+			<button name="Keep" text="キープ"/>
+			<button name="Discard" text="処分する"/>
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
@@ -2615,6 +2636,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		[NAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
 		<form name="form">
+			<button name="Mute" text="ブロック"/>
 			<button name="Ignore" text="無視する"/>
 		</form>
 	</notification>
@@ -2622,6 +2644,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		[GROUPNAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
 		<form name="form">
+			<button name="Mute" text="ブロック"/>
 			<button name="Ignore" text="無視する"/>
 		</form>
 	</notification>
@@ -2948,12 +2971,66 @@ M キーを押して変更します。
 	<notification label="あなたのリンデンドル" name="HintLindenDollar">
 		これがあなたの L$ 残高です。リンデンドルを購入するには「L$ の購入」をクリックします。
 	</notification>
+	<notification name="LowMemory">
+		メモリプール残量が少なくなっています。クラッシュを避けるため SL の機能の一部は無効になりました。他のアプリケーションを終了し、状況が継続または再発する場合には SL を再起動してください。
+	</notification>
+	<notification name="ForceQuitDueToLowMemory">
+		メモリ不足のため 30 秒以内に SL は終了します。
+	</notification>
 	<notification name="PopupAttempt">
 		ポップアップがブロックされました。
 		<form name="form">
 			<ignore name="ignore" text="全てのポップアップを有効にする"/>
 			<button name="open" text="ポップアップウィンドウを開く"/>
 		</form>
+	</notification>
+	<notification name="SOCKS_NOT_PERMITTED">
+		ルールセットによって許可されていないため、SOCKS 5 プロキシ &quot;[HOST]:[PORT]&quot; が接続を拒絶しました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_CONNECT_ERROR">
+		SOCKS 5 プロキシ &quot;[HOST]:[PORT]&quot; が接続を拒絶したため、TCP チャンネルを開くことができませんでした。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_NOT_ACCEPTABLE">
+		SOCKS 5 プロキシ &quot;[HOST]:[PORT]&quot; は選択された認証システムを拒絶しました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_AUTH_FAIL">
+		SOCKS 5 プロキシ &quot;[HOST]:[PORT]&quot; はあなたの資格が無効だと報告しました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_UDP_FWD_NOT_GRANTED">
+		SOCKS 5 プロキシ &quot;[HOST]:[PORT]&quot; は UDP アソシエートのリクエストを拒絶しました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_HOST_CONNECT_FAILED">
+		SOCKS 5 プロキシサーバー &quot;[HOST]:[PORT]&quot; に接続できませんでした。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_UNKNOWN_STATUS">
+		不明のプロキシエラーがサーバー &quot;[HOST]:[PORT]&quot; で発生しました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_INVALID_HOST">
+		SOCKS プロキシのアドレスまたはポート &quot;[HOST]:[PORT]&quot;が無効です。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="SOCKS_BAD_CREDS">
+		SOCKS 5 のユーザー名またはパスワードが正しくありません。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PROXY_INVALID_HTTP_HOST">
+		HTTP プロキシのアドレスまたはポート &quot;[HOST]:[PORT]&quot;が無効です。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PROXY_INVALID_SOCKS_HOST">
+		SOCKS プロキシのアドレスまたはポート &quot;[HOST]:[PORT]&quot;が無効です。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ChangeProxySettings">
+		プロキシの設定は [APP_NAME] を再起動後に反映されます。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AuthRequest">
 		「[REALM]」にある「&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;」のサイトにはユーザー名とパスワードが必要です。
