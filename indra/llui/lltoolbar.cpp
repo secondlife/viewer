@@ -240,6 +240,20 @@ bool LLToolBar::addCommand(LLCommand * command)
 	return true;
 }
 
+bool LLToolBar::hasCommand(const std::string& command_name)
+{
+	bool has_command = false;
+	for (std::list<LLToolBarButton*>::iterator cmd = mButtons.begin(); cmd != mButtons.end(); cmd++)
+	{
+		if ((*cmd)->getName() == command_name)
+		{
+			has_command = true;
+			break;
+		}
+	}
+	return has_command;
+}
+
 BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handle_it_here = !mReadOnly;

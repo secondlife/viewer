@@ -45,6 +45,8 @@ public:
 
 	virtual void draw();
 
+	bool hasCommand(const std::string& command_name);
+	
 	// valid children for LLToolBarView are stored in this registry
 	typedef LLDefaultChildRegistry child_registry_t;
 

@@ -122,6 +122,7 @@ public:
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	bool addCommand(LLCommand * command);
+	bool hasCommand(const std::string& command_name);
 
 protected:
 	friend class LLUICtrlFactory;
