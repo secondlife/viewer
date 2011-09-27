@@ -16,14 +16,9 @@
            min_button_width="0"
            max_button_width="100"
            side="top">
-    <button auto_resize="true"
-            use_ellipses="true"
-            label="Button"/>
-    <button auto_resize="true"
-            label="Button with long label"/>
-    <button auto_resize="true"
-            use_ellipses="true"
-            label="Button with longest label of all"/>
+    <command name="avatar"/>
+    <command name="build"/>
+    <command name="chat"/>
   </toolbar>
   <toolbar name="test_toolbar_left"
            follows="left|bottom|top"
@@ -33,12 +28,9 @@
            top="70"
            min_button_width="100"           
            side="left">
-    <button height="30"
-            label="Button"/>
-    <button height="50"
-            label="Button with long label"/>
-    <button height="60"
-            label="Button with longest label of all"/>
+    <command name="avatar"/>
+    <command name="build"/>
+    <command name="chat"/>
   </toolbar>
   <toolbar name="test_toolbar_right"
            follows="right|bottom|top"
@@ -47,12 +39,9 @@
            right="500"
            top="70"
            side="right">
-    <button auto_resize="true"
-            label="Button 1"/>
-    <button auto_resize="true"
-            label="Button with long label"/>
-    <button auto_resize="true"
-            label="Button with longest label of all"/>
+    <command name="avatar"/>
+    <command name="build"/>
+    <command name="chat"/>
   </toolbar>
   <toolbar name="test_toolbar_bottom"
            follows="left|right|bottom"
@@ -62,11 +51,8 @@
            bottom="500"
            min_button_width="100"
            side="bottom">
-    <button auto_resize="true"
-            label="Button"/>
-    <button auto_resize="true"
-            label="Button with long label"/>
-    <button auto_resize="true"
-            label="Button with longest label of all"/>
+    <command name="avatar"/>
+    <command name="build"/>
+    <command name="chat"/>
   </toolbar>
 </floater>

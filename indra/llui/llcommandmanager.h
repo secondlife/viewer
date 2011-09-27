@@ -41,10 +41,22 @@ public:
 	friend class LLCommand;
 	friend class LLCommandManager;
 
+	struct Params : public LLInitParam::Block<Params>
+	{
+		Mandatory<std::string> name;
+
+		Params()
+		:	name("name")
+		{}
+	};
+
 	LLCommandId(const std::string& name)
 		: mName(name)
-	{
-	}
+	{}
+
+	LLCommandId(const Params& p)
+	:	mName(p.name)
+	{}
 
 	const std::string& name() const { return mName; }
 

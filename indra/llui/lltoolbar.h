@@ -32,9 +32,7 @@
 #include "llcommandmanager.h"
 #include "lllayoutstack.h"
 #include "lluictrl.h"
-
-
-class LLCommand;
+#include "llcommandmanager.h"
 
 
 class LLToolBarButton : public LLButton
@@ -110,7 +108,7 @@ public:
 												pad_bottom,
 												pad_between;
 		// get rid of this
-		Multiple<LLToolBarButton::Params>		buttons;
+		Multiple<LLCommandId::Params>			commands;
 
 		Optional<LLPanel::Params>				button_panel;
 
@@ -136,6 +134,7 @@ protected:
 private:
 	void createContextMenu();
 	void updateLayoutAsNeeded();
+	void createButtons();
 	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
 	BOOL isSettingChecked(const LLSD& userdata);
 	void onSettingEnable(const LLSD& userdata);

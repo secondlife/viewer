@@ -13,9 +13,11 @@
                 background_opaque="true"/>
   <button_icon_and_text follows="left|top"
                         chrome="true"
+                        image_overlay_alignment="left"
                         use_ellipses="true"
                         auto_resize="true"/>
   <button_icon follows="left|top"
+               label=""
                chrome="true"
                use_ellipses="true"
                auto_resize="true"/>

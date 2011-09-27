@@ -47,11 +47,9 @@
                  top="0"
                  side="left"
                  button_display_mode="icons_only">
-          <button name="button1" label="Left Toolbar"/>
-          <button name="button2" label="Left Toolbar"/>
-          <button name="button3" label="Left Toolbar"/>
-          <button name="button4" label="Left Toolbar"/>
-          <button name="button5" label="Left Toolbar"/>
+          <command name="avatar"/>
+          <command name="build"/>
+          <command name="chat"/>
         </toolbar>
       </layout_panel>
       <layout_panel name="non_toolbar_panel"
@@ -74,11 +72,9 @@
           top="0"
           side="right"
           button_display_mode="icons_only">
-          <button name="button1" label="Right Toolbar"/>
-          <button name="button2" label="Right Toolbar"/>
-          <button name="button3" label="Right Toolbar"/>
-          <button name="button4" label="Right Toolbar"/>
-          <button name="button5" label="Right Toolbar"/>
+          <command name="avatar"/>
+          <command name="build"/>
+          <command name="chat"/>
         </toolbar>
       </layout_panel>
     </layout_stack>
@@ -100,12 +96,9 @@
              follows="left|right|bottom"
              button_display_mode="icons_with_text"
              visible="true">
-      <button name="button1" label="Bottom toolbar"/>
-      <button name="button2" label="Bottom toolbar"/>
-      <button name="button3" label="Bottom toolbar"/>
-      <button name="button4" label="Bottom toolbar"/>
-      <button name="button5" label="Bottom toolbar"/>
-      <button name="button6" label="Bottom toolbar"/>
+      <command name="avatar"/>
+      <command name="build"/>
+      <command name="chat"/>
     </toolbar>
   </layout_panel>
   </layout_stack>

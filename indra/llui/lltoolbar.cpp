@@ -74,7 +74,7 @@ namespace LLInitParam
 
 LLToolBar::Params::Params()
 :	button_display_mode("button_display_mode"),
-	buttons("button"),
+	commands("command"),
 	side("side", SIDE_TOP),
 	button_icon("button_icon"),
 	button_icon_and_text("button_icon_and_text"),
@@ -187,17 +187,13 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	
 	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
 
-	BOOST_FOREACH (LLToolBarButton::Params button_p, p.buttons)
+	BOOST_FOREACH (const LLCommandId::Params& command_id, p.commands)
 	{
-		button_p.fillFrom(mButtonParams[mButtonType]);
-		LLToolBarButton* buttonp = LLUICtrlFactory::create<LLToolBarButton>(button_p);
-
-		mButtons.push_back(buttonp);
-		mButtonCommands.push_back(LLCommandId::null);
-		mButtonPanel->addChild(buttonp);
-
-		mNeedsLayout = true;
+		mButtonCommands.push_back(command_id);
 	}
+	createButtons();
+
+	mNeedsLayout = true;
 }
 
 bool LLToolBar::addCommand(const LLCommandId& commandId)
@@ -206,26 +202,8 @@ bool LLToolBar::addCommand(const LLCommandId& commandId)
 
 	bool add_command = (command != NULL);
 
-	//
-	// Init basic toolbar button params
-	//
-	if (add_command)
-	{
-	LLToolBarButton::Params button_p(mButtonParams[mButtonType]);
-		button_p.name = commandId.name();
-	button_p.label = LLTrans::getString(command->labelRef());
-	button_p.tool_tip = LLTrans::getString(command->tooltipRef());
-
-	//
-	// Add it to the list of buttons
-	//
-	LLToolBarButton * toolbar_button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
-	mButtons.push_back(toolbar_button);
-		mButtonCommands.push_back(commandId);
-	mButtonPanel->addChild(toolbar_button);
-
-	mNeedsLayout = true;
-	}
+	mButtonCommands.push_back(commandId);
+	createButtons();
 
 	return add_command;
 }
@@ -320,7 +298,10 @@ void LLToolBar::onSettingEnable(const LLSD& userdata)
 		mButtonType = BTNTYPE_ICONS_ONLY;
 	}
 
-	mNeedsLayout |= (current_button_type != mButtonType);
+	if(current_button_type != mButtonType)
+	{
+		createButtons();
+	}
 }
 
 void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth)
@@ -387,8 +368,8 @@ void LLToolBar::updateLayoutAsNeeded()
 
 	std::vector<LLToolBarButton*> buttons_in_row;
 
-		BOOST_FOREACH(LLToolBarButton* button, mButtons)
-		{
+	BOOST_FOREACH(LLToolBarButton* button, mButtons)
+	{
 		button->reshape(mMinButtonWidth, mButtonHeight);
 		button->autoResize();
 
@@ -421,8 +402,8 @@ void LLToolBar::updateLayoutAsNeeded()
 			max_row_girth = 0;
 	}
 
-		LLRect button_rect;
-		if (orientation == LLLayoutStack::HORIZONTAL)
+	LLRect button_rect;
+	if (orientation == LLLayoutStack::HORIZONTAL)
 	{
 			button_rect.setLeftTopAndSize(cur_start, panel_rect.mTop - cur_row, button_clamped_width, button->getRect().getHeight());
 		}
@@ -467,7 +448,7 @@ void LLToolBar::updateLayoutAsNeeded()
 		
 		reshape(total_girth, getRect().getHeight());
 		mButtonPanel->reshape(total_girth, max_row_length);
-		}
+	}
 
 	// re-center toolbar buttons
 	mCenteringStack->updateLayout();
@@ -486,6 +467,32 @@ void LLToolBar::draw()
 void LLToolBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLUICtrl::reshape(width, height, called_from_parent);
+	mNeedsLayout = true;
+}
+
+void LLToolBar::createButtons()
+{
+	BOOST_FOREACH(LLToolBarButton* button, mButtons)
+	{
+		delete button;
+	}
+	mButtons.clear();
+	
+	BOOST_FOREACH(LLCommandId& command_id, mButtonCommands)
+	{
+		LLCommand* commandp = LLCommandManager::instance().getCommand(command_id);
+		if (!commandp) continue;
+
+		LLToolBarButton::Params button_p;
+		button_p.label = LLTrans::getString(commandp->labelRef());
+		button_p.image_overlay = LLUI::getUIImage(commandp->icon());
+		button_p.overwriteFrom(mButtonParams[mButtonType]);
+		LLToolBarButton* button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
+
+		mButtons.push_back(button);
+		mButtonPanel->addChild(button);
+	}
+
 	mNeedsLayout = true;
 }
 
