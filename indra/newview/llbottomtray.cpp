@@ -400,7 +400,7 @@ void LLBottomTray::onMouselookModeOut()
 {
 	mIsInLiteMode = false;
 	mBottomTrayLite->setVisible(FALSE);
-	mNearbyChatBar->getChatBox()->setText(mBottomTrayLite->mNearbyChatBar->getChatBox()->getText());
+	//mNearbyChatBar->getChatBox()->setText(mBottomTrayLite->mNearbyChatBar->getChatBox()->getText());
 	setVisible(TRUE);
 }
 
@@ -413,8 +413,8 @@ void LLBottomTray::onMouselookModeIn()
 		getParent()->addChild(mBottomTrayLite);
 
 	mBottomTrayLite->setShape(getLocalRect());
-	mBottomTrayLite->mNearbyChatBar->getChatBox()->setText(mNearbyChatBar->getChatBox()->getText());
-	mBottomTrayLite->mGesturePanel->setVisible(gSavedSettings.getBOOL("ShowGestureButton"));
+	//mBottomTrayLite->mNearbyChatBar->getChatBox()->setText(mNearbyChatBar->getChatBox()->getText());
+	//mBottomTrayLite->mGesturePanel->setVisible(gSavedSettings.getBOOL("ShowGestureButton"));
 
 	mIsInLiteMode = true;
 }

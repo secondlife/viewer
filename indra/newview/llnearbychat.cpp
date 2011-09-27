@@ -58,7 +58,7 @@
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
 LLNearbyChat::LLNearbyChat(const LLSD& key) 
-	: LLDockableFloater(NULL, false, false, key)
+	: LLFloater(key)
 	,mChatHistory(NULL)
 {
 	
@@ -86,20 +86,9 @@ BOOL LLNearbyChat::postBuild()
 
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
-	if(!LLDockableFloater::postBuild())
+	if(!LLFloater::postBuild())
 		return false;
 
-	if (getDockControl() == NULL)
-	{
-		setDockControl(new LLDockControl(
-			LLFloaterReg::getInstance("chat_bar"), this,
-			getDockTongue(), LLDockControl::TOP, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
-	}
-
-        //fix for EXT-4621 
-        //chrome="true" prevents floater from stilling capture
-        setIsChrome(true);
-	//chrome="true" hides floater caption 
 	if (mDragHandle)
 		mDragHandle->setTitleVisible(TRUE);
 
@@ -116,20 +105,6 @@ void    LLNearbyChat::applySavedVariables()
 		{
 			reshape(rect.getWidth(), rect.getHeight());
 			setRect(rect);
-		}
-	}
-
-
-	if(!LLFloater::getControlGroup()->controlExists(mDocStateControl))
-	{
-		setDocked(true);
-	}
-	else
-	{
-		if (mDocStateControl.size() > 1)
-		{
-			bool dockState = LLFloater::getControlGroup()->getBOOL(mDocStateControl);
-			setDocked(dockState);
 		}
 	}
 }
@@ -229,17 +204,17 @@ void	LLNearbyChat::setVisible(BOOL visible)
 		}
 	}
 
-	LLDockableFloater::setVisible(visible);
+	LLFloater::setVisible(visible);
 }
 
 void	LLNearbyChat::onOpen(const LLSD& key )
 {
-	LLDockableFloater::onOpen(key);
+	LLFloater::onOpen(key);
 }
 
 void LLNearbyChat::setRect	(const LLRect &rect)
 {
-	LLDockableFloater::setRect(rect);
+	LLFloater::setRect(rect);
 }
 
 void LLNearbyChat::getAllowedRect(LLRect& rect)
@@ -367,7 +342,7 @@ BOOL	LLNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
 	
 	if(mChatHistory)
 		mChatHistory->setFocus(TRUE);
-	return LLDockableFloater::handleMouseDown(x, y, mask);
+	return LLFloater::handleMouseDown(x, y, mask);
 }
 
 void LLNearbyChat::draw()
@@ -380,5 +355,5 @@ void LLNearbyChat::draw()
 		setTransparencyType(hasFocus() ? TT_ACTIVE : TT_INACTIVE);
 	}
 
-	LLDockableFloater::draw();
+	LLFloater::draw();
 }
