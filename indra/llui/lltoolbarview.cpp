@@ -60,12 +60,10 @@ void LLToolBarView::draw()
 	LLToolBar* toolbar_bottom = getChild<LLToolBar>("toolbar_bottom");
 	LLToolBar* toolbar_left = getChild<LLToolBar>("toolbar_left");
 	LLToolBar* toolbar_right = getChild<LLToolBar>("toolbar_right");
-	LLPanel* sizer_left = getChild<LLPanel>("sizer_left");
 	
 	LLRect bottom_rect = toolbar_bottom->getRect();
 	LLRect left_rect = toolbar_left->getRect();
 	LLRect right_rect = toolbar_right->getRect();
-	LLRect sizer_left_rect = sizer_left->getRect();
 	
 	if ((old_width != getRect().getWidth()) || (old_height != getRect().getHeight()))
 		debug_print = true;
@@ -76,7 +74,6 @@ void LLToolBarView::draw()
 		llinfos << "Merov debug : draw bottom  rect = " << bottom_rect.mLeft << ", " << bottom_rect.mTop << ", " << bottom_rect.mRight << ", " << bottom_rect.mBottom << llendl; 
 		llinfos << "Merov debug : draw left    rect = " << left_rect.mLeft << ", " << left_rect.mTop << ", " << left_rect.mRight << ", " << left_rect.mBottom << llendl; 
 		llinfos << "Merov debug : draw right   rect = " << right_rect.mLeft << ", " << right_rect.mTop << ", " << right_rect.mRight << ", " << right_rect.mBottom << llendl; 
-		llinfos << "Merov debug : draw s left  rect = " << sizer_left_rect.mLeft << ", " << sizer_left_rect.mTop << ", " << sizer_left_rect.mRight << ", " << sizer_left_rect.mBottom << llendl; 
 		old_width = ctrl_rect.getWidth();
 		old_height = ctrl_rect.getHeight();
 		debug_print = false;

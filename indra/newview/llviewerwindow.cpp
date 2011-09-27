@@ -1787,6 +1787,7 @@ void LLViewerWindow::initBase()
 		LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
 		// Load the toolbar view from file 
 		gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLDefaultChildRegistry::instance());
+		gToolBarView->setShape(panel_holder->getLocalRect());
 		// Attach it to the toolbar view holder
 		//panel_holder->addChild(gToolBarView);
 	}

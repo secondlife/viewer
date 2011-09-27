@@ -109,7 +109,7 @@ void LLCommandManager::addCommand(LLCommand * command)
 	mCommandIndices[command->name()] = mCommands.size();
 	mCommands.push_back(command);
 
-	llinfos << "Successfully added command: " << command->name() << llendl;
+	lldebugs << "Successfully added command: " << command->name() << llendl;
 }
 
 //static
