@@ -989,11 +989,27 @@ void LLButton::resize(LLUIString label)
 	// get current btn length 
 	S32 btn_width =getRect().getWidth();
     // check if it need resize 
-	if (mAutoResize == TRUE)
+	if (mAutoResize)
 	{ 
-		if (btn_width - (mRightHPad + mLeftHPad) < label_width)
+		S32 min_width = label_width + mLeftHPad + mRightHPad;
+		if (mImageOverlay)
 		{
-			setRect(LLRect( getRect().mLeft, getRect().mTop, getRect().mLeft + label_width + mLeftHPad + mRightHPad , getRect().mBottom));
+			switch(mImageOverlayAlignment)
+			{
+			case LLFontGL::LEFT:
+			case LLFontGL::RIGHT:
+				min_width += mImageOverlay->getWidth() + mImgOverlayLabelSpace;
+				break;
+			case LLFontGL::HCENTER:
+				break;
+			default:
+				// draw nothing
+				break;
+			}
+		}
+		if (btn_width < min_width)
+		{
+			reshape(min_width, getRect().getHeight());
 		}
 	} 
 }
