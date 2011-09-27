@@ -34,6 +34,7 @@
 #include "llattachmentsmgr.h"
 #include "llcommandhandler.h"
 #include "lleventtimer.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -116,7 +117,7 @@ public:
 			return true;
 		}
 
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD());
+		LLFloaterSidePanelContainer::showPanel("appearance", LLSD());
 		return true;
 	}
 };
@@ -1505,7 +1506,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 void LLAppearanceMgr::updatePanelOutfitName(const std::string& name)
 {
 	LLSidepanelAppearance* panel_appearance =
-		dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+		dynamic_cast<LLSidepanelAppearance *>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	if (panel_appearance)
 	{
 		panel_appearance->refreshCurrentOutfitName(name);
@@ -1943,7 +1944,7 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
 	if (gAgentCamera.cameraCustomizeAvatar())
 	{
 		// switching to outfit editor should automagically save any currently edited wearable
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
 	}
 
 	LLAppearanceMgr::changeOutfit(TRUE, category->getUUID(), append);
@@ -2468,7 +2469,7 @@ public:
 			LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
 		}
 		LLOutfitsList *outfits_list =
-			dynamic_cast<LLOutfitsList*>(LLSideTray::getInstance()->getPanel("outfitslist_tab"));
+			dynamic_cast<LLOutfitsList*>(LLFloaterSidePanelContainer::getPanel("appearance", "outfitslist_tab"));
 		if (outfits_list)
 		{
 			outfits_list->setSelectedOutfitByUUID(mFolderID);

@@ -33,6 +33,7 @@
 #include "llagentwearablesfetch.h"
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -2015,7 +2016,7 @@ void LLAgentWearables::editWearable(const LLUUID& item_id)
 	}
 
 	const BOOL disable_camera_switch = LLWearableType::getDisableCameraSwitch(wearable->getType());
-	LLPanel* panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
+	LLPanel* panel = LLFloaterSidePanelContainer::getPanel("appearance");
 	LLSidepanelAppearance::editWearable(wearable, panel, disable_camera_switch);
 }
 

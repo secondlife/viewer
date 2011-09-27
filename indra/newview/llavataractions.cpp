@@ -462,7 +462,7 @@ namespace action_give_inventory
 	 */
 	static LLInventoryPanel* get_outfit_editor_inventory_panel()
 	{
-		LLPanelOutfitEdit* panel_outfit_edit = dynamic_cast<LLPanelOutfitEdit*>(LLSideTray::getInstance()->getPanel("panel_outfit_edit"));
+		LLPanelOutfitEdit* panel_outfit_edit = dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
 		if (NULL == panel_outfit_edit) return NULL;
 
 		LLInventoryPanel* inventory_panel = panel_outfit_edit->findChild<LLInventoryPanel>("folder_view");
