@@ -2752,6 +2752,11 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			{
 				markVisible(*i, camera);
 			}
+
+			if (!sDelayVBUpdate)
+			{ //rebuild mesh as soon as we know it's visible
+				group->rebuildMesh();
+			}
 		}
 	}
 
@@ -2802,6 +2807,11 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 		{
 			group->setVisible();
 			stateSort(group, camera);
+
+			if (!sDelayVBUpdate)
+			{ //rebuild mesh as soon as we know it's visible
+				group->rebuildMesh();
+			}
 		}
 	}
 	
