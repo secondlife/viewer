@@ -1277,9 +1277,8 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 	
 	S32 num_verts = (vol_face.mNumVertices + 0xF) & ~0xF;
 	if (buffer.isNull() || 
-
 		buffer->getTypeMask() != data_mask ||
-		buffer->getRequestedVerts() != num_verts)
+		buffer->getRequestedVerts() != num_verts ||
 		buffer->getRequestedIndices() != vol_face.mNumIndices ||
 		(drawable && drawable->isState(LLDrawable::REBUILD_ALL)))
 	{
