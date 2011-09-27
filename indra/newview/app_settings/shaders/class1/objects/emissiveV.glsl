@@ -29,7 +29,7 @@ uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
 ATTRIBUTE float texture_index;
-ATTRIBUTE float emissive;
+ATTRIBUTE vec4 emissive;
 ATTRIBUTE vec2 texcoord0;
 
 VARYING vec4 vertex_color;
@@ -50,7 +50,7 @@ void main()
 	vec4 pos = (modelview_matrix * vec4(position.xyz, 1.0));
 	calcAtmospherics(pos.xyz);
 
-	vertex_color = vec4(0,0,0,emissive);
+	vertex_color = emissive;
 
 	fog_depth = pos.z;
 }

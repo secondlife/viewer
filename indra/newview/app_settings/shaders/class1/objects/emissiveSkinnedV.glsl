@@ -28,7 +28,7 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 
 ATTRIBUTE vec3 position;
-ATTRIBUTE float emissive;
+ATTRIBUTE vec4 emissive;
 ATTRIBUTE vec2 texcoord0;
 
 VARYING vec4 vertex_color;
@@ -50,7 +50,7 @@ void main()
 	
 	calcAtmospherics(pos.xyz);
 
-	vertex_color = vec4(0,0,0,emissive);
+	vertex_color = emissive;
 	
 	gl_Position = projection_matrix*vec4(pos, 1.0);
 		
