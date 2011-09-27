@@ -38,11 +38,18 @@
 
 
 //
+// LLCommandId class
+//
+
+const LLCommandId LLCommandId::null("null command");
+
+//
 // LLCommand class
 //
 
 LLCommand::Params::Params()
 	: function("function")
+	, available_in_toybox("available_in_toybox", false)
 	, icon("icon")
 	, label_ref("label_ref")
 	, name("name")
@@ -53,9 +60,10 @@ LLCommand::Params::Params()
 
 LLCommand::LLCommand(const LLCommand::Params& p)
 	: mFunction(p.function)
+	, mAvailableInToybox(p.available_in_toybox)
 	, mIcon(p.icon)
+	, mIdentifier(p.name)
 	, mLabelRef(p.label_ref)
-	, mName(p.name)
 	, mParam(p.param)
 	, mTooltipRef(p.tooltip_ref)
 {
@@ -90,26 +98,26 @@ LLCommand * LLCommandManager::getCommand(U32 commandIndex)
 	return mCommands[commandIndex];
 }
 
-LLCommand * LLCommandManager::getCommand(const std::string& commandName)
+LLCommand * LLCommandManager::getCommand(const LLCommandId& commandId)
 {
-	LLCommand * command_name_match = NULL;
+	LLCommand * command_match = NULL;
 
-	CommandIndexMap::const_iterator found = mCommandIndices.find(commandName);
+	CommandIndexMap::const_iterator found = mCommandIndices.find(commandId);
 	
 	if (found != mCommandIndices.end())
 	{
-		command_name_match = mCommands[found->second];
+		command_match = mCommands[found->second];
 	}
 
-	return command_name_match;
+	return command_match;
 }
 
 void LLCommandManager::addCommand(LLCommand * command)
 {
-	mCommandIndices[command->name()] = mCommands.size();
+	mCommandIndices[command->id()] = mCommands.size();
 	mCommands.push_back(command);
 
-	llinfos << "Successfully added command: " << command->name() << llendl;
+	llinfos << "Successfully added command: " << command->id().name() << llendl;
 }
 
 //static

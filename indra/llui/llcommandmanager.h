@@ -31,11 +31,50 @@
 #include "llsingleton.h"
 
 
+class LLCommand;
+class LLCommandManager;
+
+
+class LLCommandId
+{
+public:
+	friend LLCommand;
+	friend LLCommandManager;
+
+	LLCommandId(const std::string& name)
+		: mName(name)
+	{
+	}
+
+	const std::string& name() const { return mName; }
+
+	bool operator!=(const LLCommandId& command) const
+	{
+		return (mName != command.mName);
+	}
+
+	bool operator==(const LLCommandId& command) const
+	{
+		return (mName == command.mName);
+	}
+
+	bool operator<(const LLCommandId& command) const
+	{
+		return (mName < command.mName);
+	}
+
+	static const LLCommandId null;
+
+private:
+	std::string mName;
+};
+
 class LLCommand
 {
 public:
 	struct Params : public LLInitParam::Block<Params>
 	{
+		Mandatory<bool>			available_in_toybox;
 		Mandatory<std::string>	function;
 		Mandatory<std::string>	icon;
 		Mandatory<std::string>	label_ref;
@@ -48,18 +87,21 @@ public:
 
 	LLCommand(const LLCommand::Params& p);
 
+	const bool availableInToybox() const { return mAvailableInToybox; }
 	const std::string& functionName() const { return mFunction; }
 	const std::string& icon() const { return mIcon; }
+	const LLCommandId& id() const { return mIdentifier; }
 	const std::string& labelRef() const { return mLabelRef; }
-	const std::string& name() const { return mName; }
 	const std::string& param() const { return mParam; }
 	const std::string& tooltipRef() const { return mTooltipRef; }
 
 private:
+	LLCommandId mIdentifier;
+
+	bool        mAvailableInToybox;
 	std::string mFunction;
 	std::string mIcon;
 	std::string mLabelRef;
-	std::string	mName;
 	std::string mParam;
 	std::string mTooltipRef;
 };
@@ -84,7 +126,7 @@ public:
 
 	U32 commandCount() const;
 	LLCommand * getCommand(U32 commandIndex);
-	LLCommand * getCommand(const std::string& commandName);
+	LLCommand * getCommand(const LLCommandId& commandId);
 
 	static bool load();
 
@@ -92,7 +134,7 @@ protected:
 	void addCommand(LLCommand * command);
 
 private:
-	typedef std::map<std::string, U32>	CommandIndexMap;
+	typedef std::map<LLCommandId, U32>	CommandIndexMap;
 	typedef std::vector<LLCommand *>	CommandVector;
 	
 	CommandVector	mCommands;

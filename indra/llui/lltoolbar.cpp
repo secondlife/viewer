@@ -30,7 +30,6 @@
 #include <boost/foreach.hpp>
 #include "lltoolbar.h"
 
-#include "llcommandmanager.h"
 #include "llmenugl.h"
 #include "lltrans.h"
 
@@ -212,46 +211,77 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 		LLToolBarButton* buttonp = LLUICtrlFactory::create<LLToolBarButton>(button_p);
 
 		mButtons.push_back(buttonp);
+		mButtonCommands.push_back(LLCommandId::null);
 		mButtonPanel->addChild(buttonp);
 
 		mNeedsLayout = true;
 	}
 }
 
-bool LLToolBar::addCommand(LLCommand * command)
+bool LLToolBar::addCommand(const LLCommandId& commandId)
 {
+	LLCommand * command = LLCommandManager::instance().getCommand(commandId);
+
+	bool add_command = (command != NULL);
+
 	//
 	// Init basic toolbar button params
 	//
-	LLToolBarButton::Params button_p(mButtonParams[mButtonType]);
-	button_p.name = command->name();
-	button_p.label = LLTrans::getString(command->labelRef());
-	button_p.tool_tip = LLTrans::getString(command->tooltipRef());
+	if (add_command)
+	{
+		LLToolBarButton::Params button_p(mButtonParams[mButtonType]);
+		button_p.name = commandId.name();
+		button_p.label = LLTrans::getString(command->labelRef());
+		button_p.tool_tip = LLTrans::getString(command->tooltipRef());
 
-	//
-	// Add it to the list of buttons
-	//
-	LLToolBarButton * toolbar_button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
-	mButtons.push_back(toolbar_button);
-	mButtonPanel->addChild(toolbar_button);
+		//
+		// Add it to the list of buttons
+		//
+		LLToolBarButton * toolbar_button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
+		mButtons.push_back(toolbar_button);
+		mButtonCommands.push_back(commandId);
+		mButtonPanel->addChild(toolbar_button);
 
-	mNeedsLayout = true;
+		mNeedsLayout = true;
+	}
 
-	return true;
+	return add_command;
 }
 
-bool LLToolBar::hasCommand(const std::string& command_name)
+bool LLToolBar::hasCommand(const LLCommandId& commandId) const
 {
 	bool has_command = false;
-	for (std::list<LLToolBarButton*>::iterator cmd = mButtons.begin(); cmd != mButtons.end(); cmd++)
+
+	if (commandId != LLCommandId::null)
 	{
-		if ((*cmd)->getName() == command_name)
+		for (std::list<LLCommandId>::const_iterator cmd = mButtonCommands.begin(); cmd != mButtonCommands.end(); ++cmd)
 		{
-			has_command = true;
-			break;
+			if ((*cmd) == commandId)
+			{
+				has_command = true;
+				break;
+			}
 		}
 	}
+
 	return has_command;
+}
+
+bool LLToolBar::enableCommand(const LLCommandId& commandId, bool enabled)
+{
+	LLButton * command_button = NULL;
+	
+	if (commandId != LLCommandId::null)
+	{
+		command_button = mButtonPanel->findChild<LLButton>(commandId.name());
+
+		if (command_button)
+		{
+			command_button->setEnabled(enabled);
+		}
+	}
+
+	return (command_button != NULL);
 }
 
 BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -351,7 +381,6 @@ void LLToolBar::updateLayoutAsNeeded()
 		max_length = getRect().getWidth() - mPadLeft - mPadRight;
 		max_total_girth = getRect().getHeight() - mPadTop - mPadBottom;
 		row_pad_start = mPadLeft;
-		row_running_length = row_pad_start;
 		row_pad_end = mPadRight;
 		cur_row = mPadTop;
 		girth_pad_end = mPadBottom;
@@ -361,12 +390,12 @@ void LLToolBar::updateLayoutAsNeeded()
 		max_length = getRect().getHeight() - mPadTop - mPadBottom;
 		max_total_girth = getRect().getWidth() - mPadLeft - mPadRight;
 		row_pad_start = mPadTop;
-		row_running_length = row_pad_start;
 		row_pad_end = mPadBottom;
 		cur_row = mPadLeft;
 		girth_pad_end = mPadRight;
 	}
 	
+	row_running_length = row_pad_start;
 	cur_start = row_pad_start;
 
 

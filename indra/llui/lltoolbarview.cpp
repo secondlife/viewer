@@ -62,20 +62,20 @@ BOOL LLToolBarView::postBuild()
 	return TRUE;
 }
 
-bool LLToolBarView::hasCommand(const std::string& command_name)
+bool LLToolBarView::hasCommand(const LLCommandId& commandId) const
 {
 	bool has_command = false;
 	if (mToolbarLeft && !has_command)
 	{
-		has_command = mToolbarLeft->hasCommand(command_name);
+		has_command = mToolbarLeft->hasCommand(commandId);
 	}
 	if (mToolbarRight && !has_command)
 	{
-		has_command = mToolbarRight->hasCommand(command_name);
+		has_command = mToolbarRight->hasCommand(commandId);
 	}
 	if (mToolbarBottom && !has_command)
 	{
-		has_command = mToolbarBottom->hasCommand(command_name);
+		has_command = mToolbarBottom->hasCommand(commandId);
 	}
 	return has_command;
 }

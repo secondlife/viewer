@@ -28,9 +28,10 @@
 #ifndef LL_LLTOOLBAR_H
 #define LL_LLTOOLBAR_H
 
-#include "lluictrl.h"
-#include "lllayoutstack.h"
 #include "llbutton.h"
+#include "llcommandmanager.h"
+#include "lllayoutstack.h"
+#include "lluictrl.h"
 
 
 class LLCommand;
@@ -121,8 +122,9 @@ public:
 	BOOL postBuild();
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
-	bool addCommand(LLCommand * command);
-	bool hasCommand(const std::string& command_name);
+	bool addCommand(const LLCommandId& commandId);
+	bool hasCommand(const LLCommandId& commandId) const;
+	bool enableCommand(const LLCommandId& commandId, bool enabled);
 
 protected:
 	friend class LLUICtrlFactory;
@@ -142,6 +144,7 @@ private:
 	const bool						mReadOnly;
 
 	std::list<LLToolBarButton*>		mButtons;
+	std::list<LLCommandId>			mButtonCommands;
 	LLToolBarEnums::ButtonType		mButtonType;
 	LLLayoutStack*					mCenteringStack;
 	LLLayoutStack*					mWrapStack;

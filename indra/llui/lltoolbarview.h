@@ -30,6 +30,7 @@
 
 #include "lluictrl.h"
 #include "lltoolbar.h"
+#include "llcommandmanager.h"
 
 class LLUICtrlFactory;
 
@@ -45,7 +46,7 @@ public:
 
 	virtual void draw();
 
-	bool hasCommand(const std::string& command_name);
+	bool hasCommand(const LLCommandId& commandId) const;
 	
 	// valid children for LLToolBarView are stored in this registry
 	typedef LLDefaultChildRegistry child_registry_t;

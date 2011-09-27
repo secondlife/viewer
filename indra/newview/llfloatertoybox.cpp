@@ -32,6 +32,7 @@
 #include "llcommandmanager.h"
 #include "llpanel.h"
 #include "lltoolbar.h"
+#include "lltoolbarview.h"
 
 
 LLFloaterToybox::LLFloaterToybox(const LLSD& key)
@@ -63,7 +64,13 @@ BOOL LLFloaterToybox::postBuild()
 	{
 		LLCommand * command = cmdMgr.getCommand(i);
 
-		mToolBar->addCommand(command);
+		if (command->availableInToybox())
+		{
+			mToolBar->addCommand(command->id());
+
+			llassert(gToolBarView != NULL);
+			mToolBar->enableCommand(command->id(), !gToolBarView->hasCommand(command->id()));
+		}
 	}
 
 	return TRUE;
