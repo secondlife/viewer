@@ -90,11 +90,10 @@ void LLToolBarView::draw()
 	
 	LLRect bottom_rect, left_rect, right_rect;
 
-	if (mToolbarBottom) bottom_rect = mToolbarBottom->getRect();
-	if (mToolbarLeft)   left_rect   = mToolbarLeft->getRect();
-	if (mToolbarRight)  right_rect  = mToolbarRight->getRect();
-
-	LLRect sizer_left_rect = sizer_left->getRect();
+	if (mToolbarBottom) mToolbarBottom->localRectToOtherView(mToolbarBottom->getLocalRect(), &bottom_rect, this);
+	if (mToolbarLeft)   mToolbarLeft->localRectToOtherView(mToolbarLeft->getLocalRect(), &left_rect, this);
+	if (mToolbarRight)  mToolbarRight->localRectToOtherView(mToolbarRight->getLocalRect(), &right_rect, this);
+	
 	
 	if ((old_width != getRect().getWidth()) || (old_height != getRect().getHeight()))
 		debug_print = true;
@@ -105,7 +104,6 @@ void LLToolBarView::draw()
 		llinfos << "Merov debug : draw bottom  rect = " << bottom_rect.mLeft << ", " << bottom_rect.mTop << ", " << bottom_rect.mRight << ", " << bottom_rect.mBottom << llendl; 
 		llinfos << "Merov debug : draw left    rect = " << left_rect.mLeft << ", " << left_rect.mTop << ", " << left_rect.mRight << ", " << left_rect.mBottom << llendl; 
 		llinfos << "Merov debug : draw right   rect = " << right_rect.mLeft << ", " << right_rect.mTop << ", " << right_rect.mRight << ", " << right_rect.mBottom << llendl; 
-		llinfos << "Merov debug : draw s left  rect = " << sizer_left_rect.mLeft << ", " << sizer_left_rect.mTop << ", " << sizer_left_rect.mRight << ", " << sizer_left_rect.mBottom << llendl; 
 		old_width = ctrl_rect.getWidth();
 		old_height = ctrl_rect.getHeight();
 		debug_print = false;

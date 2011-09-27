@@ -119,8 +119,8 @@ public:
 
 	// virtuals
 	void draw();
-	BOOL postBuild();
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	bool addCommand(const LLCommandId& commandId);
 	bool hasCommand(const LLCommandId& commandId) const;
@@ -133,13 +133,12 @@ protected:
 
 	void initFromParams(const Params&);
 
-	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	BOOL isSettingChecked(const LLSD& userdata);
-	void onSettingEnable(const LLSD& userdata);
-
 private:
+	void createContextMenu();
 	void updateLayoutAsNeeded();
 	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
+	BOOL isSettingChecked(const LLSD& userdata);
+	void onSettingEnable(const LLSD& userdata);
 
 	const bool						mReadOnly;
 
@@ -164,7 +163,7 @@ private:
 
 	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
 
-	LLHandle<LLView>				mPopupMenuHandle;
+	LLHandle<class LLContextMenu>			mPopupMenuHandle;
 };
 
 
