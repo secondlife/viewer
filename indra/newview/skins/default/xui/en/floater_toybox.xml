@@ -46,6 +46,7 @@
   <toolbar
     bottom="395"
     button_display_mode="icons_with_text"
+    follows="all"
     left="20"
     max_button_width="140"
     min_button_width="70"
@@ -58,15 +59,22 @@
     read_only="true"
     right="-20"
     side="top"
-    top="85">
-  </toolbar>
+    top="85" />
+  <panel
+    bevel_style="none"
+    border="true"
+    bottom="396"
+    follows="left|bottom|right"
+    left="20"
+    right="-20"
+    top="396" />
   <button
-    follows="left|bottom"
+    follows="left|bottom|right"
     height="23"
     label="Restore defaults"
     label_selected="Restore defaults"
     layout="topleft"
-    left="20"
+    left="260"
     name="btn_restore_defaults"
     top="415"
     width="130">
