@@ -187,12 +187,6 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	
 	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
 
-	BOOST_FOREACH (const LLCommandId::Params& command_id, p.commands)
-	{
-		mButtonCommands.push_back(command_id);
-	}
-	createButtons();
-
 	mNeedsLayout = true;
 }
 
@@ -202,8 +196,11 @@ bool LLToolBar::addCommand(const LLCommandId& commandId)
 
 	bool add_command = (command != NULL);
 
-	mButtonCommands.push_back(commandId);
-	createButtons();
+	if (add_command)
+	{
+		mButtonCommands.push_back(commandId);
+		createButtons();
+	}
 
 	return add_command;
 }

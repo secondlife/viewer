@@ -29,12 +29,107 @@
 
 #include "lltoolbarview.h"
 
+#include "lldir.h"
+#include "llxmlnode.h"
 #include "lltoolbar.h"
 #include "llbutton.h"
+
+#include <boost/foreach.hpp>
 
 LLToolBarView* gToolBarView = NULL;
 
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
+
+LLToolBarView::Toolbar::Toolbar()
+:	commands("command")
+{}
+
+LLToolBarView::ToolbarSet::ToolbarSet()
+:	left_toolbar("left_toolbar"),
+	right_toolbar("right_toolbar"),
+	bottom_toolbar("bottom_toolbar")
+{}
+
+bool LLToolBarView::load()
+{	
+	LLToolBarView::ToolbarSet toolbar_set;
+
+	// Load the default toolbars.xml file
+	// *TODO : pick up the user's toolbar setting if existing
+	std::string toolbar_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "toolbars.xml");
+
+	LLXMLNodePtr root;
+	if(!LLXMLNode::parseFile(toolbar_file, root, NULL))
+	{
+		llerrs << "Unable to load toolbars from file: " << toolbar_file << llendl;
+		return false;
+	}
+	if(!root->hasName("toolbars"))
+	{
+		llwarns << toolbar_file << " is not a valid toolbars definition file" << llendl;
+		return false;
+	}
+
+	// Parse the toolbar settings
+	LLXUIParser parser;
+	parser.readXUI(root, toolbar_set, toolbar_file);
+	if (!toolbar_set.validateBlock())
+	{
+		llerrs << "Unable to validate toolbars from file: " << toolbar_file << llendl;
+		return false;
+	}
+	
+	// Add commands to each toolbar
+	// *TODO: factorize that code : tricky with Blocks though, simple lexical approach fails
+	LLCommandManager& mgr = LLCommandManager::instance();
+
+	if (toolbar_set.left_toolbar.isProvided() && mToolbarLeft)
+	{
+		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.left_toolbar.commands)
+		{
+			LLCommandId* commandId = new LLCommandId(command);
+			if (mgr.getCommand(*commandId))
+			{
+				mToolbarLeft->addCommand(*commandId);
+			}
+			else 
+			{
+				llwarns	<< "Toolbars creation : the command " << commandId->name() << " cannot be found in the command manager" << llendl;
+			}
+		}
+	}
+	if (toolbar_set.right_toolbar.isProvided() && mToolbarRight)
+	{
+		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.right_toolbar.commands)
+		{
+			LLCommandId* commandId = new LLCommandId(command);
+			if (mgr.getCommand(*commandId))
+			{
+				mToolbarRight->addCommand(*commandId);
+			}
+			else 
+			{
+				llwarns	<< "Toolbars creation : the command " << commandId->name() << " cannot be found in the command manager" << llendl;
+			}
+		}
+	}
+	if (toolbar_set.bottom_toolbar.isProvided() && mToolbarBottom)
+	{
+		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.bottom_toolbar.commands)
+		{
+			LLCommandId* commandId = new LLCommandId(command);
+			if (mgr.getCommand(*commandId))
+			{
+				mToolbarBottom->addCommand(*commandId);
+			}
+			else 
+			{
+				llwarns	<< "Toolbars creation : the command " << commandId->name() << " cannot be found in the command manager" << llendl;
+			}
+		}
+	}
+	return true;
+}
 
 LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 :	LLUICtrl(p),
@@ -59,6 +154,10 @@ BOOL LLToolBarView::postBuild()
 	mToolbarLeft   = getChild<LLToolBar>("toolbar_left");
 	mToolbarRight  = getChild<LLToolBar>("toolbar_right");
 	mToolbarBottom = getChild<LLToolBar>("toolbar_bottom");
+
+	// Load the toolbars from the settings
+	load();
+	
 	return TRUE;
 }
 
@@ -86,7 +185,7 @@ void LLToolBarView::draw()
 	static S32 old_width = 0;
 	static S32 old_height = 0;
 
-	LLPanel* sizer_left = getChild<LLPanel>("sizer_left");
+//	LLPanel* sizer_left = getChild<LLPanel>("sizer_left");
 	
 	LLRect bottom_rect, left_rect, right_rect;
 

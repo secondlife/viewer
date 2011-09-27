@@ -39,18 +39,36 @@ class LLUICtrlFactory;
 class LLToolBarView : public LLUICtrl
 {
 public:
+	// Xui structure of the toolbar panel
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params> {};
-	
-	virtual ~LLToolBarView();
-	/*virtual*/ BOOL postBuild();
 
+	// Note: valid children for LLToolBarView are stored in this registry
+	typedef LLDefaultChildRegistry child_registry_t;
+	
+	// Xml structure of the toolbars.xml setting
+	// Those live in a toolbars.xml found in app_settings (for the default) and in
+	// the user folder for the user specific (saved) settings
+	struct Toolbar : public LLInitParam::Block<Toolbar>
+	{
+		Multiple<LLCommandId::Params>	commands;
+		Toolbar();
+	};
+	struct ToolbarSet : public LLInitParam::Block<ToolbarSet>
+	{
+		Optional<Toolbar>	left_toolbar,
+							right_toolbar,
+							bottom_toolbar;
+		ToolbarSet();
+	};
+
+	// Derived methods
+	virtual ~LLToolBarView();
+	virtual BOOL postBuild();
 	virtual void draw();
 
+	// Toolbar view interface with the rest of the world
 	bool hasCommand(const LLCommandId& commandId) const;
 	
-	// valid children for LLToolBarView are stored in this registry
-	typedef LLDefaultChildRegistry child_registry_t;
-
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBarView(const Params&);
@@ -58,6 +76,10 @@ protected:
 	void initFromParams(const Params&);
 
 private:
+	// Loads the toolbars from the existing user or default settings
+	bool	load();	// return false if load fails
+
+	// Pointers to the toolbars handled by the toolbar view
 	LLToolBar*	mToolbarLeft;
 	LLToolBar*	mToolbarRight;
 	LLToolBar*	mToolbarBottom;
