@@ -22,10 +22,12 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-
 
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 //class 2, shadows, no SSAO
 
@@ -47,13 +49,13 @@ uniform float ssao_max_radius;
 uniform float ssao_factor;
 uniform float ssao_factor_inv;
 
-varying vec2 vary_fragcoord;
-varying vec4 vary_light;
+VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 uniform vec2 shadow_res;
 uniform vec2 proj_shadow_res;
+uniform vec3 sun_dir;
 
 uniform float shadow_bias;
 uniform float shadow_offset;
@@ -97,15 +99,15 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl)
 	stc.xyz /= stc.w;
 	stc.z += spot_shadow_bias*scl;
 	
-	float cs = shadow2D(shadowMap, stc.xyz).x;
+	float cs = shadow2D(shadowMap, stc.xyz);
 	float shadow = cs;
 
 	vec2 off = 1.5/proj_shadow_res;
 	
-	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(off.x, off.y, 0.0)).x, cs);
-	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(off.x, -off.y, 0.0)).x, cs);
-	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(-off.x, off.y, 0.0)).x, cs);
-	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(-off.x, -off.y, 0.0)).x, cs);
+	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(off.x, off.y, 0.0)), cs);
+	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(off.x, -off.y, 0.0)), cs);
+	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(-off.x, off.y, 0.0)), cs);
+	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(-off.x, -off.y, 0.0)), cs);
 				
 	return shadow/5.0;
 	
@@ -132,10 +134,10 @@ void main()
 	}*/
 	
 	float shadow = 1.0;
-	float dp_directional_light = max(0.0, dot(norm, vary_light.xyz));
+	float dp_directional_light = max(0.0, dot(norm, sun_dir.xyz));
 
 	vec3 shadow_pos = pos.xyz + displace*norm;
-	vec3 offset = vary_light.xyz * (1.0-dp_directional_light);
+	vec3 offset = sun_dir.xyz * (1.0-dp_directional_light);
 	
 	vec4 spos = vec4(shadow_pos+offset*shadow_offset, 1.0);
 	

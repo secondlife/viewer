@@ -520,6 +520,8 @@ static void settings_to_globals()
 
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 	
+	LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLCoreProfile");
+
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
 	LLVOVolume::sLODFactor				= gSavedSettings.getF32("RenderVolumeLODFactor");
 	LLVOVolume::sDistanceFactor			= 1.f-LLVOVolume::sLODFactor * 0.1f;

@@ -54,7 +54,7 @@ static BOOL deferred_render = FALSE;
 
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 		LLRenderPass(type), current_shader(NULL), target_shader(NULL),
-		simple_shader(NULL), fullbright_shader(NULL),
+		simple_shader(NULL), fullbright_shader(NULL), emissive_shader(NULL),
 		mColorSFactor(LLRender::BF_UNDEF), mColorDFactor(LLRender::BF_UNDEF),
 		mAlphaSFactor(LLRender::BF_UNDEF), mAlphaDFactor(LLRender::BF_UNDEF)
 {
@@ -175,11 +175,13 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 	{
 		simple_shader = &gObjectSimpleWaterAlphaMaskProgram;
 		fullbright_shader = &gObjectFullbrightWaterAlphaMaskProgram;
+		emissive_shader = &gObjectEmissiveWaterProgram;
 	}
 	else
 	{
 		simple_shader = &gObjectSimpleAlphaMaskProgram;
 		fullbright_shader = &gObjectFullbrightAlphaMaskProgram;
+		emissive_shader = &gObjectEmissiveProgram;
 	}
 
 	if (mVertexShaderLevel > 0)
@@ -319,20 +321,21 @@ void LLDrawPoolAlpha::render(S32 pass)
 		BOOL shaders = gPipeline.canUseVertexShaders();
 		if(shaders) 
 		{
-			gObjectFullbrightNonIndexedProgram.bind();
+			gHighlightProgram.bind();
 		}
 		else
 		{
 			gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 		}
-		glColor4f(1,0,0,1);
+		gGL.diffuseColor4f(1,0,0,1);
+		
 		LLViewerFetchedTexture::sSmokeImagep->addTextureStats(1024.f*1024.f);
 		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sSmokeImagep, TRUE) ;
 		renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_TEXCOORD0);
 		if(shaders) 
 		{
-			gObjectFullbrightNonIndexedProgram.unbind();
+			gHighlightProgram.unbind();
 		}
 	}
 }
@@ -472,8 +475,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 						{
 							tex_setup = true;
 							gGL.getTexUnit(0)->activate();
-							glMatrixMode(GL_TEXTURE);
-							glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+							gGL.matrixMode(LLRender::MM_TEXTURE);
+							gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
 							gPipeline.mTextureMatrixOps++;
 						}
 					}
@@ -488,30 +491,34 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 				
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
-				if (draw_glow_for_this_partition &&
-				    params.mGlowColor.mV[3] > 0)
+				if (current_shader && 
+					draw_glow_for_this_partition &&
+					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
 				{
 					// install glow-accumulating blend mode
 					gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, // don't touch color
 						      LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
 
+					emissive_shader->bind();
+					
 					// glow doesn't use vertex colors from the mesh data
-					params.mVertexBuffer->setBuffer(mask & ~LLVertexBuffer::MAP_COLOR);
-					glColor4ubv(params.mGlowColor.mV);
-
+					params.mVertexBuffer->setBuffer((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
+					
 					// do the actual drawing, again
 					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 
 					// restore our alpha blend mode
 					gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+
+					current_shader->bind();
 				}
 			
 				if (tex_setup)
 				{
 					gGL.getTexUnit(0)->activate();
-					glLoadIdentity();
-					glMatrixMode(GL_MODELVIEW);
+					gGL.loadIdentity();
+					gGL.matrixMode(LLRender::MM_MODELVIEW);
 				}
 			}
 		}

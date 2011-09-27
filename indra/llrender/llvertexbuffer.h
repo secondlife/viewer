@@ -38,6 +38,8 @@
 #include <vector>
 #include <list>
 
+#define LL_MAX_VERTEX_ATTRIB_LOCATION 64
+
 //============================================================================
 // NOTES
 // Threading:
@@ -49,7 +51,6 @@
 
 //============================================================================
 // gl name pools for dynamic and streaming buffers
-
 class LLVBOPool : public LLGLNamePool
 {
 protected:
@@ -90,9 +91,7 @@ public:
 		S32 mIndex;
 		S32 mCount;
 		
-		MappedRegion(S32 type, S32 index, S32 count)
-			: mType(type), mIndex(index), mCount(count)
-		{ }	
+		MappedRegion(S32 type, S32 index, S32 count);
 	};
 
 	LLVertexBuffer(const LLVertexBuffer& rhs)
@@ -111,15 +110,15 @@ public:
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
 
-	static S32	sWeight4Loc;
-
 	static BOOL	sUseStreamDraw;
+	static BOOL sUseVAO;
 	static BOOL	sPreferStreamDraw;
 
 	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
 	static void setupClientArrays(U32 data_mask);
 	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm);
+	static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp);
 
  	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
 	static void unbind(); //unbind any bound vertex buffer
@@ -133,24 +132,29 @@ public:
 	static S32 calcOffsets(const U32& typemask, S32* offsets, S32 num_vertices);		
 
 	
+	//WARNING -- when updating these enums you MUST 
+	// 1 - update LLVertexBuffer::sTypeSize
+	// 2 - add a strider accessor
+	// 3 - modify LLVertexBuffer::setupVertexBuffer
+	// 4 - modify LLVertexBuffer::setupClientArray
+	// 5 - modify LLViewerShaderMgr::mReservedAttribs
+	// 6 - update LLVertexBuffer::setupVertexArray
 	enum {
-		TYPE_VERTEX,
+		TYPE_VERTEX = 0,
 		TYPE_NORMAL,
 		TYPE_TEXCOORD0,
 		TYPE_TEXCOORD1,
 		TYPE_TEXCOORD2,
 		TYPE_TEXCOORD3,
 		TYPE_COLOR,
-		// These use VertexAttribPointer and should possibly be made generic
+		TYPE_EMISSIVE,
 		TYPE_BINORMAL,
 		TYPE_WEIGHT,
 		TYPE_WEIGHT4,
 		TYPE_CLOTHWEIGHT,
-		TYPE_MAX,
-		TYPE_INDEX,
-		
-		//no actual additional data, but indicates position.w is texture index
 		TYPE_TEXTURE_INDEX,
+		TYPE_MAX,
+		TYPE_INDEX,		
 	};
 	enum {
 		MAP_VERTEX = (1<<TYPE_VERTEX),
@@ -160,6 +164,7 @@ public:
 		MAP_TEXCOORD2 = (1<<TYPE_TEXCOORD2),
 		MAP_TEXCOORD3 = (1<<TYPE_TEXCOORD3),
 		MAP_COLOR = (1<<TYPE_COLOR),
+		MAP_EMISSIVE = (1<<TYPE_EMISSIVE),
 		// These use VertexAttribPointer and should possibly be made generic
 		MAP_BINORMAL = (1<<TYPE_BINORMAL),
 		MAP_WEIGHT = (1<<TYPE_WEIGHT),
@@ -173,10 +178,14 @@ protected:
 
 	virtual ~LLVertexBuffer(); // use unref()
 
-	virtual void setupVertexBuffer(U32 data_mask) const; // pure virtual, called from mapBuffer()
+	virtual void setupVertexBuffer(U32 data_mask); // pure virtual, called from mapBuffer()
+	void setupVertexArray();
 	
 	void	genBuffer();
 	void	genIndices();
+	bool	bindGLBuffer(bool force_bind = false);
+	bool	bindGLIndices(bool force_bind = false);
+	bool	bindGLArray();
 	void	releaseBuffer();
 	void	releaseIndices();
 	void	createGLBuffer();
@@ -186,7 +195,7 @@ protected:
 	void	updateNumVerts(S32 nverts);
 	void	updateNumIndices(S32 nindices); 
 	virtual BOOL	useVBOs() const;
-	void	unmapBuffer(S32 type);
+	void	unmapBuffer();
 	void freeClientBuffer() ;
 	void allocateClientVertexBuffer() ;
 	void allocateClientIndexBuffer() ;
@@ -199,7 +208,8 @@ public:
 	U8*		mapIndexBuffer(S32 index, S32 count, bool map_range);
 
 	// set for rendering
-	virtual void	setBuffer(U32 data_mask, S32 type = -1); 	// calls  setupVertexBuffer() if data_mask is not 0
+	virtual void	setBuffer(U32 data_mask); 	// calls  setupVertexBuffer() if data_mask is not 0
+	void flush(); //flush pending data to GL memory
 	// allocate buffer
 	void	allocateBuffer(S32 nverts, S32 nindices, bool create);
 	virtual void resizeBuffer(S32 newnverts, S32 newnindices);
@@ -218,10 +228,12 @@ public:
 	bool getNormalStrider(LLStrider<LLVector3>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	bool getBinormalStrider(LLStrider<LLVector3>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	bool getColorStrider(LLStrider<LLColor4U>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getEmissiveStrider(LLStrider<LLColor4U>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	bool getWeightStrider(LLStrider<F32>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	bool getWeight4Strider(LLStrider<LLVector4>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	bool getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	
+
 	BOOL isEmpty() const					{ return mEmpty; }
 	BOOL isLocked() const					{ return mVertexLocked || mIndexLocked; }
 	S32 getNumVerts() const					{ return mNumVerts; }
@@ -262,6 +274,8 @@ protected:
 	S32		mUsage;			// GL usage
 	U32		mGLBuffer;		// GL VBO handle
 	U32		mGLIndices;		// GL IBO handle
+	U32		mGLArray;		// GL VAO handle
+	
 	U8*		mMappedData;	// pointer to currently mapped data (NULL if unmapped)
 	U8*		mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
 	BOOL	mVertexLocked;			// if TRUE, vertex buffer is being or has been written to in client memory
@@ -298,6 +312,7 @@ public:
 	static S32 sTypeSize[TYPE_MAX];
 	static U32 sGLMode[LLRender::NUM_MODES];
 	static U32 sGLRenderBuffer;
+	static U32 sGLRenderArray;
 	static U32 sGLRenderIndices;
 	static BOOL sVBOActive;
 	static BOOL sIBOActive;

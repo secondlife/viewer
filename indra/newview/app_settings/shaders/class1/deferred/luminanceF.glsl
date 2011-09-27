@@ -22,12 +22,14 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-
-
-
+ 
 uniform sampler2DRect diffuseMap;
 
-varying vec2 vary_fragcoord;
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
+
+VARYING vec2 vary_fragcoord;
 
 void main() 
 {

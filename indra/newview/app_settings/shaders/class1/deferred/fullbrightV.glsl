@@ -22,8 +22,16 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
+
+
+ATTRIBUTE vec3 position;
+ATTRIBUTE float texture_index;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
 
 void calcAtmospherics(vec3 inPositionEye);
 
@@ -32,23 +40,25 @@ vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 scaleDownLight(vec3 light);
 vec3 scaleUpLight(vec3 light);
 
-varying float vary_texture_index;
+VARYING float vary_texture_index;
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+VARYING float fog_depth;
 
 void main()
 {
 	//transform vertex
-	vec4 vert = vec4(gl_Vertex.xyz, 1.0);
-	vary_texture_index = gl_Vertex.w;
+	vec4 vert = vec4(position.xyz, 1.0);
+	vec4 pos = (modelview_matrix * vert);
+	vary_texture_index = texture_index;
 
-	gl_Position = gl_ModelViewProjectionMatrix*vert; 
+	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
-	vec4 pos = (gl_ModelViewMatrix * vert);
-				
 	calcAtmospherics(pos.xyz);
 	
-	gl_FrontColor = gl_Color;
+	vertex_color = diffuse_color;
 
-	gl_FogFragCoord = pos.z;
+	fog_depth = pos.z;
 }

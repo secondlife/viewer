@@ -22,13 +22,17 @@
  * $/LicenseInfo$
  */
 
- 
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif 
 
 
 uniform sampler2D diffuseMap;
 uniform samplerCube environmentMap;
 
+VARYING vec2 vary_texcoord0;
+
 void fullbright_shiny_lighting_water() 
 {
-	gl_FragColor = texture2D(diffuseMap, gl_TexCoord[0].xy);
+	gl_FragColor = texture2D(diffuseMap, vary_texcoord0.xy);
 }

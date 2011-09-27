@@ -31,6 +31,7 @@
 #include "llshadermgr.h"
 #include "llfile.h"
 #include "llrender.h"
+#include "llvertexbuffer.h"
 
 #if LL_DARWIN
 #include "OpenGL/OpenGL.h"
@@ -75,6 +76,7 @@ hasAlphaMask(false)
 LLGLSLShader::LLGLSLShader()
 	: mProgramObject(0), mActiveTextureChannels(0), mShaderLevel(0), mShaderGroup(SG_DEFAULT), mUniformsDirty(FALSE)
 {
+
 }
 
 void LLGLSLShader::unload()
@@ -110,16 +112,25 @@ void LLGLSLShader::unload()
 BOOL LLGLSLShader::createShader(vector<string> * attributes,
 								vector<string> * uniforms)
 {
+	//reloading, reset matrix hash values
+	for (U32 i = 0; i < LLRender::NUM_MATRIX_MODES; ++i)
+	{
+		mMatHash[i] = 0xFFFFFFFF;
+	}
+	mLightHash = 0xFFFFFFFF;
+
 	llassert_always(!mShaderFiles.empty());
 	BOOL success = TRUE;
 
 	// Create program
 	mProgramObject = glCreateProgramObjectARB();
 	
+#if !LL_DARWIN
 	if (gGLManager.mGLVersion < 3.1f)
 	{ //force indexed texture channels to 1 if GL version is old (performance improvement for drivers with poor branching shader model support)
 		mFeatures.mIndexedTextureChannels = llmin(mFeatures.mIndexedTextureChannels, 1);
 	}
+#endif // !LL_DARWIN
 
 	//compile new source
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
@@ -235,6 +246,13 @@ void LLGLSLShader::attachObjects(GLhandleARB* objects, S32 count)
 
 BOOL LLGLSLShader::mapAttributes(const vector<string> * attributes)
 {
+	//before linking, make sure reserved attributes always have consistent locations
+	for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
+	{
+		const char* name = LLShaderMgr::instance()->mReservedAttribs[i].c_str();
+		glBindAttribLocationARB(mProgramObject, i, (const GLcharARB *) name);
+	}
+	
 	//link the program
 	BOOL res = link();
 
@@ -386,6 +404,7 @@ void LLGLSLShader::bind()
 	gGL.flush();
 	if (gGLManager.mHasShaderObjects)
 	{
+		LLVertexBuffer::unbind();
 		glUseProgramObjectARB(mProgramObject);
 		sCurBoundShader = mProgramObject;
 		sCurBoundShaderPtr = this;
@@ -411,6 +430,7 @@ void LLGLSLShader::unbind()
 				stop_glerror();
 			}
 		}
+		LLVertexBuffer::unbind();
 		glUseProgramObjectARB(0);
 		sCurBoundShader = 0;
 		sCurBoundShaderPtr = NULL;
@@ -420,6 +440,7 @@ void LLGLSLShader::unbind()
 
 void LLGLSLShader::bindNoShader(void)
 {
+	LLVertexBuffer::unbind();
 	glUseProgramObjectARB(0);
 	sCurBoundShader = 0;
 	sCurBoundShaderPtr = NULL;
@@ -930,7 +951,9 @@ void LLGLSLShader::uniform4fv(const string& uniform, U32 count, const GLfloat* v
 		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
 		if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
 		{
+			stop_glerror();
 			glUniform4fvARB(location, count, v);
+			stop_glerror();
 			mValue[location] = vec;
 		}
 	}
@@ -987,6 +1010,7 @@ void LLGLSLShader::vertexAttrib4fv(U32 index, GLfloat* v)
 
 void LLGLSLShader::setAlphaRange(F32 minimum, F32 maximum)
 {
+	gGL.flush();
 	uniform1f("minimum_alpha", minimum);
 	uniform1f("maximum_alpha", maximum);
 }

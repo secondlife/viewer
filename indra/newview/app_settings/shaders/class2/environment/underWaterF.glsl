@@ -23,7 +23,9 @@
  * $/LicenseInfo$
  */
  
-
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2D diffuseMap;
 uniform sampler2D bumpMap;   
@@ -48,9 +50,9 @@ uniform float waterFogKS;
 uniform vec2 screenRes;
 
 //bigWave is (refCoord.w, view.w);
-varying vec4 refCoord;
-varying vec4 littleWave;
-varying vec4 view;
+VARYING vec4 refCoord;
+VARYING vec4 littleWave;
+VARYING vec4 view;
 
 vec4 applyWaterFog(vec4 color, vec3 viewVec)
 {

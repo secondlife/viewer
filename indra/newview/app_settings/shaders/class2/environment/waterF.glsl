@@ -23,7 +23,9 @@
  * $/LicenseInfo$
  */
  
-
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 vec3 scaleSoftClip(vec3 inColor);
 vec3 atmosTransport(vec3 inColor);
@@ -47,9 +49,9 @@ uniform float blurMultiplier;
 
 
 //bigWave is (refCoord.w, view.w);
-varying vec4 refCoord;
-varying vec4 littleWave;
-varying vec4 view;
+VARYING vec4 refCoord;
+VARYING vec4 littleWave;
+VARYING vec4 view;
 
 void main() 
 {

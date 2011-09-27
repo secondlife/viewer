@@ -23,15 +23,17 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_texture_multisample : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DMS depthMap;
 uniform sampler2DMS normalMap;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 uniform float depth_cutoff;
 uniform float norm_cutoff;

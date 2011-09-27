@@ -25,12 +25,12 @@
  
 
 
-varying vec3 vary_PositionEye;
+VARYING vec3 vary_PositionEye;
 
-varying vec3 vary_SunlitColor;
-varying vec3 vary_AmblitColor;
-varying vec3 vary_AdditiveColor;
-varying vec3 vary_AtmosAttenuation;
+VARYING vec3 vary_SunlitColor;
+VARYING vec3 vary_AmblitColor;
+VARYING vec3 vary_AdditiveColor;
+VARYING vec3 vary_AtmosAttenuation;
 
 vec3 getPositionEye()
 {

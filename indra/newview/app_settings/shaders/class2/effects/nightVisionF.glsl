@@ -23,12 +23,17 @@
  * $/LicenseInfo$
  */
  
-
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect RenderTexture;
 uniform sampler2D NoiseTexture;
 uniform float brightMult;
 uniform float noiseStrength;
+
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
 
 float luminance(vec3 color)
 {
@@ -40,7 +45,7 @@ float luminance(vec3 color)
 void main(void) 
 {
 	/// Get scene color
-	vec3 color = vec3(texture2DRect(RenderTexture, gl_TexCoord[0].st));
+	vec3 color = vec3(texture2DRect(RenderTexture, vary_texcoord0.st));
 	
 	/// Extract luminance and scale up by night vision brightness
 	float lum = luminance(color) * brightMult;
@@ -50,7 +55,7 @@ void main(void)
 	vec3 outColor = (lum * vec3(0.91, 1.21, 0.9)) + vec3(-0.07, 0.1, -0.12); 
 
 	/// Add noise
-	float noiseValue = texture2D(NoiseTexture, gl_TexCoord[1].st).r;
+	float noiseValue = texture2D(NoiseTexture, vary_texcoord1.st).r;
 	noiseValue = (noiseValue - 0.5) * noiseStrength;
 
 	/// Older NVG colors (more muted)

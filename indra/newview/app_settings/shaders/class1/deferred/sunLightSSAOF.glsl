@@ -23,8 +23,11 @@
  */
  
 
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 //class 1 -- no shadow, SSAO only
 
@@ -41,8 +44,7 @@ uniform float ssao_max_radius;
 uniform float ssao_factor;
 uniform float ssao_factor_inv;
 
-varying vec2 vary_fragcoord;
-varying vec4 vary_light;
+VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;

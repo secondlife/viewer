@@ -23,10 +23,12 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_texture_multisample : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DMS diffuseMap;
 uniform float minLuminance;
@@ -35,9 +37,11 @@ uniform vec3 lumWeights;
 uniform vec3 warmthWeights;
 uniform float warmthAmount;
 
+VARYING vec2 vary_texcoord0;
+
 void main()
 {
-	ivec2 itc = ivec2(gl_TexCoord[0].xy);
+	ivec2 itc = ivec2(vary_texcoord0.xy);
 	vec4 fcol = vec4(0,0,0,0);
 
 	for (int i = 0; i < samples; i++)

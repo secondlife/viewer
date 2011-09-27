@@ -23,14 +23,16 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 uniform float depth_cutoff;
 uniform float norm_cutoff;
@@ -77,5 +79,4 @@ void main()
 	ne = step(norm_cutoff, ne);
 	
 	gl_FragColor.a = dot(de,de)+dot(ne,ne);
-	//gl_FragColor.a = dot(de,de);
 }

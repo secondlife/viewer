@@ -513,7 +513,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		}
 	}
 
-	buffer->setBuffer(0);
+	buffer->flush();
 	mFaceList.clear();
 }
 
