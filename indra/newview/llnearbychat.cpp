@@ -57,11 +57,13 @@
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
-LLNearbyChat::LLNearbyChat(const LLSD& key) 
-	: LLFloater(key)
+
+static LLRegisterPanelClassWrapper<LLNearbyChat> t_panel_nearby_chat("panel_nearby_chat");
+
+LLNearbyChat::LLNearbyChat() 
+	: LLPanel()
 	,mChatHistory(NULL)
 {
-	
 }
 
 LLNearbyChat::~LLNearbyChat()
@@ -86,27 +88,10 @@ BOOL LLNearbyChat::postBuild()
 
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
-	if(!LLFloater::postBuild())
+	if(!LLPanel::postBuild())
 		return false;
-
-	if (mDragHandle)
-		mDragHandle->setTitleVisible(TRUE);
-
+	
 	return true;
-}
-
-
-void    LLNearbyChat::applySavedVariables()
-{
-	if (mRectControl.size() > 1)
-	{
-		const LLRect& rect = LLFloater::getControlGroup()->getRect(mRectControl);
-		if(!rect.isEmpty() && rect.isValid())
-		{
-			reshape(rect.getWidth(), rect.getHeight());
-			setRect(rect);
-		}
-	}
 }
 
 std::string appendTime()
@@ -204,18 +189,9 @@ void	LLNearbyChat::setVisible(BOOL visible)
 		}
 	}
 
-	LLFloater::setVisible(visible);
+	LLPanel::setVisible(visible);
 }
 
-void	LLNearbyChat::onOpen(const LLSD& key )
-{
-	LLFloater::onOpen(key);
-}
-
-void LLNearbyChat::setRect	(const LLRect &rect)
-{
-	LLFloater::setRect(rect);
-}
 
 void LLNearbyChat::getAllowedRect(LLRect& rect)
 {
@@ -238,9 +214,9 @@ void LLNearbyChat::updateChatHistoryStyle()
 //static 
 void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
 {
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
-	if(nearby_chat)
-		nearby_chat->updateChatHistoryStyle();
+	//LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	//if(nearby_chat)
+	//	nearby_chat->updateChatHistoryStyle();
 }
 
 bool isWordsName(const std::string& name)
@@ -314,7 +290,8 @@ void LLNearbyChat::loadHistory()
 //static
 LLNearbyChat* LLNearbyChat::getInstance()
 {
-	return LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
+	return chat_bar->findChild<LLNearbyChat>("nearby_chat");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -342,7 +319,7 @@ BOOL	LLNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
 	
 	if(mChatHistory)
 		mChatHistory->setFocus(TRUE);
-	return LLFloater::handleMouseDown(x, y, mask);
+	return LLPanel::handleMouseDown(x, y, mask);
 }
 
 void LLNearbyChat::draw()
@@ -355,5 +332,5 @@ void LLNearbyChat::draw()
 		setTransparencyType(hasFocus() ? TT_ACTIVE : TT_INACTIVE);
 	}
 
-	LLFloater::draw();
+	LLPanel::draw();
 }

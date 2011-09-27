@@ -95,7 +95,7 @@ LLChatBar::LLChatBar()
 	mGestureCombo(NULL),
 	mObserver(NULL)
 {
-	setIsChrome(TRUE);
+	//setIsChrome(TRUE);
 }
 
 

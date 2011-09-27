@@ -3,16 +3,27 @@
  height="60"
  layout="topleft"
  legacy_header_height="20"
+ single_instance="true"
  title="Nearby chat"
+ save_rect="true"
  can_close="true"
  can_minimize="true"
  help_topic="chat_bar"
- save_rect="true"
  min_height="60"
  min_width="150"
  can_resize="true"
  name="chat_bar"
  width="380">
+    <panel
+        top="20"
+        class="panel_nearby_chat"
+        follow="all"
+        width="380"
+        height="0"
+        visible="false"
+        filename="panel_nearby_chat.xml"
+        name="nearby_chat" />
+    <panel width="380" height="31" left="0" bottom="-1" follows="left|right|bottom">
     <line_editor
      border_style="line"
      border_thickness="1"
@@ -27,7 +38,7 @@
      text_pad_left="5"
      text_pad_right="25"
      tool_tip="Press Enter to say, Ctrl+Enter to shout"
-     top="27"
+     top="0"
      width="335" />
     <output_monitor
      auto_update="true"
@@ -38,14 +49,14 @@
      left_pad="-24"
      mouse_opaque="true"
      name="chat_zone_indicator"
-     top="31"
+     top="4"
      visible="true"
      width="20" />
     <button
      follows="right"
      is_toggle="true"
      width="20"
-     top="27"
+     top="0"
      layout="topleft"
      left_pad="12"
      image_disabled="ComboButton_UpOff"
@@ -56,8 +67,6 @@
      height="23"
      name="show_nearby_chat"
      tool_tip="Shows/hides nearby chat log">
-        <button.init_callback
-           function="Button.SetDockableFloaterToggle"
-           parameter="nearby_chat" />
     </button>
+    </panel>
 </floater>

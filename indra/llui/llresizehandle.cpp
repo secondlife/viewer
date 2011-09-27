@@ -55,6 +55,8 @@ LLResizeHandle::LLResizeHandle(const LLResizeHandle::Params& p)
 	mImage( NULL ),
 	mMinWidth( p.min_width ),
 	mMinHeight( p.min_height ),
+	mMaxWidth(S32_MAX),
+	mMaxHeight(S32_MAX),
 	mCorner( p.corner )
 {
 	if( RIGHT_BOTTOM == mCorner)
@@ -177,12 +179,22 @@ BOOL LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
 				new_width = mMinWidth;
 				delta_x = x_multiple * (mMinWidth - orig_rect.getWidth());
 			}
+			else if (new_width > mMaxWidth)
+			{
+				new_width = mMaxWidth;
+				delta_x = x_multiple * (mMaxWidth - orig_rect.getWidth());
+			}
 
 			S32 new_height = orig_rect.getHeight() + y_multiple * delta_y;
 			if( new_height < mMinHeight )
 			{
 				new_height = mMinHeight;
 				delta_y = y_multiple * (mMinHeight - orig_rect.getHeight());
+			}
+			else if (new_height > mMaxHeight)
+			{
+				new_height = mMaxHeight;
+				delta_y = y_multiple * (mMaxHeight - orig_rect.getHeight());
 			}
 
 			switch( mCorner )
