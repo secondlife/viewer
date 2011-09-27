@@ -38,8 +38,8 @@ class LLCommandManager;
 class LLCommandId
 {
 public:
-	friend LLCommand;
-	friend LLCommandManager;
+	friend class LLCommand;
+	friend class LLCommandManager;
 
 	LLCommandId(const std::string& name)
 		: mName(name)
