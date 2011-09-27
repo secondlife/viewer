@@ -123,11 +123,15 @@ void LLToolBar::createContextMenu()
 {
 	if (!mPopupMenuHandle.get())
 	{
+		// Setup bindings specific to this instance for the context menu options
+
 		LLUICtrl::CommitCallbackRegistry::Registrar& commit_reg = LLUICtrl::CommitCallbackRegistry::defaultRegistrar();
 		commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onSettingEnable, this, _2));
 
 		LLUICtrl::EnableCallbackRegistry::Registrar& enable_reg = LLUICtrl::EnableCallbackRegistry::defaultRegistrar();
 		enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isSettingChecked, this, _2));
+
+		// Create the context menu
 
 		LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_toolbars.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 
@@ -141,6 +145,10 @@ void LLToolBar::createContextMenu()
 		{
 			llwarns << "Unable to load toolbars context menu." << llendl;
 		}
+
+		// Remove this instance's bindings
+		commit_reg.remove("Toolbars.EnableSetting");
+		enable_reg.remove("Toolbars.CheckSetting");
 	}
 }
 
@@ -251,11 +259,13 @@ BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	if (handle_it_here)
 	{
 		createContextMenu();
+
 		LLContextMenu * menu = (LLContextMenu *) mPopupMenuHandle.get();
 
 		if (menu)
 		{
 			menu->show(x, y);
+
 			LLMenuGL::showPopup(this, menu, x, y);
 		}
 	}
