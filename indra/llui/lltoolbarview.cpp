@@ -86,7 +86,7 @@ void LLToolBarView::draw()
 	static S32 old_width = 0;
 	static S32 old_height = 0;
 
-	LLPanel* sizer_left = getChild<LLPanel>("sizer_left");
+	//LLPanel* sizer_left = getChild<LLPanel>("sizer_left");
 	
 	LLRect bottom_rect, left_rect, right_rect;
 
