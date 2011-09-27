@@ -1,4 +1,4 @@
-/** 
+ /** 
  * @file llnearbychat.h
  * @brief nearby chat history scrolling panel implementation
  *
@@ -27,14 +27,14 @@
 #ifndef LL_LLNEARBYCHAT_H_
 #define LL_LLNEARBYCHAT_H_
 
-#include "lldockablefloater.h"
 #include "llscrollbar.h"
 #include "llviewerchat.h"
+#include "llfloater.h"
 
 class LLResizeBar;
 class LLChatHistory;
 
-class LLNearbyChat: public LLDockableFloater
+class LLNearbyChat: public LLFloater
 {
 public:
 	LLNearbyChat(const LLSD& key);
