@@ -35,6 +35,7 @@
 #include "lldispatcher.h"
 #include "llflatlistview.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
@@ -270,7 +271,7 @@ public:
 			params["classified_name"] = c_info->name;
 			params["classified_desc"] = c_info->description;
 			params["from_search"] = true;
-			LLSideTray::getInstance()->showPanel("panel_profile_view", params);
+			LLFloaterSidePanelContainer::showPanel("people", "panel_profile_view", params);
 		}
 		else if (mRequestVerb == "edit")
 		{

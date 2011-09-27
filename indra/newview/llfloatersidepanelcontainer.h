@@ -42,6 +42,9 @@
  */
 class LLFloaterSidePanelContainer : public LLFloater
 {
+private:
+	static const std::string sMainPanelName;
+
 public:
 	LLFloaterSidePanelContainer(const LLSD& key, const Params& params = getDefaultParams());
 	~LLFloaterSidePanelContainer();
@@ -50,7 +53,28 @@ public:
 
 	LLPanel* openChildPanel(const std::string& panel_name, const LLSD& params);
 
-	static void showPanel(const std::string& floater_name, const LLSD& panel_name);
+	static LLPanel* getPanel(const std::string& floater_name, const std::string& panel_name = sMainPanelName);
+
+	static void showPanel(const std::string& floater_name, const LLSD& key);
+
+	static void showPanel(const std::string& floater_name, const std::string& panel_name, const LLSD& key);
+
+	/**
+	 * Gets the panel of given type T (doesn't show it or do anything else with it).
+	 *
+	 * @param panel_name a string specifying a child panel to get.
+	 * @returns a pointer to the panel of given type T.
+	 */
+	template <typename T>
+	static T* getPanel(const std::string& floater_name, const std::string& panel_name = sMainPanelName)
+	{
+		T* panel = dynamic_cast<T*>(getPanel(floater_name, panel_name));
+		if (!panel)
+		{
+			llwarns << "Child named \"" << panel_name << "\" of type " << typeid(T*).name() << " not found" << llendl;
+		}
+		return panel;
+	}
 };
 
 #endif // LL_LLFLOATERSIDEPANELCONTAINER_H

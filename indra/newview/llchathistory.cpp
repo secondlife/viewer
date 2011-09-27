@@ -42,6 +42,7 @@
 #include "llavataractions.h"
 #include "lltrans.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llmutelist.h"
 #include "llstylemap.h"
 #include "llslurl.h"
@@ -144,7 +145,7 @@ public:
 		{
 			LLMuteList::getInstance()->add(LLMute(getAvatarId(), mFrom, LLMute::OBJECT));
 
-			LLSideTray::getInstance()->showPanel("panel_block_list_sidetray", LLSD().with("blocked_to_select", getAvatarId()));
+			LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD().with("blocked_to_select", getAvatarId()));
 		}
 	}
 

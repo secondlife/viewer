@@ -77,11 +77,32 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_na
 	return panel;
 }
 
-void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, const LLSD& panel_name)
+LLPanel* LLFloaterSidePanelContainer::getPanel(const std::string& floater_name, const std::string& panel_name)
+{
+	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
+
+	if (floaterp)
+	{
+		return floaterp->findChild<LLPanel>(panel_name, true);
+	}
+
+	return NULL;
+}
+
+void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, const LLSD& key)
 {
 	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
 	if (floaterp)
 	{
-		floaterp->openChildPanel("main_panel", panel_name);
+		floaterp->openChildPanel("main_panel", key);
+	}
+}
+
+void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, const std::string& panel_name, const LLSD& key)
+{
+	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
+	if (floaterp)
+	{
+		floaterp->openChildPanel(panel_name, key);
 	}
 }
