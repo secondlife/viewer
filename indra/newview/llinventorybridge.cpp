@@ -4781,7 +4781,7 @@ void remove_inventory_category_from_avatar( LLInventoryCategory* category )
 	if (gAgentCamera.cameraCustomizeAvatar())
 	{
 		// switching to outfit editor should automagically save any currently edited wearable
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
 	}
 
 	remove_inventory_category_from_avatar_step2(TRUE, category->getUUID() );

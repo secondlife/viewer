@@ -3758,7 +3758,7 @@ void handle_reset_view()
 	if (gAgentCamera.cameraCustomizeAvatar())
 	{
 		// switching to outfit selector should automagically save any currently edited wearable
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
+		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "my_outfits"));
 	}
 
 	gAgentCamera.switchCameraPreset(CAMERA_PRESET_REAR_VIEW);
@@ -5576,22 +5576,22 @@ void handle_viewer_disable_message_log(void*)
 
 void handle_customize_avatar()
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "my_outfits"));
 }
 
 void handle_edit_outfit()
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
 }
 
 void handle_edit_shape()
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_shape"));
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_shape"));
 }
 
 void handle_edit_physics()
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_physics"));
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_physics"));
 }
 
 void handle_report_abuse()

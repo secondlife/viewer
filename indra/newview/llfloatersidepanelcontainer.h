@@ -42,6 +42,9 @@
  */
 class LLFloaterSidePanelContainer : public LLFloater
 {
+private:
+	static const std::string sMainPanelName;
+
 public:
 	LLFloaterSidePanelContainer(const LLSD& key, const Params& params = getDefaultParams());
 	~LLFloaterSidePanelContainer();
@@ -51,6 +54,8 @@ public:
 	LLPanel* openChildPanel(const std::string& panel_name, const LLSD& params);
 
 	static void showPanel(const std::string& floater_name, const LLSD& panel_name);
+
+	static LLPanel* getPanel(const std::string& floater_name, const std::string& panel_name = sMainPanelName);
 };
 
 #endif // LL_LLFLOATERSIDEPANELCONTAINER_H
