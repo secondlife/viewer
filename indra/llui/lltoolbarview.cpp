@@ -37,7 +37,10 @@ LLToolBarView* gToolBarView = NULL;
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
 
 LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
-:	LLUICtrl(p)
+:	LLUICtrl(p),
+	mToolbarLeft(NULL),
+	mToolbarRight(NULL),
+	mToolbarBottom(NULL)
 {
 }
 
@@ -51,21 +54,46 @@ LLToolBarView::~LLToolBarView()
 {
 }
 
+BOOL LLToolBarView::postBuild()
+{
+	mToolbarLeft   = getChild<LLToolBar>("toolbar_left");
+	mToolbarRight  = getChild<LLToolBar>("toolbar_right");
+	mToolbarBottom = getChild<LLToolBar>("toolbar_bottom");
+	return TRUE;
+}
+
+bool LLToolBarView::hasCommand(const LLCommandId& commandId) const
+{
+	bool has_command = false;
+	if (mToolbarLeft && !has_command)
+	{
+		has_command = mToolbarLeft->hasCommand(commandId);
+	}
+	if (mToolbarRight && !has_command)
+	{
+		has_command = mToolbarRight->hasCommand(commandId);
+	}
+	if (mToolbarBottom && !has_command)
+	{
+		has_command = mToolbarBottom->hasCommand(commandId);
+	}
+	return has_command;
+}
+
 void LLToolBarView::draw()
 {
 	static bool debug_print = true;
 	static S32 old_width = 0;
 	static S32 old_height = 0;
 
-	LLToolBar* toolbar_bottom = getChild<LLToolBar>("toolbar_bottom");
-	LLToolBar* toolbar_left = getChild<LLToolBar>("toolbar_left");
-	LLToolBar* toolbar_right = getChild<LLToolBar>("toolbar_right");
-	LLPanel* sizer_left = getChild<LLPanel>("sizer_left");
+	//LLPanel* sizer_left = getChild<LLPanel>("sizer_left");
 	
-	LLRect bottom_rect = toolbar_bottom->getRect();
-	LLRect left_rect = toolbar_left->getRect();
-	LLRect right_rect = toolbar_right->getRect();
-	LLRect sizer_left_rect = sizer_left->getRect();
+	LLRect bottom_rect, left_rect, right_rect;
+
+	if (mToolbarBottom) mToolbarBottom->localRectToOtherView(mToolbarBottom->getLocalRect(), &bottom_rect, this);
+	if (mToolbarLeft)   mToolbarLeft->localRectToOtherView(mToolbarLeft->getLocalRect(), &left_rect, this);
+	if (mToolbarRight)  mToolbarRight->localRectToOtherView(mToolbarRight->getLocalRect(), &right_rect, this);
+	
 	
 	if ((old_width != getRect().getWidth()) || (old_height != getRect().getHeight()))
 		debug_print = true;
@@ -76,18 +104,21 @@ void LLToolBarView::draw()
 		llinfos << "Merov debug : draw bottom  rect = " << bottom_rect.mLeft << ", " << bottom_rect.mTop << ", " << bottom_rect.mRight << ", " << bottom_rect.mBottom << llendl; 
 		llinfos << "Merov debug : draw left    rect = " << left_rect.mLeft << ", " << left_rect.mTop << ", " << left_rect.mRight << ", " << left_rect.mBottom << llendl; 
 		llinfos << "Merov debug : draw right   rect = " << right_rect.mLeft << ", " << right_rect.mTop << ", " << right_rect.mRight << ", " << right_rect.mBottom << llendl; 
-		llinfos << "Merov debug : draw s left  rect = " << sizer_left_rect.mLeft << ", " << sizer_left_rect.mTop << ", " << sizer_left_rect.mRight << ", " << sizer_left_rect.mBottom << llendl; 
 		old_width = ctrl_rect.getWidth();
 		old_height = ctrl_rect.getHeight();
 		debug_print = false;
 	}
 	// Debug draw
 	LLColor4 back_color = LLColor4::blue;
+	LLColor4 back_color_vert = LLColor4::red;
+	LLColor4 back_color_hori = LLColor4::yellow;
 	back_color[VALPHA] = 0.5f;
-//	gl_rect_2d(getLocalRect(), back_color, TRUE);
-//	gl_rect_2d(bottom_rect, LLColor4::red, TRUE);
-//	gl_rect_2d(left_rect, LLColor4::green, TRUE);
-//	gl_rect_2d(right_rect, LLColor4::yellow, TRUE);
+	back_color_hori[VALPHA] = 0.5f;
+	back_color_vert[VALPHA] = 0.5f;
+	//gl_rect_2d(getLocalRect(), back_color, TRUE);
+	gl_rect_2d(bottom_rect, back_color_hori, TRUE);
+	gl_rect_2d(left_rect, back_color_vert, TRUE);
+	gl_rect_2d(right_rect, back_color_vert, TRUE);
 	
 	LLUICtrl::draw();
 }

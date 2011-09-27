@@ -29,6 +29,8 @@
 #define LL_LLTOOLBARVIEW_H
 
 #include "lluictrl.h"
+#include "lltoolbar.h"
+#include "llcommandmanager.h"
 
 class LLUICtrlFactory;
 
@@ -38,8 +40,16 @@ class LLToolBarView : public LLUICtrl
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params> {};
+	
 	virtual ~LLToolBarView();
+	/*virtual*/ BOOL postBuild();
+
 	virtual void draw();
+
+	bool hasCommand(const LLCommandId& commandId) const;
+	
+	// valid children for LLToolBarView are stored in this registry
+	typedef LLDefaultChildRegistry child_registry_t;
 
 protected:
 	friend class LLUICtrlFactory;
@@ -48,7 +58,9 @@ protected:
 	void initFromParams(const Params&);
 
 private:
-	LLHandle<LLView>	mSnapView;
+	LLToolBar*	mToolbarLeft;
+	LLToolBar*	mToolbarRight;
+	LLToolBar*	mToolbarBottom;
 };
 
 extern LLToolBarView* gToolBarView;

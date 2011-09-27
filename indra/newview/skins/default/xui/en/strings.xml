@@ -3668,6 +3668,8 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Landmarks_Tooltip"></string>
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Map_Tooltip"></string>
+  <string name="Command_MiniMap_Label">Mini Map</string>
+  <string name="Command_MiniMap_Tooltip"></string>
   <string name="Command_Move_Label">Move</string>
   <string name="Command_Move_Tooltip"></string>
   <string name="Command_MyLand_Label">My Land</string>

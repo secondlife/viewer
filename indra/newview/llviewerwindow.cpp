@@ -1779,16 +1779,17 @@ void LLViewerWindow::initBase()
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
 	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
 
-	// Update the toolbar global holder
+	// Create the toolbar view
 	// *TODO: Eventually, suppress the existence of this debug setting and turn toolbar FUI on permanently
 	if (gSavedSettings.getBOOL("DebugToolbarFUI"))
 	{
 		// Get a pointer to the toolbar view holder
 		LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
 		// Load the toolbar view from file 
-		gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLPanel::child_registry_t::instance());
-		// Attach it to the toolbar view holder
-		//panel_holder->addChild(gToolBarView);
+		gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLDefaultChildRegistry::instance());
+		gToolBarView->setShape(panel_holder->getLocalRect());
+		// Hide the toolbars for the moment: we'll make them visible after logging in world (see LLViewerWindow::initWorldUI())
+		gToolBarView->setVisible(FALSE);
 	}
 
 	// Constrain floaters to inside the menu and status bar regions.
@@ -1953,6 +1954,12 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel->setShape(buttons_panel_container->getLocalRect());
 	buttons_panel->setFollowsAll();
 	buttons_panel_container->addChild(buttons_panel);
+
+	// Make the toolbars visible
+	if (gToolBarView)
+	{
+		gToolBarView->setVisible(TRUE);
+	}
 }
 
 // Destroy the UI

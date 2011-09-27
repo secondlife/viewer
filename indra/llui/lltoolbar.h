@@ -28,12 +28,11 @@
 #ifndef LL_LLTOOLBAR_H
 #define LL_LLTOOLBAR_H
 
-#include "lluictrl.h"
-#include "lllayoutstack.h"
 #include "llbutton.h"
-
-
-class LLCommand;
+#include "llcommandmanager.h"
+#include "lllayoutstack.h"
+#include "lluictrl.h"
+#include "llcommandmanager.h"
 
 
 class LLToolBarButton : public LLButton
@@ -51,15 +50,14 @@ namespace LLToolBarEnums
 {
 	enum ButtonType
 	{
-		BTNTYPE_ICONS_ONLY = 0,
-		BTNTYPE_ICONS_WITH_TEXT,
+		BTNTYPE_ICONS_WITH_TEXT = 0,
+		BTNTYPE_ICONS_ONLY,
 
 		BTNTYPE_COUNT
 	};
 
 	enum SideType
 	{
-		SIDE_NONE = 0,
 		SIDE_BOTTOM,
 		SIDE_LEFT,
 		SIDE_RIGHT,
@@ -97,13 +95,22 @@ public:
 		Optional<LLToolBarButton::Params>		button_icon,
 												button_icon_and_text;
 
-		Optional<bool>							wrap;
-		Optional<S32>							min_button_width,
-												max_button_width;
-		// get rid of this
-		Multiple<LLToolBarButton::Params>		buttons;
+		Optional<bool>							read_only,
+												wrap;
 
-		Optional<LLUIImage*>					background_image;
+		Optional<S32>							min_button_width,
+												max_button_width,
+												button_height;
+		
+		Optional<S32>							pad_left,
+												pad_top,
+												pad_right,
+												pad_bottom,
+												pad_between;
+		// get rid of this
+		Multiple<LLCommandId::Params>			commands;
+
+		Optional<LLPanel::Params>				button_panel;
 
 		Params();
 	};
@@ -111,33 +118,51 @@ public:
 	// virtuals
 	void draw();
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
-	bool addCommand(LLCommand * command);
+	bool addCommand(const LLCommandId& commandId);
+	bool hasCommand(const LLCommandId& commandId) const;
+	bool enableCommand(const LLCommandId& commandId, bool enabled);
 
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBar(const Params&);
+	~LLToolBar();
 
 	void initFromParams(const Params&);
 
 private:
+	void createContextMenu();
 	void updateLayoutAsNeeded();
+	void createButtons();
+	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
+	BOOL isSettingChecked(const LLSD& userdata);
+	void onSettingEnable(const LLSD& userdata);
+
+	const bool						mReadOnly;
 
 	std::list<LLToolBarButton*>		mButtons;
+	std::list<LLCommandId>			mButtonCommands;
 	LLToolBarEnums::ButtonType		mButtonType;
 	LLLayoutStack*					mCenteringStack;
 	LLLayoutStack*					mWrapStack;
-	LLLayoutPanel*					mCenterPanel;
+	LLPanel*						mButtonPanel;
 	LLToolBarEnums::SideType		mSideType;
 
 	bool							mWrap;
 	bool							mNeedsLayout;
 	S32								mMinButtonWidth,
-									mMaxButtonWidth;
-
-	LLUIImagePtr					mBackgroundImage;
+									mMaxButtonWidth,
+									mButtonHeight,
+									mPadLeft,
+									mPadRight,
+									mPadTop,
+									mPadBottom,
+									mPadBetween;
 
 	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
+
+	LLHandle<class LLContextMenu>			mPopupMenuHandle;
 };
 
 

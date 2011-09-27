@@ -14,17 +14,17 @@
   save_rect="true"
   single_instance="true"
   title="Customize toolbars"
-  width="658">
+  width="650">
   <text
     follows="left|top"
     font="SansSerifMedium"
     halign="left"
     height="20"
     layout="topleft"
-    left="40"
+    left="20"
     length="1"
     name="toybox label 1"
-    right="-40"
+    right="-20"
     top="35"
     type="string">
       Add or remove buttons by dragging them to or from the toolbars.
@@ -35,21 +35,28 @@
     halign="left"
     height="20"
     layout="topleft"
-    left="40"
+    left="20"
     length="1"
     name="toybox label 2"
-    right="-40"
+    right="-20"
     top="55"
     type="string">
       Buttons will appear as shown or as icon-only depending on each toolbar's settings.
   </text>
   <toolbar
     bottom="395"
-    left="40"
+    button_display_mode="icons_with_text"
+    left="20"
     max_button_width="140"
-    min_button_width="140"
+    min_button_width="70"
     name="toybox_toolbar"
-    right="-40"
+    pad_left="5"
+    pad_right="5"
+    pad_top="5"
+    pad_bottom="5"
+    pad_between="15"
+    read_only="true"
+    right="-20"
     side="top"
     top="85">
   </toolbar>
@@ -59,7 +66,7 @@
     label="Restore defaults"
     label_selected="Restore defaults"
     layout="topleft"
-    left="40"
+    left="20"
     name="btn_restore_defaults"
     top="415"
     width="130">
