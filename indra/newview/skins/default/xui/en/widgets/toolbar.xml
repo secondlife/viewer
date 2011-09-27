@@ -5,6 +5,7 @@
          pad_top="5"
          pad_bottom="5"
          pad_between="5"
+         mouse_opaque="false"
          read_only="false">
 
   <button_panel name="button_panel"
