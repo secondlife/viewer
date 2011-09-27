@@ -30,6 +30,7 @@
 #include <boost/foreach.hpp>
 #include "lltoolbar.h"
 
+#include "llcommandmanager.h"
 #include "llmenugl.h"
 #include "lltrans.h"
 
@@ -368,8 +369,8 @@ void LLToolBar::updateLayoutAsNeeded()
 
 	std::vector<LLToolBarButton*> buttons_in_row;
 
-	BOOST_FOREACH(LLToolBarButton* button, mButtons)
-	{
+		BOOST_FOREACH(LLToolBarButton* button, mButtons)
+		{
 		button->reshape(mMinButtonWidth, mButtonHeight);
 		button->autoResize();
 
@@ -402,8 +403,8 @@ void LLToolBar::updateLayoutAsNeeded()
 			max_row_girth = 0;
 	}
 
-	LLRect button_rect;
-	if (orientation == LLLayoutStack::HORIZONTAL)
+		LLRect button_rect;
+		if (orientation == LLLayoutStack::HORIZONTAL)
 	{
 			button_rect.setLeftTopAndSize(cur_start, panel_rect.mTop - cur_row, button_clamped_width, button->getRect().getHeight());
 		}
@@ -448,7 +449,7 @@ void LLToolBar::updateLayoutAsNeeded()
 		
 		reshape(total_girth, getRect().getHeight());
 		mButtonPanel->reshape(total_girth, max_row_length);
-	}
+		}
 
 	// re-center toolbar buttons
 	mCenteringStack->updateLayout();
