@@ -270,6 +270,7 @@ public:
 protected:
 	LLPointer<LLUIImage> getImageUnselected() const	{ return mImageUnselected; }
 	LLPointer<LLUIImage> getImageSelected() const	{ return mImageSelected; }
+	void getOverlayImageSize(S32& overlay_width, S32& overlay_height);
 
 	LLFrameTimer	mMouseDownTimer;
 

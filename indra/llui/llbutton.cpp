@@ -554,6 +554,16 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
+void LLButton::getOverlayImageSize(S32& overlay_width, S32& overlay_height)
+{
+	overlay_width = mImageOverlay->getWidth();
+	overlay_height = mImageOverlay->getHeight();
+
+	F32 scale_factor = llmin((F32)getRect().getWidth() / (F32)overlay_width, (F32)getRect().getHeight() / (F32)overlay_height, 1.f);
+	overlay_width = llround((F32)overlay_width * scale_factor);
+	overlay_height = llround((F32)overlay_height * scale_factor);
+}
+
 
 // virtual
 void LLButton::draw()
@@ -781,12 +791,10 @@ void LLButton::draw()
 	if (mImageOverlay.notNull())
 	{
 		// get max width and height (discard level 0)
-		S32 overlay_width = mImageOverlay->getWidth();
-		S32 overlay_height = mImageOverlay->getHeight();
+		S32 overlay_width;
+		S32 overlay_height;
 
-		F32 scale_factor = llmin((F32)getRect().getWidth() / (F32)overlay_width, (F32)getRect().getHeight() / (F32)overlay_height, 1.f);
-		overlay_width = llround((F32)overlay_width * scale_factor);
-		overlay_height = llround((F32)overlay_height * scale_factor);
+		getOverlayImageSize(overlay_width, overlay_height);
 
 		S32 center_x = getLocalRect().getCenterX();
 		S32 center_y = getLocalRect().getCenterY();
@@ -994,11 +1002,15 @@ void LLButton::resize(LLUIString label)
 		S32 min_width = label_width + mLeftHPad + mRightHPad;
 		if (mImageOverlay)
 		{
+			S32 overlay_width = mImageOverlay->getWidth();
+			F32 scale_factor = getRect().getHeight() / (F32)mImageOverlay->getHeight();
+			overlay_width = llround((F32)overlay_width * scale_factor);
+
 			switch(mImageOverlayAlignment)
 			{
 			case LLFontGL::LEFT:
 			case LLFontGL::RIGHT:
-				min_width += mImageOverlay->getWidth() + mImgOverlayLabelSpace;
+				min_width += overlay_width + mImgOverlayLabelSpace;
 				break;
 			case LLFontGL::HCENTER:
 				break;

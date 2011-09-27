@@ -247,7 +247,9 @@ bool LLToolBar::enableCommand(const LLCommandId& commandId, bool enabled)
 
 BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handle_it_here = !mReadOnly;
+	LLRect button_panel_rect;
+	mButtonPanel->localRectToOtherView(mButtonPanel->getLocalRect(), &button_panel_rect, this);
+	BOOL handle_it_here = !mReadOnly && button_panel_rect.pointInRect(x, y);
 
 	if (handle_it_here)
 	{
