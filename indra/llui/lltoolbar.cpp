@@ -30,6 +30,7 @@
 #include <boost/foreach.hpp>
 #include "lltoolbar.h"
 
+#include "llcommandmanager.h"
 #include "llmenugl.h"
 #include "lltrans.h"
 
@@ -206,8 +207,8 @@ bool LLToolBar::addCommand(const LLCommandId& commandId)
 
 	if (add_command)
 	{
-		mButtonCommands.push_back(commandId);
-		createButtons();
+	mButtonCommands.push_back(commandId);
+	createButtons();
 	}
 
 	return add_command;
@@ -251,7 +252,9 @@ bool LLToolBar::enableCommand(const LLCommandId& commandId, bool enabled)
 
 BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handle_it_here = !mReadOnly;
+	LLRect button_panel_rect;
+	mButtonPanel->localRectToOtherView(mButtonPanel->getLocalRect(), &button_panel_rect, this);
+	BOOL handle_it_here = !mReadOnly && button_panel_rect.pointInRect(x, y);
 
 	if (handle_it_here)
 	{
