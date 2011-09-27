@@ -388,7 +388,7 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 {
 	LLTeleportHistoryFlatItemStorage::instance().purge();
-	LLView::deleteViewByHandle(mGearMenuHandle);
+	delete mGearMenuHandle.get();
 }
 
 BOOL LLTeleportHistoryPanel::postBuild()

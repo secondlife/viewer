@@ -90,9 +90,9 @@ void LLToolBarView::draw()
 	
 	LLRect bottom_rect, left_rect, right_rect;
 
-	if (mToolbarBottom) bottom_rect = mToolbarBottom->getRect();
-	if (mToolbarLeft)   left_rect   = mToolbarLeft->getRect();
-	if (mToolbarRight)  right_rect  = mToolbarRight->getRect();
+	if (mToolbarBottom) mToolbarBottom->localRectToOtherView(mToolbarBottom->getLocalRect(), &bottom_rect, this);
+	if (mToolbarLeft)   mToolbarLeft->localRectToOtherView(mToolbarLeft->getLocalRect(), &left_rect, this);
+	if (mToolbarRight)  mToolbarRight->localRectToOtherView(mToolbarRight->getLocalRect(), &right_rect, this);
 	
 	
 	if ((old_width != getRect().getWidth()) || (old_height != getRect().getHeight()))

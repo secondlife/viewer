@@ -403,8 +403,8 @@ LLFavoritesBarCtrl::~LLFavoritesBarCtrl()
 {
 	gInventory.removeObserver(this);
 
-	LLView::deleteViewByHandle(mOverflowMenuHandle);
-	LLView::deleteViewByHandle(mContextMenuHandle);
+	delete mOverflowMenuHandle.get();
+	delete mContextMenuHandle.get();
 }
 
 BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,

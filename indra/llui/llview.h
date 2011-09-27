@@ -482,7 +482,6 @@ public:
 	// return query for iterating over focus roots in tab order
 	static const LLCtrlQuery & getFocusRootsQuery();
 
-	static void deleteViewByHandle(LLHandle<LLView> handle);
 	static LLWindow*	getWindow(void) { return LLUI::sWindow; }
 
 	// Set up params after XML load before calling new(),

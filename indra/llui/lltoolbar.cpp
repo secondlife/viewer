@@ -116,12 +116,12 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 
 LLToolBar::~LLToolBar()
 {
-	LLView::deleteViewByHandle(mPopupMenuHandle);
+	delete mPopupMenuHandle.get();
 }
 
-BOOL LLToolBar::postBuild()
+void LLToolBar::createContextMenu()
 {
-	if (!mReadOnly)
+	if (!mPopupMenuHandle.get())
 	{
 		LLUICtrl::CommitCallbackRegistry::Registrar& commit_reg = LLUICtrl::CommitCallbackRegistry::defaultRegistrar();
 		commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onSettingEnable, this, _2));
@@ -129,11 +129,7 @@ BOOL LLToolBar::postBuild()
 		LLUICtrl::EnableCallbackRegistry::Registrar& enable_reg = LLUICtrl::EnableCallbackRegistry::defaultRegistrar();
 		enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isSettingChecked, this, _2));
 
-		//
-		// Setup the context menu
-		//
-
-		LLMenuGL* menu = LLUICtrlFactory::instance().createFromFile<LLMenuGL>("menu_toolbars.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+		LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_toolbars.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 
 		if (menu)
 		{
@@ -146,8 +142,6 @@ BOOL LLToolBar::postBuild()
 			llwarns << "Unable to load toolbars context menu." << llendl;
 		}
 	}
-
-	return TRUE;
 }
 
 void LLToolBar::initFromParams(const LLToolBar::Params& p)
@@ -278,10 +272,12 @@ BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 	if (handle_it_here)
 	{
-		LLMenuGL * menu = (LLMenuGL *) mPopupMenuHandle.get();
+		createContextMenu();
+		LLContextMenu * menu = (LLContextMenu *) mPopupMenuHandle.get();
 
 		if (menu)
 		{
+			menu->show(x, y);
 			LLMenuGL::showPopup(this, menu, x, y);
 		}
 	}
