@@ -35,6 +35,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llviewerfoldertype.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
@@ -220,7 +221,7 @@ public:
 		// support secondlife:///app/inventory/show
 		if (params[0].asString() == "show")
 		{
-			LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD());
+			LLFloaterSidePanelContainer::showPanel("my_inventory", LLSD());
 			return true;
 		}
 

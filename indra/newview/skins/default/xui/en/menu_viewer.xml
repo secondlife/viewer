@@ -67,10 +67,10 @@
 		 visible="true">
             <menu_item_check.on_check
              function="SidetrayPanelVisible"
-             parameter="sidepanel_inventory" />
+             parameter="my_inventory" />
             <menu_item_check.on_click
              function="ShowSidetrayPanel"
-             parameter="sidepanel_inventory" />
+             parameter="my_inventory" />
         </menu_item_check>
         <menu_item_check
          label="My Gestures"

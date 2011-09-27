@@ -32,6 +32,7 @@
 #include "llappviewer.h"
 #include "llbutton.h"
 #include "llinventorypanel.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
 #include "llsidepanelinventory.h"
 #include "llviewercontrol.h"
@@ -67,7 +68,7 @@ BOOL LLPanelMarketplaceInbox::postBuild()
 
 void LLPanelMarketplaceInbox::onSelectionChange()
 {
-	LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
 		
 	sidepanel_inventory->updateVerbs();
 }
@@ -112,9 +113,11 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 
 void LLPanelMarketplaceInbox::onFocusReceived()
 {
-	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
-
-	sidepanel_inventory->clearSelections(true, false, true);
+	LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+	if (sidepanel_inventory)
+	{
+		sidepanel_inventory->clearSelections(true, false, true);
+	}
 
 	gSavedPerAccountSettings.setString("LastInventoryInboxActivity", LLDate::now().asString());
 }
@@ -185,9 +188,10 @@ std::string LLPanelMarketplaceInbox::getBadgeString() const
 {
 	std::string item_count_str("");
 
+	LLPanel *inventory_panel = LLFloaterSidePanelContainer::getPanel("my_inventory");
+
 	// If the inbox is visible, and the side panel is collapsed or expanded and not the inventory panel
-	if (getParent()->getVisible() &&
-		(LLSideTray::getInstance()->getCollapsed() || !LLSideTray::getInstance()->isPanelActive("sidepanel_inventory")))
+	if (getParent()->getVisible() && inventory_panel && !inventory_panel->isInVisibleChain())
 	{
 		U32 item_count = getFreshItemCount();
 

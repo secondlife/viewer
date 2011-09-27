@@ -28,6 +28,7 @@
 #include "llinspectobject.h"
 
 // Viewer
+#include "llfloatersidepanelcontainer.h"
 #include "llinspect.h"
 #include "llmediaentry.h"
 #include "llnotificationsutil.h"	// *TODO: Eliminate, add LLNotificationsUtil wrapper
@@ -640,7 +641,7 @@ void LLInspectObject::onClickMoreInfo()
 {
 	LLSD key;
 	key["task"] = "task";
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);	
+	LLFloaterSidePanelContainer::showPanel("my_inventory", key);
 	closeFloater();
 }
 

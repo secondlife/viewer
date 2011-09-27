@@ -33,6 +33,9 @@
 #include "llsidetraypanelcontainer.h"
 #include "lltransientfloatermgr.h"
 
+//static
+const std::string LLFloaterSidePanelContainer::sMainPanelName("main_panel");
+
 LLFloaterSidePanelContainer::LLFloaterSidePanelContainer(const LLSD& key, const Params& params)
 :	LLFloater(key, params)
 {
@@ -48,7 +51,7 @@ LLFloaterSidePanelContainer::~LLFloaterSidePanelContainer()
 
 void LLFloaterSidePanelContainer::onOpen(const LLSD& key)
 {
-	getChild<LLPanel>("main_panel")->onOpen(key);
+	getChild<LLPanel>(sMainPanelName)->onOpen(key);
 }
 
 LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_name, const LLSD& params)
@@ -82,6 +85,17 @@ void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, con
 	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
 	if (floaterp)
 	{
-		floaterp->openChildPanel("main_panel", panel_name);
+		floaterp->openChildPanel(sMainPanelName, panel_name);
 	}
+}
+
+LLPanel* LLFloaterSidePanelContainer::getPanel(const std::string& floater_name, const std::string& panel_name)
+{
+	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
+	if (floaterp)
+	{
+		return floaterp->findChild<LLPanel>(panel_name, true);
+	}
+
+	return NULL;
 }

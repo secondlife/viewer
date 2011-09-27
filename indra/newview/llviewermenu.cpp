@@ -2634,7 +2634,7 @@ void handle_object_inspect()
 	{
 		LLSD key;
 		key["task"] = "task";
-		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+		LLFloaterSidePanelContainer::showPanel("my_inventory", key);
 	}
 	
 	/*
@@ -5661,18 +5661,18 @@ class LLShowSidetrayPanel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		std::string panel_name = userdata.asString();
+		std::string floater_name = userdata.asString();
 
-		LLPanel* panel = LLSideTray::getInstance()->getPanel(panel_name);
+		LLPanel* panel = LLFloaterSidePanelContainer::getPanel(floater_name);
 		if (panel)
 		{
 			if (panel->isInVisibleChain())
 			{
-				LLSideTray::getInstance()->hidePanel(panel_name);
+				LLFloaterReg::getInstance(floater_name)->closeFloater();
 			}
 			else
 			{
-				LLSideTray::getInstance()->showPanel(panel_name);
+				LLFloaterReg::getInstance(floater_name)->openFloater();
 			}
 		}
 		return true;
@@ -5683,9 +5683,9 @@ class LLSidetrayPanelVisible : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		std::string panel_name = userdata.asString();
+		std::string floater_name = userdata.asString();
 		// Toggle the panel
-		if (LLSideTray::getInstance()->isPanelActive(panel_name))
+		if (LLFloaterReg::getInstance(floater_name)->isInVisibleChain())
 		{
 			return true;
 		}

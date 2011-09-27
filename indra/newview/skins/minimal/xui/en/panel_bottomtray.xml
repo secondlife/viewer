@@ -324,7 +324,7 @@
 			  width="100">
 				<bottomtray_button.commit_callback
 				  function="ShowSidetrayPanel"
-				 parameter="panel_people" />
+				  parameter="people" />
 			</bottomtray_button>
 		</layout_panel>
 		<layout_panel
