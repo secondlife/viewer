@@ -148,10 +148,6 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	vec3 P = inPositionEye;
 	setPositionEye(P);
 	
-	//(TERRAIN) limit altitude
-	if (P.y > max_y.x) P *= (max_y.x / P.y);
-	if (P.y < -max_y.x) P *= (-max_y.x / P.y);
-
 	vec3 tmpLightnorm = lightnorm.xyz;
 
 	vec3 Pn = normalize(P);
