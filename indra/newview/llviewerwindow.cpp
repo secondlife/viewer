@@ -1950,9 +1950,11 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel->setFollowsAll();
 	buttons_panel_container->addChild(buttons_panel);
 
-	// Make the toolbars visible
+	// Load and make the toolbars visible
+	// Note: we need to load the toolbars only *after* the user is logged in and IW
 	if (gToolBarView)
 	{
+		gToolBarView->loadToolbars();
 		gToolBarView->setVisible(TRUE);
 	}
 }
