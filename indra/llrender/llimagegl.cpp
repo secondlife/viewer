@@ -727,7 +727,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		{
 			if (mAutoGenMips)
 			{
-				if (!glGenerateMipmap)
+				if (!gGLManager.mHasFramebufferObject)
 				{
 					glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_GENERATE_MIPMAP_SGIS, TRUE);
 				}
@@ -760,7 +760,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 					}
 				}
 
-				if (glGenerateMipmap)
+				if (gGLManager.mHasFramebufferObject)
 				{
 					glGenerateMipmap(LLTexUnit::getInternalType(mBindTarget));
 				}
