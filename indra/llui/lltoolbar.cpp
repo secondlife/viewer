@@ -33,6 +33,7 @@
 #include "llcommandmanager.h"
 #include "llmenugl.h"
 #include "lltrans.h"
+#include "lltoolbarview.h"
 
 // uncomment this and remove the one in llui.cpp when there is an external reference to this translation unit
 // thanks, MSVC!
@@ -201,35 +202,27 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 bool LLToolBar::addCommand(const LLCommandId& commandId)
 {
 	LLCommand * command = LLCommandManager::instance().getCommand(commandId);
+	if (!command) return false;
 
-	bool add_command = (command != NULL);
+	mButtonCommands.push_back(commandId);
+	LLToolBarButton* button = createButton(commandId);
+	mButtons.push_back(button);
+	mButtonPanel->addChild(button);
+	mButtonMap.insert(std::make_pair(commandId, button));
+	mNeedsLayout = true;
 
-	if (add_command)
-	{
-		mButtonCommands.push_back(commandId);
-		createButton(commandId);
-	}
-
-	return add_command;
+	return true;
 }
 
 bool LLToolBar::hasCommand(const LLCommandId& commandId) const
 {
-	bool has_command = false;
-
 	if (commandId != LLCommandId::null)
 	{
-		BOOST_FOREACH(LLCommandId cmd, mButtonCommands)
-		{
-			if (cmd == commandId)
-			{
-				has_command = true;
-				break;
-			}
-		}
+		command_id_map::const_iterator it = mButtonMap.find(commandId);
+		return (it != mButtonMap.end());
 	}
 
-	return has_command;
+	return false;
 }
 
 bool LLToolBar::enableCommand(const LLCommandId& commandId, bool enabled)
@@ -238,11 +231,10 @@ bool LLToolBar::enableCommand(const LLCommandId& commandId, bool enabled)
 	
 	if (commandId != LLCommandId::null)
 	{
-		command_button = mButtonPanel->findChild<LLButton>(commandId.name());
-
-		if (command_button)
+		command_id_map::iterator it = mButtonMap.find(commandId);
+		if (it != mButtonMap.end())
 		{
-			command_button->setEnabled(enabled);
+			it->second->setEnabled(enabled);
 		}
 	}
 
@@ -498,15 +490,19 @@ void LLToolBar::createButtons()
 	
 	BOOST_FOREACH(LLCommandId& command_id, mButtonCommands)
 	{
-		createButton(command_id);
+		LLToolBarButton* button = createButton(command_id);
+		mButtons.push_back(button);
+		mButtonPanel->addChild(button);
+		mButtonMap.insert(std::make_pair(command_id, button));
 	}
+	mNeedsLayout = true;
 
 }
 
-void LLToolBar::createButton(const LLCommandId& id)
+LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 {
 	LLCommand* commandp = LLCommandManager::instance().getCommand(id);
-	if (!commandp) return;
+	if (!commandp) return NULL;
 
 	LLToolBarButton::Params button_p;
 	button_p.label = LLTrans::getString(commandp->labelRef());
@@ -515,8 +511,47 @@ void LLToolBar::createButton(const LLCommandId& id)
 	button_p.overwriteFrom(mButtonParams[mButtonType]);
 	LLToolBarButton* button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
 
-	mButtons.push_back(button);
-	mButtonPanel->addChild(button);
+	button->setCommandId(id);
+	return button;
+}
 
-	mNeedsLayout = true;
+//
+// LLToolBarButton
+//
+
+LLToolBarButton::LLToolBarButton(const Params& p) 
+:	LLButton(p),
+	mMouseDownX(0),
+	mMouseDownY(0),
+	mId("")
+{}
+
+
+BOOL LLToolBarButton::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	mMouseDownX = x;
+	mMouseDownY = y;
+	return LLButton::handleMouseDown(x, y, mask);
+}
+
+BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
+{
+	if (hasMouseCapture())
+	{
+		S32 dist_squared = (x - mMouseDownX) * (x - mMouseDownX) + (y - mMouseDownY) * (y - mMouseDownY);
+		S32 threshold = LLUI::sSettingGroups["config"]->getS32("DragAndDropDistanceThreshold");
+		S32 threshold_squared = threshold * threshold;
+		if (dist_squared > threshold_squared)
+		{
+			// start drag and drop
+			LLToolBarView* view = getParentByType<LLToolBarView>();
+			LLToolBar* bar = getParentByType<LLToolBar>();
+			if (view)
+			{
+				view->startDrag(bar->createButton(mId));
+				setVisible(FALSE);
+			}
+		}
+	}
+	return LLButton::handleHover(x, y, mask);
 }

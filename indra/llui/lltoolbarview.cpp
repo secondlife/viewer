@@ -55,7 +55,10 @@ LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 :	LLUICtrl(p),
 	mToolbarLeft(NULL),
 	mToolbarRight(NULL),
-	mToolbarBottom(NULL)
+	mToolbarBottom(NULL),
+	mDragButton(NULL),
+	mMouseX(0),
+	mMouseY(0)
 {
 }
 
@@ -283,4 +286,40 @@ void LLToolBarView::draw()
 	//gl_rect_2d(right_rect, back_color_vert, TRUE);
 	
 	LLUICtrl::draw();
+
+	if (mDragButton)
+	{
+		S32 cursor_x, cursor_y;
+		mDragButton->setOrigin(mMouseX - mDragButton->getRect().getWidth(), mMouseY - mDragButton->getRect().getHeight());
+		drawChild(mDragButton);
+	}
+}
+
+void LLToolBarView::startDrag(LLToolBarButton* button)
+{
+	mDragButton = button;
+	addChild(mDragButton);
+	gFocusMgr.setMouseCapture(this);
+}
+
+BOOL LLToolBarView::handleHover(S32 x, S32 y, MASK mask)
+{
+	mMouseX = x;
+	mMouseY = y;
+	return LLUICtrl::handleHover(x, y, mask);
+}
+
+BOOL LLToolBarView::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	if (hasMouseCapture())
+	{
+		gFocusMgr.setMouseCapture(NULL);
+	}
+	return LLUICtrl::handleMouseUp(x, y, mask);
+}
+
+void LLToolBarView::onMouseCaptureLost()
+{
+	delete mDragButton;
+	mDragButton = NULL;
 }
