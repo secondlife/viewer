@@ -1,5 +1,5 @@
 /** 
- * @file atmosphericVars.glsl
+ * @file atmosphericVarsWaterV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,14 +23,13 @@
  * $/LicenseInfo$
  */
  
-
+VARYING vec3 vary_PositionEye;
 VARYING vec3 vary_AdditiveColor;
 VARYING float vary_AtmosAttenuation;
 
 vec3 atmos_attenuation;
 vec3 sunlit_color;
 vec3 amblit_color;
-vec3 position_eye;
 
 vec3 getSunlitColor()
 {
@@ -52,12 +51,12 @@ vec3 getAtmosAttenuation()
 
 vec3 getPositionEye()
 {
-	return position_eye;
+	return vary_PositionEye;
 }
 
 void setPositionEye(vec3 v)
 {
-	position_eye = v;
+	vary_PositionEye = v;
 }
 
 void setSunlitColor(vec3 v)

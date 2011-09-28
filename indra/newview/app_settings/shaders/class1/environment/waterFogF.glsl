@@ -24,7 +24,7 @@
  */
  
 
-VARYING float fog_depth;
+
 
 uniform vec4 waterFogColor;
 uniform float waterFogEnd;

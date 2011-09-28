@@ -48,7 +48,7 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_pointlight_col;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING float fog_depth;
+
 
 uniform float near_clip;
 
@@ -137,7 +137,7 @@ void main()
 	
 	vertex_color = col;
 
-	fog_depth = pos.z;
+	
 	
 	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
 }

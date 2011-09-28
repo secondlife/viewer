@@ -50,7 +50,7 @@ VARYING vec3 vary_pointlight_col;
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING float fog_depth;
+
 
 uniform float near_clip;
 uniform float shadow_offset;
@@ -140,7 +140,7 @@ void main()
 	
 	vertex_color = col;
 
-	fog_depth = pos.z;
+	
 	
 	pos.xyz = (modelview_projection_matrix * vec4(position.xyz, 1.0)).xyz;
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);

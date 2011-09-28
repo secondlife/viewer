@@ -32,7 +32,7 @@ ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
 
 VARYING vec3 vary_normal;
-VARYING float vary_texture_index;
+
 VARYING vec2 vary_texcoord0;
 
 void main()

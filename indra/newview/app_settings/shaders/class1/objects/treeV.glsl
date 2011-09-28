@@ -37,7 +37,7 @@ void calcAtmospherics(vec3 inPositionEye);
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING float fog_depth;
+
 
 void main()
 {
@@ -56,5 +56,5 @@ void main()
 	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0.));
 	vertex_color = color;
 
-	fog_depth = pos.z;
+	
 }

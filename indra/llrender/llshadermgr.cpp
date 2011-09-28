@@ -81,7 +81,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
 	if (features->calculatesAtmospherics)
 	{
-		if (!shader->attachObject("windlight/atmosphericsVarsV.glsl"))
+		if (features->hasWaterFog)
+		{
+			if (!shader->attachObject("windlight/atmosphericsVarsWaterV.glsl"))
+			{
+				return FALSE;
+			}
+		}
+		else if (!shader->attachObject("windlight/atmosphericsVarsV.glsl"))
 		{
 			return FALSE;
 		}
@@ -161,7 +168,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 
 	if(features->calculatesAtmospherics)
 	{
-		if (!shader->attachObject("windlight/atmosphericsVarsF.glsl"))
+		if (features->hasWaterFog)
+		{
+			if (!shader->attachObject("windlight/atmosphericsVarsWaterF.glsl"))
+			{
+				return FALSE;
+			}
+		}
+		else if (!shader->attachObject("windlight/atmosphericsVarsF.glsl"))
 		{
 			return FALSE;
 		}
@@ -241,7 +255,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 						return FALSE;
 					}
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -280,7 +294,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 						return FALSE;
 					}
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}		
 	}
@@ -304,7 +318,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		else if (features->hasWaterFog)
@@ -336,7 +350,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -355,7 +369,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -395,7 +409,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 						return FALSE;
 					}
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 	}
@@ -419,7 +433,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -438,10 +452,26 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 	}
+
+	if (features->mIndexedTextureChannels <= 1)
+	{
+		if (!shader->attachObject("objects/nonindexedTextureV.glsl"))
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		if (!shader->attachObject("objects/indexedTextureV.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
 	return TRUE;
 }
 
@@ -631,7 +661,11 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			text[count++] = strdup(decl.c_str());
 		}
 
-		text[count++] = strdup("VARYING float vary_texture_index;\n");
+		if (texture_index_channels > 1)
+		{
+			text[count++] = strdup("VARYING float vary_texture_index;\n");
+		}
+
 		text[count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
 		text[count++] = strdup("{\n");
 		

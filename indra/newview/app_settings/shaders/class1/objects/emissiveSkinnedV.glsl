@@ -33,7 +33,7 @@ ATTRIBUTE vec2 texcoord0;
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING float fog_depth;
+
 
 void calcAtmospherics(vec3 inPositionEye);
 mat4 getObjectSkinnedTransform();
@@ -54,5 +54,5 @@ void main()
 	
 	gl_Position = projection_matrix*vec4(pos, 1.0);
 		
-	fog_depth = pos.z;
+	
 }

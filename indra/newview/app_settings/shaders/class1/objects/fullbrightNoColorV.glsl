@@ -33,7 +33,7 @@ ATTRIBUTE vec3 normal;
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING float fog_depth;
+
 
 void calcAtmospherics(vec3 inPositionEye);
 
@@ -49,5 +49,5 @@ void main()
 
 	vertex_color = vec4(1,1,1,1);
 
-	fog_depth = pos.z;
+	
 }

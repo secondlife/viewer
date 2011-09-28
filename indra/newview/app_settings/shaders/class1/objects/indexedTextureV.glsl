@@ -1,5 +1,5 @@
 /** 
- * @file atmosphericVars.glsl
+ * @file indexedTextureV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,61 +22,13 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
-VARYING vec3 vary_AdditiveColor;
-VARYING float vary_AtmosAttenuation;
+ATTRIBUTE float texture_index;
 
-vec3 atmos_attenuation;
-vec3 sunlit_color;
-vec3 amblit_color;
-vec3 position_eye;
+VARYING float vary_texture_index;
 
-vec3 getSunlitColor()
+void passTextureIndex()
 {
-	return sunlit_color;
-}
-vec3 getAmblitColor()
-{
-	return amblit_color;
+	vary_texture_index = texture_index;
 }
 
-vec3 getAdditiveColor()
-{
-	return vary_AdditiveColor;
-}
-vec3 getAtmosAttenuation()
-{
-	return atmos_attenuation;
-}
-
-vec3 getPositionEye()
-{
-	return position_eye;
-}
-
-void setPositionEye(vec3 v)
-{
-	position_eye = v;
-}
-
-void setSunlitColor(vec3 v)
-{
-	sunlit_color  = v;
-}
-
-void setAmblitColor(vec3 v)
-{
-	amblit_color = v;
-}
-
-void setAdditiveColor(vec3 v)
-{
-	vary_AdditiveColor = v;
-}
-
-void setAtmosAttenuation(vec3 v)
-{
-	atmos_attenuation = v;
-	vary_AtmosAttenuation = v.r;
-}

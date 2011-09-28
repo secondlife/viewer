@@ -444,6 +444,9 @@ void LLViewerShaderMgr::setShaders()
 		return;
 	}
 
+	LLGLSLShader::sIndexedTextureChannels = llmax(llmin(gGLManager.mNumTextureImageUnits, (S32) gSavedSettings.getU32("RenderMaxTextureIndex")), 1);
+
+
 	if (LLRender::sGLCoreProfile)
 	{ 
 		if (!gSavedSettings.getBOOL("VertexShaderEnable"))
@@ -826,8 +829,8 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	// (in order of shader function call depth for reference purposes, deepest level first)
 
 	vector< pair<string, S32> > shaders;
-	shaders.reserve(10);
 	shaders.push_back( make_pair( "windlight/atmosphericsVarsV.glsl",		mVertexShaderLevel[SHADER_WINDLIGHT] ) );
+	shaders.push_back( make_pair( "windlight/atmosphericsVarsWaterV.glsl",		mVertexShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "windlight/atmosphericsHelpersV.glsl",	mVertexShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "lighting/lightFuncV.glsl",				mVertexShaderLevel[SHADER_LIGHTING] ) );
 	shaders.push_back( make_pair( "lighting/sumLightsV.glsl",				sum_lights_class ) );
@@ -838,6 +841,8 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	shaders.push_back( make_pair( "windlight/atmosphericsV.glsl",			mVertexShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "avatar/avatarSkinV.glsl",				1 ) );
 	shaders.push_back( make_pair( "avatar/objectSkinV.glsl",				1 ) );
+	shaders.push_back( make_pair( "objects/indexedTextureV.glsl",			1 ) );
+	shaders.push_back( make_pair( "objects/nonindexedTextureV.glsl",		1 ) );
 
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
 	for (U32 i = 0; i < shaders.size(); i++)
@@ -853,8 +858,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	// (in order of shader function call depth for reference purposes, deepest level first)
 
 	shaders.clear();
-	shaders.reserve(13);
-	S32 ch = gGLManager.mNumTextureImageUnits-1;
+	S32 ch = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 
 	if (gGLManager.mGLVersion < 3.1f)
 	{ //force to 1 texture index channel for old drivers
@@ -863,6 +867,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 
 	std::vector<S32> index_channels;
 	index_channels.push_back(-1);	 shaders.push_back( make_pair( "windlight/atmosphericsVarsF.glsl",		mVertexShaderLevel[SHADER_WINDLIGHT] ) );
+	index_channels.push_back(-1);	 shaders.push_back( make_pair( "windlight/atmosphericsVarsWaterF.glsl",		mVertexShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);	 shaders.push_back( make_pair( "windlight/gammaF.glsl",					mVertexShaderLevel[SHADER_WINDLIGHT]) );
 	index_channels.push_back(-1);	 shaders.push_back( make_pair( "windlight/atmosphericsF.glsl",			mVertexShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);	 shaders.push_back( make_pair( "windlight/transportF.glsl",				mVertexShaderLevel[SHADER_WINDLIGHT] ) );	
@@ -1186,7 +1191,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredDiffuseProgram.mShaderFiles.clear();
 		gDeferredDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseIndexedF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredDiffuseProgram.mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits;
+		gDeferredDiffuseProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredDiffuseProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredDiffuseProgram.createShader(NULL, NULL);
 	}
@@ -1197,7 +1202,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredDiffuseAlphaMaskProgram.mShaderFiles.clear();
 		gDeferredDiffuseAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/diffuseV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredDiffuseAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/diffuseAlphaMaskIndexedF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredDiffuseAlphaMaskProgram.mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits;
+		gDeferredDiffuseAlphaMaskProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredDiffuseAlphaMaskProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredDiffuseAlphaMaskProgram.createShader(NULL, NULL);
 	}
@@ -1394,11 +1399,11 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
 		if (mVertexShaderLevel[SHADER_DEFERRED] < 1)
 		{
-			gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits;
+			gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		}
 		else
 		{ //shave off some texture units for shadow maps
-			gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits - 6;
+			gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
 		}
 			
 		gDeferredAlphaProgram.mShaderFiles.clear();
@@ -1428,7 +1433,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightProgram.mFeatures.hasTransport = true;
-		gDeferredFullbrightProgram.mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits;
+		gDeferredFullbrightProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredFullbrightProgram.mShaderFiles.clear();
 		gDeferredFullbrightProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredFullbrightProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -1442,7 +1447,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredEmissiveProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredEmissiveProgram.mFeatures.hasGamma = true;
 		gDeferredEmissiveProgram.mFeatures.hasTransport = true;
-		gDeferredEmissiveProgram.mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits;
+		gDeferredEmissiveProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredEmissiveProgram.mShaderFiles.clear();
 		gDeferredEmissiveProgram.mShaderFiles.push_back(make_pair("deferred/emissiveV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredEmissiveProgram.mShaderFiles.push_back(make_pair("deferred/emissiveF.glsl", GL_FRAGMENT_SHADER_ARB));

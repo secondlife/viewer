@@ -35,7 +35,7 @@ mat4 getObjectSkinnedTransform();
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING float fog_depth;
+
 
 void main()
 {
@@ -53,5 +53,5 @@ void main()
 	
 	gl_Position = projection_matrix*vec4(pos, 1.0);
 		
-	fog_depth = pos.z;
+	
 }

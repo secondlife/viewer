@@ -51,6 +51,7 @@ using std::string;
 
 GLhandleARB LLGLSLShader::sCurBoundShader = 0;
 LLGLSLShader* LLGLSLShader::sCurBoundShaderPtr = NULL;
+S32 LLGLSLShader::sIndexedTextureChannels = NULL;
 bool LLGLSLShader::sNoFixedFunction = false;
 
 //UI shader -- declared here so llui_libtest will link properly
@@ -125,13 +126,6 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	// Create program
 	mProgramObject = glCreateProgramObjectARB();
 	
-#if !LL_DARWIN
-	if (gGLManager.mGLVersion < 3.1f)
-	{ //force indexed texture channels to 1 if GL version is old (performance improvement for drivers with poor branching shader model support)
-		mFeatures.mIndexedTextureChannels = llmin(mFeatures.mIndexedTextureChannels, 1);
-	}
-#endif // !LL_DARWIN
-
 	//compile new source
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
 	for ( ; fileIter != mShaderFiles.end(); fileIter++ )

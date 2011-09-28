@@ -29,7 +29,7 @@ uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
-ATTRIBUTE float texture_index;
+void passTextureIndex();
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
@@ -49,10 +49,10 @@ VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
-VARYING float vary_texture_index;
+
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING float fog_depth;
+
 
 uniform float near_clip;
 uniform float shadow_offset;
@@ -97,7 +97,7 @@ void main()
 {
 	//transform vertex
 	vec4 vert = vec4(position.xyz, 1.0);
-	vary_texture_index = texture_index;
+	passTextureIndex();
 	vec4 pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	
@@ -136,7 +136,7 @@ void main()
 	
 	vertex_color = col;
 
-	fog_depth = pos.z;
+	
 	
 	pos = modelview_projection_matrix * vert;
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);

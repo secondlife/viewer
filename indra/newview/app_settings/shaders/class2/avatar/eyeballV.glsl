@@ -35,7 +35,7 @@ ATTRIBUTE vec2 texcoord0;
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING float fog_depth;
+
 
 vec4 calcLightingSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor, vec4 baseCol);
 void calcAtmospherics(vec3 inPositionEye);
@@ -56,7 +56,7 @@ void main()
 	vec4 color = calcLightingSpecular(pos, norm, diffuse_color, specular, vec4(0.0));
 			
 	vertex_color = color;
-	fog_depth = pos.z;
+	
 
 }
 

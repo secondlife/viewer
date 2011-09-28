@@ -28,7 +28,7 @@ uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
  
 ATTRIBUTE vec3 position;
-ATTRIBUTE float texture_index;
+void passTextureIndex();
 ATTRIBUTE vec2 texcoord0;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec4 diffuse_color;
@@ -36,16 +36,16 @@ ATTRIBUTE vec4 diffuse_color;
 
 void calcAtmospherics(vec3 inPositionEye);
 
-VARYING float vary_texture_index;
+
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING float fog_depth;
+
 
 void main()
 {
 	//transform vertex
 	vec4 vert = vec4(position.xyz,1.0);
-	vary_texture_index = texture_index;
+	passTextureIndex();
 	vec4 pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
@@ -54,5 +54,5 @@ void main()
 
 	vertex_color = diffuse_color;
 
-	fog_depth = pos.z;
+	
 }

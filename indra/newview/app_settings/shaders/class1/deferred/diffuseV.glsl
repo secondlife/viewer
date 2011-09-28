@@ -28,15 +28,16 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
-ATTRIBUTE float texture_index;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
 
 VARYING vec3 vary_normal;
-VARYING float vary_texture_index;
+
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+
+void passTextureIndex();
 
 void main()
 {
@@ -44,7 +45,7 @@ void main()
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
-	vary_texture_index = texture_index;
+	passTextureIndex();
 	vary_normal = normalize(normal_matrix * normal);
 
 	vertex_color = diffuse_color;

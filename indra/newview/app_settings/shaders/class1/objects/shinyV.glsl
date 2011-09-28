@@ -35,7 +35,7 @@ ATTRIBUTE vec2 texcoord0;
 
 VARYING vec4 vertex_color;
 VARYING vec3 vary_texcoord0;
-VARYING float fog_depth;
+
 
 void calcAtmospherics(vec3 inPositionEye);
 
@@ -57,6 +57,6 @@ void main()
 	
 	vary_texcoord0 = (texture_matrix0*vec4(ref,1.0)).xyz;
 	
-	fog_depth = pos.z;
+	
 }
 

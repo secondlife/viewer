@@ -29,7 +29,7 @@ uniform mat4 modelview_projection_matrix;
 
 
 ATTRIBUTE vec3 position;
-ATTRIBUTE float texture_index;
+void passTextureIndex();
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 
@@ -40,17 +40,17 @@ vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 scaleDownLight(vec3 light);
 vec3 scaleUpLight(vec3 light);
 
-VARYING float vary_texture_index;
+
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING float fog_depth;
+
 
 void main()
 {
 	//transform vertex
 	vec4 vert = vec4(position.xyz, 1.0);
 	vec4 pos = (modelview_matrix * vert);
-	vary_texture_index = texture_index;
+	passTextureIndex();
 
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	
@@ -60,5 +60,5 @@ void main()
 	
 	vertex_color = diffuse_color;
 
-	fog_depth = pos.z;
+	
 }

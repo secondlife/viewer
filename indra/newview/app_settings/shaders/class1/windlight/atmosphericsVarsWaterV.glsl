@@ -1,5 +1,5 @@
 /** 
- * @file atmosphericVars.glsl
+ * @file atmosphericVarsWaterV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,60 +23,17 @@
  * $/LicenseInfo$
  */
  
-
-VARYING vec3 vary_AdditiveColor;
-VARYING float vary_AtmosAttenuation;
-
-vec3 atmos_attenuation;
-vec3 sunlit_color;
-vec3 amblit_color;
-vec3 position_eye;
-
-vec3 getSunlitColor()
-{
-	return sunlit_color;
-}
-vec3 getAmblitColor()
-{
-	return amblit_color;
-}
-
-vec3 getAdditiveColor()
-{
-	return vary_AdditiveColor;
-}
-vec3 getAtmosAttenuation()
-{
-	return atmos_attenuation;
-}
+ 
+VARYING vec3 vary_PositionEye;
+VARYING float fog_depth;
 
 vec3 getPositionEye()
 {
-	return position_eye;
+	return vary_PositionEye;
 }
 
 void setPositionEye(vec3 v)
 {
-	position_eye = v;
-}
-
-void setSunlitColor(vec3 v)
-{
-	sunlit_color  = v;
-}
-
-void setAmblitColor(vec3 v)
-{
-	amblit_color = v;
-}
-
-void setAdditiveColor(vec3 v)
-{
-	vary_AdditiveColor = v;
-}
-
-void setAtmosAttenuation(vec3 v)
-{
-	atmos_attenuation = v;
-	vary_AtmosAttenuation = v.r;
+	vary_PositionEye = v;
+	fog_depth = v.z;
 }
