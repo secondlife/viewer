@@ -126,14 +126,13 @@ void LLToolBar::createContextMenu()
 	{
 		// Setup bindings specific to this instance for the context menu options
 
-		LLUICtrl::CommitCallbackRegistry::Registrar& commit_reg = LLUICtrl::CommitCallbackRegistry::defaultRegistrar();
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit_reg;
 		commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onSettingEnable, this, _2));
 
-		LLUICtrl::EnableCallbackRegistry::Registrar& enable_reg = LLUICtrl::EnableCallbackRegistry::defaultRegistrar();
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_reg;
 		enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isSettingChecked, this, _2));
 
 		// Create the context menu
-
 		LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_toolbars.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 
 		if (menu)
@@ -146,10 +145,6 @@ void LLToolBar::createContextMenu()
 		{
 			llwarns << "Unable to load toolbars context menu." << llendl;
 		}
-
-		// Remove this instance's bindings
-		commit_reg.remove("Toolbars.EnableSetting");
-		enable_reg.remove("Toolbars.CheckSetting");
 	}
 }
 
@@ -184,7 +179,6 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	center_panel_p.rect = getLocalRect();
 	center_panel_p.auto_resize = false;
 	center_panel_p.user_resize = false;
-	center_panel_p.fit_content = true;
 	LLLayoutPanel* center_panel = LLUICtrlFactory::create<LLLayoutPanel>(center_panel_p);
 	mCenteringStack->addChild(center_panel);
 
@@ -195,6 +189,11 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	center_panel->addChild(mButtonPanel);
 	
 	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
+
+	BOOST_FOREACH(LLCommandId::Params params, p.commands)
+	{
+		addCommand(params);
+	}
 
 	mNeedsLayout = true;
 }
@@ -207,8 +206,8 @@ bool LLToolBar::addCommand(const LLCommandId& commandId)
 
 	if (add_command)
 	{
-	mButtonCommands.push_back(commandId);
-	createButtons();
+		mButtonCommands.push_back(commandId);
+		createButton(commandId);
 	}
 
 	return add_command;
@@ -220,9 +219,9 @@ bool LLToolBar::hasCommand(const LLCommandId& commandId) const
 
 	if (commandId != LLCommandId::null)
 	{
-		for (std::list<LLCommandId>::const_iterator cmd = mButtonCommands.begin(); cmd != mButtonCommands.end(); ++cmd)
+		BOOST_FOREACH(LLCommandId cmd, mButtonCommands)
 		{
-			if ((*cmd) == commandId)
+			if (cmd == commandId)
 			{
 				has_command = true;
 				break;
@@ -410,11 +409,11 @@ void LLToolBar::updateLayoutAsNeeded()
 			cur_start = row_pad_start;
 			cur_row += max_row_girth + mPadBetween;
 			max_row_girth = 0;
-	}
+		}
 
-	LLRect button_rect;
-	if (orientation == LLLayoutStack::HORIZONTAL)
-	{
+		LLRect button_rect;
+		if (orientation == LLLayoutStack::HORIZONTAL)
+		{
 			button_rect.setLeftTopAndSize(cur_start, panel_rect.mTop - cur_row, button_clamped_width, button->getRect().getHeight());
 		}
 		else // VERTICAL
@@ -460,6 +459,9 @@ void LLToolBar::updateLayoutAsNeeded()
 		mButtonPanel->reshape(total_girth, max_row_length);
 	}
 
+	// make parent fit button panel
+	mButtonPanel->getParent()->setShape(mButtonPanel->getLocalRect());
+
 	// re-center toolbar buttons
 	mCenteringStack->updateLayout();
 
@@ -470,7 +472,13 @@ void LLToolBar::updateLayoutAsNeeded()
 
 void LLToolBar::draw()
 {
+	if (mButtons.empty()) return;
 	updateLayoutAsNeeded();
+	// rect may have shifted during layout
+	LLUI::popMatrix();
+	LLUI::pushMatrix();
+	LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom, 0.f);
+
 	LLUICtrl::draw();
 }
 
@@ -490,19 +498,25 @@ void LLToolBar::createButtons()
 	
 	BOOST_FOREACH(LLCommandId& command_id, mButtonCommands)
 	{
-		LLCommand* commandp = LLCommandManager::instance().getCommand(command_id);
-		if (!commandp) continue;
-
-		LLToolBarButton::Params button_p;
-		button_p.label = LLTrans::getString(commandp->labelRef());
-		button_p.image_overlay = LLUI::getUIImage(commandp->icon());
-		button_p.overwriteFrom(mButtonParams[mButtonType]);
-		LLToolBarButton* button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
-
-		mButtons.push_back(button);
-		mButtonPanel->addChild(button);
+		createButton(command_id);
 	}
+
+}
+
+void LLToolBar::createButton(const LLCommandId& id)
+{
+	LLCommand* commandp = LLCommandManager::instance().getCommand(id);
+	if (!commandp) return;
+
+	LLToolBarButton::Params button_p;
+	button_p.label = LLTrans::getString(commandp->labelRef());
+	button_p.tool_tip = button_p.label();
+	button_p.image_overlay = LLUI::getUIImage(commandp->icon());
+	button_p.overwriteFrom(mButtonParams[mButtonType]);
+	LLToolBarButton* button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
+
+	mButtons.push_back(button);
+	mButtonPanel->addChild(button);
 
 	mNeedsLayout = true;
 }
-

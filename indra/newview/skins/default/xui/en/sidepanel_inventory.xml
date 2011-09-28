@@ -67,6 +67,8 @@
 										top="0"
 										orientation="vertical"
 										name="inbox_outbox_layout_stack"
+                    open_time_constant="0.02"
+                    close_time_constant="0.02"
 										height="235"
 										width="330">
 								 <layout_panel
