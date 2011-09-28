@@ -1015,6 +1015,7 @@ void LLButton::resize(LLUIString label)
 				min_width += overlay_width + mImgOverlayLabelSpace;
 				break;
 			case LLFontGL::HCENTER:
+				min_width = llmax(min_width, overlay_width + mLeftHPad + mRightHPad);
 				break;
 			default:
 				// draw nothing

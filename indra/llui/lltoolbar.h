@@ -135,6 +135,7 @@ private:
 	void createContextMenu();
 	void updateLayoutAsNeeded();
 	void createButtons();
+	void createButton(const LLCommandId& id);
 	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
 	BOOL isSettingChecked(const LLSD& userdata);
 	void onSettingEnable(const LLSD& userdata);

@@ -207,7 +207,7 @@ bool LLToolBar::addCommand(const LLCommandId& commandId)
 	if (add_command)
 	{
 		mButtonCommands.push_back(commandId);
-		createButtons();
+		createButton(commandId);
 	}
 
 	return add_command;
@@ -498,19 +498,25 @@ void LLToolBar::createButtons()
 	
 	BOOST_FOREACH(LLCommandId& command_id, mButtonCommands)
 	{
-		LLCommand* commandp = LLCommandManager::instance().getCommand(command_id);
-		if (!commandp) continue;
-
-		LLToolBarButton::Params button_p;
-		button_p.label = LLTrans::getString(commandp->labelRef());
-		button_p.image_overlay = LLUI::getUIImage(commandp->icon());
-		button_p.overwriteFrom(mButtonParams[mButtonType]);
-		LLToolBarButton* button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
-
-		mButtons.push_back(button);
-		mButtonPanel->addChild(button);
+		createButton(command_id);
 	}
+
+}
+
+void LLToolBar::createButton(const LLCommandId& id)
+{
+	LLCommand* commandp = LLCommandManager::instance().getCommand(id);
+	if (!commandp) return;
+
+	LLToolBarButton::Params button_p;
+	button_p.label = LLTrans::getString(commandp->labelRef());
+	button_p.tool_tip = button_p.label();
+	button_p.image_overlay = LLUI::getUIImage(commandp->icon());
+	button_p.overwriteFrom(mButtonParams[mButtonType]);
+	LLToolBarButton* button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
+
+	mButtons.push_back(button);
+	mButtonPanel->addChild(button);
 
 	mNeedsLayout = true;
 }
-
