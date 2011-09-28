@@ -77,7 +77,8 @@ protected:
 
 private:
 	// Loads the toolbars from the existing user or default settings
-	bool	load();	// return false if load fails
+	bool	loadToolbars();	// return false if load fails
+	void	saveToolbars() const;
 	bool	addCommand(const LLCommandId& commandId, LLToolBar*	toolbar);
 
 	// Pointers to the toolbars handled by the toolbar view

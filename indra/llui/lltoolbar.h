@@ -123,6 +123,7 @@ public:
 	bool addCommand(const LLCommandId& commandId);
 	bool hasCommand(const LLCommandId& commandId) const;
 	bool enableCommand(const LLCommandId& commandId, bool enabled);
+	command_id_list_t& getCommandsList() { return mButtonCommands; }
 
 protected:
 	friend class LLUICtrlFactory;
@@ -143,7 +144,7 @@ private:
 	const bool						mReadOnly;
 
 	std::list<LLToolBarButton*>		mButtons;
-	std::list<LLCommandId>			mButtonCommands;
+	command_id_list_t				mButtonCommands;
 	LLToolBarEnums::ButtonType		mButtonType;
 	LLLayoutStack*					mCenteringStack;
 	LLLayoutStack*					mWrapStack;
