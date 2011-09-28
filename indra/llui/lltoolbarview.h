@@ -67,7 +67,10 @@ public:
 	virtual void draw();
 
 	// Toolbar view interface with the rest of the world
+	// Checks if the commandId is being used somewhere in one of the toolbars
 	bool hasCommand(const LLCommandId& commandId) const;
+	// Loads the toolbars from the existing user or default settings
+	bool loadToolbars();	// return false if load fails
 	
 protected:
 	friend class LLUICtrlFactory;
@@ -76,10 +79,9 @@ protected:
 	void initFromParams(const Params&);
 
 private:
-	// Loads the toolbars from the existing user or default settings
-	bool	loadToolbars();	// return false if load fails
 	void	saveToolbars() const;
 	bool	addCommand(const LLCommandId& commandId, LLToolBar*	toolbar);
+	void	addToToolset(command_id_list_t& command_list, Toolbar& toolbar) const;
 
 	// Pointers to the toolbars handled by the toolbar view
 	LLToolBar*	mToolbarLeft;
