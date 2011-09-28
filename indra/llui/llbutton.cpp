@@ -819,6 +819,7 @@ void LLButton::draw()
 		{
 		case LLFontGL::LEFT:
 			text_left += overlay_width + mImgOverlayLabelSpace;
+			text_width -= overlay_width + mImgOverlayLabelSpace;
 			mImageOverlay->draw(
 				mLeftHPad,
 				center_y - (overlay_height / 2), 
@@ -836,6 +837,7 @@ void LLButton::draw()
 			break;
 		case LLFontGL::RIGHT:
 			text_right -= overlay_width + mImgOverlayLabelSpace;
+			text_width -= overlay_width + mImgOverlayLabelSpace;
 			mImageOverlay->draw(
 				getRect().getWidth() - mRightHPad - overlay_width,
 				center_y - (overlay_height / 2), 
