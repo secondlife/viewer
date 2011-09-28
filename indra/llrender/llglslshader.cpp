@@ -51,7 +51,7 @@ using std::string;
 
 GLhandleARB LLGLSLShader::sCurBoundShader = 0;
 LLGLSLShader* LLGLSLShader::sCurBoundShaderPtr = NULL;
-S32 LLGLSLShader::sIndexedTextureChannels = NULL;
+S32 LLGLSLShader::sIndexedTextureChannels = 0;
 bool LLGLSLShader::sNoFixedFunction = false;
 
 //UI shader -- declared here so llui_libtest will link properly
