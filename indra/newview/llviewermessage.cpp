@@ -61,6 +61,7 @@
 #include "llfloaterlandholdings.h"
 #include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventoryfunctions.h"
@@ -1192,9 +1193,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 						LLInventoryCategory* parent_folder = gInventory.getCategory(item->getParentUUID());
 						if ("inventory_handler" == from_name)
 						{
-							//we have to filter inventory_handler messages to avoid notification displaying
-							LLSideTray::getInstance()->showPanel("panel_places",
-																 LLSD().with("type", "landmark").with("id", item->getUUID()));
+							LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "landmark").with("id", item->getUUID()));
 						}
 						else if("group_offer" == from_name)
 						{
@@ -1203,7 +1202,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 							LLSD args;
 							args["type"] = "landmark";
 							args["id"] = obj_id;
-							LLSideTray::getInstance()->showPanel("panel_places", args);
+							LLFloaterSidePanelContainer::showPanel("places", args);
 
 							continue;
 						}

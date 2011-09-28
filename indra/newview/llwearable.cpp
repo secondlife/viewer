@@ -30,6 +30,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "lldictionary.h"
+#include "llfloatersidepanelcontainer.h"
 #include "lllocaltextureobject.h"
 #include "llnotificationsutil.h"
 #include "llviewertexturelist.h"
@@ -697,7 +698,7 @@ void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake 
 
 	if(gAgentCamera.cameraCustomizeAvatar())
 	{
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
 	}
 
 	gAgentAvatarp->updateVisualParams();
@@ -967,7 +968,7 @@ void LLWearable::revertValues()
 	syncImages(mSavedTEMap, mTEMap);
 
 
-	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	if( panel )
 	{
 		panel->updateScrollingPanelList();
@@ -1008,7 +1009,7 @@ void LLWearable::saveValues()
 	syncImages(mTEMap, mSavedTEMap);
 
 
-	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	if( panel )
 	{
 		panel->updateScrollingPanelList();

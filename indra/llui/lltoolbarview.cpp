@@ -50,86 +50,6 @@ LLToolBarView::ToolbarSet::ToolbarSet()
 	bottom_toolbar("bottom_toolbar")
 {}
 
-bool LLToolBarView::load()
-{	
-	LLToolBarView::ToolbarSet toolbar_set;
-
-	// Load the default toolbars.xml file
-	// *TODO : pick up the user's toolbar setting if existing
-	std::string toolbar_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "toolbars.xml");
-
-	LLXMLNodePtr root;
-	if(!LLXMLNode::parseFile(toolbar_file, root, NULL))
-	{
-		llerrs << "Unable to load toolbars from file: " << toolbar_file << llendl;
-		return false;
-	}
-	if(!root->hasName("toolbars"))
-	{
-		llwarns << toolbar_file << " is not a valid toolbars definition file" << llendl;
-		return false;
-	}
-
-	// Parse the toolbar settings
-	LLXUIParser parser;
-	parser.readXUI(root, toolbar_set, toolbar_file);
-	if (!toolbar_set.validateBlock())
-	{
-		llerrs << "Unable to validate toolbars from file: " << toolbar_file << llendl;
-		return false;
-	}
-	
-	// Add commands to each toolbar
-	// *TODO: factorize that code : tricky with Blocks though, simple lexical approach fails
-	LLCommandManager& mgr = LLCommandManager::instance();
-
-	if (toolbar_set.left_toolbar.isProvided() && mToolbarLeft)
-	{
-		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.left_toolbar.commands)
-		{
-			LLCommandId* commandId = new LLCommandId(command);
-			if (mgr.getCommand(*commandId))
-			{
-				mToolbarLeft->addCommand(*commandId);
-			}
-			else 
-			{
-				llwarns	<< "Toolbars creation : the command " << commandId->name() << " cannot be found in the command manager" << llendl;
-			}
-		}
-	}
-	if (toolbar_set.right_toolbar.isProvided() && mToolbarRight)
-	{
-		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.right_toolbar.commands)
-		{
-			LLCommandId* commandId = new LLCommandId(command);
-			if (mgr.getCommand(*commandId))
-			{
-				mToolbarRight->addCommand(*commandId);
-			}
-			else 
-			{
-				llwarns	<< "Toolbars creation : the command " << commandId->name() << " cannot be found in the command manager" << llendl;
-			}
-		}
-	}
-	if (toolbar_set.bottom_toolbar.isProvided() && mToolbarBottom)
-	{
-		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.bottom_toolbar.commands)
-		{
-			LLCommandId* commandId = new LLCommandId(command);
-			if (mgr.getCommand(*commandId))
-			{
-				mToolbarBottom->addCommand(*commandId);
-			}
-			else 
-			{
-				llwarns	<< "Toolbars creation : the command " << commandId->name() << " cannot be found in the command manager" << llendl;
-			}
-		}
-	}
-	return true;
-}
 
 LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 :	LLUICtrl(p),
@@ -147,6 +67,7 @@ void LLToolBarView::initFromParams(const LLToolBarView::Params& p)
 
 LLToolBarView::~LLToolBarView()
 {
+	saveToolbars();
 }
 
 BOOL LLToolBarView::postBuild()
@@ -156,7 +77,7 @@ BOOL LLToolBarView::postBuild()
 	mToolbarBottom = getChild<LLToolBar>("toolbar_bottom");
 
 	// Load the toolbars from the settings
-	load();
+	loadToolbars();
 	
 	return TRUE;
 }
@@ -179,6 +100,137 @@ bool LLToolBarView::hasCommand(const LLCommandId& commandId) const
 	return has_command;
 }
 
+bool LLToolBarView::addCommand(const LLCommandId& command, LLToolBar* toolbar)
+{
+	LLCommandManager& mgr = LLCommandManager::instance();
+	if (mgr.getCommand(command))
+	{
+		toolbar->addCommand(command);
+	}
+	else 
+	{
+		llwarns	<< "Toolbars creation : the command " << command.name() << " cannot be found in the command manager" << llendl;
+		return false;
+	}
+	return true;
+}
+
+bool LLToolBarView::loadToolbars()
+{	
+	LLToolBarView::ToolbarSet toolbar_set;
+	
+	// Load the default toolbars.xml file
+	// *TODO : pick up the user's toolbar setting if existing
+	std::string toolbar_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "toolbars.xml");
+	
+	LLXMLNodePtr root;
+	if(!LLXMLNode::parseFile(toolbar_file, root, NULL))
+	{
+		llerrs << "Unable to load toolbars from file: " << toolbar_file << llendl;
+		return false;
+	}
+	if(!root->hasName("toolbars"))
+	{
+		llwarns << toolbar_file << " is not a valid toolbars definition file" << llendl;
+		return false;
+	}
+	
+	// Parse the toolbar settings
+	LLXUIParser parser;
+	parser.readXUI(root, toolbar_set, toolbar_file);
+	if (!toolbar_set.validateBlock())
+	{
+		llerrs << "Unable to validate toolbars from file: " << toolbar_file << llendl;
+		return false;
+	}
+	
+	// Add commands to each toolbar
+	if (toolbar_set.left_toolbar.isProvided() && mToolbarLeft)
+	{
+		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.left_toolbar.commands)
+		{
+			addCommand(LLCommandId(command),mToolbarLeft);
+		}
+	}
+	if (toolbar_set.right_toolbar.isProvided() && mToolbarRight)
+	{
+		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.right_toolbar.commands)
+		{
+			addCommand(LLCommandId(command),mToolbarRight);
+		}
+	}
+	if (toolbar_set.bottom_toolbar.isProvided() && mToolbarBottom)
+	{
+		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.bottom_toolbar.commands)
+		{
+			addCommand(LLCommandId(command),mToolbarBottom);
+		}
+	}
+	return true;
+}
+
+void LLToolBarView::saveToolbars() const
+{
+	// Build the parameter tree from the toolbar data
+	LLToolBarView::ToolbarSet toolbar_set;
+	
+	// *TODO : factorize that code a bit...
+	if (mToolbarLeft)
+	{
+		command_id_list_t& command_list = mToolbarLeft->getCommandsList();
+		for (command_id_list_t::const_iterator it = command_list.begin();
+			 it != command_list.end();
+			 ++it)
+		{
+			LLCommandId::Params command;
+			command.name = it->name();		
+			toolbar_set.left_toolbar.commands.add(command);
+		}
+	}
+	if (mToolbarRight)
+	{
+		command_id_list_t& command_list = mToolbarRight->getCommandsList();
+		for (command_id_list_t::const_iterator it = command_list.begin();
+			 it != command_list.end();
+			 ++it)
+		{
+			LLCommandId::Params command;
+			command.name = it->name();		
+			toolbar_set.right_toolbar.commands.add(command);
+		}
+	}
+	if (mToolbarBottom)
+	{
+		command_id_list_t& command_list = mToolbarBottom->getCommandsList();
+		for (command_id_list_t::const_iterator it = command_list.begin();
+			 it != command_list.end();
+			 ++it)
+		{
+			LLCommandId::Params command;
+			command.name = it->name();		
+			toolbar_set.bottom_toolbar.commands.add(command);
+		}
+	}
+	
+	// Serialize the parameter tree
+	LLXMLNodePtr output_node = new LLXMLNode("toolbars", false);
+	LLXUIParser parser;
+	parser.writeXUI(output_node, toolbar_set);
+	
+	// Write the resulting XML to file
+	if(!output_node->isNull())
+	{
+		const std::string& filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "toolbars.xml");
+		LLFILE *fp = LLFile::fopen(filename, "w");
+		if (fp != NULL)
+		{
+			LLXMLNode::writeHeaderToFile(fp);
+			output_node->writeToFile(fp);
+			fclose(fp);
+		}
+	}
+}
+
 void LLToolBarView::draw()
 {
 	static bool debug_print = true;
@@ -189,10 +241,21 @@ void LLToolBarView::draw()
 	
 	LLRect bottom_rect, left_rect, right_rect;
 
-	if (mToolbarBottom) mToolbarBottom->localRectToOtherView(mToolbarBottom->getLocalRect(), &bottom_rect, this);
-	if (mToolbarLeft)   mToolbarLeft->localRectToOtherView(mToolbarLeft->getLocalRect(), &left_rect, this);
-	if (mToolbarRight)  mToolbarRight->localRectToOtherView(mToolbarRight->getLocalRect(), &right_rect, this);
-	
+	if (mToolbarBottom) 
+	{
+		mToolbarBottom->getParent()->reshape(mToolbarBottom->getParent()->getRect().getWidth(), mToolbarBottom->getRect().getHeight());
+		mToolbarBottom->localRectToOtherView(mToolbarBottom->getLocalRect(), &bottom_rect, this);
+	}
+	if (mToolbarLeft)   
+	{
+		mToolbarLeft->getParent()->reshape(mToolbarLeft->getRect().getWidth(), mToolbarLeft->getParent()->getRect().getHeight());
+		mToolbarLeft->localRectToOtherView(mToolbarLeft->getLocalRect(), &left_rect, this);
+	}
+	if (mToolbarRight)  
+	{
+		mToolbarRight->getParent()->reshape(mToolbarRight->getRect().getWidth(), mToolbarRight->getParent()->getRect().getHeight());
+		mToolbarRight->localRectToOtherView(mToolbarRight->getLocalRect(), &right_rect, this);
+	}
 	
 	if ((old_width != getRect().getWidth()) || (old_height != getRect().getHeight()))
 		debug_print = true;
@@ -215,9 +278,9 @@ void LLToolBarView::draw()
 	back_color_hori[VALPHA] = 0.5f;
 	back_color_vert[VALPHA] = 0.5f;
 	//gl_rect_2d(getLocalRect(), back_color, TRUE);
-	gl_rect_2d(bottom_rect, back_color_hori, TRUE);
-	gl_rect_2d(left_rect, back_color_vert, TRUE);
-	gl_rect_2d(right_rect, back_color_vert, TRUE);
+	//gl_rect_2d(bottom_rect, back_color_hori, TRUE);
+	//gl_rect_2d(left_rect, back_color_vert, TRUE);
+	//gl_rect_2d(right_rect, back_color_vert, TRUE);
 	
 	LLUICtrl::draw();
 }

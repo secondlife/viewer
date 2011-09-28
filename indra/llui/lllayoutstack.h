@@ -126,8 +126,6 @@ protected:
 private:
 	void createResizeBars();
 	void calcMinExtents();
-	S32 getDefaultHeight(S32 cur_height);
-	S32 getDefaultWidth(S32 cur_width);
 
 	const ELayoutOrientation mOrientation;
 
@@ -161,16 +159,14 @@ public:
 								min_dim,
 								max_dim;
 		Optional<bool>			user_resize,
-								auto_resize,
-								fit_content;
+								auto_resize;
 
 		Params()
 		:	expanded_min_dim("expanded_min_dim", 0),
 			min_dim("min_dim", 0),
 			max_dim("max_dim", 0),
 			user_resize("user_resize", true),
-			auto_resize("auto_resize", true),
-			fit_content("fit_content", false)
+			auto_resize("auto_resize", true)
 		{
 			addSynonym(min_dim, "min_width");
 			addSynonym(min_dim, "min_height");
@@ -182,6 +178,8 @@ public:
 	~LLLayoutPanel();
 
 	void initFromParams(const Params& p);
+
+	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	S32 getMinDim() const { return mMinDim; }
 	void setMinDim(S32 value) { mMinDim = value; if (!mExpandedMinDimSpecified) mExpandedMinDim = value; }
@@ -204,11 +202,12 @@ public:
 		return min_dim;
 	}
 
+	void setOrientation(LLLayoutStack::ELayoutOrientation orientation) { mOrientation = orientation; }
+
 protected:
 	LLLayoutPanel(const Params& p);
 	
-	F32 getCollapseFactor(LLLayoutStack::ELayoutOrientation orientation);
-	void fitToContent();
+	F32 getCollapseFactor();
 
 	bool	mExpandedMinDimSpecified;
 	S32		mExpandedMinDim;
@@ -218,9 +217,10 @@ protected:
 	bool	mAutoResize;
 	bool	mUserResize;
 	bool	mCollapsed;
-	bool	mFitContent;
 	F32		mVisibleAmt;
 	F32		mCollapseAmt;
+	F32		mFractionalSize;
+	LLLayoutStack::ELayoutOrientation mOrientation;
 	class LLResizeBar* mResizeBar;
 };
 

@@ -81,6 +81,8 @@ private:
 	std::string mName;
 };
 
+typedef std::list<LLCommandId> command_id_list_t;
+
 class LLCommand
 {
 public:

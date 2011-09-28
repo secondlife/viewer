@@ -32,6 +32,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
 #include "llinventorypanel.h"
 #include "llfiltereditor.h"
@@ -456,7 +457,7 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 //static
 void LLSidepanelAppearance::editWearable(LLWearable *wearable, LLView *data, BOOL disable_camera_switch)
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance");
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD());
 
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(data);
 	if (panel)

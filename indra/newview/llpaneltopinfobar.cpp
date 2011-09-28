@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "llclipboard.h"
+#include "llfloatersidepanelcontainer.h"
 #include "lllandmarkactions.h"
 #include "lllocationinputctrl.h"
 #include "llnotificationsutil.h"
@@ -436,12 +437,11 @@ void LLPanelTopInfoBar::onContextMenuItemClicked(const LLSD::String& item)
 
 		if(landmark == NULL)
 		{
-			LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
+			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
 		}
 		else
 		{
-			LLSideTray::getInstance()->showPanel("panel_places",
-					LLSD().with("type", "landmark").with("id",landmark->getUUID()));
+			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "landmark").with("id",landmark->getUUID()));
 		}
 	}
 	else if (item == "copy")
@@ -456,5 +456,5 @@ void LLPanelTopInfoBar::onContextMenuItemClicked(const LLSD::String& item)
 
 void LLPanelTopInfoBar::onInfoButtonClicked()
 {
-	LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "agent"));
+	LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "agent"));
 }

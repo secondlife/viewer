@@ -39,6 +39,7 @@
 #include "llfiltereditor.h"
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llmenubutton.h"
 #include "llnotificationsutil.h"
 #include "lltabcontainer.h"
@@ -115,7 +116,7 @@ public:
 				LLSD key;
 				key["type"] = "remote_place";
 				key["id"] = parcel_id;
-				LLSideTray::getInstance()->showPanel("panel_places", key);
+				LLFloaterSidePanelContainer::showPanel("places", key);
 				return true;
 			}
 		}
@@ -151,18 +152,16 @@ class LLPlacesInventoryObserver : public LLInventoryAddedObserver
 {
 public:
 	LLPlacesInventoryObserver(LLPanelPlaces* places_panel) :
-		mPlaces(places_panel),
-		mTabsCreated(false)
+		mPlaces(places_panel)
 	{}
 
 	/*virtual*/ void changed(U32 mask)
 	{
 		LLInventoryAddedObserver::changed(mask);
 
-		if (!mTabsCreated && mPlaces)
+		if (mPlaces && !mPlaces->tabsCreated())
 		{
 			mPlaces->createTabs();
-			mTabsCreated = true;
 		}
 	}
 
@@ -175,7 +174,6 @@ protected:
 
 private:
 	LLPanelPlaces*		mPlaces;
-	bool				mTabsCreated;
 };
 
 class LLPlacesRemoteParcelInfoObserver : public LLRemoteParcelInfoObserver
@@ -244,7 +242,8 @@ LLPanelPlaces::LLPanelPlaces()
 		mPlaceMenu(NULL),
 		mLandmarkMenu(NULL),
 		mPosGlobal(),
-		isLandmarkEditModeOn(false)
+		isLandmarkEditModeOn(false),
+		mTabsCreated(false)
 {
 	mParcelObserver = new LLPlacesParcelObserver(this);
 	mInventoryObserver = new LLPlacesInventoryObserver(this);
@@ -252,7 +251,7 @@ LLPanelPlaces::LLPanelPlaces()
 
 	gInventory.addObserver(mInventoryObserver);
 
-	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
+	mAgentParcelChangedConnection = LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
 			boost::bind(&LLPanelPlaces::updateVerbs, this));
 
 	//buildFromFile( "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
@@ -268,6 +267,11 @@ LLPanelPlaces::~LLPanelPlaces()
 	delete mInventoryObserver;
 	delete mParcelObserver;
 	delete mRemoteParcelObserver;
+
+	if (mAgentParcelChangedConnection.connected())
+	{
+		mAgentParcelChangedConnection.disconnect();
+	}
 }
 
 BOOL LLPanelPlaces::postBuild()
@@ -348,6 +352,9 @@ BOOL LLPanelPlaces::postBuild()
 
 	LLComboBox* folder_combo = mLandmarkInfo->getChild<LLComboBox>("folder_combo");
 	folder_combo->setCommitCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
+
+	createTabs();
+	updateVerbs();
 
 	return TRUE;
 }
@@ -1025,7 +1032,7 @@ void LLPanelPlaces::changedParcelSelection()
 
 void LLPanelPlaces::createTabs()
 {
-	if (!(gInventory.isInventoryUsable() && LLTeleportHistory::getInstance()))
+	if (!(gInventory.isInventoryUsable() && LLTeleportHistory::getInstance() && !mTabsCreated))
 		return;
 
 	LLLandmarksPanel* landmarks_panel = new LLLandmarksPanel();
@@ -1059,6 +1066,8 @@ void LLPanelPlaces::createTabs()
 	// Filter applied to show all items.
 	if (mActivePanel)
 		mActivePanel->onSearchEdit(mActivePanel->getFilterSubString());
+
+	mTabsCreated = true;
 }
 
 void LLPanelPlaces::changedGlobalPos(const LLVector3d &global_pos)
