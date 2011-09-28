@@ -41,6 +41,7 @@
 
 #include "llfloaterreg.h"//for LLFloaterReg::getTypedInstance
 #include "llviewerwindow.h"//for screen channel position
+#include "llnearbychatbar.h"
 
 //add LLNearbyChatHandler to LLNotificationsUI namespace
 using namespace LLNotificationsUI;
@@ -473,8 +474,9 @@ LLNearbyChatHandler::~LLNearbyChatHandler()
 
 void LLNearbyChatHandler::initChannel()
 {
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
-	LLView* chat_box = LLBottomTray::getInstance()->getChildView("chat_box");
+	LLNearbyChatBar* chat_bar = LLFloaterReg::getTypedInstance<LLNearbyChatBar>("chat_bar", LLSD());
+	LLView* chat_box = chat_bar->getChatBox();
+	LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 	S32 channel_right_bound = nearby_chat->getRect().mRight;
 	mChannel->init(chat_box->getRect().mLeft, channel_right_bound);
 }
@@ -502,7 +504,10 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,		// WARNING - not 
 			tmp_chat.mText = tmp_chat.mText.substr(3);
 	}
 
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
+
+	LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
+
 	{
 		//sometimes its usefull to have no name at all...
 		//if(tmp_chat.mFromName.empty() && tmp_chat.mFromID!= LLUUID::null)

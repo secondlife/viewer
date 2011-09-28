@@ -108,8 +108,6 @@ public:
 
 	virtual void draw();
 
-	virtual void onClose(bool app_quitting);
-
 	std::string getCurrentChat();
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
 
@@ -128,6 +126,8 @@ protected:
 	void sendChat( EChatType type );
 	void onChatBoxCommit();
 	void onChatFontChange(LLFontGL* fontp);
+
+	void onToggleNearbyChatPanel();
 
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 	EChatType processChatTypeTriggers(EChatType type, std::string &str);

@@ -2189,7 +2189,7 @@ void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::string m
 	// Treat like a system message and put in chat history.
 	chat.mText = av_name.getCompleteName() + ": " + message;
 
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 	if(nearby_chat)
 	{
 		nearby_chat->addMessage(chat);
@@ -2751,7 +2751,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
 			// IMs from obejcts don't open IM sessions.
-			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 			if(SYSTEM_FROM != name && nearby_chat)
 			{
 				chat.mOwnerID = from_id;

@@ -49,6 +49,8 @@
 #include "llrootview.h"
 #include "llviewerchat.h"
 
+#include "llresizehandle.h"
+
 S32 LLNearbyChatBar::sLastSpecialChatChannel = 0;
 
 // legacy callback glue
@@ -414,8 +416,7 @@ LLCtrlListInterface* LLGestureComboList::getListInterface()
 LLNearbyChatBar::LLNearbyChatBar(const LLSD& key)
 	: LLFloater(key),
 	mChatBox(NULL)
-{
-	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
+{	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
 
 //virtual
@@ -436,6 +437,10 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setReplaceNewlinesWithSpaces(FALSE);
 	mChatBox->setEnableLineHistory(TRUE);
 	mChatBox->setFont(LLViewerChat::getChatFont());
+
+
+	LLUICtrl* show_btn = getChild<LLUICtrl>("show_nearby_chat");
+	show_btn->setCommitCallback(boost::bind(&LLNearbyChatBar::onToggleNearbyChatPanel, this));
 
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 	mOutputMonitor->setVisible(FALSE);
@@ -678,6 +683,25 @@ void LLNearbyChatBar::sendChat( EChatType type )
 	}
 }
 
+
+void LLNearbyChatBar::onToggleNearbyChatPanel()
+{
+	LLView* nearby_chat = getChildView("nearby_chat");
+
+	if (nearby_chat->getVisible())
+	{
+		nearby_chat->setVisible(FALSE);
+		reshape(getRect().getWidth(), 60);
+		mResizeHandle[0]->setMaxHeight(60);
+	}
+	else
+	{
+		nearby_chat->setVisible(TRUE);
+		reshape(getRect().getWidth(), 360);
+		mResizeHandle[0]->setMaxHeight(S32_MAX);
+	}
+}
+
 void LLNearbyChatBar::onChatBoxCommit()
 {
 	if (mChatBox->getText().length() > 0)
@@ -781,6 +805,7 @@ void LLNearbyChatBar::startChat(const char* line)
 		return;
 
 	cb->setVisible(TRUE);
+	cb->setFocus(TRUE);
 	cb->mChatBox->setFocus(TRUE);
 
 	if (line)
@@ -810,15 +835,6 @@ void LLNearbyChatBar::stopChat()
 
  	// stop typing animation
  	gAgent.stopTyping();
-}
-
-void LLNearbyChatBar::onClose(bool app_quitting)
-{
-	LLFloater* nearby_chat = LLFloaterReg::findInstance("nearby_chat", LLSD());
-	if (nearby_chat)
-	{
-		nearby_chat->closeFloater(app_quitting);
-	}
 }
 
 // If input of the form "/20foo" or "/20 foo", returns "foo" and channel 20.
