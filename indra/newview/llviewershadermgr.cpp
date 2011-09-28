@@ -32,6 +32,7 @@
 
 #include "llfile.h"
 #include "llviewerwindow.h"
+#include "llwindow.h"
 #include "llviewercontrol.h"
 #include "pipeline.h"
 #include "llworld.h"
@@ -491,6 +492,9 @@ void LLViewerShaderMgr::setShaders()
 	if (gViewerWindow)
 	{
 		gViewerWindow->setCursor(UI_CURSOR_WAIT);
+		//VICIOUS HACK -- some drivers will time out if we don't redraw the window within 2 seconds, and this operation can take awhile
+		//minimizing tells the driver we won't be updating the window for a bit
+		gViewerWindow->getWindow()->minimize();
 	}
 
 	// Lighting
@@ -684,6 +688,7 @@ void LLViewerShaderMgr::setShaders()
 	if (gViewerWindow)
 	{
 		gViewerWindow->setCursor(UI_CURSOR_ARROW);
+		gViewerWindow->getWindow()->restore();
 	}
 	gPipeline.createGLBuffers();
 
