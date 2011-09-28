@@ -3309,7 +3309,7 @@ void LLModelPreview::rebuildUploadData()
 	F32 max_scale = 0.f;
 
 	//reorder materials to match mBaseModel
-	for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+	for (U32 i = 0; i < LLModel::NUM_LODS-1; i++)
 	{
 		if (mBaseModel.size() == mModel[i].size())
 		{
@@ -5085,7 +5085,7 @@ BOOL LLModelPreview::render()
 		}
 
 		//make sure material lists all match
-		for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+		for (U32 i = 0; i < LLModel::NUM_LODS-1; i++)
 		{
 			if (mBaseModel.size() == mModel[i].size())
 			{
