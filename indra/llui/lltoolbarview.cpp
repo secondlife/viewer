@@ -80,52 +80,25 @@ bool LLToolBarView::load()
 	}
 	
 	// Add commands to each toolbar
-	// *TODO: factorize that code : tricky with Blocks though, simple lexical approach fails
-	LLCommandManager& mgr = LLCommandManager::instance();
-
 	if (toolbar_set.left_toolbar.isProvided() && mToolbarLeft)
 	{
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.left_toolbar.commands)
 		{
-			LLCommandId* commandId = new LLCommandId(command);
-			if (mgr.getCommand(*commandId))
-			{
-				mToolbarLeft->addCommand(*commandId);
-			}
-			else 
-			{
-				llwarns	<< "Toolbars creation : the command " << commandId->name() << " cannot be found in the command manager" << llendl;
-			}
+			addCommand(LLCommandId(command),mToolbarLeft);
 		}
 	}
 	if (toolbar_set.right_toolbar.isProvided() && mToolbarRight)
 	{
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.right_toolbar.commands)
 		{
-			LLCommandId* commandId = new LLCommandId(command);
-			if (mgr.getCommand(*commandId))
-			{
-				mToolbarRight->addCommand(*commandId);
-			}
-			else 
-			{
-				llwarns	<< "Toolbars creation : the command " << commandId->name() << " cannot be found in the command manager" << llendl;
-			}
+			addCommand(LLCommandId(command),mToolbarRight);
 		}
 	}
 	if (toolbar_set.bottom_toolbar.isProvided() && mToolbarBottom)
 	{
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.bottom_toolbar.commands)
 		{
-			LLCommandId* commandId = new LLCommandId(command);
-			if (mgr.getCommand(*commandId))
-			{
-				mToolbarBottom->addCommand(*commandId);
-			}
-			else 
-			{
-				llwarns	<< "Toolbars creation : the command " << commandId->name() << " cannot be found in the command manager" << llendl;
-			}
+			addCommand(LLCommandId(command),mToolbarBottom);
 		}
 	}
 	return true;
@@ -177,6 +150,21 @@ bool LLToolBarView::hasCommand(const LLCommandId& commandId) const
 		has_command = mToolbarBottom->hasCommand(commandId);
 	}
 	return has_command;
+}
+
+bool LLToolBarView::addCommand(const LLCommandId& command, LLToolBar* toolbar)
+{
+	LLCommandManager& mgr = LLCommandManager::instance();
+	if (mgr.getCommand(command))
+	{
+		toolbar->addCommand(command);
+	}
+	else 
+	{
+		llwarns	<< "Toolbars creation : the command " << command.name() << " cannot be found in the command manager" << llendl;
+		return false;
+	}
+	return true;
 }
 
 void LLToolBarView::draw()
