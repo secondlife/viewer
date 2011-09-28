@@ -193,7 +193,6 @@ void LLToolBarView::draw()
 	if (mToolbarLeft)   mToolbarLeft->localRectToOtherView(mToolbarLeft->getLocalRect(), &left_rect, this);
 	if (mToolbarRight)  mToolbarRight->localRectToOtherView(mToolbarRight->getLocalRect(), &right_rect, this);
 	
-	
 	if ((old_width != getRect().getWidth()) || (old_height != getRect().getHeight()))
 		debug_print = true;
 	if (debug_print)
@@ -215,9 +214,9 @@ void LLToolBarView::draw()
 	back_color_hori[VALPHA] = 0.5f;
 	back_color_vert[VALPHA] = 0.5f;
 	//gl_rect_2d(getLocalRect(), back_color, TRUE);
-	gl_rect_2d(bottom_rect, back_color_hori, TRUE);
-	gl_rect_2d(left_rect, back_color_vert, TRUE);
-	gl_rect_2d(right_rect, back_color_vert, TRUE);
+	//gl_rect_2d(bottom_rect, back_color_hori, TRUE);
+	//gl_rect_2d(left_rect, back_color_vert, TRUE);
+	//gl_rect_2d(right_rect, back_color_vert, TRUE);
 	
 	LLUICtrl::draw();
 }
