@@ -498,13 +498,13 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		{
 			(*panel_it)->mResizeBar->setResizeLimits(
 				relevant_min, 
-				relevant_min + shrink_headroom_total);
+				relevant_min + llround(shrink_headroom_total));
 		}
 		else //VERTICAL
 		{
 			(*panel_it)->mResizeBar->setResizeLimits(
 				relevant_min, 
-				relevant_min + shrink_headroom_total);
+				relevant_min + llround(shrink_headroom_total));
 		}
 
 		// toggle resize bars based on panel visibility, resizability, etc
