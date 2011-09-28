@@ -53,7 +53,7 @@ LLCommand::Params::Params()
 	, icon("icon")
 	, label_ref("label_ref")
 	, name("name")
-	, param("param")
+	, parameter("parameter")
 	, tooltip_ref("tooltip_ref")
 {
 }
@@ -64,7 +64,7 @@ LLCommand::LLCommand(const LLCommand::Params& p)
 	, mIcon(p.icon)
 	, mIdentifier(p.name)
 	, mLabelRef(p.label_ref)
-	, mParam(p.param)
+	, mParameter(p.parameter)
 	, mTooltipRef(p.tooltip_ref)
 {
 }

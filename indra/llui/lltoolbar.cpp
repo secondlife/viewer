@@ -500,7 +500,6 @@ void LLToolBar::createButtons()
 	{
 		createButton(command_id);
 	}
-
 }
 
 void LLToolBar::createButton(const LLCommandId& id)
@@ -509,11 +508,20 @@ void LLToolBar::createButton(const LLCommandId& id)
 	if (!commandp) return;
 
 	LLToolBarButton::Params button_p;
+	button_p.name = id.name();
 	button_p.label = LLTrans::getString(commandp->labelRef());
 	button_p.tool_tip = button_p.label();
 	button_p.image_overlay = LLUI::getUIImage(commandp->icon());
 	button_p.overwriteFrom(mButtonParams[mButtonType]);
 	LLToolBarButton* button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
+
+	if (!mReadOnly)
+	{
+		LLUICtrl::CommitCallbackParam cbParam;
+		cbParam.function_name = commandp->functionName();
+		cbParam.parameter = commandp->parameter();
+		button->setCommitCallback(cbParam);
+	}
 
 	mButtons.push_back(button);
 	mButtonPanel->addChild(button);

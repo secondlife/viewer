@@ -93,7 +93,7 @@ public:
 		Mandatory<std::string>	icon;
 		Mandatory<std::string>	label_ref;
 		Mandatory<std::string>	name;
-		Optional<std::string>	param;
+		Optional<LLSD>			parameter;
 		Mandatory<std::string>	tooltip_ref;
 
 		Params();
@@ -106,7 +106,7 @@ public:
 	const std::string& icon() const { return mIcon; }
 	const LLCommandId& id() const { return mIdentifier; }
 	const std::string& labelRef() const { return mLabelRef; }
-	const std::string& param() const { return mParam; }
+	const LLSD& parameter() const { return mParameter; }
 	const std::string& tooltipRef() const { return mTooltipRef; }
 
 private:
@@ -116,7 +116,7 @@ private:
 	std::string mFunction;
 	std::string mIcon;
 	std::string mLabelRef;
-	std::string mParam;
+	LLSD        mParameter;
 	std::string mTooltipRef;
 };
 

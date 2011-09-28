@@ -59,7 +59,9 @@
     read_only="true"
     right="-20"
     side="top"
-    top="85" />
+    top="85">
+    <button_panel background_visible="false" />
+  </toolbar>
   <panel
     bevel_style="none"
     border="true"

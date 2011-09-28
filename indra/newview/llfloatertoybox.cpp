@@ -67,9 +67,6 @@ BOOL LLFloaterToybox::postBuild()
 		if (command->availableInToybox())
 		{
 			mToolBar->addCommand(command->id());
-
-			llassert(gToolBarView != NULL);
-			mToolBar->enableCommand(command->id(), !gToolBarView->hasCommand(command->id()));
 		}
 	}
 
@@ -93,17 +90,29 @@ void LLFloaterToybox::onClose(bool app_quitting)
 
 void LLFloaterToybox::draw()
 {
+	llassert(gToolBarView != NULL);
+
+	LLCommandManager& cmdMgr = LLCommandManager::instance();
+
+	for (U32 i = 0; i < cmdMgr.commandCount(); i++)
+	{
+		LLCommand * command = cmdMgr.getCommand(i);
+
+		if (command->availableInToybox())
+		{
+			mToolBar->enableCommand(command->id(), !gToolBarView->hasCommand(command->id()));
+		}
+	}
+
 	LLFloater::draw();
 }
 
 void LLFloaterToybox::onFocusReceived()
 {
-
 }
 
 void LLFloaterToybox::onBtnRestoreDefaults()
 {
-
 }
 
 

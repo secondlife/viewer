@@ -6,7 +6,7 @@
            label_ref="Command_Avatar_Label"
            tooltip_ref="Command_Avatar_Tooltip"
            function="Floater.ToolbarToggle"
-           param="avatar"
+           parameter="avatar"
            />
   <command name="build"
            available_in_toybox="true"
@@ -14,7 +14,7 @@
            label_ref="Command_Build_Label"
            tooltip_ref="Command_Build_Tooltip"
            function="Floater.ToolbarToggle"
-           param="build"
+           parameter="build"
            />
   <command name="chat"
            available_in_toybox="true"
@@ -22,7 +22,7 @@
            label_ref="Command_Chat_Label"
            tooltip_ref="Command_Chat_Tooltip"
            function="Floater.ToolbarToggle"
-           param="chat"
+           parameter="chat"
            />
   <command name="compass"
            available_in_toybox="false"
@@ -30,7 +30,7 @@
            label_ref="Command_Compass_Label"
            tooltip_ref="Command_Compass_Tooltip"
            function="Floater.ToolbarToggle"
-           param="compass"
+           parameter="compass"
            />
   <command name="gestures"
            available_in_toybox="true"
@@ -38,7 +38,7 @@
            label_ref="Command_Gestures_Label"
            tooltip_ref="Command_Gestures_Tooltip"
            function="Floater.ToolbarToggle"
-           param="gestures"
+           parameter="gestures"
            />
   <command name="howto"
            available_in_toybox="true"
@@ -46,7 +46,7 @@
            label_ref="Command_HowTo_Label"
            tooltip_ref="Command_HowTo_Tooltip"
            function="Floater.ToolbarToggle"
-           param="howto"
+           parameter="howto"
            />
   <command name="landmarks"
            available_in_toybox="true"
@@ -54,7 +54,7 @@
            label_ref="Command_Landmarks_Label"
            tooltip_ref="Command_Landmarks_Tooltip"
            function="Floater.ToolbarToggle"
-           param="landmarks"
+           parameter="landmarks"
            />
   <command name="map"
            available_in_toybox="true"
@@ -62,7 +62,7 @@
            label_ref="Command_Map_Label"
            tooltip_ref="Command_Map_Tooltip"
            function="Floater.ToolbarToggle"
-           param="map"
+           parameter="map"
            />
   <command name="minimap"
            available_in_toybox="true"
@@ -70,7 +70,7 @@
            label_ref="Command_MiniMap_Label"
            tooltip_ref="Command_MiniMap_Tooltip"
            function="Floater.ToolbarToggle"
-           param="minimap"
+           parameter="minimap"
            />
   <command name="move"
            available_in_toybox="true"
@@ -78,7 +78,7 @@
            label_ref="Command_Move_Label"
            tooltip_ref="Command_Move_Tooltip"
            function="Floater.ToolbarToggle"
-           param="move"
+           parameter="move"
            />
   <command name="myland"
            available_in_toybox="true"
@@ -86,7 +86,7 @@
            label_ref="Command_MyLand_Label"
            tooltip_ref="Command_MyLand_Tooltip"
            function="Floater.ToolbarToggle"
-           param="myland"
+           parameter="myland"
            />
   <command name="mystuff"
            available_in_toybox="true"
@@ -94,7 +94,7 @@
            label_ref="Command_MyStuff_Label"
            tooltip_ref="Command_MyStuff_Tooltip"
            function="Floater.ToolbarToggle"
-           param="mystuff"
+           parameter="mystuff"
            />
   <command name="people"
            available_in_toybox="true"
@@ -102,7 +102,7 @@
            label_ref="Command_People_Label"
            tooltip_ref="Command_People_Tooltip"
            function="Floater.ToolbarToggle"
-           param="people"
+           parameter="people"
            />
   <command name="places"
            available_in_toybox="true"
@@ -110,7 +110,7 @@
            label_ref="Command_Places_Label"
            tooltip_ref="Command_Places_Tooltip"
            function="Floater.ToolbarToggle"
-           param="places"
+           parameter="places"
            />
   <command name="search"
            available_in_toybox="true"
@@ -118,7 +118,7 @@
            label_ref="Command_Search_Label"
            tooltip_ref="Command_Search_Tooltip"
            function="Floater.ToolbarToggle"
-           param="search"
+           parameter="search"
            />
   <command name="settings"
            available_in_toybox="true"
@@ -126,7 +126,7 @@
            label_ref="Command_Settings_Label"
            tooltip_ref="Command_Settings_Tooltip"
            function="Floater.ToolbarToggle"
-           param="settings"
+           parameter="settings"
            />
   <command name="shop"
            available_in_toybox="true"
@@ -134,7 +134,7 @@
            label_ref="Command_Shop_Label"
            tooltip_ref="Command_Shop_Tooltip"
            function="Floater.ToolbarToggle"
-           param="shop"
+           parameter="shop"
            />
   <command name="snapshot"
            available_in_toybox="true"
@@ -142,7 +142,7 @@
            label_ref="Command_Snapshot_Label"
            tooltip_ref="Command_Snapshot_Tooltip"
            function="Floater.ToolbarToggle"
-           param="snapshot"
+           parameter="snapshot"
            />
   <command name="speak"
            available_in_toybox="true"
@@ -150,7 +150,7 @@
            label_ref="Command_Speak_Label"
            tooltip_ref="Command_Speak_Tooltip"
            function="Floater.ToolbarToggle"
-           param="speak"
+           parameter="speak"
            />
   <command name="upload"
            available_in_toybox="true"
@@ -158,7 +158,7 @@
            label_ref="Command_Upload_Label"
            tooltip_ref="Command_Upload_Tooltip"
            function="Floater.ToolbarToggle"
-           param="upload"
+           parameter="upload"
            />
   <command name="view"
            available_in_toybox="true"
@@ -166,6 +166,6 @@
            label_ref="Command_View_Label"
            tooltip_ref="Command_View_Tooltip"
            function="Floater.ToolbarToggle"
-           param="view"
+           parameter="view"
            />
 </commands>
