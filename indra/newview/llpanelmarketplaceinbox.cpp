@@ -98,6 +98,7 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 	
 	// Set the sort order newest to oldest
 	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);	
+	mInventoryPanel->getFilter()->markDefault();
 
 	// Set selection callback for proper update of inventory status buttons
 	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
@@ -119,7 +120,7 @@ void LLPanelMarketplaceInbox::onFocusReceived()
 		sidepanel_inventory->clearSelections(true, false, true);
 	}
 
-	gSavedPerAccountSettings.setString("LastInventoryInboxActivity", LLDate::now().asString());
+	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
 BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg)

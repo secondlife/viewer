@@ -527,11 +527,11 @@ LLPanelPeople::~LLPanelPeople()
 		LLVoiceClient::getInstance()->removeObserver(this);
 	}
 
-	LLView::deleteViewByHandle(mGroupPlusMenuHandle);
-	LLView::deleteViewByHandle(mNearbyViewSortMenuHandle);
-	LLView::deleteViewByHandle(mFriendsViewSortMenuHandle);
-	LLView::deleteViewByHandle(mGroupsViewSortMenuHandle);
-	LLView::deleteViewByHandle(mRecentViewSortMenuHandle);
+	delete mGroupPlusMenuHandle.get();
+	delete mNearbyViewSortMenuHandle.get();
+	delete mFriendsViewSortMenuHandle.get();
+	delete mGroupsViewSortMenuHandle.get();
+	delete mRecentViewSortMenuHandle.get();
 
 }
 

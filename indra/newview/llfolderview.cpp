@@ -299,7 +299,7 @@ LLFolderView::~LLFolderView( void )
 	mAutoOpenItems.removeAllNodes();
 	gIdleCallbacks.deleteFunction(idle, this);
 
-	LLView::deleteViewByHandle(mPopupMenuHandle);
+	delete mPopupMenuHandle.get();
 
 	mAutoOpenItems.removeAllNodes();
 	clearSelection();
@@ -1723,7 +1723,7 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 	}
 
 	BOOL handled = FALSE;
-	if (gFocusMgr.childHasKeyboardFocus(getRoot()))
+	if (mParentPanel->hasFocus())
 	{
 		// SL-51858: Key presses are not being passed to the Popup menu.
 		// A proper fix is non-trivial so instead just close the menu.
@@ -1969,7 +1969,7 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 void LLFolderView::deleteAllChildren()
 {
 	closeRenamer();
-	LLView::deleteViewByHandle(mPopupMenuHandle);
+	delete mPopupMenuHandle.get();
 	mPopupMenuHandle = LLHandle<LLView>();
 	mScrollContainer = NULL;
 	mRenameItem = NULL;

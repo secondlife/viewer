@@ -1298,29 +1298,12 @@ bool highlight_offered_object(const LLUUID& obj_id)
 
 void inventory_offer_mute_callback(const LLUUID& blocked_id,
 								   const std::string& full_name,
-								   bool is_group,
-								   boost::shared_ptr<LLNotificationResponderInterface> offer_ptr)
+								   bool is_group)
 {
-	LLOfferInfo* offer =  dynamic_cast<LLOfferInfo*>(offer_ptr.get());
-	
-	std::string from_name = full_name;
-	LLMute::EType type;
-	if (is_group)
-	{
-		type = LLMute::GROUP;
-	}
-	else if(offer && offer->mFromObject)
-	{
-		//we have to block object by name because blocked_id is an id of owner
-		type = LLMute::BY_NAME;
-	}
-	else
-	{
-		type = LLMute::AGENT;
-	}
+	// *NOTE: blocks owner if the offer came from an object
+	LLMute::EType mute_type = is_group ? LLMute::GROUP : LLMute::AGENT;
 
-	// id should be null for BY_NAME mute, see  LLMuteList::add for details  
-	LLMute mute(type == LLMute::BY_NAME ? LLUUID::null : blocked_id, from_name, type);
+	LLMute mute(blocked_id, full_name, mute_type);
 	if (LLMuteList::getInstance()->add(mute))
 	{
 		LLPanelBlockedList::showPanelAndSelect(blocked_id);
@@ -1334,6 +1317,7 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		bool matches(const LLNotificationPtr notification) const
 		{
 			if(notification->getName() == "ObjectGiveItem" 
+				|| notification->getName() == "OwnObjectGiveItem"
 				|| notification->getName() == "UserGiveItem")
 			{
 				return (notification->getPayload()["from_id"].asUUID() == blocked_id);
@@ -1494,7 +1478,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		llassert(notification_ptr != NULL);
 		if (notification_ptr != NULL)
 		{
-			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,notification_ptr->getResponderPtr()));
+			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
 		}
 	}
 
@@ -1639,7 +1623,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		llassert(notification_ptr != NULL);
 		if (notification_ptr != NULL)
 		{
-			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,notification_ptr->getResponderPtr()));
+			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
 		}
 	}
 	
@@ -1817,6 +1801,7 @@ void LLOfferInfo::initRespondFunctionMap()
 	if(mRespondFunctions.empty())
 	{
 		mRespondFunctions["ObjectGiveItem"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
+		mRespondFunctions["OwnObjectGiveItem"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
 		mRespondFunctions["UserGiveItem"] = boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2);
 	}
 }
@@ -1904,7 +1889,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 	std::string verb = "select?name=" + LLURI::escape(msg);
 	args["ITEM_SLURL"] = LLSLURL("inventory", info->mObjectID, verb.c_str()).getSLURLString();
 
-	LLNotification::Params p("ObjectGiveItem");
+	LLNotification::Params p;
 
 	// Object -> Agent Inventory Offer
 	if (info->mFromObject)
@@ -1914,7 +1899,10 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Note: sets inventory_task_offer_callback as the callback
 		p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
 		info->mPersist = true;
-		p.name = "ObjectGiveItem";
+
+		// Offers from your own objects need a special notification template.
+		p.name = info->mFromID == gAgentID ? "OwnObjectGiveItem" : "ObjectGiveItem";
+
 		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
 	    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, info->mFromGroup == TRUE);
 	}
@@ -2201,7 +2189,7 @@ void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::string m
 	// Treat like a system message and put in chat history.
 	chat.mText = av_name.getCompleteName() + ": " + message;
 
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 	if(nearby_chat)
 	{
 		nearby_chat->addMessage(chat);
@@ -2593,8 +2581,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				bucketp = (struct offer_agent_bucket_t*) &binary_bucket[0];
 				info->mType = (LLAssetType::EType) bucketp->asset_type;
 				info->mObjectID = bucketp->object_id;
+				info->mFromObject = FALSE;
 			}
-			else
+			else // IM_TASK_INVENTORY_OFFERED
 			{
 				if (sizeof(S8) != binary_bucket_size)
 				{
@@ -2604,6 +2593,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				}
 				info->mType = (LLAssetType::EType) binary_bucket[0];
 				info->mObjectID = LLUUID::null;
+				info->mFromObject = TRUE;
 			}
 
 			info->mIM = dialog;
@@ -2612,14 +2602,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			info->mTransactionID = session_id;
 			info->mFolderID = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(info->mType));
 
-			if (dialog == IM_TASK_INVENTORY_OFFERED)
-			{
-				info->mFromObject = TRUE;
-			}
-			else
-			{
-				info->mFromObject = FALSE;
-			}
 			info->mFromName = name;
 			info->mDesc = message;
 			info->mHost = msg->getSender();
@@ -2769,7 +2751,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
 			// IMs from obejcts don't open IM sessions.
-			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 			if(SYSTEM_FROM != name && nearby_chat)
 			{
 				chat.mOwnerID = from_id;

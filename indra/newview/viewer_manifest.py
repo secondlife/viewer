@@ -66,12 +66,14 @@ class ViewerManifest(LLManifest):
                 # include the extracted list of contributors
                 contributor_names = self.extract_names("../../doc/contributions.txt")
                 self.put_in_file(contributor_names, "contributors.txt")
+                self.file_list.append(["../../doc/contributions.txt",self.dst_path_of("contributors.txt")])
                 # include the extracted list of translators
                 translator_names = self.extract_names("../../doc/translations.txt")
                 self.put_in_file(translator_names, "translators.txt")
+                self.file_list.append(["../../doc/translations.txt",self.dst_path_of("translators.txt")])
                 # include the list of Lindens (if any)
                 #   see https://wiki.lindenlab.com/wiki/Generated_Linden_Credits
-                linden_names_path = os.getenv("linden_credits")
+                linden_names_path = os.getenv("LINDEN_CREDITS")
                 if linden_names_path :
                     try:
                         linden_file = open(linden_names_path,'r')
@@ -79,9 +81,13 @@ class ViewerManifest(LLManifest):
                         linden_names = ', '.join(linden_file.readlines())
                         self.put_in_file(linden_names, "lindens.txt")
                         linden_file.close()
+                        print "Linden names extracted from '%s'" % linden_names_path
+                        self.file_list.append([linden_names_path,self.dst_path_of("lindens.txt")])
                     except IOError:
                         print "No Linden names found at '%s', using built-in list" % linden_names_path
                         pass
+                else :
+                    print "No 'LINDEN_CREDITS' specified in environment, using built-in list"
 
                 # ... and the entire windlight directory
                 self.path("windlight")

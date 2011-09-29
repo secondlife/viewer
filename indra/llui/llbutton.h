@@ -270,6 +270,7 @@ public:
 protected:
 	LLPointer<LLUIImage> getImageUnselected() const	{ return mImageUnselected; }
 	LLPointer<LLUIImage> getImageSelected() const	{ return mImageSelected; }
+	void getOverlayImageSize(S32& overlay_width, S32& overlay_height);
 
 	LLFrameTimer	mMouseDownTimer;
 
@@ -327,15 +328,14 @@ private:
 	LLUIColor					mImageColor;
 	LLUIColor					mDisabledImageColor;
 
-	BOOL						mIsToggle;
-	BOOL						mScaleImage;
+	bool						mIsToggle;
+	bool						mScaleImage;
 
-	BOOL						mDropShadowedText;
-	BOOL						mAutoResize;
-	BOOL						mUseEllipses;
-	BOOL						mBorderEnabled;
-
-	BOOL						mFlashing;
+	bool						mDropShadowedText;
+	bool						mAutoResize;
+	bool						mUseEllipses;
+	bool						mBorderEnabled;
+	bool						mFlashing;
 
 	LLFontGL::HAlign			mHAlign;
 	S32							mLeftHPad;
@@ -355,9 +355,9 @@ private:
 	F32							mHoverGlowStrength;
 	F32							mCurGlowStrength;
 
-	BOOL						mNeedsHighlight;
-	BOOL						mCommitOnReturn;
-	BOOL						mFadeWhenDisabled;
+	bool						mNeedsHighlight;
+	bool						mCommitOnReturn;
+	bool						mFadeWhenDisabled;
 	bool						mForcePressedState;
 
 	LLFrameTimer				mFlashingTimer;

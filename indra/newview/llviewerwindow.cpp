@@ -76,6 +76,7 @@
 #include "lltimer.h"
 #include "timing.h"
 #include "llviewermenu.h"
+#include "lltoolbarview.h"
 #include "lltooltip.h"
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
@@ -1778,6 +1779,19 @@ void LLViewerWindow::initBase()
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
 	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
 
+	// Create the toolbar view
+	// *TODO: Eventually, suppress the existence of this debug setting and turn toolbar FUI on permanently
+	if (gSavedSettings.getBOOL("DebugToolbarFUI"))
+	{
+		// Get a pointer to the toolbar view holder
+		LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
+		// Load the toolbar view from file 
+		gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLDefaultChildRegistry::instance());
+		gToolBarView->setShape(panel_holder->getLocalRect());
+		// Hide the toolbars for the moment: we'll make them visible after logging in world (see LLViewerWindow::initWorldUI())
+		gToolBarView->setVisible(FALSE);
+	}
+
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
 	gFloaterView->setFloaterSnapView(main_view->getChild<LLView>("floater_snap_region")->getHandle());
@@ -1936,24 +1950,13 @@ void LLViewerWindow::initWorldUI()
 	buttons_panel->setFollowsAll();
 	buttons_panel_container->addChild(buttons_panel);
 
-	LLView* avatar_picker_destination_guide_container = gViewerWindow->getRootView()->getChild<LLView>("avatar_picker_and_destination_guide_container");
-	avatar_picker_destination_guide_container->getChild<LLButton>("close")->setCommitCallback(boost::bind(toggle_destination_and_avatar_picker, LLSD()));
-	LLMediaCtrl* destinations = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("destination_guide_contents");
-	LLMediaCtrl* avatar_picker = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("avatar_picker_contents");
-	if (destinations)
+	// Load and make the toolbars visible
+	// Note: we need to load the toolbars only *after* the user is logged in and IW
+	if (gToolBarView)
 	{
-		destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"), "text/html");
+		gToolBarView->loadToolbars();
+		gToolBarView->setVisible(TRUE);
 	}
-
-	if (avatar_picker)
-	{
-		avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
-	}
-
-	// show destinations by default
-	toggle_destination_and_avatar_picker(gSavedSettings.getS32("DestinationsAndAvatarsVisibility"));
 }
 
 // Destroy the UI
@@ -1995,6 +1998,7 @@ void LLViewerWindow::shutdownViews()
 	gIMMgr = NULL;
 	gToolTipView = NULL;
 
+	gToolBarView = NULL;
 	gFloaterView = NULL;
 	gMorphView = NULL;
 
@@ -2464,7 +2468,12 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// Traverses up the hierarchy
 	if( keyboard_focus )
 	{
-		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getNearbyChatBar()->getChatBox() : NULL;
+		LLNearbyChatBar* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChatBar>("chat_bar");
+
+		if (nearby_chat)
+		{
+			LLLineEditor* chat_editor = nearby_chat->getChatBox();
+		
 		// arrow keys move avatar while chatting hack
 		if (chat_editor && chat_editor->hasFocus())
 		{
@@ -2495,7 +2504,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 				}
 			}
 		}
-
+		}
 		if (keyboard_focus->handleKey(key, mask, FALSE))
 		{
 			return TRUE;
@@ -2526,11 +2535,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
-		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getNearbyChatBar()->getChatBox() : NULL;
+		LLLineEditor* chat_editor = LLFloaterReg::getTypedInstance<LLNearbyChatBar>("chat_bar")->getChatBox();
 		if (chat_editor)
 		{
 			// passing NULL here, character will be added later when it is handled by character handler.
-			LLBottomTray::getInstance()->getNearbyChatBar()->startChat(NULL);
+			LLNearbyChatBar::getInstance()->startChat(NULL);
 			return TRUE;
 		}
 	}

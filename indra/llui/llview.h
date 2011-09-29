@@ -95,9 +95,6 @@ private:
 	static std::vector<LLViewDrawContext*> sDrawContextStack;
 };
 
-class LLViewWidgetRegistry : public LLChildRegistry<LLViewWidgetRegistry>
-{};
-
 class LLView : public LLMouseHandler, public LLMortician, public LLFocusableElement
 {
 public:
@@ -150,7 +147,8 @@ public:
 		Params();
 	};
 
-	typedef LLViewWidgetRegistry child_registry_t;
+	// most widgets are valid children of LLView
+	typedef LLDefaultChildRegistry child_registry_t;
 
 	void initFromParams(const LLView::Params&);
 
@@ -482,7 +480,6 @@ public:
 	// return query for iterating over focus roots in tab order
 	static const LLCtrlQuery & getFocusRootsQuery();
 
-	static void deleteViewByHandle(LLHandle<LLView> handle);
 	static LLWindow*	getWindow(void) { return LLUI::sWindow; }
 
 	// Set up params after XML load before calling new(),

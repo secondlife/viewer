@@ -162,6 +162,16 @@
                       top="0"
                       width="1024"/>
       </panel>
+      <panel name="toolbar_view_holder"
+	    follows="all"
+		layout="topleft"
+        height="500"
+        width="1024"
+        top="0"
+        left="0"
+        mouse_opaque="false"
+        tab_stop="false">
+       </panel>
     </layout_panel>
   </layout_stack>
   <panel mouse_opaque="false"
