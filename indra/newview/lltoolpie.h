@@ -32,7 +32,6 @@
 #include "llviewerwindow.h" // for LLPickInfo
 #include "llhudeffectblob.h" // for LLPointer<LLHudEffectBlob>, apparently
 
-class LLClickToTeleportTimer;
 class LLViewerObject;
 class LLObjectSelection;
 
@@ -98,12 +97,8 @@ private:
 	void startCameraSteering();
 	void stopCameraSteering();
 	bool inCameraSteerMode();
-	void scheduleTeleport(const LLVector3d& pos);
-	void cancelScheduledTeleport();
 
 private:
-	friend class LLClickToTeleportTimer;
-
 	bool				mMouseButtonDown;
 	bool				mMouseOutsideSlop;		// for this drag, has mouse moved outside slop region
 	S32					mMouseDownX;
@@ -114,8 +109,6 @@ private:
 	LLPointer<LLHUDEffectBlob>	mMouseSteerGrabPoint;
 	bool				mClockwise;			
 	bool				mBlockClickToWalk;
-	bool				mBlockClickToTeleport;
-	LLClickToTeleportTimer*	mClickToTeleportTimer;
 	LLUUID				mMediaMouseCaptureID;
 	LLPickInfo			mPick;
 	LLPickInfo			mHoverPick;

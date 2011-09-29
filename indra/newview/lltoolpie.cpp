@@ -35,7 +35,6 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llavatarnamecache.h"
-#include "lleventtimer.h"
 #include "llfocusmgr.h"
 #include "llfirstuse.h"
 #include "llfloaterland.h"
@@ -77,42 +76,6 @@ static void handle_click_action_play();
 static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp);
 static ECursorType cursor_from_parcel_media(U8 click_action);
 
-/**
- * Schedule teleport to the specified location when user clicks in world.
- *
- * Deferring teleport is needed for double-click-to-walk to work.
- * If double click in the world view occurs, teleport gets canceled.
- */
-class LLClickToTeleportTimer : public LLEventTimer
-{
-	LOG_CLASS(LLClickToTeleportTimer);
-public:
-	LLClickToTeleportTimer(const LLVector3d& pos);
-	~LLClickToTeleportTimer();
-	/*virtual*/ BOOL tick();
-
-private:
-	LLVector3d mTeleportPos;
-};
-
-LLClickToTeleportTimer::LLClickToTeleportTimer(const LLVector3d& pos)
-:	LLEventTimer(0.33f) // should be greater than double click interval
-,	mTeleportPos(pos)
-{
-};
-
-LLClickToTeleportTimer::~LLClickToTeleportTimer()
-{
-	LLToolPie::instance().mClickToTeleportTimer = NULL;
-}
-
-BOOL LLClickToTeleportTimer::tick()
-{
-	lldebugs << "Teleporting to " << mTeleportPos << llendl;
-	gAgent.teleportViaLocationLookAt(mTeleportPos);
-	return TRUE; // destroy the timer
-}
-
 LLToolPie::LLToolPie()
 :	LLTool(std::string("Pie")),
 	mMouseButtonDown( false ),
@@ -120,8 +83,6 @@ LLToolPie::LLToolPie()
 	mMouseSteerX(-1),
 	mMouseSteerY(-1),
 	mBlockClickToWalk(false),
-	mBlockClickToTeleport(false),
-	mClickToTeleportTimer(NULL),
 	mClickAction(0),
 	mClickActionBuyEnabled( gSavedSettings.getBOOL("ClickActionBuyEnabled") ),
 	mClickActionPayEnabled( gSavedSettings.getBOOL("ClickActionPayEnabled") )
@@ -687,64 +648,35 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	mMouseButtonDown = false;
 
 	if (click_action == CLICK_ACTION_NONE				// not doing 1-click action
+		&& gSavedSettings.getBOOL("ClickToWalk")		// click to walk enabled
 		&& !gAgent.getFlying()							// don't auto-navigate while flying until that works
 		&& gAgentAvatarp
 		&& !gAgentAvatarp->isSitting()
+		&& !mBlockClickToWalk							// another behavior hasn't cancelled click to walk
 		&& !mPick.mPosGlobal.isExactlyZero()			// valid coordinates for pick
 		&& (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
 			|| mPick.mObjectID.notNull()))				// or on an object
 	{
-		if (gSavedSettings.getBOOL("ClickToWalk")
-			&& !mBlockClickToWalk)						// another behavior hasn't cancelled click to walk
+		// handle special cases of steering picks
+		LLViewerObject* avatar_object = mPick.getObject();
+
+		// get pointer to avatar
+		while (avatar_object && !avatar_object->isAvatar())
 		{
-			// handle special cases of steering picks
-			LLViewerObject* avatar_object = mPick.getObject();
-
-			// get pointer to avatar
-			while (avatar_object && !avatar_object->isAvatar())
-			{
-				avatar_object = (LLViewerObject*)avatar_object->getParent();
-			}
-
-			if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
-			{
-				const F64 SELF_CLICK_WALK_DISTANCE = 3.0;
-				// pretend we picked some point a bit in front of avatar
-				mPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * SELF_CLICK_WALK_DISTANCE;
-			}
-			gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
-			walkToClickedLocation();
-			LLFirstUse::notMoving(false);
-
-			return TRUE;
+			avatar_object = (LLViewerObject*)avatar_object->getParent();
 		}
-		else if (gSavedSettings.getBOOL("ClickToTeleport") && !mBlockClickToTeleport)
+
+		if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
 		{
-			LLViewerObject* objp = mPick.getObject();
-			LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;
-
-			bool is_in_world = mPick.mObjectID.notNull() && objp && !objp->isHUDAttachment();
-			bool is_land = mPick.mPickType == LLPickInfo::PICK_LAND;
-			bool has_touch_handler = (objp && objp->flagHandleTouch()) || (parentp && parentp->flagHandleTouch());
-			bool has_click_action = final_click_action(objp);
-
-			if (is_land || (is_in_world && !has_touch_handler && !has_click_action))
-			{
-				LLVector3d pos = mPick.mPosGlobal;
-				pos.mdV[VZ] += gAgentAvatarp->getPelvisToFoot();
-
-				if (gSavedSettings.getBOOL("DoubleClickAutoPilot"))
-				{
-					// defer for more than the double click interval.
-					scheduleTeleport(pos);
-				}
-				else
-				{
-					gAgent.teleportViaLocationLookAt(pos);
-				}
-				return TRUE;
-			}
+			const F64 SELF_CLICK_WALK_DISTANCE = 3.0;
+			// pretend we picked some point a bit in front of avatar
+			mPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * SELF_CLICK_WALK_DISTANCE;
 		}
+		gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
+		walkToClickedLocation();
+		LLFirstUse::notMoving(false);
+
+		return TRUE;
 	}
 	gViewerWindow->setCursor(UI_CURSOR_ARROW);
 	if (hasMouseCapture())
@@ -756,7 +688,6 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	gAgentCamera.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
 
 	mBlockClickToWalk = false;
-	mBlockClickToTeleport = false;
 	return LLTool::handleMouseUp(x, y, mask);
 }
 
@@ -777,13 +708,8 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 		llinfos << "LLToolPie handleDoubleClick (becoming mouseDown)" << llendl;
 	}
 
-	cancelScheduledTeleport();
-
 	if (gSavedSettings.getBOOL("DoubleClickAutoPilot"))
 	{
-		// Avoid teleporting for the second time when user releases mouse button after double click.
-		mBlockClickToTeleport = true;
-
 		if ((mPick.mPickType == LLPickInfo::PICK_LAND && !mPick.mPosGlobal.isExactlyZero()) ||
 			(mPick.mObjectID.notNull()  && !mPick.mPosGlobal.isExactlyZero()))
 		{
@@ -1441,23 +1367,6 @@ void LLToolPie::stopCameraSteering()
 bool LLToolPie::inCameraSteerMode()
 {
 	return mMouseButtonDown && mMouseOutsideSlop && gSavedSettings.getBOOL("ClickToWalk");
-}
-
-void LLToolPie::scheduleTeleport(const LLVector3d& pos)
-{
-	// cancel previously scheduled teleport (if any)
-	cancelScheduledTeleport();
-
-	// and schedule new one
-	mClickToTeleportTimer = new LLClickToTeleportTimer(pos);
-}
-
-void LLToolPie::cancelScheduledTeleport()
-{
-	if (mClickToTeleportTimer)
-	{
-		delete mClickToTeleportTimer;
-	}
 }
 
 // true if x,y outside small box around start_x,start_y

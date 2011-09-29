@@ -105,18 +105,8 @@ protected:
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
 
-	// callback for clicking the "Walk to Click Point" checkbox
-	void onWalkCheckboxCommit();
-	// callback for clicking the "Teleport to Click Point" checkbox
-	void onTeleportCheckboxCommit();
-	// callback for selecting trigger for "Walk to Click Point"
-	void onWalkTriggerRadioCommit();
-	// callback for selecting trigger for "Teleport to Click Point"
-	void onTeleportTriggerRadioCommit();
-	// make sure the radio buttons have mutually exclusive values
-	void fixWalkRadioValue();
-	// make sure the radio buttons have mutually exclusive values
-	void fixTeleportRadioValue();
+	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
+	void onClickActionChange();
 	// updates click/double-click action settings depending on controls values
 	void updateClickActionSettings();
 	// updates click/double-click action controls depending on values from settings.xml
@@ -173,8 +163,6 @@ public:
 	static void refreshSkin(void* data);
 private:
 	static std::string sSkin;
-	// set true if state of double-click action checkbox or radio-group was changed by user
-	// (reset back to false on apply or cancel)
 	bool mClickActionDirty; ///< Set to true when the click/double-click options get changed by user.
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;

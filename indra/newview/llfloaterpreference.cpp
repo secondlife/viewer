@@ -348,10 +348,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
-	mCommitCallbackRegistrar.add("Pref.CommitClickToWalkCheckbox",		boost::bind(&LLFloaterPreference::onWalkCheckboxCommit, this));
-	mCommitCallbackRegistrar.add("Pref.CommitClickToTeleportCheckbox",	boost::bind(&LLFloaterPreference::onTeleportCheckboxCommit, this));
-	mCommitCallbackRegistrar.add("Pref.CommitWalkTriggerRadio",			boost::bind(&LLFloaterPreference::onWalkTriggerRadioCommit, this));
-	mCommitCallbackRegistrar.add("Pref.CommitTeleportTriggerRadio",		boost::bind(&LLFloaterPreference::onTeleportTriggerRadioCommit, this));
+	mCommitCallbackRegistrar.add("Pref.ClickActionChange",				boost::bind(&LLFloaterPreference::onClickActionChange, this));
 
 	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
@@ -1512,111 +1509,29 @@ void LLFloaterPreference::onClickProxySettings()
 	LLFloaterReg::showInstance("prefs_proxy");
 }
 
-void LLFloaterPreference::onWalkCheckboxCommit()
-{
-	LLCheckBoxCtrl* walk_trigger_cb		= getChild<LLCheckBoxCtrl>("walk_to_chkbox");
-	LLRadioGroup* walk_trigger_radio	= getChild<LLRadioGroup>("walk_trigger_radio");
-	const bool checked = walk_trigger_cb->getValue().asBoolean();
-
-	mClickActionDirty = true;
-	walk_trigger_radio->setEnabled(checked);
-	if (checked)
-	{
-		fixWalkRadioValue(); // don't allow two actions on click or double click
-	}
-}
-
-void LLFloaterPreference::onTeleportCheckboxCommit()
-{
-	LLCheckBoxCtrl* teleport_trigger_cb		= getChild<LLCheckBoxCtrl>("teleport_to_chkbox");
-	LLRadioGroup* teleport_trigger_radio	= getChild<LLRadioGroup>("teleport_trigger_radio");
-	const bool checked = teleport_trigger_cb->getValue().asBoolean();
-
-	mClickActionDirty = true;
-	teleport_trigger_radio->setEnabled(checked);
-	if (checked)
-	{
-		fixTeleportRadioValue(); // don't allow two actions on click or double click
-	}
-}
-
-void LLFloaterPreference::onWalkTriggerRadioCommit()
+void LLFloaterPreference::onClickActionChange()
 {
 	mClickActionDirty = true;
-	fixTeleportRadioValue();
-}
-
-void LLFloaterPreference::onTeleportTriggerRadioCommit()
-{
-	mClickActionDirty = true;
-	fixWalkRadioValue();
-}
-
-void LLFloaterPreference::fixWalkRadioValue()
-{
-	LLRadioGroup* walk_trigger_radio		= getChild<LLRadioGroup>("walk_trigger_radio");
-	LLRadioGroup* teleport_trigger_radio	= getChild<LLRadioGroup>("teleport_trigger_radio");
-
-	walk_trigger_radio->setSelectedIndex(!teleport_trigger_radio->getSelectedIndex());
-}
-
-
-void LLFloaterPreference::fixTeleportRadioValue()
-{
-	LLRadioGroup* walk_trigger_radio		= getChild<LLRadioGroup>("walk_trigger_radio");
-	LLRadioGroup* teleport_trigger_radio	= getChild<LLRadioGroup>("teleport_trigger_radio");
-
-	teleport_trigger_radio->setSelectedIndex(!walk_trigger_radio->getSelectedIndex());
 }
 
 void LLFloaterPreference::updateClickActionSettings()
 {
-	const bool walk_trigger_enabled = getChild<LLCheckBoxCtrl>("walk_to_chkbox")->getValue().asBoolean();
-	const bool teleport_trigger_enabled = getChild<LLCheckBoxCtrl>("teleport_to_chkbox")->getValue().asBoolean();
+	const int single_clk_action = getChild<LLComboBox>("single_click_action_combo")->getValue().asInteger();
+	const int double_clk_action = getChild<LLComboBox>("double_click_action_combo")->getValue().asInteger();
 
-	const bool walk_on_dbl_click = (bool) getChild<LLRadioGroup>("walk_trigger_radio")->getSelectedIndex();
-	const bool teleport_on_dbl_click = (bool) getChild<LLRadioGroup>("teleport_trigger_radio")->getSelectedIndex();
-
-	gSavedSettings.setBOOL("ClickToWalk", walk_trigger_enabled && !walk_on_dbl_click);
-	gSavedSettings.setBOOL("ClickToTeleport", teleport_trigger_enabled && !teleport_on_dbl_click);
-	gSavedSettings.setBOOL("DoubleClickAutoPilot", walk_trigger_enabled && walk_on_dbl_click);
-	gSavedSettings.setBOOL("DoubleClickTeleport", teleport_trigger_enabled && teleport_on_dbl_click);
+	gSavedSettings.setBOOL("ClickToWalk",			single_clk_action == 1);
+	gSavedSettings.setBOOL("DoubleClickAutoPilot",	double_clk_action == 1);
+	gSavedSettings.setBOOL("DoubleClickTeleport",	double_clk_action == 2);
 }
 
 void LLFloaterPreference::updateClickActionControls()
 {
-	LLCheckBoxCtrl* walk_trigger_cb		= getChild<LLCheckBoxCtrl>("walk_to_chkbox");
-	LLCheckBoxCtrl* teleport_trigger_cb	= getChild<LLCheckBoxCtrl>("teleport_to_chkbox");
-
-	LLRadioGroup* walk_trigger_radio		= getChild<LLRadioGroup>("walk_trigger_radio");
-	LLRadioGroup* teleport_trigger_radio	= getChild<LLRadioGroup>("teleport_trigger_radio");
-
 	const bool click_to_walk = gSavedSettings.getBOOL("ClickToWalk");
-	const bool click_to_teleport = gSavedSettings.getBOOL("ClickToTeleport");
 	const bool dbl_click_to_walk = gSavedSettings.getBOOL("DoubleClickAutoPilot");
 	const bool dbl_click_to_teleport = gSavedSettings.getBOOL("DoubleClickTeleport");
 
-	const bool walk_trigger_enabled = click_to_walk || dbl_click_to_walk;
-	const bool teleport_trigger_enabled = click_to_teleport || dbl_click_to_teleport;
-
-	walk_trigger_cb->setValue(walk_trigger_enabled);
-	teleport_trigger_cb->setValue(teleport_trigger_enabled);
-
-	walk_trigger_radio->setEnabled(walk_trigger_enabled);
-	walk_trigger_radio->setSelectedIndex(dbl_click_to_walk);
-
-	teleport_trigger_radio->setEnabled(teleport_trigger_enabled);
-	teleport_trigger_radio->setSelectedIndex(dbl_click_to_teleport);
-
-	// Make sure it doesn't look like there is more than one action per trigger.
-	if (teleport_trigger_enabled)
-	{
-		fixWalkRadioValue();
-	}
-	else
-	{
-		fixTeleportRadioValue();
-	}
+	getChild<LLComboBox>("single_click_action_combo")->setValue((int)click_to_walk);
+	getChild<LLComboBox>("double_click_action_combo")->setValue(dbl_click_to_teleport ? 2 : (int)dbl_click_to_walk);
 }
 
 void LLFloaterPreference::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
