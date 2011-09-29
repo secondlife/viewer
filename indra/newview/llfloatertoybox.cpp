@@ -33,6 +33,7 @@
 #include "llpanel.h"
 #include "lltoolbar.h"
 #include "lltoolbarview.h"
+#include "lltrans.h"
 
 
 LLFloaterToybox::LLFloaterToybox(const LLSD& key)
@@ -47,6 +48,14 @@ LLFloaterToybox::~LLFloaterToybox()
 {
 }
 
+bool compare_localized_command_labels(LLCommand * cmd1, LLCommand * cmd2)
+{
+	std::string lab1 = LLTrans::getString(cmd1->labelRef());
+	std::string lab2 = LLTrans::getString(cmd2->labelRef());
+
+	return (lab1 < lab2);
+}
+
 BOOL LLFloaterToybox::postBuild()
 {	
 	center();
@@ -54,11 +63,13 @@ BOOL LLFloaterToybox::postBuild()
 	mBtnRestoreDefaults = getChild<LLButton>("btn_restore_defaults");
 	mToolBar = getChild<LLToolBar>("toybox_toolbar");
 
+	LLCommandManager& cmdMgr = LLCommandManager::instance();
+
 	//
-	// Create Buttons
+	// Sort commands by localized labels so they will appear alphabetized in all languages
 	//
 
-	LLCommandManager& cmdMgr = LLCommandManager::instance();
+	std::list<LLCommand *> alphabetized_commands;
 
 	for (U32 i = 0; i < cmdMgr.commandCount(); i++)
 	{
@@ -66,8 +77,19 @@ BOOL LLFloaterToybox::postBuild()
 
 		if (command->availableInToybox())
 		{
-			mToolBar->addCommand(command->id());
+			alphabetized_commands.push_back(command);
 		}
+	}
+
+	alphabetized_commands.sort(compare_localized_command_labels);
+
+	//
+	// Create Buttons
+	//
+
+	for (std::list<LLCommand *>::iterator it = alphabetized_commands.begin(); it != alphabetized_commands.end(); ++it)
+	{
+		mToolBar->addCommand((*it)->id());
 	}
 
 	return TRUE;
