@@ -560,8 +560,8 @@ void LLVertexBuffer::initClass(bool use_vbo, bool no_vbo_mapping)
 	sDisableVBOMapping = sEnableVBOs && no_vbo_mapping ;
 
 	if(!sPrivatePoolp)
-	{ //disable private pool for now -- lots of memory allocations failing for vertex buffers erroneously
-		//sPrivatePoolp = LLPrivateMemoryPoolManager::getInstance()->newPool(LLPrivateMemoryPool::STATIC) ;
+	{ 
+		sPrivatePoolp = LLPrivateMemoryPoolManager::getInstance()->newPool(LLPrivateMemoryPool::STATIC) ;
 	}
 }
 
