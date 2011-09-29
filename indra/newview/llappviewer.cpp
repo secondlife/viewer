@@ -773,6 +773,9 @@ bool LLAppViewer::init()
 		LLViewerAssetStatsFF::init();
 	}
 
+	// init main thread's local data pool before initializing the threads - Nyx
+	LLThreadLocalData::init();
+
     initThreads();
 	LL_INFOS("InitInfo") << "Threads initialized." << LL_ENDL ;
 
