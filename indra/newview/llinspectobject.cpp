@@ -46,7 +46,6 @@
 #include "llmenubutton.h"
 #include "llresmgr.h"			// getMonetaryString
 #include "llsafehandle.h"
-#include "llsidetray.h"
 #include "lltextbox.h"			// for description truncation
 #include "lltoggleablemenu.h"
 #include "lltrans.h"

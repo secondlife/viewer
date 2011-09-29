@@ -282,7 +282,6 @@ public:
 	void				updateKeyboardFocus();		
 
 	void			updateWorldViewRect(bool use_full_window=false);
-	LLView*			getNonSideTrayView() { return mNonSideTrayView.get(); }
 	LLView*			getFloaterViewHolder() { return mFloaterViewHolder.get(); }
 	LLView*			getToolBarHolder() { return mToolBarHolder.get(); }
 	LLView*			getHintHolder() { return mHintHolder.get(); }
@@ -445,7 +444,6 @@ protected:
 	std::string		mInitAlert;			// Window / GL initialization requires an alert
 
 	LLHandle<LLView> mWorldViewPlaceholder;	// widget that spans the portion of screen dedicated to rendering the 3d world
-	LLHandle<LLView> mNonSideTrayView;		// parent of world view + bottom bar, etc...everything but the side tray
 	LLHandle<LLView> mFloaterViewHolder;	// container for floater_view
 	LLHandle<LLView> mToolBarHolder;		// container for toolbars
 	LLHandle<LLView> mHintHolder;			// container for hints

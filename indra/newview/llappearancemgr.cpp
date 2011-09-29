@@ -44,7 +44,6 @@
 #include "lloutfitslist.h"
 #include "llselectmgr.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
@@ -2466,7 +2465,8 @@ public:
 		// add may be processed after login process is finished
 		if (mShowPanel)
 		{
-			LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
+			LLFloaterSidePanelContainer::showPanel("appearance", "panel_outfits_inventory", key);
+
 		}
 		LLOutfitsList *outfits_list =
 			dynamic_cast<LLOutfitsList*>(LLFloaterSidePanelContainer::getPanel("appearance", "outfitslist_tab"));

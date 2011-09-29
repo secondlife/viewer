@@ -37,7 +37,6 @@
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "lltexlayer.h"
 #include "lltexglobalcolor.h"
 #include "lltrans.h"

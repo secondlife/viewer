@@ -38,7 +38,6 @@
 // project include
 #include "llfloateravatarpicker.h"
 #include "llfloatersidepanelcontainer.h"
-#include "llsidetray.h"
 #include "llsidetraypanelcontainer.h"
 
 static LLRegisterPanelClassWrapper<LLPanelBlockedList> t_panel_blocked_list("panel_block_list_sidetray");

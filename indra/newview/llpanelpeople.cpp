@@ -57,7 +57,6 @@
 #include "llinventoryobserver.h"
 #include "llnetmap.h"
 #include "llpanelpeoplemenus.h"
-#include "llsidetray.h"
 #include "llsidetraypanelcontainer.h"
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"		// for gSavedSettings
@@ -1452,7 +1451,7 @@ bool LLPanelPeople::notifyChildren(const LLSD& info)
 			container->onOpen(LLSD().with(LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME, getName()));
 		}
 		else
-			LLSideTray::getInstance()->collapseSideBar();
+			LLFloaterReg::hideFloaterInstance("people");
 
 		return true; // this notification is only supposed to be handled by task panels
 	}

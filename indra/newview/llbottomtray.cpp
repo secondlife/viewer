@@ -48,7 +48,6 @@
 #include "llimfloater.h" // for LLIMFloater
 #include "llnearbychatbar.h"
 #include "llnearbychatbarlistener.h"
-#include "llsidetray.h"
 #include "llspeakbutton.h"
 #include "llsplitbutton.h"
 #include "llsyswellwindow.h"

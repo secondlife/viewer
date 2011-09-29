@@ -38,7 +38,6 @@
 #include "llgroupmgr.h"
 #include "llimview.h" // for gIMMgr
 #include "llnotificationsutil.h"
-#include "llsidetray.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "llimfloater.h"
 #include "groupchatlistener.h"

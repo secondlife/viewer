@@ -61,7 +61,6 @@
 #include "llpaneloutfitedit.h"
 #include "llpanelprofile.h"
 #include "llrecentpeople.h"
-#include "llsidetray.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"

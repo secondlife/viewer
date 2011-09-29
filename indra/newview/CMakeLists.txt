@@ -229,7 +229,6 @@ set(viewer_SOURCE_FILES
     llfloatersellland.cpp
     llfloatersettingsdebug.cpp
     llfloatersidepanelcontainer.cpp
-    llfloatersidetraytab.cpp
     llfloatersnapshot.cpp
     llfloatersounddevices.cpp
     llfloatertelehub.cpp
@@ -442,8 +441,6 @@ set(viewer_SOURCE_FILES
     llsidepanelinventorysubpanel.cpp
     llsidepaneliteminfo.cpp
     llsidepaneltaskinfo.cpp
-    llsidetray.cpp
-    llsidetraylistener.cpp
     llsidetraypanelcontainer.cpp
     llsky.cpp
     llslurl.cpp
@@ -794,7 +791,6 @@ set(viewer_HEADER_FILES
     llfloatersellland.h
     llfloatersettingsdebug.h
     llfloatersidepanelcontainer.h
-    llfloatersidetraytab.h
     llfloatersnapshot.h
     llfloatersounddevices.h
     llfloatertelehub.h
@@ -1002,8 +998,6 @@ set(viewer_HEADER_FILES
     llsidepanelinventorysubpanel.h
     llsidepaneliteminfo.h
     llsidepaneltaskinfo.h
-    llsidetray.h
-    llsidetraylistener.h
     llsidetraypanelcontainer.h
     llsky.h
     llslurl.h

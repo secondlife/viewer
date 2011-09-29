@@ -32,7 +32,6 @@
 #include "llrootview.h"
 //#include "llchatitemscontainerctrl.h"
 #include "lliconctrl.h"
-#include "llsidetray.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
 #include "llresizebar.h"

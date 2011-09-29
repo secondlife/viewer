@@ -36,7 +36,6 @@
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llmenubutton.h"
-#include "llsidetray.h"
 #include "llviewermenu.h"
 #include "llwearableitemslist.h"
 #include "llsdserialize.h"

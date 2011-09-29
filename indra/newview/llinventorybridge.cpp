@@ -60,7 +60,6 @@
 #include "llpreviewtexture.h"
 #include "llselectmgr.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "lltrans.h"
 #include "llviewerassettype.h"
 #include "llviewerfoldertype.h"

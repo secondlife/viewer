@@ -156,10 +156,6 @@ private:
 
 	static void closeHiddenIMToasts();
 
-	static bool resetAllowedRectPadding();
-	//need to keep this static for performance issues
-	static S32 sAllowedRectRightPadding;
-
 	static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
 
 	LLPanelChatControlPanel* mControlPanel;

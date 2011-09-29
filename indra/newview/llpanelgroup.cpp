@@ -50,7 +50,6 @@
 #include "llpanelgroupnotices.h"
 #include "llpanelgroupgeneral.h"
 
-#include "llsidetray.h"
 #include "llaccordionctrltab.h"
 #include "llaccordionctrl.h"
 
