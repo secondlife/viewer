@@ -465,6 +465,20 @@ public:
 		return dynamic_cast<T*>(widgetp);
 	}
 
+	template <class T> T* getParentByType() const
+	{
+		LLView* parent = getParent();
+		while(parent)
+		{
+			if (dynamic_cast<T*>(parent))
+			{
+				return static_cast<T*>(parent);
+			}
+			parent = parent->getParent();
+		}
+		return NULL;
+	}
+
 	//////////////////////////////////////////////
 	// statics
 	//////////////////////////////////////////////

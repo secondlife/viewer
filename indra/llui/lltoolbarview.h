@@ -65,7 +65,10 @@ public:
 	virtual ~LLToolBarView();
 	virtual BOOL postBuild();
 	virtual void draw();
-
+	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
+	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual void onMouseCaptureLost();
+	void startDrag(LLToolBarButton*);
 	// Toolbar view interface with the rest of the world
 	// Checks if the commandId is being used somewhere in one of the toolbars
 	bool hasCommand(const LLCommandId& commandId) const;
@@ -87,6 +90,10 @@ private:
 	LLToolBar*	mToolbarLeft;
 	LLToolBar*	mToolbarRight;
 	LLToolBar*	mToolbarBottom;
+	bool		mDragging;
+	LLToolBarButton* mDragButton;
+	S32			mMouseX;
+	S32			mMouseY;
 };
 
 extern LLToolBarView* gToolBarView;
