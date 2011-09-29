@@ -41,7 +41,8 @@ LLToolBarView* gToolBarView = NULL;
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
 
 LLToolBarView::Toolbar::Toolbar()
-:	commands("command")
+:	button_display_mode("button_display_mode"),
+	commands("command")
 {}
 
 LLToolBarView::ToolbarSet::ToolbarSet()
@@ -112,13 +113,17 @@ bool LLToolBarView::addCommand(const LLCommandId& command, LLToolBar* toolbar)
 	return true;
 }
 
-bool LLToolBarView::loadToolbars()
+bool LLToolBarView::loadToolbars(bool force_default)
 {	
 	LLToolBarView::ToolbarSet toolbar_set;
 	
-	// Load the default toolbars.xml file
+	// Load the toolbars.xml file
 	std::string toolbar_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "toolbars.xml");
-	if (!gDirUtilp->fileExists(toolbar_file)) 
+	if (force_default)
+	{
+		toolbar_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "toolbars.xml");
+	}
+	else if (!gDirUtilp->fileExists(toolbar_file)) 
 	{
 		llwarns << "User toolbars def not found -> use default" << llendl;
 		toolbar_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "toolbars.xml");
@@ -145,9 +150,28 @@ bool LLToolBarView::loadToolbars()
 		return false;
 	}
 	
+	// Clear the toolbars now before adding the loaded commands and settings
+	if (mToolbarLeft)
+	{
+		mToolbarLeft->clearCommandsList();
+	}
+	if (mToolbarRight)
+	{
+		mToolbarRight->clearCommandsList();
+	}
+	if (mToolbarBottom)
+	{
+		mToolbarBottom->clearCommandsList();
+	}
+	
 	// Add commands to each toolbar
 	if (toolbar_set.left_toolbar.isProvided() && mToolbarLeft)
 	{
+		if (toolbar_set.left_toolbar.button_display_mode.isProvided())
+		{
+			U32 button_type = toolbar_set.left_toolbar.button_display_mode;
+			mToolbarLeft->setButtonType((LLToolBarEnums::ButtonType)(button_type));
+		}
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.left_toolbar.commands)
 		{
 			addCommand(LLCommandId(command),mToolbarLeft);
@@ -155,6 +179,11 @@ bool LLToolBarView::loadToolbars()
 	}
 	if (toolbar_set.right_toolbar.isProvided() && mToolbarRight)
 	{
+		if (toolbar_set.right_toolbar.button_display_mode.isProvided())
+		{
+			U32 button_type = toolbar_set.right_toolbar.button_display_mode;
+			mToolbarRight->setButtonType((LLToolBarEnums::ButtonType)(button_type));
+		}
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.right_toolbar.commands)
 		{
 			addCommand(LLCommandId(command),mToolbarRight);
@@ -162,6 +191,11 @@ bool LLToolBarView::loadToolbars()
 	}
 	if (toolbar_set.bottom_toolbar.isProvided() && mToolbarBottom)
 	{
+		if (toolbar_set.bottom_toolbar.button_display_mode.isProvided())
+		{
+			U32 button_type = toolbar_set.bottom_toolbar.button_display_mode;
+			mToolbarBottom->setButtonType((LLToolBarEnums::ButtonType)(button_type));
+		}
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.bottom_toolbar.commands)
 		{
 			addCommand(LLCommandId(command),mToolbarBottom);
@@ -176,14 +210,17 @@ void LLToolBarView::saveToolbars() const
 	LLToolBarView::ToolbarSet toolbar_set;
 	if (mToolbarLeft)
 	{
+		toolbar_set.left_toolbar.button_display_mode = (int)(mToolbarLeft->getButtonType());
 		addToToolset(mToolbarLeft->getCommandsList(),toolbar_set.left_toolbar);
 	}
 	if (mToolbarRight)
 	{
+		toolbar_set.right_toolbar.button_display_mode = (int)(mToolbarRight->getButtonType());
 		addToToolset(mToolbarRight->getCommandsList(),toolbar_set.right_toolbar);
 	}
 	if (mToolbarBottom)
 	{
+		toolbar_set.bottom_toolbar.button_display_mode = (int)(mToolbarBottom->getButtonType());
 		addToToolset(mToolbarBottom->getCommandsList(),toolbar_set.bottom_toolbar);
 	}
 	

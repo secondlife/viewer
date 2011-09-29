@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <toolbars>
-  <bottom_toolbar>
+  <bottom_toolbar
+    button_display_mode="0">
     <command name="chat"/>
     <command name="speak"/>
     <command name="places"/>
@@ -10,7 +11,8 @@
     <command name="move"/>
     <command name="howto"/>
   </bottom_toolbar>
-  <left_toolbar>
+  <left_toolbar
+    button_display_mode="1">
     <command name="avatar"/>
     <command name="inventory"/>
     <command name="snapshot"/>

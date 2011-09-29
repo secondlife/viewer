@@ -123,7 +123,6 @@ public:
 	bool addCommand(const LLCommandId& commandId);
 	bool hasCommand(const LLCommandId& commandId) const;
 	bool enableCommand(const LLCommandId& commandId, bool enabled);
-	command_id_list_t& getCommandsList() { return mButtonCommands; }
 
 protected:
 	friend class LLUICtrlFactory;
@@ -132,6 +131,13 @@ protected:
 
 	void initFromParams(const Params&);
 
+public:
+	// Methods used in loading and saving toolbar settings
+	void setButtonType(LLToolBarEnums::ButtonType button_type);
+	LLToolBarEnums::ButtonType getButtonType() { return mButtonType; }
+	command_id_list_t& getCommandsList() { return mButtonCommands; }
+	void clearCommandsList();
+					   
 private:
 	void createContextMenu();
 	void updateLayoutAsNeeded();
