@@ -213,6 +213,14 @@ bool LLToolBar::addCommand(const LLCommandId& commandId)
 	return add_command;
 }
 
+void LLToolBar::clearCommandsList()
+{
+	// Clears the commands list
+	mButtonCommands.clear();
+	// This will clear the buttons
+	createButtons();
+}
+
 bool LLToolBar::hasCommand(const LLCommandId& commandId) const
 {
 	bool has_command = false;
@@ -278,7 +286,7 @@ BOOL LLToolBar::isSettingChecked(const LLSD& userdata)
 
 	const std::string setting_name = userdata.asString();
 
-	if (setting_name == "icons_and_labels")
+	if (setting_name == "icons_with_text")
 	{
 		retval = (mButtonType == BTNTYPE_ICONS_WITH_TEXT);
 	}
@@ -296,18 +304,23 @@ void LLToolBar::onSettingEnable(const LLSD& userdata)
 
 	const std::string setting_name = userdata.asString();
 
-	const ButtonType current_button_type = mButtonType;
-
-	if (setting_name == "icons_and_labels")
+	if (setting_name == "icons_with_text")
 	{
-		mButtonType = BTNTYPE_ICONS_WITH_TEXT;
+		setButtonType(BTNTYPE_ICONS_WITH_TEXT);
 	}
 	else if (setting_name == "icons_only")
 	{
-		mButtonType = BTNTYPE_ICONS_ONLY;
+		setButtonType(BTNTYPE_ICONS_ONLY);
 	}
+}
 
-	if(current_button_type != mButtonType)
+void LLToolBar::setButtonType(LLToolBarEnums::ButtonType button_type)
+{
+	bool regenerate_buttons = (mButtonType != button_type);
+	
+	mButtonType = button_type;
+	
+	if (regenerate_buttons)
 	{
 		createButtons();
 	}

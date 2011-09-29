@@ -12,11 +12,11 @@
   <menu_item_separator layout="topleft" />
   <menu_item_check label="Icons and labels"
                    layout="topleft"
-                   name="icons_and_labels">
+                   name="icons_with_text">
     <on_click function="Toolbars.EnableSetting"
-              parameter="icons_and_labels" />
+              parameter="icons_with_text" />
     <on_check function="Toolbars.CheckSetting"
-              parameter="icons_and_labels" />
+              parameter="icons_with_text" />
   </menu_item_check>
   <menu_item_check label="Icons only"
                    layout="topleft"

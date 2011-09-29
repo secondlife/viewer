@@ -50,7 +50,8 @@ public:
 	// the user folder for the user specific (saved) settings
 	struct Toolbar : public LLInitParam::Block<Toolbar>
 	{
-		Multiple<LLCommandId::Params>	commands;
+		Mandatory<U32>                button_display_mode;
+		Multiple<LLCommandId::Params> commands;
 		Toolbar();
 	};
 	struct ToolbarSet : public LLInitParam::Block<ToolbarSet>
@@ -70,7 +71,8 @@ public:
 	// Checks if the commandId is being used somewhere in one of the toolbars
 	bool hasCommand(const LLCommandId& commandId) const;
 	// Loads the toolbars from the existing user or default settings
-	bool loadToolbars();	// return false if load fails
+	bool loadToolbars(bool force_default = false);	// return false if load fails
+	bool loadDefaultToolbars() { return loadToolbars(true); }
 	
 protected:
 	friend class LLUICtrlFactory;
