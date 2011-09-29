@@ -574,9 +574,9 @@ class WindowsManifest(ViewerManifest):
                 OutFile "%(installer_file)s"
                 !define INSTFLAGS "%(flags)s"
                 !define INSTNAME   "SecondLifeViewer2"
-                !define SHORTCUT   "Second Life Viewer 2"
+                !define SHORTCUT   "Second Life Viewer"
                 !define URLNAME   "secondlife"
-                Caption "Second Life ${VERSION}"
+                Caption "Second Life"
                 """
             else:
                 # beta grid viewer
@@ -804,7 +804,7 @@ class DarwinManifest(ViewerManifest):
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
-        channel_standin = 'Second Life Viewer 2'  # hah, our default channel is not usable on its own
+        channel_standin = 'Second Life Viewer'  # hah, our default channel is not usable on its own
         if not self.default_channel():
             channel_standin = self.channel()
 
