@@ -5,7 +5,7 @@
 	<check_box label="服裝" name="check_clothing"/>
 	<check_box label="姿勢" name="check_gesture"/>
 	<check_box label="地標" name="check_landmark"/>
-	<check_box label="Notecards" name="check_notecard"/>
+	<check_box label="記事卡" name="check_notecard"/>
 	<check_box label="Objects" name="check_object"/>
 	<check_box label="腳本" name="check_script"/>
 	<check_box label="Sounds" name="check_sound"/>

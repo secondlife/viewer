@@ -31,7 +31,7 @@
 							User name
 						</text>
 						<text name="name_descr_text">
-							Display Name
+							顯示名稱
 						</text>
 						<button label="檔案" name="see_profile_btn" tool_tip="察看這位化身的檔案"/>
 					</panel>

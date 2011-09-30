@@ -26,9 +26,9 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="data_panel">
-				<text name="display_name_label" value="Display Name:"/>
+				<text name="display_name_label" value="顯示名稱："/>
 				<text name="solo_username_label" value="使用者名稱："/>
-				<button name="set_name" tool_tip="Set Display Name"/>
+				<button name="set_name" tool_tip="設定顯示名稱"/>
 				<text name="user_label" value="使用者名稱："/>
 				<panel name="lifes_images_panel">
 					<panel name="second_life_image_panel">
