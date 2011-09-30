@@ -749,6 +749,11 @@ void LLFloaterModelPreview::draw()
 
 	if (!mModelPreview->mLoading)
 	{
+		if ( mModelPreview->getLoadState() == LLModelLoader::ERROR_MATERIALS )
+		{
+			childSetTextArg("status", "[STATUS]", getString("status_material_mismatch"));
+		}
+		else
 		if ( mModelPreview->getLoadState() > LLModelLoader::ERROR_PARSING )
 		{		
 			childSetTextArg("status", "[STATUS]", getString(LLModel::getStatusString(mModelPreview->getLoadState() - LLModelLoader::ERROR_PARSING)));
@@ -3321,6 +3326,7 @@ void LLModelPreview::rebuildUploadData()
 				
 				if ( !mModel[i][j]->matchMaterialOrder(mBaseModel[j], refFaceCnt, modelFaceCnt ) )
 				{
+					setLoadState( LLModelLoader::ERROR_MATERIALS );
 					mFMP->childDisable( "calculate_btn" );
 				}
 			}
