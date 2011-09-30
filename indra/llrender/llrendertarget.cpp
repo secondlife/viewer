@@ -84,20 +84,8 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 	mStencil = stencil;
 	mUsage = usage;
 	mUseDepth = depth;
-	mSamples = samples;
 
-	mSamples = gGLManager.getNumFBOFSAASamples(mSamples);
-	
-	if (mSamples > 1 && gGLManager.mHasTextureMultisample)
-	{
-		mUsage = LLTexUnit::TT_MULTISAMPLE_TEXTURE;
-		//no support for multisampled stencil targets yet
-		mStencil = false;
-	}
-	else
-	{
-		mSamples = 0;
-	}
+	mSamples = 0;
 
 	if ((sUseFBO || use_fbo) && gGLManager.mHasFramebufferObject)
 	{
@@ -157,21 +145,6 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 	stop_glerror();
 
 
-#ifdef GL_ARB_texture_multisample
-	if (mSamples > 1)
-	{
-		clear_glerror();
-		glTexImage2DMultisample(LLTexUnit::getInternalType(mUsage), mSamples, color_fmt, mResX, mResY, GL_TRUE);
-		if (glGetError() != GL_NO_ERROR)
-		{
-			llwarns << "Could not allocate multisample color buffer for render target." << llendl;
-			return false;
-		}
-	}
-	else
-#else
-	llassert_always(mSamples <= 1);
-#endif
 	{
 		clear_glerror();
 		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -253,21 +226,11 @@ bool LLRenderTarget::allocateDepth()
 		if (mSamples == 0)
 		{
 			U32 internal_type = LLTexUnit::getInternalType(mUsage);
+			stop_glerror();
+			clear_glerror();
+			LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
-			stop_glerror();
-			clear_glerror();
-			LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT32, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 		}
-#ifdef GL_ARB_texture_multisample
-		else
-		{
-			stop_glerror();
-			clear_glerror();
-			glTexImage2DMultisample(LLTexUnit::getInternalType(mUsage), mSamples, GL_DEPTH_COMPONENT32, mResX, mResY, GL_TRUE);
-		}
-#else
-		llassert_always(mSamples <= 1);
-#endif
 	}
 
 	if (glGetError() != GL_NO_ERROR)
