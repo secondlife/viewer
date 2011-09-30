@@ -72,7 +72,8 @@ public:
 	bool hasCommand(const LLCommandId& commandId) const;
 	// Loads the toolbars from the existing user or default settings
 	bool loadToolbars(bool force_default = false);	// return false if load fails
-	bool loadDefaultToolbars() { return loadToolbars(true); }
+	
+	static bool loadDefaultToolbars();
 	
 protected:
 	friend class LLUICtrlFactory;

@@ -61,6 +61,8 @@ BOOL LLFloaterToybox::postBuild()
 	center();
 
 	mBtnRestoreDefaults = getChild<LLButton>("btn_restore_defaults");
+	mBtnRestoreDefaults->setCommitCallback(boost::bind(&LLToolBarView::loadDefaultToolbars));
+
 	mToolBar = getChild<LLToolBar>("toybox_toolbar");
 
 	LLCommandManager& cmdMgr = LLCommandManager::instance();
