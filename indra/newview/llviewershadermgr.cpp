@@ -187,6 +187,7 @@ LLGLSLShader			gDeferredGIProgram;
 LLGLSLShader			gDeferredGIFinalProgram;
 LLGLSLShader			gDeferredPostGIProgram;
 LLGLSLShader			gDeferredPostProgram;
+LLGLSLShader			gFXAAProgram;
 LLGLSLShader			gDeferredPostNoDoFProgram;
 LLGLSLShader			gDeferredWLSkyProgram;
 LLGLSLShader			gDeferredWLCloudProgram;
@@ -275,6 +276,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredPostGIProgram);
 	mShaderList.push_back(&gDeferredEdgeProgram);
 	mShaderList.push_back(&gDeferredPostProgram);
+	mShaderList.push_back(&gFXAAProgram);
 	mShaderList.push_back(&gDeferredGIProgram);
 	mShaderList.push_back(&gDeferredGIFinalProgram);
 	mShaderList.push_back(&gDeferredWaterProgram);
@@ -463,7 +465,6 @@ void LLViewerShaderMgr::setShaders()
 
 
 	//setup preprocessor definitions
-	LLShaderMgr::instance()->mDefinitions["samples"] = llformat("%d", gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples")));
 	LLShaderMgr::instance()->mDefinitions["NUM_TEX_UNITS"] = llformat("%d", gGLManager.mNumTextureImageUnits);
 
 	reentrance = true;
@@ -1032,9 +1033,6 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 {
 	BOOL success = TRUE;
 
-	U32 samples = gGLManager.getNumFBOFSAASamples(gSavedSettings.getU32("RenderFSAASamples"));
-	bool multisample = samples > 1 && LLPipeline::sRenderDeferred && gGLManager.mHasTextureMultisample;
-
 	if (mVertexShaderLevel[SHADER_EFFECT] == 0)
 	{
 		gGlowProgram.unload();
@@ -1060,21 +1058,10 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 	
 	if (success)
 	{
-		std::string fragment;
-
-		if (multisample)
-		{
-			fragment = "effects/glowExtractMSF.glsl";
-		}
-		else
-		{
-			fragment = "effects/glowExtractF.glsl";
-		}
-
 		gGlowExtractProgram.mName = "Glow Extract Shader (Post)";
 		gGlowExtractProgram.mShaderFiles.clear();
 		gGlowExtractProgram.mShaderFiles.push_back(make_pair("effects/glowExtractV.glsl", GL_VERTEX_SHADER_ARB));
-		gGlowExtractProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
+		gGlowExtractProgram.mShaderFiles.push_back(make_pair("effects/glowExtractF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gGlowExtractProgram.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
 		success = gGlowExtractProgram.createShader(NULL, &mGlowExtractUniforms);
 		if (!success)
@@ -1124,6 +1111,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredPostGIProgram.unload();		
 		gDeferredEdgeProgram.unload();		
 		gDeferredPostProgram.unload();		
+		gFXAAProgram.unload();
 		gLuminanceGatherProgram.unload();
 		gDeferredGIProgram.unload();
 		gDeferredGIFinalProgram.unload();
@@ -1137,9 +1125,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	mVertexShaderLevel[SHADER_AVATAR] = 1;
 
 	BOOL success = TRUE;
-
-	U32 samples = gSavedSettings.getU32("RenderFSAASamples");
-	bool multisample = samples > 1;
 
 	if (success)
 	{
@@ -1524,40 +1509,30 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		std::string fragment;
-		if (multisample)
-		{
-			fragment = "deferred/postDeferredF.glsl";
-		}
-		else
-		{
-			fragment = "deferred/postDeferredNoFXAAF.glsl";
-		}
+		gFXAAProgram.mName = "FXAA Shader";
+		gFXAAProgram.mShaderFiles.clear();
+		gFXAAProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER_ARB));
+		gFXAAProgram.mShaderFiles.push_back(make_pair("deferred/fxaaF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gFXAAProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gFXAAProgram.createShader(NULL, NULL);
+	}
 
+	if (success)
+	{
 		gDeferredPostProgram.mName = "Deferred Post Shader";
 		gDeferredPostProgram.mShaderFiles.clear();
 		gDeferredPostProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredPostProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
+		gDeferredPostProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredPostProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredPostProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
 	{
-		std::string fragment;
-		if (multisample)
-		{
-			fragment = "deferred/postDeferredNoDoFF.glsl";
-		}
-		else
-		{
-			fragment = "deferred/postDeferredNoDoFNoFXAAF.glsl";
-		}
-
 		gDeferredPostNoDoFProgram.mName = "Deferred Post Shader";
 		gDeferredPostNoDoFProgram.mShaderFiles.clear();
 		gDeferredPostNoDoFProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredPostNoDoFProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
+		gDeferredPostNoDoFProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoDOFF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredPostNoDoFProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredPostNoDoFProgram.createShader(NULL, NULL);
 	}

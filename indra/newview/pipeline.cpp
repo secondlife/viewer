@@ -6358,8 +6358,39 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			gGL.vertex2f(3,-1);
 			gGL.end();
 
+			gGL.flush();
+
 			gGlowCombineFXAAProgram.unbind();
 			mFXAABuffer.flush();
+
+			mScreen.bindTarget();
+			LLGLSLShader* shader = &gFXAAProgram;
+			shader->bind();
+
+			S32 channel = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP, mFXAABuffer.getUsage());
+			if (channel > -1)
+			{
+				mFXAABuffer.bindTexture(0, channel);
+				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+			}
+
+			
+			F32 scale_x = (F32) width/mFXAABuffer.getWidth();
+			F32 scale_y = (F32) height/mFXAABuffer.getHeight();
+			shader->uniform2f("tc_scale", scale_x, scale_y);
+			shader->uniform2f("rcp_screen_res", 1.f/width*scale_x, 1.f/height*scale_y);
+			shader->uniform4f("rcp_frame_opt", -0.5f/width*scale_x, -0.5f/height*scale_y, 0.5f/width*scale_x, 0.5f/height*scale_y);
+			shader->uniform4f("rcp_frame_opt2", -2.f/width*scale_x, -2.f/height*scale_y, 2.f/width*scale_x, 2.f/height*scale_y);
+
+			gGL.begin(LLRender::TRIANGLE_STRIP);
+			gGL.vertex2f(-1,-1);
+			gGL.vertex2f(-1,3);
+			gGL.vertex2f(3,-1);
+			gGL.end();
+
+			gGL.flush();
+			mScreen.flush();
+			shader->unbind();
 		}
 
 		gViewerWindow->setup3DViewport();
@@ -6382,13 +6413,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		S32 width = mScreen.getWidth();
 		S32 height = mScreen.getHeight();
 		
-		F32 scale_x = (F32) width/mFXAABuffer.getWidth();
-		F32 scale_y = (F32) height/mFXAABuffer.getHeight();
-		shader->uniform2f("tc_scale", scale_x, scale_y);
-		shader->uniform2f("rcp_screen_res", 1.f/width*scale_x, 1.f/height*scale_y);
-		shader->uniform4f("rcp_frame_opt", -0.5f/width*scale_x, -0.5f/height*scale_y, 0.5f/width*scale_x, 0.5f/height*scale_y);
-		shader->uniform4f("rcp_frame_opt2", -2.f/width*scale_x, -2.f/height*scale_y, 2.f/width*scale_x, 2.f/height*scale_y);
-
 		if (dof_enabled)
 		{
 			//depth of field focal plane calculations
@@ -6501,24 +6525,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			shader->uniform1f("magnification", magnification);
 		}
 
-		if (multisample)
+		S32 channel = shader->enableTexture(LLViewerShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
+		if (channel > -1)
 		{
-			S32 channel = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP, mFXAABuffer.getUsage());
-			if (channel > -1)
-			{
-				mFXAABuffer.bindTexture(0, channel);
-				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
-			}
+			mScreen.bindTexture(0, channel);
 		}
-		else
-		{
-			S32 channel = shader->enableTexture(LLViewerShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
-			if (channel > -1)
-			{
-				mScreen.bindTexture(0, channel);
-			}
-		}
-
 	
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
