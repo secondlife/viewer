@@ -293,7 +293,7 @@ public:
 protected:
 	virtual void    applySavedVariables();
 
-	void			applyRectControl();
+	virtual void	applyRectControl();
 	void			applyDockState();
 	void			storeRectControl();
 	void			storeVisibilityControl();

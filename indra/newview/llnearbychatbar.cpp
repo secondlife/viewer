@@ -451,6 +451,16 @@ BOOL LLNearbyChatBar::postBuild()
 	return TRUE;
 }
 
+void LLNearbyChatBar::applyRectControl()
+{
+	LLFloater::applyRectControl();
+	if (getRect().getHeight() > getMinHeight())
+	{
+		getChildView("nearby_chat")->setVisible(true);
+		mExpandedHeight = getRect().getHeight();
+	}
+}
+
 void LLNearbyChatBar::onChatFontChange(LLFontGL* fontp)
 {
 	// Update things with the new font whohoo
@@ -690,14 +700,15 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 
 	if (nearby_chat->getVisible())
 	{
+		mExpandedHeight = getRect().getHeight();
 		nearby_chat->setVisible(FALSE);
-		reshape(getRect().getWidth(), 60);
-		mResizeHandle[0]->setMaxHeight(60);
+		reshape(getRect().getWidth(), getMinHeight());
+		mResizeHandle[0]->setMaxHeight(getMinHeight());
 	}
 	else
 	{
 		nearby_chat->setVisible(TRUE);
-		reshape(getRect().getWidth(), 360);
+		reshape(getRect().getWidth(), mExpandedHeight);
 		mResizeHandle[0]->setMaxHeight(S32_MAX);
 	}
 }

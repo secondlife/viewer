@@ -127,6 +127,8 @@ protected:
 	void onChatBoxCommit();
 	void onChatFontChange(LLFontGL* fontp);
 
+	/* virtual */ void applyRectControl();
+
 	void onToggleNearbyChatPanel();
 
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
@@ -140,6 +142,8 @@ protected:
 	LLLineEditor*		mChatBox;
 	LLOutputMonitorCtrl* mOutputMonitor;
 	LLLocalSpeakerMgr*  mSpeakerMgr;
+
+	S32 mExpandedHeight;
 };
 
 #endif
