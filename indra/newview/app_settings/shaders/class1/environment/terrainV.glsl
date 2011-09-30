@@ -1,4 +1,4 @@
-/** 
+/**
  * @file terrainV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
@@ -25,9 +25,6 @@
 
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
-uniform mat4 texture_matrix1;
-uniform mat4 texture_matrix2;
-uniform mat4 texture_matrix3;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
@@ -39,14 +36,12 @@ ATTRIBUTE vec3 normal;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 ATTRIBUTE vec2 texcoord1;
-ATTRIBUTE vec2 texcoord2;
-ATTRIBUTE vec2 texcoord3;
 
 VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
-VARYING vec2 vary_texcoord3;
+VARYING vec4 vary_texcoord0;
+VARYING vec4 vary_texcoord1;
+
+void calcAtmospherics(vec3 inPositionEye);
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 
@@ -68,16 +63,26 @@ void main()
 {
 	//transform vertex
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
-			
-	vec4 pos = modelview_matrix * vec4(position, 1.0);
+
+	vec4 pos = modelview_matrix * vec4(position.xyz, 1.0);
 	vec3 norm = normalize(normal_matrix * normal);
-	
-	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), diffuse_color);
+
+	calcAtmospherics(pos.xyz);
+
+	/// Potentially better without it for water.
+	pos /= pos.w;
+
+	vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0));
 	
 	vertex_color = color;
+
+	// Transform and pass tex coords
+ 	vary_texcoord0.xy = texgen_object(vec4(position.xyz, 1.0), vec4(texcoord0,0,1), texture_matrix0, object_plane_s, object_plane_t).xy;
 	
-	vary_texcoord0 = texgen_object(vec4(position.xyz, 1.0),vec4(texcoord0,0,1),texture_matrix0,object_plane_s,object_plane_t).xy;
-	vary_texcoord1 = (texture_matrix1*vec4(texcoord1,0,1)).xy;
-	vary_texcoord2 = texgen_object(vec4(position.xyz, 1.0),vec4(texcoord2,0,1),texture_matrix2,object_plane_s,object_plane_t).xy;
-	vary_texcoord3 = (texture_matrix3*vec4(texcoord3,0,1)).xy;
+	vec4 t = vec4(texcoord1,0,1);
+	
+	vary_texcoord0.zw = t.xy;
+	vary_texcoord1.xy = t.xy-vec2(2.0, 0.0);
+	vary_texcoord1.zw = t.xy-vec2(1.0, 0.0);
 }
+

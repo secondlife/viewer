@@ -3148,17 +3148,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableRippleWater</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to use ripple water shader or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>EnableTextureAtlas</key>
     <map>
       <key>Comment</key>
@@ -9296,7 +9285,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>RenderVBOMappingDisable</key>
     <map>

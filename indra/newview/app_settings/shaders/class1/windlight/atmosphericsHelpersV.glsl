@@ -23,7 +23,7 @@
  * $/LicenseInfo$
  */
  
-uniform vec3 light_diffuse[8];
+uniform vec4 sunlight_color;
 uniform vec4 light_ambient;
 
 vec3 atmosAmbient(vec3 light)
@@ -33,12 +33,12 @@ vec3 atmosAmbient(vec3 light)
 
 vec3 atmosAffectDirectionalLight(float lightIntensity)
 {
-	return light_diffuse[0].rgb * lightIntensity;
+	return sunlight_color.rgb * lightIntensity;
 }
 
 vec3 atmosGetDiffuseSunlightColor()
 {
-	return light_diffuse[0].rgb;
+	return sunlight_color.rgb;
 }
 
 vec3 scaleDownLight(vec3 light)

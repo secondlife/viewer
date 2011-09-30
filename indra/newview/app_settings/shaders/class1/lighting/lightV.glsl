@@ -24,24 +24,13 @@
  */
  
 
-uniform vec4 light_position[8];
-uniform vec3 light_diffuse[8];
-uniform vec4 light_ambient;
 
-float calcDirectionalLight(vec3 n, vec3 l);
+// All lights, no specular highlights
+
+vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight);
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 {
-	vec4 col;
-	col.a = color.a;
-	
-	col.rgb = baseLight.rgb+light_ambient.rgb;  
-	
-	col.rgb += light_diffuse[0].rgb*calcDirectionalLight(norm, light_position[0].xyz);
-	col.rgb += light_diffuse[1].rgb*calcDirectionalLight(norm, light_position[1].xyz);
-						
-	col.rgb = min(col.rgb*color.rgb, 1.0);
-	
-	return col;	
+	return sumLights(pos, norm, color, baseLight);
 }
 

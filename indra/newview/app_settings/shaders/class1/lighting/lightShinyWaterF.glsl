@@ -29,13 +29,23 @@ out vec4 gl_FragColor;
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+VARYING vec3 vary_texcoord1;
 
-uniform sampler2D diffuseMap;
 uniform samplerCube environmentMap;
 
-void shiny_lighting_water() 
+vec3 atmosLighting(vec3 light);
+vec4 applyWaterFog(vec4 color);
+
+void shiny_lighting_water()
 {
-	vec4 color = vertex_color * texture2D(diffuseMap, vary_texcoord0.xy);
-	gl_FragColor = color;
+	vec4 color = diffuseLookup(vary_texcoord0.xy);
+	color.rgb *= vertex_color.rgb;
+	
+	vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
+	color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a);
+
+	color.rgb = atmosLighting(color.rgb);
+	color.a = max(color.a, vertex_color.a);
+	gl_FragColor = applyWaterFog(color);
 }
 

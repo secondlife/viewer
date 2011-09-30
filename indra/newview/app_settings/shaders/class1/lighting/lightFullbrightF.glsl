@@ -22,18 +22,25 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 gl_FragColor;
 #endif
 
-
-uniform sampler2D diffuseMap;
-
+VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+
+vec3 fullbrightAtmosTransport(vec3 light);
+vec3 fullbrightScaleSoftClip(vec3 light);
 
 void fullbright_lighting()
 {
-	gl_FragColor = texture2D(diffuseMap, vary_texcoord0.xy);
+	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
+	
+	color.rgb = fullbrightAtmosTransport(color.rgb);
+	
+	color.rgb = fullbrightScaleSoftClip(color.rgb);
+
+	gl_FragColor = color;
 }
 

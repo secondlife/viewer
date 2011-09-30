@@ -1,5 +1,5 @@
 /** 
- * @file lightV.glsl
+ * @file lightSpecularV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,26 +24,13 @@
  */
  
 
-uniform vec4 light_position[8];
-uniform vec3 light_diffuse[8];
-uniform vec4 light_ambient;
 
-float calcDirectionalLight(vec3 n, vec3 l);
+// All lights, no specular highlights
 
-// Same as non-specular lighting in lightV.glsl
+vec4 sumLightsSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor, vec4 baseCol);
+
 vec4 calcLightingSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor, vec4 baseCol)
 {
-	specularColor.rgb = vec3(0.0, 0.0, 0.0);
-	vec4 col;
-	col.a = color.a;
-
-	col.rgb = baseCol.rgb + light_ambient.rgb;
-
-	col.rgb += light_diffuse[0].rgb*calcDirectionalLight(norm, light_position[0].xyz);
-	col.rgb += light_diffuse[1].rgb*calcDirectionalLight(norm, light_position[1].xyz);
-
-	col.rgb = min(col.rgb*color.rgb, 1.0);
-
-	return col;	
+	return sumLightsSpecular(pos, norm, color, specularColor, baseCol);
 }
 

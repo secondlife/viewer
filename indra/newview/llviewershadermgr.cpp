@@ -561,11 +561,7 @@ void LLViewerShaderMgr::setShaders()
 			wl_class = 1;
 		}
 
-		if(!gSavedSettings.getBOOL("EnableRippleWater"))
-		{
-			water_class = 0;
-		}
-
+		
 		// Trigger a full rebuild of the fallback skybox / cubemap if we've toggled windlight shaders
 		if (mVertexShaderLevel[SHADER_WINDLIGHT] != wl_class && gSky.mVOSkyp.notNull())
 		{
@@ -1087,51 +1083,6 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		}
 	}
 	
-#if 0
-	// disabling loading of postprocess shaders until we fix
-	// ATI sampler2DRect compatibility.
-	
-	//load Color Filter Shader
-	if (success)
-	{
-		vector<string> shaderUniforms;
-		shaderUniforms.reserve(7);
-		shaderUniforms.push_back("RenderTexture");
-		shaderUniforms.push_back("gamma");
-		shaderUniforms.push_back("brightness");
-		shaderUniforms.push_back("contrast");
-		shaderUniforms.push_back("contrastBase");
-		shaderUniforms.push_back("saturation");
-		shaderUniforms.push_back("lumWeights");
-
-		gPostColorFilterProgram.mName = "Color Filter Shader (Post)";
-		gPostColorFilterProgram.mShaderFiles.clear();
-		gPostColorFilterProgram.mShaderFiles.push_back(make_pair("effects/colorFilterF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gPostColorFilterProgram.mShaderFiles.push_back(make_pair("effects/drawQuadV.glsl", GL_VERTEX_SHADER_ARB));
-		gPostColorFilterProgram.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
-		success = gPostColorFilterProgram.createShader(NULL, &shaderUniforms);
-	}
-
-	//load Night Vision Shader
-	if (success)
-	{
-		vector<string> shaderUniforms;
-		shaderUniforms.reserve(5);
-		shaderUniforms.push_back("RenderTexture");
-		shaderUniforms.push_back("NoiseTexture");
-		shaderUniforms.push_back("brightMult");
-		shaderUniforms.push_back("noiseStrength");
-		shaderUniforms.push_back("lumWeights");
-
-		gPostNightVisionProgram.mName = "Night Vision Shader (Post)";
-		gPostNightVisionProgram.mShaderFiles.clear();
-		gPostNightVisionProgram.mShaderFiles.push_back(make_pair("effects/nightVisionF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gPostNightVisionProgram.mShaderFiles.push_back(make_pair("effects/drawQuadV.glsl", GL_VERTEX_SHADER_ARB));
-		gPostNightVisionProgram.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
-		success = gPostNightVisionProgram.createShader(NULL, &shaderUniforms);
-	}
-	#endif
-
 	return success;
 
 }
