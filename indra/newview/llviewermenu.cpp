@@ -83,7 +83,6 @@
 #include "llrootview.h"
 #include "llsceneview.h"
 #include "llselectmgr.h"
-#include "llsidetray.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
 #include "lltoolcomp.h"
@@ -3348,15 +3347,6 @@ bool enable_sitdown_self()
     return isAgentAvatarValid() && !gAgentAvatarp->isSitting() && !gAgent.getFlying();
 }
 
-// Used from the login screen to aid in UI work on side tray
-void handle_show_side_tray()
-{
-	LLSideTray* side_tray = LLSideTray::getInstance();
-	LLView* root = gViewerWindow->getRootView();
-	// automatically removes and re-adds if there already
-	root->addChild(side_tray);
-}
-
 // Toggle one of "People" panel tabs in side tray.
 class LLTogglePanelPeopleTab : public view_listener_t
 {
@@ -3367,21 +3357,11 @@ class LLTogglePanelPeopleTab : public view_listener_t
 		LLSD param;
 		param["people_panel_tab_name"] = panel_name;
 
-		static LLPanel* friends_panel = NULL;
-		static LLPanel* groups_panel = NULL;
-		static LLPanel* nearby_panel = NULL;
-
-		if (panel_name == "friends_panel")
+		if (   panel_name == "friends_panel"
+			|| panel_name == "groups_panel"
+			|| panel_name == "nearby_panel")
 		{
-			return togglePeoplePanel(friends_panel, panel_name, param);
-		}
-		else if (panel_name == "groups_panel")
-		{
-			return togglePeoplePanel(groups_panel, panel_name, param);
-		}
-		else if (panel_name == "nearby_panel")
-		{
-			return togglePeoplePanel(nearby_panel, panel_name, param);
+			return togglePeoplePanel(panel_name, param);
 		}
 		else
 		{
@@ -3389,16 +3369,20 @@ class LLTogglePanelPeopleTab : public view_listener_t
 		}
 	}
 
-	static bool togglePeoplePanel(LLPanel* &panel, const std::string& panel_name, const LLSD& param)
+	static bool togglePeoplePanel(const std::string& panel_name, const LLSD& param)
 	{
+		LLPanel	*panel = LLFloaterSidePanelContainer::getPanel("people", panel_name);
 		if(!panel)
-		{
-			panel = LLSideTray::getInstance()->getPanel(panel_name);
-			if(!panel)
-				return false;
-		}
+			return false;
 
-		LLSideTray::getInstance()->togglePanel(panel, "panel_people", param);
+		if (panel->isInVisibleChain())
+		{
+			LLFloaterReg::hideInstance("people");
+		}
+		else
+		{
+			LLFloaterSidePanelContainer::showPanel("people", "panel_people", param) ;
+		}
 
 		return true;
 	}
@@ -8067,7 +8051,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckDebugKeys(), "Advanced.CheckDebugKeys");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugWindowProc(), "Advanced.ToggleDebugWindowProc");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugWindowProc(), "Advanced.CheckDebugWindowProc");
-	commit.add("Advanced.ShowSideTray", boost::bind(&handle_show_side_tray));
 
 	// Advanced > XUI
 	commit.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));

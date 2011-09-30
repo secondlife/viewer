@@ -1,21 +1,23 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
 <floater
- can_close="true"
- can_resize="true"
- height="570"
- help_topic="sidebar_people"
- min_width="333"
- min_height="440"
- name="floater_people"
- save_rect="true"
- save_visibility="true"
- title="People"
- width="333" >
+  can_close="true"
+  can_resize="true"
+  height="570"
+  help_topic="sidebar_people"
+  min_height="440"
+  min_width="333"
+  layout="topleft"
+  name="floater_people"
+  save_rect="true"
+  single_instance="true"
+  title="PEOPLE"
+  width="333">
     <panel_container
+      default_panel_name="panel_people"
       follows="all"
       height="570"
       name="main_panel"
-      default_panel_name="panel_people"
       width="333">
       <panel
         class="panel_people"

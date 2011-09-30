@@ -74,7 +74,6 @@
 #include "llrecentpeople.h"
 #include "llscriptfloater.h"
 #include "llselectmgr.h"
-#include "llsidetray.h"
 #include "llstartup.h"
 #include "llsky.h"
 #include "llslurl.h"
@@ -6800,7 +6799,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
 
-	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->getPanel<LLPanelPlaceProfile>("panel_place_profile");
+	LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile");
 	if (panel)
 	{
 		panel->updateEstateName(estate_name);
@@ -6934,7 +6933,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	LLPanelLandCovenant::updateCovenantText(covenant_text);
 	LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
 
-	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->getPanel<LLPanelPlaceProfile>("panel_place_profile");
+	LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile");
 	if (panel)
 	{
 		panel->updateCovenantText(covenant_text);

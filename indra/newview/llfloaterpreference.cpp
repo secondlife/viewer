@@ -50,6 +50,7 @@
 #include "llfloaterreg.h"
 #include "llfloaterabout.h"
 #include "llfloaterhardwaresettings.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llimfloater.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
@@ -66,7 +67,6 @@
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llsliderctrl.h"
-#include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -1496,11 +1496,7 @@ void LLFloaterPreference::onChangeMaturity()
 // but the UI for this will still be enabled
 void LLFloaterPreference::onClickBlockList()
 {
-	// don't create side tray on demand
-	if (LLSideTray::instanceCreated())
-	{
-		LLSideTray::getInstance()->showPanel("panel_block_list_sidetray");
-	}
+	LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
 }
 
 void LLFloaterPreference::onDoubleClickCheckBox(LLUICtrl* ctrl)

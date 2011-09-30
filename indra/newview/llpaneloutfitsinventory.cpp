@@ -41,7 +41,6 @@
 #include "llpanelwearing.h"
 #include "llsaveoutfitcombobtn.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "llviewerfoldertype.h"
 
 static const std::string OUTFITS_TAB_NAME = "outfitslist_tab";

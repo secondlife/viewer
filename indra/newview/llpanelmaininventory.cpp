@@ -52,7 +52,6 @@
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
 #include "llsidepanelinventory.h"
-#include "llsidetray.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 

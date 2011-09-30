@@ -45,7 +45,6 @@
 #include "llfloaterworldmap.h"
 #include "lllandmarkactions.h"
 #include "llnotificationsutil.h"
-#include "llsidetray.h"
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"

@@ -52,7 +52,6 @@
 #include "llmenubutton.h"
 #include "llplacesinventorybridge.h"
 #include "llplacesinventorypanel.h"
-#include "llsidetray.h"
 #include "lltoggleablemenu.h"
 #include "llviewermenu.h"
 #include "llviewerregion.h"

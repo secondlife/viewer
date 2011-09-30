@@ -49,7 +49,6 @@
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
 #include "llteleporthistory.h"
-#include "llsidetray.h"
 #include "llslurl.h"
 #include "llstatusbar.h"			// getHealth()
 #include "lltrans.h"

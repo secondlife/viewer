@@ -282,19 +282,20 @@ BOOL LLSidepanelInventory::postBuild()
 		enableOutbox(gSavedSettings.getBOOL("InventoryDisplayOutbox"));
 
 		// Trigger callback for after login so we can setup to track inbox and outbox changes after initial inventory load
-		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::handleLoginComplete, this));
+		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::updateInboxOutbox, this));
 	}
 
 	gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
 	gSavedSettings.getControl("InventoryDisplayOutbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayOutboxChanged));
 
+	updateInboxOutbox();
 	// Update the verbs buttons state.
 	updateVerbs();
 
 	return TRUE;
 }
 
-void LLSidepanelInventory::handleLoginComplete()
+void LLSidepanelInventory::updateInboxOutbox()
 {
 	//
 	// Track inbox and outbox folder changes

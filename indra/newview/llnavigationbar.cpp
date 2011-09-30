@@ -45,7 +45,6 @@
 #include "llpaneltopinfobar.h"
 #include "llteleporthistory.h"
 #include "llsearchcombobox.h"
-#include "llsidetray.h"
 #include "llslurl.h"
 #include "llurlregistry.h"
 #include "llurldispatcher.h"
