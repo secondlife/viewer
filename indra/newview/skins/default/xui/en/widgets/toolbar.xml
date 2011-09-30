@@ -10,6 +10,7 @@
   <button_panel name="button_panel"
                 bg_opaque_image="Rounded_Rect"
                 background_visible="true"
+                bg_opaque_color="MouseGray"
                 background_opaque="true"/>
   <button_icon_and_text follows="left|top"
                         chrome="true"

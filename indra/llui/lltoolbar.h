@@ -42,7 +42,15 @@ public:
 	{
 	};
 
-	LLToolBarButton(const Params& p) : LLButton(p) {}
+	LLToolBarButton(const Params& p);
+
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	BOOL handleHover(S32 x, S32 y, MASK mask);
+	void setCommandId(const LLCommandId& id) { mId = id; }
+private:
+	LLCommandId		mId;
+	S32				mMouseDownX;
+	S32				mMouseDownY;
 };
 
 
@@ -124,6 +132,8 @@ public:
 	bool hasCommand(const LLCommandId& commandId) const;
 	bool enableCommand(const LLCommandId& commandId, bool enabled);
 
+	LLToolBarButton* createButton(const LLCommandId& id);
+
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBar(const Params&);
@@ -142,7 +152,6 @@ private:
 	void createContextMenu();
 	void updateLayoutAsNeeded();
 	void createButtons();
-	void createButton(const LLCommandId& id);
 	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
 	BOOL isSettingChecked(const LLSD& userdata);
 	void onSettingEnable(const LLSD& userdata);
@@ -151,6 +160,9 @@ private:
 
 	std::list<LLToolBarButton*>		mButtons;
 	command_id_list_t				mButtonCommands;
+	typedef std::map<LLCommandId, LLToolBarButton*> command_id_map;
+	command_id_map					mButtonMap;
+
 	LLToolBarEnums::ButtonType		mButtonType;
 	LLLayoutStack*					mCenteringStack;
 	LLLayoutStack*					mWrapStack;

@@ -365,7 +365,7 @@ template <typename T> LLRegisterWith<LLInitClassList> LLInitClass<T>::sRegister(
 template <typename T> LLRegisterWith<LLDestroyClassList> LLDestroyClass<T>::sRegister(&T::destroyClass);
 
 // useful parameter blocks
-struct TimeIntervalParam : public LLInitParam::Choice<TimeIntervalParam>
+struct TimeIntervalParam : public LLInitParam::ChoiceBlock<TimeIntervalParam>
 {
 	Alternative<F32>		seconds;
 	Alternative<S32>		frames;

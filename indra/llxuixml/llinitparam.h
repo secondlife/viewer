@@ -38,6 +38,9 @@
 
 namespace LLInitParam
 {
+	// used to indicate no matching value to a given name when parsing
+	struct Flag{};
+
 	template<typename T> const T& defaultValue() { static T value; return value; }
 
 	template <typename T, bool IS_BOOST_FUNCTION = boost::is_convertible<T, boost::function_base>::value >
@@ -63,6 +66,12 @@ namespace LLInitParam
 	struct ParamCompare<LLSD, false>
 	{
 		static bool equals(const LLSD &a, const LLSD &b) { return false; }
+	};
+
+	template<>
+	struct ParamCompare<Flag, false>
+	{
+		static bool equals(const Flag& a, const Flag& b) { return false; }
 	};
 
 	// helper functions and classes
@@ -275,9 +284,6 @@ namespace LLInitParam
 		static S32					sNextParseGeneration;
 	};
 
-	// used to indicate no matching value to a given name when parsing
-	struct NoParamValue{};
-
 	class BaseBlock;
 
 	class Param
@@ -385,36 +391,36 @@ namespace LLInitParam
 		// "Multiple" constraint types, put here in root class to avoid ambiguity during use
 		struct AnyAmount
 		{
-			static U32 minCount() { return 0; }
-			static U32 maxCount() { return U32_MAX; }
+			enum { minCount = 0 };
+			enum { maxCount = U32_MAX };
 		};
 
 		template<U32 MIN_AMOUNT>
 		struct AtLeast
 		{
-			static U32 minCount() { return MIN_AMOUNT; }
-			static U32 maxCount() { return U32_MAX; }
+			enum { minCount = MIN_AMOUNT };
+			enum { maxCount = U32_MAX };
 		};
 
 		template<U32 MAX_AMOUNT>
 		struct AtMost
 		{
-			static U32 minCount() { return 0; }
-			static U32 maxCount() { return MAX_AMOUNT; }
+			enum { minCount = 0 };
+			enum { maxCount = MAX_AMOUNT };
 		};
 
 		template<U32 MIN_AMOUNT, U32 MAX_AMOUNT>
 		struct Between
 		{
-			static U32 minCount() { return MIN_AMOUNT; }
-			static U32 maxCount() { return MAX_AMOUNT; }
+			enum { minCount = MIN_AMOUNT };
+			enum { maxCount = MAX_AMOUNT };
 		};
 
 		template<U32 EXACT_COUNT>
 		struct Exactly
 		{
-			static U32 minCount() { return EXACT_COUNT; }
-			static U32 maxCount() { return EXACT_COUNT; }
+			enum { minCount = EXACT_COUNT };
+			enum { maxCount = EXACT_COUNT };
 		};
 
 		// this typedef identifies derived classes as being blocks
@@ -477,9 +483,9 @@ namespace LLInitParam
 		void init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size);
 
 
-		bool mergeBlockParam(bool param_provided, BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
+		bool mergeBlockParam(bool source_provided, bool dst_provided, BlockDescriptor& block_data, const BaseBlock& source, bool overwrite)
 		{
-			return mergeBlock(block_data, other, overwrite);
+			return mergeBlock(block_data, source, overwrite);
 		}
 		// take all provided params from other and apply to self
 		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite);
@@ -495,92 +501,6 @@ namespace LLInitParam
 
 	private:
 		const std::string& getParamName(const BlockDescriptor& block_data, const Param* paramp) const;
-	};
-
-	class BaseBlockWithFlags : public BaseBlock
-	{
-	public:
-		class FlagBase : public Param
-		{
-		public:
-			typedef FlagBase self_t;
-
-			FlagBase(const char* name, BaseBlock* enclosing_block) : Param(enclosing_block) 
-			{
-				if (LL_UNLIKELY(enclosing_block->mostDerivedBlockDescriptor().mInitializationState == BlockDescriptor::INITIALIZING))
-				{
-					ParamDescriptorPtr param_descriptor = ParamDescriptorPtr(new ParamDescriptor(
-						enclosing_block->getHandleFromParam(this),
-						&mergeWith,
-						&deserializeParam,
-						&serializeParam,
-						NULL,
-						&inspectParam,
-						0, 1));
-					BaseBlock::addParam(enclosing_block->mostDerivedBlockDescriptor(), param_descriptor, name);
-				}
-			}
-
-			bool isProvided() const { return anyProvided(); }
-
-		private:
-			static bool mergeWith(Param& dst, const Param& src, bool overwrite)
-			{
-				const self_t& src_typed_param = static_cast<const self_t&>(src);
-				self_t& dst_typed_param = static_cast<self_t&>(dst);
-
-				if (src_typed_param.isProvided()
-					&& (overwrite || !dst_typed_param.isProvided()))
-				{
-					dst.setProvided(true);
-					return true;
-				}
-				return false;
-			}
-
-			static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, S32 generation)
-			{
-				self_t& typed_param = static_cast<self_t&>(param);
-
-				// no further names in stack, parse value now
-				if (name_stack.first == name_stack.second)
-				{
-					typed_param.setProvided(true);
-					typed_param.enclosingBlock().paramChanged(param, true);
-					return true;
-				}
-
-				return false;
-			}
-
-			static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const Param* diff_param)
-			{
-				const self_t& typed_param = static_cast<const self_t&>(param);
-				const self_t* typed_diff_param = static_cast<const self_t*>(diff_param);
-
-				if (!typed_param.isProvided()) return;
-
-				if (!name_stack.empty())
-				{
-					name_stack.back().second = parser.newParseGeneration();
-				}
-
-				// then try to serialize value directly
-				if (!typed_diff_param || !typed_diff_param->isProvided())
-				{
-					if (!parser.writeValue(NoParamValue(), name_stack)) 
-					{
-						return;
-					}
-				}
-			}
-
-			static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
-			{
-				// tell parser about our actual type
-				parser.inspectValue<NoParamValue>(name_stack, min_count, max_count, NULL);
-			}
-		};
 	};
 
 	// these templates allow us to distinguish between template parameters
@@ -604,7 +524,7 @@ namespace LLInitParam
 		typedef const T&							value_assignment_t;
 
 		ParamValue(): mValue() {}
-		ParamValue(const T& other) : mValue(other) {}
+		ParamValue(value_assignment_t other) : mValue(other) {}
 
 		void setValue(value_assignment_t val)
 		{
@@ -620,6 +540,17 @@ namespace LLInitParam
 		{
 			return mValue;
 		}
+
+		operator value_assignment_t() const
+		{
+			return mValue;
+		}
+
+		value_assignment_t operator()() const
+		{
+			return mValue;
+		}
+
 
 	private:
 		T mValue;
@@ -644,7 +575,7 @@ namespace LLInitParam
 			mValidated(false)
 		{}
 
-		ParamValue(const T& other)
+		ParamValue(value_assignment_t other)
 		:	T(other),
 			mKeyVersion(0),
 			mValidatedVersion(-1),
@@ -663,6 +594,16 @@ namespace LLInitParam
 		}
 
 		T& getValue()
+		{
+			return *this;
+		}
+
+		operator value_assignment_t() const
+		{
+			return *this;
+		}
+		
+		value_assignment_t operator()() const
 		{
 			return *this;
 		}
@@ -800,11 +741,6 @@ namespace LLInitParam
 			setProvided(flag_as_provided);
 			Param::enclosingBlock().paramChanged(*this, flag_as_provided);
 		}
-
-		// implicit conversion
-		operator value_assignment_t() const { return param_value_t::getValue(); } 
-		// explicit conversion
-		value_assignment_t operator()() const { return param_value_t::getValue(); } 
 
 	protected:
 
@@ -958,11 +894,6 @@ namespace LLInitParam
 			}
 		}
 
-		// implicit conversion
-		operator value_assignment_t() const { return param_value_t::getValue(); } 
-		// explicit conversion
-		value_assignment_t operator()() const { return param_value_t::getValue(); } 
-
 	protected:
 
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
@@ -972,8 +903,7 @@ namespace LLInitParam
 
 			if (src_typed_param.anyProvided())
 			{
-				bool param_provided = src_typed_param.isProvided() && (overwrite || !dst_typed_param.isProvided());
-				if (dst_typed_param.mergeBlockParam(param_provided, param_value_t::selfBlockDescriptor(), src_typed_param, overwrite))
+				if (dst_typed_param.mergeBlockParam(src_typed_param.isProvided(), dst_typed_param.isProvided(), param_value_t::selfBlockDescriptor(), src_typed_param, overwrite))
 				{
 					dst_typed_param.clearValueName();
 					dst_typed_param.setProvided(true);
@@ -992,8 +922,8 @@ namespace LLInitParam
 	{
 	public:
 		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, false>		self_t;
-		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>			param_value_t;
-		typedef typename std::vector<param_value_t>							container_t;
+		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>					param_value_t;
+		typedef typename std::vector<param_value_t>					container_t;
 		typedef const container_t&											value_assignment_t;
 
 		typedef VALUE_TYPE													value_t;
@@ -1118,6 +1048,8 @@ namespace LLInitParam
 
 		// implicit conversion
 		operator value_assignment_t() const { return mValues; } 
+		// explicit conversion		
+		value_assignment_t operator()() const { return mValues; }
 
 		typedef typename container_t::iterator iterator;
 		typedef typename container_t::const_iterator const_iterator;
@@ -1169,7 +1101,7 @@ namespace LLInitParam
 	public:
 		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, true>	self_t;
 		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>				param_value_t;
-		typedef typename std::vector<param_value_t>						container_t;
+		typedef typename std::vector<param_value_t>				container_t;
 		typedef const container_t&										value_assignment_t;
 		typedef VALUE_TYPE												value_t;
 		typedef NAME_VALUE_LOOKUP										name_value_lookup_t;
@@ -1308,6 +1240,8 @@ namespace LLInitParam
 
 		// implicit conversion
 		operator value_assignment_t() const { return mValues; } 
+		// explicit conversion
+		value_assignment_t operator()() const { return mValues; }
 
 		typedef typename container_t::iterator iterator;
 		typedef typename container_t::const_iterator const_iterator;
@@ -1363,10 +1297,10 @@ namespace LLInitParam
 	};
 
 	template <typename DERIVED_BLOCK>
-	class Choice : public BaseBlock
+	class ChoiceBlock : public BaseBlock
 	{
-		typedef Choice<DERIVED_BLOCK>	self_t;
-		typedef Choice<DERIVED_BLOCK>	enclosing_block_t;
+		typedef ChoiceBlock<DERIVED_BLOCK>	self_t;
+		typedef ChoiceBlock<DERIVED_BLOCK>	enclosing_block_t;
 		
 		LOG_CLASS(self_t);
 	public:
@@ -1382,11 +1316,13 @@ namespace LLInitParam
 			return mergeBlock(selfBlockDescriptor(), other, false);
 		}
 
-		bool mergeBlockParam(bool param_provided, BlockDescriptor& block_data, const self_t& other, bool overwrite)
+		bool mergeBlockParam(bool source_provided, bool dest_provided, BlockDescriptor& block_data, const self_t& source, bool overwrite)
 		{
-			if (param_provided)
+			bool source_override = source_provided && (overwrite || !dest_provided);
+
+			if (source_override || source.mCurChoice == mCurChoice)
 			{
-				return mergeBlock(block_data, other, overwrite);
+				return mergeBlock(block_data, source, overwrite);
 			}
 			return false;
 		}
@@ -1420,7 +1356,7 @@ namespace LLInitParam
 		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return selfBlockDescriptor(); }
 
 	protected:
-		Choice()
+		ChoiceBlock()
 		:	mCurChoice(0)
 		{
 			BaseBlock::init(selfBlockDescriptor(), BaseBlock::selfBlockDescriptor(), sizeof(DERIVED_BLOCK));
@@ -1433,13 +1369,13 @@ namespace LLInitParam
 		class Alternative : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			friend class Choice<DERIVED_BLOCK>;
+			friend class ChoiceBlock<DERIVED_BLOCK>;
 
 			typedef Alternative<T, NAME_VALUE_LOOKUP>									self_t;
 			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>		super_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
-			explicit Alternative(const char* name, value_assignment_t val = defaultValue<T>())
+			explicit Alternative(const char* name = "", value_assignment_t val = defaultValue<T>())
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1),
 				mOriginalValue(val)
 			{
@@ -1454,10 +1390,19 @@ namespace LLInitParam
 				}
 			}
 
-			Alternative& operator=(value_assignment_t val)
+			void choose()
+			{
+				static_cast<enclosing_block_t&>(Param::enclosingBlock()).paramChanged(*this, true);
+			}
+
+			void chooseAs(value_assignment_t val)
 			{
 				super_t::set(val);
-				return *this;
+			}
+
+			void operator=(value_assignment_t val)
+			{
+				super_t::set(val);
 			}
 
 			void operator()(typename super_t::value_assignment_t val) 
@@ -1466,12 +1411,8 @@ namespace LLInitParam
 			}
 
 			operator value_assignment_t() const 
-			{ 
-				if (static_cast<enclosing_block_t&>(Param::enclosingBlock()).getCurrentChoice() == this)
-				{
-					return super_t::getValue(); 
-				}
-				return mOriginalValue;
+			{
+				return (*this)();
 			} 
 
 			value_assignment_t operator()() const 
@@ -1508,7 +1449,7 @@ namespace LLInitParam
 		}
 	};
 
-	template <typename DERIVED_BLOCK, typename BASE_BLOCK = BaseBlockWithFlags>
+	template <typename DERIVED_BLOCK, typename BASE_BLOCK = BaseBlock>
 	class Block 
 	:	public BASE_BLOCK
 	{
@@ -1604,13 +1545,6 @@ namespace LLInitParam
 
 		};
 
-		class Flag : public BaseBlockWithFlags::FlagBase
-		{
-		public:
-			Flag(const char* name) : FlagBase(name, DERIVED_BLOCK::selfBlockDescriptor().mCurrentBlockPtr)
-			{}
-		};
-
 		template <typename T, typename RANGE = BaseBlock::AnyAmount, typename NAME_VALUE_LOOKUP = TypeValues<T> >
 		class Multiple : public TypedParam<T, NAME_VALUE_LOOKUP, true>
 		{
@@ -1623,7 +1557,7 @@ namespace LLInitParam
 			typedef typename super_t::const_iterator								const_iterator;
 
 			explicit Multiple(const char* name = "")
-			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, container_t(), &validate, RANGE::minCount(), RANGE::maxCount())
+			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, container_t(), &validate, RANGE::minCount, RANGE::maxCount)
 			{}
 
 			Multiple& operator=(value_assignment_t val)
@@ -1641,98 +1575,8 @@ namespace LLInitParam
 			static bool validate(const Param* paramp) 
 			{
 				U32 num_valid = ((super_t*)paramp)->numValidElements();
-				return RANGE::minCount() <= num_valid && num_valid <= RANGE::maxCount();
+				return RANGE::minCount <= num_valid && num_valid <= RANGE::maxCount;
 			}
-		};
-
-		template <typename T, typename RANGE = BaseBlock::AnyAmount, typename NAME_VALUE_LOOKUP = TypeValues<T> >
-		class Batch : private TypedParam<T, NAME_VALUE_LOOKUP, false>
-		{
-		public:
-			typedef ParamValue<T, NAME_VALUE_LOOKUP>										param_value_t;
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<param_value_t>::value>	super_t;
-			typedef Batch<T, RANGE, NAME_VALUE_LOOKUP>										self_t;
-			typedef typename super_t::value_assignment_t									value_assignment_t;
-			typedef typename super_t::value_t												value_t;
-
-			struct BatchDefaultValue : public ParamDescriptor::UserData
-			{
-				BatchDefaultValue(const T& value)
-				:	mValue(value)
-				{}
-
-				T mValue;
-			};
-
-			explicit Batch(const char* name, value_assignment_t val)
-			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1),
-				mLastParseGeneration(-1)
-			{
-				BlockDescriptor& block_descriptor = DERIVED_BLOCK::selfBlockDescriptor();
-				if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
-				{
-					ParamDescriptorPtr param_descriptorp = block_descriptor.mCurrentBlockPtr->findParamDescriptor(*this);
-
-					if (param_descriptorp)
-					{
-						param_descriptorp->mDeserializeFunc = &deserializeParam;
-						param_descriptorp->mUserData = new BatchDefaultValue(new param_value_t(val));
-					}
-				}
-			}
-
-			explicit Batch(const char* name = "")
-			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, defaultValue<T>(), NULL, 0, 1),
-				mLastParseGeneration(-1)
-			{
-				BlockDescriptor& block_descriptor = DERIVED_BLOCK::selfBlockDescriptor();
-				if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
-				{
-					ParamDescriptorPtr param_descriptorp = block_descriptor.mCurrentBlockPtr->findParamDescriptor(*this);
-
-					if (param_descriptorp)
-					{
-						param_descriptorp->mDeserializeFunc = &deserializeParam;
-					}
-				}
-			}
-
-			Batch& operator=(value_assignment_t val)
-			{
-				set(val);
-				return *this;
-			}
-
-			DERIVED_BLOCK& operator()(value_assignment_t val)
-			{
-				super_t::set(val);
-				return static_cast<DERIVED_BLOCK&>(Param::enclosingBlock());
-			}
-
-			using super_t::operator();
-
-		private:
-			static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, S32 generation) 
-			{
-				self_t& typed_param = static_cast<self_t&>(param);
-
-				if (generation != typed_param.mLastParseGeneration)
-				{
-					ParamDescriptorPtr descriptor = typed_param.enclosingBlock().findParamDescriptor(param);
-					if (descriptor && static_cast<BatchDefaultValue*>(descriptor->mUserData))
-					{
-						static_cast<param_value_t&>(typed_param) = (static_cast<BatchDefaultValue*>(descriptor->mUserData))->mValue;
-					}
-					else
-					{
-						static_cast<param_value_t&>(typed_param) = param_value_t(value_t());
-					}
-					typed_param.mLastParseGeneration = generation;
-				}
-				return super_t::deserializeParam(param, parser, name_stack, generation);
-			}
-
-			S32 mLastParseGeneration;
 		};
 
 		class Deprecated : public Param
@@ -1769,6 +1613,7 @@ namespace LLInitParam
 			}
 		};
 
+		// different semantics for documentation purposes, but functionally identical
 		typedef Deprecated Ignored;
 
 	protected:
@@ -1790,6 +1635,106 @@ namespace LLInitParam
 
 	};
 	
+	template <typename DERIVED_BLOCK, typename BASE_BLOCK = BaseBlock>
+	class BatchBlock
+	:	public Block<DERIVED_BLOCK, BASE_BLOCK>
+	{
+	public:
+		typedef BatchBlock<DERIVED_BLOCK, BASE_BLOCK> self_t;
+		typedef Block<DERIVED_BLOCK, BASE_BLOCK> super_t;
+
+		BatchBlock()
+		:	mLastParseGeneration(-1)
+		{}
+
+		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, S32 generation)
+		{
+			if (generation != mLastParseGeneration)
+			{
+				// reset block
+				*static_cast<DERIVED_BLOCK*>(this) = defaultBatchValue();
+				mLastParseGeneration = generation;
+			}
+			return super_t::deserializeBlock(p, name_stack, generation);
+		}
+
+		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
+		{
+			if (overwrite)
+			{
+				*static_cast<DERIVED_BLOCK*>(this) = defaultBatchValue();
+				mLastParseGeneration = -1;
+				// merge individual parameters into destination
+				return super_t::mergeBlock(super_t::selfBlockDescriptor(), src_typed_param, overwrite);
+			}
+			return false;
+		}
+	protected:
+		static const DERIVED_BLOCK& defaultBatchValue()
+		{
+			static DERIVED_BLOCK default_value;
+			return default_value;
+		}
+
+		S32 mLastParseGeneration;
+	};
+
+	
+
+	template<typename DERIVED_BLOCK,
+			typename BASE_BLOCK,
+			typename NAME_VALUE_LOOKUP>
+	class ParamValue <BatchBlock<DERIVED_BLOCK, BASE_BLOCK>,
+					NAME_VALUE_LOOKUP,
+					true>
+	:	public Param,
+		protected BatchBlock<DERIVED_BLOCK, BASE_BLOCK>
+	{
+		typedef const BatchBlock<DERIVED_BLOCK, BASE_BLOCK>&	value_assignment_t;
+
+		ParamValue()
+		:	T(),
+			mKeyVersion(0),
+			mValidatedVersion(-1),
+			mValidated(false)
+		{}
+
+		ParamValue(value_assignment_t other)
+		:	T(other),
+			mKeyVersion(0),
+			mValidatedVersion(-1),
+			mValidated(false)
+		{
+		}
+
+		void setValue(value_assignment_t val)
+		{
+			*this = val;
+			mLastParseGeneration = -1;
+		}
+
+		value_assignment_t getValue() const
+		{
+			return *this;
+		}
+
+		BatchBlock<DERIVED_BLOCK, BASE_BLOCK>& getValue()
+		{
+			return *this;
+		}
+
+		operator value_assignment_t() const
+		{
+			return *this;
+		}
+
+		value_assignment_t operator()() const
+		{
+			return *this;
+		}
+
+	};
+
 	template<typename T>
 	class CustomParamValue
 	:	public Block<ParamValue<T, TypeValues<T> > >,
@@ -1955,6 +1900,16 @@ namespace LLInitParam
 			return mValue;
 		}
 
+		operator value_assignment_t() const
+		{
+			return getValue();
+		}
+
+		value_assignment_t operator()() const
+		{
+			return getValue();
+		}
+
 		S32 				mKeyVersion;
 
 	protected:
@@ -1965,30 +1920,29 @@ namespace LLInitParam
 			mValue = value;
 		}
 
-		bool mergeBlockParam(bool param_provided, BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
+		bool mergeBlockParam(bool source_provided, bool dst_provided, BlockDescriptor& block_data, const BaseBlock& source, bool overwrite)
 		{
-			if (param_provided)
-			{
-				return mergeBlock(block_data, other, overwrite);
-			}
-			return false;
-		}
+			bool source_override = source_provided && (overwrite || !dst_provided);
 
-		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
-		{
-			const derived_t& src_typed_param = static_cast<const derived_t&>(other);
+			const derived_t& src_typed_param = static_cast<const derived_t&>(source);
 
-			if (src_typed_param.mValueAge == VALUE_AUTHORITATIVE)
+			if (source_override && src_typed_param.mValueAge == VALUE_AUTHORITATIVE)
 			{
 				// copy value over
 				setValue(src_typed_param.getValue());
 				return true;
 			}
-			else
+			// merge individual parameters into destination
+			if (mValueAge == VALUE_AUTHORITATIVE)
 			{
-				// merge individual parameters into destination
-				return block_t::mergeBlock(block_t::selfBlockDescriptor(), src_typed_param, overwrite);
+				static_cast<derived_t*>(this)->updateBlockFromValue(dst_provided);
 			}
+			return mergeBlock(block_data, source, overwrite);
+		}
+
+		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& source, bool overwrite)
+		{
+			return block_t::mergeBlock(block_data, source, overwrite);
 		}
 
 		mutable S32			mValidatedVersion;

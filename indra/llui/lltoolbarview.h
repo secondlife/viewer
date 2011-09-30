@@ -51,7 +51,7 @@ public:
 	struct Toolbar : public LLInitParam::Block<Toolbar>
 	{
 		Mandatory<U32>                button_display_mode;
-		Multiple<LLCommandId::Params> commands;
+		Multiple<LLCommandId::Params>	commands;
 		Toolbar();
 	};
 	struct ToolbarSet : public LLInitParam::Block<ToolbarSet>
@@ -66,7 +66,6 @@ public:
 	virtual ~LLToolBarView();
 	virtual BOOL postBuild();
 	virtual void draw();
-
 	// Toolbar view interface with the rest of the world
 	// Checks if the commandId is being used somewhere in one of the toolbars
 	bool hasCommand(const LLCommandId& commandId) const;
@@ -90,6 +89,10 @@ private:
 	LLToolBar*	mToolbarLeft;
 	LLToolBar*	mToolbarRight;
 	LLToolBar*	mToolbarBottom;
+	bool		mDragging;
+	LLToolBarButton* mDragButton;
+	S32			mMouseX;
+	S32			mMouseY;
 };
 
 extern LLToolBarView* gToolBarView;
