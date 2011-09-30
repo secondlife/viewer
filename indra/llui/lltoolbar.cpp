@@ -185,7 +185,7 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 
 	LLPanel::Params button_panel_p(p.button_panel);
 	button_panel_p.rect = center_panel->getLocalRect();
-		button_panel_p.follows.flags = FOLLOWS_BOTTOM|FOLLOWS_LEFT;
+	button_panel_p.follows.flags = FOLLOWS_BOTTOM|FOLLOWS_LEFT;
 	mButtonPanel = LLUICtrlFactory::create<LLPanel>(button_panel_p);
 	center_panel->addChild(mButtonPanel);
 	
@@ -558,8 +558,8 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 			LLToolBar* bar = getParentByType<LLToolBar>();
 			if (view)
 			{
-				view->startDrag(bar->createButton(mId));
-				setVisible(FALSE);
+				//view->startDrag(bar->createButton(mId));
+				//setVisible(FALSE);
 			}
 		}
 	}

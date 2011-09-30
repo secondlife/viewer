@@ -44,7 +44,7 @@ LOG_CLASS(LLUIColorTable);
 	typedef std::map<std::string, LLUIColor>  string_color_map_t;
 
 public:
-	struct ColorParams : LLInitParam::Choice<ColorParams>
+	struct ColorParams : LLInitParam::ChoiceBlock<ColorParams>
 	{
 		Alternative<LLColor4>    value;
 		Alternative<std::string> reference;

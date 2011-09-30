@@ -125,12 +125,12 @@ private:
 
 	// base case for recursion, there are NO base classes of LLInitParam::BaseBlock
 	template<int DUMMY>
-	class ParamDefaults<LLInitParam::BaseBlockWithFlags, DUMMY> : public LLSingleton<ParamDefaults<LLInitParam::BaseBlockWithFlags, DUMMY> >
+	class ParamDefaults<LLInitParam::BaseBlock, DUMMY> : public LLSingleton<ParamDefaults<LLInitParam::BaseBlock, DUMMY> >
 	{
 	public:
-		const LLInitParam::BaseBlockWithFlags& get() { return mBaseBlock; }
+		const LLInitParam::BaseBlock& get() { return mBaseBlock; }
 	private:
-		LLInitParam::BaseBlockWithFlags mBaseBlock;
+		LLInitParam::BaseBlock mBaseBlock;
 	};
 
 public:

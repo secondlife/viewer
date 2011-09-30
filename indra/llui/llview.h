@@ -98,7 +98,7 @@ private:
 class LLView : public LLMouseHandler, public LLMortician, public LLFocusableElement
 {
 public:
-	struct Follows : public LLInitParam::Choice<Follows>
+	struct Follows : public LLInitParam::ChoiceBlock<Follows>
 	{
 		Alternative<std::string>	string;
 		Alternative<U32>			flags;

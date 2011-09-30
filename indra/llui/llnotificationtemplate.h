@@ -91,7 +91,7 @@ struct LLNotificationTemplate
 		// <notification> <unique/> </notification>
 		// as well as
 		// <notification> <unique> <context></context> </unique>...
-		Flag			dummy_val;
+		Optional<LLInitParam::Flag>	dummy_val;
 	public:
 		Multiple<UniquenessContext>	contexts;
 
@@ -147,7 +147,7 @@ struct LLNotificationTemplate
 		{}
 	};
 
-	struct FormRef : public LLInitParam::Choice<FormRef>
+	struct FormRef : public LLInitParam::ChoiceBlock<FormRef>
 	{
 		Alternative<LLNotificationForm::Params>		form;
 		Alternative<TemplateRef>					form_template;

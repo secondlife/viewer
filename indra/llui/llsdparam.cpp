@@ -45,7 +45,7 @@ LLParamSDParser::LLParamSDParser()
 
 	if (sReadFuncs.empty())
 	{
-		registerParserFuncs<LLInitParam::NoParamValue>(readNoValue, &LLParamSDParser::writeNoValue);
+		registerParserFuncs<LLInitParam::Flag>(readFlag, &LLParamSDParser::writeFlag);
 		registerParserFuncs<S32>(readS32, &LLParamSDParser::writeTypedValue<S32>);
 		registerParserFuncs<U32>(readU32, &LLParamSDParser::writeU32Param);
 		registerParserFuncs<F32>(readF32, &LLParamSDParser::writeTypedValue<F32>);
@@ -72,7 +72,7 @@ bool LLParamSDParser::writeU32Param(LLParamSDParser::parser_t& parser, const voi
 	return true;
 }
 
-bool LLParamSDParser::writeNoValue(LLParamSDParser::parser_t& parser, const void* val_ptr, const parser_t::name_stack_t& name_stack)
+bool LLParamSDParser::writeFlag(LLParamSDParser::parser_t& parser, const void* val_ptr, const parser_t::name_stack_t& name_stack)
 {
 	LLParamSDParser& sdparser = static_cast<LLParamSDParser&>(parser);
 	if (!sdparser.mWriteRootSD) return false;
@@ -226,7 +226,7 @@ LLSD* LLParamSDParser::getSDWriteNode(const parser_t::name_stack_t& name_stack)
 	return sd_to_write;
 }
 
-bool LLParamSDParser::readNoValue(Parser& parser, void* val_ptr)
+bool LLParamSDParser::readFlag(Parser& parser, void* val_ptr)
 {
 	LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
 	return self.mCurReadSD == &NO_VALUE_MARKER;

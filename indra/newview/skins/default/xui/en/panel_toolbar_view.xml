@@ -33,7 +33,6 @@
                   follows="all"
                   mouse_opaque="false">
       <layout_panel name="left_toolbar_panel"
-                    fit_content="true"
                     auto_resize="false"
                     user_resize="false"
                     height="500"
@@ -54,7 +53,6 @@
                     user_resize="false"
                     mouse_opaque="false"/>
       <layout_panel name="right_toolbar_panel"
-                    fit_content="true"
                     auto_resize="false"
                     user_resize="false"
                     height="500"
@@ -74,7 +72,6 @@
     </layout_stack>
   </layout_panel>
   <layout_panel name="bottom_toolbar_panel"
-                fit_content="true"
                 auto_resize="false"
                 user_resize="false"
                 height="30"
