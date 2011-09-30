@@ -6410,9 +6410,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		LLGLDisable blend(GL_BLEND);
 		bindDeferredShader(*shader);
 
-		S32 width = mScreen.getWidth();
-		S32 height = mScreen.getHeight();
-		
 		if (dof_enabled)
 		{
 			//depth of field focal plane calculations
