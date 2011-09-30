@@ -7532,7 +7532,7 @@ void LLPipeline::renderDeferredLighting()
 							gGL.syncMatrices();
 							mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 							glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
-								GL_UNSIGNED_BYTE, get_box_fan_indices_ptr(camera, center));
+								GL_UNSIGNED_SHORT, get_box_fan_indices_ptr(camera, center));
 							stop_glerror();
 						}
 					}
@@ -7605,7 +7605,7 @@ void LLPipeline::renderDeferredLighting()
 					gGL.syncMatrices();
 					mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
-							GL_UNSIGNED_BYTE, get_box_fan_indices_ptr(camera, center));
+							GL_UNSIGNED_SHORT, get_box_fan_indices_ptr(camera, center));
 				}
 				gDeferredSpotLightProgram.disableTexture(LLViewerShaderMgr::DEFERRED_PROJECTION);
 				unbindDeferredShader(gDeferredSpotLightProgram);

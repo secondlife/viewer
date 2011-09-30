@@ -214,7 +214,7 @@ typedef enum
 //contact Runitai Linden for a copy of the SL object used to write this table
 //basically, you give the table a bitmask of the look-at vector to a node and it
 //gives you a triangle fan index array
-static U8 sOcclusionIndices[] =
+static U16 sOcclusionIndices[] =
 {
 	 //000
 		b111, b110, b010, b011, b001, b101, b100, b110,
@@ -251,7 +251,7 @@ U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center)
 
 	S32 cypher = center.greaterThan(origin).getGatheredBits() & 0x7;
 	
-	return sOcclusionIndices+cypher*8;
+	return (U8*) (sOcclusionIndices+cypher*8);
 }
 
 
