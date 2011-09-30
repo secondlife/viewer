@@ -70,7 +70,7 @@
            label_ref="Command_HowTo_Label"
            tooltip_ref="Command_HowTo_Tooltip"
            function="Floater.ToolbarToggle"
-           parameter="floater_help_browser"
+           parameter="help_browser"
            />
   <command name="inventory"
            available_in_toybox="true"
@@ -142,7 +142,7 @@
            label_ref="Command_Profile_Label"
            tooltip_ref="Command_Profile_Tooltip"
            function="Floater.ToolbarToggle"
-           parameter="profile"
+           parameter="my_profile"
            />
   <command name="search"
            available_in_toybox="true"
