@@ -42,7 +42,6 @@
 #include "llmenubutton.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
-#include "llsidetray.h"
 #include "lltoggleablemenu.h"
 #include "lltransutil.h"
 #include "llviewermenu.h"

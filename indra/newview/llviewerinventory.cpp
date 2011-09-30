@@ -45,7 +45,6 @@
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llgesturemgr.h"
-#include "llsidetray.h"
 
 #include "llinventorybridge.h"
 #include "llinventorypanel.h"

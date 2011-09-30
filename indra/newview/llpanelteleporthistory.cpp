@@ -31,7 +31,6 @@
 
 #include "llfloaterworldmap.h"
 #include "llpanelteleporthistory.h"
-#include "llsidetray.h"
 #include "llworldmap.h"
 #include "llteleporthistorystorage.h"
 #include "lltextutil.h"

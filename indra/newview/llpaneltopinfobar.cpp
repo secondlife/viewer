@@ -36,7 +36,6 @@
 #include "lllocationinputctrl.h"
 #include "llnotificationsutil.h"
 #include "llparcel.h"
-#include "llsidetray.h"
 #include "llslurl.h"
 #include "llstatusbar.h"
 #include "lltrans.h"

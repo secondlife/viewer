@@ -40,7 +40,6 @@
 #include "llpanelmarketplaceinbox.h"
 #include "llsdutil.h"
 #include "llsidepanelinventory.h"
-#include "llsidetray.h"
 #include "lltimer.h"
 #include "llviewernetwork.h"
 #include "llagent.h"

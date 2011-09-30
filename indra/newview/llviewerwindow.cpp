@@ -133,7 +133,6 @@
 #include "llpreviewtexture.h"
 #include "llprogressview.h"
 #include "llresmgr.h"
-#include "llsidetray.h"
 #include "llselectmgr.h"
 #include "llrootview.h"
 #include "llrendersphere.h"
@@ -1773,7 +1772,6 @@ void LLViewerWindow::initBase()
 
 	// placeholder widget that controls where "world" is rendered
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
-	mNonSideTrayView = main_view->getChildView("non_side_tray_view")->getHandle();
 	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
 	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
@@ -1933,22 +1931,6 @@ void LLViewerWindow::initWorldUI()
 	LLPanelStandStopFlying* panel_stand_stop_flying	= LLPanelStandStopFlying::getInstance();
 	panel_ssf_container->addChild(panel_stand_stop_flying);
 	panel_ssf_container->setVisible(TRUE);
-
-	// put sidetray in container
-	LLPanel* side_tray_container = getRootView()->getChild<LLPanel>("side_tray_container");
-	LLSideTray* sidetrayp = LLSideTray::getInstance();
-	sidetrayp->setShape(side_tray_container->getLocalRect());
-	// don't follow right edge to avoid spurious resizes, since we are using a fixed width layout
-	sidetrayp->setFollows(FOLLOWS_LEFT|FOLLOWS_TOP|FOLLOWS_BOTTOM);
-	side_tray_container->addChild(sidetrayp);
-	side_tray_container->setVisible(FALSE);
-	
-	// put sidetray buttons in their own panel
-	LLPanel* buttons_panel = sidetrayp->getButtonsPanel();
-	LLPanel* buttons_panel_container = getRootView()->getChild<LLPanel>("side_bar_tabs");
-	buttons_panel->setShape(buttons_panel_container->getLocalRect());
-	buttons_panel->setFollowsAll();
-	buttons_panel_container->addChild(buttons_panel);
 
 	// Load and make the toolbars visible
 	// Note: we need to load the toolbars only *after* the user is logged in and IW
@@ -3310,9 +3292,6 @@ void LLViewerWindow::updateKeyboardFocus()
 		// make sure floater visible order is in sync with tab order
 		gFloaterView->syncFloaterTabOrder();
 	}
-
-	if(LLSideTray::instanceCreated())//just getInstance will create sidetray. we don't want this
-		LLSideTray::getInstance()->highlightFocused();
 }
 
 static LLFastTimer::DeclareTimer FTM_UPDATE_WORLD_VIEW("Update World View");
@@ -3334,12 +3313,6 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 		new_world_rect.mRight = llround((F32)new_world_rect.mRight * mDisplayScale.mV[VX]);
 		new_world_rect.mBottom = llround((F32)new_world_rect.mBottom * mDisplayScale.mV[VY]);
 		new_world_rect.mTop = llround((F32)new_world_rect.mTop * mDisplayScale.mV[VY]);
-	}
-
-	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE)
-	{
-		// use right edge of window, ignoring sidebar
-		new_world_rect.mRight = mWindowRectRaw.mRight;
 	}
 
 	if (mWorldViewRectRaw != new_world_rect)

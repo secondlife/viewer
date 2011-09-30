@@ -42,7 +42,6 @@
 #include "lloutfitobserver.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
-#include "llsidetray.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "llviewercontrol.h"
@@ -164,7 +163,6 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	else
 	{
 		// Switch to the requested panel.
-		// *TODO: replace this crap with LLSideTrayPanelContainer
 		std::string type = key["type"].asString();
 		if (type == "my_outfits")
 		{

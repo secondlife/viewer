@@ -65,7 +65,6 @@
 #include "llpanelplaceprofile.h"
 #include "llpanelteleporthistory.h"
 #include "llremoteparcelrequest.h"
-#include "llsidetray.h"
 #include "llteleporthistorystorage.h"
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"

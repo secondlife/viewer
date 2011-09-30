@@ -59,8 +59,6 @@ LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 // virtual
 BOOL LLPanelMarketplaceInbox::postBuild()
 {
-	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLPanelMarketplaceInbox::handleLoginComplete, this));
-
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceInbox::onFocusReceived, this));
 	
 	return TRUE;
@@ -73,12 +71,6 @@ void LLPanelMarketplaceInbox::onSelectionChange()
 	sidepanel_inventory->updateVerbs();
 }
 
-
-void LLPanelMarketplaceInbox::handleLoginComplete()
-{
-	// Set us up as the class to drive the badge value for the sidebar_inventory button
-	LLSideTray::getInstance()->setTabButtonBadgeDriver("sidebar_inventory", this);
-}
 
 LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 {

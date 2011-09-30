@@ -32,7 +32,7 @@
 #include "llrootview.h"
 //#include "llchatitemscontainerctrl.h"
 #include "lliconctrl.h"
-#include "llsidetray.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
 #include "llresizebar.h"
 #include "llresizehandle.h"
@@ -163,7 +163,7 @@ void LLNearbyChat::onNearbySpeakers()
 {
 	LLSD param;
 	param["people_panel_tab_name"] = "nearby_panel";
-	LLSideTray::getInstance()->showPanel("panel_people",param);
+	LLFloaterSidePanelContainer::showPanel("people", "panel_people", param);
 }
 
 

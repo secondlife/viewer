@@ -43,7 +43,6 @@
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "lltexlayer.h"
 #include "lltooldraganddrop.h"
 #include "llviewerregion.h"

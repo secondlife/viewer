@@ -51,7 +51,6 @@
 #include "llpreviewtexture.h"
 #include "llscrollbar.h"
 #include "llscrollcontainer.h"
-#include "llsidetray.h"
 #include "lltooldraganddrop.h"
 #include "lltooltip.h"
 #include "lltrans.h"

@@ -31,6 +31,7 @@
 
 // library includes
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llflyoutbutton.h"
 #include "lllayoutstack.h"
 #include "llnotifications.h"
@@ -47,7 +48,6 @@
 #include "llimfloater.h" // for LLIMFloater
 #include "llnearbychatbar.h"
 #include "llnearbychatbarlistener.h"
-#include "llsidetray.h"
 #include "llspeakbutton.h"
 #include "llsplitbutton.h"
 #include "llsyswellwindow.h"
@@ -858,7 +858,7 @@ void LLBottomTray::draw()
 	}
 	getChild<LLButton>("show_profile_btn")->setToggleState(LLAvatarActions::profileVisible(gAgent.getID()));
 
-	LLPanel* panel = LLSideTray::getInstance()->getPanel("panel_people");
+	LLPanel* panel = LLFloaterSidePanelContainer::getPanel("people", "panel_people");
 	if (panel && panel->isInVisibleChain())
 	{
 		getChild<LLButton>("show_people_button")->setToggleState(true);

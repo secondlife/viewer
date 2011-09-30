@@ -81,7 +81,6 @@
 #include "llviewermenufile.h"
 #include "llvoicechannel.h"
 #include "llvoavatarself.h"
-#include "llsidetray.h"
 #include "llurlmatch.h"
 #include "lltextutil.h"
 #include "lllogininstance.h"
@@ -3499,8 +3498,6 @@ void LLAppViewer::requestQuit()
 		gFloaterView->closeAllChildren(true);
 	}
 
-	LLSideTray::getInstance()->notifyChildren(LLSD().with("request","quit"));
-
 	send_stats();
 
 	gLogoutTimer.reset();
@@ -4559,10 +4556,6 @@ void LLAppViewer::idleShutdown()
 		return;
 	}
 
-	if (LLSideTray::getInstance()->notifyChildren(LLSD().with("request","wait_quit")))
-	{
-		return;
-	}
 
 
 	

@@ -71,7 +71,6 @@
 #include "llscrollbar.h"
 #include "llscrollcontainer.h"
 #include "llselectmgr.h"
-#include "llsidetray.h"
 #include "llsidepanelinventory.h"
 #include "lltabcontainer.h"
 #include "lltooldraganddrop.h"
