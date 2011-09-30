@@ -292,6 +292,7 @@ RenderVBOEnable				1	0
 
 list OpenGLPre30
 RenderDeferred				0	0
+RenderMaxTextureIndex		1	1
 
 list Intel
 RenderAnisotropic			1	0

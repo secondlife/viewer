@@ -531,6 +531,7 @@ public:
 	LLRenderTarget			mScreen;
 	LLRenderTarget			mUIScreen;
 	LLRenderTarget			mDeferredScreen;
+	LLRenderTarget			mFXAABuffer;
 	LLRenderTarget			mEdgeMap;
 	LLRenderTarget			mDeferredDepth;
 	LLRenderTarget			mDeferredLight[3];
@@ -539,6 +540,9 @@ public:
 	LLRenderTarget			mLuminanceMap;
 	LLRenderTarget			mHighlight;
 	LLRenderTarget			mPhysicsDisplay;
+
+	//utility buffer for rendering post effects, gets abused by renderDeferredLighting
+	LLPointer<LLVertexBuffer> mDeferredVB;
 
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
@@ -585,6 +589,7 @@ public:
 
 	LLColor4				mSunDiffuse;
 	LLVector3				mSunDir;
+	LLVector3				mTransformedSunDir;
 
 	BOOL					mInitialized;
 	BOOL					mVertexShadersEnabled;

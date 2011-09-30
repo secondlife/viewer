@@ -571,7 +571,7 @@ void LLGLTexMemBar::draw()
 	color = (total_mem < llfloor(max_total_mem * texmem_lower_bound_scale)) ? LLColor4::green :
 		  	(total_mem < max_total_mem) ? LLColor4::yellow : LLColor4::red;
 	color[VALPHA] = .75f;
-	glColor4fv(color.mV);
+	gGL.diffuseColor4fv(color.mV);
 	
 	gl_rect_2d(left, top, right, bottom); // red/yellow/green
 
@@ -594,7 +594,7 @@ void LLGLTexMemBar::draw()
 	color = (bound_mem < llfloor(max_bound_mem * texmem_lower_bound_scale)) ? LLColor4::green :
 		  	(bound_mem < max_bound_mem) ? LLColor4::yellow : LLColor4::red;
 	color[VALPHA] = .75f;
-	glColor4fv(color.mV);
+	gGL.diffuseColor4fv(color.mV);
 
 	gl_rect_2d(left, top, right, bottom);
 #else

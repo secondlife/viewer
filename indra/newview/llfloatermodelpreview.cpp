@@ -103,6 +103,7 @@
 #include "llviewerobjectlist.h"
 #include "llanimationstates.h"
 #include "llviewernetwork.h"
+#include "llviewershadermgr.h"
 #include "glod/glod.h"
 #include <boost/algorithm/string.hpp>
 
@@ -3840,6 +3841,15 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 	LLVertexBuffer::unbind();
 
+	bool no_ff = LLGLSLShader::sNoFixedFunction;
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	LLGLSLShader::sNoFixedFunction = false;
+
+	if (shader)
+	{
+		shader->unbind();
+	}
+	
 	stop_gloderror();
 	static U32 cur_name = 1;
 
@@ -4137,6 +4147,13 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	}
 
 	mResourceCost = calcResourceCost();
+
+	LLVertexBuffer::unbind();
+	LLGLSLShader::sNoFixedFunction = no_ff;
+	if (shader)
+	{
+		shader->bind();
+	}
 
 	/*if (which_lod == -1 && mScene[LLModel::LOD_PHYSICS].empty())
 	 { //build physics scene
@@ -4888,6 +4905,8 @@ BOOL LLModelPreview::render()
 	LLMutexLock lock(this);
 	mNeedsUpdate = FALSE;
 
+	bool use_shaders = LLGLSLShader::sNoFixedFunction;
+
 	bool edges = mViewOption["show_edges"];
 	bool joint_positions = mViewOption["show_joint_positions"];
 	bool skin_weight = mViewOption["show_skin_weight"];
@@ -4904,25 +4923,33 @@ BOOL LLModelPreview::render()
 	LLGLDisable fog(GL_FOG);
 
 	{
+		if (use_shaders)
+		{
+			gUIProgram.bind();
+		}
 		//clear background to blue
-		glMatrixMode(GL_PROJECTION);
+		gGL.matrixMode(LLRender::MM_PROJECTION);
 		gGL.pushMatrix();
-		glLoadIdentity();
-		glOrtho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
+		gGL.loadIdentity();
+		gGL.ortho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
 
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.pushMatrix();
-		glLoadIdentity();
+		gGL.loadIdentity();
 
 		gGL.color4f(0.169f, 0.169f, 0.169f, 1.f);
 
 		gl_rect_2d_simple( width, height );
 
-		glMatrixMode(GL_PROJECTION);
+		gGL.matrixMode(LLRender::MM_PROJECTION);
 		gGL.popMatrix();
 
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.popMatrix();
+		if (use_shaders)
+		{
+			gUIProgram.unbind();
+		}
 	}
 
 	LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
@@ -5035,7 +5062,7 @@ BOOL LLModelPreview::render()
 		refresh();
 	}
 
-	glLoadIdentity();
+	gGL.loadIdentity();
 	gPipeline.enableLightsPreview();
 
 	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) *
@@ -5059,6 +5086,11 @@ BOOL LLModelPreview::render()
 	gGL.color3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
 
 	const U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
+
+	if (use_shaders)
+	{
+		gObjectPreviewProgram.bind();
+	}
 
 	LLGLEnable normalize(GL_NORMALIZE);
 
@@ -5121,7 +5153,7 @@ BOOL LLModelPreview::render()
 				gGL.pushMatrix();
 				LLMatrix4 mat = instance.mTransform;
 
-				glMultMatrixf((GLfloat*) mat.mMatrix);
+				gGL.multMatrix((GLfloat*) mat.mMatrix);
 
 				for (U32 i = 0; i < mVertexBuffer[mPreviewLOD][model].size(); ++i)
 				{
@@ -5137,7 +5169,8 @@ BOOL LLModelPreview::render()
 							const std::string& binding = instance.mModel->mMaterialList[i];						
 							const LLImportMaterial& material = instance.mMaterial[binding];
 
-							glColor4fv(material.mDiffuseColor.mV);
+							gGL.diffuseColor4fv(material.mDiffuseColor.mV);
+
 							if (material.mDiffuseMap.notNull())
 							{
 								if (material.mDiffuseMap->getDiscardLevel() > -1)
@@ -5150,12 +5183,12 @@ BOOL LLModelPreview::render()
 					}
 					else
 					{
-						glColor4f(1,1,1,1);
+						gGL.diffuseColor4f(1,1,1,1);
 					}
 
 					buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-					glColor3f(0.4f, 0.4f, 0.4f);
+					gGL.diffuseColor3f(0.4f, 0.4f, 0.4f);
 
 					if (edges)
 					{
@@ -5203,7 +5236,7 @@ BOOL LLModelPreview::render()
 						gGL.pushMatrix();
 						LLMatrix4 mat = instance.mTransform;
 
-						glMultMatrixf((GLfloat*) mat.mMatrix);
+						gGL.multMatrix((GLfloat*) mat.mMatrix);
 
 
 						bool render_mesh = true;
@@ -5268,12 +5301,12 @@ BOOL LLModelPreview::render()
 								LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][i];
 
 								gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-								glColor4f(0.4f, 0.4f, 0.0f, 0.4f);
+								gGL.diffuseColor4f(0.4f, 0.4f, 0.0f, 0.4f);
 
 								buffer->setBuffer(type_mask & buffer->getTypeMask());
 								buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 
-								glColor3f(1.f, 1.f, 0.f);
+								gGL.diffuseColor3f(1.f, 1.f, 0.f);
 
 								glLineWidth(2.f);
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -5293,7 +5326,7 @@ BOOL LLModelPreview::render()
 					//show degenerate triangles
 					LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
 					LLGLDisable cull(GL_CULL_FACE);
-					glColor4f(1.f,0.f,0.f,1.f);
+					gGL.diffuseColor4f(1.f,0.f,0.f,1.f);
 					const LLVector4a scale(0.5f);
 
 					for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
@@ -5310,7 +5343,7 @@ BOOL LLModelPreview::render()
 						gGL.pushMatrix();
 						LLMatrix4 mat = instance.mTransform;
 
-						glMultMatrixf((GLfloat*) mat.mMatrix);
+						gGL.multMatrix((GLfloat*) mat.mMatrix);
 
 
 						LLPhysicsDecomp* decomp = gMeshRepo.mDecompThread;
@@ -5459,11 +5492,12 @@ BOOL LLModelPreview::render()
 
 							const std::string& binding = instance.mModel->mMaterialList[i];
 							const LLImportMaterial& material = instance.mMaterial[binding];
+
 							buffer->setBuffer(type_mask & buffer->getTypeMask());
-							glColor4fv(material.mDiffuseColor.mV);
+							gGL.diffuseColor4fv(material.mDiffuseColor.mV);
 							gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 							buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
-							glColor3f(0.4f, 0.4f, 0.4f);
+							gGL.diffuseColor3f(0.4f, 0.4f, 0.4f);
 
 							if (edges)
 							{
@@ -5478,6 +5512,11 @@ BOOL LLModelPreview::render()
 				}
 			}
 		}
+	}
+
+	if (use_shaders)
+	{
+		gObjectPreviewProgram.unbind();
 	}
 
 	gGL.popMatrix();

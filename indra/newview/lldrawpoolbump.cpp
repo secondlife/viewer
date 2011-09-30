@@ -763,7 +763,7 @@ void LLDrawPoolBump::renderBump(U32 pass)
 	LLGLDisable fog(GL_FOG);
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
 	LLGLEnable blend(GL_BLEND);
-	glColor4f(1,1,1,1);
+	gGL.diffuseColor4f(1,1,1,1);
 	/// Get rid of z-fighting with non-bump pass.
 	LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(-1.0f, -1.0f);
@@ -1369,18 +1369,18 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 			if (mShiny)
 			{
 				gGL.getTexUnit(0)->activate();
-				glMatrixMode(GL_TEXTURE);
+				gGL.matrixMode(LLRender::MM_TEXTURE);
 			}
 			else
 			{
 				gGL.getTexUnit(1)->activate();
-				glMatrixMode(GL_TEXTURE);
-				glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+				gGL.matrixMode(LLRender::MM_TEXTURE);
+				gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
 				gPipeline.mTextureMatrixOps++;
 				gGL.getTexUnit(0)->activate();
 			}
 
-			glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+			gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
 			gPipeline.mTextureMatrixOps++;
 
 			tex_setup = true;
@@ -1416,11 +1416,11 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 		else
 		{
 			gGL.getTexUnit(1)->activate();
-			glLoadIdentity();
+			gGL.loadIdentity();
 			gGL.getTexUnit(0)->activate();
 		}
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
 }
 
@@ -1465,6 +1465,7 @@ void LLDrawPoolInvisible::endDeferredPass( S32 pass )
 
 void LLDrawPoolInvisible::renderDeferred( S32 pass )
 { //render invisiprims; this doesn't work becaue it also blocks all the post-deferred stuff
+#if 0 
 	LLFastTimer t(FTM_RENDER_INVISIBLE);
   
 	U32 invisi_mask = LLVertexBuffer::MAP_VERTEX;
@@ -1482,4 +1483,5 @@ void LLDrawPoolInvisible::renderDeferred( S32 pass )
 		renderShiny(true);
 		endShiny(true);
 	}
+#endif
 }

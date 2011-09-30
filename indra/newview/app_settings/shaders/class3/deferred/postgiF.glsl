@@ -23,9 +23,11 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
@@ -40,7 +42,7 @@ uniform float kern_scale;
 uniform float gi_edge_weight;
 uniform float gi_blur_brightness;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 void main() 
 {

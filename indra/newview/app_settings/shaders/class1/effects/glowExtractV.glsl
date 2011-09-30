@@ -23,11 +23,16 @@
  * $/LicenseInfo$
  */
 
+uniform mat4 modelview_projection_matrix;
 
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
+
+VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = modelview_projection_matrix * vec4(position, 1.0);
 	
-	gl_TexCoord[0].xy = gl_MultiTexCoord0.xy;
+	vary_texcoord0.xy = texcoord0;
 }

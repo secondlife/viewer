@@ -884,14 +884,14 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 	// Always fudge a little vertically.
 	pull_toward_camera.mV[VZ] += 0.01f;
 
-	glMatrixMode( GL_MODELVIEW );
-	glPushMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
 
 	// Move to appropriate region coords
 	LLVector3 origin = mRegion->getOriginAgent();
-	glTranslatef( origin.mV[VX], origin.mV[VY], origin.mV[VZ] );
+	gGL.translatef( origin.mV[VX], origin.mV[VY], origin.mV[VZ] );
 
-	glTranslatef(pull_toward_camera.mV[VX], pull_toward_camera.mV[VY],
+	gGL.translatef(pull_toward_camera.mV[VX], pull_toward_camera.mV[VY],
 		pull_toward_camera.mV[VZ]);
 
 	// Include +1 because vertices are fenceposts.
@@ -990,7 +990,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 		
 	}
 
-	glPopMatrix();
+	gGL.popMatrix();
 
 	return drawn;
 }

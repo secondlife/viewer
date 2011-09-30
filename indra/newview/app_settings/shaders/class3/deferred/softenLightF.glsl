@@ -23,9 +23,11 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
@@ -65,8 +67,8 @@ uniform sampler2DRect depthMap;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-varying vec4 vary_light;
-varying vec2 vary_fragcoord;
+VARYING vec4 vary_light;
+VARYING vec2 vary_fragcoord;
 
 vec3 vary_PositionEye;
 
@@ -293,7 +295,7 @@ void main()
 	{
 		vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 	
-		da = texture2D(lightFunc, vec2(da, 0.0)).a;
+		da = texture2D(lightFunc, vec2(da, 0.0)).r;
 		
 		vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
 		float scol = max(scol_ambocc.r, diffuse.a); 
@@ -312,7 +314,7 @@ void main()
 			//
 			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 			float sa = dot(refnormpersp, vary_light.xyz);
-			vec3 dumbshiny = vary_SunlitColor*scol*texture2D(lightFunc, vec2(sa, spec.a)).a;
+			vec3 dumbshiny = vary_SunlitColor*scol*texture2D(lightFunc, vec2(sa, spec.a)).r;
 		
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;
