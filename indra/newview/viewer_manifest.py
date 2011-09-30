@@ -573,7 +573,7 @@ class WindowsManifest(ViewerManifest):
                 grid_vars_template = """
                 OutFile "%(installer_file)s"
                 !define INSTFLAGS "%(flags)s"
-                !define INSTNAME   "SecondLifeViewer2"
+                !define INSTNAME   "SecondLifeViewer"
                 !define SHORTCUT   "Second Life Viewer"
                 !define URLNAME   "secondlife"
                 Caption "Second Life"
