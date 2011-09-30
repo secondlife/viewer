@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Things" name="Outfits">
+<panel label="事物" name="Outfits">
 	<panel.string name="wear_outfit_tooltip">
 		穿上所選擇的裝扮
 	</panel.string>
