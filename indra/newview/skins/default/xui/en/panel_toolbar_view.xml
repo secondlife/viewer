@@ -39,6 +39,7 @@
                     width="30"
                     mouse_opaque="false">
         <toolbar follows="left|top|bottom"
+                 button_panel.bg_opaque_image="Rounded_Rect_Right"
                  name="toolbar_left"
                  height="500"
                  width="30"
@@ -59,6 +60,7 @@
                     width="30"
                     mouse_opaque="false">
         <toolbar
+          button_panel.bg_opaque_image="Rounded_Rect_Left"
           follows="right|top|bottom"
           name="toolbar_right"
           height="500"
@@ -78,6 +80,7 @@
                 width="1024"
                 mouse_opaque="false">
     <toolbar layout="topleft"
+             button_panel.bg_opaque_image="Rounded_Rect_Top"
              name="toolbar_bottom"
              height="30"
              width="1024"

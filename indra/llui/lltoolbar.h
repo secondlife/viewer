@@ -37,9 +37,20 @@
 
 class LLToolBarButton : public LLButton
 {
+	friend class LLToolBar;
 public:
 	struct Params : public LLInitParam::Block<Params, LLButton::Params>
 	{
+		Optional<S32>	min_button_width,
+						max_button_width,
+						desired_height;
+
+		Params()
+		:	min_button_width("min_button_width", 0),
+			max_button_width("max_button_width", S32_MAX),
+			desired_height("desired_height", 20)
+		{}
+
 	};
 
 	LLToolBarButton(const Params& p);
@@ -51,6 +62,9 @@ private:
 	LLCommandId		mId;
 	S32				mMouseDownX;
 	S32				mMouseDownY;
+	S32				mMinWidth;
+	S32				mMaxWidth;
+	S32				mDesiredHeight;
 };
 
 
@@ -106,10 +120,6 @@ public:
 		Optional<bool>							read_only,
 												wrap;
 
-		Optional<S32>							min_button_width,
-												max_button_width,
-												button_height;
-		
 		Optional<S32>							pad_left,
 												pad_top,
 												pad_right,
@@ -171,10 +181,7 @@ private:
 
 	bool							mWrap;
 	bool							mNeedsLayout;
-	S32								mMinButtonWidth,
-									mMaxButtonWidth,
-									mButtonHeight,
-									mPadLeft,
+	S32								mPadLeft,
 									mPadRight,
 									mPadTop,
 									mPadBottom,
