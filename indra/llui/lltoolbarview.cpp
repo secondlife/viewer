@@ -114,7 +114,7 @@ bool LLToolBarView::addCommand(const LLCommandId& command, LLToolBar* toolbar)
 }
 
 bool LLToolBarView::loadToolbars(bool force_default)
-{	
+{
 	LLToolBarView::ToolbarSet toolbar_set;
 	
 	// Load the toolbars.xml file
@@ -221,18 +221,19 @@ void LLToolBarView::saveToolbars() const
 {
 	// Build the parameter tree from the toolbar data
 	LLToolBarView::ToolbarSet toolbar_set;
-	
-	// *TODO : factorize that code a bit...
 	if (mToolbarLeft)
 	{
+		toolbar_set.left_toolbar.button_display_mode = (int)(mToolbarLeft->getButtonType());
 		addToToolset(mToolbarLeft->getCommandsList(),toolbar_set.left_toolbar);
 	}
 	if (mToolbarRight)
 	{
+		toolbar_set.right_toolbar.button_display_mode = (int)(mToolbarRight->getButtonType());
 		addToToolset(mToolbarRight->getCommandsList(),toolbar_set.right_toolbar);
 	}
 	if (mToolbarBottom)
 	{
+		toolbar_set.bottom_toolbar.button_display_mode = (int)(mToolbarBottom->getButtonType());
 		addToToolset(mToolbarBottom->getCommandsList(),toolbar_set.bottom_toolbar);
 	}
 	
@@ -252,6 +253,19 @@ void LLToolBarView::saveToolbars() const
 			output_node->writeToFile(fp);
 			fclose(fp);
 		}
+	}
+}
+
+// Enumerate the commands in command_list and add them as Params to the toolbar
+void LLToolBarView::addToToolset(command_id_list_t& command_list, Toolbar& toolbar) const
+{
+	for (command_id_list_t::const_iterator it = command_list.begin();
+		 it != command_list.end();
+		 ++it)
+	{
+		LLCommandId::Params command;
+		command.name = it->name();		
+		toolbar.commands.add(command);
 	}
 }
 
