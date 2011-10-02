@@ -574,6 +574,8 @@ void LLVertexBuffer::unbind()
 		glBindVertexArray(0);
 #endif
 		sGLRenderArray = 0;
+		sGLRenderIndices = 0;
+		sIBOActive = FALSE;
 	}
 
 	if (sVBOActive)
@@ -1131,9 +1133,7 @@ void LLVertexBuffer::setupVertexArray()
 		}
 	}
 
-#if GL_ARB_vertex_array_object
-	glBindVertexArray(0);
-#endif
+	unbind();
 }
 
 void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
@@ -1873,6 +1873,12 @@ bool LLVertexBuffer::bindGLArray()
 		glBindVertexArray(mGLArray);
 #endif
 		sGLRenderArray = mGLArray;
+
+		if (mGLIndices)
+		{
+			sGLRenderIndices = mGLIndices;
+			sIBOActive = TRUE;
+		}
 		return true;
 	}
 		
@@ -2082,6 +2088,8 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			glBindVertexArray(0);
 #endif
 			sGLRenderArray = 0;
+			sGLRenderIndices = 0;
+			sIBOActive = FALSE;
 		}
 
 		if (mGLBuffer)

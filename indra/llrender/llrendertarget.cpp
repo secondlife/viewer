@@ -308,8 +308,8 @@ void LLRenderTarget::release()
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 		if (mStencil)
 		{ //attached as a renderbuffer
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
 			mStencil = false;
 		}
 		else

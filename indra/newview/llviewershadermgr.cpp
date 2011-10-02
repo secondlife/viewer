@@ -450,8 +450,8 @@ void LLViewerShaderMgr::setShaders()
 	LLGLSLShader::sIndexedTextureChannels = llmax(llmin(gGLManager.mNumTextureImageUnits, (S32) gSavedSettings.getU32("RenderMaxTextureIndex")), 1);
 
 
-	if (LLRender::sGLCoreProfile)
-	{ 
+	if (LLRender::sGLCoreProfile || gGLManager.mGLVersion >= 2.f)
+	{  //ALWAYS use shaders where available
 		if (!gSavedSettings.getBOOL("VertexShaderEnable"))
 		{ //vertex shaders MUST be enabled to use core profile
 			gSavedSettings.setBOOL("VertexShaderEnable", TRUE);
@@ -1121,8 +1121,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredStarProgram.unload();
 		return TRUE;
 	}
-
-	mVertexShaderLevel[SHADER_AVATAR] = 1;
 
 	BOOL success = TRUE;
 
