@@ -1042,10 +1042,10 @@
 		按下 ESC 鍵回復到世界的視角
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Didn&apos;t find what you&apos;re looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].
+		沒有發現你想要找的嗎？試試 [secondlife:///app/search/all/[SEARCH_TERM] 搜尋]。
 	</string>
 	<string name="PlacesNoMatchingItems">
-		Didn&apos;t find what you&apos;re looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].
+		沒有發現你想要找的嗎？試試 [secondlife:///app/search/places/[SEARCH_TERM] 搜尋]。
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Drag a landmark here to add it to your favorites.
@@ -1190,25 +1190,25 @@
 		Buy for L$
 	</string>
 	<string name="Stone">
-		Stone
+		石頭
 	</string>
 	<string name="Metal">
-		Metal
+		金屬
 	</string>
 	<string name="Glass">
-		Glass
+		玻璃
 	</string>
 	<string name="Wood">
-		Wood
+		木頭
 	</string>
 	<string name="Flesh">
-		Flesh
+		肌肉
 	</string>
 	<string name="Plastic">
-		Plastic
+		塑膠
 	</string>
 	<string name="Rubber">
-		Rubber
+		橡膠
 	</string>
 	<string name="Light">
 		Light
@@ -1385,7 +1385,7 @@
 		Charter Member
 	</string>
 	<string name="AcctTypeEmployee">
-		Linden Lab Employee
+		林登實驗室員工
 	</string>
 	<string name="PaymentInfoUsed">
 		Payment Info Used
@@ -1433,7 +1433,7 @@
 		伺服器上未發現腳本。
 	</string>
 	<string name="CompileQueueProblemDownloading">
-		Problem downloading
+		問題下載中
 	</string>
 	<string name="CompileQueueInsufficientPermDownload">
 		Insufficient permissions to download a script.
@@ -1491,7 +1491,7 @@
 		（未知）
 	</string>
 	<string name="SummaryForTheWeek" value="Summary for this week, beginning on"/>
-	<string name="NextStipendDay" value="The next stipend day is"/>
+	<string name="NextStipendDay" value="下一個發薪日為"/>
 	<string name="GroupIndividualShare" value="Group       Individual Share"/>
 	<string name="GroupColumn" value="群組"/>
 	<string name="Balance">
@@ -1507,7 +1507,7 @@
 		Total
 	</string>
 	<string name="NoGroupDataFound">
-		No group data found for group
+		無群組資料發現
 	</string>
 	<string name="IMParentEstate">
 		parent estate
@@ -1540,13 +1540,13 @@
 		地段腳本記憶體
 	</string>
 	<string name="ScriptLimitsParcelsOwned">
-		Parcels Listed: [PARCELS]
+		地段清單：[PARCELS]
 	</string>
 	<string name="ScriptLimitsMemoryUsed">
-		Memory used: [COUNT] kb out of [MAX] kb; [AVAILABLE] kb available
+		計憶體用量：使用 [MAX] kb 中的 [COUNT] kb ；剩餘 [AVAILABLE] kb 可用
 	</string>
 	<string name="ScriptLimitsMemoryUsedSimple">
-		Memory used: [COUNT] kb
+		記憶體用量：[COUNT] kb
 	</string>
 	<string name="ScriptLimitsParcelScriptURLs">
 		地段腳本 URLs
@@ -1573,7 +1573,7 @@
 		You do not have permission to examine this parcel
 	</string>
 	<string name="SITTING_ON">
-		Sitting On
+		坐在
 	</string>
 	<string name="ATTACH_CHEST">
 		胸部
@@ -1759,7 +1759,7 @@
 		預覽
 	</string>
 	<string name="MultiPropertiesTitle">
-		Properties
+		屬性
 	</string>
 	<string name="InvOfferAnObjectNamed">
 		An object named
@@ -1889,40 +1889,40 @@
 		PDT
 	</string>
 	<string name="Direction_Forward">
-		Forward
+		向前
 	</string>
 	<string name="Direction_Left">
-		Left
+		向左
 	</string>
 	<string name="Direction_Right">
-		Right
+		向右
 	</string>
 	<string name="Direction_Back">
-		Back
+		向後
 	</string>
 	<string name="Direction_North">
-		North
+		北
 	</string>
 	<string name="Direction_South">
-		South
+		南
 	</string>
 	<string name="Direction_West">
-		West
+		西
 	</string>
 	<string name="Direction_East">
-		East
+		東
 	</string>
 	<string name="Direction_Up">
-		Up
+		向上
 	</string>
 	<string name="Direction_Down">
-		Down
+		向下
 	</string>
 	<string name="Any Category">
 		任何類別
 	</string>
 	<string name="Shopping">
-		Shopping
+		採購
 	</string>
 	<string name="Land Rental">
 		Land Rental
@@ -1958,28 +1958,28 @@
 		完全成人
 	</string>
 	<string name="Arts&amp;Culture">
-		Arts &amp; Culture
+		藝術與文化
 	</string>
 	<string name="Business">
-		Business
+		商業
 	</string>
 	<string name="Educational">
-		Educational
+		教育
 	</string>
 	<string name="Gaming">
-		Gaming
+		遊戲
 	</string>
 	<string name="Hangout">
 		聚會所
 	</string>
 	<string name="Newcomer Friendly">
-		Newcomer Friendly
+		新手友善
 	</string>
 	<string name="Parks&amp;Nature">
-		Parks &amp; Nature
+		公園與自然
 	</string>
 	<string name="Residential">
-		Residential
+		住宅
 	</string>
 	<string name="Stage">
 		Stage
@@ -2024,36 +2024,36 @@
 		---
 	</string>
 	<string name="Multiple Media">
-		Multiple Media
+		多媒體
 	</string>
 	<string name="Play Media">
-		Play/Pause Media
+		播放／暫停 媒體
 	</string>
 	<string name="MBCmdLineError">
-		An error was found parsing the command line.
-Please see: http://wiki.secondlife.com/wiki/Client_parameters
-Error:
+		解析命令列時發現錯誤。
+請參閱： http://wiki.secondlife.com/wiki/Client_parameters
+錯誤：
 	</string>
 	<string name="MBCmdLineUsg">
-		[APP_NAME] Command line usage:
+		[APP_NAME] 命令列用法：
 	</string>
 	<string name="MBUnableToAccessFile">
-		[APP_NAME] is unable to access a file that it needs.
+		[APP_NAME] 無法存取它所需要的檔案。
 
 This can be because you somehow have multiple copies running, or your system incorrectly thinks a file is open.
 If this message persists, restart your computer and try again.
 If it continues to persist, you may need to completely uninstall [APP_NAME] and reinstall it.
 	</string>
 	<string name="MBFatalError">
-		Fatal Error
+		致命錯誤
 	</string>
 	<string name="MBRequiresAltiVec">
 		[APP_NAME] requires a processor with AltiVec (G4 or later).
 	</string>
 	<string name="MBAlreadyRunning">
-		[APP_NAME] is already running.
-Check your task bar for a minimized copy of the program.
-If this message persists, restart your computer.
+		[APP_NAME] 已經在執行中。
+請檢查你的工作列裡是否有其他最小化的相同程式。
+如果這個訊息持續出現，請重新啟動你的電腦。
 	</string>
 	<string name="MBFrozenCrashed">
 		[APP_NAME] appears to have frozen or crashed on the previous run.
@@ -2082,8 +2082,8 @@ Please download the latest version from www.secondlife.com.
 		錯誤
 	</string>
 	<string name="MBFullScreenErr">
-		Unable to run fullscreen at [WIDTH] x [HEIGHT].
-Running in window.
+		無法執行全螢幕於 [WIDTH] x [HEIGHT].
+執行於視窗中。
 	</string>
 	<string name="MBDestroyWinFailed">
 		Shutdown Error while destroying window (DestroyWindow() failed)
@@ -2111,7 +2111,7 @@ Also be sure your monitor is set to True Color (32-bit) in Control Panels &gt; D
 If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="MBPixelFmtSetErr">
-		Can&apos;t set pixel format
+		無法設定像素格式
 	</string>
 	<string name="MBGLContextErr">
 		Can&apos;t create GL rendering context
@@ -2920,7 +2920,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Middle Part
 	</string>
 	<string name="More">
-		More
+		更多
 	</string>
 	<string name="More Blush">
 		More Blush
@@ -3559,7 +3559,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		購買這塊土地
 	</string>
 	<string name="LocationCtrlVoiceTooltip">
-		Voice not available here
+		此地並不允許語音
 	</string>
 	<string name="LocationCtrlFlyTooltip">
 		不允許飛行
@@ -3568,13 +3568,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		禁止推撞
 	</string>
 	<string name="LocationCtrlBuildTooltip">
-		Building/dropping objects not allowed
+		建造／丟棄 物件不被允許
 	</string>
 	<string name="LocationCtrlScriptsTooltip">
-		Scripts not allowed
+		腳本不被允許
 	</string>
 	<string name="LocationCtrlDamageTooltip">
-		Health
+		健康
 	</string>
 	<string name="LocationCtrlAdultIconTooltip">
 		完全成人地區
@@ -3628,7 +3628,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		[NAME] 正在輸入...
 	</string>
 	<string name="Unnamed">
-		(Unnamed)
+		（未命名）
 	</string>
 	<string name="IM_moderated_chat_label">
 		(Moderated: Voices off by default)
@@ -3670,10 +3670,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Connected, click Leave Call to hang up
 	</string>
 	<string name="hang_up-im">
-		Left voice call
+		離開語音通話
 	</string>
 	<string name="answering-im">
-		Connecting...
+		聯接中...
 	</string>
 	<string name="conference-title">
 		Ad-hoc Conference
@@ -3715,10 +3715,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		此會話不再存在
 	</string>
 	<string name="no_ability_error">
-		You do not have that ability.
+		你並不具有這個能力。
 	</string>
 	<string name="no_ability">
-		You do not have that ability.
+		你並不具有這個能力。
 	</string>
 	<string name="not_a_mod_error">
 		You are not a session moderator.
@@ -3903,7 +3903,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		內容
 	</string>
 	<string name="Gesture">
-		Gesture
+		姿勢
 	</string>
 	<string name="Male Gestures">
 		男性姿勢
@@ -4048,7 +4048,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		US$ [AMOUNT]
 	</string>
 	<string name="Membership">
-		Membership
+		成員資格
 	</string>
 	<string name="Roles">
 		角色
@@ -4057,13 +4057,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Group Identity
 	</string>
 	<string name="Parcel Management">
-		Parcel Management
+		地段管理
 	</string>
 	<string name="Parcel Identity">
 		Parcel Identity
 	</string>
 	<string name="Parcel Settings">
-		Parcel Settings
+		地段設定
 	</string>
 	<string name="Parcel Powers">
 		Parcel Powers
@@ -4075,10 +4075,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Parcel Content
 	</string>
 	<string name="Object Management">
-		Object Management
+		物件管理
 	</string>
 	<string name="Accounting">
-		Accounting
+		會計
 	</string>
 	<string name="Notices">
 		通知
@@ -4087,16 +4087,16 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		聊天
 	</string>
 	<string name="DeleteItems">
-		Delete selected items?
+		刪除所選取的物品？
 	</string>
 	<string name="DeleteItem">
-		Delete selected item?
+		刪除所選取的物品？
 	</string>
 	<string name="EmptyOutfitText">
 		沒有任何物品在這個裝扮內
 	</string>
 	<string name="ExternalEditorNotSet">
-		Select an editor using the ExternalEditor setting.
+		選擇一個編輯器使用 ExternalEditor 設定。
 	</string>
 	<string name="ExternalEditorNotFound">
 		Cannot find the external editor you specified.
@@ -4107,7 +4107,7 @@ Try enclosing path to the editor with double quotes.
 		Error parsing the external editor command.
 	</string>
 	<string name="ExternalEditorFailedToRun">
-		External editor failed to run.
+		執行外部編輯器失敗。
 	</string>
 	<string name="Esc">
 		Esc

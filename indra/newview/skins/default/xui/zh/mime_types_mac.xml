@@ -27,10 +27,10 @@
 			圖像
 		</label>
 		<tooltip name="image_tooltip">
-			有一個影像在此位置
+			有一個圖像在此位置
 		</tooltip>
 		<playtip name="image_playtip">
-			察看在此位置的影像
+			察看在此位置的圖像
 		</playtip>
 	</widgetset>
 	<widgetset name="audio">

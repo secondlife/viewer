@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<panel.string name="StatBarDaysOfWeek">
-		Sonntag:Montag:Dienstag:Mittwoch:Donnerstag:Freitag:Samstag
-	</panel.string>
-	<panel.string name="StatBarMonthsOfYear">
-		Januar:Februar:März:April:Mai:Juni:Juli:August:September:Oktober:November:Dezember
-	</panel.string>
 	<panel.string name="packet_loss_tooltip">
 		Paketverlust
 	</panel.string>
@@ -21,13 +15,10 @@
 	<panel.string name="buycurrencylabel">
 		[AMT] L$
 	</panel.string>
-	<panel name="balance_bg">
-		<text name="balance" tool_tip="Klicken, um L$-Guthaben zu aktualisieren" value="20 L$"/>
-		<button label="L$ kaufen" name="buyL" tool_tip="Hier klicken, um mehr L$ zu kaufen"/>
-	</panel>
-	<text name="TimeText" tool_tip="Aktuelle Zeit (Pazifik)">
-		24:00 H PST
-	</text>
+	<combo_box name="mode_combo" tool_tip="Wählen Sie den gewünschten Modus aus. Basismodus: Second Life schnell und einfach erkunden und chatten. Erweiterter Modus: Zugriff auf zusätzliche Funktionen.">
+		<combo_box.item label="Basismodus" name="Basic"/>
+		<combo_box.item label="Erweiterter Modus" name="Advanced"/>
+	</combo_box>
 	<button name="media_toggle_btn" tool_tip="Alle Medien starten/stoppen (Musik, Video, Webseiten)"/>
 	<button name="volume_btn" tool_tip="Steuerung der Gesamtlautstärke"/>
 </panel>

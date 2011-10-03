@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<panel.string name="StatBarDaysOfWeek">
-		Domingo:Lunes:Martes:Miércoles:Jueves:Viernes:Sábado
-	</panel.string>
-	<panel.string name="StatBarMonthsOfYear">
-		Enero:Febrero:Marzo:Abril:Mayo:Junio:Julio:Agosto:Septiembre:Octubre:Noviembre:Diciembre
-	</panel.string>
 	<panel.string name="packet_loss_tooltip">
 		Pérdida de paquetes
 	</panel.string>
@@ -21,13 +15,10 @@
 	<panel.string name="buycurrencylabel">
 		[AMT] L$
 	</panel.string>
-	<panel name="balance_bg">
-		<text name="balance" tool_tip="Haz clic para actualizar tu saldo en L$" value="20 L$"/>
-		<button label="COMPRAR L$" name="buyL" tool_tip="Pulsa para comprar más L$"/>
-	</panel>
-	<text name="TimeText" tool_tip="Hora actual (Pacífico)">
-		24:00 AM PST
-	</text>
+	<combo_box name="mode_combo" tool_tip="Selecciona el modo. Elige Básico para una exploración rápida y fácil y para chatear. Elige Avanzado para tener acceso a más funciones.">
+		<combo_box.item label="Modo Básico" name="Basic"/>
+		<combo_box.item label="Modo Avanzado" name="Advanced"/>
+	</combo_box>
 	<button name="media_toggle_btn" tool_tip="Iniciar/Parar todos los media (música, vídeo, páginas web)"/>
 	<button name="volume_btn" tool_tip="Control general del volumen"/>
 </panel>
