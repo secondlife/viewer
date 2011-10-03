@@ -5,6 +5,7 @@ project(llui)
 include(00-Common)
 include(LLCommon)
 include(LLImage)
+include(LLInventory)
 include(LLMath)
 include(LLMessage)
 include(LLRender)
@@ -16,6 +17,7 @@ include(LLXUIXML)
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
+    ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
@@ -101,7 +103,6 @@ set(llui_SOURCE_FILES
     lltransutil.cpp
     lltoggleablemenu.cpp
     lltoolbar.cpp
-    lltoolbarview.cpp
     lltooltip.cpp
     llui.cpp
     lluicolortable.cpp
@@ -205,7 +206,6 @@ set(llui_HEADER_FILES
     lltimectrl.h
     lltoggleablemenu.h
     lltoolbar.h
-    lltoolbarview.h
     lltooltip.h
     lltransutil.h
     lluicolortable.h
@@ -251,6 +251,7 @@ target_link_libraries(llui
     ${LLRENDER_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
+    ${LLINVENTORY_LIBRARIES}
     ${LLVFS_LIBRARIES}    # ugh, just for LLDir
     ${LLXUIXML_LIBRARIES}
     ${LLXML_LIBRARIES}

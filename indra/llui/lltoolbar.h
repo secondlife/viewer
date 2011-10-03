@@ -33,7 +33,11 @@
 #include "lllayoutstack.h"
 #include "lluictrl.h"
 #include "llcommandmanager.h"
+#include "llassettype.h"
 
+typedef boost::function<void (S32 x, S32 y, const LLUUID& uuid)> startdrag_callback_t;
+typedef boost::function<BOOL (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> handledrag_callback_t;
+typedef boost::function<BOOL (EDragAndDropType type, void* data, const LLUUID& uuid)> handledrop_callback_t;
 
 class LLToolBarButton : public LLButton
 {
@@ -42,7 +46,17 @@ public:
 	{
 	};
 
-	LLToolBarButton(const Params& p) : LLButton(p) {}
+	LLToolBarButton(const Params& p);
+
+	virtual BOOL handleHover( S32 x, S32 y, MASK mask );
+	
+	void setStartDragCallback(startdrag_callback_t cb) { mStartDragItemCallback = cb; }
+	void setHandleDragCallback(handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
+protected:
+	bool						mIsDragged;
+	startdrag_callback_t		mStartDragItemCallback;
+	handledrag_callback_t		mHandleDragItemCallback;
+	LLUUID						mUUID;
 };
 
 
@@ -86,7 +100,6 @@ class LLToolBar
 :	public LLUICtrl
 {
 public:
-
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Mandatory<LLToolBarEnums::ButtonType>	button_display_mode;
@@ -119,10 +132,18 @@ public:
 	void draw();
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-
+	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+								   EDragAndDropType cargo_type,
+								   void* cargo_data,
+								   EAcceptance* accept,
+								   std::string& tooltip_msg);
+	
 	bool addCommand(const LLCommandId& commandId);
 	bool hasCommand(const LLCommandId& commandId) const;
 	bool enableCommand(const LLCommandId& commandId, bool enabled);
+	void setStartDragCallback(startdrag_callback_t cb) { mStartDragItemCallback = cb; }
+	void setHandleDragCallback(handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
+	void setHandleDropCallback(handledrop_callback_t cb) { mHandleDropCallback = cb; }
 
 protected:
 	friend class LLUICtrlFactory;
@@ -130,6 +151,10 @@ protected:
 	~LLToolBar();
 
 	void initFromParams(const Params&);
+	startdrag_callback_t		mStartDragItemCallback;
+	handledrag_callback_t		mHandleDragItemCallback;
+	handledrop_callback_t		mHandleDropCallback;
+	bool						mDragAndDropTarget;
 
 public:
 	// Methods used in loading and saving toolbar settings
@@ -147,6 +172,7 @@ private:
 	BOOL isSettingChecked(const LLSD& userdata);
 	void onSettingEnable(const LLSD& userdata);
 
+	LLUUID							mUUID;
 	const bool						mReadOnly;
 
 	std::list<LLToolBarButton*>		mButtons;

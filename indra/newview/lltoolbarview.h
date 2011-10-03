@@ -74,6 +74,10 @@ public:
 	bool loadToolbars(bool force_default = false);	// return false if load fails
 	bool loadDefaultToolbars() { return loadToolbars(true); }
 	
+	static void startDragItem( S32 x, S32 y, const LLUUID& uuid);
+	static BOOL handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);
+	static BOOL handleDrop(	EDragAndDropType cargo_type, void* cargo_data, const LLUUID& folder_id);
+
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBarView(const Params&);
@@ -89,6 +93,8 @@ private:
 	LLToolBar*	mToolbarLeft;
 	LLToolBar*	mToolbarRight;
 	LLToolBar*	mToolbarBottom;
+	
+	static bool			sDragStarted;
 };
 
 extern LLToolBarView* gToolBarView;

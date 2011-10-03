@@ -113,6 +113,7 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
+	mUUID = LLUUID::LLUUID::generateNewID(p.name);
 }
 
 LLToolBar::~LLToolBar()
@@ -534,6 +535,8 @@ void LLToolBar::createButton(const LLCommandId& id)
 		cbParam.function_name = commandp->functionName();
 		cbParam.parameter = commandp->parameter();
 		button->setCommitCallback(cbParam);
+		button->setStartDragCallback(mStartDragItemCallback);
+		button->setHandleDragCallback(mHandleDragItemCallback);
 	}
 
 	mButtons.push_back(button);
@@ -541,3 +544,55 @@ void LLToolBar::createButton(const LLCommandId& id)
 
 	mNeedsLayout = true;
 }
+
+BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+										EDragAndDropType cargo_type,
+										void* cargo_data,
+										EAcceptance* accept,
+										std::string& tooltip_msg)
+{
+	llinfos << "Merov debug : handleDragAndDrop. drop = " << drop << ", tooltip = " << tooltip_msg << llendl;
+	// If we have a drop callback, that means that we can handle the drop
+	BOOL handled = (mHandleDropCallback ? TRUE : FALSE);
+	
+	// if drop, time to call the drop callback to get the operation done
+	if (handled && drop)
+	{
+		handled = mHandleDropCallback(cargo_type,cargo_data,mUUID);
+	}
+	
+	// We accept multi drop by default
+	*accept = (handled ? ACCEPT_YES_MULTI : ACCEPT_NO);
+	
+	// We'll use that flag to change the visual aspect of the target on draw()
+	mDragAndDropTarget = handled;
+	
+	return handled;
+}
+
+LLToolBarButton::LLToolBarButton(const Params& p) : LLButton(p)
+{
+	mUUID = LLUUID::LLUUID::generateNewID(p.name);
+}
+
+BOOL LLToolBarButton::handleHover( S32 x, S32 y, MASK mask )
+{
+//	llinfos << "Merov debug: handleHover, x = " << x << ", y = " << y << ", mouse = " << hasMouseCapture() << llendl;
+	BOOL handled = FALSE;
+		
+	if (hasMouseCapture() && mStartDragItemCallback && mHandleDragItemCallback)
+	{
+		if (!mIsDragged)
+		{
+			mStartDragItemCallback(x,y,mUUID);
+			mIsDragged = true;
+			handled = TRUE;
+		}
+		else 
+		{
+			handled = mHandleDragItemCallback(x,y,mUUID,LLAssetType::AT_WIDGET);
+		}
+	}
+	return handled;
+}
+
