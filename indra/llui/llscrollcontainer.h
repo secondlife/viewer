@@ -103,6 +103,7 @@ public:
 	// LLView functionality
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
+	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 	virtual BOOL	handleScrollWheel( S32 x, S32 y, S32 clicks );
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
