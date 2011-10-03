@@ -706,7 +706,6 @@ LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 bool LLSideTray::isTabAttached(const std::string& name)
 {
 	LLSideTrayTab* tab = getTab(name);
-	llassert(tab);
 	if (!tab) return false;
 
 	return std::find(mTabs.begin(), mTabs.end(), tab) != mTabs.end();

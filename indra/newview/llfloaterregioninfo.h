@@ -100,10 +100,6 @@ private:
 	
 	LLFloaterRegionInfo(const LLSD& seed);
 	~LLFloaterRegionInfo();
-
-	void onConsoleReplyReceived(const std::string& output);
-
-	boost::signals2::connection mConsoleReplySignalConnection;;
 	
 protected:
 	void onTabSelected(const LLSD& param);

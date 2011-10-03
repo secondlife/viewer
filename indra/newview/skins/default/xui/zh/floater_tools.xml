@@ -48,7 +48,7 @@
 		Drag to move, shift-drag to copy
 	</text>
 	<radio_group name="focus_radio_group">
-		<radio_item label="Zoom" name="radio zoom"/>
+		<radio_item label="縮放" name="radio zoom"/>
 		<radio_item label="環繞（Ctrl）" name="radio orbit"/>
 		<radio_item label="平移（Ctrl+Shift）" name="radio pan"/>
 	</radio_group>
@@ -75,10 +75,10 @@
 	</text>
 	<check_box initial_value="true" label="伸展材質" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="貼齊格線" name="checkbox snap to grid"/>
-	<combo_box name="combobox grid mode" tool_tip="Choose the type of grid ruler for positioning the object">
-		<combo_box.item label="World grid" name="World"/>
-		<combo_box.item label="Local grid" name="Local"/>
-		<combo_box.item label="Reference grid" name="Reference"/>
+	<combo_box name="combobox grid mode" tool_tip="選擇物件定位參考的格線尺度類型">
+		<combo_box.item label="世界格線" name="World"/>
+		<combo_box.item label="地方格線" name="Local"/>
+		<combo_box.item label="參考格線" name="Reference"/>
 	</combo_box>
 	<button name="Options..." tool_tip="察看更多格線選項"/>
 	<button name="ToolCube" tool_tip="Cube"/>
@@ -125,15 +125,15 @@
 		物件： [COUNT]
 	</text>
 	<text name="prim_count">
-		Prims: [COUNT]
+		幾何元件： [COUNT]
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="一般" name="General">
 			<panel.string name="text deed continued">
-				Deed
+				讓渡
 			</panel.string>
 			<panel.string name="text deed">
-				Deed
+				讓渡
 			</panel.string>
 			<panel.string name="text modify info 1">
 				你能修改這個物件
@@ -183,7 +183,7 @@
 			<name_box initial_value="載入中..." name="Group Name Proxy"/>
 			<button name="button set group" tool_tip="選擇一個群組以分享這物件權限"/>
 			<check_box label="分享" name="checkbox share with group" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."/>
-			<button label="Deed" label_selected="Deed" name="button deed" tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."/>
+			<button label="讓渡" label_selected="讓渡" name="button deed" tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."/>
 			<text name="label click action">
 				點擊以：
 			</text>
@@ -272,7 +272,7 @@
 				<combo_box.item label="Sculpted" name="Sculpted"/>
 			</combo_box>
 			<combo_box name="material">
-				<combo_box.item label="Stone" name="Stone"/>
+				<combo_box.item label="石頭" name="Stone"/>
 				<combo_box.item label="金屬" name="Metal"/>
 				<combo_box.item label="玻璃" name="Glass"/>
 				<combo_box.item label="木頭" name="Wood"/>
@@ -340,7 +340,7 @@
 			<text name="text revolutions">
 				Revolutions
 			</text>
-			<texture_picker label="Sculpt Texture" name="sculpt texture control" tool_tip="點擊以挑選圖片"/>
+			<texture_picker label="Sculpt Texture" name="sculpt texture control" tool_tip="點擊以挑選圖像"/>
 			<check_box label="Mirror" name="sculpt mirror control" tool_tip="Flips sculpted prim along the X axis"/>
 			<check_box label="Inside-out" name="sculpt invert control" tool_tip="Inverts the sculpted prims normals, making it appear inside-out"/>
 			<text name="label sculpt type">
@@ -356,28 +356,28 @@
 		</panel>
 		<panel label="特性" name="Features">
 			<text name="select_single">
-				Select only one primitive to edit features.
+				只能選擇一個幾何元件去編輯細節。
 			</text>
 			<text name="edit_object">
 				編輯物件特性：
 			</text>
-			<check_box label="Flexible Path" name="Flexible1D Checkbox Ctrl" tool_tip="Allows object to flex about the Z axis (Client-side only)"/>
-			<spinner label="Softness" name="FlexNumSections"/>
-			<spinner label="Gravity" name="FlexGravity"/>
-			<spinner label="Drag" name="FlexFriction"/>
-			<spinner label="Wind" name="FlexWind"/>
-			<spinner label="Tension" name="FlexTension"/>
-			<spinner label="Force X" name="FlexForceX"/>
-			<spinner label="Force Y" name="FlexForceY"/>
-			<spinner label="Force Z" name="FlexForceZ"/>
-			<check_box label="Light" name="Light Checkbox Ctrl" tool_tip="Causes object to emit light"/>
+			<check_box label="彈性路徑" name="Flexible1D Checkbox Ctrl" tool_tip="Allows object to flex about the Z axis (Client-side only)"/>
+			<spinner label="柔軟" name="FlexNumSections"/>
+			<spinner label="重力" name="FlexGravity"/>
+			<spinner label="拖曳" name="FlexFriction"/>
+			<spinner label="風力" name="FlexWind"/>
+			<spinner label="張力" name="FlexTension"/>
+			<spinner label="強制 X 軸" name="FlexForceX"/>
+			<spinner label="強制 Y 軸" name="FlexForceY"/>
+			<spinner label="強制 Z 軸" name="FlexForceZ"/>
+			<check_box label="光源" name="Light Checkbox Ctrl" tool_tip="導致物件發光"/>
 			<color_swatch name="colorswatch" tool_tip="點擊以開啟顏色挑選器"/>
 			<texture_picker label="" name="light texture control" tool_tip="Click to choose a projection image (only has effect with deferred rendering enabled)"/>
-			<spinner label="Intensity" name="Light Intensity"/>
+			<spinner label="強度" name="Light Intensity"/>
 			<spinner label="FOV" name="Light FOV"/>
-			<spinner label="Radius" name="Light Radius"/>
+			<spinner label="半徑" name="Light Radius"/>
 			<spinner label="Focus" name="Light Focus"/>
-			<spinner label="Falloff" name="Light Falloff"/>
+			<spinner label="衰減" name="Light Falloff"/>
 			<spinner label="Ambiance" name="Light Ambiance"/>
 		</panel>
 		<panel label="材質" name="Texture">
@@ -387,7 +387,7 @@
 			<panel.string name="string repeats per face">
 				每一面重覆次數
 			</panel.string>
-			<texture_picker label="材質" name="texture control" tool_tip="點擊以挑選圖片"/>
+			<texture_picker label="材質" name="texture control" tool_tip="點擊以挑選圖像"/>
 			<color_swatch label="顏色" name="colorswatch" tool_tip="點擊以開啟顏色挑選器"/>
 			<text name="color trans">
 				透明度 %

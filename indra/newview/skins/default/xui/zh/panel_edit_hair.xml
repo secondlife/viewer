@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_hair_panel">
 	<panel name="avatar_hair_color_panel">
-		<texture_picker label="材質" name="Texture" tool_tip="點擊以挑選圖片"/>
+		<texture_picker label="材質" name="Texture" tool_tip="點擊以挑選圖像"/>
 	</panel>
 	<panel name="accordion_panel">
 		<accordion name="wearable_accordion">

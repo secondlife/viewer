@@ -47,14 +47,14 @@
 		<text name="DrawDistanceMeterText2">
 			m
 		</text>
-		<slider label="Max. particle count:" name="MaxParticleCount"/>
+		<slider label="最大粒子效果數量：" name="MaxParticleCount"/>
 		<slider label="Max. # of non-impostor avatars:" name="MaxNumberAvatarDrawn"/>
 		<slider label="後製品質：" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			網面細節：
 		</text>
 		<slider label="物件：" name="ObjectMeshDetail"/>
-		<slider label="Flexiprims:" name="FlexibleMeshDetail"/>
+		<slider label="彈性幾何元件：" name="FlexibleMeshDetail"/>
 		<slider label="樹木：" name="TreeMeshDetail"/>
 		<slider label="化身：" name="AvatarMeshDetail"/>
 		<slider label="地形：" name="TerrainMeshDetail"/>
