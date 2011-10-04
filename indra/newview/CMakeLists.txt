@@ -481,6 +481,7 @@ set(viewer_SOURCE_FILES
     lltoastpanel.cpp
     lltoastscripttextbox.cpp
     lltool.cpp
+    lltoolbarview.cpp
     lltoolbrush.cpp
     lltoolcomp.cpp
     lltooldraganddrop.cpp
@@ -1039,6 +1040,7 @@ set(viewer_HEADER_FILES
     lltoastpanel.h
     lltoastscripttextbox.h
     lltool.h
+    lltoolbarview.h
     lltoolbrush.h
     lltoolcomp.h
     lltooldraganddrop.h

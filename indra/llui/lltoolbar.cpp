@@ -33,7 +33,6 @@
 #include "llcommandmanager.h"
 #include "llmenugl.h"
 #include "lltrans.h"
-#include "lltoolbarview.h"
 
 // uncomment this and remove the one in llui.cpp when there is an external reference to this translation unit
 // thanks, MSVC!
@@ -108,6 +107,7 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
+	mUUID = LLUUID::generateNewID(p.name);
 }
 
 LLToolBar::~LLToolBar()
@@ -319,7 +319,7 @@ void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row
 	{
 		if (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
 		{
-			button->reshape(llclamp(button->getRect().getWidth(), button->mMinWidth, button->mMaxWidth), max_row_girth);
+			button->reshape(button->mWidthRange.clamp(button->getRect().getWidth()), max_row_girth);
 		}
 		else // VERTICAL
 		{
@@ -378,10 +378,10 @@ void LLToolBar::updateLayoutAsNeeded()
 
 	BOOST_FOREACH(LLToolBarButton* button, mButtons)
 	{
-		button->reshape(button->mMinWidth, button->mDesiredHeight);
+		button->reshape(button->mWidthRange.getMin(), button->mDesiredHeight);
 		button->autoResize();
 
-		S32 button_clamped_width = llclamp(button->getRect().getWidth(), button->mMinWidth, button->mMaxWidth);
+		S32 button_clamped_width = button->mWidthRange.clamp(button->getRect().getWidth());
 		S32 button_length = (orientation == LLLayoutStack::HORIZONTAL)
 							? button_clamped_width
 							: button->getRect().getHeight();
@@ -396,7 +396,7 @@ void LLToolBar::updateLayoutAsNeeded()
 		{
 			if (orientation == LLLayoutStack::VERTICAL)
 			{	// row girth (width in this case) is clamped to allowable button widths
-				max_row_girth = llclamp(max_row_girth, button->mMinWidth, button->mMaxWidth);
+				max_row_girth = button->mWidthRange.clamp(max_row_girth);
 			}
 
 			// make buttons in current row all same girth
@@ -528,6 +528,8 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 		cbParam.function_name = commandp->functionName();
 		cbParam.parameter = commandp->parameter();
 		button->setCommitCallback(cbParam);
+		button->setStartDragCallback(mStartDragItemCallback);
+		button->setHandleDragCallback(mHandleDragItemCallback);
 	}
 
 	button->setCommandId(id);
@@ -535,20 +537,41 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 
 }
 
-//
-// LLToolBarButton
-//
+BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+										EDragAndDropType cargo_type,
+										void* cargo_data,
+										EAcceptance* accept,
+										std::string& tooltip_msg)
+{
+	llinfos << "Merov debug : handleDragAndDrop. drop = " << drop << ", tooltip = " << tooltip_msg << llendl;
+	// If we have a drop callback, that means that we can handle the drop
+	BOOL handled = (mHandleDropCallback ? TRUE : FALSE);
+	
+	// if drop, time to call the drop callback to get the operation done
+	if (handled && drop)
+	{
+		handled = mHandleDropCallback(cargo_type,cargo_data,mUUID);
+	}
+	
+	// We accept multi drop by default
+	*accept = (handled ? ACCEPT_YES_MULTI : ACCEPT_NO);
+	
+	// We'll use that flag to change the visual aspect of the target on draw()
+	mDragAndDropTarget = handled;
+	
+	return handled;
+}
 
 LLToolBarButton::LLToolBarButton(const Params& p) 
 :	LLButton(p),
 	mMouseDownX(0),
 	mMouseDownY(0),
-	mMinWidth(p.min_button_width),
-	mMaxWidth(p.max_button_width),
+	mWidthRange(p.button_width),
 	mDesiredHeight(p.desired_height),
 	mId("")
-{}
-
+{
+	mUUID = LLUUID::generateNewID(p.name);
+}
 
 BOOL LLToolBarButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
@@ -559,22 +582,26 @@ BOOL LLToolBarButton::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (hasMouseCapture())
+//	llinfos << "Merov debug: handleHover, x = " << x << ", y = " << y << ", mouse = " << hasMouseCapture() << llendl;
+	BOOL handled = FALSE;
+		
+	if (hasMouseCapture() && mStartDragItemCallback && mHandleDragItemCallback)
 	{
-		S32 dist_squared = (x - mMouseDownX) * (x - mMouseDownX) + (y - mMouseDownY) * (y - mMouseDownY);
-		S32 threshold = LLUI::sSettingGroups["config"]->getS32("DragAndDropDistanceThreshold");
-		S32 threshold_squared = threshold * threshold;
-		if (dist_squared > threshold_squared)
+		if (!mIsDragged)
 		{
-			// start drag and drop
-			LLToolBarView* view = getParentByType<LLToolBarView>();
-			LLToolBar* bar = getParentByType<LLToolBar>();
-			if (view)
+			mStartDragItemCallback(x,y,mUUID);
+			mIsDragged = true;
+			handled = TRUE;
+		}
+		else 
 			{
-				//view->startDrag(bar->createButton(mId));
-				//setVisible(FALSE);
+			handled = mHandleDragItemCallback(x,y,mUUID,LLAssetType::AT_WIDGET);
 			}
 		}
+	else
+	{
+		handled = LLButton::handleHover(x, y, mask);
 	}
-	return LLButton::handleHover(x, y, mask);
+	return handled;
 }
+

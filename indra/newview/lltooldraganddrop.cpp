@@ -57,6 +57,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
+#include "llclipboard.h"
 
 // syntactic sugar
 #define callMemberFunction(object,ptrToMember)  ((object).*(ptrToMember))
@@ -2494,6 +2495,10 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 		{
 			item = (LLViewerInventoryItem*)preview->getDragItem();
 		}
+	}
+	else if(mSource == SOURCE_VIEWER)
+	{
+		item = (LLViewerInventoryItem*)gClipboard.getSourceObject();
 	}
 	if(item) return item;
 	if(cat) return cat;

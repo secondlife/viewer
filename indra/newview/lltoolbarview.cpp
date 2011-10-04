@@ -25,7 +25,7 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
+#include "llviewerprecompiledheaders.h"
 
 #include "lltoolbarview.h"
 
@@ -33,12 +33,15 @@
 #include "llxmlnode.h"
 #include "lltoolbar.h"
 #include "llbutton.h"
+#include "lltooldraganddrop.h"
+#include "llclipboard.h"
 
 #include <boost/foreach.hpp>
 
 LLToolBarView* gToolBarView = NULL;
 
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
+bool LLToolBarView::sDragStarted = false;
 
 LLToolBarView::Toolbar::Toolbar()
 :	button_display_mode("button_display_mode"),
@@ -77,6 +80,18 @@ BOOL LLToolBarView::postBuild()
 	mToolbarRight  = getChild<LLToolBar>("toolbar_right");
 	mToolbarBottom = getChild<LLToolBar>("toolbar_bottom");
 
+	mToolbarLeft->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
+	mToolbarLeft->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
+	mToolbarLeft->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3));
+	
+	mToolbarRight->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
+	mToolbarRight->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
+	mToolbarRight->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3));
+	
+	mToolbarBottom->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
+	mToolbarBottom->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
+	mToolbarBottom->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3));
+	
 	return TRUE;
 }
 
@@ -169,8 +184,8 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	{
 		if (toolbar_set.left_toolbar.button_display_mode.isProvided())
 		{
-			U32 button_type = toolbar_set.left_toolbar.button_display_mode;
-			mToolbarLeft->setButtonType((LLToolBarEnums::ButtonType)(button_type));
+			LLToolBarEnums::ButtonType button_type = toolbar_set.left_toolbar.button_display_mode;
+			mToolbarLeft->setButtonType(button_type);
 		}
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.left_toolbar.commands)
 		{
@@ -181,8 +196,8 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	{
 		if (toolbar_set.right_toolbar.button_display_mode.isProvided())
 		{
-			U32 button_type = toolbar_set.right_toolbar.button_display_mode;
-			mToolbarRight->setButtonType((LLToolBarEnums::ButtonType)(button_type));
+			LLToolBarEnums::ButtonType button_type = toolbar_set.right_toolbar.button_display_mode;
+			mToolbarRight->setButtonType(button_type);
 		}
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.right_toolbar.commands)
 		{
@@ -193,8 +208,8 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	{
 		if (toolbar_set.bottom_toolbar.button_display_mode.isProvided())
 		{
-			U32 button_type = toolbar_set.bottom_toolbar.button_display_mode;
-			mToolbarBottom->setButtonType((LLToolBarEnums::ButtonType)(button_type));
+			LLToolBarEnums::ButtonType button_type = toolbar_set.bottom_toolbar.button_display_mode;
+			mToolbarBottom->setButtonType(button_type);
 		}
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.bottom_toolbar.commands)
 		{
@@ -223,17 +238,17 @@ void LLToolBarView::saveToolbars() const
 	LLToolBarView::ToolbarSet toolbar_set;
 	if (mToolbarLeft)
 	{
-		toolbar_set.left_toolbar.button_display_mode = (int)(mToolbarLeft->getButtonType());
+		toolbar_set.left_toolbar.button_display_mode = mToolbarLeft->getButtonType();
 		addToToolset(mToolbarLeft->getCommandsList(),toolbar_set.left_toolbar);
 	}
 	if (mToolbarRight)
 	{
-		toolbar_set.right_toolbar.button_display_mode = (int)(mToolbarRight->getButtonType());
+		toolbar_set.right_toolbar.button_display_mode = mToolbarRight->getButtonType();
 		addToToolset(mToolbarRight->getCommandsList(),toolbar_set.right_toolbar);
 	}
 	if (mToolbarBottom)
 	{
-		toolbar_set.bottom_toolbar.button_display_mode = (int)(mToolbarBottom->getButtonType());
+		toolbar_set.bottom_toolbar.button_display_mode = mToolbarBottom->getButtonType();
 		addToToolset(mToolbarBottom->getCommandsList(),toolbar_set.bottom_toolbar);
 	}
 	
@@ -322,3 +337,67 @@ void LLToolBarView::draw()
 	
 	LLUICtrl::draw();
 }
+
+
+// ----------------------------------------
+// Drag and Drop hacks (under construction)
+// ----------------------------------------
+
+
+void LLToolBarView::startDragItem( S32 x, S32 y, const LLUUID& uuid)
+{
+	llinfos << "Merov debug: startDragItem() : x = " << x << ", y = " << y << llendl;
+	LLToolDragAndDrop::getInstance()->setDragStart( x, y );
+	sDragStarted = false;
+}
+
+BOOL LLToolBarView::handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)
+{
+//	llinfos << "Merov debug: handleDragItem() : x = " << x << ", y = " << y << ", uuid = " << uuid << llendl;
+	if (LLToolDragAndDrop::getInstance()->isOverThreshold( x, y ))
+	{
+		if (!sDragStarted)
+		{
+			std::vector<EDragAndDropType> types;
+			uuid_vec_t cargo_ids;
+			types.push_back(DAD_WIDGET);
+			cargo_ids.push_back(uuid);
+			gClipboard.setSourceObject(uuid,LLAssetType::AT_WIDGET);
+			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
+			LLUUID srcID;
+			llinfos << "Merov debug: handleDragItem() :  beginMultiDrag()" << llendl;
+			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);
+			sDragStarted = true;
+			return TRUE;
+		}
+		else
+		{
+			MASK mask = 0;
+			return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
+		}
+	}
+	return FALSE;
+}
+
+BOOL LLToolBarView::handleDrop( EDragAndDropType cargo_type, void* cargo_data, const LLUUID& toolbar_id)
+{
+	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
+	llinfos << "Merov debug : handleDrop. Drop " << inv_item->getUUID() << " named " << inv_item->getName() << " of type " << inv_item->getType() << " to toolbar " << toolbar_id << " under cargo type " << cargo_type << llendl;
+		
+	LLAssetType::EType type = inv_item->getType();
+	if (type == LLAssetType::AT_WIDGET)
+	{
+		llinfos << "Merov debug : handleDrop. Drop source is a widget -> that's where we'll get code in..." << llendl;
+		// Find out if he command is in one of the toolbar
+		// If it is, pull it out of the toolbar
+		// Now insert it in the toolbar in the correct spot...
+	}
+	else
+	{
+		llinfos << "Merov debug : handleDrop. Drop source is not a widget -> nothing to do" << llendl;
+	}
+	
+	return TRUE;
+}
+
+
