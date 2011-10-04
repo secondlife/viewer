@@ -564,10 +564,6 @@ namespace LLInitParam
 	public:
 		typedef const T&							value_assignment_t;
 
-		S32 			mKeyVersion;
-		mutable S32 	mValidatedVersion;
-		mutable bool 	mValidated; // lazy validation flag
-
 		ParamValue() 
 		:	T(),
 			mKeyVersion(0),
@@ -607,6 +603,12 @@ namespace LLInitParam
 		{
 			return *this;
 		}
+
+		S32 			mKeyVersion;
+
+	protected:
+		mutable S32 	mValidatedVersion;
+		mutable bool 	mValidated; // lazy validation flag
 	};
 
 	template<typename T, typename NAME_VALUE_LOOKUP = TypeValues<T> >
@@ -1679,8 +1681,6 @@ namespace LLInitParam
 		S32 mLastParseGeneration;
 	};
 
-	
-
 	template<typename DERIVED_BLOCK,
 			typename BASE_BLOCK,
 			typename NAME_VALUE_LOOKUP>
@@ -1690,17 +1690,18 @@ namespace LLInitParam
 	:	public Param,
 		protected BatchBlock<DERIVED_BLOCK, BASE_BLOCK>
 	{
+		typedef BatchBlock<DERIVED_BLOCK, BASE_BLOCK> block_t;
 		typedef const BatchBlock<DERIVED_BLOCK, BASE_BLOCK>&	value_assignment_t;
 
 		ParamValue()
-		:	T(),
+		:	block_t(),
 			mKeyVersion(0),
 			mValidatedVersion(-1),
 			mValidated(false)
 		{}
 
 		ParamValue(value_assignment_t other)
-		:	T(other),
+		:	block_t(other),
 			mKeyVersion(0),
 			mValidatedVersion(-1),
 			mValidated(false)
@@ -1710,7 +1711,7 @@ namespace LLInitParam
 		void setValue(value_assignment_t val)
 		{
 			*this = val;
-			mLastParseGeneration = -1;
+			block_t::mLastParseGeneration = -1;
 		}
 
 		value_assignment_t getValue() const
@@ -1733,6 +1734,11 @@ namespace LLInitParam
 			return *this;
 		}
 
+		S32 			mKeyVersion;
+
+	protected:
+		mutable S32 	mValidatedVersion;
+		mutable bool 	mValidated; // lazy validation flag
 	};
 
 	template<typename T>
