@@ -128,7 +128,7 @@ namespace LLInitParam
 		std::string calcValueName(const T& value) const
 		{
 			value_name_map_t* map = getValueNames();
-			for (value_name_map_t::iterator it = map->begin(), end_it = map->end();
+			for (typename value_name_map_t::iterator it = map->begin(), end_it = map->end();
 				it != end_it;
 				++it)
 			{
@@ -1020,15 +1020,15 @@ namespace LLInitParam
 				if(key.empty())
 				// not parsed via name values, write out value directly
 				{
-					bool value_written == parser.writeValue(*it, name_stack);
+					bool value_written = parser.writeValue(*it, name_stack);
 					if (!value_written)
 					{
 						std::string calculated_key = typed_param.calcValueName(typed_param.getValue());
 						if (!parser.writeValue(calculated_key, name_stack))
-					{
-						break;
+						{
+							break;
+						}
 					}
-				}
 				}
 				else 
 				{
