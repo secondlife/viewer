@@ -706,9 +706,9 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 
 		if (num_verts)
 		{
-			face->getGeometryAvatar(verticesp, normalsp, tex_coordsp, vertex_weightsp, clothing_weightsp);
 			face->getVertexBuffer()->getIndexStrider(indicesp);
-
+			face->getGeometryAvatar(verticesp, normalsp, tex_coordsp, vertex_weightsp, clothing_weightsp);
+			
 			verticesp += mMesh->mFaceVertexOffset;
 			normalsp += mMesh->mFaceVertexOffset;
 			

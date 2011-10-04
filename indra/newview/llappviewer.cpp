@@ -590,7 +590,7 @@ static void settings_modify()
 	gSavedSettings.setBOOL("VectorizeSkin", FALSE);
 
 	// disable fullscreen mode, unsupported
-	gSavedSettings.setBOOL("WindowFullScreen", FALSE);
+	//gSavedSettings.setBOOL("WindowFullScreen", FALSE);
 #endif
 }
 
@@ -2946,7 +2946,7 @@ bool LLAppViewer::initWindow()
 		VIEWER_WINDOW_CLASSNAME,
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
-		gSavedSettings.getBOOL("WindowFullScreen"), ignorePixelDepth);
+		gSavedSettings.getBOOL("FullScreen"), ignorePixelDepth);
 
 	LL_INFOS("AppInit") << "gViewerwindow created." << LL_ENDL;
 

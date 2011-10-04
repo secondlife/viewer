@@ -81,7 +81,14 @@ void APIENTRY gl_debug_callback(GLenum source,
                                 const GLchar* message,
                                 GLvoid* userParam)
 {
-	llwarns << "----- GL ERROR --------" << llendl;
+	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	{
+		llwarns << "----- GL ERROR --------" << llendl;
+	}
+	else
+	{
+		llwarns << "----- GL WARNING -------" << llendl;
+	}
 	llwarns << "Type: " << std::hex << type << llendl;
 	llwarns << "ID: " << std::hex << id << llendl;
 	llwarns << "Severity: " << std::hex << severity << llendl;

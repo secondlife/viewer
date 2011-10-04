@@ -430,7 +430,7 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 		}
 	}
 
-	if (gDebugGL && useVBOs())
+	if (gDebugGL && !mGLArray && useVBOs())
 	{
 		GLint elem = 0;
 		glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &elem);
@@ -1049,6 +1049,8 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 		createGLBuffer();
 		createGLIndices();
 
+		//actually allocate space for the vertex buffer if using VBO mapping
+		flush();
 
 		if (gGLManager.mHasVertexArrayObject && useVBOs() && (LLRender::sGLCoreProfile || sUseVAO))
 		{
@@ -1064,7 +1066,15 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 
 void LLVertexBuffer::setupVertexArray()
 {
-	bindGLArray();
+	if (!mGLArray)
+	{
+		return;
+	}
+
+#if GL_ARB_vertex_array_object
+	glBindVertexArray(mGLArray);
+#endif
+	sGLRenderArray = mGLArray;
 
 	U32 attrib_size[] = 
 	{
@@ -1362,6 +1372,18 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 					else
 					{
 #ifdef GL_ARB_map_buffer_range
+
+						if (gDebugGL)
+						{
+							GLint size = 0;
+							glGetBufferParameterivARB(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &size);
+
+							if (size < mSize)
+							{
+								llerrs << "Invalid buffer size." << llendl;
+							}
+						}
+
 						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, 0, mSize, 
 							GL_MAP_WRITE_BIT | 
 							GL_MAP_FLUSH_EXPLICIT_BIT);
@@ -1874,11 +1896,10 @@ bool LLVertexBuffer::bindGLArray()
 #endif
 		sGLRenderArray = mGLArray;
 
-		if (mGLIndices)
-		{
-			sGLRenderIndices = mGLIndices;
-			sIBOActive = TRUE;
-		}
+		//really shouldn't be necessary, but some drivers don't properly restore the
+		//state of GL_ELEMENT_ARRAY_BUFFER_BINDING
+		bindGLIndices();
+		
 		return true;
 	}
 		
@@ -1911,17 +1932,6 @@ bool LLVertexBuffer::bindGLBuffer(bool force_bind)
 		ret = true;
 	}
 
-	if (gDebugGL && useVBOs())
-	{
-		GLint elem = 0;
-		glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB, &elem);
-
-		if (elem != mGLBuffer)
-		{
-			llerrs << "Wrong vertex buffer bound!" << llendl;
-		}
-	}
-
 	return ret;
 }
 
@@ -1942,17 +1952,6 @@ bool LLVertexBuffer::bindGLIndices(bool force_bind)
 		sBindCount++;
 		sIBOActive = TRUE;
 		ret = true;
-	}
-
-	if (gDebugGL && useVBOs())
-	{
-		GLint elem = 0;
-		glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &elem);
-
-		if (elem != mGLIndices)
-		{
-			llerrs << "Wrong index buffer bound!" << llendl;
-		}
 	}
 
 	return ret;

@@ -248,7 +248,7 @@ public:
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera);
 	void renderGeomShadow(LLCamera& camera);
-	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, LLRenderTarget* gi_source = NULL, LLRenderTarget* last_gi_post = NULL, U32 noise_map = 0xFFFFFFFF);
+	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader);
@@ -262,7 +262,6 @@ public:
 
 
 	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, BOOL use_shader = TRUE, BOOL use_occlusion = TRUE);
-	void generateGI(LLCamera& camera, LLVector3& lightDir, std::vector<LLVector3>& vpc);
 	void renderHighlights();
 	void renderDebug();
 	void renderPhysicsDisplay();
@@ -534,10 +533,7 @@ public:
 	LLRenderTarget			mFXAABuffer;
 	LLRenderTarget			mEdgeMap;
 	LLRenderTarget			mDeferredDepth;
-	LLRenderTarget			mDeferredLight[3];
-	LLRenderTarget			mGIMap;
-	LLRenderTarget			mGIMapPost[2];
-	LLRenderTarget			mLuminanceMap;
+	LLRenderTarget			mDeferredLight;
 	LLRenderTarget			mHighlight;
 	LLRenderTarget			mPhysicsDisplay;
 
