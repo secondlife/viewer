@@ -2,7 +2,7 @@
 <floater
  height="60"
  layout="topleft"
- legacy_header_height="20"
+ legacy_header_height="25"
  single_instance="true"
  title="Nearby chat"
  save_rect="true"
@@ -38,7 +38,7 @@
      text_pad_left="5"
      text_pad_right="25"
      tool_tip="Press Enter to say, Ctrl+Enter to shout"
-     top="0"
+     top="2"
      width="335" />
     <output_monitor
      auto_update="true"
@@ -49,14 +49,14 @@
      left_pad="-24"
      mouse_opaque="true"
      name="chat_zone_indicator"
-     top="4"
+     top="6"
      visible="true"
      width="20" />
     <button
      follows="right"
      is_toggle="true"
      width="20"
-     top="0"
+     top="2"
      layout="topleft"
      left_pad="12"
      image_disabled="ComboButton_UpOff"
