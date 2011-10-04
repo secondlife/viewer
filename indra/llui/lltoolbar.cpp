@@ -525,8 +525,8 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 	if (!mReadOnly)
 	{
 		LLUICtrl::CommitCallbackParam cbParam;
-		cbParam.function_name = commandp->functionName();
-		cbParam.parameter = commandp->parameter();
+		cbParam.function_name = commandp->executeFunctionName();
+		cbParam.parameter = commandp->executeParameters();
 		button->setCommitCallback(cbParam);
 		button->setStartDragCallback(mStartDragItemCallback);
 		button->setHandleDragCallback(mHandleDragItemCallback);

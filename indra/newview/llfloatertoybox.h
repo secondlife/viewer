@@ -42,11 +42,7 @@ public:
 
 	// virtuals
 	BOOL postBuild();
-	void onOpen(const LLSD& key);
-	BOOL canClose();
-	void onClose(bool app_quitting);
 	void draw();
-	void onFocusReceived();
 
 protected:
 	void onBtnRestoreDefaults();

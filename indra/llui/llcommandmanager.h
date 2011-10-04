@@ -83,18 +83,29 @@ private:
 
 typedef std::list<LLCommandId> command_id_list_t;
 
+
 class LLCommand
 {
 public:
 	struct Params : public LLInitParam::Block<Params>
 	{
 		Mandatory<bool>			available_in_toybox;
-		Mandatory<std::string>	function;
 		Mandatory<std::string>	icon;
 		Mandatory<std::string>	label_ref;
 		Mandatory<std::string>	name;
-		Optional<LLSD>			parameter;
 		Mandatory<std::string>	tooltip_ref;
+
+		Mandatory<std::string>	execute_function;
+		Optional<LLSD>			execute_parameters;
+
+		Optional<std::string>	is_enabled_function;
+		Optional<LLSD>			is_enabled_parameters;
+
+		Optional<std::string>	is_running_function;
+		Optional<LLSD>			is_running_parameters;
+
+		Optional<std::string>	is_starting_function;
+		Optional<LLSD>			is_starting_parameters;
 
 		Params();
 	};
@@ -102,22 +113,42 @@ public:
 	LLCommand(const LLCommand::Params& p);
 
 	const bool availableInToybox() const { return mAvailableInToybox; }
-	const std::string& functionName() const { return mFunction; }
 	const std::string& icon() const { return mIcon; }
 	const LLCommandId& id() const { return mIdentifier; }
 	const std::string& labelRef() const { return mLabelRef; }
-	const LLSD& parameter() const { return mParameter; }
 	const std::string& tooltipRef() const { return mTooltipRef; }
+
+	const std::string& executeFunctionName() const { return mExecuteFunction; }
+	const LLSD& executeParameters() const { return mExecuteParameters; }
+
+	const std::string& isEnabledFunctionName() const { return mIsEnabledFunction; }
+	const LLSD& isEnabledParameters() const { return mIsEnabledParameters; }
+
+	const std::string& isRunningFunctionName() const { return mIsRunningFunction; }
+	const LLSD& isRunningParameters() const { return mIsRunningParameters; }
+
+	const std::string& isStartingFunctionName() const { return mIsStartingFunction; }
+	const LLSD& isStartingParameters() const { return mIsStartingParameters; }
 
 private:
 	LLCommandId mIdentifier;
 
 	bool        mAvailableInToybox;
-	std::string mFunction;
 	std::string mIcon;
 	std::string mLabelRef;
-	LLSD        mParameter;
 	std::string mTooltipRef;
+
+	std::string mExecuteFunction;
+	LLSD        mExecuteParameters;
+
+	std::string mIsEnabledFunction;
+	LLSD        mIsEnabledParameters;
+
+	std::string mIsRunningFunction;
+	LLSD        mIsRunningParameters;
+
+	std::string mIsStartingFunction;
+	LLSD        mIsStartingParameters;
 };
 
 
