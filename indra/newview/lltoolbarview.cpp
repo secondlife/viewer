@@ -25,7 +25,7 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
+#include "llviewerprecompiledheaders.h"
 
 #include "lltoolbarview.h"
 
