@@ -107,7 +107,7 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
-	mUUID = LLUUID::LLUUID::generateNewID(p.name);
+	mUUID = LLUUID::generateNewID(p.name);
 }
 
 LLToolBar::~LLToolBar()
@@ -570,7 +570,7 @@ LLToolBarButton::LLToolBarButton(const Params& p)
 	mDesiredHeight(p.desired_height),
 	mId("")
 {
-	mUUID = LLUUID::LLUUID::generateNewID(p.name);
+	mUUID = LLUUID::generateNewID(p.name);
 }
 
 BOOL LLToolBarButton::handleMouseDown(S32 x, S32 y, MASK mask)
