@@ -319,7 +319,7 @@ void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row
 	{
 		if (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
 		{
-			button->reshape(llclamp(button->getRect().getWidth(), button->mMinWidth, button->mMaxWidth), max_row_girth);
+			button->reshape(button->mWidthRange.clamp(button->getRect().getWidth()), max_row_girth);
 		}
 		else // VERTICAL
 		{
@@ -378,10 +378,10 @@ void LLToolBar::updateLayoutAsNeeded()
 
 	BOOST_FOREACH(LLToolBarButton* button, mButtons)
 	{
-		button->reshape(button->mMinWidth, button->mDesiredHeight);
+		button->reshape(button->mWidthRange.getMin(), button->mDesiredHeight);
 		button->autoResize();
 
-		S32 button_clamped_width = llclamp(button->getRect().getWidth(), button->mMinWidth, button->mMaxWidth);
+		S32 button_clamped_width = button->mWidthRange.clamp(button->getRect().getWidth());
 		S32 button_length = (orientation == LLLayoutStack::HORIZONTAL)
 							? button_clamped_width
 							: button->getRect().getHeight();
@@ -396,7 +396,7 @@ void LLToolBar::updateLayoutAsNeeded()
 		{
 			if (orientation == LLLayoutStack::VERTICAL)
 			{	// row girth (width in this case) is clamped to allowable button widths
-				max_row_girth = llclamp(max_row_girth, button->mMinWidth, button->mMaxWidth);
+				max_row_girth = button->mWidthRange.clamp(max_row_girth);
 			}
 
 			// make buttons in current row all same girth
@@ -543,8 +543,7 @@ LLToolBarButton::LLToolBarButton(const Params& p)
 :	LLButton(p),
 	mMouseDownX(0),
 	mMouseDownY(0),
-	mMinWidth(p.min_button_width),
-	mMaxWidth(p.max_button_width),
+	mWidthRange(p.button_width),
 	mDesiredHeight(p.desired_height),
 	mId("")
 {}

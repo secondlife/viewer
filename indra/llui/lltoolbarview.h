@@ -50,8 +50,8 @@ public:
 	// the user folder for the user specific (saved) settings
 	struct Toolbar : public LLInitParam::Block<Toolbar>
 	{
-		Mandatory<U32>                button_display_mode;
-		Multiple<LLCommandId::Params>	commands;
+		Mandatory<LLToolBarEnums::ButtonType>	button_display_mode;
+		Multiple<LLCommandId::Params>			commands;
 		Toolbar();
 	};
 	struct ToolbarSet : public LLInitParam::Block<ToolbarSet>

@@ -87,6 +87,7 @@ namespace LLInitParam
 
 		void setValueName(const std::string& key) {}
 		std::string getValueName() const { return ""; }
+		std::string calcValueName(const T& value) const { return ""; }
 		void clearValueName() const {}
 
 		static bool getValueFromName(const std::string& name, T& value)
@@ -122,6 +123,22 @@ namespace LLInitParam
 		std::string getValueName() const
 		{ 
 			return mValueName; 
+		}
+
+		std::string calcValueName(const T& value) const
+		{
+			value_name_map_t* map = getValueNames();
+			for (value_name_map_t::iterator it = map->begin(), end_it = map->end();
+				it != end_it;
+				++it)
+			{
+				if (ParamCompare<T>::equals(it->second, value))
+				{
+					return it->first;
+				}
+			}
+
+			return "";
 		}
 
 		void clearValueName() const
@@ -709,18 +726,19 @@ namespace LLInitParam
 			{
 				if (!diff_param || !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->getValueName(), key))
 				{
-					if (!parser.writeValue(key, name_stack))
-					{
-						return;
-					}
+					parser.writeValue(key, name_stack);
 				}
 			}
 			// then try to serialize value directly
 			else if (!diff_param || !ParamCompare<T>::equals(typed_param.getValue(), static_cast<const self_t*>(diff_param)->getValue()))
 			{
-				if (!parser.writeValue(typed_param.getValue(), name_stack)) 
+				if (!parser.writeValue(typed_param.getValue(), name_stack))
 				{
-					return;
+					std::string calculated_key = typed_param.calcValueName(typed_param.getValue());
+					if (!diff_param || !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->getValueName(), calculated_key))
+					{
+						parser.writeValue(calculated_key, name_stack);
+					}
 				}
 			}
 		}
@@ -1002,9 +1020,14 @@ namespace LLInitParam
 				if(key.empty())
 				// not parsed via name values, write out value directly
 				{
-					if (!parser.writeValue(*it, name_stack))
+					bool value_written == parser.writeValue(*it, name_stack);
+					if (!value_written)
 					{
-						break;
+						std::string calculated_key = typed_param.calcValueName(typed_param.getValue());
+						if (!parser.writeValue(calculated_key, name_stack))
+						{
+							break;
+						}
 					}
 				}
 				else 
