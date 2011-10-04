@@ -158,8 +158,8 @@ public:
 
 		struct Params : public LLInitParam::Block<Params>
 		{
-			Optional<T>	minimum,
-						maximum;
+			typename Optional<T>	minimum,
+									maximum;
 
 			Params()
 			:	minimum("min", 0),
