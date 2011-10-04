@@ -1,6 +1,6 @@
 # just run this script each time after you change the installer's name to fix the icon misalignment 
 #!/bin/bash
-cp -r ./../../../build-darwin-i386/newview/*.dmg ~/Desktop/TempBuild.dmg
+cp -r ../../../../build-darwin-i386/newview/*.dmg ~/Desktop/TempBuild.dmg
 hdid ~/Desktop/TempBuild.dmg
 open -a finder /Volumes/Second\ Life\ Installer
 osascript dmg-cleanup.applescript
