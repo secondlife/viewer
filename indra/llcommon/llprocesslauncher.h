@@ -28,7 +28,6 @@
 #define LL_LLPROCESSLAUNCHER_H
 
 #if LL_WINDOWS
-#define NOMINMAX
 #include <windows.h>
 #endif
 

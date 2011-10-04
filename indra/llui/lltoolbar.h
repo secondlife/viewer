@@ -45,7 +45,7 @@ class LLToolBarButton : public LLButton
 public:
 	struct Params : public LLInitParam::Block<Params, LLButton::Params>
 	{
-		Optional<LLUI::Range<S32> >	button_width;
+		Optional<LLUI::RangeS32>	button_width;
 		Optional<S32>				desired_height;
 
 		Params()
@@ -67,7 +67,7 @@ private:
 	LLCommandId		mId;
 	S32				mMouseDownX;
 	S32				mMouseDownY;
-	LLUI::Range<S32> mWidthRange;
+	LLUI::RangeS32	mWidthRange;
 	S32				mDesiredHeight;
 	bool						mIsDragged;
 	startdrag_callback_t		mStartDragItemCallback;

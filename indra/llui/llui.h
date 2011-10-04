@@ -151,46 +151,43 @@ public:
 	//
 	// Classes
 	//
-	template <typename T>
-	struct RangeParams : public LLInitParam::Block<RangeParams<T> >
-	{
-		Optional<T>	minimum,
-					maximum;
 
-		RangeParams()
-		:	minimum("min", T()),
-			maximum("max", std::numeric_limits<T>::max())
-		{}
-	};
-
-	template <typename T>
-	struct Range 
+	struct RangeS32 
 	{
-		typedef Range<T> self_t;
+		struct Params : public LLInitParam::Block<Params>
+		{
+			Optional<S32>	minimum,
+							maximum;
+
+			Params()
+			:	minimum("min", 0),
+				maximum("max", S32_MAX)
+			{}
+		};
 
 		// correct for inverted params
-		Range(const RangeParams<T>& p = RangeParams<T>())
-			:	mMin(p.minimum),
+		RangeS32(const Params& p = Params())
+		:	mMin(p.minimum),
 			mMax(p.maximum)
 		{
 			sanitizeRange();
 		}
 
-		Range(T minimum, T maximum)
-			:	mMin(minimum),
+		RangeS32(S32 minimum, S32 maximum)
+		:	mMin(minimum),
 			mMax(maximum)
 		{
 			sanitizeRange();
 		}
 
-		S32 clamp(T input)
+		S32 clamp(S32 input)
 		{
 			if (input < mMin) return mMin;
 			if (input > mMax) return mMax;
 			return input;
 		}
 
-		void setRange(T minimum, T maximum)
+		void setRange(S32 minimum, S32 maximum)
 		{
 			mMin = minimum;
 			mMax = maximum;
@@ -200,7 +197,7 @@ public:
 		S32 getMin() { return mMin; }
 		S32 getMax() { return mMax; }
 
-		bool operator==(const self_t& other) const
+		bool operator==(const RangeS32& other) const
 		{
 			return mMin == other.mMin 
 				&& mMax == other.mMax;
@@ -218,59 +215,54 @@ public:
 		}
 
 
-		T	mMin,
+		S32	mMin,
 			mMax;
 	};
 
-	template<typename T>
-	struct ClampedValue : public Range<T>
+	struct ClampedS32 : public RangeS32
 	{
-		typedef Range<T> range_t;
-
-		struct Params : public LLInitParam::Block<Params, RangeParams<T> >
+		struct Params : public LLInitParam::Block<Params, RangeS32::Params>
 		{
-			Mandatory<T> value;
+			Mandatory<S32> value;
 
 			Params()
-			:	value("", T())
+			:	value("", 0)
 			{
 				addSynonym(value, "value");
 			}
 		};
 
-		ClampedValue(const Params& p)
-		:	range_t(p)
+		ClampedS32(const Params& p)
+		:	RangeS32(p)
 		{}
 
-		ClampedValue(const range_t& range)
-		:	range_t(range)
+		ClampedS32(const RangeS32& range)
+		:	RangeS32(range)
 		{
 			// set value here, after range has been sanitized
 			mValue = clamp(0);
 		}
 
-		ClampedValue(T value, const range_t& range = range_t())
-		:	range_t(range)
+		ClampedS32(S32 value, const RangeS32& range = RangeS32())
+		:	RangeS32(range)
 		{
 			mValue = clamp(value);
 		}
 
-		T get()
+		S32 get()
 		{
 			return mValue;
 		}
 
-		void set(T value)
+		void set(S32 value)
 		{
 			mValue = clamp(value);
 		}
 
 
 	private:
-		T mValue;
+		S32 mValue;
 	};
-
-	typedef ClampedValue<S32> ClampedS32;
 
 	//
 	// Methods
