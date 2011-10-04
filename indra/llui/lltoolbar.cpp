@@ -570,7 +570,7 @@ LLToolBarButton::LLToolBarButton(const Params& p)
 	mDesiredHeight(p.desired_height),
 	mId("")
 {
-	mUUID = LLUUID::LLUUID::generateNewID(p.name);
+	mUUID = LLUUID::generateNewID(p.name);
 }
 
 BOOL LLToolBarButton::handleMouseDown(S32 x, S32 y, MASK mask)
