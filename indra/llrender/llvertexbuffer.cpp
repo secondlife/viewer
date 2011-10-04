@@ -1841,6 +1841,10 @@ bool LLVertexBuffer::getVertexStrider(LLStrider<LLVector3>& strider, S32 index, 
 {
 	return VertexBufferStrider<LLVector3,TYPE_VERTEX>::get(*this, strider, index, count, map_range);
 }
+bool LLVertexBuffer::getVertexStrider(LLStrider<LLVector4a>& strider, S32 index, S32 count, bool map_range)
+{
+	return VertexBufferStrider<LLVector4a,TYPE_VERTEX>::get(*this, strider, index, count, map_range);
+}
 bool LLVertexBuffer::getIndexStrider(LLStrider<U16>& strider, S32 index, S32 count, bool map_range)
 {
 	return VertexBufferStrider<U16,TYPE_INDEX>::get(*this, strider, index, count, map_range);
