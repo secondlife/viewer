@@ -9671,7 +9671,7 @@
     <key>ShowBuildButton</key>
     <map>
       <key>Comment</key>
-      <string>Shows/Hides Build button in the bottom tray.</string>
+      <string>Shows/hides build button in the bottom tray.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9682,7 +9682,7 @@
     <key>ShowCameraButton</key>
     <map>
       <key>Comment</key>
-      <string>Show/Hide View button in the bottom tray.</string>
+      <string>Show/hide view button in the bottom tray.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9770,7 +9770,7 @@
     <key>ShowGestureButton</key>
     <map>
       <key>Comment</key>
-      <string>Shows/Hides Gesture button in the bottom tray.</string>
+      <string>Shows/hides gesture button in the bottom tray.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9803,7 +9803,7 @@
     <key>ShowMiniMapButton</key>
     <map>
       <key>Comment</key>
-      <string>Shows/Hides Mini-Map button in the bottom tray.</string>
+      <string>Shows/hides mini-map button in the bottom tray.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9814,7 +9814,7 @@
     <key>ShowMoveButton</key>
     <map>
       <key>Comment</key>
-      <string>Shows/Hides Move button in the bottom tray.</string>
+      <string>Shows/hides move button in the bottom tray.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9847,7 +9847,7 @@
     <key>ShowSearchButton</key>
     <map>
       <key>Comment</key>
-      <string>Shows/Hides Search button in the bottom tray.</string>
+      <string>Shows/hides search button in the bottom tray.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9858,7 +9858,7 @@
     <key>ShowSnapshotButton</key>
     <map>
       <key>Comment</key>
-      <string>Shows/Hides Snapshot button button in the bottom tray.</string>
+      <string>Shows/hides snapshot button button in the bottom tray.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9880,7 +9880,7 @@
     <key>ShowNavbarFavoritesPanel</key>    
     <map>
       <key>Comment</key>
-      <string>Show/Hide Navigation Bar Favorites Panel</string>
+      <string>Show/hide navigation bar favorites panel</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9891,7 +9891,7 @@
     <key>ShowNavbarNavigationPanel</key>        
     <map>
       <key>Comment</key>
-      <string>Show/Hide Navigation Bar Navigation Panel</string>
+      <string>Show/hide navigation bar navigation panel</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9902,7 +9902,7 @@
     <key>ShowWorldMapButton</key>
     <map>
       <key>Comment</key>
-      <string>Shows/Hides Map button in the bottom tray.</string>
+      <string>Shows/hides map button in the bottom tray.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9913,7 +9913,7 @@
     <key>ShowMiniLocationPanel</key>
     <map>
       <key>Comment</key>
-      <string>Show/Hide Mini-Location Panel</string>
+      <string>Show/hide mini-location panel</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
