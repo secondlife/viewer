@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Things" name="main inventory panel">
+<panel label="事物" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
 		Fetching [ITEM_COUNT] Items... [FILTER]
 	</panel.string>
