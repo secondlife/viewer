@@ -148,6 +148,132 @@ class LLUI
 	LOG_CLASS(LLUI);
 public:
 	//
+	// Classes
+	//
+
+	template <typename T>
+	struct Range 
+	{
+		typedef Range<T> self_t;
+
+		struct Params : public LLInitParam::Block<Params>
+		{
+			Optional<T>	minimum,
+						maximum;
+
+			Params()
+			:	minimum("min", 0),
+				maximum("max", S32_MAX)
+			{
+
+			}
+		};
+
+		// correct for inverted params
+		Range(const Params& p = Params())
+			:	mMin(p.minimum),
+			mMax(p.maximum)
+		{
+			sanitizeRange();
+		}
+
+		Range(T minimum, T maximum)
+			:	mMin(minimum),
+			mMax(maximum)
+		{
+			sanitizeRange();
+		}
+
+		S32 clamp(T input)
+		{
+			if (input < mMin) return mMin;
+			if (input > mMax) return mMax;
+			return input;
+		}
+
+		void setRange(T minimum, T maximum)
+		{
+			mMin = minimum;
+			mMax = maximum;
+			sanitizeRange();
+		}
+
+		S32 getMin() { return mMin; }
+		S32 getMax() { return mMax; }
+
+		bool operator==(const self_t& other) const
+		{
+			return mMin == other.mMin 
+				&& mMax == other.mMax;
+		}
+	private:
+		void sanitizeRange()
+		{
+			if (mMin > mMax)
+			{
+				llwarns << "Bad interval range (" << mMin << ", " << mMax << ")" << llendl;
+				// since max is usually the most dangerous one to ignore (buffer overflow, etc), prefer it
+				// in the case of a malformed range
+				mMin = mMax;
+			}
+		}
+
+
+		T	mMin,
+			mMax;
+	};
+
+	template<typename T>
+	struct ClampedValue : public Range<T>
+	{
+		typedef Range<T> range_t;
+
+		struct Params : public LLInitParam::Block<Params, typename range_t::Params>
+		{
+			Mandatory<S32> value;
+
+			Params()
+			:	value("", 0)
+			{
+				addSynonym(value, "value");
+			}
+		};
+
+		ClampedValue(const Params& p)
+		:	range_t(p)
+		{}
+
+		ClampedValue(const range_t& range)
+		:	range_t(range)
+		{
+			// set value here, after range has been sanitized
+			mValue = clamp(0);
+		}
+
+		ClampedValue(T value, const range_t& range = range_t())
+		:	range_t(range)
+		{
+			mValue = clamp(value);
+		}
+
+		T get()
+		{
+			return mValue;
+		}
+
+		void set(T value)
+		{
+			mValue = clamp(value);
+		}
+
+
+	private:
+		T mValue;
+	};
+
+	typedef ClampedValue<S32> ClampedS32;
+
+	//
 	// Methods
 	//
 	typedef std::map<std::string, LLControlGroup*> settings_map_t;

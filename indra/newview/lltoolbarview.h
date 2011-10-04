@@ -50,7 +50,7 @@ public:
 	// the user folder for the user specific (saved) settings
 	struct Toolbar : public LLInitParam::Block<Toolbar>
 	{
-		Mandatory<U32>                button_display_mode;
+		Mandatory<LLToolBarEnums::ButtonType>	button_display_mode;
 		Multiple<LLCommandId::Params>	commands;
 		Toolbar();
 	};
@@ -73,7 +73,7 @@ public:
 	bool loadToolbars(bool force_default = false);	// return false if load fails
 	
 	static bool loadDefaultToolbars();
-
+	
 	static void startDragItem( S32 x, S32 y, const LLUUID& uuid);
 	static BOOL handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);
 	static BOOL handleDrop(	EDragAndDropType cargo_type, void* cargo_data, const LLUUID& folder_id);
