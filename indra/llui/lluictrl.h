@@ -76,14 +76,14 @@ public:
 		Optional<enable_callback_t> function;
 	};
 		
-	struct EnableControls : public LLInitParam::Choice<EnableControls>
+	struct EnableControls : public LLInitParam::ChoiceBlock<EnableControls>
 	{
 		Alternative<std::string> enabled;
 		Alternative<std::string> disabled;
 		
 		EnableControls();
 	};	
-	struct ControlVisibility : public LLInitParam::Choice<ControlVisibility>
+	struct ControlVisibility : public LLInitParam::ChoiceBlock<ControlVisibility>
 	{
 		Alternative<std::string> visible;
 		Alternative<std::string> invisible;

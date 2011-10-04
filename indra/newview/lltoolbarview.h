@@ -51,7 +51,7 @@ public:
 	struct Toolbar : public LLInitParam::Block<Toolbar>
 	{
 		Mandatory<U32>                button_display_mode;
-		Multiple<LLCommandId::Params> commands;
+		Multiple<LLCommandId::Params>	commands;
 		Toolbar();
 	};
 	struct ToolbarSet : public LLInitParam::Block<ToolbarSet>
@@ -66,18 +66,18 @@ public:
 	virtual ~LLToolBarView();
 	virtual BOOL postBuild();
 	virtual void draw();
-
 	// Toolbar view interface with the rest of the world
 	// Checks if the commandId is being used somewhere in one of the toolbars
 	bool hasCommand(const LLCommandId& commandId) const;
 	// Loads the toolbars from the existing user or default settings
 	bool loadToolbars(bool force_default = false);	// return false if load fails
-	bool loadDefaultToolbars() { return loadToolbars(true); }
 	
+	static bool loadDefaultToolbars();
+
 	static void startDragItem( S32 x, S32 y, const LLUUID& uuid);
 	static BOOL handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);
 	static BOOL handleDrop(	EDragAndDropType cargo_type, void* cargo_data, const LLUUID& folder_id);
-
+	
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBarView(const Params&);
@@ -93,6 +93,10 @@ private:
 	LLToolBar*	mToolbarLeft;
 	LLToolBar*	mToolbarRight;
 	LLToolBar*	mToolbarBottom;
+	bool		mDragging;
+	LLToolBarButton* mDragButton;
+	S32			mMouseX;
+	S32			mMouseY;
 	
 	static bool			sDragStarted;
 };

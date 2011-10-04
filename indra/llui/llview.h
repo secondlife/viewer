@@ -98,7 +98,7 @@ private:
 class LLView : public LLMouseHandler, public LLMortician, public LLFocusableElement
 {
 public:
-	struct Follows : public LLInitParam::Choice<Follows>
+	struct Follows : public LLInitParam::ChoiceBlock<Follows>
 	{
 		Alternative<std::string>	string;
 		Alternative<U32>			flags;
@@ -463,6 +463,20 @@ public:
 	{
 		LLView* widgetp = getDefaultWidgetContainer().findChildView(name);
 		return dynamic_cast<T*>(widgetp);
+	}
+
+	template <class T> T* getParentByType() const
+	{
+		LLView* parent = getParent();
+		while(parent)
+		{
+			if (dynamic_cast<T*>(parent))
+			{
+				return static_cast<T*>(parent);
+			}
+			parent = parent->getParent();
+		}
+		return NULL;
 	}
 
 	//////////////////////////////////////////////

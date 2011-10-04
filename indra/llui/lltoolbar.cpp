@@ -81,9 +81,6 @@ LLToolBar::Params::Params()
 	button_icon_and_text("button_icon_and_text"),
 	read_only("read_only", false),
 	wrap("wrap", true),
-	min_button_width("min_button_width", 0),
-	max_button_width("max_button_width", S32_MAX),
-	button_height("button_height"),
 	pad_left("pad_left"),
 	pad_top("pad_top"),
 	pad_right("pad_right"),
@@ -101,9 +98,6 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 	mNeedsLayout(false),
 	mButtonPanel(NULL),
 	mCenteringStack(NULL),
-	mMinButtonWidth(llmin(p.min_button_width(), p.max_button_width())),
-	mMaxButtonWidth(llmax(p.max_button_width(), p.min_button_width())),
-	mButtonHeight(p.button_height),
 	mPadLeft(p.pad_left),
 	mPadRight(p.pad_right),
 	mPadTop(p.pad_top),
@@ -202,16 +196,16 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 bool LLToolBar::addCommand(const LLCommandId& commandId)
 {
 	LLCommand * command = LLCommandManager::instance().getCommand(commandId);
+	if (!command) return false;
 
-	bool add_command = (command != NULL);
-
-	if (add_command)
-	{
 		mButtonCommands.push_back(commandId);
-		createButton(commandId);
-	}
+	LLToolBarButton* button = createButton(commandId);
+	mButtons.push_back(button);
+	mButtonPanel->addChild(button);
+	mButtonMap.insert(std::make_pair(commandId, button));
+	mNeedsLayout = true;
 
-	return add_command;
+	return true;
 }
 
 void LLToolBar::clearCommandsList()
@@ -224,21 +218,13 @@ void LLToolBar::clearCommandsList()
 
 bool LLToolBar::hasCommand(const LLCommandId& commandId) const
 {
-	bool has_command = false;
-
 	if (commandId != LLCommandId::null)
 	{
-		BOOST_FOREACH(LLCommandId cmd, mButtonCommands)
-		{
-			if (cmd == commandId)
-			{
-				has_command = true;
-				break;
-			}
-		}
+		command_id_map::const_iterator it = mButtonMap.find(commandId);
+		return (it != mButtonMap.end());
 	}
 
-	return has_command;
+	return false;
 }
 
 bool LLToolBar::enableCommand(const LLCommandId& commandId, bool enabled)
@@ -247,11 +233,10 @@ bool LLToolBar::enableCommand(const LLCommandId& commandId, bool enabled)
 	
 	if (commandId != LLCommandId::null)
 	{
-		command_button = mButtonPanel->findChild<LLButton>(commandId.name());
-
-		if (command_button)
+		command_id_map::iterator it = mButtonMap.find(commandId);
+		if (it != mButtonMap.end())
 		{
-			command_button->setEnabled(enabled);
+			it->second->setEnabled(enabled);
 		}
 	}
 
@@ -320,7 +305,7 @@ void LLToolBar::setButtonType(LLToolBarEnums::ButtonType button_type)
 	bool regenerate_buttons = (mButtonType != button_type);
 	
 	mButtonType = button_type;
-	
+
 	if (regenerate_buttons)
 	{
 		createButtons();
@@ -334,7 +319,7 @@ void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row
 	{
 		if (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
 		{
-			button->reshape(llclamp(button->getRect().getWidth(), mMinButtonWidth, mMaxButtonWidth), max_row_girth);
+			button->reshape(llclamp(button->getRect().getWidth(), button->mMinWidth, button->mMaxWidth), max_row_girth);
 		}
 		else // VERTICAL
 		{
@@ -393,10 +378,10 @@ void LLToolBar::updateLayoutAsNeeded()
 
 	BOOST_FOREACH(LLToolBarButton* button, mButtons)
 	{
-		button->reshape(mMinButtonWidth, mButtonHeight);
+		button->reshape(button->mMinWidth, button->mDesiredHeight);
 		button->autoResize();
 
-		S32 button_clamped_width = llclamp(button->getRect().getWidth(), mMinButtonWidth, mMaxButtonWidth);
+		S32 button_clamped_width = llclamp(button->getRect().getWidth(), button->mMinWidth, button->mMaxWidth);
 		S32 button_length = (orientation == LLLayoutStack::HORIZONTAL)
 							? button_clamped_width
 							: button->getRect().getHeight();
@@ -411,7 +396,7 @@ void LLToolBar::updateLayoutAsNeeded()
 		{
 			if (orientation == LLLayoutStack::VERTICAL)
 			{	// row girth (width in this case) is clamped to allowable button widths
-				max_row_girth = llclamp(max_row_girth, mMinButtonWidth, mMaxButtonWidth);
+				max_row_girth = llclamp(max_row_girth, button->mMinWidth, button->mMaxWidth);
 			}
 
 			// make buttons in current row all same girth
@@ -512,14 +497,19 @@ void LLToolBar::createButtons()
 	
 	BOOST_FOREACH(LLCommandId& command_id, mButtonCommands)
 	{
-		createButton(command_id);
+		LLToolBarButton* button = createButton(command_id);
+		mButtons.push_back(button);
+		mButtonPanel->addChild(button);
+		mButtonMap.insert(std::make_pair(command_id, button));
 	}
+	mNeedsLayout = true;
+
 }
 
-void LLToolBar::createButton(const LLCommandId& id)
+LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 {
 	LLCommand* commandp = LLCommandManager::instance().getCommand(id);
-	if (!commandp) return;
+	if (!commandp) return NULL;
 
 	LLToolBarButton::Params button_p;
 	button_p.name = id.name();
@@ -539,10 +529,9 @@ void LLToolBar::createButton(const LLCommandId& id)
 		button->setHandleDragCallback(mHandleDragItemCallback);
 	}
 
-	mButtons.push_back(button);
-	mButtonPanel->addChild(button);
+	button->setCommandId(id);
+	return button;
 
-	mNeedsLayout = true;
 }
 
 BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -570,9 +559,23 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return handled;
 }
 
-LLToolBarButton::LLToolBarButton(const Params& p) : LLButton(p)
+LLToolBarButton::LLToolBarButton(const Params& p) 
+:	LLButton(p),
+	mMouseDownX(0),
+	mMouseDownY(0),
+	mMinWidth(p.min_button_width),
+	mMaxWidth(p.max_button_width),
+	mDesiredHeight(p.desired_height),
+	mId("")
 {
 	mUUID = LLUUID::LLUUID::generateNewID(p.name);
+}
+
+BOOL LLToolBarButton::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	mMouseDownX = x;
+	mMouseDownY = y;
+	return LLButton::handleMouseDown(x, y, mask);
 }
 
 BOOL LLToolBarButton::handleHover( S32 x, S32 y, MASK mask )
@@ -592,6 +595,10 @@ BOOL LLToolBarButton::handleHover( S32 x, S32 y, MASK mask )
 		{
 			handled = mHandleDragItemCallback(x,y,mUUID,LLAssetType::AT_WIDGET);
 		}
+	}
+	else
+	{
+		handled = LLButton::handleHover(x, y, mask);
 	}
 	return handled;
 }

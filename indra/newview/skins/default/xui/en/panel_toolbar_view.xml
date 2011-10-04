@@ -33,13 +33,13 @@
                   follows="all"
                   mouse_opaque="false">
       <layout_panel name="left_toolbar_panel"
-                    fit_content="true"
                     auto_resize="false"
                     user_resize="false"
                     height="500"
                     width="30"
                     mouse_opaque="false">
         <toolbar follows="left|top|bottom"
+                 button_panel.bg_opaque_image="Rounded_Rect_Right"
                  name="toolbar_left"
                  height="500"
                  width="30"
@@ -54,13 +54,13 @@
                     user_resize="false"
                     mouse_opaque="false"/>
       <layout_panel name="right_toolbar_panel"
-                    fit_content="true"
                     auto_resize="false"
                     user_resize="false"
                     height="500"
                     width="30"
                     mouse_opaque="false">
         <toolbar
+          button_panel.bg_opaque_image="Rounded_Rect_Left"
           follows="right|top|bottom"
           name="toolbar_right"
           height="500"
@@ -74,13 +74,13 @@
     </layout_stack>
   </layout_panel>
   <layout_panel name="bottom_toolbar_panel"
-                fit_content="true"
                 auto_resize="false"
                 user_resize="false"
                 height="30"
                 width="1024"
                 mouse_opaque="false">
     <toolbar layout="topleft"
+             button_panel.bg_opaque_image="Rounded_Rect_Top"
              name="toolbar_bottom"
              height="30"
              width="1024"

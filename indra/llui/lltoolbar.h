@@ -41,18 +41,37 @@ typedef boost::function<BOOL (EDragAndDropType type, void* data, const LLUUID& u
 
 class LLToolBarButton : public LLButton
 {
+	friend class LLToolBar;
 public:
 	struct Params : public LLInitParam::Block<Params, LLButton::Params>
 	{
+		Optional<S32>	min_button_width,
+						max_button_width,
+						desired_height;
+
+		Params()
+		:	min_button_width("min_button_width", 0),
+			max_button_width("max_button_width", S32_MAX),
+			desired_height("desired_height", 20)
+		{}
+
 	};
 
 	LLToolBarButton(const Params& p);
 
-	virtual BOOL handleHover( S32 x, S32 y, MASK mask );
-	
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	BOOL handleHover(S32 x, S32 y, MASK mask);
+	void setCommandId(const LLCommandId& id) { mId = id; }
+
 	void setStartDragCallback(startdrag_callback_t cb) { mStartDragItemCallback = cb; }
 	void setHandleDragCallback(handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
-protected:
+private:
+	LLCommandId		mId;
+	S32				mMouseDownX;
+	S32				mMouseDownY;
+	S32				mMinWidth;
+	S32				mMaxWidth;
+	S32				mDesiredHeight;
 	bool						mIsDragged;
 	startdrag_callback_t		mStartDragItemCallback;
 	handledrag_callback_t		mHandleDragItemCallback;
@@ -111,10 +130,6 @@ public:
 		Optional<bool>							read_only,
 												wrap;
 
-		Optional<S32>							min_button_width,
-												max_button_width,
-												button_height;
-		
 		Optional<S32>							pad_left,
 												pad_top,
 												pad_right,
@@ -145,6 +160,8 @@ public:
 	void setHandleDragCallback(handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
 	void setHandleDropCallback(handledrop_callback_t cb) { mHandleDropCallback = cb; }
 
+	LLToolBarButton* createButton(const LLCommandId& id);
+
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBar(const Params&);
@@ -167,7 +184,6 @@ private:
 	void createContextMenu();
 	void updateLayoutAsNeeded();
 	void createButtons();
-	void createButton(const LLCommandId& id);
 	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
 	BOOL isSettingChecked(const LLSD& userdata);
 	void onSettingEnable(const LLSD& userdata);
@@ -177,6 +193,9 @@ private:
 
 	std::list<LLToolBarButton*>		mButtons;
 	command_id_list_t				mButtonCommands;
+	typedef std::map<LLCommandId, LLToolBarButton*> command_id_map;
+	command_id_map					mButtonMap;
+
 	LLToolBarEnums::ButtonType		mButtonType;
 	LLLayoutStack*					mCenteringStack;
 	LLLayoutStack*					mWrapStack;
@@ -185,10 +204,7 @@ private:
 
 	bool							mWrap;
 	bool							mNeedsLayout;
-	S32								mMinButtonWidth,
-									mMaxButtonWidth,
-									mButtonHeight,
-									mPadLeft,
+	S32								mPadLeft,
 									mPadRight,
 									mPadTop,
 									mPadBottom,

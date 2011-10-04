@@ -201,7 +201,7 @@ public:
 		FormInput();
 	};
 
-	struct FormElement : public LLInitParam::Choice<FormElement>
+	struct FormElement : public LLInitParam::ChoiceBlock<FormElement>
 	{
 		Alternative<FormButton> button;
 		Alternative<FormInput>	input;
@@ -312,7 +312,7 @@ public:
 		Optional<LLNotificationContext*>		context;
 		Optional<void*>							responder;
 
-		struct Functor : public LLInitParam::Choice<Functor>
+		struct Functor : public LLInitParam::ChoiceBlock<Functor>
 		{
 			Alternative<std::string>										name;
 			Alternative<LLNotificationFunctorRegistry::ResponseFunctor>	function;

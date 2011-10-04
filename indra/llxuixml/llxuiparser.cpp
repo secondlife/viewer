@@ -51,6 +51,136 @@ static 	LLInitParam::Parser::parser_read_func_map_t sXSDReadFuncs;
 static 	LLInitParam::Parser::parser_write_func_map_t sXSDWriteFuncs;
 static 	LLInitParam::Parser::parser_inspect_func_map_t sXSDInspectFuncs;
 
+struct MaxOccur : public LLInitParam::ChoiceBlock<MaxOccur>
+{
+	Alternative<int> count;
+	Alternative<std::string> unbounded;
+
+	MaxOccur()
+	:	unbounded("", "unbounded")
+	{}
+};
+
+struct Occurs : public LLInitParam::Block<Occurs>
+{
+	Optional<S32>	minOccurs;
+	Optional<MaxOccur>	maxOccurs;
+
+	Occurs()
+	:	minOccurs("minOccurs"),
+		maxOccurs("maxOccurs")
+	{
+		minOccurs = 0;
+		maxOccurs.unbounded.choose();
+	}
+};
+
+
+typedef enum
+{
+	USE_REQUIRED,
+	USE_OPTIONAL
+} EUse;
+
+namespace LLInitParam
+{
+	template<>
+	struct TypeValues<EUse> : public TypeValuesHelper<EUse>
+	{
+		static void declareValues()
+		{
+			declare("required", USE_REQUIRED);
+			declare("optional", USE_OPTIONAL);
+		}
+	};
+}
+
+struct Name : public LLInitParam::Block<Name>
+{
+	Mandatory<std::string> name;
+
+	Name()
+	:	name("name")
+	{}
+};
+
+struct Attribute : public LLInitParam::Block<Attribute>
+{
+	Mandatory<Name>			name;
+	Mandatory<std::string>	type;
+	Mandatory<EUse>			use;
+	
+	Attribute()
+	:	name("name"),
+		type("type"),
+		use("use")
+	{
+	}
+};
+
+struct ComplexType : public LLInitParam::Block<ComplexType>
+{
+	Multiple<Attribute>			attribute;
+	//Multiple<struct Element>	elements;
+	Optional<bool>				mixed;
+
+	ComplexType()
+	:	attribute("xs:attribute"),
+		//elements("xs:element"),
+		mixed("mixed")
+	{
+		mixed = true;
+	}
+};
+
+struct Element : public LLInitParam::Block<Element, Occurs>
+{
+	Mandatory<ComplexType>	complexType;
+	Mandatory<Name>			name;
+
+	Element()
+	:	complexType("xs:complexType")
+	{}
+};
+
+struct Elements : public LLInitParam::Block<Elements, Occurs>
+{
+	Multiple<Element> elements;
+
+	Elements()
+	:	elements("xs:element")
+	{}
+};
+
+struct Schema : public LLInitParam::Block<Schema>
+{
+private:
+	Mandatory<std::string>	targetNamespace,
+							xmlns;
+
+public:
+	Optional<std::string>	attributeFormDefault,
+							elementFormDefault,
+							xs;
+
+	Optional<Elements>		elements;
+	
+	void setNameSpace(const std::string& ns) {targetNamespace = ns; xmlns = ns;}
+
+	Schema()
+	:	attributeFormDefault("attributeFormDefault"),
+		elementFormDefault("elementFormDefault"),
+		xs("xmlns:xs"),
+		targetNamespace("targetNamespace"),
+		xmlns("xmlns"),
+		elements("xs:choice")
+	{
+		attributeFormDefault = "unqualified";
+		elementFormDefault = "qualified";
+		xs = "http://www.w3.org/2001/XMLSchema";
+	}
+
+};
 
 //
 // LLXSDWriter
@@ -388,7 +518,7 @@ LLXUIParser::LLXUIParser()
 {
 	if (sXUIReadFuncs.empty())
 	{
-		registerParserFuncs<LLInitParam::NoParamValue>(readNoValue, writeNoValue);
+		registerParserFuncs<LLInitParam::Flag>(readFlag, writeFlag);
 		registerParserFuncs<bool>(readBoolValue, writeBoolValue);
 		registerParserFuncs<std::string>(readStringValue, writeStringValue);
 		registerParserFuncs<U8>(readU8Value, writeU8Value);
@@ -645,13 +775,13 @@ LLXMLNodePtr LLXUIParser::getNode(const name_stack_t& stack)
 	return (out_node == mWriteRootNode ? LLXMLNodePtr(NULL) : out_node);
 }
 
-bool LLXUIParser::readNoValue(Parser& parser, void* val_ptr)
+bool LLXUIParser::readFlag(Parser& parser, void* val_ptr)
 {
 	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
 	return self.mCurReadNode == DUMMY_NODE;
 }
 
-bool LLXUIParser::writeNoValue(Parser& parser, const void* val_ptr, const name_stack_t& stack)
+bool LLXUIParser::writeFlag(Parser& parser, const void* val_ptr, const name_stack_t& stack)
 {
 	// just create node
 	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
@@ -1083,7 +1213,7 @@ LLSimpleXUIParser::LLSimpleXUIParser(LLSimpleXUIParser::element_start_callback_t
 {
 	if (sSimpleXUIReadFuncs.empty())
 	{
-		registerParserFuncs<LLInitParam::NoParamValue>(readNoValue);
+		registerParserFuncs<LLInitParam::Flag>(readFlag);
 		registerParserFuncs<bool>(readBoolValue);
 		registerParserFuncs<std::string>(readStringValue);
 		registerParserFuncs<U8>(readU8Value);
@@ -1376,7 +1506,7 @@ void LLSimpleXUIParser::parserError(const std::string& message)
 #endif
 }
 
-bool LLSimpleXUIParser::readNoValue(Parser& parser, void* val_ptr)
+bool LLSimpleXUIParser::readFlag(Parser& parser, void* val_ptr)
 {
 	LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
 	return self.mCurAttributeValueBegin == NO_VALUE_MARKER;

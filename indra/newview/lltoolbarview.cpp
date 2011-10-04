@@ -129,7 +129,7 @@ bool LLToolBarView::addCommand(const LLCommandId& command, LLToolBar* toolbar)
 }
 
 bool LLToolBarView::loadToolbars(bool force_default)
-{	
+{
 	LLToolBarView::ToolbarSet toolbar_set;
 	
 	// Load the toolbars.xml file
@@ -217,6 +217,19 @@ bool LLToolBarView::loadToolbars(bool force_default)
 		}
 	}
 	return true;
+}
+
+//static
+bool LLToolBarView::loadDefaultToolbars()
+{
+	bool retval = false;
+
+	if (gToolBarView)
+	{
+		retval = gToolBarView->loadToolbars(true);
+	}
+
+	return retval;
 }
 
 void LLToolBarView::saveToolbars() const

@@ -483,7 +483,7 @@ void LLFloaterReg::toggleToolbarFloaterInstance(const LLSD& sdname)
 	{
 		showInstance(name, key, TRUE);
 	}
-	else if (!instance->hasFocus())
+	else if (!instance->hasFocus() && !instance->getIsChrome())
 	{
 		instance->setFocus(TRUE);
 	}

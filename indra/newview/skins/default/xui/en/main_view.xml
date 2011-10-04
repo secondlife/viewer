@@ -100,12 +100,12 @@
                      visible="false"
                      width="500"/>
             </layout_panel>
-            <layout_panel auto_resize="false"
+            <!--<layout_panel auto_resize="false"
                    min_height="33"
                    height="33" 
                    mouse_opaque="false"
                    name="bottom_tray_container"
-                   visible="false"/>
+                   visible="false"/>-->
           </layout_stack>
         </layout_panel>
       </layout_stack>
