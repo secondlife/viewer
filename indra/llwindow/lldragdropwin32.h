@@ -31,6 +31,7 @@
 #ifndef LL_LLDRAGDROP32_H
 #define LL_LLDRAGDROP32_H
 
+#define NOMINMAX
 #include <windows.h>
 #include <ole2.h>
 
@@ -54,6 +55,7 @@ class LLDragDropWin32
 #ifndef LL_LLDRAGDROP32_H
 #define LL_LLDRAGDROP32_H
 
+#define NOMINMAX
 #include <windows.h>
 #include <ole2.h>
 

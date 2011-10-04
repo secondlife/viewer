@@ -520,6 +520,7 @@ extern PFNGLSAMPLEMASKIPROC glSampleMaski;
 
 // windows gl headers depend on things like APIENTRY, so include windows.
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <winsock2.h>
 #include <windows.h>
 
