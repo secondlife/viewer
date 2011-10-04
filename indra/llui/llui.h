@@ -41,6 +41,7 @@
 #include <boost/signals2.hpp>
 #include "lllazyvalue.h"
 #include "llframetimer.h"
+#include <limits>
 
 // LLUIFactory
 #include "llsd.h"
@@ -150,27 +151,25 @@ public:
 	//
 	// Classes
 	//
+	template <typename T>
+	struct RangeParams : public LLInitParam::Block<RangeParams<T> >
+	{
+		Optional<T>	minimum,
+					maximum;
+
+		RangeParams()
+		:	minimum("min", T()),
+			maximum("max", std::numeric_limits<T>::max())
+		{}
+	};
 
 	template <typename T>
 	struct Range 
 	{
 		typedef Range<T> self_t;
 
-		struct Params : public LLInitParam::Block<Params>
-		{
-			typename Optional<T>	minimum,
-									maximum;
-
-			Params()
-			:	minimum("min", 0),
-				maximum("max", S32_MAX)
-			{
-
-			}
-		};
-
 		// correct for inverted params
-		Range(const Params& p = Params())
+		Range(const RangeParams<T>& p = RangeParams<T>())
 			:	mMin(p.minimum),
 			mMax(p.maximum)
 		{
@@ -228,12 +227,12 @@ public:
 	{
 		typedef Range<T> range_t;
 
-		struct Params : public LLInitParam::Block<Params, typename range_t::Params>
+		struct Params : public LLInitParam::Block<Params, RangeParams<T> >
 		{
-			Mandatory<S32> value;
+			Mandatory<T> value;
 
 			Params()
-			:	value("", 0)
+			:	value("", T())
 			{
 				addSynonym(value, "value");
 			}

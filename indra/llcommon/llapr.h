@@ -37,6 +37,9 @@
 	// If you get undefined symbols, find the appropriate
 	// Windows header file and include that in your .cpp file.
 	#define WIN32_LEAN_AND_MEAN
+	// do not define min() and max() macros, which collide with
+	// things like numeric_limits<T>
+	#define NOMINMAX
 	#include <winsock2.h>
 	#include <windows.h>
 #endif
