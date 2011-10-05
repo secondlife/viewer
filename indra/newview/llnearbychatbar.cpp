@@ -53,6 +53,8 @@
 
 S32 LLNearbyChatBar::sLastSpecialChatChannel = 0;
 
+const S32 EXPANDED_HEIGHT = 300;
+
 // legacy callback glue
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
 
@@ -448,13 +450,15 @@ BOOL LLNearbyChatBar::postBuild()
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
 
+	mExpandedHeight = getMinHeight() + EXPANDED_HEIGHT;
+
 	return TRUE;
 }
 
 void LLNearbyChatBar::applyRectControl()
 {
 	LLFloater::applyRectControl();
-	if (getRect().getHeight() > getMinHeight())
+	if (getRect().getHeight() >  getMinHeight())
 	{
 		getChildView("nearby_chat")->setVisible(true);
 		mExpandedHeight = getRect().getHeight();

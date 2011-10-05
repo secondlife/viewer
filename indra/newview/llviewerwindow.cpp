@@ -1938,6 +1938,13 @@ void LLViewerWindow::initWorldUI()
 		gToolBarView->loadToolbars();
 		gToolBarView->setVisible(TRUE);
 	}
+
+	LLMediaCtrl* destinations = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
+	if (destinations)
+	{
+		destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"), "text/html");
+	}
 }
 
 // Destroy the UI
