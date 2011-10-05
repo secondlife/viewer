@@ -182,6 +182,7 @@ set(viewer_SOURCE_FILES
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
     llfloaterdeleteenvpreset.cpp
+	llfloaterdestinations.cpp
     llfloaterdisplayname.cpp
     llfloatereditdaycycle.cpp
     llfloatereditsky.cpp
@@ -745,6 +746,7 @@ set(viewer_HEADER_FILES
     llfloatercamera.h
     llfloatercolorpicker.h
     llfloaterdeleteenvpreset.h
+	llfloaterdestinations.h
     llfloaterdisplayname.h
     llfloatereditdaycycle.h
     llfloatereditsky.h

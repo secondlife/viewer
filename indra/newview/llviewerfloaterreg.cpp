@@ -56,7 +56,7 @@
 #include "llfloatereditwater.h"
 #include "llfloaterenvironmentsettings.h"
 #include "llfloaterevent.h"
-#include "llfloatersearch.h"
+#include "llfloaterdestinations.h"
 #include "llfloaterfonttest.h"
 #include "llfloatergesture.h"
 #include "llfloatergodtools.h"
@@ -92,6 +92,7 @@
 #include "llfloaterreporter.h"
 #include "llfloaterscriptdebug.h"
 #include "llfloaterscriptlimits.h"
+#include "llfloatersearch.h"
 #include "llfloatersellland.h"
 #include "llfloatersettingsdebug.h"
 #include "llfloatersidepanelcontainer.h"
@@ -184,6 +185,8 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("chat_bar", "floater_chat_bar.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLNearbyChatBar>);
 
 	LLFloaterReg::add("compile_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCompileQueue>);
+
+	LLFloaterReg::add("destinations", "floater_destinations.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDestinations>);
 
 	LLFloaterReg::add("env_post_process", "floater_post_process.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPostProcess>);
 	LLFloaterReg::add("env_settings", "floater_environment_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvironmentSettings>);
