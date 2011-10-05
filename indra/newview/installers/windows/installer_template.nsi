@@ -343,6 +343,97 @@ FunctionEnd
 ;FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Save files from cache
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function PreserveCacheFiles
+
+Push $0
+Push $1
+Push $2
+
+    RMDir /r "$TEMP\SecondLifeSettingsBackup"
+    CreateDirectory "$TEMP\SecondLifeSettingsBackup"
+    StrCpy $0 0 ; Index number used to iterate via EnumRegKey
+
+  LOOP:
+    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
+    StrCmp $1 "" DONE               ; no more users
+
+    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
+    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
+
+    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
+    ExpandEnvStrings $2 $2
+
+    CreateDirectory "$TEMP\SecondLifeSettingsBackup\$0"
+    CopyFiles  "$2\Application Data\SecondLife\*" "$TEMP\SecondLifeSettingsBackup\$0"
+
+  CONTINUE:
+    IntOp $0 $0 + 1
+    Goto LOOP
+  DONE:
+
+Pop $2
+Pop $1
+Pop $0
+
+; Copy files in Documents and Settings\All Users\SecondLife
+Push $0
+    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
+    StrCmp $0 "" +2
+    CreateDirectory "$TEMP\SecondLifeSettingsBackup\AllUsers\"
+    CopyFiles "$2\Application Data\SecondLife\*" "$TEMP\SecondLifeSettingsBackup\AllUsers\"
+Pop $0
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Restore files from cache
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function RestoreCacheFiles
+
+Push $0
+Push $1
+Push $2
+
+    StrCpy $0 0 ; Index number used to iterate via EnumRegKey
+
+  LOOP:
+    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
+    StrCmp $1 "" DONE               ; no more users
+
+    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
+    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
+
+    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
+    ExpandEnvStrings $2 $2
+
+    RMDir /r "$2\Application Data\SecondLifeRestore\"
+    CreateDirectory "$2\Application Data\SecondLifeRestore\"
+    CopyFiles "$TEMP\SecondLifeSettingsBackup\$0\*" "$2\Application Data\SecondLifeRestore\" 
+
+  CONTINUE:
+    IntOp $0 $0 + 1
+    Goto LOOP
+  DONE:
+
+Pop $2
+Pop $1
+Pop $0
+
+; Copy files in Documents and Settings\All Users\SecondLife
+Push $0
+    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
+    StrCmp $0 "" +2
+    RMDir /r "$2\Application Data\SecondLifeRestore\"
+    CreateDirectory "$2\Application Data\SecondLifeRestore\"
+    CopyFiles "$TEMP\SecondLifeSettingsBackup\AllUsers\*" "$2\Application Data\SecondLifeRestore\" 
+Pop $0
+
+FunctionEnd
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Delete the installed shader files
 ;;; Since shaders are in active development, we'll likely need to shuffle them
 ;;; around a bit from build to build.  This ensures that shaders that we move
@@ -772,6 +863,9 @@ Call CheckNetworkConnection		; ping secondlife.com
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Don't remove cache files during a regular install, removing the inventory cache on upgrades results in lots of damage to the servers.
 ;Call RemoveCacheFiles			; Installing over removes potentially corrupted
+
+Call PreserveCacheFiles
+Call RestoreCacheFiles
 								; VFS and cache files.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
