@@ -33,6 +33,7 @@
 #include "llagentdata.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
 #include "lllistcontextmenu.h"
@@ -40,7 +41,6 @@
 #include "llviewermenu.h"
 #include "llwearableitemslist.h"
 #include "llpaneloutfitedit.h"
-#include "llsidetray.h"
 #include "lltrans.h"
 
 static LLRegisterPanelClassWrapper<LLCOFWearables> t_cof_wearables("cof_wearables");
@@ -159,13 +159,8 @@ public:
 protected:
 	static void replaceWearable(const LLUUID& item_id)
 	{
-		// *TODO: Most probable that accessing to LLPanelOutfitEdit instance should be:
-		// LLSideTray::getInstance()->getSidepanelAppearance()->getPanelOutfitEdit()
-		// without casting. Getter methods provides possibility to check and construct
-		// absent instance. Explicit relations between components avoids situations
-		// when we tries to construct instance with unsatisfied implicit input conditions.
 		LLPanelOutfitEdit	* panel_outfit_edit =
-						dynamic_cast<LLPanelOutfitEdit*> (LLSideTray::getInstance()->getPanel(
+						dynamic_cast<LLPanelOutfitEdit*> (LLFloaterSidePanelContainer::getPanel("appearance",
 								"panel_outfit_edit"));
 		if (panel_outfit_edit != NULL)
 		{
@@ -235,9 +230,7 @@ protected:
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 		LLUUID selected_id = mUUIDs.back();
 
-		// *HACK* need to pass pointer to LLPanelOutfitEdit instead of LLSideTray::getInstance()->getPanel().
-		// LLSideTray::getInstance()->getPanel() is rather slow variant
-		LLPanelOutfitEdit* panel_oe = dynamic_cast<LLPanelOutfitEdit*>(LLSideTray::getInstance()->getPanel("panel_outfit_edit"));
+		LLPanelOutfitEdit* panel_oe = dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
 		registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceMenuItemClicked, panel_oe, selected_id));
 		registrar.add("BodyPart.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
 		registrar.add("BodyPart.Create", boost::bind(&CofBodyPartContextMenu::createNew, this, selected_id));

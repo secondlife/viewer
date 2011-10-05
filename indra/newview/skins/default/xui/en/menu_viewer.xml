@@ -9,7 +9,7 @@
      name="Me"
      tear_off="true">
         <menu_item_call
-         label="Preferences"
+         label="Preferences..."
          name="Preferences"
          shortcut="control|P">
             <menu_item_call.on_click
@@ -17,6 +17,14 @@
              parameter="preferences" />
         </menu_item_call>
          <menu_item_call
+         label="Toolbars..."
+         name="Toolbars"
+         shortcut="control|T">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="toybox" />
+        </menu_item_call>
+        <menu_item_call
              label="My Dashboard"
              name="Manage My Account">
                 <menu_item_call.on_click
@@ -67,10 +75,10 @@
 		 visible="true">
             <menu_item_check.on_check
              function="SidetrayPanelVisible"
-             parameter="sidepanel_inventory" />
+             parameter="my_inventory" />
             <menu_item_check.on_click
              function="ShowSidetrayPanel"
-             parameter="sidepanel_inventory" />
+             parameter="my_inventory" />
         </menu_item_check>
         <menu_item_check
          label="My Gestures"
@@ -219,10 +227,10 @@
          use_mac_ctrl="true">
             <menu_item_check.on_check
              function="Floater.Visible"
-             parameter="nearby_chat" />
+             parameter="chat_bar" />
             <menu_item_check.on_click
              function="Floater.Toggle"
-             parameter="nearby_chat" />
+             parameter="chat_bar" />
         </menu_item_check>
         <menu_item_call
          label="Nearby People"
@@ -249,7 +257,7 @@
      name="World"
      tear_off="true">
             <menu_item_check
-         label="Mini-Map"
+         label="Mini-map"
          name="Mini-Map"
          shortcut="control|shift|M">
             <menu_item_check.on_check
@@ -2435,7 +2443,7 @@
            function="Advanced.ToggleInfoDisplay"
            parameter="raycast" />
         </menu_item_check>
-        <menu_item_check
+		<menu_item_check
          label="Render Complexity"
          name="rendercomplexity">
           <menu_item_check.on_check

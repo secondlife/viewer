@@ -125,6 +125,30 @@ with the same filename but different name
   <texture name="Checkbox_Press" file_name="widgets/Checkbox_Press.png" preload="true" />
   <texture name="Check_Mark" file_name="icons/check_mark" preload="true" />
 
+  <texture name="Command_AboutLand_Icon"    file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Appearance_Icon"   file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Avatar_Icon"       file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Build_Icon"        file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Chat_Icon"         file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Compass_Icon"      file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Destinations_Icon" file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Gestures_Icon"     file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_HowTo_Icon"        file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Inventory_Icon"    file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Map_Icon"          file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Marketplace_Icon"  file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_MiniMap_Icon"      file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Move_Icon"         file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_People_Icon"       file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Places_Icon"       file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Preferences_Icon"  file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Profile_Icon"      file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Search_Icon"       file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Snapshot_Icon"     file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Speak_Icon"        file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_View_Icon"         file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+  <texture name="Command_Voice_Icon"        file_name="taskpanel/TabIcon_Home_Off.png" preload="true" />
+
   <texture name="ComboButton_Disabled" file_name="widgets/ComboButton_Disabled.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Selected" file_name="widgets/ComboButton_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_UpSelected" file_name="widgets/ComboButton_UpSelected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
@@ -449,7 +473,11 @@ with the same filename but different name
 
   <texture name="Resize_Corner" file_name="windows/Resize_Corner.png" preload="true" />
 
-  <texture name="Rounded_Rect"	file_name="Rounded_Rect.png" preload="true" scale.left="6" scale.top="24" scale.right="58" scale.bottom="6" />
+  <texture name="Rounded_Rect"	file_name="Rounded_Rect.png" preload="true" scale.left="6" scale.top="26" scale.right="58" scale.bottom="6" />
+  <texture name="Rounded_Rect_Top"	file_name="Rounded_Rect.png" preload="true" scale.left="6" scale.top="8" scale.right="58" scale.bottom="0" clip.left="0" clip.right="64" clip.bottom="16" clip.top="32" />
+  <texture name="Rounded_Rect_Bottom"	file_name="Rounded_Rect.png" preload="true" scale.left="6" scale.top="16" scale.right="58" scale.bottom="8" clip.left="0" clip.right="64" clip.bottom="0" clip.top="16"  />
+  <texture name="Rounded_Rect_Left"	file_name="Rounded_Rect.png" preload="true" scale.left="6" scale.top="26" scale.right="32" scale.bottom="6" clip.left="0" clip.right="32" clip.bottom="0" clip.top="32" />
+  <texture name="Rounded_Rect_Right"	file_name="Rounded_Rect.png" preload="true" scale.left="0" scale.top="26" scale.right="26" scale.bottom="6" clip.left="32" clip.right="64" clip.bottom="0" clip.top="32" />
   <texture name="Rounded_Square"	file_name="rounded_square.j2c" preload="true" scale.left="16" scale.top="16" scale.right="112" scale.bottom="16" />
   <texture name="Row_Selection" file_name="navbar/Row_Selection.png" preload="false" />
 
@@ -737,4 +765,5 @@ with the same filename but different name
   <texture name="Yellow_Gradient" file_name="windows/yellow_gradient.png"/>
   <texture name="Popup_Caution" file_name="icons/pop_up_caution.png"/>
   <texture name="Camera_Drag_Dot" file_name="world/CameraDragDot.png"/>
+
 </textures>

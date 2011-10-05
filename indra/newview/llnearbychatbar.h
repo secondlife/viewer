@@ -93,18 +93,16 @@ private:
 };
 
 class LLNearbyChatBar
-:	public LLPanel
+:	public LLFloater
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
-	LLNearbyChatBar();
+	LLNearbyChatBar(const LLSD& key);
 	~LLNearbyChatBar() {}
 
 	virtual BOOL postBuild();
 
 	static LLNearbyChatBar* getInstance();
-
-	static bool instanceExists();
 
 	LLLineEditor* getChatBox() { return mChatBox; }
 
@@ -129,6 +127,10 @@ protected:
 	void onChatBoxCommit();
 	void onChatFontChange(LLFontGL* fontp);
 
+	/* virtual */ void applyRectControl();
+
+	void onToggleNearbyChatPanel();
+
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 	EChatType processChatTypeTriggers(EChatType type, std::string &str);
 
@@ -140,6 +142,8 @@ protected:
 	LLLineEditor*		mChatBox;
 	LLOutputMonitorCtrl* mOutputMonitor;
 	LLLocalSpeakerMgr*  mSpeakerMgr;
+
+	S32 mExpandedHeight;
 };
 
 #endif

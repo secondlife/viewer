@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toolbar_view
+ follows="all"
+ layout="topleft"
+ name="toolbar view"
+ height="500"
+ width="1024"
+ left="0"
+ top="0" 
+ mouse_opaque="false"
+ tab_stop="false"
+ visible="true">
+  <layout_stack name="bottom_toolbar_stack"
+                orientation="vertical"
+                left="0"
+                top="0"
+                width="1024"
+                height="500"
+                follows="all"
+                mouse_opaque="false">
+  <layout_panel name="vertical_toolbar_panel"
+                auto_resize="true"
+                user_resize="false"
+                width="1024"
+                height="500"
+                mouse_opaque="false">
+    <layout_stack name="vertical_toolbar_stack"
+                  orientation="horizontal"
+                  left="0"
+                  top="0"
+                  width="1024"
+                  height="500"
+                  follows="all"
+                  mouse_opaque="false">
+      <layout_panel name="left_toolbar_panel"
+                    auto_resize="false"
+                    user_resize="false"
+                    height="500"
+                    width="30"
+                    mouse_opaque="false">
+        <toolbar follows="left|top|bottom"
+                 button_panel.bg_opaque_image="Rounded_Rect_Right"
+                 name="toolbar_left"
+                 height="500"
+                 width="30"
+                 left="0"
+                 top="0"
+                 side="left"
+                 button_display_mode="icons_only">
+        </toolbar>
+      </layout_panel>
+      <layout_panel name="non_toolbar_panel"
+                    auto_resize="true"
+                    user_resize="false"
+                    mouse_opaque="false"/>
+      <layout_panel name="right_toolbar_panel"
+                    auto_resize="false"
+                    user_resize="false"
+                    height="500"
+                    width="30"
+                    mouse_opaque="false">
+        <toolbar
+          button_panel.bg_opaque_image="Rounded_Rect_Left"
+          follows="right|top|bottom"
+          name="toolbar_right"
+          height="500"
+          width="30"
+          left="0"
+          top="0"
+          side="right"
+          button_display_mode="icons_only">
+        </toolbar>
+      </layout_panel>
+    </layout_stack>
+  </layout_panel>
+  <layout_panel name="bottom_toolbar_panel"
+                auto_resize="false"
+                user_resize="false"
+                height="30"
+                width="1024"
+                mouse_opaque="false">
+    <toolbar layout="topleft"
+             button_panel.bg_opaque_image="Rounded_Rect_Top"
+             name="toolbar_bottom"
+             height="30"
+             width="1024"
+             left="0"
+             top="0"
+             side="bottom"
+             follows="left|right|bottom"
+             button_display_mode="icons_with_text"
+             visible="true">
+    </toolbar>
+  </layout_panel>
+  </layout_stack>
+</toolbar_view>

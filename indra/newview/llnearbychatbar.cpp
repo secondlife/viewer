@@ -49,6 +49,8 @@
 #include "llrootview.h"
 #include "llviewerchat.h"
 
+#include "llresizehandle.h"
+
 S32 LLNearbyChatBar::sLastSpecialChatChannel = 0;
 
 // legacy callback glue
@@ -411,10 +413,10 @@ LLCtrlListInterface* LLGestureComboList::getListInterface()
 	return mList;
 }
 
-LLNearbyChatBar::LLNearbyChatBar() 
-:	mChatBox(NULL)
-{
-	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
+LLNearbyChatBar::LLNearbyChatBar(const LLSD& key)
+	: LLFloater(key),
+	mChatBox(NULL)
+{	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
 
 //virtual
@@ -436,6 +438,10 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setEnableLineHistory(TRUE);
 	mChatBox->setFont(LLViewerChat::getChatFont());
 
+
+	LLUICtrl* show_btn = getChild<LLUICtrl>("show_nearby_chat");
+	show_btn->setCommitCallback(boost::bind(&LLNearbyChatBar::onToggleNearbyChatPanel, this));
+
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 	mOutputMonitor->setVisible(FALSE);
 
@@ -443,6 +449,16 @@ BOOL LLNearbyChatBar::postBuild()
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
 
 	return TRUE;
+}
+
+void LLNearbyChatBar::applyRectControl()
+{
+	LLFloater::applyRectControl();
+	if (getRect().getHeight() > getMinHeight())
+	{
+		getChildView("nearby_chat")->setVisible(true);
+		mExpandedHeight = getRect().getHeight();
+	}
 }
 
 void LLNearbyChatBar::onChatFontChange(LLFontGL* fontp)
@@ -457,19 +473,13 @@ void LLNearbyChatBar::onChatFontChange(LLFontGL* fontp)
 //static
 LLNearbyChatBar* LLNearbyChatBar::getInstance()
 {
-	return LLBottomTray::getInstance() ? LLBottomTray::getInstance()->getNearbyChatBar() : NULL;
-}
-
-//static
-bool LLNearbyChatBar::instanceExists()
-{
-	return LLBottomTray::instanceExists() && LLBottomTray::getInstance()->getNearbyChatBar() != NULL;
+	return LLFloaterReg::getTypedInstance<LLNearbyChatBar>("chat_bar");
 }
 
 void LLNearbyChatBar::draw()
 {
 	displaySpeakingIndicator();
-	LLPanel::draw();
+	LLFloater::draw();
 }
 
 std::string LLNearbyChatBar::getCurrentChat()
@@ -683,6 +693,26 @@ void LLNearbyChatBar::sendChat( EChatType type )
 	}
 }
 
+
+void LLNearbyChatBar::onToggleNearbyChatPanel()
+{
+	LLView* nearby_chat = getChildView("nearby_chat");
+
+	if (nearby_chat->getVisible())
+	{
+		mExpandedHeight = getRect().getHeight();
+		nearby_chat->setVisible(FALSE);
+		reshape(getRect().getWidth(), getMinHeight());
+		mResizeHandle[0]->setMaxHeight(getMinHeight());
+	}
+	else
+	{
+		nearby_chat->setVisible(TRUE);
+		reshape(getRect().getWidth(), mExpandedHeight);
+		mResizeHandle[0]->setMaxHeight(S32_MAX);
+	}
+}
+
 void LLNearbyChatBar::onChatBoxCommit()
 {
 	if (mChatBox->getText().length() > 0)
@@ -780,17 +810,13 @@ void LLNearbyChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type,
 // static 
 void LLNearbyChatBar::startChat(const char* line)
 {
-	LLBottomTray *bt = LLBottomTray::getInstance();
-
-	if (!bt)
-		return;
-
-	LLNearbyChatBar* cb = bt->getNearbyChatBar();
+	LLNearbyChatBar* cb = LLNearbyChatBar::getInstance();
 
 	if (!cb )
 		return;
 
-	bt->setVisible(TRUE);
+	cb->setVisible(TRUE);
+	cb->setFocus(TRUE);
 	cb->mChatBox->setFocus(TRUE);
 
 	if (line)
@@ -811,7 +837,7 @@ void LLNearbyChatBar::stopChat()
 	if (!bt)
 		return;
 
-	LLNearbyChatBar* cb = bt->getNearbyChatBar();
+	LLNearbyChatBar* cb = LLNearbyChatBar::getInstance();
 
 	if (!cb)
 		return;

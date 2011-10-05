@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toolbar pad_left="1"
+         pad_right="1"
+         pad_top="1"
+         pad_bottom="1"
+         pad_between="1"
+         mouse_opaque="false"
+         read_only="false">
+  <button_panel name="button_panel"
+                bg_opaque_image="Rounded_Rect"
+                background_visible="true"
+                bg_opaque_image_overlay="MouseGray"
+                background_opaque="true"/>
+  <button_icon_and_text imgoverlay_label_space="7"
+                        button_width.min="70"
+                        button_width.max="140"
+                        desired_height="24"
+                        pad_left="10" 
+                        pad_right="10"
+                        follows="left|top"
+                        chrome="true"
+                        image_overlay_alignment="left"
+                        use_ellipses="true"
+                        auto_resize="true"/>
+  <button_icon pad_left="10"
+               pad_right="10"
+               desired_height="35"
+               button_width.min="35"
+               button_width.max="35"               
+               follows="left|top"
+               label=""
+               chrome="true"
+               use_ellipses="true"
+               auto_resize="true"/>
+</toolbar>

@@ -7383,19 +7383,6 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   </notification>
 
   <notification
- name="ModeChange"
- label=""
- type="alertmodal">
-    <unique/>
-    Changing modes requires you to quit and restart.
-    <tag>confirm</tag>
-    <usetemplate
-   name="okcancelbuttons"
-   yestext="Quit"
-   notext="Don't Quit"/>
-    </notification>
-
-  <notification
  name="NoClassifieds"
  label=""
  type="alertmodal">

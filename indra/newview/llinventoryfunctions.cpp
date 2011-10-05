@@ -47,6 +47,7 @@
 #include "llappviewer.h"
 //#include "llfirstuse.h"
 #include "llfloaterinventory.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
 #include "llgesturemgr.h"
@@ -70,7 +71,6 @@
 #include "llscrollbar.h"
 #include "llscrollcontainer.h"
 #include "llselectmgr.h"
-#include "llsidetray.h"
 #include "llsidepanelinventory.h"
 #include "lltabcontainer.h"
 #include "lltooldraganddrop.h"
@@ -459,22 +459,28 @@ BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
 
 void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id)
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD().with("id", item_uuid).with("object", object_id));
+	LLFloaterSidePanelContainer::showPanel("my_inventory", LLSD().with("id", item_uuid).with("object", object_id));
 }
 
 void show_item_profile(const LLUUID& item_uuid)
 {
 	LLUUID linked_uuid = gInventory.getLinkedItemID(item_uuid);
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD().with("id", linked_uuid));
+	LLFloaterSidePanelContainer::showPanel("my_inventory", LLSD().with("id", linked_uuid));
 }
 
 void show_item_original(const LLUUID& item_uuid)
 {
-	//sidetray inventory panel
-	LLSidepanelInventory *sidepanel_inventory =
-		dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+	LLFloater* floater_my_inventory = LLFloaterReg::getInstance("my_inventory");
+	if (!floater_my_inventory)
+	{
+		llwarns << "Could not find My Inventory floater" << llendl;
+		return;
+	}
 
-	bool reset_inventory_filter = !LLSideTray::getInstance()->isPanelActive("sidepanel_inventory");
+	//sidetray inventory panel
+	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+
+	bool reset_inventory_filter = !floater_my_inventory->isInVisibleChain();
 
 	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
 	if (!active_panel) 

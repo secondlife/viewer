@@ -47,6 +47,7 @@
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
 #include "llfloaterpay.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterwebcontent.h"
 #include "llfloaterworldmap.h"
 #include "llfolderview.h"
@@ -60,7 +61,6 @@
 #include "llpaneloutfitedit.h"
 #include "llpanelprofile.h"
 #include "llrecentpeople.h"
-#include "llsidetray.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
@@ -438,8 +438,7 @@ void LLAvatarActions::csr(const LLUUID& id, std::string name)
 void LLAvatarActions::share(const LLUUID& id)
 {
 	LLSD key;
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
-
+	LLFloaterSidePanelContainer::showPanel("my_inventory", key);
 
 	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL,id);
 
@@ -462,7 +461,7 @@ namespace action_give_inventory
 	 */
 	static LLInventoryPanel* get_outfit_editor_inventory_panel()
 	{
-		LLPanelOutfitEdit* panel_outfit_edit = dynamic_cast<LLPanelOutfitEdit*>(LLSideTray::getInstance()->getPanel("panel_outfit_edit"));
+		LLPanelOutfitEdit* panel_outfit_edit = dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
 		if (NULL == panel_outfit_edit) return NULL;
 
 		LLInventoryPanel* inventory_panel = panel_outfit_edit->findChild<LLInventoryPanel>("folder_view");
@@ -696,9 +695,11 @@ std::set<LLUUID> LLAvatarActions::getInventorySelectedUUIDs()
 
 	if (inventory_selected_uuids.empty())
 	{
-		LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
-
-		inventory_selected_uuids = sidepanel_inventory->getInboxOrOutboxSelectionList();
+		LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+		if (sidepanel_inventory)
+		{
+			inventory_selected_uuids = sidepanel_inventory->getInboxOrOutboxSelectionList();
+		}
 	}
 
 	return inventory_selected_uuids;

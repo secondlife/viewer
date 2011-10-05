@@ -81,7 +81,6 @@
 #include "llviewermenufile.h"
 #include "llvoicechannel.h"
 #include "llvoavatarself.h"
-#include "llsidetray.h"
 #include "llurlmatch.h"
 #include "lltextutil.h"
 #include "lllogininstance.h"
@@ -1124,7 +1123,7 @@ void LLAppViewer::checkMemory()
 {
 	const static F32 MEMORY_CHECK_INTERVAL = 1.0f ; //second
 	//const static F32 MAX_QUIT_WAIT_TIME = 30.0f ; //seconds
-	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;	
+	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
 
 	if(!gGLManager.mDebugGPU)
 	{
@@ -1137,8 +1136,8 @@ void LLAppViewer::checkMemory()
 	}
 	mMemCheckTimer.reset() ;
 
-	//update the availability of memory
-	LLMemory::updateMemoryInfo() ;
+		//update the availability of memory
+		LLMemory::updateMemoryInfo() ;
 
 	bool is_low = LLMemory::isMemoryPoolLow() ;
 
@@ -3464,8 +3463,6 @@ void LLAppViewer::requestQuit()
 		gFloaterView->closeAllChildren(true);
 	}
 
-	LLSideTray::getInstance()->notifyChildren(LLSD().with("request","quit"));
-
 	send_stats();
 
 	gLogoutTimer.reset();
@@ -3483,20 +3480,6 @@ static bool finish_quit(const LLSD& notification, const LLSD& response)
 	return false;
 }
 static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_quit);
-
-static bool switch_standard_skin_and_quit(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-
-	if (option == 0)
-	{
-		gSavedSettings.setString("SessionSettingsFile", "");
-		LLAppViewer::instance()->requestQuit();
-	}
-	return false;
-}
-
-static LLNotificationFunctorRegistration standard_skin_quit_reg("SwitchToStandardSkinAndQuit", switch_standard_skin_and_quit);
 
 void LLAppViewer::userQuit()
 {
@@ -4526,10 +4509,6 @@ void LLAppViewer::idleShutdown()
 		return;
 	}
 
-	if (LLSideTray::getInstance()->notifyChildren(LLSD().with("request","wait_quit")))
-	{
-		return;
-	}
 
 
 	

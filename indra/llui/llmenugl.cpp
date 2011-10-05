@@ -947,7 +947,7 @@ LLMenuItemBranchGL::LLMenuItemBranchGL(const LLMenuItemBranchGL::Params& p)
 
 LLMenuItemBranchGL::~LLMenuItemBranchGL()
 {
-	LLView::deleteViewByHandle(mBranchHandle);
+	delete mBranchHandle.get();
 }
 
 // virtual

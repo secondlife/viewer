@@ -16,7 +16,7 @@
                 orientation="vertical"
                 top="19">
     <layout_panel auto_resize="false"
-                  height="60"
+                  height="34"
                   mouse_opaque="false"
                   name="nav_bar_container"
                   tab_stop="false"
@@ -90,14 +90,6 @@
                      top="0"
                      visible="false"
                      width="1024"/>
-              <panel follows="right|top|bottom"
-                     height="500"
-                     mouse_opaque="false"
-                     name="side_bar_tabs"
-                     right="500"
-                     tab_stop="false"
-                     top="0"
-                     width="32"/>
               <panel bottom="500"
                      follows="left|right|bottom"
                      height="25"
@@ -108,25 +100,14 @@
                      visible="false"
                      width="500"/>
             </layout_panel>
-            <layout_panel auto_resize="false"
+            <!--<layout_panel auto_resize="false"
                    min_height="33"
                    height="33" 
                    mouse_opaque="false"
                    name="bottom_tray_container"
-                   visible="false"/>
+                   visible="false"/>-->
           </layout_stack>
         </layout_panel>
-        <!-- side tray -->
-        <layout_panel auto_resize="false"
-                      follows="top|bottom"
-                      height="500"
-                      min_width="333"
-                      mouse_opaque="false"
-                      tab_stop="false"
-                      name="side_tray_container"
-                      user_resize="false"
-                      visible="false"
-                      width="333"/>
       </layout_stack>
       <panel top="0"
          follows="all"
@@ -162,6 +143,16 @@
                       top="0"
                       width="1024"/>
       </panel>
+      <panel name="toolbar_view_holder"
+	    follows="all"
+		layout="topleft"
+        height="500"
+        width="1024"
+        top="0"
+        left="0"
+        mouse_opaque="false"
+        tab_stop="false">
+       </panel>
     </layout_panel>
   </layout_stack>
   <panel mouse_opaque="false"

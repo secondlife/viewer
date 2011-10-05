@@ -59,7 +59,6 @@ public:
 	// Channel's outfit-functions
 	// update channel's size and position in the World View
 	virtual void		updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect);
-	void				resetPositionAndSize();
 
 	// initialization of channel's shape and position
 	virtual void		init(S32 channel_left, S32 channel_right);

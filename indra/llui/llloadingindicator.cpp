@@ -34,6 +34,7 @@
 // Project includes
 #include "lluictrlfactory.h"
 #include "lluiimage.h"
+#include "boost/foreach.hpp"
 
 // registered in llui.cpp to avoid being left out by MS linker
 //static LLDefaultChildRegistry::Register<LLLoadingIndicator> r("loading_indicator");
@@ -51,11 +52,9 @@ LLLoadingIndicator::LLLoadingIndicator(const Params& p)
 
 void LLLoadingIndicator::initFromParams(const Params& p)
 {
-	for (LLInitParam::ParamIterator<LLUIImage*>::const_iterator it = p.images().image.begin(), end_it = p.images().image.end();
-		it != end_it;
-		++it)
+	BOOST_FOREACH(LLUIImage* image, p.images.image)
 	{
-		mImages.push_back(it->getValue());
+		mImages.push_back(image);
 	}
 
 	// Start timer for switching images.

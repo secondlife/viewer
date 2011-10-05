@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_group_plus">
-	<menu_item_call label="Info anzeigen" name="View Info"/>
-	<menu_item_call label="Chat" name="Chat"/>
-	<menu_item_call label="Anrufen" name="Call"/>
-	<menu_item_call label="Aktivieren" name="Activate"/>
-	<menu_item_call label="Verlassen" name="Leave"/>
-</menu>

@@ -34,10 +34,10 @@
 #include "llagent.h"
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llgroupmgr.h"
 #include "llimview.h" // for gIMMgr
 #include "llnotificationsutil.h"
-#include "llsidetray.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "llimfloater.h"
 #include "groupchatlistener.h"
@@ -83,7 +83,7 @@ public:
 			{
 				LLSD params;
 				params["people_panel_tab_name"] = "groups_panel";
-				LLSideTray::getInstance()->showPanel("panel_people", params);
+				LLFloaterSidePanelContainer::showPanel("people", "panel_people", params);
 				return true;
 			}
             return false;
@@ -243,7 +243,7 @@ static bool isGroupUIVisible()
 {
 	static LLPanel* panel = 0;
 	if(!panel)
-		panel = LLSideTray::getInstance()->getPanel("panel_group_info_sidetray");
+		panel = LLFloaterSidePanelContainer::getPanel("people", "panel_group_info_sidetray");
 	if(!panel)
 		return false;
 	return panel->isInVisibleChain();
@@ -265,7 +265,7 @@ void LLGroupActions::show(const LLUUID& group_id)
 	params["group_id"] = group_id;
 	params["open_tab_name"] = "panel_group_info_sidetray";
 
-	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
+	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
 }
 
 void LLGroupActions::refresh_notices()
@@ -278,7 +278,7 @@ void LLGroupActions::refresh_notices()
 	params["open_tab_name"] = "panel_group_info_sidetray";
 	params["action"] = "refresh_notices";
 
-	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
+	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
 }
 
 //static 
@@ -292,7 +292,7 @@ void LLGroupActions::refresh(const LLUUID& group_id)
 	params["open_tab_name"] = "panel_group_info_sidetray";
 	params["action"] = "refresh";
 
-	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
+	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
 }
 
 //static 
@@ -303,7 +303,7 @@ void LLGroupActions::createGroup()
 	params["open_tab_name"] = "panel_group_info_sidetray";
 	params["action"] = "create";
 
-	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
+	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
 
 }
 //static
@@ -317,7 +317,7 @@ void LLGroupActions::closeGroup(const LLUUID& group_id)
 	params["open_tab_name"] = "panel_group_info_sidetray";
 	params["action"] = "close";
 
-	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
+	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
 }
 
 

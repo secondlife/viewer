@@ -76,6 +76,7 @@
 #include "lltimer.h"
 #include "timing.h"
 #include "llviewermenu.h"
+#include "lltoolbarview.h"
 #include "lltooltip.h"
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
@@ -132,7 +133,6 @@
 #include "llpreviewtexture.h"
 #include "llprogressview.h"
 #include "llresmgr.h"
-#include "llsidetray.h"
 #include "llselectmgr.h"
 #include "llrootview.h"
 #include "llrendersphere.h"
@@ -1771,11 +1771,23 @@ void LLViewerWindow::initBase()
 
 	// placeholder widget that controls where "world" is rendered
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
-	mNonSideTrayView = main_view->getChildView("non_side_tray_view")->getHandle();
 	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
 	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
 	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
+
+	// Create the toolbar view
+	// *TODO: Eventually, suppress the existence of this debug setting and turn toolbar FUI on permanently
+	if (gSavedSettings.getBOOL("DebugToolbarFUI"))
+	{
+		// Get a pointer to the toolbar view holder
+		LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
+		// Load the toolbar view from file 
+		gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLDefaultChildRegistry::instance());
+		gToolBarView->setShape(panel_holder->getLocalRect());
+		// Hide the toolbars for the moment: we'll make them visible after logging in world (see LLViewerWindow::initWorldUI())
+		gToolBarView->setVisible(FALSE);
+	}
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
@@ -1884,12 +1896,7 @@ void LLViewerWindow::initWorldUI()
 	
 	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
 	{
-		navbar->showNavigationPanel(FALSE);
-	}
-
-	if (!gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"))
-	{
-		navbar->showFavoritesPanel(FALSE);
+		navbar->setVisible(FALSE);
 	}
 
 	// Top Info bar
@@ -1924,40 +1931,13 @@ void LLViewerWindow::initWorldUI()
 	panel_ssf_container->addChild(panel_stand_stop_flying);
 	panel_ssf_container->setVisible(TRUE);
 
-	// put sidetray in container
-	LLPanel* side_tray_container = getRootView()->getChild<LLPanel>("side_tray_container");
-	LLSideTray* sidetrayp = LLSideTray::getInstance();
-	sidetrayp->setShape(side_tray_container->getLocalRect());
-	// don't follow right edge to avoid spurious resizes, since we are using a fixed width layout
-	sidetrayp->setFollows(FOLLOWS_LEFT|FOLLOWS_TOP|FOLLOWS_BOTTOM);
-	side_tray_container->addChild(sidetrayp);
-	side_tray_container->setVisible(FALSE);
-	
-	// put sidetray buttons in their own panel
-	LLPanel* buttons_panel = sidetrayp->getButtonsPanel();
-	LLPanel* buttons_panel_container = getRootView()->getChild<LLPanel>("side_bar_tabs");
-	buttons_panel->setShape(buttons_panel_container->getLocalRect());
-	buttons_panel->setFollowsAll();
-	buttons_panel_container->addChild(buttons_panel);
-
-	LLView* avatar_picker_destination_guide_container = gViewerWindow->getRootView()->getChild<LLView>("avatar_picker_and_destination_guide_container");
-	avatar_picker_destination_guide_container->getChild<LLButton>("close")->setCommitCallback(boost::bind(toggle_destination_and_avatar_picker, LLSD()));
-	LLMediaCtrl* destinations = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("destination_guide_contents");
-	LLMediaCtrl* avatar_picker = avatar_picker_destination_guide_container->findChild<LLMediaCtrl>("avatar_picker_contents");
-	if (destinations)
+	// Load and make the toolbars visible
+	// Note: we need to load the toolbars only *after* the user is logged in and IW
+	if (gToolBarView)
 	{
-		destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"), "text/html");
+		gToolBarView->loadToolbars();
+		gToolBarView->setVisible(TRUE);
 	}
-
-	if (avatar_picker)
-	{
-		avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
-	}
-
-	// show destinations by default
-	toggle_destination_and_avatar_picker(gSavedSettings.getS32("DestinationsAndAvatarsVisibility"));
 }
 
 // Destroy the UI
@@ -1999,6 +1979,7 @@ void LLViewerWindow::shutdownViews()
 	gIMMgr = NULL;
 	gToolTipView = NULL;
 
+	gToolBarView = NULL;
 	gFloaterView = NULL;
 	gMorphView = NULL;
 
@@ -2195,7 +2176,9 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 	LLNavigationBar* navbarp = LLUI::getRootView()->findChild<LLNavigationBar>("navigation_bar");
 	if (navbarp)
 	{
-		navbarp->setVisible( visible );
+		// when it's time to show navigation bar we need to ensure that the user wants to see it
+		// i.e. ShowNavbarNavigationPanel option is true
+		navbarp->setVisible( visible && gSavedSettings.getBOOL("ShowNavbarNavigationPanel") );
 	}
 }
 
@@ -2466,7 +2449,12 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// Traverses up the hierarchy
 	if( keyboard_focus )
 	{
-		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getNearbyChatBar()->getChatBox() : NULL;
+		LLNearbyChatBar* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChatBar>("chat_bar");
+
+		if (nearby_chat)
+		{
+			LLLineEditor* chat_editor = nearby_chat->getChatBox();
+		
 		// arrow keys move avatar while chatting hack
 		if (chat_editor && chat_editor->hasFocus())
 		{
@@ -2497,7 +2485,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 				}
 			}
 		}
-
+		}
 		if (keyboard_focus->handleKey(key, mask, FALSE))
 		{
 			return TRUE;
@@ -2528,11 +2516,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
-		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getNearbyChatBar()->getChatBox() : NULL;
+		LLLineEditor* chat_editor = LLFloaterReg::getTypedInstance<LLNearbyChatBar>("chat_bar")->getChatBox();
 		if (chat_editor)
 		{
 			// passing NULL here, character will be added later when it is handled by character handler.
-			LLBottomTray::getInstance()->getNearbyChatBar()->startChat(NULL);
+			LLNearbyChatBar::getInstance()->startChat(NULL);
 			return TRUE;
 		}
 	}
@@ -3303,9 +3291,6 @@ void LLViewerWindow::updateKeyboardFocus()
 		// make sure floater visible order is in sync with tab order
 		gFloaterView->syncFloaterTabOrder();
 	}
-
-	if(LLSideTray::instanceCreated())//just getInstance will create sidetray. we don't want this
-		LLSideTray::getInstance()->highlightFocused();
 }
 
 static LLFastTimer::DeclareTimer FTM_UPDATE_WORLD_VIEW("Update World View");
@@ -3327,12 +3312,6 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 		new_world_rect.mRight = llround((F32)new_world_rect.mRight * mDisplayScale.mV[VX]);
 		new_world_rect.mBottom = llround((F32)new_world_rect.mBottom * mDisplayScale.mV[VY]);
 		new_world_rect.mTop = llround((F32)new_world_rect.mTop * mDisplayScale.mV[VY]);
-	}
-
-	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE)
-	{
-		// use right edge of window, ignoring sidebar
-		new_world_rect.mRight = mWindowRectRaw.mRight;
 	}
 
 	if (mWorldViewRectRaw != new_world_rect)

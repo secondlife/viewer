@@ -56,6 +56,9 @@ public:
 
 	void			setResizeLimits( S32 min_width, S32 min_height ) { mMinWidth = min_width; mMinHeight = min_height; }
 
+	void			setMaxWidth(S32 width) { mMaxWidth = width;}
+	void			setMaxHeight(S32 height) { mMaxHeight = height;}
+
 private:
 	BOOL			pointInHandle( S32 x, S32 y );
 
@@ -66,7 +69,9 @@ private:
 	LLCoordGL		mLastMouseDir;
 	LLPointer<LLUIImage>	mImage;
 	S32				mMinWidth;
+	S32				mMaxWidth;
 	S32				mMinHeight;
+	S32				mMaxHeight;
 	const ECorner	mCorner;
 };
 

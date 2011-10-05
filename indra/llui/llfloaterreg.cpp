@@ -453,6 +453,47 @@ void LLFloaterReg::toggleFloaterInstance(const LLSD& sdname)
 }
 
 //static
+void LLFloaterReg::toggleToolbarFloaterInstance(const LLSD& sdname)
+{
+	//
+	// Floaters controlled by the toolbar behave a bit differently from others.
+	// Namely they have 3-4 states as defined in the design wiki page here:
+	//   https://wiki.lindenlab.com/wiki/FUI_Button_states
+	//
+	// The basic idea is this:
+	// * If the target floater is minimized, this button press will un-minimize it.
+	// * Else if the target floater is closed open it.
+	// * Else if the target floater does not have focus, give it focus.
+	//       * Also, if it is not on top, bring it forward when focus is given.
+	// * Else the target floater is open, close it.
+	// 
+
+	// First parse the parameter
+	LLSD key;
+	std::string name = sdname.asString();
+	parse_name_key(name, key);
+
+	LLFloater* instance = findInstance(name, key); 
+
+	if (LLFloater::isMinimized(instance))
+	{
+		instance->setMinimized(FALSE);
+	}
+	else if (!LLFloater::isShown(instance))
+	{
+		showInstance(name, key, TRUE);
+	}
+	else if (!instance->hasFocus() && !instance->getIsChrome())
+	{
+		instance->setFocus(TRUE);
+	}
+	else
+	{
+		instance->closeFloater();
+	}
+}
+
+//static
 bool LLFloaterReg::floaterInstanceVisible(const LLSD& sdname)
 {
 	LLSD key;

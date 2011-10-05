@@ -229,7 +229,7 @@ set(viewer_SOURCE_FILES
     llfloatersearch.cpp
     llfloatersellland.cpp
     llfloatersettingsdebug.cpp
-    llfloatersidetraytab.cpp
+    llfloatersidepanelcontainer.cpp
     llfloatersnapshot.cpp
     llfloatersounddevices.cpp
     llfloatertelehub.cpp
@@ -238,6 +238,7 @@ set(viewer_SOURCE_FILES
     llfloatertools.cpp
     llfloatertopobjects.cpp
     llfloatertos.cpp
+    llfloatertoybox.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
@@ -441,8 +442,6 @@ set(viewer_SOURCE_FILES
     llsidepanelinventorysubpanel.cpp
     llsidepaneliteminfo.cpp
     llsidepaneltaskinfo.cpp
-    llsidetray.cpp
-    llsidetraylistener.cpp
     llsidetraypanelcontainer.cpp
     llsky.cpp
     llslurl.cpp
@@ -483,6 +482,7 @@ set(viewer_SOURCE_FILES
     lltoastpanel.cpp
     lltoastscripttextbox.cpp
     lltool.cpp
+    lltoolbarview.cpp
     lltoolbrush.cpp
     lltoolcomp.cpp
     lltooldraganddrop.cpp
@@ -793,7 +793,7 @@ set(viewer_HEADER_FILES
     llfloatersearch.h
     llfloatersellland.h
     llfloatersettingsdebug.h
-    llfloatersidetraytab.h
+    llfloatersidepanelcontainer.h
     llfloatersnapshot.h
     llfloatersounddevices.h
     llfloatertelehub.h
@@ -802,6 +802,7 @@ set(viewer_HEADER_FILES
     llfloatertools.h
     llfloatertopobjects.h
     llfloatertos.h
+    llfloatertoybox.h
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h
@@ -1000,8 +1001,6 @@ set(viewer_HEADER_FILES
     llsidepanelinventorysubpanel.h
     llsidepaneliteminfo.h
     llsidepaneltaskinfo.h
-    llsidetray.h
-    llsidetraylistener.h
     llsidetraypanelcontainer.h
     llsky.h
     llslurl.h
@@ -1043,6 +1042,7 @@ set(viewer_HEADER_FILES
     lltoastpanel.h
     lltoastscripttextbox.h
     lltool.h
+    lltoolbarview.h
     lltoolbrush.h
     lltoolcomp.h
     lltooldraganddrop.h
@@ -1383,11 +1383,6 @@ endif (WINDOWS)
 set(viewer_XUI_FILES
     skins/default/colors.xml
     skins/default/textures/textures.xml
-    skins/minimal/colors.xml
-    skins/minimal/textures/textures.xml
-
-
-
     )
 file(GLOB DEFAULT_XUI_FILE_GLOB_LIST
      ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/*.xml)
@@ -1414,6 +1409,7 @@ list(APPEND viewer_SOURCE_FILES ${viewer_XUI_FILES})
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
     app_settings/cmd_line.xml
+    app_settings/commands.xml
     app_settings/grass.xml
     app_settings/high_graphics.xml
     app_settings/ignorable_dialogs.xml
@@ -1426,8 +1422,8 @@ set(viewer_APPSETTINGS_FILES
     app_settings/settings_crash_behavior.xml
     app_settings/settings_files.xml
     app_settings/settings_per_account.xml
-    app_settings/settings_minimal.xml
     app_settings/std_bump.ini
+    app_settings/toolbars.xml
     app_settings/trees.xml
     app_settings/ultra_graphics.xml
     app_settings/viewerart.xml
