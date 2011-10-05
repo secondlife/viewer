@@ -53,13 +53,13 @@ public:
 	LLCommandId(const std::string& name)
 		: mName(name)
 	{
-		mUUID = LLUUID::LLUUID::generateNewID(name);
+		mUUID = LLUUID::generateNewID(name);
 	}
 
 	LLCommandId(const Params& p)
 	:	mName(p.name)
 	{
-		mUUID = LLUUID::LLUUID::generateNewID(p.name);
+		mUUID = LLUUID::generateNewID(p.name);
 	}
 
 	const std::string& name() const { return mName; }
