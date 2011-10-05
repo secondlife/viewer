@@ -232,6 +232,7 @@ public:
 
 private:
 	friend class LLCurl;
+	friend class LLCurl::Multi;
 
 	CURL*				mCurlEasyHandle;
 	struct curl_slist*	mHeaders;
@@ -251,6 +252,7 @@ private:
 	static std::set<CURL*> sFreeHandles;
 	static std::set<CURL*> sActiveHandles;
 	static LLMutex* sHandleMutex;
+	static LLMutex* sMultiMutex;
 };
 
 class LLCurl::Multi : public LLThread

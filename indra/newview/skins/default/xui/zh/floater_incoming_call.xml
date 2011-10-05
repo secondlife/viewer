@@ -13,10 +13,10 @@
 		通話中。
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
-		has joined a Voice Chat call with a conference chat.
+		已加訴入會議交談中的語音聊天。
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
-		just joined &apos;[GROUP]&apos; voice channel.
+		剛加入 &apos;[GROUP]&apos; 語音頻道。
 	</floater.string>
 	<floater.string name="VoiceInviteQuestionGroup">
 		Would you like to leave [CURRENT_CHAT] and join the call with &apos;[GROUP]&apos;?

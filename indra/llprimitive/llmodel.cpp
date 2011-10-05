@@ -1679,6 +1679,19 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BO
 
 LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 {
+	//1. If a vertex has been weighted then we'll find it via pos and return it's weight list
+	weight_map::iterator iterPos = mSkinWeights.begin();
+	weight_map::iterator iterEnd = mSkinWeights.end();
+	
+	for ( ; iterPos!=iterEnd; ++iterPos )
+	{
+		if ( jointPositionalLookup( iterPos->first, pos ) )
+		{
+			return iterPos->second;
+		}
+	}
+	
+	//2. Otherwise we'll use the older implementation
 	weight_map::iterator iter = mSkinWeights.find(pos);
 	
 	if (iter != mSkinWeights.end())
@@ -1692,13 +1705,13 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	}
 	else
 	{  //no exact match found, get closest point
-		const F32 epsilon = 2.f/65536;
+		const F32 epsilon = 1e-5f;
 		weight_map::iterator iter_up = mSkinWeights.lower_bound(pos);
 		weight_map::iterator iter_down = ++iter_up;
 
 		weight_map::iterator best = iter_up;
 
-		F32 min_dist = (iter->first - pos).magVecSquared();
+		F32 min_dist = (iter->first - pos).magVec();
 
 		bool done = false;
 		while (!done)
@@ -1709,7 +1722,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 			if (iter_up != mSkinWeights.end() && ++iter_up != mSkinWeights.end())
 			{
 				done = false;
-				F32 dist = (iter_up->first - pos).magVecSquared();
+				F32 dist = (iter_up->first - pos).magVec();
 
 				if (dist < epsilon)
 				{
@@ -1727,7 +1740,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 			{
 				done = false;
 
-				F32 dist = (iter_down->first - pos).magVecSquared();
+				F32 dist = (iter_down->first - pos).magVec();
 
 				if (dist < epsilon)
 				{
@@ -1890,14 +1903,71 @@ bool LLModel::loadModel(std::istream& is)
 
 }
 
-void LLModel::matchMaterialOrder(LLModel* ref)
+bool LLModel::isMaterialListSubset( LLModel* ref )
 {
-	llassert(ref->mMaterialList.size() == mMaterialList.size());
+	int refCnt = ref->mMaterialList.size();
+	int modelCnt = mMaterialList.size();
+	
+	for (U32 src = 0; src < modelCnt; ++src)
+	{				
+		bool foundRef = false;
+		
+		for (U32 dst = 0; dst < refCnt; ++dst)
+		{
+			//llinfos<<mMaterialList[src]<<" "<<ref->mMaterialList[dst]<<llendl;
+			foundRef = mMaterialList[src] == ref->mMaterialList[dst];									
+				
+			if ( foundRef )
+			{	
+				break;
+			}										
+		}
+		if (!foundRef)
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
 
+bool LLModel::needToAddFaces( LLModel* ref, int& refFaceCnt, int& modelFaceCnt )
+{
+	bool changed = false;
+	if ( refFaceCnt< modelFaceCnt )
+	{
+		refFaceCnt += modelFaceCnt - refFaceCnt;
+		changed = true;
+	}
+	else 
+	if ( modelFaceCnt < refFaceCnt )
+	{
+		modelFaceCnt += refFaceCnt - modelFaceCnt;
+		changed = true;
+	}
+	
+	return changed;
+}
+
+bool LLModel::matchMaterialOrder(LLModel* ref, int& refFaceCnt, int& modelFaceCnt )
+{
+	//Is this a subset?
+	//LODs cannot currently add new materials, e.g.
+	//1. ref = a,b,c lod1 = d,e => This is not permitted
+	//2. ref = a,b,c lod1 = c => This would be permitted
+	
+	bool isASubset = isMaterialListSubset( ref );
+	if ( !isASubset )
+	{
+		llinfos<<"Material of model is not a subset of reference."<<llendl;
+		return false;
+	}
+	
 	std::map<std::string, U32> index_map;
 	
 	//build a map of material slot names to face indexes
 	bool reorder = false;
+
 	std::set<std::string> base_mat;
 	std::set<std::string> cur_mat;
 
@@ -1939,6 +2009,7 @@ void LLModel::matchMaterialOrder(LLModel* ref)
 
 	//override material list with reference model ordering
 	mMaterialList = ref->mMaterialList;
+	return true;
 }
 
 
@@ -2329,8 +2400,6 @@ LLSD LLModel::Decomposition::asLLSD() const
 
 			for (U32 k = 0; k < 3; k++)
 			{
-				llassert(v[k] <= 0.51f && v[k] >= -0.51f);
-
 				//convert to 16-bit normalized across domain
 				U16 val = (U16) (((v[k]-min.mV[k])/range.mV[k])*65535);
 

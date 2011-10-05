@@ -2,7 +2,7 @@
 <floater name="modal container">
 	<button label="繼續" label_selected="繼續" name="Continue"/>
 	<text name="tos_heading">
-		Please read the following message carefully.
+		請仔細閱讀下列的訊息。
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

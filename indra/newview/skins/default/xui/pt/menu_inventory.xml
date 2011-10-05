@@ -83,5 +83,7 @@
 	<menu_item_call label="Editar" name="Wearable Edit"/>
 	<menu_item_call label="Adicionar" name="Wearable Add"/>
 	<menu_item_call label="Tirar" name="Take Off"/>
+	<menu_item_call label="Copiar para Caixa de saída do lojista" name="Merchant Copy"/>
+	<menu_item_call label="Mover para Caixa de saída do lojista" name="Merchant Move"/>
 	<menu_item_call label="--Sem opções--" name="--no options--"/>
 </menu>

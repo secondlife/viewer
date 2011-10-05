@@ -95,16 +95,61 @@
 	 mouse_opaque="false"
 	 visible="true"
 	 width="18"
-   top_pad="2"
+   top_pad="10"
    left="30" />
+  <text
+   follows="left|top"
+   type="string"
+   length="1"
+   height="10"
+   layout="topleft"
+   left="78"
+   name="keyboard_lbl"
+   width="270"
+   top_delta="2">
+   Keyboard:
+  </text>
+  <check_box
+   control_name="ArrowKeysAlwaysMove"
+   follows="left|top"
+   height="20"
+   label="Arrow keys always move me"
+   layout="topleft"
+   left_delta="5"
+   name="arrow_keys_move_avatar_check"
+   width="237"
+   top_pad="5"/>
+  <check_box
+   control_name="AllowTapTapHoldRun"
+   follows="left|top"
+   height="20"
+   label="Tap-tap-hold to run"
+   layout="topleft"
+   left_delta="0"
+   name="tap_tap_hold_to_run"
+   width="237"
+   top_pad="0"/>
+  <text
+   follows="left|top"
+   type="string"
+   length="1"
+   height="10"
+   layout="topleft"
+   left="78"
+   name="mouse_lbl"
+   width="270"
+   top_pad="15">
+   Mouse:
+  </text>
   <check_box
    control_name="FirstPersonAvatarVisible"
    follows="left|top"
    height="20"
    label="Show me in Mouselook"
    layout="topleft"
-   left_pad="30"
+   left_delta="5"
    name="first_person_avatar_visible"
+   top_pad="5"
    width="256" />
   <text
    type="string"
@@ -126,7 +171,7 @@
    initial_value="2"
    layout="topleft"
    show_text="false"
-   left_pad="5"
+   left_pad="0"
    max_val="15"
    name="mouse_sensitivity"
    top_delta="-1"
@@ -140,26 +185,6 @@
    name="invert_mouse"
    top_delta="0"
    width="128" />
-  <check_box
-   control_name="ArrowKeysAlwaysMove"
-   follows="left|top"
-   height="20"
-   label="Arrow keys always move me"
-   layout="topleft"
-   left="78"
-   name="arrow_keys_move_avatar_check"
-   width="237"
-   top_pad="10"/>
-  <check_box
-   control_name="AllowTapTapHoldRun"
-   follows="left|top"
-   height="20"
-   label="Tap-tap-hold to run"
-   layout="topleft"
-   left_delta="0"
-   name="tap_tap_hold_to_run"
-   width="237"
-   top_pad="0"/>
   <check_box
    follows="left|top"
    height="20"
@@ -181,7 +206,7 @@
     <radio_item
      height="16"
      label="Teleport"
-     layout="topleft"
+   layout="topleft"
      left="0"
      name="radio_teleport"
      top_delta="20"

@@ -246,7 +246,6 @@ extern BOOL gDebugGL;
 
 ////////////////////////////////////////////////////////////
 // All from the last globals push...
-const F32 DEFAULT_AFK_TIMEOUT = 5.f * 60.f; // time with no input before user flagged as Away From Keyboard
 
 F32 gSimLastTime; // Used in LLAppViewer::init and send_stats()
 F32 gSimFrames;
@@ -429,8 +428,11 @@ static bool app_metrics_qa_mode = false;
 void idle_afk_check()
 {
 	// check idle timers
-	if (gSavedSettings.getS32("AFKTimeout") && (gAwayTriggerTimer.getElapsedTimeF32() > gSavedSettings.getS32("AFKTimeout")))
+	F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
+	F32 afk_timeout  = gSavedSettings.getS32("AFKTimeout");
+	if (afk_timeout && (current_idle > afk_timeout) && ! gAgent.getAFK())
 	{
+		LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
 		gAgent.setAFK();
 	}
 }
@@ -721,7 +723,7 @@ bool LLAppViewer::init()
 	//set the max heap size.
 	initMaxHeapSize() ;
 
-	LLPrivateMemoryPoolManager::initClass((BOOL)gSavedSettings.getBOOL("MemoryPrivatePoolEnabled")) ;
+	LLPrivateMemoryPoolManager::initClass((BOOL)gSavedSettings.getBOOL("MemoryPrivatePoolEnabled"), (U32)gSavedSettings.getU32("MemoryPrivatePoolSize")) ;
 
 	// write Google Breakpad minidump files to our log directory
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
@@ -1121,9 +1123,12 @@ void LLAppViewer::checkMemory()
 {
 	const static F32 MEMORY_CHECK_INTERVAL = 1.0f ; //second
 	//const static F32 MAX_QUIT_WAIT_TIME = 30.0f ; //seconds
-	const static U32 MAX_SIZE_CHECKED_MEMORY_BLOCK = 64 * 1024 * 1024 ; //64 MB
 	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
-	static void* last_reserved_address = NULL ;
+
+	if(!gGLManager.mDebugGPU)
+	{
+		return ;
+	}
 
 	if(MEMORY_CHECK_INTERVAL > mMemCheckTimer.getElapsedTimeF32())
 	{
@@ -1131,53 +1136,12 @@ void LLAppViewer::checkMemory()
 	}
 	mMemCheckTimer.reset() ;
 
-	if(gGLManager.mDebugGPU)
-	{
 		//update the availability of memory
 		LLMemory::updateMemoryInfo() ;
-	}
 
-	//check the virtual address space fragmentation
-	if(!last_reserved_address)
-	{
-		last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
-	}
-	else
-	{
-		last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
-		if(!last_reserved_address) //failed, try once more
-		{
-			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
-		}
-	}
+	bool is_low = LLMemory::isMemoryPoolLow() ;
 
-	S32 is_low = !last_reserved_address || LLMemory::isMemoryPoolLow() ;
-
-	//if(is_low < 0) //to force quit
-	//{
-	//	if(force_quit_timer > MAX_QUIT_WAIT_TIME) //just hit the limit for the first time
-	//	{
-	//		//send out the notification to tell the viewer is about to quit in 30 seconds.
-	//		LLNotification::Params params("ForceQuitDueToLowMemory");
-	//		LLNotifications::instance().add(params);
-
-	//		force_quit_timer = MAX_QUIT_WAIT_TIME - MEMORY_CHECK_INTERVAL ;
-	//	}
-	//	else
-	//	{
-	//		force_quit_timer -= MEMORY_CHECK_INTERVAL ;
-	//		if(force_quit_timer < 0.f)
-	//		{
-	//			forceQuit() ; //quit
-	//		}
-	//	}
-	//}
-	//else
-	//{
-	//	force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
-	//}
-
-	LLPipeline::throttleNewMemoryAllocation(!is_low ? FALSE : TRUE) ;		
+	LLPipeline::throttleNewMemoryAllocation(is_low) ;		
 	
 	if(is_low)
 	{
@@ -2323,6 +2287,7 @@ bool LLAppViewer::initConfiguration()
 
 	if (gSavedSettings.getBOOL("FirstRunThisInstall"))
 	{
+		// Note that the "FirstRunThisInstall" settings is currently unused.
 		gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
 	}
 
@@ -4165,18 +4130,6 @@ void LLAppViewer::idle()
 		if (gRenderStartTime.getElapsedTimeF32() > qas)
 		{
 			LLAppViewer::instance()->forceQuit();
-		}
-	}
-
-	// debug setting to quit after N seconds of being AFK - 0 to never do this
-	F32 qas_afk = gSavedSettings.getF32("QuitAfterSecondsOfAFK");
-	if (qas_afk > 0.f)
-	{
-		// idle time is more than setting
-		if ( gAwayTriggerTimer.getElapsedTimeF32() > qas_afk )
-		{
-			// go ahead and just quit gracefully
-			LLAppViewer::instance()->requestQuit();
 		}
 	}
 

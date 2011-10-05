@@ -18,7 +18,7 @@
 		<action description="Change Charter, Insignia, and &apos;Show in search&apos;" longdescription="Change Charter, Insignia, and &apos;Show in search&apos;. This is done in the General section." name="group change identity" value="11"/>
 	</action_set>
 	<action_set description="These Abilities include powers to deed, modify, and sell land in this group&apos;s land holdings. To get to the About Land window, right-click the ground and select &apos;About Land&apos;, or click the &apos;i&apos; icon in the Navigation Bar." name="Parcel Management">
-		<action description="Deed land and buy land for group" longdescription="Deed land and buy land for group. This is done in About Land &gt; General tab." name="land deed" value="12"/>
+		<action description="讓渡土地或購買土地給群組" longdescription="Deed land and buy land for group. This is done in About Land &gt; General tab." name="land deed" value="12"/>
 		<action description="Abandon land to Governor Linden" longdescription="Abandon land to Governor Linden. *WARNING* Any Member in a Role with this Ability can abandon group-owned land in About Land &gt; General tab, reverting it to Linden ownership without a sale! Be sure you know what you&apos;re doing before assigning this Ability." name="land release" value="13"/>
 		<action description="Set land for sale info" longdescription="Set land for sale info. *WARNING* Any Member in a Role with this Ability can sell group-owned land in About Land &gt; General tab as they wish! Be sure you know what you&apos;re doing before assigning this Ability." name="land set sale info" value="14"/>
 		<action description="Subdivide and join parcels" longdescription="Subdivide and join parcels. This is done by right-clicking the ground, &apos;Edit Terrain&apos;, and dragging your mouse on the land to make a selection. To subdivide, select what you want to split and click &apos;Subdivide&apos;. To join, select two or more contiguous parcels and click &apos;Join&apos;." name="land divide join" value="15"/>
@@ -54,7 +54,7 @@
 		<action description="Landscaping using Linden plants" longdescription="Landscaping ability to place and move Linden trees, plants, and grasses. These items can be found in your inventory&apos;s Library &gt; Objects folder, or they can be created via the Build menu." name="land gardening" value="35"/>
 	</action_set>
 	<action_set description="These Abilities include powers to deed, modify, and sell group-owned objects. These changes are done in the Build Tools &gt; General tab. Right-click an object and Edit to see its settings." name="Object Management">
-		<action description="Deed objects to group" longdescription="Deed objects to group in the Build Tools &gt; General tab." name="object deed" value="36"/>
+		<action description="讓渡物件給群組" longdescription="Deed objects to group in the Build Tools &gt; General tab." name="object deed" value="36"/>
 		<action description="Manipulate (move, copy, modify) group-owned objects" longdescription="Manipulate (move, copy, modify) group-owned objects in the Build Tools &gt; General tab." name="object manipulate" value="38"/>
 		<action description="Set group-owned objects for sale" longdescription="Set group-owned objects for sale in the Build Tools &gt; General tab." name="object set sale" value="39"/>
 	</action_set>

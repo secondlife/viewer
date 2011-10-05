@@ -11,17 +11,6 @@
 	</text>
 	<check_box label="Porta personalizzata" name="connection_port_enabled"/>
 	<spinner label="Numero porta:" name="connection_port"/>
-	<text name="cache_size_label_l">
-		Dimensioni cache
-	</text>
-	<text name="text_box5">
-		MB
-	</text>
-	<text name="Cache location">
-		Ubicazione della cache:
-	</text>
-	<button label="Sfoglia" label_selected="Sfoglia" name="set_cache"/>
-	<button label="Reimposta" label_selected="Reimposta" name="reset_cache"/>
 	<text name="Web:">
 		Web:
 	</text>
@@ -33,12 +22,6 @@
 	<check_box initial_value="true" label="Accetta cookie" name="cookies_enabled"/>
 	<check_box initial_value="true" label="Abilita Javascript" name="browser_javascript_enabled"/>
 	<check_box initial_value="falso" label="Consenti pop-up nel browser media" name="media_popup_enabled"/>
-	<check_box initial_value="false" label="Abilita proxy Web" name="web_proxy_enabled"/>
-	<text name="Proxy location">
-		Ubicazione proxy:
-	</text>
-	<line_editor name="web_proxy_editor" tool_tip="Il nome o l&apos;indirizzo IP del proxy che preferisci usare"/>
-	<spinner label="Numero porta:" name="web_proxy_port"/>
 	<text name="Software updates:">
 		Aggiornamenti software:
 	</text>
@@ -46,4 +29,8 @@
 		<combo_box.item label="Installa automaticamente" name="Install_automatically"/>
 		<combo_box.item label="Scarica e installa manualmente gli aggiornamenti" name="Install_manual"/>
 	</combo_box>
+	<text name="Proxy Settings:">
+		Impostazioni proxy:
+	</text>
+	<button label="Regola impostazioni proxy" label_selected="Sfoglia" name="set_proxy"/>
 </panel>

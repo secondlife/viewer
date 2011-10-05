@@ -52,7 +52,7 @@
 			m²
 		</text>
 		<text name="your_contribution_max_value">
-			([AMOUNT] max)
+			（[AMOUNT] 最大）
 		</text>
 		<text name="group_over_limit_text">
 			More land credits are needed to support land in use
@@ -67,14 +67,14 @@
 				載入中...
 			</text_editor>
 		</panel>
-		<panel label="DETAILS" name="group_money_details_tab">
+		<panel label="細節" name="group_money_details_tab">
 			<text_editor name="group_money_details_text">
 				載入中...
 			</text_editor>
 			<button name="earlier_details_button" tool_tip="Back"/>
 			<button name="later_details_button" tool_tip="Next"/>
 		</panel>
-		<panel label="SALES" name="group_money_sales_tab">
+		<panel label="銷售" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
 				載入中...
 			</text_editor>

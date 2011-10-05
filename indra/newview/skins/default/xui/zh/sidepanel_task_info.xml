@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="object properties" title="物件檔案">
 	<panel.string name="text deed continued">
-		Deed
+		讓渡
 	</panel.string>
 	<panel.string name="text deed">
-		Deed
+		讓渡
 	</panel.string>
 	<panel.string name="text modify info 1">
 		你可以修改這個物件
@@ -56,7 +56,7 @@
 		</text>
 		<button name="button set group" tool_tip="選擇一個群組以分享這個物件的權限"/>
 		<name_box initial_value="載入中..." name="Group Name Proxy"/>
-		<button label="Deed" label_selected="Deed" name="button deed" tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."/>
+		<button label="讓渡" label_selected="讓渡" name="button deed" tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."/>
 		<text name="label click action">
 			點擊以：
 		</text>
@@ -85,16 +85,16 @@
 			</text>
 			<check_box label="修改" name="checkbox next owner can modify"/>
 			<check_box label="覆製" name="checkbox next owner can copy"/>
-			<check_box label="轉移" name="checkbox next owner can transfer" tool_tip="Next owner can give away or resell this object"/>
+			<check_box label="轉移" name="checkbox next owner can transfer" tool_tip="下一個擁有者可以送出或轉售這個物件"/>
 		</panel>
 		<check_box label="出售" name="checkbox for sale"/>
 		<combo_box name="sale type">
-			<combo_box.item label="Copy" name="Copy"/>
-			<combo_box.item label="Contents" name="Contents"/>
-			<combo_box.item label="Original" name="Original"/>
+			<combo_box.item label="副本" name="Copy"/>
+			<combo_box.item label="內容" name="Contents"/>
+			<combo_box.item label="原件" name="Original"/>
 		</combo_box>
 		<spinner label="價格： L$" name="Edit Cost"/>
-		<check_box label="顯示在搜尋中" name="search_check" tool_tip="Let people see this object in search results"/>
+		<check_box label="顯示在搜尋中" name="search_check" tool_tip="讓其他人可以在搜尋結果中察看到此物件"/>
 		<text name="B:">
 			B:
 		</text>
