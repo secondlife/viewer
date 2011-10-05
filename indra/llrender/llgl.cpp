@@ -630,6 +630,8 @@ bool LLGLManager::initGL()
 	initExtensions();
 	stop_glerror();
 
+	S32 old_vram = mVRAM;
+
 	if (mHasATIMemInfo)
 	{ //ask the gl how much vram is free at startup and attempt to use no more than half of that
 		S32 meminfo[4];
@@ -642,6 +644,11 @@ bool LLGLManager::initGL()
 		S32 dedicated_memory;
 		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicated_memory);
 		mVRAM = dedicated_memory/1024;
+	}
+
+	if (mVRAM < 256)
+	{ //something likely went wrong using the above extensions, fall back to old method
+		mVRAM = old_vram;
 	}
 
 	stop_glerror();
