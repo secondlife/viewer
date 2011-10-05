@@ -82,15 +82,15 @@ BOOL LLToolBarView::postBuild()
 
 	mToolbarLeft->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
 	mToolbarLeft->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
-	mToolbarLeft->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3));
+	mToolbarLeft->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3,_4));
 	
 	mToolbarRight->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
 	mToolbarRight->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
-	mToolbarRight->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3));
+	mToolbarRight->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3,_4));
 	
 	mToolbarBottom->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
 	mToolbarBottom->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
-	mToolbarBottom->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3));
+	mToolbarBottom->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3,_4));
 	
 	return TRUE;
 }
@@ -286,10 +286,6 @@ void LLToolBarView::addToToolset(command_id_list_t& command_list, Toolbar& toolb
 
 void LLToolBarView::draw()
 {
-	static bool debug_print = true;
-	static S32 old_width = 0;
-	static S32 old_height = 0;
-
 	//LLPanel* sizer_left = getChild<LLPanel>("sizer_left");
 	
 	LLRect bottom_rect, left_rect, right_rect;
@@ -310,19 +306,6 @@ void LLToolBarView::draw()
 		mToolbarRight->localRectToOtherView(mToolbarRight->getLocalRect(), &right_rect, this);
 	}
 	
-	if ((old_width != getRect().getWidth()) || (old_height != getRect().getHeight()))
-		debug_print = true;
-	if (debug_print)
-	{
-		LLRect ctrl_rect = getRect();
-		llinfos << "Merov debug : draw control rect = " << ctrl_rect.mLeft << ", " << ctrl_rect.mTop << ", " << ctrl_rect.mRight << ", " << ctrl_rect.mBottom << llendl; 
-		llinfos << "Merov debug : draw bottom  rect = " << bottom_rect.mLeft << ", " << bottom_rect.mTop << ", " << bottom_rect.mRight << ", " << bottom_rect.mBottom << llendl; 
-		llinfos << "Merov debug : draw left    rect = " << left_rect.mLeft << ", " << left_rect.mTop << ", " << left_rect.mRight << ", " << left_rect.mBottom << llendl; 
-		llinfos << "Merov debug : draw right   rect = " << right_rect.mLeft << ", " << right_rect.mTop << ", " << right_rect.mRight << ", " << right_rect.mBottom << llendl; 
-		old_width = ctrl_rect.getWidth();
-		old_height = ctrl_rect.getHeight();
-		debug_print = false;
-	}
 	// Debug draw
 	LLColor4 back_color = LLColor4::blue;
 	LLColor4 back_color_vert = LLColor4::red;
@@ -346,7 +329,7 @@ void LLToolBarView::draw()
 
 void LLToolBarView::startDragItem( S32 x, S32 y, const LLUUID& uuid)
 {
-	llinfos << "Merov debug: startDragItem() : x = " << x << ", y = " << y << llendl;
+	//llinfos << "Merov debug: startDragItem() : x = " << x << ", y = " << y << llendl;
 	LLToolDragAndDrop::getInstance()->setDragStart( x, y );
 	sDragStarted = false;
 }
@@ -365,7 +348,7 @@ BOOL LLToolBarView::handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			gClipboard.setSourceObject(uuid,LLAssetType::AT_WIDGET);
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
 			LLUUID srcID;
-			llinfos << "Merov debug: handleDragItem() :  beginMultiDrag()" << llendl;
+			//llinfos << "Merov debug: handleDragItem() : beginMultiDrag()" << llendl;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);
 			sDragStarted = true;
 			return TRUE;
@@ -379,18 +362,35 @@ BOOL LLToolBarView::handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 	return FALSE;
 }
 
-BOOL LLToolBarView::handleDrop( EDragAndDropType cargo_type, void* cargo_data, const LLUUID& toolbar_id)
+BOOL LLToolBarView::handleDrop( void* cargo_data, S32 x, S32 y, LLToolBar* toolbar)
 {
 	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
-	llinfos << "Merov debug : handleDrop. Drop " << inv_item->getUUID() << " named " << inv_item->getName() << " of type " << inv_item->getType() << " to toolbar " << toolbar_id << " under cargo type " << cargo_type << llendl;
+	//llinfos << "Merov debug : handleDrop. Drop " << inv_item->getUUID() << " named " << inv_item->getName() << " of type " << inv_item->getType() << llendl;
 		
 	LLAssetType::EType type = inv_item->getType();
 	if (type == LLAssetType::AT_WIDGET)
 	{
-		llinfos << "Merov debug : handleDrop. Drop source is a widget -> that's where we'll get code in..." << llendl;
-		// Find out if he command is in one of the toolbar
-		// If it is, pull it out of the toolbar
-		// Now insert it in the toolbar in the correct spot...
+		//llinfos << "Merov debug : handleDrop. Drop source is a widget -> drop it in place..." << llendl;
+		// Get the command from its uuid
+		LLCommandManager& mgr = LLCommandManager::instance();
+		LLCommand* command = mgr.getCommand(inv_item->getUUID());
+		if (command)
+		{
+			// Convert the (x,y) position in rank in toolbar
+			int rank = toolbar->getRankFromPosition(x,y);
+			// Suppress the command from the toolbars (including the one it's dropped in, 
+			// this will handle move position).
+			gToolBarView->mToolbarLeft->removeCommand(command->id());
+			gToolBarView->mToolbarRight->removeCommand(command->id());
+			gToolBarView->mToolbarBottom->removeCommand(command->id());
+			// Now insert it in the toolbar at the detected rank
+			toolbar->addCommand(command->id(),rank);
+		}
+		else
+		{
+			llwarns << "Command couldn't be found in command manager" << llendl;
+		}
+
 	}
 	else
 	{

@@ -51,9 +51,6 @@
 #define RY_I	5
 #define RZ_I	3
 
-// minimum time after setting away state before coming back
-const F32 MIN_AFK_TIME = 2.f;
-
 F32  LLViewerJoystick::sLastDelta[] = {0,0,0,0,0,0,0};
 F32  LLViewerJoystick::sDelta[] = {0,0,0,0,0,0,0};
 
@@ -551,7 +548,7 @@ void LLViewerJoystick::moveObjects(bool reset)
 	if (!is_zero)
 	{
 		// Clear AFK state if moved beyond the deadzone
-		if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+		if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 		{
 			gAgent.clearAFK();
 		}
@@ -725,7 +722,7 @@ void LLViewerJoystick::moveAvatar(bool reset)
 	if (!is_zero)
 	{
 		// Clear AFK state if moved beyond the deadzone
-		if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+		if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 		{
 			gAgent.clearAFK();
 		}
@@ -941,7 +938,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
 	}
 	
 	// Clear AFK state if moved beyond the deadzone
-	if (!is_zero && gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+	if (!is_zero && gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
 	}
@@ -1001,7 +998,7 @@ bool LLViewerJoystick::toggleFlycam()
 		gAgentCamera.changeCameraToDefault();
 	}
 
-	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
 	}

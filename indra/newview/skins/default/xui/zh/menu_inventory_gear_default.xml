@@ -6,7 +6,7 @@
 	<menu_item_check label="總是由名稱排序資料夾" name="sort_folders_by_name"/>
 	<menu_item_check label="系統資料夾排序到最上方" name="sort_system_folders_to_top"/>
 	<menu_item_call label="顯示過濾器" name="show_filters"/>
-	<menu_item_call label="Reset Filters" name="reset_filters"/>
+	<menu_item_call label="重設過濾器" name="reset_filters"/>
 	<menu_item_call label="關閉全部資料夾" name="close_folders"/>
 	<menu_item_call label="清空 Lost and Found" name="empty_lostnfound"/>
 	<menu_item_call label="儲存材質為" name="Save Texture As"/>

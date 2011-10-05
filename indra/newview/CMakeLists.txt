@@ -77,7 +77,7 @@ include_directories(
 
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
-    llaccountingquotamanager.cpp
+    llaccountingcostmanager.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentcamera.cpp
@@ -182,6 +182,7 @@ set(viewer_SOURCE_FILES
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
     llfloaterdeleteenvpreset.cpp
+    llfloaterdestinations.cpp
     llfloaterdisplayname.cpp
     llfloatereditdaycycle.cpp
     llfloatereditsky.cpp
@@ -213,6 +214,7 @@ set(viewer_SOURCE_FILES
     llfloatermodelwizard.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
+    llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
@@ -639,7 +641,7 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
     groupchatlistener.h
-    llaccountingquotamanager.h
+    llaccountingcostmanager.h
     llagent.h
     llagentaccess.h
     llagentcamera.h
@@ -745,6 +747,7 @@ set(viewer_HEADER_FILES
     llfloatercamera.h
     llfloatercolorpicker.h
     llfloaterdeleteenvpreset.h
+    llfloaterdestinations.h
     llfloaterdisplayname.h
     llfloatereditdaycycle.h
     llfloatereditsky.h
@@ -776,6 +779,7 @@ set(viewer_HEADER_FILES
     llfloatermodelwizard.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
+    llfloaterobjectweights.h
     llfloateropenobject.h
     llfloaterpay.h
     llfloaterperms.h

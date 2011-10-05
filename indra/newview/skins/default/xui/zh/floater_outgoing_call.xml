@@ -4,10 +4,10 @@
 		5
 	</floater.string>
 	<floater.string name="localchat">
-		Nearby Voice Chat
+		附近的語音聊天
 	</floater.string>
 	<floater.string name="anonymous">
-		anonymous
+		匿名
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
 		通話中。
@@ -22,7 +22,7 @@
 		Calling [CALLEE_NAME]
 	</text>
 	<text name="noanswer">
-		No Answer.  Please try again later.
+		無應答，請稍候再試。
 	</text>
 	<text name="nearby">
 		You have been disconnected from [VOICE_CHANNEL_NAME].  [RECONNECT_NEARBY]

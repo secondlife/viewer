@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_bumps" title="BUMPS, PUSHES &amp; HITS">
+<floater name="floater_bumps" title="碰撞、推擠與打擊">
 	<floater.string name="none_detected">
 		未偵測到
 	</floater.string>

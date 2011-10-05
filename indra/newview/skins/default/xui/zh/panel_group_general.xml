@@ -12,7 +12,7 @@ Hover your mouse over the options for more help.
 		Retrieving member data
 	</panel.string>
 	<panel name="group_info_top">
-		<texture_picker label="" name="insignia" tool_tip="點擊以挑選圖片"/>
+		<texture_picker label="" name="insignia" tool_tip="點擊以挑選圖像"/>
 		<text name="prepend_founded_by">
 			創辦人：
 		</text>
@@ -52,6 +52,6 @@ Hover your mouse over the options for more help.
 			<combo_box.item label="適度成人內容" name="mature"/>
 			<combo_box.item label="一般普級內容" name="pg"/>
 		</combo_box>
-		<check_box initial_value="true" label="顯示在搜尋中" name="show_in_group_list" tool_tip="Let people see this group in search results"/>
+		<check_box initial_value="true" label="顯示在搜尋中" name="show_in_group_list" tool_tip="讓其他人可以在搜尋結果中看到這個群組"/>
 	</panel>
 </panel>

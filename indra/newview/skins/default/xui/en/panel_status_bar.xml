@@ -76,7 +76,7 @@
      width="55" />
   </panel>
     <text
-      type="string"
+     type="string"
      font="SansSerifSmall"
      text_readonly_color="TimeTextColor"
      follows="right|top"

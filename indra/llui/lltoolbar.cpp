@@ -107,7 +107,6 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
-	mUUID = LLUUID::generateNewID(p.name);
 }
 
 LLToolBar::~LLToolBar()
@@ -193,16 +192,66 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	mNeedsLayout = true;
 }
 
-bool LLToolBar::addCommand(const LLCommandId& commandId)
+bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 {
 	LLCommand * command = LLCommandManager::instance().getCommand(commandId);
 	if (!command) return false;
 
-		mButtonCommands.push_back(commandId);
+	// Create the button and do the things that don't need ordering
 	LLToolBarButton* button = createButton(commandId);
-	mButtons.push_back(button);
 	mButtonPanel->addChild(button);
 	mButtonMap.insert(std::make_pair(commandId, button));
+
+	// Insert the command and button in the right place in their respective lists
+	if ((rank >= mButtonCommands.size()) || (rank < 0))
+	{
+		// In that case, back load
+		mButtonCommands.push_back(commandId);
+		mButtons.push_back(button);
+	}
+	else 
+	{
+		// Insert in place: iterate to the right spot...
+		std::list<LLToolBarButton*>::iterator it_button = mButtons.begin();
+		command_id_list_t::iterator it_command = mButtonCommands.begin();
+		while (rank > 0)
+		{
+			++it_button;
+			++it_command;
+			rank--;
+		}
+		// ...then insert
+		mButtonCommands.insert(it_command,commandId);
+		mButtons.insert(it_button,button);
+	}
+
+	mNeedsLayout = true;
+
+	return true;
+}
+
+bool LLToolBar::removeCommand(const LLCommandId& commandId)
+{
+	if (!hasCommand(commandId)) return false;
+	
+	// First erase the map record
+	command_id_map::iterator it = mButtonMap.find(commandId);
+	mButtonMap.erase(it);
+	
+	// Now iterate on the commands and buttons to identify the relevant records
+	std::list<LLToolBarButton*>::iterator it_button = mButtons.begin();
+	command_id_list_t::iterator it_command = mButtonCommands.begin();
+	while (*it_command != commandId)
+	{
+		++it_button;
+		++it_command;
+	}
+	
+	// Delete the button and erase the command and button records
+	delete (*it_button);
+	mButtonCommands.erase(it_command);
+	mButtons.erase(it_button);
+
 	mNeedsLayout = true;
 
 	return true;
@@ -326,6 +375,37 @@ void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row
 			button->reshape(max_row_girth, button->getRect().getHeight());
 		}
 	}
+}
+
+int LLToolBar::getRankFromPosition(S32 x, S32 y)
+{
+	int rank = 0;
+
+	LLLayoutStack::ELayoutOrientation orientation = getOrientation(mSideType);
+	S32 button_panel_x = 0;
+	S32 button_panel_y = 0;
+	localPointToOtherView(x, y, &button_panel_x, &button_panel_y, mButtonPanel);
+	
+	//llinfos << "Merov debug : rank compute: orientation = " << orientation << ", x = " << button_panel_x << ", y = " << button_panel_y << llendl;
+
+	// Simply compare the passed coord with the buttons outbound box
+	std::list<LLToolBarButton*>::iterator it_button = mButtons.begin();
+	std::list<LLToolBarButton*>::iterator end_button = mButtons.end();
+	while (it_button != end_button)
+	{
+		LLRect button_rect = (*it_button)->getRect();
+		//llinfos << "Merov debug : rank compute: rect = " << button_rect.mLeft << ", " << button_rect.mTop << ", " << button_rect.mRight << ", " << button_rect.mBottom << llendl;
+		if (((orientation == LLLayoutStack::HORIZONTAL) && (button_rect.mRight  > button_panel_x)) ||
+			((orientation == LLLayoutStack::VERTICAL)   && (button_rect.mBottom < button_panel_y))    )
+		{
+			break;
+		}
+		rank++;
+		++it_button;
+	}
+	//llinfos << "Merov debug : rank = " << rank << llendl;
+
+	return rank;
 }
 
 void LLToolBar::updateLayoutAsNeeded()
@@ -520,6 +600,7 @@ void LLToolBar::createButtons()
 		delete button;
 	}
 	mButtons.clear();
+	mButtonMap.clear();
 	
 	BOOST_FOREACH(LLCommandId& command_id, mButtonCommands)
 	{
@@ -529,7 +610,6 @@ void LLToolBar::createButtons()
 		mButtonMap.insert(std::make_pair(command_id, button));
 	}
 	mNeedsLayout = true;
-
 }
 
 LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
@@ -602,20 +682,20 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										EAcceptance* accept,
 										std::string& tooltip_msg)
 {
-	llinfos << "Merov debug : handleDragAndDrop. drop = " << drop << ", tooltip = " << tooltip_msg << llendl;
+	//llinfos << "Merov debug : handleDragAndDrop. drop = " << drop << ", x = " << x << ", y = " << y << llendl;
 	// If we have a drop callback, that means that we can handle the drop
 	BOOL handled = (mHandleDropCallback ? TRUE : FALSE);
 	
-	// if drop, time to call the drop callback to get the operation done
+	// if drop is set, it's time to call the callback to get the operation done
 	if (handled && drop)
 	{
-		handled = mHandleDropCallback(cargo_type,cargo_data,mUUID);
+		handled = mHandleDropCallback(cargo_data, x, y ,this);
 	}
 	
-	// We accept multi drop by default
-	*accept = (handled ? ACCEPT_YES_MULTI : ACCEPT_NO);
+	// We accept only single tool drop on toolbars
+	*accept = (handled ? ACCEPT_YES_SINGLE : ACCEPT_NO);
 	
-	// We'll use that flag to change the visual aspect of the target on draw()
+	// We'll use that flag to change the visual aspect of the toolbar target on draw()
 	mDragAndDropTarget = handled;
 	
 	return handled;
@@ -661,13 +741,13 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 	{
 		if (!mIsDragged)
 		{
-			mStartDragItemCallback(x,y,mUUID);
+			mStartDragItemCallback(x,y,mId.uuid());
 			mIsDragged = true;
 			handled = TRUE;
 		}
 		else 
 		{
-			handled = mHandleDragItemCallback(x,y,mUUID,LLAssetType::AT_WIDGET);
+			handled = mHandleDragItemCallback(x,y,mId.uuid(),LLAssetType::AT_WIDGET);
 		}
 	}
 	else

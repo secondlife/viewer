@@ -35,9 +35,11 @@
 #include "llcommandmanager.h"
 #include "llassettype.h"
 
-typedef boost::function<void (S32 x, S32 y, const LLUUID& uuid)> startdrag_callback_t;
-typedef boost::function<BOOL (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> handledrag_callback_t;
-typedef boost::function<BOOL (EDragAndDropType type, void* data, const LLUUID& uuid)> handledrop_callback_t;
+class LLToolBar;
+
+typedef boost::function<void (S32 x, S32 y, const LLUUID& uuid)> tool_startdrag_callback_t;
+typedef boost::function<BOOL (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> tool_handledrag_callback_t;
+typedef boost::function<BOOL (void* data, S32 x, S32 y, LLToolBar* toolbar)> tool_handledrop_callback_t;
 
 class LLToolBarButton : public LLButton
 {
@@ -62,8 +64,8 @@ public:
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	void setCommandId(const LLCommandId& id) { mId = id; }
 
-	void setStartDragCallback(startdrag_callback_t cb) { mStartDragItemCallback = cb; }
-	void setHandleDragCallback(handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
+	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; }
+	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
 
 	void onMouseEnter(S32 x, S32 y, MASK mask);
 
@@ -74,9 +76,8 @@ private:
 	LLUI::RangeS32	mWidthRange;
 	S32				mDesiredHeight;
 	bool						mIsDragged;
-	startdrag_callback_t		mStartDragItemCallback;
-	handledrag_callback_t		mHandleDragItemCallback;
-	LLUUID						mUUID;
+	tool_startdrag_callback_t		mStartDragItemCallback;
+	tool_handledrag_callback_t		mHandleDragItemCallback;
 
 	enable_signal_t*	mIsEnabledSignal;
 	enable_signal_t*	mIsRunningSignal;
@@ -151,6 +152,7 @@ public:
 	// virtuals
 	void draw();
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	int  getRankFromPosition(S32 x, S32 y);	
 	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
@@ -158,13 +160,14 @@ public:
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
 
-	bool addCommand(const LLCommandId& commandId);
+	bool addCommand(const LLCommandId& commandId, int rank = -1);
+	bool removeCommand(const LLCommandId& commandId);
 	bool hasCommand(const LLCommandId& commandId) const;
 	bool enableCommand(const LLCommandId& commandId, bool enabled);
 
-	void setStartDragCallback(startdrag_callback_t cb) { mStartDragItemCallback = cb; }
-	void setHandleDragCallback(handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
-	void setHandleDropCallback(handledrop_callback_t cb) { mHandleDropCallback = cb; }
+	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; }
+	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
+	void setHandleDropCallback(tool_handledrop_callback_t cb) { mHandleDropCallback     = cb; }
 
 	LLToolBarButton* createButton(const LLCommandId& id);
 
@@ -174,9 +177,9 @@ protected:
 	~LLToolBar();
 
 	void initFromParams(const Params&);
-	startdrag_callback_t		mStartDragItemCallback;
-	handledrag_callback_t		mHandleDragItemCallback;
-	handledrop_callback_t		mHandleDropCallback;
+	tool_startdrag_callback_t		mStartDragItemCallback;
+	tool_handledrag_callback_t		mHandleDragItemCallback;
+	tool_handledrop_callback_t		mHandleDropCallback;
 	bool						mDragAndDropTarget;
 
 public:
@@ -194,7 +197,6 @@ private:
 	BOOL isSettingChecked(const LLSD& userdata);
 	void onSettingEnable(const LLSD& userdata);
 
-	LLUUID							mUUID;
 	const bool						mReadOnly;
 
 	typedef std::list<LLToolBarButton*> toolbar_button_list;
