@@ -329,7 +329,7 @@ void LLToolBarView::draw()
 
 void LLToolBarView::startDragItem( S32 x, S32 y, const LLUUID& uuid)
 {
-	llinfos << "Merov debug: startDragItem() : x = " << x << ", y = " << y << llendl;
+	//llinfos << "Merov debug: startDragItem() : x = " << x << ", y = " << y << llendl;
 	LLToolDragAndDrop::getInstance()->setDragStart( x, y );
 	sDragStarted = false;
 }
@@ -348,7 +348,7 @@ BOOL LLToolBarView::handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			gClipboard.setSourceObject(uuid,LLAssetType::AT_WIDGET);
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
 			LLUUID srcID;
-			llinfos << "Merov debug: handleDragItem() : beginMultiDrag()" << llendl;
+			//llinfos << "Merov debug: handleDragItem() : beginMultiDrag()" << llendl;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);
 			sDragStarted = true;
 			return TRUE;
@@ -365,12 +365,12 @@ BOOL LLToolBarView::handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 BOOL LLToolBarView::handleDrop( void* cargo_data, S32 x, S32 y, LLToolBar* toolbar)
 {
 	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
-	llinfos << "Merov debug : handleDrop. Drop " << inv_item->getUUID() << " named " << inv_item->getName() << " of type " << inv_item->getType() << llendl;
+	//llinfos << "Merov debug : handleDrop. Drop " << inv_item->getUUID() << " named " << inv_item->getName() << " of type " << inv_item->getType() << llendl;
 		
 	LLAssetType::EType type = inv_item->getType();
 	if (type == LLAssetType::AT_WIDGET)
 	{
-		llinfos << "Merov debug : handleDrop. Drop source is a widget -> drop it in place..." << llendl;
+		//llinfos << "Merov debug : handleDrop. Drop source is a widget -> drop it in place..." << llendl;
 		// Get the command from its uuid
 		LLCommandManager& mgr = LLCommandManager::instance();
 		LLCommand* command = mgr.getCommand(inv_item->getUUID());
@@ -388,7 +388,7 @@ BOOL LLToolBarView::handleDrop( void* cargo_data, S32 x, S32 y, LLToolBar* toolb
 		}
 		else
 		{
-			llwarns << "Merov debug : handleDrop failing: command couldn't be found in manager" << llendl;
+			llwarns << "Command couldn't be found in command manager" << llendl;
 		}
 
 	}
