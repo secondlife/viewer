@@ -339,6 +339,18 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Sie können nur ein einzelnes Objekt hierher ziehen
 	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$"/>
+	<string name="TooltipOutboxNoTransfer">
+		Eines oder mehrere dieser Objekte können nicht verkauft oder an einen anderen Benutzer übertragen werden.
+	</string>
+	<string name="TooltipOutboxWorn">
+		Sie tragen eines oder mehrere dieser Objekte. Nehmen Sie es/sie von Ihrem Avatar ab und versuchen Sie dann erneut, es/sie zu verschieben.
+	</string>
+	<string name="TooltipOutboxFolderLevels">
+		Dieser Ordner hat zu viele Unterordnerebenen. Ordnen Sie die Unterordner so an, dass maximal vier Verschachtelungsebenen vorhanden sind (Stammordner enthält A enthält B enthält C).
+	</string>
+	<string name="TooltipOutboxTooManyObjects">
+		Dieser Ordner enthält mehr als 200 Objekte. Verpacken Sie einige dieser Artikel in Behältern, um die Anzahl zu verringern.
+	</string>
 	<string name="TooltipHttpUrl">
 		Anklicken, um Webseite anzuzeigen
 	</string>
@@ -1204,8 +1216,65 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="InventoryInboxNoItems">
 		Objekte, die auf dem Marktplatz gekauft wurden, werden hierher geliefert.
 	</string>
+	<string name="MarketplaceURL">
+		http://marketplace.[DOMAIN_NAME]
+	</string>
+	<string name="MarketplaceURL_CreateStore">
+		http://marketplace.[DOMAIN_NAME]/create_store
+	</string>
+	<string name="MarketplaceURL_LearnMore">
+		http://marketplace.[DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryOutboxCreationErrorTitle">
+		Ihre Händler-Outbox ist nicht richtig konfiguriert
+	</string>
+	<string name="InventoryOutboxCreationErrorTooltip">
+		Konfigurationsfehler in Händler-Outbox
+	</string>
+	<string name="InventoryOutboxCreationError">
+		Wenden Sie sich zur Behebung des Problems an den Kundendienst.
+	</string>
+	<string name="InventoryOutboxNotMerchantTitle">
+		Jeder kann Artikel im Marktplatz verkaufen
+	</string>
+	<string name="InventoryOutboxNotMerchantTooltip">
+		Werden Sie Händler!
+	</string>
+	<string name="InventoryOutboxNotMerchant">
+		[[MARKETPLACE_URL] Im Second Life Marktplatz] werden über eine Million virtuelle Produkte zum Verkauf angeboten, die alle von Einwohnern erstellt wurden. Auch Sie können selbst erstellte Artikel sowie bestimmte gekaufte Artikel verkaufen. Die Einrichtung eines Händlerkontos geht blitzschnell und ist kostenlos. [[LEARN_MORE_URL] Lesen Sie weitere Informationen] oder [[CREATE_STORE_URL] öffnen Sie einen Laden] im Marktplatz, um Ihre Objekte zu verkaufen.
+	</string>
+	<string name="InventoryOutboxNoItemsTitle">
+		Eine neue Methode, um Artikel in den Marktplatz zu übertragen
+	</string>
+	<string name="InventoryOutboxNoItemsTooltip">
+		Legen Sie Artikel hier ab, um sie zum Verkauf im Marktplatz vorzubereiten
+	</string>
 	<string name="InventoryOutboxNoItems">
-		Objekte hierher ziehen, um Sie in Ihrer Marktplatz-Storefront zum Verkauf anzubieten.
+		Ziehen Sie zu verkaufende Artikel oder Ordner in diesen Bereich. Es erscheinen Kopien der Artikel; Ihr Inventar bleibt unverändert, es sei denn, es handelt sich um einen nicht kopierbaren Artikel. Wenn die Artikel in den Marktplatz übertragen werden sollen, klicken Sie auf die Schaltfläche „Hochladen“. Nach Übertragung der Artikel in Ihr Marktplatz-Inventar verschwinden sie aus diesem Ordner.
+	</string>
+	<string name="Marketplace Error None">
+		Keine Fehler
+	</string>
+	<string name="Marketplace Error Not Merchant">
+		Fehler: Bevor Sie Artikel in den Marktplatz übertragen können, müssen Sie sich als Händler registrieren (kostenlos).
+	</string>
+	<string name="Marketplace Error Empty Folder">
+		Fehler: Dieser Ordner ist leer.
+	</string>
+	<string name="Marketplace Error Unassociated Products">
+		Fehler: Dieser Artikel konnte nicht hochgeladen werden, da in Ihrem Händlerkonto zu viele Artikel nicht mit Produkten verknüpft sind. Um diesen Fehler zu beheben, melden Sie sich auf der Marktplatz-Website an und reduzieren Sie die Anzahl von Artikeln, die nicht mit Produkten verknüpft sind.
+	</string>
+	<string name="Marketplace Error Object Limit">
+		Fehler: Dieser Artikel enthält zu viele Objekte. Beheben Sie diesen Fehler, indem Sie Objekte zusammen in Behältern verpacken, um die Objektanzahl auf unter 200 zu verringern.
+	</string>
+	<string name="Marketplace Error Folder Depth">
+		Fehler: Dieser Artikel enthält zu viele verschachtelte Ordnerebenen. Organisieren Sie ihn neu, sodass maximal drei verschachtelte Ordnerebenen vorhanden sind.
+	</string>
+	<string name="Marketplace Error Unsellable Item">
+		Fehler: Dieser Artikel kann nicht im Marktplatz verkauft werden.
+	</string>
+	<string name="Marketplace Error Internal Import">
+		Fehler: Bei diesem Artikel ist ein Problem aufgetreten. Versuchen Sie es später erneut.
 	</string>
 	<string name="no_transfer" value=" (kein Transferieren)"/>
 	<string name="no_modify" value=" (kein Bearbeiten)"/>
@@ -4185,7 +4254,7 @@ Missbrauchsbericht
 	<string name="Female - Wow">
 		Weiblich - Wow
 	</string>
-	<string name="/bow">
+	<string name="/bow1">
 		/verbeugen
 	</string>
 	<string name="/clap">

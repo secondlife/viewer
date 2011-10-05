@@ -195,7 +195,8 @@ public:
 	}
 	~LLMutex()
 	{
-		llassert(!isLocked()); // better not be locked!
+		//this assertion erroneously triggers whenever an LLCondition is destroyed
+		//llassert(!isLocked()); // better not be locked!
 		apr_thread_mutex_destroy(mAPRMutexp);
 		mAPRMutexp = NULL;
 	}

@@ -333,6 +333,18 @@ Prova ad accedere nuovamente tra un minuto.
 		Solo un singolo oggetto può essere creato qui
 	</string>
 	<string name="TooltipPrice" value="L$ [AMOUNT]:"/>
+	<string name="TooltipOutboxNoTransfer">
+		Almeno un oggetto non può essere venduto o trasferito a un altro utente.
+	</string>
+	<string name="TooltipOutboxWorn">
+		Stai indossando almeno uno degli oggetti. Rimuovili dall&apos;avatar e prova nuovamente a spostarli.
+	</string>
+	<string name="TooltipOutboxFolderLevels">
+		Questa cartella contiene troppi livelli di cartelle nidificate. Riordina le cartelle interne in modo che non ci siano più di 4 livelli (cartella principale che contiene la cartella A, che contiene la cartella B, che contiene la cartella C).
+	</string>
+	<string name="TooltipOutboxTooManyObjects">
+		Questa cartella contiene più di 200 oggetti. Inserisci alcuni oggetti in scatole per ridurne il numero.
+	</string>
 	<string name="TooltipHttpUrl">
 		Clicca per visitare questa pagina web
 	</string>
@@ -1189,8 +1201,65 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="InventoryInboxNoItems">
 		Gli elementi acquistati attraverso il mercato verranno consegnati qui
 	</string>
+	<string name="MarketplaceURL">
+		http://marketplace.[DOMAIN_NAME]/learn_more
+	</string>
+	<string name="MarketplaceURL_CreateStore">
+		http://marketplace.[DOMAIN_NAME]/create_store
+	</string>
+	<string name="MarketplaceURL_LearnMore">
+		http://marketplace.[DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryOutboxCreationErrorTitle">
+		La casella in uscita del rivenditore non è configurata correttamente
+	</string>
+	<string name="InventoryOutboxCreationErrorTooltip">
+		Errore di configurazione della casella in uscita del rivenditore
+	</string>
+	<string name="InventoryOutboxCreationError">
+		Contatta l&apos;Assistenza clienti per correggere il problema.
+	</string>
+	<string name="InventoryOutboxNotMerchantTitle">
+		Chiunque può vendere oggetti nel Marketplace
+	</string>
+	<string name="InventoryOutboxNotMerchantTooltip">
+		Diventa un rivenditore!
+	</string>
+	<string name="InventoryOutboxNotMerchant">
+		[[MARKETPLACE_URL] Second Life Marketplace] offre in vendita più di un milione di prodotti virtuali, tutti creati da Residenti. Anche tu puoi vendere gli oggetti che crei, oltre ad alcuni degli oggetti che hai acquistato. È facile da usare e l&apos;impostazione è gratuita. [[LEARN_MORE_URL] Leggi ulteriori informazioni] oppure [[CREATE_STORE_URL] crea un negozio] sul Marketplace per cominciare.
+	</string>
+	<string name="InventoryOutboxNoItemsTitle">
+		Un nuovo modo di inviare oggetti al Marketplace
+	</string>
+	<string name="InventoryOutboxNoItemsTooltip">
+		Trascina gli oggetti qui per prepararli per la vendita nel Marketplace
+	</string>
 	<string name="InventoryOutboxNoItems">
-		Trascina gli elementi qui per poi elencarli nel tuo mercato.
+		Trascina elementi o cartelle che desideri vendere in quest&apos;area. Verrà visualizzata una copia dell&apos;elemento, senza che venga modificato l&apos;inventario, tranne nel caso in cui venga trascinato un oggetto per cui non è permessa la copia. Clicca sul pulsante Carica per caricare gli elementi su Marketplace. Dopo aver spostato gli elementi nell&apos;inventario di Marketplace, non saranno più visibili in questa cartella.
+	</string>
+	<string name="Marketplace Error None">
+		Nessun errore
+	</string>
+	<string name="Marketplace Error Not Merchant">
+		Errore: Prima di inviare elementi al Marketplace devi essere impostato come rivenditore (gratis).
+	</string>
+	<string name="Marketplace Error Empty Folder">
+		Errore: questa cartella non include alcun contenuto.
+	</string>
+	<string name="Marketplace Error Unassociated Products">
+		Errore: Oggetto non caricato perché il tuo account venditore ha troppi oggetti che non sono associati con dei prodotti. Per risolvere questo errore, esegui l&apos;accesso al sito di Marketplace e riduci il numero di oggetti non associati.
+	</string>
+	<string name="Marketplace Error Object Limit">
+		Errore: questo elemento contiene troppi oggetti. Per risolvere questo problema, inserisci più oggetti insieme in una scatola per ridurre a meno di 200 il numero totale di oggetti.
+	</string>
+	<string name="Marketplace Error Folder Depth">
+		Errore: questo elemento contiene troppi livelli di cartelle nidificate. Riorganizzalo per ottenere un massimo di 3 livelli di cartelle nidificate.
+	</string>
+	<string name="Marketplace Error Unsellable Item">
+		Errore: Questo elemento non può essere venduto nel Marketplace.
+	</string>
+	<string name="Marketplace Error Internal Import">
+		Errore: problema con questo elemento. Riprova più tardi.
 	</string>
 	<string name="no_transfer" value="(nessun trasferimento)"/>
 	<string name="no_modify" value="(nessuna modifica)"/>
@@ -4089,7 +4158,7 @@ Segnala abuso
 	<string name="Female - Wow">
 		Femmina - Accipicchia
 	</string>
-	<string name="/bow">
+	<string name="/bow1">
 		/inchino
 	</string>
 	<string name="/clap">

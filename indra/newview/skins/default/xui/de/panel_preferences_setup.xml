@@ -11,17 +11,6 @@
 	</text>
 	<check_box label="Eigener Port" name="connection_port_enabled"/>
 	<spinner label="Port-Nummer:" name="connection_port"/>
-	<text name="cache_size_label_l">
-		Cachegröße
-	</text>
-	<text name="text_box5">
-		MB
-	</text>
-	<text name="Cache location">
-		Cache-Ordner:
-	</text>
-	<button label="Durchsuchen" label_selected="Durchsuchen" name="set_cache"/>
-	<button label="Zurücksetzen" label_selected="Zurücksetzen" name="reset_cache"/>
 	<text name="Web:">
 		Web:
 	</text>
@@ -33,12 +22,6 @@
 	<check_box initial_value="true" label="Cookies annehmen" name="cookies_enabled"/>
 	<check_box initial_value="true" label="Javascript aktivieren" name="browser_javascript_enabled"/>
 	<check_box initial_value="false" label="Medienbrowser-Popups aktivieren" name="media_popup_enabled"/>
-	<check_box initial_value="false" label="Web-Proxy aktivieren" name="web_proxy_enabled"/>
-	<text name="Proxy location">
-		Proxy-Standort:
-	</text>
-	<line_editor name="web_proxy_editor" tool_tip="Name oder IP Adresse des Proxyservers, den Sie benutzen möchten"/>
-	<spinner label="Portnummer:" name="web_proxy_port"/>
 	<text name="Software updates:">
 		Softwareupdates:
 	</text>
@@ -46,4 +29,8 @@
 		<combo_box.item label="Automatisch installieren" name="Install_automatically"/>
 		<combo_box.item label="Updates manuell herunterladen und installieren" name="Install_manual"/>
 	</combo_box>
+	<text name="Proxy Settings:">
+		Proxy-Einstellungen:
+	</text>
+	<button label="Proxy-Einstellungen ändern" label_selected="Durchsuchen" name="set_proxy"/>
 </panel>

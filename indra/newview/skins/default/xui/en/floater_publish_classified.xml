@@ -36,7 +36,7 @@ Remember, Classified fees are non-refundable.
      left="15"
      value="50"
      min_val="50"
-     max_val="99999"
+     max_val="999999"
      name="price_for_listing"
      top_pad="10"
      tool_tip="Price for listing."

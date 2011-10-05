@@ -304,7 +304,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mOriginalIMViaEmail(false),
 	mLanguageChanged(false),
 	mAvatarDataInitialized(false),
-	mDoubleClickActionDirty(false)
+	mClickActionDirty(false)
 {
 	
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
@@ -348,8 +348,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
-	mCommitCallbackRegistrar.add("Pref.CommitDoubleClickChekbox",	boost::bind(&LLFloaterPreference::onDoubleClickCheckBox, this, _1));
-	mCommitCallbackRegistrar.add("Pref.CommitRadioDoubleClick",	boost::bind(&LLFloaterPreference::onDoubleClickRadio, this));
+	mCommitCallbackRegistrar.add("Pref.ClickActionChange",				boost::bind(&LLFloaterPreference::onClickActionChange, this));
 
 	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
@@ -438,8 +437,6 @@ BOOL LLFloaterPreference::postBuild()
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
-
-	updateDoubleClickControls();
 
 	getChild<LLUICtrl>("cache_location")->setEnabled(FALSE); // make it read-only but selectable (STORM-227)
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
@@ -581,10 +578,10 @@ void LLFloaterPreference::apply()
 
 	saveAvatarProperties();
 
-	if (mDoubleClickActionDirty)
+	if (mClickActionDirty)
 	{
-		updateDoubleClickSettings();
-		mDoubleClickActionDirty = false;
+		updateClickActionSettings();
+		mClickActionDirty = false;
 	}
 }
 
@@ -613,11 +610,12 @@ void LLFloaterPreference::cancel()
 	// reverts any changes to current skin
 	gSavedSettings.setString("SkinCurrent", sSkin);
 
-	if (mDoubleClickActionDirty)
+	if (mClickActionDirty)
 	{
-		updateDoubleClickControls();
-		mDoubleClickActionDirty = false;
+		updateClickActionControls();
+		mClickActionDirty = false;
 	}
+
 	LLFloaterPreferenceProxy * advanced_proxy_settings = LLFloaterReg::findTypedInstance<LLFloaterPreferenceProxy>("prefs_proxy");
 	if (advanced_proxy_settings)
 	{
@@ -681,6 +679,9 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 
 	// Display selected maturity icons.
 	onChangeMaturity();
+	
+	// Load (double-)click to walk/teleport settings.
+	updateClickActionControls();
 	
 	// Enabled/disabled popups, might have been changed by user actions
 	// while preferences floater was closed.
@@ -1499,72 +1500,34 @@ void LLFloaterPreference::onClickBlockList()
 	LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
 }
 
-void LLFloaterPreference::onDoubleClickCheckBox(LLUICtrl* ctrl)
-{
-	if (!ctrl) return;
-	mDoubleClickActionDirty = true;
-	LLRadioGroup* radio_double_click_action = getChild<LLRadioGroup>("double_click_action");
-	if (!radio_double_click_action) return;
-	// select default value("teleport") in radio-group.
-	radio_double_click_action->setSelectedIndex(0);
-	// set radio-group enabled depending on state of checkbox
-	radio_double_click_action->setEnabled(ctrl->getValue());
-}
-
-void LLFloaterPreference::onDoubleClickRadio()
-{
-	mDoubleClickActionDirty = true;
-}
-
-void LLFloaterPreference::updateDoubleClickSettings()
-{
-	LLCheckBoxCtrl* double_click_action_cb = getChild<LLCheckBoxCtrl>("double_click_chkbox");
-	if (!double_click_action_cb) return;
-	bool enable = double_click_action_cb->getValue().asBoolean();
-
-	LLRadioGroup* radio_double_click_action = getChild<LLRadioGroup>("double_click_action");
-	if (!radio_double_click_action) return;
-	
-	// enable double click radio-group depending on state of checkbox
-	radio_double_click_action->setEnabled(enable);
-	
-	if (!enable)
-	{
-		// set double click action settings values to false if checkbox was unchecked
-		gSavedSettings.setBOOL("DoubleClickAutoPilot", false);
-		gSavedSettings.setBOOL("DoubleClickTeleport", false);
-	}
-	else
-	{
-		std::string selected = radio_double_click_action->getValue().asString();
-		bool teleport_selected = selected == "radio_teleport";
-		// set double click action settings values depending on chosen radio-button
-		gSavedSettings.setBOOL( "DoubleClickTeleport", teleport_selected );
-		gSavedSettings.setBOOL( "DoubleClickAutoPilot", !teleport_selected );
-	}
-}
-
 void LLFloaterPreference::onClickProxySettings()
 {
 	LLFloaterReg::showInstance("prefs_proxy");
 }
 
-void LLFloaterPreference::updateDoubleClickControls()
+void LLFloaterPreference::onClickActionChange()
 {
-	// check is one of double-click actions settings enabled
-	bool double_click_action_enabled = gSavedSettings.getBOOL("DoubleClickAutoPilot") || gSavedSettings.getBOOL("DoubleClickTeleport");
-	LLCheckBoxCtrl* double_click_action_cb = getChild<LLCheckBoxCtrl>("double_click_chkbox");
-	if (double_click_action_cb)
-	{
-		// check checkbox if one of double-click actions settings enabled, uncheck otherwise
-		double_click_action_cb->setValue(double_click_action_enabled);
-	}
-	LLRadioGroup* double_click_action_radio = getChild<LLRadioGroup>("double_click_action");
-	if (!double_click_action_radio) return;
-	// set radio-group enabled if one of double-click actions settings enabled
-	double_click_action_radio->setEnabled(double_click_action_enabled);
-	// select button in radio-group depending on setting
-	double_click_action_radio->setSelectedIndex(gSavedSettings.getBOOL("DoubleClickAutoPilot"));
+	mClickActionDirty = true;
+}
+
+void LLFloaterPreference::updateClickActionSettings()
+{
+	const int single_clk_action = getChild<LLComboBox>("single_click_action_combo")->getValue().asInteger();
+	const int double_clk_action = getChild<LLComboBox>("double_click_action_combo")->getValue().asInteger();
+
+	gSavedSettings.setBOOL("ClickToWalk",			single_clk_action == 1);
+	gSavedSettings.setBOOL("DoubleClickAutoPilot",	double_clk_action == 1);
+	gSavedSettings.setBOOL("DoubleClickTeleport",	double_clk_action == 2);
+}
+
+void LLFloaterPreference::updateClickActionControls()
+{
+	const bool click_to_walk = gSavedSettings.getBOOL("ClickToWalk");
+	const bool dbl_click_to_walk = gSavedSettings.getBOOL("DoubleClickAutoPilot");
+	const bool dbl_click_to_teleport = gSavedSettings.getBOOL("DoubleClickTeleport");
+
+	getChild<LLComboBox>("single_click_action_combo")->setValue((int)click_to_walk);
+	getChild<LLComboBox>("double_click_action_combo")->setValue(dbl_click_to_teleport ? 2 : (int)dbl_click_to_walk);
 }
 
 void LLFloaterPreference::applyUIColor(LLUICtrl* ctrl, const LLSD& param)

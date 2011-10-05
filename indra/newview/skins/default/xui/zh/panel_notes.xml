@@ -15,7 +15,7 @@
 		<layout_panel name="notes_buttons_panel">
 			<layout_stack name="bottom_bar_ls">
 				<layout_panel name="add_friend_btn_lp">
-					<button label="加為朋友" name="add_friend" tool_tip="Offer friendship to the Resident"/>
+					<button label="加為朋友" name="add_friend" tool_tip="向這個居民提出交友邀請"/>
 				</layout_panel>
 				<layout_panel name="im_btn_lp">
 					<button label="IM" name="im" tool_tip="開啟即時訊息會話"/>
@@ -24,7 +24,7 @@
 					<button label="通話" name="call" tool_tip="與這位居民通話"/>
 				</layout_panel>
 				<layout_panel name="show_on_map_btn_lp">
-					<button label="地圖" name="show_on_map_btn" tool_tip="Show the Resident on the map"/>
+					<button label="地圖" name="show_on_map_btn" tool_tip="在地圖上顯示這個居民"/>
 				</layout_panel>
 				<layout_panel name="teleport_btn_lp">
 					<button label="瞬間傳送" name="teleport" tool_tip="發給瞬間傳送請求"/>

@@ -254,7 +254,7 @@ public:
 		mSourceType = chat.mSourceType;
 
 		//*TODO overly defensive thing, source type should be maintained out there
-		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM && chat.mFromID.isNull())
+		if((chat.mFromID.isNull() && chat.mFromName.empty()) || (chat.mFromName == SYSTEM_FROM && chat.mFromID.isNull()))
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}  
