@@ -1029,7 +1029,7 @@ void LLFloater::setMinimized(BOOL minimize)
 
 	if (minimize == mMinimized) return;
 
-	if(mMinimizeSignal)
+	if (mMinimizeSignal)
 	{
 		(*mMinimizeSignal)(this, LLSD(minimize));
 	}
@@ -2857,7 +2857,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	// open callback 
 	if (p.open_callback.isProvided())
 	{
-		mOpenSignal.connect(initCommitCallback(p.open_callback));
+		setOpenCallback(initCommitCallback(p.open_callback));
 	}
 	// close callback 
 	if (p.close_callback.isProvided())
@@ -2870,6 +2870,11 @@ boost::signals2::connection LLFloater::setMinimizeCallback( const commit_signal_
 { 
 	if (!mMinimizeSignal) mMinimizeSignal = new commit_signal_t();
 	return mMinimizeSignal->connect(cb); 
+}
+
+boost::signals2::connection LLFloater::setOpenCallback( const commit_signal_t::slot_type& cb )
+{
+	return mOpenSignal.connect(cb);
 }
 
 boost::signals2::connection LLFloater::setCloseCallback( const commit_signal_t::slot_type& cb )
