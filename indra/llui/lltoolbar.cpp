@@ -382,6 +382,11 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 	int rank = 0;
 
 	LLLayoutStack::ELayoutOrientation orientation = getOrientation(mSideType);
+	S32 button_panel_x = 0;
+	S32 button_panel_y = 0;
+	localPointToOtherView(x, y, &button_panel_x, &button_panel_y, mButtonPanel);
+	
+	//llinfos << "Merov debug : rank compute: orientation = " << orientation << ", x = " << button_panel_x << ", y = " << button_panel_y << llendl;
 
 	// Simply compare the passed coord with the buttons outbound box
 	std::list<LLToolBarButton*>::iterator it_button = mButtons.begin();
@@ -389,17 +394,16 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 	while (it_button != end_button)
 	{
 		LLRect button_rect = (*it_button)->getRect();
-		if (((orientation == LLLayoutStack::HORIZONTAL) && (button_rect.mRight > x)) ||
-			((orientation == LLLayoutStack::VERTICAL)   && (button_rect.mTop   > y))    )
+		//llinfos << "Merov debug : rank compute: rect = " << button_rect.mLeft << ", " << button_rect.mTop << ", " << button_rect.mRight << ", " << button_rect.mBottom << llendl;
+		if (((orientation == LLLayoutStack::HORIZONTAL) && (button_rect.mRight  > button_panel_x)) ||
+			((orientation == LLLayoutStack::VERTICAL)   && (button_rect.mBottom < button_panel_y))    )
 		{
-			llinfos << "Merov debug : rank compute: orientation = " << orientation << ", x = " << x << ", y = " << y << llendl;
-			llinfos << "Merov debug : rank compute: rect = " << button_rect.mLeft << ", " << button_rect.mTop << ", " << button_rect.mRight << ", " << button_rect.mBottom << llendl;
 			break;
 		}
 		rank++;
 		++it_button;
 	}
-	llinfos << "Merov debug : rank = " << rank << llendl;
+	//llinfos << "Merov debug : rank = " << rank << llendl;
 
 	return rank;
 }
@@ -619,7 +623,7 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										EAcceptance* accept,
 										std::string& tooltip_msg)
 {
-	llinfos << "Merov debug : handleDragAndDrop. drop = " << drop << ", x = " << x << ", y = " << y << llendl;
+	//llinfos << "Merov debug : handleDragAndDrop. drop = " << drop << ", x = " << x << ", y = " << y << llendl;
 	// If we have a drop callback, that means that we can handle the drop
 	BOOL handled = (mHandleDropCallback ? TRUE : FALSE);
 	
