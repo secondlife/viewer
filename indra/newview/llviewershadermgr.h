@@ -384,6 +384,6 @@ extern LLGLSLShader			gDeferredAvatarAlphaProgram;
 extern LLGLSLShader			gDeferredWLSkyProgram;
 extern LLGLSLShader			gDeferredWLCloudProgram;
 extern LLGLSLShader			gDeferredStarProgram;
-
+extern LLGLSLShader			gNormalMapGenProgram;
 
 #endif

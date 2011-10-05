@@ -188,6 +188,7 @@ LLGLSLShader			gDeferredPostNoDoFProgram;
 LLGLSLShader			gDeferredWLSkyProgram;
 LLGLSLShader			gDeferredWLCloudProgram;
 LLGLSLShader			gDeferredStarProgram;
+LLGLSLShader			gNormalMapGenProgram;
 
 LLViewerShaderMgr::LLViewerShaderMgr() :
 	mVertexShaderLevel(SHADER_COUNT, 0),
@@ -275,6 +276,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredWLSkyProgram);
 	mShaderList.push_back(&gDeferredWLCloudProgram);
 	mShaderList.push_back(&gDeferredStarProgram);
+	mShaderList.push_back(&gNormalMapGenProgram);
 }
 
 LLViewerShaderMgr::~LLViewerShaderMgr()
@@ -1082,6 +1084,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWLSkyProgram.unload();
 		gDeferredWLCloudProgram.unload();
 		gDeferredStarProgram.unload();
+		gNormalMapGenProgram.unload();
 		return TRUE;
 	}
 
@@ -1530,6 +1533,17 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredStarProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredStarProgram.mShaderGroup = LLGLSLShader::SG_SKY;
 		success = gDeferredStarProgram.createShader(NULL, &mWLUniforms);
+	}
+
+	if (success)
+	{
+		gNormalMapGenProgram.mName = "Normal Map Generation Program";
+		gNormalMapGenProgram.mShaderFiles.clear();
+		gNormalMapGenProgram.mShaderFiles.push_back(make_pair("deferred/normgenV.glsl", GL_VERTEX_SHADER_ARB));
+		gNormalMapGenProgram.mShaderFiles.push_back(make_pair("deferred/normgenF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gNormalMapGenProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gNormalMapGenProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+		success = gNormalMapGenProgram.createShader(NULL, NULL);
 	}
 
 	return success;
