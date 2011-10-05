@@ -58,6 +58,7 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerstatsrecorder.h"
+#include "llvovolume.h"
 #include "llvoavatarself.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
@@ -993,6 +994,9 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	mNumSizeCulled = 0;
 	mNumVisCulled = 0;
 
+	// update max computed render cost
+	LLVOVolume::updateRenderComplexity();
+
 	// compute all sorts of time-based stats
 	// don't factor frames that were paused into the stats
 	if (! mWasPaused)
@@ -1441,15 +1445,6 @@ void LLViewerObjectList::onObjectCostFetchFailure(const LLUUID& object_id)
 {
 	//llwarns << "Failed to fetch object cost for object: " << object_id << llendl;
 	mPendingObjectCost.erase(object_id);
-}
-
-void LLViewerObjectList::updateQuota( const LLUUID& objectId, const SelectionQuota& quota  )
-{
-	LLViewerObject* pVO = findObject( objectId );
-	if ( pVO )
-	{
-		pVO->updateQuota( quota );
-	}
 }
 
 void LLViewerObjectList::updatePhysicsFlags(const LLViewerObject* object)

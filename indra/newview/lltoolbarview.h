@@ -76,7 +76,7 @@ public:
 	
 	static void startDragItem( S32 x, S32 y, const LLUUID& uuid);
 	static BOOL handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);
-	static BOOL handleDrop(	EDragAndDropType cargo_type, void* cargo_data, const LLUUID& folder_id);
+	static BOOL handleDrop(	void* cargo_data, S32 x, S32 y, LLToolBar* toolbar);
 	
 protected:
 	friend class LLUICtrlFactory;

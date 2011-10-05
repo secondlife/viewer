@@ -48,24 +48,36 @@ const LLCommandId LLCommandId::null("null command");
 //
 
 LLCommand::Params::Params()
-	: function("function")
-	, available_in_toybox("available_in_toybox", false)
+	: available_in_toybox("available_in_toybox", false)
 	, icon("icon")
 	, label_ref("label_ref")
 	, name("name")
-	, parameter("parameter")
 	, tooltip_ref("tooltip_ref")
+	, execute_function("execute_function")
+	, execute_parameters("execute_parameters")
+	, is_enabled_function("is_enabled_function")
+	, is_enabled_parameters("is_enabled_parameters")
+	, is_running_function("is_running_function")
+	, is_running_parameters("is_running_parameters")
+	, is_starting_function("is_starting_function")
+	, is_starting_parameters("is_starting_parameters")
 {
 }
 
 LLCommand::LLCommand(const LLCommand::Params& p)
-	: mFunction(p.function)
-	, mAvailableInToybox(p.available_in_toybox)
+	: mAvailableInToybox(p.available_in_toybox)
 	, mIcon(p.icon)
 	, mIdentifier(p.name)
 	, mLabelRef(p.label_ref)
-	, mParameter(p.parameter)
 	, mTooltipRef(p.tooltip_ref)
+	, mExecuteFunction(p.execute_function)
+	, mExecuteParameters(p.execute_parameters)
+	, mIsEnabledFunction(p.is_enabled_function)
+	, mIsEnabledParameters(p.is_enabled_parameters)
+	, mIsRunningFunction(p.is_running_function)
+	, mIsRunningParameters(p.is_running_parameters)
+	, mIsStartingFunction(p.is_starting_function)
+	, mIsStartingParameters(p.is_starting_parameters)
 {
 }
 
@@ -112,9 +124,25 @@ LLCommand * LLCommandManager::getCommand(const LLCommandId& commandId)
 	return command_match;
 }
 
+LLCommand * LLCommandManager::getCommand(const LLUUID& commandUUID)
+{
+	LLCommand * command_match = NULL;
+	
+	CommandUUIDMap::const_iterator found = mCommandUUIDs.find(commandUUID);
+	
+	if (found != mCommandUUIDs.end())
+	{
+		command_match = mCommands[found->second];
+	}
+	
+	return command_match;
+}
+
 void LLCommandManager::addCommand(LLCommand * command)
 {
-	mCommandIndices[command->id()] = mCommands.size();
+	LLCommandId command_id = command->id();
+	mCommandIndices[command_id] = mCommands.size();
+	mCommandUUIDs[command_id.uuid()] = mCommands.size();
 	mCommands.push_back(command);
 
 	lldebugs << "Successfully added command: " << command->id().name() << llendl;

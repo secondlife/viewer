@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="texture picker" title="PICK: TEXTURE">
 	<floater.string name="choose_picture">
-		點擊以挑選圖片
+		點擊以挑選圖像
 	</floater.string>
 	<floater.string name="pick title">
 		Pick:

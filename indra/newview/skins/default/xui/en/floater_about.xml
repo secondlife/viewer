@@ -23,7 +23,7 @@ Built with [COMPILER] version [COMPILER_VERSION]
      name="AboutPosition">
 You are at [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] located at &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
-[[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
+[SERVER_RELEASE_NOTES_URL]
 
 </floater.string>
   <!-- *NOTE: Do not translate text like GPU, Graphics Card, etc -
@@ -58,6 +58,10 @@ Voice Server Version: [VOICE_VERSION]
   <floater.string
      name="AboutTraffic">
 Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+</floater.string>
+<floater.string
+     name="ErrorFetchingServerReleaseNotesURL">
+Error fetching server release notes URL.
 </floater.string>
   <tab_container
     follows="all" 

@@ -8,7 +8,7 @@
  name="Preferences"
  help_topic="preferences"
  single_instance="true"
- title="PREFERENCES"
+ title="Preferences"
  width="658">
     <button
      follows="right|bottom"

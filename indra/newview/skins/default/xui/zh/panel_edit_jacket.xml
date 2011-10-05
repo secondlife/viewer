@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_jacket_panel">
 	<panel name="avatar_jacket_color_panel">
-		<texture_picker label="上半身材質" name="Upper Fabric" tool_tip="點擊以挑選圖片"/>
-		<texture_picker label="下半身材質" name="Lower Fabric" tool_tip="點擊以挑選圖片"/>
+		<texture_picker label="上半身材質" name="Upper Fabric" tool_tip="點擊以挑選圖像"/>
+		<texture_picker label="下半身材質" name="Lower Fabric" tool_tip="點擊以挑選圖像"/>
 		<color_swatch label="Color/Tint" name="Color/Tint" tool_tip="Click to open color picker"/>
 	</panel>
 	<panel name="accordion_panel">
