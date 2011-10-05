@@ -301,7 +301,9 @@ protected:
 
 	static F32 sActiveControlTransparency;
 	static F32 sInactiveControlTransparency;
-
+	
+	virtual void addInfo(LLSD & info);
+	
 private:
 
 	BOOL			mIsChrome;
