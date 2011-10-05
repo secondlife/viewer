@@ -149,7 +149,7 @@ void main()
 	vec4 proj_tc = (proj_mat * vec4(pos.xyz, 1.0));
 	if (proj_tc.z < 0.0)
 	{
-		//discard;
+		discard;
 	}
 	
 	proj_tc.xyz /= proj_tc.w;
@@ -158,7 +158,7 @@ void main()
 	float dist_atten = min(1.0-(dist2-1.0*(1.0-fa))/fa, 1.0);
 	if (dist_atten <= 0.0)
 	{
-		//discard;
+		discard;
 	}
 	
 	lv = proj_origin-pos.xyz;
