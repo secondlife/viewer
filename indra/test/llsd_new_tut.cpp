@@ -34,13 +34,15 @@
 
 #if LL_WINDOWS
 #include <float.h>
-namespace std
+namespace
 {
 	int fpclassify(double x)
 	{
 		return _fpclass(x);
 	}
 }
+#else
+using std::fpclassify;
 #endif
 
 namespace tut
@@ -229,8 +231,8 @@ namespace tut
 		}
 		else
 		{
-			int left  = std::fpclassify(v.asReal());
-			int right = std::fpclassify(eReal);
+			int left  = fpclassify(v.asReal());
+			int right = fpclassify(eReal);
 
 			ensure_equals(s+" to real", 	left, 			right);
 			// ensure_equals(s+" to string", v.asString(), eString);
