@@ -7,6 +7,8 @@
            tooltip_ref="Command_AboutLand_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="about_land"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="about_land"
            />
   <command name="appearance"
            available_in_toybox="true"
@@ -15,6 +17,8 @@
            tooltip_ref="Command_Appearance_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="appearance"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="appearance"
            />
   <command name="avatar"
            available_in_toybox="true"
@@ -23,6 +27,8 @@
            tooltip_ref="Command_Avatar_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="avatar_picker"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="avatar_picker"
            />
   <command name="build"
            available_in_toybox="true"
@@ -31,6 +37,8 @@
            tooltip_ref="Command_Build_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="build"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="build"
            />
   <command name="chat"
            available_in_toybox="true"
@@ -39,6 +47,8 @@
            tooltip_ref="Command_Chat_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="chat_bar"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="chat_bar"
            />
   <command name="compass"
            available_in_toybox="false"
@@ -47,6 +57,8 @@
            tooltip_ref="Command_Compass_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="compass"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="compass"
            />
   <command name="destinations"
            available_in_toybox="true"
@@ -55,6 +67,8 @@
            tooltip_ref="Command_Destinations_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="destinations"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="destinations"
            />
   <command name="gestures"
            available_in_toybox="true"
@@ -63,6 +77,8 @@
            tooltip_ref="Command_Gestures_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="gestures"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="gestures"
            />
   <command name="howto"
            available_in_toybox="true"
@@ -71,6 +87,8 @@
            tooltip_ref="Command_HowTo_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="help_browser"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="help_browser"
            />
   <command name="inventory"
            available_in_toybox="true"
@@ -79,6 +97,8 @@
            tooltip_ref="Command_Inventory_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="inventory"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="inventory"
            />
   <command name="map"
            available_in_toybox="true"
@@ -87,6 +107,8 @@
            tooltip_ref="Command_Map_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="world_map"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="world_map"
            />
   <command name="marketplace"
            available_in_toybox="true"
@@ -95,6 +117,8 @@
            tooltip_ref="Command_Marketplace_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="marketplace"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="marketplace"
            />
   <command name="minimap"
            available_in_toybox="true"
@@ -103,6 +127,8 @@
            tooltip_ref="Command_MiniMap_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="mini_map"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="mini_map"
            />
   <command name="move"
            available_in_toybox="true"
@@ -111,6 +137,8 @@
            tooltip_ref="Command_Move_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="moveview"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="moveview"
            />
   <command name="people"
            available_in_toybox="true"
@@ -119,6 +147,8 @@
            tooltip_ref="Command_People_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="people"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="people"
            />
   <command name="places"
            available_in_toybox="true"
@@ -127,6 +157,8 @@
            tooltip_ref="Command_Places_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="places"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="places"
            />
   <command name="preferences"
            available_in_toybox="true"
@@ -135,6 +167,8 @@
            tooltip_ref="Command_Preferences_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="preferences"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="preferences"
            />
   <command name="profile"
            available_in_toybox="true"
@@ -143,6 +177,8 @@
            tooltip_ref="Command_Profile_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="my_profile"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="my_profile"
            />
   <command name="search"
            available_in_toybox="true"
@@ -151,6 +187,8 @@
            tooltip_ref="Command_Search_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="search"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="search"
            />
   <command name="snapshot"
            available_in_toybox="true"
@@ -159,6 +197,8 @@
            tooltip_ref="Command_Snapshot_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="snapshot"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="snapshot"
            />
   <command name="speak"
            available_in_toybox="true"
@@ -167,6 +207,8 @@
            tooltip_ref="Command_Speak_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="speak"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="speak"
            />
   <command name="view"
            available_in_toybox="true"
@@ -175,6 +217,8 @@
            tooltip_ref="Command_View_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="camera"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="camera"
            />
   <command name="voice"
            available_in_toybox="true"
@@ -183,5 +227,7 @@
            tooltip_ref="Command_Voice_Tooltip"
            execute_function="Floater.ToolbarToggle"
            execute_parameters="voice_controls"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="voice_controls"
            />
 </commands>

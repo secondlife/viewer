@@ -471,7 +471,33 @@ void LLToolBar::updateLayoutAsNeeded()
 
 void LLToolBar::draw()
 {
-	if (mButtons.empty()) return;
+	if (mButtons.empty())
+	{
+		return;
+	}
+
+	// Update enable/disable state and highlight state for editable toolbars
+	if (!mReadOnly)
+	{
+		for (toolbar_button_list::iterator btn_it = mButtons.begin(); btn_it != mButtons.end(); ++btn_it)
+		{
+			LLToolBarButton* btn = *btn_it;
+			LLCommand* command = LLCommandManager::instance().getCommand(btn->mId);
+
+			if (command && btn->mIsEnabledSignal)
+			{
+				const bool button_command_enabled = (*btn->mIsEnabledSignal)(btn, command->isEnabledParameters());
+				btn->setEnabled(button_command_enabled);
+			}
+
+			if (command && btn->mIsRunningSignal)
+			{
+				const bool button_command_running = (*btn->mIsRunningSignal)(btn, command->isRunningParameters());
+				btn->setFlashing(button_command_running);
+			}
+		}
+	}
+
 	updateLayoutAsNeeded();
 	// rect may have shifted during layout
 	LLUI::popMatrix();
@@ -527,14 +553,47 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 		LLUICtrl::CommitCallbackParam cbParam;
 		cbParam.function_name = commandp->executeFunctionName();
 		cbParam.parameter = commandp->executeParameters();
+
 		button->setCommitCallback(cbParam);
 		button->setStartDragCallback(mStartDragItemCallback);
 		button->setHandleDragCallback(mHandleDragItemCallback);
+
+		const std::string& isEnabledFunction = commandp->isEnabledFunctionName();
+		if (isEnabledFunction.length() > 0)
+		{
+			LLUICtrl::EnableCallbackParam isEnabledParam;
+			isEnabledParam.function_name = isEnabledFunction;
+			isEnabledParam.parameter = commandp->isEnabledParameters();
+			enable_signal_t::slot_type isEnabledCB = initEnableCallback(isEnabledParam);
+
+			if (NULL == button->mIsEnabledSignal)
+			{
+				button->mIsEnabledSignal = new enable_signal_t();
+			}
+
+			button->mIsEnabledSignal->connect(isEnabledCB);
+		}
+
+		const std::string& isRunningFunction = commandp->isRunningFunctionName();
+		if (isRunningFunction.length() > 0)
+		{
+			LLUICtrl::EnableCallbackParam isRunningParam;
+			isRunningParam.function_name = isRunningFunction;
+			isRunningParam.parameter = commandp->isRunningParameters();
+			enable_signal_t::slot_type isRunningCB = initEnableCallback(isRunningParam);
+
+			if (NULL == button->mIsRunningSignal)
+			{
+				button->mIsRunningSignal = new enable_signal_t();
+			}
+
+			button->mIsRunningSignal->connect(isRunningCB);
+		}
 	}
 
 	button->setCommandId(id);
-	return button;
 
+	return button;
 }
 
 BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -568,9 +627,22 @@ LLToolBarButton::LLToolBarButton(const Params& p)
 	mMouseDownY(0),
 	mWidthRange(p.button_width),
 	mDesiredHeight(p.desired_height),
-	mId("")
+	mId(""),
+	mIsEnabledSignal(NULL),
+	mIsRunningSignal(NULL),
+	mIsStartingSignal(NULL)
 {
 	mUUID = LLUUID::generateNewID(p.name);
+
+	mButtonFlashRate = 0.0;
+	mButtonFlashCount = 0;
+}
+
+LLToolBarButton::~LLToolBarButton()
+{
+	delete mIsEnabledSignal;
+	delete mIsRunningSignal;
+	delete mIsStartingSignal;
 }
 
 BOOL LLToolBarButton::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -594,10 +666,10 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 			handled = TRUE;
 		}
 		else 
-			{
+		{
 			handled = mHandleDragItemCallback(x,y,mUUID,LLAssetType::AT_WIDGET);
-			}
 		}
+	}
 	else
 	{
 		handled = LLButton::handleHover(x, y, mask);
@@ -605,3 +677,10 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+void LLToolBarButton::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	LLUICtrl::onMouseEnter(x, y, mask);
+
+	// Always highlight toolbar buttons, even if they are disabled
+	mNeedsHighlight = TRUE;
+}

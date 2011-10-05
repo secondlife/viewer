@@ -56,6 +56,7 @@ public:
 	};
 
 	LLToolBarButton(const Params& p);
+	~LLToolBarButton();
 
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
@@ -63,6 +64,9 @@ public:
 
 	void setStartDragCallback(startdrag_callback_t cb) { mStartDragItemCallback = cb; }
 	void setHandleDragCallback(handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
+
+	void onMouseEnter(S32 x, S32 y, MASK mask);
+
 private:
 	LLCommandId		mId;
 	S32				mMouseDownX;
@@ -73,6 +77,10 @@ private:
 	startdrag_callback_t		mStartDragItemCallback;
 	handledrag_callback_t		mHandleDragItemCallback;
 	LLUUID						mUUID;
+
+	enable_signal_t*	mIsEnabledSignal;
+	enable_signal_t*	mIsRunningSignal;
+	enable_signal_t*	mIsStartingSignal;
 };
 
 
@@ -153,6 +161,7 @@ public:
 	bool addCommand(const LLCommandId& commandId);
 	bool hasCommand(const LLCommandId& commandId) const;
 	bool enableCommand(const LLCommandId& commandId, bool enabled);
+
 	void setStartDragCallback(startdrag_callback_t cb) { mStartDragItemCallback = cb; }
 	void setHandleDragCallback(handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
 	void setHandleDropCallback(handledrop_callback_t cb) { mHandleDropCallback = cb; }
@@ -188,7 +197,8 @@ private:
 	LLUUID							mUUID;
 	const bool						mReadOnly;
 
-	std::list<LLToolBarButton*>		mButtons;
+	typedef std::list<LLToolBarButton*> toolbar_button_list;
+	toolbar_button_list				mButtons;
 	command_id_list_t				mButtonCommands;
 	typedef std::map<LLCommandId, LLToolBarButton*> command_id_map;
 	command_id_map					mButtonMap;

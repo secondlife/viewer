@@ -91,7 +91,6 @@ public:
 								label_color_selected,
 								label_color_disabled,
 								label_color_disabled_selected,
-								highlight_color,
 								image_color,
 								image_color_disabled,
 								image_overlay_color,
@@ -120,7 +119,8 @@ public:
 		// misc
 		Optional<bool>			is_toggle,
 								scale_image,
-								commit_on_return;
+								commit_on_return,
+								display_pressed_state;
 		
 		Optional<F32>				hover_glow_amount;
 		Optional<TimeIntervalParam>	held_down_delay;
@@ -130,6 +130,9 @@ public:
 		Optional<LLBadge::Params>	badge;
 
 		Optional<bool>				handle_right_mouse;
+
+		Optional<S32>				button_flash_count;
+		Optional<F32>				button_flash_rate;
 
 		Params();
 	};
@@ -273,6 +276,9 @@ protected:
 	void getOverlayImageSize(S32& overlay_width, S32& overlay_height);
 
 	LLFrameTimer	mMouseDownTimer;
+	bool			mNeedsHighlight;
+	S32				mButtonFlashCount;
+	F32				mButtonFlashRate;
 
 private:
 	void			drawBorder(LLUIImage* imagep, const LLColor4& color, S32 size);
@@ -322,7 +328,6 @@ private:
 	   flash icon name is set in attributes(by default it isn't). First way is used otherwise. */
 	LLPointer<LLUIImage>		mImageFlash;
 
-	LLUIColor					mHighlightColor;
 	LLUIColor					mFlashBgColor;
 
 	LLUIColor					mImageColor;
@@ -355,10 +360,10 @@ private:
 	F32							mHoverGlowStrength;
 	F32							mCurGlowStrength;
 
-	bool						mNeedsHighlight;
 	bool						mCommitOnReturn;
 	bool						mFadeWhenDisabled;
 	bool						mForcePressedState;
+	bool						mDisplayPressedState;
 
 	LLFrameTimer				mFlashingTimer;
 

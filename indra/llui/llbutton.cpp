@@ -83,7 +83,6 @@ LLButton::Params::Params()
 	label_color_selected("label_color_selected"),	// requires is_toggle true
 	label_color_disabled("label_color_disabled"),
 	label_color_disabled_selected("label_color_disabled_selected"),
-	highlight_color("highlight_color"),
 	image_color("image_color"),
 	image_color_disabled("image_color_disabled"),
 	image_overlay_color("image_overlay_color", LLColor4::white),
@@ -99,10 +98,13 @@ LLButton::Params::Params()
 	scale_image("scale_image", true),
 	hover_glow_amount("hover_glow_amount"),
 	commit_on_return("commit_on_return", true),
+	display_pressed_state("display_pressed_state", true),
 	use_draw_context_alpha("use_draw_context_alpha", true),
 	badge("badge"),
 	handle_right_mouse("handle_right_mouse"),
-	held_down_delay("held_down_delay")
+	held_down_delay("held_down_delay"),
+	button_flash_count("button_flash_count"),
+	button_flash_rate("button_flash_rate")
 {
 	addSynonym(is_toggle, "toggle");
 	changeDefault(initial_value, LLSD(false));
@@ -136,7 +138,6 @@ LLButton::LLButton(const LLButton::Params& p)
 	mSelectedLabelColor(p.label_color_selected()),
 	mDisabledLabelColor(p.label_color_disabled()),
 	mDisabledSelectedLabelColor(p.label_color_disabled_selected()),
-	mHighlightColor(p.highlight_color()),
 	mImageColor(p.image_color()),
 	mFlashBgColor(p.flash_color()),
 	mDisabledImageColor(p.image_color_disabled()),
@@ -159,12 +160,15 @@ LLButton::LLButton(const LLButton::Params& p)
 	mCommitOnReturn(p.commit_on_return),
 	mFadeWhenDisabled(FALSE),
 	mForcePressedState(false),
+	mDisplayPressedState(p.display_pressed_state),
 	mLastDrawCharsCount(0),
 	mMouseDownSignal(NULL),
 	mMouseUpSignal(NULL),
 	mHeldDownSignal(NULL),
 	mUseDrawContextAlpha(p.use_draw_context_alpha),
-	mHandleRightMouse(p.handle_right_mouse)
+	mHandleRightMouse(p.handle_right_mouse),
+	mButtonFlashCount(p.button_flash_count),
+	mButtonFlashRate(p.button_flash_rate)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
@@ -570,15 +574,13 @@ void LLButton::draw()
 {
 	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
 	bool flash = FALSE;
-	static LLUICachedControl<F32> button_flash_rate("ButtonFlashRate", 0);
-	static LLUICachedControl<S32> button_flash_count("ButtonFlashCount", 0);
 
 	if( mFlashing )
 	{
 		F32 elapsed = mFlashingTimer.getElapsedTimeF32();
-		S32 flash_count = S32(elapsed * button_flash_rate * 2.f);
+		S32 flash_count = S32(elapsed * mButtonFlashRate * 2.f);
 		// flash on or off?
-		flash = (flash_count % 2 == 0) || flash_count > S32((F32)button_flash_count * 2.f);
+		flash = (flash_count % 2 == 0) || flash_count > S32((F32)mButtonFlashCount * 2.f);
 	}
 
 	bool pressed_by_keyboard = FALSE;
@@ -607,7 +609,7 @@ void LLButton::draw()
 	LLColor4 glow_color = LLColor4::white;
 	LLRender::eBlendType glow_type = LLRender::BT_ADD_WITH_ALPHA;
 	LLUIImage* imagep = NULL;
-	if (pressed)
+	if (pressed && mDisplayPressedState)
 	{
 		imagep = selected ? mImagePressedSelected : mImagePressed;
 	}
@@ -800,7 +802,7 @@ void LLButton::draw()
 		S32 center_y = getLocalRect().getCenterY();
 
 		//FUGLY HACK FOR "DEPRESSED" BUTTONS
-		if (pressed)
+		if (pressed && mDisplayPressedState)
 		{
 			center_y--;
 			center_x++;
@@ -873,7 +875,7 @@ void LLButton::draw()
 
 		S32 y_offset = 2 + (getRect().getHeight() - 20)/2;
 	
-		if (pressed)
+		if (pressed && mDisplayPressedState)
 		{
 			y_offset--;
 			x++;

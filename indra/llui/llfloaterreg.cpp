@@ -478,6 +478,7 @@ void LLFloaterReg::toggleToolbarFloaterInstance(const LLSD& sdname)
 	if (LLFloater::isMinimized(instance))
 	{
 		instance->setMinimized(FALSE);
+		instance->setFocus(TRUE);
 	}
 	else if (!LLFloater::isShown(instance))
 	{
@@ -491,6 +492,28 @@ void LLFloaterReg::toggleToolbarFloaterInstance(const LLSD& sdname)
 	{
 		instance->closeFloater();
 	}
+}
+
+//static
+bool LLFloaterReg::floaterInstanceOpen(const LLSD& sdname)
+{
+	LLSD key;
+	std::string name = sdname.asString();
+	parse_name_key(name, key);
+
+	bool visible_or_minimized = instanceVisible(name, key);
+
+	if (!visible_or_minimized)
+	{
+		LLFloater* instance = findInstance(name, key); 
+
+		if (instance != NULL)
+		{
+			visible_or_minimized = LLFloater::isMinimized(instance);
+		}
+	}
+
+	return visible_or_minimized;
 }
 
 //static

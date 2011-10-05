@@ -1637,6 +1637,7 @@ void LLUI::initClass(const settings_map_t& settings,
 	
 	// Used by menus along with Floater.Toggle to display visibility as a checkmark
 	LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.Visible", boost::bind(&LLFloaterReg::floaterInstanceVisible, _2));
+	LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.IsOpen", boost::bind(&LLFloaterReg::floaterInstanceOpen, _2));
 
 	// Parse the master list of commands
 	LLCommandManager::load();

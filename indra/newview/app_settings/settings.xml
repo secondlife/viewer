@@ -1150,28 +1150,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ButtonFlashCount</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of flashes after which flashing buttons stay lit up</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>8</integer>
-    </map>
-    <key>ButtonFlashRate</key>
-    <map>
-      <key>Comment</key>
-      <string>Frequency at which buttons flash (hz)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.25</real>
-    </map>
     <key>ButtonHPad</key>
     <map>
       <key>Comment</key>

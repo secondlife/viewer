@@ -61,6 +61,19 @@
     side="top"
     top="85">
     <button_panel background_visible="false" />
+    <button_icon_and_text image_unselected="PushButton_Off"
+                          image_selected="PushButton_Off"
+                          image_disabled_selected="PushButton_Disabled"
+                          image_disabled="PushButton_Disabled"
+                          label_color="ButtonLabelColor"
+                          label_color_selected="ButtonLabelColor"
+                          label_color_disabled="ButtonLabelDisabledColor"
+                          label_color_disabled_selected="ButtonLabelDisabledColor"
+                          image_color="ButtonImageColor"
+                          image_color_disabled="ButtonImageColor"
+                          flash_color="ButtonUnselectedFgColor"
+                          hover_glow_amount="0.15"
+                          display_pressed_state="false" />
   </toolbar>
   <panel
     bevel_style="none"

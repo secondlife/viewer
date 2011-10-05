@@ -21,7 +21,8 @@
                         chrome="true"
                         image_overlay_alignment="left"
                         use_ellipses="true"
-                        auto_resize="true"/>
+                        auto_resize="true"
+                        flash_color="EmphasisColor"/>
   <button_icon pad_left="10"
                pad_right="10"
                desired_height="35"
@@ -31,5 +32,6 @@
                label=""
                chrome="true"
                use_ellipses="true"
-               auto_resize="true"/>
+               auto_resize="true"
+               flash_color="EmphasisColor"/>
 </toolbar>
