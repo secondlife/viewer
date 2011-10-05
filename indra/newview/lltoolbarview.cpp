@@ -25,7 +25,7 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
+#include "llviewerprecompiledheaders.h"
 
 #include "lltoolbarview.h"
 
@@ -184,8 +184,8 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	{
 		if (toolbar_set.left_toolbar.button_display_mode.isProvided())
 		{
-			U32 button_type = toolbar_set.left_toolbar.button_display_mode;
-			mToolbarLeft->setButtonType((LLToolBarEnums::ButtonType)(button_type));
+			LLToolBarEnums::ButtonType button_type = toolbar_set.left_toolbar.button_display_mode;
+			mToolbarLeft->setButtonType(button_type);
 		}
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.left_toolbar.commands)
 		{
@@ -196,8 +196,8 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	{
 		if (toolbar_set.right_toolbar.button_display_mode.isProvided())
 		{
-			U32 button_type = toolbar_set.right_toolbar.button_display_mode;
-			mToolbarRight->setButtonType((LLToolBarEnums::ButtonType)(button_type));
+			LLToolBarEnums::ButtonType button_type = toolbar_set.right_toolbar.button_display_mode;
+			mToolbarRight->setButtonType(button_type);
 		}
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.right_toolbar.commands)
 		{
@@ -208,8 +208,8 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	{
 		if (toolbar_set.bottom_toolbar.button_display_mode.isProvided())
 		{
-			U32 button_type = toolbar_set.bottom_toolbar.button_display_mode;
-			mToolbarBottom->setButtonType((LLToolBarEnums::ButtonType)(button_type));
+			LLToolBarEnums::ButtonType button_type = toolbar_set.bottom_toolbar.button_display_mode;
+			mToolbarBottom->setButtonType(button_type);
 		}
 		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.bottom_toolbar.commands)
 		{
@@ -238,17 +238,17 @@ void LLToolBarView::saveToolbars() const
 	LLToolBarView::ToolbarSet toolbar_set;
 	if (mToolbarLeft)
 	{
-		toolbar_set.left_toolbar.button_display_mode = (int)(mToolbarLeft->getButtonType());
+		toolbar_set.left_toolbar.button_display_mode = mToolbarLeft->getButtonType();
 		addToToolset(mToolbarLeft->getCommandsList(),toolbar_set.left_toolbar);
 	}
 	if (mToolbarRight)
 	{
-		toolbar_set.right_toolbar.button_display_mode = (int)(mToolbarRight->getButtonType());
+		toolbar_set.right_toolbar.button_display_mode = mToolbarRight->getButtonType();
 		addToToolset(mToolbarRight->getCommandsList(),toolbar_set.right_toolbar);
 	}
 	if (mToolbarBottom)
 	{
-		toolbar_set.bottom_toolbar.button_display_mode = (int)(mToolbarBottom->getButtonType());
+		toolbar_set.bottom_toolbar.button_display_mode = mToolbarBottom->getButtonType();
 		addToToolset(mToolbarBottom->getCommandsList(),toolbar_set.bottom_toolbar);
 	}
 	

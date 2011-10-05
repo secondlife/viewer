@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <toolbars>
   <bottom_toolbar
-    button_display_mode="0">
+    button_display_mode="icons_with_text">
     <command name="chat"/>
     <command name="speak"/>
-    <command name="places"/>
+    <command name="destinations"/>
     <command name="people"/>
     <command name="profile"/>
     <command name="view"/>
@@ -12,14 +12,14 @@
     <command name="howto"/>
   </bottom_toolbar>
   <left_toolbar
-    button_display_mode="1">
+    button_display_mode="icons_only">
     <command name="avatar"/>
+    <command name="appearance"/>
     <command name="inventory"/>
-    <command name="snapshot"/>
     <command name="search"/>
-    <command name="shop"/>
-    <command name="move_objects"/>
+    <command name="places"/>
+    <command name="marketplace"/>
+    <command name="voice"/>
     <command name="minimap"/>
-    <command name="preferences"/>
   </left_toolbar>
 </toolbars>

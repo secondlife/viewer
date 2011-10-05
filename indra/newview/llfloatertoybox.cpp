@@ -61,8 +61,6 @@ BOOL LLFloaterToybox::postBuild()
 	center();
 
 	mBtnRestoreDefaults = getChild<LLButton>("btn_restore_defaults");
-	mBtnRestoreDefaults->setCommitCallback(boost::bind(&LLToolBarView::loadDefaultToolbars));
-
 	mToolBar = getChild<LLToolBar>("toybox_toolbar");
 
 	LLCommandManager& cmdMgr = LLCommandManager::instance();
@@ -97,46 +95,26 @@ BOOL LLFloaterToybox::postBuild()
 	return TRUE;
 }
 
-void LLFloaterToybox::onOpen(const LLSD& key)
-{
-
-}
-
-BOOL LLFloaterToybox::canClose()
-{
-	return TRUE;
-}
-
-void LLFloaterToybox::onClose(bool app_quitting)
-{
-
-}
-
 void LLFloaterToybox::draw()
 {
 	llassert(gToolBarView != NULL);
 
-	LLCommandManager& cmdMgr = LLCommandManager::instance();
+	const command_id_list_t& command_list = mToolBar->getCommandsList();
 
-	for (U32 i = 0; i < cmdMgr.commandCount(); i++)
+	for (command_id_list_t::const_iterator it = command_list.begin(); it != command_list.end(); ++it)
 	{
-		LLCommand * command = cmdMgr.getCommand(i);
+		const LLCommandId& id = *it;
 
-		if (command->availableInToybox())
-		{
-			mToolBar->enableCommand(command->id(), !gToolBarView->hasCommand(command->id()));
-		}
+		const bool commandOnToolbar = gToolBarView->hasCommand(id);
+		mToolBar->enableCommand(id, !commandOnToolbar);
 	}
 
 	LLFloater::draw();
 }
 
-void LLFloaterToybox::onFocusReceived()
-{
-}
-
 void LLFloaterToybox::onBtnRestoreDefaults()
 {
+	LLToolBarView::loadDefaultToolbars();
 }
 
 
