@@ -8300,6 +8300,17 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		return;
 	}
 
+	BOOL skip_avatar_update = FALSE;
+	if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+	{
+		skip_avatar_update = TRUE;
+	}
+
+	if (!skip_avatar_update)
+	{
+		gAgentAvatarp->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
+	}
+
 	F64 last_modelview[16];
 	F64 last_projection[16];
 	for (U32 i = 0; i < 16; i++)
@@ -8413,6 +8424,12 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 				mShadowFrustPoints[3].clear();
 			}
 			popRenderTypeMask();
+
+			if (!skip_avatar_update)
+			{
+				gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
+			}
+
 			return;
 		}
 
@@ -9001,6 +9018,11 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	}
 
 	popRenderTypeMask();
+
+	if (!skip_avatar_update)
+	{
+		gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
+	}
 }
 
 void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture)

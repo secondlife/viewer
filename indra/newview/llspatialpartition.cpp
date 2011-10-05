@@ -1613,6 +1613,8 @@ void LLSpatialGroup::checkOcclusion()
 static LLFastTimer::DeclareTimer FTM_PUSH_OCCLUSION_VERTS("Push Occlusion");
 static LLFastTimer::DeclareTimer FTM_SET_OCCLUSION_STATE("Occlusion State");
 static LLFastTimer::DeclareTimer FTM_OCCLUSION_EARLY_FAIL("Occlusion Early Fail");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_ALLOCATE("Allocate");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_BUILD("Build");
 
 void LLSpatialGroup::doOcclusion(LLCamera* camera)
 {
@@ -1636,11 +1638,13 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 
 					if (!mOcclusionQuery[LLViewerCamera::sCurCameraID])
 					{
+						LLFastTimer t(FTM_OCCLUSION_ALLOCATE);
 						mOcclusionQuery[LLViewerCamera::sCurCameraID] = sQueryPool.allocate();
 					}
 
 					if (mOcclusionVerts.isNull() || isState(LLSpatialGroup::OCCLUSION_DIRTY))
 					{
+						LLFastTimer t(FTM_OCCLUSION_BUILD);
 						buildOcclusion();
 					}
 					
