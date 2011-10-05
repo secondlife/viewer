@@ -712,8 +712,6 @@ LLToolBarButton::LLToolBarButton(const Params& p)
 	mIsRunningSignal(NULL),
 	mIsStartingSignal(NULL)
 {
-	mUUID = LLUUID::generateNewID(p.name);
-
 	mButtonFlashRate = 0.0;
 	mButtonFlashCount = 0;
 }
