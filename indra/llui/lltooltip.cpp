@@ -200,7 +200,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		icon_params.image_selected(imagep);
 
 		icon_params.scale_image(true);
-		icon_params.flash_color(icon_params.highlight_color());
+		icon_params.flash_color.control = "ButtonUnselectedFgColor";
 		mInfoButton  = LLUICtrlFactory::create<LLButton>(icon_params);
 		if (p.click_callback.isProvided())
 		{
