@@ -115,7 +115,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	S32 center_y = (top + bottom) / 2;
 
 	// save drawing mode
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
 
 	BOOL limit_select_distance = gSavedSettings.getBOOL("LimitSelectDistance");
@@ -230,9 +230,9 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	}
 
 	// restore drawing mode
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 	// restore camera
 	LLViewerCamera::getInstance()->setFar(old_far_plane);

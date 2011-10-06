@@ -81,7 +81,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
 	if (features->calculatesAtmospherics)
 	{
-		if (!shader->attachObject("windlight/atmosphericsVarsV.glsl"))
+		if (features->hasWaterFog)
+		{
+			if (!shader->attachObject("windlight/atmosphericsVarsWaterV.glsl"))
+			{
+				return FALSE;
+			}
+		}
+		else if (!shader->attachObject("windlight/atmosphericsVarsV.glsl"))
 		{
 			return FALSE;
 		}
@@ -161,7 +168,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 
 	if(features->calculatesAtmospherics)
 	{
-		if (!shader->attachObject("windlight/atmosphericsVarsF.glsl"))
+		if (features->hasWaterFog)
+		{
+			if (!shader->attachObject("windlight/atmosphericsVarsWaterF.glsl"))
+			{
+				return FALSE;
+			}
+		}
+		else if (!shader->attachObject("windlight/atmosphericsVarsF.glsl"))
 		{
 			return FALSE;
 		}
@@ -241,7 +255,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 						return FALSE;
 					}
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -280,7 +294,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 						return FALSE;
 					}
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}		
 	}
@@ -304,7 +318,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		else if (features->hasWaterFog)
@@ -336,7 +350,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -355,7 +369,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -395,7 +409,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 						return FALSE;
 					}
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 	}
@@ -419,7 +433,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -438,10 +452,26 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 	}
+
+	if (features->mIndexedTextureChannels <= 1)
+	{
+		if (!shader->attachObject("objects/nonindexedTextureV.glsl"))
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		if (!shader->attachObject("objects/indexedTextureV.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
 	return TRUE;
 }
 
@@ -477,7 +507,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 		}
 		else
 		{
-			LL_DEBUGS("ShaderLoading") << log << LL_ENDL;
+			LL_INFOS("ShaderLoading") << log << LL_ENDL;
 		}
 	}
  }
@@ -531,23 +561,57 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 
 	//we can't have any lines longer than 1024 characters 
-	//or any shaders longer than 1024 lines... deal - DaveP
+	//or any shaders longer than 4096 lines... deal - DaveP
 	GLcharARB buff[1024];
-	GLcharARB* text[1024];
+	GLcharARB* text[4096];
 	GLuint count = 0;
 
 	if (gGLManager.mGLVersion < 2.1f)
 	{
 		text[count++] = strdup("#version 110\n");
+		text[count++] = strdup("#define ATTRIBUTE attribute\n");
+		text[count++] = strdup("#define VARYING varying\n");
 	}
 	else if (gGLManager.mGLVersion < 3.f)
 	{
 		//set version to 1.20
 		text[count++] = strdup("#version 120\n");
+		text[count++] = strdup("#define FXAA_GLSL_120 1\n");
+		text[count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
+		text[count++] = strdup("#define ATTRIBUTE attribute\n");
+		text[count++] = strdup("#define VARYING varying\n");
 	}
 	else
-	{  //set version to 1.30
-		text[count++] = strdup("#version 130\n");
+	{  
+		if (gGLManager.mGLVersion < 4.f)
+		{
+			//set version to 1.30
+			text[count++] = strdup("#version 130\n");
+		}
+		else
+		{ //set version to 400
+			text[count++] = strdup("#version 400\n");
+		}
+
+		text[count++] = strdup("#define DEFINE_GL_FRAGCOLOR 1\n");
+		text[count++] = strdup("#define FXAA_GLSL_130 1\n");
+
+		text[count++] = strdup("#define ATTRIBUTE in\n");
+
+		if (type == GL_VERTEX_SHADER_ARB)
+		{ //"varying" state is "out" in a vertex program, "in" in a fragment program 
+			// ("varying" is deprecated after version 1.20)
+			text[count++] = strdup("#define VARYING out\n");
+		}
+		else
+		{
+			text[count++] = strdup("#define VARYING in\n");
+		}
+
+		//backwards compatibility with legacy texture lookup syntax
+		text[count++] = strdup("#define textureCube texture\n");
+		text[count++] = strdup("#define texture2DLod textureLod\n");
+		text[count++] = strdup("#define	shadow2D texture\n");
 	}
 
 	//copy preprocessor definitions into buffer
@@ -571,7 +635,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		.
 		uniform sampler2D texN;
 		
-		varying float vary_texture_index;
+		VARYING float vary_texture_index;
 
 		vec4 diffuseLookup(vec2 texcoord)
 		{
@@ -597,7 +661,11 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			text[count++] = strdup(decl.c_str());
 		}
 
-		text[count++] = strdup("varying float vary_texture_index;\n");
+		if (texture_index_channels > 1)
+		{
+			text[count++] = strdup("VARYING float vary_texture_index;\n");
+		}
+
 		text[count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
 		text[count++] = strdup("{\n");
 		
@@ -649,7 +717,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 
 	//copy file into memory
-	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(buff) ) 
+	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(text) ) 
 	{
 		text[count++] = (GLcharARB *)strdup((char *)buff); 
 	}
@@ -704,14 +772,24 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
 				dumpObjectLog(ret);
 
+#if LL_WINDOWS
 				std::stringstream ostr;
 				//dump shader source for debugging
 				for (GLuint i = 0; i < count; i++)
 				{
 					ostr << i << ": " << text[i];
+
+					if (i % 128 == 0)
+					{ //dump every 128 lines
+
+						LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+						ostr = std::stringstream();
+					}
+
 				}
 
 				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+#endif // LL_WINDOWS
 
 				ret = 0;
 			}

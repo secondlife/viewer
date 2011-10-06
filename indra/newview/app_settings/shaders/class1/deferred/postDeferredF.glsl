@@ -22,10 +22,12 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-
 
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect edgeMap;
@@ -43,7 +45,7 @@ uniform float magnification;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 float getDepth(vec2 pos_screen)
 {

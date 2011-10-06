@@ -23,13 +23,15 @@
  * $/LicenseInfo$
  */
  
-
+#ifndef gl_FragData
+out vec4 gl_FragData[3];
+#endif
 
 /////////////////////////////////////////////////////////////////////////
 // The fragment shader for the sky
 /////////////////////////////////////////////////////////////////////////
 
-varying vec4 vary_HazeColor;
+VARYING vec4 vary_HazeColor;
 
 uniform sampler2D cloud_noise_texture;
 uniform vec4 gamma;

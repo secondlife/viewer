@@ -362,8 +362,8 @@ void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 {
 	if (align)
 	{
-		//allocate vertices in blocks of 4 for alignment
-		num_vertices = (num_vertices + 0x3) & ~0x3;
+		//allocate vertices in blocks of 16 for alignment
+		num_vertices = (num_vertices + 0xF) & ~0xF;
 	}
 	
 	if (mGeomCount != num_vertices ||
@@ -496,14 +496,14 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 		gGL.pushMatrix();
 		if (mDrawablep->isActive())
 		{
-			glMultMatrixf((GLfloat*)mDrawablep->getRenderMatrix().mMatrix);
+			gGL.multMatrix((GLfloat*)mDrawablep->getRenderMatrix().mMatrix);
 		}
 		else
 		{
-			glMultMatrixf((GLfloat*)mDrawablep->getRegion()->mRenderMatrix.mMatrix);
+			gGL.multMatrix((GLfloat*)mDrawablep->getRegion()->mRenderMatrix.mMatrix);
 		}
 
-		glColor4fv(color.mV);
+		gGL.diffuseColor4fv(color.mV);
 	
 		if (mDrawablep->isState(LLDrawable::RIGGED))
 		{
@@ -515,7 +515,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 				{
 					LLGLEnable offset(GL_POLYGON_OFFSET_FILL);
 					glPolygonOffset(-1.f, -1.f);
-					glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
+					gGL.multMatrix((F32*) volume->getRelativeXform().mMatrix);
 					const LLVolumeFace& vol_face = rigged->getVolumeFace(getTEOffset());
 					LLVertexBuffer::unbind();
 					glVertexPointer(3, GL_FLOAT, 16, vol_face.mPositions);
@@ -524,6 +524,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 						glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 						glTexCoordPointer(2, GL_FLOAT, 8, vol_face.mTexCoords);
 					}
+					gGL.syncMatrices();
 					glDrawElements(GL_TRIANGLES, vol_face.mNumIndices, GL_UNSIGNED_SHORT, vol_face.mIndices);
 					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 				}
@@ -557,17 +558,17 @@ void LLFace::renderSelectedUV()
 
 	// add green dither pattern on top of red/blue gradient
 	gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_ONE);
-	glMatrixMode(GL_TEXTURE);
-	glPushMatrix();
+	gGL.matrixMode(LLRender::MM_TEXTURE);
+	gGL.pushMatrix();
 	// make green pattern repeat once per texel in red/blue texture
-	glScalef(256.f, 256.f, 1.f);
-	glMatrixMode(GL_MODELVIEW);
+	gGL.scalef(256.f, 256.f, 1.f);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 	renderSelected(green_imagep, LLColor4::white);
 
-	glMatrixMode(GL_TEXTURE);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_TEXTURE);
+	gGL.popMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 }
 */
@@ -1055,6 +1056,7 @@ static LLFastTimer::DeclareTimer FTM_FACE_GEOM_POSITION("Position");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_NORMAL("Normal");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_TEXTURE("Texture");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_COLOR("Color");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_EMISSIVE("Emissive");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_WEIGHTS("Weights");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_BINORMAL("Binormal");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX("Index");
@@ -1124,6 +1126,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 	bool rebuild_pos = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_POSITION);
 	bool rebuild_color = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_COLOR);
+	bool rebuild_emissive = rebuild_color && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE);
 	bool rebuild_tcoord = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
 	bool rebuild_normal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
 	bool rebuild_binormal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_BINORMAL);
@@ -1213,7 +1216,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 	
@@ -1438,7 +1441,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			if (map_range)
 			{
-				mVertexBuffer->setBuffer(0);
+				mVertexBuffer->flush();
 			}
 		}
 		else
@@ -1585,7 +1588,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			if (map_range)
 			{
-				mVertexBuffer->setBuffer(0);
+				mVertexBuffer->flush();
 			}
 
 			if (do_bump)
@@ -1622,7 +1625,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 				if (map_range)
 				{
-					mVertexBuffer->setBuffer(0);
+					mVertexBuffer->flush();
 				}
 			}
 		}
@@ -1672,7 +1675,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 		
@@ -1692,7 +1695,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 		
@@ -1712,7 +1715,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 	
@@ -1724,7 +1727,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		LLVector4a::memcpyNonAliased16((F32*) weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 
@@ -1754,10 +1757,48 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (map_range)
 		{
-			mVertexBuffer->setBuffer(0);
+			mVertexBuffer->flush();
 		}
 	}
 
+	if (rebuild_emissive)
+	{
+		LLFastTimer t(FTM_FACE_GEOM_EMISSIVE);
+		LLStrider<LLColor4U> emissive;
+		mVertexBuffer->getEmissiveStrider(emissive, mGeomIndex, mGeomCount, map_range);
+
+		U8 glow = (U8) llclamp((S32) (getTextureEntry()->getGlow()*255), 0, 255);
+
+		LLVector4a src;
+
+		
+		U32 glow32 = glow |
+					 (glow << 8) |
+					 (glow << 16) |
+					 (glow << 24);
+
+		U32 vec[4];
+		vec[0] = vec[1] = vec[2] = vec[3] = glow32;
+		
+		src.loadua((F32*) vec);
+
+		LLVector4a* dst = (LLVector4a*) emissive.get();
+		S32 num_vecs = num_vertices/4;
+		if (num_vertices%4 > 0)
+		{
+			++num_vecs;
+		}
+
+		for (S32 i = 0; i < num_vecs; i++)
+		{	
+			dst[i] = src;
+		}
+
+		if (map_range)
+		{
+			mVertexBuffer->flush();
+		}
+	}
 	if (rebuild_tcoord)
 	{
 		mTexExtents[0].setVec(0,0);
@@ -2095,7 +2136,7 @@ void LLFace::renderSetColor() const
 	{
 		const LLColor4* color = &(getRenderColor());
 		
-		glColor4fv(color->mV);
+		gGL.diffuseColor4fv(color->mV);
 	}
 }
 
@@ -2130,10 +2171,10 @@ S32 LLFace::renderElements(const U16 *index_array) const
 	}
 	else
 	{
-		glPushMatrix();
-		glMultMatrixf((float*)getRenderMatrix().mMatrix);
+		gGL.pushMatrix();
+		gGL.multMatrix((float*)getRenderMatrix().mMatrix);
 		ret = pushVertices(index_array);
-		glPopMatrix();
+		gGL.popMatrix();
 	}
 	
 	return ret;
