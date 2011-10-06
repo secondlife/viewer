@@ -12,14 +12,14 @@
 	<combo_box label="服裝類型" name="clothing_type_combo">
 		<item label="圖像" name="Image" value="圖像"/>
 		<item label="頭髮" name="Hair" value="頭髮"/>
-		<item label="Female Head" name="FemaleHead" value="Female Head"/>
-		<item label="Female Upper Body" name="FemaleUpperBody" value="Female Upper Body"/>
-		<item label="Female Lower Body" name="FemaleLowerBody" value="Female Lower Body"/>
-		<item label="Male Head" name="MaleHead" value="Male Head"/>
-		<item label="Male Upper Body" name="MaleUpperBody" value="Male Upper Body"/>
-		<item label="Male Lower Body" name="MaleLowerBody" value="Male Lower Body"/>
+		<item label="女性頭部" name="FemaleHead" value="女性頭部"/>
+		<item label="女性上半身" name="FemaleUpperBody" value="女性上半身"/>
+		<item label="女性下半身" name="FemaleLowerBody" value="女性下半身"/>
+		<item label="男性頭部" name="MaleHead" value="男性頭部"/>
+		<item label="男性上半身" name="MaleUpperBody" value="男性上半身"/>
+		<item label="男性下半身" name="MaleLowerBody" value="男性下半身"/>
 		<item label="裙子" name="Skirt" value="裙子"/>
-		<item label="Sculpted Prim" name="SculptedPrim" value="Sculpted Prim"/>
+		<item label="雕刻的幾何元件" name="SculptedPrim" value="雕刻的幾何元件"/>
 	</combo_box>
 	<text name="bad_image_text">
 		無法讀取圖像。

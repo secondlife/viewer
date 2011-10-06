@@ -277,7 +277,7 @@
                initial_value="(retrieving)"
                layout="topleft"
                left="0"
-               link="true"
+               parse_urls="true"
                name="partner_text"
                top="0"
                use_ellipses="true"

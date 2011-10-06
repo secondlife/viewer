@@ -66,7 +66,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      layout="topleft"
      left="10"
      label="Filter"
-     max_length="300"
+     max_length_chars="300"
      name="filter_input"
      text_color="Black"
      text_pad_left="10"

@@ -1112,7 +1112,16 @@ void LLPanelObject::getState( )
 			
 			if (mCtrlSculptType)
 			{
-				mCtrlSculptType->setCurrentByIndex(sculpt_stitching);
+				if (sculpt_stitching == LL_SCULPT_TYPE_NONE)
+				{
+					// since 'None' is no longer an option in the combo box
+					// use 'Plane' as an equivalent sculpt type
+					mCtrlSculptType->setSelectedByValue(LLSD(LL_SCULPT_TYPE_PLANE), true);
+				}
+				else
+				{
+					mCtrlSculptType->setSelectedByValue(LLSD(sculpt_stitching), true);
+				}
 				mCtrlSculptType->setEnabled(editable && !isMesh);
 			}
 
@@ -1749,7 +1758,7 @@ void LLPanelObject::sendSculpt()
 	U8 sculpt_type = 0;
 	
 	if (mCtrlSculptType)
-		sculpt_type |= mCtrlSculptType->getCurrentIndex();
+		sculpt_type |= mCtrlSculptType->getValue().asInteger();
 
 	bool enabled = sculpt_type != LL_SCULPT_TYPE_MESH;
 

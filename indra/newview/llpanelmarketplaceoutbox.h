@@ -40,9 +40,7 @@ class LLPanelMarketplaceOutbox : public LLPanel
 public:
 	
 	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
-	{
-		Params() {}
-	};
+	{};
 	
 	LOG_CLASS(LLPanelMarketplaceOutbox);
 
@@ -54,12 +52,22 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
+	/*virtual*/ void draw();
+
 	LLInventoryPanel * setupInventoryPanel();
+
+	U32 getTotalItemCount() const;
 
 	bool isOutboxEmpty() const;
 	bool isSyncInProgress() const;
 
-	void onSyncComplete();
+	void onSyncComplete(bool goodStatus, const LLSD& content);
+
+	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+								   EDragAndDropType cargo_type,
+								   void* cargo_data,
+								   EAcceptance* accept,
+								   std::string& tooltip_msg);
 
 protected:
 	void onSyncButtonClicked();

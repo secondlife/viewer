@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ can_tear_off="false"
+ can_resize="true"
+ can_drag_on_left="false"
+ can_close="true"
+ height="500"
+ layout="topleft"
+ name="fast_timers"
+ save_rect="true"
+ save_visibility="false"
+ single_instance="true" 
+ min_width="400"
+ width="700">
+  <string name="pause" >Pause</string>
+  <string name="run">Run</string>
+  <button follows="top|right" 
+          name="pause_btn"
+          left="-200"
+          top="5"
+          width="180"
+          height="40"
+          pad_bottom="-5"
+          label="Pause"
+          font="SansSerifHuge"/>
+</floater>

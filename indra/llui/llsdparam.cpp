@@ -183,7 +183,7 @@ LLSD* LLParamSDParser::getSDWriteNode(const parser_t::name_stack_t& name_stack)
 			}
 		}
 
-		LLSD* child_sd = &(*sd_to_write)[it->first];
+		LLSD* child_sd = it->first.empty() ? sd_to_write : &(*sd_to_write)[it->first];
 
 		if (child_sd->isArray())
 		{

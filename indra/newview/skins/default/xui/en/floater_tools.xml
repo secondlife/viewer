@@ -48,11 +48,11 @@
     </floater.string>
     <floater.string
      name="status_selectcount">
-        [OBJ_COUNT] objects ( [PRIM_COUNT] prims[PE_STRING] ) selected
+        [OBJ_COUNT] objects selected, land impact [LAND_IMPACT]
     </floater.string>
     <floater.string
-     name="status_selectprimequiv">
-        , [SEL_WEIGHT] prim equivs
+     name="status_remaining_capacity">
+        Remaining capacity [LAND_CAPACITY].
     </floater.string>
     <button
      follows="left|top"
@@ -738,11 +738,11 @@
 	  font="SansSerifSmall"
 	  layout="topleft"
 	  left="10"
-	  name="selection_weight"
+	  name="remaining_capacity"
 	  top_pad="0"
 	  visible="false"
 	  width="280">
-	  Physics weight [PHYS_WEIGHT], Render Cost [DISP_WEIGHT].
+	  [CAPACITY_STRING] [secondlife:///app/openfloater/object_weights More info]
 	</text>
     <!-- <text -->
     <!-- text_color="LtGray_50" -->
@@ -2000,25 +2000,21 @@ even though the user gets a free copy.
              visible="false"
              width="150">
                 <combo_box.item
-                 label="(none)"
-                 name="None"
-                 value="None" />
-                <combo_box.item
                  label="Sphere"
                  name="Sphere"
-                 value="Sphere" />
+                 value="1" />
                 <combo_box.item
                  label="Torus"
                  name="Torus"
-                 value="Torus" />
+                 value="2" />
                 <combo_box.item
                  label="Plane"
                  name="Plane"
-                 value="Plane" />
+                 value="3" />
                 <combo_box.item
                  label="Cylinder"
                  name="Cylinder"
-                 value="Cylinder" />
+                 value="4" />
               </combo_box>
         </panel>
         <panel

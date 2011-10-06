@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <filter_editor
+  name="filter_editor"
   clear_button_visible="true"
   search_button_visible="false"
   text_pad_left="7"

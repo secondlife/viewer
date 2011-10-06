@@ -440,11 +440,10 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
 		&& nodep->mAttributes.empty() 
 		&& nodep->getSanitizedValue().empty())
 	{
-		// empty node, just parse as NoValue
+		// empty node, just parse as flag
 		mCurReadNode = DUMMY_NODE;
 		return block.submitValue(mNameStack, *this, silent);
 	}
-
 
 	// submit attributes for current node
 	values_parsed |= readAttributes(nodep, block);

@@ -202,7 +202,7 @@ void display_stats()
 		gMemoryAllocated = LLMemory::getCurrentRSS();
 		U32 memory = (U32)(gMemoryAllocated / (1024*1024));
 		llinfos << llformat("MEMORY: %d MB", memory) << llendl;
-		LLMemory::logMemoryInfo() ;
+		LLMemory::logMemoryInfo(TRUE) ;
 		gRecentMemoryTime.reset();
 	}
 }

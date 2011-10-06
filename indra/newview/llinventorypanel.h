@@ -86,6 +86,7 @@ public:
 		Optional<bool>						use_label_suffix;
 		Optional<bool>						show_load_status;
 		Optional<LLScrollContainer::Params>	scroll;
+		Optional<bool>						accepts_drag_and_drop;
 
 		Params()
 		:	sort_order_setting("sort_order_setting"),
@@ -96,7 +97,8 @@ public:
 			start_folder("start_folder"),
 			use_label_suffix("use_label_suffix", true),
 			show_load_status("show_load_status"),
-			scroll("scroll")
+			scroll("scroll"),
+			accepts_drag_and_drop("accepts_drag_and_drop")
 		{}
 	};
 
@@ -181,6 +183,7 @@ protected:
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
 	LLInvPanelComplObserver*	mCompletionObserver;
+	BOOL						mAcceptsDragAndDrop;
 	BOOL 						mAllowMultiSelect;
 	BOOL 						mShowItemLinkOverlays; // Shows link graphic over inventory item icons
 	BOOL						mShowLoadStatus;
@@ -208,6 +211,8 @@ public:
 	
 	void setSortOrder(U32 order);
 	U32 getSortOrder() const;
+	void requestSort();
+
 private:
 	std::string					mSortOrderSetting;
 

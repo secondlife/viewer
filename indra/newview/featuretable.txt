@@ -88,7 +88,7 @@ RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderUseImpostors			1	1
-RenderVolumeLODFactor		1	0.5
+RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48

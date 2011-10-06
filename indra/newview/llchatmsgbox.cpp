@@ -70,7 +70,7 @@ private:
 LLChatMsgBox::Params::Params() :
 	block_spacing("block_spacing", 10)
 {
-	line_spacing.pixels = 4;
+	changeDefault(line_spacing.pixels, 4);
 }
 
 LLChatMsgBox::LLChatMsgBox(const Params& p) :

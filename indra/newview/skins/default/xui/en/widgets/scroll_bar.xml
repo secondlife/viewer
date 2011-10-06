@@ -5,7 +5,8 @@
 			track_image_horizontal ="ScrollTrack_Horiz"
 			track_color="ScrollbarTrackColor"
             thumb_color="ScrollbarThumbColor"
-            thickness="15">
+            thickness="15"
+            tab_stop="false">
   <up_button name="up_button"
              image_unselected="ScrollArrow_Up"
              image_selected="ScrollArrow_Up"

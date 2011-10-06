@@ -76,6 +76,89 @@ public:
         LLEventDispatcher::add(name, desc, callable, required);
     }
 
+    /**
+     * Instantiate a Response object in any LLEventAPI subclass method that
+     * wants to guarantee a reply (if requested) will be sent on exit from the
+     * method. The reply will be sent if request.has(@a replyKey), default
+     * "reply". If specified, the value of request[replyKey] is the name of
+     * the LLEventPump on which to send the reply. Conventionally you might
+     * code something like:
+     *
+     * @code
+     * void MyEventAPI::someMethod(const LLSD& request)
+     * {
+     *     // Send a reply event as long as request.has("reply")
+     *     Response response(LLSD(), request);
+     *     // ...
+     *     // will be sent in reply event
+     *     response["somekey"] = some_data;
+     * }
+     * @endcode
+     */
+    class LL_COMMON_API Response
+    {
+    public:
+        /**
+         * Instantiating a Response object in an LLEventAPI subclass method
+         * ensures that, if desired, a reply event will be sent.
+         *
+         * @a seed is the initial reply LLSD that will be further decorated before
+         * being sent as the reply
+         *
+         * @a request is the incoming request LLSD; we particularly care about
+         * [replyKey] and ["reqid"]
+         *
+         * @a replyKey [default "reply"] is the string name of the LLEventPump
+         * on which the caller wants a reply. If <tt>(!
+         * request.has(replyKey))</tt>, no reply will be sent.
+         */
+        Response(const LLSD& seed, const LLSD& request, const LLSD::String& replyKey="reply");
+        ~Response();
+
+        /**
+         * @code
+         * if (some condition)
+         * {
+         *     response.warn("warnings are logged and collected in [\"warnings\"]");
+         * }
+         * @endcode
+         */
+        void warn(const std::string& warning);
+        /**
+         * @code
+         * if (some condition isn't met)
+         * {
+         *     // In a function returning void, you can validly 'return
+         *     // expression' if the expression is itself of type void. But
+         *     // returning is up to you; response.error() has no effect on
+         *     // flow of control.
+         *     return response.error("error message, logged and also sent as [\"error\"]");
+         * }
+         * @endcode
+         */
+        void error(const std::string& error);
+
+        /**
+         * set other keys...
+         *
+         * @code
+         * // set any attributes you want to be sent in the reply
+         * response["info"] = some_value;
+         * // ...
+         * response["ok"] = went_well;
+         * @endcode
+         */
+        LLSD& operator[](const LLSD::String& key) { return mResp[key]; }
+		
+		 /**
+		 * set the response to the given data
+		 */
+		void setResponse(LLSD const & response){ mResp = response; }
+
+        LLSD mResp, mReq;
+        LLSD::String mKey;
+    };
+
 private:
     std::string mDesc;
 };

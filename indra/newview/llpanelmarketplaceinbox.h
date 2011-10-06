@@ -37,9 +37,7 @@ class LLPanelMarketplaceInbox : public LLPanel, public LLSideTrayTabBadgeDriver
 public:
 
 	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
-	{
-		Params() {}
-	};
+	{};
 
 	LOG_CLASS(LLPanelMarketplaceInbox);
 

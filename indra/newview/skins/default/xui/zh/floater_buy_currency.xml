@@ -55,7 +55,7 @@
 		Confirming this purchase only buys L$, not the object.
 	</text>
 	<text name="purchase_warning_notenough">
-		You aren&apos;t buying enough L$. Please increase the amount.
+		你並未購買足夠的林登幣，請先添加一些數量。
 	</text>
 	<button label="立即購買" name="buy_btn"/>
 	<button label="取消" name="cancel_btn"/>

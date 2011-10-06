@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<texture_picker border_color="DefaultHighlightLight">
+<texture_picker border_color="DefaultHighlightLight"
+                name="texture picker"
+                mouse_opaque="true"
+                follows="left|top"
+                >
   <multiselect_text font="SansSerifSmall"/>
   <caption_text text="Multiple" 
                 halign="center" 

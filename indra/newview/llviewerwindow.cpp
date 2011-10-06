@@ -36,6 +36,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <boost/lambda/core.hpp>
 
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -198,6 +199,7 @@
 #include "llfloaternotificationsconsole.h"
 
 #include "llnearbychat.h"
+#include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
 
@@ -239,8 +241,6 @@ BOOL				gDisplayBadge = FALSE;
 
 static const U8 NO_FACE = 255;
 BOOL gQuietSnapshot = FALSE;
-
-const F32 MIN_AFK_TIME = 2.f; // minimum time after setting away state before coming back
 
 static const F32 MIN_DISPLAY_SCALE = 0.75f;
 
@@ -1214,7 +1214,7 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 
 	mWindow->showCursorFromMouseMove();
 
-	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
 	}
@@ -1302,7 +1302,7 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
 	LLVoiceClient::getInstance()->keyDown(key, mask);
 	
-	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
 	}
@@ -1352,6 +1352,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 	{
 		mActive = FALSE;
 				
+		// if the user has chosen to go Away automatically after some time, then go Away when minimizing
 		if (gSavedSettings.getS32("AFKTimeout"))
 		{
 			gAgent.setAFK();
@@ -1548,7 +1549,12 @@ LLViewerWindow::LLViewerWindow(
 	mResDirty(false),
 	mStatesDirty(false),
 	mCurrResolutionIndex(0),
-    mViewerWindowListener(new LLViewerWindowListener(this)),
+	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
+	// pass its value right now. Instead, pass it a nullary function that
+	// will, when we later need it, return the value of gKeyboard.
+	// boost::lambda::var() constructs such a functor on the fly.
+	mWindowListener(new LLWindowListener(this, boost::lambda::var(gKeyboard))),
+	mViewerWindowListener(new LLViewerWindowListener(this)),
 	mProgressView(NULL)
 {
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
