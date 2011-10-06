@@ -68,6 +68,7 @@ public:
 	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
 
 	void onMouseEnter(S32 x, S32 y, MASK mask);
+	void onMouseCaptureLost();
 
 private:
 	LLCommandId		mId;
