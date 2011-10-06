@@ -9075,9 +9075,7 @@
     <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
-    <key>Va
-    
-    lue</key>
+    <key>Value</key>
     <integer>1</integer>
   </map>
 	<key>RenderPreferStreamDraw</key>
