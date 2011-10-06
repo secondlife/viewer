@@ -49,3 +49,4 @@ BOOL LLFloaterDestinations::postBuild()
 {
 	return TRUE;
 }
+
