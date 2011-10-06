@@ -51,7 +51,7 @@ my $mini_HELP = "
 ";
 
 &GetOptions("help"               => \$Help
-            ,"unmatched"         => \$UnMatchedOnlly
+            ,"unmatched"         => \$UnMatchedOnly
             ,"table-only"        => \$TableOnly
             ,"gpu-table=s"       => \$GpuTable
             ,"diff=s"            => \$Diff
