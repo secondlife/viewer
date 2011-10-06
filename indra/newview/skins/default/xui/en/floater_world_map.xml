@@ -12,7 +12,7 @@
  save_rect="true"
  save_visibility="true"
  single_instance="true"
- title="WORLD MAP"
+ title="World map"
  width="650">
     <panel
      filename="panel_world_map.xml"

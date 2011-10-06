@@ -2,14 +2,14 @@
 <floater
  can_resize="true"
  can_minimize="true"
- can_close="false"
+ can_close="true"
  height="205"
  layout="topleft"
  min_height="124"
  min_width="190"
  name="floater_voice_controls"
  help_topic="floater_voice_controls"
- title="Voice Controls"
+ title="Voice controls"
  save_dock_state="true"
  save_visibility="true"
  save_rect="true"
@@ -17,15 +17,15 @@
  width="282">
     <string
      name="title_nearby">
-        NEARBY VOICE
+        Nearby voice
     </string>
     <string
      name="title_group">
-        Group Call with [GROUP]
+        Group call with [GROUP]
     </string>
     <string
      name="title_adhoc">
-        Conference Call
+        Conference call
     </string>
     <string
      name="title_peer_2_peer">
