@@ -159,6 +159,7 @@ public:
 	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; }
 	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
 	void setHandleDropCallback(tool_handledrop_callback_t cb) { mHandleDropCallback     = cb; }
+	bool isReadOnly() const { return mReadOnly; }
 
 	LLToolBarButton* createButton(const LLCommandId& id);
 

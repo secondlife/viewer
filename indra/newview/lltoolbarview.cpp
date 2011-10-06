@@ -377,24 +377,26 @@ BOOL LLToolBarView::handleDrop( void* cargo_data, S32 x, S32 y, LLToolBar* toolb
 		if (command)
 		{
 			// Convert the (x,y) position in rank in toolbar
-			int rank = toolbar->getRankFromPosition(x,y);
+			int rank = 0;
+			if (!toolbar->isReadOnly())
+			{
+				rank = toolbar->getRankFromPosition(x,y);
+			}
 			// Suppress the command from the toolbars (including the one it's dropped in, 
 			// this will handle move position).
 			gToolBarView->mToolbarLeft->removeCommand(command->id());
 			gToolBarView->mToolbarRight->removeCommand(command->id());
 			gToolBarView->mToolbarBottom->removeCommand(command->id());
 			// Now insert it in the toolbar at the detected rank
-			toolbar->addCommand(command->id(),rank);
+			if (!toolbar->isReadOnly())
+			{
+				toolbar->addCommand(command->id(),rank);
+			}
 		}
 		else
 		{
 			llwarns << "Command couldn't be found in command manager" << llendl;
 		}
-
-	}
-	else
-	{
-		llinfos << "Merov debug : handleDrop. Drop source is not a widget -> nothing to do" << llendl;
 	}
 	
 	return TRUE;
