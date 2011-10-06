@@ -461,8 +461,8 @@ NVIDIA GeForce Go 7900			.*NVIDIA .*GeForce Go 79.*					2		1
 NVIDIA D9M						.*NVIDIA .*D9M.*							1		1
 NVIDIA G94						.*NVIDIA .*G94.*							3		1
 NVIDIA GeForce Go 6				.*GeForce Go 6.*							1		1
-NVIDIA ION 2					.*NVIDIA .* ION 2.*							2		1
-NVIDIA ION 						.*NVIDIA .* ION.*							2		1
+NVIDIA ION 2					.*NVIDIA .*ION 2.*							2		1
+NVIDIA ION 						.*NVIDIA .*ION.*							2		1
 NVIDIA NB8M						.*NVIDIA .*NB8M.*							1		1
 NVIDIA NB8P						.*NVIDIA .*NB8P.*							2		1
 NVIDIA NB9E						.*NVIDIA .*NB9E.*							3		1

@@ -1386,9 +1386,9 @@ NVIDIA GeForce4 Ti 4200 with AGP8X/AGP/SSE                                      
 NVIDIA GeForce4 Ti 4200/AGP/SSE/3DNOW!                                                                   supported      0   NVIDIA G 200
 NVIDIA GeForce4 Ti 4400/AGP/SSE2                                                                         supported      0   NVIDIA GeForce 4
 NVIDIA Generic                                                                                                              NO MATCH
-NVIDIA ION LE/PCI/SSE2                                                                                                      NO MATCH
-NVIDIA ION/PCI/SSE2                                                                                                         NO MATCH
-NVIDIA ION/PCI/SSE2/3DNOW!                                                                                                  NO MATCH
+NVIDIA ION LE/PCI/SSE2                                                                                   supported      2   NVIDIA ION
+NVIDIA ION/PCI/SSE2                                                                                      supported      2   NVIDIA ION
+NVIDIA ION/PCI/SSE2/3DNOW!                                                                               supported      2   NVIDIA ION
 NVIDIA MCP61/PCI/SSE2                                                                                    supported      1   NVIDIA MCP61
 NVIDIA MCP61/PCI/SSE2/3DNOW!                                                                             supported      1   NVIDIA MCP61
 NVIDIA MCP73/PCI/SSE2                                                                                    supported      1   NVIDIA MCP73
