@@ -40,6 +40,7 @@ LLRenderSphere gSphere;
 void LLRenderSphere::render()
 {
 	renderGGL();
+	gGL.flush();
 }
 
 inline LLVector3 polar_to_cart(F32 latitude, F32 longitude)

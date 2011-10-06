@@ -1347,6 +1347,7 @@ void LLRender::popMatrix()
 
 void LLRender::loadMatrix(const GLfloat* m)
 {
+	flush();
 	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].set_value((GLfloat*) m);
 	mMatHash[mMatrixMode]++;
 }
@@ -1396,6 +1397,8 @@ void LLRender::multMatrix(const GLdouble* dm)
 
 void LLRender::loadIdentity()
 {
+	flush();
+
 	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].make_identity();
 	mMatHash[mMatrixMode]++;
 }

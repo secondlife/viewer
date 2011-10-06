@@ -1359,7 +1359,12 @@ void render_ui_3d()
 	}
 
 	stop_glerror();
-		
+	
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+
 	gViewerWindow->renderSelections(FALSE, FALSE, TRUE); // Non HUD call in render_hud_elements
 	stop_glerror();
 }
