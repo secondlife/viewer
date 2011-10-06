@@ -505,6 +505,7 @@ Push $2
 
 	; If uninstalling a normal install remove everything
 	; Otherwise (preview/dmz etc) just remove cache
+    MessageBox MB_OK 'RM_ALL points at  "$2\Application Data\SecondLife"'
     StrCmp $INSTFLAGS "" RM_ALL RM_CACHE
       RM_ALL:
         RMDir /r "$2\Application Data\SecondLife"
@@ -957,16 +958,16 @@ ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" /S'
 ; to take _? argument which combined with ExecWait would avoid need
 ; for this, but have not been able to get it to work.
 SPIN_LOOP:
-Sleep 500
-IntOp $0 $0 + 500
-IntCmp $0 10000 SLV2_TIMEOUT CONT SLV2_TIMEOUT
+    Sleep 500
+    IntOp $0 $0 + 500
+    IntCmp $0 10000 SLV2_TIMEOUT CONT SLV2_TIMEOUT
 SLV2_TIMEOUT:
-MsgBox MB_OK "Error in uninstall"
-Goto SLV2_DONE
+;;    MessageBox /SD IDOK MB_OK "Error in uninstall of Second Life Viewer 2"
+    Goto SLV2_DONE
 
 CONT:
-; Do we know this is the last file removed?
-IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" SPIN_LOOP SLV2_DONE
+    ; Do we know this is the last file removed?
+    IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" SPIN_LOOP SLV2_DONE
 
 SLV2_DONE:
 MessageBox MB_OK "Restoring Cache Files"
