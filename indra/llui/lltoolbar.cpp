@@ -177,6 +177,7 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	center_panel_p.rect = getLocalRect();
 	center_panel_p.auto_resize = false;
 	center_panel_p.user_resize = false;
+	center_panel_p.mouse_opaque = false;
 	LLLayoutPanel* center_panel = LLUICtrlFactory::create<LLLayoutPanel>(center_panel_p);
 	mCenteringStack->addChild(center_panel);
 
@@ -557,7 +558,13 @@ void LLToolBar::draw()
 {
 	if (mButtons.empty())
 	{
-		return;
+		mButtonPanel->setVisible(FALSE);
+		mButtonPanel->setMouseOpaque(FALSE);
+	}
+	else
+	{
+		mButtonPanel->setVisible(TRUE);
+		mButtonPanel->setMouseOpaque(TRUE);
 	}
 
 	// Update enable/disable state and highlight state for editable toolbars
@@ -741,7 +748,11 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 //	llinfos << "Merov debug: handleHover, x = " << x << ", y = " << y << ", mouse = " << hasMouseCapture() << llendl;
 	BOOL handled = FALSE;
 		
-	if (hasMouseCapture() && mStartDragItemCallback && mHandleDragItemCallback)
+	S32 mouse_distance_squared = (x - mMouseDownX) * (x - mMouseDownX) + (y - mMouseDownY) * (y - mMouseDownY);
+	S32 drag_threshold = LLUI::sSettingGroups["config"]->getS32("DragAndDropDistanceThreshold");
+	if (mouse_distance_squared > drag_threshold * drag_threshold
+		&& hasMouseCapture() && 
+		mStartDragItemCallback && mHandleDragItemCallback)
 	{
 		if (!mIsDragged)
 		{
@@ -767,4 +778,9 @@ void LLToolBarButton::onMouseEnter(S32 x, S32 y, MASK mask)
 
 	// Always highlight toolbar buttons, even if they are disabled
 	mNeedsHighlight = TRUE;
+}
+
+void LLToolBarButton::onMouseCaptureLost()
+{
+	mIsDragged = false;
 }
