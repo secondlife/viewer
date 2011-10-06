@@ -228,13 +228,13 @@ S32 LLPacketRing::receivePacket (S32 socket, char *datap)
 		if (LLProxy::isSOCKSProxyEnabled())
 		{
 			U8 buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];
-			packet_size = receive_packet(socket, reinterpret_cast<char *>(buffer));
+			packet_size = receive_packet(socket, static_cast<char*>(static_cast<void*>(buffer)));
 			
 			if (packet_size > SOCKS_HEADER_SIZE)
 			{
 				// *FIX We are assuming ATYP is 0x01 (IPv4), not 0x03 (hostname) or 0x04 (IPv6)
 				memcpy(datap, buffer + SOCKS_HEADER_SIZE, packet_size - SOCKS_HEADER_SIZE);
-				proxywrap_t * header = reinterpret_cast<proxywrap_t *>(buffer);
+				proxywrap_t * header = static_cast<proxywrap_t*>(static_cast<void*>(buffer));
 				mLastSender.setAddress(header->addr);
 				mLastSender.setPort(ntohs(header->port));
 
@@ -353,14 +353,20 @@ BOOL LLPacketRing::sendPacketImpl(int h_socket, const char * send_buffer, S32 bu
 		return send_packet(h_socket, send_buffer, buf_size, host.getAddress(), host.getPort());
 	}
 
-	proxywrap_t *socks_header = reinterpret_cast<proxywrap_t *>(&mProxyWrappedSendBuffer);
+	char headered_send_buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];
+
+	proxywrap_t *socks_header = static_cast<proxywrap_t*>(static_cast<void*>(&headered_send_buffer));
 	socks_header->rsv   = 0;
 	socks_header->addr  = host.getAddress();
 	socks_header->port  = htons(host.getPort());
 	socks_header->atype = ADDRESS_IPV4;
 	socks_header->frag  = 0;
 
-	memcpy(mProxyWrappedSendBuffer + SOCKS_HEADER_SIZE, send_buffer, buf_size);
+	memcpy(headered_send_buffer + SOCKS_HEADER_SIZE, send_buffer, buf_size);
 
-	return send_packet(h_socket, (const char*) mProxyWrappedSendBuffer, buf_size + 10, LLProxy::getInstance()->getUDPProxy().getAddress(), LLProxy::getInstance()->getUDPProxy().getPort());
+	return send_packet(	h_socket,
+						headered_send_buffer,
+						buf_size + SOCKS_HEADER_SIZE,
+						LLProxy::getInstance()->getUDPProxy().getAddress(),
+						LLProxy::getInstance()->getUDPProxy().getPort());
 }

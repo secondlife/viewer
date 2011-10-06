@@ -942,7 +942,7 @@ void LLVivoxVoiceClient::stateMachine()
 
 				if(!mSocket)
 				{
-					mSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);	
+					mSocket = LLSocket::create(LLSocket::STREAM_TCP);	
 				}
 				
 				mConnected = mSocket->blockingConnect(mDaemonHost);
@@ -4498,17 +4498,25 @@ bool LLVivoxVoiceClient::parcelVoiceInfoReceived(state requesting_state)
 
 bool LLVivoxVoiceClient::requestParcelVoiceInfo()
 {
-	LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
-
-	// grab the cap for parcel voice info from the region.  
 	LLViewerRegion * region = gAgent.getRegion();
-	if (region == NULL)
+	if (region == NULL || !region->capabilitiesReceived())
 	{
+		// we don't have the cap yet, so return false so the caller can try again later.
+
+		LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest capability not yet available, deferring" << LL_ENDL;
 		return false;
 	}
+
 	// grab the cap.
 	std::string url = gAgent.getRegion()->getCapability("ParcelVoiceInfoRequest");
-	if (!url.empty())
+	if (url.empty())
+	{
+		// Region dosn't have the cap. Stop probing.
+		LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest capability not available in this region" << LL_ENDL;
+		setState(stateDisableCleanup);
+		return false;
+	}
+	else 
 	{
 		// if we've already retrieved the cap from the region, go ahead and make the request,
 		// and return true so we can go into the state that waits for the response.
@@ -4517,17 +4525,10 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
 		LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
 		
 		LLHTTPClient::post(
-						   url,
-						   data,
-						   new LLVivoxVoiceClientCapResponder(getState()));
+						url,
+						data,
+						new LLVivoxVoiceClientCapResponder(getState()));
 		return true;
-	}
-	else 
-	{
-		
-		// we don't have the cap yet, so return false so the caller can try again later.
-		LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest cap not yet available, deferring" << LL_ENDL;
-		return false;
 	}
 }
 

@@ -92,11 +92,7 @@ public:
 			multiselect_text("multiselect_text"),
 			caption_text("caption_text"),
 			border("border")
-		{
-			name = "texture picker";
-			mouse_opaque(true);
-			follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
-		}
+		{}
 	};
 protected:
 	LLTextureCtrl(const Params&);

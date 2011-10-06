@@ -138,7 +138,6 @@
 			<menu_item_call label="Suono ([COST] L$)..." name="Upload Sound"/>
 			<menu_item_call label="Animazione ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modella..." name="Upload Model"/>
-			<menu_item_call label="Procedura guidata modellazione..." name="Upload Model Wizard"/>
 			<menu_item_call label="In blocco ([COST] L$ per file)..." name="Bulk Upload"/>
 		</menu>
 		<menu_item_call label="Annulla" name="Undo"/>
@@ -248,6 +247,7 @@
 			<menu_item_check label="Mostra info sulla texture" name="Show Texture Info"/>
 			<menu_item_check label="Mostra colore sotto il cursore" name="Show Color Under Cursor"/>
 			<menu_item_check label="Mostra memoria" name="Show Memory"/>
+			<menu_item_check label="Mostra info mem privata" name="Show Private Mem Info"/>
 			<menu_item_check label="Mostra aggiornamenti agli oggetti" name="Show Updates"/>
 		</menu>
 		<menu label="Forza un errore" name="Force Errors">

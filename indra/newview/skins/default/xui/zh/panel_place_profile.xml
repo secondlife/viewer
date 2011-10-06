@@ -66,7 +66,7 @@
 						<text name="build_value" value="On"/>
 						<text name="scripts_label" value="腳本："/>
 						<text name="scripts_value" value="On"/>
-						<text name="damage_label" value="商害："/>
+						<text name="damage_label" value="傷害："/>
 						<text name="damage_value" value="Off"/>
 						<button label="關於土地" name="about_land_btn"/>
 					</panel>
@@ -102,11 +102,11 @@
 						<text name="sales_price_label" value="價格："/>
 						<text name="area_label" value="面積："/>
 						<text name="traffic_label" value="流量："/>
-						<text name="primitives_label" value="Primitives:"/>
+						<text name="primitives_label" value="幾何元件："/>
 						<text name="parcel_scripts_label" value="腳本："/>
 						<text name="terraform_limits_label" value="土地變形限制："/>
 						<text name="subdivide_label" value="分割土地/合併土地能力："/>
-						<text name="resale_label" value="ReSale ability:"/>
+						<text name="resale_label" value="轉售能力："/>
 						<text name="sale_to_label" value="出售給："/>
 					</panel>
 				</accordion_tab>

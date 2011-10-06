@@ -579,6 +579,11 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 
 	}
 
+	// After role member data was changed in Roles->Members
+	// need to update role titles. See STORM-918.
+	if (gc == GC_ROLE_MEMBER_DATA)
+		LLGroupMgr::getInstance()->sendGroupTitlesRequest(mGroupID);
+
 	// If this was just a titles update, we are done.
 	if (gc == GC_TITLES) return;
 

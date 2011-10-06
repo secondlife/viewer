@@ -141,7 +141,6 @@ LLAvatarIconCtrl::Params::Params()
 	draw_tooltip("draw_tooltip", true),
 	default_icon_name("default_icon_name")
 {
-	name = "avatar_icon";
 }
 
 

@@ -314,6 +314,7 @@ protected:
 	signal_t						mReshapeSignal;
 	S32								mSignalSelectCallback;
 	S32								mMinWidth;
+	S32								mRunningHeight;
 	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	BOOL							mDragAndDropThisFrame;
 	

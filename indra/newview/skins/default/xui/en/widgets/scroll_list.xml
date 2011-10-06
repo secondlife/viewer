@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<scroll_list fg_unselected_color="ScrollUnselectedColor"
+<scroll_list name="scroll_list" 
+             fg_unselected_color="ScrollUnselectedColor"
              fg_selected_color="ScrollSelectedFGColor"
              bg_selected_color="ScrollSelectedBGColor"
              fg_disable_color="ScrollDisabledColor"
@@ -13,6 +14,7 @@
              scroll_bar_bg_visible="false"
              scroll_bar_bg_color="black"
              mouse_wheel_opaque="false"
+             mouse_opaque="true"
              background_visible="true"
              heading_height="23"
              draw_border="false"

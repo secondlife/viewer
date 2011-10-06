@@ -33,7 +33,7 @@
 #include "llfolderviewitem.h"
 
 
-#define SUPPORTING_FRESH_ITEM_COUNT	0
+#define SUPPORTING_FRESH_ITEM_COUNT	1
 
 
 
@@ -41,9 +41,7 @@ class LLInboxInventoryPanel : public LLInventoryPanel
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLInventoryPanel::Params>
-	{
-		Params() {}
-	};
+	{};
 	
 	LLInboxInventoryPanel(const Params& p);
 	~LLInboxInventoryPanel();
@@ -52,7 +50,8 @@ public:
 	void buildFolderView(const LLInventoryPanel::Params& params);
 
 	// virtual
-	class LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge);
+	LLFolderViewFolder * createFolderViewFolder(LLInvFVBridge * bridge);
+	LLFolderViewItem * createFolderViewItem(LLInvFVBridge * bridge);
 };
 
 
@@ -72,21 +71,32 @@ public:
 	LLInboxFolderViewFolder(const Params& p);
 	~LLInboxFolderViewFolder();
 
-	time_t getCreationDate() const;
-	
 	void draw();
 	
-	void updateFlag() const;
+	void computeFreshness();
+	void deFreshify();
+
 	void selectItem();
 	void toggleOpen();
 
 	bool isFresh() const { return mFresh; }
 	
 protected:
-	void setCreationDate(time_t creation_date_utc) const;
+	void setCreationDate(time_t creation_date_utc);
 
-	mutable bool	mFresh;
+	bool mFresh;
 };
 
+
+class LLInboxFolderViewItem : public LLFolderViewItem
+{
+public:
+	LLInboxFolderViewItem(const Params& p)
+		: LLFolderViewItem(p)
+	{
+	}
+
+	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+};
 
 #endif //LL_INBOXINVENTORYPANEL_H

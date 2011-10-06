@@ -1,5 +1,5 @@
 /** 
- * @file llaccountingquota.h
+ * @file llaccountingcost.h
  * @
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
@@ -58,21 +58,27 @@ struct ParcelQuota
 	F32 mParcelCapacity;
 };
 
-struct SelectionQuota
+//SelectionQuota atm does not require a id
+struct SelectionCost
 {
-	SelectionQuota( LLUUID localId, F32 renderCost, F32 physicsCost, F32 networkCost, F32 simulationCost )
-	: mLocalId( localId)
-	, mRenderCost( renderCost )
-	, mPhysicsCost( physicsCost )
+	SelectionCost( /*LLTransactionID transactionId, */ F32 physicsCost, F32 networkCost, F32 simulationCost )
+	//: mTransactionId( transactionId)
+	: mPhysicsCost( physicsCost )
 	, mNetworkCost( networkCost )
 	, mSimulationCost( simulationCost )
 	{
 	}
-	SelectionQuota() {}
+	SelectionCost()
+	: mPhysicsCost( 0.0f )
+	, mNetworkCost( 0.0f )
+	, mSimulationCost( 0.0f )
+	{}
 	
-	F32 mRenderCost, mPhysicsCost, mNetworkCost, mSimulationCost;	
-	LLUUID mLocalId;
+	F32 mPhysicsCost, mNetworkCost, mSimulationCost;	
+	//LLTransactionID mTransactionId;
 };
+
+typedef enum { Roots = 0 , Prims } eSelectionType;
 
 #endif
 

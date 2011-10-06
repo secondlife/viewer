@@ -63,9 +63,7 @@ LLScrollbar::Params::Params()
 	right_button("right_button"),
 	bg_visible("bg_visible", false),
 	bg_color("bg_color", LLColor4::black)
-{
-	tab_stop = false;
-}
+{}
 
 LLScrollbar::LLScrollbar(const Params & p)
 :		LLUICtrl(p),

@@ -24,7 +24,7 @@
 	<check_box label="限制推撞" name="restrict_pushobject"/>
 	<check_box label="允許土地轉售" name="allow_land_resell_check"/>
 	<check_box label="允許土地 合併/分割" name="allow_parcel_changes_check"/>
-	<check_box label="阻擋土地顯示於搜尋中" name="block_parcel_search_check" tool_tip="Let people see this region and its parcels in search results"/>
+	<check_box label="阻擋土地顯示於搜尋中" name="block_parcel_search_check" tool_tip="讓其他人可以在搜尋結果中看到這個地區與其中的地段"/>
 	<spinner label="人數上限" name="agent_limit_spin"/>
 	<spinner label="Object Bonus" name="object_bonus_spin"/>
 	<text label="Maturity" name="access_text">
