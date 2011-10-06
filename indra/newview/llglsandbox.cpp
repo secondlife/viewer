@@ -777,6 +777,11 @@ void LLViewerObjectList::renderObjectBeacons()
 
 	LLGLSUIDefault gls_ui;
 
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
