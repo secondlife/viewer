@@ -103,7 +103,11 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 	mPadTop(p.pad_top),
 	mPadBottom(p.pad_bottom),
 	mPadBetween(p.pad_between),
-	mPopupMenuHandle()
+	mPopupMenuHandle(),
+	mStartDragItemCallback(NULL),
+	mHandleDragItemCallback(NULL),
+	mHandleDropCallback(NULL),
+	mDragAndDropTarget(false)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
@@ -253,7 +257,7 @@ bool LLToolBar::removeCommand(const LLCommandId& commandId)
 	mButtons.erase(it_button);
 
 	mNeedsLayout = true;
-
+	
 	return true;
 }
 
@@ -635,8 +639,6 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 		cbParam.parameter = commandp->executeParameters();
 
 		button->setCommitCallback(cbParam);
-		button->setStartDragCallback(mStartDragItemCallback);
-		button->setHandleDragCallback(mHandleDragItemCallback);
 
 		const std::string& isEnabledFunction = commandp->isEnabledFunctionName();
 		if (isEnabledFunction.length() > 0)
@@ -670,6 +672,10 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 			button->mIsRunningSignal->connect(isRunningCB);
 		}
 	}
+
+	// Drag and drop behavior must work also if provided in the Toybox and, potentially, any read-only toolbar
+	button->setStartDragCallback(mStartDragItemCallback);
+	button->setHandleDragCallback(mHandleDragItemCallback);
 
 	button->setCommandId(id);
 
