@@ -408,9 +408,9 @@ Push $2
     ; Required since ProfileImagePath is of type REG_EXPAND_SZ
     ExpandEnvStrings $2 $2
 
-    RMDir /r "$2\Application Data\SecondLifeRestore\"
-    CreateDirectory "$2\Application Data\SecondLifeRestore\"
-    CopyFiles "$TEMP\SecondLifeSettingsBackup\$0\*" "$2\Application Data\SecondLifeRestore\" 
+    RMDir /r "$2\Application Data\SecondLife\"
+    CreateDirectory "$2\Application Data\SecondLife\"
+    CopyFiles "$TEMP\SecondLifeSettingsBackup\$0\*" "$2\Application Data\SecondLife\" 
 
   CONTINUE:
     IntOp $0 $0 + 1
@@ -425,9 +425,9 @@ Pop $0
 Push $0
     ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
     StrCmp $0 "" +2
-    RMDir /r "$2\Application Data\SecondLifeRestore\"
-    CreateDirectory "$2\Application Data\SecondLifeRestore\"
-    CopyFiles "$TEMP\SecondLifeSettingsBackup\AllUsers\*" "$2\Application Data\SecondLifeRestore\" 
+    RMDir /r "$2\Application Data\SecondLife\"
+    CreateDirectory "$2\Application Data\SecondLife\"
+    CopyFiles "$TEMP\SecondLifeSettingsBackup\AllUsers\*" "$2\Application Data\SecondLife\" 
 Pop $0
 
 FunctionEnd
@@ -863,10 +863,8 @@ Call CheckNetworkConnection		; ping secondlife.com
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Don't remove cache files during a regular install, removing the inventory cache on upgrades results in lots of damage to the servers.
 ;Call RemoveCacheFiles			; Installing over removes potentially corrupted
-
-Call PreserveCacheFiles
-Call RestoreCacheFiles
 								; VFS and cache files.
+Call PreserveCacheFiles
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Need to clean out shader files from previous installs to fix DEV-5663
@@ -947,6 +945,32 @@ WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" ""
 
 ; write out uninstaller
 WriteUninstaller "$INSTDIR\uninst.exe"
+
+; Remove existing "Second Life Viewer 2" install if any.
+StrCmp $INSTDIR "$PROGRAMFILES\SecondLifeViewer2" SLV2_DONE
+IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" SLV2_FOUND SLV2_DONE
+
+SLV2_FOUND:
+ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" /S'
+
+; cheesy spin wait for uninstall to finish - uninstaller is supposed
+; to take _? argument which combined with ExecWait would avoid need
+; for this, but have not been able to get it to work.
+SPIN_LOOP:
+Sleep 500
+IntOp $0 $0 + 500
+IntCmp $0 10000 SLV2_TIMEOUT CONT SLV2_TIMEOUT
+SLV2_TIMEOUT:
+MsgBox MB_OK "Error in uninstall"
+Goto SLV2_DONE
+
+CONT:
+; Do we know this is the last file removed?
+IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" SPIN_LOOP SLV2_DONE
+
+SLV2_DONE:
+MessageBox MB_OK "Restoring Cache Files"
+Call RestoreCacheFiles
 
 ; end of default section
 SectionEnd
