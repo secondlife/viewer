@@ -62,17 +62,24 @@ public:
 		mUUID = LLUUID::generateNewID(p.name);
 	}
 
+	LLCommandId(const LLUUID& uuid)
+	:	mName(""),
+		mUUID(uuid)
+	
+	{
+	}
+	
 	const std::string& name() const { return mName; }
 	const LLUUID& uuid() const { return mUUID; }
 
 	bool operator!=(const LLCommandId& command) const
 	{
-		return (mName != command.mName);
+		return (mUUID != command.mUUID);
 	}
 
 	bool operator==(const LLCommandId& command) const
 	{
-		return (mName == command.mName);
+		return (mUUID == command.mUUID);
 	}
 
 	bool operator<(const LLCommandId& command) const
@@ -178,7 +185,6 @@ public:
 	U32 commandCount() const;
 	LLCommand * getCommand(U32 commandIndex);
 	LLCommand * getCommand(const LLCommandId& commandId);
-	LLCommand * getCommand(const LLUUID& commandUUID);
 
 	static bool load();
 
@@ -186,13 +192,11 @@ protected:
 	void addCommand(LLCommand * command);
 
 private:
-	typedef std::map<LLUUID, U32>	    CommandUUIDMap;
-	typedef std::map<LLCommandId, U32>	CommandIndexMap;
+	typedef std::map<LLUUID, U32>		CommandIndexMap;
 	typedef std::vector<LLCommand *>	CommandVector;
 	
 	CommandVector	mCommands;
 	CommandIndexMap	mCommandIndices;
-	CommandUUIDMap	mCommandUUIDs;
 };
 
 

@@ -373,7 +373,8 @@ BOOL LLToolBarView::handleDrop( void* cargo_data, S32 x, S32 y, LLToolBar* toolb
 		//llinfos << "Merov debug : handleDrop. Drop source is a widget -> drop it in place..." << llendl;
 		// Get the command from its uuid
 		LLCommandManager& mgr = LLCommandManager::instance();
-		LLCommand* command = mgr.getCommand(inv_item->getUUID());
+		LLCommandId command_id(inv_item->getUUID());
+		LLCommand* command = mgr.getCommand(command_id);
 		if (command)
 		{
 			// Convert the (x,y) position in rank in toolbar

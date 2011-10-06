@@ -114,7 +114,7 @@ LLCommand * LLCommandManager::getCommand(const LLCommandId& commandId)
 {
 	LLCommand * command_match = NULL;
 
-	CommandIndexMap::const_iterator found = mCommandIndices.find(commandId);
+	CommandIndexMap::const_iterator found = mCommandIndices.find(commandId.uuid());
 	
 	if (found != mCommandIndices.end())
 	{
@@ -124,25 +124,10 @@ LLCommand * LLCommandManager::getCommand(const LLCommandId& commandId)
 	return command_match;
 }
 
-LLCommand * LLCommandManager::getCommand(const LLUUID& commandUUID)
-{
-	LLCommand * command_match = NULL;
-	
-	CommandUUIDMap::const_iterator found = mCommandUUIDs.find(commandUUID);
-	
-	if (found != mCommandUUIDs.end())
-	{
-		command_match = mCommands[found->second];
-	}
-	
-	return command_match;
-}
-
 void LLCommandManager::addCommand(LLCommand * command)
 {
 	LLCommandId command_id = command->id();
-	mCommandIndices[command_id] = mCommands.size();
-	mCommandUUIDs[command_id.uuid()] = mCommands.size();
+	mCommandIndices[command_id.uuid()] = mCommands.size();
 	mCommands.push_back(command);
 
 	lldebugs << "Successfully added command: " << command->id().name() << llendl;
