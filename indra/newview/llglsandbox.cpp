@@ -789,6 +789,8 @@ void LLViewerObjectList::renderObjectBeacons()
 		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
 		
 		BOOL flush = FALSE;
+		S32 flush_me = 128;
+
 		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
 		{
 			const LLDebugBeacon &debug_beacon = *iter;
@@ -818,6 +820,14 @@ void LLViewerObjectList::renderObjectBeacons()
 			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 2.f,thisline.mV[VZ]);
 
 			draw_line_cube(0.10f, thisline);
+
+			if (--flush_me <= 0)
+			{
+				flush_me = 128;
+				gGL.end();
+				gGL.flush();
+				gGL.begin(LLRender::LINES);
+			}
 		}
 		gGL.end();
 	}
@@ -830,6 +840,8 @@ void LLViewerObjectList::renderObjectBeacons()
 		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
 		
 		BOOL flush = FALSE;
+		S32 flush_me = 128;
+
 		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
 		{
 			const LLDebugBeacon &debug_beacon = *iter;
@@ -858,6 +870,14 @@ void LLViewerObjectList::renderObjectBeacons()
 			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 0.5f,thisline.mV[VZ]);
 
 			draw_line_cube(0.10f, thisline);
+
+			if (--flush_me <= 0)
+			{
+				flush_me = 128;
+				gGL.end();
+				gGL.flush();
+				gGL.begin(LLRender::LINES);
+			}
 		}
 		
 		gGL.end();
