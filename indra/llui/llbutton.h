@@ -160,7 +160,6 @@ public:
 	virtual void	draw();
 	/*virtual*/ BOOL postBuild();
 
-	virtual void	onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void	onMouseLeave(S32 x, S32 y, MASK mask);
 	virtual void	onMouseCaptureLost();
 

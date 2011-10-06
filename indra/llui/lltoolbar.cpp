@@ -577,7 +577,7 @@ void LLToolBar::draw()
 			if (command && btn->mIsRunningSignal)
 			{
 				const bool button_command_running = (*btn->mIsRunningSignal)(btn, command->isRunningParameters());
-				btn->setFlashing(button_command_running);
+				btn->setToggleState(button_command_running);
 			}
 		}
 	}

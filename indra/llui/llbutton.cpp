@@ -515,15 +515,6 @@ BOOL	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-
-void LLButton::onMouseEnter(S32 x, S32 y, MASK mask)
-{
-	LLUICtrl::onMouseEnter(x, y, mask);
-
-	if (isInEnabledChain())
-		mNeedsHighlight = TRUE;
-}
-
 void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	LLUICtrl::onMouseLeave(x, y, mask);
@@ -538,6 +529,10 @@ void LLButton::setHighlight(bool b)
 
 BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 {
+	if (isInEnabledChain() 
+		&& (!gFocusMgr.getMouseCapture() || gFocusMgr.getMouseCapture() != this))
+		mNeedsHighlight = TRUE;
+
 	if (!childrenHandleHover(x, y, mask))
 	{
 		if (mMouseDownTimer.getStarted())

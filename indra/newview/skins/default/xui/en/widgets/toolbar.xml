@@ -12,6 +12,10 @@
                 bg_opaque_image_overlay="MouseGray"
                 background_opaque="true"/>
   <button_icon_and_text imgoverlay_label_space="7"
+                        label_color_selected="White"
+                        image_pressed="PushButton_Press"
+                        image_pressed_selected="PushButton_Selected_Press"
+                        image_selected="PushButton_Selected_Press"
                         button_width.min="70"
                         button_width.max="140"
                         desired_height="24"
@@ -25,6 +29,9 @@
                         flash_color="EmphasisColor"/>
   <button_icon pad_left="10"
                pad_right="10"
+               image_pressed="PushButton_Press"
+               image_pressed_selected="PushButton_Selected_Press"
+               image_selected="PushButton_Selected_Press"
                desired_height="35"
                button_width.min="35"
                button_width.max="35"               
