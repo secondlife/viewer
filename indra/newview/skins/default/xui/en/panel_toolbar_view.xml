@@ -52,7 +52,19 @@
       <layout_panel name="non_toolbar_panel"
                     auto_resize="true"
                     user_resize="false"
-                    mouse_opaque="false"/>
+                    mouse_opaque="false"
+                    height="100"
+                    width="100">
+        <panel bottom="100"
+               follows="left|right|bottom"
+               height="25"
+               left="0"
+               mouse_opaque="false"
+               tab_stop="false"
+               name="stand_stop_flying_container"
+               visible="false"
+               width="100"/>
+      </layout_panel>
       <layout_panel name="right_toolbar_panel"
                     auto_resize="false"
                     user_resize="false"
