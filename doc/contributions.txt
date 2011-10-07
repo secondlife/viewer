@@ -622,6 +622,7 @@ Latif Khalifa
 	VWR-5370
 leliel Mirihi
 	STORM-1100
+	STORM-1602
 len Starship
 Lisa Lowe
 	CT-218
@@ -1032,6 +1033,9 @@ Synystyr Texan
 Takeda Terrawyng
 TankMaster Finesmith
 	STORM-1100
+	STORM-1602
+	STORM-1258
+    VWR-26622
 Talamasca
 Tali Rosca
 Tayra Dagostino
