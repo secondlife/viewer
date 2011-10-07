@@ -575,6 +575,15 @@ private:
  **                                                                            **
  *******************************************************************************/
 
+	// Build
+public:
+	bool			canEditParcel() const { return mCanEditParcel; }
+private:
+	bool			mCanEditParcel;
+
+	static bool isActionAllowed(const LLSD& sdname);
+	static void parcelChangedCallback();
+
 /********************************************************************************
  **                                                                            **
  **                    ACCESS
