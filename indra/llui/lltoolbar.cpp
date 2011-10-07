@@ -723,7 +723,10 @@ LLToolBarButton::LLToolBarButton(const Params& p)
 	mId(""),
 	mIsEnabledSignal(NULL),
 	mIsRunningSignal(NULL),
-	mIsStartingSignal(NULL)
+	mIsStartingSignal(NULL),
+	mIsDragged(false),
+	mStartDragItemCallback(NULL),
+	mHandleDragItemCallback(NULL)
 {
 	mButtonFlashRate = 0.0;
 	mButtonFlashCount = 0;
