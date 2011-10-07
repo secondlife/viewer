@@ -1945,6 +1945,12 @@ void LLViewerWindow::initWorldUI()
 		destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
 		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"), "text/html");
 	}
+	LLMediaCtrl* avatar_picker = LLFloaterReg::getInstance("avatar")->findChild<LLMediaCtrl>("avatar_picker_contents");
+	if (avatar_picker)
+	{
+		avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
+	}
 }
 
 // Destroy the UI
