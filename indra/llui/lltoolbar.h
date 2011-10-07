@@ -173,6 +173,8 @@ public:
 
 	LLToolBarButton* createButton(const LLCommandId& id);
 
+	bool hasButtons() { return !mButtons.empty(); }
+
 protected:
 	friend class LLUICtrlFactory;
 	LLToolBar(const Params&);

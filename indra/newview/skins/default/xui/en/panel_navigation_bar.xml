@@ -60,9 +60,9 @@
            layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="340"
+           min_width="480"
            name="navigation_layout_panel"
-           width="340">
+           width="480">
 	<panel
 	 background_visible="false"
 	 follows="left|top|right"
@@ -71,7 +71,7 @@
 	 layout="topleft"
                left="0"
 	 name="navigation_panel"
-               width="340">
+     width="480">
 	     <pull_button
 	     follows="left|top"
 	     direction="down"
@@ -118,7 +118,7 @@
 	     mouse_opaque="false"
 	     name="location_combo"
 	     top_delta="0"
-                   width="215">
+            width="355">
          <combo_list
          mouse_wheel_opaque="true"/>
 	    </location_input>
@@ -149,9 +149,9 @@
 	     layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="335"
+           min_width="315"
            name="favorites_layout_panel"
-           width="335">
+           width="315">
     <favorites_bar
      follows="left|right|top"
      font="SansSerifSmall"
@@ -161,7 +161,7 @@
      name="favorite"
      image_drag_indication="Accordion_ArrowOpened_Off"
      tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
-               width="331">
+               width="311">
         <label
          follows="left|top"
          height="15"
@@ -177,14 +177,12 @@
                  <!-- More button actually is a text box. -->
                  <more_button
                    follows="left|bottom"
-                   font.name="SansSerifSmall"
-                   font.style="UNDERLINE"
                    name=">>"
                      tab_stop="false"
                      tool_tip="Show more of My Favorites"
 		     top="15"
                    width="50">
-                   More...
+                   More &#9660;
                    </more_button>
   </favorites_bar>
          </layout_panel>
