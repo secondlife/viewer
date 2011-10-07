@@ -5409,7 +5409,16 @@ BOOL LLModelPreview::render()
 
 			if (joint_positions)
 			{
+				LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+				if (shader)
+				{
+					gDebugProgram.bind();
+				}
 				getPreviewAvatar()->renderCollisionVolumes();
+				if (shader)
+				{
+					shader->bind();
+				}
 			}
 
 			for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
