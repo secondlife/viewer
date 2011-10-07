@@ -1376,16 +1376,17 @@ std::string LLItemBridge::getLabelSuffix() const
 	LLInventoryItem* item = getItem();
 	if(item)
 	{
-		// it's a bit confusing to put nocopy/nomod/etc on calling cards.
+		// Any type can have the link suffix...
+		BOOL broken_link = LLAssetType::lookupIsLinkType(item->getType());
+		if (broken_link) return BROKEN_LINK;
+
+		BOOL link = item->getIsLinkType();
+		if (link) return LINK;
+
+		// ...but it's a bit confusing to put nocopy/nomod/etc suffixes on calling cards.
 		if(LLAssetType::AT_CALLINGCARD != item->getType()
 		   && item->getPermissions().getOwner() == gAgent.getID())
 		{
-			BOOL broken_link = LLAssetType::lookupIsLinkType(item->getType());
-			if (broken_link) return BROKEN_LINK;
-
-			BOOL link = item->getIsLinkType();
-			if (link) return LINK;
-
 			BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
 			if (!copy)
 			{
