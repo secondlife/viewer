@@ -26,9 +26,9 @@
            label_ref="Command_Avatar_Label"
            tooltip_ref="Command_Avatar_Tooltip"
            execute_function="Floater.ToolbarToggle"
-           execute_parameters="avatar_picker"
+           execute_parameters="avatar"
            is_running_function="Floater.IsOpen"
-           is_running_parameters="avatar_picker"
+           is_running_parameters="avatar"
            />
   <command name="build"
            available_in_toybox="true"
