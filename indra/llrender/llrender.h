@@ -343,10 +343,8 @@ public:
 	void pushMatrix();
 	void popMatrix();
 	void loadMatrix(const GLfloat* m);
-	void loadMatrix(const GLdouble* m);
 	void loadIdentity();
 	void multMatrix(const GLfloat* m);
-	void multMatrix(const GLdouble* m);
 	void matrixMode(U32 mode);	
 
 	const glh::matrix4f& getModelviewMatrix();
@@ -470,10 +468,10 @@ private:
 
 };
 
-extern F64 gGLModelView[16];
-extern F64 gGLLastModelView[16];
-extern F64 gGLLastProjection[16];
-extern F64 gGLProjection[16];
+extern F32 gGLModelView[16];
+extern F32 gGLLastModelView[16];
+extern F32 gGLLastProjection[16];
+extern F32 gGLProjection[16];
 extern S32 gGLViewport[4];
 
 extern LLRender gGL;

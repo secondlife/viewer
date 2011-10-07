@@ -201,13 +201,10 @@ U32 nhpo2(U32 v)
 	return r;
 }
 
-glh::matrix4f glh_copy_matrix(GLdouble* src)
+glh::matrix4f glh_copy_matrix(F32* src)
 {
 	glh::matrix4f ret;
-	for (U32 i = 0; i < 16; i++)
-	{
-		ret.m[i] = (F32) src[i];
-	}
+	ret.set_value(src);
 	return ret;
 }
 
@@ -231,7 +228,7 @@ glh::matrix4f glh_get_last_projection()
 	return glh_copy_matrix(gGLLastProjection);
 }
 
-void glh_copy_matrix(const glh::matrix4f& src, GLdouble* dst)
+void glh_copy_matrix(const glh::matrix4f& src, F32* dst)
 {
 	for (U32 i = 0; i < 16; i++)
 	{
@@ -3171,19 +3168,6 @@ void LLPipeline::postSort(LLCamera& camera)
 		
 	if (!sShadowRender)
 	{
-		//sort by texture or bump map
-		for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; ++i)
-		{
-			if (i == LLRenderPass::PASS_BUMP)
-			{
-				std::sort(sCull->beginRenderMap(i), sCull->endRenderMap(i), LLDrawInfo::CompareBump());
-			}
-			else 
-			{
-				std::sort(sCull->beginRenderMap(i), sCull->endRenderMap(i), LLDrawInfo::CompareTexturePtrMatrix());
-			}	
-		}
-
 		std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
 	}
 	llpushcallstacks ;
@@ -3503,8 +3487,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 	assertInitialized();
 
-	F64 saved_modelview[16];
-	F64 saved_projection[16];
+	F32 saved_modelview[16];
+	F32 saved_projection[16];
 
 	//HACK: preserve/restore matrices around HUD render
 	if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
@@ -6768,7 +6752,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 		{
 			cube_map->enable(channel);
 			cube_map->bind();
-			F64* m = gGLModelView;
+			F32* m = gGLModelView;
 
 			
 			F32 mat[] = { m[0], m[1], m[2],

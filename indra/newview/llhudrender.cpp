@@ -107,8 +107,18 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	viewport[1] = world_view_rect.mBottom;
 	viewport[2] = world_view_rect.getWidth();
 	viewport[3] = world_view_rect.getHeight();
+
+	F64 mdlv[16];
+	F64 proj[16];
+
+	for (U32 i = 0; i < 16; i++)
+	{
+		mdlv[i] = (F64) gGLModelView[i];
+		proj[i] = (F64) gGLProjection[i];
+	}
+
 	gluProject(render_pos.mV[0], render_pos.mV[1], render_pos.mV[2],
-				gGLModelView, gGLProjection, (GLint*) viewport,
+				mdlv, proj, (GLint*) viewport,
 				&winX, &winY, &winZ);
 		
 	//fonts all render orthographically, set up projection``

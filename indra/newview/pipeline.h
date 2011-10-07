@@ -72,7 +72,7 @@ BOOL compute_min_max(LLMatrix4& box, LLVector2& min, LLVector2& max); // Shouldn
 bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& origin, const LLVector3& dir, LLVector3 &coord, F32 epsilon = 0);
 BOOL setup_hud_matrices(); // use whole screen to render hud
 BOOL setup_hud_matrices(const LLRect& screen_region); // specify portion of screen (in pixels) to render hud attachments from (for picking)
-glh::matrix4f glh_copy_matrix(GLdouble* src);
+glh::matrix4f glh_copy_matrix(F32* src);
 glh::matrix4f glh_get_current_modelview();
 void glh_set_current_modelview(const glh::matrix4f& mat);
 glh::matrix4f glh_get_current_projection();

@@ -38,10 +38,10 @@
 LLRender gGL;
 
 // Handy copies of last good GL matrices
-F64	gGLModelView[16];
-F64	gGLLastModelView[16];
-F64 gGLLastProjection[16];
-F64 gGLProjection[16];
+F32	gGLModelView[16];
+F32	gGLLastModelView[16];
+F32 gGLLastProjection[16];
+F32 gGLProjection[16];
 S32	gGLViewport[4];
 
 U32 LLRender::sUICalls = 0;
@@ -1163,41 +1163,41 @@ void LLRender::syncMatrices()
 
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
+	static glh::matrix4f cached_mvp;
+	static U32 cached_mvp_mdv_hash = 0xFFFFFFFF;
+	static U32 cached_mvp_proj_hash = 0xFFFFFFFF;
+	
+	static glh::matrix4f cached_normal;
+	static U32 cached_normal_hash = 0xFFFFFFFF;
+
 	if (shader)
 	{
-		
 		llassert(shader);
 
 		bool do_normal = false;
-		bool do_mvp = false;
+		bool do_mvp = false;	
 
-		for (U32 i = 0; i < NUM_MATRIX_MODES; ++i)
-		{
-			if (mMatHash[i] != shader->mMatHash[i])
-			{
-				shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mMatrix[i][mMatIdx[i]].m);
-				shader->mMatHash[i] = mMatHash[i];
+		bool mvp_done = false;
 
-				if (i == MM_MODELVIEW)
-				{
-					do_normal = true;
-					do_mvp = true;
-				}
-				else if (i == MM_PROJECTION)
-				{
-					do_mvp = true;
-				}
-			}
-		}
+		U32 i = MM_MODELVIEW;
+		if (mMatHash[i] != shader->mMatHash[i])
+		{ //update modelview, normal, and MVP
+			glh::matrix4f& mat = mMatrix[i][mMatIdx[i]];
 
-		if (do_normal)
-		{
+			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mat.m);
+			shader->mMatHash[i] = mMatHash[i];
+
+			//update normal matrix
 			S32 loc = shader->getUniformLocation("normal_matrix");
 			if (loc > -1)
 			{
-				U32 i = MM_MODELVIEW;
+				if (cached_normal_hash != mMatHash[i])
+				{
+					cached_normal = mat.inverse().transpose();
+					cached_normal_hash = mMatHash[i];
+				}
 
-				glh::matrix4f norm = mMatrix[i][mMatIdx[i]].inverse().transpose();
+				glh::matrix4f& norm = cached_normal;
 
 				F32 norm_mat[] = 
 				{
@@ -1208,22 +1208,64 @@ void LLRender::syncMatrices()
 
 				shader->uniformMatrix3fv("normal_matrix", 1, GL_FALSE, norm_mat);
 			}
-		}
 
-		if (do_mvp)
-		{
-			S32 loc = shader->getUniformLocation("modelview_projection_matrix");
+			//update MVP matrix
+			mvp_done = true;
+			loc = shader->getUniformLocation("modelview_projection_matrix");
 			if (loc > -1)
 			{
-				U32 mv = MM_MODELVIEW;
 				U32 proj = MM_PROJECTION;
 
-				glh::matrix4f mvp = mMatrix[mv][mMatIdx[mv]];
-				mvp.mult_left(mMatrix[proj][mMatIdx[proj]]);
-				
-				shader->uniformMatrix4fv("modelview_projection_matrix", 1, GL_FALSE, mvp.m);
+				if (cached_mvp_mdv_hash != mMatHash[i] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
+				{
+					cached_mvp = mat;
+					cached_mvp.mult_left(mMatrix[proj][mMatIdx[proj]]);
+					cached_mvp_mdv_hash = mMatHash[i];
+					cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
+				}
+
+				shader->uniformMatrix4fv("modelview_projection_matrix", 1, GL_FALSE, cached_mvp.m);
 			}
 		}
+
+
+		i = MM_PROJECTION;
+		if (mMatHash[i] != shader->mMatHash[i])
+		{ //update projection matrix, normal, and MVP
+			glh::matrix4f& mat = mMatrix[i][mMatIdx[i]];
+
+			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mat.m);
+			shader->mMatHash[i] = mMatHash[i];
+
+			if (!mvp_done)
+			{
+				//update MVP matrix
+				S32 loc = shader->getUniformLocation("modelview_projection_matrix");
+				if (loc > -1)
+				{
+					if (cached_mvp_mdv_hash != mMatHash[i] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
+					{
+						U32 mdv = MM_MODELVIEW;
+						cached_mvp = mat;
+						cached_mvp.mult_right(mMatrix[mdv][mMatIdx[mdv]]);
+						cached_mvp_mdv_hash = mMatHash[MM_MODELVIEW];
+						cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
+					}
+									
+					shader->uniformMatrix4fv("modelview_projection_matrix", 1, GL_FALSE, cached_mvp.m);
+				}
+			}
+		}
+
+		for (i = MM_TEXTURE0; i < NUM_MATRIX_MODES; ++i)
+		{
+			if (mMatHash[i] != shader->mMatHash[i])
+			{
+				shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mMatrix[i][mMatIdx[i]].m);
+				shader->mMatHash[i] = mMatHash[i];
+			}
+		}
+
 
 		if (shader->mFeatures.hasLighting || shader->mFeatures.calculatesLighting)
 		{ //also sync light state
@@ -1261,116 +1303,121 @@ void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
 	flush();
 
-	glh::matrix4f trans_mat(1,0,0,x,
-							0,1,0,y,
-							0,0,1,z,
-							0,0,0,1);
+	{
+		glh::matrix4f trans_mat(1,0,0,x,
+								0,1,0,y,
+								0,0,1,z,
+								0,0,0,1);
 	
-	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(trans_mat);
-	mMatHash[mMatrixMode]++;
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(trans_mat);
+		mMatHash[mMatrixMode]++;
+	}
 }
 
 void LLRender::scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
 	flush();
 	
-	glh::matrix4f scale_mat(x,0,0,0,
-							0,y,0,0,
-							0,0,z,0,
-							0,0,0,1);
+	{
+		glh::matrix4f scale_mat(x,0,0,0,
+								0,y,0,0,
+								0,0,z,0,
+								0,0,0,1);
 	
-	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(scale_mat);
-	mMatHash[mMatrixMode]++;
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(scale_mat);
+		mMatHash[mMatrixMode]++;
+	}
 }
 
 void LLRender::ortho(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar)
 {
 	flush();
 
-	glh::matrix4f ortho_mat(2.f/(right-left),0,0,	-(right+left)/(right-left),
-							0,2.f/(top-bottom),0,	-(top+bottom)/(top-bottom),
-							0,0,-2.f/(zFar-zNear),	-(zFar+zNear)/(zFar-zNear),
-							0,0,0,1);
+	{
+
+		glh::matrix4f ortho_mat(2.f/(right-left),0,0,	-(right+left)/(right-left),
+								0,2.f/(top-bottom),0,	-(top+bottom)/(top-bottom),
+								0,0,-2.f/(zFar-zNear),	-(zFar+zNear)/(zFar-zNear),
+								0,0,0,1);
 	
-	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(ortho_mat);
-	mMatHash[mMatrixMode]++;
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(ortho_mat);
+		mMatHash[mMatrixMode]++;
+	}
 }
 
 void LLRender::rotatef(const GLfloat& a, const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
 	flush();
+
+	{
+		F32 r = a * DEG_TO_RAD;
+
+		F32 c = cosf(r);
+		F32 s = sinf(r);
+
+		F32 ic = 1.f-c;
+
+		glh::matrix4f rot_mat(x*x*ic+c,		x*y*ic-z*s,		x*z*ic+y*s,		0,
+							  x*y*ic+z*s,	y*y*ic+c,		y*z*ic-x*s,		0,
+							  x*z*ic-y*s,	y*z*ic+x*s,		z*z*ic+c,		0,
+							  0,0,0,1);
 	
-	F32 r = a * DEG_TO_RAD;
-
-	F32 c = cosf(r);
-	F32 s = sinf(r);
-
-	F32 ic = 1.f-c;
-
-	glh::matrix4f rot_mat(x*x*ic+c,		x*y*ic-z*s,		x*z*ic+y*s,		0,
-						  x*y*ic+z*s,	y*y*ic+c,		y*z*ic-x*s,		0,
-						  x*z*ic-y*s,	y*z*ic+x*s,		z*z*ic+c,		0,
-						  0,0,0,1);
-	
-	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(rot_mat);
-	mMatHash[mMatrixMode]++;
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(rot_mat);
+		mMatHash[mMatrixMode]++;
+	}
 }
 
 void LLRender::pushMatrix()
 {
 	flush();
 	
-	if (mMatIdx[mMatrixMode] < LL_MATRIX_STACK_DEPTH-1)
 	{
-		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]+1] = mMatrix[mMatrixMode][mMatIdx[mMatrixMode]];
-		++mMatIdx[mMatrixMode];
-	}
-	else
-	{
-		llwarns << "Matrix stack overflow." << llendl;
+		if (mMatIdx[mMatrixMode] < LL_MATRIX_STACK_DEPTH-1)
+		{
+			mMatrix[mMatrixMode][mMatIdx[mMatrixMode]+1] = mMatrix[mMatrixMode][mMatIdx[mMatrixMode]];
+			++mMatIdx[mMatrixMode];
+		}
+		else
+		{
+			llwarns << "Matrix stack overflow." << llendl;
+		}
 	}
 }
 
 void LLRender::popMatrix()
 {
 	flush();
-	if (mMatIdx[mMatrixMode] > 0)
 	{
-		--mMatIdx[mMatrixMode];
-		mMatHash[mMatrixMode]++;
-	}
-	else
-	{
-		llwarns << "Matrix stack underflow." << llendl;
+		if (mMatIdx[mMatrixMode] > 0)
+		{
+			--mMatIdx[mMatrixMode];
+			mMatHash[mMatrixMode]++;
+		}
+		else
+		{
+			llwarns << "Matrix stack underflow." << llendl;
+		}
 	}
 }
 
 void LLRender::loadMatrix(const GLfloat* m)
 {
 	flush();
-	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].set_value((GLfloat*) m);
-	mMatHash[mMatrixMode]++;
-}
-
-void LLRender::loadMatrix(const GLdouble* dm)
-{
-	F32 m[16];
-	for (U32 i = 0; i < 16; i++)
 	{
-		m[i] = (F32) dm[i];
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].set_value((GLfloat*) m);
+		mMatHash[mMatrixMode]++;
 	}
-
-	loadMatrix(m);
 }
 
 void LLRender::multMatrix(const GLfloat* m)
 {
 	flush();
-
-	glh::matrix4f mat((GLfloat*) m);
+	{
+		glh::matrix4f mat((GLfloat*) m);
 	
-	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(mat);
-	mMatHash[mMatrixMode]++;
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(mat);
+		mMatHash[mMatrixMode]++;
+	}
 }
 
 void LLRender::matrixMode(U32 mode)
@@ -1384,23 +1431,14 @@ void LLRender::matrixMode(U32 mode)
 	mMatrixMode = mode;
 }
 
-void LLRender::multMatrix(const GLdouble* dm)
-{
-	F32 m[16];
-	for (U32 i = 0; i < 16; i++)
-	{
-		m[i] = (F32) dm[i];
-	}
-
-	multMatrix(m);
-}
-
 void LLRender::loadIdentity()
 {
 	flush();
 
-	mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].make_identity();
-	mMatHash[mMatrixMode]++;
+	{
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].make_identity();
+		mMatHash[mMatrixMode]++;
+	}
 }
 
 const glh::matrix4f& LLRender::getModelviewMatrix()
