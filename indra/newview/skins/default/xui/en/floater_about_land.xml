@@ -6,7 +6,7 @@
  name="floaterland"
  help_topic="floaterland"
  save_rect="true"
- title="ABOUT LAND"
+ title="About land"
  width="490">
     <floater.string
       name="maturity_icon_general">
