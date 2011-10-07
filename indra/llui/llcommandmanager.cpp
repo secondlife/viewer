@@ -139,7 +139,7 @@ bool LLCommandManager::load()
 
 	if (!commandsParams.validateBlock())
 	{
-		llerrs << "Unable to validate commands param block from file: " << commands_file << llendl;
+		llerrs << "Invalid commands file: " << commands_file << llendl;
 		return false;
 	}
 
