@@ -41,10 +41,10 @@
         <toolbar follows="left|top|bottom"
                  button_panel.bg_opaque_image="Rounded_Rect_Right"
                  name="toolbar_left"
-                 height="500"
                  width="30"
                  left="0"
-                 top="0"
+                 top="10"
+                 bottom="-10"
                  side="left"
                  button_display_mode="icons_only">
         </toolbar>
@@ -63,10 +63,10 @@
           button_panel.bg_opaque_image="Rounded_Rect_Left"
           follows="right|top|bottom"
           name="toolbar_right"
-          height="500"
           width="30"
           left="0"
-          top="0"
+          top="10"
+          bottom="-10"
           side="right"
           button_display_mode="icons_only">
         </toolbar>
@@ -83,8 +83,8 @@
              button_panel.bg_opaque_image="Rounded_Rect_Top"
              name="toolbar_bottom"
              height="30"
-             width="1024"
-             left="0"
+             left="40"
+             right="-40"
              top="0"
              side="bottom"
              follows="left|right|bottom"
