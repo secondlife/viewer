@@ -2674,9 +2674,9 @@ to &apos;[THIS_GPU]&apos;
 
   <notification
    icon="alertmodal.tga"
-   name="DisplaySetToRecommended"
+   name="DisplaySetToRecommendedFeatureChange"
    type="alertmodal">
-Display settings have been set to recommended levels based on your system configuration.
+Display settings have been set to recommended levels because of a change to the rendering subsystem.
   </notification>
 
   <notification

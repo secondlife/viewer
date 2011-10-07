@@ -4592,7 +4592,7 @@
     <key>LastGPUString</key>
     <map>
       <key>Comment</key>
-      <string>[DO NOT MODIFY] previous GPU class for tracking hardware changes</string>
+      <string>[DO NOT MODIFY] previous GPU id string for tracking hardware changes</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -4603,7 +4603,7 @@
     <key>LastFeatureVersion</key>
     <map>
       <key>Comment</key>
-      <string>[DO NOT MODIFY] Version number for tracking hardware changes</string>
+      <string>[DO NOT MODIFY] Feature Table Version number for tracking rendering system changes</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

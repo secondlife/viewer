@@ -377,7 +377,7 @@ bool idle_startup()
 		else if ((gSavedSettings.getS32("LastFeatureVersion") < LLFeatureManager::getInstance()->getVersion()) &&
 				 (gSavedSettings.getS32("LastFeatureVersion") != 0))
 		{
-			LLNotificationsUtil::add("DisplaySetToRecommended");
+			LLNotificationsUtil::add("DisplaySetToRecommendedFeatureChange");
 		}
 		else if ( ! lastGPU.empty() && (lastGPU != thisGPU))
 		{
