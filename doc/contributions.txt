@@ -1034,6 +1034,7 @@ Takeda Terrawyng
 TankMaster Finesmith
 	STORM-1100
 	STORM-1602
+	STORM-1258
     VWR-26622
 Talamasca
 Tali Rosca
