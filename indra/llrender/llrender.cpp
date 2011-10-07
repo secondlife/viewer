@@ -1174,9 +1174,6 @@ void LLRender::syncMatrices()
 	{
 		llassert(shader);
 
-		bool do_normal = false;
-		bool do_mvp = false;	
-
 		bool mvp_done = false;
 
 		U32 i = MM_MODELVIEW;
