@@ -613,7 +613,7 @@ Push $2
         ; Remove all cache and settings files but leave any other .txt files to preserve the chat logs
 ;    RMDir /r "$2\Application Data\SecondLife\logs"
     RMDir /r "$2\Application Data\SecondLife\browser_profile"
-;    RMDir /r "$2\Application Data\SecondLife\user_settings"
+    RMDir /r "$2\Application Data\SecondLife\user_settings"
     Delete  "$2\Application Data\SecondLife\*.xml"
     Delete  "$2\Application Data\SecondLife\*.bmp"
     Delete  "$2\Application Data\SecondLife\search_history.txt"
