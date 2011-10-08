@@ -141,7 +141,8 @@ public:
 												pad_top,
 												pad_right,
 												pad_bottom,
-												pad_between;
+												pad_between,
+												min_girth;
 		// get rid of this
 		Multiple<LLCommandId::Params>			commands;
 
@@ -219,7 +220,8 @@ private:
 									mPadRight,
 									mPadTop,
 									mPadBottom,
-									mPadBetween;
+									mPadBetween,
+									mMinGirth;
 
 	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
 

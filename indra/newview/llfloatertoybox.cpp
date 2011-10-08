@@ -62,9 +62,9 @@ BOOL LLFloaterToybox::postBuild()
 
 	mBtnRestoreDefaults = getChild<LLButton>("btn_restore_defaults");
 	mToolBar = getChild<LLToolBar>("toybox_toolbar");
-	mToolBar->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
-	mToolBar->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
-	mToolBar->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3,_4));
+	mToolBar->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
+	mToolBar->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
+	mToolBar->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
 	
 	LLCommandManager& cmdMgr = LLCommandManager::instance();
 

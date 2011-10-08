@@ -4,6 +4,7 @@
          pad_top="1"
          pad_bottom="1"
          pad_between="1"
+         min_girth="24"
          mouse_opaque="false"
          read_only="false">
   <button_panel name="button_panel"

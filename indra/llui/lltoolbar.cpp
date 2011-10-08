@@ -86,6 +86,7 @@ LLToolBar::Params::Params()
 	pad_right("pad_right"),
 	pad_bottom("pad_bottom"),
 	pad_between("pad_between"),
+	min_girth("min_girth"),
 	button_panel("button_panel")
 {}
 
@@ -103,6 +104,7 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 	mPadTop(p.pad_top),
 	mPadBottom(p.pad_bottom),
 	mPadBetween(p.pad_between),
+	mMinGirth(p.min_girth),
 	mPopupMenuHandle(),
 	mStartDragItemCallback(NULL),
 	mHandleDragItemCallback(NULL),
@@ -517,6 +519,8 @@ void LLToolBar::updateLayoutAsNeeded()
 	S32 total_girth =	cur_row				// current row position...
 						+ max_row_girth		// ...incremented by size of final row...
 						+ girth_pad_end;	// ...plus padding reserved on end
+	total_girth = llmax(total_girth,mMinGirth);
+	
 	max_row_length = llmax(max_row_length, row_running_length - mPadBetween + row_pad_end);
 
 	resizeButtonsInRow(buttons_in_row, max_row_girth);
