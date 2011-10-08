@@ -90,15 +90,6 @@
                      top="0"
                      visible="false"
                      width="1024"/>
-              <panel bottom="500"
-                     follows="left|right|bottom"
-                     height="25"
-                     left="0"
-                     mouse_opaque="false"
-                     tab_stop="false"
-                     name="stand_stop_flying_container"
-                     visible="false"
-                     width="500"/>
             </layout_panel>
             <!--<layout_panel auto_resize="false"
                    min_height="33"
