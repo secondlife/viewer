@@ -611,9 +611,9 @@ Push $2
     ExpandEnvStrings $2 $2
 
         ; Remove all cache and settings files but leave any other .txt files to preserve the chat logs
-    RMDir /r "$2\Application Data\SecondLife\logs"
+;    RMDir /r "$2\Application Data\SecondLife\logs"
     RMDir /r "$2\Application Data\SecondLife\browser_profile"
-    RMDir /r "$2\Application Data\SecondLife\user_settings"
+;    RMDir /r "$2\Application Data\SecondLife\user_settings"
     Delete  "$2\Application Data\SecondLife\*.xml"
     Delete  "$2\Application Data\SecondLife\*.bmp"
     Delete  "$2\Application Data\SecondLife\search_history.txt"
@@ -636,7 +636,7 @@ Push $0
   RMDir /r "$0\SecondLife"
 Pop $0
 
-; Delete filse in C:\Windows\Application Data\SecondLife
+; Delete files in C:\Windows\Application Data\SecondLife
 ; If the user is running on a pre-NT system, Application Data lives here instead of
 ; in Documents and Settings.
 RMDir /r "$WINDIR\Application Data\SecondLife"
