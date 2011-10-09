@@ -375,7 +375,7 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 		//llinfos << "Merov debug : handleDropTool. Drop source is a widget -> drop it in place..." << llendl;
 		// Get the command from its uuid
 		LLCommandManager& mgr = LLCommandManager::instance();
-		LLCommandId command_id(inv_item->getUUID());
+		LLCommandId command_id("",inv_item->getUUID());
 		LLCommand* command = mgr.getCommand(command_id);
 		if (command)
 		{
@@ -387,9 +387,10 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 			}
 			// Suppress the command from the toolbars (including the one it's dropped in, 
 			// this will handle move position).
-			gToolBarView->mToolbarLeft->removeCommand(command->id());
-			gToolBarView->mToolbarRight->removeCommand(command->id());
-			gToolBarView->mToolbarBottom->removeCommand(command->id());
+			llinfos << "Merov debug : handleDropTool, " << command_id.name() << ", " << command_id.uuid() << llendl;
+			gToolBarView->mToolbarLeft->removeCommand(command_id);
+			gToolBarView->mToolbarRight->removeCommand(command_id);
+			gToolBarView->mToolbarBottom->removeCommand(command_id);
 			// Now insert it in the toolbar at the detected rank
 			if (!toolbar->isReadOnly())
 			{

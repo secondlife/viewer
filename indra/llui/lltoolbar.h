@@ -184,6 +184,8 @@ protected:
 	tool_handledrag_callback_t		mHandleDragItemCallback;
 	tool_handledrop_callback_t		mHandleDropCallback;
 	bool							mDragAndDropTarget;
+	int								mRank;
+	LLCommandId						mDraggedCommand;
 
 public:
 	// Methods used in loading and saving toolbar settings
@@ -205,7 +207,7 @@ private:
 	typedef std::list<LLToolBarButton*> toolbar_button_list;
 	toolbar_button_list				mButtons;
 	command_id_list_t				mButtonCommands;
-	typedef std::map<LLCommandId, LLToolBarButton*> command_id_map;
+	typedef std::map<LLUUID, LLToolBarButton*> command_id_map;
 	command_id_map					mButtonMap;
 
 	LLToolBarEnums::ButtonType		mButtonType;

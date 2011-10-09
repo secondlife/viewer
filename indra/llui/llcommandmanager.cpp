@@ -41,7 +41,7 @@
 // LLCommandId class
 //
 
-const LLCommandId LLCommandId::null("null command");
+const LLCommandId LLCommandId::null = LLCommandId();
 
 //
 // LLCommand class
