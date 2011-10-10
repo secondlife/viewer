@@ -64,14 +64,32 @@
                     user_resize="false"
                     mouse_opaque="false"
                     height="100"
-                    width="100">
+                    width="200">
         <view top="0"
               follows="all"
               height="100"
               left="0"
               mouse_opaque="false"
               name="floater_snap_region"
-              width="100"/>
+              width="200"/>
+        <view top="0"
+              follows="left|top|bottom"
+              height="100"
+              left="0"
+              mouse_opaque="false"
+              name="minimized_floaters_region"
+              width="160"/>
+        <panel follows="left|top|right"
+               layout="topleft"
+               height="30"
+               left_pad="10"
+               mouse_opaque="false"
+               name="chiclet_container"
+               tab_stop="false"
+               top="0"
+               bg_visible="false"
+               width="20">
+        </panel>          
         <panel bottom="100"
                follows="left|right|bottom"
                height="25"
@@ -80,7 +98,7 @@
                tab_stop="false"
                name="stand_stop_flying_container"
                visible="false"
-               width="100"/>
+               width="200"/>
       </layout_panel>
       <layout_panel name="right_toolbar_panel"
                     auto_resize="false"

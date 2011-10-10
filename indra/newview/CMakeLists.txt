@@ -118,6 +118,7 @@ set(viewer_SOURCE_FILES
     llchatitemscontainerctrl.cpp
     llchatmsgbox.cpp
     llchiclet.cpp
+    llchicletbar.cpp
     llclassifiedinfo.cpp
     llclassifiedstatsresponder.cpp
     llcofwearables.cpp
@@ -684,6 +685,7 @@ set(viewer_HEADER_FILES
     llchatitemscontainerctrl.h
     llchatmsgbox.h
     llchiclet.h
+    llchicletbar.h
     llclassifiedinfo.h
     llclassifiedstatsresponder.h
     llcofwearables.h

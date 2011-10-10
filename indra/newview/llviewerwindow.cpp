@@ -84,6 +84,7 @@
 // newview includes
 #include "llagent.h"
 #include "llbox.h"
+#include "llchicletbar.h"
 #include "llconsole.h"
 #include "llviewercontrol.h"
 #include "llcylinder.h"
@@ -1848,13 +1849,12 @@ void LLViewerWindow::initWorldUI()
 	//getRootView()->sendChildToFront(gFloaterView);
 	//getRootView()->sendChildToFront(gSnapshotFloaterView);
 
-	// new bottom panel
-	LLPanel* bottom_tray_container = getRootView()->getChild<LLPanel>("bottom_tray_container");
-	LLBottomTray* bottom_tray = LLBottomTray::getInstance();
-	bottom_tray->setShape(bottom_tray_container->getLocalRect());
-	bottom_tray->setFollowsAll();
-	bottom_tray_container->addChild(bottom_tray);
-	bottom_tray_container->setVisible(TRUE);
+	LLPanel* chiclet_container = getRootView()->getChild<LLPanel>("chiclet_container");
+	LLChicletBar* chiclet_bar = LLChicletBar::getInstance();
+	chiclet_bar->setShape(chiclet_container->getLocalRect());
+	chiclet_bar->setFollowsAll();
+	chiclet_container->addChild(chiclet_bar);
+	chiclet_container->setVisible(TRUE);
 
 	LLRect morph_view_rect = full_window;
 	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );

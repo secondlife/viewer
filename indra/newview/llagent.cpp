@@ -36,10 +36,10 @@
 #include "llagentwearables.h"
 #include "llagentui.h"
 #include "llanimationstates.h"
-#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llcapabilitylistener.h"
 #include "llchannelmanager.h"
+#include "llchicletbar.h"
 #include "llconsole.h"
 #include "llenvmanager.h"
 #include "llfirstuse.h"
@@ -1874,7 +1874,7 @@ void LLAgent::endAnimationUpdateUI()
 			LLPanelTopInfoBar::getInstance()->setVisible(TRUE);
 		}
 
-		LLBottomTray::getInstance()->onMouselookModeOut();
+		LLChicletBar::getInstance()->setVisible(TRUE);
 
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
 
@@ -1978,7 +1978,7 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLPanelTopInfoBar::getInstance()->setVisible(FALSE);
 
-		LLBottomTray::getInstance()->onMouselookModeIn();
+		LLChicletBar::getInstance()->setVisible(FALSE);
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 

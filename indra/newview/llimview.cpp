@@ -1675,11 +1675,6 @@ LLCallDialog::~LLCallDialog()
 	LLUI::removePopup(this);
 }
 
-void LLCallDialog::getAllowedRect(LLRect& rect)
-{
-	rect = gViewerWindow->getWorldViewRectScaled();
-}
-
 BOOL LLCallDialog::postBuild()
 {
 	if (!LLDockableFloater::postBuild())
@@ -1690,8 +1685,7 @@ BOOL LLCallDialog::postBuild()
 
 	setDockControl(new LLDockControl(
 		anchor_panel, this,
-		getDockTongue(), LLDockControl::TOP,
-		boost::bind(&LLCallDialog::getAllowedRect, this, _1)));
+		getDockTongue(), LLDockControl::TOP));
 
 	return TRUE;
 }
