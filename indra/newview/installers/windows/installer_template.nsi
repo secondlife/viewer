@@ -311,9 +311,9 @@ FunctionEnd
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Save files from cache
+; Save user files to temp location
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function PreserveCacheFiles
+Function PreserveUserFiles
 
 Push $0
 Push $1
@@ -356,9 +356,9 @@ Pop $0
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Restore files from cache
+; Restore user files from temp location
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function RestoreCacheFiles
+Function RestoreUserFiles
 
 Push $0
 Push $1
@@ -397,6 +397,48 @@ Push $0
 Pop $0
 
 FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Clobber user files - TEST ONLY
+; This is here for testing, generally not desirable to call it.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Function ClobberUserFilesTESTONLY
+
+;Push $0
+;Push $1
+;Push $2
+;
+;    StrCpy $0 0 ; Index number used to iterate via EnumRegKey
+;
+;  LOOP:
+;    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
+;    StrCmp $1 "" DONE               ; no more users
+;
+;    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
+;    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
+;
+;    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
+;    ExpandEnvStrings $2 $2
+;
+;    RMDir /r "$2\Application Data\SecondLife\"
+;
+;  CONTINUE:
+;    IntOp $0 $0 + 1
+;    Goto LOOP
+;  DONE:
+;
+;Pop $2
+;Pop $1
+;Pop $0
+;
+;; Copy files in Documents and Settings\All Users\SecondLife
+;Push $0
+;    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
+;    StrCmp $0 "" +2
+;    RMDir /r "$2\Application Data\SecondLife\"
+;Pop $0
+;
+;FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Delete the installed shader files
@@ -824,15 +866,11 @@ Call CloseSecondLife			; Make sure we're not running
 Call CheckNetworkConnection		; ping secondlife.com
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Call PreserveCacheFiles
-
-Call RestoreCacheFiles
+Call PreserveUserFiles
 
 ;;; Don't remove cache files during a regular install, removing the inventory cache on upgrades results in lots of damage to the servers.
 ;Call RemoveCacheFiles			; Installing over removes potentially corrupted
 								; VFS and cache files.
-Call PreserveCacheFiles
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Need to clean out shader files from previous installs to fix DEV-5663
 Call RemoveOldShaders
@@ -922,7 +960,7 @@ ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" /S _?=$PROGRAMFILES\Secon
 Delete "$PROGRAMFILES\SecondLifeViewer2\uninst.exe"
 
 SLV2_DONE:
-Call RestoreCacheFiles
+Call RestoreUserFiles
 
 ; end of default section
 SectionEnd
