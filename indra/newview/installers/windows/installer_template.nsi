@@ -376,146 +376,6 @@ Push $2
     ; Required since ProfileImagePath is of type REG_EXPAND_SZ
     ExpandEnvStrings $2 $2
 
-    RMDir /r "$2\Application Data\SecondLifeRestore\"
-    CreateDirectory "$2\Application Data\SecondLifeRestore\"
-    CopyFiles "$TEMP\SecondLifeSettingsBackup\$0\*" "$2\Application Data\SecondLifeRestore\" 
-
-  CONTINUE:
-    IntOp $0 $0 + 1
-    Goto LOOP
-  DONE:
-
-Pop $2
-Pop $1
-Pop $0
-
-; Copy files in Documents and Settings\All Users\SecondLife
-Push $0
-    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-    StrCmp $0 "" +2
-    RMDir /r "$2\Application Data\SecondLifeRestore\"
-    CreateDirectory "$2\Application Data\SecondLifeRestore\"
-    CopyFiles "$TEMP\SecondLifeSettingsBackup\AllUsers\*" "$2\Application Data\SecondLifeRestore\" 
-Pop $0
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Delete files in Documents and Settings\<user>\SecondLife\cache
-; Delete files in Documents and Settings\All Users\SecondLife\cache
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;Function RemoveCacheFiles
-;
-;; Delete files in Documents and Settings\<user>\SecondLife
-;Push $0
-;Push $1
-;Push $2
-;  DetailPrint $(RemoveCacheFilesDP)
-;
-;  StrCpy $0 0 ; Index number used to iterate via EnumRegKey
-;
-;  LOOP:
-;    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
-;    StrCmp $1 "" DONE               ; no more users
-;
-;    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
-;    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
-;
-;    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
-;    ExpandEnvStrings $2 $2
-;
-;	; When explicitly uninstalling, everything goes away
-;    RMDir /r "$2\Application Data\SecondLife\cache"
-;
-;  CONTINUE:
-;    IntOp $0 $0 + 1
-;    Goto LOOP
-;  DONE:
-;Pop $2
-;Pop $1
-;Pop $0
-;
-;; Delete files in Documents and Settings\All Users\SecondLife
-;Push $0
-;  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-;  StrCmp $0 "" +2
-;  RMDir /r "$0\SecondLife\cache"
-;Pop $0
-;
-;; Delete filse in C:\Windows\Application Data\SecondLife
-;; If the user is running on a pre-NT system, Application Data lives here instead of
-;; in Documents and Settings.
-;RMDir /r "$WINDIR\Application Data\SecondLife\cache"
-;
-;FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Save files from cache
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function PreserveCacheFiles
-
-Push $0
-Push $1
-Push $2
-
-    RMDir /r "$TEMP\SecondLifeSettingsBackup"
-    CreateDirectory "$TEMP\SecondLifeSettingsBackup"
-    StrCpy $0 0 ; Index number used to iterate via EnumRegKey
-
-  LOOP:
-    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
-    StrCmp $1 "" DONE               ; no more users
-
-    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
-    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
-
-    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
-    ExpandEnvStrings $2 $2
-
-    CreateDirectory "$TEMP\SecondLifeSettingsBackup\$0"
-    CopyFiles  "$2\Application Data\SecondLife\*" "$TEMP\SecondLifeSettingsBackup\$0"
-
-  CONTINUE:
-    IntOp $0 $0 + 1
-    Goto LOOP
-  DONE:
-
-Pop $2
-Pop $1
-Pop $0
-
-; Copy files in Documents and Settings\All Users\SecondLife
-Push $0
-    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-    StrCmp $0 "" +2
-    CreateDirectory "$TEMP\SecondLifeSettingsBackup\AllUsers\"
-    CopyFiles "$2\Application Data\SecondLife\*" "$TEMP\SecondLifeSettingsBackup\AllUsers\"
-Pop $0
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Restore files from cache
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function RestoreCacheFiles
-
-Push $0
-Push $1
-Push $2
-
-    StrCpy $0 0 ; Index number used to iterate via EnumRegKey
-
-  LOOP:
-    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
-    StrCmp $1 "" DONE               ; no more users
-
-    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
-    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
-
-    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
-    ExpandEnvStrings $2 $2
-
-    RMDir /r "$2\Application Data\SecondLife\"
     CreateDirectory "$2\Application Data\SecondLife\"
     CopyFiles "$TEMP\SecondLifeSettingsBackup\$0\*" "$2\Application Data\SecondLife\" 
 
@@ -532,13 +392,11 @@ Pop $0
 Push $0
     ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
     StrCmp $0 "" +2
-    RMDir /r "$2\Application Data\SecondLife\"
     CreateDirectory "$2\Application Data\SecondLife\"
     CopyFiles "$TEMP\SecondLifeSettingsBackup\AllUsers\*" "$2\Application Data\SecondLife\" 
 Pop $0
 
 FunctionEnd
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Delete the installed shader files
@@ -1056,30 +914,14 @@ WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" ""
 WriteUninstaller "$INSTDIR\uninst.exe"
 
 ; Remove existing "Second Life Viewer 2" install if any.
-StrCmp $INSTDIR "$PROGRAMFILES\SecondLifeViewer2" SLV2_DONE
+StrCmp $INSTDIR "$PROGRAMFILES\SecondLifeViewer2" SLV2_DONE ; unless that's the install directory
 IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" SLV2_FOUND SLV2_DONE
 
 SLV2_FOUND:
-ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" _?=$PROGRAMFILES\SecondLifeViewer2'
-Sleep 1000
+ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" /S _?=$PROGRAMFILES\SecondLifeViewer2'
 Delete "$PROGRAMFILES\SecondLifeViewer2\uninst.exe"
 
-;; cheesy spin wait for uninstall to finish - uninstaller is supposed
-;; to take _? argument which combined with ExecWait would avoid need
-;; for this, but have not been able to get it to work.
-;SPIN_LOOP:
-;    IntOp $0 $0 + 500
-;    IntCmp $0 10000 SLV2_TIMEOUT CONT SLV2_TIMEOUT
-;SLV2_TIMEOUT:
-;;    MessageBox /SD IDOK MB_OK "Error in uninstall of Second Life Viewer 2"
-;    Goto SLV2_DONE
-
-;CONT:
-;    ; Do we know this is the last file removed?
-;    IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" SPIN_LOOP SLV2_DONE
-
 SLV2_DONE:
-MessageBox MB_OK "Restoring Cache Files"
 Call RestoreCacheFiles
 
 ; end of default section
