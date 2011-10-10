@@ -1060,22 +1060,23 @@ StrCmp $INSTDIR "$PROGRAMFILES\SecondLifeViewer2" SLV2_DONE
 IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" SLV2_FOUND SLV2_DONE
 
 SLV2_FOUND:
-ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" /S'
+ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" _?=$PROGRAMFILES\SecondLifeViewer2'
+Sleep 1000
+Delete "$PROGRAMFILES\SecondLifeViewer2\uninst.exe"
 
-; cheesy spin wait for uninstall to finish - uninstaller is supposed
-; to take _? argument which combined with ExecWait would avoid need
-; for this, but have not been able to get it to work.
-SPIN_LOOP:
-    Sleep 500
-    IntOp $0 $0 + 500
-    IntCmp $0 10000 SLV2_TIMEOUT CONT SLV2_TIMEOUT
-SLV2_TIMEOUT:
+;; cheesy spin wait for uninstall to finish - uninstaller is supposed
+;; to take _? argument which combined with ExecWait would avoid need
+;; for this, but have not been able to get it to work.
+;SPIN_LOOP:
+;    IntOp $0 $0 + 500
+;    IntCmp $0 10000 SLV2_TIMEOUT CONT SLV2_TIMEOUT
+;SLV2_TIMEOUT:
 ;;    MessageBox /SD IDOK MB_OK "Error in uninstall of Second Life Viewer 2"
-    Goto SLV2_DONE
+;    Goto SLV2_DONE
 
-CONT:
-    ; Do we know this is the last file removed?
-    IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" SPIN_LOOP SLV2_DONE
+;CONT:
+;    ; Do we know this is the last file removed?
+;    IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" SPIN_LOOP SLV2_DONE
 
 SLV2_DONE:
 MessageBox MB_OK "Restoring Cache Files"
