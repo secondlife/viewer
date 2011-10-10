@@ -399,6 +399,7 @@ private:
 	std::vector<LLPrivateMemoryPool*> mPoolList ;
 	BOOL mPrivatePoolEnabled;
 
+	static std::vector<LLPrivateMemoryPool*> sDanglingPoolList ;
 public:
 	//debug and statistics info.
 	void updateStatistics() ;

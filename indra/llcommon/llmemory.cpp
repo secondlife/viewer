@@ -1773,6 +1773,7 @@ void LLPrivateMemoryPool::LLChunkHashElement::remove(LLPrivateMemoryPool::LLMemo
 //class LLPrivateMemoryPoolManager
 //--------------------------------------------------------------------
 LLPrivateMemoryPoolManager* LLPrivateMemoryPoolManager::sInstance = NULL ;
+std::vector<LLPrivateMemoryPool*> LLPrivateMemoryPoolManager::sDanglingPoolList ;
 
 LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager(BOOL enabled) 
 {
@@ -1797,7 +1798,7 @@ LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager()
 		S32 k = 0 ;
 		for(mem_allocation_info_t::iterator iter = sMemAllocationTracker.begin() ; iter != sMemAllocationTracker.end() ; ++iter)
 		{
-			llinfos << k++ << ", " << iter->second << llendl ;
+			llinfos << k++ << ", " << (U32)iter->first << " : " << iter->second << llendl ;
 		}
 		sMemAllocationTracker.clear() ;
 	}
@@ -1817,7 +1818,17 @@ LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager()
 	{
 		if(mPoolList[i])
 		{
-			delete mPoolList[i] ;
+			if(mPoolList[i]->isEmpty())
+			{
+				delete mPoolList[i] ;
+			}
+			else
+			{
+				//can not delete this pool because it has alloacted memory to be freed.
+				//move it to the dangling list.
+				sDanglingPoolList.push_back(mPoolList[i]) ;				
+			}
+
 			mPoolList[i] = NULL ;
 		}
 	}
@@ -1953,6 +1964,32 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	}
 	else
 	{
+		if(!sInstance) //the private memory manager is destroyed, try the dangling list
+		{
+			for(S32 i = 0 ; i < sDanglingPoolList.size(); i++)
+			{
+				if(sDanglingPoolList[i]->findChunk((char*)addr))
+				{
+					sDanglingPoolList[i]->freeMem(addr) ;
+					if(sDanglingPoolList[i]->isEmpty())
+					{
+						delete sDanglingPoolList[i] ;
+						
+						if(i < sDanglingPoolList.size() - 1)
+						{
+							sDanglingPoolList[i] = sDanglingPoolList[sDanglingPoolList.size() - 1] ;
+						}
+						sDanglingPoolList.pop_back() ;
+					}
+
+					addr = NULL ;
+					break ;
+				}
+			}
+		}
+
+		llassert_always(!addr) ; //addr should be release before hitting here!
+
 		free(addr) ;
 	}	
 }
