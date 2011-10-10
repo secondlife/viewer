@@ -960,7 +960,7 @@ namespace LLInitParam
 
 		bool isProvided() const { return Param::anyProvided(); }
 
-		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, bool new_name)
+		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{ 
 			self_t& typed_param = static_cast<self_t&>(param);
 			value_t value;

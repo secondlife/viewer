@@ -62,7 +62,8 @@ private:
 		LLParamSDParser& sdparser = static_cast<LLParamSDParser&>(parser);
 		if (!sdparser.mWriteRootSD) return false;
 		
-		LLSD& sd_to_write = LLParamSDParserUtilities::getSDWriteNode(*sdparser.mWriteRootSD, std::make_pair(name_stack.begin(), name_stack.end()));
+		LLInitParam::Parser::name_stack_range_t range(name_stack.begin(), name_stack.end());
+		LLSD& sd_to_write = LLParamSDParserUtilities::getSDWriteNode(*sdparser.mWriteRootSD, range);
 
 		sd_to_write.assign(*((const T*)val_ptr));
 		return true;

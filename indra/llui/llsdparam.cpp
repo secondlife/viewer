@@ -66,7 +66,8 @@ bool LLParamSDParser::writeU32Param(LLParamSDParser::parser_t& parser, const voi
 	LLParamSDParser& sdparser = static_cast<LLParamSDParser&>(parser);
 	if (!sdparser.mWriteRootSD) return false;
 	
-	LLSD& sd_to_write = LLParamSDParserUtilities::getSDWriteNode(*sdparser.mWriteRootSD, std::make_pair(name_stack.begin(), name_stack.end()));
+	parser_t::name_stack_range_t range(name_stack.begin(), name_stack.end());
+	LLSD& sd_to_write = LLParamSDParserUtilities::getSDWriteNode(*sdparser.mWriteRootSD, range);
 	sd_to_write.assign((S32)*((const U32*)val_ptr));
 
 	return true;
@@ -77,7 +78,8 @@ bool LLParamSDParser::writeFlag(LLParamSDParser::parser_t& parser, const void* v
 	LLParamSDParser& sdparser = static_cast<LLParamSDParser&>(parser);
 	if (!sdparser.mWriteRootSD) return false;
 
-	LLParamSDParserUtilities::getSDWriteNode(*sdparser.mWriteRootSD, std::make_pair(name_stack.begin(), name_stack.end()));
+	parser_t::name_stack_range_t range(name_stack.begin(), name_stack.end());
+	LLParamSDParserUtilities::getSDWriteNode(*sdparser.mWriteRootSD, range);
 
 	return true;
 }
@@ -324,6 +326,7 @@ namespace LLInitParam
 	void ParamValue<LLSD, TypeValues<LLSD>, false>::serializeBlock(Parser& p, Parser::name_stack_t name_stack, const BaseBlock* diff_block) const
 	{
 		// read from LLSD value and serialize out to parser (which could be LLSD, XUI, etc)
-		LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue);
+		Parser::name_stack_t stack;
+		LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue, stack);
 	}
 }
