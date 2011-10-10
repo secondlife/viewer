@@ -957,7 +957,8 @@ IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" SLV2_FOUND SLV2_DONE
 
 SLV2_FOUND:
 ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" /S _?=$PROGRAMFILES\SecondLifeViewer2'
-Delete "$PROGRAMFILES\SecondLifeViewer2\uninst.exe"
+Delete "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" ; with _? option above, uninst.exe will be left behind.
+RMDir "$PROGRAMFILES\SecondLifeViewer2" ; will remove only if empty.
 
 SLV2_DONE:
 Call RestoreUserFiles
