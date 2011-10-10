@@ -43,11 +43,13 @@ snowstorm_viewer-development.login_channel = "Second Life Development"
 snowstorm_viewer-development.build_viewer_update_version_manager = false
 snowstorm_viewer-development.email = viewer-development-builds@lists.secondlife.com
 snowstorm_viewer-development.build_enforce_coding_policy = true
+snowstorm_viewer-development.codeticket_add_context = true
 
 Snowstorm_viewer-project-review.build_debug_release_separately = true
 Snowstorm_viewer-project-review.codeticket_add_context = true
 Snowstorm_viewer-project-review.viewer_channel = "Project Viewer - Snowstorm Team"
 Snowstorm_viewer-project-review.login_channel = "Project Viewer - Snowstorm Team"
+Snowstorm_viewer-project-review.codeticket_add_context = true
 
 # ========================================
 # Viewer Beta
