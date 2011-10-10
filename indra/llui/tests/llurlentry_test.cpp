@@ -72,7 +72,6 @@ S32 LLUIImage::getHeight() const
 
 namespace LLInitParam
 {
-	S32 Parser::sNextParseGeneration = 0;
 	BlockDescriptor::BlockDescriptor() {}
 	ParamDescriptor::ParamDescriptor(param_handle_t p, 
 						merge_func_t merge_func, 
