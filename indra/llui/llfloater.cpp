@@ -2549,7 +2549,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 
 	// move window fully onscreen
-	if (floater->translateIntoRect( getLocalRect(), allow_partial_outside ))
+	if (floater->translateIntoRect( getSnapRect(), allow_partial_outside ))
 	{
 		floater->clearSnapTarget();
 	}

@@ -55,6 +55,13 @@
                     mouse_opaque="false"
                     height="100"
                     width="100">
+        <view top="0"
+              follows="all"
+              height="100"
+              left="0"
+              mouse_opaque="false"
+              name="floater_snap_region"
+              width="100"/>
         <panel bottom="100"
                follows="left|right|bottom"
                height="25"
