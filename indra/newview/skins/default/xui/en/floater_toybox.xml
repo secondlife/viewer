@@ -74,6 +74,7 @@
                           image_color="ButtonImageColor"
                           image_color_disabled="ButtonImageColor"
                           flash_color="ButtonUnselectedFgColor"
+                          halign="left"
                           hover_glow_amount="0.15"
                           display_pressed_state="false" />
   </toolbar>

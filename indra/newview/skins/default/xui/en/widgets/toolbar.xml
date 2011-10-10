@@ -14,6 +14,7 @@
                 background_opaque="true"/>
   <button_icon_and_text imgoverlay_label_space="7"
                         label_color_selected="White"
+                        halign="left"
                         image_pressed="PushButton_Press"
                         image_pressed_selected="PushButton_Selected_Press"
                         image_selected="PushButton_Selected_Press"
@@ -38,6 +39,7 @@
                button_width.max="38"               
                follows="left|top"
                label=""
+               halign="left"
                chrome="true"
                use_ellipses="true"
                auto_resize="true"
