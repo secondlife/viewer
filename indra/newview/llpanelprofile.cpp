@@ -72,7 +72,7 @@ public:
 		std::string agent_name = params[0];
 		llinfos << "Profile, agent_name " << agent_name << llendl;
 		std::string url = getProfileURL(agent_name);
-		LLWeb::loadWebURLInternal(url);
+		LLWeb::loadURLInternal(url);
 
 		return true;
 	}

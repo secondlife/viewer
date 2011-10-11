@@ -88,20 +88,6 @@ BOOL LLFloaterWebContent::postBuild()
 	return TRUE;
 }
 
-bool LLFloaterWebContent::matchesKey(const LLSD& key)
-{
-	LLUUID id = key["id"];
-	if (id.notNull())
-	{
-		return id == mKey["id"].asUUID();
-	}
-	else
-	{
-		return key["target"].asString() == mKey["target"].asString();
-	}
-}
-
-
 void LLFloaterWebContent::initializeURLHistory()
 {
 	// start with an empty list
@@ -123,6 +109,20 @@ void LLFloaterWebContent::initializeURLHistory()
 	}
 }
 
+bool LLFloaterWebContent::matchesKey(const LLSD& key)
+{
+	Params p(mKey);
+	Params other_p(key);
+	if (!other_p.target().empty() && other_p.target() != "_blank")
+	{
+		return other_p.target() == p.target();
+	}
+	else
+	{
+		return other_p.id() == p.id();
+	}
+}
+
 //static
 LLFloater* LLFloaterWebContent::create( Params p)
 {
@@ -139,14 +139,7 @@ LLFloater* LLFloaterWebContent::create( Params p)
 	}
 
 	S32 browser_window_limit = gSavedSettings.getS32("WebContentWindowLimit");
-
-	LLSD sd;
-	sd["target"] = p.target;
-	if(LLFloaterReg::findInstance(p.window_class, sd) != NULL)
-	{
-		// There's already a web browser for this tag, so we won't be opening a new window.
-	}
-	else if(browser_window_limit != 0)
+	if(browser_window_limit != 0)
 	{
 		// showInstance will open a new window.  Figure out how many web browsers are already open,
 		// and close the least recently opened one if this will put us over the limit.
@@ -166,7 +159,7 @@ LLFloater* LLFloaterWebContent::create( Params p)
 		}
 	}
 
-	return LLFloaterReg::showInstance(p.window_class, p);
+	return new LLFloaterWebContent(p);
 }
 
 //static

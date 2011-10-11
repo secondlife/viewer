@@ -39,6 +39,7 @@
 #include "llurlhistory.h"
 #include "llmediactrl.h"
 #include "llviewermedia.h"
+#include "llviewerhelp.h"
 
 
 LLFloaterHelpBrowser::LLFloaterHelpBrowser(const LLSD& key)
@@ -74,6 +75,17 @@ void LLFloaterHelpBrowser::buildURLHistory()
 void LLFloaterHelpBrowser::onOpen(const LLSD& key)
 {
 	gSavedSettings.setBOOL("HelpFloaterOpen", TRUE);
+
+	std::string topic = key.asString();
+
+	if (topic == "__local")
+	{
+		mBrowser->navigateToLocalPage( "help-offline" , "index.html" );
+	}
+	else
+	{
+		mBrowser->navigateTo(LLViewerHelp::instance().getURL(topic));
+	}
 }
 
 //virtual
@@ -147,9 +159,4 @@ void LLFloaterHelpBrowser::openMedia(const std::string& media_url)
 	mBrowser->setHomePageUrl(media_url, "text/html");
 	mBrowser->navigateTo(media_url, "text/html");
 	setCurrentURL(media_url);
-}
-
-void LLFloaterHelpBrowser::navigateToLocalPage( const std::string& subdir, const std::string& filename_in )
-{
-	mBrowser->navigateToLocalPage(subdir, filename_in);
 }
