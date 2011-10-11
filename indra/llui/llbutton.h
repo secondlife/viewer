@@ -170,6 +170,11 @@ public:
 	void			setUseEllipses( BOOL use_ellipses )					{ mUseEllipses = use_ellipses; }
 
 
+	boost::signals2::connection setClickedCallback(const CommitCallbackParam& cb);
+	boost::signals2::connection setMouseDownCallback(const CommitCallbackParam& cb);
+	boost::signals2::connection setMouseUpCallback(const CommitCallbackParam& cb);
+	boost::signals2::connection setHeldDownCallback(const CommitCallbackParam& cb);
+
 	boost::signals2::connection setClickedCallback( const commit_signal_t::slot_type& cb ); // mouse down and up within button
 	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
 	boost::signals2::connection setMouseUpCallback( const commit_signal_t::slot_type& cb ); // mouse up, EVEN IF NOT IN BUTTON

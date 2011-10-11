@@ -296,6 +296,24 @@ void LLButton::onCommit()
 	LLUICtrl::onCommit();
 }
 
+boost::signals2::connection LLButton::setClickedCallback(const CommitCallbackParam& cb)
+{
+	return setClickedCallback(initCommitCallback(cb));
+}
+boost::signals2::connection LLButton::setMouseDownCallback(const CommitCallbackParam& cb)
+{
+	return setMouseDownCallback(initCommitCallback(cb));
+}
+boost::signals2::connection LLButton::setMouseUpCallback(const CommitCallbackParam& cb)
+{
+	return setMouseUpCallback(initCommitCallback(cb));
+}
+boost::signals2::connection LLButton::setHeldDownCallback(const CommitCallbackParam& cb)
+{
+	return setHeldDownCallback(initCommitCallback(cb));
+}
+
+
 boost::signals2::connection LLButton::setClickedCallback( const commit_signal_t::slot_type& cb )
 {
 	if (!mCommitSignal) mCommitSignal = new commit_signal_t();
