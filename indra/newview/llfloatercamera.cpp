@@ -36,7 +36,6 @@
 #include "lljoystickbutton.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
-#include "llbottomtray.h"
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
 #include "llslider.h"
@@ -314,12 +313,6 @@ void LLFloaterCamera::onOpen(const LLSD& key)
 {
 	LLFirstUse::viewPopup();
 
-	LLButton *anchor_panel = LLBottomTray::getInstance()->getChild<LLButton>("camera_btn");
-
-	setDockControl(new LLDockControl(
-		anchor_panel, this,
-		getDockTongue(), LLDockControl::TOP));
-
 	mZoom->onOpen(key);
 
 	// Returns to previous mode, see EXT-2727(View tool should remember state).
@@ -343,15 +336,12 @@ void LLFloaterCamera::onClose(bool app_quitting)
 	if (mCurrMode == CAMERA_CTRL_MODE_PAN)
 		mPrevMode = CAMERA_CTRL_MODE_PAN;
 
-	// HACK: Should always close as docked to prevent toggleInstance without calling onOpen.
-	if ( !isDocked() )
-		setDocked(true);
 	switchMode(CAMERA_CTRL_MODE_PAN);
 	mClosed = TRUE;
 }
 
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
-:	LLTransientDockableFloater(NULL, true, val),
+:	LLFloater(val),
 	mClosed(FALSE),
 	mCurrMode(CAMERA_CTRL_MODE_PAN),
 	mPrevMode(CAMERA_CTRL_MODE_PAN)
@@ -379,7 +369,7 @@ BOOL LLFloaterCamera::postBuild()
 	// ensure that appearance mode is handled while building. See EXT-7796.
 	handleAvatarEditingAppearance(sAppearanceEditing);
 
-	return LLDockableFloater::postBuild();
+	return TRUE;
 }
 
 void LLFloaterCamera::fillFlatlistFromPanel (LLFlatListView* list, LLPanel* panel)

@@ -27,73 +27,15 @@
 #ifndef LL_LLNEARBYCHATBAR_H
 #define LL_LLNEARBYCHATBAR_H
 
-#include "llpanel.h"
+#include "llfloater.h"
 #include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llchat.h"
 #include "llvoiceclient.h"
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
-#include "llbottomtray.h"
 
-
-class LLGestureComboList
-	: public LLGestureManagerObserver
-	, public LLUICtrl
-{
-public:
-	struct Params :	public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<LLBottomtrayButton::Params>			combo_button;
-		Optional<LLScrollListCtrl::Params>	combo_list;
-		Optional<bool>						get_more,
-											view_all;
-		
-		Params();
-	};
-
-protected:
-	
-	friend class LLUICtrlFactory;
-	LLGestureComboList(const Params&);
-	std::vector<LLMultiGesture*> mGestures;
-	std::string mLabel;
-	bool			mShowViewAll;
-	bool			mShowGetMore;
-	LLSD::Integer mViewAllItemIndex;
-	LLSD::Integer mGetMoreItemIndex;
-
-public:
-
-	~LLGestureComboList();
-
-	LLCtrlListInterface* getListInterface();
-	virtual void	showList();
-	virtual void	hideList();
-	virtual BOOL	handleKeyHere(KEY key, MASK mask);
-
-	virtual void	draw();
-
-	S32				getCurrentIndex() const;
-	void			onItemSelected(const LLSD& data);
-	void			sortByName(bool ascending = true);
-	void refreshGestures();
-	void onCommitGesture();
-	void onButtonCommit();
-	virtual LLSD	getValue() const;
-
-	// LLGestureManagerObserver trigger
-	virtual void changed() { refreshGestures(); }
-
-private:
-
-	LLButton*			mButton;
-	LLScrollListCtrl*	mList;
-	S32                 mLastSelectedIndex;
-};
-
-class LLNearbyChatBar
-:	public LLFloater
+class LLNearbyChatBar :	public LLFloater
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
