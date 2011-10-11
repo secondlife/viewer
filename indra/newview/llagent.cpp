@@ -174,12 +174,43 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
 	}
 	else if (param == "speak")
 	{
-		retval = true;
+		if ( gAgent.isVoiceConnected() )
+		{
+			retval = true;
+		}
+		else
+		{
+			retval = false;
+		}
 	}
 
 	return retval;
 }
 
+// static 
+void LLAgent::toggleMicrophone(const LLSD& name)
+{
+	gAgent.mMicrophoneOn = ! gAgent.mMicrophoneOn;
+
+	if ( gAgent.mMicrophoneOn )
+	{
+		LLFirstUse::speak(false);
+
+		LLVoiceClient::getInstance()->inputUserControlState(true);
+		LLVoiceClient::getInstance()->inputUserControlState(false);
+	}
+	else
+	{
+		LLVoiceClient::getInstance()->inputUserControlState(false);
+		LLVoiceClient::getInstance()->inputUserControlState(true);
+	}
+}
+
+// static
+bool LLAgent::isMicrophoneOn(const LLSD& sdname)
+{
+	return gAgent.mMicrophoneOn;
+}
 
 // ************************************************************
 // Enabled this definition to compile a 'hacked' viewer that
@@ -261,6 +292,9 @@ LLAgent::LLAgent() :
 	mCurrentFidget(0),
 	mFirstLogin(FALSE),
 	mGenderChosen(FALSE),
+	
+	mVoiceConnected(false),
+	mMicrophoneOn(false),
 
 	mAppearanceSerialNum(0),
 
@@ -280,6 +314,8 @@ LLAgent::LLAgent() :
 	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLAgent::parcelChangedCallback));
 
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
+	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
+	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
 }
 
 // Requires gSavedSettings to be initialized.

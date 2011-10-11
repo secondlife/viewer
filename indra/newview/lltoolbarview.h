@@ -78,6 +78,7 @@ public:
 	static BOOL handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);
 	static BOOL handleDropTool(	void* cargo_data, S32 x, S32 y, LLToolBar* toolbar);
 	static void stopDragTool();
+	void onEndDrag();
 	
 protected:
 	friend class LLUICtrlFactory;
@@ -94,12 +95,11 @@ private:
 	LLToolBar*	mToolbarLeft;
 	LLToolBar*	mToolbarRight;
 	LLToolBar*	mToolbarBottom;
-	bool		mDragging;
-	LLToolBarButton* mDragButton;
-	S32			mMouseX;
-	S32			mMouseY;
 	
-	static bool			sDragStarted;
+	LLCommandId mDragCommand;
+	int			mDragRank;
+	LLToolBar*	mDragToolbar;
+	bool		mDragStarted;
 };
 
 extern LLToolBarView* gToolBarView;

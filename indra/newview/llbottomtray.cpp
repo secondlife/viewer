@@ -387,6 +387,9 @@ void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, b
 	if (status != STATUS_JOINING && status!= STATUS_LEFT_CHANNEL)
 	{
 		bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+
+		gAgent.setVoiceConnected(voice_status);
+
 		getChild<LLButton>("speak_flyout_btn")->setEnabled(voice_status);
 		gMenuBarView->getChild<LLView>("Nearby Voice")->setEnabled(voice_status);
 		if (voice_status)

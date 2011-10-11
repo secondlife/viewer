@@ -114,8 +114,6 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
-	mDraggedCommand = LLCommandId::null;
-	mRank = 0;
 }
 
 LLToolBar::~LLToolBar()
@@ -211,19 +209,14 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 	// Create the button and do the things that don't need ordering
 	LLToolBarButton* button = createButton(commandId);
 	mButtonPanel->addChild(button);
-	LLCommandId temp_command = commandId;
-	if (commandId.name() == "Drag Tool")
-	{
-		temp_command = LLCommandId("Drag Tool");
-	}
-	mButtonMap.insert(std::make_pair(temp_command.uuid(), button));
+	mButtonMap.insert(std::make_pair(commandId.uuid(), button));
 
 
 	// Insert the command and button in the right place in their respective lists
-	if ((rank >= mButtonCommands.size()) || (rank < 0))
+	if ((rank >= mButtonCommands.size()) || (rank == RANK_NONE))
 	{
 		// In that case, back load
-		mButtonCommands.push_back(temp_command);
+		mButtonCommands.push_back(commandId);
 		mButtons.push_back(button);
 	}
 	else 
@@ -238,7 +231,7 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 			rank--;
 		}
 		// ...then insert
-		mButtonCommands.insert(it_command,temp_command);
+		mButtonCommands.insert(it_command,commandId);
 		mButtons.insert(it_button,button);
 	}
 
@@ -247,27 +240,28 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 	return true;
 }
 
-bool LLToolBar::removeCommand(const LLCommandId& commandId)
+// Remove a command from the list
+// Returns the rank of the command in the original list so that doing addCommand(id,rank) right after
+// a removeCommand(id) would leave the list unchanged.
+// Returns RANK_NONE if the command is not found in the list
+int LLToolBar::removeCommand(const LLCommandId& commandId)
 {
-	if (!hasCommand(commandId)) return false;
+	if (!hasCommand(commandId)) return RANK_NONE;
 	
 	llinfos << "Merov debug : removeCommand, " << commandId.name() << ", " << commandId.uuid() << llendl;
 	// First erase the map record
-	LLCommandId temp_command = commandId;
-	if (commandId.name() == "Drag Tool")
-	{
-		temp_command = LLCommandId("Drag Tool");
-	}
-	command_id_map::iterator it = mButtonMap.find(temp_command.uuid());
+	command_id_map::iterator it = mButtonMap.find(commandId.uuid());
 	mButtonMap.erase(it);
 	
 	// Now iterate on the commands and buttons to identify the relevant records
+	int rank = 0;
 	std::list<LLToolBarButton*>::iterator it_button = mButtons.begin();
 	command_id_list_t::iterator it_command = mButtonCommands.begin();
-	while (*it_command != temp_command)
+	while (*it_command != commandId)
 	{
 		++it_button;
 		++it_command;
+		++rank;
 	}
 	
 	// Delete the button and erase the command and button records
@@ -277,7 +271,7 @@ bool LLToolBar::removeCommand(const LLCommandId& commandId)
 
 	mNeedsLayout = true;
 	
-	return true;
+	return rank;
 }
 
 void LLToolBar::clearCommandsList()
@@ -292,12 +286,7 @@ bool LLToolBar::hasCommand(const LLCommandId& commandId) const
 {
 	if (commandId != LLCommandId::null)
 	{
-		LLCommandId temp_command = commandId;
-		if (commandId.name() == "Drag Tool")
-		{
-			temp_command = LLCommandId("Drag Tool");
-		}
-		command_id_map::const_iterator it = mButtonMap.find(temp_command.uuid());
+		command_id_map::const_iterator it = mButtonMap.find(commandId.uuid());
 		return (it != mButtonMap.end());
 	}
 
@@ -310,12 +299,7 @@ bool LLToolBar::enableCommand(const LLCommandId& commandId, bool enabled)
 	
 	if (commandId != LLCommandId::null)
 	{
-		LLCommandId temp_command = commandId;
-		if (commandId.name() == "Drag Tool")
-		{
-			temp_command = LLCommandId("Drag Tool");
-		}
-		command_id_map::iterator it = mButtonMap.find(temp_command.uuid());
+		command_id_map::iterator it = mButtonMap.find(commandId.uuid());
 		if (it != mButtonMap.end())
 		{
 			it->second->setEnabled(enabled);
@@ -410,6 +394,10 @@ void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row
 	}
 }
 
+// Returns the position of the coordinates as a rank in the button list. 
+// The rank is the position a tool dropped in (x,y) would assume in the button list.
+// The value returned is between 0 and mButtons.size(), 0 being the first element to the left
+// (or top) and mButtons.size() the last one to the right (or bottom).
 int LLToolBar::getRankFromPosition(S32 x, S32 y)
 {
 	int rank = 0;
@@ -618,12 +606,6 @@ void LLToolBar::draw()
 			}
 		}
 	}
-	// HACK!!!
-	if (!mDragAndDropTarget)
-	{
-		removeCommand(mDraggedCommand);
-		mDraggedCommand = LLCommandId::null;
-	}
 
 	updateLayoutAsNeeded();
 	// rect may have shifted during layout
@@ -654,12 +636,7 @@ void LLToolBar::createButtons()
 		LLToolBarButton* button = createButton(command_id);
 		mButtons.push_back(button);
 		mButtonPanel->addChild(button);
-		LLCommandId temp_command = command_id;
-		if (command_id.name() == "Drag Tool")
-		{
-			temp_command = LLCommandId("Drag Tool");
-		}
-		mButtonMap.insert(std::make_pair(temp_command.uuid(), button));
+		mButtonMap.insert(std::make_pair(command_id.uuid(), button));
 	}
 	mNeedsLayout = true;
 }
@@ -736,7 +713,7 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										EAcceptance* accept,
 										std::string& tooltip_msg)
 {
-	//llinfos << "Merov debug : handleDragAndDrop. drop = " << drop << ", x = " << x << ", y = " << y << llendl;
+	llinfos << "Merov debug : handleDragAndDrop. drop = " << drop << ", x = " << x << ", y = " << y << llendl;
 	// If we have a drop callback, that means that we can handle the drop
 	BOOL handled = (mHandleDropCallback ? TRUE : FALSE);
 	
@@ -761,19 +738,13 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			LLAssetType::EType type = inv_item->getType();
 			if (type == LLAssetType::AT_WIDGET)
 			{
-				mRank = getRankFromPosition(x, y);
-				mDraggedCommand = LLCommandId("Drag Tool",inv_item->getUUID());
-				removeCommand(mDraggedCommand);
-				addCommand(mDraggedCommand,mRank);
+				LLCommandId dragged_command(inv_item->getUUID());
+				int rank = getRankFromPosition(x, y);
+				removeCommand(dragged_command);
+				addCommand(dragged_command,rank);
 				mDragAndDropTarget = true;
 			}
 		}
-		else 
-		{
-			removeCommand(mDraggedCommand);
-			mDraggedCommand = LLCommandId::null;
-		}
-
 	}
 	
 	return handled;
@@ -851,4 +822,9 @@ void LLToolBarButton::onMouseEnter(S32 x, S32 y, MASK mask)
 void LLToolBarButton::onMouseCaptureLost()
 {
 	mIsDragged = false;
+}
+
+void LLToolBarButton::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLButton::reshape(mWidthRange.clamp(width), height, called_from_parent);
 }

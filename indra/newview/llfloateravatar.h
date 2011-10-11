@@ -1,11 +1,11 @@
 /** 
- * @file llhelp.h
- * @brief Abstract interface to the Help system
- * @author Tofu Linden
+ * @file llfloateravatar.h
+ * @author Leyla Farazha
+ * @brief floater for the avatar changer
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,20 +25,19 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHELP_H
-#define LL_LLHELP_H
+#ifndef LL_FLOATER_AVATAR_H
+#define LL_FLOATER_AVATAR_H
 
-class LLHelp
+#include "llfloater.h"
+
+class LLFloaterAvatar:
+	public LLFloater
 {
- public:
-	virtual void showTopic(const std::string &topic) = 0;
-	virtual std::string getURL(const std::string &topic) = 0;
-	// return default (fallback) topic name suitable for showTopic()
-	virtual std::string defaultTopic() = 0;
-	// return topic to use before the user logs in
-	virtual std::string preLoginTopic() = 0;
-	// return topic to use for the top-level help, invoked by F1
-	virtual std::string f1HelpTopic() = 0;
+	friend class LLFloaterReg;
+private:
+	LLFloaterAvatar(const LLSD& key);
+	/*virtual*/	~LLFloaterAvatar();
+	/*virtual*/	BOOL postBuild();
 };
 
-#endif // headerguard
+#endif

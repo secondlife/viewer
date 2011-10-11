@@ -68,8 +68,8 @@ public:
 		mUUID = LLUUID::generateNewID(p.name);
 	}
 
-	LLCommandId(const std::string& name, const LLUUID& uuid)
-	:	mName(name),
+	LLCommandId(const LLUUID& uuid)
+	:	mName(""),
 		mUUID(uuid)
 	{
 	}

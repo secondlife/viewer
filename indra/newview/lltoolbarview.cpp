@@ -41,7 +41,6 @@
 LLToolBarView* gToolBarView = NULL;
 
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
-bool LLToolBarView::sDragStarted = false;
 
 bool isToolDragged()
 {
@@ -152,7 +151,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	LLXMLNodePtr root;
 	if(!LLXMLNode::parseFile(toolbar_file, root, NULL))
 	{
-		llerrs << "Unable to load toolbars from file: " << toolbar_file << llendl;
+		llwarns << "Unable to load toolbars from file: " << toolbar_file << llendl;
 		return false;
 	}
 	if(!root->hasName("toolbars"))
@@ -331,18 +330,25 @@ void LLToolBarView::draw()
 
 void LLToolBarView::startDragTool( S32 x, S32 y, const LLUUID& uuid)
 {
-	//llinfos << "Merov debug: startDragTool() : x = " << x << ", y = " << y << llendl;
+	llinfos << "Merov debug: startDragTool() : x = " << x << ", y = " << y << ", uuid = " << uuid << llendl;
+	// Flag the tool dragging but don't start it yet
+	gToolBarView->mDragStarted = false;
+	gToolBarView->mDragCommand = LLCommandId::null;
+	gToolBarView->mDragRank = LLToolBar::RANK_NONE;
+	gToolBarView->mDragToolbar = NULL;
 	LLToolDragAndDrop::getInstance()->setDragStart( x, y );
-	sDragStarted = false;
 }
 
 BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)
 {
-//	llinfos << "Merov debug: handleDragTool() : x = " << x << ", y = " << y << ", uuid = " << uuid << llendl;
 	if (LLToolDragAndDrop::getInstance()->isOverThreshold( x, y ))
 	{
-		if (!sDragStarted)
+		if (!gToolBarView->mDragStarted)
 		{
+			llinfos << "Merov debug: handleDragTool() : x = " << x << ", y = " << y << ", uuid = " << uuid << llendl;
+			// Start the tool dragging:
+			
+			// First, create the global drag and drop object
 			std::vector<EDragAndDropType> types;
 			uuid_vec_t cargo_ids;
 			types.push_back(DAD_WIDGET);
@@ -350,9 +356,35 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			gClipboard.setSourceObject(uuid,LLAssetType::AT_WIDGET);
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
 			LLUUID srcID;
-			//llinfos << "Merov debug: handleDragTool() : beginMultiDrag()" << llendl;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);
-			sDragStarted = true;
+			llinfos << "Merov debug: beginMultiDrag() launched" << llendl;
+			
+			// Second, check if the command is present in one of the 3 toolbars
+			// If it is, store the command, the toolbar and the rank in the toolbar and
+			// set a callback on end drag so that we reinsert the command if no drop happened
+			/*
+			gToolBarView->mDragCommand = LLCommandId(uuid);
+			if ((gToolBarView->mDragRank = gToolBarView->mToolbarLeft->removeCommand(gToolBarView->mDragCommand)) != LLToolBar::RANK_NONE)
+			{
+				gToolBarView->mDragToolbar = gToolBarView->mToolbarLeft;
+			}
+			else if ((gToolBarView->mDragRank = gToolBarView->mToolbarRight->removeCommand(gToolBarView->mDragCommand)) != LLToolBar::RANK_NONE)
+			{
+				gToolBarView->mDragToolbar = gToolBarView->mToolbarRight;
+			}
+			else if ((gToolBarView->mDragRank = gToolBarView->mToolbarBottom->removeCommand(gToolBarView->mDragCommand)) != LLToolBar::RANK_NONE)
+			{
+				gToolBarView->mDragToolbar = gToolBarView->mToolbarBottom;
+			}
+			if (gToolBarView->mDragRank != LLToolBar::RANK_NONE)
+			{
+				llinfos << "Merov debug: rank of dragged tool = " << gToolBarView->mDragRank << llendl;
+				LLToolDragAndDrop::getInstance()->setEndDragCallback(boost::bind(&LLToolBarView::onEndDrag, gToolBarView));
+			}
+			 */
+
+			llinfos << "Merov debug: Drag started cleanly" << llendl;
+			gToolBarView->mDragStarted = true;
 			return TRUE;
 		}
 		else
@@ -375,7 +407,7 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 		//llinfos << "Merov debug : handleDropTool. Drop source is a widget -> drop it in place..." << llendl;
 		// Get the command from its uuid
 		LLCommandManager& mgr = LLCommandManager::instance();
-		LLCommandId command_id("",inv_item->getUUID());
+		LLCommandId command_id(inv_item->getUUID());
 		LLCommand* command = mgr.getCommand(command_id);
 		if (command)
 		{
@@ -408,5 +440,19 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 
 void LLToolBarView::stopDragTool()
 {
-	sDragStarted = false;
+	// Clear the saved command, toolbar and rank
+	gToolBarView->mDragStarted = false;
+	gToolBarView->mDragCommand = LLCommandId::null;
+	gToolBarView->mDragRank = LLToolBar::RANK_NONE;
+	gToolBarView->mDragToolbar = NULL;
+}
+
+void LLToolBarView::onEndDrag()
+{
+	// If there's a saved command, reinsert it in the saved toolbar
+	if (gToolBarView->mDragRank != LLToolBar::RANK_NONE)
+	{
+		gToolBarView->mDragToolbar->addCommand(gToolBarView->mDragCommand,gToolBarView->mDragRank);
+	}
+	stopDragTool();
 }

@@ -62,6 +62,8 @@ public:
 
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
+	void reshape(S32 width, S32 height, BOOL called_from_parent = true);
+
 	void setCommandId(const LLCommandId& id) { mId = id; }
 
 	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; }
@@ -161,9 +163,11 @@ public:
 								   void* cargo_data,
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
+
+	static const int RANK_NONE = -1;
 	
-	bool addCommand(const LLCommandId& commandId, int rank = -1);
-	bool removeCommand(const LLCommandId& commandId);
+	bool addCommand(const LLCommandId& commandId, int rank = RANK_NONE);
+	int  removeCommand(const LLCommandId& commandId);		// Returns the rank the removed command was at, RANK_NONE if not found
 	bool hasCommand(const LLCommandId& commandId) const;
 	bool enableCommand(const LLCommandId& commandId, bool enabled);
 
@@ -184,8 +188,6 @@ protected:
 	tool_handledrag_callback_t		mHandleDragItemCallback;
 	tool_handledrop_callback_t		mHandleDropCallback;
 	bool							mDragAndDropTarget;
-	int								mRank;
-	LLCommandId						mDraggedCommand;
 
 public:
 	// Methods used in loading and saving toolbar settings

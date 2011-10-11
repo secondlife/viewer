@@ -47,6 +47,7 @@ LLFloaterDestinations::~LLFloaterDestinations()
 
 BOOL LLFloaterDestinations::postBuild()
 {
+	enableResizeCtrls(true, true, false);
 	return TRUE;
 }
 

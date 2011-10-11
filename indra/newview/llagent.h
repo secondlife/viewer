@@ -282,7 +282,21 @@ public:
 	static void		toggleFlying();
 	static bool		enableFlying();
 	BOOL			canFly(); 			// Does this parcel allow you to fly?
-	
+
+	//--------------------------------------------------------------------
+	// Voice
+	//--------------------------------------------------------------------
+public:
+	bool 			isVoiceConnected() const { return mVoiceConnected; }
+	void			setVoiceConnected(const bool b)	{ mVoiceConnected = b; }
+
+	static void		toggleMicrophone(const LLSD& name);
+	static bool		isMicrophoneOn(const LLSD& sdname);
+
+private:
+	bool			mVoiceConnected;
+	bool			mMicrophoneOn;
+
 	//--------------------------------------------------------------------
 	// Chat
 	//--------------------------------------------------------------------
