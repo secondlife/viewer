@@ -406,20 +406,35 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 		if (command)
 		{
 			// Convert the (x,y) position in rank in toolbar
-			int rank = 0;
+			int new_rank = LLToolBar::RANK_NONE;
 			if (!toolbar->isReadOnly())
 			{
-				rank = toolbar->getRankFromPosition(x,y);
+				new_rank = toolbar->getRankFromPosition(x,y);
 			}
 			// Suppress the command from the toolbars (including the one it's dropped in, 
 			// this will handle move position).
-			gToolBarView->mToolbarLeft->removeCommand(command_id);
-			gToolBarView->mToolbarRight->removeCommand(command_id);
-			gToolBarView->mToolbarBottom->removeCommand(command_id);
+			int old_rank = LLToolBar::RANK_NONE;
+			int rank;
+			if ((rank = gToolBarView->mToolbarLeft->removeCommand(command_id)) != LLToolBar::RANK_NONE)
+			{
+				old_rank = rank;
+			}
+			if ((rank = gToolBarView->mToolbarRight->removeCommand(command_id)) != LLToolBar::RANK_NONE)
+			{
+				old_rank = rank;
+			}
+			if ((rank = gToolBarView->mToolbarBottom->removeCommand(command_id)) != LLToolBar::RANK_NONE)
+			{
+				old_rank = rank;
+			}
 			// Now insert it in the toolbar at the detected rank
 			if (!toolbar->isReadOnly())
 			{
-				toolbar->addCommand(command->id(),rank);
+				if ((old_rank != LLToolBar::RANK_NONE) && (old_rank < new_rank))
+				{
+					new_rank -= 1;
+				}
+				toolbar->addCommand(command->id(),new_rank);
 			}
 		}
 		else
