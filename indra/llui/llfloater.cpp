@@ -849,9 +849,9 @@ void LLFloater::applyRectControl()
 	if (mRectControl.size() > 1)
 	{
 		const LLRect& rect = getControlGroup()->getRect(mRectControl);
-		if (rect.getWidth() > 0 && rect.getHeight() > 0)
+		if (rect.notEmpty())
 		{
-			translate( rect.mLeft - getRect().mLeft, rect.mBottom - getRect().mBottom);
+			setOrigin(rect.mLeft, rect.mBottom);
 			if (mResizable)
 			{
 				reshape(llmax(mMinWidth, rect.getWidth()), llmax(mMinHeight, rect.getHeight()));
@@ -2558,7 +2558,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 
 	// move window fully onscreen
-	if (floater->translateIntoRect( getLocalRect(), allow_partial_outside ))
+	if (floater->translateIntoRect( getSnapRect(), allow_partial_outside ))
 	{
 		floater->clearSnapTarget();
 	}

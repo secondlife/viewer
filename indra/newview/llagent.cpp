@@ -71,6 +71,7 @@
 #include "lltoolpie.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"
+#include "lluictrl.h"
 #include "llurlentry.h"
 #include "llviewercontrol.h"
 #include "llviewerdisplay.h"
@@ -152,6 +153,34 @@ bool handleSlowMotionAnimation(const LLSD& newvalue)
 	return true;
 }
 
+// static
+void LLAgent::parcelChangedCallback()
+{
+	bool can_edit = LLToolMgr::getInstance()->canEdit();
+
+	gAgent.mCanEditParcel = can_edit;
+}
+
+// static
+bool LLAgent::isActionAllowed(const LLSD& sdname)
+{
+	bool retval = false;
+
+	const std::string& param = sdname.asString();
+
+	if (param == "build")
+	{
+		retval = gAgent.canEditParcel();
+	}
+	else if (param == "speak")
+	{
+		retval = true;
+	}
+
+	return retval;
+}
+
+
 // ************************************************************
 // Enabled this definition to compile a 'hacked' viewer that
 // locally believes the end user has godlike powers.
@@ -183,6 +212,7 @@ LLAgent::LLAgent() :
 	mbTeleportKeepsLookAt(false),
 
 	mAgentAccess(new LLAgentAccess(gSavedSettings)),
+	mCanEditParcel(false),
 	mTeleportSourceSLURL(new LLSLURL),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
@@ -246,6 +276,10 @@ LLAgent::LLAgent() :
 	mListener.reset(new LLAgentListener(*this));
 
 	mMoveTimer.stop();
+
+	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLAgent::parcelChangedCallback));
+
+	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
 }
 
 // Requires gSavedSettings to be initialized.
@@ -3361,7 +3395,14 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterReg::hideInstance("region_info");
 
 	// minimize the Search floater (STORM-1474)
-	LLFloaterReg::getInstance("search")->setMinimized(TRUE);
+	{
+		LLFloater* instance = LLFloaterReg::getInstance("search");
+
+		if (instance && instance->getVisible())
+		{
+			instance->setMinimized(TRUE);
+		}
+	}
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
 	LLViewerMediaFocus::getInstance()->clearFocus();

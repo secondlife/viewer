@@ -43,6 +43,11 @@ LLToolBarView* gToolBarView = NULL;
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
 bool LLToolBarView::sDragStarted = false;
 
+bool isToolDragged()
+{
+	return (LLToolDragAndDrop::getInstance()->getSource() == LLToolDragAndDrop::SOURCE_VIEWER);
+}
+
 LLToolBarView::Toolbar::Toolbar()
 :	button_display_mode("button_display_mode"),
 	commands("command")
@@ -80,17 +85,17 @@ BOOL LLToolBarView::postBuild()
 	mToolbarRight  = getChild<LLToolBar>("toolbar_right");
 	mToolbarBottom = getChild<LLToolBar>("toolbar_bottom");
 
-	mToolbarLeft->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
-	mToolbarLeft->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
-	mToolbarLeft->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3,_4));
+	mToolbarLeft->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
+	mToolbarLeft->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
+	mToolbarLeft->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
 	
-	mToolbarRight->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
-	mToolbarRight->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
-	mToolbarRight->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3,_4));
+	mToolbarRight->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
+	mToolbarRight->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
+	mToolbarRight->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
 	
-	mToolbarBottom->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
-	mToolbarBottom->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
-	mToolbarBottom->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3,_4));
+	mToolbarBottom->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
+	mToolbarBottom->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
+	mToolbarBottom->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
 	
 	return TRUE;
 }
@@ -306,37 +311,34 @@ void LLToolBarView::draw()
 		mToolbarRight->localRectToOtherView(mToolbarRight->getLocalRect(), &right_rect, this);
 	}
 	
-	// Debug draw
-	LLColor4 back_color = LLColor4::blue;
-	LLColor4 back_color_vert = LLColor4::red;
-	LLColor4 back_color_hori = LLColor4::yellow;
-	back_color[VALPHA] = 0.5f;
-	back_color_hori[VALPHA] = 0.5f;
-	back_color_vert[VALPHA] = 0.5f;
-	//gl_rect_2d(getLocalRect(), back_color, TRUE);
-	//gl_rect_2d(bottom_rect, back_color_hori, TRUE);
-	//gl_rect_2d(left_rect, back_color_vert, TRUE);
-	//gl_rect_2d(right_rect, back_color_vert, TRUE);
+	// Draw drop zones if drop of a tool is active
+	if (isToolDragged())
+	{
+		LLColor4 drop_color = LLUIColorTable::instance().getColor( "ToolbarDropZoneColor" );
+		gl_rect_2d(bottom_rect, drop_color, TRUE);
+		gl_rect_2d(left_rect, drop_color, TRUE);
+		gl_rect_2d(right_rect, drop_color, TRUE);
+	}
 	
 	LLUICtrl::draw();
 }
 
 
 // ----------------------------------------
-// Drag and Drop hacks (under construction)
+// Drag and Drop Handling
 // ----------------------------------------
 
 
-void LLToolBarView::startDragItem( S32 x, S32 y, const LLUUID& uuid)
+void LLToolBarView::startDragTool( S32 x, S32 y, const LLUUID& uuid)
 {
-	//llinfos << "Merov debug: startDragItem() : x = " << x << ", y = " << y << llendl;
+	//llinfos << "Merov debug: startDragTool() : x = " << x << ", y = " << y << llendl;
 	LLToolDragAndDrop::getInstance()->setDragStart( x, y );
 	sDragStarted = false;
 }
 
-BOOL LLToolBarView::handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)
+BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)
 {
-//	llinfos << "Merov debug: handleDragItem() : x = " << x << ", y = " << y << ", uuid = " << uuid << llendl;
+//	llinfos << "Merov debug: handleDragTool() : x = " << x << ", y = " << y << ", uuid = " << uuid << llendl;
 	if (LLToolDragAndDrop::getInstance()->isOverThreshold( x, y ))
 	{
 		if (!sDragStarted)
@@ -348,7 +350,7 @@ BOOL LLToolBarView::handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			gClipboard.setSourceObject(uuid,LLAssetType::AT_WIDGET);
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
 			LLUUID srcID;
-			//llinfos << "Merov debug: handleDragItem() : beginMultiDrag()" << llendl;
+			//llinfos << "Merov debug: handleDragTool() : beginMultiDrag()" << llendl;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);
 			sDragStarted = true;
 			return TRUE;
@@ -362,18 +364,18 @@ BOOL LLToolBarView::handleDragItem( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 	return FALSE;
 }
 
-BOOL LLToolBarView::handleDrop( void* cargo_data, S32 x, S32 y, LLToolBar* toolbar)
+BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* toolbar)
 {
 	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
-	//llinfos << "Merov debug : handleDrop. Drop " << inv_item->getUUID() << " named " << inv_item->getName() << " of type " << inv_item->getType() << llendl;
-		
+	//llinfos << "Merov debug : handleDropTool. Drop " << inv_item->getUUID() << " named " << inv_item->getName() << " of type " << inv_item->getType() << llendl;
+	
 	LLAssetType::EType type = inv_item->getType();
 	if (type == LLAssetType::AT_WIDGET)
 	{
-		//llinfos << "Merov debug : handleDrop. Drop source is a widget -> drop it in place..." << llendl;
+		//llinfos << "Merov debug : handleDropTool. Drop source is a widget -> drop it in place..." << llendl;
 		// Get the command from its uuid
 		LLCommandManager& mgr = LLCommandManager::instance();
-		LLCommandId command_id(inv_item->getUUID());
+		LLCommandId command_id("",inv_item->getUUID());
 		LLCommand* command = mgr.getCommand(command_id);
 		if (command)
 		{
@@ -385,9 +387,10 @@ BOOL LLToolBarView::handleDrop( void* cargo_data, S32 x, S32 y, LLToolBar* toolb
 			}
 			// Suppress the command from the toolbars (including the one it's dropped in, 
 			// this will handle move position).
-			gToolBarView->mToolbarLeft->removeCommand(command->id());
-			gToolBarView->mToolbarRight->removeCommand(command->id());
-			gToolBarView->mToolbarBottom->removeCommand(command->id());
+			llinfos << "Merov debug : handleDropTool, " << command_id.name() << ", " << command_id.uuid() << llendl;
+			gToolBarView->mToolbarLeft->removeCommand(command_id);
+			gToolBarView->mToolbarRight->removeCommand(command_id);
+			gToolBarView->mToolbarBottom->removeCommand(command_id);
 			// Now insert it in the toolbar at the detected rank
 			if (!toolbar->isReadOnly())
 			{
@@ -399,8 +402,11 @@ BOOL LLToolBarView::handleDrop( void* cargo_data, S32 x, S32 y, LLToolBar* toolb
 			llwarns << "Command couldn't be found in command manager" << llendl;
 		}
 	}
-	
+	stopDragTool();
 	return TRUE;
 }
 
-
+void LLToolBarView::stopDragTool()
+{
+	sDragStarted = false;
+}

@@ -62,9 +62,9 @@ BOOL LLFloaterToybox::postBuild()
 
 	mBtnRestoreDefaults = getChild<LLButton>("btn_restore_defaults");
 	mToolBar = getChild<LLToolBar>("toybox_toolbar");
-	mToolBar->setStartDragCallback(boost::bind(LLToolBarView::startDragItem,_1,_2,_3));
-	mToolBar->setHandleDragCallback(boost::bind(LLToolBarView::handleDragItem,_1,_2,_3,_4));
-	mToolBar->setHandleDropCallback(boost::bind(LLToolBarView::handleDrop,_1,_2,_3,_4));
+	mToolBar->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
+	mToolBar->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
+	mToolBar->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
 	
 	LLCommandManager& cmdMgr = LLCommandManager::instance();
 
@@ -118,6 +118,17 @@ void LLFloaterToybox::draw()
 void LLFloaterToybox::onBtnRestoreDefaults()
 {
 	LLToolBarView::loadDefaultToolbars();
+}
+
+BOOL LLFloaterToybox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	EDragAndDropType cargo_type,
+	void* cargo_data,
+	EAcceptance* accept,
+	std::string& tooltip_msg)
+{
+	S32 local_x = x - mToolBar->getRect().mLeft;
+	S32 local_y = y - mToolBar->getRect().mBottom;
+	return mToolBar->handleDragAndDrop(local_x, local_y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 }
 
 

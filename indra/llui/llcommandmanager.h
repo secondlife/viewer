@@ -50,6 +50,12 @@ public:
 		{}
 	};
 
+	LLCommandId()
+		: mName("null command")
+	{
+		mUUID = LLUUID::generateNewID(mName);
+	}
+	
 	LLCommandId(const std::string& name)
 		: mName(name)
 	{
@@ -62,10 +68,9 @@ public:
 		mUUID = LLUUID::generateNewID(p.name);
 	}
 
-	LLCommandId(const LLUUID& uuid)
-	:	mName(""),
+	LLCommandId(const std::string& name, const LLUUID& uuid)
+	:	mName(name),
 		mUUID(uuid)
-	
 	{
 	}
 	

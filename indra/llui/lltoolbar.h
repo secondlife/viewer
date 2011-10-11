@@ -47,8 +47,8 @@ class LLToolBarButton : public LLButton
 public:
 	struct Params : public LLInitParam::Block<Params, LLButton::Params>
 	{
-		Optional<LLUI::RangeS32>	button_width;
-		Optional<S32>				desired_height;
+		Optional<LLUI::RangeS32::Params>	button_width;
+		Optional<S32>						desired_height;
 
 		Params()
 		:	button_width("button_width"),
@@ -141,7 +141,8 @@ public:
 												pad_top,
 												pad_right,
 												pad_bottom,
-												pad_between;
+												pad_between,
+												min_girth;
 		// get rid of this
 		Multiple<LLCommandId::Params>			commands;
 
@@ -183,6 +184,8 @@ protected:
 	tool_handledrag_callback_t		mHandleDragItemCallback;
 	tool_handledrop_callback_t		mHandleDropCallback;
 	bool							mDragAndDropTarget;
+	int								mRank;
+	LLCommandId						mDraggedCommand;
 
 public:
 	// Methods used in loading and saving toolbar settings
@@ -204,7 +207,7 @@ private:
 	typedef std::list<LLToolBarButton*> toolbar_button_list;
 	toolbar_button_list				mButtons;
 	command_id_list_t				mButtonCommands;
-	typedef std::map<LLCommandId, LLToolBarButton*> command_id_map;
+	typedef std::map<LLUUID, LLToolBarButton*> command_id_map;
 	command_id_map					mButtonMap;
 
 	LLToolBarEnums::ButtonType		mButtonType;
@@ -219,7 +222,8 @@ private:
 									mPadRight,
 									mPadTop,
 									mPadBottom,
-									mPadBetween;
+									mPadBetween,
+									mMinGirth;
 
 	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
 
