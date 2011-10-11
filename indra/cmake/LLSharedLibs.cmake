@@ -42,13 +42,13 @@ macro(ll_stage_sharedlib DSO_TARGET)
   # Also this directory is shared with RunBuildTest.cmake, y'know, for the tests.
   set_target_properties(${DSO_TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${SHARED_LIB_STAGING_DIR})
   if(NOT WINDOWS)
-	get_target_property(DSO_PATH ${DSO_TARGET} LOCATION)
-	get_filename_component(DSO_FILE ${DSO_PATH} NAME)
-	if(DARWIN)
-	  set(SHARED_LIB_STAGING_DIR_CONFIG ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources)
-	else(DARWIN)
-	  set(SHARED_LIB_STAGING_DIR_CONFIG ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
-	endif(DARWIN)
+    get_target_property(DSO_PATH ${DSO_TARGET} LOCATION)
+    get_filename_component(DSO_FILE ${DSO_PATH} NAME)
+    if(DARWIN)
+      set(SHARED_LIB_STAGING_DIR_CONFIG ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources)
+    else(DARWIN)
+      set(SHARED_LIB_STAGING_DIR_CONFIG ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
+    endif(DARWIN)
 
       # *TODO - maybe make this a symbolic link? -brad
       add_custom_command(
