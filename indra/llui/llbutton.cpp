@@ -828,6 +828,10 @@ void LLButton::draw()
 		{
 			overlay_color.mV[VALPHA] = 0.5f;
 		}
+		else if (!getToggleState())
+		{
+			overlay_color.mV[VALPHA] = 0.75f;
+		}
 		overlay_color.mV[VALPHA] *= alpha;
 
 		switch(mImageOverlayAlignment)
