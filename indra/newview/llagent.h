@@ -290,12 +290,12 @@ public:
 	bool 			isVoiceConnected() const { return mVoiceConnected; }
 	void			setVoiceConnected(const bool b)	{ mVoiceConnected = b; }
 
-	static void		toggleMicrophone(const LLSD& name);
+	static void		pressMicrophone(const LLSD& name);
+	static void		releaseMicrophone(const LLSD& name);
 	static bool		isMicrophoneOn(const LLSD& sdname);
 
 private:
 	bool			mVoiceConnected;
-	bool			mMicrophoneOn;
 
 	//--------------------------------------------------------------------
 	// Chat

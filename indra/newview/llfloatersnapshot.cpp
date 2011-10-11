@@ -2217,7 +2217,7 @@ void LLFloaterSnapshot::draw()
 
 	LLFloater::draw();
 
-	if (previewp)
+	if (previewp && !isMinimized())
 	{		
 		if(previewp->getThumbnailImage())
 		{

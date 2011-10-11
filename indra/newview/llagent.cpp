@@ -188,28 +188,23 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
 }
 
 // static 
-void LLAgent::toggleMicrophone(const LLSD& name)
+void LLAgent::pressMicrophone(const LLSD& name)
 {
-	gAgent.mMicrophoneOn = ! gAgent.mMicrophoneOn;
+	LLFirstUse::speak(false);
 
-	if ( gAgent.mMicrophoneOn )
-	{
-		LLFirstUse::speak(false);
+	 LLVoiceClient::getInstance()->inputUserControlState(true);
+}
 
-		LLVoiceClient::getInstance()->inputUserControlState(true);
-		LLVoiceClient::getInstance()->inputUserControlState(false);
-	}
-	else
-	{
-		LLVoiceClient::getInstance()->inputUserControlState(false);
-		LLVoiceClient::getInstance()->inputUserControlState(true);
-	}
+// static 
+void LLAgent::releaseMicrophone(const LLSD& name)
+{
+	LLVoiceClient::getInstance()->inputUserControlState(false);
 }
 
 // static
 bool LLAgent::isMicrophoneOn(const LLSD& sdname)
 {
-	return gAgent.mMicrophoneOn;
+	return LLVoiceClient::getInstance()->getUserPTTState();
 }
 
 // ************************************************************
@@ -294,7 +289,6 @@ LLAgent::LLAgent() :
 	mGenderChosen(FALSE),
 	
 	mVoiceConnected(false),
-	mMicrophoneOn(false),
 
 	mAppearanceSerialNum(0),
 
@@ -314,7 +308,8 @@ LLAgent::LLAgent() :
 	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLAgent::parcelChangedCallback));
 
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
-	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
+	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
+	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
 }
 
