@@ -659,11 +659,25 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 
 	if (!mReadOnly)
 	{
-		LLUICtrl::CommitCallbackParam cbParam;
-		cbParam.function_name = commandp->executeFunctionName();
-		cbParam.parameter = commandp->executeParameters();
+		LLUICtrl::CommitCallbackParam executeParam;
+		executeParam.function_name = commandp->executeFunctionName();
+		executeParam.parameter = commandp->executeParameters();
 
-		button->setCommitCallback(cbParam);
+		// If we have a "stop" function then we map the command to mouse down / mouse up otherwise commit
+		const std::string& executeStopFunction = commandp->executeStopFunctionName();
+		if (executeStopFunction.length() > 0)
+		{
+			LLUICtrl::CommitCallbackParam executeStopParam;
+			executeStopParam.function_name = executeStopFunction;
+			executeStopParam.parameter = commandp->executeStopParameters();
+			
+			button->setMouseDownCallback(executeParam);
+			button->setMouseUpCallback(executeStopParam);
+		}
+		else
+		{
+			button->setCommitCallback(executeParam);
+		}
 
 		const std::string& isEnabledFunction = commandp->isEnabledFunctionName();
 		if (isEnabledFunction.length() > 0)

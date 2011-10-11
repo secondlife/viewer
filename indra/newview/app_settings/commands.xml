@@ -217,6 +217,8 @@
            tooltip_ref="Command_Speak_Tooltip"
            execute_function="Agent.ToggleMicrophone"
            execute_parameters="speak"
+           execute_stop_function=""
+           execute_stop_parameters="speak"
            is_enabled_function="Agent.IsActionAllowed"
            is_enabled_parameters="speak"
            is_running_function="Agent.IsMicrophoneOn"

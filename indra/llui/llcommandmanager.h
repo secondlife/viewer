@@ -116,6 +116,9 @@ public:
 		Mandatory<std::string>	execute_function;
 		Optional<LLSD>			execute_parameters;
 
+		Optional<std::string>	execute_stop_function;
+		Optional<LLSD>			execute_stop_parameters;
+		
 		Optional<std::string>	is_enabled_function;
 		Optional<LLSD>			is_enabled_parameters;
 
@@ -139,6 +142,9 @@ public:
 	const std::string& executeFunctionName() const { return mExecuteFunction; }
 	const LLSD& executeParameters() const { return mExecuteParameters; }
 
+	const std::string& executeStopFunctionName() const { return mExecuteStopFunction; }
+	const LLSD& executeStopParameters() const { return mExecuteStopParameters; }
+	
 	const std::string& isEnabledFunctionName() const { return mIsEnabledFunction; }
 	const LLSD& isEnabledParameters() const { return mIsEnabledParameters; }
 
@@ -159,6 +165,9 @@ private:
 	std::string mExecuteFunction;
 	LLSD        mExecuteParameters;
 
+	std::string mExecuteStopFunction;
+	LLSD        mExecuteStopParameters;
+	
 	std::string mIsEnabledFunction;
 	LLSD        mIsEnabledParameters;
 
