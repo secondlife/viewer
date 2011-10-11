@@ -47,8 +47,8 @@ class LLToolBarButton : public LLButton
 public:
 	struct Params : public LLInitParam::Block<Params, LLButton::Params>
 	{
-		Optional<LLUI::RangeS32::Params>	button_width;
-		Optional<S32>						desired_height;
+		Optional<LLUI::RangeS32>	button_width;
+		Optional<S32>				desired_height;
 
 		Params()
 		:	button_width("button_width"),
@@ -161,9 +161,11 @@ public:
 								   void* cargo_data,
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
+
+	static const int RANK_NONE = -1;
 	
-	bool addCommand(const LLCommandId& commandId, int rank = -1);
-	bool removeCommand(const LLCommandId& commandId);
+	bool addCommand(const LLCommandId& commandId, int rank = RANK_NONE);
+	int  removeCommand(const LLCommandId& commandId);		// Returns the rank the removed command was at, RANK_NONE if not found
 	bool hasCommand(const LLCommandId& commandId) const;
 	bool enableCommand(const LLCommandId& commandId, bool enabled);
 
@@ -184,8 +186,6 @@ protected:
 	tool_handledrag_callback_t		mHandleDragItemCallback;
 	tool_handledrop_callback_t		mHandleDropCallback;
 	bool							mDragAndDropTarget;
-	int								mRank;
-	LLCommandId						mDraggedCommand;
 
 public:
 	// Methods used in loading and saving toolbar settings
