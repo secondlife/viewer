@@ -90,6 +90,16 @@
          label="日本語 (Japanese) - Beta"
          name="(Japanese)"
          value="ja" />
+        <combo_box.item
+         enabled="true"
+         label="简体 (Simplified Chinese) - Beta"
+         name="Simplified Chinese"
+         value="zh_CN" />
+        <combo_box.item
+         enabled="true"
+         label="正體 (Traditional Chinese) - Beta"
+         name="Traditional Chinese"
+         value="zh" />
     </combo_box>
     <text
  font="SansSerifSmall"
