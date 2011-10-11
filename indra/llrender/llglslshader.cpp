@@ -762,12 +762,8 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_UNIFORM_LOCATION("Get Uniform Location");
-
 GLint LLGLSLShader::getUniformLocation(const string& uniform)
 {
-	LLFastTimer t(FTM_UNIFORM_LOCATION);
-
 	GLint ret = -1;
 	if (mProgramObject > 0)
 	{
@@ -792,8 +788,6 @@ GLint LLGLSLShader::getUniformLocation(const string& uniform)
 
 GLint LLGLSLShader::getUniformLocation(U32 index)
 {
-	LLFastTimer t(FTM_UNIFORM_LOCATION);
-
 	GLint ret = -1;
 	if (mProgramObject > 0)
 	{

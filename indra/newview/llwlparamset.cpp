@@ -73,11 +73,13 @@ static LLFastTimer::DeclareTimer FTM_WL_PARAM_UPDATE("WL Param Update");
 
 void LLWLParamSet::update(LLGLSLShader * shader) const 
 {	
+	LLFastTimer t(FTM_WL_PARAM_UPDATE);
+
 	for(LLSD::map_const_iterator i = mParamValues.beginMap();
 		i != mParamValues.endMap();
 		++i)
 	{
-		LLFastTimer t(FTM_WL_PARAM_UPDATE);
+		
 
 		const std::string& param = i->first;
 		

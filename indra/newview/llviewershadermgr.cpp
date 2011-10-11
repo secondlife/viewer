@@ -96,6 +96,8 @@ LLGLSLShader		gObjectFullbrightNoColorProgram;
 LLGLSLShader		gObjectFullbrightNoColorWaterProgram;
 
 LLGLSLShader		gObjectSimpleNonIndexedProgram;
+LLGLSLShader		gObjectSimpleNonIndexedTexGenProgram;
+LLGLSLShader		gObjectSimpleNonIndexedTexGenWaterProgram;
 LLGLSLShader		gObjectSimpleNonIndexedWaterProgram;
 LLGLSLShader		gObjectAlphaMaskNonIndexedProgram;
 LLGLSLShader		gObjectAlphaMaskNonIndexedWaterProgram;
@@ -217,6 +219,8 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gObjectFullbrightShinyProgram);
 	mShaderList.push_back(&gObjectFullbrightShinyWaterProgram);
 	mShaderList.push_back(&gObjectSimpleNonIndexedProgram);
+	mShaderList.push_back(&gObjectSimpleNonIndexedTexGenProgram);
+	mShaderList.push_back(&gObjectSimpleNonIndexedTexGenWaterProgram);
 	mShaderList.push_back(&gObjectSimpleNonIndexedWaterProgram);
 	mShaderList.push_back(&gObjectAlphaMaskNonIndexedProgram);
 	mShaderList.push_back(&gObjectAlphaMaskNonIndexedWaterProgram);
@@ -625,6 +629,8 @@ void LLViewerShaderMgr::unloadShaders()
 	gObjectShinyWaterProgram.unload();
 
 	gObjectSimpleNonIndexedProgram.unload();
+	gObjectSimpleNonIndexedTexGenProgram.unload();
+	gObjectSimpleNonIndexedTexGenWaterProgram.unload();
 	gObjectSimpleNonIndexedWaterProgram.unload();
 	gObjectAlphaMaskNonIndexedProgram.unload();
 	gObjectAlphaMaskNonIndexedWaterProgram.unload();
@@ -1505,7 +1511,8 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightShinyNonIndexedProgram.unload();
 		gObjectFullbrightShinyNonIndexedWaterProgram.unload();
 		gObjectShinyNonIndexedWaterProgram.unload();
-		gObjectSimpleNonIndexedProgram.unload();
+		gObjectSimpleNonIndexedTexGenProgram.unload();
+		gObjectSimpleNonIndexedTexGenWaterProgram.unload();
 		gObjectSimpleNonIndexedWaterProgram.unload();
 		gObjectAlphaMaskNonIndexedProgram.unload();
 		gObjectAlphaMaskNonIndexedWaterProgram.unload();
@@ -1549,6 +1556,23 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 	
 	if (success)
 	{
+		gObjectSimpleNonIndexedTexGenProgram.mName = "Non indexed tex-gen Shader";
+		gObjectSimpleNonIndexedTexGenProgram.mFeatures.calculatesLighting = true;
+		gObjectSimpleNonIndexedTexGenProgram.mFeatures.calculatesAtmospherics = true;
+		gObjectSimpleNonIndexedTexGenProgram.mFeatures.hasGamma = true;
+		gObjectSimpleNonIndexedTexGenProgram.mFeatures.hasAtmospherics = true;
+		gObjectSimpleNonIndexedTexGenProgram.mFeatures.hasLighting = true;
+		gObjectSimpleNonIndexedTexGenProgram.mFeatures.disableTextureIndex = true;
+		gObjectSimpleNonIndexedTexGenProgram.mShaderFiles.clear();
+		gObjectSimpleNonIndexedTexGenProgram.mShaderFiles.push_back(make_pair("objects/simpleTexGenV.glsl", GL_VERTEX_SHADER_ARB));
+		gObjectSimpleNonIndexedTexGenProgram.mShaderFiles.push_back(make_pair("objects/simpleF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gObjectSimpleNonIndexedTexGenProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		success = gObjectSimpleNonIndexedTexGenProgram.createShader(NULL, NULL);
+	}
+	
+
+	if (success)
+	{
 		gObjectSimpleNonIndexedWaterProgram.mName = "Non indexed Water Shader";
 		gObjectSimpleNonIndexedWaterProgram.mFeatures.calculatesLighting = true;
 		gObjectSimpleNonIndexedWaterProgram.mFeatures.calculatesAtmospherics = true;
@@ -1562,6 +1586,23 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectSimpleNonIndexedWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		gObjectSimpleNonIndexedWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		success = gObjectSimpleNonIndexedWaterProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gObjectSimpleNonIndexedTexGenWaterProgram.mName = "Non indexed tex-gen Water Shader";
+		gObjectSimpleNonIndexedTexGenWaterProgram.mFeatures.calculatesLighting = true;
+		gObjectSimpleNonIndexedTexGenWaterProgram.mFeatures.calculatesAtmospherics = true;
+		gObjectSimpleNonIndexedTexGenWaterProgram.mFeatures.hasWaterFog = true;
+		gObjectSimpleNonIndexedTexGenWaterProgram.mFeatures.hasAtmospherics = true;
+		gObjectSimpleNonIndexedTexGenWaterProgram.mFeatures.hasLighting = true;
+		gObjectSimpleNonIndexedTexGenWaterProgram.mFeatures.disableTextureIndex = true;
+		gObjectSimpleNonIndexedTexGenWaterProgram.mShaderFiles.clear();
+		gObjectSimpleNonIndexedTexGenWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleTexGenV.glsl", GL_VERTEX_SHADER_ARB));
+		gObjectSimpleNonIndexedTexGenWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gObjectSimpleNonIndexedTexGenWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		gObjectSimpleNonIndexedTexGenWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+		success = gObjectSimpleNonIndexedTexGenWaterProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

@@ -229,6 +229,8 @@ extern LLGLSLShader			gObjectSimpleAlphaMaskProgram;
 extern LLGLSLShader			gObjectSimpleWaterProgram;
 extern LLGLSLShader			gObjectSimpleWaterAlphaMaskProgram;
 extern LLGLSLShader			gObjectSimpleNonIndexedProgram;
+extern LLGLSLShader			gObjectSimpleNonIndexedTexGenProgram;
+extern LLGLSLShader			gObjectSimpleNonIndexedTexGenWaterProgram;
 extern LLGLSLShader			gObjectSimpleNonIndexedWaterProgram;
 extern LLGLSLShader			gObjectAlphaMaskNonIndexedProgram;
 extern LLGLSLShader			gObjectAlphaMaskNonIndexedWaterProgram;

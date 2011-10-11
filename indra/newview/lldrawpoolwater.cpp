@@ -169,7 +169,7 @@ void LLDrawPoolWater::render(S32 pass)
 	std::sort(mDrawFace.begin(), mDrawFace.end(), LLFace::CompareDistanceGreater());
 
 	// See if we are rendering water as opaque or not
-	if (!gSavedSettings.getBOOL("RenderTransparentWater") && !LLGLSLShader::sNoFixedFunction)
+	if (!gSavedSettings.getBOOL("RenderTransparentWater"))
 	{
 		// render water for low end hardware
 		renderOpaqueLegacyWater();
@@ -334,9 +334,19 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 {
 	LLVOSky *voskyp = gSky.mVOSkyp;
 
+	LLGLSLShader* shader = NULL;
 	if (LLGLSLShader::sNoFixedFunction)
 	{
-		gObjectSimpleProgram.bind();
+		if (LLPipeline::sUnderWaterRender)
+		{
+			shader = &gObjectSimpleNonIndexedTexGenWaterProgram;
+		}
+		else
+		{
+			shader = &gObjectSimpleNonIndexedTexGenProgram;
+		}
+
+		shader->bind();
 	}
 
 	stop_glerror();
@@ -361,10 +371,13 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	gGL.getTexUnit(0)->bind(mOpaqueWaterImagep);
 
 	// Automatically generate texture coords for water texture
-	glEnable(GL_TEXTURE_GEN_S); //texture unit 0
-	glEnable(GL_TEXTURE_GEN_T); //texture unit 0
-	glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	if (!shader)
+	{
+		glEnable(GL_TEXTURE_GEN_S); //texture unit 0
+		glEnable(GL_TEXTURE_GEN_T); //texture unit 0
+		glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+		glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	}
 
 	// Use the fact that we know all water faces are the same size
 	// to save some computation
@@ -387,8 +400,16 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	F32 tp0[4] = { 16.f / 256.f, 0.0f, 0.0f, offset };
 	F32 tp1[4] = { 0.0f, 16.f / 256.f, 0.0f, offset };
 
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
+	if (!shader)
+	{
+		glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
+		glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
+	}
+	else
+	{
+		shader->uniform4fv("object_plane_s", 1, tp0);
+		shader->uniform4fv("object_plane_t", 1, tp1);
+	}
 
 	gGL.diffuseColor3f(1.f, 1.f, 1.f);
 
@@ -406,9 +427,12 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 
 	stop_glerror();
 
-	// Reset the settings back to expected values
-	glDisable(GL_TEXTURE_GEN_S); //texture unit 0
-	glDisable(GL_TEXTURE_GEN_T); //texture unit 0
+	if (!shader)
+	{
+		// Reset the settings back to expected values
+		glDisable(GL_TEXTURE_GEN_S); //texture unit 0
+		glDisable(GL_TEXTURE_GEN_T); //texture unit 0
+	}
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
