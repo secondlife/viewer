@@ -76,7 +76,6 @@
 		<combo_box.item name="French" label="Français (Frans) - Bèta"/>
 		<combo_box.item name="Italian" label="Italiano (Italiaans) - Bèta"/>
 		<combo_box.item name="Hungarian" label="Magyar (Hongaars) - Bèta"/>
-		<combo_box.item name="Dutch" label="Nederlands - Bèta"/>
 		<combo_box.item name="Polish" label="Polski (Pools) - Bèta"/>
 		<combo_box.item name="Portugese" label="Português (Portugees) - Bèta"/>
 		<combo_box.item name="Russian" label="Русский (Russisch) - Bèta"/>

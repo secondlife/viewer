@@ -67,11 +67,6 @@
          value="it" />
         <combo_box.item
          enabled="true"
-         label="Nederlands (Dutch) - Beta"
-         name="Dutch"
-         value="nl" />
-        <combo_box.item
-         enabled="true"
          label="Polski (Polish) - Beta"
          name="Polish"
          value="pl" />
