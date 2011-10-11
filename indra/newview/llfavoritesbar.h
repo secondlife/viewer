@@ -34,6 +34,9 @@
 #include "llinventoryobserver.h"
 #include "llinventorymodel.h"
 
+class LLMenuItemCallGL;
+class LLToggleableMenu;
+
 class LLFavoritesBarCtrl : public LLUICtrl, public LLInventoryObserver
 {
 public:
@@ -131,6 +134,17 @@ private:
 
 	// finds an item by it's UUID in the items array
 	LLInventoryModel::item_array_t::iterator findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id);
+
+	void createOverflowMenu();
+
+	void updateMenuItems(LLToggleableMenu* menu);
+
+	// Fits menu item label width with favorites menu width
+	void fitLabelWidth(LLMenuItemCallGL* menu_item);
+
+	void addOpenLandmarksMenuItem(LLToggleableMenu* menu);
+
+	void positionAndShowMenu(LLToggleableMenu* menu);
 
 	BOOL mShowDragMarker;
 	LLUICtrl* mLandingTab;

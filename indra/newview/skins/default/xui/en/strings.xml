@@ -2051,6 +2051,8 @@ Returns a string with the requested data about the region
 	<string name="Marketplace Error Unsellable Item">Error: This item can not be sold on the marketplace.</string>
 	<string name="Marketplace Error Internal Import">Error: There was a problem with this item.  Try again later.</string>
 
+	<string name="Open landmarks">Open landmarks</string>
+
 	<!-- use value="" because they have preceding spaces -->
 	<string name="no_transfer" value=" (no transfer)" />
 	<string name="no_modify"   value=" (no modify)" />

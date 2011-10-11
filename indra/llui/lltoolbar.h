@@ -48,7 +48,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLButton::Params>
 	{
 		Optional<LLUI::RangeS32::Params>	button_width;
-		Optional<S32>						desired_height;
+		Optional<S32>				desired_height;
 
 		Params()
 		:	button_width("button_width"),
@@ -163,7 +163,7 @@ public:
 								   void* cargo_data,
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
-
+	
 	static const int RANK_NONE = -1;
 	
 	bool addCommand(const LLCommandId& commandId, int rank = RANK_NONE);
@@ -177,6 +177,8 @@ public:
 	bool isReadOnly() const { return mReadOnly; }
 
 	LLToolBarButton* createButton(const LLCommandId& id);
+
+	bool hasButtons() { return !mButtons.empty(); }
 
 protected:
 	friend class LLUICtrlFactory;
