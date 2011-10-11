@@ -34,6 +34,7 @@
 #include "llmenugl.h"
 #include "lltrans.h"
 #include "llinventory.h"
+#include "lliconctrl.h"
 
 // uncomment this and remove the one in llui.cpp when there is an external reference to this translation unit
 // thanks, MSVC!
@@ -204,7 +205,6 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 {
 	LLCommand * command = LLCommandManager::instance().getCommand(commandId);
 	if (!command) return false;
-	llinfos << "Merov debug : addCommand, " << commandId.name() << ", " << commandId.uuid() << llendl;
 	
 	// Create the button and do the things that don't need ordering
 	LLToolBarButton* button = createButton(commandId);
@@ -248,7 +248,6 @@ int LLToolBar::removeCommand(const LLCommandId& commandId)
 {
 	if (!hasCommand(commandId)) return RANK_NONE;
 	
-	llinfos << "Merov debug : removeCommand, " << commandId.name() << ", " << commandId.uuid() << llendl;
 	// First erase the map record
 	command_id_map::iterator it = mButtonMap.find(commandId.uuid());
 	mButtonMap.erase(it);
@@ -398,7 +397,7 @@ void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row
 // The rank is the position a tool dropped in (x,y) would assume in the button list.
 // The value returned is between 0 and mButtons.size(), 0 being the first element to the left
 // (or top) and mButtons.size() the last one to the right (or bottom).
-int LLToolBar::getRankFromPosition(S32 x, S32 y)
+int LLToolBar::getRankFromPosition(S32& x, S32& y)
 {
 	int rank = 0;
 
@@ -406,16 +405,16 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 	S32 button_panel_x = 0;
 	S32 button_panel_y = 0;
 	localPointToOtherView(x, y, &button_panel_x, &button_panel_y, mButtonPanel);
+	S32 dx = x - button_panel_x;
+	S32 dy = y - button_panel_y;
 	
-	//llinfos << "Merov debug : rank compute: orientation = " << orientation << ", x = " << button_panel_x << ", y = " << button_panel_y << llendl;
-
 	// Simply compare the passed coord with the buttons outbound box
 	std::list<LLToolBarButton*>::iterator it_button = mButtons.begin();
 	std::list<LLToolBarButton*>::iterator end_button = mButtons.end();
+	LLRect button_rect;
 	while (it_button != end_button)
 	{
-		LLRect button_rect = (*it_button)->getRect();
-		//llinfos << "Merov debug : rank compute: rect = " << button_rect.mLeft << ", " << button_rect.mTop << ", " << button_rect.mRight << ", " << button_rect.mBottom << llendl;
+		button_rect = (*it_button)->getRect();
 		if (((orientation == LLLayoutStack::HORIZONTAL) && (button_rect.mRight  > button_panel_x)) ||
 			((orientation == LLLayoutStack::VERTICAL)   && (button_rect.mBottom < button_panel_y))    )
 		{
@@ -424,7 +423,16 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 		rank++;
 		++it_button;
 	}
-	//llinfos << "Merov debug : rank = " << rank << llendl;
+	if (it_button != end_button)
+	{
+		x = button_rect.mRight + dx;
+		y = button_rect.mTop + dy;
+	}
+	else
+	{
+		x = button_rect.mLeft + dx;
+		y = button_rect.mBottom + dy;
+	}
 
 	return rank;
 }
@@ -613,7 +621,40 @@ void LLToolBar::draw()
 	LLUI::pushMatrix();
 	LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom, 0.f);
 
+	// Position the caret 
+	LLIconCtrl* caret = getChild<LLIconCtrl>("caret");
+	caret->setVisible(FALSE);
+	if (mDragAndDropTarget && !mButtonCommands.empty())
+	{
+		LLRect caret_rect = caret->getRect();
+		LLRect toolbar_rect = getRect();
+		if (mSideType == SIDE_BOTTOM)
+		{
+			caret->setRect(LLRect(mDragx-caret_rect.getWidth()/2+1,
+								  toolbar_rect.getHeight()+3,
+								  mDragx+caret_rect.getWidth()/2+1,
+								  toolbar_rect.getHeight()-caret_rect.getHeight()+3));
+		}
+		else if (mSideType == SIDE_LEFT)
+		{
+			
+			caret->setRect(LLRect(toolbar_rect.getWidth()-caret_rect.getWidth()+3,
+								  mDragy+caret_rect.getHeight()/2,
+								  toolbar_rect.getWidth()+3,
+								  mDragy-caret_rect.getHeight()/2));
+		}
+		else
+		{
+			caret->setRect(LLRect(-3,
+								  mDragy+caret_rect.getHeight()/2,
+								  caret_rect.getWidth()-3,
+								  mDragy-caret_rect.getHeight()/2));
+		}
+		caret->setVisible(TRUE);
+	}
+		
 	LLUICtrl::draw();
+	caret->setVisible(FALSE);
 }
 
 void LLToolBar::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -727,7 +768,6 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										EAcceptance* accept,
 										std::string& tooltip_msg)
 {
-	llinfos << "Merov debug : handleDragAndDrop. drop = " << drop << ", x = " << x << ", y = " << y << llendl;
 	// If we have a drop callback, that means that we can handle the drop
 	BOOL handled = (mHandleDropCallback ? TRUE : FALSE);
 	
@@ -743,21 +783,22 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	// We'll use that flag to change the visual aspect of the toolbar target on draw()
 	mDragAndDropTarget = false;
 	
-	// HACK!!!
-	if (!isReadOnly() && handled)
+	// Convert drag position into insert position and rank 
+	if (!isReadOnly() && handled && !drop)
 	{
-		if (!drop)
+		LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
+		LLAssetType::EType type = inv_item->getType();
+		if (type == LLAssetType::AT_WIDGET)
 		{
-			LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
-			LLAssetType::EType type = inv_item->getType();
-			if (type == LLAssetType::AT_WIDGET)
-			{
-				LLCommandId dragged_command(inv_item->getUUID());
-				int rank = getRankFromPosition(x, y);
-				removeCommand(dragged_command);
-				addCommand(dragged_command,rank);
-				mDragAndDropTarget = true;
-			}
+			mDragx = x;
+			mDragy = y;
+			mDragRank = getRankFromPosition(mDragx, mDragy);
+			mDragAndDropTarget = true;
+			/* Do the following if you want to animate the button itself
+			LLCommandId dragged_command(inv_item->getUUID());
+			removeCommand(dragged_command);
+			addCommand(dragged_command,rank);
+			*/
 		}
 	}
 	
@@ -798,7 +839,6 @@ BOOL LLToolBarButton::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 {
-//	llinfos << "Merov debug: handleHover, x = " << x << ", y = " << y << ", mouse = " << hasMouseCapture() << llendl;
 	BOOL handled = FALSE;
 		
 	S32 mouse_distance_squared = (x - mMouseDownX) * (x - mMouseDownX) + (y - mMouseDownY) * (y - mMouseDownY);

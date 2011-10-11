@@ -330,7 +330,6 @@ void LLToolBarView::draw()
 
 void LLToolBarView::startDragTool( S32 x, S32 y, const LLUUID& uuid)
 {
-	llinfos << "Merov debug: startDragTool() : x = " << x << ", y = " << y << ", uuid = " << uuid << llendl;
 	// Flag the tool dragging but don't start it yet
 	gToolBarView->mDragStarted = false;
 	gToolBarView->mDragCommand = LLCommandId::null;
@@ -345,7 +344,6 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 	{
 		if (!gToolBarView->mDragStarted)
 		{
-			llinfos << "Merov debug: handleDragTool() : x = " << x << ", y = " << y << ", uuid = " << uuid << llendl;
 			// Start the tool dragging:
 			
 			// First, create the global drag and drop object
@@ -357,7 +355,6 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
 			LLUUID srcID;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);
-			llinfos << "Merov debug: beginMultiDrag() launched" << llendl;
 			
 			// Second, check if the command is present in one of the 3 toolbars
 			// If it is, store the command, the toolbar and the rank in the toolbar and
@@ -383,7 +380,6 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			}
 			 */
 
-			llinfos << "Merov debug: Drag started cleanly" << llendl;
 			gToolBarView->mDragStarted = true;
 			return TRUE;
 		}
@@ -399,12 +395,10 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* toolbar)
 {
 	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
-	//llinfos << "Merov debug : handleDropTool. Drop " << inv_item->getUUID() << " named " << inv_item->getName() << " of type " << inv_item->getType() << llendl;
 	
 	LLAssetType::EType type = inv_item->getType();
 	if (type == LLAssetType::AT_WIDGET)
 	{
-		//llinfos << "Merov debug : handleDropTool. Drop source is a widget -> drop it in place..." << llendl;
 		// Get the command from its uuid
 		LLCommandManager& mgr = LLCommandManager::instance();
 		LLCommandId command_id(inv_item->getUUID());
@@ -419,7 +413,6 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 			}
 			// Suppress the command from the toolbars (including the one it's dropped in, 
 			// this will handle move position).
-			llinfos << "Merov debug : handleDropTool, " << command_id.name() << ", " << command_id.uuid() << llendl;
 			gToolBarView->mToolbarLeft->removeCommand(command_id);
 			gToolBarView->mToolbarRight->removeCommand(command_id);
 			gToolBarView->mToolbarBottom->removeCommand(command_id);
