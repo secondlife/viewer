@@ -5655,18 +5655,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>MemoryPrivatePoolSize</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of the private memory pool in MB (min. value is 256)</string>
-      <key>Persist</key>
       <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>512</integer>
     </map>
     <key>MemProfiling</key>
     <map>
@@ -13575,7 +13564,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>ShowOfferedInventory</key>
     <map>
