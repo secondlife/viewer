@@ -357,6 +357,7 @@ void LLViewerShaderMgr::setShaders()
 
 	LLGLSLShader::sIndexedTextureChannels = llmax(llmin(gGLManager.mNumTextureImageUnits, (S32) gSavedSettings.getU32("RenderMaxTextureIndex")), 1);
 
+	reentrance = true;
 
 	if (LLRender::sGLCoreProfile || gGLManager.mGLVersion >= 2.f)
 	{  //ALWAYS use shaders where available
@@ -364,19 +365,15 @@ void LLViewerShaderMgr::setShaders()
 		{ //vertex shaders MUST be enabled to use core profile
 			gSavedSettings.setBOOL("VertexShaderEnable", TRUE);
 		}
-		
-		if (!gSavedSettings.getBOOL("RenderTransparentWater"))
-		{ //non-transparent water uses fixed function
-			gSavedSettings.setBOOL("RenderTransparentWater", TRUE);
-		}
 	}
-
-
+	else if (gGLManager.mGLVersion < 2.f)
+	{ //NEVER use shaders on a pre 2.0 context
+		gSavedSettings.setBOOL("VertexShaderEnable", FALSE);
+	}
+	
 	//setup preprocessor definitions
 	LLShaderMgr::instance()->mDefinitions["NUM_TEX_UNITS"] = llformat("%d", gGLManager.mNumTextureImageUnits);
-
-	reentrance = true;
-
+	
 	// Make sure the compiled shader map is cleared before we recompile shaders.
 	mShaderObjects.clear();
 	
