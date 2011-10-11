@@ -48,8 +48,8 @@
                  side="left"
                  button_display_mode="icons_only">
 	             <icon layout="topleft"
-	                   height="7"
-	                   width="5"
+	                   height="10"
+	                   width="10"
 	                   follows="left|top"
 	                   top="20"
 	                   left="10"
@@ -99,8 +99,8 @@
           side="right"
           button_display_mode="icons_only">
 	      <icon layout="topleft"
-	            height="7"
-	            width="5"
+	            height="10"
+	            width="10"
 	            follows="left|top"
 	            top="20"
 	            left="10"
@@ -130,13 +130,14 @@
              button_display_mode="icons_with_text"
              visible="true">
              <icon layout="topleft"
-	            height="5"
-	            width="7"
+	            height="10"
+	            width="10"
 	            follows="left|top"
 	            top="20"
 	            left="10"
 	            tab_stop="false" 
                 visible="false"
+                use_draw_context_alpha="false"
 	            image_name="Caret_Bottom_Icon"
 	            name="caret" />
     </toolbar>
