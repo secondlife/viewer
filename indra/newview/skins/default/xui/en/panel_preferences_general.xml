@@ -82,6 +82,16 @@
          value="pt" />
         <combo_box.item
          enabled="true"
+         label="Русский (Russian) - Beta"
+         name="Russian"
+         value="ru" />
+        <combo_box.item
+         enabled="true"
+         label="Türkçe (Turkish) - Beta"
+         name="Turkish"
+         value="tr" />
+        <combo_box.item
+         enabled="true"
          label="日本語 (Japanese) - Beta"
          name="(Japanese)"
          value="ja" />
