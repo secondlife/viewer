@@ -31,6 +31,8 @@
                         flash_color="EmphasisColor"/>
   <button_icon pad_left="10"
                pad_right="10"
+               image_bottom_pad="10"
+               image_top_pad="10"
                image_pressed="PushButton_Press"
                image_pressed_selected="PushButton_Selected_Press"
                image_selected="PushButton_Selected_Press"
