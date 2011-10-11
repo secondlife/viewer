@@ -107,7 +107,7 @@
     <text_editor
      enabled="false"
      follows="left|top"
-     height="110"
+     height="180"
      layout="topleft"
      left="10"
      max_length="65535"
