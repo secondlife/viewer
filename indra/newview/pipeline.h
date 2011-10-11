@@ -360,6 +360,7 @@ public:
 
 	static void updateRenderDeferred();
 	static void refreshRenderDeferred();
+	static void refreshCachedSettings();
 
 	static void throttleNewMemoryAllocation(BOOL disable);
 
@@ -771,6 +772,79 @@ public:
 
 	//debug use
 	static U32              sCurRenderPoolType ;
+
+	//cached settings
+	static BOOL WindLightUseAtmosShaders;
+	static BOOL VertexShaderEnable;
+	static BOOL RenderAvatarVP;
+	static BOOL RenderDeferred;
+	static F32 RenderDeferredSunWash;
+	static U32 RenderFSAASamples;
+	static U32 RenderResolutionDivisor;
+	static BOOL RenderUIBuffer;
+	static S32 RenderShadowDetail;
+	static BOOL RenderDeferredSSAO;
+	static F32 RenderShadowResolutionScale;
+	static BOOL RenderLocalLights;
+	static BOOL RenderDelayCreation;
+	static BOOL RenderAnimateRes;
+	static BOOL FreezeTime;
+	static S32 DebugBeaconLineWidth;
+	static F32 RenderHighlightBrightness;
+	static LLColor4 RenderHighlightColor;
+	static F32 RenderHighlightThickness;
+	static BOOL RenderSpotLightsInNondeferred;
+	static LLColor4 PreviewAmbientColor;
+	static LLColor4 PreviewDiffuse0;
+	static LLColor4 PreviewSpecular0;
+	static LLColor4 PreviewDiffuse1;
+	static LLColor4 PreviewSpecular1;
+	static LLColor4 PreviewDiffuse2;
+	static LLColor4 PreviewSpecular2;
+	static LLVector3 PreviewDirection0;
+	static LLVector3 PreviewDirection1;
+	static LLVector3 PreviewDirection2;
+	static F32 RenderGlowMinLuminance;
+	static F32 RenderGlowMaxExtractAlpha;
+	static F32 RenderGlowWarmthAmount;
+	static LLVector3 RenderGlowLumWeights;
+	static LLVector3 RenderGlowWarmthWeights;
+	static S32 RenderGlowResolutionPow;
+	static S32 RenderGlowIterations;
+	static F32 RenderGlowWidth;
+	static F32 RenderGlowStrength;
+	static BOOL RenderDepthOfField;
+	static F32 CameraFocusTransitionTime;
+	static F32 CameraFNumber;
+	static F32 CameraFocalLength;
+	static F32 CameraFieldOfView;
+	static F32 RenderShadowNoise;
+	static F32 RenderShadowBlurSize;
+	static F32 RenderSSAOScale;
+	static U32 RenderSSAOMaxScale;
+	static F32 RenderSSAOFactor;
+	static LLVector3 RenderSSAOEffect;
+	static F32 RenderShadowOffsetError;
+	static F32 RenderShadowBiasError;
+	static F32 RenderShadowOffset;
+	static F32 RenderShadowBias;
+	static F32 RenderSpotShadowOffset;
+	static F32 RenderSpotShadowBias;
+	static F32 RenderEdgeDepthCutoff;
+	static F32 RenderEdgeNormCutoff;
+	static LLVector3 RenderShadowGaussian;
+	static F32 RenderShadowBlurDistFactor;
+	static BOOL RenderDeferredAtmospheric;
+	static S32 RenderReflectionDetail;
+	static F32 RenderHighlightFadeTime;
+	static LLVector3 RenderShadowClipPlanes;
+	static LLVector3 RenderShadowOrthoClipPlanes;
+	static LLVector3 RenderShadowNearDist;
+	static F32 RenderFarClip;
+	static LLVector3 RenderShadowSplitExponent;
+	static F32 RenderShadowErrorCutoff;
+	static F32 RenderShadowFOVCutoff;
+	static BOOL CameraOffset;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

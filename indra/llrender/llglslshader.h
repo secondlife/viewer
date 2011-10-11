@@ -114,6 +114,8 @@ public:
 	void vertexAttrib4fv(U32 index, GLfloat* v);
 	
 	GLint getUniformLocation(const std::string& uniform);
+	GLint getUniformLocation(U32 index);
+
 	GLint getAttribLocation(U32 attrib);
 	GLint mapUniformTextureChannel(GLint location, GLenum type);
 	

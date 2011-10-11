@@ -388,6 +388,7 @@ static bool handleRenderDeferredChanged(const LLSD& newvalue)
 	LLRenderTarget::sUseFBO = newvalue.asBoolean();
 	if (gPipeline.isInit())
 	{
+		LLPipeline::refreshCachedSettings();
 		gPipeline.updateRenderDeferred();
 		gPipeline.releaseGLBuffers();
 		gPipeline.createGLBuffers();

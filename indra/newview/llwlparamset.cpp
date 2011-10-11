@@ -69,12 +69,16 @@ LLWLParamSet::LLWLParamSet(void) :
 */
 }
 
+static LLFastTimer::DeclareTimer FTM_WL_PARAM_UPDATE("WL Param Update");
+
 void LLWLParamSet::update(LLGLSLShader * shader) const 
 {	
 	for(LLSD::map_const_iterator i = mParamValues.beginMap();
 		i != mParamValues.endMap();
 		++i)
 	{
+		LLFastTimer t(FTM_WL_PARAM_UPDATE);
+
 		const std::string& param = i->first;
 		
 		if(	param == "star_brightness" || param == "preset_num" || param == "sun_angle" ||

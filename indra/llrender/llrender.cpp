@@ -34,6 +34,7 @@
 #include "llimagegl.h"
 #include "llrendertarget.h"
 #include "lltexture.h"
+#include "llshadermgr.h"
 
 LLRender gGL;
 
@@ -1127,13 +1128,13 @@ void LLRender::syncLightState()
 			diffuse[i].set(light->mDiffuse.mV);
 		}
 
-		shader->uniform4fv("light_position", 8, position[0].mV);
-		shader->uniform3fv("light_direction", 8, direction[0].mV);
-		shader->uniform3fv("light_attenuation", 8, attenuation[0].mV);
-		shader->uniform3fv("light_diffuse", 8, diffuse[0].mV);
-		shader->uniform4fv("light_ambient", 1, mAmbientLightColor.mV);
+		shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, 8, position[0].mV);
+		shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, 8, direction[0].mV);
+		shader->uniform3fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
+		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, 8, diffuse[0].mV);
+		shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
 		//HACK -- duplicate sunlight color for compatibility with drivers that can't deal with multiple shader objects referencing the same uniform
-		shader->uniform4fv("sunlight_color", 1, diffuse[0].mV);
+		shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
 	}
 }
 
@@ -1151,14 +1152,14 @@ void LLRender::syncMatrices()
 		GL_TEXTURE,
 	};
 
-	std::string name[] = 
+	U32 name[] = 
 	{
-		"modelview_matrix",
-		"projection_matrix",
-		"texture_matrix0",
-		"texture_matrix1",
-		"texture_matrix2",
-		"texture_matrix3",
+		LLShaderMgr::MODELVIEW_MATRIX,
+		LLShaderMgr::PROJECTION_MATRIX,
+		LLShaderMgr::TEXTURE_MATRIX0,
+		LLShaderMgr::TEXTURE_MATRIX1,
+		LLShaderMgr::TEXTURE_MATRIX2,
+		LLShaderMgr::TEXTURE_MATRIX3,
 	};
 
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
@@ -1185,7 +1186,7 @@ void LLRender::syncMatrices()
 			shader->mMatHash[i] = mMatHash[i];
 
 			//update normal matrix
-			S32 loc = shader->getUniformLocation("normal_matrix");
+			S32 loc = shader->getUniformLocation(LLShaderMgr::NORMAL_MATRIX);
 			if (loc > -1)
 			{
 				if (cached_normal_hash != mMatHash[i])
@@ -1203,12 +1204,12 @@ void LLRender::syncMatrices()
 					norm.m[8], norm.m[9], norm.m[10] 
 				};
 
-				shader->uniformMatrix3fv("normal_matrix", 1, GL_FALSE, norm_mat);
+				shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat);
 			}
 
 			//update MVP matrix
 			mvp_done = true;
-			loc = shader->getUniformLocation("modelview_projection_matrix");
+			loc = shader->getUniformLocation(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX);
 			if (loc > -1)
 			{
 				U32 proj = MM_PROJECTION;
@@ -1221,7 +1222,7 @@ void LLRender::syncMatrices()
 					cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
 				}
 
-				shader->uniformMatrix4fv("modelview_projection_matrix", 1, GL_FALSE, cached_mvp.m);
+				shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, cached_mvp.m);
 			}
 		}
 
@@ -1237,7 +1238,7 @@ void LLRender::syncMatrices()
 			if (!mvp_done)
 			{
 				//update MVP matrix
-				S32 loc = shader->getUniformLocation("modelview_projection_matrix");
+				S32 loc = shader->getUniformLocation(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX);
 				if (loc > -1)
 				{
 					if (cached_mvp_mdv_hash != mMatHash[i] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
@@ -1249,7 +1250,7 @@ void LLRender::syncMatrices()
 						cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
 					}
 									
-					shader->uniformMatrix4fv("modelview_projection_matrix", 1, GL_FALSE, cached_mvp.m);
+					shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, cached_mvp.m);
 				}
 			}
 		}
@@ -2176,7 +2177,7 @@ void LLRender::diffuseColor3f(F32 r, F32 g, F32 b)
 
 	if (shader)
 	{
-		shader->uniform4f("color", r,g,b,1.f);
+		shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r,g,b,1.f);
 	}
 	else
 	{
@@ -2191,7 +2192,7 @@ void LLRender::diffuseColor3fv(const F32* c)
 
 	if (shader)
 	{
-		shader->uniform4f("color", c[0], c[1], c[2], 1.f);
+		shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, c[0], c[1], c[2], 1.f);
 	}
 	else
 	{
@@ -2206,7 +2207,7 @@ void LLRender::diffuseColor4f(F32 r, F32 g, F32 b, F32 a)
 
 	if (shader)
 	{
-		shader->uniform4f("color", r,g,b,a);
+		shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r,g,b,a);
 	}
 	else
 	{
@@ -2221,7 +2222,7 @@ void LLRender::diffuseColor4fv(const F32* c)
 
 	if (shader)
 	{
-		shader->uniform4fv("color", 1, c);
+		shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, c);
 	}
 	else
 	{
@@ -2236,7 +2237,7 @@ void LLRender::diffuseColor4ubv(const U8* c)
 
 	if (shader)
 	{
-		shader->uniform4f("color", c[0]/255.f, c[1]/255.f, c[2]/255.f, c[3]/255.f);
+		shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, c[0]/255.f, c[1]/255.f, c[2]/255.f, c[3]/255.f);
 	}
 	else
 	{

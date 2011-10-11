@@ -195,6 +195,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mMaxAvatarShaderLevel(0)
 {	
 	/// Make sure WL Sky is the first program
+	//ONLY shaders that need WL Param management should be added here
 	mShaderList.push_back(&gWLSkyProgram);
 	mShaderList.push_back(&gWLCloudProgram);
 	mShaderList.push_back(&gAvatarProgram);
@@ -209,16 +210,6 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gObjectFullbrightNoColorWaterProgram);
 	mShaderList.push_back(&gObjectSimpleAlphaMaskProgram);
 	mShaderList.push_back(&gObjectBumpProgram);
-	mShaderList.push_back(&gUIProgram);
-	mShaderList.push_back(&gCustomAlphaProgram);
-	mShaderList.push_back(&gGlowCombineProgram);
-	mShaderList.push_back(&gGlowCombineFXAAProgram);
-	mShaderList.push_back(&gTwoTextureAddProgram);
-	mShaderList.push_back(&gOneTextureNoColorProgram);
-	mShaderList.push_back(&gSolidColorProgram);
-	mShaderList.push_back(&gOcclusionProgram);
-	mShaderList.push_back(&gDebugProgram);
-	mShaderList.push_back(&gAlphaMaskProgram);
 	mShaderList.push_back(&gObjectEmissiveProgram);
 	mShaderList.push_back(&gObjectEmissiveWaterProgram);
 	mShaderList.push_back(&gObjectFullbrightProgram);
@@ -260,23 +251,16 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gObjectShinyNonIndexedWaterProgram);
 	mShaderList.push_back(&gUnderWaterProgram);
 	mShaderList.push_back(&gDeferredSunProgram);
-	mShaderList.push_back(&gDeferredBlurLightProgram);
 	mShaderList.push_back(&gDeferredSoftenProgram);
-	mShaderList.push_back(&gDeferredLightProgram);
-	mShaderList.push_back(&gDeferredMultiLightProgram);
 	mShaderList.push_back(&gDeferredAlphaProgram);
 	mShaderList.push_back(&gDeferredSkinnedAlphaProgram);
 	mShaderList.push_back(&gDeferredFullbrightProgram);
 	mShaderList.push_back(&gDeferredEmissiveProgram);
 	mShaderList.push_back(&gDeferredAvatarEyesProgram);
-	mShaderList.push_back(&gDeferredPostProgram);
-	mShaderList.push_back(&gFXAAProgram);
 	mShaderList.push_back(&gDeferredWaterProgram);
 	mShaderList.push_back(&gDeferredAvatarAlphaProgram);
 	mShaderList.push_back(&gDeferredWLSkyProgram);
 	mShaderList.push_back(&gDeferredWLCloudProgram);
-	mShaderList.push_back(&gDeferredStarProgram);
-	mShaderList.push_back(&gNormalMapGenProgram);
 }
 
 LLViewerShaderMgr::~LLViewerShaderMgr()
@@ -300,69 +284,12 @@ void LLViewerShaderMgr::initAttribsAndUniforms(void)
 {
 	if (mReservedAttribs.empty())
 	{
-		//MUST match order of enum in LLVertexBuffer.h
-		mReservedAttribs.push_back("position");
-		mReservedAttribs.push_back("normal");
-		mReservedAttribs.push_back("texcoord0");
-		mReservedAttribs.push_back("texcoord1");
-		mReservedAttribs.push_back("texcoord2");
-		mReservedAttribs.push_back("texcoord3");
-		mReservedAttribs.push_back("diffuse_color");
-		mReservedAttribs.push_back("emissive");
-		mReservedAttribs.push_back("binormal");
-		mReservedAttribs.push_back("weight");
-		mReservedAttribs.push_back("weight4");
-		mReservedAttribs.push_back("clothing");
-		mReservedAttribs.push_back("texture_index");
+		LLShaderMgr::initAttribsAndUniforms();
 
 		mAvatarUniforms.push_back("matrixPalette");
 		mAvatarUniforms.push_back("gWindDir");
 		mAvatarUniforms.push_back("gSinWaveParams");
 		mAvatarUniforms.push_back("gGravity");
-
-		mReservedUniforms.reserve(24);
-		mReservedUniforms.push_back("diffuseMap");
-		mReservedUniforms.push_back("specularMap");
-		mReservedUniforms.push_back("bumpMap");
-		mReservedUniforms.push_back("environmentMap");
-		mReservedUniforms.push_back("cloude_noise_texture");
-		mReservedUniforms.push_back("fullbright");
-		mReservedUniforms.push_back("lightnorm");
-		mReservedUniforms.push_back("sunlight_color");
-		mReservedUniforms.push_back("ambient");
-		mReservedUniforms.push_back("blue_horizon");
-		mReservedUniforms.push_back("blue_density");
-		mReservedUniforms.push_back("haze_horizon");
-		mReservedUniforms.push_back("haze_density");
-		mReservedUniforms.push_back("cloud_shadow");
-		mReservedUniforms.push_back("density_multiplier");
-		mReservedUniforms.push_back("distance_multiplier");
-		mReservedUniforms.push_back("max_y");
-		mReservedUniforms.push_back("glow");
-		mReservedUniforms.push_back("cloud_color");
-		mReservedUniforms.push_back("cloud_pos_density1");
-		mReservedUniforms.push_back("cloud_pos_density2");
-		mReservedUniforms.push_back("cloud_scale");
-		mReservedUniforms.push_back("gamma");
-		mReservedUniforms.push_back("scene_light_strength");
-
-		mReservedUniforms.push_back("depthMap");
-		mReservedUniforms.push_back("shadowMap0");
-		mReservedUniforms.push_back("shadowMap1");
-		mReservedUniforms.push_back("shadowMap2");
-		mReservedUniforms.push_back("shadowMap3");
-		mReservedUniforms.push_back("shadowMap4");
-		mReservedUniforms.push_back("shadowMap5");
-
-		mReservedUniforms.push_back("normalMap");
-		mReservedUniforms.push_back("positionMap");
-		mReservedUniforms.push_back("diffuseRect");
-		mReservedUniforms.push_back("specularRect");
-		mReservedUniforms.push_back("noiseMap");
-		mReservedUniforms.push_back("lightFunc");
-		mReservedUniforms.push_back("lightMap");
-		mReservedUniforms.push_back("bloomMap");
-		mReservedUniforms.push_back("projectionMap");
 
 		mWLUniforms.push_back("camPosLocal");
 

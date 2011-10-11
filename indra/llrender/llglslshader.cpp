@@ -320,7 +320,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<string> * uniforms)
 		for (S32 i = 0; i < (S32) LLShaderMgr::instance()->mReservedUniforms.size(); i++)
 		{
 			if ( (mUniform[i] == -1)
-				&& (LLShaderMgr::instance()->mReservedUniforms[i].compare(0, length, name, LLShaderMgr::instance()->mReservedUniforms[i].length()) == 0))
+				&& (LLShaderMgr::instance()->mReservedUniforms[i] == name))
 			{
 				//found it
 				mUniform[i] = location;
@@ -334,7 +334,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<string> * uniforms)
 			for (U32 i = 0; i < uniforms->size(); i++)
 			{
 				if ( (mUniform[i+LLShaderMgr::instance()->mReservedUniforms.size()] == -1)
-					&& ((*uniforms)[i].compare(0, length, name, (*uniforms)[i].length()) == 0))
+					&& ((*uniforms)[i] == name))
 				{
 					//found it
 					mUniform[i+LLShaderMgr::instance()->mReservedUniforms.size()] = location;
@@ -762,8 +762,12 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_UNIFORM_LOCATION("Get Uniform Location");
+
 GLint LLGLSLShader::getUniformLocation(const string& uniform)
 {
+	LLFastTimer t(FTM_UNIFORM_LOCATION);
+
 	GLint ret = -1;
 	if (mProgramObject > 0)
 	{
@@ -783,13 +787,19 @@ GLint LLGLSLShader::getUniformLocation(const string& uniform)
 		}
 	}
 
-	/*if (gDebugGL)
+	return ret;
+}
+
+GLint LLGLSLShader::getUniformLocation(U32 index)
+{
+	LLFastTimer t(FTM_UNIFORM_LOCATION);
+
+	GLint ret = -1;
+	if (mProgramObject > 0)
 	{
-		if (ret == -1 && ret != glGetUniformLocationARB(mProgramObject, uniform.c_str()))
-		{
-			llerrs << "Uniform map invalid." << llendl;
-		}
-	}*/
+		llassert(index < mUniform.size());
+		return mUniform[index];
+	}
 
 	return ret;
 }
