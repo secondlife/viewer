@@ -299,6 +299,12 @@ void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd, LLI
 	}
 }
 
+//static
+void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd)
+{
+	LLInitParam::Parser::name_stack_t stack = LLInitParam::Parser::name_stack_t();
+	readSDValues(cb, sd, stack);
+}
 namespace LLInitParam
 {
 	// LLSD specialization
