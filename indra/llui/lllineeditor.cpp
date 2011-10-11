@@ -198,6 +198,7 @@ LLLineEditor::~LLLineEditor()
 
 void LLLineEditor::onFocusReceived()
 {
+	gEditMenuHandler = this;
 	LLUICtrl::onFocusReceived();
 	updateAllowingLanguageInput();
 }

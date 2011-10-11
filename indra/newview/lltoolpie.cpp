@@ -35,7 +35,6 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llavatarnamecache.h"
-#include "llviewercontrol.h"
 #include "llfocusmgr.h"
 #include "llfirstuse.h"
 #include "llfloaterland.h"
@@ -57,6 +56,7 @@
 #include "lltrans.h"
 #include "llviewercamera.h"
 #include "llviewerparcelmedia.h"
+#include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerobject.h"
@@ -75,7 +75,6 @@ extern BOOL gDebugClicks;
 static void handle_click_action_play();
 static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp);
 static ECursorType cursor_from_parcel_media(U8 click_action);
-
 
 LLToolPie::LLToolPie()
 :	LLTool(std::string("Pie")),
@@ -479,6 +478,18 @@ void LLToolPie::resetSelection()
 	mClickAction = 0;
 }
 
+void LLToolPie::walkToClickedLocation()
+{
+	if(mAutoPilotDestination) { mAutoPilotDestination->markDead(); }
+	mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
+	mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
+	mAutoPilotDestination->setPixelSize(5);
+	mAutoPilotDestination->setColor(LLColor4U(170, 210, 190));
+	mAutoPilotDestination->setDuration(3.f);
+
+	handle_go_to();
+}
+
 // When we get object properties after left-clicking on an object
 // with left-click = buy, if it's the same object, do the buy.
 
@@ -662,17 +673,8 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 			mPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * SELF_CLICK_WALK_DISTANCE;
 		}
 		gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
-		if(mAutoPilotDestination) { mAutoPilotDestination->markDead(); }
-		mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
-		mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
-		mAutoPilotDestination->setPixelSize(5);
-		mAutoPilotDestination->setColor(LLColor4U(170, 210, 190));
-		mAutoPilotDestination->setDuration(3.f);
-
-		handle_go_to();
+		walkToClickedLocation();
 		LLFirstUse::notMoving(false);
-
-		mBlockClickToWalk = false;
 
 		return TRUE;
 	}
@@ -708,16 +710,10 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 	if (gSavedSettings.getBOOL("DoubleClickAutoPilot"))
 	{
-		if (mPick.mPickType == LLPickInfo::PICK_LAND
-			&& !mPick.mPosGlobal.isExactlyZero())
+		if ((mPick.mPickType == LLPickInfo::PICK_LAND && !mPick.mPosGlobal.isExactlyZero()) ||
+			(mPick.mObjectID.notNull()  && !mPick.mPosGlobal.isExactlyZero()))
 		{
-			handle_go_to();
-			return TRUE;
-		}
-		else if (mPick.mObjectID.notNull()
-				 && !mPick.mPosGlobal.isExactlyZero())
-		{
-			handle_go_to();
+			walkToClickedLocation();
 			return TRUE;
 		}
 	}

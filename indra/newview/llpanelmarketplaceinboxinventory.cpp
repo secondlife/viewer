@@ -196,15 +196,12 @@ void LLInboxFolderViewFolder::computeFreshness()
 
 	if (last_expansion_utc > 0)
 	{
-		const U32 time_offset_for_pdt = 7 * 60 * 60;
-		const U32 last_expansion = last_expansion_utc - time_offset_for_pdt;
-
-		mFresh = (mCreationDate > last_expansion);
+		mFresh = (mCreationDate > last_expansion_utc);
 
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
 		{
-			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion << llendl;
+			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << llendl;
 		}
 #endif
 	}

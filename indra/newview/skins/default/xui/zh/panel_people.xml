@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray panel -->
-<panel label="People" name="people_panel">
+<panel label="人群" name="people_panel">
 	<string name="no_recent_people" value="No recent people. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]."/>
 	<string name="no_filtered_recent_people" value="Didn&apos;t find what you&apos;re looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]."/>
 	<string name="no_one_near" value="No one nearby. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]."/>

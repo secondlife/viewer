@@ -85,7 +85,7 @@
 			<text name="DayCycleText3">
 				預覽：
 			</text>
-			<button label="Play" label_selected="Play" name="WLAnimSky"/>
+			<button label="播放" label_selected="播放" name="WLAnimSky"/>
 			<button label="停止!" label_selected="停止" name="WLStopAnimSky"/>
 			<button label="Use Estate Time" label_selected="Go to Estate Time" name="WLUseLindenTime"/>
 			<button label="Save Test Day" label_selected="Save Test Day" name="WLSaveDayCycle"/>

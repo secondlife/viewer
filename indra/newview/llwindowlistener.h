@@ -31,14 +31,16 @@
 #include <boost/function.hpp>
 
 class LLKeyboard;
-class LLWindowCallbacks;
+class LLViewerWindow;
 
 class LLWindowListener : public LLEventAPI
 {
 public:
 	typedef boost::function<LLKeyboard*()> KeyboardGetter;
-	LLWindowListener(LLWindowCallbacks * window, const KeyboardGetter& kbgetter);
+	LLWindowListener(LLViewerWindow * window, const KeyboardGetter& kbgetter);
 
+	void getInfo(LLSD const & evt);
+	void getPaths(LLSD const & evt);
 	void keyDown(LLSD const & evt);
 	void keyUp(LLSD const & evt);
 	void mouseDown(LLSD const & evt);
@@ -47,7 +49,7 @@ public:
 	void mouseScroll(LLSD const & evt);
 
 private:
-	LLWindowCallbacks * mWindow;
+	LLViewerWindow * mWindow;
 	KeyboardGetter mKbGetter;
 };
 
