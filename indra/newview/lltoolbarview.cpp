@@ -152,7 +152,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	LLXMLNodePtr root;
 	if(!LLXMLNode::parseFile(toolbar_file, root, NULL))
 	{
-		llerrs << "Unable to load toolbars from file: " << toolbar_file << llendl;
+		llwarns << "Unable to load toolbars from file: " << toolbar_file << llendl;
 		return false;
 	}
 	if(!root->hasName("toolbars"))
