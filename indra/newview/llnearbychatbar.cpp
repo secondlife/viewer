@@ -135,6 +135,16 @@ LLNearbyChatBar* LLNearbyChatBar::getInstance()
 	return LLFloaterReg::getTypedInstance<LLNearbyChatBar>("chat_bar");
 }
 
+void LLNearbyChatBar::showHistory()
+{
+	if (!getChildView("nearby_chat")->getVisible())
+	{
+		onToggleNearbyChatPanel();
+	}
+	
+	openFloater();
+}
+
 void LLNearbyChatBar::draw()
 {
 	displaySpeakingIndicator();
