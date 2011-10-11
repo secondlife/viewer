@@ -729,22 +729,11 @@ void LLXUIParser::writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock &bloc
 // go from a stack of names to a specific XML node
 LLXMLNodePtr LLXUIParser::getNode(name_stack_t& stack)
 {
-	name_stack_t name_stack;
-	for (name_stack_t::const_iterator it = stack.begin();
-		it != stack.end();
-		++it)
-	{
-		if (!it->first.empty())
-		{
-			name_stack.push_back(*it);
-		}
-	}
-
 	LLXMLNodePtr out_node = mWriteRootNode;
 
-	name_stack_t::const_iterator next_it = name_stack.begin();
-	for (name_stack_t::const_iterator it = name_stack.begin();
-		it != name_stack.end();
+	name_stack_t::iterator next_it = stack.begin();
+	for (name_stack_t::iterator it = stack.begin();
+		it != stack.end();
 		it = next_it)
 	{
 		++next_it;
@@ -753,17 +742,18 @@ LLXMLNodePtr LLXUIParser::getNode(name_stack_t& stack)
 			continue;
 		}
 
-		out_nodes_t::iterator found_it = mOutNodes.lower_bound(it->second);
+		out_nodes_t::iterator found_it = mOutNodes.find(it->first);
 
 		// node with this name not yet written
-		if (found_it == mOutNodes.end() || mOutNodes.key_comp()(found_it->first, it->second))
+		if (found_it == mOutNodes.end() || it->second)
 		{
 			// make an attribute if we are the last element on the name stack
-			bool is_attribute = next_it == name_stack.end();
+			bool is_attribute = next_it == stack.end();
 			LLXMLNodePtr new_node = new LLXMLNode(it->first.c_str(), is_attribute);
 			out_node->addChild(new_node);
-			mOutNodes.insert(found_it, std::make_pair(it->second, new_node));
+			mOutNodes[it->first] = new_node;
 			out_node = new_node;
+			it->second = false;
 		}
 		else
 		{

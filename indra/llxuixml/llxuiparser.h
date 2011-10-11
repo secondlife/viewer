@@ -157,7 +157,7 @@ private:
 	// Root of the widget XML sub-tree, for example, "line_editor"
 	LLXMLNodePtr					mWriteRootNode;
 	
-	typedef std::map<S32, LLXMLNodePtr>	out_nodes_t;
+	typedef std::map<std::string, LLXMLNodePtr>	out_nodes_t;
 	out_nodes_t						mOutNodes;
 	LLXMLNodePtr					mLastWrittenChild;
 	S32								mCurReadDepth;

@@ -52,7 +52,7 @@ class LLSpeakersDelayActionsStorage;
  * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel
  * also provides a 'Leave Call' button to allow the Resident to leave that voice channel.
  */
-class LLCallFloater : public LLTransientDockableFloater, LLVoiceClientParticipantObserver
+class LLCallFloater : public LLFloater, LLVoiceClientParticipantObserver
 {
 public:
 

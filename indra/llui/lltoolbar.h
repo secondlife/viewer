@@ -62,6 +62,8 @@ public:
 
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
+	void reshape(S32 width, S32 height, BOOL called_from_parent = true);
+
 	void setCommandId(const LLCommandId& id) { mId = id; }
 
 	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; }

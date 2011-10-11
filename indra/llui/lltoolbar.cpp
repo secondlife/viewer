@@ -823,3 +823,8 @@ void LLToolBarButton::onMouseCaptureLost()
 {
 	mIsDragged = false;
 }
+
+void LLToolBarButton::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLButton::reshape(mWidthRange.clamp(width), height, called_from_parent);
+}

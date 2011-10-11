@@ -1,7 +1,7 @@
 /** 
- * @file llfloaterdestinations.h
+ * @file llfloateravatar.h
  * @author Leyla Farazha
- * @brief floater for the destinations guide
+ * @brief floater for the avatar changer
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,30 +25,19 @@
  * $/LicenseInfo$
  */
 
-/**
- * Floater that appears when buying an object, giving a preview
- * of its contents and their permissions.
- */
+#ifndef LL_FLOATER_AVATAR_H
+#define LL_FLOATER_AVATAR_H
 
-#include "llviewerprecompiledheaders.h"
+#include "llfloater.h"
 
-#include "llfloaterdestinations.h"
-#include "lluictrlfactory.h"
-
-
-LLFloaterDestinations::LLFloaterDestinations(const LLSD& key)
-	:	LLFloater(key)
+class LLFloaterAvatar:
+	public LLFloater
 {
-}
+	friend class LLFloaterReg;
+private:
+	LLFloaterAvatar(const LLSD& key);
+	/*virtual*/	~LLFloaterAvatar();
+	/*virtual*/	BOOL postBuild();
+};
 
-LLFloaterDestinations::~LLFloaterDestinations()
-{
-}
-
-BOOL LLFloaterDestinations::postBuild()
-{
-	enableResizeCtrls(true, true, false);
-	return TRUE;
-}
-
-
+#endif

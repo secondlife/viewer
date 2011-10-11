@@ -1002,7 +1002,7 @@ void LLButton::resize(LLUIString label)
 		if (mImageOverlay)
 		{
 			S32 overlay_width = mImageOverlay->getWidth();
-			F32 scale_factor = getRect().getHeight() / (F32)mImageOverlay->getHeight();
+			F32 scale_factor = (getRect().getHeight() - (mImageOverlayBottomPad + mImageOverlayTopPad)) / (F32)mImageOverlay->getHeight();
 			overlay_width = llround((F32)overlay_width * scale_factor);
 
 			switch(mImageOverlayAlignment)
