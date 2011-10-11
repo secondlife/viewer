@@ -495,8 +495,9 @@ class WindowsManifest(ViewerManifest):
         # tag:"crash-logger" here as a cue to the exporter
         self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
                   dst="win_crash_logger.exe")
-        self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
-                  dst="updater.exe")
+# For CHOP-397, windows updater no longer used.
+#        self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
+#                  dst="updater.exe")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"    
