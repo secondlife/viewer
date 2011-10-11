@@ -125,29 +125,30 @@ with the same filename but different name
   <texture name="Checkbox_Press" file_name="widgets/Checkbox_Press.png" preload="true" />
   <texture name="Check_Mark" file_name="icons/check_mark" preload="true" />
 
-  <texture name="Command_AboutLand_Icon"    file_name="toolbar_icons/land.png" preload="true" />
-  <texture name="Command_Appearance_Icon"   file_name="toolbar_icons/appearance.png" preload="true" />
-  <texture name="Command_Avatar_Icon"       file_name="toolbar_icons/avatars.png" preload="true" />
-  <texture name="Command_Build_Icon"        file_name="toolbar_icons/build.png" preload="true" />
-  <texture name="Command_Chat_Icon"         file_name="toolbar_icons/chat.png" preload="true" />
-  <texture name="Command_Compass_Icon"      file_name="toolbar_icons/land.png" preload="true" />
+  <texture name="Command_AboutLand_Icon"    file_name="toolbar_icons/land.png"         preload="true" />
+  <texture name="Command_Appearance_Icon"   file_name="toolbar_icons/appearance.png"   preload="true" />
+  <texture name="Command_Avatar_Icon"       file_name="toolbar_icons/avatars.png"      preload="true" />
+  <texture name="Command_Build_Icon"        file_name="toolbar_icons/build.png"        preload="true" />
+  <texture name="Command_Chat_Icon"         file_name="toolbar_icons/chat.png"         preload="true" />
+  <texture name="Command_Compass_Icon"      file_name="toolbar_icons/land.png"         preload="true" />
   <texture name="Command_Destinations_Icon" file_name="toolbar_icons/destinations.png" preload="true" />
-  <texture name="Command_Gestures_Icon"     file_name="toolbar_icons/gestures.png" preload="true" />
-  <texture name="Command_HowTo_Icon"        file_name="toolbar_icons/howto.png" preload="true" />
-  <texture name="Command_Inventory_Icon"    file_name="toolbar_icons/inventory.png" preload="true" />
-  <texture name="Command_Map_Icon"          file_name="toolbar_icons/map.png" preload="true" />
-  <texture name="Command_Marketplace_Icon"  file_name="toolbar_icons/marketplace.png" preload="true" />
-  <texture name="Command_MiniMap_Icon"      file_name="toolbar_icons/mini_map.png" preload="true" />
-  <texture name="Command_Move_Icon"         file_name="toolbar_icons/move.png" preload="true" />
-  <texture name="Command_People_Icon"       file_name="toolbar_icons/people.png" preload="true" />
-  <texture name="Command_Places_Icon"       file_name="toolbar_icons/places.png" preload="true" />
-  <texture name="Command_Preferences_Icon"  file_name="toolbar_icons/preferences.png" preload="true" />
-  <texture name="Command_Profile_Icon"      file_name="toolbar_icons/profile.png" preload="true" />
-  <texture name="Command_Search_Icon"       file_name="toolbar_icons/search.png" preload="true" />
-  <texture name="Command_Snapshot_Icon"     file_name="toolbar_icons/snapshot.png" preload="true" />
-  <texture name="Command_Speak_Icon"        file_name="toolbar_icons/speak.png" preload="true" />
-  <texture name="Command_View_Icon"         file_name="toolbar_icons/view.png" preload="true" />
-  <texture name="Command_Voice_Icon"        file_name="toolbar_icons/nearbyvoice.png" preload="true" />
+  <texture name="Command_Gestures_Icon"     file_name="toolbar_icons/gestures.png"     preload="true" />
+  <texture name="Command_HowTo_Icon"        file_name="toolbar_icons/howto.png"        preload="true" />
+  <texture name="Command_Inventory_Icon"    file_name="toolbar_icons/inventory.png"    preload="true" />
+  <texture name="Command_Map_Icon"          file_name="toolbar_icons/map.png"          preload="true" />
+  <texture name="Command_Marketplace_Icon"  file_name="toolbar_icons/marketplace.png"  preload="true" />
+  <texture name="Command_MiniMap_Icon"      file_name="toolbar_icons/mini_map.png"     preload="true" />
+  <texture name="Command_Move_Icon"         file_name="toolbar_icons/move.png"         preload="true" />
+  <texture name="Command_People_Icon"       file_name="toolbar_icons/people.png"       preload="true" />
+  <texture name="Command_Picks_Icon"        file_name="toolbar_icons/picks.png"        preload="true" />
+  <texture name="Command_Places_Icon"       file_name="toolbar_icons/places.png"       preload="true" />
+  <texture name="Command_Preferences_Icon"  file_name="toolbar_icons/preferences.png"  preload="true" />
+  <texture name="Command_Profile_Icon"      file_name="toolbar_icons/profile.png"      preload="true" />
+  <texture name="Command_Search_Icon"       file_name="toolbar_icons/search.png"       preload="true" />
+  <texture name="Command_Snapshot_Icon"     file_name="toolbar_icons/snapshot.png"     preload="true" />
+  <texture name="Command_Speak_Icon"        file_name="toolbar_icons/speak.png"        preload="true" />
+  <texture name="Command_View_Icon"         file_name="toolbar_icons/view.png"         preload="true" />
+  <texture name="Command_Voice_Icon"        file_name="toolbar_icons/nearbyvoice.png"  preload="true" />
 
   <texture name="ComboButton_Disabled" file_name="widgets/ComboButton_Disabled.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Selected" file_name="widgets/ComboButton_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />

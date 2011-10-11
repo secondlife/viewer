@@ -109,6 +109,7 @@
 
 // Third party library includes
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 
 
 #if LL_WINDOWS
@@ -2041,42 +2042,37 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 		llerrs << "Invalid settings location list" << llendl;
 	}
 
-	for(LLInitParam::ParamIterator<SettingsGroup>::const_iterator it = mSettingsLocationList->groups.begin(), end_it = mSettingsLocationList->groups.end();
-		it != end_it;
-		++it)
+	BOOST_FOREACH(const SettingsGroup& group, mSettingsLocationList->groups)
 	{
 		// skip settings groups that aren't the one we requested
-		if (it->name() != location_key) continue;
+		if (group.name() != location_key) continue;
 
-		ELLPath path_index = (ELLPath)it->path_index();
+		ELLPath path_index = (ELLPath)group.path_index();
 		if(path_index <= LL_PATH_NONE || path_index >= LL_PATH_LAST)
 		{
 			llerrs << "Out of range path index in app_settings/settings_files.xml" << llendl;
 			return false;
 		}
 
-		LLInitParam::ParamIterator<SettingsFile>::const_iterator file_it, end_file_it;
-		for (file_it = it->files.begin(), end_file_it = it->files.end();
-			file_it != end_file_it;
-			++file_it)
+		BOOST_FOREACH(const SettingsFile& file, group.files)
 		{
-			llinfos << "Attempting to load settings for the group " << file_it->name()
+			llinfos << "Attempting to load settings for the group " << file.name()
 			    << " - from location " << location_key << llendl;
 
-			LLControlGroup* settings_group = LLControlGroup::getInstance(file_it->name);
+			LLControlGroup* settings_group = LLControlGroup::getInstance(file.name);
 			if(!settings_group)
 			{
-				llwarns << "No matching settings group for name " << file_it->name() << llendl;
+				llwarns << "No matching settings group for name " << file.name() << llendl;
 				continue;
 			}
 
 			std::string full_settings_path;
 
-			if (file_it->file_name_setting.isProvided() 
-				&& gSavedSettings.controlExists(file_it->file_name_setting))
+			if (file.file_name_setting.isProvided() 
+				&& gSavedSettings.controlExists(file.file_name_setting))
 			{
 				// try to find filename stored in file_name_setting control
-				full_settings_path = gSavedSettings.getString(file_it->file_name_setting);
+				full_settings_path = gSavedSettings.getString(file.file_name_setting);
 				if (full_settings_path.empty())
 				{
 					continue;
@@ -2090,16 +2086,16 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			else
 			{
 				// by default, use specified file name
-				full_settings_path = gDirUtilp->getExpandedFilename((ELLPath)path_index, file_it->file_name());
+				full_settings_path = gDirUtilp->getExpandedFilename((ELLPath)path_index, file.file_name());
 			}
 
-			if(settings_group->loadFromFile(full_settings_path, set_defaults, file_it->persistent))
+			if(settings_group->loadFromFile(full_settings_path, set_defaults, file.persistent))
 			{	// success!
 				llinfos << "Loaded settings file " << full_settings_path << llendl;
 			}
 			else
 			{	// failed to load
-				if(file_it->required)
+				if(file.required)
 				{
 					llerrs << "Error: Cannot load required settings file from: " << full_settings_path << llendl;
 					return false;
@@ -2122,20 +2118,15 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 std::string LLAppViewer::getSettingsFilename(const std::string& location_key,
 											 const std::string& file)
 {
-	for(LLInitParam::ParamIterator<SettingsGroup>::const_iterator it = mSettingsLocationList->groups.begin(), end_it = mSettingsLocationList->groups.end();
-		it != end_it;
-		++it)
+	BOOST_FOREACH(const SettingsGroup& group, mSettingsLocationList->groups)
 	{
-		if (it->name() == location_key)
+		if (group.name() == location_key)
 		{
-			LLInitParam::ParamIterator<SettingsFile>::const_iterator file_it, end_file_it;
-			for (file_it = it->files.begin(), end_file_it = it->files.end();
-				file_it != end_file_it;
-				++file_it)
+			BOOST_FOREACH(const SettingsFile& settings_file, group.files)
 			{
-				if (file_it->name() == file)
+				if (settings_file.name() == file)
 				{
-					return file_it->file_name;
+					return settings_file.file_name;
 				}
 			}
 		}

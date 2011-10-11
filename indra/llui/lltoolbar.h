@@ -47,8 +47,8 @@ class LLToolBarButton : public LLButton
 public:
 	struct Params : public LLInitParam::Block<Params, LLButton::Params>
 	{
-		Optional<LLUI::RangeS32>	button_width;
-		Optional<S32>				desired_height;
+		Optional<LLUI::RangeS32::Params>	button_width;
+		Optional<S32>						desired_height;
 
 		Params()
 		:	button_width("button_width"),

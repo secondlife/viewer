@@ -459,15 +459,24 @@ void LLFloater::layoutResizeCtrls()
 	mResizeHandle[3]->setRect(rect);
 }
 
-void LLFloater::enableResizeCtrls(bool enable)
+void LLFloater::enableResizeCtrls(bool enable, bool width, bool height)
 {
+	mResizeBar[LLResizeBar::LEFT]->setVisible(enable && width);
+	mResizeBar[LLResizeBar::LEFT]->setEnabled(enable && width);
+
+	mResizeBar[LLResizeBar::TOP]->setVisible(enable && height);
+	mResizeBar[LLResizeBar::TOP]->setEnabled(enable && height);
+	
+	mResizeBar[LLResizeBar::RIGHT]->setVisible(enable && width);
+	mResizeBar[LLResizeBar::RIGHT]->setEnabled(enable && width);
+	
+	mResizeBar[LLResizeBar::BOTTOM]->setVisible(enable && height);
+	mResizeBar[LLResizeBar::BOTTOM]->setEnabled(enable && height);
+
 	for (S32 i = 0; i < 4; ++i)
 	{
-		mResizeBar[i]->setVisible(enable);
-		mResizeBar[i]->setEnabled(enable);
-
-		mResizeHandle[i]->setVisible(enable);
-		mResizeHandle[i]->setEnabled(enable);
+		mResizeHandle[i]->setVisible(enable && width && height);
+		mResizeHandle[i]->setEnabled(enable && width && height);
 	}
 }
 
@@ -2549,7 +2558,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 
 	// move window fully onscreen
-	if (floater->translateIntoRect( getLocalRect(), allow_partial_outside ))
+	if (floater->translateIntoRect( getSnapRect(), allow_partial_outside ))
 	{
 		floater->clearSnapTarget();
 	}

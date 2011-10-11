@@ -3,11 +3,9 @@
  legacy_header_height="225"
  can_minimize="true"
  can_close="true"
- user_resize="true"
  can_resize="true"
  min_height="230"
- min_width="455"
- max_height="230"
+ min_width="445"
  height="230"
  layout="topleft"
  name="Avatar"
@@ -19,7 +17,7 @@
     <web_browser
       top="25"
       height="200"
-      width="435"
+      width="445"
       follows="all"
       name="avatar_picker_contents"
       trusted_content="true"/>

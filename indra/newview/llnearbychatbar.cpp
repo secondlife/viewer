@@ -452,6 +452,8 @@ BOOL LLNearbyChatBar::postBuild()
 
 	mExpandedHeight = getMinHeight() + EXPANDED_HEIGHT;
 
+	enableResizeCtrls(true, true, false);
+
 	return TRUE;
 }
 
@@ -462,6 +464,7 @@ void LLNearbyChatBar::applyRectControl()
 	{
 		getChildView("nearby_chat")->setVisible(true);
 		mExpandedHeight = getRect().getHeight();
+		enableResizeCtrls(true);
 	}
 }
 
@@ -707,13 +710,13 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 		mExpandedHeight = getRect().getHeight();
 		nearby_chat->setVisible(FALSE);
 		reshape(getRect().getWidth(), getMinHeight());
-		mResizeHandle[0]->setMaxHeight(getMinHeight());
+		enableResizeCtrls(true, true, false);
 	}
 	else
 	{
 		nearby_chat->setVisible(TRUE);
 		reshape(getRect().getWidth(), mExpandedHeight);
-		mResizeHandle[0]->setMaxHeight(S32_MAX);
+		enableResizeCtrls(true);
 	}
 }
 

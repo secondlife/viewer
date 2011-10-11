@@ -120,5 +120,16 @@ void LLFloaterToybox::onBtnRestoreDefaults()
 	LLToolBarView::loadDefaultToolbars();
 }
 
+BOOL LLFloaterToybox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	EDragAndDropType cargo_type,
+	void* cargo_data,
+	EAcceptance* accept,
+	std::string& tooltip_msg)
+{
+	S32 local_x = x - mToolBar->getRect().mLeft;
+	S32 local_y = y - mToolBar->getRect().mBottom;
+	return mToolBar->handleDragAndDrop(local_x, local_y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+}
+
 
 // eof
