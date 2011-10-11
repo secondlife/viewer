@@ -2523,12 +2523,12 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		lldebugs << "initial outfit category id: " << cat_id << llendl;
 	}
 
-	// Copy gestures
-	copyLibraryGestures(same_gender_gestures);
-
 	// This is really misnamed -- it means we have started loading
 	// an outfit/shape that will give the avatar a gender eventually. JC
 	gAgent.setGenderChosen(TRUE);
+
+	// Copy gestures
+	copyLibraryGestures(same_gender_gestures);
 }
 
 //static
