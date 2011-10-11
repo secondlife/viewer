@@ -2480,7 +2480,7 @@ void LLStartUp::copyLibraryGestures(const std::string& same_gender_gestures)
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
-	llinfos << "starting" << llendl;
+	lldebugs << "starting" << llendl;
 
 	// Not going through the processAgentInitialWearables path, so need to set this here.
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
@@ -2491,11 +2491,13 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	std::string same_gender_gestures;
 	if (gender_name == "male")
 	{
+		lldebugs << "male" << llendl;
 		gender = OPT_MALE;
 		same_gender_gestures = MALE_GESTURES_FOLDER;
 	}
 	else
 	{
+		lldebugs << "female" << llendl;
 		gender = OPT_FEMALE;
 		same_gender_gestures = FEMALE_GESTURES_FOLDER;
 	}
@@ -2507,6 +2509,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		outfit_folder_name);
 	if (cat_id.isNull())
 	{
+		lldebugs << "standard wearables" << llendl;
 		gAgentWearables.createStandardWearables(gender);
 	}
 	else
@@ -2517,26 +2520,31 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
 		LLAppearanceMgr::instance().wearInventoryCategory(cat, do_copy, do_append);
+		lldebugs << "initial outfit category id: " << cat_id << llendl;
 	}
 
 	// Copy gestures
 	copyLibraryGestures(same_gender_gestures);
-	
+
 	// This is really misnamed -- it means we have started loading
 	// an outfit/shape that will give the avatar a gender eventually. JC
 	gAgent.setGenderChosen(TRUE);
-
 }
 
 //static
 void LLStartUp::saveInitialOutfit()
 {
-	if (sInitialOutfit.empty()) return;
+	if (sInitialOutfit.empty()) {
+		lldebugs << "sInitialOutfit is empty" << llendl;
+		return;
+	}
 	
 	if (sWearablesLoadedCon.connected())
 	{
+		lldebugs << "sWearablesLoadedCon is connected, disconnecting" << llendl;
 		sWearablesLoadedCon.disconnect();
 	}
+	lldebugs << "calling makeNewOutfitLinks( \"" << sInitialOutfit << "\" )" << llendl;
 	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit,false);
 }
 
