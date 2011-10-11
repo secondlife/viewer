@@ -34,6 +34,7 @@
 #include "lliconctrl.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
+#include "lllogchat.h"
 #include "llresizebar.h"
 #include "llresizehandle.h"
 #include "llmenugl.h"
@@ -50,7 +51,6 @@
 
 #include "lldraghandle.h"
 
-#include "llbottomtray.h"
 #include "llnearbychatbar.h"
 #include "llfloaterreg.h"
 #include "lltrans.h"

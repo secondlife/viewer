@@ -28,7 +28,7 @@
 #ifndef LL_LLCALLFLOATER_H
 #define LL_LLCALLFLOATER_H
 
-#include "lltransientdockablefloater.h"
+#include "llfloater.h"
 #include "llvoicechannel.h"
 #include "llvoiceclient.h"
 
@@ -261,9 +261,6 @@ private:
 	 * @see sOnCurrentChannelChanged()
 	 */
 	static LLVoiceChannel* sCurrentVoiceChannel;
-
-	/* virtual */
-	LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
 
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
 };
