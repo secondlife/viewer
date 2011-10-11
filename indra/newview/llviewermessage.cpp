@@ -1809,8 +1809,11 @@ void LLOfferInfo::initRespondFunctionMap()
 
 void inventory_offer_handler(LLOfferInfo* info)
 {
-	//If muted, don't even go through the messaging stuff.  Just curtail the offer here.
-	if (LLMuteList::getInstance()->isMuted(info->mFromID, info->mFromName))
+	// If muted, don't even go through the messaging stuff.  Just curtail the offer here.
+	// Passing in a null UUID handles the case of where you have muted one of your own objects by_name.
+	// The solution for STORM-1297 seems to handle the cases where the object is owned by someone else.
+	if (LLMuteList::getInstance()->isMuted(info->mFromID, info->mFromName) ||
+		LLMuteList::getInstance()->isMuted(LLUUID::null, info->mFromName))
 	{
 		info->forceResponse(IOR_MUTE);
 		return;
