@@ -4624,6 +4624,20 @@ Are you sure you want to quit?
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmRestoreToybox"
+   type="alertmodal">
+    <unique/>
+Are you sure you want to restore your default buttons and toolbars? 
+    
+You cannot undo this action.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="DeleteItems"
    type="alertmodal">
     <unique/>
