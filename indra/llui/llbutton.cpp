@@ -548,7 +548,7 @@ void LLButton::setHighlight(bool b)
 BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 {
 	if (isInEnabledChain() 
-		&& (!gFocusMgr.getMouseCapture() || gFocusMgr.getMouseCapture() != this))
+		&& (!gFocusMgr.getMouseCapture() || gFocusMgr.getMouseCapture() == this))
 		mNeedsHighlight = TRUE;
 
 	if (!childrenHandleHover(x, y, mask))

@@ -1407,6 +1407,17 @@ void LLFloater::removeDependentFloater(LLFloater* floaterp)
 	floaterp->mDependeeHandle = LLHandle<LLFloater>();
 }
 
+void LLFloater::setVisibleWhenMinimized(bool visible)
+{ 
+	mVisibleWhenMinimized = visible;
+	if (visible && isMinimized())
+	{
+		// restack in minimized stack
+		setMinimized(FALSE);
+		setMinimized(TRUE);
+	}
+}
+
 BOOL LLFloater::offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButton index)
 {
 	if( mButtonsEnabled[index] )
@@ -1783,11 +1794,14 @@ void LLFloater::draw()
 	}
 	if (isMinimized())
 	{
-		for (S32 i = 0; i < BUTTON_COUNT; i++)
+		if (mVisibleWhenMinimized)
 		{
-			drawChild(mButtons[i]);
+			for (S32 i = 0; i < BUTTON_COUNT; i++)
+			{
+				drawChild(mButtons[i]);
+			}
+			drawChild(mDragHandle);
 		}
-		drawChild(mDragHandle);
 	}
 	else
 	{
@@ -2442,7 +2456,7 @@ void LLFloaterView::getMinimizePosition(S32 *left, S32 *bottom)
 			{
 				// Examine minimized children.
 				LLFloater* floater = (LLFloater*)((LLView*)*child_it);
-				if(floater->isMinimized()) 
+				if(floater->isMinimized() && floater->getVisibleWhenMinimized()) 
 				{
 					LLRect r = floater->getRect();
 					if((r.mBottom < (row + floater_header_size))
