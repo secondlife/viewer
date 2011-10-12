@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ open_positioning="cascading"
  legacy_header_height="225"
  can_minimize="true"
  can_close="true"
@@ -13,12 +14,12 @@
  single_instance="true"
  help_topic="destinations"
  save_rect="true"
- title="Destinations"
- width="525">
+ title="DESTINATIONS"
+ width="840">
     <web_browser
       top="25"
       height="200"
-      width="525"
+      width="840"
       follows="all"
       name="destination_guide_contents"
       start_url="http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/guide.html"

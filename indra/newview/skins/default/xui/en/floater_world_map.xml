@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- open_centered="true"
+ open_positioning="centered"
  height="600"
  layout="topleft"
  min_height="520"
@@ -12,7 +12,7 @@
  save_rect="true"
  save_visibility="true"
  single_instance="true"
- title="World map"
+ title="WORLD MAP"
  width="650">
     <panel
      filename="panel_world_map.xml"

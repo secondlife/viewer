@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ open_positioning="specified"
  legacy_header_height="18"
  can_dock="false"
  can_minimize="true"
  can_close="true"
  follows="bottom"
  height="110"
+ left="535"
+ bottom="0"
  layout="topleft"
  name="move_floater"
  help_topic="move_floater"
  save_rect="true"
  save_visibility="true"
  save_dock_state="true"
- title="Move"
+ title="MOVE"
  width="133">
     <string
      name="walk_forward_tooltip">

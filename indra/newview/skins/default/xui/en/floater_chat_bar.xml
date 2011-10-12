@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ open_positioning="specified"
  height="60"
+ left="150"
+ bottom="0"
  layout="topleft"
  legacy_header_height="25"
  single_instance="true"
- title="Nearby chat"
+ title="NEARBY CHAT"
  save_rect="true"
  can_close="true"
  can_minimize="true"

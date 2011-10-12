@@ -9,7 +9,6 @@
   name="floater_web_content"
   help_topic="floater_web_content"
   save_rect="true"
-  auto_tile="true"
   title=""
   initial_mime_type="text/html"
   width="780">

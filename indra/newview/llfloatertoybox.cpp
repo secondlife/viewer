@@ -58,8 +58,6 @@ bool compare_localized_command_labels(LLCommand * cmd1, LLCommand * cmd2)
 
 BOOL LLFloaterToybox::postBuild()
 {	
-	center();
-
 	mBtnRestoreDefaults = getChild<LLButton>("btn_restore_defaults");
 	mToolBar = getChild<LLToolBar>("toybox_toolbar");
 	mToolBar->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ open_positioning="cascading"
  can_tear_off="false"
  height="420"
  layout="topleft"
  name="floaterland"
  help_topic="floaterland"
  save_rect="true"
- title="About land"
+ title="ABOUT LAND"
  width="490">
     <floater.string
       name="maturity_icon_general">

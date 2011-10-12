@@ -107,7 +107,6 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 			if (!groupname.empty())
 			{
 				instance_list_t& list = sInstanceMap[groupname];
-				int index = list.size();
 
 				res = build_func(key);
 				if (!res)
@@ -121,27 +120,18 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 					llwarns << "Failed to build floater type: '" << name << "'." << llendl;
 					return NULL;
 				}
-					
+
 				// Note: key should eventually be a non optional LLFloater arg; for now, set mKey to be safe
 				if (res->mKey.isUndefined()) 
 				{
-						res->mKey = key;
+					res->mKey = key;
 				}
 				res->setInstanceName(name);
 				res->applySavedVariables(); // Can't apply rect and dock state until setting instance name
-				if (res->mAutoTile && !res->getHost() && index > 0)
-				{
-					LLFloater* last_floater = getLastFloaterInGroup(groupname);
-					if (last_floater)
-					{
-						res->stackWith(*last_floater);
-						gFloaterView->adjustToFitScreen(res, true);
-					}
-				}
-				else
-				{
-					gFloaterView->adjustToFitScreen(res, false);
-				}
+
+				// apply list.size() and possibly stackWith(getLastFloaterInGroup(groupname))
+				gFloaterView->adjustToFitScreen(res, false);
+
 				list.push_back(res);
 			}
 		}
@@ -477,16 +467,21 @@ void LLFloaterReg::toggleToolbarFloaterInstance(const LLSD& sdname)
 	std::string name = sdname.asString();
 	parse_name_key(name, key);
 
-	LLFloater* instance = findInstance(name, key); 
+	LLFloater* instance = getInstance(name, key); 
 
-	if (LLFloater::isMinimized(instance))
+	if (!instance)
+	{
+		lldebugs << "Unable to get instance of floater '" << name << "'" << llendl;
+	}
+	else if (instance->isMinimized())
 	{
 		instance->setMinimized(FALSE);
 		instance->setFocus(TRUE);
 	}
-	else if (!LLFloater::isShown(instance))
+	else if (!instance->isShown())
 	{
-		showInstance(name, key, TRUE);
+		instance->openFloater(key);
+		instance->setFocus(TRUE);
 	}
 	else if (!instance->hasFocus() && !instance->getIsChrome())
 	{

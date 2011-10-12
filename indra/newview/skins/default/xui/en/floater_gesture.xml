@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ open_positioning="cascading"
+ save_rect="true"
  legacy_header_height="18"
  can_resize="true"
  height="465"
  name="gestures"
  help_topic="gestures"
- title="Gestures"
+ title="GESTURES"
  background_visible="true"
  follows="all"
  label="Places"

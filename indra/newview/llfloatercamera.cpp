@@ -369,7 +369,7 @@ BOOL LLFloaterCamera::postBuild()
 	// ensure that appearance mode is handled while building. See EXT-7796.
 	handleAvatarEditingAppearance(sAppearanceEditing);
 
-	return TRUE;
+	return LLFloater::postBuild();
 }
 
 void LLFloaterCamera::fillFlatlistFromPanel (LLFlatListView* list, LLPanel* panel)

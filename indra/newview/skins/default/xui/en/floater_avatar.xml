@@ -12,12 +12,12 @@
  single_instance="true"
  help_topic="avatar"
  save_rect="true"
- title="Avatar Picker"
- width="445">
+ title="AVATAR PICKER"
+ width="635">
     <web_browser
       top="25"
       height="200"
-      width="445"
+      width="635"
       follows="all"
       name="avatar_picker_contents"
       trusted_content="true"/>

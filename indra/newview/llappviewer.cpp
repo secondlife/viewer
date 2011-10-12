@@ -4293,12 +4293,15 @@ void LLAppViewer::idle()
 		return;
     }
 
-	gViewerWindow->updateUI();
+	if (!quitRequested())
+	{
+		gViewerWindow->updateUI();
+	}
 
 	///////////////////////////////////////
 	// Agent and camera movement
 	//
-		LLCoordGL current_mouse = gViewerWindow->getCurrentMouse();
+	LLCoordGL current_mouse = gViewerWindow->getCurrentMouse();
 
 	{
 		// After agent and camera moved, figure out if we need to

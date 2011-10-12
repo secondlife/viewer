@@ -59,11 +59,35 @@ const BOOL CLOSE_NO = FALSE;
 const BOOL ADJUST_VERTICAL_YES = TRUE;
 const BOOL ADJUST_VERTICAL_NO = FALSE;
 
+namespace LLFloaterEnums
+{
+	enum EOpenPositioning
+	{
+		OPEN_POSITIONING_NONE,
+		OPEN_POSITIONING_CASCADING,
+		OPEN_POSITIONING_CENTERED,
+		OPEN_POSITIONING_SPECIFIED,
+
+		OPEN_POSITIONING_COUNT
+	};
+}
+
+namespace LLInitParam
+{
+	template<>
+	struct TypeValues<LLFloaterEnums::EOpenPositioning> : public TypeValuesHelper<LLFloaterEnums::EOpenPositioning>
+	{
+		static void declareValues();
+	};
+}
+
+
 class LLFloater : public LLPanel
 {
-friend class LLFloaterView;
-friend class LLFloaterReg;
-friend class LLMultiFloater;
+	friend class LLFloaterView;
+	friend class LLFloaterReg;
+	friend class LLMultiFloater;
+
 public:
 	struct KeyCompare
 	{
@@ -95,7 +119,6 @@ public:
 								short_title;
 		
 		Optional<bool>			single_instance,
-								auto_tile,
 								can_resize,
 								can_minimize,
 								can_close,
@@ -104,8 +127,10 @@ public:
 								save_rect,
 								save_visibility,
 								save_dock_state,
-								can_dock,
-								open_centered;
+								can_dock;
+		
+		Optional<LLFloaterEnums::EOpenPositioning>	open_positioning;
+		
 		Optional<S32>			header_height,
 								legacy_header_height; // HACK see initFromXML()
 
@@ -297,6 +322,7 @@ protected:
 
 	virtual void	applyRectControl();
 	void			applyDockState();
+	void			applyPositioning();
 	void			storeRectControl();
 	void			storeVisibilityControl();
 	void			storeDockStateControl();
@@ -378,14 +404,14 @@ private:
 	
 	BOOL			mSingleInstance;	// TRUE if there is only ever one instance of the floater
 	std::string		mInstanceName;		// Store the instance name so we can remove ourselves from the list
-	BOOL			mAutoTile;			// TRUE if placement of new instances tiles
 	
 	BOOL			mCanTearOff;
 	BOOL			mCanMinimize;
 	BOOL			mCanClose;
 	BOOL			mDragOnLeft;
 	BOOL			mResizable;
-	bool			mOpenCentered;
+
+	LLFloaterEnums::EOpenPositioning	mOpenPositioning;
 	
 	S32				mMinWidth;
 	S32				mMinHeight;

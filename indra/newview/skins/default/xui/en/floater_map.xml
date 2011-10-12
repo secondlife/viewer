@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ open_positioning="cascading"
  can_minimize="true" 
  can_resize="true"
  follows="top|right"
@@ -8,12 +9,10 @@
  min_height="128"
  min_width="128"
  name="Map"
- title="Mini-map"
+ title="MINI-MAP"
  help_topic="map"
  save_rect="true"
  save_visibility="true"
- left="0"
- top="0"
  width="200">
     <floater.string
      name="ToolTipMsg">

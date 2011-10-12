@@ -62,6 +62,17 @@
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
 
+namespace LLInitParam
+{
+	void TypeValues<LLFloaterEnums::EOpenPositioning>::declareValues()
+	{
+		declare("none",       LLFloaterEnums::OPEN_POSITIONING_NONE);
+		declare("cascading",  LLFloaterEnums::OPEN_POSITIONING_CASCADING);
+		declare("centered",   LLFloaterEnums::OPEN_POSITIONING_CENTERED);
+		declare("specified",  LLFloaterEnums::OPEN_POSITIONING_SPECIFIED);
+	}
+}
+
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
 	"llfloater_close_btn",		//BUTTON_CLOSE
@@ -154,7 +165,6 @@ LLFloater::Params::Params()
 :	title("title"),
 	short_title("short_title"),
 	single_instance("single_instance", false),
-	auto_tile("auto_tile", false),
 	can_resize("can_resize", false),
 	can_minimize("can_minimize", true),
 	can_close("can_close", true),
@@ -164,7 +174,7 @@ LLFloater::Params::Params()
 	save_rect("save_rect", false),
 	save_visibility("save_visibility", false),
 	can_dock("can_dock", false),
-	open_centered("open_centered", false),
+	open_positioning("open_positioning", LLFloaterEnums::OPEN_POSITIONING_NONE),
 	header_height("header_height", 0),
 	legacy_header_height("legacy_header_height", 0),
 	close_image("close_image"),
@@ -227,7 +237,6 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
 	mKey(key),
-	mAutoTile(p.auto_tile),
 	mCanTearOff(p.can_tear_off),
 	mCanMinimize(p.can_minimize),
 	mCanClose(p.can_close),
@@ -831,7 +840,7 @@ LLMultiFloater* LLFloater::getHost()
 	return (LLMultiFloater*)mHostHandle.get(); 
 }
 
-void    LLFloater::applySavedVariables()
+void LLFloater::applySavedVariables()
 {
 	applyRectControl();
 	applyDockState();
@@ -839,13 +848,7 @@ void    LLFloater::applySavedVariables()
 
 void LLFloater::applyRectControl()
 {
-	// first, center on screen if requested	
-	if (mOpenCentered)
-	{
-		center();
-	}
-
-	// override center if we have saved rect control
+	// If we have a saved rect, use it
 	if (mRectControl.size() > 1)
 	{
 		const LLRect& rect = getControlGroup()->getRect(mRectControl);
@@ -867,7 +870,50 @@ void LLFloater::applyDockState()
 		bool dockState = getControlGroup()->getBOOL(mDocStateControl);
 		setDocked(dockState);
 	}
+}
 
+void LLFloater::applyPositioning()
+{
+	// Otherwise position according to the positioning code
+	switch (mOpenPositioning)
+	{
+	case LLFloaterEnums::OPEN_POSITIONING_CENTERED:
+		center();
+		break;
+
+	case LLFloaterEnums::OPEN_POSITIONING_SPECIFIED:
+		{
+			// Translate relative to snap rect
+			LLRect r = getRect();
+			r.mBottom = getSnapRect().getHeight() - r.getHeight() - r.mBottom;
+			setOrigin(r.mLeft, r.mBottom);
+			translateIntoRect(getSnapRect(), FALSE);
+		}
+		break;
+
+	case LLFloaterEnums::OPEN_POSITIONING_CASCADING:
+		{
+			static const U32 CASCADING_FLOATER_HOFFSET = 25;
+			static const U32 CASCADING_FLOATER_VOFFSET = 25;
+			static const S32 CASCADING_FLOATER_LIMIT = 15;
+			static S32 cascading_floater_count = 1; 
+			const S32 top = CASCADING_FLOATER_VOFFSET * cascading_floater_count;
+			const S32 left = CASCADING_FLOATER_HOFFSET * cascading_floater_count;
+			setOrigin(left, top);
+			translateIntoRect(getSnapRect(), FALSE);
+
+			if (++cascading_floater_count > CASCADING_FLOATER_LIMIT)
+			{
+				cascading_floater_count = 1;
+			}
+		}
+		break;
+
+	case LLFloaterEnums::OPEN_POSITIONING_NONE:
+	default:
+		// Do nothing
+		break;
+	}
 }
 
 void LLFloater::applyTitle()
@@ -2784,7 +2830,6 @@ void LLFloater::setInstanceName(const std::string& name)
 		{
 			mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
 		}
-
 	}
 }
 
@@ -2846,9 +2891,9 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mHeaderHeight = p.header_height;
 	mLegacyHeaderHeight = p.legacy_header_height;
 	mSingleInstance = p.single_instance;
-	mAutoTile = p.auto_tile;
-	mOpenCentered = p.open_centered;
+	mOpenPositioning = p.open_positioning;
 
+	/*
 	if (p.save_rect && mRectControl.empty())
 	{
 		mRectControl = "t"; // flag to build mRectControl name once mInstanceName is set
@@ -2856,7 +2901,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	if (p.save_visibility)
 	{
 		mVisibilityControl = "t"; // flag to build mVisibilityControl name once mInstanceName is set
-	}
+	}*/
 
 	if(p.save_dock_state)
 	{
@@ -3008,6 +3053,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 		llerrs << "Failed to construct floater " << getName() << llendl;
 	}
 
+	applyPositioning();
 	applyRectControl(); // If we have a saved rect control, apply it
 	gFloaterView->adjustToFitScreen(this, FALSE); // Floaters loaded from XML should all fit on screen	
 

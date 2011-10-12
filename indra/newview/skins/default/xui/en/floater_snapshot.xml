@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ open_positioning="cascading"
  legacy_header_height="18"
  can_minimize="true"
  can_close="true"
@@ -10,7 +11,7 @@
  help_topic="snapshot"
  save_rect="true"
  save_visibility="true"
- title="Snapshot preview"
+ title="SNAPSHOT PREVIEW"
  width="245">
     <floater.string
      name="unknown">

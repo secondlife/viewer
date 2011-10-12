@@ -2,8 +2,6 @@
 <floater
  legacy_header_height="18"
  bevel_style="in"
- left="0"
- top="0"
  follows="right|bottom"
  layout="topleft"
  name="sys_well_window"
