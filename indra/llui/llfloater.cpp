@@ -2506,6 +2506,52 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 	}
 }
 
+void LLFloaterView::hiddenFloaterClosed(LLFloater* floater)
+{
+	for (hidden_floaters_t::iterator it = mHiddenFloaters.begin(), end_it = mHiddenFloaters.end();
+		it != end_it;
+		++it)
+	{
+		if (it->first.get() == floater)
+		{
+			it->second.disconnect();
+			mHiddenFloaters.erase(it);
+			break;
+		}
+	}
+}
+
+void LLFloaterView::hideAllFloaters()
+{
+	child_list_t child_list = *(getChildList());
+
+	for (child_list_iter_t it = child_list.begin(); it != child_list.end(); ++it)
+	{
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(*it);
+		if (floaterp && floaterp->getVisible())
+		{
+			floaterp->setVisible(false);
+			boost::signals2::connection connection = floaterp->mCloseSignal.connect(boost::bind(&LLFloaterView::hiddenFloaterClosed, this, floaterp));
+			mHiddenFloaters.push_back(std::make_pair(floaterp->getHandle(), connection));
+		}
+	}
+}
+
+void LLFloaterView::showHiddenFloaters()
+{
+	for (hidden_floaters_t::iterator it = mHiddenFloaters.begin(), end_it = mHiddenFloaters.end();
+		it != end_it;
+		++it)
+	{
+		LLFloater* floaterp = it->first.get();
+		if (floaterp)
+		{
+			floaterp->setVisible(true);
+		}
+		it->second.disconnect();
+	}
+	mHiddenFloaters.clear();
+}
 
 BOOL LLFloaterView::allChildrenClosed()
 {
