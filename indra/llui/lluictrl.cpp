@@ -1045,3 +1045,9 @@ boost::signals2::connection LLUICtrl::setDoubleClickCallback( const mouse_signal
 	if (!mDoubleClickSignal) mDoubleClickSignal = new mouse_signal_t();
 	return mDoubleClickSignal->connect(cb); 
 }
+
+void LLUICtrl::addInfo(LLSD & info)
+{
+	LLView::addInfo(info);
+	info["value"] = getValue();
+}

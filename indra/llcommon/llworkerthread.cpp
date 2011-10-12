@@ -34,8 +34,8 @@
 //============================================================================
 // Run on MAIN thread
 
-LLWorkerThread::LLWorkerThread(const std::string& name, bool threaded) :
-	LLQueuedThread(name, threaded)
+LLWorkerThread::LLWorkerThread(const std::string& name, bool threaded, bool should_pause) :
+	LLQueuedThread(name, threaded, should_pause)
 {
 	mDeleteMutex = new LLMutex;
 }
