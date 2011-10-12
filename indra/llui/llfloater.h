@@ -213,7 +213,9 @@ public:
 	void			addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE);
 	LLFloater*		getDependee() { return (LLFloater*)mDependeeHandle.get(); }
 	void			removeDependentFloater(LLFloater* dependent);
-	BOOL			isMinimized() const				{ return mMinimized; }
+	BOOL			isMinimized() const							{ return mMinimized; }
+	void			setVisibleWhenMinimized(bool visible);
+	bool			getVisibleWhenMinimized() const				{ return mVisibleWhenMinimized;}
 	/// isShown() differs from getVisible() in that isShown() also considers
 	/// isMinimized(). isShown() is true only if visible and not minimized.
 	bool			isShown() const;
