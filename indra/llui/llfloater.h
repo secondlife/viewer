@@ -212,7 +212,7 @@ public:
 	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE);
 	void			addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE);
 	LLFloater*		getDependee() { return (LLFloater*)mDependeeHandle.get(); }
-	void		removeDependentFloater(LLFloater* dependent);
+	void			removeDependentFloater(LLFloater* dependent);
 	BOOL			isMinimized() const				{ return mMinimized; }
 	/// isShown() differs from getVisible() in that isShown() also considers
 	/// isMinimized(). isShown() is true only if visible and not minimized.
@@ -420,6 +420,7 @@ private:
 	S32				mLegacyHeaderHeight;// HACK see initFloaterXML()
 	
 	BOOL			mMinimized;
+	bool			mVisibleWhenMinimized;
 	BOOL			mForeground;
 	LLHandle<LLFloater>	mDependeeHandle;
 	

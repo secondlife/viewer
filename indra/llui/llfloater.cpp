@@ -247,6 +247,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mHeaderHeight(p.header_height),
 	mLegacyHeaderHeight(p.legacy_header_height),
 	mMinimized(FALSE),
+	mVisibleWhenMinimized(TRUE),
 	mForeground(FALSE),
 	mFirstLook(TRUE),
 	mButtonScale(1.0f),
