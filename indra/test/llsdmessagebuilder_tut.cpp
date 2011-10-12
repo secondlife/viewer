@@ -84,10 +84,10 @@ namespace tut
 
 		static LLMessageBlock* defaultTemplateBlock(const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = MBT_VARIABLE)
 		{
-			return createTemplateBlock(const_cast<char*>(_PREHASH_Test0), type, size, block);
+			return createTemplateBlock(_PREHASH_Test0, type, size, block);
 		}
 
-		static LLMessageBlock* createTemplateBlock(char* name, const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = MBT_VARIABLE)
+		static LLMessageBlock* createTemplateBlock(const char* name, const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = MBT_VARIABLE)
 		{
 			LLMessageBlock* result = new LLMessageBlock(name, block);
 			if(type != MVT_NULL)
