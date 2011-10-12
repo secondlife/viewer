@@ -1217,7 +1217,7 @@ bool LLAppViewer::mainLoop()
 			if (gViewerWindow)
 			{
 				LLFastTimer t2(FTM_MESSAGES);
-				gViewerWindow->mWindow->processMiscNativeEvents();
+				gViewerWindow->getWindow()->processMiscNativeEvents();
 			}
 		
 			pingMainloopTimeout("Main:GatherInput");
@@ -1230,7 +1230,7 @@ bool LLAppViewer::mainLoop()
 					llwarns << " Someone took over my signal/exception handler (post messagehandling)!" << llendl;
 				}
 
-				gViewerWindow->mWindow->gatherInput();
+				gViewerWindow->getWindow()->gatherInput();
 			}
 
 #if 1 && !LL_RELEASE_FOR_DOWNLOAD
@@ -1259,9 +1259,9 @@ bool LLAppViewer::mainLoop()
 				// Scan keyboard for movement keys.  Command keys and typing
 				// are handled by windows callbacks.  Don't do this until we're
 				// done initializing.  JC
-				if ((gHeadlessClient || gViewerWindow->mWindow->getVisible())
+				if ((gHeadlessClient || gViewerWindow->getWindow()->getVisible())
 					&& gViewerWindow->getActive()
-					&& !gViewerWindow->mWindow->getMinimized()
+					&& !gViewerWindow->getWindow()->getMinimized()
 					&& LLStartUp::getStartupState() == STATE_STARTED
 					&& (gHeadlessClient || !gViewerWindow->getShowProgress())
 					&& !gFocusMgr.focusLocked())
@@ -1340,7 +1340,7 @@ bool LLAppViewer::mainLoop()
 				}
 
 				// yield cooperatively when not running as foreground window
-				if (   (gViewerWindow && !gViewerWindow->mWindow->getVisible())
+				if (   (gViewerWindow && !gViewerWindow->getWindow()->getVisible())
 						|| !gFocusMgr.getAppHasFocus())
 				{
 					// Sleep if we're not rendering, or the window is minimized.
@@ -2920,7 +2920,7 @@ bool LLAppViewer::initWindow()
 		
 	if (gSavedSettings.getBOOL("WindowMaximized"))
 	{
-		gViewerWindow->mWindow->maximize();
+		gViewerWindow->getWindow()->maximize();
 	}
 
 	//
@@ -2963,7 +2963,7 @@ bool LLAppViewer::initWindow()
 
 	if (gSavedSettings.getBOOL("WindowMaximized"))
 	{
-		gViewerWindow->mWindow->maximize();
+		gViewerWindow->getWindow()->maximize();
 	}
 
 	LLUI::sWindow = gViewerWindow->getWindow();
@@ -2975,7 +2975,7 @@ bool LLAppViewer::initWindow()
 	gViewerWindow->initBase();
 
 	// show viewer window
-	//gViewerWindow->mWindow->show();
+	//gViewerWindow->getWindow()->show();
 
 	LL_INFOS("AppInit") << "Window initialization done." << LL_ENDL;
 	return true;
@@ -3009,12 +3009,12 @@ void LLAppViewer::cleanupSavedSettings()
 	// as we don't track it in callbacks
 	if(NULL != gViewerWindow)
 	{
-		BOOL maximized = gViewerWindow->mWindow->getMaximized();
+		BOOL maximized = gViewerWindow->getWindow()->getMaximized();
 		if (!maximized)
 		{
 			LLCoordScreen window_pos;
 			
-			if (gViewerWindow->mWindow->getPosition(&window_pos))
+			if (gViewerWindow->getWindow()->getPosition(&window_pos))
 			{
 				gSavedSettings.setS32("WindowX", window_pos.mX);
 				gSavedSettings.setS32("WindowY", window_pos.mY);

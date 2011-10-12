@@ -76,7 +76,6 @@
 #include "lltimer.h"
 #include "timing.h"
 #include "llviewermenu.h"
-#include "lltoolbarview.h"
 #include "lltooltip.h"
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
@@ -147,6 +146,7 @@
 #include "lltexturefetch.h"
 #include "lltextureview.h"
 #include "lltool.h"
+#include "lltoolbarview.h"
 #include "lltoolcomp.h"
 #include "lltooldraganddrop.h"
 #include "lltoolface.h"
@@ -1339,7 +1339,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 {
 	if (activated)
 	{
-		mActive = TRUE;
+		mActive = true;
 		send_agent_resume();
 		gAgent.clearAFK();
 		
@@ -1348,7 +1348,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 	}
 	else
 	{
-		mActive = FALSE;
+		mActive = false;
 				
 		// if the user has chosen to go Away automatically after some time, then go Away when minimizing
 		if (gSavedSettings.getS32("AFKTimeout"))
@@ -1531,7 +1531,8 @@ LLViewerWindow::LLViewerWindow(
 	BOOL fullscreen, BOOL ignore_pixel_depth) // fullscreen is no longer used
 	:
 	mWindow(NULL),
-	mActive(TRUE),
+	mActive(true),
+	mUIVisible(true),
 	mWindowRectRaw(0, height, width, 0),
 	mWindowRectScaled(0, height, width, 0),
 	mWorldViewRectRaw(0, height, width, 0),
@@ -1771,7 +1772,6 @@ void LLViewerWindow::initBase()
 
 	// placeholder widget that controls where "world" is rendered
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
-	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
 	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
 	mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
 	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
@@ -1882,7 +1882,7 @@ void LLViewerWindow::initWorldUI()
 	gStatusBar->setShape(status_bar_container->getLocalRect());
 	// sync bg color with menu bar
 	gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor().get() );
-	status_bar_container->addChild(gStatusBar);
+	status_bar_container->addChildInBack(gStatusBar);
 	status_bar_container->setVisible(TRUE);
 
 	// Navigation bar
@@ -1922,8 +1922,7 @@ void LLViewerWindow::initWorldUI()
 			hud_rect.mTop -= gMenuBarView->getRect().getHeight();
 		}
 		gHUDView = new LLHUDView(hud_rect);
-		// put behind everything else in the UI
-		getRootView()->addChildInBack(gHUDView);
+		getRootView()->addChild(gHUDView);
 	}
 
 	LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("stand_stop_flying_container");
@@ -4084,7 +4083,7 @@ static S32 BORDERWIDTH = 0;
 void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 {
 	LLCoordScreen size;
-	gViewerWindow->mWindow->getSize(&size);
+	gViewerWindow->getWindow()->getSize(&size);
 	if (  (size.mX != new_width + BORDERWIDTH)
 		||(size.mY != new_height + BORDERHEIGHT))
 	{
@@ -4095,7 +4094,7 @@ void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 		BORDERHEIGHT = size.mY- y;
 		LLCoordScreen new_size(new_width + BORDERWIDTH, 
 							   new_height + BORDERHEIGHT);
-		gViewerWindow->mWindow->setSize(new_size);
+		gViewerWindow->getWindow()->setSize(new_size);
 	}
 }
 
@@ -4977,6 +4976,29 @@ bool LLViewerWindow::onAlert(const LLSD& notify)
 		gAgentCamera.changeCameraToDefault();
 	}
 	return false;
+}
+
+void LLViewerWindow::setUIVisibility(bool visible)
+{
+	mUIVisible = visible;
+
+	if (gToolBarView)
+	{
+		gToolBarView->setToolBarsVisible(visible);
+	}
+
+	mRootView->getChildView("nav_bar_container")->setVisible(visible);
+	mRootView->getChildView("status_bar_container")->setVisible(visible);
+
+	if (!visible)
+	{
+		gFloaterView->closeAllChildren(false);
+	}
+}
+
+bool LLViewerWindow::getUIVisibility()
+{
+	return mUIVisible;
 }
 
 ////////////////////////////////////////////////////////////////////////////

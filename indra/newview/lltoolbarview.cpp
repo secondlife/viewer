@@ -464,3 +464,10 @@ void LLToolBarView::onEndDrag()
 	}
 	stopDragTool();
 }
+
+void LLToolBarView::setToolBarsVisible(bool visible)
+{
+	mToolbarBottom->getParent()->setVisible(visible);
+	mToolbarLeft->getParent()->setVisible(visible);
+	mToolbarRight->getParent()->setVisible(visible);
+}

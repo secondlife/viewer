@@ -143,6 +143,8 @@ public:
 	void			adjustRectanglesForFirstUse(const LLRect& window);
 	void            adjustControlRectanglesForFirstUse(const LLRect& window);
 	void			initWorldUI();
+	void			setUIVisibility(bool);
+	bool			getUIVisibility();
 
 	BOOL handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
 
@@ -282,7 +284,6 @@ public:
 	void				updateKeyboardFocus();		
 
 	void			updateWorldViewRect(bool use_full_window=false);
-	LLView*			getFloaterViewHolder() { return mFloaterViewHolder.get(); }
 	LLView*			getToolBarHolder() { return mToolBarHolder.get(); }
 	LLView*			getHintHolder() { return mHintHolder.get(); }
 	LLView*			getLoginPanelHolder() { return mLoginPanelHolder.get(); }
@@ -394,11 +395,10 @@ private:
 	S32				getChatConsoleBottomPad(); // Vertical padding for child console rect, varied by bottom clutter
 	LLRect			getChatConsoleRect(); // Get optimal cosole rect.
 
-public:
+private:
 	LLWindow*		mWindow;						// graphical window object
-
-protected:
-	BOOL			mActive;
+	bool			mActive;
+	bool			mUIVisible;
 
 	LLRect			mWindowRectRaw;				// whole window, including UI
 	LLRect			mWindowRectScaled;			// whole window, scaled by UI size
@@ -444,7 +444,6 @@ protected:
 	std::string		mInitAlert;			// Window / GL initialization requires an alert
 
 	LLHandle<LLView> mWorldViewPlaceholder;	// widget that spans the portion of screen dedicated to rendering the 3d world
-	LLHandle<LLView> mFloaterViewHolder;	// container for floater_view
 	LLHandle<LLView> mToolBarHolder;		// container for toolbars
 	LLHandle<LLView> mHintHolder;			// container for hints
 	LLHandle<LLView> mLoginPanelHolder;		// container for login panel
@@ -458,13 +457,11 @@ protected:
 
     boost::scoped_ptr<LLViewerWindowListener> mViewerWindowListener;
 
-protected:
 	static std::string sSnapshotBaseName;
 	static std::string sSnapshotDir;
 
 	static std::string sMovieBaseName;
 	
-private:
 	// Object temporarily hovered over while dragging
 	LLPointer<LLViewerObject>	mDragHoveredObject;
 };
