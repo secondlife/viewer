@@ -435,9 +435,12 @@ void LLGLSLShader::unbind()
 void LLGLSLShader::bindNoShader(void)
 {
 	LLVertexBuffer::unbind();
-	glUseProgramObjectARB(0);
-	sCurBoundShader = 0;
-	sCurBoundShaderPtr = NULL;
+	if (gGLManager.mHasShaderObjects)
+	{
+		glUseProgramObjectARB(0);
+		sCurBoundShader = 0;
+		sCurBoundShaderPtr = NULL;
+	}
 }
 
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)
