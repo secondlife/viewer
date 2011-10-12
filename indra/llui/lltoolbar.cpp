@@ -425,12 +425,12 @@ int LLToolBar::getRankFromPosition(S32& x, S32& y)
 	}
 	if (it_button != end_button)
 	{
-		x = button_rect.mRight + dx;
+		x = button_rect.mLeft + dx;
 		y = button_rect.mTop + dy;
 	}
 	else
 	{
-		x = button_rect.mLeft + dx;
+		x = button_rect.mRight + dx;
 		y = button_rect.mBottom + dy;
 	}
 
@@ -655,6 +655,7 @@ void LLToolBar::draw()
 		
 	LLUICtrl::draw();
 	caret->setVisible(FALSE);
+	mDragAndDropTarget = false;
 }
 
 void LLToolBar::reshape(S32 width, S32 height, BOOL called_from_parent)
