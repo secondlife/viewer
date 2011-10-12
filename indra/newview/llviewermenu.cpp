@@ -373,8 +373,6 @@ void set_underclothes_menu_options()
 
 void init_menus()
 {
-	S32 top = gViewerWindow->getRootView()->getRect().getHeight();
-
 	// Initialize actions
 	initialize_menus();
 
