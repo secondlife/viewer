@@ -72,6 +72,8 @@ public:
 	// Loads the toolbars from the existing user or default settings
 	bool loadToolbars(bool force_default = false);	// return false if load fails
 	
+	void setToolBarsVisible(bool visible);
+
 	static bool loadDefaultToolbars();
 	
 	static void startDragTool( S32 x, S32 y, const LLUUID& uuid);
