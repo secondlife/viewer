@@ -37,7 +37,7 @@
      layout="topleft"
      left="10"
      tool_tip="Grid opacity"
-     name="grid_opacity_label"
+     name="grid_mode_label"
      top_pad="30"
      width="123">
         Mode
