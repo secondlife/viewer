@@ -34,25 +34,13 @@
       <menu_item_check
          label="Inventory..."
          name="Inventory"
-         shortcut="control|shift|I"
-		     visible="false">
+         shortcut="control|I"
+		     visible="true">
         <menu_item_check.on_check
          function="Floater.Visible"
-         parameter="inventory" />
-        <menu_item_check.on_click
-         function="Floater.Toggle"
-         parameter="inventory" />
-      </menu_item_check>
-      <menu_item_check
-       label="Inventory..."
-       name="ShowSidetrayInventory"
-       shortcut="control|I"
-       visible="true">
-        <menu_item_check.on_check
-         function="SidetrayPanelVisible"
          parameter="my_inventory" />
         <menu_item_check.on_click
-         function="ShowSidetrayPanel"
+         function="Floater.Toggle"
          parameter="my_inventory" />
       </menu_item_check>
       <menu_item_check

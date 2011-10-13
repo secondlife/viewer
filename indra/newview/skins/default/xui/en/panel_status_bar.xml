@@ -35,8 +35,8 @@
     </panel.string>
   <panel
     height="18"
-    left="-315"
-    width="95"
+    left="-370"
+    width="150"
     top="1"
     follows="right|top" 
     name="balance_bg" 
@@ -64,7 +64,7 @@
      image_unselected="buy_off"
      image_pressed="buy_press"
      height="18"
-     label="BUY L$"
+     label="Buy L$"
      label_color="White"
      left_pad="0"
      label_shadow="true"
@@ -72,6 +72,27 @@
      pad_right="0"
      pad_bottom="2"
      tool_tip="Click to buy more L$"
+     top="0"
+     width="55" />
+    <button
+     halign="left"
+     font="SansSerifSmall"
+     follows="right|top|bottom"
+     imgoverlay_label_space="7"
+     image_overlay="Command_MiniCart_Icon"
+     image_overlay_alignment="left"
+     image_hover_unselected="buy_over"
+     image_unselected="buy_off"
+     image_pressed="buy_press"
+     height="18"
+     label="Shop"
+     label_color="White"
+     left_pad="0"
+     label_shadow="true"
+     name="goShop"
+     pad_right="0"
+     pad_bottom="2"
+     tool_tip="Go shopping"
      top="0"
      width="55" />
   </panel>

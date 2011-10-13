@@ -35,7 +35,7 @@
            icon="Command_Build_Icon"
            label_ref="Command_Build_Label"
            tooltip_ref="Command_Build_Tooltip"
-           execute_function="Floater.ToggleOrBringToFront"
+           execute_function="Build.Toggle"
            execute_parameters="build"
            is_enabled_function="Agent.IsActionAllowed"
            is_enabled_parameters="build"
