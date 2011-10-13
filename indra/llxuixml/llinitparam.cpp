@@ -190,7 +190,7 @@ namespace LLInitParam
 		return true;
 	}
 
-	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t name_stack, const LLInitParam::BaseBlock* diff_block) const
+	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const
 	{
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit

@@ -739,6 +739,7 @@ LLXMLNodePtr LLXUIParser::getNode(name_stack_t& stack)
 		++next_it;
 		if (it->first.empty())
 		{
+			it->second = false;
 			continue;
 		}
 
