@@ -11,6 +11,8 @@
   save_rect="true"
   single_instance="true"
   title="APPEARANCE"
+  min_height="230"
+  min_width="333"
   width="333">
     <panel
       top="18"

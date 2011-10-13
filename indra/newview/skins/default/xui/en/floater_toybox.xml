@@ -76,6 +76,7 @@
                           flash_color="ButtonUnselectedFgColor"
                           halign="left"
                           hover_glow_amount="0.15"
+                          sound_flags="0"
                           display_pressed_state="false" />
   </toolbar>
   <panel
