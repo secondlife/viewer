@@ -418,6 +418,7 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 	while (it_button != end_button)
 	{
 		button_rect = (*it_button)->getRect();
+		mDragCommand = (*it_button)->mId;
 		S32 point_x, point_y;
 		if (orientation == LLLayoutStack::HORIZONTAL)
 		{
@@ -436,7 +437,6 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 		{
 			break;
 		}
-		mDragCommand = (*it_button)->mId;
 		rank++;
 		++it_button;
 	}
@@ -477,6 +477,27 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 	mDragx += dx;
 	mDragy += dy;
 	
+	return rank;
+}
+
+int LLToolBar::getRankFromPosition(const LLCommandId& id)
+{
+	if (!hasCommand(id))
+	{
+		return RANK_NONE;
+	}
+	int rank = 0;
+	std::list<LLToolBarButton*>::iterator it_button = mButtons.begin();
+	std::list<LLToolBarButton*>::iterator end_button = mButtons.end();
+	while (it_button != end_button)
+	{
+		if ((*it_button)->mId == id)
+		{
+			break;
+		}
+		rank++;
+		++it_button;
+	}
 	return rank;
 }
 
@@ -826,10 +847,12 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		LLAssetType::EType type = inv_item->getType();
 		if (type == LLAssetType::AT_WIDGET)
 		{
+			LLCommandId dragged_command(inv_item->getUUID());
+			int orig_rank = getRankFromPosition(dragged_command);
 			mDragRank = getRankFromPosition(x, y);
 			// Don't DaD if we're dragging a command on itself
-			mDragAndDropTarget = (mDragCommand.uuid() != inv_item->getUUID());
-			//llinfos << "Merov debug : DaD, rank = " << mDragRank << ", hit uuid = " << mDragCommand.uuid() << ", dragged uui = " << inv_item->getUUID() << llendl; 
+			mDragAndDropTarget = ((mDragRank == orig_rank) || ((mDragRank-1) == orig_rank) ? false : true);
+			llinfos << "Merov debug : DaD, rank = " << mDragRank << ", hit uuid = " << mDragCommand.uuid() << ", dragged uui = " << inv_item->getUUID() << llendl; 
 			/* Do the following if you want to animate the button itself
 			LLCommandId dragged_command(inv_item->getUUID());
 			removeCommand(dragged_command);
