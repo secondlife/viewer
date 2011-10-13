@@ -339,6 +339,18 @@ Veuillez réessayer de vous connecter dans une minute.
 		Impossible de faire glisser plus d&apos;un objet ici
 	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$ :"/>
+	<string name="TooltipOutboxNoTransfer">
+		Impossible de vendre ou de transférer un ou plusieurs de ces objets à un autre utilisateur.
+	</string>
+	<string name="TooltipOutboxWorn">
+		Vous portez un ou plusieurs de ces objets. Retirez-les de votre avatar, puis réessayez de les déplacer.
+	</string>
+	<string name="TooltipOutboxFolderLevels">
+		Trop de niveaux de sous-dossiers dans ce dossier. Réorganisez-le de sorte qu&apos;un maximum de 4 niveaux soit utilisé (dossier racine contenant A contenant B contenant C).
+	</string>
+	<string name="TooltipOutboxTooManyObjects">
+		Ce dossier contient plus de 200 objets. Regroupez une partie des articles dans un paquet afin de réduire le nombre d&apos;objets.
+	</string>
 	<string name="TooltipHttpUrl">
 		Cliquez pour afficher cette page web
 	</string>
@@ -1204,8 +1216,65 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InventoryInboxNoItems">
 		Ici seront livrés les articles achetés sur la Place du marché.
 	</string>
+	<string name="MarketplaceURL">
+		http://marketplace.[DOMAIN_NAME]
+	</string>
+	<string name="MarketplaceURL_CreateStore">
+		http://marketplace.[DOMAIN_NAME]/create_store
+	</string>
+	<string name="MarketplaceURL_LearnMore">
+		http://marketplace.[DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryOutboxCreationErrorTitle">
+		Configuration incorrecte de votre boîte d&apos;envoi vendeur
+	</string>
+	<string name="InventoryOutboxCreationErrorTooltip">
+		Erreur de configuration de la boîte d&apos;envoi vendeur
+	</string>
+	<string name="InventoryOutboxCreationError">
+		Veuillez contacter le service clientèle pour résoudre le problème.
+	</string>
+	<string name="InventoryOutboxNotMerchantTitle">
+		Tout le monde peut vendre des articles sur la Place du marché
+	</string>
+	<string name="InventoryOutboxNotMerchantTooltip">
+		Devenez vendeur !
+	</string>
+	<string name="InventoryOutboxNotMerchant">
+		[[MARKETPLACE_URL] La Place du marché Second Life] comprend plus d&apos;un million de produits virtuels à vendre, tous créés par des résidents. Vous aussi pouvez vendre les articles que vous créez, ainsi que certains articles que vous avez achetés. Le processus est simple et la configuration gratuite. [[LEARN_MORE_URL] En savoir plus] ou [[CREATE_STORE_URL] créer une boutique] sur la Place du marché pour démarrer
+	</string>
+	<string name="InventoryOutboxNoItemsTitle">
+		Un nouveau moyen d&apos;envoyer des articles sur la Place du marché
+	</string>
+	<string name="InventoryOutboxNoItemsTooltip">
+		Glisser-déposer des articles ici afin de les préparer à la vente sur la Place du marché.
+	</string>
 	<string name="InventoryOutboxNoItems">
-		Faites glisser des articles ici en vue de les publier sur votre vitrine de la Place du marché.
+		Faites glisser les articles ou dossiers d&apos;articles à vendre dans cette zone. Une copie de l&apos;article s&apos;affiche, sans que votre inventaire ne soit modifié, sauf si vous avez fait glisser un article pour lequel la copie est interdite. Une fois prêt à envoyer les articles vers la Place du marché, cliquez sur le bouton Charger. Les articles disparaissent de ce dossier lorsqu&apos;ils ont été déplacés vers l&apos;inventaire de la Place du marché.
+	</string>
+	<string name="Marketplace Error None">
+		Aucune erreur
+	</string>
+	<string name="Marketplace Error Not Merchant">
+		Erreur : avant d&apos;envoyer des articles vers la Place du marché, vous devez vous configurer comme vendeur (gratuit).
+	</string>
+	<string name="Marketplace Error Empty Folder">
+		Erreur : ce dossier est vide.
+	</string>
+	<string name="Marketplace Error Unassociated Products">
+		Erreur : le chargement de cet article a échoué en raison d&apos;un nombre trop important d&apos;articles non associés à des produits au niveau de votre compte de vendeur. Pour résoudre ce problème, connectez-vous au site Web de la Place du marché et réduisez le nombre d&apos;articles non associés.
+	</string>
+	<string name="Marketplace Error Object Limit">
+		Erreur : cet article contient trop d&apos;objets. Pour résoudre le problème, regroupez des objets dans des paquets afin de réduire le nombre total à moins de 200.
+	</string>
+	<string name="Marketplace Error Folder Depth">
+		Erreur : trop de niveaux de dossiers imbriqués concernant cet article. Réorganisez le tout afin qu&apos;un maximum de 3 niveaux soit utilisé.
+	</string>
+	<string name="Marketplace Error Unsellable Item">
+		Erreur : cet article ne peut pas être vendu sur la Place du marché.
+	</string>
+	<string name="Marketplace Error Internal Import">
+		Erreur : un problème est survenu concernant cet article. Veuillez réessayer ultérieurement.
 	</string>
 	<string name="no_transfer" value=" (pas de transfert)"/>
 	<string name="no_modify" value=" (pas de modification)"/>
@@ -2441,7 +2510,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Breast Physics InOut Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Breast Physics InOut Gain">
 		Amplification
@@ -2453,7 +2522,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Breast Physics UpDown Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Breast Physics UpDown Gain">
 		Amplification
@@ -2465,7 +2534,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Breast Physics LeftRight Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Breast Physics LeftRight Gain">
 		Amplification
@@ -2489,7 +2558,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Belly Physics UpDown Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Belly Physics UpDown Gain">
 		Amplification
@@ -2513,7 +2582,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Butt Physics UpDown Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Butt Physics UpDown Gain">
 		Amplification
@@ -2525,7 +2594,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Butt Physics LeftRight Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Butt Physics LeftRight Gain">
 		Amplification
@@ -4185,7 +4254,7 @@ de l&apos;infraction signalée
 	<string name="Female - Wow">
 		Femme - Ouah !
 	</string>
-	<string name="/bow">
+	<string name="/bow1">
 		/s&apos;incliner
 	</string>
 	<string name="/clap">

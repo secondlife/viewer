@@ -8,7 +8,7 @@
 		（位置、圖像、網頁、搜尋的歷史紀錄）
 	</text>
 	<check_box label="將我顯示在搜尋的結果中" name="online_searchresults"/>
-	<check_box label="只有我的朋友和群組知道我在線上" name="online_visibility"/>
+	<check_box label="只有我的朋友和群組知道我上線" name="online_visibility"/>
 	<check_box label="只有我的朋友和群組可以 IM 或與我通話。" name="voice_call_friends_only_check"/>
 	<check_box label="當通話結束時關閉麥克風" name="auto_disengage_mic_check"/>
 	<check_box label="登入時顯示我最愛的地標位置（經由 &apos;開始於&apos; 的下拉式選單）" name="favorites_on_login_check"/>

@@ -339,6 +339,18 @@ support@secondlife.com にお問い合わせください。
 		アイテムは 1 つだけここにドラッグできます
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]："/>
+	<string name="TooltipOutboxNoTransfer">
+		これらオブジェクトの 1 つまたは複数は、別のユーザーに売り渡したり譲渡できないものです。
+	</string>
+	<string name="TooltipOutboxWorn">
+		あなたはこれらオブジェクトの 1 つまたは複数を装着しています。アバターからそれらを取り外し、再び移動してみてください。
+	</string>
+	<string name="TooltipOutboxFolderLevels">
+		このフォルダにあるサブフォルダの階層が多すぎます。サブフォルダは4階層以内（ルートフォルダの下にA、その下にB、その下にCという風に）にまとめ直してください。
+	</string>
+	<string name="TooltipOutboxTooManyObjects">
+		このフォルダには 200 個以上のオブジェクトが含まれます。商品のいつかをボックスに入れ、オブジェクト数を減らしてください。
+	</string>
 	<string name="TooltipHttpUrl">
 		クリックしてこの Web ページを見ます
 	</string>
@@ -1204,8 +1216,65 @@ support@secondlife.com にお問い合わせください。
 	<string name="InventoryInboxNoItems">
 		マーケットプレイスで購入した商品はここに配達されます。
 	</string>
+	<string name="MarketplaceURL">
+		http://marketplace.[DOMAIN_NAME]
+	</string>
+	<string name="MarketplaceURL_CreateStore">
+		http://marketplace.[DOMAIN_NAME]/create_store
+	</string>
+	<string name="MarketplaceURL_LearnMore">
+		http://marketplace.[DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryOutboxCreationErrorTitle">
+		マーチャントアウトボックスが正しく設定されていません
+	</string>
+	<string name="InventoryOutboxCreationErrorTooltip">
+		マーチャントアウトボックスの設定エラー
+	</string>
+	<string name="InventoryOutboxCreationError">
+		問題を解決するにはカスタマーサービスにお問い合わせください。
+	</string>
+	<string name="InventoryOutboxNotMerchantTitle">
+		マーケットプレイスは皆の売り場です
+	</string>
+	<string name="InventoryOutboxNotMerchantTooltip">
+		あなたもマーチャントに！
+	</string>
+	<string name="InventoryOutboxNotMerchant">
+		[[MARKETPLACE_URL] Second Life マーケットプレイス] では、SL 住人が制作した商品 100 万点以上が販売されています。あなたもご自分の自信作や、あなたが購入したアイテムを商品として売ってみませんか。その手順は簡単で、セットアップは無料です。[[LEARN_MORE_URL] こちらで詳細を確かめ]、マーケットプレイスに[[CREATE_STORE_URL] ストアを作成] しましょう。
+	</string>
+	<string name="InventoryOutboxNoItemsTitle">
+		マーケットプレイスへの新しい出荷方法
+	</string>
+	<string name="InventoryOutboxNoItemsTooltip">
+		商品をここにドラッグアンドドロップするだけで、マーケットプレイスの売り物となります
+	</string>
 	<string name="InventoryOutboxNoItems">
-		マーケットプレイス店頭に掲載するための準備として、ここに商品をドラッグします。
+		販売する商品またはフォルダをこのエリアにドラッグします。コピー不可のアイテムでない限り、ドラッグした商品のコピーが表示されるだけで、あなたの持ち物から商品が実際に移動するわけではありません。マーケットプレイスに商品を送る準備が整ったら、「アップロード」ボタンをクリックします。商品はマーケットプレイスインベントリに移動した時点でこのフォルダから削除されます。
+	</string>
+	<string name="Marketplace Error None">
+		エラーなし
+	</string>
+	<string name="Marketplace Error Not Merchant">
+		エラー：マーケットプレイスに商品を送る前に、あなた自身をマーチャント登録する必要があります（登録は無料です）。
+	</string>
+	<string name="Marketplace Error Empty Folder">
+		エラー：このフォルダは空です。
+	</string>
+	<string name="Marketplace Error Unassociated Products">
+		エラー：あなたのマーチャントアカウントには、商品と無関係のアイテムが多すぎるため、このアイテムをアップロードできませんでした。このエラーを解消するには、マーケットプレイスのウェブサイトにログインし、商品に関係のないアイテム数を減らしてください。
+	</string>
+	<string name="Marketplace Error Object Limit">
+		エラー：この商品に含まれるオブジェクトが多すぎます。オブジェクトをいくつかボックスにまとめ、オブジェクト数を200以下に減らしてください。
+	</string>
+	<string name="Marketplace Error Folder Depth">
+		エラー：この商品はネスト入りフォルダの階層が多すぎます。ネスト入りフォルダを 3 階層以内にまとめ直してください。
+	</string>
+	<string name="Marketplace Error Unsellable Item">
+		エラー：この項目をマーケットプレイスで販売することはできません。
+	</string>
+	<string name="Marketplace Error Internal Import">
+		エラー：この商品に関して問題が発生しました。しばらくしてからお試しください。
 	</string>
 	<string name="no_transfer" value=" （再販・プレゼント不可）"/>
 	<string name="no_modify" value=" （編集不可）"/>
@@ -4185,8 +4254,8 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Female - Wow">
 		女性 - Wow
 	</string>
-	<string name="/bow">
-		/おじぎする
+	<string name="/bow1">
+		/bow1
 	</string>
 	<string name="/clap">
 		/拍手

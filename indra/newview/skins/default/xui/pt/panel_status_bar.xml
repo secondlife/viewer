@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<panel.string name="StatBarDaysOfWeek">
-		Domingo:Segunda-feira:Terça-feira:Quarta-feira:Quinta-feira:Sexta-feira:Sábado
-	</panel.string>
-	<panel.string name="StatBarMonthsOfYear">
-		Janeiro:Fevereiro:Março:Abril:Maio:Junho:Julho:Agosto:Setembro:Outubro:Novembro:Dezembro
-	</panel.string>
 	<panel.string name="packet_loss_tooltip">
 		Perda de pacote
 	</panel.string>
@@ -25,6 +19,10 @@
 		<text name="balance" tool_tip="Atualizar saldo de L$" value="L$20"/>
 		<button label="Comprar L$" name="buyL" tool_tip="Comprar mais L$"/>
 	</panel>
+	<combo_box name="mode_combo" tool_tip="Selecione o modo. O modo Básico é mais rápido e ideal para explorar e conversar. Use o modo Avançado para acessar mais recursos.">
+		<combo_box.item label="Modo básico" name="Basic"/>
+		<combo_box.item label="Modo avançado" name="Advanced"/>
+	</combo_box>
 	<text name="TimeText" tool_tip="Hora atual (Pacífico)">
 		24:00 AM PST
 	</text>

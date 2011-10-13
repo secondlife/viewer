@@ -26,25 +26,35 @@ use Getopt::Long;
 
 ( $MyName = $0 ) =~ s|.*/||;
 my $mini_HELP = "
-  $MyName --gpu-table <gpu_table.txt> 
-          [ --unrecognized-only ]
-          [ --table-only ]
-          [ <gpu-strings-file> ...]
+  $MyName {--gpu-table|-g} <gpu_table.txt> {--table-only|-t}
   
-  Checks for duplicates and invalid lines in the gpu_table.txt file.
+    Checks for duplicates and invalid lines in the gpu_table.txt file.
 
-  Unless the '--table-only' option is specified, it also tests the recognition of 
-  values in the gpu-strings-files (or standard input if no files are given).  
+  $MyName {--gpu-table|-g} <gpu_table.txt> [ <gpu-strings-file> ... ]
+          [{--unmatched|-u}]
 
-  If the --unrecognized-only option is specified, then no output is produced for
-  values that are matched, otherwise a line is output for each input line that
-  describes the results of attempting to match the value on that line.
+    Tests the recognition of values in the gpu-strings-files (or 
+    standard input if no files are given).   The results of attempting to match 
+    each input line are displayed in report form, showing:
+     - NO MATCH, unsupported, or supported
+     - the class of the GPU
+     - the label for the recognizer line from the gpu_table that it matched
+
+    If the --unmatched option is specified, then no output is produced for
+    values that are matched.
+
+  $MyName {--gpu-table|-g} <gpu_table.txt> {--diff|-d} <old_results> [ <gpu-strings-file> ...]
+
+    With the --diff option, the report compares the current results to <old-results>,
+    which should be the output from a previous run without --diff.  The report shows each
+    input value with the old result and the new result if it is different.
 ";
 
-&GetOptions("help"              => \$Help,
-            "gpu-table=s"       => \$GpuTable,
-            "unrecognized-only" => \$UnrecognizedOnly,
-            "table-only"        => \$TableOnly
+&GetOptions("help"               => \$Help
+            ,"unmatched"         => \$UnMatchedOnly
+            ,"table-only"        => \$TableOnly
+            ,"gpu-table=s"       => \$GpuTable
+            ,"diff=s"            => \$Diff
     )
     || die "$mini_HELP";
 
@@ -55,6 +65,7 @@ if ($Help)
 }
 
 $ErrorsSeen = 0;
+$NoMatch = 'NO MATCH'; # constant
 
 die "Must specify a --gpu-table <gpu_table.txt> value"
     unless $GpuTable;
@@ -62,19 +73,19 @@ die "Must specify a --gpu-table <gpu_table.txt> value"
 open(GPUS, "<$GpuTable")
     || die "Failed to open gpu table '$GpuTable':\n\t$!\n";
 
-# Parse the GPU table into these table, indexed by the name
+# Parse the GPU table into these tables, indexed by the name
 my %NameLine;       # name -> line number on which a given name was found (catches duplicate names)
 my %RecognizerLine; # name -> line number on which a given name was found (catches duplicate names)
 my %Name;           # recognizer -> name
 my %Recognizer;     # name -> recognizer
 my %Class;          # recognizer -> class
 my %Supported;      # recognizer -> supported
-my @InOrder;        # records the order of the recognizers
+my @InOrder;        # lowercased recognizers in file order - these are the ones really used to match
 
-$Name{'UNRECOGNIZED'}      = 'UNRECOGNIZED';
-$NameLine{'UNRECOGNIZED'}  = '(hard-coded)'; # use this for error messages in table parsing
-$Class{'UNRECOGNIZED'}     = '';
-$Supported{'UNRECOGNIZED'} = '';
+$Name{$NoMatch}      = $NoMatch;
+$NameLine{$NoMatch}  = '(hard-coded)'; # use this for error messages in table parsing
+$Class{$NoMatch}     = '';
+$Supported{$NoMatch} = '';
 
 while (<GPUS>)
 {
@@ -142,15 +153,19 @@ print STDERR "\n" if $ErrorsSeen;
 
 exit $ErrorsSeen if $TableOnly;
 
+
+# Loop over input lines, find the results for each 
 my %RecognizedBy;
-while (<>)
+while (<>) 
 {
     chomp;
+    my $lcInput = lc $_;  # the real gpu table parser lowercases the input string
     my $recognizer;
-    $RecognizedBy{$_} = 'UNRECOGNIZED';
+    $RecognizedBy{$_} = $NoMatch;
     foreach $recognizer ( @InOrder ) # note early exit if recognized
     {
-        if ( m/$recognizer/ )
+        my $lcRecognizer = lc $recognizer; # the real gpu table parser lowercases the recognizer
+        if ( $lcInput =~ m/$lcRecognizer/ )
         {
             $RecognizedBy{$_} = $recognizer;
             last; # exit recognizer loop
@@ -158,8 +173,6 @@ while (<>)
     }
 }
 
-## Print results. 
-## For each input, show supported or unsupported, the class, and the recognizer name
 format STDOUT_TOP =
 GPU String                                                                                               Supported?  Class  Recognizer
 ------------------------------------------------------------------------------------------------------   ----------- -----  ------------------------------------
@@ -169,10 +182,81 @@ format STDOUT =
 $_, $Supported{$RecognizedBy{$_}},$Class{$RecognizedBy{$_}},$Name{$RecognizedBy{$_}}
 .
 
-foreach ( sort keys %RecognizedBy )
+my $ReportLineTemplate = "A102xxxA12xxxAA*"; # MUST match the format STDOUT above
+
+format DIFF_TOP =
+                                                                                                         ------ OLD ------   ------ NEW ------
+GPU String                                                                                               Supported?  Class   Supported?  Class
+------------------------------------------------------------------------------------------------------   ----------- -----   ----------- -----
+.                                                                                                                                             
+
+my ( $oldSupported, $oldClass, $newSupported, $newClass );
+
+format DIFF =                                                                                                                                 
+@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...   @<<<<<<<<<<   @>    @<<<<<<<<<<   @> 
+$_,                                                                                                $oldSupported, $oldClass, $newSupported, $newClass
+.
+
+if ( ! $Diff )
 {
-    write if ! $UnrecognizedOnly || $Name{$RecognizedBy{$_}} eq 'UNRECOGNIZED';
-    $-++; # suppresses pagination
+    ## Print results. 
+    ## For each input, show supported or unsupported, the class, and the recognizer name
+
+    foreach ( sort keys %RecognizedBy )
+    {
+        write if ! $UnMatchedOnly || $Name{$RecognizedBy{$_}} eq $NoMatch;
+        $-++; # suppresses pagination
+    }
+}
+else
+{
+    open OLD, "<$Diff"
+        || die "Failed to open --diff file '$Diff'\n\t$!\n";
+    my $discard = 2;
+    while ( <OLD> )
+    {
+        if ( $discard > 0 )
+        {
+            my ( $gpu, $supported, $class ) = unpack $ReportLineTemplate;
+            $gpu =~ s/\s*$//;
+            ( $OldSupported{$gpu} = $supported ) =~ s/\s*$//;
+            ( $OldClass{$gpu} = $class ) =~ s/\s*$//;
+        }
+        else
+        {
+            $discard--;
+        }
+    }
+    close OLD;
+
+    $FORMAT_TOP_NAME = DIFF_TOP;
+    $FORMAT_NAME = DIFF;
+    foreach ( sort keys %RecognizedBy )
+    {
+        $newSupported = $Supported{$RecognizedBy{$_}} || $NoMatch;
+        $newClass     = $Class{$RecognizedBy{$_}};
+
+        if ( ! defined $OldSupported{$_} )
+        {
+            $oldSupported = 'NEW';
+            $oldClass = '-';
+        }
+        else
+        {
+            $oldSupported = $OldSupported{$_} || $NoMatch;
+            $oldClass     = $OldClass{$_};
+
+            if (   ( $oldSupported eq $newSupported )
+                && ( $oldClass     eq $newClass )
+                )
+            {
+                $newSupported = '';
+                $newClass = '';
+            }
+        }
+        write;
+        $-++; # suppresses pagination
+    }
 }
 
 exit $ErrorsSeen;
