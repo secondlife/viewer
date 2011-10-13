@@ -1451,7 +1451,7 @@ bool LLPanelPeople::notifyChildren(const LLSD& info)
 			container->onOpen(LLSD().with(LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME, getName()));
 		}
 		else
-			LLFloaterReg::hideFloaterInstance("people");
+			LLFloaterReg::hideInstance("people");
 
 		return true; // this notification is only supposed to be handled by task panels
 	}

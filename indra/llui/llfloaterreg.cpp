@@ -436,57 +436,8 @@ void LLFloaterReg::registerControlVariables()
 	}
 }
 
-// Callbacks
-
-// static
-// Call once (i.e use for init callbacks)
-void LLFloaterReg::initUICtrlToFloaterVisibilityControl(LLUICtrl* ctrl, const LLSD& sdname)
-{
-	// Get the visibility control name for the floater
-	std::string vis_control_name = LLFloaterReg::declareVisibilityControl(sdname.asString());
-	// Set the control value to the floater visibility control (Sets the value as well)
-	ctrl->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
-}
-
-// callback args may use "floatername.key" format
-static void parse_name_key(std::string& name, LLSD& key)
-{
-	std::string instname = name;
-	std::size_t dotpos = instname.find(".");
-	if (dotpos != std::string::npos)
-	{
-		name = instname.substr(0, dotpos);
-		key = LLSD(instname.substr(dotpos+1, std::string::npos));
-	}
-}
-
 //static
-void LLFloaterReg::showFloaterInstance(const LLSD& sdname)
-{
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-	showInstance(name, key, TRUE);
-}
-//static
-void LLFloaterReg::hideFloaterInstance(const LLSD& sdname)
-{
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-	hideInstance(name, key);
-}
-//static
-void LLFloaterReg::toggleFloaterInstance(const LLSD& sdname)
-{
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-	toggleInstance(name, key);
-}
-
-//static
-void LLFloaterReg::toggleToolbarFloaterInstance(const LLSD& sdname)
+void LLFloaterReg::toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& key)
 {
 	//
 	// Floaters controlled by the toolbar behave a bit differently from others.
@@ -501,11 +452,7 @@ void LLFloaterReg::toggleToolbarFloaterInstance(const LLSD& sdname)
 	// * Else the target floater is open, close it.
 	// 
 
-	// First parse the parameter
-	LLSD key;
 	std::string name = sdname.asString();
-	parse_name_key(name, key);
-
 	LLFloater* instance = getInstance(name, key); 
 
 	if (!instance)
@@ -530,47 +477,6 @@ void LLFloaterReg::toggleToolbarFloaterInstance(const LLSD& sdname)
 	{
 		instance->closeFloater();
 	}
-}
-
-//static
-bool LLFloaterReg::floaterInstanceOpen(const LLSD& sdname)
-{
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-
-	bool visible_or_minimized = instanceVisible(name, key);
-
-	if (!visible_or_minimized)
-	{
-		LLFloater* instance = findInstance(name, key); 
-
-		if (instance != NULL)
-		{
-			visible_or_minimized = LLFloater::isMinimized(instance);
-		}
-	}
-
-	return visible_or_minimized;
-}
-
-//static
-bool LLFloaterReg::floaterInstanceVisible(const LLSD& sdname)
-{
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-	return instanceVisible(name, key);
-}
-
-//static
-bool LLFloaterReg::floaterInstanceMinimized(const LLSD& sdname)
-{
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-	LLFloater* instance = findInstance(name, key); 
-	return LLFloater::isShown(instance);
 }
 
 // static
