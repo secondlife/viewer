@@ -264,15 +264,7 @@ std::string gPoolNames[] =
 
 void drawBox(const LLVector3& c, const LLVector3& r);
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
-
-U32 nhpo2(U32 v) 
-{
-	U32 r = 1;
-	while (r < v) {
-		r *= 2;
-	}
-	return r;
-}
+U32 nhpo2(U32 v);
 
 glh::matrix4f glh_copy_matrix(F32* src)
 {
@@ -2902,11 +2894,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			}
 		}
 	}
-	{
-		LLFastTimer ftm(FTM_CLIENT_COPY);
-		LLVertexBuffer::clientCopy();
-	}
-	
+		
 	postSort(camera);	
 }
 
@@ -6122,13 +6110,7 @@ void LLPipeline::resetVertexBuffers()
 		llwarns << "VBO wipe failed." << llendl;
 	}
 
-	if (!LLVertexBuffer::sStreamIBOPool.mNameList.empty() ||
-		!LLVertexBuffer::sStreamVBOPool.mNameList.empty() ||
-		!LLVertexBuffer::sDynamicIBOPool.mNameList.empty() ||
-		!LLVertexBuffer::sDynamicVBOPool.mNameList.empty())
-	{
-		llwarns << "VBO name pool cleanup failed." << llendl;
-	}
+	llassert(LLVertexBuffer::sGLCount == 0);
 
 	LLVertexBuffer::unbind();	
 	
@@ -6142,6 +6124,8 @@ void LLPipeline::resetVertexBuffers()
 	sBakeSunlight = gSavedSettings.getBOOL("RenderBakeSunlight");
 	sNoAlpha = gSavedSettings.getBOOL("RenderNoAlpha");
 	LLPipeline::sTextureBindTest = gSavedSettings.getBOOL("RenderDebugTextureBind");
+
+	LLVertexBuffer::initClass(LLVertexBuffer::sEnableVBOs, LLVertexBuffer::sDisableVBOMapping);
 }
 
 void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture)

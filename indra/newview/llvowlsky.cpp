@@ -516,9 +516,9 @@ void LLVOWLSky::drawDome(void)
 
 		strips_segment->drawRange(
 			LLRender::TRIANGLE_STRIP, 
-			0, strips_segment->getRequestedVerts()-1, strips_segment->getRequestedIndices(), 
+			0, strips_segment->getNumVerts()-1, strips_segment->getNumIndices(), 
 			0);
-		gPipeline.addTrianglesDrawn(strips_segment->getRequestedIndices(), LLRender::TRIANGLE_STRIP);
+		gPipeline.addTrianglesDrawn(strips_segment->getNumIndices(), LLRender::TRIANGLE_STRIP);
 	}
 
 #else

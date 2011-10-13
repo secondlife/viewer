@@ -661,10 +661,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		
 		{ 
 			LLMemType mt_ds(LLMemType::MTYPE_DISPLAY_SWAP);
-			{
- 				LLFastTimer ftm(FTM_CLIENT_COPY);
-				LLVertexBuffer::clientCopy(0.016);
-			}
 
 			if (gResizeScreenTexture)
 			{

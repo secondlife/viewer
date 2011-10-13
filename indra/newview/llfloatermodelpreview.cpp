@@ -5457,7 +5457,7 @@ BOOL LLModelPreview::render()
 								}
 							}
 
-							for (U32 j = 0; j < buffer->getRequestedVerts(); ++j)
+							for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 							{
 								LLMatrix4 final_mat;
 								final_mat.mMatrix[0][0] = final_mat.mMatrix[1][1] = final_mat.mMatrix[2][2] = final_mat.mMatrix[3][3] = 0.f;

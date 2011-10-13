@@ -2454,7 +2454,7 @@ void pushBufferVerts(LLVertexBuffer* buffer, U32 mask)
 	if (buffer)
 	{
 		buffer->setBuffer(mask);
-		buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getRequestedVerts()-1, buffer->getRequestedIndices(), 0);
+		buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 	}
 }
 
@@ -2526,7 +2526,7 @@ void renderOctree(LLSpatialGroup* group)
 	//coded by buffer usage and activity
 	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 	LLVector4 col;
-	/*if (group->mBuilt > 0.f)
+	if (group->mBuilt > 0.f)
 	{
 		group->mBuilt -= 2.f * gFrameIntervalSeconds;
 		if (group->mBufferUsage == GL_STATIC_DRAW_ARB)
@@ -2595,7 +2595,7 @@ void renderOctree(LLSpatialGroup* group)
 			gGL.diffuseColor4f(1,1,1,1);
 		}
 	}
-	else*/
+	else
 	{
 		if (group->mBufferUsage == GL_STATIC_DRAW_ARB && !group->getData().empty() 
 			&& group->mSpatialPartition->mRenderByGroup)
@@ -3442,11 +3442,11 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 
 						buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 						gGL.diffuseColor3f(0.2f, 0.5f, 0.3f);
-						buff->draw(LLRender::TRIANGLES, buff->getRequestedIndices(), 0);
+						buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
 									
 						gGL.diffuseColor3f(0.2f, 1.f, 0.3f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						buff->draw(LLRender::TRIANGLES, buff->getRequestedIndices(), 0);
+						buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
 					}
 				}
 			}

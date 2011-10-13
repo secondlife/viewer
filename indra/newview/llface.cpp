@@ -362,8 +362,8 @@ void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 {
 	if (align)
 	{
-		//allocate vertices in blocks of 16 for alignment
-		num_vertices = (num_vertices + 0xF) & ~0xF;
+		//allocate vertices in blocks of 4 for alignment
+		num_vertices = (num_vertices + 0x3) & ~0x3;
 	}
 	
 	if (mGeomCount != num_vertices ||
@@ -1073,6 +1073,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	S32 num_vertices = (S32)vf.mNumVertices;
 	S32 num_indices = (S32) vf.mNumIndices;
 	
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCTREE))
+	{
+		updateRebuildFlags();
+	}
+
 	bool map_range = gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange;
 
 	if (mVertexBuffer.notNull())
@@ -2055,7 +2060,7 @@ BOOL LLFace::verify(const U32* indices_array) const
 	}
 	
 	// First, check whether the face data fits within the pool's range.
-	if ((mGeomIndex + mGeomCount) > mVertexBuffer->getRequestedVerts())
+	if ((mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
 	{
 		ok = FALSE;
 		llinfos << "Face references invalid vertices!" << llendl;
@@ -2074,7 +2079,7 @@ BOOL LLFace::verify(const U32* indices_array) const
 		llinfos << "Face has bogus indices count" << llendl;
 	}
 	
-	if (mIndicesIndex + mIndicesCount > mVertexBuffer->getRequestedIndices())
+	if (mIndicesIndex + mIndicesCount > mVertexBuffer->getNumIndices())
 	{
 		ok = FALSE;
 		llinfos << "Face references invalid indices!" << llendl;

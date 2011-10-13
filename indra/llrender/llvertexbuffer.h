@@ -51,24 +51,32 @@
 
 //============================================================================
 // gl name pools for dynamic and streaming buffers
-class LLVBOPool : public LLGLNamePool
+class LLVBOPool
 {
-protected:
-	virtual GLuint allocateName()
-	{
-		GLuint name;
-		stop_glerror();
-		glGenBuffersARB(1, &name);
-		stop_glerror();
-		return name;
-	}
+public:
+	static U32 sBytesPooled;
 
-	virtual void releaseName(GLuint name)
+	U32 mUsage;
+	U32 mType;
+
+	//size MUST be a power of 2
+	U8* allocate(U32& name, U32 size);
+	
+	//size MUST be the size provided to allocate that returned the given name
+	void release(U32 name, U8* buffer, U32 size);
+	
+	//destroy all records in mFreeList
+	void cleanup();
+
+	class Record
 	{
-		stop_glerror();
-		glDeleteBuffersARB(1, &name);
-		stop_glerror();
-	}
+	public:
+		U32 mGLName;
+		U8* mClientData;
+	};
+
+	typedef std::list<Record> record_list_t;
+	std::vector<record_list_t> mFreeList;
 };
 
 class LLGLFence
@@ -120,8 +128,7 @@ public:
 	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm);
 	static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp);
 
- 	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
-	static void unbind(); //unbind any bound vertex buffer
+ 	static void unbind(); //unbind any bound vertex buffer
 
 	//get the size of a vertex with the given typemask
 	static S32 calcVertexSize(const U32& typemask);
@@ -181,25 +188,22 @@ protected:
 	virtual void setupVertexBuffer(U32 data_mask); // pure virtual, called from mapBuffer()
 	void setupVertexArray();
 	
-	void	genBuffer();
-	void	genIndices();
+	void	genBuffer(U32 size);
+	void	genIndices(U32 size);
 	bool	bindGLBuffer(bool force_bind = false);
 	bool	bindGLIndices(bool force_bind = false);
 	bool	bindGLArray();
 	void	releaseBuffer();
 	void	releaseIndices();
-	void	createGLBuffer();
-	void	createGLIndices();
+	void	createGLBuffer(U32 size);
+	void	createGLIndices(U32 size);
 	void 	destroyGLBuffer();
 	void 	destroyGLIndices();
 	void	updateNumVerts(S32 nverts);
 	void	updateNumIndices(S32 nindices); 
 	virtual BOOL	useVBOs() const;
 	void	unmapBuffer();
-	void freeClientBuffer() ;
-	void allocateClientVertexBuffer() ;
-	void allocateClientIndexBuffer() ;
-
+		
 public:
 	LLVertexBuffer(U32 typemask, S32 usage);
 	
@@ -239,15 +243,13 @@ public:
 	BOOL isLocked() const					{ return mVertexLocked || mIndexLocked; }
 	S32 getNumVerts() const					{ return mNumVerts; }
 	S32 getNumIndices() const				{ return mNumIndices; }
-	S32 getRequestedVerts() const			{ return mRequestedNumVerts; }
-	S32 getRequestedIndices() const			{ return mRequestedNumIndices; }
-
+	
 	U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
 	U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
 	U32 getTypeMask() const					{ return mTypeMask; }
 	bool hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()); }
 	S32 getSize() const;
-	S32 getIndicesSize() const				{ return mNumIndices * sizeof(U16); }
+	S32 getIndicesSize() const				{ return mIndicesSize; }
 	U8* getMappedData() const				{ return mMappedData; }
 	U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
@@ -265,12 +267,11 @@ public:
 protected:	
 	S32		mNumVerts;		// Number of vertices allocated
 	S32		mNumIndices;	// Number of indices allocated
-	S32		mRequestedNumVerts;  // Number of vertices requested
-	S32		mRequestedNumIndices;  // Number of indices requested
-
+	
 	ptrdiff_t mAlignedOffset;
 	ptrdiff_t mAlignedIndexOffset;
 	S32		mSize;
+	S32		mIndicesSize;
 	U32		mTypeMask;
 	S32		mUsage;			// GL usage
 	U32		mGLBuffer;		// GL VBO handle
@@ -282,10 +283,7 @@ protected:
 	BOOL	mVertexLocked;			// if TRUE, vertex buffer is being or has been written to in client memory
 	BOOL	mIndexLocked;			// if TRUE, index buffer is being or has been written to in client memory
 	BOOL	mFinal;			// if TRUE, buffer can not be mapped again
-	BOOL	mFilthy;		// if TRUE, entire buffer must be copied (used to prevent redundant dirty flags)
 	BOOL	mEmpty;			// if TRUE, client buffer is empty (or NULL). Old values have been discarded.	
-	BOOL	mResized;		// if TRUE, client buffer has been resized and GL buffer has not
-	BOOL	mDynamicSize;	// if TRUE, buffer has been resized at least once (and should be padded)
 	S32		mOffsets[TYPE_MAX];
 
 	std::vector<MappedRegion> mMappedVertexRegions;
@@ -305,7 +303,6 @@ public:
 	static S32 sGLCount;
 	static S32 sMappedCount;
 	static BOOL sMapped;
-	static std::vector<U32> sDeleteList;
 	typedef std::list<LLVertexBuffer*> buffer_list_t;
 		
 	static BOOL sDisableVBOMapping; //disable glMapBufferARB
