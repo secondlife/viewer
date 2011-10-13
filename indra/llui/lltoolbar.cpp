@@ -848,7 +848,7 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			int orig_rank = getRankFromPosition(dragged_command);
 			mDragRank = getRankFromPosition(x, y);
 			// Don't DaD if we're dragging a command on itself
-			mDragAndDropTarget = ((mDragRank == orig_rank) || ((mDragRank-1) == orig_rank) ? false : true);
+			mDragAndDropTarget = ((orig_rank != RANK_NONE) && ((mDragRank == orig_rank) || ((mDragRank-1) == orig_rank)) ? false : true);
 			llinfos << "Merov debug : DaD, rank = " << mDragRank << ", hit uuid = " << mDragCommand.uuid() << ", dragged uui = " << inv_item->getUUID() << llendl; 
 			/* Do the following if you want to animate the button itself
 			LLCommandId dragged_command(inv_item->getUUID());
