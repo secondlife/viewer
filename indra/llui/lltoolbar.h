@@ -178,7 +178,8 @@ public:
 
 	LLToolBarButton* createButton(const LLCommandId& id);
 
-	bool hasButtons() { return !mButtons.empty(); }
+	bool hasButtons() const { return !mButtons.empty(); }
+	bool isModified() const { return mModified; }
 
 protected:
 	friend class LLUICtrlFactory;
@@ -227,6 +228,7 @@ private:
 	
 	bool							mWrap;
 	bool							mNeedsLayout;
+	bool							mModified;
 	S32								mPadLeft,
 									mPadRight,
 									mPadTop,

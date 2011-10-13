@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  open_positioning="specified"
+ specified_left="150"
+ specified_bottom="0"
  height="60"
- left="150"
- bottom="0"
  layout="topleft"
  legacy_header_height="25"
  single_instance="true"

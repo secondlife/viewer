@@ -109,15 +109,18 @@ BOOL LLNearbyChatBar::postBuild()
 	return TRUE;
 }
 
-void LLNearbyChatBar::applyRectControl()
+bool LLNearbyChatBar::applyRectControl()
 {
-	LLFloater::applyRectControl();
-	if (getRect().getHeight() >  getMinHeight())
+	bool rect_controlled = LLFloater::applyRectControl();
+	
+	if (getRect().getHeight() > getMinHeight())
 	{
 		getChildView("nearby_chat")->setVisible(true);
 		mExpandedHeight = getRect().getHeight();
 		enableResizeCtrls(true);
 	}
+
+	return rect_controlled;
 }
 
 void LLNearbyChatBar::onChatFontChange(LLFontGL* fontp)

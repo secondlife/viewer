@@ -81,6 +81,8 @@ public:
 	static BOOL handleDropTool(	void* cargo_data, S32 x, S32 y, LLToolBar* toolbar);
 	static void stopDragTool();
 	void onEndDrag();
+
+	bool isModified() const;
 	
 protected:
 	friend class LLUICtrlFactory;

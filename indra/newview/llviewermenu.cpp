@@ -3766,8 +3766,36 @@ class LLViewToggleUI : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		gViewerWindow->setUIVisibility(!gViewerWindow->getUIVisibility());
+		LLNotification::Params params("ConfirmHideUI");
+		params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
+		LLSD substitutions;
+#if LL_DARWIN
+		substitutions["SHORTCUT"] = "Cmd+Shift+U";
+#else
+		substitutions["SHORTCUT"] = "Ctrl+Shift+U";
+#endif
+		params.substitutions = substitutions;
+		if (gViewerWindow->getUIVisibility())
+		{
+			// hiding, so show notification
+			LLNotifications::instance().add(params);
+		}
+		else
+		{
+			LLNotifications::instance().forceResponse(params, 0);
+		}
+
 		return true;
+	}
+
+	void confirm(const LLSD& notification, const LLSD& response)
+	{
+		S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+		if (option == 0) // OK
+		{
+			gViewerWindow->setUIVisibility(!gViewerWindow->getUIVisibility());
+		}
 	}
 };
 

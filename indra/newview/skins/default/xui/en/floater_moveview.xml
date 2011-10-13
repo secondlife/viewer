@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  open_positioning="specified"
+ specified_left="535"
+ specified_bottom="0"
  legacy_header_height="18"
  can_dock="false"
  can_minimize="true"
  can_close="true"
  follows="bottom"
  height="110"
- left="535"
- bottom="0"
  layout="topleft"
  name="move_floater"
  help_topic="move_floater"

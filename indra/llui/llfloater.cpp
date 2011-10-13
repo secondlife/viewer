@@ -175,6 +175,8 @@ LLFloater::Params::Params()
 	save_visibility("save_visibility", false),
 	can_dock("can_dock", false),
 	open_positioning("open_positioning", LLFloaterEnums::OPEN_POSITIONING_NONE),
+	specified_left("specified_left"),
+	specified_bottom("specified_bottom"),
 	header_height("header_height", 0),
 	legacy_header_height("legacy_header_height", 0),
 	close_image("close_image"),
@@ -242,11 +244,15 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mCanClose(p.can_close),
 	mDragOnLeft(p.can_drag_on_left),
 	mResizable(p.can_resize),
+	mOpenPositioning(p.open_positioning),
+	mSpecifiedLeft(p.specified_left),
+	mSpecifiedBottom(p.specified_bottom),
 	mMinWidth(p.min_width),
 	mMinHeight(p.min_height),
 	mHeaderHeight(p.header_height),
 	mLegacyHeaderHeight(p.legacy_header_height),
 	mMinimized(FALSE),
+	mVisibleWhenMinimized(TRUE),
 	mForeground(FALSE),
 	mFirstLook(TRUE),
 	mButtonScale(1.0f),
@@ -678,6 +684,7 @@ void LLFloater::openFloater(const LLSD& key)
 	}
 	else
 	{
+		applyControlsAndPosition(LLFloaterReg::getLastFloaterCascading());
 		setMinimized(FALSE);
 		setVisibleAndFrontmost(mAutoFocus);
 	}
@@ -840,39 +847,54 @@ LLMultiFloater* LLFloater::getHost()
 	return (LLMultiFloater*)mHostHandle.get(); 
 }
 
-void LLFloater::applySavedVariables()
+void LLFloater::applyControlsAndPosition(LLFloater* other)
 {
-	applyRectControl();
-	applyDockState();
+	if (!applyDockState())
+	{
+		if (!applyRectControl())
+		{
+			applyPositioning(other);
+		}
+	}
 }
 
-void LLFloater::applyRectControl()
+bool LLFloater::applyRectControl()
 {
+	bool saved_rect = false;
+
 	// If we have a saved rect, use it
 	if (mRectControl.size() > 1)
 	{
 		const LLRect& rect = getControlGroup()->getRect(mRectControl);
-		if (rect.notEmpty())
+		saved_rect = rect.notEmpty();
+		if (saved_rect)
 		{
 			setOrigin(rect.mLeft, rect.mBottom);
+
 			if (mResizable)
 			{
 				reshape(llmax(mMinWidth, rect.getWidth()), llmax(mMinHeight, rect.getHeight()));
 			}
 		}
 	}
+
+	return saved_rect;
 }
 
-void LLFloater::applyDockState()
+bool LLFloater::applyDockState()
 {
+	bool docked = false;
+
 	if (mDocStateControl.size() > 1)
 	{
-		bool dockState = getControlGroup()->getBOOL(mDocStateControl);
-		setDocked(dockState);
+		docked = getControlGroup()->getBOOL(mDocStateControl);
+		setDocked(docked);
 	}
+
+	return docked;
 }
 
-void LLFloater::applyPositioning()
+void LLFloater::applyPositioning(LLFloater* other)
 {
 	// Otherwise position according to the positioning code
 	switch (mOpenPositioning)
@@ -884,28 +906,33 @@ void LLFloater::applyPositioning()
 	case LLFloaterEnums::OPEN_POSITIONING_SPECIFIED:
 		{
 			// Translate relative to snap rect
-			LLRect r = getRect();
-			r.mBottom = getSnapRect().getHeight() - r.getHeight() - r.mBottom;
-			setOrigin(r.mLeft, r.mBottom);
-			translateIntoRect(getSnapRect(), FALSE);
+			setOrigin(mSpecifiedLeft, mSpecifiedBottom);
+			const LLRect& snap_rect = gFloaterView->getSnapRect();
+			translate(snap_rect.mLeft, snap_rect.mBottom);
+			translateIntoRect(snap_rect, FALSE);
 		}
 		break;
 
 	case LLFloaterEnums::OPEN_POSITIONING_CASCADING:
+		if (other != NULL)
 		{
-			static const U32 CASCADING_FLOATER_HOFFSET = 25;
-			static const U32 CASCADING_FLOATER_VOFFSET = 25;
-			static const S32 CASCADING_FLOATER_LIMIT = 15;
-			static S32 cascading_floater_count = 1; 
-			const S32 top = CASCADING_FLOATER_VOFFSET * cascading_floater_count;
-			const S32 left = CASCADING_FLOATER_HOFFSET * cascading_floater_count;
-			setOrigin(left, top);
-			translateIntoRect(getSnapRect(), FALSE);
+			stackWith(*other);
+		}
+		else
+		{
+			static const U32 CASCADING_FLOATER_HOFFSET = 0;
+			static const U32 CASCADING_FLOATER_VOFFSET = 0;
+			
+			const LLRect& snap_rect = gFloaterView->getSnapRect();
 
-			if (++cascading_floater_count > CASCADING_FLOATER_LIMIT)
-			{
-				cascading_floater_count = 1;
-			}
+			const S32 horizontal_offset = CASCADING_FLOATER_HOFFSET;
+			const S32 vertical_offset = snap_rect.getHeight() - CASCADING_FLOATER_VOFFSET;
+
+			S32 rect_height = getRect().getHeight();
+			setOrigin(horizontal_offset, vertical_offset - rect_height);
+
+			translate(snap_rect.mLeft, snap_rect.mBottom);
+			translateIntoRect(snap_rect, FALSE);
 		}
 		break;
 
@@ -1406,6 +1433,17 @@ void LLFloater::removeDependentFloater(LLFloater* floaterp)
 	floaterp->mDependeeHandle = LLHandle<LLFloater>();
 }
 
+void LLFloater::setVisibleWhenMinimized(bool visible)
+{ 
+	mVisibleWhenMinimized = visible;
+	if (visible && isMinimized())
+	{
+		// restack in minimized stack
+		setMinimized(FALSE);
+		setMinimized(TRUE);
+	}
+}
+
 BOOL LLFloater::offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButton index)
 {
 	if( mButtonsEnabled[index] )
@@ -1782,11 +1820,14 @@ void LLFloater::draw()
 	}
 	if (isMinimized())
 	{
-		for (S32 i = 0; i < BUTTON_COUNT; i++)
+		if (mVisibleWhenMinimized)
 		{
-			drawChild(mButtons[i]);
+			for (S32 i = 0; i < BUTTON_COUNT; i++)
+			{
+				drawChild(mButtons[i]);
+			}
+			drawChild(mDragHandle);
 		}
-		drawChild(mDragHandle);
 	}
 	else
 	{
@@ -2441,7 +2482,7 @@ void LLFloaterView::getMinimizePosition(S32 *left, S32 *bottom)
 			{
 				// Examine minimized children.
 				LLFloater* floater = (LLFloater*)((LLView*)*child_it);
-				if(floater->isMinimized()) 
+				if(floater->isMinimized() && floater->getVisibleWhenMinimized()) 
 				{
 					LLRect r = floater->getRect();
 					if((r.mBottom < (row + floater_header_size))
@@ -2506,6 +2547,52 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 	}
 }
 
+void LLFloaterView::hiddenFloaterClosed(LLFloater* floater)
+{
+	for (hidden_floaters_t::iterator it = mHiddenFloaters.begin(), end_it = mHiddenFloaters.end();
+		it != end_it;
+		++it)
+	{
+		if (it->first.get() == floater)
+		{
+			it->second.disconnect();
+			mHiddenFloaters.erase(it);
+			break;
+		}
+	}
+}
+
+void LLFloaterView::hideAllFloaters()
+{
+	child_list_t child_list = *(getChildList());
+
+	for (child_list_iter_t it = child_list.begin(); it != child_list.end(); ++it)
+	{
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(*it);
+		if (floaterp && floaterp->getVisible())
+		{
+			floaterp->setVisible(false);
+			boost::signals2::connection connection = floaterp->mCloseSignal.connect(boost::bind(&LLFloaterView::hiddenFloaterClosed, this, floaterp));
+			mHiddenFloaters.push_back(std::make_pair(floaterp->getHandle(), connection));
+		}
+	}
+}
+
+void LLFloaterView::showHiddenFloaters()
+{
+	for (hidden_floaters_t::iterator it = mHiddenFloaters.begin(), end_it = mHiddenFloaters.end();
+		it != end_it;
+		++it)
+	{
+		LLFloater* floaterp = it->first.get();
+		if (floaterp)
+		{
+			floaterp->setVisible(true);
+		}
+		it->second.disconnect();
+	}
+	mHiddenFloaters.clear();
+}
 
 BOOL LLFloaterView::allChildrenClosed()
 {
@@ -2891,9 +2978,11 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mHeaderHeight = p.header_height;
 	mLegacyHeaderHeight = p.legacy_header_height;
 	mSingleInstance = p.single_instance;
-	mOpenPositioning = p.open_positioning;
 
-	/*
+	mOpenPositioning = p.open_positioning;
+	mSpecifiedLeft = p.specified_left;
+	mSpecifiedBottom = p.specified_bottom;
+
 	if (p.save_rect && mRectControl.empty())
 	{
 		mRectControl = "t"; // flag to build mRectControl name once mInstanceName is set
@@ -2901,8 +2990,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	if (p.save_visibility)
 	{
 		mVisibilityControl = "t"; // flag to build mVisibilityControl name once mInstanceName is set
-	}*/
-
+	}
 	if(p.save_dock_state)
 	{
 		mDocStateControl = "t"; // flag to build mDocStateControl name once mInstanceName is set
@@ -3053,7 +3141,6 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 		llerrs << "Failed to construct floater " << getName() << llendl;
 	}
 
-	applyPositioning();
 	applyRectControl(); // If we have a saved rect control, apply it
 	gFloaterView->adjustToFitScreen(this, FALSE); // Floaters loaded from XML should all fit on screen	
 

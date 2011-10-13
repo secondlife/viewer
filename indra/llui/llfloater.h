@@ -35,6 +35,7 @@
 #include "lluuid.h"
 //#include "llnotificationsutil.h"
 #include <set>
+#include <boost/signals2.hpp>
 
 class LLDragHandle;
 class LLResizeHandle;
@@ -130,6 +131,9 @@ public:
 								can_dock;
 		
 		Optional<LLFloaterEnums::EOpenPositioning>	open_positioning;
+		Optional<S32>								specified_left;
+		Optional<S32>								specified_bottom;
+
 		
 		Optional<S32>			header_height,
 								legacy_header_height; // HACK see initFromXML()
@@ -213,6 +217,8 @@ public:
 	LLFloater*		getDependee() { return (LLFloater*)mDependeeHandle.get(); }
 	void		removeDependentFloater(LLFloater* dependent);
 	BOOL			isMinimized() const				{ return mMinimized; }
+	void			setVisibleWhenMinimized(bool visible);
+	bool			getVisibleWhenMinimized() const				{ return mVisibleWhenMinimized;}
 	/// isShown() differs from getVisible() in that isShown() also considers
 	/// isMinimized(). isShown() is true only if visible and not minimized.
 	bool			isShown() const;
@@ -291,8 +297,6 @@ public:
 
 	virtual void    setTornOff(bool torn_off) { mTornOff = torn_off; }
 
-	void			stackWith(LLFloater& other);
-
 	// Return a closeable floater, if any, given the current focus.
 	static LLFloater* getClosableFloaterFromFocus(); 
 
@@ -317,12 +321,16 @@ public:
 	void			updateTransparency(ETypeTransparency transparency_type);
 		
 	void			enableResizeCtrls(bool enable, bool width = true, bool height = true);
-protected:
-	virtual void    applySavedVariables();
 
-	virtual void	applyRectControl();
-	void			applyDockState();
-	void			applyPositioning();
+	bool			isPositioning(LLFloaterEnums::EOpenPositioning p) const { return (p == mOpenPositioning); }
+protected:
+	void			applyControlsAndPosition(LLFloater* other);
+
+	void			stackWith(LLFloater& other);
+
+	virtual bool	applyRectControl();
+	bool			applyDockState();
+	void			applyPositioning(LLFloater* other);
 	void			storeRectControl();
 	void			storeVisibilityControl();
 	void			storeDockStateControl();
@@ -412,6 +420,8 @@ private:
 	BOOL			mResizable;
 
 	LLFloaterEnums::EOpenPositioning	mOpenPositioning;
+	S32									mSpecifiedLeft;
+	S32									mSpecifiedBottom;
 	
 	S32				mMinWidth;
 	S32				mMinHeight;
@@ -419,6 +429,7 @@ private:
 	S32				mLegacyHeaderHeight;// HACK see initFloaterXML()
 	
 	BOOL			mMinimized;
+	bool			mVisibleWhenMinimized;
 	BOOL			mForeground;
 	LLHandle<LLFloater>	mDependeeHandle;
 	
@@ -453,8 +464,6 @@ private:
 	typedef std::map<LLHandle<LLFloater>, LLFloater*> handle_map_t;
 	typedef std::map<LLHandle<LLFloater>, LLFloater*>::iterator handle_map_iter_t;
 	static handle_map_t	sFloaterMap;
-
-	std::vector<LLHandle<LLView> > mMinimizedHiddenChildren;
 
 	BOOL			mHasBeenDraggedWhileMinimized;
 	S32				mPreviousMinimizedBottom;
@@ -509,6 +518,10 @@ public:
 	BOOL			allChildrenClosed();
 	void			shiftFloaters(S32 x_offset, S32 y_offset);
 
+	void			hideAllFloaters();
+	void			showHiddenFloaters();
+
+
 	LLFloater* getFrontmost() const;
 	LLFloater* getBackmost() const;
 	LLFloater* getParentFloater(LLView* viewp) const;
@@ -523,11 +536,15 @@ public:
 	void setFloaterSnapView(LLHandle<LLView> snap_view) {mSnapView = snap_view; }
 
 private:
+	void hiddenFloaterClosed(LLFloater* floater);
+
 	LLHandle<LLView>	mSnapView;
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
 	S32				mSnapOffsetRight;
 	S32				mMinimizePositionVOffset;
+	typedef std::vector<std::pair<LLHandle<LLFloater>, boost::signals2::connection> > hidden_floaters_t;
+	hidden_floaters_t mHiddenFloaters;
 };
 
 //
