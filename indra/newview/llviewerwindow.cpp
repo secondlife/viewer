@@ -187,7 +187,6 @@
 #include "llviewerjoystick.h"
 #include "llviewernetwork.h"
 #include "llpostprocess.h"
-#include "llbottomtray.h"
 #include "llnearbychatbar.h"
 #include "llagentui.h"
 #include "llwearablelist.h"
@@ -2163,10 +2162,10 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 // Hide normal UI when a logon fails
 void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 {
-	if(LLBottomTray::instanceExists())
+	if(LLChicletBar::instanceExists())
 	{
-		LLBottomTray::getInstance()->setVisible(visible);
-		LLBottomTray::getInstance()->setEnabled(visible);
+		LLChicletBar::getInstance()->setVisible(visible);
+		LLChicletBar::getInstance()->setEnabled(visible);
 	}
 
 	if ( gMenuBarView )
@@ -4921,8 +4920,8 @@ S32 LLViewerWindow::getChatConsoleBottomPad()
 {
 	S32 offset = 0;
 
-	if(LLBottomTray::instanceExists())
-		offset += LLBottomTray::getInstance()->getRect().getHeight();
+	if(gToolBarView)
+		offset += gToolBarView->getChild<LLView>("bottom_toolbar_panel")->getRect().getHeight();
 
 	return offset;
 }

@@ -29,7 +29,6 @@
 #include "llagentdata.h" // for gAgentID
 #include "llnearbychathandler.h"
 
-#include "llbottomtray.h"
 #include "llchatitemscontainerctrl.h"
 #include "llfirstuse.h"
 #include "llfloaterscriptdebug.h"

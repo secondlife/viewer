@@ -102,7 +102,6 @@ set(viewer_SOURCE_FILES
     llavatarlist.cpp
     llavatarlistitem.cpp
     llavatarpropertiesprocessor.cpp
-    llbottomtray.cpp
     llbox.cpp
     llbreadcrumbview.cpp
     llbrowsernotification.cpp
@@ -449,7 +448,6 @@ set(viewer_SOURCE_FILES
     llsky.cpp
     llslurl.cpp
     llspatialpartition.cpp
-    llspeakbutton.cpp
     llspeakers.cpp
     llspeakingindicatormanager.cpp
     llsplitbutton.cpp
@@ -669,7 +667,6 @@ set(viewer_HEADER_FILES
     llavatarlist.h
     llavatarlistitem.h
     llavatarpropertiesprocessor.h
-    llbottomtray.h
     llbox.h
     llbreadcrumbview.h
     llbuycurrencyhtml.h
@@ -1011,7 +1008,6 @@ set(viewer_HEADER_FILES
     llsky.h
     llslurl.h
     llspatialpartition.h
-    llspeakbutton.h
     llspeakers.h
     llspeakingindicatormanager.h
     llsplitbutton.h
