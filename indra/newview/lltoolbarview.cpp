@@ -471,3 +471,14 @@ void LLToolBarView::setToolBarsVisible(bool visible)
 	mToolbarLeft->getParent()->setVisible(visible);
 	mToolbarRight->getParent()->setVisible(visible);
 }
+
+bool LLToolBarView::isModified() const
+{
+	bool modified = false;
+
+	modified |= mToolbarBottom->isModified();
+	modified |= mToolbarLeft->isModified();
+	modified |= mToolbarRight->isModified();
+
+	return modified;
+}

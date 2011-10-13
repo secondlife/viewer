@@ -99,6 +99,7 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 	mSideType(p.side),
 	mWrap(p.wrap),
 	mNeedsLayout(false),
+	mModified(false),
 	mButtonPanel(NULL),
 	mCenteringStack(NULL),
 	mPadLeft(p.pad_left),
