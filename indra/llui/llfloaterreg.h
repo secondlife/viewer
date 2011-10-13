@@ -124,14 +124,7 @@ public:
 	static void registerControlVariables();
 
 	// Callback wrappers
-	static void initUICtrlToFloaterVisibilityControl(LLUICtrl* ctrl, const LLSD& sdname);
-	static void showFloaterInstance(const LLSD& sdname);
-	static void hideFloaterInstance(const LLSD& sdname);
-	static void toggleFloaterInstance(const LLSD& sdname);
-	static void toggleToolbarFloaterInstance(const LLSD& sdname);
-	static bool floaterInstanceOpen(const LLSD& sdname);
-	static bool floaterInstanceVisible(const LLSD& sdname);
-	static bool floaterInstanceMinimized(const LLSD& sdname);
+	static void toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& key = LLSD());
 	
 	// Typed find / get / show
 	template <class T>

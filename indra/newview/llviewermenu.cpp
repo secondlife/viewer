@@ -3113,6 +3113,11 @@ void handle_avatar_eject(const LLSD& avatar_id)
 		}
 }
 
+bool my_profile_visible()
+{
+	return LLAvatarActions::profileVisible(gAgent.getID());
+}
+
 bool enable_freeze_eject(const LLSD& avatar_id)
 {
 	// Use avatar_id if available, otherwise default to right-click avatar
@@ -4514,6 +4519,13 @@ bool tools_visible_buy_object()
 bool tools_visible_take_object()
 {
 	return !is_selection_buy_not_take();
+}
+
+bool enable_how_to_visible(const LLSD& param)
+{
+	LLFloaterWebContent::Params p;
+	p.target = "__help_how_to";
+	return LLFloaterReg::instanceVisible(param, p);
 }
 
 class LLToolsEnableBuyOrTake : public view_listener_t
@@ -6879,6 +6891,11 @@ class LLToggleHowTo : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		LLFloaterWebContent::Params p;
+		p.url = gSavedSettings.getString("HowToHelpURL");
+		p.target = "__help_how_to";
+
+		LLFloaterReg::toggleInstanceOrBringToFront(userdata, p);
 		return true;
 	}
 };
@@ -8047,6 +8064,7 @@ void initialize_menus()
 	// Help menu
 	// most items use the ShowFloater method
 	view_listener_t::addMenu(new LLToggleHowTo(), "Help.ToggleHowTo");
+	enable.add("Help.HowToVisible", boost::bind(&enable_how_to_visible, _2));
 
 	// Advanced menu
 	view_listener_t::addMenu(new LLAdvancedToggleConsole(), "Advanced.ToggleConsole");
@@ -8240,7 +8258,7 @@ void initialize_menus()
 	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
-	enable.add("Avatar.IsMyProfileOpen", boost::bind(&LLAvatarActions::profileVisible, gAgent.getID()));
+	enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
 	enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));

@@ -144,4 +144,3 @@ std::string LLViewerHelp::getTopicFromFocus()
 	return defaultTopic();
 }
 
-
