@@ -59,17 +59,55 @@ void LLFloaterReg::add(const std::string& name, const std::string& filename, con
 //static
 LLFloater* LLFloaterReg::getLastFloaterInGroup(const std::string& name)
 {
-	LLRect rect;
 	const std::string& groupname = sGroupMap[name];
 	if (!groupname.empty())
 	{
 		instance_list_t& list = sInstanceMap[groupname];
 		if (!list.empty())
 		{
-			return list.back();
+			for (instance_list_t::reverse_iterator iter = list.rbegin(); iter != list.rend(); ++iter)
+			{
+				LLFloater* inst = *iter;
+
+				if (inst->getVisible() && !inst->isMinimized())
+				{
+					return inst;
+				}
+			}
 		}
 	}
 	return NULL;
+}
+
+LLFloater* LLFloaterReg::getLastFloaterCascading()
+{
+	LLRect candidate_rect;
+	candidate_rect.mTop = 100000;
+	LLFloater* candidate_floater = NULL;
+
+	std::map<std::string,std::string>::const_iterator it = sGroupMap.begin(), it_end = sGroupMap.end();
+	for( ; it != it_end; ++it)
+	{
+		const std::string& group_name = it->second;
+
+		instance_list_t& instances = sInstanceMap[group_name];
+
+		for (instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); ++iter)
+		{
+			LLFloater* inst = *iter;
+
+			if (inst->getVisible() && inst->isPositioning(LLFloaterEnums::OPEN_POSITIONING_CASCADING))
+			{
+				if (candidate_rect.mTop > inst->getRect().mTop)
+				{
+					candidate_floater = inst;
+					candidate_rect = inst->getRect();
+				}
+			}
+		}
+	}
+
+	return candidate_floater;
 }
 
 //static
@@ -127,9 +165,10 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 					res->mKey = key;
 				}
 				res->setInstanceName(name);
-				res->applySavedVariables(); // Can't apply rect and dock state until setting instance name
 
-				// apply list.size() and possibly stackWith(getLastFloaterInGroup(groupname))
+				LLFloater *last_floater = (list.empty() ? NULL : list.back());
+				res->applyControlsAndPosition(last_floater);
+
 				gFloaterView->adjustToFitScreen(res, false);
 
 				list.push_back(res);
@@ -532,4 +571,30 @@ bool LLFloaterReg::floaterInstanceMinimized(const LLSD& sdname)
 	parse_name_key(name, key);
 	LLFloater* instance = findInstance(name, key); 
 	return LLFloater::isShown(instance);
+}
+
+// static
+U32 LLFloaterReg::getVisibleFloaterInstanceCount()
+{
+	U32 count = 0;
+
+	std::map<std::string,std::string>::const_iterator it = sGroupMap.begin(), it_end = sGroupMap.end();
+	for( ; it != it_end; ++it)
+	{
+		const std::string& group_name = it->second;
+
+		instance_list_t& instances = sInstanceMap[group_name];
+
+		for (instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); ++iter)
+		{
+			LLFloater* inst = *iter;
+
+			if (inst->getVisible() && !inst->isMinimized())
+			{
+				count++;
+			}
+		}
+	}
+
+	return count;
 }

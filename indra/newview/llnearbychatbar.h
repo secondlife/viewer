@@ -71,7 +71,7 @@ protected:
 	void onChatBoxCommit();
 	void onChatFontChange(LLFontGL* fontp);
 
-	/* virtual */ void applyRectControl();
+	/* virtual */ bool applyRectControl();
 
 	void onToggleNearbyChatPanel();
 

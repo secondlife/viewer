@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  open_positioning="specified"
+ specified_left="683"
+ specified_bottom="0"
  legacy_header_height="18"
  can_minimize="true"
  can_close="true"
  follows="bottom"
  height="164"
  layout="topleft"
- left="683"
- bottom="0"
  name="camera_floater"
  help_topic="camera_floater"
  save_visibility="true"

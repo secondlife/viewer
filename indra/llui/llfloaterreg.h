@@ -87,6 +87,7 @@ public:
 
 	// Helpers
 	static LLFloater* getLastFloaterInGroup(const std::string& name);
+	static LLFloater* getLastFloaterCascading();
 	
 	// Find / get (create) / remove / destroy
 	static LLFloater* findInstance(const std::string& name, const LLSD& key = LLSD());
@@ -153,6 +154,7 @@ public:
 
 	static void blockShowFloaters(bool value) { sBlockShowFloaters = value;}
 	
+	static U32 getVisibleFloaterInstanceCount();
 };
 
 #endif

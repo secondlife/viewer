@@ -130,6 +130,9 @@ public:
 								can_dock;
 		
 		Optional<LLFloaterEnums::EOpenPositioning>	open_positioning;
+		Optional<S32>								specified_left;
+		Optional<S32>								specified_bottom;
+
 		
 		Optional<S32>			header_height,
 								legacy_header_height; // HACK see initFromXML()
@@ -291,8 +294,6 @@ public:
 
 	virtual void    setTornOff(bool torn_off) { mTornOff = torn_off; }
 
-	void			stackWith(LLFloater& other);
-
 	// Return a closeable floater, if any, given the current focus.
 	static LLFloater* getClosableFloaterFromFocus(); 
 
@@ -317,12 +318,16 @@ public:
 	void			updateTransparency(ETypeTransparency transparency_type);
 		
 	void			enableResizeCtrls(bool enable, bool width = true, bool height = true);
-protected:
-	virtual void    applySavedVariables();
 
-	virtual void	applyRectControl();
-	void			applyDockState();
-	void			applyPositioning();
+	bool			isPositioning(LLFloaterEnums::EOpenPositioning p) const { return (p == mOpenPositioning); }
+protected:
+	void			applyControlsAndPosition(LLFloater* other);
+
+	void			stackWith(LLFloater& other);
+
+	virtual bool	applyRectControl();
+	bool			applyDockState();
+	void			applyPositioning(LLFloater* other);
 	void			storeRectControl();
 	void			storeVisibilityControl();
 	void			storeDockStateControl();
@@ -412,6 +417,8 @@ private:
 	BOOL			mResizable;
 
 	LLFloaterEnums::EOpenPositioning	mOpenPositioning;
+	S32									mSpecifiedLeft;
+	S32									mSpecifiedBottom;
 	
 	S32				mMinWidth;
 	S32				mMinHeight;
