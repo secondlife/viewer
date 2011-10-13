@@ -56,7 +56,7 @@ public:
 	LLAgentWearables();
 	virtual ~LLAgentWearables();
 	void 			setAvatarObject(LLVOAvatarSelf *avatar);
-	void			createStandardWearables(BOOL female); 
+	void			createStandardWearables(); 
 	void			cleanup();
 	void			dump();
 
