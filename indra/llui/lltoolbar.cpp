@@ -193,9 +193,9 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	
 	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
 
-	BOOST_FOREACH(LLCommandId::Params params, p.commands)
+	BOOST_FOREACH(LLCommandId id, p.commands)
 	{
-		addCommand(params);
+		addCommand(id);
 	}
 
 	mNeedsLayout = true;
@@ -688,13 +688,10 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 	LLCommand* commandp = LLCommandManager::instance().getCommand(id);
 	if (!commandp) return NULL;
 
-	std::string label = LLTrans::getString(commandp->labelRef());
-	std::string tooltip = label + "\n" + LLTrans::getString(commandp->tooltipRef());
-
 	LLToolBarButton::Params button_p;
 	button_p.name = id.name();
-	button_p.label = label;
-	button_p.tool_tip = tooltip;
+	button_p.label = LLTrans::getString(commandp->labelRef());
+	button_p.tool_tip = LLTrans::getString(commandp->tooltipRef());
 	button_p.image_overlay = LLUI::getUIImage(commandp->icon());
 	button_p.overwriteFrom(mButtonParams[mButtonType]);
 	LLToolBarButton* button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
@@ -886,3 +883,28 @@ void LLToolBarButton::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLButton::reshape(mWidthRange.clamp(width), height, called_from_parent);
 }
+
+const std::string LLToolBarButton::getToolTip() const	
+{ 
+	std::string tooltip;
+	if (labelIsTruncated() || getCurrentLabel().empty())
+	{
+		return LLTrans::getString(LLCommandManager::instance().getCommand(mId)->labelRef()) + " -- " + LLView::getToolTip();
+	}
+	else
+	{
+		return LLView::getToolTip();
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+

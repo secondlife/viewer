@@ -708,15 +708,16 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 
 	// parents provide tooltips first, which are optionally
 	// overridden by children, in case child is mouse_opaque
-	if (!mToolTipMsg.empty())
+	std::string tooltip = getToolTip();
+	if (!tooltip.empty())
 	{
 		// allow "scrubbing" over ui by showing next tooltip immediately
 		// if previous one was still visible
 		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
-			? 0.f
+			? LLUI::sSettingGroups["config"]->getF32( "ToolTipFastDelay" )
 			: LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
 		LLToolTipMgr::instance().show(LLToolTip::Params()
-			.message(mToolTipMsg)
+			.message(tooltip)
 			.sticky_rect(calcScreenRect())
 			.delay_time(timeout));
 

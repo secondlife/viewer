@@ -10905,7 +10905,17 @@
       <key>Value</key>
       <real>0.699999988079</real>
     </map>
-    <key>ToolTipFadeTime</key>
+     <key>ToolTipFastDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds before displaying tooltip when mouse stops over UI element (when a tooltip is already visible)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.1</real>
+    </map>   <key>ToolTipFadeTime</key>
     <map>
       <key>Comment</key>
       <string>Seconds over which tooltip fades away</string>
