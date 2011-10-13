@@ -238,7 +238,7 @@ public:
 
 	ECursorType	getHoverCursor() { return mHoverCursor; }
 
-	const std::string& getToolTip() const			{ return mToolTipMsg.getString(); }
+	virtual const std::string getToolTip() const			{ return mToolTipMsg.getString(); }
 
 	void		sendChildToFront(LLView* child);
 	void		sendChildToBack(LLView* child);
