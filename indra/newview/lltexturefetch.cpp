@@ -1810,7 +1810,7 @@ bool LLTextureFetchWorker::writeToCacheComplete()
 // public
 
 LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded, bool qa_mode)
-	: LLWorkerThread("TextureFetch", threaded),
+	: LLWorkerThread("TextureFetch", threaded, true),
 	  mDebugCount(0),
 	  mDebugPause(FALSE),
 	  mPacketCount(0),
