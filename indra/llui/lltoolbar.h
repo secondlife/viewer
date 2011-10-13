@@ -156,7 +156,7 @@ public:
 	// virtuals
 	void draw();
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	int  getRankFromPosition(S32& x, S32& y);	
+	int  getRankFromPosition(S32 x, S32 y);	
 	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
@@ -192,7 +192,9 @@ protected:
 	bool							mDragAndDropTarget;
 	int								mDragRank;
 	S32								mDragx,
-									mDragy;
+									mDragy,
+									mDragGirth;
+	LLCommandId						mDragCommand;
 
 public:
 	// Methods used in loading and saving toolbar settings

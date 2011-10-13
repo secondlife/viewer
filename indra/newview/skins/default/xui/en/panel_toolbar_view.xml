@@ -48,8 +48,8 @@
                  side="left"
                  button_display_mode="icons_only">
 	             <icon layout="topleft"
-	                   height="10"
-	                   width="10"
+	                   height="15"
+	                   width="28"
 	                   follows="left|top"
 	                   top="20"
 	                   left="10"
@@ -99,8 +99,8 @@
           side="right"
           button_display_mode="icons_only">
 	      <icon layout="topleft"
-	            height="10"
-	            width="10"
+	            height="15"
+	            width="28"
 	            follows="left|top"
 	            top="20"
 	            left="10"
@@ -130,8 +130,8 @@
              button_display_mode="icons_with_text"
              visible="true">
              <icon layout="topleft"
-	            height="10"
-	            width="10"
+	            height="28"
+	            width="15"
 	            follows="left|top"
 	            top="20"
 	            left="10"

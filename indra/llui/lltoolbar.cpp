@@ -395,12 +395,14 @@ void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row
 
 // Returns the position of the coordinates as a rank in the button list. 
 // The rank is the position a tool dropped in (x,y) would assume in the button list.
-// The value returned is between 0 and mButtons.size(), 0 being the first element to the left
+// The returned value is between 0 and mButtons.size(), 0 being the first element to the left
 // (or top) and mButtons.size() the last one to the right (or bottom).
-int LLToolBar::getRankFromPosition(S32& x, S32& y)
+// Various drag data are stored in the toolbar object though are not exposed outside (and shouldn't).
+int LLToolBar::getRankFromPosition(S32 x, S32 y)
 {
 	int rank = 0;
 
+	// Convert the toolbar coord into button panel coords
 	LLLayoutStack::ELayoutOrientation orientation = getOrientation(mSideType);
 	S32 button_panel_x = 0;
 	S32 button_panel_y = 0;
@@ -408,32 +410,72 @@ int LLToolBar::getRankFromPosition(S32& x, S32& y)
 	S32 dx = x - button_panel_x;
 	S32 dy = y - button_panel_y;
 	
-	// Simply compare the passed coord with the buttons outbound box
+	// Simply compare the passed coord with the buttons outbound box + padding
 	std::list<LLToolBarButton*>::iterator it_button = mButtons.begin();
 	std::list<LLToolBarButton*>::iterator end_button = mButtons.end();
 	LLRect button_rect;
 	while (it_button != end_button)
 	{
 		button_rect = (*it_button)->getRect();
-		if (((orientation == LLLayoutStack::HORIZONTAL) && (button_rect.mRight  > button_panel_x)) ||
-			((orientation == LLLayoutStack::VERTICAL)   && (button_rect.mBottom < button_panel_y))    )
+		S32 point_x, point_y;
+		if (orientation == LLLayoutStack::HORIZONTAL)
+		{
+			// Horizontal
+			point_x = (button_rect.mRight + button_rect.mLeft) / 2;
+			point_y = button_rect.mBottom - mPadBottom;
+		}
+		else
+		{
+			// Vertical
+			point_x = button_rect.mRight + mPadRight;
+			point_y = (button_rect.mTop + button_rect.mBottom) / 2;
+		}
+
+		if ((button_panel_x < point_x) && (button_panel_y > point_y))
 		{
 			break;
 		}
+		mDragCommand = (*it_button)->mId;
 		rank++;
 		++it_button;
 	}
-	if (it_button != end_button)
+	
+	// Update the passed coordinates to the hit button relevant corner 
+	// (different depending on toolbar orientation)
+	if (rank < mButtons.size())
 	{
-		x = button_rect.mLeft + dx;
-		y = button_rect.mTop + dy;
+		mDragx = button_rect.mLeft - mPadLeft;
+		mDragy = button_rect.mTop + mPadTop;
 	}
 	else
 	{
-		x = button_rect.mRight + dx;
-		y = button_rect.mBottom + dy;
+		// We hit passed the end of the list so put the insertion point at the end
+		if (orientation == LLLayoutStack::HORIZONTAL)
+		{
+			mDragx = button_rect.mRight + mPadRight;
+			mDragy = button_rect.mTop + mPadTop;
+		}
+		else
+		{
+			mDragx = button_rect.mLeft - mPadLeft;
+			mDragy = button_rect.mBottom - mPadBottom;
+		}
+	}
+	
+	// Update the "girth" of the caret, i.e. the width or height (depending of orientation)
+	if (orientation == LLLayoutStack::HORIZONTAL)
+	{
+		mDragGirth = button_rect.getHeight() + mPadBottom + mPadTop;
+	}
+	else
+	{
+		mDragGirth = button_rect.getWidth() + mPadLeft + mPadRight;
 	}
 
+	// The delta account for the coord model change (i.e. convert back to toolbar coord)
+	mDragx += dx;
+	mDragy += dy;
+	
 	return rank;
 }
 
@@ -628,26 +670,18 @@ void LLToolBar::draw()
 	{
 		LLRect caret_rect = caret->getRect();
 		LLRect toolbar_rect = getRect();
-		if (mSideType == SIDE_BOTTOM)
+		if (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
 		{
 			caret->setRect(LLRect(mDragx-caret_rect.getWidth()/2+1,
-								  toolbar_rect.getHeight()+3,
+								  mDragy,
 								  mDragx+caret_rect.getWidth()/2+1,
-								  toolbar_rect.getHeight()-caret_rect.getHeight()+3));
-		}
-		else if (mSideType == SIDE_LEFT)
-		{
-			
-			caret->setRect(LLRect(toolbar_rect.getWidth()-caret_rect.getWidth()+3,
-								  mDragy+caret_rect.getHeight()/2,
-								  toolbar_rect.getWidth()+3,
-								  mDragy-caret_rect.getHeight()/2));
+								  mDragy-mDragGirth));
 		}
 		else
 		{
-			caret->setRect(LLRect(-3,
+			caret->setRect(LLRect(mDragx,
 								  mDragy+caret_rect.getHeight()/2,
-								  caret_rect.getWidth()-3,
+								  mDragx+mDragGirth,
 								  mDragy-caret_rect.getHeight()/2));
 		}
 		caret->setVisible(TRUE);
@@ -791,15 +825,19 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		LLAssetType::EType type = inv_item->getType();
 		if (type == LLAssetType::AT_WIDGET)
 		{
-			mDragx = x;
-			mDragy = y;
-			mDragRank = getRankFromPosition(mDragx, mDragy);
-			mDragAndDropTarget = true;
+			mDragRank = getRankFromPosition(x, y);
+			// Don't DaD if we're dragging a command on itself
+			mDragAndDropTarget = (mDragCommand.uuid() != inv_item->getUUID());
+			//llinfos << "Merov debug : DaD, rank = " << mDragRank << ", hit uuid = " << mDragCommand.uuid() << ", dragged uui = " << inv_item->getUUID() << llendl; 
 			/* Do the following if you want to animate the button itself
 			LLCommandId dragged_command(inv_item->getUUID());
 			removeCommand(dragged_command);
 			addCommand(dragged_command,rank);
 			*/
+		}
+		else
+		{
+			handled = FALSE;
 		}
 	}
 	

@@ -394,11 +394,13 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 
 BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* toolbar)
 {
+	BOOL handled = FALSE;
 	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
 	
 	LLAssetType::EType type = inv_item->getType();
 	if (type == LLAssetType::AT_WIDGET)
 	{
+		handled = TRUE;
 		// Get the command from its uuid
 		LLCommandManager& mgr = LLCommandManager::instance();
 		LLCommandId command_id(inv_item->getUUID());
@@ -443,7 +445,7 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 		}
 	}
 	stopDragTool();
-	return TRUE;
+	return handled;
 }
 
 void LLToolBarView::stopDragTool()
