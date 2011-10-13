@@ -43,6 +43,16 @@
 	 top="0"
 	 height="34"
 	 width="600"/>
+  <icon
+    follows="all"
+    image_name="NavBar Separator"
+    mouse_opaque="false"
+    name="separator_image"
+    scale_image="true"
+    left="0"
+    top="0"
+    width="800"
+    height="2"/>
 	 <layout_stack
        use_border="true"
        bevel_style="none"
