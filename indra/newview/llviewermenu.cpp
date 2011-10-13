@@ -6875,6 +6875,13 @@ class LLToolsEnableSaveToObjectInventory : public view_listener_t
 	}
 };
 
+class LLToggleHowTo : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return true;
+	}
+};
 
 class LLViewEnableMouselook : public view_listener_t
 {
@@ -8039,6 +8046,7 @@ void initialize_menus()
 
 	// Help menu
 	// most items use the ShowFloater method
+	view_listener_t::addMenu(new LLToggleHowTo(), "Help.ToggleHowTo");
 
 	// Advanced menu
 	view_listener_t::addMenu(new LLAdvancedToggleConsole(), "Advanced.ToggleConsole");

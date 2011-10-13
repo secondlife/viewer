@@ -732,16 +732,7 @@ void LLButton::draw()
 	}
 
 	// Unselected label assignments
-	LLWString label;
-
-	if( getToggleState() )
-	{
-		label = mSelectedLabel;
-	}
-	else
-	{
-		label = mUnselectedLabel;
-	}
+	LLWString label = getCurrentLabel();
 
 	// overlay with keyboard focus border
 	if (hasFocus())
@@ -988,6 +979,23 @@ void LLButton::setLabelSelected( const LLStringExplicit& label )
 	mSelectedLabel = label;
 }
 
+bool LLButton::labelIsTruncated() const
+{
+	return getCurrentLabel().getString().size() > mLastDrawCharsCount;
+}
+
+const LLUIString& LLButton::getCurrentLabel() const
+{
+	if( getToggleState() )
+	{
+		return mSelectedLabel;
+	}
+	else
+	{
+		return mUnselectedLabel;
+	}
+}
+
 void LLButton::setImageUnselected(LLPointer<LLUIImage> image)
 {
 	mImageUnselected = image;
@@ -999,16 +1007,7 @@ void LLButton::setImageUnselected(LLPointer<LLUIImage> image)
 
 void LLButton::autoResize()
 {
-	LLUIString label;
-	if(getToggleState())
-	{
-		label = mSelectedLabel;
-	}
-	else
-	{
-		label = mUnselectedLabel;
-	}
-	resize(label);
+	resize(getCurrentLabel());
 }
 
 void LLButton::resize(LLUIString label)

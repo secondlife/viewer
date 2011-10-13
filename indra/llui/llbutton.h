@@ -242,6 +242,8 @@ public:
 
 
 	S32				getLastDrawCharsCount() const { return mLastDrawCharsCount; }
+	bool			labelIsTruncated() const;
+	const LLUIString&	getCurrentLabel() const;
 
 	void			setScaleImage(BOOL scale)			{ mScaleImage = scale; }
 	BOOL			getScaleImage() const				{ return mScaleImage; }
