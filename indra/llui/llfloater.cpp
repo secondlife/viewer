@@ -252,6 +252,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mHeaderHeight(p.header_height),
 	mLegacyHeaderHeight(p.legacy_header_height),
 	mMinimized(FALSE),
+	mVisibleWhenMinimized(TRUE),
 	mForeground(FALSE),
 	mFirstLook(TRUE),
 	mButtonScale(1.0f),
@@ -1432,6 +1433,17 @@ void LLFloater::removeDependentFloater(LLFloater* floaterp)
 	floaterp->mDependeeHandle = LLHandle<LLFloater>();
 }
 
+void LLFloater::setVisibleWhenMinimized(bool visible)
+{ 
+	mVisibleWhenMinimized = visible;
+	if (visible && isMinimized())
+	{
+		// restack in minimized stack
+		setMinimized(FALSE);
+		setMinimized(TRUE);
+	}
+}
+
 BOOL LLFloater::offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButton index)
 {
 	if( mButtonsEnabled[index] )
@@ -1808,11 +1820,14 @@ void LLFloater::draw()
 	}
 	if (isMinimized())
 	{
-		for (S32 i = 0; i < BUTTON_COUNT; i++)
+		if (mVisibleWhenMinimized)
 		{
-			drawChild(mButtons[i]);
+			for (S32 i = 0; i < BUTTON_COUNT; i++)
+			{
+				drawChild(mButtons[i]);
+			}
+			drawChild(mDragHandle);
 		}
-		drawChild(mDragHandle);
 	}
 	else
 	{
@@ -2467,7 +2482,7 @@ void LLFloaterView::getMinimizePosition(S32 *left, S32 *bottom)
 			{
 				// Examine minimized children.
 				LLFloater* floater = (LLFloater*)((LLView*)*child_it);
-				if(floater->isMinimized()) 
+				if(floater->isMinimized() && floater->getVisibleWhenMinimized()) 
 				{
 					LLRect r = floater->getRect();
 					if((r.mBottom < (row + floater_header_size))
@@ -2532,6 +2547,52 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 	}
 }
 
+void LLFloaterView::hiddenFloaterClosed(LLFloater* floater)
+{
+	for (hidden_floaters_t::iterator it = mHiddenFloaters.begin(), end_it = mHiddenFloaters.end();
+		it != end_it;
+		++it)
+	{
+		if (it->first.get() == floater)
+		{
+			it->second.disconnect();
+			mHiddenFloaters.erase(it);
+			break;
+		}
+	}
+}
+
+void LLFloaterView::hideAllFloaters()
+{
+	child_list_t child_list = *(getChildList());
+
+	for (child_list_iter_t it = child_list.begin(); it != child_list.end(); ++it)
+	{
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(*it);
+		if (floaterp && floaterp->getVisible())
+		{
+			floaterp->setVisible(false);
+			boost::signals2::connection connection = floaterp->mCloseSignal.connect(boost::bind(&LLFloaterView::hiddenFloaterClosed, this, floaterp));
+			mHiddenFloaters.push_back(std::make_pair(floaterp->getHandle(), connection));
+		}
+	}
+}
+
+void LLFloaterView::showHiddenFloaters()
+{
+	for (hidden_floaters_t::iterator it = mHiddenFloaters.begin(), end_it = mHiddenFloaters.end();
+		it != end_it;
+		++it)
+	{
+		LLFloater* floaterp = it->first.get();
+		if (floaterp)
+		{
+			floaterp->setVisible(true);
+		}
+		it->second.disconnect();
+	}
+	mHiddenFloaters.clear();
+}
 
 BOOL LLFloaterView::allChildrenClosed()
 {

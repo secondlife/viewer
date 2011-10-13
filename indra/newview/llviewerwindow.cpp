@@ -4992,7 +4992,11 @@ void LLViewerWindow::setUIVisibility(bool visible)
 
 	if (!visible)
 	{
-		gFloaterView->closeAllChildren(false);
+		gFloaterView->hideAllFloaters();
+	}
+	else
+	{
+		gFloaterView->showHiddenFloaters();
 	}
 }
 

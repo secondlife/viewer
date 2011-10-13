@@ -872,7 +872,10 @@ void LLToolBarButton::onMouseEnter(S32 x, S32 y, MASK mask)
 	LLUICtrl::onMouseEnter(x, y, mask);
 
 	// Always highlight toolbar buttons, even if they are disabled
-	mNeedsHighlight = TRUE;
+	if (!gFocusMgr.getMouseCapture() || gFocusMgr.getMouseCapture() == this)
+	{
+		mNeedsHighlight = TRUE;
+	}
 }
 
 void LLToolBarButton::onMouseCaptureLost()

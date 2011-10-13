@@ -30,11 +30,12 @@
 
 #include "llbutton.h"
 #include "llcommandmanager.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llpanel.h"
 #include "lltoolbar.h"
 #include "lltoolbarview.h"
 #include "lltrans.h"
-
 
 LLFloaterToybox::LLFloaterToybox(const LLSD& key)
 	: LLFloater(key)
@@ -113,9 +114,21 @@ void LLFloaterToybox::draw()
 	LLFloater::draw();
 }
 
+static bool finish_restore_toybox(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+	if (option == 0)
+	{
+		LLToolBarView::loadDefaultToolbars();
+	}
+	return false;
+}
+static LLNotificationFunctorRegistration finish_restore_toybox_reg("ConfirmRestoreToybox", finish_restore_toybox);
+
 void LLFloaterToybox::onBtnRestoreDefaults()
 {
-	LLToolBarView::loadDefaultToolbars();
+	LLNotificationsUtil::add("ConfirmRestoreToybox");
 }
 
 BOOL LLFloaterToybox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
