@@ -22,7 +22,7 @@
                 name="menu_stack"
                 orientation="vertical"
                 top="0">
-    <layout_panel mouse_opaque="false"
+    <layout_panel mouse_opaque="true"
               follows="left|right|top"
               name="status_bar_container"
               tab_stop="false"
