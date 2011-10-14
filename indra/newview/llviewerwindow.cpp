@@ -1946,13 +1946,17 @@ void LLViewerWindow::initWorldUI()
 	if (destinations)
 	{
 		destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		destinations->navigateTo(gSavedSettings.getString("DestinationGuideURL"), "text/html");
+		std::string url = gSavedSettings.getString("DestinationGuideURL");
+		url = LLWeb::expandURLSubstitutions(url, LLSD());
+		destinations->navigateTo(url, "text/html");
 	}
 	LLMediaCtrl* avatar_picker = LLFloaterReg::getInstance("avatar")->findChild<LLMediaCtrl>("avatar_picker_contents");
 	if (avatar_picker)
 	{
 		avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		avatar_picker->navigateTo(gSavedSettings.getString("AvatarPickerURL"), "text/html");
+		std::string url = gSavedSettings.getString("AvatarPickerURL");
+		url = LLWeb::expandURLSubstitutions(url, LLSD());
+		avatar_picker->navigateTo(url, "text/html");
 	}
 }
 
@@ -1979,7 +1983,7 @@ void LLViewerWindow::shutdownViews()
 	// *TODO: Make LLNavigationBar part of gViewerWindow
 	if (LLNavigationBar::instanceExists())
 	{
-	delete LLNavigationBar::getInstance();
+		delete LLNavigationBar::getInstance();
 	}
 
 	// destroy menus after instantiating navbar above, as it needs

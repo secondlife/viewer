@@ -6892,7 +6892,8 @@ class LLToggleHowTo : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterWebContent::Params p;
-		p.url = gSavedSettings.getString("HowToHelpURL");
+		std::string url = gSavedSettings.getString("HowToHelpURL");
+		p.url = LLWeb::expandURLSubstitutions(url, LLSD());
 		p.show_chrome = false;
 		p.target = "__help_how_to";
 		p.show_page_title = false;
