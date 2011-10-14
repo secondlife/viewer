@@ -4293,10 +4293,7 @@ void LLAppViewer::idle()
 		return;
     }
 
-	if (!quitRequested())
-	{
-		gViewerWindow->updateUI();
-	}
+	gViewerWindow->updateUI();
 
 	///////////////////////////////////////
 	// Agent and camera movement
