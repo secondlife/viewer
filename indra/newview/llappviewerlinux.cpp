@@ -110,7 +110,6 @@ int main( int argc, char **argv )
 	}
 	delete viewer_app_ptr;
 	viewer_app_ptr = NULL;
-
 	return 0;
 }
 

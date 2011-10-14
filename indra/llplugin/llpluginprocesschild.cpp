@@ -40,7 +40,7 @@ LLPluginProcessChild::LLPluginProcessChild()
 {
 	mState = STATE_UNINITIALIZED;
 	mInstance = NULL;
-	mSocket = LLSocket::create(LLSocket::STREAM_TCP);
+	mSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);
 	mSleepTime = PLUGIN_IDLE_SECONDS;	// default: send idle messages at 100Hz
 	mCPUElapsed = 0.0f;
 	mBlockingRequest = false;

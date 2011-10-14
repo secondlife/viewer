@@ -41,7 +41,7 @@ class LLVOCacheEntry
 {
 public:
 	LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp);
-	LLVOCacheEntry(LLAPRFile& apr_file);
+	LLVOCacheEntry(LLAPRFile* apr_file);
 	LLVOCacheEntry();
 	~LLVOCacheEntry();
 
@@ -51,7 +51,7 @@ public:
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
 
 	void dump() const;
-	BOOL writeToFile(LLAPRFile& apr_file) const;
+	BOOL writeToFile(LLAPRFile* apr_file) const;
 	void assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp);
 	LLDataPackerBinaryBuffer *getDP(U32 crc);
 	void recordHit();
@@ -142,6 +142,7 @@ private:
 	U32                  mNumEntries;
 	std::string          mHeaderFileName ;
 	std::string          mObjectCacheDirName;
+	LLVolatileAPRPool*   mLocalAPRFilePoolp ; 	
 	header_entry_queue_t mHeaderEntryQueue;
 	handle_entry_map_t   mHandleEntryMap;	
 

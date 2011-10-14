@@ -30,14 +30,14 @@
 #include "llregionhandle.h"
 #include "llviewercontrol.h"
 
-static BOOL check_read(LLAPRFile& apr_file, void* src, S32 n_bytes) 
+BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
-	return apr_file.read(src, n_bytes) == n_bytes ;
+	return apr_file->read(src, n_bytes) == n_bytes ;
 }
 
-static BOOL check_write(LLAPRFile& apr_file, void* src, S32 n_bytes) 
+BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
-	return apr_file.write(src, n_bytes) == n_bytes ;
+	return apr_file->write(src, n_bytes) == n_bytes ;
 }
 
 
@@ -70,7 +70,7 @@ LLVOCacheEntry::LLVOCacheEntry()
 	mDP.assignBuffer(mBuffer, 0);
 }
 
-LLVOCacheEntry::LLVOCacheEntry(LLAPRFile& apr_file)
+LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 {
 	S32 size = -1;
 	BOOL success;
@@ -185,7 +185,7 @@ void LLVOCacheEntry::dump() const
 		<< llendl;
 }
 
-BOOL LLVOCacheEntry::writeToFile(LLAPRFile& apr_file) const
+BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 {
 	BOOL success;
 	success = check_write(apr_file, (void*)&mLocalID, sizeof(U32));
@@ -266,6 +266,7 @@ LLVOCache::LLVOCache():
 	mCacheSize(1)
 {
 	mEnabled = gSavedSettings.getBOOL("ObjectCacheEnabled");
+	mLocalAPRFilePoolp = new LLVolatileAPRPool() ;
 }
 
 LLVOCache::~LLVOCache()
@@ -275,6 +276,7 @@ LLVOCache::~LLVOCache()
 		writeCacheHeader();
 		clearCacheInMemory();
 	}
+	delete mLocalAPRFilePoolp;
 }
 
 void LLVOCache::setDirNames(ELLPath location)
@@ -435,7 +437,7 @@ void LLVOCache::removeFromCache(HeaderEntryInfo* entry)
 
 	std::string filename;
 	getObjectCacheFilename(entry->mHandle, filename);
-	LLAPRFile::remove(filename);
+	LLAPRFile::remove(filename, mLocalAPRFilePoolp);
 	entry->mTime = INVALID_TIME ;
 	updateEntry(entry) ; //update the head file.
 }
@@ -452,12 +454,12 @@ void LLVOCache::readCacheHeader()
 	clearCacheInMemory();	
 
 	bool success = true ;
-	if (LLAPRFile::isExist(mHeaderFileName))
+	if (LLAPRFile::isExist(mHeaderFileName, mLocalAPRFilePoolp))
 	{
-		LLAPRFile apr_file(mHeaderFileName, APR_READ|APR_BINARY);		
+		LLAPRFile apr_file(mHeaderFileName, APR_READ|APR_BINARY, mLocalAPRFilePoolp);		
 		
 		//read the meta element
-		success = check_read(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)) ;
+		success = check_read(&apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)) ;
 		
 		if(success)
 		{
@@ -470,7 +472,7 @@ void LLVOCache::readCacheHeader()
 				{
 					entry = new HeaderEntryInfo() ;
 				}
-				success = check_read(apr_file, entry, sizeof(HeaderEntryInfo));
+				success = check_read(&apr_file, entry, sizeof(HeaderEntryInfo));
 								
 				if(!success) //failed
 				{
@@ -539,17 +541,17 @@ void LLVOCache::writeCacheHeader()
 
 	bool success = true ;
 	{
-		LLAPRFile apr_file(mHeaderFileName, APR_CREATE|APR_WRITE|APR_BINARY);
+		LLAPRFile apr_file(mHeaderFileName, APR_CREATE|APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
 
 		//write the meta element
-		success = check_write(apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)) ;
+		success = check_write(&apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)) ;
 
 
 		mNumEntries = 0 ;	
 		for(header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ; success && iter != mHeaderEntryQueue.end(); ++iter)
 		{
 			(*iter)->mIndex = mNumEntries++ ;
-			success = check_write(apr_file, (void*)*iter, sizeof(HeaderEntryInfo));
+			success = check_write(&apr_file, (void*)*iter, sizeof(HeaderEntryInfo));
 		}
 	
 		mNumEntries = mHeaderEntryQueue.size() ;
@@ -560,7 +562,7 @@ void LLVOCache::writeCacheHeader()
 			for(S32 i = mNumEntries ; success && i < MAX_NUM_OBJECT_ENTRIES ; i++)
 			{
 				//fill the cache with the default entry.
-				success = check_write(apr_file, entry, sizeof(HeaderEntryInfo)) ;			
+				success = check_write(&apr_file, entry, sizeof(HeaderEntryInfo)) ;			
 
 			}
 			delete entry ;
@@ -577,10 +579,10 @@ void LLVOCache::writeCacheHeader()
 
 BOOL LLVOCache::updateEntry(const HeaderEntryInfo* entry)
 {
-	LLAPRFile apr_file(mHeaderFileName, APR_WRITE|APR_BINARY);
-	apr_file.seek(APR_SET, entry->mIndex * sizeof(HeaderEntryInfo) + sizeof(HeaderMetaInfo));
+	LLAPRFile apr_file(mHeaderFileName, APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
+	apr_file.seek(APR_SET, entry->mIndex * sizeof(HeaderEntryInfo) + sizeof(HeaderMetaInfo)) ;
 
-	return check_write(apr_file, (void*)entry, sizeof(HeaderEntryInfo)) ;
+	return check_write(&apr_file, (void*)entry, sizeof(HeaderEntryInfo)) ;
 }
 
 void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) 
@@ -603,10 +605,10 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	{
 		std::string filename;
 		getObjectCacheFilename(handle, filename);
-		LLAPRFile apr_file(filename, APR_READ|APR_BINARY);
+		LLAPRFile apr_file(filename, APR_READ|APR_BINARY, mLocalAPRFilePoolp);
 	
 		LLUUID cache_id ;
-		success = check_read(apr_file, cache_id.mData, UUID_BYTES) ;
+		success = check_read(&apr_file, cache_id.mData, UUID_BYTES) ;
 	
 		if(success)
 		{		
@@ -619,11 +621,11 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 			if(success)
 			{
 				S32 num_entries;
-				success = check_read(apr_file, &num_entries, sizeof(S32)) ;
+				success = check_read(&apr_file, &num_entries, sizeof(S32)) ;
 	
 				for (S32 i = 0; success && i < num_entries; i++)
 				{
-					LLVOCacheEntry* entry = new LLVOCacheEntry(apr_file);
+					LLVOCacheEntry* entry = new LLVOCacheEntry(&apr_file);
 					if (!entry->getLocalID())
 					{
 						llwarns << "Aborting cache file load for " << filename << ", cache file corruption!" << llendl;
@@ -722,19 +724,19 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	{
 		std::string filename;
 		getObjectCacheFilename(handle, filename);
-		LLAPRFile apr_file(filename, APR_CREATE|APR_WRITE|APR_BINARY);
+		LLAPRFile apr_file(filename, APR_CREATE|APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
 	
-		success = check_write(apr_file, (void*)id.mData, UUID_BYTES) ;
+		success = check_write(&apr_file, (void*)id.mData, UUID_BYTES) ;
 
 	
 		if(success)
 		{
 			S32 num_entries = cache_entry_map.size() ;
-			success = check_write(apr_file, &num_entries, sizeof(S32));
+			success = check_write(&apr_file, &num_entries, sizeof(S32));
 	
 			for (LLVOCacheEntry::vocache_entry_map_t::const_iterator iter = cache_entry_map.begin(); success && iter != cache_entry_map.end(); ++iter)
 			{
-				success = iter->second->writeToFile(apr_file) ;
+				success = iter->second->writeToFile(&apr_file) ;
 			}
 		}
 	}

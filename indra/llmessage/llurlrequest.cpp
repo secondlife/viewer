@@ -40,7 +40,6 @@
 #include "llstring.h"
 #include "apr_env.h"
 #include "llapr.h"
-#include "llscopedvolatileaprpool.h"
 static const U32 HTTP_STATUS_PIPE_ERROR = 499;
 
 /**
@@ -211,31 +210,27 @@ void LLURLRequest::setCallback(LLURLRequestComplete* callback)
 // is called with use_proxy = FALSE
 void LLURLRequest::useProxy(bool use_proxy)
 {
-    static std::string env_proxy;
+    static char *env_proxy;
 
-    if (use_proxy && env_proxy.empty())
+    if (use_proxy && (env_proxy == NULL))
     {
-		char* env_proxy_str;
-        LLScopedVolatileAPRPool scoped_pool;
-        apr_status_t status = apr_env_get(&env_proxy_str, "ALL_PROXY", scoped_pool);
+        apr_status_t status;
+        LLAPRPool pool;
+		status = apr_env_get(&env_proxy, "ALL_PROXY", pool.getAPRPool());
         if (status != APR_SUCCESS)
         {
-			status = apr_env_get(&env_proxy_str, "http_proxy", scoped_pool);
+			status = apr_env_get(&env_proxy, "http_proxy", pool.getAPRPool());
         }
         if (status != APR_SUCCESS)
         {
-            use_proxy = false;
+           use_proxy = FALSE;
         }
-		else
-		{
-			// env_proxy_str is stored in the scoped_pool, so we have to make a copy.
-			env_proxy = env_proxy_str;
-		}
     }
 
-    lldebugs << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = \"" << env_proxy << "\"" << llendl;
 
-    if (use_proxy)
+    lldebugs << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = " << (env_proxy ? env_proxy : "(null)") << llendl;
+
+    if (env_proxy && use_proxy)
     {
 		mDetail->mCurlRequest->setoptString(CURLOPT_PROXY, env_proxy);
     }

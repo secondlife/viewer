@@ -736,7 +736,8 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 		uuid = tid.makeAssetID(gAgent.getSecureSessionID());
 		// copy this file into the vfs for upload
 		S32 file_size;
-		LLAPRFile infile(filename, LL_APR_RB, &file_size);
+		LLAPRFile infile ;
+		infile.open(filename, LL_APR_RB, NULL, &file_size);
 		if (infile.getFileHandle())
 		{
 			LLVFile file(gVFS, uuid, asset_type, LLVFile::WRITE);

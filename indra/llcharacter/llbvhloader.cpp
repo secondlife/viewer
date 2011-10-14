@@ -219,7 +219,8 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 	//--------------------------------------------------------------------
 	std::string path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,fileName);
 
-	LLAPRFile infile(path, LL_APR_R);
+	LLAPRFile infile ;
+	infile.open(path, LL_APR_R);
 	apr_file_t *fp = infile.getFileHandle();
 	if (!fp)
 		return E_ST_NO_XLT_FILE;
