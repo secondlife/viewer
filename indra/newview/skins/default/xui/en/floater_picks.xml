@@ -3,14 +3,14 @@
  open_positioning="cascading"
  can_close="true"
  can_resize="true"
- height="570"
+ height="572"
  help_topic="sidebar_me"
  min_width="333"
  min_height="440"
- name="floater_profile"
+ name="floater_picks"
  save_rect="true"
  save_visibility="true"
- title="MY PROFILE"
+ title="Picks"
  width="333" >
    <panel
     class="panel_me"

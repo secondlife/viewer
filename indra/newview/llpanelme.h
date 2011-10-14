@@ -57,7 +57,6 @@ private:
 	void buildEditPanel();
 
 	void onEditProfileClicked();
-	void onCancelClicked();
 
 	LLPanelMyProfileEdit *  mEditPanel;
 

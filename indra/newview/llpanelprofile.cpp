@@ -261,7 +261,6 @@ void LLPanelProfile::ChildStack::dump()
 
 LLPanelProfile::LLPanelProfile()
  : LLPanel()
- , mTabCtrl(NULL)
  , mAvatarId(LLUUID::null)
 {
 	mChildStack.setParent(this);
@@ -269,10 +268,6 @@ LLPanelProfile::LLPanelProfile()
 
 BOOL LLPanelProfile::postBuild()
 {
-	mTabCtrl = getChild<LLTabContainer>("tabs");
-
-	getTabCtrl()->setCommitCallback(boost::bind(&LLPanelProfile::onTabSelected, this, _2));
-
 	LLPanelPicks* panel_picks = findChild<LLPanelPicks>(PANEL_PICKS);
 	panel_picks->setProfilePanel(this);
 
@@ -293,18 +288,7 @@ void LLPanelProfile::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLPanelProfile::onOpen(const LLSD& key)
 {
-	// open the desired panel
-	if (key.has("open_tab_name"))
-	{
-		getTabContainer()[PANEL_PICKS]->onClosePanel();
-
-		// onOpen from selected panel will be called from onTabSelected callback
-		getTabCtrl()->selectTabByName(key["open_tab_name"]);
-	}
-	else
-	{
-		getTabCtrl()->getCurrentPanel()->onOpen(getAvatarId());
-	}
+	getTabContainer()[PANEL_PICKS]->onOpen(getAvatarId());
 
 	// support commands to open further pieces of UI
 	if (key.has("show_tab_panel"))
@@ -359,23 +343,6 @@ void LLPanelProfile::onOpen(const LLSD& key)
 				picks->openPickEdit(params);
 			}
 		}
-	}
-}
-
-void LLPanelProfile::togglePanel(LLPanel* panel, const LLSD& key)
-{
-	// TRUE - we need to open/expand "panel"
-	bool expand = getChildList()->front() != panel;  // mTabCtrl->getVisible();
-
-	if (expand)
-	{
-		openPanel(panel, key);
-	}
-	else 
-	{
-		closePanel(panel);
-
-		getTabCtrl()->getCurrentPanel()->onOpen(getAvatarId());
 	}
 }
 
