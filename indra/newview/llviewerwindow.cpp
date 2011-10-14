@@ -938,6 +938,11 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		//	}
 		//}
 
+		// Mark the click as handled and return if we aren't within the root view to avoid spurious bugs
+		if( !mRootView->pointInView(x, y) )
+		{
+			return TRUE;
+		}
 		// Give the UI views a chance to process the click
 		if( mRootView->handleAnyMouseClick(x, y, mask, clicktype, down) )
 		{
