@@ -22,10 +22,15 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-
 
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 uniform sampler2DRectShadow shadowMap0;
 uniform sampler2DRectShadow shadowMap1;
@@ -41,11 +46,11 @@ uniform vec2 shadow_res;
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
 
-varying vec3 vary_ambient;
-varying vec3 vary_directional;
-varying vec3 vary_fragcoord;
-varying vec3 vary_position;
-varying vec3 vary_pointlight_col;
+VARYING vec3 vary_ambient;
+VARYING vec3 vary_directional;
+VARYING vec3 vary_fragcoord;
+VARYING vec3 vary_position;
+VARYING vec3 vary_pointlight_col;
 
 uniform float shadow_bias;
 
@@ -122,9 +127,9 @@ void main()
 		}
 	}
 	
-	vec4 diff = diffuseLookup(gl_TexCoord[0].xy);
+	vec4 diff = diffuseLookup(vary_texcoord0.xy);
 
-	vec4 col = vec4(vary_ambient + vary_directional.rgb*shadow, gl_Color.a);
+	vec4 col = vec4(vary_ambient + vary_directional.rgb*shadow, vertex_color.a);
 	vec4 color = diff * col;
 	
 	color.rgb = atmosLighting(color.rgb);
@@ -133,10 +138,6 @@ void main()
 
 	color.rgb += diff.rgb * vary_pointlight_col.rgb;
 
-	//gl_FragColor = gl_Color;
 	gl_FragColor = color;
-	//gl_FragColor.r = 0.0;
-	//gl_FragColor = vec4(1,shadow,1,1);
-	
 }
 

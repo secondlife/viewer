@@ -287,15 +287,15 @@ LLPanelLogin::~LLPanelLogin()
 // virtual
 void LLPanelLogin::draw()
 {
-	glPushMatrix();
+	gGL.pushMatrix();
 	{
 		F32 image_aspect = 1.333333f;
 		F32 view_aspect = (F32)getRect().getWidth() / (F32)getRect().getHeight();
 		// stretch image to maintain aspect ratio
 		if (image_aspect > view_aspect)
 		{
-			glTranslatef(-0.5f * (image_aspect / view_aspect - 1.f) * getRect().getWidth(), 0.f, 0.f);
-			glScalef(image_aspect / view_aspect, 1.f, 1.f);
+			gGL.translatef(-0.5f * (image_aspect / view_aspect - 1.f) * getRect().getWidth(), 0.f, 0.f);
+			gGL.scalef(image_aspect / view_aspect, 1.f, 1.f);
 		}
 
 		S32 width = getRect().getWidth();
@@ -310,7 +310,7 @@ void LLPanelLogin::draw()
 			mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
 		};
 	}
-	glPopMatrix();
+	gGL.popMatrix();
 
 	LLPanel::draw();
 }

@@ -149,8 +149,8 @@ void LLAssetInfo::setFromNameValue( const LLNameValue& nv )
 	setName( buf );
 	buf.assign( str, pos2, std::string::npos );
 	setDescription( buf );
-	llinfos << "uuid: " << mUuid << llendl;
-	llinfos << "creator: " << mCreatorID << llendl;
+	LL_DEBUGS("AssetStorage") << "uuid: " << mUuid << llendl;
+	LL_DEBUGS("AssetStorage") << "creator: " << mCreatorID << llendl;
 }
 
 ///----------------------------------------------------------------------------
@@ -434,9 +434,9 @@ bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAsse
 // IW - uuid is passed by value to avoid side effects, please don't re-add &    
 void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LLGetAssetCallback callback, void *user_data, BOOL is_priority)
 {
-	lldebugs << "LLAssetStorage::getAssetData() - " << uuid << "," << LLAssetType::lookup(type) << llendl;
+	LL_DEBUGS("AssetStorage") << "LLAssetStorage::getAssetData() - " << uuid << "," << LLAssetType::lookup(type) << llendl;
 
-	llinfos << "ASSET_TRACE requesting " << uuid << " type " << LLAssetType::lookup(type) << llendl;
+	LL_DEBUGS("AssetStorage") << "ASSET_TRACE requesting " << uuid << " type " << LLAssetType::lookup(type) << llendl;
 
 	if (user_data)
 	{
@@ -446,7 +446,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 
 	if (mShutDown)
 	{
-		llinfos << "ASSET_TRACE cancelled " << uuid << " type " << LLAssetType::lookup(type) << " shutting down" << llendl;
+		LL_DEBUGS("AssetStorage") << "ASSET_TRACE cancelled " << uuid << " type " << LLAssetType::lookup(type) << " shutting down" << llendl;
 
 		if (callback)
 		{
@@ -468,7 +468,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 	// Try static VFS first.
 	if (findInStaticVFSAndInvokeCallback(uuid,type,callback,user_data))
 	{
-		llinfos << "ASSET_TRACE asset " << uuid << " found in static VFS" << llendl;
+		LL_DEBUGS("AssetStorage") << "ASSET_TRACE asset " << uuid << " found in static VFS" << llendl;
 		return;
 	}
 
@@ -486,7 +486,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 			callback(mVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
 		}
 
-		llinfos << "ASSET_TRACE asset " << uuid << " found in VFS" << llendl;
+		LL_DEBUGS("AssetStorage") << "ASSET_TRACE asset " << uuid << " found in VFS" << llendl;
 	}
 	else
 	{
@@ -520,7 +520,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 		}
 		if (duplicate)
 		{
-			llinfos << "Adding additional non-duplicate request for asset " << uuid 
+			LL_DEBUGS("AssetStorage") << "Adding additional non-duplicate request for asset " << uuid 
 					<< "." << LLAssetType::lookup(type) << llendl;
 		}
 		
@@ -584,9 +584,9 @@ void LLAssetStorage::downloadCompleteCallback(
 	LLAssetType::EType file_type,
 	void* user_data, LLExtStat ext_status)
 {
-	llinfos << "ASSET_TRACE asset " << file_id << " downloadCompleteCallback" << llendl;
+	LL_DEBUGS("AssetStorage") << "ASSET_TRACE asset " << file_id << " downloadCompleteCallback" << llendl;
 
-	lldebugs << "LLAssetStorage::downloadCompleteCallback() for " << file_id
+	LL_DEBUGS("AssetStorage") << "LLAssetStorage::downloadCompleteCallback() for " << file_id
 		 << "," << LLAssetType::lookup(file_type) << llendl;
 	LLAssetRequest* req = (LLAssetRequest*)user_data;
 	if(!req)
@@ -731,7 +731,7 @@ void LLAssetStorage::getEstateAsset(const LLHost &object_sim, const LLUUID &agen
 			tpvf.setAsset(asset_id, atype);
 			tpvf.setCallback(downloadEstateAssetCompleteCallback, req);
 
-			llinfos << "Starting transfer for " << asset_id << llendl;
+			LL_DEBUGS("AssetStorage") << "Starting transfer for " << asset_id << llendl;
 			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(source_host, LLTCT_ASSET);
 			ttcp->requestTransfer(spe, tpvf, 100.f + (is_priority ? 1.f : 0.f));
 		}
@@ -871,7 +871,7 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 			tpvf.setAsset(asset_id, atype);
 			tpvf.setCallback(downloadInvItemCompleteCallback, req);
 
-			llinfos << "Starting transfer for inventory asset "
+			LL_DEBUGS("AssetStorage") << "Starting transfer for inventory asset "
 				<< item_id << " owned by " << owner_id << "," << task_id
 				<< llendl;
 			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(source_host, LLTCT_ASSET);
@@ -1211,7 +1211,7 @@ bool LLAssetStorage::deletePendingRequest(LLAssetStorage::ERequestType rt,
 	request_list_t* requests = getRequestList(rt);
 	if (deletePendingRequestImpl(requests, asset_type, asset_id))
 	{
-		llinfos << "Asset " << getRequestName(rt) << " request for "
+		LL_DEBUGS("AssetStorage") << "Asset " << getRequestName(rt) << " request for "
 				<< asset_id << "." << LLAssetType::lookup(asset_type)
 				<< " removed from pending queue." << llendl;
 		return true;
@@ -1307,7 +1307,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, vo
 			user_data == ((LLLegacyAssetRequest *)tmp->mUserData)->mUserData)
 		{
 			// this is a duplicate from the same subsystem - throw it away
-			llinfos << "Discarding duplicate request for UUID " << uuid << llendl;
+			LL_DEBUGS("AssetStorage") << "Discarding duplicate request for UUID " << uuid << llendl;
 			return;
 		}
 	}
@@ -1490,7 +1490,7 @@ void LLAssetStorage::reportMetric( const LLUUID& asset_id, const LLAssetType::ET
 {
 	if( !metric_recipient )
 	{
-		llinfos << "Couldn't store LLAssetStoreage::reportMetric - no metrics_recipient" << llendl;
+		LL_DEBUGS("AssetStorage") << "Couldn't store LLAssetStoreage::reportMetric - no metrics_recipient" << llendl;
 		return;
 	}
 

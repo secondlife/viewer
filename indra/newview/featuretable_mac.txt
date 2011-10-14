@@ -48,9 +48,9 @@ RenderTransparentWater			1	1
 RenderTreeLODFactor				1	1.0
 RenderUseImpostors				1	1
 RenderVBOEnable					1	0
-RenderVBOMappingDisable		1	0
+RenderVBOMappingDisable			1	1
 RenderVolumeLODFactor			1	2.0
-UseStartScreen				1	1
+UseStartScreen					1	1
 UseOcclusion					1	1
 VertexShaderEnable				1	1
 WindLightUseAtmosShaders		1	1
@@ -155,7 +155,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	2
-RenderFSAASamples			1	4
+RenderFSAASamples			1	2
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -185,7 +185,7 @@ WLSkyDetail					1	128
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	2
-RenderFSAASamples			1	8
+RenderFSAASamples			1	2
 
 //
 // Class Unknown Hardware (unknown)
