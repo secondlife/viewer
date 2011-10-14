@@ -37,6 +37,7 @@ extern "C" {
 #include <stdio.h>
 #include <gst/gst.h>
 
+#include "apr_pools.h"
 #include "apr_dso.h"
 }
 

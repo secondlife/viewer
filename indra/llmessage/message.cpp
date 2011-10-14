@@ -97,10 +97,8 @@ std::string get_shared_secret();
 class LLMessagePollInfo
 {
 public:
-	LLMessagePollInfo(void) : mPool(LLThread::tldata().mRootPool) { }
 	apr_socket_t *mAPRSocketp;
 	apr_pollfd_t mPollFD;
-	LLAPRPool mPool;
 };
 
 namespace
@@ -289,13 +287,20 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
 	}
 //	LL_DEBUGS("Messaging") <<  << "*** port: " << mPort << llendl;
 
-	mPollInfop = new LLMessagePollInfo;
-
+	//
+	// Create the data structure that we can poll on
+	//
+	if (!gAPRPoolp)
+	{
+		LL_ERRS("Messaging") << "No APR pool before message system initialization!" << llendl;
+		ll_init_apr();
+	}
 	apr_socket_t *aprSocketp = NULL;
-	apr_os_sock_put(&aprSocketp, (apr_os_sock_t*)&mSocket, mPollInfop->mPool());
+	apr_os_sock_put(&aprSocketp, (apr_os_sock_t*)&mSocket, gAPRPoolp);
 
+	mPollInfop = new LLMessagePollInfo;
 	mPollInfop->mAPRSocketp = aprSocketp;
-	mPollInfop->mPollFD.p = mPollInfop->mPool();
+	mPollInfop->mPollFD.p = gAPRPoolp;
 	mPollInfop->mPollFD.desc_type = APR_POLL_SOCKET;
 	mPollInfop->mPollFD.reqevents = APR_POLLIN;
 	mPollInfop->mPollFD.rtnevents = 0;

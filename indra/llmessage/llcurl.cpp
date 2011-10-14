@@ -1196,7 +1196,7 @@ void LLCurl::initClass(bool multi_threaded)
 	S32 mutex_count = CRYPTO_num_locks();
 	for (S32 i=0; i<mutex_count; i++)
 	{
-		sSSLMutex.push_back(new LLMutex);
+		sSSLMutex.push_back(new LLMutex(NULL));
 	}
 	CRYPTO_set_id_callback(&LLCurl::ssl_thread_id);
 	CRYPTO_set_locking_callback(&LLCurl::ssl_locking_callback);
