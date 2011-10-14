@@ -3683,7 +3683,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_AboutLand_Tooltip">Information about the land you're visiting</string>
   <string name="Command_Appearance_Tooltip">Change your avatar</string>
   <string name="Command_Avatar_Tooltip">Choose a complete avatar</string>
-  <string name="Command_Build_Tooltip">Building objects and reshaping them</string>
+  <string name="Command_Build_Tooltip">Building objects and reshaping terrain</string>
   <string name="Command_Chat_Tooltip">Chat with people nearby using text</string>
   <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Destinations_Tooltip">Destinations of interest</string>
