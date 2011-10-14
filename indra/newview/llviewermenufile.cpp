@@ -149,7 +149,7 @@ void LLFilePickerThread::run()
 //static
 void LLFilePickerThread::initClass()
 {
-	sMutex = new LLMutex();
+	sMutex = new LLMutex(NULL);
 }
 
 //static

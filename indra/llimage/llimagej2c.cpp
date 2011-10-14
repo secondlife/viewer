@@ -29,6 +29,7 @@
 #include "llmemtype.h"
 #include "lltimer.h"
 #include "llmath.h"
+#include "llmemory.h"
 
 typedef LLImageJ2CImpl* (*CreateLLImageJ2CFunction)();
 typedef void (*DestroyLLImageJ2CFunction)(LLImageJ2CImpl*);

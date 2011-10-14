@@ -36,6 +36,7 @@
 
 // Included to allow LLTextureCache::purgeTextures() to pause watchdog timeout
 #include "llappviewer.h" 
+#include "llmemory.h"
 
 // Cache organization:
 // cache/texture.entries

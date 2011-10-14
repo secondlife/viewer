@@ -86,6 +86,8 @@ public:
 	apr_pool_t *getAPRPool() { return mAPRPoolp; }
 	LLVolatileAPRPool* getLocalAPRFilePool() { return mLocalAPRFilePoolp ; }
 
+	U32 getID() const { return mID; }
+
 private:
 	BOOL				mPaused;
 	
@@ -101,7 +103,7 @@ protected:
 	BOOL				mIsLocalPool;
 	EThreadStatus		mStatus;
 	U32					mID;
-	
+
 	//a local apr_pool for APRFile operations in this thread. If it exists, LLAPRFile::sAPRFilePoolp should not be used.
 	//Note: this pool is used by APRFile ONLY, do NOT use it for any other purposes.
 	//      otherwise it will cause severe memory leaking!!! --bao
@@ -138,17 +140,27 @@ protected:
 class LL_COMMON_API LLMutex
 {
 public:
+	typedef enum
+	{
+		NO_THREAD = 0xFFFFFFFF
+	} e_locking_thread;
+
 	LLMutex(apr_pool_t *apr_poolp); // NULL pool constructs a new pool for the mutex
 	virtual ~LLMutex();
 	
 	void lock();		// blocks
 	void unlock();
 	bool isLocked(); 	// non-blocking, but does do a lock/unlock so not free
+	U32 lockingThread() const; //get ID of locking thread
 	
 protected:
 	apr_thread_mutex_t *mAPRMutexp;
+	mutable U32			mCount;
+	mutable U32			mLockingThread;
+	
 	apr_pool_t			*mAPRPoolp;
 	BOOL				mIsLocalPool;
+	
 #if MUTEX_DEBUG
 	std::map<U32, BOOL> mIsLocked;
 #endif
