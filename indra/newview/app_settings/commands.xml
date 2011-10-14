@@ -111,7 +111,7 @@
            is_running_parameters="world_map"
            />
   <command name="marketplace"
-           available_in_toybox="true"
+           available_in_toybox="false"
            icon="Command_Marketplace_Icon"
            label_ref="Command_Marketplace_Label"
            tooltip_ref="Command_Marketplace_Tooltip"

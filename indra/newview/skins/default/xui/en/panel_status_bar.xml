@@ -36,7 +36,7 @@
   <panel
     height="18"
     left="-370"
-    width="150"
+    width="160"
     top="1"
     follows="right|top" 
     name="balance_bg" 
@@ -60,9 +60,9 @@
      halign="center"
      font="SansSerifSmall"
      follows="right|top|bottom"
-     image_hover_unselected="buy_over"
-     image_unselected="buy_off"
-     image_pressed="buy_press"
+     image_hover_unselected="PushButton_Over"
+     image_unselected="PushButton_Off"
+     image_pressed="PushButton_Press"
      height="18"
      label="Buy L$"
      label_color="White"
@@ -81,9 +81,9 @@
      imgoverlay_label_space="7"
      image_overlay="Command_MiniCart_Icon"
      image_overlay_alignment="left"
-     image_hover_unselected="buy_over"
-     image_unselected="buy_off"
-     image_pressed="buy_press"
+     image_hover_unselected="PushButton_Over"
+     image_unselected="PushButton_Off"
+     image_pressed="PushButton_Press"
      height="18"
      label="Shop"
      label_color="White"
@@ -92,9 +92,9 @@
      name="goShop"
      pad_right="0"
      pad_bottom="2"
-     tool_tip="Go shopping"
+     tool_tip="Open Second Life Marketplace"
      top="0"
-     width="55" />
+     width="65" />
   </panel>
     <text
      type="string"

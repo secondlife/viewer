@@ -18,7 +18,6 @@
     <command name="inventory"/>
     <command name="search"/>
     <command name="places"/>
-    <command name="marketplace"/>
     <command name="voice"/>
     <command name="minimap"/>
   </left_toolbar>
