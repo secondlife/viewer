@@ -3115,7 +3115,8 @@ void handle_avatar_eject(const LLSD& avatar_id)
 
 bool my_profile_visible()
 {
-	return LLAvatarActions::profileVisible(gAgent.getID());
+	LLFloater* floaterp = LLFloaterReg::findInstance("profile", LLSD().with("id", gAgent.getID()));
+	return floaterp && floaterp->isInVisibleChain();
 }
 
 bool enable_freeze_eject(const LLSD& avatar_id)
