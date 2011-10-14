@@ -1145,14 +1145,6 @@
              function="ShowHelp"
              parameter="f1_help" />
         </menu_item_call>
-        <menu_item_check
-         label="Enable Hints"
-         name="Enable Hints">
-          <on_check
-            control="EnableUIHints"/>
-          <on_click
-            function="ToggleUIHints"/>
-        </menu_item_check>
 <!--        <menu_item_call
          label="Tutorial"
          name="Tutorial">
