@@ -113,6 +113,7 @@ public:
 	
 	// get ID of a channel
 	LLUUID	getChannelID() { return mID; }
+	LLHandle<LLScreenChannelBase> getHandle() { mRootHandle.bind(this); return mRootHandle; }
 
 protected:
 	void	updateBottom();
@@ -124,6 +125,7 @@ protected:
 	bool		mDisplayToastsAlways;
 	// controls whether a channel shows toasts or not
 	bool		mShowToasts;
+	LLRootHandle<LLScreenChannelBase> mRootHandle;
 	// 
 	EToastAlignment		mToastAlignment;
 	EChannelAlignment	mChannelAlignment;

@@ -58,7 +58,10 @@ LLChannelManager::~LLChannelManager()
 {
 	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
 	{
-		delete (*it).channel;
+		LLScreenChannelBase* channel = it->channel.get();
+		if (!channel) continue;
+
+		delete channel;
 	}
 
 	mChannelList.clear();
@@ -84,16 +87,19 @@ void LLChannelManager::onLoginCompleted()
 	// calc a number of all offline notifications
 	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
 	{
+		LLScreenChannelBase* channel = it->channel.get();
+		if (!channel) continue;
+
 		// don't calc notifications for Nearby Chat
-		if((*it).channel->getChannelID() == LLUUID(gSavedSettings.getString("NearByChatChannelUUID")))
+		if(channel->getChannelID() == LLUUID(gSavedSettings.getString("NearByChatChannelUUID")))
 		{
 			continue;
 		}
 
 		// don't calc notifications for channels that always show their notifications
-		if(!(*it).channel->getDisplayToastsAlways())
+		if(!channel->getDisplayToastsAlways())
 		{
-			away_notifications +=(*it).channel->getNumberOfHiddenToasts();
+			away_notifications +=channel->getNumberOfHiddenToasts();
 		}
 	}
 
@@ -157,7 +163,7 @@ LLScreenChannelBase*	LLChannelManager::addChannel(LLScreenChannelBase* channel)
 
 	ChannelElem new_elem;
 	new_elem.id = channel->getChannelID();
-	new_elem.channel = channel;
+	new_elem.channel = channel->getHandle();
 
 	mChannelList.push_back(new_elem); 
 
@@ -189,7 +195,7 @@ LLScreenChannelBase* LLChannelManager::findChannelByID(const LLUUID& id)
 	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), id); 
 	if(it != mChannelList.end())
 	{
-		return (*it).channel;
+		return (*it).channel.get();
 	}
 
 	return NULL;
@@ -211,7 +217,10 @@ void LLChannelManager::muteAllChannels(bool mute)
 	for (std::vector<ChannelElem>::iterator it = mChannelList.begin();
 			it != mChannelList.end(); it++)
 	{
-		it->channel->setShowToasts(!mute);
+		if (it->channel.get())
+		{
+			it->channel.get()->setShowToasts(!mute);
+		}
 	}
 }
 

@@ -48,10 +48,10 @@ public:
 
 	struct ChannelElem
 	{
-		LLUUID				id;
-		LLScreenChannelBase*	channel;
+		LLUUID							id;
+		LLHandle<LLScreenChannelBase>	channel;
 
-		ChannelElem() : id(LLUUID("")), channel(NULL) { }
+		ChannelElem() { }
 
 		ChannelElem(const ChannelElem &elem)
 		{
