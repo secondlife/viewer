@@ -4987,11 +4987,13 @@ void LLViewerWindow::setUIVisibility(bool visible)
 		gToolBarView->setToolBarsVisible(visible);
 	}
 
+	mRootView->getChildView("topinfo_bar_container")->setVisible(visible);
 	mRootView->getChildView("nav_bar_container")->setVisible(visible);
 	mRootView->getChildView("status_bar_container")->setVisible(visible);
 
 	if (!visible)
 	{
+		gAgentCamera.changeCameraToDefault();
 		gFloaterView->hideAllFloaters();
 	}
 	else

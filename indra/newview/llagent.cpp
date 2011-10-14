@@ -68,6 +68,7 @@
 #include "llstatusbar.h"
 #include "llteleportflags.h"
 #include "lltool.h"
+#include "lltoolbarview.h"
 #include "lltoolpie.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"
@@ -1862,6 +1863,7 @@ void LLAgent::endAnimationUpdateUI()
 	// clean up UI from mode we're leaving
 	if (gAgentCamera.getLastCameraMode() == CAMERA_MODE_MOUSELOOK )
 	{
+		gToolBarView->setToolBarsVisible(true);
 		// show mouse cursor
 		gViewerWindow->showCursor();
 		// show menus
@@ -1972,6 +1974,7 @@ void LLAgent::endAnimationUpdateUI()
 	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 	{
 		// hide menus
+		gToolBarView->setToolBarsVisible(false);
 		gMenuBarView->setVisible(FALSE);
 		LLNavigationBar::getInstance()->setVisible(FALSE);
 		gStatusBar->setVisibleForMouselook(false);

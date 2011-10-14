@@ -188,10 +188,12 @@
                  <more_button
                    follows="left|bottom"
                    name=">>"
-                     tab_stop="false"
-                     tool_tip="Show more of My Favorites"
-		     top="15"
-                   width="50">
+                   tab_stop="false"
+                   tool_tip="Show more of My Favorites"
+                   top="13"
+                   width="50"
+                   bottom="0"
+                   valign="bottom">
                    More &#9660;
                    </more_button>
   </favorites_bar>
