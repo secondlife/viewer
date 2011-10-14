@@ -4982,6 +4982,16 @@ void LLViewerWindow::setUIVisibility(bool visible)
 {
 	mUIVisible = visible;
 
+	if (!visible)
+	{
+		gAgentCamera.changeCameraToThirdPerson(FALSE);
+		gFloaterView->hideAllFloaters();
+	}
+	else
+	{
+		gFloaterView->showHiddenFloaters();
+	}
+
 	if (gToolBarView)
 	{
 		gToolBarView->setToolBarsVisible(visible);
@@ -4990,16 +5000,6 @@ void LLViewerWindow::setUIVisibility(bool visible)
 	mRootView->getChildView("topinfo_bar_container")->setVisible(visible);
 	mRootView->getChildView("nav_bar_container")->setVisible(visible);
 	mRootView->getChildView("status_bar_container")->setVisible(visible);
-
-	if (!visible)
-	{
-		gAgentCamera.changeCameraToDefault();
-		gFloaterView->hideAllFloaters();
-	}
-	else
-	{
-		gFloaterView->showHiddenFloaters();
-	}
 }
 
 bool LLViewerWindow::getUIVisibility()
