@@ -53,20 +53,29 @@ class LLScreenChannelBase : public LLUICtrl
 {
 	friend class LLChannelManager;
 public:
-	LLScreenChannelBase(const LLUUID& id);
-	~LLScreenChannelBase();
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Mandatory<LLUUID>			id;
+		Optional<bool>				display_toasts_always;
+		Optional<EToastAlignment>	toast_align;
+		Optional<EChannelAlignment>	channel_align;
+
+		Params()
+		:	id("id", LLUUID("")), 
+			display_toasts_always("display_toasts_always", false), 
+			toast_align("toast_align", NA_BOTTOM), 
+			channel_align("channel_align", CA_LEFT)
+		{}
+	};
+
+	LLScreenChannelBase(const Params&);
 
 	// Channel's outfit-functions
 	// update channel's size and position in the World View
-	virtual void		updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect);
+	virtual void		updatePositionAndSize(LLRect rect);
 
 	// initialization of channel's shape and position
 	virtual void		init(S32 channel_left, S32 channel_right);
-
-
-	virtual void		setToastAlignment(EToastAlignment align) {mToastAlignment = align;}
-	
-	virtual void		setChannelAlignment(EChannelAlignment align) {mChannelAlignment = align;}
 
 	// kill or modify a toast by its ID
 	virtual void		killToastByNotificationID(LLUUID id) {};
@@ -90,7 +99,6 @@ public:
 
 	void setCanStoreToasts(bool store) { mCanStoreToasts = store; }
 
-	void setDisplayToastsAlways(bool display_toasts) { mDisplayToastsAlways = display_toasts; }
 	bool getDisplayToastsAlways() { return mDisplayToastsAlways; }
 
 	// get number of hidden notifications from a channel
@@ -124,9 +132,6 @@ protected:
 
 	// channel's ID
 	LLUUID	mID;
-
-	// store a connection to prevent futher crash that is caused by sending a signal to a destroyed channel
-	boost::signals2::connection mWorldViewRectConnection;
 };
 
 
@@ -137,7 +142,7 @@ class LLScreenChannel : public LLScreenChannelBase
 {
 	friend class LLChannelManager;
 public:
-	LLScreenChannel(LLUUID& id);
+	LLScreenChannel(const Params&);
 	virtual ~LLScreenChannel();
 
 	class Matcher
@@ -152,7 +157,7 @@ public:
 
 	// Channel's outfit-functions
 	// update channel's size and position in the World View
-	void		updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect);
+	void		updatePositionAndSize(LLRect new_rect);
 	// initialization of channel's shape and position
 	void		init(S32 channel_left, S32 channel_right);
 	
