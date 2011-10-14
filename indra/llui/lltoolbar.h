@@ -200,7 +200,6 @@ protected:
 	S32								mDragx,
 									mDragy,
 									mDragGirth;
-	LLCommandId						mDragCommand;
 
 public:
 	// Methods used in loading and saving toolbar settings
