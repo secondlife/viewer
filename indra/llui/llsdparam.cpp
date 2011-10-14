@@ -104,7 +104,8 @@ void LLParamSDParser::writeSD(LLSD& sd, const LLInitParam::BaseBlock& block)
 {
 	mNameStack.clear();
 	mWriteRootSD = &sd;
-	block.serializeBlock(*this);
+	name_stack_t name_stack;
+	block.serializeBlock(*this, name_stack);
 }
 
 /*virtual*/ std::string LLParamSDParser::getCurrentElementName()
@@ -329,7 +330,7 @@ namespace LLInitParam
 		p.writeValue<LLSD::String>(sd.asString(), name_stack);
 	}
 
-	void ParamValue<LLSD, TypeValues<LLSD>, false>::serializeBlock(Parser& p, Parser::name_stack_t name_stack, const BaseBlock* diff_block) const
+	void ParamValue<LLSD, TypeValues<LLSD>, false>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block) const
 	{
 		// read from LLSD value and serialize out to parser (which could be LLSD, XUI, etc)
 		Parser::name_stack_t stack;

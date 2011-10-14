@@ -97,7 +97,7 @@ namespace LLInitParam
 	}
 
 	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, bool new_name){ return true; }
-	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t name_stack, const LLInitParam::BaseBlock* diff_block) const {}
+	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const {}
 	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack, S32 min_count, S32 max_count) const { return true; }
 	bool BaseBlock::mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite) { return true; }
 	bool BaseBlock::validateBlock(bool emit_errors) const { return true; }
