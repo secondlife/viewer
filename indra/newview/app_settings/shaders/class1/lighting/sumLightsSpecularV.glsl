@@ -36,10 +36,8 @@ uniform vec3 light_diffuse[8];
 
 vec4 sumLightsSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor, vec4 baseCol)
 {
-	vec4 col;
-	col.a = color.a;
-	
-	
+	vec4 col = vec4(0,0,0, color.a);
+		
 	vec3 view = normalize(pos);
 	
 	/// collect all the specular values from each calcXXXLightSpecular() function
