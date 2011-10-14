@@ -84,7 +84,7 @@ void LLPanelMe::buildEditPanel()
 		//       All profile editing should go through the web.
 		//mEditPanel->childSetAction("save_btn", boost::bind(&LLPanelMe::onSaveChangesClicked, this), this);
 
-		mEditPanel->childSetAction("cancel_btn", boost::bind(&LLPanelMe::onCancelClicked, this), this);
+		//mEditPanel->childSetAction("cancel_btn", boost::bind(&LLPanelMe::onCancelClicked, this), this);
 	}
 }
 
@@ -92,12 +92,6 @@ void LLPanelMe::buildEditPanel()
 void LLPanelMe::onEditProfileClicked()
 {
 	buildEditPanel();
-	togglePanel(mEditPanel, getAvatarId()); // open
-}
-
-void LLPanelMe::onCancelClicked()
-{
-	togglePanel(mEditPanel); // close
 }
 
 //////////////////////////////////////////////////////////////////////////
