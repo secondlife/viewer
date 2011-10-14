@@ -4526,7 +4526,7 @@ bool enable_how_to_visible(const LLSD& param)
 {
 	LLFloaterWebContent::Params p;
 	p.target = "__help_how_to";
-	return LLFloaterReg::instanceVisible(param, p);
+	return LLFloaterReg::instanceVisible("how_to", p);
 }
 
 class LLToolsEnableBuyOrTake : public view_listener_t
@@ -6894,9 +6894,10 @@ class LLToggleHowTo : public view_listener_t
 	{
 		LLFloaterWebContent::Params p;
 		p.url = gSavedSettings.getString("HowToHelpURL");
+		p.show_chrome = false;
 		p.target = "__help_how_to";
 
-		LLFloaterReg::toggleInstanceOrBringToFront(userdata, p);
+		LLFloaterReg::toggleInstanceOrBringToFront("how_to", p);
 		return true;
 	}
 };

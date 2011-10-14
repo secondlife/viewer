@@ -88,8 +88,7 @@
            label_ref="Command_HowTo_Label"
            tooltip_ref="Command_HowTo_Tooltip"
            execute_function="Help.ToggleHowTo"
-           is_running_function="Floater.IsOpen"
-           is_running_parameters="help_browser"
+           is_running_function="Help.HowToVisible"
            />
   <command name="inventory"
            available_in_toybox="true"
