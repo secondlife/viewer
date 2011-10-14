@@ -1973,7 +1973,11 @@ void LLAgent::endAnimationUpdateUI()
 	//---------------------------------------------------------------------
 	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 	{
-		// hide menus
+		// clean up UI
+		// first show anything hidden by UI toggle
+		gViewerWindow->setUIVisibility(TRUE);
+
+		// then hide stuff we want hidden for mouselook 
 		gToolBarView->setToolBarsVisible(false);
 		gMenuBarView->setVisible(FALSE);
 		LLNavigationBar::getInstance()->setVisible(FALSE);
