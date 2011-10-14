@@ -28,7 +28,6 @@
 
 #include "llfloatersounddevices.h"
 
-#include "llbottomtray.h"
 #include "lldraghandle.h"
 
 #include "llpanelvoicedevicesettings.h"
@@ -55,9 +54,6 @@ LLFloaterSoundDevices::~LLFloaterSoundDevices()
 BOOL LLFloaterSoundDevices::postBuild()
 {
 	LLTransientDockableFloater::postBuild();
-		
-	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("flyout_btn");
-	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(), LLDockControl::TOP));
 
 	setIsChrome(TRUE);
 	if (mDragHandle)

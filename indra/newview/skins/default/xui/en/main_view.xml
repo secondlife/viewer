@@ -8,13 +8,6 @@
  tab_stop="false" 
  name="main_view"
  width="1024">
-  <view top="0"
-      follows="all"
-      height="768"
-      left="0"
-      mouse_opaque="false"
-      name="world_view_rect"
-      width="1024"/>
   <layout_stack border_size="0"
                 follows="all"
                 mouse_opaque="false"
@@ -57,6 +50,13 @@
                   tab_stop="false" 
                   name="world_panel"
                   width="1024">
+      <view top="0"
+            follows="all"
+            height="500"
+            left="0"
+            mouse_opaque="false"
+            name="world_view_rect"
+            width="1024"/>
       <panel follows="left|top|right"
              height="19"
              left="0"

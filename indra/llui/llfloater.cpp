@@ -3048,7 +3048,9 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 			return FALSE;
 		}
 
-		parser.readXUI(referenced_xml, params, LLUICtrlFactory::getInstance()->getCurFileName());
+		Params referenced_params;
+		parser.readXUI(referenced_xml, referenced_params, LLUICtrlFactory::getInstance()->getCurFileName());
+		params.fillFrom(referenced_params);
 
 		// add children using dimensions from referenced xml for consistent layout
 		setShape(params.rect);

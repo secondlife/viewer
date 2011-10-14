@@ -42,7 +42,6 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
-#include "llbottomtray.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldaycyclemanager.h"
@@ -6893,10 +6892,12 @@ class LLToggleHowTo : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterWebContent::Params p;
-		p.url = gSavedSettings.getString("HowToHelpURL");
+		std::string url = gSavedSettings.getString("HowToHelpURL");
+		p.url = LLWeb::expandURLSubstitutions(url, LLSD());
 		p.show_chrome = false;
 		p.target = "__help_how_to";
 		p.show_page_title = false;
+		p.preferred_media_size = LLRect(0, 460, 335, 0);
 
 		LLFloaterReg::toggleInstanceOrBringToFront("how_to", p);
 		return true;
@@ -7798,7 +7799,7 @@ class LLWorldToggleMovementControls : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLBottomTray::getInstance()->toggleMovementControls();
+		LLFloaterReg::toggleInstanceOrBringToFront("moveview");
 		return true;
 	}
 };
@@ -7807,7 +7808,7 @@ class LLWorldToggleCameraControls : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLBottomTray::getInstance()->toggleCameraControls();
+		LLFloaterReg::toggleInstanceOrBringToFront("camera");
 		return true;
 	}
 };

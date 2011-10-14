@@ -34,9 +34,9 @@
 #include "llappviewer.h"
 #include "llavatarnamecache.h"
 #include "llbutton.h"
-#include "llbottomtray.h"
 #include "llchannelmanager.h"
 #include "llchiclet.h"
+#include "llchicletbar.h"
 #include "llfloaterreg.h"
 #include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
 #include "llinventoryfunctions.h"
@@ -117,14 +117,14 @@ void LLIMFloater::onFocusLost()
 {
 	LLIMModel::getInstance()->resetActiveSessionID();
 	
-	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, false);
+	LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, false);
 }
 
 void LLIMFloater::onFocusReceived()
 {
 	LLIMModel::getInstance()->setActiveSessionID(mSessionID);
 
-	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
+	LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
 
 	if (getVisible())
 	{
@@ -444,7 +444,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 		if (floater->getDockControl() == NULL)
 		{
 			LLChiclet* chiclet =
-					LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLChiclet>(
+					LLChicletBar::getInstance()->getChicletPanel()->findChiclet<LLChiclet>(
 							session_id);
 			if (chiclet == NULL)
 			{
@@ -452,11 +452,11 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 			}
 			else
 			{
-				LLBottomTray::getInstance()->getChicletPanel()->scrollToChiclet(chiclet);
+				LLChicletBar::getInstance()->getChicletPanel()->scrollToChiclet(chiclet);
 			}
 
 			floater->setDockControl(new LLDockControl(chiclet, floater, floater->getDockTongue(),
-					LLDockControl::TOP,  boost::bind(&LLIMFloater::getAllowedRect, floater, _1)));
+					LLDockControl::BOTTOM));
 		}
 
 		// window is positioned, now we can show it.
@@ -464,11 +464,6 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 	floater->setVisible(TRUE);
 
 	return floater;
-}
-
-void LLIMFloater::getAllowedRect(LLRect& rect)
-{
-	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
@@ -522,7 +517,7 @@ void LLIMFloater::setVisible(BOOL visible)
 
 	if(!visible)
 	{
-		LLIMChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(mSessionID);
+		LLIMChiclet* chiclet = LLChicletBar::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(mSessionID);
 		if(chiclet)
 		{
 			chiclet->setToggleState(false);

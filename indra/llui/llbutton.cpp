@@ -817,7 +817,7 @@ void LLButton::draw()
 		LLColor4 overlay_color = mImageOverlayColor.get();
 		if (!enabled)
 		{
-			overlay_color.mV[VALPHA] = 0.5f;
+			overlay_color.mV[VALPHA] = 0.3f;
 		}
 		else if (!getToggleState())
 		{

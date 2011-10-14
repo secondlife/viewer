@@ -92,7 +92,7 @@ void LLDockControl::setDock(LLView* dockWidget)
 
 void LLDockControl::getAllowedRect(LLRect& rect)
 {
-	rect = mDockableFloater->getRootView()->getRect();
+	rect = mDockableFloater->getRootView()->getChild<LLView>("non_toolbar_panel")->getRect();
 }
 
 void LLDockControl::repositionDockable()
