@@ -35,16 +35,17 @@
 #include "llfloaterreg.h"
 #include "llnotifications.h"
 
-#include "llbottomtray.h"
 #include "llscriptfloater.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 
 #include "llchiclet.h"
+#include "llchicletbar.h"
 #include "lltoastpanel.h"
 #include "llnotificationmanager.h"
 #include "llnotificationsutil.h"
 #include "llspeakers.h"
+#include "lltoolbarview.h"
 
 //---------------------------------------------------------------------------------
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLTransientDockableFloater(NULL, true,  key),
@@ -140,15 +141,6 @@ void LLSysWellWindow::initChannel()
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::getAllowedRect(LLRect& rect)
-{
-	rect = gViewerWindow->getWorldViewRectScaled();
-}
-
-//---------------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------------
 void LLSysWellWindow::setVisible(BOOL visible)
 {
 	if (visible)
@@ -156,8 +148,8 @@ void LLSysWellWindow::setVisible(BOOL visible)
 		if (NULL == getDockControl() && getDockTongue().notNull())
 		{
 			setDockControl(new LLDockControl(
-				LLBottomTray::getInstance()->getChild<LLView>(getAnchorViewName()), this,
-				getDockTongue(), LLDockControl::TOP, boost::bind(&LLSysWellWindow::getAllowedRect, this, _1)));
+				LLChicletBar::getInstance()->getChild<LLView>(getAnchorViewName()), this,
+				getDockTongue(), LLDockControl::BOTTOM));
 		}
 	}
 

@@ -42,7 +42,6 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
-#include "llbottomtray.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldaycyclemanager.h"
@@ -7799,7 +7798,7 @@ class LLWorldToggleMovementControls : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLBottomTray::getInstance()->toggleMovementControls();
+		LLFloaterReg::toggleInstanceOrBringToFront("moveview");
 		return true;
 	}
 };
@@ -7808,7 +7807,7 @@ class LLWorldToggleCameraControls : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLBottomTray::getInstance()->toggleCameraControls();
+		LLFloaterReg::toggleInstanceOrBringToFront("camera");
 		return true;
 	}
 };

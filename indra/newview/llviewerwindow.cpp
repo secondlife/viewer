@@ -84,6 +84,7 @@
 // newview includes
 #include "llagent.h"
 #include "llbox.h"
+#include "llchicletbar.h"
 #include "llconsole.h"
 #include "llviewercontrol.h"
 #include "llcylinder.h"
@@ -186,7 +187,6 @@
 #include "llviewerjoystick.h"
 #include "llviewernetwork.h"
 #include "llpostprocess.h"
-#include "llbottomtray.h"
 #include "llnearbychatbar.h"
 #include "llagentui.h"
 #include "llwearablelist.h"
@@ -1853,13 +1853,12 @@ void LLViewerWindow::initWorldUI()
 	//getRootView()->sendChildToFront(gFloaterView);
 	//getRootView()->sendChildToFront(gSnapshotFloaterView);
 
-	// new bottom panel
-	LLPanel* bottom_tray_container = getRootView()->getChild<LLPanel>("bottom_tray_container");
-	LLBottomTray* bottom_tray = LLBottomTray::getInstance();
-	bottom_tray->setShape(bottom_tray_container->getLocalRect());
-	bottom_tray->setFollowsAll();
-	bottom_tray_container->addChild(bottom_tray);
-	bottom_tray_container->setVisible(TRUE);
+	LLPanel* chiclet_container = getRootView()->getChild<LLPanel>("chiclet_container");
+	LLChicletBar* chiclet_bar = LLChicletBar::getInstance();
+	chiclet_bar->setShape(chiclet_container->getLocalRect());
+	chiclet_bar->setFollowsAll();
+	chiclet_container->addChild(chiclet_bar);
+	chiclet_container->setVisible(TRUE);
 
 	LLRect morph_view_rect = full_window;
 	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
@@ -2168,10 +2167,10 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 // Hide normal UI when a logon fails
 void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 {
-	if(LLBottomTray::instanceExists())
+	if(LLChicletBar::instanceExists())
 	{
-		LLBottomTray::getInstance()->setVisible(visible);
-		LLBottomTray::getInstance()->setEnabled(visible);
+		LLChicletBar::getInstance()->setVisible(visible);
+		LLChicletBar::getInstance()->setEnabled(visible);
 	}
 
 	if ( gMenuBarView )
@@ -4926,8 +4925,8 @@ S32 LLViewerWindow::getChatConsoleBottomPad()
 {
 	S32 offset = 0;
 
-	if(LLBottomTray::instanceExists())
-		offset += LLBottomTray::getInstance()->getRect().getHeight();
+	if(gToolBarView)
+		offset += gToolBarView->getChild<LLView>("bottom_toolbar_panel")->getRect().getHeight();
 
 	return offset;
 }

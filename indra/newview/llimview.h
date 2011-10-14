@@ -508,8 +508,6 @@ protected:
 	virtual bool lifetimeHasExpired();
 	virtual void onLifetimeExpired();
 
-	virtual void getAllowedRect(LLRect& rect);
-
 	/**
 	 * Sets icon depend on session.
 	 *
