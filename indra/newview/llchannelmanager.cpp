@@ -68,7 +68,7 @@ LLChannelManager::~LLChannelManager()
 LLScreenChannel* LLChannelManager::createNotificationChannel()
 {
 	//  creating params for a channel
-	LLChannelManager::Params p;
+	LLScreenChannelBase::Params p;
 	p.id = LLUUID(gSavedSettings.getString("NotificationChannelUUID"));
 	p.channel_align = CA_RIGHT;
 
@@ -106,7 +106,7 @@ void LLChannelManager::onLoginCompleted()
 	else
 	{
 		// create a channel for the StartUp Toast
-		LLChannelManager::Params p;
+		LLScreenChannelBase::Params p;
 		p.id = LLUUID(gSavedSettings.getString("StartUpChannelUUID"));
 		p.channel_align = CA_RIGHT;
 		mStartUpChannel = createChannel(p);
@@ -164,26 +164,15 @@ LLScreenChannelBase*	LLChannelManager::addChannel(LLScreenChannelBase* channel)
 	return channel;
 }
 
-LLScreenChannel* LLChannelManager::createChannel(LLChannelManager::Params& p)
+LLScreenChannel* LLChannelManager::createChannel(LLScreenChannelBase::Params& p)
 {
-	LLScreenChannel* new_channel = new LLScreenChannel(p.id); 
+	LLScreenChannel* new_channel = new LLScreenChannel(p); 
 
-	if(!new_channel)
-	{
-		llerrs << "LLChannelManager::getChannel(LLChannelManager::Params& p) - can't create a channel!" << llendl;		
-	}
-	else
-	{
-		new_channel->setToastAlignment(p.toast_align);
-		new_channel->setChannelAlignment(p.channel_align);
-		new_channel->setDisplayToastsAlways(p.display_toasts_always);
-
-		addChannel(new_channel);
-	}
+	addChannel(new_channel);
 	return new_channel;
 }
 
-LLScreenChannelBase* LLChannelManager::getChannel(LLChannelManager::Params& p)
+LLScreenChannelBase* LLChannelManager::getChannel(LLScreenChannelBase::Params& p)
 {
 	LLScreenChannelBase* new_channel = findChannelByID(p.id);
 
@@ -195,7 +184,7 @@ LLScreenChannelBase* LLChannelManager::getChannel(LLChannelManager::Params& p)
 }
 
 //--------------------------------------------------------------------------
-LLScreenChannelBase* LLChannelManager::findChannelByID(const LLUUID id)
+LLScreenChannelBase* LLChannelManager::findChannelByID(const LLUUID& id)
 {
 	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), id); 
 	if(it != mChannelList.end())
@@ -207,7 +196,7 @@ LLScreenChannelBase* LLChannelManager::findChannelByID(const LLUUID id)
 }
 
 //--------------------------------------------------------------------------
-void LLChannelManager::removeChannelByID(const LLUUID id)
+void LLChannelManager::removeChannelByID(const LLUUID& id)
 {
 	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), id); 
 	if(it != mChannelList.end())
