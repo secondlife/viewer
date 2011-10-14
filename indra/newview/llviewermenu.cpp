@@ -6896,6 +6896,7 @@ class LLToggleHowTo : public view_listener_t
 		p.url = gSavedSettings.getString("HowToHelpURL");
 		p.show_chrome = false;
 		p.target = "__help_how_to";
+		p.show_page_title = false;
 
 		LLFloaterReg::toggleInstanceOrBringToFront("how_to", p);
 		return true;
