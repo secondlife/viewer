@@ -6897,6 +6897,7 @@ class LLToggleHowTo : public view_listener_t
 		p.show_chrome = false;
 		p.target = "__help_how_to";
 		p.show_page_title = false;
+		p.preferred_media_size = LLRect(0, 460, 335, 0);
 
 		LLFloaterReg::toggleInstanceOrBringToFront("how_to", p);
 		return true;
