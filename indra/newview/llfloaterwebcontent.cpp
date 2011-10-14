@@ -48,13 +48,15 @@ LLFloaterWebContent::_Params::_Params()
 	show_chrome("show_chrome", true),
 	allow_address_entry("allow_address_entry", true),
 	preferred_media_size("preferred_media_size"),
-	trusted_content("trusted_content", false)
+	trusted_content("trusted_content", false),
+	show_page_title("show_page_title", true)
 {}
 
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 :	LLFloater( params ),
 	LLInstanceTracker<LLFloaterWebContent, std::string>(params.id()),
-	mUUID(params.id())
+	mUUID(params.id()),
+	mShowPageTitle(params.show_page_title)
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -359,10 +361,13 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	{
 		std::string page_title = self->getMediaName();
 		// simulate browser behavior - title is empty, use the current URL
-		if ( page_title.length() > 0 )
-			setTitle( page_title );
-		else
-			setTitle( mCurrentURL );
+		if (mShowPageTitle)
+		{
+			if ( page_title.length() > 0 )
+				setTitle( page_title );
+			else
+				setTitle( mCurrentURL );
+		}
 	}
 	else if(event == MEDIA_EVENT_LINK_HOVERED )
 	{
