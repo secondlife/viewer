@@ -374,7 +374,7 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 
 	if (!getParent())
 	{
-		// connect to floater snap region to get resize events
+		// connect to floater snap region just to get resize events, we don't care about being a proper widget 
 		floater_snap_region->addChild(this);
 		setFollows(FOLLOWS_ALL);
 	}
@@ -384,11 +384,12 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 
 	LLRect channel_rect;
 	floater_snap_region->localRectToOtherView(floater_snap_region->getLocalRect(), &channel_rect, gFloaterView);
+	channel_rect.mLeft += 10;
 	channel_rect.mRight = channel_rect.mLeft + 300;
 
 	S32 channel_bottom = channel_rect.mBottom;
 
-	S32		bottom = channel_bottom;
+	S32		bottom = channel_bottom + 10;
 	S32		margin = gSavedSettings.getS32("ToastGap");
 
 	//sort active toasts
